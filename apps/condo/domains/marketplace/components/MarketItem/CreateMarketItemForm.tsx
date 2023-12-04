@@ -1,5 +1,6 @@
 import { Col, Form } from 'antd'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
 import React, { useCallback, useState } from 'react'
 
@@ -15,6 +16,7 @@ import {
     MarketPriceScope,
 } from '@condo/domains/marketplace/utils/clientSchema'
 import {
+    getSaveButtonTooltipMessage,
     INITIAL_PRICE_FORM_VALUE,
     PriceFormValuesType,
 } from '@condo/domains/marketplace/utils/clientSchema/MarketItem'
@@ -27,7 +29,6 @@ const INITIAL_CREATE_FORM_VALUES = { prices: [INITIAL_PRICE_FORM_VALUE] }
 export const CreateMarketItemForm = () => {
     const intl = useIntl()
     const CreateMessage = intl.formatMessage({ id: 'Create' })
-    const ManyAllPropertiesPriceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.actionButtonTooltip.manyHasAllProperties' })
 
     const router = useRouter()
     const { organization } = useOrganization()
@@ -74,12 +75,10 @@ export const CreateMarketItemForm = () => {
             }
         }
 
-        // await router.push('/marketplace?tab=services')
-
-        console.log('createdMarketItem', createdMarketItem)
+        await router.push('/marketplace?tab=services')
 
         return createdMarketItem
-    }, [createMarketItem, createMarketItemPrice, createMarketPriceScope, invoiceContext, updateMarketItemFile])
+    }, [createMarketItem, createMarketItemPrice, createMarketPriceScope, invoiceContext, router, updateMarketItemFile])
 
     return (
         <BaseMarketItemForm
@@ -94,17 +93,9 @@ export const CreateMarketItemForm = () => {
                             shouldUpdate
                         >
                             {
-                                ({ getFieldsValue }) => {
-                                    // check that required fields filled and if not set button to disable state
-                                    const { prices } = getFieldsValue(['prices'])
-                                    const hasManyAllPropertiesCheckboxes = prices && prices.filter(price => price.hasAllProperties).length > 1
-
-                                    const disabled = submitLoading || hasManyAllPropertiesCheckboxes
-
-                                    let tooltipTitle
-                                    if (hasManyAllPropertiesCheckboxes) {
-                                        tooltipTitle = ManyAllPropertiesPriceLabel
-                                    }
+                                (form) => {
+                                    const tooltipTitle = getSaveButtonTooltipMessage(form, intl)
+                                    const disabled = submitLoading || !isEmpty(tooltipTitle)
 
                                     return (
                                         <Col span={24}>

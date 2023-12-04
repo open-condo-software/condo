@@ -10,6 +10,7 @@ import {
     QueryAllMarketItemsArgs,
 } from '@app/condo/schema'
 import { get } from 'lodash'
+import isEmpty from 'lodash/isEmpty'
 import isUndefined from 'lodash/isUndefined'
 
 import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
@@ -19,7 +20,7 @@ import { MarketItem as MarketItemGQL } from '@condo/domains/marketplace/gql'
 
 
 const RELATIONS = ['marketCategory']
-const DISCONNECT_ON_NULL = []
+const DISCONNECT_ON_NULL = ['marketCategory']
 const IGNORE_FORM_FIELDS = ['parentCategory']
 
 export enum PriceType {
@@ -99,7 +100,7 @@ export function convertToFormState ({ marketItem, marketItemPrices, marketPriceS
         name: get(fileObj, 'file.originalFilename'),
         status: 'done',
         url: get(fileObj, 'file.publicUrl'),
-        response: { id: get(fileObj, 'id') },
+        response: { id: get(fileObj, 'id'), url: get(fileObj, 'file.publicUrl') },
     }))
 
     return result
@@ -196,6 +197,59 @@ export async function createNewPricesAndPriceScopes ({
 }
 
 export const INITIAL_PRICE_FORM_VALUE = { properties: [], priceType: PriceType.Exact }
+
+const FORM_REQUIRED_FIELDS = ['prices', 'name', 'sku', 'parentCategory', 'marketCategory']
+
+export const getSaveButtonTooltipMessage = (form, intl) => {
+    const RequiredErrorMessage = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
+    const ManyAllPropertiesPriceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.actionButtonTooltip.manyHasAllProperties' })
+
+    const requiredFields = form.getFieldsValue(FORM_REQUIRED_FIELDS)
+    const { prices } = requiredFields
+    const hasManyAllPropertiesCheckboxes = prices && prices.filter(price => price.hasAllProperties).length > 1
+
+    const errors = []
+    const requiredFieldsMessage = FORM_REQUIRED_FIELDS.map(fieldName => {
+        if (fieldName === 'prices') {
+            const hasEmptyAddresses = prices.some(price => isEmpty(get(price, 'properties')) && !price.hasAllProperties)
+            const hasEmptyPrice = prices.some(price => isEmpty(get(price, 'price')))
+            const messages = []
+
+            if (hasEmptyAddresses) {
+                messages.push(
+                    intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.addresses' }).toLowerCase()
+                )
+            }
+            if (hasEmptyPrice) {
+                messages.push(
+                    intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.price' }).toLowerCase()
+                )
+            }
+
+            return messages.join(', ')
+        }
+
+        if (!requiredFields[fieldName]) {
+            return intl.formatMessage({ id: `pages.condo.marketplace.marketItem.form.field.${fieldName}` })
+                .toLowerCase()
+        }
+
+        return ''
+    }).filter(Boolean)
+
+    if (hasManyAllPropertiesCheckboxes) {
+        errors.push(ManyAllPropertiesPriceLabel)
+    }
+
+    if (!isEmpty(requiredFieldsMessage)) {
+        errors.push(`${RequiredErrorMessage} ${requiredFieldsMessage.join(', ')}`)
+    }
+
+    const tooltipTitle = errors.join('. ')
+
+    return tooltipTitle
+}
+
 
 const {
     useObject,

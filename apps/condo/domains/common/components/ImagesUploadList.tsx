@@ -1,3 +1,4 @@
+import { File } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Upload } from 'antd'
 import { UploadFile } from 'antd/lib/upload/interface'
@@ -11,10 +12,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { shadows, transitions } from '@condo/domains/common/constants/style'
-
-import { File } from '../../../schema'
-import { MarketItemFile } from '../../marketplace/utils/clientSchema'
-import { MAX_UPLOAD_FILE_SIZE } from '../constants/uploads'
+import { MAX_UPLOAD_FILE_SIZE } from '@condo/domains/common/constants/uploads'
 
 
 const UploadWrapper = styled.div`

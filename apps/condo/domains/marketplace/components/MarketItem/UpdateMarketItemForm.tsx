@@ -1,5 +1,5 @@
 import { SortMarketItemFilesBy, SortMarketItemPricesBy } from '@app/condo/schema'
-import { Col } from 'antd'
+import { Col, Form } from 'antd'
 import { isEqual, sortBy } from 'lodash'
 import difference from 'lodash/difference'
 import get from 'lodash/get'
@@ -9,7 +9,7 @@ import React, { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button } from '@open-condo/ui'
+import { ActionBar, Button, Tooltip } from '@open-condo/ui'
 
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import {
@@ -19,7 +19,10 @@ import {
     MarketItemPrice,
     MarketPriceScope,
 } from '@condo/domains/marketplace/utils/clientSchema'
-import { getPriceValueFromFormPrice } from '@condo/domains/marketplace/utils/clientSchema/MarketItem'
+import {
+    getPriceValueFromFormPrice,
+    getSaveButtonTooltipMessage,
+} from '@condo/domains/marketplace/utils/clientSchema/MarketItem'
 
 import { BaseMarketItemForm } from './BaseMarketItemForm'
 
@@ -122,7 +125,6 @@ export const UpdateMarketItemForm = ({ marketItem }) => {
             const isInitialHasAllProperties = initialPriceScopes.length === 1 && !initialPriceScopes[0].property
             const initialPriceScopeProperties = initialPriceScopes.map(scope => get(scope, 'property.id')).filter(Boolean)
 
-            // Был hasAllProperties -> убрали
             if (isInitialHasAllProperties && !hasAllProperties) {
                 const scopeWithAllProperties = initialPriceScopes.find(scope => !scope.property)
                 await softDeleteMarketPriceScope(scopeWithAllProperties)
@@ -133,9 +135,7 @@ export const UpdateMarketItemForm = ({ marketItem }) => {
                         property: { connect: { id: propertyId } },
                     })
                 }
-            }
-            // Не было hasAllProperties -> стало
-            else if (!isInitialHasAllProperties && hasAllProperties) {
+            } else if (!isInitialHasAllProperties && hasAllProperties) {
                 for (const scope of initialPriceScopes) {
                     await softDeleteMarketPriceScope(scope)
                 }
@@ -144,9 +144,7 @@ export const UpdateMarketItemForm = ({ marketItem }) => {
                     marketItemPrice: { connect: { id } },
                     property: null,
                 })
-            }
-            // Поменялись адреса у цены
-            else if (!isEqual(sortBy(initialPriceScopeProperties), sortBy(properties))) {
+            } else if (!isEqual(sortBy(initialPriceScopeProperties), sortBy(properties))) {
                 const propertiesToCreateScope = difference(properties, initialPriceScopeProperties)
                 const propertiesToDeleteScope = difference(initialPriceScopeProperties, properties)
 
@@ -185,10 +183,10 @@ export const UpdateMarketItemForm = ({ marketItem }) => {
 
         setSubmitLoading(false)
 
-        // await router.push(`/marketplace/marketItem/${get(marketItem, 'id')}`)
+        await router.push(`/marketplace/marketItem/${get(marketItem, 'id')}`)
 
         return updatedMarketItem
-    }, [createMarketItemPrice, createMarketPriceScope, initialMarketItemPricesIds, invoiceContext, marketItem, marketItemFiles, marketItemPrices, marketPriceScopes, softDeleteMarketItemFile, softDeleteMarketItemPrice, softDeleteMarketPriceScope, updateMarketItem, updateMarketItemFile, updateMarketItemPrice])
+    }, [createMarketItemPrice, createMarketPriceScope, initialMarketItemPricesIds, invoiceContext, marketItem, marketItemFiles, marketItemPrices, marketPriceScopes, router, softDeleteMarketItemFile, softDeleteMarketItemPrice, softDeleteMarketPriceScope, updateMarketItem, updateMarketItemFile, updateMarketItemPrice])
 
     const initialValues = useMemo(
         () => MarketItem.convertToFormState({ marketItem, marketItemPrices, marketPriceScopes, marketItemFiles }),
@@ -211,25 +209,44 @@ export const UpdateMarketItemForm = ({ marketItem }) => {
             initialValues={initialValues}
         >
             {
-                ({ handleSave, form }) => {
-                    // check that required fields filled and if not set button to disable state
-
+                ({ handleSave }) => {
                     return (
-                        <Col span={24}>
-                            <ActionBar
-                                actions={[
-                                    <Button
-                                        key='submit'
-                                        onClick={handleSave}
-                                        type='primary'
-                                        loading={submitLoading}
-                                        disabled={submitLoading}
-                                    >
-                                        {UpdateMessage}
-                                    </Button>,
-                                ]}
-                            />
-                        </Col>
+                        <Form.Item
+                            noStyle
+                            shouldUpdate
+                        >
+                            {
+                                (form) => {
+                                    const tooltipTitle = getSaveButtonTooltipMessage(form, intl)
+                                    const disabled = submitLoading || !isEmpty(tooltipTitle)
+
+                                    return (
+                                        <Col span={24}>
+                                            <ActionBar
+                                                actions={[
+                                                    <Tooltip
+                                                        key='submit'
+                                                        title={tooltipTitle}
+                                                    >
+                                                        <span>
+                                                            <Button
+                                                                key='submit'
+                                                                onClick={handleSave}
+                                                                type='primary'
+                                                                loading={submitLoading}
+                                                                disabled={disabled}
+                                                            >
+                                                                {UpdateMessage}
+                                                            </Button>
+                                                        </span>
+                                                    </Tooltip>,
+                                                ]}
+                                            />
+                                        </Col>
+                                    )
+                                }
+                            }
+                        </Form.Item>
                     )
                 }
             }

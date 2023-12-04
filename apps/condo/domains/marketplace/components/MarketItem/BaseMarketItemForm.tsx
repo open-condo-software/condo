@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import { MarketItem as MarketItemType, SortMarketItemFilesBy } from '@app/condo/schema'
+import { MarketItem as MarketItemType } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Col, Form, Input, Row, RowProps, Select, Button as AntdButton } from 'antd'
@@ -7,7 +7,7 @@ import { Rule } from 'antd/lib/form'
 import { FormProps } from 'antd/lib/form/Form'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 
 import { PlusCircle, Trash } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
@@ -22,7 +22,6 @@ import {
 } from '@condo/domains/common/components/GraphQlSearchInputWithCheckAll'
 import { ImagesUploadList } from '@condo/domains/common/components/ImagesUploadList'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import {
     InvoiceContext,
@@ -30,6 +29,7 @@ import {
     MarketItem,
     MarketItemFile,
 } from '@condo/domains/marketplace/utils/clientSchema'
+import { getMoneyRender } from '@condo/domains/marketplace/utils/clientSchema/Invoice'
 import {
     INITIAL_PRICE_FORM_VALUE,
     MarketItemFormValuesType,
@@ -42,8 +42,6 @@ import {
     BaseMarketItemFormContextType,
     useMarketItemFormContext,
 } from './BaseMarketItemFormContext'
-
-import { getMoneyRender } from '../../utils/clientSchema/Invoice'
 
 
 const GROUP_OUTER_GUTTER: RowProps['gutter'] = [0, 40]
@@ -117,7 +115,7 @@ const AppPreviewContainer = styled.div`
   }
 `
 
-const MobilePreview = ({ marketCategoryName, price, priceType, sku, description, files }) => {
+const MobilePreview = ({ name, price, priceType, sku, description, files }) => {
     const intl = useIntl()
     const MobilePreviewTitle = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.mobileAppPreview.title' })
     const ContractPrice = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' })
@@ -143,10 +141,10 @@ const MobilePreview = ({ marketCategoryName, price, priceType, sku, description,
                         <Col span={24}>
                             <Row>
                                 {
-                                    marketCategoryName && (
+                                    name && (
                                         <Col span={24}>
                                             <Typography.Title level={3}>
-                                                {marketCategoryName}
+                                                {name}
                                             </Typography.Title>
                                         </Col>
                                     )
@@ -205,8 +203,8 @@ const mapCategoryToOption = ({ name, id }) => ({ label: name, value: id })
 
 const CategorySelectFields = ({ parentCategoryId, form }) => {
     const intl = useIntl()
-    const CategoryFieldMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.category' })
-    const SubCategoryFieldMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.subcategory' })
+    const CategoryFieldMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.parentCategory' })
+    const SubCategoryFieldMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.marketCategory' })
 
     const { requiredValidator } = useValidations()
     const { objs: marketCategories, loading } = MarketCategory.useAllObjects({})
@@ -701,13 +699,13 @@ export const BaseMarketItemForm: React.FC<BaseMarketItemFormProps> = (props) => 
                                                     {
                                                         ({ getFieldsValue }) => {
                                                             const {
-                                                                marketCategoryName,
+                                                                name,
                                                                 prices,
                                                                 sku,
                                                                 description,
                                                                 files,
                                                             } = getFieldsValue(
-                                                                ['marketCategoryName', 'prices', 'sku', 'description', 'files']
+                                                                ['name', 'prices', 'sku', 'description', 'files']
                                                             )
 
                                                             const price = get(prices, '0.price')
@@ -715,7 +713,7 @@ export const BaseMarketItemForm: React.FC<BaseMarketItemFormProps> = (props) => 
 
                                                             return (
                                                                 <MobilePreview
-                                                                    marketCategoryName={marketCategoryName}
+                                                                    name={name}
                                                                     price={price}
                                                                     priceType={priceType}
                                                                     sku={sku}
