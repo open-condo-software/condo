@@ -34,17 +34,6 @@ describe('MarketPriceScope', () => {
     describe('Accesses', () => {
         describe('admin', () => {
             test('can create', async () => {
-                const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                    canReadMarketItems: true,
-                    canReadMarketItemPrices: true,
-                    canReadMarketPriceScopes: true,
-                    canManageMarketItemPrices: true,
-                    canManageMarketPriceScopes: true,
-                })
-                await createTestOrganizationEmployee(admin, organization, admin.user, role)
-
-                const [integration] = await createTestAcquiringIntegration(admin)
-                const [obj1, attrs2] = await createTestInvoiceContext(admin, organization, integration, { status: 'finished' })
                 const [property] = await createTestProperty(admin, organization)
                 const [obj, attrs] = await createTestMarketPriceScope(admin, price, property)
                 expectValuesOfCommonFields(obj, attrs, admin)

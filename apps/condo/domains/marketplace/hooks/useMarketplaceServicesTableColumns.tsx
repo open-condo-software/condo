@@ -4,14 +4,15 @@ import {
 } from '@app/condo/schema'
 import { Typography } from 'antd'
 import get from 'lodash/get'
+import isNil from 'lodash/isNil'
 import { useRouter } from 'next/router'
-import React, { useCallback, useMemo } from 'react'
+import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
 import { getFilterIcon } from '@condo/domains/common/components/Table/Filters'
 import {
-    getTableCellRenderer, getMoneyRender, getAddressRender,
+    getTableCellRenderer, getMoneyRender,
 } from '@condo/domains/common/components/Table/Renders'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
@@ -32,19 +33,33 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
     const search = getFilteredValue(filters, 'search')
     const render = useMemo(() => getTableCellRenderer({ search }), [search])
 
-    const processedScopes = {}
-    for (const scope of marketPriceScopes) {
-        const { marketItemPrice: { marketItem: { id }, price }, property: { addressMeta: { data: { street_with_type, house_type, house } } }  } = scope
+    const processedScopes = useMemo(() => {
+        const result = {}
+        for (const scope of marketPriceScopes) {
+            const { marketItemPrice: { marketItem: { id }, price }, property: { addressMeta: { data: { street_with_type, house_type, house } } }  } = scope
 
-        const item = {
-            price: get(price[0], 'price'), 
-            currency: get(price, 'currencyCode', 'RUB'), 
-            address: `(${street_with_type}, ${house_type}. ${house})`,
+            const item = {
+                price: get(price[0], 'price'),
+                currency: get(price, 'currencyCode', 'RUB'),
+                address: `(${street_with_type}, ${house_type}. ${house})`,
+            }
+
+            if (Array.isArray(result[id])) result[id] = [...result[id], item]
+            result[id] = [item]
         }
-        
-        if (Array.isArray(processedScopes[id])) processedScopes[id] = [...processedScopes[id], item]
-        processedScopes[id] = [item]
-    }
+        return result
+    }, [marketPriceScopes])
+
+
+    const subcategoryCounterGropedByCategoryId = useMemo(() => {
+        const result = {}
+        for (const category of marketCategories) {
+            if (category.parentCategory) {
+                isNil(result[category.parentCategory.id]) ? result[category.parentCategory.id] = 1 : result[category.parentCategory.id] += 1
+            }
+        }
+        return result
+    }, [marketCategories])
 
     return useMemo(() => {
         return [
@@ -81,7 +96,9 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
 
                     if (category.parentCategory) {
                         const parentCategoryName = intl.formatMessage( { id: `marketplace.marketCategory.${category.parentCategory.name}.name` })
-                        return render(`${parentCategoryName}»${categoryName}`)
+
+                        if (subcategoryCounterGropedByCategoryId[category.parentCategory.id] > 1) return render(`${parentCategoryName}»${categoryName}`)
+                        return render(parentCategoryName)
                     }
                     return render(categoryName)
                 },

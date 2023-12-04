@@ -1331,7 +1331,7 @@
   "pages.condo.marketplace.invoice.payment.success.downloadApp": "Download app",
   "pages.condo.marketplace.invoice.payment.failure.title": "Payment failed",
   "pages.condo.marketplace.invoice.payment.failure.description": "Contact your bank for details",
-  "pages.condo.marketplace.services.table.sku": "Vendor code",
+  "pages.condo.marketplace.services.table.sku": "SKU",
   "pages.condo.marketplace.services.table.name": "Name",
   "pages.condo.marketplace.services.table.category": "Category",
   "pages.condo.marketplace.services.table.addressesAndPrices": "Addresses and prices",
