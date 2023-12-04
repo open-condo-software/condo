@@ -38,6 +38,8 @@ const MarketItemFile = new GQLListSchema('MarketItemFile', {
             type: 'Relationship',
             ref: 'MarketItem',
             isRequired: false,
+            knexOptions: { isNotNullable: false }, // Relationship only!
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
 
         file: {

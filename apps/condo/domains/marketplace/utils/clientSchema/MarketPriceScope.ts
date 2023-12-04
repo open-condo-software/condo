@@ -21,6 +21,8 @@ const {
     useUpdate,
     useSoftDelete,
     useAllObjects,
+    useCreateMany,
+    useSoftDeleteMany,
 } = generateReactHooks<MarketPriceScope, MarketPriceScopeCreateInput, MarketPriceScopeUpdateInput, QueryAllMarketPriceScopesArgs>(MarketPriceScopeGQL)
 
 export {
