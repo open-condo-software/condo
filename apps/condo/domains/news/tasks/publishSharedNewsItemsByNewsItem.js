@@ -9,7 +9,7 @@ const { publishSharedNewsItem } = require('@condo/domains/news/tasks')
  * @returns {Promise<void>}
  */
 async function publishSharedNewsItemsByNewsItem (newsItemId, sharedNewsItemsIds) {
-    const newsItem = await getById('', { id: newsItemId })
+    const newsItem = await getById('NewsItem', { id: newsItemId })
     const sharedNewsItems = await find('NewsItemSharing', { id_in: sharedNewsItemsIds })
 
     for (const newsItemSharing of sharedNewsItems) {
