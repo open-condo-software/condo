@@ -57,8 +57,6 @@ export const RequisitesSetup: React.FC = () => {
 
     const [error, setError] = useState<string | null>(null)
     const [loading, setIsLoading] = useState<boolean>(false)
-    const [isTaxTypeTouched, setIsTaxTypeTouched] = useState<boolean>(false)
-
     const { organization } = useOrganization()
     const orgId = get(organization, 'id', null)
     const [form] = Form.useForm()
@@ -115,10 +113,8 @@ export const RequisitesSetup: React.FC = () => {
     const taxPercentOptions = useMemo<SelectProps['options']>(() => selectedTaxType === TAX_REGIME_GENEGAL ? [noTaxOption, ...TAX_PERCENT_OPTIONS] : [noTaxOption, ...TAX_PERCENT_OPTIONS.slice(1)], [noTaxOption, selectedTaxType])
 
     useEffect(() => {
-        if (isTaxTypeTouched) {
-            form.resetFields(['taxPercent'])
-        }
-    }, [form, isTaxTypeTouched, selectedTaxType])
+        form.setFieldValue('taxPercent', undefined)
+    }, [form, selectedTaxType])
 
     useEffect(() => {
         if (!invoiceContextLoading && !invoiceContextError && !!invoiceContext) {
@@ -189,7 +185,7 @@ export const RequisitesSetup: React.FC = () => {
             )}
             <Col sm={13} span={24}>
                 <Form
-                    initialValues={{ tin: get(organization, 'tin'), bic: '', account: '' }}
+                    initialValues={{ tin: get(organization, 'tin'), bic: '', account: '', taxPercent: null }}
                     form={form}
                     onFinish={handleFormSubmit}
                     layout='horizontal'
@@ -242,7 +238,7 @@ export const RequisitesSetup: React.FC = () => {
                                 labelAlign='left'
                                 rules={[requiredValidator]}
                             >
-                                <RadioGroup onChange={() => setIsTaxTypeTouched(true)}>
+                                <RadioGroup>
                                     <Space size={8} wrap direction='vertical'>
                                         <Radio value={TAX_REGIME_GENEGAL}>{TaxTypeCommonLabel}</Radio>
                                         <Radio value={TAX_REGIME_SIMPLE}>{TaxTypeSimpleLabel}</Radio>
@@ -257,6 +253,7 @@ export const RequisitesSetup: React.FC = () => {
                                 required
                                 labelCol={LABEL_COL}
                                 labelAlign='left'
+                                rules={[requiredValidator]}
                             >
                                 <Select disabled={!selectedTaxType} options={taxPercentOptions}/>
                             </Form.Item>
