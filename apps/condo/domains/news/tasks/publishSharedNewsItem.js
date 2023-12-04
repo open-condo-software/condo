@@ -6,7 +6,8 @@ const { getSchemaCtx, getById } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
 
 const { NewsItemSharing } = require('@condo/domains/news/utils/serverSchema')
-const {STATUSES} = require("../constants/newsItemSharingStatuses");
+
+const { STATUSES } = require('../constants/newsItemSharingStatuses')
 
 const logger = getLogger('publishSharedNewsItem')
 
