@@ -693,6 +693,91 @@ describe('Meter', () => {
                 })
             })
 
+            test('resident: can read Meters from other organizations if it has resource ownership', async () => {
+                const residentClient = await makeClientWithResidentUser()
+
+                const { organization: originalOrganization, context: originalContext } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+                const { organization: serviceProviderOrganization, context: serviceProviderContext } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+                const [originalProperty] = await createTestProperty(admin, originalOrganization)
+                const [serviceProviderProperty] = await createTestProperty(admin, serviceProviderOrganization, {
+                    address: originalProperty.address,
+                })
+                expect(serviceProviderProperty).toHaveProperty('addressKey', originalProperty.addressKey)
+
+                const [originalBillingProperty] = await createTestBillingProperty(admin, originalContext, {
+                    address: originalProperty.address,
+                })
+                expect(originalBillingProperty).toHaveProperty('addressKey', originalProperty.addressKey)
+
+                const [serviceProviderBillingProperty] = await createTestBillingProperty(admin, serviceProviderContext, {
+                    address: serviceProviderProperty.address,
+                })
+                expect(serviceProviderBillingProperty).toHaveProperty('addressKey', serviceProviderProperty.addressKey)
+
+                const [originalBillingAccount] = await createTestBillingAccount(admin, originalContext, originalBillingProperty)
+                const [serviceProviderBillingAccount] = await createTestBillingAccount(admin, serviceProviderContext, serviceProviderBillingProperty)
+
+                const unitName = faker.random.alphaNumeric(8)
+                const unitType = FLAT_UNIT_TYPE
+
+
+                const [resident] = await createTestResident(admin, residentClient.user, originalProperty, { unitName, unitType })
+                await createTestServiceConsumer(admin, resident, originalOrganization, { accountNumber: originalBillingAccount.number })
+                await createTestServiceConsumer(admin, resident, serviceProviderOrganization, { accountNumber: serviceProviderBillingAccount.number })
+
+                const coldWaterResource = await MeterResource.getOne(residentClient, { id: COLD_WATER_METER_RESOURCE_ID })
+                const hotWaterResource = await MeterResource.getOne(residentClient, { id: HOT_WATER_METER_RESOURCE_ID })
+                const [hotMeter] = await createTestMeter(admin, originalOrganization, originalProperty, hotWaterResource, {
+                    accountNumber: originalBillingAccount.number, unitName, unitType,
+                })
+
+                await waitFor(async () => {
+                    const meterResourceOwner = await MeterResourceOwner.getOne(admin, {
+                        address_i: resident.address, resource: { id: HOT_WATER_METER_RESOURCE_ID },
+                    })
+
+                    expect(meterResourceOwner).toBeDefined()
+                })
+
+                const [coldMeter] = await createTestMeter(admin, originalOrganization, originalProperty, coldWaterResource, {
+                    accountNumber: originalBillingAccount.number, unitName, unitType,
+                })
+
+                await waitFor(async () => {
+                    const meterResourceOwner = await MeterResourceOwner.getOne(admin, {
+                        address_i: resident.address, resource: { id: COLD_WATER_METER_RESOURCE_ID },
+                    })
+
+                    expect(meterResourceOwner).toBeDefined()
+                })
+
+                const meters = await Meter.getAll(residentClient, { id_in: [hotMeter.id, coldMeter.id] })
+                expect(meters).toHaveLength(2)
+
+                const coldMeterResourceOwner = await MeterResourceOwner.getOne(admin, {
+                    resource: { id: COLD_WATER_METER_RESOURCE_ID }, address_i: resident.address,
+                })
+                await updateTestMeterResourceOwner(admin, coldMeterResourceOwner.id, {
+                    organization: { connect: { id: serviceProviderOrganization.id } },
+                })
+                const [serviceProviderColdMeter] = await createTestMeter(admin, serviceProviderOrganization, serviceProviderProperty, coldWaterResource, {
+                    accountNumber: serviceProviderBillingAccount.number, unitName, unitType,
+                })
+                expect(serviceProviderColdMeter).toHaveProperty(['property', 'id'], serviceProviderProperty.id)
+
+                const newMeters = await Meter.getAll(residentClient, {}, { sortBy: ['createdAt_DESC'] })
+
+                expect(newMeters).toHaveLength(2)
+                expect(newMeters).toHaveProperty(['0', 'id'], serviceProviderColdMeter.id)
+                expect(newMeters).toHaveProperty(['1', 'id'], hotMeter.id)
+
+                const newMeter = await Meter.getOne(residentClient, { id: serviceProviderColdMeter.id })
+                expect(newMeter).toBeDefined()
+                expect(newMeter).toHaveProperty(['accountNumber'], serviceProviderColdMeter.accountNumber)
+                expect(newMeter).toHaveProperty(['organization', 'id'], serviceProviderOrganization.id)
+                expect(newMeter).toHaveProperty(['resource', 'id'], COLD_WATER_METER_RESOURCE_ID)
+            })
+
             test('resident: cannot read Meters from other organization', async () => {
                 const adminClient = await makeLoggedInAdminClient()
                 const client1 = await makeClientWithResidentUser()
