@@ -32,4 +32,6 @@ export {
     useUpdate,
     useSoftDelete,
     useAllObjects,
+    useCreateMany,
+    useSoftDeleteMany,
 }

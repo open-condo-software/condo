@@ -80,7 +80,9 @@ export const UpdateMarketItemForm = ({ marketItem }) => {
     const createMarketItemPrice = MarketItemPrice.useCreate({})
     const updateMarketItemPrice = MarketItemPrice.useUpdate({})
     const softDeleteMarketItemPrice = MarketItemPrice.useSoftDelete()
+    const createMarketPriceScopes = MarketPriceScope.useCreateMany({})
     const createMarketPriceScope = MarketPriceScope.useCreate({})
+    const softDeleteMarketPriceScopes = MarketPriceScope.useSoftDeleteMany()
     const softDeleteMarketPriceScope = MarketPriceScope.useSoftDelete()
     const updateMarketItemFile = MarketItemFile.useUpdate({})
     const softDeleteMarketItemFile = MarketItemFile.useSoftDelete()
@@ -99,7 +101,7 @@ export const UpdateMarketItemForm = ({ marketItem }) => {
             prices: newPrices,
             invoiceContext,
             createMarketItemPrice,
-            createMarketPriceScope,
+            createMarketPriceScopes,
         })
 
         const existedPrices = prices.filter(price => price.id)
@@ -129,16 +131,12 @@ export const UpdateMarketItemForm = ({ marketItem }) => {
                 const scopeWithAllProperties = initialPriceScopes.find(scope => !scope.property)
                 await softDeleteMarketPriceScope(scopeWithAllProperties)
 
-                for (const propertyId of properties) {
-                    await createMarketPriceScope({
-                        marketItemPrice: { connect: { id } },
-                        property: { connect: { id: propertyId } },
-                    })
-                }
+                await createMarketPriceScopes(properties.map(propertyId => ({
+                    marketItemPrice: { connect: { id } },
+                    property: { connect: { id: propertyId } },
+                })))
             } else if (!isInitialHasAllProperties && hasAllProperties) {
-                for (const scope of initialPriceScopes) {
-                    await softDeleteMarketPriceScope(scope)
-                }
+                await softDeleteMarketPriceScopes(initialPriceScopes)
 
                 await createMarketPriceScope({
                     marketItemPrice: { connect: { id } },
@@ -148,16 +146,14 @@ export const UpdateMarketItemForm = ({ marketItem }) => {
                 const propertiesToCreateScope = difference(properties, initialPriceScopeProperties)
                 const propertiesToDeleteScope = difference(initialPriceScopeProperties, properties)
 
-                for (const propertyId of propertiesToCreateScope) {
-                    await createMarketPriceScope({
-                        marketItemPrice: { connect: { id } },
-                        property: { connect: { id: propertyId } },
-                    })
-                }
-                for (const propertyId of propertiesToDeleteScope) {
-                    const scope = initialPriceScopes.find(scope => get(scope, 'property.id') === propertyId)
-                    await softDeleteMarketPriceScope(scope)
-                }
+                await createMarketPriceScopes(propertiesToCreateScope.map(propertyId => ({
+                    marketItemPrice: { connect: { id } },
+                    property: { connect: { id: propertyId } },
+                })))
+
+                const scopesToDelete = initialPriceScopes
+                    .filter(scope => propertiesToDeleteScope.includes(get(scope, 'property.id')))
+                await softDeleteMarketPriceScopes(scopesToDelete)
             }
         }
 
@@ -186,7 +182,7 @@ export const UpdateMarketItemForm = ({ marketItem }) => {
         await router.push(`/marketplace/marketItem/${get(marketItem, 'id')}`)
 
         return updatedMarketItem
-    }, [createMarketItemPrice, createMarketPriceScope, initialMarketItemPricesIds, invoiceContext, marketItem, marketItemFiles, marketItemPrices, marketPriceScopes, router, softDeleteMarketItemFile, softDeleteMarketItemPrice, softDeleteMarketPriceScope, updateMarketItem, updateMarketItemFile, updateMarketItemPrice])
+    }, [createMarketItemPrice, createMarketPriceScope, createMarketPriceScopes, initialMarketItemPricesIds, invoiceContext, marketItem, marketItemFiles, marketItemPrices, marketPriceScopes, router, softDeleteMarketItemFile, softDeleteMarketItemPrice, softDeleteMarketPriceScope, softDeleteMarketPriceScopes, updateMarketItem, updateMarketItemFile, updateMarketItemPrice])
 
     const initialValues = useMemo(
         () => MarketItem.convertToFormState({ marketItem, marketItemPrices, marketPriceScopes, marketItemFiles }),

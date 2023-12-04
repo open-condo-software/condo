@@ -37,7 +37,7 @@ export const CreateMarketItemForm = () => {
         organization: { connect: { id: get(organization, 'id', null) } },
     })
     const createMarketItemPrice = MarketItemPrice.useCreate({})
-    const createMarketPriceScope = MarketPriceScope.useCreate({})
+    const createMarketPriceScopes = MarketPriceScope.useCreateMany({})
     const updateMarketItemFile = MarketItemFile.useUpdate({})
 
     const { obj: invoiceContext } = InvoiceContext.useObject({
@@ -59,7 +59,7 @@ export const CreateMarketItemForm = () => {
             prices: formattedPrices,
             invoiceContext,
             createMarketItemPrice,
-            createMarketPriceScope,
+            createMarketPriceScopes,
         })
 
         setSubmitLoading(false)
@@ -78,7 +78,7 @@ export const CreateMarketItemForm = () => {
         await router.push('/marketplace?tab=services')
 
         return createdMarketItem
-    }, [createMarketItem, createMarketItemPrice, createMarketPriceScope, invoiceContext, router, updateMarketItemFile])
+    }, [createMarketItem, createMarketItemPrice, createMarketPriceScopes, invoiceContext, router, updateMarketItemFile])
 
     return (
         <BaseMarketItemForm

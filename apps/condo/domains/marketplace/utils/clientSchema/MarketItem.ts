@@ -6,17 +6,19 @@ import {
     InvoiceContext,
     MarketItem,
     MarketItemCreateInput, MarketItemFile, MarketItemPrice, MarketItemPriceCreateInput,
-    MarketItemUpdateInput, MarketPriceScope, MarketPriceScopeCreateInput,
+    MarketItemUpdateInput, MarketPriceScope, MarketPriceScopeCreateInput, MarketPriceScopesCreateInput,
     QueryAllMarketItemsArgs,
 } from '@app/condo/schema'
 import { get } from 'lodash'
 import isEmpty from 'lodash/isEmpty'
 import isUndefined from 'lodash/isUndefined'
 
-import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+import { generateReactHooks, IUseCreateManyActionType } from '@open-condo/codegen/generate.hooks'
 
 import { UploadFileType } from '@condo/domains/common/components/ImagesUploadList'
 import { MarketItem as MarketItemGQL } from '@condo/domains/marketplace/gql'
+
+import { getClientSideSenderInfo } from '../../../common/utils/userid.utils'
 
 
 const RELATIONS = ['marketCategory']
@@ -157,7 +159,7 @@ type CreateNewPricesAndPriceScopesArgType = {
     prices: PriceFormValuesType[]
     invoiceContext: InvoiceContext
     createMarketItemPrice: (data: MarketItemPriceCreateInput) => Promise<MarketItemPrice>
-    createMarketPriceScope: (data: MarketPriceScopeCreateInput) => Promise<MarketPriceScope>
+    createMarketPriceScopes: IUseCreateManyActionType<MarketPriceScope, MarketPriceScopeCreateInput>
 }
 
 export async function createNewPricesAndPriceScopes ({
@@ -165,7 +167,7 @@ export async function createNewPricesAndPriceScopes ({
     prices,
     invoiceContext,
     createMarketItemPrice,
-    createMarketPriceScope,
+    createMarketPriceScopes,
 }: CreateNewPricesAndPriceScopesArgType) {
     for (const formPrice of prices) {
         const { properties, hasAllProperties, price, priceType } = formPrice
@@ -182,16 +184,18 @@ export async function createNewPricesAndPriceScopes ({
         })
 
         if (hasAllProperties) {
-            await createMarketPriceScope({
-                marketItemPrice: { connect: { id: createdPrice.id } },
-            })
+            await createMarketPriceScopes([
+                {
+                    marketItemPrice: { connect: { id: createdPrice.id } },
+                },
+            ])
         } else {
-            for (const propertyId of properties ) {
-                await createMarketPriceScope({
+            await createMarketPriceScopes(
+                properties.map(propertyId => ({
                     marketItemPrice: { connect: { id: createdPrice.id } },
                     property: { connect: { id: propertyId } },
-                })
-            }
+                }))
+            )
         }
     }
 }
@@ -212,7 +216,7 @@ export const getSaveButtonTooltipMessage = (form, intl) => {
     const requiredFieldsMessage = FORM_REQUIRED_FIELDS.map(fieldName => {
         if (fieldName === 'prices') {
             const hasEmptyAddresses = prices.some(price => isEmpty(get(price, 'properties')) && !price.hasAllProperties)
-            const hasEmptyPrice = prices.some(price => isEmpty(get(price, 'price')))
+            const hasEmptyPrice = prices.some(price => isEmpty(get(price, 'price')) && get(price, 'priceType') !== PriceType.Contract)
             const messages = []
 
             if (hasEmptyAddresses) {
