@@ -544,6 +544,29 @@ describe('TicketChange', () => {
                 expect(obj.actualCreationDate).toEqual(statusUpdatedAt)
             })
 
+            it('is not filled if statusUpdatedAt difference from now less than 10 sec', async () => {
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization, { canManageTickets: true })
+                await createTestOrganizationEmployee(admin, organization, client.user, role)
+
+                const [ticket] = await createTestTicket(client, organization, property)
+                const statusUpdatedAt = dayjs().subtract('1', 'second').toISOString()
+
+                const payload = {
+                    status: { connect: { id: STATUS_IDS.IN_PROGRESS } },
+                    statusUpdatedAt,
+                }
+                await updateTestTicket(client, ticket.id, payload)
+
+                const obj = await TicketChange.getOne(client, {
+                    ticket: { id: ticket.id },
+                })
+
+                expect(new Date(obj.actualCreationDate).getTime()).toBeGreaterThan(new Date(statusUpdatedAt).getTime())
+            })
+
             it('is not filled if statusUpdatedAt is not in the payload', async () => {
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [organization] = await createTestOrganization(admin)
