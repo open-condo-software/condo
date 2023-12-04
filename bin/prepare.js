@@ -24,6 +24,7 @@ const CERT_FILE = path.join(__filename, '..', '.ssl', 'localhost.pem')
 
 program.option('-f, --filter <names...>', 'Filters apps by name')
 program.option('--https', 'Uses https for local running')
+program.option('--no-checks', 'Disable extra db and certs file checking')
 program.description(`Prepares applications from the /apps directory for local running 
 by creating separate databases for them 
 and running their local bin/prepare.js scripts.
@@ -31,11 +32,13 @@ and running their local bin/prepare.js scripts.
 
 async function prepare () {
     program.parse()
-    const { https, filter } = program.opts()
+    const { https, filter, checks } = program.opts()
 
     // Step 1. Sanity checks
-    await checkDockerComposePostgresIsRunning()
-    if (https) await checkMkCertCommandAndLocalCerts(KEY_FILE, CERT_FILE, DEFAULT_APP_HTTPS_SUBDOMAIN)
+    if (checks) {
+        await checkDockerComposePostgresIsRunning()
+        if (https) await checkMkCertCommandAndLocalCerts(KEY_FILE, CERT_FILE, DEFAULT_APP_HTTPS_SUBDOMAIN)
+    }
 
     // Step 2. Get list of available apps and assign ports / indexes / dbNames and so on
     const allApps = await getAllActualApps()
