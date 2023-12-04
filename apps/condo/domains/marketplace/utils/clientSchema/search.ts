@@ -42,3 +42,27 @@ export function searchOrganizationPropertyWithExclusion (organizationId, exclude
         return data.objs.map(({ address, id }) => ({ text: address, value: id }))
     }
 }
+
+export function searchOrganizationProperty (organizationId) {
+    if (!organizationId) return
+
+    return async function (client, searchText, query = {}, first = 10, skip = 0) {
+        const where = {
+            organization: {
+                id: organizationId,
+            },
+            ...!isEmpty(searchText) ? { address_contains_i: searchText } : {},
+            ...query,
+        }
+        const orderBy = 'address_ASC'
+        const { data = [], error } = await _search(client, GET_ALL_PROPERTIES_BY_VALUE_QUERY, {
+            where,
+            orderBy,
+            first,
+            skip,
+        })
+        if (error) console.warn(error)
+
+        return data.objs.map(({ address, id }) => ({ text: address, value: id }))
+    }
+}

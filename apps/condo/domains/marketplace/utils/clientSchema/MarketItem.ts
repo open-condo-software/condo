@@ -6,7 +6,7 @@ import {
     InvoiceContext,
     MarketItem,
     MarketItemCreateInput, MarketItemFile, MarketItemPrice, MarketItemPriceCreateInput,
-    MarketItemUpdateInput, MarketPriceScope, MarketPriceScopeCreateInput, MarketPriceScopesCreateInput,
+    MarketItemUpdateInput, MarketPriceScope, MarketPriceScopeCreateInput,
     QueryAllMarketItemsArgs,
 } from '@app/condo/schema'
 import { get } from 'lodash'
@@ -17,8 +17,6 @@ import { generateReactHooks, IUseCreateManyActionType } from '@open-condo/codege
 
 import { UploadFileType } from '@condo/domains/common/components/ImagesUploadList'
 import { MarketItem as MarketItemGQL } from '@condo/domains/marketplace/gql'
-
-import { getClientSideSenderInfo } from '../../../common/utils/userid.utils'
 
 
 const RELATIONS = ['marketCategory']

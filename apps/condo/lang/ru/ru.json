@@ -1305,6 +1305,7 @@
   "pages.condo.marketplace.invoice.form.create.notification.copiedLink": "Скопирована",
   "pages.condo.marketplace.invoice.form.disabledTooltip.noPayerData": "Статус «Готов, ожидаем оплату» будет доступен после того, как заполните данные плательщика",
   "pages.condo.marketplace.invoice.form.disabledTooltip.disabledPaidForOnline": "Статус «Оплачено» не доступен для способа оплаты «Онлайн»",
+  "pages.condo.marketplace.invoice.form.disabledTooltip.disabledCanceledForCreate": "Статус «Отменён» не доступен при создании счёта",
   "pages.condo.marketplace.invoice.id.title.order": "Состав",
   "pages.condo.marketplace.invoice.id.table.header.name": "Наименование",
   "pages.condo.marketplace.invoice.id.table.header.sku": "Артикул",
