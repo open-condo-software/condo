@@ -175,5 +175,5 @@ jobs:
           docker run --network="host" --name condo-container -dit ${{ env.DOCKER_IMAGE_FULL }} sh
       - name: Prepare apps
         run: |
-          docker exec condo-container node bin/prepare.js -f condo dev-api --no-checks
+          docker exec condo-container node bin/prepare.js -f condo dev-api
 
