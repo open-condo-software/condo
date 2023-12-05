@@ -43310,6 +43310,7 @@ __metadata:
     jest-environment-jsdom: ^29.4.0
     jest-jasmine2: ^29.4.0
     mono-pub: ^1.0.1
+    node-fetch: ^2.6.7
     postcss-less: ^6.0.0
     stylelint: ^14.11.0
     stylelint-config-rational-order: ^0.1.2
