@@ -124,7 +124,7 @@ async function prepare () {
     // Step 7. Run prepare.js script of individual apps according to dependencies-graph
     logWithIndent('Executing prepare script of individual apps via turbo-repo')
     const filterArgs = filteredApps.map(app => `--filter=${app.name}`).join(' ')
-    const { stdout, stderr } = await safeExec(`turbo run prepare ${filterArgs}`)
+    const { stdout, stderr } = await safeExec(`yarn turbo run prepare ${filterArgs}`)
     if (stdout) console.log(stdout)
     if (stderr) console.error(stderr)
 
