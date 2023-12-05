@@ -51,6 +51,7 @@ const {
     useUpdate,
     useSoftDelete,
     useAllObjects,
+    useCount,
 } = generateReactHooks<Property, PropertyCreateInput, PropertyUpdateInput, QueryAllPropertiesArgs>(PropertyGQL)
 
 export {
@@ -61,4 +62,5 @@ export {
     useSoftDelete,
     convertToFormState,
     useAllObjects,
+    useCount,
 }

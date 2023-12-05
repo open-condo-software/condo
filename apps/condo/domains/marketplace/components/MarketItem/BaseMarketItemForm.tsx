@@ -5,6 +5,7 @@ import styled from '@emotion/styled'
 import { Col, Form, Input, Row, RowProps, Select, Button as AntdButton } from 'antd'
 import { Rule } from 'antd/lib/form'
 import { FormProps } from 'antd/lib/form/Form'
+import difference from 'lodash/difference'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import React, { useCallback, useEffect, useMemo } from 'react'
@@ -22,6 +23,7 @@ import {
 } from '@condo/domains/common/components/GraphQlSearchInputWithCheckAll'
 import { ImagesUploadList } from '@condo/domains/common/components/ImagesUploadList'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import Prompt from '@condo/domains/common/components/Prompt'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import {
     InvoiceContext,
@@ -36,15 +38,13 @@ import {
     PriceType,
 } from '@condo/domains/marketplace/utils/clientSchema/MarketItem'
 import { searchOrganizationPropertyWithExclusion } from '@condo/domains/marketplace/utils/clientSchema/search'
+import { Property } from '@condo/domains/property/utils/clientSchema'
 
 import {
     BaseMarketItemFormContext,
     BaseMarketItemFormContextType,
     useMarketItemFormContext,
 } from './BaseMarketItemFormContext'
-
-import Prompt from '../../../common/components/Prompt'
-
 
 
 const GROUP_OUTER_GUTTER: RowProps['gutter'] = [0, 40]
@@ -85,7 +85,7 @@ const AppPreviewContainer = styled.div`
   display: flex;
   flex-flow: column;
   justify-content: space-between;
-  align-items: center;
+  align-items: start;
   background-image: url("/phoneMarketItemPreview.png");
   background-size: contain;
   background-repeat: no-repeat;
@@ -96,6 +96,7 @@ const AppPreviewContainer = styled.div`
   overflow: hidden;
 
   & .mobile-content-wrapper {
+    width: 100%;
     height: 90%;
     display: flex;
     flex-flow: column;
@@ -103,7 +104,6 @@ const AppPreviewContainer = styled.div`
     justify-content: space-between;
     padding: 12px 20px;
     overflow: hidden;
-    max-width: 100%;
 
     & .order-button {
       width: 100%;
@@ -409,7 +409,7 @@ const MarketItemFields = () => {
     )
 }
 
-const MarketPricePropertiesField = ({ priceFormDescription, priceFormsValue }) => {
+const MarketPricePropertiesField = ({ priceFormDescription, priceFormsValue, isHasAllPropertiesHidden, organizationPropertiesCount }) => {
     const intl = useIntl()
     const AddressesLabel = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.addresses' })
     const CheckAllPropertiesLabel = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.form.chooseAllProperties' })
@@ -426,12 +426,6 @@ const MarketPricePropertiesField = ({ priceFormDescription, priceFormsValue }) =
         if (isEmpty(priceFormsValue) || isEmpty(priceFormDescription)) return false
 
         return priceFormsValue[priceFormDescription.name].hasAllProperties
-    }, [priceFormDescription, priceFormsValue])
-
-    const isCheckAllDisabled = useMemo(() => {
-        if (isEmpty(priceFormsValue) || isEmpty(priceFormDescription)) return false
-
-        return !priceFormsValue[priceFormDescription.name].hasAllProperties && priceFormsValue.some(form => form.hasAllProperties)
     }, [priceFormDescription, priceFormsValue])
 
     const propertySelectFormItemProps = useCallback((priceFormName) => ({
@@ -458,10 +452,10 @@ const MarketPricePropertiesField = ({ priceFormDescription, priceFormsValue }) =
             search: searchOrganizationPropertyWithExclusion(organizationId, selectedPropertyIdsFromOtherPriceForms),
             disabled: !organizationId || hasAllPropertiesChecked,
             required: true,
-            mode: 'multiple',
+            mode: organizationPropertiesCount === 1 ? null : 'multiple',
             renderOptions: renderPropertyOptions(selectedPropertyIdsFromOtherPriceForms),
         }
-    }, [priceFormsValue, organizationId, hasAllPropertiesChecked, renderPropertyOptions])
+    }, [priceFormsValue, organizationId, hasAllPropertiesChecked, organizationPropertiesCount, renderPropertyOptions])
 
     const handleCheckAll = useCallback(() => {
         return getUpdatedPricesField(priceFormName, {
@@ -480,12 +474,12 @@ const MarketPricePropertiesField = ({ priceFormDescription, priceFormsValue }) =
             checkBoxOffset={!breakpoints.TABLET_LARGE ? 0 : 10}
             checkAllInitialValue={hasAllPropertiesChecked}
             mutationOfFormAfterCheckAll={handleCheckAll}
-            checkboxDisabled={isCheckAllDisabled}
+            checkboxHidden={isHasAllPropertiesHidden}
         />
     )
 }
 
-const MarketPriceForm = ({ priceFormDescription, removeOperation }) => {
+const MarketPriceForm = ({ priceFormDescription, removeOperation, organizationPropertiesCount }) => {
     const intl = useIntl()
     const PriceTypeLabel = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.priceType' })
     const PriceTypeTooltip = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.priceType.tooltip' })
@@ -506,7 +500,17 @@ const MarketPriceForm = ({ priceFormDescription, removeOperation }) => {
 
     const priceFormsValue = Form.useWatch('prices', form) || []
     const priceTypeFormValue = Form.useWatch(['prices', priceFormName, 'priceType'], form)
+    const priceHasAllPropertiesFormValue = Form.useWatch(['prices', priceFormName, 'hasAllProperties'], form)
+    const propertiesInThisForm = Form.useWatch(['prices', priceFormName, 'properties'], form)
+    const propertiesInOtherForms = useMemo(
+        () => priceFormsValue.flatMap(price => get(price, 'properties')),
+        [priceFormsValue])
+
     const isContractPrice = useMemo(() => priceTypeFormValue === PriceType.Contract, [priceTypeFormValue])
+    const isHasAllPropertiesHidden = useMemo(
+        () => difference(propertiesInOtherForms, propertiesInThisForm).length > 0 ||
+            (priceFormsValue.some(price => price.hasAllProperties) && !priceHasAllPropertiesFormValue),
+        [priceFormsValue, priceHasAllPropertiesFormValue, propertiesInOtherForms, propertiesInThisForm])
 
     const handleContractPriceCheck = useCallback(async () => {
         form.setFieldsValue(getUpdatedPricesField(priceFormName, { price: null }))
@@ -519,6 +523,8 @@ const MarketPriceForm = ({ priceFormDescription, removeOperation }) => {
                 <MarketPricePropertiesField
                     priceFormDescription={priceFormDescription}
                     priceFormsValue={priceFormsValue}
+                    isHasAllPropertiesHidden={isHasAllPropertiesHidden}
+                    organizationPropertiesCount={organizationPropertiesCount}
                 />
             </Col>
             <Col span={24}>
@@ -592,6 +598,20 @@ const MarketPricesList = () => {
     const PriceScopeGroupLabel = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.section.priceScope' })
     const AddPriceScopeLabel = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.addPriceScope' })
 
+    const { organization, loading } = useOrganization()
+    const { form } = useMarketItemFormContext()
+    const prices = Form.useWatch('prices', form) || []
+
+    const { count: organizationPropertiesCount } = Property.useCount({
+        where: { organization: { id: get(organization, 'id') } },
+    }, { skip: loading })
+
+    const propertiesInForm = useMemo(() => prices.flatMap(price => get(price, 'properties')), [prices])
+    const isAddButtonHidden = useMemo(
+        () => propertiesInForm.length === organizationPropertiesCount || prices.some(price => price.hasAllProperties),
+        [organizationPropertiesCount, prices, propertiesInForm.length]
+    )
+
     return (
         <Row gutter={GROUP_INNER_GUTTER}>
             <Col span={24}>
@@ -609,20 +629,25 @@ const MarketPricesList = () => {
                                                 <MarketPriceForm
                                                     priceFormDescription={priceForm}
                                                     removeOperation={operation.remove}
+                                                    organizationPropertiesCount={organizationPropertiesCount}
                                                 />
                                             </Col>
                                         ))
                                     }
                                 </Row>
                             </Col>
-                            <Col span={24}>
-                                <Typography.Text strong onClick={() => operation.add(INITIAL_PRICE_FORM_VALUE)}>
-                                    <Space size={4} direction='horizontal'>
-                                        <PlusCircle/>
-                                        {AddPriceScopeLabel}
-                                    </Space>
-                                </Typography.Text>
-                            </Col>
+                            {
+                                !isAddButtonHidden && (
+                                    <Col span={24}>
+                                        <Typography.Text strong onClick={() => operation.add(INITIAL_PRICE_FORM_VALUE)}>
+                                            <Space size={4} direction='horizontal'>
+                                                <PlusCircle/>
+                                                {AddPriceScopeLabel}
+                                            </Space>
+                                        </Typography.Text>
+                                    </Col>
+                                )
+                            }
                         </Row>
                     )}
                 </Form.List>

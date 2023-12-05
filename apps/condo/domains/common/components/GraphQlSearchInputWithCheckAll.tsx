@@ -1,6 +1,6 @@
 import styled from '@emotion/styled'
-import { Col, Form, FormInstance, FormItemProps, Row } from 'antd'
-import { get, isFunction } from 'lodash'
+import { Col, Form, FormInstance, FormItemProps, Row, SelectProps } from 'antd'
+import { get, isFunction, isUndefined } from 'lodash'
 import isArray from 'lodash/isArray'
 import React, { ComponentProps, useCallback, useEffect, useState } from 'react'
 
@@ -25,6 +25,8 @@ export type InputWithCheckAllProps = {
     checkBoxEventName?: string
     disabled?: boolean
     checkboxDisabled?: boolean
+    checkboxHidden?: boolean
+    mode?: SelectProps['mode']
     onDataLoaded?: (data: GraphQlSearchInputOption['data']) => void
     /**
      * When your form has a complex structure, for example when fields change dynamically,
@@ -63,6 +65,8 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
         onDataLoaded,
         mutationOfFormAfterCheckAll,
         checkboxDisabled,
+        checkboxHidden,
+        mode,
     }
 ) => {
     const intl = useIntl()
@@ -90,7 +94,7 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
     const handleOnChange = useCallback((data) => {
         const selectedDataLength = data.length
 
-        if (selectedDataLength === allDataLength) {
+        if (selectedDataLength === allDataLength && !checkboxHidden) {
             setIsAllChecked(true)
         }
 
@@ -102,7 +106,7 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
         if (selectedDataLength === allDataLength && isFunction(onCheckBoxChange)) {
             onCheckBoxChange(true)
         }
-    }, [allDataLength, onCheckBoxChange, selectProps])
+    }, [allDataLength, checkboxHidden, onCheckBoxChange, selectProps])
 
     const formItemName = String(selectFormItemProps.name)
     const checkAllFieldNameInString = String(checkAllFieldName)
@@ -137,7 +141,7 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
                 >
                     <GraphQlSearchInput
                         {...selectProps}
-                        mode='multiple'
+                        mode={!isUndefined(selectProps.mode) ? selectProps.mode : 'multiple'}
                         placeholder={isAllChecked && CheckedAllMessage || selectProps.placeholder}
                         disabled={disabled || selectProps.disabled || isAllChecked}
                         onChange={handleOnChange}
@@ -145,20 +149,24 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
                     />
                 </Form.Item>
             </Col>
-            <Col span={14} offset={checkBoxOffset}>
-                <CheckAllCheckboxFormItem
-                    name={checkAllFieldName}
-                    valuePropName='checked'
-                >
-                    <Checkbox
-                        onChange={handleCheckboxChange}
-                        eventName={checkBoxEventName}
-                        disabled={disabled || checkboxDisabled}
-                    >
-                        {CheckAllMessage}
-                    </Checkbox>
-                </CheckAllCheckboxFormItem>
-            </Col>
+            {
+                !checkboxHidden && (
+                    <Col span={14} offset={checkBoxOffset}>
+                        <CheckAllCheckboxFormItem
+                            name={checkAllFieldName}
+                            valuePropName='checked'
+                        >
+                            <Checkbox
+                                onChange={handleCheckboxChange}
+                                eventName={checkBoxEventName}
+                                disabled={disabled || checkboxDisabled}
+                            >
+                                {CheckAllMessage}
+                            </Checkbox>
+                        </CheckAllCheckboxFormItem>
+                    </Col>
+                )
+            }
         </Row>
     )
 }

@@ -193,12 +193,14 @@ export async function createNewPricesAndPriceScopes ({
                 },
             ])
         } else {
-            await createMarketPriceScopes(
-                properties.map(propertyId => ({
-                    marketItemPrice: { connect: { id: createdPrice.id } },
-                    property: { connect: { id: propertyId } },
-                }))
-            )
+            if (!isEmpty(properties)) {
+                await createMarketPriceScopes(
+                    properties.map(propertyId => ({
+                        marketItemPrice: { connect: { id: createdPrice.id } },
+                        property: { connect: { id: propertyId } },
+                    }))
+                )
+            }
         }
     }
 }

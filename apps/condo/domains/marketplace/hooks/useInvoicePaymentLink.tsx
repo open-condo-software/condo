@@ -1,5 +1,6 @@
 import { useApolloClient } from '@apollo/client'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import getConfig from 'next/config'
 import { useCallback } from 'react'
 
@@ -13,6 +14,10 @@ export const useInvoicePaymentLink = () => {
     const client = useApolloClient()
 
     return useCallback(async (invoiceIds: string[]) => {
+        if (isEmpty(invoiceIds)) {
+            return { paymentLink: null }
+        }
+
         try {
             const data = await client.query({
                 query: GENERATE_PAYMENT_LINK_QUERY,

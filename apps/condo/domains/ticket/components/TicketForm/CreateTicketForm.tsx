@@ -193,15 +193,15 @@ export const CreateTicketForm: React.FC = () => {
             })
         }
 
+        notification.success(getCompletedNotification({
+            ticketNumber: ticket.number,
+            ticketId: ticket.id,
+        }))
+
         if (paymentUrl) {
             notification.success(getCompletedNotification({
                 ticketNumber: ticket.number,
                 paymentUrl,
-            }))
-        } else {
-            notification.success(getCompletedNotification({
-                ticketNumber: ticket.number,
-                ticketId: ticket.id,
             }))
         }
 

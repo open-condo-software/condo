@@ -129,14 +129,20 @@ export const UpdateMarketItemForm = ({ marketItem }) => {
 
             if (isInitialHasAllProperties && !hasAllProperties) {
                 const scopeWithAllProperties = initialPriceScopes.find(scope => !scope.property)
-                await softDeleteMarketPriceScope(scopeWithAllProperties)
+                if (!isEmpty(scopeWithAllProperties)) {
+                    await softDeleteMarketPriceScope(scopeWithAllProperties)
+                }
 
-                await createMarketPriceScopes(properties.map(propertyId => ({
-                    marketItemPrice: { connect: { id } },
-                    property: { connect: { id: propertyId } },
-                })))
+                if (!isEmpty(properties)) {
+                    await createMarketPriceScopes(properties.map(propertyId => ({
+                        marketItemPrice: { connect: { id } },
+                        property: { connect: { id: propertyId } },
+                    })))
+                }
             } else if (!isInitialHasAllProperties && hasAllProperties) {
-                await softDeleteMarketPriceScopes(initialPriceScopes)
+                if (initialPriceScopes) {
+                    await softDeleteMarketPriceScopes(initialPriceScopes)
+                }
 
                 await createMarketPriceScope({
                     marketItemPrice: { connect: { id } },
@@ -146,14 +152,19 @@ export const UpdateMarketItemForm = ({ marketItem }) => {
                 const propertiesToCreateScope = difference(properties, initialPriceScopeProperties)
                 const propertiesToDeleteScope = difference(initialPriceScopeProperties, properties)
 
-                await createMarketPriceScopes(propertiesToCreateScope.map(propertyId => ({
-                    marketItemPrice: { connect: { id } },
-                    property: { connect: { id: propertyId } },
-                })))
+                if (!isEmpty(propertiesToCreateScope)) {
+                    await createMarketPriceScopes(propertiesToCreateScope.map(propertyId => ({
+                        marketItemPrice: { connect: { id } },
+                        property: { connect: { id: propertyId } },
+                    })))
+                }
 
                 const scopesToDelete = initialPriceScopes
                     .filter(scope => propertiesToDeleteScope.includes(get(scope, 'property.id')))
-                await softDeleteMarketPriceScopes(scopesToDelete)
+
+                if (!isEmpty(scopesToDelete)) {
+                    await softDeleteMarketPriceScopes(scopesToDelete)
+                }
             }
         }
 
@@ -179,7 +190,7 @@ export const UpdateMarketItemForm = ({ marketItem }) => {
 
         setSubmitLoading(false)
 
-        await router.push(`/marketplace/marketItem/${get(marketItem, 'id')}`)
+        // await router.push(`/marketplace/marketItem/${get(marketItem, 'id')}`)
 
         return updatedMarketItem
     }, [createMarketItemPrice, createMarketPriceScope, createMarketPriceScopes, initialMarketItemPricesIds, invoiceContext, marketItem, marketItemFiles, marketItemPrices, marketPriceScopes, router, softDeleteMarketItemFile, softDeleteMarketItemPrice, softDeleteMarketPriceScope, softDeleteMarketPriceScopes, updateMarketItem, updateMarketItemFile, updateMarketItemPrice])
