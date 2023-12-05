@@ -129,7 +129,7 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
                     const priceForAllProperties = get(processedScopes, [marketItem.id, 'priceForAllProperties'])
                     if (priceForAllProperties) componentsToRender.push(<div key='priceForAllProperties'>
                         {getMoneyRender(intl, get(priceForAllProperties, 'currency', 'RUB'))(get(priceForAllProperties, 'price'))}
-                        <Typography.Text type='secondary' style={{ margin: '10px' }}>{AllPropertiesMessage}</Typography.Text>
+                        <Typography.Text type='secondary' style={{ margin: '10px' }}>({AllPropertiesMessage})</Typography.Text>
                     </div>)
 
                     for (const price in processedScopes[marketItem.id]) {
@@ -139,7 +139,7 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
                         componentsToRender.push(<div key={address}>
                             {getMoneyRender(intl, get(items[0], 'currency', 'RUB'))(price)}
                             <Typography.Text type='secondary' style={{ margin: '10px' }}>
-                                {items.length > 1 ? `${address} ${AndMoreMessage} ${items.length - 1}` : address}
+                                ({items.length > 1 ? `${address} ${AndMoreMessage} ${items.length - 1}` : address})
                             </Typography.Text>
                         </div>)
                     }
