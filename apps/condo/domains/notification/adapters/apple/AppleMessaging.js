@@ -149,6 +149,7 @@ class AppleMessaging {
 
             if (isVoIP) {
                 options.type = APS_PUSH_TYPE_VOIP
+                options.appId = [appId, APS_PUSH_TYPE_VOIP].join('.')
                 payload.aps.alert = { ...notification }
             } else if (type === PUSH_TYPE_SILENT_DATA) {
                 options.type = APS_PUSH_TYPE_BACKGROUND
