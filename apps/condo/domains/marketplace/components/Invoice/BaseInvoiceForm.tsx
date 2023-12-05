@@ -22,6 +22,7 @@ import { BaseModalForm, FormWithAction } from '@condo/domains/common/components/
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import Prompt from '@condo/domains/common/components/Prompt'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { NEW_CONTACT_PHONE_FORM_ITEM_NAME } from '@condo/domains/contact/components/ContactsEditor/NewContactFields'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
@@ -45,9 +46,6 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
 
 import { ResidentPaymentAlert } from './ResidentPaymentAlert'
-
-import Prompt from '../../../common/components/Prompt'
-
 
 
 const FORM_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
@@ -127,9 +125,12 @@ const emptyContactValues = {
 
 const PropertyFormField = ({ organizationId, form, disabled, selectedPropertyId, setSelectedPropertyId }) => {
     const intl = useIntl()
-    const AddressPlaceholder = intl.formatMessage({ id: 'placeholder.Address' })
+    const AddressPlaceholder = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.property' })
     const AddressNotFoundContent = intl.formatMessage({ id: 'field.Address.notFound' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
+    const ChangeAddressAlertTitle = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.changeAddressAlert.title' })
+    const ChangeAddressAlertMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.changeAddressAlert.message' })
+    const ChangeAddressAlertButtonText = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.changeAddressAlert.button' })
 
     const { requiredValidator } = useValidations()
     const rows = Form.useWatch('rows', form)
@@ -195,7 +196,7 @@ const PropertyFormField = ({ organizationId, form, disabled, selectedPropertyId,
             />
             <Modal
                 open={changeAddressModalOpen}
-                title='Хотите изменить адрес счета?'
+                title={ChangeAddressAlertTitle}
                 onCancel={handleCancel}
                 footer={[
                     <Button
@@ -203,12 +204,12 @@ const PropertyFormField = ({ organizationId, form, disabled, selectedPropertyId,
                         type='primary'
                         onClick={() => changePropertyId(propertyIdToSelect)}
                     >
-                        Изменить
+                        {ChangeAddressAlertButtonText}
                     </Button>,
                 ]}
             >
                 <Typography.Text type='secondary'>
-                    При смене адреса у счета все выбранные услуги удалятся
+                    {ChangeAddressAlertMessage}
                 </Typography.Text>
             </Modal>
         </>
@@ -344,6 +345,7 @@ const PayerDataFields = ({ organizationId, form, role, disabled, initialValues }
                             setHasPayerData(value)
 
                             if (!value) {
+                                setSelectedPropertyId(null)
                                 form.setFieldsValue({
                                     property: null,
                                     unitName: null,
@@ -412,11 +414,11 @@ type MarketItemOptionType = {
 
 const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabled, setStatus, isModalForm }) => {
     const intl = useIntl()
-    const ServiceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.service' })
-    const QuntityLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.quantity' })
+    const ServiceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.name' })
+    const QuantityLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.count' })
     const TotalPriceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.totalPrice' })
     const AddServiceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.addService' })
-    const PriceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.price' })
+    const PriceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.toPay' })
     const NumberIsNotValidMessage = intl.formatMessage({ id: 'NumberIsNotValid' })
     const ServicePlaceholder = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.service.placeholder' })
     const MinPriceValidationMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.minPriceValidation' })
@@ -569,7 +571,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                     </Col>
                                     <Col xs={24} lg={4}>
                                         <Form.Item
-                                            label={QuntityLabel}
+                                            label={QuantityLabel}
                                             name={[marketItemForm.name, 'count']}
                                             required
                                             labelAlign='left'

@@ -191,6 +191,50 @@ export function calculateRowsTotalPrice (intl, rows) {
     return { hasMinPrice, hasError, totalPrice }
 }
 
+const FORM_REQUIRED_FIELDS = ['rows']
+
+export function getSaveButtonTooltipMessage (form, intl) {
+    const RequiredErrorMessage = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
+    const NoServiceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.name' }).toLowerCase()
+    const NoToPayMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.toPay' }).toLowerCase()
+
+    const requiredFieldNames = [...FORM_REQUIRED_FIELDS]
+    const hasPayerData = form.getFieldValue('payerData')
+    if (hasPayerData) {
+        requiredFieldNames.push('property')
+    }
+
+    const requiredFields = form.getFieldsValue(requiredFieldNames)
+
+    const requiredFieldsMessages = requiredFieldNames.map(fieldName => {
+        if (fieldName === 'rows') {
+            const messages = []
+            const rows = get(requiredFields, 'rows', [])
+
+            const isNameEmpty = rows.some(row => !get(row, 'name'))
+            const isToPayEmpty = rows.some(row => !get(row, 'toPay'))
+
+            if (isNameEmpty) {
+                messages.push(NoServiceMessage)
+            }
+            if (isToPayEmpty) {
+                messages.push(NoToPayMessage)
+            }
+
+            return messages.join(', ')
+        }
+
+        if (!requiredFields[fieldName]) {
+            return intl.formatMessage({ id: `pages.condo.marketplace.invoice.form.${fieldName}` })
+                .toLowerCase()
+        }
+    }).filter(Boolean)
+
+    if (!isEmpty(requiredFieldsMessages)) {
+        return `${RequiredErrorMessage} ${requiredFieldsMessages.join(', ')}`
+    }
+}
+
 const {
     useObject,
     useObjects,

@@ -5,8 +5,13 @@
 import {
     InvoiceContext,
     MarketItem,
-    MarketItemCreateInput, MarketItemFile, MarketItemPrice, MarketItemPriceCreateInput,
-    MarketItemUpdateInput, MarketPriceScope, MarketPriceScopeCreateInput,
+    MarketItemCreateInput,
+    MarketItemFile,
+    MarketItemPrice,
+    MarketItemPriceCreateInput,
+    MarketItemUpdateInput,
+    MarketPriceScope,
+    MarketPriceScopeCreateInput,
     QueryAllMarketItemsArgs,
 } from '@app/condo/schema'
 import { get } from 'lodash'
@@ -247,9 +252,7 @@ export const getSaveButtonTooltipMessage = (form, intl) => {
         errors.push(`${RequiredErrorMessage} ${requiredFieldsMessage.join(', ')}`)
     }
 
-    const tooltipTitle = errors.join('. ')
-
-    return tooltipTitle
+    return errors.join('. ')
 }
 
 
