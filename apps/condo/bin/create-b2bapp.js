@@ -2,7 +2,7 @@ const path = require('path')
 
 const { faker } = require('@faker-js/faker')
 
-const { prepareKeystoneExpressApp } = require('@open-condo/keystone/test.utils')
+const { prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeystoneApp')
 
 const { B2BApp } = require('@condo/domains/miniapp/utils/serverSchema')
 

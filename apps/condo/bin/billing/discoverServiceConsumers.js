@@ -11,7 +11,7 @@ const commander = require('commander')
 const { map } = require('lodash')
 
 const { getLogger } = require('@open-condo/keystone/logging')
-const { prepareKeystoneExpressApp } = require('@open-condo/keystone/test.utils')
+const { prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeystoneApp')
 
 const { BillingAccount } = require('@condo/domains/billing/utils/serverSchema')
 const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')

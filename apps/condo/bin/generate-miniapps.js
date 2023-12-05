@@ -3,7 +3,7 @@ const path = require('path')
 const { faker } = require('@faker-js/faker')
 const random = require('lodash/random')
 
-const { prepareKeystoneExpressApp } = require('@open-condo/keystone/test.utils')
+const { prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeystoneApp')
 
 const { AcquiringIntegration } = require('@condo/domains/acquiring/utils/serverSchema')
 const { BillingIntegration } = require('@condo/domains/billing/utils/serverSchema')

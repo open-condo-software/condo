@@ -4,8 +4,9 @@ const conf = require('@open-condo/config')
 
 const { _internalGetExecutionContextAsyncLocalStorage } = require('./executionContext')
 const { getLogger } = require('./logging')
+const { prepareKeystoneExpressApp } = require('./prepareKeystoneApp')
 const { getRedisClient } = require('./redis')
-const { prepareKeystoneExpressApp, getRandomString } = require('./test.utils')
+const { getRandomString } = require('./test.utils')
 
 const TASK_TYPE = 'TASK'
 const WORKER_CONCURRENCY = parseInt(conf.WORKER_CONCURRENCY || '2')

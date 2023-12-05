@@ -2,8 +2,9 @@
  * @jest-environment node
  */
 
+const { prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeystoneApp')
 const { getById } = require('@open-condo/keystone/schema')
-const { prepareKeystoneExpressApp, setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
+const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
 const { makePayer } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')

@@ -2,7 +2,7 @@ const { generators } = require('openid-client')
 const readline = require('readline')
 const path = require('path')
 
-const { prepareKeystoneExpressApp } = require('@open-condo/keystone/test.utils')
+const { prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeystoneApp')
 const { initializeSbbolAuthApi, getSbbolUserInfoErrors } = require('@condo/domains/organization/integrations/sbbol/utils')
 
 function askQuestion (query) {

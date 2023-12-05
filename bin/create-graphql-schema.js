@@ -7,8 +7,8 @@ const chalk = require('chalk')
 const { program } = require('commander')
 const { printSchema } = require('graphql')
 
+const { prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeystoneApp')
 const { taskQueue } = require('@open-condo/keystone/tasks')
-const { prepareKeystoneExpressApp } = require('@open-condo/keystone/test.utils')
 
 const writeFile = promisify(fs.writeFile)
 

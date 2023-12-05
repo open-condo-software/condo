@@ -11,7 +11,7 @@
 
 const index = require('@app/condo')
 
-const { prepareKeystoneExpressApp } = require('@open-condo/keystone/test.utils')
+const { prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeystoneApp')
 
 
 function exit (code, error) {

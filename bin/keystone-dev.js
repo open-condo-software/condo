@@ -12,7 +12,7 @@ const chalk = require('chalk')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
-const { prepareKeystoneExpressApp } = require('@open-condo/keystone/test.utils')
+const { prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeystoneApp')
 
 const PORT = conf['PORT'] || '3000'
 const SPORT = conf['SPORT']
