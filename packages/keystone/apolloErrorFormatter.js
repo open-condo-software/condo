@@ -172,7 +172,7 @@ const safeFormatError = (error, hideInternals = false, applyPatches = true) => {
         }
     }
 
-    if (!isInnerGQLErrorFound && !hideInternals && originalError) {
+    if (!isInnerGQLErrorFound && originalError) {
         result.originalError = safeFormatError(originalError, hideInternals, false)
     }
 
