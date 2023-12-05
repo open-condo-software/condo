@@ -25,8 +25,6 @@ import { useMarketplaceServicesTableColumns } from '@condo/domains/marketplace/h
 import { MarketItem, MarketPriceScope, MarketCategory } from '@condo/domains/marketplace/utils/clientSchema'
 
 
-const ROW_GUTTERS: RowProps['gutter'] = [0, 0]
-
 export const MarketplaceItemsContent = () => {
     const intl = useIntl()
     const ServicesEmptyTitle = intl.formatMessage({ id: 'pages.condo.marketplace.services.empty.title' })
@@ -82,6 +80,7 @@ export const MarketplaceItemsContent = () => {
         },
     }, {
         fetchPolicy: 'network-only',
+        skip: isEmpty(marketItems),
     })
 
     const {
@@ -125,7 +124,7 @@ export const MarketplaceItemsContent = () => {
         <TablePageContent>
             <Col span={24} style={{ 'marginBottom': '10px' }}>
                 <TableFiltersContainer>
-                    <Row justify='space-between' gutter={ROW_GUTTERS}>
+                    <Row justify='space-between'>
                         <Col xs={24} lg={7}>
                             <Input
                                 placeholder={SearchPlaceholder}
@@ -138,7 +137,6 @@ export const MarketplaceItemsContent = () => {
                 </TableFiltersContainer>
             </Col>
             <Row
-                gutter={ROW_GUTTERS}
                 align='middle'
                 justify='center'
                 hidden={isNoMarketItemsData}

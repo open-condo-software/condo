@@ -1336,6 +1336,8 @@
   "pages.condo.marketplace.services.table.category": "Категория",
   "pages.condo.marketplace.services.table.addressesAndPrices": "Адреса и цены",
   "pages.condo.marketplace.services.actionBar.createMarketItemButton": "Добавить услугу",
+  "pages.condo.marketplace.services.table.allProperties": "Все дома",
+  "pages.condo.marketplace.services.table.andMore": "и еще домов: ",
   "news.fields.units.label": "Помещение",
   "news.fields.units.message": "Чтобы выбрать помещения, удалите выбранные подъезды",
   "news.fields.sections.label": "Подъезд",

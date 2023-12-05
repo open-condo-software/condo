@@ -15,7 +15,7 @@ import {
     getTableCellRenderer, getMoneyRender,
 } from '@condo/domains/common/components/Table/Renders'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
-import { getFilteredValue } from '@condo/domains/common/utils/helpers'
+import { getAddressDetails, getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
 
 
@@ -25,6 +25,8 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
     const SkuNameTitle = intl.formatMessage({ id: 'pages.condo.marketplace.services.table.name' })
     const CategoryTitle = intl.formatMessage({ id: 'pages.condo.marketplace.services.table.category' })
     const ScopeTitle = intl.formatMessage({ id: 'pages.condo.marketplace.services.table.addressesAndPrices' })
+    const AllPropertiesMessage = intl.formatMessage({ id: 'pages.condo.marketplace.services.table.allProperties' })
+    const AndMoreMessage = intl.formatMessage({ id: 'pages.condo.marketplace.services.table.andMore' })
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
@@ -36,16 +38,30 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
     const processedScopes = useMemo(() => {
         const result = {}
         for (const scope of marketPriceScopes) {
-            const { marketItemPrice: { marketItem: { id }, price }, property: { addressMeta: { data: { street_with_type, house_type, house } } }  } = scope
+            const { marketItemPrice: { marketItem: { id }, price: prices }, property } = scope
+            const price = get(prices[0], 'price')
+
+            const { streetPart } = getAddressDetails(property)
 
             const item = {
-                price: get(price[0], 'price'),
+                price,
                 currency: get(price, 'currencyCode', 'RUB'),
-                address: `(${street_with_type}, ${house_type}. ${house})`,
+                address: streetPart,
             }
 
-            if (Array.isArray(result[id])) result[id] = [...result[id], item]
-            result[id] = [item]
+            if (Array.isArray(get(result, [id, price]))) {
+                result[id][price].push(item)
+                continue
+            }
+
+            if (!result[id]) result[id] = {}
+            if (!get(result, [id, price])) result[id][price] = {}
+
+            if (!property) {
+                result[id].priceForAllProperties = item
+                continue
+            }
+            result[id][price] = [item, item, item]
         }
         return result
     }, [marketPriceScopes])
@@ -70,7 +86,7 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
                 key: 'sku',
                 dataIndex: 'sku',
                 sorter: true,
-                width: '10%',
+                width: '8%',
                 render: render,
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'sku'),
             },
@@ -107,12 +123,27 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
             {
                 title: ScopeTitle,
                 key: 'scope',
-                width: '23%',
+                width: '25%',
                 render: (marketItem) => {
-                    return Array.isArray(processedScopes[marketItem.id]) ? processedScopes[marketItem.id].map(scope => (<>
-                        {getMoneyRender(intl, get(scope, 'currency', 'RUB'))(get(scope, 'price', '0'))}
-                        <Typography.Text type='secondary' style={{ margin: '10px' }}>{get(scope, 'address')}</Typography.Text>
-                    </>)) : ''
+                    const componentsToRender = []
+                    const priceForAllProperties = get(processedScopes, [marketItem.id, 'priceForAllProperties'])
+                    if (priceForAllProperties) componentsToRender.push(<div key='priceForAllProperties'>
+                        {getMoneyRender(intl, get(priceForAllProperties, 'currency', 'RUB'))(get(priceForAllProperties, 'price'))}
+                        <Typography.Text type='secondary' style={{ margin: '10px' }}>{AllPropertiesMessage}</Typography.Text>
+                    </div>)
+
+                    for (const price in processedScopes[marketItem.id]) {
+                        const items = processedScopes[marketItem.id][price]
+                        const address = get(items[0], 'address')
+
+                        componentsToRender.push(<div key={address}>
+                            {getMoneyRender(intl, get(items[0], 'currency', 'RUB'))(price)}
+                            <Typography.Text type='secondary' style={{ margin: '10px' }}>
+                                {items.length > 1 ? `${address} ${AndMoreMessage} ${items.length - 1}` : address}
+                            </Typography.Text>
+                        </div>)
+                    }
+                    return componentsToRender
                 },
                 filterIcon: getFilterIcon,
             },
