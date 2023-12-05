@@ -43,6 +43,9 @@ import {
     useMarketItemFormContext,
 } from './BaseMarketItemFormContext'
 
+import Prompt from '../../../common/components/Prompt'
+
+
 
 const GROUP_OUTER_GUTTER: RowProps['gutter'] = [0, 40]
 const GROUP_INNER_GUTTER: RowProps['gutter'] = [0, 40]
@@ -634,6 +637,10 @@ type BaseMarketItemFormProps = {
 }
 
 export const BaseMarketItemForm: React.FC<BaseMarketItemFormProps> = (props) => {
+    const intl = useIntl()
+    const SaveChangesModalTitle = intl.formatMessage({ id: 'form.prompt.title' })
+    const SaveChangesNodalMessage = intl.formatMessage({ id: 'form.prompt.message' })
+
     const { children, action, initialValues } = props
     const { breakpoints } = useLayoutContext()
     const { organization } = useOrganization()
@@ -676,63 +683,74 @@ export const BaseMarketItemForm: React.FC<BaseMarketItemFormProps> = (props) => 
             >
                 {
                     ({ handleSave }) => (
-                        <Row gutter={[0, 60]}>
-                            <Col>
-                                <Row gutter={isSmallScreen ? [0, 0] : [50, 0]}>
-                                    <Col span={isSmallScreen ? 24 : 16}>
-                                        <Row gutter={GROUP_OUTER_GUTTER}>
-                                            <Col span={24}>
-                                                <MarketItemFields/>
-                                            </Col>
-                                            <Col span={24}>
-                                                <MarketPricesList/>
-                                            </Col>
-                                        </Row>
-                                    </Col>
-                                    {
-                                        !isSmallScreen && (
-                                            <Col span={8}>
-                                                <Form.Item
-                                                    shouldUpdate
-                                                    noStyle
-                                                >
-                                                    {
-                                                        ({ getFieldsValue }) => {
-                                                            const {
-                                                                name,
-                                                                prices,
-                                                                sku,
-                                                                description,
-                                                                files,
-                                                            } = getFieldsValue(
-                                                                ['name', 'prices', 'sku', 'description', 'files']
-                                                            )
+                        <>
+                            <Prompt
+                                title={SaveChangesModalTitle}
+                                form={form}
+                                handleSave={handleSave}
+                            >
+                                <Typography.Paragraph>
+                                    {SaveChangesNodalMessage}
+                                </Typography.Paragraph>
+                            </Prompt>
+                            <Row gutter={[0, 60]}>
+                                <Col>
+                                    <Row gutter={isSmallScreen ? [0, 0] : [50, 0]}>
+                                        <Col span={isSmallScreen ? 24 : 16}>
+                                            <Row gutter={GROUP_OUTER_GUTTER}>
+                                                <Col span={24}>
+                                                    <MarketItemFields/>
+                                                </Col>
+                                                <Col span={24}>
+                                                    <MarketPricesList/>
+                                                </Col>
+                                            </Row>
+                                        </Col>
+                                        {
+                                            !isSmallScreen && (
+                                                <Col span={8}>
+                                                    <Form.Item
+                                                        shouldUpdate
+                                                        noStyle
+                                                    >
+                                                        {
+                                                            ({ getFieldsValue }) => {
+                                                                const {
+                                                                    name,
+                                                                    prices,
+                                                                    sku,
+                                                                    description,
+                                                                    files,
+                                                                } = getFieldsValue(
+                                                                    ['name', 'prices', 'sku', 'description', 'files']
+                                                                )
 
-                                                            const price = get(prices, '0.price')
-                                                            const priceType = get(prices, '0.priceType')
+                                                                const price = get(prices, '0.price')
+                                                                const priceType = get(prices, '0.priceType')
 
-                                                            return (
-                                                                <MobilePreview
-                                                                    name={name}
-                                                                    price={price}
-                                                                    priceType={priceType}
-                                                                    sku={sku}
-                                                                    description={description}
-                                                                    files={files}
-                                                                />
-                                                            )
+                                                                return (
+                                                                    <MobilePreview
+                                                                        name={name}
+                                                                        price={price}
+                                                                        priceType={priceType}
+                                                                        sku={sku}
+                                                                        description={description}
+                                                                        files={files}
+                                                                    />
+                                                                )
+                                                            }
                                                         }
-                                                    }
-                                                </Form.Item>
-                                            </Col>
-                                        )
-                                    }
-                                </Row>
-                            </Col>
-                            <Col span={24}>
-                                {typeof children === 'function' ? children({ handleSave, form }) : children}
-                            </Col>
-                        </Row>
+                                                    </Form.Item>
+                                                </Col>
+                                            )
+                                        }
+                                    </Row>
+                                </Col>
+                                <Col span={24}>
+                                    {typeof children === 'function' ? children({ handleSave, form }) : children}
+                                </Col>
+                            </Row>
+                        </>
                     )
                 }
             </FormWithAction>

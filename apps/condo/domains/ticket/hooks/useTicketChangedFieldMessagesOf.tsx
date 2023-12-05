@@ -20,7 +20,7 @@ import { PhoneLink } from '@condo/domains/common/components/PhoneLink'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { MAX_DESCRIPTION_DISPLAY_LENGTH } from '@condo/domains/ticket/constants/restrictions'
 import { STATUS_IDS } from '@condo/domains/ticket/constants/statusTransitions'
-import { TICKET_TYPE_TAG_COLORS } from '@condo/domains/ticket/constants/style'
+import { TICKET_TYPE_TAG_STYLE } from '@condo/domains/ticket/constants/style'
 import { convertQualityControlOrFeedbackOptionsToText } from '@condo/domains/ticket/utils'
 import { TicketStatus } from '@condo/domains/ticket/utils/clientSchema'
 import { RESIDENT } from '@condo/domains/user/constants/common'
@@ -81,7 +81,7 @@ type TicketType = 'emergency' | 'warranty' | 'payable'
 const formatTicketFlag = (value, ticketType: TicketType) => {
     return (
         <Typography.Text>
-            «<Typography.Text style={{ color: TICKET_TYPE_TAG_COLORS[ticketType] }}>{value}</Typography.Text>»
+            «<Typography.Text style={{ color: TICKET_TYPE_TAG_STYLE[ticketType].color }}>{value}</Typography.Text>»
         </Typography.Text>
     )
 }

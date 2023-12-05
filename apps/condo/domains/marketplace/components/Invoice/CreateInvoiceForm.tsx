@@ -20,7 +20,7 @@ import { getPaymentLinkNotification } from './CopyButton'
 
 type CreateInvoiceFormProps = {
     organizationId: string
-    afterAction: (invoice: InvoiceType) => Promise<void>
+    afterAction: (invoice?: InvoiceType) => Promise<void>
     modalFormProps?: ComponentProps<typeof BaseModalForm>
     initialValues?: InvoiceFormValuesType
     ticketCreatedByResident?: boolean
@@ -29,6 +29,7 @@ type CreateInvoiceFormProps = {
 export const CreateInvoiceForm: React.FC<CreateInvoiceFormProps> = ({ organizationId, afterAction, modalFormProps, initialValues, ticketCreatedByResident }) => {
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Save' })
+    const CancelLabel = intl.formatMessage({ id: 'Cancel' })
 
     const { link } = useOrganization()
 
@@ -98,6 +99,13 @@ export const CreateInvoiceForm: React.FC<CreateInvoiceFormProps> = ({ organizati
                                     disabled={submitLoading}
                                 >
                                     {SaveLabel}
+                                </Button>,
+                                <Button
+                                    key='cancel'
+                                    onClick={() => afterAction()}
+                                    type='secondary'
+                                >
+                                    {CancelLabel}
                                 </Button>,
                             ]}
                         />

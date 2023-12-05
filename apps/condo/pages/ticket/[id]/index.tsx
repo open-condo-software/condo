@@ -61,7 +61,7 @@ import { TicketStatusSelect } from '@condo/domains/ticket/components/TicketStatu
 import { TicketTag } from '@condo/domains/ticket/components/TicketTag'
 import { CLOSED_STATUS_TYPE, CANCELED_STATUS_TYPE } from '@condo/domains/ticket/constants'
 import { STATUS_IDS } from '@condo/domains/ticket/constants/statusTransitions'
-import { TICKET_TYPE_TAG_COLORS } from '@condo/domains/ticket/constants/style'
+import { TICKET_TYPE_TAG_STYLE } from '@condo/domains/ticket/constants/style'
 import { useActiveCall } from '@condo/domains/ticket/contexts/ActiveCallContext'
 import { FavoriteTicketsContextProvider } from '@condo/domains/ticket/contexts/FavoriteTicketsContext'
 import {
@@ -284,16 +284,33 @@ const TicketHeader = ({ ticket, handleTicketStatusChanged, organization, employe
                         <Col span={!breakpoints.TABLET_LARGE && 24}
                             hidden={!isEmergency && !isPayable && !isWarranty && statusReopenedCounter === 0}>
                             <Space direction='horizontal'>
-                                {isEmergency && <TicketTag
-                                    color={TICKET_TYPE_TAG_COLORS.emergency}>{EmergencyMessage.toLowerCase()}</TicketTag>}
-                                {isPayable && <TicketTag
-                                    color={TICKET_TYPE_TAG_COLORS.payable}>{PayableMessage.toLowerCase()}</TicketTag>}
-                                {isWarranty && <TicketTag
-                                    color={TICKET_TYPE_TAG_COLORS.warranty}>{WarrantyMessage.toLowerCase()}</TicketTag>}
+                                {isEmergency && (
+                                    <TicketTag
+                                        style={TICKET_TYPE_TAG_STYLE.emergency}
+                                    >
+                                        {EmergencyMessage}
+                                    </TicketTag>
+                                )}
+                                {isPayable && (
+                                    <TicketTag
+                                        style={TICKET_TYPE_TAG_STYLE.payable}
+                                    >
+                                        {PayableMessage}
+                                    </TicketTag>
+                                )}
+                                {isWarranty && (
+                                    <TicketTag
+                                        style={TICKET_TYPE_TAG_STYLE.warranty}
+                                    >
+                                        {WarrantyMessage}
+                                    </TicketTag>
+                                )}
                                 {
                                     statusReopenedCounter > 0 && (
-                                        <TicketTag color={TICKET_TYPE_TAG_COLORS.returned}>
-                                            {ReturnedMessage.toLowerCase()} {statusReopenedCounter > 1 && `(${statusReopenedCounter})`}
+                                        <TicketTag
+                                            style={TICKET_TYPE_TAG_STYLE.returned}
+                                        >
+                                            {ReturnedMessage} {statusReopenedCounter > 1 && `(${statusReopenedCounter})`}
                                         </TicketTag>
                                     )
                                 }

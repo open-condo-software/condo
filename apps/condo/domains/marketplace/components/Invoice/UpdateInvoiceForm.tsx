@@ -40,6 +40,7 @@ export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({
     const isModalForm = useMemo(() => !isEmpty(modalFormProps), [modalFormProps])
     const invoiceContext = useMemo(() => get(invoice, 'context'), [invoice])
     const organization = useMemo(() => get(invoiceContext, 'organization'), [invoiceContext])
+    const CancelLabel = intl.formatMessage({ id: 'Cancel' })
 
     const { link } = useOrganization()
 
@@ -105,6 +106,13 @@ export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({
                                     disabled={submitLoading}
                                 >
                                     {SaveLabel}
+                                </Button>,
+                                <Button
+                                    key='cancel'
+                                    onClick={() => afterAction()}
+                                    type='secondary'
+                                >
+                                    {CancelLabel}
                                 </Button>,
                             ]}
                         />
