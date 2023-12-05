@@ -62,13 +62,6 @@ jobs:
           provenance: false
           cache-from: ${{ env.DOCKER_CACHE_FROM }}
           cache-to: ${{ env.DOCKER_CACHE_TO }}
-      - name: Collect logs from temp dir
-        if: failure()
-        uses: shrink/actions-docker-extract@v3
-        with:
-          image: ${{ env.DOCKER_IMAGE_FULL }}
-          path: /tmp/.
-          destination: ./docker-tmp
       - name: Collect docker logs on failure
         if: failure()
         uses: jwalton/gh-docker-logs@v1
@@ -82,7 +75,6 @@ jobs:
           path: |
             *.log
             ./docker-logs
-            ./docker-tmp/xfs-*
           retention-days: 2
 
   lint:
