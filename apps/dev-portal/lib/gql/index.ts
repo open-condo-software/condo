@@ -78,7 +78,7 @@ export type ConfirmPhoneAction = {
     newId?: Maybe<Scalars['String']['output']>;
     /**  Phone number to be verified  */
     phone?: Maybe<Scalars['String']['output']>;
-    /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+    /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
     sender?: Maybe<SenderField>;
     updatedAt?: Maybe<Scalars['String']['output']>;
     /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
@@ -1014,7 +1014,7 @@ export type User = {
     password_is_set?: Maybe<Scalars['Boolean']['output']>;
     /**  User phone. Required for authentication, used as main contact info  */
     phone?: Maybe<Scalars['String']['output']>;
-    /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+    /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
     sender?: Maybe<SenderField>;
     updatedAt?: Maybe<Scalars['String']['output']>;
     /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
