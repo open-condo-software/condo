@@ -176,4 +176,10 @@ jobs:
       - name: Prepare apps
         run: |
           docker exec condo-container node bin/prepare.js -f condo dev-api
+      - name: Start apps
+        run: |
+          docker exec condo-container "yarn workspace @app/condo start & yarn workspace @app/dev-api start & node bin/wait-apps-apis.js -f condo dev-api"
+      - name: Run dev-api tests
+        run: |
+          docker exec condo-container "yarn workspace @app/dev-api test"
 
