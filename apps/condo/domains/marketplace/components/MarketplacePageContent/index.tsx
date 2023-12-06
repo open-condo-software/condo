@@ -13,6 +13,7 @@ import { PageHeader, PageWrapper } from '@condo/domains/common/components/contai
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import { MarketplaceInvoicesContent } from '@condo/domains/marketplace/components/Invoice/MarketplaceInvoicesContent'
+import { MarketplaceItemsContent } from '@condo/domains/marketplace/components/MarketItemContent'
 import { MarketplacePaymentsContent } from '@condo/domains/marketplace/components/MarketplacePaymentsContent'
 import { INVOICE_CONTEXT_STATUS_FINISHED } from '@condo/domains/marketplace/constants'
 import { useQueryTab } from '@condo/domains/marketplace/hooks/useQueryTab'
@@ -31,9 +32,6 @@ export const MarketplacePageContent = () => {
     const BillsTab = intl.formatMessage({ id: 'pages.condo.marketplace.tab.bill' })
     const PaymentsTab = intl.formatMessage({ id: 'pages.condo.marketplace.tab.payments' })
     const ServicesTab = intl.formatMessage({ id: 'pages.condo.marketplace.tab.services' })
-    const ServicesEmptyTitle = intl.formatMessage({ id: 'pages.condo.marketplace.services.empty.title' })
-    const ServicesEmptyText = intl.formatMessage({ id: 'pages.condo.marketplace.services.empty.text' })
-    const ServicesEmptyButtonText = intl.formatMessage({ id: 'pages.condo.marketplace.services.empty.buttonText' })
 
     const { GlobalHints } = useGlobalHints()
     const [currentTab, onTabChange] = useQueryTab([MARKETPLACE_PAGE_TYPES.bills, MARKETPLACE_PAGE_TYPES.payments, MARKETPLACE_PAGE_TYPES.services])
@@ -71,13 +69,11 @@ export const MarketplacePageContent = () => {
             {
                 label: ServicesTab,
                 key: MARKETPLACE_PAGE_TYPES.services,
-                children: <EmptyListView label={ServicesEmptyTitle} message={ServicesEmptyText} button={
-                    <Button type='primary'>{ServicesEmptyButtonText}</Button>
-                }/>,
+                children: <MarketplaceItemsContent/>,
             }]
 
         return result
-    }, [BillsTab, PaymentsTab, ServicesEmptyButtonText, ServicesEmptyText, ServicesEmptyTitle, ServicesTab, canManageInvoices, canReadPayments])
+    }, [BillsTab, PaymentsTab, ServicesTab, canManageInvoices, canReadPayments])
 
     return (
         <PageWrapper>

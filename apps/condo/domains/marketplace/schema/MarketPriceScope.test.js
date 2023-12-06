@@ -11,8 +11,10 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 
+const { createTestAcquiringIntegration } = require('@condo/domains/acquiring/utils/testSchema')
 const { MarketPriceScope, createTestMarketPriceScope, updateTestMarketPriceScope, createTestMarketItemPrice } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestMarketCategory, createTestMarketItem } = require('@condo/domains/marketplace/utils/testSchema')
+const { createTestInvoiceContext } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
