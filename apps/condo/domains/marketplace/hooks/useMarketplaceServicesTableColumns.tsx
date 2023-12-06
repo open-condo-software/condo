@@ -12,11 +12,12 @@ import { useIntl } from '@open-condo/next/intl'
 
 import { getFilterIcon } from '@condo/domains/common/components/Table/Filters'
 import {
-    getTableCellRenderer, getMoneyRender,
+    getTableCellRenderer,
 } from '@condo/domains/common/components/Table/Renders'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { getAddressDetails, getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { getMoneyRender } from '@condo/domains/marketplace/utils/clientSchema/Invoice'
 
 
 export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, marketPriceScopes: MarketPriceScopeType[], marketCategories: MarketCategoryType[]) {
@@ -27,6 +28,7 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
     const ScopeTitle = intl.formatMessage({ id: 'pages.condo.marketplace.services.table.addressesAndPrices' })
     const AllPropertiesMessage = intl.formatMessage({ id: 'pages.condo.marketplace.services.table.allProperties' })
     const AndMoreMessage = intl.formatMessage({ id: 'pages.condo.marketplace.services.table.andMore' })
+    const ContractPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' })
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
@@ -45,6 +47,7 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
 
             const item = {
                 price,
+                isMin: get(prices[0], 'isMin'),
                 currency: get(price, 'currencyCode', 'RUB'),
                 address: streetPart,
             }
@@ -62,6 +65,8 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
                 continue
             }
             result[id][price] = [item]
+            result[id]['0'] = [{ price: '0', isMin: true, address: item.address }]
+            result[id]['200'] = [{ price: '200', isMin: true, address: item.address }]
         }
         return result
     }, [marketPriceScopes])
@@ -128,7 +133,7 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
                     const componentsToRender = []
                     const priceForAllProperties = get(processedScopes, [marketItem.id, 'priceForAllProperties'])
                     if (priceForAllProperties) componentsToRender.push(<div key='priceForAllProperties'>
-                        {getMoneyRender(intl, get(priceForAllProperties, 'currency', 'RUB'))(get(priceForAllProperties, 'price'))}
+                        {getMoneyRender(intl, get(priceForAllProperties, 'currency', 'RUB'))(get(priceForAllProperties, 'price'), false)}
                         <Typography.Text type='secondary' style={{ margin: '10px' }}>({AllPropertiesMessage})</Typography.Text>
                     </div>)
 
@@ -137,7 +142,7 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
                         const address = get(items[0], 'address')
 
                         componentsToRender.push(<div key={address}>
-                            {getMoneyRender(intl, get(items[0], 'currency', 'RUB'))(price)}
+                            { get(items[0], 'isMin') && (get(items[0], 'price') == 0) ? ContractPriceMessage : getMoneyRender(intl, get(items[0], 'currency', 'RUB'))(price, get(items[0], 'isMin'))}
                             <Typography.Text type='secondary' style={{ margin: '10px' }}>
                                 ({items.length > 1 ? `${address} ${AndMoreMessage} ${items.length - 1}` : address})
                             </Typography.Text>

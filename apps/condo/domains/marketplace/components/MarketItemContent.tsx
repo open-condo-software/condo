@@ -88,7 +88,7 @@ export const MarketplaceItemsContent = () => {
         count: totalMarketCategories,
         objs: marketCategories,
         refetch: refetchCategories,
-    } = MarketCategory.useObjects({
+    } = MarketCategory.useAllObjects({
         where: {},
     }, {
         fetchPolicy: 'cache-first',
