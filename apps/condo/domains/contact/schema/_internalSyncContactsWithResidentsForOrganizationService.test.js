@@ -6,22 +6,27 @@ const {
     makeLoggedInAdminClient,
     makeClient,
     expectToThrowAccessDeniedErrorToResult,
-    expectToThrowAuthenticationErrorToResult,
+    expectToThrowAuthenticationErrorToResult, expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
 const {
     _internalSyncContactsWithResidentsForOrganizationByTestClient,
     createTestContact,
+    Contact,
 } = require('@condo/domains/contact/utils/testSchema')
+const { Organization } = require('@condo/domains/organization/utils/testSchema')
 const {
     makeClientWithProperty,
     createTestProperty,
+    Property,
 } = require('@condo/domains/property/utils/testSchema')
-const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
+const { createTestResident, Resident } = require('@condo/domains/resident/utils/testSchema')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
 } = require('@condo/domains/user/utils/testSchema')
+
+const { ERRORS } = require('./_internalSyncContactsWithResidentsForOrganizationService')
 
  
 describe('_internalSyncContactsWithResidentsForOrganizationService', () => {
@@ -90,6 +95,86 @@ describe('_internalSyncContactsWithResidentsForOrganizationService', () => {
             await createTestContact(adminClient, resident.organization, resident.property, duplicatedFields)
             const [contacts] = await _internalSyncContactsWithResidentsForOrganizationByTestClient(adminClient, { organization: { id: resident.organization.id } })
             expect(contacts).toHaveLength(0)
+        })
+
+        describe('cases with deleted records', () => {
+            let adminClient
+
+            beforeAll(async () => {
+                adminClient = await makeLoggedInAdminClient()
+            })
+
+            test('should throw error if organization is not found', async () => {
+                const userClient = await makeClientWithProperty()
+                const [resident] = await createTestResident(adminClient, userClient.user, userClient.property)
+                await Organization.softDelete(adminClient, resident.organization.id)
+
+                await expectToThrowGQLError(async () => {
+                    await _internalSyncContactsWithResidentsForOrganizationByTestClient(adminClient, { organization: { id: resident.organization.id } })
+                }, ERRORS.ORGANIZATION_NOT_FOUND, 'result')
+            })
+            test('should not sync deleted properties', async () => {
+                const userClient = await makeClientWithProperty()
+                const userClient2 = await makeClientWithProperty()
+                const [property2] = await createTestProperty(adminClient, userClient.organization)
+                const [resident] = await createTestResident(adminClient, userClient.user, userClient.property)
+                const [resident2] = await createTestResident(adminClient, userClient2.user, property2) // second resident in other property
+                await Property.softDelete(adminClient, userClient.property.id)
+
+                const [contacts] = await _internalSyncContactsWithResidentsForOrganizationByTestClient(adminClient, { organization: { id: resident.organization.id } })
+                expect(contacts).toHaveLength(1)
+
+                const contact = contacts[0]
+                const userData = userClient2.userAttrs
+                expect(contact.phone).toEqual(userData.phone)
+                expect(contact.name).toEqual(userData.name)
+                expect(contact.email).toEqual(userData.email)
+                expect(contact.organization.id).toEqual(resident2.organization.id)
+                expect(contact.property.id).toEqual(resident2.property.id)
+            })
+            test('should not sync deleted residents', async () => {
+                const userClient = await makeClientWithProperty()
+                const userClient2 = await makeClientWithProperty()
+                const [resident] = await createTestResident(adminClient, userClient.user, userClient.property)
+                const [resident2] = await createTestResident(adminClient, userClient2.user, userClient.property)
+                await Resident.softDelete(adminClient, resident.id)
+                const [contacts] = await _internalSyncContactsWithResidentsForOrganizationByTestClient(adminClient, { organization: { id: resident2.organization.id } })
+
+                expect(contacts).toHaveLength(1)
+
+                const contact = contacts[0]
+                const userData = userClient2.userAttrs
+                expect(contact.phone).toEqual(userData.phone)
+                expect(contact.name).toEqual(userData.name)
+                expect(contact.email).toEqual(userData.email)
+                expect(contact.organization.id).toEqual(resident2.organization.id)
+                expect(contact.property.id).toEqual(resident2.property.id)
+            })
+            test('should create contact if old contact with same phone was deleted', async () => {
+                const userClient = await makeClientWithProperty()
+                const [resident] = await createTestResident(adminClient, userClient.user, userClient.property)
+
+                const duplicatedFields = { phone: userClient.userAttrs.phone }
+                const [createdContact] = await createTestContact(adminClient, resident.organization, resident.property, duplicatedFields)
+
+                const [contacts] = await _internalSyncContactsWithResidentsForOrganizationByTestClient(adminClient, { organization: { id: resident.organization.id } })
+                // Contact already exists
+                expect(contacts).toHaveLength(0)
+
+                await Contact.softDelete(adminClient, createdContact.id)
+
+                const [contacts2] = await _internalSyncContactsWithResidentsForOrganizationByTestClient(adminClient, { organization: { id: resident.organization.id } })
+                // The contact has been deleted, you need to create it again
+                expect(contacts2).toHaveLength(1)
+
+                const contact = contacts2[0]
+                const userData = userClient.userAttrs
+                expect(contact.phone).toEqual(userData.phone)
+                expect(contact.name).toEqual(userData.name)
+                expect(contact.email).toEqual(userData.email)
+                expect(contact.organization.id).toEqual(resident.organization.id)
+                expect(contact.property.id).toEqual(resident.property.id)
+            })
         })
 
     })
