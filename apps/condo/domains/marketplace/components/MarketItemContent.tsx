@@ -72,7 +72,7 @@ export const MarketplaceItemsContent = () => {
         count: totalScopes,
         objs: marketPriceScopes,
         refetch: refetchScope,
-    } = MarketPriceScope.useObjects({
+    } = MarketPriceScope.useAllObjects({
         where: {
             marketItemPrice: {
                 marketItem: { id_in: marketItems.map(({ id }) => id) },
