@@ -55,13 +55,13 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
             }
 
             if (!result[id]) result[id] = {}
-            if (!get(result, [id, price])) result[id][price] = {}
+            if (!get(result, [id, price])) result[id][price] = []
 
             if (!property) {
                 result[id].priceForAllProperties = item
                 continue
             }
-            result[id][price] = [item, item, item]
+            result[id][price] = [item]
         }
         return result
     }, [marketPriceScopes])
