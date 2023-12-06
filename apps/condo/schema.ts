@@ -40556,7 +40556,6 @@ export type Mutation = {
   setMessageStatus?: Maybe<SetMessageStatusOutput>;
   _internalSyncContactsWithResidentsForOrganization?: Maybe<Array<Maybe<Contact>>>;
   registerResident?: Maybe<Resident>;
-  registerResidentServiceConsumers?: Maybe<Array<ServiceConsumer>>;
   /**
    * Creates service consumer with default data, and automatically populates the optional data fields, such as `billingAccount
    *
@@ -40575,17 +40574,6 @@ export type Mutation = {
    *   "code": "BAD_USER_INPUT",
    *   "type": "NOT_FOUND",
    *   "message": "Cannot find Resident for current user"
-   * }`
-   *
-   * `{
-   *   "mutation": "registerResidentServiceConsumers",
-   *   "variable": [
-   *     "resident",
-   *     "id"
-   *   ],
-   *   "code": "BAD_USER_INPUT",
-   *   "type": "NOT_FOUND",
-   *   "message": "Can't find Property for current resident"
    * }`
    *
    * `{
@@ -48575,12 +48563,6 @@ export type Mutation_InternalSyncContactsWithResidentsForOrganizationArgs = {
 
 export type MutationRegisterResidentArgs = {
   data: RegisterResidentInput;
-};
-
-
-export type MutationRegisterResidentServiceConsumersArgs = {
-  resident: ResidentWhereUniqueInput;
-  accountNumber: Scalars['String'];
 };
 
 
