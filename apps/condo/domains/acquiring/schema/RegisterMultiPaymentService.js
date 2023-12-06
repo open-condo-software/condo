@@ -349,7 +349,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                         messageInterpolation: { ids: deletedInvoicesIds.join(',') },
                     }, context)
                 }
-                const invoicesContexts = await find('InvoiceContext', {
+                const invoicesContexts = await find('InvoiceContext??', {
                     deletedAt: null,
                     id_in: uniq(map(foundInvoices, 'context')),
                 })

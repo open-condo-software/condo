@@ -33,8 +33,7 @@ async function freezeBillingReceipt (flatReceipt) {
 
 async function freezeInvoice (flatInvoice) {
     const property = flatInvoice.property ? await getById('Property', flatInvoice.property) : null
-    const context = await getById('InvoiceContext', flatInvoice.context)
-    const organization = await getById('Organization', context.organization)
+    const organization = await getById('Organization', flatInvoice.organization)
     const ticket = flatInvoice.ticket ? await getById('Ticket', flatInvoice.ticket) : null
 
     return {
@@ -43,8 +42,6 @@ async function freezeInvoice (flatInvoice) {
             ...flatInvoice,
             property,
             organization,
-            // The invoice context without sensitive data (such as settings.emails)
-            context: omit(context, ['settings', 'status']),
             ticket,
         },
     }
