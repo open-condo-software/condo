@@ -27,7 +27,6 @@ const {
     INVOICE_STATUS_DRAFT,
     INVOICE_STATUS_PUBLISHED,
     INVOICE_STATUS_PAID,
-    INVOICE_CONTEXT_STATUS_FINISHED,
     INVOICE_PAYMENT_TYPE_CASH,
     INVOICE_PAYMENT_TYPE_ONLINE,
     INVOICE_STATUS_CANCELED, CLIENT_DATA_FIELDS,
@@ -36,10 +35,12 @@ const {
     Invoice,
     createTestInvoice,
     updateTestInvoice,
-    createTestInvoiceContext,
     generateInvoiceRow, generateInvoiceRows,
 } = require('@condo/domains/marketplace/utils/testSchema')
-const { MARKETPLACE_INVOICE_PUBLISHED_MESSAGE_TYPE, MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
+const {
+    MARKETPLACE_INVOICE_PUBLISHED_MESSAGE_TYPE,
+    MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
+} = require('@condo/domains/notification/constants/constants')
 const { Message } = require('@condo/domains/notification/utils/testSchema')
 const {
     createTestOrganization,
@@ -62,7 +63,7 @@ const {
 dayjs.extend(isSameOrAfter)
 
 let adminClient, supportClient, anonymousClient
-let dummyO10n, dummyIntegration, dummyInvoiceContext
+let dummyO10n
 
 describe('Invoice', () => {
     beforeAll(async () => {
@@ -72,21 +73,20 @@ describe('Invoice', () => {
 
         ;[dummyO10n] = await createTestOrganization(adminClient)
         await createTestBillingIntegration(adminClient)
-        ;[dummyIntegration] = await createTestAcquiringIntegration(supportClient)
-        ;[dummyInvoiceContext] = await createTestInvoiceContext(adminClient, dummyO10n, dummyIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
+        await createTestAcquiringIntegration(supportClient)
     })
 
     describe('CRUD tests', () => {
         describe('create', () => {
             test('admin can', async () => {
-                const [obj, attrs] = await createTestInvoice(adminClient, dummyInvoiceContext)
+                const [obj, attrs] = await createTestInvoice(adminClient, dummyO10n)
                 expectValuesOfCommonFields(obj, attrs, adminClient)
                 expect(obj.status).toBe(INVOICE_STATUS_DRAFT)
                 expect(obj.paymentType).toBe(INVOICE_PAYMENT_TYPE_ONLINE)
             })
 
             test('support can', async () => {
-                const [obj, attrs] = await createTestInvoice(supportClient, dummyInvoiceContext)
+                const [obj, attrs] = await createTestInvoice(supportClient, dummyO10n)
                 expectValuesOfCommonFields(obj, attrs, supportClient)
             })
 
@@ -99,7 +99,7 @@ describe('Invoice', () => {
                 })
                 await createTestOrganizationEmployee(adminClient, dummyO10n, client.user, role)
 
-                const [obj, attrs] = await createTestInvoice(client, dummyInvoiceContext)
+                const [obj, attrs] = await createTestInvoice(client, dummyO10n)
 
                 expectValuesOfCommonFields(obj, attrs, client)
             })
@@ -113,7 +113,7 @@ describe('Invoice', () => {
                 await createTestOrganizationEmployee(adminClient, dummyO10n, client.user, role)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestInvoice(client, dummyInvoiceContext)
+                    await createTestInvoice(client, dummyO10n)
                 })
             })
 
@@ -126,7 +126,7 @@ describe('Invoice', () => {
 
         describe('update', () => {
             test('admin can', async () => {
-                const [objCreated] = await createTestInvoice(adminClient, dummyInvoiceContext)
+                const [objCreated] = await createTestInvoice(adminClient, dummyO10n)
                 const [obj, attrs] = await updateTestInvoice(adminClient, objCreated.id)
 
                 expect(obj.dv).toEqual(1)
@@ -136,7 +136,7 @@ describe('Invoice', () => {
             })
 
             test('support can', async () => {
-                const [objCreated] = await createTestInvoice(adminClient, dummyInvoiceContext)
+                const [objCreated] = await createTestInvoice(adminClient, dummyO10n)
 
                 const [obj, attrs] = await updateTestInvoice(supportClient, objCreated.id)
 
@@ -147,7 +147,7 @@ describe('Invoice', () => {
             })
 
             test('staff with permission can', async () => {
-                const [objCreated] = await createTestInvoice(adminClient, dummyInvoiceContext)
+                const [objCreated] = await createTestInvoice(adminClient, dummyO10n)
 
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [role] = await createTestOrganizationEmployeeRole(adminClient, dummyO10n, {
@@ -166,7 +166,7 @@ describe('Invoice', () => {
 
             test('staff without permission can\'t', async () => {
                 const [o10n] = await createTestOrganization(adminClient)
-                const [objCreated] = await createTestInvoice(adminClient, dummyInvoiceContext)
+                const [objCreated] = await createTestInvoice(adminClient, dummyO10n)
 
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [role] = await createTestOrganizationEmployeeRole(adminClient, o10n, {
@@ -184,11 +184,8 @@ describe('Invoice', () => {
                 const [o10n1] = await createTestOrganization(adminClient)
                 const [o10n2] = await createTestOrganization(adminClient)
 
-                const [invoiceContext1] = await createTestInvoiceContext(adminClient, o10n1, dummyIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
-                const [invoiceContext2] = await createTestInvoiceContext(adminClient, o10n2, dummyIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
-
-                const [objCreated1] = await createTestInvoice(adminClient, invoiceContext1)
-                const [objCreated2] = await createTestInvoice(adminClient, invoiceContext2)
+                const [objCreated1] = await createTestInvoice(adminClient, o10n1)
+                const [objCreated2] = await createTestInvoice(adminClient, o10n2)
 
                 const client1 = await makeClientWithNewRegisteredAndLoggedInUser()
                 const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -213,7 +210,7 @@ describe('Invoice', () => {
             })
 
             test('anonymous can\'t', async () => {
-                const [objCreated] = await createTestInvoice(adminClient, dummyInvoiceContext)
+                const [objCreated] = await createTestInvoice(adminClient, dummyO10n)
 
                 await expectToThrowAuthenticationErrorToObj(async () => {
                     await updateTestInvoice(anonymousClient, objCreated.id)
@@ -223,7 +220,7 @@ describe('Invoice', () => {
 
         describe('hard delete', () => {
             test('admin can\'t', async () => {
-                const [objCreated] = await createTestInvoice(adminClient, dummyInvoiceContext)
+                const [objCreated] = await createTestInvoice(adminClient, dummyO10n)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await Invoice.delete(adminClient, objCreated.id)
@@ -231,7 +228,7 @@ describe('Invoice', () => {
             })
 
             test('user can\'t', async () => {
-                const [objCreated] = await createTestInvoice(adminClient, dummyInvoiceContext)
+                const [objCreated] = await createTestInvoice(adminClient, dummyO10n)
 
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -240,7 +237,7 @@ describe('Invoice', () => {
             })
 
             test('anonymous can\'t', async () => {
-                const [objCreated] = await createTestInvoice(adminClient, dummyInvoiceContext)
+                const [objCreated] = await createTestInvoice(adminClient, dummyO10n)
 
                 const client = await makeClient()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -251,7 +248,7 @@ describe('Invoice', () => {
 
         describe('read', () => {
             test('admin can', async () => {
-                const [obj] = await createTestInvoice(adminClient, dummyInvoiceContext)
+                const [obj] = await createTestInvoice(adminClient, dummyO10n)
 
                 const objs = await Invoice.getAll(adminClient, {}, { sortBy: ['updatedAt_DESC'] })
 
@@ -264,7 +261,7 @@ describe('Invoice', () => {
             })
 
             test('support can', async () => {
-                const [obj] = await createTestInvoice(adminClient, dummyInvoiceContext)
+                const [obj] = await createTestInvoice(adminClient, dummyO10n)
 
                 const objs = await Invoice.getAll(supportClient, {}, { sortBy: ['updatedAt_DESC'] })
 
@@ -277,7 +274,7 @@ describe('Invoice', () => {
             })
 
             test('staff with permission can', async () => {
-                const [objCreated] = await createTestInvoice(adminClient, dummyInvoiceContext)
+                const [objCreated] = await createTestInvoice(adminClient, dummyO10n)
 
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [role] = await createTestOrganizationEmployeeRole(adminClient, dummyO10n, { canReadInvoices: true })
@@ -294,7 +291,7 @@ describe('Invoice', () => {
             })
 
             test('staff without permission can\'t', async () => {
-                await createTestInvoice(adminClient, dummyInvoiceContext)
+                await createTestInvoice(adminClient, dummyO10n)
 
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [role] = await createTestOrganizationEmployeeRole(adminClient, dummyO10n, { canReadInvoices: false })
@@ -309,11 +306,8 @@ describe('Invoice', () => {
                 const [o10n1] = await createTestOrganization(adminClient)
                 const [o10n2] = await createTestOrganization(adminClient)
 
-                const [invoiceContext1] = await createTestInvoiceContext(adminClient, o10n1, dummyIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
-                const [invoiceContext2] = await createTestInvoiceContext(adminClient, o10n2, dummyIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
-
-                const [objCreated1] = await createTestInvoice(adminClient, invoiceContext1)
-                const [objCreated2] = await createTestInvoice(adminClient, invoiceContext2)
+                const [objCreated1] = await createTestInvoice(adminClient, o10n1)
+                const [objCreated2] = await createTestInvoice(adminClient, o10n2)
 
                 const client1 = await makeClientWithNewRegisteredAndLoggedInUser()
                 const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -347,15 +341,14 @@ describe('Invoice', () => {
             const unitType = FLAT_UNIT_TYPE
             const unitName = faker.lorem.word()
 
-            const [invoiceContext] = await createTestInvoiceContext(client, client.organization, dummyIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
-            await createTestInvoice(client, invoiceContext, {
+            await createTestInvoice(client, client.organization, {
                 property: { connect: { id: client.property.id } },
                 unitType,
                 unitName,
                 // status=draft by default
             })
 
-            await createTestInvoice(client, invoiceContext, {
+            await createTestInvoice(client, client.organization, {
                 property: { connect: { id: client.property.id } },
                 unitType,
                 unitName,
@@ -393,8 +386,7 @@ describe('Invoice', () => {
                     unitName,
                 })
 
-            const [invoiceContext] = await createTestInvoiceContext(client, client.organization, dummyIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
-            await createTestInvoice(client, invoiceContext, {
+            await createTestInvoice(client, client.organization, {
                 property: { connect: { id: client.property.id } },
                 unitType,
                 unitName,
@@ -433,8 +425,7 @@ describe('Invoice', () => {
                     unitName,
                 })
 
-            const [invoiceContext] = await createTestInvoiceContext(client, client.organization, dummyIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
-            const [invoice] = await createTestInvoice(client, invoiceContext, {
+            const [invoice] = await createTestInvoice(client, client.organization, {
                 property: { connect: { id: client.property.id } },
                 unitType,
                 unitName: unitName,
@@ -468,11 +459,8 @@ describe('Invoice', () => {
                     unitName,
                 })
 
-            const [invoiceContext1] = await createTestInvoiceContext(client1, client1.organization, dummyIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
-            const [invoiceContext2] = await createTestInvoiceContext(client2, client2.organization, dummyIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
-
             // add invoice from 1st organization
-            const [invoice1] = await createTestInvoice(client1, invoiceContext1, {
+            const [invoice1] = await createTestInvoice(client1, client1.organization, {
                 property: { connect: { id: client1.property.id } },
                 unitType,
                 unitName,
@@ -481,7 +469,7 @@ describe('Invoice', () => {
             })
 
             // add invoice from 2nd organization
-            const [invoice2] = await createTestInvoice(client2, invoiceContext2, {
+            const [invoice2] = await createTestInvoice(client2, client2.organization, {
                 property: { connect: { id: client2.property.id } },
                 unitType,
                 unitName,
@@ -529,8 +517,7 @@ describe('Invoice', () => {
                 unitName,
             })
 
-            const [invoiceContext] = await createTestInvoiceContext(adminClient, o10n, dummyIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
-            const [invoice] = await createTestInvoice(staffClient, invoiceContext, {
+            const [invoice] = await createTestInvoice(staffClient, o10n, {
                 property: { connect: { id: property.id } },
                 unitType,
                 unitName,
@@ -558,7 +545,7 @@ describe('Invoice', () => {
                 const clientPhone = createTestPhone()
                 const clientName = faker.random.alphaNumeric(5)
 
-                const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext, {
+                const [invoice] = await createTestInvoice(adminClient, dummyO10n, {
                     clientName, clientPhone, unitName, unitType,
                     property: { connect: { id: property.id } },
                 })
@@ -584,7 +571,7 @@ describe('Invoice', () => {
                     unitType, unitName, phone: clientPhone, name: clientName,
                 })
 
-                const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext, {
+                const [invoice] = await createTestInvoice(adminClient, dummyO10n, {
                     clientName, clientPhone, unitName, unitType,
                     property: { connect: { id: property.id } },
                 })
@@ -594,13 +581,13 @@ describe('Invoice', () => {
             })
 
             it('does not connect contact if no client data passed', async () => {
-                const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext)
+                const [invoice] = await createTestInvoice(adminClient, dummyO10n)
 
                 expect(invoice.contact).toBeNull()
             })
 
             it('invoice.toPay must be a sum of rows.*.toPay', async () => {
-                const [invoice, invoiceAttrs] = await createTestInvoice(adminClient, dummyInvoiceContext)
+                const [invoice, invoiceAttrs] = await createTestInvoice(adminClient, dummyO10n)
                 const expectedSum = invoiceAttrs.rows.reduce((sum, {
                     toPay,
                     count,
@@ -612,21 +599,21 @@ describe('Invoice', () => {
         describe('The time when some status set', () => {
 
             test('publishedAt', async () => {
-                const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext)
+                const [invoice] = await createTestInvoice(adminClient, dummyO10n)
                 expect(invoice.publishedAt).toBeNull()
                 const [updatedInvoice] = await updateTestInvoice(adminClient, invoice.id, { status: INVOICE_STATUS_PUBLISHED })
                 expect(dayjs(updatedInvoice.publishedAt).isSameOrAfter(dayjs(invoice.createdAt))).toBe(true)
             })
 
             test('paidAt', async () => {
-                const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext)
+                const [invoice] = await createTestInvoice(adminClient, dummyO10n)
                 expect(invoice.paidAt).toBe(null)
                 const [updatedInvoice] = await updateTestInvoice(adminClient, invoice.id, { status: INVOICE_STATUS_PAID })
                 expect(dayjs(updatedInvoice.paidAt).isSameOrAfter(dayjs(invoice.createdAt))).toBe(true)
             })
 
             test('canceledAt', async () => {
-                const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext)
+                const [invoice] = await createTestInvoice(adminClient, dummyO10n)
                 expect(invoice.canceledAt).toBe(null)
                 const [updatedInvoice] = await updateTestInvoice(adminClient, invoice.id, { status: INVOICE_STATUS_CANCELED })
                 expect(dayjs(updatedInvoice.canceledAt).isSameOrAfter(dayjs(invoice.createdAt))).toBe(true)
@@ -651,8 +638,7 @@ describe('Invoice', () => {
                     unitName,
                 })
 
-            const [invoiceContext] = await createTestInvoiceContext(client, client.organization, dummyIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
-            const [invoice] = await createTestInvoice(client, invoiceContext, {
+            const [invoice] = await createTestInvoice(client, client.organization, {
                 property: { connect: { id: client.property.id } },
                 unitType,
                 unitName,
@@ -690,8 +676,7 @@ describe('Invoice', () => {
                     unitName,
                 })
 
-            const [invoiceContext] = await createTestInvoiceContext(client, client.organization, dummyIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
-            const [createdInvoice] = await createTestInvoice(client, invoiceContext, {
+            const [createdInvoice] = await createTestInvoice(client, client.organization, {
                 property: { connect: { id: client.property.id } },
                 unitType,
                 unitName,
@@ -726,7 +711,7 @@ describe('Invoice', () => {
             const unitName = faker.lorem.word()
 
             const residentClient = await makeClientWithResidentUser()
-            const [resident] = await registerResidentByTestClient(
+            await registerResidentByTestClient(
                 residentClient,
                 {
                     address: client.property.address,
@@ -735,8 +720,7 @@ describe('Invoice', () => {
                     unitName,
                 })
 
-            const [invoiceContext] = await createTestInvoiceContext(client, client.organization, dummyIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
-            await createTestInvoice(client, invoiceContext, {
+            await createTestInvoice(client, client.organization, {
                 property: { connect: { id: client.property.id } },
                 unitType,
                 unitName,
@@ -768,7 +752,6 @@ describe('Invoice', () => {
                     unitName,
                 })
 
-            const [invoiceContext] = await createTestInvoiceContext(client, client.organization, dummyIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
             const [ticket] = await createTestTicket(client, client.organization, client.property, {
                 isPayable: true,
                 unitType,
@@ -778,7 +761,7 @@ describe('Invoice', () => {
                 contact: null,
                 client: { connect: { id: residentClient.user.id } },
             })
-            const [invoice] = await createTestInvoice(client, invoiceContext, {
+            const [invoice] = await createTestInvoice(client, client.organization, {
                 property: { connect: { id: client.property.id } },
                 unitType,
                 unitName,
@@ -822,7 +805,6 @@ describe('Invoice', () => {
                     unitName,
                 })
 
-            const [invoiceContext] = await createTestInvoiceContext(client, client.organization, dummyIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
             const [ticket] = await createTestTicket(client, client.organization, client.property, {
                 isPayable: true,
                 unitType,
@@ -832,7 +814,7 @@ describe('Invoice', () => {
                 contact: null,
                 client: { connect: { id: residentClient.user.id } },
             })
-            const [createdInvoice] = await createTestInvoice(client, invoiceContext, {
+            const [createdInvoice] = await createTestInvoice(client, client.organization, {
                 property: { connect: { id: client.property.id } },
                 unitType,
                 unitName,
@@ -871,7 +853,7 @@ describe('Invoice', () => {
     describe('validation', () => {
 
         test('can\'t change online-paid invoice', async () => {
-            const [obj] = await createTestInvoice(adminClient, dummyInvoiceContext, {
+            const [obj] = await createTestInvoice(adminClient, dummyO10n, {
                 paymentType: INVOICE_PAYMENT_TYPE_ONLINE,
                 status: INVOICE_STATUS_PAID,
             })
@@ -887,7 +869,7 @@ describe('Invoice', () => {
         })
 
         test('can change cash-paid invoice', async () => {
-            const [obj] = await createTestInvoice(adminClient, dummyInvoiceContext, {
+            const [obj] = await createTestInvoice(adminClient, dummyO10n, {
                 paymentType: INVOICE_PAYMENT_TYPE_CASH,
                 status: INVOICE_STATUS_PAID,
             })
@@ -897,7 +879,7 @@ describe('Invoice', () => {
         })
 
         test('can\'t change canceled invoice', async () => {
-            const [obj] = await createTestInvoice(adminClient, dummyInvoiceContext, {
+            const [obj] = await createTestInvoice(adminClient, dummyO10n, {
                 status: INVOICE_STATUS_CANCELED,
             })
 
@@ -912,7 +894,7 @@ describe('Invoice', () => {
         })
 
         test('can\'t publish invoice without rows', async () => {
-            const [obj] = await createTestInvoice(adminClient, dummyInvoiceContext, { rows: [] })
+            const [obj] = await createTestInvoice(adminClient, dummyO10n, { rows: [] })
 
             await expectToThrowGQLError(async () => {
                 await updateTestInvoice(adminClient, obj.id, { status: INVOICE_STATUS_PUBLISHED })
@@ -935,7 +917,7 @@ describe('Invoice', () => {
 
             test.each(necessaryFields)('%s', async (fieldToOmit, omittedFieldType) => {
                 await expectToThrowGraphQLRequestError(async () => {
-                    await createTestInvoice(adminClient, dummyInvoiceContext, {
+                    await createTestInvoice(adminClient, dummyO10n, {
                         rows: [omit(generateInvoiceRow(), fieldToOmit)],
                     })
                 }, `Field "${fieldToOmit}" of required type "${omittedFieldType}" was not provided.`)
@@ -946,7 +928,7 @@ describe('Invoice', () => {
             await expectToThrowGQLError(async () => {
                 await createTestInvoice(
                     adminClient,
-                    dummyInvoiceContext,
+                    dummyO10n,
                     {
                         rows: [
                             generateInvoiceRow(),
@@ -965,7 +947,7 @@ describe('Invoice', () => {
 
         test('invoice.rows.*.toPay must be positive', async () => {
             await expectToThrowGQLError(async () => {
-                await createTestInvoice(adminClient, dummyInvoiceContext, { rows: [generateInvoiceRow({ toPay: '-4' })] })
+                await createTestInvoice(adminClient, dummyO10n, { rows: [generateInvoiceRow({ toPay: '-4' })] })
             }, {
                 code: 'BAD_USER_INPUT',
                 type: 'WRONG_PRICE',
@@ -975,22 +957,8 @@ describe('Invoice', () => {
             })
         })
 
-        test('can\'t create invoice if no finished invoice context', async () => {
-            const [o10n] = await createTestOrganization(adminClient)
-            const [invoiceContext] = await createTestInvoiceContext(adminClient, o10n, dummyIntegration)
-
-            await expectToThrowGQLError(async () => {
-                await createTestInvoice(adminClient, invoiceContext)
-            }, {
-                code: 'BAD_USER_INPUT',
-                type: 'NO_FINISHED_INVOICE_CONTEXT',
-                message: 'The organization has no InvoiceContext in finished status',
-                messageForUser: 'api.marketplace.invoice.error.NoFinishedInvoiceContext',
-            })
-        })
-
         test(`can update status to ${INVOICE_STATUS_CANCELED} of published invoice`, async () => {
-            const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext, { status: INVOICE_STATUS_PUBLISHED })
+            const [invoice] = await createTestInvoice(adminClient, dummyO10n, { status: INVOICE_STATUS_PUBLISHED })
             const [updatedInvoice] = await updateTestInvoice(adminClient, invoice.id, {
                 status: INVOICE_STATUS_CANCELED,
             })
@@ -999,7 +967,7 @@ describe('Invoice', () => {
         })
 
         test('can\'t edit published invoice', async () => {
-            const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext, { status: INVOICE_STATUS_PUBLISHED })
+            const [invoice] = await createTestInvoice(adminClient, dummyO10n, { status: INVOICE_STATUS_PUBLISHED })
 
             await expectToThrowGQLError(async () => {
                 await updateTestInvoice(adminClient, invoice.id, { rows: generateInvoiceRows() })
@@ -1020,7 +988,7 @@ describe('Invoice', () => {
             const [ticket] = await createTestTicket(adminClient, dummyO10n, property, {
                 unitName, unitType, clientPhone, clientName, isResidentTicket: true,
             })
-            const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext, {
+            const [invoice] = await createTestInvoice(adminClient, dummyO10n, {
                 ticket: { connect: { id: ticket.id } },
             })
 
@@ -1043,7 +1011,7 @@ describe('Invoice', () => {
                 unitName, unitType, clientPhone, clientName, isResidentTicket: true,
             })
 
-            const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext, {
+            const [invoice] = await createTestInvoice(adminClient, dummyO10n, {
                 status: INVOICE_STATUS_PUBLISHED,
             })
 
@@ -1073,7 +1041,7 @@ describe('Invoice', () => {
             const [ticket] = await createTestTicket(adminClient, dummyO10n, property)
             const [ticket1] = await createTestTicket(adminClient, dummyO10n, property)
 
-            const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext, {
+            const [invoice] = await createTestInvoice(adminClient, dummyO10n, {
                 ticket: { connect: { id: ticket.id } },
             })
 
@@ -1094,7 +1062,7 @@ describe('Invoice', () => {
             const [ticket] = await createTestTicket(adminClient, dummyO10n, property)
             const [property1] = await createTestProperty(adminClient, dummyO10n)
 
-            const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext, {
+            const [invoice] = await createTestInvoice(adminClient, dummyO10n, {
                 ticket: { connect: { id: ticket.id } },
             })
 
@@ -1114,7 +1082,7 @@ describe('Invoice', () => {
             const [property] = await createTestProperty(adminClient, dummyO10n)
             const [ticket] = await createTestTicket(adminClient, dummyO10n, property)
 
-            const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext, {
+            const [invoice] = await createTestInvoice(adminClient, dummyO10n, {
                 ticket: { connect: { id: ticket.id } },
                 rows: generateInvoiceRows(),
                 status: INVOICE_STATUS_DRAFT,
@@ -1140,7 +1108,7 @@ describe('Invoice', () => {
                 unitName: null,
                 unitType: null,
             })
-            const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext, {
+            const [invoice] = await createTestInvoice(adminClient, dummyO10n, {
                 ticket: { connect: { id: ticket.id } },
             })
 
@@ -1169,7 +1137,7 @@ describe('Invoice', () => {
         test(`invoices status sets to ${INVOICE_STATUS_CANCELED} when ticket status sets canceled`, async () => {
             const [property] = await createTestProperty(adminClient, dummyO10n)
             const [ticket] = await createTestTicket(adminClient, dummyO10n, property)
-            const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext, {
+            const [invoice] = await createTestInvoice(adminClient, dummyO10n, {
                 status: INVOICE_STATUS_PUBLISHED,
                 ticket: { connect: { id: ticket.id } },
             })
@@ -1184,7 +1152,7 @@ describe('Invoice', () => {
         })
 
         test('can\'t publish invoice with isMin-price', async () => {
-            const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext, {
+            const [invoice] = await createTestInvoice(adminClient, dummyO10n, {
                 rows: [generateInvoiceRow({ isMin: true })],
                 status: INVOICE_STATUS_DRAFT,
             })
