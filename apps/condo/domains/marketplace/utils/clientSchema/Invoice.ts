@@ -137,8 +137,13 @@ export function formValuesProcessor (formValues: InvoiceFormValuesType, context:
 
 export function getMoneyRender (intl, currencyCode?: string) {
     const FromMessage = intl.formatMessage({ id: 'global.from' }).toLowerCase()
+    const ContractPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' })
 
     return function render (text: string, isMin: boolean) {
+        if (isMin && text === '0') {
+            return ContractPriceMessage
+        }
+
         const formattedParts = intl.formatNumberToParts(parseFloat(text),  currencyCode ? { style: 'currency', currency: currencyCode } : {})
         const formattedValue = formattedParts.map((part) => {
             return part.value
