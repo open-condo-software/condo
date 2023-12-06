@@ -1,6 +1,6 @@
 const path = require('path')
 
-const { prepareKeystoneExpressApp } = require('@open-condo/keystone/test.utils')
+const { prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeystoneApp')
 
 async function main () {
     await prepareKeystoneExpressApp(path.resolve('./index.js'), { excludeApps: ['NextApp'] })

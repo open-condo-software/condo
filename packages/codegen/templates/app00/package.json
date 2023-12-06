@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "test": "jest",
-    "dev": "keystone dev",
+    "dev": "node --trace-warnings ./../../bin/run-keystone-app.js",
     "debug": "node inspect node_modules/.bin/keystone dev",
     "build": "keystone build",
-    "start": "keystone start",
+    "start": "NODE_ENV=production node ./../../bin/run-keystone-app.js",
     "kmigrator": "./../../bin/kmigrator.py",
     "makemigrations": "./../../bin/kmigrator.py makemigrations",
     "migrate": "./../../bin/kmigrator.py migrate",

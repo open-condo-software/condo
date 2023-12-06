@@ -9,7 +9,6 @@ const { faker } = require('@faker-js/faker')
 const { createUploadLink } = require('apollo-upload-client')
 const axiosLib = require('axios')
 const axiosCookieJarSupportLib = require('axios-cookiejar-support')
-const debug = require('debug')('@open-condo/keystone/test.utils')
 const express = require('express')
 const falsey = require('falsey')
 const FormData = require('form-data')
@@ -18,8 +17,11 @@ const { flattenDeep, fromPairs, toPairs, get, isFunction, isEmpty, template } = 
 const fetch = require('node-fetch')
 const { CookieJar, Cookie } = require('tough-cookie')
 
+
 const conf = require('@open-condo/config')
 const { getTranslations } = require('@open-condo/locales/loader')
+
+const { prepareKeystoneExpressApp } = require('./prepareKeystoneApp')
 
 const EXTRA_LOGGING = falsey(get(process, 'env.DISABLE_LOGGING'))
 
@@ -159,28 +161,6 @@ function setFakeClientMode (entryPoint, prepareKeystoneOptions = {}) {
     }
     if (!mode) throw new Error('setFakeServerOption(entryPoint) unknown module type')
     __isAwaiting = true
-}
-
-const prepareKeystoneExpressApp = async (entryPoint, { excludeApps } = {}) => {
-    debug('prepareKeystoneExpressApp(%s) excludeApps=%j cwd=%s', entryPoint, excludeApps, process.cwd())
-    const dev = process.env.NODE_ENV === 'development'
-    const {
-        keystone,
-        apps,
-        configureExpress,
-        cors,
-        pinoOptions,
-    } = (typeof entryPoint === 'string') ? require(entryPoint) : entryPoint
-    const newApps = (excludeApps) ? apps.filter(x => !excludeApps.includes(x.constructor.name)) : apps
-    const { middlewares } = await keystone.prepare({ apps: newApps, dev, cors, pinoOptions })
-    await keystone.connect()
-
-    // not a csrf case: used for test & development scripts purposes
-    // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
-    const app = express()
-    if (configureExpress) configureExpress(app)
-    app.use(middlewares)
-    return { keystone, app }
 }
 
 /**
@@ -806,7 +786,6 @@ module.exports = {
     waitFor,
     isPostgres, isMongo,
     EmptyApp,
-    prepareKeystoneExpressApp,
     setFakeClientMode,
     createAxiosClientWithCookie,
     makeClient,

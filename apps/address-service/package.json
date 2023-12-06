@@ -5,10 +5,10 @@
   "scripts": {
     "test": "jest",
     "prepare": "node ./bin/prepare.js",
-    "dev": "node ./../../bin/keystone-dev.js",
+    "dev": "node ./../../bin/run-keystone-app.js",
     "debug": "node inspect node_modules/.bin/keystone dev",
     "build": "keystone build",
-    "start": "keystone start",
+    "start": "NODE_ENV=production node ./../../bin/run-keystone-app.js",
     "kmigrator": "./../../bin/kmigrator.py",
     "makemigrations": "./../../bin/kmigrator.py makemigrations",
     "migrate": "./../../bin/kmigrator.py migrate",

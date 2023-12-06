@@ -7,7 +7,7 @@
 
 const path = require('path')
 
-const { prepareKeystoneExpressApp } = require('@open-condo/keystone/test.utils')
+const { prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeystoneApp')
 
 const {
     chargeRecurrentPayments,

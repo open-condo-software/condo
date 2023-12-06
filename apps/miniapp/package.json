@@ -5,11 +5,11 @@
   "scripts": {
     "test": "jest",
     "prepare": "node ./bin/prepare.js",
-    "dev": "yarn build:deps && node ./../../bin/keystone-dev.js",
+    "dev": "NODE_ENV=development yarn build:deps && node ./../../bin/run-keystone-app.js",
     "debug": "node inspect node_modules/.bin/keystone dev --port 3001",
     "build:deps": "turbo build --filter=miniapp^... --filter=!condo",
     "build": "keystone build",
-    "start": "keystone start",
+    "start": "NODE_ENV=production node ./../../bin/run-keystone-app.js",
     "kmigrator": "./../../bin/kmigrator.py",
     "makemigrations": "./../../bin/kmigrator.py makemigrations",
     "migrate": "./../../bin/kmigrator.py migrate",

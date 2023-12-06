@@ -64,6 +64,7 @@ jobs:
           cp .env.example .env
           echo 'DADATA_SUGGESTIONS={"url": "https://suggestions.dadata.ru/it-does-not-matter-here", "token": "blah-blah-test"}' >> .env
           echo 'GOOGLE_API_KEY=suuuper-secret-google-key' >> .env
+          echo 'COOKIE_SECRET=address-service-secret' >> .env
           export NODE_ENV=test
           export DISABLE_LOGGING=false
           export NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE=true

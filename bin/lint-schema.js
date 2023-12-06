@@ -3,7 +3,7 @@ const path = require('path')
 const { File } = require('@keystonejs/fields')
 const { LocalFileAdapter } = require('@keystonejs/file-adapters')
 
-const { prepareKeystoneExpressApp } = require('@open-condo/keystone/test.utils')
+const { prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeystoneApp')
 
 const { SberCloudFileAdapter } = require('@condo/domains/common/utils/sberCloudFileAdapter')
 
