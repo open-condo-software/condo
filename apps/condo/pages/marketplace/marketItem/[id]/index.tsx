@@ -1,8 +1,7 @@
-import { jsx } from '@emotion/react'
-import { Col, Row, RowProps, Button as AntdButton } from 'antd'
-import { uniq } from 'lodash'
+import { Col, Row, RowProps } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
+import uniq from 'lodash/uniq'
 import uniqBy from 'lodash/uniqBy'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -11,7 +10,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { ChevronDown, ChevronUp } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button, Space, Typography } from '@open-condo/ui'
+import { ActionBar, Button, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
@@ -39,7 +38,7 @@ const ELLIPSIS_CONFIG = { rows: 2 }
 
 const MarketItemHeader = ({ title, marketItem }) => {
     const intl = useIntl()
-    const InvoiceAuthorMessage = intl.formatMessage({ id: 'Author' })
+    const MarketItemAuthorMessage = intl.formatMessage({ id: 'Author' })
 
     const MarketItemCreationDate = useMemo(() => getObjectCreatedMessage(intl, marketItem), [intl, marketItem])
 
@@ -53,12 +52,12 @@ const MarketItemHeader = ({ title, marketItem }) => {
             <Col span={24}>
                 <Typography.Text size='small'>
                     <Typography.Text type='secondary' size='small'>
-                        {MarketItemCreationDate},&nbsp;{InvoiceAuthorMessage}
+                        {MarketItemCreationDate},&nbsp;{MarketItemAuthorMessage}&nbsp;
                     </Typography.Text>
                     <UserNameField user={createdBy}>
                         {({ name, postfix }) => (
                             <Typography.Text size='small'>
-                                                &nbsp;{name}
+                                {name}
                                 {postfix && (
                                     <Typography.Text type='secondary' size='small' ellipsis>&nbsp;{postfix}</Typography.Text>
                                 )}
@@ -225,7 +224,7 @@ const PricesBlock = ({ marketItemId }) => {
 
     return (
         <FocusContainer padding='40px'>
-            <Row gutter={[0, 24]}>
+            <Row gutter={SMALL_VERTICAL_GUTTER}>
                 <Col span={24}>
                     <Typography.Title level={3}>{AddressesAndPricesMessage}</Typography.Title>
                 </Col>
