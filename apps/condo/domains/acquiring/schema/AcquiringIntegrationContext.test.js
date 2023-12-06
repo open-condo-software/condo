@@ -15,7 +15,13 @@ const {
     expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
-const { CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS, CONTEXT_ERROR_STATUS, CONTEXT_VERIFICATION_STATUS } = require('@condo/domains/acquiring/constants/context')
+const {
+    CONTEXT_FINISHED_STATUS,
+    CONTEXT_IN_PROGRESS_STATUS,
+    CONTEXT_ERROR_STATUS,
+    CONTEXT_VERIFICATION_STATUS,
+    TAX_REGIME_SIMPLE,
+} = require('@condo/domains/acquiring/constants/context')
 const { CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT } = require('@condo/domains/acquiring/constants/errors')
 const {
     AcquiringIntegrationContext,
@@ -25,13 +31,13 @@ const {
     createTestAcquiringIntegrationAccessRight,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestRecipient, createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
+const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployee, createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { registerNewOrganization, makeEmployeeUserClientWithAbilities } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
-
 
 describe('AcquiringIntegrationContext', () => {
     let admin
@@ -388,6 +394,20 @@ describe('AcquiringIntegrationContext', () => {
                     status: CONTEXT_VERIFICATION_STATUS,
                 })
             }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
+        })
+        test('vat=0% is not correct for taxRegime=simple', async () => {
+            await expectToThrowGQLError(async () => await createTestAcquiringIntegrationContext(admin, organization, integration, {
+                invoiceTaxRegime: TAX_REGIME_SIMPLE,
+                invoiceVatPercent: '0',
+            }), {
+                code: 'BAD_USER_INPUT',
+                type: 'TAX_REGIME_AND_VAT_NOT_MATCHED',
+                message: 'Tax regime and vat values are not matched',
+            })
+        })
+        test('salesTaxPercent: must throw an error if `< 0` or `> 100`', async () => {
+            await expectToThrowGQLError(async () => await createTestAcquiringIntegrationContext(admin, organization, integration, { invoiceSalesTaxPercent: '-2' }), COMMON_ERRORS.INVALID_PERCENT_VALUE)
+            await expectToThrowGQLError(async () => await createTestAcquiringIntegrationContext(admin, organization, integration, { invoiceSalesTaxPercent: '200' }), COMMON_ERRORS.INVALID_PERCENT_VALUE)
         })
     })
     describe('Fields tests', () => {
