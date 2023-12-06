@@ -4,12 +4,20 @@
 
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, expectToThrowAuthenticationError } = require('@open-condo/keystone/test.utils')
+const {
+    makeLoggedInAdminClient,
+    makeClient,
+    expectToThrowAuthenticationError,
+} = require('@open-condo/keystone/test.utils')
 
-const { createTestAcquiringIntegration } = require('@condo/domains/acquiring/utils/testSchema')
-const { createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
-const { INVOICE_STATUS_PUBLISHED, INVOICE_CONTEXT_STATUS_FINISHED } = require('@condo/domains/marketplace/constants')
-const { getInvoiceByUserByTestClient, generateInvoiceRow } = require('@condo/domains/marketplace/utils/testSchema')
+const { INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
+const {
+    getInvoiceByUserByTestClient,
+    generateInvoiceRow,
+    createTestInvoice,
+    createTestMarketCategory,
+    createTestMarketItem,
+} = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
@@ -17,14 +25,10 @@ const { registerResidentByTestClient } = require('@condo/domains/resident/utils/
 const { createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
-const { createTestInvoiceContext, createTestInvoice, createTestMarketCategory, createTestMarketItem } = require('../utils/testSchema')
- 
 describe('GetInvoiceByUserService', () => {
-    let admin, integration
+    let admin
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
-        await createTestBillingIntegration(admin)
-        ;[integration] = await createTestAcquiringIntegration(admin)
     })
     test('resident: execute without property', async () => {
         const [organization] = await createTestOrganization(admin)
@@ -33,20 +37,19 @@ describe('GetInvoiceByUserService', () => {
         const residentClient = await makeClientWithResidentUser()
         const unitType = FLAT_UNIT_TYPE
         const unitName = faker.lorem.word()
-        const [resident] = await registerResidentByTestClient(
+        await registerResidentByTestClient(
             residentClient,
             {
                 address: property.address,
                 addressMeta: property.addressMeta,
                 unitType,
                 unitName,
-            }
+            },
         )
 
         const [marketCategory] = await createTestMarketCategory(admin)
         const [marketItem] = await createTestMarketItem(admin, marketCategory, organization)
-        const [invoiceContext] = await createTestInvoiceContext(admin, organization, integration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
-        const [invoice] = await createTestInvoice(admin, invoiceContext, {
+        const [invoice] = await createTestInvoice(admin, organization, {
             status: INVOICE_STATUS_PUBLISHED,
             client: { connect: { id: residentClient.user.id } },
             rows: generateInvoiceRow({
@@ -70,20 +73,19 @@ describe('GetInvoiceByUserService', () => {
         const residentClient = await makeClientWithResidentUser()
         const unitType = FLAT_UNIT_TYPE
         const unitName = faker.lorem.word()
-        const [resident] = await registerResidentByTestClient(
+        await registerResidentByTestClient(
             residentClient,
             {
                 address: property.address,
                 addressMeta: property.addressMeta,
                 unitType,
                 unitName,
-            }
+            },
         )
 
         const [marketCategory] = await createTestMarketCategory(admin)
         const [marketItem] = await createTestMarketItem(admin, marketCategory, organization)
-        const [invoiceContext] = await createTestInvoiceContext(admin, organization, integration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
-        const [invoice] = await createTestInvoice(admin, invoiceContext, {
+        const [invoice] = await createTestInvoice(admin, organization, {
             status: INVOICE_STATUS_PUBLISHED,
             client: { connect: { id: residentClient.user.id } },
             property: { connect: { id: property.id } },
@@ -112,29 +114,28 @@ describe('GetInvoiceByUserService', () => {
         const residentClient2 = await makeClientWithResidentUser()
         const unitType = FLAT_UNIT_TYPE
         const unitName = faker.lorem.word()
-        const [resident] = await registerResidentByTestClient(
+        await registerResidentByTestClient(
             residentClient,
             {
                 address: property.address,
                 addressMeta: property.addressMeta,
                 unitType,
                 unitName,
-            }
+            },
         )
-        const [resident2] = await registerResidentByTestClient(
+        await registerResidentByTestClient(
             residentClient,
             {
                 address: property2.address,
                 addressMeta: property2.addressMeta,
                 unitType,
                 unitName,
-            }
+            },
         )
 
         const [marketCategory] = await createTestMarketCategory(admin)
         const [marketItem] = await createTestMarketItem(admin, marketCategory, organization)
-        const [invoiceContext] = await createTestInvoiceContext(admin, organization, integration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
-        const [invoice] = await createTestInvoice(admin, invoiceContext, {
+        const [invoice] = await createTestInvoice(admin, organization, {
             status: INVOICE_STATUS_PUBLISHED,
             client: { connect: { id: residentClient.user.id } },
             property: { connect: { id: property.id } },
@@ -160,7 +161,7 @@ describe('GetInvoiceByUserService', () => {
         expect(data2.invoices).toHaveLength(0)
         expect(data2.skuInfo).toHaveLength(0)
     })
- 
+
     test('anonymous: execute', async () => {
         const client = await makeClient()
         await expectToThrowAuthenticationError(async () => {
@@ -169,14 +170,13 @@ describe('GetInvoiceByUserService', () => {
             })
         }, 'obj')
     })
- 
+
     test('admin: execute', async () => {
         const [organization] = await createTestOrganization(admin)
 
         const [marketCategory] = await createTestMarketCategory(admin)
         const [marketItem] = await createTestMarketItem(admin, marketCategory, organization)
-        const [invoiceContext] = await createTestInvoiceContext(admin, organization, integration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
-        const [invoice] = await createTestInvoice(admin, invoiceContext, {
+        const [invoice] = await createTestInvoice(admin, organization, {
             status: INVOICE_STATUS_PUBLISHED,
             client: { connect: { id: admin.user.id } },
             rows: generateInvoiceRow({
@@ -202,8 +202,7 @@ describe('GetInvoiceByUserService', () => {
 
         const [marketCategory] = await createTestMarketCategory(admin)
         const [marketItem] = await createTestMarketItem(admin, marketCategory, organization)
-        const [invoiceContext] = await createTestInvoiceContext(admin, organization, integration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
-        const [invoice] = await createTestInvoice(admin, invoiceContext, {
+        const [invoice] = await createTestInvoice(admin, organization, {
             status: INVOICE_STATUS_PUBLISHED,
             client: { connect: { id: admin.user.id } },
             ticket: { connect: { id: ticket.id } },
@@ -212,7 +211,10 @@ describe('GetInvoiceByUserService', () => {
             }),
         })
 
-        const [data] = await getInvoiceByUserByTestClient(admin, { organization: { id: organization.id }, ticketIds: [ticket.id] })
+        const [data] = await getInvoiceByUserByTestClient(admin, {
+            organization: { id: organization.id },
+            ticketIds: [ticket.id],
+        })
         expect(data.invoices).toHaveLength(1)
         expect(data.skuInfo).toHaveLength(1)
         expect(data.invoices[0].id).toEqual(invoice.id)

@@ -26,7 +26,7 @@ const GetInvoicesWithSkuInfoService = new GQLCustomSchema('GetInvoicesWithSkuInf
             type: 'type GetInvoicesWithSkuInfoOutput { invoices: [Invoice!]!, skuInfo: [MarketSkuInfo!]! }',
         },
     ],
-    
+
     queries: [
         {
             access: access.canGetInvoiceByUser,
@@ -40,7 +40,7 @@ const GetInvoicesWithSkuInfoService = new GQLCustomSchema('GetInvoicesWithSkuInf
                 const where = {
                     deletedAt: null,
                     client: { id: userId },
-                    context: { organization: { id: organizationId } },
+                    organization: { id: organizationId },
                 }
                 if (propertyId) where.property = { id: propertyId }
                 if (!isEmpty(ticketIds)) where.ticket = { id_in: ticketIds }
@@ -71,7 +71,7 @@ const GetInvoicesWithSkuInfoService = new GQLCustomSchema('GetInvoicesWithSkuInf
             },
         },
     ],
-    
+
 })
 
 module.exports = {

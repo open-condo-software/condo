@@ -15,8 +15,9 @@ const pickBy = require('lodash/pickBy')
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const { GQLListSchema, getById, getByCondition } = require('@open-condo/keystone/schema')
+const { GQLListSchema, getById, getByCondition, find } = require('@open-condo/keystone/schema')
 
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { MONEY_AMOUNT_FIELD, UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 const { CLIENT_NAME_FIELD, CLIENT_PHONE_LANDLINE_FIELD } = require('@condo/domains/common/schema/fields')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
@@ -38,6 +39,7 @@ const {
     ERROR_CLIENT_DATA_DOES_NOT_MATCH_TICKET,
     ERROR_FORBID_UPDATE_TICKET, CLIENT_DATA_FIELDS, COMMON_RESOLVED_FIELDS,
     ERROR_PUBLISHING_WITHOUT_DEFINED_PRICES_FORBIDDEN,
+    ERROR_NO_FINISHED_ACQUIRING_CONTEXT,
 } = require('@condo/domains/marketplace/constants')
 const { INVOICE_ROWS_FIELD } = require('@condo/domains/marketplace/schema/fields/invoiceRows')
 const { MARKETPLACE_INVOICE_PUBLISHED_MESSAGE_TYPE, MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
@@ -78,6 +80,12 @@ const ERRORS = {
         messageForUser: 'api.marketplace.invoice.error.rows.toPay',
         messageInterpolation: { rowNumber },
     }),
+    NO_FINISHED_ACQUIRING_CONTEXT: {
+        code: BAD_USER_INPUT,
+        type: ERROR_NO_FINISHED_ACQUIRING_CONTEXT,
+        message: 'The organization has no AcquiringIntegrationContext in finished status for invoices',
+        messageForUser: 'api.marketplace.invoice.error.NoFinishedAcquiringContext',
+    },
     FORBID_EDIT_PUBLISHED: {
         code: BAD_USER_INPUT,
         type: ERROR_FORBID_EDIT_PUBLISHED,
@@ -260,6 +268,16 @@ const Invoice = new GQLListSchema('Invoice', {
                 !isUpdateClientDataFromTicketOp
             ) {
                 throw new GQLError(ERRORS.ALREADY_PAID, context)
+            }
+
+            const [acquiringContext] = await find('AcquiringIntegrationContext', {
+                organization: { id: get(nextData, 'organization') },
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+                deletedAt: null,
+            })
+
+            if (!acquiringContext) {
+                throw new GQLError(ERRORS.NO_FINISHED_ACQUIRING_CONTEXT, context)
             }
 
             if (get(resolvedData, 'status') === INVOICE_STATUS_PUBLISHED && get(nextData, 'rows', []).length === 0) {

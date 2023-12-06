@@ -957,6 +957,21 @@ describe('Invoice', () => {
             })
         })
 
+        test('can\'t create invoice if no finished acquiring context', async () => {
+            const [o10n] = await createTestOrganization(adminClient)
+            await createTestBillingIntegration(adminClient)
+            await createTestAcquiringIntegration(adminClient)
+
+            await expectToThrowGQLError(async () => {
+                await createTestInvoice(adminClient, o10n)
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'NO_FINISHED_ACQUIRING_CONTEXT',
+                message: 'The organization has no AcquiringIntegrationContext in finished status for invoices',
+                messageForUser: 'api.marketplace.invoice.error.NoFinishedAcquiringContext',
+            })
+        })
+
         test(`can update status to ${INVOICE_STATUS_CANCELED} of published invoice`, async () => {
             const [invoice] = await createTestInvoice(adminClient, dummyO10n, { status: INVOICE_STATUS_PUBLISHED })
             const [updatedInvoice] = await updateTestInvoice(adminClient, invoice.id, {

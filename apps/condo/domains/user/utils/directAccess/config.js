@@ -37,9 +37,6 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
         'B2CAppBuild',
         'B2CAppProperty',
 
-        //Marketplace domain
-        'InvoiceContext',
-
         // Organization domain
         'Organization',
 
