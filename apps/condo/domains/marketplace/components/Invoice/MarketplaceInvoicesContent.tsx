@@ -3,7 +3,7 @@ import { Col, Row } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 
 import { Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
@@ -17,6 +17,7 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
+import { useDateRangeSearch } from '@condo/domains/common/hooks/useDateRangeSearch'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
@@ -25,8 +26,6 @@ import { getFiltersFromQuery, getPageIndexFromOffset, parseQuery } from '@condo/
 import { useMarketplaceInvoicesFilters } from '@condo/domains/marketplace/hooks/useMarketplaceInvoicesFilters'
 import { useMarketplaceInvoicesTableColumns } from '@condo/domains/marketplace/hooks/useMarketplaceInvoicesTableColumns'
 import { Invoice, MARKETPLACE_PAGE_TYPES } from '@condo/domains/marketplace/utils/clientSchema'
-
-import { useDateRangeSearch } from '../../../common/hooks/useDateRangeSearch'
 
 
 const TableContent = () => {

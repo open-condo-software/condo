@@ -20,7 +20,6 @@ const {
     useAllObjects,
     useCreate,
     useUpdate,
-    useAllObjects,
     useSoftDelete,
 } = generateReactHooks<MarketCategory, MarketCategoryCreateInput, MarketCategoryUpdateInput, QueryAllMarketCategoriesArgs>(MarketCategoryGQL)
 
@@ -30,6 +29,5 @@ export {
     useAllObjects,
     useCreate,
     useUpdate,
-    useAllObjects,
     useSoftDelete,
 }

@@ -1,9 +1,10 @@
 import { SortMarketItemFilesBy, SortMarketItemPricesBy } from '@app/condo/schema'
 import { Col, Form } from 'antd'
-import { isEqual, sortBy } from 'lodash'
 import difference from 'lodash/difference'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
+import isEqual from 'lodash/isEqual'
+import sortBy from 'lodash/sortBy'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
 
@@ -190,7 +191,7 @@ export const UpdateMarketItemForm = ({ marketItem }) => {
 
         setSubmitLoading(false)
 
-        // await router.push(`/marketplace/marketItem/${get(marketItem, 'id')}`)
+        await router.push(`/marketplace/marketItem/${get(marketItem, 'id')}`)
 
         return updatedMarketItem
     }, [createMarketItemPrice, createMarketPriceScope, createMarketPriceScopes, initialMarketItemPricesIds, invoiceContext, marketItem, marketItemFiles, marketItemPrices, marketPriceScopes, router, softDeleteMarketItemFile, softDeleteMarketItemPrice, softDeleteMarketPriceScope, softDeleteMarketPriceScopes, updateMarketItem, updateMarketItemFile, updateMarketItemPrice])

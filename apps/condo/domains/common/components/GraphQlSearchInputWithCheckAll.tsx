@@ -1,7 +1,9 @@
 import styled from '@emotion/styled'
 import { Col, Form, FormInstance, FormItemProps, Row, SelectProps } from 'antd'
-import { get, isFunction, isUndefined } from 'lodash'
+import get from 'lodash/get'
 import isArray from 'lodash/isArray'
+import isFunction from 'lodash/isFunction'
+import isUndefined from 'lodash/isUndefined'
 import React, { ComponentProps, useCallback, useEffect, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'

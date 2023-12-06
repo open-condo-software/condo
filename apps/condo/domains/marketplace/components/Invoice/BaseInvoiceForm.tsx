@@ -7,8 +7,8 @@ import {
 } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Form, Row, RowProps, Input, AutoComplete, Select } from 'antd'
-import { isEmpty } from 'lodash'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
 import React, { ComponentProps, CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
