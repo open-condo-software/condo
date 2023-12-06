@@ -65,8 +65,6 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
                 continue
             }
             result[id][price] = [item]
-            result[id]['0'] = [{ price: '0', isMin: true, address: item.address }]
-            result[id]['200'] = [{ price: '200', isMin: true, address: item.address }]
         }
         return result
     }, [marketPriceScopes])
