@@ -1,7 +1,8 @@
 const Ajv = require('ajv')
 
+const { VAT_OPTIONS } = require('@condo/domains/acquiring/constants/context')
 const { render, getGQLErrorValidator } = require('@condo/domains/common/schema/json.utils')
-const { ERROR_INVALID_PRICE, VAT_OPTIONS } = require('@condo/domains/marketplace/constants')
+const { ERROR_INVALID_PRICE } = require('@condo/domains/marketplace/constants')
 const PRICE_GQL_TYPE_NAME = 'MarketItemPricePriceSchemaField'
 const PRICE_GQL_INPUT_NAME = 'MarketItemPricePriceSchemaFieldInput'
 

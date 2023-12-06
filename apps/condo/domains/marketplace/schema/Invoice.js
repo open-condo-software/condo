@@ -34,8 +34,6 @@ const {
     ERROR_INVOICE_ROW_WRONG_PRICE,
     INVOICE_PAYMENT_TYPES,
     INVOICE_PAYMENT_TYPE_ONLINE,
-    INVOICE_CONTEXT_STATUS_FINISHED,
-    ERROR_NO_FINISHED_INVOICE_CONTEXT,
     ERROR_FORBID_EDIT_PUBLISHED,
     ERROR_CLIENT_DATA_DOES_NOT_MATCH_TICKET,
     ERROR_FORBID_UPDATE_TICKET, CLIENT_DATA_FIELDS, COMMON_RESOLVED_FIELDS,
@@ -44,6 +42,7 @@ const {
 const { INVOICE_ROWS_FIELD } = require('@condo/domains/marketplace/schema/fields/invoiceRows')
 const { MARKETPLACE_INVOICE_PUBLISHED_MESSAGE_TYPE, MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
+const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 const ERRORS = {
@@ -79,12 +78,6 @@ const ERRORS = {
         messageForUser: 'api.marketplace.invoice.error.rows.toPay',
         messageInterpolation: { rowNumber },
     }),
-    NO_FINISHED_INVOICE_CONTEXT: {
-        code: BAD_USER_INPUT,
-        type: ERROR_NO_FINISHED_INVOICE_CONTEXT,
-        message: 'The organization has no InvoiceContext in finished status',
-        messageForUser: 'api.marketplace.invoice.error.NoFinishedInvoiceContext',
-    },
     FORBID_EDIT_PUBLISHED: {
         code: BAD_USER_INPUT,
         type: ERROR_FORBID_EDIT_PUBLISHED,
@@ -115,20 +108,13 @@ const Invoice = new GQLListSchema('Invoice', {
     schemaDoc: 'Invoice model contains information about paid items and payer',
     fields: {
 
-        context: {
-            schemaDoc: 'The invoice context the invoice was created for',
-            type: 'Relationship',
-            ref: 'InvoiceContext',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
-        },
+        organization: ORGANIZATION_OWNED_FIELD,
 
         number: {
             schemaDoc: 'The invoice number within organization',
             type: 'AutoIncrementInteger',
             isRequired: true,
-            autoIncrementScopeFields: ['context.organization'],
+            autoIncrementScopeFields: ['organization'],
         },
 
         property: {
@@ -274,17 +260,6 @@ const Invoice = new GQLListSchema('Invoice', {
                 !isUpdateClientDataFromTicketOp
             ) {
                 throw new GQLError(ERRORS.ALREADY_PAID, context)
-            }
-
-            const nextContextId = get(nextData, 'context')
-            const invoiceContext = await getByCondition('InvoiceContext', {
-                id: nextContextId,
-                status: INVOICE_CONTEXT_STATUS_FINISHED,
-                deletedAt: null,
-            })
-
-            if (!invoiceContext) {
-                throw new GQLError(ERRORS.NO_FINISHED_INVOICE_CONTEXT, context)
             }
 
             if (get(resolvedData, 'status') === INVOICE_STATUS_PUBLISHED && get(nextData, 'rows', []).length === 0) {

@@ -11,10 +11,11 @@ const { UploadingFile } = require('@open-condo/keystone/test.utils')
 
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
-const { InvoiceContext: InvoiceContextGQL, Invoice: InvoiceGQL } = require('@condo/domains/marketplace/gql')
+const { Invoice: InvoiceGQL } = require('@condo/domains/marketplace/gql')
 const { MarketCategory: MarketCategoryGQL } = require('@condo/domains/marketplace/gql')
 const { MarketItem: MarketItemGQL } = require('@condo/domains/marketplace/gql')
-const { VAT_OPTIONS, TAX_REGIME_GENEGAL, INVOICE_PAYMENT_TYPE_ONLINE } = require('@condo/domains/marketplace/constants')
+const {  INVOICE_PAYMENT_TYPE_ONLINE } = require('@condo/domains/marketplace/constants')
+const { VAT_OPTIONS, TAX_REGIME_GENEGAL } = require('@condo/domains/acquiring/constants/context')
 const { MarketItemFile: MarketItemFileGQL } = require('@condo/domains/marketplace/gql')
 const { MarketItemPrice: MarketItemPriceGQL } = require('@condo/domains/marketplace/gql')
 const { MarketPriceScope: MarketPriceScopeGQL } = require('@condo/domains/marketplace/gql')

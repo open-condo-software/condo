@@ -10,19 +10,15 @@ const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 const { PROPERTY_MAP_JSON_FIELDS } = require('@condo/domains/property/gql')
 const { ADDRESS_META_SUBFIELDS_QUERY_LIST, ADDRESS_META_SUBFIELDS_TABLE_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
 
-
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const INVOICE_CONTEXT_FIELDS = `{ integration { id name setupUrl hostUrl } organization { id } recipient { tin bic bankAccount } settings status implicitFeePercent taxRegime vatPercent salesTaxPercent currencyCode ${COMMON_FIELDS} }`
-const InvoiceContext = generateGqlQueries('InvoiceContext', INVOICE_CONTEXT_FIELDS)
-
-const MARKET_CATEGORY_FIELDS = `{ name image { publicUrl } mobileSettings { bgColor titleColor } parentCategory { id name } ${COMMON_FIELDS} }`
+const MARKET_CATEGORY_FIELDS = `{ name image { publicUrl } mobileSettings { bgColor titleColor } parentCategory { id } ${COMMON_FIELDS} }`
 const MarketCategory = generateGqlQueries('MarketCategory', MARKET_CATEGORY_FIELDS)
 
 const MARKET_ITEM_FIELDS = `{ name marketCategory { id name parentCategory { id name mobileSettings { bgColor titleColor } } image { publicUrl } mobileSettings { bgColor titleColor } } sku description organization { id } ${COMMON_FIELDS} }`
 const MarketItem = generateGqlQueries('MarketItem', MARKET_ITEM_FIELDS)
 
-const INVOICE_FIELDS = `{ context { id organization { id name } currencyCode } number property { id address addressKey addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } map { ${PROPERTY_MAP_JSON_FIELDS} } } unitType unitName accountNumber toPay rows { name toPay count vatPercent salesTaxPercent sku isMin currencyCode } ticket { id number property { id } unitName unitType clientName clientPhone } contact { id name phone email unitType unitName property { id } } clientName clientPhone client { id name } status paymentType publishedAt paidAt canceledAt ${COMMON_FIELDS} }`
+const INVOICE_FIELDS = `{ organization { id } number property { id address addressKey addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } map { ${PROPERTY_MAP_JSON_FIELDS} } } unitType unitName accountNumber toPay rows { name toPay count vatPercent salesTaxPercent sku isMin currencyCode } ticket { id number property { id } unitName unitType clientName clientPhone } contact { id name phone email unitType unitName property { id } } clientName clientPhone client { id name } status paymentType publishedAt paidAt canceledAt ${COMMON_FIELDS} }`
 const Invoice = generateGqlQueries('Invoice', INVOICE_FIELDS)
 
 const MARKET_ITEM_FILE_FIELDS = `{ marketItem { id organization { id } } file { id originalFilename publicUrl mimetype } ${COMMON_FIELDS} }`
@@ -52,7 +48,6 @@ const GET_INVOICE_BY_USER_QUERY = gql`
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
-    InvoiceContext,
     MarketCategory,
     MarketItem,
     Invoice,
