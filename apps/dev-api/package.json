@@ -7,7 +7,7 @@
     "prepare": "node bin/prepare.js",
     "build:deps": "turbo build --filter=dev-api^...",
     "build": "cross-env PHASE=build keystone build",
-    "dev": "NODE_ENV=development node --trace-warnings ./../../bin/run-keystone-app.js",
+    "dev": "node --trace-warnings ./../../bin/run-keystone-app.js",
     "start": "NODE_ENV=production node ./../../bin/run-keystone-app.js",
     "makemigrations": "./../../bin/kmigrator.py makemigrations",
     "migrate": "./../../bin/kmigrator.py migrate",

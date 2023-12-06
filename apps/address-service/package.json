@@ -5,7 +5,7 @@
   "scripts": {
     "test": "jest",
     "prepare": "node ./bin/prepare.js",
-    "dev": "NODE_ENV=development node ./../../bin/run-keystone-app.js",
+    "dev": "node ./../../bin/run-keystone-app.js",
     "debug": "node inspect node_modules/.bin/keystone dev",
     "build": "keystone build",
     "start": "NODE_ENV=production node ./../../bin/run-keystone-app.js",
