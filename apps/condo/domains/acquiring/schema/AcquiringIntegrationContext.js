@@ -16,7 +16,6 @@ const {
     CONTEXT_FINISHED_STATUS,
     CONTEXT_VERIFICATION_STATUS,
     CONTEXT_STATUSES,
-    DEFAULT_INVOICE_IMPLICIT_FEE_PERCENT,
     TAX_REGIMES,
     VAT_OPTIONS, TAX_REGIME_SIMPLE,
 } = require('@condo/domains/acquiring/constants/context')
@@ -147,17 +146,6 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
             ...FEE_DISTRIBUTION_SCHEMA_FIELD,
             isRequired: false,
             schemaDoc: 'Contains information about the default distribution of implicit fee. Each part is paid by the recipient organization on deducted from payment amount. If part exists then explicit part with the same name from AcquiringIntegration.explicitFeeDistributionSchema is ignored',
-            hooks: {
-                resolveInput: ({ resolvedData, fieldPath }) => {
-                    return get(resolvedData, fieldPath, [{
-                        recipient: 'organization',
-                        percent: DEFAULT_INVOICE_IMPLICIT_FEE_PERCENT,
-                        minAmount: null,
-                        maxAmount: null,
-                        category: null,
-                    }])
-                },
-            },
         },
 
         status: {

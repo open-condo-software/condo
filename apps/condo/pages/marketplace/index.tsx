@@ -1,14 +1,14 @@
-import get from 'lodash/get'
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 
+import { CONTEXT_FINISHED_STATUS } from '@condo/domains/acquiring/constants/context'
+import { useAcquiringIntegrationContext } from '@condo/domains/acquiring/hooks/useAcquiringIntegrationContext'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { MarketplacePageContent } from '@condo/domains/marketplace/components/MarketplacePageContent'
-import { InvoiceContext as InvoiceContextProvider } from '@condo/domains/marketplace/components/MarketplacePageContent/ContextProvider'
-import { INVOICE_CONTEXT_STATUS_FINISHED } from '@condo/domains/marketplace/constants'
-import { InvoiceContext } from '@condo/domains/marketplace/utils/clientSchema'
+import {
+    AcquiringContext as AcquiringContextProvider,
+} from '@condo/domains/marketplace/components/MarketplacePageContent/ContextProvider'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 
 type PageType = React.FC & {
@@ -19,29 +19,24 @@ const MarketplacePage: PageType = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'pages.condo.marketplace.title' })
 
-    const userOrganization = useOrganization()
-    const orgId = get(userOrganization, ['organization', 'id'], null)
-    const { obj: invoiceContext, loading: invoiceContextLoading, error: invoiceContextError, refetch: refetchInvoice } = InvoiceContext.useObject({
-        where: {
-            status: INVOICE_CONTEXT_STATUS_FINISHED,
-            organization: { id: orgId },
-        },
-    })
+    const {
+        acquiringIntegrationContext,
+        loading,
+        error,
+        refetchAcquiringIntegrationContext,
+    } = useAcquiringIntegrationContext({ status: CONTEXT_FINISHED_STATUS })
 
-    if (invoiceContextLoading || invoiceContextError) {
-        return (
-            <LoadingOrErrorPage
-                title={PageTitle}
-                error={invoiceContextError}
-                loading={invoiceContextLoading}
-            />
-        )
+    if (loading || error) {
+        return <LoadingOrErrorPage title={PageTitle} error={error} loading={loading}/>
     }
 
     return (
-        <InvoiceContextProvider.Provider value={{ invoiceContext: invoiceContext, refetchInvoiceContext: refetchInvoice }}>
-            <MarketplacePageContent />
-        </InvoiceContextProvider.Provider>
+        <AcquiringContextProvider.Provider value={{
+            acquiringContext: acquiringIntegrationContext,
+            refetchAcquiringContext: refetchAcquiringIntegrationContext,
+        }}>
+            <MarketplacePageContent/>
+        </AcquiringContextProvider.Provider>
     )
 }
 

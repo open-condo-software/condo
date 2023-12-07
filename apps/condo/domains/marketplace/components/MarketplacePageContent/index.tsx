@@ -19,7 +19,7 @@ import { INVOICE_CONTEXT_STATUS_FINISHED } from '@condo/domains/marketplace/cons
 import { useQueryTab } from '@condo/domains/marketplace/hooks/useQueryTab'
 import { MARKETPLACE_PAGE_TYPES } from '@condo/domains/marketplace/utils/clientSchema'
 
-import { useInvoiceContext } from './ContextProvider'
+import { useAcquiringContext } from './ContextProvider'
 
 
 export const MarketplacePageContent = () => {
@@ -38,8 +38,8 @@ export const MarketplacePageContent = () => {
 
     const router = useRouter()
     const userOrganization = useOrganization()
-    const { invoiceContext } = useInvoiceContext()
-    const marketplaceIsSetup = invoiceContext && get(invoiceContext, 'status') === INVOICE_CONTEXT_STATUS_FINISHED
+    const { acquiringContext } = useAcquiringContext()
+    const marketplaceIsSetup = acquiringContext && get(acquiringContext, 'status') === INVOICE_CONTEXT_STATUS_FINISHED
     const role = get(userOrganization, ['link', 'role'], {})
     const canReadPayments = get(role, ['canReadPayments'], false)
     const canManageInvoices = get(role, ['canManageInvoices'], false)

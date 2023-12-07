@@ -20,7 +20,7 @@ const AcquiringIntegrationAccessRight = generateGqlQueries('AcquiringIntegration
 
 const FEE_DISTRIBUTION_FIELDS = 'recipient percent minAmount maxAmount category'
 
-const ACQUIRING_INTEGRATION_CONTEXT_FIELDS = `{ status invoiceStatus integration { id name setupUrl explicitFeeDistributionSchema { ${FEE_DISTRIBUTION_FIELDS} } } organization { id } state settings ${COMMON_FIELDS} implicitFeeDistributionSchema { ${FEE_DISTRIBUTION_FIELDS} } invoiceImplicitFeeDistributionSchema { ${FEE_DISTRIBUTION_FIELDS} } email invoiceEmails reason invoiceReason recipient { bic bankAccount iec tin } invoiceRecipient { bic bankAccount iec tin } }`
+const ACQUIRING_INTEGRATION_CONTEXT_FIELDS = `{ status invoiceStatus integration { id name setupUrl hostUrl explicitFeeDistributionSchema { ${FEE_DISTRIBUTION_FIELDS} } } organization { id } state settings ${COMMON_FIELDS} implicitFeeDistributionSchema { ${FEE_DISTRIBUTION_FIELDS} } invoiceImplicitFeeDistributionSchema { ${FEE_DISTRIBUTION_FIELDS} } email invoiceEmails reason invoiceReason recipient { bic bankAccount iec tin } invoiceRecipient { bic bankAccount iec tin } invoiceTaxRegime invoiceVatPercent invoiceSalesTaxPercent }`
 const AcquiringIntegrationContext = generateGqlQueries('AcquiringIntegrationContext', ACQUIRING_INTEGRATION_CONTEXT_FIELDS)
 
 const MULTI_PAYMENT_FIELDS = `{ amount explicitFee explicitServiceCharge implicitFee amountWithoutExplicitFee currencyCode withdrawnAt cardNumber paymentWay serviceCategory payerEmail serviceCategory transactionId meta status payments { id } integration { id } recurrentPaymentContext { id } ${COMMON_FIELDS} }`

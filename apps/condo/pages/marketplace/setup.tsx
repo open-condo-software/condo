@@ -5,19 +5,16 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { StepItem } from '@open-condo/ui'
 import { Typography, Steps } from '@open-condo/ui'
 
-
+import { CONTEXT_FINISHED_STATUS } from '@condo/domains/acquiring/constants/context'
+import { useAcquiringIntegrationContext } from '@condo/domains/acquiring/hooks/useAcquiringIntegrationContext'
 import { useOnboardingProgress } from '@condo/domains/billing/hooks/useOnboardingProgress'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { OfferSetupPage } from '@condo/domains/marketplace/components/MarketplaceOnboarding/OfferSetupPage'
 import { RequisitesSetup } from '@condo/domains/marketplace/components/MarketplaceOnboarding/RequisitesSetup'
-import { INVOICE_CONTEXT_STATUS_FINISHED } from '@condo/domains/marketplace/constants'
-import { InvoiceContext } from '@condo/domains/marketplace/utils/clientSchema'
-
 
 const STEPS_GUTTER: RowProps['gutter'] = [60, 60]
 const FULL_COL_SPAN = 24
@@ -38,26 +35,24 @@ const MarketplaceOnboardingPage: React.FC<MarketplaceOnboardingPageProps> = ({ o
     const router = useRouter()
 
     const [currentStep] = useOnboardingProgress(withVerification)
-    const { organization } = useOrganization()
-    const orgId = get(organization, 'id', null)
 
-    const { obj: invoiceContext, loading: invoiceContextLoading, error: invoiceContextError, refetch: refetchInvoiceContext } = InvoiceContext.useObject({
-        where: {
-            status: INVOICE_CONTEXT_STATUS_FINISHED,
-            organization: { id: orgId },
-        },
-    })
+    const {
+        acquiringIntegrationContext: acquiringContext,
+        loading: acquiringContextLoading,
+        error: acquiringContextError,
+        refetchAcquiringIntegrationContext: refetchAcquiringContext,
+    } = useAcquiringIntegrationContext({ status: CONTEXT_FINISHED_STATUS })
 
     const handleFinishSetup = useCallback(() => {
-        refetchInvoiceContext()
-    }, [refetchInvoiceContext])
+        refetchAcquiringContext()
+    }, [refetchAcquiringContext])
 
     // if setup is already done --> forward back to marketplace main page
     useEffect(() => {
-        if (invoiceContext && get(invoiceContext, 'id') && !invoiceContextError && !invoiceContextLoading) {
+        if (acquiringContext && get(acquiringContext, 'id') && !acquiringContextError && !acquiringContextLoading) {
             router.push('/marketplace')
         }
-    }, [invoiceContext, invoiceContextError, invoiceContextLoading, router])
+    }, [acquiringContext, acquiringContextError, acquiringContextLoading, router])
 
     const stepItems: Array<StepItem> = useMemo(() => {
         const steps: Array<StepItem> = [
@@ -81,7 +76,6 @@ const MarketplaceOnboardingPage: React.FC<MarketplaceOnboardingPageProps> = ({ o
 
         return <RequisitesSetup />
     }, [currentStep, handleFinishSetup])
-
 
     return (
         <>

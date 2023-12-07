@@ -12,6 +12,7 @@ const {
     expectToThrowAuthenticationErrorToResult, expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { createTestAcquiringIntegration, createTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
 const {
     INVOICE_STATUS_DRAFT,
@@ -34,7 +35,6 @@ const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithResidentUser, makeClientWithStaffUser,
 } = require('@condo/domains/user/utils/testSchema')
-const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 
 const MOBILE_APP_RESIDENT_TICKET_SOURCE_ID = '830d1d89-2d17-4c5b-96d1-21b5cd01a6d3'
 
