@@ -337,7 +337,6 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                         { id_in: Array.from(uniqueAcquiringContextsIds) },
                         { organization: { id_in: uniq(map(foundInvoices, 'organization')) } },
                     ],
-                    deletedAt: null,
                 })
 
                 const deletedAcquiringContextsIds = new Set(acquiringContexts.filter(context => context.deletedAt).map(context => context.id))
@@ -565,8 +564,8 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                             ...acquiringContext.invoiceImplicitFeeDistributionSchema,
                         ]))
                         const organizationId = get(frozenInvoice, ['data', 'organization', 'id'])
-                        const routingNumber = get(frozenInvoice, ['data', 'context', 'recipient', 'bic'])
-                        const bankAccount = get(frozenInvoice, ['data', 'context', 'recipient', 'bankAccount'])
+                        const routingNumber = get(acquiringContext, ['invoiceRecipient', 'bic'])
+                        const bankAccount = get(acquiringContext, ['invoiceRecipient', 'bankAccount'])
 
                         const amount = String(Big(invoice.toPay))
 
@@ -588,6 +587,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                             dv: 1,
                             sender,
                             amount: amount,
+                            context: { connect : { id: acquiringContext.id } },
                             currencyCode: DEFAULT_CURRENCY_CODE,
                             invoice: { connect: { id: invoice.id } },
                             frozenInvoice,
@@ -602,7 +602,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     }
                 }
 
-                const currencyCode = billingIntegrationCurrencyCode
+                const currencyCode = billingIntegrationCurrencyCode || DEFAULT_CURRENCY_CODE
 
                 const paymentIds = payments.map(payment => ({ id: payment.id }))
                 const totalAmount = payments.reduce((acc, cur) => {
