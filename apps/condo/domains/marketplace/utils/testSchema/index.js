@@ -298,6 +298,15 @@ async function createTestMarketPriceScope (client, itemPrice, property, extraAtt
     return [obj, attrs]
 }
 
+async function createTestMarketPriceScopes (client, createAttrs = []) {
+    if (!client) throw new Error('no client')
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const attrs = createAttrs.map(data => ({ data: {...data, dv: 1, sender} }))
+
+    return await MarketPriceScope.createMany(client, attrs)
+}
+
 async function updateTestMarketPriceScope (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
@@ -312,6 +321,21 @@ async function updateTestMarketPriceScope (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function softDeleteTestMarketPriceScopes (client, ids) {
+    if (!client) throw new Error('no client')
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const attrs = ids.map(id => ({
+        id,
+        data: {
+            dv: 1,
+            sender,
+            deletedAt: 'true',
+        }
+    }))
+
+    return await MarketPriceScope.updateMany(client, attrs)
+}
 
 async function registerInvoiceByTestClient (client, resident, invoiceRows, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -357,7 +381,8 @@ module.exports = {
     MarketItemFile, createTestMarketItemFile, updateTestMarketItemFile,
     MarketItemPrice, createTestMarketItemPrice, updateTestMarketItemPrice,
     MarketPriceScope, createTestMarketPriceScope, updateTestMarketPriceScope,
+    createTestMarketPriceScopes, softDeleteTestMarketPriceScopes,
     registerInvoiceByTestClient,
-        getInvoiceByUserByTestClient,
+    getInvoiceByUserByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

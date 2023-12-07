@@ -6,20 +6,23 @@ import {
     Property as PropertyType,
 } from '@app/condo/schema'
 import styled from '@emotion/styled'
-import { Col, Form, Row, RowProps, Input, AutoComplete, Select } from 'antd'
-import { isEmpty } from 'lodash'
+import { Col, Form, Row, RowProps, Input, AutoComplete, Select, FormInstance } from 'antd'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
+import isEqual from 'lodash/isEqual'
 import React, { ComponentProps, CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Trash } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Alert, Radio, RadioGroup, Space, Tooltip, Typography } from '@open-condo/ui'
+import { Alert, Button, Modal, Radio, RadioGroup, Space, Tooltip, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { Button as OldButton } from '@condo/domains/common/components/Button'
 import { BaseModalForm, FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
+import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import Prompt from '@condo/domains/common/components/Prompt'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { NEW_CONTACT_PHONE_FORM_ITEM_NAME } from '@condo/domains/contact/components/ContactsEditor/NewContactFields'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
@@ -37,7 +40,7 @@ import {
 import { useCancelStatusModal } from '@condo/domains/marketplace/hooks/useCancelStatusModal'
 import { InvoiceContext, MarketPriceScope } from '@condo/domains/marketplace/utils/clientSchema'
 import { calculateRowsTotalPrice, InvoiceFormValuesType, prepareTotalPriceFromInput, getMoneyRender } from '@condo/domains/marketplace/utils/clientSchema/Invoice'
-import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
+import { searchOrganizationProperty } from '@condo/domains/marketplace/utils/clientSchema/search'
 import { UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
@@ -120,16 +123,22 @@ const emptyContactValues = {
     [NEW_CONTACT_PHONE_FORM_ITEM_NAME]: null,
 }
 
-const PropertyFormField = ({ organizationId, form, disabled, setSelectedPropertyId }) => {
+const PropertyFormField = ({ organizationId, form, disabled, selectedPropertyId, setSelectedPropertyId }) => {
     const intl = useIntl()
-    const AddressPlaceholder = intl.formatMessage({ id: 'placeholder.Address' })
+    const AddressPlaceholder = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.property' })
     const AddressNotFoundContent = intl.formatMessage({ id: 'field.Address.notFound' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
+    const ChangeAddressAlertTitle = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.changeAddressAlert.title' })
+    const ChangeAddressAlertMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.changeAddressAlert.message' })
+    const ChangeAddressAlertButtonText = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.changeAddressAlert.button' })
 
     const { requiredValidator } = useValidations()
-    
-    const handlePropertySelectChange = useCallback(async (_, option) => {
-        const newPropertyId = isEmpty(option) ? null : option.key
+    const rows = Form.useWatch('rows', form)
+
+    const [changeAddressModalOpen, setChangeAddressModalOpen] = useState<boolean>(false)
+    const [propertyIdToSelect, setPropertyIdToSelect] = useState<string>(null)
+
+    const changePropertyId = useCallback((newPropertyId) => {
         form.setFieldsValue({
             unitName: null,
             unitType: null,
@@ -138,25 +147,72 @@ const PropertyFormField = ({ organizationId, form, disabled, setSelectedProperty
             ...emptyContactValues,
         })
 
+        setPropertyIdToSelect(null)
+        setChangeAddressModalOpen(false)
         setSelectedPropertyId(newPropertyId)
     }, [form, setSelectedPropertyId])
     
+    const handlePropertySelectChange = useCallback(async (_, option) => {
+        const newPropertyId = get(option, 'value', null)
+        setPropertyIdToSelect(newPropertyId)
+
+        if (selectedPropertyId && !isEqual(rows, INITIAL_ROWS_VALUE)) {
+            setChangeAddressModalOpen(true)
+        } else {
+            changePropertyId(newPropertyId)
+        }
+    }, [changePropertyId, selectedPropertyId, rows])
+
+    const handleCancel = useCallback(() => {
+        setPropertyIdToSelect(null)
+        setChangeAddressModalOpen(false)
+
+        form.setFieldsValue({
+            property: selectedPropertyId,
+        })
+    }, [form, selectedPropertyId])
+    
     return (
-        <Form.Item
-            label={AddressLabel}
-            labelCol={{ span: 24 }}
-            required
-            rules={[requiredValidator]}
-            name='property'
-        >
-            <PropertyAddressSearchInput
-                organizationId={organizationId}
-                onChange={handlePropertySelectChange}
-                placeholder={AddressPlaceholder}
-                notFoundContent={AddressNotFoundContent}
-                disabled={disabled}
+        <>
+            <Form.Item
+                label={AddressLabel}
+                labelCol={{ span: 24 }}
+                required
+                rules={[requiredValidator]}
+            >
+                <GraphQlSearchInput
+                    value={selectedPropertyId}
+                    placeholder={AddressPlaceholder}
+                    notFoundContent={AddressNotFoundContent}
+                    search={searchOrganizationProperty(organizationId)}
+                    onChange={handlePropertySelectChange}
+                    disabled={disabled}
+                />
+            </Form.Item>
+            <Form.Item
+                hidden
+                noStyle
+                name='property'
             />
-        </Form.Item>
+            <Modal
+                open={changeAddressModalOpen}
+                title={ChangeAddressAlertTitle}
+                onCancel={handleCancel}
+                footer={[
+                    <Button
+                        key='submit'
+                        type='primary'
+                        onClick={() => changePropertyId(propertyIdToSelect)}
+                    >
+                        {ChangeAddressAlertButtonText}
+                    </Button>,
+                ]}
+            >
+                <Typography.Text type='secondary'>
+                    {ChangeAddressAlertMessage}
+                </Typography.Text>
+            </Modal>
+        </>
     )
 }
 
@@ -289,6 +345,7 @@ const PayerDataFields = ({ organizationId, form, role, disabled, initialValues }
                             setHasPayerData(value)
 
                             if (!value) {
+                                setSelectedPropertyId(null)
                                 form.setFieldsValue({
                                     property: null,
                                     unitName: null,
@@ -321,6 +378,7 @@ const PayerDataFields = ({ organizationId, form, role, disabled, initialValues }
                                         <Col span={24} md={20}>
                                             <PropertyFormField
                                                 organizationId={organizationId}
+                                                selectedPropertyId={selectedPropertyId}
                                                 setSelectedPropertyId={setSelectedPropertyId}
                                                 form={form}
                                                 disabled={disabled}
@@ -356,11 +414,11 @@ type MarketItemOptionType = {
 
 const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabled, setStatus, isModalForm }) => {
     const intl = useIntl()
-    const ServiceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.service' })
-    const QuntityLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.quantity' })
+    const ServiceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.name' })
+    const QuantityLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.count' })
     const TotalPriceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.totalPrice' })
     const AddServiceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.addService' })
-    const PriceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.price' })
+    const PriceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.toPay' })
     const NumberIsNotValidMessage = intl.formatMessage({ id: 'NumberIsNotValid' })
     const ServicePlaceholder = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.service.placeholder' })
     const MinPriceValidationMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.minPriceValidation' })
@@ -385,10 +443,25 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
         },
     })
 
+    const filteredPriceScopes = useMemo(() => marketPriceScopes
+        .filter(scope => {
+            if (!scope.property) {
+                const marketItemId = get(scope, 'marketItemPrice.marketItem.id')
+                const scopeWithSameMarketItemWithProperty = marketPriceScopes.find(
+                    scope => get(scope, 'marketItemPrice.marketItem.id') === marketItemId && scope.property
+                )
+
+                return !scopeWithSameMarketItemWithProperty
+            }
+
+            return true
+        })
+    , [marketPriceScopes])
+
     const marketItemGroups = useMemo(() => {
         const marketItemGroups = []
 
-        for (const scope of marketPriceScopes) {
+        for (const scope of filteredPriceScopes) {
             const category = get(scope, 'marketItemPrice.marketItem.marketCategory')
             const key = get(category, 'parentCategory') ?
                 get(category, 'parentCategory.id') + get(category, 'id') : get(category, 'id')
@@ -422,7 +495,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
         marketItemGroups.sort((a, b) => a.key > b.key ? 1 : -1)
 
         return marketItemGroups
-    }, [marketPriceScopes])
+    }, [filteredPriceScopes])
 
     const flatMarketOptions = useMemo(() => marketItemGroups.flatMap(group => group.options), [marketItemGroups])
 
@@ -498,7 +571,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                     </Col>
                                     <Col xs={24} lg={4}>
                                         <Form.Item
-                                            label={QuntityLabel}
+                                            label={QuantityLabel}
                                             name={[marketItemForm.name, 'count']}
                                             required
                                             labelAlign='left'
@@ -671,6 +744,7 @@ const StatusRadioGroup = ({
     const InvoiceStatusCancelledLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.invoiceStatus.canceled' }).toLowerCase()
     const NoPayerDataTooltipTitle = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.disabledTooltip.noPayerData' })
     const DisabledPaidForOnlineTitle = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.disabledTooltip.disabledPaidForOnline' })
+    const DisabledCanceledForCreateTitle = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.disabledTooltip.disabledCanceledForCreate' })
 
     const { CancelStatusModal, setIsCancelModalOpen } = useCancelStatusModal()
 
@@ -723,27 +797,29 @@ const StatusRadioGroup = ({
                             >
                                 <Typography.Text
                                     type={status === INVOICE_STATUS_PAID ? 'success' : 'primary'}
-                                    disabled={isAllFieldsDisabled || isNotDraftStatusesDisabled}
+                                    disabled={isAllFieldsDisabled || isNotDraftStatusesDisabled || isOnlinePaymentType}
                                     strong
                                 >
                                     {InvoiceStatusPaidLabel}
                                 </Typography.Text>
                             </Radio>
                         </Tooltip>
-                        <Radio
-                            value={INVOICE_STATUS_CANCELED}
-                            disabled={isAllFieldsDisabled || isNotDraftStatusesDisabled || isCreateForm}
-                        >
-                            <div style={status === INVOICE_STATUS_CANCELED ? { color: colors.brown[5] } : {}}>
-                                <Typography.Text
-                                    type={status === INVOICE_STATUS_CANCELED ? 'inherit' : 'primary'}
-                                    disabled={isAllFieldsDisabled || isNotDraftStatusesDisabled}
-                                    strong
-                                >
-                                    {InvoiceStatusCancelledLabel}
-                                </Typography.Text>
-                            </div>
-                        </Radio>
+                        <Tooltip title={isCreateForm && DisabledCanceledForCreateTitle}>
+                            <Radio
+                                value={INVOICE_STATUS_CANCELED}
+                                disabled={isAllFieldsDisabled || isNotDraftStatusesDisabled || isCreateForm}
+                            >
+                                <div style={status === INVOICE_STATUS_CANCELED ? { color: colors.brown[5] } : {}}>
+                                    <Typography.Text
+                                        type={status === INVOICE_STATUS_CANCELED ? 'inherit' : 'primary'}
+                                        disabled={isAllFieldsDisabled || isNotDraftStatusesDisabled || isCreateForm}
+                                        strong
+                                    >
+                                        {InvoiceStatusCancelledLabel}
+                                    </Typography.Text>
+                                </div>
+                            </Radio>
+                        </Tooltip>
                     </Space>
                 </RadioGroup>
             </Form.Item>
@@ -774,6 +850,7 @@ type BaseInvoiceFormProps = {
     modalFormProps?: ComponentProps<typeof BaseModalForm>
     isAllFieldsDisabled?: boolean
     isContactsFieldsDisabled?: boolean
+    formInstance?: FormInstance
 }
 
 export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
@@ -790,6 +867,8 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
     const EmptyPayerDataAlertDescription = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.emptyPayerData' })
     const LinkWillBeGeneratedMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.linkWillBeGeneratedMessage' })
     const ContractPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' }).toLowerCase()
+    const SaveChangesModalTitle = intl.formatMessage({ id: 'form.prompt.title' })
+    const SaveChangesNodalMessage = intl.formatMessage({ id: 'form.prompt.message' })
 
     const {
         children,
@@ -803,6 +882,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
         modalFormProps,
         isAllFieldsDisabled,
         isContactsFieldsDisabled,
+        formInstance,
     } = props
 
     const { obj: invoiceContext } = InvoiceContext.useObject({
@@ -829,7 +909,9 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
         () => isModalForm ? BaseModalForm : FormWithAction,
         [isModalForm])
 
-    const [form] = Form.useForm()
+    const [innerForm] = Form.useForm()
+    const form = useMemo(() => formInstance ? formInstance : innerForm, [])
+
     useEffect(() => {
         if (!isCreateForm) {
             const rows = form.getFieldValue('rows')
@@ -849,262 +931,273 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
             validateTrigger={FORM_VALIDATE_TRIGGER}
             {...modalFormProps}
             children={({ handleSave, form }) => (
-                <Row gutter={OUTER_VERTICAL_GUTTER}>
-                    <Col span={24} md={colSpan} hidden={isModalForm}>
+                <>
+                    <Prompt
+                        title={SaveChangesModalTitle}
+                        form={form}
+                        handleSave={handleSave}
+                    >
+                        <Typography.Paragraph>
+                            {SaveChangesNodalMessage}
+                        </Typography.Paragraph>
+                    </Prompt>
+                    <Row gutter={OUTER_VERTICAL_GUTTER}>
+                        <Col span={24} md={colSpan} hidden={isModalForm}>
+                            <Form.Item
+                                dependencies={['status']}
+                            >
+                                {
+                                    ({ getFieldValue }) => {
+                                        const status = getFieldValue('status')
+                                        const disabled = isContactsFieldsDisabled || isAllFieldsDisabled || onlyStatusTransitionsActive ||
+                                            status !== INVOICE_STATUS_DRAFT || isCreatedByResident
+
+                                        return (
+                                            <PayerDataFields
+                                                organizationId={organizationId}
+                                                form={form}
+                                                role={role}
+                                                disabled={disabled}
+                                                initialValues={initialValues}
+                                            />
+                                        )
+                                    }
+                                }
+                            </Form.Item>
+                        </Col>
+                        <Col md={isModalForm ? 24 : 22}>
+                            <Row>
+                                <Col span={24}>
+                                    <Typography.Title level={3}>{ServicesListMessage}</Typography.Title>
+                                </Col>
+                                <Col span={24}>
+                                    <Form.Item
+                                        dependencies={['property', 'status']}
+                                    >
+                                        {
+                                            ({ getFieldsValue }) => {
+                                                const { property } = getFieldsValue(['property'])
+                                                const disabled = isAllFieldsDisabled ||
+                                                    onlyStatusTransitionsActive || (!isCreateForm && isCreatedByResident) ||
+                                                    (!isCreateForm && status !== INVOICE_STATUS_DRAFT)
+
+                                                return (
+                                                    <ServicesList
+                                                        organizationId={organizationId}
+                                                        propertyId={property}
+                                                        form={form}
+                                                        currencySymbol={currencySymbol}
+                                                        disabled={disabled}
+                                                        setStatus={setStatus}
+                                                        isModalForm={isModalForm}
+                                                    />
+                                                )
+                                            }
+                                        }
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+                        </Col>
                         <Form.Item
-                            dependencies={['status']}
+                            dependencies={['rows']}
+                            noStyle
                         >
                             {
                                 ({ getFieldValue }) => {
-                                    const status = getFieldValue('status')
-                                    const disabled = isContactsFieldsDisabled || isAllFieldsDisabled || onlyStatusTransitionsActive ||
-                                        status !== INVOICE_STATUS_DRAFT || isCreatedByResident
-
-                                    return (
-                                        <PayerDataFields
-                                            organizationId={organizationId}
-                                            form={form}
-                                            role={role}
-                                            disabled={disabled}
-                                            initialValues={initialValues}
-                                        />
+                                    const rows = getFieldValue('rows')
+                                    const filledRow = rows.find(row =>
+                                        get(row, 'name.length', 0) > 6 &&
+                                        get(row, 'toPay.length', 0) > 1 &&
+                                        get(row, 'count', 0) > 0
                                     )
-                                }
-                            }
-                        </Form.Item>
-                    </Col>
-                    <Col md={isModalForm ? 24 : 22}>
-                        <Row>
-                            <Col span={24}>
-                                <Typography.Title level={3}>{ServicesListMessage}</Typography.Title>
-                            </Col>
-                            <Col span={24}>
-                                <Form.Item
-                                    dependencies={['property', 'status']}
-                                >
-                                    {
-                                        ({ getFieldsValue }) => {
-                                            const { property } = getFieldsValue(['property'])
-                                            const disabled = isAllFieldsDisabled ||
-                                                onlyStatusTransitionsActive || (!isCreateForm && isCreatedByResident) ||
-                                                (!isCreateForm && status !== INVOICE_STATUS_DRAFT)
 
-                                            return (
-                                                <ServicesList
-                                                    organizationId={organizationId}
-                                                    propertyId={property}
-                                                    form={form}
-                                                    currencySymbol={currencySymbol}
-                                                    disabled={disabled}
-                                                    setStatus={setStatus}
-                                                    isModalForm={isModalForm}
-                                                />
-                                            )
-                                        }
-                                    }
-                                </Form.Item>
-                            </Col>
-                        </Row>
-                    </Col>
-                    <Form.Item
-                        dependencies={['rows']}
-                        noStyle
-                    >
-                        {
-                            ({ getFieldValue }) => {
-                                const rows = getFieldValue('rows')
-                                const filledRow = rows.find(row =>
-                                    get(row, 'name.length', 0) > 6 &&
-                                    get(row, 'toPay.length', 0) > 1 &&
-                                    get(row, 'count', 0) > 0
-                                )
+                                    return filledRow && (
+                                        <>
+                                            <Col
+                                                span={24}
+                                                md={colSpan}
+                                            >
+                                                <Form.Item
+                                                    shouldUpdate
+                                                >
+                                                    {
+                                                        ({ getFieldValue }) => {
+                                                            const rows = getFieldValue('rows').filter(Boolean)
+                                                            const totalCount = rows.reduce((acc, row) => acc + row.count, 0)
+                                                            const { totalPrice, hasMinPrice, hasError } = calculateRowsTotalPrice(intl, rows)
+                                                            const isContractToPay = hasMinPrice && totalPrice === 0
 
-                                return filledRow && (
-                                    <>
-                                        <Col
-                                            span={24}
-                                            md={colSpan}
-                                        >
+                                                            let value
+                                                            if (hasError) {
+                                                                value = ''
+                                                            } else if (isContractToPay) {
+                                                                value = ContractPriceMessage
+                                                            } else {
+                                                                value = moneyRender(totalPrice, hasMinPrice)
+                                                            }
+
+                                                            return (
+                                                                <Row gutter={[0, 12]}>
+                                                                    <Col span={24}>
+                                                                        <SubTotalInfo
+                                                                            label={ServicesChosenLabel}
+                                                                            total={totalCount}
+                                                                            totalTextType='primary'
+                                                                        />
+                                                                    </Col>
+                                                                    <Col span={24}>
+                                                                        <SubTotalInfo
+                                                                            label={TotalToPayLabel}
+                                                                            total={value}
+                                                                            large
+                                                                            totalTextType={hasMinPrice ? 'danger' : 'primary'}
+                                                                        />
+                                                                    </Col>
+                                                                </Row>
+                                                            )
+                                                        }
+                                                    }
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={24}>
+                                                <Row gutter={[0, 40]}>
+                                                    <Col md={colSpan}>
+                                                        <Form.Item
+                                                            label={<Typography.Text strong>{PaymentModeLabel}</Typography.Text>}
+                                                            name='paymentType'
+                                                            labelCol={{
+                                                                style: { marginRight: '24px' },
+                                                            }}
+                                                        >
+                                                            <RadioGroup
+                                                                onChange={(e) => {
+                                                                    const value = get(e, 'target.value')
+                                                                    setPaymentType(value)
+
+                                                                    setStatus(INVOICE_STATUS_DRAFT)
+                                                                    form.setFieldsValue({ status: INVOICE_STATUS_DRAFT })
+                                                                }}
+                                                                disabled={isAllFieldsDisabled || onlyStatusTransitionsActive}
+                                                            >
+                                                                <Space size={24} wrap direction='horizontal'>
+                                                                    <Radio value={INVOICE_PAYMENT_TYPE_ONLINE}>
+                                                                        <Typography.Text disabled={isAllFieldsDisabled || onlyStatusTransitionsActive} strong>
+                                                                            {PaymentOnlineLabel}
+                                                                        </Typography.Text>
+                                                                    </Radio>
+                                                                    <Radio value={INVOICE_PAYMENT_TYPE_CASH}>
+                                                                        <Typography.Text disabled={isAllFieldsDisabled || onlyStatusTransitionsActive} strong>
+                                                                            {PaymentCashLabel}
+                                                                        </Typography.Text>
+                                                                    </Radio>
+                                                                </Space>
+                                                            </RadioGroup>
+                                                        </Form.Item>
+                                                    </Col>
+                                                    <Col md={colSpan}>
+                                                        <Form.Item
+                                                            dependencies={['paymentType', 'payerData', 'property', 'unitName', 'unitType', 'clientName', 'clientPhone', 'hasIsMinPrice']}
+                                                        >
+                                                            {
+                                                                ({ getFieldsValue }) => {
+                                                                    const {
+                                                                        payerData, property, hasIsMinPrice,
+                                                                    } = getFieldsValue(['payerData', 'property', 'hasIsMinPrice'])
+                                                                    const isNoPayerData = payerData && !property
+                                                                    const initialStatus = get(initialValues, 'status')
+                                                                    const isNotDraftStatusesDisabled = hasIsMinPrice || isNoPayerData ||
+                                                                        initialStatus === INVOICE_STATUS_CANCELED || initialStatus === INVOICE_STATUS_PAID
+
+                                                                    return (
+                                                                        <StatusRadioGroup
+                                                                            isNoPayerData={isNoPayerData}
+                                                                            paymentType={paymentType}
+                                                                            isAllFieldsDisabled={isAllFieldsDisabled}
+                                                                            onlyStatusTransitionsActive={onlyStatusTransitionsActive}
+                                                                            isNotDraftStatusesDisabled={isNotDraftStatusesDisabled}
+                                                                            isCreateForm={isCreateForm}
+                                                                            form={form}
+                                                                            status={status}
+                                                                            setStatus={setStatus}
+                                                                        />
+                                                                    )
+                                                                }
+                                                            }
+                                                        </Form.Item>
+                                                    </Col>
+                                                </Row>
+                                            </Col>
                                             <Form.Item
-                                                shouldUpdate
+                                                dependencies={['paymentType', 'status', 'payerData', 'property', 'unitName', 'unitType', 'clientName']}
+                                                noStyle
                                             >
                                                 {
-                                                    ({ getFieldValue }) => {
-                                                        const rows = getFieldValue('rows').filter(Boolean)
-                                                        const totalCount = rows.reduce((acc, row) => acc + row.count, 0)
-                                                        const { totalPrice, hasMinPrice, hasError } = calculateRowsTotalPrice(intl, rows)
-                                                        const isContractToPay = hasMinPrice && totalPrice === 0
+                                                    ({ getFieldsValue }) => {
+                                                        const {
+                                                            status, paymentType, payerData, property, unitName, unitType, clientPhone,
+                                                        } = getFieldsValue(['status', 'paymentType', 'payerData', 'property', 'unitName', 'unitType', 'clientPhone'])
 
-                                                        let value
-                                                        if (hasError) {
-                                                            value = ''
-                                                        } else if (isContractToPay) {
-                                                            value = ContractPriceMessage
-                                                        } else {
-                                                            value = moneyRender(totalPrice, hasMinPrice)
+                                                        if (status !== INVOICE_STATUS_PUBLISHED || paymentType !== INVOICE_PAYMENT_TYPE_ONLINE || isAllFieldsDisabled) {
+                                                            return
+                                                        }
+
+                                                        if (!payerData) {
+                                                            return (
+                                                                <Col md={colSpan}>
+                                                                    <Alert
+                                                                        type='info'
+                                                                        message={NoPayerDataAlertMessage}
+                                                                        description={NoPayerDataAlertDescription}
+                                                                        showIcon
+                                                                    />
+                                                                </Col>
+                                                            )
+                                                        }
+
+                                                        if (!property || !unitName || !unitType || !clientPhone) {
+                                                            return (
+                                                                <Col md={colSpan}>
+                                                                    <Alert
+                                                                        type='warning'
+                                                                        message={EmptyPayerDataAlertMessage}
+                                                                        description={(
+                                                                            <>
+                                                                                <Typography.Paragraph size='medium'>
+                                                                                    {EmptyPayerDataAlertDescription}
+                                                                                </Typography.Paragraph>
+                                                                                <Typography.Paragraph size='medium'>
+                                                                                    {LinkWillBeGeneratedMessage}
+                                                                                </Typography.Paragraph>
+                                                                            </>
+                                                                        )}
+                                                                        showIcon
+                                                                    />
+                                                                </Col>
+                                                            )
                                                         }
 
                                                         return (
-                                                            <Row gutter={[0, 12]}>
-                                                                <Col span={24}>
-                                                                    <SubTotalInfo
-                                                                        label={ServicesChosenLabel}
-                                                                        total={totalCount}
-                                                                        totalTextType='primary'
-                                                                    />
-                                                                </Col>
-                                                                <Col span={24}>
-                                                                    <SubTotalInfo
-                                                                        label={TotalToPayLabel}
-                                                                        total={value}
-                                                                        large
-                                                                        totalTextType={hasMinPrice ? 'danger' : 'primary'}
-                                                                    />
-                                                                </Col>
-                                                            </Row>
+                                                            <Col md={colSpan}>
+                                                                <ResidentPaymentAlert
+                                                                    propertyId={property}
+                                                                    unitName={unitName}
+                                                                    unitType={unitType}
+                                                                    clientPhone={clientPhone}
+                                                                    isCreatedByResident={isCreatedByResident}
+                                                                />
+                                                            </Col>
                                                         )
                                                     }
                                                 }
                                             </Form.Item>
-                                        </Col>
-                                        <Col span={24}>
-                                            <Row gutter={[0, 40]}>
-                                                <Col md={colSpan}>
-                                                    <Form.Item
-                                                        label={<Typography.Text strong>{PaymentModeLabel}</Typography.Text>}
-                                                        name='paymentType'
-                                                        labelCol={{
-                                                            style: { marginRight: '24px' },
-                                                        }}
-                                                    >
-                                                        <RadioGroup
-                                                            onChange={(e) => {
-                                                                const value = get(e, 'target.value')
-                                                                setPaymentType(value)
-
-                                                                setStatus(INVOICE_STATUS_DRAFT)
-                                                                form.setFieldsValue({ status: INVOICE_STATUS_DRAFT })
-                                                            }}
-                                                            disabled={isAllFieldsDisabled || onlyStatusTransitionsActive}
-                                                        >
-                                                            <Space size={24} wrap direction='horizontal'>
-                                                                <Radio value={INVOICE_PAYMENT_TYPE_ONLINE}>
-                                                                    <Typography.Text disabled={isAllFieldsDisabled || onlyStatusTransitionsActive} strong>
-                                                                        {PaymentOnlineLabel}
-                                                                    </Typography.Text>
-                                                                </Radio>
-                                                                <Radio value={INVOICE_PAYMENT_TYPE_CASH}>
-                                                                    <Typography.Text disabled={isAllFieldsDisabled || onlyStatusTransitionsActive} strong>
-                                                                        {PaymentCashLabel}
-                                                                    </Typography.Text>
-                                                                </Radio>
-                                                            </Space>
-                                                        </RadioGroup>
-                                                    </Form.Item>
-                                                </Col>
-                                                <Col md={colSpan}>
-                                                    <Form.Item
-                                                        dependencies={['paymentType', 'payerData', 'property', 'unitName', 'unitType', 'clientName', 'clientPhone', 'hasIsMinPrice']}
-                                                    >
-                                                        {
-                                                            ({ getFieldsValue }) => {
-                                                                const {
-                                                                    payerData, property, hasIsMinPrice,
-                                                                } = getFieldsValue(['payerData', 'property', 'hasIsMinPrice'])
-                                                                const isNoPayerData = payerData && !property
-                                                                const initialStatus = get(initialValues, 'status')
-                                                                const isNotDraftStatusesDisabled = hasIsMinPrice || isNoPayerData ||
-                                                                    initialStatus === INVOICE_STATUS_CANCELED || initialStatus === INVOICE_STATUS_PAID
-
-                                                                return (
-                                                                    <StatusRadioGroup
-                                                                        isNoPayerData={isNoPayerData}
-                                                                        paymentType={paymentType}
-                                                                        isAllFieldsDisabled={isAllFieldsDisabled}
-                                                                        onlyStatusTransitionsActive={onlyStatusTransitionsActive}
-                                                                        isNotDraftStatusesDisabled={isNotDraftStatusesDisabled}
-                                                                        isCreateForm={isCreateForm}
-                                                                        form={form}
-                                                                        status={status}
-                                                                        setStatus={setStatus}
-                                                                    />
-                                                                )
-                                                            }
-                                                        }
-                                                    </Form.Item>
-                                                </Col>
-                                            </Row>
-                                        </Col>
-                                        <Form.Item
-                                            dependencies={['paymentType', 'status', 'payerData', 'property', 'unitName', 'unitType', 'clientName']}
-                                            noStyle
-                                        >
-                                            {
-                                                ({ getFieldsValue }) => {
-                                                    const {
-                                                        status, paymentType, payerData, property, unitName, unitType, clientPhone,
-                                                    } = getFieldsValue(['status', 'paymentType', 'payerData', 'property', 'unitName', 'unitType', 'clientPhone'])
-
-                                                    if (status !== INVOICE_STATUS_PUBLISHED || paymentType !== INVOICE_PAYMENT_TYPE_ONLINE || isAllFieldsDisabled) {
-                                                        return
-                                                    }
-
-                                                    if (!payerData) {
-                                                        return (
-                                                            <Col md={colSpan}>
-                                                                <Alert
-                                                                    type='info'
-                                                                    message={NoPayerDataAlertMessage}
-                                                                    description={NoPayerDataAlertDescription}
-                                                                    showIcon
-                                                                />
-                                                            </Col>
-                                                        )
-                                                    }
-
-                                                    if (!property || !unitName || !unitType || !clientPhone) {
-                                                        return (
-                                                            <Col md={colSpan}>
-                                                                <Alert
-                                                                    type='warning'
-                                                                    message={EmptyPayerDataAlertMessage}
-                                                                    description={(
-                                                                        <>
-                                                                            <Typography.Paragraph size='medium'>
-                                                                                {EmptyPayerDataAlertDescription}
-                                                                            </Typography.Paragraph>
-                                                                            <Typography.Paragraph size='medium'>
-                                                                                {LinkWillBeGeneratedMessage}
-                                                                            </Typography.Paragraph>
-                                                                        </>
-                                                                    )}
-                                                                    showIcon
-                                                                />
-                                                            </Col>
-                                                        )
-                                                    }
-
-                                                    return (
-                                                        <Col md={colSpan}>
-                                                            <ResidentPaymentAlert
-                                                                propertyId={property}
-                                                                unitName={unitName}
-                                                                unitType={unitType}
-                                                                clientPhone={clientPhone}
-                                                                isCreatedByResident={isCreatedByResident}
-                                                            />
-                                                        </Col>
-                                                    )
-                                                }
-                                            }
-                                        </Form.Item>
-                                    </>
-                                )
+                                        </>
+                                    )
+                                }
                             }
-                        }
-                    </Form.Item>
-                    {typeof children === 'function' ? children({ handleSave, form }) : children}
-                </Row>
+                        </Form.Item>
+                        {typeof children === 'function' ? children({ handleSave, form }) : children}
+                    </Row>
+                </>
             )}/>
     )
 }

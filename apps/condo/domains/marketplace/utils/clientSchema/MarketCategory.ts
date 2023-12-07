@@ -17,17 +17,17 @@ import { MarketCategory as MarketCategoryGQL } from '@condo/domains/marketplace/
 const {
     useObject,
     useObjects,
+    useAllObjects,
     useCreate,
     useUpdate,
-    useAllObjects,
     useSoftDelete,
 } = generateReactHooks<MarketCategory, MarketCategoryCreateInput, MarketCategoryUpdateInput, QueryAllMarketCategoriesArgs>(MarketCategoryGQL)
 
 export {
     useObject,
     useObjects,
+    useAllObjects,
     useCreate,
     useUpdate,
-    useAllObjects,
     useSoftDelete,
 }

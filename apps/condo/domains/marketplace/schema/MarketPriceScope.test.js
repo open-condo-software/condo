@@ -4,7 +4,7 @@
 
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, expectValuesOfCommonFields, expectToThrowUniqueConstraintViolationError, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, expectValuesOfCommonFields, expectToThrowUniqueConstraintViolationError, expectToThrowGQLError, expectToThrowAccessDeniedErrorToObjects } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
@@ -12,7 +12,7 @@ const {
 
 
 const { createTestAcquiringIntegration } = require('@condo/domains/acquiring/utils/testSchema')
-const { MarketPriceScope, createTestMarketPriceScope, updateTestMarketPriceScope, createTestMarketItemPrice } = require('@condo/domains/marketplace/utils/testSchema')
+const { MarketPriceScope, createTestMarketPriceScope, updateTestMarketPriceScope, createTestMarketItemPrice, createTestMarketPriceScopes, softDeleteTestMarketPriceScopes, updateTestMarketPriceScopes } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestMarketCategory, createTestMarketItem } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestInvoiceContext } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
@@ -134,16 +134,17 @@ describe('MarketPriceScope', () => {
                 expectValuesOfCommonFields(obj, attrs, client)
             })
 
-            test('can update', async () => {
+            test('can soft delete', async () => {
                 const [property] = await createTestProperty(admin, organization)
                 const [objCreated] = await createTestMarketPriceScope(client, price, property)
-                const [obj, attrs] = await updateTestMarketPriceScope(client, objCreated.id)
+                const [obj, attrs] = await updateTestMarketPriceScope(client, objCreated.id, { deletedAt: 'true' })
 
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
                 expect(obj.v).toEqual(2)
                 expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
+                expect(obj.deletedAt).toBeDefined()
             })
 
             test('can\'t delete', async () => {
@@ -403,6 +404,118 @@ describe('MarketPriceScope', () => {
                 },
                 'obj'
             )
+        })
+    })
+
+    describe('Bulk requests', () => {
+        let employeeClient, marketItemInOtherOrganization, otherOrganization
+        beforeAll(async () => {
+            employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
+
+            const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                canManageMarketPriceScopes: true,
+                canReadMarketItems: true,
+                canReadMarketItemPrices: true,
+                canReadMarketPriceScopes: true,
+            })
+            await createTestOrganizationEmployee(admin, organization, employeeClient.user, role)
+
+            const [testOrganization] = await createTestOrganization(admin)
+            otherOrganization = testOrganization
+            const [marketCategory] = await createTestMarketCategory(admin)
+            const [otherMarketItem] = await createTestMarketItem(admin, marketCategory, otherOrganization)
+            marketItemInOtherOrganization = otherMarketItem
+        })
+
+        test('can create many market price scopes for one organization', async () => {
+            const [secondMarketItem] = await createTestMarketItem(admin, marketCategory, organization)
+            const [marketItemPrice] = await createTestMarketItemPrice(admin, marketItem)
+            const [marketItemPrice1] = await createTestMarketItemPrice(admin, secondMarketItem)
+            const [property] = await createTestProperty(admin, organization)
+            const [property1] = await createTestProperty(admin, organization)
+
+            const marketPriceScopes = await createTestMarketPriceScopes(employeeClient, [
+                {
+                    marketItemPrice: { connect: { id: marketItemPrice.id } },
+                    property: { connect: { id: property.id } },
+                },
+                {
+                    marketItemPrice: { connect: { id: marketItemPrice.id } },
+                    property: { connect: { id: property1.id } },
+                },
+                {
+                    marketItemPrice: { connect: { id: marketItemPrice1.id } },
+                    property: { connect: { id: property.id } },
+                },
+            ])
+
+            expect(marketPriceScopes).toHaveLength(3)
+        })
+
+        test('cannot create many price scopes for other organizations', async () => {
+            const [marketItemPrice] = await createTestMarketItemPrice(admin, marketItem)
+            const [marketItemPriceInOtherOrganization] = await createTestMarketItemPrice(admin, marketItemInOtherOrganization)
+            const [property] = await createTestProperty(admin, organization)
+
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await createTestMarketPriceScopes(employeeClient, [
+                    {
+                        marketItemPrice: { connect: { id: marketItemPriceInOtherOrganization.id } },
+                    },
+                ])
+            })
+
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await createTestMarketPriceScopes(employeeClient, [
+                    {
+                        marketItemPrice: { connect: { id: marketItemPrice.id } },
+                        property: { connect: { id: property.id } },
+                    },
+                    {
+                        marketItemPrice: { connect: { id: marketItemPriceInOtherOrganization.id } },
+                    },
+                ])
+            })
+        })
+
+        test('can soft delete many price scopes for one organization', async () => {
+            const [secondMarketItem] = await createTestMarketItem(admin, marketCategory, organization)
+            const [marketItemPrice] = await createTestMarketItemPrice(admin, marketItem)
+            const [marketItemPrice1] = await createTestMarketItemPrice(admin, secondMarketItem)
+            const [property] = await createTestProperty(admin, organization)
+
+            const marketPriceScopes = await createTestMarketPriceScopes(employeeClient, [
+                {
+                    marketItemPrice: { connect: { id: marketItemPrice.id } },
+                    property: { connect: { id: property.id } },
+                },
+                {
+                    marketItemPrice: { connect: { id: marketItemPrice1.id } },
+                    property: { connect: { id: property.id } },
+                },
+            ])
+            const scopeIds = await marketPriceScopes.map(scope => scope.id)
+            expect(scopeIds).toHaveLength(2)
+
+            await softDeleteTestMarketPriceScopes(employeeClient, scopeIds)
+
+            const scopes = await MarketPriceScope.getAll(employeeClient, { id_in: scopeIds, deletedAt: null })
+            expect(scopes).toHaveLength(0)
+        })
+
+        test('cannot soft delete many price scopes for other organizations', async () => {
+            const [secondMarketItem] = await createTestMarketItem(admin, marketCategory, otherOrganization)
+            const [marketItemPrice] = await createTestMarketItemPrice(admin, marketItem)
+            const [marketItemPrice1] = await createTestMarketItemPrice(admin, secondMarketItem)
+            const [property] = await createTestProperty(admin, organization)
+            const [property1] = await createTestProperty(admin, otherOrganization)
+
+            const [marketPriceScope] = await createTestMarketPriceScope(admin, marketItemPrice, property)
+            const [marketPriceScope1] = await createTestMarketPriceScope(admin, marketItemPrice1, property1)
+
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await softDeleteTestMarketPriceScopes(employeeClient, [marketPriceScope.id, marketPriceScope1.id])
+            })
         })
     })
 })

@@ -81,7 +81,8 @@ export const InvoiceStatusSelect = ({ invoice, onUpdate, employee }) => {
     const optionsWithSelected = [...options, { ...selectedStatus, hidden: true }]
 
     const isLoading = isUpdating
-    const isDisabled = isLoading || !canManageInvoices || isEmpty(get(selectedStatus, 'statusTransitions'))
+    const isDisabled = isLoading || !canManageInvoices ||
+        isEmpty(get(selectedStatus, 'statusTransitions')) || get(invoice, 'rows', []).some(row => row.isMin)
 
     return (
         <>

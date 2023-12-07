@@ -20,7 +20,7 @@ import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { getAddressCellRender } from '@condo/domains/property/utils/clientSchema/Renders'
 import { getPropertyAddressParts } from '@condo/domains/property/utils/helpers'
 import { TicketTag } from '@condo/domains/ticket/components/TicketTag'
-import { TICKET_TYPE_TAG_COLORS } from '@condo/domains/ticket/constants/style'
+import { TICKET_TYPE_TAG_STYLE } from '@condo/domains/ticket/constants/style'
 import { useFavoriteTickets } from '@condo/domains/ticket/contexts/FavoriteTicketsContext'
 
 import {
@@ -290,14 +290,14 @@ export const getStatusRender = (intl, search?: FilterValue) => {
             <Space direction='vertical' size={7}>
                 {
                     status.name && (
-                        <TicketTag color={backgroundColor}>
+                        <TicketTag color={backgroundColor} style={{ fontSize: '12px', fontWeight: 600 }}>
                             {highlightedContent}
                         </TicketTag>
                     )
                 }
                 {
                     record.isEmergency && (
-                        <TicketTag color={TICKET_TYPE_TAG_COLORS.emergency}>
+                        <TicketTag style={TICKET_TYPE_TAG_STYLE.emergency}>
                             <Typography.Text type='danger'>
                                 {EmergencyMessage}
                             </Typography.Text>
@@ -306,21 +306,21 @@ export const getStatusRender = (intl, search?: FilterValue) => {
                 }
                 {
                     record.isPayable && (
-                        <TicketTag color={TICKET_TYPE_TAG_COLORS.payable}>
+                        <TicketTag style={TICKET_TYPE_TAG_STYLE.payable}>
                             {PayableMessage}
                         </TicketTag>
                     )
                 }
                 {
                     record.isWarranty && (
-                        <TicketTag color={TICKET_TYPE_TAG_COLORS.warranty}>
+                        <TicketTag style={TICKET_TYPE_TAG_STYLE.warranty}>
                             {WarrantyMessage}
                         </TicketTag>
                     )
                 }
                 {
                     record.statusReopenedCounter > 0 && (
-                        <TicketTag color={TICKET_TYPE_TAG_COLORS.returned}>
+                        <TicketTag style={TICKET_TYPE_TAG_STYLE.returned}>
                             {ReturnedMessage} {record.statusReopenedCounter > 1 && `(${record.statusReopenedCounter})`}
                         </TicketTag>
                     )

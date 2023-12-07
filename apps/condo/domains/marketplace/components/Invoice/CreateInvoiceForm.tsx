@@ -1,18 +1,27 @@
 import { Invoice as InvoiceType } from '@app/condo/schema'
-import { Col, notification } from 'antd'
+import { Col, Form, notification } from 'antd'
 import isEmpty from 'lodash/isEmpty'
 import omit from 'lodash/omit'
 import React, { ComponentProps, useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button } from '@open-condo/ui'
+import { ActionBar, Button, Tooltip } from '@open-condo/ui'
 
 import { BaseModalForm } from '@condo/domains/common/components/containers/FormList'
-import { INVOICE_PAYMENT_TYPE_ONLINE, INVOICE_STATUS_DRAFT, INVOICE_STATUS_PUBLISHED, INITIAL_ROWS_VALUE } from '@condo/domains/marketplace/constants'
+import {
+    INVOICE_PAYMENT_TYPE_ONLINE,
+    INVOICE_STATUS_DRAFT,
+    INVOICE_STATUS_PUBLISHED,
+    INITIAL_ROWS_VALUE,
+    INVOICE_STATUS_CANCELED,
+} from '@condo/domains/marketplace/constants'
 import { useInvoicePaymentLink } from '@condo/domains/marketplace/hooks/useInvoicePaymentLink'
 import { Invoice, InvoiceContext } from '@condo/domains/marketplace/utils/clientSchema'
-import { InvoiceFormValuesType } from '@condo/domains/marketplace/utils/clientSchema/Invoice'
+import {
+    getSaveButtonTooltipMessage,
+    InvoiceFormValuesType,
+} from '@condo/domains/marketplace/utils/clientSchema/Invoice'
 
 import { BaseInvoiceForm } from './BaseInvoiceForm'
 import { getPaymentLinkNotification } from './CopyButton'
@@ -20,7 +29,7 @@ import { getPaymentLinkNotification } from './CopyButton'
 
 type CreateInvoiceFormProps = {
     organizationId: string
-    afterAction: (invoice: InvoiceType) => Promise<void>
+    afterAction: (invoice?: InvoiceType) => Promise<void>
     modalFormProps?: ComponentProps<typeof BaseModalForm>
     initialValues?: InvoiceFormValuesType
     ticketCreatedByResident?: boolean
@@ -29,6 +38,7 @@ type CreateInvoiceFormProps = {
 export const CreateInvoiceForm: React.FC<CreateInvoiceFormProps> = ({ organizationId, afterAction, modalFormProps, initialValues, ticketCreatedByResident }) => {
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Save' })
+    const CancelLabel = intl.formatMessage({ id: 'Cancel' })
 
     const { link } = useOrganization()
 
@@ -53,7 +63,7 @@ export const CreateInvoiceForm: React.FC<CreateInvoiceFormProps> = ({ organizati
         const createdInvoice = await createInvoiceAction(payload)
 
         const { status } = values
-        if (status === INVOICE_STATUS_PUBLISHED && !isModalForm) {
+        if (status === INVOICE_STATUS_PUBLISHED && !isModalForm && createdInvoice.contact) {
             const { error, paymentLink } = await getPaymentLink([createdInvoice.id])
 
             if (paymentLink) {
@@ -74,6 +84,15 @@ export const CreateInvoiceForm: React.FC<CreateInvoiceFormProps> = ({ organizati
         }),
     [initialValues])
 
+    const [form] = Form.useForm()
+
+    const tooltipTitle = getSaveButtonTooltipMessage(form, intl)
+
+    const modalProps: ComponentProps<typeof BaseModalForm> = isModalForm && {
+        ...modalFormProps,
+        submitButtonProps: { hidden: !isEmpty(tooltipTitle), loading: submitLoading },
+    }
+
     return (
         <BaseInvoiceForm
             isCreateForm
@@ -82,27 +101,57 @@ export const CreateInvoiceForm: React.FC<CreateInvoiceFormProps> = ({ organizati
             role={link}
             initialValues={formInitialValues}
             OnCompletedMsg={null}
-            modalFormProps={modalFormProps}
+            modalFormProps={modalProps}
             isCreatedByResident={ticketCreatedByResident}
+            formInstance={form}
         >
             {
-                ({ handleSave }) => !isModalForm && (
-                    <Col span={24}>
-                        <ActionBar
-                            actions={[
-                                <Button
-                                    key='submit'
-                                    onClick={handleSave}
-                                    type='primary'
-                                    loading={submitLoading}
-                                    disabled={submitLoading}
-                                >
-                                    {SaveLabel}
-                                </Button>,
-                            ]}
-                        />
-                    </Col>
-                )
+                ({ handleSave }) => {
+                    return !isModalForm && (
+                        <Form.Item
+                            noStyle
+                            shouldUpdate
+                        >
+                            {
+                                (form) => {
+                                    const tooltipTitle = getSaveButtonTooltipMessage(form, intl)
+                                    const disabled = submitLoading || !isEmpty(tooltipTitle)
+
+                                    return (
+                                        <Col span={24}>
+                                            <ActionBar
+                                                actions={[
+                                                    <Tooltip
+                                                        title={tooltipTitle}
+                                                        key='submit'
+                                                    >
+                                                        <span>
+                                                            <Button
+                                                                onClick={handleSave}
+                                                                type='primary'
+                                                                loading={submitLoading}
+                                                                disabled={disabled}
+                                                            >
+                                                                {SaveLabel}
+                                                            </Button>
+                                                        </span>
+                                                    </Tooltip>,
+                                                    <Button
+                                                        key='cancel'
+                                                        onClick={() => afterAction()}
+                                                        type='secondary'
+                                                    >
+                                                        {CancelLabel}
+                                                    </Button>,
+                                                ]}
+                                            />
+                                        </Col>
+                                    )
+                                }
+                            }
+                        </Form.Item>
+                    )
+                }
             }
         </BaseInvoiceForm>
     )

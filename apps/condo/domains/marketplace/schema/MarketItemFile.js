@@ -37,9 +37,9 @@ const MarketItemFile = new GQLListSchema('MarketItemFile', {
             schemaDoc: 'Link to MarketItem',
             type: 'Relationship',
             ref: 'MarketItem',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+            isRequired: false,
+            knexOptions: { isNotNullable: false }, // Relationship only!
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
 
         file: {

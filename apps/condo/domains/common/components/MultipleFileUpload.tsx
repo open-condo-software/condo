@@ -9,11 +9,11 @@ import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } 
 
 import { useIntl } from '@open-condo/next/intl'
 
-
 import { Button } from '@condo/domains/common/components/Button'
 import { MAX_UPLOAD_FILE_SIZE } from '@condo/domains/common/constants/uploads'
 
 import { useTracking, TrackingEventType } from './TrackingContext'
+
 
 type DBFile = {
     id: string
@@ -153,7 +153,7 @@ export const useMultipleFileUploadHook = ({
             />
         )
         return UploadWrapper
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [...dependenciesForRerenderUploadComponent])
     return {
         UploadComponent,

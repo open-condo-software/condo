@@ -1,13 +1,15 @@
 import { SortInvoicesBy } from '@app/condo/schema'
 import { Col, Row } from 'antd'
-import dayjs, { Dayjs } from 'dayjs'
+import dayjs from 'dayjs'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 
+import { Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import EmptyListView from '@condo/domains/common/components/EmptyListView'
@@ -15,6 +17,7 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
+import { useDateRangeSearch } from '@condo/domains/common/hooks/useDateRangeSearch'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
@@ -22,7 +25,7 @@ import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { getFiltersFromQuery, getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useMarketplaceInvoicesFilters } from '@condo/domains/marketplace/hooks/useMarketplaceInvoicesFilters'
 import { useMarketplaceInvoicesTableColumns } from '@condo/domains/marketplace/hooks/useMarketplaceInvoicesTableColumns'
-import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
+import { Invoice, MARKETPLACE_PAGE_TYPES } from '@condo/domains/marketplace/utils/clientSchema'
 
 
 const TableContent = () => {
@@ -66,24 +69,19 @@ const TableContent = () => {
     const [search, handleSearchChange] = useSearch()
     const handleSearch = useCallback((e) => handleSearchChange(e.target.value), [handleSearchChange])
 
+    const [dateRange, setDateRange] = useDateRangeSearch('createdAt')
     const filtersFromQuery = useMemo(() => getFiltersFromQuery(router.query), [router.query])
-    const createdAtValueFromQuery = useMemo(() => get(filtersFromQuery, 'createdAt'), [filtersFromQuery])
-
-    const [dateRange, setDateRange] = useState()
-    const handleDateRangeChange = useCallback(async (value) => {
-        setDateRange(value)
-        const newParameters = getFiltersQueryData({ ...filtersFromQuery, createdAt: value })
-        await updateQuery(router, { newParameters }, { routerAction: 'replace', resetOldParameters: false })
-    }, [filtersFromQuery, router])
 
     useEffect(() => {
-        if (!dateRange) {
-            const initialValue = createdAtValueFromQuery ?
-                [dayjs(createdAtValueFromQuery[0]), dayjs(createdAtValueFromQuery[1])] :
-                [dayjs().subtract(6, 'days'), dayjs()]
-            handleDateRangeChange(initialValue)
-        }
-    }, [createdAtValueFromQuery, dateRange, handleDateRangeChange])
+        const createdAt = [dayjs().subtract(6, 'days').toString(), dayjs().toString()]
+        const newParameters = getFiltersQueryData(
+            { ...filtersFromQuery, createdAt }
+        )
+        updateQuery(router, {
+            newParameters: { ...newParameters, tab: MARKETPLACE_PAGE_TYPES.bills } },
+        { routerAction: 'replace', resetOldParameters: false }
+        )
+    }, [])
 
     const disabledDate = useCallback((currentDate) => {
         return currentDate && currentDate < dayjs().startOf('year')
@@ -104,14 +102,16 @@ const TableContent = () => {
                                 onChange={handleSearch}
                                 value={search}
                                 allowClear
+                                suffix={<Search size='medium' color={colors.gray[7]} />}
                             />
                         </Col>
                         <Col>
                             <DateRangePicker
                                 value={dateRange}
-                                onChange={handleDateRangeChange}
-                                allowClear={false}
+                                onChange={setDateRange}
+                                allowClear
                                 disabledDate={disabledDate}
+                                defaultValue={[dayjs().subtract(6, 'days'), dayjs()]}
                             />
                         </Col>
                     </Row>

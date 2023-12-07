@@ -10,7 +10,7 @@ import { Loader } from '../Loader'
 
 interface ILoadingOrErrorPageProps {
     title?: string
-    error: string | ApolloError
+    error?: string | ApolloError
     loading?: boolean
 }
 
