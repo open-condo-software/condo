@@ -1,4 +1,5 @@
 import { notification } from 'antd'
+import get from 'lodash/get'
 import { useCallback } from 'react'
 import { useIntl } from 'react-intl'
 import { z } from 'zod'
@@ -6,11 +7,12 @@ import { z } from 'zod'
 import type { ApolloError } from '@apollo/client'
 import type { FormInstance } from 'antd'
 
-type ErrorHandler = (error: ApolloError) => void
+export type ErrorHandler = (error: ApolloError) => void
 
 type UseMutationErrorHandlerArgs<FormType> = {
     form?: FormInstance<FormType>
     typeToFieldMapping?: Record<string, string>
+    constraintToMessageMapping?: Record<string, string>
 }
 
 const GQLErrorSchema = z.object({
@@ -20,6 +22,14 @@ const GQLErrorSchema = z.object({
         message: z.string(),
         messageForUser: z.string().optional(),
     }),
+})
+
+const ConstraintErrorSchema = z.object({
+    name: z.literal('GraphQLError'),
+    extensions: z.object({
+        code: z.literal('INTERNAL_SERVER_ERROR'),
+    }),
+    message: z.string().includes('violates unique constraint'),
 })
 
 /**
@@ -32,30 +42,49 @@ const GQLErrorSchema = z.object({
 export function useMutationErrorHandler<FormType> (opts: UseMutationErrorHandlerArgs<FormType> = {}): ErrorHandler {
     const intl = useIntl()
     const ServerErrorMessage = intl.formatMessage({ id: 'global.errors.serverError.title' })
-    const { form, typeToFieldMapping } = opts
+    const DefaultConstraintErrorDescription = intl.formatMessage({ id: 'global.errors.constraintError.default.description' })
+    const { form, typeToFieldMapping, constraintToMessageMapping } = opts
 
     return useCallback((error) => {
         let messageToShow = error.message
         let formAffected = false
         for (const graphQLError of error.graphQLErrors) {
-            const parseResult = GQLErrorSchema.safeParse(graphQLError)
-            if (parseResult.success) {
-                const { extensions: { type, message, messageForUser } } = parseResult.data
-                const userMessage = messageForUser || message
-                if (form && typeToFieldMapping && typeToFieldMapping.hasOwnProperty(type)) {
+            let errorMessage: string | undefined
+            let errorType:  string | undefined
+
+            const gqlErrorParseResult = GQLErrorSchema.safeParse(graphQLError)
+
+            if (gqlErrorParseResult.success) {
+                const { extensions: { type, message, messageForUser } } = gqlErrorParseResult.data
+                errorMessage = messageForUser || message
+                errorType = type
+
+            } else {
+                const constraintErrorParseResult = ConstraintErrorSchema.safeParse(graphQLError)
+                if (constraintErrorParseResult.success) {
+                    const { message } = constraintErrorParseResult.data
+                    // NOTE: message includes '... violates unique constraint "constraint_name"'
+                    const constraintName = (message.split(' ').pop() as string).slice(1, -1)
+                    errorType = constraintName
+                    errorMessage = get(constraintToMessageMapping, constraintName, DefaultConstraintErrorDescription)
+                }
+            }
+
+            if (errorMessage) {
+                if (errorType && form && typeToFieldMapping && typeToFieldMapping.hasOwnProperty(errorType)) {
                     formAffected = true
-                    const fieldName = typeToFieldMapping[type]
+                    const fieldName = typeToFieldMapping[errorType]
                     form.setFields([{
                         name: fieldName,
-                        errors: [userMessage],
+                        errors: [errorMessage],
                     }])
                 } else {
-                    messageToShow = userMessage
+                    messageToShow = errorMessage
                 }
             }
         }
         if (!formAffected) {
             notification.error({ message: ServerErrorMessage, description: messageToShow })
         }
-    }, [ServerErrorMessage, form, typeToFieldMapping])
+    }, [ServerErrorMessage, DefaultConstraintErrorDescription, form, typeToFieldMapping, constraintToMessageMapping])
 }

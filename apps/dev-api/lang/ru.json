@@ -9,5 +9,13 @@
   "errors.ACTION_NOT_FOUND.user.message": "С момента подтверждения телефона прошло слишком много времени",
   "errors.INVALID_CODE.message": "Неверный код подтверждения",
   "errors.USER_ALREADY_EXISTS.message": "Пользователь с таким номером телефона уже был зарегистрирован ранее",
-  "errors.PASSWORD_TOO_SIMPLE.message": "Указанный пароль слишком короткий или содержит много повторяющихся символов"
+  "errors.PASSWORD_TOO_SIMPLE.message": "Указанный пароль слишком короткий или содержит много повторяющихся символов",
+  "errors.INVALID_MIMETYPE.message": "Неверный тип файла. Файл должен иметь одно из следующих расширений: {types}",
+  "errors.INVALID_BUILD_VERSION.message": "Указанная версия сборки не является семантически корректной",
+  "errors.FIRST_PUBLISH_WITHOUT_INFO.message": "Первая публикация приложения должна включать информацию о приложении",
+  "errors.APP_NOT_FOUND.message": "Приложение с указанным ID не найдено",
+  "errors.CONDO_APP_NOT_FOUND.message": "Приложение не найдено на выбранном стенде. Включите опцию «Информация о приложении» и повторите попытку",
+  "errors.BUILD_NOT_FOUND.message": "Сборка приложения с указанным ID не найдена",
+  "errors.MULTIPLE_FOUND.message": "Невозможно определить объект для обновления, так как  найдено несколько объектов по указанным importID и exportId",
+  "errors.PUBLISH_NOT_ALLOWED.message": "Приложение не может быть опубликовано на указанный стенд, так как для этого необходимо дополнительная верификация."
 }

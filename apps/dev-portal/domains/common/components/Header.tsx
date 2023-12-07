@@ -1,20 +1,21 @@
-import { Layout, Dropdown } from 'antd'
-import { setCookie } from 'cookies-next'
 import { Montserrat } from 'next/font/google'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useIntl } from 'react-intl'
 
-import { Globe } from '@open-condo/icons'
-import { Space } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/colors'
+import { Space, Typography } from '@open-condo/ui'
+import { useBreakpoints } from '@open-condo/ui/dist/hooks'
 
-import { LOCALES } from '@/domains/common/constants/locales'
+import { RecentAppsPopover } from '@/domains/miniapp/components/RecentAppsPopover'
 
 import { AuthHeaderAction } from './auth/AuthAction'
 import styles from './Header.module.css'
+import { LanguageSwitcher } from './LanguageSwitcher'
+import { MobileMenu } from './MobileMenu'
+
+import { useAuth } from '@/lib/auth'
 
 const logoFont = Montserrat({
     subsets: ['latin', 'cyrillic'],
@@ -25,40 +26,64 @@ const logoFont = Montserrat({
 export const Header: React.FC = () => {
     const intl = useIntl()
     const ServiceShortTitle = intl.formatMessage({ id: 'global.service.name.short' })
+    const DocsSectionTitle = intl.formatMessage({ id: 'global.service.sections.docs' })
+    const AppsSectionTitle = intl.formatMessage({ id: 'global.service.sections.apps' })
     const router = useRouter()
+    const breakpoints = useBreakpoints()
+    const isLargeLayout = Boolean(breakpoints.DESKTOP_SMALL)
+    const { isAuthenticated, startSignIn } = useAuth()
 
-    const handleLocaleChange = useCallback(({ key }: { key: string }) => {
-        setCookie('NEXT_LOCALE', key, { path: '/' })
-        router.push(router.asPath,  router.asPath, { locale: key })
+    const handleDocsClick = useCallback(() => {
+        router.push('/docs/index', '/docs/index', { locale: router.locale })
     }, [router])
+    const handleAppsClick = useCallback(() => {
+        if (isAuthenticated) {
+            router.push('/apps', '/apps', { locale: router.locale })
+        } else {
+            startSignIn()
+        }
+
+    }, [router, startSignIn, isAuthenticated])
+
+    const MyAppsWrapper = useMemo(() => (isAuthenticated ? RecentAppsPopover : React.Fragment), [isAuthenticated])
 
     return (
-        <Layout.Header className={styles.header}>
-            <Link href='/' className={styles.logoContainer} locale={router.locale}>
-                <div className={styles.logoImageWrapper}>
-                    <Image className={styles.logo} src='/logo.svg' alt='Logo' fill priority draggable={false}/>
-                </div>
-                <span className={`${logoFont.className} ${styles.logoText}`}>{ServiceShortTitle}</span>
-            </Link>
-            <Space direction='horizontal' align='center' size={24}>
-                <Dropdown
-                    menu={{
-                        items: LOCALES.map(locale => ({
-                            key: locale,
-                            label: intl.formatMessage({ id: `global.lang.${locale}` }),
-                        })),
-                        onSelect: handleLocaleChange,
-                        selectable: true,
-                        defaultSelectedKeys: [intl.locale],
-                    }}
-                    placement='bottom'
-                >
-                    <span className={styles.dropoutWrapper}>
-                        <Globe size='large' color={colors.gray['7']}/>
+        <header className={styles.header}>
+            <Space direction='horizontal' size={40}>
+                <Link href='/' className={styles.logoContainer} locale={router.locale}>
+                    <div className={styles.logoImageWrapper}>
+                        <Image className={styles.logo} src='/logo.svg' alt='Logo' fill priority draggable={false}/>
+                    </div>
+                    <span
+                        className={`${logoFont.className} ${styles.logoText}`}
+                    >
+                        {ServiceShortTitle}
                     </span>
-                </Dropdown>
-                <AuthHeaderAction/>
+                </Link>
+                {isLargeLayout && (
+                    <Space direction='horizontal' size={20} className={styles.navbarItemsContainer}>
+                        <Typography.Title level={4} type='inherit' onClick={handleDocsClick}>
+                            {DocsSectionTitle}
+                        </Typography.Title>
+                        <MyAppsWrapper>
+                            <Typography.Title level={4} type='inherit' onClick={handleAppsClick}>
+                                {AppsSectionTitle}
+                            </Typography.Title>
+                        </MyAppsWrapper>
+                    </Space>
+                )}
             </Space>
-        </Layout.Header>
+            <Space direction='horizontal' align='center' size={20}>
+                {isLargeLayout ? (
+                    <>
+                        <LanguageSwitcher dropdownPlacement='bottom'/>
+                        <AuthHeaderAction/>
+                    </>
+                ) : (
+                    <MobileMenu/>
+                )}
+
+            </Space>
+        </header>
     )
 }

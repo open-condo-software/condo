@@ -29,17 +29,21 @@ export type PhoneInputStepProps = {
 
 export const PhoneInputStep: React.FC<PhoneInputStepProps> = ({ onComplete }) => {
     const intl = useIntl()
-    const PhoneLabel = intl.formatMessage({ id: 'global.authForm.labels.phone' })
-    const SignUpButtonLabel = intl.formatMessage({ id: 'global.action.signUp' })
-    const PrivacyPolicyText = intl.formatMessage({ id: 'global.registerForm.personalDataProcessing.privacyPolicy' })
-    const ConsentText = intl.formatMessage({ id: 'global.registerForm.personalDataProcessing.consent' })
-    const PersonalDataProcessingMessage = intl.formatMessage({ id: 'global.registerForm.personalDataProcessing.warning' }, {
+    const PhoneLabel = intl.formatMessage({ id: 'global.authForm.items.phone.label' })
+    const SignUpButtonLabel = intl.formatMessage({ id: 'global.actions.signUp' })
+    const PrivacyPolicyText = intl.formatMessage({ id: 'global.registerForm.info.personalDataProcessing.privacyPolicy' })
+    const UserAgreementText = intl.formatMessage({ id: 'global.registerForm.info.personalDataProcessing.userAgreement' })
+    const ConsentText = intl.formatMessage({ id: 'global.registerForm.info.personalDataProcessing.consent' })
+    const PersonalDataProcessingMessage = intl.formatMessage({ id: 'global.registerForm.info.personalDataProcessing.message' }, {
         signUpButton: SignUpButtonLabel,
+        userAgreementLink: (
+            <Typography.Link href='/user-docs/ru/agreement.pdf' target='_blank'>{UserAgreementText}</Typography.Link>
+        ),
         privacyPolicyLink: (
-            <Typography.Link href='/policy.pdf' target='_blank'>{PrivacyPolicyText}</Typography.Link>
+            <Typography.Link href='/user-docs/ru/policy.pdf' target='_blank'>{PrivacyPolicyText}</Typography.Link>
         ),
         consentLink: (
-            <Typography.Link href='/pdpc.pdf' target='_blank'>{ConsentText}</Typography.Link>
+            <Typography.Link href='/user-docs/ru/pdpc.pdf' target='_blank'>{ConsentText}</Typography.Link>
         ),
     })
     const [formattedPhone, setFormattedPhone] = useState<string | undefined>(undefined)

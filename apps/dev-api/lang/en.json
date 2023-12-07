@@ -9,5 +9,13 @@
   "errors.ACTION_NOT_FOUND.user.message": "It's been too long since the phone was confirmed",
   "errors.INVALID_CODE.message": "Invalid verification code",
   "errors.USER_ALREADY_EXISTS.message": "A user with this phone number has already been registered before",
-  "errors.PASSWORD_TOO_SIMPLE.message": "The specified password is too short or contains many repeated characters"
+  "errors.PASSWORD_TOO_SIMPLE.message": "The specified password is too short or contains many repeated characters",
+  "errors.INVALID_MIMETYPE.message": "Invalid file type. The file must have one of the following mimetypes: {types}",
+  "errors.INVALID_BUILD_VERSION.message": "The specified build version is not semantically correct",
+  "errors.FIRST_PUBLISH_WITHOUT_INFO.message": "The first publication of the application should include information about the application",
+  "errors.APP_NOT_FOUND.message": "The application with the specified ID was not found",
+  "errors.CONDO_APP_NOT_FOUND.message": "The application was not found on the selected stand. Enable the «Application Information» option and try again",
+  "errors.BUILD_NOT_FOUND.message": "The application build with the specified ID was not found",
+  "errors.MULTIPLE_FOUND.message": "Unable to determine the object to update because multiple objects were found for the specified importID and exportId",
+  "errors.PUBLISH_NOT_ALLOWED.message": "The application cannot be published to the specified stand, as this requires additional verification"
 }

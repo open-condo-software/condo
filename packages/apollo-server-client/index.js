@@ -17,8 +17,9 @@ if (!globalThis.fetch) {
 }
 
 class UploadingFile {
-    constructor (stream) {
+    constructor (stream, name) {
         this.stream = stream
+        this.name = name
     }
 }
 
@@ -349,8 +350,8 @@ class ApolloServerClient {
         })
     }
 
-    createUploadFile (stream) {
-        return new UploadingFile(stream)
+    createUploadFile (stream, name) {
+        return new UploadingFile(stream, name)
     }
 
     uploadTerminateLink () {
@@ -362,7 +363,11 @@ class ApolloServerClient {
             },
             FormData,
             formDataAppendFile: (form, name, file) => {
-                form.append(name, file.stream)
+                if (file.name) {
+                    form.append(name, file.stream, file.name)
+                } else {
+                    form.append(name, file.stream)
+                }
             },
             fetch,
         })

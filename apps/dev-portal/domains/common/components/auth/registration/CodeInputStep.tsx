@@ -82,11 +82,11 @@ export const CodeInputStep: React.FC<CodeInputStepProps> = ({
     onComplete,
 }) => {
     const intl = useIntl()
-    const HidePhoneMessage = intl.formatMessage({ id: 'global.registerForm.phone.hide' })
-    const ShowPhoneMessage = intl.formatMessage({ id: 'global.registerForm.phone.show' })
-    const SMSCodeFieldLabel = intl.formatMessage({ id: 'global.registerForm.labels.code' })
-    const ChangePhoneNumberMessage = intl.formatMessage({ id: 'global.registerForm.changeNumber.message' })
-    const ResendCodeMessage = intl.formatMessage({ id: 'global.registerForm.action.resendSMS' })
+    const HidePhoneMessage = intl.formatMessage({ id: 'global.registerForm.actions.phone.hide' })
+    const ShowPhoneMessage = intl.formatMessage({ id: 'global.registerForm.actions.phone.show' })
+    const SMSCodeFieldLabel = intl.formatMessage({ id: 'global.registerForm.items.code.label' })
+    const ChangePhoneNumberMessage = intl.formatMessage({ id: 'global.registerForm.actions.changePhone' })
+    const ResendCodeMessage = intl.formatMessage({ id: 'global.registerForm.actions.resendSMS' })
     const [isPhoneHidden, setIsPhoneHidden] = useState(true)
 
     const [form] = Form.useForm()
@@ -157,7 +157,7 @@ export const CodeInputStep: React.FC<CodeInputStepProps> = ({
                 <Col span={FULL_SPAN_COL}>
                     <Typography.Paragraph size='medium'>
                         <FormattedMessage
-                            id='global.registerForm.SMSSent.message'
+                            id='global.registerForm.info.SMS.sent.message'
                             values={{ phone: isPhoneHidden
                                 ? hidePhone(formattedPhone || phone)
                                 : formattedPhone || phone,
@@ -186,7 +186,7 @@ export const CodeInputStep: React.FC<CodeInputStepProps> = ({
                     {actionTTL > 0 ? (
                         <Typography.Text size='medium'>
                             <FormattedMessage
-                                id='global.registerForm.action.alive.message'
+                                id='global.registerForm.info.SMS.alive.message'
                                 values={{ ttl: formatCountDown(actionTTL) }}
                             />
                         </Typography.Text>

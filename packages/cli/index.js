@@ -5,6 +5,8 @@ const path = require('path')
 const util = require('util')
 
 const dotenv = require('dotenv')
+const { Client, Pool } = require('pg')
+
 
 const conf = require('@open-condo/config')
 
@@ -23,10 +25,9 @@ const getRandomString = () => crypto.randomBytes(6).hexSlice()
  * If use '@open-condo/config' package probably you want to exec some command without current process.env!
  * @param command {string}
  * @param envNames {List<string>} you can throw some process.env id you need it, for example ['DOCKER_PROJECT_NAME']
- * @param opts {Object} exec additional options (for future usage)
  * @return {Promise<{stdout: string, stderr: string}>}
  */
-async function safeExec (command, envNames = [], opts = {}) {
+async function safeExec (command, envNames = []) {
     if (typeof command !== 'string') throw new Error('safeExec(..., command) should be a string')
     if (!command) throw new Error('safeExec(..., command) should be a defined')
 
@@ -47,27 +48,35 @@ async function safeExec (command, envNames = [], opts = {}) {
 }
 
 /**
- * Check that the docker-compose postgres container is running and working!
+ * Check that postgres is running and working
+ * @param {string} connectionString PG connection string
  * @return {Promise<void>}
  */
-async function checkDockerComposePostgresIsRunning () {
+async function checkPostgresIsRunning (connectionString) {
+    const client = new Client({ connectionString })
     try {
-        await safeExec('docker compose exec -T postgresdb bash -c "su -c \'psql -tAc \\"select 1+1\\" postgres\' postgres"', ['COMPOSE_PROJECT_NAME'])
+        await client.connect()
+        await client.query('SELECT NOW()')
     } catch (e) {
-        throw new Error('ERROR: You should run: `docker compose up -d postgresdb redis`')
+        throw new Error('ERROR: could not connect to postgres db. You should probably run: `docker compose up -d postgresdb redis`')
+    } finally {
+        await client.end()
     }
 }
 
 /**
- * Run `createdb` command inside docker-compose to create database
- * @param dbName
+ * Creates databases if they not exist
+ * @param {string} connectionString PG connection string
+ * @param {Array<string>}  names name of databases to create
  * @return {Promise<void>}
  */
-async function createPostgresDatabaseInsideDockerComposeContainerIfNotExists (dbName) {
-    try {
-        await safeExec(`docker compose exec -T postgresdb bash -c "su -c 'createdb ${dbName}' postgres"`, ['COMPOSE_PROJECT_NAME'])
-    } catch (e) {
-        if (!e.stderr.includes('already exists')) throw e
+async function createPostgresDatabasesIfNotExist (connectionString, names) {
+    const pool = new Pool({ connectionString })
+    const results = await Promise.allSettled(names.map(name => pool.query(`CREATE DATABASE "${name}"`)))
+    for (const result of results) {
+        if (result.status !== 'fulfilled' && result.reason && (!result.reason.message || !result.reason.message.includes('already exists'))) {
+            throw result.reason
+        }
     }
 }
 
@@ -307,8 +316,8 @@ async function getAllActualApps () {
 
 module.exports = {
     safeExec,
-    checkDockerComposePostgresIsRunning,
-    createPostgresDatabaseInsideDockerComposeContainerIfNotExists,
+    checkPostgresIsRunning,
+    createPostgresDatabasesIfNotExist,
     checkMkCertCommandAndLocalCerts,
     updateAppEnvFile,
     updateGlobalEnvFile,

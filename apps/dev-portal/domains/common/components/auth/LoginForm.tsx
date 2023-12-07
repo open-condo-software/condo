@@ -29,9 +29,9 @@ type LoginFormProps =  {
 
 export const LoginForm: React.FC<LoginFormProps> = ({ onComplete }) => {
     const intl = useIntl()
-    const SignInButtonLabel = intl.formatMessage({ id: 'global.action.signIn' })
-    const PhoneLabel = intl.formatMessage({ id: 'global.authForm.labels.phone' })
-    const PasswordLabel = intl.formatMessage({ id: 'global.authForm.labels.password' })
+    const SignInButtonLabel = intl.formatMessage({ id: 'global.actions.signIn' })
+    const PhoneLabel = intl.formatMessage({ id: 'global.authForm.items.phone.label' })
+    const PasswordLabel = intl.formatMessage({ id: 'global.authForm.items.password.label' })
 
     const [form] = Form.useForm()
     const onSignInError = useMutationErrorHandler({
@@ -39,7 +39,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onComplete }) => {
         typeToFieldMapping: LOGIN_FORM_ERRORS_TO_FIELDS_MAP,
     })
 
-    const { requiredValidator, phoneFormatValidator } = useValidations()
+    const { requiredFieldValidator, phoneFormatValidator } = useValidations()
 
     const [signInMutation] = useSignInMutation({
         onCompleted: onComplete,
@@ -65,7 +65,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onComplete }) => {
                     </Form.Item>
                 </Col>
                 <Col span={FULL_SPAN_COL}>
-                    <Form.Item name='password' label={PasswordLabel} rules={[requiredValidator]}>
+                    <Form.Item name='password' label={PasswordLabel} rules={[requiredFieldValidator]}>
                         <Input.Password/>
                     </Form.Item>
                 </Col>

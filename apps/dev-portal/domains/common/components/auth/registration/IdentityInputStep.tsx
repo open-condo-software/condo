@@ -36,12 +36,12 @@ type IdentityInputStepProps = {
 
 export const IdentityInputStep: React.FC<IdentityInputStepProps> = ({ phone, actionId, onComplete }) => {
     const intl = useIntl()
-    const NameFieldLabel = intl.formatMessage({ id: 'global.registerForm.labels.name' })
-    const NameFieldPlaceholder = intl.formatMessage({ id: 'global.registerForm.placeholders.name' })
-    const PhoneFieldLabel = intl.formatMessage({ id: 'global.authForm.labels.phone' })
-    const PasswordFieldLabel = intl.formatMessage({ id: 'global.authForm.labels.password' })
-    const ConfirmPasswordFieldLabel = intl.formatMessage({ id: 'global.registerForm.confirmPassword' })
-    const FinishRegistrationButtonLabel = intl.formatMessage({ id: 'global.registerForm.completeRegistrationButton.label' })
+    const NameFieldLabel = intl.formatMessage({ id: 'global.registerForm.items.name.label' })
+    const NameFieldPlaceholder = intl.formatMessage({ id: 'global.registerForm.items.name.placeholder' })
+    const PhoneFieldLabel = intl.formatMessage({ id: 'global.authForm.items.phone.label' })
+    const PasswordFieldLabel = intl.formatMessage({ id: 'global.authForm.items.password.label' })
+    const ConfirmPasswordFieldLabel = intl.formatMessage({ id: 'global.registerForm.items.confirmPassword.label' })
+    const FinishRegistrationButtonLabel = intl.formatMessage({ id: 'global.registerForm.actions.completeRegistration' })
     const PasswordsDontMatchErrorMessage = intl.formatMessage({ id: 'global.registerForm.validations.passwordsDontMatch.message' })
 
     const [form] = Form.useForm()

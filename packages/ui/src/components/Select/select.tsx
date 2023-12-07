@@ -64,6 +64,7 @@ export type SelectProps<ValueType = SelectValueTypeBase> = Pick<DefaultSelectPro
 | 'allowClear'
 | 'showSearch'
 | 'defaultValue'
+| 'onSearch'
 > & {
     placeholder?: string
     options: Array<OptionsItem>

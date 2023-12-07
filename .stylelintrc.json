@@ -4,6 +4,12 @@
     "stylelint-config-rational-order"
   ],
   "rules": {
+    "selector-pseudo-class-no-unknown": [
+      true,
+      {
+        "ignorePseudoClasses": ["global"]
+      }
+    ],
     "at-rule-no-unknown": [true, {
       "ignoreAtRules": ["tailwind"]
     }],

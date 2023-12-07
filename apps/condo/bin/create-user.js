@@ -2,7 +2,7 @@ const path = require('path')
 
 const { getRandomString, prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeystoneApp')
 
-const { User } = require('@condo/domains/user/utils/serverSchema')
+const { User, UserRightsSet } = require('@condo/domains/user/utils/serverSchema')
 
 function getJson (data) {
     try {
@@ -13,31 +13,67 @@ function getJson (data) {
 }
 
 async function main (args) {
-    const [email, options] = args
-    let optionsJson = getJson(options)
-    if (!email || !email.includes('@')) throw new Error('use: create-user <email> [<options>]')
-    if (options && !optionsJson) throw new Error('<options> argument should be a valid json')
-    const json = optionsJson || {}
+    const [email, userOptions, rightsSet] = args
+    if (!email || !email.includes('@')) throw new Error('use: create-user <email> [<options>] [<rightsSet>]')
+    const parsedUserOptions = getJson(userOptions)
+    if (userOptions && !parsedUserOptions) throw new Error('<options> argument should be a valid json object')
+    const parsedRightsSet = getJson(rightsSet)
+    if (rightsSet && !parsedRightsSet) throw new Error('<rightsSet> argument should be a valid json object')
+
+    const userPayload = parsedUserOptions || {}
 
     const { keystone: context } = await prepareKeystoneExpressApp(path.resolve('./index.js'), { excludeApps: ['NextApp', 'AdminUIApp'] })
 
     console.info(`EMAIL: ${email}`)
-    const user = await User.getOne(context, { email })
-    if (!json.dv) json.dv = 1
-    if (!json.sender) json.sender = { 'dv': 1, 'fingerprint': 'create-user-script' }
-    if (!user) {
-        if (!json.password) {
-            json.password = getRandomString()
-            console.info(`PASSWORD: ${json.password}`)
+    const existingUser = await User.getOne(context, { email })
+    userPayload.dv ??= 1
+    userPayload.sender ??= { 'dv': 1, 'fingerprint': 'create-user-script' }
+    let rightSetId
+    let userId
+
+    if (!existingUser) {
+        if (!userPayload.password) {
+            userPayload.password = getRandomString()
+            console.info(`PASSWORD: ${userPayload.password}`)
         }
-        if (!json.name) json.name = email.split('@')[0]
-        await User.create(context, {
-            email, ...json,
+        userPayload.name ??= email.split('@')[0]
+        const user =  await User.create(context, {
+            email,
+            ...userPayload,
         })
         console.info('User created!')
+        userId = user.id
+        if (user.rightsSet) {
+            rightSetId = user.rightsSet.id
+        }
     } else {
-        await User.update(context, user.id, json)
+        const user = await User.update(context, existingUser.id, userPayload)
         console.info('User updated!')
+        userId = existingUser.id
+        if (user.rightsSet) {
+            rightSetId = user.rightsSet.id
+        }
+    }
+
+    if (parsedRightsSet) {
+        const rightSetPayload = {
+            dv: 1,
+            sender: { dv: 1, fingerprint: 'create-user-script' },
+            ...parsedRightsSet,
+        }
+        if (rightSetId) {
+            await UserRightsSet.update(context, rightSetId, rightSetPayload)
+            console.info('UserRightsSet updated!')
+        } else {
+            await User.update(context, userId, {
+                dv: 1,
+                sender: { dv: 1, fingerprint: 'create-user-script' },
+                rightsSet: {
+                    create: rightSetPayload,
+                },
+            })
+            console.info('UserRightsSet created and linked!')
+        }
     }
 }
 

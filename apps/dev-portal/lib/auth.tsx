@@ -1,6 +1,11 @@
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import get from 'lodash/get'
+import { useRouter } from 'next/router'
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
+
+import { Modal } from '@open-condo/ui'
+
+import { AuthForm } from '@/domains/common/components/auth/AuthForm'
 
 import { useApolloClient } from '@/lib/apollo'
 import {
@@ -23,6 +28,7 @@ type AuthContextType = {
     user: AuthenticatedUserType | null
     signOut: () => void
     refetchAuth: () => Promise<void>
+    startSignIn: () => void
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -31,13 +37,16 @@ const AuthContext = createContext<AuthContextType>({
     user: null,
     signOut: () => ({}),
     refetchAuth: () => Promise.resolve(),
+    startSignIn: () => ({}),
 })
 
 export const AuthProvider: React.FC<{ children: React.ReactElement }> = ({ children }) => {
     const apolloClient = useApolloClient()
+    const [authModalOpen, setAuthModalOpen] = useState(false)
     const { data: auth, loading: userLoading, refetch } = useAuthenticatedUserQuery()
 
     const [user, setUser] = useState<AuthenticatedUserType>(get(auth, 'authenticatedUser', null))
+    const router = useRouter()
 
     const refetchAuth = useCallback(async () => {
         await apolloClient.clearStore()
@@ -50,7 +59,7 @@ export const AuthProvider: React.FC<{ children: React.ReactElement }> = ({ child
             if (success) {
                 setUser(null)
             }
-            await refetchAuth()
+            await refetchAuth().then(() => router.push('/', '/', { locale: router.locale }))
         },
         onError: (error) => {
             console.error(error)
@@ -67,6 +76,18 @@ export const AuthProvider: React.FC<{ children: React.ReactElement }> = ({ child
         signOutMutation()
     }, [signOutMutation])
 
+    const handleModalClose = useCallback(() => {
+        setAuthModalOpen(false)
+    }, [])
+
+    const handleAuthComplete = useCallback(() => {
+        refetchAuth().then(handleModalClose)
+    }, [refetchAuth, handleModalClose])
+
+    const startSignIn = useCallback(() => {
+        setAuthModalOpen(true)
+    }, [])
+
     return (
         <AuthContext.Provider
             value={{
@@ -75,9 +96,19 @@ export const AuthProvider: React.FC<{ children: React.ReactElement }> = ({ child
                 user,
                 signOut,
                 refetchAuth,
+                startSignIn,
             }}
-            children={children}
-        />
+        >
+            {children}
+            {authModalOpen && (
+                <Modal
+                    open={authModalOpen}
+                    onCancel={handleModalClose}
+                >
+                    <AuthForm onComplete={handleAuthComplete}/>
+                </Modal>
+            )}
+        </AuthContext.Provider>
     )
 }
 
@@ -121,11 +152,12 @@ export function extractAuthHeadersFromRequest (req: { cookies: Partial<Record<st
  * @param {ApolloClient<NormalizedCacheObject>} client - apollo client
  * @param {{ headers?: HeadersType }} opts - additional options, like headers and etc
  */
-export async function prefetchAuth (client: ApolloClient<NormalizedCacheObject>, opts: { headers?: HeadersType } = {}): Promise<void> {
-    await client.query({
+export async function prefetchAuth (client: ApolloClient<NormalizedCacheObject>, opts: { headers?: HeadersType } = {}): Promise<AuthenticatedUserType> {
+    const response = await client.query<AuthenticatedUserQuery>({
         query: AuthenticatedUserDocument,
         context: {
             headers: opts.headers,
         },
     })
+    return response.data.authenticatedUser
 }

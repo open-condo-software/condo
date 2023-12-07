@@ -1,5 +1,5 @@
 import { ApolloProvider } from '@apollo/client'
-import { ConfigProvider, Layout } from 'antd'
+import { ConfigProvider } from 'antd'
 import en from 'lang/en.json'
 import ru from 'lang/ru.json'
 import get from 'lodash/get'
@@ -7,7 +7,7 @@ import { Noto_Sans_Mono }  from 'next/font/google'
 import localFont from 'next/font/local'
 import { IntlProvider } from 'react-intl'
 
-import { Header } from '@/domains/common/components/Header'
+import { CreateAppContextProvider } from '@/domains/common/components/CreateAppContext'
 import { theme } from '@/domains/common/constants/antd'
 import { LOCALES, DEFAULT_LOCALE } from '@/domains/common/constants/locales'
 
@@ -58,20 +58,19 @@ function DevPortalApp ({ Component, pageProps, router }: AppProps): ReactNode {
     const client = useApollo(pageProps)
 
     return (
-        <ApolloProvider client={client}>
-            <AuthProvider>
-                <ConfigProvider theme={theme}>
-                    <IntlProvider locale={locale} messages={get(MESSAGES, locale, {})}>
+        <IntlProvider locale={locale} messages={get(MESSAGES, locale, {})}>
+            <ApolloProvider client={client}>
+                <AuthProvider>
+                    <ConfigProvider theme={theme}>
                         <main className={`${mainFont.variable} ${monoFont.variable}`}>
-                            <Layout>
-                                <Header/>
+                            <CreateAppContextProvider>
                                 <Component {...pageProps}/>
-                            </Layout>
+                            </CreateAppContextProvider>
                         </main>
-                    </IntlProvider>
-                </ConfigProvider>
-            </AuthProvider>
-        </ApolloProvider>
+                    </ConfigProvider>
+                </AuthProvider>
+            </ApolloProvider>
+        </IntlProvider>
     )
 }
 

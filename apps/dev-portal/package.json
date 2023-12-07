@@ -5,7 +5,7 @@
     "hoistingLimits": "workspaces"
   },
   "scripts": {
-    "build:deps": "turbo build --filter=dev-portal^... --filter=!dev-api",
+    "build:deps": "turbo build --filter=dev-portal^... --filter=!dev-api --filter=!condo",
     "dev": "yarn build:deps && next dev & yarn types:watch",
     "build": "next build",
     "start": "next start",
@@ -27,6 +27,8 @@
     "@open-condo/tsconfig": "workspace:^",
     "@open-condo/ui": "workspace:^",
     "antd": "5.1.7",
+    "apollo-upload-client": "^17",
+    "classnames": "^2.3.2",
     "cookies-next": "2.1.1",
     "dayjs": "^1.11.10",
     "deepmerge": "^4.3.1",

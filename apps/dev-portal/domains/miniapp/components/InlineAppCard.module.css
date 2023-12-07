@@ -1,0 +1,19 @@
+.app-card-content-container {
+  display: grid;
+  grid-column-gap: 12px;
+  grid-template-columns: 60px 1fr;
+  align-items: center;
+}
+
+.app-card-logo-container {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  padding: 8px;
+  background: var(--condo-global-color-gray-3);
+  border-radius: 8px;
+}
+
+.app-logo {
+  object-fit: contain;
+}

@@ -10,6 +10,7 @@ export const theme: ThemeConfig = {
         colorBgContainer: colors.white,
         colorFillTertiary: colors.gray['1'],
         colorError: colors.red['5'],
+        fontFamily: 'var(--condo-global-font-family-default)',
     },
     components: {
         Menu: {
@@ -20,6 +21,22 @@ export const theme: ThemeConfig = {
             colorItemTextSelected: colors.gray['7'], // Override icon color, use Typography for
             colorItemTextHover: colors.gray['7'],
             colorActiveBarBorderSize: 0,
+        },
+        Divider: {
+            margin: 0,
+            colorSplit: colors.gray['3'],
+        },
+        Table: {
+            colorBorderSecondary: colors.gray['3'],
+            colorFillAlter: colors.white,
+            colorTextHeading: colors.gray['7'],
+            fontFamily: 'var(--condo-global-font-family-default)',
+            padding: 16,
+            borderRadiusLG: 12,
+        },
+        Pagination: {
+            colorBgTextHover: colors.gray['1'],
+            colorTextDisabled: colors.gray['5'],
         },
     },
 }
