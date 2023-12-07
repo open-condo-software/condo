@@ -1,4 +1,5 @@
 import get from 'lodash/get'
+import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
 
@@ -23,6 +24,7 @@ export function useMarketplacePaymentTableColumns <T> (filterMetas: Array<Filter
     const StatusMessage = intl.formatMessage({ id: 'Status' })
     const SumMessage = intl.formatMessage({ id: 'global.sum' })
 
+    const { publicRuntimeConfig:{ condoRBDomain } } = getConfig()
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
     const sorterMap = getSorterMap(sorters)
@@ -54,7 +56,8 @@ export function useMarketplacePaymentTableColumns <T> (filterMetas: Array<Filter
     , [search])
 
     const transactionNumberRender = useCallback(payment => {
-        return getTableCellRenderer({ search })('TODO(DOMA-7495) implement rendering of this field after task completion')
+        const multiPaymentId = get(payment, 'multiPayment')
+        return getTableCellRenderer({ search, href: `${condoRBDomain}/check/${multiPaymentId}`, target: '_blank' })(multiPaymentId)
     }
     , [search])
 
