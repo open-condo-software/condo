@@ -479,6 +479,10 @@ describe('safeFormatError hide=true', () => {
             'message': 'msg5',
             'name': 'GraphQLError',
             'extensions': {},
+            'originalError': {
+                'message': 'original',
+                'name': 'Error',
+            },
         })
     })
     test('safeFormatError(new GraphQLError) with original error', () => {
@@ -492,6 +496,14 @@ describe('safeFormatError hide=true', () => {
             'message': 'msg4',
             'name': 'NestedError',
             'extensions': {},
+            'originalError': {
+                'data': {
+                    'bar': '33',
+                },
+                'message': 'Hello',
+                'name': 'NestedError',
+                'time_thrown': expect.stringContaining(''),
+            },
         })
     })
 })
@@ -567,6 +579,31 @@ describe('toGraphQLFormat', () => {
             'extensions': {
                 'developerMessage': 'msg\n\nGraphQL request:3:5\n2 |   {\n3 |     field\n  |     ^\n4 |   }',
                 'name': 'GraphQLError',
+                'originalError': {
+                    'errors': [
+                        {
+                            'extensions': {
+                                'bar': '22',
+                                'code': 'CODE1',
+                                'foo': [
+                                    1,
+                                ],
+                            },
+                            'message': 'something happened!',
+                            'name': 'Error',
+                        },
+                        {
+                            'data': {
+                                'bar': '33',
+                            },
+                            'message': 'Hello',
+                            'name': 'NestedError',
+                            'time_thrown': expect.stringContaining(''),
+                        },
+                    ],
+                    'message': 'original',
+                    'name': 'Error',
+                },
             },
             'locations': [
                 {
