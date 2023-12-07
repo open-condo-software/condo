@@ -30,7 +30,7 @@ COPY --chown=app:app ./out /app
 # Copy yarn berry
 COPY --chown=app:app ./.yarn /app/.yarn
 COPY --chown=app:app ./.yarnrc.yml /app/.yarnrc.yml
-RUN yarn install --immutable
+RUN yarn install --immutable --inline-builds
 
 # Builder
 FROM base as builder
