@@ -20,6 +20,7 @@ const {
 } = require('@open-condo/keystone/test.utils')
 const { expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const {
     PAYMENT_NO_PAIRED_FROZEN_RECEIPT,
     PAYMENT_NO_PAIRED_RECEIPT,
@@ -62,10 +63,9 @@ const { createTestRecipient } = require('@condo/domains/billing/utils/testSchema
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const {
     INVOICE_STATUS_PUBLISHED,
-    INVOICE_CONTEXT_STATUS_FINISHED,
     INVOICE_STATUS_PAID,
 } = require('@condo/domains/marketplace/constants')
-const { Invoice, createTestInvoiceContext, createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
+const { Invoice, createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
 const {
     createTestOrganization,
     createTestOrganizationEmployee,
@@ -318,24 +318,20 @@ describe('Payment', () => {
                     })
 
                     test('payment with invoice', async () => {
-                        const { admin, property, organization, acquiringIntegration } = await makePayer()
+                        const { admin, property, organization, acquiringIntegration, acquiringContext } = await makePayer()
+                        await updateTestAcquiringIntegrationContext(admin, acquiringContext.id, { invoiceStatus: CONTEXT_FINISHED_STATUS })
 
                         const unitType = FLAT_UNIT_TYPE
                         const unitName = faker.lorem.word()
 
-                        const [invoiceContext] = await createTestInvoiceContext(admin, organization, acquiringIntegration, {
-                            status: INVOICE_CONTEXT_STATUS_FINISHED,
-                            implicitFeePercent: '5',
-                            recipient: createTestRecipient(),
-                        })
-                        const [invoice] = await createTestInvoice(admin, invoiceContext, {
+                        const [invoice] = await createTestInvoice(admin, organization, {
                             property: { connect: { id: property.id } },
                             unitType,
                             unitName,
                             status: INVOICE_STATUS_PUBLISHED,
                         })
 
-                        const [payment] = await createTestPayment(admin, organization, null, null, { invoice })
+                        const [payment] = await createTestPayment(admin, organization, null, acquiringContext, { invoice })
                         const integrationClient = await makeClientWithServiceUser()
                         await createTestAcquiringIntegrationAccessRight(admin, acquiringIntegration, integrationClient.user)
 
@@ -494,13 +490,13 @@ describe('Payment', () => {
             })
 
             test('Invoice and frozen invoice should be updated at the same time', async () => {
-                const { admin, organization } = await makePayer()
-                const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
-                const [invoiceContext] = await createTestInvoiceContext(admin, organization, acquiringIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
-                const [invoice] = await createTestInvoice(admin, invoiceContext)
+                const { admin, organization, acquiringContext } = await makePayer()
+                await updateTestAcquiringIntegrationContext(admin, acquiringContext.id, { invoiceStatus: CONTEXT_FINISHED_STATUS })
+
+                const [invoice] = await createTestInvoice(admin, organization)
 
                 await expectToThrowGQLError(async () => {
-                    await createTestPayment(admin, organization, null, null, {
+                    await createTestPayment(admin, organization, null, acquiringContext, {
                         invoice,
                         frozenInvoice: null,
                     })
@@ -764,6 +760,16 @@ describe('Payment', () => {
             })
 
             const [o10n] = await createTestOrganization(adminClient)
+
+            await createTestAcquiringIntegrationContext(adminClient, o10n, acquiringIntegration, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceImplicitFeeDistributionSchema: [{
+                    recipient: 'organization',
+                    percent: '5',
+                }],
+                invoiceRecipient: createTestRecipient(),
+            })
+
             const [property] = await createTestProperty(adminClient, o10n)
 
             const residentClient = await makeClientWithResidentUser()
@@ -793,12 +799,7 @@ describe('Payment', () => {
                 unitName,
             })
 
-            const [invoiceContext] = await createTestInvoiceContext(adminClient, o10n, acquiringIntegration, {
-                status: INVOICE_CONTEXT_STATUS_FINISHED,
-                implicitFeePercent: '5',
-                recipient: createTestRecipient(),
-            })
-            const [invoice] = await createTestInvoice(staffClient, invoiceContext, {
+            const [invoice] = await createTestInvoice(staffClient, o10n, {
                 property: { connect: { id: property.id } },
                 unitType,
                 unitName,
