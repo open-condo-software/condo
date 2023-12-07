@@ -6,7 +6,7 @@ import {
     Property as PropertyType,
 } from '@app/condo/schema'
 import styled from '@emotion/styled'
-import { Col, Form, Row, RowProps, Input, AutoComplete, Select } from 'antd'
+import { Col, Form, Row, RowProps, Input, AutoComplete, Select, FormInstance } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
@@ -850,6 +850,7 @@ type BaseInvoiceFormProps = {
     modalFormProps?: ComponentProps<typeof BaseModalForm>
     isAllFieldsDisabled?: boolean
     isContactsFieldsDisabled?: boolean
+    formInstance?: FormInstance
 }
 
 export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
@@ -881,6 +882,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
         modalFormProps,
         isAllFieldsDisabled,
         isContactsFieldsDisabled,
+        formInstance,
     } = props
 
     const { obj: invoiceContext } = InvoiceContext.useObject({
@@ -907,7 +909,9 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
         () => isModalForm ? BaseModalForm : FormWithAction,
         [isModalForm])
 
-    const [form] = Form.useForm()
+    const [innerForm] = Form.useForm()
+    const form = useMemo(() => formInstance ? formInstance : innerForm, [])
+
     useEffect(() => {
         if (!isCreateForm) {
             const rows = form.getFieldValue('rows')

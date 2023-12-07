@@ -9,7 +9,13 @@ import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Tooltip } from '@open-condo/ui'
 
 import { BaseModalForm } from '@condo/domains/common/components/containers/FormList'
-import { INVOICE_PAYMENT_TYPE_ONLINE, INVOICE_STATUS_DRAFT, INVOICE_STATUS_PUBLISHED, INITIAL_ROWS_VALUE } from '@condo/domains/marketplace/constants'
+import {
+    INVOICE_PAYMENT_TYPE_ONLINE,
+    INVOICE_STATUS_DRAFT,
+    INVOICE_STATUS_PUBLISHED,
+    INITIAL_ROWS_VALUE,
+    INVOICE_STATUS_CANCELED,
+} from '@condo/domains/marketplace/constants'
 import { useInvoicePaymentLink } from '@condo/domains/marketplace/hooks/useInvoicePaymentLink'
 import { Invoice, InvoiceContext } from '@condo/domains/marketplace/utils/clientSchema'
 import {
@@ -57,7 +63,7 @@ export const CreateInvoiceForm: React.FC<CreateInvoiceFormProps> = ({ organizati
         const createdInvoice = await createInvoiceAction(payload)
 
         const { status } = values
-        if (status === INVOICE_STATUS_PUBLISHED && !isModalForm) {
+        if (status === INVOICE_STATUS_PUBLISHED && !isModalForm && createdInvoice.contact) {
             const { error, paymentLink } = await getPaymentLink([createdInvoice.id])
 
             if (paymentLink) {
@@ -78,6 +84,15 @@ export const CreateInvoiceForm: React.FC<CreateInvoiceFormProps> = ({ organizati
         }),
     [initialValues])
 
+    const [form] = Form.useForm()
+
+    const tooltipTitle = getSaveButtonTooltipMessage(form, intl)
+
+    const modalProps: ComponentProps<typeof BaseModalForm> = isModalForm && {
+        ...modalFormProps,
+        submitButtonProps: { hidden: !isEmpty(tooltipTitle), loading: submitLoading },
+    }
+
     return (
         <BaseInvoiceForm
             isCreateForm
@@ -86,8 +101,9 @@ export const CreateInvoiceForm: React.FC<CreateInvoiceFormProps> = ({ organizati
             role={link}
             initialValues={formInitialValues}
             OnCompletedMsg={null}
-            modalFormProps={modalFormProps}
+            modalFormProps={modalProps}
             isCreatedByResident={ticketCreatedByResident}
+            formInstance={form}
         >
             {
                 ({ handleSave }) => {

@@ -198,7 +198,7 @@ export const CreateTicketForm: React.FC = () => {
             ticketId: ticket.id,
         }))
 
-        if (paymentUrl) {
+        if (paymentUrl && ticket.contact) {
             notification.success(getCompletedNotification({
                 ticketNumber: ticket.number,
                 paymentUrl,

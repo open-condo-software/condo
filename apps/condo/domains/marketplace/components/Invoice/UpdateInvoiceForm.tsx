@@ -13,6 +13,8 @@ import { BaseModalForm } from '@condo/domains/common/components/containers/FormL
 import {
     INVOICE_STATUS_PUBLISHED,
     INVOICE_STATUS_DRAFT,
+    INVOICE_STATUS_CANCELED,
+    INVOICE_STATUS_PAID,
 } from '@condo/domains/marketplace/constants'
 import { useInvoicePaymentLink } from '@condo/domains/marketplace/hooks/useInvoicePaymentLink'
 import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
@@ -64,7 +66,8 @@ export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({
         if (
             invoice.status === INVOICE_STATUS_DRAFT &&
             values.status === INVOICE_STATUS_PUBLISHED &&
-            !isModalForm
+            !isModalForm &&
+            updatedInvoice.contact
         ) {
             const { error, paymentLink } = await getPaymentLink([updatedInvoice.id])
 
@@ -84,6 +87,20 @@ export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({
         ...initialValues,
     }), [initialValues, intl, invoice])
 
+    const [form] = Form.useForm()
+
+    const tooltipTitle = getSaveButtonTooltipMessage(form, intl)
+
+    const modalProps: ComponentProps<typeof BaseModalForm> = isModalForm && {
+        ...modalFormProps,
+        submitButtonProps: {
+            hidden: !isEmpty(tooltipTitle) ||
+                invoice.status === INVOICE_STATUS_CANCELED ||
+                invoice.status === INVOICE_STATUS_PAID,
+            loading: submitLoading,
+        },
+    }
+
     return (
         <BaseInvoiceForm
             organizationId={get(organization, 'id')}
@@ -92,9 +109,10 @@ export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({
             initialValues={formInitialValues}
             isCreatedByResident={get(invoice, 'createdBy.type') === UserTypeType.Resident || ticketCreatedByResident}
             OnCompletedMsg={null}
-            modalFormProps={modalFormProps}
+            modalFormProps={modalProps}
             isAllFieldsDisabled={isAllFieldsDisabled}
             isContactsFieldsDisabled={!!get(invoice, 'ticket')}
+            formInstance={form}
         >
             {
                 ({ handleSave }) => {
