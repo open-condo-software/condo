@@ -25654,6 +25654,8 @@ export type Invoice = {
   paidAt?: Maybe<Scalars['String']>;
   /**  When status of the invoice was changed to canceled  */
   canceledAt?: Maybe<Scalars['String']>;
+  /**  The recipient's requisites  */
+  recipient?: Maybe<RecipientField>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -25729,6 +25731,7 @@ export type InvoiceHistoryRecord = {
   publishedAt?: Maybe<Scalars['String']>;
   paidAt?: Maybe<Scalars['String']>;
   canceledAt?: Maybe<Scalars['String']>;
+  recipient?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -25763,6 +25766,7 @@ export type InvoiceHistoryRecordCreateInput = {
   publishedAt?: Maybe<Scalars['String']>;
   paidAt?: Maybe<Scalars['String']>;
   canceledAt?: Maybe<Scalars['String']>;
+  recipient?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -25802,6 +25806,7 @@ export type InvoiceHistoryRecordUpdateInput = {
   publishedAt?: Maybe<Scalars['String']>;
   paidAt?: Maybe<Scalars['String']>;
   canceledAt?: Maybe<Scalars['String']>;
+  recipient?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -26005,6 +26010,10 @@ export type InvoiceHistoryRecordWhereInput = {
   canceledAt_gte?: Maybe<Scalars['String']>;
   canceledAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   canceledAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  recipient?: Maybe<Scalars['JSON']>;
+  recipient_not?: Maybe<Scalars['JSON']>;
+  recipient_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  recipient_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;

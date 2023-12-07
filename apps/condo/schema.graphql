@@ -67631,6 +67631,7 @@ type InvoiceHistoryRecord {
   publishedAt: String
   paidAt: String
   canceledAt: String
+  recipient: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -67835,6 +67836,10 @@ input InvoiceHistoryRecordWhereInput {
   canceledAt_gte: String
   canceledAt_in: [String]
   canceledAt_not_in: [String]
+  recipient: JSON
+  recipient_not: JSON
+  recipient_in: [JSON]
+  recipient_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -67977,6 +67982,7 @@ input InvoiceHistoryRecordUpdateInput {
   publishedAt: String
   paidAt: String
   canceledAt: String
+  recipient: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -68015,6 +68021,7 @@ input InvoiceHistoryRecordCreateInput {
   publishedAt: String
   paidAt: String
   canceledAt: String
+  recipient: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -68124,6 +68131,9 @@ type Invoice {
 
   """ When status of the invoice was changed to canceled """
   canceledAt: String
+
+  """ The recipient's requisites """
+  recipient: RecipientField
   id: ID!
   v: Int
   createdAt: String

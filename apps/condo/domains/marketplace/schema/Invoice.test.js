@@ -6,7 +6,7 @@ const { faker } = require('@faker-js/faker')
 const Big = require('big.js')
 const dayjs = require('dayjs')
 const isSameOrAfter = require('dayjs/plugin/isSameOrAfter')
-const { omit } = require('lodash')
+const { omit, pick } = require('lodash')
 
 const conf = require('@open-condo/config')
 const {
@@ -20,8 +20,9 @@ const {
     expectToThrowGraphQLRequestError, waitFor,
 } = require('@open-condo/keystone/test.utils')
 
-const { createTestAcquiringIntegration } = require('@condo/domains/acquiring/utils/testSchema')
-const { createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { createTestAcquiringIntegration, createTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
+const { createTestBillingIntegration, createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const {
     INVOICE_STATUS_DRAFT,
@@ -63,7 +64,7 @@ const {
 dayjs.extend(isSameOrAfter)
 
 let adminClient, supportClient, anonymousClient
-let dummyO10n
+let dummyO10n, dummyAcquiringIntegration
 
 describe('Invoice', () => {
     beforeAll(async () => {
@@ -73,7 +74,11 @@ describe('Invoice', () => {
 
         ;[dummyO10n] = await createTestOrganization(adminClient)
         await createTestBillingIntegration(adminClient)
-        await createTestAcquiringIntegration(supportClient)
+        ;[dummyAcquiringIntegration] = await createTestAcquiringIntegration(supportClient)
+        await createTestAcquiringIntegrationContext(adminClient, dummyO10n, dummyAcquiringIntegration, {
+            invoiceStatus: CONTEXT_FINISHED_STATUS,
+            invoiceRecipient: createTestRecipient(),
+        })
     })
 
     describe('CRUD tests', () => {
@@ -183,6 +188,15 @@ describe('Invoice', () => {
             test('each staff user can update only his organization\'s invoices', async () => {
                 const [o10n1] = await createTestOrganization(adminClient)
                 const [o10n2] = await createTestOrganization(adminClient)
+
+                await createTestAcquiringIntegrationContext(adminClient, o10n1, dummyAcquiringIntegration, {
+                    invoiceStatus: CONTEXT_FINISHED_STATUS,
+                    invoiceRecipient: createTestRecipient(),
+                })
+                await createTestAcquiringIntegrationContext(adminClient, o10n2, dummyAcquiringIntegration, {
+                    invoiceStatus: CONTEXT_FINISHED_STATUS,
+                    invoiceRecipient: createTestRecipient(),
+                })
 
                 const [objCreated1] = await createTestInvoice(adminClient, o10n1)
                 const [objCreated2] = await createTestInvoice(adminClient, o10n2)
@@ -306,6 +320,15 @@ describe('Invoice', () => {
                 const [o10n1] = await createTestOrganization(adminClient)
                 const [o10n2] = await createTestOrganization(adminClient)
 
+                await createTestAcquiringIntegrationContext(adminClient, o10n1, dummyAcquiringIntegration, {
+                    invoiceStatus: CONTEXT_FINISHED_STATUS,
+                    invoiceRecipient: createTestRecipient(),
+                })
+                await createTestAcquiringIntegrationContext(adminClient, o10n2, dummyAcquiringIntegration, {
+                    invoiceStatus: CONTEXT_FINISHED_STATUS,
+                    invoiceRecipient: createTestRecipient(),
+                })
+
                 const [objCreated1] = await createTestInvoice(adminClient, o10n1)
                 const [objCreated2] = await createTestInvoice(adminClient, o10n2)
 
@@ -337,6 +360,11 @@ describe('Invoice', () => {
     describe('resident side', () => {
         test('resident can\'t see drafts and canceled invoices', async () => {
             const client = await makeClientWithProperty()
+
+            await createTestAcquiringIntegrationContext(adminClient, client.organization, dummyAcquiringIntegration, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceRecipient: createTestRecipient(),
+            })
 
             const unitType = FLAT_UNIT_TYPE
             const unitName = faker.lorem.word()
@@ -373,6 +401,11 @@ describe('Invoice', () => {
         test('resident can see paid invoices', async () => {
             const client = await makeClientWithProperty()
 
+            const [acquiringContext] = await createTestAcquiringIntegrationContext(adminClient, client.organization, dummyAcquiringIntegration, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceRecipient: createTestRecipient(),
+            })
+
             const unitType = FLAT_UNIT_TYPE
             const unitName = faker.lorem.word()
 
@@ -386,7 +419,7 @@ describe('Invoice', () => {
                     unitName,
                 })
 
-            await createTestInvoice(client, client.organization, {
+            const [invoice] = await createTestInvoice(client, client.organization, {
                 property: { connect: { id: client.property.id } },
                 unitType,
                 unitName,
@@ -396,11 +429,20 @@ describe('Invoice', () => {
 
             const invoices = await Invoice.getAll(residentClient, {})
 
-            expect(invoices).toHaveLength(1)
+            expect(invoices).toEqual([
+                expect.objectContaining({
+                    id: invoice.id,
+                    recipient: expect.objectContaining(pick(acquiringContext.invoiceRecipient, ['tin', 'bic', 'bankAccount'])),
+                }),
+            ])
         })
 
         test('two residents in one flat: only one can see the invoice by phone', async () => {
             const client = await makeClientWithProperty()
+            await createTestAcquiringIntegrationContext(adminClient, client.organization, dummyAcquiringIntegration, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceRecipient: createTestRecipient(),
+            })
 
             const unitType = FLAT_UNIT_TYPE
             const unitName = faker.lorem.word()
@@ -443,6 +485,16 @@ describe('Invoice', () => {
         test('resident can see invoices from two organizations', async () => {
             const client1 = await makeClientWithProperty()
             const client2 = await makeClientWithRegisteredOrganization()
+
+            await createTestAcquiringIntegrationContext(adminClient, client1.organization, dummyAcquiringIntegration, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceRecipient: createTestRecipient(),
+            })
+
+            await createTestAcquiringIntegrationContext(adminClient, client2.organization, dummyAcquiringIntegration, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceRecipient: createTestRecipient(),
+            })
 
             ;[client2.property] = await createTestProperty(client2, client2.organization, { address: client1.property.address }, false, client1.property.addressMeta)
 
@@ -488,6 +540,12 @@ describe('Invoice', () => {
 
         test('resident can see the invoice created by staff', async () => {
             const [o10n] = await createTestOrganization(adminClient)
+
+            await createTestAcquiringIntegrationContext(adminClient, o10n, dummyAcquiringIntegration, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceRecipient: createTestRecipient(),
+            })
+
             const [property] = await createTestProperty(adminClient, o10n)
 
             const residentClient = await makeClientWithResidentUser()
@@ -624,6 +682,10 @@ describe('Invoice', () => {
     describe('sending push', () => {
         test('send push after create invoice with published status', async () => {
             const client = await makeClientWithProperty()
+            await createTestAcquiringIntegrationContext(adminClient, client.organization, dummyAcquiringIntegration, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceRecipient: createTestRecipient(),
+            })
 
             const unitType = FLAT_UNIT_TYPE
             const unitName = faker.lorem.word()
@@ -662,6 +724,10 @@ describe('Invoice', () => {
 
         test('send push after publish invoice', async () => {
             const client = await makeClientWithProperty()
+            await createTestAcquiringIntegrationContext(adminClient, client.organization, dummyAcquiringIntegration, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceRecipient: createTestRecipient(),
+            })
 
             const unitType = FLAT_UNIT_TYPE
             const unitName = faker.lorem.word()
@@ -706,6 +772,10 @@ describe('Invoice', () => {
 
         test('not send push after create invoice with no published status', async () => {
             const client = await makeClientWithProperty()
+            await createTestAcquiringIntegrationContext(adminClient, client.organization, dummyAcquiringIntegration, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceRecipient: createTestRecipient(),
+            })
 
             const unitType = FLAT_UNIT_TYPE
             const unitName = faker.lorem.word()
@@ -738,6 +808,10 @@ describe('Invoice', () => {
 
         test('send push after create invoice with ticket and published status', async () => {
             const client = await makeClientWithProperty()
+            await createTestAcquiringIntegrationContext(adminClient, client.organization, dummyAcquiringIntegration, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceRecipient: createTestRecipient(),
+            })
 
             const unitType = FLAT_UNIT_TYPE
             const unitName = faker.lorem.word()
@@ -791,6 +865,10 @@ describe('Invoice', () => {
 
         test('send push after publish invoice with ticket', async () => {
             const client = await makeClientWithProperty()
+            await createTestAcquiringIntegrationContext(adminClient, client.organization, dummyAcquiringIntegration, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceRecipient: createTestRecipient(),
+            })
 
             const unitType = FLAT_UNIT_TYPE
             const unitName = faker.lorem.word()

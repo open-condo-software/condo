@@ -46,6 +46,7 @@ const { MARKETPLACE_INVOICE_PUBLISHED_MESSAGE_TYPE, MARKETPLACE_INVOICE_WITH_TIC
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { RECIPIENT_FIELD } = require('@condo/domains/acquiring/schema/fields/Recipient')
 
 const ERRORS = {
     ALREADY_PAID: {
@@ -210,6 +211,20 @@ const Invoice = new GQLListSchema('Invoice', {
         canceledAt: {
             schemaDoc: 'When status of the invoice was changed to canceled',
             type: 'DateTimeUtc',
+        },
+
+        recipient: {
+            schemaDoc: 'The recipient\'s requisites',
+            type: 'Virtual',
+            graphQLReturnType: RECIPIENT_FIELD.graphQLReturnType,
+            resolver: async (invoice) => {
+                const acquiringContext = await getByCondition('AcquiringIntegrationContext', {
+                    organization: { id: invoice.organization },
+                    deletedAt: null,
+                    invoiceStatus: CONTEXT_FINISHED_STATUS,
+                })
+                return get(acquiringContext, 'invoiceRecipient')
+            },
         },
 
     },
