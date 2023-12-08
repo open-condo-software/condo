@@ -11,6 +11,8 @@ const {
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { createTestAcquiringIntegration, createTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
 const { PRICE_FIELD_SCHEMA } = require('@condo/domains/marketplace/schema/fields/price')
 const {
     MarketItemPrice,
@@ -44,6 +46,8 @@ describe('MarketItemPrice', () => {
         admin = await makeLoggedInAdminClient();
         [organization] = await createTestOrganization(admin);
         [marketCategory] = await createTestMarketCategory(admin)
+        const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
+        await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration, { invoiceStatus: CONTEXT_FINISHED_STATUS })
     })
 
     describe('Accesses', () => {

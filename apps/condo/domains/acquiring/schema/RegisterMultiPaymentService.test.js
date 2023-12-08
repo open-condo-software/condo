@@ -753,6 +753,45 @@ describe('RegisterMultiPaymentService', () => {
                     'result',
                 )
             })
+
+            test('receipts and invoices must have the same currency', async () => {
+                const { billingReceipts, serviceConsumer, billingIntegration, acquiringIntegration, acquiringContext, organization } = await makePayer()
+
+                await updateTestBillingIntegration(adminClient, billingIntegration.id, { currencyCode: 'USD' })
+                await updateTestAcquiringIntegration(adminClient, acquiringIntegration.id, { canGroupReceipts: true })
+
+                await updateTestAcquiringIntegrationContext(adminClient, acquiringContext.id, {
+                    invoiceStatus: CONTEXT_FINISHED_STATUS,
+                    invoiceImplicitFeeDistributionSchema: [{
+                        recipient: 'organization',
+                        percent: '5',
+                    }],
+                    invoiceRecipient: createTestRecipient(),
+                })
+
+                const [invoice1] = await createTestInvoice(adminClient, organization, { status: INVOICE_STATUS_PUBLISHED })
+
+                const payload = [{
+                    serviceConsumer: { id: serviceConsumer.id },
+                    receipts: billingReceipts.map(receipt => ({ id: receipt.id })),
+                }]
+
+                await expectToThrowGQLError(
+                    async () => await registerMultiPaymentByTestClient(
+                        adminClient,
+                        payload,
+                        { invoices: [pick(invoice1, 'id')] },
+                    ),
+                    {
+                        mutation: 'registerMultiPayment',
+                        variable: ['data'],
+                        code: 'BAD_USER_INPUT',
+                        type: 'DIFFERENT_CURRENCY_CODES_FOR_RECEIPTS_AND_INVOICES',
+                        message: 'Receipts and invoices has different currency codes',
+                    },
+                    'result',
+                )
+            })
         })
 
         describe('deletedAt check', () => {

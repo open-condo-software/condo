@@ -14,7 +14,6 @@ const { Invoice: InvoiceGQL } = require('@condo/domains/marketplace/gql')
 const { MarketCategory: MarketCategoryGQL } = require('@condo/domains/marketplace/gql')
 const { MarketItem: MarketItemGQL } = require('@condo/domains/marketplace/gql')
 const {  INVOICE_PAYMENT_TYPE_ONLINE } = require('@condo/domains/marketplace/constants')
-const { VAT_OPTIONS, TAX_REGIME_GENEGAL } = require('@condo/domains/acquiring/constants/context')
 const { MarketItemFile: MarketItemFileGQL } = require('@condo/domains/marketplace/gql')
 const { MarketItemPrice: MarketItemPriceGQL } = require('@condo/domains/marketplace/gql')
 const { MarketPriceScope: MarketPriceScopeGQL } = require('@condo/domains/marketplace/gql')
@@ -102,9 +101,6 @@ function generateInvoiceRow (attrs = {}) {
         name: faker.commerce.productName(),
         toPay: String(faker.commerce.price()),
         count: faker.datatype.number({ min: 1, max: 3 }),
-        currencyCode: 'RUB',
-        vatPercent: String(VAT_OPTIONS[0]),
-        salesTaxPercent: String(faker.datatype.number({ min: 0, max: 7 })),
         sku: faker.random.word(),
         isMin: false,
         ...attrs,
@@ -132,9 +128,6 @@ function generatePriceRow (attrs = {}) {
         name: faker.commerce.productName(),
         price: String(faker.commerce.price()),
         isMin: false,
-        vatPercent: String(VAT_OPTIONS[0]),
-        salesTaxPercent: String(faker.datatype.number({ min: 0, max: 3 })),
-        currencyCode: 'RUB',
         ...attrs,
     }
 }

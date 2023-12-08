@@ -10,15 +10,18 @@ const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { i18n } = require('@open-condo/locales/loader')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
-const { DEFAULT_CURRENCY_CODE } = require('@condo/domains/common/constants/currencies')
 const access = require('@condo/domains/marketplace/access/RegisterInvoiceService')
 const {
     INVOICE_STATUS_DRAFT,
     INVOICE_STATUS_PUBLISHED,
     ERROR_INVOICE_EMPTY_ROWS,
     INVOICE_PAYMENT_TYPES,
+    DEFAULT_INVOICE_CURRENCY_CODE,
 } = require('@condo/domains/marketplace/constants')
-const { ERROR_NO_ACQUIRING_CONTEXT, ERROR_ITEM_FROM_OTHER_ORGANIZATION } = require('@condo/domains/marketplace/constants')
+const {
+    ERROR_NO_ACQUIRING_CONTEXT,
+    ERROR_ITEM_FROM_OTHER_ORGANIZATION,
+} = require('@condo/domains/marketplace/constants')
 const { Invoice, MarketPriceScope } = require('@condo/domains/marketplace/utils/serverSchema')
 const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 
@@ -113,7 +116,7 @@ const RegisterInvoiceService = new GQLCustomSchema('RegisterInvoiceService', {
                     toPay: get(priceScope, ['marketItemPrice', 'price', 0, 'price']),
                     isMin: get(priceScope, ['marketItemPrice', 'price', 0, 'isMin']),
                     count: get(priceScopesCounts, get(priceScope, 'id'), 0),
-                    currencyCode: DEFAULT_CURRENCY_CODE,
+                    currencyCode: DEFAULT_INVOICE_CURRENCY_CODE,
                     vatPercent: get(priceScope, ['marketItemPrice', 'price', 0, 'vatPercent'], get(acquiringContext, 'invoiceVatPercent')),
                     salesTaxPercent: get(priceScope, ['marketItemPrice', 'price', 0, 'salesTaxPercent'], get(acquiringContext, 'invoiceSalesTaxPercent')),
                     sku: get(priceScope, ['marketItemPrice', 'marketItem', 'sku']),

@@ -24,6 +24,8 @@ import { Info, PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography, Alert, Space, Tooltip } from '@open-condo/ui'
 
+import { CONTEXT_FINISHED_STATUS } from '@condo/domains/acquiring/constants/context'
+import { useAcquiringIntegrationContext } from '@condo/domains/acquiring/hooks/useAcquiringIntegrationContext'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
 import Select from '@condo/domains/common/components/antd/Select'
@@ -44,7 +46,7 @@ import { normalizeText } from '@condo/domains/common/utils/text'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
 import { CreateInvoiceForm } from '@condo/domains/marketplace/components/Invoice/CreateInvoiceForm'
 import { TicketInvoicesList } from '@condo/domains/marketplace/components/Invoice/TicketInvoicesList'
-import { Invoice, InvoiceContext } from '@condo/domains/marketplace/utils/clientSchema'
+import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { UnitInfo, UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
 import { Property } from '@condo/domains/property/utils/clientSchema'
@@ -204,14 +206,13 @@ const TicketFormInvoicesEmptyContent = ({
     const AlertDescriptionLink = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.ticketInvoice.form.noContextAlert.descriptionLink' })
     const NoInvoicesMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.ticketInvoice.form.noInvoices' })
 
-    const { obj: invoiceContext, loading } = InvoiceContext.useObject({
-        where: {
-            organization: { id: organizationId },
-        },
-    })
+    const {
+        acquiringIntegrationContext,
+        loading,
+    } = useAcquiringIntegrationContext({ invoiceStatus: CONTEXT_FINISHED_STATUS })
 
     if (loading) return <Loader />
-    if (!invoiceContext) {
+    if (!acquiringIntegrationContext) {
         return (
             <Alert
                 type='warning'

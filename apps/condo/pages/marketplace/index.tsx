@@ -24,7 +24,7 @@ const MarketplacePage: PageType = () => {
         loading,
         error,
         refetchAcquiringIntegrationContext,
-    } = useAcquiringIntegrationContext({ status: CONTEXT_FINISHED_STATUS })
+    } = useAcquiringIntegrationContext({ invoiceStatus: CONTEXT_FINISHED_STATUS })
 
     if (loading || error) {
         return <LoadingOrErrorPage title={PageTitle} error={error} loading={loading}/>

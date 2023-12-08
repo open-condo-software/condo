@@ -17,7 +17,7 @@ import {
     INVOICE_STATUS_CANCELED,
 } from '@condo/domains/marketplace/constants'
 import { useInvoicePaymentLink } from '@condo/domains/marketplace/hooks/useInvoicePaymentLink'
-import { Invoice, InvoiceContext } from '@condo/domains/marketplace/utils/clientSchema'
+import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
 import {
     getSaveButtonTooltipMessage,
     InvoiceFormValuesType,
@@ -44,13 +44,9 @@ export const CreateInvoiceForm: React.FC<CreateInvoiceFormProps> = ({ organizati
 
     const isModalForm = useMemo(() => !isEmpty(modalFormProps), [modalFormProps])
 
-    const createInvoiceAction = Invoice.useCreate({}, afterAction)
-
-    const { obj: invoiceContext } = InvoiceContext.useObject({
-        where: {
-            organization: { id: organizationId },
-        },
-    })
+    const createInvoiceAction = Invoice.useCreate({
+        organization: { connect: { id: organizationId } },
+    }, afterAction)
 
     const getPaymentLink = useInvoicePaymentLink()
     const [submitLoading, setSubmitLoading] = useState<boolean>(false)
@@ -58,7 +54,7 @@ export const CreateInvoiceForm: React.FC<CreateInvoiceFormProps> = ({ organizati
     const handleCreateInvoice = useCallback(async (values) => {
         setSubmitLoading(true)
         const valuesFromForm = isModalForm ? omit(values, ['clientName', 'clientPhone', 'contact', 'property', 'unitName', 'unitPhone']) : values
-        const payload = Invoice.formValuesProcessor({ ...valuesFromForm, context: invoiceContext.id }, invoiceContext, intl)
+        const payload = Invoice.formValuesProcessor({ ...valuesFromForm }, intl)
 
         const createdInvoice = await createInvoiceAction(payload)
 
@@ -75,7 +71,7 @@ export const CreateInvoiceForm: React.FC<CreateInvoiceFormProps> = ({ organizati
 
         setSubmitLoading(false)
         return createdInvoice
-    }, [invoiceContext, intl, createInvoiceAction, isModalForm, getPaymentLink])
+    }, [intl, createInvoiceAction, isModalForm, getPaymentLink])
 
     const formInitialValues: InvoiceFormValuesType = useMemo(() =>
         ({

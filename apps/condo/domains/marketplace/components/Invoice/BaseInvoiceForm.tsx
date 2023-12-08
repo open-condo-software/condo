@@ -36,9 +36,10 @@ import {
     INVOICE_STATUSES,
     INVOICE_PAYMENT_TYPES,
     INITIAL_ROWS_VALUE,
+    DEFAULT_INVOICE_CURRENCY_CODE,
 } from '@condo/domains/marketplace/constants'
 import { useCancelStatusModal } from '@condo/domains/marketplace/hooks/useCancelStatusModal'
-import { InvoiceContext, MarketPriceScope } from '@condo/domains/marketplace/utils/clientSchema'
+import { MarketPriceScope } from '@condo/domains/marketplace/utils/clientSchema'
 import { calculateRowsTotalPrice, InvoiceFormValuesType, prepareTotalPriceFromInput, getMoneyRender } from '@condo/domains/marketplace/utils/clientSchema/Invoice'
 import { searchOrganizationProperty } from '@condo/domains/marketplace/utils/clientSchema/search'
 import { UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
@@ -151,7 +152,7 @@ const PropertyFormField = ({ organizationId, form, disabled, selectedPropertyId,
         setChangeAddressModalOpen(false)
         setSelectedPropertyId(newPropertyId)
     }, [form, setSelectedPropertyId])
-    
+
     const handlePropertySelectChange = useCallback(async (_, option) => {
         const newPropertyId = get(option, 'value', null)
         setPropertyIdToSelect(newPropertyId)
@@ -171,7 +172,7 @@ const PropertyFormField = ({ organizationId, form, disabled, selectedPropertyId,
             property: selectedPropertyId,
         })
     }, [form, selectedPropertyId])
-    
+
     return (
         <>
             <Form.Item
@@ -885,18 +886,12 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
         formInstance,
     } = props
 
-    const { obj: invoiceContext } = InvoiceContext.useObject({
-        where: {
-            organization: { id: organizationId },
-        },
-    })
-
     const [status, setStatus] = useState<typeof INVOICE_STATUSES[number]>(get(initialValues, 'status'))
     const [paymentType, setPaymentType] = useState<typeof INVOICE_PAYMENT_TYPES[number]>(get(initialValues, 'paymentType'))
 
     const onlyStatusTransitionsActive = get(initialValues, 'status') !== INVOICE_STATUS_DRAFT
 
-    const currencyCode = get(invoiceContext, 'currencyCode')
+    const currencyCode = DEFAULT_INVOICE_CURRENCY_CODE
     const parts = intl.formatNumberToParts('', { style: 'currency', currency: currencyCode })
     const currencySymbolObj = parts.find(part => part.type === 'currency')
     const currencySymbol = get(currencySymbolObj, 'value')

@@ -3,7 +3,7 @@
  */
 
 import {
-    Invoice, InvoiceContext,
+    Invoice,
     InvoiceCreateInput,
     InvoiceUpdateInput,
     QueryAllInvoicesArgs,
@@ -78,7 +78,7 @@ export function convertToFormState (invoice: Invoice, intl): InvoiceFormValuesTy
 
 type InvoiceMutationType = InvoiceUpdateInput | InvoiceCreateInput
 
-export function formValuesProcessor (formValues: InvoiceFormValuesType, context: InvoiceContext, intl): InvoiceMutationType {
+export function formValuesProcessor (formValues: InvoiceFormValuesType, intl): InvoiceMutationType {
     const FromMessage = intl.formatMessage({ id: 'global.from' }).toLowerCase()
     const ContractPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' }).toLowerCase()
 
@@ -108,12 +108,7 @@ export function formValuesProcessor (formValues: InvoiceFormValuesType, context:
                         toPayFields = { toPay: toPay.replace(',', '.'), isMin: false }
                     }
 
-                    const otherFields = pickBy({
-                        sku,
-                        currencyCode: context.currencyCode,
-                        vatPercent: context.vatPercent,
-                        salesTaxPercent: context.salesTaxPercent,
-                    }, (value) => !isEmpty(value))
+                    const otherFields = pickBy({ sku }, (value) => !isEmpty(value))
 
                     return { ...baseFields, ...toPayFields, ...otherFields }
                 })

@@ -4,12 +4,11 @@ import React, { useCallback, useEffect } from 'react'
 
 import { Typography } from '@open-condo/ui'
 
+import { useAcquiringIntegrationContext } from '@condo/domains/acquiring/hooks/useAcquiringIntegrationContext'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
 import { MARKETPLACE_SETUP_URL_PATH } from '@condo/domains/marketplace/constants'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
-
-import { useAcquiringIntegrationContext } from '../../../acquiring/hooks/useAcquiringIntegrationContext'
 
 type SetupAcquiringProps = {
     onFinish: () => void

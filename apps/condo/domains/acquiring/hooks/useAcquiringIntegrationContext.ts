@@ -18,7 +18,7 @@ type TUseAcquiringIntegrationContext = {
     refetchAcquiringIntegrationContext: IRefetchType<AcquiringIntegrationContext, QueryAllAcquiringIntegrationContextsArgs>,
 }
 
-export function useAcquiringIntegrationContext ({ status = undefined } = {}): TUseAcquiringIntegrationContext {
+export function useAcquiringIntegrationContext ({ status = undefined, invoiceStatus = undefined } = {}): TUseAcquiringIntegrationContext {
     const { organization } = useOrganization()
     const orgId = get(organization, 'id', null)
 
@@ -37,6 +37,9 @@ export function useAcquiringIntegrationContext ({ status = undefined } = {}): TU
     }
     if (status) {
         where.status = status
+    }
+    if (invoiceStatus) {
+        where.invoiceStatus = invoiceStatus
     }
 
     const { obj: acquiringCtx, loading: acquiringCtxLoading, error: acquiringCtxError, refetch: refetchCtx } = AcquiringIntegrationContextApi.useObject({

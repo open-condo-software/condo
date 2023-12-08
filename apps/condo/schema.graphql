@@ -68044,7 +68044,7 @@ type InvoiceRowSchemaField {
   name: String!
   toPay: String!
   count: Int!
-  currencyCode: String!
+  currencyCode: String
   vatPercent: String
   salesTaxPercent: String
   sku: String
@@ -68055,7 +68055,7 @@ input InvoiceRowSchemaFieldInput {
   name: String!
   toPay: String!
   count: Int!
-  currencyCode: String!
+  currencyCode: String
   vatPercent: String
   salesTaxPercent: String
   sku: String
@@ -69041,7 +69041,7 @@ type MarketItemPricePriceSchemaField {
   isMin: Boolean!
   vatPercent: String
   salesTaxPercent: String
-  currencyCode: String!
+  currencyCode: String
 }
 
 input MarketItemPricePriceSchemaFieldInput {
@@ -69052,7 +69052,7 @@ input MarketItemPricePriceSchemaFieldInput {
   isMin: Boolean!
   vatPercent: String
   salesTaxPercent: String
-  currencyCode: String!
+  currencyCode: String
 }
 
 """ MarketItemPrice is set separately from MarketItem and indicates the price of the service. 

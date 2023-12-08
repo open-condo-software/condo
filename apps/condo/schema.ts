@@ -26122,7 +26122,7 @@ export type InvoiceRowSchemaField = {
   name: Scalars['String'];
   toPay: Scalars['String'];
   count: Scalars['Int'];
-  currencyCode: Scalars['String'];
+  currencyCode?: Maybe<Scalars['String']>;
   vatPercent?: Maybe<Scalars['String']>;
   salesTaxPercent?: Maybe<Scalars['String']>;
   sku?: Maybe<Scalars['String']>;
@@ -26133,7 +26133,7 @@ export type InvoiceRowSchemaFieldInput = {
   name: Scalars['String'];
   toPay: Scalars['String'];
   count: Scalars['Int'];
-  currencyCode: Scalars['String'];
+  currencyCode?: Maybe<Scalars['String']>;
   vatPercent?: Maybe<Scalars['String']>;
   salesTaxPercent?: Maybe<Scalars['String']>;
   sku?: Maybe<Scalars['String']>;
@@ -27617,7 +27617,7 @@ export type MarketItemPricePriceSchemaField = {
   isMin: Scalars['Boolean'];
   vatPercent?: Maybe<Scalars['String']>;
   salesTaxPercent?: Maybe<Scalars['String']>;
-  currencyCode: Scalars['String'];
+  currencyCode?: Maybe<Scalars['String']>;
 };
 
 export type MarketItemPricePriceSchemaFieldInput = {
@@ -27628,7 +27628,7 @@ export type MarketItemPricePriceSchemaFieldInput = {
   isMin: Scalars['Boolean'];
   vatPercent?: Maybe<Scalars['String']>;
   salesTaxPercent?: Maybe<Scalars['String']>;
-  currencyCode: Scalars['String'];
+  currencyCode?: Maybe<Scalars['String']>;
 };
 
 export type MarketItemPriceRelateToOneInput = {

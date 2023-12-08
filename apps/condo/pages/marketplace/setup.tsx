@@ -41,7 +41,7 @@ const MarketplaceOnboardingPage: React.FC<MarketplaceOnboardingPageProps> = ({ o
         loading: acquiringContextLoading,
         error: acquiringContextError,
         refetchAcquiringIntegrationContext: refetchAcquiringContext,
-    } = useAcquiringIntegrationContext({ status: CONTEXT_FINISHED_STATUS })
+    } = useAcquiringIntegrationContext({ invoiceStatus: CONTEXT_FINISHED_STATUS })
 
     const handleFinishSetup = useCallback(() => {
         refetchAcquiringContext()

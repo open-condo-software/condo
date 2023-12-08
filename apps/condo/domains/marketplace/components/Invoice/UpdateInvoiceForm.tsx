@@ -26,7 +26,6 @@ import {
 import { BaseInvoiceForm } from './BaseInvoiceForm'
 import { getPaymentLinkNotification } from './CopyButton'
 
-
 type UpdateInvoiceFormProps = {
     invoice: InvoiceType
     afterAction: () => Promise<void>
@@ -43,8 +42,7 @@ export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({
     const SaveLabel = intl.formatMessage({ id: 'Save' })
 
     const isModalForm = useMemo(() => !isEmpty(modalFormProps), [modalFormProps])
-    const invoiceContext = useMemo(() => get(invoice, 'context'), [invoice])
-    const organization = useMemo(() => get(invoiceContext, 'organization'), [invoiceContext])
+    const organization = useMemo(() => get(invoice, 'organization'), [invoice])
     const CancelLabel = intl.formatMessage({ id: 'Cancel' })
 
     const { link } = useOrganization()
@@ -56,11 +54,11 @@ export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({
 
     const handleUpdateInvoice = useCallback(async (values) => {
         setSubmitLoading(true)
-        let valuesFromForm = { ...values, context: invoiceContext.id }
+        let valuesFromForm = { ...values }
         if (!values.payerData || isModalForm) {
             valuesFromForm = omit(values, ['clientName', 'clientPhone', 'contact', 'property', 'unitName', 'unitPhone'])
         }
-        const formattedValues = Invoice.formValuesProcessor(valuesFromForm, invoiceContext, intl)
+        const formattedValues = Invoice.formValuesProcessor(valuesFromForm, intl)
         const updatedInvoice = await updateInvoiceAction(formattedValues, invoice)
 
         if (
@@ -80,7 +78,7 @@ export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({
 
         setSubmitLoading(false)
         return updatedInvoice
-    }, [getPaymentLink, intl, invoice, invoiceContext, isModalForm, updateInvoiceAction])
+    }, [getPaymentLink, intl, invoice, isModalForm, updateInvoiceAction])
 
     const formInitialValues = useMemo(() => ({
         ...Invoice.convertToFormState(invoice, intl),

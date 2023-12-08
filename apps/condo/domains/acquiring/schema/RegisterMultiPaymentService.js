@@ -30,12 +30,19 @@ const { DEFAULT_MULTIPAYMENT_SERVICE_CATEGORY } = require('@condo/domains/acquir
 // TODO(savelevMatthew): REPLACE WITH SERVER SCHEMAS AFTER GQL REFACTORING
 const { freezeBillingReceipt, freezeInvoice } = require('@condo/domains/acquiring/utils/billingFridge')
 const { Payment, MultiPayment, AcquiringIntegration, RecurrentPaymentContext } = require('@condo/domains/acquiring/utils/serverSchema')
-const { getAcquiringIntegrationContextFormula, FeeDistribution, compactDistributionSettings } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
+const {
+    getAcquiringIntegrationContextFormula,
+    FeeDistribution,
+    compactDistributionSettings,
+} = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
 const { getPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
-const { DEFAULT_CURRENCY_CODE } = require('@condo/domains/common/constants/currencies')
 const { REQUIRED, NOT_UNIQUE, NOT_FOUND, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 const { WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
-const { INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
+const {
+    INVOICE_STATUS_PUBLISHED,
+    DEFAULT_INVOICE_CURRENCY_CODE,
+    ERROR_DIFFERENT_CURRENCY_CODES_FOR_RECEIPTS_AND_INVOICES,
+} = require('@condo/domains/marketplace/constants')
 
 const ERRORS = {
     DV_VERSION_MISMATCH: {
@@ -234,6 +241,13 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
         message: 'RecurrentPaymentContext with following id: {id} is deleted',
+    },
+    DIFFERENT_CURRENCY_CODES_FOR_RECEIPTS_AND_INVOICES: {
+        mutation: 'registerMultiPayment',
+        variable: ['data'],
+        code: BAD_USER_INPUT,
+        type: ERROR_DIFFERENT_CURRENCY_CODES_FOR_RECEIPTS_AND_INVOICES,
+        message: 'Receipts and invoices has different currency codes',
     },
 }
 
@@ -538,6 +552,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 }
 
                 // Processing of invoices if provided
+                const invoiceIntegrationCurrencyCode = DEFAULT_INVOICE_CURRENCY_CODE
                 if (foundInvoices.length > 0) {
                     // All invoices must be published
                     if (foundInvoices.some(({ status }) => status !== INVOICE_STATUS_PUBLISHED)) {
@@ -552,6 +567,13 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     // All acquiring contexts must be finished
                     if (acquiringContexts.some(({ invoiceStatus }) => invoiceStatus !== CONTEXT_FINISHED_STATUS)) {
                         throw new GQLError(ERRORS.INVOICE_CONTEXT_NOT_FINISHED, context)
+                    }
+
+                    if (
+                        !!billingIntegrationCurrencyCode && !!invoiceIntegrationCurrencyCode
+                        && billingIntegrationCurrencyCode !== invoiceIntegrationCurrencyCode
+                    ) {
+                        throw new GQLError(ERRORS.DIFFERENT_CURRENCY_CODES_FOR_RECEIPTS_AND_INVOICES, context)
                     }
 
                     const acquiringContext = acquiringContexts[0]
@@ -588,7 +610,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                             sender,
                             amount: amount,
                             context: { connect : { id: acquiringContext.id } },
-                            currencyCode: DEFAULT_CURRENCY_CODE,
+                            currencyCode: DEFAULT_INVOICE_CURRENCY_CODE,
                             invoice: { connect: { id: invoice.id } },
                             frozenInvoice,
                             period: dayjs().format('YYYY-MM-01'),
@@ -602,7 +624,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     }
                 }
 
-                const currencyCode = billingIntegrationCurrencyCode || DEFAULT_CURRENCY_CODE
+                const currencyCode = billingIntegrationCurrencyCode || invoiceIntegrationCurrencyCode
 
                 const paymentIds = payments.map(payment => ({ id: payment.id }))
                 const totalAmount = payments.reduce((acc, cur) => {

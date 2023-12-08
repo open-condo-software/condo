@@ -989,7 +989,6 @@ describe('Invoice', () => {
                 ['name', 'String!'],
                 ['toPay', 'String!'],
                 ['count', 'Int!'],
-                ['currencyCode', 'String!'],
                 ['isMin', 'Boolean!'],
             ]
 
@@ -1187,7 +1186,7 @@ describe('Invoice', () => {
                 status: INVOICE_STATUS_PUBLISHED,
             })
 
-            expect(updatedInvoice.rows).toEqual(newRows)
+            expect(updatedInvoice.rows.map((row)=>omit(row, ['currencyCode', 'vatPercent', 'salesTaxPercent']))).toEqual(newRows)
             expect(updatedInvoice.status).toEqual(INVOICE_STATUS_PUBLISHED)
         })
 
