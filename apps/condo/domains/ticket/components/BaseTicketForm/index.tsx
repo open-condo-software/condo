@@ -55,6 +55,7 @@ import {
     useTicketFormContext,
 } from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
 import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
+import { MAX_DETAILS_LENGTH } from '@condo/domains/ticket/constants'
 import { VISIBLE_TICKET_SOURCE_TYPES_IN_TICKET_FORM } from '@condo/domains/ticket/constants/common'
 import { useActiveCall } from '@condo/domains/ticket/contexts/ActiveCallContext'
 import { TicketFile, TicketSource } from '@condo/domains/ticket/utils/clientSchema'
@@ -321,7 +322,7 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
         predictTicketClassifier,
     } = useTicketThreeLevelsClassifierHook({ initialValues, afterUpdateRuleId })
 
-    const { InputWithCounter, Counter } = useInputWithCounter(Input.TextArea, 500)
+    const { InputWithCounter, Counter } = useInputWithCounter(Input.TextArea, MAX_DETAILS_LENGTH)
     const handleInputBlur = useCallback(e => predictTicketClassifier(e.target.value), [predictTicketClassifier])
 
     const classifierColSpan = !breakpoints.TABLET_LARGE ? 24 : 18
@@ -370,6 +371,7 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
                                             placeholder={DescriptionPlaceholder}
                                             style={INPUT_WITH_COUNTER_STYLE}
                                             data-cy='ticket__description-input'
+                                            autoSize={{ minRows: 4 }}
                                         />
                                     </TicketFormItem>
                                     <Counter style={COUNTER_STYLES} />
