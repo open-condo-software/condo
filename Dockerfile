@@ -1,4 +1,8 @@
 ARG REGISTRY=docker.io
+ARG TURBO_TEAM
+ARG TURBO_TOKEN
+ARG TURBO_API
+ARG TURBO_REMOTE_ONLY=false
 
 FROM ${REGISTRY}/python:3.8-slim-buster AS python
 FROM ${REGISTRY}/node:16-buster-slim AS node
@@ -39,6 +43,11 @@ WORKDIR /app
 COPY --chown=app:app . /app
 # Copy previously installed packages
 COPY --from=installer --chown=app:app /app /app
+
+ENV TURBO_TEAM=$TURBO_TEAM
+ENV TURBO_TOKEN=$TURBO_TOKEN
+ENV TURBO_API=$TURBO_API
+ENV TURBO_REMOTE_ONLY=$TURBO_REMOTE_ONLY
 
 RUN echo "# Build time .env config!" >> /app/.env && \
 	echo "COOKIE_SECRET=undefined" >> /app/.env && \
