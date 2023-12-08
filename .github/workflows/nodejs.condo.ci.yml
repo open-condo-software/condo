@@ -62,6 +62,10 @@ jobs:
           tags: ${{ env.DOCKER_IMAGE_FULL }}
           build-args: |
             REGISTRY=${{ secrets.DOCKER_REGISTRY }}/doma/utils
+            TURBO_TEAM=condo-ci
+            TURBO_REMOTE_ONLY=true
+            TURBO_TOKEN=${{ secrets.TURBO_TOKEN }}
+            TURBO_API=${{ secrets.TURBO_API }}
           provenance: false
           cache-from: ${{ env.DOCKER_CACHE_FROM }}
           cache-to: ${{ env.DOCKER_CACHE_TO }}
