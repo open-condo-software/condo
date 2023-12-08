@@ -1,8 +1,4 @@
 ARG REGISTRY=docker.io
-ARG TURBO_TEAM
-ARG TURBO_TOKEN
-ARG TURBO_API
-ARG TURBO_REMOTE_ONLY=false
 
 FROM ${REGISTRY}/python:3.8-slim-buster AS python
 FROM ${REGISTRY}/node:16-buster-slim AS node
@@ -38,6 +34,12 @@ RUN yarn install --immutable --inline-builds
 
 # Builder
 FROM base as builder
+
+ARG TURBO_TEAM
+ARG TURBO_TOKEN
+ARG TURBO_API
+ARG TURBO_REMOTE_ONLY=false
+
 WORKDIR /app
 # Copy entire repo
 COPY --chown=app:app . /app
