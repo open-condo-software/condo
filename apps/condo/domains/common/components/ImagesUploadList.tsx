@@ -128,7 +128,8 @@ export const ImagesUploadList: React.FC<ImagesUploadListProps> = ({
     onFilesChange,
     defaultFileList,
     fileList,
-    createAction }) => {
+    createAction,
+}) => {
     const intl = useIntl()
     const FileTooBigErrorMessage = intl.formatMessage({ id: 'component.uploadlist.error.FileTooBig' },
         { maxSizeInMb: MAX_UPLOAD_FILE_SIZE / (1024 * 1024) })

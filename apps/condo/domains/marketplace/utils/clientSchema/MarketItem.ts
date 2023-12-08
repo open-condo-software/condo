@@ -60,6 +60,16 @@ type ConvertToFormStateArgsType = {
     marketItemFiles: MarketItemFile[]
 }
 
+export const convertFilesToUploadType: (files: MarketItemFile[]) => UploadFileType[] = (files) => {
+    return files.map(fileObj => ({
+        uid: get(fileObj, 'id'),
+        name: get(fileObj, 'file.originalFilename'),
+        status: 'done',
+        url: get(fileObj, 'file.publicUrl'),
+        response: { id: get(fileObj, 'id'), url: get(fileObj, 'file.publicUrl') },
+    }))
+}
+
 export function convertToFormState ({ marketItem, marketItemPrices, marketPriceScopes, marketItemFiles }: ConvertToFormStateArgsType): MarketItemFormValuesType {
     const result: MarketItemFormValuesType = {}
 
@@ -100,13 +110,7 @@ export function convertToFormState ({ marketItem, marketItemPrices, marketPriceS
 
     result['prices'] = prices
 
-    result['files'] = marketItemFiles.map(fileObj => ({
-        uid: get(fileObj, 'id'),
-        name: get(fileObj, 'file.originalFilename'),
-        status: 'done',
-        url: get(fileObj, 'file.publicUrl'),
-        response: { id: get(fileObj, 'id'), url: get(fileObj, 'file.publicUrl') },
-    }))
+    result['files'] = convertFilesToUploadType(marketItemFiles)
 
     return result
 }

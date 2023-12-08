@@ -8,7 +8,7 @@ const { gql } = require('graphql-tag')
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
 const { PROPERTY_MAP_JSON_FIELDS } = require('@condo/domains/property/gql')
-const { ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
+const { ADDRESS_META_SUBFIELDS_QUERY_LIST, ADDRESS_META_SUBFIELDS_TABLE_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
 
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
@@ -31,7 +31,7 @@ const MarketItemFile = generateGqlQueries('MarketItemFile', MARKET_ITEM_FILE_FIE
 const MARKET_ITEM_PRICE_FIELDS = `{ price { type group name price isMin vatPercent salesTaxPercent currencyCode } marketItem { id } ${COMMON_FIELDS} }`
 const MarketItemPrice = generateGqlQueries('MarketItemPrice', MARKET_ITEM_PRICE_FIELDS)
 
-const MARKET_PRICE_SCOPE_FIELDS = `{ marketItemPrice { id marketItem { id name sku organization { id } marketCategory { id name parentCategory { id name } } } price { type group name price isMin vatPercent salesTaxPercent currencyCode } } property { id address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } ${COMMON_FIELDS} }`
+const MARKET_PRICE_SCOPE_FIELDS = `{ marketItemPrice { id marketItem { id name sku organization { id } marketCategory { id name parentCategory { id name } } } price { type group name price isMin vatPercent salesTaxPercent currencyCode } } property { id addressMeta { ${ADDRESS_META_SUBFIELDS_TABLE_LIST} } } ${COMMON_FIELDS} }`
 const MarketPriceScope = generateGqlQueries('MarketPriceScope', MARKET_PRICE_SCOPE_FIELDS)
 
 const REGISTER_INVOICE_MUTATION = gql`
