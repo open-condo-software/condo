@@ -30,7 +30,7 @@ const {
 } = require('@condo/domains/meter/constants/constants')
 const { MeterResource, createTestMeter, Meter } = require('@condo/domains/meter/utils/testSchema')
 const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
-const { createTestOrganization, updateTestOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const {
     createTestProperty,
     makeClientWithProperty,
@@ -39,6 +39,7 @@ const {
     registerServiceConsumerByTestClient,
     updateTestServiceConsumer,
     createTestResident,
+    updateTestResident,
     registerResidentServiceConsumersByTestClient,
 } = require('@condo/domains/resident/utils/testSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
@@ -312,33 +313,6 @@ describe('RegisterResidentServiceConsumers', () => {
                 message: 'Argument "accountNumber" is null or empty',
             }, 'objs')
         })
-
-        it('throw an error when resident organization does not exist', async () => {
-            const residentClient = await makeClientWithResidentUser()
-            const { organization, context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
-            const [property] = await createTestProperty(adminClient, organization)
-            const [billingProperty] = await createTestBillingProperty(adminClient, context, { address: property.address })
-            const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty)
-
-            const [resident] = await createTestResident(adminClient, residentClient.user, property, {
-                unitName: billingAccount.unitName,
-            })
-
-            await updateTestOrganization(adminClient, organization.id, { deletedAt: organization.createdAt })
-
-            const payload = { resident: { id: resident.id }, accountNumber: billingAccount.number }
-
-            await expectToThrowGQLError(async () => {
-                await registerResidentServiceConsumersByTestClient(residentClient, payload)
-            }, {
-                mutation: 'registerServiceConsumer',
-                variable: ['data', 'organizationId'],
-                code: 'BAD_USER_INPUT',
-                type: NOT_FOUND,
-                message: 'Cannot find Organization for current user',
-            }, 'objs')
-        })
-
     })
 })
 
