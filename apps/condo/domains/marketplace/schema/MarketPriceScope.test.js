@@ -10,11 +10,11 @@ const {
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
-
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { createTestAcquiringIntegration } = require('@condo/domains/acquiring/utils/testSchema')
 const { MarketPriceScope, createTestMarketPriceScope, updateTestMarketPriceScope, createTestMarketItemPrice, createTestMarketPriceScopes, softDeleteTestMarketPriceScopes, updateTestMarketPriceScopes } = require('@condo/domains/marketplace/utils/testSchema')
+const { createTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestMarketCategory, createTestMarketItem } = require('@condo/domains/marketplace/utils/testSchema')
-const { createTestInvoiceContext } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
@@ -30,6 +30,9 @@ describe('MarketPriceScope', () => {
         [organization] = await createTestOrganization(admin);
         [marketItem] = await createTestMarketItem(admin, marketCategory, organization);
         [price] = await createTestMarketItemPrice(admin, marketItem)
+
+        const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
+        await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration, { invoiceStatus: CONTEXT_FINISHED_STATUS })
     })
     describe('Accesses', () => {
         describe('admin', () => {
@@ -284,14 +287,14 @@ describe('MarketPriceScope', () => {
                 const client = await makeClientWithResidentUser()
                 const unitName = faker.random.alphaNumeric(8)
                 const [property] = await createTestProperty(admin, organization)
-                const [resident] = await createTestResident(admin, client.user, property, {
+                await createTestResident(admin, client.user, property, {
                     unitName,
                 })
                 const [scope] = await createTestMarketPriceScope(admin, price, property)
 
                 const client2 = await makeClientWithResidentUser()
                 const [property2] = await createTestProperty(admin, organization)
-                const [resident2] = await createTestResident(admin, client2.user, property2, {
+                await createTestResident(admin, client2.user, property2, {
                     unitName,
                 })
                 const [scope2] = await createTestMarketPriceScope(admin, price, property2)
@@ -303,7 +306,6 @@ describe('MarketPriceScope', () => {
                 const objs2 = await MarketPriceScope.getAll(client2, {}, { sortBy: ['updatedAt_DESC'] })
                 expect(objs2).toHaveLength(1)
                 expect(objs2[0].id).toEqual(scope2.id)
-
             })
 
             test('both residents from the same organization can read default price scope', async () => {
@@ -314,13 +316,13 @@ describe('MarketPriceScope', () => {
                 const client = await makeClientWithResidentUser()
                 const unitName = faker.random.alphaNumeric(8)
                 const [property] = await createTestProperty(admin, organization)
-                const [resident] = await createTestResident(admin, client.user, property, {
+                await createTestResident(admin, client.user, property, {
                     unitName,
                 })
 
                 const client2 = await makeClientWithResidentUser()
                 const [property2] = await createTestProperty(admin, organization)
-                const [resident2] = await createTestResident(admin, client2.user, property2, {
+                await createTestResident(admin, client2.user, property2, {
                     unitName,
                 })
                 const [scope] = await createTestMarketPriceScope(admin, price, property, { property: undefined })
@@ -343,7 +345,7 @@ describe('MarketPriceScope', () => {
                 const [scope] = await createTestMarketPriceScope(admin, price1, property1, { property: undefined })
 
                 const client = await makeClientWithResidentUser()
-                const [resident] = await createTestResident(admin, client.user, property1, {
+                await createTestResident(admin, client.user, property1, {
                     unitName,
                 })
 
@@ -354,7 +356,7 @@ describe('MarketPriceScope', () => {
                 const [scope2] = await createTestMarketPriceScope(admin, price2, property2, { property: undefined })
 
                 const client2 = await makeClientWithResidentUser()
-                const [resident2] = await createTestResident(admin, client2.user, property2, {
+                await createTestResident(admin, client2.user, property2, {
                     unitName,
                 })
 

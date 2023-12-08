@@ -4,10 +4,11 @@
 
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor, expectValuesOfCommonFields, expectToThrowUniqueConstraintViolationError } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, expectValuesOfCommonFields, expectToThrowUniqueConstraintViolationError } = require('@open-condo/keystone/test.utils')
 const {
-    expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
-    expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects,
+    expectToThrowAuthenticationErrorToObj,
+    expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
 const { MarketItem, createTestMarketItem, updateTestMarketItem, createTestMarketCategory } = require('@condo/domains/marketplace/utils/testSchema')
@@ -287,11 +288,11 @@ describe('MarketItem', () => {
     describe('constraint tests', () => {
         test('can\'t create two MarketItem with same sku in one organization', async () => {
             const sku = faker.random.alphaNumeric(8)
-            const [obj, attrs] = await createTestMarketItem(admin, marketCategory, organization, {
+            await createTestMarketItem(admin, marketCategory, organization, {
                 sku,
             })
             await expectToThrowUniqueConstraintViolationError(async () => {
-                const [obj, attrs] = await createTestMarketItem(admin, marketCategory, organization, {
+                await createTestMarketItem(admin, marketCategory, organization, {
                     sku,
                 })
             }, 'MarketItem_unique_organization_sku')

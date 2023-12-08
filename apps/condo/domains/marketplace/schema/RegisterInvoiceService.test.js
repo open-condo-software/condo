@@ -39,14 +39,14 @@ const {
 const MOBILE_APP_RESIDENT_TICKET_SOURCE_ID = '830d1d89-2d17-4c5b-96d1-21b5cd01a6d3'
 
 let adminClient
-let organization, acquiringIntegration, acquiringContext
+let organization, acquiringIntegration
 
 describe('RegisterInvoiceService', () => {
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()
         ;[acquiringIntegration] = await createTestAcquiringIntegration(adminClient)
         ;[organization] = await createTestOrganization(adminClient)
-        ;[acquiringContext] = await createTestAcquiringIntegrationContext(adminClient, organization, acquiringIntegration, { invoiceStatus: CONTEXT_FINISHED_STATUS })
+        await createTestAcquiringIntegrationContext(adminClient, organization, acquiringIntegration, { invoiceStatus: CONTEXT_FINISHED_STATUS })
     })
 
     test('admin can execute', async () => {
