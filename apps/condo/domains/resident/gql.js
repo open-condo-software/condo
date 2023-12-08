@@ -45,7 +45,7 @@ const DISCOVER_SERVICE_CONSUMERS_MUTATION = gql`
         result: discoverServiceConsumers(data: $data) { status statistics { created residentsFound billingAccountsFound } }
     }
 `
- 
+
 const GET_RESIDENT_EXISTENCE_BY_PHONE_AND_ADDRESS_QUERY = gql`
     query getGetResidentExistenceByPhoneAndAddress ($data: GetResidentExistenceByPhoneAndAddressInput!) {
         result: getResidentExistenceByPhoneAndAddress(data: $data) { hasResident hasResidentOnAddress }
@@ -53,6 +53,12 @@ const GET_RESIDENT_EXISTENCE_BY_PHONE_AND_ADDRESS_QUERY = gql`
 `
 
 /* AUTOGENERATE MARKER <CONST> */
+
+const REGISTER_RESIDENT_SERVICE_CONSUMERS_MUTATION = gql`
+    mutation registerResidentServiceConsumers ($data: RegisterResidentServiceConsumersInput!) {
+        objs: registerResidentServiceConsumers(data: $data) ${SERVICE_CONSUMER_FIELDS}
+    }
+`
 
 module.exports = {
     Resident,
@@ -66,5 +72,6 @@ module.exports = {
     SEND_MESSAGE_TO_RESIDENT_SCOPES_MUTATION,
     DISCOVER_SERVICE_CONSUMERS_MUTATION,
     GET_RESIDENT_EXISTENCE_BY_PHONE_AND_ADDRESS_QUERY,
+    REGISTER_RESIDENT_SERVICE_CONSUMERS_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -40555,6 +40555,7 @@ export type Mutation = {
   setMessageStatus?: Maybe<SetMessageStatusOutput>;
   _internalSyncContactsWithResidentsForOrganization?: Maybe<Array<Maybe<Contact>>>;
   registerResident?: Maybe<Resident>;
+  registerResidentServiceConsumers?: Maybe<Array<ServiceConsumer>>;
   /**
    * Creates service consumer with default data, and automatically populates the optional data fields, such as `billingAccount
    *
@@ -48562,6 +48563,11 @@ export type Mutation_InternalSyncContactsWithResidentsForOrganizationArgs = {
 
 export type MutationRegisterResidentArgs = {
   data: RegisterResidentInput;
+};
+
+
+export type MutationRegisterResidentServiceConsumersArgs = {
+  data: RegisterResidentServiceConsumersInput;
 };
 
 
@@ -68896,6 +68902,14 @@ export type RegisterResidentInput = {
   addressMeta: AddressMetaFieldInput;
   unitName: Scalars['String'];
   unitType?: Maybe<BuildingUnitSubType>;
+};
+
+export type RegisterResidentServiceConsumersInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  resident: ResidentWhereUniqueInput;
+  accountNumber: Scalars['String'];
+  paymentCategory?: Maybe<Scalars['String']>;
 };
 
 export type RegisterServiceConsumerInput = {
