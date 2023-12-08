@@ -50,7 +50,8 @@ const OMIT_COMMON_TRACKABLE_FIELDS = ['v', 'dv', 'sender', 'createdAt', 'created
 const OMIT_TICKET_CHANGE_TRACKABLE_FIELDS = [...OMIT_COMMON_TRACKABLE_FIELDS, 'categoryClassifier', 'isAutoClassified', 'placeClassifier', 'problemClassifier', 'completedAt', 'lastCommentAt', 'statusUpdatedAt', 'lastResidentCommentAt', 'number', 'order', 'qualityControlUpdatedAt', 'qualityControlUpdatedBy', 'feedbackUpdatedAt']
 const OMIT_INCIDENT_CHANGE_TRACKABLE_FIELDS = [...OMIT_COMMON_TRACKABLE_FIELDS, 'hasAllProperties', 'number']
 
-const MAX_COMMENT_LENGTH = 300
+const MAX_DETAILS_LENGTH = 700
+const MAX_COMMENT_LENGTH = 700
 
 const DEFAULT_DEFERRED_DAYS = 30
 
@@ -70,4 +71,5 @@ module.exports = {
     RESIDENT_COMMENT_TYPE,
     MAX_COMMENT_LENGTH,
     DEFAULT_DEFERRED_DAYS,
+    MAX_DETAILS_LENGTH,
 }
