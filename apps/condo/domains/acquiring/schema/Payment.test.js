@@ -789,7 +789,6 @@ describe('Payment', () => {
             const [role] = await createTestOrganizationEmployeeRole(adminClient, o10n, {
                 canManageInvoices: true,
                 canManageContacts: true,
-                canReadInvoiceContexts: true,
             })
             await createTestOrganizationEmployee(adminClient, o10n, staffClient.user, role)
 

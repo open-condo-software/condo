@@ -99,7 +99,6 @@ describe('Invoice', () => {
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
                 const [role] = await createTestOrganizationEmployeeRole(adminClient, dummyO10n, {
-                    canReadInvoiceContexts: true,
                     canManageInvoices: true,
                 })
                 await createTestOrganizationEmployee(adminClient, dummyO10n, client.user, role)
@@ -112,7 +111,6 @@ describe('Invoice', () => {
             test('staff without permission can\'t', async () => {
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [role] = await createTestOrganizationEmployeeRole(adminClient, dummyO10n, {
-                    canReadInvoiceContexts: true,
                     canManageInvoices: false,
                 })
                 await createTestOrganizationEmployee(adminClient, dummyO10n, client.user, role)
@@ -156,7 +154,6 @@ describe('Invoice', () => {
 
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [role] = await createTestOrganizationEmployeeRole(adminClient, dummyO10n, {
-                    canReadInvoiceContexts: true,
                     canManageInvoices: true,
                 })
                 await createTestOrganizationEmployee(adminClient, dummyO10n, client.user, role)
@@ -175,7 +172,6 @@ describe('Invoice', () => {
 
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [role] = await createTestOrganizationEmployeeRole(adminClient, o10n, {
-                    canReadInvoiceContexts: true,
                     canManageInvoices: false,
                 })
                 await createTestOrganizationEmployee(adminClient, o10n, client.user, role)
@@ -565,7 +561,6 @@ describe('Invoice', () => {
             const [role] = await createTestOrganizationEmployeeRole(adminClient, o10n, {
                 canManageInvoices: true,
                 canManageContacts: true,
-                canReadInvoiceContexts: true,
             })
             await createTestOrganizationEmployee(adminClient, o10n, staffClient.user, role)
 
