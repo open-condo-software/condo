@@ -315,7 +315,7 @@ export const getStatusRender = (intl, openStatusDescModal, search?: FilterValue 
 
         return (
             <Tag onClick={() => openStatusDescModal(statusType)}
-                bgColor={ statusType === PAYMENT_WITHDRAWN_STATUS ? colors.orange[1] : colors.green[5]}
+                bgColor={ statusType === PAYMENT_WITHDRAWN_STATUS ? colors.orange[5] : colors.green[5]}
                 textColor={colors.white}
             >
                 {nameStatus}
