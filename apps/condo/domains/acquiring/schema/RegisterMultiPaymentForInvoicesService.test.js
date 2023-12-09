@@ -231,6 +231,10 @@ describe('RegisterMultiPaymentForInvoicesService', () => {
             await createTestAcquiringIntegrationContext(adminClient, o10n, acquiringIntegration, {
                 invoiceStatus: CONTEXT_FINISHED_STATUS,
                 invoiceRecipient: createTestRecipient(),
+                invoiceImplicitFeeDistributionSchema: [{
+                    recipient: 'organization',
+                    percent: '5',
+                }],
             })
             const [invoice1] = await createTestInvoice(adminClient, o10n, { status: INVOICE_STATUS_PUBLISHED })
             const [invoice2] = await createTestInvoice(adminClient, o10n, { status: INVOICE_STATUS_PUBLISHED })
