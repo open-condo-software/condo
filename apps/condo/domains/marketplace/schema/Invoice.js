@@ -18,6 +18,7 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema, getById, getByCondition, find } = require('@open-condo/keystone/schema')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { RECIPIENT_FIELD } = require('@condo/domains/acquiring/schema/fields/Recipient')
 const { MONEY_AMOUNT_FIELD, UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 const { CLIENT_NAME_FIELD, CLIENT_PHONE_LANDLINE_FIELD } = require('@condo/domains/common/schema/fields')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
@@ -46,7 +47,6 @@ const { MARKETPLACE_INVOICE_PUBLISHED_MESSAGE_TYPE, MARKETPLACE_INVOICE_WITH_TIC
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
-const { RECIPIENT_FIELD } = require('@condo/domains/acquiring/schema/fields/Recipient')
 
 const ERRORS = {
     ALREADY_PAID: {
