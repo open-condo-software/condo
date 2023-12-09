@@ -5552,8 +5552,6 @@ type OrganizationEmployeeRoleHistoryRecord {
   canManageMobileFeatureConfigs: Boolean
   canManageB2BApps: Boolean
   canReadAnalytics: Boolean
-  canReadInvoiceContexts: Boolean
-  canManageInvoiceContexts: Boolean
   canReadInvoices: Boolean
   canManageInvoices: Boolean
   canReadMarketItems: Boolean
@@ -5727,10 +5725,6 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canManageB2BApps_not: Boolean
   canReadAnalytics: Boolean
   canReadAnalytics_not: Boolean
-  canReadInvoiceContexts: Boolean
-  canReadInvoiceContexts_not: Boolean
-  canManageInvoiceContexts: Boolean
-  canManageInvoiceContexts_not: Boolean
   canReadInvoices: Boolean
   canReadInvoices_not: Boolean
   canManageInvoices: Boolean
@@ -5916,10 +5910,6 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canManageB2BApps_DESC
   canReadAnalytics_ASC
   canReadAnalytics_DESC
-  canReadInvoiceContexts_ASC
-  canReadInvoiceContexts_DESC
-  canManageInvoiceContexts_ASC
-  canManageInvoiceContexts_DESC
   canReadInvoices_ASC
   canReadInvoices_DESC
   canManageInvoices_ASC
@@ -6009,8 +5999,6 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   canManageMobileFeatureConfigs: Boolean
   canManageB2BApps: Boolean
   canReadAnalytics: Boolean
-  canReadInvoiceContexts: Boolean
-  canManageInvoiceContexts: Boolean
   canReadInvoices: Boolean
   canManageInvoices: Boolean
   canReadMarketItems: Boolean
@@ -6088,8 +6076,6 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   canManageMobileFeatureConfigs: Boolean
   canManageB2BApps: Boolean
   canReadAnalytics: Boolean
-  canReadInvoiceContexts: Boolean
-  canManageInvoiceContexts: Boolean
   canReadInvoices: Boolean
   canManageInvoices: Boolean
   canReadMarketItems: Boolean
@@ -6196,8 +6182,6 @@ type OrganizationEmployeeRole {
   canManageMobileFeatureConfigs: Boolean
   canManageB2BApps: Boolean
   canReadAnalytics: Boolean
-  canReadInvoiceContexts: Boolean
-  canManageInvoiceContexts: Boolean
   canReadInvoices: Boolean
   canManageInvoices: Boolean
   canReadMarketItems: Boolean
@@ -6359,10 +6343,6 @@ input OrganizationEmployeeRoleWhereInput {
   canManageB2BApps_not: Boolean
   canReadAnalytics: Boolean
   canReadAnalytics_not: Boolean
-  canReadInvoiceContexts: Boolean
-  canReadInvoiceContexts_not: Boolean
-  canManageInvoiceContexts: Boolean
-  canManageInvoiceContexts_not: Boolean
   canReadInvoices: Boolean
   canReadInvoices_not: Boolean
   canManageInvoices: Boolean
@@ -6530,10 +6510,6 @@ enum SortOrganizationEmployeeRolesBy {
   canManageB2BApps_DESC
   canReadAnalytics_ASC
   canReadAnalytics_DESC
-  canReadInvoiceContexts_ASC
-  canReadInvoiceContexts_DESC
-  canManageInvoiceContexts_ASC
-  canManageInvoiceContexts_DESC
   canReadInvoices_ASC
   canReadInvoices_DESC
   canManageInvoices_ASC
@@ -6622,8 +6598,6 @@ input OrganizationEmployeeRoleUpdateInput {
   canManageMobileFeatureConfigs: Boolean
   canManageB2BApps: Boolean
   canReadAnalytics: Boolean
-  canReadInvoiceContexts: Boolean
-  canManageInvoiceContexts: Boolean
   canReadInvoices: Boolean
   canManageInvoices: Boolean
   canReadMarketItems: Boolean
@@ -6697,8 +6671,6 @@ input OrganizationEmployeeRoleCreateInput {
   canManageMobileFeatureConfigs: Boolean
   canManageB2BApps: Boolean
   canReadAnalytics: Boolean
-  canReadInvoiceContexts: Boolean
-  canManageInvoiceContexts: Boolean
   canReadInvoices: Boolean
   canManageInvoices: Boolean
   canReadMarketItems: Boolean

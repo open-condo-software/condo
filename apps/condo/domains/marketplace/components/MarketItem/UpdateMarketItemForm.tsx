@@ -9,12 +9,10 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Tooltip } from '@open-condo/ui'
 
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import {
-    InvoiceContext,
     MarketItem,
     MarketItemFile,
     MarketItemPrice,
@@ -31,14 +29,6 @@ import { BaseMarketItemForm } from './BaseMarketItemForm'
 export const UpdateMarketItemForm = ({ marketItem }) => {
     const intl = useIntl()
     const UpdateMessage = intl.formatMessage({ id: 'Edit' })
-
-    const { organization } = useOrganization()
-
-    const { obj: invoiceContext } = InvoiceContext.useObject({
-        where: {
-            organization: { id: get(organization, 'id', null) },
-        },
-    })
 
     const {
         objs: marketItemPrices,
@@ -100,7 +90,6 @@ export const UpdateMarketItemForm = ({ marketItem }) => {
         await MarketItem.createNewPricesAndPriceScopes({
             marketItem: updatedMarketItem,
             prices: newPrices,
-            invoiceContext,
             createMarketItemPrice,
             createMarketPriceScopes,
         })
@@ -194,7 +183,7 @@ export const UpdateMarketItemForm = ({ marketItem }) => {
         await router.push(`/marketplace/marketItem/${get(marketItem, 'id')}`)
 
         return updatedMarketItem
-    }, [createMarketItemPrice, createMarketPriceScope, createMarketPriceScopes, initialMarketItemPricesIds, invoiceContext, marketItem, marketItemFiles, marketItemPrices, marketPriceScopes, router, softDeleteMarketItemFile, softDeleteMarketItemPrice, softDeleteMarketPriceScope, softDeleteMarketPriceScopes, updateMarketItem, updateMarketItemFile, updateMarketItemPrice])
+    }, [createMarketItemPrice, createMarketPriceScope, createMarketPriceScopes, initialMarketItemPricesIds, marketItem, marketItemFiles, marketItemPrices, marketPriceScopes, router, softDeleteMarketItemFile, softDeleteMarketItemPrice, softDeleteMarketPriceScope, softDeleteMarketPriceScopes, updateMarketItem, updateMarketItemFile, updateMarketItemPrice])
 
     const initialValues = useMemo(
         () => MarketItem.convertToFormState({ marketItem, marketItemPrices, marketPriceScopes, marketItemFiles }),

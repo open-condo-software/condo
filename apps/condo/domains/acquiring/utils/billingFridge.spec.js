@@ -6,14 +6,14 @@ const { prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeyst
 const { getById } = require('@open-condo/keystone/schema')
 const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { makePayer } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
-const { INVOICE_CONTEXT_STATUS_FINISHED } = require('@condo/domains/marketplace/constants')
-const { createTestInvoiceContext, createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
+const { createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 
 const { freezeBillingReceipt, freezeInvoice } = require('./billingFridge')
-const { createTestAcquiringIntegration } = require('./testSchema')
+const { createTestAcquiringIntegration, createTestAcquiringIntegrationContext } = require('./testSchema')
 
 describe('billingFridge', () => {
 
@@ -90,8 +90,8 @@ describe('billingFridge', () => {
             const [o10n] = await createTestOrganization(adminClient)
             await createTestBillingIntegration(adminClient)
             const [integration] = await createTestAcquiringIntegration(adminClient)
-            const [invoiceContext] = await createTestInvoiceContext(adminClient, o10n, integration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
-            const [invoice] = await createTestInvoice(adminClient, invoiceContext)
+            await createTestAcquiringIntegrationContext(adminClient, o10n, integration, { invoiceStatus: CONTEXT_FINISHED_STATUS })
+            const [invoice] = await createTestInvoice(adminClient, o10n)
             const flatInvoice = await getById('Invoice', invoice.id)
             frozenInvoice = await freezeInvoice(flatInvoice)
         })
@@ -123,17 +123,6 @@ describe('billingFridge', () => {
             expect(row).toHaveProperty('toPay')
             expect(row).toHaveProperty('count')
             expect(row).toHaveProperty('currencyCode')
-
-            expect(data).toHaveProperty('context')
-            const { context } = data
-            expect(context).toHaveProperty('recipient')
-            expect(context).toHaveProperty('implicitFeePercent')
-            expect(context).toHaveProperty('vatPercent')
-            expect(context).toHaveProperty('taxRegime')
-            expect(context).toHaveProperty('id')
-            expect(context).toHaveProperty('currencyCode')
-            expect(context).toHaveProperty('salesTaxPercent')
-            expect(context).toHaveProperty('integration')
         })
     })
 })

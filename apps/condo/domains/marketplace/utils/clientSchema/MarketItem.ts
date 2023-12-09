@@ -3,7 +3,6 @@
  */
 
 import {
-    InvoiceContext,
     MarketItem,
     MarketItemCreateInput,
     MarketItemFile,
@@ -164,7 +163,6 @@ export function getPriceValueFromFormPrice ({ priceType, price }) {
 type CreateNewPricesAndPriceScopesArgType = {
     marketItem: MarketItem
     prices: PriceFormValuesType[]
-    invoiceContext: InvoiceContext
     createMarketItemPrice: (data: MarketItemPriceCreateInput) => Promise<MarketItemPrice>
     createMarketPriceScopes: IUseCreateManyActionType<MarketPriceScope, MarketPriceScopeCreateInput>
 }
@@ -172,21 +170,16 @@ type CreateNewPricesAndPriceScopesArgType = {
 export async function createNewPricesAndPriceScopes ({
     marketItem,
     prices,
-    invoiceContext,
     createMarketItemPrice,
     createMarketPriceScopes,
 }: CreateNewPricesAndPriceScopesArgType) {
     for (const formPrice of prices) {
         const { properties, hasAllProperties, price, priceType } = formPrice
 
-        const vatPercent = get(invoiceContext, 'vatPercent')
-        const salesTaxPercent = get(invoiceContext, 'salesTaxPercent')
-        const currencyCode = get(invoiceContext, 'currencyCode')
         const { price: resultPrice, isMin } = getPriceValueFromFormPrice({ priceType, price })
 
         const createdPrice = await createMarketItemPrice({
-            price: [{ type: 'variant', group: '', name: marketItem.name,
-                price: resultPrice, isMin, vatPercent, salesTaxPercent, currencyCode }],
+            price: [{ type: 'variant', group: '', name: marketItem.name, price: resultPrice, isMin }],
             marketItem: { connect: { id: marketItem.id } },
         })
 

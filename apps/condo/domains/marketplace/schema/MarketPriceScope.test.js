@@ -13,7 +13,7 @@ const {
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { createTestAcquiringIntegration } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
-const { MarketPriceScope, createTestMarketPriceScope, updateTestMarketPriceScope, createTestMarketItemPrice, createTestMarketPriceScopes, softDeleteTestMarketPriceScopes, updateTestMarketPriceScopes } = require('@condo/domains/marketplace/utils/testSchema')
+const { MarketPriceScope, createTestMarketPriceScope, updateTestMarketPriceScope, createTestMarketItemPrice, createTestMarketPriceScopes, softDeleteTestMarketPriceScopes } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestMarketCategory, createTestMarketItem } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')

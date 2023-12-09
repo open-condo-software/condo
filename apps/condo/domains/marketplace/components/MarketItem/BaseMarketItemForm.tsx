@@ -25,8 +25,8 @@ import { ImagesUploadList } from '@condo/domains/common/components/ImagesUploadL
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { DEFAULT_INVOICE_CURRENCY_CODE } from '@condo/domains/marketplace/constants'
 import {
-    InvoiceContext,
     MarketCategory,
     MarketItem,
     MarketItemFile,
@@ -125,9 +125,9 @@ const MobilePreview = ({ name, price, priceType, sku, description, files }) => {
     const SkuMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.mobileAppPreview.sku' })
     const OrderMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.mobileAppPreview.order' })
 
-    const { invoiceContext } = useMarketItemFormContext()
+    const { currencyCode } = useMarketItemFormContext()
 
-    const moneyRender = getMoneyRender(intl, get(invoiceContext, 'currencyCode'))
+    const moneyRender = getMoneyRender(intl, currencyCode)
     let resultPrice
     if (priceType === PriceType.Contract) {
         resultPrice = ContractPrice
@@ -491,8 +491,7 @@ const MarketPriceForm = ({ priceFormDescription, removeOperation, organizationPr
     const CancelMessage = intl.formatMessage({ id: 'Cancel' })
 
     const { requiredValidator, numberValidator } = useValidations()
-    const { form, invoiceContext, getUpdatedPricesField } = useMarketItemFormContext()
-    const currencyCode = get(invoiceContext, 'currencyCode')
+    const { form, currencyCode, getUpdatedPricesField } = useMarketItemFormContext()
     const parts = intl.formatNumberToParts('', { style: 'currency', currency: currencyCode })
     const currencySymbolObj = parts.find(part => part.type === 'currency')
     const currencySymbol = get(currencySymbolObj, 'value')
@@ -683,19 +682,14 @@ export const BaseMarketItemForm: React.FC<BaseMarketItemFormProps> = (props) => 
             },
         },
     }), [form])
-    const { obj: invoiceContext } = InvoiceContext.useObject({
-        where: {
-            organization: { id: get(organization, 'id', null) },
-        },
-    })
 
     const formContextValue: BaseMarketItemFormContextType = useMemo(() => ({
         form,
         marketItemId,
+        currencyCode: DEFAULT_INVOICE_CURRENCY_CODE,
         getUpdatedPricesField,
-        invoiceContext,
         initialValues,
-    }), [form, getUpdatedPricesField, initialValues, invoiceContext, marketItemId])
+    }), [form, getUpdatedPricesField, initialValues, marketItemId])
 
     return (
         <BaseMarketItemFormContext.Provider value={formContextValue}>

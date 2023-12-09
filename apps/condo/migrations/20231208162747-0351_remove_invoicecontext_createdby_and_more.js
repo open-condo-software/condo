@@ -261,7 +261,7 @@ ALTER TABLE "InvoiceHistoryRecord" ADD COLUMN "context" uuid NULL;
 --
 -- Remove field context from invoice
 --
-ALTER TABLE "Invoice" ADD COLUMN "context" uuid NOT NULL CONSTRAINT "Invoice_context_f82e2da9_fk_InvoiceContext_id" REFERENCES "InvoiceContext"("id") DEFERRABLE INITIALLY DEFERRED; SET CONSTRAINTS "Invoice_context_f82e2da9_fk_InvoiceContext_id" IMMEDIATE;
+ALTER TABLE "Invoice" ADD COLUMN "context" uuid NULL;
 CREATE INDEX "InvoiceContextHistoryRecord_history_id_fb1104ef" ON "InvoiceContextHistoryRecord" ("history_id");
 ALTER TABLE "InvoiceContext" ADD CONSTRAINT "InvoiceContext_createdBy_1041b794_fk_User_id" FOREIGN KEY ("createdBy") REFERENCES "User" ("id") DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE "InvoiceContext" ADD CONSTRAINT "InvoiceContext_organization_eac30293_fk_Organization_id" FOREIGN KEY ("organization") REFERENCES "Organization" ("id") DEFERRABLE INITIALLY DEFERRED;

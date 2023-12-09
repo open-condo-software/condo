@@ -10,7 +10,6 @@ import { ActionBar, Button, Tooltip } from '@open-condo/ui'
 
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import {
-    InvoiceContext,
     MarketItem,
     MarketItemFile,
     MarketItemPrice,
@@ -41,12 +40,6 @@ export const CreateMarketItemForm = () => {
     const createMarketPriceScopes = MarketPriceScope.useCreateMany({})
     const updateMarketItemFile = MarketItemFile.useUpdate({})
 
-    const { obj: invoiceContext, loading: contextLoading } = InvoiceContext.useObject({
-        where: {
-            organization: { id: organizationId },
-        },
-    }, { skip: organizationLoading || !organization })
-
     const handleCreateMarketItem = useCallback(async (values) => {
         setSubmitLoading(true)
 
@@ -56,7 +49,6 @@ export const CreateMarketItemForm = () => {
         await MarketItem.createNewPricesAndPriceScopes({
             marketItem: createdMarketItem,
             prices: formattedPrices,
-            invoiceContext,
             createMarketItemPrice,
             createMarketPriceScopes,
         })
@@ -77,7 +69,7 @@ export const CreateMarketItemForm = () => {
         await router.push('/marketplace?tab=services')
 
         return createdMarketItem
-    }, [createMarketItem, createMarketItemPrice, createMarketPriceScopes, invoiceContext, router, updateMarketItemFile])
+    }, [createMarketItem, createMarketItemPrice, createMarketPriceScopes, router, updateMarketItemFile])
 
     const { count: propertiesCount } = Property.useCount({
         where: {
@@ -93,7 +85,7 @@ export const CreateMarketItemForm = () => {
         }, { skip: propertiesCount !== 1 }
     )
 
-    const dataLoading = organizationLoading || propertiesLoading || contextLoading
+    const dataLoading = organizationLoading || propertiesLoading
     const initialValues = useMemo(() => ({ files: [] }), [])
 
     if (propertiesCount === 1 && !dataLoading) {

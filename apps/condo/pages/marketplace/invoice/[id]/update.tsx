@@ -32,7 +32,7 @@ const UpdateInvoicePage = () => {
     const { obj: invoice, loading, error } = Invoice.useObject({
         where: {
             id,
-            context: { organization: { id: get(organization, 'id', null) } },
+            organization: { id: get(organization, 'id', null) },
         },
     })
 

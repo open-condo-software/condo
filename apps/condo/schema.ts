@@ -53362,8 +53362,6 @@ export type OrganizationEmployeeRole = {
   canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
   canManageB2BApps?: Maybe<Scalars['Boolean']>;
   canReadAnalytics?: Maybe<Scalars['Boolean']>;
-  canReadInvoiceContexts?: Maybe<Scalars['Boolean']>;
-  canManageInvoiceContexts?: Maybe<Scalars['Boolean']>;
   canReadInvoices?: Maybe<Scalars['Boolean']>;
   canManageInvoices?: Maybe<Scalars['Boolean']>;
   canReadMarketItems?: Maybe<Scalars['Boolean']>;
@@ -53437,8 +53435,6 @@ export type OrganizationEmployeeRoleCreateInput = {
   canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
   canManageB2BApps?: Maybe<Scalars['Boolean']>;
   canReadAnalytics?: Maybe<Scalars['Boolean']>;
-  canReadInvoiceContexts?: Maybe<Scalars['Boolean']>;
-  canManageInvoiceContexts?: Maybe<Scalars['Boolean']>;
   canReadInvoices?: Maybe<Scalars['Boolean']>;
   canManageInvoices?: Maybe<Scalars['Boolean']>;
   canReadMarketItems?: Maybe<Scalars['Boolean']>;
@@ -53518,8 +53514,6 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
   canManageB2BApps?: Maybe<Scalars['Boolean']>;
   canReadAnalytics?: Maybe<Scalars['Boolean']>;
-  canReadInvoiceContexts?: Maybe<Scalars['Boolean']>;
-  canManageInvoiceContexts?: Maybe<Scalars['Boolean']>;
   canReadInvoices?: Maybe<Scalars['Boolean']>;
   canManageInvoices?: Maybe<Scalars['Boolean']>;
   canReadMarketItems?: Maybe<Scalars['Boolean']>;
@@ -53593,8 +53587,6 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
   canManageB2BApps?: Maybe<Scalars['Boolean']>;
   canReadAnalytics?: Maybe<Scalars['Boolean']>;
-  canReadInvoiceContexts?: Maybe<Scalars['Boolean']>;
-  canManageInvoiceContexts?: Maybe<Scalars['Boolean']>;
   canReadInvoices?: Maybe<Scalars['Boolean']>;
   canManageInvoices?: Maybe<Scalars['Boolean']>;
   canReadMarketItems?: Maybe<Scalars['Boolean']>;
@@ -53673,8 +53665,6 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
   canManageB2BApps?: Maybe<Scalars['Boolean']>;
   canReadAnalytics?: Maybe<Scalars['Boolean']>;
-  canReadInvoiceContexts?: Maybe<Scalars['Boolean']>;
-  canManageInvoiceContexts?: Maybe<Scalars['Boolean']>;
   canReadInvoices?: Maybe<Scalars['Boolean']>;
   canManageInvoices?: Maybe<Scalars['Boolean']>;
   canReadMarketItems?: Maybe<Scalars['Boolean']>;
@@ -53847,10 +53837,6 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canManageB2BApps_not?: Maybe<Scalars['Boolean']>;
   canReadAnalytics?: Maybe<Scalars['Boolean']>;
   canReadAnalytics_not?: Maybe<Scalars['Boolean']>;
-  canReadInvoiceContexts?: Maybe<Scalars['Boolean']>;
-  canReadInvoiceContexts_not?: Maybe<Scalars['Boolean']>;
-  canManageInvoiceContexts?: Maybe<Scalars['Boolean']>;
-  canManageInvoiceContexts_not?: Maybe<Scalars['Boolean']>;
   canReadInvoices?: Maybe<Scalars['Boolean']>;
   canReadInvoices_not?: Maybe<Scalars['Boolean']>;
   canManageInvoices?: Maybe<Scalars['Boolean']>;
@@ -54009,8 +53995,6 @@ export type OrganizationEmployeeRoleUpdateInput = {
   canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
   canManageB2BApps?: Maybe<Scalars['Boolean']>;
   canReadAnalytics?: Maybe<Scalars['Boolean']>;
-  canReadInvoiceContexts?: Maybe<Scalars['Boolean']>;
-  canManageInvoiceContexts?: Maybe<Scalars['Boolean']>;
   canReadInvoices?: Maybe<Scalars['Boolean']>;
   canManageInvoices?: Maybe<Scalars['Boolean']>;
   canReadMarketItems?: Maybe<Scalars['Boolean']>;
@@ -54160,10 +54144,6 @@ export type OrganizationEmployeeRoleWhereInput = {
   canManageB2BApps_not?: Maybe<Scalars['Boolean']>;
   canReadAnalytics?: Maybe<Scalars['Boolean']>;
   canReadAnalytics_not?: Maybe<Scalars['Boolean']>;
-  canReadInvoiceContexts?: Maybe<Scalars['Boolean']>;
-  canReadInvoiceContexts_not?: Maybe<Scalars['Boolean']>;
-  canManageInvoiceContexts?: Maybe<Scalars['Boolean']>;
-  canManageInvoiceContexts_not?: Maybe<Scalars['Boolean']>;
   canReadInvoices?: Maybe<Scalars['Boolean']>;
   canReadInvoices_not?: Maybe<Scalars['Boolean']>;
   canManageInvoices?: Maybe<Scalars['Boolean']>;
@@ -76729,10 +76709,6 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanManageB2BAppsDesc = 'canManageB2BApps_DESC',
   CanReadAnalyticsAsc = 'canReadAnalytics_ASC',
   CanReadAnalyticsDesc = 'canReadAnalytics_DESC',
-  CanReadInvoiceContextsAsc = 'canReadInvoiceContexts_ASC',
-  CanReadInvoiceContextsDesc = 'canReadInvoiceContexts_DESC',
-  CanManageInvoiceContextsAsc = 'canManageInvoiceContexts_ASC',
-  CanManageInvoiceContextsDesc = 'canManageInvoiceContexts_DESC',
   CanReadInvoicesAsc = 'canReadInvoices_ASC',
   CanReadInvoicesDesc = 'canReadInvoices_DESC',
   CanManageInvoicesAsc = 'canManageInvoices_ASC',
@@ -76866,10 +76842,6 @@ export enum SortOrganizationEmployeeRolesBy {
   CanManageB2BAppsDesc = 'canManageB2BApps_DESC',
   CanReadAnalyticsAsc = 'canReadAnalytics_ASC',
   CanReadAnalyticsDesc = 'canReadAnalytics_DESC',
-  CanReadInvoiceContextsAsc = 'canReadInvoiceContexts_ASC',
-  CanReadInvoiceContextsDesc = 'canReadInvoiceContexts_DESC',
-  CanManageInvoiceContextsAsc = 'canManageInvoiceContexts_ASC',
-  CanManageInvoiceContextsDesc = 'canManageInvoiceContexts_DESC',
   CanReadInvoicesAsc = 'canReadInvoices_ASC',
   CanReadInvoicesDesc = 'canReadInvoices_DESC',
   CanManageInvoicesAsc = 'canManageInvoices_ASC',
