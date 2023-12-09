@@ -117,8 +117,8 @@ const RegisterInvoiceService = new GQLCustomSchema('RegisterInvoiceService', {
                     isMin: get(priceScope, ['marketItemPrice', 'price', 0, 'isMin']),
                     count: get(priceScopesCounts, get(priceScope, 'id'), 0),
                     currencyCode: DEFAULT_INVOICE_CURRENCY_CODE,
-                    vatPercent: get(priceScope, ['marketItemPrice', 'price', 0, 'vatPercent'], get(acquiringContext, 'invoiceVatPercent')),
-                    salesTaxPercent: get(priceScope, ['marketItemPrice', 'price', 0, 'salesTaxPercent'], get(acquiringContext, 'invoiceSalesTaxPercent')),
+                    vatPercent: get(priceScope, ['marketItemPrice', 'price', 0, 'vatPercent'], get(acquiringContext, 'invoiceVatPercent')) || '',
+                    salesTaxPercent: get(priceScope, ['marketItemPrice', 'price', 0, 'salesTaxPercent'], get(acquiringContext, 'invoiceSalesTaxPercent')) || '',
                     sku: get(priceScope, ['marketItemPrice', 'marketItem', 'sku']),
                 }))
 

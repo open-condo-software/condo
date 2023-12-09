@@ -58,7 +58,6 @@ const PRICE_FIELD_SCHEMA = {
             },
             vatPercent: {
                 type: 'string',
-                enum: VAT_OPTIONS.map(opt => opt.toString()),
             },
             salesTaxPercent: {
                 type: 'string',
@@ -95,7 +94,7 @@ const PRICE_FIELD = {
             })
             return map(get(resolvedData, fieldPath), (row) => ({
                 currencyCode: DEFAULT_INVOICE_CURRENCY_CODE,
-                vatPercent: get(acquiringContext, 'invoiceVatPercent') || undefined,
+                vatPercent: get(acquiringContext, 'invoiceVatPercent') || '',
                 salesTaxPercent: get(acquiringContext, 'invoiceSalesTaxPercent', '') || '',
                 ...row,
             }))

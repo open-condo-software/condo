@@ -10,6 +10,9 @@ const {
     expectToThrowAuthenticationError,
 } = require('@open-condo/keystone/test.utils')
 
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { createTestAcquiringIntegration, createTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
+const { createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
 const { INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
 const {
     getInvoiceByUserByTestClient,
@@ -27,11 +30,21 @@ const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSc
 
 describe('GetInvoiceByUserService', () => {
     let admin
+    let acquiringIntegration
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
+        ;[acquiringIntegration] = await createTestAcquiringIntegration(admin)
     })
     test('resident: execute without property', async () => {
         const [organization] = await createTestOrganization(admin)
+        await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration, {
+            invoiceStatus: CONTEXT_FINISHED_STATUS,
+            invoiceRecipient: createTestRecipient(),
+            invoiceImplicitFeeDistributionSchema: [{
+                recipient: 'organization',
+                percent: '5',
+            }],
+        })
         const [property] = await createTestProperty(admin, organization)
 
         const residentClient = await makeClientWithResidentUser()
@@ -68,6 +81,14 @@ describe('GetInvoiceByUserService', () => {
 
     test('resident: execute with property', async () => {
         const [organization] = await createTestOrganization(admin)
+        await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration, {
+            invoiceStatus: CONTEXT_FINISHED_STATUS,
+            invoiceRecipient: createTestRecipient(),
+            invoiceImplicitFeeDistributionSchema: [{
+                recipient: 'organization',
+                percent: '5',
+            }],
+        })
         const [property] = await createTestProperty(admin, organization)
 
         const residentClient = await makeClientWithResidentUser()
@@ -107,6 +128,14 @@ describe('GetInvoiceByUserService', () => {
 
     test('two residents at different properties: the 1st can see the invoice, the 2nd can\'t', async () => {
         const [organization] = await createTestOrganization(admin)
+        await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration, {
+            invoiceStatus: CONTEXT_FINISHED_STATUS,
+            invoiceRecipient: createTestRecipient(),
+            invoiceImplicitFeeDistributionSchema: [{
+                recipient: 'organization',
+                percent: '5',
+            }],
+        })
         const [property] = await createTestProperty(admin, organization)
         const [property2] = await createTestProperty(admin, organization)
 
@@ -173,6 +202,14 @@ describe('GetInvoiceByUserService', () => {
 
     test('admin: execute', async () => {
         const [organization] = await createTestOrganization(admin)
+        await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration, {
+            invoiceStatus: CONTEXT_FINISHED_STATUS,
+            invoiceRecipient: createTestRecipient(),
+            invoiceImplicitFeeDistributionSchema: [{
+                recipient: 'organization',
+                percent: '5',
+            }],
+        })
 
         const [marketCategory] = await createTestMarketCategory(admin)
         const [marketItem] = await createTestMarketItem(admin, marketCategory, organization)
@@ -194,6 +231,14 @@ describe('GetInvoiceByUserService', () => {
 
     test('admin: execute with ticketIds', async () => {
         const [organization] = await createTestOrganization(admin)
+        await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration, {
+            invoiceStatus: CONTEXT_FINISHED_STATUS,
+            invoiceRecipient: createTestRecipient(),
+            invoiceImplicitFeeDistributionSchema: [{
+                recipient: 'organization',
+                percent: '5',
+            }],
+        })
         const [property] = await createTestProperty(admin, organization)
 
         const [ticket] = await createTestTicket(admin, organization, property, {
