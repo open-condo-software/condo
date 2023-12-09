@@ -165,7 +165,7 @@ describe('GeneratePaymentLinkService', () => {
                 const paymentLink2 = new URL(`${hostUrl}/payment-link`)
                 paymentLink2.searchParams.set('su', callbackUrls.successUrl)
                 paymentLink2.searchParams.set('fu', callbackUrls.failureUrl)
-                paymentLink2.searchParams.set('i', `${invoice1.id},${invoice2.id}`)
+                paymentLink2.searchParams.set('i', map([invoice1, invoice2], 'id').sort().join(','))
 
                 expect(result2).toBeDefined()
                 expect(result2).toHaveProperty('dv', 1)

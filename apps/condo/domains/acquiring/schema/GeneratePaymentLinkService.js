@@ -314,7 +314,7 @@ const GeneratePaymentLinkService = new GQLCustomSchema('GeneratePaymentLinkServi
                         throw new GQLError(ERRORS.UNPUBLISHED_INVOICE, context)
                     }
 
-                    paymentLinkBaseUrl.searchParams.set(invoicesQp, map(invoicesModels, 'id').join(','))
+                    paymentLinkBaseUrl.searchParams.set(invoicesQp, map(invoicesModels, 'id').sort().join(','))
                 } else {
                     throw new GQLError({ ...ERRORS.EMPTY_RECEIPT_AND_RECEIPT_DATA_VALUES }, context)
                 }
