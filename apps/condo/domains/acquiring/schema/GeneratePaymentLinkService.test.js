@@ -10,6 +10,7 @@ const {
     catchErrorFrom, expectToThrowAccessDeniedError, expectToThrowGQLError, makeLoggedInAdminClient,
 } = require('@open-condo/keystone/test.utils')
 
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const {
     PAYMENT_LINK_PATH,
     PAYMENT_LINK_QP: {
@@ -26,15 +27,14 @@ const {
 const {
     generatePaymentLinkByTestClient,
     updateTestAcquiringIntegrationContext,
+    createTestAcquiringIntegration,
     makePayer, createTestAcquiringIntegrationContext,
 } = require('@condo/domains/acquiring/utils/testSchema')
-const { createTestAcquiringIntegration } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
 const {
     updateTestBillingReceipt,
 } = require('@condo/domains/billing/utils/testSchema')
-const { INVOICE_CONTEXT_STATUS_FINISHED, INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
-const { createTestInvoiceContext } = require('@condo/domains/marketplace/utils/testSchema')
+const { INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
 const { createTestInvoice, updateTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 
@@ -56,7 +56,7 @@ const receiptData = () => ({
 describe('GeneratePaymentLinkService', () => {
     let adminClient
     let acquiringIntegrationContext
-    let dummyO10n, dummyIntegration, dummyInvoiceContext
+    let dummyO10n
 
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()
@@ -64,9 +64,7 @@ describe('GeneratePaymentLinkService', () => {
         ;[dummyO10n] = await createTestOrganization(adminClient)
         await createTestBillingIntegration(adminClient)
         const [acquiringIntegration] = await createTestAcquiringIntegration(adminClient)
-        ;[acquiringIntegrationContext] = await createTestAcquiringIntegrationContext(adminClient, dummyO10n, acquiringIntegration)
-        ;[dummyIntegration] = await createTestAcquiringIntegration(adminClient)
-        ;[dummyInvoiceContext] = await createTestInvoiceContext(adminClient, dummyO10n, dummyIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
+        ;[acquiringIntegrationContext] = await createTestAcquiringIntegrationContext(adminClient, dummyO10n, acquiringIntegration, { invoiceStatus: CONTEXT_FINISHED_STATUS })
     })
 
     describe('Execute', () => {
@@ -143,8 +141,8 @@ describe('GeneratePaymentLinkService', () => {
             })
 
             test('From invoices', async () => {
-                const [invoice1] = await createTestInvoice(adminClient, dummyInvoiceContext, { status: INVOICE_STATUS_PUBLISHED })
-                const [invoice2] = await createTestInvoice(adminClient, dummyInvoiceContext, { status: INVOICE_STATUS_PUBLISHED })
+                const [invoice1] = await createTestInvoice(adminClient, dummyO10n, { status: INVOICE_STATUS_PUBLISHED })
+                const [invoice2] = await createTestInvoice(adminClient, dummyO10n, { status: INVOICE_STATUS_PUBLISHED })
 
                 const callbackUrls = callbacks()
 
@@ -526,7 +524,7 @@ describe('GeneratePaymentLinkService', () => {
             })
 
             test('Can\'t create link for deleted invoice', async () => {
-                const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext)
+                const [invoice] = await createTestInvoice(adminClient, dummyO10n)
                 await updateTestInvoice(adminClient, invoice.id, { deletedAt: dayjs().toISOString() })
                 await expectToThrowGQLError(async () => await generatePaymentLinkByTestClient(adminClient, null, null, pick(acquiringIntegrationContext, 'id'), callbacks(), {
                     invoices: [pick(invoice, 'id')],
@@ -538,7 +536,7 @@ describe('GeneratePaymentLinkService', () => {
             })
 
             test('Can\'t create link for unpublished invoice', async () => {
-                const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext)
+                const [invoice] = await createTestInvoice(adminClient, dummyO10n)
                 await expectToThrowGQLError(async () => await generatePaymentLinkByTestClient(adminClient, null, null, pick(acquiringIntegrationContext, 'id'), callbacks(), {
                     invoices: [pick(invoice, 'id')],
                 }), {
