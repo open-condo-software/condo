@@ -1,65 +1,70 @@
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
-import React from 'react'
+import get from 'lodash/get'
+import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Typography } from '@open-condo/ui'
+import { Tag, Typography } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
+import { useBreakpoints } from '@open-condo/ui/dist/hooks'
+
+import { PaymentsSumTable as RequisitesContainer } from '@condo/domains/acquiring/components/payments/PaymentsSumTable'
 
 import type { BankAccount as BankAccountType } from '@app/condo/schema'
 
-const DISPLAYED_BANK_ACCOUNT = ['tin', 'routingNumber', 'number']
 
 const VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
-
-type BankAccountFieldName = Pick<BankAccountType, 'number' | 'tin' | 'routingNumber'> | 'name'
-export interface IBankAccountRowContent {
-    bankAccountFieldName: BankAccountFieldName
-    bankAccountValue: string
-    isTitle?: boolean
+const valueAlign: React.CSSProperties = { textAlign: 'end' }
+const renderRow = (name, value) => {
+    return (
+        <Row gutter={VERTICAL_GUTTER}>
+            <Col span={12}>
+                <Typography.Text type='secondary' size='large'>{name}</Typography.Text>
+            </Col>
+            <Col span={12} style={valueAlign}>
+                <Typography.Text type='secondary' size='large'>{value}</Typography.Text>
+            </Col>
+        </Row>
+    )
 }
 
 export interface IBankAccountInfo {
     bankAccount: BankAccountType
 }
 
-const BankAccountRowContent: React.FC<IBankAccountRowContent> = ({ bankAccountFieldName, bankAccountValue, isTitle = false }) => {
+export const BankingInfo: React.FC<IBankAccountInfo> = ({ bankAccount }) => {
     const intl = useIntl()
-    const recipientTitle = intl.formatMessage({ id: `pages.condo.settings.bankAccount.${bankAccountFieldName}` })
+    const NameMessage = intl.formatMessage({ id: 'pages.condo.settings.bankAccountInfo.name' })
+    const TinMessage = intl.formatMessage({ id: 'pages.condo.settings.bankAccountInfo.tin' })
+    const NumberMessage = intl.formatMessage({ id: 'pages.condo.settings.bankAccountInfo.number' })
+    const BicMessage = intl.formatMessage({ id: 'pages.condo.settings.bankAccountInfo.bic' })
+    const accrualsAndPayments = intl.formatMessage({ id: 'global.section.accrualsAndPayments' })
+
+    const breakpoints = useBreakpoints()
+
+    const containerStyle = useMemo(() => {
+        return { width: breakpoints.MOBILE_SMALL && !breakpoints.DESKTOP_LARGE ? '100%' : '425px' }
+    }, [breakpoints])
 
     return (
-        <>
-            <Col span={6}>
-                {isTitle 
-                    ? <Typography.Title level={3}>{recipientTitle}</Typography.Title> 
-                    : <Typography.Text size='large'>{recipientTitle}</Typography.Text>
-                }
-            </Col>
-            <Col span={18}>
-                {isTitle 
-                    ? <Typography.Title level={3}>{bankAccountValue}</Typography.Title> 
-                    : <Typography.Text size='large'>{bankAccountValue}</Typography.Text>
-                }
-            </Col>
-        </>
-    )
-}
+        <Col span={6} xs={24}>
+            <RequisitesContainer style={containerStyle}>
+                <Tag
+                    bgColor={ colors.gray[7]}
+                    textColor={colors.white}
+                >
+                    {accrualsAndPayments}
+                </Tag>
+                <Row style={{ marginBottom: '12px', marginTop: '12px' }}>
+                    <Col span={6}>
+                        <Typography.Title level={3}>{get(bankAccount, 'organization.name', '-')}</Typography.Title>
+                    </Col>
+                </Row>
 
-export const BankAccountInfo: React.FC<IBankAccountInfo> = ({ bankAccount }) => {
-    return (
-        <Col span={24}>
-            <Row gutter={VERTICAL_GUTTER}>
-                {
-                    DISPLAYED_BANK_ACCOUNT.map( (recipientName, index) => {
-                        return (
-                            <BankAccountRowContent
-                                bankAccountFieldName={recipientName as BankAccountFieldName}
-                                bankAccountValue={bankAccount[recipientName]}
-                                key={index}
-                            />
-                        )
-                    })
-                }
-            </Row>
+                {renderRow(TinMessage, get(bankAccount, 'tin', '-'))}
+                {renderRow(BicMessage, get(bankAccount, 'routingNumber', '-'))}
+                {renderRow(NumberMessage, get(bankAccount, 'number', '-'))}
+            </RequisitesContainer>
         </Col>
     )
 }

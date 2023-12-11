@@ -20,7 +20,7 @@ const BankCostItem = generateGqlQueries('BankCostItem', BANK_COST_ITEM_FIELDS)
 const BANK_INTEGRATION_FIELDS = `{ name ${COMMON_FIELDS} }`
 const BankIntegration = generateGqlQueries('BankIntegration', BANK_INTEGRATION_FIELDS)
 
-const BANK_ACCOUNT_FIELDS = `{ organization { id } property { id } integrationContext { id enabled integration ${BANK_INTEGRATION_FIELDS} meta } tin country routingNumber number currencyCode approvedAt approvedBy { id name } importId territoryCode bankName meta ${COMMON_FIELDS} }`
+const BANK_ACCOUNT_FIELDS = `{ organization { id, name } property { id } integrationContext { id enabled integration ${BANK_INTEGRATION_FIELDS} meta } tin country routingNumber number currencyCode approvedAt approvedBy { id name } importId territoryCode bankName meta ${COMMON_FIELDS} }`
 const BankAccount = generateGqlQueries('BankAccount', BANK_ACCOUNT_FIELDS)
 
 const BANK_CONTRACTOR_ACCOUNT_FIELDS = `{ name organization { id } costItem { id category { id name } } tin country routingNumber number currencyCode importId territoryCode bankName meta relatedTransactions ${COMMON_FIELDS} }`
