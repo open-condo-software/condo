@@ -65,7 +65,7 @@ export const MarketplacePaymentsContent = () => {
 
     const { filters, offset, sorters } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
-    const canReadPayments = get(role, 'canReadPayments', false)
+    const canReadPayments = get(role, 'canReadPaymentsWithInvoices', false)
 
     const queryMetas = useMarketplacePaymentsFilters()
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(queryMetas, [])

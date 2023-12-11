@@ -226,6 +226,29 @@ describe('Payment', () => {
                         expect.objectContaining({ id: secondPayment.id }),
                     ]))
                 })
+                test('Employee with `canReadPaymentsWithInvoices` can see organization payments with invoices', async () => {
+                    const { admin, billingReceipts, acquiringIntegration, acquiringContext, organization } = await makePayer()
+                    const [invoiceContext] = await createTestInvoiceContext(admin, organization, acquiringIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
+                    const [invoice] = await createTestInvoice(admin, invoiceContext)
+
+                    const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext, {
+                        invoice,
+                    })
+
+                    await createTestPayment(admin, organization)
+
+                    const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                        canReadPaymentsWithInvoices: true,
+                    })
+                    const employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                    await createTestOrganizationEmployee(admin, organization, employeeClient.user, role)
+
+                    const payments = await Payment.getAll(employeeClient)
+
+                    expect(payments).toBeDefined()
+                    expect(payments).toHaveLength(1)
+                    expect(payments[0].id).toEqual(payment.id)
+                })
                 test('can\'t in other cases', async () => {
                     const { admin, billingReceipts, acquiringContext, organization } = await makePayer()
                     await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)

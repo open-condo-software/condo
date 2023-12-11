@@ -212,6 +212,40 @@ export const useEmployeeRolesTableData = (connectedB2BApps: B2BApp[], b2BAppPerm
                 },
             ],
         },
+        {
+            key: 'marketplace',
+            permissions: [
+                {
+                    key: 'canReadMarketplace',
+                    relatedUncheckPermissions: ['canManageMarketplace', 'canReadPaymentsWithInvoices', 'canReadMarketItems', 'canManageMarketItems', 'canReadInvoices', 'canManageInvoices'],
+                },
+                {
+                    key: 'canManageMarketplace',
+                    relatedCheckPermissions: ['canReadMarketplace'],
+                },
+                {
+                    key: 'canReadPaymentsWithInvoices',
+                },
+                {
+                    key: 'canReadMarketItems',
+                    relatedCheckPermissions: ['canReadMarketItemPrices', 'canReadMarketPriceScopes'],
+                    relatedUncheckPermissions: ['canManageMarketItems', 'canReadMarketItemPrices', 'canReadMarketPriceScopes'],
+                },
+                {
+                    key: 'canManageMarketItems',
+                    relatedCheckPermissions: ['canReadMarketItems', 'canManageMarketItemPrices', 'canManageMarketPriceScopes'],
+                    relatedUncheckPermissions: ['canManageMarketItemPrices', 'canManageMarketPriceScopes'],
+                },
+                {
+                    key: 'canReadInvoices',
+                    relatedUncheckPermissions: ['canManageInvoices'],
+                },
+                {
+                    key: 'canManageInvoices',
+                    relatedCheckPermissions: ['canReadInvoices'],
+                },
+            ],
+        },
     ].map(addNamesToPermissions(intl))
     , [intl])
 

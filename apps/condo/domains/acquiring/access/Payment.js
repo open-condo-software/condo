@@ -26,7 +26,23 @@ async function canReadPayments ({ authentication: { item: user } }) {
             // Acquiring integration account can see it's payments
             { context: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } } },
             // Employee with `canReadPayments` can see theirs organization payments
-            { organization: { employees_some: { user: { id: user.id }, role: { canReadPayments: true }, deletedAt: null, isBlocked: false } } },
+            {
+                AND: [
+                    {
+                        invoice_is_null: true,
+                        organization: { employees_some: { user: { id: user.id }, role: { canReadPayments: true }, deletedAt: null, isBlocked: false } },
+                    },
+                ],
+            },
+            // Employee with `canReadPaymentsWithInvoices` can see theirs organization payments with invoices
+            {
+                AND: [
+                    {
+                        invoice_is_null: false,
+                        organization: { employees_some: { user: { id: user.id }, role: { canReadPaymentsWithInvoices: true }, deletedAt: null, isBlocked: false } },
+                    },
+                ],
+            },
         ],
     }
 }
@@ -60,7 +76,10 @@ async function canReadPaymentsSensitiveData ({ authentication: { item: user }, e
     }
 
     // Otherwise check if it's employee or not
-    return !!(await checkOrganizationPermission(user.id, existingItem.organization, 'canReadPayments'))
+    const canReadPayments = !!(await checkOrganizationPermission(user.id, existingItem.organization, 'canReadPayments'))
+    const canReadPaymentsWithInvoices = !!(await checkOrganizationPermission(user.id, existingItem.organization, 'canReadPaymentsWithInvoices'))
+
+    return canReadPayments || canReadPaymentsWithInvoices
 }
 
 
