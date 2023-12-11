@@ -102,7 +102,11 @@ export const RequisitesSetup: React.FC = () => {
     })
     const updateAction = InvoiceContextApi.useUpdate({ status: INVOICE_CONTEXT_STATUS_INPROGRESS })
 
-    const [noTaxOption]: SelectProps['options'] = [{ label: NoTax, key: NoTax, value: null }]
+    const noTaxOption = useMemo<SelectProps['options'][number]>(() => ({
+        label: NoTax,
+        key: NoTax,
+        value: '',
+    }), [NoTax])
 
     const account = Form.useWatch('account', form)
     const bic = Form.useWatch('bic', form)
@@ -111,10 +115,17 @@ export const RequisitesSetup: React.FC = () => {
     const bankAccountOptions = useMemo<SelectProps['options']>(() => getOptions(bic ? bankAccounts.filter(({ routingNumber }) => routingNumber === bic) : bankAccounts, 'number'), [bankAccounts, bic])
     const bicOptions = useMemo<SelectProps['options']>(() => getOptions(account ? bankAccounts.filter(({ number }) => number === account) : bankAccounts, 'routingNumber'), [bankAccounts, account])
     const taxPercentOptions = useMemo<SelectProps['options']>(() => selectedTaxType === TAX_REGIME_GENEGAL ? [noTaxOption, ...TAX_PERCENT_OPTIONS] : [noTaxOption, ...TAX_PERCENT_OPTIONS.slice(1)], [noTaxOption, selectedTaxType])
+    const possibleVatOptionsValues: string[] = useMemo(() => {
+        if (!selectedTaxType) return []
+        return ['', ...selectedTaxType === TAX_REGIME_GENEGAL ? VAT_OPTIONS : VAT_OPTIONS.filter((v: number) => v !== 0)].map((option) => String(option))
+    }, [selectedTaxType])
 
     useEffect(() => {
-        form.setFieldValue('taxPercent', undefined)
-    }, [form, selectedTaxType])
+        const taxPercent = form.getFieldValue('taxPercent')
+        if (!possibleVatOptionsValues.includes(taxPercent)) {
+            form.setFieldValue('taxPercent', '')
+        }
+    }, [form, possibleVatOptionsValues, selectedTaxType])
 
     useEffect(() => {
         if (!invoiceContextLoading && !invoiceContextError && !!invoiceContext) {
@@ -253,7 +264,9 @@ export const RequisitesSetup: React.FC = () => {
                                 required
                                 labelCol={LABEL_COL}
                                 labelAlign='left'
-                                rules={[requiredValidator]}
+                                rules={[{
+                                    validator: (rule, value) => possibleVatOptionsValues.includes(value) ? Promise.resolve() : Promise.reject(),
+                                }]}
                             >
                                 <Select disabled={!selectedTaxType} options={taxPercentOptions}/>
                             </Form.Item>
