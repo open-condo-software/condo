@@ -89,7 +89,10 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
                         }
 
                         if (fileAdapter.acl && fileAdapter.acl.generateUrl) {
-                            ret.publicUrl = fileAdapter.acl.generateUrl(`${fileAdapter.folder}/${filename}`)
+                            ret.publicUrl = fileAdapter.acl.generateUrl({
+                                filename: `${fileAdapter.folder}/${filename}`,
+                                originalFilename,
+                            })
                         }
 
                         return ret

@@ -53,14 +53,19 @@ class SberCloudObsAcl {
      * createSignedUrlSync is executed without request to obs, so there is no need to cache result
      * @param {string} filename should starts from the folder if exists (`${adapter.folder}/${filename}`)
      * @param {number} ttl
+     * @param {string} originalFilename filename going to be appeared for end user
      * @returns {string}
      */
-    generateUrl (filename, ttl = 300) { // obs default
+    generateUrl ({ filename, ttl = 300, originalFilename }) { // obs default
+        const extraParams = isNil(originalFilename) ? {} : {
+            QueryParams: { 'response-content-disposition': `attachment; filename="${originalFilename}"` },
+        }
         const { SignedUrl } = this.s3.createSignedUrlSync({
             Method: 'GET',
             Bucket: this.bucket,
             Key: filename,
             Expires: ttl,
+            ...extraParams,
         })
         return SignedUrl
     }
@@ -148,7 +153,7 @@ class SberCloudFileAdapter {
         return `${id}${path.extname(originalFilename).replace(forbiddenCharacters, '')}` // will skip adding originalFilename
     }
 
-    publicUrl ({ filename }) {
+    publicUrl ({ filename, originalFilename }) {
         // It is possible to sign public URL here and to return the signed URL with access token without using middleware.
         // We are using middleware on the following reasons
         // 1. we want file urls to point to our server
@@ -157,9 +162,16 @@ class SberCloudFileAdapter {
         //    then after 5 minutes, he decides to download the file and click on the URL
         //    the token is expired - user needs to reload the page to generate a new access token
         if (this.shouldResolveDirectUrl) {
-            return this.acl.generateUrl(`${this.folder}/${filename}`, PUBLIC_URL_TTL)
+            return this.acl.generateUrl({
+                filename: `${this.folder}/${filename}`,
+                ttl: PUBLIC_URL_TTL,
+                originalFilename,
+            })
         }
-        return `${SERVER_URL}/api/files/${this.folder}/${filename}`
+
+        // propagate original filename for an indirect url
+        const qs = isNil(originalFilename) ? '' : `?original_filename=${originalFilename}`
+        return `${SERVER_URL}/api/files/${this.folder}/${filename}${qs}`
     }
 
     uploadParams ({ meta = {} }) {
@@ -260,7 +272,10 @@ const obsRouterHandler = ({ keystone }) => {
                 res.status(403)
                 return res.end()
             }
-            const url = Acl.generateUrl(req.params.file)
+            const url = Acl.generateUrl({
+                filename: req.params.file,
+                originalFilename: req.query.original_filename,
+            })
 
             /*
             * NOTE
