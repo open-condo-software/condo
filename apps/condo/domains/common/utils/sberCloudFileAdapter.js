@@ -58,7 +58,7 @@ class SberCloudObsAcl {
      */
     generateUrl ({ filename, ttl = 300, originalFilename }) { // obs default
         const extraParams = isNil(originalFilename) ? {} : {
-            QueryParams: { 'response-content-disposition': `attachment; filename="${originalFilename}"` },
+            QueryParams: { 'response-content-disposition': `attachment; filename="${encodeURIComponent(originalFilename)}"` },
         }
         const { SignedUrl } = this.s3.createSignedUrlSync({
             Method: 'GET',
@@ -170,7 +170,7 @@ class SberCloudFileAdapter {
         }
 
         // propagate original filename for an indirect url
-        const qs = isNil(originalFilename) ? '' : `?original_filename=${originalFilename}`
+        const qs = isNil(originalFilename) ? '' : `?original_filename=${encodeURIComponent(originalFilename)}`
         return `${SERVER_URL}/api/files/${this.folder}/${filename}${qs}`
     }
 
