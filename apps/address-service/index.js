@@ -11,11 +11,16 @@ const { v4 } = require('uuid')
 const conf = require('@open-condo/config')
 const access = require('@open-condo/keystone/access')
 const { formatError } = require('@open-condo/keystone/apolloErrorFormatter')
+const { HealthCheck, getRedisHealthCheck, getPostgresHealthCheck } = require('@open-condo/keystone/healthCheck')
 const { registerSchemas } = require('@open-condo/keystone/KSv5v6/v5/registerSchema')
 const { GraphQLLoggerPlugin, getKeystonePinoOptions } = require('@open-condo/keystone/logging')
 const { prepareDefaultKeystoneConfig } = require('@open-condo/keystone/setup.utils')
 
 const { OIDCKeystoneApp } = require('@address-service/domains/common/oidc')
+const {
+    getAddressProviderBalanceHealthCheck,
+    getAddressProviderLimitHealthCheck,
+} = require('@address-service/domains/common/utils/healthchecks')
 const {
     SearchBySource,
     SearchByProvider,
@@ -70,6 +75,14 @@ module.exports = {
     keystone,
     pinoOptions: getKeystonePinoOptions(),
     apps: [
+        new HealthCheck({
+            checks: [
+                getPostgresHealthCheck(),
+                getRedisHealthCheck(),
+                getAddressProviderBalanceHealthCheck(),
+                getAddressProviderLimitHealthCheck(),
+            ],
+        }),
         conf.NODE_ENV === 'test' ? undefined : new OIDCKeystoneApp(),
         new GraphQLApp({
             apollo: {

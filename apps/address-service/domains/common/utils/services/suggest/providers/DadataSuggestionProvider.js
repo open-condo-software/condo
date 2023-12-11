@@ -121,6 +121,7 @@ const TRAILING_HOUSE_NUMBER_RE = /\d\s?\D?$/
 const CONFIG_KEY = 'DADATA_SUGGESTIONS'
 const CONFIG_KEY_URL = 'url'
 const CONFIG_KEY_TOKEN = 'token'
+const API_CONFIG_KEY = 'DADATA_API'
 
 const ORGANIZATION_KLADR_FIELDS = ['settlement_kladr_id', 'city_kladr_id', 'region_kladr_id']
 
@@ -156,8 +157,12 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
             throw new Error(`There is no '${CONFIG_KEY_TOKEN}' in '${CONFIG_KEY}'.`)
         }
 
+        const dadataApiConfig = JSON.parse(get(conf, API_CONFIG_KEY, '{}'))
+
         this.url = url
         this.token = token
+        this.apiUrl = get(dadataApiConfig, 'url')
+        this.secret = get(dadataApiConfig, 'secret')
     }
 
     getProviderName () {
@@ -414,6 +419,66 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
                 type: VALID_BUILDING_TYPES.includes(get(item, ['data', 'house_type_full'])) ? BUILDING_ADDRESS_TYPE : null,
             }
         ))
+    }
+
+    /**
+     * Checks token balance.
+     * In case of returned value less than DADATA_PROFILE_BALANCE_WARNING or any unhandled error -> returns false
+     * Otherwise returns true
+     * @return {Promise<boolean>}
+     */
+    async profileBalance () {
+        const profileBalanceWarning = get(conf, 'DADATA_PROFILE_BALANCE_WARNING', 1000)
+        if (!this.apiUrl || !this.secret) {
+            console.warn(`${API_CONFIG_KEY} environment var was'\nt set. Unable to complete check`)
+            return true
+        }
+
+        try {
+            const result = await fetch(this.apiUrl + '/profile/balance', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Token ${this.token}`,
+                    'X-Secret': this.secret,
+                },
+            })
+
+            if (result.status !== 200) return false
+
+            const response = await result.json()
+            return get(response, 'balance', 0) > profileBalanceWarning
+        } catch (e) {
+            this.logger.warn({
+                msg: 'Check dadata balance', url: this.apiUrl + '/profile/balance', reqId: this.req.id, error: e,
+            })
+            return false
+        }
+    }
+
+    async dailyStatistics () {
+        if (!this.apiUrl || !this.secret) {
+            console.warn(`${API_CONFIG_KEY} environment var was'\nt set. Unable to complete check`)
+            return true
+        }
+
+        try {
+            const result = await fetch(this.apiUrl + '/stat/daily', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Token ${this.token}`,
+                    'X-Secret': this.secret,
+                },
+            })
+
+            if (result.status !== 200) return false
+
+            const response = await result.json()
+            return get(response, ['remaining', 'suggestions'], 0) > 1000
+        } catch (e) {
+            return false
+        }
     }
 }
 
