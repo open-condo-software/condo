@@ -428,7 +428,7 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
      * @return {Promise<boolean>}
      */
     async profileBalance () {
-        const profileBalanceWarning = get(conf, 'DADATA_PROFILE_BALANCE_WARNING', 1000)
+        const profileBalanceWarning = get(conf, 'DADATA_PROFILE_BALANCE_WARNING', 0)
         if (!this.apiUrl || !this.secret) {
             console.warn(`${API_CONFIG_KEY} environment var was'\nt set. Unable to complete check`)
             return true
@@ -456,6 +456,11 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
         }
     }
 
+    /**
+     * Checks token daily statistics of suggestions usage
+     * Returns false in case of any unhandled error or if remaining suggestions count less than
+     * @return {Promise<boolean>}
+     */
     async dailyStatistics () {
         if (!this.apiUrl || !this.secret) {
             console.warn(`${API_CONFIG_KEY} environment var was'\nt set. Unable to complete check`)
@@ -475,7 +480,7 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
             if (result.status !== 200) return false
 
             const response = await result.json()
-            return get(response, ['remaining', 'suggestions'], 0) > 1000
+            return get(response, ['remaining', 'suggestions'], 0) > get(conf, 'DADATA_SUGGESTIONS_LIMIT_WARNING', 1000)
         } catch (e) {
             return false
         }
