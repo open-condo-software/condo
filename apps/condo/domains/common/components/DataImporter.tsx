@@ -15,7 +15,7 @@ type UploadCols = {
 }
 
 type UploadDataItem = {
-    value: number | string
+    value: number | string | Date
 }
 
 type OnUpload = (
@@ -24,6 +24,37 @@ type OnUpload = (
         data: Array<Array<UploadDataItem>>,
     }
 ) => void
+
+const BASE_DATE = new Date(1899, 11, 30, 0, 0, 0)
+const DNTHRESH = BASE_DATE.getTime() + (new Date().getTimezoneOffset() - BASE_DATE.getTimezoneOffset()) * 60000
+
+const DAY_MS = 24 * 60 * 60 * 1000
+const DAYS_1462_MS = 1462 * DAY_MS
+
+function datenum (date, isDate1904) {
+    let epoch = date.getTime()
+    if (isDate1904) {
+        epoch -= DAYS_1462_MS
+    }
+    return (epoch - DNTHRESH) / DAY_MS
+}
+
+function fixImportedDate (date, isDate1904) {
+    // Convert JS Date back to Excel date code and parse them using SSF module.
+    const parsed = XLSX.SSF.parse_date_code(datenum(date, false), { date1904: isDate1904 })
+    return new Date(parsed.y, parsed.m, parsed.d, parsed.H, parsed.M, parsed.S)
+}
+
+// https://bugs.chromium.org/p/v8/issues/detail?id=7863 - V8 (JavaScript engine) has issue with Date.getTimezoneOffset
+// https://github.com/SheetJS/sheetjs/issues/1565#issuecomment-548491331 - Description and solution to the problem
+const fixDateV8 = (table: Array<Array<{ value: any }>>, isDate1904: boolean) => {
+    return table.map((row) => row.map((cell) => {
+        return {
+            ...cell,
+            ...(cell.value instanceof Date ? { value: fixImportedDate(cell.value, isDate1904) } : undefined),
+        }
+    }))
+}
 
 const useUploadConfig = (onUpload: OnUpload) => {
     const intl = useIntl()
@@ -54,7 +85,10 @@ const useUploadConfig = (onUpload: OnUpload) => {
                 const cols = makeAntdCols(ws['!ref'])
                 const data = makeAntdData(ws)
 
-                onUpload({ cols, data })
+                const isDate1904 = wb.Workbook.WBProps.date1904
+                const fixedData = fixDateV8(data, isDate1904)
+
+                onUpload({ cols, data: fixedData })
             }
 
             reader.onerror = () => {
