@@ -102,7 +102,11 @@ export const RequisitesSetup: React.FC = () => {
     })
     const updateAction = InvoiceContextApi.useUpdate({ status: INVOICE_CONTEXT_STATUS_INPROGRESS })
 
-    const [noTaxOption]: SelectProps['options'] = [{ label: NoTax, key: NoTax, value: '' }]
+    const noTaxOption = useMemo<SelectProps['options'][number]>(() => ({
+        label: NoTax,
+        key: NoTax,
+        value: '',
+    }), [NoTax])
 
     const account = Form.useWatch('account', form)
     const bic = Form.useWatch('bic', form)
