@@ -80,12 +80,14 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
 
                 if (!accountNumber || accountNumber.length === 0) throw new GQLError(ERRORS.ACCOUNT_NUMBER_IS_NOT_SPECIFIED, context)
 
-                const resident = await Resident.getOne(context, { id })
+                const resident = await Resident.getOne(context, { id, deletedAt: null })
                 if (!resident) throw new GQLError(ERRORS.RESIDENT_NOT_FOUND, context)
 
-                const residentProperties = await Property.getAll(context, {
-                    addressKey: resident.addressKey, deletedAt: null,
-                })
+                const propertyWhere = resident.addressKey
+                    ? { addressKey: resident.addressKey }
+                    : { address_i: resident.address }
+
+                const residentProperties = await Property.getAll(context, propertyWhere)
 
                 let organizations = await Organization.getAll(context, {
                     id_in: residentProperties.map(property => property.organization.id), deletedAt: null,

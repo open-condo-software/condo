@@ -48,18 +48,21 @@ const { updateTestUser, makeClientWithResidentUser } = require('@condo/domains/u
 
 describe('RegisterResidentServiceConsumers', () => {
     let adminClient
-
+    let residentClient
     let anonymousClient
+
+    let organization
 
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()
+        residentClient = await makeClientWithResidentUser()
         anonymousClient = await makeClient()
+
+        organization = (await createTestOrganization(adminClient))[0]
     })
 
     describe('Admin', () => {
         it('can register ServiceConsumer via this mutation', async () => {
-            const residentClient = await makeClientWithResidentUser()
-            const [organization] = await createTestOrganization(adminClient)
             const [property] = await createTestProperty(adminClient, organization)
             const unitName = faker.random.alphaNumeric(8)
             const accountNumber = faker.random.alphaNumeric(8)
@@ -86,7 +89,6 @@ describe('RegisterResidentServiceConsumers', () => {
     })
     describe('Resident', () => {
         it('can register ServiceConsumer if organization has connected billing', async () => {
-            const residentClient = await makeClientWithResidentUser()
             const { organization, context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [property] = await createTestProperty(adminClient, organization)
             const [billingProperty] = await createTestBillingProperty(adminClient, context, {
@@ -119,7 +121,6 @@ describe('RegisterResidentServiceConsumers', () => {
         })
 
         it('doesn\'t create same ServiceConsumer twice', async () => {
-            const residentClient = await makeClientWithResidentUser()
             const { organization, context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [property] = await createTestProperty(adminClient, organization)
             const [billingProperty] = await createTestBillingProperty(adminClient, context, {
@@ -147,7 +148,6 @@ describe('RegisterResidentServiceConsumers', () => {
         })
 
         it('can restore existing ServiceConsumer after softDelete operation', async () => {
-            const residentClient = await makeClientWithResidentUser()
             const { organization, context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [property] = await createTestProperty(adminClient, organization)
             const [billingProperty] = await createTestBillingProperty(adminClient, context, {
@@ -183,8 +183,6 @@ describe('RegisterResidentServiceConsumers', () => {
         })
 
         it('creates ServiceConsumer if organization has Meter with same accountNumber', async () => {
-            const residentClient = await makeClientWithResidentUser()
-            const [organization] = await createTestOrganization(adminClient)
             const [property] = await createTestProperty(adminClient, organization)
             const [resource] = await MeterResource.getAll(adminClient, { id: COLD_WATER_METER_RESOURCE_ID })
             const unitName = faker.random.alphaNumeric(8)
@@ -208,8 +206,6 @@ describe('RegisterResidentServiceConsumers', () => {
         })
 
         it('creates 2 ServiceConsumers for 2 organizations based on resident address equality', async () => {
-            const residentClient = await makeClientWithResidentUser()
-            const [organization] = await createTestOrganization(adminClient)
             const [serviceProviderOrganization] = await createTestOrganization(adminClient, {
                 type: SERVICE_PROVIDER_TYPE,
             })
@@ -287,15 +283,9 @@ describe('RegisterResidentServiceConsumers', () => {
 
         it('throw an error when accountNumber is empty', async () => {
             const userClient = await makeClientWithProperty()
-
-            const [integration] = await createTestBillingIntegration(adminClient)
-            const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration)
-            const [billingProperty] = await createTestBillingProperty(adminClient, context)
-            const [billingAccountAttrs] = await createTestBillingAccount(adminClient, context, billingProperty)
-
             await updateTestUser(adminClient, userClient.user.id, { type: RESIDENT })
             const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, {
-                unitName: billingAccountAttrs.unitName,
+                unitName: faker.random.alphaNumeric(8),
             })
 
             const payload = {
@@ -313,17 +303,44 @@ describe('RegisterResidentServiceConsumers', () => {
                 message: 'Argument "accountNumber" is null or empty',
             }, 'objs')
         })
+
+        it('throw error when try to create ServiceConsumer for deleted resident', async () => {
+            const userClient = await makeClientWithProperty()
+            await updateTestUser(adminClient, userClient.user.id, { type: RESIDENT })
+            const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, {
+                unitName: faker.random.alphaNumeric(8),
+            })
+
+            await updateTestResident(adminClient, resident.id, { deletedAt: resident.createdAt })
+
+            await expectToThrowGQLError(async () => {
+                await registerResidentServiceConsumersByTestClient(userClient, {
+                    resident: { id: resident.id }, accountNumber: faker.random.alphaNumeric(8),
+                })
+            }, {
+                mutation: 'registerServiceConsumer',
+                variable: ['data', 'residentId'],
+                code: 'BAD_USER_INPUT',
+                type: NOT_FOUND,
+                message: 'Cannot find Resident for current user',
+            }, 'objs')
+        })
     })
 })
 
 describe('RegisterServiceConsumerService', () => {
+    let adminClient
+    let integration
+
+    beforeAll(async () => {
+        adminClient = await makeLoggedInAdminClient()
+        integration = (await createTestBillingIntegration(adminClient))[0]
+    })
 
     it('does not create same service consumer twice', async () => {
-
         const userClient = await makeClientWithProperty()
         const adminClient = await makeLoggedInAdminClient()
 
-        const [integration] = await createTestBillingIntegration(adminClient)
         const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration)
         const [billingProperty] = await createTestBillingProperty(adminClient, context)
         const [billingAccountAttrs] = await createTestBillingAccount(adminClient, context, billingProperty)
@@ -347,9 +364,7 @@ describe('RegisterServiceConsumerService', () => {
     })
 
     it('allows to create service consumers with same resident and accountNumber for multiple organizations', async () => {
-
         const userClient = await makeClientWithProperty()
-        const adminClient = await makeLoggedInAdminClient()
 
         const USER_UNIT_NAME = String(faker.datatype.number())
         const USER_ACCOUNT_NUMBER = String(faker.datatype.number())
@@ -359,7 +374,7 @@ describe('RegisterServiceConsumerService', () => {
         const organization1 = userClient.organization
 
         const [resource] = await MeterResource.getAll(adminClient, { id: COLD_WATER_METER_RESOURCE_ID })
-        const [integration] = await createTestBillingIntegration(adminClient)
+
 
         await createTestMeter(adminClient, organization1, userClient.property, resource, {
             unitName: USER_UNIT_NAME,
@@ -407,11 +422,8 @@ describe('RegisterServiceConsumerService', () => {
     })
 
     it('can create, delete and create service consumer', async () => {
-
         const userClient = await makeClientWithProperty()
-        const adminClient = await makeLoggedInAdminClient()
 
-        const [integration] = await createTestBillingIntegration(adminClient)
         const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration)
         const [billingProperty] = await createTestBillingProperty(adminClient, context)
         const [billingAccountAttrs] = await createTestBillingAccount(adminClient, context, billingProperty)
@@ -436,9 +448,7 @@ describe('RegisterServiceConsumerService', () => {
     })
 
     it('creates serviceConsumer with billingAccount for separate organization', async () => {
-
         const userClient = await makeClientWithProperty()
-        const adminClient = await makeLoggedInAdminClient()
 
         const [ organization ] = await createTestOrganization(adminClient)
 
@@ -472,9 +482,7 @@ describe('RegisterServiceConsumerService', () => {
     })
 
     it('creates serviceConsumer with billingAccount and Meters', async () => {
-
         const userClient = await makeClientWithProperty()
-        const adminClient = await makeLoggedInAdminClient()
 
         const USER_UNIT_NAME = String(faker.datatype.number())
         const USER_ACCOUNT_NUMBER = String(faker.datatype.number())
@@ -524,11 +532,8 @@ describe('RegisterServiceConsumerService', () => {
     })
 
     it('creates serviceConsumer with billingAccount without Meters', async () => {
-
         const userClient = await makeClientWithProperty()
-        const adminClient = await makeLoggedInAdminClient()
 
-        const [integration] = await createTestBillingIntegration(adminClient)
         const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration)
 
         const [billingProperty] = await createTestBillingProperty(adminClient, context)
@@ -553,12 +558,9 @@ describe('RegisterServiceConsumerService', () => {
     })
 
     it('creates serviceConsumer without billingAccount when Meters are found', async () => {
-
         const userClient = await makeClientWithProperty()
-        const adminClient = await makeLoggedInAdminClient()
 
         const [resource] = await MeterResource.getAll(adminClient, { id: COLD_WATER_METER_RESOURCE_ID })
-        const [integration] = await createTestBillingIntegration(adminClient)
 
         const USER_UNIT_NAME = String(faker.datatype.number())
         const USER_ACCOUNT_NUMBER = String(faker.datatype.number())
@@ -590,11 +592,8 @@ describe('RegisterServiceConsumerService', () => {
     })
 
     it('fails with error when billingAccount not found, and Meters are not found', async () => {
-
         const userClient = await makeClientWithProperty()
-        const adminClient = await makeLoggedInAdminClient()
 
-        const [integration] = await createTestBillingIntegration(adminClient)
         await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration)
 
         await updateTestUser(adminClient, userClient.user.id, { type: RESIDENT })
@@ -627,11 +626,8 @@ describe('RegisterServiceConsumerService', () => {
     })
 
     it('fails with error when creating serviceConsumer for nullish data', async () => {
-
         const userClient = await makeClientWithProperty()
-        const adminClient = await makeLoggedInAdminClient()
 
-        const [integration] = await createTestBillingIntegration(adminClient)
         const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration)
         const [billingProperty] = await createTestBillingProperty(adminClient, context)
         const [billingAccountAttrs] = await createTestBillingAccount(adminClient, context, billingProperty)
@@ -666,7 +662,6 @@ describe('RegisterServiceConsumerService', () => {
     })
 
     it('cannot be invoked by non-resident user', async () => {
-
         const userClient = await makeClientWithProperty()
 
         const payload = {
@@ -681,7 +676,6 @@ describe('RegisterServiceConsumerService', () => {
     })
 
     it('cannot be invoked by anonymous', async () => {
-
         const userClient = await makeClient()
         const userClient2 = await makeClientWithProperty()
 
