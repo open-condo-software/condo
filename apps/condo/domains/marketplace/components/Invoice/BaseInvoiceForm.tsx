@@ -709,7 +709,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                             </Col>
                         ))
                     }
-                    <Col span={24}>
+                    <Col span={24} hidden={disabled}>
                         <OldButton
                             type='link'
                             style={PLUS_BUTTON_STYLE}
@@ -973,7 +973,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                             ({ getFieldsValue }) => {
                                                 const { property } = getFieldsValue(['property'])
                                                 const disabled = isAllFieldsDisabled ||
-                                                    onlyStatusTransitionsActive || (!isCreateForm && isCreatedByResident) ||
+                                                    onlyStatusTransitionsActive ||
                                                     (!isCreateForm && status !== INVOICE_STATUS_DRAFT)
 
                                                 return (

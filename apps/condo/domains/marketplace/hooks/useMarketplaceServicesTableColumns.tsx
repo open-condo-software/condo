@@ -111,10 +111,10 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
                 width: '23%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'category'),
                 render: (category) => {
-                    const categoryName = intl.formatMessage( { id: `marketplace.marketCategory.${category.name}.name` })
+                    const categoryName = category.name
 
                     if (category.parentCategory) {
-                        const parentCategoryName = intl.formatMessage( { id: `marketplace.marketCategory.${category.parentCategory.name}.name` })
+                        const parentCategoryName = category.parentCategory.name
 
                         if (subcategoryCounterGropedByCategoryId[category.parentCategory.id] > 1) return render(`${parentCategoryName}»${categoryName}`)
                         return render(parentCategoryName)

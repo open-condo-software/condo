@@ -77,6 +77,7 @@ interface IUnitInfo {
     initialValues?: InitialUnitInfoType
     selectedSectionType?: string
     setSelectedSectionType?: React.Dispatch<React.SetStateAction<string>>
+    disabled?: boolean
 }
 
 const UNIT_FIELDS_GUTTER: [Gutter, Gutter] = [40, 0]
@@ -97,6 +98,7 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
         mode = UnitInfoMode.Unit,
         selectedSectionType,
         setSelectedSectionType,
+        disabled,
     } = props
 
     const [selectedSectionName, setSelectedSectionName] = useState<string>(get(initialValues, 'sectionName'))
@@ -203,6 +205,7 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
                             selectedSections={selectedSections}
                             selectedSectionName={selectedSectionName}
                             selectedFloorName={selectedFloorName}
+                            disabled={disabled}
                         />
                     </TicketFormItem>
                 </Col>

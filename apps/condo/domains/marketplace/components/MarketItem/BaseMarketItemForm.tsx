@@ -257,7 +257,7 @@ const CategorySelectFields = ({ parentCategoryId, form }) => {
                         loading={loading}
                         allowClear
                         onChange={handleChangeParentCategory}
-                        optionFilterProp='title'
+                        optionFilterProp='label'
                         showSearch
                     />
                 </Form.Item>
@@ -276,6 +276,8 @@ const CategorySelectFields = ({ parentCategoryId, form }) => {
                         onChange={(_, option) => {
                             form.setFieldsValue({ marketCategoryName: get(option, 'label') })
                         }}
+                        optionFilterProp='label'
+                        showSearch
                     />
                 </Form.Item>
             </Col>
@@ -409,7 +411,7 @@ const MarketItemFields = () => {
     )
 }
 
-const MarketPricePropertiesField = ({ priceFormDescription, priceFormsValue, isHasAllPropertiesHidden, organizationPropertiesCount }) => {
+const MarketPricePropertiesField = ({ priceFormDescription, isHasAllPropertiesHidden, hasAllPropertiesChecked, organizationPropertiesCount, propertiesInOtherForms }) => {
     const intl = useIntl()
     const AddressesLabel = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.addresses' })
     const CheckAllPropertiesLabel = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.form.chooseAllProperties' })
@@ -422,12 +424,6 @@ const MarketPricePropertiesField = ({ priceFormDescription, priceFormsValue, isH
 
     const priceFormName = useMemo(() => get(priceFormDescription, 'name'), [priceFormDescription])
 
-    const hasAllPropertiesChecked = useMemo(() => {
-        if (isEmpty(priceFormsValue) || isEmpty(priceFormDescription)) return false
-
-        return priceFormsValue[priceFormDescription.name].hasAllProperties
-    }, [priceFormDescription, priceFormsValue])
-
     const propertySelectFormItemProps = useCallback((priceFormName) => ({
         label: AddressesLabel,
         required: true,
@@ -435,27 +431,24 @@ const MarketPricePropertiesField = ({ priceFormDescription, priceFormsValue, isH
         rules: hasAllPropertiesChecked ? [] : [requiredValidator],
     }), [AddressesLabel, hasAllPropertiesChecked, requiredValidator])
 
-    const renderPropertyOptions = useCallback((excludedPropertyIds: Array<string>) => (options, renderOption) => {
+    const renderPropertyOptions = useCallback(() => (options, renderOption) => {
         return options
-            .filter(option => !excludedPropertyIds.includes(option.value))
+            .filter(option => !propertiesInOtherForms.includes(option.value))
             .map(renderOption)
-    }, [])
+    }, [propertiesInOtherForms])
 
-    const propertySelectProps: (priceFormName: number) => InputWithCheckAllProps['selectProps'] = useCallback((priceFormName) => {
-        const selectedPropertyIdsFromOtherPriceForms = priceFormsValue
-            .filter((_, index) => index !== priceFormName)
-            .flatMap(form => get(form, 'properties'))
+    const search = useMemo(() => searchOrganizationPropertyWithExclusion(organizationId, propertiesInOtherForms),
+        [organizationId, propertiesInOtherForms])
 
-        return {
-            showArrow: false,
-            infinityScroll: true,
-            search: searchOrganizationPropertyWithExclusion(organizationId, selectedPropertyIdsFromOtherPriceForms),
-            disabled: !organizationId || hasAllPropertiesChecked,
-            required: true,
-            mode: organizationPropertiesCount === 1 ? null : 'multiple',
-            renderOptions: renderPropertyOptions(selectedPropertyIdsFromOtherPriceForms),
-        }
-    }, [priceFormsValue, organizationId, hasAllPropertiesChecked, organizationPropertiesCount, renderPropertyOptions])
+    const propertySelectProps: (priceFormName: number) => InputWithCheckAllProps['selectProps'] = useCallback((priceFormName) => ({
+        showArrow: false,
+        infinityScroll: true,
+        search,
+        disabled: !organizationId || hasAllPropertiesChecked,
+        required: true,
+        mode: organizationPropertiesCount === 1 ? null : 'multiple',
+        renderOptions: renderPropertyOptions(),
+    }), [search, organizationId, hasAllPropertiesChecked, organizationPropertiesCount, renderPropertyOptions])
 
     const handleCheckAll = useCallback(() => {
         return getUpdatedPricesField(priceFormName, {
@@ -479,7 +472,7 @@ const MarketPricePropertiesField = ({ priceFormDescription, priceFormsValue, isH
     )
 }
 
-const MarketPriceForm = ({ priceFormDescription, removeOperation, organizationPropertiesCount }) => {
+const MarketPriceForm = ({ priceFormDescription, removeOperation, organizationPropertiesCount, hasAllPropertiesChecked, formProperties = [] }) => {
     const intl = useIntl()
     const PriceTypeLabel = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.priceType' })
     const PriceTypeTooltip = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.priceType.tooltip' })
@@ -501,9 +494,10 @@ const MarketPriceForm = ({ priceFormDescription, removeOperation, organizationPr
     const priceTypeFormValue = Form.useWatch(['prices', priceFormName, 'priceType'], form)
     const priceHasAllPropertiesFormValue = Form.useWatch(['prices', priceFormName, 'hasAllProperties'], form)
     const propertiesInThisForm = Form.useWatch(['prices', priceFormName, 'properties'], form)
-    const propertiesInOtherForms = useMemo(
-        () => priceFormsValue.flatMap(price => get(price, 'properties')),
-        [priceFormsValue])
+    const propertiesInOtherForms = useMemo(() =>
+        formProperties.filter((form, index) => index !== priceFormName)
+            .flat()
+    , [formProperties, priceFormName])
 
     const isContractPrice = useMemo(() => priceTypeFormValue === PriceType.Contract, [priceTypeFormValue])
     const isHasAllPropertiesHidden = useMemo(
@@ -521,9 +515,10 @@ const MarketPriceForm = ({ priceFormDescription, removeOperation, organizationPr
             <Col span={24}>
                 <MarketPricePropertiesField
                     priceFormDescription={priceFormDescription}
-                    priceFormsValue={priceFormsValue}
+                    hasAllPropertiesChecked={hasAllPropertiesChecked}
                     isHasAllPropertiesHidden={isHasAllPropertiesHidden}
                     organizationPropertiesCount={organizationPropertiesCount}
+                    propertiesInOtherForms={propertiesInOtherForms}
                 />
             </Col>
             <Col span={24}>
@@ -611,6 +606,9 @@ const MarketPricesList = () => {
         [organizationPropertiesCount, prices, propertiesInForm.length]
     )
 
+    const formProperties = useMemo(() => prices.map(price => get(price, 'properties')), [prices])
+    const hasAllPropertiesChecked = useMemo(() => prices.some(price => price.hasAllProperties), [formProperties])
+
     return (
         <Row gutter={GROUP_INNER_GUTTER}>
             <Col span={24}>
@@ -629,6 +627,8 @@ const MarketPricesList = () => {
                                                     priceFormDescription={priceForm}
                                                     removeOperation={operation.remove}
                                                     organizationPropertiesCount={organizationPropertiesCount}
+                                                    formProperties={formProperties}
+                                                    hasAllPropertiesChecked={hasAllPropertiesChecked}
                                                 />
                                             </Col>
                                         ))

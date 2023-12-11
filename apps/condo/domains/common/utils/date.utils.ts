@@ -48,7 +48,7 @@ export const getTimeLeftMessage: (props: {
 
 export const getObjectCreatedMessage = (intl, object) => {
     if (!object) {
-        return
+        return ''
     }
 
     const dt = dayjs(object.createdAt)

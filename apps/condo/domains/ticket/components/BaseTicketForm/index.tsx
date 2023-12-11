@@ -13,12 +13,14 @@ import { Gutter } from 'antd/es/grid/row'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
+import isEqual from 'lodash/isEqual'
 import isFunction from 'lodash/isFunction'
 import isNull from 'lodash/isNull'
 import omit from 'lodash/omit'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { Info, PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
@@ -46,6 +48,7 @@ import { CreateInvoiceForm } from '@condo/domains/marketplace/components/Invoice
 import { TicketInvoicesList } from '@condo/domains/marketplace/components/Invoice/TicketInvoicesList'
 import { useAcquiringContext } from '@condo/domains/marketplace/components/MarketplacePageContent/ContextProvider'
 import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
+import { INVOICE_STATUS_DRAFT } from '@condo/domains/marketplace/constants'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { UnitInfo, UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
 import { Property } from '@condo/domains/property/utils/clientSchema'
@@ -91,7 +94,7 @@ export const IncidentHintsBlock = ({ organizationId, propertyId }) => {
     )
 }
 
-export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId, initialValues = {}, hasNotResidentTab = true, residentTitle = null }) => {
+export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId, disabled, initialValues = {}, hasNotResidentTab = true, residentTitle = null }) => {
     const contactId = useMemo(() => get(initialValues, 'contact'), [initialValues])
 
     const value = useMemo(() => ({
@@ -121,11 +124,12 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
                 unitType={unitType}
                 hasNotResidentTab={hasNotResidentTab}
                 residentTitle={residentTitle}
+                disabled={disabled}
             />
         )
     }, [
-        ContactsEditorComponent, contactEditorComponentFields, form, hasNotResidentTab, residentTitle,
-        selectedPropertyId, value,
+        ContactsEditorComponent, contactEditorComponentFields, disabled, form, hasNotResidentTab,
+        residentTitle, selectedPropertyId, value,
     ])
 
     return (
@@ -249,13 +253,25 @@ const TicketFormInvoicesEmptyContent = ({
     )
 }
 
-const TicketFormInvoices = ({ invoiceIds, organizationId, initialValues, addInvoiceToTicketForm, ticketCreatedByResident }) => {
+const TicketFormInvoices = ({ invoiceIds, organizationId, initialValues, addInvoiceToTicketForm, ticketCreatedByResident, initialInvoiceIds, form }) => {
     const { objs: invoices, refetch: refetchInvoices } = Invoice.useObjects({
         where: {
             id_in: invoiceIds,
         },
         sortBy: [SortInvoicesBy.CreatedAtDesc],
     })
+
+    useDeepCompareEffect(() => {
+        const initialInvoicesInNotDraftStatus = invoices.filter(invoice =>
+            initialInvoiceIds && initialInvoiceIds.includes(invoice.id) && invoice.status !== INVOICE_STATUS_DRAFT
+        )
+
+        if (!isEmpty(initialInvoicesInNotDraftStatus)) {
+            form.setFieldsValue({
+                initialNotDraftInvoices: initialInvoicesInNotDraftStatus.map(invoice => invoice.id),
+            })
+        }
+    }, [invoices])
 
     if (isEmpty(invoiceIds)) {
         return (
@@ -286,6 +302,7 @@ const TicketFormInvoices = ({ invoiceIds, organizationId, initialValues, addInvo
                 organizationId={organizationId}
                 ticketCreatedByResident={ticketCreatedByResident}
             />
+            <Form.Item hidden name='initialNotDraftInvoices' />
         </Row>
     )
 }
@@ -479,8 +496,10 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
                                                             invoiceIds={invoices}
                                                             organizationId={organizationId}
                                                             initialValues={invoiceInitialValues}
+                                                            initialInvoiceIds={get(initialValues, 'invoices')}
                                                             addInvoiceToTicketForm={addInvoiceToTicketForm}
                                                             ticketCreatedByResident={get(initialValues, 'createdByType') === RESIDENT}
+                                                            form={form}
                                                         />
                                                     )
                                                 }
@@ -800,6 +819,10 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         </Row>
     ), [organizationId, selectedPropertyId])
 
+    const [form] = Form.useForm()
+    const invoices = Form.useWatch('invoices', form)
+    const initialNotDraftInvoices = Form.useWatch('initialNotDraftInvoices', form)
+
     const formWithAction =  (
         <>
             <FormWithAction
@@ -809,6 +832,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                 formValuesToMutationDataPreprocessor={formValuesToMutationDataPreprocessor}
                 ErrorToFormFieldMsgMapping={ErrorToFormFieldMsgMapping}
                 OnCompletedMsg={OnCompletedMsg}
+                formInstance={form}
             >
                 {({ handleSave, isLoading, form }) => (
                     <>
@@ -838,35 +862,21 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                     <Row gutter={SMALL_VERTICAL_GUTTER}>
                                                                         {NoPropertiesAlert}
                                                                         <Col span={24} data-cy='ticket__property-address-search-input'>
-                                                                            <Form.Item
-                                                                                dependencies={['invoices']}
-                                                                                noStyle
+                                                                            <TicketFormItem
+                                                                                name='property'
+                                                                                label={AddressLabel}
+                                                                                rules={PROPERTY_VALIDATION_RULES}
                                                                             >
-                                                                                {
-                                                                                    ({ getFieldValue }) => {
-                                                                                        const invoices = getFieldValue('invoices')
-
-                                                                                        return (
-                                                                                            <TicketFormItem
-                                                                                                name='property'
-                                                                                                label={AddressLabel}
-                                                                                                rules={PROPERTY_VALIDATION_RULES}
-                                                                                            >
-                                                                                                <PropertyAddressSearchInput
-                                                                                                    organizationId={get(organization, 'id')}
-                                                                                                    autoFocus
-                                                                                                    onSelect={handlePropertySelectChange(form)}
-                                                                                                    onClear={handlePropertiesSelectClear(form)}
-                                                                                                    placeholder={AddressPlaceholder}
-                                                                                                    notFoundContent={AddressNotFoundContent}
-                                                                                                    disabled={!isEmpty(invoices)}
-                                                                                                />
-                                                                                            </TicketFormItem>
-                                                                                        )
-                                                                                    }
-                                                                                }
-                                                                            </Form.Item>
-
+                                                                                <PropertyAddressSearchInput
+                                                                                    organizationId={get(organization, 'id')}
+                                                                                    autoFocus
+                                                                                    onSelect={handlePropertySelectChange(form)}
+                                                                                    onClear={handlePropertiesSelectClear(form)}
+                                                                                    placeholder={AddressPlaceholder}
+                                                                                    notFoundContent={AddressNotFoundContent}
+                                                                                    disabled={!isEmpty(invoices)}
+                                                                                />
+                                                                            </TicketFormItem>
                                                                         </Col>
                                                                         {selectedPropertyId && (
                                                                             <UnitInfo
@@ -880,6 +890,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                                 mode={UnitInfoMode.All}
                                                                                 initialValues={initialTicketValues}
                                                                                 form={form}
+                                                                                disabled={!isEmpty(initialNotDraftInvoices)}
                                                                             />
                                                                         )}
                                                                     </Row>
@@ -896,6 +907,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                     form={form}
                                                                     initialValues={initialTicketValues}
                                                                     selectedPropertyId={selectedPropertyId}
+                                                                    disabled={!isEmpty(initialNotDraftInvoices)}
                                                                 />
                                                             </Row>
                                                         </Col>

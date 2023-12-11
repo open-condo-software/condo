@@ -18,7 +18,7 @@ import { Ticket as TicketGQL } from '@condo/domains/ticket/gql'
 
 const RELATIONS = ['status', 'client', 'contact', 'operator', 'assignee', 'organization', 'source', 'property', 'executor', 'related', 'classifier']
 const DISCONNECT_ON_NULL = ['executor', 'contact']
-const IGNORE_FIELDS = ['invoices', 'createdByType']
+const IGNORE_FIELDS = ['invoices', 'createdByType', 'initialNotDraftInvoices']
 
 export interface ITicketFormState {
     id?: undefined

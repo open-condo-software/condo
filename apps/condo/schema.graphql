@@ -5565,6 +5565,9 @@ type OrganizationEmployeeRoleHistoryRecord {
   canManageMarketItemPrices: Boolean
   canReadMarketPriceScopes: Boolean
   canManageMarketPriceScopes: Boolean
+  canReadPaymentsWithInvoices: Boolean
+  canReadMarketplace: Boolean
+  canManageMarketplace: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -5751,6 +5754,12 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canReadMarketPriceScopes_not: Boolean
   canManageMarketPriceScopes: Boolean
   canManageMarketPriceScopes_not: Boolean
+  canReadPaymentsWithInvoices: Boolean
+  canReadPaymentsWithInvoices_not: Boolean
+  canReadMarketplace: Boolean
+  canReadMarketplace_not: Boolean
+  canManageMarketplace: Boolean
+  canManageMarketplace_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -5936,6 +5945,12 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canReadMarketPriceScopes_DESC
   canManageMarketPriceScopes_ASC
   canManageMarketPriceScopes_DESC
+  canReadPaymentsWithInvoices_ASC
+  canReadPaymentsWithInvoices_DESC
+  canReadMarketplace_ASC
+  canReadMarketplace_DESC
+  canManageMarketplace_ASC
+  canManageMarketplace_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -6012,6 +6027,9 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   canManageMarketItemPrices: Boolean
   canReadMarketPriceScopes: Boolean
   canManageMarketPriceScopes: Boolean
+  canReadPaymentsWithInvoices: Boolean
+  canReadMarketplace: Boolean
+  canManageMarketplace: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -6089,6 +6107,9 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   canManageMarketItemPrices: Boolean
   canReadMarketPriceScopes: Boolean
   canManageMarketPriceScopes: Boolean
+  canReadPaymentsWithInvoices: Boolean
+  canReadMarketplace: Boolean
+  canManageMarketplace: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -6195,6 +6216,9 @@ type OrganizationEmployeeRole {
   canManageMarketItemPrices: Boolean
   canReadMarketPriceScopes: Boolean
   canManageMarketPriceScopes: Boolean
+  canReadPaymentsWithInvoices: Boolean
+  canReadMarketplace: Boolean
+  canManageMarketplace: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -6369,6 +6393,12 @@ input OrganizationEmployeeRoleWhereInput {
   canReadMarketPriceScopes_not: Boolean
   canManageMarketPriceScopes: Boolean
   canManageMarketPriceScopes_not: Boolean
+  canReadPaymentsWithInvoices: Boolean
+  canReadPaymentsWithInvoices_not: Boolean
+  canReadMarketplace: Boolean
+  canReadMarketplace_not: Boolean
+  canManageMarketplace: Boolean
+  canManageMarketplace_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -6536,6 +6566,12 @@ enum SortOrganizationEmployeeRolesBy {
   canReadMarketPriceScopes_DESC
   canManageMarketPriceScopes_ASC
   canManageMarketPriceScopes_DESC
+  canReadPaymentsWithInvoices_ASC
+  canReadPaymentsWithInvoices_DESC
+  canReadMarketplace_ASC
+  canReadMarketplace_DESC
+  canManageMarketplace_ASC
+  canManageMarketplace_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -6611,6 +6647,9 @@ input OrganizationEmployeeRoleUpdateInput {
   canManageMarketItemPrices: Boolean
   canReadMarketPriceScopes: Boolean
   canManageMarketPriceScopes: Boolean
+  canReadPaymentsWithInvoices: Boolean
+  canReadMarketplace: Boolean
+  canManageMarketplace: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -6684,6 +6723,9 @@ input OrganizationEmployeeRoleCreateInput {
   canManageMarketItemPrices: Boolean
   canReadMarketPriceScopes: Boolean
   canManageMarketPriceScopes: Boolean
+  canReadPaymentsWithInvoices: Boolean
+  canReadMarketplace: Boolean
+  canManageMarketplace: Boolean
   v: Int
   createdAt: String
   updatedAt: String

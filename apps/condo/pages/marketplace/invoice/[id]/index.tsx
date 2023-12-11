@@ -27,6 +27,7 @@ import { InvoiceReadPermissionRequired } from '@condo/domains/marketplace/compon
 import {
     INVOICE_STATUS_PAID,
     INVOICE_STATUS_CANCELED,
+    INVOICE_STATUS_DRAFT,
 } from '@condo/domains/marketplace/constants'
 import { INVOICE_STATUS_PUBLISHED } from '@condo/domains/marketplace/constants'
 import { useInvoicePaymentLink } from '@condo/domains/marketplace/hooks/useInvoicePaymentLink'
@@ -230,7 +231,11 @@ const AddressField = ({ invoice }) => {
                 unitName && (
                     <Typography.Paragraph>
                         <Typography.Text>{ticketUnitMessage}</Typography.Text>
-                        <Typography.Text>{SectionAndFloorMessage}</Typography.Text>
+                        {
+                            sectionName && floorName && (
+                                <Typography.Text>{SectionAndFloorMessage}</Typography.Text>
+                            )
+                        }
                     </Typography.Paragraph>
                 )
             }
@@ -432,7 +437,7 @@ const InvoiceIdPage = () => {
                                     <PayerDataField invoice={invoice} />
                                 </Col>
                                 {
-                                    hasPayerData && !isTerminalStatus && (
+                                    hasPayerData && !isTerminalStatus && get(invoice, 'status') !== INVOICE_STATUS_DRAFT && (
                                         <Col span={24}>
                                             <ResidentPaymentAlert
                                                 propertyId={propertyId}
