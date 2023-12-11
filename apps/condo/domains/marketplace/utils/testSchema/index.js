@@ -358,11 +358,8 @@ async function registerInvoiceByTestClient (client, resident, invoiceRows, extra
 
 async function getInvoiceByUserByTestClient(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
-        dv: 1,
-        sender,
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(GET_INVOICE_BY_USER_QUERY, { data: attrs })

@@ -60,6 +60,7 @@ describe('GetInvoiceByUserService', () => {
         expect(data.invoices[0].id).toEqual(invoice.id)
         expect(data.skuInfo[0].sku).toEqual(marketItem.sku)
         expect(data.skuInfo[0].imageUrl).toEqual(marketCategory.image.publicUrl)
+        expect(data.skuInfo[0].categoryBgColor).toEqual(marketCategory.mobileSettings.bgColor)
     })
 
     test('resident: execute with property', async () => {
