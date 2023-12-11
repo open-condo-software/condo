@@ -71948,9 +71948,7 @@ type RegisterInvoiceOutput {
   invoice: Invoice!
 }
 
-input GetInvoiceByUserInput {
-  dv: Int!
-  sender: SenderFieldInput!
+input GetInvoicesWithSkuInfoInput {
   organization: OrganizationWhereUniqueInput!
   property: PropertyWhereUniqueInput
   ticketIds: [ID!]
@@ -71959,9 +71957,10 @@ input GetInvoiceByUserInput {
 type MarketSkuInfo {
   sku: String!
   imageUrl: String!
+  categoryBgColor: String!
 }
 
-type GetInvoiceByUserOutput {
+type GetInvoicesWithSkuInfoOutput {
   invoices: [Invoice!]!
   skuInfo: [MarketSkuInfo!]!
 }
@@ -75650,7 +75649,7 @@ type Query {
   exportPropertyScopesToExcel(data: ExportPropertyScopeToExcelInput!): ExportPropertyScopeToExcelOutput
   getNewsItemsRecipientsCounters(data: GetNewsItemsRecipientsCountersInput!): GetNewsItemsRecipientsCountersOutput
   allMiniApps(data: AllMiniAppsInput!): [MiniAppOutput!]
-  executeGetInvoiceByUser(data: GetInvoiceByUserInput!): GetInvoiceByUserOutput
+  GetInvoicesWithSkuInfo(data: GetInvoicesWithSkuInfoInput!): GetInvoicesWithSkuInfoOutput
 
   """The version of the Keystone application serving this API."""
   appVersion: String
@@ -82470,7 +82469,6 @@ type Mutation {
   setMessageStatus(data: SetMessageStatusInput!): SetMessageStatusOutput
   _internalSyncContactsWithResidentsForOrganization(data: _internalSyncContactsWithResidentsForOrganizationInput!): [Contact]
   registerResident(data: RegisterResidentInput!): Resident
-  registerResidentServiceConsumers(resident: ResidentWhereUniqueInput!, accountNumber: String!): [ServiceConsumer!]
 
   """
   Creates service consumer with default data, and automatically populates the optional data fields, such as `billingAccount
@@ -82490,17 +82488,6 @@ type Mutation {
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Cannot find Resident for current user"
-  }`
-  
-  `{
-    "mutation": "registerResidentServiceConsumers",
-    "variable": [
-      "resident",
-      "id"
-    ],
-    "code": "BAD_USER_INPUT",
-    "type": "NOT_FOUND",
-    "message": "Can't find Property for current resident"
   }`
   
   `{

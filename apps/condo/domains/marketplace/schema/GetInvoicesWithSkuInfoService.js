@@ -11,26 +11,26 @@ const access = require('@condo/domains/marketplace/access/GetInvoiceByUserServic
 const { MarketItem } = require('@condo/domains/marketplace/utils/serverSchema')
 
 
-const GetInvoiceByUserService = new GQLCustomSchema('GetInvoiceByUserService', {
+const GetInvoicesWithSkuInfoService = new GQLCustomSchema('GetInvoicesWithSkuInfoService', {
     types: [
         {
             access: true,
-            type: 'input GetInvoiceByUserInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, property: PropertyWhereUniqueInput, ticketIds: [ID!] }',
+            type: 'input GetInvoicesWithSkuInfoInput { organization: OrganizationWhereUniqueInput!, property: PropertyWhereUniqueInput, ticketIds: [ID!] }',
         },
         {
             access: true,
-            type: 'type MarketSkuInfo { sku: String! imageUrl: String! }',
+            type: 'type MarketSkuInfo { sku: String! imageUrl: String! categoryBgColor: String! }',
         },
         {
             access: true,
-            type: 'type GetInvoiceByUserOutput { invoices: [Invoice!]!, skuInfo: [MarketSkuInfo!]! }',
+            type: 'type GetInvoicesWithSkuInfoOutput { invoices: [Invoice!]!, skuInfo: [MarketSkuInfo!]! }',
         },
     ],
     
     queries: [
         {
             access: access.canGetInvoiceByUser,
-            schema: 'executeGetInvoiceByUser (data: GetInvoiceByUserInput!): GetInvoiceByUserOutput',
+            schema: 'GetInvoicesWithSkuInfo (data: GetInvoicesWithSkuInfoInput!): GetInvoicesWithSkuInfoOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data: { organization, property, ticketIds } } = args
                 const userId = get(context, ['authedItem', 'id'])
@@ -58,7 +58,11 @@ const GetInvoiceByUserService = new GQLCustomSchema('GetInvoiceByUserService', {
                 }
 
                 const marketItems = await MarketItem.getAll(context, marketItemWhere)
-                const skuInfo = marketItems.map(item => ({ sku: item.sku, imageUrl: get(item, 'marketCategory.image.publicUrl', null) }))
+                const skuInfo = marketItems.map(item => ({
+                    sku: item.sku,
+                    imageUrl: get(item, 'marketCategory.image.publicUrl', null),
+                    categoryBgColor: get(item, 'marketCategory.mobileSettings.bgColor', null),
+                }))
 
                 return {
                     invoices,
@@ -71,5 +75,5 @@ const GetInvoiceByUserService = new GQLCustomSchema('GetInvoiceByUserService', {
 })
 
 module.exports = {
-    GetInvoiceByUserService,
+    GetInvoicesWithSkuInfoService,
 }

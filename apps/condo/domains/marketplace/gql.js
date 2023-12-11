@@ -19,7 +19,7 @@ const InvoiceContext = generateGqlQueries('InvoiceContext', INVOICE_CONTEXT_FIEL
 const MARKET_CATEGORY_FIELDS = `{ name image { publicUrl } mobileSettings { bgColor titleColor } parentCategory { id name } ${COMMON_FIELDS} }`
 const MarketCategory = generateGqlQueries('MarketCategory', MARKET_CATEGORY_FIELDS)
 
-const MARKET_ITEM_FIELDS = `{ name marketCategory { id name parentCategory { id name } image { publicUrl } } sku description organization { id } ${COMMON_FIELDS} }`
+const MARKET_ITEM_FIELDS = `{ name marketCategory { id name parentCategory { id name mobileSettings { bgColor titleColor } } image { publicUrl } mobileSettings { bgColor titleColor } } sku description organization { id } ${COMMON_FIELDS} }`
 const MarketItem = generateGqlQueries('MarketItem', MARKET_ITEM_FIELDS)
 
 const INVOICE_FIELDS = `{ context { id organization { id name } currencyCode } number property { id address addressKey addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } map { ${PROPERTY_MAP_JSON_FIELDS} } } unitType unitName accountNumber toPay rows { name toPay count vatPercent salesTaxPercent sku isMin currencyCode } ticket { id number property { id } unitName unitType clientName clientPhone } contact { id name phone email unitType unitName property { id } } clientName clientPhone client { id name } status paymentType publishedAt paidAt canceledAt ${COMMON_FIELDS} }`
@@ -41,10 +41,10 @@ const REGISTER_INVOICE_MUTATION = gql`
 `
 
 const GET_INVOICE_BY_USER_QUERY = gql`
-    query getGetInvoiceByUser ($data: GetInvoiceByUserInput!) {
-        obj: executeGetInvoiceByUser(data: $data) { 
+    query GetInvoicesWithSkuInfo ($data: GetInvoicesWithSkuInfoInput!) {
+        obj: GetInvoicesWithSkuInfo(data: $data) { 
             invoices ${INVOICE_FIELDS}
-            skuInfo { sku imageUrl }
+            skuInfo { sku imageUrl categoryBgColor }
         }
     }
 `

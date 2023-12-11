@@ -3,7 +3,7 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
-const { GetInvoiceByUserService } = require('./GetInvoiceByUserService')
+const { GetInvoicesWithSkuInfoService } = require('./GetInvoicesWithSkuInfoService')
 const { Invoice } = require('./Invoice')
 const { InvoiceContext } = require('./InvoiceContext')
 const { MarketCategory } = require('./MarketCategory')
@@ -23,6 +23,6 @@ module.exports = {
     MarketItemPrice,
     MarketPriceScope,
     RegisterInvoiceService,
-    GetInvoiceByUserService,
+    GetInvoicesWithSkuInfoService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
