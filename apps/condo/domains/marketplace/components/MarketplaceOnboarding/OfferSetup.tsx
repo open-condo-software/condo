@@ -78,7 +78,12 @@ export const OfferSetup: React.FC<{ launchContext: LaunchContextType }> = ({ lau
 
     const [rulesAreAccepted, setRulesAreAccepted] = useState<boolean>(false)
     const [loading, setIsLoading] = useState<boolean>(false)
+    const [usersEmails, setUsersEmails] = useState<string | null>('')
     const { requiredValidator, multipleEmailsValidator } = useValidations()
+
+    const onUserEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        setUsersEmails(e.target.value)
+    }, [setUsersEmails])
 
     const handleDownload = useCallback(async () => {
         await bridge.send('CondoWebAppRedirect', { url: MARKETPLACE_OFFER_LINK, target: '_blank' })
@@ -152,13 +157,14 @@ export const OfferSetup: React.FC<{ launchContext: LaunchContextType }> = ({ lau
                                 <Col span={24}>
                                     <Form.Item
                                         name='email'
-                                        rules={[requiredValidator, multipleEmailsValidator(form.getFieldValue('email'))]}
+                                        rules={[requiredValidator, multipleEmailsValidator(usersEmails)]}
                                         required
                                         label={EmailTip}
                                     >
                                         <Input
-                                            type='email'
                                             placeholder='name@example.com, example@example.com'
+                                            value={usersEmails}
+                                            onChange={onUserEmailChange}
                                         />
                                     </Form.Item>
                                 </Col>
