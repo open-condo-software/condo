@@ -28,18 +28,22 @@ class DadataHealthChecker {
         }
     }
 
-    #getRequestHeaders = () => ({
+    /**
+     * @private
+     * @return {{Authorization: string, 'X-Secret': any, 'Content-Type': string}}
+     */
+    getRequestHeaders = () => ({
         'Content-Type': 'application/json',
         'Authorization': `Token ${this.token}`,
         'X-Secret': this.secret,
     })
 
     /**
-     *
+     * @private
      * @param apiRequestPromise {Promise<fetch>}
      * @return {Promise<boolean>}
      */
-    async #makeHealthcheckRequest (apiRequestPromise) {
+    async makeHealthcheckRequest (apiRequestPromise) {
         if (!this.#isInitialized) {
             console.warn('Healthcheck config not initialized properly, return ok as fallback')
             return true
@@ -66,9 +70,9 @@ class DadataHealthChecker {
      * @return {Promise<boolean>}
      */
     async profileBalance () {
-        const profileBalanceRequest = fetch(this.url + '/profile/balance', { method: 'GET', headers: this.#getRequestHeaders() })
+        const profileBalanceRequest = fetch(this.url + '/profile/balance', { method: 'GET', headers: this.getRequestHeaders() })
 
-        const response = await this.#makeHealthcheckRequest(profileBalanceRequest)
+        const response = await this.makeHealthcheckRequest(profileBalanceRequest)
 
         return get(response, 'balance', 0) > this.profileBalanceWarning
     }
@@ -79,9 +83,9 @@ class DadataHealthChecker {
      * @return {Promise<boolean>}
      */
     async dailyStatistics () {
-        const dailyStatisticsRequest = fetch(this.url + '/stat/daily', { method: 'GET', headers: this.#getRequestHeaders() })
+        const dailyStatisticsRequest = fetch(this.url + '/stat/daily', { method: 'GET', headers: this.getRequestHeaders() })
 
-        const response = await this.#makeHealthcheckRequest(dailyStatisticsRequest)
+        const response = await this.makeHealthcheckRequest(dailyStatisticsRequest)
 
         return get(response, ['remaining', 'suggestions'], 0) > this.suggestionsWarning
     }
