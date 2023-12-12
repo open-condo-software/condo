@@ -7,6 +7,8 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/miniapp/access/B2BAppNewsSharingConfig')
 
+const { LOGO_FIELD } = require('./fields/integration')
+
 
 /**
  * News Sharing B2BApp
@@ -37,10 +39,12 @@ const B2BAppNewsSharingConfig = new GQLListSchema('B2BAppNewsSharingConfig', {
             isRequired: true,
         },
 
+        icon: { ...LOGO_FIELD, schemaDoc: 'Icon of the app: Telegram Icon / WhatsApp Icon' },
+
         previewUrl: {
             schemaDoc: 'URL that returns HTML preview NewsItem',
             type: 'Url',
-            isRequired: true,
+            isRequired: false,
         },
 
         getRecipientsUrl: {
