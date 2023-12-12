@@ -8,8 +8,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Space } from '@open-condo/ui'
 
 import { CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS, CONTEXT_VERIFICATION_STATUS } from '@condo/domains/acquiring/constants/context'
-import { useAcquiringIntegrationContext } from '@condo/domains/acquiring/hooks/useAcquiringIntegrationContext'
-import { AcquiringIntegrationContext as AcquiringContext } from '@condo/domains/acquiring/utils/clientSchema'
+import { AcquiringIntegrationContext as AcquiringContext, AcquiringIntegration } from '@condo/domains/acquiring/utils/clientSchema'
 import { BillingIntegrationOrganizationContext as BillingContext } from '@condo/domains/billing/utils/clientSchema'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { LoginWithSBBOLButton } from '@condo/domains/common/components/LoginWithSBBOLButton'
@@ -66,15 +65,22 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
         },
     })
 
-    const {
-        acquiringIntegration,
-        acquiringIntegrationContext: acquiringCtx,
-        loading: acquiringCtxLoading,
-        error: acquiringCtxError,
-        refetchAcquiringIntegrationContext: refetchCtx,
-    } = useAcquiringIntegrationContext()
+    // NOTE: On practice there's only 1 acquiring and there's no plans to change it soon
+    const { objs: acquiring, loading: acquiringLoading, error: acquiringError } = AcquiringIntegration.useObjects({
+        where: {
+            isHidden: false,
+            setupUrl_not: null,
+        },
+    })
 
-    const acquiringId = get(acquiringIntegration, 'id', null)
+    const acquiringId = get(acquiring, ['0', 'id'], null)
+
+    const { obj: acquiringCtx, loading: acquiringCtxLoading, error: acquiringCtxError, refetch: refetchCtx } = AcquiringContext.useObject({
+        where: {
+            integration: { id: acquiringId },
+            organization: { id: orgId },
+        },
+    })
 
     // Note: is active context is in FINISHED status - we'll ignore this step render at all, so we only interested in verification ones
     const { obj: connectedCtx, loading:connectedCtxLoading, error: connectedCtxError } = AcquiringContext.useObject({
@@ -109,7 +115,8 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
 
     // If no context for selected acquiring and correct organization => need to create it and re-fetch
     useEffect(() => {
-        if ((!acquiringCtxLoading && !acquiringCtxError) &&
+        if ((!acquiringLoading && !acquiringError) &&
+            (!acquiringCtxLoading && !acquiringCtxError) &&
             (acquiringId && orgId && !acquiringCtxId) &&
             isOrgVerified) {
             createAction({
@@ -123,6 +130,8 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
         // since it will trigger createContext twice and useObject will be broken :)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
+        acquiringLoading,
+        acquiringError,
         acquiringCtxLoading,
         acquiringCtxError,
         acquiringId,
@@ -179,12 +188,12 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
         )
     }
 
-    if (acquiringCtxError || billingCtxError || connectedCtxError) {
-        return <Typography.Title>{acquiringCtxError || billingCtxError || connectedCtxError}</Typography.Title>
+    if (acquiringError || acquiringCtxError || billingCtxError || connectedCtxError) {
+        return <Typography.Title>{acquiringError || acquiringCtxError || billingCtxError || connectedCtxError}</Typography.Title>
     }
 
     // NOTE: !setupUrl = case when useEffect for creating ctx is being triggered, but not finished yet
-    if (acquiringCtxLoading || billingCtxLoading || connectedCtxLoading || !setupUrl) {
+    if (acquiringLoading || acquiringCtxLoading || billingCtxLoading || connectedCtxLoading || !setupUrl) {
         return <Loader fill size='large'/>
     }
 

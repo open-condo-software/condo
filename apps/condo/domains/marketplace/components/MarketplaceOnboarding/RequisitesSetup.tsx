@@ -9,13 +9,13 @@ import { useOrganization } from '@open-condo/next/organization'
 import { Alert, Button, Radio, RadioGroup, Select, SelectProps, Space } from '@open-condo/ui'
 
 import { VAT_OPTIONS, TAX_REGIME_GENEGAL, TAX_REGIME_SIMPLE, CONTEXT_IN_PROGRESS_STATUS } from '@condo/domains/acquiring/constants/context'
-import { useAcquiringIntegrationContext } from '@condo/domains/acquiring/hooks/useAcquiringIntegrationContext'
-import { AcquiringIntegrationContext as AcquiringIntegrationContextApi } from '@condo/domains/acquiring/utils/clientSchema'
+import { AcquiringIntegrationContext as AcquiringIntegrationContextApi, AcquiringIntegration as AcquiringIntegrationApi } from '@condo/domains/acquiring/utils/clientSchema'
 import { BankAccount as BankAccountApi } from '@condo/domains/banking/utils/clientSchema'
 import { RUSSIA_COUNTRY } from '@condo/domains/common/constants/countries'
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { useBankAccountValidation } from '@condo/domains/common/utils/clientSchema/bankAccountValidationUtils'
+import { useAcquiringContext } from '@condo/domains/marketplace/components/MarketplacePageContent/ContextProvider'
 import {
     ERROR_BANK_NOT_FOUND,
     ERROR_ORGANIZATION_NOT_FOUND,
@@ -59,12 +59,15 @@ export const RequisitesSetup: React.FC = () => {
     const [form] = Form.useForm()
     const router = useRouter()
 
-    const {
-        acquiringIntegration: acquiring,
-        acquiringIntegrationContext: acquiringContext,
-        loading: acquiringContextLoading,
-        error: acquiringContextError,
-    } = useAcquiringIntegrationContext()
+    // NOTE: On practice there's only 1 acquiring and there's no plans to change it soon
+    const { objs: acquiring, loading: acquiringLoading, error: acquiringError } = AcquiringIntegrationApi.useObjects({
+        where: {
+            isHidden: false,
+            setupUrl_not: null,
+        },
+    })
+
+    const { acquiringContext, refetchAcquiringContext } = useAcquiringContext()
 
     const { objs: bankAccounts } = BankAccountApi.useObjects({
         where: {
@@ -81,7 +84,7 @@ export const RequisitesSetup: React.FC = () => {
         )
     }, [form, values])
 
-    const acquiringId = get(acquiring, 'id', null)
+    const acquiringId = get(acquiring, [0, 'id'], null)
 
     const createAction = AcquiringIntegrationContextApi.useCreate({
         invoiceStatus: CONTEXT_IN_PROGRESS_STATUS,
@@ -116,7 +119,7 @@ export const RequisitesSetup: React.FC = () => {
     }, [form, possibleVatOptionsValues, selectedTaxType])
 
     useEffect(() => {
-        if (!acquiringContextLoading && !acquiringContextError && !!acquiringContext) {
+        if (acquiringContext) {
             form.setFieldsValue({
                 bic: get(acquiringContext, ['invoiceRecipient', 'bic'], ''),
                 account: get(acquiringContext, ['invoiceRecipient', 'bankAccount'], ''),
@@ -124,7 +127,7 @@ export const RequisitesSetup: React.FC = () => {
                 taxPercent: get(acquiringContext, 'invoiceVatPercent'),
             })
         }
-    }, [form, acquiringContext, acquiringContextError, acquiringContextLoading])
+    }, [form, acquiringContext])
 
     const errorHandler = useMutationErrorHandler({
         form,
@@ -135,7 +138,7 @@ export const RequisitesSetup: React.FC = () => {
     })
 
     const handleFormSubmit = useCallback(async (values) => {
-        if (!acquiringContextLoading && !acquiringContextError && !!acquiringId) {
+        if (acquiringId && !acquiringLoading && !acquiringError) {
             setError(null)
             setIsLoading(true)
             let promise: Promise<AcquiringIntegrationContext>
@@ -164,13 +167,14 @@ export const RequisitesSetup: React.FC = () => {
                 })
             }
 
-            promise.then(() => {
-                router.replace({ query: { step: 1 } })
+            promise.then(async () => {
+                refetchAcquiringContext()
+                await router.replace({ query: { step: 1 } })
             }).catch(errorHandler)
 
             setIsLoading(false)
         }
-    }, [acquiringContextLoading, acquiringContextError, acquiringId, acquiringContext, errorHandler, updateAction, organization, createAction, orgId, router])
+    }, [acquiringId, acquiringLoading, acquiringError, acquiringContext, errorHandler, updateAction, organization, createAction, orgId, refetchAcquiringContext, router])
 
     return (
         <Row gutter={VERTICAL_GUTTER}>

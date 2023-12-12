@@ -1,9 +1,11 @@
+import get from 'lodash/get'
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 
 import { CONTEXT_FINISHED_STATUS } from '@condo/domains/acquiring/constants/context'
-import { useAcquiringIntegrationContext } from '@condo/domains/acquiring/hooks/useAcquiringIntegrationContext'
+import { AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clientSchema'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { MarketplacePageContent } from '@condo/domains/marketplace/components/MarketplacePageContent'
 import {
@@ -19,12 +21,20 @@ const MarketplacePage: PageType = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'pages.condo.marketplace.title' })
 
+    const { organization } = useOrganization()
+    const orgId = get(organization, 'id', null)
+
     const {
-        acquiringIntegrationContext,
+        obj: acquiringIntegrationContext,
         loading,
         error,
-        refetchAcquiringIntegrationContext,
-    } = useAcquiringIntegrationContext({ invoiceStatus: CONTEXT_FINISHED_STATUS })
+        refetch: refetchAcquiringIntegrationContext,
+    } = AcquiringIntegrationContext.useObject({
+        where: {
+            invoiceStatus_in: [CONTEXT_FINISHED_STATUS],
+            organization: { id: orgId },
+        },
+    })
 
     if (loading || error) {
         return <LoadingOrErrorPage title={PageTitle} error={error} loading={loading}/>
