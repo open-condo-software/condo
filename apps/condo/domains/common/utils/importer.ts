@@ -1,8 +1,6 @@
 import dayjs from 'dayjs'
 import cloneDeep from 'lodash/cloneDeep'
 import get from 'lodash/get'
-import isArray from 'lodash/isArray'
-import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
 import pick from 'lodash/pick'
 
@@ -220,6 +218,9 @@ export class Importer implements IImporter {
         } catch (error) {
             console.error('Unexpected error in "rowNormalizer"!')
             console.error(error)
+            // NOTE: The browser console doesn't show all the properties of the error object,
+            // so we use a little hack :)
+            console.debug('Error details from "rowNormalizer":', { error })
             processedRow.errors.push(this.errors.normalization)
         }
 
@@ -229,6 +230,7 @@ export class Importer implements IImporter {
             } catch (error) {
                 console.error('Unexpected error in "rowValidator"!')
                 console.error(error)
+                console.debug('Error details from "rowValidator":', { error })
                 processedRow.errors.push(this.errors.validation)
             }
         }
@@ -245,31 +247,32 @@ export class Importer implements IImporter {
                 if (this.successProcessingHandler) {
                     this.successProcessingHandler(row)
                 }
-            } catch (e) {
-                const mutationErrors = get(e, 'graphQLErrors', []) || []
+            } catch (error) {
+                console.error('Unexpected error in "objectCreator"!')
+                console.error(error)
+                console.debug('Error details from "objectCreator":', { error })
+                const mutationErrors = get(error, 'graphQLErrors', []) || []
 
-                if (!isArray(mutationErrors) || isEmpty(mutationErrors)) {
-                    console.error('Unexpected error in "objectCreator"!')
-                    console.error(e)
-                    processedRow.errors.push(this.errors.creation)
-                } else {
-                    for (const mutationError of mutationErrors) {
-                        const messageForUser = get(mutationError, 'extensions.messageForUser')
+                for (const mutationError of mutationErrors) {
+                    const messageForUser = get(mutationError, 'extensions.messageForUser')
 
-                        if (messageForUser) {
-                            processedRow.errors.push(messageForUser)
-                        } else {
-                            const mutationErrorMessages = get(mutationError, ['data', 'messages'], []) || []
-                            for (const message of mutationErrorMessages) {
-                                const errorCodes = Object.keys(this.mutationErrorsToMessages)
-                                for (const code of errorCodes) {
-                                    if (message.includes(code)) {
-                                        processedRow.errors.push(this.mutationErrorsToMessages[code])
-                                    }
+                    if (messageForUser) {
+                        processedRow.errors.push(messageForUser)
+                    } else {
+                        const mutationErrorMessages = get(mutationError, ['data', 'messages'], []) || []
+                        for (const message of mutationErrorMessages) {
+                            const errorCodes = Object.keys(this.mutationErrorsToMessages)
+                            for (const code of errorCodes) {
+                                if (message.includes(code)) {
+                                    processedRow.errors.push(this.mutationErrorsToMessages[code])
                                 }
                             }
                         }
                     }
+                }
+
+                if (processedRow.errors.length < 1) {
+                    processedRow.errors.push(this.errors.creation)
                 }
 
                 if (this.failProcessingHandler) {

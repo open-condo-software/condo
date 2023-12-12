@@ -307,7 +307,11 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             switch (columns[i].name) {
                 case ReadingSubmissionDateMessage:
                     if (get(processedRow, ['addons', 'invalidReadingSubmissionDate'])) {
-                        errors.push(intl.formatMessage({ id: 'meter.import.error.WrongDateOrMonthFormatMessage' }, { columnName: columns[i].name, format1: DATE_PARSING_FORMAT, format2: MONTH_PARSING_FORMAT }))
+                        errors.push(intl.formatMessage({ id: 'meter.import.error.WrongDateOrMonthFormatMessage' }, {
+                            columnName: columns[i].name,
+                            dateFormat: [DATE_PARSING_FORMAT, DATE_PARSING_FORMAT_2].join('", "'),
+                            monthFormat: MONTH_PARSING_FORMAT,
+                        }))
                     }
                     break
                 case VerificationDateMessage:
@@ -317,7 +321,10 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                 case SealingDateMessage:
                 case ControlReadingsDate:
                     if (cell.value && !isValidDate(cell.value)) {
-                        errors.push(intl.formatMessage({ id: 'meter.import.error.WrongDateFormatMessage' }, { columnName: columns[i].name, format: DATE_PARSING_FORMAT }))
+                        errors.push(intl.formatMessage({ id: 'meter.import.error.WrongDateFormatMessage' }, {
+                            columnName: columns[i].name,
+                            format: [DATE_PARSING_FORMAT, DATE_PARSING_FORMAT_2].join('", "'),
+                        }))
                     }
                     break
                 case UnitNameColumnMessage:
