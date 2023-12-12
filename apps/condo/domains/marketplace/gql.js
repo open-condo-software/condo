@@ -41,8 +41,8 @@ const REGISTER_INVOICE_MUTATION = gql`
 `
 
 const GET_INVOICE_BY_USER_QUERY = gql`
-    query GetInvoicesWithSkuInfo ($data: GetInvoicesWithSkuInfoInput!) {
-        obj: GetInvoicesWithSkuInfo(data: $data) { 
+    query getInvoicesWithSkuInfo ($data: GetInvoicesWithSkuInfoInput!) {
+        obj: getInvoicesWithSkuInfo(data: $data) { 
             invoices ${INVOICE_FIELDS}
             skuInfo { sku imageUrl categoryBgColor }
         }

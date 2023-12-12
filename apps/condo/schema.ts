@@ -61513,7 +61513,7 @@ export type Query = {
   exportPropertyScopesToExcel?: Maybe<ExportPropertyScopeToExcelOutput>;
   getNewsItemsRecipientsCounters?: Maybe<GetNewsItemsRecipientsCountersOutput>;
   allMiniApps?: Maybe<Array<MiniAppOutput>>;
-  GetInvoicesWithSkuInfo?: Maybe<GetInvoicesWithSkuInfoOutput>;
+  getInvoicesWithSkuInfo?: Maybe<GetInvoicesWithSkuInfoOutput>;
   /** The version of the Keystone application serving this API. */
   appVersion?: Maybe<Scalars['String']>;
   authenticatedUser?: Maybe<User>;
