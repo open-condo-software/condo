@@ -1431,6 +1431,100 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@app/news-sharing-telegram@workspace:apps/condo-news-sharing-telegram":
+  version: 0.0.0-use.local
+  resolution: "@app/news-sharing-telegram@workspace:apps/condo-news-sharing-telegram"
+  dependencies:
+    "@apollo/client": 3.3.20
+    "@app/condo": "workspace:^"
+    "@condo/domains": "link:../condo/domains"
+    "@emotion/babel-plugin": ^11.10.0
+    "@emotion/core": ^10.1.1
+    "@emotion/react": ^11.9.3
+    "@emotion/styled": ^11.10.0
+    "@keystonejs/adapter-knex": ^13.2.0
+    "@keystonejs/adapter-mongoose": ^11.2.0
+    "@keystonejs/adapter-prisma": ^3.2.0
+    "@keystonejs/app-admin-ui": ^7.5.0
+    "@keystonejs/app-graphql": ^6.3.0
+    "@keystonejs/app-next": ^5.2.3
+    "@keystonejs/app-static": ^5.2.0
+    "@keystonejs/auth-password": ^6.1.0
+    "@keystonejs/fields": ^22.1.3
+    "@keystonejs/fields-color": ^1.1.0
+    "@keystonejs/fields-content": ^9.1.0
+    "@keystonejs/fields-location-google": ^3.4.0
+    "@keystonejs/fields-wysiwyg-tinymce": ^5.4.0
+    "@keystonejs/file-adapters": ^7.1.0
+    "@keystonejs/keystone": 19.3.4
+    "@keystonejs/list-plugins": ^8.1.0
+    "@keystonejs/server-side-graphql-client": ^2.1.0
+    "@keystonejs/utils": ^6.1.0
+    "@news-sharing-telegram/domains": "link:./domains"
+    "@open-condo/bridge": "workspace:^"
+    "@open-condo/cli": "workspace:^"
+    "@open-condo/codegen": "workspace:^"
+    "@open-condo/config": "workspace:^"
+    "@open-condo/keystone": "workspace:^"
+    "@open-condo/next": "workspace:^"
+    "@testing-library/react": ^11.2.5
+    "@types/jest": ^29.4.0
+    "@types/node": ^16
+    "@types/react": 16.9.17
+    "@welldone-software/why-did-you-render": ^5.0.0-alpha.1
+    "@zeit/next-css": ^1.0.1
+    "@zeit/next-less": ^1.0.1
+    ajv: 8.11.0
+    antd: ^4.24.12
+    antd-dayjs-webpack-plugin: ^1.0.6
+    babel-jest: ^29.4.0
+    classnames: 2.2.6
+    css-loader: 1.0.1
+    dayjs: ^1.10.6
+    emotion: ^10.0.27
+    emotion-server: ^10.0.27
+    express: ^4.17.1
+    extracted-loader: ^1.0.7
+    facepaint: ^1.2.1
+    get-contrast: ^2.0.0
+    graphql: ^15.6.1
+    graphql-tag: ^2.12.6
+    identity-obj-proxy: ^3.0.0
+    ignore-loader: 0.1.2
+    immer: 9.0.13
+    jest: ^29.4.0
+    jest-environment-jsdom: ^29.4.0
+    jest-jasmine2: ^29.4.0
+    jest-watch-typeahead: 0.6.5
+    less: ^3.12.2
+    less-loader: ^4.0.0
+    lodash: ^4.17.21
+    next: ^9.5.5
+    next-transpile-modules: ^4.1.0
+    numeral: 2.0.6
+    nunjucks: ^3.2.4
+    openid-client: 4.7.4
+    pluralize: ^8.0.0
+    qs: 6.11.0
+    raw-loader: ^4.0.2
+    rc-queue-anim: ^1.8.5
+    rc-table: ~7.25.3
+    react: ^16.13.1
+    react-dom: ^16.13.1
+    react-fittext: ^1.0.0
+    react-markdown: ^4.3.1
+    react-responsive: ^8.1.0
+    react-test-renderer: ^16.13.1
+    telegraf: ^4.15.0
+    telegram-login-button: ^0.1.0
+    typescript: ^4.1.5
+    use-immer: ^0.4.1
+    uuid: ^8.3.0
+    validator: ^13.1.1
+    webpack: ^4.46.0
+  languageName: unknown
+  linkType: soft
+
 "@app/pass@workspace:apps/pass":
   version: 0.0.0-use.local
   resolution: "@app/pass@workspace:apps/pass"
@@ -6314,6 +6408,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/runtime@npm:^7.6.0":
+  version: 7.23.6
+  resolution: "@babel/runtime@npm:7.23.6"
+  dependencies:
+    regenerator-runtime: ^0.14.0
+  checksum: 1a8eaf3d3a103ef5227b60ca7ab5c589118c36ca65ef2d64e65380b32a98a3f3b5b3ef96660fa0471b079a18b619a8317f3e7f03ab2b930c45282a8b69ed9a16
+  languageName: node
+  linkType: hard
+
 "@babel/runtime@npm:~7.5.4":
   version: 7.5.5
   resolution: "@babel/runtime@npm:7.5.5"
@@ -6820,6 +6923,12 @@ __metadata:
 "@condo/domains@link:../condo/domains::locator=%40app%2Fminiapp%40workspace%3Aapps%2Fminiapp":
   version: 0.0.0-use.local
   resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Fminiapp%40workspace%3Aapps%2Fminiapp"
+  languageName: node
+  linkType: soft
+
+"@condo/domains@link:../condo/domains::locator=%40app%2Fnews-sharing-telegram%40workspace%3Aapps%2Fcondo-news-sharing-telegram":
+  version: 0.0.0-use.local
+  resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Fnews-sharing-telegram%40workspace%3Aapps%2Fcondo-news-sharing-telegram"
   languageName: node
   linkType: soft
 
@@ -11598,6 +11707,12 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@news-sharing-telegram/domains@link:./domains::locator=%40app%2Fnews-sharing-telegram%40workspace%3Aapps%2Fcondo-news-sharing-telegram":
+  version: 0.0.0-use.local
+  resolution: "@news-sharing-telegram/domains@link:./domains::locator=%40app%2Fnews-sharing-telegram%40workspace%3Aapps%2Fcondo-news-sharing-telegram"
+  languageName: node
+  linkType: soft
+
 "@next/env@npm:13.3.0":
   version: 13.3.0
   resolution: "@next/env@npm:13.3.0"
@@ -15137,6 +15252,13 @@ __metadata:
   dependencies:
     defer-to-connect: ^2.0.0
   checksum: c29df3bcec6fc3bdec2b17981d89d9c9fc9bd7d0c9bcfe92821dc533f4440bc890ccde79971838b4ceed1921d456973c4180d7175ee1d0023ad0562240a58d95
+  languageName: node
+  linkType: hard
+
+"@telegraf/types@npm:^6.9.1":
+  version: 6.9.1
+  resolution: "@telegraf/types@npm:6.9.1"
+  checksum: bafdded5413bfae9bb1369c311c063b7e210b3f950f7df2dc9acf10510ca5e1f928045264684afd31fe96d0645dc2a3d9b979cdb9c29d8a696a6738dd60fa4f9
   languageName: node
   linkType: hard
 
@@ -35995,7 +36117,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mri@npm:^1.1.0":
+"mri@npm:^1.1.0, mri@npm:^1.2.0":
   version: 1.2.0
   resolution: "mri@npm:1.2.0"
   checksum: 83f515abbcff60150873e424894a2f65d68037e5a7fcde8a9e2b285ee9c13ac581b63cfc1e6826c4732de3aeb84902f7c1e16b7aff46cd3f897a0f757a894e85
@@ -36546,6 +36668,20 @@ __metadata:
     encoding: ^0.1.11
     is-stream: ^1.0.1
   checksum: 3bb0528c05d541316ebe52770d71ee25a6dce334df4231fd55df41a644143e07f068637488c18a5b0c43f05041dbd3346752f9e19b50df50569a802484544d5b
+  languageName: node
+  linkType: hard
+
+"node-fetch@npm:^2.6.8":
+  version: 2.7.0
+  resolution: "node-fetch@npm:2.7.0"
+  dependencies:
+    whatwg-url: ^5.0.0
+  peerDependencies:
+    encoding: ^0.1.0
+  peerDependenciesMeta:
+    encoding:
+      optional: true
+  checksum: d76d2f5edb451a3f05b15115ec89fc6be39de37c6089f1b6368df03b91e1633fd379a7e01b7ab05089a25034b2023d959b47e59759cb38d88341b2459e89d6e5
   languageName: node
   linkType: hard
 
@@ -37710,6 +37846,13 @@ __metadata:
   dependencies:
     p-finally: ^1.0.0
   checksum: 3dd0eaa048780a6f23e5855df3dd45c7beacff1f820476c1d0d1bcd6648e3298752ba2c877aa1c92f6453c7dd23faaf13d9f5149fc14c0598a142e2c5e8d649c
+  languageName: node
+  linkType: hard
+
+"p-timeout@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "p-timeout@npm:4.1.0"
+  checksum: 321fec524c23a754e3f1487f2b0a5516fd32aba960d5610490eac56f8a0114b549a93f9919ffc05aa68956dc52e8330e0519f3ddf951d208d19c845f9cd778de
   languageName: node
   linkType: hard
 
@@ -43015,6 +43158,13 @@ __metadata:
   linkType: hard
 
 "regenerator-runtime@npm:^0.14.0":
+  version: 0.14.0
+  resolution: "regenerator-runtime@npm:0.14.0"
+  checksum: 1c977ad82a82a4412e4f639d65d22be376d3ebdd30da2c003eeafdaaacd03fc00c2320f18120007ee700900979284fc78a9f00da7fb593f6e6eeebc673fba9a3
+  languageName: node
+  linkType: hard
+
+"regenerator-runtime@npm:^0.14.0":
   version: 0.14.1
   resolution: "regenerator-runtime@npm:0.14.1"
   checksum: 9f57c93277b5585d3c83b0cf76be47b473ae8c6d9142a46ce8b0291a04bb2cf902059f0f8445dcabb3fb7378e5fe4bb4ea1e008876343d42e46d3b484534ce38
@@ -44267,6 +44417,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"safe-compare@npm:^1.1.4":
+  version: 1.1.4
+  resolution: "safe-compare@npm:1.1.4"
+  dependencies:
+    buffer-alloc: ^1.2.0
+  checksum: 8c0a08f7a2bec1b33400e17bb7cce40ebe0e53902dbba13735e0131fa432140650de2ab4750637623e02e28edab10fa439825b57a7e8b705cae1deb80a58e516
+  languageName: node
+  linkType: hard
+
 "safe-regex-test@npm:^1.0.0":
   version: 1.0.0
   resolution: "safe-regex-test@npm:1.0.0"
@@ -44291,6 +44450,13 @@ __metadata:
   version: 2.1.2
   resolution: "safer-buffer@npm:2.1.2"
   checksum: cab8f25ae6f1434abee8d80023d7e72b598cf1327164ddab31003c51215526801e40b66c5e65d658a0af1e9d6478cadcb4c745f4bd6751f97d8644786c0978b0
+  languageName: node
+  linkType: hard
+
+"sandwich-stream@npm:^2.0.2":
+  version: 2.0.2
+  resolution: "sandwich-stream@npm:2.0.2"
+  checksum: 666d3276e5390786a4ad69f04da472fb69940d1a279a22aebd49ae78ca8f12855503e69d71f77d4b415144a284ffa14efa811a097ad7df501a68c01438b91282
   languageName: node
   linkType: hard
 
@@ -46993,6 +47159,37 @@ __metadata:
     stream-events: ^1.0.5
     uuid: ^8.0.0
   checksum: 26d096799eac7ef98b2777db277f5d5b2e9739eaaed8f4cd333d3ce7281f1396e172c1fd17404af702d2c372fe104e5f4cc430618c80eae8ac8b4b036e527d88
+  languageName: node
+  linkType: hard
+
+"telegraf@npm:^4.15.0":
+  version: 4.15.3
+  resolution: "telegraf@npm:4.15.3"
+  dependencies:
+    "@telegraf/types": ^6.9.1
+    abort-controller: ^3.0.0
+    debug: ^4.3.4
+    mri: ^1.2.0
+    node-fetch: ^2.6.8
+    p-timeout: ^4.1.0
+    safe-compare: ^1.1.4
+    sandwich-stream: ^2.0.2
+  bin:
+    telegraf: lib/cli.mjs
+  checksum: 350fd2928dd813bbeb8d338480556218f4c2fdc2e1f55e73e739f2e7589a76cc44f3a3279f3e56e6e74be0da75c665077a6d46b17c4885e7d19ca5a37463329d
+  languageName: node
+  linkType: hard
+
+"telegram-login-button@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "telegram-login-button@npm:0.1.0"
+  dependencies:
+    "@babel/runtime": ^7.6.0
+    prop-types: ^15.7.2
+  peerDependencies:
+    react: ">16.0.0"
+    react-dom: ">16.0.0"
+  checksum: 4f1eb86fc412841bfe5eaa064bac6d67f83c37e9bdaa711a6f5892c88d8dccceeb50b29e3fac67754d7b32f9777c29f0da4ad1c656d89644ba0281f83b54983d
   languageName: node
   linkType: hard
 

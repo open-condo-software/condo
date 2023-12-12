@@ -1,17 +1,22 @@
 import {
+    Property as IProperty,
+    B2BAppContext as IB2BAppContext,
     BuildingUnit as IBuildingUnit,
     NewsItem as INewsItem,
-    NewsItemCreateInput as INewsItemCreateInput,
+    NewsItemSharing as INewsItemSharing,
     NewsItemScope as INewsItemScope,
     NewsItemScopeCreateInput as INewsItemScopeCreateInput,
     NewsItemScopeUnitTypeType,
     NewsItemTemplate as INewsItemTemplate,
     NewsItemUpdateInput as INewsItemUpdateInput,
-    Property as IProperty,
+    NewsItemCreateInput as INewsItemCreateInput,
     QueryAllNewsItemsArgs as IQueryAllNewsItemsArgs,
+    NewsItemSharingCreateInput as INewsItemSharingCreateInput,
+    NewsItemSharingUpdateInput as INewsItemSharingUpdateInput,
+    QueryAllNewsItemSharingsArgs as IQueryAllNewsItemSharingsArgs,
 } from '@app/condo/schema'
 import styled from '@emotion/styled'
-import { Col, Form, FormInstance, notification, Row } from 'antd'
+import { Col, Checkbox, Form, FormInstance, notification, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { ArgsProps } from 'antd/lib/notification'
 import dayjs from 'dayjs'
@@ -25,6 +30,7 @@ import isArray from 'lodash/isArray'
 import isEmpty from 'lodash/isEmpty'
 import isFunction from 'lodash/isFunction'
 import isNull from 'lodash/isNull'
+import keyBy from 'lodash/keyBy'
 import transform from 'lodash/transform'
 import uniq from 'lodash/uniq'
 import { useRouter } from 'next/router'
@@ -38,6 +44,9 @@ import { Alert, Radio, RadioGroup, Space, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
+import {
+    AsyncOptionsSelect,
+} from '@condo/domains/common/components/AsyncOptionsSelect'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import {
@@ -63,6 +72,10 @@ import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSc
 import { SectionNameInput } from '@condo/domains/user/components/SectionNameInput'
 import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
 
+import { SharingAppCheckboxCard } from '../SharingAppCheckbox'
+import { SharingAppRecipientCounter } from '../SharingAppRecipientCounter'
+
+const CheckboxGroup = Checkbox.Group
 
 type FormWithActionChildrenProps = ComponentProps<ComponentProps<typeof FormWithAction>['children']>
 
@@ -72,12 +85,14 @@ type ActionNameProps = 'create' | 'update'
 
 type NewsItemClientUtilsType = IGenerateHooksResult<INewsItem, INewsItemCreateInput, INewsItemUpdateInput, IQueryAllNewsItemsArgs>
 
+type NewsItemSharingClientUtilsType = IGenerateHooksResult<INewsItemSharing, INewsItemSharingCreateInput, INewsItemSharingUpdateInput, IQueryAllNewsItemSharingsArgs>
+
 export type SendPeriodType = 'now' | 'later'
 
 export type BaseNewsFormProps = {
     organizationId: string
     ActionBar: React.FC<ActionBarProps>
-    action: (values: INewsItemCreateInput | INewsItemUpdateInput) => ReturnType<ReturnType<NewsItemClientUtilsType['useCreate' | 'useUpdate']>>
+    newsItemAction: (values: INewsItemCreateInput | INewsItemUpdateInput) => ReturnType<ReturnType<NewsItemClientUtilsType['useCreate' | 'useUpdate']>>
     initialValues?: INewsItem
     & {
         newsItemScopes: INewsItemScope[],
@@ -92,6 +107,8 @@ export type BaseNewsFormProps = {
     allNews: INewsItem[],
     actionName: ActionNameProps,
     totalProperties: number
+    sharingAppContexts: IB2BAppContext[],
+    createNewsItemSharingAction?: (values: INewsItemSharingCreateInput) => ReturnType<ReturnType<NewsItemSharingClientUtilsType['useCreate']>>
 }
 
 const HiddenBlock = styled.div<{ hide?: boolean }>`
@@ -101,11 +118,14 @@ const HiddenBlock = styled.div<{ hide?: boolean }>`
 //TODO(DOMA-6846) wrap form label with 0 margin and use default spacing (details in 6613 pr)
 const NO_RESIZE_STYLE: React.CSSProperties = { resize: 'none' }
 const FLEX_START_STYLE: React.CSSProperties = { alignItems: 'flex-start' }
+const FLEX_STYLE: React.CSSProperties = { display: 'flex' }
 const BIG_MARGIN_BOTTOM_STYLE: React.CSSProperties = { marginBottom: '60px' }
 const MARGIN_BOTTOM_32_STYLE: React.CSSProperties = { marginBottom: '32px' }
 const MARGIN_BOTTOM_38_STYLE: React.CSSProperties = { marginBottom: '38px' }
 const MARGIN_BOTTOM_10_STYLE: React.CSSProperties = { marginBottom: '10px' }
 const MARGIN_BOTTOM_24_STYLE: React.CSSProperties = { marginBottom: '24px' }
+const MARGIN_LEFT_10_STYLE: React.CSSProperties = { marginLeft: '10px' }
+const MARGIN_TOP_24_STYLE: React.CSSProperties = { marginTop: '24px' }
 const MARGIN_TOP_8_STYLE: React.CSSProperties = { marginTop: '8px' }
 const MARGIN_TOP_44_STYLE: React.CSSProperties = { marginTop: '44px' }
 const FORM_FILED_COL_PROPS = { style: { width: '100%', padding: 0, height: '44px' } }
@@ -190,7 +210,7 @@ const isDateDisabled = date => {
     return isDateInPast || isDateInFutureAfterOneYear
 }
 const isTimeDisabled = date => {
-    // NOTE: doesnt guarantee that user can not select time that has already come, he can select the current time and wait until the ADDITIONAL_DISABLED_MINUTES_COUNT has passed
+    // NOTE: does not guarantee that user can not select time that has already come, he can select the current time and wait until the ADDITIONAL_DISABLED_MINUTES_COUNT has passed
     if (date && !date.isSame(dayjs(), 'day')) {
         return {
             disabledHours: () => [],
@@ -285,7 +305,8 @@ const CHUNK_SIZE = 50
 export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     organizationId,
     ActionBar,
-    action: createOrUpdateNewsItem,
+    newsItemAction: createOrUpdateNewsItem,
+    createNewsItemSharingAction: createNewsItemSharing,
     initialValues = INITIAL_VALUES,
     templates,
     afterAction,
@@ -293,6 +314,8 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     OnCompletedMsg,
     allNews,
     actionName,
+    sharingAppContexts,
+    sharingAppContextsIndex,
     totalProperties,
 }) => {
     const intl = useIntl()
@@ -330,6 +353,8 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const TimezoneMskTitle = intl.formatMessage({ id: 'timezone.msk' })
     const ProfanityInTitle = intl.formatMessage({ id: 'news.fields.profanityInTitle.error' })
     const ProfanityInBody = intl.formatMessage({ id: 'news.fields.profanityInBody.error' })
+    const SelectSharingAppLabel = intl.formatMessage({ id: 'news.fields.selectSharingApp' })
+
 
     const { logEvent, getEventName } = useTracking()
 
@@ -404,6 +429,14 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         }, {})
     }, [templates])
 
+    const sharingAppContextsIndex = keyBy(sharingAppContexts, 'id')
+    const selectedSharingAppsOptions = sharingAppContexts.map((x) => ({ label: get(x, ['app', 'newsSharingConfig', 'name']), value: x.id }))
+    const [selectedSharingApps, setSelectedSharingApps] = useState<string[]>([])
+    const isAnySharingAppSelected: boolean = useMemo(() => (selectedSharingApps.length > 0), [selectedSharingApps.length])
+    const [selectedSharingAppsRecipients, setSelectedSharingAppsRecipients] = useState<{ [key: string]: string[] }>({})
+    // Todo @toplenboren what to do with re-renders ?
+    const [sharingAppRecipientsData, setSharingAppsRecipientsData] = useState<{ [key: string]: { name: string, recipients: number } }>({})
+
     const [sendPeriod, setSendPeriod] = useState<string>(get(initialValues, 'sendPeriod', 'now'))
 
     const [selectedType, setSelectedType] = useState<string>(get(initialValues, 'type', NEWS_TYPE_COMMON))
@@ -417,18 +450,23 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const [isAllPropertiesChecked, setIsAllPropertiesChecked] = useState(initialHasAllProperties)
     const [selectedSectionKeys, setSelectedSectionKeys] = useState(initialSectionIds)
 
-    const countPropertiesAvaliableToSelect = useRef(null)
+    const countPropertiesAvailableToSelect = useRef(null)
     const onlyPropertyThatCanBeSelected = useRef(null)
 
     const { loading: selectedPropertiesLoading, objs: selectedProperties } = Property.useAllObjects({
         where: { id_in: selectedPropertiesId },
     })
-
+    // Todo @toplenboren check with product team?
+    const isAnyPropertySelected: boolean = useMemo(() => (selectedPropertiesId.length > 0 || isAllPropertiesChecked), [selectedPropertiesId.length, isAllPropertiesChecked])
     const isOnlyOnePropertySelected: boolean = useMemo(() => (selectedPropertiesId.length === 1), [selectedPropertiesId.length])
 
     const softDeleteNewsItemScope = NewsItemScope.useSoftDeleteMany()
     const createNewsItemScope = NewsItemScope.useCreateMany({})
     const updateNewsItem = NewsItem.useUpdate({})
+
+    const handleSelectSharingAppChange = useCallback((selectedOptions: string[]) => {
+        setSelectedSharingApps(selectedOptions)
+    }, [])
 
     const handleSetSendDate = useCallback((value) => {
         const newsItemCountAtSameDay = getNewsItemCountAtSameDay(value, allNews)
@@ -491,12 +529,11 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         } else {
             const unitNamesKeys = options.map(option => get(option, 'key'))
             setSelectedUnitNameKeys(unitNamesKeys)
-
         }
     }, [])
 
     const handleAllPropertiesDataLoading = useCallback((data) => {
-        countPropertiesAvaliableToSelect.current = data.length
+        countPropertiesAvailableToSelect.current = data.length
         if (data.length === 1) {
             onlyPropertyThatCanBeSelected.current = data[0]
         }
@@ -511,6 +548,13 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         Title.setTextLength(initialTitle.length)
         Body.setTextLength(initialBody.length)
     }, [])
+
+    const handleSharingAppRecipientsChange = useCallback((recipients: string[], appContextId: string) => {
+        setSelectedSharingAppsRecipients(prevState => ({
+            ...prevState,
+            [appContextId]: recipients,
+        }))
+    }, [setSelectedSharingAppsRecipients])
 
     const handleTemplateChange = useCallback((form, fieldName) => (value) => {
         const templateId = value
@@ -531,17 +575,18 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         setSelectedBody(body)
         Body.setTextLength(body.length)
     }, [Body, Title, templates])
+
     const propertyCheckboxChange = (form) => {
         return (value) => {
             if (value) setSelectedPropertiesId(selectedPropertiesId => {
-                if (countPropertiesAvaliableToSelect.current === 1 && selectedPropertiesId.length === 1) 
+                if (countPropertiesAvailableToSelect.current === 1 && selectedPropertiesId.length === 1)
                     return selectedPropertiesId
-                if (countPropertiesAvaliableToSelect.current === 1 && selectedPropertiesId.length === 0 && has(onlyPropertyThatCanBeSelected, 'current.value')) {
+                if (countPropertiesAvailableToSelect.current === 1 && selectedPropertiesId.length === 0 && has(onlyPropertyThatCanBeSelected, 'current.value')) {
                     return [onlyPropertyThatCanBeSelected.current.value]
                 }
                 return []
             })
-            if (countPropertiesAvaliableToSelect.current === 1 && !value) {
+            if (countPropertiesAvailableToSelect.current === 1 && !value) {
                 setSelectedPropertiesId([])
             }
             setIsAllPropertiesChecked(value)
@@ -551,6 +596,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             setSelectedSectionKeys([])
         }
     }
+
     const propertySelectProps = (form) => {
         return {
             showArrow: false,
@@ -569,6 +615,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             },
         }
     }
+
     const propertySelectFormItemProps: InputWithCheckAllProps['selectFormItemProps'] = useMemo(() => ({
         label: PropertiesLabel,
         labelCol: FORM_FILED_COL_PROPS,
@@ -611,9 +658,19 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     }, [initialValues])
 
     const handleFormSubmit = useCallback(async (values) => {
+        console.log(values)
+
         if (actionName === 'update') {
             await updateNewsItem({ isPublished: false }, currentNewsItem)
         }
+
+        // todo @toplenboren remove this before production
+        delete values.selectedSharingApps
+        for (const ctxId of selectedSharingApps) {
+            delete values[ctxId]
+        }
+
+        console.log('Values after cleanup:', values)
 
         const {
             properties,
@@ -642,11 +699,13 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         if (actionName === 'update' && properties.length !== 0 && initialHasAllProperties) {
             await softDeleteNewsItemScope([initialNewsItemScopes[0]])
         }
+
         if (actionName === 'update' && properties.length === 0 && !initialHasAllProperties && hasAllProperties) {
             await createNewsItemScope([{
                 newsItem: { connect: { id: newsItemId } },
             }])
         }
+
         if (actionName === 'update' && !initialHasAllProperties) {
             const deletedPropertyIds = difference(initialPropertyIds, properties)
             const newsItemScopesToDelete = initialNewsItemScopes
@@ -680,10 +739,24 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         }
 
         const addedPropertyIds: string[] = actionName === 'create' ? properties : difference(properties, initialPropertyIds)
+
         if (actionName === 'create' && addedPropertyIds.length === 0 && hasAllProperties) {
             await createNewsItemScope([{
                 newsItem: { connect: { id: newsItemId } },
             }])
+        }
+
+        if (actionName === 'create' && isAnySharingAppSelected) {
+            for (const ctxId of selectedSharingApps) {
+                const sharingParams = {
+                    recipientIds: selectedSharingAppsRecipients[ctxId],
+                }
+                await createNewsItemSharing({
+                    sharingParams,
+                    newsItem: { connect: { id: newsItemId } },
+                    b2bAppContext: { connect: { id: ctxId } },
+                })
+            }
         }
 
         if (addedPropertyIds.length === 1 && properties.length === 1) {
@@ -760,6 +833,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                 await createNewsItemScope(scopes)
             }
         }
+
         if (actionName === 'update' && !hasAllProperties && isEmpty(addedPropertyIds) && unitNames.length > 0) {
             const propertyId = initialPropertyIds[0]
             if (isEmpty(initialUnitKeys) && initialNewsItemScopes.length === 1) {
@@ -796,7 +870,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     }, [actionName, createOrUpdateNewsItem, initialHasAllProperties, initialPropertyIds, updateNewsItem, OnCompletedMsg, afterAction, initialSentAt, currentNewsItem, initialNewsItemScopes, softDeleteNewsItemScope, initialUnitKeys, createNewsItemScope, router])
 
     const newsItemScopesNoInstance = useMemo<TNewsItemScopeNoInstance[]>(() => {
-        if (isAllPropertiesChecked && countPropertiesAvaliableToSelect.current !== 1) {
+        if (isAllPropertiesChecked && countPropertiesAvailableToSelect.current !== 1) {
             return [{ property: null, unitType: null, unitName: null }]
         }
 
@@ -901,6 +975,54 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                     children={({ handleSave, isLoading, form }) => (
                         <>
                             <Row>
+                                <Col span={24} style={BIG_MARGIN_BOTTOM_STYLE}>
+                                    <Row gutter={BIG_HORIZONTAL_GUTTER}>
+                                        <Col span={formFieldsColSpan}>
+                                            <Row>
+                                                <Col span={24}>
+                                                    <Row gutter={EXTRA_SMALL_VERTICAL_GUTTER}>
+                                                        <Col span={24}>
+                                                            <Typography.Title level={2}>
+                                                                {SelectSharingAppLabel}
+                                                            </Typography.Title>
+                                                        </Col>
+                                                        <Col span={12}>
+                                                            <Form.Item
+                                                                name='selectedSharingApps'
+                                                                style = {FLEX_START_STYLE}
+                                                                valuePropName='checked'
+                                                            >
+                                                                <div style={FLEX_STYLE}>
+                                                                    <SharingAppCheckboxCard icon={null}>
+                                                                        <Checkbox disabled checked>Doma</Checkbox>
+                                                                    </SharingAppCheckboxCard>
+                                                                    <CheckboxGroup
+                                                                        value={selectedSharingApps}
+                                                                        onChange={handleSelectSharingAppChange}
+                                                                    >
+                                                                        { sharingAppContexts.map( ctx => {
+
+                                                                            const sharingAppName = ctx.app.newsSharingConfig.name
+                                                                            const sharingAppIcon = get(ctx, ['app', 'newsSharingConfig', 'icon', 'publicUrl'], null)
+
+                                                                            return (
+                                                                                <div key={ctx.id} style={MARGIN_LEFT_10_STYLE}>
+                                                                                    <SharingAppCheckboxCard icon={sharingAppIcon}>
+                                                                                        <Checkbox value={ctx.id}>{sharingAppName}</Checkbox>
+                                                                                    </SharingAppCheckboxCard>
+                                                                                </div>
+                                                                            )
+                                                                        })}
+                                                                    </CheckboxGroup>
+                                                                </div>
+                                                            </Form.Item>
+                                                        </Col>
+                                                    </Row>
+                                                </Col>
+                                            </Row>
+                                        </Col>
+                                    </Row>
+                                </Col>
                                 <Col span={24} style={BIG_MARGIN_BOTTOM_STYLE}>
                                     <Row gutter={BIG_HORIZONTAL_GUTTER}>
                                         <Col span={formFieldsColSpan}>
@@ -1052,6 +1174,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                     body={selectedBody}
                                                     title={selectedTitle}
                                                     validBefore={selectedType === NEWS_TYPE_EMERGENCY ? selectedValidBeforeText : null}
+                                                    sharingApps={selectedSharingApps.map(id => ({ id: id, name: sharingAppContextsIndex[id].app.newsSharingConfig.name, previewUrl: sharingAppContextsIndex[id].app.newsSharingConfig.previewUrl }) )}
                                                 />
                                             )}
                                         </Col>
@@ -1061,7 +1184,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                     <Row gutter={BIG_HORIZONTAL_GUTTER}>
                                         <Col span={formFieldsColSpan}>
                                             <Row gutter={EXTRA_SMALL_VERTICAL_GUTTER}>
-                                                <Col span={24}>
+                                                <Col span={24} style={MARGIN_BOTTOM_10_STYLE}>
                                                     <Typography.Title level={2}>{SelectAddressLabel}</Typography.Title>
                                                 </Col>
                                                 <Col span={24} data-cy='news__create-property-search'>
@@ -1138,14 +1261,66 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                         </>
                                                     )
                                                 }
-                                            </Row>
-                                        </Col>
-                                        <Col span={formInfoColSpan}>
-                                            {(newsItemScopesNoInstance.length > 0) && (
-                                                <RecipientCounter newsItemScopes={newsItemScopesNoInstance}/>
-                                            )}
-                                        </Col>
-                                    </Row>
+                                                {
+                                                    (isAnySharingAppSelected) && (
+                                                        selectedSharingApps.map(id => {
+                                                            // @toplenboren TODO REMOVE THIS!
+                                                            if (id === '0') { return null }
+
+                                                            const context = sharingAppContextsIndex[id]
+                                                            const name = context.app.newsSharingConfig.name
+
+                                                            const options = [{
+                                                                label: 'Дом 3 на Булвару Савича',
+                                                                value: 1,
+                                                            }]
+
+                                                return (
+                                                    <>
+                                                        <Col key={id} span={24} style={MARGIN_BOTTOM_10_STYLE}>
+                                                            <Row gutter={BIG_HORIZONTAL_GUTTER}>
+                                                                <Col span={formFieldsColSpan}>
+                                                                    <Row gutter={EXTRA_SMALL_VERTICAL_GUTTER}>
+                                                                        <Col span={24} style={MARGIN_TOP_24_STYLE}>
+                                                                            <Typography.Title level={4}>
+                                                                                {sharingAppName}
+                                                                            </Typography.Title>
+                                                                            <Form.Item
+                                                                                label='Recipients'
+                                                                                name={ctxId}
+                                                                                required
+                                                                            >
+                                                                                <AsyncOptionsSelect
+                                                                                    // todo @toplenboren Ask product management whether we need this disabled stuff
+                                                                                    //disabled={!isAnyPropertySelected}
+                                                                                    mode='multiple'
+                                                                                    optionFilterProp='title'
+                                                                                    showSearch={true}
+                                                                                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                                                                                    // @ts-ignore
+                                                                                    value={selectedSharingAppsRecipients[ctxId]}
+                                                                                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                                                                                    // @ts-ignore
+                                                                                    onChange={(value) => handleSharingAppRecipientsChange(value, ctxId)}
+                                                                                    fetchOptions={() => fetchSharingAppRecipientsOptions(ctxId, sharingAppGetRecipientsUrl, organizationId)}
+                                                                                    placeholder='Select recipients'
+                                                                                />
+                                                                            </Form.Item>
+                                                                        </Col>
+                                                                    </Row>
+                                                                </Col>
+                                                                <Col span={formInfoColSpan}>
+                                                                    {(get(selectedSharingAppsRecipients, [ctxId, 'length'], 0) > 0) && (
+                                                                        <SharingAppRecipientCounter name={sharingAppName} recipients={getSelectedSharingAppRecipient(ctxId, selectedSharingAppsRecipients[ctxId])} />
+                                                                    )}
+                                                                </Col>
+                                                            </Row>
+                                                        </Col>
+                                                    </>
+                                                )
+                                            })
+                                        )
+                                    }
                                 </Col>
                                 <Col span={24}>
                                     <Row gutter={BIG_HORIZONTAL_GUTTER}>

@@ -1447,6 +1447,7 @@
   "pages.condo.marketplace.marketItem.filter.allCategories": "All categories",
   "pages.condo.notification.unsubscribed.PageTitle": "Subscription canceled",
   "pages.condo.notification.unsubscribed.Description": "You will not receiving receipts on email",
+  "news.fields.selectSharingApp": "Select sharing services",
   "news.fields.units.label": "Flat",
   "news.fields.units.message": "To select flats, delete the selected entrances",
   "news.fields.sections.label": "Entrance",

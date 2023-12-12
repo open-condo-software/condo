@@ -36,7 +36,7 @@ interface CounterProps {
 const styleQuestionCircle: CSSProperties = { color: colors.gray['5'], cursor: 'help' }
 const styleMaxWidth: CSSProperties = { maxWidth: '500px' }
 
-const Counter: React.FC<CounterProps> = ({ label, value, type = 'success', hint, downloadButton }) => (
+export const Counter: React.FC<CounterProps> = ({ label, value, type = 'success', hint, downloadButton }) => (
     <Space direction='vertical' align='center' size={8}>
         <Space size={8} direction='horizontal' align='start'>
             <Typography.Title level={3} type={type}>{value}</Typography.Title>

@@ -8,8 +8,9 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
+import { B2BAppContext } from '@condo/domains/miniapp/utils/clientSchema'
 import { CreateNewsActionBar, getCompletedNotification } from '@condo/domains/news/components/NewsForm/CreateNewsForm'
-import { NewsItem, NewsItemScope, NewsItemTemplate } from '@condo/domains/news/utils/clientSchema'
+import { NewsItem, NewsItemScope, NewsItemSharing, NewsItemTemplate } from '@condo/domains/news/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
 import { BaseNewsForm, BaseNewsFormProps, SendPeriodType } from './BaseNewsForm'
@@ -27,9 +28,12 @@ export const ResendNewsForm: React.FC<IResendNewsForm> = ({ id }) => {
     const organizationId = useMemo(() => get(organization, 'id'), [organization])
 
     const createNewsItem = NewsItem.useCreate({ organization: { connect: { id: organizationId } } })
-    const action: BaseNewsFormProps['action'] = useCallback(async (values) => {
+    const createNewsItemSharing = NewsItemSharing.useCreate({})
+
+    const action: BaseNewsFormProps['newsItemAction'] = useCallback(async (values) => {
         return await createNewsItem(values)
     }, [createNewsItem])
+    const createNewsItemSharingAction: BaseNewsFormProps['createNewsItemSharingAction'] = useCallback(async (values) => { return await createNewsItemSharing(values) }, [createNewsItemSharing])
 
     const {
         loading: totalPropertiesLoading,
@@ -109,6 +113,28 @@ export const ResendNewsForm: React.FC<IResendNewsForm> = ({ id }) => {
         },
     })
 
+    const {
+        loading: isSharingAppContextsFetching,
+        objs: sharingAppContexts,
+        error: sharingAppContextsError,
+    } = B2BAppContext.useObjects({
+        where: {
+            app: { newsSharingConfig_is_null: false },
+        },
+    })
+
+    const dateStart = dayjs().startOf('day')
+    const {
+        loading: isNewsFetching,
+        objs: allNews,
+        error: allNewsError,
+    } = NewsItem.useAllObjects({
+        where: {
+            organization: { id: organizationId },
+            createdAt_gte: dateStart.toISOString(),
+        },
+    })
+
     const templates = isNewsItemTemplatesFetching ? null : newsItemTemplates
         .reduce((acc, template) => {
             acc[template.id] = {
@@ -125,11 +151,11 @@ export const ResendNewsForm: React.FC<IResendNewsForm> = ({ id }) => {
     }, [intl, softDeleteNewsItem])
 
     const error = useMemo(
-        () => newsItemError || newsItemScopeError || newsItemTemplatesError || allNewsError || totalPropertiesError,
-        [allNewsError, newsItemError, newsItemScopeError, newsItemTemplatesError, totalPropertiesError])
+        () => newsItemError || newsItemScopeError || newsItemTemplatesError || allNewsError || totalPropertiesError || sharingAppContextsError,
+        [allNewsError, newsItemError, newsItemScopeError, newsItemTemplatesError, totalPropertiesError, sharingAppContextsError])
     const loading = useMemo(
-        () => propertiesLoading || newsItemLoading || !newsItemScopeAllDataLoaded || isNewsFetching || isNewsItemTemplatesFetching || totalPropertiesLoading,
-        [isNewsFetching, isNewsItemTemplatesFetching, newsItemLoading, newsItemScopeAllDataLoaded, propertiesLoading, totalPropertiesLoading])
+        () => propertiesLoading || newsItemLoading || !newsItemScopeAllDataLoaded || isNewsFetching || isNewsItemTemplatesFetching || totalPropertiesLoading || isSharingAppContextsFetching,
+        [isNewsFetching, isNewsItemTemplatesFetching, newsItemLoading, newsItemScopeAllDataLoaded, propertiesLoading, totalPropertiesLoading, isSharingAppContextsFetching])
 
     if (loading || error) {
         return (
@@ -141,13 +167,16 @@ export const ResendNewsForm: React.FC<IResendNewsForm> = ({ id }) => {
     }
 
     return (
+        // @ts-ignore
         <BaseNewsForm
-            action={action}
             organizationId={organizationId}
+            newsItemAction={action}
             ActionBar={CreateNewsActionBar}
             initialValues={initialValues}
             newsItem={newsItem}
             templates={templates}
+            sharingAppContexts={sharingAppContexts}
+            createNewsItemSharingAction={createNewsItemSharingAction}
             OnCompletedMsg={OnCompletedMsg}
             allNews={allNews}
             actionName='create'

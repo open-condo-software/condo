@@ -9,6 +9,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button } from '@open-condo/ui'
 
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
+import { B2BAppContext } from '@condo/domains/miniapp/utils/clientSchema'
 import { NewsItem, NewsItemScope, NewsItemTemplate } from '@condo/domains/news/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
@@ -74,7 +75,7 @@ export const UpdateNewsForm: React.FC<IUpdateNewsForm> = ({ id }) => {
     })
 
     const updateNewsItem = NewsItem.useUpdate({})
-    const action: BaseNewsFormProps['action'] = useCallback(
+    const action: BaseNewsFormProps['newsItemAction'] = useCallback(
         async (values) => {
             return await updateNewsItem(values, newsItem)
         }, [updateNewsItem, newsItem])
@@ -123,6 +124,16 @@ export const UpdateNewsForm: React.FC<IUpdateNewsForm> = ({ id }) => {
         },
     })
 
+    const {
+        loading: isSharingAppContextsFetching,
+        objs: sharingAppContexts,
+        error: sharingAppContextsError,
+    } = B2BAppContext.useObjects({
+        where: {
+            app: { newsSharingConfig_is_null: false },
+        },
+    })
+
     const dateStart = dayjs().startOf('day')
     const {
         loading: isNewsFetching,
@@ -146,11 +157,11 @@ export const UpdateNewsForm: React.FC<IUpdateNewsForm> = ({ id }) => {
         }, { emptyTemplate: { title: EmptyTemplateTitle, body: '', type: null } })
 
     const error = useMemo(
-        () => newsItemError || newsItemScopeError || allNewsError || newsItemTemplatesError || totalPropertiesError,
-        [allNewsError, newsItemError, newsItemScopeError, newsItemTemplatesError, totalPropertiesError])
+        () => newsItemError || newsItemScopeError || allNewsError || newsItemTemplatesError || totalPropertiesError || sharingAppContextsError,
+        [allNewsError, newsItemError, newsItemScopeError, newsItemTemplatesError, totalPropertiesError, sharingAppContextsError])
     const loading = useMemo(
-        () => propertiesLoading || newsItemLoading || !newsItemScopeAllDataLoaded || isNewsFetching || isNewsItemTemplatesFetching || totalPropertiesLoading,
-        [isNewsFetching, isNewsItemTemplatesFetching, newsItemLoading, newsItemScopeAllDataLoaded, propertiesLoading, totalPropertiesLoading])
+        () => propertiesLoading || newsItemLoading || !newsItemScopeAllDataLoaded || isNewsFetching || isNewsItemTemplatesFetching || totalPropertiesLoading || isSharingAppContextsFetching,
+        [isNewsFetching, isNewsItemTemplatesFetching, newsItemLoading, newsItemScopeAllDataLoaded, propertiesLoading, totalPropertiesLoading, isSharingAppContextsFetching])
 
     if (loading || error) {
         return (
@@ -162,14 +173,16 @@ export const UpdateNewsForm: React.FC<IUpdateNewsForm> = ({ id }) => {
     }
 
     return (
+        // @ts-ignore
         <BaseNewsForm
-            action={action}
             organizationId={organizationId}
+            newsItemAction={action}
             ActionBar={UpdateNewsActionBar}
             afterAction={afterAction}
             initialValues={initialValues}
             newsItem={newsItem}
             templates={templates}
+            sharingAppContexts={sharingAppContexts}
             OnCompletedMsg={null}
             allNews={allNews}
             actionName='update'

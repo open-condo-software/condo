@@ -108,8 +108,7 @@ const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
             if (updatedItem.status === STATUSES.SCHEDULED) {
                 const newsItem = await getById('NewsItem', updatedItem.newsItem)
                 if (newsItem.isPublished) {
-                    // Todo: @toplenboren (DOMA-7887) turn this on when one of miniapps is ready
-                    // await publishSharedNewsItem.delay(updatedItem.id)
+                    await publishSharedNewsItem.delay(updatedItem.id)
                 }
             }
         },

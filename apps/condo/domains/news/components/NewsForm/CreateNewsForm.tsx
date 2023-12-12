@@ -12,7 +12,8 @@ import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Typography } from '@open-condo/ui'
 
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { NewsItem, NewsItemTemplate } from '@condo/domains/news/utils/clientSchema'
+import { B2BAppContext } from '@condo/domains/miniapp/utils/clientSchema'
+import { NewsItem, NewsItemTemplate, NewsItemSharing } from '@condo/domains/news/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
 import { BaseNewsForm, BaseNewsFormProps } from './BaseNewsForm'
@@ -122,9 +123,10 @@ export const CreateNewsForm: React.FC = () => {
     const organizationId = useMemo(() => get(organization, 'id'), [organization])
 
     const createNewsItem = NewsItem.useCreate({ organization: { connect: { id: organizationId } } })
-    const action: BaseNewsFormProps['action'] = useCallback(async (values) => {
-        return await createNewsItem(values)
-    }, [createNewsItem])
+    const createNewsItemSharing = NewsItemSharing.useCreate({})
+
+    const action: BaseNewsFormProps['newsItemAction'] = useCallback(async (values) => { return await createNewsItem(values) }, [createNewsItem])
+    const createNewsItemSharingAction: BaseNewsFormProps['createNewsItemSharingAction'] = useCallback(async (values) => { return await createNewsItemSharing(values) }, [createNewsItemSharing])
 
     const {
         loading: isNewsItemTemplatesFetching,
@@ -138,6 +140,17 @@ export const CreateNewsForm: React.FC = () => {
             ],
         },
     })
+
+    const {
+        loading: isSharingAppContextsFetching,
+        objs: sharingAppContexts,
+        error: sharingAppContextsError,
+    } = B2BAppContext.useObjects({
+        where: {
+            app: { newsSharingConfig_is_null: false },
+        },
+    })
+    const sharingAppContextsIndex = keyBy(sharingAppContexts, 'id')
 
     const {
         loading: totalPropertiesLoading,
@@ -182,8 +195,8 @@ export const CreateNewsForm: React.FC = () => {
         )
     }, [intl, softDeleteNewsItem])
 
-    const error = useMemo(() => newsItemTemplatesError || allNewsError || totalPropertiesError, [allNewsError, newsItemTemplatesError, totalPropertiesError])
-    const loading = isNewsFetching || isNewsItemTemplatesFetching || totalPropertiesLoading
+    const error = useMemo(() => newsItemTemplatesError || allNewsError || totalPropertiesError, [ allNewsError, newsItemTemplatesError, totalPropertiesError, sharingAppContextsError ])
+    const loading = isNewsFetching || isNewsItemTemplatesFetching || totalPropertiesLoading || isSharingAppContextsFetching
 
     if (loading || error) {
         return (
@@ -196,10 +209,12 @@ export const CreateNewsForm: React.FC = () => {
 
     return (
         <BaseNewsForm
-            action={action}
             organizationId={organizationId}
+            newsItemAction={action}
             ActionBar={CreateNewsActionBar}
             templates={templates}
+            sharingAppContexts={sharingAppContexts}
+            createNewsItemSharingAction={createNewsItemSharingAction}
             OnCompletedMsg={OnCompletedMsg}
             allNews={allNews}
             actionName='create'
