@@ -66,7 +66,7 @@ export type B2CApp = {
     newId?: Maybe<Scalars['String']['output']>;
     /**  ID of this entity in the production environment. If set, subsequent publications to this environment will update the entity with the specified ID.  */
     productionExportId?: Maybe<Scalars['String']['output']>;
-    /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+    /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
     sender?: Maybe<SenderField>;
     updatedAt?: Maybe<Scalars['String']['output']>;
     /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
@@ -101,7 +101,7 @@ export type B2CAppBuild = {
     newId?: Maybe<Scalars['String']['output']>;
     /**  ID of this entity in the production environment. If set, subsequent publications to this environment will update the entity with the specified ID.  */
     productionExportId?: Maybe<Scalars['String']['output']>;
-    /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+    /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
     sender?: Maybe<SenderField>;
     updatedAt?: Maybe<Scalars['String']['output']>;
     /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
@@ -808,7 +808,7 @@ export type B2CAppPublishRequest = {
     /**  Before publishing for the first time, it is necessary to ensure that all information about the application is valid and understandable for the user. Required prerequisite for obtaining permission to publish  */
     isInfoApproved?: Maybe<Scalars['Boolean']['output']>;
     newId?: Maybe<Scalars['String']['output']>;
-    /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+    /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
     sender?: Maybe<SenderField>;
     /**  Status of consideration of the current request  */
     status?: Maybe<Scalars['String']['output']>;
@@ -1763,6 +1763,27 @@ export type File = {
     publicUrl?: Maybe<Scalars['String']['output']>;
 }
 
+export type ImportB2CAppFromInput = {
+    developmentApp?: InputMaybe<B2CAppWhereUniqueInput>;
+    productionApp?: InputMaybe<B2CAppWhereUniqueInput>;
+}
+
+export type ImportB2CAppInput = {
+    dv: Scalars['Int']['input'];
+    from: ImportB2CAppFromInput;
+    sender: SenderFieldInput;
+    to: ImportB2CAppToInput;
+}
+
+export type ImportB2CAppOutput = {
+    __typename?: 'ImportB2CAppOutput';
+    success: Scalars['Boolean']['output'];
+}
+
+export type ImportB2CAppToInput = {
+    app: B2CAppWhereUniqueInput;
+}
+
 export type Mutation = {
     __typename?: 'Mutation';
     /**  Authenticate and generate a token for a User with the Password Authentication Strategy.  */
@@ -1881,6 +1902,7 @@ export type Mutation = {
     deleteWebhookSubscriptions?: Maybe<Array<Maybe<WebhookSubscription>>>;
     /**  Delete multiple Webhook items by ID.  */
     deleteWebhooks?: Maybe<Array<Maybe<Webhook>>>;
+    importB2CApp?: Maybe<ImportB2CAppOutput>;
     publishB2CApp?: Maybe<PublishB2CAppOutput>;
     registerNewUser?: Maybe<User>;
     startConfirmPhoneAction?: Maybe<StartConfirmPhoneActionOutput>;
@@ -2238,6 +2260,11 @@ export type MutationDeleteWebhookSubscriptionsArgs = {
 
 export type MutationDeleteWebhooksArgs = {
     ids?: InputMaybe<Array<Scalars['ID']['input']>>;
+}
+
+
+export type MutationImportB2CAppArgs = {
+    data: ImportB2CAppInput;
 }
 
 
@@ -3822,7 +3849,7 @@ export type Webhook = {
     /**  Short name used to distinguish this hook from others. Usually it's the name of the integration  */
     name?: Maybe<Scalars['String']['output']>;
     newId?: Maybe<Scalars['String']['output']>;
-    /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+    /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
     sender?: Maybe<SenderField>;
     updatedAt?: Maybe<Scalars['String']['output']>;
     /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
@@ -4112,7 +4139,7 @@ export type WebhookSubscription = {
     /**  The data model (schema) that the webhook is subscribed to  */
     model?: Maybe<Scalars['String']['output']>;
     newId?: Maybe<Scalars['String']['output']>;
-    /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+    /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
     sender?: Maybe<SenderField>;
     /**  The number of objects successfully delivered by webhooks. On successful synchronization, the syncedAt field is updated and syncedAmount becomes 0. If the remote server fails, syncedAt will not be updated, and syncedAmount will increment to the number of successfully delivered objects.  */
     syncedAmount?: Maybe<Scalars['Int']['output']>;

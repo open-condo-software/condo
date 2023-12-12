@@ -27,6 +27,12 @@ const PUBLISH_B2C_APP_MUTATION = gql`
     }
 `
 
+const IMPORT_B2C_APP_MUTATION = gql`
+    mutation importB2CApp ($data: ImportB2CAppInput!) {
+        result: importB2CApp(data: $data) { success }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -34,5 +40,6 @@ module.exports = {
     B2CAppBuild,
     B2CAppPublishRequest,
     PUBLISH_B2C_APP_MUTATION,
+    IMPORT_B2C_APP_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

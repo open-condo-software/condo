@@ -16,6 +16,7 @@ const {
 } = require('@dev-api/domains/miniapp/gql')
 const { UploadingFile } = require('@open-condo/keystone/test.utils')
 const { DEV_ENVIRONMENT } = require('@dev-api/domains/miniapp/constants/publishing')
+const { IMPORT_B2C_APP_MUTATION } = require('@dev-api/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const B2CApp = generateGQLTestUtils(B2CAppGQL)
@@ -147,6 +148,32 @@ async function updateTestB2CAppPublishRequest (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+
+async function importB2CAppByTestClient(client, app, condoDevApp = null, condoProdApp = null) {
+    if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app')
+    if (condoDevApp && !condoDevApp.id) throw new Error('no condoDevApp.id')
+    if (condoProdApp && !condoProdApp.id) throw new Error('no condoProdApp.id')
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const from = {}
+    if (condoDevApp) {
+        from.developmentApp =  { id: condoDevApp.id }
+    }
+    if (condoProdApp) {
+        from.productionApp = { id: condoProdApp.id }
+    }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        to: { app: { id: app.id } },
+        from
+    }
+    const { data, errors } = await client.mutate(IMPORT_B2C_APP_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -154,5 +181,6 @@ module.exports = {
     B2CAppBuild, createTestB2CAppBuild, updateTestB2CAppBuild, generateBuildVersion,
     B2CAppPublishRequest, createTestB2CAppPublishRequest, updateTestB2CAppPublishRequest,
     publishB2CAppByTestClient,
+    importB2CAppByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

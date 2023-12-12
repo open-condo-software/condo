@@ -343,7 +343,7 @@ type User {
   """ Data structure Version """
   dv: Int
 
-  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
   """
   sender: SenderField
 }
@@ -847,7 +847,7 @@ type ConfirmPhoneAction {
   """ Data structure Version """
   dv: Int
 
-  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
   """
   sender: SenderField
 }
@@ -1364,7 +1364,7 @@ type B2CApp {
   """ Data structure Version """
   dv: Int
 
-  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
   """
   sender: SenderField
 
@@ -1890,7 +1890,7 @@ type B2CAppBuild {
   """ Data structure Version """
   dv: Int
 
-  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
   """
   sender: SenderField
 
@@ -2370,7 +2370,7 @@ type B2CAppPublishRequest {
   """ Data structure Version """
   dv: Int
 
-  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
   """
   sender: SenderField
 }
@@ -2817,7 +2817,7 @@ type Webhook {
   """ Data structure Version """
   dv: Int
 
-  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
   """
   sender: SenderField
 }
@@ -3390,7 +3390,7 @@ type WebhookSubscription {
   """ Data structure Version """
   dv: Int
 
-  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
   """
   sender: SenderField
 }
@@ -3863,6 +3863,26 @@ input PublishB2CAppInput {
 }
 
 type PublishB2CAppOutput {
+  success: Boolean!
+}
+
+input ImportB2CAppFromInput {
+  developmentApp: B2CAppWhereUniqueInput
+  productionApp: B2CAppWhereUniqueInput
+}
+
+input ImportB2CAppToInput {
+  app: B2CAppWhereUniqueInput!
+}
+
+input ImportB2CAppInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  from: ImportB2CAppFromInput!
+  to: ImportB2CAppToInput!
+}
+
+type ImportB2CAppOutput {
   success: Boolean!
 }
 
@@ -4344,6 +4364,7 @@ type Mutation {
   registerNewUser(data: RegisterNewUserInput!): User
   authenticateUserWithPhoneAndPassword(data: AuthenticateUserWithPhoneAndPasswordInput!): AuthenticateUserWithPhoneAndPasswordOutput
   publishB2CApp(data: PublishB2CAppInput!): PublishB2CAppOutput
+  importB2CApp(data: ImportB2CAppInput!): ImportB2CAppOutput
 
   """ Authenticate and generate a token for a User with the Password Authentication Strategy. 
   """
