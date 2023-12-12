@@ -205,6 +205,26 @@ describe('RegisterBillingReceiptsService', () => {
             })
             expect(accounts).toHaveLength(1)
         })
+        test('isPerson validation "company" ownerType test', async () => {
+            const importId = randomNumber(50).toString()
+            await registerBillingReceiptsByTestClient(clients.admin, {
+                context: { id: integration.billingContext.id },
+                receipts: [createJSONReceipt({ accountMeta: { importId, fullName: 'ИП Фамилия' } })],
+            })
+            const accounts = await BillingAccount.getAll(clients.admin, { importId, context: { id: integration.billingContext.id } } )
+
+            expect(accounts[0].ownerType).toEqual(BILLING_ACCOUNT_OWNER_TYPE_COMPANY)
+        })
+        test('isPerson validation "person" ownerType test', async () => {
+            const importId = randomNumber(50).toString()
+            await registerBillingReceiptsByTestClient(clients.admin, {
+                context: { id: integration.billingContext.id },
+                receipts: [createJSONReceipt({ accountMeta: { importId, fullName: 'Фамилияоао Имя' } })],
+            })
+            const accounts = await BillingAccount.getAll(clients.admin, { importId, context: { id: integration.billingContext.id } } )
+
+            expect(accounts[0].ownerType).toEqual(BILLING_ACCOUNT_OWNER_TYPE_PERSON)
+        })
     })
 
     describe('ReceiptResolver', () => {
