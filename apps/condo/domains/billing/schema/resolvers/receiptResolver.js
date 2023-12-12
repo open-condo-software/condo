@@ -47,7 +47,7 @@ class ReceiptResolver extends Resolver {
                     receiptToUpdate = existingReceipts[0]
                 }
                 receiptToUpdate.toPay = Big(receiptToUpdate.toPay).toFixed(2)
-                receipt.toPay = Big(receiptToUpdate.toPay).toFixed(2)
+                receipt.toPay = Big(receipt.toPay).toFixed(2)
                 const updateInput = this.buildUpdateInput(
                     pick(receipt, RECEIPT_UPDATE_FIELDS),
                     receiptToUpdate,
