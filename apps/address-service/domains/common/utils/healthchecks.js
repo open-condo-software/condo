@@ -1,48 +1,33 @@
-const { get } = require('lodash')
-
-const conf = require('@open-condo/config')
+const { v4: uuid } = require('uuid')
 
 const { DADATA_PROVIDER } = require('@address-service/domains/common/constants/providers')
-const { DadataSuggestionProvider } = require('@address-service/domains/common/utils/services/suggest/providers/DadataSuggestionProvider')
+const { getSuggestionsProvider } = require('@address-service/domains/common/utils/services/providerDetectors')
 
-const getAddressProviderBalanceHealthCheck = () => {
-    return {
-        name: 'address-provider-balance',
-        prepare: () => {
-            const provider = get(conf, 'PROVIDER')
+const prepareAddressServiceHealthcheck = () => {
+    const provider = getSuggestionsProvider({ req: { id: uuid() } })
 
-            if (provider === DADATA_PROVIDER) {
-                this.addressProvider = new DadataSuggestionProvider()
-            } else {
-                this.addressProvider = null
-            }
-        },
-        run: async () => {
-            if (!this.addressProvider) return false
-
-            return await this.addressProvider.profileBalance()
-        },
-    }
+    return provider.getProviderName() === DADATA_PROVIDER ? provider : null
 }
 
-const getAddressProviderLimitHealthCheck = () => {
-    return {
-        name: 'address-provider-daily-limit',
-        prepare: () => {
-            const provider = get(conf, 'PROVIDER')
-            if (provider === DADATA_PROVIDER) {
-                this.addressProvider = new DadataSuggestionProvider()
-            } else {
-                this.addressProvider = null
-            }
-        },
-        run: async () => {
-            if (!this.addressProvider) return false
+const getAddressProviderBalanceHealthCheck = () => ({
+    name: 'address-provider-balance',
+    run: async () => {
+        const provider = prepareAddressServiceHealthcheck()
+        if (!provider) return false
 
-            return await this.addressProvider.dailyStatistics()
-        },
-    }
-}
+        return await provider.profileBalance()
+    },
+})
+
+const getAddressProviderLimitHealthCheck = () => ({
+    name: 'address-provider-daily-limit',
+    run: async () => {
+        const provider = prepareAddressServiceHealthcheck()
+        if (!provider) return false
+
+        return await provider.dailyStatistics()
+    },
+})
 
 module.exports = {
     getAddressProviderBalanceHealthCheck,
