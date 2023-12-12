@@ -20,6 +20,7 @@ import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import {
     Columns,
     DATE_PARSING_FORMAT,
+    DATE_PARSING_FORMAT_2,
     ObjectCreator,
     ProcessedRow,
     RowNormalizer,
@@ -40,6 +41,7 @@ import { searchPropertyWithMap } from '@condo/domains/property/utils/clientSchem
 
 
 const MONTH_PARSING_FORMAT = 'YYYY-MM'
+const DATE_PARSING_FORMATS = [DATE_PARSING_FORMAT, DATE_PARSING_FORMAT_2, MONTH_PARSING_FORMAT]
 
 // Will be parsed as date 'YYYY-MM-DD' or month 'YYYY-MM'.
 // It is not extracted into `Importer`, because this is the only place of such format yet.
@@ -48,12 +50,9 @@ const parseDateOrMonth = (value) => {
     if (valueType === 'date') {
         return value
     } else if (valueType === 'string') {
-        let result = dayjs(value, DATE_PARSING_FORMAT)
-        if (!result.isValid()) {
-            result = dayjs(value, MONTH_PARSING_FORMAT)
-        }
-        if (result.isValid()) {
-            return result
+        for (const format of DATE_PARSING_FORMATS) {
+            const parsedValue = dayjs(value, format, true)
+            if (parsedValue.isValid()) return parsedValue
         }
     }
     throw new RangeError()
