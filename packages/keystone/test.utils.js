@@ -477,7 +477,7 @@ const isMongo = () => {
  * })
  *
  *
- * @param {() => Promise<*>} testFunc - Function, expected to throw an error
+ * @param {[({data: *, errors: *}|*),{dv: number, sender: {dv: number, fingerprint: string}}]} testFunc - Function, expected to throw an error
  * @param {(Error) => void} inspect - Function, that should inspect the error in details
  * @return {Promise<*>}
  */

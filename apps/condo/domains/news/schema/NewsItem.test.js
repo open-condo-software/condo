@@ -101,7 +101,7 @@ describe('NewsItems', () => {
                 expect(obj.createdBy).toEqual(expect.objectContaining({ id: supportClient.user.id }))
             })
 
-            test('stuff with permission can', async () => {
+            test('staff with permission can', async () => {
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [o10n] = await createTestOrganization(adminClient)
                 const [role] = await createTestOrganizationEmployeeRole(adminClient, o10n, { canManageNewsItems: true })
