@@ -71387,6 +71387,14 @@ input RegisterServiceConsumerInput {
   extra: RegisterServiceConsumerInputExtra
 }
 
+input RegisterResidentServiceConsumersInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  resident: ResidentWhereUniqueInput!
+  accountNumber: String!
+  paymentCategory: String
+}
+
 input ResidentScopesInput {
   property: PropertyWhereUniqueInput!
   units: [PropertyUnitInput]
@@ -82469,6 +82477,7 @@ type Mutation {
   setMessageStatus(data: SetMessageStatusInput!): SetMessageStatusOutput
   _internalSyncContactsWithResidentsForOrganization(data: _internalSyncContactsWithResidentsForOrganizationInput!): [Contact]
   registerResident(data: RegisterResidentInput!): Resident
+  registerResidentServiceConsumers(data: RegisterResidentServiceConsumersInput!): [ServiceConsumer!]
 
   """
   Creates service consumer with default data, and automatically populates the optional data fields, such as `billingAccount
