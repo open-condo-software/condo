@@ -30,7 +30,7 @@ const GetInvoicesWithSkuInfoService = new GQLCustomSchema('GetInvoicesWithSkuInf
     queries: [
         {
             access: access.canGetInvoiceByUser,
-            schema: 'GetInvoicesWithSkuInfo (data: GetInvoicesWithSkuInfoInput!): GetInvoicesWithSkuInfoOutput',
+            schema: 'getInvoicesWithSkuInfo (data: GetInvoicesWithSkuInfoInput!): GetInvoicesWithSkuInfoOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data: { organization, property, ticketIds } } = args
                 const userId = get(context, ['authedItem', 'id'])
