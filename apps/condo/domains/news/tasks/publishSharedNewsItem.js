@@ -14,6 +14,7 @@ const logger = getLogger('publishSharedNewsItem')
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'publishSharedNewsItem' } }
 
 async function _publishSharedNewsItem (newsItem, newsItemSharing){
+    const { keystone: contextNewsItemSharing } = getSchemaCtx('NewsItemSharing')
 
     if (!newsItem) {
         throw new Error('no news item')
@@ -21,17 +22,21 @@ async function _publishSharedNewsItem (newsItem, newsItemSharing){
 
     // If current news item was processed (not scheduled)
     if (newsItemSharing.status !== STATUSES.SCHEDULED) return
+    await NewsItemSharing.update(contextNewsItemSharing, newsItemSharing.id, {
+        ...DV_SENDER,
+        status: STATUSES.PROCESSING,
+    })
 
-    const { title, body } = newsItem
+    const { title, body, type } = newsItem
     const sharingParams = get(newsItemSharing, 'sharingParams')
 
     const b2bAppContextId = get( newsItemSharing, 'b2bAppContext')
     const b2bAppContext = await getById('B2BAppContext', b2bAppContextId)
 
-    const b2bAppId = get(b2bAppContext, 'b2bApp')
+    const b2bAppId = get(b2bAppContext, 'app')
     const b2bApp = await getById('B2BApp', b2bAppId)
 
-    const newsSharingConfigId = get(b2bApp, 'newsSharingFeatureConfig')
+    const newsSharingConfigId = get(b2bApp, 'newsSharingConfig')
     if (!newsSharingConfigId) {
         throw new Error('news sharing is not supported in provided miniapp')
     }
@@ -47,26 +52,36 @@ async function _publishSharedNewsItem (newsItem, newsItemSharing){
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                title,
-                body,
+                orgId: '',
+                newsItem: {
+                    title,
+                    body,
+                    type,
+                },
                 contextSettings,
                 sharingParams,
             }),
         })
 
-        if (response.ok) {
-            const { keystone: contextNewsItemSharing } = getSchemaCtx('NewsItemSharing')
-
+        if (response.status === 200) {
             await NewsItemSharing.update(contextNewsItemSharing, newsItemSharing.id, {
                 ...DV_SENDER,
                 status: STATUSES.PUBLISHED,
             })
         }
     } catch (err) {
-        logger.log(err)
+        await NewsItemSharing.update(contextNewsItemSharing, newsItemSharing.id, {
+            ...DV_SENDER,
+            status: STATUSES.ERROR,
+        })
     }
 }
 
+/**
+ * Publish given News Item Sharing
+ * @param {string} newsItemSharingId
+ * @returns {Promise<void>}
+ */
 async function publishSharedNewsItem (newsItemSharingId) {
     const newsItemSharing = await getById('NewsItemSharing', newsItemSharingId)
     const newsItem = await getById('NewsItem', newsItemSharing.newsItem)

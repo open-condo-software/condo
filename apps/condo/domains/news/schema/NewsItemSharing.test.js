@@ -3,6 +3,7 @@
  */
 
 const { makeLoggedInAdminClient, makeClient, expectValuesOfCommonFields, catchErrorFrom, expectToThrowValidationFailureError,
+    waitFor,
 } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
@@ -15,7 +16,8 @@ const { createTestOrganization } = require('@condo/domains/organization/utils/te
 const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
-const { ALLOWED_TRANSITIONS } = require('../constants/newsItemSharingStatuses')
+const { SENDING_DELAY_SEC } = require('../constants/common')
+const { ALLOWED_TRANSITIONS, STATUSES } = require('../constants/newsItemSharingStatuses')
 const { createTestNewsItem, createTestNewsItemScope, publishTestNewsItem } = require('../utils/testSchema')
 
 describe('NewsItemSharing', () => {
@@ -53,7 +55,7 @@ describe('NewsItemSharing', () => {
         const [emptyRole] = await createTestOrganizationEmployeeRole(admin, o10n)
         await createTestOrganizationEmployee(admin, o10n, staffWOPermissions.user, emptyRole)
 
-        const [B2BAppNewsSharingConfig] = await createTestB2BAppNewsSharingConfig(admin)
+        const [B2BAppNewsSharingConfig] = await createTestB2BAppNewsSharingConfig(admin, { name: 'test [tg]', publishUrl: 'http://localhost:3051/ns-api/publish' })
         const [B2BApp] = await createTestB2BApp(admin, { newsSharingConfig: { connect: { id: B2BAppNewsSharingConfig.id } } })
         const [B2BContext] = await createTestB2BAppContext(admin, B2BApp, o10n)
 
@@ -299,7 +301,7 @@ describe('NewsItemSharing', () => {
         })
 
         describe('should not allow to make wrong status transitions', () => {
-            // Get all non allowed transitions: *[ SCHEDULED -> PUBLISHED ]  
+            // Get all non-allowed transitions: *[ SCHEDULED -> PUBLISHED ]
             const cases = Object.entries(ALLOWED_TRANSITIONS).flatMap(([fromStatus, allowedTransitions]) => {
                 return Object.keys(ALLOWED_TRANSITIONS).map(toStatus => {
                     if (fromStatus !== toStatus && !allowedTransitions.includes(toStatus)) {
@@ -323,6 +325,56 @@ describe('NewsItemSharing', () => {
                     }
                 )
             })
+        })
+    })
+
+    describe('Real life tests', () => {
+        test('NewsItemSharing is sent if created on a published NewsItem', async () => {
+            const [obj, attrs] = await createTestNewsItemSharing(admin, dummyB2BContext, dummyPublishedNewsItem, {
+                sharingParams: {
+                    recipientIds: ['b4001015-452d-418c-8596-44018287df13'],
+                },
+            })
+
+            await waitFor(
+                async () => {
+                    const newsItemSharing = await NewsItemSharing.getOne(admin, { id: obj.id })
+                    expect(newsItemSharing.status).toEqual(STATUSES.PUBLISHED)
+                },
+                { delay: 3000, timeout: 5000000, interval: 3000 }
+            )
+
+            expectValuesOfCommonFields(obj, attrs, admin)
+            expect(obj.newsItem.id).toEqual(dummyPublishedNewsItem.id)
+            expect(obj.b2bAppContext.id).toEqual(dummyB2BContext.id)
+        })
+
+        test('NewsItemSharing is sent if created on an unpublished NewsItem, that is later published', async () => {
+            const [newsItem] = await createTestNewsItem(admin, dummyO10n, {
+                title: '🚧 Planned Water Outage Notification 🚧',
+                body: 'We are conducting a planned water outage on September 25 2023 The outage will last approximately 4 hours',
+            })
+            await createTestNewsItemScope(admin, newsItem)
+
+            const [obj, attrs] = await createTestNewsItemSharing(admin, dummyB2BContext, dummyPublishedNewsItem, {
+                sharingParams: {
+                    recipientIds: ['b4001015-452d-418c-8596-44018287df13'],
+                },
+            })
+
+            await publishTestNewsItem(admin, newsItem.id)
+
+            await waitFor(
+                async () => {
+                    const newsItemSharing = await NewsItemSharing.getOne(admin, { id: obj.id })
+                    expect(newsItemSharing.status).toEqual(STATUSES.PUBLISHED)
+                },
+                { delay: 3000, timeout: 5000000, interval: 3000 }
+            )
+
+            expectValuesOfCommonFields(obj, attrs, admin)
+            expect(obj.newsItem.id).toEqual(dummyPublishedNewsItem.id)
+            expect(obj.b2bAppContext.id).toEqual(dummyB2BContext.id)
         })
     })
 })

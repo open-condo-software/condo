@@ -38,6 +38,9 @@
 [submodule "apps/documents-next"]
 	path = apps/documents-next
 	url = git@github.com:open-condo-software/condo-documents-next.git
+[submodule "apps/condo-news-sharing-telegram"]
+	path = apps/condo-news-sharing-telegram
+	url = git@github.com:open-condo-software/condo-news-sharing-telegram.git
 [submodule "apps/telegram-employee-bot"]
     path = apps/telegram-employee-bot
     url = git@github.com:open-condo-software/condo-telegram-employee-bot.git

@@ -2,6 +2,7 @@
 import { jsx } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Row, Col, Image, Divider } from 'antd'
+import keyBy from 'lodash/keyBy'
 import truncate from 'lodash/truncate'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
@@ -19,14 +20,27 @@ enum NewsPreviewTabTypes {
     Push = 'push-notification',
     App = 'resident-app',
 }
-type NewsPreviewProps = Pick<NewsItem, 'title' | 'body' | 'validBefore'>
 
-interface INewsPreview {
-    (props: NewsPreviewProps): React.ReactElement
+const DEFAULT_TAB = NewsPreviewTabTypes.App
+
+type NewsItemPreview = Pick<NewsItem, 'title' | 'body' | 'validBefore'>
+interface INewsItemPreview {
+    (props: NewsItemPreview): React.ReactElement
 }
 
-interface INewsPushPreview {
-    (props: Omit<NewsPreviewProps, 'validBefore'>): React.ReactElement
+interface INewsItemPushPreview {
+    (props: Omit<NewsItemPreview, 'validBefore'>): React.ReactElement
+}
+
+type SharingAppPreviewData = { id: string, previewUrl: string, name: string }
+type NewsSharingPreviewProps = NewsItemPreview & SharingAppPreviewData
+interface INewsItemSharingPreview {
+    (props: NewsSharingPreviewProps): React.ReactElement
+}
+
+type SharingAppsPreviewData = { sharingApps: SharingAppPreviewData[] }
+interface INewsPreview {
+    (props: NewsItemPreview & SharingAppsPreviewData): React.ReactElement
 }
 
 const PUSH_ROW_GUTTER: RowProps['gutter'] = [0, 8]
@@ -56,7 +70,7 @@ const NewsPreviewContainer = styled.div`
   flex-direction: column;
   align-items: center;
 `
-const AppPreviewContainer = styled.div`
+const DomaAppPreviewContainer = styled.div`
   margin-top: 24px;
   position: relative;
   height: 100%;
@@ -78,12 +92,57 @@ const AppPreviewContainer = styled.div`
     margin: 12px;
   }
 `
+
+const SharingAppPreviewContainer = styled.div`
+  position: relative;
+  
+  margin-top: 24px;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: start;
+  justify-content: center;
+  
+  padding-left: 20px;
+  padding-right: 20px;
+  min-height: 500px;
+  max-width: ${PREVIEW_CONTENT_WIDTH}px;
+  
+  & .ant-divider {
+    margin: 12px;
+  }
+`
+
+const SharingAppOverflowContainer = styled.div`
+  position: absolute;
+  top: 3px;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: start;
+  background-image: url("/phoneSharingNewsPreview.png");
+  justify-content: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: top center;
+  
+  padding-left: 20px;
+  padding-right: 20px;
+  min-height: 500px;  
+  max-width: ${PREVIEW_CONTENT_WIDTH}px;
+  
+  & .ant-divider {
+    margin: 12px;
+  }
+`
+
 const NewsPushPreviewContainer = styled.div`
   padding-top: 110px;
   padding-bottom: 190px;
 `
 
-const NewsPushPreview: INewsPushPreview = ({ title, body }) => {
+const NewsPushPreview: INewsItemPushPreview = ({ title, body }) => {
     const intl = useIntl()
     const CompanyNameTitle = intl.formatMessage({ id: 'MobileAppName' })
     const NowTitle = intl.formatMessage({ id: 'Now' })
@@ -121,14 +180,14 @@ const NewsPushPreview: INewsPushPreview = ({ title, body }) => {
 
 const LINE_BREAK_STYLE: CSSProperties = { whiteSpace: 'break-spaces' }
 
-const NewsAppPreview: INewsPreview = ({ title, body, validBefore }) => {
+const NewsAppPreview: INewsItemPreview = ({ title, body, validBefore }) => {
     const intl = useIntl()
     const NotificationFromOrganizationTitle = intl.formatMessage({ id: 'pages.news.create.preview.app.notificationFromOrganization' })
     const ReceivedAtTitle = intl.formatMessage({ id: 'pages.news.create.preview.app.receivedAt' })
     const ValidUntilTitle = intl.formatMessage({ id: 'pages.news.create.preview.app.validUntil' }, { validBefore })
 
     return (
-        <AppPreviewContainer>
+        <DomaAppPreviewContainer>
             <Row style={STYLE_WIDTH_100P}>
                 <Col span={24} style={APP_TOP_COLUMN_STYLE}>
                     <Typography.Text size='small' type='secondary'>
@@ -160,27 +219,76 @@ const NewsAppPreview: INewsPreview = ({ title, body, validBefore }) => {
                     </div>
                 </Col>
             </Row>
-        </AppPreviewContainer>
+        </DomaAppPreviewContainer>
     )
 }
 
-const NewsPreview: INewsPreview = ({ title, body, validBefore }) => {
+const NewsSharingPreview: INewsItemSharingPreview = ({ title, body, validBefore, name, previewUrl, id }) => {
+    return (
+        <SharingAppPreviewContainer key={id}>
+            <iframe
+                style={{
+                    border: 0,
+                    width: '100%',
+                    height: '100%',
+                    minHeight: '500px',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    padding: '15px',
+                }}
+                src={`${previewUrl}?title=${title}&body=${body}`}
+            />
+            <SharingAppOverflowContainer/>
+        </SharingAppPreviewContainer>
+    )
+}
+
+
+const NewsPreview: INewsPreview = ({ title, body, validBefore, sharingApps }) => {
     const intl = useIntl()
     const PushNotificationTitle = intl.formatMessage({ id: 'PushNotification' })
     const MobileAppTitle = intl.formatMessage({ id: 'MobileAppResident' })
 
+    console.log(sharingApps)
+
+    const sharingAppsIndex = keyBy(sharingApps, 'id')
+
+    console.log(sharingAppsIndex)
+
     const [activeKey, setActiveKey] = useState<NewsPreviewTabTypes>(NewsPreviewTabTypes.Push)
+
+    console.log(activeKey)
+
+    console.log(sharingAppsIndex[activeKey])
 
     const newsPreviewContent = useMemo(() => {
         if (activeKey === NewsPreviewTabTypes.App) {
             return <NewsAppPreview title={title} body={body} validBefore={validBefore} />
         }
-        return (
-            <NewsPushPreview
-                title={truncate(title, { length: TITLE_MAX_LEN, omission: '...' })}
-                body={truncate(body, { length: BODY_MAX_LEN, omission: '...' })}
-            />
-        )
+        if (activeKey === NewsPreviewTabTypes.Push) {
+            return (
+                <NewsPushPreview
+                    title={truncate(title, { length: TITLE_MAX_LEN, omission: '...' })}
+                    body={truncate(body, { length: BODY_MAX_LEN, omission: '...' })}
+                />
+            )
+        }
+        if (sharingAppsIndex[activeKey]) {
+            return (
+                <NewsSharingPreview
+                    title={title}
+                    body={body}
+                    validBefore={validBefore}
+                    id={activeKey}
+                    previewUrl={sharingAppsIndex[activeKey].previewUrl}
+                    name={sharingAppsIndex[activeKey].name}
+                />
+            )
+        } else {
+            setActiveKey(DEFAULT_TAB)
+        }
+
     }, [activeKey, title, body, validBefore])
 
     const onChange = useCallback((event) => {
@@ -201,6 +309,13 @@ const NewsPreview: INewsPreview = ({ title, body, validBefore }) => {
                         value={NewsPreviewTabTypes.App}
                         label={MobileAppTitle}
                     />
+                    {(Array.isArray(sharingApps) && Object.values(sharingApps).map(app => (
+                        <Radio
+                            key={app.id}
+                            value={app.id}
+                            label={app.name}
+                        />
+                    )))}
                 </RadioGroup>
             </div>
             {newsPreviewContent}

@@ -5,15 +5,17 @@ const { publishSharedNewsItem } = require('./publishSharedNewsItem')
 
 /**
  * @param {string} newsItemId
- * @param {Array} sharedNewsItemsIds
  * @returns {Promise<void>}
  */
-async function publishSharedNewsItemsByNewsItem (newsItemId, sharedNewsItemsIds) {
-    const newsItem = await getById('NewsItem', { id: newsItemId })
-    const sharedNewsItems = await find('NewsItemSharing', { id_in: sharedNewsItemsIds })
+async function publishSharedNewsItemsByNewsItem (newsItemId) {
+    if (!newsItemId) {
+        throw new Error('No news item id!')
+    }
+
+    const sharedNewsItems = await find('NewsItemSharing', { newsItem: { id: newsItemId } })
 
     for (const newsItemSharing of sharedNewsItems) {
-        await publishSharedNewsItem.delay(newsItem, newsItemSharing)
+        await publishSharedNewsItem.delay(newsItemSharing.id)
     }
 }
 
