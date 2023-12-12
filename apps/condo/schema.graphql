@@ -75649,7 +75649,7 @@ type Query {
   exportPropertyScopesToExcel(data: ExportPropertyScopeToExcelInput!): ExportPropertyScopeToExcelOutput
   getNewsItemsRecipientsCounters(data: GetNewsItemsRecipientsCountersInput!): GetNewsItemsRecipientsCountersOutput
   allMiniApps(data: AllMiniAppsInput!): [MiniAppOutput!]
-  GetInvoicesWithSkuInfo(data: GetInvoicesWithSkuInfoInput!): GetInvoicesWithSkuInfoOutput
+  getInvoicesWithSkuInfo(data: GetInvoicesWithSkuInfoInput!): GetInvoicesWithSkuInfoOutput
 
   """The version of the Keystone application serving this API."""
   appVersion: String
