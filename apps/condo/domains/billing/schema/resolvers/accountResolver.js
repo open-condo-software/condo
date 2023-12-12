@@ -12,7 +12,7 @@ const { ERRORS } = require('@condo/domains/billing/constants/registerBillingRece
 const { clearAccountNumber, isPerson } = require('@condo/domains/billing/schema/resolvers/lib')
 const { Resolver } = require('@condo/domains/billing/schema/resolvers/resolver')
 
-const BILLING_ACCOUNT_FIELDS = '{ id  }'
+const BILLING_ACCOUNT_FIELDS = '{ id }'
 const BillingAccountGQL = generateGqlQueries('BillingAccount', BILLING_ACCOUNT_FIELDS)
 const BillingAccountApi = generateServerUtils(BillingAccountGQL)
 
