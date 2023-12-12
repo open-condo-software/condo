@@ -93,8 +93,13 @@ const MarketplaceOnboardingPage: IMarketplaceOnboardingPage = ({ onFinish, withV
         return <RequisitesSetup />
     }, [currentStep, handleFinishSetup])
 
+    const payload = useMemo(() => ({
+        acquiringContext,
+        refetchAcquiringContext,
+    }), [acquiringContext, refetchAcquiringContext])
+
     return (
-        <AcquiringContextProvider.Provider value={{ acquiringContext, refetchAcquiringContext }}>
+        <AcquiringContextProvider.Provider value={payload}>
             <Head>
                 <title>{PageTitle}</title>
             </Head>

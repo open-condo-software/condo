@@ -1,5 +1,5 @@
 import get from 'lodash/get'
-import React from 'react'
+import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -36,15 +36,17 @@ const MarketplacePage: PageType = () => {
         },
     })
 
+    const payload = useMemo(() => ({
+        acquiringContext: acquiringIntegrationContext,
+        refetchAcquiringContext: refetchAcquiringIntegrationContext,
+    }), [acquiringIntegrationContext, refetchAcquiringIntegrationContext])
+
     if (loading || error) {
         return <LoadingOrErrorPage title={PageTitle} error={error} loading={loading}/>
     }
 
     return (
-        <AcquiringContextProvider.Provider value={{
-            acquiringContext: acquiringIntegrationContext,
-            refetchAcquiringContext: refetchAcquiringIntegrationContext,
-        }}>
+        <AcquiringContextProvider.Provider value={payload}>
             <MarketplacePageContent/>
         </AcquiringContextProvider.Provider>
     )

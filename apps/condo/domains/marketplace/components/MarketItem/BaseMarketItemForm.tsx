@@ -667,7 +667,6 @@ export const BaseMarketItemForm: React.FC<BaseMarketItemFormProps> = (props) => 
 
     const { children, action, initialValues } = props
     const { breakpoints } = useLayoutContext()
-    const { organization } = useOrganization()
 
     const marketItemId = get(initialValues, 'id')
     const isSmallScreen = !breakpoints.DESKTOP_SMALL
