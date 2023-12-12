@@ -327,6 +327,14 @@ describe('AcquiringIntegrationContext', () => {
             // Multiple contexts in progress are allowed
             expect(anotherContext).toBeDefined()
 
+            const [contextWithInvoicePart] = await createTestAcquiringIntegrationContext(support, organization, integration, {
+                invoiceStatus: CONTEXT_IN_PROGRESS_STATUS,
+            })
+            const [anotherContextWithInvoicePart] = await createTestAcquiringIntegrationContext(support, organization, integration, {
+                invoiceStatus: CONTEXT_IN_PROGRESS_STATUS,
+            })
+            expect(anotherContextWithInvoicePart).toBeDefined()
+
             // One of contexts became connected (but not verified yet), so it becomes active
             const [connectedContext] = await updateTestAcquiringIntegrationContext(manager, context.id, {
                 status: CONTEXT_VERIFICATION_STATUS,
@@ -373,6 +381,11 @@ describe('AcquiringIntegrationContext', () => {
                     status: CONTEXT_FINISHED_STATUS,
                 })
             }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
+            await expectToThrowValidationFailureError(async () => {
+                await updateTestAcquiringIntegrationContext(manager, contextWithInvoicePart.id, {
+                    invoiceStatus: CONTEXT_FINISHED_STATUS,
+                })
+            }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
 
             // Cannot create new context if active exist (same integration)
             await expectToThrowValidationFailureError(async () => {
@@ -380,11 +393,21 @@ describe('AcquiringIntegrationContext', () => {
                     status: CONTEXT_FINISHED_STATUS,
                 })
             }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
+            await expectToThrowValidationFailureError(async () => {
+                await createTestAcquiringIntegrationContext(support, organization, integration, {
+                    invoiceStatus: CONTEXT_FINISHED_STATUS,
+                })
+            }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
 
             // Cannot create new context if active exist (another integration)
             await expectToThrowValidationFailureError(async () => {
                 await createTestAcquiringIntegrationContext(support, organization, thirdIntegration, {
                     status: CONTEXT_FINISHED_STATUS,
+                })
+            }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
+            await expectToThrowValidationFailureError(async () => {
+                await createTestAcquiringIntegrationContext(support, organization, thirdIntegration, {
+                    invoiceStatus: CONTEXT_FINISHED_STATUS,
                 })
             }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
 

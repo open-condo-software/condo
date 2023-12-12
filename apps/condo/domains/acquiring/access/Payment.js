@@ -50,6 +50,7 @@ async function canReadPaymentsSensitiveData ({ authentication: { item: user }, e
     if (user.isSupport || user.isAdmin) return true
 
     const [acquiringContext] = await find('AcquiringIntegrationContext', {
+        deletedAt: null,
         id: existingItem.context,
     })
     // If context exist => check is it's integration account

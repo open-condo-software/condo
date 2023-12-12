@@ -294,6 +294,7 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                 }
                 const acquiringContexts = await find('AcquiringIntegrationContext', {
                     id_in: compact([...receiptPayments, ...virtualPayments, ...invoicePayments].map(payment => payment.context)),
+                    deletedAt: null,
                 })
 
                 const integrations = new Set([
