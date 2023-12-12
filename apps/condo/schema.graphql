@@ -59108,7 +59108,7 @@ type NewsItemSharing {
   """ Data structure Version """
   dv: Int
 
-  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
   """
   sender: SenderField
 }
@@ -65448,6 +65448,7 @@ type B2BAppNewsSharingConfigHistoryRecord {
   _label_: String
   name: String
   publishUrl: String
+  icon: JSON
   previewUrl: String
   getRecipientsUrl: String
   id: ID!
@@ -65504,6 +65505,10 @@ input B2BAppNewsSharingConfigHistoryRecordWhereInput {
   publishUrl_not_ends_with_i: String
   publishUrl_in: [String]
   publishUrl_not_in: [String]
+  icon: JSON
+  icon_not: JSON
+  icon_in: [JSON]
+  icon_not_in: [JSON]
   previewUrl: String
   previewUrl_not: String
   previewUrl_contains: String
@@ -65652,6 +65657,7 @@ enum SortB2BAppNewsSharingConfigHistoryRecordsBy {
 input B2BAppNewsSharingConfigHistoryRecordUpdateInput {
   name: String
   publishUrl: String
+  icon: JSON
   previewUrl: String
   getRecipientsUrl: String
   v: Int
@@ -65676,6 +65682,7 @@ input B2BAppNewsSharingConfigHistoryRecordsUpdateInput {
 input B2BAppNewsSharingConfigHistoryRecordCreateInput {
   name: String
   publishUrl: String
+  icon: JSON
   previewUrl: String
   getRecipientsUrl: String
   v: Int
@@ -65713,6 +65720,9 @@ type B2BAppNewsSharingConfig {
 
   """ URL that implements publishing NewsItem method """
   publishUrl: String
+
+  """ Icon of the app: Telegram Icon / WhatsApp Icon """
+  icon: File
 
   """ URL that returns HTML preview NewsItem """
   previewUrl: String
@@ -65781,6 +65791,10 @@ input B2BAppNewsSharingConfigWhereInput {
   publishUrl_not_ends_with_i: String
   publishUrl_in: [String]
   publishUrl_not_in: [String]
+  icon: String
+  icon_not: String
+  icon_in: [String]
+  icon_not_in: [String]
   previewUrl: String
   previewUrl_not: String
   previewUrl_contains: String
@@ -65909,6 +65923,7 @@ enum SortB2BAppNewsSharingConfigsBy {
 input B2BAppNewsSharingConfigUpdateInput {
   name: String
   publishUrl: String
+  icon: Upload
   previewUrl: String
   getRecipientsUrl: String
   v: Int
@@ -65930,6 +65945,7 @@ input B2BAppNewsSharingConfigsUpdateInput {
 input B2BAppNewsSharingConfigCreateInput {
   name: String
   publishUrl: String
+  icon: Upload
   previewUrl: String
   getRecipientsUrl: String
   v: Int
