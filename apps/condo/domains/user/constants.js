@@ -5,7 +5,7 @@ const SBBOL_IDENTITY_TYPE = 'sbbol'
 const IDENTITY_TYPES = [SBBOL_IDENTITY_TYPE]
 
 const DELETED_USER_NAME = 'Deleted User'
-const TRACKING_USER_FIELDS = ['id', 'name']
+const TRACKING_USER_FIELDS = ['id']
 
 module.exports = {
     DELETED_USER_NAME,
