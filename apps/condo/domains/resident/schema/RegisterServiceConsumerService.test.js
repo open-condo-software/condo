@@ -376,7 +376,7 @@ describe('RegisterServiceConsumerService', () => {
         const userClient = await makeClientWithProperty()
         const adminClient = await makeLoggedInAdminClient()
 
-        const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration)
+        const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration, { status: CONTEXT_FINISHED_STATUS })
         const [billingProperty] = await createTestBillingProperty(adminClient, context)
         const [billingAccountAttrs] = await createTestBillingAccount(adminClient, context, billingProperty)
 
@@ -415,13 +415,13 @@ describe('RegisterServiceConsumerService', () => {
             unitName: USER_UNIT_NAME,
             accountNumber: USER_ACCOUNT_NUMBER,
         })
-        await createTestBillingIntegrationOrganizationContext(adminClient, organization1, integration)
+        await createTestBillingIntegrationOrganizationContext(adminClient, organization1, integration, { status: CONTEXT_FINISHED_STATUS })
 
         // Org 2 = just some other org, which provides some services for this resident (like intercom service)
 
         const [organization2] = await createTestOrganization(adminClient, { type: SERVICE_PROVIDER_TYPE })
 
-        const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, organization2, integration)
+        const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, organization2, integration, { status: CONTEXT_FINISHED_STATUS })
         const [billingProperty] = await createTestBillingProperty(adminClient, context)
         const [billingAccountAttrs] = await createTestBillingAccount(adminClient, context, billingProperty, {
             number: USER_ACCOUNT_NUMBER,
@@ -459,7 +459,7 @@ describe('RegisterServiceConsumerService', () => {
     it('can create, delete and create service consumer', async () => {
         const userClient = await makeClientWithProperty()
 
-        const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration)
+        const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration, { status: CONTEXT_FINISHED_STATUS })
         const [billingProperty] = await createTestBillingProperty(adminClient, context)
         const [billingAccountAttrs] = await createTestBillingAccount(adminClient, context, billingProperty)
 
@@ -487,12 +487,12 @@ describe('RegisterServiceConsumerService', () => {
 
         const [ organization ] = await createTestOrganization(adminClient)
 
-        const { billingIntegrationContext } = await addBillingIntegrationAndContext(adminClient, organization)
+        const { billingIntegrationContext } = await addBillingIntegrationAndContext(adminClient, organization, {}, { status: CONTEXT_FINISHED_STATUS })
 
         const [billingProperty] = await createTestBillingProperty(adminClient, billingIntegrationContext)
         const [billingAccountAttrs] = await createTestBillingAccount(adminClient, billingIntegrationContext, billingProperty)
 
-        const { acquiringIntegration, acquiringIntegrationContext } = await addAcquiringIntegrationAndContext(adminClient, organization)
+        const { acquiringIntegration, acquiringIntegrationContext } = await addAcquiringIntegrationAndContext(adminClient, organization, {}, { status: CONTEXT_FINISHED_STATUS })
 
         await updateTestUser(adminClient, userClient.user.id, { type: RESIDENT })
         const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, {
@@ -536,7 +536,7 @@ describe('RegisterServiceConsumerService', () => {
             unitName: USER_UNIT_NAME,
             accountNumber: USER_ACCOUNT_NUMBER,
         })
-        await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, billingIntegration)
+        await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, billingIntegration, { status: CONTEXT_FINISHED_STATUS })
 
         await updateTestUser(adminClient, userClient.user.id, { type: RESIDENT })
         const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, {
@@ -569,7 +569,7 @@ describe('RegisterServiceConsumerService', () => {
     it('creates serviceConsumer with billingAccount without Meters', async () => {
         const userClient = await makeClientWithProperty()
 
-        const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration)
+        const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration, { status: CONTEXT_FINISHED_STATUS })
 
         const [billingProperty] = await createTestBillingProperty(adminClient, context)
         const [billingAccountAttrs] = await createTestBillingAccount(adminClient, context, billingProperty)
@@ -590,6 +590,38 @@ describe('RegisterServiceConsumerService', () => {
         expect(out.accountNumber).toEqual(payload.accountNumber)
         expect(out.resident.id).toEqual(payload.residentId)
         expect(out.organization.id).toEqual(payload.organizationId)
+    })
+
+    it('dont create serviceConsumer if billingIntegrationOrganizationContext is not finished', async () => {
+        const userClient = await makeClientWithProperty()
+        const adminClient = await makeLoggedInAdminClient()
+
+        const [integration] = await createTestBillingIntegration(adminClient)
+        const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration)
+
+        const [billingProperty] = await createTestBillingProperty(adminClient, context)
+        const [billingAccountAttrs] = await createTestBillingAccount(adminClient, context, billingProperty)
+
+        await updateTestUser(adminClient, userClient.user.id, { type: RESIDENT })
+        const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, {
+            unitName: billingAccountAttrs.unitName,
+        })
+
+        const payload = {
+            residentId: resident.id,
+            accountNumber: billingAccountAttrs.number,
+            organizationId: userClient.organization.id,
+        }
+
+        await expectToThrowGQLError(async () => {
+            await registerServiceConsumerByTestClient(userClient, payload)
+        }, {
+            mutation: 'registerServiceConsumer',
+            variable: ['data', 'accountNumber'],
+            code: 'BAD_USER_INPUT',
+            type: 'NOT_FOUND',
+            message: 'Can\'t find billingAccount and any meters with this accountNumber, unitName and organization combination',
+        })
     })
 
     it('creates serviceConsumer without billingAccount when Meters are found', async () => {
@@ -629,7 +661,7 @@ describe('RegisterServiceConsumerService', () => {
     it('fails with error when billingAccount not found, and Meters are not found', async () => {
         const userClient = await makeClientWithProperty()
 
-        await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration)
+        await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration, { status: CONTEXT_FINISHED_STATUS })
 
         await updateTestUser(adminClient, userClient.user.id, { type: RESIDENT })
         const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, {
@@ -663,7 +695,7 @@ describe('RegisterServiceConsumerService', () => {
     it('fails with error when creating serviceConsumer for nullish data', async () => {
         const userClient = await makeClientWithProperty()
 
-        const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration)
+        const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration, { status: CONTEXT_FINISHED_STATUS })
         const [billingProperty] = await createTestBillingProperty(adminClient, context)
         const [billingAccountAttrs] = await createTestBillingAccount(adminClient, context, billingProperty)
 
