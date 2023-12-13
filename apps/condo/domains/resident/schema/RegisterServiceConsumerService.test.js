@@ -273,11 +273,11 @@ describe('RegisterResidentServiceConsumers', () => {
             await expectToThrowGQLError(async () => {
                 await registerResidentServiceConsumersByTestClient(userClient, payload)
             }, {
-                mutation: 'registerServiceConsumer',
+                mutation: 'registerResidentServiceConsumers',
                 variable: ['data', 'accountNumber'],
                 code: 'BAD_USER_INPUT',
                 type: NOT_FOUND,
-                message: 'Can\'t find billingAccount and any meters with this accountNumber, unitName and organization combination',
+                message: 'Can\'t find billingAccount and any meters with this accountNumber, unitName and address',
             }, 'objs')
         })
 
