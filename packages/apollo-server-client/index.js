@@ -19,9 +19,18 @@ if (!globalThis.fetch) {
 class UploadingFile {
     constructor ({ stream, filename, mimetype, encoding }) {
         this.stream = stream
-        this.filename = filename
-        this.mimetype = mimetype
-        this.encoding = encoding
+
+        if (filename) {
+            this.filename = filename
+            // NOTE: Note local file adapter uses this, to determine file mimetype
+            this.name = filename
+        }
+        if (mimetype) {
+            this.mimetype = mimetype
+        }
+        if (encoding) {
+            this.encoding = encoding
+        }
     }
 
     createReadStream () {

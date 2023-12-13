@@ -155,6 +155,8 @@ async function publishBuildChanges ({ build, condoBuild, app, condoApp, context,
                 data: serverClient.createUploadFile({
                     stream: got.stream(build.data.publicUrl),
                     filename: build.data.originalFilename,
+                    mimetype: build.data.mimetype,
+                    encoding: build.data.encoding,
                 }),
                 importId: build.id,
                 importRemoteSystem: REMOTE_SYSTEM,

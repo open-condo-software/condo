@@ -15,7 +15,7 @@ const EXPORT_FIELDS = AVAILABLE_ENVIRONMENTS.map(environment => `${environment}E
 const B2C_APP_FIELDS = `{ name developer logo { publicUrl originalFilename } ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
 const B2CApp = generateGqlQueries('B2CApp', B2C_APP_FIELDS)
 
-const B2C_APP_BUILD_FIELDS = `{ app { id } version data { publicUrl originalFilename } ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
+const B2C_APP_BUILD_FIELDS = `{ app { id } version data { publicUrl originalFilename mimetype encoding } ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
 const B2CAppBuild = generateGqlQueries('B2CAppBuild', B2C_APP_BUILD_FIELDS)
 
 const B2C_APP_PUBLISH_REQUEST_FIELDS = `{ app { id } status isAppTested isContractSigned isInfoApproved ${COMMON_FIELDS} }`
