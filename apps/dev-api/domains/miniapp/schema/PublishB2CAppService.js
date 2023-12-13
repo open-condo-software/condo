@@ -86,8 +86,13 @@ async function publishAppChanges ({ app, condoApp, serverClient, args, context }
         developer: app.developer || app.createdBy.name,
         colorSchema: DEFAULT_COLOR_SCHEMA,
         logo: app.logo
-            ? serverClient.createUploadFile(got.stream(app.logo.publicUrl), app.logo.originalFilename)
-            : serverClient.createUploadFile(fs.createReadStream(B2C_APP_DEFAULT_LOGO_PATH)),
+            ? serverClient.createUploadFile({
+                stream: got.stream(app.logo.publicUrl),
+                filename: app.logo.originalFilename,
+            })
+            : serverClient.createUploadFile({
+                stream: fs.createReadStream(B2C_APP_DEFAULT_LOGO_PATH),
+            }),
         importId: app.id,
         importRemoteSystem: REMOTE_SYSTEM,
     }
@@ -147,7 +152,12 @@ async function publishBuildChanges ({ build, condoBuild, app, condoApp, context,
                 sender,
                 app: { connect: { id: condoApp.id } },
                 version: build.version,
-                data: serverClient.createUploadFile(got.stream(build.data.publicUrl), build.data.originalFilename),
+                data: serverClient.createUploadFile({
+                    stream: got.stream(build.data.publicUrl),
+                    filename: build.data.originalFilename,
+                    mimetype: build.data.mimetype,
+                    encoding: build.data.encoding,
+                }),
                 importId: build.id,
                 importRemoteSystem: REMOTE_SYSTEM,
             },

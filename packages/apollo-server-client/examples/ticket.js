@@ -89,7 +89,7 @@ const bootstrap = async () => {
     const newTicket = await bot.createTicket(createInput)
     const ticketFile = await bot.createTicketFile({
         ticket: { connect: { id: newTicket.id } },
-        file: bot.createUploadFile(createReadStream(resolve('./Readme.md'))),
+        file: bot.createUploadFile({ stream: createReadStream(resolve('./Readme.md')) }),
     })
     bot.info('Created new TicketFile', { model: ticketFile })
 }

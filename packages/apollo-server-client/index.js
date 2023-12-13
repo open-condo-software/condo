@@ -17,9 +17,24 @@ if (!globalThis.fetch) {
 }
 
 class UploadingFile {
-    constructor (stream, name) {
+    constructor ({ stream, filename, mimetype, encoding }) {
         this.stream = stream
-        this.name = name
+
+        if (filename) {
+            this.filename = filename
+            // NOTE: Note local file adapter uses this, to determine file mimetype
+            this.name = filename
+        }
+        if (mimetype) {
+            this.mimetype = mimetype
+        }
+        if (encoding) {
+            this.encoding = encoding
+        }
+    }
+
+    createReadStream () {
+        return this.stream
     }
 }
 
@@ -350,8 +365,8 @@ class ApolloServerClient {
         })
     }
 
-    createUploadFile (stream, name) {
-        return new UploadingFile(stream, name)
+    createUploadFile ({ stream, filename, mimetype, encoding }) {
+        return new UploadingFile({ stream, filename, mimetype, encoding })
     }
 
     uploadTerminateLink () {
