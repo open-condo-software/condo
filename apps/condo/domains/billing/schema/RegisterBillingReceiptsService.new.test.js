@@ -316,7 +316,7 @@ describe('RegisterBillingReceiptsService', () => {
             describe('receiptResolver', () => {
                 test('Update Receipt toPay field', async () => {
                     const originalToPayValue = Big(faker.finance.amount(-100, 5000)).toFixed(2)
-                    const updatedToPayValue = String(+originalToPayValue + 1000)
+                    const updatedToPayValue = Big((originalToPayValue + 1000)).toFixed(2)
 
                     const recipient = createRecipient()
                     const createInput = createJSONReceipt({ importId: null, ...recipient, toPay: originalToPayValue })
