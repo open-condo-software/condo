@@ -117,21 +117,22 @@ describe('RegisterBillingReceiptsService', () => {
             const recipient = await BillingRecipient.getOne(clients.admin, { bankAccount: recipientInput.bankAccount, context: { id: integration.billingContext.id } } )
             expect(recipient.isApproved).toEqual(false)
         })
-        test('Should set isApproved for recipient after TIN correction', async () => {
-            const recipientInput = createRecipient({ tin: integration.organization.tin + '0' })
+        test('Should not modify isApproved if support user remove this flag', async () => {
+            const recipientInput = createRecipient({ bankAccount: faker.random.numeric(12), tin: integration.organization.tin  })
             await registerBillingReceiptsByTestClient(clients.admin, {
                 context: { id: integration.billingContext.id },
                 receipts: [createJSONReceipt(recipientInput)],
             })
-            const recipientWithWrongTin = await BillingRecipient.getOne(clients.admin, { bankAccount: recipientInput.bankAccount, context: { id: integration.billingContext.id } } )
-            expect(recipientWithWrongTin.isApproved).toEqual(false)
-            const recipientInputCorrected = createRecipient({ ...recipientInput, tin: integration.organization.tin })
+            const recipient = await BillingRecipient.getOne(clients.admin, { bankAccount: recipientInput.bankAccount, context: { id: integration.billingContext.id } } )
+            expect(recipient.isApproved).toBeTruthy()
+            await BillingRecipient.update(clients.admin, recipient.id, { isApproved: false })
+
             await registerBillingReceiptsByTestClient(clients.admin, {
                 context: { id: integration.billingContext.id },
-                receipts: [createJSONReceipt(recipientInputCorrected)],
+                receipts: [createJSONReceipt(recipientInput)],
             })
-            const fixedRecipient = await BillingRecipient.getOne(clients.admin, { bankAccount: recipientInput.bankAccount, context: { id: integration.billingContext.id } } )
-            expect(fixedRecipient.isApproved).toEqual(true)
+            const recipientAfterAnotherReceiptCreation = await BillingRecipient.getOne(clients.admin, { bankAccount: recipientInput.bankAccount, context: { id: integration.billingContext.id } } )
+            expect(recipientAfterAnotherReceiptCreation.isApproved).toBeFalsy()
         })
         test('Should fill deprecated recipient field as we do not remove it still', async () => {
             const recipientInput = createRecipient({ })
@@ -300,7 +301,9 @@ describe('RegisterBillingReceiptsService', () => {
                 expect(updatedReceipt.services).toHaveLength(4)
                 expect(updatedReceipt.services.map(({ id, name, toPay }) => ({ id, name, toPay }) )).toEqual(updateServices.map(({ id, name, toPay }) => ({ id, name, toPay }) ))
             })
-            test('[all] Check receipt output', async () => {
+        })
+        describe('Check receipt output', () => {
+            test('related fields are created', async () => {
                 const createInput = createJSONReceipt()
                 const [[createdReceipt]] = await registerBillingReceiptsByTestClient(clients.admin, {
                     context: { id: integration.billingContext.id },
@@ -316,18 +319,16 @@ describe('RegisterBillingReceiptsService', () => {
             describe('receiptResolver', () => {
                 test('Update Receipt toPay field', async () => {
                     const originalToPayValue = Big(faker.finance.amount(-100, 5000)).toFixed(2)
-                    const updatedToPayValue = Big((originalToPayValue + 1000)).toFixed(2)
-
-                    const recipient = createRecipient()
-                    const createInput = createJSONReceipt({ importId: null, ...recipient, toPay: originalToPayValue })
+                    const updatedToPayValue = Big(originalToPayValue).add(1000).toFixed(2)
+                    const createInput = createJSONReceipt({ toPay: originalToPayValue })
+                    const updateInput = { ...createInput, toPay: updatedToPayValue }
                     const [[createdReceipt]] = await registerBillingReceiptsByTestClient(clients.admin, {
                         context: { id: integration.billingContext.id },
                         receipts: [createInput],
                     })
-
                     const [[updatedReceipt]] = await registerBillingReceiptsByTestClient(clients.admin, {
                         context: { id: integration.billingContext.id },
-                        receipts: [{ ...{ ...createInput, toPay: updatedToPayValue } }],
+                        receipts: [updateInput],
                     })
                     expect(createdReceipt.id).toEqual(updatedReceipt.id)
                     expect(Big(updatedReceipt.toPay).toFixed(2)).toEqual(updatedToPayValue)
