@@ -10,6 +10,7 @@ import { Col, Form, Row, RowProps, Input, AutoComplete, Select, FormInstance } f
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
+import omit from 'lodash/omit'
 import React, { ComponentProps, CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Trash } from '@open-condo/icons'
@@ -117,11 +118,13 @@ const SubTotalInfo = ({ label, total, large = false, totalTextType }) => {
     )
 }
 
+const NEW_CONTACT_NAME_FORM_ITEM_NAME = 'NEW_CONTACT_NAME'
 const emptyContactValues = {
     clientName: null,
     clientPhone: null,
     contact: null,
     [NEW_CONTACT_PHONE_FORM_ITEM_NAME]: null,
+    [NEW_CONTACT_NAME_FORM_ITEM_NAME]: null,
 }
 
 const PropertyFormField = ({ organizationId, form, disabled, selectedPropertyId, setSelectedPropertyId }) => {
@@ -298,7 +301,8 @@ const ContactFormField = ({ role, organizationId, form, disabled }) => {
                                 unitName={unitName}
                                 unitType={unitType}
                                 contactFormItemProps={{ labelCol: { span: 24 } }}
-                                newContactFormItemProps={{ labelCol: { span: 24 } }}
+                                newContactPhoneFormItemProps={{ labelCol: { span: 24 } }}
+                                newContactNameFormItemProps={{ labelCol: { span: 24 }, name: NEW_CONTACT_NAME_FORM_ITEM_NAME }}
                                 disabled={disabled}
                             />
                         )
@@ -907,7 +911,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
         [isModalForm])
 
     const [innerForm] = Form.useForm()
-    const form = useMemo(() => formInstance ? formInstance : innerForm, [])
+    const form = useMemo(() => formInstance ? formInstance : innerForm, [formInstance, innerForm])
 
     useEffect(() => {
         if (!isCreateForm) {
@@ -933,6 +937,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                         title={SaveChangesModalTitle}
                         form={form}
                         handleSave={handleSave}
+                        ignoreFormFields={[NEW_CONTACT_PHONE_FORM_ITEM_NAME]}
                     >
                         <Typography.Paragraph>
                             {SaveChangesNodalMessage}

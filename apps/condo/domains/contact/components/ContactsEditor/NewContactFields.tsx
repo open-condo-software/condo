@@ -32,7 +32,8 @@ interface INewContactFieldsFieldsProps {
     activeTab: CONTACT_TYPE
     contactsLoading?: boolean
     unitName?: string
-    newContactFormItemProps?: FormItemProps
+    newContactPhoneFormItemProps?: FormItemProps
+    newContactNameFormItemProps?: FormItemProps
     disabled?: boolean
 }
 
@@ -61,7 +62,8 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
     contactsLoading,
     unitName,
     initialValueWithoutContact,
-    newContactFormItemProps,
+    newContactPhoneFormItemProps,
+    newContactNameFormItemProps,
     disabled,
 }) => {
     const intl = useIntl()
@@ -125,7 +127,7 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
     }), [activeTab, contactExistValidator, phoneValidator])
 
     const isPhoneDisabled = disabled || !unitName
-    const isNameDisabled = disabled || (!isEmpty(contacts) && (!isPhoneFieldFilled || contactWithSamePhoneExistError || !checked))
+    const isNameDisabled = isPhoneDisabled || (!isEmpty(contacts) && (!isPhoneFieldFilled || contactWithSamePhoneExistError || !checked))
 
     const inputProps: InputProps = useMemo(() => ({ disabled: isPhoneDisabled }), [isPhoneDisabled])
 
@@ -149,7 +151,7 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
                                 initialValue={get(value, 'phone')}
                                 wrapperCol={FIELD_WRAPPER_COL}
                                 label={PhoneLabel}
-                                {...newContactFormItemProps}
+                                {...newContactPhoneFormItemProps}
                             >
                                 <AutoComplete
                                     allowClear
@@ -170,7 +172,7 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
                             <Form.Item
                                 wrapperCol={FIELD_WRAPPER_COL}
                                 label={FullNameLabel}
-                                {...newContactFormItemProps}
+                                {...newContactNameFormItemProps}
                             >
                                 <AutoComplete
                                     style={AUTO_COMPLETE_STYLE}

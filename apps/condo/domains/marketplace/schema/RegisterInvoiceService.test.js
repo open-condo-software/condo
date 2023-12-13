@@ -36,7 +36,7 @@ const {
     makeClientWithResidentUser, makeClientWithStaffUser,
 } = require('@condo/domains/user/utils/testSchema')
 
-const MOBILE_APP_RESIDENT_TICKET_SOURCE_ID = '830d1d89-2d17-4c5b-96d1-21b5cd01a6d3'
+const MOBILE_APP_RESIDENT_TICKET_SOURCE_ID = '3068d49a-a45c-4c3a-a02d-ea1a53e1febb'
 
 let adminClient
 let organization, acquiringIntegration
