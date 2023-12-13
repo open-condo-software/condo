@@ -40602,7 +40602,84 @@ export type Mutation = {
   _internalSyncContactsWithResidentsForOrganization?: Maybe<Array<Maybe<Contact>>>;
   registerResident?: Maybe<Resident>;
   /**
-   * Creates service consumer with default data, and automatically populates the optional data fields, such as `billingAccount
+   * Creates service consumers with default data, and automatically populates the optional data fields, such as `billingAccount
+   *
+   * Search for accountNumbers across all organizations matching resident address and provided accountNumber. May return more than one ServiceConsumer in case of some organizations at resident address had same accountNumber. To be successfully created accountNumber and unitName should at least have billingAccount with same data or Meter with same data
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "mutation": "registerServiceConsumer",
+   *   "variable": [
+   *     "data",
+   *     "residentId"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "Cannot find Resident for current user"
+   * }`
+   *
+   * `{
+   *   "mutation": "registerServiceConsumer",
+   *   "variable": [
+   *     "data",
+   *     "organizationId"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "Cannot find Organization for current user"
+   * }`
+   *
+   * `{
+   *   "mutation": "registerResidentServiceConsumers",
+   *   "variable": [
+   *     "data",
+   *     "resident",
+   *     "id"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "Cannot find Organization for current resident"
+   * }`
+   *
+   * `{
+   *   "mutation": "registerResidentServiceConsumers",
+   *   "variable": [
+   *     "data",
+   *     "accountNumber"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "Can't find billingAccount and any meters with this accountNumber, unitName and address"
+   * }`
+   *
+   * `{
+   *   "mutation": "registerServiceConsumer",
+   *   "variable": [
+   *     "data",
+   *     "accountNumber"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "Can't find billingAccount and any meters with this accountNumber, unitName and organization combination"
+   * }`
+   *
+   * `{
+   *   "mutation": "registerServiceConsumer",
+   *   "variable": [
+   *     "data",
+   *     "accountNumber"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "WRONG_FORMAT",
+   *   "message": "Argument \"accountNumber\" is null or empty"
+   * }`
+   */
+  registerResidentServiceConsumers?: Maybe<Array<ServiceConsumer>>;
+  /**
+   * [DEPRECATED] Creates service consumer with default data, and automatically populates the optional data fields, such as `billingAccount
    *
    * To be successfully created accountNumber and unitName should at least have billingAccount with same data or Meter with same data
    *
@@ -40630,6 +40707,29 @@ export type Mutation = {
    *   "code": "BAD_USER_INPUT",
    *   "type": "NOT_FOUND",
    *   "message": "Cannot find Organization for current user"
+   * }`
+   *
+   * `{
+   *   "mutation": "registerResidentServiceConsumers",
+   *   "variable": [
+   *     "data",
+   *     "resident",
+   *     "id"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "Cannot find Organization for current resident"
+   * }`
+   *
+   * `{
+   *   "mutation": "registerResidentServiceConsumers",
+   *   "variable": [
+   *     "data",
+   *     "accountNumber"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "Can't find billingAccount and any meters with this accountNumber, unitName and address"
    * }`
    *
    * `{
@@ -48670,6 +48770,11 @@ export type Mutation_InternalSyncContactsWithResidentsForOrganizationArgs = {
 
 export type MutationRegisterResidentArgs = {
   data: RegisterResidentInput;
+};
+
+
+export type MutationRegisterResidentServiceConsumersArgs = {
+  data: RegisterResidentServiceConsumersInput;
 };
 
 
@@ -69486,6 +69591,14 @@ export type RegisterResidentInput = {
   addressMeta: AddressMetaFieldInput;
   unitName: Scalars['String'];
   unitType?: Maybe<BuildingUnitSubType>;
+};
+
+export type RegisterResidentServiceConsumersInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  resident: ResidentWhereUniqueInput;
+  accountNumber: Scalars['String'];
+  paymentCategory?: Maybe<Scalars['String']>;
 };
 
 export type RegisterServiceConsumerInput = {

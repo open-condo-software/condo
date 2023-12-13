@@ -20,6 +20,8 @@ const { DISCOVER_SERVICE_CONSUMERS_MUTATION } = require('@condo/domains/resident
 const { GET_RESIDENT_EXISTENCE_BY_PHONE_AND_ADDRESS_QUERY } = require('@condo/domains/resident/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
+const { REGISTER_RESIDENT_SERVICE_CONSUMERS_MUTATION } = require('@condo/domains/resident/gql')
+
 const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
@@ -212,6 +214,16 @@ async function makeClientWithResident () {
     return client
 }
 
+async function registerResidentServiceConsumersByTestClient (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = {dv: 1, fingerprint: faker.random.alphaNumeric(8)}
+
+    const attrs = { dv: 1, sender, ...extraAttrs}
+    const {data, errors} = await client.mutate(REGISTER_RESIDENT_SERVICE_CONSUMERS_MUTATION, {data: attrs})
+    throwIfError(data, errors)
+    return [data.objs, attrs]
+}
+
 module.exports = {
     Resident, createTestResident, updateTestResident,
     registerResidentByTestClient, makeClientWithResident,
@@ -221,5 +233,6 @@ module.exports = {
     sendMessageToResidentScopesByTestClient,
     discoverServiceConsumersByTestClient,
     getResidentExistenceByPhoneAndAddressByTestClient,
+    registerResidentServiceConsumersByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
