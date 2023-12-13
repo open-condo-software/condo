@@ -24,9 +24,9 @@ class RecipientResolver extends Resolver {
         this.organization = await getById('Organization', get(this.billingContext, 'organization.id'))
     }
     async syncBillingRecipient (existing, data){
-        data.isApproved = data.tin && data.tin === this.organization.tin
         if (!existing) {
             try {
+                data.isApproved = data.tin && data.tin === this.organization.tin
                 return await BillingRecipientApi.create(this.context, this.buildCreateInput(data, ['context']))
             } catch (error) {
                 return { error: ERRORS.RECIPIENT_SAVE_FAILED }
