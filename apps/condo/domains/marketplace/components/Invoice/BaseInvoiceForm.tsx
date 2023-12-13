@@ -446,6 +446,8 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
 
     const filteredPriceScopes = useMemo(() => marketPriceScopes
         .filter(scope => {
+            if (!scope.marketItemPrice) return false
+
             if (!scope.property) {
                 const marketItemId = get(scope, 'marketItemPrice.marketItem.id')
                 const scopeWithSameMarketItemWithProperty = marketPriceScopes.find(
@@ -483,7 +485,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                 toPay: price,
                 isMin,
                 sku,
-                key: marketItem.id,
+                key: get(marketItem, 'id'),
             }
 
             const existedGroup = marketItemGroups.find(group => group.key === key)

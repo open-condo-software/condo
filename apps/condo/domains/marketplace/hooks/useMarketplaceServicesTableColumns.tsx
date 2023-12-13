@@ -40,14 +40,16 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
     const processedScopes = useMemo(() => {
         const result = {}
         for (const scope of marketPriceScopes) {
-            const { marketItemPrice: { marketItem: { id }, price: prices }, property } = scope
-            const price = get(prices[0], 'price')
+            const id = get(scope, 'marketItemPrice.marketItem.id')
+            const prices = get(scope, 'marketItemPrice.price')
+            const property = get(scope, 'property')
+            const price = get(prices, '0.price')
 
             const { streetPart } = getAddressDetails(property)
 
             const item = {
                 price,
-                isMin: get(prices[0], 'isMin'),
+                isMin: get(price, 'isMin'),
                 currency: get(price, 'currencyCode', 'RUB'),
                 address: streetPart,
             }

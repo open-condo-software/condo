@@ -94,7 +94,7 @@ export const IncidentHintsBlock = ({ organizationId, propertyId }) => {
     )
 }
 
-export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId, disabled, initialValues = {}, hasNotResidentTab = true, residentTitle = null }) => {
+export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId, disabled = false, initialValues = {}, hasNotResidentTab = true, residentTitle = null }) => {
     const contactId = useMemo(() => get(initialValues, 'contact'), [initialValues])
 
     const value = useMemo(() => ({
