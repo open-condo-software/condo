@@ -19,8 +19,8 @@ import {
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import {
     Columns,
-    DATE_PARSING_FORMAT,
-    DATE_PARSING_FORMAT_2,
+    ISO_DATE_FORMAT,
+    EUROPEAN_DATE_FORMAT,
     ObjectCreator,
     ProcessedRow,
     RowNormalizer,
@@ -41,7 +41,7 @@ import { searchPropertyWithMap } from '@condo/domains/property/utils/clientSchem
 
 
 const MONTH_PARSING_FORMAT = 'YYYY-MM'
-const DATE_PARSING_FORMATS = [DATE_PARSING_FORMAT, DATE_PARSING_FORMAT_2, MONTH_PARSING_FORMAT]
+const DATE_PARSING_FORMATS = [ISO_DATE_FORMAT, EUROPEAN_DATE_FORMAT, MONTH_PARSING_FORMAT]
 
 // Will be parsed as date 'YYYY-MM-DD' or month 'YYYY-MM'.
 // It is not extracted into `Importer`, because this is the only place of such format yet.
@@ -309,7 +309,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                     if (get(processedRow, ['addons', 'invalidReadingSubmissionDate'])) {
                         errors.push(intl.formatMessage({ id: 'meter.import.error.WrongDateOrMonthFormatMessage' }, {
                             columnName: columns[i].name,
-                            dateFormat: [DATE_PARSING_FORMAT, DATE_PARSING_FORMAT_2].join('", "'),
+                            dateFormat: [ISO_DATE_FORMAT, EUROPEAN_DATE_FORMAT].join('", "'),
                             monthFormat: MONTH_PARSING_FORMAT,
                         }))
                     }
@@ -323,7 +323,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                     if (cell.value && !isValidDate(cell.value)) {
                         errors.push(intl.formatMessage({ id: 'meter.import.error.WrongDateFormatMessage' }, {
                             columnName: columns[i].name,
-                            format: [DATE_PARSING_FORMAT, DATE_PARSING_FORMAT_2].join('", "'),
+                            format: [ISO_DATE_FORMAT, EUROPEAN_DATE_FORMAT].join('", "'),
                         }))
                     }
                     break

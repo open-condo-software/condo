@@ -44,8 +44,8 @@ interface IImporter {
 // to allow to implement custom validation in specific importer implementations.
 type ColumnType = 'string' | 'number' | 'date' | 'custom'
 
-export const DATE_PARSING_FORMAT = 'YYYY-MM-DD'
-export const DATE_PARSING_FORMAT_2 = 'DD.MM.YYYY'
+export const ISO_DATE_FORMAT = 'YYYY-MM-DD'
+export const EUROPEAN_DATE_FORMAT = 'DD.MM.YYYY'
 
 export interface ColumnInfo {
     name: string
@@ -155,10 +155,10 @@ export class Importer implements IImporter {
                 row[i].value = String(row[i].value)
             } else if (this.columnsTypes[i] === 'date' && valueType === 'string') {
                 // NOTE: We support only 2 formats of date: "YYYY-MM-DD" and "DD.MM.YYYY"
-                if (dayjs(row[i].value, DATE_PARSING_FORMAT, true).isValid()) {
-                    row[i].value = dayjs(row[i].value, DATE_PARSING_FORMAT, true).toDate()
-                } else if (dayjs(row[i].value, DATE_PARSING_FORMAT_2, true).isValid()) {
-                    row[i].value = dayjs(row[i].value, DATE_PARSING_FORMAT_2, true).toDate()
+                if (dayjs(row[i].value, ISO_DATE_FORMAT, true).isValid()) {
+                    row[i].value = dayjs(row[i].value, ISO_DATE_FORMAT, true).toDate()
+                } else if (dayjs(row[i].value, EUROPEAN_DATE_FORMAT, true).isValid()) {
+                    row[i].value = dayjs(row[i].value, EUROPEAN_DATE_FORMAT, true).toDate()
                 } else {
                     return false
                 }
