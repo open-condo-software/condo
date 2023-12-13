@@ -364,6 +364,9 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
     const { useFlag } = useFeatureFlags()
     const isMarketplaceEnabled = useFlag(MARKETPLACE)
 
+    const invoices = Form.useWatch('invoices', form)
+    const disableIsPayableCheckbox = useMemo(() => isPayable && invoices && invoices.length > 0, [invoices, isPayable])
+
     return (
         <Col span={24}>
             <Row gutter={BIG_VERTICAL_GUTTER}>
@@ -429,7 +432,7 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
                                             <Col span={24} lg={6}>
                                                 <Form.Item name='isPayable' valuePropName='checked'>
                                                     <Checkbox
-                                                        disabled={disableUserInteraction}
+                                                        disabled={disableUserInteraction || disableIsPayableCheckbox}
                                                         eventName='TicketCreateCheckboxIsPayable'
                                                         onChange={handlePayableChange}
                                                     >
