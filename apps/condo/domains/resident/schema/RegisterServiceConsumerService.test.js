@@ -22,6 +22,7 @@ const {
     createTestBillingIntegration,
     createTestBillingIntegrationOrganizationContext,
     makeContextWithOrganizationAndIntegrationAsAdmin,
+    updateTestBillingIntegrationOrganizationContext,
 } = require('@condo/domains/billing/utils/testSchema')
 const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const {
@@ -90,6 +91,7 @@ describe('RegisterResidentServiceConsumers', () => {
     describe('Resident', () => {
         it('can register ServiceConsumer if organization has connected billing', async () => {
             const { organization, context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            await updateTestBillingIntegrationOrganizationContext(adminClient, context.id, { status: CONTEXT_FINISHED_STATUS })
             const [property] = await createTestProperty(adminClient, organization)
             const [billingProperty] = await createTestBillingProperty(adminClient, context, {
                 address: property.address,
@@ -122,6 +124,7 @@ describe('RegisterResidentServiceConsumers', () => {
 
         it('doesn\'t create same ServiceConsumer twice', async () => {
             const { organization, context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            await updateTestBillingIntegrationOrganizationContext(adminClient, context.id, { status: CONTEXT_FINISHED_STATUS })
             const [property] = await createTestProperty(adminClient, organization)
             const [billingProperty] = await createTestBillingProperty(adminClient, context, {
                 address: property.address,
@@ -149,6 +152,7 @@ describe('RegisterResidentServiceConsumers', () => {
 
         it('can restore existing ServiceConsumer after softDelete operation', async () => {
             const { organization, context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            await updateTestBillingIntegrationOrganizationContext(adminClient, context.id, { status: CONTEXT_FINISHED_STATUS })
             const [property] = await createTestProperty(adminClient, organization)
             const [billingProperty] = await createTestBillingProperty(adminClient, context, {
                 address: property.address,
@@ -323,6 +327,37 @@ describe('RegisterResidentServiceConsumers', () => {
                 code: 'BAD_USER_INPUT',
                 type: NOT_FOUND,
                 message: 'Cannot find Resident for current user',
+            }, 'objs')
+        })
+
+        it('throw error when try createServiceConsumer with BillingIntegrationOrganizationContext not in finished status', async () => {
+            const { organization, context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            const [property] = await createTestProperty(adminClient, organization)
+            const [billingProperty] = await createTestBillingProperty(adminClient, context, {
+                address: property.address,
+            })
+            const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty)
+            await addAcquiringIntegrationAndContext(adminClient, organization, {}, {
+                status: CONTEXT_FINISHED_STATUS,
+            })
+
+            const [resident] = await createTestResident(adminClient, residentClient.user, property, {
+                unitName: billingAccount.unitName,
+            })
+
+            expect(context).not.toEqual(CONTEXT_FINISHED_STATUS)
+
+            await expectToThrowGQLError(async () => {
+                await registerResidentServiceConsumersByTestClient(residentClient, {
+                    resident: { id: resident.id },
+                    accountNumber: billingAccount.number,
+                })
+            }, {
+                mutation: 'registerResidentServiceConsumers',
+                variable: ['data', 'accountNumber'],
+                code: 'BAD_USER_INPUT',
+                type: NOT_FOUND,
+                message: 'Can\'t find billingAccount and any meters with this accountNumber, unitName and address',
             }, 'objs')
         })
     })
