@@ -1,5 +1,6 @@
 /** @type {import('jest').Config} */
 module.exports = {
+    workerIdleMemoryLimit: '256MB',
     projects: [
         {
             testRunner: 'jasmine2',
