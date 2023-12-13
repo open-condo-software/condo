@@ -3875,11 +3875,18 @@ input ImportB2CAppToInput {
   app: B2CAppWhereUniqueInput!
 }
 
+input ImportB2CAppOptionsInput {
+  info: Boolean!
+  builds: Boolean!
+  publish: Boolean!
+}
+
 input ImportB2CAppInput {
   dv: Int!
   sender: SenderFieldInput!
   from: ImportB2CAppFromInput!
   to: ImportB2CAppToInput!
+  options: ImportB2CAppOptionsInput!
 }
 
 type ImportB2CAppOutput {

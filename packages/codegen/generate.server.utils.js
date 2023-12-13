@@ -219,6 +219,19 @@ function generateServerUtils (gql) {
         })
     }
 
+    async function createMany (context, data, options = {}) {
+        if (!context) throw new Error('no context')
+        if (!data) throw new Error('no data')
+        _checkOptions(options)
+        return await execGqlWithoutAccess(context, {
+            query: gql.CREATE_OBJS_MUTATION,
+            variables: { data },
+            errorMessage: `[error] Create ${gql.PLURAL_FORM} internal error`,
+            dataPath: 'objs',
+            ...options,
+        })
+    }
+
     async function update (context, id, data, options = {}) {
         if (!context) throw new Error('no context')
         if (!id) throw new Error('no id')
@@ -307,6 +320,7 @@ function generateServerUtils (gql) {
         getOne,
         count,
         create,
+        createMany,
         update,
         updateMany,
         updateOrCreate,

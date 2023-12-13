@@ -17,9 +17,15 @@ if (!globalThis.fetch) {
 }
 
 class UploadingFile {
-    constructor (stream, name) {
+    constructor ({ stream, filename, mimetype, encoding }) {
         this.stream = stream
-        this.name = name
+        this.filename = filename
+        this.mimetype = mimetype
+        this.encoding = encoding
+    }
+
+    createReadStream () {
+        return this.stream
     }
 }
 
@@ -350,8 +356,8 @@ class ApolloServerClient {
         })
     }
 
-    createUploadFile (stream, name) {
-        return new UploadingFile(stream, name)
+    createUploadFile ({ stream, filename, mimetype, encoding }) {
+        return new UploadingFile({ stream, filename, mimetype, encoding })
     }
 
     uploadTerminateLink () {
