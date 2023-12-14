@@ -9,8 +9,6 @@ const { SERVER_URL, SBERCLOUD_OBS_CONFIG } = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
-const { convertFileNameToUTF8 } = require('@condo/domains/common/utils/fixFileNameEncoding')
-
 
 const logger = getLogger('sberCloudFileAdapter')
 const PUBLIC_URL_TTL = 60 * 60 * 24 * 30 // 1 MONTH IN SECONDS FOR ANY PUBLIC URL
@@ -91,7 +89,7 @@ class SberCloudFileAdapter {
     }
 
     save ({ stream, filename, id, mimetype, encoding, meta = {} }) {
-        filename = convertFileNameToUTF8(filename)
+        // TODO(dkovyazin): DOMA-7965 Look into redefining fileName inside fileadapter
         const fileData = {
             id,
             originalFilename: filename,
