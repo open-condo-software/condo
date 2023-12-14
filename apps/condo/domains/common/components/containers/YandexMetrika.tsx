@@ -23,6 +23,8 @@ const YandexMetrika = () => {
     const router = useRouter()
 
     useEffect(() => {
+        if (!yandexMetrikaID) return
+
         const userParams = omitBy({
             UserID: userId,
             organizationId,
@@ -30,7 +32,7 @@ const YandexMetrika = () => {
             roleNameNonLocalized: get(role, 'nameNonLocalized'),
         }, isNil)
         ym('userParams', userParams)
-    }, [organizationId, role, userId])
+    }, [organizationId, role, userId, yandexMetrikaID])
 
     const routeChangeComplete = () => {
         ym('hit', window.location.pathname)
