@@ -1035,6 +1035,7 @@ __metadata:
     lodash: ^4.17.21
     next: 13.3.0
     next-mdx-remote: 4.3.0
+    next-seo: ^6.4.0
     phone: ^3.1.41
     rc-field-form: 1.27.1
     react: 18.2.0
@@ -35568,6 +35569,17 @@ __metadata:
     react: ">=16.x <=18.x"
     react-dom: ">=16.x <=18.x"
   checksum: 1de864a162948be28d5abcda39c5369f5b95200d95523ddb9993065527dc8da930e9347632fe3413e950d6d4ecac92922b19ba7e5ce6fbd61a66edcad56b754a
+  languageName: node
+  linkType: hard
+
+"next-seo@npm:^6.4.0":
+  version: 6.4.0
+  resolution: "next-seo@npm:6.4.0"
+  peerDependencies:
+    next: ^8.1.1-canary.54 || >=9.0.0
+    react: ">=16.0.0"
+    react-dom: ">=16.0.0"
+  checksum: 94183bf0c75359bad52d9e6463fb433bdcf94f42b33e88a60897a8957b41bc3d6ebb5ead3084a43cf287c42f7b95ba4e9f3a6cd21af532e1a8eb285f2cf8ac3b
   languageName: node
   linkType: hard
 
