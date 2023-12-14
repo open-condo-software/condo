@@ -8,7 +8,7 @@ const {
     makeLoggedInAdminClient, makeClient, UUID_RE, catchErrorFrom,
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects,
-    expectToThrowUniqueConstraintViolationError,
+    expectToThrowUniqueConstraintViolationError, expectToThrowAccessDeniedErrorToCount,
 } = require('@open-condo/keystone/test.utils')
 
 const { createTestContact, Contact, updateTestContact } = require('@condo/domains/contact/utils/testSchema')
@@ -559,10 +559,12 @@ describe('B2BApp permissions for service user', () => {
 
         // B2BApp without permissions
         {
-            const countWithoutPermissions = await Property.count(serviceUser, {})
-            expect(countWithoutPermissions).toBe(0)
-            const propertyWithoutPermissions = await Property.getOne(serviceUser, { id: property.id })
-            expect(propertyWithoutPermissions).toBeUndefined()
+            await expectToThrowAccessDeniedErrorToCount(async () => {
+                await Property.count(serviceUser, {})
+            })
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await Property.getOne(serviceUser, { id: property.id })
+            })
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await createTestProperty(serviceUser, organization)
@@ -632,10 +634,12 @@ describe('B2BApp permissions for service user', () => {
             })
 
             // cannot read
-            const countWithPermissions = await Property.count(serviceUser, {})
-            expect(countWithPermissions).toBe(0)
-            const propertyWithPermissions = await Property.getOne(serviceUser, { id: property.id })
-            expect(propertyWithPermissions).toBeUndefined()
+            await expectToThrowAccessDeniedErrorToCount(async () => {
+                await Property.count(serviceUser, {})
+            })
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await Property.getOne(serviceUser, { id: property.id })
+            })
 
             // cannot create
             await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -702,10 +706,12 @@ describe('B2BApp permissions for service user', () => {
             })
 
             // cannot read
-            const countWithPermissions = await Property.count(serviceUser, {})
-            expect(countWithPermissions).toBe(0)
-            const propertyWithPermissions = await Property.getOne(serviceUser, { id: property.id })
-            expect(propertyWithPermissions).toBeUndefined()
+            await expectToThrowAccessDeniedErrorToCount(async () => {
+                await Property.count(serviceUser, {})
+            })
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await Property.getOne(serviceUser, { id: property.id })
+            })
 
             // cannot create property because you cannot read organizations
             await catchErrorFrom(async () => {
@@ -742,10 +748,12 @@ describe('B2BApp permissions for service user', () => {
             })
 
             // cannot read
-            const countWithPermissions = await Property.count(serviceUser, {})
-            expect(countWithPermissions).toBe(0)
-            const propertyWithPermissions = await Property.getOne(serviceUser, { id: property.id })
-            expect(propertyWithPermissions).toBeUndefined()
+            await expectToThrowAccessDeniedErrorToCount(async () => {
+                await Property.count(serviceUser, {})
+            })
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await Property.getOne(serviceUser, { id: property.id })
+            })
 
             // can create
             const [createdProperty] = await createTestProperty(serviceUser, organization)
@@ -859,10 +867,12 @@ describe('B2BApp permissions for service user', () => {
         const [contact] = await createTestContact(user, organization, property)
 
         // B2BApp without permissions
-        const countWithoutPermissions = await Contact.count(serviceUser, {})
-        expect(countWithoutPermissions).toBe(0)
-        const contactWithoutPermissions = await Contact.getOne(serviceUser, { id: contact.id })
-        expect(contactWithoutPermissions).toBeUndefined()
+        await expectToThrowAccessDeniedErrorToCount(async () => {
+            await Contact.count(serviceUser, {})
+        })
+        await expectToThrowAccessDeniedErrorToObjects(async () => {
+            await Contact.getOne(serviceUser, { id: contact.id })
+        })
 
         await expectToThrowAccessDeniedErrorToObj(async () => {
             await createTestContact(serviceUser, organization, property)

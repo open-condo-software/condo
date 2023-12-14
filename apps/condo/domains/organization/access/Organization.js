@@ -7,7 +7,7 @@ const access = require('@open-condo/keystone/access')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { find } = require('@open-condo/keystone/schema')
 
-const { b2bAppServiceUserCanReadObjects, mergeAccessFilters } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
+const { b2bAppServiceUserCanReadObjects } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
 const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 const { canDirectlyReadSchemaObjects, canDirectlyManageSchemaObjects } = require('@condo/domains/user/utils/directAccess')
@@ -46,9 +46,11 @@ async function canReadOrganizations (args) {
         { ...queryOrganizationEmployeeFor(user.id) },
         { ...queryOrganizationEmployeeFromRelatedOrganizationFor(user.id) },
     ]
-    const accessFilterForB2BAppServiceUser = await b2bAppServiceUserCanReadObjects(args)
 
     if (user.type === SERVICE) {
+        // b2bAppServiceUserCanReadObjects may be return false or object (filter)
+        const accessFilterForB2BAppServiceUser = await b2bAppServiceUserCanReadObjects(args)
+
         const billingContexts = await find('BillingIntegrationOrganizationContext', {
             integration: {
                 accessRights_some: { user: { id: user.id }, deletedAt: null },
@@ -71,16 +73,17 @@ async function canReadOrganizations (args) {
             },
             deletedAt: null,
         })
+
         const serviceOrganizationIds = uniq(billingContexts
             .map(({ organization }) => organization )
             .concat(acquiringContexts.map(({ organization }) => organization )))
             .concat(bankIntegrationOrganizationContext.map(({ organization }) => organization))
+            .concat(get(accessFilterForB2BAppServiceUser, 'id_in', []) || [])
         if (serviceOrganizationIds.length) {
             accessConditions.push({ id_in: serviceOrganizationIds })
         }
     }
-
-    return mergeAccessFilters({ OR: accessConditions }, accessFilterForB2BAppServiceUser)
+    return { OR: accessConditions }
 }
 
 async function canManageOrganizations ({ authentication: { item: user }, operation, listKey, originalInput }) {

@@ -11,7 +11,6 @@ const { getAvailableResidentMeters } = require('@condo/domains/meter/utils/serve
 const {
     b2bAppServiceUserCanReadObjects,
     b2bAppServiceUserCanManageObjects,
-    mergeAccessFilters,
 } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
 const {
     checkPermissionInUserOrganizationOrRelatedOrganization,
@@ -39,15 +38,18 @@ async function canReadMeters (args) {
         }
     }
 
-    const accessFilterForB2BAppServiceUser = await b2bAppServiceUserCanReadObjects(args)
-    return mergeAccessFilters(accessFilterForB2BAppServiceUser, {
+    if (user.type === SERVICE) {
+        return await b2bAppServiceUserCanReadObjects(args)
+    }
+
+    return {
         organization: {
             OR: [
                 queryOrganizationEmployeeFor(user.id, 'canReadMeters'),
                 queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadMeters'),
             ],
         },
-    })
+    }
 }
 
 async function canManageMeters (args) {
@@ -58,8 +60,7 @@ async function canManageMeters (args) {
     if (user.isAdmin) return true
 
     if (user.type === SERVICE) {
-        const hasAccess = await b2bAppServiceUserCanManageObjects(args)
-        if (hasAccess) return hasAccess
+        return await b2bAppServiceUserCanManageObjects(args)
     }
 
     if (operation === 'create') {

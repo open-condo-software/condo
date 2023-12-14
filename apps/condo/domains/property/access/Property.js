@@ -7,7 +7,6 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { getById, find } = require('@open-condo/keystone/schema')
 
 const {
-    mergeAccessFilters,
     b2bAppServiceUserCanManageObjects,
     b2bAppServiceUserCanReadObjects,
 } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
@@ -35,15 +34,18 @@ async function canReadProperties (args) {
         }
     }
 
-    const accessFilterForB2BAppServiceUser = await b2bAppServiceUserCanReadObjects(args)
-    return mergeAccessFilters(accessFilterForB2BAppServiceUser, {
+    if (user.type === SERVICE) {
+        return await b2bAppServiceUserCanReadObjects(args)
+    }
+    
+    return {
         organization: {
             OR: [
                 queryOrganizationEmployeeFor(user.id, 'canReadProperties'),
                 queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadProperties'),
             ],
         },
-    })
+    }
 }
 
 async function canManageProperties (args) {
@@ -54,8 +56,7 @@ async function canManageProperties (args) {
     if (user.isAdmin || user.isSupport) return true
 
     if (user.type === SERVICE) {
-        const hasAccess = await b2bAppServiceUserCanManageObjects(args)
-        if (hasAccess) return hasAccess
+        return await b2bAppServiceUserCanManageObjects(args)
     }
 
     if (operation === 'create') {

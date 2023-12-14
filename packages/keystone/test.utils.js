@@ -13,7 +13,7 @@ const express = require('express')
 const falsey = require('falsey')
 const FormData = require('form-data')
 const { gql } = require('graphql-tag')
-const { flattenDeep, fromPairs, toPairs, get, isFunction, isEmpty, template } = require('lodash')
+const { flattenDeep, fromPairs, toPairs, get, set, isFunction, isEmpty, template } = require('lodash')
 const fetch = require('node-fetch')
 const { CookieJar, Cookie } = require('tough-cookie')
 
@@ -527,11 +527,11 @@ const expectToThrowAccessDeniedError = async (testFunc, path) => {
     await catchErrorFrom(testFunc, (caught) => {
         expect(caught).toMatchObject({
             name: 'TestClientResponseError',
-            data: { [path]: null },
+            data: set({}, path, null),
             errors: [expect.objectContaining({
                 'message': 'You do not have access to this resource',
                 'name': 'AccessDeniedError',
-                'path': [path],
+                'path': path.split('.'),
                 'locations': [expect.objectContaining({
                     line: expect.anything(),
                     column: expect.anything(),
@@ -554,6 +554,10 @@ const expectToThrowAccessDeniedErrorToObjects = async (testFunc) => {
 
 const expectToThrowAccessDeniedErrorToResult = async (testFunc) => {
     await expectToThrowAccessDeniedError(testFunc, 'result')
+}
+
+const expectToThrowAccessDeniedErrorToCount = async (testFunc) => {
+    await expectToThrowAccessDeniedError(testFunc, 'meta.count')
 }
 
 /**
@@ -812,6 +816,7 @@ module.exports = {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAccessDeniedErrorToObjects,
     expectToThrowAccessDeniedErrorToResult,
+    expectToThrowAccessDeniedErrorToCount,
     expectToThrowAuthenticationError,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
