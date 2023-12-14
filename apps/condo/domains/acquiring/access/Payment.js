@@ -77,9 +77,14 @@ async function canReadPaymentsSensitiveData ({ authentication: { item: user }, e
 
     // Otherwise check if it's employee or not
     const canReadPayments = !!(await checkOrganizationPermission(user.id, existingItem.organization, 'canReadPayments'))
-    const canReadPaymentsWithInvoices = !!(await checkOrganizationPermission(user.id, existingItem.organization, 'canReadPaymentsWithInvoices'))
+    if (canReadPayments) {
+        return true
+    }
 
-    return canReadPayments || canReadPaymentsWithInvoices
+    const canReadPaymentsWithInvoices = !!(await checkOrganizationPermission(user.id, existingItem.organization, 'canReadPaymentsWithInvoices'))
+    if (canReadPaymentsWithInvoices) {
+        return true
+    }
 }
 
 

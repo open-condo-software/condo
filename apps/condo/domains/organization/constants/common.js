@@ -251,7 +251,7 @@ const DEFAULT_ROLES = {
         'canReadExternalReports': true,
         'canReadServices': true,
         'canReadPaymentsWithInvoices': false,
-        'canReadMarketplace': false,
+        'canReadMarketplace': true,
         'canManageMarketplace': false,
         'canReadInvoices': true,
         'canManageInvoices': false,
