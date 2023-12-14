@@ -354,7 +354,7 @@ describe('Invoice', () => {
     })
 
     describe('resident side', () => {
-        test('resident can\'t see drafts and canceled invoices', async () => {
+        test('resident can\'t see drafts and can see canceled invoices', async () => {
             const client = await makeClientWithProperty()
 
             await createTestAcquiringIntegrationContext(adminClient, client.organization, dummyAcquiringIntegration, {
@@ -364,20 +364,6 @@ describe('Invoice', () => {
 
             const unitType = FLAT_UNIT_TYPE
             const unitName = faker.lorem.word()
-
-            await createTestInvoice(client, client.organization, {
-                property: { connect: { id: client.property.id } },
-                unitType,
-                unitName,
-                // status=draft by default
-            })
-
-            await createTestInvoice(client, client.organization, {
-                property: { connect: { id: client.property.id } },
-                unitType,
-                unitName,
-                status: INVOICE_STATUS_CANCELED,
-            })
 
             const residentClient = await makeClientWithResidentUser()
             await registerResidentByTestClient(
@@ -389,9 +375,35 @@ describe('Invoice', () => {
                     unitName,
                 })
 
+            const [contact] = await createTestContact(adminClient, client.organization, client.property, {
+                phone: residentClient.userAttrs.phone,
+                unitType,
+                unitName,
+            })
+
+            await createTestInvoice(client, client.organization, {
+                property: { connect: { id: client.property.id } },
+                unitType,
+                unitName,
+                // status=draft by default
+                contact: { connect: { id: contact.id } },
+            })
+
+            const [canceledInvoice] = await createTestInvoice(client, client.organization, {
+                property: { connect: { id: client.property.id } },
+                unitType,
+                unitName,
+                status: INVOICE_STATUS_CANCELED,
+                contact: { connect: { id: contact.id } },
+            })
+
             const invoices = await Invoice.getAll(residentClient, {})
 
-            expect(invoices).toHaveLength(0)
+            expect(invoices).toEqual([
+                expect.objectContaining({
+                    id: canceledInvoice.id,
+                }),
+            ])
         })
 
         test('resident can see paid invoices', async () => {

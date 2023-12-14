@@ -11,6 +11,7 @@ const {
     INVOICE_STATUS_PUBLISHED,
     INVOICE_STATUS_PAID,
     INVOICE_STATUS_DRAFT,
+    INVOICE_STATUS_CANCELED,
 } = require('@condo/domains/marketplace/constants')
 const {
     queryOrganizationEmployeeFor,
@@ -30,7 +31,7 @@ async function canReadInvoices ({ authentication: { item: user }, context }) {
             deletedAt: null,
             client: { id: user.id },
             OR: [
-                { status_in: [INVOICE_STATUS_PUBLISHED, INVOICE_STATUS_PAID] },
+                { status_in: [INVOICE_STATUS_PUBLISHED, INVOICE_STATUS_PAID, INVOICE_STATUS_CANCELED] },
                 {
                     AND: [
                         { status: INVOICE_STATUS_DRAFT },
