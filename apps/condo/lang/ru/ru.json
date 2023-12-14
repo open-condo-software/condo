@@ -1500,7 +1500,7 @@
   "meter.import.error.MeterValueInvalid": "Неверное значение в столбце \"{columnName}\", должно быть положительное число",
   "meter.import.error.UnitNameNotFound": "Указанное помещение не найдено в доме",
   "meter.import.error.WrongDateFormatMessage": "Неверное значение даты в столбце \"{columnName}\". Используйте значение с типом Строка в формате \"{format}\", либо значение с типом Дата",
-  "meter.import.error.WrongDateOrMonthFormatMessage": "Неверное значение даты в столбце \"{columnName}\". Используйте значение с типом Строка в форматах \"{format1}\", \"{format2}\" (для указания только месяца); либо значение с типом Дата",
+  "meter.import.error.WrongDateOrMonthFormatMessage": "Неверное значение даты в столбце \"{columnName}\". Используйте значение с типом Строка в форматах \"{dateFormat}\" или \"{monthFormat}\" (для указания только месяца); либо значение с типом Дата",
   "meter.import.error.ZeroValuesSpecified": "Должно быть указано как минимум одно из показаний",
   "meter.import.error.AccountNumberInvalidValue": "Указан некорректный лицевой счет",
   "meter.import.error.MeterNumberInvalidValue": "Указан некорректный номер счетчика",

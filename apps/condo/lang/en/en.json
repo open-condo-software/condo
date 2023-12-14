@@ -1500,7 +1500,7 @@
   "meter.import.error.MeterValueInvalid": "Incorrect format in column \"{columnName}\", must be a positive numeric value",
   "meter.import.error.UnitNameNotFound": "Unit was not found in property",
   "meter.import.error.WrongDateFormatMessage": "Incorrect date format in column \"{columnName}\". Use either value of String type in format: \"{format}\", or value of Date type",
-  "meter.import.error.WrongDateOrMonthFormatMessage": "Wrong date format in column \"{columnName}\". Use either value of String formats \"{format1}\", \"{format2}\" (for month-only); or value of Date type",
+  "meter.import.error.WrongDateOrMonthFormatMessage": "Wrong date format in column \"{columnName}\". Use either value of String formats \"{dateFormat}\" or \"{monthFormat}\" (for month-only); or value of Date type",
   "meter.import.error.ZeroValuesSpecified": "At least one of values must be specified",
   "meter.import.error.AccountNumberInvalidValue": "Account number field is filled incorrectly",
   "meter.import.error.MeterNumberInvalidValue": "Meter number field is filled incorrectly",

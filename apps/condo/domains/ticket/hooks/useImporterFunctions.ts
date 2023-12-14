@@ -12,7 +12,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import {
     Columns,
-    DATE_PARSING_FORMAT,
+    ISO_DATE_FORMAT,
     ObjectCreator,
     RowNormalizer,
     RowValidator,
@@ -47,7 +47,7 @@ const getFullDetails = (intl, details: string, oldTicketNumber: string, createdA
 }
 
 const isValidDate = (value) => {
-    return dayjs(value, DATE_PARSING_FORMAT).isValid()
+    return dayjs(value, ISO_DATE_FORMAT).isValid()
 }
 
 const SOURCE_IMPORT_ID = '92cfa7b1-b793-4c22-ae03-ea2aae1e1315'
@@ -160,7 +160,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         if (isResidentTicket && (!phone || !fullName)) errors.push(IncorrectPhoneAndFullNameForResidentTicketMessage)
 
         const createdAt = get(row, ['addons', 'createdAt'])
-        if (createdAt && !isValidDate(createdAt)) errors.push(intl.formatMessage({ id: 'errors.import.date' }, { columnName: CreatedAtLabel, format: DATE_PARSING_FORMAT }))
+        if (createdAt && !isValidDate(createdAt)) errors.push(intl.formatMessage({ id: 'errors.import.date' }, { columnName: CreatedAtLabel, format: ISO_DATE_FORMAT }))
 
         if (errors.length) {
             row.errors = errors

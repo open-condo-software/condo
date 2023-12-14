@@ -19,7 +19,8 @@ import {
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import {
     Columns,
-    DATE_PARSING_FORMAT,
+    ISO_DATE_FORMAT,
+    EUROPEAN_DATE_FORMAT,
     ObjectCreator,
     ProcessedRow,
     RowNormalizer,
@@ -40,6 +41,7 @@ import { searchPropertyWithMap } from '@condo/domains/property/utils/clientSchem
 
 
 const MONTH_PARSING_FORMAT = 'YYYY-MM'
+const DATE_PARSING_FORMATS = [ISO_DATE_FORMAT, EUROPEAN_DATE_FORMAT, MONTH_PARSING_FORMAT]
 
 // Will be parsed as date 'YYYY-MM-DD' or month 'YYYY-MM'.
 // It is not extracted into `Importer`, because this is the only place of such format yet.
@@ -48,12 +50,9 @@ const parseDateOrMonth = (value) => {
     if (valueType === 'date') {
         return value
     } else if (valueType === 'string') {
-        let result = dayjs(value, DATE_PARSING_FORMAT)
-        if (!result.isValid()) {
-            result = dayjs(value, MONTH_PARSING_FORMAT)
-        }
-        if (result.isValid()) {
-            return result
+        for (const format of DATE_PARSING_FORMATS) {
+            const parsedValue = dayjs(value, format, true)
+            if (parsedValue.isValid()) return parsedValue
         }
     }
     throw new RangeError()
@@ -308,7 +307,11 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             switch (columns[i].name) {
                 case ReadingSubmissionDateMessage:
                     if (get(processedRow, ['addons', 'invalidReadingSubmissionDate'])) {
-                        errors.push(intl.formatMessage({ id: 'meter.import.error.WrongDateOrMonthFormatMessage' }, { columnName: columns[i].name, format1: DATE_PARSING_FORMAT, format2: MONTH_PARSING_FORMAT }))
+                        errors.push(intl.formatMessage({ id: 'meter.import.error.WrongDateOrMonthFormatMessage' }, {
+                            columnName: columns[i].name,
+                            dateFormat: [ISO_DATE_FORMAT, EUROPEAN_DATE_FORMAT].join('", "'),
+                            monthFormat: MONTH_PARSING_FORMAT,
+                        }))
                     }
                     break
                 case VerificationDateMessage:
@@ -318,7 +321,10 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                 case SealingDateMessage:
                 case ControlReadingsDate:
                     if (cell.value && !isValidDate(cell.value)) {
-                        errors.push(intl.formatMessage({ id: 'meter.import.error.WrongDateFormatMessage' }, { columnName: columns[i].name, format: DATE_PARSING_FORMAT }))
+                        errors.push(intl.formatMessage({ id: 'meter.import.error.WrongDateFormatMessage' }, {
+                            columnName: columns[i].name,
+                            format: [ISO_DATE_FORMAT, EUROPEAN_DATE_FORMAT].join('", "'),
+                        }))
                     }
                     break
                 case UnitNameColumnMessage:
