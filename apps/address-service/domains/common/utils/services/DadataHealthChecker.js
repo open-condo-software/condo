@@ -26,6 +26,23 @@ class DadataHealthChecker {
             this.profileBalanceWarning = get(conf, BALANCE_WARNING, 0)
             this.suggestionsWarning = get(conf, SUGGESTIONS_WARNING, 1000)
         }
+
+        return new Proxy(this, {
+            get (target, property) {
+                const originalMethod = target[property]
+
+                if (typeof originalMethod === 'function') {
+                    return (...args) => {
+                        if (!target.#isInitialized) {
+                            console.warn('Healthcheck config not initialized properly, return fail as fallback')
+                            return false
+                        }
+
+                        return originalMethod.apply(target, args)
+                    }
+                }
+            },
+        })
     }
 
     /**
@@ -41,25 +58,22 @@ class DadataHealthChecker {
     /**
      * @private
      * @param apiRequestPromise {Promise<fetch>}
-     * @return {Promise<boolean>}
+     * @return {Promise<{intermediateResult: Boolean, originalResponse: Object | null}>}
      */
     async makeHealthcheckRequest (apiRequestPromise) {
-        if (!this.#isInitialized) {
-            console.warn('Healthcheck config not initialized properly, return ok as fallback')
-            return true
-        }
-
         try {
             const result = await apiRequestPromise
 
-            if (result.status !== 200) return false
+            if (result.status !== 200) return { intermediateResult: false, originalResponse: null }
 
-            return await result.json()
+            const originalResponse = await result.json()
+
+            return { intermediateResult: true, originalResponse }
         } catch (error) {
             this.logger.warn({
                 msg: 'Got error while execute healthcheck request', error,
             })
-            return false
+            return { intermediateResult: false, originalResponse: null }
         }
     }
 
@@ -74,7 +88,11 @@ class DadataHealthChecker {
 
         const response = await this.makeHealthcheckRequest(profileBalanceRequest)
 
-        return get(response, 'balance', 0) > this.profileBalanceWarning
+        if (response.intermediateResult) {
+            return get(response, ['originalResponse', 'balance'], 0) > this.profileBalanceWarning
+        }
+
+        return response.intermediateResult
     }
 
     /**
@@ -87,7 +105,11 @@ class DadataHealthChecker {
 
         const response = await this.makeHealthcheckRequest(dailyStatisticsRequest)
 
-        return get(response, ['remaining', 'suggestions'], 0) > this.suggestionsWarning
+        if (response.intermediateResult) {
+            return get(response, ['originalResponse', 'remaining', 'suggestions'], 0) > this.suggestionsWarning
+        }
+
+        return response.intermediateResult
     }
 }
 
