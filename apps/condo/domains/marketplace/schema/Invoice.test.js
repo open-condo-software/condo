@@ -84,6 +84,7 @@ describe('Invoice', () => {
         await createTestAcquiringIntegrationContext(adminClient, dummyO10n, dummyAcquiringIntegration, {
             invoiceStatus: CONTEXT_FINISHED_STATUS,
             invoiceRecipient: createTestRecipient(),
+            canGroupReceipts: true,
         })
     })
 
@@ -776,6 +777,30 @@ describe('Invoice', () => {
                     },
                 }),
             ])
+        })
+    })
+
+    describe('virtual fields check', () => {
+        it('checking the completion of virtual fields: canGroupReceipts, hostUrl, acquiringIntegrationId, currencyCode', async () => {
+            const [property] = await createTestProperty(adminClient, dummyO10n)
+            const unitName = faker.random.alphaNumeric(5)
+            const unitType = FLAT_UNIT_TYPE
+            const clientPhone = createTestPhone()
+            const clientName = faker.random.alphaNumeric(5)
+
+            const [contact] = await createTestContact(adminClient, dummyO10n, property, {
+                unitType, unitName, phone: clientPhone, name: clientName,
+            })
+
+            const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext, {
+                clientName, clientPhone, unitName, unitType,
+                property: { connect: { id: property.id } },
+            })
+
+            expect(invoice.canGroupReceipts).toBeTruthy()
+            expect(invoice.hostUrl).toEqual(dummyIntegration.hostUrl)
+            expect(invoice.acquiringIntegrationId).toEqual(dummyIntegration.id)
+            expect(invoice.currencyCode).toEqual(dummyInvoiceContext.currencyCode)
         })
     })
 

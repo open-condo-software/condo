@@ -53,6 +53,7 @@ const { sendMessage } = require('@condo/domains/notification/utils/serverSchema'
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
+
 const ERRORS = {
     ALREADY_PAID: {
         code: BAD_USER_INPUT,
@@ -235,6 +236,44 @@ const Invoice = new GQLListSchema('Invoice', {
                     invoiceStatus: CONTEXT_FINISHED_STATUS,
                 })
                 return get(acquiringContext, 'invoiceRecipient')
+            },
+        },
+
+        acquiringIntegrationId: {
+            schemaDoc: 'Type of user who changed the pass. Can be employee or resident',
+            type: 'Virtual',
+            resolver: async (item, args, context) => {
+                const invoiceContext = await getById('InvoiceContext', item.context)
+                return get(invoiceContext, 'integration', null)
+            },
+        },
+
+        hostUrl: {
+            schemaDoc: 'Type of user who changed the pass. Can be employee or resident',
+            type: 'Virtual',
+            resolver: async (item, args, context) => {
+                const invoiceContext = await getById('InvoiceContext', item.context)
+                const integration = await getById('AcquiringIntegration', invoiceContext.integration)
+                return get(integration, 'hostUrl', null)
+            },
+        },
+
+        canGroupReceipts: {
+            schemaDoc: 'Type of user who changed the pass. Can be employee or resident',
+            type: 'Virtual',
+            resolver: async (item, args, context) => {
+                const invoiceContext = await getById('InvoiceContext', item.context)
+                const integration = await getById('AcquiringIntegration', invoiceContext.integration)
+                return get(integration, 'canGroupReceipts', null)
+            },
+        },
+
+        currencyCode: {
+            schemaDoc: 'Type of user who changed the pass. Can be employee or resident',
+            type: 'Virtual',
+            resolver: async (item, args, context) => {
+                const invoiceContext = await getById('InvoiceContext', item.context)
+                return get(invoiceContext, 'currencyCode', null)
             },
         },
 
