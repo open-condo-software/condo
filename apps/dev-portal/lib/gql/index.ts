@@ -1771,8 +1771,15 @@ export type ImportB2CAppFromInput = {
 export type ImportB2CAppInput = {
     dv: Scalars['Int']['input'];
     from: ImportB2CAppFromInput;
+    options: ImportB2CAppOptionsInput;
     sender: SenderFieldInput;
     to: ImportB2CAppToInput;
+}
+
+export type ImportB2CAppOptionsInput = {
+    builds: Scalars['Boolean']['input'];
+    info: Scalars['Boolean']['input'];
+    publish: Scalars['Boolean']['input'];
 }
 
 export type ImportB2CAppOutput = {

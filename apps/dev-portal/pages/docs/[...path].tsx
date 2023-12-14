@@ -16,6 +16,7 @@ import { BaseLayout } from '@/domains/common/components/BaseLayout'
 import { CollapsibleMenu } from '@/domains/common/components/CollapsibleMenu'
 import { DOCS_REPO, DOCS_ROOT_PATH, DOCS_REPO_DOCS_ROOT, DOCS_EDIT_BRANCH } from '@/domains/common/constants/buildVars'
 import { DEFAULT_LOCALE } from '@/domains/common/constants/locales'
+import { ArticleMeta } from '@/domains/docs/components/ArticleMeta'
 import { MDXMapping } from '@/domains/docs/components/mdx'
 import { useMenuItems } from '@/domains/docs/hooks/useMenuItems'
 import { extractMdx } from '@/domains/docs/utils/mdx'
@@ -96,6 +97,7 @@ const DocPage: React.FC<DocPageProps> = ({
             <Head>
                 <title>{PageTitle}</title>
             </Head>
+            <ArticleMeta title={localizedPageTitleParts.join(' | ')}/>
             <BaseLayout
                 menuElement={(
                     <CollapsibleMenu

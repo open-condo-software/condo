@@ -8,6 +8,7 @@ import localFont from 'next/font/local'
 import { IntlProvider } from 'react-intl'
 
 import { CreateAppContextProvider } from '@/domains/common/components/CreateAppContext'
+import { SeoProvider } from '@/domains/common/components/SeoProvider'
 import { theme } from '@/domains/common/constants/antd'
 import { LOCALES, DEFAULT_LOCALE } from '@/domains/common/constants/locales'
 
@@ -59,6 +60,7 @@ function DevPortalApp ({ Component, pageProps, router }: AppProps): ReactNode {
 
     return (
         <IntlProvider locale={locale} messages={get(MESSAGES, locale, {})}>
+            <SeoProvider/>
             <ApolloProvider client={client}>
                 <AuthProvider>
                     <ConfigProvider theme={theme}>
