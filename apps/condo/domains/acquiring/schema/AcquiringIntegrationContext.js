@@ -187,7 +187,7 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
             schemaDoc: 'The percentage of VAT',
             type: 'Select',
             dataType: 'string',
-            options: VAT_OPTIONS.map((v) => ({ label: String(v), value: String(v) })),
+            options: VAT_OPTIONS,
             isRequired: false,
         },
 

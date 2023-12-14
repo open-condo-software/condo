@@ -108,7 +108,7 @@ export const RequisitesSetup: React.FC = () => {
     const taxPercentOptions = useMemo<SelectProps['options']>(() => selectedTaxType === TAX_REGIME_GENEGAL ? [noTaxOption, ...TAX_PERCENT_OPTIONS] : [noTaxOption, ...TAX_PERCENT_OPTIONS.slice(1)], [noTaxOption, selectedTaxType])
     const possibleVatOptionsValues: string[] = useMemo(() => {
         if (!selectedTaxType) return []
-        return ['', ...selectedTaxType === TAX_REGIME_GENEGAL ? VAT_OPTIONS : VAT_OPTIONS.filter((v: number) => v !== 0)].map((option) => String(option))
+        return ['', ...selectedTaxType === TAX_REGIME_GENEGAL ? VAT_OPTIONS : VAT_OPTIONS.filter((v: string) => v !== '0')]
     }, [selectedTaxType])
 
     useEffect(() => {

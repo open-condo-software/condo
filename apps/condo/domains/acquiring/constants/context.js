@@ -10,7 +10,7 @@ const CONTEXT_STATUSES = [
     CONTEXT_FINISHED_STATUS,
 ]
 
-const VAT_OPTIONS = [0, 10, 20]
+const VAT_OPTIONS = ['0', '10', '20']
 
 const TAX_REGIME_GENEGAL = 'general'
 const TAX_REGIME_SIMPLE = 'simple'

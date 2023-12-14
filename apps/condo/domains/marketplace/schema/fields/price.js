@@ -3,7 +3,6 @@ const { get, has, map } = require('lodash')
 
 const { getByCondition, getById } = require('@open-condo/keystone/schema')
 
-const { VAT_OPTIONS } = require('@condo/domains/acquiring/constants/context')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { render, getGQLErrorValidator } = require('@condo/domains/common/schema/json.utils')
 const { ERROR_INVALID_PRICE } = require('@condo/domains/marketplace/constants')

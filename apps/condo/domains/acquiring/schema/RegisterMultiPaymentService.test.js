@@ -1343,8 +1343,8 @@ describe('RegisterMultiPaymentService', () => {
                 contact: { connect: { id: contact.id } },
                 status: INVOICE_STATUS_PUBLISHED,
                 rows: [
-                    generateInvoiceRow({ vatPercent: String(VAT_OPTIONS[1]) }),
-                    generateInvoiceRow({ vatPercent: String(VAT_OPTIONS[1]) }),
+                    generateInvoiceRow({ vatPercent: VAT_OPTIONS[1] }),
+                    generateInvoiceRow({ vatPercent: VAT_OPTIONS[1] }),
                 ],
             })
 
