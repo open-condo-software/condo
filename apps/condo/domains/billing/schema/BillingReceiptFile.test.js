@@ -111,6 +111,7 @@ describe('BillingReceiptFile', () => {
         const [firstAccount] = await createTestBillingAccount(admin, context, firstProperty)
         const [orgProperty] = await createTestProperty(admin, organization, {
             address: firstProperty.address,
+            addressMeta: firstProperty.addressMeta,
         })
         organizationProperty = orgProperty
         property = firstProperty
