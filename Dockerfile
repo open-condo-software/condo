@@ -60,7 +60,7 @@ RUN echo "# Build time .env config!" >> /app/.env && \
 	echo "NODE_ENV=production" >> /app/.env
 
 RUN set -ex \
-    && yarn build --force \
+    && yarn build \
     && rm -rf /app/.env  \
     && rm -rf /app/.config /app/.cache /app/.docker  \
     && ls -lah /app/

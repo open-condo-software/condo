@@ -1422,6 +1422,7 @@ __metadata:
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@open-condo/next": "workspace:^"
+    "@open-condo/ui": "workspace:^"
     "@pass/domains": "link:./domains"
     "@testing-library/react": ^11.2.5
     "@types/jest": ^29.4.0
