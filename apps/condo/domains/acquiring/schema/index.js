@@ -11,6 +11,7 @@ const { ExportPaymentsService } = require('./ExportPaymentsService')
 const { GeneratePaymentLinkService } = require('./GeneratePaymentLinkService')
 const { MultiPayment } = require('./MultiPayment')
 const { Payment } = require('./Payment')
+const { PaymentCardTokensService } = require('./PaymentCardTokensService')
 const { PaymentsFilterTemplate } = require('./PaymentsFilterTemplate')
 const { RecurrentPayment } = require('./RecurrentPayment')
 const { RecurrentPaymentContext } = require('./RecurrentPaymentContext')
@@ -38,5 +39,6 @@ module.exports = {
     RecurrentPayment,
     CreatePaymentByLinkService,
     RegisterMultiPaymentForInvoicesService,
+    PaymentCardTokensService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

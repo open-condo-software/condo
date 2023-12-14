@@ -52,6 +52,7 @@ const { RecurrentPaymentContext: RecurrentPaymentContextGQL } = require('@condo/
 const { RecurrentPayment: RecurrentPaymentGQL } = require('@condo/domains/acquiring/gql')
 const { PAYMENT_BY_LINK_MUTATION } = require('@condo/domains/acquiring/gql')
 const { REGISTER_MULTI_PAYMENT_FOR_INVOICES_MUTATION } = require('@condo/domains/acquiring/gql')
+const { PAYMENT_CARD_TOKENS_MUTATION } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateGQLTestUtils(AcquiringIntegrationGQL)
@@ -534,6 +535,20 @@ async function registerMultiPaymentForInvoicesByTestClient(client, extraAttrs = 
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
+async function paymentCardTokensByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(PAYMENT_CARD_TOKENS_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 // Utils used to generate bunch of entities for working with MultiPayments
@@ -763,5 +778,6 @@ module.exports = {
     RecurrentPayment, createTestRecurrentPayment, updateTestRecurrentPayment,
     createPaymentByLinkByTestClient,
     registerMultiPaymentForInvoicesByTestClient,
+    paymentCardTokensByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

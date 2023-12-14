@@ -72141,6 +72141,36 @@ type RegisterMultiPaymentForInvoicesOutput {
   anonymousPaymentUrl: String!
 }
 
+input PaymentCardTokenWhereInput {
+  AND: [PaymentCardTokenWhereInput]
+  OR: [PaymentCardTokenWhereInput]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+}
+
+enum SortPaymentCardTokensBy {
+  id_ASC
+  id_DESC
+}
+
+type PaymentCardTokensOutput {
+  id: ID!
+  deletedAt: String
+}
+
+input PaymentCardTokenUpdateInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  deletedAt: String
+}
+
+type PaymentCardToken {
+  id: ID
+  deletedAt: String
+}
+
 enum TicketReportPeriodType {
   calendarWeek
   month
@@ -76180,6 +76210,7 @@ type Query {
   exportPaymentsToExcel(data: ExportPaymentsToExcelInput!): ExportPaymentsToExcelOutput
   generatePaymentLink(data: GeneratePaymentLinkInput!): GeneratePaymentLinkOutput
   _allPaymentsSum(where: PaymentWhereInput!): PaymentsSumOutput
+  allPaymentCardTokens(where: PaymentCardTokenWhereInput, first: Int, skip: Int, sortBy: [SortPaymentCardTokensBy!]): [PaymentCardTokensOutput]
   ticketReportWidgetData(data: TicketReportWidgetInput!): TicketReportWidgetOutput
   ticketAnalyticsReport(data: TicketAnalyticsReportInput): TicketAnalyticsReportOutput
   exportTicketAnalyticsToExcel(data: ExportTicketAnalyticsToExcelInput): ExportTicketAnalyticsToExcelOutput
@@ -83263,6 +83294,7 @@ type Mutation {
   registerMultiPaymentForVirtualReceipt(data: RegisterMultiPaymentForVirtualReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
   createPaymentByLink(data: CreatePaymentByLinkInput!): CreatePaymentByLinkOutput
   registerMultiPaymentForInvoices(data: RegisterMultiPaymentForInvoicesInput!): RegisterMultiPaymentForInvoicesOutput
+  updatePaymentCardToken(id: ID!, data: PaymentCardTokenUpdateInput): PaymentCardToken!
   sendB2CAppPushMessage(data: SendB2CAppPushMessageInput!): SendB2CAppPushMessageOutput
   registerInvoice(data: RegisterInvoiceInput!): RegisterInvoiceOutput
 

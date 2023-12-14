@@ -40816,6 +40816,7 @@ export type Mutation = {
   registerMultiPaymentForVirtualReceipt?: Maybe<RegisterMultiPaymentForOneReceiptOutput>;
   createPaymentByLink?: Maybe<CreatePaymentByLinkOutput>;
   registerMultiPaymentForInvoices?: Maybe<RegisterMultiPaymentForInvoicesOutput>;
+  updatePaymentCardToken: PaymentCardToken;
   sendB2CAppPushMessage?: Maybe<SendB2CAppPushMessageOutput>;
   registerInvoice?: Maybe<RegisterInvoiceOutput>;
   /**  Authenticate and generate a token for a User with the Password Authentication Strategy.  */
@@ -48828,6 +48829,12 @@ export type MutationRegisterMultiPaymentForInvoicesArgs = {
 };
 
 
+export type MutationUpdatePaymentCardTokenArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<PaymentCardTokenUpdateInput>;
+};
+
+
 export type MutationSendB2CAppPushMessageArgs = {
   data: SendB2CAppPushMessageInput;
 };
@@ -56167,6 +56174,33 @@ export type Payment = {
   sender?: Maybe<SenderField>;
 };
 
+export type PaymentCardToken = {
+  __typename?: 'PaymentCardToken';
+  id?: Maybe<Scalars['ID']>;
+  deletedAt?: Maybe<Scalars['String']>;
+};
+
+export type PaymentCardTokenUpdateInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  deletedAt?: Maybe<Scalars['String']>;
+};
+
+export type PaymentCardTokenWhereInput = {
+  AND?: Maybe<Array<Maybe<PaymentCardTokenWhereInput>>>;
+  OR?: Maybe<Array<Maybe<PaymentCardTokenWhereInput>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+};
+
+export type PaymentCardTokensOutput = {
+  __typename?: 'PaymentCardTokensOutput';
+  id: Scalars['ID'];
+  deletedAt?: Maybe<Scalars['String']>;
+};
+
 export type PaymentCategory = {
   __typename?: 'PaymentCategory';
   id: Scalars['String'];
@@ -62150,6 +62184,7 @@ export type Query = {
   exportPaymentsToExcel?: Maybe<ExportPaymentsToExcelOutput>;
   generatePaymentLink?: Maybe<GeneratePaymentLinkOutput>;
   _allPaymentsSum?: Maybe<PaymentsSumOutput>;
+  allPaymentCardTokens?: Maybe<Array<Maybe<PaymentCardTokensOutput>>>;
   ticketReportWidgetData?: Maybe<TicketReportWidgetOutput>;
   ticketAnalyticsReport?: Maybe<TicketAnalyticsReportOutput>;
   exportTicketAnalyticsToExcel?: Maybe<ExportTicketAnalyticsToExcelOutput>;
@@ -68505,6 +68540,14 @@ export type QueryGeneratePaymentLinkArgs = {
 
 export type Query_AllPaymentsSumArgs = {
   where: PaymentWhereInput;
+};
+
+
+export type QueryAllPaymentCardTokensArgs = {
+  where?: Maybe<PaymentCardTokenWhereInput>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+  sortBy?: Maybe<Array<SortPaymentCardTokensBy>>;
 };
 
 
@@ -77582,6 +77625,11 @@ export enum SortOrganizationsBy {
   DeletedAtDesc = 'deletedAt_DESC',
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC'
+}
+
+export enum SortPaymentCardTokensBy {
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC'
 }
 
 export enum SortPaymentHistoryRecordsBy {

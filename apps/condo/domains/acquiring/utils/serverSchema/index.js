@@ -22,6 +22,7 @@ const { RecurrentPaymentContext: RecurrentPaymentContextGQL } = require('@condo/
 const { RecurrentPayment: RecurrentPaymentGQL } = require('@condo/domains/acquiring/gql')
 const { PAYMENT_BY_LINK_MUTATION } = require('@condo/domains/acquiring/gql')
 const { REGISTER_MULTI_PAYMENT_FOR_INVOICES_MUTATION } = require('@condo/domains/acquiring/gql')
+const { PAYMENT_CARD_TOKENS_MUTATION } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateServerUtils(AcquiringIntegrationGQL)
@@ -112,6 +113,20 @@ async function registerMultiPaymentForInvoices (context, data) {
     })
 }
 
+async function paymentCardTokens (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+    // TODO(codegen): write paymentCardTokens serverSchema guards
+
+    return await execGqlWithoutAccess(context, {
+        query: PAYMENT_CARD_TOKENS_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to paymentCardTokens',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -129,5 +144,6 @@ module.exports = {
     RecurrentPayment,
     createPaymentByLink,
     registerMultiPaymentForInvoices,
+    paymentCardTokens,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
