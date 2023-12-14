@@ -140,11 +140,12 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
     const initialContent = useMemo(() => get(initialValues, 'content'), [initialValues])
 
     const { objs: organizationTicketPropertyHintProperties, loading: organizationTicketPropertyHintPropertiesLoading } =
-        TicketPropertyHintProperty.useObjects({
+        TicketPropertyHintProperty.useAllObjects({
             where: {
                 organization: { id: organizationId },
             },
         })
+
     const createTicketPropertyHintPropertyAction = TicketPropertyHintProperty.useCreate({})
     const softDeleteTicketPropertyHintPropertyAction = TicketPropertyHintProperty.useSoftDelete()
 

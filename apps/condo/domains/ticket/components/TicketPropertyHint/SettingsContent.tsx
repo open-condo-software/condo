@@ -52,8 +52,6 @@ export const SettingsContent = () => {
 
     const [search, handleSearchChange] = useSearch<IFilters>()
 
-    const { breakpoints } = useLayoutContext()
-
     const router = useRouter()
     const { filters, sorters, offset } = parseQuery(router.query)
 
@@ -68,7 +66,7 @@ export const SettingsContent = () => {
         organization: { id: userOrganizationId },
     }), [filters, filtersTicketPropertyHintPropertyToWhere, userOrganizationId])
 
-    const { objs: ticketPropertyHintProperties } = TicketPropertyHintProperty.useObjects({
+    const { objs: ticketPropertyHintProperties } = TicketPropertyHintProperty.useAllObjects({
         where: searchTicketPropertyHintPropertiesQuery,
     })
 
