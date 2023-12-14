@@ -759,9 +759,9 @@ describe('Payment', () => {
                 canGroupReceipts: true,
             })
 
-            const [o10n] = await createTestOrganization(adminClient)
+            const [organization] = await createTestOrganization(adminClient)
 
-            await createTestAcquiringIntegrationContext(adminClient, o10n, acquiringIntegration, {
+            await createTestAcquiringIntegrationContext(adminClient, organization, acquiringIntegration, {
                 invoiceStatus: CONTEXT_FINISHED_STATUS,
                 invoiceImplicitFeeDistributionSchema: [{
                     recipient: 'organization',
@@ -770,7 +770,7 @@ describe('Payment', () => {
                 invoiceRecipient: createTestRecipient(),
             })
 
-            const [property] = await createTestProperty(adminClient, o10n)
+            const [property] = await createTestProperty(adminClient, organization)
 
             const residentClient = await makeClientWithResidentUser()
             const unitType = FLAT_UNIT_TYPE
@@ -786,19 +786,19 @@ describe('Payment', () => {
                 })
 
             const staffClient = await makeClientWithStaffUser()
-            const [role] = await createTestOrganizationEmployeeRole(adminClient, o10n, {
+            const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
                 canManageInvoices: true,
                 canManageContacts: true,
             })
-            await createTestOrganizationEmployee(adminClient, o10n, staffClient.user, role)
+            await createTestOrganizationEmployee(adminClient, organization, staffClient.user, role)
 
-            const [contact] = await createTestContact(staffClient, o10n, property, {
+            const [contact] = await createTestContact(staffClient, organization, property, {
                 phone: residentClient.userAttrs.phone,
                 unitType,
                 unitName,
             })
 
-            const [invoice] = await createTestInvoice(staffClient, o10n, {
+            const [invoice] = await createTestInvoice(staffClient, organization, {
                 property: { connect: { id: property.id } },
                 unitType,
                 unitName,

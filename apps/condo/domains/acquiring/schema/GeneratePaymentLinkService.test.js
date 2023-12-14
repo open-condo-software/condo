@@ -56,15 +56,15 @@ const receiptData = () => ({
 describe('GeneratePaymentLinkService', () => {
     let adminClient
     let acquiringIntegrationContext
-    let dummyO10n
+    let dummyOrganization
 
     beforeAll(async () => {
-        adminClient = await makeLoggedInAdminClient()
+        adminClient = await makeLoggedInAdminClient();
 
-        ;[dummyO10n] = await createTestOrganization(adminClient)
+        [dummyOrganization] = await createTestOrganization(adminClient)
         await createTestBillingIntegration(adminClient)
-        const [acquiringIntegration] = await createTestAcquiringIntegration(adminClient)
-        ;[acquiringIntegrationContext] = await createTestAcquiringIntegrationContext(adminClient, dummyO10n, acquiringIntegration, { invoiceStatus: CONTEXT_FINISHED_STATUS })
+        const [acquiringIntegration] = await createTestAcquiringIntegration(adminClient);
+        [acquiringIntegrationContext] = await createTestAcquiringIntegrationContext(adminClient, dummyOrganization, acquiringIntegration, { invoiceStatus: CONTEXT_FINISHED_STATUS })
     })
 
     describe('Execute', () => {
@@ -141,8 +141,8 @@ describe('GeneratePaymentLinkService', () => {
             })
 
             test('From invoices', async () => {
-                const [invoice1] = await createTestInvoice(adminClient, dummyO10n, { status: INVOICE_STATUS_PUBLISHED })
-                const [invoice2] = await createTestInvoice(adminClient, dummyO10n, { status: INVOICE_STATUS_PUBLISHED })
+                const [invoice1] = await createTestInvoice(adminClient, dummyOrganization, { status: INVOICE_STATUS_PUBLISHED })
+                const [invoice2] = await createTestInvoice(adminClient, dummyOrganization, { status: INVOICE_STATUS_PUBLISHED })
 
                 const callbackUrls = callbacks()
 
@@ -522,7 +522,7 @@ describe('GeneratePaymentLinkService', () => {
             })
 
             test('Can\'t create link for deleted invoice', async () => {
-                const [invoice] = await createTestInvoice(adminClient, dummyO10n)
+                const [invoice] = await createTestInvoice(adminClient, dummyOrganization)
                 await updateTestInvoice(adminClient, invoice.id, { deletedAt: dayjs().toISOString() })
                 await expectToThrowGQLError(async () => await generatePaymentLinkByTestClient(adminClient, null, null, pick(acquiringIntegrationContext, 'id'), callbacks(), {
                     invoices: [pick(invoice, 'id')],
@@ -534,7 +534,7 @@ describe('GeneratePaymentLinkService', () => {
             })
 
             test('Can\'t create link for unpublished invoice', async () => {
-                const [invoice] = await createTestInvoice(adminClient, dummyO10n)
+                const [invoice] = await createTestInvoice(adminClient, dummyOrganization)
                 await expectToThrowGQLError(async () => await generatePaymentLinkByTestClient(adminClient, null, null, pick(acquiringIntegrationContext, 'id'), callbacks(), {
                     invoices: [pick(invoice, 'id')],
                 }), {
