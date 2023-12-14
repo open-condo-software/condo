@@ -82,7 +82,13 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                 const propertyAddress = getAddressUpToBuildingFrom(addressMeta)
                 const [property] = await PropertyAPI.getAll(
                     context,
-                    { address_i: propertyAddress, deletedAt: null },
+                    {
+                        OR: [
+                            { address_i: propertyAddress },
+                            { addressKey: addressItem.addressKey },
+                        ],
+                        deletedAt: null,
+                    },
                     { sortBy: ['isApproved_DESC', 'createdAt_ASC'], first: 1 },
                 )
 
