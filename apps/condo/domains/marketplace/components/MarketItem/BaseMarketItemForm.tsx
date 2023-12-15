@@ -502,8 +502,9 @@ const MarketPriceForm = ({ priceFormDescription, removeOperation, organizationPr
     const isContractPrice = useMemo(() => priceTypeFormValue === PriceType.Contract, [priceTypeFormValue])
     const isHasAllPropertiesHidden = useMemo(
         () => difference(propertiesInOtherForms, propertiesInThisForm).length > 0 ||
-            (priceFormsValue.some(price => price.hasAllProperties) && !priceHasAllPropertiesFormValue),
-        [priceFormsValue, priceHasAllPropertiesFormValue, propertiesInOtherForms, propertiesInThisForm])
+            (priceFormsValue.some(price => price.hasAllProperties) && !priceHasAllPropertiesFormValue) ||
+            organizationPropertiesCount === 1,
+        [organizationPropertiesCount, priceFormsValue, priceHasAllPropertiesFormValue, propertiesInOtherForms, propertiesInThisForm])
 
     const handleContractPriceCheck = useCallback(async () => {
         form.setFieldsValue(getUpdatedPricesField(priceFormName, { price: null }))
