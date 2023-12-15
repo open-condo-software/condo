@@ -658,7 +658,7 @@ async function makeContextWithOrganizationAndIntegrationAsAdmin( integrationAttr
     const [organization] = await registerNewOrganization(admin, organizationAttrs)
     ;[context] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration, contextAttrs)
     if (!processingBillingContext) [context] = await updateTestBillingIntegrationOrganizationContext(admin, context.id, { status: CONTEXT_FINISHED_STATUS})
-    console.log(context)
+
     return {
         context,
         integration,
