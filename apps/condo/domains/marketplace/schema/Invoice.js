@@ -242,6 +242,7 @@ const Invoice = new GQLListSchema('Invoice', {
         acquiringIntegrationId: {
             schemaDoc: 'Integration ID through which this invoice can be paid',
             type: 'Virtual',
+            graphQLReturnType: 'ID',
             resolver: async (item, args, context) => {
                 const invoiceContext = await getById('InvoiceContext', item.context)
                 return get(invoiceContext, 'integration', null)
@@ -251,6 +252,7 @@ const Invoice = new GQLListSchema('Invoice', {
         hostUrl: {
             schemaDoc: 'Url to acquiring integration service. Mobile devices will use it communicate with external acquiring. List of endpoints is the same for all of them.',
             type: 'Virtual',
+            graphQLReturnType: 'String',
             resolver: async (item, args, context) => {
                 const invoiceContext = await getById('InvoiceContext', item.context)
                 const integration = await getById('AcquiringIntegration', invoiceContext.integration)
@@ -261,6 +263,7 @@ const Invoice = new GQLListSchema('Invoice', {
         canGroupReceipts: {
             schemaDoc: 'Can multiple receipts be united through this acquiring',
             type: 'Virtual',
+            graphQLReturnType: 'Boolean',
             resolver: async (item, args, context) => {
                 const invoiceContext = await getById('InvoiceContext', item.context)
                 const integration = await getById('AcquiringIntegration', invoiceContext.integration)
@@ -271,6 +274,7 @@ const Invoice = new GQLListSchema('Invoice', {
         currencyCode: {
             schemaDoc: 'Code of currency in ISO-4217 format',
             type: 'Virtual',
+            graphQLReturnType: 'String',
             resolver: async (item, args, context) => {
                 const invoiceContext = await getById('InvoiceContext', item.context)
                 return get(invoiceContext, 'currencyCode', null)
