@@ -59,6 +59,11 @@ const BillingReceiptFile = new GQLListSchema('BillingReceiptFile', {
                     // Employee and service users
                     file = item.sensitiveDataFile
                 }
+
+                if (isNil(file)) {
+                    return
+                }
+
                 const { filename } = file
                 const publicUrl = Adapter.publicUrl({ filename })
                 return {

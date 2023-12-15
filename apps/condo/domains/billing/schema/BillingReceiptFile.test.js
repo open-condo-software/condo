@@ -391,6 +391,23 @@ describe('BillingReceiptFile', () => {
                 expect(residentReceiptFile).toBeDefined()
                 expect(residentReceiptFile.file.originalFilename).toEqual(path.basename(PUBLIC_FILE))
             })
+            it('has access for public data receipt but file is omit', async () => {
+                const {
+                    residentClient,
+                    file,
+                } = await makeClientWithResidentVerificationAndReceiptFile({
+                    admin, organization, billingContext: context, billingProperty: property, property: organizationProperty,
+                }, false)
+
+                // remove file
+                await updateTestBillingReceiptFile(admin, file.receiptFile.id, {
+                    publicDataFile: null,
+                })
+
+                const [residentReceiptFile] = await BillingReceiptFile.getAll(residentClient, { id: file.receiptFile.id })
+                expect(residentReceiptFile).toBeDefined()
+                expect(residentReceiptFile.file).not.toBeTruthy()
+            })
             it('has access for sensitive data receipt if is verified', async () => {
                 const {
                     residentClient,
