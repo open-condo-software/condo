@@ -1,5 +1,3 @@
-const v8 = require('v8')
-
 const { NextApp } = require('@keystonejs/app-next')
 const { createItems } = require('@keystonejs/server-side-graphql-client')
 const dayjs = require('dayjs')
@@ -13,7 +11,6 @@ const { FeaturesMiddleware } = require('@open-condo/featureflags/FeaturesMiddlew
 const { AdapterCache } = require('@open-condo/keystone/adapterCache')
 const { HealthCheck, getRedisHealthCheck, getPostgresHealthCheck } = require('@open-condo/keystone/healthCheck')
 const { prepareKeystone } = require('@open-condo/keystone/KSv5v6/v5/prepareKeystone')
-const metrics = require('@open-condo/keystone/metrics')
 const { RequestCache } = require('@open-condo/keystone/requestCache')
 const { getWebhookModels } = require('@open-condo/webhooks/schema')
 
@@ -41,29 +38,6 @@ if (IS_ENABLE_DD_TRACE && !IS_BUILD_PHASE) {
     require('dd-trace').init({
         logInjection: true,
     })
-}
-
-if (!IS_BUILD_PHASE) {
-    setInterval(() => {
-        const v8Stats = v8.getHeapStatistics()
-        metrics.gauge({ name: 'v8.totalHeapSize', value: v8Stats.total_heap_size })
-        metrics.gauge({ name: 'v8.usedHeapSize', value: v8Stats.used_heap_size })
-        metrics.gauge({ name: 'v8.totalAvailableSize', value: v8Stats.total_available_size })
-        metrics.gauge({ name: 'v8.totalHeapSizeExecutable', value: v8Stats.total_heap_size_executable })
-        metrics.gauge({ name: 'v8.totalPhysicalSize', value: v8Stats.total_physical_size })
-        metrics.gauge({ name: 'v8.heapSizeLimit', value: v8Stats.heap_size_limit })
-        metrics.gauge({ name: 'v8.mallocatedMemory', value: v8Stats.malloced_memory })
-        metrics.gauge({ name: 'v8.peakMallocatedMemory', value: v8Stats.peak_malloced_memory })
-        metrics.gauge({ name: 'v8.doesZapGarbage', value: v8Stats.does_zap_garbage })
-        metrics.gauge({ name: 'v8.numberOfNativeContexts', value: v8Stats.number_of_native_contexts })
-        metrics.gauge({ name: 'v8.numberOfDetachedContexts', value: v8Stats.number_of_detached_contexts })
-
-        const memUsage = process.memoryUsage()
-        metrics.gauge({ name: 'processMemoryUsage.heapTotal', value: memUsage.heapTotal })
-        metrics.gauge({ name: 'processMemoryUsage.heapUsed', value: memUsage.heapUsed })
-        metrics.gauge({ name: 'processMemoryUsage.rss', value: memUsage.rss })
-        metrics.gauge({ name: 'processMemoryUsage.external', value: memUsage.external })
-    }, 2000)
 }
 
 /** @deprecated */
