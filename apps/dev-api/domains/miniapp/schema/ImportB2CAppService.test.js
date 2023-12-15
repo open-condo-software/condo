@@ -193,6 +193,12 @@ describe('ImportB2CAppService', () => {
                 expect(expectedCondoProdBuilds).toHaveLength(15)
                 expect(condoUpdatedProdBuilds).toEqual(expect.arrayContaining(expectedCondoProdBuilds))
             })
+            test('Condo builds versions must contain environment suffix', async () => {
+                const expectedDevVersions = validDevBuilds.map(build => expect.objectContaining({ id: build.id, version: `${build.version}-dev` }))
+                const expectedProdVersions = validProdBuilds.map(build => expect.objectContaining({ id: build.id, version: `${build.version}-prod` }))
+                expect(condoUpdatedDevBuilds).toEqual(expect.arrayContaining(expectedDevVersions))
+                expect(condoUpdatedProdBuilds).toEqual(expect.arrayContaining(expectedProdVersions))
+            })
             test('Builds should not be imported if options.builds set to false', async () => {
                 const [app] = await createTestB2CApp(user)
                 const [condoDevApp] = await createCondoB2CApp(condoAdmin)
