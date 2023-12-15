@@ -1,3 +1,5 @@
+const v8 = require('v8')
+
 const { AdminUIApp } = require('@keystonejs/app-admin-ui')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
@@ -12,8 +14,9 @@ const conf = require('@open-condo/config')
 const { formatError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { registerSchemas } = require('@open-condo/keystone/KSv5v6/v5/registerSchema')
 const { getKeystonePinoOptions, GraphQLLoggerPlugin } = require('@open-condo/keystone/logging')
+const metrics = require('@open-condo/keystone/metrics')
 const { schemaDocPreprocessor, adminDocPreprocessor, escapeSearchPreprocessor, customAccessPostProcessor } = require('@open-condo/keystone/preprocessors')
-const { registerTasks } = require('@open-condo/keystone/tasks')
+const { registerTasks, taskQueue } = require('@open-condo/keystone/tasks')
 const { KeystoneTracingApp } = require('@open-condo/keystone/tracing')
 
 const { parseCorsSettings } = require('../../cors.utils')
@@ -21,7 +24,7 @@ const { _internalGetExecutionContextAsyncLocalStorage } = require('../../executi
 const { expressErrorHandler } = require('../../logging/expressErrorHandler')
 const { prepareDefaultKeystoneConfig } = require('../../setup.utils')
 
-
+const IS_BUILD_PHASE = conf.PHASE === 'build'
 const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
 // NOTE: should be disabled in production: https://www.apollographql.com/docs/apollo-server/testing/graphql-playground/
@@ -29,6 +32,38 @@ const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV 
 const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = conf.ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND === 'true'
 // NOTE(pahaz): it's a magic number tested by @arichiv at https://developer.chrome.com/blog/cookie-max-age-expires/
 const INFINITY_MAX_AGE_COOKIE = 1707195600
+
+const sendAppMetrics = () => {
+    const v8Stats = v8.getHeapStatistics()
+    metrics.gauge({ name: 'v8.totalHeapSize', value: v8Stats.total_heap_size })
+    metrics.gauge({ name: 'v8.usedHeapSize', value: v8Stats.used_heap_size })
+    metrics.gauge({ name: 'v8.totalAvailableSize', value: v8Stats.total_available_size })
+    metrics.gauge({ name: 'v8.totalHeapSizeExecutable', value: v8Stats.total_heap_size_executable })
+    metrics.gauge({ name: 'v8.totalPhysicalSize', value: v8Stats.total_physical_size })
+    metrics.gauge({ name: 'v8.heapSizeLimit', value: v8Stats.heap_size_limit })
+    metrics.gauge({ name: 'v8.mallocatedMemory', value: v8Stats.malloced_memory })
+    metrics.gauge({ name: 'v8.peakMallocatedMemory', value: v8Stats.peak_malloced_memory })
+    metrics.gauge({ name: 'v8.doesZapGarbage', value: v8Stats.does_zap_garbage })
+    metrics.gauge({ name: 'v8.numberOfNativeContexts', value: v8Stats.number_of_native_contexts })
+    metrics.gauge({ name: 'v8.numberOfDetachedContexts', value: v8Stats.number_of_detached_contexts })
+
+    const memUsage = process.memoryUsage()
+    metrics.gauge({ name: 'processMemoryUsage.heapTotal', value: memUsage.heapTotal })
+    metrics.gauge({ name: 'processMemoryUsage.heapUsed', value: memUsage.heapUsed })
+    metrics.gauge({ name: 'processMemoryUsage.rss', value: memUsage.rss })
+    metrics.gauge({ name: 'processMemoryUsage.external', value: memUsage.external })
+
+    if (taskQueue) {
+        taskQueue.getJobCounts().then(jobCounts => {
+            metrics.gauge({ name: 'worker.activeTasks', value: jobCounts.active })
+            metrics.gauge({ name: 'worker.waitingTasks', value: jobCounts.waiting })
+            metrics.gauge({ name: 'worker.completedTasks', value: jobCounts.completed })
+            metrics.gauge({ name: 'worker.failedTasks', value: jobCounts.failed })
+            metrics.gauge({ name: 'worker.delayedTasks', value: jobCounts.delayed })
+            metrics.gauge({ name: 'worker.pausedTasks', value: jobCounts.paused })
+        })
+    }
+}
 
 function prepareKeystone ({ onConnect, extendExpressApp, schemas, schemasPreprocessors, tasks, apps, lastApp, graphql, ui }) {
     // trying to be compatible with keystone-6 and keystone-5
@@ -64,7 +99,11 @@ function prepareKeystone ({ onConnect, extendExpressApp, schemas, schemasPreproc
         // We need to register all tasks as they will be possible to execute
         if (tasks) registerTasks(tasks())
     }
-    
+
+    if (!IS_BUILD_PHASE) {
+        setInterval(sendAppMetrics, 2000)
+    }
+
     return {
         keystone,
         // NOTE(pahaz): please, check the `executeDefaultServer(..)` to understand how it works.

@@ -4,6 +4,7 @@ const conf = require('@open-condo/config')
 
 const { _internalGetExecutionContextAsyncLocalStorage } = require('./executionContext')
 const { getLogger } = require('./logging')
+const { gauge } = require('./metrics')
 const { prepareKeystoneExpressApp } = require('./prepareKeystoneApp')
 const { getRedisClient } = require('./redis')
 const { getRandomString } = require('./test.utils')
@@ -269,6 +270,7 @@ async function createWorker (keystoneModule) {
 
     taskQueue.on('completed', function (job) {
         logger.info({ taskId: job.id, status: 'completed', task: getTaskLoggingContext(job), t0: job.finishedOn - job.timestamp, t1: job.processedOn - job.timestamp, t2: job.finishedOn - job.processedOn })
+        gauge({ name: `worker.${job.name}ExecutionTime`, value: job.finishedOn - job.processedOn })
     })
 
     await taskQueue.isReady()
