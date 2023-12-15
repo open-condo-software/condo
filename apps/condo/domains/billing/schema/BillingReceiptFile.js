@@ -39,6 +39,7 @@ const BillingReceiptFile = new GQLListSchema('BillingReceiptFile', {
             schemaDoc: 'Wrapper to return file version of the receipt (usually PDF) with personal information or without',
             type: Virtual,
             graphQLReturnType: 'File',
+            graphQLReturnFragment: '{ id filename originalFilename publicUrl mimetype }',
             resolver: async (item, _, { authedItem }) => {
                 // no authed item filled up case
                 if (isNil(authedItem)) {
@@ -58,6 +59,11 @@ const BillingReceiptFile = new GQLListSchema('BillingReceiptFile', {
                     // Employee and service users
                     file = item.sensitiveDataFile
                 }
+
+                if (isNil(file)) {
+                    return
+                }
+
                 const { filename } = file
                 const publicUrl = Adapter.publicUrl({ filename })
                 return {
