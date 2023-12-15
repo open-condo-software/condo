@@ -47,7 +47,7 @@ import { CreateInvoiceForm } from '@condo/domains/marketplace/components/Invoice
 import { TicketInvoicesList } from '@condo/domains/marketplace/components/Invoice/TicketInvoicesList'
 import { useAcquiringContext } from '@condo/domains/marketplace/components/MarketplacePageContent/ContextProvider'
 import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
-import { INVOICE_STATUS_DRAFT } from '@condo/domains/marketplace/constants'
+import { INVOICE_STATUS_DRAFT, INVOICE_STATUS_CANCELED } from '@condo/domains/marketplace/constants'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { UnitInfo, UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
 import { Property } from '@condo/domains/property/utils/clientSchema'
@@ -264,12 +264,12 @@ const TicketFormInvoices = ({ invoiceIds, organizationId, initialValues, addInvo
         const initialInvoicesInNotDraftStatus = invoices.filter(invoice =>
             initialInvoiceIds && initialInvoiceIds.includes(invoice.id) && invoice.status !== INVOICE_STATUS_DRAFT
         )
+        const invoicesInNotCanceledStatus = invoices.filter(invoice => invoice.status !== INVOICE_STATUS_CANCELED)
 
-        if (!isEmpty(initialInvoicesInNotDraftStatus)) {
-            form.setFieldsValue({
-                initialNotDraftInvoices: initialInvoicesInNotDraftStatus.map(invoice => invoice.id),
-            })
-        }
+        form.setFieldsValue({
+            initialNotDraftInvoices: initialInvoicesInNotDraftStatus.map(invoice => invoice.id),
+            invoicesInNotCanceledStatus: invoicesInNotCanceledStatus.map(invoice => invoice.id),
+        })
     }, [invoices])
 
     if (isEmpty(invoiceIds)) {
@@ -302,6 +302,7 @@ const TicketFormInvoices = ({ invoiceIds, organizationId, initialValues, addInvo
                 ticketCreatedByResident={ticketCreatedByResident}
             />
             <Form.Item hidden name='initialNotDraftInvoices' />
+            <Form.Item hidden name='invoicesInNotCanceledStatus' />
         </Row>
     )
 }
@@ -363,8 +364,10 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
     const { useFlag } = useFeatureFlags()
     const isMarketplaceEnabled = useFlag(MARKETPLACE)
 
-    const invoices = Form.useWatch('invoices', form)
-    const disableIsPayableCheckbox = useMemo(() => isPayable && invoices && invoices.length > 0, [invoices, isPayable])
+    const invoicesInNotCanceledStatus = Form.useWatch('invoicesInNotCanceledStatus', form)
+    const disableIsPayableCheckbox = useMemo(() =>
+        isPayable && invoicesInNotCanceledStatus && invoicesInNotCanceledStatus.length > 0,
+    [invoicesInNotCanceledStatus, isPayable])
 
     return (
         <Col span={24}>
