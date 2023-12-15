@@ -432,6 +432,17 @@ describe('AcquiringIntegrationContext', () => {
             await expectToThrowGQLError(async () => await createTestAcquiringIntegrationContext(admin, organization, integration, { invoiceSalesTaxPercent: '-2' }), COMMON_ERRORS.INVALID_PERCENT_VALUE)
             await expectToThrowGQLError(async () => await createTestAcquiringIntegrationContext(admin, organization, integration, { invoiceSalesTaxPercent: '200' }), COMMON_ERRORS.INVALID_PERCENT_VALUE)
         })
+        test('vat percent must be from values list if set within integration', async () => {
+            const [acquiringIntegration, acquiringIntegrationAttrs] = await createTestAcquiringIntegration(admin, { vatPercentOptions: '0.5,7,8.14,13,20' })
+            await expectToThrowGQLError(async () => await createTestAcquiringIntegrationContext(manager, organization, acquiringIntegration, {
+                status: CONTEXT_IN_PROGRESS_STATUS,
+                invoiceVatPercent: '8',
+            }), {
+                code: 'BAD_USER_INPUT',
+                type: 'VAT_NOT_MATCHED_TO_INTEGRATION_OPTIONS',
+                message: `VAT percent value must be from the following list: ${acquiringIntegrationAttrs.vatPercentOptions}`,
+            })
+        })
     })
     describe('Fields tests', () => {
         test('Fields check', async () => {

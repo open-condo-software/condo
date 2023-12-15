@@ -7,7 +7,7 @@ const { get, isEmpty, isUndefined, isNull } = require('lodash')
 const { GQLError } = require('@open-condo/keystone/errors')
 const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
 const access = require('@condo/domains/acquiring/access/AcquiringIntegrationContext')
@@ -16,7 +16,7 @@ const {
     CONTEXT_VERIFICATION_STATUS,
     CONTEXT_STATUSES,
     TAX_REGIMES,
-    VAT_OPTIONS, TAX_REGIME_SIMPLE,
+    TAX_REGIME_SIMPLE,
 } = require('@condo/domains/acquiring/constants/context')
 const {
     GQL_ERRORS,
@@ -184,11 +184,8 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
         },
 
         invoiceVatPercent: {
-            schemaDoc: 'The percentage of VAT',
-            type: 'Select',
-            dataType: 'string',
-            options: VAT_OPTIONS,
-            isRequired: false,
+            ...PERCENT_FIELD,
+            schemaDoc: 'The percentage of VAT. Depends of integrations settings (see AcquiringIntegration.vatPercentOptions)',
         },
 
         invoiceSalesTaxPercent: PERCENT_FIELD,
@@ -237,10 +234,21 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
              */
             const nextData = { ...existingItem, ...resolvedData }
             const nextVat = get(nextData, 'invoiceVatPercent')
+            const resolvedVat = get(resolvedData, 'invoiceVatPercent')
             const nextTaxRegime = get(nextData, 'invoiceTaxRegime')
 
             if (nextTaxRegime === TAX_REGIME_SIMPLE && nextVat === '0') {
                 throw new GQLError(GQL_ERRORS.TAX_REGIME_AND_VAT_NOT_MATCHED, context)
+            }
+
+            if (resolvedVat) {
+                const nextIntegrationId = get(nextData, 'integration')
+                const integration = await getById('AcquiringIntegration', nextIntegrationId)
+                const possibleVatValues = (get(integration, 'vatPercentOptions', '') || '').split(',').filter(Boolean)
+
+                if (possibleVatValues.length > 0 && !possibleVatValues.includes(resolvedVat)) {
+                    throw new GQLError(GQL_ERRORS.VAT_NOT_MATCHED_TO_INTEGRATION_OPTIONS(integration.vatPercentOptions), context)
+                }
             }
         },
     },

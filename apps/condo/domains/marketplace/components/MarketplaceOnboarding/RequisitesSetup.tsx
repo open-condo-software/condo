@@ -25,12 +25,6 @@ const FORM_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
 const VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 const LABEL_COL = { lg: 10 }
 
-const TAX_PERCENT_OPTIONS: SelectProps['options'] = VAT_OPTIONS.map((option: number) => ({
-    label: `${option} %`,
-    key: `vat_percent_${option}`,
-    value: String(option),
-}))
-
 const getOptions = (items: BankAccount[], fieldName: string): SelectProps['options'] => (items.map((item) => {
     const field = get(item, fieldName, null)
     return { label: field, value: field }
@@ -105,7 +99,21 @@ export const RequisitesSetup: React.FC = () => {
 
     const bankAccountOptions = useMemo<SelectProps['options']>(() => getOptions(bic ? bankAccounts.filter(({ routingNumber }) => routingNumber === bic) : bankAccounts, 'number'), [bankAccounts, bic])
     const bicOptions = useMemo<SelectProps['options']>(() => getOptions(account ? bankAccounts.filter(({ number }) => number === account) : bankAccounts, 'routingNumber'), [bankAccounts, account])
-    const taxPercentOptions = useMemo<SelectProps['options']>(() => selectedTaxType === TAX_REGIME_GENEGAL ? [noTaxOption, ...TAX_PERCENT_OPTIONS] : [noTaxOption, ...TAX_PERCENT_OPTIONS.slice(1)], [noTaxOption, selectedTaxType])
+    const taxPercentOptions = useMemo<SelectProps['options']>(() => {
+        if (acquiringLoading || acquiringError) {
+            return [noTaxOption]
+        }
+
+        const options = (get(acquiring, [0, 'vatPercentOptions']) || '').split(',').filter((option)=>{
+            return Boolean(option) && (selectedTaxType === TAX_REGIME_GENEGAL || (selectedTaxType === TAX_REGIME_SIMPLE && option !== '0'))
+        }).map((option) => ({
+            label: `${option} %`,
+            key: `vat_percent_${option}`,
+            value: option,
+        }))
+
+        return [noTaxOption, ...options]
+    }, [acquiring, acquiringError, acquiringLoading, noTaxOption, selectedTaxType])
     const possibleVatOptionsValues: string[] = useMemo(() => {
         if (!selectedTaxType) return []
         return ['', ...selectedTaxType === TAX_REGIME_GENEGAL ? VAT_OPTIONS : VAT_OPTIONS.filter((v: string) => v !== '0')]

@@ -79,6 +79,7 @@ const RECURRENT_PAYMENT_CONTEXT_PAYMENT_DAY_WRONG_RANGE_ERROR = 'RECURRENT_PAYME
 
 const ERROR_TAX_REGIME_AND_VAT_NOT_MATCHED = 'TAX_REGIME_AND_VAT_NOT_MATCHED'
 const ERROR_MORE_THAN_ONE_ACQUIRING_CONTEXTS = 'MORE_THAN_ONE_ACQUIRING_CONTEXTS'
+const ERROR_VAT_NOT_MATCHED_TO_INTEGRATION_OPTIONS = 'VAT_NOT_MATCHED_TO_INTEGRATION_OPTIONS'
 
 const GQL_ERRORS = {
     RECURRENT_PAYMENT_CONTEXT_BOTH_TRIGGER_SET_UP_ERROR: {
@@ -106,6 +107,11 @@ const GQL_ERRORS = {
         type: ERROR_MORE_THAN_ONE_ACQUIRING_CONTEXTS,
         message: 'There can be only one finished acquiring integration context',
     },
+    VAT_NOT_MATCHED_TO_INTEGRATION_OPTIONS: (possibleOptionsStr) => ({
+        code: BAD_USER_INPUT,
+        type: ERROR_VAT_NOT_MATCHED_TO_INTEGRATION_OPTIONS,
+        message: `VAT percent value must be from the following list: ${possibleOptionsStr}`,
+    }),
 }
 
 module.exports = {

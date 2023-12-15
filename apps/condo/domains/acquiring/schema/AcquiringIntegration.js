@@ -51,7 +51,7 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
             knexOptions: { isNotNullable: false },
             isRequired: true,
         },
-        
+
         hostUrl: {
             schemaDoc: 'Url to acquiring integration service. Mobile devices will use it communicate with external acquiring. List of endpoints is the same for all of them.',
             type: Text,
@@ -85,6 +85,12 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
             ...CONTEXT_DEFAULT_STATUS_FIELD,
             options: CONTEXT_STATUSES,
             defaultValue: CONTEXT_IN_PROGRESS_STATUS,
+        },
+        vatPercentOptions: {
+            schemaDoc: 'Comma separated values of VAT',
+            adminDoc: 'For example: "0,10,20" is for RU',
+            type: 'Text',
+            isRequired: false,
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],

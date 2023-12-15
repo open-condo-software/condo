@@ -12,7 +12,7 @@ const { ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/s
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const ACQUIRING_INTEGRATION_FIELDS = `{ name setupUrl canGroupReceipts hostUrl supportedBillingIntegrationsGroup ${COMMON_FIELDS} }`
+const ACQUIRING_INTEGRATION_FIELDS = `{ name setupUrl canGroupReceipts hostUrl supportedBillingIntegrationsGroup vatPercentOptions ${COMMON_FIELDS} }`
 const AcquiringIntegration = generateGqlQueries('AcquiringIntegration', ACQUIRING_INTEGRATION_FIELDS)
 
 const ACQUIRING_INTEGRATION_ACCESS_RIGHT_FIELDS = `{ user { id } integration { id } ${COMMON_FIELDS} }`

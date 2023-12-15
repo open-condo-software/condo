@@ -49402,6 +49402,7 @@ type AcquiringIntegrationHistoryRecord {
   supportedBillingIntegrationsGroup: String
   explicitFeeDistributionSchema: JSON
   contextDefaultStatus: String
+  vatPercentOptions: String
   id: ID!
   v: Int
   createdAt: String
@@ -49518,6 +49519,24 @@ input AcquiringIntegrationHistoryRecordWhereInput {
   contextDefaultStatus_not_ends_with_i: String
   contextDefaultStatus_in: [String]
   contextDefaultStatus_not_in: [String]
+  vatPercentOptions: String
+  vatPercentOptions_not: String
+  vatPercentOptions_contains: String
+  vatPercentOptions_not_contains: String
+  vatPercentOptions_starts_with: String
+  vatPercentOptions_not_starts_with: String
+  vatPercentOptions_ends_with: String
+  vatPercentOptions_not_ends_with: String
+  vatPercentOptions_i: String
+  vatPercentOptions_not_i: String
+  vatPercentOptions_contains_i: String
+  vatPercentOptions_not_contains_i: String
+  vatPercentOptions_starts_with_i: String
+  vatPercentOptions_not_starts_with_i: String
+  vatPercentOptions_ends_with_i: String
+  vatPercentOptions_not_ends_with_i: String
+  vatPercentOptions_in: [String]
+  vatPercentOptions_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -49615,6 +49634,8 @@ enum SortAcquiringIntegrationHistoryRecordsBy {
   supportedBillingIntegrationsGroup_DESC
   contextDefaultStatus_ASC
   contextDefaultStatus_DESC
+  vatPercentOptions_ASC
+  vatPercentOptions_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -49642,6 +49663,7 @@ input AcquiringIntegrationHistoryRecordUpdateInput {
   supportedBillingIntegrationsGroup: String
   explicitFeeDistributionSchema: JSON
   contextDefaultStatus: String
+  vatPercentOptions: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -49670,6 +49692,7 @@ input AcquiringIntegrationHistoryRecordCreateInput {
   supportedBillingIntegrationsGroup: String
   explicitFeeDistributionSchema: JSON
   contextDefaultStatus: String
+  vatPercentOptions: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -49753,6 +49776,9 @@ type AcquiringIntegration {
   """ Status, which context will have by default after creation if no overwriting option provided 
   """
   contextDefaultStatus: String
+
+  """ Comma separated values of VAT """
+  vatPercentOptions: String
   id: ID!
   v: Int
   createdAt: String
@@ -49872,6 +49898,24 @@ input AcquiringIntegrationWhereInput {
   contextDefaultStatus_not: String
   contextDefaultStatus_in: [String]
   contextDefaultStatus_not_in: [String]
+  vatPercentOptions: String
+  vatPercentOptions_not: String
+  vatPercentOptions_contains: String
+  vatPercentOptions_not_contains: String
+  vatPercentOptions_starts_with: String
+  vatPercentOptions_not_starts_with: String
+  vatPercentOptions_ends_with: String
+  vatPercentOptions_not_ends_with: String
+  vatPercentOptions_i: String
+  vatPercentOptions_not_i: String
+  vatPercentOptions_contains_i: String
+  vatPercentOptions_not_contains_i: String
+  vatPercentOptions_starts_with_i: String
+  vatPercentOptions_not_starts_with_i: String
+  vatPercentOptions_ends_with_i: String
+  vatPercentOptions_not_ends_with_i: String
+  vatPercentOptions_in: [String]
+  vatPercentOptions_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -49951,6 +49995,8 @@ enum SortAcquiringIntegrationsBy {
   supportedBillingIntegrationsGroup_DESC
   contextDefaultStatus_ASC
   contextDefaultStatus_DESC
+  vatPercentOptions_ASC
+  vatPercentOptions_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -49979,6 +50025,7 @@ input AcquiringIntegrationUpdateInput {
   supportedBillingIntegrationsGroup: String
   explicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   contextDefaultStatus: String
+  vatPercentOptions: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -50005,6 +50052,7 @@ input AcquiringIntegrationCreateInput {
   supportedBillingIntegrationsGroup: String
   explicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   contextDefaultStatus: String
+  vatPercentOptions: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -50595,20 +50643,10 @@ input AcquiringIntegrationContextHistoryRecordWhereInput {
   invoiceTaxRegime_not_in: [String]
   invoiceVatPercent: String
   invoiceVatPercent_not: String
-  invoiceVatPercent_contains: String
-  invoiceVatPercent_not_contains: String
-  invoiceVatPercent_starts_with: String
-  invoiceVatPercent_not_starts_with: String
-  invoiceVatPercent_ends_with: String
-  invoiceVatPercent_not_ends_with: String
-  invoiceVatPercent_i: String
-  invoiceVatPercent_not_i: String
-  invoiceVatPercent_contains_i: String
-  invoiceVatPercent_not_contains_i: String
-  invoiceVatPercent_starts_with_i: String
-  invoiceVatPercent_not_starts_with_i: String
-  invoiceVatPercent_ends_with_i: String
-  invoiceVatPercent_not_ends_with_i: String
+  invoiceVatPercent_lt: String
+  invoiceVatPercent_lte: String
+  invoiceVatPercent_gt: String
+  invoiceVatPercent_gte: String
   invoiceVatPercent_in: [String]
   invoiceVatPercent_not_in: [String]
   invoiceSalesTaxPercent: String
@@ -50898,7 +50936,8 @@ type AcquiringIntegrationContext {
   """ The regime of counting taxes for company """
   invoiceTaxRegime: String
 
-  """ The percentage of VAT """
+  """ The percentage of VAT. Depends of integrations settings (see AcquiringIntegration.vatPercentOptions) 
+  """
   invoiceVatPercent: String
 
   """ The percent value """
@@ -51043,6 +51082,10 @@ input AcquiringIntegrationContextWhereInput {
   invoiceTaxRegime_not_in: [String]
   invoiceVatPercent: String
   invoiceVatPercent_not: String
+  invoiceVatPercent_lt: String
+  invoiceVatPercent_lte: String
+  invoiceVatPercent_gt: String
+  invoiceVatPercent_gte: String
   invoiceVatPercent_in: [String]
   invoiceVatPercent_not_in: [String]
   invoiceSalesTaxPercent: String

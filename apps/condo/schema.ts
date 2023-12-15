@@ -52,6 +52,8 @@ export type AcquiringIntegration = {
   explicitFeeDistributionSchema?: Maybe<Array<FeeDistributionField>>;
   /**  Status, which context will have by default after creation if no overwriting option provided  */
   contextDefaultStatus?: Maybe<Scalars['String']>;
+  /**  Comma separated values of VAT  */
+  vatPercentOptions?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -445,7 +447,7 @@ export type AcquiringIntegrationContext = {
   invoiceStatus?: Maybe<Scalars['String']>;
   /**  The regime of counting taxes for company  */
   invoiceTaxRegime?: Maybe<Scalars['String']>;
-  /**  The percentage of VAT  */
+  /**  The percentage of VAT. Depends of integrations settings (see AcquiringIntegration.vatPercentOptions)  */
   invoiceVatPercent?: Maybe<Scalars['String']>;
   /**  The percent value  */
   invoiceSalesTaxPercent?: Maybe<Scalars['String']>;
@@ -770,20 +772,10 @@ export type AcquiringIntegrationContextHistoryRecordWhereInput = {
   invoiceTaxRegime_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   invoiceVatPercent?: Maybe<Scalars['String']>;
   invoiceVatPercent_not?: Maybe<Scalars['String']>;
-  invoiceVatPercent_contains?: Maybe<Scalars['String']>;
-  invoiceVatPercent_not_contains?: Maybe<Scalars['String']>;
-  invoiceVatPercent_starts_with?: Maybe<Scalars['String']>;
-  invoiceVatPercent_not_starts_with?: Maybe<Scalars['String']>;
-  invoiceVatPercent_ends_with?: Maybe<Scalars['String']>;
-  invoiceVatPercent_not_ends_with?: Maybe<Scalars['String']>;
-  invoiceVatPercent_i?: Maybe<Scalars['String']>;
-  invoiceVatPercent_not_i?: Maybe<Scalars['String']>;
-  invoiceVatPercent_contains_i?: Maybe<Scalars['String']>;
-  invoiceVatPercent_not_contains_i?: Maybe<Scalars['String']>;
-  invoiceVatPercent_starts_with_i?: Maybe<Scalars['String']>;
-  invoiceVatPercent_not_starts_with_i?: Maybe<Scalars['String']>;
-  invoiceVatPercent_ends_with_i?: Maybe<Scalars['String']>;
-  invoiceVatPercent_not_ends_with_i?: Maybe<Scalars['String']>;
+  invoiceVatPercent_lt?: Maybe<Scalars['String']>;
+  invoiceVatPercent_lte?: Maybe<Scalars['String']>;
+  invoiceVatPercent_gt?: Maybe<Scalars['String']>;
+  invoiceVatPercent_gte?: Maybe<Scalars['String']>;
   invoiceVatPercent_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   invoiceVatPercent_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   invoiceSalesTaxPercent?: Maybe<Scalars['String']>;
@@ -1038,6 +1030,10 @@ export type AcquiringIntegrationContextWhereInput = {
   invoiceTaxRegime_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   invoiceVatPercent?: Maybe<Scalars['String']>;
   invoiceVatPercent_not?: Maybe<Scalars['String']>;
+  invoiceVatPercent_lt?: Maybe<Scalars['String']>;
+  invoiceVatPercent_lte?: Maybe<Scalars['String']>;
+  invoiceVatPercent_gt?: Maybe<Scalars['String']>;
+  invoiceVatPercent_gte?: Maybe<Scalars['String']>;
   invoiceVatPercent_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   invoiceVatPercent_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   invoiceSalesTaxPercent?: Maybe<Scalars['String']>;
@@ -1129,6 +1125,7 @@ export type AcquiringIntegrationCreateInput = {
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
+  vatPercentOptions?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -1159,6 +1156,7 @@ export type AcquiringIntegrationHistoryRecord = {
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
+  vatPercentOptions?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -1183,6 +1181,7 @@ export type AcquiringIntegrationHistoryRecordCreateInput = {
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
+  vatPercentOptions?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -1212,6 +1211,7 @@ export type AcquiringIntegrationHistoryRecordUpdateInput = {
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
+  vatPercentOptions?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -1327,6 +1327,24 @@ export type AcquiringIntegrationHistoryRecordWhereInput = {
   contextDefaultStatus_not_ends_with_i?: Maybe<Scalars['String']>;
   contextDefaultStatus_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   contextDefaultStatus_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  vatPercentOptions?: Maybe<Scalars['String']>;
+  vatPercentOptions_not?: Maybe<Scalars['String']>;
+  vatPercentOptions_contains?: Maybe<Scalars['String']>;
+  vatPercentOptions_not_contains?: Maybe<Scalars['String']>;
+  vatPercentOptions_starts_with?: Maybe<Scalars['String']>;
+  vatPercentOptions_not_starts_with?: Maybe<Scalars['String']>;
+  vatPercentOptions_ends_with?: Maybe<Scalars['String']>;
+  vatPercentOptions_not_ends_with?: Maybe<Scalars['String']>;
+  vatPercentOptions_i?: Maybe<Scalars['String']>;
+  vatPercentOptions_not_i?: Maybe<Scalars['String']>;
+  vatPercentOptions_contains_i?: Maybe<Scalars['String']>;
+  vatPercentOptions_not_contains_i?: Maybe<Scalars['String']>;
+  vatPercentOptions_starts_with_i?: Maybe<Scalars['String']>;
+  vatPercentOptions_not_starts_with_i?: Maybe<Scalars['String']>;
+  vatPercentOptions_ends_with_i?: Maybe<Scalars['String']>;
+  vatPercentOptions_not_ends_with_i?: Maybe<Scalars['String']>;
+  vatPercentOptions_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  vatPercentOptions_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -1435,6 +1453,7 @@ export type AcquiringIntegrationUpdateInput = {
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
+  vatPercentOptions?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -1539,6 +1558,24 @@ export type AcquiringIntegrationWhereInput = {
   contextDefaultStatus_not?: Maybe<Scalars['String']>;
   contextDefaultStatus_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   contextDefaultStatus_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  vatPercentOptions?: Maybe<Scalars['String']>;
+  vatPercentOptions_not?: Maybe<Scalars['String']>;
+  vatPercentOptions_contains?: Maybe<Scalars['String']>;
+  vatPercentOptions_not_contains?: Maybe<Scalars['String']>;
+  vatPercentOptions_starts_with?: Maybe<Scalars['String']>;
+  vatPercentOptions_not_starts_with?: Maybe<Scalars['String']>;
+  vatPercentOptions_ends_with?: Maybe<Scalars['String']>;
+  vatPercentOptions_not_ends_with?: Maybe<Scalars['String']>;
+  vatPercentOptions_i?: Maybe<Scalars['String']>;
+  vatPercentOptions_not_i?: Maybe<Scalars['String']>;
+  vatPercentOptions_contains_i?: Maybe<Scalars['String']>;
+  vatPercentOptions_not_contains_i?: Maybe<Scalars['String']>;
+  vatPercentOptions_starts_with_i?: Maybe<Scalars['String']>;
+  vatPercentOptions_not_starts_with_i?: Maybe<Scalars['String']>;
+  vatPercentOptions_ends_with_i?: Maybe<Scalars['String']>;
+  vatPercentOptions_not_ends_with_i?: Maybe<Scalars['String']>;
+  vatPercentOptions_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  vatPercentOptions_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -71903,6 +71940,8 @@ export enum SortAcquiringIntegrationHistoryRecordsBy {
   SupportedBillingIntegrationsGroupDesc = 'supportedBillingIntegrationsGroup_DESC',
   ContextDefaultStatusAsc = 'contextDefaultStatus_ASC',
   ContextDefaultStatusDesc = 'contextDefaultStatus_DESC',
+  VatPercentOptionsAsc = 'vatPercentOptions_ASC',
+  VatPercentOptionsDesc = 'vatPercentOptions_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -71938,6 +71977,8 @@ export enum SortAcquiringIntegrationsBy {
   SupportedBillingIntegrationsGroupDesc = 'supportedBillingIntegrationsGroup_DESC',
   ContextDefaultStatusAsc = 'contextDefaultStatus_ASC',
   ContextDefaultStatusDesc = 'contextDefaultStatus_DESC',
+  VatPercentOptionsAsc = 'vatPercentOptions_ASC',
+  VatPercentOptionsDesc = 'vatPercentOptions_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
