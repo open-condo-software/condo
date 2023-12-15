@@ -651,14 +651,20 @@ async function addBillingIntegrationAndContext(client, organization, integration
     }
 }
 
-async function makeContextWithOrganizationAndIntegrationAsAdmin( integrationAttrs={}, organizationAttrs = {}, contextAttrs= {} ) {
+async function makeContextWithOrganizationAndIntegrationAsAdmin( integrationAttrs={}, organizationAttrs = {}, contextAttrs= {}, processingBillingContext = false ) {
+    let context
     const admin = await makeLoggedInAdminClient()
     const [integration] = await createTestBillingIntegration(admin, integrationAttrs)
     const [organization] = await registerNewOrganization(admin, organizationAttrs)
-    const [contextCreated] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration, contextAttrs)
-    const [context] = await updateTestBillingIntegrationOrganizationContext(admin, contextCreated.id, { status: CONTEXT_FINISHED_STATUS})
-
-    return { context, integration, organization, admin }
+    ;[context] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration, contextAttrs)
+    if (!processingBillingContext) [context] = await updateTestBillingIntegrationOrganizationContext(admin, context.id, { status: CONTEXT_FINISHED_STATUS})
+    console.log(context)
+    return {
+        context,
+        integration,
+        organization,
+        admin,
+    }
 }
 
 async function makeServiceUserForIntegration(integration) {

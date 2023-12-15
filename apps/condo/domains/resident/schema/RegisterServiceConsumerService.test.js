@@ -331,7 +331,7 @@ describe('RegisterResidentServiceConsumers', () => {
         })
 
         it('throw error when try createServiceConsumer with BillingIntegrationOrganizationContext not in finished status', async () => {
-            const { organization, context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            const { organization, context } = await makeContextWithOrganizationAndIntegrationAsAdmin({}, {}, {}, true)
             const [property] = await createTestProperty(adminClient, organization)
             const [billingProperty] = await createTestBillingProperty(adminClient, context, {
                 address: property.address,
