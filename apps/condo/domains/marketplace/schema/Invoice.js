@@ -240,7 +240,7 @@ const Invoice = new GQLListSchema('Invoice', {
         },
 
         acquiringIntegrationId: {
-            schemaDoc: 'Type of user who changed the pass. Can be employee or resident',
+            schemaDoc: 'Integration ID through which this invoice can be paid',
             type: 'Virtual',
             resolver: async (item, args, context) => {
                 const invoiceContext = await getById('InvoiceContext', item.context)
@@ -249,7 +249,7 @@ const Invoice = new GQLListSchema('Invoice', {
         },
 
         hostUrl: {
-            schemaDoc: 'Type of user who changed the pass. Can be employee or resident',
+            schemaDoc: 'Url to acquiring integration service. Mobile devices will use it communicate with external acquiring. List of endpoints is the same for all of them.',
             type: 'Virtual',
             resolver: async (item, args, context) => {
                 const invoiceContext = await getById('InvoiceContext', item.context)
@@ -259,7 +259,7 @@ const Invoice = new GQLListSchema('Invoice', {
         },
 
         canGroupReceipts: {
-            schemaDoc: 'Type of user who changed the pass. Can be employee or resident',
+            schemaDoc: 'Can multiple receipts be united through this acquiring',
             type: 'Virtual',
             resolver: async (item, args, context) => {
                 const invoiceContext = await getById('InvoiceContext', item.context)
@@ -269,7 +269,7 @@ const Invoice = new GQLListSchema('Invoice', {
         },
 
         currencyCode: {
-            schemaDoc: 'Type of user who changed the pass. Can be employee or resident',
+            schemaDoc: 'Code of currency in ISO-4217 format',
             type: 'Virtual',
             resolver: async (item, args, context) => {
                 const invoiceContext = await getById('InvoiceContext', item.context)
