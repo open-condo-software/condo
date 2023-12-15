@@ -196,6 +196,7 @@ async function _importBuildFromClient ({ serverClient, remoteAppId, versionSuffi
             data: {
                 dv,
                 sender,
+                version: build.version,
                 importId: build.id,
                 importRemoteSystem: REMOTE_SYSTEM,
             },
