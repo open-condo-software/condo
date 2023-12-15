@@ -33,6 +33,38 @@ const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = conf.ENABLE_DANGEROUS_GRAPHQL_PLA
 // NOTE(pahaz): it's a magic number tested by @arichiv at https://developer.chrome.com/blog/cookie-max-age-expires/
 const INFINITY_MAX_AGE_COOKIE = 1707195600
 
+const sendAppMetrics = () => {
+    const v8Stats = v8.getHeapStatistics()
+    metrics.gauge({ name: 'v8.totalHeapSize', value: v8Stats.total_heap_size })
+    metrics.gauge({ name: 'v8.usedHeapSize', value: v8Stats.used_heap_size })
+    metrics.gauge({ name: 'v8.totalAvailableSize', value: v8Stats.total_available_size })
+    metrics.gauge({ name: 'v8.totalHeapSizeExecutable', value: v8Stats.total_heap_size_executable })
+    metrics.gauge({ name: 'v8.totalPhysicalSize', value: v8Stats.total_physical_size })
+    metrics.gauge({ name: 'v8.heapSizeLimit', value: v8Stats.heap_size_limit })
+    metrics.gauge({ name: 'v8.mallocatedMemory', value: v8Stats.malloced_memory })
+    metrics.gauge({ name: 'v8.peakMallocatedMemory', value: v8Stats.peak_malloced_memory })
+    metrics.gauge({ name: 'v8.doesZapGarbage', value: v8Stats.does_zap_garbage })
+    metrics.gauge({ name: 'v8.numberOfNativeContexts', value: v8Stats.number_of_native_contexts })
+    metrics.gauge({ name: 'v8.numberOfDetachedContexts', value: v8Stats.number_of_detached_contexts })
+
+    const memUsage = process.memoryUsage()
+    metrics.gauge({ name: 'processMemoryUsage.heapTotal', value: memUsage.heapTotal })
+    metrics.gauge({ name: 'processMemoryUsage.heapUsed', value: memUsage.heapUsed })
+    metrics.gauge({ name: 'processMemoryUsage.rss', value: memUsage.rss })
+    metrics.gauge({ name: 'processMemoryUsage.external', value: memUsage.external })
+
+    if (taskQueue) {
+        taskQueue.getJobCounts().then(jobCounts => {
+            metrics.gauge({ name: 'worker.activeTasks', value: jobCounts.active })
+            metrics.gauge({ name: 'worker.waitingTasks', value: jobCounts.waiting })
+            metrics.gauge({ name: 'worker.completedTasks', value: jobCounts.completed })
+            metrics.gauge({ name: 'worker.failedTasks', value: jobCounts.failed })
+            metrics.gauge({ name: 'worker.delayedTasks', value: jobCounts.delayed })
+            metrics.gauge({ name: 'worker.pausedTasks', value: jobCounts.paused })
+        })
+    }
+}
+
 function prepareKeystone ({ onConnect, extendExpressApp, schemas, schemasPreprocessors, tasks, apps, lastApp, graphql, ui }) {
     // trying to be compatible with keystone-6 and keystone-5
     // TODO(pahaz): add storage like https://keystonejs.com/docs/config/config#storage-images-and-files
@@ -69,37 +101,7 @@ function prepareKeystone ({ onConnect, extendExpressApp, schemas, schemasPreproc
     }
 
     if (!IS_BUILD_PHASE) {
-        setInterval(() => {
-            const v8Stats = v8.getHeapStatistics()
-            metrics.gauge({ name: 'v8.totalHeapSize', value: v8Stats.total_heap_size })
-            metrics.gauge({ name: 'v8.usedHeapSize', value: v8Stats.used_heap_size })
-            metrics.gauge({ name: 'v8.totalAvailableSize', value: v8Stats.total_available_size })
-            metrics.gauge({ name: 'v8.totalHeapSizeExecutable', value: v8Stats.total_heap_size_executable })
-            metrics.gauge({ name: 'v8.totalPhysicalSize', value: v8Stats.total_physical_size })
-            metrics.gauge({ name: 'v8.heapSizeLimit', value: v8Stats.heap_size_limit })
-            metrics.gauge({ name: 'v8.mallocatedMemory', value: v8Stats.malloced_memory })
-            metrics.gauge({ name: 'v8.peakMallocatedMemory', value: v8Stats.peak_malloced_memory })
-            metrics.gauge({ name: 'v8.doesZapGarbage', value: v8Stats.does_zap_garbage })
-            metrics.gauge({ name: 'v8.numberOfNativeContexts', value: v8Stats.number_of_native_contexts })
-            metrics.gauge({ name: 'v8.numberOfDetachedContexts', value: v8Stats.number_of_detached_contexts })
-
-            const memUsage = process.memoryUsage()
-            metrics.gauge({ name: 'processMemoryUsage.heapTotal', value: memUsage.heapTotal })
-            metrics.gauge({ name: 'processMemoryUsage.heapUsed', value: memUsage.heapUsed })
-            metrics.gauge({ name: 'processMemoryUsage.rss', value: memUsage.rss })
-            metrics.gauge({ name: 'processMemoryUsage.external', value: memUsage.external })
-
-            if (taskQueue) {
-                taskQueue.getJobCounts().then(jobCounts => {
-                    metrics.gauge({ name: 'worker.activeTasks', value: jobCounts.active })
-                    metrics.gauge({ name: 'worker.waitingTasks', value: jobCounts.waiting })
-                    metrics.gauge({ name: 'worker.completedTasks', value: jobCounts.completed })
-                    metrics.gauge({ name: 'worker.failedTasks', value: jobCounts.failed })
-                    metrics.gauge({ name: 'worker.delayedTasks', value: jobCounts.delayed })
-                    metrics.gauge({ name: 'worker.pausedTasks', value: jobCounts.paused })
-                })
-            }
-        }, 2000)
+        setInterval(sendAppMetrics, 2000)
     }
 
     return {
