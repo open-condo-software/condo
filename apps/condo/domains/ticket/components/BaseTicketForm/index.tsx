@@ -432,7 +432,11 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
                                                 </Form.Item>
                                             </Col>
                                             <Col span={24} lg={6}>
-                                                <Form.Item name='isPayable' valuePropName='checked'>
+                                                <Form.Item
+                                                    name='isPayable'
+                                                    valuePropName='checked'
+                                                    tooltip={disableIsPayableCheckbox && 'Сначала отмените все счета'}
+                                                >
                                                     <Checkbox
                                                         disabled={disableUserInteraction || disableIsPayableCheckbox}
                                                         eventName='TicketCreateCheckboxIsPayable'

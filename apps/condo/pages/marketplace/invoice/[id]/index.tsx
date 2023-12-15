@@ -311,8 +311,7 @@ const InvoiceActionBar = ({
     const DisabledTooltipMessage = useMemo(() => isButtonDisabled &&
         intl.formatMessage(
             { id: 'pages.condo.marketplace.invoice.id.disableEditButtonTooltip' },
-            { status: intl.formatMessage({ id: `pages.condo.marketplace.invoice.invoiceStatus.${invoiceStatus}` }) },
-        ), [isButtonDisabled, intl, invoiceStatus])
+        ), [isButtonDisabled, intl])
 
     return canManageInvoices && (
         <ActionBar

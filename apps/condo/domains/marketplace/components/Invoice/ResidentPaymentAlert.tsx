@@ -14,7 +14,6 @@ export const ResidentPaymentAlert = ({ propertyId, unitName, unitType, clientPho
     const CreatedByResidentMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.message.createdByResident' })
     const CreatedByResidentDescription = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.createdByResident' })
     const HasAppMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.message.hasApp' })
-    const LinkWillBeGeneratedMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.linkWillBeGeneratedMessage' })
     const HasAppOnAddressMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.hasAppOnAddress' })
     const HasAppOnOtherAddressMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.hasAppOnOtherAddress' })
     const PassPaymentLinkMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.message.passLinkToResident' })
@@ -66,40 +65,25 @@ export const ResidentPaymentAlert = ({ propertyId, unitName, unitType, clientPho
         type = 'info'
         message = HasAppMessage
         description = (
-            <>
-                <Typography.Paragraph size='medium'>
-                    {HasAppOnAddressMessage}
-                </Typography.Paragraph>
-                <Typography.Paragraph size='medium'>
-                    {LinkWillBeGeneratedMessage}
-                </Typography.Paragraph>
-            </>
+            <Typography.Paragraph size='medium'>
+                {HasAppOnAddressMessage}
+            </Typography.Paragraph>
         )
     } else if (residentExistence.hasResident) {
         type = 'warning'
         message = HasAppMessage
         description = (
-            <>
-                <Typography.Paragraph size='medium'>
-                    {HasAppOnOtherAddressMessage}
-                </Typography.Paragraph>
-                <Typography.Paragraph size='medium'>
-                    {LinkWillBeGeneratedMessage}
-                </Typography.Paragraph>
-            </>
+            <Typography.Paragraph size='medium'>
+                {HasAppOnOtherAddressMessage}
+            </Typography.Paragraph>
         )
     } else {
         type = 'warning'
         message = PassPaymentLinkMessage
         description = (
-            <>
-                <Typography.Paragraph size='medium'>
-                    {NoAppMessage}
-                </Typography.Paragraph>
-                <Typography.Paragraph size='medium'>
-                    {LinkWillBeGeneratedMessage}
-                </Typography.Paragraph>
-            </>
+            <Typography.Paragraph size='medium'>
+                {NoAppMessage}
+            </Typography.Paragraph>
         )
     }
 

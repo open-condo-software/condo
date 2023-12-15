@@ -872,7 +872,6 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
     const NoPayerDataAlertDescription = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.noPayerData' })
     const EmptyPayerDataAlertMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.message.passLinkToResident' })
     const EmptyPayerDataAlertDescription = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.emptyPayerData' })
-    const LinkWillBeGeneratedMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.linkWillBeGeneratedMessage' })
     const ContractPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' }).toLowerCase()
     const SaveChangesModalTitle = intl.formatMessage({ id: 'form.prompt.title' })
     const SaveChangesNodalMessage = intl.formatMessage({ id: 'form.prompt.message' })
@@ -1025,7 +1024,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                                     {
                                                         ({ getFieldValue }) => {
                                                             const rows = getFieldValue('rows').filter(Boolean)
-                                                            const totalCount = rows.reduce((acc, row) => acc + row.count, 0)
+                                                            const totalCount = rows.reduce((acc) => acc + 1, 0)
                                                             const { totalPrice, hasMinPrice, hasError } = calculateRowsTotalPrice(intl, rows)
                                                             const isContractToPay = hasMinPrice && totalPrice === 0
 
@@ -1163,14 +1162,9 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                                                         type='warning'
                                                                         message={EmptyPayerDataAlertMessage}
                                                                         description={(
-                                                                            <>
-                                                                                <Typography.Paragraph size='medium'>
-                                                                                    {EmptyPayerDataAlertDescription}
-                                                                                </Typography.Paragraph>
-                                                                                <Typography.Paragraph size='medium'>
-                                                                                    {LinkWillBeGeneratedMessage}
-                                                                                </Typography.Paragraph>
-                                                                            </>
+                                                                            <Typography.Paragraph size='medium'>
+                                                                                {EmptyPayerDataAlertDescription}
+                                                                            </Typography.Paragraph>
                                                                         )}
                                                                         showIcon
                                                                     />
