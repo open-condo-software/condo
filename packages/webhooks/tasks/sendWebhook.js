@@ -1,4 +1,5 @@
 const dayjs = require('dayjs')
+const { get } = require('lodash')
 const { default: RedLock } = require('redlock')
 const { v4: uuid } = require('uuid')
 
@@ -65,16 +66,20 @@ async function sendWebhook (subscriptionId) {
             ...filters,
             updatedAt_gt: syncedAt,
         }
+        logger.info({ msg: 'prepare', url, lastLoaded, packSize, subscriptionId, taskId })
 
         while (lastLoaded === packSize) {
             // Step 1: Receive another batch
             const variables = { first: maxPackSize || DEFAULT_MAX_PACK_SIZE, skip: totalLoaded, where }
+            const userId = get(user, 'id')
+            logger.info({ msg: 'tryGetData', url, variables, model, fields, subscriptionId, taskId, userId })
             const objs = await execGqlAsUser(keystone, user, {
                 query,
                 variables,
                 dataPath: 'objs',
                 deleted: true,
             })
+            logger.info({ msg: 'tryGetResult', url, data: objs, variables, model, fields, subscriptionId, taskId, userId })
 
             lastLoaded = objs.length
             // time is measured by the time of the last response from our server received
@@ -136,6 +141,8 @@ async function sendWebhook (subscriptionId) {
 
         return { status: OK_STATUS }
 
+    } catch (error) {
+        logger.error({ msg: 'Send webhook error', error, subscriptionId, taskId })
     } finally {
         logger.info({ msg: 'Lock released', subscriptionId, taskId })
         await lock.release()
