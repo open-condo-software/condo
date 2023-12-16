@@ -20,6 +20,7 @@ const {
 } = require('@open-condo/keystone/test.utils')
 const { makeClient } = require('@open-condo/keystone/test.utils')
 
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { createTestAcquiringIntegration, createTestAcquiringIntegrationContext, updateTestAcquiringIntegration, updateTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
 const {
     makeServiceUserForIntegration,
@@ -51,7 +52,6 @@ const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
 } = require('@condo/domains/user/utils/testSchema')
-const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 
 describe('BillingReceipt', () => {
     let admin
