@@ -12226,6 +12226,10 @@ type BillingReceiptHistoryRecord {
   invalidServicesError: JSON
   file: String
   isPayable: JSON
+  acquiringIntegrationId: JSON
+  hostUrl: JSON
+  canGroupReceipts: JSON
+  currencyCode: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -12410,6 +12414,22 @@ input BillingReceiptHistoryRecordWhereInput {
   isPayable_not: JSON
   isPayable_in: [JSON]
   isPayable_not_in: [JSON]
+  acquiringIntegrationId: JSON
+  acquiringIntegrationId_not: JSON
+  acquiringIntegrationId_in: [JSON]
+  acquiringIntegrationId_not_in: [JSON]
+  hostUrl: JSON
+  hostUrl_not: JSON
+  hostUrl_in: [JSON]
+  hostUrl_not_in: [JSON]
+  canGroupReceipts: JSON
+  canGroupReceipts_not: JSON
+  canGroupReceipts_in: [JSON]
+  canGroupReceipts_not_in: [JSON]
+  currencyCode: JSON
+  currencyCode_not: JSON
+  currencyCode_in: [JSON]
+  currencyCode_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -12557,6 +12577,10 @@ input BillingReceiptHistoryRecordUpdateInput {
   invalidServicesError: JSON
   file: String
   isPayable: JSON
+  acquiringIntegrationId: JSON
+  hostUrl: JSON
+  canGroupReceipts: JSON
+  currencyCode: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -12600,6 +12624,10 @@ input BillingReceiptHistoryRecordCreateInput {
   invalidServicesError: JSON
   file: String
   isPayable: JSON
+  acquiringIntegrationId: JSON
+  hostUrl: JSON
+  canGroupReceipts: JSON
+  currencyCode: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -12820,6 +12848,19 @@ type BillingReceipt {
   """ Indicator that this invoice document is latest for its account and receiver/category 
   """
   isPayable: Boolean
+
+  """ Integration ID through which this invoice can be paid """
+  acquiringIntegrationId: ID
+
+  """ Url to acquiring integration service. Mobile devices will use it communicate with external acquiring. List of endpoints is the same for all of them. 
+  """
+  hostUrl: String
+
+  """ Can multiple receipts be united through this acquiring """
+  canGroupReceipts: Boolean
+
+  """ Code of currency in ISO-4217 format """
+  currencyCode: String
   id: ID!
   v: Int
   createdAt: String

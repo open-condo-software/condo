@@ -8,8 +8,9 @@ const { get } = require('lodash')
 
 const { readOnlyFieldAccess } = require('@open-condo/keystone/access')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
+const { GQLListSchema, getById, find } = require('@open-condo/keystone/schema')
 
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const access = require('@condo/domains/billing/access/BillingReceipt')
 const { BillingRecipient, BillingReceipt: BillingReceiptApi } = require('@condo/domains/billing/utils/serverSchema')
 const { WRONG_TEXT_FORMAT, UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
@@ -207,6 +208,53 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
                 })
 
                 return !(receipts && receipts.length)
+            },
+        },
+
+        acquiringIntegrationId: {
+            schemaDoc: 'Integration ID through which this invoice can be paid',
+            type: 'Virtual',
+            graphQLReturnType: 'ID',
+            resolver: async (item, args, context) => {
+                const billingContext = await getById('BillingIntegrationOrganizationContext', item.context)
+                const acquiringContext = await find('AcquiringIntegrationContext', { organization: { id: billingContext.organization }, status: CONTEXT_FINISHED_STATUS })
+                const acquiringIntegration = await getById('AcquiringIntegration', acquiringContext[0].integration, null)
+                return get(acquiringIntegration, 'id', null)
+            },
+        },
+
+        hostUrl: {
+            schemaDoc: 'Url to acquiring integration service. Mobile devices will use it communicate with external acquiring. List of endpoints is the same for all of them.',
+            type: 'Virtual',
+            graphQLReturnType: 'String',
+            resolver: async (item, args, context) => {
+                const billingContext = await getById('BillingIntegrationOrganizationContext', item.context)
+                const acquiringContext = await find('AcquiringIntegrationContext', { organization: { id: billingContext.organization }, status: CONTEXT_FINISHED_STATUS })
+                const acquiringIntegration = await getById('AcquiringIntegration', acquiringContext[0].integration, null)
+                return get(acquiringIntegration, 'hostUrl', null)
+            },
+        },
+
+        canGroupReceipts: {
+            schemaDoc: 'Can multiple receipts be united through this acquiring',
+            type: 'Virtual',
+            graphQLReturnType: 'Boolean',
+            resolver: async (item, args, context) => {
+                const billingContext = await getById('BillingIntegrationOrganizationContext', item.context)
+                const acquiringContext = await find('AcquiringIntegrationContext', { organization: { id: billingContext.organization }, status: CONTEXT_FINISHED_STATUS })
+                const acquiringIntegration = await getById('AcquiringIntegration', acquiringContext[0].integration, null)
+                return get(acquiringIntegration, 'canGroupReceipts', null)
+            },
+        },
+
+        currencyCode: {
+            schemaDoc: 'Code of currency in ISO-4217 format',
+            type: 'Virtual',
+            graphQLReturnType: 'String',
+            resolver: async (item, args, context) => {
+                const billingContext = await getById('BillingIntegrationOrganizationContext', item.context)
+                const billingIntegration = await getById('BillingIntegration', billingContext.integration)
+                return get(billingIntegration, 'currencyCode', null)
             },
         },
     },

@@ -20,6 +20,7 @@ const {
 } = require('@open-condo/keystone/test.utils')
 const { makeClient } = require('@open-condo/keystone/test.utils')
 
+const { createTestAcquiringIntegration, createTestAcquiringIntegrationContext, updateTestAcquiringIntegration, updateTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
 const {
     makeServiceUserForIntegration,
     makeOrganizationIntegrationManager,
@@ -50,6 +51,7 @@ const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
 } = require('@condo/domains/user/utils/testSchema')
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 
 describe('BillingReceipt', () => {
     let admin
@@ -1142,6 +1144,19 @@ describe('BillingReceipt', () => {
                 expect(receipt).toHaveProperty('recalculation', originalReceipt.toPayDetails.recalculation)
                 expect(receipt).toHaveProperty('privilege', originalReceipt.toPayDetails.privilege)
                 expect(receipt).toHaveProperty('paid', receipt.toPayDetails.paid)
+            })
+        })
+        describe('virtual fields check', () => {
+            it('checking the completion of virtual fields: canGroupReceipts, hostUrl, acquiringIntegrationId, currencyCode', async () => {
+                const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
+                const [acquiringContext] = await createTestAcquiringIntegrationContext(admin, context.organization, acquiringIntegration)
+                await updateTestAcquiringIntegrationContext(admin, acquiringContext.id, { status: CONTEXT_FINISHED_STATUS })
+                const [billingReceipt] = await createTestBillingReceipt(admin, context, property, account)
+
+                expect(billingReceipt.acquiringIntegrationId).toEqual(acquiringIntegration.id)
+                expect(billingReceipt.hostUrl).toEqual(acquiringIntegration.hostUrl)
+                expect(billingReceipt.canGroupReceipts).toEqual(acquiringIntegration.canGroupReceipts)
+                expect(billingReceipt.currencyCode).toEqual(context.integration.currencyCode)
             })
         })
     })
