@@ -174,7 +174,6 @@ async function createTestAcquiringIntegrationContext (client, organization, inte
         settings,
         state,
         ...extraAttrs,
-        implicitFeeDistributionSchema: getRandomImplicitFeeDistribution(),
     }
     const obj = await AcquiringIntegrationContext.create(client, attrs)
     return [obj, attrs]

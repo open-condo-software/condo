@@ -89,6 +89,11 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
             schemaDoc: 'Contract number and date. Basis for invoicing',
             type: 'Text',
             isRequired: false,
+            access: {
+                read: true,
+                create: access.canManageReasonAndFeeFields,
+                update: access.canManageReasonAndFeeFields,
+            },
         },
 
         email: {
@@ -139,6 +144,11 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
             ...FEE_DISTRIBUTION_SCHEMA_FIELD,
             isRequired: false,
             schemaDoc: 'Contains information about the default distribution of implicit fee. Each part is paid by the recipient organization on deducted from payment amount. If part exists then explicit part with the same name from AcquiringIntegration.explicitFeeDistributionSchema is ignored',
+            access: {
+                read: true,
+                create: access.canManageReasonAndFeeFields,
+                update: access.canManageReasonAndFeeFields,
+            },
         },
 
         invoiceImplicitFeeDistributionSchema: {
