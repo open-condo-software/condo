@@ -10,7 +10,7 @@ const { Resolver } = require('@condo/domains/billing/schema/resolvers/resolver')
 const BILLING_RECEIPT_FIELDS = '{ id }'
 const BillingReceiptGQL = generateGqlQueries('BillingReceipt', BILLING_RECEIPT_FIELDS)
 const BillingReceiptApi = generateServerUtils(BillingReceiptGQL)
-const RECEIPT_UPDATE_FIELDS = ['services', 'toPayDetails', 'raw', 'recipient', 'period', 'category', 'account', 'property', 'receiver', 'importId', 'toPay']
+const RECEIPT_UPDATE_FIELDS = ['services', 'toPayDetails', 'recipient', 'period', 'category', 'account', 'property', 'receiver', 'importId', 'toPay']
 
 class ReceiptResolver extends Resolver {
     constructor ({ billingContext, context }) {

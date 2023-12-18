@@ -9,8 +9,8 @@ const { find } = require('@open-condo/keystone/schema')
 
 const { BILLING_ACCOUNT_OWNER_TYPE_COMPANY, BILLING_ACCOUNT_OWNER_TYPE_PERSON } = require('@condo/domains/billing/constants/constants')
 const { ERRORS } = require('@condo/domains/billing/constants/registerBillingReceiptService')
-const { clearAccountNumber, isPerson } = require('@condo/domains/billing/schema/resolvers/lib')
 const { Resolver } = require('@condo/domains/billing/schema/resolvers/resolver')
+const { clearAccountNumber, isPerson } = require('@condo/domains/billing/schema/resolvers/utils')
 
 const BILLING_ACCOUNT_FIELDS = '{ id }'
 const BillingAccountGQL = generateGqlQueries('BillingAccount', BILLING_ACCOUNT_FIELDS)

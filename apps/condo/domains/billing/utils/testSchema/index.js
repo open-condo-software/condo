@@ -620,7 +620,7 @@ function createRegisterBillingReceiptsPayload(extraAttrs = {}) {
 
         category: { id: '928c97ef-5289-4daa-b80e-4b9fed50c629' },
 
-        tin: faker.random.alphaNumeric(8),
+        tin: faker.random.numeric(8),
         routingNumber: faker.random.alphaNumeric(8),
         bankAccount: faker.random.alphaNumeric(8),
 

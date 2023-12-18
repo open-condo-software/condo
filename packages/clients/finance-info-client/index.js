@@ -30,13 +30,13 @@ async function getOrganizationInfo (tin) {
 
         return {
             result: {
-                name: faker.company.name(),
-                timezone: faker.address.timeZone(),
-                territoryCode: faker.address.countryCode(),
-                iec: faker.finance.account(),
+                name: `Company ${tin}`,
+                timezone: 'Asia/Yakutsk',
+                territoryCode: tin,
+                iec: tin,
                 tin,
-                psrnname: faker.finance.account(),
-                country: faker.address.country(),
+                psrn: tin,
+                country: 'en',
             },
         }
     }
@@ -65,9 +65,9 @@ async function getBankInfo (routingNumber) {
         return {
             result: {
                 routingNumber,
-                bankName: faker.random.words(2),
-                offsettingAccount: faker.finance.account(),
-                territoryCode: faker.address.countryCode(),
+                bankName: `Bank for ${routingNumber}`,
+                offsettingAccount: routingNumber,
+                territoryCode: routingNumber,
             },
         }
     }

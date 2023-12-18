@@ -20,14 +20,21 @@ class RecipientResolver extends Resolver {
         this.recipients = []
     }
     async init () {
-        this.recipients = await find('BillingRecipient', { context: { id: this.billingContext.id }, deletedAt: null })
+        await this.loadExistingRecipients()
         this.organization = await getById('Organization', get(this.billingContext, 'organization.id'))
     }
+
+    async loadExistingRecipients () {
+        this.recipients = await find('BillingRecipient', { context: { id: this.billingContext.id }, deletedAt: null })
+    }
+
     async syncBillingRecipient (existing, data){
         if (!existing) {
             try {
                 data.isApproved = data.tin && data.tin === this.organization.tin
-                return await BillingRecipientApi.create(this.context, this.buildCreateInput(data, ['context']))
+                const newRecipient = await BillingRecipientApi.create(this.context, this.buildCreateInput(data, ['context']))
+                await this.loadExistingRecipients()
+                return newRecipient
             } catch (error) {
                 return { error: ERRORS.RECIPIENT_SAVE_FAILED }
             }
@@ -35,7 +42,9 @@ class RecipientResolver extends Resolver {
             const updateInput = this.buildUpdateInput(data, existing)
             if (!isEmpty(updateInput)) {
                 try {
-                    return await BillingRecipientApi.update(this.context, existing.id, updateInput)
+                    const updatedRecipient = await BillingRecipientApi.update(this.context, existing.id, updateInput)
+                    await this.loadExistingRecipients()
+                    return updatedRecipient
                 } catch (error) {
                     return { error: ERRORS.RECIPIENT_SAVE_FAILED }
                 }

@@ -315,10 +315,10 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                     ))
                     let errorsIndex = {}
                     const debug = []
-                    const chain = [PeriodResolver, RecipientResolver, PropertyResolver, AccountResolver, CategoryResolver, ReceiptResolver]
-                    for (const Worker of chain) {
+                    const resolvers = [PeriodResolver, RecipientResolver, PropertyResolver, AccountResolver, CategoryResolver, ReceiptResolver]
+                    for (const resolver of resolvers) {
                         try {
-                            const worker = new Worker({ context, billingContext })
+                            const worker = new resolver({ context, billingContext })
                             await worker.init()
                             const { errorReceipts, receipts } = await worker.processReceipts(receiptIndex)
                             debug.push(...worker.debugMessages)

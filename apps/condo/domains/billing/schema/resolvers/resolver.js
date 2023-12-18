@@ -53,7 +53,7 @@ class Resolver {
             }
         }
         this.created++
-        this.logger.info({ msg: `Create new ${this.name}`, payload: createInput })
+        this.logger.debug({ msg: `Create new ${this.name}`, payload: createInput })
         return createInput
     }
 
@@ -77,7 +77,7 @@ class Resolver {
         }
         if (!isEmpty(updateInput)) {
             updateInput = { ...this.dvSender, ...updateInput }
-            this.logger.info({ msg: `Update ${this.name}`, payload: { updateInput } })
+            this.logger.debug({ msg: `Update ${this.name}`, payload: { updateInput } })
             this.updated++
         } else {
             this.unTouched++
