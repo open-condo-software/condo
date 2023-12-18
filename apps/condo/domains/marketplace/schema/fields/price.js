@@ -12,7 +12,6 @@ const PRICE_GQL_INPUT_NAME = 'MarketItemPricePriceSchemaFieldInput'
 
 const priceSchemaFields = {
     type: 'String!',
-    group: 'String!',
     name: 'String!',
     price: 'String!',
     isMin: 'Boolean!',
@@ -36,14 +35,11 @@ const PRICE_FIELD_SCHEMA = {
     items: {
         type: 'object',
         additionalProperties: false,
-        required: ['type', 'group', 'name', 'price', 'isMin'],
+        required: ['type', 'name', 'price', 'isMin'],
         properties: {
             type: {
                 type: 'string',
                 enum: ['variant', 'extra'],
-            },
-            group: {
-                type: 'string',
             },
             name: {
                 type: 'string',

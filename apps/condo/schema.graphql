@@ -69050,7 +69050,6 @@ input MarketItemPriceHistoryRecordsCreateInput {
 
 type MarketItemPricePriceSchemaField {
   type: String!
-  group: String!
   name: String!
   price: String!
   isMin: Boolean!
@@ -69061,7 +69060,6 @@ type MarketItemPricePriceSchemaField {
 
 input MarketItemPricePriceSchemaFieldInput {
   type: String!
-  group: String!
   name: String!
   price: String!
   isMin: Boolean!

@@ -124,7 +124,6 @@ function generateInvoiceRows (rowsCount = null) {
 function generatePriceRow (attrs = {}) {
     return {
         type: 'variant',
-        group: faker.word.noun(),
         name: faker.commerce.productName(),
         price: String(faker.commerce.price()),
         isMin: false,

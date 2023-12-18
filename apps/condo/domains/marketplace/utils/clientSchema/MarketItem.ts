@@ -179,7 +179,7 @@ export async function createNewPricesAndPriceScopes ({
         const { price: resultPrice, isMin } = getPriceValueFromFormPrice({ priceType, price })
 
         const createdPrice = await createMarketItemPrice({
-            price: [{ type: 'variant', group: '', name: marketItem.name, price: resultPrice, isMin }],
+            price: [{ type: 'variant', name: marketItem.name, price: resultPrice, isMin }],
             marketItem: { connect: { id: marketItem.id } },
         })
 

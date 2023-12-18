@@ -27648,7 +27648,6 @@ export type MarketItemPriceHistoryRecordsUpdateInput = {
 export type MarketItemPricePriceSchemaField = {
   __typename?: 'MarketItemPricePriceSchemaField';
   type: Scalars['String'];
-  group: Scalars['String'];
   name: Scalars['String'];
   price: Scalars['String'];
   isMin: Scalars['Boolean'];
@@ -27659,7 +27658,6 @@ export type MarketItemPricePriceSchemaField = {
 
 export type MarketItemPricePriceSchemaFieldInput = {
   type: Scalars['String'];
-  group: Scalars['String'];
   name: Scalars['String'];
   price: Scalars['String'];
   isMin: Scalars['Boolean'];
