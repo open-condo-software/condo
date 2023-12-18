@@ -18,7 +18,7 @@ const {
     catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
 
-const { CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS, VAT_OPTIONS } = require('@condo/domains/acquiring/constants/context')
+const { CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/acquiring/constants/context')
 const {
     FEE_CALCULATION_PATH,
     WEB_VIEW_PATH,
@@ -1343,8 +1343,8 @@ describe('RegisterMultiPaymentService', () => {
                 contact: { connect: { id: contact.id } },
                 status: INVOICE_STATUS_PUBLISHED,
                 rows: [
-                    generateInvoiceRow({ vatPercent: VAT_OPTIONS[1] }),
-                    generateInvoiceRow({ vatPercent: VAT_OPTIONS[1] }),
+                    generateInvoiceRow({ vatPercent: '10' }),
+                    generateInvoiceRow({ vatPercent: '10' }),
                 ],
             })
 

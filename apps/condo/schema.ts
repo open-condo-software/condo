@@ -52,7 +52,7 @@ export type AcquiringIntegration = {
   explicitFeeDistributionSchema?: Maybe<Array<FeeDistributionField>>;
   /**  Status, which context will have by default after creation if no overwriting option provided  */
   contextDefaultStatus?: Maybe<Scalars['String']>;
-  /**  Comma separated values of VAT  */
+  /**  Comma separated values of VAT. Set by system administrators.  */
   vatPercentOptions?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;

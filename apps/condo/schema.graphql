@@ -49777,7 +49777,7 @@ type AcquiringIntegration {
   """
   contextDefaultStatus: String
 
-  """ Comma separated values of VAT """
+  """ Comma separated values of VAT. Set by system administrators. """
   vatPercentOptions: String
   id: ID!
   v: Int

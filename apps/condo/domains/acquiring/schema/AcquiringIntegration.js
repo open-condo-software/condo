@@ -3,7 +3,7 @@
  */
 
 const { Text, Relationship, Checkbox } = require('@keystonejs/fields')
-const { get } = require('lodash')
+const { get, uniq } = require('lodash')
 
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, find } = require('@open-condo/keystone/schema')
@@ -87,10 +87,16 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
             defaultValue: CONTEXT_IN_PROGRESS_STATUS,
         },
         vatPercentOptions: {
-            schemaDoc: 'Comma separated values of VAT',
+            schemaDoc: 'Comma separated values of VAT. Set by system administrators.',
             adminDoc: 'For example: "0,10,20" is for RU',
             type: 'Text',
             isRequired: false,
+            hooks: {
+                resolveInput: async ({ resolvedData, fieldPath }) => {
+                    const values = get(resolvedData, fieldPath, '') || ''
+                    return uniq(values.split(',').map(Number).filter((value) => !isNaN(value))).join(',')
+                },
+            },
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
