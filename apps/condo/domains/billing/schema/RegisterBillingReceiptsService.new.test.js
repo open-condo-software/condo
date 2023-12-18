@@ -308,6 +308,8 @@ describe('RegisterBillingReceiptsService', () => {
             test('Works on several receipts', async () => {
                 const receipt1 = createJSONReceipt()
                 const receipt2 = createJSONReceipt({
+                    ...receipt1,
+                    importId: null,
                     address: createAddressWithUnit(),
                     accountNumber: randomNumber(10).toString(),
                 })
