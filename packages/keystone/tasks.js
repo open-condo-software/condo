@@ -31,7 +31,8 @@ const taskQueue = (IS_BUILD) ? undefined : new Queue('tasks', {
     },
 })
 
-const globalTaskOptions = {}
+const KEEP_JOBS_CONFIG = { age: 60 * 60 * 24 * 30 } // 30 days
+const GLOBAL_TASK_OPTIONS = { removeOnComplete: KEEP_JOBS_CONFIG, removeOnFail: KEEP_JOBS_CONFIG }
 const TASKS = new Map()
 const CRON_TASKS = new Map()
 const REMOVE_CRON_TASKS = []
@@ -147,7 +148,7 @@ async function scheduleTaskByNameWithArgsAndOpts (name, args, opts = {}) {
 
     const preparedArgs = createSerializableCopy([...args])
     const preparedOpts = {
-        ...globalTaskOptions,
+        ...GLOBAL_TASK_OPTIONS,
         ...opts,
     }
 
@@ -161,7 +162,7 @@ async function scheduleTaskByNameWithArgsAndOpts (name, args, opts = {}) {
 function createTaskWrapper (name, fn, defaultTaskOptions = {}) {
     async function applyAsync (args, taskOptions) {
         const preparedOpts = {
-            ...globalTaskOptions,
+            ...GLOBAL_TASK_OPTIONS,
             ...defaultTaskOptions,
             ...taskOptions,
         }
