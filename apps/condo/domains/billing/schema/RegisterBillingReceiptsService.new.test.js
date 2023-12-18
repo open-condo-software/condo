@@ -72,7 +72,6 @@ describe('RegisterBillingReceiptsService', () => {
         const [billingIntegration] = await createTestBillingIntegration(clients.admin)
         const [billingContext] = await createTestBillingIntegrationOrganizationContext(clients.admin, organization, billingIntegration)
         integration = { organization, billingIntegration, billingContext }
-        process.env.ADDRESS_SERVICE_CLIENT_MODE = 'fake'
     })
 
     describe('PeriodResolver',  () => {
