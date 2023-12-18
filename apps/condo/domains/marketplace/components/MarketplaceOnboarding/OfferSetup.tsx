@@ -3,22 +3,18 @@ import { Col, Form, Row } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import getConfig from 'next/config'
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
 import bridge from '@open-condo/bridge'
 import { useIntl } from '@open-condo/next/intl'
-import { Typography, Checkbox, Space } from '@open-condo/ui'
-import { Button } from '@open-condo/ui'
+import { Button, Checkbox, Space, Typography } from '@open-condo/ui'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import {
-    MARKETPLACE_RULES_LINK,
-    MARKETPLACE_OFFER_LINK,
-} from '@condo/domains/marketplace/constants'
+import { MARKETPLACE_OFFER_LINK, MARKETPLACE_RULES_LINK } from '@condo/domains/marketplace/constants'
 import { Organization } from '@condorb/domains/condo/utils/clientSchema'
-import { SCOPE_TYPES } from '@condorb/domains/condorb/constants/marketplace'
+import { ACCEPT_SCOPE_ACQUIRING, ACCEPT_SCOPE_MARKETPLACE } from '@condorb/domains/condorb/constants/marketplace'
 import { Accept } from '@condorb/domains/condorb/utils/clientSchema'
 
 import type { RowProps } from 'antd'
@@ -74,14 +70,23 @@ export const OfferSetup: React.FC<{ launchContext: LaunchContextType }> = ({ lau
     const {
         obj: acquiringOffer,
         loading: isAcquiringOfferLoading,
-    } = Accept.useObject({ where: { scope: SCOPE_TYPES.acquiring, organizationId }, sortBy: [SortAcceptsBy.CreatedAtDesc], first: 1 })
+    } = Accept.useObject({
+        where: { scope: ACCEPT_SCOPE_ACQUIRING, organizationId },
+        sortBy: [SortAcceptsBy.CreatedAtDesc],
+        first: 1,
+    })
 
     const [rulesAreAccepted, setRulesAreAccepted] = useState<boolean>(false)
     const [loading, setIsLoading] = useState<boolean>(false)
+    const [usersEmails, setUsersEmails] = useState<string | null>('')
     const { requiredValidator, multipleEmailsValidator } = useValidations()
 
-    const handleDownload = useCallback(() => {
-        bridge.send('CondoWebAppRedirect', { url: MARKETPLACE_OFFER_LINK, target: '_blank' })
+    const onUserEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        setUsersEmails(e.target.value)
+    }, [setUsersEmails])
+
+    const handleDownload = useCallback(async () => {
+        await bridge.send('CondoWebAppRedirect', { url: MARKETPLACE_OFFER_LINK, target: '_blank' })
     }, [])
 
     const handleSignOffer = useCallback(async (values) => {
@@ -92,12 +97,11 @@ export const OfferSetup: React.FC<{ launchContext: LaunchContextType }> = ({ lau
             organizationId: organizationId,
             email: values.email,
             tin,
-            scope: SCOPE_TYPES['marketplace'],
+            scope: ACCEPT_SCOPE_MARKETPLACE,
             signDate: dayjs().format('YYYY-MM-DD'),
         })
         setIsLoading(false)
         window.parent.postMessage({ success: true }, condoUrl)
-        setIsLoading(false)
     }, [createAcceptAction, organization, organizationId, userId])
 
     const onRulesAcceptedChange = useCallback(() => {
@@ -111,7 +115,7 @@ export const OfferSetup: React.FC<{ launchContext: LaunchContextType }> = ({ lau
     }, [acquiringOffer, form, isAcquiringOfferLoading])
 
     if (organizationIsLoading) {
-        return <Loader fill size='large' />
+        return <Loader fill size='large'/>
     }
 
     return (
@@ -153,13 +157,14 @@ export const OfferSetup: React.FC<{ launchContext: LaunchContextType }> = ({ lau
                                 <Col span={24}>
                                     <Form.Item
                                         name='email'
-                                        rules={[requiredValidator, multipleEmailsValidator(form.getFieldValue('email'))]}
+                                        rules={[requiredValidator, multipleEmailsValidator(usersEmails)]}
                                         required
                                         label={EmailTip}
                                     >
                                         <Input
-                                            type='email'
                                             placeholder='name@example.com, example@example.com'
+                                            value={usersEmails}
+                                            onChange={onUserEmailChange}
                                         />
                                     </Form.Item>
                                 </Col>

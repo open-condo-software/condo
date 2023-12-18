@@ -16,6 +16,7 @@ const {
 const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
 const { expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const {
     MULTIPAYMENT_EMPTY_PAYMENTS,
     MULTIPAYMENT_TOO_BIG_IMPLICIT_FEE,
@@ -65,9 +66,10 @@ const {
     makePayerAndPayments,
     makePayer,
     makePayerWithMultipleConsumers,
+    updateTestAcquiringIntegrationContext,
 } = require('@condo/domains/acquiring/utils/testSchema')
-const { INVOICE_CONTEXT_STATUS_FINISHED, INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
-const { createTestInvoice, createTestInvoiceContext } = require('@condo/domains/marketplace/utils/testSchema')
+const { INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
+const { createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
 const { makeClientWithSupportUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('MultiPayment', () => {
@@ -341,8 +343,9 @@ describe('MultiPayment', () => {
                 test('Unique invoices', async () => {
                     const { admin, organization, acquiringContext, client, acquiringIntegration } = await makePayer()
 
-                    const [invoiceContext] = await createTestInvoiceContext(admin, organization, acquiringIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
-                    const [invoice] = await createTestInvoice(admin, invoiceContext, {
+                    await updateTestAcquiringIntegrationContext(admin, acquiringContext.id, { invoiceStatus: CONTEXT_FINISHED_STATUS })
+
+                    const [invoice] = await createTestInvoice(admin, organization, {
                         status: INVOICE_STATUS_PUBLISHED,
                         client: { connect: { id: client.user.id } },
                     })

@@ -3,7 +3,6 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
-export * as InvoiceContext from './InvoiceContext'
 export * as MarketCategory from './MarketCategory'
 export * as MarketItem from './MarketItem'
 export * as Invoice from './Invoice'

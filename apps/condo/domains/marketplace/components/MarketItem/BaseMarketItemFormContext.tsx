@@ -1,14 +1,13 @@
-import { InvoiceContext } from '@app/condo/schema'
 import { FormInstance } from 'antd'
-import React, { createContext, useContext } from 'react'
+import { createContext, useContext } from 'react'
 
+import { DEFAULT_INVOICE_CURRENCY_CODE } from '@condo/domains/marketplace/constants'
 import { MarketItemFormValuesType, PriceFormValuesType } from '@condo/domains/marketplace/utils/clientSchema/MarketItem'
-
 
 export type BaseMarketItemFormContextType = {
     form: FormInstance
     getUpdatedPricesField: (priceFormName: number, newFields: PriceFormValuesType) => Pick<MarketItemFormValuesType, 'prices'>
-    invoiceContext: InvoiceContext
+    currencyCode: string
     marketItemId?: string
     initialValues?: MarketItemFormValuesType
 }
@@ -16,7 +15,7 @@ export type BaseMarketItemFormContextType = {
 export const BaseMarketItemFormContext = createContext<BaseMarketItemFormContextType>({
     form: null,
     getUpdatedPricesField: null,
-    invoiceContext: null,
+    currencyCode: DEFAULT_INVOICE_CURRENCY_CODE,
     marketItemId: null,
     initialValues: null,
 })

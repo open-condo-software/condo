@@ -11,6 +11,7 @@ const {
     INVOICE_STATUS_PUBLISHED,
     INVOICE_STATUS_PAID,
     INVOICE_STATUS_DRAFT,
+    INVOICE_STATUS_CANCELED,
 } = require('@condo/domains/marketplace/constants')
 const {
     queryOrganizationEmployeeFor,
@@ -30,7 +31,7 @@ async function canReadInvoices ({ authentication: { item: user }, context }) {
             deletedAt: null,
             client: { id: user.id },
             OR: [
-                { status_in: [INVOICE_STATUS_PUBLISHED, INVOICE_STATUS_PAID] },
+                { status_in: [INVOICE_STATUS_PUBLISHED, INVOICE_STATUS_PAID, INVOICE_STATUS_CANCELED] },
                 {
                     AND: [
                         { status: INVOICE_STATUS_DRAFT },
@@ -42,14 +43,12 @@ async function canReadInvoices ({ authentication: { item: user }, context }) {
     }
 
     return {
-        context: {
-            organization: {
-                OR: [
-                    queryOrganizationEmployeeFor(user.id, 'canReadInvoices'),
-                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadInvoices'),
-                ],
-                deletedAt: null,
-            },
+        organization: {
+            OR: [
+                queryOrganizationEmployeeFor(user.id, 'canReadInvoices'),
+                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadInvoices'),
+            ],
+            deletedAt: null,
         },
         deletedAt: null,
     }
@@ -61,18 +60,15 @@ async function canManageInvoices ({ authentication: { item: user }, originalInpu
     if (user.isAdmin || user.isSupport) return true
     if (user.type === RESIDENT) return false
 
-    let contextId
+    let organizationId
 
     if (operation === 'create') {
-        contextId = get(originalInput, ['context', 'connect', 'id'])
+        organizationId = get(originalInput, ['organization', 'connect', 'id'])
     } else if (operation === 'update') {
         if (!itemId) return false
         const item = await getById('Invoice', itemId)
-        contextId = get(item, 'context')
+        organizationId = get(item, 'organization')
     }
-
-    const context = await getById('InvoiceContext', contextId)
-    const organizationId = get(context, 'organization')
 
     if (!organizationId) return false
 

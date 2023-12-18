@@ -5,13 +5,14 @@
 const { faker } = require('@faker-js/faker')
 const Ajv = require('ajv')
 
-const { getById } = require('@open-condo/keystone/schema')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, expectValuesOfCommonFields, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { createTestAcquiringIntegration, createTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
 const { PRICE_FIELD_SCHEMA } = require('@condo/domains/marketplace/schema/fields/price')
 const {
     MarketItemPrice,
@@ -37,7 +38,7 @@ const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSc
 
 const ajv = new Ajv()
 const validatePriceField = ajv.compile(PRICE_FIELD_SCHEMA)
-const validPriceFieldValue = [{ type: 'variant', group: 'group', name: 'name', price: '300', isMin: false, vatPercent: '20', salesTaxPercent: '0', currencyCode: 'RUB' }]
+const validPriceFieldValue = [{ type: 'variant', name: 'name', price: '300', isMin: false, vatPercent: '20', salesTaxPercent: '0', currencyCode: 'RUB' }]
 
 describe('MarketItemPrice', () => {
     let admin, organization, marketCategory
@@ -45,6 +46,8 @@ describe('MarketItemPrice', () => {
         admin = await makeLoggedInAdminClient();
         [organization] = await createTestOrganization(admin);
         [marketCategory] = await createTestMarketCategory(admin)
+        const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
+        await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration, { invoiceStatus: CONTEXT_FINISHED_STATUS })
     })
 
     describe('Accesses', () => {

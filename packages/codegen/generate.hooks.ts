@@ -23,7 +23,7 @@ type IUseObjectsQueryReturnType<GQLObject> = {
 type IUseCountQueryReturnType = {
     meta?: { count?: number }
 }
-type IRefetchType<GQLObject, QueryVariables> = (variables?: Partial<QueryVariables>) => Promise<ApolloQueryResult<IUseObjectsQueryReturnType<GQLObject>>>
+export type IRefetchType<GQLObject, QueryVariables> = (variables?: Partial<QueryVariables>) => Promise<ApolloQueryResult<IUseObjectsQueryReturnType<GQLObject>>>
 type IFetchMoreType<GQLObject, QueryVariables> = (<K extends keyof QueryVariables>(fetchMoreOptions: FetchMoreQueryOptions<QueryVariables, K, IUseObjectsQueryReturnType<GQLObject>> & FetchMoreOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>) => Promise<ApolloQueryResult<IUseObjectsQueryReturnType<GQLObject>>>) & (<TData2, TVariables2, K extends keyof TVariables2>(fetchMoreOptions: {
     query?: DocumentNode | TypedDocumentNode<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>;
 } & FetchMoreQueryOptions<TVariables2, K, QueryVariables> & FetchMoreOptions<TData2, TVariables2>) => Promise<ApolloQueryResult<TData2>>)

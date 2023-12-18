@@ -3143,8 +3143,6 @@ type UserRightsSetHistoryRecord {
   canManageB2CAppBuilds: Boolean
   canReadB2CAppProperties: Boolean
   canManageB2CAppProperties: Boolean
-  canReadInvoiceContexts: Boolean
-  canManageInvoiceContexts: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
   canReadTickets: Boolean
@@ -3232,10 +3230,6 @@ input UserRightsSetHistoryRecordWhereInput {
   canReadB2CAppProperties_not: Boolean
   canManageB2CAppProperties: Boolean
   canManageB2CAppProperties_not: Boolean
-  canReadInvoiceContexts: Boolean
-  canReadInvoiceContexts_not: Boolean
-  canManageInvoiceContexts: Boolean
-  canManageInvoiceContexts_not: Boolean
   canReadOrganizations: Boolean
   canReadOrganizations_not: Boolean
   canManageOrganizations: Boolean
@@ -3379,10 +3373,6 @@ enum SortUserRightsSetHistoryRecordsBy {
   canReadB2CAppProperties_DESC
   canManageB2CAppProperties_ASC
   canManageB2CAppProperties_DESC
-  canReadInvoiceContexts_ASC
-  canReadInvoiceContexts_DESC
-  canManageInvoiceContexts_ASC
-  canManageInvoiceContexts_DESC
   canReadOrganizations_ASC
   canReadOrganizations_DESC
   canManageOrganizations_ASC
@@ -3439,8 +3429,6 @@ input UserRightsSetHistoryRecordUpdateInput {
   canManageB2CAppBuilds: Boolean
   canReadB2CAppProperties: Boolean
   canManageB2CAppProperties: Boolean
-  canReadInvoiceContexts: Boolean
-  canManageInvoiceContexts: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
   canReadTickets: Boolean
@@ -3491,8 +3479,6 @@ input UserRightsSetHistoryRecordCreateInput {
   canManageB2CAppBuilds: Boolean
   canReadB2CAppProperties: Boolean
   canManageB2CAppProperties: Boolean
-  canReadInvoiceContexts: Boolean
-  canManageInvoiceContexts: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
   canReadTickets: Boolean
@@ -3622,14 +3608,6 @@ type UserRightsSet {
   """
   canManageB2CAppProperties: Boolean
 
-  """ Enables a user with the given UserRightsSet to view all entities of model "InvoiceContext" as support / admin users do 
-  """
-  canReadInvoiceContexts: Boolean
-
-  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "InvoiceContext" similar to support users 
-  """
-  canManageInvoiceContexts: Boolean
-
   """ Enables a user with the given UserRightsSet to view all entities of model "Organization" as support / admin users do 
   """
   canReadOrganizations: Boolean
@@ -3745,10 +3723,6 @@ input UserRightsSetWhereInput {
   canReadB2CAppProperties_not: Boolean
   canManageB2CAppProperties: Boolean
   canManageB2CAppProperties_not: Boolean
-  canReadInvoiceContexts: Boolean
-  canReadInvoiceContexts_not: Boolean
-  canManageInvoiceContexts: Boolean
-  canManageInvoiceContexts_not: Boolean
   canReadOrganizations: Boolean
   canReadOrganizations_not: Boolean
   canManageOrganizations: Boolean
@@ -3872,10 +3846,6 @@ enum SortUserRightsSetsBy {
   canReadB2CAppProperties_DESC
   canManageB2CAppProperties_ASC
   canManageB2CAppProperties_DESC
-  canReadInvoiceContexts_ASC
-  canReadInvoiceContexts_DESC
-  canManageInvoiceContexts_ASC
-  canManageInvoiceContexts_DESC
   canReadOrganizations_ASC
   canReadOrganizations_DESC
   canManageOrganizations_ASC
@@ -3932,8 +3902,6 @@ input UserRightsSetUpdateInput {
   canManageB2CAppBuilds: Boolean
   canReadB2CAppProperties: Boolean
   canManageB2CAppProperties: Boolean
-  canReadInvoiceContexts: Boolean
-  canManageInvoiceContexts: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
   canReadTickets: Boolean
@@ -3981,8 +3949,6 @@ input UserRightsSetCreateInput {
   canManageB2CAppBuilds: Boolean
   canReadB2CAppProperties: Boolean
   canManageB2CAppProperties: Boolean
-  canReadInvoiceContexts: Boolean
-  canManageInvoiceContexts: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
   canReadTickets: Boolean
@@ -5586,8 +5552,6 @@ type OrganizationEmployeeRoleHistoryRecord {
   canManageMobileFeatureConfigs: Boolean
   canManageB2BApps: Boolean
   canReadAnalytics: Boolean
-  canReadInvoiceContexts: Boolean
-  canManageInvoiceContexts: Boolean
   canReadInvoices: Boolean
   canManageInvoices: Boolean
   canReadMarketItems: Boolean
@@ -5761,10 +5725,6 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canManageB2BApps_not: Boolean
   canReadAnalytics: Boolean
   canReadAnalytics_not: Boolean
-  canReadInvoiceContexts: Boolean
-  canReadInvoiceContexts_not: Boolean
-  canManageInvoiceContexts: Boolean
-  canManageInvoiceContexts_not: Boolean
   canReadInvoices: Boolean
   canReadInvoices_not: Boolean
   canManageInvoices: Boolean
@@ -5950,10 +5910,6 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canManageB2BApps_DESC
   canReadAnalytics_ASC
   canReadAnalytics_DESC
-  canReadInvoiceContexts_ASC
-  canReadInvoiceContexts_DESC
-  canManageInvoiceContexts_ASC
-  canManageInvoiceContexts_DESC
   canReadInvoices_ASC
   canReadInvoices_DESC
   canManageInvoices_ASC
@@ -6043,8 +5999,6 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   canManageMobileFeatureConfigs: Boolean
   canManageB2BApps: Boolean
   canReadAnalytics: Boolean
-  canReadInvoiceContexts: Boolean
-  canManageInvoiceContexts: Boolean
   canReadInvoices: Boolean
   canManageInvoices: Boolean
   canReadMarketItems: Boolean
@@ -6122,8 +6076,6 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   canManageMobileFeatureConfigs: Boolean
   canManageB2BApps: Boolean
   canReadAnalytics: Boolean
-  canReadInvoiceContexts: Boolean
-  canManageInvoiceContexts: Boolean
   canReadInvoices: Boolean
   canManageInvoices: Boolean
   canReadMarketItems: Boolean
@@ -6230,8 +6182,6 @@ type OrganizationEmployeeRole {
   canManageMobileFeatureConfigs: Boolean
   canManageB2BApps: Boolean
   canReadAnalytics: Boolean
-  canReadInvoiceContexts: Boolean
-  canManageInvoiceContexts: Boolean
   canReadInvoices: Boolean
   canManageInvoices: Boolean
   canReadMarketItems: Boolean
@@ -6393,10 +6343,6 @@ input OrganizationEmployeeRoleWhereInput {
   canManageB2BApps_not: Boolean
   canReadAnalytics: Boolean
   canReadAnalytics_not: Boolean
-  canReadInvoiceContexts: Boolean
-  canReadInvoiceContexts_not: Boolean
-  canManageInvoiceContexts: Boolean
-  canManageInvoiceContexts_not: Boolean
   canReadInvoices: Boolean
   canReadInvoices_not: Boolean
   canManageInvoices: Boolean
@@ -6564,10 +6510,6 @@ enum SortOrganizationEmployeeRolesBy {
   canManageB2BApps_DESC
   canReadAnalytics_ASC
   canReadAnalytics_DESC
-  canReadInvoiceContexts_ASC
-  canReadInvoiceContexts_DESC
-  canManageInvoiceContexts_ASC
-  canManageInvoiceContexts_DESC
   canReadInvoices_ASC
   canReadInvoices_DESC
   canManageInvoices_ASC
@@ -6656,8 +6598,6 @@ input OrganizationEmployeeRoleUpdateInput {
   canManageMobileFeatureConfigs: Boolean
   canManageB2BApps: Boolean
   canReadAnalytics: Boolean
-  canReadInvoiceContexts: Boolean
-  canManageInvoiceContexts: Boolean
   canReadInvoices: Boolean
   canManageInvoices: Boolean
   canReadMarketItems: Boolean
@@ -6731,8 +6671,6 @@ input OrganizationEmployeeRoleCreateInput {
   canManageMobileFeatureConfigs: Boolean
   canManageB2BApps: Boolean
   canReadAnalytics: Boolean
-  canReadInvoiceContexts: Boolean
-  canManageInvoiceContexts: Boolean
   canReadInvoices: Boolean
   canManageInvoices: Boolean
   canReadMarketItems: Boolean
@@ -49464,6 +49402,7 @@ type AcquiringIntegrationHistoryRecord {
   supportedBillingIntegrationsGroup: String
   explicitFeeDistributionSchema: JSON
   contextDefaultStatus: String
+  vatPercentOptions: String
   id: ID!
   v: Int
   createdAt: String
@@ -49580,6 +49519,24 @@ input AcquiringIntegrationHistoryRecordWhereInput {
   contextDefaultStatus_not_ends_with_i: String
   contextDefaultStatus_in: [String]
   contextDefaultStatus_not_in: [String]
+  vatPercentOptions: String
+  vatPercentOptions_not: String
+  vatPercentOptions_contains: String
+  vatPercentOptions_not_contains: String
+  vatPercentOptions_starts_with: String
+  vatPercentOptions_not_starts_with: String
+  vatPercentOptions_ends_with: String
+  vatPercentOptions_not_ends_with: String
+  vatPercentOptions_i: String
+  vatPercentOptions_not_i: String
+  vatPercentOptions_contains_i: String
+  vatPercentOptions_not_contains_i: String
+  vatPercentOptions_starts_with_i: String
+  vatPercentOptions_not_starts_with_i: String
+  vatPercentOptions_ends_with_i: String
+  vatPercentOptions_not_ends_with_i: String
+  vatPercentOptions_in: [String]
+  vatPercentOptions_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -49677,6 +49634,8 @@ enum SortAcquiringIntegrationHistoryRecordsBy {
   supportedBillingIntegrationsGroup_DESC
   contextDefaultStatus_ASC
   contextDefaultStatus_DESC
+  vatPercentOptions_ASC
+  vatPercentOptions_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -49704,6 +49663,7 @@ input AcquiringIntegrationHistoryRecordUpdateInput {
   supportedBillingIntegrationsGroup: String
   explicitFeeDistributionSchema: JSON
   contextDefaultStatus: String
+  vatPercentOptions: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -49732,6 +49692,7 @@ input AcquiringIntegrationHistoryRecordCreateInput {
   supportedBillingIntegrationsGroup: String
   explicitFeeDistributionSchema: JSON
   contextDefaultStatus: String
+  vatPercentOptions: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -49815,6 +49776,9 @@ type AcquiringIntegration {
   """ Status, which context will have by default after creation if no overwriting option provided 
   """
   contextDefaultStatus: String
+
+  """ Comma separated values of VAT. Set by system administrators. """
+  vatPercentOptions: String
   id: ID!
   v: Int
   createdAt: String
@@ -49934,6 +49898,24 @@ input AcquiringIntegrationWhereInput {
   contextDefaultStatus_not: String
   contextDefaultStatus_in: [String]
   contextDefaultStatus_not_in: [String]
+  vatPercentOptions: String
+  vatPercentOptions_not: String
+  vatPercentOptions_contains: String
+  vatPercentOptions_not_contains: String
+  vatPercentOptions_starts_with: String
+  vatPercentOptions_not_starts_with: String
+  vatPercentOptions_ends_with: String
+  vatPercentOptions_not_ends_with: String
+  vatPercentOptions_i: String
+  vatPercentOptions_not_i: String
+  vatPercentOptions_contains_i: String
+  vatPercentOptions_not_contains_i: String
+  vatPercentOptions_starts_with_i: String
+  vatPercentOptions_not_starts_with_i: String
+  vatPercentOptions_ends_with_i: String
+  vatPercentOptions_not_ends_with_i: String
+  vatPercentOptions_in: [String]
+  vatPercentOptions_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -50013,6 +49995,8 @@ enum SortAcquiringIntegrationsBy {
   supportedBillingIntegrationsGroup_DESC
   contextDefaultStatus_ASC
   contextDefaultStatus_DESC
+  vatPercentOptions_ASC
+  vatPercentOptions_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -50041,6 +50025,7 @@ input AcquiringIntegrationUpdateInput {
   supportedBillingIntegrationsGroup: String
   explicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   contextDefaultStatus: String
+  vatPercentOptions: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -50067,6 +50052,7 @@ input AcquiringIntegrationCreateInput {
   supportedBillingIntegrationsGroup: String
   explicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   contextDefaultStatus: String
+  vatPercentOptions: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -50467,10 +50453,18 @@ type AcquiringIntegrationContextHistoryRecord {
   settings: JSON
   state: JSON
   reason: String
+  invoiceReason: String
   email: String
+  invoiceEmails: String
   recipient: JSON
+  invoiceRecipient: JSON
   implicitFeeDistributionSchema: JSON
+  invoiceImplicitFeeDistributionSchema: JSON
   status: String
+  invoiceStatus: String
+  invoiceTaxRegime: String
+  invoiceVatPercent: String
+  invoiceSalesTaxPercent: String
   id: ID!
   v: Int
   createdAt: String
@@ -50523,6 +50517,24 @@ input AcquiringIntegrationContextHistoryRecordWhereInput {
   reason_not_ends_with_i: String
   reason_in: [String]
   reason_not_in: [String]
+  invoiceReason: String
+  invoiceReason_not: String
+  invoiceReason_contains: String
+  invoiceReason_not_contains: String
+  invoiceReason_starts_with: String
+  invoiceReason_not_starts_with: String
+  invoiceReason_ends_with: String
+  invoiceReason_not_ends_with: String
+  invoiceReason_i: String
+  invoiceReason_not_i: String
+  invoiceReason_contains_i: String
+  invoiceReason_not_contains_i: String
+  invoiceReason_starts_with_i: String
+  invoiceReason_not_starts_with_i: String
+  invoiceReason_ends_with_i: String
+  invoiceReason_not_ends_with_i: String
+  invoiceReason_in: [String]
+  invoiceReason_not_in: [String]
   email: String
   email_not: String
   email_contains: String
@@ -50541,14 +50553,40 @@ input AcquiringIntegrationContextHistoryRecordWhereInput {
   email_not_ends_with_i: String
   email_in: [String]
   email_not_in: [String]
+  invoiceEmails: String
+  invoiceEmails_not: String
+  invoiceEmails_contains: String
+  invoiceEmails_not_contains: String
+  invoiceEmails_starts_with: String
+  invoiceEmails_not_starts_with: String
+  invoiceEmails_ends_with: String
+  invoiceEmails_not_ends_with: String
+  invoiceEmails_i: String
+  invoiceEmails_not_i: String
+  invoiceEmails_contains_i: String
+  invoiceEmails_not_contains_i: String
+  invoiceEmails_starts_with_i: String
+  invoiceEmails_not_starts_with_i: String
+  invoiceEmails_ends_with_i: String
+  invoiceEmails_not_ends_with_i: String
+  invoiceEmails_in: [String]
+  invoiceEmails_not_in: [String]
   recipient: JSON
   recipient_not: JSON
   recipient_in: [JSON]
   recipient_not_in: [JSON]
+  invoiceRecipient: JSON
+  invoiceRecipient_not: JSON
+  invoiceRecipient_in: [JSON]
+  invoiceRecipient_not_in: [JSON]
   implicitFeeDistributionSchema: JSON
   implicitFeeDistributionSchema_not: JSON
   implicitFeeDistributionSchema_in: [JSON]
   implicitFeeDistributionSchema_not_in: [JSON]
+  invoiceImplicitFeeDistributionSchema: JSON
+  invoiceImplicitFeeDistributionSchema_not: JSON
+  invoiceImplicitFeeDistributionSchema_in: [JSON]
+  invoiceImplicitFeeDistributionSchema_not_in: [JSON]
   status: String
   status_not: String
   status_contains: String
@@ -50567,6 +50605,58 @@ input AcquiringIntegrationContextHistoryRecordWhereInput {
   status_not_ends_with_i: String
   status_in: [String]
   status_not_in: [String]
+  invoiceStatus: String
+  invoiceStatus_not: String
+  invoiceStatus_contains: String
+  invoiceStatus_not_contains: String
+  invoiceStatus_starts_with: String
+  invoiceStatus_not_starts_with: String
+  invoiceStatus_ends_with: String
+  invoiceStatus_not_ends_with: String
+  invoiceStatus_i: String
+  invoiceStatus_not_i: String
+  invoiceStatus_contains_i: String
+  invoiceStatus_not_contains_i: String
+  invoiceStatus_starts_with_i: String
+  invoiceStatus_not_starts_with_i: String
+  invoiceStatus_ends_with_i: String
+  invoiceStatus_not_ends_with_i: String
+  invoiceStatus_in: [String]
+  invoiceStatus_not_in: [String]
+  invoiceTaxRegime: String
+  invoiceTaxRegime_not: String
+  invoiceTaxRegime_contains: String
+  invoiceTaxRegime_not_contains: String
+  invoiceTaxRegime_starts_with: String
+  invoiceTaxRegime_not_starts_with: String
+  invoiceTaxRegime_ends_with: String
+  invoiceTaxRegime_not_ends_with: String
+  invoiceTaxRegime_i: String
+  invoiceTaxRegime_not_i: String
+  invoiceTaxRegime_contains_i: String
+  invoiceTaxRegime_not_contains_i: String
+  invoiceTaxRegime_starts_with_i: String
+  invoiceTaxRegime_not_starts_with_i: String
+  invoiceTaxRegime_ends_with_i: String
+  invoiceTaxRegime_not_ends_with_i: String
+  invoiceTaxRegime_in: [String]
+  invoiceTaxRegime_not_in: [String]
+  invoiceVatPercent: String
+  invoiceVatPercent_not: String
+  invoiceVatPercent_lt: String
+  invoiceVatPercent_lte: String
+  invoiceVatPercent_gt: String
+  invoiceVatPercent_gte: String
+  invoiceVatPercent_in: [String]
+  invoiceVatPercent_not_in: [String]
+  invoiceSalesTaxPercent: String
+  invoiceSalesTaxPercent_not: String
+  invoiceSalesTaxPercent_lt: String
+  invoiceSalesTaxPercent_lte: String
+  invoiceSalesTaxPercent_gt: String
+  invoiceSalesTaxPercent_gte: String
+  invoiceSalesTaxPercent_in: [String]
+  invoiceSalesTaxPercent_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -50652,10 +50742,22 @@ input AcquiringIntegrationContextHistoryRecordWhereUniqueInput {
 enum SortAcquiringIntegrationContextHistoryRecordsBy {
   reason_ASC
   reason_DESC
+  invoiceReason_ASC
+  invoiceReason_DESC
   email_ASC
   email_DESC
+  invoiceEmails_ASC
+  invoiceEmails_DESC
   status_ASC
   status_DESC
+  invoiceStatus_ASC
+  invoiceStatus_DESC
+  invoiceTaxRegime_ASC
+  invoiceTaxRegime_DESC
+  invoiceVatPercent_ASC
+  invoiceVatPercent_DESC
+  invoiceSalesTaxPercent_ASC
+  invoiceSalesTaxPercent_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -50680,10 +50782,18 @@ input AcquiringIntegrationContextHistoryRecordUpdateInput {
   settings: JSON
   state: JSON
   reason: String
+  invoiceReason: String
   email: String
+  invoiceEmails: String
   recipient: JSON
+  invoiceRecipient: JSON
   implicitFeeDistributionSchema: JSON
+  invoiceImplicitFeeDistributionSchema: JSON
   status: String
+  invoiceStatus: String
+  invoiceTaxRegime: String
+  invoiceVatPercent: String
+  invoiceSalesTaxPercent: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -50709,10 +50819,18 @@ input AcquiringIntegrationContextHistoryRecordCreateInput {
   settings: JSON
   state: JSON
   reason: String
+  invoiceReason: String
   email: String
+  invoiceEmails: String
   recipient: JSON
+  invoiceRecipient: JSON
   implicitFeeDistributionSchema: JSON
+  invoiceImplicitFeeDistributionSchema: JSON
   status: String
+  invoiceStatus: String
+  invoiceTaxRegime: String
+  invoiceVatPercent: String
+  invoiceSalesTaxPercent: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -50782,20 +50900,48 @@ type AcquiringIntegrationContext {
   """ Contract number and date. Basis for invoicing """
   reason: String
 
+  """ Contract number and date. Basis for invoicing """
+  invoiceReason: String
+
   """ Acquiring payments report will be sent to this email """
   email: String
+
+  """ Email addresses separated by `,` or `;` Acquiring payments report will be sent to this emails 
+  """
+  invoiceEmails: String
 
   """ Requisites from agreement. Are used for invoicing in case of not confirmed billing recipient in receipt 
   """
   recipient: RecipientField
 
+  """ Requisites from agreement. Are used for invoicing of invoices. """
+  invoiceRecipient: RecipientField
+
   """ Contains information about the default distribution of implicit fee. Each part is paid by the recipient organization on deducted from payment amount. If part exists then explicit part with the same name from AcquiringIntegration.explicitFeeDistributionSchema is ignored 
   """
   implicitFeeDistributionSchema: [FeeDistributionField!]
 
+  """ Contains information about the default distribution of implicit fee. Each part is paid by the recipient organization on deducted from payment amount. If part exists then explicit part with the same name from AcquiringIntegration.explicitFeeDistributionSchema is ignored 
+  """
+  invoiceImplicitFeeDistributionSchema: [FeeDistributionField!]
+
   """ Status of AcquiringIntegration connection, Can be one of the following: ["InProgress", "Error", "Finished"]. If not specified explicitly on creation, uses default value from related AcquiringIntegration model 
   """
   status: String
+
+  """ Status of AcquiringIntegration connection, Can be one of the following: ["InProgress", "Error", "Finished"]. If not specified explicitly on creation, uses default value from related AcquiringIntegration model 
+  """
+  invoiceStatus: String
+
+  """ The regime of counting taxes for company """
+  invoiceTaxRegime: String
+
+  """ The percentage of VAT. Depends of integrations settings (see AcquiringIntegration.vatPercentOptions) 
+  """
+  invoiceVatPercent: String
+
+  """ The percent value """
+  invoiceSalesTaxPercent: String
   id: ID!
   v: Int
   createdAt: String
@@ -50852,6 +50998,24 @@ input AcquiringIntegrationContextWhereInput {
   reason_not_ends_with_i: String
   reason_in: [String]
   reason_not_in: [String]
+  invoiceReason: String
+  invoiceReason_not: String
+  invoiceReason_contains: String
+  invoiceReason_not_contains: String
+  invoiceReason_starts_with: String
+  invoiceReason_not_starts_with: String
+  invoiceReason_ends_with: String
+  invoiceReason_not_ends_with: String
+  invoiceReason_i: String
+  invoiceReason_not_i: String
+  invoiceReason_contains_i: String
+  invoiceReason_not_contains_i: String
+  invoiceReason_starts_with_i: String
+  invoiceReason_not_starts_with_i: String
+  invoiceReason_ends_with_i: String
+  invoiceReason_not_ends_with_i: String
+  invoiceReason_in: [String]
+  invoiceReason_not_in: [String]
   email: String
   email_not: String
   email_contains: String
@@ -50870,18 +51034,68 @@ input AcquiringIntegrationContextWhereInput {
   email_not_ends_with_i: String
   email_in: [String]
   email_not_in: [String]
+  invoiceEmails: String
+  invoiceEmails_not: String
+  invoiceEmails_contains: String
+  invoiceEmails_not_contains: String
+  invoiceEmails_starts_with: String
+  invoiceEmails_not_starts_with: String
+  invoiceEmails_ends_with: String
+  invoiceEmails_not_ends_with: String
+  invoiceEmails_i: String
+  invoiceEmails_not_i: String
+  invoiceEmails_contains_i: String
+  invoiceEmails_not_contains_i: String
+  invoiceEmails_starts_with_i: String
+  invoiceEmails_not_starts_with_i: String
+  invoiceEmails_ends_with_i: String
+  invoiceEmails_not_ends_with_i: String
+  invoiceEmails_in: [String]
+  invoiceEmails_not_in: [String]
   recipient: RecipientFieldInput
   recipient_not: RecipientFieldInput
   recipient_in: [RecipientFieldInput]
   recipient_not_in: [RecipientFieldInput]
+  invoiceRecipient: RecipientFieldInput
+  invoiceRecipient_not: RecipientFieldInput
+  invoiceRecipient_in: [RecipientFieldInput]
+  invoiceRecipient_not_in: [RecipientFieldInput]
   implicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   implicitFeeDistributionSchema_not: [FeeDistributionFieldInput!]
   implicitFeeDistributionSchema_in: [[FeeDistributionFieldInput!]]
   implicitFeeDistributionSchema_not_in: [[FeeDistributionFieldInput!]]
+  invoiceImplicitFeeDistributionSchema: [FeeDistributionFieldInput!]
+  invoiceImplicitFeeDistributionSchema_not: [FeeDistributionFieldInput!]
+  invoiceImplicitFeeDistributionSchema_in: [[FeeDistributionFieldInput!]]
+  invoiceImplicitFeeDistributionSchema_not_in: [[FeeDistributionFieldInput!]]
   status: String
   status_not: String
   status_in: [String]
   status_not_in: [String]
+  invoiceStatus: String
+  invoiceStatus_not: String
+  invoiceStatus_in: [String]
+  invoiceStatus_not_in: [String]
+  invoiceTaxRegime: String
+  invoiceTaxRegime_not: String
+  invoiceTaxRegime_in: [String]
+  invoiceTaxRegime_not_in: [String]
+  invoiceVatPercent: String
+  invoiceVatPercent_not: String
+  invoiceVatPercent_lt: String
+  invoiceVatPercent_lte: String
+  invoiceVatPercent_gt: String
+  invoiceVatPercent_gte: String
+  invoiceVatPercent_in: [String]
+  invoiceVatPercent_not_in: [String]
+  invoiceSalesTaxPercent: String
+  invoiceSalesTaxPercent_not: String
+  invoiceSalesTaxPercent_lt: String
+  invoiceSalesTaxPercent_lte: String
+  invoiceSalesTaxPercent_gt: String
+  invoiceSalesTaxPercent_gte: String
+  invoiceSalesTaxPercent_in: [String]
+  invoiceSalesTaxPercent_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -50951,10 +51165,22 @@ enum SortAcquiringIntegrationContextsBy {
   organization_DESC
   reason_ASC
   reason_DESC
+  invoiceReason_ASC
+  invoiceReason_DESC
   email_ASC
   email_DESC
+  invoiceEmails_ASC
+  invoiceEmails_DESC
   status_ASC
   status_DESC
+  invoiceStatus_ASC
+  invoiceStatus_DESC
+  invoiceTaxRegime_ASC
+  invoiceTaxRegime_DESC
+  invoiceVatPercent_ASC
+  invoiceVatPercent_DESC
+  invoiceSalesTaxPercent_ASC
+  invoiceSalesTaxPercent_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -50979,10 +51205,18 @@ input AcquiringIntegrationContextUpdateInput {
   settings: JSON
   state: JSON
   reason: String
+  invoiceReason: String
   email: String
+  invoiceEmails: String
   recipient: RecipientFieldInput
+  invoiceRecipient: RecipientFieldInput
   implicitFeeDistributionSchema: [FeeDistributionFieldInput!]
+  invoiceImplicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   status: String
+  invoiceStatus: String
+  invoiceTaxRegime: String
+  invoiceVatPercent: String
+  invoiceSalesTaxPercent: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -51005,10 +51239,18 @@ input AcquiringIntegrationContextCreateInput {
   settings: JSON
   state: JSON
   reason: String
+  invoiceReason: String
   email: String
+  invoiceEmails: String
   recipient: RecipientFieldInput
+  invoiceRecipient: RecipientFieldInput
   implicitFeeDistributionSchema: [FeeDistributionFieldInput!]
+  invoiceImplicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   status: String
+  invoiceStatus: String
+  invoiceTaxRegime: String
+  invoiceVatPercent: String
+  invoiceSalesTaxPercent: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -66403,587 +66645,6 @@ input MobileFeatureConfigsCreateInput {
   data: MobileFeatureConfigCreateInput
 }
 
-enum InvoiceContextHistoryRecordHistoryActionType {
-  c
-  u
-  d
-}
-
-""" A keystone list """
-type InvoiceContextHistoryRecord {
-  """
-  This virtual field will be resolved in one of the following ways (in this order):
-   1. Execution of 'labelResolver' set on the InvoiceContextHistoryRecord List config, or
-   2. As an alias to the field set on 'labelField' in the InvoiceContextHistoryRecord List config, or
-   3. As an alias to a 'name' field on the InvoiceContextHistoryRecord List (if one exists), or
-   4. As an alias to the 'id' field on the InvoiceContextHistoryRecord List.
-  """
-  _label_: String
-  integration: String
-  organization: String
-  recipient: JSON
-  settings: JSON
-  status: String
-  implicitFeePercent: String
-  taxRegime: String
-  vatPercent: String
-  salesTaxPercent: String
-  currencyCode: String
-  id: ID!
-  v: Int
-  createdAt: String
-  updatedAt: String
-  createdBy: String
-  updatedBy: String
-  deletedAt: String
-  newId: JSON
-  dv: Int
-  sender: JSON
-  history_date: String
-  history_action: InvoiceContextHistoryRecordHistoryActionType
-  history_id: String
-}
-
-input InvoiceContextHistoryRecordWhereInput {
-  AND: [InvoiceContextHistoryRecordWhereInput]
-  OR: [InvoiceContextHistoryRecordWhereInput]
-  integration: String
-  integration_not: String
-  integration_in: [String]
-  integration_not_in: [String]
-  organization: String
-  organization_not: String
-  organization_in: [String]
-  organization_not_in: [String]
-  recipient: JSON
-  recipient_not: JSON
-  recipient_in: [JSON]
-  recipient_not_in: [JSON]
-  settings: JSON
-  settings_not: JSON
-  settings_in: [JSON]
-  settings_not_in: [JSON]
-  status: String
-  status_not: String
-  status_contains: String
-  status_not_contains: String
-  status_starts_with: String
-  status_not_starts_with: String
-  status_ends_with: String
-  status_not_ends_with: String
-  status_i: String
-  status_not_i: String
-  status_contains_i: String
-  status_not_contains_i: String
-  status_starts_with_i: String
-  status_not_starts_with_i: String
-  status_ends_with_i: String
-  status_not_ends_with_i: String
-  status_in: [String]
-  status_not_in: [String]
-  implicitFeePercent: String
-  implicitFeePercent_not: String
-  implicitFeePercent_lt: String
-  implicitFeePercent_lte: String
-  implicitFeePercent_gt: String
-  implicitFeePercent_gte: String
-  implicitFeePercent_in: [String]
-  implicitFeePercent_not_in: [String]
-  taxRegime: String
-  taxRegime_not: String
-  taxRegime_contains: String
-  taxRegime_not_contains: String
-  taxRegime_starts_with: String
-  taxRegime_not_starts_with: String
-  taxRegime_ends_with: String
-  taxRegime_not_ends_with: String
-  taxRegime_i: String
-  taxRegime_not_i: String
-  taxRegime_contains_i: String
-  taxRegime_not_contains_i: String
-  taxRegime_starts_with_i: String
-  taxRegime_not_starts_with_i: String
-  taxRegime_ends_with_i: String
-  taxRegime_not_ends_with_i: String
-  taxRegime_in: [String]
-  taxRegime_not_in: [String]
-  vatPercent: String
-  vatPercent_not: String
-  vatPercent_contains: String
-  vatPercent_not_contains: String
-  vatPercent_starts_with: String
-  vatPercent_not_starts_with: String
-  vatPercent_ends_with: String
-  vatPercent_not_ends_with: String
-  vatPercent_i: String
-  vatPercent_not_i: String
-  vatPercent_contains_i: String
-  vatPercent_not_contains_i: String
-  vatPercent_starts_with_i: String
-  vatPercent_not_starts_with_i: String
-  vatPercent_ends_with_i: String
-  vatPercent_not_ends_with_i: String
-  vatPercent_in: [String]
-  vatPercent_not_in: [String]
-  salesTaxPercent: String
-  salesTaxPercent_not: String
-  salesTaxPercent_lt: String
-  salesTaxPercent_lte: String
-  salesTaxPercent_gt: String
-  salesTaxPercent_gte: String
-  salesTaxPercent_in: [String]
-  salesTaxPercent_not_in: [String]
-  currencyCode: String
-  currencyCode_not: String
-  currencyCode_contains: String
-  currencyCode_not_contains: String
-  currencyCode_starts_with: String
-  currencyCode_not_starts_with: String
-  currencyCode_ends_with: String
-  currencyCode_not_ends_with: String
-  currencyCode_i: String
-  currencyCode_not_i: String
-  currencyCode_contains_i: String
-  currencyCode_not_contains_i: String
-  currencyCode_starts_with_i: String
-  currencyCode_not_starts_with_i: String
-  currencyCode_ends_with_i: String
-  currencyCode_not_ends_with_i: String
-  currencyCode_in: [String]
-  currencyCode_not_in: [String]
-  id: ID
-  id_not: ID
-  id_in: [ID]
-  id_not_in: [ID]
-  v: Int
-  v_not: Int
-  v_lt: Int
-  v_lte: Int
-  v_gt: Int
-  v_gte: Int
-  v_in: [Int]
-  v_not_in: [Int]
-  createdAt: String
-  createdAt_not: String
-  createdAt_lt: String
-  createdAt_lte: String
-  createdAt_gt: String
-  createdAt_gte: String
-  createdAt_in: [String]
-  createdAt_not_in: [String]
-  updatedAt: String
-  updatedAt_not: String
-  updatedAt_lt: String
-  updatedAt_lte: String
-  updatedAt_gt: String
-  updatedAt_gte: String
-  updatedAt_in: [String]
-  updatedAt_not_in: [String]
-  createdBy: String
-  createdBy_not: String
-  createdBy_in: [String]
-  createdBy_not_in: [String]
-  updatedBy: String
-  updatedBy_not: String
-  updatedBy_in: [String]
-  updatedBy_not_in: [String]
-  deletedAt: String
-  deletedAt_not: String
-  deletedAt_lt: String
-  deletedAt_lte: String
-  deletedAt_gt: String
-  deletedAt_gte: String
-  deletedAt_in: [String]
-  deletedAt_not_in: [String]
-  newId: JSON
-  newId_not: JSON
-  newId_in: [JSON]
-  newId_not_in: [JSON]
-  dv: Int
-  dv_not: Int
-  dv_lt: Int
-  dv_lte: Int
-  dv_gt: Int
-  dv_gte: Int
-  dv_in: [Int]
-  dv_not_in: [Int]
-  sender: JSON
-  sender_not: JSON
-  sender_in: [JSON]
-  sender_not_in: [JSON]
-  history_date: String
-  history_date_not: String
-  history_date_lt: String
-  history_date_lte: String
-  history_date_gt: String
-  history_date_gte: String
-  history_date_in: [String]
-  history_date_not_in: [String]
-  history_action: InvoiceContextHistoryRecordHistoryActionType
-  history_action_not: InvoiceContextHistoryRecordHistoryActionType
-  history_action_in: [InvoiceContextHistoryRecordHistoryActionType]
-  history_action_not_in: [InvoiceContextHistoryRecordHistoryActionType]
-  history_id: String
-  history_id_not: String
-  history_id_in: [String]
-  history_id_not_in: [String]
-}
-
-input InvoiceContextHistoryRecordWhereUniqueInput {
-  id: ID!
-}
-
-enum SortInvoiceContextHistoryRecordsBy {
-  status_ASC
-  status_DESC
-  implicitFeePercent_ASC
-  implicitFeePercent_DESC
-  taxRegime_ASC
-  taxRegime_DESC
-  vatPercent_ASC
-  vatPercent_DESC
-  salesTaxPercent_ASC
-  salesTaxPercent_DESC
-  currencyCode_ASC
-  currencyCode_DESC
-  id_ASC
-  id_DESC
-  v_ASC
-  v_DESC
-  createdAt_ASC
-  createdAt_DESC
-  updatedAt_ASC
-  updatedAt_DESC
-  deletedAt_ASC
-  deletedAt_DESC
-  dv_ASC
-  dv_DESC
-  history_date_ASC
-  history_date_DESC
-  history_action_ASC
-  history_action_DESC
-}
-
-input InvoiceContextHistoryRecordUpdateInput {
-  integration: String
-  organization: String
-  recipient: JSON
-  settings: JSON
-  status: String
-  implicitFeePercent: String
-  taxRegime: String
-  vatPercent: String
-  salesTaxPercent: String
-  currencyCode: String
-  v: Int
-  createdAt: String
-  updatedAt: String
-  createdBy: String
-  updatedBy: String
-  deletedAt: String
-  newId: JSON
-  dv: Int
-  sender: JSON
-  history_date: String
-  history_action: InvoiceContextHistoryRecordHistoryActionType
-  history_id: String
-}
-
-input InvoiceContextHistoryRecordsUpdateInput {
-  id: ID!
-  data: InvoiceContextHistoryRecordUpdateInput
-}
-
-input InvoiceContextHistoryRecordCreateInput {
-  integration: String
-  organization: String
-  recipient: JSON
-  settings: JSON
-  status: String
-  implicitFeePercent: String
-  taxRegime: String
-  vatPercent: String
-  salesTaxPercent: String
-  currencyCode: String
-  v: Int
-  createdAt: String
-  updatedAt: String
-  createdBy: String
-  updatedBy: String
-  deletedAt: String
-  newId: JSON
-  dv: Int
-  sender: JSON
-  history_date: String
-  history_action: InvoiceContextHistoryRecordHistoryActionType
-  history_id: String
-}
-
-input InvoiceContextHistoryRecordsCreateInput {
-  data: InvoiceContextHistoryRecordCreateInput
-}
-
-""" Model contains the settings for processing invoices for organization """
-type InvoiceContext {
-  """
-  This virtual field will be resolved in one of the following ways (in this order):
-   1. Execution of 'labelResolver' set on the InvoiceContext List config, or
-   2. As an alias to the field set on 'labelField' in the InvoiceContext List config, or
-   3. As an alias to a 'name' field on the InvoiceContext List (if one exists), or
-   4. As an alias to the 'id' field on the InvoiceContext List.
-  """
-  _label_: String
-
-  """ Acquiring integration. Determines way of user's payment """
-  integration: AcquiringIntegration
-
-  """ The organization who created this context """
-  organization: Organization
-
-  """ Recipient. Should contain all meta information to identify the organization 
-  """
-  recipient: RecipientField
-
-  """ Settings required the context to work """
-  settings: JSON
-
-  """ The current status of the context """
-  status: String
-
-  """ How much money do we charge from companies. The percent. """
-  implicitFeePercent: String
-
-  """ The regime of counting taxes for company """
-  taxRegime: String
-
-  """ The percentage of VAT """
-  vatPercent: String
-
-  """ The percent value """
-  salesTaxPercent: String
-
-  """ Code of currency in ISO-4217 format """
-  currencyCode: String
-  id: ID!
-  v: Int
-  createdAt: String
-  updatedAt: String
-
-  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
-  """
-  createdBy: User
-
-  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
-  """
-  updatedBy: User
-  deletedAt: String
-  newId: String
-
-  """ Data structure Version """
-  dv: Int
-
-  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
-  """
-  sender: SenderField
-}
-
-input InvoiceContextWhereInput {
-  AND: [InvoiceContextWhereInput]
-  OR: [InvoiceContextWhereInput]
-  integration: AcquiringIntegrationWhereInput
-  integration_is_null: Boolean
-  organization: OrganizationWhereInput
-  organization_is_null: Boolean
-  recipient: RecipientFieldInput
-  recipient_not: RecipientFieldInput
-  recipient_in: [RecipientFieldInput]
-  recipient_not_in: [RecipientFieldInput]
-  settings: JSON
-  settings_not: JSON
-  settings_in: [JSON]
-  settings_not_in: [JSON]
-  status: String
-  status_not: String
-  status_in: [String]
-  status_not_in: [String]
-  implicitFeePercent: String
-  implicitFeePercent_not: String
-  implicitFeePercent_lt: String
-  implicitFeePercent_lte: String
-  implicitFeePercent_gt: String
-  implicitFeePercent_gte: String
-  implicitFeePercent_in: [String]
-  implicitFeePercent_not_in: [String]
-  taxRegime: String
-  taxRegime_not: String
-  taxRegime_in: [String]
-  taxRegime_not_in: [String]
-  vatPercent: String
-  vatPercent_not: String
-  vatPercent_in: [String]
-  vatPercent_not_in: [String]
-  salesTaxPercent: String
-  salesTaxPercent_not: String
-  salesTaxPercent_lt: String
-  salesTaxPercent_lte: String
-  salesTaxPercent_gt: String
-  salesTaxPercent_gte: String
-  salesTaxPercent_in: [String]
-  salesTaxPercent_not_in: [String]
-  currencyCode: String
-  currencyCode_not: String
-  currencyCode_in: [String]
-  currencyCode_not_in: [String]
-  id: ID
-  id_not: ID
-  id_in: [ID]
-  id_not_in: [ID]
-  v: Int
-  v_not: Int
-  v_lt: Int
-  v_lte: Int
-  v_gt: Int
-  v_gte: Int
-  v_in: [Int]
-  v_not_in: [Int]
-  createdAt: String
-  createdAt_not: String
-  createdAt_lt: String
-  createdAt_lte: String
-  createdAt_gt: String
-  createdAt_gte: String
-  createdAt_in: [String]
-  createdAt_not_in: [String]
-  updatedAt: String
-  updatedAt_not: String
-  updatedAt_lt: String
-  updatedAt_lte: String
-  updatedAt_gt: String
-  updatedAt_gte: String
-  updatedAt_in: [String]
-  updatedAt_not_in: [String]
-  createdBy: UserWhereInput
-  createdBy_is_null: Boolean
-  updatedBy: UserWhereInput
-  updatedBy_is_null: Boolean
-  deletedAt: String
-  deletedAt_not: String
-  deletedAt_lt: String
-  deletedAt_lte: String
-  deletedAt_gt: String
-  deletedAt_gte: String
-  deletedAt_in: [String]
-  deletedAt_not_in: [String]
-  newId: String
-  newId_not: String
-  newId_in: [String]
-  newId_not_in: [String]
-  dv: Int
-  dv_not: Int
-  dv_lt: Int
-  dv_lte: Int
-  dv_gt: Int
-  dv_gte: Int
-  dv_in: [Int]
-  dv_not_in: [Int]
-  sender: SenderFieldInput
-  sender_not: SenderFieldInput
-  sender_in: [SenderFieldInput]
-  sender_not_in: [SenderFieldInput]
-}
-
-input InvoiceContextWhereUniqueInput {
-  id: ID!
-}
-
-enum SortInvoiceContextsBy {
-  integration_ASC
-  integration_DESC
-  organization_ASC
-  organization_DESC
-  status_ASC
-  status_DESC
-  implicitFeePercent_ASC
-  implicitFeePercent_DESC
-  taxRegime_ASC
-  taxRegime_DESC
-  vatPercent_ASC
-  vatPercent_DESC
-  salesTaxPercent_ASC
-  salesTaxPercent_DESC
-  currencyCode_ASC
-  currencyCode_DESC
-  id_ASC
-  id_DESC
-  v_ASC
-  v_DESC
-  createdAt_ASC
-  createdAt_DESC
-  updatedAt_ASC
-  updatedAt_DESC
-  createdBy_ASC
-  createdBy_DESC
-  updatedBy_ASC
-  updatedBy_DESC
-  deletedAt_ASC
-  deletedAt_DESC
-  dv_ASC
-  dv_DESC
-}
-
-input InvoiceContextUpdateInput {
-  integration: AcquiringIntegrationRelateToOneInput
-  organization: OrganizationRelateToOneInput
-  recipient: RecipientFieldInput
-  settings: JSON
-  status: String
-  implicitFeePercent: String
-  taxRegime: String
-  vatPercent: String
-  salesTaxPercent: String
-  currencyCode: String
-  v: Int
-  createdAt: String
-  updatedAt: String
-  createdBy: UserRelateToOneInput
-  updatedBy: UserRelateToOneInput
-  deletedAt: String
-  newId: String
-  dv: Int
-  sender: SenderFieldInput
-}
-
-input InvoiceContextsUpdateInput {
-  id: ID!
-  data: InvoiceContextUpdateInput
-}
-
-input InvoiceContextCreateInput {
-  integration: AcquiringIntegrationRelateToOneInput
-  organization: OrganizationRelateToOneInput
-  recipient: RecipientFieldInput
-  settings: JSON
-  status: String
-  implicitFeePercent: String
-  taxRegime: String
-  vatPercent: String
-  salesTaxPercent: String
-  currencyCode: String
-  v: Int
-  createdAt: String
-  updatedAt: String
-  createdBy: UserRelateToOneInput
-  updatedBy: UserRelateToOneInput
-  deletedAt: String
-  newId: String
-  dv: Int
-  sender: SenderFieldInput
-}
-
-input InvoiceContextsCreateInput {
-  data: InvoiceContextCreateInput
-}
-
 enum MarketCategoryHistoryRecordHistoryActionType {
   c
   u
@@ -67967,7 +67628,7 @@ type InvoiceHistoryRecord {
    4. As an alias to the 'id' field on the InvoiceHistoryRecord List.
   """
   _label_: String
-  context: String
+  organization: String
   number: JSON
   property: String
   unitType: String
@@ -67985,6 +67646,7 @@ type InvoiceHistoryRecord {
   publishedAt: String
   paidAt: String
   canceledAt: String
+  recipient: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -68003,10 +67665,10 @@ type InvoiceHistoryRecord {
 input InvoiceHistoryRecordWhereInput {
   AND: [InvoiceHistoryRecordWhereInput]
   OR: [InvoiceHistoryRecordWhereInput]
-  context: String
-  context_not: String
-  context_in: [String]
-  context_not_in: [String]
+  organization: String
+  organization_not: String
+  organization_in: [String]
+  organization_not_in: [String]
   number: JSON
   number_not: JSON
   number_in: [JSON]
@@ -68189,6 +67851,10 @@ input InvoiceHistoryRecordWhereInput {
   canceledAt_gte: String
   canceledAt_in: [String]
   canceledAt_not_in: [String]
+  recipient: JSON
+  recipient_not: JSON
+  recipient_in: [JSON]
+  recipient_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -68313,7 +67979,7 @@ enum SortInvoiceHistoryRecordsBy {
 }
 
 input InvoiceHistoryRecordUpdateInput {
-  context: String
+  organization: String
   number: JSON
   property: String
   unitType: String
@@ -68331,6 +67997,7 @@ input InvoiceHistoryRecordUpdateInput {
   publishedAt: String
   paidAt: String
   canceledAt: String
+  recipient: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -68351,7 +68018,7 @@ input InvoiceHistoryRecordsUpdateInput {
 }
 
 input InvoiceHistoryRecordCreateInput {
-  context: String
+  organization: String
   number: JSON
   property: String
   unitType: String
@@ -68369,6 +68036,7 @@ input InvoiceHistoryRecordCreateInput {
   publishedAt: String
   paidAt: String
   canceledAt: String
+  recipient: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -68387,18 +68055,11 @@ input InvoiceHistoryRecordsCreateInput {
   data: InvoiceHistoryRecordCreateInput
 }
 
-input InvoiceContextRelateToOneInput {
-  create: InvoiceContextCreateInput
-  connect: InvoiceContextWhereUniqueInput
-  disconnect: InvoiceContextWhereUniqueInput
-  disconnectAll: Boolean
-}
-
 type InvoiceRowSchemaField {
   name: String!
   toPay: String!
   count: Int!
-  currencyCode: String!
+  currencyCode: String
   vatPercent: String
   salesTaxPercent: String
   sku: String
@@ -68409,7 +68070,7 @@ input InvoiceRowSchemaFieldInput {
   name: String!
   toPay: String!
   count: Int!
-  currencyCode: String!
+  currencyCode: String
   vatPercent: String
   salesTaxPercent: String
   sku: String
@@ -68427,8 +68088,9 @@ type Invoice {
   """
   _label_: String
 
-  """ The invoice context the invoice was created for """
-  context: InvoiceContext
+  """ Ref to the organization. The object will be deleted if the organization ceases to exist 
+  """
+  organization: Organization
 
   """ The invoice number within organization """
   number: Int
@@ -68484,6 +68146,9 @@ type Invoice {
 
   """ When status of the invoice was changed to canceled """
   canceledAt: String
+
+  """ The recipient's requisites """
+  recipient: RecipientField
   id: ID!
   v: Int
   createdAt: String
@@ -68510,8 +68175,8 @@ type Invoice {
 input InvoiceWhereInput {
   AND: [InvoiceWhereInput]
   OR: [InvoiceWhereInput]
-  context: InvoiceContextWhereInput
-  context_is_null: Boolean
+  organization: OrganizationWhereInput
+  organization_is_null: Boolean
   number: Int
   number_not: Int
   number_lt: Int
@@ -68711,8 +68376,8 @@ input InvoiceWhereUniqueInput {
 }
 
 enum SortInvoicesBy {
-  context_ASC
-  context_DESC
+  organization_ASC
+  organization_DESC
   number_ASC
   number_DESC
   property_ASC
@@ -68764,7 +68429,7 @@ enum SortInvoicesBy {
 }
 
 input InvoiceUpdateInput {
-  context: InvoiceContextRelateToOneInput
+  organization: OrganizationRelateToOneInput
   number: Int
   property: PropertyRelateToOneInput
   unitType: String
@@ -68799,7 +68464,7 @@ input InvoicesUpdateInput {
 }
 
 input InvoiceCreateInput {
-  context: InvoiceContextRelateToOneInput
+  organization: OrganizationRelateToOneInput
   number: Int
   property: PropertyRelateToOneInput
   unitType: String
@@ -69385,24 +69050,22 @@ input MarketItemPriceHistoryRecordsCreateInput {
 
 type MarketItemPricePriceSchemaField {
   type: String!
-  group: String!
   name: String!
   price: String!
   isMin: Boolean!
   vatPercent: String
   salesTaxPercent: String
-  currencyCode: String!
+  currencyCode: String
 }
 
 input MarketItemPricePriceSchemaFieldInput {
   type: String!
-  group: String!
   name: String!
   price: String!
   isMin: Boolean!
   vatPercent: String
   salesTaxPercent: String
-  currencyCode: String!
+  currencyCode: String
 }
 
 """ MarketItemPrice is set separately from MarketItem and indicates the price of the service. 
@@ -75819,34 +75482,6 @@ type Query {
   """ Retrieve the meta-data for the MobileFeatureConfig list. """
   _MobileFeatureConfigsMeta: _ListMeta
 
-  """ Search for all InvoiceContextHistoryRecord items which match the where clause. 
-  """
-  allInvoiceContextHistoryRecords(where: InvoiceContextHistoryRecordWhereInput, search: String, sortBy: [SortInvoiceContextHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [InvoiceContextHistoryRecord]
-
-  """ Search for the InvoiceContextHistoryRecord item with the matching ID. 
-  """
-  InvoiceContextHistoryRecord(where: InvoiceContextHistoryRecordWhereUniqueInput!): InvoiceContextHistoryRecord
-
-  """ Perform a meta-query on all InvoiceContextHistoryRecord items which match the where clause. 
-  """
-  _allInvoiceContextHistoryRecordsMeta(where: InvoiceContextHistoryRecordWhereInput, search: String, sortBy: [SortInvoiceContextHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
-
-  """ Retrieve the meta-data for the InvoiceContextHistoryRecord list. """
-  _InvoiceContextHistoryRecordsMeta: _ListMeta
-
-  """ Search for all InvoiceContext items which match the where clause. """
-  allInvoiceContexts(where: InvoiceContextWhereInput, search: String, sortBy: [SortInvoiceContextsBy!], orderBy: String, first: Int, skip: Int): [InvoiceContext]
-
-  """ Search for the InvoiceContext item with the matching ID. """
-  InvoiceContext(where: InvoiceContextWhereUniqueInput!): InvoiceContext
-
-  """ Perform a meta-query on all InvoiceContext items which match the where clause. 
-  """
-  _allInvoiceContextsMeta(where: InvoiceContextWhereInput, search: String, sortBy: [SortInvoiceContextsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
-
-  """ Retrieve the meta-data for the InvoiceContext list. """
-  _InvoiceContextsMeta: _ListMeta
-
   """ Search for all MarketCategoryHistoryRecord items which match the where clause. 
   """
   allMarketCategoryHistoryRecords(where: MarketCategoryHistoryRecordWhereInput, search: String, sortBy: [SortMarketCategoryHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [MarketCategoryHistoryRecord]
@@ -80434,42 +80069,6 @@ type Mutation {
 
   """ Delete multiple MobileFeatureConfig items by ID. """
   deleteMobileFeatureConfigs(ids: [ID!]): [MobileFeatureConfig]
-
-  """ Create a single InvoiceContextHistoryRecord item. """
-  createInvoiceContextHistoryRecord(data: InvoiceContextHistoryRecordCreateInput): InvoiceContextHistoryRecord
-
-  """ Create multiple InvoiceContextHistoryRecord items. """
-  createInvoiceContextHistoryRecords(data: [InvoiceContextHistoryRecordsCreateInput]): [InvoiceContextHistoryRecord]
-
-  """ Update a single InvoiceContextHistoryRecord item by ID. """
-  updateInvoiceContextHistoryRecord(id: ID!, data: InvoiceContextHistoryRecordUpdateInput): InvoiceContextHistoryRecord
-
-  """ Update multiple InvoiceContextHistoryRecord items by ID. """
-  updateInvoiceContextHistoryRecords(data: [InvoiceContextHistoryRecordsUpdateInput]): [InvoiceContextHistoryRecord]
-
-  """ Delete a single InvoiceContextHistoryRecord item by ID. """
-  deleteInvoiceContextHistoryRecord(id: ID!): InvoiceContextHistoryRecord
-
-  """ Delete multiple InvoiceContextHistoryRecord items by ID. """
-  deleteInvoiceContextHistoryRecords(ids: [ID!]): [InvoiceContextHistoryRecord]
-
-  """ Create a single InvoiceContext item. """
-  createInvoiceContext(data: InvoiceContextCreateInput): InvoiceContext
-
-  """ Create multiple InvoiceContext items. """
-  createInvoiceContexts(data: [InvoiceContextsCreateInput]): [InvoiceContext]
-
-  """ Update a single InvoiceContext item by ID. """
-  updateInvoiceContext(id: ID!, data: InvoiceContextUpdateInput): InvoiceContext
-
-  """ Update multiple InvoiceContext items by ID. """
-  updateInvoiceContexts(data: [InvoiceContextsUpdateInput]): [InvoiceContext]
-
-  """ Delete a single InvoiceContext item by ID. """
-  deleteInvoiceContext(id: ID!): InvoiceContext
-
-  """ Delete multiple InvoiceContext items by ID. """
-  deleteInvoiceContexts(ids: [ID!]): [InvoiceContext]
 
   """ Create a single MarketCategoryHistoryRecord item. """
   createMarketCategoryHistoryRecord(data: MarketCategoryHistoryRecordCreateInput): MarketCategoryHistoryRecord

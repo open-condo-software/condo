@@ -5,7 +5,6 @@
 
 const { GetInvoicesWithSkuInfoService } = require('./GetInvoicesWithSkuInfoService')
 const { Invoice } = require('./Invoice')
-const { InvoiceContext } = require('./InvoiceContext')
 const { MarketCategory } = require('./MarketCategory')
 const { MarketItem } = require('./MarketItem')
 const { MarketItemFile } = require('./MarketItemFile')
@@ -15,7 +14,6 @@ const { RegisterInvoiceService } = require('./RegisterInvoiceService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
-    InvoiceContext,
     MarketCategory,
     MarketItem,
     Invoice,

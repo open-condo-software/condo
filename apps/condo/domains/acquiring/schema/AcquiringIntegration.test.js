@@ -184,4 +184,16 @@ describe('AcquiringIntegration', () => {
             })
         })
     })
+    describe('Resolving tests', () => {
+        test('vatPercentOptions is comma separated string of numbers', async () => {
+            const [integration] = await createTestAcquiringIntegration(admin, { vatPercentOptions: '0,10,13.3,20' })
+            expect(integration.vatPercentOptions).toBe('0,10,13.3,20')
+
+            const [updatedIntegration1] = await updateTestAcquiringIntegration(admin, integration.id, { vatPercentOptions: '.,hello,0,,50,oops,.7,..|,' })
+            expect(updatedIntegration1.vatPercentOptions).toBe('0,50,0.7')
+
+            const [updatedIntegration2] = await updateTestAcquiringIntegration(admin, integration.id)
+            expect(updatedIntegration2.vatPercentOptions).toBe('0,50,0.7')
+        })
+    })
 })

@@ -1,19 +1,23 @@
 const Ajv = require('ajv')
+const { get, has, map } = require('lodash')
 
+const { getByCondition, getById } = require('@open-condo/keystone/schema')
+
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { render, getGQLErrorValidator } = require('@condo/domains/common/schema/json.utils')
-const { ERROR_INVALID_PRICE, VAT_OPTIONS } = require('@condo/domains/marketplace/constants')
+const { ERROR_INVALID_PRICE } = require('@condo/domains/marketplace/constants')
+const { DEFAULT_INVOICE_CURRENCY_CODE } = require('@condo/domains/marketplace/constants')
 const PRICE_GQL_TYPE_NAME = 'MarketItemPricePriceSchemaField'
 const PRICE_GQL_INPUT_NAME = 'MarketItemPricePriceSchemaFieldInput'
 
 const priceSchemaFields = {
     type: 'String!',
-    group: 'String!',
     name: 'String!',
     price: 'String!',
     isMin: 'Boolean!',
     vatPercent: 'String',
     salesTaxPercent: 'String',
-    currencyCode: 'String!',
+    currencyCode: 'String',
 }
 
 const priceGqlSchemaTypes = `
@@ -31,14 +35,11 @@ const PRICE_FIELD_SCHEMA = {
     items: {
         type: 'object',
         additionalProperties: false,
-        required: ['type', 'group', 'name', 'price', 'isMin', 'currencyCode'],
+        required: ['type', 'name', 'price', 'isMin'],
         properties: {
             type: {
                 type: 'string',
                 enum: ['variant', 'extra'],
-            },
-            group: {
-                type: 'string',
             },
             name: {
                 type: 'string',
@@ -52,7 +53,6 @@ const PRICE_FIELD_SCHEMA = {
             },
             vatPercent: {
                 type: 'string',
-                enum: VAT_OPTIONS.map(opt => opt.toString()),
             },
             salesTaxPercent: {
                 type: 'string',
@@ -75,6 +75,25 @@ const PRICE_FIELD = {
     type: 'Json',
     isRequired: true,
     hooks: {
+        resolveInput: async ({ operation, resolvedData, fieldPath, existingItem }) => {
+            if (!has(resolvedData, fieldPath)) {
+                return
+            }
+
+            const marketItem = await getById('MarketItem', get(operation === 'create' ? resolvedData : existingItem, 'marketItem'))
+            /** @type {AcquiringIntegrationContext} */
+            const acquiringContext = await getByCondition('AcquiringIntegrationContext', {
+                organization: { id: marketItem.organization },
+                deletedAt: null,
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+            })
+            return map(get(resolvedData, fieldPath), (row) => ({
+                currencyCode: DEFAULT_INVOICE_CURRENCY_CODE,
+                vatPercent: get(acquiringContext, 'invoiceVatPercent') || '',
+                salesTaxPercent: get(acquiringContext, 'invoiceSalesTaxPercent', '') || '',
+                ...row,
+            }))
+        },
         validateInput: validatePriceField,
     },
     extendGraphQLTypes: priceGqlSchemaTypes,

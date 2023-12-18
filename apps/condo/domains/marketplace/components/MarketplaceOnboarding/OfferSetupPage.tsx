@@ -2,13 +2,9 @@ import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect } from 'react'
 
-import { useOrganization } from '@open-condo/next/organization'
-import { Typography } from '@open-condo/ui'
-
-import { Loader } from '@condo/domains/common/components/Loader'
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
-import { INVOICE_CONTEXT_STATUS_INPROGRESS, MARKETPLACE_SETUP_URL_PATH } from '@condo/domains/marketplace/constants'
-import { InvoiceContext } from '@condo/domains/marketplace/utils/clientSchema'
+import { useAcquiringContext } from '@condo/domains/marketplace/components/MarketplacePageContent/ContextProvider'
+import { MARKETPLACE_SETUP_URL_PATH } from '@condo/domains/marketplace/constants'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 
 type SetupAcquiringProps = {
@@ -17,36 +13,23 @@ type SetupAcquiringProps = {
 
 export const OfferSetupPage: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
     const router = useRouter()
-    const { organization } = useOrganization()
-    const orgId = get(organization, 'id', null)
 
-    const {
-        obj: invoiceContext,
-        loading: invoiceContextLoading,
-        error: invoiceContextError,
-    } = InvoiceContext.useObject({
-        where: {
-            status: INVOICE_CONTEXT_STATUS_INPROGRESS,
-            organization: { id: orgId },
-        },
-    })
+    const { acquiringContext } = useAcquiringContext()
 
-    const invoiceContextId = get(invoiceContext, 'id', null)
-    const acquiringIntegrationHostUrl = get(invoiceContext, ['integration', 'hostUrl'])
+    const acquiringContextId = get(acquiringContext, 'id', null)
+    const acquiringIntegrationHostUrl = get(acquiringContext, ['integration', 'hostUrl'])
 
     useEffect(() => {
-        if (!invoiceContextLoading && !invoiceContextError) {
-            if (
-                !invoiceContextId
-                || !get(invoiceContext, ['recipient', 'bankAccount'])
-                || !get(invoiceContext, ['recipient', 'bic'])
-                || !get(invoiceContext, ['recipient', 'tin'])
-                || !get(invoiceContext, 'taxRegime')
-            ) {
-                router.replace({ query: { step: 0 } })
-            }
+        if (
+            !acquiringContextId
+            || !get(acquiringContext, ['invoiceRecipient', 'bankAccount'])
+            || !get(acquiringContext, ['invoiceRecipient', 'bic'])
+            || !get(acquiringContext, ['invoiceRecipient', 'tin'])
+            || !get(acquiringContext, 'invoiceTaxRegime')
+        ) {
+            router.replace({ query: { step: 0 } })
         }
-    }, [invoiceContextError, invoiceContextLoading, invoiceContextId, router, invoiceContext])
+    }, [acquiringContextId, router, acquiringContext])
 
     const setupUrl = `${acquiringIntegrationHostUrl}${MARKETPLACE_SETUP_URL_PATH}`
     const setupOrigin = extractOrigin(setupUrl)
@@ -65,15 +48,7 @@ export const OfferSetupPage: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
         }
     }, [handleDoneMessage])
 
-    if (invoiceContextError) {
-        return <Typography.Title>{invoiceContextError}</Typography.Title>
-    }
-
-    if (invoiceContextLoading) {
-        return <Loader fill size='large'/>
-    }
-
-    if (!invoiceContext) {
+    if (!acquiringContext) {
         return null
     }
 

@@ -10,7 +10,6 @@ const { pick } = require('lodash')
 const {
     makeClient,
     makeLoggedInAdminClient,
-    setFeatureFlag,
     UUID_RE,
 } = require('@open-condo/keystone/test.utils')
 const {
@@ -21,6 +20,7 @@ const {
 } = require('@open-condo/keystone/test.utils')
 const { expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const {
     PAYMENT_NO_PAIRED_FROZEN_RECEIPT,
     PAYMENT_NO_PAIRED_RECEIPT,
@@ -60,14 +60,12 @@ const {
     createTestBillingIntegration,
 } = require('@condo/domains/billing/utils/testSchema')
 const { createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
-const { PAYMENT_LINK } = require('@condo/domains/common/constants/featureflags')
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const {
     INVOICE_STATUS_PUBLISHED,
-    INVOICE_CONTEXT_STATUS_FINISHED,
     INVOICE_STATUS_PAID,
 } = require('@condo/domains/marketplace/constants')
-const { Invoice, createTestInvoiceContext, createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
+const { Invoice, createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
 const {
     createTestOrganization,
     createTestOrganizationEmployee,
@@ -296,27 +294,56 @@ describe('Payment', () => {
                 })
             })
             describe('user', () => {
-                test('acquiring integration can', async () => {
-                    const {
-                        admin,
-                        billingReceipts,
-                        acquiringContext,
-                        organization,
-                        acquiringIntegration,
-                    } = await makePayer()
-                    const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
-                    const integrationClient = await makeClientWithServiceUser()
-                    await createTestAcquiringIntegrationAccessRight(admin, acquiringIntegration, integrationClient.user)
+                describe('acquiring integration can', () => {
+                    test('payment with receipt', async () => {
+                        const {
+                            admin,
+                            billingReceipts,
+                            acquiringContext,
+                            organization,
+                            acquiringIntegration,
+                        } = await makePayer()
+                        const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
+                        const integrationClient = await makeClientWithServiceUser()
+                        await createTestAcquiringIntegrationAccessRight(admin, acquiringIntegration, integrationClient.user)
 
-                    const payload = {
-                        status: PAYMENT_ERROR_STATUS,
-                    }
+                        const payload = {
+                            status: PAYMENT_ERROR_STATUS,
+                        }
 
-                    const [updatedPayment] = await updateTestPayment(integrationClient, payment.id, payload)
+                        const [updatedPayment] = await updateTestPayment(integrationClient, payment.id, payload)
 
-                    expect(updatedPayment).toBeDefined()
-                    expect(updatedPayment).toEqual(expect.objectContaining(payload))
+                        expect(updatedPayment).toBeDefined()
+                        expect(updatedPayment).toEqual(expect.objectContaining(payload))
+                    })
+
+                    test('payment with invoice', async () => {
+                        const { admin, property, organization, acquiringIntegration, acquiringContext } = await makePayer()
+                        await updateTestAcquiringIntegrationContext(admin, acquiringContext.id, { invoiceStatus: CONTEXT_FINISHED_STATUS })
+
+                        const unitType = FLAT_UNIT_TYPE
+                        const unitName = faker.lorem.word()
+
+                        const [invoice] = await createTestInvoice(admin, organization, {
+                            property: { connect: { id: property.id } },
+                            unitType,
+                            unitName,
+                            status: INVOICE_STATUS_PUBLISHED,
+                        })
+
+                        const [payment] = await createTestPayment(admin, organization, null, acquiringContext, { invoice })
+                        const integrationClient = await makeClientWithServiceUser()
+                        await createTestAcquiringIntegrationAccessRight(admin, acquiringIntegration, integrationClient.user)
+
+                        const payload = { status: PAYMENT_ERROR_STATUS }
+
+                        const [updatedPayment] = await updateTestPayment(integrationClient, payment.id, payload)
+
+                        expect(updatedPayment).toBeDefined()
+                        expect(updatedPayment).toEqual(expect.objectContaining(payload))
+                    })
                 })
+
                 test('in other cases can\'t', async () => {
                     const { admin, billingReceipts, acquiringContext, organization, client } = await makePayer()
                     const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
@@ -463,13 +490,13 @@ describe('Payment', () => {
             })
 
             test('Invoice and frozen invoice should be updated at the same time', async () => {
-                const { admin, organization } = await makePayer()
-                const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
-                const [invoiceContext] = await createTestInvoiceContext(admin, organization, acquiringIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
-                const [invoice] = await createTestInvoice(admin, invoiceContext)
+                const { admin, organization, acquiringContext } = await makePayer()
+                await updateTestAcquiringIntegrationContext(admin, acquiringContext.id, { invoiceStatus: CONTEXT_FINISHED_STATUS })
+
+                const [invoice] = await createTestInvoice(admin, organization)
 
                 await expectToThrowGQLError(async () => {
-                    await createTestPayment(admin, organization, null, null, {
+                    await createTestPayment(admin, organization, null, acquiringContext, {
                         invoice,
                         frozenInvoice: null,
                     })
@@ -732,8 +759,18 @@ describe('Payment', () => {
                 canGroupReceipts: true,
             })
 
-            const [o10n] = await createTestOrganization(adminClient)
-            const [property] = await createTestProperty(adminClient, o10n)
+            const [organization] = await createTestOrganization(adminClient)
+
+            await createTestAcquiringIntegrationContext(adminClient, organization, acquiringIntegration, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceImplicitFeeDistributionSchema: [{
+                    recipient: 'organization',
+                    percent: '5',
+                }],
+                invoiceRecipient: createTestRecipient(),
+            })
+
+            const [property] = await createTestProperty(adminClient, organization)
 
             const residentClient = await makeClientWithResidentUser()
             const unitType = FLAT_UNIT_TYPE
@@ -749,25 +786,19 @@ describe('Payment', () => {
                 })
 
             const staffClient = await makeClientWithStaffUser()
-            const [role] = await createTestOrganizationEmployeeRole(adminClient, o10n, {
+            const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
                 canManageInvoices: true,
                 canManageContacts: true,
-                canReadInvoiceContexts: true,
             })
-            await createTestOrganizationEmployee(adminClient, o10n, staffClient.user, role)
+            await createTestOrganizationEmployee(adminClient, organization, staffClient.user, role)
 
-            const [contact] = await createTestContact(staffClient, o10n, property, {
+            const [contact] = await createTestContact(staffClient, organization, property, {
                 phone: residentClient.userAttrs.phone,
                 unitType,
                 unitName,
             })
 
-            const [invoiceContext] = await createTestInvoiceContext(adminClient, o10n, acquiringIntegration, {
-                status: INVOICE_CONTEXT_STATUS_FINISHED,
-                implicitFeePercent: '5',
-                recipient: createTestRecipient(),
-            })
-            const [invoice] = await createTestInvoice(staffClient, invoiceContext, {
+            const [invoice] = await createTestInvoice(staffClient, organization, {
                 property: { connect: { id: property.id } },
                 unitType,
                 unitName,

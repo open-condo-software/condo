@@ -18,6 +18,7 @@ const {
     catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
 
+const { CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/acquiring/constants/context')
 const {
     FEE_CALCULATION_PATH,
     WEB_VIEW_PATH,
@@ -61,17 +62,15 @@ const {
     createTestBillingAccount,
     createTestBillingReceipt,
 } = require('@condo/domains/billing/utils/testSchema')
-const { ISO_CODES } = require('@condo/domains/common/constants/currencies')
+const { DEFAULT_CURRENCY_CODE } = require('@condo/domains/common/constants/currencies')
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const {
-    INVOICE_CONTEXT_STATUS_FINISHED, INVOICE_STATUS_DRAFT, INVOICE_STATUS_PUBLISHED,
-    INVOICE_CONTEXT_STATUS_INPROGRESS, INVOICE_STATUS_PAID, VAT_OPTIONS,
+    INVOICE_STATUS_DRAFT, INVOICE_STATUS_PUBLISHED, INVOICE_STATUS_PAID,
 } = require('@condo/domains/marketplace/constants')
 const {
-    createTestInvoiceContext,
     createTestInvoice,
     updateTestInvoice,
-    updateTestInvoiceContext, generateInvoiceRow,
+    generateInvoiceRow,
 } = require('@condo/domains/marketplace/utils/testSchema')
 const { Invoice } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
@@ -341,8 +340,8 @@ describe('RegisterMultiPaymentService', () => {
 
             test('Should contain unique invoices', async () => {
                 const [o10n] = await createTestOrganization(adminClient)
-                const [invoiceContext] = await createTestInvoiceContext(adminClient, o10n, dummyAcquiringIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
-                const [invoice] = await createTestInvoice(adminClient, invoiceContext)
+                await createTestAcquiringIntegrationContext(adminClient, o10n, dummyAcquiringIntegration, { invoiceStatus: CONTEXT_FINISHED_STATUS })
+                const [invoice] = await createTestInvoice(adminClient, o10n)
 
                 await expectToThrowGQLError(async () => {
                     await registerMultiPaymentByTestClient(adminClient, null, {
@@ -677,8 +676,8 @@ describe('RegisterMultiPaymentService', () => {
         describe('Invoices check', () => {
             test('Should not be able to pay for invoices not in "status" status', async () => {
                 const [o10n] = await createTestOrganization(adminClient)
-                const [invoiceContext] = await createTestInvoiceContext(adminClient, o10n, dummyAcquiringIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
-                const [invoice] = await createTestInvoice(adminClient, invoiceContext, { status: INVOICE_STATUS_DRAFT })
+                await createTestAcquiringIntegrationContext(adminClient, o10n, dummyAcquiringIntegration, { invoiceStatus: CONTEXT_FINISHED_STATUS })
+                const [invoice] = await createTestInvoice(adminClient, o10n, { status: INVOICE_STATUS_DRAFT })
 
                 await expectToThrowGQLError(
                     async () => await registerMultiPaymentByTestClient(
@@ -700,9 +699,9 @@ describe('RegisterMultiPaymentService', () => {
             test('Should not be able to pay for 3rd user\'s', async () => {
                 const residentClient = await makeClientWithResidentUser()
                 const [o10n] = await createTestOrganization(adminClient)
-                const [invoiceContext] = await createTestInvoiceContext(adminClient, o10n, dummyAcquiringIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
+                await createTestAcquiringIntegrationContext(adminClient, o10n, dummyAcquiringIntegration, { invoiceStatus: CONTEXT_FINISHED_STATUS })
 
-                const [invoice] = await createTestInvoice(adminClient, invoiceContext, {
+                const [invoice] = await createTestInvoice(adminClient, o10n, {
                     status: INVOICE_STATUS_PUBLISHED,
                     client: { connect: { id: residentClient.user.id } },
                 })
@@ -724,12 +723,19 @@ describe('RegisterMultiPaymentService', () => {
                 )
             })
 
-            test('All invoices contexts must be finished', async () => {
+            test('All acquiring contexts must be finished', async () => {
                 const [o10n] = await createTestOrganization(adminClient)
-                const [invoiceContext] = await createTestInvoiceContext(adminClient, o10n, dummyAcquiringIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
-                const [invoice] = await createTestInvoice(adminClient, invoiceContext, { status: INVOICE_STATUS_PUBLISHED })
+                const [acquiringIntegrationContext] = await createTestAcquiringIntegrationContext(adminClient, o10n, dummyAcquiringIntegration, {
+                    invoiceStatus: CONTEXT_FINISHED_STATUS,
+                    invoiceRecipient: createTestRecipient(),
+                    invoiceImplicitFeeDistributionSchema: [{
+                        recipient: 'organization',
+                        percent: '5',
+                    }],
+                })
+                const [invoice] = await createTestInvoice(adminClient, o10n, { status: INVOICE_STATUS_PUBLISHED })
 
-                await updateTestInvoiceContext(adminClient, invoiceContext.id, { status: INVOICE_CONTEXT_STATUS_INPROGRESS })
+                await updateTestAcquiringIntegrationContext(adminClient, acquiringIntegrationContext.id, { invoiceStatus: CONTEXT_IN_PROGRESS_STATUS })
 
                 await expectToThrowGQLError(
                     async () => await registerMultiPaymentByTestClient(
@@ -748,70 +754,44 @@ describe('RegisterMultiPaymentService', () => {
                 )
             })
 
-            test('All invoices contexts must have the same currency', async () => {
-                const [o10n1] = await createTestOrganization(adminClient)
-                const [o10n2] = await createTestOrganization(adminClient)
+            test('receipts and invoices must have the same currency', async () => {
+                const { billingReceipts, serviceConsumer, billingIntegration, acquiringIntegration, acquiringContext, organization } = await makePayer()
 
-                const [invoiceContext1] = await createTestInvoiceContext(adminClient, o10n1, dummyAcquiringIntegration, {
-                    status: INVOICE_CONTEXT_STATUS_FINISHED,
-                    currencyCode: ISO_CODES[0],
+                await updateTestBillingIntegration(adminClient, billingIntegration.id, { currencyCode: 'USD' })
+                await updateTestAcquiringIntegration(adminClient, acquiringIntegration.id, { canGroupReceipts: true })
+
+                await updateTestAcquiringIntegrationContext(adminClient, acquiringContext.id, {
+                    invoiceStatus: CONTEXT_FINISHED_STATUS,
+                    invoiceImplicitFeeDistributionSchema: [{
+                        recipient: 'organization',
+                        percent: '5',
+                    }],
+                    invoiceRecipient: createTestRecipient(),
                 })
-                const [invoice1] = await createTestInvoice(adminClient, invoiceContext1, { status: INVOICE_STATUS_PUBLISHED })
-                const [invoiceContext2] = await createTestInvoiceContext(adminClient, o10n2, dummyAcquiringIntegration, {
-                    status: INVOICE_CONTEXT_STATUS_FINISHED,
-                    currencyCode: ISO_CODES[1],
-                })
-                const [invoice2] = await createTestInvoice(adminClient, invoiceContext2, { status: INVOICE_STATUS_PUBLISHED })
+
+                const [invoice1] = await createTestInvoice(adminClient, organization, { status: INVOICE_STATUS_PUBLISHED })
+
+                const payload = [{
+                    serviceConsumer: { id: serviceConsumer.id },
+                    receipts: billingReceipts.map(receipt => ({ id: receipt.id })),
+                }]
 
                 await expectToThrowGQLError(
                     async () => await registerMultiPaymentByTestClient(
                         adminClient,
-                        null,
-                        { invoices: [pick(invoice1, 'id'), pick(invoice2, 'id')] },
+                        payload,
+                        { invoices: [pick(invoice1, 'id')] },
                     ),
                     {
                         mutation: 'registerMultiPayment',
-                        variable: ['data', 'invoices'],
+                        variable: ['data'],
                         code: 'BAD_USER_INPUT',
-                        type: 'INVOICES_HAS_MULTIPLE_CURRENCIES',
-                        message: 'Invoices has multiple currencies',
+                        type: 'DIFFERENT_CURRENCY_CODES_FOR_RECEIPTS_AND_INVOICES',
+                        message: 'Receipts and invoices has different currency codes',
                     },
                     'result',
                 )
             })
-        })
-
-        test('receipts and invoices must have the same currency', async () => {
-            const [o10n1] = await createTestOrganization(adminClient)
-            const { batches, commonData: { acquiringIntegration } } = await makePayerWithMultipleConsumers(2, 1)
-
-            const [invoiceContext1] = await createTestInvoiceContext(adminClient, o10n1, acquiringIntegration, {
-                status: INVOICE_CONTEXT_STATUS_FINISHED,
-                currencyCode: ISO_CODES[0],
-                recipient: createTestRecipient(),
-            })
-            const [invoice1] = await createTestInvoice(adminClient, invoiceContext1, { status: INVOICE_STATUS_PUBLISHED })
-
-            const payload = batches.map(batch => ({
-                serviceConsumer: { id: batch.serviceConsumer.id },
-                receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
-            }))
-
-            await expectToThrowGQLError(
-                async () => await registerMultiPaymentByTestClient(
-                    adminClient,
-                    payload,
-                    { invoices: [pick(invoice1, 'id')] },
-                ),
-                {
-                    mutation: 'registerMultiPayment',
-                    variable: ['data'],
-                    code: 'BAD_USER_INPUT',
-                    type: 'DIFFERENT_CURRENCY_CODES_FOR_RECEIPTS_AND_INVOICES',
-                    message: 'Receipts and invoices has different currency codes',
-                },
-                'result',
-            )
         })
 
         describe('deletedAt check', () => {
@@ -870,11 +850,12 @@ describe('RegisterMultiPaymentService', () => {
 
             test('Should not be able to pay for deleted invoices', async () => {
                 const [o10n] = await createTestOrganization(adminClient)
-                const [invoiceContext] = await createTestInvoiceContext(adminClient, o10n, dummyAcquiringIntegration, {
-                    status: INVOICE_CONTEXT_STATUS_FINISHED,
-                    recipient: createTestRecipient(),
+                await createTestAcquiringIntegrationContext(adminClient, o10n, dummyAcquiringIntegration, {
+                    invoiceStatus: CONTEXT_FINISHED_STATUS,
+                    invoiceRecipient: createTestRecipient(),
                 })
-                const [invoice] = await createTestInvoice(adminClient, invoiceContext)
+
+                const [invoice] = await createTestInvoice(adminClient, o10n)
 
                 await updateTestInvoice(adminClient, invoice.id, {
                     deletedAt: dayjs().toISOString(),
@@ -1241,7 +1222,6 @@ describe('RegisterMultiPaymentService', () => {
             const [role] = await createTestOrganizationEmployeeRole(adminClient, o10n, {
                 canManageInvoices: true,
                 canManageContacts: true,
-                canReadInvoiceContexts: true,
             })
             await createTestOrganizationEmployee(adminClient, o10n, staffClient.user, role)
 
@@ -1251,12 +1231,17 @@ describe('RegisterMultiPaymentService', () => {
                 unitName,
             })
 
-            const [invoiceContext, invoiceContextAttrs] = await createTestInvoiceContext(adminClient, o10n, dummyAcquiringIntegration, {
-                status: INVOICE_CONTEXT_STATUS_FINISHED,
-                implicitFeePercent: '5',
-                recipient: createTestRecipient(),
+            const implicitFeePercent = '5'
+            await createTestAcquiringIntegrationContext(adminClient, o10n, dummyAcquiringIntegration, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceRecipient: createTestRecipient(),
+                invoiceImplicitFeeDistributionSchema: [{
+                    recipient: 'organization',
+                    percent: implicitFeePercent,
+                }],
             })
-            const [invoice] = await createTestInvoice(staffClient, invoiceContext, {
+
+            const [invoice] = await createTestInvoice(staffClient, o10n, {
                 property: { connect: { id: property.id } },
                 unitType,
                 unitName,
@@ -1289,16 +1274,17 @@ describe('RegisterMultiPaymentService', () => {
 
             const multipayment = await MultiPayment.getOne(adminClient, { id: result.multiPaymentId })
             expect(multipayment).toMatchObject({
-                currencyCode: invoiceContext.currencyCode,
+                currencyCode: DEFAULT_CURRENCY_CODE,
                 integration: { id: dummyAcquiringIntegration.id },
                 amount: invoiceSum.toString(),
-                implicitFee: Big(invoiceSum).mul(invoiceContextAttrs.implicitFeePercent).div(100).toFixed(8),
+                implicitFee: Big(invoiceSum).mul(implicitFeePercent).div(100).toFixed(8),
             })
         })
 
         test('Should correctly register multiPayment for receipt and invoice', async () => {
             const {
                 acquiringIntegration,
+                acquiringContext,
                 organization,
                 property,
                 billingReceipts,
@@ -1307,6 +1293,14 @@ describe('RegisterMultiPaymentService', () => {
 
             await updateTestAcquiringIntegration(adminClient, acquiringIntegration.id, {
                 canGroupReceipts: true,
+            })
+            await updateTestAcquiringIntegrationContext(adminClient, acquiringContext.id, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceRecipient: createTestRecipient(),
+                invoiceImplicitFeeDistributionSchema: [{
+                    recipient: 'organization',
+                    percent: '5',
+                }],
             })
 
             const residentClient = await makeClientWithResidentUser()
@@ -1326,7 +1320,6 @@ describe('RegisterMultiPaymentService', () => {
             const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
                 canManageInvoices: true,
                 canManageContacts: true,
-                canReadInvoiceContexts: true,
             })
             await createTestOrganizationEmployee(adminClient, organization, staffClient.user, role)
 
@@ -1336,27 +1329,22 @@ describe('RegisterMultiPaymentService', () => {
                 unitName,
             })
 
-            const [invoiceContext] = await createTestInvoiceContext(adminClient, organization, acquiringIntegration, {
-                status: INVOICE_CONTEXT_STATUS_FINISHED,
-                implicitFeePercent: '5',
-                recipient: createTestRecipient(),
-            })
-            const [invoice1] = await createTestInvoice(staffClient, invoiceContext, {
+            const [invoice1] = await createTestInvoice(staffClient, organization, {
                 property: { connect: { id: property.id } },
                 unitType,
                 unitName,
                 contact: { connect: { id: contact.id } },
                 status: INVOICE_STATUS_PUBLISHED,
             })
-            const [invoice2] = await createTestInvoice(staffClient, invoiceContext, {
+            const [invoice2] = await createTestInvoice(staffClient, organization, {
                 property: { connect: { id: property.id } },
                 unitType,
                 unitName,
                 contact: { connect: { id: contact.id } },
                 status: INVOICE_STATUS_PUBLISHED,
                 rows: [
-                    generateInvoiceRow({ vatPercent: String(VAT_OPTIONS[1]) }),
-                    generateInvoiceRow({ vatPercent: String(VAT_OPTIONS[1]) }),
+                    generateInvoiceRow({ vatPercent: '10' }),
+                    generateInvoiceRow({ vatPercent: '10' }),
                 ],
             })
 

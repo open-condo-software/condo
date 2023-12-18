@@ -15,7 +15,13 @@ const {
     expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
-const { CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS, CONTEXT_ERROR_STATUS, CONTEXT_VERIFICATION_STATUS } = require('@condo/domains/acquiring/constants/context')
+const {
+    CONTEXT_FINISHED_STATUS,
+    CONTEXT_IN_PROGRESS_STATUS,
+    CONTEXT_ERROR_STATUS,
+    CONTEXT_VERIFICATION_STATUS,
+    TAX_REGIME_SIMPLE,
+} = require('@condo/domains/acquiring/constants/context')
 const { CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT } = require('@condo/domains/acquiring/constants/errors')
 const {
     AcquiringIntegrationContext,
@@ -25,13 +31,13 @@ const {
     createTestAcquiringIntegrationAccessRight,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestRecipient, createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
+const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployee, createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { registerNewOrganization, makeEmployeeUserClientWithAbilities } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
-
 
 describe('AcquiringIntegrationContext', () => {
     let admin
@@ -321,6 +327,14 @@ describe('AcquiringIntegrationContext', () => {
             // Multiple contexts in progress are allowed
             expect(anotherContext).toBeDefined()
 
+            const [contextWithInvoicePart] = await createTestAcquiringIntegrationContext(support, organization, integration, {
+                invoiceStatus: CONTEXT_IN_PROGRESS_STATUS,
+            })
+            const [anotherContextWithInvoicePart] = await createTestAcquiringIntegrationContext(support, organization, integration, {
+                invoiceStatus: CONTEXT_IN_PROGRESS_STATUS,
+            })
+            expect(anotherContextWithInvoicePart).toBeDefined()
+
             // One of contexts became connected (but not verified yet), so it becomes active
             const [connectedContext] = await updateTestAcquiringIntegrationContext(manager, context.id, {
                 status: CONTEXT_VERIFICATION_STATUS,
@@ -367,11 +381,21 @@ describe('AcquiringIntegrationContext', () => {
                     status: CONTEXT_FINISHED_STATUS,
                 })
             }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
+            await expectToThrowValidationFailureError(async () => {
+                await updateTestAcquiringIntegrationContext(manager, contextWithInvoicePart.id, {
+                    invoiceStatus: CONTEXT_FINISHED_STATUS,
+                })
+            }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
 
             // Cannot create new context if active exist (same integration)
             await expectToThrowValidationFailureError(async () => {
                 await createTestAcquiringIntegrationContext(support, organization, integration, {
                     status: CONTEXT_FINISHED_STATUS,
+                })
+            }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
+            await expectToThrowValidationFailureError(async () => {
+                await createTestAcquiringIntegrationContext(support, organization, integration, {
+                    invoiceStatus: CONTEXT_FINISHED_STATUS,
                 })
             }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
 
@@ -381,6 +405,11 @@ describe('AcquiringIntegrationContext', () => {
                     status: CONTEXT_FINISHED_STATUS,
                 })
             }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
+            await expectToThrowValidationFailureError(async () => {
+                await createTestAcquiringIntegrationContext(support, organization, thirdIntegration, {
+                    invoiceStatus: CONTEXT_FINISHED_STATUS,
+                })
+            }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
 
             // Cannot start new verification while another one is active
             await expectToThrowValidationFailureError(async () => {
@@ -388,6 +417,31 @@ describe('AcquiringIntegrationContext', () => {
                     status: CONTEXT_VERIFICATION_STATUS,
                 })
             }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
+        })
+        test('vat=0% is not correct for taxRegime=simple', async () => {
+            await expectToThrowGQLError(async () => await createTestAcquiringIntegrationContext(admin, organization, integration, {
+                invoiceTaxRegime: TAX_REGIME_SIMPLE,
+                invoiceVatPercent: '0',
+            }), {
+                code: 'BAD_USER_INPUT',
+                type: 'TAX_REGIME_AND_VAT_NOT_MATCHED',
+                message: 'Tax regime and vat values are not matched',
+            })
+        })
+        test('salesTaxPercent: must throw an error if `< 0` or `> 100`', async () => {
+            await expectToThrowGQLError(async () => await createTestAcquiringIntegrationContext(admin, organization, integration, { invoiceSalesTaxPercent: '-2' }), COMMON_ERRORS.INVALID_PERCENT_VALUE)
+            await expectToThrowGQLError(async () => await createTestAcquiringIntegrationContext(admin, organization, integration, { invoiceSalesTaxPercent: '200' }), COMMON_ERRORS.INVALID_PERCENT_VALUE)
+        })
+        test('vat percent must be from values list if set within integration', async () => {
+            const [acquiringIntegration, acquiringIntegrationAttrs] = await createTestAcquiringIntegration(admin, { vatPercentOptions: '0.5,7,8.14,13,20' })
+            await expectToThrowGQLError(async () => await createTestAcquiringIntegrationContext(manager, organization, acquiringIntegration, {
+                status: CONTEXT_IN_PROGRESS_STATUS,
+                invoiceVatPercent: '8',
+            }), {
+                code: 'BAD_USER_INPUT',
+                type: 'VAT_NOT_MATCHED_TO_INTEGRATION_OPTIONS',
+                message: `VAT percent value must be from the following list: ${acquiringIntegrationAttrs.vatPercentOptions}`,
+            })
         })
     })
     describe('Fields tests', () => {

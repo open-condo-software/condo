@@ -1,4 +1,4 @@
-import { useApolloClient, useQuery } from '@apollo/client'
+import { useQuery } from '@apollo/client'
 import {
     Payment as PaymentType, SortPaymentsBy,
 } from '@app/condo/schema'
@@ -86,20 +86,17 @@ export const MarketplacePaymentsContent = () => {
     const searchPaymentsQuery = useMemo(() => {
         return {
             invoice: {
-                context: {
-                    organization: { id: orgId },
-                },
+                organization: { id: orgId },
             },
             status_in: [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS],
-        }},
-    [filters, filtersToWhere, orgId])
+        }
+    }, [orgId])
     const sortBy = useMemo(() => sortersToSortBy(sorters) as SortPaymentsBy[], [sorters, sortersToSortBy])
-    
+
     const {
         loading: paymentsLoading,
         count: total,
         objs: payments,
-        refetch,
     } = Payment.useObjects({
         sortBy,
         where: {

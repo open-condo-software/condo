@@ -293,18 +293,12 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                     return addValidationError(MULTIPAYMENT_TOTAL_AMOUNT_MISMATCH)
                 }
                 const acquiringContexts = await find('AcquiringIntegrationContext', {
-                    id_in: compact([...receiptPayments, ...virtualPayments].map(payment => payment.context)),
-                })
-
-                const invoices = await find('Invoice', { deletedAt: null, id_in: invoicePayments.map(({ invoice }) => invoice) })
-                const invoiceContexts = await find('InvoiceContext', {
+                    id_in: compact([...receiptPayments, ...virtualPayments, ...invoicePayments].map(payment => payment.context)),
                     deletedAt: null,
-                    id_in: uniq(invoices.map(({ context }) => context)),
                 })
 
                 const integrations = new Set([
                     ...acquiringContexts.map(context => context.integration),
-                    ...invoiceContexts.map(context => context.integration),
                 ])
                 if (integrations.size !== 1) {
                     return addValidationError(MULTIPAYMENT_MULTIPLE_ACQUIRING_INTEGRATIONS)

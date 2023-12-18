@@ -4,13 +4,12 @@
 const get = require('lodash/get')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { find, getById } = require('@open-condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
 
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 const { checkAcquiringIntegrationAccessRight } = require('../utils/accessSchema')
-
 
 async function canReadPayments ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
@@ -26,7 +25,6 @@ async function canReadPayments ({ authentication: { item: user } }) {
         OR: [
             // Acquiring integration account can see it's payments
             { context: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } } },
-            { invoice: { context: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } } } },
             // Employee with `canReadPayments` can see theirs organization payments
             { organization: { employees_some: { user: { id: user.id }, role: { canReadPayments: true }, deletedAt: null, isBlocked: false } } },
         ],
@@ -51,28 +49,13 @@ async function canReadPaymentsSensitiveData ({ authentication: { item: user }, e
     if (!user || user.deletedAt) return false
     if (user.isSupport || user.isAdmin) return true
 
-    let integrationId
-
-    if (existingItem.receipt) {
-        const [acquiringContext] = await find('AcquiringIntegrationContext', {
-            id: existingItem.context,
-        })
-        // If context exist => check is it's integration account
-        if (acquiringContext) {
-            integrationId = get(acquiringContext, 'integration')
-        }
-    } else if (existingItem.invoice) {
-        const invoice = await getById('Invoice', existingItem.invoice)
-        if (invoice) {
-            const invoiceContext = await getById('InvoiceContext', invoice.context)
-            // If context exist => check is it's integration account
-            if (invoiceContext) {
-                integrationId = get(invoiceContext, 'integration')
-            }
-        }
-    }
-
-    if (integrationId) {
+    const [acquiringContext] = await find('AcquiringIntegrationContext', {
+        deletedAt: null,
+        id: existingItem.context,
+    })
+    // If context exist => check is it's integration account
+    if (acquiringContext) {
+        const integrationId = get(acquiringContext, ['integration'])
         if (await checkAcquiringIntegrationAccessRight(user.id, integrationId)) return true
     }
 

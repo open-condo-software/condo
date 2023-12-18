@@ -27,7 +27,6 @@ import { useMarketplaceInvoicesFilters } from '@condo/domains/marketplace/hooks/
 import { useMarketplaceInvoicesTableColumns } from '@condo/domains/marketplace/hooks/useMarketplaceInvoicesTableColumns'
 import { Invoice, MARKETPLACE_PAGE_TYPES } from '@condo/domains/marketplace/utils/clientSchema'
 
-
 const TableContent = () => {
     const intl = useIntl()
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
@@ -58,9 +57,7 @@ const TableContent = () => {
         sortBy,
         where: {
             ...filtersToWhere(filters),
-            context: {
-                organization: { id: get(organization, 'id', null) },
-            },
+            organization: { id: get(organization, 'id', null) },
         },
         first: DEFAULT_PAGE_SIZE,
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
@@ -155,9 +152,7 @@ export const MarketplaceInvoicesContent = () => {
 
     const { count, loading } = Invoice.useCount({
         where: {
-            context: {
-                organization: { id: get(organization, 'id', null) },
-            },
+            organization: { id: get(organization, 'id', null) },
         },
     })
 

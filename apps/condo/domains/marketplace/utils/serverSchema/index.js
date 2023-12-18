@@ -6,7 +6,6 @@
 
 const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 
-const { InvoiceContext: InvoiceContextGQL } = require('@condo/domains/marketplace/gql')
 const { MarketCategory: MarketCategoryGQL } = require('@condo/domains/marketplace/gql')
 const { MarketItem: MarketItemGQL } = require('@condo/domains/marketplace/gql')
 const { Invoice: InvoiceGQL } = require('@condo/domains/marketplace/gql')
@@ -17,7 +16,6 @@ const { REGISTER_INVOICE_MUTATION } = require('@condo/domains/marketplace/gql')
 const { GET_INVOICE_BY_USER_MUTATION } = require('@condo/domains/marketplace/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const InvoiceContext = generateServerUtils(InvoiceContextGQL)
 const MarketCategory = generateServerUtils(MarketCategoryGQL)
 const MarketItem = generateServerUtils(MarketItemGQL)
 const Invoice = generateServerUtils(InvoiceGQL)
@@ -54,7 +52,6 @@ async function getInvoiceByUser (context, data) {
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
-    InvoiceContext,
     MarketCategory,
     MarketItem,
     Invoice,

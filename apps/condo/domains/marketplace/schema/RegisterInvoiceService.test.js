@@ -12,15 +12,14 @@ const {
     expectToThrowAuthenticationErrorToResult, expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
-const { createTestAcquiringIntegration } = require('@condo/domains/acquiring/utils/testSchema')
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { createTestAcquiringIntegration, createTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
 const {
-    INVOICE_CONTEXT_STATUS_FINISHED,
-    INVOICE_CONTEXT_STATUS_INPROGRESS,
     INVOICE_STATUS_DRAFT,
     INVOICE_STATUS_PUBLISHED,
 } = require('@condo/domains/marketplace/constants')
 const {
-    registerInvoiceByTestClient, createTestInvoiceContext, createTestMarketPriceScope, createTestMarketItem,
+    registerInvoiceByTestClient, createTestMarketPriceScope, createTestMarketItem,
     createTestMarketCategory, createTestMarketItemPrice, generatePriceRow, Invoice,
 } = require('@condo/domains/marketplace/utils/testSchema')
 const {
@@ -40,21 +39,18 @@ const {
 const MOBILE_APP_RESIDENT_TICKET_SOURCE_ID = '830d1d89-2d17-4c5b-96d1-21b5cd01a6d3'
 
 let adminClient
-let dummyAcquiringIntegration
+let organization, acquiringIntegration
 
 describe('RegisterInvoiceService', () => {
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()
-        ;[dummyAcquiringIntegration] = await createTestAcquiringIntegration(adminClient, {
-            canGroupReceipts: true,
-        })
+        ;[acquiringIntegration] = await createTestAcquiringIntegration(adminClient)
+        ;[organization] = await createTestOrganization(adminClient)
+        await createTestAcquiringIntegrationContext(adminClient, organization, acquiringIntegration, { invoiceStatus: CONTEXT_FINISHED_STATUS })
     })
 
     test('admin can execute', async () => {
-        const [o10n] = await createTestOrganization(adminClient)
-        const [invoiceContext] = await createTestInvoiceContext(adminClient, o10n, dummyAcquiringIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
-
-        const [property] = await createTestProperty(adminClient, o10n)
+        const [property] = await createTestProperty(adminClient, organization)
 
         const unitType = FLAT_UNIT_TYPE
         const unitName = faker.lorem.word()
@@ -68,7 +64,7 @@ describe('RegisterInvoiceService', () => {
             })
 
         const [marketCategory] = await createTestMarketCategory(adminClient)
-        const [marketItem] = await createTestMarketItem(adminClient, marketCategory, o10n)
+        const [marketItem] = await createTestMarketItem(adminClient, marketCategory, organization)
         const [itemPrice] = await createTestMarketItemPrice(adminClient, marketItem)
         const [priceScope] = await createTestMarketPriceScope(adminClient, itemPrice, property)
 
@@ -86,8 +82,6 @@ describe('RegisterInvoiceService', () => {
         const { invoice } = result
 
         expect(invoice.id).toMatch(UUID_RE)
-        expect(invoice.context).toBeTruthy()
-        expect(invoice.context.id).toBe(invoiceContext.id)
         expect(invoice.ticket).toBeTruthy()
         expect(invoice.ticket.id).toMatch(UUID_RE)
     })
@@ -109,10 +103,7 @@ describe('RegisterInvoiceService', () => {
 
     describe('resident', () => {
         test('resident can execute, staff can see', async () => {
-            const [o10n] = await createTestOrganization(adminClient)
-            await createTestInvoiceContext(adminClient, o10n, dummyAcquiringIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
-
-            const [property] = await createTestProperty(adminClient, o10n)
+            const [property] = await createTestProperty(adminClient, organization)
 
             const residentClient = await makeClientWithResidentUser()
             const unitType = FLAT_UNIT_TYPE
@@ -127,7 +118,7 @@ describe('RegisterInvoiceService', () => {
                 })
 
             const [marketCategory] = await createTestMarketCategory(adminClient)
-            const [marketItem] = await createTestMarketItem(adminClient, marketCategory, o10n)
+            const [marketItem] = await createTestMarketItem(adminClient, marketCategory, organization)
             const [itemPrice] = await createTestMarketItemPrice(adminClient, marketItem)
             const [priceScope] = await createTestMarketPriceScope(adminClient, itemPrice, property)
 
@@ -162,8 +153,8 @@ describe('RegisterInvoiceService', () => {
             expect(ticket.source.type).toBe('mobile_app_resident')
 
             const staffClient = await makeClientWithStaffUser()
-            const [role] = await createTestOrganizationEmployeeRole(adminClient, o10n, { canReadInvoices: true })
-            await createTestOrganizationEmployee(adminClient, o10n, staffClient.user, role)
+            const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, { canReadInvoices: true })
+            await createTestOrganizationEmployee(adminClient, organization, staffClient.user, role)
 
             const objs = await Invoice.getAll(staffClient, {}, { sortBy: ['updatedAt_DESC'] })
 
@@ -174,9 +165,9 @@ describe('RegisterInvoiceService', () => {
             ]))
         })
 
-        test('can\'t create invoice if no finished invoice context', async () => {
+        test('can\'t create invoice if no finished acquiring context', async () => {
             const [o10n] = await createTestOrganization(adminClient)
-            await createTestInvoiceContext(adminClient, o10n, dummyAcquiringIntegration, { status: INVOICE_CONTEXT_STATUS_INPROGRESS })
+            await createTestAcquiringIntegrationContext(adminClient, o10n, acquiringIntegration)
 
             const [property] = await createTestProperty(adminClient, o10n)
 
@@ -206,16 +197,18 @@ describe('RegisterInvoiceService', () => {
                 }],
             ), {
                 code: 'BAD_USER_INPUT',
-                type: 'NO_INVOICE_CONTEXT',
+                type: 'NO_ACQUIRING_CONTEXT',
                 message: 'The organization hasn\'t set up the marketplace',
-                messageForUser: 'api.marketplace.registerInvoice.error.noInvoiceContext',
+                messageForUser: 'api.marketplace.registerInvoice.error.noAcquiringContext',
             }, 'result')
         })
 
         test('can\'t create invoice with items from other organization', async () => {
             const [o10n1] = await createTestOrganization(adminClient)
             const [o10n2] = await createTestOrganization(adminClient)
-            await createTestInvoiceContext(adminClient, o10n1, dummyAcquiringIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
+
+            await createTestAcquiringIntegrationContext(adminClient, o10n1, acquiringIntegration, { invoiceStatus: CONTEXT_FINISHED_STATUS })
+            await createTestAcquiringIntegrationContext(adminClient, o10n2, acquiringIntegration, { invoiceStatus: CONTEXT_FINISHED_STATUS })
 
             const [property1] = await createTestProperty(adminClient, o10n1)
             const [property2] = await createTestProperty(adminClient, o10n2)
@@ -254,10 +247,7 @@ describe('RegisterInvoiceService', () => {
         })
 
         test('Create draft invoice if one of rows has isMin=true for price, resident can see draft of him', async () => {
-            const [o10n] = await createTestOrganization(adminClient)
-            await createTestInvoiceContext(adminClient, o10n, dummyAcquiringIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
-
-            const [property] = await createTestProperty(adminClient, o10n)
+            const [property] = await createTestProperty(adminClient, organization)
 
             const residentClient = await makeClientWithResidentUser()
             const unitType = FLAT_UNIT_TYPE
@@ -272,7 +262,7 @@ describe('RegisterInvoiceService', () => {
                 })
 
             const [marketCategory] = await createTestMarketCategory(adminClient)
-            const [marketItem] = await createTestMarketItem(adminClient, marketCategory, o10n)
+            const [marketItem] = await createTestMarketItem(adminClient, marketCategory, organization)
             const [itemPrice] = await createTestMarketItemPrice(adminClient, marketItem, { price: [generatePriceRow({ isMin: true })] })
             const [priceScope] = await createTestMarketPriceScope(adminClient, itemPrice, property)
 
@@ -300,10 +290,7 @@ describe('RegisterInvoiceService', () => {
         })
 
         test('can\'t create invoice with no rows', async () => {
-            const [o10n] = await createTestOrganization(adminClient)
-            await createTestInvoiceContext(adminClient, o10n, dummyAcquiringIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
-
-            const [property] = await createTestProperty(adminClient, o10n)
+            const [property] = await createTestProperty(adminClient, organization)
 
             const residentClient = await makeClientWithResidentUser()
             const unitType = FLAT_UNIT_TYPE

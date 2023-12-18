@@ -1,4 +1,4 @@
-import { BankAccount, InvoiceContext } from '@app/condo/schema'
+import { AcquiringIntegrationContext, BankAccount } from '@app/condo/schema'
 import { AutoComplete, Col, Form, Input, Row, RowProps } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
@@ -8,31 +8,22 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Alert, Button, Radio, RadioGroup, Select, SelectProps, Space } from '@open-condo/ui'
 
-import { AcquiringIntegration } from '@condo/domains/acquiring/utils/clientSchema'
+import { TAX_REGIME_GENEGAL, TAX_REGIME_SIMPLE, CONTEXT_IN_PROGRESS_STATUS } from '@condo/domains/acquiring/constants/context'
+import { AcquiringIntegrationContext as AcquiringIntegrationContextApi, AcquiringIntegration as AcquiringIntegrationApi } from '@condo/domains/acquiring/utils/clientSchema'
 import { BankAccount as BankAccountApi } from '@condo/domains/banking/utils/clientSchema'
 import { RUSSIA_COUNTRY } from '@condo/domains/common/constants/countries'
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { useBankAccountValidation } from '@condo/domains/common/utils/clientSchema/bankAccountValidationUtils'
+import { useAcquiringContext } from '@condo/domains/marketplace/components/MarketplacePageContent/ContextProvider'
 import {
     ERROR_BANK_NOT_FOUND,
     ERROR_ORGANIZATION_NOT_FOUND,
-    INVOICE_CONTEXT_STATUS_INPROGRESS,
-    TAX_REGIME_GENEGAL,
-    TAX_REGIME_SIMPLE,
-    VAT_OPTIONS,
 } from '@condo/domains/marketplace/constants'
-import { InvoiceContext as InvoiceContextApi } from '@condo/domains/marketplace/utils/clientSchema'
 
 const FORM_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
 const VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 const LABEL_COL = { lg: 10 }
-
-const TAX_PERCENT_OPTIONS: SelectProps['options'] = VAT_OPTIONS.map((option: number) => ({
-    label: `${option} %`,
-    key: `vat_percent_${option}`,
-    value: String(option),
-}))
 
 const getOptions = (items: BankAccount[], fieldName: string): SelectProps['options'] => (items.map((item) => {
     const field = get(item, fieldName, null)
@@ -62,26 +53,19 @@ export const RequisitesSetup: React.FC = () => {
     const [form] = Form.useForm()
     const router = useRouter()
 
-    const {
-        obj: invoiceContext,
-        loading: invoiceContextLoading,
-        error: invoiceContextError,
-    } = InvoiceContextApi.useObject({
+    // NOTE: On practice there's only 1 acquiring and there's no plans to change it soon
+    const { objs: acquiring, loading: acquiringLoading, error: acquiringError } = AcquiringIntegrationApi.useObjects({
         where: {
-            organization: { id: orgId },
+            isHidden: false,
+            setupUrl_not: null,
         },
     })
+
+    const { acquiringContext, refetchAcquiringContext } = useAcquiringContext()
 
     const { objs: bankAccounts } = BankAccountApi.useObjects({
         where: {
             organization: { id: orgId },
-        },
-    })
-
-    const { objs: acquiring, loading: acquiringLoading, error: acquiringError } = AcquiringIntegration.useObjects({
-        where: {
-            isHidden: false,
-            setupUrl_not: null,
         },
     })
 
@@ -94,13 +78,14 @@ export const RequisitesSetup: React.FC = () => {
         )
     }, [form, values])
 
-    const acquiringId = get(acquiring, ['0', 'id'], null)
+    const acquiringId = get(acquiring, [0, 'id'], null)
 
-    const createAction = InvoiceContextApi.useCreate({
-        status: INVOICE_CONTEXT_STATUS_INPROGRESS,
+    const createAction = AcquiringIntegrationContextApi.useCreate({
+        invoiceStatus: CONTEXT_IN_PROGRESS_STATUS,
         settings: { dv: 1 },
+        state: { dv: 1 },
     })
-    const updateAction = InvoiceContextApi.useUpdate({ status: INVOICE_CONTEXT_STATUS_INPROGRESS })
+    const updateAction = AcquiringIntegrationContextApi.useUpdate({ status: CONTEXT_IN_PROGRESS_STATUS })
 
     const noTaxOption = useMemo<SelectProps['options'][number]>(() => ({
         label: NoTax,
@@ -114,11 +99,32 @@ export const RequisitesSetup: React.FC = () => {
 
     const bankAccountOptions = useMemo<SelectProps['options']>(() => getOptions(bic ? bankAccounts.filter(({ routingNumber }) => routingNumber === bic) : bankAccounts, 'number'), [bankAccounts, bic])
     const bicOptions = useMemo<SelectProps['options']>(() => getOptions(account ? bankAccounts.filter(({ number }) => number === account) : bankAccounts, 'routingNumber'), [bankAccounts, account])
-    const taxPercentOptions = useMemo<SelectProps['options']>(() => selectedTaxType === TAX_REGIME_GENEGAL ? [noTaxOption, ...TAX_PERCENT_OPTIONS] : [noTaxOption, ...TAX_PERCENT_OPTIONS.slice(1)], [noTaxOption, selectedTaxType])
+    const taxPercentOptions = useMemo<SelectProps['options']>(() => {
+        if (acquiringLoading || acquiringError) {
+            return [noTaxOption]
+        }
+
+        const options = (get(acquiring, [0, 'vatPercentOptions']) || '').split(',').filter((option)=>{
+            return Boolean(option) && (selectedTaxType === TAX_REGIME_GENEGAL || (selectedTaxType === TAX_REGIME_SIMPLE && option !== '0'))
+        }).map((option) => ({
+            label: `${option} %`,
+            key: `vat_percent_${option}`,
+            value: option,
+        }))
+
+        return [noTaxOption, ...options]
+    }, [acquiring, acquiringError, acquiringLoading, noTaxOption, selectedTaxType])
+
     const possibleVatOptionsValues: string[] = useMemo(() => {
         if (!selectedTaxType) return []
-        return ['', ...selectedTaxType === TAX_REGIME_GENEGAL ? VAT_OPTIONS : VAT_OPTIONS.filter((v: number) => v !== 0)].map((option) => String(option))
-    }, [selectedTaxType])
+
+        if (acquiringLoading || acquiringError) {
+            return ['']
+        }
+        const vatOptions = (get(acquiring, [0, 'vatPercentOptions']) || '').split(',').filter(Boolean)
+
+        return ['', ...selectedTaxType === TAX_REGIME_GENEGAL ? vatOptions : vatOptions.filter((v: string) => v !== '0')]
+    }, [acquiring, acquiringError, acquiringLoading, selectedTaxType])
 
     useEffect(() => {
         const taxPercent = form.getFieldValue('taxPercent')
@@ -128,15 +134,15 @@ export const RequisitesSetup: React.FC = () => {
     }, [form, possibleVatOptionsValues, selectedTaxType])
 
     useEffect(() => {
-        if (!invoiceContextLoading && !invoiceContextError && !!invoiceContext) {
+        if (acquiringContext) {
             form.setFieldsValue({
-                bic: get(invoiceContext, ['recipient', 'bic'], ''),
-                account: get(invoiceContext, ['recipient', 'bankAccount'], ''),
-                taxType: get(invoiceContext, 'taxRegime'),
-                taxPercent: get(invoiceContext, 'vatPercent'),
+                bic: get(acquiringContext, ['invoiceRecipient', 'bic'], ''),
+                account: get(acquiringContext, ['invoiceRecipient', 'bankAccount'], ''),
+                taxType: get(acquiringContext, 'invoiceTaxRegime'),
+                taxPercent: get(acquiringContext, 'invoiceVatPercent'),
             })
         }
-    }, [form, invoiceContext, invoiceContextError, invoiceContextLoading])
+    }, [form, acquiringContext])
 
     const errorHandler = useMutationErrorHandler({
         form,
@@ -147,43 +153,43 @@ export const RequisitesSetup: React.FC = () => {
     })
 
     const handleFormSubmit = useCallback(async (values) => {
-        if (!acquiringLoading && !acquiringError && !!acquiringId) {
+        if (acquiringId && !acquiringLoading && !acquiringError) {
             setError(null)
             setIsLoading(true)
-            let promise: Promise<InvoiceContext>
-            if (invoiceContext) {
+            let promise: Promise<AcquiringIntegrationContext>
+            if (acquiringContext) {
                 promise = updateAction({
-                    recipient: {
+                    invoiceRecipient: {
                         tin: get(organization, 'tin'),
                         bic: values.bic,
                         bankAccount: values.account,
                     },
-                    taxRegime: values.taxType,
-                    vatPercent: values.taxPercent,
-                }, { id: invoiceContext.id })
+                    invoiceTaxRegime: values.taxType,
+                    invoiceVatPercent: values.taxPercent,
+                }, { id: acquiringContext.id })
             } else {
                 promise = createAction({
                     integration: { connect: { id: acquiringId } },
-                    status: INVOICE_CONTEXT_STATUS_INPROGRESS,
+                    invoiceStatus: CONTEXT_IN_PROGRESS_STATUS,
                     organization: { connect: { id: orgId } },
-                    recipient: {
+                    invoiceRecipient: {
                         tin: get(organization, 'tin'),
                         bic: values.bic,
                         bankAccount: values.account,
                     },
-                    taxRegime: values.taxType,
-                    vatPercent: values.taxPercent,
-                    currencyCode: 'RUB',
+                    invoiceTaxRegime: values.taxType,
+                    invoiceVatPercent: values.taxPercent,
                 })
             }
 
-            promise.then(() => {
-                router.replace({ query: { step: 1 } })
+            promise.then(async () => {
+                refetchAcquiringContext()
+                await router.replace({ query: { step: 1 } })
             }).catch(errorHandler)
 
             setIsLoading(false)
         }
-    }, [acquiringError, acquiringId, acquiringLoading, createAction, errorHandler, invoiceContext, orgId, organization, router, updateAction])
+    }, [acquiringId, acquiringLoading, acquiringError, acquiringContext, errorHandler, updateAction, organization, createAction, orgId, refetchAcquiringContext, router])
 
     return (
         <Row gutter={VERTICAL_GUTTER}>

@@ -9,15 +9,17 @@ import { useOrganization } from '@open-condo/next/organization'
 import { StepItem } from '@open-condo/ui'
 import { Typography, Steps } from '@open-condo/ui'
 
-
+import { CONTEXT_FINISHED_STATUS } from '@condo/domains/acquiring/constants/context'
+import { AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clientSchema'
 import { useOnboardingProgress } from '@condo/domains/billing/hooks/useOnboardingProgress'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { OfferSetupPage } from '@condo/domains/marketplace/components/MarketplaceOnboarding/OfferSetupPage'
 import { RequisitesSetup } from '@condo/domains/marketplace/components/MarketplaceOnboarding/RequisitesSetup'
-import { INVOICE_CONTEXT_STATUS_FINISHED } from '@condo/domains/marketplace/constants'
-import { InvoiceContext } from '@condo/domains/marketplace/utils/clientSchema'
-
+import {
+    AcquiringContext as AcquiringContextProvider,
+} from '@condo/domains/marketplace/components/MarketplacePageContent/ContextProvider'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 
 const STEPS_GUTTER: RowProps['gutter'] = [60, 60]
 const FULL_COL_SPAN = 24
@@ -27,7 +29,11 @@ type MarketplaceOnboardingPageProps = {
     withVerification?: boolean
 }
 
-const MarketplaceOnboardingPage: React.FC<MarketplaceOnboardingPageProps> = ({ onFinish, withVerification }) => {
+interface IMarketplaceOnboardingPage extends React.FC<MarketplaceOnboardingPageProps> {
+    requiredAccess: React.FC
+}
+
+const MarketplaceOnboardingPage: IMarketplaceOnboardingPage = ({ onFinish, withVerification }) => {
     const intl = useIntl()
 
     const PageTitle = intl.formatMessage({ id: 'pages.condo.marketplace.settings.mainTitle' })
@@ -38,26 +44,31 @@ const MarketplaceOnboardingPage: React.FC<MarketplaceOnboardingPageProps> = ({ o
     const router = useRouter()
 
     const [currentStep] = useOnboardingProgress(withVerification)
+
     const { organization } = useOrganization()
     const orgId = get(organization, 'id', null)
 
-    const { obj: invoiceContext, loading: invoiceContextLoading, error: invoiceContextError, refetch: refetchInvoiceContext } = InvoiceContext.useObject({
+    const {
+        obj: acquiringContext,
+        loading: acquiringContextLoading,
+        error: acquiringContextError,
+        refetch: refetchAcquiringContext,
+    } = AcquiringIntegrationContext.useObject({
         where: {
-            status: INVOICE_CONTEXT_STATUS_FINISHED,
             organization: { id: orgId },
         },
     })
 
-    const handleFinishSetup = useCallback(() => {
-        refetchInvoiceContext()
-    }, [refetchInvoiceContext])
+    const handleFinishSetup = useCallback(async () => {
+        await refetchAcquiringContext()
+    }, [refetchAcquiringContext])
 
     // if setup is already done --> forward back to marketplace main page
     useEffect(() => {
-        if (invoiceContext && get(invoiceContext, 'id') && !invoiceContextError && !invoiceContextLoading) {
+        if (get(acquiringContext, 'invoiceStatus') === CONTEXT_FINISHED_STATUS && !acquiringContextError && !acquiringContextLoading) {
             router.push('/marketplace')
         }
-    }, [invoiceContext, invoiceContextError, invoiceContextLoading, router])
+    }, [acquiringContext, acquiringContextError, acquiringContextLoading, router])
 
     const stepItems: Array<StepItem> = useMemo(() => {
         const steps: Array<StepItem> = [
@@ -82,9 +93,13 @@ const MarketplaceOnboardingPage: React.FC<MarketplaceOnboardingPageProps> = ({ o
         return <RequisitesSetup />
     }, [currentStep, handleFinishSetup])
 
+    const payload = useMemo(() => ({
+        acquiringContext,
+        refetchAcquiringContext,
+    }), [acquiringContext, refetchAcquiringContext])
 
     return (
-        <>
+        <AcquiringContextProvider.Provider value={payload}>
             <Head>
                 <title>{PageTitle}</title>
             </Head>
@@ -106,8 +121,10 @@ const MarketplaceOnboardingPage: React.FC<MarketplaceOnboardingPageProps> = ({ o
                     </Row>
                 </TablePageContent>
             </PageWrapper>
-        </>
+        </AcquiringContextProvider.Provider>
     )
 }
+
+MarketplaceOnboardingPage.requiredAccess = OrganizationRequired
 
 export default MarketplaceOnboardingPage

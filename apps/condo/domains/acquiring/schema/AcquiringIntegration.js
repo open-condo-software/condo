@@ -3,7 +3,7 @@
  */
 
 const { Text, Relationship, Checkbox } = require('@keystonejs/fields')
-const { get } = require('lodash')
+const { get, has, uniq } = require('lodash')
 
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, find } = require('@open-condo/keystone/schema')
@@ -51,7 +51,7 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
             knexOptions: { isNotNullable: false },
             isRequired: true,
         },
-        
+
         hostUrl: {
             schemaDoc: 'Url to acquiring integration service. Mobile devices will use it communicate with external acquiring. List of endpoints is the same for all of them.',
             type: Text,
@@ -85,6 +85,20 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
             ...CONTEXT_DEFAULT_STATUS_FIELD,
             options: CONTEXT_STATUSES,
             defaultValue: CONTEXT_IN_PROGRESS_STATUS,
+        },
+        vatPercentOptions: {
+            schemaDoc: 'Comma separated values of VAT. Set by system administrators.',
+            adminDoc: 'For example: "0,10,20" is for RU',
+            type: 'Text',
+            isRequired: false,
+            hooks: {
+                resolveInput: async ({ resolvedData, fieldPath }) => {
+                    if (has(resolvedData, fieldPath)) {
+                        const values = get(resolvedData, fieldPath, '') || ''
+                        return uniq(values.split(',').map(Number).filter((value) => !isNaN(value))).join(',')
+                    }
+                },
+            },
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],

@@ -9,17 +9,17 @@ import { TabItem, Tabs, Tag } from '@open-condo/ui'
 import { Button } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
+import { CONTEXT_FINISHED_STATUS } from '@condo/domains/acquiring/constants/context'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import { MarketplaceInvoicesContent } from '@condo/domains/marketplace/components/Invoice/MarketplaceInvoicesContent'
 import { MarketplaceItemsContent } from '@condo/domains/marketplace/components/MarketItemContent'
 import { MarketplacePaymentsContent } from '@condo/domains/marketplace/components/MarketplacePaymentsContent'
-import { INVOICE_CONTEXT_STATUS_FINISHED } from '@condo/domains/marketplace/constants'
 import { useQueryTab } from '@condo/domains/marketplace/hooks/useQueryTab'
 import { MARKETPLACE_PAGE_TYPES } from '@condo/domains/marketplace/utils/clientSchema'
 
-import { useInvoiceContext } from './ContextProvider'
+import { useAcquiringContext } from './ContextProvider'
 
 
 export const MarketplacePageContent = () => {
@@ -38,8 +38,8 @@ export const MarketplacePageContent = () => {
 
     const router = useRouter()
     const userOrganization = useOrganization()
-    const { invoiceContext } = useInvoiceContext()
-    const marketplaceIsSetup = invoiceContext && get(invoiceContext, 'status') === INVOICE_CONTEXT_STATUS_FINISHED
+    const { acquiringContext } = useAcquiringContext()
+    const marketplaceIsSetup = acquiringContext && get(acquiringContext, 'invoiceStatus') === CONTEXT_FINISHED_STATUS
     const role = get(userOrganization, ['link', 'role'], {})
     const canReadPayments = get(role, ['canReadPayments'], false)
     const canManageInvoices = get(role, ['canManageInvoices'], false)

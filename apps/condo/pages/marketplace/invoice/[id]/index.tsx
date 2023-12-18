@@ -6,7 +6,7 @@ import isEmpty from 'lodash/isEmpty'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Edit } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
@@ -351,7 +351,7 @@ const InvoiceIdPage = () => {
     const { refetch: refetchInvoice, loading: invoiceLoading, obj: invoice, error } = Invoice.useObject({
         where: {
             id,
-            context: { organization: { id: get(organization, 'id', null) } },
+            organization: { id: get(organization, 'id', null) },
         },
     })
 

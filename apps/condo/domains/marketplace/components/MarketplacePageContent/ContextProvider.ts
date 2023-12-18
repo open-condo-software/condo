@@ -1,17 +1,17 @@
 import { createContext, useContext } from 'react'
 
-import type { InvoiceContext as InvoiceContextSchema } from '@app/condo/schema'
+import type { AcquiringIntegrationContext as AcquiringIntegrationContextSchema } from '@app/condo/schema'
 
-type IInvoiceContext = {
-    invoiceContext: InvoiceContextSchema
-    refetchInvoiceContext: () => void
+type IAcquiringContext = {
+    acquiringContext: AcquiringIntegrationContextSchema
+    refetchAcquiringContext: () => void
 }
 
-export const InvoiceContext = createContext<IInvoiceContext>({
-    invoiceContext: null,
-    refetchInvoiceContext: () => ({}),
+export const AcquiringContext = createContext<IAcquiringContext>({
+    acquiringContext: null,
+    refetchAcquiringContext: () => ({}),
 })
 
-export function useInvoiceContext (): IInvoiceContext {
-    return useContext(InvoiceContext)
+export function useAcquiringContext (): IAcquiringContext {
+    return useContext(AcquiringContext)
 }

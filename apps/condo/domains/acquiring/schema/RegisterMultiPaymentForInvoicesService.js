@@ -4,17 +4,17 @@
 
 const Big = require('big.js')
 const dayjs = require('dayjs')
-const { uniq, map, find: _find, get } = require('lodash')
+const { uniq, map, get } = require('lodash')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, find, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/RegisterMultiPaymentForInvoicesService')
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const {
     ACQUIRING_INTEGRATION_IS_DELETED,
     INVOICES_ARE_NOT_PUBLISHED,
     INVOICE_CONTEXT_NOT_FINISHED,
-    INVOICES_HAS_MULTIPLE_CURRENCIES,
     MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS,
 } = require('@condo/domains/acquiring/constants/errors')
 const {
@@ -34,8 +34,9 @@ const {
     FeeDistribution,
     compactDistributionSettings,
 } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
+const { DEFAULT_CURRENCY_CODE } = require('@condo/domains/common/constants/currencies')
 const { NOT_FOUND, NOT_UNIQUE } = require('@condo/domains/common/constants/errors')
-const { INVOICE_STATUS_PUBLISHED, INVOICE_CONTEXT_STATUS_FINISHED } = require('@condo/domains/marketplace/constants')
+const { INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -85,11 +86,6 @@ const ERRORS = {
         type: INVOICE_CONTEXT_NOT_FINISHED,
         message: 'Invoice context is not finished',
     },
-    INVOICES_HAS_MULTIPLE_CURRENCIES: {
-        code: BAD_USER_INPUT,
-        type: INVOICES_HAS_MULTIPLE_CURRENCIES,
-        message: 'Invoices has multiple currencies',
-    },
 }
 
 const RegisterMultiPaymentForInvoicesService = new GQLCustomSchema('RegisterMultiPaymentForInvoicesService', {
@@ -108,7 +104,7 @@ const RegisterMultiPaymentForInvoicesService = new GQLCustomSchema('RegisterMult
         {
             access: access.canRegisterMultiPaymentForInvoices,
             schema: 'registerMultiPaymentForInvoices(data: RegisterMultiPaymentForInvoicesInput!): RegisterMultiPaymentForInvoicesOutput',
-            resolver: async (parent, args, context, info, extra = {}) => {
+            resolver: async (parent, args, context) => {
                 const { data } = args
                 const { sender, invoices } = data
 
@@ -129,13 +125,14 @@ const RegisterMultiPaymentForInvoicesService = new GQLCustomSchema('RegisterMult
                 if (deletedInvoicesIds.length) {
                     throw new GQLError(ERRORS.DELETED_INVOICES(deletedInvoicesIds), context)
                 }
-                const invoicesContexts = await find('InvoiceContext', {
+
+                const acquiringContexts = await find('AcquiringIntegrationContext', {
+                    organization: { id_in: uniq(map(foundInvoices, 'organization')) },
                     deletedAt: null,
-                    id_in: uniq(map(foundInvoices, 'context')),
                 })
 
                 const acquiringIntegrations = new Set([
-                    ...invoicesContexts.map(context => context.integration),
+                    ...acquiringContexts.map(context => context.integration),
                 ])
 
                 if (acquiringIntegrations.size > 1) {
@@ -160,29 +157,24 @@ const RegisterMultiPaymentForInvoicesService = new GQLCustomSchema('RegisterMult
                     throw new GQLError(ERRORS.NOT_UNIQUE_CLIENTS, context)
                 }
 
-                // All invoices contexts must be finished
-                if (invoicesContexts.some(({ status }) => status !== INVOICE_CONTEXT_STATUS_FINISHED)) {
+                // All acquiring contexts must be finished
+                if (acquiringContexts.some(({ invoiceStatus }) => invoiceStatus !== CONTEXT_FINISHED_STATUS)) {
                     throw new GQLError(ERRORS.INVOICE_CONTEXT_NOT_FINISHED, context)
                 }
 
-                // All invoices context must have the same currencyCode
-                if (uniq(invoicesContexts.map(({ currencyCode }) => currencyCode)).length !== 1) {
-                    throw new GQLError(ERRORS.INVOICES_HAS_MULTIPLE_CURRENCIES, context)
-                }
-
+                const acquiringContext = acquiringContexts[0]
                 const payments = []
-                const acquiringIntegration = await getById('AcquiringIntegration', invoicesContexts[0].integration)
+                const acquiringIntegration = await getById('AcquiringIntegration', acquiringContext.integration)
 
                 for (const invoice of foundInvoices) {
-                    const invoiceContext = _find(invoicesContexts, { id: invoice.context })
                     const frozenInvoice = await freezeInvoice(invoice)
                     const feeCalculator = new FeeDistribution(compactDistributionSettings([
                         ...acquiringIntegration.explicitFeeDistributionSchema,
-                        { recipient: 'organization', percent: Big(invoiceContext.implicitFeePercent).toFixed(2) },
+                        ...acquiringContext.invoiceImplicitFeeDistributionSchema,
                     ]))
                     const organizationId = get(frozenInvoice, ['data', 'organization', 'id'])
-                    const routingNumber = get(frozenInvoice, ['data', 'context', 'recipient', 'bic'])
-                    const bankAccount = get(frozenInvoice, ['data', 'context', 'recipient', 'bankAccount'])
+                    const routingNumber = get(acquiringContext, ['invoiceRecipient', 'bic'])
+                    const bankAccount = get(acquiringContext, ['invoiceRecipient', 'bankAccount'])
 
                     const amount = String(Big(invoice.toPay))
 
@@ -208,8 +200,9 @@ const RegisterMultiPaymentForInvoicesService = new GQLCustomSchema('RegisterMult
                     const payment = await Payment.create(context, {
                         dv: 1,
                         sender,
+                        context: { connect: { id: acquiringContext.id } },
                         amount: amount,
-                        currencyCode: invoiceContext.currencyCode,
+                        currencyCode: DEFAULT_CURRENCY_CODE,
                         invoice: { connect: { id: invoice.id } },
                         frozenInvoice,
                         period: dayjs().format('YYYY-MM-01'),
@@ -221,8 +214,6 @@ const RegisterMultiPaymentForInvoicesService = new GQLCustomSchema('RegisterMult
 
                     payments.push({ ...payment, serviceFee: paymentCommissionFields.serviceFee })
                 }
-
-                const currencyCode = get(invoicesContexts, [0, 'currencyCode'])
 
                 const paymentIds = payments.map(payment => ({ id: payment.id }))
                 const totalAmount = payments.reduce((acc, cur) => {
@@ -245,7 +236,7 @@ const RegisterMultiPaymentForInvoicesService = new GQLCustomSchema('RegisterMult
                     dv: 1,
                     sender,
                     ...Object.fromEntries(Object.entries(totalAmount).map(([key, value]) => ([key, value.toFixed(2)]))),
-                    currencyCode,
+                    currencyCode: DEFAULT_CURRENCY_CODE,
                     integration: { connect: { id: acquiringIntegrationModel.id } },
                     payments: { connect: paymentIds },
                     // TODO(DOMA-1574): add correct category

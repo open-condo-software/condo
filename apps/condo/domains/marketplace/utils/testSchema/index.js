@@ -3,7 +3,6 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
-const Big = require('big.js')
 const { faker } = require('@faker-js/faker')
 const path = require('path')
 const conf = require('@open-condo/config')
@@ -11,10 +10,10 @@ const { UploadingFile } = require('@open-condo/keystone/test.utils')
 
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
-const { InvoiceContext: InvoiceContextGQL, Invoice: InvoiceGQL } = require('@condo/domains/marketplace/gql')
+const { Invoice: InvoiceGQL } = require('@condo/domains/marketplace/gql')
 const { MarketCategory: MarketCategoryGQL } = require('@condo/domains/marketplace/gql')
 const { MarketItem: MarketItemGQL } = require('@condo/domains/marketplace/gql')
-const { VAT_OPTIONS, TAX_REGIME_GENEGAL, INVOICE_PAYMENT_TYPE_ONLINE } = require('@condo/domains/marketplace/constants')
+const {  INVOICE_PAYMENT_TYPE_ONLINE } = require('@condo/domains/marketplace/constants')
 const { MarketItemFile: MarketItemFileGQL } = require('@condo/domains/marketplace/gql')
 const { MarketItemPrice: MarketItemPriceGQL } = require('@condo/domains/marketplace/gql')
 const { MarketPriceScope: MarketPriceScopeGQL } = require('@condo/domains/marketplace/gql')
@@ -22,7 +21,6 @@ const { REGISTER_INVOICE_MUTATION } = require('@condo/domains/marketplace/gql')
 const { GET_INVOICE_BY_USER_QUERY } = require('@condo/domains/marketplace/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const InvoiceContext = generateGQLTestUtils(InvoiceContextGQL)
 const MarketCategory = generateGQLTestUtils(MarketCategoryGQL)
 const MarketItem = generateGQLTestUtils(MarketItemGQL)
 const Invoice = generateGQLTestUtils(InvoiceGQL)
@@ -32,39 +30,6 @@ const MarketItemPrice = generateGQLTestUtils(MarketItemPriceGQL)
 const MarketPriceScope = generateGQLTestUtils(MarketPriceScopeGQL)
 
 /* AUTOGENERATE MARKER <CONST> */
-
-async function createTestInvoiceContext (client, organization, integration, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!organization || !organization.id) throw new Error('no organization.id')
-    if (!integration || !integration.id) throw new Error('no integration.id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        integration: { connect: { id: integration.id } },
-        organization: { connect: { id: organization.id } },
-        taxRegime: TAX_REGIME_GENEGAL,
-        currencyCode: 'RUB',
-        ...extraAttrs,
-    }
-    const obj = await InvoiceContext.create(client, attrs)
-    return [obj, attrs]
-}
-
-async function updateTestInvoiceContext (client, id, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!id) throw new Error('no id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const obj = await InvoiceContext.update(client, id, attrs)
-    return [obj, attrs]
-}
 
 const TEST_FILE = path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/dino.png')
 
@@ -136,9 +101,6 @@ function generateInvoiceRow (attrs = {}) {
         name: faker.commerce.productName(),
         toPay: String(faker.commerce.price()),
         count: faker.datatype.number({ min: 1, max: 3 }),
-        currencyCode: 'RUB',
-        vatPercent: String(VAT_OPTIONS[0]),
-        salesTaxPercent: String(faker.datatype.number({ min: 0, max: 7 })),
         sku: faker.random.word(),
         isMin: false,
         ...attrs,
@@ -162,13 +124,9 @@ function generateInvoiceRows (rowsCount = null) {
 function generatePriceRow (attrs = {}) {
     return {
         type: 'variant',
-        group: faker.word.noun(),
         name: faker.commerce.productName(),
         price: String(faker.commerce.price()),
         isMin: false,
-        vatPercent: String(VAT_OPTIONS[0]),
-        salesTaxPercent: String(faker.datatype.number({ min: 0, max: 3 })),
-        currencyCode: 'RUB',
         ...attrs,
     }
 }
@@ -187,9 +145,9 @@ function generatePriceRows (rowsCount) {
     return rows
 }
 
-async function createTestInvoice (client, invoiceContext, extraAttrs = {}) {
+async function createTestInvoice (client, organization, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    if (!invoiceContext || !invoiceContext.id) throw new Error('no invoiceContext.id')
+    if (!organization || !organization.id) throw new Error('no organization.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const rows = generateInvoiceRows()
@@ -197,7 +155,7 @@ async function createTestInvoice (client, invoiceContext, extraAttrs = {}) {
     const attrs = {
         dv: 1,
         sender,
-        context: { connect: { id: invoiceContext.id } },
+        organization: { connect: { id: organization.id } },
         rows,
         accountNumber: faker.random.alphaNumeric(13),
         ...extraAttrs,
@@ -369,7 +327,6 @@ async function getInvoiceByUserByTestClient(client, extraAttrs = {}) {
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
-    InvoiceContext, createTestInvoiceContext, updateTestInvoiceContext,
     MarketCategory, createTestMarketCategory, updateTestMarketCategory,
     MarketItem, createTestMarketItem, updateTestMarketItem,
     Invoice, createTestInvoice, updateTestInvoice,
