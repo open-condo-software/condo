@@ -90,4 +90,5 @@ class GraphQLLoggerPlugin {
 
 module.exports = {
     GraphQLLoggerPlugin,
+    getGraphQLReqLoggerContext,
 }
