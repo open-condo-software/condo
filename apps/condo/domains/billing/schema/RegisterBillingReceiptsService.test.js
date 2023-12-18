@@ -48,6 +48,7 @@ describe('RegisterBillingReceiptsService', () => {
         support = await makeClientWithSupportUser()
         anonymous = await makeClient()
         user = await makeLoggedInClient()
+        process.env.ADDRESS_SERVICE_CLIENT_MODE = 'fake'
     })
 
     describe('Execute', () => {

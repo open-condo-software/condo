@@ -305,6 +305,18 @@ describe('RegisterBillingReceiptsService', () => {
             })
         })
         describe('Common behaviour', () => {
+            test('Works on several receipts', async () => {
+                const receipt1 = createJSONReceipt()
+                const receipt2 = createJSONReceipt({
+                    address: createAddressWithUnit(),
+                    accountNumber: randomNumber(10).toString(),
+                })
+                const [createdReceipts] = await registerBillingReceiptsByTestClient(clients.admin, {
+                    context: { id: integration.billingContext.id },
+                    receipts: [receipt1, receipt2],
+                })
+                expect(createdReceipts[0].id).not.toEqual(createdReceipts[1].id)
+            })
             test('Fields with relations  are created', async () => {
                 const createInput = createJSONReceipt()
                 const [[createdReceipt]] = await registerBillingReceiptsByTestClient(clients.admin, {
