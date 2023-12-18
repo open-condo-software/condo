@@ -12,8 +12,8 @@ const {
     NO_PROPERTY_IN_ORGANIZATION,
     ADDRESS_SERVICE_NORMALIZE_CHUNK_SIZE,
 } = require('@condo/domains/billing/constants/registerBillingReceiptService')
-const { isValidFias } = require('@condo/domains/billing/schema/resolvers/lib')
 const { Resolver } = require('@condo/domains/billing/schema/resolvers/resolver')
+const { isValidFias } = require('@condo/domains/billing/schema/resolvers/utils')
 const { FLAT_UNIT_TYPE : DEFAULT_UNIT_TYPE, UNIT_TYPES } = require('@condo/domains/property/constants/common')
 
 const COTTAGE_UNIT = {

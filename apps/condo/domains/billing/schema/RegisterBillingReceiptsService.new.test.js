@@ -39,6 +39,7 @@ const createJSONReceipt = (extra = {}) => {
         year,
         services: generateServicesData(faker.datatype.number({ min: 3, max: 5 })),
         ...createRecipient(),
+        raw: extra,
         ...extra,
     }).filter(([, value]) => !!value))
 }
@@ -71,6 +72,7 @@ describe('RegisterBillingReceiptsService', () => {
         const [billingIntegration] = await createTestBillingIntegration(clients.admin)
         const [billingContext] = await createTestBillingIntegrationOrganizationContext(clients.admin, organization, billingIntegration)
         integration = { organization, billingIntegration, billingContext }
+        process.env.ADDRESS_SERVICE_CLIENT_MODE = 'fake'
     })
 
     describe('PeriodResolver',  () => {
@@ -302,8 +304,8 @@ describe('RegisterBillingReceiptsService', () => {
                 expect(updatedReceipt.services.map(({ id, name, toPay }) => ({ id, name, toPay }) )).toEqual(updateServices.map(({ id, name, toPay }) => ({ id, name, toPay }) ))
             })
         })
-        describe('Check receipt output', () => {
-            test('related fields are created', async () => {
+        describe('Common behaviour', () => {
+            test('Fields with relations  are created', async () => {
                 const createInput = createJSONReceipt()
                 const [[createdReceipt]] = await registerBillingReceiptsByTestClient(clients.admin, {
                     context: { id: integration.billingContext.id },
@@ -313,6 +315,19 @@ describe('RegisterBillingReceiptsService', () => {
                 expect(createdReceipt.account.id).toBeDefined()
                 expect(createdReceipt.receiver.id).toBeDefined()
                 expect(createdReceipt.context.id).toBeDefined()
+            })
+            test('Will not invoke update on nothing changed', async () => {
+                const createInput = createJSONReceipt()
+                const [[createdReceipt]] = await registerBillingReceiptsByTestClient(clients.admin, {
+                    context: { id: integration.billingContext.id },
+                    receipts: [createInput],
+                })
+                const [[updatedReceipt]] = await registerBillingReceiptsByTestClient(clients.admin, {
+                    context: { id: integration.billingContext.id },
+                    receipts: [createInput],
+                })
+                expect(createdReceipt.id).toEqual(updatedReceipt.id)
+                expect(createdReceipt.v).toEqual(updatedReceipt.v)
             })
         })
         describe('Resolvers tests', () => {
