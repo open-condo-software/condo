@@ -3,7 +3,7 @@
  */
 
 const { Text, Relationship, Checkbox } = require('@keystonejs/fields')
-const { get, uniq } = require('lodash')
+const { get, has, uniq } = require('lodash')
 
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, find } = require('@open-condo/keystone/schema')
@@ -93,8 +93,10 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
             isRequired: false,
             hooks: {
                 resolveInput: async ({ resolvedData, fieldPath }) => {
-                    const values = get(resolvedData, fieldPath, '') || ''
-                    return uniq(values.split(',').map(Number).filter((value) => !isNaN(value))).join(',')
+                    if (has(resolvedData, fieldPath)) {
+                        const values = get(resolvedData, fieldPath, '') || ''
+                        return uniq(values.split(',').map(Number).filter((value) => !isNaN(value))).join(',')
+                    }
                 },
             },
         },

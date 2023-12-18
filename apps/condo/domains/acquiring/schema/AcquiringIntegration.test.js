@@ -191,6 +191,9 @@ describe('AcquiringIntegration', () => {
 
             const [updatedIntegration1] = await updateTestAcquiringIntegration(admin, integration.id, { vatPercentOptions: '.,hello,0,,50,oops,.7,..|,' })
             expect(updatedIntegration1.vatPercentOptions).toBe('0,50,0.7')
+
+            const [updatedIntegration2] = await updateTestAcquiringIntegration(admin, integration.id)
+            expect(updatedIntegration2.vatPercentOptions).toBe('0,50,0.7')
         })
     })
 })
