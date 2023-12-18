@@ -33,7 +33,6 @@ const YandexMetrika = () => {
                 accurateTrackBounce:true,
                 webvisor:true,
             }}
-            version='2'
         />
 
     ) : null
