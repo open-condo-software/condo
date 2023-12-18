@@ -4,7 +4,7 @@
 
 const { Text, Relationship, Virtual } = require('@keystonejs/fields')
 const { Big } = require('big.js')
-const { get } = require('lodash')
+const { get, isEmpty } = require('lodash')
 
 const { readOnlyFieldAccess } = require('@open-condo/keystone/access')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
@@ -218,8 +218,11 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             resolver: async (item, args, context) => {
                 const billingContext = await getById('BillingIntegrationOrganizationContext', item.context)
                 const acquiringContext = await find('AcquiringIntegrationContext', { organization: { id: billingContext.organization }, status: CONTEXT_FINISHED_STATUS })
-                const acquiringIntegration = await getById('AcquiringIntegration', acquiringContext[0].integration, null)
-                return get(acquiringIntegration, 'id', null)
+                if (!isEmpty(acquiringContext)) {
+                    const acquiringIntegration = await getById('AcquiringIntegration', get(acquiringContext[0], 'integration', null))
+                    return get(acquiringIntegration, 'id', null)
+                }
+                return null
             },
         },
 
@@ -229,9 +232,12 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             graphQLReturnType: 'String',
             resolver: async (item, args, context) => {
                 const billingContext = await getById('BillingIntegrationOrganizationContext', item.context)
-                const acquiringContext = await find('AcquiringIntegrationContext', { organization: { id: billingContext.organization }, status: CONTEXT_FINISHED_STATUS })
-                const acquiringIntegration = await getById('AcquiringIntegration', acquiringContext[0].integration, null)
-                return get(acquiringIntegration, 'hostUrl', null)
+                const acquiringContext = await find('AcquiringIntegrationContext', { organization: { id: billingContext.organization }, status: CONTEXT_FINISHED_STATUS, deletedAt: null })
+                if (!isEmpty(acquiringContext)) {
+                    const acquiringIntegration = await getById('AcquiringIntegration', get(acquiringContext[0], 'integration', null))
+                    return get(acquiringIntegration, 'hostUrl', null)
+                }
+                return null
             },
         },
 
@@ -241,9 +247,12 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             graphQLReturnType: 'Boolean',
             resolver: async (item, args, context) => {
                 const billingContext = await getById('BillingIntegrationOrganizationContext', item.context)
-                const acquiringContext = await find('AcquiringIntegrationContext', { organization: { id: billingContext.organization }, status: CONTEXT_FINISHED_STATUS })
-                const acquiringIntegration = await getById('AcquiringIntegration', acquiringContext[0].integration, null)
-                return get(acquiringIntegration, 'canGroupReceipts', null)
+                const acquiringContext = await find('AcquiringIntegrationContext', { organization: { id: billingContext.organization }, status: CONTEXT_FINISHED_STATUS, deletedAt: null })
+                if (!isEmpty(acquiringContext)) {
+                    const acquiringIntegration = await getById('AcquiringIntegration', get(acquiringContext[0], 'integration', null))
+                    return get(acquiringIntegration, 'canGroupReceipts', null)
+                }
+                return null
             },
         },
 
