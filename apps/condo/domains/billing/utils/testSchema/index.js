@@ -52,6 +52,7 @@ const BillingReceiptFile = generateGQLTestUtils(BillingReceiptFileGQL)
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 
 const bannerVariants = [
     { bannerColor: "#9b9dfa", bannerTextColor: "WHITE" },
@@ -650,13 +651,20 @@ async function addBillingIntegrationAndContext(client, organization, integration
     }
 }
 
-async function makeContextWithOrganizationAndIntegrationAsAdmin( integrationAttrs={}, organizationAttrs = {}, contextAttrs= {} ) {
+async function makeContextWithOrganizationAndIntegrationAsAdmin( integrationAttrs={}, organizationAttrs = {}, contextAttrs= {}, processingBillingContext = false ) {
+    let context
     const admin = await makeLoggedInAdminClient()
     const [integration] = await createTestBillingIntegration(admin, integrationAttrs)
     const [organization] = await registerNewOrganization(admin, organizationAttrs)
-    const [context] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration, contextAttrs)
+    ;[context] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration, contextAttrs)
+    if (!processingBillingContext) [context] = await updateTestBillingIntegrationOrganizationContext(admin, context.id, { status: CONTEXT_FINISHED_STATUS})
 
-    return { context, integration, organization, admin }
+    return {
+        context,
+        integration,
+        organization,
+        admin,
+    }
 }
 
 async function makeServiceUserForIntegration(integration) {
@@ -746,33 +754,34 @@ async function makeResidentClientWithOwnReceipt(existingResidentClient) {
     }
 
     const adminClient = await makeLoggedInAdminClient()
-    const { context, integration, organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+    const { context: contextCreated, integration, organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+    const [context] = await updateTestBillingIntegrationOrganizationContext(adminClient, contextCreated.id, { status: CONTEXT_FINISHED_STATUS })
 
     const [property] = await createTestProperty(adminClient, organization)
 
-    const addr = property.address
-    const addrMeta = property.addressMeta
+    const address = property.address
+    const addressMeta = property.addressMeta
 
     const [resident] = await registerResidentByTestClient(residentClient, {
-        address: addr,
-        addressMeta: addrMeta,
+        address,
+        addressMeta,
     })
 
     const unitName = resident.unitName
     const unitType = resident.unitType
 
     const [billingProperty] = await createTestBillingProperty(adminClient, context, {
-        address: addr,
+        address,
     })
     const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty, {
-        unitName: unitName,
-        unitType: unitType,
+        unitName,
+        unitType,
     })
     const accountNumber = billingAccount.number
 
     const [serviceConsumer] = await registerServiceConsumerByTestClient(residentClient, {
         residentId: resident.id,
-        accountNumber: accountNumber,
+        accountNumber,
         organizationId: organization.id,
     })
 

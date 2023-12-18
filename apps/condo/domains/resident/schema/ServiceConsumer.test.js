@@ -11,6 +11,7 @@ const {
     waitFor,
 } = require('@open-condo/keystone/test.utils')
 
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const {
     createTestRecurrentPaymentContext,
     RecurrentPaymentContext,
@@ -246,8 +247,8 @@ describe('ServiceConsumer', () => {
         it('Client lives in organization A and pays for water to organization B. When getting his ServiceConsumers client has access to inner fields', async () => {
             const UNIT_NAME = '22'
 
-            const { organizationClient: managementCompanyOrganizationClient } = await makeClientWithPropertyAndBilling({ billingAccountAttrs: { unitName: UNIT_NAME } })
-            const { organizationClient: waterCompanyOrganizationClient } = await makeClientWithPropertyAndBilling({ billingAccountAttrs: { unitName: UNIT_NAME } })
+            const { organizationClient: managementCompanyOrganizationClient } = await makeClientWithPropertyAndBilling({ billingAccountAttrs: { unitName: UNIT_NAME }, billingIntegrationContextArgs: { status: CONTEXT_FINISHED_STATUS } })
+            const { organizationClient: waterCompanyOrganizationClient } = await makeClientWithPropertyAndBilling({ billingAccountAttrs: { unitName: UNIT_NAME }, billingIntegrationContextArgs: { status: CONTEXT_FINISHED_STATUS } })
 
             const residentClient = await makeClientWithResidentUser()
             const [ resident ] = await registerResidentByTestClient(residentClient, {

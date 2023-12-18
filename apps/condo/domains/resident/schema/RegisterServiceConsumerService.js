@@ -237,9 +237,9 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                     paymentCategory: paymentCategory,
                 }
 
-                const [ billingIntegrationContext ] = await BillingIntegrationOrganizationContext.getAll(context, { organization: { id: organization.id, deletedAt: null }, deletedAt: null })
+                const [ billingIntegrationContext ] = await BillingIntegrationOrganizationContext.getAll(context, { status: CONTEXT_FINISHED_STATUS, organization: { id: organization.id, deletedAt: null }, deletedAt: null })
                 if (billingIntegrationContext) {
-                    const [acquiringIntegrationContext] = await AcquiringIntegrationContext.getAll(context, { organization: { id: organization.id, deletedAt: null }, deletedAt: null })
+                    const [acquiringIntegrationContext] = await AcquiringIntegrationContext.getAll(context, { status: CONTEXT_FINISHED_STATUS, organization: { id: organization.id, deletedAt: null }, deletedAt: null })
                     const [billingAccount] = await BillingAccount.getAll(context,
                         {
                             context: { id: billingIntegrationContext.id },
