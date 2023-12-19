@@ -70,8 +70,16 @@ yarn workspace @app/condo makemigrations --check &> /dev/null
 
 source bin/validate-db-schema-ts-to-match-graphql-api.sh
 
-yarn workspace @app/condo worker 2>&1 > condo.worker.log &
-sleep 3
+cpu_count=$(getconf _NPROCESSORS_ONLN)
+
+for (( i=0; i < $((cpu_count / 2)); ++i ))
+do
+    yarn workspace @app/condo worker 2>&1 > condo.workeri.log &
+    sleep 3
+done
+
+#yarn workspace @app/condo worker 2>&1 > condo.worker.log &
+#sleep 3
 
 # And check background processes!
 [[ $(jobs | wc -l | tr -d ' ') != '2' ]] && exit 2
