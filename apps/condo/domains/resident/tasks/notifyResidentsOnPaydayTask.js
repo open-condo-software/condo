@@ -4,7 +4,7 @@ const { featureToggleManager } = require('@open-condo/featureflags/featureToggle
 const { getLogger } = require('@open-condo/keystone/logging')
 const { createCronTask } = require('@open-condo/keystone/tasks')
 
-const { SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_TASK } = require('@condo/domains/common/constants/featureflags')
+const { SEND_BILLING_RECEIPTS_ON_PAYDAY_REMAINDER_TASK } = require('@condo/domains/common/constants/featureflags')
 
 const { notifyResidentsOnPayday } = require('./notifyResidentsOnPayday')
 
@@ -12,10 +12,10 @@ const { notifyResidentsOnPayday } = require('./notifyResidentsOnPayday')
 const logger = getLogger('meter/sendSubmitMeterReadingsPushNotifications')
 
 module.exports = createCronTask('notifyResidentsOnPayday', '0 13 * * *', async (context = null) => {
-    const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(context, SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_TASK)
+    const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(context, SEND_BILLING_RECEIPTS_ON_PAYDAY_REMAINDER_TASK)
 
     if (!isFeatureEnabled) {
-        logger.info(`Skip notifyResidentsOnPayday task due to disabled GrowthBook feature flag [${SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_TASK}]`)
+        logger.info(`Skip notifyResidentsOnPayday task due to disabled GrowthBook feature flag [${SEND_BILLING_RECEIPTS_ON_PAYDAY_REMAINDER_TASK}]`)
 
         return 'disabled'
     }
