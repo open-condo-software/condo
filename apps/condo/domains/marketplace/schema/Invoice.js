@@ -13,6 +13,7 @@ const pick = require('lodash/pick')
 const pickBy = require('lodash/pickBy')
 
 const conf = require('@open-condo/config')
+const { userIsAdmin } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById, getByCondition, find } = require('@open-condo/keystone/schema')
@@ -174,7 +175,10 @@ const Invoice = new GQLListSchema('Invoice', {
         },
 
         client: {
-            schemaDoc: 'The user who sees the invoice. Must filled with the user of corresponding resident.',
+            schemaDoc: 'This field indicates, that the Invoice is visible to a Resident and it has access to it. ' +
+                'This field will be set to User of corresponding Resident in following cases: ' +
+                '1) the Invoice was created by Resident from mobile app;' +
+                '2) the Invoice was created by OrganizationEmployee with phone number, that matches some Resident;',
             type: 'Relationship',
             ref: 'User',
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
@@ -185,7 +189,7 @@ const Invoice = new GQLListSchema('Invoice', {
         clientPhone: CLIENT_PHONE_LANDLINE_FIELD,
 
         status: {
-            schemaDoc: 'Invoice status affects which invoices can be read by residents and which invoices can be managed',
+            schemaDoc: 'Invoice status affects which invoices can be read by residents and which invoices can be managed. The newly created invoice has status "draft"; the "published" invoice may be paid by resident; "paid" means that invoice already paid; "canceled" means no modifications allowed. Each status, except draft, has related timestamp.',
             isRequired: true,
             type: 'Select',
             dataType: 'string',
@@ -205,16 +209,19 @@ const Invoice = new GQLListSchema('Invoice', {
         publishedAt: {
             schemaDoc: 'When status of the invoice was changed to published (ready to pay)',
             type: 'DateTimeUtc',
+            access: { create: false, read: true, update: userIsAdmin },
         },
 
         paidAt: {
             schemaDoc: 'When status of the invoice was changed to paid',
             type: 'DateTimeUtc',
+            access: { create: false, read: true, update: userIsAdmin },
         },
 
         canceledAt: {
             schemaDoc: 'When status of the invoice was changed to canceled',
             type: 'DateTimeUtc',
+            access: { create: false, read: true, update: userIsAdmin },
         },
 
         recipient: {

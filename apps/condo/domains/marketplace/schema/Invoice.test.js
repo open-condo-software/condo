@@ -669,6 +669,43 @@ describe('Invoice', () => {
 
         describe('The time when some status set', () => {
 
+            describe('who can update timestamp', () => {
+                const timestampFields = ['publishedAt', 'paidAt', 'canceledAt']
+                let invoice
+                const publishedAt = dayjs().toISOString()
+                const paidAt = dayjs().toISOString()
+                const canceledAt = dayjs().toISOString()
+
+                beforeAll(async () => {
+                    [invoice] = await createTestInvoice(adminClient, dummyO10n)
+                })
+                describe.each(timestampFields)('%p', () => {
+                    test('admin can', async () => {
+                        const [updated1] = await updateTestInvoice(adminClient, invoice.id, { publishedAt })
+                        expect(updated1.publishedAt).toBe(publishedAt)
+
+                        const [updated2] = await updateTestInvoice(adminClient, invoice.id, { paidAt })
+                        expect(updated2.paidAt).toBe(paidAt)
+
+                        const [updated3] = await updateTestInvoice(adminClient, invoice.id, { canceledAt })
+                        expect(updated3.canceledAt).toBe(canceledAt)
+                    })
+
+                    test('support can\'t', async () => {
+                        await expectToThrowAccessDeniedErrorToObj(async () => updateTestInvoice(supportClient, invoice.id, { publishedAt }))
+                        await expectToThrowAccessDeniedErrorToObj(async () => updateTestInvoice(supportClient, invoice.id, { paidAt }))
+                        await expectToThrowAccessDeniedErrorToObj(async () => updateTestInvoice(supportClient, invoice.id, { canceledAt }))
+                    })
+
+                    test('resident can\'t', async () => {
+                        const residentClient = await makeClientWithResidentUser()
+                        await expectToThrowAccessDeniedErrorToObj(async () => updateTestInvoice(residentClient, invoice.id, { publishedAt }))
+                        await expectToThrowAccessDeniedErrorToObj(async () => updateTestInvoice(residentClient, invoice.id, { paidAt }))
+                        await expectToThrowAccessDeniedErrorToObj(async () => updateTestInvoice(residentClient, invoice.id, { canceledAt }))
+                    })
+                })
+            })
+
             test('publishedAt', async () => {
                 const [invoice] = await createTestInvoice(adminClient, dummyO10n)
                 expect(invoice.publishedAt).toBeNull()

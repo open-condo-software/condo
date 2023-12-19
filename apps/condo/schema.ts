@@ -25663,13 +25663,13 @@ export type Invoice = {
   ticket?: Maybe<Ticket>;
   /**  The contact the invoice created for. Fill by organization  */
   contact?: Maybe<Contact>;
-  /**  The user who sees the invoice. Must filled with the user of corresponding resident.  */
+  /**  This field indicates, that the Invoice is visible to a Resident and it has access to it. This field will be set to User of corresponding Resident in following cases: 1) the Invoice was created by Resident from mobile app;2) the Invoice was created by OrganizationEmployee with phone number, that matches some Resident;  */
   client?: Maybe<User>;
   /**  Inhabitant/customer/person who has a problem. Sometimes we get a problem from an unregistered client, in such cases we have a null inside the `client` and just have something here. Or sometimes clients want to change it  */
   clientName?: Maybe<Scalars['String']>;
   /**  Inhabitant/customer/person who has a problem. Sometimes we get a problem from an unregistered client, in such cases we have a null inside the `client` and just have something here. Or sometimes clients want to change it  */
   clientPhone?: Maybe<Scalars['String']>;
-  /**  Invoice status affects which invoices can be read by residents and which invoices can be managed  */
+  /**  Invoice status affects which invoices can be read by residents and which invoices can be managed. The newly created invoice has status "draft"; the "published" invoice may be paid by resident; "paid" means that invoice already paid; "canceled" means no modifications allowed. Each status, except draft, has related timestamp.  */
   status?: Maybe<Scalars['String']>;
   /**  Shows which payment type chosen: online or cash or something else  */
   paymentType?: Maybe<Scalars['String']>;
@@ -26455,7 +26455,7 @@ export type MarketCategory = {
   mobileSettings?: Maybe<MarketCategoryMobileSettingsSchemaFieldInput>;
   /**  Which category does this subcategory belong to  */
   parentCategory?: Maybe<MarketCategory>;
-  /**  The number used for sorting at the client  */
+  /**  The number used for sorting at the client. It's possible to sort categories any manner. For example, set some category to the bottom by setting order=100 and sorting asc.  */
   order?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;

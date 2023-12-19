@@ -73,7 +73,7 @@ const MarketCategory = new GQLListSchema('MarketCategory', {
         },
 
         order: {
-            schemaDoc: 'The number used for sorting at the client',
+            schemaDoc: 'The number used for sorting at the client. It\'s possible to sort categories any manner. For example, set some category to the bottom by setting order=100 and sorting asc.',
             type: 'Integer',
             defaultValue: 0,
         },

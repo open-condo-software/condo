@@ -66918,7 +66918,8 @@ type MarketCategory {
   """ Which category does this subcategory belong to """
   parentCategory: MarketCategory
 
-  """ The number used for sorting at the client """
+  """ The number used for sorting at the client. It's possible to sort categories any manner. For example, set some category to the bottom by setting order=100 and sorting asc. 
+  """
   order: Int
   id: ID!
   v: Int
@@ -68131,7 +68132,7 @@ type Invoice {
   """ The contact the invoice created for. Fill by organization """
   contact: Contact
 
-  """ The user who sees the invoice. Must filled with the user of corresponding resident. 
+  """ This field indicates, that the Invoice is visible to a Resident and it has access to it. This field will be set to User of corresponding Resident in following cases: 1) the Invoice was created by Resident from mobile app;2) the Invoice was created by OrganizationEmployee with phone number, that matches some Resident; 
   """
   client: User
 
@@ -68143,7 +68144,7 @@ type Invoice {
   """
   clientPhone: String
 
-  """ Invoice status affects which invoices can be read by residents and which invoices can be managed 
+  """ Invoice status affects which invoices can be read by residents and which invoices can be managed. The newly created invoice has status "draft"; the "published" invoice may be paid by resident; "paid" means that invoice already paid; "canceled" means no modifications allowed. Each status, except draft, has related timestamp. 
   """
   status: String
 
