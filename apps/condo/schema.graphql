@@ -67731,6 +67731,10 @@ type InvoiceHistoryRecord {
   paidAt: String
   canceledAt: String
   recipient: JSON
+  acquiringIntegrationId: JSON
+  hostUrl: JSON
+  canGroupReceipts: JSON
+  currencyCode: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -67939,6 +67943,22 @@ input InvoiceHistoryRecordWhereInput {
   recipient_not: JSON
   recipient_in: [JSON]
   recipient_not_in: [JSON]
+  acquiringIntegrationId: JSON
+  acquiringIntegrationId_not: JSON
+  acquiringIntegrationId_in: [JSON]
+  acquiringIntegrationId_not_in: [JSON]
+  hostUrl: JSON
+  hostUrl_not: JSON
+  hostUrl_in: [JSON]
+  hostUrl_not_in: [JSON]
+  canGroupReceipts: JSON
+  canGroupReceipts_not: JSON
+  canGroupReceipts_in: [JSON]
+  canGroupReceipts_not_in: [JSON]
+  currencyCode: JSON
+  currencyCode_not: JSON
+  currencyCode_in: [JSON]
+  currencyCode_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -68082,6 +68102,10 @@ input InvoiceHistoryRecordUpdateInput {
   paidAt: String
   canceledAt: String
   recipient: JSON
+  acquiringIntegrationId: JSON
+  hostUrl: JSON
+  canGroupReceipts: JSON
+  currencyCode: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -68121,6 +68145,10 @@ input InvoiceHistoryRecordCreateInput {
   paidAt: String
   canceledAt: String
   recipient: JSON
+  acquiringIntegrationId: JSON
+  hostUrl: JSON
+  canGroupReceipts: JSON
+  currencyCode: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -68245,6 +68273,19 @@ type Invoice {
 
   """ The recipient's requisites """
   recipient: RecipientField
+
+  """ Integration ID through which this invoice can be paid """
+  acquiringIntegrationId: ID
+
+  """ Url to acquiring integration service. Mobile devices will use it communicate with external acquiring. List of endpoints is the same for all of them. 
+  """
+  hostUrl: String
+
+  """ Can multiple receipts be united through this acquiring """
+  canGroupReceipts: Boolean
+
+  """ Code of currency in ISO-4217 format """
+  currencyCode: String
   id: ID!
   v: Int
   createdAt: String

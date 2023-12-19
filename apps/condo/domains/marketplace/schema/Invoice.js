@@ -41,7 +41,7 @@ const {
     ERROR_CLIENT_DATA_DOES_NOT_MATCH_TICKET,
     ERROR_FORBID_UPDATE_TICKET, CLIENT_DATA_FIELDS, COMMON_RESOLVED_FIELDS,
     ERROR_PUBLISHING_WITHOUT_DEFINED_PRICES_FORBIDDEN,
-    ERROR_NO_FINISHED_ACQUIRING_CONTEXT,
+    ERROR_NO_FINISHED_ACQUIRING_CONTEXT, DEFAULT_INVOICE_CURRENCY_CODE,
 } = require('@condo/domains/marketplace/constants')
 const { INVOICE_ROWS_FIELD } = require('@condo/domains/marketplace/schema/fields/invoiceRows')
 const { MarketItem } = require('@condo/domains/marketplace/utils/serverSchema')
@@ -244,8 +244,12 @@ const Invoice = new GQLListSchema('Invoice', {
             type: 'Virtual',
             graphQLReturnType: 'ID',
             resolver: async (item, args, context) => {
-                const invoiceContext = await getById('InvoiceContext', item.context)
-                return get(invoiceContext, 'integration', null)
+                const acquiringContext = await getByCondition('AcquiringIntegrationContext', {
+                    organization: { id: item.organization },
+                    deletedAt: null,
+                    invoiceStatus: CONTEXT_FINISHED_STATUS,
+                })
+                return get(acquiringContext, 'integration', null)
             },
         },
 
@@ -254,8 +258,12 @@ const Invoice = new GQLListSchema('Invoice', {
             type: 'Virtual',
             graphQLReturnType: 'String',
             resolver: async (item, args, context) => {
-                const invoiceContext = await getById('InvoiceContext', item.context)
-                const integration = await getById('AcquiringIntegration', invoiceContext.integration)
+                const acquiringContext = await getByCondition('AcquiringIntegrationContext', {
+                    organization: { id: item.organization },
+                    deletedAt: null,
+                    invoiceStatus: CONTEXT_FINISHED_STATUS,
+                })
+                const integration = await getById('AcquiringIntegration', acquiringContext.integration)
                 return get(integration, 'hostUrl', null)
             },
         },
@@ -265,8 +273,12 @@ const Invoice = new GQLListSchema('Invoice', {
             type: 'Virtual',
             graphQLReturnType: 'Boolean',
             resolver: async (item, args, context) => {
-                const invoiceContext = await getById('InvoiceContext', item.context)
-                const integration = await getById('AcquiringIntegration', invoiceContext.integration)
+                const acquiringContext = await getByCondition('AcquiringIntegrationContext', {
+                    organization: { id: item.organization },
+                    deletedAt: null,
+                    invoiceStatus: CONTEXT_FINISHED_STATUS,
+                })
+                const integration = await getById('AcquiringIntegration', acquiringContext.integration)
                 return get(integration, 'canGroupReceipts', null)
             },
         },
@@ -276,8 +288,7 @@ const Invoice = new GQLListSchema('Invoice', {
             type: 'Virtual',
             graphQLReturnType: 'String',
             resolver: async (item, args, context) => {
-                const invoiceContext = await getById('InvoiceContext', item.context)
-                return get(invoiceContext, 'currencyCode', null)
+                return DEFAULT_INVOICE_CURRENCY_CODE // Now we only allow payments in RUB, so temporarily this field will return a constant
             },
         },
 

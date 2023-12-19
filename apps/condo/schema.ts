@@ -25717,6 +25717,14 @@ export type Invoice = {
   canceledAt?: Maybe<Scalars['String']>;
   /**  The recipient's requisites  */
   recipient?: Maybe<RecipientField>;
+  /**  Integration ID through which this invoice can be paid  */
+  acquiringIntegrationId?: Maybe<Scalars['ID']>;
+  /**  Url to acquiring integration service. Mobile devices will use it communicate with external acquiring. List of endpoints is the same for all of them.  */
+  hostUrl?: Maybe<Scalars['String']>;
+  /**  Can multiple receipts be united through this acquiring  */
+  canGroupReceipts?: Maybe<Scalars['Boolean']>;
+  /**  Code of currency in ISO-4217 format  */
+  currencyCode?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -25793,6 +25801,10 @@ export type InvoiceHistoryRecord = {
   paidAt?: Maybe<Scalars['String']>;
   canceledAt?: Maybe<Scalars['String']>;
   recipient?: Maybe<Scalars['JSON']>;
+  acquiringIntegrationId?: Maybe<Scalars['JSON']>;
+  hostUrl?: Maybe<Scalars['JSON']>;
+  canGroupReceipts?: Maybe<Scalars['JSON']>;
+  currencyCode?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -25828,6 +25840,10 @@ export type InvoiceHistoryRecordCreateInput = {
   paidAt?: Maybe<Scalars['String']>;
   canceledAt?: Maybe<Scalars['String']>;
   recipient?: Maybe<Scalars['JSON']>;
+  acquiringIntegrationId?: Maybe<Scalars['JSON']>;
+  hostUrl?: Maybe<Scalars['JSON']>;
+  canGroupReceipts?: Maybe<Scalars['JSON']>;
+  currencyCode?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -25868,6 +25884,10 @@ export type InvoiceHistoryRecordUpdateInput = {
   paidAt?: Maybe<Scalars['String']>;
   canceledAt?: Maybe<Scalars['String']>;
   recipient?: Maybe<Scalars['JSON']>;
+  acquiringIntegrationId?: Maybe<Scalars['JSON']>;
+  hostUrl?: Maybe<Scalars['JSON']>;
+  canGroupReceipts?: Maybe<Scalars['JSON']>;
+  currencyCode?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -26075,6 +26095,22 @@ export type InvoiceHistoryRecordWhereInput = {
   recipient_not?: Maybe<Scalars['JSON']>;
   recipient_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   recipient_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  acquiringIntegrationId?: Maybe<Scalars['JSON']>;
+  acquiringIntegrationId_not?: Maybe<Scalars['JSON']>;
+  acquiringIntegrationId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  acquiringIntegrationId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  hostUrl?: Maybe<Scalars['JSON']>;
+  hostUrl_not?: Maybe<Scalars['JSON']>;
+  hostUrl_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  hostUrl_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  canGroupReceipts?: Maybe<Scalars['JSON']>;
+  canGroupReceipts_not?: Maybe<Scalars['JSON']>;
+  canGroupReceipts_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  canGroupReceipts_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  currencyCode?: Maybe<Scalars['JSON']>;
+  currencyCode_not?: Maybe<Scalars['JSON']>;
+  currencyCode_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  currencyCode_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
