@@ -38,7 +38,7 @@ const MarketCategory = new GQLListSchema('MarketCategory', {
     fields: {
 
         name: {
-            schemaDoc: 'Key for i18n',
+            schemaDoc: 'The category name',
             type: LocalizedText,
             isRequired: true,
             template: 'marketplace.marketCategory.*.name',

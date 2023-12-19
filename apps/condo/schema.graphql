@@ -66905,7 +66905,7 @@ type MarketCategory {
   """
   _label_: String
 
-  """ Key for i18n """
+  """ The category name """
   name: String
   nameNonLocalized: String
 

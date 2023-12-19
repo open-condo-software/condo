@@ -26446,7 +26446,7 @@ export type MarketCategory = {
    *  4. As an alias to the 'id' field on the MarketCategory List.
    */
   _label_?: Maybe<Scalars['String']>;
-  /**  Key for i18n  */
+  /**  The category name  */
   name?: Maybe<Scalars['String']>;
   nameNonLocalized?: Maybe<Scalars['String']>;
   /**  Preview image  */
