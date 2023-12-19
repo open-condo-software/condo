@@ -82,7 +82,7 @@ done
 #sleep 3
 
 # And check background processes!
-[[ $(jobs | wc -l | tr -d ' ') != '2' ]] && exit 2
+[[ $(jobs | wc -l | tr -d ' ') != "$(cpu_count / 2 + 1)" ]] && exit 2
 sleep 3
 
 if [ $domain_name != "others" ]; then
