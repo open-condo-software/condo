@@ -19,7 +19,7 @@ import { Invoice as InvoiceGQL } from '@condo/domains/marketplace/gql'
 
 const RELATIONS = ['property', 'contact', 'ticket', 'context']
 const DISCONNECT_ON_NULL = ['property', 'contact', 'ticket']
-const IGNORE_FORM_FIELDS = ['payerData', 'toPay']
+const IGNORE_FORM_FIELDS = ['payerData', 'toPay', 'NEW_CONTACT_NAME']
 
 export type InvoiceRowType = {
     count: number

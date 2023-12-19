@@ -10,7 +10,8 @@ const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 const { PROPERTY_MAP_JSON_FIELDS } = require('@condo/domains/property/gql')
 const { ADDRESS_META_SUBFIELDS_QUERY_LIST, ADDRESS_META_SUBFIELDS_TABLE_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
 
-const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
+
+const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name type } updatedBy { id name } createdAt updatedAt'
 
 const MARKET_CATEGORY_FIELDS = `{ name image { publicUrl } mobileSettings { bgColor titleColor } parentCategory { id } ${COMMON_FIELDS} }`
 const MarketCategory = generateGqlQueries('MarketCategory', MARKET_CATEGORY_FIELDS)

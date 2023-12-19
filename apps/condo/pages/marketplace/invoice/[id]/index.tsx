@@ -27,6 +27,7 @@ import { InvoiceReadPermissionRequired } from '@condo/domains/marketplace/compon
 import {
     INVOICE_STATUS_PAID,
     INVOICE_STATUS_CANCELED,
+    INVOICE_STATUS_DRAFT,
 } from '@condo/domains/marketplace/constants'
 import { INVOICE_STATUS_PUBLISHED } from '@condo/domains/marketplace/constants'
 import { useInvoicePaymentLink } from '@condo/domains/marketplace/hooks/useInvoicePaymentLink'
@@ -230,7 +231,11 @@ const AddressField = ({ invoice }) => {
                 unitName && (
                     <Typography.Paragraph>
                         <Typography.Text>{ticketUnitMessage}</Typography.Text>
-                        <Typography.Text>{SectionAndFloorMessage}</Typography.Text>
+                        {
+                            sectionName && floorName && (
+                                <Typography.Text>{SectionAndFloorMessage}</Typography.Text>
+                            )
+                        }
                     </Typography.Paragraph>
                 )
             }
@@ -306,8 +311,7 @@ const InvoiceActionBar = ({
     const DisabledTooltipMessage = useMemo(() => isButtonDisabled &&
         intl.formatMessage(
             { id: 'pages.condo.marketplace.invoice.id.disableEditButtonTooltip' },
-            { status: intl.formatMessage({ id: `pages.condo.marketplace.invoice.invoiceStatus.${invoiceStatus}` }) },
-        ), [isButtonDisabled, intl, invoiceStatus])
+        ), [isButtonDisabled, intl])
 
     return canManageInvoices && (
         <ActionBar
@@ -432,7 +436,7 @@ const InvoiceIdPage = () => {
                                     <PayerDataField invoice={invoice} />
                                 </Col>
                                 {
-                                    hasPayerData && !isTerminalStatus && (
+                                    hasPayerData && !isTerminalStatus && get(invoice, 'status') !== INVOICE_STATUS_DRAFT && (
                                         <Col span={24}>
                                             <ResidentPaymentAlert
                                                 propertyId={propertyId}

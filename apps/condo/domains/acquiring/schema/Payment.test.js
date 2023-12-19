@@ -79,6 +79,7 @@ const {
 } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithResidentUser, makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
 
+
 describe('Payment', () => {
     describe('CRUD tests', () => {
         describe('Create', () => {
@@ -225,6 +226,30 @@ describe('Payment', () => {
                         expect.objectContaining({ id: payment.id }),
                         expect.objectContaining({ id: secondPayment.id }),
                     ]))
+                })
+                test('Employee with `canReadPaymentsWithInvoices` can see organization payments with invoices', async () => {
+                    const { admin, billingReceipts, acquiringContext, organization } = await makePayer()
+                    await updateTestAcquiringIntegrationContext(admin, acquiringContext.id, { invoiceStatus: CONTEXT_FINISHED_STATUS })
+
+                    const [invoice] = await createTestInvoice(admin, organization)
+
+                    const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext, {
+                        invoice,
+                    })
+
+                    await createTestPayment(admin, organization)
+
+                    const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                        canReadPaymentsWithInvoices: true,
+                    })
+                    const employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                    await createTestOrganizationEmployee(admin, organization, employeeClient.user, role)
+
+                    const payments = await Payment.getAll(employeeClient)
+
+                    expect(payments).toBeDefined()
+                    expect(payments).toHaveLength(1)
+                    expect(payments[0].id).toEqual(payment.id)
                 })
                 test('can\'t in other cases', async () => {
                     const { admin, billingReceipts, acquiringContext, organization } = await makePayer()

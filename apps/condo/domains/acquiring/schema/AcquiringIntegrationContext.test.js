@@ -117,6 +117,37 @@ describe('AcquiringIntegrationContext', () => {
                         await createTestAcquiringIntegrationContext(readPaymentsEmployee, organization, integration)
                     })
                 })
+                test('Permission canManageMarketplace set', async () => {
+                    const manageMarketplaceEmployee = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const [organization] = await createTestOrganization(admin)
+                    const [readMarketplaceRole] = await createTestOrganizationEmployeeRole(admin, organization, {
+                        canManageMarketplace: true,
+                        canReadMarketplace: true,
+                    })
+                    await createTestOrganizationEmployee(admin, organization, manageMarketplaceEmployee.user, readMarketplaceRole, { isAccepted: true })
+                    const [context] = await createTestAcquiringIntegrationContext(manageMarketplaceEmployee, organization, integration, {
+                        invoiceStatus: CONTEXT_FINISHED_STATUS,
+                    })
+
+                    const contexts = await AcquiringIntegrationContext.getAll(manageMarketplaceEmployee, { id: context.id })
+                    expect(contexts).toHaveLength(1)
+                    expect(contexts).toHaveProperty(['0', 'id'], context.id)
+                })
+                test('Permission canManageMarketplace not set', async () => {
+                    const manageMarketplaceEmployee = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const [organization] = await createTestOrganization(admin)
+                    const [readMarketplaceRole] = await createTestOrganizationEmployeeRole(admin, organization, {
+                        canManageMarketplace: false,
+                        canReadMarketplace: true,
+                    })
+                    await createTestOrganizationEmployee(admin, organization, manageMarketplaceEmployee.user, readMarketplaceRole, { isAccepted: true })
+
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await createTestAcquiringIntegrationContext(manageMarketplaceEmployee, organization, integration, {
+                            invoiceStatus: CONTEXT_FINISHED_STATUS,
+                        })
+                    })
+                })
             })
             describe('Service user', () => {
                 test('Can if it has access rights to integration and organization was created by it (UPS Case)', async () => {
@@ -154,6 +185,35 @@ describe('AcquiringIntegrationContext', () => {
                 })
                 test('Permission not set', async () => {
                     const contexts = await AcquiringIntegrationContext.getAll(noPermissionEmployee, { id: context.id })
+                    expect(contexts).toHaveLength(0)
+                })
+                test('Permission canReadMarketplace set', async () => {
+                    const readMarketplaceEmployee = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const [organization] = await createTestOrganization(admin)
+                    const [readMarketplaceRole] = await createTestOrganizationEmployeeRole(admin, organization, {
+                        canReadMarketplace: true,
+                    })
+                    await createTestOrganizationEmployee(admin, organization, readMarketplaceEmployee.user, readMarketplaceRole, { isAccepted: true })
+                    const [context] = await createTestAcquiringIntegrationContext(support, organization, integration, {
+                        invoiceStatus: CONTEXT_FINISHED_STATUS,
+                    })
+
+                    const contexts = await AcquiringIntegrationContext.getAll(readMarketplaceEmployee, { id: context.id })
+                    expect(contexts).toHaveLength(1)
+                    expect(contexts).toHaveProperty(['0', 'id'], context.id)
+                })
+                test('Permission canReadMarketplace not set', async () => {
+                    const readMarketplaceEmployee = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const [organization] = await createTestOrganization(admin)
+                    const [readMarketplaceRole] = await createTestOrganizationEmployeeRole(admin, organization, {
+                        canReadMarketplace: false,
+                    })
+                    await createTestOrganizationEmployee(admin, organization, readMarketplaceEmployee.user, readMarketplaceRole, { isAccepted: true })
+                    const [context] = await createTestAcquiringIntegrationContext(support, organization, integration, {
+                        invoiceStatus: CONTEXT_FINISHED_STATUS,
+                    })
+
+                    const contexts = await AcquiringIntegrationContext.getAll(readMarketplaceEmployee, { id: context.id })
                     expect(contexts).toHaveLength(0)
                 })
             })
@@ -211,6 +271,48 @@ describe('AcquiringIntegrationContext', () => {
                     const feePayload = { implicitFeeDistributionSchema: [] }
                     await expectToThrowAccessDeniedErrorToObj(async () => {
                         await updateTestAcquiringIntegrationContext(manager, context.id, feePayload)
+                    })
+                })
+
+                test('Permission canManageMarketplace set', async () => {
+                    const manageMarketplaceEmployee = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const [organization] = await createTestOrganization(admin)
+                    const [readMarketplaceRole] = await createTestOrganizationEmployeeRole(admin, organization, {
+                        canManageMarketplace: true,
+                        canReadMarketplace: true,
+                    })
+                    await createTestOrganizationEmployee(admin, organization, manageMarketplaceEmployee.user, readMarketplaceRole, { isAccepted: true })
+                    const [context] = await createTestAcquiringIntegrationContext(manageMarketplaceEmployee, organization, integration, {
+                        invoiceStatus: CONTEXT_IN_PROGRESS_STATUS,
+                    })
+
+                    await updateTestAcquiringIntegrationContext(manageMarketplaceEmployee, context.id, {
+                        invoiceStatus: CONTEXT_FINISHED_STATUS,
+                    })
+
+                    const contexts = await AcquiringIntegrationContext.getAll(manageMarketplaceEmployee, { id: context.id })
+                    expect(contexts).toHaveLength(1)
+                    expect(contexts).toHaveProperty(['0', 'id'], context.id)
+                    expect(contexts).toHaveProperty(['0', 'invoiceStatus'], CONTEXT_FINISHED_STATUS)
+                })
+
+                test('Permission canManageMarketplace not set', async () => {
+                    const manageMarketplaceEmployee = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const [organization] = await createTestOrganization(admin)
+                    const [readMarketplaceRole] = await createTestOrganizationEmployeeRole(admin, organization, {
+                        canManageMarketplace: false,
+                        canReadMarketplace: true,
+                    })
+                    await createTestOrganizationEmployee(admin, organization, manageMarketplaceEmployee.user, readMarketplaceRole, { isAccepted: true })
+
+                    const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration, {
+                        invoiceStatus: CONTEXT_IN_PROGRESS_STATUS,
+                    })
+
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await updateTestAcquiringIntegrationContext(manageMarketplaceEmployee, context.id, {
+                            invoiceStatus: CONTEXT_FINISHED_STATUS,
+                        })
                     })
                 })
 

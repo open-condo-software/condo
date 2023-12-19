@@ -236,8 +236,15 @@ const Invoice = new GQLListSchema('Invoice', {
             const connectedTicketId = get(nextData, 'ticket')
             const existingTicketId = get(existingItem, 'ticket')
             const resolvedTicketId = get(resolvedData, 'ticket')
+            const changedFields = omitBy(resolvedData, (value, key) => {
+                if (key === 'toPay') {
+                    return Number(value) === Number(get(existingItem, key))
+                }
+                return isEqual(value, get(existingItem, key))
+            })
+
             const isUpdateClientDataFromTicketOp = connectedTicketId && isConnectClientDataOp &&
-                isEmpty(omit(resolvedData, [...COMMON_RESOLVED_FIELDS, ...CLIENT_DATA_FIELDS]))
+                isEmpty(omit(changedFields, [...COMMON_RESOLVED_FIELDS, ...CLIENT_DATA_FIELDS, 'ticket']))
 
             if (existingTicketId && resolvedTicketId && existingTicketId !== resolvedTicketId) {
                 throw new GQLError(ERRORS.FORBID_UPDATE_TICKET, context)
@@ -255,19 +262,12 @@ const Invoice = new GQLListSchema('Invoice', {
 
             if (isUpdate && get(existingItem, 'status') === INVOICE_STATUS_PUBLISHED && !connectedTicketId) {
                 const resolvedStatus = get(resolvedData, 'status')
-                const otherResolvedFields = omit(resolvedData, [...COMMON_RESOLVED_FIELDS, 'status'])
-                const changedFields = omitBy(otherResolvedFields, (value, key) => {
-                    if (key === 'toPay') {
-                        return Number(value) === Number(get(existingItem, key))
-                    }
-
-                    return isEqual(value, get(existingItem, key))
-                })
+                const changedFieldsWithoutStatus = omit(changedFields, [...COMMON_RESOLVED_FIELDS, 'status'])
 
                 const hasAccessToUpdateStatus = resolvedStatus ?
                     [INVOICE_STATUS_CANCELED, INVOICE_STATUS_PAID, INVOICE_STATUS_PUBLISHED].includes(resolvedStatus) : true
 
-                if (!isEmpty(changedFields) || !hasAccessToUpdateStatus) {
+                if (!isEmpty(changedFieldsWithoutStatus) || !hasAccessToUpdateStatus) {
                     throw new GQLError(ERRORS.FORBID_EDIT_PUBLISHED, context)
                 }
             }

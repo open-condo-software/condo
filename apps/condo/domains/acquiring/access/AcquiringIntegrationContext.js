@@ -28,7 +28,22 @@ async function canReadAcquiringIntegrationContexts ({ authentication: { item: us
 
     return {
         OR: [
-            { organization: { employees_some: { user: { id: user.id }, role: { canReadPayments: true }, isBlocked: false, deletedAt: null } } },
+            {
+                AND: [
+                    {
+                        organization: { employees_some: { user: { id: user.id }, role: { canReadPayments: true }, isBlocked: false, deletedAt: null } },
+                        status_not: null,
+                    },
+                ],
+            },
+            {
+                AND: [
+                    {
+                        organization: { employees_some: { user: { id: user.id }, role: { canReadMarketplace: true }, isBlocked: false, deletedAt: null } },
+                        invoiceStatus_not: null,
+                    },
+                ],
+            },
             { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } },
         ],
     }
@@ -75,6 +90,16 @@ async function canManageAcquiringIntegrationContexts ({ authentication: { item: 
             return true
         }
     }
+
+    const canManageMarketplace = await checkOrganizationPermission(user.id, organizationId, 'canManageMarketplace')
+    if (canManageMarketplace && operation === 'create') return true
+    if (canManageMarketplace && operation === 'update') {
+        // Allow employee to complete context settings
+        if (context.invoiceStatus === CONTEXT_IN_PROGRESS_STATUS) {
+            return true
+        }
+    }
+
     return await checkAcquiringIntegrationAccessRight(user.id, integrationId)
 }
 

@@ -76,7 +76,8 @@ export interface IContactEditorProps {
     hideFocusContainer?: boolean
     hideTabBar?: boolean
     contactFormItemProps?: FormItemProps
-    newContactFormItemProps?: FormItemProps
+    newContactPhoneFormItemProps?: FormItemProps
+    newContactNameFormItemProps?: FormItemProps
 }
 
 const ContactsInfoFocusContainer = styled(FocusContainer)`
@@ -127,7 +128,8 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         hideFocusContainer,
         hideTabBar,
         contactFormItemProps,
-        newContactFormItemProps,
+        newContactPhoneFormItemProps,
+        newContactNameFormItemProps,
         disabled,
     } = props
 
@@ -378,7 +380,8 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                             contactsLoading={contactsLoading}
                                             unitName={unitName}
                                             initialValueWithoutContact={initialValueWithoutContact}
-                                            newContactFormItemProps={newContactFormItemProps}
+                                            newContactPhoneFormItemProps={newContactPhoneFormItemProps}
+                                            newContactNameFormItemProps={newContactNameFormItemProps}
                                             disabled={disabled}
                                         />
                                     ) : (
@@ -402,7 +405,8 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                                                         contactsLoading={contactsLoading}
                                                                         unitName={unitName}
                                                                         initialValueWithoutContact={initialValueWithoutContact}
-                                                                        newContactFormItemProps={newContactFormItemProps}
+                                                                        newContactPhoneFormItemProps={newContactPhoneFormItemProps}
+                                                                        newContactNameFormItemProps={newContactNameFormItemProps}
                                                                         disabled={disabled}
                                                                     />
                                                                     {

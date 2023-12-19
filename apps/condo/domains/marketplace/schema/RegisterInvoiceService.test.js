@@ -36,7 +36,7 @@ const {
     makeClientWithResidentUser, makeClientWithStaffUser,
 } = require('@condo/domains/user/utils/testSchema')
 
-const MOBILE_APP_RESIDENT_TICKET_SOURCE_ID = '830d1d89-2d17-4c5b-96d1-21b5cd01a6d3'
+const MOBILE_APP_RESIDENT_TICKET_SOURCE_ID = '3068d49a-a45c-4c3a-a02d-ea1a53e1febb'
 
 let adminClient
 let organization, acquiringIntegration
@@ -150,7 +150,7 @@ describe('RegisterInvoiceService', () => {
             expect(ticket.property.id).toBe(property.id)
             expect(ticket.isPayable).toBe(true)
             expect(ticket.source.id).toBe(MOBILE_APP_RESIDENT_TICKET_SOURCE_ID)
-            expect(ticket.source.type).toBe('mobile_app_resident')
+            expect(ticket.source.type).toBe('mobile_app')
 
             const staffClient = await makeClientWithStaffUser()
             const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, { canReadInvoices: true })

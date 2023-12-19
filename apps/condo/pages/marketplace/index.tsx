@@ -11,7 +11,8 @@ import { MarketplacePageContent } from '@condo/domains/marketplace/components/Ma
 import {
     AcquiringContext as AcquiringContextProvider,
 } from '@condo/domains/marketplace/components/MarketplacePageContent/ContextProvider'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { MarketplaceReadPermissionRequired } from '@condo/domains/marketplace/components/PageAccess'
+
 
 type PageType = React.FC & {
     requiredAccess: React.FC
@@ -52,6 +53,6 @@ const MarketplacePage: PageType = () => {
     )
 }
 
-MarketplacePage.requiredAccess = OrganizationRequired
+MarketplacePage.requiredAccess = MarketplaceReadPermissionRequired
 
 export default MarketplacePage

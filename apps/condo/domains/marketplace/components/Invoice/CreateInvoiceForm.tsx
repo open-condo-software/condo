@@ -14,7 +14,6 @@ import {
     INVOICE_STATUS_DRAFT,
     INVOICE_STATUS_PUBLISHED,
     INITIAL_ROWS_VALUE,
-    INVOICE_STATUS_CANCELED,
 } from '@condo/domains/marketplace/constants'
 import { useInvoicePaymentLink } from '@condo/domains/marketplace/hooks/useInvoicePaymentLink'
 import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'

@@ -12,12 +12,14 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { MarketItem, createTestMarketItem, updateTestMarketItem, createTestMarketCategory } = require('@condo/domains/marketplace/utils/testSchema')
+const { createTestMarketItemPrice, createTestMarketPriceScope, MarketItemPrice, MarketPriceScope } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestResident, createTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
+
 
 describe('MarketItem', () => {
     let admin, organization, marketCategory
@@ -305,6 +307,35 @@ describe('MarketItem', () => {
             await createTestMarketItem(admin, marketCategory, organization, {
                 sku: faker.random.alphaNumeric(8),
             })
+        })
+    })
+
+    describe('Hooks logic', () => {
+        test('Prices and scopes must be deleted after the market item was deleted', async () => {
+            const staffClient = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                canReadMarketplace: true,
+                canReadMarketItems: true,
+                canManageMarketItems: true,
+                canReadMarketItemPrices: true,
+                canManageMarketItemPrices: true,
+                canReadMarketPriceScopes: true,
+                canManageMarketPriceScopes: true,
+            })
+            await createTestOrganizationEmployee(admin, organization, staffClient.user, role)
+            const [marketItem] = await createTestMarketItem(staffClient, marketCategory, organization)
+
+            const [price] = await createTestMarketItemPrice(staffClient, marketItem)
+            const [property] = await createTestProperty(admin, organization)
+            await createTestMarketPriceScope(staffClient, price, property)
+
+            await MarketItem.softDelete(staffClient, marketItem.id)
+
+            const deletedPrices = await MarketItemPrice.getAll(admin, { marketItem: { id: marketItem.id } })
+            expect(deletedPrices).toHaveLength(0)
+
+            const deletedPriceScope = await MarketPriceScope.getAll(admin, { marketItemPrice: { id: price.id } })
+            expect(deletedPriceScope).toHaveLength(0)
         })
     })
 })

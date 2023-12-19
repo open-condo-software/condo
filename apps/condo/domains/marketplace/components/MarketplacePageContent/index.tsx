@@ -41,7 +41,7 @@ export const MarketplacePageContent = () => {
     const { acquiringContext } = useAcquiringContext()
     const marketplaceIsSetup = acquiringContext && get(acquiringContext, 'invoiceStatus') === CONTEXT_FINISHED_STATUS
     const role = get(userOrganization, ['link', 'role'], {})
-    const canReadPayments = get(role, ['canReadPayments'], false)
+    const canReadPayments = get(role, ['canReadPaymentsWithInvoices'], false)
     const canManageInvoices = get(role, ['canManageInvoices'], false)
 
     const RenderNotSetupTag = useMemo(() => {

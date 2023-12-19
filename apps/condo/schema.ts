@@ -53410,6 +53410,9 @@ export type OrganizationEmployeeRole = {
   canManageMarketItemPrices?: Maybe<Scalars['Boolean']>;
   canReadMarketPriceScopes?: Maybe<Scalars['Boolean']>;
   canManageMarketPriceScopes?: Maybe<Scalars['Boolean']>;
+  canReadPaymentsWithInvoices?: Maybe<Scalars['Boolean']>;
+  canReadMarketplace?: Maybe<Scalars['Boolean']>;
+  canManageMarketplace?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -53483,6 +53486,9 @@ export type OrganizationEmployeeRoleCreateInput = {
   canManageMarketItemPrices?: Maybe<Scalars['Boolean']>;
   canReadMarketPriceScopes?: Maybe<Scalars['Boolean']>;
   canManageMarketPriceScopes?: Maybe<Scalars['Boolean']>;
+  canReadPaymentsWithInvoices?: Maybe<Scalars['Boolean']>;
+  canReadMarketplace?: Maybe<Scalars['Boolean']>;
+  canManageMarketplace?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -53562,6 +53568,9 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canManageMarketItemPrices?: Maybe<Scalars['Boolean']>;
   canReadMarketPriceScopes?: Maybe<Scalars['Boolean']>;
   canManageMarketPriceScopes?: Maybe<Scalars['Boolean']>;
+  canReadPaymentsWithInvoices?: Maybe<Scalars['Boolean']>;
+  canReadMarketplace?: Maybe<Scalars['Boolean']>;
+  canManageMarketplace?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -53635,6 +53644,9 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   canManageMarketItemPrices?: Maybe<Scalars['Boolean']>;
   canReadMarketPriceScopes?: Maybe<Scalars['Boolean']>;
   canManageMarketPriceScopes?: Maybe<Scalars['Boolean']>;
+  canReadPaymentsWithInvoices?: Maybe<Scalars['Boolean']>;
+  canReadMarketplace?: Maybe<Scalars['Boolean']>;
+  canManageMarketplace?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -53713,6 +53725,9 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   canManageMarketItemPrices?: Maybe<Scalars['Boolean']>;
   canReadMarketPriceScopes?: Maybe<Scalars['Boolean']>;
   canManageMarketPriceScopes?: Maybe<Scalars['Boolean']>;
+  canReadPaymentsWithInvoices?: Maybe<Scalars['Boolean']>;
+  canReadMarketplace?: Maybe<Scalars['Boolean']>;
+  canManageMarketplace?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -53898,6 +53913,12 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canReadMarketPriceScopes_not?: Maybe<Scalars['Boolean']>;
   canManageMarketPriceScopes?: Maybe<Scalars['Boolean']>;
   canManageMarketPriceScopes_not?: Maybe<Scalars['Boolean']>;
+  canReadPaymentsWithInvoices?: Maybe<Scalars['Boolean']>;
+  canReadPaymentsWithInvoices_not?: Maybe<Scalars['Boolean']>;
+  canReadMarketplace?: Maybe<Scalars['Boolean']>;
+  canReadMarketplace_not?: Maybe<Scalars['Boolean']>;
+  canManageMarketplace?: Maybe<Scalars['Boolean']>;
+  canManageMarketplace_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -54043,6 +54064,9 @@ export type OrganizationEmployeeRoleUpdateInput = {
   canManageMarketItemPrices?: Maybe<Scalars['Boolean']>;
   canReadMarketPriceScopes?: Maybe<Scalars['Boolean']>;
   canManageMarketPriceScopes?: Maybe<Scalars['Boolean']>;
+  canReadPaymentsWithInvoices?: Maybe<Scalars['Boolean']>;
+  canReadMarketplace?: Maybe<Scalars['Boolean']>;
+  canManageMarketplace?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -54205,6 +54229,12 @@ export type OrganizationEmployeeRoleWhereInput = {
   canReadMarketPriceScopes_not?: Maybe<Scalars['Boolean']>;
   canManageMarketPriceScopes?: Maybe<Scalars['Boolean']>;
   canManageMarketPriceScopes_not?: Maybe<Scalars['Boolean']>;
+  canReadPaymentsWithInvoices?: Maybe<Scalars['Boolean']>;
+  canReadPaymentsWithInvoices_not?: Maybe<Scalars['Boolean']>;
+  canReadMarketplace?: Maybe<Scalars['Boolean']>;
+  canReadMarketplace_not?: Maybe<Scalars['Boolean']>;
+  canManageMarketplace?: Maybe<Scalars['Boolean']>;
+  canManageMarketplace_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -76774,6 +76804,12 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanReadMarketPriceScopesDesc = 'canReadMarketPriceScopes_DESC',
   CanManageMarketPriceScopesAsc = 'canManageMarketPriceScopes_ASC',
   CanManageMarketPriceScopesDesc = 'canManageMarketPriceScopes_DESC',
+  CanReadPaymentsWithInvoicesAsc = 'canReadPaymentsWithInvoices_ASC',
+  CanReadPaymentsWithInvoicesDesc = 'canReadPaymentsWithInvoices_DESC',
+  CanReadMarketplaceAsc = 'canReadMarketplace_ASC',
+  CanReadMarketplaceDesc = 'canReadMarketplace_DESC',
+  CanManageMarketplaceAsc = 'canManageMarketplace_ASC',
+  CanManageMarketplaceDesc = 'canManageMarketplace_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -76907,6 +76943,12 @@ export enum SortOrganizationEmployeeRolesBy {
   CanReadMarketPriceScopesDesc = 'canReadMarketPriceScopes_DESC',
   CanManageMarketPriceScopesAsc = 'canManageMarketPriceScopes_ASC',
   CanManageMarketPriceScopesDesc = 'canManageMarketPriceScopes_DESC',
+  CanReadPaymentsWithInvoicesAsc = 'canReadPaymentsWithInvoices_ASC',
+  CanReadPaymentsWithInvoicesDesc = 'canReadPaymentsWithInvoices_DESC',
+  CanReadMarketplaceAsc = 'canReadMarketplace_ASC',
+  CanReadMarketplaceDesc = 'canReadMarketplace_DESC',
+  CanManageMarketplaceAsc = 'canManageMarketplace_ASC',
+  CanManageMarketplaceDesc = 'canManageMarketplace_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

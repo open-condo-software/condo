@@ -10,6 +10,7 @@ import { Col, Form, Row, RowProps, Input, AutoComplete, Select, FormInstance } f
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
+import omit from 'lodash/omit'
 import React, { ComponentProps, CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Trash } from '@open-condo/icons'
@@ -117,11 +118,13 @@ const SubTotalInfo = ({ label, total, large = false, totalTextType }) => {
     )
 }
 
+const NEW_CONTACT_NAME_FORM_ITEM_NAME = 'NEW_CONTACT_NAME'
 const emptyContactValues = {
     clientName: null,
     clientPhone: null,
     contact: null,
     [NEW_CONTACT_PHONE_FORM_ITEM_NAME]: null,
+    [NEW_CONTACT_NAME_FORM_ITEM_NAME]: null,
 }
 
 const PropertyFormField = ({ organizationId, form, disabled, selectedPropertyId, setSelectedPropertyId }) => {
@@ -298,7 +301,8 @@ const ContactFormField = ({ role, organizationId, form, disabled }) => {
                                 unitName={unitName}
                                 unitType={unitType}
                                 contactFormItemProps={{ labelCol: { span: 24 } }}
-                                newContactFormItemProps={{ labelCol: { span: 24 } }}
+                                newContactPhoneFormItemProps={{ labelCol: { span: 24 } }}
+                                newContactNameFormItemProps={{ labelCol: { span: 24 }, name: NEW_CONTACT_NAME_FORM_ITEM_NAME }}
                                 disabled={disabled}
                             />
                         )
@@ -446,6 +450,8 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
 
     const filteredPriceScopes = useMemo(() => marketPriceScopes
         .filter(scope => {
+            if (!scope.marketItemPrice) return false
+
             if (!scope.property) {
                 const marketItemId = get(scope, 'marketItemPrice.marketItem.id')
                 const scopeWithSameMarketItemWithProperty = marketPriceScopes.find(
@@ -483,7 +489,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                 toPay: price,
                 isMin,
                 sku,
-                key: marketItem.id,
+                key: get(marketItem, 'id'),
             }
 
             const existedGroup = marketItemGroups.find(group => group.key === key)
@@ -709,7 +715,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                             </Col>
                         ))
                     }
-                    <Col span={24}>
+                    <Col span={24} hidden={disabled}>
                         <OldButton
                             type='link'
                             style={PLUS_BUTTON_STYLE}
@@ -866,7 +872,6 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
     const NoPayerDataAlertDescription = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.noPayerData' })
     const EmptyPayerDataAlertMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.message.passLinkToResident' })
     const EmptyPayerDataAlertDescription = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.emptyPayerData' })
-    const LinkWillBeGeneratedMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.linkWillBeGeneratedMessage' })
     const ContractPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' }).toLowerCase()
     const SaveChangesModalTitle = intl.formatMessage({ id: 'form.prompt.title' })
     const SaveChangesNodalMessage = intl.formatMessage({ id: 'form.prompt.message' })
@@ -905,7 +910,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
         [isModalForm])
 
     const [innerForm] = Form.useForm()
-    const form = useMemo(() => formInstance ? formInstance : innerForm, [])
+    const form = useMemo(() => formInstance ? formInstance : innerForm, [formInstance, innerForm])
 
     useEffect(() => {
         if (!isCreateForm) {
@@ -931,6 +936,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                         title={SaveChangesModalTitle}
                         form={form}
                         handleSave={handleSave}
+                        ignoreFormFields={[NEW_CONTACT_PHONE_FORM_ITEM_NAME]}
                     >
                         <Typography.Paragraph>
                             {SaveChangesNodalMessage}
@@ -973,7 +979,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                             ({ getFieldsValue }) => {
                                                 const { property } = getFieldsValue(['property'])
                                                 const disabled = isAllFieldsDisabled ||
-                                                    onlyStatusTransitionsActive || (!isCreateForm && isCreatedByResident) ||
+                                                    onlyStatusTransitionsActive ||
                                                     (!isCreateForm && status !== INVOICE_STATUS_DRAFT)
 
                                                 return (
@@ -1018,7 +1024,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                                     {
                                                         ({ getFieldValue }) => {
                                                             const rows = getFieldValue('rows').filter(Boolean)
-                                                            const totalCount = rows.reduce((acc, row) => acc + row.count, 0)
+                                                            const totalCount = rows.reduce((acc) => acc + 1, 0)
                                                             const { totalPrice, hasMinPrice, hasError } = calculateRowsTotalPrice(intl, rows)
                                                             const isContractToPay = hasMinPrice && totalPrice === 0
 
@@ -1156,14 +1162,9 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                                                         type='warning'
                                                                         message={EmptyPayerDataAlertMessage}
                                                                         description={(
-                                                                            <>
-                                                                                <Typography.Paragraph size='medium'>
-                                                                                    {EmptyPayerDataAlertDescription}
-                                                                                </Typography.Paragraph>
-                                                                                <Typography.Paragraph size='medium'>
-                                                                                    {LinkWillBeGeneratedMessage}
-                                                                                </Typography.Paragraph>
-                                                                            </>
+                                                                            <Typography.Paragraph size='medium'>
+                                                                                {EmptyPayerDataAlertDescription}
+                                                                            </Typography.Paragraph>
                                                                         )}
                                                                         showIcon
                                                                     />

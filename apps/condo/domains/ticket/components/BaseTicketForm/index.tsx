@@ -19,12 +19,14 @@ import omit from 'lodash/omit'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { Info, PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography, Alert, Space, Tooltip } from '@open-condo/ui'
 
 import { CONTEXT_FINISHED_STATUS } from '@condo/domains/acquiring/constants/context'
+import { AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clientSchema'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
 import Select from '@condo/domains/common/components/antd/Select'
@@ -33,6 +35,7 @@ import { FormWithAction, OnCompletedMsgType } from '@condo/domains/common/compon
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { Loader } from '@condo/domains/common/components/Loader'
 import { useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { PROPERTY_REQUIRED_ERROR } from '@condo/domains/common/constants/errors'
@@ -44,7 +47,7 @@ import { normalizeText } from '@condo/domains/common/utils/text'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
 import { CreateInvoiceForm } from '@condo/domains/marketplace/components/Invoice/CreateInvoiceForm'
 import { TicketInvoicesList } from '@condo/domains/marketplace/components/Invoice/TicketInvoicesList'
-import { useAcquiringContext } from '@condo/domains/marketplace/components/MarketplacePageContent/ContextProvider'
+import { INVOICE_STATUS_DRAFT, INVOICE_STATUS_CANCELED } from '@condo/domains/marketplace/constants'
 import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { UnitInfo, UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
@@ -91,7 +94,7 @@ export const IncidentHintsBlock = ({ organizationId, propertyId }) => {
     )
 }
 
-export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId, initialValues = {}, hasNotResidentTab = true, residentTitle = null }) => {
+export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId, disabled = false, initialValues = {}, hasNotResidentTab = true, residentTitle = null }) => {
     const contactId = useMemo(() => get(initialValues, 'contact'), [initialValues])
 
     const value = useMemo(() => ({
@@ -121,11 +124,12 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
                 unitType={unitType}
                 hasNotResidentTab={hasNotResidentTab}
                 residentTitle={residentTitle}
+                disabled={disabled}
             />
         )
     }, [
-        ContactsEditorComponent, contactEditorComponentFields, form, hasNotResidentTab, residentTitle,
-        selectedPropertyId, value,
+        ContactsEditorComponent, contactEditorComponentFields, disabled, form, hasNotResidentTab,
+        residentTitle, selectedPropertyId, value,
     ])
 
     return (
@@ -205,9 +209,15 @@ const TicketFormInvoicesEmptyContent = ({
     const AlertDescriptionLink = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.ticketInvoice.form.noContextAlert.descriptionLink' })
     const NoInvoicesMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.ticketInvoice.form.noInvoices' })
 
-    const { acquiringContext } = useAcquiringContext()
+    const { obj: invoiceContext, loading } = AcquiringIntegrationContext.useObject({
+        where: {
+            organization: { id: organizationId },
+            invoiceStatus: CONTEXT_FINISHED_STATUS,
+        },
+    })
 
-    if (acquiringContext.invoiceStatus !== CONTEXT_FINISHED_STATUS) {
+    if (loading) return <Loader />
+    if (!invoiceContext) {
         return (
             <Alert
                 type='warning'
@@ -249,13 +259,25 @@ const TicketFormInvoicesEmptyContent = ({
     )
 }
 
-const TicketFormInvoices = ({ invoiceIds, organizationId, initialValues, addInvoiceToTicketForm, ticketCreatedByResident }) => {
+const TicketFormInvoices = ({ invoiceIds, organizationId, initialValues, addInvoiceToTicketForm, ticketCreatedByResident, initialInvoiceIds, form }) => {
     const { objs: invoices, refetch: refetchInvoices } = Invoice.useObjects({
         where: {
             id_in: invoiceIds,
         },
         sortBy: [SortInvoicesBy.CreatedAtDesc],
     })
+
+    useDeepCompareEffect(() => {
+        const initialInvoicesInNotDraftStatus = invoices.filter(invoice =>
+            initialInvoiceIds && initialInvoiceIds.includes(invoice.id) && invoice.status !== INVOICE_STATUS_DRAFT
+        )
+        const invoicesInNotCanceledStatus = invoices.filter(invoice => invoice.status !== INVOICE_STATUS_CANCELED)
+
+        form.setFieldsValue({
+            initialNotDraftInvoices: initialInvoicesInNotDraftStatus.map(invoice => invoice.id),
+            invoicesInNotCanceledStatus: invoicesInNotCanceledStatus.map(invoice => invoice.id),
+        })
+    }, [invoices])
 
     if (isEmpty(invoiceIds)) {
         return (
@@ -286,6 +308,8 @@ const TicketFormInvoices = ({ invoiceIds, organizationId, initialValues, addInvo
                 organizationId={organizationId}
                 ticketCreatedByResident={ticketCreatedByResident}
             />
+            <Form.Item hidden name='initialNotDraftInvoices' />
+            <Form.Item hidden name='invoicesInNotCanceledStatus' />
         </Row>
     )
 }
@@ -346,6 +370,11 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
 
     const { useFlag } = useFeatureFlags()
     const isMarketplaceEnabled = useFlag(MARKETPLACE)
+
+    const invoicesInNotCanceledStatus = Form.useWatch('invoicesInNotCanceledStatus', form)
+    const disableIsPayableCheckbox = useMemo(() =>
+        isPayable && invoicesInNotCanceledStatus && invoicesInNotCanceledStatus.length > 0,
+    [invoicesInNotCanceledStatus, isPayable])
 
     return (
         <Col span={24}>
@@ -410,9 +439,13 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
                                                 </Form.Item>
                                             </Col>
                                             <Col span={24} lg={6}>
-                                                <Form.Item name='isPayable' valuePropName='checked'>
+                                                <Form.Item
+                                                    name='isPayable'
+                                                    valuePropName='checked'
+                                                    tooltip={disableIsPayableCheckbox && 'Сначала отмените все счета'}
+                                                >
                                                     <Checkbox
-                                                        disabled={disableUserInteraction}
+                                                        disabled={disableUserInteraction || disableIsPayableCheckbox}
                                                         eventName='TicketCreateCheckboxIsPayable'
                                                         onChange={handlePayableChange}
                                                     >
@@ -479,8 +512,10 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
                                                             invoiceIds={invoices}
                                                             organizationId={organizationId}
                                                             initialValues={invoiceInitialValues}
+                                                            initialInvoiceIds={get(initialValues, 'invoices')}
                                                             addInvoiceToTicketForm={addInvoiceToTicketForm}
                                                             ticketCreatedByResident={get(initialValues, 'createdByType') === RESIDENT}
+                                                            form={form}
                                                         />
                                                     )
                                                 }
@@ -800,6 +835,10 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         </Row>
     ), [organizationId, selectedPropertyId])
 
+    const [form] = Form.useForm()
+    const invoices = Form.useWatch('invoices', form)
+    const initialNotDraftInvoices = Form.useWatch('initialNotDraftInvoices', form)
+
     const formWithAction =  (
         <>
             <FormWithAction
@@ -809,6 +848,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                 formValuesToMutationDataPreprocessor={formValuesToMutationDataPreprocessor}
                 ErrorToFormFieldMsgMapping={ErrorToFormFieldMsgMapping}
                 OnCompletedMsg={OnCompletedMsg}
+                formInstance={form}
             >
                 {({ handleSave, isLoading, form }) => (
                     <>
@@ -838,35 +878,21 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                     <Row gutter={SMALL_VERTICAL_GUTTER}>
                                                                         {NoPropertiesAlert}
                                                                         <Col span={24} data-cy='ticket__property-address-search-input'>
-                                                                            <Form.Item
-                                                                                dependencies={['invoices']}
-                                                                                noStyle
+                                                                            <TicketFormItem
+                                                                                name='property'
+                                                                                label={AddressLabel}
+                                                                                rules={PROPERTY_VALIDATION_RULES}
                                                                             >
-                                                                                {
-                                                                                    ({ getFieldValue }) => {
-                                                                                        const invoices = getFieldValue('invoices')
-
-                                                                                        return (
-                                                                                            <TicketFormItem
-                                                                                                name='property'
-                                                                                                label={AddressLabel}
-                                                                                                rules={PROPERTY_VALIDATION_RULES}
-                                                                                            >
-                                                                                                <PropertyAddressSearchInput
-                                                                                                    organizationId={get(organization, 'id')}
-                                                                                                    autoFocus
-                                                                                                    onSelect={handlePropertySelectChange(form)}
-                                                                                                    onClear={handlePropertiesSelectClear(form)}
-                                                                                                    placeholder={AddressPlaceholder}
-                                                                                                    notFoundContent={AddressNotFoundContent}
-                                                                                                    disabled={!isEmpty(invoices)}
-                                                                                                />
-                                                                                            </TicketFormItem>
-                                                                                        )
-                                                                                    }
-                                                                                }
-                                                                            </Form.Item>
-
+                                                                                <PropertyAddressSearchInput
+                                                                                    organizationId={get(organization, 'id')}
+                                                                                    autoFocus
+                                                                                    onSelect={handlePropertySelectChange(form)}
+                                                                                    onClear={handlePropertiesSelectClear(form)}
+                                                                                    placeholder={AddressPlaceholder}
+                                                                                    notFoundContent={AddressNotFoundContent}
+                                                                                    disabled={!isEmpty(invoices)}
+                                                                                />
+                                                                            </TicketFormItem>
                                                                         </Col>
                                                                         {selectedPropertyId && (
                                                                             <UnitInfo
@@ -880,6 +906,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                                 mode={UnitInfoMode.All}
                                                                                 initialValues={initialTicketValues}
                                                                                 form={form}
+                                                                                disabled={!isEmpty(initialNotDraftInvoices)}
                                                                             />
                                                                         )}
                                                                     </Row>
@@ -896,6 +923,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                     form={form}
                                                                     initialValues={initialTicketValues}
                                                                     selectedPropertyId={selectedPropertyId}
+                                                                    disabled={!isEmpty(initialNotDraftInvoices)}
                                                                 />
                                                             </Row>
                                                         </Col>

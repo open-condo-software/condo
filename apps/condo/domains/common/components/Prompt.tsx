@@ -1,19 +1,22 @@
 import { FormInstance } from 'antd'
-import { isEqual, pick } from 'lodash'
+import isEqual from 'lodash/isEqual'
+import omit from 'lodash/omit'
+import pick from 'lodash/pick'
 import { useRouter } from 'next/router'
 import React, { useEffect, useState, useRef } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Modal, Button } from '@open-condo/ui'
 
+
 interface IPromptProps {
     title: string
     form: FormInstance<unknown>
     handleSave: () => void
+    ignoreFormFields?: string[]
 }
 
-
-const Prompt: React.FC<IPromptProps> = ({ children, title, form, handleSave: formSubmit }) => {
+const Prompt: React.FC<IPromptProps> = ({ children, title, form, handleSave: formSubmit, ignoreFormFields = [] }) => {
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'pages.condo.warning.modal.SaveLabel' })
     const LeaveLabel = intl.formatMessage({ id: 'pages.condo.warning.modal.LeaveLabel' })
@@ -38,7 +41,7 @@ const Prompt: React.FC<IPromptProps> = ({ children, title, form, handleSave: for
     // as they are using custom hooks and their fields do not present on initial form state
     const isFormChanged = () => {
         const newFormFields = pick(form.getFieldsValue(), Object.keys(initialFormState.current))
-        return !isEqual(initialFormState.current, newFormFields)
+        return !isEqual(omit(initialFormState.current, ignoreFormFields), omit(newFormFields, ignoreFormFields))
     }
     useEffect(() => {
         if (typeof window !== 'undefined') {
