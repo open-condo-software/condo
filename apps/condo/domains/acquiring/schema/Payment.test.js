@@ -79,6 +79,7 @@ const {
 } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithResidentUser, makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
 
+
 describe('Payment', () => {
     describe('CRUD tests', () => {
         describe('Create', () => {
@@ -227,9 +228,10 @@ describe('Payment', () => {
                     ]))
                 })
                 test('Employee with `canReadPaymentsWithInvoices` can see organization payments with invoices', async () => {
-                    const { admin, billingReceipts, acquiringIntegration, acquiringContext, organization } = await makePayer()
-                    const [invoiceContext] = await createTestInvoiceContext(admin, organization, acquiringIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
-                    const [invoice] = await createTestInvoice(admin, invoiceContext)
+                    const { admin, billingReceipts, acquiringContext, organization } = await makePayer()
+                    await updateTestAcquiringIntegrationContext(admin, acquiringContext.id, { invoiceStatus: CONTEXT_FINISHED_STATUS })
+
+                    const [invoice] = await createTestInvoice(admin, organization)
 
                     const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext, {
                         invoice,

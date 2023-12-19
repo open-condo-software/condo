@@ -26,6 +26,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { Typography, Alert, Space, Tooltip } from '@open-condo/ui'
 
 import { CONTEXT_FINISHED_STATUS } from '@condo/domains/acquiring/constants/context'
+import { AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clientSchema'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
 import Select from '@condo/domains/common/components/antd/Select'
@@ -34,6 +35,7 @@ import { FormWithAction, OnCompletedMsgType } from '@condo/domains/common/compon
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { Loader } from '@condo/domains/common/components/Loader'
 import { useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { PROPERTY_REQUIRED_ERROR } from '@condo/domains/common/constants/errors'
@@ -45,9 +47,8 @@ import { normalizeText } from '@condo/domains/common/utils/text'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
 import { CreateInvoiceForm } from '@condo/domains/marketplace/components/Invoice/CreateInvoiceForm'
 import { TicketInvoicesList } from '@condo/domains/marketplace/components/Invoice/TicketInvoicesList'
-import { useAcquiringContext } from '@condo/domains/marketplace/components/MarketplacePageContent/ContextProvider'
-import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
 import { INVOICE_STATUS_DRAFT, INVOICE_STATUS_CANCELED } from '@condo/domains/marketplace/constants'
+import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { UnitInfo, UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
 import { Property } from '@condo/domains/property/utils/clientSchema'
@@ -208,9 +209,15 @@ const TicketFormInvoicesEmptyContent = ({
     const AlertDescriptionLink = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.ticketInvoice.form.noContextAlert.descriptionLink' })
     const NoInvoicesMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.ticketInvoice.form.noInvoices' })
 
-    const { acquiringContext } = useAcquiringContext()
+    const { obj: invoiceContext, loading } = AcquiringIntegrationContext.useObject({
+        where: {
+            organization: { id: organizationId },
+            invoiceStatus: CONTEXT_FINISHED_STATUS,
+        },
+    })
 
-    if (acquiringContext.invoiceStatus !== CONTEXT_FINISHED_STATUS) {
+    if (loading) return <Loader />
+    if (!invoiceContext) {
         return (
             <Alert
                 type='warning'

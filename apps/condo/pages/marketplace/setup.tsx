@@ -19,7 +19,8 @@ import { RequisitesSetup } from '@condo/domains/marketplace/components/Marketpla
 import {
     AcquiringContext as AcquiringContextProvider,
 } from '@condo/domains/marketplace/components/MarketplacePageContent/ContextProvider'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { MarketplaceReadPermissionRequired } from '@condo/domains/marketplace/components/PageAccess'
+
 
 const STEPS_GUTTER: RowProps['gutter'] = [60, 60]
 const FULL_COL_SPAN = 24
@@ -125,6 +126,6 @@ const MarketplaceOnboardingPage: IMarketplaceOnboardingPage = ({ onFinish, withV
     )
 }
 
-MarketplaceOnboardingPage.requiredAccess = OrganizationRequired
+MarketplaceOnboardingPage.requiredAccess = MarketplaceReadPermissionRequired
 
 export default MarketplaceOnboardingPage
