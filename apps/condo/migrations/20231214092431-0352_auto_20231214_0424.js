@@ -14,7 +14,9 @@ SET "deletedAt" = NOW()
 WHERE EXISTS (
   SELECT 1
   FROM "TicketPropertyHintProperty" AS t2
-  WHERE t1.property = t2.property
+  WHERE t1.id <> t2.id
+  AND t1."createdAt" < t2."createdAt"
+  AND t1.property = t2.property
   AND t1."deletedAt" IS NULL
   AND t2."deletedAt" IS NULL
 );
