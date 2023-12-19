@@ -23070,18 +23070,6 @@ export type GetExternalReportIframeUrlOutput = {
   iframeUrl?: Maybe<Scalars['String']>;
 };
 
-export type GetInvoicesWithSkuInfoInput = {
-  organization: OrganizationWhereUniqueInput;
-  property?: Maybe<PropertyWhereUniqueInput>;
-  ticketIds?: Maybe<Array<Scalars['ID']>>;
-};
-
-export type GetInvoicesWithSkuInfoOutput = {
-  __typename?: 'GetInvoicesWithSkuInfoOutput';
-  invoices: Array<Invoice>;
-  skuInfo: Array<MarketSkuInfo>;
-};
-
 export type GetNewsItemsRecipientsCountersInput = {
   dv: Scalars['Int'];
   sender: Scalars['JSON'];
@@ -26154,6 +26142,17 @@ export type InvoiceRelateToOneInput = {
   disconnectAll?: Maybe<Scalars['Boolean']>;
 };
 
+export type InvoiceRowMetaSchemaField = {
+  __typename?: 'InvoiceRowMetaSchemaField';
+  imageUrl?: Maybe<Scalars['String']>;
+  categoryBgColor?: Maybe<Scalars['String']>;
+};
+
+export type InvoiceRowMetaSchemaFieldInput = {
+  imageUrl?: Maybe<Scalars['String']>;
+  categoryBgColor?: Maybe<Scalars['String']>;
+};
+
 export type InvoiceRowSchemaField = {
   __typename?: 'InvoiceRowSchemaField';
   name: Scalars['String'];
@@ -26164,6 +26163,7 @@ export type InvoiceRowSchemaField = {
   salesTaxPercent?: Maybe<Scalars['String']>;
   sku?: Maybe<Scalars['String']>;
   isMin: Scalars['Boolean'];
+  meta?: Maybe<InvoiceRowMetaSchemaField>;
 };
 
 export type InvoiceRowSchemaFieldInput = {
@@ -26175,6 +26175,7 @@ export type InvoiceRowSchemaFieldInput = {
   salesTaxPercent?: Maybe<Scalars['String']>;
   sku?: Maybe<Scalars['String']>;
   isMin: Scalars['Boolean'];
+  meta?: Maybe<InvoiceRowMetaSchemaFieldInput>;
 };
 
 export type InvoiceRowsInput = {
@@ -28228,13 +28229,6 @@ export type MarketPriceScopesCreateInput = {
 export type MarketPriceScopesUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<MarketPriceScopeUpdateInput>;
-};
-
-export type MarketSkuInfo = {
-  __typename?: 'MarketSkuInfo';
-  sku: Scalars['String'];
-  imageUrl: Scalars['String'];
-  categoryBgColor: Scalars['String'];
 };
 
 /**  Notification message  */
@@ -61800,7 +61794,6 @@ export type Query = {
   exportPropertyScopesToExcel?: Maybe<ExportPropertyScopeToExcelOutput>;
   getNewsItemsRecipientsCounters?: Maybe<GetNewsItemsRecipientsCountersOutput>;
   allMiniApps?: Maybe<Array<MiniAppOutput>>;
-  getInvoicesWithSkuInfo?: Maybe<GetInvoicesWithSkuInfoOutput>;
   /** The version of the Keystone application serving this API. */
   appVersion?: Maybe<Scalars['String']>;
   authenticatedUser?: Maybe<User>;
@@ -68137,11 +68130,6 @@ export type QueryGetNewsItemsRecipientsCountersArgs = {
 
 export type QueryAllMiniAppsArgs = {
   data: AllMiniAppsInput;
-};
-
-
-export type QueryGetInvoicesWithSkuInfoArgs = {
-  data: GetInvoicesWithSkuInfoInput;
 };
 
 export type ReInviteOrganizationEmployeeInput = {

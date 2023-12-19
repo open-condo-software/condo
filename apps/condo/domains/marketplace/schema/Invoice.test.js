@@ -6,7 +6,7 @@ const { faker } = require('@faker-js/faker')
 const Big = require('big.js')
 const dayjs = require('dayjs')
 const isSameOrAfter = require('dayjs/plugin/isSameOrAfter')
-const { omit, pick } = require('lodash')
+const { omit, pick, get } = require('lodash')
 
 const conf = require('@open-condo/config')
 const {
@@ -36,7 +36,13 @@ const {
     Invoice,
     createTestInvoice,
     updateTestInvoice,
-    generateInvoiceRow, generateInvoiceRows,
+    generateInvoiceRow,
+    generateInvoiceRows,
+    createTestMarketCategory,
+    createTestMarketItem,
+    createTestMarketItemPrice,
+    createTestMarketPriceScope,
+    registerInvoiceByTestClient,
 } = require('@condo/domains/marketplace/utils/testSchema')
 const {
     MARKETPLACE_INVOICE_PUBLISHED_MESSAGE_TYPE,
@@ -684,6 +690,56 @@ describe('Invoice', () => {
                 expect(dayjs(updatedInvoice.canceledAt).isSameOrAfter(dayjs(invoice.createdAt))).toBe(true)
             })
         })
+
+        it('must get invoice row meta from item category', async () => {
+            const [o10n] = await createTestOrganization(adminClient)
+
+            await createTestAcquiringIntegrationContext(adminClient, o10n, dummyAcquiringIntegration, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceRecipient: createTestRecipient(),
+            })
+
+            const [property] = await createTestProperty(adminClient, o10n)
+
+            const residentClient = await makeClientWithResidentUser()
+            const unitType = FLAT_UNIT_TYPE
+            const unitName = faker.lorem.word()
+            const [resident] = await registerResidentByTestClient(
+                residentClient,
+                {
+                    address: property.address,
+                    addressMeta: property.addressMeta,
+                    unitType,
+                    unitName,
+                })
+
+            const [marketCategory] = await createTestMarketCategory(adminClient)
+            const [marketItem] = await createTestMarketItem(adminClient, marketCategory, o10n)
+            const [itemPrice] = await createTestMarketItemPrice(adminClient, marketItem)
+            const [priceScope] = await createTestMarketPriceScope(adminClient, itemPrice, property)
+
+            await registerInvoiceByTestClient(
+                residentClient,
+                pick(resident, 'id'),
+                [{
+                    priceScope: pick(priceScope, 'id'),
+                    count: 1,
+                }],
+            )
+
+            const invoices = await Invoice.getAll(residentClient, {})
+            expect(invoices).toHaveLength(1)
+
+            const [invoice] = invoices
+            expect(invoice.rows).toEqual([
+                expect.objectContaining({
+                    meta: {
+                        imageUrl: get(marketCategory, ['image', 'publicUrl'], null),
+                        categoryBgColor: get(marketCategory, ['mobileSettings', 'bgColor'], null),
+                    },
+                }),
+            ])
+        })
     })
 
     describe('sending push', () => {
@@ -1193,7 +1249,7 @@ describe('Invoice', () => {
                 status: INVOICE_STATUS_PUBLISHED,
             })
 
-            expect(updatedInvoice.rows.map((row)=>omit(row, ['currencyCode', 'vatPercent', 'salesTaxPercent']))).toEqual(newRows)
+            expect(updatedInvoice.rows.map((row) => pick(row, ['name', 'toPay', 'isMin', 'count']))).toEqual(newRows)
             expect(updatedInvoice.status).toEqual(INVOICE_STATUS_PUBLISHED)
         })
 

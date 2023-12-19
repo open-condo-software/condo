@@ -68064,6 +68064,7 @@ type InvoiceRowSchemaField {
   salesTaxPercent: String
   sku: String
   isMin: Boolean!
+  meta: InvoiceRowMetaSchemaField
 }
 
 input InvoiceRowSchemaFieldInput {
@@ -68075,6 +68076,17 @@ input InvoiceRowSchemaFieldInput {
   salesTaxPercent: String
   sku: String
   isMin: Boolean!
+  meta: InvoiceRowMetaSchemaFieldInput
+}
+
+type InvoiceRowMetaSchemaField {
+  imageUrl: String
+  categoryBgColor: String
+}
+
+input InvoiceRowMetaSchemaFieldInput {
+  imageUrl: String
+  categoryBgColor: String
 }
 
 """ Invoice model contains information about paid items and payer """
@@ -72122,23 +72134,6 @@ type RegisterInvoiceOutput {
   invoice: Invoice!
 }
 
-input GetInvoicesWithSkuInfoInput {
-  organization: OrganizationWhereUniqueInput!
-  property: PropertyWhereUniqueInput
-  ticketIds: [ID!]
-}
-
-type MarketSkuInfo {
-  sku: String!
-  imageUrl: String!
-  categoryBgColor: String!
-}
-
-type GetInvoicesWithSkuInfoOutput {
-  invoices: [Invoice!]!
-  skuInfo: [MarketSkuInfo!]!
-}
-
 type unauthenticateUserOutput {
   """
   `true` when unauthentication succeeds.
@@ -75823,7 +75818,6 @@ type Query {
   exportPropertyScopesToExcel(data: ExportPropertyScopeToExcelInput!): ExportPropertyScopeToExcelOutput
   getNewsItemsRecipientsCounters(data: GetNewsItemsRecipientsCountersInput!): GetNewsItemsRecipientsCountersOutput
   allMiniApps(data: AllMiniAppsInput!): [MiniAppOutput!]
-  getInvoicesWithSkuInfo(data: GetInvoicesWithSkuInfoInput!): GetInvoicesWithSkuInfoOutput
 
   """The version of the Keystone application serving this API."""
   appVersion: String

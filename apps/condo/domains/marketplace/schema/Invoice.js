@@ -3,7 +3,7 @@
  */
 const Big = require('big.js')
 const dayjs = require('dayjs')
-const { get, set } = require('lodash')
+const { find: _find, get, has, set, map } = require('lodash')
 const isEmpty = require('lodash/isEmpty')
 const isEqual = require('lodash/isEqual')
 const isNil = require('lodash/isNil')
@@ -43,7 +43,11 @@ const {
     ERROR_NO_FINISHED_ACQUIRING_CONTEXT,
 } = require('@condo/domains/marketplace/constants')
 const { INVOICE_ROWS_FIELD } = require('@condo/domains/marketplace/schema/fields/invoiceRows')
-const { MARKETPLACE_INVOICE_PUBLISHED_MESSAGE_TYPE, MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
+const { MarketItem } = require('@condo/domains/marketplace/utils/serverSchema')
+const {
+    MARKETPLACE_INVOICE_PUBLISHED_MESSAGE_TYPE,
+    MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
+} = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
@@ -376,6 +380,7 @@ const Invoice = new GQLListSchema('Invoice', {
             }
 
             const nextData = { ...existingItem, ...resolvedData }
+            const nextRows = get(nextData, 'rows', [])
 
             if (userType === RESIDENT) {
                 if (operation === 'create') {
@@ -418,6 +423,24 @@ const Invoice = new GQLListSchema('Invoice', {
                 case INVOICE_STATUS_CANCELED:
                     resolvedData['canceledAt'] = dayjs().toISOString()
                     break
+            }
+
+            if (has(resolvedData, 'rows')) { // fill rows.meta with necessary data
+                const marketItems = await MarketItem.getAll(context, {
+                    organization: { id: get(nextData, 'organization') },
+                    sku_in: map(nextRows, 'sku'),
+                })
+
+                resolvedData['rows'] = nextRows.map((nextRow) => {
+                    const marketItem = _find(marketItems, { sku: nextRow.sku })
+                    return {
+                        ...nextRow,
+                        meta: {
+                            imageUrl: get(marketItem, ['marketCategory', 'image', 'publicUrl']),
+                            categoryBgColor: get(marketItem, ['marketCategory', 'mobileSettings', 'bgColor']),
+                        },
+                    }
+                })
             }
 
             return resolvedData
