@@ -72,25 +72,27 @@ source bin/validate-db-schema-ts-to-match-graphql-api.sh
 
 cpu_count=$(getconf _NPROCESSORS_ONLN)
 
-for (( i=0; i < $((cpu_count / 2)); ++i ))
-do
-    yarn workspace @app/condo worker 2>&1 > condo.workeri.log &
-    sleep 3
-done
+#for (( i=0; i < $((cpu_count / 2)); ++i ))
+#do
+#    yarn workspace @app/condo worker 2>&1 > condo.workeri.log &
+#    sleep 3
+#done
 
-#yarn workspace @app/condo worker 2>&1 > condo.worker.log &
-#sleep 3
+yarn workspace @app/condo worker 2>&1 > condo.worker.log &
+sleep 3
+yarn workspace @app/condo worker 2>&1 > condo.worker.log &
+sleep 3
 
 # And check background processes!
-[[ $(jobs | wc -l | tr -d ' ') != "$((cpu_count / 2 + 1))" ]] && exit 2
+[[ $(jobs | wc -l | tr -d ' ') != '3' ]] && exit 2
 sleep 3
 
 if [ $domain_name != "others" ]; then
     # TESTS
-    yarn workspace @app/condo test --workerIdleMemoryLimit="256MB" --testTimeout=15000 -w="50%" --forceExit --silent=false --verbose --bail --testPathPattern '/domains/'$domain_name'/schema/(.*)[.]test.js$' 2>&1 > 'condo.'$domain_name'.tests.log'
+    yarn workspace @app/condo test --workerIdleMemoryLimit="256MB" --testTimeout=15000 -w=2 --forceExit --silent=false --verbose --bail --testPathPattern '/domains/'$domain_name'/schema/(.*)[.]test.js$' 2>&1 > 'condo.'$domain_name'.tests.log'
     # SPECS
     if [ -n "$(find apps/condo/domains/$domain_name -name '*spec.js' 2>/dev/null)" ]; then
-        yarn workspace @app/condo test --workerIdleMemoryLimit="256MB" --testTimeout=15000 -w="50%" --forceExit --silent=false --verbose --bail --testPathPattern '/domains/'$domain_name'/(.*)[.]spec.js$' 2>&1 > 'condo.'$domain_name'.specs.log'
+        yarn workspace @app/condo test --workerIdleMemoryLimit="256MB" --testTimeout=15000 -w=2 --forceExit --silent=false --verbose --bail --testPathPattern '/domains/'$domain_name'/(.*)[.]spec.js$' 2>&1 > 'condo.'$domain_name'.specs.log'
     else
         echo "Files matching (.*)[.]spec.js in directory apps/condo/domains/$domain_name not found! Skipping..."
     fi
@@ -99,10 +101,10 @@ if [ $domain_name != "others" ]; then
     killall node || echo 'no node processes'
 else
     # TESTS
-    yarn workspace @app/condo test --workerIdleMemoryLimit="256MB" --testTimeout=15000 -w="50%" --forceExit --silent=false --verbose --bail --testPathPattern '/schema/(.*)[.]test.js$' --testPathIgnorePatterns='/domains/(organization|user|scope|property|acquiring|billing|miniapp|banking|ticket|meter|contact|resident|notification|common)/' 2>&1 > condo.others.tests.log
-    yarn workspace @app/condo test --workerIdleMemoryLimit="256MB" --testTimeout=15000 -w="50%" --forceExit --silent=false --verbose --bail --testPathPattern '(.*)[.]test.js$' --testPathIgnorePatterns='/schema/(.*)[.]test.js$' 2>&1 > condo.5.test.others.log
+    yarn workspace @app/condo test --workerIdleMemoryLimit="256MB" --testTimeout=15000 -w=2 --forceExit --silent=false --verbose --bail --testPathPattern '/schema/(.*)[.]test.js$' --testPathIgnorePatterns='/domains/(organization|user|scope|property|acquiring|billing|miniapp|banking|ticket|meter|contact|resident|notification|common)/' 2>&1 > condo.others.tests.log
+    yarn workspace @app/condo test --workerIdleMemoryLimit="256MB" --testTimeout=15000 -w=2 --forceExit --silent=false --verbose --bail --testPathPattern '(.*)[.]test.js$' --testPathIgnorePatterns='/schema/(.*)[.]test.js$' 2>&1 > condo.5.test.others.log
     # SPECS
-    yarn workspace @app/condo test --workerIdleMemoryLimit="256MB" --testTimeout=15000 -w="50%" --forceExit --silent=false --verbose --bail --testPathPattern '(.*)[.]spec.js$' --testPathIgnorePatterns='/domains/(organization|user|scope|property|acquiring|billing|miniapp|banking|ticket|meter|contact|resident|notification|common)/' 2>&1 > condo.others.specs.log
+    yarn workspace @app/condo test --workerIdleMemoryLimit="256MB" --testTimeout=15000 -w=2 --forceExit --silent=false --verbose --bail --testPathPattern '(.*)[.]spec.js$' --testPathIgnorePatterns='/domains/(organization|user|scope|property|acquiring|billing|miniapp|banking|ticket|meter|contact|resident|notification|common)/' 2>&1 > condo.others.specs.log
     # Note: we need to stop background worker! because packages tests use the same redis queue
     kill $(jobs -p) || echo 'background worker and dev server is already killed!'
     killall node || echo 'no node processes'
