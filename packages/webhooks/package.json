@@ -40,8 +40,8 @@
   "devDependencies": {
     "dayjs": "^1.11.6",
     "falsey": "^1.0.0",
-    "jest": "^29.4.0",
-    "jest-environment-jsdom": "^29.4.0",
-    "jest-jasmine2": "^29.4.0"
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "jest-jasmine2": "^29.7.0"
   }
 }

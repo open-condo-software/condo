@@ -59,9 +59,9 @@
     "babel-jest": "^29.4.0",
     "cross-env": "^7.0.3",
     "identity-obj-proxy": "^3.0.0",
-    "jest": "^29.4.0",
-    "jest-environment-jsdom": "^29.4.0",
-    "jest-jasmine2": "^29.4.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "jest-jasmine2": "^29.7.0",
     "jest-watch-typeahead": "^0.6.1"
   },
   "repository": "https://github.com/open-condo-software/condo/tree/master/apps/dev-api"
