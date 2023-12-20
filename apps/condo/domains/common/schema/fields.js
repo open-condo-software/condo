@@ -101,16 +101,16 @@ const CLIENT_EMAIL_FIELD = {
     type: Text,
 }
 
-const getClientPhoneResolver = (allowLandLine = false) => async ({ resolvedData }) => {
-    if (!resolvedData['clientPhone']) return resolvedData['clientPhone']
-    const newValue = normalizePhone(resolvedData['clientPhone'], allowLandLine)
-    return newValue || resolvedData['clientPhone']
+const getClientPhoneResolver = (allowLandLine = false) => async ({ resolvedData, fieldPath }) => {
+    if (!resolvedData[fieldPath]) return resolvedData[fieldPath]
+    const newValue = normalizePhone(resolvedData[fieldPath], allowLandLine)
+    return newValue || resolvedData[fieldPath]
 }
 
-const getClientPhoneValidator = (allowLandLine = false) => async ({ resolvedData, addFieldValidationError }) => {
-    const newValue = normalizePhone(resolvedData['clientPhone'], allowLandLine)
-    if (resolvedData['clientPhone'] && newValue !== resolvedData['clientPhone']) {
-        addFieldValidationError(`${PHONE_WRONG_FORMAT_ERROR}phone] invalid format [Common] ${allowLandLine ? 'allowLandLine' : 'mobileOnly'}`)
+const getClientPhoneValidator = (allowLandLine = false) => async ({ resolvedData, addFieldValidationError, fieldPath }) => {
+    const newValue = normalizePhone(resolvedData[fieldPath], allowLandLine)
+    if (resolvedData[fieldPath] && newValue !== resolvedData[fieldPath]) {
+        addFieldValidationError(`${PHONE_WRONG_FORMAT_ERROR}${fieldPath}] invalid format [Common] ${allowLandLine ? 'allowLandLine' : 'mobileOnly'}`)
     }
 }
 
