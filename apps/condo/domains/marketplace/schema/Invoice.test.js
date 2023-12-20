@@ -797,7 +797,7 @@ describe('Invoice', () => {
             })
 
             expect(invoice.canGroupReceipts).toBeTruthy()
-            expect(invoice.hostUrl).toEqual(dummyAcquiringIntegration.hostUrl)
+            expect(invoice.acquiringHostUrl).toEqual(dummyAcquiringIntegration.hostUrl)
             expect(invoice.acquiringIntegrationId).toEqual(dummyAcquiringIntegration.id)
             expect(invoice.currencyCode).toEqual(DEFAULT_INVOICE_CURRENCY_CODE)
         })

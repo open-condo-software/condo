@@ -12227,7 +12227,7 @@ type BillingReceiptHistoryRecord {
   file: String
   isPayable: JSON
   acquiringIntegrationId: JSON
-  hostUrl: JSON
+  acquiringHostUrl: JSON
   canGroupReceipts: JSON
   currencyCode: JSON
   id: ID!
@@ -12418,10 +12418,10 @@ input BillingReceiptHistoryRecordWhereInput {
   acquiringIntegrationId_not: JSON
   acquiringIntegrationId_in: [JSON]
   acquiringIntegrationId_not_in: [JSON]
-  hostUrl: JSON
-  hostUrl_not: JSON
-  hostUrl_in: [JSON]
-  hostUrl_not_in: [JSON]
+  acquiringHostUrl: JSON
+  acquiringHostUrl_not: JSON
+  acquiringHostUrl_in: [JSON]
+  acquiringHostUrl_not_in: [JSON]
   canGroupReceipts: JSON
   canGroupReceipts_not: JSON
   canGroupReceipts_in: [JSON]
@@ -12578,7 +12578,7 @@ input BillingReceiptHistoryRecordUpdateInput {
   file: String
   isPayable: JSON
   acquiringIntegrationId: JSON
-  hostUrl: JSON
+  acquiringHostUrl: JSON
   canGroupReceipts: JSON
   currencyCode: JSON
   v: Int
@@ -12625,7 +12625,7 @@ input BillingReceiptHistoryRecordCreateInput {
   file: String
   isPayable: JSON
   acquiringIntegrationId: JSON
-  hostUrl: JSON
+  acquiringHostUrl: JSON
   canGroupReceipts: JSON
   currencyCode: JSON
   v: Int
@@ -12849,12 +12849,12 @@ type BillingReceipt {
   """
   isPayable: Boolean
 
-  """ Integration ID through which this invoice can be paid """
+  """ Integration ID through which this receipt can be paid """
   acquiringIntegrationId: ID
 
   """ Url to acquiring integration service. Mobile devices will use it communicate with external acquiring. List of endpoints is the same for all of them. 
   """
-  hostUrl: String
+  acquiringHostUrl: String
 
   """ Can multiple receipts be united through this acquiring """
   canGroupReceipts: Boolean
@@ -67732,7 +67732,7 @@ type InvoiceHistoryRecord {
   canceledAt: String
   recipient: JSON
   acquiringIntegrationId: JSON
-  hostUrl: JSON
+  acquiringHostUrl: JSON
   canGroupReceipts: JSON
   currencyCode: JSON
   id: ID!
@@ -67947,10 +67947,10 @@ input InvoiceHistoryRecordWhereInput {
   acquiringIntegrationId_not: JSON
   acquiringIntegrationId_in: [JSON]
   acquiringIntegrationId_not_in: [JSON]
-  hostUrl: JSON
-  hostUrl_not: JSON
-  hostUrl_in: [JSON]
-  hostUrl_not_in: [JSON]
+  acquiringHostUrl: JSON
+  acquiringHostUrl_not: JSON
+  acquiringHostUrl_in: [JSON]
+  acquiringHostUrl_not_in: [JSON]
   canGroupReceipts: JSON
   canGroupReceipts_not: JSON
   canGroupReceipts_in: [JSON]
@@ -68103,7 +68103,7 @@ input InvoiceHistoryRecordUpdateInput {
   canceledAt: String
   recipient: JSON
   acquiringIntegrationId: JSON
-  hostUrl: JSON
+  acquiringHostUrl: JSON
   canGroupReceipts: JSON
   currencyCode: JSON
   v: Int
@@ -68146,7 +68146,7 @@ input InvoiceHistoryRecordCreateInput {
   canceledAt: String
   recipient: JSON
   acquiringIntegrationId: JSON
-  hostUrl: JSON
+  acquiringHostUrl: JSON
   canGroupReceipts: JSON
   currencyCode: JSON
   v: Int
@@ -68279,7 +68279,7 @@ type Invoice {
 
   """ Url to acquiring integration service. Mobile devices will use it communicate with external acquiring. List of endpoints is the same for all of them. 
   """
-  hostUrl: String
+  acquiringHostUrl: String
 
   """ Can multiple receipts be united through this acquiring """
   canGroupReceipts: Boolean

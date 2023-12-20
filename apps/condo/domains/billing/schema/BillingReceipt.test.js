@@ -1154,7 +1154,7 @@ describe('BillingReceipt', () => {
                 const [billingReceipt] = await createTestBillingReceipt(admin, context, property, account)
 
                 expect(billingReceipt.acquiringIntegrationId).toEqual(acquiringIntegration.id)
-                expect(billingReceipt.hostUrl).toEqual(acquiringIntegration.hostUrl)
+                expect(billingReceipt.acquiringHostUrl).toEqual(acquiringIntegration.hostUrl)
                 expect(billingReceipt.canGroupReceipts).toEqual(acquiringIntegration.canGroupReceipts)
                 expect(billingReceipt.currencyCode).toEqual(context.integration.currencyCode)
             })

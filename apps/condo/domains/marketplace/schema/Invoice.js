@@ -251,9 +251,10 @@ const Invoice = new GQLListSchema('Invoice', {
                 })
                 return get(acquiringContext, 'integration', null)
             },
+            access: { create: false, read: true, update: false },
         },
 
-        hostUrl: {
+        acquiringHostUrl: {
             schemaDoc: 'Url to acquiring integration service. Mobile devices will use it communicate with external acquiring. List of endpoints is the same for all of them.',
             type: 'Virtual',
             graphQLReturnType: 'String',
@@ -266,6 +267,7 @@ const Invoice = new GQLListSchema('Invoice', {
                 const integration = await getById('AcquiringIntegration', acquiringContext.integration)
                 return get(integration, 'hostUrl', null)
             },
+            access: { create: false, read: true, update: false },
         },
 
         canGroupReceipts: {
@@ -281,6 +283,7 @@ const Invoice = new GQLListSchema('Invoice', {
                 const integration = await getById('AcquiringIntegration', acquiringContext.integration)
                 return get(integration, 'canGroupReceipts', null)
             },
+            access: { create: false, read: true, update: false },
         },
 
         currencyCode: {
@@ -290,6 +293,7 @@ const Invoice = new GQLListSchema('Invoice', {
             resolver: async (item, args, context) => {
                 return DEFAULT_INVOICE_CURRENCY_CODE // Now we only allow payments in RUB, so temporarily this field will return a constant
             },
+            access: { create: false, read: true, update: false },
         },
 
     },

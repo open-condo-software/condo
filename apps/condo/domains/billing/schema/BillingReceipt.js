@@ -23,6 +23,11 @@ const { RAW_DATA_FIELD, PERIOD_FIELD } = require('./fields/common')
 const { INTEGRATION_CONTEXT_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD } = require('./fields/relations')
 
 const DEFAULT_CATEGORY = '928c97ef-5289-4daa-b80e-4b9fed50c629'
+const findAcquiringContext = async (item) => {
+    const billingContext = await getById('BillingIntegrationOrganizationContext', item.context)
+    const acquiringContexts = await find('AcquiringIntegrationContext', { organization: { id: billingContext.organization }, status: CONTEXT_FINISHED_STATUS, deletedAt: null })
+    return acquiringContexts[0]
+}
 
 const BillingReceipt = new GQLListSchema('BillingReceipt', {
     schemaDoc: 'Account monthly invoice document',
@@ -212,33 +217,33 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
         },
 
         acquiringIntegrationId: {
-            schemaDoc: 'Integration ID through which this invoice can be paid',
+            schemaDoc: 'Integration ID through which this receipt can be paid',
             type: 'Virtual',
             graphQLReturnType: 'ID',
             resolver: async (item, args, context) => {
-                const billingContext = await getById('BillingIntegrationOrganizationContext', item.context)
-                const acquiringContext = await find('AcquiringIntegrationContext', { organization: { id: billingContext.organization }, status: CONTEXT_FINISHED_STATUS })
+                const acquiringContext = await findAcquiringContext(item)
                 if (!isEmpty(acquiringContext)) {
-                    const acquiringIntegration = await getById('AcquiringIntegration', get(acquiringContext[0], 'integration', null))
+                    const acquiringIntegration = await getById('AcquiringIntegration', get(acquiringContext, 'integration', null))
                     return get(acquiringIntegration, 'id', null)
                 }
                 return null
             },
+            access: { create: false, read: true, update: false },
         },
 
-        hostUrl: {
+        acquiringHostUrl: {
             schemaDoc: 'Url to acquiring integration service. Mobile devices will use it communicate with external acquiring. List of endpoints is the same for all of them.',
             type: 'Virtual',
             graphQLReturnType: 'String',
             resolver: async (item, args, context) => {
-                const billingContext = await getById('BillingIntegrationOrganizationContext', item.context)
-                const acquiringContext = await find('AcquiringIntegrationContext', { organization: { id: billingContext.organization }, status: CONTEXT_FINISHED_STATUS, deletedAt: null })
+                const acquiringContext = await findAcquiringContext(item)
                 if (!isEmpty(acquiringContext)) {
-                    const acquiringIntegration = await getById('AcquiringIntegration', get(acquiringContext[0], 'integration', null))
+                    const acquiringIntegration = await getById('AcquiringIntegration', get(acquiringContext, 'integration', null))
                     return get(acquiringIntegration, 'hostUrl', null)
                 }
                 return null
             },
+            access: { create: false, read: true, update: false },
         },
 
         canGroupReceipts: {
@@ -246,14 +251,14 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             type: 'Virtual',
             graphQLReturnType: 'Boolean',
             resolver: async (item, args, context) => {
-                const billingContext = await getById('BillingIntegrationOrganizationContext', item.context)
-                const acquiringContext = await find('AcquiringIntegrationContext', { organization: { id: billingContext.organization }, status: CONTEXT_FINISHED_STATUS, deletedAt: null })
+                const acquiringContext = await findAcquiringContext(item)
                 if (!isEmpty(acquiringContext)) {
-                    const acquiringIntegration = await getById('AcquiringIntegration', get(acquiringContext[0], 'integration', null))
+                    const acquiringIntegration = await getById('AcquiringIntegration', get(acquiringContext, 'integration', null))
                     return get(acquiringIntegration, 'canGroupReceipts', null)
                 }
                 return null
             },
+            access: { create: false, read: true, update: false },
         },
 
         currencyCode: {
@@ -265,6 +270,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
                 const billingIntegration = await getById('BillingIntegration', billingContext.integration)
                 return get(billingIntegration, 'currencyCode', null)
             },
+            access: { create: false, read: true, update: false },
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
