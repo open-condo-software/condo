@@ -30,6 +30,8 @@ import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/
 import { useMarketplacePaymentsFilters } from '@condo/domains/marketplace/hooks/useMarketplacePaymentsFilters'
 import { useMarketplacePaymentTableColumns } from '@condo/domains/marketplace/hooks/useMarketplacePaymentTableColumns'
 
+import LoadingOrErrorPage from '../../common/components/containers/LoadingOrErrorPage'
+
 
 const ROW_GUTTERS: RowProps['gutter'] = [0, 0]
 const SUM_BAR_COL_GUTTER: RowProps['gutter'] = [40, 0]
@@ -149,14 +151,27 @@ export const MarketplacePaymentsContent = () => {
         setSelectedRows([])
     }, [])
 
-    return (
-        <TablePageContent>
+    if (paymentsLoading) {
+        return (
+            <LoadingOrErrorPage
+                loading={paymentsLoading}
+            />
+        )
+    }
+
+    if (isNoPaymentsData) {
+        return (
             <EmptyListView
                 label={EmptyListTitle}
                 message={EmptyListLabel}
                 containerStyle={{ display: isNoPaymentsData ? 'flex' : 'none' }}
                 accessCheck={canReadPayments}
             />
+        )
+    }
+
+    return (
+        <TablePageContent>
             <Col span={24}>
                 <TableFiltersContainer>
                     <Row justify='space-between' gutter={ROW_GUTTERS}>
