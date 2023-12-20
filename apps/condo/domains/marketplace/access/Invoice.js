@@ -4,9 +4,11 @@
 
 const { get } = require('lodash')
 
+const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
+const { MARKETPLACE } = require('@condo/domains/common/constants/featureflags')
 const {
     INVOICE_STATUS_PUBLISHED,
     INVOICE_STATUS_PAID,
@@ -19,6 +21,7 @@ const {
     checkPermissionInUserOrganizationOrRelatedOrganization,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
+
 
 async function canReadInvoices ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
@@ -54,7 +57,7 @@ async function canReadInvoices ({ authentication: { item: user }, context }) {
     }
 }
 
-async function canManageInvoices ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageInvoices ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -71,6 +74,13 @@ async function canManageInvoices ({ authentication: { item: user }, originalInpu
     }
 
     if (!organizationId) return false
+
+    const isMarketplaceEnabled = await featureToggleManager.isFeatureEnabled(
+        context,
+        MARKETPLACE,
+        { organization: organizationId }
+    )
+    if (!isMarketplaceEnabled) return false
 
     return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageInvoices')
 }

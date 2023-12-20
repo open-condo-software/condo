@@ -39,13 +39,14 @@ import { TASK_STATUS } from '@condo/domains/common/components/tasks'
 import { TasksContextProvider } from '@condo/domains/common/components/tasks/TasksContextProvider'
 import { TrackingProvider } from '@condo/domains/common/components/TrackingContext'
 import UseDeskWidget from '@condo/domains/common/components/UseDeskWidget'
-import { SERVICE_PROVIDER_PROFILE } from '@condo/domains/common/constants/featureflags'
+import { SERVICE_PROVIDER_PROFILE, MARKETPLACE } from '@condo/domains/common/constants/featureflags'
 import {
     DASHBOARD_CATEGORY,
     COMMUNICATION_CATEGORY,
     PROPERTIES_CATEGORY,
     RESIDENTS_CATEGORY,
     EMPLOYEES_CATEGORY,
+    MARKET_CATEGORY,
     BILLING_CATEGORY,
     METERS_CATEGORY,
     MINIAPPS_CATEGORY,
@@ -85,6 +86,7 @@ import '@open-condo/ui/dist/styles.min.css'
 import '@open-condo/ui/dist/style-vars/variables.css'
 import '@condo/domains/common/components/containers/global-styles.css'
 
+
 const ANT_LOCALES = {
     ru: ruRU,
     en: enUS,
@@ -113,17 +115,19 @@ const ANT_DEFAULT_LOCALE = enUS
 const { publicRuntimeConfig: { defaultLocale, sppConfig } } = getConfig()
 
 const MenuItems: React.FC = () => {
+    const { updateContext, useFlag } = useFeatureFlags()
+    const isSPPOrg = useFlag(SERVICE_PROVIDER_PROFILE)
+    const isMarketplaceEnabled = useFlag(MARKETPLACE)
+
     const { link, organization } = useOrganization()
     const { isExpired } = useServiceSubscriptionContext()
     const hasSubscriptionFeature = hasFeature('subscription')
     const disabled = !link || (hasSubscriptionFeature && isExpired)
     const { isCollapsed } = useLayoutContext()
     const { wrapElementIntoNoOrganizationToolTip } = useNoOrganizationToolTip()
-    const { updateContext, useFlag } = useFeatureFlags()
     const role = get(link, 'role', {})
     const orgId = get(organization, 'id', null)
     const orgFeatures = get(organization, 'features', [])
-    const isSPPOrg = useFlag(SERVICE_PROVIDER_PROFILE)
     const sppBillingId = get(sppConfig, 'BillingIntegrationId', null)
     const { obj: billingCtx } = BillingContext.useObject({ where: { integration: { id: sppBillingId }, organization: { id: orgId } } })
     const anyReceiptsLoaded = Boolean(get(billingCtx, 'lastReport', null))
@@ -138,6 +142,7 @@ const MenuItems: React.FC = () => {
     const hasAccessToMeters = get(role, 'canReadMeters', false)
     const hasAccessToServices = get(role, 'canReadServices', false)
     const hasAccessToSettings = get(role, 'canReadSettings', false)
+    const hasAccessToMarketplace = get(role, 'canReadMarketplace', false)
 
     const { canRead: hasAccessToNewsItems } = useNewsItemsAccess()
 
@@ -219,6 +224,18 @@ const MenuItems: React.FC = () => {
                     icon: AllIcons['Employee'],
                     label: 'global.section.employees',
                     access: hasAccessToEmployees,
+                },
+            ].filter(checkItemAccess),
+        },
+        {
+            key: MARKET_CATEGORY,
+            items: [
+                {
+                    id: 'menuitem-marketplace',
+                    path: 'marketplace',
+                    icon: AllIcons['Market'],
+                    label: 'global.section.marketplace',
+                    access: isMarketplaceEnabled && hasAccessToMarketplace,
                 },
             ].filter(checkItemAccess),
         },

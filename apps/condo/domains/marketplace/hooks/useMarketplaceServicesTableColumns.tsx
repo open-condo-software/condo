@@ -118,7 +118,7 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
                     if (category.parentCategory) {
                         const parentCategoryName = category.parentCategory.name
 
-                        if (subcategoryCounterGropedByCategoryId[category.parentCategory.id] > 1) return render(`${parentCategoryName}»${categoryName}`)
+                        if (subcategoryCounterGropedByCategoryId[category.parentCategory.id] > 1) return render(`${parentCategoryName} » ${categoryName}`)
                         return render(parentCategoryName)
                     }
                     return render(categoryName)
