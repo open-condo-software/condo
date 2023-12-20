@@ -30,7 +30,7 @@ const {
     INVOICE_STATUS_PAID,
     INVOICE_PAYMENT_TYPE_CASH,
     INVOICE_PAYMENT_TYPE_ONLINE,
-    INVOICE_STATUS_CANCELED, CLIENT_DATA_FIELDS,
+    INVOICE_STATUS_CANCELED, CLIENT_DATA_FIELDS, DEFAULT_INVOICE_CURRENCY_CODE,
 } = require('@condo/domains/marketplace/constants')
 const {
     Invoice,
@@ -70,18 +70,18 @@ const {
 dayjs.extend(isSameOrAfter)
 
 let adminClient, supportClient, anonymousClient
-let dummyO10n, dummyAcquiringIntegration
+let dummyOrganization, dummyAcquiringIntegration
 
 describe('Invoice', () => {
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()
         supportClient = await makeClientWithSupportUser()
-        anonymousClient = await makeClient()
+        anonymousClient = await makeClient();
 
-        ;[dummyO10n] = await createTestOrganization(adminClient)
-        await createTestBillingIntegration(adminClient)
-        ;[dummyAcquiringIntegration] = await createTestAcquiringIntegration(supportClient)
-        await createTestAcquiringIntegrationContext(adminClient, dummyO10n, dummyAcquiringIntegration, {
+        [dummyOrganization] = await createTestOrganization(adminClient)
+        await createTestBillingIntegration(adminClient);
+        [dummyAcquiringIntegration] = await createTestAcquiringIntegration(supportClient, { canGroupReceipts: true })
+        await createTestAcquiringIntegrationContext(adminClient, dummyOrganization, dummyAcquiringIntegration, {
             invoiceStatus: CONTEXT_FINISHED_STATUS,
             invoiceRecipient: createTestRecipient(),
         })
@@ -90,39 +90,39 @@ describe('Invoice', () => {
     describe('CRUD tests', () => {
         describe('create', () => {
             test('admin can', async () => {
-                const [obj, attrs] = await createTestInvoice(adminClient, dummyO10n)
+                const [obj, attrs] = await createTestInvoice(adminClient, dummyOrganization)
                 expectValuesOfCommonFields(obj, attrs, adminClient)
                 expect(obj.status).toBe(INVOICE_STATUS_DRAFT)
                 expect(obj.paymentType).toBe(INVOICE_PAYMENT_TYPE_ONLINE)
             })
 
             test('support can', async () => {
-                const [obj, attrs] = await createTestInvoice(supportClient, dummyO10n)
+                const [obj, attrs] = await createTestInvoice(supportClient, dummyOrganization)
                 expectValuesOfCommonFields(obj, attrs, supportClient)
             })
 
             test('staff with permission can', async () => {
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
-                const [role] = await createTestOrganizationEmployeeRole(adminClient, dummyO10n, {
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, dummyOrganization, {
                     canManageInvoices: true,
                 })
-                await createTestOrganizationEmployee(adminClient, dummyO10n, client.user, role)
+                await createTestOrganizationEmployee(adminClient, dummyOrganization, client.user, role)
 
-                const [obj, attrs] = await createTestInvoice(client, dummyO10n)
+                const [obj, attrs] = await createTestInvoice(client, dummyOrganization)
 
                 expectValuesOfCommonFields(obj, attrs, client)
             })
 
             test('staff without permission can\'t', async () => {
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
-                const [role] = await createTestOrganizationEmployeeRole(adminClient, dummyO10n, {
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, dummyOrganization, {
                     canManageInvoices: false,
                 })
-                await createTestOrganizationEmployee(adminClient, dummyO10n, client.user, role)
+                await createTestOrganizationEmployee(adminClient, dummyOrganization, client.user, role)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestInvoice(client, dummyO10n)
+                    await createTestInvoice(client, dummyOrganization)
                 })
             })
 
@@ -135,7 +135,7 @@ describe('Invoice', () => {
 
         describe('update', () => {
             test('admin can', async () => {
-                const [objCreated] = await createTestInvoice(adminClient, dummyO10n)
+                const [objCreated] = await createTestInvoice(adminClient, dummyOrganization)
                 const [obj, attrs] = await updateTestInvoice(adminClient, objCreated.id)
 
                 expect(obj.dv).toEqual(1)
@@ -145,7 +145,7 @@ describe('Invoice', () => {
             })
 
             test('support can', async () => {
-                const [objCreated] = await createTestInvoice(adminClient, dummyO10n)
+                const [objCreated] = await createTestInvoice(adminClient, dummyOrganization)
 
                 const [obj, attrs] = await updateTestInvoice(supportClient, objCreated.id)
 
@@ -156,13 +156,13 @@ describe('Invoice', () => {
             })
 
             test('staff with permission can', async () => {
-                const [objCreated] = await createTestInvoice(adminClient, dummyO10n)
+                const [objCreated] = await createTestInvoice(adminClient, dummyOrganization)
 
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
-                const [role] = await createTestOrganizationEmployeeRole(adminClient, dummyO10n, {
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, dummyOrganization, {
                     canManageInvoices: true,
                 })
-                await createTestOrganizationEmployee(adminClient, dummyO10n, client.user, role)
+                await createTestOrganizationEmployee(adminClient, dummyOrganization, client.user, role)
 
                 const [obj, attrs] = await updateTestInvoice(client, objCreated.id)
 
@@ -174,7 +174,7 @@ describe('Invoice', () => {
 
             test('staff without permission can\'t', async () => {
                 const [o10n] = await createTestOrganization(adminClient)
-                const [objCreated] = await createTestInvoice(adminClient, dummyO10n)
+                const [objCreated] = await createTestInvoice(adminClient, dummyOrganization)
 
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [role] = await createTestOrganizationEmployeeRole(adminClient, o10n, {
@@ -226,7 +226,7 @@ describe('Invoice', () => {
             })
 
             test('anonymous can\'t', async () => {
-                const [objCreated] = await createTestInvoice(adminClient, dummyO10n)
+                const [objCreated] = await createTestInvoice(adminClient, dummyOrganization)
 
                 await expectToThrowAuthenticationErrorToObj(async () => {
                     await updateTestInvoice(anonymousClient, objCreated.id)
@@ -236,7 +236,7 @@ describe('Invoice', () => {
 
         describe('hard delete', () => {
             test('admin can\'t', async () => {
-                const [objCreated] = await createTestInvoice(adminClient, dummyO10n)
+                const [objCreated] = await createTestInvoice(adminClient, dummyOrganization)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await Invoice.delete(adminClient, objCreated.id)
@@ -244,7 +244,7 @@ describe('Invoice', () => {
             })
 
             test('user can\'t', async () => {
-                const [objCreated] = await createTestInvoice(adminClient, dummyO10n)
+                const [objCreated] = await createTestInvoice(adminClient, dummyOrganization)
 
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -253,7 +253,7 @@ describe('Invoice', () => {
             })
 
             test('anonymous can\'t', async () => {
-                const [objCreated] = await createTestInvoice(adminClient, dummyO10n)
+                const [objCreated] = await createTestInvoice(adminClient, dummyOrganization)
 
                 const client = await makeClient()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -264,7 +264,7 @@ describe('Invoice', () => {
 
         describe('read', () => {
             test('admin can', async () => {
-                const [obj] = await createTestInvoice(adminClient, dummyO10n)
+                const [obj] = await createTestInvoice(adminClient, dummyOrganization)
 
                 const objs = await Invoice.getAll(adminClient, {}, { sortBy: ['updatedAt_DESC'] })
 
@@ -277,7 +277,7 @@ describe('Invoice', () => {
             })
 
             test('support can', async () => {
-                const [obj] = await createTestInvoice(adminClient, dummyO10n)
+                const [obj] = await createTestInvoice(adminClient, dummyOrganization)
 
                 const objs = await Invoice.getAll(supportClient, {}, { sortBy: ['updatedAt_DESC'] })
 
@@ -290,11 +290,11 @@ describe('Invoice', () => {
             })
 
             test('staff with permission can', async () => {
-                const [objCreated] = await createTestInvoice(adminClient, dummyO10n)
+                const [objCreated] = await createTestInvoice(adminClient, dummyOrganization)
 
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
-                const [role] = await createTestOrganizationEmployeeRole(adminClient, dummyO10n, { canReadInvoices: true })
-                await createTestOrganizationEmployee(adminClient, dummyO10n, client.user, role)
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, dummyOrganization, { canReadInvoices: true })
+                await createTestOrganizationEmployee(adminClient, dummyOrganization, client.user, role)
 
                 const objs = await Invoice.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
 
@@ -307,11 +307,11 @@ describe('Invoice', () => {
             })
 
             test('staff without permission can\'t', async () => {
-                await createTestInvoice(adminClient, dummyO10n)
+                await createTestInvoice(adminClient, dummyOrganization)
 
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
-                const [role] = await createTestOrganizationEmployeeRole(adminClient, dummyO10n, { canReadInvoices: false })
-                await createTestOrganizationEmployee(adminClient, dummyO10n, client.user, role)
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, dummyOrganization, { canReadInvoices: false })
+                await createTestOrganizationEmployee(adminClient, dummyOrganization, client.user, role)
 
                 const objs = await Invoice.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
 
@@ -610,13 +610,13 @@ describe('Invoice', () => {
     describe('resolve hook', () => {
         describe('connect contact to Invoice', () => {
             it('create and connect contact if client data passed, but contact not passed', async () => {
-                const [property] = await createTestProperty(adminClient, dummyO10n)
+                const [property] = await createTestProperty(adminClient, dummyOrganization)
                 const unitName = faker.random.alphaNumeric(5)
                 const unitType = FLAT_UNIT_TYPE
                 const clientPhone = createTestPhone()
                 const clientName = faker.random.alphaNumeric(5)
 
-                const [invoice] = await createTestInvoice(adminClient, dummyO10n, {
+                const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
                     clientName, clientPhone, unitName, unitType,
                     property: { connect: { id: property.id } },
                 })
@@ -632,17 +632,17 @@ describe('Invoice', () => {
             })
 
             it('connect existed contact if contact founded by passed client data', async () => {
-                const [property] = await createTestProperty(adminClient, dummyO10n)
+                const [property] = await createTestProperty(adminClient, dummyOrganization)
                 const unitName = faker.random.alphaNumeric(5)
                 const unitType = FLAT_UNIT_TYPE
                 const clientPhone = createTestPhone()
                 const clientName = faker.random.alphaNumeric(5)
 
-                const [contact] = await createTestContact(adminClient, dummyO10n, property, {
+                const [contact] = await createTestContact(adminClient, dummyOrganization, property, {
                     unitType, unitName, phone: clientPhone, name: clientName,
                 })
 
-                const [invoice] = await createTestInvoice(adminClient, dummyO10n, {
+                const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
                     clientName, clientPhone, unitName, unitType,
                     property: { connect: { id: property.id } },
                 })
@@ -652,13 +652,13 @@ describe('Invoice', () => {
             })
 
             it('does not connect contact if no client data passed', async () => {
-                const [invoice] = await createTestInvoice(adminClient, dummyO10n)
+                const [invoice] = await createTestInvoice(adminClient, dummyOrganization)
 
                 expect(invoice.contact).toBeNull()
             })
 
             it('invoice.toPay must be a sum of rows.*.toPay', async () => {
-                const [invoice, invoiceAttrs] = await createTestInvoice(adminClient, dummyO10n)
+                const [invoice, invoiceAttrs] = await createTestInvoice(adminClient, dummyOrganization)
                 const expectedSum = invoiceAttrs.rows.reduce((sum, {
                     toPay,
                     count,
@@ -677,7 +677,7 @@ describe('Invoice', () => {
                 const canceledAt = dayjs().toISOString()
 
                 beforeAll(async () => {
-                    [invoice] = await createTestInvoice(adminClient, dummyO10n)
+                    [invoice] = await createTestInvoice(adminClient, dummyOrganization)
                 })
                 describe.each(timestampFields)('%p', () => {
                     test('admin can', async () => {
@@ -707,21 +707,21 @@ describe('Invoice', () => {
             })
 
             test('publishedAt', async () => {
-                const [invoice] = await createTestInvoice(adminClient, dummyO10n)
+                const [invoice] = await createTestInvoice(adminClient, dummyOrganization)
                 expect(invoice.publishedAt).toBeNull()
                 const [updatedInvoice] = await updateTestInvoice(adminClient, invoice.id, { status: INVOICE_STATUS_PUBLISHED })
                 expect(dayjs(updatedInvoice.publishedAt).isSameOrAfter(dayjs(invoice.createdAt))).toBe(true)
             })
 
             test('paidAt', async () => {
-                const [invoice] = await createTestInvoice(adminClient, dummyO10n)
+                const [invoice] = await createTestInvoice(adminClient, dummyOrganization)
                 expect(invoice.paidAt).toBe(null)
                 const [updatedInvoice] = await updateTestInvoice(adminClient, invoice.id, { status: INVOICE_STATUS_PAID })
                 expect(dayjs(updatedInvoice.paidAt).isSameOrAfter(dayjs(invoice.createdAt))).toBe(true)
             })
 
             test('canceledAt', async () => {
-                const [invoice] = await createTestInvoice(adminClient, dummyO10n)
+                const [invoice] = await createTestInvoice(adminClient, dummyOrganization)
                 expect(invoice.canceledAt).toBe(null)
                 const [updatedInvoice] = await updateTestInvoice(adminClient, invoice.id, { status: INVOICE_STATUS_CANCELED })
                 expect(dayjs(updatedInvoice.canceledAt).isSameOrAfter(dayjs(invoice.createdAt))).toBe(true)
@@ -776,6 +776,30 @@ describe('Invoice', () => {
                     },
                 }),
             ])
+        })
+    })
+
+    describe('virtual fields check', () => {
+        it('checking the completion of virtual fields: canGroupReceipts, hostUrl, acquiringIntegrationId, currencyCode', async () => {
+            const [property] = await createTestProperty(adminClient, dummyOrganization)
+            const unitName = faker.random.alphaNumeric(5)
+            const unitType = FLAT_UNIT_TYPE
+            const clientPhone = createTestPhone()
+            const clientName = faker.random.alphaNumeric(5)
+
+            const [contact] = await createTestContact(adminClient, dummyOrganization, property, {
+                unitType, unitName, phone: clientPhone, name: clientName,
+            })
+
+            const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                clientName, clientPhone, unitName, unitType,
+                property: { connect: { id: property.id } },
+            })
+
+            expect(invoice.canGroupReceipts).toBeTruthy()
+            expect(invoice.acquiringHostUrl).toEqual(dummyAcquiringIntegration.hostUrl)
+            expect(invoice.acquiringIntegrationId).toEqual(dummyAcquiringIntegration.id)
+            expect(invoice.currencyCode).toEqual(DEFAULT_INVOICE_CURRENCY_CODE)
         })
     })
 
@@ -1031,7 +1055,7 @@ describe('Invoice', () => {
     describe('validation', () => {
 
         test('can\'t change online-paid invoice', async () => {
-            const [obj] = await createTestInvoice(adminClient, dummyO10n, {
+            const [obj] = await createTestInvoice(adminClient, dummyOrganization, {
                 paymentType: INVOICE_PAYMENT_TYPE_ONLINE,
                 status: INVOICE_STATUS_PAID,
             })
@@ -1047,7 +1071,7 @@ describe('Invoice', () => {
         })
 
         test('can change cash-paid invoice', async () => {
-            const [obj] = await createTestInvoice(adminClient, dummyO10n, {
+            const [obj] = await createTestInvoice(adminClient, dummyOrganization, {
                 paymentType: INVOICE_PAYMENT_TYPE_CASH,
                 status: INVOICE_STATUS_PAID,
             })
@@ -1057,7 +1081,7 @@ describe('Invoice', () => {
         })
 
         test('can\'t change canceled invoice', async () => {
-            const [obj] = await createTestInvoice(adminClient, dummyO10n, {
+            const [obj] = await createTestInvoice(adminClient, dummyOrganization, {
                 status: INVOICE_STATUS_CANCELED,
             })
 
@@ -1072,7 +1096,7 @@ describe('Invoice', () => {
         })
 
         test('can\'t publish invoice without rows', async () => {
-            const [obj] = await createTestInvoice(adminClient, dummyO10n, { rows: [] })
+            const [obj] = await createTestInvoice(adminClient, dummyOrganization, { rows: [] })
 
             await expectToThrowGQLError(async () => {
                 await updateTestInvoice(adminClient, obj.id, { status: INVOICE_STATUS_PUBLISHED })
@@ -1094,7 +1118,7 @@ describe('Invoice', () => {
 
             test.each(necessaryFields)('%s', async (fieldToOmit, omittedFieldType) => {
                 await expectToThrowGraphQLRequestError(async () => {
-                    await createTestInvoice(adminClient, dummyO10n, {
+                    await createTestInvoice(adminClient, dummyOrganization, {
                         rows: [omit(generateInvoiceRow(), fieldToOmit)],
                     })
                 }, `Field "${fieldToOmit}" of required type "${omittedFieldType}" was not provided.`)
@@ -1105,7 +1129,7 @@ describe('Invoice', () => {
             await expectToThrowGQLError(async () => {
                 await createTestInvoice(
                     adminClient,
-                    dummyO10n,
+                    dummyOrganization,
                     {
                         rows: [
                             generateInvoiceRow(),
@@ -1124,7 +1148,7 @@ describe('Invoice', () => {
 
         test('invoice.rows.*.toPay must be positive', async () => {
             await expectToThrowGQLError(async () => {
-                await createTestInvoice(adminClient, dummyO10n, { rows: [generateInvoiceRow({ toPay: '-4' })] })
+                await createTestInvoice(adminClient, dummyOrganization, { rows: [generateInvoiceRow({ toPay: '-4' })] })
             }, {
                 code: 'BAD_USER_INPUT',
                 type: 'WRONG_PRICE',
@@ -1150,7 +1174,7 @@ describe('Invoice', () => {
         })
 
         test(`can update status to ${INVOICE_STATUS_CANCELED} of published invoice`, async () => {
-            const [invoice] = await createTestInvoice(adminClient, dummyO10n, { status: INVOICE_STATUS_PUBLISHED })
+            const [invoice] = await createTestInvoice(adminClient, dummyOrganization, { status: INVOICE_STATUS_PUBLISHED })
             const [updatedInvoice] = await updateTestInvoice(adminClient, invoice.id, {
                 status: INVOICE_STATUS_CANCELED,
             })
@@ -1159,7 +1183,7 @@ describe('Invoice', () => {
         })
 
         test('can\'t edit published invoice', async () => {
-            const [invoice] = await createTestInvoice(adminClient, dummyO10n, { status: INVOICE_STATUS_PUBLISHED })
+            const [invoice] = await createTestInvoice(adminClient, dummyOrganization, { status: INVOICE_STATUS_PUBLISHED })
 
             await expectToThrowGQLError(async () => {
                 await updateTestInvoice(adminClient, invoice.id, { rows: generateInvoiceRows() })
@@ -1172,15 +1196,15 @@ describe('Invoice', () => {
         })
 
         test('can create invoice with ticket', async () => {
-            const [property] = await createTestProperty(adminClient, dummyO10n)
+            const [property] = await createTestProperty(adminClient, dummyOrganization)
             const unitName = faker.random.alphaNumeric(5)
             const unitType = FLAT_UNIT_TYPE
             const clientPhone = createTestPhone()
             const clientName = faker.random.alphaNumeric(5)
-            const [ticket] = await createTestTicket(adminClient, dummyO10n, property, {
+            const [ticket] = await createTestTicket(adminClient, dummyOrganization, property, {
                 unitName, unitType, clientPhone, clientName, isResidentTicket: true,
             })
-            const [invoice] = await createTestInvoice(adminClient, dummyO10n, {
+            const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
                 ticket: { connect: { id: ticket.id } },
             })
 
@@ -1194,16 +1218,16 @@ describe('Invoice', () => {
         })
 
         test('can connect ticket to invoice', async () => {
-            const [property] = await createTestProperty(adminClient, dummyO10n)
+            const [property] = await createTestProperty(adminClient, dummyOrganization)
             const unitName = faker.random.alphaNumeric(5)
             const unitType = FLAT_UNIT_TYPE
             const clientPhone = createTestPhone()
             const clientName = faker.random.alphaNumeric(5)
-            const [ticket] = await createTestTicket(adminClient, dummyO10n, property, {
+            const [ticket] = await createTestTicket(adminClient, dummyOrganization, property, {
                 unitName, unitType, clientPhone, clientName, isResidentTicket: true,
             })
 
-            const [invoice] = await createTestInvoice(adminClient, dummyO10n, {
+            const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
                 status: INVOICE_STATUS_PUBLISHED,
             })
 
@@ -1229,11 +1253,11 @@ describe('Invoice', () => {
         })
 
         test('can\'t update ticket for invoice with ticket', async () => {
-            const [property] = await createTestProperty(adminClient, dummyO10n)
-            const [ticket] = await createTestTicket(adminClient, dummyO10n, property)
-            const [ticket1] = await createTestTicket(adminClient, dummyO10n, property)
+            const [property] = await createTestProperty(adminClient, dummyOrganization)
+            const [ticket] = await createTestTicket(adminClient, dummyOrganization, property)
+            const [ticket1] = await createTestTicket(adminClient, dummyOrganization, property)
 
-            const [invoice] = await createTestInvoice(adminClient, dummyO10n, {
+            const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
                 ticket: { connect: { id: ticket.id } },
             })
 
@@ -1250,11 +1274,11 @@ describe('Invoice', () => {
         })
 
         test('can\'t update invoice client data to other than ticket client data', async () => {
-            const [property] = await createTestProperty(adminClient, dummyO10n)
-            const [ticket] = await createTestTicket(adminClient, dummyO10n, property)
-            const [property1] = await createTestProperty(adminClient, dummyO10n)
+            const [property] = await createTestProperty(adminClient, dummyOrganization)
+            const [ticket] = await createTestTicket(adminClient, dummyOrganization, property)
+            const [property1] = await createTestProperty(adminClient, dummyOrganization)
 
-            const [invoice] = await createTestInvoice(adminClient, dummyO10n, {
+            const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
                 ticket: { connect: { id: ticket.id } },
             })
 
@@ -1271,10 +1295,10 @@ describe('Invoice', () => {
         })
 
         test('can update status and rows in invoice with ticket', async () => {
-            const [property] = await createTestProperty(adminClient, dummyO10n)
-            const [ticket] = await createTestTicket(adminClient, dummyO10n, property)
+            const [property] = await createTestProperty(adminClient, dummyOrganization)
+            const [ticket] = await createTestTicket(adminClient, dummyOrganization, property)
 
-            const [invoice] = await createTestInvoice(adminClient, dummyO10n, {
+            const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
                 ticket: { connect: { id: ticket.id } },
                 rows: generateInvoiceRows(),
                 status: INVOICE_STATUS_DRAFT,
@@ -1291,16 +1315,16 @@ describe('Invoice', () => {
         })
 
         test('client data auto update when ticket updates client data', async () => {
-            const [property] = await createTestProperty(adminClient, dummyO10n)
+            const [property] = await createTestProperty(adminClient, dummyOrganization)
             const unitName = faker.random.alphaNumeric(5)
             const unitType = FLAT_UNIT_TYPE
             const clientPhone = createTestPhone()
             const clientName = faker.random.alphaNumeric(5)
-            const [ticket] = await createTestTicket(adminClient, dummyO10n, property, {
+            const [ticket] = await createTestTicket(adminClient, dummyOrganization, property, {
                 unitName: null,
                 unitType: null,
             })
-            const [invoice] = await createTestInvoice(adminClient, dummyO10n, {
+            const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
                 ticket: { connect: { id: ticket.id } },
             })
 
@@ -1327,9 +1351,9 @@ describe('Invoice', () => {
         })
 
         test(`invoices status sets to ${INVOICE_STATUS_CANCELED} when ticket status sets canceled`, async () => {
-            const [property] = await createTestProperty(adminClient, dummyO10n)
-            const [ticket] = await createTestTicket(adminClient, dummyO10n, property)
-            const [invoice] = await createTestInvoice(adminClient, dummyO10n, {
+            const [property] = await createTestProperty(adminClient, dummyOrganization)
+            const [ticket] = await createTestTicket(adminClient, dummyOrganization, property)
+            const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
                 status: INVOICE_STATUS_PUBLISHED,
                 ticket: { connect: { id: ticket.id } },
             })
@@ -1344,7 +1368,7 @@ describe('Invoice', () => {
         })
 
         test('can\'t publish invoice with isMin-price', async () => {
-            const [invoice] = await createTestInvoice(adminClient, dummyO10n, {
+            const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
                 rows: [generateInvoiceRow({ isMin: true })],
                 status: INVOICE_STATUS_DRAFT,
             })
