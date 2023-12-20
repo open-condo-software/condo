@@ -677,7 +677,7 @@ describe('Invoice', () => {
                 const canceledAt = dayjs().toISOString()
 
                 beforeAll(async () => {
-                    [invoice] = await createTestInvoice(adminClient, dummyO10n)
+                    [invoice] = await createTestInvoice(adminClient, dummyOrganization)
                 })
                 describe.each(timestampFields)('%p', () => {
                     test('admin can', async () => {
