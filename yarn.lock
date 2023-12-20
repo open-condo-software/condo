@@ -907,9 +907,9 @@ __metadata:
     iconv-lite: ^0.6.3
     identity-obj-proxy: ^3.0.0
     immer: 9.0.13
-    jest: ^29.7.0
-    jest-environment-jsdom: ^29.7.0
-    jest-jasmine2: ^29.7.0
+    jest: ^29.4.0
+    jest-environment-jsdom: ^29.4.0
+    jest-jasmine2: ^29.4.0
     jest-watch-typeahead: ^0.6.1
     less: ^3.12.2
     lodash: ^4.17.21
@@ -31183,7 +31183,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-environment-jsdom@npm:^29.7.0":
+"jest-environment-jsdom@npm:^29.4.0, jest-environment-jsdom@npm:^29.7.0":
   version: 29.7.0
   resolution: "jest-environment-jsdom@npm:29.7.0"
   dependencies:
@@ -31303,7 +31303,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-jasmine2@npm:^29.7.0":
+"jest-jasmine2@npm:^29.4.0, jest-jasmine2@npm:^29.7.0":
   version: 29.7.0
   resolution: "jest-jasmine2@npm:29.7.0"
   dependencies:
@@ -31772,7 +31772,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest@npm:^29.7.0":
+"jest@npm:^29.4.0, jest@npm:^29.7.0":
   version: 29.7.0
   resolution: "jest@npm:29.7.0"
   dependencies:
