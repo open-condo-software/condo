@@ -229,6 +229,7 @@ const Invoice = new GQLListSchema('Invoice', {
             schemaDoc: 'The recipient\'s requisites',
             type: 'Virtual',
             graphQLReturnType: RECIPIENT_FIELD.graphQLReturnType,
+            graphQLReturnFragment: RECIPIENT_FIELD.graphQLAdminFragment,
             resolver: async (invoice) => {
                 const acquiringContext = await getByCondition('AcquiringIntegrationContext', {
                     organization: { id: invoice.organization },

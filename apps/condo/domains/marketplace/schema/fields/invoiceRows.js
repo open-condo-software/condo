@@ -106,7 +106,7 @@ const INVOICE_ROWS_FIELD = {
     extendGraphQLTypes: [rowsGqlSchemaTypes],
     graphQLInputType: `[${INVOICE_ROW_GQL_INPUT_NAME}!]`,
     graphQLReturnType: `[${INVOICE_ROW_GQL_TYPE_NAME}!]!`,
-    graphQLAdminFragment: `{ ${Object.keys(invoiceRowSchemaFields).join(' ')} }`,
+    graphQLAdminFragment: `{ ${Object.keys(invoiceRowSchemaFields).map((field) => field === 'meta' ? `meta { ${Object.keys(invoiceRowMetaSchemaFields).join(' ')} }` : field).join(' ')} }`,
 }
 
 module.exports = { INVOICE_ROWS_FIELD }
