@@ -1359,7 +1359,6 @@ describe('MeterReading', () => {
                         employeeCanManageReadings.organization,
                         employeeCanManageReadings.property,
                         resource,
-                        {}
                     )
 
                     const [meterReading] = await createTestMeterReading(employeeCanManageReadings, meter, source, {
@@ -1380,7 +1379,6 @@ describe('MeterReading', () => {
                         employeeCanManageReadings.organization,
                         employeeCanManageReadings.property,
                         resource,
-                        {}
                     )
                     const mobilePhone = faker.phone.number('+79#########')
                     const landLinePhone = faker.phone.number('+7343#######')
