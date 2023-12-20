@@ -85,7 +85,7 @@ export const RequisitesSetup: React.FC = () => {
         settings: { dv: 1 },
         state: { dv: 1 },
     })
-    const updateAction = AcquiringIntegrationContextApi.useUpdate({ status: CONTEXT_IN_PROGRESS_STATUS })
+    const updateAction = AcquiringIntegrationContextApi.useUpdate({ invoiceStatus: CONTEXT_IN_PROGRESS_STATUS })
 
     const noTaxOption = useMemo<SelectProps['options'][number]>(() => ({
         label: NoTax,

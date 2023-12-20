@@ -78,6 +78,8 @@ const rowsFieldSchema = {
 
 const validateRowsField = getGQLErrorValidator(ajv.compile(rowsFieldSchema), ERROR_INVALID_INVOICE_ROWS)
 
+const metaFieldFragment = `meta { ${Object.keys(invoiceRowMetaSchemaFields).join(' ')} }`
+
 const INVOICE_ROWS_FIELD = {
     schemaDoc: 'The list of paid items',
     type: 'Json',
@@ -106,7 +108,7 @@ const INVOICE_ROWS_FIELD = {
     extendGraphQLTypes: [rowsGqlSchemaTypes],
     graphQLInputType: `[${INVOICE_ROW_GQL_INPUT_NAME}!]`,
     graphQLReturnType: `[${INVOICE_ROW_GQL_TYPE_NAME}!]!`,
-    graphQLAdminFragment: `{ ${Object.keys(invoiceRowSchemaFields).join(' ')} }`,
+    graphQLAdminFragment: `{ ${Object.keys(invoiceRowSchemaFields).map((field) => field === 'meta' ? metaFieldFragment : field).join(' ')} }`,
 }
 
 module.exports = { INVOICE_ROWS_FIELD }
