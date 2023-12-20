@@ -101,7 +101,6 @@ function generateInvoiceRow (attrs = {}) {
         name: faker.commerce.productName(),
         toPay: String(faker.commerce.price()),
         count: faker.datatype.number({ min: 1, max: 3 }),
-        sku: faker.random.word(),
         isMin: false,
         ...attrs,
     }

@@ -3,7 +3,7 @@
  */
 const Big = require('big.js')
 const dayjs = require('dayjs')
-const { get, set } = require('lodash')
+const { find: _find, get, has, set, map } = require('lodash')
 const isEmpty = require('lodash/isEmpty')
 const isEqual = require('lodash/isEqual')
 const isNil = require('lodash/isNil')
@@ -13,6 +13,7 @@ const pick = require('lodash/pick')
 const pickBy = require('lodash/pickBy')
 
 const conf = require('@open-condo/config')
+const { userIsAdmin } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById, getByCondition, find } = require('@open-condo/keystone/schema')
@@ -43,7 +44,11 @@ const {
     ERROR_NO_FINISHED_ACQUIRING_CONTEXT,
 } = require('@condo/domains/marketplace/constants')
 const { INVOICE_ROWS_FIELD } = require('@condo/domains/marketplace/schema/fields/invoiceRows')
-const { MARKETPLACE_INVOICE_PUBLISHED_MESSAGE_TYPE, MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
+const { MarketItem } = require('@condo/domains/marketplace/utils/serverSchema')
+const {
+    MARKETPLACE_INVOICE_PUBLISHED_MESSAGE_TYPE,
+    MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
+} = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
@@ -170,7 +175,10 @@ const Invoice = new GQLListSchema('Invoice', {
         },
 
         client: {
-            schemaDoc: 'The user who sees the invoice. Must filled with the user of corresponding resident.',
+            schemaDoc: 'This field indicates, that the Invoice is visible to a Resident and it has access to it. ' +
+                'This field will be set to User of corresponding Resident in following cases: ' +
+                '1) the Invoice was created by Resident from mobile app;' +
+                '2) the Invoice was created by OrganizationEmployee with phone number, that matches some Resident;',
             type: 'Relationship',
             ref: 'User',
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
@@ -181,7 +189,7 @@ const Invoice = new GQLListSchema('Invoice', {
         clientPhone: CLIENT_PHONE_LANDLINE_FIELD,
 
         status: {
-            schemaDoc: 'Invoice status affects which invoices can be read by residents and which invoices can be managed',
+            schemaDoc: 'Invoice status affects which invoices can be read by residents and which invoices can be managed. The newly created invoice has status "draft"; the "published" invoice may be paid by resident; "paid" means that invoice already paid; "canceled" means no modifications allowed. Each status, except draft, has related timestamp.',
             isRequired: true,
             type: 'Select',
             dataType: 'string',
@@ -201,16 +209,19 @@ const Invoice = new GQLListSchema('Invoice', {
         publishedAt: {
             schemaDoc: 'When status of the invoice was changed to published (ready to pay)',
             type: 'DateTimeUtc',
+            access: { create: false, read: true, update: userIsAdmin },
         },
 
         paidAt: {
             schemaDoc: 'When status of the invoice was changed to paid',
             type: 'DateTimeUtc',
+            access: { create: false, read: true, update: userIsAdmin },
         },
 
         canceledAt: {
             schemaDoc: 'When status of the invoice was changed to canceled',
             type: 'DateTimeUtc',
+            access: { create: false, read: true, update: userIsAdmin },
         },
 
         recipient: {
@@ -376,6 +387,7 @@ const Invoice = new GQLListSchema('Invoice', {
             }
 
             const nextData = { ...existingItem, ...resolvedData }
+            const nextRows = get(nextData, 'rows', [])
 
             if (userType === RESIDENT) {
                 if (operation === 'create') {
@@ -418,6 +430,24 @@ const Invoice = new GQLListSchema('Invoice', {
                 case INVOICE_STATUS_CANCELED:
                     resolvedData['canceledAt'] = dayjs().toISOString()
                     break
+            }
+
+            if (has(resolvedData, 'rows')) { // fill rows.meta with necessary data
+                const marketItems = await MarketItem.getAll(context, {
+                    organization: { id: get(nextData, 'organization') },
+                    sku_in: map(nextRows, 'sku'),
+                })
+
+                resolvedData['rows'] = nextRows.map((nextRow) => {
+                    const marketItem = _find(marketItems, { sku: nextRow.sku })
+                    return {
+                        ...nextRow,
+                        meta: {
+                            imageUrl: get(marketItem, ['marketCategory', 'image', 'publicUrl']),
+                            categoryBgColor: get(marketItem, ['marketCategory', 'mobileSettings', 'bgColor']),
+                        },
+                    }
+                })
             }
 
             return resolvedData

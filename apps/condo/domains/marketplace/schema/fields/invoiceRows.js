@@ -9,6 +9,8 @@ const { ERROR_INVALID_INVOICE_ROWS, DEFAULT_INVOICE_CURRENCY_CODE } = require('@
 
 const INVOICE_ROW_GQL_TYPE_NAME = 'InvoiceRowSchemaField'
 const INVOICE_ROW_GQL_INPUT_NAME = 'InvoiceRowSchemaFieldInput'
+const INVOICE_ROW_META_GQL_TYPE_NAME = 'InvoiceRowMetaSchemaField'
+const INVOICE_ROW_META_GQL_INPUT_NAME = 'InvoiceRowMetaSchemaFieldInput'
 
 const invoiceRowSchemaFields = {
     name: 'String!',
@@ -19,6 +21,12 @@ const invoiceRowSchemaFields = {
     salesTaxPercent: 'String',
     sku: 'String',
     isMin: 'Boolean!',
+    meta: INVOICE_ROW_META_GQL_TYPE_NAME,
+}
+
+const invoiceRowMetaSchemaFields = {
+    imageUrl: 'String',
+    categoryBgColor: 'String',
 }
 
 const rowsGqlSchemaTypes = `
@@ -27,7 +35,15 @@ const rowsGqlSchemaTypes = `
     }
     
     input ${INVOICE_ROW_GQL_INPUT_NAME} {
-        ${render(invoiceRowSchemaFields)}
+        ${render({ ...invoiceRowSchemaFields, meta: INVOICE_ROW_META_GQL_INPUT_NAME })}
+    }
+    
+    type ${INVOICE_ROW_META_GQL_TYPE_NAME} {
+        ${render(invoiceRowMetaSchemaFields)}
+    }
+    
+    input ${INVOICE_ROW_META_GQL_INPUT_NAME} {
+        ${render(invoiceRowMetaSchemaFields)}
     }
 `
 
@@ -46,6 +62,14 @@ const rowsFieldSchema = {
             salesTaxPercent: { type: 'string' },
             sku: { type: 'string' },
             isMin: { type: 'boolean' },
+            meta: {
+                type: 'object',
+                properties: {
+                    imageUrl: { type: 'string' },
+                    categoryBgColor: { type: 'string' },
+                },
+                additionalProperties: false,
+            },
         },
         required: ['name', 'toPay', 'count', 'isMin'],
         additionalProperties: false,

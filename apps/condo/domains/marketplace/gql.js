@@ -19,7 +19,7 @@ const MarketCategory = generateGqlQueries('MarketCategory', MARKET_CATEGORY_FIEL
 const MARKET_ITEM_FIELDS = `{ name marketCategory { id name parentCategory { id name mobileSettings { bgColor titleColor } } image { publicUrl } mobileSettings { bgColor titleColor } } sku description organization { id } ${COMMON_FIELDS} }`
 const MarketItem = generateGqlQueries('MarketItem', MARKET_ITEM_FIELDS)
 
-const INVOICE_FIELDS = `{ organization { id } number property { id address addressKey addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } map { ${PROPERTY_MAP_JSON_FIELDS} } } unitType unitName accountNumber toPay rows { name toPay count vatPercent salesTaxPercent sku isMin currencyCode } ticket { id number property { id } unitName unitType clientName clientPhone } contact { id name phone email unitType unitName property { id } } clientName clientPhone client { id name } status paymentType publishedAt paidAt canceledAt recipient { name bankName tin bic bankAccount } ${COMMON_FIELDS} }`
+const INVOICE_FIELDS = `{ organization { id } number property { id address addressKey addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } map { ${PROPERTY_MAP_JSON_FIELDS} } } unitType unitName accountNumber toPay rows { name toPay count vatPercent salesTaxPercent sku isMin currencyCode meta { imageUrl categoryBgColor } } ticket { id number property { id } unitName unitType clientName clientPhone } contact { id name phone email unitType unitName property { id } } clientName clientPhone client { id name } status paymentType publishedAt paidAt canceledAt recipient { name bankName tin bic bankAccount } ${COMMON_FIELDS} }`
 const Invoice = generateGqlQueries('Invoice', INVOICE_FIELDS)
 
 const MARKET_ITEM_FILE_FIELDS = `{ marketItem { id organization { id } } file { id originalFilename publicUrl mimetype } ${COMMON_FIELDS} }`
@@ -37,15 +37,6 @@ const REGISTER_INVOICE_MUTATION = gql`
     }
 `
 
-const GET_INVOICE_BY_USER_QUERY = gql`
-    query getInvoicesWithSkuInfo ($data: GetInvoicesWithSkuInfoInput!) {
-        obj: getInvoicesWithSkuInfo(data: $data) { 
-            invoices ${INVOICE_FIELDS}
-            skuInfo { sku imageUrl categoryBgColor }
-        }
-    }
-`
-
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -56,6 +47,5 @@ module.exports = {
     MarketItemPrice,
     MarketPriceScope,
     REGISTER_INVOICE_MUTATION,
-    GET_INVOICE_BY_USER_QUERY,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
