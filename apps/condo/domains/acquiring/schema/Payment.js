@@ -383,6 +383,8 @@ const Payment = new GQLListSchema('Payment', {
                 const invoice = await getById('Invoice', updatedItem.invoice)
                 if (get(invoice, 'status') === INVOICE_STATUS_PUBLISHED) {
                     await Invoice.update(context, invoice.id, {
+                        dv: updatedItem.dv,
+                        sender: updatedItem.sender,
                         status: INVOICE_STATUS_PAID,
                     })
                 }
