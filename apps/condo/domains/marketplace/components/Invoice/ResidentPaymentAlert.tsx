@@ -9,7 +9,7 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { GET_RESIDENT_EXISTENCE_BY_PHONE_AND_ADDRESS_QUERY } from '@condo/domains/resident/gql'
 
 
-export const ResidentPaymentAlert = ({ propertyId, unitName, unitType, clientPhone, isCreatedByResident }) => {
+export const ResidentPaymentAlert = ({ propertyId, unitName, unitType, clientPhone, isCreatedByResident, isModalForm = false }) => {
     const intl = useIntl()
     const CreatedByResidentMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.message.createdByResident' })
     const CreatedByResidentDescription = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.createdByResident' })
@@ -18,6 +18,8 @@ export const ResidentPaymentAlert = ({ propertyId, unitName, unitType, clientPho
     const HasAppOnOtherAddressMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.hasAppOnOtherAddress' })
     const PassPaymentLinkMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.message.passLinkToResident' })
     const NoAppMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.hasNotApp' })
+    const SuggestQrMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.message.orSuggestQR' })
+    const PayByQrMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.payByQrMessage' })
 
     const [residentExistence, setResidentExistence] = useState<{ hasResident: boolean, hasResidentOnAddress: boolean }>()
 
@@ -65,25 +67,52 @@ export const ResidentPaymentAlert = ({ propertyId, unitName, unitType, clientPho
         type = 'info'
         message = HasAppMessage
         description = (
-            <Typography.Paragraph size='medium'>
-                {HasAppOnAddressMessage}
-            </Typography.Paragraph>
+            <>
+                <Typography.Paragraph size='medium'>
+                    {HasAppOnAddressMessage}
+                </Typography.Paragraph>
+                {
+                    isModalForm && (
+                        <Typography.Paragraph size='medium'>
+                            {PayByQrMessage}
+                        </Typography.Paragraph>
+                    )
+                }
+            </>
         )
     } else if (residentExistence.hasResident) {
         type = 'warning'
         message = HasAppMessage
         description = (
-            <Typography.Paragraph size='medium'>
-                {HasAppOnOtherAddressMessage}
-            </Typography.Paragraph>
+            <>
+                <Typography.Paragraph size='medium'>
+                    {HasAppOnOtherAddressMessage}
+                </Typography.Paragraph>
+                {
+                    isModalForm && (
+                        <Typography.Paragraph size='medium'>
+                            {PayByQrMessage}
+                        </Typography.Paragraph>
+                    )
+                }
+            </>
         )
     } else {
         type = 'warning'
-        message = PassPaymentLinkMessage
+        message = isModalForm ? `${PassPaymentLinkMessage} ${SuggestQrMessage}` : PassPaymentLinkMessage
         description = (
-            <Typography.Paragraph size='medium'>
-                {NoAppMessage}
-            </Typography.Paragraph>
+            <>
+                <Typography.Paragraph size='medium'>
+                    {NoAppMessage}
+                </Typography.Paragraph>
+                {
+                    isModalForm && (
+                        <Typography.Paragraph size='medium'>
+                            {PayByQrMessage}
+                        </Typography.Paragraph>
+                    )
+                }
+            </>
         )
     }
 
