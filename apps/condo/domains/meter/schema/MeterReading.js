@@ -9,7 +9,7 @@ const isEmpty = require('lodash/isEmpty')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
-const { CONTACT_FIELD, CLIENT_EMAIL_FIELD, CLIENT_NAME_FIELD, CLIENT_PHONE_FIELD, CLIENT_FIELD } = require('@condo/domains/common/schema/fields')
+const { CONTACT_FIELD, CLIENT_EMAIL_FIELD, CLIENT_NAME_FIELD, CLIENT_PHONE_LANDLINE_FIELD, CLIENT_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/meter/access/MeterReading')
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { connectContactToMeterReading } = require('@condo/domains/meter/utils/serverSchema/resolveHelpers')
@@ -60,8 +60,8 @@ const MeterReading = new GQLListSchema('MeterReading', {
         client: CLIENT_FIELD,
         contact: CONTACT_FIELD,
         clientName: CLIENT_NAME_FIELD,
-        clientEmail:  CLIENT_EMAIL_FIELD,
-        clientPhone: CLIENT_PHONE_FIELD,
+        clientEmail: CLIENT_EMAIL_FIELD,
+        clientPhone: CLIENT_PHONE_LANDLINE_FIELD,
 
         source: {
             schemaDoc: 'Meter reading source channel/system. Examples: call, mobile_app, billing, ...',

@@ -1370,6 +1370,34 @@ describe('MeterReading', () => {
                     expect(meterReading.date).toMatch(DATETIME_RE)
                 })
             })
+
+            describe('clientPhone', () => {
+                test('can set landline and mobile phone', async () => {
+                    const [resource] = await MeterResource.getAll(employeeCanManageReadings, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [source] = await MeterReadingSource.getAll(employeeCanManageReadings, { id: CALL_METER_READING_SOURCE_ID })
+                    const [meter] = await createTestMeter(
+                        employeeCanManageReadings,
+                        employeeCanManageReadings.organization,
+                        employeeCanManageReadings.property,
+                        resource,
+                        {}
+                    )
+                    const mobilePhone = faker.phone.number('+79#########')
+                    const landLinePhone = faker.phone.number('+7343#######')
+
+                    const [meterReading1] = await createTestMeterReading(admin, meter, source, {
+                        clientName: faker.name.firstName(),
+                        clientPhone: mobilePhone,
+                    })
+                    expect(meterReading1.clientPhone).toBe(mobilePhone)
+
+                    const [meterReading2] = await createTestMeterReading(admin, meter, source, {
+                        clientName: faker.name.firstName(),
+                        clientPhone: landLinePhone,
+                    })
+                    expect(meterReading2.clientPhone).toBe(landLinePhone)
+                })
+            })
         })
 
         describe('Resolve input', () => {
