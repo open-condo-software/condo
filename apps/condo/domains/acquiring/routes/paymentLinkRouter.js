@@ -216,7 +216,7 @@ class PaymentLinkRouter {
                     })
 
                     const { failureUrl } = params
-                    const errorPageUrl = `${conf.SERVER_URL}/500-error.html`
+                    const errorPageUrl = `${conf.SERVER_URL}/500`
                     const redirectUrl = new URL(failureUrl || errorPageUrl)
 
                     redirectUrl.searchParams.set('linkNotActual', 'true')
@@ -236,7 +236,7 @@ class PaymentLinkRouter {
             })
 
             // in case if any exception appears, we have to redirect to some sort of error page
-            return res.redirect('/500-error.html')
+            return res.redirect('/500')
         }
     }
 
@@ -266,7 +266,7 @@ class PaymentLinkRouter {
 
     async redirectIfAlreadyPaid (res, params) {
         const { failureUrl } = params
-        const errorPageUrl = `${conf.SERVER_URL}/500-error.html`
+        const errorPageUrl = `${conf.SERVER_URL}/500`
         const redirectUrl = new URL(failureUrl || errorPageUrl)
 
         // set common QP
