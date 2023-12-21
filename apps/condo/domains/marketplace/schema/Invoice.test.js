@@ -42,7 +42,6 @@ const {
     createTestMarketItem,
     createTestMarketItemPrice,
     createTestMarketPriceScope,
-    registerInvoiceByTestClient,
 } = require('@condo/domains/marketplace/utils/testSchema')
 const {
     MARKETPLACE_INVOICE_PUBLISHED_MESSAGE_TYPE,
@@ -57,7 +56,7 @@ const {
 } = require('@condo/domains/organization/utils/testSchema')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { makeClientWithProperty, createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
+const { registerResidentByTestClient, registerResidentInvoiceByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { createTestTicket, updateTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 const {
@@ -755,7 +754,7 @@ describe('Invoice', () => {
             const [itemPrice] = await createTestMarketItemPrice(adminClient, marketItem)
             const [priceScope] = await createTestMarketPriceScope(adminClient, itemPrice, property)
 
-            await registerInvoiceByTestClient(
+            await registerResidentInvoiceByTestClient(
                 residentClient,
                 pick(resident, 'id'),
                 [{

@@ -19,7 +19,7 @@ const {
     INVOICE_STATUS_PUBLISHED,
 } = require('@condo/domains/marketplace/constants')
 const {
-    registerInvoiceByTestClient, createTestMarketPriceScope, createTestMarketItem,
+    createTestMarketPriceScope, createTestMarketItem,
     createTestMarketCategory, createTestMarketItemPrice, generatePriceRow, Invoice,
 } = require('@condo/domains/marketplace/utils/testSchema')
 const {
@@ -29,7 +29,7 @@ const {
 } = require('@condo/domains/organization/utils/testSchema')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
+const { registerResidentByTestClient, registerResidentInvoiceByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { Ticket } = require('@condo/domains/ticket/utils/testSchema')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
@@ -41,7 +41,7 @@ const MOBILE_APP_RESIDENT_TICKET_SOURCE_ID = '3068d49a-a45c-4c3a-a02d-ea1a53e1fe
 let adminClient
 let organization, acquiringIntegration
 
-describe('RegisterInvoiceService', () => {
+describe('RegisterResidentInvoiceService', () => {
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()
         ;[acquiringIntegration] = await createTestAcquiringIntegration(adminClient)
@@ -68,7 +68,7 @@ describe('RegisterInvoiceService', () => {
         const [itemPrice] = await createTestMarketItemPrice(adminClient, marketItem)
         const [priceScope] = await createTestMarketPriceScope(adminClient, itemPrice, property)
 
-        const [result] = await registerInvoiceByTestClient(
+        const [invoice] = await registerResidentInvoiceByTestClient(
             adminClient,
             pick(resident, 'id'),
             [{
@@ -77,9 +77,7 @@ describe('RegisterInvoiceService', () => {
             }],
         )
 
-        expect(result).toBeTruthy()
-
-        const { invoice } = result
+        expect(invoice).toBeTruthy()
 
         expect(invoice.id).toMatch(UUID_RE)
         expect(invoice.ticket).toBeTruthy()
@@ -90,14 +88,14 @@ describe('RegisterInvoiceService', () => {
         const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
         await expectToThrowAccessDeniedErrorToResult(async () => {
-            await registerInvoiceByTestClient(userClient, { id: faker.datatype.uuid() }, [])
+            await registerResidentInvoiceByTestClient(userClient, { id: faker.datatype.uuid() }, [])
         })
     })
 
     test('anonymous can\'t execute', async () => {
         const client = await makeClient()
         await expectToThrowAuthenticationErrorToResult(async () => {
-            await registerInvoiceByTestClient(client, { id: faker.datatype.uuid() }, [])
+            await registerResidentInvoiceByTestClient(client, { id: faker.datatype.uuid() }, [])
         })
     })
 
@@ -122,7 +120,7 @@ describe('RegisterInvoiceService', () => {
             const [itemPrice] = await createTestMarketItemPrice(adminClient, marketItem)
             const [priceScope] = await createTestMarketPriceScope(adminClient, itemPrice, property)
 
-            const [result] = await registerInvoiceByTestClient(
+            const [invoice] = await registerResidentInvoiceByTestClient(
                 residentClient,
                 pick(resident, 'id'),
                 [{
@@ -131,9 +129,7 @@ describe('RegisterInvoiceService', () => {
                 }],
             )
 
-            expect(result).toBeTruthy()
-
-            const { invoice } = result
+            expect(invoice).toBeTruthy()
 
             expect(invoice.id).toMatch(UUID_RE)
             expect(invoice.context).toBeFalsy() // resident can't read invoice context
@@ -188,7 +184,7 @@ describe('RegisterInvoiceService', () => {
             const [itemPrice] = await createTestMarketItemPrice(adminClient, marketItem)
             const [priceScope] = await createTestMarketPriceScope(adminClient, itemPrice, property)
 
-            await expectToThrowGQLError(async () => await registerInvoiceByTestClient(
+            await expectToThrowGQLError(async () => await registerResidentInvoiceByTestClient(
                 residentClient,
                 pick(resident, 'id'),
                 [{
@@ -230,7 +226,7 @@ describe('RegisterInvoiceService', () => {
             const [itemPrice] = await createTestMarketItemPrice(adminClient, marketItem)
             const [priceScope] = await createTestMarketPriceScope(adminClient, itemPrice, property2)
 
-            await expectToThrowGQLError(async () => await registerInvoiceByTestClient(
+            await expectToThrowGQLError(async () => await registerResidentInvoiceByTestClient(
                 residentClient,
                 pick(resident, 'id'),
                 [{
@@ -266,7 +262,7 @@ describe('RegisterInvoiceService', () => {
             const [itemPrice] = await createTestMarketItemPrice(adminClient, marketItem, { price: [generatePriceRow({ isMin: true })] })
             const [priceScope] = await createTestMarketPriceScope(adminClient, itemPrice, property)
 
-            const [result] = await registerInvoiceByTestClient(
+            const [invoice] = await registerResidentInvoiceByTestClient(
                 residentClient,
                 pick(resident, 'id'),
                 [{
@@ -275,9 +271,7 @@ describe('RegisterInvoiceService', () => {
                 }],
             )
 
-            expect(result).toBeTruthy()
-
-            const { invoice } = result
+            expect(invoice).toBeTruthy()
 
             expect(invoice.status).toBe(INVOICE_STATUS_DRAFT)
 
@@ -304,7 +298,7 @@ describe('RegisterInvoiceService', () => {
                     unitName,
                 })
 
-            await expectToThrowGQLError(async () => await registerInvoiceByTestClient(
+            await expectToThrowGQLError(async () => await registerResidentInvoiceByTestClient(
                 residentClient,
                 pick(resident, 'id'),
                 [],
@@ -315,7 +309,7 @@ describe('RegisterInvoiceService', () => {
                 messageForUser: 'api.marketplace.invoice.error.emptyRows',
             }, 'result')
 
-            await expectToThrowGQLError(async () => await registerInvoiceByTestClient(
+            await expectToThrowGQLError(async () => await registerResidentInvoiceByTestClient(
                 residentClient,
                 pick(resident, 'id'),
                 [{

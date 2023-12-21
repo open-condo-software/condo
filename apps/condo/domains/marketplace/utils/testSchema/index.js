@@ -13,12 +13,9 @@ const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/gene
 const { Invoice: InvoiceGQL } = require('@condo/domains/marketplace/gql')
 const { MarketCategory: MarketCategoryGQL } = require('@condo/domains/marketplace/gql')
 const { MarketItem: MarketItemGQL } = require('@condo/domains/marketplace/gql')
-const {  INVOICE_PAYMENT_TYPE_ONLINE } = require('@condo/domains/marketplace/constants')
 const { MarketItemFile: MarketItemFileGQL } = require('@condo/domains/marketplace/gql')
 const { MarketItemPrice: MarketItemPriceGQL } = require('@condo/domains/marketplace/gql')
 const { MarketPriceScope: MarketPriceScopeGQL } = require('@condo/domains/marketplace/gql')
-const { REGISTER_INVOICE_MUTATION } = require('@condo/domains/marketplace/gql')
-const { GET_INVOICE_BY_USER_QUERY } = require('@condo/domains/marketplace/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MarketCategory = generateGQLTestUtils(MarketCategoryGQL)
@@ -294,35 +291,6 @@ async function softDeleteTestMarketPriceScopes (client, ids) {
     return await MarketPriceScope.updateMany(client, attrs)
 }
 
-async function registerInvoiceByTestClient (client, resident, invoiceRows, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!resident || !resident.id) throw new Error('no resident.id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        resident,
-        invoiceRows,
-        paymentType: INVOICE_PAYMENT_TYPE_ONLINE,
-        ...extraAttrs,
-    }
-    const { data, errors } = await client.mutate(REGISTER_INVOICE_MUTATION, { data: attrs })
-    throwIfError(data, errors)
-    return [data.result, attrs]
-}
-
-
-async function getInvoiceByUserByTestClient(client, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-
-    const attrs = {
-        ...extraAttrs,
-    }
-    const { data, errors } = await client.mutate(GET_INVOICE_BY_USER_QUERY, { data: attrs })
-    throwIfError(data, errors)
-    return [data.obj, attrs]
-}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -335,7 +303,5 @@ module.exports = {
     MarketItemPrice, createTestMarketItemPrice, updateTestMarketItemPrice,
     MarketPriceScope, createTestMarketPriceScope, updateTestMarketPriceScope,
     createTestMarketPriceScopes, softDeleteTestMarketPriceScopes,
-    registerInvoiceByTestClient,
-    getInvoiceByUserByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -9,7 +9,6 @@ const { MarketItem } = require('./MarketItem')
 const { MarketItemFile } = require('./MarketItemFile')
 const { MarketItemPrice } = require('./MarketItemPrice')
 const { MarketPriceScope } = require('./MarketPriceScope')
-const { RegisterInvoiceService } = require('./RegisterInvoiceService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -19,6 +18,5 @@ module.exports = {
     MarketItemFile,
     MarketItemPrice,
     MarketPriceScope,
-    RegisterInvoiceService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

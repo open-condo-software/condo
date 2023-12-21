@@ -8,8 +8,8 @@ const { gql } = require('graphql-tag')
 
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
+const { INVOICE_FIELDS } = require('@condo/domains/marketplace/gql')
 const { ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
-
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
@@ -52,6 +52,12 @@ const GET_RESIDENT_EXISTENCE_BY_PHONE_AND_ADDRESS_QUERY = gql`
     }
 `
 
+const REGISTER_RESIDENT_INVOICE_MUTATION = gql`
+    mutation registerResidentInvoice ($data: RegisterResidentInvoiceInput!) {
+        result: registerResidentInvoice(data: $data) ${INVOICE_FIELDS}
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 const REGISTER_RESIDENT_SERVICE_CONSUMERS_MUTATION = gql`
@@ -73,5 +79,6 @@ module.exports = {
     DISCOVER_SERVICE_CONSUMERS_MUTATION,
     GET_RESIDENT_EXISTENCE_BY_PHONE_AND_ADDRESS_QUERY,
     REGISTER_RESIDENT_SERVICE_CONSUMERS_MUTATION,
+    REGISTER_RESIDENT_INVOICE_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
