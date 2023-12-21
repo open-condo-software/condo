@@ -440,11 +440,11 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
                                                 </Form.Item>
                                             </Col>
                                             <Col span={24} lg={6}>
-                                                <Form.Item
-                                                    name='isPayable'
-                                                    valuePropName='checked'
-                                                >
-                                                    <Tooltip title={disableIsPayableCheckbox && CancelTicketInvoicesMessage}>
+                                                <Tooltip title={disableIsPayableCheckbox && CancelTicketInvoicesMessage}>
+                                                    <Form.Item
+                                                        name='isPayable'
+                                                        valuePropName='checked'
+                                                    >
                                                         <Checkbox
                                                             disabled={disableUserInteraction || disableIsPayableCheckbox}
                                                             eventName='TicketCreateCheckboxIsPayable'
@@ -452,8 +452,8 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
                                                         >
                                                             {PayableLabel}
                                                         </Checkbox>
-                                                    </Tooltip>
-                                                </Form.Item>
+                                                    </Form.Item>
+                                                </Tooltip>
                                             </Col>
                                             <Col span={24} lg={6}>
                                                 <Form.Item name='isWarranty' valuePropName='checked'>
