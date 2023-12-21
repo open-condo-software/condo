@@ -1368,7 +1368,6 @@
   "pages.condo.marketplace.marketItem.form.field.sku.tooltip": "Must be unique",
   "pages.condo.marketplace.marketItem.form.field.parentCategory": "Category",
   "pages.condo.marketplace.marketItem.form.field.marketCategory": "Sub category",
-  "pages.condo.marketplace.marketItem.form.field.marketCategory.uniqueError": "Service with this category is already exists",
   "pages.condo.marketplace.marketItem.form.field.description": "Description",
   "pages.condo.marketplace.marketItem.form.field.marketItemPhoto": "Item photo",
   "pages.condo.marketplace.marketItem.form.section.priceScope": "Price and price scope",
