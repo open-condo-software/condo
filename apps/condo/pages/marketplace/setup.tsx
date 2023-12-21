@@ -94,13 +94,16 @@ const MarketplaceOnboardingPage: IMarketplaceOnboardingPage = ({ onFinish, withV
         return <RequisitesSetup />
     }, [currentStep, handleFinishSetup])
 
-    const payload = useMemo(() => ({
-        acquiringContext,
-        refetchAcquiringContext,
-    }), [acquiringContext, refetchAcquiringContext])
+    // const payload = useMemo(() => ({
+    //     acquiringContext,
+    //     refetchAcquiringContext: async () => {
+    //         debugger
+    //         await refetchAcquiringContext()
+    //     },
+    // }), [acquiringContext, refetchAcquiringContext])
 
     return (
-        <AcquiringContextProvider.Provider value={payload}>
+        <>
             <Head>
                 <title>{PageTitle}</title>
             </Head>
@@ -122,7 +125,7 @@ const MarketplaceOnboardingPage: IMarketplaceOnboardingPage = ({ onFinish, withV
                     </Row>
                 </TablePageContent>
             </PageWrapper>
-        </AcquiringContextProvider.Provider>
+        </>
     )
 }
 
