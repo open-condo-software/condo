@@ -124,7 +124,7 @@ class PaymentLinkRouter {
         })
     }
 
-    async handlePaymentLink (res, params, validatorFn, multiPaymentCreatorFn) {
+    async handlePaymentLink (res, params, validatorFn, multiPaymentCreatorFn, includePaymentIdInUrl) {
         // validation of common params and multi payment type specific
         this.commonParamsValidator(params)
         validatorFn(params)
@@ -134,7 +134,19 @@ class PaymentLinkRouter {
 
         // redirect end user to acquiring service
         const { anonymousPaymentUrl } = multiPayment
-        const { successUrl, failureUrl } = params
+        const { successUrl: successUrlFromParams, failureUrl } = params
+
+        let successUrl
+        if (includePaymentIdInUrl) {
+            const multiPaymentId = get(multiPayment, 'multiPaymentId')
+            const url = new URL(successUrlFromParams)
+            url.searchParams.set('multiPaymentId', multiPaymentId)
+
+            successUrl = url.toString()
+        } else {
+            successUrl = successUrlFromParams
+        }
+
         const paramsString = querystring.stringify({ successUrl, failureUrl })
         return res.redirect(`${anonymousPaymentUrl}?${paramsString}`)
     }
@@ -194,6 +206,7 @@ class PaymentLinkRouter {
                         params,
                         this.invoicesPaymentValidator.bind(this),
                         this.createMultiPaymentByInvoices.bind(this),
+                        true,
                     )
                 } catch (error) {
                     logger.error({
