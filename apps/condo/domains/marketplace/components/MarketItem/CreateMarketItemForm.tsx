@@ -40,12 +40,26 @@ export const CreateMarketItemForm = () => {
     const createMarketPriceScopes = MarketPriceScope.useCreateMany({})
     const updateMarketItemFile = MarketItemFile.useUpdate({})
 
+    const { count: propertiesCount } = Property.useCount({
+        where: {
+            organization: { id: organizationId },
+        },
+    }, { skip: organizationLoading || !organization })
+
+    const { objs: properties, loading: propertiesLoading } = Property.useObjects(
+        {
+            where: {
+                organization: { id: organizationId },
+            },
+        }, { skip: propertiesCount !== 1 }
+    )
+
     const handleCreateMarketItem = useCallback(async (values) => {
         setSubmitLoading(true)
 
         const { prices, files, ...marketItemFields } = values
         const createdMarketItem = await createMarketItem(MarketItem.formValuesProcessor(marketItemFields))
-        const formattedPrices: PriceFormValuesType[] = MarketItem.formatFormPricesField(prices)
+        const formattedPrices: PriceFormValuesType[] = MarketItem.formatFormPricesField(prices, propertiesCount)
         await MarketItem.createNewPricesAndPriceScopes({
             marketItem: createdMarketItem,
             prices: formattedPrices,
@@ -69,21 +83,7 @@ export const CreateMarketItemForm = () => {
         await router.push('/marketplace?tab=services')
 
         return createdMarketItem
-    }, [createMarketItem, createMarketItemPrice, createMarketPriceScopes, router, updateMarketItemFile])
-
-    const { count: propertiesCount } = Property.useCount({
-        where: {
-            organization: { id: organizationId },
-        },
-    }, { skip: organizationLoading || !organization })
-
-    const { objs: properties, loading: propertiesLoading } = Property.useObjects(
-        {
-            where: {
-                organization: { id: organizationId },
-            },
-        }, { skip: propertiesCount !== 1 }
-    )
+    }, [createMarketItem, createMarketItemPrice, createMarketPriceScopes, propertiesCount, router, updateMarketItemFile])
 
     const dataLoading = organizationLoading || propertiesLoading
     const initialValues = useMemo(() => ({ files: [] }), [])

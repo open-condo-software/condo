@@ -94,7 +94,7 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
         }
     }, [onDataLoaded])
     const handleOnChange = useCallback((data) => {
-        const selectedDataLength = data.length
+        const selectedDataLength = get(data, 'length')
 
         if (selectedDataLength === allDataLength && !checkboxHidden) {
             setIsAllChecked(true)
