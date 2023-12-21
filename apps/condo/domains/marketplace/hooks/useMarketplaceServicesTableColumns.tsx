@@ -49,8 +49,8 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
 
             const item = {
                 price,
-                isMin: get(price, 'isMin'),
-                currency: get(price, 'currencyCode', 'RUB'),
+                isMin: get(prices, '0.isMin'),
+                currency: get(prices, '0.currencyCode', 'RUB'),
                 address: streetPart,
             }
 
@@ -142,7 +142,7 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
                         const address = get(items[0], 'address')
 
                         componentsToRender.push(<div key={address}>
-                            { get(items[0], 'isMin') && (get(items[0], 'price') == 0) ? ContractPriceMessage : getMoneyRender(intl, get(items[0], 'currency', 'RUB'))(price, get(items[0], 'isMin'))}
+                            {get(items[0], 'isMin') && (get(items[0], 'price') == 0) ? ContractPriceMessage : getMoneyRender(intl, get(items[0], 'currency', 'RUB'))(price, get(items[0], 'isMin'))}
                             <Typography.Text type='secondary' style={{ margin: '10px' }}>
                                 ({items.length > 1 ? `${address} ${AndMoreMessage} ${items.length - 1}` : address})
                             </Typography.Text>
@@ -153,5 +153,5 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
                 filterIcon: getFilterIcon,
             },
         ]
-    }, [sorterMap, filters, intl, search, filterMetas, ScopeTitle, CategoryTitle, SkuNameTitle, SkuTitle])
+    }, [SkuTitle, sorterMap, filters, render, filterMetas, SkuNameTitle, CategoryTitle, ScopeTitle, subcategoryCounterGropedByCategoryId, processedScopes, intl, AllPropertiesMessage, ContractPriceMessage, AndMoreMessage])
 }

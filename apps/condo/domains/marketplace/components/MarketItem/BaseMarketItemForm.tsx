@@ -137,7 +137,11 @@ const MobilePreview = ({ name, price, priceType, sku, description, files }) => {
 
     return (
         <MobilePreviewContainer>
-            <Typography.Title type='secondary' level={3}>{MobilePreviewTitle}</Typography.Title>
+            <div style={{ textAlign: 'center' }}>
+                <Typography.Title type='secondary' level={3}>
+                    {MobilePreviewTitle}
+                </Typography.Title>
+            </div>
             <AppPreviewContainer>
                 <div className='mobile-content-wrapper'>
                     <Row gutter={[0, 20]} style={{ maxWidth: '100%' }}>
@@ -204,10 +208,11 @@ const MobilePreview = ({ name, price, priceType, sku, description, files }) => {
 
 const mapCategoryToOption = ({ name, id }) => ({ label: name, value: id })
 
-const CategorySelectFields = ({ parentCategoryId, form }) => {
+const CategorySelectFields = ({ parentCategoryId, form, fetchMarketItemsCount, marketItemId, organization }) => {
     const intl = useIntl()
     const CategoryFieldMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.parentCategory' })
     const SubCategoryFieldMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.marketCategory' })
+    const UniqueCategoryMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.marketCategory.uniqueError' })
 
     const { requiredValidator } = useValidations()
     const { objs: marketCategories, loading } = MarketCategory.useAllObjects({})
@@ -243,6 +248,53 @@ const CategorySelectFields = ({ parentCategoryId, form }) => {
         marketCategoryName: null,
     }), [form])
 
+    const isSubCategoryHidden = useMemo(() => subCategoriesOptions.length < 2, [subCategoriesOptions])
+
+    const uniqueCategoryValidator: Rule = useMemo(() => ({
+        validateTrigger: FORM_VALIDATE_TRIGGER,
+        validator: async (_, value) => {
+            if (!value) {
+                return Promise.resolve()
+            }
+
+            const result = await fetchMarketItemsCount({
+                where: {
+                    id_not: marketItemId,
+                    organization: { id: get(organization, 'id', null) },
+                    marketCategory: { id: value },
+                },
+            })
+
+            const marketItemsWithSameSkuCount = get(result, 'data.meta.count', 0)
+
+            if (marketItemsWithSameSkuCount > 0) return Promise.reject(UniqueCategoryMessage)
+            return Promise.resolve()
+        },
+    }), [UniqueCategoryMessage, fetchMarketItemsCount, marketItemId, organization])
+
+    const parentCategoryValidator: Rule = useMemo(() => ({
+        validateTrigger: FORM_VALIDATE_TRIGGER,
+        validator: async (_, value) => {
+            if (!isSubCategoryHidden || !value) {
+                return Promise.resolve()
+            }
+
+            const marketCategoryId = form.getFieldValue('marketCategory')
+            const result = await fetchMarketItemsCount({
+                where: {
+                    id_not: marketItemId,
+                    organization: { id: get(organization, 'id', null) },
+                    marketCategory: { id: marketCategoryId },
+                },
+            })
+
+            const marketItemsWithSameSkuCount = get(result, 'data.meta.count', 0)
+
+            if (marketItemsWithSameSkuCount > 0) return Promise.reject(UniqueCategoryMessage)
+            return Promise.resolve()
+        },
+    }), [UniqueCategoryMessage, fetchMarketItemsCount, form, isSubCategoryHidden, marketItemId, organization])
+
     return (
         <Row gutter={GROUP_INNER_GUTTER}>
             <Col span={24}>
@@ -250,7 +302,7 @@ const CategorySelectFields = ({ parentCategoryId, form }) => {
                     name='parentCategory'
                     label={CategoryFieldMessage}
                     required
-                    rules={[requiredValidator]}
+                    rules={[requiredValidator, parentCategoryValidator]}
                 >
                     <Select
                         options={parentCategoriesOptions}
@@ -262,12 +314,12 @@ const CategorySelectFields = ({ parentCategoryId, form }) => {
                     />
                 </Form.Item>
             </Col>
-            <Col span={24} hidden={subCategoriesOptions.length < 2}>
+            <Col span={24} hidden={isSubCategoryHidden}>
                 <Form.Item
                     name='marketCategory'
                     label={SubCategoryFieldMessage}
                     required
-                    rules={[requiredValidator]}
+                    rules={[requiredValidator, uniqueCategoryValidator]}
                 >
                     <Select
                         options={subCategoriesOptions}
@@ -301,6 +353,7 @@ const TextAreaWithCounter = styled(Input.TextArea)`
 const MarketItemFields = () => {
     const intl = useIntl()
     const NameFieldMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.name' })
+    const UniqueNameErrorMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.name.uniqueError' })
     const SkuFieldMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.sku' })
     const SkuTooltipMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.sku.tooltip' })
     const DescriptionFieldMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.description' })
@@ -315,9 +368,34 @@ const MarketItemFields = () => {
     const initialFileList = useMemo(() => get(initialValues, 'files'), [initialValues])
 
     const { requiredValidator, maxLengthValidator } = useValidations()
+    const uniqueNameValidator: Rule = useMemo(() => ({
+        validateTrigger: FORM_VALIDATE_TRIGGER,
+        validator: async (_, value) => {
+            if (!value) {
+                return Promise.resolve()
+            }
+
+            const result = await fetchMarketItemsCount({
+                where: {
+                    id_not: marketItemId,
+                    organization: { id: get(organization, 'id', null) },
+                    name: value,
+                },
+            })
+
+            const marketItemsWithSameSkuCount = get(result, 'data.meta.count', 0)
+
+            if (marketItemsWithSameSkuCount > 0) return Promise.reject(UniqueNameErrorMessage)
+            return Promise.resolve()
+        },
+    }), [UniqueNameErrorMessage, fetchMarketItemsCount, marketItemId, organization])
     const uniqueSkuValidator: Rule = useMemo(() => ({
         validateTrigger: FORM_VALIDATE_TRIGGER,
         validator: async (_, value) => {
+            if (!value) {
+                return Promise.resolve()
+            }
+
             const result = await fetchMarketItemsCount({
                 where: {
                     id_not: marketItemId,
@@ -340,7 +418,7 @@ const MarketItemFields = () => {
                     name='name'
                     label={NameFieldMessage}
                     required
-                    rules={[requiredValidator]}
+                    rules={[requiredValidator, uniqueNameValidator]}
                 >
                     <Input/>
                 </Form.Item>
@@ -370,6 +448,9 @@ const MarketItemFields = () => {
                                 <CategorySelectFields
                                     parentCategoryId={parentCategory}
                                     form={form}
+                                    organization={organization}
+                                    marketItemId={marketItemId}
+                                    fetchMarketItemsCount={fetchMarketItemsCount}
                                 />
                             )
                         }
