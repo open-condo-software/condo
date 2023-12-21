@@ -1344,6 +1344,7 @@
   "pages.condo.marketplace.invoice.ticketInvoice.form.noContextAlert.descriptionLink": "Подключить сервис",
   "pages.condo.marketplace.invoice.ticketInvoice.form.noInvoices": "Счетов пока нет",
   "pages.condo.marketplace.invoice.ticketInvoice.form.addInvoice": "Добавить счет",
+  "pages.condo.marketplace.invoice.ticketInvoice.form.disableIsPayableTooltip": "Сначала отмените все счета",
   "pages.condo.marketplace.invoice.payment.success.title": "Счет оплачен",
   "pages.condo.marketplace.invoice.payment.success.description": "Можно скачать чек об оплате. Установите приложение Doma — с ним оплачивать услуги ещё удобнее. Судите сами: квитанции появляются автоматически, а отправить заявку в УК или передать показания счётчиков можно за пару нажатий.",
   "pages.condo.marketplace.invoice.payment.success.downloadApp": "Скачать приложение",

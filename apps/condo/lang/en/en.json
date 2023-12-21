@@ -1344,6 +1344,7 @@
   "pages.condo.marketplace.invoice.ticketInvoice.form.noContextAlert.descriptionLink": "Connect service",
   "pages.condo.marketplace.invoice.ticketInvoice.form.noInvoices": "No invoices yet",
   "pages.condo.marketplace.invoice.ticketInvoice.form.addInvoice": "Add invoice",
+  "pages.condo.marketplace.invoice.ticketInvoice.form.disableIsPayableTooltip": "First cancel all invoices",
   "pages.condo.marketplace.invoice.payment.success.title": "Payment made",
   "pages.condo.marketplace.invoice.payment.success.description": "You can download the payment check. Install the Doma app - there is more convenient to pay and there are many different functions, for example: receipts automatically appear, you can take the meter and send tickets to the management company",
   "pages.condo.marketplace.invoice.payment.success.downloadApp": "Download app",
