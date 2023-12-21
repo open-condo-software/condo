@@ -266,7 +266,7 @@ describe('AcquiringIntegrationContext', () => {
             })
             describe('Staff user', () => {
                 test(`can if context status is "${CONTEXT_IN_PROGRESS_STATUS}" and user is integration manager (have canManageIntegration = true)`, async () => {
-                    const emailPayload = faker.internet.email()
+                    const emailPayload = faker.internet.email('test', 'test', 'gmail.com')
                     const [newContext] = await updateTestAcquiringIntegrationContext(manager, context.id, { email: emailPayload })
                     expect(newContext).toHaveProperty('email', emailPayload.toLowerCase())
                 })

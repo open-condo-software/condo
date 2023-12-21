@@ -83,6 +83,11 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
             schemaDoc: 'Contract number and date. Basis for invoicing',
             type: 'Text',
             isRequired: false,
+            access: {
+                read: true,
+                create: access.canManageReasonAndFeeFields,
+                update: access.canManageReasonAndFeeFields,
+            },
         },
 
         invoiceReason: {
