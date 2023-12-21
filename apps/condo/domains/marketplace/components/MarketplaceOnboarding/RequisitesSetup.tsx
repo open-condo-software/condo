@@ -98,7 +98,7 @@ export const RequisitesSetup: React.FC = () => {
     const noTaxOption = useMemo<SelectProps['options'][number]>(() => ({
         label: NoTax,
         key: NoTax,
-        value: '',
+        value: null,
     }), [NoTax])
 
     const account = Form.useWatch('account', form)
@@ -127,11 +127,11 @@ export const RequisitesSetup: React.FC = () => {
         if (!selectedTaxType) return []
 
         if (acquiringLoading || acquiringError) {
-            return ['']
+            return [null]
         }
         const vatOptions = (get(acquiring, [0, 'vatPercentOptions']) || '').split(',').filter(Boolean)
 
-        return ['', ...selectedTaxType === TAX_REGIME_GENEGAL ? vatOptions : vatOptions.filter((v: string) => v !== '0')]
+        return [null, ...selectedTaxType === TAX_REGIME_GENEGAL ? vatOptions : vatOptions.filter((v: string) => v !== '0')]
     }, [acquiring, acquiringError, acquiringLoading, selectedTaxType])
 
     useEffect(() => {
@@ -142,15 +142,16 @@ export const RequisitesSetup: React.FC = () => {
     }, [form, possibleVatOptionsValues, selectedTaxType])
 
     useEffect(() => {
-        if (acquiringContext) {
+        if (acquiringContext && !acquiringLoading && !!acquiring) {
+            const invoiceVatPercent = get(acquiringContext, 'invoiceVatPercent') || null
             form.setFieldsValue({
                 bic: get(acquiringContext, ['invoiceRecipient', 'bic'], ''),
                 account: get(acquiringContext, ['invoiceRecipient', 'bankAccount'], ''),
                 taxType: get(acquiringContext, 'invoiceTaxRegime'),
-                taxPercent: Number(get(acquiringContext, 'invoiceVatPercent', '')).toString(),
+                taxPercent: invoiceVatPercent ? Number(invoiceVatPercent).toString() : null,
             })
         }
-    }, [form, acquiringContext])
+    }, [form, acquiringContext, acquiringLoading, acquiring])
 
     const errorHandler = useMutationErrorHandler({
         form,

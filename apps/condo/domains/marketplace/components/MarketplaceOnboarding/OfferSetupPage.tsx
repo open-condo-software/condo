@@ -41,7 +41,6 @@ export const OfferSetupPage: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
                 || !get(acquiringContext, ['invoiceRecipient', 'bic'])
                 || !get(acquiringContext, ['invoiceRecipient', 'tin'])
                 || !get(acquiringContext, 'invoiceTaxRegime')
-                || !get(acquiringContext, 'invoiceVatPercent')
             )
         ) {
             router.replace({ query: { step: 0 } })
