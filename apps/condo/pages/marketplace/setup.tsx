@@ -94,14 +94,6 @@ const MarketplaceOnboardingPage: IMarketplaceOnboardingPage = ({ onFinish, withV
         return <RequisitesSetup />
     }, [currentStep, handleFinishSetup])
 
-    // const payload = useMemo(() => ({
-    //     acquiringContext,
-    //     refetchAcquiringContext: async () => {
-    //         debugger
-    //         await refetchAcquiringContext()
-    //     },
-    // }), [acquiringContext, refetchAcquiringContext])
-
     return (
         <>
             <Head>
