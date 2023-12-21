@@ -11,11 +11,11 @@ import { Alert, Button, Radio, RadioGroup, Select, SelectProps, Space } from '@o
 import { TAX_REGIME_GENEGAL, TAX_REGIME_SIMPLE, CONTEXT_IN_PROGRESS_STATUS } from '@condo/domains/acquiring/constants/context'
 import { AcquiringIntegrationContext as AcquiringIntegrationContextApi, AcquiringIntegration as AcquiringIntegrationApi } from '@condo/domains/acquiring/utils/clientSchema'
 import { BankAccount as BankAccountApi } from '@condo/domains/banking/utils/clientSchema'
+import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { RUSSIA_COUNTRY } from '@condo/domains/common/constants/countries'
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { useBankAccountValidation } from '@condo/domains/common/utils/clientSchema/bankAccountValidationUtils'
-import { useAcquiringContext } from '@condo/domains/marketplace/components/MarketplacePageContent/ContextProvider'
 import {
     ERROR_BANK_NOT_FOUND,
     ERROR_ORGANIZATION_NOT_FOUND,
@@ -61,7 +61,15 @@ export const RequisitesSetup: React.FC = () => {
         },
     })
 
-    const { acquiringContext, refetchAcquiringContext } = useAcquiringContext()
+    const {
+        obj: acquiringContext,
+        loading: acquiringContextLoading,
+        error: acquiringContextError,
+    } = AcquiringIntegrationContextApi.useObject({
+        where: {
+            organization: { id: orgId },
+        },
+    })
 
     const { objs: bankAccounts } = BankAccountApi.useObjects({
         where: {
@@ -90,7 +98,7 @@ export const RequisitesSetup: React.FC = () => {
     const noTaxOption = useMemo<SelectProps['options'][number]>(() => ({
         label: NoTax,
         key: NoTax,
-        value: '',
+        value: null,
     }), [NoTax])
 
     const account = Form.useWatch('account', form)
@@ -119,11 +127,11 @@ export const RequisitesSetup: React.FC = () => {
         if (!selectedTaxType) return []
 
         if (acquiringLoading || acquiringError) {
-            return ['']
+            return [null]
         }
         const vatOptions = (get(acquiring, [0, 'vatPercentOptions']) || '').split(',').filter(Boolean)
 
-        return ['', ...selectedTaxType === TAX_REGIME_GENEGAL ? vatOptions : vatOptions.filter((v: string) => v !== '0')]
+        return [null, ...selectedTaxType === TAX_REGIME_GENEGAL ? vatOptions : vatOptions.filter((v: string) => v !== '0')]
     }, [acquiring, acquiringError, acquiringLoading, selectedTaxType])
 
     useEffect(() => {
@@ -134,15 +142,16 @@ export const RequisitesSetup: React.FC = () => {
     }, [form, possibleVatOptionsValues, selectedTaxType])
 
     useEffect(() => {
-        if (acquiringContext) {
+        if (acquiringContext && !acquiringLoading && !!acquiring) {
+            const invoiceVatPercent = get(acquiringContext, 'invoiceVatPercent') || null
             form.setFieldsValue({
                 bic: get(acquiringContext, ['invoiceRecipient', 'bic'], ''),
                 account: get(acquiringContext, ['invoiceRecipient', 'bankAccount'], ''),
                 taxType: get(acquiringContext, 'invoiceTaxRegime'),
-                taxPercent: get(acquiringContext, 'invoiceVatPercent'),
+                taxPercent: invoiceVatPercent ? Number(invoiceVatPercent).toString() : null,
             })
         }
-    }, [form, acquiringContext])
+    }, [form, acquiringContext, acquiringLoading, acquiring])
 
     const errorHandler = useMutationErrorHandler({
         form,
@@ -183,13 +192,16 @@ export const RequisitesSetup: React.FC = () => {
             }
 
             promise.then(async () => {
-                refetchAcquiringContext()
                 await router.replace({ query: { step: 1 } })
             }).catch(errorHandler)
 
             setIsLoading(false)
         }
-    }, [acquiringId, acquiringLoading, acquiringError, acquiringContext, errorHandler, updateAction, organization, createAction, orgId, refetchAcquiringContext, router])
+    }, [acquiringId, acquiringLoading, acquiringError, acquiringContext, errorHandler, updateAction, organization, createAction, orgId, router])
+
+    if (acquiringContextLoading || acquiringContextError) {
+        return <LoadingOrErrorPage loading={acquiringContextLoading} error={acquiringContextError}/>
+    }
 
     return (
         <Row gutter={VERTICAL_GUTTER}>

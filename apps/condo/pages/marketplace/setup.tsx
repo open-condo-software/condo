@@ -16,11 +16,7 @@ import { PageHeader, PageWrapper } from '@condo/domains/common/components/contai
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { OfferSetupPage } from '@condo/domains/marketplace/components/MarketplaceOnboarding/OfferSetupPage'
 import { RequisitesSetup } from '@condo/domains/marketplace/components/MarketplaceOnboarding/RequisitesSetup'
-import {
-    AcquiringContext as AcquiringContextProvider,
-} from '@condo/domains/marketplace/components/MarketplacePageContent/ContextProvider'
 import { MarketplaceReadPermissionRequired } from '@condo/domains/marketplace/components/PageAccess'
-
 
 const STEPS_GUTTER: RowProps['gutter'] = [60, 60]
 const FULL_COL_SPAN = 24
@@ -94,13 +90,8 @@ const MarketplaceOnboardingPage: IMarketplaceOnboardingPage = ({ onFinish, withV
         return <RequisitesSetup />
     }, [currentStep, handleFinishSetup])
 
-    const payload = useMemo(() => ({
-        acquiringContext,
-        refetchAcquiringContext,
-    }), [acquiringContext, refetchAcquiringContext])
-
     return (
-        <AcquiringContextProvider.Provider value={payload}>
+        <>
             <Head>
                 <title>{PageTitle}</title>
             </Head>
@@ -122,7 +113,7 @@ const MarketplaceOnboardingPage: IMarketplaceOnboardingPage = ({ onFinish, withV
                     </Row>
                 </TablePageContent>
             </PageWrapper>
-        </AcquiringContextProvider.Provider>
+        </>
     )
 }
 
