@@ -71756,6 +71756,24 @@ type GetResidentExistenceByPhoneAndAddressOutput {
   hasResidentOnAddress: Boolean!
 }
 
+enum InvoicePaymentType {
+  online
+  cash
+}
+
+input InvoiceRowsInput {
+  priceScope: MarketPriceScopeWhereUniqueInput!
+  count: Int!
+}
+
+input RegisterResidentInvoiceInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  resident: ResidentWhereUniqueInput!
+  invoiceRows: [InvoiceRowsInput!]!
+  paymentType: InvoicePaymentType!
+}
+
 enum OnBoardingType {
   ADMINISTRATOR
 }
@@ -72235,28 +72253,6 @@ input SendB2CAppPushMessageInput {
 type SendB2CAppPushMessageOutput {
   id: String!
   status: String!
-}
-
-enum InvoicePaymentType {
-  online
-  cash
-}
-
-input InvoiceRowsInput {
-  priceScope: MarketPriceScopeWhereUniqueInput!
-  count: Int!
-}
-
-input RegisterInvoiceInput {
-  dv: Int!
-  sender: SenderFieldInput!
-  resident: ResidentWhereUniqueInput!
-  invoiceRows: [InvoiceRowsInput!]!
-  paymentType: InvoicePaymentType!
-}
-
-type RegisterInvoiceOutput {
-  invoice: Invoice!
 }
 
 type unauthenticateUserOutput {
@@ -82942,6 +82938,7 @@ type Mutation {
   """
   sendMessageToResidentScopes(data: SendMessageToResidentScopesServiceInput!): SendMessageToResidentScopesServiceOutput
   discoverServiceConsumers(data: DiscoverServiceConsumersInput!): DiscoverServiceConsumersOutput
+  registerResidentInvoice(data: RegisterResidentInvoiceInput!): Invoice
 
   """
   Creates OnBoarding and set of OnBoardingStep records for specified role and user
@@ -82982,7 +82979,6 @@ type Mutation {
   createPaymentByLink(data: CreatePaymentByLinkInput!): CreatePaymentByLinkOutput
   registerMultiPaymentForInvoices(data: RegisterMultiPaymentForInvoicesInput!): RegisterMultiPaymentForInvoicesOutput
   sendB2CAppPushMessage(data: SendB2CAppPushMessageInput!): SendB2CAppPushMessageOutput
-  registerInvoice(data: RegisterInvoiceInput!): RegisterInvoiceOutput
 
   """ Authenticate and generate a token for a User with the Password Authentication Strategy. 
   """

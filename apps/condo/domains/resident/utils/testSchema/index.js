@@ -11,7 +11,7 @@ const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testS
 
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
-const { Resident: ResidentGQL } = require('@condo/domains/resident/gql')
+const { Resident: ResidentGQL, REGISTER_RESIDENT_INVOICE_MUTATION } = require('@condo/domains/resident/gql')
 const { REGISTER_RESIDENT_MUTATION } = require('@condo/domains/resident/gql')
 const { ServiceConsumer: ServiceConsumerGQL } = require('@condo/domains/resident/gql')
 const { REGISTER_SERVICE_CONSUMER_MUTATION } = require('@condo/domains/resident/gql')
@@ -25,6 +25,7 @@ const { REGISTER_RESIDENT_SERVICE_CONSUMERS_MUTATION } = require('@condo/domains
 const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { INVOICE_PAYMENT_TYPE_ONLINE } = require('@condo/domains/marketplace/constants')
 
 const Resident = generateGQLTestUtils(ResidentGQL)
 const ServiceConsumer = generateGQLTestUtils(ServiceConsumerGQL)
@@ -224,6 +225,24 @@ async function registerResidentServiceConsumersByTestClient (client, extraAttrs 
     return [data.objs, attrs]
 }
 
+async function registerResidentInvoiceByTestClient (client, resident, invoiceRows, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!resident || !resident.id) throw new Error('no resident.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        resident,
+        invoiceRows,
+        paymentType: INVOICE_PAYMENT_TYPE_ONLINE,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(REGISTER_RESIDENT_INVOICE_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
 module.exports = {
     Resident, createTestResident, updateTestResident,
     registerResidentByTestClient, makeClientWithResident,
@@ -234,5 +253,6 @@ module.exports = {
     discoverServiceConsumersByTestClient,
     getResidentExistenceByPhoneAndAddressByTestClient,
     registerResidentServiceConsumersByTestClient,
+    registerResidentInvoiceByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

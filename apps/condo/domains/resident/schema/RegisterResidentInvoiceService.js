@@ -10,7 +10,6 @@ const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { i18n } = require('@open-condo/locales/loader')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
-const access = require('@condo/domains/marketplace/access/RegisterInvoiceService')
 const {
     INVOICE_STATUS_DRAFT,
     INVOICE_STATUS_PUBLISHED,
@@ -23,6 +22,7 @@ const {
     ERROR_ITEM_FROM_OTHER_ORGANIZATION,
 } = require('@condo/domains/marketplace/constants')
 const { Invoice, MarketPriceScope } = require('@condo/domains/marketplace/utils/serverSchema')
+const access = require('@condo/domains/resident/access/RegisterResidentInvoiceService')
 const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 
 const ERRORS = {
@@ -49,8 +49,7 @@ const ERRORS = {
 
 const MOBILE_APP_RESIDENT_TICKET_SOURCE_ID = '3068d49a-a45c-4c3a-a02d-ea1a53e1febb'
 
-const RegisterInvoiceService = new GQLCustomSchema('RegisterInvoiceService', {
-    schemaDoc: 'Using by mobile application. Allows residents to create invoice in pair with related ticket.',
+const RegisterResidentInvoiceService = new GQLCustomSchema('RegisterResidentInvoiceService', {
     types: [
         {
             access: true,
@@ -62,18 +61,15 @@ const RegisterInvoiceService = new GQLCustomSchema('RegisterInvoiceService', {
         },
         {
             access: true,
-            type: 'input RegisterInvoiceInput { dv: Int!, sender: SenderFieldInput!, resident: ResidentWhereUniqueInput!, invoiceRows: [InvoiceRowsInput!]!, paymentType: InvoicePaymentType! }',
-        },
-        {
-            access: true,
-            type: 'type RegisterInvoiceOutput { invoice: Invoice! }',
+            type: 'input RegisterResidentInvoiceInput { dv: Int!, sender: SenderFieldInput!, resident: ResidentWhereUniqueInput!, invoiceRows: [InvoiceRowsInput!]!, paymentType: InvoicePaymentType! }',
         },
     ],
 
     mutations: [
         {
-            access: access.canRegisterInvoice,
-            schema: 'registerInvoice(data: RegisterInvoiceInput!): RegisterInvoiceOutput',
+            access: access.canRegisterResidentInvoice,
+            schemaDoc: 'Using by mobile application. Allows residents to create invoice in pair with related ticket.',
+            schema: 'registerResidentInvoice(data: RegisterResidentInvoiceInput!): Invoice',
             resolver: async (parent, args, context) => {
                 const { data } = args
                 const { dv, sender } = data
@@ -163,7 +159,7 @@ const RegisterInvoiceService = new GQLCustomSchema('RegisterInvoiceService', {
                     status: hasMinPrice ? INVOICE_STATUS_DRAFT : INVOICE_STATUS_PUBLISHED,
                 })
 
-                return { invoice: await getById('Invoice', invoice.id) }
+                return await getById('Invoice', invoice.id)
             },
         },
     ],
@@ -171,5 +167,5 @@ const RegisterInvoiceService = new GQLCustomSchema('RegisterInvoiceService', {
 })
 
 module.exports = {
-    RegisterInvoiceService,
+    RegisterResidentInvoiceService,
 }

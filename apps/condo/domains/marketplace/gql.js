@@ -3,13 +3,11 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
-const { gql } = require('graphql-tag')
 
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
 const { PROPERTY_MAP_JSON_FIELDS } = require('@condo/domains/property/gql')
 const { ADDRESS_META_SUBFIELDS_QUERY_LIST, ADDRESS_META_SUBFIELDS_TABLE_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
-
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name type } updatedBy { id name } createdAt updatedAt'
 
@@ -31,12 +29,6 @@ const MarketItemPrice = generateGqlQueries('MarketItemPrice', MARKET_ITEM_PRICE_
 const MARKET_PRICE_SCOPE_FIELDS = `{ marketItemPrice { id marketItem { id name sku organization { id } marketCategory { id name parentCategory { id name } } } price { type name price isMin vatPercent salesTaxPercent currencyCode } } property { id addressMeta { ${ADDRESS_META_SUBFIELDS_TABLE_LIST} } } ${COMMON_FIELDS} }`
 const MarketPriceScope = generateGqlQueries('MarketPriceScope', MARKET_PRICE_SCOPE_FIELDS)
 
-const REGISTER_INVOICE_MUTATION = gql`
-    mutation registerInvoice ($data: RegisterInvoiceInput!) {
-        result: registerInvoice(data: $data) { invoice ${INVOICE_FIELDS} }
-    }
-`
-
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -46,6 +38,6 @@ module.exports = {
     MarketItemFile,
     MarketItemPrice,
     MarketPriceScope,
-    REGISTER_INVOICE_MUTATION,
+    INVOICE_FIELDS,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

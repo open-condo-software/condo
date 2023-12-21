@@ -40584,6 +40584,7 @@ export type Mutation = {
    */
   sendMessageToResidentScopes?: Maybe<SendMessageToResidentScopesServiceOutput>;
   discoverServiceConsumers?: Maybe<DiscoverServiceConsumersOutput>;
+  registerResidentInvoice?: Maybe<Invoice>;
   /**
    * Creates OnBoarding and set of OnBoardingStep records for specified role and user
    *
@@ -40623,7 +40624,6 @@ export type Mutation = {
   createPaymentByLink?: Maybe<CreatePaymentByLinkOutput>;
   registerMultiPaymentForInvoices?: Maybe<RegisterMultiPaymentForInvoicesOutput>;
   sendB2CAppPushMessage?: Maybe<SendB2CAppPushMessageOutput>;
-  registerInvoice?: Maybe<RegisterInvoiceOutput>;
   /**  Authenticate and generate a token for a User with the Password Authentication Strategy.  */
   authenticateUserWithPassword?: Maybe<AuthenticateUserOutput>;
   unauthenticateUser?: Maybe<UnauthenticateUserOutput>;
@@ -48537,6 +48537,11 @@ export type MutationDiscoverServiceConsumersArgs = {
 };
 
 
+export type MutationRegisterResidentInvoiceArgs = {
+  data: RegisterResidentInvoiceInput;
+};
+
+
 export type MutationCreateOnBoardingByTypeArgs = {
   data: CreateOnBoardingInput;
 };
@@ -48574,11 +48579,6 @@ export type MutationRegisterMultiPaymentForInvoicesArgs = {
 
 export type MutationSendB2CAppPushMessageArgs = {
   data: SendB2CAppPushMessageInput;
-};
-
-
-export type MutationRegisterInvoiceArgs = {
-  data: RegisterInvoiceInput;
 };
 
 
@@ -69129,19 +69129,6 @@ export type RegisterBillingReceiptsInput = {
   receipts: Array<RegisterBillingReceiptInput>;
 };
 
-export type RegisterInvoiceInput = {
-  dv: Scalars['Int'];
-  sender: SenderFieldInput;
-  resident: ResidentWhereUniqueInput;
-  invoiceRows: Array<InvoiceRowsInput>;
-  paymentType: InvoicePaymentType;
-};
-
-export type RegisterInvoiceOutput = {
-  __typename?: 'RegisterInvoiceOutput';
-  invoice: Invoice;
-};
-
 export type RegisterMultiPaymentForInvoicesInput = {
   dv: Scalars['Int'];
   sender: Scalars['JSON'];
@@ -69273,6 +69260,14 @@ export type RegisterResidentInput = {
   addressMeta: AddressMetaFieldInput;
   unitName: Scalars['String'];
   unitType?: Maybe<BuildingUnitSubType>;
+};
+
+export type RegisterResidentInvoiceInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  resident: ResidentWhereUniqueInput;
+  invoiceRows: Array<InvoiceRowsInput>;
+  paymentType: InvoicePaymentType;
 };
 
 export type RegisterResidentServiceConsumersInput = {
