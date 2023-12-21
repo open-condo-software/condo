@@ -1,4 +1,5 @@
 import get from 'lodash/get'
+import Head from 'next/head'
 import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -47,9 +48,14 @@ const MarketplacePage: PageType = () => {
     }
 
     return (
-        <AcquiringContextProvider.Provider value={payload}>
-            <MarketplacePageContent/>
-        </AcquiringContextProvider.Provider>
+        <>
+            <Head>
+                <title>{PageTitle}</title>
+            </Head>
+            <AcquiringContextProvider.Provider value={payload}>
+                <MarketplacePageContent/>
+            </AcquiringContextProvider.Provider>
+        </>
     )
 }
 
