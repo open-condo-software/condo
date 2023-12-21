@@ -1,6 +1,7 @@
 import { ErrorLayoutFooter, ErrorLayoutHeader } from '@app/condo/pages/500'
 import { Col, Row, RowProps, Typography } from 'antd'
 import Head from 'next/head'
+import { useRouter } from 'next/router'
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -15,8 +16,23 @@ const FailureSrc = { poster: '/404Poster.webp' }
 
 export default function FailurePage () {
     const intl = useIntl()
-    const PageTitle = intl.formatMessage( { id: 'pages.condo.marketplace.invoice.payment.failure.title' })
-    const DescriptionMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.payment.failure.description' })
+    const router = useRouter()
+
+    const { alreadyPaid, linkNotActual } = router.query
+
+    let PageTitle
+    let Description
+
+    if (alreadyPaid) {
+        PageTitle = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.payment.failure.alreadyPaid.title' })
+        Description = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.payment.failure.linkNotActual' })
+    } else if (linkNotActual) {
+        PageTitle = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.payment.failure.linkNotActual.title' })
+        Description = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.payment.failure.linkNotActual' })
+    } else {
+        PageTitle = intl.formatMessage( { id: 'pages.condo.marketplace.invoice.payment.failure.title' })
+        Description = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.payment.failure.description' })
+    }
 
     return (
         <>
@@ -31,7 +47,7 @@ export default function FailurePage () {
                         </Col>
                         <Col span={24}>
                             <Typography.Paragraph style={DESCRIPTION_TEXT_STYLE}>
-                                {DescriptionMessage}
+                                {Description}
                             </Typography.Paragraph>
                         </Col>
                     </Row>

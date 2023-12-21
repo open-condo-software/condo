@@ -1,6 +1,7 @@
 import {
     MarketPriceScope as MarketPriceScopeType,
     MarketCategory as MarketCategoryType,
+    Property,
 } from '@app/condo/schema'
 import { Typography } from 'antd'
 import get from 'lodash/get'
@@ -20,7 +21,7 @@ import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.uti
 import { getMoneyRender } from '@condo/domains/marketplace/utils/clientSchema/Invoice'
 
 
-export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, marketPriceScopes: MarketPriceScopeType[], marketCategories: MarketCategoryType[]) {
+export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, marketPriceScopes: MarketPriceScopeType[], marketCategories: MarketCategoryType[], properties: Property[]) {
     const intl = useIntl()
     const SkuTitle = intl.formatMessage({ id: 'pages.condo.marketplace.services.table.sku' })
     const SkuNameTitle = intl.formatMessage({ id: 'pages.condo.marketplace.services.table.name' })
@@ -49,8 +50,8 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
 
             const item = {
                 price,
-                isMin: get(price, 'isMin'),
-                currency: get(price, 'currencyCode', 'RUB'),
+                isMin: get(prices, '0.isMin'),
+                currency: get(prices, '0.currencyCode', 'RUB'),
                 address: streetPart,
             }
 
@@ -118,7 +119,7 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
                     if (category.parentCategory) {
                         const parentCategoryName = category.parentCategory.name
 
-                        if (subcategoryCounterGropedByCategoryId[category.parentCategory.id] > 1) return render(`${parentCategoryName}»${categoryName}`)
+                        if (subcategoryCounterGropedByCategoryId[category.parentCategory.id] > 1) return render(`${parentCategoryName} » ${categoryName}`)
                         return render(parentCategoryName)
                     }
                     return render(categoryName)
@@ -132,17 +133,32 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
                 render: (marketItem) => {
                     const componentsToRender = []
                     const priceForAllProperties = get(processedScopes, [marketItem.id, 'priceForAllProperties'])
-                    if (priceForAllProperties) componentsToRender.push(<div key='priceForAllProperties'>
-                        {getMoneyRender(intl, get(priceForAllProperties, 'currency', 'RUB'))(get(priceForAllProperties, 'price'), false)}
-                        <Typography.Text type='secondary' style={{ margin: '10px' }}>({AllPropertiesMessage})</Typography.Text>
-                    </div>)
+                    if (priceForAllProperties) {
+                        if (properties.length === 1) {
+                            const { streetPart } = getAddressDetails(get(properties, '0'))
+
+                            componentsToRender.push(<div key='priceForAllProperties'>
+                                {getMoneyRender(intl, get(priceForAllProperties, 'currency', 'RUB'))(get(priceForAllProperties, 'price'), false)}
+                                <Typography.Text type='secondary' style={{ margin: '10px' }}>
+                                    ({streetPart})
+                                </Typography.Text>
+                            </div>)
+                        } else {
+                            componentsToRender.push(<div key='priceForAllProperties'>
+                                {getMoneyRender(intl, get(priceForAllProperties, 'currency', 'RUB'))(get(priceForAllProperties, 'price'), false)}
+                                <Typography.Text type='secondary' style={{ margin: '10px' }}>({AllPropertiesMessage})</Typography.Text>
+                            </div>)
+                        }
+
+                        return componentsToRender
+                    }
 
                     for (const price in processedScopes[marketItem.id]) {
                         const items = processedScopes[marketItem.id][price]
                         const address = get(items[0], 'address')
 
                         componentsToRender.push(<div key={address}>
-                            { get(items[0], 'isMin') && (get(items[0], 'price') == 0) ? ContractPriceMessage : getMoneyRender(intl, get(items[0], 'currency', 'RUB'))(price, get(items[0], 'isMin'))}
+                            {get(items[0], 'isMin') && (get(items[0], 'price') == 0) ? ContractPriceMessage : getMoneyRender(intl, get(items[0], 'currency', 'RUB'))(price, get(items[0], 'isMin'))}
                             <Typography.Text type='secondary' style={{ margin: '10px' }}>
                                 ({items.length > 1 ? `${address} ${AndMoreMessage} ${items.length - 1}` : address})
                             </Typography.Text>
@@ -153,5 +169,5 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
                 filterIcon: getFilterIcon,
             },
         ]
-    }, [sorterMap, filters, intl, search, filterMetas, ScopeTitle, CategoryTitle, SkuNameTitle, SkuTitle])
+    }, [SkuTitle, sorterMap, filters, render, filterMetas, SkuNameTitle, CategoryTitle, ScopeTitle, subcategoryCounterGropedByCategoryId, processedScopes, intl, AllPropertiesMessage, ContractPriceMessage, AndMoreMessage])
 }

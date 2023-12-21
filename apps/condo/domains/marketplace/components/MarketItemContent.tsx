@@ -1,12 +1,9 @@
-import { useApolloClient, useQuery } from '@apollo/client'
-import {
-    MarketItem as MarketItemType, SortMarketItemsBy,
-} from '@app/condo/schema'
-import { Col, Row, RowProps } from 'antd'
+import { SortMarketItemsBy } from '@app/condo/schema'
+import { Col, Row } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useIntl } from 'react-intl'
 
 import { useOrganization } from '@open-condo/next/organization'
@@ -14,6 +11,7 @@ import { ActionBar, Button } from '@open-condo/ui'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
+import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import EmptyListView from '@condo/domains/common/components/EmptyListView'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
@@ -23,6 +21,7 @@ import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/
 import { useMarketplaceServicesFilters } from '@condo/domains/marketplace/hooks/useMarketplaceServicesFilters'
 import { useMarketplaceServicesTableColumns } from '@condo/domains/marketplace/hooks/useMarketplaceServicesTableColumns'
 import { MarketItem, MarketPriceScope, MarketCategory } from '@condo/domains/marketplace/utils/clientSchema'
+import { Property } from '@condo/domains/property/utils/clientSchema'
 
 
 export const MarketplaceItemsContent = () => {
@@ -48,6 +47,20 @@ export const MarketplaceItemsContent = () => {
 
     const sortBy = useMemo(() => sortersToSortBy(sorters) as SortMarketItemsBy[], [sorters, sortersToSortBy])
 
+    const { count: propertiesCount } = Property.useCount({
+        where: {
+            organization: { id: orgId },
+        },
+    }, { skip: !orgId })
+
+    const { objs: properties } = Property.useObjects(
+        {
+            where: {
+                organization: { id: orgId },
+            },
+        }, { skip: propertiesCount !== 1 }
+    )
+
     const {
         loading: marketItemsLoading,
         count: total,
@@ -64,7 +77,7 @@ export const MarketplaceItemsContent = () => {
         first: DEFAULT_PAGE_SIZE,
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
     }, {
-        fetchPolicy: 'network-only',
+        skip: !orgId,
     })
 
     const {
@@ -79,7 +92,6 @@ export const MarketplaceItemsContent = () => {
             },
         },
     }, {
-        fetchPolicy: 'network-only',
         skip: isEmpty(marketItems),
     })
 
@@ -90,15 +102,13 @@ export const MarketplaceItemsContent = () => {
         refetch: refetchCategories,
     } = MarketCategory.useAllObjects({
         where: {},
-    }, {
-        fetchPolicy: 'cache-first',
     })
 
-    const tableColumns = useMarketplaceServicesTableColumns(queryMetas, marketPriceScopes, marketCategories)
+    const tableColumns = useMarketplaceServicesTableColumns(queryMetas, marketPriceScopes, marketCategories, properties)
 
     const [search, handleSearchChange] = useSearch()
     const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
-    const isNoMarketItemsData = isEmpty(marketItems) && isEmpty(filters) && !marketItemsLoading
+    const isNoMarketItemsData = isEmpty(marketItems) && isEmpty(filters)
 
     const handleRowClick = useCallback((row) => {
         return {
@@ -106,18 +116,28 @@ export const MarketplaceItemsContent = () => {
                 router.push(`/marketplace/marketItem/${row.id}`)
             },
         }
-    }, [])
+    }, [router])
+
+    if (marketItemsLoading) {
+        return (
+            <LoadingOrErrorPage
+                loading={marketItemsLoading}
+            />
+        )
+    }
 
     if (isNoMarketItemsData) {
-        return (<EmptyListView
-            label={ServicesEmptyTitle}
-            message={ServicesEmptyText}
-            button={
-                <Button onClick={() => router.push('/marketplace/marketItem/create')} type='primary'>{ServicesEmptyButtonText}</Button>
-            }
-            containerStyle={{ display: isNoMarketItemsData ? 'flex' : 'none' }}
-            accessCheck={canReadMarketItems}
-        />)
+        return (
+            <EmptyListView
+                label={ServicesEmptyTitle}
+                message={ServicesEmptyText}
+                button={
+                    <Button onClick={() => router.push('/marketplace/marketItem/create')} type='primary'>{ServicesEmptyButtonText}</Button>
+                }
+                containerStyle={{ display: isNoMarketItemsData ? 'flex' : 'none' }}
+                accessCheck={canReadMarketItems}
+            />
+        )
     }
 
     return (

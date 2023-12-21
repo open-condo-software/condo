@@ -38,6 +38,7 @@ export const OfferSetup: React.FC<{ launchContext: LaunchContextType }> = ({ lau
     const InfoAboutPayment = intl.formatMessage({ id: 'pages.condo.marketplace.settings.offer.info.title' })
     const InfoBlockText = intl.formatMessage({ id: 'pages.condo.marketplace.settings.offer.info.text' })
     const EmailTip = intl.formatMessage({ id: 'pages.condo.marketplace.settings.offer.email' })
+    const EmailPlaceholder = intl.formatMessage({ id: 'pages.condo.marketplace.settings.offer.email.placeholder' })
     const RulesLinkMessage = intl.formatMessage({ id: 'pages.condo.marketplace.settings.offer.rules.rulesLink' })
     const OfferLinkMessage = intl.formatMessage({ id: 'pages.condo.marketplace.settings.offer.rules.offerlink' })
     const signOffer = intl.formatMessage({ id: 'pages.condo.marketplace.settings.offer.signOfferButton' })
@@ -162,7 +163,7 @@ export const OfferSetup: React.FC<{ launchContext: LaunchContextType }> = ({ lau
                                         label={EmailTip}
                                     >
                                         <Input
-                                            placeholder='name@example.com, example@example.com'
+                                            placeholder={EmailPlaceholder}
                                             value={usersEmails}
                                             onChange={onUserEmailChange}
                                         />

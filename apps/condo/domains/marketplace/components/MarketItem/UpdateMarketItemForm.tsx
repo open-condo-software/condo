@@ -9,6 +9,7 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Tooltip } from '@open-condo/ui'
 
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -20,8 +21,9 @@ import {
 } from '@condo/domains/marketplace/utils/clientSchema'
 import {
     getPriceValueFromFormPrice,
-    getSaveButtonTooltipMessage,
+    getSaveButtonTooltipMessage, INITIAL_PRICE_FORM_VALUE,
 } from '@condo/domains/marketplace/utils/clientSchema/MarketItem'
+import { Property } from '@condo/domains/property/utils/clientSchema'
 
 import { BaseMarketItemForm } from './BaseMarketItemForm'
 
@@ -66,6 +68,8 @@ export const UpdateMarketItemForm = ({ marketItem }) => {
 
     const router = useRouter()
     const [submitLoading, setSubmitLoading] = useState<boolean>(false)
+    const { organization, loading: organizationLoading } = useOrganization()
+    const organizationId = get(organization, 'id', null)
 
     const updateMarketItem = MarketItem.useUpdate({})
     const createMarketItemPrice = MarketItemPrice.useCreate({})
@@ -78,13 +82,26 @@ export const UpdateMarketItemForm = ({ marketItem }) => {
     const updateMarketItemFile = MarketItemFile.useUpdate({})
     const softDeleteMarketItemFile = MarketItemFile.useSoftDelete()
 
+    const { count: propertiesCount } = Property.useCount({
+        where: {
+            organization: { id: organizationId },
+        },
+    }, { skip: organizationLoading || !organization })
+    const { objs: properties } = Property.useObjects(
+        {
+            where: {
+                organization: { id: organizationId },
+            },
+        }, { skip: propertiesCount !== 1 }
+    )
+
     const handleUpdateMarketItem = useCallback(async (values) => {
         setSubmitLoading(true)
         const { prices: formPrices, files, ...marketItemValues } = values
 
         const updatedMarketItem = await updateMarketItem(MarketItem.formValuesProcessor(marketItemValues), marketItem)
 
-        const prices = MarketItem.formatFormPricesField(formPrices)
+        const prices = MarketItem.formatFormPricesField(formPrices, propertiesCount)
         // handle changed prices and price scopes
         const newPrices = prices.filter(price => !price.id)
         await MarketItem.createNewPricesAndPriceScopes({
@@ -183,11 +200,11 @@ export const UpdateMarketItemForm = ({ marketItem }) => {
         await router.push(`/marketplace/marketItem/${get(marketItem, 'id')}`)
 
         return updatedMarketItem
-    }, [createMarketItemPrice, createMarketPriceScope, createMarketPriceScopes, initialMarketItemPricesIds, marketItem, marketItemFiles, marketItemPrices, marketPriceScopes, router, softDeleteMarketItemFile, softDeleteMarketItemPrice, softDeleteMarketPriceScope, softDeleteMarketPriceScopes, updateMarketItem, updateMarketItemFile, updateMarketItemPrice])
+    }, [createMarketItemPrice, createMarketPriceScope, createMarketPriceScopes, initialMarketItemPricesIds, marketItem, marketItemFiles, marketItemPrices, marketPriceScopes, propertiesCount, router, softDeleteMarketItemFile, softDeleteMarketItemPrice, softDeleteMarketPriceScope, softDeleteMarketPriceScopes, updateMarketItem, updateMarketItemFile, updateMarketItemPrice])
 
     const initialValues = useMemo(
-        () => MarketItem.convertToFormState({ marketItem, marketItemPrices, marketPriceScopes, marketItemFiles }),
-        [marketItem, marketItemFiles, marketItemPrices, marketPriceScopes])
+        () => MarketItem.convertToFormState({ marketItem, marketItemPrices, marketPriceScopes, marketItemFiles, initialProperties: properties }),
+        [marketItem, marketItemFiles, marketItemPrices, marketPriceScopes, properties])
 
     const loading = marketItemPricesLoading || marketPriceScopesLoading || marketItemFilesLoading
     const error = marketItemPriceError || marketPriceScopesError || marketItemFilesError

@@ -21,6 +21,7 @@ import { SUM_PAYMENTS_QUERY } from '@condo/domains/acquiring/gql'
 import { Payment } from '@condo/domains/acquiring/utils/clientSchema'
 import Input from '@condo/domains/common/components/antd/Input'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
+import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import EmptyListView from '@condo/domains/common/components/EmptyListView'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
@@ -149,14 +150,27 @@ export const MarketplacePaymentsContent = () => {
         setSelectedRows([])
     }, [])
 
-    return (
-        <TablePageContent>
+    if (paymentsLoading) {
+        return (
+            <LoadingOrErrorPage
+                loading={paymentsLoading}
+            />
+        )
+    }
+
+    if (isNoPaymentsData) {
+        return (
             <EmptyListView
                 label={EmptyListTitle}
                 message={EmptyListLabel}
                 containerStyle={{ display: isNoPaymentsData ? 'flex' : 'none' }}
                 accessCheck={canReadPayments}
             />
+        )
+    }
+
+    return (
+        <TablePageContent>
             <Col span={24}>
                 <TableFiltersContainer>
                     <Row justify='space-between' gutter={ROW_GUTTERS}>

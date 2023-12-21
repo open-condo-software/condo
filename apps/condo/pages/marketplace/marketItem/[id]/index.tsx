@@ -165,6 +165,20 @@ const PricesBlock = ({ marketItemId }) => {
     const { organization } = useOrganization()
     const organizationId = useMemo(() => get(organization, 'id'), [organization])
 
+    const { count: propertiesCount } = Property.useCount({
+        where: {
+            organization: { id: organizationId },
+        },
+    }, { skip: !organizationId })
+
+    const { objs: properties } = Property.useObjects(
+        {
+            where: {
+                organization: { id: organizationId },
+            },
+        }, { skip: propertiesCount !== 1 }
+    )
+
     const { objs: priceScopes, loading: priceScopesLoading } = MarketPriceScope.useAllObjects({
         where: {
             marketItemPrice: { marketItem: { id: marketItemId } },
@@ -193,7 +207,12 @@ const PricesBlock = ({ marketItemId }) => {
             const addresses = scopesWithSamePrice.map(scope => {
                 const property = get(scope, 'property')
                 if (!property) {
-                    return AllPropertiesMessage
+                    if (properties.length === 1) {
+                        const { streetPart } = getAddressDetails(get(properties, '0'))
+                        return streetPart
+                    } else {
+                        return AllPropertiesMessage
+                    }
                 }
 
                 const { streetPart } = getAddressDetails(property)

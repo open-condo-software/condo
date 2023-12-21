@@ -20,7 +20,8 @@ const {
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
-async function canReadInvoices ({ authentication: { item: user }, context }) {
+
+async function canReadInvoices ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -71,7 +72,6 @@ async function canManageInvoices ({ authentication: { item: user }, originalInpu
     }
 
     if (!organizationId) return false
-
     return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageInvoices')
 }
 

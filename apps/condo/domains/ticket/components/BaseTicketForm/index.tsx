@@ -324,6 +324,7 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
     const PayableLabel = intl.formatMessage({ id: 'Payable' })
     const DescriptionPlaceholder = intl.formatMessage({ id: 'placeholder.Description' })
     const ClassifierLabel = intl.formatMessage({ id: 'Classifier' })
+    const CancelTicketInvoicesMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.ticketInvoice.form.disableIsPayableTooltip' })
 
     const { breakpoints } = useLayoutContext()
     const { setIsAutoDetectedDeadlineValue, ticketSetting, setClassifier } = useTicketFormContext()
@@ -442,15 +443,16 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
                                                 <Form.Item
                                                     name='isPayable'
                                                     valuePropName='checked'
-                                                    tooltip={disableIsPayableCheckbox && 'Сначала отмените все счета'}
                                                 >
-                                                    <Checkbox
-                                                        disabled={disableUserInteraction || disableIsPayableCheckbox}
-                                                        eventName='TicketCreateCheckboxIsPayable'
-                                                        onChange={handlePayableChange}
-                                                    >
-                                                        {PayableLabel}
-                                                    </Checkbox>
+                                                    <Tooltip title={disableIsPayableCheckbox && CancelTicketInvoicesMessage}>
+                                                        <Checkbox
+                                                            disabled={disableUserInteraction || disableIsPayableCheckbox}
+                                                            eventName='TicketCreateCheckboxIsPayable'
+                                                            onChange={handlePayableChange}
+                                                        >
+                                                            {PayableLabel}
+                                                        </Checkbox>
+                                                    </Tooltip>
                                                 </Form.Item>
                                             </Col>
                                             <Col span={24} lg={6}>

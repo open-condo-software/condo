@@ -11,6 +11,7 @@ import {
     MarketItemUpdateInput,
     MarketPriceScope,
     MarketPriceScopeCreateInput,
+    Property,
     QueryAllMarketItemsArgs,
 } from '@app/condo/schema'
 import get from 'lodash/get'
@@ -57,6 +58,7 @@ type ConvertToFormStateArgsType = {
     marketItemPrices: MarketItemPrice[]
     marketPriceScopes: MarketPriceScope[]
     marketItemFiles: MarketItemFile[]
+    initialProperties: Property[]
 }
 
 export const convertFilesToUploadType: (files: MarketItemFile[]) => UploadFileType[] = (files) => {
@@ -69,7 +71,7 @@ export const convertFilesToUploadType: (files: MarketItemFile[]) => UploadFileTy
     }))
 }
 
-export function convertToFormState ({ marketItem, marketItemPrices, marketPriceScopes, marketItemFiles }: ConvertToFormStateArgsType): MarketItemFormValuesType {
+export function convertToFormState ({ marketItem, marketItemPrices, marketPriceScopes, marketItemFiles, initialProperties }: ConvertToFormStateArgsType): MarketItemFormValuesType {
     const result: MarketItemFormValuesType = {}
 
     for (const key of Object.keys(marketItem)) {
@@ -104,7 +106,11 @@ export function convertToFormState ({ marketItem, marketItemPrices, marketPriceS
             price = priceFromObj
         }
 
-        prices.push({ id, priceType, price, properties, hasAllProperties })
+        if (hasAllProperties && initialProperties.length === 1) {
+            prices.push({ id, priceType, price, properties: initialProperties[0].id, hasAllProperties: false })
+        } else {
+            prices.push({ id, priceType, price, properties, hasAllProperties })
+        }
     }
 
     result['prices'] = prices
@@ -137,10 +143,16 @@ export function formValuesProcessor (formValues: MarketItemFormValuesType): Mark
     return result
 }
 
-export function formatFormPricesField (prices): PriceFormValuesType[] {
-    return prices.map(
+export function formatFormPricesField (prices, propertiesCount): PriceFormValuesType[] {
+    const mappedPrices = prices.map(
         priceObj => ({ ...priceObj, price: priceObj.price?.replace(',', '.') })
     )
+
+    if (propertiesCount === 1 && mappedPrices.length === 1) {
+        mappedPrices[0].hasAllProperties = true
+    }
+
+    return mappedPrices
 }
 
 export function getPriceValueFromFormPrice ({ priceType, price }) {

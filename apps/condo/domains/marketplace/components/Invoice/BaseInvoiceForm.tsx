@@ -875,6 +875,8 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
     const ContractPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' }).toLowerCase()
     const SaveChangesModalTitle = intl.formatMessage({ id: 'form.prompt.title' })
     const SaveChangesNodalMessage = intl.formatMessage({ id: 'form.prompt.message' })
+    const SuggestQrMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.message.orSuggestQR' })
+    const PayByQrMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.payByQrMessage' })
 
     const {
         children,
@@ -1156,15 +1158,26 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                                         }
 
                                                         if (!property || !unitName || !unitType || !clientPhone) {
+                                                            const message = isModalForm ? `${EmptyPayerDataAlertMessage} ${SuggestQrMessage}` : EmptyPayerDataAlertMessage
+
                                                             return (
                                                                 <Col md={colSpan}>
                                                                     <Alert
                                                                         type='warning'
-                                                                        message={EmptyPayerDataAlertMessage}
+                                                                        message={message}
                                                                         description={(
-                                                                            <Typography.Paragraph size='medium'>
-                                                                                {EmptyPayerDataAlertDescription}
-                                                                            </Typography.Paragraph>
+                                                                            <>
+                                                                                <Typography.Paragraph size='medium'>
+                                                                                    {EmptyPayerDataAlertDescription}
+                                                                                </Typography.Paragraph>
+                                                                                {
+                                                                                    isModalForm && (
+                                                                                        <Typography.Paragraph size='medium'>
+                                                                                            {PayByQrMessage}
+                                                                                        </Typography.Paragraph>
+                                                                                    )
+                                                                                }
+                                                                            </>
                                                                         )}
                                                                         showIcon
                                                                     />
@@ -1180,6 +1193,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                                                     unitType={unitType}
                                                                     clientPhone={clientPhone}
                                                                     isCreatedByResident={isCreatedByResident}
+                                                                    isModalForm={isModalForm}
                                                                 />
                                                             </Col>
                                                         )

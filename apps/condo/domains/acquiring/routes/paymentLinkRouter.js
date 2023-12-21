@@ -124,7 +124,7 @@ class PaymentLinkRouter {
         })
     }
 
-    async handlePaymentLink (res, params, validatorFn, multiPaymentCreatorFn) {
+    async handlePaymentLink (res, params, validatorFn, multiPaymentCreatorFn, includePaymentIdInUrl) {
         // validation of common params and multi payment type specific
         this.commonParamsValidator(params)
         validatorFn(params)
@@ -134,7 +134,19 @@ class PaymentLinkRouter {
 
         // redirect end user to acquiring service
         const { anonymousPaymentUrl } = multiPayment
-        const { successUrl, failureUrl } = params
+        const { successUrl: successUrlFromParams, failureUrl } = params
+
+        let successUrl
+        if (includePaymentIdInUrl) {
+            const multiPaymentId = get(multiPayment, 'multiPaymentId')
+            const url = new URL(successUrlFromParams)
+            url.searchParams.set('multiPaymentId', multiPaymentId)
+
+            successUrl = url.toString()
+        } else {
+            successUrl = successUrlFromParams
+        }
+
         const paramsString = querystring.stringify({ successUrl, failureUrl })
         return res.redirect(`${anonymousPaymentUrl}?${paramsString}`)
     }
@@ -170,7 +182,10 @@ class PaymentLinkRouter {
 
                 // for regular receipts we can check if billing receipt
                 // is already paid
-                await this.redirectIfAlreadyPaid(res, params, this.checkReceiptAlreadyPaid.bind(this))
+                const isAlreadyPaid = await this.checkReceiptAlreadyPaid(params)
+                if (isAlreadyPaid) {
+                    return this.redirectIfAlreadyPaid(res, params)
+                }
 
                 return await this.handlePaymentLink(
                     res,
@@ -180,14 +195,34 @@ class PaymentLinkRouter {
                 )
             } else if (this.isInvoices(req)) {
                 const params = this.extractInvoicesParams(req)
-                await this.redirectIfAlreadyPaid(res, params, this.checkInvoicesAlreadyPaid.bind(this))
+                const isAlreadyPaid = await this.checkInvoicesAlreadyPaid(params)
+                if (isAlreadyPaid) {
+                    return this.redirectIfAlreadyPaid(res, params)
+                }
 
-                return await this.handlePaymentLink(
-                    res,
-                    params,
-                    this.invoicesPaymentValidator.bind(this),
-                    this.createMultiPaymentByInvoices.bind(this),
-                )
+                try {
+                    return await this.handlePaymentLink(
+                        res,
+                        params,
+                        this.invoicesPaymentValidator.bind(this),
+                        this.createMultiPaymentByInvoices.bind(this),
+                        true,
+                    )
+                } catch (error) {
+                    logger.error({
+                        msg: error.message,
+                        params: req.query,
+                        error,
+                    })
+
+                    const { failureUrl } = params
+                    const errorPageUrl = `${conf.SERVER_URL}/500`
+                    const redirectUrl = new URL(failureUrl || errorPageUrl)
+
+                    redirectUrl.searchParams.set('linkNotActual', 'true')
+
+                    return res.redirect(redirectUrl.toString())
+                }
             } else {
                 logger.warn({ msg: 'No handler for payment link', reqId: get(req, 'id'), url: get(req, 'url') })
                 return res.redirect('/404-paymentLinkNoHandler.html')
@@ -201,7 +236,7 @@ class PaymentLinkRouter {
             })
 
             // in case if any exception appears, we have to redirect to some sort of error page
-            return res.redirect('/500-error.html')
+            return res.redirect('/500')
         }
     }
 
@@ -229,19 +264,16 @@ class PaymentLinkRouter {
         return has(req, ['query', invoicesQp])
     }
 
-    async redirectIfAlreadyPaid (res, params, alreadyPaidChecker) {
-        const isAlreadyPaid = await alreadyPaidChecker(params)
-        if (isAlreadyPaid) {
-            const { failureUrl } = params
-            const errorPageUrl = `${conf.SERVER_URL}/500-error.html`
-            const redirectUrl = new URL(failureUrl || errorPageUrl)
+    async redirectIfAlreadyPaid (res, params) {
+        const { failureUrl } = params
+        const errorPageUrl = `${conf.SERVER_URL}/500`
+        const redirectUrl = new URL(failureUrl || errorPageUrl)
 
-            // set common QP
-            redirectUrl.searchParams.set('alreadyPaid', 'true')
+        // set common QP
+        redirectUrl.searchParams.set('alreadyPaid', 'true')
 
-            // redirect
-            return res.redirect(redirectUrl.toString())
-        }
+        // redirect
+        return res.redirect(redirectUrl.toString())
     }
 
     extractRegularReceiptParams (req) {
