@@ -21,6 +21,7 @@ import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/
 import { useMarketplaceServicesFilters } from '@condo/domains/marketplace/hooks/useMarketplaceServicesFilters'
 import { useMarketplaceServicesTableColumns } from '@condo/domains/marketplace/hooks/useMarketplaceServicesTableColumns'
 import { MarketItem, MarketPriceScope, MarketCategory } from '@condo/domains/marketplace/utils/clientSchema'
+import { Property } from '@condo/domains/property/utils/clientSchema'
 
 
 export const MarketplaceItemsContent = () => {
@@ -45,6 +46,20 @@ export const MarketplaceItemsContent = () => {
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(queryMetas, [])
 
     const sortBy = useMemo(() => sortersToSortBy(sorters) as SortMarketItemsBy[], [sorters, sortersToSortBy])
+
+    const { count: propertiesCount } = Property.useCount({
+        where: {
+            organization: { id: orgId },
+        },
+    }, { skip: !orgId })
+
+    const { objs: properties } = Property.useObjects(
+        {
+            where: {
+                organization: { id: orgId },
+            },
+        }, { skip: propertiesCount !== 1 }
+    )
 
     const {
         loading: marketItemsLoading,
@@ -89,7 +104,7 @@ export const MarketplaceItemsContent = () => {
         where: {},
     })
 
-    const tableColumns = useMarketplaceServicesTableColumns(queryMetas, marketPriceScopes, marketCategories)
+    const tableColumns = useMarketplaceServicesTableColumns(queryMetas, marketPriceScopes, marketCategories, properties)
 
     const [search, handleSearchChange] = useSearch()
     const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])

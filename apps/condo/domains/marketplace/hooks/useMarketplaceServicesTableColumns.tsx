@@ -1,6 +1,7 @@
 import {
     MarketPriceScope as MarketPriceScopeType,
     MarketCategory as MarketCategoryType,
+    Property,
 } from '@app/condo/schema'
 import { Typography } from 'antd'
 import get from 'lodash/get'
@@ -20,7 +21,7 @@ import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.uti
 import { getMoneyRender } from '@condo/domains/marketplace/utils/clientSchema/Invoice'
 
 
-export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, marketPriceScopes: MarketPriceScopeType[], marketCategories: MarketCategoryType[]) {
+export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, marketPriceScopes: MarketPriceScopeType[], marketCategories: MarketCategoryType[], properties: Property[]) {
     const intl = useIntl()
     const SkuTitle = intl.formatMessage({ id: 'pages.condo.marketplace.services.table.sku' })
     const SkuNameTitle = intl.formatMessage({ id: 'pages.condo.marketplace.services.table.name' })
@@ -132,10 +133,25 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
                 render: (marketItem) => {
                     const componentsToRender = []
                     const priceForAllProperties = get(processedScopes, [marketItem.id, 'priceForAllProperties'])
-                    if (priceForAllProperties) componentsToRender.push(<div key='priceForAllProperties'>
-                        {getMoneyRender(intl, get(priceForAllProperties, 'currency', 'RUB'))(get(priceForAllProperties, 'price'), false)}
-                        <Typography.Text type='secondary' style={{ margin: '10px' }}>({AllPropertiesMessage})</Typography.Text>
-                    </div>)
+                    if (priceForAllProperties) {
+                        if (properties.length === 1) {
+                            const { streetPart } = getAddressDetails(get(properties, '0'))
+
+                            componentsToRender.push(<div key='priceForAllProperties'>
+                                {getMoneyRender(intl, get(priceForAllProperties, 'currency', 'RUB'))(get(priceForAllProperties, 'price'), false)}
+                                <Typography.Text type='secondary' style={{ margin: '10px' }}>
+                                    ({streetPart})
+                                </Typography.Text>
+                            </div>)
+                        } else {
+                            componentsToRender.push(<div key='priceForAllProperties'>
+                                {getMoneyRender(intl, get(priceForAllProperties, 'currency', 'RUB'))(get(priceForAllProperties, 'price'), false)}
+                                <Typography.Text type='secondary' style={{ margin: '10px' }}>({AllPropertiesMessage})</Typography.Text>
+                            </div>)
+                        }
+
+                        return componentsToRender
+                    }
 
                     for (const price in processedScopes[marketItem.id]) {
                         const items = processedScopes[marketItem.id][price]
