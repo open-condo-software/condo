@@ -23,6 +23,7 @@ const { getWebhookModels } = require('@open-condo/webhooks/schema')
 const { PaymentLinkMiddleware } = require('@condo/domains/acquiring/PaymentLinkMiddleware')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { VersioningMiddleware } = require('@condo/domains/common/utils/VersioningMiddleware')
+const { LaunchB2BAppMiddleware } = require('@condo/domains/miniapp/middlewares/launchB2BAppMiddleware')
 const { UserExternalIdentityMiddleware } = require('@condo/domains/user/integration/UserExternalIdentityMiddleware')
 const { OIDCMiddleware } = require('@condo/domains/user/oidc')
 
@@ -133,6 +134,7 @@ const apps = () => {
         new PaymentLinkMiddleware(),
         FileAdapter.makeFileAdapterMiddleware(),
         new UserExternalIdentityMiddleware(),
+        new LaunchB2BAppMiddleware(),
     ]
 }
 

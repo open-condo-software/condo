@@ -1,8 +1,9 @@
 import dayjs from 'dayjs'
 import get from 'lodash/get'
+import getConfig from 'next/config'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { useEffect } from 'react'
+import React, { useEffect, useMemo } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
@@ -19,6 +20,10 @@ import { B2BAppContext, B2BAppRole } from '@condo/domains/miniapp/utils/clientSc
 type B2BAppPageProps = {
     id: string
 }
+
+const {
+    publicRuntimeConfig: { serverUrl },
+} = getConfig()
 
 export const B2BAppPage: React.FC<B2BAppPageProps> = ({ id }) => {
     const intl = useIntl()
@@ -46,6 +51,12 @@ export const B2BAppPage: React.FC<B2BAppPageProps> = ({ id }) => {
         error: appRoleError,
     } = B2BAppRole.useObject({ where: { app: { id }, role: { id: employeeRoleId } } })
 
+    const appId = get(context, ['app', 'id'], null)
+    const url = useMemo(() => {
+        const url = new URL(`${serverUrl}/api/miniapp/launch`)
+        url.searchParams.set('id', appId)
+        return url.toString()
+    }, [appId])
     const appUrl = get(context, ['app', 'appUrl'], null)
     const appName = get(context, ['app', 'name'], null)
     const hasDynamicTitle = get(context, ['app', 'hasDynamicTitle'], false)
@@ -114,9 +125,9 @@ export const B2BAppPage: React.FC<B2BAppPageProps> = ({ id }) => {
                     {/* NOTE: since router.push redirecting in useEffect is async
                     we need to prevent iframe loading in cases where everything is (not) loaded fine,
                     but redirect is still happening*/}
-                    {Boolean(appUrl && appRole && context) && (
+                    {Boolean(appId && appUrl && appRole && context) && (
                         <IFrame
-                            src={appUrl}
+                            src={url}
                             reloadScope='organization'
                             withLoader
                             withPrefetch

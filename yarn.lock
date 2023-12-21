@@ -725,6 +725,7 @@ __metadata:
     carbone: 3.2.3
     classnames: ^2.2.6
     commander: ^11.0.0
+    cookie-parser: ^1.4.6
     cross-env: ^7.0.3
     css-loader: 1.0.1
     csv-stringify: ^6.2.0
@@ -782,6 +783,7 @@ __metadata:
     node-fetch: ^2.6.7
     numeral: 2.0.6
     nunjucks: ^3.2.4
+    object-hash: ^3.0.0
     oidc-provider: 7.14.3
     openid-client: 4.7.4
     pdf-lib: ^1.17.1
@@ -21810,6 +21812,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"cookie-parser@npm:^1.4.6":
+  version: 1.4.6
+  resolution: "cookie-parser@npm:1.4.6"
+  dependencies:
+    cookie: 0.4.1
+    cookie-signature: 1.0.6
+  checksum: 1e5a63aa82e8eb4e02d2977c6902983dee87b02e87ec5ec43ac3cb1e72da354003716570cd5190c0ad9e8a454c9d3237f4ad6e2f16d0902205a96a1c72b77ba5
+  languageName: node
+  linkType: hard
+
 "cookie-signature@npm:1.0.6":
   version: 1.0.6
   resolution: "cookie-signature@npm:1.0.6"
@@ -21821,6 +21833,13 @@ __metadata:
   version: 1.2.0
   resolution: "cookie-signature@npm:1.2.0"
   checksum: d11f56f909733695d989511bf0e1dd874220d818b9d118945dce3c275fa50adfb3f6984354de0f5eefdc9347951a22ba3545230a762576019d23c16055b12d4c
+  languageName: node
+  linkType: hard
+
+"cookie@npm:0.4.1":
+  version: 0.4.1
+  resolution: "cookie@npm:0.4.1"
+  checksum: bd7c47f5d94ab70ccdfe8210cde7d725880d2fcda06d8e375afbdd82de0c8d3b73541996e9ce57d35f67f672c4ee6d60208adec06b3c5fc94cebb85196084cf8
   languageName: node
   linkType: hard
 
