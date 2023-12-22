@@ -664,7 +664,7 @@ describe('UserRightsSet', () => {
                         address: newAddress,
                         addressMeta,
                     })
-                    expect(updatedProperty).toHaveProperty('address', newAddress.toLowerCase())
+                    expect(updatedProperty).toHaveProperty('address', newAddress)
 
                     const [build] = await createTestB2CAppBuild(portalClient, b2cApp, {
                         importId: faker.datatype.uuid(),
