@@ -20,11 +20,6 @@ jobs:
     runs-on: ${{ inputs.runs-on }}
 
     steps:
-      - name: Install packages
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y git build-essential python3-pip docker-compose curl
-
       - name: login to sbercloud registry
         uses: docker/login-action@v3
         with:
@@ -39,11 +34,11 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: main
-      
+
       - name: run redis for tests
         run: |
           docker run -p="127.0.0.1:6379:6379" -d swr.ru-moscow-1.hc.sbercloud.ru/doma/utils/redis:6.2
-      
+
       - name: run tests
         run: |
           docker run -e SERVER_URL=$SERVER_URL -e COOKIE_SECRET=$COOKIE_SECRET -e REDIS_URL=$REDIS_URL -e DATABASE_URL=$DATABASE_URL -e NODE_ENV=$NODE_ENV -e DISABLE_LOGGING=$DISABLE_LOGGING --network="host" ${{ inputs.image }} bash -c "/app/run_condo_domain_tests.sh -d ${{ inputs.domain_name }}"
