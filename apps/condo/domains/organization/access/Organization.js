@@ -42,6 +42,11 @@ async function canReadOrganizations (args) {
         return false
     }
 
+    const accessConditions = [
+        { ...queryOrganizationEmployeeFor(user.id) },
+        { ...queryOrganizationEmployeeFromRelatedOrganizationFor(user.id) },
+    ]
+
     if (user.type === SERVICE) {
         // b2bAppServiceUserCanReadObjects may be return false or object (filter)
         const accessFilterForB2BAppServiceUser = await b2bAppServiceUserCanReadObjects(args)
@@ -74,16 +79,11 @@ async function canReadOrganizations (args) {
             .concat(acquiringContexts.map(({ organization }) => organization )))
             .concat(bankIntegrationOrganizationContext.map(({ organization }) => organization))
             .concat(get(accessFilterForB2BAppServiceUser, 'id_in', []) || [])
-
-        return { id_in: serviceOrganizationIds }
+        if (serviceOrganizationIds.length) {
+            accessConditions.push({ id_in: serviceOrganizationIds })
+        }
     }
-
-    return {
-        OR: [
-            { ...queryOrganizationEmployeeFor(user.id) },
-            { ...queryOrganizationEmployeeFromRelatedOrganizationFor(user.id) },
-        ],
-    }
+    return { OR: accessConditions }
 }
 
 async function canManageOrganizations ({ authentication: { item: user }, operation, listKey, originalInput }) {
