@@ -95,7 +95,7 @@ class LaunchB2BAppHelpers {
         }
 
         const options = {
-            type: 'JWT',
+            typ: 'JWT',
             fields: { kid: jwk.kid },
         }
 
