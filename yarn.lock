@@ -535,7 +535,7 @@ __metadata:
     "@zeit/next-css": ^1.0.1
     "@zeit/next-less": ^1.0.1
     antd: ^4.24.12
-    babel-jest: ^29.4.0
+    babel-jest: ^29.7.0
     classnames: 2.2.6
     dayjs: ^1.10.6
     emotion: ^10.0.27
@@ -717,7 +717,7 @@ __metadata:
     antd-dayjs-webpack-plugin: ^1.0.6
     antd-mask-input: ^0.1.15
     axios: ^0.26.0
-    babel-jest: ^29.4.0
+    babel-jest: ^29.7.0
     bad-words-next: ^1.6.7
     big.js: ^6.1.1
     body-parser: ^1.19.1
@@ -883,7 +883,7 @@ __metadata:
     apollo-link-http: ^1.5.17
     apollo-server-errors: ^3.1.0
     axios: ^0.26.0
-    babel-jest: ^29.4.0
+    babel-jest: ^29.7.0
     big.js: ^6.1.1
     body-parser: ^1.19.1
     body-parser-xml: ^2.0.3
@@ -975,7 +975,7 @@ __metadata:
     "@open-condo/locales": "workspace:^"
     "@types/jest": ^29.4.0
     "@types/node": ^16
-    babel-jest: ^29.4.0
+    babel-jest: ^29.7.0
     cross-env: ^7.0.3
     dayjs: ^1.11.10
     express: ^4.17.1
@@ -1137,7 +1137,7 @@ __metadata:
     apollo-link-http: ^1.5.17
     apollo-server-errors: ^3.1.0
     apollo-upload-client: ^14.1.3
-    babel-jest: ^29.4.0
+    babel-jest: ^29.7.0
     big.js: ^6.1.1
     classnames: 2.2.6
     cross-env: ^7.0.3
@@ -1242,7 +1242,7 @@ __metadata:
     antd: ^4.24.12
     antd-dayjs-webpack-plugin: ^1.0.6
     apollo-server-errors: ^3.1.0
-    babel-jest: ^29.4.0
+    babel-jest: ^29.7.0
     classnames: 2.2.6
     css-loader: 1.0.0
     dayjs: ^1.10.6
@@ -1342,7 +1342,7 @@ __metadata:
     ajv: 8.11.0
     antd: ^4.24.12
     antd-dayjs-webpack-plugin: ^1.0.6
-    babel-jest: ^29.4.0
+    babel-jest: ^29.7.0
     classnames: 2.2.6
     css-loader: 1.0.1
     dayjs: ^1.10.6
@@ -1435,7 +1435,7 @@ __metadata:
     ajv: 8.11.0
     antd: ^4.24.12
     antd-dayjs-webpack-plugin: ^1.0.6
-    babel-jest: ^29.4.0
+    babel-jest: ^29.7.0
     classnames: 2.2.6
     cross-env: ^7.0.3
     css-loader: 1.0.1
@@ -1527,7 +1527,7 @@ __metadata:
     antd-dayjs-webpack-plugin: ^1.0.6
     apollo-boost: ^0.4.9
     apollo-link-error: ^1.1.13
-    babel-jest: ^29.4.0
+    babel-jest: ^29.7.0
     classnames: 2.2.6
     cross-env: ^7.0.3
     cross-fetch: ^3.1.5
@@ -1631,7 +1631,7 @@ __metadata:
     apollo-link-error: ^1.1.13
     apollo-upload-client: ^14.1.3
     apollo-upload-server: ^7.1.0
-    babel-jest: ^29.4.0
+    babel-jest: ^29.7.0
     big.js: ^6.1.1
     body-parser: ^1.19.1
     carbone: 3.2.3
@@ -1761,7 +1761,7 @@ __metadata:
     "@zeit/next-less": ^1.0.1
     antd: ^4.24.12
     antd-dayjs-webpack-plugin: ^1.0.6
-    babel-jest: ^29.4.0
+    babel-jest: ^29.7.0
     classnames: 2.2.6
     css-loader: 1.0.0
     dayjs: ^1.10.6
@@ -10370,29 +10370,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jest/transform@npm:^29.5.0":
-  version: 29.5.0
-  resolution: "@jest/transform@npm:29.5.0"
-  dependencies:
-    "@babel/core": ^7.11.6
-    "@jest/types": ^29.5.0
-    "@jridgewell/trace-mapping": ^0.3.15
-    babel-plugin-istanbul: ^6.1.1
-    chalk: ^4.0.0
-    convert-source-map: ^2.0.0
-    fast-json-stable-stringify: ^2.1.0
-    graceful-fs: ^4.2.9
-    jest-haste-map: ^29.5.0
-    jest-regex-util: ^29.4.3
-    jest-util: ^29.5.0
-    micromatch: ^4.0.4
-    pirates: ^4.0.4
-    slash: ^3.0.0
-    write-file-atomic: ^4.0.2
-  checksum: d55d604085c157cf5112e165ff5ac1fa788873b3b31265fb4734ca59892ee24e44119964cc47eb6d178dd9512bbb6c576d1e20e51a201ff4e24d31e818a1c92d
-  languageName: node
-  linkType: hard
-
 "@jest/transform@npm:^29.7.0":
   version: 29.7.0
   resolution: "@jest/transform@npm:29.7.0"
@@ -10563,7 +10540,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jridgewell/trace-mapping@npm:^0.3.15, @jridgewell/trace-mapping@npm:^0.3.17":
+"@jridgewell/trace-mapping@npm:^0.3.17":
   version: 0.3.18
   resolution: "@jridgewell/trace-mapping@npm:0.3.18"
   dependencies:
@@ -11992,7 +11969,7 @@ __metadata:
     apollo-upload-client: ^14.1.3
     axios: ^0.21.2
     axios-cookiejar-support: ^1.0.1
-    babel-jest: ^29.4.0
+    babel-jest: ^29.7.0
     big.js: ^6.1.1
     bull: ^4.8.4
     connect-redis: ^6.0.0
@@ -18586,23 +18563,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-jest@npm:^29.4.0":
-  version: 29.5.0
-  resolution: "babel-jest@npm:29.5.0"
-  dependencies:
-    "@jest/transform": ^29.5.0
-    "@types/babel__core": ^7.1.14
-    babel-plugin-istanbul: ^6.1.1
-    babel-preset-jest: ^29.5.0
-    chalk: ^4.0.0
-    graceful-fs: ^4.2.9
-    slash: ^3.0.0
-  peerDependencies:
-    "@babel/core": ^7.8.0
-  checksum: eafb6d37deb71f0c80bf3c80215aa46732153e5e8bcd73f6ff47d92e5c0c98c8f7f75995d0efec6289c371edad3693cd8fa2367b0661c4deb71a3a7117267ede
-  languageName: node
-  linkType: hard
-
 "babel-jest@npm:^29.7.0":
   version: 29.7.0
   resolution: "babel-jest@npm:29.7.0"
@@ -18713,18 +18673,6 @@ __metadata:
     istanbul-lib-instrument: ^5.0.4
     test-exclude: ^6.0.0
   checksum: cb4fd95738219f232f0aece1116628cccff16db891713c4ccb501cddbbf9272951a5df81f2f2658dfdf4b3e7b236a9d5cbcf04d5d8c07dd5077297339598061a
-  languageName: node
-  linkType: hard
-
-"babel-plugin-jest-hoist@npm:^29.5.0":
-  version: 29.5.0
-  resolution: "babel-plugin-jest-hoist@npm:29.5.0"
-  dependencies:
-    "@babel/template": ^7.3.3
-    "@babel/types": ^7.3.3
-    "@types/babel__core": ^7.1.14
-    "@types/babel__traverse": ^7.0.6
-  checksum: 099b5254073b6bc985b6d2d045ad26fb8ed30ff8ae6404c4fe8ee7cd0e98a820f69e3dfb871c7c65aae0f4b65af77046244c07bb92d49ef9005c90eedf681539
   languageName: node
   linkType: hard
 
@@ -19013,18 +18961,6 @@ __metadata:
   peerDependencies:
     "@babel/core": ^7.0.0
   checksum: b3352cf690729125997f254bc31b9c4db347f8646f1571958ced1c45f0da89439e183e1c88e35397eb0361b9e1fbb1dd8142d3f4647814deb427e53c54f44d5f
-  languageName: node
-  linkType: hard
-
-"babel-preset-jest@npm:^29.5.0":
-  version: 29.5.0
-  resolution: "babel-preset-jest@npm:29.5.0"
-  dependencies:
-    babel-plugin-jest-hoist: ^29.5.0
-    babel-preset-current-node-syntax: ^1.0.0
-  peerDependencies:
-    "@babel/core": ^7.0.0
-  checksum: 5566ca2762766c9319b4973d018d2fa08c0fcf6415c72cc54f4c8e7199e851ea8f5e6c6730f03ed7ed44fc8beefa959dd15911f2647dee47c615ff4faeddb1ad
   languageName: node
   linkType: hard
 
@@ -31257,29 +31193,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-haste-map@npm:^29.5.0":
-  version: 29.5.0
-  resolution: "jest-haste-map@npm:29.5.0"
-  dependencies:
-    "@jest/types": ^29.5.0
-    "@types/graceful-fs": ^4.1.3
-    "@types/node": "*"
-    anymatch: ^3.0.3
-    fb-watchman: ^2.0.0
-    fsevents: ^2.3.2
-    graceful-fs: ^4.2.9
-    jest-regex-util: ^29.4.3
-    jest-util: ^29.5.0
-    jest-worker: ^29.5.0
-    micromatch: ^4.0.4
-    walker: ^1.0.8
-  dependenciesMeta:
-    fsevents:
-      optional: true
-  checksum: 3828ff7783f168e34be2c63887f82a01634261f605dcae062d83f979a61c37739e21b9607ecb962256aea3fbe5a530a1acee062d0026fcb47c607c12796cf3b7
-  languageName: node
-  linkType: hard
-
 "jest-haste-map@npm:^29.7.0":
   version: 29.7.0
   resolution: "jest-haste-map@npm:29.7.0"
@@ -31457,13 +31370,6 @@ __metadata:
   version: 27.5.1
   resolution: "jest-regex-util@npm:27.5.1"
   checksum: d45ca7a9543616a34f7f3079337439cf07566e677a096472baa2810e274b9808b76767c97b0a4029b8a5b82b9d256dee28ef9ad4138b2b9e5933f6fac106c418
-  languageName: node
-  linkType: hard
-
-"jest-regex-util@npm:^29.4.3":
-  version: 29.4.3
-  resolution: "jest-regex-util@npm:29.4.3"
-  checksum: 96fc7fc28cd4dd73a63c13a526202c4bd8b351d4e5b68b1a2a2c88da3308c2a16e26feaa593083eb0bac38cca1aa9dd05025412e7de013ba963fb8e66af22b8a
   languageName: node
   linkType: hard
 
@@ -31745,18 +31651,6 @@ __metadata:
     merge-stream: ^2.0.0
     supports-color: ^8.0.0
   checksum: 98cd68b696781caed61c983a3ee30bf880b5bd021c01d98f47b143d4362b85d0737f8523761e2713d45e18b4f9a2b98af1eaee77afade4111bb65c77d6f7c980
-  languageName: node
-  linkType: hard
-
-"jest-worker@npm:^29.5.0":
-  version: 29.5.0
-  resolution: "jest-worker@npm:29.5.0"
-  dependencies:
-    "@types/node": "*"
-    jest-util: ^29.5.0
-    merge-stream: ^2.0.0
-    supports-color: ^8.0.0
-  checksum: 1151a1ae3602b1ea7c42a8f1efe2b5a7bf927039deaa0827bf978880169899b705744e288f80a63603fb3fc2985e0071234986af7dc2c21c7a64333d8777c7c9
   languageName: node
   linkType: hard
 

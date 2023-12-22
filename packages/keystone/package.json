@@ -74,6 +74,6 @@
   },
   "repository": "https://github.com/open-condo-software/condo/tree/master/packages/keystone",
   "devDependencies": {
-    "babel-jest": "^29.4.0"
+    "babel-jest": "^29.7.0"
   }
 }
