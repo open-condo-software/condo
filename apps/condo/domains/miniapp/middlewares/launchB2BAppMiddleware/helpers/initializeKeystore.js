@@ -8,7 +8,7 @@ const { createHash } = require('crypto')
 
 const hash = require('object-hash')
 const { DEV_KEYSTORE } = require('oidc-provider/lib/consts')
-const attention = require('oidc-provider/lib/helpers/attention')
+// const attention = require('oidc-provider/lib/helpers/attention')
 const base64url = require('oidc-provider/lib/helpers/base64url')
 const KeyStore = require('oidc-provider/lib/helpers/keystore')
 // const instance = require('oidc-provider/lib/helpers/weak_cache')
@@ -213,10 +213,12 @@ function registerKey (key, i, keystore) {
  */
 module.exports = function initializeKeystore (jwks) {
     if (hash(jwks) === hash(DEV_KEYSTORE)) {
-        /* eslint-disable no-multi-str */
-        attention.warn('a quick start development-only signing keys are used, you are expected to \
+        // /* eslint-disable no-multi-str */
+        //         attention.warn('a quick start development-only signing keys are used, you are expected to \
+        // provide your own in configuration "jwks" property')
+        // /* eslint-enable */
+        console.warn('a quick start development-only signing keys are used, you are expected to \
 provide your own in configuration "jwks" property')
-        /* eslint-enable */
     }
 
     // eslint-disable-next-line no-undef
@@ -231,10 +233,13 @@ provide your own in configuration "jwks" property')
             key.kid || (key.kid = calculateKid(key))
             if (!warned && keyIds.has(key.kid)) {
                 warned = true
-                /* eslint-disable no-multi-str */
-                attention.warn('different keys within the keystore SHOULD use distinct `kid` values, with \
+                //                 /* eslint-disable no-multi-str */
+                //                 attention.warn('different keys within the keystore SHOULD use distinct `kid` values, with \
+                // your current keystore you should expect interoperability issues with your clients')
+                //                 /* eslint-enable */
+
+                console.warn('different keys within the keystore SHOULD use distinct `kid` values, with \
 your current keystore you should expect interoperability issues with your clients')
-                /* eslint-enable */
             }
             registerKey.call(this, key, i, keystore)
             keyIds.add(key.kid)

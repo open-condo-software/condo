@@ -1,9 +1,10 @@
+const { get } = require('lodash')
+const DEV_KEYSTORE = require('oidc-provider/lib/consts/dev_keystore')
 const epochTime = require('oidc-provider/lib/helpers/epoch_time')
 const JWT = require('oidc-provider/lib/helpers/jwt')
 
 const conf = require('@open-condo/config')
 
-const createConfiguration = require('./configuration')
 const initializeKeystore = require('./initializeKeystore')
 
 
@@ -16,12 +17,45 @@ class LaunchB2BAppHelpers {
     jwksResponse
 
     constructor () {
-        const config = createConfiguration(conf)
+        const config = this.#createConfiguration(conf)
         const { keystore, jwksResponse } = initializeKeystore(config.jwks)
 
         this.config = config
         this.#keystore = keystore
         this.jwksResponse = jwksResponse
+    }
+
+    #createConfiguration (conf) {
+        const serverUrl = get(conf, 'SERVER_URL')
+        const jwks = (function () {
+            const jwksStr =  get(conf, 'JWKS')
+            let parsedJWKS
+            try {
+                parsedJWKS = jwksStr ? JSON.parse(jwksStr) : undefined
+            } catch (error) {
+                console.warn('Failed to parse JWKS')
+                console.error(error)
+            }
+
+            if (!parsedJWKS || !parsedJWKS.length) {
+                console.warn('You need to specify the JWKS to sign the miniapp launch parameters!\n' +
+                    'Since the JWKS are not detected, the development mode keys will be used!')
+                parsedJWKS = DEV_KEYSTORE
+            }
+
+            return parsedJWKS
+        })()
+
+        return {
+            serverUrl: serverUrl,
+            whiteList: [
+                (appId) => `${serverUrl}/miniapps/${appId}`,
+            ],
+            ttl: 1 * 60, // 1 minute in seconds
+            alg: 'RS256',
+            use: 'sig',
+            jwks: jwks,
+        }
     }
 
     /**
