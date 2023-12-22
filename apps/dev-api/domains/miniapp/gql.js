@@ -32,6 +32,15 @@ const IMPORT_B2C_APP_MUTATION = gql`
         result: importB2CApp(data: $data) { success }
     }
 `
+ 
+const ALL_B2C_APP_PROPERTIES_QUERY = gql`
+    query allB2CAppProperties ($data: AllB2CAppPropertiesInput!) {
+        result: allB2CAppProperties(data: $data) {
+            objs { id address }
+            meta { count }
+        }
+    }
+`
 
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -41,5 +50,6 @@ module.exports = {
     B2CAppPublishRequest,
     PUBLISH_B2C_APP_MUTATION,
     IMPORT_B2C_APP_MUTATION,
+    ALL_B2C_APP_PROPERTIES_QUERY,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

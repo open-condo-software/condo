@@ -3,6 +3,7 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
+const { AllB2CAppPropertiesService } = require('./AllB2CAppPropertiesService')
 const { B2CApp } = require('./B2CApp')
 const { B2CAppBuild } = require('./B2CAppBuild')
 const { B2CAppPublishRequest } = require('./B2CAppPublishRequest')
@@ -16,5 +17,6 @@ module.exports = {
     B2CAppPublishRequest,
     PublishB2CAppService,
     ImportB2CAppService,
+    AllB2CAppPropertiesService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

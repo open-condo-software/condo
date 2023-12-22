@@ -14,6 +14,7 @@ const {
     PUBLISH_B2C_APP_MUTATION,
 } = require('@dev-api/domains/miniapp/gql')
 const { IMPORT_B2C_APP_MUTATION } = require('@dev-api/domains/miniapp/gql')
+const { ALL_B2C_APP_PROPERTIES_QUERY } = require('@dev-api/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const B2CApp = generateServerUtils(B2CAppGQL)
@@ -45,6 +46,19 @@ async function importB2CApp (context, data) {
     })
 }
 
+async function allB2CAppProperties (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: ALL_B2C_APP_PROPERTIES_QUERY,
+        variables: { data },
+        errorMessage: '[error] Unable to get allB2CAppProperties',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -53,5 +67,6 @@ module.exports = {
     B2CAppPublishRequest,
     publishB2CApp,
     importB2CApp,
+    allB2CAppProperties,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

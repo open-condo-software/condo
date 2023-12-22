@@ -3893,6 +3893,27 @@ type ImportB2CAppOutput {
   success: Boolean!
 }
 
+input AllB2CAppPropertiesInput {
+  app: B2CAppWhereUniqueInput!
+  first: Int!
+  skip: Int!
+  environment: AppEnvironment!
+}
+
+type B2CAppProperty {
+  id: ID!
+  address: String!
+}
+
+type B2CAppPropertyMeta {
+  count: Int!
+}
+
+type AllB2CAppPropertiesOutput {
+  objs: B2CAppProperty!
+  meta: B2CAppPropertyMeta!
+}
+
 type unauthenticateUserOutput {
   """
   `true` when unauthentication succeeds.
@@ -4108,6 +4129,7 @@ type Query {
 
   """ Retrieve the meta-data for all lists. """
   _ksListsMeta(where: _ksListsMetaInput): [_ListMeta]
+  allB2CAppProperties(data: AllB2CAppPropertiesInput!): AllB2CAppPropertiesOutput
 
   """The version of the Keystone application serving this API."""
   appVersion: String

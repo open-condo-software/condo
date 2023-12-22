@@ -20,6 +20,7 @@ const { IMPORT_B2C_APP_MUTATION } = require('@dev-api/domains/miniapp/gql')
 const { generateGqlQueries } = require("@open-condo/codegen/generate.gql");
 const { DEFAULT_COLOR_SCHEMA } = require("@dev-api/domains/miniapp/constants/b2c")
 
+const { ALL_B2C_APP_PROPERTIES_QUERY } = require('@dev-api/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const B2CApp = generateGQLTestUtils(B2CAppGQL)
@@ -154,6 +155,7 @@ async function publishB2CAppByTestClient(client, app, options = undefined, envir
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
 async function createTestB2CAppPublishRequest (client, app, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!app || !app.id) throw new Error('no app.id')
@@ -183,7 +185,6 @@ async function updateTestB2CAppPublishRequest (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-
 async function importB2CAppByTestClient(client, app, condoDevApp = null, condoProdApp = null, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!app || !app.id) throw new Error('no app')
@@ -211,6 +212,23 @@ async function importB2CAppByTestClient(client, app, condoDevApp = null, condoPr
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
+async function allB2CAppPropertiesByTestClient(client, app, environment, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app')
+    if (!environment) throw new Error('no environment')
+
+    const attrs = {
+        app: { id: app.id },
+        environment,
+        first: 100,
+        skip: 0,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(ALL_B2C_APP_PROPERTIES_QUERY, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -221,5 +239,6 @@ module.exports = {
     B2CAppPublishRequest, createTestB2CAppPublishRequest, updateTestB2CAppPublishRequest,
     publishB2CAppByTestClient,
     importB2CAppByTestClient,
+    allB2CAppPropertiesByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
