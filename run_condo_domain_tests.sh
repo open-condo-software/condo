@@ -72,10 +72,9 @@ source bin/validate-db-schema-ts-to-match-graphql-api.sh
 
 yarn workspace @app/condo worker 2>&1 > condo.worker.log &
 sleep 3
-yarn workspace @app/condo worker 2>&1 > condo.worker.log &
+yarn workspace @app/condo worker 2>&1 > condo.worker1.log &
 sleep 3
-yarn workspace @app/condo worker 2>&1 > condo.worker.log &
-sleep 3
+
 
 # And check background processes!
 [[ $(jobs | wc -l | tr -d ' ') != '4' ]] && exit 2
