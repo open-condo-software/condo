@@ -44,7 +44,7 @@
     "execa": "^5",
     "husky": "7.0.4",
     "jest": "^29.7.0",
-    "jest-diff": "^29.4.0",
+    "jest-diff": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "jest-jasmine2": "^29.7.0",
     "mono-pub": "^1.0.1",
