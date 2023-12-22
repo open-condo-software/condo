@@ -77,7 +77,7 @@ sleep 3
 
 
 # And check background processes!
-[[ $(jobs | wc -l | tr -d ' ') != '4' ]] && exit 2
+[[ $(jobs | wc -l | tr -d ' ') != '3' ]] && exit 2
 sleep 3
 
 if [ $domain_name != "others" ]; then
