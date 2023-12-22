@@ -1175,7 +1175,7 @@
   "pages.news.newsItemCard.field.validBefore": "Actual until",
   "pages.news.newsItemCard.field.title": "Title",
   "pages.news.newsItemCard.field.body": "Text",
-  "pages.news.newsItemCard.resendButton": "Resent",
+  "pages.news.newsItemCard.resendButton": "Resend",
   "pages.news.newsItemCard.author": "author {createdBy}{isOwner, plural, other {} one { (you)}}",
   "pages.news.create.preview.app.notificationFromOrganization": "Notification from organization",
   "pages.news.create.preview.app.receivedAt": "Today, 9:00",
