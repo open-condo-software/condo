@@ -100,7 +100,7 @@ describe('B2CAppProperty', () => {
             test('Admin can update and soft-delete', async () => {
                 const [address, addressMeta] = getFakeAddress()
                 const [updatedProperty] = await updateTestB2CAppProperty(admin, property.id, { address, addressMeta })
-                expect(updatedProperty).toHaveProperty('address', address.toLowerCase())
+                expect(updatedProperty).toHaveProperty('address', address)
                 const [deletedProperty] = await updateTestB2CAppProperty(admin, property.id, {
                     deletedAt: dayjs().toISOString(),
                 })
@@ -110,7 +110,7 @@ describe('B2CAppProperty', () => {
             test('Support can update and soft-delete', async () => {
                 const [address, addressMeta] = getFakeAddress()
                 const [updatedProperty] = await updateTestB2CAppProperty(support, property.id, { address, addressMeta })
-                expect(updatedProperty).toHaveProperty('address', address.toLowerCase())
+                expect(updatedProperty).toHaveProperty('address', address)
                 const [deletedProperty] = await updateTestB2CAppProperty(support, property.id, {
                     deletedAt: dayjs().toISOString(),
                 })
@@ -121,9 +121,8 @@ describe('B2CAppProperty', () => {
                 describe('With access right', () => {
                     test('Can update and soft-delete property linked to permitted app', async () => {
                         const [address, addressMeta] = getFakeAddress()
-                        const loweredAddress = address.toLowerCase()
                         const [updatedProperty] = await updateTestB2CAppProperty(permittedUser, property.id, { address, addressMeta })
-                        expect(updatedProperty).toHaveProperty('address', loweredAddress)
+                        expect(updatedProperty).toHaveProperty('address', address)
                         const [deletedProperty] = await updateTestB2CAppProperty(permittedUser, property.id, {
                             deletedAt: dayjs().toISOString(),
                         })
