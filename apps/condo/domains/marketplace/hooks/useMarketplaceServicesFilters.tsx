@@ -2,6 +2,7 @@ import {
     PaymentWhereInput,
 } from '@app/condo/schema'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -17,6 +18,28 @@ import {
 
 const skuFilter = getStringContainsFilter(['sku'])
 const nameFilter = getStringContainsFilter(['name'])
+const marketCategoryFilter = (categoryIds) => {
+    if (!categoryIds) return
+
+    const orStatements = categoryIds.map(id => ({
+        AND: [
+            {
+                OR: [
+                    { marketCategory: { id } },
+                    { marketCategory: { parentCategory: { id } } },
+                ],
+            },
+        ],
+    }))
+
+    if (!isEmpty(orStatements)) {
+        return {
+            OR: orStatements,
+        }
+    }
+
+    return {}
+}
 
 
 export function useMarketplaceServicesFilters (): Array<FiltersMeta<PaymentWhereInput>>  {
@@ -32,6 +55,11 @@ export function useMarketplaceServicesFilters (): Array<FiltersMeta<PaymentWhere
             {
                 keyword: 'search',
                 filters: [skuFilter, nameFilter],
+                combineType: 'OR',
+            },
+            {
+                keyword: 'marketCategory',
+                filters: [marketCategoryFilter],
                 combineType: 'OR',
             },
         ]

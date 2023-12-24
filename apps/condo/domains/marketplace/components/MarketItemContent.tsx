@@ -24,27 +24,25 @@ import { MarketItem, MarketPriceScope, MarketCategory } from '@condo/domains/mar
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
 
-export const MarketplaceItemsContent = () => {
+const TableContent = () => {
     const intl = useIntl()
-    const ServicesEmptyTitle = intl.formatMessage({ id: 'pages.condo.marketplace.services.empty.title' })
-    const ServicesEmptyText = intl.formatMessage({ id: 'pages.condo.marketplace.services.empty.text' })
-    const ServicesEmptyButtonText = intl.formatMessage({ id: 'pages.condo.marketplace.services.empty.buttonText' })
     const AddServicesButtonText = intl.formatMessage({ id: 'pages.condo.marketplace.services.actionBar.createMarketItemButton' })
-
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
 
     const router = useRouter()
-    const userOrganization = useOrganization()
-    const orgId = get(userOrganization, ['organization', 'id'], null)
-    const role = get(userOrganization, ['link', 'role'], {})
+    const { organization } = useOrganization()
+    const orgId = get(organization, 'id', null)
+
+    const {
+        objs: marketCategories,
+    } = MarketCategory.useAllObjects({
+        where: {},
+    })
 
     const { filters, offset, sorters } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
-    const canReadMarketItems = get(role, 'canReadMarketItems', false)
-
     const queryMetas = useMarketplaceServicesFilters()
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(queryMetas, [])
-
     const sortBy = useMemo(() => sortersToSortBy(sorters) as SortMarketItemsBy[], [sorters, sortersToSortBy])
 
     const { count: propertiesCount } = Property.useCount({
@@ -65,7 +63,6 @@ export const MarketplaceItemsContent = () => {
         loading: marketItemsLoading,
         count: total,
         objs: marketItems,
-        refetch,
     } = MarketItem.useObjects({
         sortBy,
         where: {
@@ -81,10 +78,7 @@ export const MarketplaceItemsContent = () => {
     })
 
     const {
-        loading: marketPriceScopesLoading,
-        count: totalScopes,
         objs: marketPriceScopes,
-        refetch: refetchScope,
     } = MarketPriceScope.useAllObjects({
         where: {
             marketItemPrice: {
@@ -95,20 +89,10 @@ export const MarketplaceItemsContent = () => {
         skip: isEmpty(marketItems),
     })
 
-    const {
-        loading: marketCategoriesLoading,
-        count: totalMarketCategories,
-        objs: marketCategories,
-        refetch: refetchCategories,
-    } = MarketCategory.useAllObjects({
-        where: {},
-    })
-
     const tableColumns = useMarketplaceServicesTableColumns(queryMetas, marketPriceScopes, marketCategories, properties)
 
     const [search, handleSearchChange] = useSearch()
     const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
-    const isNoMarketItemsData = isEmpty(marketItems) && isEmpty(filters)
 
     const handleRowClick = useCallback((row) => {
         return {
@@ -117,28 +101,6 @@ export const MarketplaceItemsContent = () => {
             },
         }
     }, [router])
-
-    if (marketItemsLoading) {
-        return (
-            <LoadingOrErrorPage
-                loading={marketItemsLoading}
-            />
-        )
-    }
-
-    if (isNoMarketItemsData) {
-        return (
-            <EmptyListView
-                label={ServicesEmptyTitle}
-                message={ServicesEmptyText}
-                button={
-                    <Button onClick={() => router.push('/marketplace/marketItem/create')} type='primary'>{ServicesEmptyButtonText}</Button>
-                }
-                containerStyle={{ display: isNoMarketItemsData ? 'flex' : 'none' }}
-                accessCheck={canReadMarketItems}
-            />
-        )
-    }
 
     return (
         <TablePageContent>
@@ -159,7 +121,6 @@ export const MarketplaceItemsContent = () => {
             <Row
                 align='middle'
                 justify='center'
-                hidden={isNoMarketItemsData}
             >
                 <Col span={24}>
                     <Table
@@ -185,4 +146,47 @@ export const MarketplaceItemsContent = () => {
 
         </TablePageContent>
     )
+}
+
+export const MarketplaceItemsContent = () => {
+    const intl = useIntl()
+    const ServicesEmptyTitle = intl.formatMessage({ id: 'pages.condo.marketplace.services.empty.title' })
+    const ServicesEmptyText = intl.formatMessage({ id: 'pages.condo.marketplace.services.empty.text' })
+    const ServicesEmptyButtonText = intl.formatMessage({ id: 'pages.condo.marketplace.services.empty.buttonText' })
+
+    const router = useRouter()
+    const { organization, link } = useOrganization()
+    const orgId = get(organization, 'id', null)
+    const role = get(link, 'role', {})
+
+    const canReadMarketItems = get(role, 'canReadMarketItems', false)
+
+    const { count, loading } = MarketItem.useCount({
+        where: {
+            organization: { id: orgId },
+        },
+    })
+
+    if (loading) {
+        return (
+            <LoadingOrErrorPage
+                loading={loading}
+            />
+        )
+    }
+
+    if (count === 0) {
+        return (
+            <EmptyListView
+                label={ServicesEmptyTitle}
+                message={ServicesEmptyText}
+                button={
+                    <Button onClick={() => router.push('/marketplace/marketItem/create')} type='primary'>{ServicesEmptyButtonText}</Button>
+                }
+                accessCheck={canReadMarketItems}
+            />
+        )
+    }
+
+    return <TableContent />
 }
