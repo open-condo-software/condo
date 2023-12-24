@@ -175,6 +175,11 @@ export default function GlobalStyle () {
                 color: ${colors.black}
               }
 
+              .category-option {
+                font-size: 12px;
+                color: ${UIColors.gray[7]};
+              }
+
               .ant-input-affix-wrapper input, .ant-input-affix-wrapper:focus, .ant-input-affix-wrapper-focused {
                 border-color: ${colors.inputBorderHover};
                 box-shadow: none !important;
