@@ -25,7 +25,7 @@ import { ImagesUploadList } from '@condo/domains/common/components/ImagesUploadL
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import { DEFAULT_INVOICE_CURRENCY_CODE } from '@condo/domains/marketplace/constants'
+import { DEFAULT_INVOICE_CURRENCY_CODE, MIN_PRICE_VALUE } from '@condo/domains/marketplace/constants'
 import {
     MarketCategory,
     MarketItem,
@@ -526,8 +526,9 @@ const MarketPriceForm = ({ priceFormDescription, removeOperation, organizationPr
     const PriceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.price' })
     const PriceTooltip = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.price.tooltip' })
     const CancelMessage = intl.formatMessage({ id: 'Cancel' })
+    const MinPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.price.minPriceMessage' })
 
-    const { requiredValidator, numberValidator } = useValidations()
+    const { requiredValidator, numberValidator, lessThanValidator } = useValidations()
     const { form, currencyCode, getUpdatedPricesField } = useMarketItemFormContext()
     const parts = intl.formatNumberToParts('', { style: 'currency', currency: currencyCode })
     const currencySymbolObj = parts.find(part => part.type === 'currency')
@@ -554,6 +555,19 @@ const MarketPriceForm = ({ priceFormDescription, removeOperation, organizationPr
         form.setFieldsValue(getUpdatedPricesField(priceFormName, { price: null }))
         await form.validateFields(['prices', priceFormName, 'price'])
     }, [form, getUpdatedPricesField, priceFormName])
+
+    const priceRules = useMemo(() => {
+        if (isContractPrice) {
+            return []
+        }
+
+        const rules = [requiredValidator, numberValidator]
+        if (priceTypeFormValue === PriceType.Exact) {
+            rules.push(lessThanValidator(MIN_PRICE_VALUE, `${MinPriceMessage} – ${MIN_PRICE_VALUE}${currencySymbol}`))
+        }
+
+        return rules
+    }, [MinPriceMessage, currencySymbol, isContractPrice, lessThanValidator, numberValidator, priceTypeFormValue, requiredValidator])
 
     return (
         <Row gutter={[0, 28]}>
@@ -598,7 +612,7 @@ const MarketPriceForm = ({ priceFormDescription, removeOperation, organizationPr
                 <Form.Item
                     name={[priceFormName, 'price']}
                     required
-                    rules={isContractPrice ? [] : [requiredValidator, numberValidator]}
+                    rules={priceRules}
                     label={PriceLabel}
                     tooltip={PriceTooltip}
                     wrapperCol={{

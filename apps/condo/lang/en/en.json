@@ -1382,6 +1382,7 @@
   "pages.condo.marketplace.marketItem.form.field.price.tooltip": "Including commission of our service",
   "pages.condo.marketplace.marketItem.form.field.addPriceScope": "Add price for other properties",
   "pages.condo.marketplace.marketItem.form.actionButtonTooltip.manyHasAllProperties": "Can not add a price for all properties several times",
+  "pages.condo.marketplace.marketItem.form.price.minPriceMessage": "Min price",
   "pages.condo.marketplace.marketItem.mobileAppPreview.title": "This is how it looks in the Doma mobile app",
   "pages.condo.marketplace.marketItem.mobileAppPreview.sku": "Sku",
   "pages.condo.marketplace.marketItem.mobileAppPreview.order": "Order",

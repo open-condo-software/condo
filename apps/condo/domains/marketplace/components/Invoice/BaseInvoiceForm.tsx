@@ -10,7 +10,6 @@ import { Col, Form, Row, RowProps, Input, AutoComplete, Select, FormInstance } f
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
-import uniq from 'lodash/uniq'
 import React, { ComponentProps, CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Trash } from '@open-condo/icons'
@@ -38,6 +37,7 @@ import {
     INVOICE_PAYMENT_TYPES,
     INITIAL_ROWS_VALUE,
     DEFAULT_INVOICE_CURRENCY_CODE,
+    MIN_PRICE_VALUE,
 } from '@condo/domains/marketplace/constants'
 import { useCancelStatusModal } from '@condo/domains/marketplace/hooks/useCancelStatusModal'
 import { MarketCategory, MarketPriceScope } from '@condo/domains/marketplace/utils/clientSchema'
@@ -429,6 +429,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
     const MinPriceValidationMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.minPriceValidation' })
     const FromMessage = intl.formatMessage({ id: 'global.from' }).toLowerCase()
     const ContractPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' }).toLowerCase()
+    const MinPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.price.minPriceMessage' })
 
     const { requiredValidator } = useValidations()
     const { breakpoints } = useLayoutContext()
@@ -687,6 +688,19 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                         }
 
                                                         return Promise.reject(NumberIsNotValidMessage)
+                                                    },
+                                                },
+                                                {
+                                                    validator: (_, value) => {
+                                                        if (new RegExp('^(?:\\d+(?:\\.\\d+)?|\\d+(?:,\\d+)?)$').test(value)) {
+                                                            const numberValue = Number(value.replace(',', '.'))
+
+                                                            if (numberValue < MIN_PRICE_VALUE) {
+                                                                return Promise.reject(`${MinPriceMessage} – ${MIN_PRICE_VALUE}${currencySymbol}`)
+                                                            }
+                                                        }
+
+                                                        return Promise.resolve()
                                                     },
                                                 },
                                             ]}
@@ -1049,7 +1063,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                     const rows = getFieldValue('rows')
                                     const filledRow = rows.find(row =>
                                         get(row, 'name.length', 0) > 6 &&
-                                        get(row, 'toPay.length', 0) > 1 &&
+                                        get(row, 'toPay.length', 0) > 0 &&
                                         get(row, 'count', 0) > 0
                                     )
 
