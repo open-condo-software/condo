@@ -45,10 +45,71 @@ const TableContent = () => {
         where: {},
     })
 
+    const categoriesWithOneSubCategory = useMemo(() => marketCategories.map(category => {
+        const categoriesWithParent = marketCategories.filter(otherCategory =>
+            get(otherCategory, 'parentCategory.id') === category.id
+        )
+
+        if (categoriesWithParent.length === 1) {
+            return category.id
+        }
+    }).filter(Boolean), [marketCategories])
+
+    const {
+        objs: organizationMarketItems,
+    } = MarketItem.useAllObjects({
+        where: {
+            organization: {
+                id: orgId,
+            },
+        },
+    }, {
+        skip: !orgId,
+    })
+
+    const categoriesInMarketItems = useMemo(() =>
+        uniqBy(organizationMarketItems.map(marketItem => get(marketItem, 'marketCategory')), 'id')
+    , [organizationMarketItems])
+
+    const categorySelectOptions = useMemo(() => {
+        const groups = []
+
+        groups.push({ label: AllCategoriesMessage, value: 'all' })
+
+        for (const category of categoriesInMarketItems) {
+            const categoryId = get(category, 'id')
+            const parentCategoryId = get(category, 'parentCategory.id')
+            const isNewOptGroup = !groups.some(group => group.key === parentCategoryId)
+
+            if (categoriesWithOneSubCategory.includes(parentCategoryId) && isNewOptGroup) {
+                groups.push({ key: parentCategoryId, label: get(category, 'parentCategory.name'), value: categoryId })
+            } else {
+                const categoryOption = {
+                    label: get(category, 'name'),
+                    value: categoryId,
+                    key: categoryId,
+                }
+
+                if (isNewOptGroup) {
+                    groups.push({ key: parentCategoryId, label: get(category, 'parentCategory.name'), options: [categoryOption] })
+                } else {
+                    const existedGroup = groups.find(group => group.key === parentCategoryId)
+
+                    if (existedGroup.options) {
+                        existedGroup.options.push(categoryOption)
+                    }
+                }
+            }
+        }
+
+        return groups
+    }, [AllCategoriesMessage, categoriesInMarketItems, categoriesWithOneSubCategory])
+
     const { filters, offset, sorters } = parseQuery(router.query)
+    const filtersFromQuery = useMemo(() => getFiltersFromQuery(router.query), [router.query])
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
-    const queryMetas = useMarketplaceServicesFilters()
-    const { filtersToWhere, sortersToSortBy } = useQueryMappers(queryMetas, [])
+    const queryMetas = useMarketplaceServicesFilters({ categorySelectOptions })
+    const { filtersToWhere, sortersToSortBy } = useQueryMappers(queryMetas, ['sku', 'name'])
     const sortBy = useMemo(() => sortersToSortBy(sorters) as SortMarketItemsBy[], [sorters, sortersToSortBy])
 
     const { count: propertiesCount } = Property.useCount({
@@ -98,72 +159,9 @@ const TableContent = () => {
     const tableColumns = useMarketplaceServicesTableColumns(queryMetas, marketPriceScopes, marketCategories, properties)
 
     const [search, handleSearchChange] = useSearch()
-    const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
+    const handleSearch = useCallback((e) => handleSearchChange(e.target.value), [handleSearchChange])
 
-    const categoriesWithOneSubCategory = useMemo(() => marketCategories.map(category => {
-        const categoriesWithParent = marketCategories.filter(otherCategory =>
-            get(otherCategory, 'parentCategory.id') === category.id
-        )
-
-        if (categoriesWithParent.length === 1) {
-            return category.id
-        }
-    }).filter(Boolean), [marketCategories])
-
-    const {
-        objs: organizationMarketItems,
-    } = MarketItem.useAllObjects({
-        sortBy,
-        where: {
-            organization: {
-                id: orgId,
-            },
-        },
-    }, {
-        skip: !orgId,
-    })
-
-    const categoriesInMarketItems = useMemo(() =>
-        uniqBy(organizationMarketItems.map(marketItem => get(marketItem, 'marketCategory')), 'id')
-    , [organizationMarketItems])
-
-    const categorySelectOptions = useMemo(() => {
-        const groups = []
-
-        groups.push({ label: AllCategoriesMessage, value: 'all' })
-
-        for (const category of categoriesInMarketItems) {
-            const categoryId = get(category, 'id')
-            const parentCategoryId = get(category, 'parentCategory.id')
-            const isNewOptGroup = !groups.some(group => group.key === parentCategoryId)
-
-            if (categoriesWithOneSubCategory.includes(parentCategoryId) && isNewOptGroup) {
-                groups.push({ key: parentCategoryId, label: get(category, 'parentCategory.name'), value: categoryId })
-            } else {
-                const categoryOption = {
-                    label: get(category, 'name'),
-                    value: categoryId,
-                    key: categoryId,
-                }
-
-                if (isNewOptGroup) {
-                    groups.push({ key: parentCategoryId, label: get(category, 'parentCategory.name'), options: [categoryOption] })
-                } else {
-                    const existedGroup = groups.find(group => group.key === parentCategoryId)
-
-                    if (existedGroup.options) {
-                        existedGroup.options.push(categoryOption)
-                    }
-                }
-            }
-        }
-
-        return groups
-    }, [categoriesInMarketItems, categoriesWithOneSubCategory])
-
-    const filtersFromQuery = useMemo(() => getFiltersFromQuery(router.query), [router.query])
     const categoryValueFromQuery = get(filtersFromQuery, 'marketCategory')
-    
     const handleCategorySelectChange = useCallback(async (value) => {
         let newFilters = Object.assign({}, filtersFromQuery)
         if (value === 'all') {

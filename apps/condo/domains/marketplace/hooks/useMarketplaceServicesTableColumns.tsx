@@ -99,6 +99,8 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
             {
                 title: SkuNameTitle,
                 filteredValue: getFilteredValue(filters, 'name'),
+                sortOrder: get(sorterMap, 'name'),
+                sorter: true,
                 key: 'name',
                 dataIndex: 'name',
                 width: '23%',
@@ -108,11 +110,11 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
             },
             {
                 title: CategoryTitle,
-                filteredValue: getFilteredValue(filters, 'category'),
-                key: 'category',
+                filteredValue: getFilteredValue(filters, 'marketCategory'),
+                key: 'marketCategory',
                 dataIndex: 'marketCategory',
                 width: '23%',
-                filterDropdown: getFilterDropdownByKey(filterMetas, 'category'),
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'marketCategory'),
                 render: (category) => {
                     const categoryName = category.name
 
@@ -128,8 +130,10 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
             },
             {
                 title: ScopeTitle,
-                key: 'scope',
+                key: 'property',
                 width: '25%',
+                filteredValue: getFilteredValue(filters, 'property'),
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'property'),
                 render: (marketItem) => {
                     const componentsToRender = []
                     const priceForAllProperties = get(processedScopes, [marketItem.id, 'priceForAllProperties'])
@@ -169,5 +173,5 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
                 filterIcon: getFilterIcon,
             },
         ]
-    }, [SkuTitle, sorterMap, filters, render, filterMetas, SkuNameTitle, CategoryTitle, ScopeTitle, subcategoryCounterGropedByCategoryId, processedScopes, intl, AllPropertiesMessage, ContractPriceMessage, AndMoreMessage])
+    }, [SkuTitle, sorterMap, filters, render, filterMetas, SkuNameTitle, CategoryTitle, ScopeTitle, subcategoryCounterGropedByCategoryId, processedScopes, properties, intl, AllPropertiesMessage, ContractPriceMessage, AndMoreMessage])
 }
