@@ -18,27 +18,12 @@ import {
 
 const skuFilter = getStringContainsFilter(['sku'])
 const nameFilter = getStringContainsFilter(['name'])
-const marketCategoryFilter = (categoryIds) => {
-    if (!categoryIds) return
+const marketCategoryFilter = (categoryId: string) => {
+    if (!categoryId) return
 
-    const orStatements = categoryIds.map(id => ({
-        AND: [
-            {
-                OR: [
-                    { marketCategory: { id } },
-                    { marketCategory: { parentCategory: { id } } },
-                ],
-            },
-        ],
-    }))
-
-    if (!isEmpty(orStatements)) {
-        return {
-            OR: orStatements,
-        }
+    return {
+        marketCategory: { id: categoryId },
     }
-
-    return {}
 }
 
 

@@ -2,12 +2,14 @@ import { SortMarketItemsBy } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
+import omit from 'lodash/omit'
+import uniqBy from 'lodash/uniqBy'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 import { useIntl } from 'react-intl'
 
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button } from '@open-condo/ui'
+import { ActionBar, Button, Select } from '@open-condo/ui'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
@@ -17,6 +19,8 @@ import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
+import { getFiltersFromQuery, updateQuery } from '@condo/domains/common/utils/helpers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useMarketplaceServicesFilters } from '@condo/domains/marketplace/hooks/useMarketplaceServicesFilters'
 import { useMarketplaceServicesTableColumns } from '@condo/domains/marketplace/hooks/useMarketplaceServicesTableColumns'
@@ -28,6 +32,7 @@ const TableContent = () => {
     const intl = useIntl()
     const AddServicesButtonText = intl.formatMessage({ id: 'pages.condo.marketplace.services.actionBar.createMarketItemButton' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
+    const AllCategoriesMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.filter.allCategories' })
 
     const router = useRouter()
     const { organization } = useOrganization()
@@ -35,6 +40,7 @@ const TableContent = () => {
 
     const {
         objs: marketCategories,
+        loading: marketCategoriesLoading,
     } = MarketCategory.useAllObjects({
         where: {},
     })
@@ -94,6 +100,82 @@ const TableContent = () => {
     const [search, handleSearchChange] = useSearch()
     const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
 
+    const categoriesWithOneSubCategory = useMemo(() => marketCategories.map(category => {
+        const categoriesWithParent = marketCategories.filter(otherCategory =>
+            get(otherCategory, 'parentCategory.id') === category.id
+        )
+
+        if (categoriesWithParent.length === 1) {
+            return category.id
+        }
+    }).filter(Boolean), [marketCategories])
+
+    const {
+        objs: organizationMarketItems,
+    } = MarketItem.useAllObjects({
+        sortBy,
+        where: {
+            organization: {
+                id: orgId,
+            },
+        },
+    }, {
+        skip: !orgId,
+    })
+
+    const categoriesInMarketItems = useMemo(() =>
+        uniqBy(organizationMarketItems.map(marketItem => get(marketItem, 'marketCategory')), 'id')
+    , [organizationMarketItems])
+
+    const categorySelectOptions = useMemo(() => {
+        const groups = []
+
+        groups.push({ label: AllCategoriesMessage, value: 'all' })
+
+        for (const category of categoriesInMarketItems) {
+            const categoryId = get(category, 'id')
+            const parentCategoryId = get(category, 'parentCategory.id')
+            const isNewOptGroup = !groups.some(group => group.key === parentCategoryId)
+
+            if (categoriesWithOneSubCategory.includes(parentCategoryId) && isNewOptGroup) {
+                groups.push({ key: parentCategoryId, label: get(category, 'parentCategory.name'), value: categoryId })
+            } else {
+                const categoryOption = {
+                    label: get(category, 'name'),
+                    value: categoryId,
+                    key: categoryId,
+                }
+
+                if (isNewOptGroup) {
+                    groups.push({ key: parentCategoryId, label: get(category, 'parentCategory.name'), options: [categoryOption] })
+                } else {
+                    const existedGroup = groups.find(group => group.key === parentCategoryId)
+
+                    if (existedGroup.options) {
+                        existedGroup.options.push(categoryOption)
+                    }
+                }
+            }
+        }
+
+        return groups
+    }, [categoriesInMarketItems, categoriesWithOneSubCategory])
+
+    const filtersFromQuery = useMemo(() => getFiltersFromQuery(router.query), [router.query])
+    const categoryValueFromQuery = get(filtersFromQuery, 'marketCategory')
+    
+    const handleCategorySelectChange = useCallback(async (value) => {
+        let newFilters = Object.assign({}, filtersFromQuery)
+        if (value === 'all') {
+            newFilters = omit(newFilters, 'marketCategory')
+        } else {
+            newFilters = { ...newFilters, marketCategory: value }
+        }
+
+        const newParameters = getFiltersQueryData(newFilters)
+        await updateQuery(router, { newParameters }, { routerAction: 'replace', resetOldParameters: false })
+    }, [filtersFromQuery, router])
+
     const handleRowClick = useCallback((row) => {
         return {
             onClick: () => {
@@ -106,13 +188,21 @@ const TableContent = () => {
         <TablePageContent>
             <Col span={24} style={{ 'marginBottom': '10px' }}>
                 <TableFiltersContainer>
-                    <Row justify='space-between'>
+                    <Row gutter={[24, 24]}>
                         <Col xs={24} lg={7}>
                             <Input
                                 placeholder={SearchPlaceholder}
                                 onChange={handleSearch}
                                 value={search}
                                 allowClear
+                            />
+                        </Col>
+                        <Col xs={24} lg={5}>
+                            <Select
+                                options={categorySelectOptions}
+                                onChange={handleCategorySelectChange}
+                                value={categoryValueFromQuery ? categoryValueFromQuery : 'all'}
+                                loading={marketCategoriesLoading}
                             />
                         </Col>
                     </Row>

@@ -274,6 +274,7 @@ const {
     useUpdate,
     useSoftDelete,
     useCount,
+    useAllObjects,
 } = generateReactHooks<MarketItem, MarketItemCreateInput, MarketItemUpdateInput, QueryAllMarketItemsArgs>(MarketItemGQL)
 
 export {
@@ -283,4 +284,5 @@ export {
     useUpdate,
     useSoftDelete,
     useCount,
+    useAllObjects,
 }
