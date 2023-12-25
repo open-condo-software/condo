@@ -180,6 +180,14 @@ export const ImagesUploadList: React.FC<ImagesUploadListProps> = ({
         imagesListWrapperRef.current.scrollTo({ left: scrollTo, behavior: 'smooth' })
     }, [clientWidth, scrollLeft, scrollWidth])
 
+    const handlePreview = useCallback((file) => {
+        const fileUrl = file.url
+
+        if (typeof window !== 'undefined') {
+            window.open(fileUrl, '_blank')
+        }
+    }, [])
+
     return (
         <UploadWrapper
             ref={imagesListWrapperRef}
@@ -243,6 +251,7 @@ export const ImagesUploadList: React.FC<ImagesUploadListProps> = ({
                             onError(error)
                         })
                     }}
+                    onPreview={handlePreview}
                 >
                     {type === 'upload' ? <PlusCircle/> : null}
                 </Upload>
