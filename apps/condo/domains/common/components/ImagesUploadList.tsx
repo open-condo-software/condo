@@ -103,7 +103,7 @@ const getImagesList = (): HTMLDivElement => {
 export type UploadFileType = {
     uid: string,
     name: string,
-    status: 'done',
+    status: 'done' | 'uploading',
     url: string,
     response: { id: string, url: string },
 }
@@ -204,6 +204,7 @@ export const ImagesUploadList: React.FC<ImagesUploadListProps> = ({
                     multiple
                     accept='image/*'
                     listType='picture-card'
+                    maxCount={20}
                     showUploadList={{
                         showPreviewIcon: true,
                         previewIcon: <Eye color={colors.white}/>,

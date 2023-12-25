@@ -232,7 +232,8 @@ export const UpdateMarketItemForm = ({ marketItem }) => {
                             {
                                 (form) => {
                                     const tooltipTitle = getSaveButtonTooltipMessage(form, intl)
-                                    const disabled = submitLoading || !isEmpty(tooltipTitle)
+                                    const uploading = form.getFieldValue('uploading')
+                                    const disabled = submitLoading || !isEmpty(tooltipTitle) || uploading
 
                                     return (
                                         <Col span={24}>

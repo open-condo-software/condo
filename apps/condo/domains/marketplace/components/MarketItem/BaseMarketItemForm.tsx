@@ -432,9 +432,21 @@ const MarketItemFields = () => {
                     <ImagesUploadList
                         type='upload'
                         defaultFileList={initialFileList}
-                        onFilesChange={(files) => form.setFieldsValue({
-                            files: [...files],
-                        })}
+                        onFilesChange={(files) => {
+                            if (files.some(file => file.status === 'uploading')) {
+                                form.setFieldsValue({
+                                    uploading: true,
+                                })
+                            } else {
+                                form.setFieldsValue({
+                                    uploading: false,
+                                })
+                            }
+
+                            form.setFieldsValue({
+                                files: [...files],
+                            })
+                        }}
                         createAction={createFileAction}
                     />
                 </Form.Item>
