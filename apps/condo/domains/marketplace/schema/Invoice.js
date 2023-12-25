@@ -41,19 +41,116 @@ const {
     ERROR_CLIENT_DATA_DOES_NOT_MATCH_TICKET,
     ERROR_FORBID_UPDATE_TICKET, CLIENT_DATA_FIELDS, COMMON_RESOLVED_FIELDS,
     ERROR_PUBLISHING_WITHOUT_DEFINED_PRICES_FORBIDDEN,
-    ERROR_NO_FINISHED_ACQUIRING_CONTEXT, DEFAULT_INVOICE_CURRENCY_CODE,
+    ERROR_NO_FINISHED_ACQUIRING_CONTEXT, DEFAULT_INVOICE_CURRENCY_CODE, INVOICE_PAYMENT_TYPE_CASH,
 } = require('@condo/domains/marketplace/constants')
 const { INVOICE_ROWS_FIELD } = require('@condo/domains/marketplace/schema/fields/invoiceRows')
 const { MarketItem } = require('@condo/domains/marketplace/utils/serverSchema')
 const {
     MARKETPLACE_INVOICE_PUBLISHED_MESSAGE_TYPE,
     MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
+    MARKETPLACE_INVOICE_CASH_PUBLISHED_MESSAGE_TYPE,
+    MARKETPLACE_INVOICE_CASH_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 
+const sendPush = async ({ originalInput, userId, propertyId, unitName, unitType, updatedItem, context }) => {
+    if (originalInput.status === INVOICE_STATUS_PUBLISHED && userId && propertyId && unitName && unitType) {
+        const resident = await getByCondition('Resident', {
+            user: { id: userId },
+            property: { id: propertyId },
+            unitName: unitName,
+            unitType: unitType,
+            deletedAt: null,
+        })
+
+        const uniqKey = `marketplace_invoice_published_${updatedItem.id}`
+        if (resident) {
+            if (updatedItem.paymentType === INVOICE_PAYMENT_TYPE_ONLINE) {
+
+                if (isNil(updatedItem.ticket)) {
+                    await sendMessage(context, {
+                        dv: 1,
+                        sender: { dv: 1, fingerprint: 'invoice_afterChange' },
+                        to: { user: { id: userId } },
+                        type: MARKETPLACE_INVOICE_PUBLISHED_MESSAGE_TYPE,
+                        uniqKey,
+                        meta: {
+                            dv: 1,
+                            data: {
+                                userId,
+                                residentId: resident.id,
+                                invoiceId: updatedItem.id,
+                                url: `${conf.SERVER_URL}/invoice/${updatedItem.id}`,
+                            },
+                        },
+                    })
+                } else {
+                    const ticket = await getById('Ticket', updatedItem.ticket)
+                    await sendMessage(context, {
+                        dv: 1,
+                        sender: { dv: 1, fingerprint: 'invoice_afterChange' },
+                        to: { user: { id: userId } },
+                        type: MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
+                        uniqKey,
+                        meta: {
+                            dv: 1,
+                            data: {
+                                userId,
+                                residentId: resident.id,
+                                invoiceId: updatedItem.id,
+                                ticketId: updatedItem.ticket,
+                                ticketNumber: ticket.number,
+                                url: `${conf.SERVER_URL}/ticket/${updatedItem.ticket}`,
+                            },
+                        },
+                    })
+                }
+            } else if (updatedItem.paymentType === INVOICE_PAYMENT_TYPE_CASH) {
+                if (isNil(updatedItem.ticket)) {
+                    await sendMessage(context, {
+                        dv: 1,
+                        sender: { dv: 1, fingerprint: 'invoice_afterChange' },
+                        to: { user: { id: userId } },
+                        type: MARKETPLACE_INVOICE_CASH_PUBLISHED_MESSAGE_TYPE,
+                        uniqKey,
+                        meta: {
+                            dv: 1,
+                            data: {
+                                userId,
+                                residentId: resident.id,
+                                invoiceId: updatedItem.id,
+                                url: `${conf.SERVER_URL}/invoice/${updatedItem.id}`,
+                            },
+                        },
+                    })
+                } else {
+                    const ticket = await getById('Ticket', updatedItem.ticket)
+                    await sendMessage(context, {
+                        dv: 1,
+                        sender: { dv: 1, fingerprint: 'invoice_afterChange' },
+                        to: { user: { id: userId } },
+                        type: MARKETPLACE_INVOICE_CASH_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
+                        uniqKey,
+                        meta: {
+                            dv: 1,
+                            data: {
+                                userId,
+                                residentId: resident.id,
+                                invoiceId: updatedItem.id,
+                                ticketId: updatedItem.ticket,
+                                ticketNumber: ticket.number,
+                                url: `${conf.SERVER_URL}/ticket/${updatedItem.ticket}`,
+                            },
+                        },
+                    })
+                }
+            }
+        }
+    }
+}
 const ERRORS = {
     ALREADY_PAID: {
         code: BAD_USER_INPUT,
@@ -513,61 +610,7 @@ const Invoice = new GQLListSchema('Invoice', {
         },
         afterChange: async ({ context, operation, originalInput, updatedItem }) => {
             const { client: userId, property: propertyId, unitName, unitType } = updatedItem
-
-            if (originalInput.status === INVOICE_STATUS_PUBLISHED && userId && propertyId && unitName && unitType) {
-                const resident = await getByCondition('Resident', {
-                    user: { id: userId },
-                    property: { id: propertyId },
-                    unitName: unitName,
-                    unitType: unitType,
-                    deletedAt: null,
-                })
-
-                const uniqKey = `marketplace_invoice_published_${updatedItem.id}`
-                if (resident) {
-                    if (isNil(updatedItem.ticket)) {
-                        await sendMessage(context, {
-                            dv: 1,
-                            sender: { dv: 1, fingerprint: 'invoice_afterChange' },
-                            to: { user: { id: userId } },
-                            type: MARKETPLACE_INVOICE_PUBLISHED_MESSAGE_TYPE,
-                            uniqKey,
-                            meta: {
-                                dv: 1,
-                                data: {
-                                    userId,
-                                    residentId: resident.id,
-                                    invoiceId: updatedItem.id,
-                                    url: `${conf.SERVER_URL}/invoice/${updatedItem.id}`,
-                                },
-                            },
-                        })
-                    } else {
-                        const ticket = await getById('Ticket', updatedItem.ticket)
-                        await sendMessage(context, {
-                            dv: 1,
-                            sender: { dv: 1, fingerprint: 'invoice_afterChange' },
-                            to: { user: { id: userId } },
-                            type: MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
-                            uniqKey,
-                            meta: {
-                                dv: 1,
-                                data: {
-                                    userId,
-                                    residentId: resident.id,
-                                    invoiceId: updatedItem.id,
-                                    ticketId: updatedItem.ticket,
-                                    ticketNumber: ticket.number,
-                                    url: `${conf.SERVER_URL}/ticket/${updatedItem.ticket}`,
-                                },
-                            },
-                        })
-                    }
-                }
-
-            }
-
-
+            await sendPush({ originalInput, userId, propertyId, unitName, unitType, updatedItem, context })
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
