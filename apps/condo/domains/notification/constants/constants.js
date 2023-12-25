@@ -77,6 +77,8 @@ const DEV_PORTAL_MESSAGE_TYPE = 'DEV_PORTAL_MESSAGE'
 const SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE_TYPE = 'SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE'
 const MARKETPLACE_INVOICE_PUBLISHED_MESSAGE_TYPE = 'MARKETPLACE_INVOICE_PUBLISHED_MESSAGE'
 const MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE = 'MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE'
+const MARKETPLACE_INVOICE_CASH_PUBLISHED_MESSAGE_TYPE = 'MARKETPLACE_INVOICE_CASH_PUBLISHED_MESSAGE'
+const MARKETPLACE_INVOICE_CASH_WITH_TICKET_PUBLISHED_MESSAGE_TYPE = 'MARKETPLACE_INVOICE_CASH_WITH_TICKET_PUBLISHED_MESSAGE'
 
 const SMS_FORBIDDEN_SYMBOLS_REGEXP = /[&#|«»]+/gim
 
@@ -554,6 +556,26 @@ const MESSAGE_META = {
             url: { required: true },
         },
     },
+    [MARKETPLACE_INVOICE_CASH_PUBLISHED_MESSAGE_TYPE]: {
+        dv: { required: true },
+        data: {
+            invoiceId: { required: true },
+            residentId: { required: true },
+            userId: { required: true },
+            url: { required: true },
+        },
+    },
+    [MARKETPLACE_INVOICE_CASH_WITH_TICKET_PUBLISHED_MESSAGE_TYPE]: {
+        dv: { required: true },
+        data: {
+            invoiceId: { required: true },
+            ticketId: { required: true },
+            ticketNumber: { required: true },
+            residentId: { required: true },
+            userId: { required: true },
+            url: { required: true },
+        },
+    },
 }
 
 /** Used to validate type field for sendMessage mutation payload */
@@ -739,6 +761,14 @@ const MESSAGE_DELIVERY_OPTIONS = {
         defaultTransports: [PUSH_TRANSPORT],
     },
     [MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE]: {
+        allowedTransports: [PUSH_TRANSPORT],
+        defaultTransports: [PUSH_TRANSPORT],
+    },
+    [MARKETPLACE_INVOICE_CASH_PUBLISHED_MESSAGE_TYPE]: {
+        allowedTransports: [PUSH_TRANSPORT],
+        defaultTransports: [PUSH_TRANSPORT],
+    },
+    [MARKETPLACE_INVOICE_CASH_WITH_TICKET_PUBLISHED_MESSAGE_TYPE]: {
         allowedTransports: [PUSH_TRANSPORT],
         defaultTransports: [PUSH_TRANSPORT],
     },
@@ -957,5 +987,7 @@ module.exports = {
     SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE_TYPE,
     MARKETPLACE_INVOICE_PUBLISHED_MESSAGE_TYPE,
     MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
+    MARKETPLACE_INVOICE_CASH_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
+    MARKETPLACE_INVOICE_CASH_PUBLISHED_MESSAGE_TYPE,
 }
 
