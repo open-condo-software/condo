@@ -3,7 +3,7 @@ const { GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-cond
 const { NOT_FOUND, WRONG_FORMAT, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
 
 const RECEIPTS_LIMIT = 1000
-const ADDRESS_SERVICE_NORMALIZE_CHUNK_SIZE = 50
+const ADDRESS_SERVICE_NORMALIZE_CHUNK_SIZE = 10
 const PROPERTY_SCORE_TO_PASS = 95
 
 const ERRORS = {
