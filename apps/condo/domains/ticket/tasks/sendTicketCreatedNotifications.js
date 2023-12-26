@@ -20,8 +20,9 @@ const sendTicketCreatedNotifications = async (ticketId, lang, organizationId, or
         ticketAssigneeId: createdTicket.executor,
         ticketCategoryClassifierId: createdTicket.categoryClassifier,
     })
+    const usersWithoutAuthor = users.filter(userId => createdTicket.createdBy !== userId)
 
-    for (const employeeUserId of users) {
+    for (const employeeUserId of usersWithoutAuthor) {
         await sendMessage(context, {
             lang,
             to: { user: { id: employeeUserId } },

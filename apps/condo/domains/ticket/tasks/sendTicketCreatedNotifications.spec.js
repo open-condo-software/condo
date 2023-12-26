@@ -28,7 +28,9 @@ describe('sendTicketCreatedNotifications', ()  => {
         organization,
         lang,
         employeeUser,
-        ticket
+        employeeUser2,
+        ticket,
+        property
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
@@ -36,47 +38,72 @@ describe('sendTicketCreatedNotifications', ()  => {
         organization = testOrganization
         lang = get(COUNTRIES, [organization.country, 'locale'], conf.DEFAULT_LOCALE)
 
+        const [role] = await createTestOrganizationEmployeeRole(admin, organization, { canReadTickets: true, canManageTickets: true } )
         employeeUser = await makeClientWithNewRegisteredAndLoggedInUser()
-        const [role] = await createTestOrganizationEmployeeRole(admin, organization)
         await createTestOrganizationEmployee(admin, organization, employeeUser.user, role, {
             isRejected: false,
             isAccepted: true,
             isBlocked: false,
         })
+        employeeUser2 = await makeClientWithNewRegisteredAndLoggedInUser()
+        await createTestOrganizationEmployee(admin, organization, employeeUser2.user, role, {
+            isRejected: false,
+            isAccepted: true,
+            isBlocked: false,
+        })
 
-        const [property] = await createTestProperty(admin, organization)
-        const [tempTicket] = await createTestTicket(admin, organization, property)
+        const [tempProperty] = await createTestProperty(admin, organization)
+        property = tempProperty
+        const [tempTicket] = await createTestTicket(employeeUser, organization, property)
         ticket = tempTicket
     })
 
     beforeEach(async () => {
         const telegramUserChats = await TelegramUserChat.getAll(admin, {
-            user: { id: employeeUser.user.id },
+            user: { id_in: [employeeUser.user.id, employeeUser2.user.id] },
             deletedAt: null,
         })
-
         for (const chat of telegramUserChats) {
             await TelegramUserChat.softDelete(admin, chat.id)
         }
+
+        const messages = await Message.getAll(admin, {
+            user: { id_in: [employeeUser.user.id, employeeUser2.user.id] },
+            deletedAt: null,
+        })
+        for (const message of messages) {
+            await Message.softDelete(admin, message.id)
+        }
     })
 
-    it('Sends notification if employee has TelegramUserChat', async () => {
-        const telegramChatId = faker.random.alphaNumeric(8)
+    it('Sends notification if employee has TelegramUserChat and he is not ticket author', async () => {
+        const telegramChatId1 = faker.random.alphaNumeric(8)
         await createTestTelegramUserChat(admin, employeeUser.user, {
-            telegramChatId,
+            telegramChatId: telegramChatId1,
         })
+
+        const telegramChatId2 = faker.random.alphaNumeric(8)
+        await createTestTelegramUserChat(admin, employeeUser2.user, {
+            telegramChatId: telegramChatId2,
+        })
+
         await sendTicketCreatedNotifications(ticket.id, lang, organization.id, organization.name)
 
         await waitFor(async () => {
             const messages = await Message.getAll(admin, {
                 type: TICKET_CREATED_TYPE,
-                user: { id: employeeUser.user.id },
+                user: { id_in: [employeeUser.user.id, employeeUser2.user.id] },
                 deletedAt: null,
             }, { sortBy: 'createdAt_DESC' })
 
+            expect(messages).toHaveLength(1)
+            // send message only to employee who not created ticket
             expect(messages[0].status).toEqual('sent')
-            expect(messages[0].processingMeta.messageContext.telegramChatId).toEqual(telegramChatId)
-            expect(messages[0].processingMeta.messageContext.userId).toEqual(employeeUser.user.id)
+            expect(messages[0].processingMeta.messageContext.telegramChatId).toEqual(telegramChatId2)
+            expect(messages[0].processingMeta.messageContext.userId).toEqual(employeeUser2.user.id)
+            expect(messages[0].meta.data.organizationId).toEqual(organization.id)
+            expect(messages[0].meta.data.ticketId).toEqual(ticket.id)
+            expect(messages[0].meta.data.userId).toEqual(employeeUser2.user.id)
         })
     })
 
@@ -86,12 +113,16 @@ describe('sendTicketCreatedNotifications', ()  => {
         await waitFor(async () => {
             const messages = await Message.getAll(admin, {
                 type: TICKET_CREATED_TYPE,
-                user: { id: employeeUser.user.id },
+                user: { id_in: [employeeUser.user.id, employeeUser2.user.id] },
                 deletedAt: null,
             }, { sortBy: 'createdAt_DESC' })
 
+            expect(messages).toHaveLength(1)
             expect(messages[0].status).toEqual('error')
             expect(messages[0].processingMeta.transportsMeta[0].exception.message).toEqual(NO_TELEGRAM_CHAT_FOR_USER)
+            expect(messages[0].meta.data.organizationId).toEqual(organization.id)
+            expect(messages[0].meta.data.ticketId).toEqual(ticket.id)
+            expect(messages[0].meta.data.userId).toEqual(employeeUser2.user.id)
         })
     })
 })
