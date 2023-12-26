@@ -1,6 +1,7 @@
 import { Invoice as InvoiceType } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import React, { useCallback, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -14,6 +15,7 @@ import { UpdateInvoiceForm } from './UpdateInvoiceForm'
 
 
 type TicketInvoiceCardPropsType = {
+    isNewInvoice?: boolean
     invoice: InvoiceType
     refetchInvoices: () => void
     initialValues?: InvoiceFormValuesType
@@ -21,7 +23,7 @@ type TicketInvoiceCardPropsType = {
     ticketCreatedByResident?: boolean
 }
 
-const TicketInvoiceCard: React.FC<TicketInvoiceCardPropsType> = ({ invoice, refetchInvoices, initialValues, isAllFieldsDisabled, ticketCreatedByResident }) => {
+const TicketInvoiceCard: React.FC<TicketInvoiceCardPropsType> = ({ isNewInvoice, invoice, refetchInvoices, initialValues, isAllFieldsDisabled, ticketCreatedByResident }) => {
     const intl = useIntl()
     const InvoiceNumberMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.update.title' },
         { number: get(invoice, 'number') }
@@ -50,7 +52,7 @@ const TicketInvoiceCard: React.FC<TicketInvoiceCardPropsType> = ({ invoice, refe
                     <Col>
                         <Typography.Link onClick={handleInvoiceNumberClick}>
                             <Typography.Text strong>
-                                {InvoiceNumberMessage}
+                                {isNewInvoice ? 'Новый счет' : InvoiceNumberMessage}
                             </Typography.Text>
                         </Typography.Link>
                     </Col>
@@ -93,6 +95,7 @@ const TicketInvoiceCard: React.FC<TicketInvoiceCardPropsType> = ({ invoice, refe
 }
 
 type TicketInvoicesListPropsType = {
+    newInvoices?: InvoiceType[]
     invoices: InvoiceType[]
     refetchInvoices: () => void
     initialValues?: InvoiceFormValuesType
@@ -101,10 +104,24 @@ type TicketInvoicesListPropsType = {
 }
 
 export const TicketInvoicesList: React.FC<TicketInvoicesListPropsType> = ({
-    invoices, refetchInvoices, initialValues, isAllFieldsDisabled, ticketCreatedByResident,
+    newInvoices, invoices, refetchInvoices, initialValues, isAllFieldsDisabled, ticketCreatedByResident,
 }) => {
     return (
         <Row gutter={[0, 40]}>
+            {
+                !isEmpty(newInvoices) && newInvoices.map(invoice => (
+                    <Col key={invoice.id} span={24}>
+                        <TicketInvoiceCard
+                            isNewInvoice
+                            invoice={invoice}
+                            initialValues={initialValues}
+                            refetchInvoices={refetchInvoices}
+                            isAllFieldsDisabled={isAllFieldsDisabled}
+                            ticketCreatedByResident={ticketCreatedByResident}
+                        />
+                    </Col>
+                ))
+            }
             {
                 invoices.map(invoice => (
                     <Col key={invoice.id} span={24}>

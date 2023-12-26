@@ -900,7 +900,7 @@ const StatusRadioGroup = ({
 }
 
 type BaseInvoiceFormProps = {
-    action: (values: InvoiceFormValuesType) => Promise<Invoice>
+    action: (values: InvoiceFormValuesType) => Promise<Invoice | void>
     organizationId: string
     role: OrganizationEmployeeRole
     initialValues?: InvoiceFormValuesType
