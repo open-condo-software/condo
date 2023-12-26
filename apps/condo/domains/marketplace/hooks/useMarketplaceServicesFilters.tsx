@@ -12,6 +12,7 @@ import { ComponentType, FiltersMeta } from '@condo/domains/common/utils/filters.
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 import { getStringContainsFilter } from '@condo/domains/common/utils/tables.utils'
 import { MarketPriceScope } from '@condo/domains/marketplace/utils/clientSchema'
+import { Property } from '@condo/domains/property/utils/clientSchema'
 import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
 
@@ -34,10 +35,24 @@ export function useMarketplaceServicesFilters ({ categorySelectOptions }): Array
     const NameMessage = intl.formatMessage({ id: 'pages.condo.marketplace.services.table.name' })
     const CategoryMessage = intl.formatMessage({ id: 'pages.condo.marketplace.services.table.category' })
     const EnterAddressMessage = intl.formatMessage({ id: 'pages.condo.meter.EnterAddress' })
+    const AllPropertiesMessage = intl.formatMessage({ id: 'pages.condo.marketplace.services.table.allProperties' })
 
     const router = useRouter()
     const { organization } = useOrganization()
     const userOrganizationId = get(organization, 'id')
+
+    const { count: propertiesCount } = Property.useCount({
+        where: {
+            organization: { id: userOrganizationId },
+        },
+    })
+    const isSingleProperty = propertiesCount === 1
+
+    const { objs: properties } = Property.useObjects({
+        where: {
+            organization: { id: userOrganizationId },
+        },
+    }, { skip: !isSingleProperty })
 
     const filtersFromQuery = useMemo(() => getFiltersFromQuery(router.query), [router.query])
     const searchValueFromQuery = get(filtersFromQuery, 'search')
@@ -51,27 +66,44 @@ export function useMarketplaceServicesFilters ({ categorySelectOptions }): Array
         propertyWhere['id_in'] = propertyValueFromQuery
     }
 
+    const isAllPropertiesSearching = isSingleProperty ? get(properties, '0.address', '').includes(searchValueFromQuery) :
+        AllPropertiesMessage.includes(searchValueFromQuery)
+    const isAllPropertiesSelected = get(propertyValueFromQuery, 'length') === propertiesCount
+
     const { objs: marketPriceScopes } = MarketPriceScope.useAllObjects({
         where: {
-            property: propertyWhere,
+            OR: [
+                { AND: [ { property: propertyWhere } ] },
+                (isAllPropertiesSearching || isAllPropertiesSelected) && { property_is_null: true },
+            ].filter(Boolean),
         },
     }, { skip: isEmpty(searchValueFromQuery) && isEmpty(propertyValueFromQuery) })
 
-    const propertyFilter = useCallback(() => {
-        if (isEmpty(searchValueFromQuery) && isEmpty(propertyValueFromQuery)) {
+    const searchAddressFilter = useCallback(() => {
+        if (isEmpty(searchValueFromQuery)) {
             return
         }
 
         const marketItemIdsFromScopes = uniq(marketPriceScopes.map(scope => get(scope, 'marketItemPrice.marketItem.id')))
 
         return { id_in: marketItemIdsFromScopes }
-    }, [propertyValueFromQuery, marketPriceScopes, searchValueFromQuery])
+    }, [marketPriceScopes, searchValueFromQuery])
+
+    const propertyFilter = useCallback(() => {
+        if (isEmpty(propertyValueFromQuery)) {
+            return
+        }
+
+        const marketItemIdsFromScopes = uniq(marketPriceScopes.map(scope => get(scope, 'marketItemPrice.marketItem.id')))
+
+        return { id_in: marketItemIdsFromScopes }
+    }, [propertyValueFromQuery, marketPriceScopes])
 
     return useMemo(() => {
         return [
             {
                 keyword: 'search',
-                filters: [skuFilter, nameFilter, propertyFilter],
+                filters: [skuFilter, nameFilter, searchAddressFilter],
                 combineType: 'OR',
             },
             {
@@ -124,5 +156,5 @@ export function useMarketplaceServicesFilters ({ categorySelectOptions }): Array
                 combineType: 'OR',
             },
         ]
-    }, [propertyFilter, SkuMessage, NameMessage, categorySelectOptions, CategoryMessage, userOrganizationId, EnterAddressMessage])
+    }, [searchAddressFilter, SkuMessage, NameMessage, categorySelectOptions, CategoryMessage, propertyFilter, userOrganizationId, EnterAddressMessage])
 }
