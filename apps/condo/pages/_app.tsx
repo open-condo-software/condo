@@ -142,7 +142,8 @@ const MenuItems: React.FC = () => {
     const hasAccessToMeters = get(role, 'canReadMeters', false)
     const hasAccessToServices = get(role, 'canReadServices', false)
     const hasAccessToSettings = get(role, 'canReadSettings', false)
-    const hasAccessToMarketplace = get(role, 'canReadMarketplace', false)
+    const hasAccessToMarketplace = get(role, 'canReadMarketItems', false) ||
+        get(role, 'canReadInvoices', false) || get(role, 'canReadPaymentsWithInvoices', false)
 
     const { canRead: hasAccessToNewsItems } = useNewsItemsAccess()
 

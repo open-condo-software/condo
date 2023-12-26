@@ -949,7 +949,6 @@
   "pages.condo.settings.employeeRoles.permissionGroup.settings": "Настройки",
   "pages.condo.settings.employeeRoles.permission.canReadSettings": "Просмотр настроек",
   "pages.condo.settings.employeeRoles.permissionGroup.marketplace": "Маркетплейс",
-  "pages.condo.settings.employeeRoles.permission.canReadMarketplace": "Просмотр раздела",
   "pages.condo.settings.employeeRoles.permission.canManageMarketplace": "Подключение и настройка маркетплейса",
   "pages.condo.settings.employeeRoles.permission.canReadPaymentsWithInvoices": "Просмотр онлайн платежей",
   "pages.condo.settings.employeeRoles.permission.canReadMarketItems": "Просмотр услуг",

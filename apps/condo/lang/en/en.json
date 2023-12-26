@@ -949,7 +949,6 @@
   "pages.condo.settings.employeeRoles.permissionGroup.settings": "Settings",
   "pages.condo.settings.employeeRoles.permission.canReadSettings": "View settings",
   "pages.condo.settings.employeeRoles.permissionGroup.marketplace": "Marketplace",
-  "pages.condo.settings.employeeRoles.permission.canReadMarketplace": "View section",
   "pages.condo.settings.employeeRoles.permission.canManageMarketplace": "Connect and manage marketplace",
   "pages.condo.settings.employeeRoles.permission.canReadPaymentsWithInvoices": "View online payments",
   "pages.condo.settings.employeeRoles.permission.canReadMarketItems": "View market items",

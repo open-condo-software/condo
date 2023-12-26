@@ -8,12 +8,11 @@ import { Typography } from '@open-condo/ui'
 
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
+import { DEFAULT_INVOICE_CURRENCY_CODE } from '@condo/domains/marketplace/constants'
 import { MarketItem } from '@condo/domains/marketplace/utils/clientSchema'
 import {
     getMoneyRender,
 } from '@condo/domains/marketplace/utils/clientSchema/Invoice'
-
-import { DEFAULT_INVOICE_CURRENCY_CODE } from '../../constants'
 
 
 const useInvoiceRowsTableColumns = (currencyCode, marketItems) => {
