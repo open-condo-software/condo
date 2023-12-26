@@ -269,7 +269,7 @@ class ApolloServerClient {
     }
 
     async getModelsWithCount ({ modelGql, where, first, skip, sortBy }) {
-        const { data } = await this.executeAuthorizedMutation({
+        const { data } = await this.executeAuthorizedQuery({
             query: modelGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
             variables: {
                 where,

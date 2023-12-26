@@ -3910,7 +3910,7 @@ type B2CAppPropertyMeta {
 }
 
 type AllB2CAppPropertiesOutput {
-  objs: B2CAppProperty!
+  objs: [B2CAppProperty!]!
   meta: B2CAppPropertyMeta!
 }
 

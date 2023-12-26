@@ -7,6 +7,7 @@ const { faker } = require('@faker-js/faker')
 const conf = require('@open-condo/config')
 const path = require('path')
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
+const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 
 const {
     B2CApp: B2CAppGQL,
@@ -33,6 +34,7 @@ const FAKE_B2C_APP_LOGO_PATH = path.resolve(conf.PROJECT_ROOT, 'apps/dev-api/dom
 
 const CondoB2CApp = generateGQLTestUtils(generateGqlQueries('B2CApp', '{ id name developer logo { publicUrl filename } currentBuild { id } importId importRemoteSystem deletedAt v }'))
 const CondoB2CAppBuild = generateGQLTestUtils(generateGqlQueries('B2CAppBuild', '{ id version data { publicUrl } importId importRemoteSystem }'))
+const CondoB2CAppProperty = generateGQLTestUtils(generateGqlQueries('B2CAppProperty', '{ id address }'))
 
 async function createCondoB2CApp (client) {
     const attrs = {
@@ -48,6 +50,16 @@ async function createCondoB2CApp (client) {
     return [obj, attrs]
 }
 
+async function updateCondoB2CApp(client, app, extraAttrs = {}) {
+    const attrs = {
+        dv: 1,
+        sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+        ...extraAttrs,
+    }
+    const obj = await CondoB2CApp.update(client, app.id, attrs)
+    return [obj, attrs]
+}
+
 async function createCondoB2CAppBuild (client, app, extraAttrs = {}) {
     const attrs = {
         dv: 1,
@@ -60,6 +72,27 @@ async function createCondoB2CAppBuild (client, app, extraAttrs = {}) {
 
     const obj = await CondoB2CAppBuild.create(client, attrs)
     return [obj, attrs]
+}
+
+async function createCondoB2CAppProperties(client, condoApp, amount) {
+    if (!client) throw new Error('No client')
+    if (!condoApp || !condoApp.id) throw new Error('No client')
+
+    const attrs = []
+    for (let i = 0; i < amount; i++) {
+        attrs.push({
+            data: {
+                dv: 1,
+                sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                app: { connect: { id: condoApp.id } },
+                ...buildFakeAddressAndMeta(false)
+            }
+        })
+    }
+
+    const objs = await CondoB2CAppProperty.createMany(client, attrs)
+
+    return [objs, attrs]
 }
 
 async function createTestB2CApp (client, extraAttrs = {}) {
@@ -225,7 +258,7 @@ async function allB2CAppPropertiesByTestClient(client, app, environment, extraAt
         skip: 0,
         ...extraAttrs,
     }
-    const { data, errors } = await client.mutate(ALL_B2C_APP_PROPERTIES_QUERY, { data: attrs })
+    const { data, errors } = await client.query(ALL_B2C_APP_PROPERTIES_QUERY, { data: attrs })
     throwIfError(data, errors)
     return [data.result, attrs]
 }
@@ -233,7 +266,8 @@ async function allB2CAppPropertiesByTestClient(client, app, environment, extraAt
 
 module.exports = {
     CondoB2CApp, createCondoB2CApp,
-    CondoB2CAppBuild, createCondoB2CAppBuild,
+    CondoB2CAppBuild, createCondoB2CAppBuild, updateCondoB2CApp,
+    CondoB2CAppProperty, createCondoB2CAppProperties,
     B2CApp, createTestB2CApp, updateTestB2CApp, updateTestB2CApps,
     B2CAppBuild, createTestB2CAppBuild, updateTestB2CAppBuild, generateBuildVersion,
     B2CAppPublishRequest, createTestB2CAppPublishRequest, updateTestB2CAppPublishRequest,

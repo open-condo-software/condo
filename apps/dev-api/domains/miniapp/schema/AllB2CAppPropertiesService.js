@@ -37,7 +37,7 @@ const AllB2CAppPropertiesService = new GQLCustomSchema('AllB2CAppPropertiesServi
         },
         {
             access: true,
-            type: 'type AllB2CAppPropertiesOutput { objs: B2CAppProperty!, meta: B2CAppPropertyMeta! }',
+            type: 'type AllB2CAppPropertiesOutput { objs: [B2CAppProperty!]!, meta: B2CAppPropertyMeta! }',
         },
     ],
     
@@ -70,7 +70,7 @@ const AllB2CAppPropertiesService = new GQLCustomSchema('AllB2CAppPropertiesServi
                     throw new GQLError(ERRORS.APP_NOT_FOUND, context)
                 }
 
-                return await serverClient.getModelsWithCount({
+                return  await serverClient.getModelsWithCount({
                     modelGql: CondoB2CAppPropertyGql,
                     where: {
                         app: { id: condoApp.id },
