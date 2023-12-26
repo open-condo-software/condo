@@ -1,5 +1,7 @@
 import { Form, Typography } from 'antd'
-import { get, isEmpty } from 'lodash'
+import { get, isEmpty, pick, reduce } from 'lodash'
+import difference from 'lodash/difference'
+import isEqual from 'lodash/isEqual'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo } from 'react'
 
@@ -90,6 +92,8 @@ interface IUpdateTicketForm {
 }
 
 export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
+    const intl = useIntl()
+
     const { replace } = useRouter()
     const { obj, loading: ticketLoading, refetch, error } = Ticket.useObject({ where: { id } })
     const { objs: files, refetch: refetchFiles } = TicketFile.useObjects({ where: { ticket: { id } } })
@@ -98,19 +102,58 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
 
     // no redirect after mutation as we need to wait for ticket files to save
     const action = Ticket.useUpdate({})
+    const createInvoiceAction = Invoice.useCreate({})
     const updateInvoiceAction = Invoice.useUpdate({})
     const updateAction = async (values) => {
-        const { invoices, ...ticketValues } = values
+        const { existedInvoices, newInvoices, ...ticketValues } = values
 
         const ticket = await action({
             ...Ticket.formValuesProcessor(ticketValues),
         }, obj)
 
-        if (!isEmpty(invoices)) {
-            for (const invoiceId of invoices) {
-                await updateInvoiceAction({
-                    ticket: { connect: { id: ticket.id } },
-                }, { id: invoiceId })
+        if (!isEmpty(newInvoices)) {
+            for (const invoiceFromForm of newInvoices) {
+                const payload = Invoice.formValuesProcessor({
+                    ...invoiceFromForm,
+                    ticket: ticket.id,
+                }, intl)
+
+                await createInvoiceAction(payload)
+            }
+        }
+
+        if (!isEmpty(existedInvoices)) {
+            for (const existedInvoice of existedInvoices) {
+                const initialInvoice = invoices.find(invoice => invoice.id === existedInvoice.id)
+
+                const editedFields = reduce(initialInvoice, (result, value, key) => {
+                    if (key === 'rows') {
+                        const fieldsToPick = ['count', 'isMin', 'name', 'sku', 'toPay']
+                        const updatedRows = existedInvoice[key]
+
+                        if (get(value, 'length') !== updatedRows.length) {
+                            return result.concat(key)
+                        }
+
+                        for (let i = 0; i < updatedRows.length; i++) {
+                            const updatedRow = updatedRows[i]
+                            const initialRow = value[i]
+
+                            if (!isEqual(pick(initialRow, fieldsToPick), pick(updatedRow, fieldsToPick))) {
+                                return result.concat(key)
+                            }
+                        }
+
+                        return result
+                    } else {
+                        return isEqual(value, existedInvoice[key]) ?
+                            result : result.concat(key)
+                    }
+                }, [])
+
+                if (!isEmpty(editedFields)) {
+                    await updateInvoiceAction(pick(existedInvoice, editedFields), existedInvoice)
+                }
             }
         }
 

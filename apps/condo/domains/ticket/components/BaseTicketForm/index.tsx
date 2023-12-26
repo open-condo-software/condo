@@ -269,8 +269,8 @@ const TicketFormInvoicesEmptyContent = ({
     )
 }
 
-const TicketFormInvoices = ({ newInvoices, invoiceIds, organizationId, initialValues, ticketCreatedByResident, initialInvoiceIds, form }) => {
-    const { objs: invoices, refetch: refetchInvoices } = Invoice.useObjects({
+const TicketFormInvoices = ({ newInvoices, existedInvoices, invoiceIds, organizationId, initialValues, ticketCreatedByResident, initialInvoiceIds, form }) => {
+    const { objs: invoices } = Invoice.useObjects({
         where: {
             id_in: invoiceIds,
         },
@@ -286,6 +286,7 @@ const TicketFormInvoices = ({ newInvoices, invoiceIds, organizationId, initialVa
         form.setFieldsValue({
             initialNotDraftInvoices: initialInvoicesInNotDraftStatus.map(invoice => invoice.id),
             invoicesInNotCanceledStatus: invoicesInNotCanceledStatus.map(invoice => invoice.id),
+            existedInvoices: invoices,
         })
     }, [invoices])
 
@@ -305,8 +306,8 @@ const TicketFormInvoices = ({ newInvoices, invoiceIds, organizationId, initialVa
             <Col span={24}>
                 <TicketInvoicesList
                     newInvoices={newInvoices}
-                    invoices={invoices}
-                    refetchInvoices={refetchInvoices}
+                    form={form}
+                    existedInvoices={existedInvoices}
                     initialValues={initialValues}
                     ticketCreatedByResident={ticketCreatedByResident}
                 />
@@ -318,6 +319,7 @@ const TicketFormInvoices = ({ newInvoices, invoiceIds, organizationId, initialVa
                 ticketCreatedByResident={ticketCreatedByResident}
             />
             <Form.Item hidden name='newInvoices' />
+            <Form.Item hidden name='existedInvoices' />
             <Form.Item hidden name='initialNotDraftInvoices' />
             <Form.Item hidden name='invoicesInNotCanceledStatus' />
         </Row>
@@ -489,19 +491,20 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
                                             name='invoices'
                                         />
                                         <Form.Item
-                                            dependencies={['newInvoices', 'invoices', 'property', 'unitName', 'unitType', 'clientPhone', 'clientName']}
+                                            dependencies={['newInvoices', 'existedInvoices', 'invoices', 'property', 'unitName', 'unitType', 'clientPhone', 'clientName']}
                                         >
                                             {
                                                 ({ getFieldsValue }) => {
                                                     const {
                                                         newInvoices,
+                                                        existedInvoices,
                                                         invoices,
                                                         property,
                                                         unitName,
                                                         unitType,
                                                         clientPhone,
                                                         clientName,
-                                                    } = getFieldsValue(['newInvoices', 'invoices', 'property', 'unitName', 'unitType', 'clientPhone', 'clientName'])
+                                                    } = getFieldsValue(['newInvoices', 'existedInvoices', 'invoices', 'property', 'unitName', 'unitType', 'clientPhone', 'clientName'])
 
                                                     const invoiceInitialValues = {
                                                         property,
@@ -514,6 +517,7 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
                                                     return (
                                                         <TicketFormInvoices
                                                             newInvoices={newInvoices}
+                                                            existedInvoices={existedInvoices}
                                                             invoiceIds={invoices}
                                                             organizationId={organizationId}
                                                             initialValues={invoiceInitialValues}

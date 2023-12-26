@@ -28,7 +28,8 @@ import { getPaymentLinkNotification } from './CopyButton'
 
 type UpdateInvoiceFormProps = {
     invoice: InvoiceType
-    afterAction: () => Promise<void>
+    action?: (values: InvoiceFormValuesType) => Promise<void>
+    afterAction?: () => Promise<void>
     modalFormProps?: ComponentProps<typeof BaseModalForm>
     initialValues?: InvoiceFormValuesType
     isAllFieldsDisabled?: boolean
@@ -36,7 +37,7 @@ type UpdateInvoiceFormProps = {
 }
 
 export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({
-    invoice, modalFormProps, afterAction, initialValues, isAllFieldsDisabled, ticketCreatedByResident,
+    invoice, modalFormProps, action, afterAction, initialValues, isAllFieldsDisabled, ticketCreatedByResident,
 }) => {
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Save' })
@@ -103,7 +104,7 @@ export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({
         <BaseInvoiceForm
             organizationId={get(organization, 'id')}
             role={link}
-            action={handleUpdateInvoice}
+            action={action || handleUpdateInvoice}
             initialValues={formInitialValues}
             isCreatedByResident={get(invoice, 'createdBy.type') === UserTypeType.Resident || ticketCreatedByResident}
             OnCompletedMsg={null}

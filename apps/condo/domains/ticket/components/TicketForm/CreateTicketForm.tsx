@@ -105,7 +105,6 @@ export const CreateTicketForm: React.FC = () => {
     const redirectToClientCard = useMemo(() => !!get(router, ['query', 'redirectToClientCard']), [router])
 
     const createInvoiceAction = Invoice.useCreate({})
-    const updateInvoiceAction = Invoice.useUpdate({})
     const action = Ticket.useCreate(
         {
             status: { connect: { id: OPEN_STATUS } },
@@ -156,7 +155,7 @@ export const CreateTicketForm: React.FC = () => {
         if (deadline && deadline.isToday()) {
             deadline = deadline.endOf('day')
         }
-        const { invoices, newInvoices, ...ticketValues } = variables
+        const { invoices, existedInvoices, newInvoices, ...ticketValues } = variables
 
         const ticket = await action({
             ...Ticket.formValuesProcessor({ ...ticketValues, deadline }),

@@ -489,7 +489,7 @@ const TicketInvoices = ({ invoices, invoicesLoading, refetchInvoices, ticket }) 
         <Row gutter={[0, 40]}>
             <Col span={24}>
                 <TicketInvoicesList
-                    invoices={invoices}
+                    existedInvoices={invoices}
                     refetchInvoices={refetchInvoices}
                     isAllFieldsDisabled={isAllFieldsDisabled}
                     ticketCreatedByResident={get(ticket, 'createdBy.type') === RESIDENT}
