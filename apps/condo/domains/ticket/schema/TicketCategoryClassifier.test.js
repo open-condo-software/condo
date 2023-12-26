@@ -4,7 +4,7 @@
 
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, makeLoggedInClient, UUID_RE, DATETIME_RE, expectValuesOfCommonFields } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, makeLoggedInClient, expectValuesOfCommonFields } = require('@open-condo/keystone/test.utils')
 const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@open-condo/keystone/test.utils')
 
 const { TicketCategoryClassifier, createTestTicketCategoryClassifier, updateTestTicketCategoryClassifier } = require('@condo/domains/ticket/utils/testSchema')
@@ -12,36 +12,39 @@ const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSch
 const { createTestUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('TicketCategoryClassifier CRUD', () => {
+    let admin
+    let support
+    let client
+
+    beforeAll(async () => {
+        admin = await makeLoggedInAdminClient()
+        support = await makeClientWithSupportUser()
+        const [, userAttrs] = await createTestUser(admin)
+        client = await makeLoggedInClient(userAttrs)
+    })
+
     describe('User', () => {
         it('can not create', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const [, userAttrs] = await createTestUser(admin)
-            const client = await makeLoggedInClient(userAttrs)
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await createTestTicketCategoryClassifier(client)
             })
         })
         it('can read', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const [, userAttrs] = await createTestUser(admin)
-            const client = await makeLoggedInClient(userAttrs)
             const [objCreated, attrs] = await createTestTicketCategoryClassifier(admin)
-            const objs = await TicketCategoryClassifier.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
-            expect(objs[0].id).toMatch(objCreated.id)
-            expect(objs[0].dv).toEqual(1)
-            expect(objs[0].sender).toEqual(attrs.sender)
-            expect(objs[0].v).toEqual(1)
-            expect(objs[0].newId).toEqual(null)
-            expect(objs[0].deletedAt).toEqual(null)
-            expect(objs[0].createdBy).toEqual(expect.objectContaining({ id: admin.user.id }))
-            expect(objs[0].updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
-            expect(objs[0].createdAt).toMatch(objCreated.createdAt)
-            expect(objs[0].updatedAt).toMatch(objCreated.updatedAt)
+            const obj = await TicketCategoryClassifier.getOne(client, { id: objCreated.id })
+
+            expect(obj.id).toMatch(objCreated.id)
+            expect(obj.dv).toEqual(1)
+            expect(obj.sender).toEqual(attrs.sender)
+            expect(obj.v).toEqual(1)
+            expect(obj.newId).toEqual(null)
+            expect(obj.deletedAt).toEqual(null)
+            expect(obj.createdBy).toEqual(expect.objectContaining({ id: admin.user.id }))
+            expect(obj.updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
+            expect(obj.createdAt).toMatch(objCreated.createdAt)
+            expect(obj.updatedAt).toMatch(objCreated.updatedAt)
         })
         it('can not update', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const [, userAttrs] = await createTestUser(admin)
-            const client = await makeLoggedInClient(userAttrs)
             const [objCreated] = await createTestTicketCategoryClassifier(admin)
             const payload = { name: faker.lorem.word() }
             await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -49,10 +52,7 @@ describe('TicketCategoryClassifier CRUD', () => {
             })
         })
         it('can not delete', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const [, userAttrs] = await createTestUser(admin)
             const [objCreated] = await createTestTicketCategoryClassifier(admin)
-            const client = await makeLoggedInClient(userAttrs)
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await TicketCategoryClassifier.delete(client, objCreated.id)
             })
@@ -60,29 +60,25 @@ describe('TicketCategoryClassifier CRUD', () => {
     })
     describe('Support', () => {
         it('can create', async () => {
-            const support = await makeClientWithSupportUser()
             const [obj, attrs] = await createTestTicketCategoryClassifier(support)
             expectValuesOfCommonFields(obj, attrs, support)
         })
         it('can read', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const support = await makeClientWithSupportUser()
             const [objCreated, attrs] = await createTestTicketCategoryClassifier(admin)
-            const objs = await TicketCategoryClassifier.getAll(support, {}, { sortBy: ['updatedAt_DESC'] })
-            expect(objs[0].id).toMatch(objCreated.id)
-            expect(objs[0].dv).toEqual(1)
-            expect(objs[0].sender).toEqual(attrs.sender)
-            expect(objs[0].v).toEqual(1)
-            expect(objs[0].newId).toEqual(null)
-            expect(objs[0].deletedAt).toEqual(null)
-            expect(objs[0].createdBy).toEqual(expect.objectContaining({ id: admin.user.id }))
-            expect(objs[0].updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
-            expect(objs[0].createdAt).toMatch(objCreated.createdAt)
-            expect(objs[0].updatedAt).toMatch(objCreated.updatedAt)
+            const obj = await TicketCategoryClassifier.getOne(support, { id: objCreated.id } )
+
+            expect(obj.id).toMatch(objCreated.id)
+            expect(obj.dv).toEqual(1)
+            expect(obj.sender).toEqual(attrs.sender)
+            expect(obj.v).toEqual(1)
+            expect(obj.newId).toEqual(null)
+            expect(obj.deletedAt).toEqual(null)
+            expect(obj.createdBy).toEqual(expect.objectContaining({ id: admin.user.id }))
+            expect(obj.updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
+            expect(obj.createdAt).toMatch(objCreated.createdAt)
+            expect(obj.updatedAt).toMatch(objCreated.updatedAt)
         })
         it('can update', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const support = await makeClientWithSupportUser()
             const [objCreated] = await createTestTicketCategoryClassifier(admin)
             const payload = { name: faker.lorem.word() }
             const [obj] = await updateTestTicketCategoryClassifier(support, objCreated.id, payload)
@@ -90,9 +86,7 @@ describe('TicketCategoryClassifier CRUD', () => {
             expect(obj.name).toEqual(payload.name)
         })
         it('can not delete', async () => {
-            const admin = await makeLoggedInAdminClient()
             const [objCreated] = await createTestTicketCategoryClassifier(admin)
-            const support = await makeClientWithSupportUser()
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await TicketCategoryClassifier.delete(support, objCreated.id)
             })
@@ -112,7 +106,6 @@ describe('TicketCategoryClassifier CRUD', () => {
             })
         })
         it('can not update', async () => {
-            const admin = await makeLoggedInAdminClient()
             const [objCreated] = await createTestTicketCategoryClassifier(admin)
             const client = await makeClient()
             const payload = { name: faker.lorem.word() }
@@ -121,7 +114,6 @@ describe('TicketCategoryClassifier CRUD', () => {
             })
         })
         it('can not delete', async () => {
-            const admin = await makeLoggedInAdminClient()
             const [objCreated] = await createTestTicketCategoryClassifier(admin)
             const client = await makeClient()
             await expectToThrowAccessDeniedErrorToObj(async () => {

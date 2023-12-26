@@ -170,10 +170,16 @@ function setFakeClientMode (entryPoint, prepareKeystoneOptions = {}) {
  * @returns {Promise<Object>}
  */
 async function doGqlRequest (callable, { mutation, query, variables }, logRequestResponse) {
+    let testName = ''
+    if (typeof jasmine !== 'undefined') {
+        // eslint-disable-next-line
+        testName = `[${get(jasmine, ['currentTest', 'fullName'], jasmine['testPath'].split('/').pop().split('.')[0])}]`
+    }
+
     try {
         if (logRequestResponse) {
             const text = get(query, 'loc.source.body', get(mutation, 'loc.source.body', 'no query data')).replace(/[\s,]+/g, ' ').trim()
-            console.debug(`[GraphQL >>>]: ${text}; variables=${JSON.stringify(variables)}`)
+            console.debug(`[GraphQL >>>]${testName}: ${text}; variables=${JSON.stringify(variables)}`)
         }
         const { errors, data } = await callable({
             mutation, query, variables,
@@ -182,9 +188,9 @@ async function doGqlRequest (callable, { mutation, query, variables }, logReques
             fetchPolicy: 'no-cache',
         })
         if (logRequestResponse && errors) {
-            console.warn(`[GraphQL <<<]: errors=${JSON.stringify(errors)}; data=${JSON.stringify(data)};`)
+            console.warn(`[GraphQL <<<]${testName}: errors=${JSON.stringify(errors)}; data=${JSON.stringify(data)};`)
         } else if (logRequestResponse) {
-            console.debug(`[GraphQL <<<]: data=${JSON.stringify(data)};`)
+            console.debug(`[GraphQL <<<]${testName}: data=${JSON.stringify(data)};`)
         }
         return { errors, data }
     } catch (e) {
@@ -197,7 +203,7 @@ async function doGqlRequest (callable, { mutation, query, variables }, logReques
         if (e.graphQLErrors && e.graphQLErrors.length > 0) {
             if (logRequestResponse) {
                 e.graphQLErrors.forEach((gqlError) => {
-                    console.warn(`[GraphQL <<<!!]: ${(e.operation) ? e.operation.operationName : '??'} ${JSON.stringify(gqlError)}}`)
+                    console.warn(`[GraphQL <<<!!]${testName}: ${(e.operation) ? e.operation.operationName : '??'} ${JSON.stringify(gqlError)}}`)
                 })
             }
 
@@ -208,7 +214,7 @@ async function doGqlRequest (callable, { mutation, query, variables }, logReques
 
         if (e.networkError) {
             if (logRequestResponse) {
-                console.warn(`[GraphQL <<<!!]: Network error: ${JSON.stringify(e.networkError)}`)
+                console.warn(`[GraphQL <<<!!]${testName}: Network error: ${JSON.stringify(e.networkError)}`)
             }
 
             // NOTE(pahaz): apollo client group by their custom logic %) we need to split errors related to Network errors (fetch errors)

@@ -37,10 +37,24 @@ const { createTestMeter } = require('@condo/domains/meter/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
-const { createTestProperty, makeClientWithResidentAccessAndProperty, makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { buildFakeAddressMeta } = require('@condo/domains/property/utils/testSchema/factories')
-const { Resident, createTestResident, updateTestResident, makeClientWithServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
-const { createTestTicketFile, updateTestTicketFile, createTestTicket, updateTestTicket } = require('@condo/domains/ticket/utils/testSchema')
+const {
+    createTestProperty,
+    makeClientWithResidentAccessAndProperty,
+    makeClientWithProperty,
+} = require('@condo/domains/property/utils/testSchema')
+const { buildFakeAddressMeta, buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
+const {
+    Resident,
+    createTestResident,
+    updateTestResident,
+    makeClientWithServiceConsumer,
+} = require('@condo/domains/resident/utils/testSchema')
+const {
+    createTestTicketFile,
+    updateTestTicketFile,
+    createTestTicket,
+    updateTestTicket,
+} = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { addResidentAccess } = require('@condo/domains/user/utils/testSchema')
 
@@ -414,15 +428,27 @@ describe('Resident', () => {
                 const adminClient = await makeLoggedInAdminClient()
                 const client = await makeClientWithResidentUser()
                 const [organization] = await createTestOrganization(adminClient)
-                const [property] = await createTestProperty(adminClient, organization)
+                const { address, addressMeta } = buildFakeAddressAndMeta()
                 const [resident] = await createTestResident(adminClient, client.user, null, {
-                    address: property.address,
-                    addressMeta: property.addressMeta,
+                    address,
+                    addressMeta,
                 })
+
+                const [property] = await createTestProperty(adminClient, organization, {
+                    address, addressMeta,
+                })
+
+                expect(resident.organization).toBeNull()
+                expect(resident.property).toBeNull()
+                expect(resident.address).toEqual(property.address)
+                expect(resident.addressMeta).toEqual(property.addressMeta)
+
                 const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
                 await createTestMeter(adminClient, organization, property, resource)
 
                 const [obj] = await Resident.getAll(client, { id: resident.id })
+
+                expect(obj.organization).toBe(null)
                 expect(obj.organizationFeatures).toBe(null)
             })
 
