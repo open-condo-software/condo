@@ -1,7 +1,10 @@
 import { Form, Typography } from 'antd'
-import { get, isEmpty, pick, reduce } from 'lodash'
-import difference from 'lodash/difference'
+import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
+import omit from 'lodash/omit'
+import pick from 'lodash/pick'
+import reduce from 'lodash/reduce'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo } from 'react'
 
@@ -116,17 +119,23 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
                 const payload = Invoice.formValuesProcessor({
                     ...invoiceFromForm,
                     ticket: ticket.id,
-                }, intl)
+                }, intl, true)
 
                 await createInvoiceAction(payload)
             }
         }
 
         if (!isEmpty(existedInvoices)) {
+            const notUpdatableFields = ['property', 'unitName', 'unitType', 'contact', 'clientName', 'clientPhone', 'client']
+
             for (const existedInvoice of existedInvoices) {
                 const initialInvoice = invoices.find(invoice => invoice.id === existedInvoice.id)
 
                 const editedFields = reduce(initialInvoice, (result, value, key) => {
+                    if (notUpdatableFields.includes(key)) {
+                        return result
+                    }
+
                     if (key === 'rows') {
                         const fieldsToPick = ['count', 'isMin', 'name', 'sku', 'toPay']
                         const updatedRows = existedInvoice[key]

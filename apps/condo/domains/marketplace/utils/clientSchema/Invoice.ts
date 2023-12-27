@@ -79,7 +79,7 @@ export function convertToFormState (invoice: Invoice, intl): InvoiceFormValuesTy
 
 type InvoiceMutationType = InvoiceUpdateInput | InvoiceCreateInput
 
-export function formValuesProcessor (formValues: InvoiceFormValuesType, intl): InvoiceMutationType {
+export function formValuesProcessor (formValues: InvoiceFormValuesType, intl, isTicketForm = false): InvoiceMutationType {
     const FromMessage = intl.formatMessage({ id: 'global.from' }).toLowerCase()
     const ContractPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' }).toLowerCase()
 
@@ -97,22 +97,25 @@ export function formValuesProcessor (formValues: InvoiceFormValuesType, intl): I
             }
         } else if (!isUndefined(formValues[key])) {
             if (key === 'rows' && !isNull(formValues[key])) {
-                const rows = formValues[key].map(({ name, toPay, count, sku }) => {
-                    const baseFields = { name, count }
-                    let toPayFields
-                    if (toPay === ContractPriceMessage) {
-                        toPayFields = { toPay: '0', isMin: true }
-                    } else if (toPay.startsWith(FromMessage)) {
-                        const toPayValue = toPay.split(' ')[1].replace(',', '.')
-                        toPayFields = { toPay: toPayValue, isMin: true }
-                    } else {
-                        toPayFields = { toPay: toPay.replace(',', '.'), isMin: false }
-                    }
+                let rows = formValues[key]
+                if (!isTicketForm) {
+                    rows = formValues[key].map(({ name, toPay, count, sku }) => {
+                        const baseFields = { name, count }
+                        let toPayFields
+                        if (toPay === ContractPriceMessage) {
+                            toPayFields = { toPay: '0', isMin: true }
+                        } else if (toPay.startsWith(FromMessage)) {
+                            const toPayValue = toPay.split(' ')[1].replace(',', '.')
+                            toPayFields = { toPay: toPayValue, isMin: true }
+                        } else {
+                            toPayFields = { toPay: toPay.replace(',', '.'), isMin: false }
+                        }
 
-                    const otherFields = pickBy({ sku }, (value) => !isEmpty(value))
+                        const otherFields = pickBy({ sku }, (value) => !isEmpty(value))
 
-                    return { ...baseFields, ...toPayFields, ...otherFields }
-                })
+                        return { ...baseFields, ...toPayFields, ...otherFields }
+                    })
+                }
 
                 const toPay = rows.every(row => !row.isMin) ?
                     rows.reduce((acc, row) => {

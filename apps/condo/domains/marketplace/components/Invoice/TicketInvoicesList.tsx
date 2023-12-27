@@ -17,6 +17,7 @@ import { UpdateInvoiceForm } from './UpdateInvoiceForm'
 
 
 type TicketInvoiceCardPropsType = {
+    organizationId: string
     invoiceIndex?: number
     form?: FormInstance
     invoice: InvoiceType
@@ -26,7 +27,7 @@ type TicketInvoiceCardPropsType = {
     refetchInvoices?: () => void
 }
 
-const TicketInvoiceCard: React.FC<TicketInvoiceCardPropsType> = ({ refetchInvoices, invoiceIndex, form, invoice, initialValues, isAllFieldsDisabled, ticketCreatedByResident }) => {
+const TicketInvoiceCard: React.FC<TicketInvoiceCardPropsType> = ({ organizationId, refetchInvoices, invoiceIndex, form, invoice, initialValues, isAllFieldsDisabled, ticketCreatedByResident }) => {
     const intl = useIntl()
     const invoiceNumber = get(invoice, 'number')
     const InvoiceNumberMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.update.title' },
@@ -40,6 +41,8 @@ const TicketInvoiceCard: React.FC<TicketInvoiceCardPropsType> = ({ refetchInvoic
     const invoiceStatus = get(invoice, 'status')
     const StatusMessage = intl.formatMessage({ id: `pages.condo.marketplace.invoice.invoiceStatus.${invoiceStatus}` })
     const NewInvoiceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.create.title' })
+    const ContractPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' }).toLowerCase()
+    const FromMessage = intl.formatMessage({ id: 'global.from' }).toLowerCase()
 
     const invoiceStatusColors = INVOICE_STATUS_COLORS[invoiceStatus]
 
@@ -57,7 +60,26 @@ const TicketInvoiceCard: React.FC<TicketInvoiceCardPropsType> = ({ refetchInvoic
     }, [refetchInvoices])
 
     const handleUpdateInvoice = useCallback(async (values) => {
-        const invoiceValues = omit(values, ['clientName', 'clientPhone', 'contact', 'property', 'unitName', 'unitPhone'])
+        const processedRows = get(values, 'rows', []).map(row => {
+            const toPay = get(row, 'toPay')
+            let resultToPay
+            if (toPay === ContractPriceMessage) {
+                resultToPay = '0'
+            } else if (toPay.startsWith(FromMessage)) {
+                resultToPay = toPay.split(' ')[1]
+            } else {
+                resultToPay = toPay
+            }
+
+            const resultRow = { ...row, toPay: resultToPay }
+
+            return resultRow.sku ? resultRow : omit(resultRow, 'sku')
+        })
+
+        const invoiceValues = {
+            ...values,
+            rows: processedRows,
+        }
 
         if (isNewInvoice) {
             const newInvoices = form.getFieldValue('newInvoices') || []
@@ -76,7 +98,7 @@ const TicketInvoiceCard: React.FC<TicketInvoiceCardPropsType> = ({ refetchInvoic
         }
 
         setEditModalOpen(false)
-    }, [form, invoiceIndex, isNewInvoice])
+    }, [ContractPriceMessage, FromMessage, form, invoiceIndex, isNewInvoice])
 
     return (
         <Row gutter={[0, 24]}>
@@ -108,6 +130,7 @@ const TicketInvoiceCard: React.FC<TicketInvoiceCardPropsType> = ({ refetchInvoic
             {
                 editModalOpen && (
                     <UpdateInvoiceForm
+                        organizationId={organizationId}
                         invoice={invoice}
                         modalFormProps={{
                             ModalTitleMsg: isNewInvoice ? NewInvoiceMessage : InvoiceNumberMessage,
@@ -129,6 +152,7 @@ const TicketInvoiceCard: React.FC<TicketInvoiceCardPropsType> = ({ refetchInvoic
 }
 
 type TicketInvoicesListPropsType = {
+    organizationId: string
     newInvoices?: InvoiceType[]
     existedInvoices?: InvoiceType[]
     form?: FormInstance
@@ -146,6 +170,7 @@ export const TicketInvoicesList: React.FC<TicketInvoicesListPropsType> = ({
     isAllFieldsDisabled,
     ticketCreatedByResident,
     refetchInvoices,
+    organizationId,
 }) => {
     return (
         <Row gutter={[0, 40]}>
@@ -153,6 +178,7 @@ export const TicketInvoicesList: React.FC<TicketInvoicesListPropsType> = ({
                 !isEmpty(existedInvoices) && existedInvoices.map((invoice, index) => (
                     <Col key={invoice.id} span={24}>
                         <TicketInvoiceCard
+                            organizationId={organizationId}
                             invoiceIndex={index}
                             invoice={invoice}
                             form={form}
@@ -168,6 +194,7 @@ export const TicketInvoicesList: React.FC<TicketInvoicesListPropsType> = ({
                 !isEmpty(newInvoices) && newInvoices.map((invoice, index) => (
                     <Col key={invoice.id} span={24}>
                         <TicketInvoiceCard
+                            organizationId={organizationId}
                             invoiceIndex={index}
                             form={form}
                             invoice={invoice}

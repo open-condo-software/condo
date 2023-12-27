@@ -169,7 +169,7 @@ export const useEmployeeRolesTableData = (connectedB2BApps: B2BApp[], b2BAppPerm
                 {
                     key: 'canReadMarketItems',
                     relatedCheckPermissions: ['canReadMarketplace', 'canReadMarketItemPrices', 'canReadMarketPriceScopes'],
-                    relatedUncheckPermissions: ['canManageMarketplace', 'canManageMarketItems', 'canReadMarketItemPrices', 'canReadMarketPriceScopes'],
+                    relatedUncheckPermissions: ['canManageInvoices', 'canManageMarketplace', 'canManageMarketItems', 'canReadMarketItemPrices', 'canReadMarketPriceScopes'],
                 },
                 {
                     key: 'canManageMarketItems',
@@ -183,7 +183,7 @@ export const useEmployeeRolesTableData = (connectedB2BApps: B2BApp[], b2BAppPerm
                 },
                 {
                     key: 'canManageInvoices',
-                    relatedCheckPermissions: ['canReadMarketplace', 'canReadInvoices'],
+                    relatedCheckPermissions: ['canReadMarketItems', 'canReadMarketplace', 'canReadInvoices'],
                 },
             ],
         },

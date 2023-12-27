@@ -168,7 +168,7 @@ export const CreateTicketForm: React.FC = () => {
                 const payload = Invoice.formValuesProcessor({
                     ...invoiceFromForm,
                     ticket: ticket.id,
-                }, intl)
+                }, intl, true)
 
                 await createInvoiceAction(payload)
             }

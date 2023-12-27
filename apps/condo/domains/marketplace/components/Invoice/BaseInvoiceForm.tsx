@@ -671,9 +671,12 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                             return Promise.reject(MinPriceValidationMessage)
                                                         }
 
-                                                        form.setFieldsValue({
-                                                            hasIsMinPrice: false,
-                                                        })
+                                                        const rows = form.getFieldValue('rows')
+                                                        if (!rows.some(row => row.isMin)) {
+                                                            form.setFieldsValue({
+                                                                hasIsMinPrice: false,
+                                                            })
+                                                        }
 
                                                         return Promise.resolve()
                                                     },
