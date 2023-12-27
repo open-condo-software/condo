@@ -5,13 +5,6 @@ exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
 
---- MANUAL
---- There is no data on prod (the feature is under development), so it is possible to clear tables before adding the not null field "organization" 
-truncate table public."InvoiceHistoryRecord" cascade;
-truncate table public."Invoice" cascade;
--------------------------
-
-
 --
 -- Remove field context from invoice
 --
