@@ -42,6 +42,12 @@ const ALL_B2C_APP_PROPERTIES_QUERY = gql`
     }
 `
 
+const CREATE_B2C_APP_PROPERTY_MUTATION = gql`
+    mutation createB2CAppProperty ($data: CreateB2CAppPropertyInput!) {
+        result: createB2CAppProperty(data: $data) { id address }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -51,5 +57,6 @@ module.exports = {
     PUBLISH_B2C_APP_MUTATION,
     IMPORT_B2C_APP_MUTATION,
     ALL_B2C_APP_PROPERTIES_QUERY,
+    CREATE_B2C_APP_PROPERTY_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -3914,6 +3914,19 @@ type AllB2CAppPropertiesOutput {
   meta: B2CAppPropertyMeta!
 }
 
+input CreateB2CAppPropertyInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  app: B2CAppWhereUniqueInput!
+  environment: AppEnvironment!
+  address: String!
+}
+
+type CreateB2CAppPropertyOutput {
+  id: String!
+  address: String!
+}
+
 type unauthenticateUserOutput {
   """
   `true` when unauthentication succeeds.
@@ -4394,6 +4407,7 @@ type Mutation {
   authenticateUserWithPhoneAndPassword(data: AuthenticateUserWithPhoneAndPasswordInput!): AuthenticateUserWithPhoneAndPasswordOutput
   publishB2CApp(data: PublishB2CAppInput!): PublishB2CAppOutput
   importB2CApp(data: ImportB2CAppInput!): ImportB2CAppOutput
+  createB2CAppProperty(data: CreateB2CAppPropertyInput!): CreateB2CAppPropertyOutput
 
   """ Authenticate and generate a token for a User with the Password Authentication Strategy. 
   """

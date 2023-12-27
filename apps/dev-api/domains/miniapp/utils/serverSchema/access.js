@@ -1,6 +1,6 @@
 const get = require('lodash/get')
 
-const { find } = require('@open-condo/keystone/schema')
+const { find, getByCondition } = require('@open-condo/keystone/schema')
 
 function canReadAppLinkedModelAsOwner ({ authentication: { item: user } }) {
     return { app: { createdBy: { id: user.id } } }
@@ -25,7 +25,15 @@ async function canCreateB2CAppLinkedModelAsOwner (args) {
     return await canCreateAppLinkedModelAsOwner(args, 'B2CApp')
 }
 
+async function canExecuteB2CAppMutationAsOwner (params) {
+    const { authentication: { item: user }, args } = params
+
+    const app = await getByCondition('B2CApp', { id: args.data.app.id, deletedAt: null })
+    return Boolean(app && app.createdBy === user.id)
+}
+
 module.exports = {
     canCreateB2CAppLinkedModelAsOwner,
     canReadAppLinkedModelAsOwner,
+    canExecuteB2CAppMutationAsOwner,
 }

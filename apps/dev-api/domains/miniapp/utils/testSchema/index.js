@@ -21,7 +21,10 @@ const { IMPORT_B2C_APP_MUTATION } = require('@dev-api/domains/miniapp/gql')
 const { generateGqlQueries } = require("@open-condo/codegen/generate.gql");
 const { DEFAULT_COLOR_SCHEMA } = require("@dev-api/domains/miniapp/constants/b2c")
 
-const { ALL_B2C_APP_PROPERTIES_QUERY } = require('@dev-api/domains/miniapp/gql')
+const {
+    ALL_B2C_APP_PROPERTIES_QUERY,
+    CREATE_B2C_APP_PROPERTY_MUTATION,
+} = require('@dev-api/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const B2CApp = generateGQLTestUtils(B2CAppGQL)
@@ -262,6 +265,26 @@ async function allB2CAppPropertiesByTestClient(client, app, environment, extraAt
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
+async function createB2CAppPropertyByTestClient(client, app, environment, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app')
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const { address } = buildFakeAddressAndMeta(false)
+
+    const attrs = {
+        dv: 1,
+        sender,
+        app: { id: app.id },
+        environment,
+        address,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(CREATE_B2C_APP_PROPERTY_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -274,5 +297,6 @@ module.exports = {
     publishB2CAppByTestClient,
     importB2CAppByTestClient,
     allB2CAppPropertiesByTestClient,
+    createB2CAppPropertyByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
