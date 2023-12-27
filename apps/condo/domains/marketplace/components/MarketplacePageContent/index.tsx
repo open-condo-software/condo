@@ -44,6 +44,7 @@ export const MarketplacePageContent = () => {
     const canReadPayments = get(role, ['canReadPaymentsWithInvoices'], false)
     const canReadInvoices = get(role, ['canReadInvoices'], false)
     const canReadMarketItems = get(role, ['canReadMarketItems'], false)
+    const canManageMarketplace = get(role, 'canManageMarketplace', false)
 
     const RenderNotSetupTag = useMemo(() => {
         if (!marketplaceIsSetup) {
@@ -81,9 +82,16 @@ export const MarketplacePageContent = () => {
             {GlobalHints}
             <PageHeader tags={RenderNotSetupTag} title={<Typography.Title>{PageTitle}</Typography.Title>} />
             {!marketplaceIsSetup ? (
-                <EmptyListView image='dino/playing@2x.png' message={NotSetupText} label={NotSetupTitle} createLabel={NotSetupButton} button={
-                    <Button type='primary' onClick={handleGoToSetup}>{NotSetupButton}</Button>
-                }/>
+                <EmptyListView
+                    image='dino/playing@2x.png'
+                    message={NotSetupText}
+                    label={NotSetupTitle}
+                    createLabel={NotSetupButton}
+                    button={
+                        <Button type='primary' onClick={handleGoToSetup}>{NotSetupButton}</Button>
+                    }
+                    accessCheck={canManageMarketplace}
+                />
             ) : (
                 <Tabs
                     activeKey={currentTab}

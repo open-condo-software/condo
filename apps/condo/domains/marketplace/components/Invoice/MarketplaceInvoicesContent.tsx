@@ -33,7 +33,9 @@ const TableContent = () => {
     const CreateInvoiceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.invoiceList.createInvoice' })
 
     const router = useRouter()
-    const { organization } = useOrganization()
+    const { organization, link } = useOrganization()
+    const role = get(link, ['role'], {})
+    const canManageInvoices = get(role, ['canManageInvoices'], false)
     const { filters, offset, sorters } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
     const filtersMeta = useMarketplaceInvoicesFilters()
@@ -123,19 +125,23 @@ const TableContent = () => {
                     onRow={handleRowAction}
                 />
             </Col>
-            <Col span={24}>
-                <ActionBar
-                    actions={[
-                        <Button
-                            key='createInvoice'
-                            type='primary'
-                            onClick={handleCreateButtonClick}
-                        >
-                            {CreateInvoiceMessage}
-                        </Button>,
-                    ]}
-                />
-            </Col>
+            {
+                canManageInvoices && (
+                    <Col span={24}>
+                        <ActionBar
+                            actions={[
+                                <Button
+                                    key='createInvoice'
+                                    type='primary'
+                                    onClick={handleCreateButtonClick}
+                                >
+                                    {CreateInvoiceMessage}
+                                </Button>,
+                            ]}
+                        />
+                    </Col>
+                )
+            }
         </Row>
     )
 }

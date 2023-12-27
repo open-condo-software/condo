@@ -6,6 +6,7 @@ import omit from 'lodash/omit'
 import React, { useCallback, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Space, Tag, Typography } from '@open-condo/ui'
 
 import { INVOICE_STATUS_COLORS } from '@condo/domains/marketplace/constants'
@@ -42,10 +43,14 @@ const TicketInvoiceCard: React.FC<TicketInvoiceCardPropsType> = ({ refetchInvoic
 
     const invoiceStatusColors = INVOICE_STATUS_COLORS[invoiceStatus]
 
+    const { link } = useOrganization()
+    const canManageInvoices = get(link, 'role.canManageInvoices', false)
+
     const [editModalOpen, setEditModalOpen] = useState<boolean>()
     const handleInvoiceNumberClick = useCallback(() => {
+        if (!canManageInvoices) return
         setEditModalOpen(true)
-    }, [])
+    }, [canManageInvoices])
     const afterInvoiceUpdate = useCallback(async () => {
         await refetchInvoices()
         setEditModalOpen(false)

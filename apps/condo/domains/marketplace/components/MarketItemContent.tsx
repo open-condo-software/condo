@@ -35,8 +35,10 @@ const TableContent = () => {
     const AllCategoriesMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.filter.allCategories' })
 
     const router = useRouter()
-    const { organization } = useOrganization()
+    const { organization, link } = useOrganization()
     const orgId = get(organization, 'id', null)
+    const role = get(link, 'role', {})
+    const canManageMarketItems = get(role, 'canManageMarketItems', false)
 
     const {
         objs: marketCategories,
@@ -220,18 +222,21 @@ const TableContent = () => {
                     />
                 </Col>
             </Row>
-            <ActionBar
-                actions={[
-                    <Button
-                        key='createMarketItem'
-                        type='primary'
-                        onClick={() => { router.push('/marketplace/marketItem/create') }}
-                    >
-                        {AddServicesButtonText}
-                    </Button>,
-                ]}
-            />
-
+            {
+                canManageMarketItems && (
+                    <ActionBar
+                        actions={[
+                            <Button
+                                key='createMarketItem'
+                                type='primary'
+                                onClick={() => { router.push('/marketplace/marketItem/create') }}
+                            >
+                                {AddServicesButtonText}
+                            </Button>,
+                        ]}
+                    />
+                )
+            }
         </TablePageContent>
     )
 }

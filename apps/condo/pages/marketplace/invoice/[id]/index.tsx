@@ -328,7 +328,7 @@ const InvoiceActionBar = ({
                                 disabled={isButtonDisabled}
                                 type='primary'
                                 icon={<Edit size='medium'/>}
-                                data-cy='ticket__update-link'
+                                data-cy='invoice__update-link'
                             >
                                 {UpdateMessage}
                             </Button>

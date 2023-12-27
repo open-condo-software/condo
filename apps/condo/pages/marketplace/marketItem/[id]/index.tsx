@@ -274,7 +274,9 @@ const MarketItemIdPage = () => {
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.id.deleteAlert.title' })
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.id.deleteAlert.message' })
 
-    const { loading: employeeLoading, organization } = useOrganization()
+    const { loading: employeeLoading, organization, link } = useOrganization()
+    const canManageMarketItems = get(link, 'role.canManageMarketItems', false)
+
     const router = useRouter()
     const { query: { id } } = router as { query: { [key: string]: string } }
 
@@ -368,27 +370,31 @@ const MarketItemIdPage = () => {
                                 </Col>
                             </Row>
                         </Col>
-                        <Col span={24}>
-                            <ActionBar
-                                actions={[
-                                    <Button
-                                        key='edit'
-                                        onClick={handleClickEdit}
-                                        type='primary'
-                                    >
-                                        {EditMessage}
-                                    </Button>,
-                                    <DeleteButtonWithConfirmModal
-                                        key='delete'
-                                        title={ConfirmDeleteTitle}
-                                        message={ConfirmDeleteMessage}
-                                        okButtonLabel={DeleteMessage}
-                                        action={handleClickDelete}
-                                        buttonContent={DeleteMessage}
-                                    />,
-                                ]}
-                            />
-                        </Col>
+                        {
+                            canManageMarketItems && (
+                                <Col span={24}>
+                                    <ActionBar
+                                        actions={[
+                                            <Button
+                                                key='edit'
+                                                onClick={handleClickEdit}
+                                                type='primary'
+                                            >
+                                                {EditMessage}
+                                            </Button>,
+                                            <DeleteButtonWithConfirmModal
+                                                key='delete'
+                                                title={ConfirmDeleteTitle}
+                                                message={ConfirmDeleteMessage}
+                                                okButtonLabel={DeleteMessage}
+                                                action={handleClickDelete}
+                                                buttonContent={DeleteMessage}
+                                            />,
+                                        ]}
+                                    />
+                                </Col>
+                            )
+                        }
                     </Row>
                 </PageContent>
             </PageWrapper>

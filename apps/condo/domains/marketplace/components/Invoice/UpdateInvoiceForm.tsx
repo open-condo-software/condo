@@ -47,6 +47,7 @@ export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({
     const CancelLabel = intl.formatMessage({ id: 'Cancel' })
 
     const { link } = useOrganization()
+    const canManageInvoices = get(link, 'role.canManageInvoices', false)
 
     const updateInvoiceAction = Invoice.useUpdate({}, afterAction)
 
@@ -124,6 +125,10 @@ export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({
                                 (form) => {
                                     const tooltipTitle = getSaveButtonTooltipMessage(form, intl)
                                     const disabled = submitLoading || !isEmpty(tooltipTitle)
+
+                                    if (!canManageInvoices) {
+                                        return <></>
+                                    }
 
                                     return (
                                         <Col span={24}>
