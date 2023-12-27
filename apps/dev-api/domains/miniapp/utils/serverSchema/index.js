@@ -12,10 +12,11 @@ const {
     B2CAppBuild: B2CAppBuildGQL,
     B2CAppPublishRequest: B2CAppPublishRequestGQL,
     PUBLISH_B2C_APP_MUTATION,
+    IMPORT_B2C_APP_MUTATION,
+    CREATE_B2C_APP_PROPERTY_MUTATION,
+    DELETE_B2C_APP_PROPERTY_MUTATION,
+    ALL_B2C_APP_PROPERTIES_QUERY,
 } = require('@dev-api/domains/miniapp/gql')
-const { IMPORT_B2C_APP_MUTATION } = require('@dev-api/domains/miniapp/gql')
-const { ALL_B2C_APP_PROPERTIES_QUERY } = require('@dev-api/domains/miniapp/gql')
-const { CREATE_B2C_APP_PROPERTY_MUTATION } = require('@dev-api/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const B2CApp = generateServerUtils(B2CAppGQL)
@@ -67,8 +68,21 @@ async function createB2CAppProperty (context, data) {
 
     return await execGqlWithoutAccess(context, {
         query: CREATE_B2C_APP_PROPERTY_MUTATION,
-        variables: { data: { dv: 1, ...data } },
+        variables: { data },
         errorMessage: '[error] Unable to createB2CAppProperty',
+        dataPath: 'obj',
+    })
+}
+
+async function deleteB2CAppProperty (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: DELETE_B2C_APP_PROPERTY_MUTATION,
+        variables: { data },
+        errorMessage: '[error] Unable to deleteB2CAppProperty',
         dataPath: 'obj',
     })
 }
@@ -83,5 +97,6 @@ module.exports = {
     importB2CApp,
     allB2CAppProperties,
     createB2CAppProperty,
+    deleteB2CAppProperty,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

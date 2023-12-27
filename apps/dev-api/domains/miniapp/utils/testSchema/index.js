@@ -14,17 +14,15 @@ const {
     B2CAppBuild: B2CAppBuildGQL,
     B2CAppPublishRequest: B2CAppPublishRequestGQL,
     PUBLISH_B2C_APP_MUTATION,
+    IMPORT_B2C_APP_MUTATION,
+    ALL_B2C_APP_PROPERTIES_QUERY,
+    CREATE_B2C_APP_PROPERTY_MUTATION,
+    DELETE_B2C_APP_PROPERTY_MUTATION,
 } = require('@dev-api/domains/miniapp/gql')
 const { UploadingFile } = require('@open-condo/keystone/test.utils')
 const { DEV_ENVIRONMENT } = require('@dev-api/domains/miniapp/constants/publishing')
-const { IMPORT_B2C_APP_MUTATION } = require('@dev-api/domains/miniapp/gql')
 const { generateGqlQueries } = require("@open-condo/codegen/generate.gql");
 const { DEFAULT_COLOR_SCHEMA } = require("@dev-api/domains/miniapp/constants/b2c")
-
-const {
-    ALL_B2C_APP_PROPERTIES_QUERY,
-    CREATE_B2C_APP_PROPERTY_MUTATION,
-} = require('@dev-api/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const B2CApp = generateGQLTestUtils(B2CAppGQL)
@@ -79,7 +77,7 @@ async function createCondoB2CAppBuild (client, app, extraAttrs = {}) {
 
 async function createCondoB2CAppProperties(client, condoApp, amount) {
     if (!client) throw new Error('No client')
-    if (!condoApp || !condoApp.id) throw new Error('No client')
+    if (!condoApp || !condoApp.id) throw new Error('No app')
 
     const attrs = []
     for (let i = 0; i < amount; i++) {
@@ -285,6 +283,21 @@ async function createB2CAppPropertyByTestClient(client, app, environment, extraA
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
+async function deleteB2CAppPropertyByTestClient(client, id, environment) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        id,
+        environment,
+    }
+    const { data, errors } = await client.mutate(DELETE_B2C_APP_PROPERTY_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -298,5 +311,6 @@ module.exports = {
     importB2CAppByTestClient,
     allB2CAppPropertiesByTestClient,
     createB2CAppPropertyByTestClient,
+    deleteB2CAppPropertyByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

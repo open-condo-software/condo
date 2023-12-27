@@ -3927,6 +3927,18 @@ type CreateB2CAppPropertyOutput {
   address: String!
 }
 
+input DeleteB2CAppPropertyInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  id: ID!
+  environment: AppEnvironment!
+}
+
+type DeleteB2CAppPropertyOutput {
+  id: String!
+  deletedAt: String
+}
+
 type unauthenticateUserOutput {
   """
   `true` when unauthentication succeeds.
@@ -4408,6 +4420,7 @@ type Mutation {
   publishB2CApp(data: PublishB2CAppInput!): PublishB2CAppOutput
   importB2CApp(data: ImportB2CAppInput!): ImportB2CAppOutput
   createB2CAppProperty(data: CreateB2CAppPropertyInput!): CreateB2CAppPropertyOutput
+  deleteB2CAppProperty(data: DeleteB2CAppPropertyInput!): DeleteB2CAppPropertyOutput
 
   """ Authenticate and generate a token for a User with the Password Authentication Strategy. 
   """

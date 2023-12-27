@@ -8,6 +8,7 @@ const { B2CApp } = require('./B2CApp')
 const { B2CAppBuild } = require('./B2CAppBuild')
 const { B2CAppPublishRequest } = require('./B2CAppPublishRequest')
 const { CreateB2CAppPropertyService } = require('./CreateB2CAppPropertyService')
+const { DeleteB2CAppPropertyService } = require('./DeleteB2CAppPropertyService')
 const { ImportB2CAppService } = require('./ImportB2CAppService')
 const { PublishB2CAppService } = require('./PublishB2CAppService')
 /* AUTOGENERATE MARKER <REQUIRE> */
@@ -20,5 +21,6 @@ module.exports = {
     ImportB2CAppService,
     AllB2CAppPropertiesService,
     CreateB2CAppPropertyService,
+    DeleteB2CAppPropertyService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

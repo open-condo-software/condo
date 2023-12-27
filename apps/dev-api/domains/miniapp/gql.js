@@ -48,6 +48,12 @@ const CREATE_B2C_APP_PROPERTY_MUTATION = gql`
     }
 `
 
+const DELETE_B2C_APP_PROPERTY_MUTATION = gql`
+    mutation deleteB2CAppProperty ($data: DeleteB2CAppPropertyInput!) {
+        result: deleteB2CAppProperty(data: $data) { id deletedAt }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -58,5 +64,6 @@ module.exports = {
     IMPORT_B2C_APP_MUTATION,
     ALL_B2C_APP_PROPERTIES_QUERY,
     CREATE_B2C_APP_PROPERTY_MUTATION,
+    DELETE_B2C_APP_PROPERTY_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
