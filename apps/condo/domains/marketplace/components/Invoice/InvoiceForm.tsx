@@ -24,12 +24,13 @@ export const InvoiceForm: React.FC<IInvoiceFormProps> = ({ invoice }) => {
 
     return invoice ? (
         <UpdateInvoiceForm
+            organizationId={get(organization, 'id')}
             invoice={invoice}
             afterAction={afterUpdateAction}
         />
     ) : (
         <CreateInvoiceForm
-            organizationId={organization.id}
+            organizationId={get(organization, 'id')}
             afterAction={afterCreateAction}
         />
     )

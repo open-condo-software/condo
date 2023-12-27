@@ -28,7 +28,9 @@ import { getPaymentLinkNotification } from './CopyButton'
 
 type UpdateInvoiceFormProps = {
     invoice: InvoiceType
-    afterAction: () => Promise<void>
+    organizationId: string
+    action?: (values: InvoiceFormValuesType) => Promise<void>
+    afterAction?: () => Promise<void>
     modalFormProps?: ComponentProps<typeof BaseModalForm>
     initialValues?: InvoiceFormValuesType
     isAllFieldsDisabled?: boolean
@@ -36,16 +38,16 @@ type UpdateInvoiceFormProps = {
 }
 
 export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({
-    invoice, modalFormProps, afterAction, initialValues, isAllFieldsDisabled, ticketCreatedByResident,
+    invoice, organizationId, modalFormProps, action, afterAction, initialValues, isAllFieldsDisabled, ticketCreatedByResident,
 }) => {
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Save' })
 
     const isModalForm = useMemo(() => !isEmpty(modalFormProps), [modalFormProps])
-    const organization = useMemo(() => get(invoice, 'organization'), [invoice])
     const CancelLabel = intl.formatMessage({ id: 'Cancel' })
 
     const { link } = useOrganization()
+    const canManageInvoices = get(link, 'role.canManageInvoices', false)
 
     const updateInvoiceAction = Invoice.useUpdate({}, afterAction)
 
@@ -55,9 +57,22 @@ export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({
     const handleUpdateInvoice = useCallback(async (values) => {
         setSubmitLoading(true)
         let valuesFromForm = { ...values }
-        if (!values.payerData || isModalForm) {
-            valuesFromForm = omit(values, ['clientName', 'clientPhone', 'contact', 'property', 'unitName', 'unitPhone'])
+        if (isModalForm) {
+            valuesFromForm = omit(values, ['clientName', 'clientPhone', 'contact', 'property', 'unitName', 'unitType'])
         }
+        if (!values.payerData) {
+            valuesFromForm = {
+                ...valuesFromForm,
+                clientName: null,
+                clientPhone: null,
+                contact: null,
+                property: null,
+                unitName: null,
+                unitType: null,
+                client: null,
+            }
+        }
+
         const formattedValues = Invoice.formValuesProcessor(valuesFromForm, intl)
         const updatedInvoice = await updateInvoiceAction(formattedValues, invoice)
 
@@ -101,9 +116,9 @@ export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({
 
     return (
         <BaseInvoiceForm
-            organizationId={get(organization, 'id')}
+            organizationId={organizationId}
             role={link}
-            action={handleUpdateInvoice}
+            action={action || handleUpdateInvoice}
             initialValues={formInitialValues}
             isCreatedByResident={get(invoice, 'createdBy.type') === UserTypeType.Resident || ticketCreatedByResident}
             OnCompletedMsg={null}
@@ -123,6 +138,10 @@ export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({
                                 (form) => {
                                     const tooltipTitle = getSaveButtonTooltipMessage(form, intl)
                                     const disabled = submitLoading || !isEmpty(tooltipTitle)
+
+                                    if (!canManageInvoices) {
+                                        return <></>
+                                    }
 
                                     return (
                                         <Col span={24}>

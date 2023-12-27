@@ -12,6 +12,8 @@ const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
 
 const logger = getLogger('sberCloudFileAdapter')
 const PUBLIC_URL_TTL = 60 * 60 * 24 * 30 // 1 MONTH IN SECONDS FOR ANY PUBLIC URL
+const NO_SET_CONTENT_DISPOSITION_FOLDERS = ['marketitemfile'] // files to be opened in a new window by clicking on a link
+
 
 class SberCloudObsAcl {
     constructor (config) {
@@ -168,7 +170,8 @@ class SberCloudFileAdapter {
         }
 
         // propagate original filename for an indirect url
-        const qs = isNil(originalFilename) ? '' : `?original_filename=${encodeURIComponent(originalFilename)}`
+        const qs = isNil(originalFilename) || NO_SET_CONTENT_DISPOSITION_FOLDERS.includes(this.folder) ?
+            '' : `?original_filename=${encodeURIComponent(originalFilename)}`
         return `${SERVER_URL}/api/files/${this.folder}/${filename}${qs}`
     }
 

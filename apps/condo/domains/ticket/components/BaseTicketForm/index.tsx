@@ -19,10 +19,12 @@ import omit from 'lodash/omit'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { Info, PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Alert, Space, Tooltip } from '@open-condo/ui'
 
 import { CONTEXT_FINISHED_STATUS } from '@condo/domains/acquiring/constants/context'
@@ -158,32 +160,56 @@ export const TicketFormItem: React.FC<FormItemProps> = (props) => (
     <Form.Item labelCol={FORM_FILED_COL_PROPS} wrapperCol={FORM_FILED_COL_PROPS} {...props} />
 )
 
-const AddInvoiceButton = ({ refetchInvoices, initialValues, addInvoiceToTicketForm, organizationId, ticketCreatedByResident }) => {
+const AddInvoiceButton = ({ initialValues, form, organizationId, ticketCreatedByResident }) => {
     const intl = useIntl()
     const AddInvoiceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.ticketInvoice.form.addInvoice' })
     const CreateInvoiceModalTitle = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.create.title' })
 
-    const [createInvoiceModalOpen, setCreateInvoiceModalOpen] = useState<boolean>(false)
-    const afterInvoiceCreated = useCallback(async (invoice) => {
-        addInvoiceToTicketForm(invoice.id)
+    const { link } = useOrganization()
+    const canManageInvoices = get(link, 'role.canManageInvoices', false)
 
-        await refetchInvoices()
+    const [createInvoiceModalOpen, setCreateInvoiceModalOpen] = useState<boolean>(false)
+
+    const handleCreateInvoice = useCallback(async (values) => {
+        const rawRows = get(values, 'rows', [])
+        const processedRows = Invoice.processRowsFromInvoiceTicketForm(rawRows, intl)
+
+        const invoiceValues = {
+            ...values,
+            organization: organizationId,
+            rows: processedRows,
+        }
+
+        const newInvoices = form.getFieldValue('newInvoices') || []
+
+        form.setFieldsValue({
+            newInvoices: [
+                ...newInvoices,
+                invoiceValues,
+            ],
+        })
+
         setCreateInvoiceModalOpen(false)
-    }, [addInvoiceToTicketForm, refetchInvoices])
+        return
+    }, [form, intl, organizationId])
 
     return (
         <>
-            <Col style={{ cursor: 'pointer' }} onClick={() => setCreateInvoiceModalOpen(true)}>
-                <Space size={4} direction='horizontal'>
-                    <PlusCircle />
-                    <Typography.Text size='medium' strong>{AddInvoiceMessage}</Typography.Text>
-                </Space>
-            </Col>
+            {
+                canManageInvoices && (
+                    <Col style={{ cursor: 'pointer' }} onClick={() => setCreateInvoiceModalOpen(true)}>
+                        <Space size={4} direction='horizontal'>
+                            <PlusCircle />
+                            <Typography.Text size='medium' strong>{AddInvoiceMessage}</Typography.Text>
+                        </Space>
+                    </Col>
+                )
+            }
             {
                 createInvoiceModalOpen && (
                     <CreateInvoiceForm
                         organizationId={organizationId}
-                        afterAction={afterInvoiceCreated}
+                        action={handleCreateInvoice}
                         initialValues={initialValues}
                         modalFormProps={{
                             ModalTitleMsg: CreateInvoiceModalTitle,
@@ -201,7 +227,7 @@ const AddInvoiceButton = ({ refetchInvoices, initialValues, addInvoiceToTicketFo
 }
 
 const TicketFormInvoicesEmptyContent = ({
-    refetchInvoices, organizationId, initialValues, addInvoiceToTicketForm, ticketCreatedByResident,
+    organizationId, initialValues, form, ticketCreatedByResident,
 }) => {
     const intl = useIntl()
     const AlertMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.ticketInvoice.form.noContextAlert.message' })
@@ -216,56 +242,75 @@ const TicketFormInvoicesEmptyContent = ({
         },
     })
 
+    const { link } = useOrganization()
+    const canManageInvoices = get(link, 'role.canManageInvoices', false)
+    const canManageMarketPlace = get(link, 'role.canManageMarketplace', false)
+
     if (loading) return <Loader />
     if (!invoiceContext) {
+        if (!canManageMarketPlace) {
+            return <></>
+        }
+
         return (
-            <Alert
-                type='warning'
-                showIcon
-                message={AlertMessage}
-                description={
-                    <Space direction='vertical' size={4}>
-                        <Typography.Paragraph size='medium'>
-                            {AlertDescription}
-                        </Typography.Paragraph>
-                        <Typography.Link size='large' href='/marketplace' target='_blank'>
-                            {AlertDescriptionLink}
-                        </Typography.Link>
-                    </Space>
-                }
-            />
+            <Col span={24} md={18}>
+                <Alert
+                    type='warning'
+                    showIcon
+                    message={AlertMessage}
+                    description={
+                        <Space direction='vertical' size={4}>
+                            <Typography.Paragraph size='medium'>
+                                {AlertDescription}
+                            </Typography.Paragraph>
+                            <Typography.Link size='large' href='/marketplace' target='_blank'>
+                                {AlertDescriptionLink}
+                            </Typography.Link>
+                        </Space>
+                    }
+                />
+            </Col>
         )
     }
 
+    if (!canManageInvoices) {
+        return <></>
+    }
+
     return (
-        <FocusContainer margin='0'>
-            <Row gutter={[0, 40]}>
-                <Col span={24}>
-                    <Typography.Text size='medium' type='secondary'>{NoInvoicesMessage}</Typography.Text>
-                </Col>
-                <Col span={24}>
-                    <Row style={{ paddingBottom:'24px' }} justify='center' align='middle'>
-                        <AddInvoiceButton
-                            refetchInvoices={refetchInvoices}
-                            initialValues={initialValues}
-                            addInvoiceToTicketForm={addInvoiceToTicketForm}
-                            organizationId={organizationId}
-                            ticketCreatedByResident={ticketCreatedByResident}
-                        />
-                    </Row>
-                </Col>
-            </Row>
-        </FocusContainer>
+        <Col span={24} md={18}>
+            <FocusContainer margin='0'>
+                <Row gutter={[0, 40]}>
+                    <Col span={24}>
+                        <Typography.Text size='medium' type='secondary'>{NoInvoicesMessage}</Typography.Text>
+                    </Col>
+                    <Col span={24}>
+                        <Row style={{ paddingBottom:'24px' }} justify='center' align='middle'>
+                            <AddInvoiceButton
+                                initialValues={initialValues}
+                                form={form}
+                                organizationId={organizationId}
+                                ticketCreatedByResident={ticketCreatedByResident}
+                            />
+                        </Row>
+                    </Col>
+                </Row>
+            </FocusContainer>
+        </Col>
     )
 }
 
-const TicketFormInvoices = ({ invoiceIds, organizationId, initialValues, addInvoiceToTicketForm, ticketCreatedByResident, initialInvoiceIds, form }) => {
-    const { objs: invoices, refetch: refetchInvoices } = Invoice.useObjects({
+const TicketFormInvoices = ({ newInvoices, existedInvoices, invoiceIds, organizationId, initialValues, ticketCreatedByResident, initialInvoiceIds, form }) => {
+    const { objs: invoices } = Invoice.useObjects({
         where: {
             id_in: invoiceIds,
         },
         sortBy: [SortInvoicesBy.CreatedAtDesc],
     })
+
+    const { link } = useOrganization()
+    const canManageInvoices = get(link, 'role.canManageInvoices', false)
+    const canReadInvoices = get(link, 'role.canReadInvoices', false)
 
     useDeepCompareEffect(() => {
         const initialInvoicesInNotDraftStatus = invoices.filter(invoice =>
@@ -276,41 +321,54 @@ const TicketFormInvoices = ({ invoiceIds, organizationId, initialValues, addInvo
         form.setFieldsValue({
             initialNotDraftInvoices: initialInvoicesInNotDraftStatus.map(invoice => invoice.id),
             invoicesInNotCanceledStatus: invoicesInNotCanceledStatus.map(invoice => invoice.id),
+            existedInvoices: invoices,
         })
     }, [invoices])
 
-    if (isEmpty(invoiceIds)) {
+    if (isEmpty(invoiceIds) && isEmpty(newInvoices)) {
         return (
             <TicketFormInvoicesEmptyContent
-                refetchInvoices={refetchInvoices}
                 organizationId={organizationId}
                 initialValues={initialValues}
-                addInvoiceToTicketForm={addInvoiceToTicketForm}
+                form={form}
                 ticketCreatedByResident={ticketCreatedByResident}
             />
         )
     }
 
+    if (!canReadInvoices) {
+        return <></>
+    }
+
     return (
-        <Row gutter={[0, 40]}>
-            <Col span={24}>
-                <TicketInvoicesList
-                    invoices={invoices}
-                    refetchInvoices={refetchInvoices}
-                    initialValues={initialValues}
-                    ticketCreatedByResident={ticketCreatedByResident}
-                />
-            </Col>
-            <AddInvoiceButton
-                refetchInvoices={refetchInvoices}
-                initialValues={initialValues}
-                addInvoiceToTicketForm={addInvoiceToTicketForm}
-                organizationId={organizationId}
-                ticketCreatedByResident={ticketCreatedByResident}
-            />
-            <Form.Item hidden name='initialNotDraftInvoices' />
-            <Form.Item hidden name='invoicesInNotCanceledStatus' />
-        </Row>
+        <Col span={24} md={18}>
+            <Row gutter={[0, 40]}>
+                <Col span={24}>
+                    <TicketInvoicesList
+                        organizationId={organizationId}
+                        newInvoices={newInvoices}
+                        form={form}
+                        existedInvoices={existedInvoices}
+                        initialValues={initialValues}
+                        ticketCreatedByResident={ticketCreatedByResident}
+                    />
+                </Col>
+                {
+                    canManageInvoices && (
+                        <AddInvoiceButton
+                            initialValues={initialValues}
+                            form={form}
+                            organizationId={organizationId}
+                            ticketCreatedByResident={ticketCreatedByResident}
+                        />
+                    )
+                }
+                <Form.Item hidden name='newInvoices' />
+                <Form.Item hidden name='existedInvoices' />
+                <Form.Item hidden name='initialNotDraftInvoices' />
+                <Form.Item hidden name='invoicesInNotCanceledStatus' />
+            </Row>
+        </Col>
     )
 }
 
@@ -472,25 +530,28 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
                             </Col>
                             {
                                 isMarketplaceEnabled && isPayable && (
-                                    <Col span={24} md={18}>
+                                    <>
                                         <Form.Item
                                             hidden
                                             noStyle
                                             name='invoices'
                                         />
                                         <Form.Item
-                                            dependencies={['invoices', 'property', 'unitName', 'unitType', 'clientPhone', 'clientName']}
+                                            noStyle
+                                            dependencies={['newInvoices', 'existedInvoices', 'invoices', 'property', 'unitName', 'unitType', 'clientPhone', 'clientName']}
                                         >
                                             {
-                                                ({ getFieldValue, getFieldsValue, setFieldsValue }) => {
+                                                ({ getFieldsValue }) => {
                                                     const {
+                                                        newInvoices,
+                                                        existedInvoices,
                                                         invoices,
                                                         property,
                                                         unitName,
                                                         unitType,
                                                         clientPhone,
                                                         clientName,
-                                                    } = getFieldsValue(['invoices', 'property', 'unitName', 'unitType', 'clientPhone', 'clientName'])
+                                                    } = getFieldsValue(['newInvoices', 'existedInvoices', 'invoices', 'property', 'unitName', 'unitType', 'clientPhone', 'clientName'])
 
                                                     const invoiceInitialValues = {
                                                         property,
@@ -500,22 +561,14 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
                                                         clientName,
                                                     }
 
-                                                    const addInvoiceToTicketForm = (invoiceId) => {
-                                                        setFieldsValue({
-                                                            invoices: [
-                                                                ...getFieldValue('invoices'),
-                                                                invoiceId,
-                                                            ],
-                                                        })
-                                                    }
-
                                                     return (
                                                         <TicketFormInvoices
+                                                            newInvoices={newInvoices}
+                                                            existedInvoices={existedInvoices}
                                                             invoiceIds={invoices}
                                                             organizationId={organizationId}
                                                             initialValues={invoiceInitialValues}
                                                             initialInvoiceIds={get(initialValues, 'invoices')}
-                                                            addInvoiceToTicketForm={addInvoiceToTicketForm}
                                                             ticketCreatedByResident={get(initialValues, 'createdByType') === RESIDENT}
                                                             form={form}
                                                         />
@@ -523,7 +576,7 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
                                                 }
                                             }
                                         </Form.Item>
-                                    </Col>
+                                    </>
                                 )
                             }
                             <Col span={deadlineColSpan}>
@@ -859,7 +912,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                             form={form}
                             handleSave={handleSave}
                         >
-                            <Typography.Paragraph>
+                            <Typography.Paragraph type='secondary'>
                                 {PromptHelpMessage}
                             </Typography.Paragraph>
                         </Prompt>

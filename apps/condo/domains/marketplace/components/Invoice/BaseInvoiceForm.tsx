@@ -10,7 +10,6 @@ import { Col, Form, Row, RowProps, Input, AutoComplete, Select, FormInstance } f
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
-import omit from 'lodash/omit'
 import React, { ComponentProps, CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Trash } from '@open-condo/icons'
@@ -38,9 +37,10 @@ import {
     INVOICE_PAYMENT_TYPES,
     INITIAL_ROWS_VALUE,
     DEFAULT_INVOICE_CURRENCY_CODE,
+    MIN_PRICE_VALUE,
 } from '@condo/domains/marketplace/constants'
 import { useCancelStatusModal } from '@condo/domains/marketplace/hooks/useCancelStatusModal'
-import { MarketPriceScope } from '@condo/domains/marketplace/utils/clientSchema'
+import { MarketCategory, MarketPriceScope } from '@condo/domains/marketplace/utils/clientSchema'
 import { calculateRowsTotalPrice, InvoiceFormValuesType, prepareTotalPriceFromInput, getMoneyRender } from '@condo/domains/marketplace/utils/clientSchema/Invoice'
 import { searchOrganizationProperty } from '@condo/domains/marketplace/utils/clientSchema/search'
 import { UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
@@ -429,8 +429,9 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
     const MinPriceValidationMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.minPriceValidation' })
     const FromMessage = intl.formatMessage({ id: 'global.from' }).toLowerCase()
     const ContractPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' }).toLowerCase()
+    const MinPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.price.minPriceMessage' })
 
-    const { requiredValidator } = useValidations()
+    const { requiredValidator, minLengthValidator } = useValidations()
     const { breakpoints } = useLayoutContext()
 
     const filterByProperty = useMemo(() => {
@@ -447,6 +448,19 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
             ],
         },
     })
+
+    const { objs: marketCategories } = MarketCategory.useAllObjects({
+        where: {},
+    })
+    const categoriesWithOneSubCategory = useMemo(() => marketCategories.map(category => {
+        const categoriesWithParent = marketCategories.filter(otherCategory =>
+            get(otherCategory, 'parentCategory.id') === category.id
+        )
+
+        if (categoriesWithParent.length === 1) {
+            return category.id
+        }
+    }).filter(Boolean), [marketCategories])
 
     const filteredPriceScopes = useMemo(() => marketPriceScopes
         .filter(scope => {
@@ -470,10 +484,8 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
 
         for (const scope of filteredPriceScopes) {
             const category = get(scope, 'marketItemPrice.marketItem.marketCategory')
-            const key = get(category, 'parentCategory') ?
-                get(category, 'parentCategory.id') + get(category, 'id') : get(category, 'id')
-            const label = get(category, 'parentCategory') ?
-                `${get(category, 'parentCategory.name')} / ${get(category, 'name')}` : get(category, 'name')
+            const key = get(category, 'parentCategory.name')
+            const label = get(category, 'parentCategory.name')
 
             const marketItem = get(scope, 'marketItemPrice.marketItem')
             const name = get(marketItem, 'name')
@@ -489,20 +501,48 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                 toPay: price,
                 isMin,
                 sku,
-                key: get(marketItem, 'id'),
+                key: get(category, 'id') + get(marketItem, 'id'),
             }
 
+            const isSingleSubCategory = categoriesWithOneSubCategory.includes(get(category, 'parentCategory.id'))
             const existedGroup = marketItemGroups.find(group => group.key === key)
             if (existedGroup) {
                 existedGroup.options.push(marketItemOption)
+
+                if (
+                    !isSingleSubCategory &&
+                    !existedGroup.options.find(option => option.key === get(category, 'id'))
+                ) {
+                    const subCategoryOption = {
+                        label: get(category, 'name'),
+                        disabled: true,
+                        key: get(category, 'id'),
+                        className: 'category-option',
+                    }
+
+                    existedGroup.options.push(subCategoryOption)
+                }
             } else {
-                marketItemGroups.push({ key, label, options: [marketItemOption] })
+                const options = []
+
+                if (!isSingleSubCategory) {
+                    options.push({
+                        label: get(category, 'name'),
+                        disabled: true,
+                        key: get(category, 'id'),
+                        className: 'category-option',
+                    })
+                }
+                options.push(marketItemOption)
+
+                marketItemGroups.push({ key, label, options: options })
             }
         }
         marketItemGroups.sort((a, b) => a.key > b.key ? 1 : -1)
+        marketItemGroups.forEach(group => group.options.sort((a, b) => a.key > b.key ? 1 : -1))
 
         return marketItemGroups
-    }, [filteredPriceScopes])
+    }, [categoriesWithOneSubCategory, filteredPriceScopes])
 
     const flatMarketOptions = useMemo(() => marketItemGroups.flatMap(group => group.options), [marketItemGroups])
 
@@ -536,7 +576,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                             required
                                             labelAlign='left'
                                             labelCol={{ span: 24 }}
-                                            rules={[requiredValidator]}
+                                            rules={[requiredValidator, minLengthValidator(7)]}
                                         >
                                             <AutoComplete
                                                 allowClear
@@ -558,8 +598,15 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                     })
                                                 }}
                                                 onSelect={(_, option: MarketItemOptionType) => {
+                                                    let toPayValue
+                                                    if (option.isMin) {
+                                                        toPayValue = option.toPay === '0' ? ContractPriceMessage : `${FromMessage} ${option.toPay}`
+                                                    } else {
+                                                        toPayValue = option.toPay
+                                                    }
+
                                                     updateRowFields(marketItemForm.name, {
-                                                        toPay: option.isMin ? `${FromMessage} ${option.toPay}` : option.toPay,
+                                                        toPay: toPayValue,
                                                         isMin: option.isMin,
                                                     })
 
@@ -631,9 +678,12 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                             return Promise.reject(MinPriceValidationMessage)
                                                         }
 
-                                                        form.setFieldsValue({
-                                                            hasIsMinPrice: false,
-                                                        })
+                                                        const rows = form.getFieldValue('rows')
+                                                        if (!rows.some(row => row.isMin)) {
+                                                            form.setFieldsValue({
+                                                                hasIsMinPrice: false,
+                                                            })
+                                                        }
 
                                                         return Promise.resolve()
                                                     },
@@ -648,6 +698,19 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                         }
 
                                                         return Promise.reject(NumberIsNotValidMessage)
+                                                    },
+                                                },
+                                                {
+                                                    validator: (_, value) => {
+                                                        if (new RegExp('^(?:\\d+(?:\\.\\d+)?|\\d+(?:,\\d+)?)$').test(value)) {
+                                                            const numberValue = Number(value.replace(',', '.'))
+
+                                                            if (numberValue < MIN_PRICE_VALUE) {
+                                                                return Promise.reject(`${MinPriceMessage} – ${MIN_PRICE_VALUE}${currencySymbol}`)
+                                                            }
+                                                        }
+
+                                                        return Promise.resolve()
                                                     },
                                                 },
                                             ]}
@@ -847,7 +910,7 @@ const StatusRadioGroup = ({
 }
 
 type BaseInvoiceFormProps = {
-    action: (values: InvoiceFormValuesType) => Promise<Invoice>
+    action: (values: InvoiceFormValuesType) => Promise<Invoice | void>
     organizationId: string
     role: OrganizationEmployeeRole
     initialValues?: InvoiceFormValuesType
@@ -1010,7 +1073,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                     const rows = getFieldValue('rows')
                                     const filledRow = rows.find(row =>
                                         get(row, 'name.length', 0) > 6 &&
-                                        get(row, 'toPay.length', 0) > 1 &&
+                                        get(row, 'toPay.length', 0) > 0 &&
                                         get(row, 'count', 0) > 0
                                     )
 

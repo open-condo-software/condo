@@ -8,6 +8,7 @@ import { Typography } from '@open-condo/ui'
 
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
+import { DEFAULT_INVOICE_CURRENCY_CODE } from '@condo/domains/marketplace/constants'
 import { MarketItem } from '@condo/domains/marketplace/utils/clientSchema'
 import {
     getMoneyRender,
@@ -111,9 +112,9 @@ export const InvoiceRowsTable: React.FC<InvoiceRowsTableProps> = ({ invoice }) =
     const intl = useIntl()
     const ContractPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' }).toLowerCase()
 
-    const currencyCode = get(invoice, 'context.currencyCode')
+    const currencyCode = get(invoice, 'currencyCode') || DEFAULT_INVOICE_CURRENCY_CODE
     const rows = useMemo(() => get(invoice, 'rows'), [invoice])
-    const organizationId = get(invoice, 'context.organization.id')
+    const organizationId = get(invoice, 'organization.id') || get(invoice, 'organization')
     const skuItems = rows.map(({ sku }) => sku).filter(Boolean)
 
     const { objs: marketItems, loading: marketItemsLoading } = MarketItem.useObjects({

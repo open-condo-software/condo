@@ -28,13 +28,14 @@ import { getPaymentLinkNotification } from './CopyButton'
 
 type CreateInvoiceFormProps = {
     organizationId: string
-    afterAction: (invoice?: InvoiceType) => Promise<void>
+    action?: (values: InvoiceFormValuesType) => Promise<void>
+    afterAction?: (invoice?: InvoiceType) => Promise<void>
     modalFormProps?: ComponentProps<typeof BaseModalForm>
     initialValues?: InvoiceFormValuesType
     ticketCreatedByResident?: boolean
 }
 
-export const CreateInvoiceForm: React.FC<CreateInvoiceFormProps> = ({ organizationId, afterAction, modalFormProps, initialValues, ticketCreatedByResident }) => {
+export const CreateInvoiceForm: React.FC<CreateInvoiceFormProps> = ({ organizationId, action, afterAction, modalFormProps, initialValues, ticketCreatedByResident }) => {
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Save' })
     const CancelLabel = intl.formatMessage({ id: 'Cancel' })
@@ -91,7 +92,7 @@ export const CreateInvoiceForm: React.FC<CreateInvoiceFormProps> = ({ organizati
     return (
         <BaseInvoiceForm
             isCreateForm
-            action={handleCreateInvoice}
+            action={action ? action : handleCreateInvoice}
             organizationId={organizationId}
             role={link}
             initialValues={formInitialValues}

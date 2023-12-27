@@ -88,7 +88,6 @@ export function useMarketplacePaymentTableColumns <T> (filterMetas: Array<Filter
                 title: TicketNumberMessage,
                 filteredValue: getFilteredValue(filters, 'ticketNumber'),
                 key: 'ticketNumber',
-                dataIndex: ['ticket', 'number'],
                 width: '23%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'ticketNumber'),
                 render: ticketNumberRender,

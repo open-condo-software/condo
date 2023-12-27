@@ -104,7 +104,7 @@ export const CreateTicketForm: React.FC = () => {
     const initialValuesFromQuery = useMemo(() => getObjectValueFromQuery(router, ['initialValues']), [router])
     const redirectToClientCard = useMemo(() => !!get(router, ['query', 'redirectToClientCard']), [router])
 
-    const updateInvoiceAction = Invoice.useUpdate({})
+    const createInvoiceAction = Invoice.useCreate({})
     const action = Ticket.useCreate(
         {
             status: { connect: { id: OPEN_STATUS } },
@@ -155,7 +155,7 @@ export const CreateTicketForm: React.FC = () => {
         if (deadline && deadline.isToday()) {
             deadline = deadline.endOf('day')
         }
-        const { invoices, ...ticketValues } = variables
+        const { invoices, existedInvoices, newInvoices, ...ticketValues } = variables
 
         const ticket = await action({
             ...Ticket.formValuesProcessor({ ...ticketValues, deadline }),
@@ -163,11 +163,14 @@ export const CreateTicketForm: React.FC = () => {
         })
 
         let paymentUrl
-        if (!isEmpty(invoices)) {
-            for (const invoiceId of invoices) {
-                await updateInvoiceAction({
-                    ticket: { connect: { id: ticket.id } },
-                }, { id: invoiceId })
+        if (!isEmpty(newInvoices)) {
+            for (const invoiceFromForm of newInvoices) {
+                const payload = Invoice.formValuesProcessor({
+                    ...invoiceFromForm,
+                    ticket: ticket.id,
+                }, intl, true)
+
+                await createInvoiceAction(payload)
             }
 
             const data = await client.query({
@@ -206,7 +209,7 @@ export const CreateTicketForm: React.FC = () => {
         }
 
         return ticket
-    }, [action, organization.id, client, getPaymentLink, updateInvoiceAction, requestFeature, getCompletedNotification])
+    }, [action, organization.id, getCompletedNotification, client, getPaymentLink, intl, createInvoiceAction, requestFeature])
 
     const initialValues = useMemo(() => ({
         ...initialValuesFromQuery,

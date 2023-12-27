@@ -1,12 +1,15 @@
 import { Invoice as InvoiceType } from '@app/condo/schema'
-import { Col, Row } from 'antd'
+import { Col, FormInstance, Row } from 'antd'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import React, { useCallback, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Space, Tag, Typography } from '@open-condo/ui'
 
 import { INVOICE_STATUS_COLORS } from '@condo/domains/marketplace/constants'
+import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
 import { InvoiceFormValuesType } from '@condo/domains/marketplace/utils/clientSchema/Invoice'
 
 import { InvoiceRowsTable } from './InvoiceRowsTable'
@@ -14,34 +17,73 @@ import { UpdateInvoiceForm } from './UpdateInvoiceForm'
 
 
 type TicketInvoiceCardPropsType = {
+    organizationId: string
+    invoiceIndex?: number
+    form?: FormInstance
     invoice: InvoiceType
-    refetchInvoices: () => void
     initialValues?: InvoiceFormValuesType
     isAllFieldsDisabled?: boolean
     ticketCreatedByResident?: boolean
+    refetchInvoices?: () => void
 }
 
-const TicketInvoiceCard: React.FC<TicketInvoiceCardPropsType> = ({ invoice, refetchInvoices, initialValues, isAllFieldsDisabled, ticketCreatedByResident }) => {
+const TicketInvoiceCard: React.FC<TicketInvoiceCardPropsType> = ({ organizationId, refetchInvoices, invoiceIndex, form, invoice, initialValues, isAllFieldsDisabled, ticketCreatedByResident }) => {
     const intl = useIntl()
+    const invoiceNumber = get(invoice, 'number')
     const InvoiceNumberMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.update.title' },
-        { number: get(invoice, 'number') }
+        { number: invoiceNumber }
     )
     const PaymentMessage = intl.formatMessage(
         { id: 'pages.condo.marketplace.invoice.ticketInvoice.payment' },
         { type: intl.formatMessage({ id: `pages.condo.marketplace.invoice.ticketInvoice.payment.${get(invoice, 'paymentType')}` }) }
     )
+    const isNewInvoice = !invoiceNumber
     const invoiceStatus = get(invoice, 'status')
     const StatusMessage = intl.formatMessage({ id: `pages.condo.marketplace.invoice.invoiceStatus.${invoiceStatus}` })
+    const NewInvoiceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.create.title' })
+
     const invoiceStatusColors = INVOICE_STATUS_COLORS[invoiceStatus]
+
+    const { link } = useOrganization()
+    const canManageInvoices = get(link, 'role.canManageInvoices', false)
 
     const [editModalOpen, setEditModalOpen] = useState<boolean>()
     const handleInvoiceNumberClick = useCallback(() => {
+        if (!canManageInvoices) return
         setEditModalOpen(true)
-    }, [])
+    }, [canManageInvoices])
     const afterInvoiceUpdate = useCallback(async () => {
         await refetchInvoices()
         setEditModalOpen(false)
     }, [refetchInvoices])
+
+    const handleUpdateInvoice = useCallback(async (values) => {
+        const rawRows = get(values, 'rows', [])
+        const processedRows = Invoice.processRowsFromInvoiceTicketForm(rawRows, intl)
+
+        const invoiceValues = {
+            ...values,
+            rows: processedRows,
+        }
+
+        if (isNewInvoice) {
+            const newInvoices = form.getFieldValue('newInvoices') || []
+
+            newInvoices[invoiceIndex] = { ...newInvoices[invoiceIndex], ...invoiceValues }
+            form.setFieldsValue({
+                newInvoices,
+            })
+        } else {
+            const existedInvoices = form.getFieldValue('existedInvoices') || []
+
+            existedInvoices[invoiceIndex] = { ...existedInvoices[invoiceIndex], ...invoiceValues }
+            form.setFieldsValue({
+                existedInvoices,
+            })
+        }
+
+        setEditModalOpen(false)
+    }, [form, intl, invoiceIndex, isNewInvoice])
 
     return (
         <Row gutter={[0, 24]}>
@@ -50,7 +92,7 @@ const TicketInvoiceCard: React.FC<TicketInvoiceCardPropsType> = ({ invoice, refe
                     <Col>
                         <Typography.Link onClick={handleInvoiceNumberClick}>
                             <Typography.Text strong>
-                                {InvoiceNumberMessage}
+                                {isNewInvoice ? NewInvoiceMessage : InvoiceNumberMessage}
                             </Typography.Text>
                         </Typography.Link>
                     </Col>
@@ -73,18 +115,20 @@ const TicketInvoiceCard: React.FC<TicketInvoiceCardPropsType> = ({ invoice, refe
             {
                 editModalOpen && (
                     <UpdateInvoiceForm
+                        organizationId={organizationId}
                         invoice={invoice}
                         modalFormProps={{
-                            ModalTitleMsg: InvoiceNumberMessage,
+                            ModalTitleMsg: isNewInvoice ? NewInvoiceMessage : InvoiceNumberMessage,
                             visible: editModalOpen,
                             showCancelButton: false,
                             cancelModal: () => setEditModalOpen(false),
                             modalProps: { width: 'big', destroyOnClose: true },
                         }}
-                        afterAction={afterInvoiceUpdate}
+                        action={form && handleUpdateInvoice}
                         initialValues={initialValues}
                         isAllFieldsDisabled={isAllFieldsDisabled}
                         ticketCreatedByResident={ticketCreatedByResident}
+                        afterAction={!form && afterInvoiceUpdate}
                     />
                 )
             }
@@ -93,27 +137,56 @@ const TicketInvoiceCard: React.FC<TicketInvoiceCardPropsType> = ({ invoice, refe
 }
 
 type TicketInvoicesListPropsType = {
-    invoices: InvoiceType[]
-    refetchInvoices: () => void
+    organizationId: string
+    newInvoices?: InvoiceType[]
+    existedInvoices?: InvoiceType[]
+    form?: FormInstance
     initialValues?: InvoiceFormValuesType
     isAllFieldsDisabled?: boolean
     ticketCreatedByResident?: boolean
+    refetchInvoices?: () => void
 }
 
 export const TicketInvoicesList: React.FC<TicketInvoicesListPropsType> = ({
-    invoices, refetchInvoices, initialValues, isAllFieldsDisabled, ticketCreatedByResident,
+    newInvoices,
+    form,
+    existedInvoices,
+    initialValues,
+    isAllFieldsDisabled,
+    ticketCreatedByResident,
+    refetchInvoices,
+    organizationId,
 }) => {
     return (
         <Row gutter={[0, 40]}>
             {
-                invoices.map(invoice => (
+                !isEmpty(existedInvoices) && existedInvoices.map((invoice, index) => (
                     <Col key={invoice.id} span={24}>
                         <TicketInvoiceCard
+                            organizationId={organizationId}
+                            invoiceIndex={index}
                             invoice={invoice}
-                            refetchInvoices={refetchInvoices}
+                            form={form}
                             initialValues={initialValues}
                             isAllFieldsDisabled={isAllFieldsDisabled}
                             ticketCreatedByResident={ticketCreatedByResident}
+                            refetchInvoices={refetchInvoices}
+                        />
+                    </Col>
+                ))
+            }
+            {
+                !isEmpty(newInvoices) && newInvoices.map((invoice, index) => (
+                    <Col key={invoice.id} span={24}>
+                        <TicketInvoiceCard
+                            organizationId={organizationId}
+                            invoiceIndex={index}
+                            form={form}
+                            invoice={invoice}
+                            initialValues={initialValues}
+                            isAllFieldsDisabled={isAllFieldsDisabled}
+                            ticketCreatedByResident={ticketCreatedByResident}
+                            refetchInvoices={refetchInvoices}
                         />
                     </Col>
                 ))

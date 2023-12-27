@@ -89,7 +89,9 @@ export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
                     return index > 0 ? name.toLowerCase() : name
                 }).join(', ')
 
-                return render(joinedRows)
+                const shortenRows = joinedRows.length > 450 ? `${joinedRows.substring(0, 450)}…` : joinedRows
+
+                return render(shortenRows)
             },
         },
         {

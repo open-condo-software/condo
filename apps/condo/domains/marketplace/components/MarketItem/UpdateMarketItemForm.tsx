@@ -21,7 +21,7 @@ import {
 } from '@condo/domains/marketplace/utils/clientSchema'
 import {
     getPriceValueFromFormPrice,
-    getSaveButtonTooltipMessage, INITIAL_PRICE_FORM_VALUE,
+    getSaveButtonTooltipMessage,
 } from '@condo/domains/marketplace/utils/clientSchema/MarketItem'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
@@ -30,7 +30,7 @@ import { BaseMarketItemForm } from './BaseMarketItemForm'
 
 export const UpdateMarketItemForm = ({ marketItem }) => {
     const intl = useIntl()
-    const UpdateMessage = intl.formatMessage({ id: 'Edit' })
+    const UpdateMessage = intl.formatMessage({ id: 'Save' })
 
     const {
         objs: marketItemPrices,
@@ -232,7 +232,8 @@ export const UpdateMarketItemForm = ({ marketItem }) => {
                             {
                                 (form) => {
                                     const tooltipTitle = getSaveButtonTooltipMessage(form, intl)
-                                    const disabled = submitLoading || !isEmpty(tooltipTitle)
+                                    const uploading = form.getFieldValue('uploading')
+                                    const disabled = submitLoading || !isEmpty(tooltipTitle) || uploading
 
                                     return (
                                         <Col span={24}>

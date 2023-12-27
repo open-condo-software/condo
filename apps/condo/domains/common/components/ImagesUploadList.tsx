@@ -103,7 +103,7 @@ const getImagesList = (): HTMLDivElement => {
 export type UploadFileType = {
     uid: string,
     name: string,
-    status: 'done',
+    status: 'done' | 'uploading',
     url: string,
     response: { id: string, url: string },
 }
@@ -180,6 +180,14 @@ export const ImagesUploadList: React.FC<ImagesUploadListProps> = ({
         imagesListWrapperRef.current.scrollTo({ left: scrollTo, behavior: 'smooth' })
     }, [clientWidth, scrollLeft, scrollWidth])
 
+    const handlePreview = useCallback((file) => {
+        const fileUrl = file.url
+
+        if (typeof window !== 'undefined') {
+            window.open(fileUrl, '_blank')
+        }
+    }, [])
+
     return (
         <UploadWrapper
             ref={imagesListWrapperRef}
@@ -196,6 +204,7 @@ export const ImagesUploadList: React.FC<ImagesUploadListProps> = ({
                     multiple
                     accept='image/*'
                     listType='picture-card'
+                    maxCount={20}
                     showUploadList={{
                         showPreviewIcon: true,
                         previewIcon: <Eye color={colors.white}/>,
@@ -243,6 +252,7 @@ export const ImagesUploadList: React.FC<ImagesUploadListProps> = ({
                             onError(error)
                         })
                     }}
+                    onPreview={handlePreview}
                 >
                     {type === 'upload' ? <PlusCircle/> : null}
                 </Upload>

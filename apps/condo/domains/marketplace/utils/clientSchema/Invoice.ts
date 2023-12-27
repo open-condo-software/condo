@@ -10,6 +10,7 @@ import {
 } from '@app/condo/schema'
 import { get, isNull, isUndefined, pickBy } from 'lodash'
 import isEmpty from 'lodash/isEmpty'
+import omit from 'lodash/omit'
 
 import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
 
@@ -17,7 +18,7 @@ import { INVOICE_PAYMENT_TYPES, INVOICE_STATUSES } from '@condo/domains/marketpl
 import { Invoice as InvoiceGQL } from '@condo/domains/marketplace/gql'
 
 
-const RELATIONS = ['property', 'contact', 'ticket', 'context']
+const RELATIONS = ['property', 'contact', 'ticket', 'organization', 'context']
 const DISCONNECT_ON_NULL = ['property', 'contact', 'ticket']
 const IGNORE_FORM_FIELDS = ['payerData', 'toPay', 'NEW_CONTACT_NAME']
 
@@ -40,6 +41,7 @@ export type InvoiceFormValuesType = {
     property?: string
     unitName?: string
     unitType?: string
+    ticket?: string
 }
 
 export function convertToFormState (invoice: Invoice, intl): InvoiceFormValuesType | undefined {
@@ -78,7 +80,7 @@ export function convertToFormState (invoice: Invoice, intl): InvoiceFormValuesTy
 
 type InvoiceMutationType = InvoiceUpdateInput | InvoiceCreateInput
 
-export function formValuesProcessor (formValues: InvoiceFormValuesType, intl): InvoiceMutationType {
+export function formValuesProcessor (formValues: InvoiceFormValuesType, intl, isTicketForm = false): InvoiceMutationType {
     const FromMessage = intl.formatMessage({ id: 'global.from' }).toLowerCase()
     const ContractPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' }).toLowerCase()
 
@@ -96,22 +98,25 @@ export function formValuesProcessor (formValues: InvoiceFormValuesType, intl): I
             }
         } else if (!isUndefined(formValues[key])) {
             if (key === 'rows' && !isNull(formValues[key])) {
-                const rows = formValues[key].map(({ name, toPay, count, sku }) => {
-                    const baseFields = { name, count }
-                    let toPayFields
-                    if (toPay === ContractPriceMessage) {
-                        toPayFields = { toPay: '0', isMin: true }
-                    } else if (toPay.startsWith(FromMessage)) {
-                        const toPayValue = toPay.split(' ')[1].replace(',', '.')
-                        toPayFields = { toPay: toPayValue, isMin: true }
-                    } else {
-                        toPayFields = { toPay: toPay.replace(',', '.'), isMin: false }
-                    }
+                let rows = formValues[key]
+                if (!isTicketForm) {
+                    rows = formValues[key].map(({ name, toPay, count, sku }) => {
+                        const baseFields = { name, count }
+                        let toPayFields
+                        if (toPay === ContractPriceMessage) {
+                            toPayFields = { toPay: '0', isMin: true }
+                        } else if (toPay.startsWith(FromMessage)) {
+                            const toPayValue = toPay.split(' ')[1].replace(',', '.')
+                            toPayFields = { toPay: toPayValue, isMin: true }
+                        } else {
+                            toPayFields = { toPay: toPay.replace(',', '.'), isMin: false }
+                        }
 
-                    const otherFields = pickBy({ sku }, (value) => !isEmpty(value))
+                        const otherFields = pickBy({ sku }, (value) => !isEmpty(value))
 
-                    return { ...baseFields, ...toPayFields, ...otherFields }
-                })
+                        return { ...baseFields, ...toPayFields, ...otherFields }
+                    })
+                }
 
                 const toPay = rows.every(row => !row.isMin) ?
                     rows.reduce((acc, row) => {
@@ -233,6 +238,27 @@ export function getSaveButtonTooltipMessage (form, intl) {
     if (!isEmpty(requiredFieldsMessages)) {
         return `${RequiredErrorMessage} ${requiredFieldsMessages.join(', ')}`
     }
+}
+
+export function processRowsFromInvoiceTicketForm (rawRows, intl) {
+    const ContractPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' }).toLowerCase()
+    const FromMessage = intl.formatMessage({ id: 'global.from' }).toLowerCase()
+
+    return rawRows.map(row => {
+        const toPay = get(row, 'toPay')
+        let resultToPay
+        if (toPay === ContractPriceMessage) {
+            resultToPay = '0'
+        } else if (toPay.startsWith(FromMessage)) {
+            resultToPay = toPay.split(' ')[1]
+        } else {
+            resultToPay = toPay
+        }
+
+        const resultRow = { ...row, toPay: resultToPay }
+
+        return resultRow.sku ? resultRow : omit(resultRow, 'sku')
+    })
 }
 
 const {
