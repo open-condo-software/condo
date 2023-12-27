@@ -789,7 +789,7 @@
   "pages.condo.ticket.title.TicketInfo": "Task information",
   "pages.condo.ticket.title.UserInfo": "Resident information",
   "pages.condo.ticket.warning.modal.Title": "Do not save ticket?",
-  "pages.condo.ticket.warning.modal.HelpMessage": "Ticket will not be saved if you leave the page.",
+  "pages.condo.ticket.warning.modal.HelpMessage": "Ticket will not be saved. If there’s an invoices in the ticket, will not be saved.",
   "pages.condo.ticket.title.TicketChanges": "Change log of the ticket",
   "pages.condo.ticket.title.CallRecordsHistory": "Call records history",
   "pages.condo.ticket.title.TicketFromResident": "Ticket from resident",

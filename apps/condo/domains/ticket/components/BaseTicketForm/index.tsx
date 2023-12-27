@@ -928,7 +928,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                             form={form}
                             handleSave={handleSave}
                         >
-                            <Typography.Paragraph>
+                            <Typography.Paragraph type='secondary'>
                                 {PromptHelpMessage}
                             </Typography.Paragraph>
                         </Prompt>

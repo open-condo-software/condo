@@ -789,7 +789,7 @@
   "pages.condo.ticket.title.TicketInfo": "Информация о заявке",
   "pages.condo.ticket.title.UserInfo": "Информация о жителе",
   "pages.condo.ticket.warning.modal.Title": "Не сохранять заявку?",
-  "pages.condo.ticket.warning.modal.HelpMessage": "Заявка не сохранится, если вы уйдете со страницы.",
+  "pages.condo.ticket.warning.modal.HelpMessage": "Заявка не сохранится. Если в заявке есть счет — он тоже не сохранится.",
   "pages.condo.ticket.title.TicketChanges": "История изменений заявки",
   "pages.condo.ticket.title.CallRecordsHistory": "История звонков по заявке",
   "pages.condo.ticket.title.TicketFromResident": "Заявка от жителя",

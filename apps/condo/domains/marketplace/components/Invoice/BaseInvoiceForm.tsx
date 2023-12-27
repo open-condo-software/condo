@@ -431,7 +431,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
     const ContractPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' }).toLowerCase()
     const MinPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.price.minPriceMessage' })
 
-    const { requiredValidator } = useValidations()
+    const { requiredValidator, minLengthValidator } = useValidations()
     const { breakpoints } = useLayoutContext()
 
     const filterByProperty = useMemo(() => {
@@ -576,7 +576,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                             required
                                             labelAlign='left'
                                             labelCol={{ span: 24 }}
-                                            rules={[requiredValidator]}
+                                            rules={[requiredValidator, minLengthValidator(7)]}
                                         >
                                             <AutoComplete
                                                 allowClear
@@ -598,8 +598,15 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                     })
                                                 }}
                                                 onSelect={(_, option: MarketItemOptionType) => {
+                                                    let toPayValue
+                                                    if (option.isMin) {
+                                                        toPayValue = option.toPay === '0' ? ContractPriceMessage : `${FromMessage} ${option.toPay}`
+                                                    } else {
+                                                        toPayValue = option.toPay
+                                                    }
+
                                                     updateRowFields(marketItemForm.name, {
-                                                        toPay: option.isMin ? `${FromMessage} ${option.toPay}` : option.toPay,
+                                                        toPay: toPayValue,
                                                         isMin: option.isMin,
                                                     })
 

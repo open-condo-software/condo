@@ -321,7 +321,7 @@ const MarketItemFields = () => {
 
     const initialFileList = useMemo(() => get(initialValues, 'files'), [initialValues])
 
-    const { requiredValidator, maxLengthValidator } = useValidations()
+    const { requiredValidator, maxLengthValidator, minLengthValidator } = useValidations()
     const uniqueNameValidator: Rule = useMemo(() => ({
         validateTrigger: FORM_VALIDATE_TRIGGER,
         validator: async (_, value) => {
@@ -372,7 +372,7 @@ const MarketItemFields = () => {
                     name='name'
                     label={NameFieldMessage}
                     required
-                    rules={[requiredValidator, uniqueNameValidator]}
+                    rules={[requiredValidator, uniqueNameValidator, minLengthValidator(7)]}
                 >
                     <Input/>
                 </Form.Item>
