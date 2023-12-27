@@ -2,7 +2,6 @@ import { Invoice as InvoiceType } from '@app/condo/schema'
 import { Col, FormInstance, Row } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
-import omit from 'lodash/omit'
 import React, { useCallback, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -10,6 +9,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import { Space, Tag, Typography } from '@open-condo/ui'
 
 import { INVOICE_STATUS_COLORS } from '@condo/domains/marketplace/constants'
+import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
 import { InvoiceFormValuesType } from '@condo/domains/marketplace/utils/clientSchema/Invoice'
 
 import { InvoiceRowsTable } from './InvoiceRowsTable'
@@ -41,8 +41,6 @@ const TicketInvoiceCard: React.FC<TicketInvoiceCardPropsType> = ({ organizationI
     const invoiceStatus = get(invoice, 'status')
     const StatusMessage = intl.formatMessage({ id: `pages.condo.marketplace.invoice.invoiceStatus.${invoiceStatus}` })
     const NewInvoiceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.create.title' })
-    const ContractPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' }).toLowerCase()
-    const FromMessage = intl.formatMessage({ id: 'global.from' }).toLowerCase()
 
     const invoiceStatusColors = INVOICE_STATUS_COLORS[invoiceStatus]
 
@@ -60,21 +58,8 @@ const TicketInvoiceCard: React.FC<TicketInvoiceCardPropsType> = ({ organizationI
     }, [refetchInvoices])
 
     const handleUpdateInvoice = useCallback(async (values) => {
-        const processedRows = get(values, 'rows', []).map(row => {
-            const toPay = get(row, 'toPay')
-            let resultToPay
-            if (toPay === ContractPriceMessage) {
-                resultToPay = '0'
-            } else if (toPay.startsWith(FromMessage)) {
-                resultToPay = toPay.split(' ')[1]
-            } else {
-                resultToPay = toPay
-            }
-
-            const resultRow = { ...row, toPay: resultToPay }
-
-            return resultRow.sku ? resultRow : omit(resultRow, 'sku')
-        })
+        const rawRows = get(values, 'rows', [])
+        const processedRows = Invoice.processRowsFromInvoiceTicketForm(rawRows, intl)
 
         const invoiceValues = {
             ...values,
@@ -98,7 +83,7 @@ const TicketInvoiceCard: React.FC<TicketInvoiceCardPropsType> = ({ organizationI
         }
 
         setEditModalOpen(false)
-    }, [ContractPriceMessage, FromMessage, form, invoiceIndex, isNewInvoice])
+    }, [form, intl, invoiceIndex, isNewInvoice])
 
     return (
         <Row gutter={[0, 24]}>

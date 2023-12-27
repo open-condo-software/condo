@@ -11,7 +11,6 @@ import {
 import { Affix, Col, ColProps, Form, FormItemProps, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import dayjs from 'dayjs'
-import { pickBy } from 'lodash'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isFunction from 'lodash/isFunction'
@@ -165,8 +164,6 @@ const AddInvoiceButton = ({ initialValues, form, organizationId, ticketCreatedBy
     const intl = useIntl()
     const AddInvoiceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.ticketInvoice.form.addInvoice' })
     const CreateInvoiceModalTitle = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.create.title' })
-    const ContractPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' }).toLowerCase()
-    const FromMessage = intl.formatMessage({ id: 'global.from' }).toLowerCase()
 
     const { link } = useOrganization()
     const canManageInvoices = get(link, 'role.canManageInvoices', false)
@@ -174,21 +171,8 @@ const AddInvoiceButton = ({ initialValues, form, organizationId, ticketCreatedBy
     const [createInvoiceModalOpen, setCreateInvoiceModalOpen] = useState<boolean>(false)
 
     const handleCreateInvoice = useCallback(async (values) => {
-        const processedRows = get(values, 'rows', []).map(row => {
-            const toPay = get(row, 'toPay')
-            let resultToPay
-            if (toPay === ContractPriceMessage) {
-                resultToPay = '0'
-            } else if (toPay.startsWith(FromMessage)) {
-                resultToPay = toPay.split(' ')[1]
-            } else {
-                resultToPay = toPay
-            }
-
-            const resultRow = { ...row, toPay: resultToPay }
-
-            return resultRow.sku ? resultRow : omit(resultRow, 'sku')
-        })
+        const rawRows = get(values, 'rows', [])
+        const processedRows = Invoice.processRowsFromInvoiceTicketForm(rawRows, intl)
 
         const invoiceValues = {
             ...values,
@@ -207,7 +191,7 @@ const AddInvoiceButton = ({ initialValues, form, organizationId, ticketCreatedBy
 
         setCreateInvoiceModalOpen(false)
         return
-    }, [ContractPriceMessage, FromMessage, form, organizationId])
+    }, [form, intl, organizationId])
 
     return (
         <>

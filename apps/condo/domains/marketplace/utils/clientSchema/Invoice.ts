@@ -10,6 +10,7 @@ import {
 } from '@app/condo/schema'
 import { get, isNull, isUndefined, pickBy } from 'lodash'
 import isEmpty from 'lodash/isEmpty'
+import omit from 'lodash/omit'
 
 import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
 
@@ -237,6 +238,27 @@ export function getSaveButtonTooltipMessage (form, intl) {
     if (!isEmpty(requiredFieldsMessages)) {
         return `${RequiredErrorMessage} ${requiredFieldsMessages.join(', ')}`
     }
+}
+
+export function processRowsFromInvoiceTicketForm (rawRows, intl) {
+    const ContractPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' }).toLowerCase()
+    const FromMessage = intl.formatMessage({ id: 'global.from' }).toLowerCase()
+
+    return rawRows.map(row => {
+        const toPay = get(row, 'toPay')
+        let resultToPay
+        if (toPay === ContractPriceMessage) {
+            resultToPay = '0'
+        } else if (toPay.startsWith(FromMessage)) {
+            resultToPay = toPay.split(' ')[1]
+        } else {
+            resultToPay = toPay
+        }
+
+        const resultRow = { ...row, toPay: resultToPay }
+
+        return resultRow.sku ? resultRow : omit(resultRow, 'sku')
+    })
 }
 
 const {
