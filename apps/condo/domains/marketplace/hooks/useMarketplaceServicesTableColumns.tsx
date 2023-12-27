@@ -116,6 +116,10 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
                 width: '23%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'marketCategory'),
                 render: (category) => {
+                    if (!category) {
+                        return '—'
+                    }
+
                     const categoryName = category.name
 
                     if (category.parentCategory) {
