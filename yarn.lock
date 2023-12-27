@@ -1733,7 +1733,7 @@ __metadata:
     "@zeit/next-less": ^1.0.1
     antd: ^4.24.12
     axios: ^1.5.1
-    babel-jest: ^29.4.0
+    babel-jest: ^29.7.0
     classnames: 2.2.6
     dayjs: ^1.10.6
     emotion: ^10.0.27
@@ -1743,9 +1743,9 @@ __metadata:
     get-contrast: ^2.0.0
     identity-obj-proxy: ^3.0.0
     immer: 9.0.13
-    jest: ^29.4.0
-    jest-environment-jsdom: ^29.4.0
-    jest-jasmine2: ^29.4.0
+    jest: ^29.7.0
+    jest-environment-jsdom: ^29.7.0
+    jest-jasmine2: ^29.7.0
     jest-watch-typeahead: ^0.6.1
     less: ^3.12.2
     lodash: ^4.17.21
