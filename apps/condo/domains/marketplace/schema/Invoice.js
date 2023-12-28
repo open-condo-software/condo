@@ -592,6 +592,7 @@ const Invoice = new GQLListSchema('Invoice', {
                 const marketItems = await MarketItem.getAll(context, {
                     organization: { id: get(nextData, 'organization') },
                     sku_in: map(nextRows, 'sku'),
+                    deletedAt: null,
                 })
 
                 resolvedData['rows'] = nextRows.map((nextRow) => {
@@ -599,8 +600,8 @@ const Invoice = new GQLListSchema('Invoice', {
                     return {
                         ...nextRow,
                         meta: {
-                            imageUrl: get(marketItem, ['marketCategory', 'image', 'publicUrl']),
-                            categoryBgColor: get(marketItem, ['marketCategory', 'mobileSettings', 'bgColor']),
+                            imageUrl: get(marketItem, ['marketCategory', 'parentCategory', 'image', 'publicUrl']),
+                            categoryBgColor: get(marketItem, ['marketCategory', 'parentCategory', 'mobileSettings', 'bgColor']),
                         },
                     }
                 })
