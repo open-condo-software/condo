@@ -38981,6 +38981,26 @@ export type Mutation = {
    * 				"defaultValue": "",
    * 				"required": true
    * 			},
+   * 			"ticketStatus": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"ticketAddress": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"ticketUnit": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"ticketCreatedAt": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"ticketDetails": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
    * 			"userId": {
    * 				"defaultValue": "",
    * 				"required": true
@@ -39001,6 +39021,9 @@ export type Mutation = {
    * 				"defaultValue": "",
    * 				"required": true
    * 			}
+   * 		},
+   * 		"telegramMeta": {
+   * 			"required": false
    * 		}
    * 	},
    * 	"TICKET_COMMENT_CREATED": {
@@ -39017,11 +39040,35 @@ export type Mutation = {
    * 				"defaultValue": "",
    * 				"required": true
    * 			},
+   * 			"ticketStatus": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"ticketAddress": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"ticketUnit": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
    * 			"userId": {
    * 				"defaultValue": "",
    * 				"required": true
    * 			},
+   * 			"userName": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
    * 			"commentId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"commentContent": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"commentCreatedAt": {
    * 				"defaultValue": "",
    * 				"required": true
    * 			},
@@ -39036,18 +39083,10 @@ export type Mutation = {
    * 			"organizationName": {
    * 				"defaultValue": "",
    * 				"required": true
-   * 			},
-   * 			"userName": {
-   * 				"defaultValue": "",
-   * 				"required": true
-   * 			},
-   * 			"content": {
-   * 				"defaultValue": "",
-   * 				"required": true
-   * 			},
-   * 			"commentType": {
-   * 				"required": true
    * 			}
+   * 		},
+   * 		"telegramMeta": {
+   * 			"required": false
    * 		}
    * 	},
    * 	"INVITE_NEW_EMPLOYEE": {
