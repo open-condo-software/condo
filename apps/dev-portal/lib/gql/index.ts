@@ -21,6 +21,19 @@ export type Scalars = {
     Upload: { input: any; output: any; }
 }
 
+export type AllB2CAppPropertiesInput = {
+    app: B2CAppWhereUniqueInput;
+    environment: AppEnvironment;
+    first: Scalars['Int']['input'];
+    skip: Scalars['Int']['input'];
+}
+
+export type AllB2CAppPropertiesOutput = {
+    __typename?: 'AllB2CAppPropertiesOutput';
+    meta: B2CAppPropertyMeta;
+    objs: Array<B2CAppProperty>;
+}
+
 export enum AppEnvironment {
     Development = 'development',
     Production = 'production',
@@ -774,6 +787,17 @@ export type B2CAppHistoryRecordsCreateInput = {
 export type B2CAppHistoryRecordsUpdateInput = {
     data?: InputMaybe<B2CAppHistoryRecordUpdateInput>;
     id: Scalars['ID']['input'];
+}
+
+export type B2CAppProperty = {
+    __typename?: 'B2CAppProperty';
+    address: Scalars['String']['output'];
+    id: Scalars['ID']['output'];
+}
+
+export type B2CAppPropertyMeta = {
+    __typename?: 'B2CAppPropertyMeta';
+    count: Scalars['Int']['output'];
 }
 
 export type B2CAppPublishOptions = {
@@ -1752,6 +1776,33 @@ export type ConfirmPhoneActionsUpdateInput = {
     id: Scalars['ID']['input'];
 }
 
+export type CreateB2CAppPropertyInput = {
+    address: Scalars['String']['input'];
+    app: B2CAppWhereUniqueInput;
+    dv: Scalars['Int']['input'];
+    environment: AppEnvironment;
+    sender: SenderFieldInput;
+}
+
+export type CreateB2CAppPropertyOutput = {
+    __typename?: 'CreateB2CAppPropertyOutput';
+    address: Scalars['String']['output'];
+    id: Scalars['String']['output'];
+}
+
+export type DeleteB2CAppPropertyInput = {
+    dv: Scalars['Int']['input'];
+    environment: AppEnvironment;
+    id: Scalars['ID']['input'];
+    sender: SenderFieldInput;
+}
+
+export type DeleteB2CAppPropertyOutput = {
+    __typename?: 'DeleteB2CAppPropertyOutput';
+    deletedAt?: Maybe<Scalars['String']['output']>;
+    id: Scalars['String']['output'];
+}
+
 export type File = {
     __typename?: 'File';
     encoding?: Maybe<Scalars['String']['output']>;
@@ -1811,6 +1862,7 @@ export type Mutation = {
     createB2CAppHistoryRecord?: Maybe<B2CAppHistoryRecord>;
     /**  Create multiple B2CAppHistoryRecord items.  */
     createB2CAppHistoryRecords?: Maybe<Array<Maybe<B2CAppHistoryRecord>>>;
+    createB2CAppProperty?: Maybe<CreateB2CAppPropertyOutput>;
     /**  Create a single B2CAppPublishRequest item.  */
     createB2CAppPublishRequest?: Maybe<B2CAppPublishRequest>;
     /**  Create a single B2CAppPublishRequestHistoryRecord item.  */
@@ -1867,6 +1919,7 @@ export type Mutation = {
     deleteB2CAppHistoryRecord?: Maybe<B2CAppHistoryRecord>;
     /**  Delete multiple B2CAppHistoryRecord items by ID.  */
     deleteB2CAppHistoryRecords?: Maybe<Array<Maybe<B2CAppHistoryRecord>>>;
+    deleteB2CAppProperty?: Maybe<DeleteB2CAppPropertyOutput>;
     /**  Delete a single B2CAppPublishRequest item by ID.  */
     deleteB2CAppPublishRequest?: Maybe<B2CAppPublishRequest>;
     /**  Delete a single B2CAppPublishRequestHistoryRecord item by ID.  */
@@ -2025,6 +2078,11 @@ export type MutationCreateB2CAppHistoryRecordsArgs = {
 }
 
 
+export type MutationCreateB2CAppPropertyArgs = {
+    data: CreateB2CAppPropertyInput;
+}
+
+
 export type MutationCreateB2CAppPublishRequestArgs = {
     data?: InputMaybe<B2CAppPublishRequestCreateInput>;
 }
@@ -2162,6 +2220,11 @@ export type MutationDeleteB2CAppHistoryRecordArgs = {
 
 export type MutationDeleteB2CAppHistoryRecordsArgs = {
     ids?: InputMaybe<Array<Scalars['ID']['input']>>;
+}
+
+
+export type MutationDeleteB2CAppPropertyArgs = {
+    data: DeleteB2CAppPropertyInput;
 }
 
 
@@ -2555,6 +2618,7 @@ export type Query = {
     allB2CAppBuilds?: Maybe<Array<Maybe<B2CAppBuild>>>;
     /**  Search for all B2CAppHistoryRecord items which match the where clause.  */
     allB2CAppHistoryRecords?: Maybe<Array<Maybe<B2CAppHistoryRecord>>>;
+    allB2CAppProperties?: Maybe<AllB2CAppPropertiesOutput>;
     /**  Search for all B2CAppPublishRequestHistoryRecord items which match the where clause.  */
     allB2CAppPublishRequestHistoryRecords?: Maybe<Array<Maybe<B2CAppPublishRequestHistoryRecord>>>;
     /**  Search for all B2CAppPublishRequest items which match the where clause.  */
@@ -2825,6 +2889,11 @@ export type QueryAllB2CAppHistoryRecordsArgs = {
     skip?: InputMaybe<Scalars['Int']['input']>;
     sortBy?: InputMaybe<Array<SortB2CAppHistoryRecordsBy>>;
     where?: InputMaybe<B2CAppHistoryRecordWhereInput>;
+}
+
+
+export type QueryAllB2CAppPropertiesArgs = {
+    data: AllB2CAppPropertiesInput;
 }
 
 
@@ -4971,7 +5040,7 @@ export type GetB2CAppQueryVariables = Exact<{
 }>
 
 
-export type GetB2CAppQuery = { __typename?: 'Query', app?: { __typename?: 'B2CApp', id: string, name?: string | null, developer?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null }
+export type GetB2CAppQuery = { __typename?: 'Query', app?: { __typename?: 'B2CApp', id: string, name?: string | null, developer?: string | null, developmentExportId?: string | null, productionExportId?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null }
 
 export type AllB2CAppBuildsQueryVariables = Exact<{
     where: B2CAppBuildWhereInput;
@@ -5024,6 +5093,13 @@ export type CreateB2CAppPublishRequestMutationVariables = Exact<{
 
 
 export type CreateB2CAppPublishRequestMutation = { __typename?: 'Mutation', request?: { __typename?: 'B2CAppPublishRequest', id: string } | null }
+
+export type AllB2CAppPropertiesQueryVariables = Exact<{
+    data: AllB2CAppPropertiesInput;
+}>
+
+
+export type AllB2CAppPropertiesQuery = { __typename?: 'Query', properties?: { __typename?: 'AllB2CAppPropertiesOutput', objs: Array<{ __typename?: 'B2CAppProperty', id: string, address: string }>, meta: { __typename?: 'B2CAppPropertyMeta', count: number } } | null }
 
 export type AuthenticatedUserQueryVariables = Exact<{ [key: string]: never; }>
 
@@ -5119,6 +5195,8 @@ export const GetB2CAppDocument = gql`
     logo {
       publicUrl
     }
+    developmentExportId
+    productionExportId
   }
 }
     `
@@ -5403,6 +5481,47 @@ export function useCreateB2CAppPublishRequestMutation (baseOptions?: Apollo.Muta
 export type CreateB2CAppPublishRequestMutationHookResult = ReturnType<typeof useCreateB2CAppPublishRequestMutation>
 export type CreateB2CAppPublishRequestMutationResult = Apollo.MutationResult<CreateB2CAppPublishRequestMutation>
 export type CreateB2CAppPublishRequestMutationOptions = Apollo.BaseMutationOptions<CreateB2CAppPublishRequestMutation, CreateB2CAppPublishRequestMutationVariables>
+export const AllB2CAppPropertiesDocument = gql`
+    query allB2CAppProperties($data: AllB2CAppPropertiesInput!) {
+  properties: allB2CAppProperties(data: $data) {
+    objs {
+      id
+      address
+    }
+    meta {
+      count
+    }
+  }
+}
+    `
+
+/**
+ * __useAllB2CAppPropertiesQuery__
+ *
+ * To run a query within a React component, call `useAllB2CAppPropertiesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAllB2CAppPropertiesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAllB2CAppPropertiesQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useAllB2CAppPropertiesQuery (baseOptions: Apollo.QueryHookOptions<AllB2CAppPropertiesQuery, AllB2CAppPropertiesQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useQuery<AllB2CAppPropertiesQuery, AllB2CAppPropertiesQueryVariables>(AllB2CAppPropertiesDocument, options)
+}
+export function useAllB2CAppPropertiesLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions<AllB2CAppPropertiesQuery, AllB2CAppPropertiesQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useLazyQuery<AllB2CAppPropertiesQuery, AllB2CAppPropertiesQueryVariables>(AllB2CAppPropertiesDocument, options)
+}
+export type AllB2CAppPropertiesQueryHookResult = ReturnType<typeof useAllB2CAppPropertiesQuery>
+export type AllB2CAppPropertiesLazyQueryHookResult = ReturnType<typeof useAllB2CAppPropertiesLazyQuery>
+export type AllB2CAppPropertiesQueryResult = Apollo.QueryResult<AllB2CAppPropertiesQuery, AllB2CAppPropertiesQueryVariables>
 export const AuthenticatedUserDocument = gql`
     query authenticatedUser {
   authenticatedUser {
