@@ -1,4 +1,8 @@
 <b>New Ticket №{{ message.meta.data.ticketNumber }}</b>
+Date of creation: {{ message.meta.data.ticketCreatedAt }}
 Organization: {{ message.meta.data.organizationName }}
-Details: {{ message.meta.data.details }}
+Status: {{ message.meta.data.ticketStatus }}
+Address: {{ message.meta.data.ticketAddress }}
+Unit: {{ message.meta.data.ticketUnit }}
+Details: {{ message.meta.data.ticketDetails }}
 <a href="{{ message.meta.data.url }}">Link to ticket</a>

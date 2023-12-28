@@ -1,4 +1,8 @@
 <b>Новая заявка №{{ message.meta.data.ticketNumber }}</b>
-УК: {{ message.meta.data.organizationName }}
-Описание: {{ message.meta.data.details }}
+Организация: {{ message.meta.data.organizationName }}
+Дата создания: {{ message.meta.data.ticketCreatedAt }}
+Статус: {{ message.meta.data.ticketStatus }}
+Адрес: {{ message.meta.data.ticketAddress }}
+Помещение: {{ message.meta.data.ticketUnit }}
+Описание: {{ message.meta.data.ticketDetails }}
 <a href="{{ message.meta.data.url }}">Ссылка на заявку</a>
