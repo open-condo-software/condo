@@ -20,6 +20,9 @@ const sendTicketCreatedNotifications = async (ticketId, lang, organizationId, or
     const ticketStatus = await getById('TicketStatus', createdTicket.status)
     const ticketStatusName = i18n(`ticket.status.${ticketStatus.type}.name`, { locale: lang })
     const ticketUnitType = i18n(`field.UnitType.prefix.${createdTicket.unitType}`, { locale: lang }).toLowerCase()
+    const ticketUrl = `${conf.SERVER_URL}/ticket/${ticketId}`
+
+    const OpenTicketMessage = i18n(`notification.messages.${TICKET_CREATED_TYPE}.telegram.openTicket`, { locale: lang })
 
     const users = await getUsersAvailableToReadTicketByPropertyScope({
         ticketOrganizationId: createdTicket.organization,
@@ -48,7 +51,10 @@ const sendTicketCreatedNotifications = async (ticketId, lang, organizationId, or
                     ticketCreatedAt: dayjs(createdTicket.createdAt).format('YYYY-MM-DD HH:mm'),
                     ticketDetails: createdTicket.details,
                     userId: employeeUserId,
-                    url: `${conf.SERVER_URL}/ticket/${ticketId}`,
+                    url: ticketUrl,
+                },
+                telegramMeta: {
+                    inlineKeyboard: [[{ text: OpenTicketMessage, url: ticketUrl }]],
                 },
             },
             sender: { dv: 1, fingerprint: 'send-notifications' },

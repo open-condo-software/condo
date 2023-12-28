@@ -1705,6 +1705,8 @@
   "notification.messages.MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE.push.title": "Ваш счет \uD83D\uDD14️",
   "notification.messages.MARKETPLACE_INVOICE_CASH_PUBLISHED_MESSAGE.push.title": "Ваш счет за платные услуги \uD83D\uDD14",
   "notification.messages.MARKETPLACE_INVOICE_CASH_WITH_TICKET_PUBLISHED_MESSAGE.push.title": "Ваш счет за платные услуги \uD83D\uDD14",
+  "notification.messages.TICKET_CREATED.telegram.openTicket": "Открыть заявку",
+  "notification.messages.TICKET_COMMENT_CREATED.telegram.openTicket": "Открыть заявку",
   "news.ConfirmDeleteTitle": "Удалить новость?",
   "news.ConfirmDeleteMessage": "Восстановить ее будет нельзя. Но можно создать заново.",
   "news.CancelMessage": "Оставить",

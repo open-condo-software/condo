@@ -23,6 +23,7 @@ const sendTicketCommentCreatedNotifications = async (commentId, ticketId) => {
     const ticket = await getById('Ticket', ticketId)
     const ticketOrganizationId = get(ticket, 'organization')
     const ticketStatus = await getById('TicketStatus', ticket.status)
+    const ticketUrl = `${conf.SERVER_URL}/ticket/${ticketId}`
 
     const organization = await getByCondition('Organization', {
         id: ticketOrganizationId,
@@ -30,8 +31,9 @@ const sendTicketCommentCreatedNotifications = async (commentId, ticketId) => {
     })
     const lang = get(COUNTRIES, [organization.country, 'locale'], conf.DEFAULT_LOCALE)
 
-    const ticketStatusName = i18n(`ticket.status.${ticketStatus.type}.name`, { locale: lang })
-    const ticketUnitType = i18n(`field.UnitType.prefix.${ticket.unitType}`, { locale: lang }).toLowerCase()
+    const OpenTicketMessage = i18n(`notification.messages.${TICKET_COMMENT_CREATED_TYPE}.telegram.openTicket`, { locale: lang })
+    const TicketStatusName = i18n(`ticket.status.${ticketStatus.type}.name`, { locale: lang })
+    const TicketUnitType = i18n(`field.UnitType.prefix.${ticket.unitType}`, { locale: lang }).toLowerCase()
 
     const users = await getUsersAvailableToReadTicketByPropertyScope({
         ticketOrganizationId: ticket.organization,
@@ -58,12 +60,15 @@ const sendTicketCommentCreatedNotifications = async (commentId, ticketId) => {
                     commentCreatedAt: dayjs(createdComment.createdAt).format('YYYY-MM-DD HH:mm'),
                     ticketId,
                     ticketNumber: ticket.number,
-                    ticketStatus: ticketStatusName,
+                    ticketStatus: TicketStatusName,
                     ticketAddress: ticket.propertyAddress,
-                    ticketUnit: ticket.unitName ? `${ticketUnitType} ${ticket.unitName}` : EMPTY_CONTENT,
+                    ticketUnit: ticket.unitName ? `${TicketUnitType} ${ticket.unitName}` : EMPTY_CONTENT,
                     userId: employeeUserId,
                     userName: commentAuthor.name,
-                    url: `${conf.SERVER_URL}/ticket/${ticketId}`,
+                    url: ticketUrl,
+                },
+                telegramMeta: {
+                    inlineKeyboard: [[{ text: OpenTicketMessage, url: ticketUrl }]],
                 },
             },
             sender: { dv: 1, fingerprint: 'send-notifications' },

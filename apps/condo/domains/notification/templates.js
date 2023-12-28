@@ -178,7 +178,8 @@ function translateObjectItems (obj, locale) {
  * Renders message template for Telegram
  */
 function telegramRenderer ({ message, env }) {
-    const { lang: locale, type } = message
+    const { lang: locale, type, meta } = message
+    const inlineKeyboard = get(meta, 'telegramMeta.inlineKeyboard')
     const { templatePathText, templatePathHtml } = getTelegramTemplate(locale, type)
     const messageTranslated = substituteTranslations(message, locale)
     const ret = {}
@@ -189,6 +190,10 @@ function telegramRenderer ({ message, env }) {
 
     if (templatePathHtml) {
         ret.html = nunjucks.render(templatePathHtml, { message: messageTranslated, env })
+    }
+
+    if (inlineKeyboard) {
+        ret.inlineKeyboard = inlineKeyboard
     }
 
     return ret

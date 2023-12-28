@@ -1705,6 +1705,8 @@
   "notification.messages.MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE.push.title": "Your invoice \uD83D\uDD14️",
   "notification.messages.MARKETPLACE_INVOICE_CASH_PUBLISHED_MESSAGE.push.title": "Your invoice for paid services \uD83D\uDD14",
   "notification.messages.MARKETPLACE_INVOICE_CASH_WITH_TICKET_PUBLISHED_MESSAGE.push.title": "Your invoice for paid services \uD83D\uDD14️",
+  "notification.messages.TICKET_CREATED.telegram.openTicket": "Open a ticket",
+  "notification.messages.TICKET_COMMENT_CREATED.telegram.openTicket": "Open a ticket",
   "news.ConfirmDeleteTitle": "Delete news?",
   "news.ConfirmDeleteMessage": "It cannot be restored. But you can recreate it.",
   "news.CancelMessage": "Keep",

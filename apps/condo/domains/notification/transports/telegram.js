@@ -22,16 +22,23 @@ async function prepareMessageToSend (message) {
 
     if (!telegramUserChat) throw new Error(NO_TELEGRAM_CHAT_FOR_USER)
 
-    const { text, html } = await renderTemplate(TELEGRAM_TRANSPORT, message)
+    const { text, html, inlineKeyboard } = await renderTemplate(TELEGRAM_TRANSPORT, message)
 
-    return { userId, text, html, telegramChatId }
+    return { userId, text, html, telegramChatId, inlineKeyboard }
 }
 
 /**
  * Send a Telegram notification to chat with user
  */
-async function send ({ telegramChatId, text, html } = {}) {
+async function send ({ telegramChatId, text, html, inlineKeyboard } = {}) {
     const messageData = html ? { text: html, parse_mode: 'HTML' } : { text }
+
+    if (inlineKeyboard) {
+        messageData.reply_markup = {
+            ...messageData.reply_markup,
+            inline_keyboard: inlineKeyboard,
+        }
+    }
 
     const result = await axios.post(`https://api.telegram.org/bot${conf.TELEGRAM_EMPLOYEE_BOT_TOKEN}/sendMessage`, {
         chat_id: telegramChatId,
