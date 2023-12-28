@@ -1751,6 +1751,7 @@ __metadata:
     lodash: ^4.17.21
     next: ^9.5.5
     next-transpile-modules: ^4.1.0
+    node-telegram-bot-api: ^0.64.0
     numeral: 2.0.6
     qs: ^6.9.4
     rc-queue-anim: ^1.8.5
@@ -7029,6 +7030,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@cypress/request-promise@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "@cypress/request-promise@npm:5.0.0"
+  dependencies:
+    bluebird: ^3.5.0
+    request-promise-core: 1.1.3
+    stealthy-require: ^1.1.1
+    tough-cookie: ^4.1.3
+  peerDependencies:
+    "@cypress/request": ^3.0.0
+  checksum: 72d17a3dd512a7b616b4d2c23d9aa0008d9ca10a8cb0c5f3d945b62705c7f4b57b6c8dc595934931be826bb0adfe5d2073c18648ed67ddf5e936f33d6b37c7ad
+  languageName: node
+  linkType: hard
+
 "@cypress/request@npm:^2.88.11":
   version: 2.88.12
   resolution: "@cypress/request@npm:2.88.12"
@@ -7052,6 +7067,32 @@ __metadata:
     tunnel-agent: ^0.6.0
     uuid: ^8.3.2
   checksum: 2c6fbf7f3127d41bffca8374beaa8cf95450495a8a077b00309ea9d94dd2a4da450a77fe038e8ad26c97cdd7c39b65c53c850f8338ce9bc2dbe23ce2e2b48329
+  languageName: node
+  linkType: hard
+
+"@cypress/request@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "@cypress/request@npm:3.0.1"
+  dependencies:
+    aws-sign2: ~0.7.0
+    aws4: ^1.8.0
+    caseless: ~0.12.0
+    combined-stream: ~1.0.6
+    extend: ~3.0.2
+    forever-agent: ~0.6.1
+    form-data: ~2.3.2
+    http-signature: ~1.3.6
+    is-typedarray: ~1.0.0
+    isstream: ~0.1.2
+    json-stringify-safe: ~5.0.1
+    mime-types: ~2.1.19
+    performance-now: ^2.1.0
+    qs: 6.10.4
+    safe-buffer: ^5.1.2
+    tough-cookie: ^4.1.3
+    tunnel-agent: ^0.6.0
+    uuid: ^8.3.2
+  checksum: 7175522ebdbe30e3c37973e204c437c23ce659e58d5939466615bddcd58d778f3a8ea40f087b965ae8b8138ea8d102b729c6eb18c6324f121f3778f4a2e8e727
   languageName: node
   linkType: hard
 
@@ -36286,6 +36327,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"node-telegram-bot-api@npm:^0.64.0":
+  version: 0.64.0
+  resolution: "node-telegram-bot-api@npm:0.64.0"
+  dependencies:
+    "@cypress/request": ^3.0.1
+    "@cypress/request-promise": ^5.0.0
+    array.prototype.findindex: ^2.0.2
+    bl: ^1.2.3
+    debug: ^3.2.7
+    eventemitter3: ^3.0.0
+    file-type: ^3.9.0
+    mime: ^1.6.0
+    pump: ^2.0.0
+  checksum: 371a5fc1ca3505b7779a812d62474131694d730a5900220bb4bef68e1dc1ab38bfac236c11f1fc796db9affd6ddac35a5aa5758340ca3114d780f3cf11006131
+  languageName: node
+  linkType: hard
+
 "nopt@npm:^5.0.0":
   version: 5.0.0
   resolution: "nopt@npm:5.0.0"
@@ -39903,6 +39961,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"qs@npm:6.10.4, qs@npm:~6.10.3":
+  version: 6.10.4
+  resolution: "qs@npm:6.10.4"
+  dependencies:
+    side-channel: ^1.0.4
+  checksum: 31e4fedd759d01eae52dde6692abab175f9af3e639993c5caaa513a2a3607b34d8058d3ae52ceeccf37c3025f22ed5e90e9ddd6c2537e19c0562ddd10dc5b1eb
+  languageName: node
+  linkType: hard
+
 "qs@npm:6.11.0, qs@npm:^6.10.0, qs@npm:^6.10.3, qs@npm:^6.9.4":
   version: 6.11.0
   resolution: "qs@npm:6.11.0"
@@ -39916,15 +39983,6 @@ __metadata:
   version: 6.9.3
   resolution: "qs@npm:6.9.3"
   checksum: 89cd1b5e521c19a7e0a7a056ddc261c5c30889664608cf9ce6085f9f25606fc48568cf6a6249e641b4b5c04dac7889e3b82133142523abf397228eb4f488fc38
-  languageName: node
-  linkType: hard
-
-"qs@npm:~6.10.3":
-  version: 6.10.4
-  resolution: "qs@npm:6.10.4"
-  dependencies:
-    side-channel: ^1.0.4
-  checksum: 31e4fedd759d01eae52dde6692abab175f9af3e639993c5caaa513a2a3607b34d8058d3ae52ceeccf37c3025f22ed5e90e9ddd6c2537e19c0562ddd10dc5b1eb
   languageName: node
   linkType: hard
 
@@ -43021,6 +43079,17 @@ __metadata:
   dependencies:
     throttleit: ^1.0.0
   checksum: 6ea1761dcc8a8b7b5894afd478c0286aa31bd69438d7050294bd4fd0d0b3e09b5cde417d38deef9c49809039c337d8744e4bb49d8632b0c3e4ffa5e8a687e0fd
+  languageName: node
+  linkType: hard
+
+"request-promise-core@npm:1.1.3":
+  version: 1.1.3
+  resolution: "request-promise-core@npm:1.1.3"
+  dependencies:
+    lodash: ^4.17.15
+  peerDependencies:
+    request: ^2.34
+  checksum: 8572b5dd21c8927b85d78c4d7ea8a3c9438b10100143372e0e6b90a55fb98f4119a6e57df6f7adc213432b50712b0a8039e32fb0673c0243cdd14ddef3f5ef68
   languageName: node
   linkType: hard
 
