@@ -160,7 +160,7 @@ export const useEmployeeRolesTableData = (connectedB2BApps: B2BApp[], b2BAppPerm
             permissions: [
                 {
                     key: 'canManageMarketplace',
-                    relatedCheckPermissions: ['canReadMarketplace', 'canReadMarketItems'],
+                    relatedCheckPermissions: ['canReadMarketplace', 'canReadMarketItems', 'canReadMarketItemPrices', 'canReadMarketPriceScopes'],
                 },
                 {
                     key: 'canReadPaymentsWithInvoices',
@@ -169,11 +169,11 @@ export const useEmployeeRolesTableData = (connectedB2BApps: B2BApp[], b2BAppPerm
                 {
                     key: 'canReadMarketItems',
                     relatedCheckPermissions: ['canReadMarketplace', 'canReadMarketItemPrices', 'canReadMarketPriceScopes'],
-                    relatedUncheckPermissions: ['canManageInvoices', 'canManageMarketplace', 'canManageMarketItems', 'canReadMarketItemPrices', 'canReadMarketPriceScopes'],
+                    relatedUncheckPermissions: ['canManageInvoices', 'canManageMarketplace', 'canManageMarketItems', 'canManageMarketItemPrices', 'canManageMarketPriceScopes', 'canReadMarketItemPrices', 'canReadMarketPriceScopes'],
                 },
                 {
                     key: 'canManageMarketItems',
-                    relatedCheckPermissions: ['canReadMarketplace', 'canReadMarketItems', 'canManageMarketItemPrices', 'canManageMarketPriceScopes'],
+                    relatedCheckPermissions: ['canReadMarketplace', 'canReadMarketItems', 'canReadMarketItemPrices', 'canReadMarketPriceScopes', 'canManageMarketItemPrices', 'canManageMarketPriceScopes'],
                     relatedUncheckPermissions: ['canManageMarketItemPrices', 'canManageMarketPriceScopes'],
                 },
                 {
@@ -183,7 +183,7 @@ export const useEmployeeRolesTableData = (connectedB2BApps: B2BApp[], b2BAppPerm
                 },
                 {
                     key: 'canManageInvoices',
-                    relatedCheckPermissions: ['canReadMarketItems', 'canReadMarketplace', 'canReadInvoices'],
+                    relatedCheckPermissions: ['canReadMarketItems', 'canReadMarketItemPrices', 'canReadMarketPriceScopes', 'canReadMarketplace', 'canReadInvoices'],
                 },
             ],
         },

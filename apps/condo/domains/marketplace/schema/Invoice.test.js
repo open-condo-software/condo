@@ -751,7 +751,10 @@ describe('Invoice', () => {
                     unitName,
                 })
 
-            const [marketCategory] = await createTestMarketCategory(adminClient)
+            const [parentCategory] = await createTestMarketCategory(adminClient)
+            const [marketCategory] = await createTestMarketCategory(adminClient, {
+                parentCategory: { connect: { id: parentCategory.id } },
+            })
             const [marketItem] = await createTestMarketItem(adminClient, marketCategory, o10n)
             const [itemPrice] = await createTestMarketItemPrice(adminClient, marketItem)
             const [priceScope] = await createTestMarketPriceScope(adminClient, itemPrice, property)
@@ -772,8 +775,8 @@ describe('Invoice', () => {
             expect(invoice.rows).toEqual([
                 expect.objectContaining({
                     meta: {
-                        imageUrl: get(marketCategory, ['image', 'publicUrl'], null),
-                        categoryBgColor: get(marketCategory, ['mobileSettings', 'bgColor'], null),
+                        imageUrl: get(parentCategory, ['image', 'publicUrl'], null),
+                        categoryBgColor: get(parentCategory, ['mobileSettings', 'bgColor'], null),
                     },
                 }),
             ])
