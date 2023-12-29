@@ -931,6 +931,52 @@ describe('Invoice', () => {
             expect(messages).toHaveLength(0)
         })
 
+        test('not send push after create invoice with ticket with source mobile_app_resident', async () => {
+            const client = await makeClientWithProperty()
+            await createTestAcquiringIntegrationContext(adminClient, client.organization, dummyAcquiringIntegration, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceRecipient: createTestRecipient(),
+            })
+
+            const unitType = FLAT_UNIT_TYPE
+            const unitName = faker.lorem.word()
+
+            const residentClient = await makeClientWithResidentUser()
+            await registerResidentByTestClient(
+                residentClient,
+                {
+                    address: client.property.address,
+                    addressMeta: client.property.addressMeta,
+                    unitType,
+                    unitName,
+                })
+            const [ticket] = await createTestTicket(client, client.organization, client.property, {
+                isPayable: true,
+                unitType,
+                unitName,
+                clientName: null,
+                clientPhone: null,
+                contact: null,
+                source: { connect: { id: '830d1d89-2d17-4c5b-96d1-21b5cd01a6d3' } },
+                client: { connect: { id: residentClient.user.id } },
+            })
+            await createTestInvoice(client, client.organization, {
+                property: { connect: { id: client.property.id } },
+                unitType,
+                unitName,
+                status: INVOICE_STATUS_PUBLISHED,
+                ticket: { connect: { id: ticket.id } },
+                client: { connect: { id: residentClient.user.id } },
+            })
+
+            const messages = await Message.getAll(adminClient, {
+                user: { id: residentClient.user.id },
+                type: MARKETPLACE_INVOICE_PUBLISHED_MESSAGE_TYPE,
+            })
+
+            expect(messages).toHaveLength(0)
+        })
+
         test('send push after create invoice with ticket and published status', async () => {
             const client = await makeClientWithProperty()
             await createTestAcquiringIntegrationContext(adminClient, client.organization, dummyAcquiringIntegration, {
