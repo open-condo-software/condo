@@ -54,6 +54,7 @@ import {
 } from '@condo/domains/common/constants/menuCategories'
 import { useHotCodeReload } from '@condo/domains/common/hooks/useHotCodeReload'
 import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
+import { SetupTelegramNotificationsBanner } from '@condo/domains/common/hooks/useTelegramNotificationsBanner'
 import { messagesImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
 import { useContactExportTaskUIInterface } from '@condo/domains/contact/hooks/useContactExportTaskUIInterface'
 import { ConnectedAppsWithIconsContextProvider, useConnectedAppsWithIconsContext } from '@condo/domains/miniapp/components/ConnectedAppsWithIconsProvider'
@@ -453,6 +454,7 @@ const MyApp = ({ Component, pageProps }) => {
             <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize='large'>
                 <CacheProvider value={cache}>
                     <FeatureFlagsProvider>
+                        <SetupTelegramNotificationsBanner />
                         <GlobalStyle/>
                         {shouldDisplayCookieAgreement && <CookieAgreement/>}
                         <FocusContextProvider>
