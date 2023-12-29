@@ -122,21 +122,6 @@ const RegisterResidentInvoiceService = new GQLCustomSchema('RegisterResidentInvo
                     throw new GQLError(ERRORS.EMPTY_ROWS, context)
                 }
 
-                // To be sure that we do not create ticket without invoice, we create invoice first
-                // Then we create the ticket and connect the invoice
-                const invoice = await Invoice.create(context, {
-                    dv,
-                    sender,
-                    organization: { connect: { id: resident.organization } },
-                    property: { connect: { id: resident.property } },
-                    unitType: resident.unitType,
-                    unitName: resident.unitName,
-                    rows,
-                    status: INVOICE_STATUS_DRAFT,
-                    paymentType: data.paymentType,
-                    client: { connect: { id: userId } },
-                })
-
                 const ticket = await Ticket.create(context, {
                     dv,
                     sender,
@@ -151,12 +136,18 @@ const RegisterResidentInvoiceService = new GQLCustomSchema('RegisterResidentInvo
                     unitName: resident.unitName,
                     source: { connect: { id: MOBILE_APP_RESIDENT_TICKET_SOURCE_ID } },
                 })
-
-                await Invoice.update(context, invoice.id, {
+                const invoice = await Invoice.create(context, {
                     dv,
                     sender,
+                    organization: { connect: { id: resident.organization } },
+                    property: { connect: { id: resident.property } },
+                    unitType: resident.unitType,
+                    unitName: resident.unitName,
+                    rows,
                     ticket: { connect: { id: ticket.id } },
                     status: hasMinPrice ? INVOICE_STATUS_DRAFT : INVOICE_STATUS_PUBLISHED,
+                    paymentType: data.paymentType,
+                    client: { connect: { id: userId } },
                 })
 
                 return await getById('Invoice', invoice.id)
