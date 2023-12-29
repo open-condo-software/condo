@@ -23,6 +23,7 @@ const {
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { createTestAcquiringIntegration, createTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBillingIntegration, createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
+const { sleep } = require('@condo/domains/common/utils/sleep')
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const {
     INVOICE_STATUS_DRAFT,
@@ -1091,6 +1092,75 @@ describe('Invoice', () => {
             })
 
             expect(messages[0].meta.data.invoiceId).toEqual(invoice.id)
+            expect(messages[0].meta.data.ticketId).toEqual(ticket.id)
+            expect(messages[0].meta.data.ticketNumber).toEqual(ticket.number)
+            expect(messages[0].meta.data.residentId).toEqual(resident.id)
+            expect(messages[0].meta.data.url).toEqual(`${conf.SERVER_URL}/ticket/${ticket.id}`)
+        })
+
+
+        test('send only one push for published invoices related to one ticket', async () => {
+            const client = await makeClientWithProperty()
+            await createTestAcquiringIntegrationContext(adminClient, client.organization, dummyAcquiringIntegration, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceRecipient: createTestRecipient(),
+            })
+
+            const unitType = FLAT_UNIT_TYPE
+            const unitName = faker.lorem.word()
+
+            const residentClient = await makeClientWithResidentUser()
+            const [resident] = await registerResidentByTestClient(
+                residentClient,
+                {
+                    address: client.property.address,
+                    addressMeta: client.property.addressMeta,
+                    unitType,
+                    unitName,
+                })
+
+            const [ticket] = await createTestTicket(client, client.organization, client.property, {
+                isPayable: true,
+                unitType,
+                unitName,
+                clientName: null,
+                clientPhone: null,
+                contact: null,
+                client: { connect: { id: residentClient.user.id } },
+            })
+            const [createdInvoice] = await createTestInvoice(client, client.organization, {
+                property: { connect: { id: client.property.id } },
+                unitType,
+                unitName,
+                status: INVOICE_STATUS_PUBLISHED,
+                client: { connect: { id: residentClient.user.id } },
+                ticket: { connect: { id: ticket.id } },
+                clientName: null,
+                clientPhone: null,
+                contact: null,
+            })
+            const [createdInvoice2] = await createTestInvoice(client, client.organization, {
+                property: { connect: { id: client.property.id } },
+                unitType,
+                unitName,
+                status: INVOICE_STATUS_PUBLISHED,
+                client: { connect: { id: residentClient.user.id } },
+                ticket: { connect: { id: ticket.id } },
+                clientName: null,
+                clientPhone: null,
+                contact: null,
+            })
+            await sleep(500)
+            let messages
+            await waitFor(async () => {
+                messages = await Message.getAll(adminClient, {
+                    user: { id: residentClient.user.id },
+                    type: MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
+                })
+                expect(messages).toHaveLength(1)
+            })
+
+            expect(messages[0].meta.data.invoiceId).toEqual(createdInvoice.id)
             expect(messages[0].meta.data.ticketId).toEqual(ticket.id)
             expect(messages[0].meta.data.ticketNumber).toEqual(ticket.number)
             expect(messages[0].meta.data.residentId).toEqual(resident.id)

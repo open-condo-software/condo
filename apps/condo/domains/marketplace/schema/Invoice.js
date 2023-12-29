@@ -68,6 +68,7 @@ const sendPush = async ({ originalInput, userId, propertyId, unitName, unitType,
         })
 
         const uniqKey = `marketplace_invoice_published_${updatedItem.id}`
+        const uniqKeyWithTicket = `marketplace_invoice_published_${updatedItem.ticket}`
         if (resident) {
             if (updatedItem.paymentType === INVOICE_PAYMENT_TYPE_ONLINE) {
 
@@ -97,7 +98,7 @@ const sendPush = async ({ originalInput, userId, propertyId, unitName, unitType,
                             sender: { dv: 1, fingerprint: 'invoice_afterChange' },
                             to: { user: { id: userId } },
                             type: MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
-                            uniqKey,
+                            uniqKey: uniqKeyWithTicket,
                             meta: {
                                 dv: 1,
                                 data: {
@@ -140,7 +141,7 @@ const sendPush = async ({ originalInput, userId, propertyId, unitName, unitType,
                             sender: { dv: 1, fingerprint: 'invoice_afterChange' },
                             to: { user: { id: userId } },
                             type: MARKETPLACE_INVOICE_CASH_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
-                            uniqKey,
+                            uniqKey: uniqKeyWithTicket,
                             meta: {
                                 dv: 1,
                                 data: {
