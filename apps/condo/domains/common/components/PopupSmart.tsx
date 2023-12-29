@@ -16,32 +16,35 @@ const PopupSmart = (): null => {
     const role = get(link, 'role.nameNonLocalized', false)
     const userIsNotStaff = !(get(user, 'isAdmin', false) || get(user, 'isSupport', false))
 
-    const { publicRuntimeConfig: { popupSmartUrl } } = getConfig()
+    const { publicRuntimeConfig: { popupSmartConfig } } = getConfig()
+    const popupSmartUrl = get(popupSmartConfig, 'url')
+    const popupSmartId = get(popupSmartConfig, 'id')
 
     // watch for user role update. This is the way to tell popupsmart local user context
     useEffect(() => {
         if (typeof window !== 'undefined') {
             // We don't want to share support or admin user's
-            if (role && userIsNotStaff && popupSmartUrl) {
+            if (role && userIsNotStaff && popupSmartUrl && popupSmartId) {
                 cookie.set('roleName', role)
 
                 // If script is not loaded yet -> add it to the body section
                 // Placing script in render section not fire it's loading. That was fixed at nextjs v11 with next/script
                 if (isNull(scriptRef.current)) {
                     const scriptElement = document.createElement('script')
-                    scriptElement.async = false
+                    scriptElement.async = true
+                    scriptElement.defer = true
                     scriptElement.src = popupSmartUrl
+                    scriptElement.dataset.id = popupSmartId
 
                     document.querySelector('body').appendChild(scriptElement)
 
                     scriptRef.current = scriptElement
                 }
-
             } else {
                 cookie.remove('roleName')
             }
         }
-    }, [role, userIsNotStaff, popupSmartUrl])
+    }, [role, userIsNotStaff, popupSmartUrl, popupSmartId])
 
     return null
 }
