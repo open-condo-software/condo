@@ -1,4 +1,6 @@
 import { Col, Row } from 'antd'
+import omit from 'lodash/omit'
+import { useRouter } from 'next/router'
 import React, { useCallback, useState } from 'react'
 import { useIntl } from 'react-intl'
 
@@ -25,11 +27,14 @@ export const PropertiesSection: React.FC<{ id: string }> = ({ id }) => {
     const DevStandLabel = intl.formatMessage({ id: 'apps.b2c.sections.publishing.publishForm.items.stand.options.development.label' })
     const ProdStandLabel = intl.formatMessage({ id: 'apps.b2c.sections.publishing.publishForm.items.stand.options.production.label' })
 
+    const router = useRouter()
+
     const [selectedEnvironment, setSelectedEnvironment] = useState<AppEnvironment>(AppEnvironment.Development)
 
     const handleEnvironmentChange = useCallback<Required<SelectProps>['onChange']>((newEnv) => {
+        router.replace({ query: omit(router.query, ['p']) }, undefined, { locale: router.locale })
         setSelectedEnvironment(newEnv as AppEnvironment)
-    }, [])
+    }, [router])
 
     const { data } = useGetB2CAppQuery({
         variables: {
