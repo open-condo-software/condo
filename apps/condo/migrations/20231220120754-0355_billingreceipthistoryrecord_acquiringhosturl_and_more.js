@@ -5,6 +5,11 @@ exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
 --
+-- [CUSTOM] Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
+--
+SET statement_timeout = '1500s';
+
+--
 -- Add field acquiringHostUrl to billingreceipthistoryrecord
 --
 ALTER TABLE "BillingReceiptHistoryRecord" ADD COLUMN "acquiringHostUrl" jsonb NULL;
@@ -36,6 +41,12 @@ ALTER TABLE "InvoiceHistoryRecord" ADD COLUMN "canGroupReceipts" jsonb NULL;
 -- Add field currencyCode to invoicehistoryrecord
 --
 ALTER TABLE "InvoiceHistoryRecord" ADD COLUMN "currencyCode" jsonb NULL;
+
+--
+-- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
+--
+SET statement_timeout = '10s';
+
 COMMIT;
 
     `)
@@ -44,6 +55,10 @@ COMMIT;
 exports.down = async (knex) => {
     await knex.raw(`
     BEGIN;
+--
+-- [CUSTOM] Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
+--
+SET statement_timeout = '1500s';
 --
 -- Add field currencyCode to invoicehistoryrecord
 --
@@ -76,6 +91,12 @@ ALTER TABLE "BillingReceiptHistoryRecord" DROP COLUMN "acquiringIntegrationId" C
 -- Add field acquiringHostUrl to billingreceipthistoryrecord
 --
 ALTER TABLE "BillingReceiptHistoryRecord" DROP COLUMN "acquiringHostUrl" CASCADE;
+
+--
+-- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
+--
+SET statement_timeout = '10s';
+
 COMMIT;
 
     `)
