@@ -120,8 +120,12 @@ ALTER TABLE "AcquiringIntegrationHistoryRecord" ADD COLUMN "vatPercentOptions" t
 --
 -- Add field organization to invoice
 --
+
 ALTER TABLE "Invoice" ADD COLUMN "organization" uuid CONSTRAINT "Invoice_organization_d276dcc3_fk_Organization_id" REFERENCES "Organization"("id") DEFERRABLE INITIALLY DEFERRED; SET CONSTRAINTS "Invoice_organization_d276dcc3_fk_Organization_id" IMMEDIATE;
 UPDATE "Invoice" SET "organization" = "Contact".organization FROM "Contact" WHERE "Invoice".contact = "Contact".id;
+UPDATE "Invoice" SET "organization" = "Property".organization FROM "Property" WHERE "Invoice".property = "Property".id AND "Invoice".property IS NOT NULL AND "Invoice".organization IS NULL;
+UPDATE "Invoice" SET "organization" = "Payment".organization FROM "Payment" WHERE "Invoice".id = "Payment".invoice  AND "Invoice".organization IS NULL;
+DELETE FROM "Invoice" WHERE organization IS NULL;
 ALTER TABLE "Invoice" ALTER COLUMN "organization" SET NOT NULL;
 
 --
