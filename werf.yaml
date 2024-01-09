@@ -737,3 +737,36 @@ shell:
   - "yarn workspace @app/dev-api build"
   - "rm -rf /app/.env"
   - "rm -rf /app/.config"
+
+docker:
+  ENV:
+    LANG: C.UTF-8
+---
+image: telegramemployeebot
+fromImage: base
+fromCacheVersion: "1"
+git:
+  - add: /
+    to: /app
+    stageDependencies:
+      install:
+        - "yarn.lock"
+        - "package.json"
+        - "**/yarn.lock"
+        - "**/package.json"
+      setup:
+        - "apps/**"
+        - "packages/**"
+        - "bin/**/*"
+    excludePaths:
+      - .github
+      - .helm
+      - werf.yaml
+      - werf-giterminism.yaml
+    owner: app
+    group: app
+
+shell:
+  install:
+    - "cd /app"
+    - "yarn install --immutable"
