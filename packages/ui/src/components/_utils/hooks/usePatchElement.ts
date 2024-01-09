@@ -10,7 +10,7 @@ export function usePatchElement (): [Elements, Patcher] {
         setElements(prev => [...prev, el])
 
         return () => {
-            setElements(prev => prev.filter(item => item != el))
+            setElements(prev => prev.filter(item => item !== el))
         }
     }, [])
 
