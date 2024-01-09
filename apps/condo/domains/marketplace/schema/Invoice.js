@@ -53,6 +53,7 @@ const {
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
+const { TICKET_SOURCE_TYPES } = require('@condo/domains/ticket/constants/common')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 
@@ -67,34 +68,37 @@ const sendPush = async ({ originalInput, userId, propertyId, unitName, unitType,
         })
 
         const uniqKey = `marketplace_invoice_published_${updatedItem.id}`
-        if (resident) {
-            if (updatedItem.paymentType === INVOICE_PAYMENT_TYPE_ONLINE) {
+        const uniqKeyWithTicket = `marketplace_invoice_published_${updatedItem.ticket}`
+        if (!resident) return
 
-                if (isNil(updatedItem.ticket)) {
-                    await sendMessage(context, {
+        if (updatedItem.paymentType === INVOICE_PAYMENT_TYPE_ONLINE) {
+            if (isNil(updatedItem.ticket)) {
+                await sendMessage(context, {
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: 'invoice_afterChange' },
+                    to: { user: { id: userId } },
+                    type: MARKETPLACE_INVOICE_PUBLISHED_MESSAGE_TYPE,
+                    uniqKey,
+                    meta: {
                         dv: 1,
-                        sender: { dv: 1, fingerprint: 'invoice_afterChange' },
-                        to: { user: { id: userId } },
-                        type: MARKETPLACE_INVOICE_PUBLISHED_MESSAGE_TYPE,
-                        uniqKey,
-                        meta: {
-                            dv: 1,
-                            data: {
-                                userId,
-                                residentId: resident.id,
-                                invoiceId: updatedItem.id,
-                                url: `${conf.SERVER_URL}/invoice/${updatedItem.id}`,
-                            },
+                        data: {
+                            userId,
+                            residentId: resident.id,
+                            invoiceId: updatedItem.id,
+                            url: `${conf.SERVER_URL}/payments`,
                         },
-                    })
-                } else {
-                    const ticket = await getById('Ticket', updatedItem.ticket)
+                    },
+                })
+            } else {
+                const ticket = await getById('Ticket', updatedItem.ticket)
+                const ticketSource = await getById('TicketSource', ticket.source)
+                if (ticketSource.type !== TICKET_SOURCE_TYPES.MOBILE_APP ) {
                     await sendMessage(context, {
                         dv: 1,
                         sender: { dv: 1, fingerprint: 'invoice_afterChange' },
                         to: { user: { id: userId } },
                         type: MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
-                        uniqKey,
+                        uniqKey: uniqKeyWithTicket,
                         meta: {
                             dv: 1,
                             data: {
@@ -108,32 +112,36 @@ const sendPush = async ({ originalInput, userId, propertyId, unitName, unitType,
                         },
                     })
                 }
-            } else if (updatedItem.paymentType === INVOICE_PAYMENT_TYPE_CASH) {
-                if (isNil(updatedItem.ticket)) {
-                    await sendMessage(context, {
+            }
+
+        } else if (updatedItem.paymentType === INVOICE_PAYMENT_TYPE_CASH) {
+            if (isNil(updatedItem.ticket)) {
+                await sendMessage(context, {
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: 'invoice_afterChange' },
+                    to: { user: { id: userId } },
+                    type: MARKETPLACE_INVOICE_CASH_PUBLISHED_MESSAGE_TYPE,
+                    uniqKey,
+                    meta: {
                         dv: 1,
-                        sender: { dv: 1, fingerprint: 'invoice_afterChange' },
-                        to: { user: { id: userId } },
-                        type: MARKETPLACE_INVOICE_CASH_PUBLISHED_MESSAGE_TYPE,
-                        uniqKey,
-                        meta: {
-                            dv: 1,
-                            data: {
-                                userId,
-                                residentId: resident.id,
-                                invoiceId: updatedItem.id,
-                                url: `${conf.SERVER_URL}/invoice/${updatedItem.id}`,
-                            },
+                        data: {
+                            userId,
+                            residentId: resident.id,
+                            invoiceId: updatedItem.id,
+                            url: `${conf.SERVER_URL}/payments`,
                         },
-                    })
-                } else {
-                    const ticket = await getById('Ticket', updatedItem.ticket)
+                    },
+                })
+            } else {
+                const ticket = await getById('Ticket', updatedItem.ticket)
+                const ticketSource = await getById('TicketSource', ticket.source)
+                if (ticketSource.type !== TICKET_SOURCE_TYPES.MOBILE_APP ) {
                     await sendMessage(context, {
                         dv: 1,
                         sender: { dv: 1, fingerprint: 'invoice_afterChange' },
                         to: { user: { id: userId } },
                         type: MARKETPLACE_INVOICE_CASH_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
-                        uniqKey,
+                        uniqKey: uniqKeyWithTicket,
                         meta: {
                             dv: 1,
                             data: {
