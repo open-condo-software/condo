@@ -1,12 +1,18 @@
 import { Row, Col, Table } from 'antd'
 import { useRouter } from 'next/router'
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 import { useIntl } from 'react-intl'
+
+import { PlusCircle } from '@open-condo/icons'
+import { Button } from '@open-condo/ui'
+
 
 import { EmptyTableFiller } from '@/domains/common/components/EmptyTableFiller'
 import { DEFAULT_PAGE_SIZE } from '@/domains/miniapp/constants/common'
 import { nonNull } from '@/domains/miniapp/utils/nonNull'
 import { getCurrentPage } from '@/domains/miniapp/utils/query'
+
+import { CreatePropertyModal } from './CreatePropertyModal'
 
 import type { AppEnvironment } from '@/lib/gql'
 import type { RowProps } from 'antd'
@@ -27,6 +33,15 @@ export const PropertiesTable: React.FC<PropertiesTableProps> = ({ id, environmen
     const intl = useIntl()
     const AddressColumnTitle = intl.formatMessage({ id: 'apps.b2c.sections.properties.table.columns.address.title' })
     const EmptyTableMessage = intl.formatMessage({ id: 'apps.b2c.sections.properties.table.empty.message' })
+    const AddAddressLabel = intl.formatMessage({ id: 'apps.b2c.sections.properties.actions.addProperty' })
+
+    const [isCreatePropertyModalOpen, setIsCreatePropertyModalOpen] = useState(false)
+    const showCreatePropertyModal = useCallback(() => {
+        setIsCreatePropertyModalOpen(true)
+    }, [])
+    const hideCreatePropertyModal = useCallback(() => {
+        setIsCreatePropertyModalOpen(false)
+    }, [])
 
     const router = useRouter()
     const { p } = router.query
@@ -36,6 +51,7 @@ export const PropertiesTable: React.FC<PropertiesTableProps> = ({ id, environmen
         {
             title: AddressColumnTitle,
             key: 'address',
+            dataIndex: 'address',
         },
         {
             title: ' ',
@@ -83,6 +99,17 @@ export const PropertiesTable: React.FC<PropertiesTableProps> = ({ id, environmen
                         onChange: handlePaginationChange,
                     }}
                 />
+            </Col>
+            <Col span={FULL_COL_SPAN}>
+                <Button type='primary' icon={<PlusCircle size='medium'/>} onClick={showCreatePropertyModal}>{AddAddressLabel}</Button>
+                {isCreatePropertyModalOpen && (
+                    <CreatePropertyModal
+                        appId={id}
+                        environment={environment}
+                        open={isCreatePropertyModalOpen}
+                        closeFn={hideCreatePropertyModal}
+                    />
+                )}
             </Col>
         </Row>
     )

@@ -80,3 +80,9 @@ query allB2CAppProperties($data: AllB2CAppPropertiesInput!) {
         meta { count }
     }
 }
+
+mutation createB2CAppProperty($data: CreateB2CAppPropertyInput!) {
+    property: createB2CAppProperty(data: $data) {
+        id
+    }
+}
