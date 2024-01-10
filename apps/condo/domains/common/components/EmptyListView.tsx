@@ -5,6 +5,7 @@ import { useRouter } from 'next/router'
 import React, { CSSProperties } from 'react'
 
 import { Button } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
 
 import { EmptyIcon } from './EmptyIcon'
 
@@ -17,6 +18,7 @@ export interface IEmptyListProps {
     containerStyle?: CSSProperties
     accessCheck?: boolean
     image?: string
+    withBorder?: boolean
 }
 
 export interface IBasicEmptyListProps extends EmptyProps {
@@ -63,15 +65,30 @@ export const BasicEmptyListView: React.FC<IBasicEmptyListProps> = ({
 }
 
 export const EmptyListView: React.FC<IEmptyListProps> = (props) => {
-    const { label, message, button, createRoute, createLabel, containerStyle, accessCheck, image } = props
+    const {
+        label,
+        message,
+        button,
+        createRoute,
+        createLabel,
+        containerStyle = {},
+        accessCheck,
+        image,
+        withBorder,
+    } = props
+
     const router = useRouter()
+
+    const containerStyles = withBorder ?
+        { ...containerStyle, border: `1px solid ${colors.gray[3]}`, borderRadius: '8px', padding: '40px' } :
+        containerStyle
 
     return (
         <BasicEmptyListView
             image={image ? image : 'dino/searching@2x.png'}
             spaceSize={16}
             imageStyle={{ height: 200 }}
-            containerStyle={containerStyle}
+            containerStyle={containerStyles}
         >
             <Typography.Title level={4}>
                 {label}
