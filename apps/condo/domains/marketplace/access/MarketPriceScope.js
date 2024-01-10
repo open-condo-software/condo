@@ -22,7 +22,6 @@ async function canReadMarketPriceScopes ({ authentication: { item: user } }) {
         const userResidents = await find('Resident', { user: { id: user.id }, deletedAt: null })
         if (!userResidents.length) return false
         return {
-            deletedAt: null,
             OR: [
                 // Scopes with a particular property
                 { property: { id_in: userResidents.map(({ property }) => property) } },
