@@ -70,6 +70,8 @@ const MarketItemHeader = ({ title, marketItem }) => {
     )
 }
 
+const PAGE_FIELD_ROW_PROPS = { ellipsis: ELLIPSIS_CONFIG, labelSpan: 8 }
+
 const MarketItemFields = ({ marketItem }) => {
     const intl = useIntl()
     const SkuFieldMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.sku' })
@@ -79,16 +81,16 @@ const MarketItemFields = ({ marketItem }) => {
 
     return (
         <Row gutter={SMALL_VERTICAL_GUTTER}>
-            <PageFieldRow title={SkuFieldMessage} ellipsis={ELLIPSIS_CONFIG}>
+            <PageFieldRow title={SkuFieldMessage} {...PAGE_FIELD_ROW_PROPS}>
                 {get(marketItem, 'sku', '—')}
             </PageFieldRow>
-            <PageFieldRow title={CategoryFieldMessage} ellipsis={ELLIPSIS_CONFIG}>
+            <PageFieldRow title={CategoryFieldMessage} {...PAGE_FIELD_ROW_PROPS}>
                 {get(marketItem, 'marketCategory.parentCategory.name', '—')}
             </PageFieldRow>
-            <PageFieldRow title={SubCategoryFieldMessage} ellipsis={ELLIPSIS_CONFIG}>
+            <PageFieldRow title={SubCategoryFieldMessage} {...PAGE_FIELD_ROW_PROPS}>
                 {get(marketItem, 'marketCategory.name', '—')}
             </PageFieldRow>
-            <PageFieldRow title={DescriptionFieldMessage} ellipsis={ELLIPSIS_CONFIG}>
+            <PageFieldRow title={DescriptionFieldMessage} {...PAGE_FIELD_ROW_PROPS}>
                 {get(marketItem, 'description', '—')}
             </PageFieldRow>
         </Row>

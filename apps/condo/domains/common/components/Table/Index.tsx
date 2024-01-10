@@ -136,6 +136,10 @@ export const Table: React.FC<ITableProps> = ({
         }
     }, 400)
 
+    const pagination = useMemo(
+        () => totalRows > rowsPerPage ? tablePaginationConfig : false,
+        [rowsPerPage, tablePaginationConfig, totalRows])
+
     return (
         <DefaultTable
             scroll={tableScrollConfig}
@@ -148,7 +152,7 @@ export const Table: React.FC<ITableProps> = ({
             columns={columns}
             onChange={handleChange}
             onRow={onRow}
-            pagination={tablePaginationConfig}
+            pagination={pagination}
             {...otherTableProps}
         />
     )
