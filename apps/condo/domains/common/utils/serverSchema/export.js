@@ -3,7 +3,7 @@ const fs = require('fs')
 const { stringify } = require('csv-stringify')
 const dayjs = require('dayjs')
 const Upload = require('graphql-upload/Upload.js')
-const { get } = require('lodash')
+const { get, isFunction } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -14,7 +14,7 @@ const { createWriteStreamForExport } = require('@condo/domains/common/utils/expo
 const { sleep } = require('@condo/domains/common/utils/sleep')
 const { getTmpFile } = require('@condo/domains/common/utils/testSchema/file')
 
-const { getHeadersTranslations, EXPORT_TYPE_TICKETS } = require('../exportToExcel')
+const { getHeadersTranslations } = require('../exportToExcel')
 
 const TASK_PROGRESS_UPDATE_INTERVAL = 10 * 1000 // 10sec
 const CSV_DELIMITER = ';'
@@ -144,12 +144,14 @@ const exportRecordsAsXlsxFile = async ({ context, loadRecordsBatch, convertRecor
     })
 }
 
-const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecordToFileRow, baseAttrs, taskServerUtils, totalRecordsCount, taskId }) => {
+const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecordToFileRow, baseAttrs, taskServerUtils, totalRecordsCount, taskId, registry, getHeadersTranslations: overriddenGetHeadersTranslations }) => {
     const filename = getTmpFile('csv')
     const writeStream = createWriteStreamForExport(filename)
 
     const task = await taskServerUtils.getOne(context, { id: taskId })
-    const columns = getHeadersTranslations(EXPORT_TYPE_TICKETS, task.locale)
+    const _getHeadersTranslations = isFunction(overriddenGetHeadersTranslations) ? overriddenGetHeadersTranslations : getHeadersTranslations
+    const columns = _getHeadersTranslations(registry, task.locale)
+    const columnKeys = Object.keys(columns)
     const stringifier = stringify({ header: true, columns, delimiter: CSV_DELIMITER })
     stringifier.pipe(writeStream)
 
@@ -159,7 +161,7 @@ const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecord
         processRecordsBatch: async (batch) => {
             const convertedRecords = await Promise.all(batch.map(convertRecordToFileRow))
             convertedRecords.forEach(row => {
-                stringifier.write(Object.values(row))
+                stringifier.write(columnKeys.map(key => get(row, key)))
             })
         },
         baseAttrs, taskServerUtils, totalRecordsCount, taskId,

@@ -296,6 +296,7 @@ async function exportTickets (taskId) {
                         taskServerUtils: TicketExportTask,
                         totalRecordsCount,
                         taskId,
+                        registry: EXPORT_TYPE_TICKETS,
                     })
                 } else {
                     await exportRecordsAsXlsxFile({

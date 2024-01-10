@@ -139,6 +139,7 @@ async function exportContacts (taskId) {
                         taskServerUtils: ContactExportTask,
                         totalRecordsCount,
                         taskId,
+                        registry: EXPORT_TYPE_CONTACTS,
                     })
                 } else {
                     await exportRecordsAsXlsxFile({
