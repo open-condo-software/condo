@@ -11,8 +11,8 @@ import { SHOW_TELEGRAM_NOTIFICATIONS_BANNER, MAX_EMPLOYEE_SIZE_IN_ORGANIZATION_T
 import { TelegramUserChat } from '@condo/domains/notification/utils/clientSchema'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
-
-const DEFAULT_MAX_EMPLOYEE_SIZE = 4
+// By default, we use the value 0 so that if there is no feature flag, the banner will not be allowed to be displayed
+const DEFAULT_MAX_EMPLOYEE_SIZE = 0
 
 export const SetupTelegramNotificationsBanner = () => {
     const { organization } = useOrganization()
