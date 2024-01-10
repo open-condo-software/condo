@@ -11,7 +11,7 @@ import { TelegramUserChat } from '@condo/domains/notification/utils/clientSchema
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
 
-const DEFAULT_MAX_EMPLOYEE_SIZE = 10
+const DEFAULT_MAX_EMPLOYEE_SIZE = 4
 
 export const SetupTelegramNotificationsBanner = () => {
     const { organization } = useOrganization()
@@ -50,7 +50,6 @@ export const SetupTelegramNotificationsBanner = () => {
     const canShowBanner = !loading && hasPersonalData && !hasTelegramUserChat && (forceShowBanner || hasAllowedNumberOfEmployees)
 
     useEffect(() => {
-        console.log('change canShowBannerWithTgNotifications to', !!canShowBanner)
         cookie.set('canShowBannerWithTgNotifications', !!canShowBanner)
     }, [canShowBanner])
 
