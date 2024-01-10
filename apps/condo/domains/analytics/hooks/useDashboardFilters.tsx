@@ -83,7 +83,9 @@ export const useDateRangeFilter: UseDateRangeFilterType = () => {
     const [dateRange, setDateRange] = useState<[Dayjs, Dayjs]>([dayjs().subtract(6, 'days'), dayjs()])
 
     const disabledDate = useCallback((currentDate) => {
-        return currentDate && currentDate < dayjs().startOf('year')
+        const minDate = dayjs().startOf('year').subtract(1, 'year')
+        const maxDate = dayjs().endOf('year')
+        return currentDate && (currentDate < minDate || currentDate > maxDate)
     }, [])
     const onChange = useCallback((dateRange) => setDateRange([dateRange[0], dateRange[1]]), [])
 
