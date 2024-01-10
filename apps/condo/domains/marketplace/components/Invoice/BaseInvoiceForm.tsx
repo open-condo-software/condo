@@ -77,7 +77,16 @@ const ContactsInfoFocusContainer = styled(FocusContainer)`
   box-sizing: border-box;
   width: 100%;
 `
-const FormItemWithCustomWarningColor = styled(Form.Item)`
+const ServiceFormItem = styled(Form.Item)`
+    & .ant-form-item-label {
+      padding-bottom: 8px;
+      
+      & > .ant-form-item-no-colon {
+        height: 22px;
+      }
+    }
+`
+const FormItemWithCustomWarningColor = styled(ServiceFormItem)`
     .ant-input-status-warning {
       &:focus {
         box-shadow: 0 0 0 1px ${colors.red[5]} !important;
@@ -547,7 +556,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
     const flatMarketOptions = useMemo(() => marketItemGroups.flatMap(group => group.options), [marketItemGroups])
 
     const moneyRender = useMemo(() => getMoneyRender(intl), [intl])
-    const gutter: RowProps['gutter'] = useMemo(() => isModalForm ? [46, 12] : [50, 12], [isModalForm])
+    const gutter: RowProps['gutter'] = useMemo(() => isModalForm ? [46, 24] : [50, 24], [isModalForm])
 
     const updateRowFields = useCallback((formName, newFields = {}) => {
         form.setFieldsValue({
@@ -570,7 +579,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                             <Col span={24} key={marketItemForm.name}>
                                 <Row gutter={gutter} align='top'>
                                     <Col xs={24} lg={8}>
-                                        <Form.Item
+                                        <ServiceFormItem
                                             label={ServiceLabel}
                                             name={[marketItemForm.name, 'name']}
                                             required
@@ -621,10 +630,10 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                     })
                                                 }}
                                             />
-                                        </Form.Item>
+                                        </ServiceFormItem>
                                     </Col>
                                     <Col xs={24} lg={4}>
-                                        <Form.Item
+                                        <ServiceFormItem
                                             label={QuantityLabel}
                                             name={[marketItemForm.name, 'count']}
                                             required
@@ -651,7 +660,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                     })
                                                 }}
                                             />
-                                        </Form.Item>
+                                        </ServiceFormItem>
                                     </Col>
                                     <Col xs={24} lg={5}>
                                         <FormItemWithCustomWarningColor
@@ -734,7 +743,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                         </FormItemWithCustomWarningColor>
                                     </Col>
                                     <Col xs={24} lg={5}>
-                                        <Form.Item
+                                        <ServiceFormItem
                                             label={TotalPriceLabel}
                                             required
                                             labelCol={{ span: 24 }}
@@ -758,7 +767,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                     return <Input type='total' addonAfter={currencySymbol} disabled value={value} />
                                                 }
                                             }
-                                        </Form.Item>
+                                        </ServiceFormItem>
                                     </Col>
                                     {
                                         index !== 0 && (
@@ -767,7 +776,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                     if (disabled) return
                                                     operation.remove(marketItemForm.name)
                                                 }}>
-                                                    <div style={{ paddingTop: `${breakpoints.DESKTOP_SMALL ? '62px' : '12px'}` }}>
+                                                    <div style={{ paddingTop: `${breakpoints.DESKTOP_SMALL ? '42px' : '12px'}` }}>
                                                         <Trash size='large' />
                                                     </div>
                                                 </Typography.Text>
@@ -1032,7 +1041,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                             </Form.Item>
                         </Col>
                         <Col md={isModalForm ? 24 : 22}>
-                            <Row>
+                            <Row gutter={SMALL_VERTICAL_GUTTER}>
                                 <Col span={24}>
                                     <Typography.Title level={3}>{ServicesListMessage}</Typography.Title>
                                 </Col>
@@ -1126,7 +1135,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                                 </Form.Item>
                                             </Col>
                                             <Col span={24}>
-                                                <Row gutter={[0, 40]}>
+                                                <Row gutter={[0, 16]}>
                                                     <Col md={colSpan}>
                                                         <Form.Item
                                                             label={<Typography.Text strong>{PaymentModeLabel}</Typography.Text>}

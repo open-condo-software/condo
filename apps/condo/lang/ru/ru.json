@@ -1326,7 +1326,7 @@
   "pages.condo.marketplace.invoice.id.table.header.toPay": "Общая стоимость",
   "pages.condo.marketplace.invoice.id.field.paymentType": "Способ оплаты",
   "pages.condo.marketplace.invoice.id.field.paymentLink": "Ссылка на оплату",
-  "pages.condo.marketplace.invoice.id.field.paymentLink.copy": "Скопировать",
+  "pages.condo.marketplace.invoice.id.field.paymentLink.copy": "Скопировать ссылку",
   "pages.condo.marketplace.invoice.id.title.payerData": "Данные плательщика",
   "pages.condo.marketplace.invoice.id.field.address": "Адрес",
   "pages.condo.marketplace.invoice.id.field.contact": "Контакт",

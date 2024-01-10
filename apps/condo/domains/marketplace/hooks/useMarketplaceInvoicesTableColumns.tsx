@@ -37,7 +37,7 @@ export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
             title: DateTitle,
             dataIndex: 'createdAt',
             key: 'createdAt',
-            width: '8%',
+            width: '105px',
             render: getDateRender(intl, String(search)),
             sorter: true,
             sortOrder: get(sorterMap, 'createdAt'),
