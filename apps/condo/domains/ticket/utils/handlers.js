@@ -6,7 +6,7 @@ const { featureToggleManager } = require('@open-condo/featureflags/featureToggle
 const { getByCondition, find, getById } = require('@open-condo/keystone/schema')
 
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
-const { SMS_AFTER_TICKET_CREATION } = require('@condo/domains/common/constants/featureflags')
+const { SMS_AFTER_TICKET_CREATION, SEND_TELEGRAM_NOTIFICATIONS } = require('@condo/domains/common/constants/featureflags')
 const { TWO_OR_MORE_SPACES_REGEXP } = require('@condo/domains/common/constants/regexps')
 const { md5 } = require('@condo/domains/common/utils/crypto')
 const {
@@ -69,7 +69,14 @@ const sendTicketNotifications = async (requestData) => {
     const lang = get(COUNTRIES, [organizationCountry, 'locale'], conf.DEFAULT_LOCALE)
 
     if (eventTypes[TICKET_CREATED]) {
-        await sendTicketCreatedNotifications.delay(updatedItem.id, lang, organization.id, organization.name)
+        const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(
+            get(requestData, 'context'),
+            SEND_TELEGRAM_NOTIFICATIONS,
+        )
+
+        if (isFeatureEnabled) {
+            await sendTicketCreatedNotifications.delay(updatedItem.id, lang, organization.id, organization.name)
+        }
     }
 
     if (eventTypes[ASSIGNEE_CONNECTED_EVENT_TYPE]) {
@@ -212,8 +219,14 @@ const sendTicketCommentNotifications = async (requestData) => {
 
     if (operation === 'create') {
         const ticketId = get(updatedItem, 'ticket')
+        const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(
+            get(requestData, 'context'),
+            SEND_TELEGRAM_NOTIFICATIONS,
+        )
 
-        await sendTicketCommentCreatedNotifications.delay(updatedItem.id, ticketId)
+        if (isFeatureEnabled) {
+            await sendTicketCommentCreatedNotifications.delay(updatedItem.id, ticketId)
+        }
     }
 
     await sendTicketCommentNotificationsTask.delay({
