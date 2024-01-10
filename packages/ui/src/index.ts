@@ -57,6 +57,10 @@ export type { TagProps } from './components/Tag'
 export { Tooltip } from './components/Tooltip'
 export type { TooltipProps } from './components/Tooltip'
 
+
+export { Tip } from './components/Tip'
+export type { TipProps } from './components/Tip'
+
 export { Typography } from './components/Typography'
 
 export type {

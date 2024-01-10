@@ -1,0 +1,53 @@
+@import "antd/lib/tooltip/style/index.less";
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+
+.condo-tooltip.condo-tip {
+  max-width: 350px;
+  padding: @condo-global-spacing-4;
+
+  & > .condo-tooltip-content {
+    .condo-tooltip-inner {
+      min-height: 0;
+      padding: @condo-global-spacing-20;
+      color: @condo-global-color-white;
+      font-size: @condo-global-font-size-text-s;
+      font-family: @condo-global-font-family-default;
+      line-height: @condo-global-typography-text-s-line-height;
+      background-color: @condo-global-color-black;
+      border-radius: @condo-global-border-radius-large;
+      box-shadow: @condo-global-box-shadow-default;
+
+      & .condo-tip-icon-wrapper {
+        position: absolute;
+        top: @condo-global-spacing-8;
+        right: @condo-global-spacing-8;
+        color: @condo-global-color-gray-7;
+
+        & span:hover {
+          cursor: pointer;
+        }
+      }
+
+      & .condo-tip-message {
+        color: @condo-global-color-gray-3;
+      }
+
+      & .condo-typography {
+        color: inherit;
+      }
+    }
+
+    .condo-tooltip-arrow {
+      display: initial;
+
+      & > .condo-tooltip-arrow-content {
+        --antd-arrow-background-color: @condo-global-color-black;
+
+        &::before {
+          background-color: @condo-global-color-black;
+          clip-path: inset(33% 33%);
+        }
+      }
+    }
+  }
+}
