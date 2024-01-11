@@ -197,7 +197,7 @@ const ERRORS = {
  * @param {boolean} isInvoiceTicket
  * @returns {Promise<void>}
  */
-const checkDailyTicketLimit = async ({ userId, organizationId, details, context, isInvoiceTicket }) => {
+const checkDailyTicketLimit = async ({ userId, organizationId, details, context, isInvoiceTicket, isPayable }) => {
     if (usersWithoutTicketLimits.includes(userId)) {
         return
     }
@@ -217,7 +217,7 @@ const checkDailyTicketLimit = async ({ userId, organizationId, details, context,
     const byIdAndOrgKey = `dailyTicketLimit:id:${userId}:organization:${organizationId}`
     const byIdOrgAndDetailsKey = `${byIdAndOrgKey}:details:${md5(details)}`
 
-    const byIdOrgAndDetailsCounter = isInvoiceTicket ? 0 : await redisGuard.incrementDayCounter(byIdOrgAndDetailsKey)
+    const byIdOrgAndDetailsCounter = isInvoiceTicket && isPayable ? 0 : await redisGuard.incrementDayCounter(byIdOrgAndDetailsKey)
     if (byIdOrgAndDetailsCounter > DAILY_SAME_TICKET_LIMIT) {
         throw new GQLError(ERRORS.SAME_TICKET_FOR_PHONE_DAY_LIMIT_REACHED, context)
     }
@@ -861,6 +861,7 @@ const Ticket = new GQLListSchema('Ticket', {
                     organizationId: get(resolvedData, 'organization'),
                     details: get(resolvedData, 'details'),
                     isInvoiceTicket: get(resolvedData, 'details') === i18n('marketplace.invoice.newTicket.details', { locale }),
+                    isPayable: get(resolvedData, 'isPayable'),
                     context,
                 })
             }
