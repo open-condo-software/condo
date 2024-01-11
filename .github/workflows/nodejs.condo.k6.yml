@@ -1,19 +1,20 @@
-name: RUN CYPRESS TESTS
+name: RUN K6 LOAD TESTS
 
 on:
   push:
     branches:
       - 'master'
+  pull_request:
+    branches:
+      - 'master'
 
 jobs:
   test:
-
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
-        node-version: [ 16.x ]
-        database: [ "postgresql://postgres:postgres@127.0.0.1/main" ]
+        node-version: [16.x]
+        database: ["postgresql://postgres:postgres@127.0.0.1/main"]
 
     steps:
       - name: Checkout code with submodules
@@ -40,6 +41,11 @@ jobs:
           yarn install --immutable
           pip3 install django
           pip3 install psycopg2-binary
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
 
       - name: run build
         run: |
@@ -72,27 +78,11 @@ jobs:
           yarn workspace @app/condo node ./bin/generate-initial-data.js
 
           echo 'ADDRESS_SERVICE_CLIENT_MODE=fake' >> .env
-  
+          
           yarn workspace @app/condo start &
           bash ./.github/workflows/waitForLocalhostApiReady.sh
 
-      - name: run cypress tests
+      - name: run k6 tests
         run: |
-          yarn workspace @app/condo cypress run --record --key ${{ secrets.CYPRESS_RECORD_KEY }} -b chrome -C ./cypress/cypress.config.ts
-
-          kill $(jobs -p) || echo 'background worker and dev server is already killed!'
-          killall node || echo 'no node processes'
-
-        env:
-          DATABASE_URL: ${{ matrix.database }}
-          NODE_ENV: development
-          DISABLE_LOGGING: true
-
-      - name: Upload screenshots artifact
-        uses: actions/upload-artifact@v3
-        if: failure()
-        with:
-          name: screenshots
-          path: |
-            ./apps/condo/cypress/screenshots
-          retention-days: 2
+          K6_BROWSER_HEADLESS=true BASE_URL=http://localhost:3000 AUTH_EMAIL=admin@example.com AUTH_PASSWORD=3a74b3f07978 k6 run apps/condo/k6/src/ticket-load-test.ts
+          

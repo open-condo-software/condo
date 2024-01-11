@@ -53,7 +53,7 @@ export const ChangeHistory = <ChangesType extends BaseChangesType> (props: Chang
     }
 
     return items.length > 0 && (
-        <Col span={24} style={CHANGE_HISTORY_COL_STYLE}>
+        <Col span={24} style={CHANGE_HISTORY_COL_STYLE} data-cy='ticket__change-history'>
             <Row gutter={CHANGE_HISTORY_VERTICAL_GUTTER}>
                 <Col span={24}>
                     <Typography.Title level={3}>{title}</Typography.Title>
