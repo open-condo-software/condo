@@ -91,8 +91,8 @@ const AppPreviewContainer = styled.div`
   background-repeat: no-repeat;
   background-position: top center;
   padding-top: 60px;
-  padding-left: 22px;
-  padding-right: 22px;
+  padding-left: 28px;
+  padding-right: 17px;
   overflow: hidden;
 
   & .mobile-content-wrapper {
@@ -104,12 +104,49 @@ const AppPreviewContainer = styled.div`
     justify-content: space-between;
     padding: 12px 20px;
     overflow: hidden;
+    
+    & .order-header .condo-typography {
+      font-family: 'SF Pro Display', 'Wix Madefor Display', -apple-system, BlinkMacSystemFont, Helvetica, sans-serif;
+      font-style: normal;
+      font-weight: 600;
+    }
+    
+    & .order-sku .condo-typography {
+      font-family: 'SF Pro Text', 'Wix Madefor Display', -apple-system, BlinkMacSystemFont, Helvetica, sans-serif;
+      font-size: 10px;
+      font-style: normal;
+      font-weight: 400;
+    }
+    
+    & .order-description .condo-typography {
+      font-family: 'SF Pro Text', 'Wix Madefor Display', -apple-system, BlinkMacSystemFont, Helvetica, sans-serif;
+      font-size: 12px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: 0;
+    }
 
-    & .order-button {
+    & .order-button-wrapper {
       width: 100%;
-      border-radius: 14px;
-      background-color: ${colors.green[5]};
+      padding-right: 11px;
+    }
+    
+    & .order-button {
+      & .condo-typography {
+        font-family: 'SF Pro Display', 'Wix Madefor Display', -apple-system, BlinkMacSystemFont, Helvetica, sans-serif;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 900;
+        line-height: normal;
+      }
+
+      width: 100%;
+      background-color: #4CD174;
       color: ${colors.white};
+      height: 36px;
+      padding: 0;
+      border: none;
+      border-radius: 11px !important;
     }
   }
 
@@ -149,7 +186,7 @@ const MobilePreview = ({ name, price, priceType, sku, description, files }) => {
                             <Row>
                                 {
                                     name && (
-                                        <Col span={24}>
+                                        <Col span={24} className='order-header'>
                                             <Typography.Title level={3}>
                                                 {name}
                                             </Typography.Title>
@@ -158,7 +195,7 @@ const MobilePreview = ({ name, price, priceType, sku, description, files }) => {
                                 }
                                 {
                                     resultPrice && (
-                                        <Col span={24}>
+                                        <Col span={24} className='order-header'>
                                             <Typography.Title type='secondary' level={3}>
                                                 {resultPrice}
                                             </Typography.Title>
@@ -167,7 +204,7 @@ const MobilePreview = ({ name, price, priceType, sku, description, files }) => {
                                 }
                                 {
                                     sku && (
-                                        <Col span={24}>
+                                        <Col span={24} className='order-sku'>
                                             <Typography.Text size='small' type='secondary'>
                                                 {SkuMessage} {sku}
                                             </Typography.Text>
@@ -178,7 +215,7 @@ const MobilePreview = ({ name, price, priceType, sku, description, files }) => {
                         </Col>
                         {
                             description && (
-                                <Col span={24}>
+                                <Col span={24} className='order-description'>
                                     <Typography.Text size='medium'>
                                         {description}
                                     </Typography.Text>
@@ -191,15 +228,18 @@ const MobilePreview = ({ name, price, priceType, sku, description, files }) => {
                                     <ImagesUploadList
                                         type='view'
                                         hideArrows
+                                        imageSize={50}
                                         fileList={files}
                                     />
                                 </Col>
                             )
                         }
                     </Row>
-                    <AntdButton className='order-button'>
-                        <Typography.Text strong type='inherit'>{OrderMessage}</Typography.Text>
-                    </AntdButton>
+                    <div className='order-button-wrapper'>
+                        <AntdButton className='order-button'>
+                            <Typography.Text strong type='inherit'>{OrderMessage}</Typography.Text>
+                        </AntdButton>
+                    </div>
                 </div>
             </AppPreviewContainer>
         </MobilePreviewContainer>
