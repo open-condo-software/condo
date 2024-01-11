@@ -10,6 +10,8 @@ const { GQLErrorCode: { BAD_USER_INPUT }, GQLError } = require('@open-condo/keys
 const { Json, AutoIncrementInteger } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getByCondition, getById, find } = require('@open-condo/keystone/schema')
+const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
+const { i18n } = require('@open-condo/locales/loader')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
 const {
@@ -192,9 +194,10 @@ const ERRORS = {
  * @param {string} organizationId
  * @param {string} details
  * @param context
+ * @param {boolean} isInvoiceTicket
  * @returns {Promise<void>}
  */
-const checkDailyTicketLimit = async ({ userId, organizationId, details, context }) => {
+const checkDailyTicketLimit = async ({ userId, organizationId, details, context, isInvoiceTicket }) => {
     if (usersWithoutTicketLimits.includes(userId)) {
         return
     }
@@ -214,7 +217,7 @@ const checkDailyTicketLimit = async ({ userId, organizationId, details, context 
     const byIdAndOrgKey = `dailyTicketLimit:id:${userId}:organization:${organizationId}`
     const byIdOrgAndDetailsKey = `${byIdAndOrgKey}:details:${md5(details)}`
 
-    const byIdOrgAndDetailsCounter = await redisGuard.incrementDayCounter(byIdOrgAndDetailsKey)
+    const byIdOrgAndDetailsCounter = isInvoiceTicket ? 0 : await redisGuard.incrementDayCounter(byIdOrgAndDetailsKey)
     if (byIdOrgAndDetailsCounter > DAILY_SAME_TICKET_LIMIT) {
         throw new GQLError(ERRORS.SAME_TICKET_FOR_PHONE_DAY_LIMIT_REACHED, context)
     }
@@ -852,10 +855,12 @@ const Ticket = new GQLListSchema('Ticket', {
             const userType = get(user, 'type')
 
             if (userType === RESIDENT && operation === 'create') {
+                const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
                 await checkDailyTicketLimit({
                     userId: get(user, 'id'),
                     organizationId: get(resolvedData, 'organization'),
                     details: get(resolvedData, 'details'),
+                    isInvoiceTicket: get(resolvedData, 'details') === i18n('marketplace.invoice.newTicket.details', { locale }),
                     context,
                 })
             }
