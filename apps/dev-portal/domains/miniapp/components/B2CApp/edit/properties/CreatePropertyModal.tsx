@@ -39,6 +39,9 @@ const DEBOUNCE_TIMEOUT = 500
 const ROW_FORM_GUTTER: RowProps['gutter'] = [12, 12]
 const FULL_COL_SPAN = 24
 const ALLOWED_TYPES = ['building']
+const ADDRESS_FORM_ERRORS_TO_FIELDS_MAP = {
+    'b2c_app_property_unique_addressKey': 'address',
+}
 
 export const CreatePropertyModal: React.FC<CreatePropertyModalProps> = ({ open, closeFn, environment, appId }) => {
     const intl = useIntl()
@@ -49,8 +52,9 @@ export const CreatePropertyModal: React.FC<CreatePropertyModalProps> = ({ open, 
     const NoDataMessage = intl.formatMessage({ id: 'apps.b2c.sections.properties.newPropertyModal.form.items.address.noData.placeholder.withSearch' })
     const SubmitButtonLabel = intl.formatMessage({ id: 'apps.b2c.sections.properties.newPropertyModal.form.actions.add' })
     const InfoMessage = intl.formatMessage({ id: 'apps.b2c.sections.properties.newPropertyModal.info.description' })
-    const WrongAddressTypeError = intl.formatMessage({ id: 'apps.b2c.sections.properties.newPropertyModal.form.items.address.errors.invalidType' })
+    const WrongAddressTypeError = intl.formatMessage({ id: 'apps.b2c.sections.properties.newPropertyModal.form.items.address.errors.invalidType.message' })
     const SuccessCreationMessage = intl.formatMessage({ id: 'apps.b2c.sections.properties.newPropertyModal.form.notifications.successCreation.title' })
+    const AlreadyCreatedErrorMessage = intl.formatMessage({ id: 'apps.b2c.sections.properties.newPropertyModal.form.errors.alreadyCreated.message' })
 
     const [form] = Form.useForm()
     const [options, setOptions] = useState<SelectProps['options']>([])
@@ -96,7 +100,13 @@ export const CreatePropertyModal: React.FC<CreatePropertyModalProps> = ({ open, 
 
     const { requiredFieldValidator } = useValidations()
 
-    const onError = useMutationErrorHandler({ form })
+    const onError = useMutationErrorHandler({
+        form,
+        typeToFieldMapping: ADDRESS_FORM_ERRORS_TO_FIELDS_MAP,
+        constraintToMessageMapping: {
+            'b2c_app_property_unique_addressKey': AlreadyCreatedErrorMessage,
+        },
+    })
     const onCompleted = useCallback(() => {
         notification.success({ message: SuccessCreationMessage })
         closeFn()
