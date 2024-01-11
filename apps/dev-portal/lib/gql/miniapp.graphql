@@ -86,3 +86,10 @@ mutation createB2CAppProperty($data: CreateB2CAppPropertyInput!) {
         id
     }
 }
+
+mutation deleteB2CAppProperty($data: DeleteB2CAppPropertyInput!) {
+    property: deleteB2CAppProperty(data: $data) {
+        id
+        address
+    }
+}

@@ -50,7 +50,7 @@ const CREATE_B2C_APP_PROPERTY_MUTATION = gql`
 
 const DELETE_B2C_APP_PROPERTY_MUTATION = gql`
     mutation deleteB2CAppProperty ($data: DeleteB2CAppPropertyInput!) {
-        result: deleteB2CAppProperty(data: $data) { id deletedAt }
+        result: deleteB2CAppProperty(data: $data) { id deletedAt address }
     }
 `
 

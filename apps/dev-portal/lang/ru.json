@@ -119,6 +119,8 @@
   "apps.b2c.sections.properties.newPropertyModal.form.items.address.errors.invalidType": "Выбранный адрес не является адресом дома",
   "apps.b2c.sections.properties.newPropertyModal.form.actions.add": "Добавить",
   "apps.b2c.sections.properties.newPropertyModal.form.notifications.successCreation.title": "Адрес успешно добавлен",
+  "apps.b2c.sections.properties.notifications.successDeletion.title": "Адрес успешно удален",
+  "apps.b2c.sections.properties.notifications.successDeletion.description": "Приложение больше не отображается на адресе «{address}»",
   "apps.b2c.sections.publishing.title": "Публикация",
   "apps.b2c.sections.publishing.publishForm.items.stand.label": "Выберите окружение",
   "apps.b2c.sections.publishing.publishForm.items.stand.options.development.label": "Тестовый стенд",

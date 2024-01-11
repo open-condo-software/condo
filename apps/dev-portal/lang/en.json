@@ -119,6 +119,8 @@
   "apps.b2c.sections.properties.newPropertyModal.form.items.address.errors.invalidType": "The selected address is not the address of the house",
   "apps.b2c.sections.properties.newPropertyModal.form.actions.add": "Add",
   "apps.b2c.sections.properties.newPropertyModal.form.notifications.successCreation.title": "Address successfully added",
+  "apps.b2c.sections.properties.notifications.successDeletion.title": "Address successfully deleted",
+  "apps.b2c.sections.properties.notifications.successDeletion.description": "The application is no longer displayed on the «{address}»",
   "apps.b2c.sections.publishing.title": "Publishing",
   "apps.b2c.sections.publishing.publishForm.items.stand.label": "Select the environment",
   "apps.b2c.sections.publishing.publishForm.items.stand.options.development.label": "Test stand",

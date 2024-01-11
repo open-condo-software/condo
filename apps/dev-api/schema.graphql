@@ -3937,6 +3937,7 @@ input DeleteB2CAppPropertyInput {
 type DeleteB2CAppPropertyOutput {
   id: String!
   deletedAt: String
+  address: String!
 }
 
 type unauthenticateUserOutput {

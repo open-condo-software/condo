@@ -66,10 +66,12 @@ describe('DeleteB2CAppPropertyService', () => {
             const [devResult] = await deleteB2CAppPropertyByTestClient(admin, devProperty.id, DEV_ENVIRONMENT)
             expect(devResult).toHaveProperty('deletedAt')
             expect(devResult).toHaveProperty('id', devProperty.id)
+            expect(devResult).toHaveProperty('address', devProperty.address)
             expect(devResult.deletedAt).not.toBeNull()
             const [prodResult] = await deleteB2CAppPropertyByTestClient(admin, prodProperty.id, PROD_ENVIRONMENT)
             expect(prodResult).toHaveProperty('deletedAt')
             expect(prodResult).toHaveProperty('id', prodProperty.id)
+            expect(prodResult).toHaveProperty('address,', prodProperty.address)
             expect(prodResult.deletedAt).not.toBeNull()
         })
         test('Support can delete any property', async () => {

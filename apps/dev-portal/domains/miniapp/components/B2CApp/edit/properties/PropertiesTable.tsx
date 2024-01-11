@@ -1,28 +1,36 @@
-import { Row, Col, Table } from 'antd'
+import { Row, Col, Table, notification } from 'antd'
 import { useRouter } from 'next/router'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
 
-import { PlusCircle } from '@open-condo/icons'
+import { PlusCircle, Trash } from '@open-condo/icons'
 import { Button } from '@open-condo/ui'
 
 
 import { EmptyTableFiller } from '@/domains/common/components/EmptyTableFiller'
+import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
+import { getClientSideSenderInfo } from '@/domains/common/utils/userid.utils'
 import { DEFAULT_PAGE_SIZE } from '@/domains/miniapp/constants/common'
 import { nonNull } from '@/domains/miniapp/utils/nonNull'
 import { getCurrentPage } from '@/domains/miniapp/utils/query'
 
 import { CreatePropertyModal } from './CreatePropertyModal'
+import styles from './PropertiesTable.module.css'
 
 import type { AppEnvironment } from '@/lib/gql'
 import type { RowProps } from 'antd'
 
-import { useAllB2CAppPropertiesQuery } from '@/lib/gql'
+import { AllB2CAppPropertiesDocument, useAllB2CAppPropertiesQuery, useDeleteB2CAppPropertyMutation } from '@/lib/gql'
 
 
 type PropertiesTableProps = {
     id: string
     environment: AppEnvironment
+}
+
+type B2CAppProperty = {
+    id: string
+    address: string
 }
 
 const BUTTON_GUTTER: RowProps['gutter'] = [40, 40]
@@ -47,6 +55,20 @@ export const PropertiesTable: React.FC<PropertiesTableProps> = ({ id, environmen
     const { p } = router.query
     const page = getCurrentPage(p)
 
+    const onError = useMutationErrorHandler()
+    const [deleteProperty] = useDeleteB2CAppPropertyMutation({
+        onError,
+        onCompleted (deletedProperty) {
+            notification.success({
+                message: intl.formatMessage({ id: 'apps.b2c.sections.properties.notifications.successDeletion.title' }),
+                description: intl.formatMessage({ id: 'apps.b2c.sections.properties.notifications.successDeletion.description' }, {
+                    address: deletedProperty.property?.address,
+                }),
+            })
+        },
+        refetchQueries: [AllB2CAppPropertiesDocument],
+    })
+
     const columns = [
         {
             title: AddressColumnTitle,
@@ -58,6 +80,24 @@ export const PropertiesTable: React.FC<PropertiesTableProps> = ({ id, environmen
             key: 'delete',
             // Right border + 2 x padding + width
             width: `${16 * 2 + 22 + 1}px`,
+            render (_: string, obj: B2CAppProperty) {
+                return (
+                    <div className={styles.deleteIconContainer}>
+                        <Trash size='small' className={styles.deleteIcon} onClick={() => {
+                            deleteProperty({
+                                variables: {
+                                    data: {
+                                        dv: 1,
+                                        sender: getClientSideSenderInfo(),
+                                        environment,
+                                        id: obj.id,
+                                    },
+                                },
+                            })
+                        }}/>
+                    </div>
+                )
+            },
         },
     ]
 
@@ -74,6 +114,16 @@ export const PropertiesTable: React.FC<PropertiesTableProps> = ({ id, environmen
     })
 
     const properties = (data?.properties?.objs || []).filter(nonNull)
+    const total = data?.properties?.meta.count || 0
+
+    useEffect(() => {
+        if (!loading) {
+            const availablePages = Math.max(1, Math.ceil(total / DEFAULT_PAGE_SIZE))
+            if (page > availablePages) {
+                router.replace({ query: { ...router.query, p: availablePages } }, undefined, { locale: router.locale })
+            }
+        }
+    }, [router, loading, page, total])
 
     const handlePaginationChange = useCallback((newPage: number) => {
         router.replace({ query: { ...router.query, p: newPage } },  undefined, { locale: router.locale })

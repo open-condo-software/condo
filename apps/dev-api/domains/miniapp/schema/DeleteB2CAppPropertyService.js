@@ -19,7 +19,7 @@ const DeleteB2CAppPropertyService = new GQLCustomSchema('DeleteB2CAppPropertySer
         },
         {
             access: true,
-            type: 'type DeleteB2CAppPropertyOutput { id: String!, deletedAt: String }',
+            type: 'type DeleteB2CAppPropertyOutput { id: String!, deletedAt: String, address: String! }',
         },
     ],
     

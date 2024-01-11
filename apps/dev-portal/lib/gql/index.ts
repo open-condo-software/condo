@@ -1799,6 +1799,7 @@ export type DeleteB2CAppPropertyInput = {
 
 export type DeleteB2CAppPropertyOutput = {
     __typename?: 'DeleteB2CAppPropertyOutput';
+    address: Scalars['String']['output'];
     deletedAt?: Maybe<Scalars['String']['output']>;
     id: Scalars['String']['output'];
 }
@@ -5108,6 +5109,13 @@ export type CreateB2CAppPropertyMutationVariables = Exact<{
 
 export type CreateB2CAppPropertyMutation = { __typename?: 'Mutation', property?: { __typename?: 'CreateB2CAppPropertyOutput', id: string } | null }
 
+export type DeleteB2CAppPropertyMutationVariables = Exact<{
+    data: DeleteB2CAppPropertyInput;
+}>
+
+
+export type DeleteB2CAppPropertyMutation = { __typename?: 'Mutation', property?: { __typename?: 'DeleteB2CAppPropertyOutput', id: string, address: string } | null }
+
 export type AuthenticatedUserQueryVariables = Exact<{ [key: string]: never; }>
 
 
@@ -5562,6 +5570,40 @@ export function useCreateB2CAppPropertyMutation (baseOptions?: Apollo.MutationHo
 export type CreateB2CAppPropertyMutationHookResult = ReturnType<typeof useCreateB2CAppPropertyMutation>
 export type CreateB2CAppPropertyMutationResult = Apollo.MutationResult<CreateB2CAppPropertyMutation>
 export type CreateB2CAppPropertyMutationOptions = Apollo.BaseMutationOptions<CreateB2CAppPropertyMutation, CreateB2CAppPropertyMutationVariables>
+export const DeleteB2CAppPropertyDocument = gql`
+    mutation deleteB2CAppProperty($data: DeleteB2CAppPropertyInput!) {
+  property: deleteB2CAppProperty(data: $data) {
+    id
+    address
+  }
+}
+    `
+export type DeleteB2CAppPropertyMutationFn = Apollo.MutationFunction<DeleteB2CAppPropertyMutation, DeleteB2CAppPropertyMutationVariables>
+
+/**
+ * __useDeleteB2CAppPropertyMutation__
+ *
+ * To run a mutation, you first call `useDeleteB2CAppPropertyMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteB2CAppPropertyMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteB2CAppPropertyMutation, { data, loading, error }] = useDeleteB2CAppPropertyMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useDeleteB2CAppPropertyMutation (baseOptions?: Apollo.MutationHookOptions<DeleteB2CAppPropertyMutation, DeleteB2CAppPropertyMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<DeleteB2CAppPropertyMutation, DeleteB2CAppPropertyMutationVariables>(DeleteB2CAppPropertyDocument, options)
+}
+export type DeleteB2CAppPropertyMutationHookResult = ReturnType<typeof useDeleteB2CAppPropertyMutation>
+export type DeleteB2CAppPropertyMutationResult = Apollo.MutationResult<DeleteB2CAppPropertyMutation>
+export type DeleteB2CAppPropertyMutationOptions = Apollo.BaseMutationOptions<DeleteB2CAppPropertyMutation, DeleteB2CAppPropertyMutationVariables>
 export const AuthenticatedUserDocument = gql`
     query authenticatedUser {
   authenticatedUser {
