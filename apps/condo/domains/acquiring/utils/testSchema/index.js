@@ -86,15 +86,6 @@ function getRandomExplicitFeeDistribution () {
     return result
 }
 
-function getRandomImplicitFeeDistribution () {
-    const result = []
-    result.push({
-        recipient: 'organization',
-        percent: faker.helpers.arrayElement(['0', '1.2', '1.7']),
-    })
-    return result
-}
-
 
 async function createTestAcquiringIntegration (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -174,7 +165,6 @@ async function createTestAcquiringIntegrationContext (client, organization, inte
         settings,
         state,
         ...extraAttrs,
-        implicitFeeDistributionSchema: getRandomImplicitFeeDistribution(),
     }
     const obj = await AcquiringIntegrationContext.create(client, attrs)
     return [obj, attrs]

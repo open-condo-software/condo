@@ -10,6 +10,7 @@ const { getById } = require('@open-condo/keystone/schema')
 const { CONTEXT_IN_PROGRESS_STATUS, CONTEXT_VERIFICATION_STATUS, CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
+const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 
 const { checkAcquiringIntegrationAccessRight } = require('../utils/accessSchema')
 
@@ -126,6 +127,14 @@ async function canManageStatusField ({ authentication: { item: user }, existingI
     return true
 }
 
+async function canManageReasonAndFeeFields ({ authentication: { item: user } }) {
+    // Admin / support can freely change reason and fee fields
+    if (user.isAdmin || user.isSupport) return true
+    
+    // STAFF and RESIDENT users are forbidden from changing reason and fee fields
+    return !(user.type === RESIDENT || user.type === STAFF)
+}
+
 
 /*
   Rules are logical functions that used for list access, and may return a boolean (meaning
@@ -135,4 +144,5 @@ module.exports = {
     canReadAcquiringIntegrationContexts,
     canManageAcquiringIntegrationContexts,
     canManageStatusField,
+    canManageReasonAndFeeFields,
 }

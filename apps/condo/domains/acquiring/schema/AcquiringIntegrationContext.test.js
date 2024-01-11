@@ -37,13 +37,17 @@ const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants
 const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployee, createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { registerNewOrganization, makeEmployeeUserClientWithAbilities } = require('@condo/domains/organization/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
+const { STAFF, RESIDENT } = require('@condo/domains/user/constants/common')
+const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser, makeClientWithServiceUser,
+    makeClientWithResidentUser,
+} = require('@condo/domains/user/utils/testSchema')
 
 describe('AcquiringIntegrationContext', () => {
     let admin
     let support
     let context
     let manager
+    let resident
     let readPaymentsEmployee
     let noPermissionEmployee
     let serviceUser
@@ -75,6 +79,7 @@ describe('AcquiringIntegrationContext', () => {
         await createTestOrganizationEmployee(admin, organization, readPaymentsEmployee.user, readRole, { isAccepted: true })
 
         anonymous = await makeClient()
+        resident = await makeClientWithResidentUser()
 
         // Make sure billing with default group exists
         await createTestBillingIntegration(admin);
@@ -261,9 +266,9 @@ describe('AcquiringIntegrationContext', () => {
             })
             describe('Staff user', () => {
                 test(`can if context status is "${CONTEXT_IN_PROGRESS_STATUS}" and user is integration manager (have canManageIntegration = true)`, async () => {
-                    const feePayload = { implicitFeeDistributionSchema: [] }
-                    const [newContext] = await updateTestAcquiringIntegrationContext(manager, context.id, feePayload)
-                    expect(newContext).toEqual(expect.objectContaining(feePayload))
+                    const emailPayload = faker.internet.email('test', 'test', 'gmail.com')
+                    const [newContext] = await updateTestAcquiringIntegrationContext(manager, context.id, { email: emailPayload })
+                    expect(newContext).toHaveProperty('email', emailPayload.toLowerCase())
                 })
 
                 test(`can't if context status is "${CONTEXT_FINISHED_STATUS}" and user is integration manager (have 'canManageIntegration' = true)`, async () => {
@@ -558,6 +563,33 @@ describe('AcquiringIntegrationContext', () => {
             expect(context.recipient.iec).toEqual(recipient.iec)
             expect(context.recipient.tin).toEqual(recipient.tin)
             expect(context.recipient.bic).toEqual(recipient.bic)
+        })
+        test(`Reason field cannot be changed by ${STAFF} or ${RESIDENT} user types`, async () => {
+            const reason = faker.lorem.sentence(1);
+            [context] = await createTestAcquiringIntegrationContext(admin, organization, integration, { reason })
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestAcquiringIntegrationContext(manager, context.id, {
+                    reason: faker.lorem.sentence(1),
+                })
+            })
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestAcquiringIntegrationContext(resident, context.id, {
+                    reason: faker.lorem.sentence(1),
+                })
+            })
+        })
+        test(`implicitFeeDistributionSchema field cannot be changed by ${STAFF} or ${RESIDENT} user types`, async () => {
+            const implicitFeeDistributionSchema = [{
+                recipient: 'organization',
+                percent: faker.helpers.arrayElement(['0', '1.2', '1.7']),
+            }];
+            [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestAcquiringIntegrationContext(manager, context.id, { implicitFeeDistributionSchema })
+            })
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestAcquiringIntegrationContext(resident, context.id, { implicitFeeDistributionSchema })
+            })
         })
         describe('Status', () => {
             test(`Nobody except admin or support cannot change status from "${CONTEXT_VERIFICATION_STATUS}"`, async () => {
