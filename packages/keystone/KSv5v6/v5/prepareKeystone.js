@@ -65,7 +65,7 @@ const sendAppMetrics = () => {
     }
 }
 
-function prepareKeystone ({ onConnect, extendKeystoneConfig = {}, extendExpressApp, schemas, schemasPreprocessors, tasks, apps, lastApp, graphql, ui }) {
+function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, schemas, schemasPreprocessors, tasks, apps, lastApp, graphql, ui }) {
     // trying to be compatible with keystone-6 and keystone-5
     // TODO(pahaz): add storage like https://keystonejs.com/docs/config/config#storage-images-and-files
 
@@ -76,10 +76,15 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig = {}, extendExpressA
     if (apps && typeof apps !== 'function') throw new Error('apps should be a function like `() => [ App | Middleware ]`')
 
     const keystoneConfig = prepareDefaultKeystoneConfig(conf)
+    let extendedKeystoneConfig = {}
+    if (extendKeystoneConfig && typeof extendedKeystoneConfig === 'function') {
+        extendedKeystoneConfig = extendKeystoneConfig(keystoneConfig)
+    }
+
     const keystone = new Keystone({
         ...keystoneConfig,
         onConnect: async () => onConnect && onConnect(keystone),
-        ...extendKeystoneConfig,
+        ...extendedKeystoneConfig,
     })
 
     const globalPreprocessors = schemasPreprocessors ? schemasPreprocessors() : []
