@@ -32,11 +32,11 @@ const EXCEL_TEMPLATES_HEADERS = {
     [EXPORT_TYPE_BUILDINGS]: ['organization', 'address', 'unitsCount', 'uninhabitedUnitsCount', 'ticketsInWork', 'ticketsClosed'],
     [EXPORT_TYPE_TICKETS]: [
         'number', 'source', 'organization', 'property', 'unitName', 'unitType', 'entranceName', 'floorName', 'clientName', 'contact', 'clientPhone',
-        'details', 'isEmergency', 'isWarranty', 'isPayable', 'place', 'category', 'description',
-        'createdAt', 'updatedAt', 'inworkAt', 'completedAt', 'closedAt', 'status', 'operator', 'executor', 'assignee',
-        'organizationComments', 'residentComments', 'deadline', 'deferredUntil', 'statusReopenedCounter',
-        'feedbackValue', 'feedbackComment', 'feedbackAdditionalOptions', 'feedbackUpdatedAt',
-        'qualityControlValue', 'qualityControlComment', 'qualityControlAdditionalOptions', 'qualityControlUpdatedAt', 'qualityControlUpdatedBy',
+        'details', 'isEmergency', 'isPayable', 'isWarranty', 'place', 'category', 'description',
+        'createdAt', 'inworkAt', 'completedAt', 'closedAt', 'updatedAt', 'status', 'deferredUntil', 'operator', 'executor', 'assignee',
+        'feedbackValue', 'feedbackUpdatedAt', 'feedbackAdditionalOptions', 'feedbackComment',
+        'qualityControlValue', 'qualityControlUpdatedAt', 'qualityControlAdditionalOptions', 'qualityControlComment', 'qualityControlUpdatedBy',
+        'organizationComments', 'residentComments', 'deadline', 'statusReopenedCounter',
     ],
     [`${TICKETS_REPORTS_PREFIX}${TICKET_REPORT_PROPERTY_STATUS}`]: [
         'address', 'processing', 'completed', 'canceled', 'deferred', 'closed', 'new_or_reopened',
@@ -60,8 +60,8 @@ const EXCEL_TEMPLATES_HEADERS = {
         'name', 'properties', 'employees',
     ],
     [EXPORT_TYPE_INCIDENTS]: [
-        'number', 'addresses', 'classifiers', 'details', 'textForResident', 'status', 'workStart', 'workFinish',
-        'organization', 'createdBy', 'createdAt', 'workType',
+        'number', 'organization', 'addresses', 'details', 'textForResident', 'workType', 'classifiers', 'createdAt',
+        'workStart', 'workFinish', 'status', 'createdBy',
     ],
     [EXPORT_TYPE_NEWS_RECIPIENTS]: [
         'address', 'unitName', 'hasResident',

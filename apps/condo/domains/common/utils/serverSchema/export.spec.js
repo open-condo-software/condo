@@ -7,6 +7,8 @@ const fill = require('lodash/fill')
 
 const { exportRecordsAsCsvFile } = require('./export')
 
+const { EXPORT_TYPE_TICKETS } = require('../exportToExcel')
+
 const mockContext = () => ({})
 
 const mockServerUtilsFor = (task) => ({
@@ -61,6 +63,7 @@ describe('export', () => {
             taskId: task.id,
             totalRecordsCount,
             taskServerUtils,
+            registry: EXPORT_TYPE_TICKETS,
         })
 
         expect(loadRecordsBatch.mock.calls).toHaveLength(numberOfIterations)

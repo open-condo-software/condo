@@ -196,6 +196,7 @@ async function exportIncidents (taskId) {
                         taskServerUtils: IncidentExportTask,
                         totalRecordsCount,
                         taskId,
+                        registry: EXPORT_TYPE_INCIDENTS,
                     })
                 } else {
                     await exportRecordsAsXlsxFile({
