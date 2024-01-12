@@ -11,15 +11,15 @@ export const options = {
         queryTicketEntities: {
             exec: 'queryBasicEntities',
             executor: 'constant-arrival-rate',
-            duration: '40s',
+            duration: '60s',
             rate: 5,
             timeUnit: '1s',
-            preAllocatedVUs: 7,
+            preAllocatedVUs: 10,
         },
         appHealthcheck: {
             exec: 'healthcheck',
             executor: 'constant-arrival-rate',
-            duration: '40s',
+            duration: '60s',
             rate: 2,
             timeUnit: '1s',
             preAllocatedVUs: 2,
@@ -27,7 +27,7 @@ export const options = {
         createTickets: {
             exec: 'createTickets',
             executor: 'constant-arrival-rate',
-            duration: '40s',
+            duration: '60s',
             rate: 1,
             timeUnit: '2s',
             preAllocatedVUs: 1,
@@ -36,7 +36,7 @@ export const options = {
             exec: 'checkFrontend',
             executor: 'constant-vus',
             vus: 1,
-            duration: '40s',
+            duration: '60s',
             options: {
                 browser: {
                     type: 'chromium',
@@ -46,6 +46,7 @@ export const options = {
     },
     thresholds: {
         http_req_failed: ['rate<0.01'],
+        browser_http_req_duration: ['p(95) < 1000'],
         http_req_duration: ['p(95)<2000'],
         browser_web_vital_fcp: ['p(95) < 5000'],
         browser_web_vital_lcp: ['p(95) < 8000'],
