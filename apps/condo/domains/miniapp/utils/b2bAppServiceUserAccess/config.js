@@ -36,14 +36,21 @@
  * @type {B2bAppServiceUserAccessConfig}
  */
 const B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS = {
+    // Contact domain
     Contact: {},
+
+    // Meter domain
+    Meter: {},
+    MeterReading: {},
+
+    // Organization domain
     Organization: {
         pathToOrganizationId: ['id'],
         // NOTE: service users cannot manage organizations!
         canBeManage: false,
     },
-    Meter: {},
-    MeterReading: {},
+
+    // Property domain
     Property: {},
 }
 
