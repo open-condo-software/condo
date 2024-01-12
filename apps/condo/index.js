@@ -9,7 +9,13 @@ const utc = require('dayjs/plugin/utc')
 const conf = require('@open-condo/config')
 const { FeaturesMiddleware } = require('@open-condo/featureflags/FeaturesMiddleware')
 const { AdapterCache } = require('@open-condo/keystone/adapterCache')
-const { HealthCheck, getRedisHealthCheck, getPostgresHealthCheck } = require('@open-condo/keystone/healthCheck')
+const {
+    HealthCheck,
+    getRedisHealthCheck,
+    getPostgresHealthCheck,
+    getCertificateHealthCheck,
+    getPfxCertificateHealthCheck,
+} = require('@open-condo/keystone/healthCheck')
 const { prepareKeystone } = require('@open-condo/keystone/KSv5v6/v5/prepareKeystone')
 const { RequestCache } = require('@open-condo/keystone/requestCache')
 const { getWebhookModels } = require('@open-condo/webhooks/schema')
@@ -26,7 +32,6 @@ dayjs.extend(timezone)
 dayjs.extend(isBetween)
 
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production' && conf.DD_TRACE_ENABLED === 'true'
-
 const IS_BUILD_PHASE = conf.PHASE === 'build'
 
 // TODO(zuch): DOMA-2990: add FILE_FIELD_ADAPTER to env during build phase
@@ -100,6 +105,20 @@ const tasks = () => [
 const checks = [
     getRedisHealthCheck(),
     getPostgresHealthCheck(),
+    getCertificateHealthCheck({
+        certificateName: 'sber_id_client',
+        getCertificate: () => {
+            const SBER_ID_CONFIG = conf['SBER_ID_CONFIG'] && JSON.parse(conf['SBER_ID_CONFIG']) || {}
+            return SBER_ID_CONFIG.cert
+        },
+    }),
+    getPfxCertificateHealthCheck({
+        certificateName: 'sbbol_client',
+        getPfxParams: () => {
+            const SBBOL_PFX = conf['SBBOL_PFX'] && JSON.parse(conf['SBBOL_PFX']) || {}
+            return { pfx: SBBOL_PFX.certificate, passphrase: SBBOL_PFX.passphrase }
+        },
+    }),
 ]
 
 const lastApp = conf.NODE_ENV === 'test' ? undefined : new NextApp({ dir: '.' })

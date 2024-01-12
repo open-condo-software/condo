@@ -65,6 +65,10 @@
  *
  */
 
+const { X509Certificate } = require('crypto')
+const tls = require('tls')
+
+const dayjs = require('dayjs')
 const express = require('express')
 const LRUCache = require('lru-cache')
 
@@ -109,6 +113,90 @@ const getPostgresHealthCheck = () => {
             } catch (e) { return false }
         },
     }
+}
+
+/**
+ * Get integration health check handler
+ * @param integrationName - integration name - to be appeared in health check results
+ * @param getStatus - read-only business function that calls 3rd party API (getVersion or etc.).
+ *                  Must return string constant (status): success|warn|fail
+ */
+const getIntegrationHealthCheck = ({ integrationName, getStatus }) => {
+    if (!integrationName) throw new Error('Parameter integrationName required to be provided!')
+    if (!getStatus) throw new Error('Parameter getStatus must be provided!')
+
+    return {
+        name: `${integrationName}_integration`,
+        prepare: ({ keystone }) => {
+            this.keystone = keystone
+        },
+        run: async () => {
+            try {
+                const status = await getStatus()
+                return 'success' === status
+            } catch (e) {
+                console.error('Can not get integration status. ', e)
+                return false
+            }
+        },
+    }
+}
+
+/**
+ * Get certificate health check handler
+ * @param certificateName - certificate name - to be appeared in health check results
+ * @param getCertificate - get parse able certificate content for X509Certificate
+ * @param signalExpiryDaysBefore - start to signal about expiry earlier, configure number of days before
+ */
+const getCertificateHealthCheck = ({ certificateName, getCertificate, signalExpiryDaysBefore = 14 }) => {
+    if (!certificateName) throw new Error('Parameter certificateName required to be provided!')
+    if (!getCertificate) throw new Error('Parameter getCertificate must be provided!')
+
+    return {
+        name: `${certificateName}_certificate`,
+        prepare: ({ keystone }) => {
+            this.keystone = keystone
+        },
+        run: async () => {
+            try {
+                const certificateInfo = new X509Certificate(await getCertificate())
+
+                // calc days
+                const validFrom = dayjs(certificateInfo.validFrom).unix()
+                const validTo = dayjs(certificateInfo.validTo).unix()
+                const checkDate = dayjs().add(signalExpiryDaysBefore, 'day').unix()
+
+                // check if date inside window
+                return checkDate >= validFrom && checkDate <= validTo
+            } catch (e) {
+                console.error('Can not extract certificate expiry date. ', e)
+                return false
+            }
+        },
+    }
+}
+
+/**
+ * Get PFX certificate health check handler
+ * @param certificateName - certificate name - to be appeared in health check results
+ * @param getPfxParams - function returning { pfx, passphrase } content
+ * @param signalExpiryDaysBefore - start to signal about expiry earlier, configure number of days before
+ */
+const getPfxCertificateHealthCheck = ({ certificateName, getPfxParams, signalExpiryDaysBefore = 14 }) => {
+    if (!getPfxParams) throw new Error('Parameter getPfxParams required to be provided!')
+
+    const getCertificate = async () => {
+        const { pfx, passphrase } = await getPfxParams()
+        const context = tls.createSecureContext({
+            pfx: Buffer.from(pfx, 'base64'),
+            passphrase,
+        })
+        return context.context.getCertificate()
+    }
+
+    return getCertificateHealthCheck({
+        certificateName, getCertificate, signalExpiryDaysBefore,
+    })
 }
 
 class HealthCheck {
@@ -226,4 +314,7 @@ module.exports = {
     HealthCheck,
     getRedisHealthCheck,
     getPostgresHealthCheck,
+    getPfxCertificateHealthCheck,
+    getCertificateHealthCheck,
+    getIntegrationHealthCheck,
 }
