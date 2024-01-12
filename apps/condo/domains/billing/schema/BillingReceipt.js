@@ -8,11 +8,11 @@ const { get, isEmpty } = require('lodash')
 
 const { readOnlyFieldAccess } = require('@open-condo/keystone/access')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const { GQLListSchema, getById, find } = require('@open-condo/keystone/schema')
+const { GQLListSchema, getById, find, getByCondition } = require('@open-condo/keystone/schema')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const access = require('@condo/domains/billing/access/BillingReceipt')
-const { BillingRecipient, BillingReceipt: BillingReceiptApi } = require('@condo/domains/billing/utils/serverSchema')
+const { BillingRecipient } = require('@condo/domains/billing/utils/serverSchema')
 const { WRONG_TEXT_FORMAT, UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
 const { MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
 
@@ -199,8 +199,8 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             type: Virtual,
             isRequired: false,
             graphQLReturnType: 'Boolean',
-            resolver: async (receipt, _, context) => {
-                const receipts = await BillingReceiptApi.getAll(context, {
+            resolver: async (receipt) => {
+                const receipts = await find('BillingReceipt', {
                     account: { id: get(receipt, 'account'), deletedAt: null },
                     OR: [
                         { receiver: { AND: [{ id: get(receipt, 'receiver') }, { deletedAt: null } ] } },
@@ -208,8 +208,6 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
                     ],
                     period_gt: get(receipt, 'period'),
                     deletedAt: null,
-                }, {
-                    first: 1,
                 })
 
                 return !(receipts && receipts.length)
@@ -331,7 +329,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             const tinMatches = recipient.tin && recipient.tin === organization.tin
 
             let receiverId
-            const sameRecipient = await BillingRecipient.getOne(context, {
+            const sameRecipient = await getByCondition('BillingRecipient', {
                 context: { id: contextId },
                 tin: get(recipient, 'tin'),
                 bic: get(recipient, 'bic'),

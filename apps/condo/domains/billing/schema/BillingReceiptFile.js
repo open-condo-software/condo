@@ -6,7 +6,7 @@ const { Text, Relationship, File, Virtual } = require('@keystonejs/fields')
 const { get, isNil } = require('lodash')
 
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const { GQLListSchema, getById, find } = require('@open-condo/keystone/schema')
+const { GQLListSchema, getById, find, getByCondition } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/BillingReceiptFile')
 const { BILLING_RECEIPT_FILE_FOLDER_NAME } = require('@condo/domains/billing/constants/constants')
@@ -111,7 +111,7 @@ const BillingReceiptFile = new GQLListSchema('BillingReceiptFile', {
                 resolveInput: async ({ resolvedData, operation, context }) => {
                     const { receipt, importId, context: contextId } = resolvedData
                     if (operation === 'create' && !receipt && importId) {
-                        const receiptByImportId = await BillingReceiptApi.getOne(context, {
+                        const receiptByImportId = await getByCondition('BillingReceipt', {
                             importId,
                             context: { id: contextId, deletedAt: null },
                             deletedAt: null,
