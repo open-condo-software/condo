@@ -71,7 +71,7 @@ describe('DeleteB2CAppPropertyService', () => {
             const [prodResult] = await deleteB2CAppPropertyByTestClient(admin, prodProperty.id, PROD_ENVIRONMENT)
             expect(prodResult).toHaveProperty('deletedAt')
             expect(prodResult).toHaveProperty('id', prodProperty.id)
-            expect(prodResult).toHaveProperty('address,', prodProperty.address)
+            expect(prodResult).toHaveProperty('address', prodProperty.address)
             expect(prodResult.deletedAt).not.toBeNull()
         })
         test('Support can delete any property', async () => {
