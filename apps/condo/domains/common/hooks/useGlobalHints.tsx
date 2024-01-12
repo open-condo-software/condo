@@ -1,4 +1,3 @@
-import styled from '@emotion/styled'
 import { Col, Row, RowProps } from 'antd'
 import { isObject } from 'lodash'
 import get from 'lodash/get'
@@ -10,7 +9,7 @@ import isString from 'lodash/isString'
 import getConfig from 'next/config'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
@@ -40,20 +39,8 @@ const { publicRuntimeConfig: { globalHints } } = getConfig()
 const HINTS_CONTAINER_CLASS = 'global-hints-slider'
 const HINTS_BY_PAGES = get(globalHints, 'pages', []) || []
 const HINTS_AUTOPLAY_SPEED = 5000
+const HINTS_WRAPPER_STYLE: CSSProperties = { marginBottom: 40 }
 const HINTS_ROW_GUTTERS: RowProps['gutter'] = [0, 8]
-const HintsWrapper = styled.div`
-  margin-bottom: 40px;
-  
-  & .condo-promo-block:not(.condo-promo-block-no-image) {
-    & .condo-promo-block-content-container {
-      width: 65%;
-    }
-    
-    & .condo-promo-block-image-container {
-      width: auto;
-    }
-  }
-`
 
 export const useGlobalHints = () => {
     const intl = useIntl()
@@ -75,7 +62,7 @@ export const useGlobalHints = () => {
 
     const handleBannerClick = useCallback((url) => () => {
         if (!url || !isString(url)) return
-        
+
         window.open(url)
     }, [])
 
@@ -97,7 +84,7 @@ export const useGlobalHints = () => {
                 const image = get(hint, 'image')
                 const color = get(hint, 'color')
                 const invertedTextColor = get(hint, 'invertedTextColor')
-                
+
                 return (isString(title) && title !== '')
                     && (isString(description) && description !== '')
                     && (isString(targetUrl) && targetUrl !== '')
@@ -120,7 +107,7 @@ export const useGlobalHints = () => {
     }, [route, showHints, locale, hideHints])
 
     const renderHints = useMemo(() => !isEmpty(hints) && (
-        <HintsWrapper className={HINTS_CONTAINER_CLASS}>
+        <div style={HINTS_WRAPPER_STYLE} className={HINTS_CONTAINER_CLASS}>
             <Row gutter={HINTS_ROW_GUTTERS}>
                 <Col span={24}>
                     <Carousel
@@ -157,7 +144,7 @@ export const useGlobalHints = () => {
                     </Typography.Text>
                 </Col>
             </Row>
-        </HintsWrapper>
+        </div>
     ), [CanDisableHintsMessage, InProfileMessage, MoreMessage, handleBannerClick, hints])
 
     return {
