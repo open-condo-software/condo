@@ -32,6 +32,27 @@ const IMPORT_B2C_APP_MUTATION = gql`
         result: importB2CApp(data: $data) { success }
     }
 `
+ 
+const ALL_B2C_APP_PROPERTIES_QUERY = gql`
+    query allB2CAppProperties ($data: AllB2CAppPropertiesInput!) {
+        result: allB2CAppProperties(data: $data) {
+            objs { id address }
+            meta { count }
+        }
+    }
+`
+
+const CREATE_B2C_APP_PROPERTY_MUTATION = gql`
+    mutation createB2CAppProperty ($data: CreateB2CAppPropertyInput!) {
+        result: createB2CAppProperty(data: $data) { id address }
+    }
+`
+
+const DELETE_B2C_APP_PROPERTY_MUTATION = gql`
+    mutation deleteB2CAppProperty ($data: DeleteB2CAppPropertyInput!) {
+        result: deleteB2CAppProperty(data: $data) { id deletedAt address }
+    }
+`
 
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -41,5 +62,8 @@ module.exports = {
     B2CAppPublishRequest,
     PUBLISH_B2C_APP_MUTATION,
     IMPORT_B2C_APP_MUTATION,
+    ALL_B2C_APP_PROPERTIES_QUERY,
+    CREATE_B2C_APP_PROPERTY_MUTATION,
+    DELETE_B2C_APP_PROPERTY_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

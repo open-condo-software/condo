@@ -17,6 +17,8 @@ query getB2CApp($id: ID!) {
         logo {
             publicUrl
         }
+        developmentExportId
+        productionExportId
     }
 }
 
@@ -69,5 +71,25 @@ mutation publishB2CApp($data: PublishB2CAppInput!) {
 mutation createB2CAppPublishRequest($data: B2CAppPublishRequestCreateInput!) {
     request: createB2CAppPublishRequest(data: $data) {
         id
+    }
+}
+
+query allB2CAppProperties($data: AllB2CAppPropertiesInput!) {
+    properties: allB2CAppProperties(data: $data) {
+        objs { id address }
+        meta { count }
+    }
+}
+
+mutation createB2CAppProperty($data: CreateB2CAppPropertyInput!) {
+    property: createB2CAppProperty(data: $data) {
+        id
+    }
+}
+
+mutation deleteB2CAppProperty($data: DeleteB2CAppPropertyInput!) {
+    property: deleteB2CAppProperty(data: $data) {
+        id
+        address
     }
 }

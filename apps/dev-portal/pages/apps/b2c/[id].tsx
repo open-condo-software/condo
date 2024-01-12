@@ -12,6 +12,7 @@ import { BaseLayout } from '@/domains/common/components/BaseLayout'
 import { CollapsibleMenu } from '@/domains/common/components/CollapsibleMenu'
 import { BuildsSection } from '@/domains/miniapp/components/B2CApp/edit/builds/BuildsSection'
 import { InfoSection } from '@/domains/miniapp/components/B2CApp/edit/info/InfoSection'
+import { PropertiesSection } from '@/domains/miniapp/components/B2CApp/edit/properties/PropertiesSection'
 import { PublishingSection } from '@/domains/miniapp/components/B2CApp/edit/publishing/PublishingSection'
 import { DEFAULT_PAGE_SIZE } from '@/domains/miniapp/constants/common'
 import { getCurrentSection, useB2CMenuItems } from '@/domains/miniapp/hooks/useB2CMenuItems'
@@ -38,6 +39,7 @@ const FULL_COL_SPAN = 24
 const SECTIONS: { [key in SectionType]: React.FC<{ id: string }> } = {
     info: InfoSection,
     builds: BuildsSection,
+    properties: PropertiesSection,
     publishing: PublishingSection,
 }
 

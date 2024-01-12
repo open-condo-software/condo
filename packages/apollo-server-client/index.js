@@ -268,6 +268,20 @@ class ApolloServerClient {
         return objs
     }
 
+    async getModelsWithCount ({ modelGql, where, first, skip, sortBy }) {
+        const { data } = await this.executeAuthorizedQuery({
+            query: modelGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
+            variables: {
+                where,
+                first,
+                skip,
+                sortBy,
+            },
+        })
+
+        return data
+    }
+
     async updateModel ({ modelGql, id = null, updateInput }) {
         const variables = { data: { ...this.dvSender(), ...updateInput } }
 

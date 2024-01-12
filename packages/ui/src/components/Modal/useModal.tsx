@@ -58,7 +58,13 @@ const HookModal = React.forwardRef<HookModalRef, HookModalProps>((
             // eslint-disable-next-line @typescript-eslint/no-empty-function
             innerConfig.onCancel(() => {}, ...args.slice(1))
         }
-    }, [innerConfig])
+
+        // NOTE: Condo modal -> antd modal -> rc-dialog. So afterClose is a function from rc-dialog,
+        // which should be triggered on visible (open) prop changes. However, for now it doesn't trigger,
+        // so we call it manually.
+        // SRC: https://github.com/react-component/dialog/blob/master/src/Dialog/index.tsx#L99
+        afterClose()
+    }, [innerConfig, afterClose])
 
     useImperativeHandle(ref, () => ({
         destroy: close,

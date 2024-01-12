@@ -20,7 +20,7 @@ import { RequestStatusInfo } from './RequestStatusInfo'
 
 import type { PublishB2CAppMutationVariables } from '@/lib/gql'
 
-import { usePublishB2CAppMutation, useAllB2CAppPublishRequestsLazyQuery } from '@/lib/gql'
+import { usePublishB2CAppMutation, useAllB2CAppPublishRequestsLazyQuery, GetB2CAppDocument } from '@/lib/gql'
 
 
 const DEFAULT_STAND = DEV_ENVIRONMENT
@@ -50,6 +50,7 @@ export const PublishingSection: React.FC<{ id: string }> = ({ id }) => {
     const [publishMutation] = usePublishB2CAppMutation({
         onError,
         onCompleted,
+        refetchQueries: [{ query: GetB2CAppDocument, variables: { id } }],
     })
 
     const handlePublish = useCallback((values: PublishFormValues) => {

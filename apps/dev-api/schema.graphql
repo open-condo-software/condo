@@ -3893,6 +3893,53 @@ type ImportB2CAppOutput {
   success: Boolean!
 }
 
+input AllB2CAppPropertiesInput {
+  app: B2CAppWhereUniqueInput!
+  first: Int!
+  skip: Int!
+  environment: AppEnvironment!
+}
+
+type B2CAppProperty {
+  id: ID!
+  address: String!
+}
+
+type B2CAppPropertyMeta {
+  count: Int!
+}
+
+type AllB2CAppPropertiesOutput {
+  objs: [B2CAppProperty!]!
+  meta: B2CAppPropertyMeta!
+}
+
+input CreateB2CAppPropertyInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  app: B2CAppWhereUniqueInput!
+  environment: AppEnvironment!
+  address: String!
+}
+
+type CreateB2CAppPropertyOutput {
+  id: String!
+  address: String!
+}
+
+input DeleteB2CAppPropertyInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  id: ID!
+  environment: AppEnvironment!
+}
+
+type DeleteB2CAppPropertyOutput {
+  id: String!
+  deletedAt: String
+  address: String!
+}
+
 type unauthenticateUserOutput {
   """
   `true` when unauthentication succeeds.
@@ -4108,6 +4155,7 @@ type Query {
 
   """ Retrieve the meta-data for all lists. """
   _ksListsMeta(where: _ksListsMetaInput): [_ListMeta]
+  allB2CAppProperties(data: AllB2CAppPropertiesInput!): AllB2CAppPropertiesOutput
 
   """The version of the Keystone application serving this API."""
   appVersion: String
@@ -4372,6 +4420,8 @@ type Mutation {
   authenticateUserWithPhoneAndPassword(data: AuthenticateUserWithPhoneAndPasswordInput!): AuthenticateUserWithPhoneAndPasswordOutput
   publishB2CApp(data: PublishB2CAppInput!): PublishB2CAppOutput
   importB2CApp(data: ImportB2CAppInput!): ImportB2CAppOutput
+  createB2CAppProperty(data: CreateB2CAppPropertyInput!): CreateB2CAppPropertyOutput
+  deleteB2CAppProperty(data: DeleteB2CAppPropertyInput!): DeleteB2CAppPropertyOutput
 
   """ Authenticate and generate a token for a User with the Password Authentication Strategy. 
   """

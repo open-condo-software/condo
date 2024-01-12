@@ -1,17 +1,21 @@
 const path = require('path')
 
+
 const get = require('lodash/get')
 const set = require('lodash/set')
+
+const conf = require('@open-condo/config')
 
 const { requireTs } = require('./domains/common/utils/requireTs')
 const localesPath = path.resolve(__dirname, 'domains/common/constants/locales.ts')
 const { LOCALES, DEFAULT_LOCALE } = requireTs(localesPath)
 
-const DOCS_ENTRY_ENDPOINT = process.env.DOCS_ENTRY_ENDPOINT || '/docs/index'
+const DOCS_ENTRY_ENDPOINT = conf['DOCS_ENTRY_ENDPOINT'] || '/docs/index'
 // NOTE: Url of API server
-const SERVER_URL = process.env.SERVER_URL || 'http://localhost:4006'
+const SERVER_URL = conf['SERVER_URL'] || 'http://localhost:4006'
 // NOTE: Url of current service
-const SERVICE_URL = process.env.DEV_PORTAL_DOMAIN || 'http://localhost:3000'
+const SERVICE_URL = conf['DEV_PORTAL_DOMAIN'] || 'http://localhost:3000'
+const ADDRESS_SERVICE_URL = conf['ADDRESS_SERVICE_DOMAIN'] || 'http://localhost:4001'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -27,6 +31,7 @@ const nextConfig = {
     publicRuntimeConfig: {
         serverUrl: SERVER_URL,
         serviceUrl: SERVICE_URL,
+        addressServiceUrl: ADDRESS_SERVICE_URL,
     },
     images: {
         remotePatterns: [

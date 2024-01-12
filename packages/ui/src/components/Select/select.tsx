@@ -65,6 +65,8 @@ export type SelectProps<ValueType = SelectValueTypeBase> = Pick<DefaultSelectPro
 | 'showSearch'
 | 'defaultValue'
 | 'onSearch'
+| 'showArrow'
+| 'searchValue'
 > & {
     placeholder?: string
     options: Array<OptionsItem>
@@ -106,6 +108,7 @@ const Select = <ValueType extends SelectValueTypeBase>(props: SelectProps<ValueT
 
     return (
         <DefaultSelect
+            showArrow
             {...rest}
             id={id}
             mode={mode}
@@ -116,7 +119,6 @@ const Select = <ValueType extends SelectValueTypeBase>(props: SelectProps<ValueT
             removeIcon={<Close size='small' />}
             clearIcon={<Close size='small' />}
             menuItemSelectedIcon={<Check size='small' />}
-            showArrow
             value={value}
             notFoundContent={
                 <>
