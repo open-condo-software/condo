@@ -7,7 +7,7 @@ const access = require('@open-condo/keystone/access')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { find } = require('@open-condo/keystone/schema')
 
-const { b2bAppServiceUserCanReadObjects } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
+const { canReadObjectsAsB2BAppServiceUser } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
 const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 const { canDirectlyReadSchemaObjects, canDirectlyManageSchemaObjects } = require('@condo/domains/user/utils/directAccess')
@@ -48,8 +48,8 @@ async function canReadOrganizations (args) {
     ]
 
     if (user.type === SERVICE) {
-        // b2bAppServiceUserCanReadObjects may be return false or object (filter)
-        const accessFilterForB2BAppServiceUser = await b2bAppServiceUserCanReadObjects(args)
+        // canReadObjectsAsB2BAppServiceUser may be return false or object (filter)
+        const accessFilterForB2BAppServiceUser = await canReadObjectsAsB2BAppServiceUser(args)
 
         const billingContexts = await find('BillingIntegrationOrganizationContext', {
             integration: {

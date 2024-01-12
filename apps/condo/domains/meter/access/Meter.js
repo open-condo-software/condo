@@ -9,8 +9,8 @@ const { getByCondition } = require('@open-condo/keystone/schema')
 
 const { getAvailableResidentMeters } = require('@condo/domains/meter/utils/serverSchema')
 const {
-    b2bAppServiceUserCanReadObjects,
-    b2bAppServiceUserCanManageObjects,
+    canReadObjectsAsB2BAppServiceUser,
+    canManageObjectsAsB2BAppServiceUser,
 } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
 const {
     checkPermissionInUserOrganizationOrRelatedOrganization,
@@ -39,7 +39,7 @@ async function canReadMeters (args) {
     }
 
     if (user.type === SERVICE) {
-        return await b2bAppServiceUserCanReadObjects(args)
+        return await canReadObjectsAsB2BAppServiceUser(args)
     }
 
     return {
@@ -60,7 +60,7 @@ async function canManageMeters (args) {
     if (user.isAdmin) return true
 
     if (user.type === SERVICE) {
-        return await b2bAppServiceUserCanManageObjects(args)
+        return await canManageObjectsAsB2BAppServiceUser(args)
     }
 
     if (operation === 'create') {

@@ -1,10 +1,10 @@
 const {
-    b2bAppServiceUserCanManageObjects,
-    b2bAppServiceUserCanReadObjects,
+    canManageObjectsAsB2BAppServiceUser,
+    canReadObjectsAsB2BAppServiceUser,
 } = require('./server.utils')
 
 
 module.exports = {
-    b2bAppServiceUserCanManageObjects,
-    b2bAppServiceUserCanReadObjects,
+    canManageObjectsAsB2BAppServiceUser,
+    canReadObjectsAsB2BAppServiceUser,
 }

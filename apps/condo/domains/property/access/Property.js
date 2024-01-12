@@ -7,8 +7,8 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { getById, find } = require('@open-condo/keystone/schema')
 
 const {
-    b2bAppServiceUserCanManageObjects,
-    b2bAppServiceUserCanReadObjects,
+    canManageObjectsAsB2BAppServiceUser,
+    canReadObjectsAsB2BAppServiceUser,
 } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
 const { queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
@@ -35,7 +35,7 @@ async function canReadProperties (args) {
     }
 
     if (user.type === SERVICE) {
-        return await b2bAppServiceUserCanReadObjects(args)
+        return await canReadObjectsAsB2BAppServiceUser(args)
     }
     
     return {
@@ -56,7 +56,7 @@ async function canManageProperties (args) {
     if (user.isAdmin || user.isSupport) return true
 
     if (user.type === SERVICE) {
-        return await b2bAppServiceUserCanManageObjects(args)
+        return await canManageObjectsAsB2BAppServiceUser(args)
     }
 
     if (operation === 'create') {

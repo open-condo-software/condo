@@ -160,7 +160,7 @@ const getRefSchemaName = (schemaConfig, listKey) => {
  * @param args
  * @return {Promise<Record<string, any>|false>}
  */
-const b2bAppServiceUserCanReadObjects = async (args) => {
+const canReadObjectsAsB2BAppServiceUser = async (args) => {
     const { listKey } = args
     if (!isServiceUser(args)) return false
     const schemaConfig = get(B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS, listKey)
@@ -176,7 +176,7 @@ const b2bAppServiceUserCanReadObjects = async (args) => {
  * @param args
  * @return {Promise<boolean>}
  */
-const b2bAppServiceUserCanManageObjects = async (args) => {
+const canManageObjectsAsB2BAppServiceUser = async (args) => {
     const { listKey } = args
     if (!isServiceUser(args)) return false
     const schemaConfig = get(B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS, listKey)
@@ -188,6 +188,6 @@ const b2bAppServiceUserCanManageObjects = async (args) => {
 }
 
 module.exports = {
-    b2bAppServiceUserCanManageObjects,
-    b2bAppServiceUserCanReadObjects,
+    canManageObjectsAsB2BAppServiceUser,
+    canReadObjectsAsB2BAppServiceUser,
 }
