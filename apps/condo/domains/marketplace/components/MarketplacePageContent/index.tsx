@@ -1,3 +1,4 @@
+import styled from '@emotion/styled'
 import { Typography } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
@@ -21,6 +22,14 @@ import { MARKETPLACE_PAGE_TYPES } from '@condo/domains/marketplace/utils/clientS
 
 import { useAcquiringContext } from './ContextProvider'
 
+const StyledPageWrapper = styled(PageWrapper)`
+  & .condo-promo-block:not(.condo-promo-block-no-image) {
+    & .condo-promo-block-image-container {
+      width: auto;
+      margin: auto;
+    }
+  }
+`
 
 export const MarketplacePageContent = () => {
     const intl = useIntl()
@@ -78,7 +87,7 @@ export const MarketplacePageContent = () => {
     }, [BillsTab, PaymentsTab, ServicesTab, canReadInvoices, canReadMarketItems, canReadPayments])
 
     return (
-        <PageWrapper>
+        <StyledPageWrapper>
             {GlobalHints}
             <PageHeader tags={RenderNotSetupTag} title={<Typography.Title>{PageTitle}</Typography.Title>} />
             {!marketplaceIsSetup ? (
@@ -100,6 +109,6 @@ export const MarketplacePageContent = () => {
                     destroyInactiveTabPane
                 />
             )}
-        </PageWrapper>
+        </StyledPageWrapper>
     )
 }

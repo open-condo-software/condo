@@ -62,7 +62,7 @@ export const useGlobalHints = () => {
 
     const handleBannerClick = useCallback((url) => () => {
         if (!url || !isString(url)) return
-        
+
         window.open(url)
     }, [])
 
@@ -84,7 +84,7 @@ export const useGlobalHints = () => {
                 const image = get(hint, 'image')
                 const color = get(hint, 'color')
                 const invertedTextColor = get(hint, 'invertedTextColor')
-                
+
                 return (isString(title) && title !== '')
                     && (isString(description) && description !== '')
                     && (isString(targetUrl) && targetUrl !== '')
