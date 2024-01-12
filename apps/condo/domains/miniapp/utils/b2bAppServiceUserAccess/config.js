@@ -11,7 +11,7 @@
  *       // Below are the default values
  *       // If nothing is specified, they will apply:
  *       // pathToOrganizationId: ['organization', 'id'],
- *       // canBeManage: true,
+ *       // canBeManaged: true,
  *       // canBeRead: true,
  *
  *       // You can override values as needed
@@ -47,7 +47,7 @@ const B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS = {
     Organization: {
         pathToOrganizationId: ['id'],
         // NOTE: service users cannot manage organizations!
-        canBeManage: false,
+        canBeManaged: false,
     },
 
     // Property domain

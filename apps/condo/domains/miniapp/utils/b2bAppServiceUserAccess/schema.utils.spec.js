@@ -52,12 +52,12 @@ describe('Schema functions', () => {
                 config: {
                     Organization: {
                         pathToOrganizationId: ['id'],
-                        canBeManage: false,
+                        canBeManaged: false,
                     },
                     Contact: {},
                     Abracadabra: {
                         canBeRead: false,
-                        canBeManage: false,
+                        canBeManaged: false,
                     },
                 },
             },

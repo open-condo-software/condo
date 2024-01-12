@@ -24,7 +24,7 @@ const getReadOnlyPermissionFieldNames = (config) => {
             if (!get(schemaConfig, 'canBeRead', true)) {
                 readOnlyFieldsBySchema.push(`canRead${pluralize.plural(schemaName)}`)
             }
-            if (!get(schemaConfig, 'canBeManage', true)) {
+            if (!get(schemaConfig, 'canBeManaged', true)) {
                 readOnlyFieldsBySchema.push(`canManage${pluralize.plural(schemaName)}`)
             }
             return readOnlyFieldsBySchema
@@ -67,7 +67,7 @@ const getSchemaDocForReadOnlyPermissionField = (permissionFieldName) => {
  * @typedef {Object} B2bAppServiceUserAccessSchemaConfig
  * @property {Array.<string>} pathToOrganizationId - Way to get the organization id (default value: ['organization', 'id'])
  * @property {boolean} canBeRead - Service users can read schema (default value: true)
- * @property {boolean} canBeManage - Service users can manage schema (default value: true)
+ * @property {boolean} canBeManaged - Service users can manage schema (default value: true)
  */
 
 /**
@@ -81,7 +81,7 @@ const getSchemaDocForReadOnlyPermissionField = (permissionFieldName) => {
  *       // But for the Organization schema get value from <SchemaName>.id
  *       pathToOrganizationId: ['id'],
  *       // By default schemas can be manage, but for Organization schema cannot be managed
- *       canBeManage: false,
+ *       canBeManaged: false,
  *    },
  * }
  *

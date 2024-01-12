@@ -181,8 +181,8 @@ const canManageObjectsAsB2BAppServiceUser = async (args) => {
     if (!isServiceUser(args)) return false
     const schemaConfig = get(B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS, listKey)
     if (!isObject(schemaConfig)) return false
-    const canBeManage = get(schemaConfig, 'canBeManage', true)
-    if (!canBeManage) return false
+    const canBeManaged = get(schemaConfig, 'canBeManaged', true)
+    if (!canBeManaged) return false
     const refSchemaName = getRefSchemaName(schemaConfig, listKey)
     return await canManageByServiceUser(args, schemaConfig, refSchemaName)
 }
