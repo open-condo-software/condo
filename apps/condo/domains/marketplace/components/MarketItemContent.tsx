@@ -186,57 +186,63 @@ const TableContent = () => {
 
     return (
         <TablePageContent>
-            <Col span={24} style={{ 'marginBottom': '10px' }}>
-                <TableFiltersContainer>
-                    <Row gutter={[24, 24]}>
-                        <Col xs={24} lg={7}>
-                            <Input
-                                placeholder={SearchPlaceholder}
-                                onChange={handleSearch}
-                                value={search}
-                                allowClear
-                            />
-                        </Col>
-                        <Col xs={24} lg={5}>
-                            <Select
-                                options={categorySelectOptions}
-                                onChange={handleCategorySelectChange}
-                                value={categoryValueFromQuery ? categoryValueFromQuery : 'all'}
-                                loading={marketCategoriesLoading}
+            <Row gutter={[0, 40]}>
+                <Col span={24}>
+                    <TableFiltersContainer>
+                        <Row gutter={[24, 24]}>
+                            <Col xs={24} lg={7}>
+                                <Input
+                                    placeholder={SearchPlaceholder}
+                                    onChange={handleSearch}
+                                    value={search}
+                                    allowClear
+                                />
+                            </Col>
+                            <Col xs={24} lg={5}>
+                                <Select
+                                    options={categorySelectOptions}
+                                    onChange={handleCategorySelectChange}
+                                    value={categoryValueFromQuery ? categoryValueFromQuery : 'all'}
+                                    loading={marketCategoriesLoading}
+                                />
+                            </Col>
+                        </Row>
+                    </TableFiltersContainer>
+                </Col>
+                <Col span={24}>
+                    <Row
+                        align='middle'
+                        justify='center'
+                    >
+                        <Col span={24}>
+                            <Table
+                                totalRows={total}
+                                loading={marketItemsLoading}
+                                dataSource={marketItems}
+                                columns={tableColumns}
+                                onRow={handleRowClick}
                             />
                         </Col>
                     </Row>
-                </TableFiltersContainer>
-            </Col>
-            <Row
-                align='middle'
-                justify='center'
-            >
-                <Col span={24}>
-                    <Table
-                        totalRows={total}
-                        loading={marketItemsLoading}
-                        dataSource={marketItems}
-                        columns={tableColumns}
-                        onRow={handleRowClick}
-                    />
                 </Col>
+                {
+                    canManageMarketItems && (
+                        <Col span={24}>
+                            <ActionBar
+                                actions={[
+                                    <Button
+                                        key='createMarketItem'
+                                        type='primary'
+                                        onClick={() => { router.push('/marketplace/marketItem/create') }}
+                                    >
+                                        {AddServicesButtonText}
+                                    </Button>,
+                                ]}
+                            />
+                        </Col>
+                    )
+                }
             </Row>
-            {
-                canManageMarketItems && (
-                    <ActionBar
-                        actions={[
-                            <Button
-                                key='createMarketItem'
-                                type='primary'
-                                onClick={() => { router.push('/marketplace/marketItem/create') }}
-                            >
-                                {AddServicesButtonText}
-                            </Button>,
-                        ]}
-                    />
-                )
-            }
         </TablePageContent>
     )
 }
@@ -277,6 +283,7 @@ export const MarketplaceItemsContent = () => {
                     <Button onClick={() => router.push('/marketplace/marketItem/create')} type='primary'>{ServicesEmptyButtonText}</Button>
                 }
                 accessCheck={canReadMarketItems}
+                withBorder
             />
         )
     }

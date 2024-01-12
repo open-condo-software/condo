@@ -4,6 +4,7 @@ import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import React, { useCallback, useState } from 'react'
 
+import { Edit } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Space, Tag, Typography } from '@open-condo/ui'
@@ -90,11 +91,14 @@ const TicketInvoiceCard: React.FC<TicketInvoiceCardPropsType> = ({ organizationI
             <Col span={24}>
                 <Row justify='space-between'>
                     <Col>
-                        <Typography.Link onClick={handleInvoiceNumberClick}>
-                            <Typography.Text strong>
-                                {isNewInvoice ? NewInvoiceMessage : InvoiceNumberMessage}
-                            </Typography.Text>
-                        </Typography.Link>
+                        <Space size={8} direction='horizontal'>
+                            <Typography.Link onClick={handleInvoiceNumberClick}>
+                                <Typography.Text strong>
+                                    {isNewInvoice ? NewInvoiceMessage : InvoiceNumberMessage}
+                                </Typography.Text>
+                            </Typography.Link>
+                            <Edit size='small' />
+                        </Space>
                     </Col>
                     <Col>
                         <Space size={8} direction='horizontal'>

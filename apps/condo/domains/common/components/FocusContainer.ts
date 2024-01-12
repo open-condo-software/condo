@@ -1,6 +1,8 @@
 import styled from '@emotion/styled'
 
-import { colors, DEFAULT_BORDER_RADIUS } from '../constants/style'
+import { colors } from '@open-condo/ui/dist/colors'
+
+import { DEFAULT_BORDER_RADIUS } from '../constants/style'
 
 interface IFocusContainerProps {
     color?: string,
@@ -11,7 +13,7 @@ interface IFocusContainerProps {
 export const FocusContainer = styled.div<IFocusContainerProps>`
   max-width: calc(100% + 48px);
   margin: ${({ margin }) => margin || '0 -24px'};
-  border: 1px solid ${({ color }) => color || colors.lightGrey[5]};
+  border: 1px solid ${({ color }) => color || colors.gray[3]};
   border-radius: ${DEFAULT_BORDER_RADIUS};
   padding: ${({ padding }) => padding ? padding : '24px'};
 

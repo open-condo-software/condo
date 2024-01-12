@@ -165,6 +165,7 @@ export const MarketplacePaymentsContent = () => {
                 message={EmptyListLabel}
                 containerStyle={{ display: isNoPaymentsData ? 'flex' : 'none' }}
                 accessCheck={canReadPayments}
+                withBorder
             />
         )
     }

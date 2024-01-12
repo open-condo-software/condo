@@ -71,7 +71,7 @@ export function useMarketplacePaymentTableColumns <T> (filterMetas: Array<Filter
                 key: 'createdAt',
                 dataIndex: 'createdAt',
                 sorter: true,
-                width: '10%',
+                width: '105px',
                 render: getDateRender(intl, search),
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'createdAt'),
             },

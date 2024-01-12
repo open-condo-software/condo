@@ -1326,7 +1326,7 @@
   "pages.condo.marketplace.invoice.id.table.header.toPay": "To pay",
   "pages.condo.marketplace.invoice.id.field.paymentType": "Payment type",
   "pages.condo.marketplace.invoice.id.field.paymentLink": "Payment link",
-  "pages.condo.marketplace.invoice.id.field.paymentLink.copy": "Copy",
+  "pages.condo.marketplace.invoice.id.field.paymentLink.copy": "Copy link",
   "pages.condo.marketplace.invoice.id.title.payerData": "Payer data",
   "pages.condo.marketplace.invoice.id.field.address": "Address",
   "pages.condo.marketplace.invoice.id.field.contact": "Contact",

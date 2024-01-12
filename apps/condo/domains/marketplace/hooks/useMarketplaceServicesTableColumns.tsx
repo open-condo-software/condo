@@ -141,19 +141,25 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
                 render: (marketItem) => {
                     const componentsToRender = []
                     const priceForAllProperties = get(processedScopes, [marketItem.id, 'priceForAllProperties'])
+
                     if (priceForAllProperties) {
+                        const currency = get(priceForAllProperties, 'currency', 'RUB')
+                        const price = get(priceForAllProperties, 'price')
+                        const isMin = get(priceForAllProperties, 'isMin')
+                        const renderedPrice = isMin && price == 0 ? ContractPriceMessage : getMoneyRender(intl, currency)(price, isMin)
+
                         if (properties.length === 1) {
                             const { streetPart } = getAddressDetails(get(properties, '0'))
 
                             componentsToRender.push(<div key='priceForAllProperties'>
-                                {getMoneyRender(intl, get(priceForAllProperties, 'currency', 'RUB'))(get(priceForAllProperties, 'price'), false)}
+                                {renderedPrice}
                                 <Typography.Text type='secondary' style={{ margin: '10px' }}>
                                     ({streetPart})
                                 </Typography.Text>
                             </div>)
                         } else {
                             componentsToRender.push(<div key='priceForAllProperties'>
-                                {getMoneyRender(intl, get(priceForAllProperties, 'currency', 'RUB'))(get(priceForAllProperties, 'price'), false)}
+                                {renderedPrice}
                                 <Typography.Text type='secondary' style={{ margin: '10px' }}>({AllPropertiesMessage})</Typography.Text>
                             </div>)
                         }

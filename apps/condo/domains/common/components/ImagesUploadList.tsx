@@ -15,7 +15,7 @@ import { shadows, transitions } from '@condo/domains/common/constants/style'
 import { MAX_UPLOAD_FILE_SIZE } from '@condo/domains/common/constants/uploads'
 
 
-const UploadWrapper = styled.div`
+const UploadWrapper = styled.div<{ imageSize: number }>`
   display: flex;
   overflow-x: auto;
   scrollbar-width: none;
@@ -30,8 +30,8 @@ const UploadWrapper = styled.div`
       margin: 5px 8px 0 0;
       flex-shrink: 0;
       border-radius: 12px;
-      width: 80px;
-      height: 80px;
+      width: ${props => `${props.imageSize}px`};
+      height: ${props => `${props.imageSize}px`};
 
       & .ant-upload-list-item-list-type-picture-card.ant-upload-list-item {
         border-radius: 12px;
@@ -73,8 +73,8 @@ const UploadWrapper = styled.div`
       border-radius: 12px;
       border: none;
       background-color: ${colors.gray[1]};
-      width: 80px;
-      height: 80px;
+      width: ${props => `${props.imageSize}px`};
+      height: ${props => `${props.imageSize}px`};
       margin-top: 6px;
     }
   }
@@ -120,6 +120,7 @@ type ImagesUploadListProps = {
     defaultFileList?: UploadFileType[]
     fileList?: UploadFileType[]
     createAction?: ({ file }: { file: UploadFile }) => Promise<DBFile>
+    imageSize?: number
 }
 
 export const ImagesUploadList: React.FC<ImagesUploadListProps> = ({
@@ -129,6 +130,7 @@ export const ImagesUploadList: React.FC<ImagesUploadListProps> = ({
     defaultFileList,
     fileList,
     createAction,
+    imageSize = 80,
 }) => {
     const intl = useIntl()
     const FileTooBigErrorMessage = intl.formatMessage({ id: 'component.uploadlist.error.FileTooBig' },
@@ -191,6 +193,7 @@ export const ImagesUploadList: React.FC<ImagesUploadListProps> = ({
     return (
         <UploadWrapper
             ref={imagesListWrapperRef}
+            imageSize={imageSize}
         >
             {
                 !hideArrows && isScrollActiveX && !isAtStartX && (

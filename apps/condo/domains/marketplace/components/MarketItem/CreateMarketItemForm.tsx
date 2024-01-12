@@ -93,7 +93,7 @@ export const CreateMarketItemForm = () => {
 
         initialValues['prices'] = [{ ...INITIAL_PRICE_FORM_VALUE, properties: [propertyId] }]
     } else {
-        initialValues['prices'] = [INITIAL_PRICE_FORM_VALUE]
+        initialValues['prices'] = [{ ...INITIAL_PRICE_FORM_VALUE, hasAllProperties: true }]
     }
 
     if (dataLoading) {
