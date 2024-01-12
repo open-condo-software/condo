@@ -10,7 +10,7 @@ import isString from 'lodash/isString'
 import getConfig from 'next/config'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
@@ -44,12 +44,14 @@ const HINTS_ROW_GUTTERS: RowProps['gutter'] = [0, 8]
 const HintsWrapper = styled.div`
   margin-bottom: 40px;
   
-  & .condo-promo-block-content-container {
-    width: 65%;
-  }
-  
-  & .condo-promo-block-image-container {
-    width: auto;
+  & .condo-promo-block:not(.condo-promo-block-no-image) {
+    & .condo-promo-block-content-container {
+      width: 65%;
+    }
+    
+    & .condo-promo-block-image-container {
+      width: auto;
+    }
   }
 `
 
