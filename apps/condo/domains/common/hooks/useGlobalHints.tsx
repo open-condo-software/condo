@@ -1,3 +1,4 @@
+import styled from '@emotion/styled'
 import { Col, Row, RowProps } from 'antd'
 import { isObject } from 'lodash'
 import get from 'lodash/get'
@@ -39,8 +40,18 @@ const { publicRuntimeConfig: { globalHints } } = getConfig()
 const HINTS_CONTAINER_CLASS = 'global-hints-slider'
 const HINTS_BY_PAGES = get(globalHints, 'pages', []) || []
 const HINTS_AUTOPLAY_SPEED = 5000
-const HINTS_WRAPPER_STYLE: CSSProperties = { marginBottom: 40 }
 const HINTS_ROW_GUTTERS: RowProps['gutter'] = [0, 8]
+const HintsWrapper = styled.div`
+  margin-bottom: 40px;
+  
+  & .condo-promo-block-content-container {
+    width: 65%;
+  }
+  
+  & .condo-promo-block-image-container {
+    width: auto;
+  }
+`
 
 export const useGlobalHints = () => {
     const intl = useIntl()
@@ -107,7 +118,7 @@ export const useGlobalHints = () => {
     }, [route, showHints, locale, hideHints])
 
     const renderHints = useMemo(() => !isEmpty(hints) && (
-        <div style={HINTS_WRAPPER_STYLE} className={HINTS_CONTAINER_CLASS}>
+        <HintsWrapper className={HINTS_CONTAINER_CLASS}>
             <Row gutter={HINTS_ROW_GUTTERS}>
                 <Col span={24}>
                     <Carousel
@@ -144,7 +155,7 @@ export const useGlobalHints = () => {
                     </Typography.Text>
                 </Col>
             </Row>
-        </div>
+        </HintsWrapper>
     ), [CanDisableHintsMessage, InProfileMessage, MoreMessage, handleBannerClick, hints])
 
     return {
