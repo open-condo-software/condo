@@ -14,7 +14,7 @@ export const options = {
             duration: '60s',
             rate: 5,
             timeUnit: '1s',
-            preAllocatedVUs: 10,
+            preAllocatedVUs: 7,
         },
         appHealthcheck: {
             exec: 'healthcheck',
@@ -29,7 +29,7 @@ export const options = {
             executor: 'constant-arrival-rate',
             duration: '60s',
             rate: 1,
-            timeUnit: '1s',
+            timeUnit: '2s',
             preAllocatedVUs: 1,
         },
         browser: {
