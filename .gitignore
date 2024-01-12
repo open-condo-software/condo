@@ -62,3 +62,6 @@ apps/condo/public/ui
 # semgrep
 semgrep.sarif
 semgrep_results/*
+
+#k6 artifacts
+**/k6/screenshots**

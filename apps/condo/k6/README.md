@@ -20,3 +20,22 @@ sudo apt-get install k6
 ```bash
 docker pull grafana/k6:master-with-browser
 ```
+
+# Run
+
+## Native package
+
+```bash
+BASE_URL=http://localhost:3000 AUTH_EMAIL=user@example.com AUTH_PASSWORD=secret_example k6 run <path to script>
+```
+
+## Docker image
+
+```bash
+docker run --env-file="path/to/env.file" --rm -i grafana/k6:master-with-browser run - <path to script>
+```
+
+### Browser tests
+K6 supports browser testing in both modes just like other e2e packages. 
+
+For local debugging you can use `K6_BROWSER_HEADLESS=true` environment variable. 
