@@ -145,13 +145,12 @@ const getIntegrationHealthCheck = ({ integrationName, getStatus }) => {
 /**
  * Get certificate health check handler
  * @param certificateName - certificate name - to be appeared in health check results
- * @param certificate - certificate context parse able for X509Certificate
- * @param getCertContent - function for cert content retrieval
+ * @param getCertificate - get parse able certificate content for X509Certificate
  * @param signalExpiryDaysBefore - start to signal about expiry earlier, configure number of days before
  */
-const getCertificateHealthCheck = ({ certificateName, certificate, signalExpiryDaysBefore = 14 }) => {
+const getCertificateHealthCheck = ({ certificateName, getCertificate, signalExpiryDaysBefore = 14 }) => {
     if (!certificateName) throw new Error('Parameter certificateName required to be provided!')
-    if (!certificate) throw new Error('Parameter certificate must be provided!')
+    if (!getCertificate) throw new Error('Parameter getCertificate must be provided!')
 
     return {
         name: `${certificateName}_certificate`,
@@ -160,7 +159,7 @@ const getCertificateHealthCheck = ({ certificateName, certificate, signalExpiryD
         },
         run: async () => {
             try {
-                const certificateInfo = new X509Certificate(certificate)
+                const certificateInfo = new X509Certificate(await getCertificate())
 
                 // calc days
                 const validFrom = dayjs(certificateInfo.validFrom).unix()
@@ -180,22 +179,23 @@ const getCertificateHealthCheck = ({ certificateName, certificate, signalExpiryD
 /**
  * Get PFX certificate health check handler
  * @param certificateName - certificate name - to be appeared in health check results
- * @param pfx - pfx content
- * @param passphrase - passphrase for reading pfx content
+ * @param getPfxParams - function returning { pfx, passphrase } content
  * @param signalExpiryDaysBefore - start to signal about expiry earlier, configure number of days before
  */
-const getPfxCertificateHealthCheck = ({ certificateName, pfx, passphrase, signalExpiryDaysBefore = 14 }) => {
-    if (!pfx) throw new Error('Parameter pfx required to be provided!')
-    if (!passphrase) throw new Error('Parameter passphrase required to be provided!')
+const getPfxCertificateHealthCheck = ({ certificateName, getPfxParams, signalExpiryDaysBefore = 14 }) => {
+    if (!getPfxParams) throw new Error('Parameter getPfxParams required to be provided!')
 
-    const context = tls.createSecureContext({
-        pfx: Buffer.from(pfx, 'base64'),
-        passphrase,
-    })
-    const certificate = context.context.getCertificate()
+    const getCertificate = async () => {
+        const { pfx, passphrase } = await getPfxParams()
+        const context = tls.createSecureContext({
+            pfx: Buffer.from(pfx, 'base64'),
+            passphrase,
+        })
+        return context.context.getCertificate()
+    }
 
     return getCertificateHealthCheck({
-        certificateName, certificate, signalExpiryDaysBefore,
+        certificateName, getCertificate, signalExpiryDaysBefore,
     })
 }
 

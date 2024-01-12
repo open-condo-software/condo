@@ -31,8 +31,6 @@ dayjs.extend(utc)
 dayjs.extend(timezone)
 dayjs.extend(isBetween)
 
-const SBER_ID_CONFIG = conf['SBER_ID_CONFIG'] && JSON.parse(conf['SBER_ID_CONFIG']) || {}
-const SBBOL_PFX = conf['SBBOL_PFX'] && JSON.parse(conf['SBBOL_PFX']) || {}
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production' && conf.DD_TRACE_ENABLED === 'true'
 const IS_BUILD_PHASE = conf.PHASE === 'build'
 
@@ -109,12 +107,17 @@ const checks = [
     getPostgresHealthCheck(),
     getCertificateHealthCheck({
         certificateName: 'sber_id_client',
-        certificate: SBER_ID_CONFIG.cert,
+        getCertificate: () => {
+            const SBER_ID_CONFIG = conf['SBER_ID_CONFIG'] && JSON.parse(conf['SBER_ID_CONFIG']) || {}
+            return SBER_ID_CONFIG.cert
+        },
     }),
     getPfxCertificateHealthCheck({
         certificateName: 'sbbol_client',
-        pfx: SBBOL_PFX.certificate,
-        passphrase: SBBOL_PFX.passphrase,
+        getPfxParams: () => {
+            const SBBOL_PFX = conf['SBBOL_PFX'] && JSON.parse(conf['SBBOL_PFX']) || {}
+            return { pfx: SBBOL_PFX.certificate, passphrase: SBBOL_PFX.passphrase }
+        },
     }),
 ]
 
