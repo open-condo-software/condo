@@ -29,7 +29,7 @@ export const options = {
             executor: 'constant-arrival-rate',
             duration: '60s',
             rate: 1,
-            timeUnit: '2s',
+            timeUnit: '1s',
             preAllocatedVUs: 1,
         },
         browser: {
@@ -48,8 +48,8 @@ export const options = {
         http_req_failed: ['rate<0.01'],
         browser_http_req_duration: ['p(95) < 1000'],
         http_req_duration: ['p(95)<2000'],
-        browser_web_vital_fcp: ['p(95) < 5000'],
-        browser_web_vital_lcp: ['p(95) < 8000'],
+        browser_web_vital_fcp: ['p(95) < 2000'],
+        browser_web_vital_lcp: ['p(95) < 4000'],
     },
 }
 
