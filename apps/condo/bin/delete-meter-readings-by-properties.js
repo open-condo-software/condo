@@ -39,16 +39,21 @@ class MeterReadingsCleaner {
     }
 
     async findMeterReadings () {
-        return await find('MeterReading', {
+        const date = dayjs(this.date).toISOString()
+        const searchQuery = {
             deletedAt: null,
-            date: dayjs(this.date).toISOString(),
+            date,
             meter: {
                 property: {
                     id_in: this.propertyIds,
                 },
                 deletedAt: null,
             },
-        })
+        }
+
+        console.info(`[INFO] Search query: ${JSON.stringify(searchQuery)}`)
+
+        return await find('MeterReading', searchQuery)
     }
 
     async deleteMeterReadings () {
