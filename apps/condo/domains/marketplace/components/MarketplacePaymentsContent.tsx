@@ -74,7 +74,7 @@ const MarketplacePaymentsSumInfo: React.FC<IPaymentsSumInfoProps> = ({
         <PaymentsInfoWrapper>
             <Typography.Text type='secondary'>{title}</Typography.Text>
             <Typography.Text
-                {...{ type }}
+                type={type}
                 strong={true}
             >
                 {loading ? '…' : getMoneyRender(intl, currencyCode)(message)}

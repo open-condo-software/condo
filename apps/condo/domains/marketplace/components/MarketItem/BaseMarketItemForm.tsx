@@ -673,14 +673,14 @@ const MarketPriceForm = ({ priceFormDescription, removeOperation, organizationPr
     )
 }
 
-const MarketPricesList = () => {
+const MarketPricesList = ({ initialPrices }) => {
     const intl = useIntl()
     const PriceScopeGroupLabel = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.section.priceScope' })
     const AddPriceScopeLabel = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.addPriceScope' })
 
     const { organization, loading } = useOrganization()
     const { form } = useMarketItemFormContext()
-    const prices = Form.useWatch('prices', form) || []
+    const prices = Form.useWatch('prices', form) || initialPrices
 
     const { count: organizationPropertiesCount } = Property.useCount({
         where: { organization: { id: get(organization, 'id') } },
@@ -693,7 +693,7 @@ const MarketPricesList = () => {
     )
 
     const formProperties = useMemo(() => prices.map(price => get(price, 'properties')), [prices])
-    const hasAllPropertiesChecked = useMemo(() => prices.some(price => price.hasAllProperties), [formProperties])
+    const hasAllPropertiesChecked = useMemo(() => prices.some(price => price.hasAllProperties), [prices])
 
     return (
         <Row gutter={GROUP_INNER_GUTTER}>
@@ -806,7 +806,9 @@ export const BaseMarketItemForm: React.FC<BaseMarketItemFormProps> = (props) => 
                                                     <MarketItemFields/>
                                                 </Col>
                                                 <Col span={24}>
-                                                    <MarketPricesList/>
+                                                    <MarketPricesList
+                                                        initialPrices={get(initialValues, 'prices')}
+                                                    />
                                                 </Col>
                                             </Row>
                                         </Col>
