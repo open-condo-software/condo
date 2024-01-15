@@ -1,6 +1,7 @@
 import { AcquiringIntegrationContext, BankAccount } from '@app/condo/schema'
 import { AutoComplete, Col, Form, Input, Row, RowProps } from 'antd'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
@@ -45,6 +46,7 @@ export const RequisitesSetup: React.FC = () => {
     const TaxTypeSimpleLabel = intl.formatMessage({ id: 'pages.condo.marketplace.settings.requisites.radio.tax.simple' })
     const NoTax = intl.formatMessage({ id: 'pages.condo.marketplace.settings.requisites.noTax' })
     const RecipientErrorTitle = intl.formatMessage({ id: 'pages.condo.marketplace.settings.requisites.error' })
+    const TinTooltipLabel = intl.formatMessage({ id: 'pages.condo.marketplace.settings.requisites.field.tin.tooltip' })
 
     const [error, setError] = useState<string | null>(null)
     const [loading, setIsLoading] = useState<boolean>(false)
@@ -112,7 +114,7 @@ export const RequisitesSetup: React.FC = () => {
             return [noTaxOption]
         }
 
-        const options = (get(acquiring, [0, 'vatPercentOptions']) || '').split(',').filter((option)=>{
+        const options = (get(acquiring, [0, 'vatPercentOptions']) || '').split(',').filter((option)=> {
             return Boolean(option) && (selectedTaxType === TAX_REGIME_GENEGAL || (selectedTaxType === TAX_REGIME_SIMPLE && option !== '0'))
         }).map((option) => ({
             label: `${option} %`,
@@ -137,7 +139,7 @@ export const RequisitesSetup: React.FC = () => {
     useEffect(() => {
         const taxPercent = form.getFieldValue('taxPercent')
         if (!possibleVatOptionsValues.includes(taxPercent)) {
-            form.setFieldValue('taxPercent', '')
+            form.setFieldValue('taxPercent', null)
         }
     }, [form, possibleVatOptionsValues, selectedTaxType])
 
@@ -214,7 +216,7 @@ export const RequisitesSetup: React.FC = () => {
             )}
             <Col sm={13} span={24}>
                 <Form
-                    initialValues={{ tin: get(organization, 'tin'), bic: '', account: '', taxPercent: null }}
+                    initialValues={{ tin: get(organization, 'tin'), bic: '', account: '', taxType: TAX_REGIME_GENEGAL, taxPercent: null }}
                     form={form}
                     onFinish={handleFormSubmit}
                     layout='horizontal'
@@ -243,7 +245,7 @@ export const RequisitesSetup: React.FC = () => {
                                 labelAlign='left'
                                 rules={[requiredValidator]}
                             >
-                                <Input disabled/>
+                                <Input title={TinTooltipLabel} disabled/>
                             </Form.Item>
                         </Col>
                         <Col span={24}>
