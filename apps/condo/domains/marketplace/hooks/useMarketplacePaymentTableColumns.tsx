@@ -108,6 +108,7 @@ export function useMarketplacePaymentTableColumns <T> (filterMetas: Array<Filter
                 key: 'status',
                 dataIndex: 'status',
                 width: '10%',
+                filteredValue: getFilteredValue(filters, 'status'),
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'status'),
                 filterIcon: getFilterIcon,
                 render: getStatusRender(intl, openStatusDescModal, search),
@@ -120,5 +121,5 @@ export function useMarketplacePaymentTableColumns <T> (filterMetas: Array<Filter
                 render: getMoneyRender(intl),
             },
         ]
-    }, [sorterMap, filters, intl, search, filterMetas, SumMessage, StatusMessage, TransactionNumberMessage, DateMessage, TicketNumberMessage, InvoiceNumberMessage, transactionNumberRender, ticketNumberRender, invoiceNumberRender])
+    }, [DateMessage, sorterMap, filters, intl, search, filterMetas, InvoiceNumberMessage, invoiceNumberRender, TicketNumberMessage, ticketNumberRender, TransactionNumberMessage, transactionNumberRender, StatusMessage, openStatusDescModal, SumMessage])
 }
