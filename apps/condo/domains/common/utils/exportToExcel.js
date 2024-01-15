@@ -64,7 +64,7 @@ const EXCEL_TEMPLATES_HEADERS = {
         'workStart', 'workFinish', 'status', 'createdBy',
     ],
     [EXPORT_TYPE_NEWS_RECIPIENTS]: [
-        'address', 'unitName', 'hasResident',
+        'address', 'unitName', 'unitType', 'hasResident',
     ],
 }
 
