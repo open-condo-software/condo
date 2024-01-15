@@ -49,7 +49,7 @@ function getAdapter (databaseUrl) {
     if (databaseUrl.startsWith('mongodb')) {
         return new MongooseAdapter({ mongoUri: databaseUrl })
     } else if (databaseUrl.startsWith('postgres')) {
-        return new KnexAdapter({ knexOptions: { connection: databaseUrl } })
+        return new KnexAdapter({ knexOptions: { connection: databaseUrl, pool: { min: 0, max: 4 } } })
     } else if (databaseUrl.startsWith('undefined')) {
         // NOTE: case for build time!
         const adapter = new MongooseAdapter()
