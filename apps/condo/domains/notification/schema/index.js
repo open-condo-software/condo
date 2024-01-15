@@ -13,6 +13,7 @@ const { RemoteClient } = require('./RemoteClient')
 const { SendMessageService } = require('./SendMessageService')
 const { SetMessageStatusService } = require('./SetMessageStatusService')
 const { SyncRemoteClientService } = require('./SyncRemoteClientService')
+const { TelegramUserChat } = require('./TelegramUserChat')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -26,5 +27,6 @@ module.exports = {
     MessageOrganizationBlackList,
     MessageBatch,
     NotificationUserSetting,
+    TelegramUserChat,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

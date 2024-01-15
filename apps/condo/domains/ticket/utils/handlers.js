@@ -6,7 +6,7 @@ const { featureToggleManager } = require('@open-condo/featureflags/featureToggle
 const { getByCondition, find, getById } = require('@open-condo/keystone/schema')
 
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
-const { SMS_AFTER_TICKET_CREATION } = require('@condo/domains/common/constants/featureflags')
+const { SMS_AFTER_TICKET_CREATION, SEND_TELEGRAM_NOTIFICATIONS } = require('@condo/domains/common/constants/featureflags')
 const { TWO_OR_MORE_SPACES_REGEXP } = require('@condo/domains/common/constants/regexps')
 const { md5 } = require('@condo/domains/common/utils/crypto')
 const {
@@ -18,78 +18,16 @@ const { sendMessage } = require('@condo/domains/notification/utils/serverSchema'
 const { ORGANIZATION_NAME_PREFIX_AND_QUOTES_REGEXP } = require('@condo/domains/organization/constants/common')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
+const { sendTicketCreatedNotifications } = require('@condo/domains/ticket/tasks')
+const { sendTicketCommentCreatedNotifications } = require('@condo/domains/ticket/tasks')
 const {
     sendTicketCommentNotifications: sendTicketCommentNotificationsTask,
 } = require('@condo/domains/ticket/tasks/sendTicketCommentNotifications')
 const { UserTicketCommentReadTime } = require('@condo/domains/ticket/utils/serverSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
+const { detectTicketEventTypes, TICKET_CREATED, ASSIGNEE_CONNECTED_EVENT_TYPE, EXECUTOR_CONNECTED_EVENT_TYPE, STATUS_CHANGED_EVENT_TYPE, TICKET_WITHOUT_RESIDENT_CREATED_EVENT_TYPE } = require('./detectTicketEventTypes')
 const { Ticket, TicketCommentsTime } = require('./serverSchema')
-
-const ASSIGNEE_CONNECTED_EVENT_TYPE = 'ASSIGNEE_CONNECTED'
-const EXECUTOR_CONNECTED_EVENT_TYPE = 'EXECUTOR_CONNECTED'
-const STATUS_CHANGED_EVENT_TYPE = 'STATUS_CHANGED'
-const TICKET_WITHOUT_RESIDENT_CREATED_EVENT_TYPE = 'TICKET_WITHOUT_RESIDENT_CREATED'
-
-/**
- * Detects possible events within Ticket schema request
- * @param operation
- * @param existingItem
- * @param updatedItem
- * @returns {{}}
- */
-const detectTicketEventTypes = ({ operation, existingItem, updatedItem }) => {
-    const isCreateOperation = operation === 'create'
-    const isUpdateOperation = operation === 'update'
-    const prevAssigneeId = !isCreateOperation && get(existingItem, 'assignee')
-    const prevExecutorId = !isCreateOperation && get(existingItem, 'executor')
-    const prevStatusId = !isCreateOperation && get(existingItem, 'status')
-    const nextAssigneeId = get(updatedItem, 'assignee')
-    const nextExecutorId = get(updatedItem, 'executor')
-    const isAssigneeAdded = isCreateOperation && !!nextAssigneeId
-    const isAssigneeUpdated = isUpdateOperation && !!nextAssigneeId && nextAssigneeId !== prevAssigneeId
-    const isExecutorAdded = isCreateOperation && !!nextExecutorId
-    const isExecutorUpdated = isUpdateOperation && nextExecutorId && nextExecutorId !== prevExecutorId
-    const nextStatusId = get(updatedItem, 'status')
-    const isStatusAdded = isCreateOperation && !!nextStatusId
-    const isStatusUpdated = isUpdateOperation && nextStatusId && nextStatusId !== prevStatusId
-    const client = get(updatedItem, 'client')
-    const isResidentTicket = get(updatedItem, 'isResidentTicket')
-    const canReadByResident = get(updatedItem, 'canReadByResident')
-    const result = {}
-
-    /**
-     * assignee connected within create ticket operation or
-     * assignee connected/changed within update ticket operation
-     * and executor is not the same person with assignee
-     */
-    /**
-     * After product case on push notifications with Alla Gubina and Mikhail Rumanovsky on 2022-04-05
-     * we decided to temporarily disable sending notifications on assignee connection to ticket
-     * This could change in nearest future, so I've commented code instead of deletion
-     */
-    result[ASSIGNEE_CONNECTED_EVENT_TYPE] = isAssigneeAdded || isAssigneeUpdated
-
-    /**
-     * executor connected within create ticket operation or
-     * executor connected/changed within update ticket operation
-     */
-    result[EXECUTOR_CONNECTED_EVENT_TYPE] = isExecutorAdded || isExecutorUpdated
-
-    /**
-     * ticket status gets the status open within create ticket operation or
-     * ticket status changed within update ticket operation
-     */
-    result[STATUS_CHANGED_EVENT_TYPE] = client && (isStatusAdded || isStatusUpdated)
-
-    /**
-     * ticket created and the resident does not have a mobile app or
-     * does not have an address as in ticket
-     */
-    result[TICKET_WITHOUT_RESIDENT_CREATED_EVENT_TYPE] = isCreateOperation && isResidentTicket && !client && canReadByResident
-
-    return result
-}
 
 /**
  * Basically sends different kinds of notifications when assignee/executable added to Ticket, status changed, etc.
@@ -129,6 +67,17 @@ const sendTicketNotifications = async (requestData) => {
      */
     const organizationCountry = get(organization, 'country', conf.DEFAULT_LOCALE)
     const lang = get(COUNTRIES, [organizationCountry, 'locale'], conf.DEFAULT_LOCALE)
+
+    if (eventTypes[TICKET_CREATED]) {
+        const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(
+            get(requestData, 'context'),
+            SEND_TELEGRAM_NOTIFICATIONS,
+        )
+
+        if (isFeatureEnabled) {
+            await sendTicketCreatedNotifications.delay(updatedItem.id, lang, organization.id, organization.name)
+        }
+    }
 
     if (eventTypes[ASSIGNEE_CONNECTED_EVENT_TYPE]) {
         const userId = nextAssigneeId || prevAssigneeId
@@ -264,8 +213,21 @@ const sendTicketNotifications = async (requestData) => {
         }
     }
 }
+
 const sendTicketCommentNotifications = async (requestData) => {
     const { operation, updatedItem } = requestData
+
+    if (operation === 'create') {
+        const ticketId = get(updatedItem, 'ticket')
+        const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(
+            get(requestData, 'context'),
+            SEND_TELEGRAM_NOTIFICATIONS,
+        )
+
+        if (isFeatureEnabled) {
+            await sendTicketCommentCreatedNotifications.delay(updatedItem.id, ticketId)
+        }
+    }
 
     await sendTicketCommentNotificationsTask.delay({
         operation,

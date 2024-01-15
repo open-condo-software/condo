@@ -17,6 +17,7 @@ const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 const { createOrUpdateTicketCommentsTime } = require('../utils/handlers')
 
+
 const TicketComment = new GQLListSchema('TicketComment', {
     schemaDoc: 'Textual comment for tickets',
     fields: {

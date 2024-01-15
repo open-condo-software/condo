@@ -12,6 +12,8 @@ const EMPTY_MESSAGE_USER_BLACK_LIST_FIELDS_ERROR = 'One of the "user", "phone" o
 const WRONG_MESSAGE_TYPE_PROVIDED_ERROR = 'Wrong messageType provided: ${messageType}'
 const MESSAGE_DISABLED_BY_USER = 'Notification not delivered because user disabled it'
 const ONE_MESSAGE_PER_THROTTLING_PERIOD_FOR_USER = '1 message per %s sec for user. The latest message was at %s'
+const NO_TELEGRAM_CHAT_FOR_USER = 'No telegram chat for user id'
+const NO_USER_ID_TO_SEND_TELEGRAM_NOTIFICATION = 'No userId to send telegram notification'
 
 //api errors
 const NO_NEED_TO_ENABLE_NOTIFICATIONS = 'NO_NEED_TO_ENABLE_NOTIFICATIONS'
@@ -30,4 +32,6 @@ module.exports = {
     NO_NEED_TO_ENABLE_NOTIFICATIONS,
     MESSAGE_DISABLED_BY_USER,
     ONE_MESSAGE_PER_THROTTLING_PERIOD_FOR_USER,
+    NO_TELEGRAM_CHAT_FOR_USER,
+    NO_USER_ID_TO_SEND_TELEGRAM_NOTIFICATION,
 }

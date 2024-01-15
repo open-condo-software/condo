@@ -1,8 +1,12 @@
+const { createTask } = require('@open-condo/keystone/tasks')
+
 const { closeCompletedTicketsCron: closeCompletedTickets } = require('./closeCompletedTickets')
 const { exportIncidents } = require('./exportIncidents')
 const { exportTickets } = require('./exportTickets')
 const { manageTicketPropertyAddressChange } = require('./manageTicketPropertyAddressChange')
 const { reopenDeferredTicketsCron: reopenDeferredTickets } = require('./reopenDeferredTickets')
+const { sendTicketCommentCreatedNotifications } = require('./sendTicketCommentCreatedNotifications')
+const { sendTicketCreatedNotifications } = require('./sendTicketCreatedNotifications')
 
 module.exports = {
     manageTicketPropertyAddressChange,
@@ -10,4 +14,6 @@ module.exports = {
     reopenDeferredTickets,
     exportTickets,
     exportIncidents,
+    sendTicketCommentCreatedNotifications: createTask('sendTicketCommentCreatedNotifications', sendTicketCommentCreatedNotifications),
+    sendTicketCreatedNotifications: createTask('sendTicketCreatedNotifications', sendTicketCreatedNotifications),
 }

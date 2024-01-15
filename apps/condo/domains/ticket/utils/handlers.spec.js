@@ -1,14 +1,15 @@
-import {
+
+const { faker } = require('@faker-js/faker')
+
+const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
+
+const {
     detectTicketEventTypes,
     ASSIGNEE_CONNECTED_EVENT_TYPE,
     EXECUTOR_CONNECTED_EVENT_TYPE,
     STATUS_CHANGED_EVENT_TYPE,
-} from './handlers'
+} = require('./detectTicketEventTypes')
 
-const { faker } = require('@faker-js/faker')
-
-
-const { STATUS_IDS } = require('../constants/statusTransitions')
 
 describe('Ticket request event detection', () => {
     it('correctly detects assignee connection on ticket create', () => {

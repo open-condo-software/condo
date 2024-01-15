@@ -9,4 +9,5 @@ export * as MessageUserBlackList from './MessageUserBlackList'
 export * as MessageOrganizationBlackList from './MessageOrganizationBlackList'
 export * as MessageBatch from './MessageBatch'
 export * as NotificationUserSetting from './NotificationUserSetting'
+export * as TelegramUserChat from './TelegramUserChat'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

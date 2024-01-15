@@ -93,6 +93,34 @@ function getEmailTemplate (locale, messageType) {
     throw new Error(`There is no "${locale}" template for "${messageType}" to send by "${EMAIL_TRANSPORT}"`)
 }
 
+function getTelegramTemplate (locale, messageType) {
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+    const defaultTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${DEFAULT_TEMPLATE_FILE_NAME}`)
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+    const telegramTextTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${TELEGRAM_TRANSPORT}.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+    const telegramHtmlTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${TELEGRAM_TRANSPORT}.html.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
+
+    let templatePathText = null
+    let templatePathHtml = null
+
+    if (fs.existsSync(telegramTextTemplatePath)) {
+        templatePathText = telegramTextTemplatePath
+    }
+
+    if (fs.existsSync(telegramHtmlTemplatePath)) {
+        templatePathHtml = telegramHtmlTemplatePath
+    }
+
+    if (!templatePathText && !templatePathHtml && fs.existsSync(defaultTemplatePath)) {
+        templatePathText = defaultTemplatePath
+    }
+
+    if (templatePathText || templatePathHtml) return { templatePathText, templatePathHtml }
+
+    throw new Error(`There is no "${locale}" template for "${messageType}" to send by "${TELEGRAM_TRANSPORT}"`)
+}
+
 /**
  * @param {string} messageType
  * @returns {string}
@@ -149,8 +177,26 @@ function translateObjectItems (obj, locale) {
 /**
  * Renders message template for Telegram
  */
-function telegramRenderer () {
-    throw new Error('There was no telegram transport. Please write the renderer for Telegram.')
+function telegramRenderer ({ message, env }) {
+    const { lang: locale, type, meta } = message
+    const inlineKeyboard = get(meta, 'telegramMeta.inlineKeyboard')
+    const { templatePathText, templatePathHtml } = getTelegramTemplate(locale, type)
+    const messageTranslated = substituteTranslations(message, locale)
+    const ret = {}
+
+    if (templatePathText) {
+        ret.text = unescape(nunjucks.render(templatePathText, { message: messageTranslated, env }))
+    }
+
+    if (templatePathHtml) {
+        ret.html = nunjucks.render(templatePathHtml, { message: messageTranslated, env })
+    }
+
+    if (inlineKeyboard) {
+        ret.inlineKeyboard = inlineKeyboard
+    }
+
+    return ret
 }
 
 /**
