@@ -649,7 +649,9 @@ const MetersPage: IMeterIndexPage = () => {
     const searchMeterReadingsQuery = useMemo(() => ({
         ...filtersToWhere(filters),
         meter: { deletedAt: null },
-        organization: { id: userOrganizationId } }),
+        deletedAt: null,
+        organization: { id: userOrganizationId },
+    }),
     [filters, filtersToWhere, userOrganizationId])
     const searchMeterReportingPeriodsQuery = useMemo(() => {
         return {
