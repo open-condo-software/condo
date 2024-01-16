@@ -459,12 +459,15 @@ const TICKET_UPDATE_INFO_TEXT_STYLE: CSSProperties = { margin: 0, fontSize: '12p
 const HINT_CARD_STYLE: CSSProperties = { maxHeight: '3em ' }
 const TITLE_STYLE: CSSProperties = { margin: 0 }
 const HINTS_COL_PROPS: ColProps = { span: 24 }
+const CopyMessageStyle: CSSProperties = { flexShrink: 1, whiteSpace: 'nowrap' }
 
 const TicketInvoices = ({ invoices, invoicesLoading, refetchInvoices, ticket }) => {
     const intl = useIntl()
     const PaymentLinkMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.field.paymentLink' })
     const CopyMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.field.paymentLink.copy' })
     const CopiedLinkMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.create.notification.copiedLink' })
+
+    const { breakpoints } = useLayoutContext()
 
     const [paymentLink, setPaymentLink] = useState<string>()
     const getPaymentLink = useInvoicePaymentLink()
@@ -482,6 +485,11 @@ const TicketInvoices = ({ invoices, invoicesLoading, refetchInvoices, ticket }) 
 
     const ticketStatusType = get(ticket, 'status.type')
     const isAllFieldsDisabled = ticketStatusType === CLOSED_STATUS_TYPE || ticketStatusType === CANCELED_STATUS_TYPE
+    const paymentLinkStyles: CSSProperties = useMemo(() => ({
+        display: 'flex',
+        flexDirection: breakpoints.TABLET_SMALL ? 'row' : 'column',
+        gap: breakpoints.TABLET_SMALL ? '36px' : '20px',
+    }), [breakpoints.TABLET_SMALL])
 
     if (!invoices && invoicesLoading) return <Loader />
 
@@ -499,21 +507,19 @@ const TicketInvoices = ({ invoices, invoicesLoading, refetchInvoices, ticket }) 
             {
                 publishedInvoiceIds.length > 0 && (
                     <PageFieldRow align='middle' title={PaymentLinkMessage}>
-                        <Row gutter={[36, 20]} align='middle' justify='space-between'>
-                            <Col span={16}>
-                                <Typography.Link href={paymentLink} title={paymentLink} ellipsis>
-                                    {paymentLink}
-                                </Typography.Link>
-                            </Col>
-                            <Col>
+                        <div style={paymentLinkStyles}>
+                            <Typography.Link href={paymentLink} title={paymentLink} ellipsis>
+                                {paymentLink}
+                            </Typography.Link>
+                            <div style={CopyMessageStyle}>
                                 <CopyButton
                                     textButton
                                     url={paymentLink}
                                     copyMessage={CopyMessage}
                                     copiedMessage={CopiedLinkMessage}
                                 />
-                            </Col>
-                        </Row>
+                            </div>
+                        </div>
                     </PageFieldRow>
                 )
             }

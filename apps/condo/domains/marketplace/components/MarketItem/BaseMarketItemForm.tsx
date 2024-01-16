@@ -160,7 +160,10 @@ const MobilePreview = ({ name, price, priceType, sku, description, files }) => {
     const MobilePreviewTitle = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.mobileAppPreview.title' })
     const ContractPrice = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' })
     const SkuMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.mobileAppPreview.sku' })
+    const NameMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.mobileAppPreview.name' })
+    const PriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.mobileAppPreview.price' })
     const OrderMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.mobileAppPreview.order' })
+    const DescriptionMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.mobileAppPreview.description' })
 
     const { currencyCode } = useMarketItemFormContext()
 
@@ -184,44 +187,28 @@ const MobilePreview = ({ name, price, priceType, sku, description, files }) => {
                     <Row gutter={[0, 20]} style={{ maxWidth: '100%' }}>
                         <Col span={24}>
                             <Row>
-                                {
-                                    name && (
-                                        <Col span={24} className='order-header'>
-                                            <Typography.Title level={3}>
-                                                {name}
-                                            </Typography.Title>
-                                        </Col>
-                                    )
-                                }
-                                {
-                                    resultPrice && (
-                                        <Col span={24} className='order-header'>
-                                            <Typography.Title type='secondary' level={3}>
-                                                {resultPrice}
-                                            </Typography.Title>
-                                        </Col>
-                                    )
-                                }
-                                {
-                                    sku && (
-                                        <Col span={24} className='order-sku'>
-                                            <Typography.Text size='small' type='secondary'>
-                                                {SkuMessage} {sku}
-                                            </Typography.Text>
-                                        </Col>
-                                    )
-                                }
-                            </Row>
-                        </Col>
-                        {
-                            description && (
-                                <Col span={24} className='order-description'>
-                                    <Typography.Text size='medium'>
-                                        {description}
+                                <Col span={24} className='order-header'>
+                                    <Typography.Title level={3}>
+                                        {name || NameMessage}
+                                    </Typography.Title>
+                                </Col>
+                                <Col span={24} className='order-header'>
+                                    <Typography.Title type='secondary' level={3}>
+                                        {resultPrice || PriceMessage}
+                                    </Typography.Title>
+                                </Col>
+                                <Col span={24} className='order-sku'>
+                                    <Typography.Text size='small' type='secondary'>
+                                        {SkuMessage} {sku}
                                     </Typography.Text>
                                 </Col>
-                            )
-                        }
+                            </Row>
+                        </Col>
+                        <Col span={24} className='order-description'>
+                            <Typography.Text size='medium'>
+                                {description || DescriptionMessage}
+                            </Typography.Text>
+                        </Col>
                         {
                             !isEmpty(files) && (
                                 <Col span={24}>
@@ -686,14 +673,14 @@ const MarketPriceForm = ({ priceFormDescription, removeOperation, organizationPr
     )
 }
 
-const MarketPricesList = () => {
+const MarketPricesList = ({ initialPrices }) => {
     const intl = useIntl()
     const PriceScopeGroupLabel = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.section.priceScope' })
     const AddPriceScopeLabel = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.addPriceScope' })
 
     const { organization, loading } = useOrganization()
     const { form } = useMarketItemFormContext()
-    const prices = Form.useWatch('prices', form) || []
+    const prices = Form.useWatch('prices', form) || initialPrices
 
     const { count: organizationPropertiesCount } = Property.useCount({
         where: { organization: { id: get(organization, 'id') } },
@@ -706,7 +693,7 @@ const MarketPricesList = () => {
     )
 
     const formProperties = useMemo(() => prices.map(price => get(price, 'properties')), [prices])
-    const hasAllPropertiesChecked = useMemo(() => prices.some(price => price.hasAllProperties), [formProperties])
+    const hasAllPropertiesChecked = useMemo(() => prices.some(price => price.hasAllProperties), [prices])
 
     return (
         <Row gutter={GROUP_INNER_GUTTER}>
@@ -819,7 +806,9 @@ export const BaseMarketItemForm: React.FC<BaseMarketItemFormProps> = (props) => 
                                                     <MarketItemFields/>
                                                 </Col>
                                                 <Col span={24}>
-                                                    <MarketPricesList/>
+                                                    <MarketPricesList
+                                                        initialPrices={get(initialValues, 'prices')}
+                                                    />
                                                 </Col>
                                             </Row>
                                         </Col>

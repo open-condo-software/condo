@@ -1,45 +1,35 @@
 import {
     PaymentWhereInput,
 } from '@app/condo/schema'
-import get from 'lodash/get'
 import { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 
 import { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } from '@condo/domains/acquiring/constants/payment'
 import {
     ComponentType,
-    convertToOptions, FilterComponentSize,
     FiltersMeta,
 } from '@condo/domains/common/utils/filters.utils'
 import {
-    getDayRangeFilter, getFilter,
-    getStringContainsFilter,
+    getDayRangeFilter, getFilter, getNumberFilter,
 } from '@condo/domains/common/utils/tables.utils'
 
 
-const invoiceNumberFilter = getStringContainsFilter(['invoice', 'number'])
-const ticketNumberFilter = getStringContainsFilter(['invoice', 'ticket', 'number'])
-const amount = getStringContainsFilter('amount')
+const invoiceNumberFilter = getNumberFilter(['invoice', 'number'])
+const ticketNumberFilter = getNumberFilter(['invoice', 'ticket', 'number'])
 const paymentDateRangeFilter = getDayRangeFilter('createdAt')
 const statusFilter = getFilter('status', 'array', 'string', 'in')
 
-const statusType = [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS]
+const STATUS_TYPES = [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS]
 
 export function useMarketplacePaymentsFilters (): Array<FiltersMeta<PaymentWhereInput>>  {
     const intl = useIntl()
     const EnterStatusMessage = intl.formatMessage({ id: 'pages.condo.payments.enterStatus' })
-    const StatusTitle = intl.formatMessage({ id: 'Status' })
-
-    const userOrganization = useOrganization()
-    const userOrganizationId = get(userOrganization, ['organization', 'id'])
-
-    const statuses = statusType.map((item) => ({
-        name: intl.formatMessage({ id: 'payment.status.' + item }),
-        id: item,
-    }))
-    const statusOptions = convertToOptions(statuses, 'name', 'id')
+    
+    const statusOptions = useMemo(() => STATUS_TYPES.map(status => ({
+        label: intl.formatMessage({ id: `payment.status.${status}` }),
+        value: status,
+    })), [intl])
 
     return useMemo(() => {
         return [
@@ -54,18 +44,14 @@ export function useMarketplacePaymentsFilters (): Array<FiltersMeta<PaymentWhere
                         showArrow: true,
                         placeholder: EnterStatusMessage,
                     },
-                    modalFilterComponentWrapper: {
-                        label: StatusTitle,
-                        size: FilterComponentSize.Medium,
-                    },
                 },
             },
             {
                 keyword: 'search',
-                filters: [paymentDateRangeFilter, ticketNumberFilter, invoiceNumberFilter, amount],
+                filters: [paymentDateRangeFilter, ticketNumberFilter, invoiceNumberFilter],
                 combineType: 'OR',
             },
         ]
 
-    }, [userOrganizationId, EnterStatusMessage, StatusTitle, statusOptions])
+    }, [EnterStatusMessage, statusOptions])
 }
