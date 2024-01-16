@@ -36,4 +36,5 @@ module.exports = createCronTask('notifyResidentsOnPayday', '0 13 * * *', async (
     } else {
         logger.info({ msg: 'Push should be sent only on weekdays.' })
     }
+    return await notifyResidentsOnPayday()
 })
