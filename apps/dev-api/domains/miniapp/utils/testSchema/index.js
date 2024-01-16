@@ -13,6 +13,7 @@ const {
     B2CApp: B2CAppGQL,
     B2CAppBuild: B2CAppBuildGQL,
     B2CAppPublishRequest: B2CAppPublishRequestGQL,
+    OIDCClient: OIDCClientGQL,
     PUBLISH_B2C_APP_MUTATION,
     IMPORT_B2C_APP_MUTATION,
     ALL_B2C_APP_PROPERTIES_QUERY,
@@ -28,6 +29,7 @@ const { DEFAULT_COLOR_SCHEMA } = require("@dev-api/domains/miniapp/constants/b2c
 const B2CApp = generateGQLTestUtils(B2CAppGQL)
 const B2CAppBuild = generateGQLTestUtils(B2CAppBuildGQL)
 const B2CAppPublishRequest = generateGQLTestUtils(B2CAppPublishRequestGQL)
+const OIDCClient = generateGQLTestUtils(OIDCClientGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const FAKE_BUILD_ASSET_PATH = path.resolve(conf.PROJECT_ROOT, 'apps/dev-api/domains/miniapp/utils/testSchema/assets/build.zip')
@@ -298,6 +300,41 @@ async function deleteB2CAppPropertyByTestClient(client, id, environment) {
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+async function createTestOIDCClient (client, app, appType= 'b2c', extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const connectionPart = appType.toLowerCase() === 'b2c' ? {
+        b2cApp: { connect: { id: app.id } }
+    } : {
+        b2bApp: { connect: { id: app.id } }
+    }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...connectionPart,
+        ...extraAttrs,
+    }
+    const obj = await OIDCClient.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestOIDCClient (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await OIDCClient.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -307,6 +344,7 @@ module.exports = {
     B2CApp, createTestB2CApp, updateTestB2CApp, updateTestB2CApps,
     B2CAppBuild, createTestB2CAppBuild, updateTestB2CAppBuild, generateBuildVersion,
     B2CAppPublishRequest, createTestB2CAppPublishRequest, updateTestB2CAppPublishRequest,
+    OIDCClient, createTestOIDCClient, updateTestOIDCClient,
     publishB2CAppByTestClient,
     importB2CAppByTestClient,
     allB2CAppPropertiesByTestClient,

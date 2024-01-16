@@ -54,12 +54,16 @@ const DELETE_B2C_APP_PROPERTY_MUTATION = gql`
     }
 `
 
+const OIDC_CLIENT_FIELDS = `{ b2cApp { id } clientId clientSecret grantTypes responseTypes developmentRedirectUri productionRedirectUri ${COMMON_FIELDS} }`
+const OIDCClient = generateGqlQueries('OIDCClient', OIDC_CLIENT_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     B2CApp,
     B2CAppBuild,
     B2CAppPublishRequest,
+    OIDCClient,
     PUBLISH_B2C_APP_MUTATION,
     IMPORT_B2C_APP_MUTATION,
     ALL_B2C_APP_PROPERTIES_QUERY,

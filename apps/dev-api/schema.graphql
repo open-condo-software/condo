@@ -2524,6 +2524,630 @@ input B2CAppPublishRequestsCreateInput {
   data: B2CAppPublishRequestCreateInput
 }
 
+enum OIDCClientHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type OIDCClientHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the OIDCClientHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the OIDCClientHistoryRecord List config, or
+   3. As an alias to a 'name' field on the OIDCClientHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the OIDCClientHistoryRecord List.
+  """
+  _label_: String
+  b2cApp: String
+  clientId: String
+  clientSecret: String
+  grantTypes: JSON
+  responseTypes: JSON
+  developmentRedirectUri: String
+  productionRedirectUri: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: OIDCClientHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input OIDCClientHistoryRecordWhereInput {
+  AND: [OIDCClientHistoryRecordWhereInput]
+  OR: [OIDCClientHistoryRecordWhereInput]
+  b2cApp: String
+  b2cApp_not: String
+  b2cApp_in: [String]
+  b2cApp_not_in: [String]
+  clientId: String
+  clientId_not: String
+  clientId_contains: String
+  clientId_not_contains: String
+  clientId_starts_with: String
+  clientId_not_starts_with: String
+  clientId_ends_with: String
+  clientId_not_ends_with: String
+  clientId_i: String
+  clientId_not_i: String
+  clientId_contains_i: String
+  clientId_not_contains_i: String
+  clientId_starts_with_i: String
+  clientId_not_starts_with_i: String
+  clientId_ends_with_i: String
+  clientId_not_ends_with_i: String
+  clientId_in: [String]
+  clientId_not_in: [String]
+  clientSecret: String
+  clientSecret_not: String
+  clientSecret_contains: String
+  clientSecret_not_contains: String
+  clientSecret_starts_with: String
+  clientSecret_not_starts_with: String
+  clientSecret_ends_with: String
+  clientSecret_not_ends_with: String
+  clientSecret_i: String
+  clientSecret_not_i: String
+  clientSecret_contains_i: String
+  clientSecret_not_contains_i: String
+  clientSecret_starts_with_i: String
+  clientSecret_not_starts_with_i: String
+  clientSecret_ends_with_i: String
+  clientSecret_not_ends_with_i: String
+  clientSecret_in: [String]
+  clientSecret_not_in: [String]
+  grantTypes: JSON
+  grantTypes_not: JSON
+  grantTypes_in: [JSON]
+  grantTypes_not_in: [JSON]
+  responseTypes: JSON
+  responseTypes_not: JSON
+  responseTypes_in: [JSON]
+  responseTypes_not_in: [JSON]
+  developmentRedirectUri: String
+  developmentRedirectUri_not: String
+  developmentRedirectUri_contains: String
+  developmentRedirectUri_not_contains: String
+  developmentRedirectUri_starts_with: String
+  developmentRedirectUri_not_starts_with: String
+  developmentRedirectUri_ends_with: String
+  developmentRedirectUri_not_ends_with: String
+  developmentRedirectUri_i: String
+  developmentRedirectUri_not_i: String
+  developmentRedirectUri_contains_i: String
+  developmentRedirectUri_not_contains_i: String
+  developmentRedirectUri_starts_with_i: String
+  developmentRedirectUri_not_starts_with_i: String
+  developmentRedirectUri_ends_with_i: String
+  developmentRedirectUri_not_ends_with_i: String
+  developmentRedirectUri_in: [String]
+  developmentRedirectUri_not_in: [String]
+  productionRedirectUri: String
+  productionRedirectUri_not: String
+  productionRedirectUri_contains: String
+  productionRedirectUri_not_contains: String
+  productionRedirectUri_starts_with: String
+  productionRedirectUri_not_starts_with: String
+  productionRedirectUri_ends_with: String
+  productionRedirectUri_not_ends_with: String
+  productionRedirectUri_i: String
+  productionRedirectUri_not_i: String
+  productionRedirectUri_contains_i: String
+  productionRedirectUri_not_contains_i: String
+  productionRedirectUri_starts_with_i: String
+  productionRedirectUri_not_starts_with_i: String
+  productionRedirectUri_ends_with_i: String
+  productionRedirectUri_not_ends_with_i: String
+  productionRedirectUri_in: [String]
+  productionRedirectUri_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: OIDCClientHistoryRecordHistoryActionType
+  history_action_not: OIDCClientHistoryRecordHistoryActionType
+  history_action_in: [OIDCClientHistoryRecordHistoryActionType]
+  history_action_not_in: [OIDCClientHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input OIDCClientHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortOIDCClientHistoryRecordsBy {
+  clientId_ASC
+  clientId_DESC
+  clientSecret_ASC
+  clientSecret_DESC
+  developmentRedirectUri_ASC
+  developmentRedirectUri_DESC
+  productionRedirectUri_ASC
+  productionRedirectUri_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input OIDCClientHistoryRecordUpdateInput {
+  b2cApp: String
+  clientId: String
+  clientSecret: String
+  grantTypes: JSON
+  responseTypes: JSON
+  developmentRedirectUri: String
+  productionRedirectUri: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: OIDCClientHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input OIDCClientHistoryRecordsUpdateInput {
+  id: ID!
+  data: OIDCClientHistoryRecordUpdateInput
+}
+
+input OIDCClientHistoryRecordCreateInput {
+  b2cApp: String
+  clientId: String
+  clientSecret: String
+  grantTypes: JSON
+  responseTypes: JSON
+  developmentRedirectUri: String
+  productionRedirectUri: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: OIDCClientHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input OIDCClientHistoryRecordsCreateInput {
+  data: OIDCClientHistoryRecordCreateInput
+}
+
+enum OIDCGrantType {
+  implicit
+  authorization_code
+  refresh_token
+}
+
+""" OIDC client configuration for a specific app """
+type OIDCClient {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the OIDCClient List config, or
+   2. As an alias to the field set on 'labelField' in the OIDCClient List config, or
+   3. As an alias to a 'name' field on the OIDCClient List (if one exists), or
+   4. As an alias to the 'id' field on the OIDCClient List.
+  """
+  _label_: String
+
+  """ Link to the B2C application to which this configuration applies """
+  b2cApp: B2CApp
+
+  """ OIDC Client ID """
+  clientId: String
+
+  """ OIDC Client Secret """
+  clientSecret: String
+
+  """ Array of available grant types for client. Can contain each of the following grants: implicit,authorization_code,refresh_token 
+  """
+  grantTypes: [OIDCGrantType!]
+
+  """ Array of available response types, can be one of the following: id_token, id_token token, code, code id_token 
+  """
+  responseTypes: [String!]
+
+  """ Callback url used for development environment """
+  developmentRedirectUri: String
+
+  """ Callback url used for production """
+  productionRedirectUri: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+
+  """ ID of this entity in the development environment. If set, subsequent publications to this environment will update the entity with the specified ID. 
+  """
+  developmentExportId: String
+
+  """ ID of this entity in the production environment. If set, subsequent publications to this environment will update the entity with the specified ID. 
+  """
+  productionExportId: String
+}
+
+input OIDCClientWhereInput {
+  AND: [OIDCClientWhereInput]
+  OR: [OIDCClientWhereInput]
+  b2cApp: B2CAppWhereInput
+  b2cApp_is_null: Boolean
+  clientId: String
+  clientId_not: String
+  clientId_contains: String
+  clientId_not_contains: String
+  clientId_starts_with: String
+  clientId_not_starts_with: String
+  clientId_ends_with: String
+  clientId_not_ends_with: String
+  clientId_i: String
+  clientId_not_i: String
+  clientId_contains_i: String
+  clientId_not_contains_i: String
+  clientId_starts_with_i: String
+  clientId_not_starts_with_i: String
+  clientId_ends_with_i: String
+  clientId_not_ends_with_i: String
+  clientId_in: [String]
+  clientId_not_in: [String]
+  clientSecret: String
+  clientSecret_not: String
+  clientSecret_contains: String
+  clientSecret_not_contains: String
+  clientSecret_starts_with: String
+  clientSecret_not_starts_with: String
+  clientSecret_ends_with: String
+  clientSecret_not_ends_with: String
+  clientSecret_i: String
+  clientSecret_not_i: String
+  clientSecret_contains_i: String
+  clientSecret_not_contains_i: String
+  clientSecret_starts_with_i: String
+  clientSecret_not_starts_with_i: String
+  clientSecret_ends_with_i: String
+  clientSecret_not_ends_with_i: String
+  clientSecret_in: [String]
+  clientSecret_not_in: [String]
+  grantTypes: [OIDCGrantType!]
+  grantTypes_not: [OIDCGrantType!]
+  grantTypes_in: [[OIDCGrantType!]]
+  grantTypes_not_in: [[OIDCGrantType!]]
+  responseTypes: [String!]
+  responseTypes_not: [String!]
+  responseTypes_in: [[String!]]
+  responseTypes_not_in: [[String!]]
+  developmentRedirectUri: String
+  developmentRedirectUri_not: String
+  developmentRedirectUri_contains: String
+  developmentRedirectUri_not_contains: String
+  developmentRedirectUri_starts_with: String
+  developmentRedirectUri_not_starts_with: String
+  developmentRedirectUri_ends_with: String
+  developmentRedirectUri_not_ends_with: String
+  developmentRedirectUri_i: String
+  developmentRedirectUri_not_i: String
+  developmentRedirectUri_contains_i: String
+  developmentRedirectUri_not_contains_i: String
+  developmentRedirectUri_starts_with_i: String
+  developmentRedirectUri_not_starts_with_i: String
+  developmentRedirectUri_ends_with_i: String
+  developmentRedirectUri_not_ends_with_i: String
+  developmentRedirectUri_in: [String]
+  developmentRedirectUri_not_in: [String]
+  productionRedirectUri: String
+  productionRedirectUri_not: String
+  productionRedirectUri_contains: String
+  productionRedirectUri_not_contains: String
+  productionRedirectUri_starts_with: String
+  productionRedirectUri_not_starts_with: String
+  productionRedirectUri_ends_with: String
+  productionRedirectUri_not_ends_with: String
+  productionRedirectUri_i: String
+  productionRedirectUri_not_i: String
+  productionRedirectUri_contains_i: String
+  productionRedirectUri_not_contains_i: String
+  productionRedirectUri_starts_with_i: String
+  productionRedirectUri_not_starts_with_i: String
+  productionRedirectUri_ends_with_i: String
+  productionRedirectUri_not_ends_with_i: String
+  productionRedirectUri_in: [String]
+  productionRedirectUri_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+  developmentExportId: String
+  developmentExportId_not: String
+  developmentExportId_contains: String
+  developmentExportId_not_contains: String
+  developmentExportId_starts_with: String
+  developmentExportId_not_starts_with: String
+  developmentExportId_ends_with: String
+  developmentExportId_not_ends_with: String
+  developmentExportId_i: String
+  developmentExportId_not_i: String
+  developmentExportId_contains_i: String
+  developmentExportId_not_contains_i: String
+  developmentExportId_starts_with_i: String
+  developmentExportId_not_starts_with_i: String
+  developmentExportId_ends_with_i: String
+  developmentExportId_not_ends_with_i: String
+  developmentExportId_in: [String]
+  developmentExportId_not_in: [String]
+  productionExportId: String
+  productionExportId_not: String
+  productionExportId_contains: String
+  productionExportId_not_contains: String
+  productionExportId_starts_with: String
+  productionExportId_not_starts_with: String
+  productionExportId_ends_with: String
+  productionExportId_not_ends_with: String
+  productionExportId_i: String
+  productionExportId_not_i: String
+  productionExportId_contains_i: String
+  productionExportId_not_contains_i: String
+  productionExportId_starts_with_i: String
+  productionExportId_not_starts_with_i: String
+  productionExportId_ends_with_i: String
+  productionExportId_not_ends_with_i: String
+  productionExportId_in: [String]
+  productionExportId_not_in: [String]
+}
+
+input OIDCClientWhereUniqueInput {
+  id: ID!
+}
+
+enum SortOIDCClientsBy {
+  b2cApp_ASC
+  b2cApp_DESC
+  clientId_ASC
+  clientId_DESC
+  clientSecret_ASC
+  clientSecret_DESC
+  developmentRedirectUri_ASC
+  developmentRedirectUri_DESC
+  productionRedirectUri_ASC
+  productionRedirectUri_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  developmentExportId_ASC
+  developmentExportId_DESC
+  productionExportId_ASC
+  productionExportId_DESC
+}
+
+input OIDCClientUpdateInput {
+  b2cApp: B2CAppRelateToOneInput
+  clientId: String
+  clientSecret: String
+  grantTypes: [OIDCGrantType!]
+  responseTypes: [String!]
+  developmentRedirectUri: String
+  productionRedirectUri: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+  developmentExportId: String
+  productionExportId: String
+}
+
+input OIDCClientsUpdateInput {
+  id: ID!
+  data: OIDCClientUpdateInput
+}
+
+input OIDCClientCreateInput {
+  b2cApp: B2CAppRelateToOneInput
+  clientId: String
+  clientSecret: String
+  grantTypes: [OIDCGrantType!]
+  responseTypes: [String!]
+  developmentRedirectUri: String
+  productionRedirectUri: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+  developmentExportId: String
+  productionExportId: String
+}
+
+input OIDCClientsCreateInput {
+  data: OIDCClientCreateInput
+}
+
 enum WebhookHistoryRecordHistoryActionType {
   c
   u
@@ -4096,6 +4720,33 @@ type Query {
   """ Retrieve the meta-data for the B2CAppPublishRequest list. """
   _B2CAppPublishRequestsMeta: _ListMeta
 
+  """ Search for all OIDCClientHistoryRecord items which match the where clause. 
+  """
+  allOIDCClientHistoryRecords(where: OIDCClientHistoryRecordWhereInput, search: String, sortBy: [SortOIDCClientHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [OIDCClientHistoryRecord]
+
+  """ Search for the OIDCClientHistoryRecord item with the matching ID. """
+  OIDCClientHistoryRecord(where: OIDCClientHistoryRecordWhereUniqueInput!): OIDCClientHistoryRecord
+
+  """ Perform a meta-query on all OIDCClientHistoryRecord items which match the where clause. 
+  """
+  _allOIDCClientHistoryRecordsMeta(where: OIDCClientHistoryRecordWhereInput, search: String, sortBy: [SortOIDCClientHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the OIDCClientHistoryRecord list. """
+  _OIDCClientHistoryRecordsMeta: _ListMeta
+
+  """ Search for all OIDCClient items which match the where clause. """
+  allOIDCClients(where: OIDCClientWhereInput, search: String, sortBy: [SortOIDCClientsBy!], orderBy: String, first: Int, skip: Int): [OIDCClient]
+
+  """ Search for the OIDCClient item with the matching ID. """
+  OIDCClient(where: OIDCClientWhereUniqueInput!): OIDCClient
+
+  """ Perform a meta-query on all OIDCClient items which match the where clause. 
+  """
+  _allOIDCClientsMeta(where: OIDCClientWhereInput, search: String, sortBy: [SortOIDCClientsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the OIDCClient list. """
+  _OIDCClientsMeta: _ListMeta
+
   """ Search for all WebhookHistoryRecord items which match the where clause. 
   """
   allWebhookHistoryRecords(where: WebhookHistoryRecordWhereInput, search: String, sortBy: [SortWebhookHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [WebhookHistoryRecord]
@@ -4342,6 +4993,42 @@ type Mutation {
 
   """ Delete multiple B2CAppPublishRequest items by ID. """
   deleteB2CAppPublishRequests(ids: [ID!]): [B2CAppPublishRequest]
+
+  """ Create a single OIDCClientHistoryRecord item. """
+  createOIDCClientHistoryRecord(data: OIDCClientHistoryRecordCreateInput): OIDCClientHistoryRecord
+
+  """ Create multiple OIDCClientHistoryRecord items. """
+  createOIDCClientHistoryRecords(data: [OIDCClientHistoryRecordsCreateInput]): [OIDCClientHistoryRecord]
+
+  """ Update a single OIDCClientHistoryRecord item by ID. """
+  updateOIDCClientHistoryRecord(id: ID!, data: OIDCClientHistoryRecordUpdateInput): OIDCClientHistoryRecord
+
+  """ Update multiple OIDCClientHistoryRecord items by ID. """
+  updateOIDCClientHistoryRecords(data: [OIDCClientHistoryRecordsUpdateInput]): [OIDCClientHistoryRecord]
+
+  """ Delete a single OIDCClientHistoryRecord item by ID. """
+  deleteOIDCClientHistoryRecord(id: ID!): OIDCClientHistoryRecord
+
+  """ Delete multiple OIDCClientHistoryRecord items by ID. """
+  deleteOIDCClientHistoryRecords(ids: [ID!]): [OIDCClientHistoryRecord]
+
+  """ Create a single OIDCClient item. """
+  createOIDCClient(data: OIDCClientCreateInput): OIDCClient
+
+  """ Create multiple OIDCClient items. """
+  createOIDCClients(data: [OIDCClientsCreateInput]): [OIDCClient]
+
+  """ Update a single OIDCClient item by ID. """
+  updateOIDCClient(id: ID!, data: OIDCClientUpdateInput): OIDCClient
+
+  """ Update multiple OIDCClient items by ID. """
+  updateOIDCClients(data: [OIDCClientsUpdateInput]): [OIDCClient]
+
+  """ Delete a single OIDCClient item by ID. """
+  deleteOIDCClient(id: ID!): OIDCClient
+
+  """ Delete multiple OIDCClient items by ID. """
+  deleteOIDCClients(ids: [ID!]): [OIDCClient]
 
   """ Create a single WebhookHistoryRecord item. """
   createWebhookHistoryRecord(data: WebhookHistoryRecordCreateInput): WebhookHistoryRecord
