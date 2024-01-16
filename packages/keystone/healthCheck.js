@@ -51,6 +51,7 @@
  * API will output 500 if ANY check fails
  * API will output 200 if EVERY check passes
  * API will output 400 if checks=... is badly configured
+ * API will output 417 if ANY check return warning
  *
  *
  * ## Create own checks:
@@ -58,9 +59,9 @@
  * Check is JS object with some required keys:
  *
  * {
- *     *name: "postgres"                        // name of the check
- *     *run: () => {bool}                       // check function. should output boolean
- *     prepare: async ({ keystone }) => {...}   // prepare function. is called during prepareMiddleware() stage
+ *     *name: "postgres"                               // name of the check
+ *     *run: () => { return 'pass' | 'fail' | 'warn' } // check function. should output boolean
+ *     prepare: async ({ keystone }) => {...}          // prepare function. is called during prepareMiddleware() stage
  * }
  *
  */
@@ -78,11 +79,13 @@ const DEFAULT_HEALTHCHECK_URL = '/server-health'
 const DEFAULT_INTERVAL = 1000 // 1s
 const DEFAULT_TIMEOUT = 5000 // 5s
 const PASS = 'pass'
+const WARN = 'warn'
 const FAIL = 'fail'
 
 const BAD_REQUEST = 400
-const OK = 200
-const INTERNAL_SERVER_ERROR = 500
+const HEALTHCHECK_OK = 200
+const HEALTHCHECK_ERROR = 500
+const HEALTHCHECK_WARNING = 417
 
 const getRedisHealthCheck = (clientName = 'healthcheck') => {
     return {
@@ -94,8 +97,8 @@ const getRedisHealthCheck = (clientName = 'healthcheck') => {
             try {
                 const client = this.redisClient
                 const res = await client.ping()
-                return res === 'PONG'
-            } catch (e) { return false }
+                return res === 'PONG' ? PASS : FAIL
+            } catch (e) { return FAIL }
         },
     }
 }
@@ -109,8 +112,8 @@ const getPostgresHealthCheck = () => {
         run: async () => {
             try {
                 const res = await this.keystone.adapter.knex.raw('SELECT 1')
-                if (res) { return true }
-            } catch (e) { return false }
+                return res ? PASS : FAIL
+            } catch (e) { return FAIL }
         },
     }
 }
@@ -133,10 +136,10 @@ const getIntegrationHealthCheck = ({ integrationName, getStatus }) => {
         run: async () => {
             try {
                 const status = await getStatus()
-                return 'success' === status
+                return 'success' === status ? PASS : FAIL
             } catch (e) {
                 console.error('Can not get integration status. ', e)
-                return false
+                return FAIL
             }
         },
     }
@@ -167,10 +170,10 @@ const getCertificateHealthCheck = ({ certificateName, getCertificate, signalExpi
                 const checkDate = dayjs().add(signalExpiryDaysBefore, 'day').unix()
 
                 // check if date inside window
-                return checkDate >= validFrom && checkDate <= validTo
+                return checkDate >= validFrom && checkDate <= validTo ? PASS : WARN
             } catch (e) {
                 console.error('Can not extract certificate expiry date. ', e)
-                return false
+                return FAIL
             }
         },
     }
@@ -251,11 +254,11 @@ class HealthCheck {
 
         const checkResult = await Promise.race([
             check.run(),
-            new Promise(r => { setTimeout(r, DEFAULT_TIMEOUT) }).then(() => false),
+            new Promise(r => { setTimeout(r, DEFAULT_TIMEOUT) }).then(() => FAIL),
         ])
 
-        if (typeof checkResult !== 'boolean') {
-            throw new Error(`Check.run function output non bool value for check named ${check.name}`)
+        if (![PASS, WARN, FAIL].includes(checkResult)) {
+            throw new Error(`Check.run function output not allowed value for check named ${check.name}`)
         }
         this.cache.set(check.name, checkResult)
 
@@ -291,18 +294,23 @@ class HealthCheck {
             const selectedChecks = customChecksConfigured ? customChecks : Object.keys(this.preparedChecks)
 
             const result = {}
-            let allSelectedChecksPassed = true
+
+            let status = HEALTHCHECK_OK
+
             await Promise.all(
                 selectedChecks.map(
                     async checkName => {
-                        const checkPassed = await this.runCheck(this.preparedChecks[checkName])
-                        if (!checkPassed) { allSelectedChecksPassed = false }
-                        result[checkName] = checkPassed ? PASS : FAIL
+                        result[checkName] = await this.runCheck(this.preparedChecks[checkName])
+
+                        if (status === HEALTHCHECK_OK && result[checkName] === WARN) {
+                            status = HEALTHCHECK_WARNING
+                        } else if (result[checkName] === FAIL) {
+                            status = HEALTHCHECK_ERROR
+                        }
                     }
                 )
             )
 
-            const status = allSelectedChecksPassed ? OK : INTERNAL_SERVER_ERROR
             res.status(status).json(result)
         })
 
