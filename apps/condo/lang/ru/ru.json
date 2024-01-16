@@ -2179,6 +2179,7 @@
   "excelExport.header.newsRecipients": "Получатели новости",
   "excelExport.headers.newsRecipients.address": "Адрес",
   "excelExport.headers.newsRecipients.unitName": "Помещение",
+  "excelExport.headers.newsRecipients.unitType": "Тип помещения",
   "excelExport.headers.newsRecipients.hasResident": "Установлено мобильное приложение жителя",
   "excelExport.headers.payments.date": "Дата",
   "excelExport.headers.payments.account": "ЛС",

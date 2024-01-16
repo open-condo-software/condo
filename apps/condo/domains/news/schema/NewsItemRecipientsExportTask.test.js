@@ -315,16 +315,18 @@ describe('NewsItemRecipientsExportTask', () => {
             const data = await readXlsx(filename)
 
             expectDataFormat(data, [
-                [i18n('excelExport.sheetNames.newsRecipients', { locale }), '', ''],
-                ['Адрес', 'Помещение', 'Установлено мобильное приложение жителя'],
+                [i18n('excelExport.sheetNames.newsRecipients', { locale }), '', '', ''],
+                ['Адрес', 'Помещение', 'Тип помещения', 'Установлено мобильное приложение жителя'],
                 ...(residentsData.map(residentData => [
                     property.address,
                     residentData.resident.unitName,
+                    i18n(`field.UnitType.${residentData.resident.unitType}`, { locale }),
                     i18n('Yes', { locale }),
                 ])),
                 ...Array(36 - residentsData.length).fill(null).map((v, i) => [
                     property.address,
                     String(residentsData.length + i + 1),
+                    i18n(`field.UnitType.${FLAT_UNIT_TYPE}`, { locale }),
                     i18n('No', { locale }),
                 ]),
             ])

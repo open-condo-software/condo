@@ -144,6 +144,7 @@ async function exportRecipients (taskId) {
                         const recipientsData = units.map(({ unitName, unitType }) => ({
                             address: property.address,
                             unitName,
+                            unitType: i18n(`field.UnitType.${unitType}`, { locale }),
                             hasResident: !!find(residentsData, { unitName, unitType, property: { id: property.id } }),
                         }))
                         recipientsByOrganization.push(...recipientsData)
@@ -173,6 +174,7 @@ async function exportRecipients (taskId) {
                     const recipientsData = filteredUnits.map(({ unitName, unitType }) => ({
                         address: property.address,
                         unitName,
+                        unitType: i18n(`field.UnitType.${unitType}`, { locale }),
                         hasResident: !!find(filteredResidents, { unitName, unitType, property: { id: property.id } }),
                     }))
                     recipientsByNewsItemsScope.push(...recipientsData)
