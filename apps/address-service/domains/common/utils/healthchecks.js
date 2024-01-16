@@ -19,7 +19,7 @@ const getAddressProviderBalanceHealthCheck = () => ({
     name: 'address-provider-balance',
     prepare: prepareAddressServiceHealthcheck,
     run: async () => {
-        if (!this.healthChecker) return true
+        if (!this.healthChecker) return 'pass'
 
         return await this.healthChecker.profileBalance()
     },
@@ -29,7 +29,7 @@ const getAddressProviderLimitHealthCheck = () => ({
     name: 'address-provider-daily-limit',
     prepare: prepareAddressServiceHealthcheck,
     run: async () => {
-        if (!this.healthChecker) return true
+        if (!this.healthChecker) return 'pass'
 
         return await this.healthChecker.dailyStatistics()
     },
