@@ -42,7 +42,7 @@ import { useGlobalAppsFeaturesContext } from '@condo/domains/miniapp/components/
 import {
     ASSIGNED_TICKET_VISIBILITY,
     MANAGING_COMPANY_TYPE,
-    SERVICE_PROVIDER_TYPE
+    SERVICE_PROVIDER_TYPE,
 } from '@condo/domains/organization/constants/common'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { IncidentHints } from '@condo/domains/ticket/components/IncidentHints'
