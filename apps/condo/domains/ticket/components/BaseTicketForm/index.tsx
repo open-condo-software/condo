@@ -51,6 +51,7 @@ import { CreateInvoiceForm } from '@condo/domains/marketplace/components/Invoice
 import { TicketInvoicesList } from '@condo/domains/marketplace/components/Invoice/TicketInvoicesList'
 import { INVOICE_STATUS_DRAFT, INVOICE_STATUS_CANCELED } from '@condo/domains/marketplace/constants'
 import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
+import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { UnitInfo, UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
 import { Property } from '@condo/domains/property/utils/clientSchema'
@@ -384,6 +385,7 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
     const ClassifierLabel = intl.formatMessage({ id: 'Classifier' })
     const CancelTicketInvoicesMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.ticketInvoice.form.disableIsPayableTooltip' })
 
+    const { organization } = useOrganization()
     const { breakpoints } = useLayoutContext()
     const { setIsAutoDetectedDeadlineValue, ticketSetting, setClassifier } = useTicketFormContext()
 
@@ -429,6 +431,7 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
 
     const { useFlag } = useFeatureFlags()
     const isMarketplaceEnabled = useFlag(MARKETPLACE)
+    const isNoServiceProviderOrganization = useMemo(() => (get(organization, 'type', MANAGING_COMPANY_TYPE) !== SERVICE_PROVIDER_TYPE), [organization])
 
     const invoicesInNotCanceledStatus = Form.useWatch('invoicesInNotCanceledStatus', form)
     const disableIsPayableCheckbox = useMemo(() =>
@@ -529,7 +532,7 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
                                 </Row>
                             </Col>
                             {
-                                isMarketplaceEnabled && isPayable && (
+                                isMarketplaceEnabled && isNoServiceProviderOrganization && isPayable && (
                                     <>
                                         <Form.Item
                                             hidden

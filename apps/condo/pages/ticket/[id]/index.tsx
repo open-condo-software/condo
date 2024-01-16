@@ -39,7 +39,11 @@ import { INVOICE_STATUS_PUBLISHED } from '@condo/domains/marketplace/constants'
 import { useInvoicePaymentLink } from '@condo/domains/marketplace/hooks/useInvoicePaymentLink'
 import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
 import { useGlobalAppsFeaturesContext } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
-import { ASSIGNED_TICKET_VISIBILITY } from '@condo/domains/organization/constants/common'
+import {
+    ASSIGNED_TICKET_VISIBILITY,
+    MANAGING_COMPANY_TYPE,
+    SERVICE_PROVIDER_TYPE
+} from '@condo/domains/organization/constants/common'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { IncidentHints } from '@condo/domains/ticket/components/IncidentHints'
 import { TicketReadPermissionRequired } from '@condo/domains/ticket/components/PageAccess'
@@ -632,13 +636,14 @@ export const TicketPageContent = ({ ticket, refetchTicket, organization, employe
 
     const { useFlag } = useFeatureFlags()
     const isMarketplaceEnabled = useFlag(MARKETPLACE)
+    const isNoServiceProviderOrganization = useMemo(() => (get(organization, 'type', MANAGING_COMPANY_TYPE) !== SERVICE_PROVIDER_TYPE), [organization])
 
     const { objs: invoices, loading: invoicesLoading, refetch: refetchInvoices } = Invoice.useObjects({
         where: {
             ticket: { id: ticket.id },
         },
         sortBy: [SortInvoicesBy.CreatedAtDesc],
-    }, { skip: !isMarketplaceEnabled })
+    }, { skip: !isMarketplaceEnabled || isNoServiceProviderOrganization })
 
     const refetchTicketAndRelatedObjs = useCallback(() => {
         refetchTicket()
@@ -672,7 +677,7 @@ export const TicketPageContent = ({ ticket, refetchTicket, organization, employe
                     </Row>
                     <TicketContent ticket={ticket}/>
                     {
-                        isMarketplaceEnabled && ticket.isPayable && (
+                        isMarketplaceEnabled && isNoServiceProviderOrganization && ticket.isPayable && (
                             <Col span={24}>
                                 <TicketInvoices
                                     invoices={invoices}
