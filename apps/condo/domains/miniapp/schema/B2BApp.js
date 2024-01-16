@@ -57,6 +57,14 @@ const B2BApp = new GQLListSchema('B2BApp', {
             defaultValue: false,
             isRequired: true,
         },
+        isPublic: {
+            schemaDoc: 'Indicates visibility of the app on the "services" page. ' +
+                'If so, app will be shown. ' +
+                'Otherwise it will be hidden until it\'s context become to "connected" status',
+            type: Checkbox,
+            defaultValue: true,
+            isRequired: true,
+        },
         hasDynamicTitle: {
             schemaDoc: 'Indicates whether the miniapp has its own dynamic title. ' +
                 'If so, the miniapp page will have no default title, shifting the responsibility for displaying it to the app itself. ' +
@@ -101,7 +109,7 @@ const B2BApp = new GQLListSchema('B2BApp', {
             if (operation === 'update' && resolvedData.hasOwnProperty('isGlobal') && !resolvedData.isGlobal) {
                 resolvedData['features'] = null
             }
-            
+
             return resolvedData
         },
         validateInput: ({ resolvedData, addValidationError, existingItem }) => {

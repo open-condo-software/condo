@@ -59,6 +59,7 @@ describe('AllMiniAppsService', () => {
     let frozenApp
     let nonFinishedApp
     let nonConnectedApp
+    let privateApp
     let expectedOrder
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
@@ -88,6 +89,12 @@ describe('AllMiniAppsService', () => {
             displayPriority: 3,
             category: SMART_HOME_CATEGORY,
         });
+        [privateApp] = await createTestB2BApp(support, {
+            contextDefaultStatus: CONTEXT_FINISHED_STATUS,
+            isHidden: false,
+            isPublic: false,
+            category: OTHER_CATEGORY,
+        });
         [nonFinishedApp] = await createTestB2BApp(support, {
             contextDefaultStatus: CONTEXT_IN_PROGRESS_STATUS,
             isHidden: false,
@@ -109,15 +116,16 @@ describe('AllMiniAppsService', () => {
         await createTestB2BAppContext(manager, connectedCommonApp, organization)
         await createTestB2BAppContext(manager, connectedPartialApp, organization)
         await createTestB2BAppContext(manager, nonFinishedApp, organization)
+        await createTestB2BAppContext(manager, privateApp, organization)
         const [frozenContext] = await createTestB2BAppContext(manager, frozenApp, organization)
         await createTestB2BAppRole(manager, connectedCommonApp, employeeRole)
 
         await waitFor(async () => {
             const roles = await B2BAppRole.getAll(admin, {
-                app: { id_in: [connectedCommonApp.id, connectedPartialApp.id, frozenApp.id] },
+                app: { id_in: [connectedCommonApp.id, connectedPartialApp.id, frozenApp.id, privateApp.id] },
                 role: { organization: { id: organization.id } },
             })
-            expect(roles).toHaveLength(4)
+            expect(roles).toHaveLength(5)
         })
         await updateTestB2BAppContext(support, frozenContext.id, { status: CONTEXT_IN_PROGRESS_STATUS })
     })
@@ -128,6 +136,7 @@ describe('AllMiniAppsService', () => {
                 expect.objectContaining({ id: connectedCommonApp.id, connected: true, accessible: false }),
                 expect.objectContaining({ id: connectedPartialApp.id, connected: true, accessible: false }),
                 expect.objectContaining({ id: nonConnectedApp.id, connected: false, accessible: false }),
+                expect.objectContaining({ id: privateApp.id, connected: true, accessible: false }),
             ]))
         })
         test('Support can for any organization', async () => {
@@ -136,6 +145,7 @@ describe('AllMiniAppsService', () => {
                 expect.objectContaining({ id: connectedCommonApp.id, connected: true, accessible: false }),
                 expect.objectContaining({ id: connectedPartialApp.id, connected: true, accessible: false }),
                 expect.objectContaining({ id: nonConnectedApp.id, connected: false, accessible: false }),
+                expect.objectContaining({ id: privateApp.id, connected: true, accessible: false }),
             ]))
         })
         describe('Employee', () => {
@@ -143,6 +153,7 @@ describe('AllMiniAppsService', () => {
                 const [data] = await allMiniAppsByTestClient(employee, organization)
                 expect(data).toEqual(expect.arrayContaining([
                     expect.objectContaining({ id: connectedCommonApp.id, connected: true, accessible: true }),
+                    expect.objectContaining({ id: privateApp.id, connected: true, accessible: false }),
                     expect.objectContaining({ id: connectedPartialApp.id, connected: true, accessible: false }),
                     expect.objectContaining({ id: nonConnectedApp.id, connected: false, accessible: false }),
                 ]))
@@ -188,7 +199,10 @@ describe('AllMiniAppsService', () => {
             ]))
         })
         test(`App is connected only if organization has existing context in ${CONTEXT_FINISHED_STATUS} status`, async () => {
-            const [anotherApp] = await createTestB2BApp(support, { contextDefaultStatus: CONTEXT_FINISHED_STATUS, isHidden: false })
+            const [anotherApp] = await createTestB2BApp(support, {
+                contextDefaultStatus: CONTEXT_FINISHED_STATUS,
+                isHidden: false,
+            })
             const [context] = await createTestB2BAppContext(manager, anotherApp, organization)
 
             const [data] = await allMiniAppsByTestClient(employee, organization)
@@ -244,6 +258,23 @@ describe('AllMiniAppsService', () => {
                 expect.objectContaining({ id: anotherApp.id }),
             ]))
         })
+        test('Private apps (isPublic === false) not shown before context connection', async () => {
+            const [app] = await createTestB2BApp(support, {
+                isHidden: false, isPublic: false, contextDefaultStatus: CONTEXT_FINISHED_STATUS,
+            })
+            const [data] = await allMiniAppsByTestClient(manager, organization)
+
+            expect(data).toBeDefined()
+            expect(data).not.toEqual(expect.arrayContaining([expect.objectContaining({ id: app.id })]))
+
+            await createTestB2BAppContext(manager, app, organization)
+            const [newData] = await allMiniAppsByTestClient(manager, organization)
+
+            expect(newData).toBeDefined()
+            expect(newData).toEqual(expect.arrayContaining([
+                expect.objectContaining({ id: app.id, connected: true, accessible: true }),
+            ]))
+        })
         test('Miniapps must be sorted by descending displayPriority, then by descending createdAt by default', async () => {
             const [data] = await allMiniAppsByTestClient(employee, organization)
             expect(data).toBeDefined()
@@ -257,17 +288,19 @@ describe('AllMiniAppsService', () => {
             expect(managerData).toEqual(expect.arrayContaining([
                 expect.objectContaining({ id: connectedCommonApp.id, connected: true,  accessible: true }),
                 expect.objectContaining({ id: connectedPartialApp.id, connected: true,  accessible: true }),
+                expect.objectContaining({ id: privateApp.id, connected: true, accessible: true }),
                 expect.objectContaining({ id: nonFinishedApp.id, connected: false,  accessible: false }),
                 expect.objectContaining({ id: frozenApp.id, connected: false,  accessible: true }),
                 expect.objectContaining({ id: nonConnectedApp.id, connected: false,  accessible: false }),
             ]))
             const [employeeData] = await allMiniAppsByTestClient(employee, organization)
             expect(employeeData).toEqual(expect.arrayContaining([
-                expect.objectContaining({ id: connectedCommonApp.id, connected: true,  accessible: true }),
-                expect.objectContaining({ id: connectedPartialApp.id, connected: true,  accessible: false }),
-                expect.objectContaining({ id: nonFinishedApp.id, connected: false,  accessible: false }),
-                expect.objectContaining({ id: frozenApp.id, connected: false,  accessible: false }),
-                expect.objectContaining({ id: nonConnectedApp.id, connected: false,  accessible: false }),
+                expect.objectContaining({ id: connectedCommonApp.id, connected: true, accessible: true }),
+                expect.objectContaining({ id: connectedPartialApp.id, connected: true, accessible: false }),
+                expect.objectContaining({ id: privateApp.id, connected: true, accessible: false }),
+                expect.objectContaining({ id: nonFinishedApp.id, connected: false, accessible: false }),
+                expect.objectContaining({ id: frozenApp.id, connected: false, accessible: false }),
+                expect.objectContaining({ id: nonConnectedApp.id, connected: false, accessible: false }),
             ]))
         })
     })
@@ -284,43 +317,43 @@ describe('AllMiniAppsService', () => {
         test('Filtering by connection status must work', async () => {
             const [connectedApps] = await allMiniAppsByTestClient(employee, organization, { where: { connected: true } })
             expectFilterSeparation(connectedApps,
-                [connectedCommonApp, connectedPartialApp],
+                [connectedCommonApp, connectedPartialApp, privateApp],
                 [nonFinishedApp, nonConnectedApp]
             )
             const [unconnectedApps] = await allMiniAppsByTestClient(employee, organization, { where: { connected: false } })
             expectFilterSeparation(unconnectedApps,
                 [nonFinishedApp, nonConnectedApp],
-                [connectedCommonApp, connectedPartialApp]
+                [connectedCommonApp, connectedPartialApp, privateApp]
             )
         })
         test('Filtering by accessibility must work', async () => {
             const [accessibleApps] = await allMiniAppsByTestClient(employee, organization, { where: { accessible: true } })
             expectFilterSeparation(accessibleApps,
                 [connectedCommonApp],
-                [nonFinishedApp, nonConnectedApp, connectedPartialApp]
+                [nonFinishedApp, nonConnectedApp, connectedPartialApp, privateApp]
             )
             const [nonAccessibleApps] = await allMiniAppsByTestClient(employee, organization, { where: { accessible: false } })
             expectFilterSeparation(nonAccessibleApps,
-                [nonFinishedApp, nonConnectedApp, connectedPartialApp],
+                [nonFinishedApp, nonConnectedApp, connectedPartialApp, privateApp],
                 [connectedCommonApp]
             )
         })
         test('Filtering by category must work', async () => {
             const [otherApps] = await allMiniAppsByTestClient(employee, organization, { where: { app:{ category: OTHER_CATEGORY } } })
             expectFilterSeparation(otherApps,
-                [connectedCommonApp, nonConnectedApp],
+                [connectedCommonApp, nonConnectedApp, privateApp],
                 [connectedPartialApp, nonFinishedApp],
             )
             const [smartHomeApps] = await allMiniAppsByTestClient(employee, organization, { where: { app:{ category: SMART_HOME_CATEGORY } } })
             expectFilterSeparation(smartHomeApps,
                 [connectedPartialApp, nonFinishedApp],
-                [connectedCommonApp, nonConnectedApp]
+                [connectedCommonApp, nonConnectedApp, privateApp]
             )
         })
         test('Filtering by id_not must work', async () => {
             const [filteredApps] = await allMiniAppsByTestClient(employee, organization, { where: { app: { id_not: connectedCommonApp.id } } })
             expectFilterSeparation(filteredApps,
-                [connectedPartialApp, nonFinishedApp, nonConnectedApp],
+                [connectedPartialApp, nonFinishedApp, nonConnectedApp, privateApp],
                 [connectedCommonApp]
             )
         })
@@ -328,12 +361,12 @@ describe('AllMiniAppsService', () => {
             const [filteredApps] = await allMiniAppsByTestClient(employee, organization, { where: { connected: true, accessible: true } })
             expectFilterSeparation(filteredApps,
                 [connectedCommonApp],
-                [connectedPartialApp, nonFinishedApp, nonConnectedApp]
+                [connectedPartialApp, nonFinishedApp, nonConnectedApp, privateApp]
             )
             const [excludedFilteredApps] = await allMiniAppsByTestClient(employee, organization, { where: { connected: true, accessible: true, app: { id_not: connectedCommonApp.id } } })
             expectFilterSeparation(excludedFilteredApps,
                 [],
-                [connectedCommonApp, connectedPartialApp, nonFinishedApp, nonConnectedApp]
+                [connectedCommonApp, connectedPartialApp, nonFinishedApp, nonConnectedApp, privateApp]
             )
         })
     })

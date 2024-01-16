@@ -118,6 +118,11 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
                 for (const app of B2BApps) {
                     const logoUrl = app.logo ? APPS_FILE_ADAPTER.publicUrl({ filename: app.logo.filename }) : null
                     const connected = app.id in connectedB2BApps
+
+                    if (!app.isPublic && !connected) {
+                        continue
+                    }
+
                     services.push({
                         id: app.id,
                         name: app.name,
@@ -152,7 +157,7 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
             },
         },
     ],
-    
+
 })
 
 module.exports = {
