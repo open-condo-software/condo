@@ -58,8 +58,8 @@ export { Tooltip } from './components/Tooltip'
 export type { TooltipProps } from './components/Tooltip'
 
 
-export { Tip } from './components/Tip'
-export type { TipProps } from './components/Tip'
+export { TourStep } from './components/TourStep'
+export type { TourStepProps } from './components/TourStep'
 
 export { Typography } from './components/Typography'
 
