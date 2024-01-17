@@ -220,7 +220,7 @@ export class Importer implements IImporter {
             console.error(error)
             // NOTE: The browser console doesn't show all the properties of the error object,
             // so we use a little hack :)
-            console.debug('Error details from "rowNormalizer":', { error })
+            console.debug('Error details from "rowNormalizer":', { error, originalRow })
             processedRow.errors.push(this.errors.normalization)
         }
 
@@ -230,7 +230,7 @@ export class Importer implements IImporter {
             } catch (error) {
                 console.error('Unexpected error in "rowValidator"!')
                 console.error(error)
-                console.debug('Error details from "rowValidator":', { error })
+                console.debug('Error details from "rowValidator":', { error, originalRow })
                 processedRow.errors.push(this.errors.validation)
             }
         }
@@ -250,7 +250,7 @@ export class Importer implements IImporter {
             } catch (error) {
                 console.error('Unexpected error in "objectCreator"!')
                 console.error(error)
-                console.debug('Error details from "objectCreator":', { error })
+                console.debug('Error details from "objectCreator":', { error, originalRow })
                 const mutationErrors = get(error, 'graphQLErrors', []) || []
 
                 for (const mutationError of mutationErrors) {
