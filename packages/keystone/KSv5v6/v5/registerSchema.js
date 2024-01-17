@@ -28,14 +28,14 @@ function applyKeystoneV5AdminFixes (schema) {
 function convertStringToTypes (schema) {
     const { Text, Relationship, Integer, Float, Select, Slug, Virtual, Url, Uuid, Checkbox, DateTimeUtc, CalendarDay, Decimal, Password, File } = require('@keystonejs/fields')
     const { AuthedRelationship } = require('@keystonejs/fields-authed-relationship')
-    const { Json, SignedDecimal, AutoIncrementInteger, LocalizedText, DateInterval } = require('../../fields')
+    const { Json, SignedDecimal, AutoIncrementInteger, LocalizedText, DateInterval, FileWithUTF8Name } = require('../../fields')
     const { HiddenRelationship } = require('../../plugins/utils/HiddenRelationship')
     const mapping = {
         CalendarDay,
         Checkbox,
         DateTimeUtc,
         Decimal,
-        File,
+        File: FileWithUTF8Name,
         Float,
         Integer,
         Password,

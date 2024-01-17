@@ -4,7 +4,6 @@
 
 const { Relationship } = require('@keystonejs/fields')
 
-const { FileWithUTF8Name } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
@@ -22,7 +21,7 @@ const TicketCommentFile = new GQLListSchema('TicketCommentFile', {
     fields: {
         file: {
             schemaDoc: 'File object with meta information and publicUrl',
-            type: FileWithUTF8Name,
+            type: 'File',
             adapter: Adapter,
         },
 
