@@ -1,13 +1,13 @@
 import get from 'lodash/get'
 import Head from 'next/head'
-import { useRouter } from 'next/router'
-import React, { useEffect, useMemo } from 'react'
+import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { CONTEXT_FINISHED_STATUS } from '@condo/domains/acquiring/constants/context'
 import { AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clientSchema'
+import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { MarketplacePageContent } from '@condo/domains/marketplace/components/MarketplacePageContent'
 import {
@@ -25,14 +25,9 @@ const MarketplacePage: PageType = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'pages.condo.marketplace.title' })
 
-    const router = useRouter()
     const { organization } = useOrganization()
     const orgId = get(organization, 'id', null)
     const isServiceProviderOrganization = useMemo(() => (get(organization, 'type', MANAGING_COMPANY_TYPE) === SERVICE_PROVIDER_TYPE), [organization])
-
-    useEffect(() => {
-        if (isServiceProviderOrganization) router.push('/')
-    }, [isServiceProviderOrganization])
 
     const {
         obj: acquiringIntegrationContext,
@@ -50,6 +45,8 @@ const MarketplacePage: PageType = () => {
         acquiringContext: acquiringIntegrationContext,
         refetchAcquiringContext: refetchAcquiringIntegrationContext,
     }), [acquiringIntegrationContext, refetchAcquiringIntegrationContext])
+
+    if (isServiceProviderOrganization) return <AccessDeniedPage/>
 
     if (loading || error) {
         return <LoadingOrErrorPage title={PageTitle} error={error} loading={loading}/>
