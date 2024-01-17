@@ -3,6 +3,9 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Close } from '@open-condo/icons'
 
+import { useTourContext } from './tourContext'
+
+import { sendAnalyticsChangeEvent, sendAnalyticsClickEvent } from '../_utils/analytics'
 import { Typography } from '../Typography'
 
 import type { PopoverProps as DefaultPopoverProps } from 'antd'
@@ -16,7 +19,6 @@ export type TourStepProps = Pick<DefaultPopoverProps,
 | 'destroyTooltipOnHide'
 | 'zIndex'> & {
     step: number
-    currentStep: number
     title: string
     message: string
     onClose?: () => void
@@ -30,15 +32,22 @@ export const TourStep: React.FC<TourStepProps> = (props) => {
         message,
         onClose,
         step,
-        currentStep,
         ...otherProps
     } = props
+
+    const { currentStep } = useTourContext()
 
     const [open, setOpen] = useState<boolean>(step === currentStep)
 
     useEffect(() => {
-        setOpen(step === currentStep)
-    }, [currentStep, step])
+        const isOpen = step === currentStep
+
+        setOpen(isOpen)
+
+        if (isOpen) {
+            sendAnalyticsChangeEvent('TourStep', { title, message, step })
+        }
+    }, [currentStep, message, step, title])
 
     const handleClose = useCallback(() => {
         if (onClose) {
@@ -46,7 +55,9 @@ export const TourStep: React.FC<TourStepProps> = (props) => {
         }
 
         setOpen(false)
-    }, [onClose])
+
+        sendAnalyticsClickEvent('TourStep', { title, message, step })
+    }, [message, onClose, step, title])
 
     const popoverTitle = useMemo(() => (
         <>
