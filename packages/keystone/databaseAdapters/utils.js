@@ -43,8 +43,11 @@ function parseDatabaseMapping (mapping, databases) {
 function matchPattern (pattern, str) {
     let regex = null
     if (pattern.includes('*')) {
+        // This cade can be reachable only from ENV variables. And already escaped any third party RE chars
+        // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
         regex = new RegExp('^' + pattern.split('*').map(escapeRegExp).join('.*?') + '$')
     } else {
+        // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
         regex = new RegExp('^' + escapeRegExp(pattern) + '$')
     }
     return regex.test(str)
