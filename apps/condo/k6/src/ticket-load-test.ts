@@ -116,7 +116,7 @@ export function setup () {
 }
 
 export function healthcheck () {
-    const appHealthcheck = http.get(__ENV.BASE_URL + '/server-health')
+    const appHealthcheck = http.get(__ENV.BASE_URL + '/server-health?checks=postgres,redis')
 
     check(appHealthcheck, {
         'healthcheck should return 200': (res) => res.status === 200,
