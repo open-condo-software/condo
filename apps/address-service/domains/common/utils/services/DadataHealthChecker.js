@@ -89,7 +89,7 @@ class DadataHealthChecker {
         const response = await this.makeHealthcheckRequest(profileBalanceRequest)
 
         if (response.intermediateResult) {
-            return get(response, ['originalResponse', 'balance'], 0) > this.profileBalanceWarning ? 'pass' : 'fail'
+            return get(response, ['originalResponse', 'balance'], 0) > this.profileBalanceWarning ? 'pass' : 'warn'
         }
 
         return response.intermediateResult ? 'pass' : 'fail'
@@ -108,7 +108,7 @@ class DadataHealthChecker {
         if (response.intermediateResult) {
             return get(response, ['originalResponse', 'remaining', 'suggestions'], 0) > this.suggestionsWarning
                 ? 'pass'
-                : 'fail'
+                : 'warn'
         }
 
         return response.intermediateResult ? 'pass' : 'fail'
