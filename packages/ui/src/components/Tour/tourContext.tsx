@@ -1,11 +1,14 @@
 import React, { useContext, useState } from 'react'
 
 type TourContextValue = {
-    currentStep?: number
-    setCurrentStep?: React.Dispatch<React.SetStateAction<number>>
+    currentStep: number
+    setCurrentStep: React.Dispatch<React.SetStateAction<number>>
 }
 
-const TourContext = React.createContext<TourContextValue>({})
+const TourContext = React.createContext<TourContextValue>({
+    currentStep: 0,
+    setCurrentStep: () => ({}),
+})
 
 export const useTourContext = () => useContext(TourContext)
 
