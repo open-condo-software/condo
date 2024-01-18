@@ -9,9 +9,9 @@ const { SEND_BILLING_RECEIPTS_ON_PAYDAY_REMAINDER_TASK } = require('@condo/domai
 const { notifyResidentsOnPayday } = require('./notifyResidentsOnPayday')
 
 
-const logger = getLogger('meter/sendSubmitMeterReadingsPushNotifications')
+const logger = getLogger('resident/notifyResidentsOnPaydayTask')
 
-module.exports = createCronTask('notifyResidentsOnPayday', '0 13 * * *', async (context = null) => {
+module.exports = createCronTask('notifyResidentsOnPaydayTask', '0 13 * * *', async (context = null) => {
     const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(context, SEND_BILLING_RECEIPTS_ON_PAYDAY_REMAINDER_TASK)
 
     if (!isFeatureEnabled) {
