@@ -13,19 +13,20 @@ const { MeterReading } = require('@condo/domains/meter/utils/serverSchema')
 const { prompt } = require('./lib/prompt')
 
 /**
- * Soft deletes meter readings by property ids and date
+ * Soft deletes imported meter readings by property ids and createdAt interval
  *
  * Usage:
- * node delete-meter-readings-by-properties.js --date=2024-12-01 propertyId1 propertyId2 propertyId3 ...
+ * node delete-meter-readings-by-properties.js --start="2024-12-01 12:10" --end="2024-12-01 12:20" propertyId1 propertyId2 propertyId3 ...
  *
- * NOTE: Date must be in yyyy-mm-dd format
+ * NOTE: Date must be in "yyyy-mm-dd hh:mm" format
  */
 
 
 class MeterReadingsCleaner {
-    constructor ({ propertyIds, date }) {
+    constructor ({ propertyIds, startDateTime, endDateTime }) {
         this.propertyIds = propertyIds
-        this.date = date
+        this.startDateTime = startDateTime
+        this.endDateTime = endDateTime
         this.context = null
     }
 
@@ -41,12 +42,16 @@ class MeterReadingsCleaner {
     async findMeterReadings () {
         return await find('MeterReading', {
             deletedAt: null,
-            date: dayjs(this.date).toISOString(),
+            createdAt_gte: dayjs(this.startDateTime).toISOString(),
+            createdAt_lte: dayjs(this.endDateTime).toISOString(),
             meter: {
                 property: {
                     id_in: this.propertyIds,
                 },
                 deletedAt: null,
+            },
+            source: {
+                type: 'import_condo',
             },
         })
     }
@@ -74,14 +79,14 @@ class MeterReadingsCleaner {
     }
 }
 
-const deleteMeterReadingsScript = async ({ propertyIds, date }) => {
+const deleteMeterReadingsScript = async ({ propertyIds, startDateTime, endDateTime }) => {
     if (isEmpty(propertyIds)) {
-        return console.error('propertyIds not found!')
+        return console.error('propertyIds not specified!')
     }
-    if (isEmpty(date)) {
-        return console.error('date not found! Enter date in --date=yyyy-mm-dd format')
+    if (isEmpty(startDateTime) || isEmpty(endDateTime) ) {
+        return console.error('start createdAt datetime or end createdAt datetime are not specified! Use params --start="..." --end="..." in "yyyy-mm-dd hh:mm" format')
     }
-    const deleter = new MeterReadingsCleaner({ propertyIds, date })
+    const deleter = new MeterReadingsCleaner({ propertyIds, startDateTime, endDateTime })
     console.info('[INFO] Connecting to database...')
     await deleter.connect()
     await deleter.deleteMeterReadings()
@@ -89,11 +94,12 @@ const deleteMeterReadingsScript = async ({ propertyIds, date }) => {
 
 const argv = yargs(hideBin(process.argv)).argv
 
-const date = get(argv, 'date')
+const startDateTime = get(argv, 'start')
+const endDateTime = get(argv, 'end')
 const propertyIds = get(argv, '_')
 
 
-deleteMeterReadingsScript({ propertyIds, date }).then(() => {
+deleteMeterReadingsScript({ propertyIds, startDateTime, endDateTime }).then(() => {
     console.log('\r\n')
     console.log('All done')
     process.exit(0)
