@@ -441,12 +441,12 @@ export const AcquiringReceipt: React.FC<IAcquiringReceiptProps> = (props) => {
                         <Row gutter={[0, 8]}>{payerInfo.map((row, index) => <InfoRow row={row} key={index}/>)}</Row>
                     </Col>
                     {
-                        receipts.map((section, index) => (
+                        receipts && receipts.map((section, index) => (
                             <ReceiptSection section={section} currencyCode={currencyCode} key={`receipt${index}`}/>
                         ))
                     }
                     {
-                        invoices.map((section, index) => (
+                        invoices && invoices.map((section, index) => (
                             <InvoiceSection section={section} currencyCode={currencyCode} key={`invoice${index}`}/>
                         ))
                     }
