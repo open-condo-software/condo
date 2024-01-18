@@ -48,9 +48,6 @@ export const RecipientSettingsContent = () => {
     return (
         <Row gutter={MEDIUM_VERTICAL_GUTTER}>
             <Col span={24}>
-                <Typography.Title level={4}>{PaymentsDetailsTitle}</Typography.Title>
-            </Col>
-            <Col span={24}>
                 <StyledAlert
                     message={<Typography.Text strong>{AlertTitle}</Typography.Text>}
                     description={AlertContent}
