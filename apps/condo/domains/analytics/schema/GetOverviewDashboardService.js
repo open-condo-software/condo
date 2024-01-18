@@ -196,6 +196,7 @@ const GetOverviewDashboardService = new GQLCustomSchema('GetOverviewDashboardSer
                                     organization: { id: where.organization },
                                     deletedAt: null,
                                     status_in: [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS],
+                                    invoice: null,
                                     AND: [
                                         { period_gte: dayjs(where.dateFrom).startOf('month').format(PERIOD_FIELD_DATE_FORMAT) },
                                         { period_lte: dayjs(where.dateTo).endOf('month').format(PERIOD_FIELD_DATE_FORMAT) },

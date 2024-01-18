@@ -8,6 +8,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
+import { SPECIAL_CHAR_REGEXP } from '@condo/domains/common/constants/regexps'
 import { Columns, ObjectCreator, RowNormalizer, RowValidator } from '@condo/domains/common/utils/importer'
 import { sleep } from '@condo/domains/common/utils/sleep'
 import { Contact, ContactRole } from '@condo/domains/contact/utils/clientSchema'
@@ -51,7 +52,8 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const IncorrectRowFormatMessage = intl.formatMessage({ id: 'errors.import.IncorrectRowFormat' })
     const AddressNotFoundMessage = intl.formatMessage({ id: 'errors.import.AddressNotFound' })
     const PropertyNotFoundMessage = intl.formatMessage({ id: 'errors.import.PropertyNotFound' })
-    const IncorrectContactNameMessage = intl.formatMessage({ id: 'errors.import.IncorrectContactName' })
+    const EmptyContactNameMessage = intl.formatMessage({ id: 'errors.import.IncorrectContactName.empty' })
+    const ContactNameWithSpecialCharactersMessage = intl.formatMessage({ id: 'errors.import.IncorrectContactName.hasSpecialCharacters' })
     const IncorrectUnitNameMessage = intl.formatMessage({ id: 'errors.import.EmptyUnitName' })
     const IncorrectUnitTypeMessage = intl.formatMessage({ id: 'errors.import.EmptyUnitType' })
     const IncorrectEmailMessage = intl.formatMessage({ id: 'errors.import.IncorrectEmailFormat' })
@@ -130,13 +132,13 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             address: null,
             property: null,
             phones: null,
-            fullName: null,
+            name: null,
             email: null,
             unitType: null,
             role: null,
             isVerified: null,
         }
-        const [address, , unitType, phones, fullName, email, role, isVerified] = row
+        const [address, , unitType, phones, name, email, role, isVerified] = row
 
         email.value = email.value && String(email.value).trim().length ? String(email.value).trim() : undefined
 
@@ -150,7 +152,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         addons.isVerified = normalizeBooleanValue(String(get(isVerified, 'value', '')), YesMessage, NoMessage)
 
         addons.phones = parsePhones(String(phones.value))
-        addons.fullName = String(get(fullName, 'value', '')).trim()
+        addons.name = String(get(name, 'value', '')).trim()
         addons.email = normalizeEmail(email.value)
 
         const suggestionOptions = await addressApi.getSuggestions(String(address.value))
@@ -174,7 +176,13 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         if (!row.addons) errors.push(IncorrectRowFormatMessage)
         if (!get(row, ['addons', 'address'])) errors.push(AddressNotFoundMessage)
         if (!get(row, ['addons', 'property'])) errors.push(PropertyNotFoundMessage)
-        if (!get(row, ['addons', 'fullName', 'length'])) errors.push(IncorrectContactNameMessage)
+
+        const name = get(row, ['addons', 'name'])
+        if (!name) {
+            errors.push(EmptyContactNameMessage)
+        } else if (SPECIAL_CHAR_REGEXP.test(name)) {
+            errors.push(ContactNameWithSpecialCharactersMessage)
+        }
 
         const rowEmail = get(row, ['row', '5', 'value'])
         if (rowEmail && !get(row, ['addons', 'email'])) {
@@ -241,7 +249,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                 unitName,
                 unitType: row.addons.unitType,
                 phone: phone,
-                name: row.addons.fullName,
+                name: row.addons.name,
                 email: row.addons.email,
                 isVerified: row.addons.isVerified,
             }

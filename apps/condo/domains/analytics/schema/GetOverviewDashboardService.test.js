@@ -26,9 +26,12 @@ const {
     Payment,
     createTestMultiPayment,
     updateTestMultiPayment,
+    createTestAcquiringIntegrationContext,
+    createTestAcquiringIntegration,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { getOverviewDashboardByTestClient } = require('@condo/domains/analytics/utils/testSchema')
 const { updateTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
+const { createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const {
     createTestOrganization,
@@ -406,6 +409,48 @@ describe('GetOverviewDashboardService', () => {
                 })
 
                 expect(data.overview.payment.payments).toBeDefined()
+            })
+
+            it('should ignore payments created from marketplace (including invoice link)', async () => {
+                const {
+                    organization,
+                    acquiringContext,
+                    payments,
+
+                } = await makePayerAndPayments(1)
+                await updateTestPayment(admin, payments[0].id, { status: PAYMENT_DONE_STATUS })
+
+                const paymentsSum = payments.reduce((prev, curr) => new Big(prev).plus(curr.amount), 0)
+
+                const [invoiceAcquiringIntegration] = await createTestAcquiringIntegration(admin, {
+                    canGroupReceipts: true,
+                })
+                await createTestAcquiringIntegrationContext(admin, organization, invoiceAcquiringIntegration, {
+                    invoiceStatus: CONTEXT_FINISHED_STATUS,
+                })
+
+                const [invoice] = await createTestInvoice(admin, organization)
+
+                await createTestPayment(admin, organization, null, acquiringContext, {
+                    status: PAYMENT_DONE_STATUS,
+                    period: dayjs().subtract(1, 'month').startOf('month').format('YYYY-MM-DD'),
+                    advancedAt: dayjs().subtract(1, 'day').endOf('day').toISOString(),
+                    invoice,
+                })
+
+                const [data] = await getOverviewDashboardByTestClient(admin, {
+                    where: { organization: organization.id, dateFrom, dateTo }, groupBy: { aggregatePeriod: 'day' },
+                })
+
+                expect(data).toHaveProperty(['overview', 'payment', 'sum'], paymentsSum.toFixed(2))
+                expect(data.overview.payment.payments).toHaveLength(1)
+                expect(data.overview.payment.payments).toEqual(expect.arrayContaining([
+                    expect.objectContaining({
+                        count: '1',
+                        sum: paymentsSum.toFixed(2),
+                        createdBy: admin.user.id,
+                    }),
+                ]))
             })
         })
         describe('Receipt', () => {
