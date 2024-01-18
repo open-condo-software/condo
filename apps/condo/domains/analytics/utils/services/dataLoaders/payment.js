@@ -88,6 +88,7 @@ class PaymentDataLoader extends AbstractDataLoader {
                 ...pick(where, ['organization']),
                 status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS],
                 deletedAt: null,
+                invoice_is_null: true,
                 AND: totalFilter,
                 ...(hasPropertyFilter && { createdBy: { id_in: paymentPropertyLabels.map(({ value }) => value) } }),
             },
