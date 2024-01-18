@@ -2,9 +2,11 @@ import { check, sleep } from 'k6'
 import { browser } from 'k6/experimental/browser'
 import http from 'k6/http'
 
-const BASE_API_URL = __ENV.BASE_URL + '/admin/api'
+import { setupCondoAuth, createOrganization, createProperty, BASE_API_URL } from './utils'
+
+// const BASE_API_URL = __ENV.BASE_URL + '/admin/api'
 const BASE_APP_URL = __ENV.BASE_URL + '/ticket'
-const AUTH_REQS = { email: __ENV.AUTH_EMAIL, password: __ENV.AUTH_PASSWORD }
+// const AUTH_REQS = { email: __ENV.AUTH_EMAIL, password: __ENV.AUTH_PASSWORD }
 
 export const options = {
     scenarios: {
@@ -54,61 +56,67 @@ export const options = {
 }
 
 export function setup () {
-    const payload = {
-        operationName: null,
-        variables: {},
-        query: `mutation {authenticateUserWithPassword(email: "${AUTH_REQS.email}" password: "${AUTH_REQS.password}") {token}}`,
-    }
 
-    const response = http.post(BASE_API_URL, JSON.stringify(payload), { headers: { 'Content-Type': 'application/json' } })
+    const { token, cookie } = setupCondoAuth()
+    // const payload = {
+    //     operationName: null,
+    //     variables: {},
+    //     query: `mutation {authenticateUserWithPassword(email: "${AUTH_REQS.email}" password: "${AUTH_REQS.password}") {token}}`,
+    // }
+    //
+    // const response = http.post(BASE_API_URL, JSON.stringify(payload), { headers: { 'Content-Type': 'application/json' } })
+    //
+    // const token = response.json('data.authenticateUserWithPassword.token')
 
-    const token = response.json('data.authenticateUserWithPassword.token')
+    // const BASIC_HEADERS = { headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` } }
 
-    const BASIC_HEADERS = { headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` } }
+    const createdOrganization = createOrganization({ token })
 
-    const createdOrganization = http.post(BASE_API_URL, JSON.stringify({
-        operationName: 'registerNewOrganization',
-        query: 'mutation registerNewOrganization($data:RegisterNewOrganizationInput!){obj:registerNewOrganization(data:$data){id}}',
-        variables: {
-            data: {
-                dv: 1,
-                sender: {
-                    dv: 1,
-                    fingerprint: 'k6-load-test',
-                },
-                name: 'k6-test',
-                tin: '0000000000',
-                meta: {
-                    dv: 1,
-                },
-                type: 'MANAGING_COMPANY',
-                country: 'ru',
-            },
-        },
-    }), BASIC_HEADERS)
+    // const createdOrganization = http.post(BASE_API_URL, JSON.stringify({
+    //     operationName: 'registerNewOrganization',
+    //     query: 'mutation registerNewOrganization($data:RegisterNewOrganizationInput!){obj:registerNewOrganization(data:$data){id}}',
+    //     variables: {
+    //         data: {
+    //             dv: 1,
+    //             sender: {
+    //                 dv: 1,
+    //                 fingerprint: 'k6-load-test',
+    //             },
+    //             name: 'k6-test',
+    //             tin: '0000000000',
+    //             meta: {
+    //                 dv: 1,
+    //             },
+    //             type: 'MANAGING_COMPANY',
+    //             country: 'ru',
+    //         },
+    //     },
+    // }), BASIC_HEADERS)
 
     const organizationId = createdOrganization.json('data.obj.id')
 
     // const { address } = buildFakeAddressAndMeta()
     // const address = faker.address.street()
 
-    const createdProperty = http.post(BASE_API_URL, JSON.stringify({
-        operationName: 'createProperty',
-        query: 'mutation createProperty($data:PropertyCreateInput!){obj:createProperty(data:$data){id}}',
-        variables: {
-            data: {
-                dv: 1, sender: { dv: 1, fingerprint: 'k6-load-test' },
-                address: 'р Mississippi, г New Ollie, ул Roberts Club, д 65421183 б 56198',
-                organization: { connect: { id: organizationId } },
-                type: 'building',
-            },
-        },
-    }), BASIC_HEADERS)
+    const createdProperty = createProperty({ token, organizationId })
+
+    // const createdProperty = http.post(BASE_API_URL, JSON.stringify({
+    //     operationName: 'createProperty',
+    //     query: 'mutation createProperty($data:PropertyCreateInput!){obj:createProperty(data:$data){id}}',
+    //     variables: {
+    //         data: {
+    //             dv: 1, sender: { dv: 1, fingerprint: 'k6-load-test' },
+    //             address: 'р Mississippi, г New Ollie, ул Roberts Club, д 65421183 б 56198',
+    //             organization: { connect: { id: organizationId } },
+    //             type: 'building',
+    //         },
+    //     },
+    // }), BASIC_HEADERS)
 
     return {
         data: {
-            token,
-            cookie: response.cookies['keystone.sid'][0]['value'],
+            token: token,
+            cookie: cookie,
             organizationId,
             propertyId: createdProperty.json('data.obj.id'),
         },
