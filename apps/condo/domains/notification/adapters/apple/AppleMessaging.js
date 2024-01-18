@@ -130,6 +130,10 @@ class AppleMessaging {
             const stream = this.#session.request(headers)
 
             stream.on('response', this.getResponseHandler(stream, resolve, reject))
+            stream.on('error', (error) => {
+                logger.error({ msg: 'sendPush errored', headers, options, payload, streamError: error })
+                return resolve(error)
+            })
             stream.write(buffer)
             stream.end()
         })
