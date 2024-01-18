@@ -1,6 +1,7 @@
 const { File } = require('@keystonejs/fields')
 const cuid = require('cuid')
-const { convertFileNameToUTF8 } = require('packages/keystone/fields/FileWithUTF8Name/utils/convertFileNameToUTF8')
+
+const { convertFileNameToUTF8 } = require('@open-condo/keystone/fields/FileWithUTF8Name/utils/convertFileNameToUTF8')
 
 // keystone's original File implementation with only originalFilename converted to UTF-8
 class FileWithUTF8Name extends File.implementation {
