@@ -2235,6 +2235,8 @@ export type B2BApp = {
   isHidden?: Maybe<Scalars['Boolean']>;
   /**  Indicates whether the app is global or not. If so, then the application will be opened in hidden mode and receive various notifications from the condo. It's also possible to trigger some condo IFrame methods via global app outside of miniapps CRM section  */
   isGlobal?: Maybe<Scalars['Boolean']>;
+  /**  Indicates visibility of the app on the "services" page. If so, app will be shown. Otherwise it will be hidden until it's context become to "connected" status  */
+  isPublic?: Maybe<Scalars['Boolean']>;
   /**  Indicates whether the miniapp has its own dynamic title. If so, the miniapp page will have no default title, shifting the responsibility for displaying it to the app itself. Otherwise, there will be a static title above the app iframe that corresponds to the application name.  */
   hasDynamicTitle?: Maybe<Scalars['Boolean']>;
   /**  App icon. The presence of this field means that this app will be pinned to the CRM menu after the connection.  */
@@ -3405,6 +3407,7 @@ export type B2BAppCreateInput = {
   appUrl?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   isGlobal?: Maybe<Scalars['Boolean']>;
+  isPublic?: Maybe<Scalars['Boolean']>;
   hasDynamicTitle?: Maybe<Scalars['Boolean']>;
   icon?: Maybe<Scalars['String']>;
   menuCategory?: Maybe<Scalars['String']>;
@@ -3453,6 +3456,7 @@ export type B2BAppHistoryRecord = {
   appUrl?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   isGlobal?: Maybe<Scalars['Boolean']>;
+  isPublic?: Maybe<Scalars['Boolean']>;
   hasDynamicTitle?: Maybe<Scalars['Boolean']>;
   icon?: Maybe<Scalars['String']>;
   menuCategory?: Maybe<Scalars['String']>;
@@ -3489,6 +3493,7 @@ export type B2BAppHistoryRecordCreateInput = {
   appUrl?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   isGlobal?: Maybe<Scalars['Boolean']>;
+  isPublic?: Maybe<Scalars['Boolean']>;
   hasDynamicTitle?: Maybe<Scalars['Boolean']>;
   icon?: Maybe<Scalars['String']>;
   menuCategory?: Maybe<Scalars['String']>;
@@ -3530,6 +3535,7 @@ export type B2BAppHistoryRecordUpdateInput = {
   appUrl?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   isGlobal?: Maybe<Scalars['Boolean']>;
+  isPublic?: Maybe<Scalars['Boolean']>;
   hasDynamicTitle?: Maybe<Scalars['Boolean']>;
   icon?: Maybe<Scalars['String']>;
   menuCategory?: Maybe<Scalars['String']>;
@@ -3660,6 +3666,8 @@ export type B2BAppHistoryRecordWhereInput = {
   isHidden_not?: Maybe<Scalars['Boolean']>;
   isGlobal?: Maybe<Scalars['Boolean']>;
   isGlobal_not?: Maybe<Scalars['Boolean']>;
+  isPublic?: Maybe<Scalars['Boolean']>;
+  isPublic_not?: Maybe<Scalars['Boolean']>;
   hasDynamicTitle?: Maybe<Scalars['Boolean']>;
   hasDynamicTitle_not?: Maybe<Scalars['Boolean']>;
   icon?: Maybe<Scalars['String']>;
@@ -5611,6 +5619,7 @@ export type B2BAppUpdateInput = {
   appUrl?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   isGlobal?: Maybe<Scalars['Boolean']>;
+  isPublic?: Maybe<Scalars['Boolean']>;
   hasDynamicTitle?: Maybe<Scalars['Boolean']>;
   icon?: Maybe<Scalars['String']>;
   menuCategory?: Maybe<Scalars['String']>;
@@ -5753,6 +5762,8 @@ export type B2BAppWhereInput = {
   isHidden_not?: Maybe<Scalars['Boolean']>;
   isGlobal?: Maybe<Scalars['Boolean']>;
   isGlobal_not?: Maybe<Scalars['Boolean']>;
+  isPublic?: Maybe<Scalars['Boolean']>;
+  isPublic_not?: Maybe<Scalars['Boolean']>;
   hasDynamicTitle?: Maybe<Scalars['Boolean']>;
   hasDynamicTitle_not?: Maybe<Scalars['Boolean']>;
   icon?: Maybe<Scalars['String']>;
@@ -72638,6 +72649,8 @@ export enum SortB2BAppHistoryRecordsBy {
   IsHiddenDesc = 'isHidden_DESC',
   IsGlobalAsc = 'isGlobal_ASC',
   IsGlobalDesc = 'isGlobal_DESC',
+  IsPublicAsc = 'isPublic_ASC',
+  IsPublicDesc = 'isPublic_DESC',
   HasDynamicTitleAsc = 'hasDynamicTitle_ASC',
   HasDynamicTitleDesc = 'hasDynamicTitle_DESC',
   IconAsc = 'icon_ASC',
@@ -72899,6 +72912,8 @@ export enum SortB2BAppsBy {
   IsHiddenDesc = 'isHidden_DESC',
   IsGlobalAsc = 'isGlobal_ASC',
   IsGlobalDesc = 'isGlobal_DESC',
+  IsPublicAsc = 'isPublic_ASC',
+  IsPublicDesc = 'isPublic_DESC',
   HasDynamicTitleAsc = 'hasDynamicTitle_ASC',
   HasDynamicTitleDesc = 'hasDynamicTitle_DESC',
   IconAsc = 'icon_ASC',
