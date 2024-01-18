@@ -1,8 +1,8 @@
 const { File } = require('@keystonejs/fields')
 const cuid = require('cuid')
+const { convertFileNameToUTF8 } = require('packages/keystone/fields/FileWithUTF8Name/utils/convertFileNameToUTF8')
 
-const { convertFileNameToUTF8 } = require('@open-condo/keystone/convertFileNameToUTF8')
-
+// keystone's original File implementation with only originalFilename converted to UTF-8
 class FileWithUTF8Name extends File.implementation {
     async resolveInput ({
         resolvedData,
@@ -49,6 +49,8 @@ class FileWithUTF8Name extends File.implementation {
             filename: originalFilename,
             mimetype,
             encoding,
+            // if you use mongoose then make sure to use their own ObjectId type for id, like so:
+            // this.adapter.listAdapter.parentAdapter.name === 'mongoose' ? new mongoose.Types.ObjectId()
             id: cuid(),
         })
 
