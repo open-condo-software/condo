@@ -189,6 +189,7 @@ async function deliverMessage (messageId) {
                 successCnt++
             } else {
                 const [isOk, deliveryMetadata] = await _sendMessageByAdapter(transport, adapter, messageContext, isVoIP)
+                logger.info({ msg: 'sendMessageByAdapter', isOk, messageId, deliveryMetadata })                
                 transportMeta.deliveryMetadata = deliveryMetadata
                 transportMeta.status = isOk ? MESSAGE_SENT_STATUS : MESSAGE_ERROR_STATUS
                 processingMeta.step = isOk ? MESSAGE_SENT_STATUS : MESSAGE_ERROR_STATUS
