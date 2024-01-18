@@ -24,18 +24,18 @@ const OIDCClient = new GQLListSchema('OIDCClient', {
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+            access: {
+                read: true,
+                create: true,
+                update: false,
+            },
         },
         clientId: {
             schemaDoc: 'OIDC Client ID',
-            type: 'Text',
-            isRequired: true,
-            hooks: {
-                resolveInput ({ operation }) {
-                    // NOTE: Used app id for simplicity
-                    if (operation === 'create') {
-                        return faker.datatype.uuid()
-                    }
-                },
+            type: 'Virtual',
+            graphQLReturnType: 'ID',
+            resolver (item) {
+                return item.b2cApp
             },
             access: {
                 read: true,

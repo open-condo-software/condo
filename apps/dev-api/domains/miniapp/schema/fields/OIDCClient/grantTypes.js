@@ -1,5 +1,4 @@
 const Ajv = require('ajv')
-const pick = require('lodash/pick')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 
@@ -37,12 +36,11 @@ const GRANT_TYPES_FIELD = {
     hooks: {
         validateInput ({ resolvedData, fieldPath, context }) {
             if (!validate(resolvedData[fieldPath])) {
+                const aggregatedMessage = validate.errors.map(err => err.message).join(', ')
                 throw new GQLError({
                     code: BAD_USER_INPUT,
                     type: INVALID_GRANT_TYPES,
-                    message: `"${fieldPath}" field validation error. JSON was not in the correct format. Errors: ${JSON.stringify(
-                        validate.errors.map(error => pick(error, 'instancePath', 'message')), null, 2
-                    )}`,
+                    message: `"${fieldPath}" field validation error. JSON was not in the correct format. ${aggregatedMessage}`,
                 }, context)
             }
         },

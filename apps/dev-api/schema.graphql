@@ -2541,7 +2541,7 @@ type OIDCClientHistoryRecord {
   """
   _label_: String
   b2cApp: String
-  clientId: String
+  clientId: JSON
   clientSecret: String
   grantTypes: JSON
   responseTypes: JSON
@@ -2569,24 +2569,10 @@ input OIDCClientHistoryRecordWhereInput {
   b2cApp_not: String
   b2cApp_in: [String]
   b2cApp_not_in: [String]
-  clientId: String
-  clientId_not: String
-  clientId_contains: String
-  clientId_not_contains: String
-  clientId_starts_with: String
-  clientId_not_starts_with: String
-  clientId_ends_with: String
-  clientId_not_ends_with: String
-  clientId_i: String
-  clientId_not_i: String
-  clientId_contains_i: String
-  clientId_not_contains_i: String
-  clientId_starts_with_i: String
-  clientId_not_starts_with_i: String
-  clientId_ends_with_i: String
-  clientId_not_ends_with_i: String
-  clientId_in: [String]
-  clientId_not_in: [String]
+  clientId: JSON
+  clientId_not: JSON
+  clientId_in: [JSON]
+  clientId_not_in: [JSON]
   clientSecret: String
   clientSecret_not: String
   clientSecret_contains: String
@@ -2732,8 +2718,6 @@ input OIDCClientHistoryRecordWhereUniqueInput {
 }
 
 enum SortOIDCClientHistoryRecordsBy {
-  clientId_ASC
-  clientId_DESC
   clientSecret_ASC
   clientSecret_DESC
   developmentRedirectUri_ASC
@@ -2760,7 +2744,7 @@ enum SortOIDCClientHistoryRecordsBy {
 
 input OIDCClientHistoryRecordUpdateInput {
   b2cApp: String
-  clientId: String
+  clientId: JSON
   clientSecret: String
   grantTypes: JSON
   responseTypes: JSON
@@ -2787,7 +2771,7 @@ input OIDCClientHistoryRecordsUpdateInput {
 
 input OIDCClientHistoryRecordCreateInput {
   b2cApp: String
-  clientId: String
+  clientId: JSON
   clientSecret: String
   grantTypes: JSON
   responseTypes: JSON
@@ -2832,7 +2816,7 @@ type OIDCClient {
   b2cApp: B2CApp
 
   """ OIDC Client ID """
-  clientId: String
+  clientId: ID
 
   """ OIDC Client Secret """
   clientSecret: String
@@ -2886,24 +2870,6 @@ input OIDCClientWhereInput {
   OR: [OIDCClientWhereInput]
   b2cApp: B2CAppWhereInput
   b2cApp_is_null: Boolean
-  clientId: String
-  clientId_not: String
-  clientId_contains: String
-  clientId_not_contains: String
-  clientId_starts_with: String
-  clientId_not_starts_with: String
-  clientId_ends_with: String
-  clientId_not_ends_with: String
-  clientId_i: String
-  clientId_not_i: String
-  clientId_contains_i: String
-  clientId_not_contains_i: String
-  clientId_starts_with_i: String
-  clientId_not_starts_with_i: String
-  clientId_ends_with_i: String
-  clientId_not_ends_with_i: String
-  clientId_in: [String]
-  clientId_not_in: [String]
   clientSecret: String
   clientSecret_not: String
   clientSecret_contains: String
@@ -3067,8 +3033,6 @@ input OIDCClientWhereUniqueInput {
 enum SortOIDCClientsBy {
   b2cApp_ASC
   b2cApp_DESC
-  clientId_ASC
-  clientId_DESC
   clientSecret_ASC
   clientSecret_DESC
   developmentRedirectUri_ASC
@@ -3099,7 +3063,6 @@ enum SortOIDCClientsBy {
 
 input OIDCClientUpdateInput {
   b2cApp: B2CAppRelateToOneInput
-  clientId: String
   clientSecret: String
   grantTypes: [OIDCGrantType!]
   responseTypes: [String!]
@@ -3125,7 +3088,6 @@ input OIDCClientsUpdateInput {
 
 input OIDCClientCreateInput {
   b2cApp: B2CAppRelateToOneInput
-  clientId: String
   clientSecret: String
   grantTypes: [OIDCGrantType!]
   responseTypes: [String!]
