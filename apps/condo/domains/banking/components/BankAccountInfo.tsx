@@ -13,12 +13,11 @@ import { PaymentsSumTable as RequisitesContainer } from '@condo/domains/acquirin
 import type { BankAccount as BankAccountType } from '@app/condo/schema'
 
 
-const VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
+const GUTTER: [Gutter, Gutter] = [0, 20]
 const valueAlign: React.CSSProperties = { textAlign: 'end' }
-const spacingStyle: React.CSSProperties = { marginBottom: '20px', marginTop: '20px' }
 const renderRow = (name, value) => {
     return (
-        <Row gutter={VERTICAL_GUTTER} style={spacingStyle}>
+        <Row gutter={GUTTER}>
             <Col span={10}>
                 <Typography.Text type='secondary' size='large'>{name}</Typography.Text>
             </Col>
@@ -54,7 +53,7 @@ export const BankingInfo: React.FC<IBankAccountInfo> = ({ bankAccount }) => {
             >
                 {accrualsAndPayments}
             </Tag>
-            <Row style={spacingStyle}>
+            <Row gutter={GUTTER}>
                 <Typography.Title level={3}>{get(bankAccount, 'organization.name', '-')}</Typography.Title>
             </Row>
 
