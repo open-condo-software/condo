@@ -81,7 +81,7 @@ class DadataHealthChecker {
      * Checks token balance.
      * In case of returned value less than DADATA_PROFILE_BALANCE_WARNING or any unhandled error -> returns false
      * Otherwise returns true
-     * @return {Promise<boolean>}
+     * @return {Promise<('pass'|'warn'|'fail')>}
      */
     async profileBalance () {
         const profileBalanceRequest = fetch(this.url + '/profile/balance', { method: 'GET', headers: this.getRequestHeaders() })
@@ -89,16 +89,16 @@ class DadataHealthChecker {
         const response = await this.makeHealthcheckRequest(profileBalanceRequest)
 
         if (response.intermediateResult) {
-            return get(response, ['originalResponse', 'balance'], 0) > this.profileBalanceWarning
+            return get(response, ['originalResponse', 'balance'], 0) > this.profileBalanceWarning ? 'pass' : 'warn'
         }
 
-        return response.intermediateResult
+        return response.intermediateResult ? 'pass' : 'fail'
     }
 
     /**
      * Checks token daily statistics of suggestions usage
      * Returns false in case of any unhandled error or if remaining suggestions count less than
-     * @return {Promise<boolean>}
+     * @return {Promise<('pass'|'warn'|'fail')>}
      */
     async dailyStatistics () {
         const dailyStatisticsRequest = fetch(this.url + '/stat/daily', { method: 'GET', headers: this.getRequestHeaders() })
@@ -107,9 +107,11 @@ class DadataHealthChecker {
 
         if (response.intermediateResult) {
             return get(response, ['originalResponse', 'remaining', 'suggestions'], 0) > this.suggestionsWarning
+                ? 'pass'
+                : 'warn'
         }
 
-        return response.intermediateResult
+        return response.intermediateResult ? 'pass' : 'fail'
     }
 }
 
