@@ -71,5 +71,6 @@ export {
     setupCondoAuth,
     createOrganization,
     createProperty,
+    sendAuthorizedRequest,
     BASE_API_URL,
 }
