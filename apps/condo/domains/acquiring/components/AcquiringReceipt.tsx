@@ -281,7 +281,7 @@ const InvoiceRowsTable: React.FC<IInvoiceSectionProps> = ({ section, currencyCod
                                 <Money amount={row.toPay} currencyCode={currencyCode}/>
                             </Col>
                             <Col span={4} style={{ textAlign: 'right' }}>{row.count}</Col>
-                            <Col span={4} style={{ textAlign: 'right' }}>{row.vatPercent}%</Col>
+                            <Col span={4} style={{ textAlign: 'right' }}>{Big(row.vatPercent).toString()}%</Col>
                             <Col span={4} style={{ textAlign: 'right' }}>
                                 <Money amount={row.amount} currencyCode={currencyCode}/>
                             </Col>
@@ -292,7 +292,7 @@ const InvoiceRowsTable: React.FC<IInvoiceSectionProps> = ({ section, currencyCod
                     vatPercents.length > 0 && vatPercents.map((vatPercent) => (
                         <>
                             <Col span={12}>
-                                <Typography.Text strong className='vatRow'>{VatTitle} {vatPercent}%</Typography.Text>
+                                <Typography.Text strong className='vatRow'>{VatTitle} {Big(vatPercent).toString()}%</Typography.Text>
                             </Col>
                             <Col span={12} style={{ textAlign: 'right' }}>
                                 <Typography.Text strong className='vatRow'>
