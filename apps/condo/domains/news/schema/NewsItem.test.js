@@ -1110,7 +1110,7 @@ describe('NewsItems', () => {
                 [{ newsItemScopeCount: 10 }, { count: 10, firstTwoLength: 2 }],
             ]
 
-            test.each(cases)('%p', async (input, output) => {
+            test.each(cases)('%p Should return correct data: %s', async (input, output) => {
                 const { newsItemScopeCount } = input
                 const { count, firstTwoLength } = output
 
