@@ -13,15 +13,15 @@ import { PaymentsSumTable as RequisitesContainer } from '@condo/domains/acquirin
 import type { BankAccount as BankAccountType } from '@app/condo/schema'
 
 
-const VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
+const GUTTER: [Gutter, Gutter] = [0, 20]
 const valueAlign: React.CSSProperties = { textAlign: 'end' }
 const renderRow = (name, value) => {
     return (
-        <Row gutter={VERTICAL_GUTTER}>
-            <Col span={12}>
+        <Row gutter={GUTTER}>
+            <Col span={10}>
                 <Typography.Text type='secondary' size='large'>{name}</Typography.Text>
             </Col>
-            <Col span={12} style={valueAlign}>
+            <Col span={14} style={valueAlign}>
                 <Typography.Text type='secondary' size='large'>{value}</Typography.Text>
             </Col>
         </Row>
@@ -34,7 +34,6 @@ export interface IBankAccountInfo {
 
 export const BankingInfo: React.FC<IBankAccountInfo> = ({ bankAccount }) => {
     const intl = useIntl()
-    const NameMessage = intl.formatMessage({ id: 'pages.condo.settings.bankAccountInfo.name' })
     const TinMessage = intl.formatMessage({ id: 'pages.condo.settings.bankAccountInfo.tin' })
     const NumberMessage = intl.formatMessage({ id: 'pages.condo.settings.bankAccountInfo.number' })
     const BicMessage = intl.formatMessage({ id: 'pages.condo.settings.bankAccountInfo.bic' })
@@ -47,24 +46,20 @@ export const BankingInfo: React.FC<IBankAccountInfo> = ({ bankAccount }) => {
     }, [breakpoints])
 
     return (
-        <Col span={6} xs={24}>
-            <RequisitesContainer style={containerStyle}>
-                <Tag
-                    bgColor={ colors.gray[7]}
-                    textColor={colors.white}
-                >
-                    {accrualsAndPayments}
-                </Tag>
-                <Row style={{ marginBottom: '12px', marginTop: '12px' }}>
-                    <Col span={6}>
-                        <Typography.Title level={3}>{get(bankAccount, 'organization.name', '-')}</Typography.Title>
-                    </Col>
-                </Row>
+        <RequisitesContainer style={containerStyle}>
+            <Tag
+                bgColor={ colors.gray[7]}
+                textColor={colors.white}
+            >
+                {accrualsAndPayments}
+            </Tag>
+            <Row gutter={GUTTER}>
+                <Typography.Title level={3}>{get(bankAccount, 'organization.name', '-')}</Typography.Title>
+            </Row>
 
-                {renderRow(TinMessage, get(bankAccount, 'tin', '-'))}
-                {renderRow(BicMessage, get(bankAccount, 'routingNumber', '-'))}
-                {renderRow(NumberMessage, get(bankAccount, 'number', '-'))}
-            </RequisitesContainer>
-        </Col>
+            {renderRow(TinMessage, get(bankAccount, 'tin', '-'))}
+            {renderRow(BicMessage, get(bankAccount, 'routingNumber', '-'))}
+            {renderRow(NumberMessage, get(bankAccount, 'number', '-'))}
+        </RequisitesContainer>
     )
 }
