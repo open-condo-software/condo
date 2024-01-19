@@ -143,6 +143,31 @@ async function find (schemaName, condition) {
     return await schemaList._keystone.lists[schemaName].adapter.find(condition)
 }
 
+/**
+ * This function allows you to more flexibly specify a selection of records or get their number.
+ *
+ * @param {string} schemaName
+ * @param args
+ * @param {Object?} args.where
+ * @param {number?} args.first
+ * @param {number?} args.skip
+ * @param {string?} args.orderBy
+ * @param {string[]?} args.sortBy
+ * same as "orderBy", only in an array
+ * @param {string?} args.search
+ * "search" not supported in knex adapter (from knex adapter implementation)
+ * @param {boolean} meta
+ * If "true", then returns { count } with the number of objects.
+ * If "false", it will return objects
+ * @param from
+ */
+async function itemsQuery (schemaName, args, { meta = false, from = {} } = {}) {
+    if (!SCHEMAS.has(schemaName)) throw new Error(`Schema ${schemaName} is not registered yet`)
+    if (SCHEMAS.get(schemaName)._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Schema ${schemaName} type != ${GQL_LIST_SCHEMA_TYPE}`)
+    const schemaList = SCHEMAS.get(schemaName)
+    return await schemaList._keystone.lists[schemaName].adapter.itemsQuery(args, { meta, from })
+}
+
 async function getByCondition (schemaName, condition) {
     const res = await find(schemaName, condition)
     if (res.length > 1) throw new Error('getByCondition() returns multiple objects')
@@ -235,6 +260,7 @@ module.exports = {
     find,
     getById,
     getByCondition,
+    itemsQuery,
     getSchemaContexts,
     getListDependentRelations,
     GQL_SCHEMA_TYPES,
