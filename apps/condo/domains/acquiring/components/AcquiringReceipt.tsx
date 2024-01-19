@@ -118,6 +118,8 @@ const PageWrapper = styled.div`
 
   & .rowsTable {
     
+    border-bottom: 1px solid ${colors.lightGrey[5]};
+    
     padding-bottom: 20px;
     color: ${colors.black[2]};
     
@@ -346,7 +348,6 @@ const ReceiptSection: React.FC<IReceiptSectionProps> = ({ section, currencyCode 
                         }
                     </Row>
                 </Col>
-
             </Row>
         </Col>
     )
