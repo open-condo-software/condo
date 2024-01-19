@@ -283,6 +283,39 @@ describe('RegisterMultiPaymentService', () => {
                     message: 'Each group of receipts should contain at least 1 receipt',
                 }, 'result')
             })
+
+            test('Can\'t accept receipts with invoices', async () => {
+                const { billingReceipts, serviceConsumer, acquiringIntegration, acquiringContext, organization } = await makePayer()
+
+                await updateTestAcquiringIntegration(adminClient, acquiringIntegration.id, { canGroupReceipts: true })
+
+                await updateTestAcquiringIntegrationContext(adminClient, acquiringContext.id, {
+                    invoiceStatus: CONTEXT_FINISHED_STATUS,
+                    invoiceImplicitFeeDistributionSchema: [{
+                        recipient: 'organization',
+                        percent: '5',
+                    }],
+                    invoiceRecipient: createTestRecipient(),
+                })
+
+                const [invoice1] = await createTestInvoice(adminClient, organization, { status: INVOICE_STATUS_PUBLISHED })
+
+                const payload = [{
+                    serviceConsumer: { id: serviceConsumer.id },
+                    receipts: billingReceipts.map(receipt => ({ id: receipt.id })),
+                }]
+
+                await expectToThrowGQLError(async () => registerMultiPaymentByTestClient(
+                    adminClient,
+                    payload,
+                    { invoices: [pick(invoice1, 'id')] },
+                ), {
+                    code: 'BAD_USER_INPUT',
+                    type: 'MULTIPAYMENT_RECEIPTS_WITH_INVOICES_FORBIDDEN',
+                    message: 'Receipts and invoices are forbidden to be together',
+                    messageForUser: 'api.acquiring.multiPayment.error.receiptsWithInvoices',
+                }, 'result')
+            })
         })
         describe('Duplicates checks', () => {
             test('Should contain unique ServiceConsumers', async () => {
@@ -754,7 +787,8 @@ describe('RegisterMultiPaymentService', () => {
                 )
             })
 
-            test('receipts and invoices must have the same currency', async () => {
+            test.todo('DOMA-8265 Skip this test until we allow to create the multi-payment which including both, invoices and receipts')
+            test.skip('receipts and invoices must have the same currency', async () => {
                 const { billingReceipts, serviceConsumer, billingIntegration, acquiringIntegration, acquiringContext, organization } = await makePayer()
 
                 await updateTestBillingIntegration(adminClient, billingIntegration.id, { currencyCode: 'USD' })
@@ -1281,7 +1315,8 @@ describe('RegisterMultiPaymentService', () => {
             })
         })
 
-        test('Should correctly register multiPayment for receipt and invoice', async () => {
+        test.todo('DOMA-8265 Skip this test until we allow to create the multi-payment which including both, invoices and receipts')
+        test.skip('DOMA-8265 Should correctly register multiPayment for receipt and invoice', async () => {
             const {
                 acquiringIntegration,
                 acquiringContext,

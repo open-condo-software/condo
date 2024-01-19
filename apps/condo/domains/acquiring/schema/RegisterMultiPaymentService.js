@@ -19,6 +19,7 @@ const {
     ACQUIRING_INTEGRATION_IS_DELETED, RECEIPTS_CANNOT_BE_GROUPED_BY_ACQUIRING_INTEGRATION,
     CANNOT_FIND_ALL_BILLING_RECEIPTS, ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED,
     INVOICES_ARE_NOT_PUBLISHED, INVOICES_FOR_THIRD_USER, INVOICE_CONTEXT_NOT_FINISHED,
+    MULTIPAYMENT_RECEIPTS_WITH_INVOICES_FORBIDDEN,
 } = require('@condo/domains/acquiring/constants/errors')
 const {
     FEE_CALCULATION_PATH,
@@ -249,6 +250,12 @@ const ERRORS = {
         type: ERROR_DIFFERENT_CURRENCY_CODES_FOR_RECEIPTS_AND_INVOICES,
         message: 'Receipts and invoices has different currency codes',
     },
+    RECEIPTS_WITH_INVOICES_FORBIDDEN: {
+        code: BAD_USER_INPUT,
+        type: MULTIPAYMENT_RECEIPTS_WITH_INVOICES_FORBIDDEN,
+        message: 'Receipts and invoices are forbidden to be together',
+        messageForUser: 'api.acquiring.multiPayment.error.receiptsWithInvoices',
+    },
 }
 
 
@@ -437,6 +444,10 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                         .filter(receipt => deletedBillingIntegrationsIds.has(billingContextsById[receipt.context].integration))
                         .map(receipt => ({ receiptId: receipt.id, integrationId: billingContextsById[receipt.context].integration }))
                     throw new GQLError({ ...ERRORS.RECEIPT_HAS_DELETED_BILLING_INTEGRATION, data: { failedReceipts } }, context)
+                }
+
+                if (receipts.length > 0 && foundInvoices.length > 0) {
+                    throw new GQLError(ERRORS.RECEIPTS_WITH_INVOICES_FORBIDDEN, context)
                 }
 
                 // "consumer-id" -> [array of billing integration contexts that are linked thorough organization to this consumer]

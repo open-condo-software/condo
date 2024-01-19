@@ -392,6 +392,26 @@ describe('MultiPayment', () => {
                     await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
                 }, MULTIPAYMENT_CANNOT_GROUP_RECEIPTS)
             })
+
+            test('Can\'t accept receipts with invoices', async () => {
+                const { admin, organization, acquiringContext, client, acquiringIntegration, payments } = await makePayerAndPayments()
+
+                await updateTestAcquiringIntegrationContext(admin, acquiringContext.id, { invoiceStatus: CONTEXT_FINISHED_STATUS })
+
+                const [invoice] = await createTestInvoice(admin, organization, {
+                    status: INVOICE_STATUS_PUBLISHED,
+                    client: { connect: { id: client.user.id } },
+                })
+
+                const [invoicePayment] = await createTestPayment(admin, organization, null, acquiringContext, { invoice })
+
+                await expectToThrowGQLError(async () => await createTestMultiPayment(admin, [...payments, invoicePayment], client.user, acquiringIntegration), {
+                    code: 'BAD_USER_INPUT',
+                    type: 'MULTIPAYMENT_RECEIPTS_WITH_INVOICES_FORBIDDEN',
+                    message: 'Receipts and invoices are forbidden to be together',
+                    messageForUser: 'api.acquiring.multiPayment.error.receiptsWithInvoices',
+                })
+            })
         })
         describe('Status-dependent model validations', () => {
             test('Cannot change statuses if it\'s transition is not specified', async () => {
