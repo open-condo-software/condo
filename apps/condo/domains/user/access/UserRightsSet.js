@@ -4,16 +4,22 @@
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
+const { canDirectlyReadSchemaObjects, canDirectlyManageSchemaObjects } = require('@condo/domains/user/utils/directAccess')
+
 
 /**
  * Only administrators and support can view all rights sets.
  * Other users can see their current permission set for debugging purposes.
  */
-async function canReadUserRightsSets ({ authentication: { item: user } }) {
+async function canReadUserRightsSets ({ authentication: { item: user }, listKey }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isAdmin || user.isSupport) return {}
+
+    const hasDirectAccess = await canDirectlyReadSchemaObjects(user, listKey)
+    if (hasDirectAccess) return true
+
     if (user.rightsSet) return { id: user.rightsSet }
 
     return false
@@ -22,11 +28,12 @@ async function canReadUserRightsSets ({ authentication: { item: user } }) {
 /**
  * Only admin and support users can manage rights sets
  */
-async function canManageUserRightsSets ({ authentication: { item: user } }) {
+async function canManageUserRightsSets ({ authentication: { item: user }, listKey, originalInput, operation }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
+    if (user.isAdmin || user.isSupport) return true
 
-    return !!(user.isAdmin || user.isSupport)
+    return await canDirectlyManageSchemaObjects(user, listKey, originalInput, operation)
 }
 
 /*

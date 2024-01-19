@@ -6,7 +6,7 @@ const { Text, DateTimeUtc } = require('@keystonejs/fields')
 const Ajv = require('ajv')
 
 const { Json } = require('@open-condo/keystone/fields')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, importable } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/user/access/OidcClient')
@@ -80,7 +80,7 @@ const OidcClient = new GQLListSchema('OidcClient', {
         },
 
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), importable()],
     access: {
         read: access.canReadOidcClients,
         create: access.canManageOidcClients,

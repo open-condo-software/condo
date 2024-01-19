@@ -51841,6 +51841,10 @@ export type OidcClient = {
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
+  /**  ID of the object in the system from which it was imported  */
+  importId?: Maybe<Scalars['String']>;
+  /**  Name of the system from which object was imported  */
+  importRemoteSystem?: Maybe<Scalars['String']>;
 };
 
 export type OidcClientCreateInput = {
@@ -51858,6 +51862,8 @@ export type OidcClientCreateInput = {
   newId?: Maybe<Scalars['String']>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
+  importId?: Maybe<Scalars['String']>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
 };
 
 /**  A keystone list  */
@@ -52098,6 +52104,8 @@ export type OidcClientUpdateInput = {
   newId?: Maybe<Scalars['String']>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
+  importId?: Maybe<Scalars['String']>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
 };
 
 export type OidcClientWhereInput = {
@@ -52211,6 +52219,42 @@ export type OidcClientWhereInput = {
   sender_not?: Maybe<SenderFieldInput>;
   sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  importId?: Maybe<Scalars['String']>;
+  importId_not?: Maybe<Scalars['String']>;
+  importId_contains?: Maybe<Scalars['String']>;
+  importId_not_contains?: Maybe<Scalars['String']>;
+  importId_starts_with?: Maybe<Scalars['String']>;
+  importId_not_starts_with?: Maybe<Scalars['String']>;
+  importId_ends_with?: Maybe<Scalars['String']>;
+  importId_not_ends_with?: Maybe<Scalars['String']>;
+  importId_i?: Maybe<Scalars['String']>;
+  importId_not_i?: Maybe<Scalars['String']>;
+  importId_contains_i?: Maybe<Scalars['String']>;
+  importId_not_contains_i?: Maybe<Scalars['String']>;
+  importId_starts_with_i?: Maybe<Scalars['String']>;
+  importId_not_starts_with_i?: Maybe<Scalars['String']>;
+  importId_ends_with_i?: Maybe<Scalars['String']>;
+  importId_not_ends_with_i?: Maybe<Scalars['String']>;
+  importId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
+  importRemoteSystem_not?: Maybe<Scalars['String']>;
+  importRemoteSystem_contains?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_contains?: Maybe<Scalars['String']>;
+  importRemoteSystem_starts_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_starts_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_ends_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_ends_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_contains_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_contains_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_starts_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_starts_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_ends_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_ends_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importRemoteSystem_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
 };
 
 export type OidcClientWhereUniqueInput = {
@@ -76925,7 +76969,11 @@ export enum SortOidcClientsBy {
   DeletedAtAsc = 'deletedAt_ASC',
   DeletedAtDesc = 'deletedAt_DESC',
   DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC'
+  DvDesc = 'dv_DESC',
+  ImportIdAsc = 'importId_ASC',
+  ImportIdDesc = 'importId_DESC',
+  ImportRemoteSystemAsc = 'importRemoteSystem_ASC',
+  ImportRemoteSystemDesc = 'importRemoteSystem_DESC'
 }
 
 export enum SortOnBoardingHistoryRecordsBy {
@@ -79818,6 +79866,14 @@ export enum SortUserRightsSetHistoryRecordsBy {
   CanReadTicketsDesc = 'canReadTickets_DESC',
   CanManageTicketsAsc = 'canManageTickets_ASC',
   CanManageTicketsDesc = 'canManageTickets_DESC',
+  CanReadOidcClientsAsc = 'canReadOidcClients_ASC',
+  CanReadOidcClientsDesc = 'canReadOidcClients_DESC',
+  CanManageOidcClientsAsc = 'canManageOidcClients_ASC',
+  CanManageOidcClientsDesc = 'canManageOidcClients_DESC',
+  CanReadUserRightsSetsAsc = 'canReadUserRightsSets_ASC',
+  CanReadUserRightsSetsDesc = 'canReadUserRightsSets_DESC',
+  CanManageUserRightsSetsAsc = 'canManageUserRightsSets_ASC',
+  CanManageUserRightsSetsDesc = 'canManageUserRightsSets_DESC',
   CanExecuteRegisterNewServiceUserAsc = 'canExecuteRegisterNewServiceUser_ASC',
   CanExecuteRegisterNewServiceUserDesc = 'canExecuteRegisterNewServiceUser_DESC',
   CanExecuteSendMessageAsc = 'canExecuteSendMessage_ASC',
@@ -79897,6 +79953,14 @@ export enum SortUserRightsSetsBy {
   CanReadTicketsDesc = 'canReadTickets_DESC',
   CanManageTicketsAsc = 'canManageTickets_ASC',
   CanManageTicketsDesc = 'canManageTickets_DESC',
+  CanReadOidcClientsAsc = 'canReadOidcClients_ASC',
+  CanReadOidcClientsDesc = 'canReadOidcClients_DESC',
+  CanManageOidcClientsAsc = 'canManageOidcClients_ASC',
+  CanManageOidcClientsDesc = 'canManageOidcClients_DESC',
+  CanReadUserRightsSetsAsc = 'canReadUserRightsSets_ASC',
+  CanReadUserRightsSetsDesc = 'canReadUserRightsSets_DESC',
+  CanManageUserRightsSetsAsc = 'canManageUserRightsSets_ASC',
+  CanManageUserRightsSetsDesc = 'canManageUserRightsSets_DESC',
   CanExecuteRegisterNewServiceUserAsc = 'canExecuteRegisterNewServiceUser_ASC',
   CanExecuteRegisterNewServiceUserDesc = 'canExecuteRegisterNewServiceUser_DESC',
   CanExecuteSendMessageAsc = 'canExecuteSendMessage_ASC',
@@ -90626,6 +90690,14 @@ export type UserRightsSet = {
   canReadTickets?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "Ticket" similar to support users  */
   canManageTickets?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "OidcClient" as support / admin users do  */
+  canReadOidcClients?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "OidcClient" similar to support users  */
+  canManageOidcClients?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "UserRightsSet" as support / admin users do  */
+  canReadUserRightsSets?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "UserRightsSet" similar to support users  */
+  canManageUserRightsSets?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to execute "registerNewServiceUser" query/mutation  */
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to execute "sendMessage" query/mutation  */
@@ -90676,6 +90748,10 @@ export type UserRightsSetCreateInput = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
+  canReadOidcClients?: Maybe<Scalars['Boolean']>;
+  canManageOidcClients?: Maybe<Scalars['Boolean']>;
+  canReadUserRightsSets?: Maybe<Scalars['Boolean']>;
+  canManageUserRightsSets?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
   canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']>;
@@ -90728,6 +90804,10 @@ export type UserRightsSetHistoryRecord = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
+  canReadOidcClients?: Maybe<Scalars['Boolean']>;
+  canManageOidcClients?: Maybe<Scalars['Boolean']>;
+  canReadUserRightsSets?: Maybe<Scalars['Boolean']>;
+  canManageUserRightsSets?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
   canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']>;
@@ -90774,6 +90854,10 @@ export type UserRightsSetHistoryRecordCreateInput = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
+  canReadOidcClients?: Maybe<Scalars['Boolean']>;
+  canManageOidcClients?: Maybe<Scalars['Boolean']>;
+  canReadUserRightsSets?: Maybe<Scalars['Boolean']>;
+  canManageUserRightsSets?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
   canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']>;
@@ -90825,6 +90909,10 @@ export type UserRightsSetHistoryRecordUpdateInput = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
+  canReadOidcClients?: Maybe<Scalars['Boolean']>;
+  canManageOidcClients?: Maybe<Scalars['Boolean']>;
+  canReadUserRightsSets?: Maybe<Scalars['Boolean']>;
+  canManageUserRightsSets?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
   canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']>;
@@ -90915,6 +91003,14 @@ export type UserRightsSetHistoryRecordWhereInput = {
   canReadTickets_not?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets_not?: Maybe<Scalars['Boolean']>;
+  canReadOidcClients?: Maybe<Scalars['Boolean']>;
+  canReadOidcClients_not?: Maybe<Scalars['Boolean']>;
+  canManageOidcClients?: Maybe<Scalars['Boolean']>;
+  canManageOidcClients_not?: Maybe<Scalars['Boolean']>;
+  canReadUserRightsSets?: Maybe<Scalars['Boolean']>;
+  canReadUserRightsSets_not?: Maybe<Scalars['Boolean']>;
+  canManageUserRightsSets?: Maybe<Scalars['Boolean']>;
+  canManageUserRightsSets_not?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser_not?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
@@ -91047,6 +91143,10 @@ export type UserRightsSetUpdateInput = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
+  canReadOidcClients?: Maybe<Scalars['Boolean']>;
+  canManageOidcClients?: Maybe<Scalars['Boolean']>;
+  canReadUserRightsSets?: Maybe<Scalars['Boolean']>;
+  canManageUserRightsSets?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
   canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']>;
@@ -91134,6 +91234,14 @@ export type UserRightsSetWhereInput = {
   canReadTickets_not?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets_not?: Maybe<Scalars['Boolean']>;
+  canReadOidcClients?: Maybe<Scalars['Boolean']>;
+  canReadOidcClients_not?: Maybe<Scalars['Boolean']>;
+  canManageOidcClients?: Maybe<Scalars['Boolean']>;
+  canManageOidcClients_not?: Maybe<Scalars['Boolean']>;
+  canReadUserRightsSets?: Maybe<Scalars['Boolean']>;
+  canReadUserRightsSets_not?: Maybe<Scalars['Boolean']>;
+  canManageUserRightsSets?: Maybe<Scalars['Boolean']>;
+  canManageUserRightsSets_not?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser_not?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;

@@ -42,6 +42,10 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
 
         // Ticket domain
         'Ticket',
+
+        // User domain
+        'OidcClient',
+        'UserRightsSet',
     ],
     fields: {
         Organization: ['isApproved'],
