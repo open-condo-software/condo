@@ -57245,6 +57245,7 @@ type NewsItemHistoryRecord {
   type: String
   validBefore: String
   sendAt: String
+  compactScopes: JSON
   sentAt: String
   isPublished: Boolean
   publishedAt: String
@@ -57344,6 +57345,10 @@ input NewsItemHistoryRecordWhereInput {
   sendAt_gte: String
   sendAt_in: [String]
   sendAt_not_in: [String]
+  compactScopes: JSON
+  compactScopes_not: JSON
+  compactScopes_in: [JSON]
+  compactScopes_not_in: [JSON]
   sentAt: String
   sentAt_not: String
   sentAt_lt: String
@@ -57487,6 +57492,7 @@ input NewsItemHistoryRecordUpdateInput {
   type: String
   validBefore: String
   sendAt: String
+  compactScopes: JSON
   sentAt: String
   isPublished: Boolean
   publishedAt: String
@@ -57517,6 +57523,7 @@ input NewsItemHistoryRecordCreateInput {
   type: String
   validBefore: String
   sendAt: String
+  compactScopes: JSON
   sentAt: String
   isPublished: Boolean
   publishedAt: String
@@ -57548,6 +57555,11 @@ input NewsItemScopeRelateToManyInput {
   connect: [NewsItemScopeWhereUniqueInput]
   disconnect: [NewsItemScopeWhereUniqueInput]
   disconnectAll: Boolean
+}
+
+type ShortScopesField {
+  count: Int!
+  firstTwo: [NewsItemScope]!
 }
 
 """ The news item created by the organization to show on resident's mobile devices 
@@ -57585,6 +57597,12 @@ type NewsItem {
   sendAt: String
   scopes(where: NewsItemScopeWhereInput, search: String, sortBy: [SortNewsItemScopesBy!], orderBy: String, first: Int, skip: Int): [NewsItemScope!]!
   _scopesMeta(where: NewsItemScopeWhereInput, search: String, sortBy: [SortNewsItemScopesBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """
+   Returns the number of scopes that are specified for sending the news, and also the first two of them.
+  Used to reduce requests for get of scopes in the UI 
+  """
+  compactScopes: ShortScopesField
 
   """ The date when newsItem was sent to residents. This is an internal field used to detect was the message has already been sent or not. 
   """
