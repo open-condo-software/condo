@@ -416,54 +416,56 @@ export const AcquiringReceipt: React.FC<IAcquiringReceiptProps> = (props) => {
     }, [containerRef, documentNumber])
     return (
         <Row style={SCROLL_BOX_STYLE} justify='center'>
-            <PageWrapper ref={containerRef}>
-                <Row>
-                    <Col span={24}>
-                        <Row>
-                            <Col span={12}>
-                                <Typography.Text type='secondary'>
-                                    {documentNumber}
-                                </Typography.Text>
-                            </Col>
-                            <Col span={12} style={{ textAlign: 'right' }}>
-                                <Typography.Text>
-                                    {dayjs(paymentDateTime).local().format('DD.MM.YYYY, HH:mm')}
-                                </Typography.Text>
-                            </Col>
-                        </Row>
-                    </Col>
-                    <Col span={24}>
-                        <Typography.Title level={4} className='receiptTitle'>
-                            {documentTitle}
+            <Col>
+                <PageWrapper ref={containerRef}>
+                    <Row>
+                        <Col span={24}>
+                            <Row>
+                                <Col span={12}>
+                                    <Typography.Text type='secondary'>
+                                        {documentNumber}
+                                    </Typography.Text>
+                                </Col>
+                                <Col span={12} style={{ textAlign: 'right' }}>
+                                    <Typography.Text>
+                                        {dayjs(paymentDateTime).local().format('DD.MM.YYYY, HH:mm')}
+                                    </Typography.Text>
+                                </Col>
+                            </Row>
+                        </Col>
+                        <Col span={24}>
+                            <Typography.Title level={4} className='receiptTitle'>
+                                {documentTitle}
+                            </Typography.Title>
+                        </Col>
+                        <Col span={24} className='payerInfo'>
+                            <Row gutter={[0, 8]}>{payerInfo.map((row, index) => <InfoRow row={row} key={index}/>)}</Row>
+                        </Col>
+                        {
+                            receipts && receipts.map((section, index) => (
+                                <ReceiptSection section={section} currencyCode={currencyCode} key={`receipt${index}`}/>
+                            ))
+                        }
+                        {
+                            invoices && invoices.map((section, index) => (
+                                <InvoiceSection section={section} currencyCode={currencyCode} key={`invoice${index}`}/>
+                            ))
+                        }
+                    </Row>
+                    <Row>
+                        <Col span={24} className='moneyContainer'>
+                            <Typography.Title level={4}>
+                                <Money amount={amountWithExplicits} currencyCode={currencyCode}/>
+                            </Typography.Title>
+                        </Col>
+                    </Row>
+                    <Row justify='center'>
+                        <Typography.Title style={{ color: statusColor, textTransform: 'uppercase' }} level={4}>
+                            {statusMessage}
                         </Typography.Title>
-                    </Col>
-                    <Col span={24} className='payerInfo'>
-                        <Row gutter={[0, 8]}>{payerInfo.map((row, index) => <InfoRow row={row} key={index}/>)}</Row>
-                    </Col>
-                    {
-                        receipts && receipts.map((section, index) => (
-                            <ReceiptSection section={section} currencyCode={currencyCode} key={`receipt${index}`}/>
-                        ))
-                    }
-                    {
-                        invoices && invoices.map((section, index) => (
-                            <InvoiceSection section={section} currencyCode={currencyCode} key={`invoice${index}`}/>
-                        ))
-                    }
-                </Row>
-                <Row>
-                    <Col span={24} className='moneyContainer'>
-                        <Typography.Title level={4}>
-                            <Money amount={amountWithExplicits} currencyCode={currencyCode}/>
-                        </Typography.Title>
-                    </Col>
-                </Row>
-                <Row justify='center'>
-                    <Typography.Title style={{ color: statusColor, textTransform: 'uppercase' }} level={4}>
-                        {statusMessage}
-                    </Typography.Title>
-                </Row>
-            </PageWrapper>
+                    </Row>
+                </PageWrapper>
+            </Col>
         </Row>
     )
 }
