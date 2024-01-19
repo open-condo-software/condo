@@ -848,7 +848,7 @@ describe('Invoice', () => {
 
             expect(messages[0].meta.data.invoiceId).toEqual(invoice.id)
             expect(messages[0].meta.data.residentId).toEqual(resident.id)
-            expect(messages[0].meta.data.url).toEqual(`${conf.SERVER_URL}/payments`)
+            expect(messages[0].meta.data.url).toEqual(`${conf.SERVER_URL}/payments/`)
         })
 
         test('send push after publish invoice', async () => {
@@ -896,7 +896,7 @@ describe('Invoice', () => {
 
             expect(messages[0].meta.data.invoiceId).toEqual(invoice.id)
             expect(messages[0].meta.data.residentId).toEqual(resident.id)
-            expect(messages[0].meta.data.url).toEqual(`${conf.SERVER_URL}/payments`)
+            expect(messages[0].meta.data.url).toEqual(`${conf.SERVER_URL}/payments/`)
         })
 
         test('not send push after create invoice with no published status', async () => {
@@ -1035,7 +1035,7 @@ describe('Invoice', () => {
             expect(messages[0].meta.data.ticketId).toEqual(ticket.id)
             expect(messages[0].meta.data.ticketNumber).toEqual(ticket.number)
             expect(messages[0].meta.data.residentId).toEqual(resident.id)
-            expect(messages[0].meta.data.url).toEqual(`${conf.SERVER_URL}/ticket/${ticket.id}`)
+            expect(messages[0].meta.data.url).toEqual(`${conf.SERVER_URL}/ticket/${ticket.id}/`)
         })
 
         test('send push after publish invoice with ticket', async () => {
@@ -1098,7 +1098,7 @@ describe('Invoice', () => {
             expect(messages[0].meta.data.ticketId).toEqual(ticket.id)
             expect(messages[0].meta.data.ticketNumber).toEqual(ticket.number)
             expect(messages[0].meta.data.residentId).toEqual(resident.id)
-            expect(messages[0].meta.data.url).toEqual(`${conf.SERVER_URL}/ticket/${ticket.id}`)
+            expect(messages[0].meta.data.url).toEqual(`${conf.SERVER_URL}/ticket/${ticket.id}/`)
         })
 
 
@@ -1167,7 +1167,7 @@ describe('Invoice', () => {
             expect(messages[0].meta.data.ticketId).toEqual(ticket.id)
             expect(messages[0].meta.data.ticketNumber).toEqual(ticket.number)
             expect(messages[0].meta.data.residentId).toEqual(resident.id)
-            expect(messages[0].meta.data.url).toEqual(`${conf.SERVER_URL}/ticket/${ticket.id}`)
+            expect(messages[0].meta.data.url).toEqual(`${conf.SERVER_URL}/ticket/${ticket.id}/`)
         })
 
         test('send push after create invoice with published status and paymentType cash', async () => {
@@ -1210,7 +1210,7 @@ describe('Invoice', () => {
 
             expect(messages[0].meta.data.invoiceId).toEqual(invoice.id)
             expect(messages[0].meta.data.residentId).toEqual(resident.id)
-            expect(messages[0].meta.data.url).toEqual(`${conf.SERVER_URL}/payments`)
+            expect(messages[0].meta.data.url).toEqual(`${conf.SERVER_URL}/payments/`)
         })
 
         test('send push after create invoice with ticket and published status and paymentType cash', async () => {
@@ -1268,7 +1268,7 @@ describe('Invoice', () => {
             expect(messages[0].meta.data.ticketId).toEqual(ticket.id)
             expect(messages[0].meta.data.ticketNumber).toEqual(ticket.number)
             expect(messages[0].meta.data.residentId).toEqual(resident.id)
-            expect(messages[0].meta.data.url).toEqual(`${conf.SERVER_URL}/ticket/${ticket.id}`)
+            expect(messages[0].meta.data.url).toEqual(`${conf.SERVER_URL}/ticket/${ticket.id}/`)
         })
 
     })
