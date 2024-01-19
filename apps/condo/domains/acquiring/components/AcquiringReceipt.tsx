@@ -180,10 +180,17 @@ const InfoRow: React.FC<IInfoRowProps> = ({ row }) => !!row.value && (
 const Money: React.FC<{ amount: string, currencyCode: string }> = ({ amount, currencyCode }) => {
     const intl = useIntl()
 
-    return intl.formatNumberToParts(amount || '', {
+    const formattedMoneyString = intl.formatNumber(amount || '', {
         style: 'currency',
         currency: currencyCode,
-    }).map(({ type, value }) => type === 'currency' && currencyCode === 'RUB' ? '₽' : value).reduce((str, pt) => `${str}${pt}`)
+        currencyDisplay: 'narrowSymbol',
+    })
+
+    if (currencyCode === 'RUB') {
+        return `${formattedMoneyString.substring(1)}${formattedMoneyString.substring(0, 1)}`
+    }
+
+    return formattedMoneyString
 }
 
 const ReceiptRowsTable: React.FC<IReceiptSectionProps> = ({ section, currencyCode }) => {
