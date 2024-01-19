@@ -5,18 +5,27 @@ const { Text, Relationship, Select } = require('@keystonejs/fields')
 const get = require('lodash/get')
 const isNull = require('lodash/isNull')
 
-
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const { normalizeText } = require('@condo/domains/common/utils/text')
 const access = require('@condo/domains/ticket/access/TicketComment')
 const { COMMENT_TYPES, RESIDENT_COMMENT_TYPE, ORGANIZATION_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
+const { USER_MUST_BE_SAME_AS_CREATED_BY } = require('@condo/domains/ticket/constants/errors')
 const { sendTicketCommentNotifications, updateTicketLastCommentTime } = require('@condo/domains/ticket/utils/handlers')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 const { createOrUpdateTicketCommentsTime } = require('../utils/handlers')
 
+
+const ERRORS = {
+    USER_MUST_BE_SAME_AS_CREATED_BY: {
+        code: BAD_USER_INPUT,
+        message: 'User field must be same as createdBy',
+        type: USER_MUST_BE_SAME_AS_CREATED_BY,
+    },
+}
 
 const TicketComment = new GQLListSchema('TicketComment', {
     schemaDoc: 'Textual comment for tickets',
@@ -68,6 +77,15 @@ const TicketComment = new GQLListSchema('TicketComment', {
                 update: access.canSetUserField,
                 create: access.canSetUserField,
             },
+            hooks: {
+                validateInput: async ({ resolvedData, fieldPath, context }) => {
+                    const userId = resolvedData[fieldPath]
+
+                    if (userId !== resolvedData.createdBy) {
+                        throw new GQLError(ERRORS.USER_MUST_BE_SAME_AS_CREATED_BY, context)
+                    }
+                },
+            },
         },
 
         content: {
@@ -111,4 +129,5 @@ const TicketComment = new GQLListSchema('TicketComment', {
 
 module.exports = {
     TicketComment,
+    ERRORS,
 }
