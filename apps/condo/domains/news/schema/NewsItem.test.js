@@ -1100,5 +1100,43 @@ describe('NewsItems', () => {
             )
         })
     })
+
+    describe('Fields logic', () => {
+        describe('compactScopes', () => {
+            const cases = [
+                [{ newsItemScopeCount: 0 }, { count: 0, firstTwoLength: 0 }],
+                [{ newsItemScopeCount: 1 }, { count: 1, firstTwoLength: 1 }],
+                [{ newsItemScopeCount: 2 }, { count: 2, firstTwoLength: 2 }],
+                [{ newsItemScopeCount: 10 }, { count: 10, firstTwoLength: 2 }],
+            ]
+
+            test.each(cases)('%p', async (input, output) => {
+                const { newsItemScopeCount } = input
+                const { count, firstTwoLength } = output
+
+                const [o10n] = await createTestOrganization(adminClient)
+                const [createdNewsItem] = await createTestNewsItem(adminClient, o10n)
+
+                const scopes = []
+                for (let i = 0; i < newsItemScopeCount; i++) {
+                    const [scope] = await createTestNewsItemScope(adminClient, createdNewsItem)
+                    scopes.push(scope)
+                }
+
+                const newsItem = await NewsItem.getOne(adminClient, { id: createdNewsItem.id })
+                expect(newsItem).toHaveProperty('id', createdNewsItem.id)
+                expect(newsItem).toHaveProperty('compactScopes.count', count)
+                expect(newsItem).toHaveProperty('compactScopes.firstTwo')
+                expect(newsItem.compactScopes.firstTwo).toHaveLength(firstTwoLength)
+                expect(newsItem.compactScopes.firstTwo).toEqual(
+                    expect.arrayContaining(
+                        scopes.slice(0, firstTwoLength).map((scopes => expect.objectContaining({
+                            id: scopes.id,
+                        })))
+                    )
+                )
+            })
+        })
+    })
 })
 

@@ -10,8 +10,8 @@ const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { AutoIncrementInteger } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { itemsQuery } = require('@open-condo/keystone/schema')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/news/access/NewsItem')
@@ -108,7 +108,7 @@ const NewsItem = new GQLListSchema('NewsItem', {
 
         number: {
             schemaDoc: 'The news item number',
-            type: AutoIncrementInteger,
+            type: 'AutoIncrementInteger',
             isRequired: false,
             autoIncrementScopeFields: ['organization'],
         },
@@ -150,6 +150,40 @@ const NewsItem = new GQLListSchema('NewsItem', {
                 read: ({ authentication: { item: user } }) => (user.isAdmin || user.isSupport),
                 create: false,
                 update: false,
+            },
+        },
+
+        compactScopes: {
+            schemaDoc: 'Returns the number of scopes that are specified for sending the news, and also the first two of them.\n' +
+                'Used to reduce requests for get of scopes in the UI',
+            type: 'Virtual',
+            extendGraphQLTypes: ['type ShortScopesField { count: Int!, firstTwo: [NewsItemScope]! }'],
+            graphQLReturnType: 'ShortScopesField',
+            resolver: async (item) => {
+                const firstTreeScopes = await itemsQuery('NewsItemScope', {
+                    where: {
+                        newsItem: { id: item.id }, deletedAt: null,
+                    },
+                    first: 3,
+                    orderBy: 'createdAt_ASC',
+                })
+
+                let count = 0
+                if (firstTreeScopes.length > 2) {
+                    const { count: countObjs } = await itemsQuery('NewsItemScope', {
+                        where: {
+                            newsItem: { id: item.id }, deletedAt: null,
+                        },
+                    }, { meta: true })
+                    count = countObjs
+                } else {
+                    count = firstTreeScopes.length
+                }
+
+                return {
+                    count,
+                    firstTwo: firstTreeScopes.slice(0, 2),
+                }
             },
         },
 

@@ -12,7 +12,7 @@ const { ADDRESS_META_SUBFIELDS_TABLE_LIST } = require('@condo/domains/property/s
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const NEWS_ITEM_FIELDS = `{ organization { id } number title body type validBefore sendAt sentAt isPublished publishedAt ${COMMON_FIELDS} }`
+const NEWS_ITEM_FIELDS = `{ organization { id } number title body type validBefore sendAt sentAt isPublished publishedAt ${COMMON_FIELDS} compactScopes { count firstTwo { id unitType unitName property { address addressMeta { ${ADDRESS_META_SUBFIELDS_TABLE_LIST} } } } } }`
 const NewsItem = generateGqlQueries('NewsItem', NEWS_ITEM_FIELDS)
 
 const NEWS_ITEM_SCOPE_FIELDS = `{ type newsItem { id organization { id } number isPublished } property { id address addressMeta { ${ADDRESS_META_SUBFIELDS_TABLE_LIST} } } unitType unitName ${COMMON_FIELDS} }`
