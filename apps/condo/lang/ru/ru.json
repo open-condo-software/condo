@@ -2564,5 +2564,6 @@
   "acquiringReceipt.invoice.row.toPay": "Цена за ед.",
   "acquiringReceipt.invoice.row.count": "Кол-во",
   "acquiringReceipt.invoice.row.vatPercent": "НДС",
-  "acquiringReceipt.invoice.row.amount": "Стоимость"
+  "acquiringReceipt.invoice.row.amount": "Стоимость",
+  "api.acquiring.multiPayment.error.receiptsWithInvoices": "Квитанции и счета не могут быть в одном платеже, увы. Но мы над этим работаем."
 }

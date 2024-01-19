@@ -36,6 +36,7 @@ const {
     MULTIPAYMENT_PAYMENTS_ALREADY_WITH_MP,
     MULTIPAYMENT_EXPLICIT_SERVICE_CHARGE_MISMATCH,
     MULTIPAYMENT_NOT_UNIQUE_INVOICES,
+    MULTIPAYMENT_RECEIPTS_WITH_INVOICES_FORBIDDEN,
 } = require('@condo/domains/acquiring/constants/errors')
 const {
     AVAILABLE_PAYMENT_METHODS,
@@ -63,6 +64,12 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: MULTIPAYMENT_NOT_UNIQUE_INVOICES,
         message: 'Not unique invoices',
+    },
+    RECEIPTS_WITH_INVOICES_FORBIDDEN: {
+        code: BAD_USER_INPUT,
+        type: MULTIPAYMENT_RECEIPTS_WITH_INVOICES_FORBIDDEN,
+        message: 'Receipts and invoices are forbidden to be together',
+        messageForUser: 'api.acquiring.multiPayment.error.receiptsWithInvoices',
     },
 }
 
@@ -272,6 +279,10 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                     },
                     { receiptPayments: [], invoicePayments: [], virtualPayments: [] },
                 )
+
+                if (receiptPayments.length > 0 && invoicePayments.length > 0) {
+                    throw new GQLError(ERRORS.RECEIPTS_WITH_INVOICES_FORBIDDEN, context)
+                }
 
                 const currencyCode = resolvedData['currencyCode']
                 const anotherCurrencyPayments = receiptPayments.filter(payment => payment.currencyCode !== currencyCode).map(payment => `"${payment.id}"`)
