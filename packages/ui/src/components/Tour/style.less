@@ -1,0 +1,74 @@
+@import "antd/lib/popover/style/index.less";
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+
+@condo-popover-vertical-inset: 34%;
+@condo-popover-left-inset: 32%;
+@condo-popover-right-inset: 36%;
+
+.condo-popover {
+  max-width: 350px;
+  padding: @condo-global-spacing-4;
+
+  & > .condo-popover-content {
+    .condo-popover-inner {
+      min-height: 0;
+      padding: @condo-global-spacing-20;
+      color: @condo-global-color-white;
+      font-size: @condo-global-font-size-text-s;
+      font-family: @condo-global-font-family-default;
+      line-height: @condo-global-typography-text-s-line-height;
+      background-color: @condo-global-color-black;
+      border-radius: @condo-global-border-radius-large;
+      box-shadow: @condo-global-box-shadow-default;
+
+      & .condo-popover-icon-wrapper {
+        position: absolute;
+        top: @condo-global-spacing-8;
+        right: @condo-global-spacing-8;
+        color: @condo-global-color-gray-7;
+
+        & span:hover {
+          cursor: pointer;
+        }
+      }
+
+      & .condo-popover-title {
+        padding: 0;
+        border-bottom: 0;
+
+        & .condo-typography {
+          color: white;
+        }
+      }
+
+      & .condo-popover-inner-content {
+        padding: 0;
+
+        & .condo-typography {
+          color: @condo-global-color-gray-3;
+        }
+      }
+    }
+
+    .condo-popover-arrow {
+      display: initial;
+
+      & > .condo-popover-arrow-content {
+        --antd-arrow-background-color: @condo-global-color-black;
+      }
+    }
+  }
+
+  &.condo-popover-placement-bottom > .condo-popover-content .condo-popover-arrow-content::before,
+  &.condo-popover-placement-top > .condo-popover-content .condo-popover-arrow-content::before {
+    clip-path: inset(@condo-popover-vertical-inset @condo-popover-vertical-inset);
+  }
+
+  &.condo-popover-placement-left > .condo-popover-content .condo-popover-arrow-content::before {
+    clip-path: inset(@condo-popover-left-inset @condo-popover-left-inset);
+  }
+
+  &.condo-popover-placement-right > .condo-popover-content .condo-popover-arrow-content::before {
+    clip-path: inset(@condo-popover-right-inset @condo-popover-right-inset);
+  }
+}
