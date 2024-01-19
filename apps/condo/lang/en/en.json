@@ -1182,6 +1182,7 @@
   "pages.condo.news.index.pageTitle": "News",
   "pages.condo.news.index.tableField.body": "Message Text",
   "pages.condo.news.index.tableField.addresses": "Addresses",
+  "pages.condo.news.index.tableField.addresses.more": "and more addresses: ",
   "pages.condo.news.index.tableField.date": "Sending date",
   "pages.condo.news.index.field.notSentYet": "Not sent yet",
   "pages.condo.news.index.emptyList.header": "No news yet",

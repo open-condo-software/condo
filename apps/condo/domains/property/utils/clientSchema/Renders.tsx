@@ -2,7 +2,9 @@ import { Property } from '@app/condo/schema'
 import { Typography } from 'antd'
 import { FilterValue } from 'antd/es/table/interface'
 import { TextProps } from 'antd/es/typography/Text'
-import { isEmpty } from 'lodash'
+import isArray from 'lodash/isArray'
+import isEmpty from 'lodash/isEmpty'
+import isInteger from 'lodash/isInteger'
 
 import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { getPropertyAddressParts } from '@condo/domains/property/utils/helpers'
@@ -33,34 +35,47 @@ export const getManyPropertiesAddressRender = (search: FilterValue) => {
     }
 }
 
-export const getOneAddressAndPropertiesCountRender = (search: FilterValue) => {
-    return function render (intl, properties) {
-        const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
-        const MoreAddressesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.propertiesCount' })
-        const AndMessage = intl.formatMessage({ id: 'And' })
+export const getCompactAddressPropertiesRender = (search: FilterValue) => (intl, firstTwoProperties, count, CustomMoreAddressesMessage?) => {
+    const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
+    const MoreAddressesMessage = CustomMoreAddressesMessage || intl.formatMessage({ id: 'pages.condo.settings.propertyScope.propertiesCount' })
+    const AndMessage = intl.formatMessage({ id: 'And' })
 
-        if (isEmpty(properties)) {
-            return '—'
-        }
-        const firstPropertyAddress = getAddressCellRender(properties[0], DeletedMessage, search, true)
+    if (!isInteger(count) || count === 0 || !isArray(firstTwoProperties) || isEmpty(firstTwoProperties)) {
+        return '—'
+    }
 
-        if (properties.length > 0) {
-            if (properties.length === 1) {
-                return firstPropertyAddress
-            } else if (properties.length === 2) {
-                const secondPropertyAddress = getAddressCellRender(properties[1], DeletedMessage, search, true)
-                return (
-                    <Typography.Text>
-                        {firstPropertyAddress} {AndMessage} {secondPropertyAddress}
-                    </Typography.Text>
-                )
-            }
+    const firstPropertyAddress = getAddressCellRender(firstTwoProperties[0], DeletedMessage, search, true)
 
+    if (firstTwoProperties.length > 0 && count > 0) {
+        if (firstTwoProperties.length === 1 && count === 1) {
+            return firstPropertyAddress
+        } else if (firstTwoProperties.length === 2 && count === 2) {
+            const secondPropertyAddress = getAddressCellRender(firstTwoProperties[1], DeletedMessage, search, true)
             return (
                 <Typography.Text>
-                    {firstPropertyAddress} <Typography.Text type='secondary'>{MoreAddressesMessage}{properties.length - 1}</Typography.Text>
+                    {firstPropertyAddress} {AndMessage} {secondPropertyAddress}
                 </Typography.Text>
             )
         }
+
+        return (
+            <Typography.Text>
+                {firstPropertyAddress}
+                <br/><Typography.Text type='secondary'>{MoreAddressesMessage}{count - 1}</Typography.Text>
+            </Typography.Text>
+        )
+    }
+}
+
+export const getOneAddressAndPropertiesCountRender = (search: FilterValue) => {
+    return function render (intl, properties) {
+        if (isEmpty(properties) || !isArray(properties)) {
+            return '—'
+        }
+
+        const firstTwoProperties = properties.slice(0, 2)
+        const count = properties.length
+
+        return getCompactAddressPropertiesRender(search)(intl, firstTwoProperties, count)
     }
 }

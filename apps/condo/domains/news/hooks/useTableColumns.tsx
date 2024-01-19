@@ -18,7 +18,7 @@ const COLUMNS_WIDTH = {
     type: '12%',
     title: '16.1%',
     body: '27.6%',
-    newsItemAddresses: '20%',
+    compactScopes: '20%',
     createdAt: '14.5%',
 }
 
@@ -94,9 +94,9 @@ export const useTableColumns = (filterMetas: UseNewsTableFiltersReturnType) => {
             },
             {
                 title: AddressesMessage,
-                dataIndex: 'newsItemAddresses',
-                key: 'newsItemAddresses',
-                width: COLUMNS_WIDTH.newsItemAddresses,
+                dataIndex: 'compactScopes',
+                key: 'compactScopes',
+                width: COLUMNS_WIDTH.compactScopes,
                 render: renderProperties,
             },
             {

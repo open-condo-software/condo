@@ -1,12 +1,12 @@
-import {
-    NewsItem as INewsItem,
-} from '@app/condo/schema'
+import { NewsItem as INewsItem } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { FilterValue } from 'antd/es/table/interface'
 import { TextProps } from 'antd/es/typography/Text'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import isNull from 'lodash/isNil'
+import map from 'lodash/map'
 import getConfig from 'next/config'
 import Link from 'next/link'
 import { ColumnType } from 'rc-table/lib/interface'
@@ -20,8 +20,7 @@ import { getTableCellRenderer } from '@condo/domains/common/components/Table/Ren
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { LOCALES } from '@condo/domains/common/constants/locale'
 import { NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
-import { FLAT_UNIT_TYPE } from '@condo/domains/property/constants/common'
-import { getOneAddressAndPropertiesCountRender } from '@condo/domains/property/utils/clientSchema/Renders'
+import { getCompactAddressPropertiesRender } from '@condo/domains/property/utils/clientSchema/Renders'
 
 
 type GetRenderType = ColumnType<INewsItem>['render']
@@ -55,9 +54,7 @@ const getNewsDate = (intl, stringDate: string, format: string): string => {
 
     const locale = get(LOCALES, intl.locale, DEFAULT_LOCALE)
     const date = dayjs(stringDate).locale(locale)
-    const text = date.format(format)
-
-    return text
+    return date.format(format)
 }
 
 export const getRenderTitle: GetRenderTitleType = (search) => (body) => {
@@ -111,13 +108,13 @@ export const ResendNewsButton = ({ intl, newsItem }) => {
 
 export const getTypeRender: GetTypeRenderType = (intl, search) => (text, newsItem) => {
     const CommonTypeMessage = intl.formatMessage({ id: 'news.type.common' })
-    const ЕmergencyCommonTypeMessage = intl.formatMessage({ id: 'news.type.emergency' })
+    const EmergencyCommonTypeMessage = intl.formatMessage({ id: 'news.type.emergency' })
 
     const newsType = get(newsItem, 'type', null)
     const validBefore = get(newsItem, 'validBefore', null)
     const timeLeft = dayjs.duration(dayjs(validBefore).diff(dayjs()))
 
-    const localeText = newsType === NEWS_TYPE_EMERGENCY ? ЕmergencyCommonTypeMessage : CommonTypeMessage
+    const localeText = newsType === NEWS_TYPE_EMERGENCY ? EmergencyCommonTypeMessage : CommonTypeMessage
 
     if (newsType !== NEWS_TYPE_EMERGENCY || !validBefore || timeLeft.asMilliseconds() < 0) return getTableCellRenderer({ search, ellipsis: true })(localeText)
 
@@ -129,20 +126,21 @@ export const getTypeRender: GetTypeRenderType = (intl, search) => (text, newsIte
     return getTableCellRenderer({ search, ellipsis: true, postfix, extraPostfixProps: POSTFIX_PROPS })(localeText)
 }
 
-export const getRenderProperties: GetRenderPropertiesType = (intl, search) => (properties, newsItem) => {
+export const getRenderProperties: GetRenderPropertiesType = (intl, search) => (compactScopes) => {
     const AllPropertiesMessage = intl.formatMessage({ id: 'news.fields.properties.allSelected' })
-    const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
+    const MoreAddressesMessage = intl.formatMessage({ id: 'pages.condo.news.index.tableField.addresses.more' })
 
-    if (get(newsItem, 'hasAllProperties')) {
+    const scopeCount = get(compactScopes, 'count', 0)
+    const firstTwoProperties = map(get(compactScopes, 'firstTwo'), 'property').filter(Boolean)
+    const hasAllProperties = scopeCount === 1 && !get(compactScopes, 'firstTwo.0.property', null)
+
+    if (hasAllProperties) {
         return AllPropertiesMessage
     }
 
-    const propertiesWithUnits =  properties.map(property => {
-        if (property.addressMeta.data.flat_type === FLAT_UNIT_TYPE) {
-            property.addressMeta.data.flat_type = ShortFlatNumber
-        }
-        return property
-    })
+    if (isEmpty(firstTwoProperties) || scopeCount < 1) {
+        return '—'
+    }
 
-    return getOneAddressAndPropertiesCountRender(search)(intl, propertiesWithUnits)
+    return getCompactAddressPropertiesRender(search)(intl, firstTwoProperties, scopeCount, MoreAddressesMessage)
 }
