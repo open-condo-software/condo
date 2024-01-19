@@ -787,7 +787,7 @@ describe('RegisterMultiPaymentService', () => {
                 )
             })
 
-            // Skip this test until we allow to create the multi-payment which including both, invoices and receipts
+            test.todo('DOMA-8265 Skip this test until we allow to create the multi-payment which including both, invoices and receipts')
             test.skip('receipts and invoices must have the same currency', async () => {
                 const { billingReceipts, serviceConsumer, billingIntegration, acquiringIntegration, acquiringContext, organization } = await makePayer()
 
@@ -1315,8 +1315,8 @@ describe('RegisterMultiPaymentService', () => {
             })
         })
 
-        // Skip this test until we allow to create the multi-payment which including both, invoices and receipts
-        test.skip('Should correctly register multiPayment for receipt and invoice', async () => {
+        test.todo('DOMA-8265 Skip this test until we allow to create the multi-payment which including both, invoices and receipts')
+        test.skip('DOMA-8265 Should correctly register multiPayment for receipt and invoice', async () => {
             const {
                 acquiringIntegration,
                 acquiringContext,
