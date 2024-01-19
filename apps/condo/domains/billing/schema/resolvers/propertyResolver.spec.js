@@ -361,7 +361,7 @@ describe('Cottage village choose address from organization properties',   () => 
         const receipts = await resolver.normalizeAddresses(integrationInputs)
         for (const [, receipt] of Object.entries(receipts) ) {
             expect(receipt.addressResolve.propertyAddress.address).toEqual(receipt.normalizedAddress)
-            expect(receipt.addressResolve.unitName).toEqual(1)
+            expect(receipt.addressResolve.unitName).toEqual('1')
             expect(receipt.addressResolve.unitType).toEqual('flat')
         }
     })
