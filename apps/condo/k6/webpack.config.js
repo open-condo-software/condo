@@ -27,7 +27,7 @@ module.exports = {
         ],
     },
     target: 'web',
-    externals: /^(k6|https?\:\/\/)(\/.*)?/,
+    externals: /^(k6|https?:\/\/)(\/.*)?/,
     devtool: 'source-map',
     stats: {
         colors: true,
