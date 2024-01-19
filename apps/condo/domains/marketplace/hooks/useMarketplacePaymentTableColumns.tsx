@@ -57,7 +57,13 @@ export function useMarketplacePaymentTableColumns <T> (filterMetas: Array<Filter
 
     const transactionNumberRender = useCallback(payment => {
         const multiPaymentId = get(payment, 'multiPayment')
-        return getTableCellRenderer({ search, href: `${condoRBDomain}/check/${multiPaymentId}`, target: '_blank' })(multiPaymentId)
+        const transactionId = get(payment, 'multiPayment.transactionId')
+
+        if (!transactionId) {
+            return '—'
+        }
+
+        return getTableCellRenderer({ search, href: `${condoRBDomain}/check/${multiPaymentId}`, target: '_blank' })(transactionId)
     }
     , [search])
 
@@ -96,7 +102,6 @@ export function useMarketplacePaymentTableColumns <T> (filterMetas: Array<Filter
             {
                 title: TransactionNumberMessage,
                 filteredValue: getFilteredValue(filters, 'number'),
-                dataIndex: ['importId'],
                 key: 'number',
                 width: '23%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'number'),
