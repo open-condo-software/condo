@@ -64,6 +64,9 @@ const {
     makeClientWithServiceUser,
     registerNewServiceUserByTestClient,
     createTestPhone,
+    OidcClient,
+    createTestOidcClient,
+    updateTestOidcClient,
 } = require('@condo/domains/user/utils/testSchema')
 
 
@@ -91,12 +94,24 @@ async function updateTestOrganization (client, id, extraAttrs = {}) {
 describe('UserRightsSet', () => {
     let admin
     let support
+    let directAccessedUser
     let user
     let anonymous
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()
         user = await makeClientWithNewRegisteredAndLoggedInUser()
+        directAccessedUser = await makeClientWithNewRegisteredAndLoggedInUser({
+            rightsSet: {
+                create: {
+                    name: faker.lorem.words(3),
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                    canReadUserRightsSets: true,
+                    canManageUserRightsSets: true,
+                },
+            },
+        })
         anonymous = await makeClient()
     })
     describe('CRUD tests', () => {
@@ -107,6 +122,10 @@ describe('UserRightsSet', () => {
             })
             test('Support can', async () => {
                 const [rightsSet] = await createTestUserRightsSet(support)
+                expect(rightsSet).toHaveProperty('id')
+            })
+            test('User with direct access (canManageUserRightsSets) can', async () => {
+                const [rightsSet] = await createTestUserRightsSet(directAccessedUser)
                 expect(rightsSet).toHaveProperty('id')
             })
             test('Other users cannot', async () => {
@@ -134,6 +153,13 @@ describe('UserRightsSet', () => {
             })
             test('Support can read any right set', async () => {
                 const rightsSets = await UserRightsSet.getAll(support, { id: rightsSet.id })
+                expect(rightsSets).toHaveLength(1)
+                expect(rightsSets).toEqual([
+                    expect.objectContaining({ id: rightsSet.id }),
+                ])
+            })
+            test('User with direct access (canReadUserRightsSets) can read any right set', async () => {
+                const rightsSets = await UserRightsSet.getAll(directAccessedUser, { id: rightsSet.id })
                 expect(rightsSets).toHaveLength(1)
                 expect(rightsSets).toEqual([
                     expect.objectContaining({ id: rightsSet.id }),
@@ -192,6 +218,11 @@ describe('UserRightsSet', () => {
                 const [updated] = await updateTestUserRightsSet(support, rightsSet.id, { name })
                 expect(updated).toHaveProperty('name', name)
             })
+            test('User with direct access (canManageUserRightsSets) can', async () => {
+                const name = faker.lorem.words(3)
+                const [updated] = await updateTestUserRightsSet(directAccessedUser, rightsSet.id, { name })
+                expect(updated).toHaveProperty('name', name)
+            })
             test('Other users cannot', async () => {
                 const name = faker.lorem.words(3)
                 await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -220,6 +251,11 @@ describe('UserRightsSet', () => {
                 expect(updated).toHaveProperty('deletedAt')
                 expect(updated.deletedAt).not.toBeNull()
             })
+            test('User with direct access (canManageUserRightsSets) can', async () => {
+                const [updated] = await updateTestUserRightsSet(directAccessedUser, rightsSet.id, { deletedAt: dayjs().toISOString() })
+                expect(updated).toHaveProperty('deletedAt')
+                expect(updated.deletedAt).not.toBeNull()
+            })
             test('Other users cannot', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await updateTestUserRightsSet(user, rightsSet.id, { deletedAt: dayjs().toISOString() })
@@ -238,6 +274,9 @@ describe('UserRightsSet', () => {
             })
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await UserRightsSet.delete(support, rightsSet.id)
+            })
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await UserRightsSet.delete(directAccessedUser, rightsSet.id)
             })
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await UserRightsSet.delete(user, rightsSet.id)
@@ -589,6 +628,7 @@ describe('UserRightsSet', () => {
                         canReadB2CAppAccessRights: true,
                         canReadB2CAppBuilds: true,
                         canReadB2CAppProperties: true,
+                        canReadOidcClients: true,
 
                         canManageB2BApps: true,
                         canManageB2BAppAccessRights: true,
@@ -599,6 +639,7 @@ describe('UserRightsSet', () => {
                         canManageB2CAppAccessRights: true,
                         canManageB2CAppBuilds: true,
                         canManageB2CAppProperties: true,
+                        canManageOidcClients: true,
 
                         canExecuteRegisterNewServiceUser: true,
                         canExecuteSendMessage: true,
@@ -677,6 +718,15 @@ describe('UserRightsSet', () => {
                     })
                     expect(updatedB2CApp).toHaveProperty(['currentBuild', 'id'], build.id)
 
+                    const [oidcClient] = await createTestOidcClient(portalClient)
+                    expect(oidcClient).toHaveProperty('id')
+                    expect(oidcClient).toHaveProperty('payload')
+                    const newSecret = faker.internet.password()
+                    const [updatedOIDCClient] = await updateTestOidcClient(portalClient, oidcClient.id, {
+                        payload: { ...oidcClient.payload, client_secret: newSecret },
+                    })
+                    expect(updatedOIDCClient).toHaveProperty(['payload', 'client_secret'], newSecret)
+
                     // Read section
                     const readB2BApp = await B2BApp.getOne(portalClient, { id: b2bApp.id })
                     expect(readB2BApp).toHaveProperty('id')
@@ -696,6 +746,8 @@ describe('UserRightsSet', () => {
                     expect(readBuild).toHaveProperty('id')
                     const readProperty = await B2CAppProperty.getOne(portalClient, { id: appProperty.id })
                     expect(readProperty).toHaveProperty('id')
+                    const readOIDCClient = await OidcClient.getOne(portalClient, { id: oidcClient.id })
+                    expect(readOIDCClient).toHaveProperty('id')
 
                     // Soft-delete section
                     const [deletedProperty] = await B2CAppProperty.softDelete(portalClient, readProperty.id)
@@ -708,6 +760,9 @@ describe('UserRightsSet', () => {
                     expectDeleted(deletedB2CAccessRights)
                     const [deletedB2CApp] = await B2CApp.softDelete(portalClient, readB2CApp.id)
                     expectDeleted(deletedB2CApp)
+
+                    const [deletedOIDCClient] = await OidcClient.softDelete(portalClient, oidcClient.id)
+                    expectDeleted(deletedOIDCClient)
 
                     const [deletedRightSet] = await B2BAppAccessRightSet.softDelete(portalClient, readRightSet.id)
                     expectDeleted(deletedRightSet)

@@ -191,7 +191,7 @@ const PublishB2CAppService = new GQLCustomSchema('PublishB2CAppService', {
     types: [
         {
             access: true,
-            type: 'input B2CAppPublishOptions { info: Boolean, build: B2CAppBuildWhereUniqueInput }',
+            type: 'input B2CAppPublishOptions { info: Boolean, build: B2CAppBuildWhereUniqueInput, oidc: Boolean }',
         },
         {
             access: true,
