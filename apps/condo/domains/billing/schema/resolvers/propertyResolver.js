@@ -17,7 +17,7 @@ const { isValidFias } = require('@condo/domains/billing/schema/resolvers/utils')
 const { FLAT_UNIT_TYPE : DEFAULT_UNIT_TYPE, UNIT_TYPES } = require('@condo/domains/property/constants/common')
 
 const COTTAGE_UNIT = {
-    unitName: 1,
+    unitName: '1',
     unitType: DEFAULT_UNIT_TYPE,
 }
 
