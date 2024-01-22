@@ -67,7 +67,7 @@ import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess
 import { OnBoardingProvider } from '@condo/domains/onboarding/components/OnBoardingContext'
 import { OnBoardingProgressIconContainer } from '@condo/domains/onboarding/components/OnBoardingProgressIconContainer'
 import { useNoOrganizationToolTip } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
-import { MANAGING_COMPANY_TYPE } from '@condo/domains/organization/constants/common'
+import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
 import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
 import {
     SubscriptionProvider,
@@ -134,6 +134,7 @@ const MenuItems: React.FC = () => {
     const anyReceiptsLoaded = Boolean(get(billingCtx, 'lastReport', null))
     const hasAccessToBilling = get(role, 'canReadPayments', false) || get(role, 'canReadBillingReceipts', false)
     const isManagingCompany = get(organization, 'type', MANAGING_COMPANY_TYPE) === MANAGING_COMPANY_TYPE
+    const isNoServiceProviderOrganization = get(organization, 'type', MANAGING_COMPANY_TYPE) !== SERVICE_PROVIDER_TYPE
     const hasAccessToTickets = get(role, 'canReadTickets', false)
     const hasAccessToIncidents = get(role, 'canReadIncidents', false)
     const hasAccessToEmployees = get(role, 'canReadEmployees', false)
@@ -237,7 +238,7 @@ const MenuItems: React.FC = () => {
                     path: 'marketplace',
                     icon: AllIcons['Market'],
                     label: 'global.section.marketplace',
-                    access: isMarketplaceEnabled && hasAccessToMarketplace,
+                    access: isMarketplaceEnabled && hasAccessToMarketplace && isNoServiceProviderOrganization,
                 },
             ].filter(checkItemAccess),
         },
