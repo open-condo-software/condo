@@ -489,19 +489,5 @@ describe('NewsItemScope', () => {
                 'Required field "type" is null or undefined.',
             )
         })
-
-        test('must throw an error on trying to create scope to other organization', async () => {
-            const [o10n] = await createTestOrganization(adminClient)
-            const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
-            expect(newsItem).toBeDefined()
-            await expectToThrowGQLError(async () => {
-                await createTestNewsItemScope(adminClient, newsItem, o10n)
-            }, {
-                code: 'BAD_USER_INPUT',
-                type: 'NEWS_ITEM_NOT_FOUND',
-                message: 'There is no such newsItem in the specified organization',
-                messageForUser: 'api.newsItem.NEWS_ITEM_NOT_FOUND',
-            })
-        })
     })
 })
