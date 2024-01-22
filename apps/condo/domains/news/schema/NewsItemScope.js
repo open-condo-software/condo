@@ -5,10 +5,10 @@ const get = require('lodash/get')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
+const { GQLListSchema, getById, getByCondition } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/news/access/NewsItemScope')
-const { EDIT_DENIED_ALREADY_SENT, EDIT_DENIED_PUBLISHED } = require('@condo/domains/news/constants/errors')
+const { EDIT_DENIED_ALREADY_SENT, EDIT_DENIED_PUBLISHED, NEWS_ITEM_NOT_FOUND } = require('@condo/domains/news/constants/errors')
 const {
     NEWS_ITEMS_SCOPES_TYPES,
     NEWS_ITEM_SCOPE_TYPE_ORGANIZATION,
@@ -16,7 +16,9 @@ const {
     NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE,
     NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE_UNIT_NAME,
 } = require('@condo/domains/news/constants/scopesTypes')
+const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const { UNIT_TYPES } = require('@condo/domains/property/constants/common')
+
 
 const ERRORS = {
     EDIT_DENIED_PUBLISHED: {
@@ -31,11 +33,20 @@ const ERRORS = {
         message: 'The sent news item is restricted from editing',
         messageForUser: 'api.newsItem.EDIT_DENIED_ALREADY_SENT',
     },
+    NEWS_ITEM_NOT_FOUND: {
+        code: BAD_USER_INPUT,
+        variable: ['data', 'newsItem'],
+        type: NEWS_ITEM_NOT_FOUND,
+        message: 'There is no such property in the specified organization',
+        messageForUser: 'api.meter.MeterReportingPeriod.PROPERTY_NOT_FOUND',
+    },
 }
 
 const NewsItemScope = new GQLListSchema('NewsItemScope', {
     schemaDoc: 'Which residents can see the particular news item',
     fields: {
+
+        organization: ORGANIZATION_OWNED_FIELD,
 
         type: {
             schemaDoc: 'The scope type. This is an auto-calculated field. Used to find news items by scopes filled with some set of attributes.',
@@ -82,6 +93,24 @@ const NewsItemScope = new GQLListSchema('NewsItemScope', {
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+            hooks: {
+                validateInput: async ({ resolvedData, fieldPath, existingItem, context }) => {
+                    const newItem = { ...existingItem, ...resolvedData }
+                    const newsItemId = newItem[fieldPath]
+                    const organizationId = newItem.organization
+
+                    if (newsItemId) {
+                        const newsItem = await getByCondition('NewsItem', {
+                            id: newsItemId,
+                            deletedAt: null,
+                        })
+
+                        if (organizationId !== newsItem.organization) {
+                            throw new GQLError(ERRORS.NEWS_ITEM_NOT_FOUND, context)
+                        }
+                    }
+                },
+            },
         },
 
         property: {
