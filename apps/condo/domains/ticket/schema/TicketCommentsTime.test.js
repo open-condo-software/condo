@@ -114,7 +114,7 @@ describe('TicketCommentsTime', () => {
 
                 const content = faker.lorem.sentence()
                 const [ticket] = await createTestTicket(adminClient, organization, property)
-                await createTestTicketComment(adminClient, ticket, userClient.user, {
+                await createTestTicketComment(adminClient, ticket, adminClient.user, {
                     type: RESIDENT_COMMENT_TYPE,
                     content,
                 })

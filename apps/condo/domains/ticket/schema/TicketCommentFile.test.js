@@ -19,6 +19,7 @@ const {
     createTestOrganizationWithAccessToAnotherOrganization,
     updateTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
+const { updateTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty, makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { ORGANIZATION_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
@@ -87,12 +88,16 @@ describe('TicketCommentFile', () => {
                 const [property] = await createTestProperty(adminClient, organization)
                 const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
                     canManageTickets: true,
-                    canManageTicketComments: false,
+                    canManageTicketComments: true,
                 })
                 await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
 
                 const [ticket] = await createTestTicket(userClient, organization, property)
-                const [ticketComment] = await createTestTicketComment(adminClient, ticket, userClient.user)
+                const [ticketComment] = await createTestTicketComment(userClient, ticket, userClient.user)
+
+                await updateTestOrganizationEmployeeRole(adminClient, role.id, {
+                    canManageTicketComments: false,
+                })
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await createTestTicketCommentFile(userClient, ticket, ticketComment)
@@ -201,7 +206,7 @@ describe('TicketCommentFile', () => {
                 const admin = await makeLoggedInAdminClient()
                 const { clientFrom, organizationTo, propertyTo } = await createTestOrganizationWithAccessToAnotherOrganization()
                 const [ticket] = await createTestTicket(admin, organizationTo, propertyTo)
-                const [ticketComment] = await createTestTicketComment(admin, ticket, clientFrom.user)
+                const [ticketComment] = await createTestTicketComment(clientFrom, ticket, clientFrom.user)
                 await createTestTicketCommentFile(clientFrom, ticket, ticketComment)
 
                 const files = await TicketCommentFile.getAll(clientFrom)
@@ -212,7 +217,7 @@ describe('TicketCommentFile', () => {
                 const admin = await makeLoggedInAdminClient()
                 const { clientFrom, clientTo, organizationFrom, propertyFrom } = await createTestOrganizationWithAccessToAnotherOrganization()
                 const [ticket] = await createTestTicket(admin, organizationFrom, propertyFrom)
-                await createTestTicketComment(admin, ticket, clientFrom.user)
+                await createTestTicketComment(clientFrom, ticket, clientFrom.user)
 
                 const [ticketComment] = await createTestTicketComment(clientFrom, ticket, clientFrom.user)
                 await createTestTicketCommentFile(clientFrom, ticket, ticketComment)
@@ -265,13 +270,18 @@ describe('TicketCommentFile', () => {
                 const [property] = await createTestProperty(adminClient, organization)
                 const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
                     canManageTickets: true,
-                    canManageTicketComments: false,
+                    canManageTicketComments: true,
                 })
                 await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
 
                 const [ticket] = await createTestTicket(userClient, organization, property)
-                const [ticketComment] = await createTestTicketComment(adminClient, ticket, userClient.user)
-                const [ticketCommentFile] = await createTestTicketCommentFile(adminClient, ticket, ticketComment)
+
+                const [ticketComment] = await createTestTicketComment(userClient, ticket, userClient.user)
+                const [ticketCommentFile] = await createTestTicketCommentFile(userClient, ticket, ticketComment)
+
+                await updateTestOrganizationEmployeeRole(adminClient, role.id, {
+                    canManageTicketComments: false,
+                })
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await updateTestTicketCommentFile(userClient, ticketCommentFile.id)

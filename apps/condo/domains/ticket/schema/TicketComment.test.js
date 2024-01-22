@@ -4,7 +4,7 @@
 
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
@@ -19,7 +19,7 @@ const {
 const { Message, syncRemoteClientByTestClient } = require('@condo/domains/notification/utils/testSchema')
 const { syncRemoteClientWithPushTokenByTestClient, updateTestMessage } = require('@condo/domains/notification/utils/testSchema')
 const { getRandomTokenData, getRandomFakeSuccessToken } = require('@condo/domains/notification/utils/testSchema/helpers')
-const { updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { updateTestOrganizationEmployee, updateTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
@@ -34,6 +34,8 @@ const { createTestTicket, Ticket } = require('@condo/domains/ticket/utils/testSc
 const { TicketComment, createTestTicketComment, updateTestTicketComment } = require('@condo/domains/ticket/utils/testSchema')
 const { updateTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
+
+const { ERRORS: TicketCommmentErrors } = require('./TicketComment')
 
 
 describe('TicketComment', () => {
@@ -339,7 +341,7 @@ describe('TicketComment', () => {
                 const admin = await makeLoggedInAdminClient()
                 const { clientFrom, organizationTo, propertyTo } = await createTestOrganizationWithAccessToAnotherOrganization()
                 const [ticket] = await createTestTicket(admin, organizationTo, propertyTo)
-                await createTestTicketComment(admin, ticket, clientFrom.user)
+                await createTestTicketComment(clientFrom, ticket, clientFrom.user)
 
                 const comments = await TicketComment.getAll(clientFrom)
                 expect(comments).toHaveLength(1)
@@ -349,7 +351,7 @@ describe('TicketComment', () => {
                 const admin = await makeLoggedInAdminClient()
                 const { clientFrom, clientTo, organizationFrom, propertyFrom } = await createTestOrganizationWithAccessToAnotherOrganization()
                 const [ticket] = await createTestTicket(admin, organizationFrom, propertyFrom)
-                await createTestTicketComment(admin, ticket, clientFrom.user)
+                await createTestTicketComment(clientFrom, ticket, clientFrom.user)
 
                 const comments = await TicketComment.getAll(clientTo)
                 expect(comments).toHaveLength(0)
@@ -400,13 +402,17 @@ describe('TicketComment', () => {
                 const [property] = await createTestProperty(adminClient, organization)
                 const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
                     canManageTickets: true,
-                    canManageTicketComments: false,
+                    canManageTicketComments: true,
                 })
                 await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
 
                 const [ticket] = await createTestTicket(userClient, organization, property)
 
-                const [objCreated] = await createTestTicketComment(adminClient, ticket, userClient.user)
+                const [objCreated] = await createTestTicketComment(userClient, ticket, userClient.user)
+
+                await updateTestOrganizationEmployeeRole(adminClient, role.id, {
+                    canManageTicketComments: false,
+                })
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await updateTestTicketComment(userClient, objCreated.id)
@@ -478,7 +484,7 @@ describe('TicketComment', () => {
                     role: { connect: { id: role.id } },
                 })
                 const [ticket] = await createTestTicket(admin, organizationTo, propertyTo)
-                const [comment] = await createTestTicketComment(admin, ticket, clientFrom.user)
+                const [comment] = await createTestTicketComment(clientFrom, ticket, clientFrom.user)
                 const payload = {
                     content: faker.random.alphaNumeric(10),
                 }
@@ -498,7 +504,7 @@ describe('TicketComment', () => {
                     role: { connect: { id: role.id } },
                 })
                 const [ticket] = await createTestTicket(admin, organizationFrom, propertyFrom)
-                const [comment] = await createTestTicketComment(admin, ticket, clientFrom.user)
+                const [comment] = await createTestTicketComment(clientFrom, ticket, clientFrom.user)
                 const payload = {
                     content: faker.random.alphaNumeric(10),
                 }
@@ -1137,7 +1143,7 @@ describe('TicketComment', () => {
 
                 expect(ticket.client).toEqual(null)
 
-                await createTestTicketComment(admin, ticket, userClient.user)
+                await createTestTicketComment(userClient, ticket, userClient.user)
 
                 const messageWhere = { user: { id: userClient.user.id }, type: TICKET_COMMENT_ADDED_TYPE }
                 const messageCount = await Message.count(admin, messageWhere)
@@ -1302,4 +1308,23 @@ describe('TicketComment', () => {
         })
     })
 
+    describe('Validations', () => {
+        it('can not create TicketComment with user ', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [organization] = await createTestOrganization(adminClient)
+            const [property] = await createTestProperty(adminClient, organization)
+            const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                canManageTickets: true,
+                canManageTicketComments: true,
+            })
+            await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
+
+            const [ticket] = await createTestTicket(userClient, organization, property)
+
+            await expectToThrowGQLError(async () => {
+                await createTestTicketComment(adminClient, ticket, userClient.user)
+            }, TicketCommmentErrors.USER_MUST_BE_SAME_AS_CREATED_BY)
+        })
+    })
 })
