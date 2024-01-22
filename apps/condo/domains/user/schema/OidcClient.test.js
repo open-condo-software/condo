@@ -6,9 +6,12 @@ const { faker } = require('@faker-js/faker')
 
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@open-condo/keystone/test.utils')
 const {
-    expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
-    expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects,
+    expectToThrowAuthenticationErrorToObj,
+    expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAccessDeniedErrorToObjects,
     expectToThrowValidationFailureError,
+    expectToThrowUniqueConstraintViolationError,
 } = require('@open-condo/keystone/test.utils')
 
 const {
@@ -18,16 +21,21 @@ const {
 const { OidcClient, createTestOidcClient, updateTestOidcClient } = require('@condo/domains/user/utils/testSchema')
 
 describe('OidcClient', () => {
+    let admin
+    let support
+    let user
+    let anonymous
+    beforeAll(async () => {
+        admin = await makeLoggedInAdminClient()
+        support = await makeClientWithSupportUser()
+        user = await makeClientWithNewRegisteredAndLoggedInUser()
+        anonymous = await makeClient()
+    })
     describe('CRUD tests', () => {
-        describe('create', () => {
-            test('admin can', async () => {
-                // 1) prepare data
-                const admin = await makeLoggedInAdminClient()
-
-                // 2) action
+        describe('Create', () => {
+            test('Admin can', async () => {
                 const [obj, attrs] = await createTestOidcClient(admin)
 
-                // 3) check
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
@@ -39,199 +47,164 @@ describe('OidcClient', () => {
                 expect(obj.createdAt).toMatch(DATETIME_RE)
                 expect(obj.updatedAt).toMatch(DATETIME_RE)
             })
-
-            test('support can', async () => {
-                const client = await makeClientWithSupportUser()
-
-                const [obj, attrs] = await createTestOidcClient(client)
+            test('Support can', async () => {
+                const [obj, attrs] = await createTestOidcClient(support)
 
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
+                expect(obj.createdBy).toEqual(expect.objectContaining({ id: support.user.id }))
             })
-
-            test('user can\'t', async () => {
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()
-
+            test('User can\'t', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestOidcClient(client)
+                    await createTestOidcClient(user)
                 })
             })
-
-            test('anonymous can\'t', async () => {
-                const client = await makeClient()
-
+            test('Anonymous can\'t', async () => {
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await createTestOidcClient(client)
+                    await createTestOidcClient(anonymous)
                 })
             })
         })
-
-        describe('update', () => {
-            test('admin can', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestOidcClient(admin)
-
-                const [obj, attrs] = await updateTestOidcClient(admin, objCreated.id)
+        describe('Update', () => {
+            let oidcClient
+            beforeEach(async () => {
+                [oidcClient] = await createTestOidcClient(support)
+            })
+            test('Admin can', async () => {
+                const [obj, attrs] = await updateTestOidcClient(admin, oidcClient.id)
 
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
                 expect(obj.v).toEqual(2)
             })
-
-            test('support can', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestOidcClient(admin)
-
-                const client = await makeClientWithSupportUser()
-                const [obj, attrs] = await updateTestOidcClient(client, objCreated.id)
+            test('Support can', async () => {
+                const [obj, attrs] = await updateTestOidcClient(support, oidcClient.id)
 
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
+                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: support.user.id }))
             })
-
-            test('user can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestOidcClient(admin)
-
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()
-
+            test('User can\'t', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestOidcClient(client, objCreated.id)
+                    await updateTestOidcClient(user, oidcClient.id)
                 })
             })
-
-            test('anonymous can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestOidcClient(admin)
-
-                const client = await makeClient()
+            test('Anonymous can\'t', async () => {
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await updateTestOidcClient(client, objCreated.id)
+                    await updateTestOidcClient(anonymous, oidcClient.id)
                 })
             })
         })
-
-        describe('hard delete', () => {
-            test('admin can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestOidcClient(admin)
-
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await OidcClient.delete(admin, objCreated.id)
-                })
+        test('Hard-delete is prohibited', async () => {
+            const [oidcClient] = await createTestOidcClient(support)
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await OidcClient.delete(admin, oidcClient.id)
             })
-
-            test('user can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestOidcClient(admin)
-
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await OidcClient.delete(client, objCreated.id)
-                })
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await OidcClient.delete(support, oidcClient.id)
             })
-
-            test('anonymous can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestOidcClient(admin)
-
-                const client = await makeClient()
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await OidcClient.delete(client, objCreated.id)
-                })
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await OidcClient.delete(user, oidcClient.id)
+            })
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await OidcClient.delete(anonymous, oidcClient.id)
             })
         })
-
-        describe('soft delete', () => {
-            test('admin can', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestOidcClient(admin)
-
-                expect(objCreated.deletedAt).toBeNull()
-
-                const [softDeleted] = await OidcClient.softDelete(admin, objCreated.id)
-
-                expect(softDeleted.deletedAt).toBeDefined()
+        describe('Soft-delete', () => {
+            let oidcClient
+            beforeEach(async () => {
+                [oidcClient] = await createTestOidcClient(support)
             })
+            test('Admin can', async () => {
+                const [softDeleted] = await OidcClient.softDelete(admin, oidcClient.id)
 
-            test('user can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestOidcClient(admin)
+                expect(softDeleted).toHaveProperty('deletedAt')
+                expect(softDeleted.deletedAt).not.toBeNull()
+            })
+            test('Support can', async () => {
+                const [softDeleted] = await OidcClient.softDelete(support, oidcClient.id)
 
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                expect(softDeleted).toHaveProperty('deletedAt')
+                expect(softDeleted.deletedAt).not.toBeNull()
+            })
+            test('User can\'t', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await OidcClient.softDelete(client, objCreated.id)
+                    await OidcClient.softDelete(user, oidcClient.id)
                 })
             })
-
             test('anonymous can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestOidcClient(admin)
-
-                const client = await makeClient()
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await OidcClient.softDelete(client, objCreated.id)
+                    await OidcClient.softDelete(anonymous, oidcClient.id)
                 })
             })
         })
-
-        describe('read', () => {
-            test('admin can', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [obj] = await createTestOidcClient(admin)
-
-                const objs = await OidcClient.getAll(admin, {}, { sortBy: ['updatedAt_DESC'] })
-
-                expect(objs.length).toBeGreaterThanOrEqual(1)
-                expect(objs).toEqual(expect.arrayContaining([
-                    expect.objectContaining({
-                        id: obj.id,
-                    }),
-                ]))
+        describe('Read', () => {
+            let oidcClient
+            beforeAll(async () => {
+                [oidcClient] = await createTestOidcClient(support)
             })
-
-            test('user can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                await createTestOidcClient(admin)
-
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()
-
+            test('Admin can', async () => {
+                const readClient = await OidcClient.getOne(admin, { id: oidcClient.id })
+                expect(readClient).toHaveProperty('id')
+            })
+            test('Support can', async () => {
+                const readClient = await OidcClient.getOne(support, { id: oidcClient.id })
+                expect(readClient).toHaveProperty('id')
+            })
+            test('User can\'t', async () => {
                 await expectToThrowAccessDeniedErrorToObjects(async () => {
-                    await OidcClient.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
+                    await OidcClient.getAll(user, {})
                 })
             })
-
-            test('anonymous can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                await createTestOidcClient(admin)
-
-                const client = await makeClient()
+            test('Anonymous can\'t', async () => {
                 await expectToThrowAuthenticationErrorToObjects(async () => {
-                    await OidcClient.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
+                    await OidcClient.getAll(anonymous, {})
                 })
             })
         })
     })
+    describe('Validations tests', () => {
+        test('Can be created with same name', async () => {
+            const name = faker.company.name()
+            const [firstClient] = await createTestOidcClient(support, { name })
+            expect(firstClient).toHaveProperty('name', name)
+            const [secondClient] = await createTestOidcClient(support, { name })
+            expect(secondClient).toHaveProperty('name', name)
+        })
+        test('Can\'t create without clientSecret', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const clientId = faker.random.alphaNumeric(12)
 
-    test('Can\'t create without clientSecret', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const clientId = faker.random.alphaNumeric(12)
+            await expectToThrowValidationFailureError(async () => {
+                await createTestOidcClient(admin, {
+                    payload: {
+                        client_id: clientId,
+                        grant_types: ['implicit', 'authorization_code'],
+                        // client_secret: faker.random.alphaNumeric(12), // Trying without this field
+                        redirect_uris: ['https://jwt.io/'],
+                        response_types: ['code id_token', 'code', 'id_token'],
+                        token_endpoint_auth_method: 'client_secret_basic',
+                    },
+                })
+            }, 'Invalid json structure of payload field')
+        })
+    })
+    describe('Constraints test', () => {
+        test('clientId field must be unique', async () => {
+            const clientId = faker.datatype.uuid()
+            const [oidcClient] = await createTestOidcClient(support, { clientId })
+            expect(oidcClient).toHaveProperty('clientId', clientId)
 
-        await expectToThrowValidationFailureError(async () => {
-            await createTestOidcClient(admin, {
-                payload: {
-                    client_id: clientId,
-                    grant_types: ['implicit', 'authorization_code'],
-                    // client_secret: faker.random.alphaNumeric(12), // Trying without this field
-                    redirect_uris: ['https://jwt.io/'],
-                    response_types: ['code id_token', 'code', 'id_token'],
-                    token_endpoint_auth_method: 'client_secret_basic',
-                },
-            })
-        }, 'Invalid json structure of payload field')
+            await expectToThrowUniqueConstraintViolationError(async () => {
+                await createTestOidcClient(support, { clientId })
+            }, 'oidc_client_unique_clientId')
+
+            await OidcClient.softDelete(support, oidcClient.id)
+
+            const [anotherClient] = await createTestOidcClient(support, { clientId })
+            expect(anotherClient).toHaveProperty('clientId', clientId)
+        })
     })
 })
