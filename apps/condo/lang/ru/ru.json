@@ -2153,6 +2153,7 @@
   "api.newsItemRecipientsExportTask.STATUS_IS_ALREADY_ERROR": "Задача уже завершилась с ошибкой",
   "api.newsItem.EMPTY_VALID_BEFORE_DATE": "Дата актуальности новости обязательна",
   "api.newsItem.EDIT_DENIED_ALREADY_SENT": "Нельзя редактировать уже отправленную новость",
+  "api.newsItem.NEWS_ITEM_NOT_FOUND": "В организации такой новости нет",
   "api.newsItem.EDIT_DENIED_PUBLISHED": "Нельзя редактировать опубликованную новость",
   "api.newsItem.VALIDITY_DATE_LESS_THAN_SEND_DATE": "Дата актуальности меньше чем дата отправки",
   "api.newsItem.PROFANITY_TITLE_DETECTED_MOT_ERF_KER": "В заголовке обнаружена ненормативная лексика",

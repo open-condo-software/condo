@@ -2153,6 +2153,7 @@
   "api.newsItemRecipientsExportTask.STATUS_IS_ALREADY_ERROR": "The task has already completed with an error",
   "api.newsItem.EMPTY_VALID_BEFORE_DATE": "Validity date is required",
   "api.newsItem.EDIT_DENIED_ALREADY_SENT": "You cannot edit the news item which already been sent",
+  "api.newsItem.NEWS_ITEM_NOT_FOUND": "There is no such news item in the organization",
   "api.newsItem.EDIT_DENIED_PUBLISHED": "You can not edit published news item",
   "api.newsItem.VALIDITY_DATE_LESS_THAN_SEND_DATE": "The validity date is less than send date",
   "api.newsItem.PROFANITY_TITLE_DETECTED_MOT_ERF_KER": "Profanity in title detected",
