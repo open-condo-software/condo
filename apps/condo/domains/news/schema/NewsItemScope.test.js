@@ -47,14 +47,13 @@ const {
 } = require('@condo/domains/user/utils/testSchema')
 
 
-const getScopePayload = (o10n, newsItem, property, unitName, unitType) => ({
+const getScopePayload = (newsItem, property, unitName, unitType) => ({
     dv: 1,
     sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
     ...(unitType ? { unitType } : undefined),
     ...(unitName ? { unitName } : undefined),
     ...(property ? { property: { connect: { id: property.id } } } : undefined),
     ...(newsItem ? { newsItem: { connect: { id: newsItem.id } } } : undefined),
-    ...(o10n ? { organization: { connect: { id: o10n.id } } } : undefined),
 })
 
 let adminClient, supportClient, anonymousClient, dummyO10n, dummyProperty, dummyNewsItem,
@@ -296,8 +295,8 @@ describe('NewsItemScope', () => {
                     const [newsItem] = await createTestNewsItem(adminClient, organization)
 
                     const payload = [
-                        { data: getScopePayload(dummyO10n, dummyNewsItem, dummyProperty, '1', FLAT_UNIT_TYPE) },
-                        { data: getScopePayload(organization, newsItem, property, '2', FLAT_UNIT_TYPE) },
+                        { data: getScopePayload(dummyNewsItem, dummyProperty, '1', FLAT_UNIT_TYPE) },
+                        { data: getScopePayload(newsItem, property, '2', FLAT_UNIT_TYPE) },
                     ]
                     const createdScopes = await NewsItemScope.createMany(staffClient, payload)
                     expect(createdScopes).toEqual(
@@ -307,14 +306,12 @@ describe('NewsItemScope', () => {
                                 unitName: '1',
                                 property: expect.objectContaining({ id: dummyProperty.id }),
                                 newsItem: expect.objectContaining({ id: dummyNewsItem.id }),
-                                organization: expect.objectContaining({ id: dummyO10n.id }),
                             }),
                             expect.objectContaining({
                                 unitType: FLAT_UNIT_TYPE,
                                 unitName: '2',
                                 property: expect.objectContaining({ id: property.id }),
                                 newsItem: expect.objectContaining({ id: newsItem.id }),
-                                organization: expect.objectContaining({ id: organization.id }),
                             }),
                         ])
                     )
@@ -326,8 +323,8 @@ describe('NewsItemScope', () => {
                     const [newsItem] = await createTestNewsItem(adminClient, organization)
 
                     const payload = [
-                        { data: getScopePayload(dummyO10n, dummyNewsItem, dummyProperty, '1', FLAT_UNIT_TYPE) },
-                        { data: getScopePayload(organization, newsItem, property, '2', FLAT_UNIT_TYPE) },
+                        { data: getScopePayload(dummyNewsItem, dummyProperty, '1', FLAT_UNIT_TYPE) },
+                        { data: getScopePayload(newsItem, property, '2', FLAT_UNIT_TYPE) },
                     ]
                     await expectToThrowAccessDeniedErrorToObjects(async () => {
                         await NewsItemScope.createMany(staffClient, payload)
@@ -419,8 +416,8 @@ describe('NewsItemScope', () => {
                     })
 
                     const payload = [
-                        { id: scope1.id, data: getScopePayload(null, null, null, '11') },
-                        { id: scope2.id, data: getScopePayload(null, null, null, '22') },
+                        { id: scope1.id, data: getScopePayload(null, null, '11') },
+                        { id: scope2.id, data: getScopePayload(null, null, '22') },
                     ]
                     await expectToThrowAccessDeniedErrorToObjects(async () => {
                         await NewsItemScope.updateMany(staffClient, payload)
