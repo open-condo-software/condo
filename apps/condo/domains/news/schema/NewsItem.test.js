@@ -1137,6 +1137,23 @@ describe('NewsItems', () => {
                 )
             })
         })
+
+        describe('organization', () => {
+            test('cannot be updated', async () => {
+                const [o10n] = await createTestOrganization(adminClient)
+                const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
+                expect(newsItem).toBeDefined()
+
+                await catchErrorFrom(async () => {
+                    await updateTestNewsItem(adminClient, newsItem.id, {
+                        organization: { connect: { id: o10n.id } },
+                    })
+                }, (error) => {
+                    expect(error.errors[0].name).toEqual('UserInputError')
+                    expect(error.errors[0].message).toContain('Field "organization" is not defined by type "NewsItemUpdateInput"')
+                })
+            })
+        })
     })
 })
 
