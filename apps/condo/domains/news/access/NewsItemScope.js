@@ -56,13 +56,18 @@ async function canManageNewsItemScopes ({ authentication: { item: user }, origin
 
         if (operation === 'create') {
             if (isBulkRequest) {
-                organizationIds = originalInput.map(item => get(item, 'data.organization.connect.id'))
-                if (organizationIds.filter(Boolean).length !== originalInput.length) return false
-                organizationIds = uniq(organizationIds)
+                const newsItemIds = uniq(originalInput.map(item => get(item, 'data.newsItem.connect.id')))
+                const newsItems = await find('NewsItem', {
+                    id_in: newsItemIds,
+                    deletedAt: null,
+                })
+                if (newsItemIds.length !== newsItems.length) return false
+                organizationIds = uniq(newsItems.map(item => get(item, 'organization')))
             } else {
-                const organizationId = get(originalInput, 'organization.connect.id')
-                if (!organizationId) return false
-                organizationIds = [organizationId]
+                const newsItemId = get(originalInput, 'newsItem.connect.id')
+                const newsItem = await getById('NewsItem', newsItemId)
+                if (!newsItem) return false
+                organizationIds = [get(newsItem, 'organization')]
             }
         } else if (isSoftDeleteOperation) {
             if (isBulkRequest) {
