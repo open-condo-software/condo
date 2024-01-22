@@ -49634,8 +49634,6 @@ export type NewsItemScope = {
    *  4. As an alias to the 'id' field on the NewsItemScope List.
    */
   _label_?: Maybe<Scalars['String']>;
-  /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
-  organization?: Maybe<Organization>;
   /**  The scope type. This is an auto-calculated field. Used to find news items by scopes filled with some set of attributes.  */
   type?: Maybe<NewsItemScopeTypeType>;
   /**  The news item to control access for  */
@@ -49660,10 +49658,11 @@ export type NewsItemScope = {
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
+  /**  Ref to the organization. It is filled in on the server and is read-only  */
+  organization?: Maybe<Organization>;
 };
 
 export type NewsItemScopeCreateInput = {
-  organization?: Maybe<OrganizationRelateToOneInput>;
   type?: Maybe<NewsItemScopeTypeType>;
   newsItem?: Maybe<NewsItemRelateToOneInput>;
   property?: Maybe<PropertyRelateToOneInput>;
@@ -49678,6 +49677,7 @@ export type NewsItemScopeCreateInput = {
   newId?: Maybe<Scalars['String']>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
 };
 
 /**  A keystone list  */
@@ -49691,7 +49691,6 @@ export type NewsItemScopeHistoryRecord = {
    *  4. As an alias to the 'id' field on the NewsItemScopeHistoryRecord List.
    */
   _label_?: Maybe<Scalars['String']>;
-  organization?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
   newsItem?: Maybe<Scalars['String']>;
   property?: Maybe<Scalars['String']>;
@@ -49713,7 +49712,6 @@ export type NewsItemScopeHistoryRecord = {
 };
 
 export type NewsItemScopeHistoryRecordCreateInput = {
-  organization?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
   newsItem?: Maybe<Scalars['String']>;
   property?: Maybe<Scalars['String']>;
@@ -49740,7 +49738,6 @@ export enum NewsItemScopeHistoryRecordHistoryActionType {
 }
 
 export type NewsItemScopeHistoryRecordUpdateInput = {
-  organization?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
   newsItem?: Maybe<Scalars['String']>;
   property?: Maybe<Scalars['String']>;
@@ -49763,10 +49760,6 @@ export type NewsItemScopeHistoryRecordUpdateInput = {
 export type NewsItemScopeHistoryRecordWhereInput = {
   AND?: Maybe<Array<Maybe<NewsItemScopeHistoryRecordWhereInput>>>;
   OR?: Maybe<Array<Maybe<NewsItemScopeHistoryRecordWhereInput>>>;
-  organization?: Maybe<Scalars['String']>;
-  organization_not?: Maybe<Scalars['String']>;
-  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   type?: Maybe<Scalars['String']>;
   type_not?: Maybe<Scalars['String']>;
   type_contains?: Maybe<Scalars['String']>;
@@ -49944,7 +49937,6 @@ export enum NewsItemScopeUnitTypeType {
 }
 
 export type NewsItemScopeUpdateInput = {
-  organization?: Maybe<OrganizationRelateToOneInput>;
   type?: Maybe<NewsItemScopeTypeType>;
   newsItem?: Maybe<NewsItemRelateToOneInput>;
   property?: Maybe<PropertyRelateToOneInput>;
@@ -49959,13 +49951,12 @@ export type NewsItemScopeUpdateInput = {
   newId?: Maybe<Scalars['String']>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
 };
 
 export type NewsItemScopeWhereInput = {
   AND?: Maybe<Array<Maybe<NewsItemScopeWhereInput>>>;
   OR?: Maybe<Array<Maybe<NewsItemScopeWhereInput>>>;
-  organization?: Maybe<OrganizationWhereInput>;
-  organization_is_null?: Maybe<Scalars['Boolean']>;
   type?: Maybe<NewsItemScopeTypeType>;
   type_not?: Maybe<NewsItemScopeTypeType>;
   type_in?: Maybe<Array<Maybe<NewsItemScopeTypeType>>>;
@@ -50052,6 +50043,8 @@ export type NewsItemScopeWhereInput = {
   sender_not?: Maybe<SenderFieldInput>;
   sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  organization?: Maybe<OrganizationWhereInput>;
+  organization_is_null?: Maybe<Scalars['Boolean']>;
 };
 
 export type NewsItemScopeWhereUniqueInput = {
@@ -76688,8 +76681,6 @@ export enum SortNewsItemScopeHistoryRecordsBy {
 }
 
 export enum SortNewsItemScopesBy {
-  OrganizationAsc = 'organization_ASC',
-  OrganizationDesc = 'organization_DESC',
   TypeAsc = 'type_ASC',
   TypeDesc = 'type_DESC',
   NewsItemAsc = 'newsItem_ASC',
@@ -76715,7 +76706,9 @@ export enum SortNewsItemScopesBy {
   DeletedAtAsc = 'deletedAt_ASC',
   DeletedAtDesc = 'deletedAt_DESC',
   DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC'
+  DvDesc = 'dv_DESC',
+  OrganizationAsc = 'organization_ASC',
+  OrganizationDesc = 'organization_DESC'
 }
 
 export enum SortNewsItemSharingHistoryRecordsBy {

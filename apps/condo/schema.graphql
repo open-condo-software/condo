@@ -57908,7 +57908,6 @@ type NewsItemScopeHistoryRecord {
    4. As an alias to the 'id' field on the NewsItemScopeHistoryRecord List.
   """
   _label_: String
-  organization: String
   type: String
   newsItem: String
   property: String
@@ -57932,10 +57931,6 @@ type NewsItemScopeHistoryRecord {
 input NewsItemScopeHistoryRecordWhereInput {
   AND: [NewsItemScopeHistoryRecordWhereInput]
   OR: [NewsItemScopeHistoryRecordWhereInput]
-  organization: String
-  organization_not: String
-  organization_in: [String]
-  organization_not_in: [String]
   type: String
   type_not: String
   type_contains: String
@@ -58106,7 +58101,6 @@ enum SortNewsItemScopeHistoryRecordsBy {
 }
 
 input NewsItemScopeHistoryRecordUpdateInput {
-  organization: String
   type: String
   newsItem: String
   property: String
@@ -58132,7 +58126,6 @@ input NewsItemScopeHistoryRecordsUpdateInput {
 }
 
 input NewsItemScopeHistoryRecordCreateInput {
-  organization: String
   type: String
   newsItem: String
   property: String
@@ -58190,10 +58183,6 @@ type NewsItemScope {
   """
   _label_: String
 
-  """ Ref to the organization. The object will be deleted if the organization ceases to exist 
-  """
-  organization: Organization
-
   """ The scope type. This is an auto-calculated field. Used to find news items by scopes filled with some set of attributes. 
   """
   type: NewsItemScopeTypeType
@@ -58231,13 +58220,15 @@ type NewsItemScope {
   """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
   """
   sender: SenderField
+
+  """ Ref to the organization. It is filled in on the server and is read-only 
+  """
+  organization: Organization
 }
 
 input NewsItemScopeWhereInput {
   AND: [NewsItemScopeWhereInput]
   OR: [NewsItemScopeWhereInput]
-  organization: OrganizationWhereInput
-  organization_is_null: Boolean
   type: NewsItemScopeTypeType
   type_not: NewsItemScopeTypeType
   type_in: [NewsItemScopeTypeType]
@@ -58324,6 +58315,8 @@ input NewsItemScopeWhereInput {
   sender_not: SenderFieldInput
   sender_in: [SenderFieldInput]
   sender_not_in: [SenderFieldInput]
+  organization: OrganizationWhereInput
+  organization_is_null: Boolean
 }
 
 input NewsItemScopeWhereUniqueInput {
@@ -58331,8 +58324,6 @@ input NewsItemScopeWhereUniqueInput {
 }
 
 enum SortNewsItemScopesBy {
-  organization_ASC
-  organization_DESC
   type_ASC
   type_DESC
   newsItem_ASC
@@ -58359,10 +58350,11 @@ enum SortNewsItemScopesBy {
   deletedAt_DESC
   dv_ASC
   dv_DESC
+  organization_ASC
+  organization_DESC
 }
 
 input NewsItemScopeUpdateInput {
-  organization: OrganizationRelateToOneInput
   type: NewsItemScopeTypeType
   newsItem: NewsItemRelateToOneInput
   property: PropertyRelateToOneInput
@@ -58377,6 +58369,7 @@ input NewsItemScopeUpdateInput {
   newId: String
   dv: Int
   sender: SenderFieldInput
+  organization: OrganizationRelateToOneInput
 }
 
 input NewsItemScopesUpdateInput {
@@ -58385,7 +58378,6 @@ input NewsItemScopesUpdateInput {
 }
 
 input NewsItemScopeCreateInput {
-  organization: OrganizationRelateToOneInput
   type: NewsItemScopeTypeType
   newsItem: NewsItemRelateToOneInput
   property: PropertyRelateToOneInput
@@ -58400,6 +58392,7 @@ input NewsItemScopeCreateInput {
   newId: String
   dv: Int
   sender: SenderFieldInput
+  organization: OrganizationRelateToOneInput
 }
 
 input NewsItemScopesCreateInput {
