@@ -53,15 +53,53 @@ const createOrganization = (data) => sendAuthorizedRequest(data, {
 const createProperty = (data) => {
     const { address } = buildFakeAddressAndMeta()
 
+    const propertyMap = {
+        dv: 1,
+        type: 'building',
+        sections: Array.from({ length: 7 }).map((_, i) => {
+            const section = i + 1
+            return {
+                id: `${section}`,
+                type: 'section',
+                index: section,
+                name: `${section}`,
+                floors: [],
+            }
+        }),
+    }
+
+    propertyMap.sections.forEach(section => {
+        section.floors = Array.from({ length: 5 }).map((_, j) => {
+            const id = section.id + 10
+            return {
+                id,
+                type: 'floor',
+                index: j + 1,
+                name: `${id}`,
+                units: Array.from({ length: 25 }).map((_, k) => {
+                    const unitId = id + k + 100
+                    return {
+                        id: `${unitId}`,
+                        label: `${unitId}`,
+                        name: null,
+                        type: 'unit',
+                        unitType: 'flat',
+                    }
+                }),
+            }
+        })
+    })
+
     return sendAuthorizedRequest(data, {
         operationName: 'createProperty',
         query: 'mutation createProperty($data:PropertyCreateInput!){obj:createProperty(data:$data){id}}',
         variables: {
             data: {
                 dv: 1, sender: { dv: 1, fingerprint: 'k6-load-test' },
-                address: address, //'р Mississippi, г New Ollie, ул Roberts Club, д 65421183 б 56198',
+                address: address,
                 organization: { connect: { id: data.organizationId } },
                 type: 'building',
+                map: propertyMap,
             },
         },
     })

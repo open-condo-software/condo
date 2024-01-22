@@ -7,7 +7,8 @@ module.exports = {
     mode: 'production',
     // entry: glob.sync('./src/*.ts'),
     entry: {
-        'ticket.test': path.join( __dirname, 'src/ticket.test.ts'),
+        'ticket.test': path.join(__dirname, 'src/ticket.test.ts'),
+        'news.test': path.join(__dirname, 'src/news.test.ts'),
     },
     output: {
         path: path.join(__dirname, 'dist'),

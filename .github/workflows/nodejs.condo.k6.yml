@@ -86,6 +86,7 @@ jobs:
         run: |
           yarn --cwd ./apps/condo/k6 webpack
           K6_BROWSER_HEADLESS=true BASE_URL=http://localhost:3000 AUTH_EMAIL=admin@example.com AUTH_PASSWORD=3a74b3f07978 k6 run apps/condo/k6/dist/ticket.test.js
+          K6_BROWSER_HEADLESS=true BASE_URL=http://localhost:3000 AUTH_EMAIL=admin@example.com AUTH_PASSWORD=3a74b3f07978 k6 run apps/condo/k6/dist/news.test.js
 
       - name: Upload screenshots
         uses: actions/upload-artifact@v3

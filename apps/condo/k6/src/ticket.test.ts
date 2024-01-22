@@ -172,7 +172,7 @@ export async function checkFrontend (data) {
     try {
         await Promise.all([
             page.goto(BASE_APP_URL),
-            page.waitForNavigation,
+            page.waitForNavigation(),
         ])
 
         page.waitForTimeout(1000)
