@@ -157,7 +157,7 @@ describe('NewsItems', () => {
 
             test('The publishedAt field must be not empty after publishing', async () => {
                 const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
-                await createTestNewsItemScope(adminClient, newsItem, dummyO10n)
+                await createTestNewsItemScope(adminClient, newsItem)
 
                 const [newsItemPublished] = await publishTestNewsItem(adminClient, newsItem.id)
 
@@ -249,7 +249,7 @@ describe('NewsItems', () => {
 
             test('user can successfully un-publish news item', async () => {
                 const [objCreated] = await createTestNewsItem(adminClient, dummyO10n)
-                await createTestNewsItemScope(adminClient, objCreated, dummyO10n)
+                await createTestNewsItemScope(adminClient, objCreated)
                 await publishTestNewsItem(adminClient, objCreated.id)
                 const [objUnpublished] = await updateTestNewsItem(adminClient, objCreated.id, { isPublished: false })
 
@@ -397,7 +397,7 @@ describe('NewsItems', () => {
 
                 // News item for particular unit
                 const [newsItem1, newsItem1Attrs] = await createTestNewsItem(adminClient, o10n)
-                await createTestNewsItemScope(adminClient, newsItem1, o10n, {
+                await createTestNewsItemScope(adminClient, newsItem1, {
                     property: { connect: { id: property.id } },
                     unitType: unitType1,
                     unitName: unitName1,
@@ -405,13 +405,13 @@ describe('NewsItems', () => {
 
                 // News item for property
                 const [newsItem2, newsItem2Attrs] = await createTestNewsItem(adminClient, o10n)
-                await createTestNewsItemScope(adminClient, newsItem2, o10n, {
+                await createTestNewsItemScope(adminClient, newsItem2, {
                     property: { connect: { id: property.id } },
                 })
 
                 // News item for all organization
                 const [newsItem3, newsItem3Attrs] = await createTestNewsItem(adminClient, o10n)
-                await createTestNewsItemScope(adminClient, newsItem3, o10n)
+                await createTestNewsItemScope(adminClient, newsItem3)
 
                 await publishTestNewsItem(adminClient, newsItem1.id)
                 const newsItems1 = await NewsItem.getAll(residentClient1, {})
@@ -470,25 +470,25 @@ describe('NewsItems', () => {
                 })
 
                 const [newsItem1, newsItem1Attrs] = await createTestNewsItem(adminClient, o10n)
-                await createTestNewsItemScope(adminClient, newsItem1, o10n, {
+                await createTestNewsItemScope(adminClient, newsItem1, {
                     property: { connect: { id: property.id } },
                     unitType: unitType1,
                     unitName: unitName1,
                 })
 
                 const [newsItem2, newsItem2Attrs] = await createTestNewsItem(adminClient, o10n)
-                await createTestNewsItemScope(adminClient, newsItem2, o10n, {
+                await createTestNewsItemScope(adminClient, newsItem2, {
                     property: { connect: { id: property.id } },
                     unitType: unitType2,
                     unitName: unitName2,
                 })
 
-                // Empty scope == all properties in organization
+                // Empty scope == all organization
                 const [newsItem3, newsItem3Attrs] = await createTestNewsItem(adminClient, o10n)
-                await createTestNewsItemScope(adminClient, newsItem3, o10n)
+                await createTestNewsItemScope(adminClient, newsItem3)
 
                 const [newsItem4] = await createTestNewsItem(adminClient, o10n)
-                await createTestNewsItemScope(adminClient, newsItem4, o10n, {
+                await createTestNewsItemScope(adminClient, newsItem4, {
                     property: { connect: { id: otherProperty.id } },
                 })
 
@@ -536,14 +536,14 @@ describe('NewsItems', () => {
                 })
 
                 const [newsItem1] = await createTestNewsItem(adminClient, o10n)
-                await createTestNewsItemScope(adminClient, newsItem1, o10n, {
+                await createTestNewsItemScope(adminClient, newsItem1, {
                     property: { connect: { id: property1.id } },
                     unitType: unitType1,
                     unitName: unitName1,
                 })
 
                 const [newsItem2] = await createTestNewsItem(adminClient, o10n)
-                await createTestNewsItemScope(adminClient, newsItem2, o10n, {
+                await createTestNewsItemScope(adminClient, newsItem2, {
                     property: { connect: { id: property2.id } },
                 })
 
@@ -612,17 +612,17 @@ describe('NewsItems', () => {
 
                 // News item for one organization
                 const [newsItem1, newsItem1Attrs] = await createTestNewsItem(adminClient, o10n1)
-                await createTestNewsItemScope(adminClient, newsItem1, o10n1, {
+                await createTestNewsItemScope(adminClient, newsItem1, {
                     property: { connect: { id: property1.id } },
                 })
 
                 // Two news items for another organization
                 const [newsItem2, newsItem2Attrs] = await createTestNewsItem(adminClient, o10n2)
-                await createTestNewsItemScope(adminClient, newsItem2, o10n2, {
+                await createTestNewsItemScope(adminClient, newsItem2, {
                     property: { connect: { id: property2.id } },
                 })
                 const [newsItem3, newsItem3Attrs] = await createTestNewsItem(adminClient, o10n2)
-                await createTestNewsItemScope(adminClient, newsItem3, o10n2, {
+                await createTestNewsItemScope(adminClient, newsItem3, {
                     property: { connect: { id: property2.id } },
                 })
 
@@ -670,7 +670,7 @@ describe('NewsItems', () => {
                     const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
                     scopes_newsItem = newsItem
 
-                    await createTestNewsItemScope(adminClient, newsItem, dummyO10n, {
+                    await createTestNewsItemScope(adminClient, newsItem, {
                         property: { connect: { id: property.id } },
                     })
                 })
@@ -721,13 +721,13 @@ describe('NewsItems', () => {
 
                         const [newsItem1] = await createTestNewsItem(adminClient, o10n)
                         user_cant_newsItem1 = newsItem1
-                        await createTestNewsItemScope(adminClient, newsItem1, o10n, {
+                        await createTestNewsItemScope(adminClient, newsItem1, {
                             property: { connect: { id: property1.id } },
                         })
 
                         const [newsItem2] = await createTestNewsItem(adminClient, o10n)
                         user_cant_newsItem2 = newsItem2
-                        await createTestNewsItemScope(adminClient, newsItem2, o10n, {
+                        await createTestNewsItemScope(adminClient, newsItem2, {
                             property: { connect: { id: property2.id } },
                         })
                     })
@@ -844,7 +844,7 @@ describe('NewsItems', () => {
 
         test('must throw an error on trying to edit the published news item', async () => {
             const [sentNewsItem] = await createTestNewsItem(adminClient, dummyO10n)
-            await createTestNewsItemScope(adminClient, sentNewsItem, dummyO10n)
+            await createTestNewsItemScope(adminClient, sentNewsItem)
             await publishTestNewsItem(adminClient, sentNewsItem.id)
             await expectToThrowGQLError(
                 async () => await updateTestNewsItem(adminClient, sentNewsItem.id, { title: faker.lorem.words(3) }),
@@ -949,7 +949,7 @@ describe('NewsItems', () => {
 
             // Schedule publication at 1 hour later
             const [newsItem1] = await createTestNewsItem(adminClient, o10n1, { sendAt: dayjs().add(1, 'hour').toISOString() })
-            await createTestNewsItemScope(adminClient, newsItem1, o10n1, {
+            await createTestNewsItemScope(adminClient, newsItem1, {
                 property: { connect: { id: property1.id } },
             })
 
@@ -993,7 +993,7 @@ describe('NewsItems', () => {
                     title: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
                     body: 'Commodo viverra maecenas accumsan lacus vel facilisis volutpat est velit. Et malesuada fames ac turpis egestas sed tempus urna et. At augue eget arcu dictum varius duis at. Tempus quam pellentesque nec nam aliquam sem et tortor consequat. Enim sit amet venenatis urna cursus eget nunc scelerisque viverra. Urna cursus eget nunc scelerisque viverra. Ornare aenean euismod elementum nisi quis eleifend quam. Quis hendrerit dolor magna eget est. Gravida cum sociis natoque penatibus et.',
                 })
-            await createTestNewsItemScope(adminClient, newsItem1, o10n, {
+            await createTestNewsItemScope(adminClient, newsItem1, {
                 property: { connect: { id: property.id } },
                 unitType: unitType1,
                 unitName: unitName1,
@@ -1052,7 +1052,7 @@ describe('NewsItems', () => {
 
             // This news item shouldn't send notification for the same user
             const [newsItem2] = await createTestNewsItem(adminClient, o10n)
-            await createTestNewsItemScope(adminClient, newsItem2, o10n, {
+            await createTestNewsItemScope(adminClient, newsItem2, {
                 property: { connect: { id: property.id } },
             })
 
@@ -1081,7 +1081,7 @@ describe('NewsItems', () => {
     describe('access', () => {
         test('error on trying to edit publishedAt field', async () => {
             const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
-            await createTestNewsItemScope(adminClient, newsItem, dummyO10n)
+            await createTestNewsItemScope(adminClient, newsItem)
             await catchErrorFrom(
                 async () => await updateTestNewsItem(adminClient, newsItem.id, { publishedAt: dayjs().toISOString() }),
                 (caught) => {

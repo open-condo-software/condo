@@ -102,7 +102,7 @@ describe('NewsItemUserRead', () => {
                 })
 
                 const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
-                await createTestNewsItemScope(adminClient, newsItem, dummyO10n, {
+                await createTestNewsItemScope(adminClient, newsItem, {
                     property: { connect: { id: dummyProperty.id } },
                     unitType: unitType1,
                     unitName: unitName1,
@@ -174,7 +174,7 @@ describe('NewsItemUserRead', () => {
                 const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
                 const [objCreated] = await createTestNewsItemUserRead(adminClient, newsItem, adminClient.user)
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestNewsItemUserRead(staffClient, objCreated.id)
+                    const [obj, attrs] = await updateTestNewsItemUserRead(staffClient, objCreated.id)
                 })
             })
 
@@ -224,7 +224,7 @@ describe('NewsItemUserRead', () => {
         describe('read', () => {
             test('admin can', async () => {
                 const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
-                const [obj] = await createTestNewsItemUserRead(adminClient, newsItem, adminClient.user)
+                const [obj, attrs] = await createTestNewsItemUserRead(adminClient, newsItem, adminClient.user)
 
                 const objs = await NewsItemUserRead.getAll(adminClient, {}, { sortBy: ['updatedAt_DESC'] })
 
@@ -248,7 +248,7 @@ describe('NewsItemUserRead', () => {
                 })
 
                 const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
-                await createTestNewsItemScope(adminClient, newsItem, dummyO10n, {
+                await createTestNewsItemScope(adminClient, newsItem, {
                     property: { connect: { id: dummyProperty.id } },
                     unitType: unitType1,
                     unitName: unitName1,
@@ -257,7 +257,7 @@ describe('NewsItemUserRead', () => {
                 await publishTestNewsItem(adminClient, newsItem.id)
 
                 await waitFor(async () => {
-                    const [obj] = await createTestNewsItemUserRead(resident, newsItem, resident.user)
+                    const [obj, attrs] = await createTestNewsItemUserRead(resident, newsItem, resident.user)
                     const objs = await NewsItemUserRead.getAll(resident, {}, { sortBy: ['updatedAt_DESC'] })
 
                     expect(objs).toHaveLength(1)
