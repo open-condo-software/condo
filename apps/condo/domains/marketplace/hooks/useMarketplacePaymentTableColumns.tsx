@@ -56,7 +56,7 @@ export function useMarketplacePaymentTableColumns <T> (filterMetas: Array<Filter
     , [search])
 
     const transactionNumberRender = useCallback(payment => {
-        const multiPaymentId = get(payment, 'multiPayment')
+        const multiPaymentId = get(payment, 'multiPayment.id')
         const transactionId = get(payment, 'multiPayment.transactionId')
 
         if (!transactionId) {

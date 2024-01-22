@@ -47,19 +47,30 @@ export const BankingInfo: React.FC<IBankAccountInfo> = ({ bankAccount }) => {
 
     return (
         <RequisitesContainer style={containerStyle}>
-            <Tag
-                bgColor={ colors.gray[7]}
-                textColor={colors.white}
-            >
-                {accrualsAndPayments}
-            </Tag>
-            <Row gutter={GUTTER}>
-                <Typography.Title level={3}>{get(bankAccount, 'organization.name', '-')}</Typography.Title>
+            <Row gutter={[0, 22]}>
+                <Col span={24}>
+                    <Tag
+                        bgColor={ colors.gray[7]}
+                        textColor={colors.white}
+                    >
+                        {accrualsAndPayments}
+                    </Tag>
+                </Col>
+                <Col span={24}>
+                    <Typography.Title level={3}>{get(bankAccount, 'organization.name', '-')}</Typography.Title>
+                </Col>
+                <Row gutter={GUTTER}>
+                    <Col span={24}>
+                        {renderRow(BicMessage, get(bankAccount, 'routingNumber', '-'))}
+                    </Col>
+                    <Col span={24}>
+                        {renderRow(TinMessage, get(bankAccount, 'tin', '-'))}
+                    </Col>
+                    <Col span={24}>
+                        {renderRow(NumberMessage, get(bankAccount, 'number', '-'))}
+                    </Col>
+                </Row>
             </Row>
-
-            {renderRow(TinMessage, get(bankAccount, 'tin', '-'))}
-            {renderRow(BicMessage, get(bankAccount, 'routingNumber', '-'))}
-            {renderRow(NumberMessage, get(bankAccount, 'number', '-'))}
         </RequisitesContainer>
     )
 }
