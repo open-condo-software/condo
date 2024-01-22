@@ -13,7 +13,7 @@ const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
-    expectToThrowValidationFailureError,
+    expectToThrowValidationFailureError, catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
 
 const {
@@ -337,6 +337,37 @@ describe('NewsItemScope', () => {
                 async () => await createTestNewsItemScope(adminClient, newsItem, { unitName: '1' }),
                 'Required field "type" is null or undefined.',
             )
+        })
+
+        test('must throw an error on trying to update "organization" field', async () => {
+            const [o10n] = await createTestOrganization(adminClient)
+            const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
+            expect(newsItem).toBeDefined()
+            const [scope] = await createTestNewsItemScope(adminClient, newsItem, dummyO10n)
+            expect(scope).toBeDefined()
+
+            await catchErrorFrom(async () => {
+                await updateTestNewsItemScope(adminClient, scope.id, {
+                    organization: { connect: { id: o10n.id } },
+                })
+            }, (error) => {
+                expect(error.errors[0].name).toEqual('UserInputError')
+                expect(error.errors[0].message).toContain('Field "organization" is not defined by type "NewsItemScopeUpdateInput"')
+            })
+        })
+
+        test('must throw an error on trying to create scope to other organization', async () => {
+            const [o10n] = await createTestOrganization(adminClient)
+            const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
+            expect(newsItem).toBeDefined()
+            await expectToThrowGQLError(async () => {
+                await createTestNewsItemScope(adminClient, newsItem, o10n)
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'NEWS_ITEM_NOT_FOUND',
+                message: 'There is no such newsItem in the specified organization',
+                messageForUser: 'api.newsItem.NEWS_ITEM_NOT_FOUND',
+            })
         })
     })
 })

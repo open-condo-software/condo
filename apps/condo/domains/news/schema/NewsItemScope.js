@@ -37,8 +37,8 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         variable: ['data', 'newsItem'],
         type: NEWS_ITEM_NOT_FOUND,
-        message: 'There is no such property in the specified organization',
-        messageForUser: 'api.meter.MeterReportingPeriod.PROPERTY_NOT_FOUND',
+        message: 'There is no such newsItem in the specified organization',
+        messageForUser: 'api.newsItem.NEWS_ITEM_NOT_FOUND',
     },
 }
 
