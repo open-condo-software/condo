@@ -6,7 +6,7 @@ const index = require('@app/condo/index')
 
 const { setFakeClientMode, setAllFeatureFlags } = require('@open-condo/keystone/test.utils')
 
-const notifyResidentsOnPaydayTask = require('./notifyResidentsOnPaydayTask')
+const { notifyResidentsOnPaydayCronTask } = require('./notifyResidentsOnPaydayTask')
 
 
 describe('Meter verification notification', () => {
@@ -14,12 +14,12 @@ describe('Meter verification notification', () => {
     describe('feature flag', () => {
         setAllFeatureFlags(true)
         it('checks for proper result on enabled', async () => {
-            expect(await notifyResidentsOnPaydayTask.delay.fn()).toBeUndefined()
+            expect(await notifyResidentsOnPaydayCronTask.delay.fn()).toBeUndefined()
         })
 
         it('checks for proper result on disabled', async () => {
             setAllFeatureFlags(false)
-            expect(await notifyResidentsOnPaydayTask.delay.fn()).toEqual('disabled')
+            expect(await notifyResidentsOnPaydayCronTask.delay.fn()).toEqual('disabled')
         })
     })
 
