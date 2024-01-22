@@ -3,9 +3,6 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
-const get = require('lodash/get')
-
-
 const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 const { find } = require('@open-condo/keystone/schema')
 
@@ -111,89 +108,6 @@ async function getPropertyScopes (employeeIds) {
     })
 }
 
-/**
- * Checks changes in the current assignee field and another assignee field (for example, assignee and executor in the ticket).
- 1) Creates an AssigneeScope if the user is specified in assigneeField and there is no such AssigneeScope yet.
- 2) Removes the AssigneeScope if the user was removed from the assigneeField and in another assigneeField not this user
- 3) When updating assigneeField, deletes the AssigneeScope for the old user and creates an AssigneeScope for the new one
- */
-async function createOrDeleteAssigneeScope ({ assigneeField, otherAssigneeField, context, existingItem, updatedItem }) {
-    const existingAssigneeFieldId = get(existingItem, assigneeField)
-    const updatedAssigneeFieldId = get(updatedItem, assigneeField)
-    const isAssigneeFieldChanged = existingAssigneeFieldId !== updatedAssigneeFieldId
-
-    if (isAssigneeFieldChanged) {
-        const existingOtherAssigneeFieldId = get(existingItem, otherAssigneeField)
-        const updatedOtherAssigneeFieldId = get(updatedItem, otherAssigneeField)
-        const isOtherAssigneeFieldChanged = existingOtherAssigneeFieldId !== updatedOtherAssigneeFieldId
-
-        const ticketId = updatedItem.id
-        const { dv, sender } = updatedItem
-
-        const assigneeScopes = await find('AssigneeScope', {
-            ticket: { id: ticketId },
-            deletedAt: null,
-        })
-
-        const isAssigneeFieldConnected = !existingAssigneeFieldId && updatedAssigneeFieldId
-        const isAssigneeFieldDisconnected = existingAssigneeFieldId && !updatedAssigneeFieldId
-        const isAssigneeFieldUpdated = existingAssigneeFieldId && updatedAssigneeFieldId
-
-        const existedAssigneeFieldAssigneeScope = assigneeScopes.find(assigneeScope => assigneeScope.user === existingAssigneeFieldId)
-        const updatedAssigneeFieldAssigneeScope = assigneeScopes.find(assigneeScope => assigneeScope.user === updatedAssigneeFieldId)
-
-        if (isAssigneeFieldConnected && !updatedAssigneeFieldAssigneeScope) {
-            await AssigneeScope.create(context, {
-                user: { connect: { id: updatedAssigneeFieldId } },
-                ticket: { connect: { id: ticketId } },
-                dv,
-                sender,
-            })
-        } else if (isAssigneeFieldDisconnected && existedAssigneeFieldAssigneeScope) {
-            const isSameUserInOtherAssigneeField = existingOtherAssigneeFieldId && isOtherAssigneeFieldChanged ?
-                existingAssigneeFieldId === updatedOtherAssigneeFieldId : existingAssigneeFieldId === existingOtherAssigneeFieldId
-
-            if (!isSameUserInOtherAssigneeField) {
-                await AssigneeScope.softDelete(context, existedAssigneeFieldAssigneeScope.id, {
-                    dv, sender,
-                })
-            }
-        } else if (isAssigneeFieldUpdated) {
-            const isSameUserInOtherAssigneeField = existingOtherAssigneeFieldId && isOtherAssigneeFieldChanged ?
-                updatedAssigneeFieldId === updatedOtherAssigneeFieldId : updatedAssigneeFieldId === existingOtherAssigneeFieldId
-
-            if (existedAssigneeFieldAssigneeScope) {
-                await AssigneeScope.softDelete(context, existedAssigneeFieldAssigneeScope.id, {
-                    dv, sender,
-                })
-            }
-
-            if (!isSameUserInOtherAssigneeField) {
-                await AssigneeScope.create(context, {
-                    user: { connect: { id: updatedAssigneeFieldId } },
-                    ticket: { connect: { id: ticketId } },
-                    dv,
-                    sender,
-                })
-            }
-        }
-    }
-}
-
-async function manageAssigneeScope (args) {
-    await createOrDeleteAssigneeScope({
-        assigneeField: 'assignee',
-        otherAssigneeField: 'executor',
-        ...args,
-    })
-
-    await createOrDeleteAssigneeScope({
-        assigneeField: 'executor',
-        otherAssigneeField: 'assignee',
-        ...args,
-    })
-}
-
 const loadPropertyScopesForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
     const propertyScopesLoader = new GqlWithKnexLoadList({
         listKey: 'PropertyScope',
@@ -255,7 +169,6 @@ module.exports = {
     PropertyScopeProperty,
     createDefaultPropertyScopeForNewOrganization,
     getPropertyScopes,
-    manageAssigneeScope,
     softDeletePropertyScopeProperties,
     softDeletePropertyScopeOrganizationEmployee,
     AssigneeScope,

@@ -3,7 +3,6 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
-const { AssigneeScope } = require('./AssigneeScope')
 const { ExportPropertyScopeToExcelService } = require('./ExportPropertyScopeToExcelService')
 const { PropertyScope } = require('./PropertyScope')
 const { PropertyScopeOrganizationEmployee } = require('./PropertyScopeOrganizationEmployee')
@@ -14,7 +13,6 @@ module.exports = {
     PropertyScope,
     PropertyScopeOrganizationEmployee,
     PropertyScopeProperty,
-    AssigneeScope,
     ExportPropertyScopeToExcelService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
