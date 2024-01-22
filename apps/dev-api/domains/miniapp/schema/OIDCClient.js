@@ -11,7 +11,7 @@ const access = require('@dev-api/domains/miniapp/access/OIDCClient')
 const { OIDC_CLIENT_UNIQUE_B2C_APP_CONSTRAINT } = require('@dev-api/domains/miniapp/constants/constraints')
 const { OIDC_SECRET_LENGTH, OIDC_SECRET_CHAR_PATTERN } = require('@dev-api/domains/miniapp/constants/oidc')
 const { exportable } = require('@dev-api/domains/miniapp/plugins/exportable')
-const { GRANT_TYPES_FIELD, RESPONSE_TYPES_FIELD } = require('@dev-api/domains/miniapp/schema/fields/OIDCClient')
+const { GRANT_TYPES_FIELD, RESPONSE_TYPES_FIELD, TOKEN_AUTH_METHOD_FIELD } = require('@dev-api/domains/miniapp/schema/fields/OIDCClient')
 
 
 const OIDCClient = new GQLListSchema('OIDCClient', {
@@ -58,6 +58,7 @@ const OIDCClient = new GQLListSchema('OIDCClient', {
         },
         grantTypes: GRANT_TYPES_FIELD,
         responseTypes: RESPONSE_TYPES_FIELD,
+        tokenAuthMethod: TOKEN_AUTH_METHOD_FIELD,
         developmentRedirectUri: {
             schemaDoc: 'Callback url used for development environment',
             type: 'Url',

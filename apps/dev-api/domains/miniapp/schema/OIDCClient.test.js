@@ -20,6 +20,7 @@ const {
     OIDC_SECRET_CHAR_PATTERN,
     OIDC_SECRET_LENGTH,
     OIDC_GRANT_TYPES,
+    OIDC_TOKEN_AUTH_BASIC_METHOD,
 } = require('@dev-api/domains/miniapp/constants/oidc')
 const {
     OIDCClient,
@@ -337,6 +338,12 @@ describe('OIDCClient', () => {
                         expect(error.errors[0].message).toContain(message)
                     })
                 })
+            })
+        })
+        describe('tokenAuthMethod', () => {
+            test('Must fill and contain all response types by default', async () => {
+                [oidcClient] = await createTestOIDCClient(user, b2cApp)
+                expect(oidcClient).toHaveProperty('tokenAuthMethod', OIDC_TOKEN_AUTH_BASIC_METHOD)
             })
         })
     })

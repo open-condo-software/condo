@@ -2545,6 +2545,7 @@ type OIDCClientHistoryRecord {
   clientSecret: String
   grantTypes: JSON
   responseTypes: JSON
+  tokenAuthMethod: String
   developmentRedirectUri: String
   productionRedirectUri: String
   id: ID!
@@ -2599,6 +2600,24 @@ input OIDCClientHistoryRecordWhereInput {
   responseTypes_not: JSON
   responseTypes_in: [JSON]
   responseTypes_not_in: [JSON]
+  tokenAuthMethod: String
+  tokenAuthMethod_not: String
+  tokenAuthMethod_contains: String
+  tokenAuthMethod_not_contains: String
+  tokenAuthMethod_starts_with: String
+  tokenAuthMethod_not_starts_with: String
+  tokenAuthMethod_ends_with: String
+  tokenAuthMethod_not_ends_with: String
+  tokenAuthMethod_i: String
+  tokenAuthMethod_not_i: String
+  tokenAuthMethod_contains_i: String
+  tokenAuthMethod_not_contains_i: String
+  tokenAuthMethod_starts_with_i: String
+  tokenAuthMethod_not_starts_with_i: String
+  tokenAuthMethod_ends_with_i: String
+  tokenAuthMethod_not_ends_with_i: String
+  tokenAuthMethod_in: [String]
+  tokenAuthMethod_not_in: [String]
   developmentRedirectUri: String
   developmentRedirectUri_not: String
   developmentRedirectUri_contains: String
@@ -2720,6 +2739,8 @@ input OIDCClientHistoryRecordWhereUniqueInput {
 enum SortOIDCClientHistoryRecordsBy {
   clientSecret_ASC
   clientSecret_DESC
+  tokenAuthMethod_ASC
+  tokenAuthMethod_DESC
   developmentRedirectUri_ASC
   developmentRedirectUri_DESC
   productionRedirectUri_ASC
@@ -2748,6 +2769,7 @@ input OIDCClientHistoryRecordUpdateInput {
   clientSecret: String
   grantTypes: JSON
   responseTypes: JSON
+  tokenAuthMethod: String
   developmentRedirectUri: String
   productionRedirectUri: String
   v: Int
@@ -2775,6 +2797,7 @@ input OIDCClientHistoryRecordCreateInput {
   clientSecret: String
   grantTypes: JSON
   responseTypes: JSON
+  tokenAuthMethod: String
   developmentRedirectUri: String
   productionRedirectUri: String
   v: Int
@@ -2828,6 +2851,9 @@ type OIDCClient {
   """ Array of available response types, can be one of the following: id_token, id_token token, code, code id_token 
   """
   responseTypes: [String!]
+
+  """ Way of authenticating OAuth 2.0 Clients at the /oauth2/token """
+  tokenAuthMethod: String
 
   """ Callback url used for development environment """
   developmentRedirectUri: String
@@ -2896,6 +2922,24 @@ input OIDCClientWhereInput {
   responseTypes_not: [String!]
   responseTypes_in: [[String!]]
   responseTypes_not_in: [[String!]]
+  tokenAuthMethod: String
+  tokenAuthMethod_not: String
+  tokenAuthMethod_contains: String
+  tokenAuthMethod_not_contains: String
+  tokenAuthMethod_starts_with: String
+  tokenAuthMethod_not_starts_with: String
+  tokenAuthMethod_ends_with: String
+  tokenAuthMethod_not_ends_with: String
+  tokenAuthMethod_i: String
+  tokenAuthMethod_not_i: String
+  tokenAuthMethod_contains_i: String
+  tokenAuthMethod_not_contains_i: String
+  tokenAuthMethod_starts_with_i: String
+  tokenAuthMethod_not_starts_with_i: String
+  tokenAuthMethod_ends_with_i: String
+  tokenAuthMethod_not_ends_with_i: String
+  tokenAuthMethod_in: [String]
+  tokenAuthMethod_not_in: [String]
   developmentRedirectUri: String
   developmentRedirectUri_not: String
   developmentRedirectUri_contains: String
@@ -3035,6 +3079,8 @@ enum SortOIDCClientsBy {
   b2cApp_DESC
   clientSecret_ASC
   clientSecret_DESC
+  tokenAuthMethod_ASC
+  tokenAuthMethod_DESC
   developmentRedirectUri_ASC
   developmentRedirectUri_DESC
   productionRedirectUri_ASC
@@ -3066,6 +3112,7 @@ input OIDCClientUpdateInput {
   clientSecret: String
   grantTypes: [OIDCGrantType!]
   responseTypes: [String!]
+  tokenAuthMethod: String
   developmentRedirectUri: String
   productionRedirectUri: String
   v: Int
@@ -3091,6 +3138,7 @@ input OIDCClientCreateInput {
   clientSecret: String
   grantTypes: [OIDCGrantType!]
   responseTypes: [String!]
+  tokenAuthMethod: String
   developmentRedirectUri: String
   productionRedirectUri: String
   v: Int
@@ -4433,6 +4481,7 @@ type AuthenticateUserWithPhoneAndPasswordOutput {
 input B2CAppPublishOptions {
   info: Boolean
   build: B2CAppBuildWhereUniqueInput
+  oidc: Boolean
 }
 
 enum AppEnvironment {

@@ -22,6 +22,8 @@ const {
     CONDO_APP_NOT_FOUND,
     BUILD_NOT_FOUND,
     PUBLISH_NOT_ALLOWED,
+    OIDC_CLIENT_NOT_FOUND,
+    OIDC_CLIENT_NO_REDIRECT_URI,
 } = require('@dev-api/domains/miniapp/constants/errors')
 const { PROD_ENVIRONMENT, PUBLISH_REQUEST_APPROVED_STATUS } = require('@dev-api/domains/miniapp/constants/publishing')
 const {
@@ -34,6 +36,9 @@ const {
     B2CAppBuild,
     createTestB2CAppPublishRequest,
     updateTestB2CAppPublishRequest,
+    createTestOIDCClient,
+    updateTestOIDCClient,
+    OIDCClient,
 } = require('@dev-api/domains/miniapp/utils/testSchema')
 const {
     makeLoggedInAdminClient,
@@ -44,6 +49,7 @@ const {
 
 const CondoB2CApp = generateGQLTestUtils(generateGqlQueries('B2CApp', '{ id name developer logo { publicUrl } currentBuild { id } importId importRemoteSystem deletedAt v }'))
 const CondoB2CAppBuild = generateGQLTestUtils(generateGqlQueries('B2CAppBuild', '{ id version app { id } importId importRemoteSystem deletedAt }'))
+const CondoOIDCClient = generateGQLTestUtils(generateGqlQueries('OidcClient', '{ id importId clientId payload name importRemoteSystem deletedAt }'))
 
 describe('PublishB2CAppService', () => {
     let admin
@@ -306,7 +312,7 @@ describe('PublishB2CAppService', () => {
             beforeEach(async () => {
                 [app] = await createTestB2CApp(user);
                 [build] = await createTestB2CAppBuild(user, app)
-                await publishB2CAppByTestClient(user, app)
+                await publishB2CAppByTestClient(user, app, { info: true })
             })
             test('Mutation must throw GQLError if build is not found', async () => {
                 await expectToThrowGQLError(async () => {
@@ -444,11 +450,201 @@ describe('PublishB2CAppService', () => {
                 ]))
             })
         })
+        describe('OIDCClient', () => {
+            let app
+            beforeEach(async () => {
+                [app] = await createTestB2CApp(user)
+                await createTestB2CAppPublishRequest(support, app, { isInfoApproved: true, isContractSigned: true, isAppTested: true, status: PUBLISH_REQUEST_APPROVED_STATUS })
+                await publishB2CAppByTestClient(user, app, { info: true })
+                await publishB2CAppByTestClient(user, app, { info: true }, PROD_ENVIRONMENT)
+            })
+            test('Must throw an error if no OIDCClient found for app', async () => {
+                await expectToThrowGQLError(async () => {
+                    await publishB2CAppByTestClient(user, app, { oidc: true })
+                }, {
+                    code: BAD_USER_INPUT,
+                    type: OIDC_CLIENT_NOT_FOUND,
+                }, 'result')
+            })
+            test('Must throw an error if OIDCClient has no redirect uri for environment', async () => {
+                const [oidcClient] = await createTestOIDCClient(user, app)
+                expect(oidcClient).toHaveProperty('developmentRedirectUri', null)
+                expect(oidcClient).toHaveProperty('productionRedirectUri', null)
+
+                await expectToThrowGQLError(async () => {
+                    await publishB2CAppByTestClient(user, app, { oidc: true })
+                }, {
+                    code: BAD_USER_INPUT,
+                    type: OIDC_CLIENT_NO_REDIRECT_URI,
+                }, 'result')
+                await expectToThrowGQLError(async () => {
+                    await publishB2CAppByTestClient(user, app, { oidc: true }, PROD_ENVIRONMENT)
+                }, {
+                    code: BAD_USER_INPUT,
+                    type: OIDC_CLIENT_NO_REDIRECT_URI,
+                }, 'result')
+
+                const [updatedWithDevClient] = await updateTestOIDCClient(user, oidcClient.id, { developmentRedirectUri: faker.internet.url() })
+                expect(updatedWithDevClient.developmentRedirectUri).not.toBeNull()
+                const [devResult] = await publishB2CAppByTestClient(user, app, { oidc: true })
+                expect(devResult).toHaveProperty('success', true)
+                await expectToThrowGQLError(async () => {
+                    await publishB2CAppByTestClient(user, app, { oidc: true }, PROD_ENVIRONMENT)
+                }, {
+                    code: BAD_USER_INPUT,
+                    type: OIDC_CLIENT_NO_REDIRECT_URI,
+                }, 'result')
+
+                const [updatedWithProdClient] = await updateTestOIDCClient(user, oidcClient.id, { productionRedirectUri: faker.internet.url() })
+                expect(updatedWithProdClient.productionRedirectUri).not.toBeNull()
+                const [prodResult] = await publishB2CAppByTestClient(user, app, { oidc: true }, PROD_ENVIRONMENT)
+                expect(prodResult).toHaveProperty('success', true)
+            })
+            test('Condo OIDC client must be created with correct data if not existed before', async () => {
+                const [oidcClient] = await createTestOIDCClient(user, app, 'b2c', {
+                    developmentRedirectUri: faker.internet.url(),
+                })
+                expect(oidcClient).toHaveProperty('id')
+                const [result] = await publishB2CAppByTestClient(user, app, { oidc: true })
+                expect(result).toHaveProperty('success', true)
+
+                const apiClient = await OIDCClient.getOne(user, { id: oidcClient.id })
+                expect(apiClient).toHaveProperty('developmentExportId')
+                expect(apiClient.developmentExportId).not.toBeNull()
+
+                const condoClient = await CondoOIDCClient.getOne(condoAdmin, { id: apiClient.developmentExportId })
+                expect(condoClient).toHaveProperty('id')
+                expect(condoClient).toHaveProperty('clientId', oidcClient.clientId)
+                expect(condoClient).toHaveProperty('payload', {
+                    client_id: oidcClient.clientId,
+                    client_secret: oidcClient.clientSecret,
+                    redirect_uris: [oidcClient.developmentRedirectUri],
+                    token_endpoint_auth_method: oidcClient.tokenAuthMethod,
+                    grant_types: oidcClient.grantTypes,
+                    response_types: oidcClient.responseTypes,
+                })
+                expect(condoClient).toHaveProperty('name', app.name)
+                expect(condoClient).toHaveProperty('importId', oidcClient.id)
+                expect(condoClient).toHaveProperty('importRemoteSystem', REMOTE_SYSTEM)
+
+                const [updatedClient] = await updateTestOIDCClient(user, oidcClient.id, { developmentRedirectUri: faker.internet.url() })
+
+                const [secondResult] = await publishB2CAppByTestClient(user, app, { oidc: true })
+                expect(secondResult).toHaveProperty('success', true)
+
+                const condoUpdatedClient = await CondoOIDCClient.getOne(condoAdmin, { id: apiClient.developmentExportId })
+                expect(condoUpdatedClient).toHaveProperty('id')
+                expect(condoUpdatedClient).toHaveProperty('clientId', updatedClient.clientId)
+                expect(condoUpdatedClient).toHaveProperty('payload', {
+                    client_id: updatedClient.clientId,
+                    client_secret: updatedClient.clientSecret,
+                    redirect_uris: [updatedClient.developmentRedirectUri],
+                    token_endpoint_auth_method: updatedClient.tokenAuthMethod,
+                    grant_types: updatedClient.grantTypes,
+                    response_types: updatedClient.responseTypes,
+                })
+                expect(condoUpdatedClient).toHaveProperty('name', app.name)
+                expect(condoUpdatedClient).toHaveProperty('importId', updatedClient.id)
+                expect(condoUpdatedClient).toHaveProperty('importRemoteSystem', REMOTE_SYSTEM)
+                expect(condoUpdatedClient).toHaveProperty('id', condoClient.id)
+
+                const allClients = await CondoOIDCClient.getAll(condoAdmin, { clientId: oidcClient.clientId })
+                expect(allClients).toHaveLength(1)
+            })
+            test('Condo OIDC must be recreated in case of deletion', async () => {
+                const [oidcClient] = await createTestOIDCClient(user, app, 'b2c', {
+                    developmentRedirectUri: faker.internet.url(),
+                })
+                expect(oidcClient).toHaveProperty('id')
+                const [result] = await publishB2CAppByTestClient(user, app, { oidc: true })
+                expect(result).toHaveProperty('success', true)
+
+                const apiClient = await OIDCClient.getOne(user, { id: oidcClient.id })
+                expect(apiClient).toHaveProperty('developmentExportId')
+                expect(apiClient.developmentExportId).not.toBeNull()
+
+                const deletedCondoClient = await CondoOIDCClient.update(condoAdmin, apiClient.developmentExportId, {
+                    deletedAt: dayjs().toISOString(),
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                })
+                expect(deletedCondoClient).toHaveProperty('deletedAt')
+                expect(deletedCondoClient.deletedAt).not.toBeNull()
+
+                const [secondResult] = await publishB2CAppByTestClient(user, app, { oidc: true })
+                expect(secondResult).toHaveProperty('success', true)
+
+                const allClients = await CondoOIDCClient.getAll(condoAdmin, { clientId: oidcClient.clientId })
+                expect(allClients).toHaveLength(1)
+                expect(allClients[0]).toHaveProperty('id')
+                expect(allClients[0].id).not.toEqual(deletedCondoClient.id)
+            })
+            test('exportId must be restored from null if OIDCClient was found by importId', async () => {
+                const [oidcClient] = await createTestOIDCClient(user, app, 'b2c', {
+                    developmentRedirectUri: faker.internet.url(),
+                })
+                const [result] = await publishB2CAppByTestClient(user, app, { oidc: true })
+                expect(result).toHaveProperty('success', true)
+                const updatedClient = await OIDCClient.getOne(user, { id: oidcClient.id })
+                const condoOIDCClientId = updatedClient.developmentExportId
+                expect(condoOIDCClientId).not.toBeNull()
+                const [brokenClient] = await updateTestOIDCClient(support, oidcClient.id, {
+                    developmentExportId: null,
+                })
+                expect(brokenClient).toHaveProperty('developmentExportId', null)
+
+                const [secondResult] = await publishB2CAppByTestClient(user, app, { oidc: true })
+                expect(secondResult).toHaveProperty('success', true)
+
+                const finalClient = await OIDCClient.getOne(user, { id: oidcClient.id })
+                expect(finalClient).toHaveProperty('developmentExportId', condoOIDCClientId)
+            })
+            test('Must update exportId if condo OIDC client was found by importId', async () => {
+                const [oidcClient] = await createTestOIDCClient(user, app, 'b2c', {
+                    developmentRedirectUri: faker.internet.url(),
+                })
+                const [result] = await publishB2CAppByTestClient(user, app, { oidc: true })
+                expect(result).toHaveProperty('success', true)
+                const updatedClient = await OIDCClient.getOne(user, { id: oidcClient.id })
+                const condoOIDCClientId = updatedClient.developmentExportId
+                expect(condoOIDCClientId).not.toBeNull()
+
+                await updateTestOIDCClient(support, oidcClient.id, {
+                    developmentExportId: faker.datatype.uuid(),
+                })
+
+                const [secondResult] = await publishB2CAppByTestClient(user, app, { oidc: true })
+                expect(secondResult).toHaveProperty('success', true)
+
+                const finalClient = await OIDCClient.getOne(user, { id: oidcClient.id })
+                expect(finalClient).toHaveProperty('developmentExportId', condoOIDCClientId)
+            })
+            test('Must use proper url for both stands', async () => {
+                const developmentRedirectUri = faker.internet.url()
+                const productionRedirectUri = faker.internet.url()
+                const [oidcClient] = await createTestOIDCClient(user, app, 'b2c', { developmentRedirectUri, productionRedirectUri })
+
+                const [devResult] = await publishB2CAppByTestClient(user, app, { oidc: true })
+                expect(devResult).toHaveProperty('success', true)
+                const devApiClient = await OIDCClient.getOne(user, { id: oidcClient.id })
+                const condoDevOIDCClient = await CondoOIDCClient.getOne(condoAdmin, { id: devApiClient.developmentExportId })
+                expect(condoDevOIDCClient).toHaveProperty(['payload', 'redirect_uris'], [developmentRedirectUri])
+
+                const [prodResult] = await publishB2CAppByTestClient(user, app, { oidc: true }, PROD_ENVIRONMENT)
+                expect(prodResult).toHaveProperty('success', true)
+                const prodApiClient = await OIDCClient.getOne(user, { id: oidcClient.id })
+                const condoProdOIDCClient = await CondoOIDCClient.getOne(condoAdmin, { id: prodApiClient.productionExportId })
+                expect(condoProdOIDCClient).toHaveProperty(['payload', 'redirect_uris'], [productionRedirectUri])
+            })
+        })
         test('Publish all at once must work as expected', async () => {
             const [app] = await createTestB2CApp(user)
             const [build] = await createTestB2CAppBuild(user, app)
+            const [oidcClient] = await createTestOIDCClient(user, app, 'b2c', {
+                developmentRedirectUri: faker.internet.url(),
+            })
 
-            const [result] = await publishB2CAppByTestClient(user, app, { info: true, build: { id: build.id } })
+            const [result] = await publishB2CAppByTestClient(user, app, { info: true, build: { id: build.id }, oidc: true })
             expect(result).toHaveProperty('success', true)
 
             const condoApp = await CondoB2CApp.getOne(condoAdmin, { importId: app.id, importRemoteSystem: REMOTE_SYSTEM })
@@ -457,6 +653,8 @@ describe('PublishB2CAppService', () => {
             expect(condoBuild).toHaveProperty('id')
             expect(condoBuild).toHaveProperty(['app', 'id'], condoApp.id)
             expect(condoApp).toHaveProperty(['currentBuild', 'id'], condoBuild.id)
+            const condoOidcClient = await CondoOIDCClient.getOne(condoAdmin, { importId: oidcClient.id, importRemoteSystem: REMOTE_SYSTEM })
+            expect(condoOidcClient).toHaveProperty('clientId', oidcClient.clientId)
         })
     })
 })
