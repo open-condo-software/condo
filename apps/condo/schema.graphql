@@ -57574,7 +57574,8 @@ type NewsItem {
   """
   _label_: String
 
-  """ The organization the news item created by """
+  """ Ref to the organization. The object will be deleted if the organization ceases to exist 
+  """
   organization: Organization
 
   """ The news item number """
@@ -57907,6 +57908,7 @@ type NewsItemScopeHistoryRecord {
    4. As an alias to the 'id' field on the NewsItemScopeHistoryRecord List.
   """
   _label_: String
+  organization: String
   type: String
   newsItem: String
   property: String
@@ -57930,6 +57932,10 @@ type NewsItemScopeHistoryRecord {
 input NewsItemScopeHistoryRecordWhereInput {
   AND: [NewsItemScopeHistoryRecordWhereInput]
   OR: [NewsItemScopeHistoryRecordWhereInput]
+  organization: String
+  organization_not: String
+  organization_in: [String]
+  organization_not_in: [String]
   type: String
   type_not: String
   type_contains: String
@@ -58100,6 +58106,7 @@ enum SortNewsItemScopeHistoryRecordsBy {
 }
 
 input NewsItemScopeHistoryRecordUpdateInput {
+  organization: String
   type: String
   newsItem: String
   property: String
@@ -58125,6 +58132,7 @@ input NewsItemScopeHistoryRecordsUpdateInput {
 }
 
 input NewsItemScopeHistoryRecordCreateInput {
+  organization: String
   type: String
   newsItem: String
   property: String
@@ -58182,6 +58190,10 @@ type NewsItemScope {
   """
   _label_: String
 
+  """ Ref to the organization. The object will be deleted if the organization ceases to exist 
+  """
+  organization: Organization
+
   """ The scope type. This is an auto-calculated field. Used to find news items by scopes filled with some set of attributes. 
   """
   type: NewsItemScopeTypeType
@@ -58224,6 +58236,8 @@ type NewsItemScope {
 input NewsItemScopeWhereInput {
   AND: [NewsItemScopeWhereInput]
   OR: [NewsItemScopeWhereInput]
+  organization: OrganizationWhereInput
+  organization_is_null: Boolean
   type: NewsItemScopeTypeType
   type_not: NewsItemScopeTypeType
   type_in: [NewsItemScopeTypeType]
@@ -58317,6 +58331,8 @@ input NewsItemScopeWhereUniqueInput {
 }
 
 enum SortNewsItemScopesBy {
+  organization_ASC
+  organization_DESC
   type_ASC
   type_DESC
   newsItem_ASC
@@ -58346,6 +58362,7 @@ enum SortNewsItemScopesBy {
 }
 
 input NewsItemScopeUpdateInput {
+  organization: OrganizationRelateToOneInput
   type: NewsItemScopeTypeType
   newsItem: NewsItemRelateToOneInput
   property: PropertyRelateToOneInput
@@ -58368,6 +58385,7 @@ input NewsItemScopesUpdateInput {
 }
 
 input NewsItemScopeCreateInput {
+  organization: OrganizationRelateToOneInput
   type: NewsItemScopeTypeType
   newsItem: NewsItemRelateToOneInput
   property: PropertyRelateToOneInput
