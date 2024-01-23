@@ -15,7 +15,7 @@ const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId created
 const NEWS_ITEM_FIELDS = `{ organization { id } number title body type validBefore sendAt sentAt isPublished publishedAt ${COMMON_FIELDS} compactScopes { count firstOnes { id unitType unitName property { address addressMeta { ${ADDRESS_META_SUBFIELDS_TABLE_LIST} } } } } }`
 const NewsItem = generateGqlQueries('NewsItem', NEWS_ITEM_FIELDS)
 
-const NEWS_ITEM_SCOPE_FIELDS = `{ organization { id } type newsItem { id organization { id } number isPublished } property { id address addressMeta { ${ADDRESS_META_SUBFIELDS_TABLE_LIST} } } unitType unitName ${COMMON_FIELDS} }`
+const NEWS_ITEM_SCOPE_FIELDS = `{ type newsItem { id organization { id } number isPublished } property { id address addressMeta { ${ADDRESS_META_SUBFIELDS_TABLE_LIST} } } unitType unitName ${COMMON_FIELDS} }`
 const NewsItemScope = generateGqlQueries('NewsItemScope', NEWS_ITEM_SCOPE_FIELDS)
 
 const NEWS_ITEM_TEMPLATE_FIELDS = `{ organization { id } title body type ${COMMON_FIELDS} }`

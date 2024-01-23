@@ -16,9 +16,7 @@ const {
     NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE,
     NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE_UNIT_NAME,
 } = require('@condo/domains/news/constants/scopesTypes')
-const { addOrganizationFieldPlugin } = require('@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
 const { UNIT_TYPES } = require('@condo/domains/property/constants/common')
-
 
 const ERRORS = {
     EDIT_DENIED_PUBLISHED: {
@@ -130,10 +128,7 @@ const NewsItemScope = new GQLListSchema('NewsItemScope', {
             }
         },
     },
-    plugins: [
-        uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(),
-        addOrganizationFieldPlugin({ fromField: 'newsItem', isRequired: true }),
-    ],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadNewsItemScopes,
         create: access.canManageNewsItemScopes,
