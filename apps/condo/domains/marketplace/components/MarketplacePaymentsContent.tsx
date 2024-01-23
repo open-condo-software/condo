@@ -2,40 +2,38 @@ import { useQuery } from '@apollo/client'
 import {
     Payment as PaymentType, SortPaymentsBy,
 } from '@app/condo/schema'
-import { jsx } from "@emotion/react";
 import styled from '@emotion/styled'
-import { QuestionCircle } from "@open-condo/icons";
 import { Col, Row, RowProps } from 'antd'
 import { TableRowSelection } from 'antd/lib/table/interface'
-import dayjs from "dayjs";
+import dayjs from 'dayjs'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import { useIntl } from 'react-intl'
 
 import { useOrganization } from '@open-condo/next/organization'
-import { Tooltip, Typography } from '@open-condo/ui'
+import { Typography } from '@open-condo/ui'
 import { ActionBar, Button, Modal } from '@open-condo/ui'
 
 import { PaymentsSumTable } from '@condo/domains/acquiring/components/payments/PaymentsSumTable'
-import { PAYMENT_PROCESSING_STATUS, PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS, PAYMENT_ERROR_STATUS } from '@condo/domains/acquiring/constants/payment'
+import { PAYMENT_PROCESSING_STATUS, PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS } from '@condo/domains/acquiring/constants/payment'
 import { SUM_PAYMENTS_QUERY } from '@condo/domains/acquiring/gql'
 import { Payment } from '@condo/domains/acquiring/utils/clientSchema'
+import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import EmptyListView from '@condo/domains/common/components/EmptyListView'
 import { Loader } from '@condo/domains/common/components/Loader'
+import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { getMoneyRender } from '@condo/domains/common/components/Table/Renders'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
+import { useDateRangeSearch } from '@condo/domains/common/hooks/useDateRangeSearch'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useMarketplacePaymentsFilters } from '@condo/domains/marketplace/hooks/useMarketplacePaymentsFilters'
 import { useMarketplacePaymentTableColumns } from '@condo/domains/marketplace/hooks/useMarketplacePaymentTableColumns'
-import Checkbox from "../../common/components/antd/Checkbox";
-import DateRangePicker from "../../common/components/Pickers/DateRangePicker";
-import { useDateRangeSearch } from "../../common/hooks/useDateRangeSearch";
 
 
 const ROW_GUTTERS: RowProps['gutter'] = [0, 0]
