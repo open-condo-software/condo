@@ -9,6 +9,7 @@ module.exports = {
     entry: {
         'ticket.test': path.join(__dirname, 'src/ticket.test.ts'),
         'news.test': path.join(__dirname, 'src/news.test.ts'),
+        'payment.test': path.join(__dirname, 'src/payment.test.ts'),
     },
     output: {
         path: path.join(__dirname, 'dist'),

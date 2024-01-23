@@ -1,9 +1,10 @@
+import { faker } from '@faker-js/faker/locale/ru'
 import http from 'k6/http'
 
 import { buildFakeAddressAndMeta } from '../../domains/property/utils/testSchema/factories'
-
 const BASE_API_URL = __ENV.BASE_URL + '/admin/api'
 const AUTH_REQS = { email: __ENV.AUTH_EMAIL, password: __ENV.AUTH_PASSWORD }
+const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'k6-load-test' } }
 
 const setupCondoAuth = () => {
     const payload = {
@@ -34,11 +35,7 @@ const createOrganization = (data) => sendAuthorizedRequest(data, {
     query: 'mutation registerNewOrganization($data:RegisterNewOrganizationInput!){obj:registerNewOrganization(data:$data){id}}',
     variables: {
         data: {
-            dv: 1,
-            sender: {
-                dv: 1,
-                fingerprint: 'k6-load-test',
-            },
+            ...DV_SENDER,
             name: 'k6-test',
             tin: '0000000000',
             meta: {
@@ -95,7 +92,7 @@ const createProperty = (data) => {
         query: 'mutation createProperty($data:PropertyCreateInput!){obj:createProperty(data:$data){id}}',
         variables: {
             data: {
-                dv: 1, sender: { dv: 1, fingerprint: 'k6-load-test' },
+                ...DV_SENDER,
                 address: address,
                 organization: { connect: { id: data.organizationId } },
                 type: 'building',
@@ -105,10 +102,53 @@ const createProperty = (data) => {
     })
 }
 
+const createBillingIntegration = (data, extraAttrs = {}) => {
+    const name = faker.company.name().replace(/ /, '-').toUpperCase() + ' TEST BILLING INTEGRATION'
+    const currencyCode = 'RUB'
+
+    return sendAuthorizedRequest(data, {
+        operationName: 'createBillingIntegration',
+        query: 'mutation createBillingIntegration($data:BillingIntegrationCreateInput!){obj:createBillingIntegration(data:$data){id}}',
+        variables: {
+            data: {
+                ...DV_SENDER,
+                name, currencyCode,
+                isHidden: true,
+                shortDescription: faker.commerce.productDescription(),
+                detailedDescription: faker.lorem.paragraphs(2),
+                instruction: faker.lorem.paragraphs(5),
+                targetDescription: faker.company.catchPhrase(),
+                receiptsLoadingTime: `${faker.datatype.number({ min: 10, max: 100 })} days`,
+                bannerColor: '#9b9dfa', bannerTextColor: 'WHITE',
+                ...extraAttrs,
+            },
+        },
+    })
+}
+
+const createBillingIntegrationOrganizationContext = (data, organization, integration, extraAttrs = {}) => {
+    return sendAuthorizedRequest(data, {
+        operationName: 'createBillingIntegrationOrganizationContext',
+        query: 'mutation createBillingIntegrationOrganizationContext($data:BillingIntegrationOrganizationContextCreateInput!){obj:createBillingIntegrationOrganizationContext(data:$data){id}}',
+        variables: {
+            data: {
+                ...DV_SENDER,
+                settings: { dv: 1, 'billing data source': 'https://api.dom.gosuslugi.ru/' },
+                state: { dv: 1 },
+                organization: { connect: { id: organization.id } },
+                integration: { connect: { id: integration.id } },
+                ...extraAttrs,
+            },
+        },
+    })
+}
+
 export {
     setupCondoAuth,
     createOrganization,
     createProperty,
+    createBillingIntegration,
+    createBillingIntegrationOrganizationContext,
     sendAuthorizedRequest,
     BASE_API_URL,
 }

@@ -11,7 +11,6 @@ import {
 const BASE_APP_URL = __ENV.BASE_URL + '/news/create'
 const TOTAL_DURATION = '60s'
 
-// 2 news per day
 export const options = {
     scenarios: {
         appHealthcheck: {
