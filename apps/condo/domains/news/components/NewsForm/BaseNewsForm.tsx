@@ -257,6 +257,19 @@ const getNewsItemCountAtSameDay = (value, allNews) => {
     return allNews.filter(newsItem => sendDate.isSame(newsItem.sentAt, 'day') || sendDate.isSame(newsItem.sendAt, 'day')).length
 }
 
+const getAllUnits = (property: IProperty): IBuildingUnit[] => {
+    const map = get(property, 'map')
+    const sections = get(map, 'sections')
+    const parking = get(map, 'parking')
+
+    if (!map || (!sections && !parking)) return []
+
+    return [
+        ...sections.flatMap((section) => section.floors.flatMap(floor => floor.units)),
+        ...parking.flatMap((section) => section.floors.flatMap(floor => floor.units)),
+    ]
+}
+
 const INITIAL_VALUES = {}
 const CHUNK_SIZE = 50
 
@@ -662,73 +675,50 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             }])
         }
 
-        const getAllUnits = (property: IProperty) => {
-            const map = get(property, 'map')
-            const sections = get(map, 'sections')
-            const parking = get(map, 'parking')
+        if (addedPropertyIds.length === 1 && properties.length === 1) {
+            if (unitNames.length > 0 || sectionIds.length > 0) {
+                let scopesToAdd: INewsItemScopeCreateInput[] = []
+                const propertyId = addedPropertyIds[0]
+                const property = selectedProperties.find(property => get(property, 'id') === propertyId)
 
-            if (!map || (!sections && !parking)) return []
-
-            return [
-                ...sections.flatMap((section) => section.floors.flatMap(floor => floor.units)),
-                ...parking.flatMap((section) => section.floors.flatMap(floor => floor.units)),
-            ]
-        }
-
-        if (addedPropertyIds.length === 1 && properties.length === 1 && unitNames.length > 0) {
-            const propertyId = addedPropertyIds[0]
-            const property = selectedProperties.find(property => get(property, 'id') === propertyId)
-            const allUnits = getAllUnits(property)
-            const scopesToAdd: INewsItemScopeCreateInput[] = (unitNames as string[]).map((unitKey) => {
-                const { name: unitName, type: unitType } = getTypeAndNameByKey(unitKey)
-                return {
-                    newsItem: { connect: { id: newsItemId } },
-                    property: { connect: { id: propertyId } },
-                    unitName: unitName,
-                    unitType: unitType,
+                if (unitNames.length > 0) {
+                    scopesToAdd = uniq(unitNames as string[]).map((unitKey) => {
+                        const { name: unitName, type: unitType } = getTypeAndNameByKey(unitKey)
+                        return {
+                            newsItem: { connect: { id: newsItemId } },
+                            property: { connect: { id: propertyId } },
+                            unitName: unitName,
+                            unitType: unitType,
+                        }
+                    })
+                } else if (sectionIds.length > 0) {
+                    const { unitNames, unitTypes } = getUnitNamesAndUnitTypes(property, sectionIds)
+                    scopesToAdd = unitNames.map((unitName, i) => ({
+                        newsItem: { connect: { id: newsItemId } },
+                        property: { connect: { id: propertyId } },
+                        unitName: unitName,
+                        unitType: unitTypes[i],
+                    }))
                 }
-            })
-            const scopesFilteredByUnit = scopesToAdd.filter(({ unitName, unitType }) => allUnits.some(({ label, unitType: type }) => label === unitName && (type as string) === unitType))
-            const selectedAllUnits = scopesFilteredByUnit.length === scopesToAdd.length
-            if (selectedAllUnits) {
-                await createNewsItemScope([{
-                    newsItem: { connect: { id: newsItemId } },
-                    property: { connect: { id: propertyId } },
-                }])
-            } else {
-                const scopesToAddByChunks = chunk(scopesToAdd, CHUNK_SIZE)
 
-                for (const scopes of scopesToAddByChunks) {
-                    await createNewsItemScope(scopes)
-                }
-            }
-        }
-        if (addedPropertyIds.length === 1 && properties.length === 1 && sectionIds.length > 0) {
-            const propertyId = addedPropertyIds[0]
-            const property = selectedProperties.find(property => get(property, 'id') === propertyId)
-            const allUnits = getAllUnits(property)
-            const { unitNames, unitTypes } = getUnitNamesAndUnitTypes(property, sectionIds)
-            const scopesToAdd: INewsItemScopeCreateInput[] = unitNames.map((unitName, i) => ({
-                newsItem: { connect: { id: newsItemId } },
-                property: { connect: { id: propertyId } },
-                unitName: unitName,
-                unitType: unitTypes[i],
-            }))
-            const scopesFilteredByUnit = scopesToAdd.filter(({ unitName, unitType }) => allUnits.some(({ label, unitType: type }) => label === unitName && (type as string) === unitType))
-            const selectedAllUnits = scopesFilteredByUnit.length === scopesToAdd.length
-            if (selectedAllUnits) {
-                await createNewsItemScope([{
-                    newsItem: { connect: { id: newsItemId } },
-                    property: { connect: { id: propertyId } },
-                }])
-            } else {
-                const scopesToAddByChunks = chunk(scopesToAdd, CHUNK_SIZE)
+                const allUnits = getAllUnits(property)
+                const selectedUnits = allUnits.filter(({ label, unitType: type }) => scopesToAdd.some(({ unitName, unitType }) => label === unitName && (type as string) === unitType))
+                const selectedAllUnits = selectedUnits.length === allUnits.length
 
-                for (const scopes of scopesToAddByChunks) {
-                    await createNewsItemScope(scopes)
+                if (selectedAllUnits) {
+                    await createNewsItemScope([{
+                        newsItem: { connect: { id: newsItemId } },
+                        property: { connect: { id: propertyId } },
+                    }])
+                } else {
+                    const scopesToAddByChunks = chunk(scopesToAdd, CHUNK_SIZE)
+                    for (const scopes of scopesToAddByChunks) {
+                        await createNewsItemScope(scopes)
+                    }
                 }
             }
         }
+
         if (isEmpty(sectionIds) && isEmpty(unitNames) && !isEmpty(addedPropertyIds)) {
             const scopesToAdd: INewsItemScopeCreateInput[] = addedPropertyIds.map(propertyId => ({
                 newsItem: { connect: { id: newsItemId } },
