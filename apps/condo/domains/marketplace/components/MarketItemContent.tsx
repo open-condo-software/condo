@@ -76,7 +76,7 @@ const TableContent = () => {
     const categorySelectOptions = useMemo(() => {
         const groups = []
 
-        groups.push({ label: AllCategoriesMessage, value: 'all' })
+        groups.push({ label: AllCategoriesMessage, value: 'all', order: 0 })
 
         for (const category of categoriesInMarketItems) {
             const categoryId = get(category, 'id')
@@ -84,16 +84,27 @@ const TableContent = () => {
             const isNewOptGroup = !groups.some(group => group.key === parentCategoryId)
 
             if (categoriesWithOneSubCategory.includes(parentCategoryId) && isNewOptGroup) {
-                groups.push({ key: parentCategoryId, label: get(category, 'parentCategory.name'), value: categoryId })
+                groups.push({
+                    key: parentCategoryId,
+                    label: get(category, 'parentCategory.name'),
+                    value: categoryId,
+                    order: get(category, 'parentCategory.order'),
+                })
             } else {
                 const categoryOption = {
                     label: get(category, 'name'),
                     value: categoryId,
                     key: categoryId,
+                    order: get(category, 'order'),
                 }
 
                 if (isNewOptGroup) {
-                    groups.push({ key: parentCategoryId, label: get(category, 'parentCategory.name'), options: [categoryOption] })
+                    groups.push({
+                        key: parentCategoryId,
+                        label: get(category, 'parentCategory.name'),
+                        order: get(category, 'parentCategory.order'),
+                        options: [categoryOption],
+                    })
                 } else {
                     const existedGroup = groups.find(group => group.key === parentCategoryId)
 
@@ -103,6 +114,13 @@ const TableContent = () => {
                 }
             }
         }
+
+        groups.sort((a, b) => a.order > b.order ? 1 : -1)
+        groups.forEach(group => {
+            group.options && group.options
+                .sort((a, b) => a.key > b.key ? 1 : -1)
+                .sort((a, b) => a.order > b.order ? 1 : -1)
+        })
 
         return groups
     }, [AllCategoriesMessage, categoriesInMarketItems, categoriesWithOneSubCategory])
