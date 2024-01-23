@@ -29,7 +29,7 @@ const addOrganizationFieldPlugin = ({ fromField, isRequired }) => plugin(({ fiel
                 }
 
                 if (objWithOrganizationId) {
-                    const schemaName = fields[fromField].ref.split('.')[0]
+                    const schemaName = fields[fromField].ref
                     const objWithOrganization = await getById(schemaName, objWithOrganizationId)
 
                     resolvedData['organization'] = get(objWithOrganization, 'organization')
