@@ -153,9 +153,9 @@ const MarketplacePaymentsTableContent = () => {
         fetchPolicy: 'network-only',
     })
 
-    const { data: allPaymentsSum, loading: allPaymentsSumLoading } = usePaymentsSum({ ...searchPaymentsQuery, status_in: [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS] })
-    const { data: donePaymentsSum, loading: donePaymentsLoading } = usePaymentsSum({ ...searchPaymentsQuery, status: PAYMENT_DONE_STATUS })
-    const { data: inProcessPaymentsSum, loading: inProcessPaymentsLoading } = usePaymentsSum({ ...searchPaymentsQuery, status_in: [PAYMENT_PROCESSING_STATUS, PAYMENT_WITHDRAWN_STATUS] })
+    const { data: allPaymentsSum, loading: allPaymentsSumLoading } = usePaymentsSum({ ...searchPaymentsQuery, status_in: [ PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS] })
+    const { data: donePaymentsSum, loading: donePaymentsLoading } = usePaymentsSum({ ...searchPaymentsQuery, status_in: [PAYMENT_DONE_STATUS] })
+    const { data: inProcessPaymentsSum, loading: inProcessPaymentsLoading } = usePaymentsSum({ ...searchPaymentsQuery, status_in: [PAYMENT_WITHDRAWN_STATUS] })
 
     const [selectedRows, setSelectedRows] = useState([])
 
