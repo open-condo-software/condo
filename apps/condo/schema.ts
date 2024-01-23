@@ -48882,6 +48882,11 @@ export type NewsItem = {
   sendAt?: Maybe<Scalars['String']>;
   scopes: Array<NewsItemScope>;
   _scopesMeta?: Maybe<_QueryMeta>;
+  /**
+   *  Returns the number of scopes that are specified for sending the news, and also the first two of them.
+   * Used to reduce requests for get of scopes in the UI
+   */
+  compactScopes?: Maybe<ShortScopesField>;
   /**  The date when newsItem was sent to residents. This is an internal field used to detect was the message has already been sent or not.  */
   sentAt?: Maybe<Scalars['String']>;
   /**  Shows if the news item is ready to be shown and send to residents  */
@@ -48967,6 +48972,7 @@ export type NewsItemHistoryRecord = {
   type?: Maybe<Scalars['String']>;
   validBefore?: Maybe<Scalars['String']>;
   sendAt?: Maybe<Scalars['String']>;
+  compactScopes?: Maybe<Scalars['JSON']>;
   sentAt?: Maybe<Scalars['String']>;
   isPublished?: Maybe<Scalars['Boolean']>;
   publishedAt?: Maybe<Scalars['String']>;
@@ -48993,6 +48999,7 @@ export type NewsItemHistoryRecordCreateInput = {
   type?: Maybe<Scalars['String']>;
   validBefore?: Maybe<Scalars['String']>;
   sendAt?: Maybe<Scalars['String']>;
+  compactScopes?: Maybe<Scalars['JSON']>;
   sentAt?: Maybe<Scalars['String']>;
   isPublished?: Maybe<Scalars['Boolean']>;
   publishedAt?: Maybe<Scalars['String']>;
@@ -49024,6 +49031,7 @@ export type NewsItemHistoryRecordUpdateInput = {
   type?: Maybe<Scalars['String']>;
   validBefore?: Maybe<Scalars['String']>;
   sendAt?: Maybe<Scalars['String']>;
+  compactScopes?: Maybe<Scalars['JSON']>;
   sentAt?: Maybe<Scalars['String']>;
   isPublished?: Maybe<Scalars['Boolean']>;
   publishedAt?: Maybe<Scalars['String']>;
@@ -49122,6 +49130,10 @@ export type NewsItemHistoryRecordWhereInput = {
   sendAt_gte?: Maybe<Scalars['String']>;
   sendAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   sendAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  compactScopes?: Maybe<Scalars['JSON']>;
+  compactScopes_not?: Maybe<Scalars['JSON']>;
+  compactScopes_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  compactScopes_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   sentAt?: Maybe<Scalars['String']>;
   sentAt_not?: Maybe<Scalars['String']>;
   sentAt_lt?: Maybe<Scalars['String']>;
@@ -72243,6 +72255,12 @@ export type ShareTicketInput = {
 export type ShareTicketOutput = {
   __typename?: 'ShareTicketOutput';
   status: Scalars['String'];
+};
+
+export type ShortScopesField = {
+  __typename?: 'ShortScopesField';
+  count: Scalars['Int'];
+  firstOnes: Array<Maybe<NewsItemScope>>;
 };
 
 export type SigninAsUserInput = {

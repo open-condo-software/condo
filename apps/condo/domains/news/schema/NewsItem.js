@@ -10,8 +10,8 @@ const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { AutoIncrementInteger } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { itemsQuery } = require('@open-condo/keystone/schema')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/news/access/NewsItem')
@@ -90,6 +90,7 @@ const ERRORS = {
     },
 }
 
+const COMPACT_SCOPES_SIZE = 2
 const readOnlyFieldsWhenPublished = ['organization', 'title', 'body', 'type', 'sendAt']
 
 const NewsItem = new GQLListSchema('NewsItem', {
@@ -108,7 +109,7 @@ const NewsItem = new GQLListSchema('NewsItem', {
 
         number: {
             schemaDoc: 'The news item number',
-            type: AutoIncrementInteger,
+            type: 'AutoIncrementInteger',
             isRequired: false,
             autoIncrementScopeFields: ['organization'],
         },
@@ -150,6 +151,40 @@ const NewsItem = new GQLListSchema('NewsItem', {
                 read: ({ authentication: { item: user } }) => (user.isAdmin || user.isSupport),
                 create: false,
                 update: false,
+            },
+        },
+
+        compactScopes: {
+            schemaDoc: 'Returns the number of scopes that are specified for sending the news, and also the first two of them.\n' +
+                'Used to reduce requests for get of scopes in the UI',
+            type: 'Virtual',
+            extendGraphQLTypes: ['type ShortScopesField { count: Int!, firstOnes: [NewsItemScope]! }'],
+            graphQLReturnType: 'ShortScopesField',
+            resolver: async (item) => {
+                const firstOnesScopes = await itemsQuery('NewsItemScope', {
+                    where: {
+                        newsItem: { id: item.id }, deletedAt: null,
+                    },
+                    first: COMPACT_SCOPES_SIZE + 1,
+                    orderBy: 'createdAt_ASC',
+                })
+
+                let count = 0
+                if (firstOnesScopes.length > COMPACT_SCOPES_SIZE) {
+                    const { count: countObjs } = await itemsQuery('NewsItemScope', {
+                        where: {
+                            newsItem: { id: item.id }, deletedAt: null,
+                        },
+                    }, { meta: true })
+                    count = countObjs
+                } else {
+                    count = firstOnesScopes.length
+                }
+
+                return {
+                    count,
+                    firstOnes: firstOnesScopes.slice(0, COMPACT_SCOPES_SIZE),
+                }
             },
         },
 

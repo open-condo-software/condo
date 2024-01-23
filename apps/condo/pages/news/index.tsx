@@ -2,9 +2,6 @@
 import { jsx } from '@emotion/react'
 import { Col, Row, RowProps } from 'antd'
 import { isEmpty } from 'lodash'
-import get from 'lodash/get'
-import has from 'lodash/has'
-import isArray from 'lodash/isArray'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
@@ -30,7 +27,7 @@ import { NewsReadPermissionRequired } from '@condo/domains/news/components/PageA
 import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess'
 import { useTableColumns } from '@condo/domains/news/hooks/useTableColumns'
 import { useTableFilters } from '@condo/domains/news/hooks/useTableFilters'
-import { NewsItem, NewsItemScope } from '@condo/domains/news/utils/clientSchema'
+import { NewsItem } from '@condo/domains/news/utils/clientSchema'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
 
 
@@ -68,58 +65,6 @@ const NewsTableContainer = ({
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
     }, { fetchPolicy: 'network-only' })
 
-    const newsIds = useMemo(() => {
-        return news.map(obj => obj.id)
-    }, [news])
-
-    const {
-        loading: isNewsItemScopeFetching,
-        objs: newsItemScope,
-    } = NewsItemScope.useAllObjects({
-        where: {
-            newsItem: {
-                id_in: newsIds,
-            },
-        },
-    })
-
-    const newsWithAddresses = useMemo(() => {
-        if (isNewsItemScopeFetching) return []
-
-        const addresses = {}
-
-        newsItemScope.forEach(item => {
-            const propertyAddress = get(item, ['property'], null)
-            const newsItemId = get(item, ['newsItem', 'id'])
-            if (propertyAddress && addresses[newsItemId] !== 'hasAllProperties') {
-                if (isArray(addresses[newsItemId])) {
-                    addresses[newsItemId] = [...addresses[newsItemId], propertyAddress]
-                } else {
-                    addresses[newsItemId] = [propertyAddress]
-                }
-            } else {
-                addresses[newsItemId] = 'hasAllProperties'
-            }
-        })
-
-        return news
-            .filter(newsItem => {
-                const newsItemId = get(newsItem, 'id')
-                const hasScope = has(addresses, [newsItemId])
-
-                return hasScope
-            })
-            .map(newsItem => {
-                const newsItemId = get(newsItem, 'id')
-                const hasAllProperties = addresses[newsItemId] === 'hasAllProperties'
-                return {
-                    newsItemAddresses: addresses[newsItemId] || [],
-                    hasAllProperties: hasAllProperties,
-                    ...newsItem,
-                }
-            })
-    }, [isNewsItemScopeFetching, newsItemScope, news])
-
     const columns = useTableColumns(filterMetas)
 
     const handleAddNews = useCallback(async () => {
@@ -134,8 +79,7 @@ const NewsTableContainer = ({
         }
     }, [router])
 
-
-    const isAllLoaded = !(loading || isNewsFetching || isNewsItemScopeFetching)
+    const isAllLoaded = !(loading || isNewsFetching)
 
     const actionBarButtons: ActionBarProps['actions'] = useMemo(() => [
         canManage && <Button
@@ -153,7 +97,7 @@ const NewsTableContainer = ({
                 <Table
                     totalRows={total}
                     loading={!isAllLoaded}
-                    dataSource={isAllLoaded ? newsWithAddresses : null}
+                    dataSource={isAllLoaded ? news : null}
                     columns={columns}
                     data-cy='news__table'
                     onRow={handleRowAction}

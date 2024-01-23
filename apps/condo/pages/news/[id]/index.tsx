@@ -157,7 +157,7 @@ const NewsItemCard: React.FC = () => {
         [NEWS_TYPE_EMERGENCY]: Emergency,
     }
     const newsItemType = typesNamesMapping[get(newsItem, 'type')] || ''
-    const createdBy = get(newsItem, 'createdBy.id')
+    const createdBy = get(newsItem, 'createdBy.id', null)
     const {
         obj: employee,
         loading: employeeLoading,
