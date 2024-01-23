@@ -3,6 +3,7 @@ import {
     NewsItem as INewsItem,
     NewsItemCreateInput as INewsItemCreateInput,
     NewsItemScope as INewsItemScope,
+    NewsItemScopeCreateInput as INewsItemScopeCreateInput,
     NewsItemScopeUnitTypeType,
     NewsItemTemplate as INewsItemTemplate,
     NewsItemUpdateInput as INewsItemUpdateInput,
@@ -318,7 +319,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
 
     const initialValidBefore = useMemo(() => get(initialValues, 'validBefore', null), [initialValues])
     const initialSendAt = useMemo(() => get(initialValues, 'sendAt', null), [initialValues])
-    const initialNewsItemScopes = useMemo(() => get(initialValues, 'newsItemScopes', []), [initialValues])
+    const initialNewsItemScopes: INewsItemScope[] = useMemo(() => get(initialValues, 'newsItemScopes', []), [initialValues])
     const initialHasAllProperties = useMemo(() => get(initialValues, 'hasAllProperties', false), [initialValues])
     const initialProperties = useMemo(() => get(initialValues, 'properties', []), [initialValues])
     const initialSentAt = useMemo(() => get(initialValues, 'sentAt', null), [initialValues])
@@ -629,8 +630,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             const newsItemScopesToDeleteByChunks = chunk(newsItemScopesToDelete, CHUNK_SIZE)
 
             for (const scopesToDelete of newsItemScopesToDeleteByChunks) {
-                // todo fix any
-                await softDeleteNewsItemScope((scopesToDelete as any))
+                await softDeleteNewsItemScope(scopesToDelete)
             }
 
             if (isEmpty(deletedPropertyIds)) {
@@ -643,8 +643,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                 const newsItemScopesToDeleteByChunks = chunk(newsItemScopesToDelete, CHUNK_SIZE)
 
                 for (const scopesToDelete of newsItemScopesToDeleteByChunks) {
-                    // todo fix any
-                    await softDeleteNewsItemScope((scopesToDelete as any))
+                    await softDeleteNewsItemScope(scopesToDelete)
                 }
 
                 if (!isEmpty(initialUnitKeys) && isEmpty(unitNames) && isEmpty(sectionIds) && deletedKeys.length === initialUnitKeys.length) {
@@ -656,7 +655,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             }
         }
 
-        const addedPropertyIds = actionName === 'create' ? properties : difference(properties, initialPropertyIds)
+        const addedPropertyIds: string[] = actionName === 'create' ? properties : difference(properties, initialPropertyIds)
         if (actionName === 'create' && addedPropertyIds.length === 0 && hasAllProperties) {
             await createNewsItemScope([{
                 newsItem: { connect: { id: newsItemId } },
@@ -664,7 +663,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         }
         if (addedPropertyIds.length === 1 && properties.length === 1 && unitNames.length > 0) {
             const propertyId = addedPropertyIds[0]
-            const scopesToAdd = unitNames.map((unitKey) => {
+            const scopesToAdd: INewsItemScopeCreateInput[] = (unitNames as string[]).map((unitKey) => {
                 const { name: unitName, type: unitType } = getTypeAndNameByKey(unitKey)
                 return {
                     newsItem: { connect: { id: newsItemId } },
@@ -676,14 +675,13 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             const scopesToAddByChunks = chunk(scopesToAdd, CHUNK_SIZE)
 
             for (const scopes of scopesToAddByChunks) {
-                // todo fix any
-                await createNewsItemScope(scopes as any)
+                await createNewsItemScope(scopes)
             }
         }
         if (addedPropertyIds.length === 1 && properties.length === 1 && sectionIds.length > 0) {
             const propertyId = addedPropertyIds[0]
             const { unitNames, unitTypes } = getUnitNamesAndUnitTypes(property, sectionIds)
-            const scopesToAdd = unitNames.map((unitName, i) => ({
+            const scopesToAdd: INewsItemScopeCreateInput[] = unitNames.map((unitName, i) => ({
                 newsItem: { connect: { id: newsItemId } },
                 property: { connect: { id: propertyId } },
                 unitName: unitName,
@@ -692,20 +690,18 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             const scopesToAddByChunks = chunk(scopesToAdd, CHUNK_SIZE)
 
             for (const scopes of scopesToAddByChunks) {
-                // todo fix any
-                await createNewsItemScope(scopes as any)
+                await createNewsItemScope(scopes)
             }
         }
         if (isEmpty(sectionIds) && isEmpty(unitNames) && !isEmpty(addedPropertyIds)) {
-            const scopesToAdd = addedPropertyIds.map(propertyId => ({
+            const scopesToAdd: INewsItemScopeCreateInput[] = addedPropertyIds.map(propertyId => ({
                 newsItem: { connect: { id: newsItemId } },
                 property: { connect: { id: propertyId } },
             }))
             const scopesToAddByChunks = chunk(scopesToAdd, CHUNK_SIZE)
 
             for (const scopes of scopesToAddByChunks) {
-                // todo fix any
-                await createNewsItemScope(scopes as any)
+                await createNewsItemScope(scopes)
             }
         }
 
@@ -715,7 +711,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                 await softDeleteNewsItemScope([initialNewsItemScopes[0]])
             }
             const { unitNames, unitTypes } = getUnitNamesAndUnitTypes(property, sectionIds)
-            const scopesToAdd = unitNames.map((unitName, i) => ({
+            const scopesToAdd: INewsItemScopeCreateInput[] = unitNames.map((unitName, i) => ({
                 newsItem: { connect: { id: newsItemId } },
                 property: { connect: { id: propertyId } },
                 unitName: unitName,
@@ -724,8 +720,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             const scopesToAddByChunks = chunk(scopesToAdd, CHUNK_SIZE)
 
             for (const scopes of scopesToAddByChunks) {
-                // todo fix any
-                await createNewsItemScope(scopes as any)
+                await createNewsItemScope(scopes)
             }
         }
         if (actionName === 'update' && !hasAllProperties && isEmpty(addedPropertyIds) && unitNames.length > 0) {
@@ -735,7 +730,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             }
             const addedKeys = difference(unitNames, initialUnitKeys)
 
-            const scopesToAdd = addedKeys.map((unitKey) => {
+            const scopesToAdd: INewsItemScopeCreateInput[] = addedKeys.map((unitKey) => {
                 const { name: unitName, type: unitType } = getTypeAndNameByKey(unitKey)
                 return {
                     newsItem: { connect: { id: newsItemId } },
@@ -747,8 +742,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             const scopesToAddByChunks = chunk(scopesToAdd, CHUNK_SIZE)
 
             for (const scopes of scopesToAddByChunks) {
-                // todo fix any
-                await createNewsItemScope(scopes as any)
+                await createNewsItemScope(scopes)
             }
         }
 
