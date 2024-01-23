@@ -57559,7 +57559,7 @@ input NewsItemScopeRelateToManyInput {
 
 type ShortScopesField {
   count: Int!
-  firstTwo: [NewsItemScope]!
+  firstOnes: [NewsItemScope]!
 }
 
 """ The news item created by the organization to show on resident's mobile devices 

@@ -35,22 +35,22 @@ export const getManyPropertiesAddressRender = (search: FilterValue) => {
     }
 }
 
-export const getCompactAddressPropertiesRender = (search: FilterValue) => (intl, firstTwoProperties, count, CustomMoreAddressesMessage?) => {
+export const getCompactAddressPropertiesRender = (search: FilterValue) => (intl, firstOnesProperties, count, CustomMoreAddressesMessage?) => {
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
     const MoreAddressesMessage = CustomMoreAddressesMessage || intl.formatMessage({ id: 'pages.condo.settings.propertyScope.propertiesCount' })
     const AndMessage = intl.formatMessage({ id: 'And' })
 
-    if (!isInteger(count) || count === 0 || !isArray(firstTwoProperties) || isEmpty(firstTwoProperties)) {
+    if (!isInteger(count) || count === 0 || !isArray(firstOnesProperties) || isEmpty(firstOnesProperties)) {
         return '—'
     }
 
-    const firstPropertyAddress = getAddressCellRender(firstTwoProperties[0], DeletedMessage, search, true)
+    const firstPropertyAddress = getAddressCellRender(firstOnesProperties[0], DeletedMessage, search, true)
 
-    if (firstTwoProperties.length > 0 && count > 0) {
-        if (firstTwoProperties.length === 1 && count === 1) {
+    if (firstOnesProperties.length > 0 && count > 0) {
+        if (firstOnesProperties.length === 1 && count === 1) {
             return firstPropertyAddress
-        } else if (firstTwoProperties.length === 2 && count === 2) {
-            const secondPropertyAddress = getAddressCellRender(firstTwoProperties[1], DeletedMessage, search, true)
+        } else if (firstOnesProperties.length === 2 && count === 2) {
+            const secondPropertyAddress = getAddressCellRender(firstOnesProperties[1], DeletedMessage, search, true)
             return (
                 <Typography.Text>
                     {firstPropertyAddress} {AndMessage} {secondPropertyAddress}
@@ -73,9 +73,9 @@ export const getOneAddressAndPropertiesCountRender = (search: FilterValue) => {
             return '—'
         }
 
-        const firstTwoProperties = properties.slice(0, 2)
+        const firstOnesProperties = properties.slice(0, 2)
         const count = properties.length
 
-        return getCompactAddressPropertiesRender(search)(intl, firstTwoProperties, count)
+        return getCompactAddressPropertiesRender(search)(intl, firstOnesProperties, count)
     }
 }

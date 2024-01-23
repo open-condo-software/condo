@@ -72260,7 +72260,7 @@ export type ShareTicketOutput = {
 export type ShortScopesField = {
   __typename?: 'ShortScopesField';
   count: Scalars['Int'];
-  firstTwo: Array<Maybe<NewsItemScope>>;
+  firstOnes: Array<Maybe<NewsItemScope>>;
 };
 
 export type SigninAsUserInput = {

@@ -1104,15 +1104,15 @@ describe('NewsItems', () => {
     describe('Fields logic', () => {
         describe('compactScopes', () => {
             const cases = [
-                [{ newsItemScopeCount: 0 }, { count: 0, firstTwoLength: 0 }],
-                [{ newsItemScopeCount: 1 }, { count: 1, firstTwoLength: 1 }],
-                [{ newsItemScopeCount: 2 }, { count: 2, firstTwoLength: 2 }],
-                [{ newsItemScopeCount: 10 }, { count: 10, firstTwoLength: 2 }],
+                [{ newsItemScopeCount: 0 }, { count: 0, firstOnesLength: 0 }],
+                [{ newsItemScopeCount: 1 }, { count: 1, firstOnesLength: 1 }],
+                [{ newsItemScopeCount: 2 }, { count: 2, firstOnesLength: 2 }],
+                [{ newsItemScopeCount: 10 }, { count: 10, firstOnesLength: 2 }],
             ]
 
             test.each(cases)('%p Should return correct data: %s', async (input, output) => {
                 const { newsItemScopeCount } = input
-                const { count, firstTwoLength } = output
+                const { count, firstOnesLength } = output
 
                 const [o10n] = await createTestOrganization(adminClient)
                 const [createdNewsItem] = await createTestNewsItem(adminClient, o10n)
@@ -1126,11 +1126,11 @@ describe('NewsItems', () => {
                 const newsItem = await NewsItem.getOne(adminClient, { id: createdNewsItem.id })
                 expect(newsItem).toHaveProperty('id', createdNewsItem.id)
                 expect(newsItem).toHaveProperty('compactScopes.count', count)
-                expect(newsItem).toHaveProperty('compactScopes.firstTwo')
-                expect(newsItem.compactScopes.firstTwo).toHaveLength(firstTwoLength)
-                expect(newsItem.compactScopes.firstTwo).toEqual(
+                expect(newsItem).toHaveProperty('compactScopes.firstOnes')
+                expect(newsItem.compactScopes.firstOnes).toHaveLength(firstOnesLength)
+                expect(newsItem.compactScopes.firstOnes).toEqual(
                     expect.arrayContaining(
-                        scopes.slice(0, firstTwoLength).map((scopes => expect.objectContaining({
+                        scopes.slice(0, firstOnesLength).map((scopes => expect.objectContaining({
                             id: scopes.id,
                         })))
                     )

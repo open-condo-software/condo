@@ -131,16 +131,16 @@ export const getRenderProperties: GetRenderPropertiesType = (intl, search) => (c
     const MoreAddressesMessage = intl.formatMessage({ id: 'pages.condo.news.index.tableField.addresses.more' })
 
     const scopeCount = get(compactScopes, 'count', 0)
-    const firstTwoProperties = map(get(compactScopes, 'firstTwo'), 'property').filter(Boolean)
-    const hasAllProperties = scopeCount === 1 && !get(compactScopes, 'firstTwo.0.property', null)
+    const firstOnesProperties = map(get(compactScopes, 'firstOnes'), 'property').filter(Boolean)
+    const hasAllProperties = scopeCount === 1 && !get(compactScopes, 'firstOnes.0.property', null)
 
     if (hasAllProperties) {
         return AllPropertiesMessage
     }
 
-    if (isEmpty(firstTwoProperties) || scopeCount < 1) {
+    if (isEmpty(firstOnesProperties) || scopeCount < 1) {
         return '—'
     }
 
-    return getCompactAddressPropertiesRender(search)(intl, firstTwoProperties, scopeCount, MoreAddressesMessage)
+    return getCompactAddressPropertiesRender(search)(intl, firstOnesProperties, scopeCount, MoreAddressesMessage)
 }

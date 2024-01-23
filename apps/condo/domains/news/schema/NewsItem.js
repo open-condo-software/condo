@@ -90,6 +90,7 @@ const ERRORS = {
     },
 }
 
+const COMPACT_SCOPES_SIZE = 2
 const readOnlyFieldsWhenPublished = ['organization', 'title', 'body', 'type', 'sendAt']
 
 const NewsItem = new GQLListSchema('NewsItem', {
@@ -157,19 +158,19 @@ const NewsItem = new GQLListSchema('NewsItem', {
             schemaDoc: 'Returns the number of scopes that are specified for sending the news, and also the first two of them.\n' +
                 'Used to reduce requests for get of scopes in the UI',
             type: 'Virtual',
-            extendGraphQLTypes: ['type ShortScopesField { count: Int!, firstTwo: [NewsItemScope]! }'],
+            extendGraphQLTypes: ['type ShortScopesField { count: Int!, firstOnes: [NewsItemScope]! }'],
             graphQLReturnType: 'ShortScopesField',
             resolver: async (item) => {
-                const firstTreeScopes = await itemsQuery('NewsItemScope', {
+                const firstOnesScopes = await itemsQuery('NewsItemScope', {
                     where: {
                         newsItem: { id: item.id }, deletedAt: null,
                     },
-                    first: 3,
+                    first: COMPACT_SCOPES_SIZE + 1,
                     orderBy: 'createdAt_ASC',
                 })
 
                 let count = 0
-                if (firstTreeScopes.length > 2) {
+                if (firstOnesScopes.length > COMPACT_SCOPES_SIZE) {
                     const { count: countObjs } = await itemsQuery('NewsItemScope', {
                         where: {
                             newsItem: { id: item.id }, deletedAt: null,
@@ -177,12 +178,12 @@ const NewsItem = new GQLListSchema('NewsItem', {
                     }, { meta: true })
                     count = countObjs
                 } else {
-                    count = firstTreeScopes.length
+                    count = firstOnesScopes.length
                 }
 
                 return {
                     count,
-                    firstTwo: firstTreeScopes.slice(0, 2),
+                    firstOnes: firstOnesScopes.slice(0, COMPACT_SCOPES_SIZE),
                 }
             },
         },
