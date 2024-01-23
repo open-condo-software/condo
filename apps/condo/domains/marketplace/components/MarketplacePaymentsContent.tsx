@@ -2,16 +2,19 @@ import { useQuery } from '@apollo/client'
 import {
     Payment as PaymentType, SortPaymentsBy,
 } from '@app/condo/schema'
+import { jsx } from "@emotion/react";
 import styled from '@emotion/styled'
+import { QuestionCircle } from "@open-condo/icons";
 import { Col, Row, RowProps } from 'antd'
 import { TableRowSelection } from 'antd/lib/table/interface'
+import dayjs from "dayjs";
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import { useIntl } from 'react-intl'
 
 import { useOrganization } from '@open-condo/next/organization'
-import { Typography } from '@open-condo/ui'
+import { Tooltip, Typography } from '@open-condo/ui'
 import { ActionBar, Button, Modal } from '@open-condo/ui'
 
 import { PaymentsSumTable } from '@condo/domains/acquiring/components/payments/PaymentsSumTable'
@@ -30,10 +33,14 @@ import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useMarketplacePaymentsFilters } from '@condo/domains/marketplace/hooks/useMarketplacePaymentsFilters'
 import { useMarketplacePaymentTableColumns } from '@condo/domains/marketplace/hooks/useMarketplacePaymentTableColumns'
+import Checkbox from "../../common/components/antd/Checkbox";
+import DateRangePicker from "../../common/components/Pickers/DateRangePicker";
+import { useDateRangeSearch } from "../../common/hooks/useDateRangeSearch";
 
 
 const ROW_GUTTERS: RowProps['gutter'] = [0, 0]
 const SUM_BAR_COL_GUTTER: RowProps['gutter'] = [40, 0]
+const QUICK_FILTERS_COL_STYLE: CSSProperties = { alignSelf: 'center' }
 
 function usePaymentsSum (whereQuery) {
     const { data, error, loading } = useQuery(SUM_PAYMENTS_QUERY, {
@@ -91,6 +98,7 @@ const MarketplacePaymentsTableContent = () => {
     const DonePaymentsSumMessage = intl.formatMessage({ id: 'pages.condo.marketplace.payments.stats.donePayment' })
     const InProcessPaymentsSumMessage = intl.formatMessage({ id: 'pages.condo.marketplace.payments.stats.inProcessPayment' })
     const ConfirmTitle = intl.formatMessage({ id: 'component.TicketWarningModal.ConfirmTitle' })
+    const PaymentsOnlyInDoneStatusMessage = intl.formatMessage({ id: 'pages.condo.marketplace.payments.filters.onlyDoneStatus' })
 
     const router = useRouter()
     const userOrganization = useOrganization()
@@ -115,14 +123,20 @@ const MarketplacePaymentsTableContent = () => {
     }
     const tableColumns = useMarketplacePaymentTableColumns(queryMetas, openStatusDescModal)
 
+    const [showPaymentsOnlyInDoneStatus, setShowPaymentsOnlyInDoneStatus] = useState(false)
+    const switchShowPaymentsOnlyInDoneStatus = useCallback(
+        () => setShowPaymentsOnlyInDoneStatus(!showPaymentsOnlyInDoneStatus),
+        [showPaymentsOnlyInDoneStatus]
+    )
+
     const searchPaymentsQuery = useMemo(() => {
         return {
             invoice: {
                 organization: { id: orgId },
             },
-            status_in: [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS],
+            status_in: showPaymentsOnlyInDoneStatus ? [PAYMENT_DONE_STATUS] : [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS],
         }
-    }, [orgId])
+    }, [orgId, showPaymentsOnlyInDoneStatus])
     const sortBy = useMemo(() => sortersToSortBy(sorters) as SortPaymentsBy[], [sorters, sortersToSortBy])
 
     const {
@@ -141,14 +155,20 @@ const MarketplacePaymentsTableContent = () => {
         fetchPolicy: 'network-only',
     })
 
-    const { data: allPaymentsSum, loading: allPaymentsSumLoading } = usePaymentsSum({ ...searchPaymentsQuery })
+    const { data: allPaymentsSum, loading: allPaymentsSumLoading } = usePaymentsSum({ ...searchPaymentsQuery, status_in: [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS] })
     const { data: donePaymentsSum, loading: donePaymentsLoading } = usePaymentsSum({ ...searchPaymentsQuery, status: PAYMENT_DONE_STATUS })
-    const { data: inProcessPaymentsSum, loading: inProcessPaymentsLoading } = usePaymentsSum({ ...searchPaymentsQuery, status_in: [PAYMENT_PROCESSING_STATUS, PAYMENT_WITHDRAWN_STATUS, PAYMENT_ERROR_STATUS] })
+    const { data: inProcessPaymentsSum, loading: inProcessPaymentsLoading } = usePaymentsSum({ ...searchPaymentsQuery, status_in: [PAYMENT_PROCESSING_STATUS, PAYMENT_WITHDRAWN_STATUS] })
 
     const [selectedRows, setSelectedRows] = useState([])
 
     const [search, handleSearchChange] = useSearch()
     const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
+
+    const [dateRange, setDateRange] = useDateRangeSearch('createdAt')
+
+    const disabledDate = useCallback((currentDate) => {
+        return currentDate && currentDate < dayjs().startOf('year')
+    }, [])
 
     const handleSelectRow = useCallback((record, checked) => {
         const selectedKey = record.id
@@ -186,12 +206,28 @@ const MarketplacePaymentsTableContent = () => {
                         <Col span={24}>
                             <TableFiltersContainer>
                                 <Row justify='space-between' gutter={ROW_GUTTERS}>
-                                    <Col xs={24} lg={7}>
+                                    <Col span={16}>
                                         <Input
                                             placeholder={SearchPlaceholder}
                                             onChange={handleSearch}
                                             value={search}
                                             allowClear
+                                        />
+                                    </Col>
+                                    <Col >
+                                        <DateRangePicker
+                                            value={dateRange}
+                                            onChange={setDateRange}
+                                            allowClear
+                                            disabledDate={disabledDate}
+                                            defaultValue={[dayjs().subtract(6, 'days'), dayjs()]}
+                                        />
+                                    </Col>
+                                    <Col style={QUICK_FILTERS_COL_STYLE}>
+                                        <Checkbox
+                                            checked={showPaymentsOnlyInDoneStatus}
+                                            onClick={switchShowPaymentsOnlyInDoneStatus}
+                                            children={PaymentsOnlyInDoneStatusMessage}
                                         />
                                     </Col>
                                 </Row>
