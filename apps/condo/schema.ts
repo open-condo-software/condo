@@ -49658,8 +49658,6 @@ export type NewsItemScope = {
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
-  /**  Ref to the organization. It is filled in on the server and is read-only  */
-  organization?: Maybe<Organization>;
 };
 
 export type NewsItemScopeCreateInput = {
@@ -49677,7 +49675,6 @@ export type NewsItemScopeCreateInput = {
   newId?: Maybe<Scalars['String']>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
-  organization?: Maybe<OrganizationRelateToOneInput>;
 };
 
 /**  A keystone list  */
@@ -49951,7 +49948,6 @@ export type NewsItemScopeUpdateInput = {
   newId?: Maybe<Scalars['String']>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
-  organization?: Maybe<OrganizationRelateToOneInput>;
 };
 
 export type NewsItemScopeWhereInput = {
@@ -50043,8 +50039,6 @@ export type NewsItemScopeWhereInput = {
   sender_not?: Maybe<SenderFieldInput>;
   sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
-  organization?: Maybe<OrganizationWhereInput>;
-  organization_is_null?: Maybe<Scalars['Boolean']>;
 };
 
 export type NewsItemScopeWhereUniqueInput = {
@@ -76706,9 +76700,7 @@ export enum SortNewsItemScopesBy {
   DeletedAtAsc = 'deletedAt_ASC',
   DeletedAtDesc = 'deletedAt_DESC',
   DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC',
-  OrganizationAsc = 'organization_ASC',
-  OrganizationDesc = 'organization_DESC'
+  DvDesc = 'dv_DESC'
 }
 
 export enum SortNewsItemSharingHistoryRecordsBy {

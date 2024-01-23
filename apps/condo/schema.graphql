@@ -58220,10 +58220,6 @@ type NewsItemScope {
   """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
   """
   sender: SenderField
-
-  """ Ref to the organization. It is filled in on the server and is read-only 
-  """
-  organization: Organization
 }
 
 input NewsItemScopeWhereInput {
@@ -58315,8 +58311,6 @@ input NewsItemScopeWhereInput {
   sender_not: SenderFieldInput
   sender_in: [SenderFieldInput]
   sender_not_in: [SenderFieldInput]
-  organization: OrganizationWhereInput
-  organization_is_null: Boolean
 }
 
 input NewsItemScopeWhereUniqueInput {
@@ -58350,8 +58344,6 @@ enum SortNewsItemScopesBy {
   deletedAt_DESC
   dv_ASC
   dv_DESC
-  organization_ASC
-  organization_DESC
 }
 
 input NewsItemScopeUpdateInput {
@@ -58369,7 +58361,6 @@ input NewsItemScopeUpdateInput {
   newId: String
   dv: Int
   sender: SenderFieldInput
-  organization: OrganizationRelateToOneInput
 }
 
 input NewsItemScopesUpdateInput {
@@ -58392,7 +58383,6 @@ input NewsItemScopeCreateInput {
   newId: String
   dv: Int
   sender: SenderFieldInput
-  organization: OrganizationRelateToOneInput
 }
 
 input NewsItemScopesCreateInput {
