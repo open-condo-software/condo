@@ -149,7 +149,7 @@ const MESSAGE_META = {
         telegramMeta: { required: false },
     },
     [INVITE_NEW_EMPLOYEE_MESSAGE_TYPE]: {
-        dv: { defaultValue: '', required: true },
+        dv: { required: true },
         inviteCode: { defaultValue: '', required: true },
         userName: { defaultValue: 'USERNAME', required: false },
         userEmail: { defaultValue: '', required: false },
@@ -157,56 +157,56 @@ const MESSAGE_META = {
         organizationName: { defaultValue: 'ORGANIZATION', required: false },
     },
     [SHARE_TICKET_MESSAGE_TYPE]: {
-        dv: { defaultValue: '', required: true },
+        dv: { required: true },
         ticketNumber: { defaultValue: '', required: true },
         date: { defaultValue: '', required: true },
         id: { defaultValue: '', required: true },
         details: { defaultValue: '', required: true },
     },
     [BANK_ACCOUNT_CREATION_REQUEST_TYPE]: {
-        dv: { defaultValue: '', required: true },
+        dv: { required: true },
         bankAccountClient: { defaultValue: {}, required: true },
         tin: { required: true },
         name: { required: true },
         propertyAddress: { defaultValue: '', required: true },
     },
     [DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE]: {
-        dv: { defaultValue: '', required: true },
+        dv: { required: true },
         organizationName: { defaultValue: 'ORGANIZATION', required: false },
         serverUrl: { defaultValue: '', required: false },
     },
     [DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE]: {
-        dv: { defaultValue: '', required: true },
+        dv: { required: true },
         organizationName: { defaultValue: 'ORGANIZATION', required: false },
         serverUrl: { defaultValue: '', required: false },
     },
     [REGISTER_NEW_USER_MESSAGE_TYPE]: {
-        dv: { defaultValue: '', required: true },
+        dv: { required: true },
         userPhone: { defaultValue: '', required: false },
         userPassword: { defaultValue: '', required: false },
     },
     [RESET_PASSWORD_MESSAGE_TYPE]: {
-        dv: { defaultValue: '', required: true },
+        dv: { required: true },
         token: { defaultValue: '', required: true },
         userName: { defaultValue: 'USERNAME', required: false },
         userEmail: { defaultValue: '', required: false },
     },
     [SMS_VERIFY_CODE_MESSAGE_TYPE]: {
-        dv: { defaultValue: '', required: true },
+        dv: { required: true },
         smsCode: { defaultValue: '', required: true },
     },
     [DEVELOPER_IMPORTANT_NOTE_TYPE]: {
-        dv: { defaultValue: '', required: true },
+        dv: { required: true },
         type: { defaultValue: 'UNKNOWN', required: true },
         data: { defaultValue: null, required: true },
     },
     [CUSTOMER_IMPORTANT_NOTE_TYPE]: {
-        dv: { defaultValue: '', required: true },
+        dv: { required: true },
         type: { defaultValue: 'UNKNOWN', required: true },
         data: { defaultValue: null, required: true },
     },
     [MESSAGE_FORWARDED_TO_SUPPORT_TYPE]: {
-        dv: { defaultValue: '', required: true },
+        dv: { required: true },
         text: { defaultValue: null, required: true },
         residentsExtraInfo: { defaultValue: null, required: true },
         os: { defaultValue: null, required: true },
@@ -214,7 +214,7 @@ const MESSAGE_META = {
         attachments: { defaultValue: [], isRequired: false },
     },
     [TICKET_ASSIGNEE_CONNECTED_TYPE]: {
-        dv: { defaultValue: '', required: true },
+        dv: { required: true },
         data: {
             ticketId: { defaultValue: '', required: true },
             ticketNumber: { defaultValue: '', required: true },
@@ -224,7 +224,7 @@ const MESSAGE_META = {
         },
     },
     [TICKET_EXECUTOR_CONNECTED_TYPE]: {
-        dv: { defaultValue: '', required: true },
+        dv: { required: true },
         data: {
             ticketId: { defaultValue: '', required: true },
             ticketNumber: { defaultValue: '', required: true },
@@ -234,13 +234,13 @@ const MESSAGE_META = {
         },
     },
     [TRACK_TICKET_IN_DOMA_APP_TYPE]: {
-        dv: { defaultValue: '', required: true },
+        dv: { required: true },
         data: {
             organization: { defaultValue: '', required: true },
         },
     },
     [TICKET_STATUS_OPENED_TYPE]: {
-        dv: { defaultValue: '', required: true },
+        dv: { required: true },
         data: {
             ticketId: { defaultValue: '', required: true },
             ticketNumber: { defaultValue: '', required: true },
@@ -250,7 +250,7 @@ const MESSAGE_META = {
         },
     },
     [TICKET_STATUS_IN_PROGRESS_TYPE]: {
-        dv: { defaultValue: '', required: true },
+        dv: { required: true },
         data: {
             ticketId: { defaultValue: '', required: true },
             ticketNumber: { defaultValue: '', required: true },
@@ -260,7 +260,7 @@ const MESSAGE_META = {
         },
     },
     [TICKET_STATUS_COMPLETED_TYPE]: {
-        dv: { defaultValue: '', required: true },
+        dv: { required: true },
         data: {
             ticketId: { defaultValue: '', required: true },
             ticketNumber: { defaultValue: '', required: true },
@@ -270,7 +270,7 @@ const MESSAGE_META = {
         },
     },
     [TICKET_STATUS_RETURNED_TYPE]: {
-        dv: { defaultValue: '', required: true },
+        dv: { required: true },
         data: {
             ticketId: { defaultValue: '', required: true },
             ticketNumber: { defaultValue: '', required: true },
@@ -280,7 +280,7 @@ const MESSAGE_META = {
         },
     },
     [TICKET_STATUS_DECLINED_TYPE]: {
-        dv: { defaultValue: '', required: true },
+        dv: { required: true },
         data: {
             ticketId: { defaultValue: '', required: true },
             ticketNumber: { defaultValue: '', required: true },
@@ -290,7 +290,7 @@ const MESSAGE_META = {
         },
     },
     [TICKET_COMMENT_ADDED_TYPE]: {
-        dv: { defaultValue: '', required: true },
+        dv: { required: true },
         data: {
             ticketId: { defaultValue: '', required: true },
             ticketNumber: { defaultValue: '', required: true },
@@ -355,7 +355,7 @@ const MESSAGE_META = {
         categoryName: { required: true },
     },
     [BILLING_RECEIPT_ADDED_TYPE]: {
-        dv: { defaultValue: '', required: true },
+        dv: { required: true },
         data: {
             residentId: { defaultValue: '', required: true },
             userId: { defaultValue: '', required: true },
@@ -367,7 +367,7 @@ const MESSAGE_META = {
         },
     },
     [BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE]: {
-        dv: { defaultValue: '', required: true },
+        dv: { required: true },
         data: {
             residentId: { defaultValue: '', required: true },
             userId: { defaultValue: '', required: true },
@@ -382,7 +382,7 @@ const MESSAGE_META = {
         },
     },
     [BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE]: {
-        dv: { defaultValue: '', required: true },
+        dv: { required: true },
         data: {
             residentId: { defaultValue: '', required: true },
             userId: { defaultValue: '', required: true },
