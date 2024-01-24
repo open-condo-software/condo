@@ -314,7 +314,7 @@ export const getStatusRender = (intl, openStatusDescModal, search?: FilterValue 
         const nameStatus = intl.formatMessage({ id: 'payment.status.' + statusType })
 
         return (
-            <span onClick={() => openStatusDescModal(statusType)}>
+            <span onClick={() => openStatusDescModal(statusType)} aria-hidden role='button'>
                 <Tag
                     bgColor={ statusType === PAYMENT_WITHDRAWN_STATUS ? colors.orange[5] : colors.green[5]}
                     textColor={colors.white}
