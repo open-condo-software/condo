@@ -8,10 +8,10 @@ import type { SelectProps } from '@open-condo/ui'
 import { Select } from '@open-condo/ui'
 
 import { Section, SubSection } from '@/domains/miniapp/components/AppSettings'
+import { EmptySubSectionView } from '@/domains/miniapp/components/EmptySubSectionView'
 import { DEV_ENVIRONMENT, PROD_ENVIRONMENT } from '@dev-api/domains/miniapp/constants/publishing'
 
 import { PropertiesTable } from './PropertiesTable'
-import { WaitingSectionView } from './WaitingSectionView'
 
 import type { RowProps } from 'antd'
 
@@ -26,6 +26,8 @@ export const PropertiesSection: React.FC<{ id: string }> = ({ id }) => {
     const PropertiesTitle = intl.formatMessage({ id: 'apps.b2c.sections.properties.title' })
     const DevStandLabel = intl.formatMessage({ id: 'apps.b2c.sections.publishing.publishForm.items.stand.options.development.label' })
     const ProdStandLabel = intl.formatMessage({ id: 'apps.b2c.sections.publishing.publishForm.items.stand.options.production.label' })
+    const ManagementNotAvailableTitle = intl.formatMessage({ id: 'apps.b2c.sections.properties.waitingView.title' })
+    const ManagementNotAvailableText = intl.formatMessage({ id: 'apps.b2c.sections.properties.waitingView.text' })
 
     const router = useRouter()
 
@@ -64,7 +66,11 @@ export const PropertiesSection: React.FC<{ id: string }> = ({ id }) => {
                         {isPropertiesAvailable ? (
                             <PropertiesTable id={id} environment={selectedEnvironment}/>
                         ) : (
-                            <WaitingSectionView/>
+                            <EmptySubSectionView
+                                dino='waiting'
+                                title={ManagementNotAvailableTitle}
+                                description={ManagementNotAvailableText}
+                            />
                         )}
                     </Col>
                 </Row>

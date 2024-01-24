@@ -14,6 +14,7 @@ import { BuildsSection } from '@/domains/miniapp/components/B2CApp/edit/builds/B
 import { InfoSection } from '@/domains/miniapp/components/B2CApp/edit/info/InfoSection'
 import { PropertiesSection } from '@/domains/miniapp/components/B2CApp/edit/properties/PropertiesSection'
 import { PublishingSection } from '@/domains/miniapp/components/B2CApp/edit/publishing/PublishingSection'
+import { OIDCClientSection } from '@/domains/miniapp/components/OIDC/edit/OIDCClientSection'
 import { DEFAULT_PAGE_SIZE } from '@/domains/miniapp/constants/common'
 import { getCurrentSection, useB2CMenuItems } from '@/domains/miniapp/hooks/useB2CMenuItems'
 import { getCurrentPage } from '@/domains/miniapp/utils/query'
@@ -32,6 +33,9 @@ import {
     AllB2CAppBuildsQuery,
     AllB2CAppBuildsQueryVariables,
     useGetB2CAppQuery,
+    GetOidcClientInfoDocument,
+    GetOidcClientInfoQuery,
+    GetOidcClientInfoQueryVariables,
 } from '@/lib/gql'
 
 const TITLE_GUTTER: RowProps['gutter'] = [40, 40]
@@ -40,6 +44,7 @@ const SECTIONS: { [key in SectionType]: React.FC<{ id: string }> } = {
     info: InfoSection,
     builds: BuildsSection,
     properties: PropertiesSection,
+    oidc: OIDCClientSection,
     publishing: PublishingSection,
 }
 
@@ -147,6 +152,14 @@ export const getServerSideProps: GetServerSideProps = async ({ req, query }) => 
                 where: { app: { id } },
                 first: DEFAULT_PAGE_SIZE,
                 skip: DEFAULT_PAGE_SIZE * (currentPage - 1),
+            },
+            context: { headers },
+        })
+    } else if (currentSection === 'oidc') {
+        await client.query<GetOidcClientInfoQuery, GetOidcClientInfoQueryVariables>({
+            query: GetOidcClientInfoDocument,
+            variables: {
+                where: { b2cApp: { id } },
             },
             context: { headers },
         })
