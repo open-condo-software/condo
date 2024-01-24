@@ -43,6 +43,7 @@ export const OfferSetup: React.FC<{ launchContext: LaunchContextType }> = ({ lau
     const OfferLinkMessage = intl.formatMessage({ id: 'pages.condo.marketplace.settings.offer.rules.offerlink' })
     const signOffer = intl.formatMessage({ id: 'pages.condo.marketplace.settings.offer.signOfferButton' })
     const downloadOffer = intl.formatMessage({ id: 'pages.condo.marketplace.settings.offer.downloadOfferButton' })
+    const ServerErrorMessage = intl.formatMessage({ id: 'global.errors.serverError.title' })
 
     const [form] = Form.useForm()
 
@@ -90,20 +91,30 @@ export const OfferSetup: React.FC<{ launchContext: LaunchContextType }> = ({ lau
         await bridge.send('CondoWebAppRedirect', { url: MARKETPLACE_OFFER_LINK, target: '_blank' })
     }, [])
 
+    const signOfferErrorHandler = useCallback(async (err) => {
+        await bridge.send('CondoWebAppShowNotification', {
+            type: 'error',
+            message: ServerErrorMessage,
+            description: get(err, ['graphQLErrors', 0, 'extensions', 'messageForUser'], err.message),
+        })
+    }, [ServerErrorMessage])
+
     const handleSignOffer = useCallback(async (values) => {
         setIsLoading(true)
         const tin = get(organization, 'tin')
-        await createAcceptAction({
+        createAcceptAction({
             userId: userId,
             organizationId: organizationId,
             email: values.email,
             tin,
             scope: ACCEPT_SCOPE_MARKETPLACE,
             signDate: dayjs().format('YYYY-MM-DD'),
+        }).then(() => {
+            window.parent.postMessage({ success: true }, condoUrl)
+        }).catch(signOfferErrorHandler).finally(() => {
+            setIsLoading(false)
         })
-        setIsLoading(false)
-        window.parent.postMessage({ success: true }, condoUrl)
-    }, [createAcceptAction, organization, organizationId, userId])
+    }, [createAcceptAction, organization, organizationId, signOfferErrorHandler, userId])
 
     const onRulesAcceptedChange = useCallback(() => {
         setRulesAreAccepted(prev => !prev)
