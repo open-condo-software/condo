@@ -243,7 +243,7 @@ const CategorySelectFields = ({ parentCategoryId, form }) => {
 
     const { requiredValidator } = useValidations()
     const { objs: marketCategories, loading } = MarketCategory.useAllObjects({
-        sortBy: [SortMarketCategoriesBy.OrderAsc],
+        sortBy: [SortMarketCategoriesBy.OrderAsc, SortMarketCategoriesBy.NameAsc],
     })
 
     const parentCategoriesOptions = useMemo(
