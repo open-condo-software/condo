@@ -115,10 +115,16 @@ const TableContent = () => {
             }
         }
 
-        groups.sort((a, b) => a.order > b.order ? 1 : -1)
+        groups
+            .sort((a, b) => {
+                if (a.label === AllCategoriesMessage) return -1
+
+                return a.label > b.label ? 1 : -1
+            })
+            .sort((a, b) => a.order > b.order ? 1 : -1)
         groups.forEach(group => {
             group.options && group.options
-                .sort((a, b) => a.key > b.key ? 1 : -1)
+                .sort((a, b) => a.label > b.label ? 1 : -1)
                 .sort((a, b) => a.order > b.order ? 1 : -1)
         })
 

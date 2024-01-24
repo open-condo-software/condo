@@ -512,6 +512,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                 sku,
                 key: get(category, 'id') + get(marketItem, 'id'),
                 order: get(category, 'order'),
+                labelForSort: get(category, 'name') + get(marketItem, 'name'),
             }
 
             const isSingleSubCategory = categoriesWithOneSubCategory.includes(get(category, 'parentCategory.id'))
@@ -530,6 +531,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                         key: get(category, 'id'),
                         className: 'category-option',
                         order: get(category, 'order'),
+                        labelForSort: get(category, 'name'),
                     }
 
                     existedGroup.options.push(subCategoryOption)
@@ -544,6 +546,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                         key: get(category, 'id'),
                         className: 'category-option',
                         order: get(category, 'order'),
+                        labelForSort: get(category, 'name'),
                     })
                 }
                 options.push(marketItemOption)
@@ -552,10 +555,12 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
             }
         }
 
-        marketItemGroups.sort((a, b) => a.order > b.order ? 1 : -1)
+        marketItemGroups
+            .sort((a, b) => a.label > b.label ? 1 : -1)
+            .sort((a, b) => a.order > b.order ? 1 : -1)
         marketItemGroups.forEach(group => {
             group.options
-                .sort((a, b) => a.key > b.key ? 1 : -1)
+                .sort((a, b) => a.labelForSort > b.labelForSort ? 1 : -1)
                 .sort((a, b) => a.order > b.order ? 1 : -1)
         })
 
