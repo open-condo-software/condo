@@ -493,7 +493,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
 
         for (const scope of filteredPriceScopes) {
             const category = get(scope, 'marketItemPrice.marketItem.marketCategory')
-            const key = get(category, 'parentCategory.name')
+            const key = get(category, 'parentCategory.id', get(category, 'id'))
             const label = get(category, 'parentCategory.name')
 
             const marketItem = get(scope, 'marketItemPrice.marketItem')
@@ -511,10 +511,12 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                 isMin,
                 sku,
                 key: get(category, 'id') + get(marketItem, 'id'),
+                order: get(category, 'order'),
             }
 
             const isSingleSubCategory = categoriesWithOneSubCategory.includes(get(category, 'parentCategory.id'))
             const existedGroup = marketItemGroups.find(group => group.key === key)
+
             if (existedGroup) {
                 existedGroup.options.push(marketItemOption)
 
@@ -527,6 +529,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                         disabled: true,
                         key: get(category, 'id'),
                         className: 'category-option',
+                        order: get(category, 'order'),
                     }
 
                     existedGroup.options.push(subCategoryOption)
@@ -540,15 +543,21 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                         disabled: true,
                         key: get(category, 'id'),
                         className: 'category-option',
+                        order: get(category, 'order'),
                     })
                 }
                 options.push(marketItemOption)
 
-                marketItemGroups.push({ key, label, options: options })
+                marketItemGroups.push({ key, label, options: options, order: get(category, 'parentCategory.order') })
             }
         }
-        marketItemGroups.sort((a, b) => a.key > b.key ? 1 : -1)
-        marketItemGroups.forEach(group => group.options.sort((a, b) => a.key > b.key ? 1 : -1))
+
+        marketItemGroups.sort((a, b) => a.order > b.order ? 1 : -1)
+        marketItemGroups.forEach(group => {
+            group.options
+                .sort((a, b) => a.key > b.key ? 1 : -1)
+                .sort((a, b) => a.order > b.order ? 1 : -1)
+        })
 
         return marketItemGroups
     }, [categoriesWithOneSubCategory, filteredPriceScopes])

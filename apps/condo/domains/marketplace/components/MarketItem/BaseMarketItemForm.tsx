@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import { MarketItem as MarketItemType } from '@app/condo/schema'
+import { MarketItem as MarketItemType, SortMarketCategoriesBy } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Col, Form, Input, Row, RowProps, Select, Button as AntdButton } from 'antd'
@@ -242,7 +242,9 @@ const CategorySelectFields = ({ parentCategoryId, form }) => {
     const SelectMessage = intl.formatMessage({ id: 'Select' })
 
     const { requiredValidator } = useValidations()
-    const { objs: marketCategories, loading } = MarketCategory.useAllObjects({})
+    const { objs: marketCategories, loading } = MarketCategory.useAllObjects({
+        sortBy: [SortMarketCategoriesBy.OrderAsc],
+    })
 
     const parentCategoriesOptions = useMemo(
         () => marketCategories
