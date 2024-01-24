@@ -6,7 +6,7 @@ const { uniq, get } = require('lodash')
 
 const { isSoftDelete } = require('@open-condo/keystone/access')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { getById, find, getByCondition } = require('@open-condo/keystone/schema')
+const { find, getByCondition } = require('@open-condo/keystone/schema')
 
 const { checkPermissionsInUserOrganizationsOrRelatedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
 const {
@@ -65,7 +65,10 @@ async function canManageNewsItemScopes ({ authentication: { item: user }, origin
                 organizationIds = uniq(newsItems.map(item => get(item, 'organization')))
             } else {
                 const newsItemId = get(originalInput, 'newsItem.connect.id')
-                const newsItem = await getById('NewsItem', newsItemId)
+                const newsItem = await getByCondition('NewsItem', {
+                    id: newsItemId,
+                    deletedAt: null,
+                })
                 if (!newsItem) return false
                 organizationIds = [get(newsItem, 'organization')]
             }
@@ -79,6 +82,7 @@ async function canManageNewsItemScopes ({ authentication: { item: user }, origin
                         id_in: itemIds,
                         deletedAt: null,
                     },
+                    deletedAt: null,
                 })
                 organizationIds = uniq(newsItems.map(newsItem => newsItem.organization))
             } else {
@@ -89,6 +93,7 @@ async function canManageNewsItemScopes ({ authentication: { item: user }, origin
                         id: itemId,
                         deletedAt: null,
                     },
+                    deletedAt: null,
                 })
                 organizationIds = [newsItem.organization]
             }
