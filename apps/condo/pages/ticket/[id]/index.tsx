@@ -643,7 +643,7 @@ export const TicketPageContent = ({ ticket, refetchTicket, organization, employe
             ticket: { id: ticket.id },
         },
         sortBy: [SortInvoicesBy.CreatedAtDesc],
-    }, { skip: !isMarketplaceEnabled || isNoServiceProviderOrganization })
+    }, { skip: !isMarketplaceEnabled || !isNoServiceProviderOrganization })
 
     const refetchTicketAndRelatedObjs = useCallback(() => {
         refetchTicket()
