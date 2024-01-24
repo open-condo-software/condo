@@ -8,18 +8,16 @@ import { TableRowSelection } from 'antd/lib/table/interface'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 import { useIntl } from 'react-intl'
 
 import { useOrganization } from '@open-condo/next/organization'
-import { Typography } from '@open-condo/ui'
-import { ActionBar, Button, Modal } from '@open-condo/ui'
+import { ActionBar, Button, Modal, Checkbox, Typography } from '@open-condo/ui'
 
 import { PaymentsSumTable } from '@condo/domains/acquiring/components/payments/PaymentsSumTable'
-import { PAYMENT_PROCESSING_STATUS, PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS } from '@condo/domains/acquiring/constants/payment'
+import { PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS } from '@condo/domains/acquiring/constants/payment'
 import { SUM_PAYMENTS_QUERY } from '@condo/domains/acquiring/gql'
 import { Payment } from '@condo/domains/acquiring/utils/clientSchema'
-import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import EmptyListView from '@condo/domains/common/components/EmptyListView'
@@ -31,9 +29,12 @@ import { TableFiltersContainer } from '@condo/domains/common/components/TableFil
 import { useDateRangeSearch } from '@condo/domains/common/hooks/useDateRangeSearch'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
-import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
+import { updateQuery } from '@condo/domains/common/utils/helpers'
+import { getFiltersFromQuery, getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useMarketplacePaymentsFilters } from '@condo/domains/marketplace/hooks/useMarketplacePaymentsFilters'
 import { useMarketplacePaymentTableColumns } from '@condo/domains/marketplace/hooks/useMarketplacePaymentTableColumns'
+import { MARKETPLACE_PAGE_TYPES } from '@condo/domains/marketplace/utils/clientSchema'
 
 
 const ROW_GUTTERS: RowProps['gutter'] = [0, 0]
@@ -94,7 +95,7 @@ const MarketplacePaymentsTableContent = () => {
     const ClearListSelectedRowMessage = intl.formatMessage({ id: 'global.cancelSelection' })
     const AllPaymentsSumMessage = intl.formatMessage({ id: 'pages.condo.marketplace.payments.stats.allPayment' })
     const DonePaymentsSumMessage = intl.formatMessage({ id: 'pages.condo.marketplace.payments.stats.donePayment' })
-    const InProcessPaymentsSumMessage = intl.formatMessage({ id: 'pages.condo.marketplace.payments.stats.inProcessPayment' })
+    const WithdrawnPaymentsSumMessage = intl.formatMessage({ id: 'pages.condo.marketplace.payments.stats.inProcessPayment' })
     const ConfirmTitle = intl.formatMessage({ id: 'component.TicketWarningModal.ConfirmTitle' })
     const PaymentsOnlyInDoneStatusMessage = intl.formatMessage({ id: 'pages.condo.marketplace.payments.filters.onlyDoneStatus' })
 
@@ -127,11 +128,15 @@ const MarketplacePaymentsTableContent = () => {
         [showPaymentsOnlyInDoneStatus]
     )
 
+    const invoiceOrganizationQuery = useMemo(() => ({
+        invoice: {
+            organization: { id: orgId },
+        },
+    }), [orgId])
+
     const searchPaymentsQuery = useMemo(() => {
         return {
-            invoice: {
-                organization: { id: orgId },
-            },
+            ...invoiceOrganizationQuery,
             status_in: showPaymentsOnlyInDoneStatus ? [PAYMENT_DONE_STATUS] : [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS],
         }
     }, [orgId, showPaymentsOnlyInDoneStatus])
@@ -153,9 +158,9 @@ const MarketplacePaymentsTableContent = () => {
         fetchPolicy: 'network-only',
     })
 
-    const { data: allPaymentsSum, loading: allPaymentsSumLoading } = usePaymentsSum({ ...searchPaymentsQuery, status_in: [ PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS] })
-    const { data: donePaymentsSum, loading: donePaymentsLoading } = usePaymentsSum({ ...searchPaymentsQuery, status_in: [PAYMENT_DONE_STATUS] })
-    const { data: inProcessPaymentsSum, loading: inProcessPaymentsLoading } = usePaymentsSum({ ...searchPaymentsQuery, status_in: [PAYMENT_WITHDRAWN_STATUS] })
+    const { data: allPaymentsSum, loading: allPaymentsSumLoading } = usePaymentsSum({ ...invoiceOrganizationQuery, status_in: [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS] })
+    const { data: donePaymentsSum, loading: donePaymentsSumLoading } = usePaymentsSum({ ...invoiceOrganizationQuery, status_in: [PAYMENT_DONE_STATUS] })
+    const { data: withdrawnPaymentsSum, loading: withdrawnPaymentsSumLoading } = usePaymentsSum({ ...invoiceOrganizationQuery, status_in: [PAYMENT_WITHDRAWN_STATUS] })
 
     const [selectedRows, setSelectedRows] = useState([])
 
@@ -163,9 +168,23 @@ const MarketplacePaymentsTableContent = () => {
     const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
 
     const [dateRange, setDateRange] = useDateRangeSearch('createdAt')
+    const filtersFromQuery = useMemo(() => getFiltersFromQuery(router.query), [router.query])
 
+    useEffect(() => {
+        const createdAt = [dayjs().subtract(6, 'days').toString(), dayjs().toString()]
+        const newParameters = getFiltersQueryData(
+            { ...filtersFromQuery, createdAt }
+        )
+        updateQuery(router, {
+            newParameters: { ...newParameters, tab: MARKETPLACE_PAGE_TYPES.payments } },
+        { routerAction: 'replace', resetOldParameters: false }
+        )
+    }, [])
+    
     const disabledDate = useCallback((currentDate) => {
-        return currentDate && currentDate < dayjs().startOf('year')
+        const minDate = dayjs().startOf('year').subtract(1, 'year')
+        const maxDate = dayjs().endOf('year')
+        return currentDate && (currentDate < minDate || currentDate > maxDate)
     }, [])
 
     const handleSelectRow = useCallback((record, checked) => {
@@ -218,13 +237,13 @@ const MarketplacePaymentsTableContent = () => {
                                             onChange={setDateRange}
                                             allowClear
                                             disabledDate={disabledDate}
-                                            defaultValue={[dayjs().subtract(6, 'days'), dayjs()]}
+                                            defaultValue={[dayjs().subtract(7, 'days'), dayjs()]}
                                         />
                                     </Col>
                                     <Col style={QUICK_FILTERS_COL_STYLE}>
                                         <Checkbox
                                             checked={showPaymentsOnlyInDoneStatus}
-                                            onClick={switchShowPaymentsOnlyInDoneStatus}
+                                            onChange={switchShowPaymentsOnlyInDoneStatus}
                                             children={PaymentsOnlyInDoneStatusMessage}
                                         />
                                     </Col>
@@ -248,16 +267,16 @@ const MarketplacePaymentsTableContent = () => {
                                             message={get(donePaymentsSum, 'result.sum', 0)}
                                             currencyCode='RUB'
                                             type='success'
-                                            loading={donePaymentsLoading}
+                                            loading={donePaymentsSumLoading}
                                         />
                                     </Col>
                                     <Col>
                                         <MarketplacePaymentsSumInfo
-                                            title={InProcessPaymentsSumMessage}
-                                            message={get(inProcessPaymentsSum, 'result.sum', 0)}
+                                            title={WithdrawnPaymentsSumMessage}
+                                            message={get(withdrawnPaymentsSum, 'result.sum', 0)}
                                             currencyCode='RUB'
                                             type='warning'
-                                            loading={inProcessPaymentsLoading}
+                                            loading={withdrawnPaymentsSumLoading}
                                         />
                                     </Col>
                                 </Row>

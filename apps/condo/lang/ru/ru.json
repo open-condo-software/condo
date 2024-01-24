@@ -1220,7 +1220,7 @@
   "pages.condo.marketplace.payments.stats.allPayment": "Всего (за период):",
   "pages.condo.marketplace.payments.stats.donePayment": "Завершено:",
   "pages.condo.marketplace.payments.stats.inProcessPayment": "Остальные:",
-  "pages.condo.marketplace.payments.filters.onlyDoneStatus": "Только завершенные",
+  "pages.condo.marketplace.payments.filters.onlyDoneStatus": "Только завершённые",
   "pages.condo.marketplace.services.empty.title": "Пока услуг нет",
   "pages.condo.marketplace.services.empty.text": "Добавим первую прямо сейчас?",
   "pages.condo.marketplace.services.empty.buttonText": "Добавить услугу",
