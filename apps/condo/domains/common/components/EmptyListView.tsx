@@ -37,7 +37,7 @@ const DEFAULT_CONTAINER_STYLE: CSSProperties = {
     width: '100%',
 }
 const ROW_GUTTER: Gutter | [Gutter, Gutter] = [10, 10]
-const ROW_STYLE = { marginTop: '24px' }
+const ROW_STYLE = { marginTop: '16px' }
 
 export const BasicEmptyListView: React.FC<IBasicEmptyListProps> = ({
     image,
