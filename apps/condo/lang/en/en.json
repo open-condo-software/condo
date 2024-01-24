@@ -1371,6 +1371,8 @@
   "pages.condo.marketplace.marketItem.form.field.parentCategory": "Category",
   "pages.condo.marketplace.marketItem.form.field.marketCategory": "Sub category",
   "pages.condo.marketplace.marketItem.form.field.description": "Description",
+  "pages.condo.marketplace.marketItem.form.field.description.placeholder": "Enter market item description",
+  "pages.condo.marketplace.marketItem.form.field.description.tooltip": "Describe the service: what it includes, how long it will take and what guarantee for the work. Indicate if the resident needs to prepare in advance. Note the advantages - for example, the presence of a contract, the experience of the master and what he will clean up.",
   "pages.condo.marketplace.marketItem.form.field.marketItemPhoto": "Item photo",
   "pages.condo.marketplace.marketItem.form.section.priceScope": "Price and price scope",
   "pages.condo.marketplace.marketItem.form.field.addresses": "Addresses",

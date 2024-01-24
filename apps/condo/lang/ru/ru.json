@@ -1371,6 +1371,8 @@
   "pages.condo.marketplace.marketItem.form.field.parentCategory": "Категория",
   "pages.condo.marketplace.marketItem.form.field.marketCategory": "Подкатегория",
   "pages.condo.marketplace.marketItem.form.field.description": "Описание",
+  "pages.condo.marketplace.marketItem.form.field.description.placeholder": "Введите описание услуги",
+  "pages.condo.marketplace.marketItem.form.field.description.tooltip": "Опишите услугу: что в нее входит, сколько примерно времени займет и какая гарантия на работы. Обозначьте, если жителю нужно подготовиться заранее. Отметьте преимущества — например, наличие договора, опыт мастера и что он уберет за собой.",
   "pages.condo.marketplace.marketItem.form.field.marketItemPhoto": "Фото услуги",
   "pages.condo.marketplace.marketItem.form.section.priceScope": "Цена и видимость услуги",
   "pages.condo.marketplace.marketItem.form.field.addresses": "Адреса",

@@ -239,6 +239,7 @@ const CategorySelectFields = ({ parentCategoryId, form }) => {
     const intl = useIntl()
     const CategoryFieldMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.parentCategory' })
     const SubCategoryFieldMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.marketCategory' })
+    const SelectMessage = intl.formatMessage({ id: 'Select' })
 
     const { requiredValidator } = useValidations()
     const { objs: marketCategories, loading } = MarketCategory.useAllObjects({})
@@ -292,6 +293,7 @@ const CategorySelectFields = ({ parentCategoryId, form }) => {
                         onChange={handleChangeParentCategory}
                         optionFilterProp='label'
                         showSearch
+                        placeholder={SelectMessage}
                     />
                 </Form.Item>
             </Col>
@@ -311,6 +313,7 @@ const CategorySelectFields = ({ parentCategoryId, form }) => {
                         }}
                         optionFilterProp='label'
                         showSearch
+                        placeholder={SelectMessage}
                     />
                 </Form.Item>
             </Col>
@@ -339,6 +342,8 @@ const MarketItemFields = () => {
     const SkuTooltipMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.sku.tooltip' })
     const DescriptionFieldMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.description' })
     const MarketItemPhotoFieldMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.marketItemPhoto' })
+    const DescriptionPlaceholderMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.description.placeholder' })
+    const DescriptionTooltipMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.description.tooltip' })
 
     const { organization } = useOrganization()
     const { refetch: fetchMarketItemsCount } = MarketItem.useCount({}, { skip: true })
@@ -439,6 +444,7 @@ const MarketItemFields = () => {
                 <Form.Item
                     name='description'
                     label={DescriptionFieldMessage}
+                    tooltip={DescriptionTooltipMessage}
                 >
                     <TextAreaWithCounter
                         autoSize={{ minRows: 4 }}
@@ -448,6 +454,7 @@ const MarketItemFields = () => {
                                 return `${count}/${maxLength}`
                             },
                         }}
+                        placeholder={DescriptionPlaceholderMessage}
                     />
                 </Form.Item>
             </Col>
