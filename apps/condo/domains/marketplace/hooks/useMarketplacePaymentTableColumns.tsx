@@ -15,7 +15,7 @@ import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
 
 
-export function useMarketplacePaymentTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, openStatusDescModal) {
+export function useMarketplacePaymentTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, openStatusDescModal: (statusType: string) => void) {
     const intl = useIntl()
     const DateMessage = intl.formatMessage({ id: 'Date' })
     const InvoiceNumberMessage = intl.formatMessage({ id: 'pages.condo.marketplace.payments.invoiceNumber' })

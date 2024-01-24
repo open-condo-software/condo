@@ -1221,6 +1221,7 @@
   "pages.condo.marketplace.payments.stats.allPayment": "Total (during the period):",
   "pages.condo.marketplace.payments.stats.donePayment": "Completed:",
   "pages.condo.marketplace.payments.stats.inProcessPayment": "Other:",
+  "pages.condo.marketplace.payments.filters.onlyDoneStatus": "Completed only",
   "pages.condo.marketplace.services.empty.title": "There are no services here yet",
   "pages.condo.marketplace.services.empty.text": "Let's add a new service right now?",
   "pages.condo.marketplace.services.empty.buttonText": "Add a service",
