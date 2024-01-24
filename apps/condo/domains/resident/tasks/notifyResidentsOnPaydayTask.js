@@ -11,7 +11,7 @@ const { notifyResidentsOnPayday } = require('./notifyResidentsOnPayday')
 
 const logger = getLogger('resident/notifyResidentsOnPaydayTask')
 
-const notifyResidentsOnPaydayCronTask = createCronTask('notifyResidentsOnPaydayTask', '0 13 * * *', async (context = null) => {
+const notifyResidentsOnPaydayCronTask = createCronTask('notifyResidentsOnPaydayTask', '0 9 * * *', async (context = null) => {
     const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(context, SEND_BILLING_RECEIPTS_ON_PAYDAY_REMAINDER_TASK)
 
     if (!isFeatureEnabled) {
