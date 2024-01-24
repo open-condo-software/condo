@@ -34,15 +34,6 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
 
-        billingAccount: {
-            schemaDoc: '[DEPRECATED] Billing account, that will allow this resident to pay for certain service',
-            type: 'Relationship',
-            ref: 'BillingAccount',
-            isRequired: false,
-            knexOptions: { isNotNullable: false },
-            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
-        },
-
         // todo(@toplenboren) DOMA-1701 Make this deprecated and add mobile an ability to move away from these fields
         // The reason for this field is to avoid adding check for resident user into global BillingAccount read access.
         // This field have specific use case for mobile client.

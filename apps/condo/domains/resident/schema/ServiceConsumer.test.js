@@ -48,11 +48,10 @@ describe('ServiceConsumer', () => {
             const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty)
             const [resident] = await createTestResident(adminClient, userClient.user, userClient.property)
 
-            const [consumer] = await createTestServiceConsumer(adminClient, resident, userClient.organization, { billingAccount: { connect: { id: billingAccount.id } } })
+            const [consumer] = await createTestServiceConsumer(adminClient, resident, userClient.organization)
 
             expect(consumer.resident.id).toEqual(resident.id)
             expect(consumer.organization.id).toEqual(userClient.organization.id)
-            expect(consumer.billingAccount.id).toEqual(billingAccount.id)
         })
 
         it('cannot be created by regular user', async () => {
@@ -80,7 +79,7 @@ describe('ServiceConsumer', () => {
             const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty)
 
             await expectToThrowAuthenticationErrorToObj(async () => {
-                await createTestServiceConsumer(anonymous, resident, userClient.organization, { billingAccount: { connect: { id: billingAccount.id } } })
+                await createTestServiceConsumer(anonymous, resident, userClient.organization)
             })
         })
     })

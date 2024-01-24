@@ -654,7 +654,6 @@ describe('RegisterServiceConsumerService', () => {
         expect(out.accountNumber).toEqual(payload.accountNumber)
         expect(out.resident.id).toEqual(payload.residentId)
         expect(out.organization.id).toEqual(payload.organizationId)
-        expect(out.billingAccount).toBeNull()
         expect(out.residentBillingAccount).toBeNull()
     })
 
