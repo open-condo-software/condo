@@ -42903,7 +42903,6 @@ type ServiceConsumerHistoryRecord {
   _label_: String
   paymentCategory: String
   resident: String
-  billingAccount: String
   residentBillingAccount: JSON
   billingIntegrationContext: String
   acquiringIntegrationContext: String
@@ -42952,10 +42951,6 @@ input ServiceConsumerHistoryRecordWhereInput {
   resident_not: String
   resident_in: [String]
   resident_not_in: [String]
-  billingAccount: String
-  billingAccount_not: String
-  billingAccount_in: [String]
-  billingAccount_not_in: [String]
   residentBillingAccount: JSON
   residentBillingAccount_not: JSON
   residentBillingAccount_in: [JSON]
@@ -43110,7 +43105,6 @@ enum SortServiceConsumerHistoryRecordsBy {
 input ServiceConsumerHistoryRecordUpdateInput {
   paymentCategory: String
   resident: String
-  billingAccount: String
   residentBillingAccount: JSON
   billingIntegrationContext: String
   acquiringIntegrationContext: String
@@ -43141,7 +43135,6 @@ input ServiceConsumerHistoryRecordsUpdateInput {
 input ServiceConsumerHistoryRecordCreateInput {
   paymentCategory: String
   resident: String
-  billingAccount: String
   residentBillingAccount: JSON
   billingIntegrationContext: String
   acquiringIntegrationContext: String
@@ -43208,10 +43201,6 @@ type ServiceConsumer {
 
   """ Resident object """
   resident: Resident
-
-  """ [DEPRECATED] Billing account, that will allow this resident to pay for certain service 
-  """
-  billingAccount: BillingAccount
 
   """ [DEPRECATED] BillingAccount id, that is returned for current serviceConsumer in mobile client 
   """
@@ -43290,8 +43279,6 @@ input ServiceConsumerWhereInput {
   paymentCategory_not_in: [String]
   resident: ResidentWhereInput
   resident_is_null: Boolean
-  billingAccount: BillingAccountWhereInput
-  billingAccount_is_null: Boolean
   billingIntegrationContext: BillingIntegrationOrganizationContextWhereInput
   billingIntegrationContext_is_null: Boolean
   acquiringIntegrationContext: AcquiringIntegrationContextWhereInput
@@ -43385,8 +43372,6 @@ enum SortServiceConsumersBy {
   paymentCategory_DESC
   resident_ASC
   resident_DESC
-  billingAccount_ASC
-  billingAccount_DESC
   billingIntegrationContext_ASC
   billingIntegrationContext_DESC
   acquiringIntegrationContext_ASC
@@ -43418,7 +43403,6 @@ enum SortServiceConsumersBy {
 input ServiceConsumerUpdateInput {
   paymentCategory: String
   resident: ResidentRelateToOneInput
-  billingAccount: BillingAccountRelateToOneInput
   billingIntegrationContext: BillingIntegrationOrganizationContextRelateToOneInput
   acquiringIntegrationContext: AcquiringIntegrationContextRelateToOneInput
   accountNumber: String
@@ -43443,7 +43427,6 @@ input ServiceConsumersUpdateInput {
 input ServiceConsumerCreateInput {
   paymentCategory: String
   resident: ResidentRelateToOneInput
-  billingAccount: BillingAccountRelateToOneInput
   billingIntegrationContext: BillingIntegrationOrganizationContextRelateToOneInput
   acquiringIntegrationContext: AcquiringIntegrationContextRelateToOneInput
   accountNumber: String
