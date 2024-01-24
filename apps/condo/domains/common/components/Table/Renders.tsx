@@ -314,12 +314,14 @@ export const getStatusRender = (intl, openStatusDescModal, search?: FilterValue 
         const nameStatus = intl.formatMessage({ id: 'payment.status.' + statusType })
 
         return (
-            <Tag onClick={() => openStatusDescModal(statusType)}
-                bgColor={ statusType === PAYMENT_WITHDRAWN_STATUS ? colors.orange[5] : colors.green[5]}
-                textColor={colors.white}
-            >
-                {nameStatus}
-            </Tag>
+            <span onClick={() => openStatusDescModal(statusType)}>
+                <Tag
+                    bgColor={ statusType === PAYMENT_WITHDRAWN_STATUS ? colors.orange[5] : colors.green[5]}
+                    textColor={colors.white}
+                >
+                    {nameStatus}
+                </Tag>
+            </span>
         )
     }
 }
