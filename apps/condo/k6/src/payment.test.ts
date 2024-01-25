@@ -14,28 +14,27 @@ import {
 const DURATION = '60s'
 
 export const options = {
+    tags: { testid: 'payment' },
     scenarios: {
         appHealthcheck: {
             exec: 'healthcheck',
             executor: 'constant-arrival-rate',
             duration: DURATION,
-            rate: 2,
+            rate: 1,
             timeUnit: '1s',
-            preAllocatedVUs: 2,
+            preAllocatedVUs: 1,
         },
         registerBillingReceipts: {
             exec: 'registerBillingReceiptsService',
-            executor: 'constant-arrival-rate',
+            executor: 'constant-vus',
             duration: DURATION,
-            rate: 10,
-            timeUnit: '1s',
-            preAllocatedVUs: 15,
+            vus: 1,
         },
     },
     thresholds: {
         http_req_failed: ['rate<0.01'],
         // browser_http_req_duration: ['p(95) < 1000'],
-        http_req_duration: ['p(95)<2000'],
+        http_req_duration: ['max<14000'],
         // browser_web_vital_fcp: ['p(95) < 2000'],
         // browser_web_vital_lcp: ['p(95) < 4000'],
     },
@@ -78,7 +77,9 @@ const randomNumber = (numDigits) => {
     const max = 10 ** numDigits - 1
     return faker.datatype.number({ min, max })
 }
-const createAddressWithUnit = () => `${faker.address.cityName()} ${faker.address.streetAddress(true)}`
+const createAddressWithUnit = () => __ENV.BASE_URL === 'http://localhost:3000'
+    ? `${faker.address.cityName()} ${faker.address.streetAddress(true)}`
+    : 'г Нижний Новгород, пр-кт Ленина, д 88 к 78, кв 1'
 const generateServicesData = (count = 3, toPay = '') => {
     const services = []
 
@@ -97,9 +98,8 @@ const generateServicesData = (count = 3, toPay = '') => {
     return services
 }
 const createRecipient = (extra = {}) => ({
-    tin: faker.random.numeric(8),
-    routingNumber: faker.random.numeric(5),
-    bankAccount: faker.random.numeric(12),
+    tin: '3703048756',
+    routingNumber: '046577674',
     ...extra,
 })
 
@@ -119,13 +119,12 @@ const createJSONReceipt = (extra = {}) => {
 }
 
 export function registerBillingReceiptsService (data) {
-    const receipt1 = createJSONReceipt()
-    const receipt2 = createJSONReceipt({
-        ...receipt1,
-        importId: null,
-        address: createAddressWithUnit(),
-        accountNumber: randomNumber(10).toString(),
-    })
+    const receipts = []
+    const bankAccount = faker.random.numeric(12)
+
+    for (let i = 0; i < 500; i++) {
+        receipts.push(createJSONReceipt({ bankAccount }))
+    }
 
     const response = sendAuthorizedRequest(data, {
         operationName: 'registerBillingReceipts',
@@ -134,13 +133,13 @@ export function registerBillingReceiptsService (data) {
             data: {
                 dv: 1, sender: { dv: 1, fingerprint: 'k6-load-test' },
                 context: { id: data.billingContext.id },
-                receipts: [receipt1, receipt2, createJSONReceipt()],
+                receipts,
             },
         },
     })
 
     check(response, {
-        'status is 200': (res) => res.status === 200,
+        'receipt creation status is 200': (res) => res.status === 200,
         // @ts-ignore-next-line
         'receipts is created': (res) => res.json('data.result').every(e => e.id !== undefined),
     })

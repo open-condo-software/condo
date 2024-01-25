@@ -37,7 +37,7 @@ const createOrganization = (data) => sendAuthorizedRequest(data, {
         data: {
             ...DV_SENDER,
             name: 'k6-test',
-            tin: '0000000000',
+            tin: '3703048756',
             meta: {
                 dv: 1,
             },
@@ -47,8 +47,18 @@ const createOrganization = (data) => sendAuthorizedRequest(data, {
     },
 })
 
+const getOrganizationEmployeeId = (data) => sendAuthorizedRequest(data, {
+    operationName: 'getList',
+    query: 'query getList($where:OrganizationEmployeeWhereInput){allOrganizationEmployees(where:$where){id}}',
+    variables: { where: { organization: { id: data.organizationId } } }
+})
+
 const createProperty = (data) => {
-    const { address } = buildFakeAddressAndMeta()
+    const { address: fakeAddress } = buildFakeAddressAndMeta()
+
+    const address = __ENV.BASE_URL === 'http://localhost:3000'
+        ? fakeAddress
+        : 'г Нижний Новгород, пр-кт Ленина, д 88 к 78'
 
     const propertyMap = {
         dv: 1,
@@ -150,5 +160,6 @@ export {
     createBillingIntegration,
     createBillingIntegrationOrganizationContext,
     sendAuthorizedRequest,
+    getOrganizationEmployeeId,
     BASE_API_URL,
 }

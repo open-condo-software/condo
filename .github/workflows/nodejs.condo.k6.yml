@@ -1,12 +1,12 @@
 name: RUN K6 LOAD TESTS
 
 on:
-  push:
+  workflow_run:
+    workflows: ["[review] Deploy"]
     branches:
       - 'master'
-  pull_request:
-    branches:
-      - 'master'
+    types:
+      - completed
 
 jobs:
   test:
@@ -14,7 +14,6 @@ jobs:
     strategy:
       matrix:
         node-version: [16.x]
-        database: ["postgresql://postgres:postgres@127.0.0.1/main"]
 
     steps:
       - name: Checkout code with submodules
@@ -23,11 +22,6 @@ jobs:
           fetch-depth: 0
           submodules: recursive
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
-
-      - name: Docker compose up databases
-        run: |
-          cp .env.example .env
-          docker-compose up -d postgresdb redis
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
@@ -39,54 +33,18 @@ jobs:
         run: |
           npm i -g turbo
           yarn install --immutable
-          pip3 install django
-          pip3 install psycopg2-binary
           sudo gpg -k
           sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
           echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
           sudo apt-get update
           sudo apt-get install k6
 
-      - name: run build
-        run: |
-          set -x
-          echo "# Build time .env config!" > .env
-          echo "COOKIE_SECRET=undefined" >> .env
-          echo "DATABASE_URL=undefined" >> .env
-          echo "REDIS_URL=undefined" >> .env
-          echo "NODE_ENV=production" >> .env
-
-          yarn workspace @app/condo build:deps
-          yarn workspace @app/condo build
-
-      - name: start server in production mode
-        run: |
-          set -x
-          cp .env.example .env
-          echo 'NODE_ENV=test' >> .env
-          echo 'DATABASE_URL=postgresql://postgres:postgres@127.0.0.1/main' >> .env
-          echo 'REDIS_URL=redis://127.0.0.1:6379' >> .env
-          echo 'COOKIE_SECRET=random' >> .env
-          export NODE_ENV=development
-          export NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE=true
-          export NOTIFICATION__DISABLE_LOGGING=true
-          export WORKER_CONCURRENCY=50
-
-          yarn workspace @app/condo migrate
-          
-          yarn workspace @app/condo node ./bin/generate-initial-data.js
-
-          echo 'ADDRESS_SERVICE_CLIENT_MODE=fake' >> .env
-          
-          yarn workspace @app/condo start &
-          bash ./.github/workflows/waitForLocalhostApiReady.sh
-
       - name: run k6 tests
         run: |
           yarn --cwd ./apps/condo/k6 webpack
-          K6_BROWSER_HEADLESS=true BASE_URL=http://localhost:3000 AUTH_EMAIL=admin@example.com AUTH_PASSWORD=3a74b3f07978 k6 run apps/condo/k6/dist/ticket.test.js
-          K6_BROWSER_HEADLESS=true BASE_URL=http://localhost:3000 AUTH_EMAIL=admin@example.com AUTH_PASSWORD=3a74b3f07978 k6 run apps/condo/k6/dist/payment.test.js
-          K6_BROWSER_HEADLESS=true BASE_URL=http://localhost:3000 AUTH_EMAIL=admin@example.com AUTH_PASSWORD=3a74b3f07978 k6 run apps/condo/k6/dist/news.test.js
+          K6_BROWSER_HEADLESS=true BASE_URL=https://review-master.condo.r.doma.ai AUTH_EMAIL=${{ secrets.K6_AUTH_EMAIL }} AUTH_PASSWORD=${{ secrets.K6_AUTH_PASSWORD }} k6 run apps/condo/k6/dist/ticket.test.js
+          K6_BROWSER_HEADLESS=true BASE_URL=https://review-master.condo.r.doma.ai AUTH_EMAIL=${{ secrets.K6_AUTH_EMAIL }} AUTH_PASSWORD=${{ secrets.K6_AUTH_PASSWORD }} k6 run apps/condo/k6/dist/payment.test.js
+          K6_BROWSER_HEADLESS=true BASE_URL=https://review-master.condo.r.doma.ai AUTH_EMAIL=${{ secrets.K6_AUTH_EMAIL }} AUTH_PASSWORD=${{ secrets.K6_AUTH_PASSWORD }} k6 run apps/condo/k6/dist/news.test.js
 
       - name: Upload screenshots
         uses: actions/upload-artifact@v3

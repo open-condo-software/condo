@@ -7,16 +7,19 @@ import {
     createOrganization,
     createProperty,
     sendAuthorizedRequest,
+    getOrganizationEmployeeId,
 } from './utils'
 
 const BASE_APP_URL = __ENV.BASE_URL + '/ticket'
+const DURATION = '60s'
 
 export const options = {
+    tags: { testid: 'ticket' },
     scenarios: {
         queryTicketEntities: {
             exec: 'queryBasicEntities',
             executor: 'constant-arrival-rate',
-            duration: '60s',
+            duration: DURATION,
             rate: 5,
             timeUnit: '1s',
             preAllocatedVUs: 7,
@@ -24,7 +27,7 @@ export const options = {
         appHealthcheck: {
             exec: 'healthcheck',
             executor: 'constant-arrival-rate',
-            duration: '60s',
+            duration: DURATION,
             rate: 2,
             timeUnit: '1s',
             preAllocatedVUs: 2,
@@ -32,7 +35,7 @@ export const options = {
         createTickets: {
             exec: 'createTickets',
             executor: 'constant-arrival-rate',
-            duration: '60s',
+            duration: DURATION,
             rate: 1,
             timeUnit: '2s',
             preAllocatedVUs: 1,
@@ -41,7 +44,7 @@ export const options = {
             exec: 'checkFrontend',
             executor: 'constant-vus',
             vus: 1,
-            duration: '60s',
+            duration: DURATION,
             options: {
                 browser: {
                     type: 'chromium',
@@ -63,9 +66,15 @@ export function setup () {
 
     const createdOrganization = createOrganization({ token })
     const organizationId = createdOrganization.json('data.obj.id')
+
+    const organizationEmployee = getOrganizationEmployeeId({ token, organizationId })
     const createdProperty = createProperty({ token, organizationId })
 
-    return { token, cookie, organizationId, propertyId: createdProperty.json('data.obj.id') }
+    return {
+        token, cookie, organizationId,
+        organizationLinkId: organizationEmployee.json('data.allOrganizationEmployees.0.id'),
+        propertyId: createdProperty.json('data.obj.id'),
+    }
 }
 
 export function healthcheck () {
@@ -88,8 +97,8 @@ export function queryBasicEntities (data) {
     const allTicketsResponse = sendAuthorizedRequest(data, allTicketsPayload)
 
     check(allTicketsResponse, {
-        'status is 200': (res) => res.status === 200,
-        'tickets response ok': (res) => {
+        'all tickets status is 200': (res) => res.status === 200,
+        'all tickets response ok': (res) => {
             const result = res.json('data.objs')
 
             if (Array.isArray(result)) {
@@ -110,7 +119,7 @@ export function queryBasicEntities (data) {
     const allTicketCommentReadTimesResponse = sendAuthorizedRequest(data, allTicketCommentReadTimesPayload)
 
     check(allTicketCommentReadTimesResponse, {
-        'status is 200': (res) => res.status === 200,
+        'all ticket comment status is 200': (res) => res.status === 200,
         'ticket comment read times response ok': (res) => Array.isArray(res.json('data.objs')),
     })
 
@@ -137,7 +146,7 @@ export function createTickets (data) {
     const response = sendAuthorizedRequest(data, payload)
 
     check(response, {
-        'status is 200': (res) => res.status === 200,
+        'create ticket status is 200': (res) => res.status === 200,
         'ticket is created': (res) => res.json('data.obj.id') !== undefined,
     })
 }
@@ -164,7 +173,7 @@ export async function checkFrontend (data) {
         },
         {
             name: 'organizationLinkId',
-            value: data.organizationId,
+            value: data.organizationLinkId,
             url: __ENV.BASE_URL,
         },
     ])

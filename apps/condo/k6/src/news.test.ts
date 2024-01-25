@@ -12,6 +12,7 @@ const BASE_APP_URL = __ENV.BASE_URL + '/news/create'
 const TOTAL_DURATION = '60s'
 
 export const options = {
+    tags: { testid: 'news' },
     scenarios: {
         appHealthcheck: {
             exec: 'healthcheck',
