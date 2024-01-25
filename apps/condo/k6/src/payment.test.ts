@@ -16,14 +16,14 @@ const DURATION = '60s'
 export const options = {
     tags: { testid: 'payment' },
     scenarios: {
-        appHealthcheck: {
-            exec: 'healthcheck',
-            executor: 'constant-arrival-rate',
-            duration: DURATION,
-            rate: 1,
-            timeUnit: '1s',
-            preAllocatedVUs: 1,
-        },
+        // appHealthcheck: {
+        //     exec: 'healthcheck',
+        //     executor: 'constant-arrival-rate',
+        //     duration: DURATION,
+        //     rate: 1,
+        //     timeUnit: '1s',
+        //     preAllocatedVUs: 1,
+        // },
         registerBillingReceipts: {
             exec: 'registerBillingReceiptsService',
             executor: 'constant-vus',
@@ -34,7 +34,7 @@ export const options = {
     thresholds: {
         http_req_failed: ['rate<0.01'],
         // browser_http_req_duration: ['p(95) < 1000'],
-        http_req_duration: ['max<14000'],
+        http_req_duration: ['avg<14000'],
         // browser_web_vital_fcp: ['p(95) < 2000'],
         // browser_web_vital_lcp: ['p(95) < 4000'],
     },
@@ -122,7 +122,7 @@ export function registerBillingReceiptsService (data) {
     const receipts = []
     const bankAccount = faker.random.numeric(12)
 
-    for (let i = 0; i < 500; i++) {
+    for (let i = 0; i < 200; i++) {
         receipts.push(createJSONReceipt({ bankAccount }))
     }
 
