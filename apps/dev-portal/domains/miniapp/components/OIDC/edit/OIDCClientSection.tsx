@@ -18,7 +18,12 @@ export const OIDCClientSection: React.FC<{ id: string }> = ({ id }) => {
                 <Spin className={styles.fullWidthSpinner} size='large'/>
             ) : (
                 client ? (
-                    <EditClientForm id={client.id}  clientId={client.clientId}/>
+                    <EditClientForm
+                        id={client.id}
+                        clientId={client.clientId}
+                        developmentRedirectUri={client.developmentRedirectUri}
+                        productionRedirectUri={client.productionRedirectUri}
+                    />
                 ) : (
                     <CreateClientForm appId={id}/>
                 )
