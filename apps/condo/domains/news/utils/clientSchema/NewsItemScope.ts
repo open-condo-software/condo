@@ -20,6 +20,8 @@ const {
     useUpdate,
     useSoftDelete,
     useAllObjects,
+    useSoftDeleteMany,
+    useCreateMany,
 } = generateReactHooks<NewsItemScope, NewsItemScopeCreateInput, NewsItemScopeUpdateInput, QueryAllNewsItemScopesArgs>(NewsItemScopeGQL)
 
 export {
@@ -29,4 +31,6 @@ export {
     useUpdate,
     useSoftDelete,
     useAllObjects,
+    useSoftDeleteMany,
+    useCreateMany,
 }

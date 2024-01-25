@@ -57574,7 +57574,8 @@ type NewsItem {
   """
   _label_: String
 
-  """ The organization the news item created by """
+  """ Ref to the organization. The object will be deleted if the organization ceases to exist 
+  """
   organization: Organization
 
   """ The news item number """

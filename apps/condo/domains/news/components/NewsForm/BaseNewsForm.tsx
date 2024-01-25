@@ -3,6 +3,7 @@ import {
     NewsItem as INewsItem,
     NewsItemCreateInput as INewsItemCreateInput,
     NewsItemScope as INewsItemScope,
+    NewsItemScopeCreateInput as INewsItemScopeCreateInput,
     NewsItemScopeUnitTypeType,
     NewsItemTemplate as INewsItemTemplate,
     NewsItemUpdateInput as INewsItemUpdateInput,
@@ -13,6 +14,7 @@ import { Col, Form, FormInstance, notification, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { ArgsProps } from 'antd/lib/notification'
 import dayjs from 'dayjs'
+import chunk from 'lodash/chunk'
 import difference from 'lodash/difference'
 import flattenDeep from 'lodash/flattenDeep'
 import get from 'lodash/get'
@@ -255,7 +257,21 @@ const getNewsItemCountAtSameDay = (value, allNews) => {
     return allNews.filter(newsItem => sendDate.isSame(newsItem.sentAt, 'day') || sendDate.isSame(newsItem.sendAt, 'day')).length
 }
 
+const getAllUnits = (property: IProperty): IBuildingUnit[] => {
+    const map = get(property, 'map')
+    const sections = get(map, 'sections')
+    const parking = get(map, 'parking')
+
+    if (!map || (!sections && !parking)) return []
+
+    return [
+        ...sections.flatMap((section) => section.floors.flatMap(floor => floor.units)),
+        ...parking.flatMap((section) => section.floors.flatMap(floor => floor.units)),
+    ]
+}
+
 const INITIAL_VALUES = {}
+const CHUNK_SIZE = 50
 
 export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     organizationId,
@@ -316,7 +332,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
 
     const initialValidBefore = useMemo(() => get(initialValues, 'validBefore', null), [initialValues])
     const initialSendAt = useMemo(() => get(initialValues, 'sendAt', null), [initialValues])
-    const initialNewsItemScopes = useMemo(() => get(initialValues, 'newsItemScopes', []), [initialValues])
+    const initialNewsItemScopes: INewsItemScope[] = useMemo(() => get(initialValues, 'newsItemScopes', []), [initialValues])
     const initialHasAllProperties = useMemo(() => get(initialValues, 'hasAllProperties', false), [initialValues])
     const initialProperties = useMemo(() => get(initialValues, 'properties', []), [initialValues])
     const initialSentAt = useMemo(() => get(initialValues, 'sentAt', null), [initialValues])
@@ -400,8 +416,8 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
 
     const isOnlyOnePropertySelected: boolean = useMemo(() => (selectedPropertiesId.length === 1), [selectedPropertiesId.length])
 
-    const softDeleteNewsItemScope = NewsItemScope.useSoftDelete()
-    const createNewsItemScope = NewsItemScope.useCreate({})
+    const softDeleteNewsItemScope = NewsItemScope.useSoftDeleteMany()
+    const createNewsItemScope = NewsItemScope.useCreateMany({})
     const updateNewsItem = NewsItem.useUpdate({})
 
     const handleSetSendDate = useCallback((value) => {
@@ -613,21 +629,22 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         const newsItemId = get(newsItem, 'id')
 
         if (actionName === 'update' && properties.length !== 0 && initialHasAllProperties) {
-            await softDeleteNewsItemScope(initialNewsItemScopes[0])
+            await softDeleteNewsItemScope([initialNewsItemScopes[0]])
         }
         if (actionName === 'update' && properties.length === 0 && !initialHasAllProperties && hasAllProperties) {
-            await createNewsItemScope({
+            await createNewsItemScope([{
                 newsItem: { connect: { id: newsItemId } },
-            })
+            }])
         }
         if (actionName === 'update' && !initialHasAllProperties) {
             const deletedPropertyIds = difference(initialPropertyIds, properties)
             const newsItemScopesToDelete = initialNewsItemScopes
                 .filter(newsItemScope => deletedPropertyIds.includes(newsItemScope.property.id))
+            const newsItemScopesToDeleteByChunks = chunk(newsItemScopesToDelete, CHUNK_SIZE)
 
-            await Promise.all(newsItemScopesToDelete.map(newsItemScope => {
-                return softDeleteNewsItemScope(newsItemScope)
-            }))
+            for (const scopesToDelete of newsItemScopesToDeleteByChunks) {
+                await softDeleteNewsItemScope(scopesToDelete)
+            }
 
             if (isEmpty(deletedPropertyIds)) {
                 const deletedKeys = difference(initialUnitKeys, unitNames)
@@ -636,93 +653,123 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                         const key = `${newsItemScope.unitType}-${newsItemScope.unitName}`
                         return deletedKeys.includes(key)
                     })
+                const newsItemScopesToDeleteByChunks = chunk(newsItemScopesToDelete, CHUNK_SIZE)
 
-                await Promise.all(newsItemScopesToDelete.map(newsItemScope => {
-                    return softDeleteNewsItemScope(newsItemScope)
-                }))
+                for (const scopesToDelete of newsItemScopesToDeleteByChunks) {
+                    await softDeleteNewsItemScope(scopesToDelete)
+                }
 
                 if (!isEmpty(initialUnitKeys) && isEmpty(unitNames) && isEmpty(sectionIds) && deletedKeys.length === initialUnitKeys.length) {
-                    await createNewsItemScope({
+                    await createNewsItemScope([{
                         newsItem: { connect: { id: newsItemId } },
                         property: { connect: { id: initialPropertyIds[0] } },
-                    })
+                    }])
                 }
             }
         }
 
-        const addedPropertyIds = actionName === 'create' ? properties : difference(properties, initialPropertyIds)
+        const addedPropertyIds: string[] = actionName === 'create' ? properties : difference(properties, initialPropertyIds)
         if (actionName === 'create' && addedPropertyIds.length === 0 && hasAllProperties) {
-            await createNewsItemScope({
+            await createNewsItemScope([{
                 newsItem: { connect: { id: newsItemId } },
-            })
+            }])
         }
-        if (addedPropertyIds.length === 1 && properties.length === 1 && unitNames.length > 0) {
-            const propertyId = addedPropertyIds[0]
 
-            await Promise.all(unitNames.map((unitKey) => {
-                const { name: unitName, type: unitType } = getTypeAndNameByKey(unitKey)
-                return createNewsItemScope({
-                    newsItem: { connect: { id: newsItemId } },
-                    property: { connect: { id: propertyId } },
-                    unitName: unitName,
-                    unitType: unitType,
-                })
-            }))
-        }
-        if (addedPropertyIds.length === 1 && properties.length === 1 && sectionIds.length > 0) {
-            const propertyId = addedPropertyIds[0]
-            const { unitNames, unitTypes } = getUnitNamesAndUnitTypes(property, sectionIds)
+        if (addedPropertyIds.length === 1 && properties.length === 1) {
+            if (unitNames.length > 0 || sectionIds.length > 0) {
+                let scopesToAdd: INewsItemScopeCreateInput[] = []
+                const propertyId = addedPropertyIds[0]
+                const property = selectedProperties.find(property => get(property, 'id') === propertyId)
 
-            await Promise.all(unitNames.map((unitName, i) => {
-                return createNewsItemScope({
-                    newsItem: { connect: { id: newsItemId } },
-                    property: { connect: { id: propertyId } },
-                    unitName: unitName,
-                    unitType: unitTypes[i],
-                })
-            }))
+                if (unitNames.length > 0) {
+                    scopesToAdd = uniq(unitNames as string[]).map((unitKey) => {
+                        const { name: unitName, type: unitType } = getTypeAndNameByKey(unitKey)
+                        return {
+                            newsItem: { connect: { id: newsItemId } },
+                            property: { connect: { id: propertyId } },
+                            unitName: unitName,
+                            unitType: unitType,
+                        }
+                    })
+                } else if (sectionIds.length > 0) {
+                    const { unitNames, unitTypes } = getUnitNamesAndUnitTypes(property, sectionIds)
+                    scopesToAdd = unitNames.map((unitName, i) => ({
+                        newsItem: { connect: { id: newsItemId } },
+                        property: { connect: { id: propertyId } },
+                        unitName: unitName,
+                        unitType: unitTypes[i],
+                    }))
+                }
+
+                const allUnits = getAllUnits(property)
+                const selectedUnits = allUnits.filter(({ label, unitType: type }) => scopesToAdd.some(({ unitName, unitType }) => label === unitName && (type as string) === unitType))
+                const selectedAllUnits = selectedUnits.length === allUnits.length
+
+                if (selectedAllUnits) {
+                    await createNewsItemScope([{
+                        newsItem: { connect: { id: newsItemId } },
+                        property: { connect: { id: propertyId } },
+                    }])
+                } else {
+                    const scopesToAddByChunks = chunk(scopesToAdd, CHUNK_SIZE)
+                    for (const scopes of scopesToAddByChunks) {
+                        await createNewsItemScope(scopes)
+                    }
+                }
+            }
         }
+
         if (isEmpty(sectionIds) && isEmpty(unitNames) && !isEmpty(addedPropertyIds)) {
-            await Promise.all(addedPropertyIds.map(propertyId => {
-                return createNewsItemScope({
-                    newsItem: { connect: { id: newsItemId } },
-                    property: { connect: { id: propertyId } },
-                })
+            const scopesToAdd: INewsItemScopeCreateInput[] = addedPropertyIds.map(propertyId => ({
+                newsItem: { connect: { id: newsItemId } },
+                property: { connect: { id: propertyId } },
             }))
+            const scopesToAddByChunks = chunk(scopesToAdd, CHUNK_SIZE)
+
+            for (const scopes of scopesToAddByChunks) {
+                await createNewsItemScope(scopes)
+            }
         }
 
         if (actionName === 'update' && !hasAllProperties && isEmpty(addedPropertyIds) && sectionIds.length > 0) {
             const propertyId = initialPropertyIds[0]
             if (isEmpty(initialUnitKeys) && initialNewsItemScopes.length === 1) {
-                softDeleteNewsItemScope(initialNewsItemScopes[0])
+                await softDeleteNewsItemScope([initialNewsItemScopes[0]])
             }
             const { unitNames, unitTypes } = getUnitNamesAndUnitTypes(property, sectionIds)
-
-            await Promise.all(unitNames.map((unitName, i) => {
-                return createNewsItemScope({
-                    newsItem: { connect: { id: newsItemId } },
-                    property: { connect: { id: propertyId } },
-                    unitName: unitName,
-                    unitType: unitTypes[i],
-                })
+            const scopesToAdd: INewsItemScopeCreateInput[] = unitNames.map((unitName, i) => ({
+                newsItem: { connect: { id: newsItemId } },
+                property: { connect: { id: propertyId } },
+                unitName: unitName,
+                unitType: unitTypes[i],
             }))
+            const scopesToAddByChunks = chunk(scopesToAdd, CHUNK_SIZE)
+
+            for (const scopes of scopesToAddByChunks) {
+                await createNewsItemScope(scopes)
+            }
         }
         if (actionName === 'update' && !hasAllProperties && isEmpty(addedPropertyIds) && unitNames.length > 0) {
             const propertyId = initialPropertyIds[0]
             if (isEmpty(initialUnitKeys) && initialNewsItemScopes.length === 1) {
-                await softDeleteNewsItemScope(initialNewsItemScopes[0])
+                await softDeleteNewsItemScope([initialNewsItemScopes[0]])
             }
             const addedKeys = difference(unitNames, initialUnitKeys)
 
-            await Promise.all(addedKeys.map((unitKey) => {
+            const scopesToAdd: INewsItemScopeCreateInput[] = addedKeys.map((unitKey) => {
                 const { name: unitName, type: unitType } = getTypeAndNameByKey(unitKey)
-                return createNewsItemScope({
+                return {
                     newsItem: { connect: { id: newsItemId } },
                     property: { connect: { id: propertyId } },
                     unitName: unitName,
                     unitType: unitType,
-                })
-            }))
+                }
+            })
+            const scopesToAddByChunks = chunk(scopesToAdd, CHUNK_SIZE)
+
+            for (const scopes of scopesToAddByChunks) {
+                await createNewsItemScope(scopes)
+            }
         }
 
         await updateNewsItem({ isPublished: true }, newsItem)

@@ -48866,7 +48866,7 @@ export type NewsItem = {
    *  4. As an alias to the 'id' field on the NewsItem List.
    */
   _label_?: Maybe<Scalars['String']>;
-  /**  The organization the news item created by  */
+  /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
   /**  The news item number  */
   number?: Maybe<Scalars['Int']>;

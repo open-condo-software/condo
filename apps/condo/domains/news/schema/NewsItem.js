@@ -29,6 +29,7 @@ const { NEWS_TYPES, NEWS_TYPE_EMERGENCY, NEWS_TYPE_COMMON } = require('@condo/do
 const { notifyResidentsAboutNewsItem, publishSharedNewsItemsByNewsItem } = require('@condo/domains/news/tasks')
 const { NewsItemScope } = require('@condo/domains/news/utils/serverSchema')
 const { checkBadWordsExclusions } = require('@condo/domains/news/utils/serverSchema/badWords')
+const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 
 const badWords = new BadWordsNext()
 badWords.add(badWordsRu)
@@ -98,14 +99,7 @@ const NewsItem = new GQLListSchema('NewsItem', {
     labelResolver: ({ title, type }) => `${type === NEWS_TYPE_EMERGENCY ? '🚨' : ''} ${title}`,
     fields: {
 
-        organization: {
-            schemaDoc: 'The organization the news item created by',
-            type: 'Relationship',
-            ref: 'Organization',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
-        },
+        organization: ORGANIZATION_OWNED_FIELD,
 
         number: {
             schemaDoc: 'The news item number',
