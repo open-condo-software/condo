@@ -11,8 +11,10 @@ import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 import { useIntl } from 'react-intl'
 
+import { Search } from '@open-condo/icons'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Modal, Checkbox, Typography } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
 
 import { PaymentsSumTable } from '@condo/domains/acquiring/components/payments/PaymentsSumTable'
 import { PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS } from '@condo/domains/acquiring/constants/payment'
@@ -37,7 +39,7 @@ import { useMarketplacePaymentTableColumns } from '@condo/domains/marketplace/ho
 import { MARKETPLACE_PAGE_TYPES } from '@condo/domains/marketplace/utils/clientSchema'
 
 
-const ROW_GUTTERS: RowProps['gutter'] = [0, 0]
+const ROW_GUTTERS: RowProps['gutter'] = [0, 16]
 const SUM_BAR_COL_GUTTER: RowProps['gutter'] = [40, 0]
 const QUICK_FILTERS_COL_STYLE: CSSProperties = { alignSelf: 'center' }
 
@@ -223,12 +225,13 @@ const MarketplacePaymentsTableContent = () => {
                         <Col span={24}>
                             <TableFiltersContainer>
                                 <Row justify='space-between' gutter={ROW_GUTTERS}>
-                                    <Col span={16}>
+                                    <Col xxl={16} xl={14} lg={10} md={24} sm={24} xs={24}>
                                         <Input
                                             placeholder={SearchPlaceholder}
                                             onChange={handleSearch}
                                             value={search}
                                             allowClear
+                                            suffix={<Search size='medium' color={colors.gray[7]} />}
                                         />
                                     </Col>
                                     <Col >
