@@ -6,7 +6,7 @@ import React, { useCallback, useMemo, useState } from 'react'
 
 import { omitRecursively } from '@open-condo/keystone/fields/Json/utils/cleaner'
 import { useIntl } from '@open-condo/next/intl'
-import { Input, Typography } from '@open-condo/ui'
+import { Tour, Input, Typography } from '@open-condo/ui'
 
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
@@ -35,6 +35,11 @@ interface IPropertyFormProps {
 }
 
 const FORM_WITH_ACTION_VALIDATION_TRIGGERS = ['onBlur', 'onSubmit']
+const SMALL_INPUT_WRAPPER_COL = {
+    lg: 3,
+    md: 5,
+    xs: 24,
+}
 
 const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
     const intl = useIntl()
@@ -55,6 +60,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
 
     const { breakpoints } = useLayoutContext()
     const { addressApi } = useAddressApi()
+    const { setCurrentStep } = Tour.useTourContext()
     const { action, initialValues, organization, address } = props
 
     const organizationId = get(organization, 'id')
@@ -98,8 +104,10 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
 
     const onSuggestionSelected = useCallback((_, option) => {
         const address = JSON.parse(option.key as string) as TSelectedAddressSuggestion
+        const isHouse = address.isHouse
         setAddressValidatorError(address.isHouse ? null : AddressValidationErrorMsg)
-    }, [AddressValidationErrorMsg])
+        setCurrentStep(() => isHouse ? 1 : 0)
+    }, [AddressValidationErrorMsg, setCurrentStep])
 
     const validations = {
         address: [requiredValidator, addressValidator],
@@ -157,6 +165,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                                     addressValidatorError={addressValidatorError}
                                                     setAddressValidatorError={setAddressValidatorError}
                                                     onSelect={onSuggestionSelected}
+                                                    onChange={() => setCurrentStep(0)}
                                                 />
                                             </Form.Item>
                                             <Form.Item
@@ -182,11 +191,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                                 name='area'
                                                 label={AreaTitle}
                                                 rules={validations.area}
-                                                wrapperCol={{
-                                                    lg: 3,
-                                                    md: 5,
-                                                    xs: 24,
-                                                }}
+                                                wrapperCol={SMALL_INPUT_WRAPPER_COL}
                                             >
                                                 <Input
                                                     placeholder={AreaPlaceholder}
@@ -199,11 +204,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                                 name='yearOfConstruction'
                                                 label={YearOfConstructionTitle}
                                                 rules={validations.yearOfConstruction}
-                                                wrapperCol={{
-                                                    lg: 3,
-                                                    md: 5,
-                                                    xs: 24,
-                                                }}
+                                                wrapperCol={SMALL_INPUT_WRAPPER_COL}
                                             >
                                                 <Input placeholder={YearPlaceholder} />
                                             </Form.Item>

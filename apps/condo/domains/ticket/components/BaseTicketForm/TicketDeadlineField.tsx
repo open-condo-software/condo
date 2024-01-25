@@ -5,12 +5,16 @@ import get from 'lodash/get'
 import isNull from 'lodash/isNull'
 import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
 
+import { QuestionCircle, Settings } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
+import { Space, Tooltip } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { useTicketFormContext } from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
+
+import { LinkWithIcon } from '../../../common/components/LinkWithIcon'
 
 import { TicketFormItem } from './index'
 
@@ -28,6 +32,8 @@ export const TicketDeadlineField = ({ initialValues, form }) => {
     const AutoCompletionMessage = intl.formatMessage({ id: 'ticket.deadline.AutoCompletion' })
     const AutoCompletionTodayMessage = intl.formatMessage({ id: 'ticket.deadline.AutoCompletion.today' })
     const TicketWithoutDeadlineMessage = intl.formatMessage({ id: 'pages.condo.ticket.WithoutDeadline' })
+    const TicketDeadlineTooltipTitle = intl.formatMessage({ id: 'ticket.deadline.tooltip.title' })
+    const TicketDeadlineTooltipLink = intl.formatMessage({ id: 'ticket.deadline.tooltip.link' })
 
     const { breakpoints } = useLayoutContext()
     const COL_SPAN = useMemo(() => !breakpoints.TABLET_LARGE ? 24 : 11, [breakpoints.TABLET_LARGE])
@@ -70,13 +76,32 @@ export const TicketDeadlineField = ({ initialValues, form }) => {
             <Col style={AUTO_DETECTED_DEADLINE_COL_STYLE} span={!breakpoints.TABLET_LARGE ? 24 : 11}>
                 <Row justify='start' align='middle' style={AUTO_DETECTED_DEADLINE_ROW_STYLE}>
                     <Col span={24}>
-                        <Typography.Text type='secondary' style={AUTO_COMPLETE_MESSAGE_STYLE}>
-                            {
-                                autoAddDays === 0
-                                    ? AutoCompletionTodayMessage
-                                    : `${AutoCompletionMessage} (+${DaysMessage})`
-                            }
-                        </Typography.Text>
+                        <Tooltip
+                            title={(
+                                <Space size={12} direction='vertical'>
+                                    <Typography.Text>
+                                        {TicketDeadlineTooltipTitle}
+                                    </Typography.Text>
+                                    <LinkWithIcon
+                                        title={TicketDeadlineTooltipLink}
+                                        href='/settings/ticketDeadlines'
+                                        PostfixIcon={Settings}
+                                        size='medium'
+                                    />
+                                </Space>
+                            )}
+                        >
+                            <Typography.Text type='secondary' style={AUTO_COMPLETE_MESSAGE_STYLE}>
+                                <Space size={8} align='center'>
+                                    {
+                                        autoAddDays === 0
+                                            ? AutoCompletionTodayMessage
+                                            : `${AutoCompletionMessage} (+${DaysMessage})`
+                                    }
+                                    <QuestionCircle size='small' />
+                                </Space>
+                            </Typography.Text>
+                        </Tooltip>
                     </Col>
                 </Row>
             </Col>

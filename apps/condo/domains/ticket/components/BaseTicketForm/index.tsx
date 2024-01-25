@@ -22,7 +22,7 @@ import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
-import { Info, PlusCircle } from '@open-condo/icons'
+import { Info, PlusCircle, QuestionCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Alert, Space, Tooltip } from '@open-condo/ui'
@@ -665,6 +665,8 @@ export const TicketSourceSelect: React.FC = () => {
 const FORM_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
 const TICKET_PROPERTY_HINT_STYLES: CSSProperties = { maxHeight: '11em', maxWidth: '250px' }
 const HINTS_WRAPPER_STYLE: CSSProperties = { overflow: 'auto', maxHeight: 'calc(100vh - 220px)', paddingRight: 8 }
+const CAN_READ_BY_RESIDENT_WRAPPER_STYLE: CSSProperties = { display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'center' }
+const CAN_READ_BY_RESIDENT_ICON_WRAPPER_STYLE: CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'center' }
 
 export interface ITicketFormProps {
     organization?: Organization
@@ -1024,23 +1026,23 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                                     {
                                                                                         !isResidentTicket && (
                                                                                             <Col span={24}>
-                                                                                                <Space size={8} align='center'>
-                                                                                                    <Form.Item name='canReadByResident' valuePropName='checked' initialValue={initialCanReadByResidentValue}>
-                                                                                                        <Checkbox
-                                                                                                            disabled={disableUserInteraction}
-                                                                                                            eventName='TicketCreateCheckboxCanReadByResident'
-                                                                                                        >
-                                                                                                            {CanReadByResidentMessage}
-                                                                                                        </Checkbox>
-                                                                                                    </Form.Item>
-                                                                                                    <Tooltip
-                                                                                                        title={CanReadByResidentTooltip}
+                                                                                                <Form.Item name='canReadByResident' valuePropName='checked' initialValue={initialCanReadByResidentValue}>
+                                                                                                    <Checkbox
+                                                                                                        disabled={disableUserInteraction}
+                                                                                                        eventName='TicketCreateCheckboxCanReadByResident'
                                                                                                     >
-                                                                                                        <Space size={4} align='center'>
-                                                                                                            <Info />
-                                                                                                        </Space>
-                                                                                                    </Tooltip>
-                                                                                                </Space>
+                                                                                                        <div style={CAN_READ_BY_RESIDENT_WRAPPER_STYLE}>
+                                                                                                            <Typography.Text>
+                                                                                                                {CanReadByResidentMessage}
+                                                                                                            </Typography.Text>
+                                                                                                            <Tooltip title={CanReadByResidentTooltip}>
+                                                                                                                <div style={CAN_READ_BY_RESIDENT_ICON_WRAPPER_STYLE}>
+                                                                                                                    <QuestionCircle size='small' />
+                                                                                                                </div>
+                                                                                                            </Tooltip>
+                                                                                                        </div>
+                                                                                                    </Checkbox>
+                                                                                                </Form.Item>
                                                                                             </Col>
                                                                                         )
                                                                                     }

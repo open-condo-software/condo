@@ -1868,6 +1868,8 @@
   "ticket.deadline.CompletedEarlier": "Completed {days} early",
   "ticket.deadline.CompletedLessThenDay": "Completed a few hours early",
   "ticket.deadline.CompletedLate": "Completed {days} late",
+  "ticket.deadline.tooltip.title": "The platform automatically fills the field «Complete before», adding N days to the current date. You can set your default value for each type of ticket.",
+  "ticket.deadline.tooltip.link": "Go to settings",
 
   "tour.title": "Tour",
   "tour.openGuide": "Open guide",
@@ -2167,6 +2169,8 @@
   "onboarding.step.description.create.Billing": "This is necessary to assign personal accounts, generate receipts for payment and track debts.",
   "onboarding.step.title.create.Acquiring": "Acquiring connection",
   "onboarding.step.description.create.Acquiring": "And this will allow receiving payments from residents for maintenance and housing and communal services.",
+  "onboarding.tourStep.tooltip.ticket.title": "Multiple fields filled automatically",
+  "onboarding.tourStep.tooltip.ticket.message": "Make sure the information is correct and create an ticket",
   "LoginBySBBOL": "Login with SberBusiness ID",
   "subscription.data.tariff": "Subscription plan",
   "subscription.data.tariffs": "Subscription plans",

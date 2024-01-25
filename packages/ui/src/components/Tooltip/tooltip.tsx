@@ -14,8 +14,8 @@ export type TooltipProps = Pick<DefaultTooltipProps,
 | 'placement'
 | 'destroyTooltipOnHide'
 | 'zIndex'
-| 'defaultOpen'> & {
-    title: string
+| 'defaultOpen'
+| 'title'> & {
     children?: React.ReactNode
 }
 
