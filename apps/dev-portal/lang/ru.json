@@ -153,5 +153,6 @@
   "apps.b2c.sections.publishing.publishForm.items.info.label": "Информация о приложении",
   "apps.b2c.sections.publishing.publishForm.items.build.label": "Сборка приложения",
   "apps.b2c.sections.publishing.publishForm.items.build.select.placeholder": "Выберите сборку",
+  "apps.b2c.sections.publishing.publishForm.items.oidc.label": "OIDC конфигурация",
   "apps.b2c.sections.publishing.publishForm.actions.publish": "Опубликовать"
 }

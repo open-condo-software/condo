@@ -153,5 +153,6 @@
   "apps.b2c.sections.publishing.publishForm.items.info.label": "Information about the application",
   "apps.b2c.sections.publishing.publishForm.items.build.label": "Application build",
   "apps.b2c.sections.publishing.publishForm.items.build.select.placeholder": "Select build",
+  "apps.b2c.sections.publishing.publishForm.items.oidc.label": "OIDC configuration",
   "apps.b2c.sections.publishing.publishForm.actions.publish": "Publish"
 }

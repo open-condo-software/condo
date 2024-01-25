@@ -29,6 +29,7 @@ type PublishFormValues = {
     environment: PublishB2CAppMutationVariables['data']['environment']
     info?: boolean
     buildId?: string
+    oidc?: boolean
 }
 
 export const PublishingSection: React.FC<{ id: string }> = ({ id }) => {
@@ -62,6 +63,7 @@ export const PublishingSection: React.FC<{ id: string }> = ({ id }) => {
             options: {
                 info: values.info,
                 build: values.buildId ? { id: values.buildId } : undefined,
+                oidc: values.oidc,
             },
         }
         setIsPublishing(true)

@@ -42,11 +42,12 @@ const extractReqLocale = (req) => {
         // NOTE: Used in standalone next apps with i18n
         const nextCookieLocale = cookies['NEXT_LOCALE']
 
-        if (ksCookieLocale && ACCEPT_LOCALES.includes(ksCookieLocale.toLowerCase())) {
-            return ksCookieLocale.toLowerCase()
-        }
         if (nextCookieLocale && ACCEPT_LOCALES.includes(nextCookieLocale.toLowerCase())) {
             return nextCookieLocale.toLowerCase()
+        }
+
+        if (ksCookieLocale && ACCEPT_LOCALES.includes(ksCookieLocale.toLowerCase())) {
+            return ksCookieLocale.toLowerCase()
         }
 
         // NOTE: Necessary for the correct work of the locale on the share page in Telegram
