@@ -678,8 +678,14 @@ describe('AcquiringIntegrationContext', () => {
             expect(updatedContext).toHaveProperty('status', CONTEXT_FINISHED_STATUS)
             expect(updatedContext).toHaveProperty('invoiceStatus', CONTEXT_IN_PROGRESS_STATUS)
 
+            await updateTestAcquiringIntegrationContext(manageMarketplaceEmployee, context.id, {
+                invoiceVatPercent: '10',
+                invoiceRecipient: createTestRecipient(),
+            })
+
             await updateTestAcquiringIntegrationContext(serviceUser, context.id, {
                 invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceReason: faker.lorem.sentence(2),
             })
 
             const contexts = await AcquiringIntegrationContext.getAll(manageMarketplaceEmployee, { id: context.id })
@@ -687,6 +693,7 @@ describe('AcquiringIntegrationContext', () => {
             expect(contexts).toHaveProperty(['0', 'id'], context.id)
             expect(contexts).toHaveProperty(['0', 'status'], CONTEXT_FINISHED_STATUS)
             expect(contexts).toHaveProperty(['0', 'invoiceStatus'], CONTEXT_FINISHED_STATUS)
+            expect(contexts).toHaveProperty(['0', 'invoiceVatPercent'], '10.0000')
         })
 
         test('Connect acquiring after marketplace is connected', async () => {
@@ -702,12 +709,19 @@ describe('AcquiringIntegrationContext', () => {
             expect(context).toHaveProperty('status', CONTEXT_IN_PROGRESS_STATUS)
             expect(context).toHaveProperty('invoiceStatus', CONTEXT_IN_PROGRESS_STATUS)
 
+            await updateTestAcquiringIntegrationContext(manageMarketplaceEmployee, context.id, {
+                invoiceVatPercent: '10',
+                invoiceRecipient: createTestRecipient(),
+            })
+
             const [updatedContext] = await updateTestAcquiringIntegrationContext(serviceUser, context.id, {
                 invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceReason: faker.lorem.sentence(2),
             })
 
             expect(updatedContext).toHaveProperty('status', CONTEXT_IN_PROGRESS_STATUS)
             expect(updatedContext).toHaveProperty('invoiceStatus', CONTEXT_FINISHED_STATUS)
+            expect(updatedContext).toHaveProperty('invoiceVatPercent', '10.0000')
 
             await updateTestAcquiringIntegrationContext(support, context.id, {
                 status: CONTEXT_FINISHED_STATUS,
