@@ -657,4 +657,127 @@ describe('AcquiringIntegrationContext', () => {
             })
         })
     })
+    describe('Life cases', () => {
+        test('Connect marketplace after acquiring is connected', async () => {
+            const manageMarketplaceEmployee = await makeEmployeeUserClientWithAbilities({
+                canManageIntegrations: true,
+                canManageMarketplace: true,
+                canReadMarketplace: true,
+            })
+            const organization = manageMarketplaceEmployee.organization
+
+            const [context] = await createTestAcquiringIntegrationContext(manageMarketplaceEmployee, organization, integration)
+
+            expect(context).toHaveProperty('status', CONTEXT_IN_PROGRESS_STATUS)
+            expect(context).toHaveProperty('invoiceStatus', CONTEXT_IN_PROGRESS_STATUS)
+
+            const [updatedContext] = await updateTestAcquiringIntegrationContext(support, context.id, {
+                status: CONTEXT_FINISHED_STATUS,
+            })
+
+            expect(updatedContext).toHaveProperty('status', CONTEXT_FINISHED_STATUS)
+            expect(updatedContext).toHaveProperty('invoiceStatus', CONTEXT_IN_PROGRESS_STATUS)
+
+            await updateTestAcquiringIntegrationContext(manageMarketplaceEmployee, context.id, {
+                invoiceVatPercent: '10',
+                invoiceRecipient: createTestRecipient(),
+            })
+
+            await updateTestAcquiringIntegrationContext(serviceUser, context.id, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceReason: faker.lorem.sentence(2),
+            })
+
+            const contexts = await AcquiringIntegrationContext.getAll(manageMarketplaceEmployee, { id: context.id })
+            expect(contexts).toHaveLength(1)
+            expect(contexts).toHaveProperty(['0', 'id'], context.id)
+            expect(contexts).toHaveProperty(['0', 'status'], CONTEXT_FINISHED_STATUS)
+            expect(contexts).toHaveProperty(['0', 'invoiceStatus'], CONTEXT_FINISHED_STATUS)
+            expect(contexts).toHaveProperty(['0', 'invoiceVatPercent'], '10.0000')
+        })
+
+        test('Connect acquiring after marketplace is connected', async () => {
+            const manageMarketplaceEmployee = await makeEmployeeUserClientWithAbilities({
+                canManageIntegrations: true,
+                canManageMarketplace: true,
+                canReadMarketplace: true,
+            })
+            const organization = manageMarketplaceEmployee.organization
+
+            const [context] = await createTestAcquiringIntegrationContext(manageMarketplaceEmployee, organization, integration)
+
+            expect(context).toHaveProperty('status', CONTEXT_IN_PROGRESS_STATUS)
+            expect(context).toHaveProperty('invoiceStatus', CONTEXT_IN_PROGRESS_STATUS)
+
+            await updateTestAcquiringIntegrationContext(manageMarketplaceEmployee, context.id, {
+                invoiceVatPercent: '10',
+                invoiceRecipient: createTestRecipient(),
+            })
+
+            const [updatedContext] = await updateTestAcquiringIntegrationContext(serviceUser, context.id, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceReason: faker.lorem.sentence(2),
+            })
+
+            expect(updatedContext).toHaveProperty('status', CONTEXT_IN_PROGRESS_STATUS)
+            expect(updatedContext).toHaveProperty('invoiceStatus', CONTEXT_FINISHED_STATUS)
+            expect(updatedContext).toHaveProperty('invoiceVatPercent', '10.0000')
+
+            await updateTestAcquiringIntegrationContext(support, context.id, {
+                status: CONTEXT_FINISHED_STATUS,
+            })
+
+            const contexts = await AcquiringIntegrationContext.getAll(manageMarketplaceEmployee, { id: context.id })
+            expect(contexts).toHaveLength(1)
+            expect(contexts).toHaveProperty(['0', 'id'], context.id)
+            expect(contexts).toHaveProperty(['0', 'status'], CONTEXT_FINISHED_STATUS)
+            expect(contexts).toHaveProperty(['0', 'invoiceStatus'], CONTEXT_FINISHED_STATUS)
+        })
+
+        test('Connect marketplace after acquiring is connected for organizations which existed before marketplace release', async () => {
+            const manageMarketplaceEmployee = await makeEmployeeUserClientWithAbilities({
+                canManageIntegrations: true,
+                canManageMarketplace: true,
+                canReadMarketplace: true,
+            })
+            const organization = manageMarketplaceEmployee.organization
+
+            const [context] = await createTestAcquiringIntegrationContext(manageMarketplaceEmployee, organization, integration)
+
+            // Contexts that created before the marketplace feature is released are have invoiceStatus=null
+            const [contextBeforeRelease] = await updateTestAcquiringIntegrationContext(support, context.id, {
+                invoiceStatus: null,
+            })
+
+            expect(contextBeforeRelease).toHaveProperty('status', CONTEXT_IN_PROGRESS_STATUS)
+            expect(contextBeforeRelease).toHaveProperty('invoiceStatus', null)
+
+            const [updatedContext] = await updateTestAcquiringIntegrationContext(support, context.id, {
+                status: CONTEXT_FINISHED_STATUS,
+            })
+
+            expect(updatedContext).toHaveProperty('status', CONTEXT_FINISHED_STATUS)
+            expect(updatedContext).toHaveProperty('invoiceStatus', null)
+
+            const [contextWithInvoiceData] = await updateTestAcquiringIntegrationContext(manageMarketplaceEmployee, context.id, {
+                invoiceVatPercent: '10',
+                invoiceRecipient: createTestRecipient(),
+            })
+
+            expect(contextWithInvoiceData).toHaveProperty('invoiceStatus', null)
+            expect(contextWithInvoiceData).toHaveProperty('invoiceVatPercent', '10.0000')
+
+            await updateTestAcquiringIntegrationContext(serviceUser, context.id, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceReason: faker.lorem.sentence(2),
+            })
+
+            const contexts = await AcquiringIntegrationContext.getAll(manageMarketplaceEmployee, { id: context.id })
+            expect(contexts).toHaveLength(1)
+            expect(contexts).toHaveProperty(['0', 'id'], context.id)
+            expect(contexts).toHaveProperty(['0', 'status'], CONTEXT_FINISHED_STATUS)
+            expect(contexts).toHaveProperty(['0', 'invoiceStatus'], CONTEXT_FINISHED_STATUS)
+            expect(contexts).toHaveProperty(['0', 'invoiceVatPercent'], '10.0000')
+        })
+    })
 })

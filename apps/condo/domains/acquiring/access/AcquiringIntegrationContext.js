@@ -96,7 +96,8 @@ async function canManageAcquiringIntegrationContexts ({ authentication: { item: 
     if (canManageMarketplace && operation === 'create') return true
     if (canManageMarketplace && operation === 'update') {
         // Allow employee to complete context settings
-        if (context.invoiceStatus === CONTEXT_IN_PROGRESS_STATUS) {
+        // Contexts that created before the marketplace feature is released are have invoiceStatus=null
+        if ([CONTEXT_IN_PROGRESS_STATUS, null].includes(context.invoiceStatus)) {
             return true
         }
     }
@@ -130,7 +131,7 @@ async function canManageStatusField ({ authentication: { item: user }, existingI
 async function canManageReasonAndFeeFields ({ authentication: { item: user } }) {
     // Admin / support can freely change reason and fee fields
     if (user.isAdmin || user.isSupport) return true
-    
+
     // STAFF and RESIDENT users are forbidden from changing reason and fee fields
     return !(user.type === RESIDENT || user.type === STAFF)
 }
