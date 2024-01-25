@@ -50,7 +50,7 @@ const createOrganization = (data) => sendAuthorizedRequest(data, {
 const getOrganizationEmployeeId = (data) => sendAuthorizedRequest(data, {
     operationName: 'getList',
     query: 'query getList($where:OrganizationEmployeeWhereInput){allOrganizationEmployees(where:$where){id}}',
-    variables: { where: { organization: { id: data.organizationId } } }
+    variables: { where: { organization: { id: data.organizationId } } },
 })
 
 const createProperty = (data) => {
