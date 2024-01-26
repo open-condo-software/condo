@@ -28,7 +28,7 @@ query allB2CAppBuilds($where: B2CAppBuildWhereInput!, $first: Int!, $skip: Int!)
         version
         createdAt
     }
-    meta: _allB2CAppBuildsMeta {
+    meta: _allB2CAppBuildsMeta(where: $where) {
         count
     }
 }
