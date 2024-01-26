@@ -17,7 +17,7 @@ const {
 const { CONDO_SUPPORTED_RESPONSE_TYPES } = require('@condo/domains/user/constants/oidc')
 const { OIDC_CLIENT_UNIQUE_B2C_APP_CONSTRAINT } = require('@dev-api/domains/miniapp/constants/constraints')
 const {
-    OIDC_SECRET_CHAR_PATTERN,
+    OIDC_SECRET_CHAR_POOL,
     OIDC_SECRET_LENGTH,
     OIDC_GRANT_TYPES,
     OIDC_TOKEN_AUTH_BASIC_METHOD,
@@ -29,8 +29,8 @@ const {
     createTestB2CApp,
 } = require('@dev-api/domains/miniapp/utils/testSchema')
 const { makeLoggedInAdminClient, makeLoggedInSupportClient, makeRegisteredAndLoggedInUser } = require('@dev-api/domains/user/utils/testSchema')
-// NOTE: Dynamically builds something like /^[a-zA-Z0-9]{32}$/
-const OIDC_CLIENT_SECRET_PATTERN = new RegExp(`^${OIDC_SECRET_CHAR_PATTERN.toString().replaceAll('/', '')}{${OIDC_SECRET_LENGTH}}$`)
+// NOTE: Dynamically builds something like /^[a...zA...Z0...9]{32}$/
+const OIDC_CLIENT_SECRET_PATTERN = new RegExp(`^[${OIDC_SECRET_CHAR_POOL}]{${OIDC_SECRET_LENGTH}}$`)
 
 describe('OIDCClient', () => {
     let admin

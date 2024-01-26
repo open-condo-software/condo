@@ -157,7 +157,7 @@ async function publishBuildChanges ({ build, condoBuild, app, condoApp, context,
     let buildToUpdate = condoBuild
     if (!buildToUpdate) {
         logger.info({
-            msg:'Condo build not found, creating new one',
+            msg: 'Condo build not found, creating new one',
             appId: app.id,
             environment,
             meta: {
@@ -246,7 +246,7 @@ async function publishOIDCClient ({ args, context, serverClient, app }) {
     })
 
     if (condoOIDCClient) {
-        logger.info({ msg:'Existing OIDC client found. Updating', appId: app.id, environment, meta: { condoOIDCClientId: condoOIDCClient.id } })
+        logger.info({ msg: 'Existing OIDC client found. Updating', appId: app.id, environment, meta: { condoOIDCClientId: condoOIDCClient.id } })
         await serverClient.updateModel({
             modelGql: CondoOIDCClientGql,
             id: condoOIDCClient.id,
