@@ -27,6 +27,7 @@ const {
     MeterResource,
     createTestMeterReadingSource,
     MeterReading,
+    Meter,
 } = require('@condo/domains/meter/utils/testSchema')
 const { makeEmployeeUserClientWithAbilities } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
@@ -43,8 +44,8 @@ const { ERRORS } = require('./_internalDeleteMeterReadingsService')
 const DATE_FORMAT = 'DD.MM.YYYY HH:mm:ss'
 
 describe('_internalDeleteMeterReadingsService', () => {
-    let admin, support, employee, resident, serviceUser, anonymous, organization, property, resource, condoImportSource
-    let meter, meterReading, startDateTimeFormatted, endDateTimeFormatted, payload, startDateTimeIso, endDateTimeIso
+    let admin, support, employee, resident, serviceUser, anonymous, organization, property, resource, condoImportSource,
+        meter, meterReading, startDateTimeFormatted, endDateTimeFormatted, payload, startDateTimeIso, endDateTimeIso
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
@@ -57,10 +58,9 @@ describe('_internalDeleteMeterReadingsService', () => {
         organization = employeeClient.organization
         property = employeeClient.property
 
-        const residentClient = await makeClientWithResidentUser()
-        resident = residentClient
+        resident = await makeClientWithResidentUser()
         const unitName = faker.random.alphaNumeric(8)
-        await createTestResident(admin, residentClient.user, property, {
+        await createTestResident(admin, resident.user, property, {
             unitName,
         })
 
@@ -75,7 +75,6 @@ describe('_internalDeleteMeterReadingsService', () => {
     })
 
     beforeEach(async () => {
-        await sleep(1200)
         startDateTimeIso = dayjs().toISOString()
         startDateTimeFormatted = dayjs(startDateTimeIso).format(DATE_FORMAT)
         const [createdMeter] = await createTestMeter(admin, organization, property, resource, {})
@@ -90,6 +89,17 @@ describe('_internalDeleteMeterReadingsService', () => {
             organizationId: organization.id,
             startDateTime: startDateTimeFormatted,
             endDateTime: endDateTimeFormatted,
+        }
+    })
+
+    afterEach(async () => {
+        const metersToDelete = await Meter.getAll(admin, {
+            organization: { id: organization.id },
+            deletedAt: null,
+        })
+
+        for (const meter of metersToDelete) {
+            await Meter.softDelete(admin, meter.id)
         }
     })
 
@@ -116,7 +126,7 @@ describe('_internalDeleteMeterReadingsService', () => {
             })
         })
 
-        describe('Employee', () => {
+        describe('Staff', () => {
             test('Can not call mutation', async () => {
                 await expectToThrowAccessDeniedErrorToResult(async () => {
                     await _internalDeleteMeterReadingsByTestClient(employee, payload)
@@ -309,6 +319,30 @@ describe('_internalDeleteMeterReadingsService', () => {
                 expect.objectContaining({ id: meterReading2.id }),
                 expect.objectContaining({ id: meterReading3.id }),
             ]))
+        })
+
+        test('Should delete a lot of readings', async () => {
+            const createdReadingIds = [meterReading.id]
+
+            for (let i = 0; i < 150; i++) {
+                const [newMeterReading] = await createTestMeterReading(admin, meter, condoImportSource)
+                createdReadingIds.push(newMeterReading.id)
+            }
+
+            const [result] = await _internalDeleteMeterReadingsByTestClient(support, {
+                ...payload,
+                endDateTime: dayjs().format(DATE_FORMAT),
+            })
+            expect(result).toEqual(expect.objectContaining({
+                status: 'success',
+                toDelete: createdReadingIds.length,
+                deleted: createdReadingIds.length,
+            }))
+            const readings = await MeterReading.getAll(admin, {
+                id_in: createdReadingIds,
+                deletedAt: null,
+            })
+            expect(readings).toHaveLength(0)
         })
     })
 })
