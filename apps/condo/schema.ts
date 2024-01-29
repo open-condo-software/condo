@@ -40482,14 +40482,48 @@ export type Mutation = {
    * }`
    */
   createOnBoardingByType?: Maybe<OnBoarding>;
+  /**
+   * This mutation deletes meters and meter readings in specified organization.
+   *
+   * This mutation deletes meters in specified organization for specified period.
+   *  Readings are deleted automatically in a deferred task.
+   *  You can also specify properties in which meters need to be deleted.
+   *  The response will return the status of the operation: “success” if all meters for the specified filter were deleted, otherwise “error”.
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "query": "_internalDeleteMeterAndMeterReadingsService",
+   *   "variable": [
+   *     "data",
+   *     "dv"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "DV_VERSION_MISMATCH",
+   *   "message": "Wrong value for data version number"
+   * }`
+   *
+   * `{
+   *   "query": "_internalDeleteMeterAndMeterReadingsService",
+   *   "variable": [
+   *     "data",
+   *     "sender"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "WRONG_FORMAT",
+   *   "message": "Invalid format of \"sender\" field value",
+   *   "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}"
+   * }`
+   */
   _internalDeleteMeterAndMeterReadings?: Maybe<_InternalDeleteMeterAndMeterReadingsOutput>;
   /**
-   * Deletes readings in specified organization for specified period.
+   * This mutation deletes readings in specified organization for specified period.
    *
    * This mutation deletes readings in specified organization for specified period.
    *  You can also specify properties in which readings need to be deleted.
    *  The response will return the status of the operation: “success” if all readings for the specified filter were deleted, otherwise “error”.
-   *  Also in the response sender will be returned, with a random fingerprint (which will be different from what was at the input). If necessary, you can restore data using this value.
    *
    * **Errors**
    *

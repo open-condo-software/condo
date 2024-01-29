@@ -20,14 +20,14 @@ const logger = getLogger('_internalDeleteMeterAndMeterReadings')
 
 const ERRORS = {
     DV_VERSION_MISMATCH: {
-        query: '_internalDeleteMeterReadingsService',
+        query: '_internalDeleteMeterAndMeterReadingsService',
         variable: ['data', 'dv'],
         code: BAD_USER_INPUT,
         type: DV_VERSION_MISMATCH,
         message: 'Wrong value for data version number',
     },
     WRONG_SENDER_FORMAT: {
-        query: '_internalDeleteMeterReadingsService',
+        query: '_internalDeleteMeterAndMeterReadingsService',
         variable: ['data', 'sender'],
         code: BAD_USER_INPUT,
         type: WRONG_FORMAT,
