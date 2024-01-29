@@ -10,7 +10,6 @@ const {
     makeClient,
     expectToThrowAccessDeniedErrorToResult,
     expectToThrowGQLError,
-    UUID_RE,
 } = require('@open-condo/keystone/test.utils')
 const { expectToThrowAuthenticationErrorToResult } = require('@open-condo/keystone/test.utils')
 
@@ -99,8 +98,6 @@ describe('_internalDeleteMeterReadingsService', () => {
             test('Can call mutation', async () => {
                 const [result] = await _internalDeleteMeterReadingsByTestClient(admin, payload)
                 expect(result).toEqual(expect.objectContaining({
-                    dv: 1,
-                    sender: expect.objectContaining({ dv: 1, fingerprint: expect.stringMatching(UUID_RE) }),
                     status: 'success',
                     toDelete: 1,
                     deleted: 1,
@@ -112,8 +109,6 @@ describe('_internalDeleteMeterReadingsService', () => {
             test('Can call mutation', async () => {
                 const [result] = await _internalDeleteMeterReadingsByTestClient(support, payload)
                 expect(result).toEqual(expect.objectContaining({
-                    dv: 1,
-                    sender: expect.objectContaining({ dv: 1, fingerprint: expect.stringMatching(UUID_RE) }),
                     status: 'success',
                     toDelete: 1,
                     deleted: 1,
@@ -156,52 +151,6 @@ describe('_internalDeleteMeterReadingsService', () => {
 
     describe('Validations', () => {
         describe('Fields', () => {
-            describe('dv and sender', () => {
-                test('dv should be equal 1', async () => {
-                    await expectToThrowGQLError(async () => {
-                        await _internalDeleteMeterReadingsByTestClient(support, {
-                            ...payload,
-                            dv: 2,
-                        })
-                    }, ERRORS.DV_VERSION_MISMATCH, 'result')
-                    const [result] = await _internalDeleteMeterReadingsByTestClient(support, {
-                        ...payload,
-                        dv: 1,
-                    })
-                    expect(result).toHaveProperty('status', 'success')
-                })
-                test('sender should be valid', async () => {
-                    await expectToThrowGQLError(async () => {
-                        await _internalDeleteMeterReadingsByTestClient(support, {
-                            ...payload,
-                            dv: 1,
-                            sender: {
-                                dv: 2,
-                                fingerprint: faker.lorem.word(10),
-                            },
-                        })
-                    }, ERRORS.WRONG_SENDER_FORMAT, 'result')
-                    await expectToThrowGQLError(async () => {
-                        await _internalDeleteMeterReadingsByTestClient(support, {
-                            ...payload,
-                            dv: 1,
-                            sender: {
-                                dv: 1,
-                                fingerprint: faker.lorem.slug(40),
-                            },
-                        })
-                    }, ERRORS.WRONG_SENDER_FORMAT, 'result')
-                    const [result] = await _internalDeleteMeterReadingsByTestClient(support, {
-                        ...payload,
-                        sender: {
-                            ...payload.sender,
-                            fingerprint: faker.lorem.word(10),
-                        },
-                    })
-                    expect(result).toHaveProperty('status', 'success')
-                })
-            })
-
             describe('startDateTime', () => {
                 test('must be in the format DD.MM.YYYY HH:mm:ss', async () => {
                     await expectToThrowGQLError(async () => {
@@ -360,14 +309,6 @@ describe('_internalDeleteMeterReadingsService', () => {
                 expect.objectContaining({ id: meterReading2.id }),
                 expect.objectContaining({ id: meterReading3.id }),
             ]))
-        })
-
-        test('Should generate a random sender.fingerprint and return it', async () => {
-            const [result] = await _internalDeleteMeterReadingsByTestClient(support, payload)
-            const [result2] = await _internalDeleteMeterReadingsByTestClient(support, payload)
-            expect(result).toHaveProperty('sender.fingerprint', expect.stringMatching(UUID_RE))
-            expect(result2).toHaveProperty('sender.fingerprint', expect.stringMatching(UUID_RE))
-            expect(result.sender.fingerprint).not.toEqual(result2.sender.fingerprint)
         })
     })
 })

@@ -54,7 +54,7 @@ const MeterResourceOwner = generateGqlQueries('MeterResourceOwner', METER_RESOUR
 
 const INTERNAL_DELETE_METER_READINGS_MUTATION = gql`
     mutation _internalDeleteMeterReadings ($data: _internalDeleteMeterReadingsInput!) {
-        result: _internalDeleteMeterReadings(data: $data) { dv sender { dv fingerprint } status toDelete deleted }
+        result: _internalDeleteMeterReadings(data: $data) { status toDelete deleted }
     }
 `
 

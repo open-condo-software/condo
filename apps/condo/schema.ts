@@ -92585,12 +92585,17 @@ export type _QueryMeta = {
 export type _InternalDeleteMeterAndMeterReadingsInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
-  propertyIds: Array<Maybe<Scalars['String']>>;
+  propertyIds?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  organizationId: Scalars['ID'];
 };
 
 export type _InternalDeleteMeterAndMeterReadingsOutput = {
   __typename?: '_internalDeleteMeterAndMeterReadingsOutput';
+  dv: Scalars['Int'];
+  sender: SenderFieldOutput;
   status: Status;
+  metersToDelete: Scalars['Int'];
+  deletedMeters: Scalars['Int'];
 };
 
 export type _InternalDeleteMeterReadingsInput = {
@@ -92604,8 +92609,6 @@ export type _InternalDeleteMeterReadingsInput = {
 
 export type _InternalDeleteMeterReadingsOutput = {
   __typename?: '_internalDeleteMeterReadingsOutput';
-  dv: Scalars['Int'];
-  sender: SenderFieldOutput;
   status: Status;
   toDelete: Scalars['Int'];
   deleted: Scalars['Int'];

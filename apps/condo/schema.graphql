@@ -71990,7 +71990,8 @@ type ExportMeterReadingsOutput {
 input _internalDeleteMeterAndMeterReadingsInput {
   dv: Int!
   sender: SenderFieldInput!
-  propertyIds: [String]!
+  propertyIds: [ID]
+  organizationId: ID!
 }
 
 enum Status {
@@ -71998,8 +71999,17 @@ enum Status {
   error
 }
 
+type SenderFieldOutput {
+  dv: Int!
+  fingerprint: String!
+}
+
 type _internalDeleteMeterAndMeterReadingsOutput {
+  dv: Int!
+  sender: SenderFieldOutput!
   status: Status!
+  metersToDelete: Int!
+  deletedMeters: Int!
 }
 
 input _internalDeleteMeterReadingsInput {
@@ -72011,14 +72021,7 @@ input _internalDeleteMeterReadingsInput {
   endDateTime: String!
 }
 
-type SenderFieldOutput {
-  dv: Int!
-  fingerprint: String!
-}
-
 type _internalDeleteMeterReadingsOutput {
-  dv: Int!
-  sender: SenderFieldOutput!
   status: Status!
   toDelete: Int!
   deleted: Int!
