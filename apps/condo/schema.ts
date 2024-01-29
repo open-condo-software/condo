@@ -70859,12 +70859,6 @@ export type SenderFieldInput = {
   fingerprint: Scalars['String'];
 };
 
-export type SenderFieldOutput = {
-  __typename?: 'SenderFieldOutput';
-  dv: Scalars['Int'];
-  fingerprint: Scalars['String'];
-};
-
 /**  Service Consumer object. Existence of this object means that the resident is willing to pay for certain services  */
 export type ServiceConsumer = {
   __typename?: 'ServiceConsumer';
@@ -92591,8 +92585,6 @@ export type _InternalDeleteMeterAndMeterReadingsInput = {
 
 export type _InternalDeleteMeterAndMeterReadingsOutput = {
   __typename?: '_internalDeleteMeterAndMeterReadingsOutput';
-  dv: Scalars['Int'];
-  sender: SenderFieldOutput;
   status: Status;
   metersToDelete: Scalars['Int'];
   deletedMeters: Scalars['Int'];

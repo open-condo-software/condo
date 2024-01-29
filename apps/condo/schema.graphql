@@ -71999,14 +71999,7 @@ enum Status {
   error
 }
 
-type SenderFieldOutput {
-  dv: Int!
-  fingerprint: String!
-}
-
 type _internalDeleteMeterAndMeterReadingsOutput {
-  dv: Int!
-  sender: SenderFieldOutput!
   status: Status!
   metersToDelete: Int!
   deletedMeters: Int!
