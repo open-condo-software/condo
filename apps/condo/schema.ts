@@ -40483,6 +40483,75 @@ export type Mutation = {
    */
   createOnBoardingByType?: Maybe<OnBoarding>;
   _internalDeleteMeterAndMeterReadings?: Maybe<_InternalDeleteMeterAndMeterReadingsOutput>;
+  /**
+   * Deletes readings in specified organization for specified period.
+   *
+   * This mutation deletes readings in specified organization for specified period.
+   *  You can also specify properties in which readings need to be deleted.
+   *  The response will return the status of the operation: “success” if all readings for the specified filter were deleted, otherwise “error”.
+   *  Also in the response sender will be returned, with a random fingerprint (which will be different from what was at the input). If necessary, you can restore data using this value.
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "query": "_internalDeleteMeterReadingsService",
+   *   "variable": [
+   *     "data",
+   *     "dv"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "DV_VERSION_MISMATCH",
+   *   "message": "Wrong value for data version number"
+   * }`
+   *
+   * `{
+   *   "query": "_internalDeleteMeterReadingsService",
+   *   "variable": [
+   *     "data",
+   *     "sender"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "WRONG_FORMAT",
+   *   "message": "Invalid format of \"sender\" field value",
+   *   "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}"
+   * }`
+   *
+   * `{
+   *   "query": "_internalDeleteMeterReadingsService",
+   *   "variable": [
+   *     "data",
+   *     "startDateTime"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "INVALID_START_DATE_TIME",
+   *   "message": "Invalid startDateTime. Should be in format DD.MM.YYYY HH:mm:ss"
+   * }`
+   *
+   * `{
+   *   "query": "_internalDeleteMeterReadingsService",
+   *   "variable": [
+   *     "data",
+   *     "endDateTime"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "INVALID_END_DATE_TIME",
+   *   "message": "invalid endDateTime. Should be in format DD.MM.YYYY HH:mm:ss"
+   * }`
+   *
+   * `{
+   *   "query": "_internalDeleteMeterReadingsService",
+   *   "variable": [
+   *     "data",
+   *     "startDateTime"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "INVALID_PERIOD",
+   *   "message": "The start date cannot be greater than the end date"
+   * }`
+   */
+  _internalDeleteMeterReadings?: Maybe<_InternalDeleteMeterReadingsOutput>;
   registerMultiPayment?: Maybe<RegisterMultiPaymentOutput>;
   registerMultiPaymentForOneReceipt?: Maybe<RegisterMultiPaymentForOneReceiptOutput>;
   registerMultiPaymentForVirtualReceipt?: Maybe<RegisterMultiPaymentForOneReceiptOutput>;
@@ -48414,6 +48483,11 @@ export type MutationCreateOnBoardingByTypeArgs = {
 
 export type Mutation_InternalDeleteMeterAndMeterReadingsArgs = {
   data: _InternalDeleteMeterAndMeterReadingsInput;
+};
+
+
+export type Mutation_InternalDeleteMeterReadingsArgs = {
+  data: _InternalDeleteMeterReadingsInput;
 };
 
 
@@ -70785,6 +70859,12 @@ export type SenderFieldInput = {
   fingerprint: Scalars['String'];
 };
 
+export type SenderFieldOutput = {
+  __typename?: 'SenderFieldOutput';
+  dv: Scalars['Int'];
+  fingerprint: Scalars['String'];
+};
+
 /**  Service Consumer object. Existence of this object means that the resident is willing to pay for certain services  */
 export type ServiceConsumer = {
   __typename?: 'ServiceConsumer';
@@ -92511,6 +92591,24 @@ export type _InternalDeleteMeterAndMeterReadingsInput = {
 export type _InternalDeleteMeterAndMeterReadingsOutput = {
   __typename?: '_internalDeleteMeterAndMeterReadingsOutput';
   status: Status;
+};
+
+export type _InternalDeleteMeterReadingsInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  propertyIds?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  organizationId: Scalars['ID'];
+  startDateTime: Scalars['String'];
+  endDateTime: Scalars['String'];
+};
+
+export type _InternalDeleteMeterReadingsOutput = {
+  __typename?: '_internalDeleteMeterReadingsOutput';
+  dv: Scalars['Int'];
+  sender: SenderFieldOutput;
+  status: Status;
+  toDelete: Scalars['Int'];
+  deleted: Scalars['Int'];
 };
 
 export type _InternalScheduleTaskByNameInput = {

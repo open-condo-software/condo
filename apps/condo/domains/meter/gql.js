@@ -52,6 +52,12 @@ const DELETE_METER_AND_METER_READINGS_MUTATION = gql`
 const METER_RESOURCE_OWNER_FIELDS = `{ organization { id } resource { id } address addressKey ${COMMON_FIELDS} }`
 const MeterResourceOwner = generateGqlQueries('MeterResourceOwner', METER_RESOURCE_OWNER_FIELDS)
 
+const INTERNAL_DELETE_METER_READINGS_MUTATION = gql`
+    mutation _internalDeleteMeterReadings ($data: _internalDeleteMeterReadingsInput!) {
+        result: _internalDeleteMeterReadings(data: $data) { dv sender { dv fingerprint } status toDelete deleted }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -66,6 +72,7 @@ module.exports = {
     MeterReportingPeriod,
     DELETE_METER_AND_METER_READINGS_MUTATION,
     MeterResourceOwner,
+    INTERNAL_DELETE_METER_READINGS_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 
