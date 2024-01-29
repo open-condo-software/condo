@@ -1,5 +1,5 @@
 const express = require('express')
-const { isArray, get, set, isEmpty } = require('lodash')
+const { isArray, get, set, isEmpty, chunk } = require('lodash')
 
 const { AddressFromStringParser } = require('@open-condo/clients/address-service-client/utils')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -12,6 +12,8 @@ const { createReturnObject } = require('./searchServiceUtils')
 const SEARCH_ERROR_COMMON = 'SEARCH_ERROR_COMMON'
 const SEARCH_ERROR_NO_PLUGINS = 'SEARCH_ERROR_NO_PLUGINS'
 const SEARCH_ERROR_NOT_FOUND = 'SEARCH_ERROR_NOT_FOUND'
+
+const BULK_SEARCH_CHUNK_SIZE = 5
 
 /**
  * @typedef {Object} AddressSearchResult
@@ -237,21 +239,34 @@ class SearchKeystoneApp {
 
                 let result = { addresses: {}, map: {} }
 
-                for (const item of items) {
-                    const searchedAddress = await searchAddress({ searchContext, req, s: item, helpers, extractUnit })
+                const chunkedItems = chunk(items, BULK_SEARCH_CHUNK_SIZE)
 
-                    const err = get(searchedAddress, 'err')
-                    let data
+                for (const itemsChunk of chunkedItems) {
+                    const searchedAddressesData = await Promise.all(itemsChunk.map((item) => new Promise((resolve, reject) => {
+                        searchAddress({
+                            searchContext,
+                            req,
+                            s: item,
+                            helpers,
+                            extractUnit,
+                        }).then((searchedAddress) => resolve({ item, searchedAddress })).catch(reject)
+                    })))
 
-                    if (err) {
-                        data = get(searchedAddress, 'data', err)
-                    } else {
-                        const addressKey = get(searchedAddress, ['data', 'addressKey'])
-                        const { unitType, unitName, ...restAddressFields } = get(searchedAddress, 'data')
-                        result.addresses[addressKey] = restAddressFields
-                        data = { addressKey, unitType, unitName }
+                    for (const searchedAddressData of searchedAddressesData) {
+                        const { item, searchedAddress } = searchedAddressData
+                        const err = get(searchedAddress, 'err')
+                        let data
+
+                        if (err) {
+                            data = get(searchedAddress, 'data', err)
+                        } else {
+                            const addressKey = get(searchedAddress, ['data', 'addressKey'])
+                            const { unitType, unitName, ...restAddressFields } = get(searchedAddress, 'data')
+                            result.addresses[addressKey] = restAddressFields
+                            data = { addressKey, unitType, unitName }
+                        }
+                        result.map[item] = { err, data }
                     }
-                    result.map[item] = { err, data }
                 }
 
                 res.json(result)
