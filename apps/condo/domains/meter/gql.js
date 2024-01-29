@@ -45,7 +45,7 @@ const MeterReportingPeriod = generateGqlQueries('MeterReportingPeriod', METER_RE
 
 const DELETE_METER_AND_METER_READINGS_MUTATION = gql`
     mutation _internalDeleteMeterAndMeterReadings ($data: _internalDeleteMeterAndMeterReadingsInput!) {
-        result: _internalDeleteMeterAndMeterReadings(data: $data) { status }
+        result: _internalDeleteMeterAndMeterReadings(data: $data) { status metersToDelete deletedMeters }
     }
 `
 

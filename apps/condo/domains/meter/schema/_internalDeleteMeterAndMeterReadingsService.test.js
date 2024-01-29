@@ -4,17 +4,26 @@
 
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, expectToThrowAccessDeniedErrorToResult,
+const {
+    makeLoggedInAdminClient,
+    makeClient,
+    expectToThrowAccessDeniedErrorToResult,
     expectToThrowAuthenticationErrorToResult,
 } = require('@open-condo/keystone/test.utils')
 
 const { COLD_WATER_METER_RESOURCE_ID, METER_READING_SOURCE_INTERNAL_IMPORT_TYPE } = require('@condo/domains/meter/constants/constants')
-const { _internalDeleteMeterAndMeterReadingsByTestClient,
-    createTestMeterReading, MeterResource, createTestMeter, createTestMeterReadingSource } = require('@condo/domains/meter/utils/testSchema')
-const { Meter } = require('@condo/domains/meter/utils/testSchema/index')
+const {
+    _internalDeleteMeterAndMeterReadingsByTestClient,
+    createTestMeterReading,
+    MeterResource,
+    createTestMeter,
+    createTestMeterReadingSource,
+    Meter,
+} = require('@condo/domains/meter/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { makeClientWithSupportUser,
+const {
+    makeClientWithSupportUser,
     makeClientWithResidentUser,
     makeClientWithStaffUser,
     makeClientWithServiceUser,
@@ -22,19 +31,21 @@ const { makeClientWithSupportUser,
 
  
 describe('DeleteMeterAndMeterReadingsService', () => {
-    let adminClient, supportClient, userClient, staffClient, serviceClient, anonymous, payload
-    let organization, firstProperty, resource, source
+    let adminClient, supportClient, residentClient, staffClient, serviceClient, anonymous,
+        payload, organization, property, resource, source,
+        meter
+
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()
         supportClient = await makeClientWithSupportUser()
-        userClient = await makeClientWithResidentUser()
+        residentClient = await makeClientWithResidentUser()
         anonymous = await makeClient()
         staffClient = await makeClientWithStaffUser()
         serviceClient = await makeClientWithServiceUser()
         const [testOrganization] = await createTestOrganization(adminClient)
         organization = testOrganization
-        const [property] = await createTestProperty(adminClient, organization)
-        firstProperty = property
+        const [createdProperty] = await createTestProperty(adminClient, organization)
+        property = createdProperty
         const [testResource] = await MeterResource.getAll(adminClient, { id: COLD_WATER_METER_RESOURCE_ID })
         resource = testResource
         const [testSource] = await createTestMeterReadingSource(adminClient,
@@ -43,109 +54,140 @@ describe('DeleteMeterAndMeterReadingsService', () => {
                 name: faker.name.suffix(),
             })
         source = testSource
-        payload = { dv: 1, sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) } }
+        payload = {
+            dv: 1,
+            sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+            organizationId: organization.id,
+        }
     })
 
-    describe('admin can:', function () {
-        test('delete one', async () => {
-            const [meter] = await createTestMeter(adminClient, organization, firstProperty, resource, {})
-            await createTestMeterReading(adminClient, meter, source)
-            expect(meter.id).toMatch(UUID_RE)
-            expect(meter.deletedAt).toBeNull()
-            const createdMeter = await Meter.getAll(adminClient, { id: meter.id })
-            expect(createdMeter).toHaveLength(1)
+    beforeEach(async () => {
+        const [createdMeter] = await createTestMeter(adminClient, organization, property, resource, {})
+        meter = createdMeter
+        await createTestMeterReading(adminClient, meter, source)
+    })
 
-            const [deleteResult] = await _internalDeleteMeterAndMeterReadingsByTestClient(adminClient,
-                { ...payload, propertyIds: [meter.property.id] }
-            )
-            expect(deleteResult.status).toBe('success')
-            const deletedMeters = await Meter.getAll(adminClient, { id: meter.id })
+    afterEach(async () => {
+        const metersToDelete = await Meter.getAll(adminClient, {
+            organization: { id: organization.id },
+            deletedAt: null,
+        })
+
+        for (const meter of metersToDelete) {
+            await Meter.softDelete(adminClient, meter.id)
+        }
+    })
+
+    describe('Accesses', () => {
+        describe('Admin', () => {
+            test('Can call mutation', async () => {
+                const [result] = await _internalDeleteMeterAndMeterReadingsByTestClient(adminClient, payload)
+                expect(result).toEqual(expect.objectContaining({
+                    status: 'success',
+                    metersToDelete: 1,
+                    deletedMeters: 1,
+                }))
+            })
+        })
+
+
+        describe('Support', () => {
+            test('Can call mutation', async () => {
+                const [result] = await _internalDeleteMeterAndMeterReadingsByTestClient(supportClient, payload)
+                expect(result).toEqual(expect.objectContaining({
+                    status: 'success',
+                    metersToDelete: 1,
+                    deletedMeters: 1,
+                }))
+            })
+        })
+
+        describe('Resident', () => {
+            test('Can not call mutation', async () => {
+                await expectToThrowAccessDeniedErrorToResult(async () => {
+                    await _internalDeleteMeterAndMeterReadingsByTestClient(residentClient, payload)
+                })
+            })
+        })
+
+        describe('Staff', () => {
+            test('Can not call mutation', async () => {
+                await expectToThrowAccessDeniedErrorToResult(async () => {
+                    await _internalDeleteMeterAndMeterReadingsByTestClient(staffClient, payload)
+                })
+            })
+        })
+
+        describe('Service user', () => {
+            test('Can not call mutation', async () => {
+                await expectToThrowAccessDeniedErrorToResult(async () => {
+                    await _internalDeleteMeterAndMeterReadingsByTestClient(serviceClient, payload)
+                })
+            })
+        })
+
+        describe('Anonymous', () => {
+            test('Can not call mutation', async () => {
+                await expectToThrowAuthenticationErrorToResult(async () => {
+                    await _internalDeleteMeterAndMeterReadingsByTestClient(anonymous, payload)
+                })
+            })
+        })
+    })
+
+    describe('Basic logic', () => {
+        test('Meters for all properties in organization should be deleted if the "propertyIds" is not specified', async () => {
+            const [property2] = await createTestProperty(adminClient, organization)
+            const [meter2] = await createTestMeter(adminClient, organization, property2, resource, {})
+            await createTestMeterReading(adminClient, meter2, source)
+
+            const [result] = await _internalDeleteMeterAndMeterReadingsByTestClient(adminClient, payload)
+            expect(result).toEqual(expect.objectContaining({
+                status: 'success',
+                metersToDelete: 2,
+                deletedMeters: 2,
+            }))
+            const deletedMeters = await Meter.getAll(adminClient, { id_in: [meter.id, meter2.id] })
             expect(deletedMeters).toHaveLength(0)
         })
 
-        test('delete multiple', async () => {
-            let createdMeters = []
+        test('Meters should be deleted only in those properties that were specified in "propertyIds"', async () => {
+            const [property2] = await createTestProperty(adminClient, organization)
+            const [meter2] = await createTestMeter(adminClient, organization, property2, resource, {})
+            await createTestMeterReading(adminClient, meter2, source)
+
+            const [result] = await _internalDeleteMeterAndMeterReadingsByTestClient(adminClient, {
+                ...payload,
+                propertyIds: [property.id],
+            })
+            expect(result).toEqual(expect.objectContaining({
+                status: 'success',
+                metersToDelete: 1,
+                deletedMeters: 1,
+            }))
+            const deletedMeters = await Meter.getAll(adminClient, { id_in: [meter.id, meter2.id] })
+            expect(deletedMeters).toHaveLength(1)
+            expect(deletedMeters[0].id).toBe(meter2.id)
+        })
+
+        test('Should delete a lot of meters', async () => {
+            const createdMetersIds = [meter.id]
 
             for (let i = 0; i < 200; i++) {
-                const [meter] = await createTestMeter(adminClient, organization, firstProperty, resource, {})
-                await createTestMeterReading(adminClient, meter, source)
-                createdMeters.push(meter)
+                const [newMeter] = await createTestMeter(adminClient, organization, property, resource, {})
+                await createTestMeterReading(adminClient, newMeter, source)
+                createdMetersIds.push(newMeter.id)
             }
 
-            const [deleteResult] = await _internalDeleteMeterAndMeterReadingsByTestClient(adminClient,
-                { ...payload, propertyIds:  createdMeters.map((meter) => meter.property.id) }
-            )
-            expect(deleteResult.status).toBe('success')
-            const deletedMeters = await Meter.getAll(adminClient, { id_in: createdMeters.map(meter => meter.id) })
+            const [result] = await _internalDeleteMeterAndMeterReadingsByTestClient(adminClient, payload)
+            expect(result.status).toBe('success')
+            expect(result).toEqual(expect.objectContaining({
+                status: 'success',
+                metersToDelete: createdMetersIds.length,
+                deletedMeters: createdMetersIds.length,
+            }))
+            const deletedMeters = await Meter.getAll(adminClient, { id_in: createdMetersIds })
             expect(deletedMeters).toHaveLength(0)
-        })
-    })
-
-
-    describe('support can:', function () {
-        test('delete one', async () => {
-            const [meter] = await createTestMeter(adminClient, organization, firstProperty, resource, {})
-            expect(meter.id).toMatch(UUID_RE)
-            expect(meter.deletedAt).toBeNull()
-            const [deleteResult] = await _internalDeleteMeterAndMeterReadingsByTestClient(supportClient,
-                { ...payload, propertyIds: [meter.property.id] }
-            )
-            expect(deleteResult.status).toBe('success')
-            const deletedMeters = await Meter.getAll(adminClient, { id: meter.id })
-            expect(deletedMeters).toHaveLength(0)
-        })
-
-        test('delete multiple', async () => {
-            let createdMeters = []
-
-            for (let i = 0; i < 200; i++) {
-                const [meter] = await createTestMeter(adminClient, organization, firstProperty, resource, {})
-                await createTestMeterReading(adminClient, meter, source)
-                createdMeters.push(meter)
-            }
-
-            const [deleteResult] = await _internalDeleteMeterAndMeterReadingsByTestClient(supportClient,
-                { ...payload, propertyIds: createdMeters.map((meter) => meter.property.id) }
-            )
-            expect(deleteResult.status).toBe('success')
-            const deletedMeters = await Meter.getAll(adminClient, { id_in: createdMeters.map(meter => meter.id) })
-            expect(deletedMeters).toHaveLength(0)
-        })
-    })
- 
-    test('user cannot delete', async () => {
-        const [meter] = await createTestMeter(adminClient, organization, firstProperty, resource, {})
-        await expectToThrowAccessDeniedErrorToResult(async () => {
-            await _internalDeleteMeterAndMeterReadingsByTestClient(userClient,
-                { ...payload, propertyIds: [meter.property.id] }
-            )
-        })
-    })
-
-    test('staff cannot delete', async () => {
-        const [meter] = await createTestMeter(adminClient, organization, firstProperty, resource, {})
-        await expectToThrowAccessDeniedErrorToResult(async () => {
-            await _internalDeleteMeterAndMeterReadingsByTestClient(staffClient,
-                { ...payload, propertyIds: [meter.property.id] }
-            )
-        })
-    })
-
-    test('service cannot delete', async () => {
-        const [meter] = await createTestMeter(adminClient, organization, firstProperty, resource, {})
-        await expectToThrowAccessDeniedErrorToResult(async () => {
-            await _internalDeleteMeterAndMeterReadingsByTestClient(serviceClient,
-                { ...payload, propertyIds: [meter.property.id] }
-            )
-        })
-    })
-
-    test('anonymous cannot delete', async () => {
-        const [meter] = await createTestMeter(adminClient, organization, firstProperty, resource, {})
-        await expectToThrowAuthenticationErrorToResult(async () => {
-            await _internalDeleteMeterAndMeterReadingsByTestClient(anonymous,
-                { ...payload, propertyIds: [meter.property.id] }
-            )
         })
     })
 })
