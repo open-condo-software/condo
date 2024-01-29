@@ -3,24 +3,27 @@
  */
 
 const dayjs = require('dayjs')
-const { isEmpty, isArray } = require('lodash')
+const { isArray, map } = require('lodash')
 const { v4: uuid } = require('uuid')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
-const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, itemsQuery } = require('@open-condo/keystone/schema')
 
 const { DV_VERSION_MISMATCH, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
+const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const access = require('@condo/domains/meter/access/_internalDeleteMeterReadingsService')
 const { INVALID_START_DATE_TIME, INVALID_END_DATE_TIME, INVALID_PERIOD } = require('@condo/domains/meter/constants/errors')
 const { MeterReading } = require('@condo/domains/meter/utils/serverSchema')
 
 
+
 const appLogger = getLogger('condo')
-const taskLogger = appLogger.child({ module: '_internalDeleteMeterReadingsService' })
+const logger = appLogger.child({ module: '_internalDeleteMeterReadingsService' })
 
 const DATE_FORMAT = 'DD.MM.YYYY HH:mm:ss'
+const CHUNK_SIZE = 50
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -138,27 +141,19 @@ const _internalDeleteMeterReadingsService = new GQLCustomSchema('_internalDelete
                     source: { type: 'import_condo' },
                 }
 
-                taskLogger.info({
+                logger.info({
                     msg: 'A filter was generated to remove readings',
                     meterReadingsWhere: JSON.stringify(meterReadingsWhere),
                     fingerprint: sender.fingerprint,
                     fingerprintFromInput: senderFromInput.fingerprint,
                 })
 
-                const meterReadingsToDelete = await find('MeterReading', meterReadingsWhere)
+                const { count: meterReadingCount } = await itemsQuery('MeterReading', {
+                    where: meterReadingsWhere,
+                }, { meta: true })
 
-                // taskLogger.info({
-                //     msg: 'Readings will be deleted',
-                //     ids: meterReadingsToDelete.map(item => item.id),
-                //     fingerprint: sender.fingerprint,
-                //     fingerprintFromInput: senderFromInput.fingerprint,
-                // })
-
-                let numberOfDeleted = 0
-
-                if (isEmpty(meterReadingsToDelete)) {
-
-                    taskLogger.info({
+                if (!meterReadingCount) {
+                    logger.info({
                         msg: 'Readings not found',
                         fingerprint: sender.fingerprint,
                         fingerprintFromInput: senderFromInput.fingerprint,
@@ -168,32 +163,54 @@ const _internalDeleteMeterReadingsService = new GQLCustomSchema('_internalDelete
                         dv,
                         sender,
                         status: 'success',
-                        toDelete: meterReadingsToDelete.length,
-                        deleted: numberOfDeleted,
+                        toDelete: 0,
+                        deleted: 0,
                     }
                 }
 
-                for (const meterReading of meterReadingsToDelete) {
-                    try {
-                        await MeterReading.softDelete(context, meterReading.id, { dv, sender })
-                        numberOfDeleted++
-                    } catch (error) {
-                        taskLogger.error({
-                            msg: 'Failed to delete a meter reading',
-                            error,
-                            meterReadingId: meterReading.id,
+                let numberOfDeleted = 0
+                let processing = 0
+
+                await loadListByChunks({
+                    context,
+                    list: MeterReading,
+                    where: meterReadingsWhere,
+                    chunkSize: CHUNK_SIZE,
+                    chunkProcessor: async (chunk) => {
+                        const meterReadingIdsToDelete = map(chunk, 'id')
+
+                        logger.info({
+                            msg: `Process of deleting readings (${processing}-${processing += CHUNK_SIZE}/${meterReadingCount})`,
+                            meterReadingIdsToDelete,
                             fingerprint: sender.fingerprint,
                             fingerprintFromInput: senderFromInput.fingerprint,
                         })
-                    }
-                }
 
-                const status = meterReadingsToDelete.length === numberOfDeleted ? 'success' : 'error'
+                        for (const meterReadingId of meterReadingIdsToDelete) {
+                            try {
+                                await MeterReading.softDelete(context, meterReadingId, { dv, sender })
+                                numberOfDeleted++
+                            } catch (error) {
+                                logger.error({
+                                    msg: 'Failed to delete a meter reading',
+                                    error,
+                                    meterReadingId: meterReadingId,
+                                    fingerprint: sender.fingerprint,
+                                    fingerprintFromInput: senderFromInput.fingerprint,
+                                })
+                            }
+                        }
 
-                taskLogger.info({
+                        return []
+                    },
+                })
+
+                const status = meterReadingCount === numberOfDeleted ? 'success' : 'error'
+
+                logger.info({
                     msg: 'Deleting readings completed',
                     status,
-                    toDelete: meterReadingsToDelete.length,
+                    toDelete: meterReadingCount,
                     deleted: numberOfDeleted,
                     fingerprint: sender.fingerprint,
                     fingerprintFromInput: senderFromInput.fingerprint,
@@ -203,7 +220,7 @@ const _internalDeleteMeterReadingsService = new GQLCustomSchema('_internalDelete
                     dv,
                     sender,
                     status,
-                    toDelete: meterReadingsToDelete.length,
+                    toDelete: meterReadingCount,
                     deleted: numberOfDeleted,
                 }
             },
