@@ -3,8 +3,7 @@
  */
 
 const dayjs = require('dayjs')
-const { isArray, map, isEmpty, get } = require('lodash')
-const { v4: uuid } = require('uuid')
+const { isArray, map } = require('lodash')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -16,10 +15,6 @@ const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const access = require('@condo/domains/meter/access/_internalDeleteMeterReadingsService')
 const { INVALID_START_DATE_TIME, INVALID_END_DATE_TIME, INVALID_PERIOD } = require('@condo/domains/meter/constants/errors')
 const { MeterReading } = require('@condo/domains/meter/utils/serverSchema')
-
-const { STATUS_IDS } = require('../../ticket/constants/statusTransitions')
-const { Ticket } = require('../../ticket/utils/serverSchema')
-
 
 
 const appLogger = getLogger('condo')
