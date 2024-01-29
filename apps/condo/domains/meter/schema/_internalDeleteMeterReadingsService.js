@@ -126,24 +126,19 @@ const _internalDeleteMeterReadingsService = new GQLCustomSchema('_internalDelete
                     source: { type: 'import_condo' },
                 }
 
-                logger.info({
-                    msg: 'A filter was generated to remove readings',
-                    meterReadingsWhere: JSON.stringify(meterReadingsWhere),
-                    sender: JSON.stringify(sender),
-                })
-
                 const { count: meterReadingsCount } = await itemsQuery('MeterReading', {
                     where: meterReadingsWhere,
                 }, { meta: true })
 
+                logger.info({
+                    msg: `${meterReadingsCount} readings found to delete`,
+                    meterReadingsWhere: JSON.stringify(meterReadingsWhere),
+                    sender: JSON.stringify(sender),
+                })
+
                 if (!meterReadingsCount) {
                     logger.info({ msg: 'Readings not found', sender: JSON.stringify(sender) })
-
-                    return {
-                        status: 'success',
-                        toDelete: 0,
-                        deleted: 0,
-                    }
+                    return { status: 'success', toDelete: 0, deleted: 0 }
                 }
 
                 const meterReadingIdsToDeleteByChunk = []
@@ -197,11 +192,7 @@ const _internalDeleteMeterReadingsService = new GQLCustomSchema('_internalDelete
                     sender: JSON.stringify(sender),
                 })
 
-                return {
-                    status,
-                    toDelete: meterReadingsCount,
-                    deleted: numberOfDeleted,
-                }
+                return { status, toDelete: meterReadingsCount, deleted: numberOfDeleted }
             },
         },
     ],
