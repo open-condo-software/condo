@@ -38,7 +38,6 @@ const { INVOICE_STATUS_CANCELED, INVOICE_STATUS_PAID, INVOICE_STATUS_PUBLISHED, 
 const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const { SECTION_TYPES, SECTION_SECTION_TYPE } = require('@condo/domains/property/constants/common')
-const { manageAssigneeScope } = require('@condo/domains/scope/utils/serverSchema')
 const access = require('@condo/domains/ticket/access/Ticket')
 const {
     OMIT_TICKET_CHANGE_TRACKABLE_FIELDS, REVIEW_VALUES, DEFERRED_STATUS_TYPE,
@@ -974,8 +973,6 @@ const Ticket = new GQLListSchema('Ticket', {
                     { classifier },
                 ]
             )(...args)
-
-            await manageAssigneeScope(...args)
 
             /* NOTE: this sends different kinds of notifications on ticket create/update */
             await sendTicketNotifications(requestData)

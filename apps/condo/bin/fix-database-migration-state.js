@@ -165,6 +165,14 @@ ALTER TABLE "BillingIntegrationHistoryRecord" DROP COLUMN "price" CASCADE;
 
 COMMIT;
 
+--
+-- 20240129102851-0363_auto_20240129_0528.js Remove redundant AssigneeScope schema
+--
+DROP TABLE IF EXISTS "AssigneeScope" CASCADE;
+DROP TABLE IF EXISTS "AssigneeScopeHistoryRecord" CASCADE;
+
+COMMIT;
+
     `))
 }
 
