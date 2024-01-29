@@ -137,10 +137,7 @@ const _internalDeleteMeterReadingsService = new GQLCustomSchema('_internalDelete
                 }, { meta: true })
 
                 if (!meterReadingsCount) {
-                    logger.info({
-                        msg: 'Readings not found',
-                        sender: JSON.stringify(sender),
-                    })
+                    logger.info({ msg: 'Readings not found', sender: JSON.stringify(sender) })
 
                     return {
                         status: 'success',
@@ -148,9 +145,6 @@ const _internalDeleteMeterReadingsService = new GQLCustomSchema('_internalDelete
                         deleted: 0,
                     }
                 }
-
-                let numberOfDeleted = 0
-                let processing = 0
 
                 const meterReadingIdsToDeleteByChunk = []
 
@@ -163,10 +157,15 @@ const _internalDeleteMeterReadingsService = new GQLCustomSchema('_internalDelete
                     limit: 200_000,
                     chunkProcessor: async (chunk) => {
                         const meterReadingIdsToDelete = map(chunk, 'id')
+                        // Why not delete objects immediately in "chunkProcessor"?
+                        // Then at each iteration i > 0, objects that have not yet been deleted will be skipped (i * chunkSize)
                         meterReadingIdsToDeleteByChunk.push(meterReadingIdsToDelete)
                         return []
                     },
                 })
+
+                let numberOfDeleted = 0
+                let processing = 0
 
                 for (const meterReadingIdsToDelete of meterReadingIdsToDeleteByChunk) {
                     logger.info({
