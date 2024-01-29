@@ -83,12 +83,10 @@ const _internalDeleteMeterReadingsService = new GQLCustomSchema('_internalDelete
             access: access.canInternalDeleteMeterReadings,
             schema: '_internalDeleteMeterReadings(data: _internalDeleteMeterReadingsInput!): _internalDeleteMeterReadingsOutput',
             doc: {
-                summary: 'Deletes readings in specified organization for specified period.',
+                summary: 'This mutation deletes readings in specified organization for specified period.',
                 description: 'This mutation deletes readings in specified organization for specified period.' +
                     '\n You can also specify properties in which readings need to be deleted.' +
-                    '\n The response will return the status of the operation: “success” if all readings for the specified filter were deleted, otherwise “error”.' +
-                    '\n Also in the response sender will be returned, with a random fingerprint (which will be different from what was at the input). ' +
-                    'If necessary, you can restore data using this value.',
+                    '\n The response will return the status of the operation: “success” if all readings for the specified filter were deleted, otherwise “error”.',
                 errors: ERRORS,
             },
             resolver: async (parent, args, context) => {

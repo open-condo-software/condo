@@ -57,6 +57,14 @@ const _internalDeleteMeterAndMeterReadingsService = new GQLCustomSchema('_intern
         {
             access: access.can_internalDeleteMeterAndMeterReadings,
             schema: '_internalDeleteMeterAndMeterReadings(data: _internalDeleteMeterAndMeterReadingsInput!): _internalDeleteMeterAndMeterReadingsOutput',
+            doc: {
+                summary: 'This mutation deletes meters and meter readings in specified organization.',
+                description: 'This mutation deletes meters in specified organization for specified period.' +
+                    '\n Readings are deleted automatically in a deferred task.' +
+                    '\n You can also specify properties in which meters need to be deleted.' +
+                    '\n The response will return the status of the operation: “success” if all meters for the specified filter were deleted, otherwise “error”.',
+                errors: ERRORS,
+            },
             resolver: async (parent, args, context) => {
                 const { data } = args
                 const { dv, sender, propertyIds, organizationId } = data
@@ -127,6 +135,7 @@ const _internalDeleteMeterAndMeterReadingsService = new GQLCustomSchema('_intern
 
                 const deleteStatus = metersCount === deletedMeters
                     ? METER_DELETE_STATUS.SUCCESS : METER_DELETE_STATUS.ERROR
+
                 logger.info({
                     msg: 'Deleting meters completed',
                     status: deleteStatus,
