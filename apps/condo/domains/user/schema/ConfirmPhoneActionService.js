@@ -103,15 +103,17 @@ const ERRORS = {
 
 const phoneWhiteList = Object.keys(conf.SMS_WHITE_LIST ? JSON.parse(conf.SMS_WHITE_LIST) : {})
 const ipWhiteList = conf.IP_WHITE_LIST ? JSON.parse(conf.IP_WHITE_LIST) : []
+const maxSmsForIpByDay = Number(conf['MAX_SMS_FOR_IP_BY_DAY']) || MAX_SMS_FOR_IP_BY_DAY
+const maxSmsForPhoneByDay = Number(conf['MAX_SMS_FOR_PHONE_BY_DAY']) || MAX_SMS_FOR_PHONE_BY_DAY
 
 const checkSMSDayLimitCounters = async (phone, rawIp) => {
     const ip = rawIp.split(':').pop()
     const byPhoneCounter = await redisGuard.incrementDayCounter(phone)
-    if (byPhoneCounter > MAX_SMS_FOR_PHONE_BY_DAY && !phoneWhiteList.includes(phone)) {
+    if (byPhoneCounter > maxSmsForPhoneByDay && !phoneWhiteList.includes(phone)) {
         throw new GQLError(GQL_ERRORS.SMS_FOR_PHONE_DAY_LIMIT_REACHED)
     }
     const byIpCounter = await redisGuard.incrementDayCounter(ip)
-    if (byIpCounter > MAX_SMS_FOR_IP_BY_DAY && !ipWhiteList.includes(ip)) {
+    if (byIpCounter > maxSmsForIpByDay && !ipWhiteList.includes(ip)) {
         throw new GQLError(GQL_ERRORS.SMS_FOR_IP_DAY_LIMIT_REACHED)
     }
 }
