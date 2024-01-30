@@ -9,7 +9,7 @@ const { find } = require('@open-condo/keystone/schema')
 const {
     checkOrganizationPermission,
     checkRelatedOrganizationPermission,
-} = require('../../organization/utils/accessSchema')
+} = require('@condo/domains/organization/utils/accessSchema')
 
 
 async function canExportPropertyMeterReadings ({ args: { data: { where } }, authentication: { item: user } }) {
