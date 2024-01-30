@@ -54,7 +54,7 @@ import {
     EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION,
     METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION,
 } from '@condo/domains/meter/constants/errors'
-import { EXPORT_METER_READINGS_QUERY } from '@condo/domains/meter/gql'
+import { EXPORT_METER_READINGS_QUERY, EXPORT_PROPERTY_METER_READINGS_QUERY } from '@condo/domains/meter/gql'
 import { useFilters } from '@condo/domains/meter/hooks/useFilters'
 import { useImporterFunctions } from '@condo/domains/meter/hooks/useImporterFunctions'
 import { useTableColumns } from '@condo/domains/meter/hooks/useTableColumns'
@@ -331,6 +331,7 @@ export const PropertyMetersPageContent = ({
     const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.header' })
     const CreateMeter = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterButtonLabel' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
+    const CreateMeterReadingsButtonLabel = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterReadingsButtonLabel' })
 
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
@@ -366,6 +367,7 @@ export const PropertyMetersPageContent = ({
         }
     }, [setSelectedMeter])
     const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
+    const handleCreateMeterReadings = useCallback(() => router.push('/meter/create'), [])
 
     return (
         <>
@@ -405,6 +407,25 @@ export const PropertyMetersPageContent = ({
                             dataSource={PropertyMeterReadings}
                             columns={tableColumns}
                             onRow={handleRowAction}
+                        />
+                    </Col>
+                    <Col span={24}>
+                        <ExportToExcelActionBar
+                            searchObjectsQuery={searchMeterReadingsQuery}
+                            exportToExcelQuery={EXPORT_PROPERTY_METER_READINGS_QUERY}
+                            sortBy={sortBy}
+                            actions={[
+                                canManageMeterReadings && (
+                                    <Button
+                                        key='create'
+                                        type='primary'
+                                        icon={<PlusCircle size='medium' />}
+                                        onClick={handleCreateMeterReadings}
+                                    >
+                                        {CreateMeterReadingsButtonLabel}
+                                    </Button>
+                                ),
+                            ]}
                         />
                     </Col>
                 </Row>
