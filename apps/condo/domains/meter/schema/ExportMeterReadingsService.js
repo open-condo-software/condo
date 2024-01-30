@@ -111,7 +111,7 @@ const ExportMeterReadingsService = new GQLCustomSchema('ExportMeterReadingsServi
                 })
 
                 const { url: linkToFile } = await createExportFile({
-                    fileName: `tickets_${dayjs().format('DD_MM')}.xlsx`,
+                    fileName: `meterReadings_${dayjs().format('DD_MM')}.xlsx`,
                     templatePath: './domains/meter/templates/MeterReadingsExportTemplate.xlsx',
                     replaces: {
                         meter: excelRows,
@@ -133,4 +133,5 @@ const ExportMeterReadingsService = new GQLCustomSchema('ExportMeterReadingsServi
 
 module.exports = {
     ExportMeterReadingsService,
+    ERRORS,
 }
