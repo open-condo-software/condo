@@ -21513,6 +21513,20 @@ export type ExportPropertiesToExcelOutput = {
   linkToFile: Scalars['String'];
 };
 
+export type ExportPropertyMeterReadingsInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  where: PropertyMeterReadingWhereInput;
+  sortBy?: Maybe<Array<SortPropertyMeterReadingsBy>>;
+  timeZone: Scalars['String'];
+};
+
+export type ExportPropertyMeterReadingsOutput = {
+  __typename?: 'ExportPropertyMeterReadingsOutput';
+  status: Scalars['String'];
+  linkToFile: Scalars['String'];
+};
+
 export type ExportPropertyScopeToExcelInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
@@ -61918,6 +61932,47 @@ export type Query = {
   predictTicketClassification?: Maybe<TicketClassifier>;
   getResidentExistenceByPhoneAndAddress?: Maybe<GetResidentExistenceByPhoneAndAddressOutput>;
   exportMeterReadings?: Maybe<ExportMeterReadingsOutput>;
+  /**
+   * Export of property meters readings. A link to the file is returned
+   *
+   *
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "mutation": "exportPropertyMeterReadings",
+   *   "variable": [
+   *     "data",
+   *     "dv"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "DV_VERSION_MISMATCH",
+   *   "message": "Wrong value for data version number"
+   * }`
+   *
+   * `{
+   *   "mutation": "exportPropertyMeterReadings",
+   *   "variable": [
+   *     "data",
+   *     "sender"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "WRONG_FORMAT",
+   *   "message": "Invalid format of \"sender\" field value",
+   *   "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}"
+   * }`
+   *
+   * `{
+   *   "query": "exportPropertyMeterReadings",
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOTHING_TO_EXPORT",
+   *   "message": "Could not found property meter readings to export for specified organization",
+   *   "messageForUser": "api.meter.exportMeterReadings.NOTHING_TO_EXPORT"
+   * }`
+   */
+  exportPropertyMeterReadings?: Maybe<ExportPropertyMeterReadingsOutput>;
   exportPaymentsToExcel?: Maybe<ExportPaymentsToExcelOutput>;
   generatePaymentLink?: Maybe<GeneratePaymentLinkOutput>;
   _allPaymentsSum?: Maybe<PaymentsSumOutput>;
@@ -68210,6 +68265,11 @@ export type QueryGetResidentExistenceByPhoneAndAddressArgs = {
 
 export type QueryExportMeterReadingsArgs = {
   data: ExportMeterReadingsInput;
+};
+
+
+export type QueryExportPropertyMeterReadingsArgs = {
+  data: ExportPropertyMeterReadingsInput;
 };
 
 
