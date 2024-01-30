@@ -50,13 +50,10 @@ export default function BuildingsTable (props: BuildingTableProps) {
     const ExportAsExcel = intl.formatMessage({ id: 'ExportAsExcel' })
     const CreateLabel = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
-    const PropertiesMessage = intl.formatMessage({ id: 'global.section.properties' })
     const DownloadExcelLabel = intl.formatMessage({ id: 'pages.condo.property.id.DownloadExcelLabel' })
-    const PropertyTitle = intl.formatMessage({ id: 'pages.condo.property.ImportTitle' })
     const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.property.index.EmptyList.header' })
     const EmptyListMessage = intl.formatMessage({ id: 'pages.condo.property.index.EmptyList.text' })
     const CreateProperty = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
-    const ImportButtonMessage = intl.formatMessage({ id: 'containers.FormTableExcelImport.ClickOrDragImportFileHint' })
 
     const { role, searchPropertiesQuery, tableColumns, sortBy, loading, canDownloadProperties } = props
 
@@ -129,24 +126,17 @@ export default function BuildingsTable (props: BuildingTableProps) {
                         {CreateLabel}
                     </Button>
                     <ImportWrapper
-                        objectsName={PropertiesMessage}
                         accessCheck={canManageProperties}
                         onFinish={refetch}
                         columns={columns}
                         maxTableLength={maxTableLength}
                         rowNormalizer={propertyNormalizer}
                         rowValidator={propertyValidator}
-                        domainTranslate={PropertyTitle}
                         objectCreator={propertyCreator}
                         exampleTemplateLink={exampleTemplateLink}
-                    >
-                        <Button
-                            type='secondary'
-                            icon={<FileDown size='medium' />}
-                        >
-                            {ImportButtonMessage}
-                        </Button>
-                    </ImportWrapper>
+                        exampleImageSrc='/property-import-example.svg'
+                        domainName='property'
+                    />
                 </>
             ),
             !isDownloadButtonHidden && (
@@ -172,7 +162,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
                         </Button>
                     )
             ),
-        ], [CreateLabel, DownloadExcelLabel, ExportAsExcel, ImportButtonMessage, PropertiesMessage, PropertyTitle, canManageProperties, columns, downloadLink, exampleTemplateLink, isDownloadButtonHidden, isXlsLoading, maxTableLength, onExportToExcelButtonClicked, propertyCreator, propertyNormalizer, propertyValidator, refetch, router])
+        ], [CreateLabel, DownloadExcelLabel, ExportAsExcel, canManageProperties, columns, downloadLink, exampleTemplateLink, isDownloadButtonHidden, isXlsLoading, maxTableLength, onExportToExcelButtonClicked, propertyCreator, propertyNormalizer, propertyValidator, refetch, router])
 
     return (
         <>
@@ -182,16 +172,16 @@ export default function BuildingsTable (props: BuildingTableProps) {
                 accessCheck={canManageProperties}
                 button={(
                     <ImportWrapper
-                        objectsName={PropertiesMessage}
                         accessCheck={canManageProperties}
                         onFinish={refetch}
                         columns={columns}
                         maxTableLength={maxTableLength}
                         rowNormalizer={propertyNormalizer}
                         rowValidator={propertyValidator}
-                        domainTranslate={PropertyTitle}
                         objectCreator={propertyCreator}
                         exampleTemplateLink={exampleTemplateLink}
+                        exampleImageSrc='/property-import-example.svg'
+                        domainName='property'
                     >
                         <Button
                             type='secondary'

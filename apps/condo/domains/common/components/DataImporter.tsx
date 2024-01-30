@@ -1,4 +1,3 @@
-import styled from '@emotion/styled'
 import { Upload, message } from 'antd'
 import React from 'react'
 import XLSX from 'xlsx'
@@ -85,26 +84,16 @@ const FILE_EXTENSIONS = TABLE_UPLOAD_ACCEPT_FILES.map(function (x) {
     return '.' + x
 }).join(',')
 
-const StyledUpload = styled(Upload)`
-  .ant-upload {
-    width: 100%;
-    
-    & > .condo-btn {
-      width: 100%; 
-    }
-  }
-`
-
 export const DataImporter: React.FC<IDataImporterProps> = (props) => {
     const uploadConfig = useUploadConfig(props.onUpload)
 
     return (
-        <StyledUpload
+        <Upload
             data-cy='data-importer--upload'
             {...uploadConfig}
             accept={FILE_EXTENSIONS}
         >
             {props.children}
-        </StyledUpload>
+        </Upload>
     )
 }

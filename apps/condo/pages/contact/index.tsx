@@ -54,9 +54,6 @@ export const ContactsPageContent = ({
     const EmptyListLabel = intl.formatMessage({ id: 'contact.EmptyList.header' })
     const EmptyListMessage = intl.formatMessage({ id: 'contact.EmptyList.title' })
     const CreateContact = intl.formatMessage({ id: 'AddContact' })
-    const ContactsMessage = intl.formatMessage({ id: 'global.section.contacts' })
-    const ContactTitle = intl.formatMessage({ id: 'pages.condo.contact.ImportTitle' })
-    const ImportButtonMessage = intl.formatMessage({ id: 'containers.FormTableExcelImport.ClickOrDragImportFileHint' })
 
     const { user } = useAuth() as { user: { id: string } }
     const router = useRouter()
@@ -121,7 +118,6 @@ export const ContactsPageContent = ({
                         accessCheck={canManageContacts}
                         button={(
                             <ImportWrapper
-                                objectsName={ContactsMessage}
                                 accessCheck={canManageContacts}
                                 onFinish={refetch}
                                 columns={columns}
@@ -129,8 +125,9 @@ export const ContactsPageContent = ({
                                 rowNormalizer={contactNormalizer}
                                 rowValidator={contactValidator}
                                 objectCreator={contactCreator}
-                                domainTranslate={ContactTitle}
                                 exampleTemplateLink={exampleTemplateLink}
+                                exampleImageSrc='/contact-import-example.svg'
+                                domainName='contact'
                             >
                                 <Button
                                     type='secondary'
@@ -184,7 +181,6 @@ export const ContactsPageContent = ({
                                                     </Button>
                                                     <ImportWrapper
                                                         key='import'
-                                                        objectsName={ContactsMessage}
                                                         accessCheck={canManageContacts}
                                                         onFinish={refetch}
                                                         columns={columns}
@@ -192,16 +188,10 @@ export const ContactsPageContent = ({
                                                         rowNormalizer={contactNormalizer}
                                                         rowValidator={contactValidator}
                                                         objectCreator={contactCreator}
-                                                        domainTranslate={ContactTitle}
                                                         exampleTemplateLink={exampleTemplateLink}
-                                                    >
-                                                        <Button
-                                                            type='secondary'
-                                                            icon={<FileDown size='medium'/>}
-                                                        >
-                                                            {ImportButtonMessage}
-                                                        </Button>
-                                                    </ImportWrapper>
+                                                        exampleImageSrc='/contact-import-example.svg'
+                                                        domainName='contact'
+                                                    />
                                                 </>
 
                                             ),
