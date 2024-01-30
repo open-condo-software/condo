@@ -31,7 +31,7 @@ const EXCEL_TEMPLATES_HEADERS = {
         'number', 'place', 'value1', 'value2', 'value3', 'value4', 'clientName', 'source',
     ],
     [EXPORT_TYPE_PROPERTY_METERS]: [
-        'date', 'address', 'accountNumber', 'resource', 'number', 'value1', 'value2', 'value3', 'value4', 'source',
+        'date', 'address', 'resource', 'number', 'value1', 'value2', 'value3', 'value4', 'source',
     ],
     [EXPORT_TYPE_BUILDINGS]: ['organization', 'address', 'unitsCount', 'uninhabitedUnitsCount', 'ticketsInWork', 'ticketsClosed'],
     [EXPORT_TYPE_TICKETS]: [

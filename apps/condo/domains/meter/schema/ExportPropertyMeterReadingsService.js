@@ -110,7 +110,6 @@ const ExportPropertyMeterReadingsService = new GQLCustomSchema('ExportPropertyMe
                 const excelRows = mappedMeterReadings.map(meterReading => ({
                     date: formatDate(meterReading.date),
                     address: meterReading.address,
-                    accountNumber: meterReading.accountNumber,
                     resource: meterReading.resource,
                     number: meterReading.number,
                     value1: meterReading.value1,
