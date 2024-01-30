@@ -83,7 +83,6 @@ class OIDCAuthClient {
 }
 
 class ApolloServerClient {
-    #isAuthorized = false
     client
     clientName
     authToken
@@ -178,7 +177,6 @@ class ApolloServerClient {
         })
         this.userId = user.id
         this.authToken = token
-        this.#isAuthorized = true
     }
 
     async singInByPhoneAndPassword () {
@@ -189,30 +187,47 @@ class ApolloServerClient {
         })
         this.userId = user.id
         this.authToken = token
-        this.#isAuthorized = true
     }
 
     async executeAuthorizedQuery (queryArgs, opts = { batchClient: false }) {
-        if (!this.#isAuthorized) {
+        if (!this.authToken) {
             await this.signIn()
         }
 
-        if (opts.batchClient) {
-            return await this.batchClient.query(queryArgs)
-        } else {
-            return await this.client.query(queryArgs)
+        const client = opts.batchClient ? this.batchClient : this.client
+
+        try {
+            return await client.query(queryArgs)
+        } catch (err) {
+            // NOTE: Session expired
+            if (err && err.graphQLErrors && err.graphQLErrors.length &&
+                err.graphQLErrors.some((gqlErr => gqlErr && gqlErr.name && gqlErr.name === 'AuthenticationError'))) {
+                await this.signIn()
+                return await client.query(queryArgs)
+            } else {
+                throw err
+            }
         }
     }
 
     async executeAuthorizedMutation (mutationArgs, opts = { batchClient: false }) {
-        if (!this.#isAuthorized) {
+        if (!this.authToken) {
             await this.signIn()
         }
 
-        if (opts.batchClient) {
-            return await this.batchClient.mutate(mutationArgs)
-        } else {
-            return await this.client.mutate(mutationArgs)
+        const client = opts.batchClient ? this.batchClient : this.client
+
+        try {
+            return await client.mutate(mutationArgs)
+        } catch (err) {
+            // NOTE: Session expired
+            if (err && err.graphQLErrors && err.graphQLErrors.length &&
+                err.graphQLErrors.some((gqlErr => gqlErr && gqlErr.name && gqlErr.name === 'AuthenticationError'))) {
+                await this.signIn()
+                return await client.mutate(mutationArgs)
+            } else {
+                throw err
+            }
         }
     }
 

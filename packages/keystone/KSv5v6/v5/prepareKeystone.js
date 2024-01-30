@@ -22,6 +22,7 @@ const { KeystoneTracingApp } = require('@open-condo/keystone/tracing')
 const { parseCorsSettings } = require('../../cors.utils')
 const { _internalGetExecutionContextAsyncLocalStorage } = require('../../executionContext')
 const { expressErrorHandler } = require('../../logging/expressErrorHandler')
+const { getRedisClient } = require('../../redis')
 const { prepareDefaultKeystoneConfig } = require('../../setup.utils')
 
 const IS_BUILD_PHASE = conf.PHASE === 'build'
@@ -32,6 +33,7 @@ const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV 
 const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = conf.ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND === 'true'
 // NOTE(pahaz): it's a magic number tested by @arichiv at https://developer.chrome.com/blog/cookie-max-age-expires/
 const INFINITY_MAX_AGE_COOKIE = 1707195600
+const SERVICE_USER_SESSION_TTL_IN_SEC = 7 * 24 * 60 * 60 // 7 days in sec
 
 const sendAppMetrics = () => {
     const v8Stats = v8.getHeapStatistics()
@@ -91,6 +93,27 @@ function prepareKeystone ({ onConnect, extendExpressApp, schemas, schemasPreproc
         list: 'User',
         config: {
             protectIdentities: false,
+        },
+        hooks: {
+            async afterAuth ({ item, token, success })  {
+                // NOTE: It's triggered only by default Keystone mutation, "authenticateUserWithPhoneAndPassword" will not work here
+                // Step 1. Skip if auth was not succeeded
+                if (!success || !token) {
+                    return
+                }
+                // Step 2. Skip this for any non-service user, or users without type field
+                if (!item || !item.type || item.type !== 'service') {
+                    return
+                }
+                // NOTE: auth token is just session token prefix (32 chars) + some prefix after dot.
+                // Example: 12345678901234567890123456789012.asdhaksdjhajskdhajskdhjkas
+                // Session token can be build like so "sess:{prefixBeforeDot}"
+                const sessToken = token.split('.')[0]
+                const sessKey = `sess:${sessToken}`
+                const redisClient = getRedisClient()
+                // NOTE: if key not found returns 0, else 1.
+                await redisClient.expire(sessKey, SERVICE_USER_SESSION_TTL_IN_SEC)
+            },
         },
     })
 
