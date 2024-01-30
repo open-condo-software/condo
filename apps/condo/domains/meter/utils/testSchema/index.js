@@ -20,6 +20,7 @@ const { PropertyMeter: PropertyMeterGQL } = require('@condo/domains/meter/gql')
 const { PropertyMeterReading: PropertyMeterReadingGQL } = require('@condo/domains/meter/gql')
 const { MeterReportingPeriod: MeterReportingPeriodGQL } = require('@condo/domains/meter/gql')
 const { MeterResourceOwner: MeterResourceOwnerGQL } = require('@condo/domains/meter/gql')
+const { EXPORT_PROPERTY_METER_READINGS_QUERY } = require('@condo/domains/meter/gql')
 const { INTERNAL_DELETE_METER_READINGS_MUTATION } = require('@condo/domains/meter/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -387,6 +388,21 @@ async function _internalDeleteMeterReadingsByTestClient(client, extraAttrs = {})
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
+async function exportPropertyMeterReadingsByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        timeZone: DEFAULT_ORGANIZATION_TIMEZONE,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.query(EXPORT_PROPERTY_METER_READINGS_QUERY, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -403,5 +419,6 @@ module.exports = {
     MeterReportingPeriod, createTestMeterReportingPeriod, updateTestMeterReportingPeriod,
     MeterResourceOwner, createTestMeterResourceOwner, updateTestMeterResourceOwner,
     _internalDeleteMeterReadingsByTestClient,
+    exportPropertyMeterReadingsByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

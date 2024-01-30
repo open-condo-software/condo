@@ -175,6 +175,36 @@ const loadMeterReadingsForExcelExport = async ({ where = {}, sortBy = ['createdA
     return await meterReadingsLoader.load()
 }
 
+const loadPropertyMetersForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
+    const metersLoader = new GqlWithKnexLoadList({
+        listKey: 'PropertyMeter',
+        fields: 'id accountNumber number',
+        singleRelations: [
+            ['Property', 'property', 'address'],
+            ['MeterResource', 'resource', 'id'],
+        ],
+        sortBy,
+        where,
+    })
+
+    return await metersLoader.load()
+}
+
+const loadPropertyMeterReadingsForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
+    const meterReadingsLoader = new GqlWithKnexLoadList({
+        listKey: 'PropertyMeterReading',
+        fields: 'id date value1 value2 value3 value4',
+        singleRelations: [
+            ['PropertyMeter', 'meter', 'id'],
+            ['MeterReadingSource', 'source', 'id'],
+        ],
+        sortBy,
+        where,
+    })
+
+    return await meterReadingsLoader.load()
+}
+
 module.exports = {
     MeterResource,
     MeterReadingSource,
@@ -184,6 +214,8 @@ module.exports = {
     getAvailableResidentMeterReportPeriods,
     loadMetersForExcelExport,
     loadMeterReadingsForExcelExport,
+    loadPropertyMeterReadingsForExcelExport,
+    loadPropertyMetersForExcelExport,
     MeterReadingFilterTemplate,
     PropertyMeter,
     PropertyMeterReading,

@@ -8,6 +8,7 @@ const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransition
 const EXPORT_TYPE_PAYMENTS = 'payments'
 const EXPORT_TYPE_CONTACTS = 'contacts'
 const EXPORT_TYPE_METERS = 'meters'
+const EXPORT_TYPE_PROPERTY_METERS = 'propertyMeters'
 const EXPORT_TYPE_BUILDINGS = 'buildings'
 const EXPORT_TYPE_TICKETS = 'tickets'
 const EXPORT_TYPE_PROPERTY_SCOPES = 'propertyScopes'
@@ -28,6 +29,9 @@ const EXCEL_TEMPLATES_HEADERS = {
     [EXPORT_TYPE_METERS]: [
         'date', 'address', 'unitName', 'unitType', 'accountNumber', 'resource',
         'number', 'place', 'value1', 'value2', 'value3', 'value4', 'clientName', 'source',
+    ],
+    [EXPORT_TYPE_PROPERTY_METERS]: [
+        'date', 'address', 'accountNumber', 'resource', 'number', 'value1', 'value2', 'value3', 'value4', 'source',
     ],
     [EXPORT_TYPE_BUILDINGS]: ['organization', 'address', 'unitsCount', 'uninhabitedUnitsCount', 'ticketsInWork', 'ticketsClosed'],
     [EXPORT_TYPE_TICKETS]: [
@@ -120,6 +124,7 @@ module.exports = {
     EXPORT_TYPE_PAYMENTS,
     EXPORT_TYPE_CONTACTS,
     EXPORT_TYPE_METERS,
+    EXPORT_TYPE_PROPERTY_METERS,
     EXPORT_TYPE_BUILDINGS,
     EXPORT_TYPE_TICKETS,
     EXPORT_TYPE_INCIDENTS,
