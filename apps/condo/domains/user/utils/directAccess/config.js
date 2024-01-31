@@ -43,6 +43,9 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
         // Ticket domain
         'Ticket',
 
+        // Property domain
+        'Property',
+
         // User domain
         'OidcClient',
         'UserRightsSet',

@@ -3197,6 +3197,8 @@ type UserRightsSetHistoryRecord {
   canManageOrganizations: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
+  canReadProperties: Boolean
+  canManageProperties: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
   canReadUserRightsSets: Boolean
@@ -3292,6 +3294,10 @@ input UserRightsSetHistoryRecordWhereInput {
   canReadTickets_not: Boolean
   canManageTickets: Boolean
   canManageTickets_not: Boolean
+  canReadProperties: Boolean
+  canReadProperties_not: Boolean
+  canManageProperties: Boolean
+  canManageProperties_not: Boolean
   canReadOidcClients: Boolean
   canReadOidcClients_not: Boolean
   canManageOidcClients: Boolean
@@ -3443,6 +3449,10 @@ enum SortUserRightsSetHistoryRecordsBy {
   canReadTickets_DESC
   canManageTickets_ASC
   canManageTickets_DESC
+  canReadProperties_ASC
+  canReadProperties_DESC
+  canManageProperties_ASC
+  canManageProperties_DESC
   canReadOidcClients_ASC
   canReadOidcClients_DESC
   canManageOidcClients_ASC
@@ -3503,6 +3513,8 @@ input UserRightsSetHistoryRecordUpdateInput {
   canManageOrganizations: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
+  canReadProperties: Boolean
+  canManageProperties: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
   canReadUserRightsSets: Boolean
@@ -3557,6 +3569,8 @@ input UserRightsSetHistoryRecordCreateInput {
   canManageOrganizations: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
+  canReadProperties: Boolean
+  canManageProperties: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
   canReadUserRightsSets: Boolean
@@ -3702,6 +3716,14 @@ type UserRightsSet {
   """
   canManageTickets: Boolean
 
+  """ Enables a user with the given UserRightsSet to view all entities of model "Property" as support / admin users do 
+  """
+  canReadProperties: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "Property" similar to support users 
+  """
+  canManageProperties: Boolean
+
   """ Enables a user with the given UserRightsSet to view all entities of model "OidcClient" as support / admin users do 
   """
   canReadOidcClients: Boolean
@@ -3825,6 +3847,10 @@ input UserRightsSetWhereInput {
   canReadTickets_not: Boolean
   canManageTickets: Boolean
   canManageTickets_not: Boolean
+  canReadProperties: Boolean
+  canReadProperties_not: Boolean
+  canManageProperties: Boolean
+  canManageProperties_not: Boolean
   canReadOidcClients: Boolean
   canReadOidcClients_not: Boolean
   canManageOidcClients: Boolean
@@ -3956,6 +3982,10 @@ enum SortUserRightsSetsBy {
   canReadTickets_DESC
   canManageTickets_ASC
   canManageTickets_DESC
+  canReadProperties_ASC
+  canReadProperties_DESC
+  canManageProperties_ASC
+  canManageProperties_DESC
   canReadOidcClients_ASC
   canReadOidcClients_DESC
   canManageOidcClients_ASC
@@ -4016,6 +4046,8 @@ input UserRightsSetUpdateInput {
   canManageOrganizations: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
+  canReadProperties: Boolean
+  canManageProperties: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
   canReadUserRightsSets: Boolean
@@ -4067,6 +4099,8 @@ input UserRightsSetCreateInput {
   canManageOrganizations: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
+  canReadProperties: Boolean
+  canManageProperties: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
   canReadUserRightsSets: Boolean
