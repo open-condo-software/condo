@@ -40,11 +40,11 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
         // Organization domain
         'Organization',
 
-        // Ticket domain
-        'Ticket',
-
         // Property domain
         'Property',
+
+        // Ticket domain
+        'Ticket',
 
         // User domain
         'OidcClient',

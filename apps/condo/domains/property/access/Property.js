@@ -11,13 +11,16 @@ const { queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/
 const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { canDirectlyReadSchemaObjects, canDirectlyManageSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
 
-async function canReadProperties ({ authentication: { item: user } }) {
+async function canReadProperties ({ authentication: { item: user }, listKey }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isSupport || user.isAdmin) return {}
+    const hasDirectAccess = await canDirectlyReadSchemaObjects(user, listKey)
+    if (hasDirectAccess) return true
 
     if (user.type === RESIDENT) {
         const residents = await find('Resident', { user: { id: user.id }, deletedAt: null })
@@ -39,10 +42,13 @@ async function canReadProperties ({ authentication: { item: user } }) {
     }
 }
 
-async function canManageProperties ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageProperties ({ authentication: { item: user }, originalInput, listKey, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
+
+    const hasDirectAccess = await canDirectlyManageSchemaObjects(user, listKey, originalInput, operation)
+    if (hasDirectAccess) return true
 
     if (operation === 'create') {
         const organizationId = get(originalInput, ['organization', 'connect', 'id'])
