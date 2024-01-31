@@ -12,7 +12,7 @@ const pluralize = require('pluralize')
  * Input: ['a', 'b', 'c']
  * Output: '{ a { b { c } } }'
  */
-const generateGqlDataPart = (pathToOrganizationId) => {
+const generateGqlDataPartToOrganizationId = (pathToOrganizationId) => {
     if (!pathToOrganizationId || !isArray(pathToOrganizationId) || isEmpty(pathToOrganizationId)) throw new Error('"pathToOrganizationId" should not be empty array')
     return `{ ${pathToOrganizationId.join(' { ')}${' }'.repeat(pathToOrganizationId.length)}`
 }
@@ -31,13 +31,13 @@ const generateGqlDataPart = (pathToOrganizationId) => {
  *         }
  *     `
  */
-const generateGqlQueryAsString = (listKey, pathToOrganizationId) => {
+const generateGqlQueryToOrganizationIdAsString = (listKey, pathToOrganizationId) => {
     if (!isString(listKey) || listKey.trim().length < 1) throw new Error('"listKey" must not be empty string!')
     if (!pathToOrganizationId || !isArray(pathToOrganizationId) || isEmpty(pathToOrganizationId)) throw new Error('"pathToOrganizationId" should not be empty array')
 
     return `
         query getAll${pluralize.plural(listKey)} ($where: ${listKey}WhereInput, $first: Int = 1) {
-            objs: all${pluralize.plural(listKey)}(where: $where, first: $first) ${generateGqlDataPart(pathToOrganizationId)}
+            objs: all${pluralize.plural(listKey)}(where: $where, first: $first) ${generateGqlDataPartToOrganizationId(pathToOrganizationId)}
         }
     `
 }
@@ -56,12 +56,12 @@ const generateGqlQueryAsString = (listKey, pathToOrganizationId) => {
  *         }
  *     `
  */
-const generateGqlQuery = memoize((schemaName, pathToOrganizationId) => {
-    if (schemaName && (!isString(schemaName) || schemaName.trim().length < 1)) throw new Error(`"customListKey" should be not empty string! But was: "${schemaName}"`)
+const generateGqlQueryToOrganizationId = memoize((schemaName, pathToOrganizationId) => {
+    if (schemaName && (!isString(schemaName) || schemaName.trim().length < 1)) throw new Error(`"schemaName" should be not empty string! But was: "${schemaName}"`)
     if (!pathToOrganizationId || !isArray(pathToOrganizationId) || isEmpty(pathToOrganizationId)) throw new Error('"pathToOrganizationId" should not be empty array')
     if (pathToOrganizationId.length < 1) throw new Error(`To generate gql "pathToOrganizationId" must contain at least one elements! But was ${pathToOrganizationId}`)
 
-    return gql`${generateGqlQueryAsString(schemaName, pathToOrganizationId)}`
+    return gql`${generateGqlQueryToOrganizationIdAsString(schemaName, pathToOrganizationId)}`
 })
 
 /**
@@ -83,7 +83,7 @@ const generateGqlQuery = memoize((schemaName, pathToOrganizationId) => {
  *     deletedAt, null,
  * }
  */
-const getFilter = (pathToOrganizationId, organizationIds) => {
+const getFilterByOrganizationIds = (pathToOrganizationId, organizationIds) => {
     if (!isArray(pathToOrganizationId) || isEmpty(pathToOrganizationId)) throw new Error('"pathToOrganizationId" must be not empty array!')
     if (!isArray(organizationIds)) throw new Error('"organizationId" must be array!')
 
@@ -95,14 +95,14 @@ const getFilter = (pathToOrganizationId, organizationIds) => {
     }
 
     return {
-        [pathToOrganizationId[0]]: getFilter(pathToOrganizationId.slice(1), organizationIds),
+        [pathToOrganizationId[0]]: getFilterByOrganizationIds(pathToOrganizationId.slice(1), organizationIds),
         deletedAt: null,
     }
 }
 
 module.exports = {
-    getFilter,
-    generateGqlQuery,
-    generateGqlDataPart,
-    generateGqlQueryAsString,
+    getFilterByOrganizationIds,
+    generateGqlQueryToOrganizationId,
+    generateGqlDataPartToOrganizationId,
+    generateGqlQueryToOrganizationIdAsString,
 }

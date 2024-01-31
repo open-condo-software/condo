@@ -8,7 +8,7 @@ const { find, getById, getSchemaCtx } = require('@open-condo/keystone/schema')
 const { B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess/config')
 const { SERVICE } = require('@condo/domains/user/constants/common')
 
-const { generateGqlQuery, getFilter } = require('./helpers.utils')
+const { generateGqlQueryToOrganizationId, getFilterByOrganizationIds } = require('./helpers.utils')
 
 
 /**
@@ -43,7 +43,7 @@ const canReadByServiceUser = async ({ authentication: { item: user }, args, list
 
     if (!organizationIds || isEmpty(organizationIds)) return false
 
-    return getFilter(pathToOrganizationId, organizationIds)
+    return getFilterByOrganizationIds(pathToOrganizationId, organizationIds)
 }
 
 const canManageByServiceUser = async ({ authentication: { item: user }, listKey, originalInput, itemId, operation, context }, schemaConfig, parentSchemaName) => {
@@ -71,7 +71,7 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
             if (!parentObjectId) return false
 
             const [parentObject] = await execGqlWithoutAccess(context, {
-                query: generateGqlQuery(parentSchemaName, pathToOrganizationId.slice(1)),
+                query: generateGqlQueryToOrganizationId(parentSchemaName, pathToOrganizationId.slice(1)),
                 variables: {
                     where: { id: parentObjectId },
                     first: 1,
@@ -96,7 +96,7 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
             if (!parentObjectId) return false
 
             const [parentObject] = await execGqlWithoutAccess(context, {
-                query: generateGqlQuery(parentSchemaName, pathToOrganizationId.slice(1)),
+                query: generateGqlQueryToOrganizationId(parentSchemaName, pathToOrganizationId.slice(1)),
                 variables: {
                     where: { id: parentObjectId },
                     first: 1,
