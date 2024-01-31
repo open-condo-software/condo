@@ -3195,10 +3195,10 @@ type UserRightsSetHistoryRecord {
   canManageB2CAppProperties: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
-  canReadTickets: Boolean
-  canManageTickets: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
+  canReadTickets: Boolean
+  canManageTickets: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
   canReadUserRightsSets: Boolean
@@ -3290,14 +3290,14 @@ input UserRightsSetHistoryRecordWhereInput {
   canReadOrganizations_not: Boolean
   canManageOrganizations: Boolean
   canManageOrganizations_not: Boolean
-  canReadTickets: Boolean
-  canReadTickets_not: Boolean
-  canManageTickets: Boolean
-  canManageTickets_not: Boolean
   canReadProperties: Boolean
   canReadProperties_not: Boolean
   canManageProperties: Boolean
   canManageProperties_not: Boolean
+  canReadTickets: Boolean
+  canReadTickets_not: Boolean
+  canManageTickets: Boolean
+  canManageTickets_not: Boolean
   canReadOidcClients: Boolean
   canReadOidcClients_not: Boolean
   canManageOidcClients: Boolean
@@ -3445,14 +3445,14 @@ enum SortUserRightsSetHistoryRecordsBy {
   canReadOrganizations_DESC
   canManageOrganizations_ASC
   canManageOrganizations_DESC
-  canReadTickets_ASC
-  canReadTickets_DESC
-  canManageTickets_ASC
-  canManageTickets_DESC
   canReadProperties_ASC
   canReadProperties_DESC
   canManageProperties_ASC
   canManageProperties_DESC
+  canReadTickets_ASC
+  canReadTickets_DESC
+  canManageTickets_ASC
+  canManageTickets_DESC
   canReadOidcClients_ASC
   canReadOidcClients_DESC
   canManageOidcClients_ASC
@@ -3511,10 +3511,10 @@ input UserRightsSetHistoryRecordUpdateInput {
   canManageB2CAppProperties: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
-  canReadTickets: Boolean
-  canManageTickets: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
+  canReadTickets: Boolean
+  canManageTickets: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
   canReadUserRightsSets: Boolean
@@ -3567,10 +3567,10 @@ input UserRightsSetHistoryRecordCreateInput {
   canManageB2CAppProperties: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
-  canReadTickets: Boolean
-  canManageTickets: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
+  canReadTickets: Boolean
+  canManageTickets: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
   canReadUserRightsSets: Boolean
@@ -3708,14 +3708,6 @@ type UserRightsSet {
   """
   canManageOrganizations: Boolean
 
-  """ Enables a user with the given UserRightsSet to view all entities of model "Ticket" as support / admin users do 
-  """
-  canReadTickets: Boolean
-
-  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "Ticket" similar to support users 
-  """
-  canManageTickets: Boolean
-
   """ Enables a user with the given UserRightsSet to view all entities of model "Property" as support / admin users do 
   """
   canReadProperties: Boolean
@@ -3723,6 +3715,14 @@ type UserRightsSet {
   """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "Property" similar to support users 
   """
   canManageProperties: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "Ticket" as support / admin users do 
+  """
+  canReadTickets: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "Ticket" similar to support users 
+  """
+  canManageTickets: Boolean
 
   """ Enables a user with the given UserRightsSet to view all entities of model "OidcClient" as support / admin users do 
   """
@@ -3843,14 +3843,14 @@ input UserRightsSetWhereInput {
   canReadOrganizations_not: Boolean
   canManageOrganizations: Boolean
   canManageOrganizations_not: Boolean
-  canReadTickets: Boolean
-  canReadTickets_not: Boolean
-  canManageTickets: Boolean
-  canManageTickets_not: Boolean
   canReadProperties: Boolean
   canReadProperties_not: Boolean
   canManageProperties: Boolean
   canManageProperties_not: Boolean
+  canReadTickets: Boolean
+  canReadTickets_not: Boolean
+  canManageTickets: Boolean
+  canManageTickets_not: Boolean
   canReadOidcClients: Boolean
   canReadOidcClients_not: Boolean
   canManageOidcClients: Boolean
@@ -3978,14 +3978,14 @@ enum SortUserRightsSetsBy {
   canReadOrganizations_DESC
   canManageOrganizations_ASC
   canManageOrganizations_DESC
-  canReadTickets_ASC
-  canReadTickets_DESC
-  canManageTickets_ASC
-  canManageTickets_DESC
   canReadProperties_ASC
   canReadProperties_DESC
   canManageProperties_ASC
   canManageProperties_DESC
+  canReadTickets_ASC
+  canReadTickets_DESC
+  canManageTickets_ASC
+  canManageTickets_DESC
   canReadOidcClients_ASC
   canReadOidcClients_DESC
   canManageOidcClients_ASC
@@ -4044,10 +4044,10 @@ input UserRightsSetUpdateInput {
   canManageB2CAppProperties: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
-  canReadTickets: Boolean
-  canManageTickets: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
+  canReadTickets: Boolean
+  canManageTickets: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
   canReadUserRightsSets: Boolean
@@ -4097,10 +4097,10 @@ input UserRightsSetCreateInput {
   canManageB2CAppProperties: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
-  canReadTickets: Boolean
-  canManageTickets: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
+  canReadTickets: Boolean
+  canManageTickets: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
   canReadUserRightsSets: Boolean
