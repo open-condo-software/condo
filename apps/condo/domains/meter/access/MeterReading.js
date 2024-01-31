@@ -6,16 +6,22 @@ const { get } = require('lodash')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
+const { getAvailableResidentMeters } = require('@condo/domains/meter/utils/serverSchema')
+const {
+    canReadObjectsAsB2BAppServiceUser,
+    canManageObjectsAsB2BAppServiceUser,
+} = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
 const {
     queryOrganizationEmployeeFromRelatedOrganizationFor,
     queryOrganizationEmployeeFor,
     checkPermissionInUserOrganizationOrRelatedOrganization,
 } = require('@condo/domains/organization/utils/accessSchema')
-const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 
-const { getAvailableResidentMeters } = require('../utils/serverSchema')
 
-async function canReadMeterReadings ({ authentication: { item: user } }) {
+async function canReadMeterReadings (args) {
+    const { authentication: { item: user } } = args
+
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     
@@ -31,6 +37,10 @@ async function canReadMeterReadings ({ authentication: { item: user } }) {
         }
     }
 
+    if (user.type === SERVICE) {
+        return await canReadObjectsAsB2BAppServiceUser(args)
+    }
+
     return {
         organization: {
             OR: [
@@ -41,10 +51,16 @@ async function canReadMeterReadings ({ authentication: { item: user } }) {
     }
 }
 
-async function canManageMeterReadings ({ authentication: { item: user }, originalInput, operation }) {
+async function canManageMeterReadings (args) {
+    const { authentication: { item: user }, originalInput, operation } = args
+
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
+
+    if (user.type === SERVICE) {
+        return await canManageObjectsAsB2BAppServiceUser(args)
+    }
 
     if (operation === 'create') {
         const meterId = get(originalInput, ['meter', 'connect', 'id'], null)

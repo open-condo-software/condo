@@ -7,13 +7,22 @@ const { get } = require('lodash')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getByCondition } = require('@open-condo/keystone/schema')
 
-const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
-const { queryOrganizationEmployeeFromRelatedOrganizationFor, queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
-const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { getAvailableResidentMeters } = require('@condo/domains/meter/utils/serverSchema')
+const {
+    canReadObjectsAsB2BAppServiceUser,
+    canManageObjectsAsB2BAppServiceUser,
+} = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
+const {
+    checkPermissionInUserOrganizationOrRelatedOrganization,
+    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    queryOrganizationEmployeeFor,
+} = require('@condo/domains/organization/utils/accessSchema')
+const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 
-const { getAvailableResidentMeters } = require('../utils/serverSchema')
 
-async function canReadMeters ({ authentication: { item: user } }) {
+async function canReadMeters (args) {
+    const { authentication: { item: user } } = args
+
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     
@@ -29,6 +38,10 @@ async function canReadMeters ({ authentication: { item: user } }) {
         }
     }
 
+    if (user.type === SERVICE) {
+        return await canReadObjectsAsB2BAppServiceUser(args)
+    }
+
     return {
         organization: {
             OR: [
@@ -39,10 +52,16 @@ async function canReadMeters ({ authentication: { item: user } }) {
     }
 }
 
-async function canManageMeters ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageMeters (args) {
+    const { authentication: { item: user }, originalInput, operation, itemId } = args
+
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
+
+    if (user.type === SERVICE) {
+        return await canManageObjectsAsB2BAppServiceUser(args)
+    }
 
     if (operation === 'create') {
         const organizationId = get(originalInput, ['organization', 'connect', 'id'])

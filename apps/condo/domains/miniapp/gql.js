@@ -9,7 +9,7 @@ const pluralize = require('pluralize')
 
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
-const { SERVICE_USER_ACCESS_FOR_B2B_APP_CONFIG } = require('./constants')
+const { B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS } = require('./utils/b2bAppServiceUserAccess/config')
 
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
@@ -34,7 +34,7 @@ const B2BApp = generateGqlQueries('B2BApp', B2B_APP_FIELDS)
 const B2B_APP_CONTEXT_FIELDS = `{ app { id name appUrl icon menuCategory hasDynamicTitle } organization { id } status ${COMMON_FIELDS} }`
 const B2BAppContext = generateGqlQueries('B2BAppContext', B2B_APP_CONTEXT_FIELDS)
 
-const B2B_ACCESSES_FIELDS = Object.keys(SERVICE_USER_ACCESS_FOR_B2B_APP_CONFIG)
+const B2B_ACCESSES_FIELDS = Object.keys(B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS)
     .map(schemaName => `canManage${pluralize.plural(schemaName)} canRead${pluralize.plural(schemaName)}`)
     .join(' ')
 

@@ -1,14 +1,14 @@
 const { faker } = require('@faker-js/faker')
 
 const {
-    generateGqlDataPart,
-    generateGqlQueryAsString,
-    getFilter,
-} = require('./serviceUserAccessForB2BApp')
+    generateGqlDataPartToOrganizationId,
+    generateGqlQueryToOrganizationIdAsString,
+    getFilterByOrganizationIds,
+} = require('./helpers.utils')
 
 
-describe('Helper functions for serviceUserAccessForB2BApp preprocessor', () => {
-    describe('generateGqlDataPart', () => {
+describe('Helper functions', () => {
+    describe('generateGqlDataPartToOrganizationId', () => {
         const validCases = [
             {
                 input: ['a'],
@@ -39,15 +39,15 @@ describe('Helper functions for serviceUserAccessForB2BApp preprocessor', () => {
         ]
 
         test.each(validCases)('generateGqlDataPart($input) - returned "$output"', async ({ input, output }) => {
-            expect(generateGqlDataPart(input)).toEqual(output)
+            expect(generateGqlDataPartToOrganizationId(input)).toEqual(output)
         })
 
         test.each(invalidCases)('generateGqlDataPart($input) - throw error "$error"', async ({ input, error }) => {
-            expect(() => generateGqlDataPart(input)).toThrow(error)
+            expect(() => generateGqlDataPartToOrganizationId(input)).toThrow(error)
         })
     })
 
-    describe('generateGqlQueryAsString', () => {
+    describe('generateGqlQueryToOrganizationIdAsString', () => {
         const validCases = [
             {
                 input: {
@@ -129,15 +129,15 @@ describe('Helper functions for serviceUserAccessForB2BApp preprocessor', () => {
         ]
 
         test.each(validCases)('generateGqlQueryAsString($input.listKey, $input.pathToOrganizationId) - returned valid value (%#)', async ({ input: { listKey, pathToOrganizationId }, output }) => {
-            expect(generateGqlQueryAsString(listKey, pathToOrganizationId)).toEqual(output)
+            expect(generateGqlQueryToOrganizationIdAsString(listKey, pathToOrganizationId)).toEqual(output)
         })
 
         test.each(invalidCases)('generateGqlQueryAsString($input.listKey, $input.pathToOrganizationId) - throw error "$error"', async ({ input: { listKey, pathToOrganizationId }, error }) => {
-            expect(() => generateGqlQueryAsString(listKey, pathToOrganizationId)).toThrow(error)
+            expect(() => generateGqlQueryToOrganizationIdAsString(listKey, pathToOrganizationId)).toThrow(error)
         })
     })
 
-    describe('getFilter', () => {
+    describe('getFilterByOrganizationIds', () => {
         const organizationIds = [faker.datatype.uuid()]
         const validCases = [
             {
@@ -224,11 +224,11 @@ describe('Helper functions for serviceUserAccessForB2BApp preprocessor', () => {
         ]
 
         test.each(validCases)('getFilter($input.pathToOrganizationId, $input.organizationIds) - returned valid value (%#)', async ({ input: { pathToOrganizationId, organizationIds }, output }) => {
-            expect(getFilter(pathToOrganizationId, organizationIds)).toEqual(output)
+            expect(getFilterByOrganizationIds(pathToOrganizationId, organizationIds)).toEqual(output)
         })
 
         test.each(invalidCases)('getFilter($input.pathToOrganizationId, $input.organizationIds) - throw error "$error"', async ({ input: { pathToOrganizationId, organizationIds }, error }) => {
-            expect(() => getFilter(pathToOrganizationId, organizationIds)).toThrow(error)
+            expect(() => getFilterByOrganizationIds(pathToOrganizationId, organizationIds)).toThrow(error)
         })
     })
 })

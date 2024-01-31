@@ -24,7 +24,7 @@ const getReadOnlyPermissionFieldNames = (config) => {
             if (!get(schemaConfig, 'canBeRead', true)) {
                 readOnlyFieldsBySchema.push(`canRead${pluralize.plural(schemaName)}`)
             }
-            if (!get(schemaConfig, 'canBeManage', true)) {
+            if (!get(schemaConfig, 'canBeManaged', true)) {
                 readOnlyFieldsBySchema.push(`canManage${pluralize.plural(schemaName)}`)
             }
             return readOnlyFieldsBySchema
@@ -43,7 +43,6 @@ const getPermissionFieldNames = (config) => {
 }
 
 /**
- *
  * @param permissionFieldName {string}
  * @return {string}
  */
@@ -63,36 +62,36 @@ const getSchemaDocForReadOnlyPermissionField = (permissionFieldName) => {
 
 /**
  *
- * Overrides the plugin's default behavior for the specified schema
+ * Overrides the default access behavior for the specified schema
  *
- * @typedef {Object} B2BAppAccessConfig
+ * @typedef {Object} B2bAppServiceUserAccessSchemaConfig
  * @property {Array.<string>} pathToOrganizationId - Way to get the organization id (default value: ['organization', 'id'])
  * @property {boolean} canBeRead - Service users can read schema (default value: true)
- * @property {boolean} canBeManage - Service users can manage schema (default value: true)
+ * @property {boolean} canBeManaged - Service users can manage schema (default value: true)
  */
 
 /**
  *
- * Overrides the plugin's default behavior for the specified schema
+ * Determines which models can be accessed by a service user linked to a B2B app
  *
- * @example Overrides for Organization schema
+ * @example Config for Organization schema
  * {
  *    Organization: {
  *       // Default value ['organization', 'id'] => get value from <SchemaName>.organization.id
  *       // But for the Organization schema get value from <SchemaName>.id
  *       pathToOrganizationId: ['id'],
  *       // By default schemas can be manage, but for Organization schema cannot be managed
- *       canBeManage: false,
+ *       canBeManaged: false,
  *    },
  * }
  *
- * @typedef {Object.<string, B2BAppAccessConfig>} B2BAppAccessConfigBySchemaName
+ * @typedef {Object.<string, B2bAppServiceUserAccessSchemaConfig>} B2bAppServiceUserAccessConfig
  */
 
 /**
  * Generation of fields for scheme  B2BAppAccessRightSet canRead... and canManage... for the necessary schemes.
  *
- * @param {B2BAppAccessConfigBySchemaName} config  - Overrides the plugin's default behavior for the specified schema
+ * @param {B2bAppServiceUserAccessConfig} config  - Determines which models can be accessed by a service user linked to a B2B app
  * @return {Object.<string, Object>}
  */
 const generatePermissionFields = ({ config }) => {
@@ -120,4 +119,6 @@ const generatePermissionFields = ({ config }) => {
 module.exports = {
     generatePermissionFields,
     getSchemaDocForReadOnlyPermissionField,
+    PERMISSION_FIELD,
+    READ_ONLY_PERMISSION_FIELD,
 }

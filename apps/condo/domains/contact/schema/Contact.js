@@ -14,7 +14,6 @@ const { UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const access = require('@condo/domains/contact/access/Contact')
-const { serviceUserAccessForB2BApp } = require('@condo/domains/miniapp/schema/plugins/serviceUserAccessForB2BApp')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const { UNABLE_TO_CREATE_CONTACT_DUPLICATE, UNABLE_TO_UPDATE_CONTACT_DUPLICATE } = require('@condo/domains/user/constants/errors')
 
@@ -173,7 +172,6 @@ const Contact = new GQLListSchema('Contact', {
     },
     plugins: [
         uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked(),
-        serviceUserAccessForB2BApp(),
     ],
     access: {
         read: access.canReadContacts,

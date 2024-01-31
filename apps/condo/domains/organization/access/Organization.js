@@ -7,12 +7,15 @@ const access = require('@open-condo/keystone/access')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { find } = require('@open-condo/keystone/schema')
 
+const { canReadObjectsAsB2BAppServiceUser } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
 const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 const { canDirectlyReadSchemaObjects, canDirectlyManageSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
 
-async function canReadOrganizations ({ authentication: { item: user }, listKey }) {
+async function canReadOrganizations (args) {
+    const { authentication: { item: user }, listKey } = args
+
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     
@@ -38,11 +41,16 @@ async function canReadOrganizations ({ authentication: { item: user }, listKey }
         }
         return false
     }
-    const accessConditions =  [
+
+    const accessConditions = [
         { ...queryOrganizationEmployeeFor(user.id) },
         { ...queryOrganizationEmployeeFromRelatedOrganizationFor(user.id) },
     ]
+
     if (user.type === SERVICE) {
+        // canReadObjectsAsB2BAppServiceUser may be return false or object (filter)
+        const accessFilterForB2BAppServiceUser = await canReadObjectsAsB2BAppServiceUser(args)
+
         const billingContexts = await find('BillingIntegrationOrganizationContext', {
             integration: {
                 accessRights_some: { user: { id: user.id }, deletedAt: null },
@@ -65,15 +73,16 @@ async function canReadOrganizations ({ authentication: { item: user }, listKey }
             },
             deletedAt: null,
         })
+
         const serviceOrganizationIds = uniq(billingContexts
             .map(({ organization }) => organization )
             .concat(acquiringContexts.map(({ organization }) => organization )))
             .concat(bankIntegrationOrganizationContext.map(({ organization }) => organization))
+            .concat(get(accessFilterForB2BAppServiceUser, 'id_in', []) || [])
         if (serviceOrganizationIds.length) {
             accessConditions.push({ id_in: serviceOrganizationIds })
         }
     }
-
     return { OR: accessConditions }
 }
 
