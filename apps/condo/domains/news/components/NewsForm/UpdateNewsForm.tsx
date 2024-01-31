@@ -103,6 +103,14 @@ export const UpdateNewsForm: React.FC<IUpdateNewsForm> = ({ id }) => {
     const organizationId = useMemo(() => get(newsItem, 'organization.id', null), [newsItem])
 
     const {
+        loading: totalPropertiesLoading,
+        count: totalProperties,
+        error: totalPropertiesError,
+    } = Property.useCount({
+        where: { organization: { id: organizationId } },
+    })
+
+    const {
         loading: isNewsItemTemplatesFetching,
         objs: NewsItemTemplates,
         error: newsItemTemplatesError,
@@ -138,11 +146,11 @@ export const UpdateNewsForm: React.FC<IUpdateNewsForm> = ({ id }) => {
         }, { emptyTemplate: { title: EmptyTemplateTitle, body: '', type: null } })
 
     const error = useMemo(
-        () => newsItemError || newsItemScopeError || allNewsError || newsItemTemplatesError,
-        [allNewsError, newsItemError, newsItemScopeError, newsItemTemplatesError])
+        () => newsItemError || newsItemScopeError || allNewsError || newsItemTemplatesError || totalPropertiesError,
+        [allNewsError, newsItemError, newsItemScopeError, newsItemTemplatesError, totalPropertiesError])
     const loading = useMemo(
-        () => propertiesLoading || newsItemLoading || !newsItemScopeAllDataLoaded || isNewsFetching || isNewsItemTemplatesFetching, 
-        [isNewsFetching, isNewsItemTemplatesFetching, newsItemLoading, newsItemScopeAllDataLoaded, propertiesLoading])
+        () => propertiesLoading || newsItemLoading || !newsItemScopeAllDataLoaded || isNewsFetching || isNewsItemTemplatesFetching || totalPropertiesLoading,
+        [isNewsFetching, isNewsItemTemplatesFetching, newsItemLoading, newsItemScopeAllDataLoaded, propertiesLoading, totalPropertiesLoading])
 
     if (loading || error) {
         return (
@@ -165,6 +173,7 @@ export const UpdateNewsForm: React.FC<IUpdateNewsForm> = ({ id }) => {
             OnCompletedMsg={null}
             allNews={allNews}
             actionName='update'
+            totalProperties={totalProperties}
         />
     )
 }

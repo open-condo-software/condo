@@ -32,11 +32,11 @@ export const ResendNewsForm: React.FC<IResendNewsForm> = ({ id }) => {
     }, [createNewsItem])
 
     const {
-        loading: newsItemLoading,
-        obj: newsItem,
-        error: newsItemError,
-    } = NewsItem.useObject({
-        where: { id },
+        loading: totalPropertiesLoading,
+        count: totalProperties,
+        error: totalPropertiesError,
+    } = Property.useCount({
+        where: { organization: { id: organizationId } },
     })
 
     const {
@@ -51,6 +51,14 @@ export const ResendNewsForm: React.FC<IResendNewsForm> = ({ id }) => {
         },
     })
 
+    const {
+        loading: newsItemLoading,
+        obj: newsItem,
+        error: newsItemError,
+    } = NewsItem.useObject({
+        where: { id },
+    })
+
     const selectedPropertiesId = useMemo(() => {
         return uniq(newsItemScopes.filter(item => has(item, ['property', 'id'])).map(item => item.property.id))
     }, [newsItemScopes])
@@ -61,11 +69,11 @@ export const ResendNewsForm: React.FC<IResendNewsForm> = ({ id }) => {
     const sendPeriod: SendPeriodType = useMemo(() => {
         return get(newsItem, 'sendAt', null) ? 'later' : 'now'
     }, [newsItem])
+    const sendAt = useMemo(() => get(newsItem, 'sendAt', null), [newsItem])
+    const validBefore = useMemo(() => get(newsItem, 'validBefore', null), [newsItem])
     const hasAllProperties = useMemo(() => {
         return newsItemScopes.filter((scope) => scope.property === null && scope.unitType === null && scope.unitName === null).length > 0
     }, [newsItemScopes])
-    const sendAt = useMemo(() => get(newsItem, 'sendAt', null), [newsItem])
-    const validBefore = useMemo(() => get(newsItem, 'validBefore', null), [newsItem])
     const initialValues = useMemo(() => ({
         ...newsItem,
         newsItemScopes: newsItemScopes,
@@ -75,6 +83,18 @@ export const ResendNewsForm: React.FC<IResendNewsForm> = ({ id }) => {
         sendAt: sendAt ? sendAt : null,
         validBefore: validBefore ? validBefore : null,
     }), [hasAllProperties, newsItem, newsItemScopes, properties, sendAt, sendPeriod, validBefore])
+
+    const dateStart = dayjs().startOf('day')
+    const {
+        loading: isNewsFetching,
+        objs: allNews,
+        error: allNewsError,
+    } = NewsItem.useAllObjects({
+        where: {
+            organization: { id: organizationId },
+            createdAt_gte: dateStart.toISOString(),
+        },
+    })
 
     const {
         loading: isNewsItemTemplatesFetching,
@@ -86,18 +106,6 @@ export const ResendNewsForm: React.FC<IResendNewsForm> = ({ id }) => {
                 { organization_is_null: true },
                 { organization: { id: organizationId } },
             ],
-        },
-    })
-
-    const dateStart = dayjs().startOf('day')
-    const {
-        loading: isNewsFetching,
-        objs: allNews,
-        error: allNewsError,
-    } = NewsItem.useAllObjects({
-        where: {
-            organization: { id: organizationId },
-            createdAt_gte: dateStart.toISOString(),
         },
     })
 
@@ -117,11 +125,11 @@ export const ResendNewsForm: React.FC<IResendNewsForm> = ({ id }) => {
     }, [intl, softDeleteNewsItem])
 
     const error = useMemo(
-        () => newsItemError || newsItemScopeError || newsItemTemplatesError || allNewsError,
-        [allNewsError, newsItemError, newsItemScopeError, newsItemTemplatesError])
+        () => newsItemError || newsItemScopeError || newsItemTemplatesError || allNewsError || totalPropertiesError,
+        [allNewsError, newsItemError, newsItemScopeError, newsItemTemplatesError, totalPropertiesError])
     const loading = useMemo(
-        () => propertiesLoading || newsItemLoading || !newsItemScopeAllDataLoaded || isNewsFetching || isNewsItemTemplatesFetching,
-        [isNewsFetching, isNewsItemTemplatesFetching, newsItemLoading, newsItemScopeAllDataLoaded, propertiesLoading])
+        () => propertiesLoading || newsItemLoading || !newsItemScopeAllDataLoaded || isNewsFetching || isNewsItemTemplatesFetching || totalPropertiesLoading,
+        [isNewsFetching, isNewsItemTemplatesFetching, newsItemLoading, newsItemScopeAllDataLoaded, propertiesLoading, totalPropertiesLoading])
 
     if (loading || error) {
         return (
@@ -143,6 +151,7 @@ export const ResendNewsForm: React.FC<IResendNewsForm> = ({ id }) => {
             OnCompletedMsg={OnCompletedMsg}
             allNews={allNews}
             actionName='create'
+            totalProperties={totalProperties}
         />
     )
 }
