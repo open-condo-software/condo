@@ -58,6 +58,12 @@ const INTERNAL_DELETE_METER_READINGS_MUTATION = gql`
     }
 `
 
+const EXPORT_PROPERTY_METER_READINGS_QUERY = gql`
+    query exportPropertyMeterReadings ($data: ExportPropertyMeterReadingsInput!) {
+        result: exportPropertyMeterReadings (data: $data) { status, linkToFile }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -73,6 +79,7 @@ module.exports = {
     DELETE_METER_AND_METER_READINGS_MUTATION,
     MeterResourceOwner,
     INTERNAL_DELETE_METER_READINGS_MUTATION,
+    EXPORT_PROPERTY_METER_READINGS_QUERY,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 
