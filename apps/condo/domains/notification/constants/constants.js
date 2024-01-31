@@ -81,6 +81,8 @@ const MARKETPLACE_INVOICE_PUBLISHED_MESSAGE_TYPE = 'MARKETPLACE_INVOICE_PUBLISHE
 const MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE = 'MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE'
 const MARKETPLACE_INVOICE_CASH_PUBLISHED_MESSAGE_TYPE = 'MARKETPLACE_INVOICE_CASH_PUBLISHED_MESSAGE'
 const MARKETPLACE_INVOICE_CASH_WITH_TICKET_PUBLISHED_MESSAGE_TYPE = 'MARKETPLACE_INVOICE_CASH_WITH_TICKET_PUBLISHED_MESSAGE'
+const SERVICE_USER_CREATED_MESSAGE_TYPE = 'SERVICE_USER_CREATED'
+const SERVICE_USER_UPDATED_MESSAGE_TYPE = 'SERVICE_USER_UPDATED'
 
 const SMS_FORBIDDEN_SYMBOLS_REGEXP = /[&#|«»]+/gim
 
@@ -615,6 +617,20 @@ const MESSAGE_META = {
             url: { required: true },
         },
     },
+    [SERVICE_USER_CREATED_MESSAGE_TYPE]: {
+        dv: { required: true },
+        data: {
+            serverUrl: { required: true },
+            password: { required: true },
+        },
+    },
+    [SERVICE_USER_UPDATED_MESSAGE_TYPE]: {
+        dv: { required: true },
+        data: {
+            serverUrl: { required: true },
+            password: { required: true },
+        },
+    },
 }
 
 /** Used to validate type field for sendMessage mutation payload */
@@ -825,7 +841,16 @@ const MESSAGE_DELIVERY_OPTIONS = {
         allowedTransports: [PUSH_TRANSPORT],
         defaultTransports: [PUSH_TRANSPORT],
     },
-
+    [SERVICE_USER_CREATED_MESSAGE_TYPE]: {
+        allowedTransports: [EMAIL_TRANSPORT],
+        defaultTransports: [EMAIL_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
+    },
+    [SERVICE_USER_UPDATED_MESSAGE_TYPE]: {
+        allowedTransports: [EMAIL_TRANSPORT],
+        defaultTransports: [EMAIL_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
+    },
 }
 
 const MESSAGE_SENDING_STATUS = 'sending'
@@ -1044,5 +1069,7 @@ module.exports = {
     MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
     MARKETPLACE_INVOICE_CASH_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
     MARKETPLACE_INVOICE_CASH_PUBLISHED_MESSAGE_TYPE,
+    SERVICE_USER_CREATED_MESSAGE_TYPE,
+    SERVICE_USER_UPDATED_MESSAGE_TYPE,
 }
 
