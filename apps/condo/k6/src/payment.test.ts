@@ -138,9 +138,10 @@ export function registerBillingReceiptsService (data) {
         },
     })
 
+    const receiptsResponse = response.json('data.result') as Array<{ id: string }>
+
     check(response, {
         'receipt creation status is 200': (res) => res.status === 200,
-        // @ts-ignore-next-line
-        'receipts is created': (res) => res.json('data.result').every(e => e.id !== undefined),
+        'receipts is created': () => receiptsResponse.every(e => e.id !== undefined),
     })
 }

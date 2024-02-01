@@ -109,11 +109,12 @@ export function queryBasicEntities (data) {
         },
     })
 
+    const ticketIds = allTicketsResponse.json('data.objs') as Array<{ id: string }>
+
     const allTicketCommentReadTimesPayload = {
         operationName: 'getAllUserTicketCommentReadTimes',
         query: 'query getAllUserTicketCommentReadTimes($where: UserTicketCommentReadTimeWhereInput, $first: Int = 100, $skip: Int, $sortBy: [SortUserTicketCommentReadTimesBy!]) { objs: allUserTicketCommentReadTimes( where: $where first: $first skip: $skip sortBy: $sortBy ) { user { id __typename } ticket { id __typename } readResidentCommentAt readCommentAt id dv sender { dv fingerprint __typename } v deletedAt newId createdBy { id name type __typename } updatedBy { id name __typename } createdAt updatedAt __typename } meta: _allUserTicketCommentReadTimesMeta(where: $where) { count __typename } }',
-        // @ts-ignore-next-line
-        variables: { first: 100, where: { ticket: { id_in: allTicketsResponse.json('data.objs').map(e => e.id) } } },
+        variables: { first: 100, where: { ticket: { id_in: ticketIds.map(e => e.id) } } },
     }
 
     const allTicketCommentReadTimesResponse = sendAuthorizedRequest(data, allTicketCommentReadTimesPayload)
