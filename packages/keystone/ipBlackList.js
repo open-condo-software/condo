@@ -19,9 +19,7 @@ class KeystoneIpBlackListMiddleware {
         const app = express()
         app.use((req, res, next) => {
             const ip = getIp(req)
-            const key = ip.split(':').pop()
-
-            if (ipBlackList[key]) {
+            if (ipBlackList[ip]) {
                 res.status(429).send('Too Many Requests')
             } else {
                 next()
