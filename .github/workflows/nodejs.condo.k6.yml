@@ -1,12 +1,22 @@
 name: RUN K6 LOAD TESTS
 
 on:
+  workflow_dispatch:
+    inputs:
+      server_url:
+        required: false
+        type: string
+        description: server url that will be used as target of load test
+        default: https://condo.d.doma.ai
   workflow_run:
     workflows: ["[review] Deploy"]
     branches:
       - 'master'
     types:
       - completed
+
+env:
+  SERVER_URL: ${{ inputs.server_url || 'https://review-master-condo.r.doma.ai' }}
 
 jobs:
   test:
@@ -43,28 +53,17 @@ jobs:
         run: |
           yarn --cwd ./apps/condo/k6 webpack
           
-          K6_BROWSER_HEADLESS=true K6_PROMETHEUS_RW_SERVER_URL=${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }} \
-          K6_PROMETHEUS_RW_USERNAME=${{ secrets.K6_PROMETHEUS_USER }} \
-          K6_PROMETHEUS_RW_PASSWORD=${{ secrets.K6_PROMETHEUS_PASSWORD }} \
-          BASE_URL=https://review-master-condo.r.doma.ai \
-          AUTH_EMAIL=${{ secrets.K6_AUTH_EMAIL }} AUTH_PASSWORD=${{ secrets.K6_AUTH_PASSWORD }} \
-          K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM=true \
+          export K6_BROWSER_HEADLESS=true
+          export K6_PROMETHEUS_RW_SERVER_URL=${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }} 
+          export K6_PROMETHEUS_RW_USERNAME=${{ secrets.K6_PROMETHEUS_USER }}
+          export K6_PROMETHEUS_RW_PASSWORD=${{ secrets.K6_PROMETHEUS_PASSWORD }}
+          export BASE_URL=${{ env.SERVER_URL }}
+          export AUTH_EMAIL=${{ secrets.K6_AUTH_EMAIL }} 
+          export AUTH_PASSWORD=${{ secrets.K6_AUTH_PASSWORD }}
+          export K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM=true
+          
           k6 -o experimental-prometheus-rw run apps/condo/k6/dist/ticket.test.js
-          
-          K6_BROWSER_HEADLESS=true K6_PROMETHEUS_RW_SERVER_URL=${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }} \
-          K6_PROMETHEUS_RW_USERNAME=${{ secrets.K6_PROMETHEUS_USER }} \
-          K6_PROMETHEUS_RW_PASSWORD=${{ secrets.K6_PROMETHEUS_PASSWORD }} \
-          BASE_URL=https://review-master-condo.r.doma.ai \
-          AUTH_EMAIL=${{ secrets.K6_AUTH_EMAIL }} AUTH_PASSWORD=${{ secrets.K6_AUTH_PASSWORD }} \
-          K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM=true \
           k6 -o experimental-prometheus-rw run apps/condo/k6/dist/payment.test.js
-          
-          K6_BROWSER_HEADLESS=true K6_PROMETHEUS_RW_SERVER_URL=${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }} \
-          K6_PROMETHEUS_RW_USERNAME=${{ secrets.K6_PROMETHEUS_USER }} \
-          K6_PROMETHEUS_RW_PASSWORD=${{ secrets.K6_PROMETHEUS_PASSWORD }} \
-          BASE_URL=https://review-master-condo.r.doma.ai \
-          AUTH_EMAIL=${{ secrets.K6_AUTH_EMAIL }} AUTH_PASSWORD=${{ secrets.K6_AUTH_PASSWORD }} \
-          K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM=true \
           k6 -o experimental-prometheus-rw run apps/condo/k6/dist/news.test.js
 
       - name: Upload screenshots
@@ -78,6 +77,7 @@ jobs:
   check_review_namespace:
     name: "Check namespace exists"
     runs-on: self-hosted
+    if: ${{ github.event_name == 'workflow_run' }}
     outputs:
       namespace_exist: ${{ steps.check_review_namespace.outputs.exists }}
     steps:
