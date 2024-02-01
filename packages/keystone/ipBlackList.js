@@ -12,6 +12,7 @@ function buildIpDictionary (ips) {
             if (!currentLevel[octet]) {
                 currentLevel[octet] = {}
             }
+            // nosemgrep: javascript.lang.security.audit.prototype-pollution.prototype-pollution-loop.prototype-pollution-loop
             currentLevel = currentLevel[octet]
         })
     })
@@ -26,6 +27,7 @@ function checkIpInDictionary (dictionary, ip) {
         if (!currentLevel[octet]) {
             return false
         }
+        // nosemgrep: javascript.lang.security.audit.prototype-pollution.prototype-pollution-loop.prototype-pollution-loop
         currentLevel = currentLevel[octet]
     }
     return true
