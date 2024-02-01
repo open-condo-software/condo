@@ -13,14 +13,14 @@ const ipBlackList = (conf.IP_BLACK_LIST || '').split(',')
     }, {})
 
 
-class KeystoneIpBlackListMiddleware {
+class IpBlackListMiddleware {
     async prepareMiddleware ({ keystone }) {
         // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
         app.use((req, res, next) => {
             const ip = getIp(req)
             if (ipBlackList[ip]) {
-                res.status(429).send('Too Many Requests')
+                res.status(410).send('Too Many Requests')
             } else {
                 next()
             }
@@ -32,5 +32,5 @@ class KeystoneIpBlackListMiddleware {
 
 
 module.exports = {
-    KeystoneIpBlackListMiddleware,
+    IpBlackListMiddleware,
 }
