@@ -4,7 +4,6 @@ const { v4: uuid } = require('uuid')
 
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { getIp } = require('@open-condo/keystone/ip.utils')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
@@ -107,8 +106,8 @@ const ipWhiteList = conf.IP_WHITE_LIST ? JSON.parse(conf.IP_WHITE_LIST) : []
 const maxSmsForIpByDay = Number(conf['MAX_SMS_FOR_IP_BY_DAY']) || MAX_SMS_FOR_IP_BY_DAY
 const maxSmsForPhoneByDay = Number(conf['MAX_SMS_FOR_PHONE_BY_DAY']) || MAX_SMS_FOR_PHONE_BY_DAY
 
-const checkSMSDayLimitCounters = async (phone, req) => {
-    const ip = getIp(req)
+const checkSMSDayLimitCounters = async (phone, rawIp) => {
+    const ip = rawIp.split(':').pop()
     const byPhoneCounter = await redisGuard.incrementDayCounter(phone)
     if (byPhoneCounter > maxSmsForPhoneByDay && !phoneWhiteList.includes(phone)) {
         throw new GQLError(GQL_ERRORS.SMS_FOR_PHONE_DAY_LIMIT_REACHED)
@@ -214,7 +213,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 if (!phone) {
                     throw new GQLError(ERRORS.WRONG_PHONE_FORMAT, context)
                 }
-                await checkSMSDayLimitCounters(phone, context.req)
+                await checkSMSDayLimitCounters(phone, context.req.ip)
                 await redisGuard.checkLock(phone, 'sendsms', context)
                 await redisGuard.lock(phone, 'sendsms', SMS_CODE_TTL)
                 const token = uuid()
@@ -281,7 +280,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     throw new GQLError({ ...ERRORS.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, mutation: 'resendConfirmPhoneActionSms' }, context)
                 }
                 const { id, phone } = actions[0]
-                await checkSMSDayLimitCounters(phone, context.req)
+                await checkSMSDayLimitCounters(phone, context.req.ip)
                 await redisGuard.checkLock(phone, 'sendsms', context)
                 await redisGuard.lock(phone, 'sendsms', SMS_CODE_TTL)
                 const newSmsCode = generateSmsCode(phone)

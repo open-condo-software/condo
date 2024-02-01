@@ -2,7 +2,6 @@ const express = require('express')
 const { isEmpty } = require('lodash')
 
 const conf = require('@open-condo/config')
-const { getIp } = require('@open-condo/keystone/ip.utils')
 
 function buildIpDictionary (ips) {
     const root = {}
@@ -42,8 +41,7 @@ class IpBlackListMiddleware {
         // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
         app.use((req, res, next) => {
-            const ip = getIp(req)
-            if (checkIpInDictionary(ipDictionary, ip)) {
+            if (checkIpInDictionary(ipDictionary, req.ip)) {
                 res.status(410).send('Gone')
             } else {
                 next()
