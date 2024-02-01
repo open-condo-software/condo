@@ -5255,7 +5255,7 @@ export const AllB2CAppBuildsDocument = gql`
     version
     createdAt
   }
-  meta: _allB2CAppBuildsMeta {
+  meta: _allB2CAppBuildsMeta(where: $where) {
     count
   }
 }
