@@ -130,7 +130,7 @@ const ExportPropertyMeterReadingsService = new GQLCustomSchema('ExportPropertyMe
                         },
                     },
                     meta: {
-                        listkey: 'MeterReading',
+                        listkey: 'PropertyMeterReading',
                         id: meterReadings[0].id,
                     },
                 })
