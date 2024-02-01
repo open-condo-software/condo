@@ -44,7 +44,7 @@ class IpBlackListMiddleware {
         app.use((req, res, next) => {
             const ip = getIp(req)
             if (checkIpInDictionary(ipDictionary, ip)) {
-                res.status(410).send('Too Many Requests')
+                res.status(410).send('Gone')
             } else {
                 next()
             }
