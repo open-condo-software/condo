@@ -19,6 +19,8 @@ const { Property } = require('@condo/domains/property/utils/serverSchema')
 const access = require('@condo/domains/resident/access/DiscoverServiceConsumersService')
 const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
 
+const MAX_RESIDENTS_COUNT_FOR_USER_PROPERTY = 6
+
 const logger = getLogger('DiscoverServiceConsumersMutation')
 
 /**
@@ -433,7 +435,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
 
                 const definedCombinations = combinations.filter(Boolean)
 
-                const serviceConsumersData = definedCombinations.map(([resident, account]) => {
+                let serviceConsumersData = definedCombinations.map(([resident, account]) => {
                     const organizationId = get(account, 'organizationId', null)
                     const billingContextId = get(account, 'billingContextId', null)
                     const [acquiringContextId] = get(organizationsToAcquiringContextsMap, organizationId, [null])
@@ -447,6 +449,8 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                         billingAccount: account.id,
                         billingIntegrationContext: billingContextId || null,
                         acquiringIntegrationContext: acquiringContextId || null,
+                        property: get(resident, ['property', 'id']),
+                        user: get(resident, ['user', 'id']),
                     }
                 })
 
@@ -468,6 +472,39 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                     existingServiceConsumers: map(existingServiceConsumers, (x) => pick(x, ['id', 'resident', 'organization', 'accountNumber', 'billingAccount'])),
                 })
 
+                // count residents per address for each user to prevent discover service consumers if there is more than MAX_CONSUMERS_COUNT_FOR_USER_PROPERTY residents at the property
+                const residentsCountByUserAndProperty = {}
+                await loadListByChunks({
+                    context,
+                    list: Resident,
+                    chunkSize: 20,
+                    where: { user: { id_in: map(serviceConsumersData, 'user') } },
+                    chunkProcessor: (/** @type {Resident[]} */ chunk) => {
+                        for (const resident of chunk) {
+                            const userId = get(resident, ['user', 'id'])
+                            const propertyId = get(resident, ['property', 'id'])
+                            if (!!userId && !!propertyId) {
+                                set(
+                                    residentsCountByUserAndProperty,
+                                    [userId, propertyId],
+                                    get(residentsCountByUserAndProperty, [userId, propertyId], 0) + 1,
+                                )
+                            }
+                        }
+                        return []
+                    },
+                })
+
+                serviceConsumersData = serviceConsumersData.filter(({
+                    user,
+                    property,
+                }) => get(residentsCountByUserAndProperty, [user, property], 0) <= MAX_RESIDENTS_COUNT_FOR_USER_PROPERTY)
+
+                discoveringSteps.push({
+                    name: `filter out users with ${MAX_RESIDENTS_COUNT_FOR_USER_PROPERTY + 1}+ existing consumers for property`,
+                    residentsCountByUserAndProperty,
+                })
+
                 const createdServiceConsumers = await Promise.all(
                     serviceConsumersData.map((serviceConsumerData) => {
                         const [existingServiceConsumer] = filter(existingServiceConsumers, {
@@ -477,7 +514,16 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                         })
 
                         const data = {
-                            ...serviceConsumerData,
+                            ...pick(serviceConsumerData, [
+                                'dv',
+                                'sender',
+                                'resident',
+                                'accountNumber',
+                                'organization',
+                                'billingAccount',
+                                'billingIntegrationContext',
+                                'acquiringIntegrationContext',
+                            ]),
                             resident: { connect: { id: serviceConsumerData.resident } },
                             organization: { connect: { id: serviceConsumerData.organization } },
                             billingAccount: { connect: { id: serviceConsumerData.billingAccount } },
