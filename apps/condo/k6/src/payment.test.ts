@@ -122,7 +122,7 @@ export function registerBillingReceiptsService (data) {
     const receipts = []
     const bankAccount = faker.random.numeric(12)
 
-    for (let i = 0; i < 200; i++) {
+    for (let i = 0; i < 500; i++) {
         receipts.push(createJSONReceipt({ bankAccount }))
     }
 
