@@ -21,9 +21,6 @@ const B2CAppBuild = generateGqlQueries('B2CAppBuild', B2C_APP_BUILD_FIELDS)
 const B2C_APP_PUBLISH_REQUEST_FIELDS = `{ app { id } status isAppTested isContractSigned isInfoApproved ${COMMON_FIELDS} }`
 const B2CAppPublishRequest = generateGqlQueries('B2CAppPublishRequest', B2C_APP_PUBLISH_REQUEST_FIELDS)
 
-const OIDC_CLIENT_FIELDS = `{ b2cApp { id } clientId clientSecret grantTypes responseTypes tokenAuthMethod developmentRedirectUri productionRedirectUri ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
-const OIDCClient = generateGqlQueries('OIDCClient', OIDC_CLIENT_FIELDS)
-
 const PUBLISH_B2C_APP_MUTATION = gql`
     mutation publishB2CApp ($data: PublishB2CAppInput!) {
         result: publishB2CApp(data: $data) { success }
@@ -63,7 +60,6 @@ module.exports = {
     B2CApp,
     B2CAppBuild,
     B2CAppPublishRequest,
-    OIDCClient,
     PUBLISH_B2C_APP_MUTATION,
     IMPORT_B2C_APP_MUTATION,
     ALL_B2C_APP_PROPERTIES_QUERY,

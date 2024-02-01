@@ -15,7 +15,6 @@ const { developmentClient, productionClient } = require('@dev-api/domains/common
 const {
     CondoB2CAppGql,
     CondoB2CAppBuildGql,
-    CondoOIDCClientGql,
 } = require('@dev-api/domains/condo/gql')
 const access = require('@dev-api/domains/miniapp/access/PublishB2CAppService')
 const { DEFAULT_COLOR_SCHEMA } = require('@dev-api/domains/miniapp/constants/b2c')
@@ -25,8 +24,6 @@ const {
     CONDO_APP_NOT_FOUND,
     BUILD_NOT_FOUND,
     PUBLISH_NOT_ALLOWED,
-    OIDC_CLIENT_NOT_FOUND,
-    OIDC_CLIENT_NO_REDIRECT_URI,
 } = require('@dev-api/domains/miniapp/constants/errors')
 const {
     AVAILABLE_ENVIRONMENTS,
@@ -38,7 +35,6 @@ const {
     B2CApp,
     B2CAppBuild,
     B2CAppPublishRequest,
-    OIDCClient,
 } = require('@dev-api/domains/miniapp/utils/serverSchema/index')
 
 const ERRORS = {
@@ -65,18 +61,6 @@ const ERRORS = {
         type: BUILD_NOT_FOUND,
         message: 'Application build with the specified ID was not found',
         messageForUser: 'errors.BUILD_NOT_FOUND.message',
-    },
-    OIDC_CLIENT_NOT_FOUND: {
-        code: BAD_USER_INPUT,
-        type: OIDC_CLIENT_NOT_FOUND,
-        message: 'OIDC application configuration not found',
-        messageForUser: 'errors.OIDC_CLIENT_NOT_FOUND.message',
-    },
-    OIDC_CLIENT_NO_REDIRECT_URI: {
-        code: BAD_USER_INPUT,
-        type: OIDC_CLIENT_NO_REDIRECT_URI,
-        message: 'OIDCClient has no redirect uri for specified environment',
-        messageForUser: 'errors.OIDC_CLIENT_NO_REDIRECT_URI.message',
     },
     PUBLISH_NOT_ALLOWED: {
         code: BAD_USER_INPUT,
@@ -207,93 +191,11 @@ async function publishBuildChanges ({ build, condoBuild, app, condoApp, context,
     }
 }
 
-async function publishOIDCClient ({ args, context, serverClient, app }) {
-    const { data: { app: { id }, environment, dv, sender } } = args
-    const exportIdField = getExportIdField(environment)
-
-    const oidcClient = await OIDCClient.getOne(context, {
-        b2cApp: { id },
-        deletedAt: null,
-    })
-
-    if (!oidcClient) {
-        logger.error({ msg: 'OIDC client not found', appId: app.id, environment })
-        throw new GQLError(ERRORS.OIDC_CLIENT_NOT_FOUND, context)
-    }
-
-    const exportId = oidcClient[exportIdField]
-    const redirectUriField = `${environment}RedirectUri`
-
-    if (!oidcClient[redirectUriField]) {
-        logger.error({ msg: 'OIDC client has no redirect uri', appId: app.id, environment })
-        throw new GQLError(ERRORS.OIDC_CLIENT_NO_REDIRECT_URI, context)
-    }
-
-    const payload = {
-        client_id: oidcClient.clientId,
-        client_secret: oidcClient.clientSecret,
-        redirect_uris: [oidcClient[redirectUriField]],
-        token_endpoint_auth_method: oidcClient.tokenAuthMethod,
-        grant_types: oidcClient.grantTypes,
-        response_types: oidcClient.responseTypes,
-    }
-
-    let condoOIDCClient = await serverClient.findExportedModel({
-        modelGql: CondoOIDCClientGql,
-        exportId: oidcClient[exportIdField],
-        id: oidcClient.id,
-        context,
-    })
-
-    if (condoOIDCClient) {
-        logger.info({ msg: 'Existing OIDC client found. Updating', appId: app.id, environment, meta: { condoOIDCClientId: condoOIDCClient.id } })
-        await serverClient.updateModel({
-            modelGql: CondoOIDCClientGql,
-            id: condoOIDCClient.id,
-            updateInput: {
-                dv,
-                sender,
-                clientId: oidcClient.clientId,
-                name: app.name,
-                payload,
-                importId: oidcClient.id,
-                importRemoteSystem: REMOTE_SYSTEM,
-            },
-        })
-        logger.info({ msg: 'Updated existing OIDC client in condo', appId: app.id, environment, meta: { condoOIDCClientId: condoOIDCClient.id } })
-    } else {
-        logger.info({ msg: 'Creating new OIDC client in condo', appId: app.id, environment })
-        condoOIDCClient = await serverClient.createModel({
-            modelGql: CondoOIDCClientGql,
-            createInput: {
-                dv,
-                sender,
-                clientId: oidcClient.clientId,
-                name: app.name,
-                payload,
-                importId: oidcClient.id,
-                importRemoteSystem: REMOTE_SYSTEM,
-            },
-        })
-        logger.info({ msg: 'Created new OIDC client in condo', appId: app.id, environment, meta: { condoOIDCClientId: condoOIDCClient.id } })
-    }
-
-    if (!exportId || exportId !== condoOIDCClient.id) {
-        await OIDCClient.update(context, oidcClient.id, {
-            dv,
-            sender,
-            [exportIdField]: condoOIDCClient.id,
-        })
-        logger.info({ msg: 'OIDC client exportId updated', appId: app.id, environment })
-    }
-    logger.info({ msg: 'OIDC client successfully published', appId: app.id, environment })
-}
-
 const PublishB2CAppService = new GQLCustomSchema('PublishB2CAppService', {
     types: [
         {
             access: true,
-            type: 'input B2CAppPublishOptions { info: Boolean, build: B2CAppBuildWhereUniqueInput, oidc: Boolean }',
+            type: 'input B2CAppPublishOptions { info: Boolean, build: B2CAppBuildWhereUniqueInput }',
         },
         {
             access: true,
@@ -392,12 +294,6 @@ const PublishB2CAppService = new GQLCustomSchema('PublishB2CAppService', {
                         serverClient,
                     })
                 }
-
-                // Step 3. Create / update OIDC configuration if needed
-                if (options.oidc) {
-                    await publishOIDCClient({ args, context, serverClient, app })
-                }
-
 
                 return {
                     success: true,

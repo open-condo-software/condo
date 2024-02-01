@@ -1,3 +1,5 @@
+const { CONDO_SUPPORTED_RESPONSE_TYPES } = require('@condo/domains/user/constants/oidc')
+
 const OIDC_SECRET_LENGTH = 32
 
 const LOWER_CASE_SYMBOLS = 'abcdefghijklmnopqrstuvwxyz'
@@ -21,6 +23,11 @@ const OIDC_TOKEN_AUTH_METHODS = [
     OIDC_TOKEN_AUTH_POST_METHOD,
 ]
 
+const OIDC_CLIENT_DEFAULT_PAYLOAD = {
+    grant_types: OIDC_GRANT_TYPES,
+    response_types: CONDO_SUPPORTED_RESPONSE_TYPES,
+    token_endpoint_auth_method: OIDC_TOKEN_AUTH_BASIC_METHOD,
+}
 
 module.exports = {
     OIDC_SECRET_LENGTH,
@@ -28,4 +35,5 @@ module.exports = {
     OIDC_GRANT_TYPES,
     OIDC_TOKEN_AUTH_BASIC_METHOD,
     OIDC_TOKEN_AUTH_METHODS,
+    OIDC_CLIENT_DEFAULT_PAYLOAD,
 }

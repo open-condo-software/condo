@@ -33,9 +33,6 @@ import {
     AllB2CAppBuildsQuery,
     AllB2CAppBuildsQueryVariables,
     useGetB2CAppQuery,
-    GetOidcClientInfoDocument,
-    GetOidcClientInfoQuery,
-    GetOidcClientInfoQueryVariables,
 } from '@/lib/gql'
 
 const TITLE_GUTTER: RowProps['gutter'] = [40, 40]
@@ -152,14 +149,6 @@ export const getServerSideProps: GetServerSideProps = async ({ req, query }) => 
                 where: { app: { id } },
                 first: DEFAULT_PAGE_SIZE,
                 skip: DEFAULT_PAGE_SIZE * (currentPage - 1),
-            },
-            context: { headers },
-        })
-    } else if (currentSection === 'oidc') {
-        await client.query<GetOidcClientInfoQuery, GetOidcClientInfoQueryVariables>({
-            query: GetOidcClientInfoDocument,
-            variables: {
-                where: { b2cApp: { id } },
             },
             context: { headers },
         })

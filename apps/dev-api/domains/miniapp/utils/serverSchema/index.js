@@ -11,7 +11,6 @@ const {
     B2CApp: B2CAppGQL,
     B2CAppBuild: B2CAppBuildGQL,
     B2CAppPublishRequest: B2CAppPublishRequestGQL,
-    OIDCClient: OIDCClientGQL,
     PUBLISH_B2C_APP_MUTATION,
     IMPORT_B2C_APP_MUTATION,
     CREATE_B2C_APP_PROPERTY_MUTATION,
@@ -23,7 +22,6 @@ const {
 const B2CApp = generateServerUtils(B2CAppGQL)
 const B2CAppBuild = generateServerUtils(B2CAppBuildGQL)
 const B2CAppPublishRequest = generateServerUtils(B2CAppPublishRequestGQL)
-const OIDCClient = generateServerUtils(OIDCClientGQL)
 
 async function publishB2CApp (context, data) {
     if (!context) throw new Error('no context')
@@ -95,7 +93,6 @@ module.exports = {
     B2CApp,
     B2CAppBuild,
     B2CAppPublishRequest,
-    OIDCClient,
     publishB2CApp,
     importB2CApp,
     allB2CAppProperties,

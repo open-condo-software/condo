@@ -17,7 +17,6 @@ export const PublishForm: React.FC<{ id: string, isPublishing: boolean }> = ({ i
     const ChooseComponentsLabel = intl.formatMessage({ id: 'apps.b2c.sections.publishing.publishForm.items.components.label' })
     const InfoLabel = intl.formatMessage({ id: 'apps.b2c.sections.publishing.publishForm.items.info.label' })
     const BuildLabel = intl.formatMessage({ id: 'apps.b2c.sections.publishing.publishForm.items.build.label' })
-    const OIDCLabel = intl.formatMessage({ id: 'apps.b2c.sections.publishing.publishForm.items.oidc.label' })
     const SelectBuildPlaceholder = intl.formatMessage({ id: 'apps.b2c.sections.publishing.publishForm.items.build.select.placeholder' })
     const PublishButtonLabel = intl.formatMessage({ id: 'apps.b2c.sections.publishing.publishForm.actions.publish' })
 
@@ -92,9 +91,6 @@ export const PublishForm: React.FC<{ id: string, isPublishing: boolean }> = ({ i
                     />
                 </Form.Item>
             )}
-            <Form.Item name='oidc' valuePropName='checked' className={styles.checkboxItem}>
-                <Checkbox label={OIDCLabel}/>
-            </Form.Item>
             <Button
                 type='primary'
                 htmlType='submit'
