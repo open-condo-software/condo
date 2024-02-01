@@ -561,7 +561,12 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
         marketItemGroups.forEach(group => {
             group.options
                 .sort((a, b) => a.labelForSort > b.labelForSort ? 1 : -1)
-                .sort((a, b) => a.order > b.order ? 1 : -1)
+                .sort((a, b) => {
+                    if (a.order > b.order) return 1
+                    else if (a.order < b.order) return -1
+
+                    return 0
+                })
         })
 
         return marketItemGroups
