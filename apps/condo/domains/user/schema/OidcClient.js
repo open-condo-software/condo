@@ -65,6 +65,17 @@ const OidcClient = new GQLListSchema('OidcClient', {
             type: 'Text',
         },
 
+        isEnabled: {
+            schemaDoc:
+                'A switch that allows you to disable some OIDC clients. ' +
+                'If an OIDC client is disabled, it cannot be used for OIDC authorization. ' +
+                'Used mainly by developers portal to create OIDC client before publishing an application, ' +
+                'and enable OIDC after publishing.',
+            type: 'Checkbox',
+            isRequired: true,
+            defaultValue: false,
+        },
+
         meta: {
             schemaDoc: 'The additional client data',
             type: 'Json',

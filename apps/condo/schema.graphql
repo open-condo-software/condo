@@ -1818,6 +1818,7 @@ type OidcClientHistoryRecord {
   clientId: String
   payload: JSON
   name: String
+  isEnabled: Boolean
   meta: JSON
   expiresAt: String
   id: ID!
@@ -1878,6 +1879,8 @@ input OidcClientHistoryRecordWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
+  isEnabled: Boolean
+  isEnabled_not: Boolean
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -1977,6 +1980,8 @@ enum SortOidcClientHistoryRecordsBy {
   clientId_DESC
   name_ASC
   name_DESC
+  isEnabled_ASC
+  isEnabled_DESC
   expiresAt_ASC
   expiresAt_DESC
   id_ASC
@@ -2001,6 +2006,7 @@ input OidcClientHistoryRecordUpdateInput {
   clientId: String
   payload: JSON
   name: String
+  isEnabled: Boolean
   meta: JSON
   expiresAt: String
   v: Int
@@ -2026,6 +2032,7 @@ input OidcClientHistoryRecordCreateInput {
   clientId: String
   payload: JSON
   name: String
+  isEnabled: Boolean
   meta: JSON
   expiresAt: String
   v: Int
@@ -2065,6 +2072,10 @@ type OidcClient {
 
   """ The human readable name for client """
   name: String
+
+  """ A switch that allows you to disable some OIDC clients. If an OIDC client is disabled, it cannot be used for OIDC authorization. Used mainly by developers portal to create OIDC client before publishing an application, and enable OIDC after publishing. 
+  """
+  isEnabled: Boolean
 
   """ The additional client data """
   meta: JSON
@@ -2143,6 +2154,8 @@ input OidcClientWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
+  isEnabled: Boolean
+  isEnabled_not: Boolean
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -2258,6 +2271,8 @@ enum SortOidcClientsBy {
   clientId_DESC
   name_ASC
   name_DESC
+  isEnabled_ASC
+  isEnabled_DESC
   expiresAt_ASC
   expiresAt_DESC
   id_ASC
@@ -2286,6 +2301,7 @@ input OidcClientUpdateInput {
   clientId: String
   payload: JSON
   name: String
+  isEnabled: Boolean
   meta: JSON
   expiresAt: String
   v: Int
@@ -2310,6 +2326,7 @@ input OidcClientCreateInput {
   clientId: String
   payload: JSON
   name: String
+  isEnabled: Boolean
   meta: JSON
   expiresAt: String
   v: Int

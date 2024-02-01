@@ -426,6 +426,7 @@ async function createTestOidcClient (client, extraAttrs = {}) {
         dv: 1,
         sender,
         clientId,
+        isEnabled: true,
         payload: {
             client_id: clientId,
             grant_types: ['implicit', 'authorization_code', 'refresh_token'],
