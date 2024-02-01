@@ -11,6 +11,7 @@ const ERRORS = {
     500: 'Internal server error.',
     503: 'The server is shutting down and unavailable.',
 }
+const RETRY_RESTRICTION = 5
 
 // https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/sending_notification_requests_to_apns
 const APS_PUSH_TYPE_ALERT = 'alert'
@@ -25,4 +26,5 @@ module.exports = {
     APS_PUSH_TYPE_VOIP,
     APS_PUSH_TYPE_BACKGROUND,
     APS_RESPONSE_STATUS_SUCCESS,
+    RETRY_RESTRICTION,
 }

@@ -232,10 +232,10 @@ class AppleAdapter {
                 }
 
                 result = AppleAdapter.injectFakeResults(appleResult, fakeNotifications)
-            } catch (error) {
-                logger.error({ msg: 'sendNotification error', error })
+            } catch (err) {
+                logger.error({ msg: 'sendNotification error', err })
 
-                result = { state: 'error', error }
+                result = { state: 'error', error: err }
             }
         }
 
