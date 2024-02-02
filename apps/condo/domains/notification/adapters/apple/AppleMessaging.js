@@ -13,6 +13,7 @@ const {
     APS_PUSH_TYPE_VOIP,
     APS_PUSH_TYPE_BACKGROUND,
     APS_RESPONSE_STATUS_SUCCESS,
+    RETRY_RESTRICTION,
 } = require('./constants')
 
 const logger = getLogger('AppleMessaging')
@@ -130,9 +131,9 @@ class AppleMessaging {
             const stream = this.#session.request(headers)
 
             stream.on('response', this.getResponseHandler(stream, resolve, reject))
-            stream.on('error', (error) => {
-                logger.error({ msg: 'sendPush errored', headers, options, payload, streamError: error })
-                return resolve(error)
+            stream.on('error', (err) => {
+                logger.error({ msg: 'sendPush errored', headers, options, payload, err })
+                return resolve(err)
             })
             stream.write(buffer)
             stream.end()
@@ -161,7 +162,15 @@ class AppleMessaging {
                 payload.aps.alert = { ...notification }
             }
 
-            const response = await this.sendPush(token, payload, options)
+            let response
+            for (let retryCounter = 0; retryCounter < RETRY_RESTRICTION; retryCounter++) {
+                response = await this.sendPush(token, payload, options)
+                if (response instanceof Error) {
+                    logger.warn({ msg: `sendPush not successful on ${retryCounter + 1} try`, err: response })
+                    continue
+                }
+                break
+            }
 
             responses.push(response)
 
