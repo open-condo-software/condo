@@ -12,7 +12,7 @@ on:
         default: https://condo.d.doma.ai
   workflow_run:
     workflows:
-      - [review] Deploy
+      - '[review] Deploy'
     types:
       - completed
 
