@@ -1,7 +1,6 @@
 import { faker } from '@faker-js/faker/locale/ru'
 import dayjs from 'dayjs'
 import { check } from 'k6'
-import http from 'k6/http'
 
 import {
     setupCondoAuth,
@@ -16,14 +15,6 @@ const DURATION = '60s'
 export const options = {
     tags: { testid: 'payment' },
     scenarios: {
-        // appHealthcheck: {
-        //     exec: 'healthcheck',
-        //     executor: 'constant-arrival-rate',
-        //     duration: DURATION,
-        //     rate: 1,
-        //     timeUnit: '1s',
-        //     preAllocatedVUs: 1,
-        // },
         registerBillingReceipts: {
             exec: 'registerBillingReceiptsService',
             executor: 'constant-vus',
@@ -33,10 +24,7 @@ export const options = {
     },
     thresholds: {
         http_req_failed: ['rate<0.01'],
-        // browser_http_req_duration: ['p(95) < 1000'],
         http_req_duration: ['avg<14000'],
-        // browser_web_vital_fcp: ['p(95) < 2000'],
-        // browser_web_vital_lcp: ['p(95) < 4000'],
     },
 }
 
@@ -60,16 +48,6 @@ export function setup () {
         organizationId,
         billingContext: billingContext.json('data.obj'),
     }
-}
-
-export function healthcheck () {
-    const appHealthcheck = http.get(__ENV.BASE_URL + '/server-health?checks=postgres,redis')
-
-    check(appHealthcheck, {
-        'healthcheck should return 200': (res) => res.status === 200,
-        'postgres should pass': (res) => res.json('postgres') === 'pass',
-        'redis should pass': (res) => res.json('redis') === 'pass',
-    })
 }
 
 const randomNumber = (numDigits) => {

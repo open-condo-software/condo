@@ -1,6 +1,8 @@
 name: RUN K6 LOAD TESTS
 
 on:
+  schedule:
+    - cron: '0 1 * * *'
   workflow_dispatch:
     inputs:
       server_url:
@@ -57,7 +59,7 @@ jobs:
           export K6_PROMETHEUS_RW_SERVER_URL=${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }} 
           export K6_PROMETHEUS_RW_USERNAME=${{ secrets.K6_PROMETHEUS_USER }}
           export K6_PROMETHEUS_RW_PASSWORD=${{ secrets.K6_PROMETHEUS_PASSWORD }}
-          export BASE_URL=${{ env.SERVER_URL }}
+          export BASE_URL=${{ github.event_name == 'schedule' && 'https://condo.d.doma.ai' || env.SERVER_URL }}
           export AUTH_EMAIL=${{ secrets.K6_AUTH_EMAIL }} 
           export AUTH_PASSWORD=${{ secrets.K6_AUTH_PASSWORD }}
           export K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM=true
