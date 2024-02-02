@@ -323,25 +323,16 @@ const MarketplacePaymentsTableContent = () => {
             </Modal>
             {
                 (
-                    <ActionBar
+                    <ExportToExcelActionBar
+                        key='exportToExcel'
+                        searchObjectsQuery={{
+                            ...searchPaymentsQuery,
+                            ...filtersToWhere(filters),
+                        }}
+                        sortBy={sortBy}
+                        exportToExcelQuery={EXPORT_PAYMENTS_TO_EXCEL}
+                        disabled={total < 1}
                         actions={[
-                            <ExportToExcelActionBar
-                                key='exportToExcel'
-                                searchObjectsQuery={{
-                                    ...searchPaymentsQuery,
-                                    ...filtersToWhere(filters),
-                                }}
-                                sortBy={sortBy}
-                                exportToExcelQuery={EXPORT_PAYMENTS_TO_EXCEL}
-                                disabled={total < 1}
-                            />,
-                            // <Button
-                            //     key='downloadCheck'
-                            //     type='primary'
-                            //     onClick={handleDownloadCheckButtonClick}
-                            // >
-                            //     {DownloadCheckLabel}
-                            // </Button>,
                             selectedRows.length > 0 ? <Button
                                 key='clearListSelectedRow'
                                 type='primary'
@@ -349,6 +340,13 @@ const MarketplacePaymentsTableContent = () => {
                             >
                                 {ClearListSelectedRowMessage}
                             </Button> : undefined,
+                            // <Button
+                            //     key='downloadCheck'
+                            //     type='primary'
+                            //     onClick={handleDownloadCheckButtonClick}
+                            // >
+                            //     {DownloadCheckLabel}
+                            // </Button>,
                         ]}
                     />
                 )
