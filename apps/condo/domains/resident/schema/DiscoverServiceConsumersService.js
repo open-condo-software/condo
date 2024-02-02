@@ -472,13 +472,13 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                     existingServiceConsumers: map(existingServiceConsumers, (x) => pick(x, ['id', 'resident', 'organization', 'accountNumber', 'billingAccount'])),
                 })
 
-                // count residents per address for each user to prevent discover service consumers if there is more than MAX_CONSUMERS_COUNT_FOR_USER_PROPERTY residents at the property
+                // count residents per property for each user to prevent discover service consumers if there are more than MAX_CONSUMERS_COUNT_FOR_USER_PROPERTY residents at the property
                 const residentsCountByUserAndProperty = {}
                 await loadListByChunks({
                     context,
                     list: Resident,
                     chunkSize: 20,
-                    where: { user: { id_in: map(serviceConsumersData, 'user') } },
+                    where: { user: { id_in: map(serviceConsumersData, 'user') }, deletedAt: null },
                     chunkProcessor: (/** @type {Resident[]} */ chunk) => {
                         for (const resident of chunk) {
                             const userId = get(resident, ['user', 'id'])
@@ -501,7 +501,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                 }) => get(residentsCountByUserAndProperty, [user, property], 0) <= MAX_RESIDENTS_COUNT_FOR_USER_PROPERTY)
 
                 discoveringSteps.push({
-                    name: `filter out users with ${MAX_RESIDENTS_COUNT_FOR_USER_PROPERTY + 1}+ existing consumers for property`,
+                    name: `filter out users with ${MAX_RESIDENTS_COUNT_FOR_USER_PROPERTY + 1}+ existing residents for property`,
                     residentsCountByUserAndProperty,
                 })
 
