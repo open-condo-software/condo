@@ -18,12 +18,13 @@ const {
     ALL_B2C_APP_PROPERTIES_QUERY,
     CREATE_B2C_APP_PROPERTY_MUTATION,
     DELETE_B2C_APP_PROPERTY_MUTATION,
+    GET_OIDC_CLIENT_QUERY,
+    CREATE_OIDC_CLIENT_MUTATION,
 } = require('@dev-api/domains/miniapp/gql')
 const { UploadingFile } = require('@open-condo/keystone/test.utils')
 const { DEV_ENVIRONMENT } = require('@dev-api/domains/miniapp/constants/publishing')
 const { generateGqlQueries } = require("@open-condo/codegen/generate.gql");
 const { DEFAULT_COLOR_SCHEMA } = require("@dev-api/domains/miniapp/constants/b2c")
-const { GET_OIDC_CLIENT_QUERY } = require('@dev-api/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const B2CApp = generateGQLTestUtils(B2CAppGQL)
@@ -312,6 +313,24 @@ async function getOIDCClientByTestClient(client, app, environment = DEV_ENVIRONM
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
+async function createOIDCClientByTestClient(client, app, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        environment: DEV_ENVIRONMENT,
+        app: { id: app.id },
+        redirectUri: faker.internet.url(),
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(CREATE_OIDC_CLIENT_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -327,5 +346,6 @@ module.exports = {
     createB2CAppPropertyByTestClient,
     deleteB2CAppPropertyByTestClient,
     getOIDCClientByTestClient,
+    createOIDCClientByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
