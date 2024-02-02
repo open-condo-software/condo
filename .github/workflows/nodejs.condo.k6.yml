@@ -1,0 +1,118 @@
+name: RUN K6 LOAD TESTS
+
+on:
+  schedule:
+    - cron: '0 1 * * *'
+  workflow_dispatch:
+    inputs:
+      server_url:
+        required: false
+        type: string
+        description: server url that will be used as target of load test
+        default: https://condo.d.doma.ai
+  workflow_run:
+    workflows: ["[review] Deploy"]
+    branches:
+      - 'master'
+    types:
+      - completed
+
+env:
+  SERVER_URL: ${{ inputs.server_url || 'https://review-master-condo.r.doma.ai' }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x]
+
+    steps:
+      - name: Checkout code with submodules
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
+
+      - name: install packages
+        run: |
+          npm i -g turbo
+          yarn install --immutable
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+
+      - name: run k6 tests
+        run: |
+          yarn --cwd ./apps/condo/k6 webpack
+          
+          export K6_BROWSER_HEADLESS=true
+          export K6_PROMETHEUS_RW_SERVER_URL=${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }} 
+          export K6_PROMETHEUS_RW_USERNAME=${{ secrets.K6_PROMETHEUS_USER }}
+          export K6_PROMETHEUS_RW_PASSWORD=${{ secrets.K6_PROMETHEUS_PASSWORD }}
+          export BASE_URL=${{ github.event_name == 'schedule' && 'https://condo.d.doma.ai' || env.SERVER_URL }}
+          export AUTH_EMAIL=${{ secrets.K6_AUTH_EMAIL }} 
+          export AUTH_PASSWORD=${{ secrets.K6_AUTH_PASSWORD }}
+          export K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM=true
+          
+          k6 -o experimental-prometheus-rw run apps/condo/k6/dist/ticket.test.js
+          k6 -o experimental-prometheus-rw run apps/condo/k6/dist/payment.test.js
+          k6 -o experimental-prometheus-rw run apps/condo/k6/dist/news.test.js
+
+      - name: Upload screenshots
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: screenshots
+          path: ./apps/condo/k6/screenshots
+          retention-days: 2
+
+  check_review_namespace:
+    name: "Check namespace exists"
+    runs-on: self-hosted
+    if: ${{ github.event_name == 'workflow_run' }}
+    outputs:
+      namespace_exist: ${{ steps.check_review_namespace.outputs.exists }}
+    steps:
+      - name: "Check namespace"
+        id: check_review_namespace
+        run: |
+          kubectl get ns review-master > /dev/null 2>&1 && \
+          echo "::set-output name=exist::true" || \
+          echo "::set-output name=exist::false"
+
+  remove_review:
+    name: "Remove review"
+    needs: [check_review_namespace]
+    if: needs.check_review_namespace.outputs.namespace_exist == 'true'
+    runs-on: self-hosted
+    env:
+      WERF_SECRET_KEY: ${{ secrets.WERF_SECRET_KEY }}
+      PULL_USER: ${{ secrets.PULL_USER }}
+      PULL_PERSONAL_ACCESS_KEY: ${{ secrets.PULL_PERSONAL_ACCESS_KEY }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+      - name: Set env for namespace
+        run: |
+          echo "REVIEW_NAMESPACE=review-master" >> $GITHUB_ENV
+      - name: Dismiss
+        uses: werf/actions/dismiss@v1.2
+        env:
+          WERF_NAMESPACE: ${{ env.REVIEW_NAMESPACE }}
+          WERF_WITH_NAMESPACE: true
+        with:
+          env: review

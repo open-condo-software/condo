@@ -702,6 +702,7 @@ __metadata:
     "@tinymce/tinymce-react": ^4.1.0
     "@types/echarts": 4.9.16
     "@types/jest": ^29.4.0
+    "@types/k6": ^0.49.0
     "@types/lodash": 4.14.186
     "@types/node": ^16
     "@types/react": 16.9.17
@@ -15523,6 +15524,13 @@ __metadata:
     csstype: ^2.0.0
     indefinite-observable: ^1.0.1
   checksum: 6e51707529a15f2f5ff94555ecb555d29427fd10c4f3d2d29474934292e365c2dfaa4ad30b2ab46946201cbca7f6e8df56513a22fc6ceca10a979db8338935c5
+  languageName: node
+  linkType: hard
+
+"@types/k6@npm:^0.49.0":
+  version: 0.49.0
+  resolution: "@types/k6@npm:0.49.0"
+  checksum: d92ef6e8d6c2cee0ab2df5c46043339d1136dc58c0535ade384bc67c264a08f6e55b8edf8fcef7958340e1466d57fca48b18757b2242db04bbbe74f3655f0c04
   languageName: node
   linkType: hard
 

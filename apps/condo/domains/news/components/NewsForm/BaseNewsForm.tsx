@@ -196,7 +196,7 @@ const isTimeDisabled = date => {
         }
     }
     const minute = dayjs().minute() + ADDITIONAL_DISABLED_MINUTES_COUNT
-    if (minute > 59) hour += 1 
+    if (minute > 59) hour += 1
     return {
         disabledHours: () => Array.from({ length: hour }, (_, i) => i),
         disabledMinutes: () => Array.from({ length: minute }, (_, i) => i),
@@ -524,7 +524,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const propertyCheckboxChange = (form) => {
         return (value) => {
             if (value) setSelectedPropertiesId(selectedPropertiesId => {
-                if (countPropertiesAvaliableToSelect.current === 1 && selectedPropertiesId.length === 1) 
+                if (countPropertiesAvaliableToSelect.current === 1 && selectedPropertiesId.length === 1)
                     return selectedPropertiesId
                 if (countPropertiesAvaliableToSelect.current === 1 && selectedPropertiesId.length === 0 && has(onlyPropertyThatCanBeSelected, 'current.value')) {
                     return [onlyPropertyThatCanBeSelected.current.value]
@@ -978,6 +978,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                             name='title'
                                                             required
                                                             rules={titleRules}
+                                                            data-cy='news__create-title-input'
                                                         >
                                                             <Title.InputWithCounter
                                                                 style={NO_RESIZE_STYLE}
@@ -998,6 +999,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                             required
                                                             rules={[bodyRule, bodyTemplateChanged]}
                                                             validateFirst={true}
+                                                            data-cy='news__create-body-input'
                                                         >
                                                             <Body.InputWithCounter
                                                                 style={NO_RESIZE_STYLE}
@@ -1031,7 +1033,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                 <Col span={24}>
                                                     <Typography.Title level={2}>{SelectAddressLabel}</Typography.Title>
                                                 </Col>
-                                                <Col span={24}>
+                                                <Col span={24} data-cy='news__create-property-search'>
                                                     <GraphQlSearchInputWithCheckAll
                                                         checkAllFieldName='hasAllProperties'
                                                         checkAllInitialValue={get(initialValues, 'hasAllProperties', false)}
@@ -1082,6 +1084,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                         property={selectedProperties[0]}
                                                                         onChange={handleChangeSectionNameInput(selectedProperties[0])}
                                                                         mode='multiple'
+                                                                        data-cy='news__create-property-section-search'
                                                                     />
                                                                 </Form.Item>
                                                             </Col>

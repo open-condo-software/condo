@@ -24,7 +24,7 @@ jobs:
 
       - name: Verify Git Installation
         run: git --version
-    
+
       - name: Checkout code with submodules
         uses: actions/checkout@v2
         with:
@@ -54,7 +54,6 @@ jobs:
           echo 'REDIS_URL=undefined' >> .env
           echo 'NODE_ENV=production' >> .env
           echo 'FILE_FIELD_ADAPTER=local' >> .env
-          echo 'FAKE_ADDRESS_SUGGESTIONS=true' >> .env
 
       - name: Test apps build
         run: yarn build:apps

@@ -67,7 +67,6 @@ jobs:
           export NODE_ENV=development
           export NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE=true
           export NOTIFICATION__DISABLE_LOGGING=true
-          export FAKE_ADDRESS_SUGGESTIONS=true
           export WORKER_CONCURRENCY=50
 
           yarn workspace @app/condo migrate
