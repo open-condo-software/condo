@@ -54,6 +54,12 @@ const DELETE_B2C_APP_PROPERTY_MUTATION = gql`
     }
 `
 
+const GET_OIDC_CLIENT_QUERY = gql`
+    query getGetOIDCClientById ($data: GetOIDCClientInput!) {
+        obj: GetOIDCClient(data: $data) { id clientId redirectUri }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -65,5 +71,6 @@ module.exports = {
     ALL_B2C_APP_PROPERTIES_QUERY,
     CREATE_B2C_APP_PROPERTY_MUTATION,
     DELETE_B2C_APP_PROPERTY_MUTATION,
+    GET_OIDC_CLIENT_QUERY,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

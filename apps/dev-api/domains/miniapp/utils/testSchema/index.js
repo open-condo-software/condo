@@ -23,6 +23,7 @@ const { UploadingFile } = require('@open-condo/keystone/test.utils')
 const { DEV_ENVIRONMENT } = require('@dev-api/domains/miniapp/constants/publishing')
 const { generateGqlQueries } = require("@open-condo/codegen/generate.gql");
 const { DEFAULT_COLOR_SCHEMA } = require("@dev-api/domains/miniapp/constants/b2c")
+const { GET_OIDC_CLIENT_QUERY } = require('@dev-api/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const B2CApp = generateGQLTestUtils(B2CAppGQL)
@@ -299,6 +300,18 @@ async function deleteB2CAppPropertyByTestClient(client, id, environment) {
     return [data.result, attrs]
 }
 
+async function getOIDCClientByTestClient(client, app, environment = DEV_ENVIRONMENT) {
+    if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app')
+
+    const attrs = {
+        app: { id: app.id },
+        environment,
+    }
+    const { data, errors } = await client.query(GET_OIDC_CLIENT_QUERY, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -313,5 +326,6 @@ module.exports = {
     allB2CAppPropertiesByTestClient,
     createB2CAppPropertyByTestClient,
     deleteB2CAppPropertyByTestClient,
+    getOIDCClientByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

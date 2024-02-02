@@ -17,6 +17,7 @@ const {
     DELETE_B2C_APP_PROPERTY_MUTATION,
     ALL_B2C_APP_PROPERTIES_QUERY,
 } = require('@dev-api/domains/miniapp/gql')
+const { GET_OIDC_CLIENT_QUERY } = require('@dev-api/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const B2CApp = generateServerUtils(B2CAppGQL)
@@ -87,6 +88,19 @@ async function deleteB2CAppProperty (context, data) {
     })
 }
 
+async function getOIDCClient (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: GET_OIDC_CLIENT_QUERY,
+        variables: { data: data },
+        errorMessage: '[error] Unable to getOIDCClient',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -98,5 +112,6 @@ module.exports = {
     allB2CAppProperties,
     createB2CAppProperty,
     deleteB2CAppProperty,
+    getOIDCClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
