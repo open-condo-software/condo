@@ -105,6 +105,7 @@ jobs:
             dev-api:
               - 'apps/dev-api/**'
               - 'apps/condo/domains/miniapp/**'
+              - 'apps/condo/domains/user/**'
 
 
   lint:
