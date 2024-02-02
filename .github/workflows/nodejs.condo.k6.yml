@@ -11,9 +11,8 @@ on:
         description: server url that will be used as target of load test
         default: https://condo.d.doma.ai
   workflow_run:
-    workflows: ["[review] Deploy"]
-    branches:
-      - 'master'
+    workflows:
+      - [review] Deploy
     types:
       - completed
 
