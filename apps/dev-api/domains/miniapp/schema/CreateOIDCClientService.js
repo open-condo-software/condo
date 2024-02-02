@@ -5,6 +5,7 @@
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, getByCondition } = require('@open-condo/keystone/schema')
 
+const { REMOTE_SYSTEM } = require('@dev-api/domains/common/constants/common')
 const { productionClient, developmentClient } = require('@dev-api/domains/common/utils/serverClients')
 const { CondoOIDCClientGql } = require('@dev-api/domains/condo/gql')
 const access = require('@dev-api/domains/miniapp/access/CreateOIDCClientService')
@@ -59,13 +60,15 @@ const CreateOIDCClientService = new GQLCustomSchema('CreateOIDCClientService', {
                         payload: generatePayload(app.id, redirectUri),
                         name: b2cApp.name,
                         isEnabled: false,
+                        importId: app.id,
+                        importRemoteSystem: REMOTE_SYSTEM,
                     },
                 })
 
                 return {
                     id: oidcClient.id,
                     clientId: oidcClient.clientId,
-                    clientSecret: oidcClient.clientSecret,
+                    clientSecret: oidcClient.payload.client_secret,
                     redirectUri: oidcClient.payload.redirect_uris[0],
                 }
             },

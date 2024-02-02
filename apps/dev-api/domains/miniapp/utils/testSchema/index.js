@@ -38,6 +38,7 @@ const FAKE_B2C_APP_LOGO_PATH = path.resolve(conf.PROJECT_ROOT, 'apps/dev-api/dom
 const CondoB2CApp = generateGQLTestUtils(generateGqlQueries('B2CApp', '{ id name developer logo { publicUrl filename } currentBuild { id } importId importRemoteSystem deletedAt v }'))
 const CondoB2CAppBuild = generateGQLTestUtils(generateGqlQueries('B2CAppBuild', '{ id version data { publicUrl } importId importRemoteSystem }'))
 const CondoB2CAppProperty = generateGQLTestUtils(generateGqlQueries('B2CAppProperty', '{ id address }'))
+const CondoOIDCClient = generateGQLTestUtils(generateGqlQueries('OidcClient', '{ id clientId payload isEnabled name importId importRemoteSystem }'))
 
 async function createCondoB2CApp (client) {
     const attrs = {
@@ -345,6 +346,7 @@ module.exports = {
     allB2CAppPropertiesByTestClient,
     createB2CAppPropertyByTestClient,
     deleteB2CAppPropertyByTestClient,
+    CondoOIDCClient,
     getOIDCClientByTestClient,
     createOIDCClientByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */

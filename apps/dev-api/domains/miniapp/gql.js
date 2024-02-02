@@ -56,7 +56,7 @@ const DELETE_B2C_APP_PROPERTY_MUTATION = gql`
 
 const GET_OIDC_CLIENT_QUERY = gql`
     query getGetOIDCClientById ($data: GetOIDCClientInput!) {
-        obj: GetOIDCClient(data: $data) { id clientId redirectUri }
+        result: GetOIDCClient(data: $data) { id clientId redirectUri }
     }
 `
 
