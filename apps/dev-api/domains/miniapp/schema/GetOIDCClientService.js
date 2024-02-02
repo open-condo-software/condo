@@ -31,7 +31,7 @@ const GetOIDCClientService = new GQLCustomSchema('GetOIDCClientService', {
     queries: [
         {
             access: access.canGetOIDCClient,
-            schema: 'executeGetOIDCClient (data: GetOIDCClientInput!): GetOIDCClientOutput',
+            schema: 'OIDCClient (data: GetOIDCClientInput!): GetOIDCClientOutput',
             resolver: async (parent, args) => {
                 const { data: { app, environment } } = args
 
