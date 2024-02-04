@@ -22921,6 +22921,19 @@ export type GetNewsItemsRecipientsCountersOutput = {
   receiversCount: Scalars['Int'];
 };
 
+export type GetNewsSharingRecipientsInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  b2bAppContext: B2BAppContextWhereUniqueInput;
+};
+
+export type GetNewsSharingRecipientsOutput = {
+  __typename?: 'GetNewsSharingRecipientsOutput';
+  id: Scalars['String'];
+  name: Scalars['String'];
+  recipients?: Maybe<Scalars['Int']>;
+};
+
 export enum GetOverviewDashboardAggregatePeriod {
   Day = 'day',
   Week = 'week'
@@ -62944,6 +62957,7 @@ export type Query = {
   getOverviewDashboard?: Maybe<GetOverviewDashboardOutput>;
   exportPropertyScopesToExcel?: Maybe<ExportPropertyScopeToExcelOutput>;
   getNewsItemsRecipientsCounters?: Maybe<GetNewsItemsRecipientsCountersOutput>;
+  getNewsSharingRecipients?: Maybe<Array<Maybe<GetNewsSharingRecipientsOutput>>>;
   allMiniApps?: Maybe<Array<MiniAppOutput>>;
   /** The version of the Keystone application serving this API. */
   appVersion?: Maybe<Scalars['String']>;
@@ -69381,6 +69395,11 @@ export type QueryExportPropertyScopesToExcelArgs = {
 
 export type QueryGetNewsItemsRecipientsCountersArgs = {
   data: GetNewsItemsRecipientsCountersInput;
+};
+
+
+export type QueryGetNewsSharingRecipientsArgs = {
+  data: GetNewsSharingRecipientsInput;
 };
 
 

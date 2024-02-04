@@ -20,6 +20,7 @@ const {
 const { NEWS_TYPE_COMMON } = require('@condo/domains/news/constants/newsTypes')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { NewsItemSharing: NewsItemSharingGQL } = require('@condo/domains/news/gql')
+const { GET_NEWS_SHARING_RECIPIENTS_MUTATION } = require('@condo/domains/news/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const NewsItem = generateGQLTestUtils(NewsItemGQL)
@@ -323,6 +324,24 @@ async function updateTestNewsItemSharing (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+
+async function getNewsSharingRecipientsByTestClient(client, b2bAppContext, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+
+    if (!b2bAppContext.id) throw new Error('no b2bAppContext id')
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        b2bAppContext: { id: b2bAppContext.id },
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(GET_NEWS_SHARING_RECIPIENTS_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -336,5 +355,6 @@ module.exports = {
     getNewsItemsRecipientsCountersByTestClient,
     NewsItemRecipientsExportTask, createTestNewsItemRecipientsExportTask, updateTestNewsItemRecipientsExportTask,
     NewsItemSharing, createTestNewsItemSharing, updateTestNewsItemSharing,
+    getNewsSharingRecipientsByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
