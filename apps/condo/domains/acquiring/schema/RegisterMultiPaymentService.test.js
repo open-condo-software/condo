@@ -458,7 +458,6 @@ describe('RegisterMultiPaymentService', () => {
                     const [secondConsumer] = await createTestServiceConsumer(commonData.admin, secondResident, batches[1].organization, {
                         acquiringIntegrationContext: { connect: { id: secondContext.id } },
                         billingIntegrationContext: { connect: { id: batches[1].billingContext.id } },
-                        billingAccount: { connect: { id: batches[1].billingAccount.id } },
                     })
 
                     const payload = [
