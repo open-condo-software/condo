@@ -83,7 +83,7 @@ describe('SendNewReceiptMessagesToResidentScopesService', () => {
         billingProperty = billingPropertyData[0]
 
         const [billingAccount] = await createTestBillingAccount(adminClient, integrationContext, billingProperty)
-        const [consumer0] = await createTestServiceConsumer(adminClient, resident0, userClient0.organization, { billingAccount: { connect: { id: billingAccount.id } } })
+        const [consumer0] = await createTestServiceConsumer(adminClient, resident0, userClient0.organization )
     })
 
     describe('sendNewReceiptMessagesToResidentScopes tests', () => {
@@ -495,7 +495,7 @@ describe('SendNewReceiptMessagesToResidentScopesService', () => {
                 const [resident2] = await registerResidentByTestClient(residentUser2, residentPayload)
                 const [billingAccount] = await createTestBillingAccount(adminClient, integrationContext, billingProperty)
 
-                await createTestServiceConsumer(adminClient, resident2, organization, { billingAccount: { connect: { id: billingAccount.id } } })
+                await createTestServiceConsumer(adminClient, resident2, organization)
                 await syncRemoteClientWithPushTokenByTestClient(residentUser, remoteClientPayload)
                 await syncRemoteClientWithPushTokenByTestClient(residentUser2, remoteClientPayload)
 
