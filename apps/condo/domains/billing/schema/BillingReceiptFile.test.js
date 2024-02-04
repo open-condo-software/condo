@@ -316,7 +316,6 @@ describe('BillingReceiptFile', () => {
                     dv: 1,
                     sender: { dv: 1, fingerprint: 'admin-test-client' },
                     billingIntegrationContext: { disconnectAll: true },
-                    billingAccount: { disconnectAll: true },
                 })
                 const [receiptFileAfterConsumerUpdate] = await BillingReceiptFile.getAll(residentClient, { id: file.receiptFile.id })
                 expect(receiptFileAfterConsumerUpdate).toBeDefined()
