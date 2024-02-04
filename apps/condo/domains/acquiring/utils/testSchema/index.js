@@ -528,7 +528,7 @@ async function registerMultiPaymentForInvoicesByTestClient(client, extraAttrs = 
 }
 /* AUTOGENERATE MARKER <FACTORY> */
 
-// Utils used to generate bunch of entities for working with MultiPayments
+// Utils used to generate a bunch of entities for working with MultiPayments
 async function makePayer (receiptsAmount = 1) {
     const client = await makeClientWithResidentUser()
     const admin = await makeLoggedInAdminClient()
@@ -554,7 +554,6 @@ async function makePayer (receiptsAmount = 1) {
         unitType: billingAccount.unitType,
     })
     const [serviceConsumer] = await createTestServiceConsumer(admin, resident, organization , {
-        billingAccount: { connect: { id: billingAccount.id } },
         accountNumber: billingAccount.number,
         acquiringIntegrationContext: { connect: {id: acquiringContext.id} },
         billingIntegrationContext: { connect: { id: billingContext.id } }
