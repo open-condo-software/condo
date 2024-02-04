@@ -18,11 +18,12 @@ import { colors } from '@open-condo/ui/dist/colors'
 
 import { PaymentsSumTable } from '@condo/domains/acquiring/components/payments/PaymentsSumTable'
 import { PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS } from '@condo/domains/acquiring/constants/payment'
-import { SUM_PAYMENTS_QUERY } from '@condo/domains/acquiring/gql'
+import { EXPORT_PAYMENTS_TO_EXCEL, SUM_PAYMENTS_QUERY } from '@condo/domains/acquiring/gql'
 import { Payment } from '@condo/domains/acquiring/utils/clientSchema'
 import Input from '@condo/domains/common/components/antd/Input'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import EmptyListView from '@condo/domains/common/components/EmptyListView'
+import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
 import { Loader } from '@condo/domains/common/components/Loader'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
@@ -324,24 +325,17 @@ const MarketplacePaymentsTableContent = () => {
                 </Typography.Text>
             </Modal>
             {
-                selectedRows.length > 0  && (
-                    <ActionBar
+                (
+                    <ExportToExcelActionBar
+                        key='exportToExcel'
+                        searchObjectsQuery={{
+                            ...searchPaymentsQuery,
+                            ...filtersToWhere(filters),
+                        }}
+                        sortBy={sortBy}
+                        exportToExcelQuery={EXPORT_PAYMENTS_TO_EXCEL}
+                        disabled={total < 1}
                         actions={[
-                            // TODO after the pdf check and uploading to Excel is ready
-                            // <Button
-                            //     key='exportToExcel'
-                            //     type='primary'
-                            //     onClick={handleExcelExportButtonClick}
-                            // >
-                            //     {ExportToExcelLabel}
-                            // </Button>,
-                            // <Button
-                            //     key='downloadCheck'
-                            //     type='primary'
-                            //     onClick={handleDownloadCheckButtonClick}
-                            // >
-                            //     {DownloadCheckLabel}
-                            // </Button>,
                             selectedRows.length > 0 ? <Button
                                 key='clearListSelectedRow'
                                 type='primary'
@@ -349,6 +343,13 @@ const MarketplacePaymentsTableContent = () => {
                             >
                                 {ClearListSelectedRowMessage}
                             </Button> : undefined,
+                            // <Button
+                            //     key='downloadCheck'
+                            //     type='primary'
+                            //     onClick={handleDownloadCheckButtonClick}
+                            // >
+                            //     {DownloadCheckLabel}
+                            // </Button>,
                         ]}
                     />
                 )
