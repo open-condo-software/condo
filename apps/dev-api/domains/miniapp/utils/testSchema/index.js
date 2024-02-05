@@ -20,6 +20,7 @@ const {
     DELETE_B2C_APP_PROPERTY_MUTATION,
     GET_OIDC_CLIENT_QUERY,
     CREATE_OIDC_CLIENT_MUTATION,
+    GENERATE_OIDC_CLIENT_SECRET_MUTATION,
 } = require('@dev-api/domains/miniapp/gql')
 const { UploadingFile } = require('@open-condo/keystone/test.utils')
 const { DEV_ENVIRONMENT } = require('@dev-api/domains/miniapp/constants/publishing')
@@ -332,22 +333,36 @@ async function createOIDCClientByTestClient(client, app, extraAttrs = {}) {
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
+async function generateOIDCClientSecretByTestClient(client, app, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        environment: DEV_ENVIRONMENT,
+        app: { id: app.id },
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(GENERATE_OIDC_CLIENT_SECRET_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     CondoB2CApp, createCondoB2CApp,
     CondoB2CAppBuild, createCondoB2CAppBuild, updateCondoB2CApp,
     CondoB2CAppProperty, createCondoB2CAppProperties,
+    CondoOIDCClient,
     B2CApp, createTestB2CApp, updateTestB2CApp, updateTestB2CApps,
     B2CAppBuild, createTestB2CAppBuild, updateTestB2CAppBuild, generateBuildVersion,
     B2CAppPublishRequest, createTestB2CAppPublishRequest, updateTestB2CAppPublishRequest,
     publishB2CAppByTestClient,
     importB2CAppByTestClient,
-    allB2CAppPropertiesByTestClient,
-    createB2CAppPropertyByTestClient,
-    deleteB2CAppPropertyByTestClient,
-    CondoOIDCClient,
-    getOIDCClientByTestClient,
-    createOIDCClientByTestClient,
+    allB2CAppPropertiesByTestClient, createB2CAppPropertyByTestClient, deleteB2CAppPropertyByTestClient,
+    getOIDCClientByTestClient, createOIDCClientByTestClient, generateOIDCClientSecretByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

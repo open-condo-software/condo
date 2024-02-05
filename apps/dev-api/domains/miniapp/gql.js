@@ -66,6 +66,12 @@ const CREATE_OIDC_CLIENT_MUTATION = gql`
     }
 `
 
+const GENERATE_OIDC_CLIENT_SECRET_MUTATION = gql`
+    mutation generateOIDCClientSecret ($data: GenerateOIDCClientSecretInput!) {
+        result: generateOIDCClientSecret(data: $data) { id clientId clientSecret redirectUri }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -79,5 +85,6 @@ module.exports = {
     DELETE_B2C_APP_PROPERTY_MUTATION,
     GET_OIDC_CLIENT_QUERY,
     CREATE_OIDC_CLIENT_MUTATION,
+    GENERATE_OIDC_CLIENT_SECRET_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

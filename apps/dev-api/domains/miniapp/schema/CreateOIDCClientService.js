@@ -31,14 +31,14 @@ const CreateOIDCClientService = new GQLCustomSchema('CreateOIDCClientService', {
         },
         {
             access: true,
-            type: 'type CreateOIDCClientOutput { id: String!, clientId: String!, clientSecret: String!, redirectUri: String! }',
+            type: 'type OIDCClientWithSecret { id: String!, clientId: String!, clientSecret: String!, redirectUri: String! }',
         },
     ],
     
     mutations: [
         {
             access: access.canCreateOIDCClient,
-            schema: 'createOIDCClient(data: CreateOIDCClientInput!): CreateOIDCClientOutput',
+            schema: 'createOIDCClient(data: CreateOIDCClientInput!): OIDCClientWithSecret',
             resolver: async (parent, args, context) => {
                 const { data: { dv, sender, app, environment, redirectUri } } = args
 

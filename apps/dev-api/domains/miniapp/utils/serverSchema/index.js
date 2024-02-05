@@ -18,6 +18,7 @@ const {
     ALL_B2C_APP_PROPERTIES_QUERY,
     GET_OIDC_CLIENT_QUERY,
     CREATE_OIDC_CLIENT_MUTATION,
+    GENERATE_OIDC_CLIENT_SECRET_MUTATION,
 } = require('@dev-api/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -97,7 +98,7 @@ async function getOIDCClient (context, data) {
         query: GET_OIDC_CLIENT_QUERY,
         variables: { data },
         errorMessage: '[error] Unable to getOIDCClient',
-        dataPath: 'obj',
+        dataPath: 'result',
     })
 }
 
@@ -110,7 +111,20 @@ async function createOIDCClient (context, data) {
         query: CREATE_OIDC_CLIENT_MUTATION,
         variables: { data },
         errorMessage: '[error] Unable to createOIDCClient',
-        dataPath: 'obj',
+        dataPath: 'result',
+    })
+}
+
+async function generateOIDCClientSecret (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: GENERATE_OIDC_CLIENT_SECRET_MUTATION,
+        variables: { data },
+        errorMessage: '[error] Unable to generateOIDCClientSecret',
+        dataPath: 'result',
     })
 }
 
@@ -127,5 +141,6 @@ module.exports = {
     deleteB2CAppProperty,
     getOIDCClient,
     createOIDCClient,
+    generateOIDCClientSecret,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
