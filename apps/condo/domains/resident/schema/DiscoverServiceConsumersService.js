@@ -446,7 +446,6 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                         resident: resident.id,
                         accountNumber: account.number,
                         organization: organizationId,
-                        billingAccount: account.id,
                         billingIntegrationContext: billingContextId || null,
                         acquiringIntegrationContext: acquiringContextId || null,
                         property: get(resident, ['property', 'id']),
@@ -526,7 +525,6 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                             ]),
                             resident: { connect: { id: serviceConsumerData.resident } },
                             organization: { connect: { id: serviceConsumerData.organization } },
-                            billingAccount: { connect: { id: serviceConsumerData.billingAccount } },
                             billingIntegrationContext: serviceConsumerData.billingIntegrationContext ? { connect: { id: serviceConsumerData.billingIntegrationContext } } : null,
                             acquiringIntegrationContext: serviceConsumerData.acquiringIntegrationContext ? { connect: { id: serviceConsumerData.acquiringIntegrationContext } } : null,
                         }
