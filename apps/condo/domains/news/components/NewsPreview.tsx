@@ -3,7 +3,7 @@ import { jsx } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Row, Col, Image, Divider } from 'antd'
 import truncate from 'lodash/truncate'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Typography, Card, Space, RadioGroup, Radio } from '@open-condo/ui'
@@ -119,6 +119,8 @@ const NewsPushPreview: INewsPushPreview = ({ title, body }) => {
     )
 }
 
+const LINE_BREAK_STYLE: CSSProperties = { whiteSpace: 'break-spaces' }
+
 const NewsAppPreview: INewsPreview = ({ title, body, validBefore }) => {
     const intl = useIntl()
     const NotificationFromOrganizationTitle = intl.formatMessage({ id: 'pages.news.create.preview.app.notificationFromOrganization' })
@@ -136,24 +138,26 @@ const NewsAppPreview: INewsPreview = ({ title, body, validBefore }) => {
                     <Divider />
                 </Col>
                 <Col span={24} style={APP_CONTENT_STYLE}>
-                    <Space direction='vertical' size={16}>
-                        <Space direction='vertical' size={8}>
-                            <Typography.Title level={2}>
-                                {title}
-                            </Typography.Title>
-                            <Typography.Text size='small' type='secondary'>
-                                {ReceivedAtTitle}
-                                {!!validBefore && (
-                                    <>
-                                        &nbsp;(<Typography.Text size='small' type='danger'>{ValidUntilTitle}</Typography.Text>)
-                                    </>
-                                )}
-                            </Typography.Text>
+                    <div style={LINE_BREAK_STYLE}>
+                        <Space direction='vertical' size={16}>
+                            <Space direction='vertical' size={8}>
+                                <Typography.Title level={2}>
+                                    {title}
+                                </Typography.Title>
+                                <Typography.Text size='small' type='secondary'>
+                                    {ReceivedAtTitle}
+                                    {!!validBefore && (
+                                        <>
+                                            &nbsp;(<Typography.Text size='small' type='danger'>{ValidUntilTitle}</Typography.Text>)
+                                        </>
+                                    )}
+                                </Typography.Text>
+                            </Space>
+                            <Typography.Paragraph>
+                                {body}
+                            </Typography.Paragraph>
                         </Space>
-                        <Typography.Paragraph>
-                            {body}
-                        </Typography.Paragraph>
-                    </Space>
+                    </div>
                 </Col>
             </Row>
         </AppPreviewContainer>
