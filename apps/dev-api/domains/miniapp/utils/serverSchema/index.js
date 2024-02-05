@@ -19,6 +19,7 @@ const {
     GET_OIDC_CLIENT_QUERY,
     CREATE_OIDC_CLIENT_MUTATION,
     GENERATE_OIDC_CLIENT_SECRET_MUTATION,
+    UPDATE_OIDC_CLIENT_URL_MUTATION,
 } = require('@dev-api/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -128,6 +129,19 @@ async function generateOIDCClientSecret (context, data) {
     })
 }
 
+async function updateOIDCClientUrl (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: UPDATE_OIDC_CLIENT_URL_MUTATION,
+        variables: { data },
+        errorMessage: '[error] Unable to updateOIDCClientUrl',
+        dataPath: 'result',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -142,5 +156,6 @@ module.exports = {
     getOIDCClient,
     createOIDCClient,
     generateOIDCClientSecret,
+    updateOIDCClientUrl,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

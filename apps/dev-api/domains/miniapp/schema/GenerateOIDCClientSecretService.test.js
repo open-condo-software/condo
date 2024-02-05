@@ -85,6 +85,7 @@ describe('GenerateOIDCClientSecretService', () => {
             const initialPayload = omit(initialCondoOidcClient.payload, 'client_secret')
             const updatedPayload = omit(updatedCondoClient.payload, 'client_secret')
             expect(initialPayload).toEqual(updatedPayload)
+            expect(updatedCondoClient).toHaveProperty(['payload', 'client_secret'], updatedClient.clientSecret)
         })
         test('Client secret must be strong enough', async () => {
             const [updatedClient] = await generateOIDCClientSecretByTestClient(b2cUser, b2cApp)

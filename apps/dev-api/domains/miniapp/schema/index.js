@@ -14,6 +14,7 @@ const { GenerateOIDCClientSecretService } = require('./GenerateOIDCClientSecretS
 const { GetOIDCClientService } = require('./GetOIDCClientService')
 const { ImportB2CAppService } = require('./ImportB2CAppService')
 const { PublishB2CAppService } = require('./PublishB2CAppService')
+const { UpdateOIDCClientUrlService } = require('./UpdateOIDCClientUrlService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -28,5 +29,6 @@ module.exports = {
     GetOIDCClientService,
     CreateOIDCClientService,
     GenerateOIDCClientSecretService,
+    UpdateOIDCClientUrlService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

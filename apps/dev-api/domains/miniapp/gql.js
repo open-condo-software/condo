@@ -72,6 +72,12 @@ const GENERATE_OIDC_CLIENT_SECRET_MUTATION = gql`
     }
 `
 
+const UPDATE_OIDC_CLIENT_URL_MUTATION = gql`
+    mutation updateOIDCClientUrl ($data: UpdateOIDCClientUrlInput!) {
+        result: updateOIDCClientUrl(data: $data) { id clientId redirectUri }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -86,5 +92,6 @@ module.exports = {
     GET_OIDC_CLIENT_QUERY,
     CREATE_OIDC_CLIENT_MUTATION,
     GENERATE_OIDC_CLIENT_SECRET_MUTATION,
+    UPDATE_OIDC_CLIENT_URL_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

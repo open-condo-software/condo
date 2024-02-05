@@ -18,5 +18,7 @@
   "errors.BUILD_NOT_FOUND.message": "Сборка приложения с указанным ID не найдена",
   "errors.MULTIPLE_FOUND.message": "Невозможно определить объект для обновления, так как  найдено несколько объектов по указанным importID и exportId",
   "errors.PUBLISH_NOT_ALLOWED.message": "Приложение не может быть опубликовано на указанный стенд, так как для этого необходимо дополнительная верификация",
-  "errors.OIDC_CLIENT_NOT_FOUND.message": "OIDC клиент для указанного приложения не найден"
+  "errors.OIDC_CLIENT_NOT_FOUND.message": "OIDC клиент для указанного приложения не найден",
+  "errors.INVALID_URL.message": "Указанный redirectUri не является валидной ссылкой",
+  "errors.HTTPS_ONLY.message": "URL имеет невалидные протокол. Для выбранного стенда разрешен только https"
 }
