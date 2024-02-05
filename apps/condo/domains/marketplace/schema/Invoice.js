@@ -67,8 +67,12 @@ const sendPush = async ({ originalInput, userId, propertyId, unitName, unitType,
             deletedAt: null,
         })
 
+        // Calculation of current time accurate to tens of minutes. Example '24-02-05-12-5'
+        // This is necessary to avoid spamming the user with push notifications about adding invoices to a ticket.
+        const currTime = dayjs().format('YY-MM-DD-HH-mm').split('').slice(0, -1).join('')
+
         const uniqKey = `marketplace_invoice_published_${updatedItem.id}`
-        const uniqKeyWithTicket = `marketplace_invoice_published_${updatedItem.ticket}`
+        const uniqKeyWithTicket = `marketplace_invoice_published_${updatedItem.ticket}_${currTime}`
         if (!resident) return
 
         if (updatedItem.paymentType === INVOICE_PAYMENT_TYPE_ONLINE) {
