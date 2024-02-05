@@ -27724,6 +27724,8 @@ export type MarketPriceScope = {
   marketItemPrice?: Maybe<MarketItemPrice>;
   /**  Link to property  */
   property?: Maybe<Property>;
+  /**  The scope type. This is an auto-calculated field. Used to find items by scopes filled with some set of attributes.  */
+  type?: Maybe<MarketPriceScopeTypeType>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -27743,6 +27745,7 @@ export type MarketPriceScope = {
 export type MarketPriceScopeCreateInput = {
   marketItemPrice?: Maybe<MarketItemPriceRelateToOneInput>;
   property?: Maybe<PropertyRelateToOneInput>;
+  type?: Maybe<MarketPriceScopeTypeType>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -27767,6 +27770,7 @@ export type MarketPriceScopeHistoryRecord = {
   _label_?: Maybe<Scalars['String']>;
   marketItemPrice?: Maybe<Scalars['String']>;
   property?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -27785,6 +27789,7 @@ export type MarketPriceScopeHistoryRecord = {
 export type MarketPriceScopeHistoryRecordCreateInput = {
   marketItemPrice?: Maybe<Scalars['String']>;
   property?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -27808,6 +27813,7 @@ export enum MarketPriceScopeHistoryRecordHistoryActionType {
 export type MarketPriceScopeHistoryRecordUpdateInput = {
   marketItemPrice?: Maybe<Scalars['String']>;
   property?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -27833,6 +27839,24 @@ export type MarketPriceScopeHistoryRecordWhereInput = {
   property_not?: Maybe<Scalars['String']>;
   property_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   property_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  type?: Maybe<Scalars['String']>;
+  type_not?: Maybe<Scalars['String']>;
+  type_contains?: Maybe<Scalars['String']>;
+  type_not_contains?: Maybe<Scalars['String']>;
+  type_starts_with?: Maybe<Scalars['String']>;
+  type_not_starts_with?: Maybe<Scalars['String']>;
+  type_ends_with?: Maybe<Scalars['String']>;
+  type_not_ends_with?: Maybe<Scalars['String']>;
+  type_i?: Maybe<Scalars['String']>;
+  type_not_i?: Maybe<Scalars['String']>;
+  type_contains_i?: Maybe<Scalars['String']>;
+  type_not_contains_i?: Maybe<Scalars['String']>;
+  type_starts_with_i?: Maybe<Scalars['String']>;
+  type_not_starts_with_i?: Maybe<Scalars['String']>;
+  type_ends_with_i?: Maybe<Scalars['String']>;
+  type_not_ends_with_i?: Maybe<Scalars['String']>;
+  type_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  type_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -27924,9 +27948,16 @@ export type MarketPriceScopeHistoryRecordsUpdateInput = {
   data?: Maybe<MarketPriceScopeHistoryRecordUpdateInput>;
 };
 
+export enum MarketPriceScopeTypeType {
+  Unknown = 'unknown',
+  Organization = 'organization',
+  Property = 'property'
+}
+
 export type MarketPriceScopeUpdateInput = {
   marketItemPrice?: Maybe<MarketItemPriceRelateToOneInput>;
   property?: Maybe<PropertyRelateToOneInput>;
+  type?: Maybe<MarketPriceScopeTypeType>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -27945,6 +27976,10 @@ export type MarketPriceScopeWhereInput = {
   marketItemPrice_is_null?: Maybe<Scalars['Boolean']>;
   property?: Maybe<PropertyWhereInput>;
   property_is_null?: Maybe<Scalars['Boolean']>;
+  type?: Maybe<MarketPriceScopeTypeType>;
+  type_not?: Maybe<MarketPriceScopeTypeType>;
+  type_in?: Maybe<Array<Maybe<MarketPriceScopeTypeType>>>;
+  type_not_in?: Maybe<Array<Maybe<MarketPriceScopeTypeType>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -75325,6 +75360,8 @@ export enum SortMarketItemsBy {
 }
 
 export enum SortMarketPriceScopeHistoryRecordsBy {
+  TypeAsc = 'type_ASC',
+  TypeDesc = 'type_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -75348,6 +75385,8 @@ export enum SortMarketPriceScopesBy {
   MarketItemPriceDesc = 'marketItemPrice_DESC',
   PropertyAsc = 'property_ASC',
   PropertyDesc = 'property_DESC',
+  TypeAsc = 'type_ASC',
+  TypeDesc = 'type_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

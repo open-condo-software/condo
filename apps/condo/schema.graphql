@@ -69578,6 +69578,7 @@ type MarketPriceScopeHistoryRecord {
   _label_: String
   marketItemPrice: String
   property: String
+  type: String
   id: ID!
   v: Int
   createdAt: String
@@ -69604,6 +69605,24 @@ input MarketPriceScopeHistoryRecordWhereInput {
   property_not: String
   property_in: [String]
   property_not_in: [String]
+  type: String
+  type_not: String
+  type_contains: String
+  type_not_contains: String
+  type_starts_with: String
+  type_not_starts_with: String
+  type_ends_with: String
+  type_not_ends_with: String
+  type_i: String
+  type_not_i: String
+  type_contains_i: String
+  type_not_contains_i: String
+  type_starts_with_i: String
+  type_not_starts_with_i: String
+  type_ends_with_i: String
+  type_not_ends_with_i: String
+  type_in: [String]
+  type_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -69687,6 +69706,8 @@ input MarketPriceScopeHistoryRecordWhereUniqueInput {
 }
 
 enum SortMarketPriceScopeHistoryRecordsBy {
+  type_ASC
+  type_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -69708,6 +69729,7 @@ enum SortMarketPriceScopeHistoryRecordsBy {
 input MarketPriceScopeHistoryRecordUpdateInput {
   marketItemPrice: String
   property: String
+  type: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -69730,6 +69752,7 @@ input MarketPriceScopeHistoryRecordsUpdateInput {
 input MarketPriceScopeHistoryRecordCreateInput {
   marketItemPrice: String
   property: String
+  type: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -69755,6 +69778,12 @@ input MarketItemPriceRelateToOneInput {
   disconnectAll: Boolean
 }
 
+enum MarketPriceScopeTypeType {
+  unknown
+  organization
+  property
+}
+
 """ Which residents can see the particular market item price instance """
 type MarketPriceScope {
   """
@@ -69771,6 +69800,10 @@ type MarketPriceScope {
 
   """ Link to property """
   property: Property
+
+  """ The scope type. This is an auto-calculated field. Used to find items by scopes filled with some set of attributes. 
+  """
+  type: MarketPriceScopeTypeType
   id: ID!
   v: Int
   createdAt: String
@@ -69801,6 +69834,10 @@ input MarketPriceScopeWhereInput {
   marketItemPrice_is_null: Boolean
   property: PropertyWhereInput
   property_is_null: Boolean
+  type: MarketPriceScopeTypeType
+  type_not: MarketPriceScopeTypeType
+  type_in: [MarketPriceScopeTypeType]
+  type_not_in: [MarketPriceScopeTypeType]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -69868,6 +69905,8 @@ enum SortMarketPriceScopesBy {
   marketItemPrice_DESC
   property_ASC
   property_DESC
+  type_ASC
+  type_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -69889,6 +69928,7 @@ enum SortMarketPriceScopesBy {
 input MarketPriceScopeUpdateInput {
   marketItemPrice: MarketItemPriceRelateToOneInput
   property: PropertyRelateToOneInput
+  type: MarketPriceScopeTypeType
   v: Int
   createdAt: String
   updatedAt: String
@@ -69908,6 +69948,7 @@ input MarketPriceScopesUpdateInput {
 input MarketPriceScopeCreateInput {
   marketItemPrice: MarketItemPriceRelateToOneInput
   property: PropertyRelateToOneInput
+  type: MarketPriceScopeTypeType
   v: Int
   createdAt: String
   updatedAt: String

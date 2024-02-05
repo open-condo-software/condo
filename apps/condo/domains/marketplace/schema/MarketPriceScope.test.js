@@ -4,7 +4,15 @@
 
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, expectValuesOfCommonFields, expectToThrowUniqueConstraintViolationError, expectToThrowGQLError, expectToThrowAccessDeniedErrorToObjects } = require('@open-condo/keystone/test.utils')
+const {
+    makeLoggedInAdminClient,
+    makeClient,
+    UUID_RE,
+    expectValuesOfCommonFields,
+    expectToThrowUniqueConstraintViolationError,
+    expectToThrowGQLError,
+    expectToThrowAccessDeniedErrorToObjects,
+} = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
@@ -518,6 +526,21 @@ describe('MarketPriceScope', () => {
             await expectToThrowAccessDeniedErrorToObjects(async () => {
                 await softDeleteTestMarketPriceScopes(employeeClient, [marketPriceScope.id, marketPriceScope1.id])
             })
+        })
+    })
+
+    describe('Scope type tests', () => {
+        test('type must equals "property" for scope with property', async  () => {
+            const [property] = await createTestProperty(admin, organization)
+            const [obj] = await createTestMarketPriceScope(admin, price, property)
+            expect(obj.type).toBe('property')
+        })
+
+        test('type must equals "organization" for scope without property', async () => {
+            const [property] = await createTestProperty(admin, organization)
+            const [price] = await createTestMarketItemPrice(admin, marketItem)
+            const [obj] = await createTestMarketPriceScope(admin, price, property, { property: null })
+            expect(obj.type).toBe('organization')
         })
     })
 })

@@ -9,9 +9,13 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema  } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/marketplace/access/MarketPriceScope')
+const {
+    MARKETPLACE_PRICE_SCOPES_TYPES,
+    MARKETPLACE_PRICE_SCOPE_TYPE_ORGANIZATION,
+    MARKETPLACE_PRICE_SCOPE_TYPE_PROPERTY,
+} = require('@condo/domains/marketplace/constants')
 const { MarketItemPrice, MarketItem } = require('@condo/domains/marketplace/utils/serverSchema')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
-
 
 const ERRORS = {
     ORGANIZATION_IN_PROPERTY_AND_MARKET_ITEM_PRICE_NOT_MATCHED: {
@@ -22,11 +26,9 @@ const ERRORS = {
     },
 }
 
-
 const MarketPriceScope = new GQLListSchema('MarketPriceScope', {
     schemaDoc: 'Which residents can see the particular market item price instance',
     fields: {
-
         marketItemPrice: {
             schemaDoc: 'Link to market item price',
             type: 'Relationship',
@@ -35,14 +37,32 @@ const MarketPriceScope = new GQLListSchema('MarketPriceScope', {
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
-
         property: {
             schemaDoc: 'Link to property',
             type: 'Relationship',
             ref: 'Property',
             kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
         },
+        type: {
+            schemaDoc: 'The scope type. This is an auto-calculated field. Used to find items by scopes filled with some set of attributes.',
+            type: 'Select',
+            options: MARKETPLACE_PRICE_SCOPES_TYPES,
+            isRequired: true,
+            access: {
+                read: true,
+                create: false,
+                update: false,
+            },
+            hooks: {
+                resolveInput: async ({ operation, resolvedData, fieldPath }) => {
+                    if (operation === 'create') {
+                        return resolvedData.property ? MARKETPLACE_PRICE_SCOPE_TYPE_PROPERTY : MARKETPLACE_PRICE_SCOPE_TYPE_ORGANIZATION
+                    }
 
+                    return resolvedData[fieldPath]
+                },
+            },
+        },
     },
     kmigratorOptions: {
         constraints: [
