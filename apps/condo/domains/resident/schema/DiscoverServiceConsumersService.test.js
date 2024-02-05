@@ -1136,7 +1136,7 @@ describe('DiscoverServiceConsumersService', () => {
             expect(createdServiceConsumers).toHaveLength(0)
         })
 
-        test('Can\'t discover if already 6+ consumers exist', async () => {
+        test('Can\'t discover if already 6+ residents exist', async () => {
             const userClient = await makeClientWithProperty()
 
             await addAcquiringIntegrationAndContext(admin, userClient.organization, {}, { status: CONTEXT_FINISHED_STATUS })
