@@ -32,7 +32,7 @@ from datetime import datetime
 from pathlib import Path
 from time import time
 
-VERSION = (1, 5, 6)
+VERSION = (1, 5, 7)
 CACHE_DIR = Path('.kmigrator')
 KNEX_MIGRATIONS_DIR = Path('migrations')
 GET_KNEX_SETTINGS_SCRIPT = CACHE_DIR / 'get.knex.settings.js'
@@ -353,12 +353,20 @@ function createFakeTable (tableName) {
 (async () => {
     keystone.eventHandlers = {}
     await keystone.connect()
-    const adapter = keystone.adapter
+    const rootAdapter = keystone.adapter
 
-        if (!adapter._createTables || !adapter.knex) {
-            console.error('\\nERROR: No KNEX adapter! Check the DATABASE_URL or keystone database adapter')
-            process.exit(4)
-        }
+    let knexAdapters = []
+
+    if (rootAdapter.__kmigratorKnexAdapters) {
+        knexAdapters = rootAdapter.__kmigratorKnexAdapters()
+    } else if (rootAdapter._createTables && rootAdapter.knex) {
+        knexAdapters = [rootAdapter]
+    } else {
+        console.error('\\nERROR: No KNEX adapter! Check the DATABASE_URL or keystone database adapter')
+        process.exit(4)
+    }
+
+    for (let adapter of knexAdapters) {
         const schemaName = adapter.schemaName
         const s = adapter.schema()
         const s_createTable = s.createTable
@@ -369,9 +377,8 @@ function createFakeTable (tableName) {
             const ft = createFakeTable(`${schemaName}.${tableName}`)
             callback(ft)
             console.log('CALL', 'createTable', tableName)
-            if (!adapter.listAdapters[tableName]) {
-                console.warn(`NO keystone.adapter.listAdapters['${tableName}']`)
-                console.dir(Object.keys(adapter.listAdapters))
+            if (!rootAdapter.getListAdapterByKey(tableName)) {
+                console.warn(`NO keystone.adapter.getListAdapterByKey('${tableName}')`)
             } else {
                 if (!keystone.lists[tableName]) {
                     console.warn(`NO keystone.lists['${tableName}']`)
@@ -394,7 +401,7 @@ function createFakeTable (tableName) {
                         }
                     }
                 }
-                for (const fad of adapter.listAdapters[tableName].fieldAdapters) {
+                for (const fad of rootAdapter.getListAdapterByKey(tableName).fieldAdapters) {
                     if (fad.config.kmigratorOptions) {
                         // TODO(pahaz): add field kmigratorOptions validation
                         ft.kmigrator(fad.path, fad.config.kmigratorOptions)
@@ -411,10 +418,6 @@ function createFakeTable (tableName) {
             if (r.isRejected) throw r.reason
         })
 
-        console.log('write client config')
-        fs.writeFileSync(knexConnectionFile, JSON.stringify(s.client.config))
-        hasKnexConnection = true
-
         const migrationsConfig = {directory: knexMigrationsDir}
         try {
             console.log('migrate.list', await adapter.knex.migrate.list(migrationsConfig))
@@ -427,6 +430,12 @@ function createFakeTable (tableName) {
                 process.exit(1)
             }
         }
+
+        const cfg = JSON.stringify(s.client.config)
+        console.log('write last knex client config', cfg)
+        fs.writeFileSync(knexConnectionFile, cfg)
+        hasKnexConnection = true
+    }
 
     if (!hasKnexConnection) {
         console.error('\\nERROR: No KNEX adapter connection settings! Check the DATABASE_URL')
@@ -467,12 +476,20 @@ async function runInContext(knex, config) {
 (async () => {
     keystone.eventHandlers = {}
     await keystone.connect()
-    const adapter = keystone.adapter
+    const rootAdapter = keystone.adapter
 
-        if (!adapter._createTables || !adapter.knex) {
-            console.error('\\nERROR: No KNEX adapter! Check the DATABASE_URL or keystone database adapter')
-            process.exit(4)
-        }
+    let knexAdapters = []
+
+    if (rootAdapter.__kmigratorKnexAdapters) {
+        knexAdapters = rootAdapter.__kmigratorKnexAdapters()
+    } else if (rootAdapter._createTables && rootAdapter.knex) {
+        knexAdapters = [rootAdapter]
+    } else {
+        console.error('\\nERROR: No KNEX adapter! Check the DATABASE_URL or keystone database adapter')
+        process.exit(4)
+    }
+
+    for (let adapter of knexAdapters) {
         const migrationsConfig = {directory: knexMigrationsDir}
         try {
             await runInContext(adapter.knex, migrationsConfig)
@@ -480,6 +497,7 @@ async function runInContext(knex, config) {
             console.error(e)
             process.exit(1)
         }
+    }
 
     process.exit(0)
 })()

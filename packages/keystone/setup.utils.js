@@ -7,6 +7,8 @@ const { v5: uuidv5 } = require('uuid')
 
 const conf = require('@open-condo/config')
 
+const { FakeDatabaseAdapter, ScalableDatabaseAdapter, wrapToCheckOnlyPublicApi } = require('./databaseAdapters')
+
 const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
 
 const RedisStore = connectRedis(session)
@@ -43,7 +45,7 @@ function getCookieSecret (cookieSecret) {
 }
 
 /** @deprecated use prepareKeystone */
-function getAdapter (databaseUrl) {
+function getAdapter (databaseUrl, databaseMapping) {
     if (!databaseUrl) throw new TypeError('getAdapter() call without databaseUrl')
     if (typeof databaseUrl !== 'string') throw new TypeError('getAdapter() databaseUrl is not a string')
     if (databaseUrl.startsWith('mongodb')) {
@@ -52,11 +54,9 @@ function getAdapter (databaseUrl) {
         return new KnexAdapter({ knexOptions: { connection: databaseUrl, pool: { min: 0, max: 3 } } })
     } else if (databaseUrl.startsWith('undefined')) {
         // NOTE: case for build time!
-        const adapter = new MongooseAdapter()
-        adapter.connect = () => {throw new Error('UndefinedAdapter.connect() call!')}
-        adapter.postConnect = () => {throw new Error('UndefinedAdapter.postConnect() call!')}
-        adapter.checkDatabaseVersion = () => {throw new Error('UndefinedAdapter.checkDatabaseVersion() call!')}
-        return adapter
+        return new FakeDatabaseAdapter()
+    } else if (databaseUrl.startsWith('custom')) {
+        return wrapToCheckOnlyPublicApi(new ScalableDatabaseAdapter({ url: databaseUrl, mapping: databaseMapping }), ScalableDatabaseAdapter.PUBLIC_API)
     } else {
         throw new Error(`getAdapter() call with unknown schema: ${databaseUrl}`)
     }
@@ -89,7 +89,7 @@ function prepareDefaultKeystoneConfig (conf) {
         config.sessionStore = sessionStore
     }
 
-    config.adapter = getAdapter(conf.DATABASE_URL || 'undefined')
+    config.adapter = getAdapter(conf.DATABASE_URL || 'undefined', conf.DATABASE_MAPPING || undefined)
 
     return config
 }

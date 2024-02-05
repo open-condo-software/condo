@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`parseDatabaseMapping no default match 1`] = `undefined`;
+
+exports[`parseDatabaseMapping real case 1 1`] = `
+[
+  {
+    "command": "default",
+    "match": "Billing*",
+    "query": "default",
+  },
+  {
+    "command": "default",
+    "match": "*",
+    "query": "default",
+  },
+]
+`;
+
+exports[`parseDatabaseMapping wrong database name 1`] = `undefined`;
+
+exports[`parseDatabaseMapping wrong json type 1`] = `undefined`;
+
+exports[`parseDatabaseUrl no custom prefix 1`] = `undefined`;
+
+exports[`parseDatabaseUrl real case 1 1`] = `
+{
+  "billing": "postgresql://postgres@127.0.0.1/main",
+  "default": "postgresql://postgres@127.0.0.1/main",
+}
+`;
+
+exports[`parseDatabaseUrl wrong json 1`] = `undefined`;
+
+exports[`parseDatabaseUrl wrong json 2 1`] = `undefined`;
+
+exports[`parseDatabaseUrl wrong type 1`] = `undefined`;
