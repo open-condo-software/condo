@@ -357,11 +357,16 @@ export const formatDate = (intl, dateStr?: string): string => {
 }
 
 function getDeadlineStopPoint (ticket: Ticket) {
-    const ticketStatusUpdatedAt = get(ticket, ['statusUpdatedAt'])
     let deadlineStopPoint = dayjs().startOf('day')
 
     if (isCompletedTicket(ticket)) {
-        deadlineStopPoint = dayjs(ticketStatusUpdatedAt).startOf('day')
+        const ticketStatusType = get(ticket, ['status', 'type'])
+        if (ticketStatusType === CANCELED_STATUS_TYPE) {
+            const ticketStatusUpdatedAt = dayjs(get(ticket, 'statusUpdatedAt')).startOf('day')
+            deadlineStopPoint = ticketStatusUpdatedAt
+        }
+        const ticketCompletedAt = get(ticket, 'completedAt')
+        deadlineStopPoint = dayjs(ticketCompletedAt).startOf('day')
     }
 
     return deadlineStopPoint
