@@ -8,6 +8,7 @@ const { Message } = require('./Message')
 const { MessageBatch } = require('./MessageBatch')
 const { MessageOrganizationBlackList } = require('./MessageOrganizationBlackList')
 const { MessageUserBlackList } = require('./MessageUserBlackList')
+const { NotificationAnonymousSetting } = require('./NotificationAnonymousSetting')
 const { NotificationUserSetting } = require('./NotificationUserSetting')
 const { RemoteClient } = require('./RemoteClient')
 const { SendMessageService } = require('./SendMessageService')
@@ -28,5 +29,6 @@ module.exports = {
     MessageBatch,
     NotificationUserSetting,
     TelegramUserChat,
+    NotificationAnonymousSetting,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

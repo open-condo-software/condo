@@ -4,13 +4,51 @@ const {
     MESSAGE_DELIVERY_OPTIONS,
     DEFAULT_MESSAGE_DELIVERY_OPTIONS,
 } = require('@condo/domains/notification/constants/constants')
-const { NotificationUserSetting } = require('@condo/domains/notification/utils/serverSchema/index')
+const {
+    NotificationUserSetting,
+    NotificationAnonymousSetting,
+} = require('@condo/domains/notification/utils/serverSchema/index')
 
 // Settings priorities
 // The highest number is the most prioritized value
 const ALL_MESSAGES_TYPES = 10
 const ALL_TYPE_TRANSPORTS = 20
 const PARTICULAR_TYPE_N_TRANSPORT = 30
+
+/**
+ * @param context
+ * @param userId
+ * @param messageType
+ * @returns {Promise<NotificationUserSetting[]>}
+ */
+async function getUserSettings (context, userId, messageType) {
+    return await NotificationUserSetting.getAll(context, {
+        user: { id: userId },
+        deletedAt: null,
+        OR: [
+            { messageType: null }, // possible settings for all messages
+            { messageType }, // settings for specific message type
+        ],
+    })
+}
+
+/**
+ * @param context
+ * @param email
+ * @param messageType
+ * @returns {Promise<NotificationAnonymousSetting[]>}
+ */
+async function getAnonymousSettings (context, email, messageType) {
+    return await NotificationAnonymousSetting.getAll(context, {
+        email: email,
+        deletedAt: null,
+        OR: [
+            { messageType: null }, // possible settings for all messages
+            { messageType }, // settings for specific message type
+        ],
+    })
+}
+
 
 /**
  * @param context
@@ -26,20 +64,12 @@ async function getUserSettingsForMessage (context, message) {
      */
     const userTransportSettings = transports.reduce((result, transport) => ({ ...result, [transport]: true }), {})
 
-    // Allow all messages for cases messages models without user (sms_verify, registration, ...)
-    if (!get(message, ['user', 'id'])) {
-        return userTransportSettings
-    }
+    const isAnonymous = !get(message, ['user', 'id'])
 
-    /** @type {NotificationUserSetting[]} */
-    const notificationUserSettings = await NotificationUserSetting.getAll(context, {
-        user: { id: message.user.id },
-        deletedAt: null,
-        OR: [
-            { messageType: null }, // possible settings for all messages
-            { messageType: message.type }, // settings for specific message type
-        ],
-    })
+    /** @type {NotificationUserSetting[] | NotificationAnonymousSetting[]} */
+    const notificationUserSettings = isAnonymous
+        ? await getAnonymousSettings(context, message.email, message.type)
+        : await getUserSettings(context, message.user.id, message.type)
 
     // The auxiliary object for settings prioritizing. Keeps the highest priority of applied setting
     const appliedPriorities = {}
