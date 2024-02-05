@@ -13,20 +13,23 @@ Pick<DefaultCardProps, 'hoverable' | 'title'> & {
     bodyPadding?: CSSProperties['padding']
     titlePadding?: CSSProperties['padding']
     active?: boolean
+    disabled?: boolean
 }
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>((props, ref) => {
     const {
         width,
-        bodyPadding = 24,
-        titlePadding = 24,
+        bodyPadding,
+        titlePadding,
         active = false,
+        disabled = false,
         className: propsClassName,
         ...rest
     } = props
 
     const className = classNames(propsClassName, {
         [`${CARD_CLASS_PREFIX}-active`]: active,
+        [`${CARD_CLASS_PREFIX}-disabled`]: disabled,
     })
     
     return (
