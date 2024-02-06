@@ -5,7 +5,7 @@ import {
     SortPropertiesBy,
 } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
-import { Col, Row, RowProps, Typography } from 'antd'
+import { Typography } from 'antd'
 import { ColumnsType } from 'antd/lib/table'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -15,6 +15,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
 import {
+    PageHeader,
     PageWrapper,
 } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
@@ -41,8 +42,6 @@ type PropertiesContentProps = {
     canDownloadProperties?: boolean
 }
 
-const PAGE_ROW_GUTTER: RowProps['gutter'] = [0, 40]
-
 export const PropertiesContent: React.FC<PropertiesContentProps> = (props) => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.PageTitle' })
@@ -58,24 +57,16 @@ export const PropertiesContent: React.FC<PropertiesContentProps> = (props) => {
             </Head>
             <PageWrapper>
                 {GlobalHints}
+                <PageHeader title={<Typography.Title>{PageTitleMessage}</Typography.Title>} />
                 <TablePageContent>
-                    <Row gutter={PAGE_ROW_GUTTER} justify='space-between'>
-                        <Col md={12} xs={24}>
-                            <Typography.Title>
-                                {PageTitleMessage}
-                            </Typography.Title>
-                        </Col>
-                        <Col span={24}>
-                            <BuildingsTable
-                                role={role}
-                                searchPropertiesQuery={searchPropertiesQuery}
-                                tableColumns={propertiesTableColumns}
-                                sortBy={sortPropertiesBy}
-                                loading={loading}
-                                canDownloadProperties={canDownloadProperties}
-                            />
-                        </Col>
-                    </Row>
+                    <BuildingsTable
+                        role={role}
+                        searchPropertiesQuery={searchPropertiesQuery}
+                        tableColumns={propertiesTableColumns}
+                        sortBy={sortPropertiesBy}
+                        loading={loading}
+                        canDownloadProperties={canDownloadProperties}
+                    />
                 </TablePageContent>
             </PageWrapper>
         </>

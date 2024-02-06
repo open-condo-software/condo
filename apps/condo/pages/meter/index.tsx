@@ -4,7 +4,8 @@ import {
     MeterReportingPeriod as MeterReportingPeriodType,
 } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
-import { Col, Row, RowProps, Tabs, Typography } from 'antd'
+import styled from '@emotion/styled'
+import { Col, Row, RowProps, Typography } from 'antd'
 import { TableRowSelection } from 'antd/lib/table/interface'
 import chunk from 'lodash/chunk'
 import compact from 'lodash/compact'
@@ -19,7 +20,7 @@ import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { Filter, QuestionCircle, PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button, Space, Tooltip } from '@open-condo/ui'
+import { ActionBar, Button, Space, Tabs, Tooltip } from '@open-condo/ui'
 
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
@@ -606,6 +607,12 @@ function MeterPageTypeFromQuery (tabFromQuery) {
     }
 }
 
+const StyledPageWrapper = styled(PageWrapper)`
+     & .condo-tabs, & .condo-tabs-content, & .condo-tabs-tabpane, & .page-content {
+       height: 100%;
+     }
+`
+
 const MetersPage: IMeterIndexPage = () => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.meter.index.PageTitle' })
@@ -658,63 +665,65 @@ const MetersPage: IMeterIndexPage = () => {
     [filters, filtersToWhere, userOrganizationId])
     const sortBy = useMemo(() => sortersToSortBy(sorters) as SortMeterReadingsBy[], [sorters, sortersToSortBy])
 
-
     const handleTabChange = useCallback((tab: MeterPageTypes) => {
         setTab(tab)
         router.replace({ query: { ...router.query, tab } })
     }, [tab])
+
+    const tabItems = useMemo(() => [
+        {
+            label: MeterMessage,
+            key: METER_PAGE_TYPES.meter,
+            children: <MetersPageContent
+                tableColumns={tableColumns}
+                searchMeterReadingsQuery={searchMeterReadingsQuery}
+                sortBy={sortBy}
+                filterMetas={filterMetas}
+                role={role}
+                loading={isLoading}
+            />,
+        },
+        isMeterReportingPeriodEnabled && {
+            label: ReportingPeriodMessage,
+            key: METER_PAGE_TYPES.reportingPeriod,
+            children: <MeterReportingPeriodPageContent
+                tableColumns={tableColumns}
+                searchMeterReportingPeriodsQuery={searchMeterReportingPeriodsQuery}
+                sortBy={sortBy}
+                filterMetas={filterMetas}
+                role={role}
+                loading={isLoading}
+            />,
+        },
+        {
+            label: PropertyMeterMessage,
+            key: METER_PAGE_TYPES.propertyMeter,
+            children: <PropertyMetersPageContent
+                tableColumns={tableColumns}
+                searchMeterReadingsQuery={searchMeterReadingsQuery}
+                sortBy={sortBy}
+                filterMetas={filterMetas}
+                role={role}
+                loading={isLoading}
+            />,
+        },
+    ].filter(Boolean), [MeterMessage, PropertyMeterMessage, ReportingPeriodMessage, filterMetas, isLoading, isMeterReportingPeriodEnabled, role, searchMeterReadingsQuery, searchMeterReportingPeriodsQuery, sortBy, tableColumns])
 
     return (
         <MultipleFilterContextProvider>
             <Head>
                 <title>{PageTitleMessage}</title>
             </Head>
-            <PageWrapper>
+            <StyledPageWrapper>
                 {GlobalHints}
                 <PageHeader title={<Typography.Title>{PageTitleMessage}</Typography.Title>}/>
-                <Tabs activeKey={tab} onChange={handleTabChange}>
-                    <Tabs.TabPane tab={MeterMessage} key={METER_PAGE_TYPES.meter} />
-                    {isMeterReportingPeriodEnabled && <Tabs.TabPane tab={ReportingPeriodMessage} key={METER_PAGE_TYPES.reportingPeriod} />}
-                    <Tabs.TabPane tab={PropertyMeterMessage} key={METER_PAGE_TYPES.propertyMeter} />
-                </Tabs>
-                {
-                    tab === METER_PAGE_TYPES.meter && (
-                        <MetersPageContent
-                            tableColumns={tableColumns}
-                            searchMeterReadingsQuery={searchMeterReadingsQuery}
-                            sortBy={sortBy}
-                            filterMetas={filterMetas}
-                            role={role}
-                            loading={isLoading}
-                        />
-                    )
-                }
-                {
-                    tab === METER_PAGE_TYPES.propertyMeter && (
-                        <PropertyMetersPageContent
-                            tableColumns={tableColumns}
-                            searchMeterReadingsQuery={searchMeterReadingsQuery}
-                            sortBy={sortBy}
-                            filterMetas={filterMetas}
-                            role={role}
-                            loading={isLoading}
-                        />
-                    )
-                }
-                {
-                    tab === METER_PAGE_TYPES.reportingPeriod && isMeterReportingPeriodEnabled && (
-                        <MeterReportingPeriodPageContent
-                            tableColumns={tableColumns}
-                            searchMeterReportingPeriodsQuery={searchMeterReportingPeriodsQuery}
-                            sortBy={sortBy}
-                            filterMetas={filterMetas}
-                            role={role}
-                            loading={isLoading}
-                        />
-                    )
-                }
-
-            </PageWrapper>
+                <Tabs
+                    activeKey={tab}
+                    onChange={handleTabChange}
+                    items={tabItems}
+                    destroyInactiveTabPane
+                />
+            </StyledPageWrapper>
         </MultipleFilterContextProvider>
     )
 }

@@ -74,7 +74,7 @@ export const EmptyListView: React.FC<IEmptyListProps> = (props) => {
         containerStyle = {},
         accessCheck,
         image,
-        withBorder,
+        withBorder = true,
     } = props
 
     const router = useRouter()
