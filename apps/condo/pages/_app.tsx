@@ -26,7 +26,6 @@ import { BillingIntegrationOrganizationContext as BillingContext } from '@condo/
 import BaseLayout, { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
-import GoogleAnalytics from '@condo/domains/common/components/containers/GoogleAnalytics'
 import YandexMetrika from '@condo/domains/common/components/containers/YandexMetrika'
 import { FocusContextProvider } from '@condo/domains/common/components/Focus/FocusContextProvider'
 import { FocusElement } from '@condo/domains/common/components/Focus/FocusElement'
@@ -491,7 +490,6 @@ const MyApp = ({ Component, pageProps }) => {
                                 </TasksProvider>
                             </LayoutContextProvider>
                         </FocusContextProvider>
-                        <GoogleAnalytics/>
                         <YandexMetrika/>
                         <PopupSmart />
                     </FeatureFlagsProvider>
