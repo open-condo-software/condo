@@ -3,11 +3,19 @@
 @import (reference) "@open-condo/ui/src/components/style/core/breakpoints.less";
 
 @condo-card-focus-outline-border-width: @condo-global-border-width-default * 2;
-@condo-card-focus-outline-indent: -(@condo-global-border-width-default + @condo-card-focus-outline-border-width);
+@condo-card-focus-outline-indent: -(@condo-global-border-width-default + @condo-card-focus-outline-border-width + 1);
 
 .condo-card {
   border: none;
   border-radius: @condo-global-border-radius-large;
+
+  &-checkbox {
+    & .condo-checkbox-wrapper {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+    }
+  }
 
   &-disabled {
     opacity: 0.5;
@@ -34,12 +42,27 @@
     }
   }
 
+  &-hoverable {
+    transition-duration: @condo-global-transition-duration-default;
+    transition-property: box-shadow;
+
+    .condo-card-head {
+      transition-duration: @condo-global-transition-duration-default, @condo-global-transition-duration-default;
+      transition-property: border-color, background-color;
+    }
+
+    .condo-card-body {
+      transition-duration: @condo-global-transition-duration-default;
+      transition-property: border-color;
+    }
+  }
+
   &-head-title {
     padding: 0;
     overflow: visible;
   }
 
-  &-active {
+  &-active&-card {
     background-color: @condo-global-color-black;
 
     & .condo-card-head {
@@ -59,18 +82,41 @@
     }
   }
 
-  &-hoverable {
-    transition-duration: @condo-global-transition-duration-default;
-    transition-property: box-shadow;
+  &-active&-checkbox {
+    & .condo-card-head {
+      background: @condo-global-color-brand-gradient-1;
+      border: none;
+      border-bottom: @condo-global-border-width-default solid @condo-global-color-gray-5;
 
-    .condo-card-head {
-      transition-duration: @condo-global-transition-duration-default, @condo-global-transition-duration-default;
-      transition-property: border-color, background-color;
+      & * {
+        color: @condo-global-color-green-5;
+      }
     }
 
-    .condo-card-body {
-      transition-duration: @condo-global-transition-duration-default;
-      transition-property: border-color;
+    & .condo-card-body {
+      border: none;
+    }
+
+    &:hover {
+      box-shadow: @condo-global-box-shadow-active;
+    }
+
+    // Used for gradient outline on active checkbox card
+    &::before {
+      position: absolute;
+      top: -1px;
+      right: -1px;
+      bottom: -1px;
+      left: -1px;
+      display: block;
+      box-sizing: border-box;
+      background: @condo-global-color-brand-gradient-5 border-box;
+      border: @condo-global-border-width-default solid transparent;
+      border-radius: inherit;
+      content: "";
+      mask: linear-gradient(#111 0 0) padding-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
     }
   }
 
