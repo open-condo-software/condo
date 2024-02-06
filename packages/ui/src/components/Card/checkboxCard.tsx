@@ -7,7 +7,7 @@ import { Card } from './card'
 import { Checkbox } from '../Checkbox'
 
 import type { CardProps } from './card'
-export type CheckboxCardProps = Omit<CardProps, 'active' | 'hoverable'>
+export type CheckboxCardProps = Omit<CardProps, 'active' | 'accent' | 'hoverable'>
 
 
 const CARD_CLASS_PREFIX = 'condo-card'
@@ -18,10 +18,10 @@ const CheckboxCard = React.forwardRef<HTMLDivElement, CheckboxCardProps>((props,
         ...rest
     } = props
 
-    const [active, setActive] = useState<boolean>()
+    const [checked, setChecked] = useState<boolean>()
 
     const handleClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
-        setActive(prev => !prev)
+        setChecked(prev => !prev)
 
         if (props.onClick) {
             props.onClick(event)
@@ -29,33 +29,33 @@ const CheckboxCard = React.forwardRef<HTMLDivElement, CheckboxCardProps>((props,
     }, [props])
 
     const className = classNames(propsClassName, {
+        [`${CARD_CLASS_PREFIX}-checked`]: checked,
         [`${CARD_CLASS_PREFIX}-checkbox-type`]: true,
     })
     const title = useMemo(() => props.title && (
         <>
             <Checkbox
                 className={`${CARD_CLASS_PREFIX}-checkbox`}
-                checked={active}
+                checked={checked}
             />
             {rest.title}
         </>
-    ), [active, props.title, rest.title])
+    ), [checked, props.title, rest.title])
     const children = useMemo(() => props.title ? props.children : (
         <>
             <Checkbox
                 className={`${CARD_CLASS_PREFIX}-checkbox`}
-                checked={active}
+                checked={checked}
             />
             {props.children}
         </>
-    ), [active, props.children, props.title])
+    ), [checked, props.children, props.title])
 
     return (
         <Card
             {...rest}
             ref={ref}
             className={className}
-            active={active}
             onClick={handleClick}
             title={title}
             children={children}

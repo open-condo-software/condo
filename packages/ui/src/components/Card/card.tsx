@@ -13,6 +13,7 @@ Pick<DefaultCardProps, 'hoverable' | 'title'> & {
     width?: CSSProperties['width']
     bodyPadding?: CSSProperties['padding']
     titlePadding?: CSSProperties['padding']
+    accent?: boolean
     active?: boolean
     disabled?: boolean
 }
@@ -23,6 +24,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>((props, ref) => {
         bodyPadding,
         titlePadding,
         active = false,
+        accent = false,
         disabled = false,
         className: propsClassName,
         ...rest
@@ -30,6 +32,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>((props, ref) => {
 
     const className = classNames(propsClassName, {
         [`${CARD_CLASS_PREFIX}-active`]: active,
+        [`${CARD_CLASS_PREFIX}-accent`]: accent,
         [`${CARD_CLASS_PREFIX}-disabled`]: disabled,
     })
     

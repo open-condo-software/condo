@@ -2,6 +2,7 @@
 @import (reference) "@open-condo/ui/src/tokens/variables.less";
 @import (reference) "@open-condo/ui/src/components/style/core/breakpoints.less";
 
+@condo-card-active-outline-indent: 0;
 @condo-card-focus-outline-border-width: @condo-global-border-width-default * 2;
 @condo-card-focus-outline-indent: -(@condo-global-border-width-default + @condo-card-focus-outline-border-width + 1);
 
@@ -54,7 +55,29 @@
     overflow: visible;
   }
 
-  &-active:not(&-checkbox-type) {
+  &-active {
+    box-shadow: @condo-global-box-shadow-active;
+
+    // Used for gradient outline on active card
+    &::before {
+      position: absolute;
+      top: @condo-card-active-outline-indent;
+      right: @condo-card-active-outline-indent;
+      bottom: @condo-card-active-outline-indent;
+      left: @condo-card-active-outline-indent;
+      display: block;
+      box-sizing: border-box;
+      background: @condo-global-color-brand-gradient-5 border-box;
+      border: @condo-global-border-width-default solid transparent;
+      border-radius: inherit;
+      content: "";
+      mask: linear-gradient(#111 0 0) padding-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+    }
+  }
+
+  &-accent:not(&-checkbox-type) {
     background-color: @condo-global-color-black;
 
     & .condo-card-head {
@@ -105,7 +128,11 @@
     box-shadow: @condo-global-box-shadow-default;
   }
 
-  &-hoverable:not(&-active):hover {
+  &-hoverable&-active:hover {
+    box-shadow: @condo-global-box-shadow-active;
+  }
+
+  &-hoverable:not(&-accent):hover {
     .condo-card-head {
       background-color: @condo-global-color-gray-1;
       border-color: @condo-global-color-gray-5;
@@ -114,6 +141,10 @@
     .condo-card-body {
       border-color: @condo-global-color-gray-5;
     }
+  }
+
+  &:active {
+    box-shadow: none;
   }
 
   @media @from-mobile-small and @to-tablet-small {

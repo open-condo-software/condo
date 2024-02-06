@@ -1,6 +1,6 @@
 @import (reference) "@open-condo/ui/src/components/Card/style.less";
 
-@condo-card-checkbox-active-outline-indent: -@condo-global-border-width-default;
+@condo-card-checkbox-active-outline-indent: 0;
 @condo-card-checkbox-checkbox-padding: @condo-global-spacing-12;
 
 .condo-card {
@@ -15,11 +15,10 @@
     }
   }
 
-  &-active&-checkbox-type {
+  &-checked&-checkbox-type {
     & .condo-card-head {
       background: @condo-global-color-brand-gradient-1;
-      border: none;
-      border-bottom: @condo-global-border-width-default solid @condo-global-color-gray-5;
+      border-color: transparent;
 
       & * {
         color: @condo-global-color-green-5;
@@ -27,7 +26,7 @@
     }
 
     & .condo-card-body {
-      border: none;
+      border-color: transparent;
     }
 
     &:hover {
@@ -50,6 +49,10 @@
       mask: linear-gradient(#111 0 0) padding-box, linear-gradient(#fff 0 0);
       -webkit-mask-composite: xor;
       mask-composite: exclude;
+    }
+
+    &:active {
+      box-shadow: none;
     }
   }
 }
