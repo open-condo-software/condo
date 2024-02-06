@@ -48,6 +48,8 @@ class GraphQLLoggerPlugin {
      * @returns {Promise<void>}
      */
     requestDidStart (requestContext) {
+        const startTime = process.hrtime.bigint()
+
         return {
             /**
              * The responseForOperation event is fired immediately before GraphQL execution would take place.
@@ -62,7 +64,7 @@ class GraphQLLoggerPlugin {
                 requestContext.operationId = operationId
 
                 const logData = getGraphQLReqLoggerContext(requestContext)
-                graphqlLogger.info(logData)
+                graphqlLogger.info({ ...logData, responseTime: Number(process.hrtime.bigint() - startTime) / 1000000 })
             },
 
             /**
@@ -72,16 +74,17 @@ class GraphQLLoggerPlugin {
             async didEncounterErrors (requestContext) {
                 const logData = getGraphQLReqLoggerContext(requestContext)
                 const errors = get(requestContext, 'errors', [])
+                const responseTime = Number(process.hrtime.bigint() - startTime) / 1000000
 
                 try {
                     for (const error of errors) {
                         error.uid = get(error, 'uid') || get(error, 'originalError.uid') || cuid()
-                        graphqlErrorLogger.info({ apolloFormatError: safeFormatError(error), ...logData })
+                        graphqlErrorLogger.info({ apolloFormatError: safeFormatError(error), ...logData, responseTime })
                     }
                 } catch (formatErrorError) {
                     // NOTE(pahaz): Something went wrong with formatting above, so we log the errors
-                    graphqlErrorLogger.error({ formatErrorError: serializeError(ensureError(formatErrorError)), ...logData })
-                    graphqlErrorLogger.error({ serializedErrors: errors.map(error => serializeError(ensureError(error))), ...logData })
+                    graphqlErrorLogger.error({ formatErrorError: serializeError(ensureError(formatErrorError)), ...logData, responseTime })
+                    graphqlErrorLogger.error({ serializedErrors: errors.map(error => serializeError(ensureError(error))), ...logData, responseTime })
                 }
             },
         }
