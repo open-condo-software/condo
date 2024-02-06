@@ -3,11 +3,11 @@ import React from 'react'
 
 import { Card as Component, Typography } from '@open-condo/ui/src'
 
+
 export default {
     title: 'Components/Card',
     component: Component,
     args: {
-        type: 'card',
         width: 400,
         hoverable: true,
         active: false,
@@ -32,7 +32,6 @@ export const Simple = Template.bind({})
 export const WithTitle = Template.bind({})
 export const Active = Template.bind({})
 export const ActiveWithTitle = Template.bind({})
-export const CheckboxType = Template.bind({})
 WithTitle.args = {
     title: <Typography.Title level={3}>Some Title Content</Typography.Title>,
 }
@@ -46,8 +45,4 @@ ActiveWithTitle.args = {
     title: <Typography.Title level={3}>Some Title Content</Typography.Title>,
     titlePadding: 24,
     active: true,
-}
-CheckboxType.args = {
-    type: 'checkbox',
-    title: <Typography.Title level={3}>Some Title Content</Typography.Title>,
 }
