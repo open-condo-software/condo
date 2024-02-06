@@ -95,17 +95,16 @@ export async function createNewsViaBrowser (data) {
         page.locator('[data-cy="news__create-title-input"] textarea').type('Some title here')
         page.locator('[data-cy="news__create-body-input"] textarea').type('Some long description here')
 
-        await page.locator('[data-cy="news__create-property-search"] .ant-select').click()
-        page.waitForSelector('[data-cy="search-input--option"]').isVisible()
-        await page.locator('[data-cy="search-input--option"]').click()
         page.waitForSelector('[data-cy="news__create-property-section-search"] .ant-select-selector').isVisible()
         await page.locator('[data-cy="news__create-property-section-search"] .ant-select-selector').click()
         page.keyboard.down('Enter')
 
-        for (let i = 0; i < 7; i++) {
+        for (let i = 0; i < 3; i++) {
             page.keyboard.down('ArrowDown')
             page.keyboard.down('Enter')
         }
+
+        page.waitForSelector('button.condo-btn.condo-btn-primary').isVisible()
 
         await page.locator('button.condo-btn.condo-btn-primary').click()
 
