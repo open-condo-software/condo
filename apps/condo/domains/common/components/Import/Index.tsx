@@ -1,12 +1,13 @@
 import styled from '@emotion/styled'
 import { Col, Progress, Row, Space } from 'antd'
 import dayjs from 'dayjs'
-import { get } from 'lodash'
+import get from 'lodash/get'
 import isDate from 'lodash/isDate'
 import isFunction from 'lodash/isFunction'
-import React, { useCallback, useRef, useState } from 'react'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 import XLSX from 'xlsx'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { Download, FileDown } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Alert, Button, Modal, Typography } from '@open-condo/ui'
@@ -24,6 +25,7 @@ import {
     MutationErrorsToMessagesType,
 } from '@condo/domains/common/utils/importer'
 
+import { BIGGER_LIMIT_FOR_IMPORT } from '../../constants/featureflags'
 import { DataImporter } from '../DataImporter'
 import { FocusContainer } from '../FocusContainer'
 
@@ -36,8 +38,6 @@ interface IImportWrapperProps {
     rowNormalizer: RowNormalizer
     rowValidator: RowValidator
     objectCreator: ObjectCreator
-    exampleTemplateLink?: string | null
-    exampleImageSrc: string
     mutationErrorsToMessages?: MutationErrorsToMessagesType
     uploadButtonLabel?: string
     domainName: string
@@ -92,6 +92,8 @@ function fitToColumn (arrayOfArray) {
     ))
 }
 
+type ActiveModalType = null | 'example' | 'progress' | 'partlyLoaded' | 'success' | 'error'
+
 const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
     const {
         accessCheck,
@@ -101,8 +103,6 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
         rowValidator,
         objectCreator,
         onFinish: handleFinish,
-        exampleTemplateLink = null,
-        exampleImageSrc,
         mutationErrorsToMessages,
         uploadButtonLabel,
         domainName,
@@ -130,13 +130,12 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
     const ErrorModalTitle = intl.formatMessage({ id: 'import.errorModal.title' }, { plural: ImportPluralMessage })
     const SuccessModalButtonLabel = intl.formatMessage({ id: 'import.successModal.buttonLabel' })
 
+    const exampleTemplateLink = useMemo(() => `/${domainName}-import-example-${intl.locale}.xlsx`, [domainName, intl.locale])
+    const exampleImageSrc = useMemo(() => `/${domainName}-import-example-${intl.locale}.webp`, [domainName, intl.locale])
+
     const { logEvent, getEventName } = useTracking()
 
-    const [exampleModalOpen, setExampleModalOpen] = useState(false)
-    const [progressModalOpen, setProgressModalOpen] = useState(false)
-    const [partlyLoadedModalOpen, setPartlyLoadedModalOpen] = useState(false)
-    const [successModalOpen, setSuccessModalOpen] = useState(false)
-    const [errorModalOpen, setErrorModalOpen] = useState(false)
+    const [activeModal, setActiveModal] = useState<ActiveModalType>(null)
 
     const totalRowsRef = useRef(0)
     const setTotalRowsRef = (value: number) => {
@@ -156,18 +155,20 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
         errors.current.push(row)
     }
 
+    const { useFlagValue } = useFeatureFlags()
+    const defaultMaxTableLength: number = useFlagValue(BIGGER_LIMIT_FOR_IMPORT) || DEFAULT_RECORDS_LIMIT_FOR_IMPORT
+
     const [importData, progress, error, isImported, breakImport] = useImporter({
         columns,
         rowNormalizer,
         rowValidator,
         objectCreator,
-        maxTableLength,
+        maxTableLength: maxTableLength || defaultMaxTableLength,
         setTotalRows: setTotalRowsRef,
         setSuccessRows: setSuccessRowsRef,
         handleRowError,
         onFinish: () => {
-            setProgressModalOpen(false)
-            errors.current.length > 0 ? setPartlyLoadedModalOpen(true) : setSuccessModalOpen(true)
+            setActiveModal(errors.current.length > 0 ? 'partlyLoaded' : 'success')
 
             const eventName = getEventName(TrackingEventType.ImportComplete)
             logEvent({ eventName })
@@ -176,16 +177,13 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
             }
         },
         onError: () => {
-            setProgressModalOpen(false)
-            setErrorModalOpen(true)
+            setActiveModal('error')
         },
         mutationErrorsToMessages,
     })
 
     const handleUpload = useCallback((file) => {
-        setExampleModalOpen(false)
-        setErrorModalOpen(false)
-        setProgressModalOpen(true)
+        setActiveModal('progress')
 
         totalRowsRef.current = 0
         successRowsRef.current = 0
@@ -215,22 +213,24 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
                 const ws = XLSX.utils.aoa_to_sheet(data)
                 ws['!cols'] = fitToColumn(data)
                 XLSX.utils.book_append_sheet(wb, ws, 'table')
-                XLSX.writeFile(wb, 'failed_data.xlsx')
+                XLSX.writeFile(wb, `${domainName}_failed_data.xlsx`)
             } catch (e) {
                 reject(e)
             } finally {
                 resolve()
             }
         })
-    }, [columns])
+    }, [columns, domainName])
+
+    const closeModal = useCallback(() => setActiveModal(null), [])
 
     const handleBreakImport = useCallback(() => {
-        setProgressModalOpen(false)
+        closeModal()
         breakImport()
         if (isFunction(handleFinish)) {
             handleFinish()
         }
-    }, [breakImport, handleFinish])
+    }, [breakImport, closeModal, handleFinish])
 
     return (
         accessCheck && (
@@ -238,14 +238,14 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
                 <Button
                     type='secondary'
                     icon={<FileDown size='medium'/>}
-                    onClick={() => setExampleModalOpen(true)}
+                    onClick={() => setActiveModal('example')}
                 >
                     {UploadButtonLabel}
                 </Button>
                 <Modal
                     title={UploadModalTitle}
-                    onCancel={() => setExampleModalOpen(false)}
-                    open={exampleModalOpen}
+                    onCancel={closeModal}
+                    open={activeModal === 'example'}
                     footer={
                         <DataImporter onUpload={handleUpload}>
                             <Button type='primary'>
@@ -280,7 +280,7 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
                 </Modal>
                 <Modal
                     title={ProgressModalTitle}
-                    open={progressModalOpen}
+                    open={activeModal === 'progress'}
                     onCancel={handleBreakImport}
                 >
                     <StyledFocusContainer>
@@ -307,8 +307,8 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
                 </Modal>
                 <Modal
                     title={PartlyDataLoadedModalTitle}
-                    open={partlyLoadedModalOpen}
-                    onCancel={() => setPartlyLoadedModalOpen(false)}
+                    open={activeModal === 'partlyLoaded'}
+                    onCancel={closeModal}
                     footer={
                         <Button
                             type='primary'
@@ -332,8 +332,8 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
                 </Modal>
                 <Modal
                     title={ErrorModalTitle}
-                    open={errorModalOpen}
-                    onCancel={() => setErrorModalOpen(false)}
+                    open={activeModal === 'error'}
+                    onCancel={closeModal}
                     footer={
                         <DataImporter onUpload={handleUpload}>
                             <Button type='primary'>
@@ -350,12 +350,12 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
                 </Modal>
                 <SuccessModal
                     title={ImportSuccessMessage}
-                    open={successModalOpen}
-                    onCancel={() => setSuccessModalOpen(false)}
+                    open={activeModal === 'success'}
+                    onCancel={closeModal}
                     footer={
                         <Button
                             type='primary'
-                            onClick={() => setSuccessModalOpen(false)}
+                            onClick={closeModal}
                         >
                             {SuccessModalButtonLabel}
                         </Button>

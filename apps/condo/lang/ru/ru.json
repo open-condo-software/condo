@@ -29,7 +29,7 @@
   "import.uploadModal.chooseFileForUpload": "Выбрать файл для загрузки",
   "import.uploadModal.message": "Загрузите Excel-файл с информацией о {prepositional} или воспользуйтесь шаблоном",
   "import.uploadModal.requiredFields.title": "Заполните обязательные поля",
-  "import.uploadModal.exampleLinkMessage": "Шаблон списка {genitive}.xsl",
+  "import.uploadModal.exampleLinkMessage": "Шаблон списка {genitive}.xslx",
   "import.progressModal.title": "Загрузка данных",
   "import.progressModal.message": "Пожалуйста, подождите",
   "import.progressModal.description": "Загрузка прервется, если вы закроете вкладку браузера или выключите компьютер",

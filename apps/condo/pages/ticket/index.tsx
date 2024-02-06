@@ -821,8 +821,6 @@ export const TicketsPageContent = ({
     const isTicketImportFeatureEnabled = useFlag(TICKET_IMPORT)
     const [columns, ticketNormalizer, ticketValidator, ticketCreator] = useImporterFunctions()
 
-    const exampleTemplateLink = useMemo(() => `/ticket-import-example-${intl.locale}.xlsx`, [intl.locale])
-
     const maxTableLength: number = useFlagValue(BIGGER_LIMIT_FOR_IMPORT) || DEFAULT_RECORDS_LIMIT_FOR_IMPORT
     const canManageTickets = useMemo(() => get(link, ['role', 'canManageTickets'], false), [link])
 
@@ -835,13 +833,11 @@ export const TicketsPageContent = ({
                 rowValidator={ticketValidator}
                 rowNormalizer={ticketNormalizer}
                 objectCreator={ticketCreator}
-                exampleTemplateLink={exampleTemplateLink}
                 maxTableLength={maxTableLength}
-                exampleImageSrc='/ticket-import-example.svg'
                 domainName='ticket'
             />
         )
-    }, [canManageTickets, columns, exampleTemplateLink, isTicketImportFeatureEnabled, maxTableLength, showImport, ticketCreator, ticketNormalizer, ticketValidator])
+    }, [canManageTickets, columns, isTicketImportFeatureEnabled, maxTableLength, showImport, ticketCreator, ticketNormalizer, ticketValidator])
 
     //TODO(DOMA-7354): Remove featureflag after resolve global search problem
     const disableTicketCounters = useFlag('callcenter-disable-ticket-counters')

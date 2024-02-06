@@ -35,8 +35,6 @@ import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportT
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
-import { BIGGER_LIMIT_FOR_IMPORT } from '@condo/domains/common/constants/featureflags'
-import { DEFAULT_RECORDS_LIMIT_FOR_IMPORT } from '@condo/domains/common/constants/import'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import {
     MultipleFilterContextProvider,
@@ -154,12 +152,7 @@ export const MetersPageContent = ({
         [METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION]: MeterResourceOwnedByAnotherOrganizationMessage,
     }), [MeterAccountNumberExistInOtherUnitMessage, MeterNumberExistInOrganizationMessage, MeterResourceOwnedByAnotherOrganizationMessage])
 
-    const exampleTemplateLink = useMemo(() => `/meter-import-example-${intl.locale}.xlsx`, [intl.locale])
-
     const handleCreateMeterReadings = useCallback(() => router.push('/meter/create'), [])
-
-    const { useFlagValue } = useFeatureFlags()
-    const maxTableLength: number = useFlagValue(BIGGER_LIMIT_FOR_IMPORT) || DEFAULT_RECORDS_LIMIT_FOR_IMPORT
 
     return (
         <>
@@ -172,12 +165,9 @@ export const MetersPageContent = ({
                             accessCheck={canManageMeterReadings}
                             onFinish={refetch}
                             columns={columns}
-                            maxTableLength={maxTableLength}
                             rowNormalizer={meterReadingNormalizer}
                             rowValidator={meterReadingValidator}
                             objectCreator={meterReadingCreator}
-                            exampleTemplateLink={exampleTemplateLink}
-                            exampleImageSrc='/meter-import-example.svg'
                             domainName='meter'
                             mutationErrorsToMessages={mutationErrorsToMessages}
                         />
@@ -280,12 +270,9 @@ export const MetersPageContent = ({
                                         accessCheck={canManageMeterReadings}
                                         onFinish={refetch}
                                         columns={columns}
-                                        maxTableLength={maxTableLength}
                                         rowNormalizer={meterReadingNormalizer}
                                         rowValidator={meterReadingValidator}
                                         objectCreator={meterReadingCreator}
-                                        exampleTemplateLink={exampleTemplateLink}
-                                        exampleImageSrc='/meter-import-example.svg'
                                         mutationErrorsToMessages={mutationErrorsToMessages}
                                         domainName='meter'
                                     />

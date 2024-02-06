@@ -4,9 +4,8 @@ import { get } from 'lodash'
 import isEmpty from 'lodash/isEmpty'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback } from 'react'
 
-import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { FileDown, PlusCircle, Search } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
@@ -22,8 +21,6 @@ import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { EXCEL } from '@condo/domains/common/constants/export'
-import { BIGGER_LIMIT_FOR_IMPORT } from '@condo/domains/common/constants/featureflags'
-import { DEFAULT_RECORDS_LIMIT_FOR_IMPORT } from '@condo/domains/common/constants/import'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
@@ -98,10 +95,6 @@ export const ContactsPageContent = ({
     const [columns, contactNormalizer, contactValidator, contactCreator] = useImporterFunctions()
     const isNoContactsData = isEmpty(contacts) && isEmpty(filtersFromQuery) && !contactsLoading && !loading
     const EMPTY_LIST_VIEW_CONTAINER_STYLE = { display: isNoContactsData ? 'flex' : 'none' }
-    const exampleTemplateLink = useMemo(() => `/contact-import-example-${intl.locale}.xlsx`, [intl.locale])
-
-    const { useFlagValue } = useFeatureFlags()
-    const maxTableLength: number = useFlagValue(BIGGER_LIMIT_FOR_IMPORT) || DEFAULT_RECORDS_LIMIT_FOR_IMPORT
 
     return (
         <>
@@ -121,12 +114,9 @@ export const ContactsPageContent = ({
                                 accessCheck={canManageContacts}
                                 onFinish={refetch}
                                 columns={columns}
-                                maxTableLength={maxTableLength}
                                 rowNormalizer={contactNormalizer}
                                 rowValidator={contactValidator}
                                 objectCreator={contactCreator}
-                                exampleTemplateLink={exampleTemplateLink}
-                                exampleImageSrc='/contact-import-example.svg'
                                 domainName='contact'
                             >
                                 <Button
@@ -184,12 +174,9 @@ export const ContactsPageContent = ({
                                                         accessCheck={canManageContacts}
                                                         onFinish={refetch}
                                                         columns={columns}
-                                                        maxTableLength={maxTableLength}
                                                         rowNormalizer={contactNormalizer}
                                                         rowValidator={contactValidator}
                                                         objectCreator={contactCreator}
-                                                        exampleTemplateLink={exampleTemplateLink}
-                                                        exampleImageSrc='/contact-import-example.svg'
                                                         domainName='contact'
                                                     />
                                                 </>

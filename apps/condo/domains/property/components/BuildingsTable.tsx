@@ -12,7 +12,6 @@ import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
 import React, { useMemo, useState } from 'react'
 
-import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { FileDown, PlusCircle, Search, Sheet } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, ActionBarProps, Button } from '@open-condo/ui'
@@ -23,8 +22,6 @@ import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
-import { BIGGER_LIMIT_FOR_IMPORT } from '@condo/domains/common/constants/featureflags'
-import { DEFAULT_RECORDS_LIMIT_FOR_IMPORT } from '@condo/domains/common/constants/import'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { EXPORT_PROPERTIES_TO_EXCEL } from '@condo/domains/property/gql'
@@ -60,9 +57,6 @@ export default function BuildingsTable (props: BuildingTableProps) {
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, PROPERTY_PAGE_SIZE)
-
-    const { useFlagValue } = useFeatureFlags()
-    const maxTableLength: number = useFlagValue(BIGGER_LIMIT_FOR_IMPORT) || DEFAULT_RECORDS_LIMIT_FOR_IMPORT
 
     const { loading: propertiesLoading, refetch, objs: properties, count: total } = PropertyTable.useObjects({
         sortBy,
@@ -101,7 +95,6 @@ export default function BuildingsTable (props: BuildingTableProps) {
     const canManageProperties = get(role, 'canManageProperties', false)
     const isDownloadButtonHidden = !get(role, 'canReadProperties', canDownloadProperties === true)
     const EMPTY_LIST_VIEW_CONTAINER_STYLE = { display: isNoBuildingsData ? 'flex' : 'none', paddingTop : canManageProperties ? 'inherit' : '5%' }
-    const exampleTemplateLink = useMemo(() => `/buildings-import-example-${intl.locale}.xlsx`, [intl.locale])
 
     function onExportToExcelButtonClicked () {
         exportToExcel({
@@ -129,12 +122,9 @@ export default function BuildingsTable (props: BuildingTableProps) {
                         accessCheck={canManageProperties}
                         onFinish={refetch}
                         columns={columns}
-                        maxTableLength={maxTableLength}
                         rowNormalizer={propertyNormalizer}
                         rowValidator={propertyValidator}
                         objectCreator={propertyCreator}
-                        exampleTemplateLink={exampleTemplateLink}
-                        exampleImageSrc='/property-import-example.svg'
                         domainName='property'
                     />
                 </>
@@ -162,7 +152,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
                         </Button>
                     )
             ),
-        ], [CreateLabel, DownloadExcelLabel, ExportAsExcel, canManageProperties, columns, downloadLink, exampleTemplateLink, isDownloadButtonHidden, isXlsLoading, maxTableLength, onExportToExcelButtonClicked, propertyCreator, propertyNormalizer, propertyValidator, refetch, router])
+        ], [CreateLabel, DownloadExcelLabel, ExportAsExcel, canManageProperties, columns, downloadLink, isDownloadButtonHidden, isXlsLoading, onExportToExcelButtonClicked, propertyCreator, propertyNormalizer, propertyValidator, refetch, router])
 
     return (
         <>
@@ -175,12 +165,9 @@ export default function BuildingsTable (props: BuildingTableProps) {
                         accessCheck={canManageProperties}
                         onFinish={refetch}
                         columns={columns}
-                        maxTableLength={maxTableLength}
                         rowNormalizer={propertyNormalizer}
                         rowValidator={propertyValidator}
                         objectCreator={propertyCreator}
-                        exampleTemplateLink={exampleTemplateLink}
-                        exampleImageSrc='/property-import-example.svg'
                         domainName='property'
                     >
                         <Button
