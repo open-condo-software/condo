@@ -70,7 +70,6 @@ const AdditionalOption: React.FC<AdditionalOptionProps> = ({ emoji, label, form,
 
     return (
         <Card.CheckboxCard
-            hoverable
             bodyPadding={breakpoints.TABLET_LARGE ? '32px 8px' : 19}
             onClick={handleClick}
         >

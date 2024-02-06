@@ -7,7 +7,7 @@ import { Card } from './card'
 import { Checkbox } from '../Checkbox'
 
 import type { CardProps } from './card'
-export type CheckboxCardProps = Omit<CardProps, 'active'>
+export type CheckboxCardProps = Omit<CardProps, 'active' | 'hoverable'>
 
 
 const CARD_CLASS_PREFIX = 'condo-card'
@@ -59,6 +59,7 @@ const CheckboxCard = React.forwardRef<HTMLDivElement, CheckboxCardProps>((props,
             onClick={handleClick}
             title={title}
             children={children}
+            hoverable
         />
     )
 })
