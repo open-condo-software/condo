@@ -94,8 +94,8 @@ export type BaseNewsFormProps = {
     totalProperties: number
 }
 
-const OptionalBlock = styled.div<{ show?: boolean }>`
-  ${({ show }) => !show ? 'display: none;' : ''}
+const HiddenBlock = styled.div<{ hide?: boolean }>`
+  ${({ hide }) => hide ? 'display: none;' : ''}
 `
 
 //TODO(DOMA-6846) wrap form label with 0 margin and use default spacing (details in 6613 pr)
@@ -534,7 +534,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const propertyCheckboxChange = (form) => {
         return (value) => {
             if (value) setSelectedPropertiesId(selectedPropertiesId => {
-                if (countPropertiesAvaliableToSelect.current === 1 && selectedPropertiesId.length === 1)
+                if (countPropertiesAvaliableToSelect.current === 1 && selectedPropertiesId.length === 1) 
                     return selectedPropertiesId
                 if (countPropertiesAvaliableToSelect.current === 1 && selectedPropertiesId.length === 0 && has(onlyPropertyThatCanBeSelected, 'current.value')) {
                     return [onlyPropertyThatCanBeSelected.current.value]
@@ -863,7 +863,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const propertyIsAutoFilled = useRef(false)
     const handleAllPropertiesLoading = useCallback((form: FormInstance) => (data) => {
         if (!isEmpty(initialValues)) return
-        if (totalProperties !== 1) return
+        if (!newsItemForOneProperty) return
         if (data.length !== 1) return
         if (propertyIsAutoFilled.current) return
 
@@ -877,7 +877,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                 hasAllProperties: true,
             })
         }
-    }, [initialValues, totalProperties])
+    }, [initialValues, newsItemForOneProperty])
 
     return (
         <Row gutter={BIG_HORIZONTAL_GUTTER}>
@@ -1065,15 +1065,17 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                     <Typography.Title level={2}>{SelectAddressLabel}</Typography.Title>
                                                 </Col>
                                                 <Col span={24} data-cy='news__create-property-search'>
-                                                    <OptionalBlock show={newsItemForOneProperty}>
-                                                        <Form.Item {...propertySelectFormItemProps} name='property'>
-                                                            <GraphQlSearchInput
-                                                                {...propertySelectProps(form)}
-                                                                onAllDataLoading={handleAllPropertiesLoading(form)}
-                                                            />
-                                                        </Form.Item>
-                                                    </OptionalBlock>
-                                                    <OptionalBlock show={!newsItemForOneProperty}>
+                                                    {
+                                                        newsItemForOneProperty && (
+                                                            <Form.Item {...propertySelectFormItemProps} name='property'>
+                                                                <GraphQlSearchInput
+                                                                    {...propertySelectProps(form)}
+                                                                    onAllDataLoading={handleAllPropertiesLoading(form)}
+                                                                />
+                                                            </Form.Item>
+                                                        )
+                                                    }
+                                                    <HiddenBlock hide={newsItemForOneProperty}>
                                                         <GraphQlSearchInputWithCheckAll
                                                             checkAllFieldName='hasAllProperties'
                                                             checkAllInitialValue={get(initialValues, 'hasAllProperties', false)}
@@ -1084,7 +1086,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                             onDataLoaded={handleAllPropertiesDataLoading}
                                                             form={form}
                                                         />
-                                                    </OptionalBlock>
+                                                    </HiddenBlock>
                                                 </Col>
                                                 {
                                                     isOnlyOnePropertySelected && (
