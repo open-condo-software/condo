@@ -59,22 +59,19 @@ const COMMENT_WRAPPER_GUTTER: RowProps['gutter'] = [0, 8]
 const ADDITIONAL_OPTION_CONTENT_MOBILE_GUTTER: RowProps['gutter'] = [8, 0]
 
 const AdditionalOption: React.FC<AdditionalOptionProps> = ({ emoji, label, form, name }) => {
-    const [isChecked, setIsChecked] = useState<boolean>(false)
     const { breakpoints } = useLayoutContext()
 
     const handleClick = useCallback(() => {
         if (!form) return
 
         const prev = Boolean(form.getFieldValue(name))
-        setIsChecked(!prev)
         form.setFieldValue(name, !prev)
     }, [form, name])
 
     return (
-        <Card
+        <Card.CheckboxCard
             hoverable
             bodyPadding={breakpoints.TABLET_LARGE ? '32px 8px' : 19}
-            active={isChecked}
             onClick={handleClick}
         >
             {
@@ -116,7 +113,7 @@ const AdditionalOption: React.FC<AdditionalOptionProps> = ({ emoji, label, form,
                         </Row>
                     )
             }
-        </Card>
+        </Card.CheckboxCard>
     )
 }
 
