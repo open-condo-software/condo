@@ -1,14 +1,14 @@
 import classNames from 'classnames'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 
+import './checkboxCard.less'
 import { Card } from './card'
 
 import { Checkbox } from '../Checkbox'
 
-
 import type { CardProps } from './card'
-
 export type CheckboxCardProps = Omit<CardProps, 'active'>
+
 
 const CARD_CLASS_PREFIX = 'condo-card'
 
@@ -17,10 +17,6 @@ const CheckboxCard = React.forwardRef<HTMLDivElement, CheckboxCardProps>((props,
         className: propsClassName,
         ...rest
     } = props
-
-    const className = classNames(propsClassName, {
-        [`${CARD_CLASS_PREFIX}-checkbox`]: true,
-    })
 
     const [active, setActive] = useState<boolean>()
 
@@ -32,6 +28,28 @@ const CheckboxCard = React.forwardRef<HTMLDivElement, CheckboxCardProps>((props,
         }
     }, [props])
 
+    const className = classNames(propsClassName, {
+        [`${CARD_CLASS_PREFIX}-checkbox-type`]: true,
+    })
+    const title = useMemo(() => props.title && (
+        <>
+            <Checkbox
+                className={`${CARD_CLASS_PREFIX}-checkbox`}
+                checked={active}
+            />
+            {rest.title}
+        </>
+    ), [active, props.title, rest.title])
+    const children = useMemo(() => props.title ? props.children : (
+        <>
+            <Checkbox
+                className={`${CARD_CLASS_PREFIX}-checkbox`}
+                checked={active}
+            />
+            {props.children}
+        </>
+    ), [active, props.children, props.title])
+
     return (
         <Card
             {...rest}
@@ -39,12 +57,8 @@ const CheckboxCard = React.forwardRef<HTMLDivElement, CheckboxCardProps>((props,
             className={className}
             active={active}
             onClick={handleClick}
-            title={(
-                <>
-                    <Checkbox checked={active} />
-                    {rest.title}
-                </>
-            )}
+            title={title}
+            children={children}
         />
     )
 })

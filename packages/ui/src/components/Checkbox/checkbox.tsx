@@ -13,10 +13,27 @@ type CondoCheckboxProps = {
     labelProps?: TypographyTextProps
 }
 
-export type CheckboxProps = Pick<DefaultCheckboxProps, 'autoFocus' | 'defaultChecked' | 'disabled' | 'onChange' | 'indeterminate' | 'checked' | 'children' | 'id'> & CondoCheckboxProps
+export type CheckboxProps = Pick<DefaultCheckboxProps,
+'autoFocus'
+| 'defaultChecked'
+| 'disabled'
+| 'onChange'
+| 'indeterminate'
+| 'checked'
+| 'children'
+| 'id'
+| 'className'> & CondoCheckboxProps
 
 const Checkbox: React.FC<CheckboxProps> = (props) => {
-    const { label, labelProps, disabled, id, onChange, children, ...rest } = props
+    const {
+        label,
+        labelProps,
+        disabled,
+        id,
+        onChange,
+        children,
+        ...rest
+    } = props
 
     const handleChange = useCallback((event: CheckboxChangeEvent) => {
         const stringContent = label ? label : extractChildrenContent(children)

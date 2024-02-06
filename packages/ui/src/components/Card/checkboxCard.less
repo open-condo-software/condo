@@ -1,0 +1,51 @@
+@import (reference) "@open-condo/ui/src/components/Card/style.less";
+
+.condo-card {
+  &-checkbox-type {
+    cursor: pointer;
+
+    & .condo-card-checkbox {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+    }
+  }
+
+  &-active&-checkbox-type {
+    & .condo-card-head {
+      background: @condo-global-color-brand-gradient-1;
+      border: none;
+      border-bottom: @condo-global-border-width-default solid @condo-global-color-gray-5;
+
+      & * {
+        color: @condo-global-color-green-5;
+      }
+    }
+
+    & .condo-card-body {
+      border: none;
+    }
+
+    &:hover {
+      box-shadow: @condo-global-box-shadow-active;
+    }
+
+    // Used for gradient outline on active checkbox card
+    &::before {
+      position: absolute;
+      top: -1px;
+      right: -1px;
+      bottom: -1px;
+      left: -1px;
+      display: block;
+      box-sizing: border-box;
+      background: @condo-global-color-brand-gradient-5 border-box;
+      border: @condo-global-border-width-default solid transparent;
+      border-radius: inherit;
+      content: "";
+      mask: linear-gradient(#111 0 0) padding-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+    }
+  }
+}

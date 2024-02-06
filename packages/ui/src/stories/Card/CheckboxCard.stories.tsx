@@ -27,7 +27,8 @@ const Template: ComponentStory<typeof CheckboxCard> = ({ children, ...rest }) =>
     )
 }
 
-export const WithCheckbox = Template.bind({})
-WithCheckbox.args = {
+export const SimpleCheckboxCard = Template.bind({})
+export const CheckboxCardWithTitle = Template.bind({})
+CheckboxCardWithTitle.args = {
     title: <Typography.Title level={3}>Some Title Content</Typography.Title>,
 }
