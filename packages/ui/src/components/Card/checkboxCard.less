@@ -1,13 +1,16 @@
 @import (reference) "@open-condo/ui/src/components/Card/style.less";
 
+@condo-card-checkbox-active-outline-indent: -@condo-global-border-width-default;
+@condo-card-checkbox-checkbox-padding: @condo-global-spacing-12;
+
 .condo-card {
   &-checkbox-type {
     cursor: pointer;
 
     & .condo-card-checkbox {
       position: absolute;
-      top: 12px;
-      right: 12px;
+      top: @condo-card-checkbox-checkbox-padding;
+      right: @condo-card-checkbox-checkbox-padding;
     }
   }
 
@@ -33,10 +36,10 @@
     // Used for gradient outline on active checkbox card
     &::before {
       position: absolute;
-      top: -1px;
-      right: -1px;
-      bottom: -1px;
-      left: -1px;
+      top: @condo-card-checkbox-active-outline-indent;
+      right: @condo-card-checkbox-active-outline-indent;
+      bottom: @condo-card-checkbox-active-outline-indent;
+      left: @condo-card-checkbox-active-outline-indent;
       display: block;
       box-sizing: border-box;
       background: @condo-global-color-brand-gradient-5 border-box;

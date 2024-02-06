@@ -20,7 +20,7 @@ const CheckboxCard = React.forwardRef<HTMLDivElement, CheckboxCardProps>((props,
 
     const [active, setActive] = useState<boolean>()
 
-    const handleClick = useCallback((event) => {
+    const handleClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
         setActive(prev => !prev)
 
         if (props.onClick) {
