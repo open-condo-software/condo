@@ -60,7 +60,6 @@ describe('Push notification on payday about unpaid receipts', () => {
             const [resident] = await createTestResident(admin, client.user, property)
             await createTestServiceConsumer(admin, resident, organization, {
                 accountNumber: account.number,
-                billingAccount: { connect: { id: account.id } },
                 billingIntegrationContext: { connect: { id: context.id } },
                 acquiringIntegrationContext: { connect: { id: acquiringContext.id } },
             })
@@ -77,7 +76,6 @@ describe('Push notification on payday about unpaid receipts', () => {
             const [resident] = await createTestResident(admin, client.user, property)
             await createTestServiceConsumer(admin, resident, organization, {
                 accountNumber: account.number,
-                billingAccount: { connect: { id: account.id } },
                 billingIntegrationContext: { connect: { id: context.id } },
                 acquiringIntegrationContext: { connect: { id: acquiringContext.id } },
             })
@@ -97,7 +95,6 @@ describe('Push notification on payday about unpaid receipts', () => {
             const [resident] = await createTestResident(admin, client.user, property)
             await createTestServiceConsumer(admin, resident, organization, {
                 accountNumber: account.number,
-                billingAccount: { connect: { id: account.id } },
                 billingIntegrationContext: { connect: { id: context.id } },
                 acquiringIntegrationContext: { connect: { id: acquiringContext.id } },
             })
@@ -143,7 +140,6 @@ describe('Push notification on payday about unpaid receipts', () => {
             const [resident] = await createTestResident(admin, client.user, property)
             await createTestServiceConsumer(admin, resident, organization, {
                 accountNumber: account.number,
-                billingAccount: { connect: { id: account.id } },
                 billingIntegrationContext: { connect: { id: context.id } },
                 acquiringIntegrationContext: { connect: { id: acquiringContext.id } },
             })

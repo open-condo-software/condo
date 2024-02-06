@@ -87,7 +87,6 @@ async function notifyResidentsOnPayday () {
                 status: CONTEXT_FINISHED_STATUS,
                 deletedAt: null,
             },
-            billingAccount_is_null: false,
             billingIntegrationContext_is_null: false,
             resident: {
                 deletedAt: null,
