@@ -74,16 +74,17 @@ class GraphQLLoggerPlugin {
             async didEncounterErrors (requestContext) {
                 const logData = getGraphQLReqLoggerContext(requestContext)
                 const errors = get(requestContext, 'errors', [])
+                const responseTime = Number(process.hrtime.bigint() - startTime) / 1000000
 
                 try {
                     for (const error of errors) {
                         error.uid = get(error, 'uid') || get(error, 'originalError.uid') || cuid()
-                        graphqlErrorLogger.info({ apolloFormatError: safeFormatError(error), ...logData, responseTime: Number(process.hrtime.bigint() - startTime) / 1000000 })
+                        graphqlErrorLogger.info({ apolloFormatError: safeFormatError(error), ...logData, responseTime })
                     }
                 } catch (formatErrorError) {
                     // NOTE(pahaz): Something went wrong with formatting above, so we log the errors
-                    graphqlErrorLogger.error({ formatErrorError: serializeError(ensureError(formatErrorError)), ...logData, responseTime: Number(process.hrtime.bigint() - startTime) / 1000000 })
-                    graphqlErrorLogger.error({ serializedErrors: errors.map(error => serializeError(ensureError(error))), ...logData, responseTime: Number(process.hrtime.bigint() - startTime) / 1000000 })
+                    graphqlErrorLogger.error({ formatErrorError: serializeError(ensureError(formatErrorError)), ...logData, responseTime })
+                    graphqlErrorLogger.error({ serializedErrors: errors.map(error => serializeError(ensureError(error))), ...logData, responseTime })
                 }
             },
         }
