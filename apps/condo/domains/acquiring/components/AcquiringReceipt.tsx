@@ -263,6 +263,7 @@ const InvoiceRowsTable: React.FC<IInvoiceSectionProps> = ({ section, currencyCod
     const CountTitle = intl.formatMessage({ id: 'acquiringReceipt.invoice.row.count' })
     const VatTitle = intl.formatMessage({ id: 'acquiringReceipt.invoice.row.vatPercent' })
     const AmountTitle = intl.formatMessage({ id: 'acquiringReceipt.invoice.row.amount' })
+    const NoVATTitle = intl.formatMessage({ id: 'pages.condo.marketplace.settings.requisites.noTax' })
 
     const vatPercents = Object.keys(get(section, 'vatAmount', {}))
 
@@ -284,7 +285,12 @@ const InvoiceRowsTable: React.FC<IInvoiceSectionProps> = ({ section, currencyCod
                                 <Money amount={row.toPay} currencyCode={currencyCode}/>
                             </Col>
                             <Col span={4} style={{ textAlign: 'right' }}>{row.count}</Col>
-                            <Col span={4} style={{ textAlign: 'right' }}>{Big(row.vatPercent).toString()}%</Col>
+                            <Col
+                                span={4}
+                                style={{ textAlign: 'right' }}
+                            >
+                                {row.vatPercent ? `${Big(row.vatPercent).toString()}%` : NoVATTitle}
+                            </Col>
                             <Col span={4} style={{ textAlign: 'right' }}>
                                 <Money amount={row.amount} currencyCode={currencyCode}/>
                             </Col>
