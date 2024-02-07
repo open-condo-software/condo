@@ -124,6 +124,7 @@ function getMessageOptions (type) {
 }
 
 module.exports = {
+    getAnonymousSettings,
     getUserSettingsForMessage,
     getMessageOptions,
 }

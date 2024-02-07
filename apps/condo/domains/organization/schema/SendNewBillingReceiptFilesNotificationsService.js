@@ -221,7 +221,6 @@ const SendNewBillingReceiptFilesNotificationsService = new GQLCustomSchema('Send
                         meta: {
                             dv: 1,
                             data: {
-                                id: sendMessagesCache[email].contactId,
                                 year,
                                 month,
                             },

@@ -370,7 +370,6 @@ const MESSAGE_META = {
     [BILLING_RECEIPT_FILE_ADDED_TYPE]: {
         dv: { defaultValue: '', required: true },
         data: {
-            id: { required: true },
             year: { required: true },
             month: { required: true },
         },
