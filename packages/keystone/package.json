@@ -54,6 +54,8 @@
     "falsey": "^1.0.0",
     "form-data": "^4.0.0",
     "graphql": "^15.6.1",
+    "graphql-middleware": "^6.0.4",
+    "graphql-rate-limit": "^3.3.0",
     "graphql-tag": "^2.12.6",
     "graphql-upload": "^15.0.2",
     "hot-shots": "^10.0.0",

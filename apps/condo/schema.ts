@@ -16,6 +16,7 @@ export type Scalars = {
 };
 
 
+
 export type AcceptOrRejectOrganizationInviteInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;

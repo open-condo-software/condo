@@ -55,7 +55,8 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
     mutations: [
         {
             access: true,
-            schema: 'authenticateUserWithPhoneAndPassword(data: AuthenticateUserWithPhoneAndPasswordInput!): AuthenticateUserWithPhoneAndPasswordOutput',
+            // TODO: test purposes only, make sure to remove this later
+            schema: 'authenticateUserWithPhoneAndPassword(data: AuthenticateUserWithPhoneAndPasswordInput!): AuthenticateUserWithPhoneAndPasswordOutput @rateLimit(window: "1000s", max: 2)',
             resolver: async (parent, args, context) => {
                 const { data: { phone: inputPhone, password } } = args
                 const phone = normalizePhone(inputPhone)

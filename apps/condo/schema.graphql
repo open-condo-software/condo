@@ -1,3 +1,5 @@
+directive @rateLimit(max: Int, window: String, message: String, identityArgs: [String], arrayLengthField: String) on FIELD_DEFINITION
+
 directive @cacheControl(maxAge: Int, scope: CacheControlScope) on FIELD_DEFINITION | OBJECT | INTERFACE
 
 enum UserHistoryRecordHistoryActionType {

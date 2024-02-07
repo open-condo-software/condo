@@ -23,6 +23,7 @@ const { KeystoneTracingApp } = require('@open-condo/keystone/tracing')
 const { parseCorsSettings } = require('../../cors.utils')
 const { _internalGetExecutionContextAsyncLocalStorage } = require('../../executionContext')
 const { expressErrorHandler } = require('../../logging/expressErrorHandler')
+const { RATE_LIMIT_DIRECTIVE_TYPE_DEF, RATE_LIMIT_SCHEMA_DIRECTIVES } = require('../../rateLimiting')
 const { getRedisClient } = require('../../redis')
 const { prepareDefaultKeystoneConfig } = require('../../setup.utils')
 
@@ -35,6 +36,8 @@ const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = conf.ENABLE_DANGEROUS_GRAPHQL_PLA
 // NOTE(pahaz): it's a magic number tested by @arichiv at https://developer.chrome.com/blog/cookie-max-age-expires/
 const INFINITY_MAX_AGE_COOKIE = 1707195600
 const SERVICE_USER_SESSION_TTL_IN_SEC = 7 * 24 * 60 * 60 // 7 days in sec
+const SCHEMA_NAME = 'public'
+
 
 const sendAppMetrics = () => {
     const v8Stats = v8.getHeapStatistics()
@@ -89,6 +92,14 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
         onConnect: async () => onConnect && onConnect(keystone),
         ...extendedKeystoneConfig,
     })
+    keystone.extendGraphQLSchema({
+        types: [
+            {
+                access: true,
+                type: RATE_LIMIT_DIRECTIVE_TYPE_DEF,
+            },
+        ],
+    })
 
     const globalPreprocessors = schemasPreprocessors ? schemasPreprocessors() : []
     globalPreprocessors.push(...[schemaDocPreprocessor, adminDocPreprocessor, escapeSearchPreprocessor, customAccessPostProcessor])
@@ -133,7 +144,6 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
     if (!IS_BUILD_PHASE) {
         setInterval(sendAppMetrics, 2000)
     }
-
     return {
         keystone,
         // NOTE(pahaz): please, check the `executeDefaultServer(..)` to understand how it works.
@@ -147,12 +157,19 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
             ...((apps) ? apps() : []),
             new GraphQLApp({
                 apollo: {
+                    // typeDefs: keystone
+                    //     .getTypeDefs({ schemaName: SCHEMA_NAME })
+                    //     .concat([]),
                     formatError,
                     debug: IS_ENABLE_APOLLO_DEBUG,
                     introspection: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
                     playground: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
                     plugins: [new GraphQLLoggerPlugin()],
+                    schemaDirectives: {
+                        ...RATE_LIMIT_SCHEMA_DIRECTIVES,
+                    },
                 },
+                schemaName: SCHEMA_NAME,
                 ...(graphql || {}),
             }),
             new AdminUIApp({
