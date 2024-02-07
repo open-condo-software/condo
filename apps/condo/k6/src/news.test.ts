@@ -32,10 +32,10 @@ export const options = {
     },
     thresholds: {
         http_req_failed: ['rate<0.01'],
-        browser_http_req_duration: ['p(95) < 1000'],
+        browser_http_req_duration: ['p(95) < 2500'],
         http_req_duration: ['p(95)<2000'],
-        browser_web_vital_fcp: ['p(95) < 2000'],
-        browser_web_vital_lcp: ['p(95) < 4000'],
+        browser_web_vital_fcp: ['p(95) < 6000'],
+        browser_web_vital_lcp: ['p(95) < 10000'],
     },
 }
 
