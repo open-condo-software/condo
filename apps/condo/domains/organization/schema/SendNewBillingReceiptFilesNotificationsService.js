@@ -221,6 +221,7 @@ const SendNewBillingReceiptFilesNotificationsService = new GQLCustomSchema('Send
                         meta: {
                             dv: 1,
                             data: {
+                                organization: organization.name,
                                 year,
                                 month,
                             },
