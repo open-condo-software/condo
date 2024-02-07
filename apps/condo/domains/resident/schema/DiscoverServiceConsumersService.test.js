@@ -3,6 +3,7 @@
  */
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
+const { map } = require('lodash')
 
 const { getRedisClient } = require('@open-condo/keystone/redis')
 const {
@@ -1133,6 +1134,97 @@ describe('DiscoverServiceConsumersService', () => {
             const createdServiceConsumers = await ResidentBillingReceipt.getAll(residentClient, {})
 
             expect(createdServiceConsumers).toHaveLength(0)
+        })
+
+        test('Can\'t discover if already 6+ residents exist', async () => {
+            const userClient = await makeClientWithProperty()
+
+            await addAcquiringIntegrationAndContext(admin, userClient.organization, {}, { status: CONTEXT_FINISHED_STATUS })
+            const { billingIntegrationContext } = await addBillingIntegrationAndContext(admin, userClient.organization, {}, { status: CONTEXT_FINISHED_STATUS })
+
+            const [billingProperty] = await createTestBillingProperty(admin, billingIntegrationContext, { address: userClient.property.address })
+
+            const residents = []
+            const billingAccounts = []
+            for (let i = 0; i < 6; i++) {
+                const [resident] = await createTestResident(admin, userClient.user, userClient.property, { address: billingProperty.address })
+                residents.push(resident)
+
+                const [billingAccount] = await createTestBillingAccount(admin, billingIntegrationContext, billingProperty,
+                    { unitName: resident.unitName, unitType: resident.unitType },
+                )
+                billingAccounts.push(billingAccount)
+
+                const now = dayjs()
+                const receiptsPayload = {
+                    context: { id: billingIntegrationContext.id },
+                    receipts: [
+                        createRegisterBillingReceiptsPayload({
+                            address: billingProperty.address,
+                            unitType: resident.unitType,
+                            unitName: resident.unitName,
+                            accountNumber: billingAccount.number,
+                            year: Number(now.format('YYYY')),
+                            month: Number(now.format('MM')),
+                        }),
+                    ],
+                }
+                await registerBillingReceiptsByTestClient(admin, receiptsPayload)
+            }
+
+            await _internalScheduleTaskByNameByTestClient(admin, { taskName: cronTaskName })
+
+            await waitFor(async () => {
+                const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
+                    resident: { id_in: map(residents, 'id') },
+                    deletedAt: null,
+                })
+                const residentIds = createdServiceConsumers.map(serviceConsumer => serviceConsumer.resident.id)
+                const accountNumbers = createdServiceConsumers.map(serviceConsumer => serviceConsumer.accountNumber)
+
+                expect(createdServiceConsumers).toHaveLength(6)
+                expect(residentIds).toEqual(expect.arrayContaining(map(residents, 'id')))
+                expect(accountNumbers).toEqual(expect.arrayContaining(map(billingAccounts, 'number')))
+            }, { delay: 500 })
+
+            // add another one resident with receipts
+            const [nextResident] = await createTestResident(admin, userClient.user, userClient.property, { address: billingProperty.address })
+
+            const [nextBillingAccount] = await createTestBillingAccount(admin, billingIntegrationContext, billingProperty,
+                { unitName: nextResident.unitName, unitType: nextResident.unitType },
+            )
+
+            const now = dayjs()
+            const receiptsPayload = {
+                context: { id: billingIntegrationContext.id },
+                receipts: [
+                    createRegisterBillingReceiptsPayload({
+                        address: billingProperty.address,
+                        unitType: nextResident.unitType,
+                        unitName: nextResident.unitName,
+                        accountNumber: nextBillingAccount.number,
+                        year: Number(now.format('YYYY')),
+                        month: Number(now.format('MM')),
+                    }),
+                ],
+            }
+            await registerBillingReceiptsByTestClient(admin, receiptsPayload)
+
+            // start discovering
+            await _internalScheduleTaskByNameByTestClient(admin, { taskName: cronTaskName })
+            // It must still be 6 consumers
+            await waitFor(async () => {
+                const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
+                    resident: { id_in: [...map(residents, 'id'), nextResident.id] },
+                    deletedAt: null,
+                })
+                const residentIds = createdServiceConsumers.map(serviceConsumer => serviceConsumer.resident.id)
+                const accountNumbers = createdServiceConsumers.map(serviceConsumer => serviceConsumer.accountNumber)
+
+                expect(createdServiceConsumers).toHaveLength(6)
+                expect(residentIds).toEqual(expect.arrayContaining(map(residents, 'id')))
+                expect(accountNumbers).toEqual(expect.arrayContaining(map(billingAccounts, 'number')))
+            }, { delay: 500 })
         })
     })
 
