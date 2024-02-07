@@ -6,7 +6,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 
-import { FileDown, PlusCircle, Search } from '@open-condo/icons'
+import { PlusCircle, Search } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -118,12 +118,7 @@ export const ContactsPageContent = ({
                                 rowValidator={contactValidator}
                                 objectCreator={contactCreator}
                                 domainName='contact'
-                            >
-                                <Button
-                                    type='secondary'
-                                    icon={<FileDown size='medium'/>}
-                                />
-                            </ImportWrapper>
+                            />
                         )}
                         createRoute={ADD_CONTACT_ROUTE}
                         createLabel={CreateContact}

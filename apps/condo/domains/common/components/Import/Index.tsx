@@ -7,14 +7,12 @@ import isFunction from 'lodash/isFunction'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 import XLSX from 'xlsx'
 
-import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { Download, FileDown } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Alert, Button, Modal, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
-import { DEFAULT_RECORDS_LIMIT_FOR_IMPORT } from '@condo/domains/common/constants/import'
 import { useImporter } from '@condo/domains/common/hooks/useImporter'
 import {
     Columns,
@@ -25,7 +23,6 @@ import {
     MutationErrorsToMessagesType,
 } from '@condo/domains/common/utils/importer'
 
-import { BIGGER_LIMIT_FOR_IMPORT } from '../../constants/featureflags'
 import { DataImporter } from '../DataImporter'
 import { FocusContainer } from '../FocusContainer'
 
@@ -34,7 +31,6 @@ interface IImportWrapperProps {
     accessCheck: boolean
     onFinish: (variables: unknown) => void
     columns: Columns
-    maxTableLength?: number
     rowNormalizer: RowNormalizer
     rowValidator: RowValidator
     objectCreator: ObjectCreator
@@ -98,7 +94,6 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
     const {
         accessCheck,
         columns,
-        maxTableLength,
         rowNormalizer,
         rowValidator,
         objectCreator,
@@ -129,6 +124,7 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
     const PartlyDataLoadedModalAlertDescription = intl.formatMessage({ id: 'import.partlyDataLoadedModal.alert.description' })
     const ErrorModalTitle = intl.formatMessage({ id: 'import.errorModal.title' }, { plural: ImportPluralMessage })
     const SuccessModalButtonLabel = intl.formatMessage({ id: 'import.successModal.buttonLabel' })
+    const ErrorsMessage = intl.formatMessage({ id: 'import.Errors' })
 
     const exampleTemplateLink = useMemo(() => `/${domainName}-import-example-${intl.locale}.xlsx`, [domainName, intl.locale])
     const exampleImageSrc = useMemo(() => `/${domainName}-import-example-${intl.locale}.webp`, [domainName, intl.locale])
@@ -155,15 +151,11 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
         errors.current.push(row)
     }
 
-    const { useFlagValue } = useFeatureFlags()
-    const defaultMaxTableLength: number = useFlagValue(BIGGER_LIMIT_FOR_IMPORT) || DEFAULT_RECORDS_LIMIT_FOR_IMPORT
-
     const [importData, progress, error, isImported, breakImport] = useImporter({
         columns,
         rowNormalizer,
         rowValidator,
         objectCreator,
-        maxTableLength: maxTableLength || defaultMaxTableLength,
         setTotalRows: setTotalRowsRef,
         setSuccessRows: setSuccessRowsRef,
         handleRowError,
@@ -195,7 +187,7 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
         return new Promise<void>((resolve, reject) => {
             try {
                 const erroredRows = errors.current
-                const data = [columns.map(column => column.name).concat(['Errors'])]
+                const data = [columns.map(column => column.name).concat([ErrorsMessage])]
 
                 for (let i = 0; i < erroredRows.length; i++) {
                     const line = erroredRows[i].originalRow.map(cell => {
@@ -220,7 +212,7 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
                 resolve()
             }
         })
-    }, [columns, domainName])
+    }, [ErrorsMessage, columns, domainName])
 
     const closeModal = useCallback(() => setActiveModal(null), [])
 
@@ -368,10 +360,6 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
             </>
         )
     )
-}
-
-ImportWrapper.defaultProps = {
-    maxTableLength: DEFAULT_RECORDS_LIMIT_FOR_IMPORT,
 }
 
 export {

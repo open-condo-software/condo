@@ -24,6 +24,7 @@
   "Completed": "Завершено",
   "ConfirmPassword": "Пароль (проверка)",
   "ConfirmVerificationCode": "Подтвердить",
+  "import.Errors": "Ошибки",
   "import.uploadButtonLabel": "Импорт списка из файла",
   "import.uploadModal.title": "Добавьте {plural} на платформу",
   "import.uploadModal.chooseFileForUpload": "Выбрать файл для загрузки",

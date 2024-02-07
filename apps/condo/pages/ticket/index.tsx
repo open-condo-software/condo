@@ -45,10 +45,7 @@ import { TableFiltersContainer } from '@condo/domains/common/components/TableFil
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { useWindowTitleContext, WindowTitleContextProvider } from '@condo/domains/common/components/WindowTitleContext'
 import { EXCEL } from '@condo/domains/common/constants/export'
-import { BIGGER_LIMIT_FOR_IMPORT, TICKET_IMPORT } from '@condo/domains/common/constants/featureflags'
-import {
-    DEFAULT_RECORDS_LIMIT_FOR_IMPORT,
-} from '@condo/domains/common/constants/import'
+import { TICKET_IMPORT } from '@condo/domains/common/constants/featureflags'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { useAudio } from '@condo/domains/common/hooks/useAudio'
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
@@ -817,11 +814,10 @@ export const TicketsPageContent = ({
             favoriteTicketsIds
     }
 
-    const { useFlag, useFlagValue } = useFeatureFlags()
+    const { useFlag } = useFeatureFlags()
     const isTicketImportFeatureEnabled = useFlag(TICKET_IMPORT)
     const [columns, ticketNormalizer, ticketValidator, ticketCreator] = useImporterFunctions()
 
-    const maxTableLength: number = useFlagValue(BIGGER_LIMIT_FOR_IMPORT) || DEFAULT_RECORDS_LIMIT_FOR_IMPORT
     const canManageTickets = useMemo(() => get(link, ['role', 'canManageTickets'], false), [link])
 
     const TicketImportButton = useMemo(() => {
@@ -833,11 +829,10 @@ export const TicketsPageContent = ({
                 rowValidator={ticketValidator}
                 rowNormalizer={ticketNormalizer}
                 objectCreator={ticketCreator}
-                maxTableLength={maxTableLength}
                 domainName='ticket'
             />
         )
-    }, [canManageTickets, columns, isTicketImportFeatureEnabled, maxTableLength, showImport, ticketCreator, ticketNormalizer, ticketValidator])
+    }, [canManageTickets, columns, isTicketImportFeatureEnabled, showImport, ticketCreator, ticketNormalizer, ticketValidator])
 
     //TODO(DOMA-7354): Remove featureflag after resolve global search problem
     const disableTicketCounters = useFlag('callcenter-disable-ticket-counters')

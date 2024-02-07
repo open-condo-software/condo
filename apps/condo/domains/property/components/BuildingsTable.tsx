@@ -12,7 +12,7 @@ import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
 import React, { useMemo, useState } from 'react'
 
-import { FileDown, PlusCircle, Search, Sheet } from '@open-condo/icons'
+import { PlusCircle, Search, Sheet } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, ActionBarProps, Button } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
@@ -169,12 +169,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
                         rowValidator={propertyValidator}
                         objectCreator={propertyCreator}
                         domainName='property'
-                    >
-                        <Button
-                            type='secondary'
-                            icon={<FileDown size='medium' />}
-                        />
-                    </ImportWrapper>
+                    />
                 )}
                 createRoute='/property/create'
                 createLabel={CreateProperty}

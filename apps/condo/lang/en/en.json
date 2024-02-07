@@ -24,6 +24,7 @@
   "Completed": "Completed",
   "ConfirmPassword": "Confirm password",
   "ConfirmVerificationCode": "Confirm verification code",
+  "import.Errors": "Errors",
   "import.uploadButtonLabel": "Import list from file",
   "import.uploadModal.title": "Add {plural} to the platform",
   "import.uploadModal.chooseFileForUpload": "Select file to download",

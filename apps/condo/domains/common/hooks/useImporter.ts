@@ -1,7 +1,10 @@
 import { useCallback, useRef, useState } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 
+import { BIGGER_LIMIT_FOR_IMPORT } from '@condo/domains/common/constants/featureflags'
+import { DEFAULT_RECORDS_LIMIT_FOR_IMPORT } from '@condo/domains/common/constants/import'
 import {
     Importer,
     RowNormalizer,
@@ -12,11 +15,11 @@ import {
     ImporterErrorMessages, MutationErrorsToMessagesType,
 } from '@condo/domains/common/utils/importer'
 
+
 const SLEEP_INTERVAL_BEFORE_QUERIES = 1000
 
 interface IUseImporterProps {
     columns: Columns,
-    maxTableLength: number,
     rowNormalizer: RowNormalizer,
     rowValidator: RowValidator,
     objectCreator: ObjectCreator,
@@ -30,7 +33,6 @@ interface IUseImporterProps {
 
 export const useImporter = ({
     columns,
-    maxTableLength,
     rowNormalizer,
     rowValidator,
     objectCreator,
@@ -41,6 +43,9 @@ export const useImporter = ({
     onError,
     mutationErrorsToMessages,
 }: IUseImporterProps) => {
+    const { useFlagValue } = useFeatureFlags()
+    const maxTableLength: number = useFlagValue(BIGGER_LIMIT_FOR_IMPORT) || DEFAULT_RECORDS_LIMIT_FOR_IMPORT
+    
     const intl = useIntl()
     const TooManyRowsErrorMessage = intl.formatMessage({ id: 'TooManyRowsInTable' }, {
         value: maxTableLength,
