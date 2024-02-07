@@ -5,19 +5,20 @@ const dayjs = require('dayjs')
 const locale_ru = require('dayjs/locale/ru')
 const { isNil, isEmpty, get } = require('lodash')
 
-
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
+const { BILLING_RECEIPT_FILE_FOLDER_NAME } = require('@condo/domains/billing/constants/constants')
 const {
     BillingReceiptFile,
-    BillingReceipt,
+    BillingReceiptAdmin,
     BillingProperty,
 } = require('@condo/domains/billing/utils/serverSchema')
 const { isValidDateValue } = require('@condo/domains/billing/utils/validation.utils')
 const { NOT_FOUND, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
 const { DATE_FORMAT } = require('@condo/domains/common/utils/date')
+const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const {
@@ -26,6 +27,8 @@ const {
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const access = require('@condo/domains/organization/access/SendNewBillingReceiptFilesNotificationsService')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
+
+const fileAdapter = new FileAdapter(BILLING_RECEIPT_FILE_FOLDER_NAME)
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -57,8 +60,38 @@ function getWatermark (value) {
     if (isEmpty(value)) {
         return null
     }
-    
+
     return dayjs(value)
+}
+
+async function prepareAttachments (files) {
+    return files.filter(file => !isEmpty(get(file, ['sensitiveDataFile', 'publicUrl'])))
+        .map(file => {
+            const {
+                sensitiveDataFile: {
+                    filename,
+                    publicUrl,
+                    mimetype,
+                    originalFilename,
+                },
+            } = file
+
+
+            const attachment = {
+                mimetype,
+                originalFilename,
+                publicUrl,
+            }
+
+            if (fileAdapter.acl && fileAdapter.acl.generateUrl) {
+                attachment.publicUrl = fileAdapter.acl.generateUrl({
+                    filename: `${fileAdapter.folder}/${filename}`,
+                    originalFilename,
+                })
+            }
+
+            return attachment
+        })
 }
 
 const SendNewBillingReceiptFilesNotificationsService = new GQLCustomSchema('SendNewBillingReceiptFilesNotificationsService', {
@@ -72,15 +105,15 @@ const SendNewBillingReceiptFilesNotificationsService = new GQLCustomSchema('Send
             type: 'type SendNewBillingReceiptFilesNotificationsOutput { notificationsSent: Int! }',
         },
     ],
-    
+
     mutations: [
         {
             access: access.canSendNewBillingReceiptFilesNotifications,
             schema: 'sendNewBillingReceiptFilesNotifications(data: SendNewBillingReceiptFilesNotificationsInput!): SendNewBillingReceiptFilesNotificationsOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
-                const { data: { organization: { id: organizationId },  createdAfter, sender, period } } = args
+                const { data: { organization: { id: organizationId }, createdAfter, sender, period } } = args
                 const watermark = getWatermark(createdAfter)
-                
+
                 // period is valid
                 if (!isValidDateValue(period)) throw new GQLError(ERRORS.INVALID_PERIOD_PROVIDED, context)
                 const periodDate = dayjs(period)
@@ -91,7 +124,7 @@ const SendNewBillingReceiptFilesNotificationsService = new GQLCustomSchema('Send
                 if (isNil(watermark)) {
                     throw new GQLError(ERRORS.CREATED_AFTER_DATE_ILLEGAL_VALUE, context)
                 }
-                
+
                 // watermark not bigger than current time
                 if (dayjs().unix() <= watermark.unix()) {
                     throw new GQLError(ERRORS.CREATED_AFTER_DATE_ILLEGAL_VALUE, context)
@@ -125,17 +158,17 @@ const SendNewBillingReceiptFilesNotificationsService = new GQLCustomSchema('Send
                  */
                 const sendMessagesCache = {}
                 for (let billingReceiptFile of billingReceiptFiles) {
-                    const receipt = await BillingReceipt.getOne(context, {
+                    const receipt = await BillingReceiptAdmin.getOne(context, {
                         file: { id: billingReceiptFile.id },
                         period,
                         deletedAt: null,
                     })
-                    
+
                     // no receipt for billing receipt file
                     if (isNil(receipt)) {
                         continue
                     }
-                    
+
                     // destructuring receipt to build contact search conditions 
                     const {
                         account: { unitName, unitType },
@@ -147,7 +180,7 @@ const SendNewBillingReceiptFilesNotificationsService = new GQLCustomSchema('Send
                     if (isNil(get(billingProperty, ['property', 'id']))) {
                         continue
                     }
-                    
+
                     // get contacts
                     const contacts = await Contact.getAll(context, {
                         property: { id: billingProperty.property.id },
@@ -162,27 +195,37 @@ const SendNewBillingReceiptFilesNotificationsService = new GQLCustomSchema('Send
                     contacts.forEach(contact => {
                         if (isNil(sendMessagesCache[contact.email])) {
                             sendMessagesCache[contact.email] = {
+                                contactId: contact.id,
                                 files: [],
                             }
                         }
 
-                        sendMessagesCache[contact.email].files.push(billingReceiptFile)
+                        sendMessagesCache[contact.email].files.push(receipt.file)
                     })
                 }
-                
+
                 // and finally send messages by build cache
                 let notificationsSent = 0
                 for (let email of Object.keys(sendMessagesCache)) {
-                    const files = sendMessagesCache[email].files // todo send files
+                    const attachments = await prepareAttachments(sendMessagesCache[email].files)
+
+                    // no attachments case
+                    if (attachments.length === 0) {
+                        continue
+                    }
+
+                    // send message
                     await sendMessage(context, {
                         to: { email },
                         type: BILLING_RECEIPT_FILE_ADDED_TYPE,
                         meta: {
                             dv: 1,
                             data: {
+                                id: sendMessagesCache[email].contactId,
                                 year,
                                 month,
                             },
+                            attachments,
                         },
                         sender,
                     })

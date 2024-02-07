@@ -38720,6 +38720,7 @@ export type Mutation = {
   acceptOrRejectOrganizationInviteById?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteByCode?: Maybe<OrganizationEmployee>;
   resetOrganization?: Maybe<ResetOrganizationOutput>;
+  sendNewBillingReceiptFilesNotifications?: Maybe<SendNewBillingReceiptFilesNotificationsOutput>;
   registerBillingReceipts?: Maybe<Array<Maybe<BillingReceipt>>>;
   /**
    * Sends notification of BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE type to all residents of provided scopes. Requires service user with access rights to billing domain. All properties in scopes should be connected to provided context.
@@ -39519,33 +39520,16 @@ export type Mutation = {
    * 			"required": true
    * 		},
    * 		"data": {
-   * 			"residentId": {
-   * 				"defaultValue": "",
+   * 			"year": {
    * 				"required": true
    * 			},
-   * 			"userId": {
-   * 				"defaultValue": "",
-   * 				"required": true
-   * 			},
-   * 			"url": {
-   * 				"defaultValue": "",
-   * 				"required": true
-   * 			},
-   * 			"billingReceiptId": {
-   * 				"defaultValue": "",
-   * 				"required": true
-   * 			},
-   * 			"billingAccountId": {
-   * 				"defaultValue": "",
-   * 				"required": true
-   * 			},
-   * 			"billingPropertyId": {
-   * 				"defaultValue": "",
-   * 				"required": true
-   * 			},
-   * 			"period": {
+   * 			"month": {
    * 				"required": true
    * 			}
+   * 		},
+   * 		"attachments": {
+   * 			"defaultValue": [],
+   * 			"isRequired": false
    * 		}
    * 	},
    * 	"BILLING_RECEIPT_ADDED_WITH_DEBT": {
@@ -48673,6 +48657,11 @@ export type MutationAcceptOrRejectOrganizationInviteByCodeArgs = {
 
 export type MutationResetOrganizationArgs = {
   data: ResetOrganizationInput;
+};
+
+
+export type MutationSendNewBillingReceiptFilesNotificationsArgs = {
+  data: SendNewBillingReceiptFilesNotificationsInput;
 };
 
 
@@ -71698,6 +71687,19 @@ export enum SendMessageType {
   MarketplaceInvoiceCashPublishedMessage = 'MARKETPLACE_INVOICE_CASH_PUBLISHED_MESSAGE',
   MarketplaceInvoiceCashWithTicketPublishedMessage = 'MARKETPLACE_INVOICE_CASH_WITH_TICKET_PUBLISHED_MESSAGE'
 }
+
+export type SendNewBillingReceiptFilesNotificationsInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  organization: OrganizationWhereUniqueInput;
+  createdAfter: Scalars['String'];
+  period: Scalars['String'];
+};
+
+export type SendNewBillingReceiptFilesNotificationsOutput = {
+  __typename?: 'SendNewBillingReceiptFilesNotificationsOutput';
+  notificationsSent: Scalars['Int'];
+};
 
 export type SendNewReceiptMessagesToResidentScopesInput = {
   dv: Scalars['Int'];

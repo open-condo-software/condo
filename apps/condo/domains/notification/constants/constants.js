@@ -370,9 +370,11 @@ const MESSAGE_META = {
     [BILLING_RECEIPT_FILE_ADDED_TYPE]: {
         dv: { defaultValue: '', required: true },
         data: {
+            id: { required: true },
             year: { required: true },
             month: { required: true },
         },
+        attachments: { defaultValue: [], isRequired: false },
     },
     [BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE]: {
         dv: { defaultValue: '', required: true },

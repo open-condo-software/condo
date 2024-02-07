@@ -72103,6 +72103,18 @@ type ResetOrganizationOutput {
   status: String!
 }
 
+input SendNewBillingReceiptFilesNotificationsInput {
+  dv: Int!
+  sender: JSON!
+  organization: OrganizationWhereUniqueInput!
+  createdAfter: String!
+  period: String!
+}
+
+type SendNewBillingReceiptFilesNotificationsOutput {
+  notificationsSent: Int!
+}
+
 input ExportPropertiesToExcelInput {
   where: PropertyWhereInput!
   sortBy: [SortPropertiesBy!]
@@ -82194,6 +82206,7 @@ type Mutation {
   acceptOrRejectOrganizationInviteById(id: ID!, data: AcceptOrRejectOrganizationInviteInput!): OrganizationEmployee
   acceptOrRejectOrganizationInviteByCode(inviteCode: String!, data: AcceptOrRejectOrganizationInviteInput!): OrganizationEmployee
   resetOrganization(data: ResetOrganizationInput!): ResetOrganizationOutput
+  sendNewBillingReceiptFilesNotifications(data: SendNewBillingReceiptFilesNotificationsInput!): SendNewBillingReceiptFilesNotificationsOutput
   registerBillingReceipts(data: RegisterBillingReceiptsInput!): [BillingReceipt]
 
   """
@@ -82995,33 +83008,16 @@ type Mutation {
   			"required": true
   		},
   		"data": {
-  			"residentId": {
-  				"defaultValue": "",
+  			"year": {
   				"required": true
   			},
-  			"userId": {
-  				"defaultValue": "",
-  				"required": true
-  			},
-  			"url": {
-  				"defaultValue": "",
-  				"required": true
-  			},
-  			"billingReceiptId": {
-  				"defaultValue": "",
-  				"required": true
-  			},
-  			"billingAccountId": {
-  				"defaultValue": "",
-  				"required": true
-  			},
-  			"billingPropertyId": {
-  				"defaultValue": "",
-  				"required": true
-  			},
-  			"period": {
+  			"month": {
   				"required": true
   			}
+  		},
+  		"attachments": {
+  			"defaultValue": [],
+  			"isRequired": false
   		}
   	},
   	"BILLING_RECEIPT_ADDED_WITH_DEBT": {
