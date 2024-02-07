@@ -5,7 +5,6 @@ const dayjs = require('dayjs')
 const locale_ru = require('dayjs/locale/ru')
 const { isNil, isEmpty, get } = require('lodash')
 
-const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
@@ -24,6 +23,7 @@ const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const {
     BILLING_RECEIPT_FILE_ADDED_TYPE,
 } = require('@condo/domains/notification/constants/constants')
+const { EMAIL_FROM } = require('@condo/domains/notification/tasks/sendMessageBatch.helpers')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const access = require('@condo/domains/organization/access/SendNewBillingReceiptFilesNotificationsService')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
@@ -216,6 +216,7 @@ const SendNewBillingReceiptFilesNotificationsService = new GQLCustomSchema('Send
 
                     // send message
                     await sendMessage(context, {
+                        emailFrom: EMAIL_FROM,
                         to: { email },
                         type: BILLING_RECEIPT_FILE_ADDED_TYPE,
                         meta: {
