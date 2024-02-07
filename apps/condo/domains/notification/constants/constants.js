@@ -370,13 +370,8 @@ const MESSAGE_META = {
     [BILLING_RECEIPT_FILE_ADDED_TYPE]: {
         dv: { defaultValue: '', required: true },
         data: {
-            residentId: { defaultValue: '', required: true },
-            userId: { defaultValue: '', required: true },
-            url: { defaultValue: '', required: true },
-            billingReceiptId: { defaultValue: '', required: true },
-            billingAccountId: { defaultValue: '', required: true },
-            billingPropertyId: { defaultValue: '', required: true },
-            period: { required: true },
+            year: { required: true },
+            month: { required: true },
         },
     },
     [BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE]: {
@@ -838,7 +833,10 @@ const MESSAGE_DELIVERY_OPTIONS = {
         allowedTransports: [PUSH_TRANSPORT],
         defaultTransports: [PUSH_TRANSPORT],
     },
-
+    [BILLING_RECEIPT_FILE_ADDED_TYPE]: {
+        allowedTransports: [EMAIL_TRANSPORT],
+        defaultTransports: [EMAIL_TRANSPORT],
+    },
 }
 
 const MESSAGE_SENDING_STATUS = 'sending'

@@ -12,6 +12,7 @@ const { OrganizationEmployeeRole: OrganizationEmployeeRoleGQL } = require('@cond
 const { OrganizationLink: OrganizationLinkGQL } = require('@condo/domains/organization/gql')
 const { OrganizationEmployeeSpecialization: OrganizationEmployeeSpecializationGQL } = require('@condo/domains/organization/gql')
 const { RESET_ORGANIZATION_MUTATION } = require('@condo/domains/organization/gql')
+const { SEND_NEW_BILLING_RECEIPT_FILES_NOTIFICATIONS_MUTATION } = require('@condo/domains/organization/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Organization = generateServerUtils(OrganizationGQL)
@@ -33,6 +34,19 @@ async function resetOrganization (context, data) {
     })
 }
 
+async function sendNewBillingReceiptFilesNotifications (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: SEND_NEW_BILLING_RECEIPT_FILES_NOTIFICATIONS_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to sendNewBillingReceiptFilesNotifications',
+        dataPath: 'result',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -42,5 +56,6 @@ module.exports = {
     OrganizationLink,
     OrganizationEmployeeSpecialization,
     resetOrganization,
+    sendNewBillingReceiptFilesNotifications,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
