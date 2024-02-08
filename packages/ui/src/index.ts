@@ -57,9 +57,11 @@ export type { TagProps } from './components/Tag'
 export { Tooltip } from './components/Tooltip'
 export type { TooltipProps } from './components/Tooltip'
 
-
 export { Tour } from './components/Tour'
 export type { TourStepProps } from './components/Tour'
+
+export { ProgressIndicator } from './components/ProgressIndicator'
+export type { ProgressIndicatorProps, ProgressIndicatorStep } from './components/ProgressIndicator'
 
 export { Typography } from './components/Typography'
 

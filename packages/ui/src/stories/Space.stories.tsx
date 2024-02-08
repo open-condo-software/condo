@@ -25,7 +25,6 @@ export default {
             mapping: [8, 12, 16, 20, 24, 40, 52, 60],
         },
         wrap: { control: 'boolean' },
-
     },
 } as ComponentMeta<typeof Component>
 
