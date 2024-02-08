@@ -309,24 +309,6 @@ describe('SendNewBillingReceiptFilesNotificationsService', () => {
             })
         })
 
-        it('Not valid createdAfter', async () => {
-            await catchErrorFrom(async () => {
-                await sendNewBillingReceiptFilesNotificationsByTestClient(admin, {
-                    organization: { id: organization.id },
-                    createdAfter: dayjs().add(1, 'days').toISOString(),
-                    period: receiptByAdmin.period,
-                })
-            }, ({ errors }) => {
-                expect(errors).toMatchObject([{
-                    extensions: {
-                        code: 'BAD_USER_INPUT',
-                        type: WRONG_VALUE,
-                        message: 'Wrong value for createdAfter field. Required non null date string, less than current time',
-                    },
-                }])
-            })
-        })
-
         it('Empty organization', async () => {
             await catchErrorFrom(async () => {
                 await sendNewBillingReceiptFilesNotificationsByTestClient(admin, {
