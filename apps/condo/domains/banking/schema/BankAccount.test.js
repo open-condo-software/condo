@@ -8,9 +8,8 @@ const {
     makeClient,
     makeLoggedInAdminClient,
     UUID_RE,
-    expectToThrowValidationFailureError,
     expectToThrowUniqueConstraintViolationError,
-    expectValuesOfCommonFields,
+    expectValuesOfCommonFields, expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
@@ -570,11 +569,16 @@ describe('BankAccount', () => {
             const [anotherBankAccount] = await createTestBankAccount(adminClient, organization, {
                 integrationContext: { connect: { id: bankIntegrationAccountContext.id } },
             })
-            await expectToThrowValidationFailureError(async () => {
+
+            await expectToThrowGQLError(async () => {
                 await createTestBankAccount(adminClient, organization, {
                     integrationContext: { connect: { id: anotherBankAccount.integrationContext.id } },
                 })
-            }, `Cannot connect to BankIntegrationAccountContext, used by another BankAccount(id="${anotherBankAccount.id}")`)
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'BANK_INTEGRATION_ACCOUNT_CONTEXT_ALREADY_USED',
+                message: `Cannot connect to BankIntegrationAccountContext, used by another BankAccount(id="${anotherBankAccount.id}")`,
+            })
         })
 
         test('can\'t connect existing BankAccount without BankIntegrationAccountContext to BankIntegrationAccountContext used by another BankAccount', async () => {
@@ -584,14 +588,17 @@ describe('BankAccount', () => {
             const [anotherBankAccount] = await createTestBankAccount(adminClient, organization, {
                 integrationContext: { connect: { id: anotherBankIntegrationAccountContext.id } },
             })
-            await expectToThrowValidationFailureError(async () => {
+            await expectToThrowGQLError(async () => {
                 await updateTestBankAccount(adminClient, bankAccount.id, {
                     integrationContext: {
                         connect: { id: anotherBankIntegrationAccountContext.id },
                     },
                 })
-            }, `Cannot connect to BankIntegrationAccountContext, used by another BankAccount(id="${anotherBankAccount.id}")`)
-
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'BANK_INTEGRATION_ACCOUNT_CONTEXT_ALREADY_USED',
+                message: `Cannot connect to BankIntegrationAccountContext, used by another BankAccount(id="${anotherBankAccount.id}")`,
+            })
         })
 
         test('cannot connect BankIntegrationAccountContext if BankAccount is already connected to some integrationContext', async () => {
@@ -604,11 +611,15 @@ describe('BankAccount', () => {
                 integrationContext: { connect: { id: BankIntegrationAccountContext.id } },
             })
 
-            await expectToThrowValidationFailureError(async () => {
+            await expectToThrowGQLError(async () => {
                 await updateTestBankAccount(adminClient, bankAccount.id, {
                     integrationContext: { connect: { id: anotherIntegrationContext.id } },
                 })
-            }, `Integration reassignment is not allowed for BankAccount with id="${bankAccount.id}"`)
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'INTEGRATION_REASSIGNMENT_NOT_ALLOWED',
+                message: `Integration reassignment is not allowed for BankAccount with id="${bankAccount.id}"`,
+            })
         })
     })
 })
