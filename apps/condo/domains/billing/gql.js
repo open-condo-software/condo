@@ -30,7 +30,7 @@ const BillingProperty = generateGqlQueries('BillingProperty', BILLING_PROPERTY_F
 const BILLING_ACCOUNT_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} importId property { id address addressKey } number unitName unitType raw globalId meta fullName isClosed ownerType ${COMMON_FIELDS} }`
 const BillingAccount = generateGqlQueries('BillingAccount', BILLING_ACCOUNT_FIELDS)
 
-const BILLING_RECIPIENT_FIELDS = `{ context { id } importId tin iec bic bankAccount purpose isApproved meta name ${COMMON_FIELDS} }`
+const BILLING_RECIPIENT_FIELDS = `{ context { id } importId tin iec bic bankAccount purpose isApproved meta name classificationCode ${COMMON_FIELDS} }`
 const BillingRecipient = generateGqlQueries('BillingRecipient', BILLING_RECIPIENT_FIELDS)
 
 const BILLING_CATEGORY_FIELDS = `{ name nameNonLocalized ${COMMON_FIELDS} }`

@@ -739,6 +739,7 @@ function createTestRecipient (extra = {}) {
         bankName: faker.company.name(),
         territoryCode: faker.datatype.number().toString(),
         offsettingAccount: faker.finance.account(12).toString(),
+        classificationCode: faker.finance.account(20).toString(),
     }
     return {
         ...validRecipient,

@@ -45,6 +45,7 @@ describe('BillingRecipient', () => {
             expect(obj.name).toBeDefined()
             expect(obj.isApproved).toBeDefined()
             expect(obj.meta).toBeDefined()
+            expect(obj.classificationCode).toBeDefined()
         })
 
         test('support can create BillingRecipient', async () => {
