@@ -121,11 +121,6 @@ const SendNewBillingReceiptFilesNotificationsService = new GQLCustomSchema('Send
                     throw new GQLError(ERRORS.CREATED_AFTER_DATE_ILLEGAL_VALUE, context)
                 }
 
-                // watermark not bigger than current time
-                if (dayjs().unix() <= watermark.unix()) {
-                    throw new GQLError(ERRORS.CREATED_AFTER_DATE_ILLEGAL_VALUE, context)
-                }
-
                 // check organization
                 const organization = await Organization.getOne(context, {
                     id: organizationId,
