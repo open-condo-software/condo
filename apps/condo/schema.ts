@@ -39520,6 +39520,9 @@ export type Mutation = {
    * 			"required": true
    * 		},
    * 		"data": {
+   * 			"organization": {
+   * 				"required": true
+   * 			},
    * 			"year": {
    * 				"required": true
    * 			},
