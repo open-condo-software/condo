@@ -35,7 +35,6 @@ const {
 } = require('@condo/domains/organization/utils/testSchema')
 const {
     createTestProperty,
-    updateTestProperty,
 } = require('@condo/domains/property/utils/testSchema')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
@@ -106,9 +105,6 @@ describe('SendNewBillingReceiptFilesNotificationsService', () => {
 
     describe('Access validations', () => {
         it('admin: success case', async () => {
-            const periodDate = dayjs(receiptByAdmin.period)
-            const year = periodDate.year()
-            const month = periodDate.format('MMMM')
             const createdAfter = dayjs().toISOString()
             const [billingReceiptFile] = await createTestBillingReceiptFile(admin, receiptByAdmin, context)
             const [contact] = await createTestContact(admin, organization, organizationProperty, {
@@ -136,14 +132,10 @@ describe('SendNewBillingReceiptFilesNotificationsService', () => {
             expect(message).toHaveProperty('meta')
             expect(message.meta).toHaveProperty('data')
             expect(message.meta.data).toMatchObject({
-                year,
-                month,
+                organization: organization.name,
             })
         })
         it('support: success case', async () => {
-            const periodDate = dayjs(receiptByAdmin.period)
-            const year = periodDate.year()
-            const month = periodDate.format('MMMM')
             const createdAfter = dayjs().toISOString()
             const [billingReceiptFile] = await createTestBillingReceiptFile(admin, receiptByAdmin, context)
             const [contact] = await createTestContact(admin, organization, organizationProperty, {
@@ -171,8 +163,7 @@ describe('SendNewBillingReceiptFilesNotificationsService', () => {
             expect(message).toHaveProperty('meta')
             expect(message.meta).toHaveProperty('data')
             expect(message.meta.data).toMatchObject({
-                year,
-                month,
+                organization: organization.name,
             })
         })
         it('user: denied case', async () => {
