@@ -3,32 +3,32 @@ import React from 'react'
 
 import { Card as Component, Typography } from '@open-condo/ui/src'
 
-const CheckboxCard = Component.CheckboxCard
+const CardCheckbox = Component.CardCheckbox
 
 export default {
     title: 'Components/Card',
-    component: CheckboxCard,
+    component: CardCheckbox,
     args: {
         width: 400,
         disabled: false,
         children: 'A decision tree is a decision support tool that uses a tree-like model of decisions and their possible consequences, including chance event outcomes, resource costs, and utility. It is one way to display an algorithm that only contains conditional control statements.  Decision trees are commonly used in operations research, specifically in decision analysis, to help identify a strategy most likely to reach a goal, but are also a popular tool in machine learning.',
     },
-} as ComponentMeta<typeof CheckboxCard>
+} as ComponentMeta<typeof CardCheckbox>
 
-const Template: ComponentStory<typeof CheckboxCard> = ({ children, ...rest }) => {
+const Template: ComponentStory<typeof CardCheckbox> = ({ children, ...rest }) => {
     return (
-        <CheckboxCard
+        <CardCheckbox
             {...rest}
         >
             <Typography.Paragraph ellipsis={{ rows: 3 }}>
                 {children}
             </Typography.Paragraph>
-        </CheckboxCard>
+        </CardCheckbox>
     )
 }
 
-export const SimpleCheckboxCard = Template.bind({})
-export const CheckboxCardWithTitle = Template.bind({})
-CheckboxCardWithTitle.args = {
+export const SimpleCardCheckbox = Template.bind({})
+export const CardCheckboxWithTitle = Template.bind({})
+CardCheckboxWithTitle.args = {
     title: <Typography.Title level={3}>Some Title Content</Typography.Title>,
 }

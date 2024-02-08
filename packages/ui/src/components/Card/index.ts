@@ -1,17 +1,21 @@
 import { Card as CardComponent } from './card'
 import './style.less'
-import { CheckboxCard } from './checkboxCard'
+import { CardButton } from './cardButton'
+import { CardCheckbox } from './cardCheckbox'
 
 
 type CardType = typeof CardComponent & {
-    CheckboxCard: typeof CheckboxCard
+    CardCheckbox: typeof CardCheckbox
+    CardButton: typeof CardButton
 }
 
 const Card = CardComponent as CardType
-Card.CheckboxCard = CheckboxCard
+Card.CardCheckbox = CardCheckbox
+Card.CardButton = CardButton
 
 export type { CardProps } from './card'
-export type { CheckboxCardProps } from './checkboxCard'
+export type { CardCheckboxProps } from './cardCheckbox'
+export type { CardButtonProps } from './cardButton'
 export {
     Card,
 }
