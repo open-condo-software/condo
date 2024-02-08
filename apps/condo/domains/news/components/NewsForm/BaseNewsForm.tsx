@@ -1067,7 +1067,11 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                 <Col span={24} data-cy='news__create-property-search'>
                                                     {
                                                         newsItemForOneProperty && (
-                                                            <Form.Item {...propertySelectFormItemProps} name='property'>
+                                                            <Form.Item
+                                                                {...propertySelectFormItemProps}
+                                                                name='property'
+                                                                rules={[requiredValidator]}
+                                                            >
                                                                 <GraphQlSearchInput
                                                                     {...propertySelectProps(form)}
                                                                     onAllDataLoading={handleAllPropertiesLoading(form)}
