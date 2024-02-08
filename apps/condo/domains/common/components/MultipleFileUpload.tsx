@@ -24,7 +24,7 @@ type UploadListFile = UploadFile & {
 }
 
 export type Module = {
-    useCreate: (attrs, onComplete?, context?) => (attrs) => Promise<DBFile>
+    useCreate: (attrs, onComplete?) => (attrs) => Promise<DBFile>
     useUpdate: (attrs, onComplete?) => (update, attrs) => Promise<DBFile>
     useSoftDelete: (onComplete?) => (attrs) => Promise<unknown>
 }
@@ -197,7 +197,7 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
         setListFiles(convertedFiles)
     }, [fileList])
 
-    const createAction = Model.useCreate(initialCreateValues, (file: DBFile) => Promise.resolve(file), { hasUpload: true })
+    const createAction = Model.useCreate(initialCreateValues, (file: DBFile) => Promise.resolve(file))
 
     useEffect(() => {
         if (listFiles.length === 0) {
