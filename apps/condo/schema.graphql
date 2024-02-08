@@ -13369,6 +13369,7 @@ type BillingRecipientHistoryRecord {
   purpose: String
   name: String
   isApproved: Boolean
+  classificationCode: String
   meta: JSON
   id: ID!
   v: Int
@@ -13574,6 +13575,24 @@ input BillingRecipientHistoryRecordWhereInput {
   name_not_in: [String]
   isApproved: Boolean
   isApproved_not: Boolean
+  classificationCode: String
+  classificationCode_not: String
+  classificationCode_contains: String
+  classificationCode_not_contains: String
+  classificationCode_starts_with: String
+  classificationCode_not_starts_with: String
+  classificationCode_ends_with: String
+  classificationCode_not_ends_with: String
+  classificationCode_i: String
+  classificationCode_not_i: String
+  classificationCode_contains_i: String
+  classificationCode_not_contains_i: String
+  classificationCode_starts_with_i: String
+  classificationCode_not_starts_with_i: String
+  classificationCode_ends_with_i: String
+  classificationCode_not_ends_with_i: String
+  classificationCode_in: [String]
+  classificationCode_not_in: [String]
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -13683,6 +13702,8 @@ enum SortBillingRecipientHistoryRecordsBy {
   name_DESC
   isApproved_ASC
   isApproved_DESC
+  classificationCode_ASC
+  classificationCode_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -13714,6 +13735,7 @@ input BillingRecipientHistoryRecordUpdateInput {
   purpose: String
   name: String
   isApproved: Boolean
+  classificationCode: String
   meta: JSON
   v: Int
   createdAt: String
@@ -13747,6 +13769,7 @@ input BillingRecipientHistoryRecordCreateInput {
   purpose: String
   name: String
   isApproved: Boolean
+  classificationCode: String
   meta: JSON
   v: Int
   createdAt: String
@@ -13815,6 +13838,9 @@ type BillingRecipient {
   """ If set to True, then this billing recipient info is considered allowed and users are allowed to pay for receipts with this recipient 
   """
   isApproved: Boolean
+
+  """ Budget classification code, used for state-funded organizations """
+  classificationCode: String
 
   """ Structured metadata obtained from the `billing data source`. The structure depends on the integration system. 
   """
@@ -14029,6 +14055,24 @@ input BillingRecipientWhereInput {
   name_not_in: [String]
   isApproved: Boolean
   isApproved_not: Boolean
+  classificationCode: String
+  classificationCode_not: String
+  classificationCode_contains: String
+  classificationCode_not_contains: String
+  classificationCode_starts_with: String
+  classificationCode_not_starts_with: String
+  classificationCode_ends_with: String
+  classificationCode_not_ends_with: String
+  classificationCode_i: String
+  classificationCode_not_i: String
+  classificationCode_contains_i: String
+  classificationCode_not_contains_i: String
+  classificationCode_starts_with_i: String
+  classificationCode_not_starts_with_i: String
+  classificationCode_ends_with_i: String
+  classificationCode_not_ends_with_i: String
+  classificationCode_in: [String]
+  classificationCode_not_in: [String]
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -14120,6 +14164,8 @@ enum SortBillingRecipientsBy {
   name_DESC
   isApproved_ASC
   isApproved_DESC
+  classificationCode_ASC
+  classificationCode_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -14151,6 +14197,7 @@ input BillingRecipientUpdateInput {
   purpose: String
   name: String
   isApproved: Boolean
+  classificationCode: String
   meta: JSON
   v: Int
   createdAt: String
@@ -14181,6 +14228,7 @@ input BillingRecipientCreateInput {
   purpose: String
   name: String
   isApproved: Boolean
+  classificationCode: String
   meta: JSON
   v: Int
   createdAt: String
@@ -15121,6 +15169,7 @@ type BankAccountHistoryRecord {
   territoryCode: String
   bankName: String
   meta: JSON
+  classificationCode: String
   id: ID!
   v: Int
   createdAt: String
@@ -15319,6 +15368,24 @@ input BankAccountHistoryRecordWhereInput {
   meta_not: JSON
   meta_in: [JSON]
   meta_not_in: [JSON]
+  classificationCode: String
+  classificationCode_not: String
+  classificationCode_contains: String
+  classificationCode_not_contains: String
+  classificationCode_starts_with: String
+  classificationCode_not_starts_with: String
+  classificationCode_ends_with: String
+  classificationCode_not_ends_with: String
+  classificationCode_i: String
+  classificationCode_not_i: String
+  classificationCode_contains_i: String
+  classificationCode_not_contains_i: String
+  classificationCode_starts_with_i: String
+  classificationCode_not_starts_with_i: String
+  classificationCode_ends_with_i: String
+  classificationCode_not_ends_with_i: String
+  classificationCode_in: [String]
+  classificationCode_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -15420,6 +15487,8 @@ enum SortBankAccountHistoryRecordsBy {
   territoryCode_DESC
   bankName_ASC
   bankName_DESC
+  classificationCode_ASC
+  classificationCode_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -15455,6 +15524,7 @@ input BankAccountHistoryRecordUpdateInput {
   territoryCode: String
   bankName: String
   meta: JSON
+  classificationCode: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -15491,6 +15561,7 @@ input BankAccountHistoryRecordCreateInput {
   territoryCode: String
   bankName: String
   meta: JSON
+  classificationCode: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -15591,6 +15662,9 @@ type BankAccount {
   """ Structured non-typed metadata, can be used by mini-apps or external services to store information 
   """
   meta: JSON
+
+  """ Budget classification code, used for state-funded organizations """
+  classificationCode: String
   id: ID!
   v: Int
   createdAt: String
@@ -15761,6 +15835,24 @@ input BankAccountWhereInput {
   meta_not: JSON
   meta_in: [JSON]
   meta_not_in: [JSON]
+  classificationCode: String
+  classificationCode_not: String
+  classificationCode_contains: String
+  classificationCode_not_contains: String
+  classificationCode_starts_with: String
+  classificationCode_not_starts_with: String
+  classificationCode_ends_with: String
+  classificationCode_not_ends_with: String
+  classificationCode_i: String
+  classificationCode_not_i: String
+  classificationCode_contains_i: String
+  classificationCode_not_contains_i: String
+  classificationCode_starts_with_i: String
+  classificationCode_not_starts_with_i: String
+  classificationCode_ends_with_i: String
+  classificationCode_not_ends_with_i: String
+  classificationCode_in: [String]
+  classificationCode_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -15850,6 +15942,8 @@ enum SortBankAccountsBy {
   territoryCode_DESC
   bankName_ASC
   bankName_DESC
+  classificationCode_ASC
+  classificationCode_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -15885,6 +15979,7 @@ input BankAccountUpdateInput {
   territoryCode: String
   bankName: String
   meta: JSON
+  classificationCode: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -15918,6 +16013,7 @@ input BankAccountCreateInput {
   territoryCode: String
   bankName: String
   meta: JSON
+  classificationCode: String
   v: Int
   createdAt: String
   updatedAt: String
