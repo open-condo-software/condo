@@ -39,6 +39,7 @@ export const B2BAppPage: React.FC<B2BAppPageProps> = ({ id }) => {
     const userOrganization = useOrganization()
     const organizationId = get(userOrganization, ['organization', 'id'], null)
     const employeeRoleId = get(userOrganization, ['link', 'role', 'id'], null)
+    const employeeId = get(userOrganization, ['link', 'id'], null)
 
     const {
         obj: context,
@@ -55,8 +56,9 @@ export const B2BAppPage: React.FC<B2BAppPageProps> = ({ id }) => {
     const url = useMemo(() => {
         const url = new URL(`${serverUrl}/api/miniapp/launch`)
         url.searchParams.set('id', appId)
+        url.searchParams.set('organizationEmployeeId', employeeId)
         return url.toString()
-    }, [appId])
+    }, [appId, employeeId])
     const appUrl = get(context, ['app', 'appUrl'], null)
     const appName = get(context, ['app', 'name'], null)
     const hasDynamicTitle = get(context, ['app', 'hasDynamicTitle'], false)
