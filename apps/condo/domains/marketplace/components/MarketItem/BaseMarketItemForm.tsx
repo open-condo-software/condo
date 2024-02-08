@@ -349,7 +349,7 @@ const MarketItemFields = () => {
 
     const { organization } = useOrganization()
     const { refetch: fetchMarketItemsCount } = MarketItem.useCount({}, { skip: true })
-    const createFileAction = MarketItemFile.useCreate({})
+    const createFileAction = MarketItemFile.useCreate({}, () => null, { hasUpload: true })
 
     const { form, marketItemId, initialValues } = useMarketItemFormContext()
 

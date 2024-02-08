@@ -11,8 +11,9 @@ import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useMutation, useQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 
-
 import { useDeepCompareEffect } from './utils/useDeepCompareEffect'
+
+import type { Context as MutationContext } from '@apollo/client/react/types/types'
 
 type IUUIDObject = { id: string }
 type IOnCompleteType<GQLObject> = (obj: GQLObject) => void
@@ -57,7 +58,7 @@ export type IUseSoftDeleteManyActionType<GQLObject> = (objs: Array<IUUIDObject>)
 
 
 export interface IGenerateHooksResult<GQLObject, GQLCreateInput, GQLUpdateInput, QueryVariables> {
-    useCreate: (initialValues: Partial<GQLCreateInput>, onComplete?: IOnCompleteType<GQLObject>)
+    useCreate: (initialValues: Partial<GQLCreateInput>, onComplete?: IOnCompleteType<GQLObject>, context?: MutationContext)
     => IUseCreateActionType<GQLObject, GQLCreateInput>
     useCreateMany: (initialValues: Partial<GQLCreateInput>, onComplete?: IOnCompleteType<Array<GQLObject>>) => IUseCreateManyActionType<GQLObject, GQLCreateInput>
     useUpdate: (initialValues: Partial<GQLUpdateInput>, onComplete?: IOnCompleteType<GQLObject>)
@@ -91,8 +92,8 @@ export function generateReactHooks<
     GQLUpdateInput,
     QueryVariables,
 > (gql: IGQLType): IGenerateHooksResult<GQLObject, GQLCreateInput, GQLUpdateInput, QueryVariables> {
-    function useCreate (initialValues: Partial<GQLCreateInput>, onComplete?: IOnCompleteType<GQLObject>) {
-        const [rowAction] = useMutation(gql.CREATE_OBJ_MUTATION)
+    function useCreate (initialValues: Partial<GQLCreateInput>, onComplete?: IOnCompleteType<GQLObject>, context?: MutationContext) {
+        const [rowAction] = useMutation(gql.CREATE_OBJ_MUTATION, { context })
 
         return useCallback(async (values: Partial<GQLCreateInput>) => {
             const sender = getClientSideSenderInfo()
