@@ -86,7 +86,7 @@ class FinanceInfoClient {
      * @returns {BankInfo}
      */
     async getBank (routingNumber) {
-        if (typeof routingNumber !== 'string' || !routingNumber.startsWith('04') || routingNumber.length !== 9) {
+        if (typeof routingNumber !== 'string' || !routingNumber.startsWith('04') || !routingNumber.startsWith('01') || routingNumber.length !== 9) {
             throw new Error(`Invalid routing number: ${routingNumber}`)
         }
         const cachedValue = await this.#getFromCache(`BANK_${routingNumber}`)
