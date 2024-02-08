@@ -47,7 +47,7 @@ describe('Transport settings for message', () => {
 
     test('allow all transports if no user set for the Message model', async () => {
         const [message] = await createTestMessage(adminClient, { type: REGISTER_NEW_USER_MESSAGE_TYPE })
-        const settings = await getUserSettingsForMessage(adminClient, message)
+        const settings = await getUserSettingsForMessage(keystone, message)
 
         for (const val of Object.values(settings)) {
             expect(val).toEqual(true)
