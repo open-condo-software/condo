@@ -6,7 +6,9 @@ import {
     useLazyQuery,
     useQuery,
     useSubscription,
+    ApolloLink,
 } from '@apollo/client'
+import { BatchHttpLink } from '@apollo/client/link/batch-http'
 import { createUploadLink } from 'apollo-upload-client'
 import fetch from 'isomorphic-unfetch'
 import getConfig from 'next/config'
@@ -43,20 +45,29 @@ let createApolloClient = (initialState, ctx, apolloCacheConfig, apolloClientConf
         }
     }
 
+    const linkPayload = {
+        uri: apolloGraphQLUrl, // Server URL (must be absolute)
+        credentials: 'include',
+        fetchOptions: {
+            mode: 'cors',
+        },
+        fetch: (isOnClientSide && window.fetch) ? window.fetch : fetch,
+        headers: (ctx && ctx.req) ? ctx.req.headers : undefined,  // allow to use client cookies on server side requests
+    }
+
+    const uploadLink = createUploadLink(linkPayload)
+    const batchLink = new BatchHttpLink({
+        ...linkPayload,
+        batchMax: 50,
+        batchInterval: 20,
+    })
+
     // The `ctx` (NextPageContext) will only be present on the server.
     // use it to extract auth headers (ctx.req) or similar.
     return new ApolloClient({
         // connectToDevTools: !Boolean(ctx),
         ssrMode: Boolean(ctx),
-        link: createUploadLink({
-            uri: apolloGraphQLUrl, // Server URL (must be absolute)
-            credentials: 'include',
-            fetchOptions: {
-                mode: 'cors',
-            },
-            fetch: (isOnClientSide && window.fetch) ? window.fetch : fetch,
-            headers: (ctx && ctx.req) ? ctx.req.headers : undefined,  // allow to use client cookies on server side requests
-        }),
+        link: ApolloLink.split(operation => operation.getContext().hasUpload, uploadLink, batchLink),
         cache: new InMemoryCache(apolloCacheConfig).restore(initialState || {}),
         ...apolloClientConfig,
     })
