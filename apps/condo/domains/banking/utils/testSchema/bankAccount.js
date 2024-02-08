@@ -11,6 +11,7 @@ function bulidValidRequisitesForRuBankAccount (extra = {}) {
     const tin = createValidRuTin10()
     const routingNumber = createValidRuRoutingNumber()
     const number = createValidRuNumber(routingNumber)
+    const classificationCode = createValidRuClassificationCode()
 
     const validRUBankAccount = {
         tin,
@@ -20,6 +21,7 @@ function bulidValidRequisitesForRuBankAccount (extra = {}) {
         bankName: faker.company.name(),
         currencyCode: 'RUB',
         territoryCode: faker.datatype.number().toString(),
+        classificationCode,
     }
     return {
         ...validRUBankAccount,
@@ -47,6 +49,10 @@ function createValidRuRoutingNumber () {
     return '04' + faker.datatype.number(getRange(7)).toString()
 }
 
+function createValidRuClassificationCode () {
+    return faker.datatype.number(getRange(20)).toString()
+}
+
 function createValidRuTin10 () {
     const tin = faker.datatype.number(getRange(10)).toString()
 
@@ -71,4 +77,5 @@ module.exports = {
     createValidRuRoutingNumber,
     createValidRuTin10,
     createValidRuTin12,
+    createValidRuClassificationCode,
 }
