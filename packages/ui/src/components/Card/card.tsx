@@ -5,8 +5,8 @@ import {
 import classNames from 'classnames'
 import React, { CSSProperties } from 'react'
 
+import { CARD_CLASS_PREFIX } from './_utils/constants'
 
-const CARD_CLASS_PREFIX = 'condo-card'
 
 export type CardProps = Omit<React.HTMLAttributes<HTMLDivElement>, 'title'> &
 Pick<DefaultCardProps, 'hoverable' | 'title'> & {

@@ -2,6 +2,7 @@ import classNames from 'classnames'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import './cardCheckbox.less'
+import { CARD_CLASS_PREFIX } from './_utils/constants'
 import { Card } from './card'
 
 import { Checkbox } from '../Checkbox'
@@ -9,8 +10,6 @@ import { Checkbox } from '../Checkbox'
 import type { CardProps } from './card'
 export type CardCheckboxProps = Omit<CardProps, 'active' | 'accent' | 'hoverable'>
 
-
-const CARD_CLASS_PREFIX = 'condo-card'
 
 const CardCheckbox = React.forwardRef<HTMLDivElement, CardCheckboxProps>((props, ref) => {
     const {

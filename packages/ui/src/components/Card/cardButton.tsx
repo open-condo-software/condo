@@ -2,13 +2,12 @@ import classNames from 'classnames'
 import React from 'react'
 
 import './cardCheckbox.less'
+import { CARD_CLASS_PREFIX } from './_utils/constants'
 import { Card } from './card'
 
 import type { CardProps } from './card'
 export type CardButtonProps = Omit<CardProps, 'hoverable'>
 
-
-const CARD_CLASS_PREFIX = 'condo-card'
 
 const CardButton = React.forwardRef<HTMLDivElement, CardButtonProps>((props, ref) => {
     const {
