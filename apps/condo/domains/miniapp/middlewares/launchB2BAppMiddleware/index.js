@@ -17,15 +17,17 @@ class LaunchB2BAppMiddleware {
         const helpers = LaunchB2BAppHelpers.getInstance()
         const { config, jwksResponse, signLaunchParams } = helpers
 
+        // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
         app.use(cookieParser())
 
         app.get('/api/miniapp/launch/jwks', (req, res) => {
-            // implementation from 'oidc-provider'
-            // analogue of redirect to '/oidc/jwks'
-            return res
-                .type('application/jwk-set+json; charset=utf-8')
-                .json(jwksResponse)
+            return res.redirect('/oidc/jwks')
+
+            // implementation from 'oidc-provider' (analogue of redirect to '/oidc/jwks')
+            // return res
+            //     .type('application/jwk-set+json; charset=utf-8')
+            //     .json(jwksResponse)
         })
 
         app.head('/api/miniapp/launch', async (req, res) => {
