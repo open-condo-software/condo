@@ -11,6 +11,7 @@ import {
 import { BatchHttpLink } from '@apollo/client/link/batch-http'
 import { createUploadLink } from 'apollo-upload-client'
 import fetch from 'isomorphic-unfetch'
+import get from 'lodash/get'
 import getConfig from 'next/config'
 import Head from 'next/head'
 import React from 'react'
@@ -45,6 +46,26 @@ let createApolloClient = (initialState, ctx, apolloCacheConfig, apolloClientConf
         }
     }
 
+    const hasFiles = (data) => {
+        let i = 0
+        let found
+
+        const keys = Object.keys(data)
+        try {
+            while (!found && i < keys.length) {
+                if (data[keys[i]] instanceof File || data[keys[i]] instanceof Blob) {
+                    found = true
+                } else {
+                    i++
+                }
+            }
+        } catch (e) {
+            return found
+        }
+
+        return found
+    }
+
     const linkPayload = {
         uri: apolloGraphQLUrl, // Server URL (must be absolute)
         credentials: 'include',
@@ -67,7 +88,7 @@ let createApolloClient = (initialState, ctx, apolloCacheConfig, apolloClientConf
     return new ApolloClient({
         // connectToDevTools: !Boolean(ctx),
         ssrMode: Boolean(ctx),
-        link: ApolloLink.split(operation => operation.getContext().hasUpload, uploadLink, batchLink),
+        link: ApolloLink.split(operation => hasFiles(get(operation, 'variables.data', {})), uploadLink, batchLink),
         cache: new InMemoryCache(apolloCacheConfig).restore(initialState || {}),
         ...apolloClientConfig,
     })
