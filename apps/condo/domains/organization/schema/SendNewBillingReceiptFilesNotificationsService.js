@@ -118,7 +118,7 @@ const SendNewBillingReceiptFilesNotificationsService = new GQLCustomSchema('Send
                 if (!isValidDateValue(period)) throw new GQLError(ERRORS.INVALID_PERIOD_PROVIDED, context)
                 const periodDate = dayjs(period)
                 const year = periodDate.year()
-                const month = periodDate.format('MMMM') // TODO localize it
+                const month = periodDate.format('MMMM')
 
                 // watermark not null
                 if (isNil(watermark)) {
