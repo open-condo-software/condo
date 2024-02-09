@@ -126,8 +126,8 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
     const SuccessModalButtonLabel = intl.formatMessage({ id: 'import.successModal.buttonLabel' })
     const ErrorsMessage = intl.formatMessage({ id: 'import.Errors' })
 
-    const exampleTemplateLink = useMemo(() => `/${domainName}-import-example-${intl.locale}.xlsx`, [domainName, intl.locale])
-    const exampleImageSrc = useMemo(() => `/${domainName}-import-example-${intl.locale}.webp`, [domainName, intl.locale])
+    const exampleTemplateLink = useMemo(() => `/import/${domainName}/${intl.locale}/${domainName}-import-example.xlsx`, [domainName, intl.locale])
+    const exampleImageSrc = useMemo(() => `/import/${domainName}/${intl.locale}/${domainName}-import-example.webp`, [domainName, intl.locale])
 
     const { logEvent, getEventName } = useTracking()
 
