@@ -578,6 +578,7 @@ describe('BankAccount', () => {
                 code: 'BAD_USER_INPUT',
                 type: 'BANK_INTEGRATION_ACCOUNT_CONTEXT_ALREADY_USED',
                 message: `Cannot connect to BankIntegrationAccountContext, used by another BankAccount(id="${anotherBankAccount.id}")`,
+                variable: ['data', 'integrationContext'],
             })
         })
 
@@ -598,6 +599,7 @@ describe('BankAccount', () => {
                 code: 'BAD_USER_INPUT',
                 type: 'BANK_INTEGRATION_ACCOUNT_CONTEXT_ALREADY_USED',
                 message: `Cannot connect to BankIntegrationAccountContext, used by another BankAccount(id="${anotherBankAccount.id}")`,
+                variable: ['data', 'integrationContext'],
             })
         })
 
@@ -619,6 +621,7 @@ describe('BankAccount', () => {
                 code: 'BAD_USER_INPUT',
                 type: 'INTEGRATION_REASSIGNMENT_NOT_ALLOWED',
                 message: `Integration reassignment is not allowed for BankAccount with id="${bankAccount.id}"`,
+                variable: ['data', 'integrationContext'],
             })
         })
     })

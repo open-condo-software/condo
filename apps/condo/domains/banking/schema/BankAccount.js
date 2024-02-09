@@ -89,7 +89,7 @@ const BankAccount = new GQLListSchema('BankAccount', {
                     const { result, errors } = validateTin(tin, country)
 
                     if ( !result ) {
-                        throw new GQLError(getError(TIN_IS_INVALID, errors[0], 'classificationCode'), context)
+                        throw new GQLError(getError(TIN_IS_INVALID, errors[0], 'tin'), context)
                     }
                 },
             },
@@ -122,7 +122,7 @@ const BankAccount = new GQLListSchema('BankAccount', {
                     const { result, errors } = validateRoutingNumber(routingNumber, country)
 
                     if ( !result ) {
-                        throw new GQLError(getError(ROUTING_NUMBER_IS_INVALID, errors[0], 'classificationCode'), context)
+                        throw new GQLError(getError(ROUTING_NUMBER_IS_INVALID, errors[0], 'routingNumber'), context)
                     }
                 },
             },
@@ -149,7 +149,7 @@ const BankAccount = new GQLListSchema('BankAccount', {
                     const { result, errors } = validateNumber(number, routingNumber, country)
 
                     if ( !result ) {
-                        throw new GQLError(getError(NUMBER_IS_INVALID, errors[0], 'classificationCode'), context)
+                        throw new GQLError(getError(NUMBER_IS_INVALID, errors[0], 'number'), context)
                     }
                 },
             },
