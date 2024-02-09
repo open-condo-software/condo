@@ -54,7 +54,7 @@ describe('validateRoutingNumber', () => {
         test('for wrong country code as Ru routing number', () => {
             const { result, errors } = validateRoutingNumber(WRONG_CODE_COUNTRY_RU_ROUTING_NUMBER, COUNTRY_CODE_RU)
             expect(result).toBe(false)
-            expect(errors[0]).toBe('For RU organizations country code is 04, but routing number have 58')
+            expect(errors[0]).toBe('For RU organizations country code is 04 or 01, but routing number has 58')
         })
     })
 })
