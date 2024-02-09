@@ -109,6 +109,7 @@ class AddressFromStringParser {
     splitToUnitAndAddress (input) {
         const { housePart, unitPart } = this.splitByKeyword(input)
         if (!unitPart) {
+            input = input.replace(/(д.[0-9А-Я/\\]+)$/i, '$1, кв. 1')
             return this.splitByComma(input)
         }
         return { housePart, unitPart }

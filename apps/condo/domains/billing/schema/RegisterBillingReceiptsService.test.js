@@ -11,7 +11,7 @@ const { expectToThrowAuthenticationError, expectToThrowAccessDeniedErrorToResult
 const { makeClient, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
 const { DEFAULT_BILLING_CATEGORY_ID } = require('@condo/domains/billing/constants/constants')
-const { errors: mutationErrors } = require('@condo/domains/billing/schema/RegisterBillingReceiptsService')
+const { ERRORS: mutationErrors } = require('@condo/domains/billing/constants/registerBillingReceiptService')
 const { registerBillingReceiptsByTestClient } = require('@condo/domains/billing/utils/testSchema')
 const {
     makeServiceUserForIntegration,
@@ -48,6 +48,7 @@ describe('RegisterBillingReceiptsService', () => {
         support = await makeClientWithSupportUser()
         anonymous = await makeClient()
         user = await makeLoggedInClient()
+        process.env.ADDRESS_SERVICE_CLIENT_MODE = 'fake'
     })
 
     describe('Execute', () => {

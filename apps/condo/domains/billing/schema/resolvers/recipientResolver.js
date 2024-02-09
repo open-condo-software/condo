@@ -73,7 +73,8 @@ class RecipientResolver extends Resolver {
             return { error }
         }
         // TODO(dkovyazin): DOMA-7656 Remove after removing recipient field from BillingReceipt
-        const recipient = { name, bankName, territoryCode, offsettingAccount, tin, iec, bic: routingNumber, bankAccount }
+        // IEC is an optional field as it identifies company branch and is null for individual entrepreneur
+        const recipient = { name, bankName, territoryCode, offsettingAccount, tin, ...iec ? { iec } : {}, bic: routingNumber, bankAccount }
         if (!isApproved) {
             return { problem: RECIPIENT_IS_NOT_APPROVED, result: { id, recipient } }
         }

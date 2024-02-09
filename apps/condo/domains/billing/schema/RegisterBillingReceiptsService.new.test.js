@@ -72,6 +72,31 @@ describe('RegisterBillingReceiptsService', () => {
         const [billingIntegration] = await createTestBillingIntegration(clients.admin)
         const [billingContext] = await createTestBillingIntegrationOrganizationContext(clients.admin, organization, billingIntegration)
         integration = { organization, billingIntegration, billingContext }
+        process.env.ADDRESS_SERVICE_CLIENT_MODE = 'fake'
+    })
+
+    describe('Access rights', () => {
+        test('Admin can execute RegisterBillingReceiptsService', async () => {
+
+        })
+        test('Service account can execute RegisterBillingReceiptsService', async () => {
+
+        })
+        test('Service account without Access Right can not execute RegisterBillingReceiptsService', async () => {
+
+        })
+        test('Organization employee can not execute RegisterBillingReceiptsService', async () => {
+
+        })
+        test('Support can not execute RegisterBillingReceiptsService', async () => {
+
+        })
+        test('User can not execute RegisterBillingReceiptsService', async () => {
+
+        })
+        test('Anonymous can not execute RegisterBillingReceiptsService', async () => {
+
+        })
     })
 
     describe('PeriodResolver',  () => {

@@ -138,15 +138,21 @@ class PropertyResolver extends Resolver {
         if (this.isCottageVillage) {
             return this.findMatchingAddressFromOrganization(receiptIndex)
         }
+        const DEBUG = []
         const toNormalize = new Set()
         for (const [index, receipt] of Object.entries(receiptIndex)) {
             const { addresses, unitName, unitType } = this.getAddressFromReceipt(receipt)
             receiptIndex[index].addressResolve = { unitName, unitType, addresses }
             addresses.forEach(toNormalize.add, toNormalize)
+            DEBUG.push({ source: receipt.address, parsed: addresses })
         }
+        const { writeFileSync } = require('fs')
+        writeFileSync('./DEBUG_ADDRESSES.json', JSON.stringify(DEBUG, null, 2))
         let normalizeResult = {}
         const chunks = chunk([...toNormalize], ADDRESS_SERVICE_NORMALIZE_CHUNK_SIZE)
+        let i = 0
         for (const chunk of chunks) {
+            console.log(`${++i}/${chunks.length}`)
             const chunkResult = await this.normalizeChunk(chunk)
             normalizeResult = { ...normalizeResult, ...chunkResult }
         }
