@@ -25,6 +25,8 @@ const WRONG_LENGTH = 'Classification code length was expected to be 20, but rece
  */
 const validateRuNumber = (number, routingNumber, errors) => {
 
+    // no validation for state funded organisations
+    if (routingNumber.startsWith('01')) return 
     const controlString = routingNumber.substr(-3) + number
 
     let controlSum = 0
