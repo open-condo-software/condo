@@ -4,14 +4,9 @@ const rules = Object.fromEntries([
     ['ул.Революции 1905 года', 'г. Новороссийск, ул.Революции 1905 года'],
     ['r^(.*?)\\sК.$', 'Самара, $1'],
     ['r^Автопарковка (.*?)№(.*?)$', '$1 м/м $2'],
-    ['r(.*?д\\.[0-9]+)$', '$1, кв. 1'],
 ])
 
 const TRANSFORM_CASES = [
-    {
-        input: 'Ульяновская обл, Цильнинский р-н, рп Цильна, ул.Школьная, д.8',
-        output: 'Ульяновская обл, Цильнинский р-н, рп Цильна, ул.Школьная, д.8, кв. 1',
-    },
     {
         input: 'ул.Революции 1905 года, д.37, кв.1001',
         output: 'г. Новороссийск, ул.Революции 1905 года, д.37, кв.1001',
@@ -389,4 +384,42 @@ describe('PropertyFinder', () => {
         expect(tokens).toEqual(['малое', 'васильково', 'ул', 'вишневая', 'уч', '10'])
     })
 })
+
+const SINGLE_HOUSE_TEST_CASES = [
+    'ул.Революции 1905 года, д 37',
+    'ул.Революции 1905 года, д.37',
+    'ул.Революции 1905 года, дом 37',
+    'ул.Революции 1905 года, двлд.37',
+    'ул.Революции 1905 года, двлд 37',
+    'ул.Революции 1905 года, участок 37',
+    'ул.Революции 1905 года, уч. 37',
+    'ул.Революции 1905 года, уч.37',
+    'ул.Революции 1905 года, уч 37',
+]
+const NOT_SINGLE_HOUSE_TEST = [
+    'ул.Революции 1905 года, д 37, 2',
+    'ул.Революции 1905 года, двлд 37,',
+]
+
+describe('Single houses will add an empty unit', () => {
+    const resolver = new PropertyResolver({})
+
+    for (const input of SINGLE_HOUSE_TEST_CASES) {
+        test(`"${input}" to be: "${input}" `, () => {
+            const { address, unitType, unitName } = resolver.parser.parse(input)
+            expect(address).toEqual(input)
+            expect(unitType).toEqual('flat')
+            expect(unitName).toEqual('1')
+        })
+    }
+    for (const input of NOT_SINGLE_HOUSE_TEST) {
+        test(`"${input}" to be: "${input}" `, () => {
+            const { address, unitName } = resolver.parser.parse(input)
+            expect(address).not.toEqual(input)
+            expect(unitName).not.toEqual('1')
+        })
+    }
+
+})
+
 
