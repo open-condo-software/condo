@@ -17,6 +17,7 @@ const { registerSchemas } = require('@open-condo/keystone/KSv5v6/v5/registerSche
 const { getKeystonePinoOptions, GraphQLLoggerPlugin } = require('@open-condo/keystone/logging')
 const metrics = require('@open-condo/keystone/metrics')
 const { schemaDocPreprocessor, adminDocPreprocessor, escapeSearchPreprocessor, customAccessPostProcessor } = require('@open-condo/keystone/preprocessors')
+const { ApolloRateLimitingPlugin } = require('@open-condo/keystone/rateLimiting')
 const { registerTasks, taskQueue } = require('@open-condo/keystone/tasks')
 const { KeystoneTracingApp } = require('@open-condo/keystone/tracing')
 
@@ -151,7 +152,10 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
                     debug: IS_ENABLE_APOLLO_DEBUG,
                     introspection: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
                     playground: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
-                    plugins: [new GraphQLLoggerPlugin()],
+                    plugins: [
+                        new ApolloRateLimitingPlugin(),
+                        new GraphQLLoggerPlugin(),
+                    ],
                 },
                 ...(graphql || {}),
             }),
