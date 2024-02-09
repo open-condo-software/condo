@@ -22,6 +22,7 @@ const TICKET_REPORT_STATUS_CATEGORY_CLASSIFIER = 'status_categoryClassifier'
 const TICKET_REPORT_STATUS_DAY_GROUP = 'status_dayGroup'
 const TICKET_REPORT_STATUS_EXECUTOR = 'status_executor'
 const TICKET_REPORT_STATUS_PROPERTY = 'status_property'
+const EXPORT_TYPE_INVOICE_PAYMENTS = 'payments'
 
 const EXCEL_TEMPLATES_HEADERS = {
     [EXPORT_TYPE_PAYMENTS]: ['date', 'account', 'address', 'unitName', 'type', 'transaction', 'order', 'status', 'amount'],
@@ -138,6 +139,7 @@ module.exports = {
     TICKET_REPORT_STATUS_PROPERTY,
     EXCEL_TEMPLATES_HEADERS,
     EXPORT_TYPE_PROPERTY_SCOPES,
+    EXPORT_TYPE_INVOICE_PAYMENTS,
     getHeadersTranslations,
     translationStringKeyForExcelExportHeader,
     ticketStatusesTranslations,

@@ -8,7 +8,7 @@ const { get } = require('lodash')
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
-const { GQLCustomSchema } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, getById } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { i18n } = require('@open-condo/locales/loader')
 
@@ -78,6 +78,8 @@ const ExportPaymentsService = new GQLCustomSchema('ExportPaymentsService', {
                 const timeZone = normalizeTimeZone(timeZoneFromUser) || DEFAULT_ORGANIZATION_TIMEZONE
                 const formatDate = (date) => dayjs(date).tz(timeZone).format(DATE_FORMAT)
 
+                const isInvoicePayments = !!get(where, 'invoice.organization.id')
+
                 const objs = await loadListByChunks({
                     context,
                     list: Payment,
@@ -90,6 +92,17 @@ const ExportPaymentsService = new GQLCustomSchema('ExportPaymentsService', {
                 }
 
                 const excelRows = objs.map(obj => {
+                    if (isInvoicePayments) {
+                        return {
+                            date: formatDate(obj.advancedAt),
+                            address: get(obj, ['invoice', 'property', 'address'], get(obj, ['invoice', 'contact', 'property', 'address'], '-')),
+                            unitName: get(obj, ['invoice', 'unitName'], get(obj, ['invoice', 'contact', 'unitName'], '-')),
+                            type: get(obj, ['context', 'integration', 'name'], '-'),
+                            transaction: get(obj, ['multiPayment', 'transactionId'], ''),
+                            status: i18n('payment.status.' + get(obj, 'status'), { locale }),
+                            amount: Number(get(obj, 'amount', '')).toFixed(2),
+                        }
+                    }
                     return {
                         date: formatDate(obj.advancedAt),
                         account: obj.accountNumber,
@@ -105,7 +118,7 @@ const ExportPaymentsService = new GQLCustomSchema('ExportPaymentsService', {
 
                 const { url: linkToFile } = await createExportFile({
                     fileName: `payments_${dayjs().format('DD_MM')}.xlsx`,
-                    templatePath: './domains/acquiring/templates/PaymentsExportTemplate.xlsx',
+                    templatePath: isInvoicePayments ? './domains/acquiring/templates/InvoicePaymentsExportTemplate.xlsx' : './domains/acquiring/templates/PaymentsExportTemplate.xlsx',
                     replaces: {
                         objs: excelRows,
                         i18n: {

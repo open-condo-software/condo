@@ -3,14 +3,24 @@
  */
 
 const { faker } = require('@faker-js/faker')
+const dayjs = require('dayjs')
+const { get } = require('lodash')
 
 const { makeClient } = require('@open-condo/keystone/test.utils')
+const { i18n } = require('@open-condo/locales/loader')
 
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { EXPORT_PAYMENTS_TO_EXCEL } = require('@condo/domains/acquiring/gql')
-const { makePayer, createTestPayment } = require('@condo/domains/acquiring/utils/testSchema')
+const { makePayer, createTestPayment, updateTestAcquiringIntegrationContext, createTestMultiPayment } = require('@condo/domains/acquiring/utils/testSchema')
+const { getTmpFile, downloadFile, readXlsx, expectDataFormat } = require('@condo/domains/common/utils/testSchema/file')
+const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
+const { INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
+const { createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
+const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
+
 
 function prepareVariables (organization) {
     return {
@@ -41,6 +51,99 @@ describe('ExportPaymentsService', () => {
 
             expect(status).toBe('ok')
             expect(linkToFile).not.toHaveLength(0)
+        })
+
+        it('check payments export for invoice', async () => {
+            const locale = 'ru'
+            const { admin, billingReceipts, acquiringContext, acquiringIntegration, organization } = await makePayer()
+            const [receiptPayment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
+            await updateTestAcquiringIntegrationContext(admin, acquiringContext.id, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+            })
+            const [invoice] = await createTestInvoice(admin, { id: organization.id }, {
+                status: INVOICE_STATUS_PUBLISHED,
+                client: { connect: { id: admin.user.id } },
+            })
+            const [invoicePayment] = await createTestPayment(admin, { id: organization.id }, null, { id: acquiringContext.id }, { invoice })
+            await createTestMultiPayment(admin, [invoicePayment], admin.user, acquiringIntegration,
+                //    { status: 'WITHDRAWN' }
+            )
+
+            const {
+                data: {
+                    result: {
+                        status,
+                        linkToFile,
+                    },
+                },
+            } = await admin.query(EXPORT_PAYMENTS_TO_EXCEL, {
+                data: {
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: 'test-' + faker.random.alphaNumeric(8) },
+                    where: { invoice: { organization: { id: organization.id } } },
+                    sortBy: 'advancedAt_DESC',
+                    timeZone: DEFAULT_ORGANIZATION_TIMEZONE,
+                },
+            })
+            const formatDate = (date) => dayjs(date).tz(DEFAULT_ORGANIZATION_TIMEZONE).format('DD.MM.YYYY HH:mm')
+
+            const filename = getTmpFile('xlsx')
+            await downloadFile(linkToFile, filename)
+            const data = await readXlsx(filename)
+
+            expectDataFormat(data, [
+                //[i18n('Payments', { locale }), '', '', '', '', '', '', ''],
+                ['Дата', 'Адрес', 'Помещение', 'Тип', 'Транзакция', 'Статус', 'Сумма'],
+                [
+                    formatDate(invoicePayment.advancedAt),
+                    '-',
+                    '-',
+                    acquiringIntegration.name,
+                    '',
+                    i18n('payment.status.' + invoicePayment.status, { locale }),
+                    Number(invoicePayment.amount).toFixed(2).toString(),
+                ],
+            ])
+            expect(status).toBe('ok')
+            expect(linkToFile).not.toHaveLength(0)
+
+            const {
+                data: {
+                    result: {
+                        status: status2,
+                        linkToFile: linkToFile2,
+                    },
+                },
+            } = await admin.query(EXPORT_PAYMENTS_TO_EXCEL, {
+                data: {
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: 'test-' + faker.random.alphaNumeric(8) },
+                    where: { invoice: { organization: { id: organization.id } } },
+                    sortBy: 'advancedAt_DESC',
+                    timeZone: DEFAULT_ORGANIZATION_TIMEZONE,
+                },
+            })
+            const filename2 = getTmpFile('xlsx')
+            await downloadFile(linkToFile2, filename2)
+            const data2 = await readXlsx(filename2)
+
+            expectDataFormat(data2, [
+                //[i18n('Payments', { locale }), '', '', '', '', '', '', ''],
+                ['Дата', 'ЛС', 'Адрес', 'Помещение', 'Тип', 'Транзакция', 'П/П', 'Статус', 'Сумма'],
+                [
+                    receiptPayment.advancedAt,
+                    receiptPayment.accountNumber,
+                    receiptPayment.property.address,
+                    receiptPayment.account.unitName,
+                    acquiringIntegration.name,
+                    '',
+                    receiptPayment.order,
+                    i18n('payment.status.' + receiptPayment.status, { locale }),
+                    Number(receiptPayment.amount).toFixed(2).toString(),
+                ],
+            ])
+            expect(status2).toBe('ok')
+            expect(linkToFile2).not.toHaveLength(0)
         })
 
         it('can not get contacts export from another organization', async () => {
