@@ -10,6 +10,7 @@ import {
     Property as IProperty,
     QueryAllNewsItemsArgs as IQueryAllNewsItemsArgs,
 } from '@app/condo/schema'
+import styled from '@emotion/styled'
 import { Col, Form, FormInstance, notification, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { ArgsProps } from 'antd/lib/notification'
@@ -20,6 +21,7 @@ import flattenDeep from 'lodash/flattenDeep'
 import get from 'lodash/get'
 import has from 'lodash/has'
 import includes from 'lodash/includes'
+import isArray from 'lodash/isArray'
 import isEmpty from 'lodash/isEmpty'
 import isFunction from 'lodash/isFunction'
 import isNull from 'lodash/isNull'
@@ -37,6 +39,7 @@ import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
+import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import {
     GraphQlSearchInputWithCheckAll,
     InputWithCheckAllProps,
@@ -59,6 +62,7 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 import { SectionNameInput } from '@condo/domains/user/components/SectionNameInput'
 import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
+
 
 type FormWithActionChildrenProps = ComponentProps<ComponentProps<typeof FormWithAction>['children']>
 
@@ -87,7 +91,12 @@ export type BaseNewsFormProps = {
     OnCompletedMsg: (INewsItem) => ArgsProps | null,
     allNews: INewsItem[],
     actionName: ActionNameProps,
+    totalProperties: number
 }
+
+const HiddenBlock = styled.div<{ hide?: boolean }>`
+  ${({ hide }) => hide ? 'display: none;' : ''}
+`
 
 //TODO(DOMA-6846) wrap form label with 0 margin and use default spacing (details in 6613 pr)
 const NO_RESIZE_STYLE: React.CSSProperties = { resize: 'none' }
@@ -284,6 +293,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     OnCompletedMsg,
     allNews,
     actionName,
+    totalProperties,
 }) => {
     const intl = useIntl()
     const TypeLabel = intl.formatMessage({ id: 'news.fields.type.label' })
@@ -524,7 +534,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const propertyCheckboxChange = (form) => {
         return (value) => {
             if (value) setSelectedPropertiesId(selectedPropertiesId => {
-                if (countPropertiesAvaliableToSelect.current === 1 && selectedPropertiesId.length === 1)
+                if (countPropertiesAvaliableToSelect.current === 1 && selectedPropertiesId.length === 1) 
                     return selectedPropertiesId
                 if (countPropertiesAvaliableToSelect.current === 1 && selectedPropertiesId.length === 0 && has(onlyPropertyThatCanBeSelected, 'current.value')) {
                     return [onlyPropertyThatCanBeSelected.current.value]
@@ -551,7 +561,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             required: true,
             placeholder: SelectAddressPlaceholder,
             onChange: (propIds: string[]) => {
-                setSelectedPropertiesId(propIds)
+                setSelectedPropertiesId(!isArray(propIds) ? [propIds].filter(Boolean) : propIds)
                 form.setFieldsValue({ 'unitNames': [] })
                 form.setFieldsValue({ 'sectionIds': [] })
                 setSelectedUnitNameKeys([])
@@ -594,6 +604,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             title: selectedTitle,
             body: selectedBody,
             properties: selectedPropertiesId,
+            ...(totalProperties === 1 && selectedPropertiesId.length === 1 ? { property: selectedPropertiesId[0] } : undefined),
             validBefore: initialValidBefore ? dayjs(initialValidBefore) : null,
             sendAt: initialSendAt ? dayjs(initialSendAt) : null,
         }
@@ -848,6 +859,26 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         },
     }), [ProfanityInBody, ProfanityInTitle])
 
+    const newsItemForOneProperty = totalProperties === 1 && initialPropertyIds.length < 2
+    const propertyIsAutoFilled = useRef(false)
+    const handleAllPropertiesLoading = useCallback((form: FormInstance) => (data) => {
+        if (!isEmpty(initialValues)) return
+        if (!newsItemForOneProperty) return
+        if (data.length !== 1) return
+        if (propertyIsAutoFilled.current) return
+
+        propertyIsAutoFilled.current = true
+        const propertyId = get(data, '0.value')
+        if (propertyId) {
+            setSelectedPropertiesId([propertyId])
+            form.setFieldsValue({
+                property: propertyId,
+                'properties': [propertyId],
+                hasAllProperties: true,
+            })
+        }
+    }, [initialValues, newsItemForOneProperty])
+
     return (
         <Row gutter={BIG_HORIZONTAL_GUTTER}>
             <Col span={24} flex='auto'>
@@ -1034,16 +1065,32 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                     <Typography.Title level={2}>{SelectAddressLabel}</Typography.Title>
                                                 </Col>
                                                 <Col span={24} data-cy='news__create-property-search'>
-                                                    <GraphQlSearchInputWithCheckAll
-                                                        checkAllFieldName='hasAllProperties'
-                                                        checkAllInitialValue={get(initialValues, 'hasAllProperties', false)}
-                                                        selectFormItemProps={propertySelectFormItemProps}
-                                                        selectProps={propertySelectProps(form)}
-                                                        onCheckBoxChange={propertyCheckboxChange(form)}
-                                                        CheckAllMessage={CheckAllLabel}
-                                                        onDataLoaded={handleAllPropertiesDataLoading}
-                                                        form={form}
-                                                    />
+                                                    {
+                                                        newsItemForOneProperty && (
+                                                            <Form.Item
+                                                                {...propertySelectFormItemProps}
+                                                                name='property'
+                                                                rules={[requiredValidator]}
+                                                            >
+                                                                <GraphQlSearchInput
+                                                                    {...propertySelectProps(form)}
+                                                                    onAllDataLoading={handleAllPropertiesLoading(form)}
+                                                                />
+                                                            </Form.Item>
+                                                        )
+                                                    }
+                                                    <HiddenBlock hide={newsItemForOneProperty}>
+                                                        <GraphQlSearchInputWithCheckAll
+                                                            checkAllFieldName='hasAllProperties'
+                                                            checkAllInitialValue={get(initialValues, 'hasAllProperties', false)}
+                                                            selectFormItemProps={propertySelectFormItemProps}
+                                                            selectProps={propertySelectProps(form)}
+                                                            onCheckBoxChange={propertyCheckboxChange(form)}
+                                                            CheckAllMessage={CheckAllLabel}
+                                                            onDataLoaded={handleAllPropertiesDataLoading}
+                                                            form={form}
+                                                        />
+                                                    </HiddenBlock>
                                                 </Col>
                                                 {
                                                     isOnlyOnePropertySelected && (

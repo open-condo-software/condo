@@ -13,6 +13,7 @@ import { ActionBar, Button, Typography } from '@open-condo/ui'
 
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { NewsItem, NewsItemTemplate } from '@condo/domains/news/utils/clientSchema'
+import { Property } from '@condo/domains/property/utils/clientSchema'
 
 import { BaseNewsForm, BaseNewsFormProps } from './BaseNewsForm'
 
@@ -138,6 +139,14 @@ export const CreateNewsForm: React.FC = () => {
         },
     })
 
+    const {
+        loading: totalPropertiesLoading,
+        count: totalProperties,
+        error: totalPropertiesError,
+    } = Property.useCount({
+        where: { organization: { id: organizationId } },
+    })
+
     const dateStart = dayjs().startOf('day')
     const {
         loading: isNewsFetching,
@@ -173,8 +182,8 @@ export const CreateNewsForm: React.FC = () => {
         )
     }, [intl, softDeleteNewsItem])
 
-    const error = useMemo(() => newsItemTemplatesError || allNewsError, [allNewsError, newsItemTemplatesError])
-    const loading = isNewsFetching || isNewsItemTemplatesFetching
+    const error = useMemo(() => newsItemTemplatesError || allNewsError || totalPropertiesError, [allNewsError, newsItemTemplatesError, totalPropertiesError])
+    const loading = isNewsFetching || isNewsItemTemplatesFetching || totalPropertiesLoading
 
     if (loading || error) {
         return (
@@ -194,6 +203,7 @@ export const CreateNewsForm: React.FC = () => {
             OnCompletedMsg={OnCompletedMsg}
             allNews={allNews}
             actionName='create'
+            totalProperties={totalProperties}
         />
     )
 }
