@@ -146,7 +146,9 @@ class PropertyResolver extends Resolver {
         }
         let normalizeResult = {}
         const chunks = chunk([...toNormalize], ADDRESS_SERVICE_NORMALIZE_CHUNK_SIZE)
+        let i = 0
         for (const chunk of chunks) {
+            console.log(`${++i} / ${chunks.length}`)
             const chunkResult = await this.normalizeChunk(chunk)
             normalizeResult = { ...normalizeResult, ...chunkResult }
         }
