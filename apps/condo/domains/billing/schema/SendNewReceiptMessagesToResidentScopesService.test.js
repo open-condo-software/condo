@@ -81,9 +81,6 @@ describe('SendNewReceiptMessagesToResidentScopesService', () => {
         const billingPropertyData = await createTestBillingProperty(adminClient, integrationContext, { address: property.address })
 
         billingProperty = billingPropertyData[0]
-
-        const [billingAccount] = await createTestBillingAccount(adminClient, integrationContext, billingProperty)
-        const [consumer0] = await createTestServiceConsumer(adminClient, resident0, userClient0.organization )
     })
 
     describe('sendNewReceiptMessagesToResidentScopes tests', () => {
