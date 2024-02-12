@@ -99,12 +99,6 @@ const RESET_ORGANIZATION_MUTATION = gql`
     }
 `
 
-const SEND_NEW_BILLING_RECEIPT_FILES_NOTIFICATIONS_MUTATION = gql`
-    mutation sendNewBillingReceiptFilesNotifications ($data: SendNewBillingReceiptFilesNotificationsInput!) {
-        result: sendNewBillingReceiptFilesNotifications(data: $data) { notificationsSent }
-    }
-`
-
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -123,7 +117,6 @@ module.exports = {
     ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_CODE_MUTATION,
     OrganizationEmployeeSpecialization,
     RESET_ORGANIZATION_MUTATION,
-    SEND_NEW_BILLING_RECEIPT_FILES_NOTIFICATIONS_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 

@@ -12,7 +12,6 @@ const { OrganizationEmployeeSpecialization } = require('./OrganizationEmployeeSp
 const { OrganizationLink } = require('./OrganizationLink')
 const { RegisterNewOrganizationService } = require('./RegisterNewOrganizationService')
 const { ResetOrganizationService } = require('./ResetOrganizationService')
-const { SendNewBillingReceiptFilesNotificationsService } = require('./SendNewBillingReceiptFilesNotificationsService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -25,6 +24,5 @@ module.exports = {
     OrganizationLink,
     OrganizationEmployeeSpecialization,
     ResetOrganizationService,
-    SendNewBillingReceiptFilesNotificationsService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
