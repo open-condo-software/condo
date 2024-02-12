@@ -3,13 +3,13 @@ import React from 'react'
 
 import { IconProps } from '@open-condo/icons'
 
-import { CARD_CLASS_PREFIX } from './_utils/constants'
+import { CARD_CLASS_PREFIX } from './constants'
 
-import { Emoji, EmojiProps } from '../Emoji'
-import { ProgressIndicator, ProgressIndicatorProps } from '../ProgressIndicator'
-import { Space } from '../Space'
-import { Tag, TagProps } from '../Tag'
-import { Typography } from '../Typography'
+import { Emoji, EmojiProps } from '../../Emoji'
+import { ProgressIndicator, ProgressIndicatorProps } from '../../ProgressIndicator'
+import { Space } from '../../Space'
+import { Tag, TagProps } from '../../Tag'
+import { Typography } from '../../Typography'
 
 import './cardHeader.less'
 
@@ -21,7 +21,7 @@ type CardLinkType = {
     AfterIcon?: React.FC<IconProps>
 }
 
-type CardHeaderProps = {
+export type CardHeaderProps = {
     tag?: TagProps
     progressIndicator?: ProgressIndicatorProps
     emoji?: EmojiProps[]
@@ -61,11 +61,8 @@ const CardHeader: React.FC<CardHeaderProps> = (props) => {
         `${CARD_HEADER_CONTENT_CLASS_NAME_PREFIX}-image-size-${image.size}`,
     )
 
-    const headerContent = (
+    let headerContent = (
         <Space size={8} direction='vertical' className={CARD_HEADER_CONTENT_CLASS_NAME_PREFIX}>
-            {tag && (
-                <Tag {...tag} />
-            )}
             {emoji && (
                 <span>
                     {emoji.map((emojiProps, index) => <Emoji key={index} {...emojiProps} />)}
@@ -83,7 +80,7 @@ const CardHeader: React.FC<CardHeaderProps> = (props) => {
     )
 
     if (progressIndicator) {
-        return (
+        headerContent = (
             <Space size={12} direction='horizontal' align='start'>
                 <ProgressIndicator {...progressIndicator} />
                 {headerContent}
@@ -91,7 +88,12 @@ const CardHeader: React.FC<CardHeaderProps> = (props) => {
         )
     }
 
-    return headerContent
+    return (
+        <>
+            {tag && <Tag {...tag} />}
+            {headerContent}
+        </>
+    )
 }
 
 export {

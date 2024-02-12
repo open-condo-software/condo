@@ -1,49 +1,110 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react'
+import { Meta, Story } from '@storybook/react'
+import {  pickBy } from 'lodash'
 import React from 'react'
 
 import { PlusCircle } from '@open-condo/icons'
-import { Card as Component, Typography } from '@open-condo/ui/src'
+import { Card as Component, CardButtonProps } from '@open-condo/ui/src'
 
 import { colors } from '../../colors'
-import { CardHeader } from '../../components/Card/cardHeader'
+
 
 const CardButton = Component.CardButton
 
+type StoryProps = Pick<CardButtonProps, 'accent' | 'disabled'> & {
+    accent: boolean
+    disabled: boolean
+    headerTag: boolean
+    headerProgressIndicator: boolean
+    headerEmoji: boolean
+    headerTitle: boolean
+    headerMainLink: boolean
+    headerSecondLink: boolean
+    headerImage: boolean
+    body: boolean
+    bodyTitle: boolean
+    bodyDescription: boolean
+    bodyImage: boolean
+    bodyCaption: boolean
+    bodyMainLink: boolean
+    bodySecondLink: boolean
+    bodyButton: boolean
+}
+
 export default {
-    title: 'Components/Card',
+    title: 'Components/CardButton',
     component: CardButton,
     args: {
-        width: 400,
+        accent: false,
         disabled: false,
-        children: 'A decision tree is a decision support tool that uses a tree-like model of decisions and their possible consequences, including chance event outcomes, resource costs, and utility. It is one way to display an algorithm that only contains conditional control statements.  Decision trees are commonly used in operations research, specifically in decision analysis, to help identify a strategy most likely to reach a goal, but are also a popular tool in machine learning.',
+        headerTag: true,
+        headerProgressIndicator: true,
+        headerEmoji: true,
+        headerTitle: true,
+        headerMainLink: true,
+        headerSecondLink: true,
+        headerImage: true,
+        body: true,
+        bodyTitle: true,
+        bodyDescription: true,
+        bodyImage: true,
+        bodyCaption: true,
+        bodyMainLink: true,
+        bodySecondLink: true,
+        bodyButton: true,
     },
-} as ComponentMeta<typeof CardButton>
+} as Meta<StoryProps>
 
-const Template: ComponentStory<typeof CardButton> = ({ children, ...rest }) => {
+const Template: Story<StoryProps> = (props) => {
+    const {
+        headerTag,
+        headerProgressIndicator,
+        headerEmoji,
+        headerTitle,
+        headerMainLink,
+        headerSecondLink,
+        headerImage,
+        body,
+        bodyTitle,
+        bodyDescription,
+        bodyImage,
+        bodyCaption,
+        bodyMainLink,
+        bodySecondLink,
+        bodyButton,
+    } = props
+
+    const headerProps = pickBy({
+        tag: headerTag && { children: 'Tag text', bgColor: colors.teal[1], textColor: colors.teal[5] },
+        progressIndicator: headerProgressIndicator && { steps: ['done'] },
+        emoji: headerEmoji && [{ symbol: 0x1F469 }, { symbol: 0x1F468 }],
+        headingTitle: headerTitle && 'Resident App',
+        mainLink: headerMainLink && { href: '', label: 'Main link', AfterIcon: PlusCircle, PreIcon: PlusCircle },
+        secondLink: headerSecondLink && { href: '', label: 'Second link', AfterIcon: PlusCircle, PreIcon: PlusCircle },
+        image: headerImage && { src: 'https://i.imgur.com/ambPuQF.png', size: 'big' },
+    })
+
+    const bodyProps = pickBy({
+        bodyTitle: bodyTitle && 'Resident App',
+        description: bodyDescription && 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+        image: bodyImage && { src: 'https://i.imgur.com/ambPuQF.png', style: { width: '120px', height: '150px', borderRadius: '10px', marginTop: '10px' } },
+        caption: bodyCaption && 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+        mainLink: bodyMainLink && { href: '', label: 'Main link', AfterIcon: PlusCircle, PreIcon: PlusCircle },
+        secondLink: bodySecondLink && { href: '', label: 'Second Link', AfterIcon: PlusCircle, PreIcon: PlusCircle },
+        button: bodyButton && { children: 'Body button', type: 'secondary' },
+    })
+
     return (
-        <CardButton
-            {...rest}
-            title={(
-                <CardHeader
-                    tag={{ children: 'test test', bgColor: colors.green[5], textColor: colors.white }}
-                    progressIndicator={{ steps: ['todo', 'todo'] }}
-                    emoji={[{ symbol: 0x1F469 }, { symbol: 0x1F468 }]}
-                    headingTitle='Приложение жителя'
-                    mainLink={{ href: '', label: 'Ссылка', AfterIcon: PlusCircle, PreIcon: PlusCircle }}
-                    secondLink={{ href: '', label: 'Вторая ссылка', AfterIcon: PlusCircle, PreIcon: PlusCircle }}
-                    image={{ src: 'https://placebear.com/g/200/200', size: 'big' }}
-                />
-            )}
-        >
-            <Typography.Paragraph ellipsis={{ rows: 3 }}>
-                {children}
-            </Typography.Paragraph>
-        </CardButton>
+        <div style={{ maxWidth: '400px' }}>
+            <CardButton
+                {...props}
+                header={headerProps}
+                body={body ? bodyProps : undefined}
+            />
+        </div>
     )
 }
 
 export const SimpleCardButton = Template.bind({})
-export const CardButtonWithTitle = Template.bind({})
-CardButtonWithTitle.args = {
-    title: <Typography.Title level={3}>Some Title Content</Typography.Title>,
+SimpleCardButton.args = {
+    accent: true,
 }

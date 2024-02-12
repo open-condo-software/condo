@@ -1,0 +1,25 @@
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+
+.condo-card {
+  &-no-body .condo-card-body {
+    display: none;
+  }
+
+  & .condo-card-body-content {
+    white-space: break-spaces;
+
+    &-image-container {
+      display: flex;
+      align-items: center;
+      align-self: stretch;
+      justify-content: center;
+      width: 100%;
+      background-color: @condo-global-color-gray-1;
+      border-radius: 12px;
+    }
+
+    & .condo-btn {
+      width: 100%;
+    }
+  }
+}

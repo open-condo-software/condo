@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react'
 
-import { colors } from '@open-condo/ui/colors'
+import { colors } from '../../colors'
 
 
 export type ProgressIndicatorStep = 'todo' | 'done' | 'waiting'
