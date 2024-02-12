@@ -148,6 +148,7 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
         ...filtersToWhere({ advancedAt: dateFilter, ...filters }),
         organization: { id: organizationId },
         status_in: [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS],
+        invoice_is_null: true,
     }
     const sortBy = sortersToSortBy(sorters, PAYMENTS_DEFAULT_SORT_BY)
 
