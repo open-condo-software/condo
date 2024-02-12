@@ -6,7 +6,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 
-const { EMAIL_TRANSPORT } = require('@condo/domains/notification/constants/constants')
+const { EMAIL_TRANSPORT, SMS_TRANSPORT } = require('@condo/domains/notification/constants/constants')
 const {
     UNSUBSCRIBE_LINK_PATH,
     UNSUBSCRIBED_PAGE_PATH,
@@ -69,8 +69,9 @@ class UnsubscribeLinkRouter {
                         dv: 1,
                         sender,
                         email: message.email,
+                        phone: message.phone,
                         messageType: message.type,
-                        messageTransport: EMAIL_TRANSPORT,
+                        messageTransport: isNil(message.phone) ? EMAIL_TRANSPORT : SMS_TRANSPORT,
                         isEnabled: false,
                     })
                 }
