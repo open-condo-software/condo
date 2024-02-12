@@ -81,8 +81,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         const [address] = row
         const suggestions = await addressApi.getSuggestions(String(address.value))
 
-        let suggestion = get(suggestions, ['suggestions', 0], null)
-        if (get(suggestion, 'value') !== get(address, 'value')) suggestion = null
+        const suggestion = get(suggestions, ['suggestions', 0], null)
 
         const suggestionType = get(suggestion, 'type')
         const houseTypeFull = get(suggestion, ['data', 'house_type_full'])

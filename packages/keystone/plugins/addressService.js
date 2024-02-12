@@ -143,16 +143,16 @@ const addressService = ({
                 addressFields['addressKey'] = get(result, 'addressKey')
                 addressFields['addressSources'] = get(result, 'addressSources', [])
             } else {
-                const msg = `No address found by string "${addressToSearch}"`
                 logger.error({
-                    msg,
+                    msg: 'No address found by string',
+                    addressToSearch,
                     operation,
                     listKey,
                     itemId: get(existingItem, 'id'),
                     addressKey: get(existingItem, 'addressKey'),
                 })
 
-                throw new Error(msg)
+                throw new Error(`No address found by string "${addressToSearch}"`)
             }
         } else {
             // NOTE(pahaz): if you don't need to change the address you want to prevent any changes
