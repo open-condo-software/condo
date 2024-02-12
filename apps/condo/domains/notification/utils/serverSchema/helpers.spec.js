@@ -10,10 +10,14 @@ const {
     REGISTER_NEW_USER_MESSAGE_TYPE,
     NEWS_ITEM_COMMON_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
-const { createTestNotificationUserSetting, createTestMessage } = require('@condo/domains/notification/utils/testSchema')
+const {
+    createTestNotificationAnonymousSetting,
+    createTestNotificationUserSetting,
+    createTestMessage,
+} = require('@condo/domains/notification/utils/testSchema')
 const { createTestUser } = require('@condo/domains/user/utils/testSchema')
 
-const { getUserSettingsForMessage } = require('./helpers')
+const { getUserSettingsForMessage, getAnonymousSettings } = require('./helpers')
 
 const { keystone } = index
 
@@ -69,5 +73,75 @@ describe('Transport settings for message', () => {
         const settings = await getUserSettingsForMessage(keystone, message)
 
         expect(settings).toEqual(expect.objectContaining({ email: false, sms: true }))
+    })
+
+    describe('Anonymous settings for message', () => {
+        test('get anonymous by email', async () => {
+            const [setting] = await createTestNotificationAnonymousSetting(adminClient)
+            const settings = await getAnonymousSettings(keystone, setting.email, null, setting.messageType)
+            expect(settings).toHaveLength(1)
+            expect(settings[0]).toMatchObject({
+                email: setting.email,
+                phone: setting.phone,
+            })
+        })
+
+        test('get anonymous by phone', async () => {
+            const [setting] = await createTestNotificationAnonymousSetting(adminClient)
+            const settings = await getAnonymousSettings(keystone, null, setting.phone, setting.messageType)
+            expect(settings).toHaveLength(1)
+            expect(settings[0]).toMatchObject({
+                email: setting.email,
+                phone: setting.phone,
+            })
+        })
+
+        test('get anonymous by phone and email', async () => {
+            const [setting] = await createTestNotificationAnonymousSetting(adminClient)
+            const settings = await getAnonymousSettings(keystone, setting.email, setting.phone, setting.messageType)
+            expect(settings).toHaveLength(1)
+            expect(settings[0]).toMatchObject({
+                email: setting.email,
+                phone: setting.phone,
+            })
+        })
+
+        describe('without specific message type', () => {
+            test('get anonymous by email', async () => {
+                const [setting] = await createTestNotificationAnonymousSetting(adminClient, {
+                    messageType: null,
+                })
+                const settings = await getAnonymousSettings(keystone, setting.email, null, null)
+                expect(settings).toHaveLength(1)
+                expect(settings[0]).toMatchObject({
+                    email: setting.email,
+                    phone: setting.phone,
+                })
+            })
+
+            test('get anonymous by phone', async () => {
+                const [setting] = await createTestNotificationAnonymousSetting(adminClient, {
+                    messageType: null,
+                })
+                const settings = await getAnonymousSettings(keystone, null, setting.phone, null)
+                expect(settings).toHaveLength(1)
+                expect(settings[0]).toMatchObject({
+                    email: setting.email,
+                    phone: setting.phone,
+                })
+            })
+
+            test('get anonymous by phone and email', async () => {
+                const [setting] = await createTestNotificationAnonymousSetting(adminClient, {
+                    messageType: null,
+                })
+                const settings = await getAnonymousSettings(keystone, setting.email, setting.phone, null)
+                expect(settings).toHaveLength(1)
+                expect(settings[0]).toMatchObject({
+                    email: setting.email,
+                    phone: setting.phone,
+                })
+            })
+        })
     })
 })

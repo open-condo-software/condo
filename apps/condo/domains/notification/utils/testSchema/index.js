@@ -36,7 +36,7 @@ const { NotificationUserSetting: NotificationUserSettingGQL } = require('@condo/
 const { TelegramUserChat: TelegramUserChatGQL } = require('@condo/domains/notification/gql')
 const { NotificationAnonymousSetting: NotificationAnonymousSettingGQL } = require('@condo/domains/notification/gql')
 const { BILLING_RECEIPT_FILE_ADDED_TYPE, EMAIL_TRANSPORT } = require("@condo/domains/notification/constants/constants");
-const { createTestEmail } = require('@condo/domains/user/utils/testSchema')
+const { createTestEmail, createTestPhone } = require('@condo/domains/user/utils/testSchema')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Message = generateGQLTestUtils(MessageGQL)
@@ -359,6 +359,7 @@ async function createTestNotificationAnonymousSetting (client, extraAttrs = {}) 
 
     const data = {
         email: createTestEmail(),
+        phone: createTestPhone(),
         messageType: BILLING_RECEIPT_FILE_ADDED_TYPE,
         messageTransport: EMAIL_TRANSPORT,
         isEnabled: false,

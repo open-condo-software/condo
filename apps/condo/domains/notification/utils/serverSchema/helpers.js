@@ -1,4 +1,4 @@
-const get = require('lodash/get')
+const { get, isEmpty } = require('lodash')
 
 const {
     MESSAGE_DELIVERY_OPTIONS,
@@ -35,16 +35,27 @@ async function getUserSettings (context, userId, messageType) {
 /**
  * @param context
  * @param email
+ * @param phone
  * @param messageType
  * @returns {Promise<NotificationAnonymousSetting[]>}
  */
-async function getAnonymousSettings (context, email, messageType) {
+async function getAnonymousSettings (context, email, phone, messageType) {
+    if (isEmpty(email) && isEmpty(phone)) {
+        return []
+    }
+
     return await NotificationAnonymousSetting.getAll(context, {
-        email: email,
-        deletedAt: null,
-        OR: [
-            { messageType: null }, // possible settings for all messages
-            { messageType }, // settings for specific message type
+        AND: [
+            { OR: [ { email }, { phone } ] },
+            {
+                OR: [
+                    { messageType: null }, // possible settings for all messages
+                    { messageType }, // settings for specific message type
+                ],
+            },
+            {
+                deletedAt: null,
+            },
         ],
     })
 }
@@ -68,7 +79,7 @@ async function getUserSettingsForMessage (context, message) {
 
     /** @type {NotificationUserSetting[] | NotificationAnonymousSetting[]} */
     const notificationUserSettings = isAnonymous
-        ? await getAnonymousSettings(context, message.email, message.type)
+        ? await getAnonymousSettings(context, message.email, message.phone, message.type)
         : await getUserSettings(context, message.user.id, message.type)
 
     // The auxiliary object for settings prioritizing. Keeps the highest priority of applied setting

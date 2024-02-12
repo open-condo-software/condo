@@ -51354,9 +51354,11 @@ export type NotificationAnonymousSetting = {
   _label_?: Maybe<Scalars['String']>;
   /**  The settings will applied for  */
   email?: Maybe<Scalars['String']>;
+  /**  Phone. In international E.164 format without spaces  */
+  phone?: Maybe<Scalars['String']>;
   /**  Affected message type. Possible values are: TICKET_CREATED,TICKET_COMMENT_CREATED,INVITE_NEW_EMPLOYEE,SHARE_TICKET,BANK_ACCOUNT_CREATION_REQUEST,DIRTY_INVITE_NEW_EMPLOYEE_SMS,DIRTY_INVITE_NEW_EMPLOYEE_EMAIL,REGISTER_NEW_USER,RESET_PASSWORD,SMS_VERIFY,DEVELOPER_IMPORTANT_NOTE_TYPE,CUSTOMER_IMPORTANT_NOTE_TYPE,MESSAGE_FORWARDED_TO_SUPPORT,TICKET_ASSIGNEE_CONNECTED,TICKET_EXECUTOR_CONNECTED,TRACK_TICKET_IN_DOMA_APP,TICKET_STATUS_OPENED,TICKET_STATUS_IN_PROGRESS,TICKET_STATUS_COMPLETED,TICKET_STATUS_RETURNED,TICKET_STATUS_DECLINED,TICKET_COMMENT_ADDED,METER_VERIFICATION_DATE_REMINDER,RESIDENT_ADD_BILLING_ACCOUNT,BILLING_RECEIPT_AVAILABLE,BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT,BILLING_RECEIPT_CATEGORY_AVAILABLE,BILLING_RECEIPT_ADDED,BILLING_RECEIPT_FILE_ADDED,BILLING_RECEIPT_ADDED_WITH_DEBT,BILLING_RECEIPT_ADDED_WITH_NO_DEBT,METER_SUBMIT_READINGS_REMINDER,METER_SUBMIT_READINGS_REMINDER_START_PERIOD,METER_SUBMIT_READINGS_REMINDER_END_PERIOD,METER_VERIFICATION_DATE_EXPIRED,RESIDENT_UPGRADE_APP,STAFF_UPGRADE_APP,CUSTOM_CONTENT_MESSAGE_PUSH,CUSTOM_CONTENT_MESSAGE_EMAIL,CUSTOM_CONTENT_MESSAGE_SMS,VOIP_INCOMING_CALL_MESSAGE,B2C_APP_MESSAGE_PUSH,RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_UNKNOWN_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_ACQUIRING_PAYMENT_PROCEED_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_SERVICE_CONSUMER_NOT_FOUND_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_LIMIT_EXCEEDED_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_CONTEXT_NOT_FOUND_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_CONTEXT_DISABLED_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_CARD_TOKEN_NOT_VALID_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_CAN_NOT_REGISTER_MULTI_PAYMENT_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_NO_RECEIPTS_TO_PROCEED_ERROR_MESSAGE,RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE,RECURRENT_PAYMENT_TOMORROW_PAYMENT_NO_RECEIPTS_MESSAGE,RECURRENT_PAYMENT_TOMORROW_PAYMENT_LIMIT_EXCEED_MESSAGE,NEWS_ITEM_COMMON_MESSAGE_TYPE,NEWS_ITEM_EMERGENCY_MESSAGE_TYPE,DEV_PORTAL_MESSAGE,SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE,MARKETPLACE_INVOICE_PUBLISHED_MESSAGE,MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE,MARKETPLACE_INVOICE_CASH_PUBLISHED_MESSAGE,MARKETPLACE_INVOICE_CASH_WITH_TICKET_PUBLISHED_MESSAGE  */
   messageType?: Maybe<NotificationAnonymousSettingMessageTypeType>;
-  /**  Affected message transport. Possible values are: email  */
+  /**  Affected message transport. Possible values are: email, sms  */
   messageTransport?: Maybe<NotificationAnonymousSettingMessageTransportType>;
   /**  Is notification enabled  */
   isEnabled?: Maybe<Scalars['Boolean']>;
@@ -51378,6 +51380,7 @@ export type NotificationAnonymousSetting = {
 
 export type NotificationAnonymousSettingCreateInput = {
   email?: Maybe<Scalars['String']>;
+  phone?: Maybe<Scalars['String']>;
   messageType?: Maybe<NotificationAnonymousSettingMessageTypeType>;
   messageTransport?: Maybe<NotificationAnonymousSettingMessageTransportType>;
   isEnabled?: Maybe<Scalars['Boolean']>;
@@ -51404,6 +51407,7 @@ export type NotificationAnonymousSettingHistoryRecord = {
    */
   _label_?: Maybe<Scalars['String']>;
   email?: Maybe<Scalars['String']>;
+  phone?: Maybe<Scalars['String']>;
   messageType?: Maybe<Scalars['String']>;
   messageTransport?: Maybe<Scalars['String']>;
   isEnabled?: Maybe<Scalars['Boolean']>;
@@ -51424,6 +51428,7 @@ export type NotificationAnonymousSettingHistoryRecord = {
 
 export type NotificationAnonymousSettingHistoryRecordCreateInput = {
   email?: Maybe<Scalars['String']>;
+  phone?: Maybe<Scalars['String']>;
   messageType?: Maybe<Scalars['String']>;
   messageTransport?: Maybe<Scalars['String']>;
   isEnabled?: Maybe<Scalars['Boolean']>;
@@ -51449,6 +51454,7 @@ export enum NotificationAnonymousSettingHistoryRecordHistoryActionType {
 
 export type NotificationAnonymousSettingHistoryRecordUpdateInput = {
   email?: Maybe<Scalars['String']>;
+  phone?: Maybe<Scalars['String']>;
   messageType?: Maybe<Scalars['String']>;
   messageTransport?: Maybe<Scalars['String']>;
   isEnabled?: Maybe<Scalars['Boolean']>;
@@ -51487,6 +51493,24 @@ export type NotificationAnonymousSettingHistoryRecordWhereInput = {
   email_not_ends_with_i?: Maybe<Scalars['String']>;
   email_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   email_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  phone?: Maybe<Scalars['String']>;
+  phone_not?: Maybe<Scalars['String']>;
+  phone_contains?: Maybe<Scalars['String']>;
+  phone_not_contains?: Maybe<Scalars['String']>;
+  phone_starts_with?: Maybe<Scalars['String']>;
+  phone_not_starts_with?: Maybe<Scalars['String']>;
+  phone_ends_with?: Maybe<Scalars['String']>;
+  phone_not_ends_with?: Maybe<Scalars['String']>;
+  phone_i?: Maybe<Scalars['String']>;
+  phone_not_i?: Maybe<Scalars['String']>;
+  phone_contains_i?: Maybe<Scalars['String']>;
+  phone_not_contains_i?: Maybe<Scalars['String']>;
+  phone_starts_with_i?: Maybe<Scalars['String']>;
+  phone_not_starts_with_i?: Maybe<Scalars['String']>;
+  phone_ends_with_i?: Maybe<Scalars['String']>;
+  phone_not_ends_with_i?: Maybe<Scalars['String']>;
+  phone_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  phone_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   messageType?: Maybe<Scalars['String']>;
   messageType_not?: Maybe<Scalars['String']>;
   messageType_contains?: Maybe<Scalars['String']>;
@@ -51617,7 +51641,8 @@ export type NotificationAnonymousSettingHistoryRecordsUpdateInput = {
 };
 
 export enum NotificationAnonymousSettingMessageTransportType {
-  Email = 'email'
+  Email = 'email',
+  Sms = 'sms'
 }
 
 export enum NotificationAnonymousSettingMessageTypeType {
@@ -51688,6 +51713,7 @@ export enum NotificationAnonymousSettingMessageTypeType {
 
 export type NotificationAnonymousSettingUpdateInput = {
   email?: Maybe<Scalars['String']>;
+  phone?: Maybe<Scalars['String']>;
   messageType?: Maybe<NotificationAnonymousSettingMessageTypeType>;
   messageTransport?: Maybe<NotificationAnonymousSettingMessageTransportType>;
   isEnabled?: Maybe<Scalars['Boolean']>;
@@ -51723,6 +51749,24 @@ export type NotificationAnonymousSettingWhereInput = {
   email_not_ends_with_i?: Maybe<Scalars['String']>;
   email_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   email_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  phone?: Maybe<Scalars['String']>;
+  phone_not?: Maybe<Scalars['String']>;
+  phone_contains?: Maybe<Scalars['String']>;
+  phone_not_contains?: Maybe<Scalars['String']>;
+  phone_starts_with?: Maybe<Scalars['String']>;
+  phone_not_starts_with?: Maybe<Scalars['String']>;
+  phone_ends_with?: Maybe<Scalars['String']>;
+  phone_not_ends_with?: Maybe<Scalars['String']>;
+  phone_i?: Maybe<Scalars['String']>;
+  phone_not_i?: Maybe<Scalars['String']>;
+  phone_contains_i?: Maybe<Scalars['String']>;
+  phone_not_contains_i?: Maybe<Scalars['String']>;
+  phone_starts_with_i?: Maybe<Scalars['String']>;
+  phone_not_starts_with_i?: Maybe<Scalars['String']>;
+  phone_ends_with_i?: Maybe<Scalars['String']>;
+  phone_not_ends_with_i?: Maybe<Scalars['String']>;
+  phone_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  phone_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   messageType?: Maybe<NotificationAnonymousSettingMessageTypeType>;
   messageType_not?: Maybe<NotificationAnonymousSettingMessageTypeType>;
   messageType_in?: Maybe<Array<Maybe<NotificationAnonymousSettingMessageTypeType>>>;
@@ -77330,6 +77374,8 @@ export enum SortNewsItemsBy {
 export enum SortNotificationAnonymousSettingHistoryRecordsBy {
   EmailAsc = 'email_ASC',
   EmailDesc = 'email_DESC',
+  PhoneAsc = 'phone_ASC',
+  PhoneDesc = 'phone_DESC',
   MessageTypeAsc = 'messageType_ASC',
   MessageTypeDesc = 'messageType_DESC',
   MessageTransportAsc = 'messageTransport_ASC',
@@ -77357,6 +77403,8 @@ export enum SortNotificationAnonymousSettingHistoryRecordsBy {
 export enum SortNotificationAnonymousSettingsBy {
   EmailAsc = 'email_ASC',
   EmailDesc = 'email_DESC',
+  PhoneAsc = 'phone_ASC',
+  PhoneDesc = 'phone_DESC',
   MessageTypeAsc = 'messageType_ASC',
   MessageTypeDesc = 'messageType_DESC',
   MessageTransportAsc = 'messageTransport_ASC',

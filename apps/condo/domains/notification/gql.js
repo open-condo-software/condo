@@ -61,7 +61,7 @@ const NotificationUserSetting = generateGqlQueries('NotificationUserSetting', NO
 const TELEGRAM_USER_CHAT_FIELDS = `{ user { id } telegramChatId ${COMMON_FIELDS} }`
 const TelegramUserChat = generateGqlQueries('TelegramUserChat', TELEGRAM_USER_CHAT_FIELDS)
 
-const NOTIFICATION_ANONYMOUS_SETTING_FIELDS = `{ email messageType messageTransport isEnabled ${COMMON_FIELDS} }`
+const NOTIFICATION_ANONYMOUS_SETTING_FIELDS = `{ email phone messageType messageTransport isEnabled ${COMMON_FIELDS} }`
 const NotificationAnonymousSetting = generateGqlQueries('NotificationAnonymousSetting', NOTIFICATION_ANONYMOUS_SETTING_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */

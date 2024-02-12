@@ -57,10 +57,10 @@ class UnsubscribeLinkRouter {
                 deletedAt: null,
             })
 
-            // now supported to set settings only for email transport
-            if (message.email) {
+            // now supported to set settings only for email/sms transport
+            if (message.email || message.phone) {
                 // now lets check if already unsubscribed
-                const settings = await getAnonymousSettings(this.context, message.email, message.type)
+                const settings = await getAnonymousSettings(this.context, message.email, message.phone, message.type)
 
                 // only in case if no unsubscribe record exists
                 if (settings.length === 0) {
