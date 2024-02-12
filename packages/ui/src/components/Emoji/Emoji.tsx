@@ -1,5 +1,6 @@
 import React from 'react'
 
+
 export type EmojiProps = {
     className?: string
     label?: string

@@ -7,6 +7,7 @@ import { CardHeader, CardHeaderProps } from './_utils/cardHeader'
 import { CARD_CLASS_PREFIX } from './_utils/constants'
 import { Card, CardProps } from './card'
 
+
 export type CardButtonProps = Pick<CardProps, 'accent' | 'disabled'> & {
     header: CardHeaderProps
     body?: CardBodyProps

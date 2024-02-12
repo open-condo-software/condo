@@ -10,6 +10,8 @@ import { Card } from './card'
 import { Checkbox } from '../Checkbox'
 
 import type { CardProps } from './card'
+
+
 export type CardCheckboxProps = Pick<CardProps, 'disabled' | 'onClick'> & {
     header: Omit<CardHeaderProps, 'tag' | 'mainLink' | 'secondLink'>
     body?: CardBodyProps

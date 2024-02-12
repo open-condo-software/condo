@@ -3,9 +3,9 @@ import React from 'react'
 
 import { IconProps } from '@open-condo/icons'
 
-
 import { CARD_CLASS_PREFIX } from './constants'
 import { ProgressIndicator, ProgressIndicatorProps } from './progressIndicator'
+import { renderLink } from './utils'
 
 import { useBreakpoints } from '../../../hooks'
 import { Emoji, EmojiProps } from '../../Emoji'
@@ -34,18 +34,6 @@ export type CardHeaderProps = {
 }
 
 const CARD_HEADER_CONTENT_CLASS_NAME_PREFIX = `${CARD_CLASS_PREFIX}-header-content`
-
-const renderLink = (linkProps: CardLinkType) => {
-    const { PreIcon, AfterIcon, href, label } = linkProps
-
-    return (
-        <Space size={8} direction='horizontal' align='center'>
-            {PreIcon && <PreIcon size='small' />}
-            <Typography.Link href={href}>{label}</Typography.Link>
-            {AfterIcon && <AfterIcon size='small' />}
-        </Space>
-    )
-}
 
 const CardHeader: React.FC<CardHeaderProps> = (props) => {
     const {
