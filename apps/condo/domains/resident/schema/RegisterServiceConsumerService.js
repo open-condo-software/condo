@@ -227,7 +227,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
 
                 const paymentCategory = get(extra, 'paymentCategory', null)
 
-                let billingAccountFoundFlag = false
+                let isBillingAccountFound = false
 
                 const attrs = {
                     dv,
@@ -248,13 +248,13 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                         }
                     )
                     if (billingAccount) {
-                        billingAccountFoundFlag = true
+                        isBillingAccountFound = true
                     }
                     // This is deprecated. These fields are not going to be set in future releases!
                     attrs.billingIntegrationContext = billingAccount ? { connect: { id: billingIntegrationContext.id } } : null
                     attrs.acquiringIntegrationContext = billingAccount && acquiringIntegrationContext ? { connect: { id: acquiringIntegrationContext.id } } : null
                 }
-                if (!billingAccountFoundFlag) {
+                if (!isBillingAccountFound) {
                     const meters = await Meter.getAll(context, { accountNumber: accountNumber, organization: { id: organizationId, deletedAt: null }, deletedAt: null })
                     if (meters.length < 1) {
                         throw new GQLError(ERRORS.BILLING_ACCOUNT_NOT_FOUND, context)
