@@ -9,6 +9,7 @@
     "./plugins/utils": "./plugins/utils/index.js",
     "./plugins/utils/address-service-client": "./plugins/utils/address-service-client/index.js",
     "./preprocessors": "./preprocessors/index.js",
+    "./rateLimiting": "./rateLimiting/index.js",
     "./*": "./*.js"
   },
   "dependencies": {

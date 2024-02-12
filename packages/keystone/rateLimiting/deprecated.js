@@ -52,6 +52,18 @@ function extractQueriesAndMutationsWithArgumentsFromRequest (requestContext) {
 class ApolloRateLimitingPlugin {
     /** @type {Record<string, Array<string>>} */
     #queriesArgs = {}
+    #keystone = null
+
+    constructor (keystone) {
+        this.#keystone = keystone
+        // for (const field of Object.values(keystone.lists)) {
+        //     console.log(field)
+        //     break
+        // }
+        // console.log(Object.keys(keystone.lists['B2CAppBuild']))
+        // console.log(JSON.stringify(keystone.lists['B2CAppBuild'].processedCreateListConfig, null, 2))
+    }
+
 
     #extractPossibleArgumentsFromSchemaQueries (schema) {
         /** @type {Record<string, Array<string>>} */
