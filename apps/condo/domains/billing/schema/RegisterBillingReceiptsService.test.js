@@ -3,7 +3,6 @@
  */
 const { faker  } = require('@faker-js/faker/locale/ru')
 const Big = require('big.js')
-const dayjs = require('dayjs')
 
 const {
     catchErrorFrom,
@@ -19,49 +18,16 @@ const { registerBillingReceiptsByTestClient } = require('@condo/domains/billing/
 const {
     createTestBillingIntegration,
     createTestBillingIntegrationOrganizationContext,
-    BillingReceipt,
     BillingAccount,
     BillingRecipient,
     generateServicesData,
+    registerBillingReceiptServiceTestUtils,
 } = require('@condo/domains/billing/utils/testSchema')
 const { createTestBillingCategory, createTestBillingIntegrationAccessRight } = require('@condo/domains/billing/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 
-const createAddressWithUnit = () => `${faker.address.cityName()} ${faker.address.streetAddress(true)}`
-
-const createJSONReceipt = (extra = {}) => {
-    const [month, year] = dayjs().add(-1, 'month').format('MM-YYYY').split('-').map(Number)
-    return Object.fromEntries(Object.entries({
-        importId: faker.datatype.uuid(),
-        address: createAddressWithUnit(),
-        accountNumber: randomNumber(10).toString(),
-        toPay: faker.finance.amount(-100, 5000),
-        month,
-        year,
-        services: generateServicesData(faker.datatype.number({ min: 3, max: 5 })),
-        ...createRecipient(),
-        raw: extra,
-        ...extra,
-    }).filter(([, value]) => !!value))
-}
-
-const createRecipient = (extra = {}) => {
-    return {
-        tin: faker.random.numeric(8),
-        routingNumber: faker.random.numeric(5),
-        bankAccount: faker.random.numeric(12),
-        ...extra,
-    }
-}
-
-const createValidELS = () => `${randomNumber(2)}БГ${randomNumber(6)}`
-
-const randomNumber = (numDigits) => {
-    const min = 10 ** (numDigits - 1)
-    const max = 10 ** numDigits - 1
-    return faker.datatype.number({ min, max })
-}
+const { createAddressWithUnit, createJSONReceipt, createRecipient, createValidELS, randomNumber } = registerBillingReceiptServiceTestUtils
 
 describe('RegisterBillingReceiptsService', () => {
 
@@ -265,24 +231,23 @@ describe('RegisterBillingReceiptsService', () => {
             test('[importId]. Address change (was resolved wrong and then fixed)', async () => {
                 const wrongAddress = createAddressWithUnit()
                 const receiptWithWrongAddress = createJSONReceipt({ address: wrongAddress })
-                await registerBillingReceiptsByTestClient(clients.admin, {
+                const [[createdReceipt]] = await registerBillingReceiptsByTestClient(clients.admin, {
                     context: { id: integration.billingContext.id },
                     receipts: [receiptWithWrongAddress],
                 })
-                const createdReceipt = await BillingReceipt.getOne(clients.admin, { importId: receiptWithWrongAddress.importId, context: { id: integration.billingContext.id } } )
                 const wrongHouseAddress = createdReceipt.property.address
                 const correctAddress = createAddressWithUnit()
                 const receiptWithCorrectAddress = { ...receiptWithWrongAddress, address: correctAddress }
-                await registerBillingReceiptsByTestClient(clients.admin, {
+                const [[updatedReceipt]] =  await registerBillingReceiptsByTestClient(clients.admin, {
                     context: { id: integration.billingContext.id },
                     receipts: [receiptWithCorrectAddress],
                 })
-                const updatedReceipt = await BillingReceipt.getOne(clients.admin, { importId: receiptWithCorrectAddress.importId, context: { id: integration.billingContext.id } } )
                 const correctHouseAddress = updatedReceipt.property.address
                 expect(updatedReceipt.property.address).not.toEqual(wrongHouseAddress)
                 expect(updatedReceipt.property.address).toEqual(correctHouseAddress)
                 expect(updatedReceipt.account.property.address).toEqual(correctHouseAddress)
                 expect(createdReceipt.account.id).toEqual(updatedReceipt.account.id)
+                expect(createdReceipt.id).toEqual(updatedReceipt.id)
             })
             test('[all] Category change (first load without services, then added services)', async () => {
                 const name = faker.lorem.sentence(3)

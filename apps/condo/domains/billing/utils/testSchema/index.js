@@ -4,6 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const { faker } = require('@faker-js/faker')
+const { faker: ruFaker  } = require('@faker-js/faker/locale/ru')
 const get = require('lodash/get')
 const path = require("path");
 const conf = require("@open-condo/config");
@@ -57,6 +58,7 @@ const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const dayjs = require("dayjs");
 
 const bannerVariants = [
     { bannerColor: "#9b9dfa", bannerTextColor: "WHITE" },
@@ -605,35 +607,44 @@ async function registerBillingReceiptsByTestClient(client, args, extraAttrs = {}
     return [data.result, errors, attrs]
 }
 
-function createRegisterBillingReceiptsPayload(extraAttrs = {}) {
-    const address = extraAttrs.address || faker.random.alphaNumeric(24)
-    return {
-        importId: faker.random.alphaNumeric(24),
+const registerBillingReceiptServiceTestUtils = {
+    createJSONReceipt: (extra = {}) => {
+        const [month, year] = dayjs().add(-1, 'month').format('MM-YYYY').split('-').map(Number)
+        const toPay = faker.finance.amount(-100, 5000)
 
-        address,
-        normalizedAddress: address,
-
-        unitType: FLAT_UNIT_TYPE,
-        accountNumber: faker.random.alphaNumeric(10),
-        unitName: faker.random.alphaNumeric(14),
-
-        toPay: '100.00',
-
-        year: 2022,
-        month: 3,
-
-        category: { id: '928c97ef-5289-4daa-b80e-4b9fed50c629' },
-
+        return Object.fromEntries(
+            Object.entries({
+                importId: faker.datatype.uuid(),
+                address: registerBillingReceiptServiceTestUtils.createAddressWithUnit(),
+                accountNumber: registerBillingReceiptServiceTestUtils.randomNumber(10).toString(),
+                toPay,
+                month, year,
+                services: generateServicesData(faker.datatype.number({min: 3, max: 5}), toPay),
+                ...registerBillingReceiptServiceTestUtils.createRecipient(),
+                raw: extra,
+                ...extra,
+            }).filter(([, value]) => !!value)
+        )
+    },
+    randomNumber: (numDigits) => faker.datatype.number({min: 10 ** (numDigits - 1), max: 10 ** numDigits - 1}),
+    createAddressWithUnit: () => `${ruFaker.address.cityName()} ${ruFaker.address.streetAddress(true)}`,
+    createPropertyAddress: () => `${ruFaker.address.cityName()} ${ruFaker.address.streetAddress(false)}`,
+    createValidELS: () => `${registerBillingReceiptServiceTestUtils.randomNumber(2)}БГ${registerBillingReceiptServiceTestUtils.randomNumber(6)}`,
+    createRecipient: (extra = {}) => ({
         tin: faker.random.numeric(8),
-        routingNumber: faker.random.alphaNumeric(8),
-        bankAccount: faker.random.alphaNumeric(8),
+        routingNumber: faker.random.numeric(5),
+        bankAccount: faker.random.numeric(12),
+        ...extra,
+    }),
+}
 
-        tinMeta: {
-            iec: faker.random.alphaNumeric(8),
-        },
 
-        ...extraAttrs
-    }
+
+
+
+
+function createRegisterBillingReceiptsPayload(extraAttrs = {}) {
+    return registerBillingReceiptServiceTestUtils.createJSONReceipt(extraAttrs)
 }
 
 /**
@@ -921,6 +932,7 @@ module.exports = {
     PUBLIC_FILE, PRIVATE_FILE,
     validateQRCodeByTestClient,
     sendNewBillingReceiptFilesNotificationsByTestClient,
+    registerBillingReceiptServiceTestUtils,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 
