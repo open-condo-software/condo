@@ -906,8 +906,8 @@ describe('DiscoverServiceConsumersService', () => {
                         createRegisterBillingReceiptsPayload({
                             address: billingProperty.address,
                             addressMeta: {
-                                unitType: unitType1,
-                                unitName: unitName1,
+                                unitType: resident.unitType,
+                                unitName: resident.unitName,
                             },
                             accountNumber: billingAccount.number,
                             year: Number(now.format('YYYY')),
