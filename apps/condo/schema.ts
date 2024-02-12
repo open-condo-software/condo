@@ -38720,8 +38720,8 @@ export type Mutation = {
   acceptOrRejectOrganizationInviteById?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteByCode?: Maybe<OrganizationEmployee>;
   resetOrganization?: Maybe<ResetOrganizationOutput>;
-  sendNewBillingReceiptFilesNotifications?: Maybe<SendNewBillingReceiptFilesNotificationsOutput>;
   registerBillingReceipts?: Maybe<Array<Maybe<BillingReceipt>>>;
+  sendNewBillingReceiptFilesNotifications?: Maybe<SendNewBillingReceiptFilesNotificationsOutput>;
   /**
    * Sends notification of BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE type to all residents of provided scopes. Requires service user with access rights to billing domain. All properties in scopes should be connected to provided context.
    *
@@ -48663,13 +48663,13 @@ export type MutationResetOrganizationArgs = {
 };
 
 
-export type MutationSendNewBillingReceiptFilesNotificationsArgs = {
-  data: SendNewBillingReceiptFilesNotificationsInput;
+export type MutationRegisterBillingReceiptsArgs = {
+  data: RegisterBillingReceiptsInput;
 };
 
 
-export type MutationRegisterBillingReceiptsArgs = {
-  data: RegisterBillingReceiptsInput;
+export type MutationSendNewBillingReceiptFilesNotificationsArgs = {
+  data: SendNewBillingReceiptFilesNotificationsInput;
 };
 
 
@@ -71745,7 +71745,7 @@ export type SendNewBillingReceiptFilesNotificationsInput = {
 
 export type SendNewBillingReceiptFilesNotificationsOutput = {
   __typename?: 'SendNewBillingReceiptFilesNotificationsOutput';
-  notificationsSent: Scalars['Int'];
+  taskStarted: Scalars['Boolean'];
 };
 
 export type SendNewReceiptMessagesToResidentScopesInput = {

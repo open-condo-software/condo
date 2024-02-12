@@ -53,12 +53,11 @@ class UnsubscribeLinkRouter {
             // get related anonymous message
             const message = await Message.getOne(this.context, {
                 id,
-                user: null,
                 deletedAt: null,
             })
 
             // now supported to set settings only for email/sms transport
-            if (message.email || message.phone) {
+            if (isNil(message.user) && (message.email || message.phone)) {
                 // now lets check if already unsubscribed
                 const settings = await getAnonymousSettings(this.context, message.email, message.phone, message.type)
 

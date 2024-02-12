@@ -72152,18 +72152,6 @@ type ResetOrganizationOutput {
   status: String!
 }
 
-input SendNewBillingReceiptFilesNotificationsInput {
-  dv: Int!
-  sender: JSON!
-  organization: OrganizationWhereUniqueInput!
-  createdAfter: String!
-  period: String!
-}
-
-type SendNewBillingReceiptFilesNotificationsOutput {
-  notificationsSent: Int!
-}
-
 input ExportPropertiesToExcelInput {
   where: PropertyWhereInput!
   sortBy: [SortPropertiesBy!]
@@ -72313,6 +72301,18 @@ input RegisterBillingReceiptsInput {
   sender: SenderFieldInput!
   context: BillingIntegrationOrganizationContextWhereUniqueInput
   receipts: [RegisterBillingReceiptInput!]!
+}
+
+input SendNewBillingReceiptFilesNotificationsInput {
+  dv: Int!
+  sender: JSON!
+  organization: OrganizationWhereUniqueInput!
+  createdAfter: String!
+  period: String!
+}
+
+type SendNewBillingReceiptFilesNotificationsOutput {
+  taskStarted: Boolean!
 }
 
 input PropertyUnitInput {
@@ -82255,8 +82255,8 @@ type Mutation {
   acceptOrRejectOrganizationInviteById(id: ID!, data: AcceptOrRejectOrganizationInviteInput!): OrganizationEmployee
   acceptOrRejectOrganizationInviteByCode(inviteCode: String!, data: AcceptOrRejectOrganizationInviteInput!): OrganizationEmployee
   resetOrganization(data: ResetOrganizationInput!): ResetOrganizationOutput
-  sendNewBillingReceiptFilesNotifications(data: SendNewBillingReceiptFilesNotificationsInput!): SendNewBillingReceiptFilesNotificationsOutput
   registerBillingReceipts(data: RegisterBillingReceiptsInput!): [BillingReceipt]
+  sendNewBillingReceiptFilesNotifications(data: SendNewBillingReceiptFilesNotificationsInput!): SendNewBillingReceiptFilesNotificationsOutput
 
   """
   Sends notification of BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE type to all residents of provided scopes. Requires service user with access rights to billing domain. All properties in scopes should be connected to provided context. 

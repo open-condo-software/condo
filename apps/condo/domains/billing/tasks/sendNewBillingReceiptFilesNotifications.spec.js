@@ -8,16 +8,11 @@ const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 const Upload = require('graphql-upload/Upload.js')
 
-const conf = require('@open-condo/config')
 const {
     setFakeClientMode,
-    makeLoggedInAdminClient, makeClient, UploadingFile,
 } = require('@open-condo/keystone/test.utils')
 
-
 const { BillingReceiptFile } = require('@condo/domains/billing/utils/serverSchema')
-const { Message } = require('@condo/domains/notification/utils/serverSchema')
-const { BILLING_RECEIPT_FILE_ADDED_TYPE } = require('@condo/domains/notification/constants/constants')
 const {
     makeContextWithOrganizationAndIntegrationAsAdmin,
     createTestBillingProperty,
@@ -27,6 +22,8 @@ const {
     updateTestBillingReceipt,
 } = require('@condo/domains/billing/utils/testSchema')
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
+const { BILLING_RECEIPT_FILE_ADDED_TYPE } = require('@condo/domains/notification/constants/constants')
+const { Message } = require('@condo/domains/notification/utils/serverSchema')
 const {
     createTestProperty,
 } = require('@condo/domains/property/utils/testSchema')
@@ -117,7 +114,6 @@ describe('sendNewBillingReceiptFilesNotifications', () => {
         it('success case', async () => {
             const watermark = dayjs().toISOString()
             const billingReceiptFile = await createBillingReceiptFile(adminContext, receiptByAdmin, context)
-            console.log(billingReceiptFile)
             const [contact] = await createTestContact(admin, organization, organizationProperty, {
                 unitName: account.unitName,
                 unitType: account.unitType,
@@ -134,11 +130,10 @@ describe('sendNewBillingReceiptFilesNotifications', () => {
 
             // assert sent notifications count
             // check notification message
-            const messages = await Message.getAll(adminContext, {
+            const [message] = await Message.getAll(adminContext, {
                 type: BILLING_RECEIPT_FILE_ADDED_TYPE,
                 email: contact.email,
             }, { sortBy: 'createdAt_DESC' })
-            const [message] = messages
 
             expect(message).toHaveProperty('email', contact.email)
             expect(message).toHaveProperty('meta')
