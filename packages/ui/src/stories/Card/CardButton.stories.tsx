@@ -104,7 +104,7 @@ const Template: Story<StoryProps> = (props) => {
     )
 }
 
-export const SimpleCardButton = Template.bind({})
-SimpleCardButton.args = {
+export const CardButtonComponent = Template.bind({})
+CardButtonComponent.args = {
     accent: true,
 }

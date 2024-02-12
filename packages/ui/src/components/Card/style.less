@@ -1,6 +1,5 @@
 @import "antd/lib/card/style/index.less";
 @import (reference) "@open-condo/ui/src/tokens/variables.less";
-@import (reference) "@open-condo/ui/src/components/style/core/breakpoints.less";
 
 @condo-card-active-outline-indent: 0;
 @condo-card-focus-outline-border-width: @condo-global-border-width-default * 2;
@@ -145,25 +144,5 @@
 
   &:active {
     box-shadow: none;
-  }
-
-  @media @from-mobile-small and @to-tablet-small {
-    &-head {
-      padding: @condo-global-spacing-16;
-    }
-
-    &-body {
-      padding: @condo-global-spacing-16;
-    }
-  }
-
-  @media @from-tablet-large {
-    &-head {
-      padding: @condo-global-spacing-24;
-    }
-
-    &-body {
-      padding: @condo-global-spacing-24;
-    }
   }
 }

@@ -3,10 +3,12 @@ import React from 'react'
 
 import { IconProps } from '@open-condo/icons'
 
-import { CARD_CLASS_PREFIX } from './constants'
 
+import { CARD_CLASS_PREFIX } from './constants'
+import { ProgressIndicator, ProgressIndicatorProps } from './progressIndicator'
+
+import { useBreakpoints } from '../../../hooks'
 import { Emoji, EmojiProps } from '../../Emoji'
-import { ProgressIndicator, ProgressIndicatorProps } from '../../ProgressIndicator'
 import { Space } from '../../Space'
 import { Tag, TagProps } from '../../Tag'
 import { Typography } from '../../Typography'
@@ -61,8 +63,10 @@ const CardHeader: React.FC<CardHeaderProps> = (props) => {
         `${CARD_HEADER_CONTENT_CLASS_NAME_PREFIX}-image-size-${image.size}`,
     )
 
+    const { TABLET_LARGE } = useBreakpoints()
+
     let headerContent = (
-        <Space size={8} direction='vertical' className={CARD_HEADER_CONTENT_CLASS_NAME_PREFIX}>
+        <Space size={TABLET_LARGE ? 8 : 4} direction='vertical' className={CARD_HEADER_CONTENT_CLASS_NAME_PREFIX}>
             {emoji && (
                 <span>
                     {emoji.map((emojiProps, index) => <Emoji key={index} {...emojiProps} />)}

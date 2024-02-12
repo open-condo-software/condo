@@ -1,6 +1,21 @@
 @import (reference) "@open-condo/ui/src/tokens/variables.less";
+@import (reference) "@open-condo/ui/src/components/style/core/breakpoints.less";
 
 .condo-card {
+  .condo-card-body {
+    @media @from-mobile-small and @to-tablet-small {
+      & {
+        padding: @condo-global-spacing-16;
+      }
+    }
+
+    @media @from-tablet-large {
+      & {
+        padding: @condo-global-spacing-24;
+      }
+    }
+  }
+
   &-no-body .condo-card-body {
     display: none;
   }
@@ -15,7 +30,7 @@
       justify-content: center;
       width: 100%;
       background-color: @condo-global-color-gray-1;
-      border-radius: 12px;
+      border-radius: @condo-global-spacing-12;
     }
 
     & .condo-btn {

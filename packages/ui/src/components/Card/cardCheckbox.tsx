@@ -2,18 +2,23 @@ import classNames from 'classnames'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import './cardCheckbox.less'
+import { CardBody, CardBodyProps } from './_utils/cardBody'
+import { CardHeader, CardHeaderProps } from './_utils/cardHeader'
 import { CARD_CLASS_PREFIX } from './_utils/constants'
 import { Card } from './card'
 
 import { Checkbox } from '../Checkbox'
 
 import type { CardProps } from './card'
-export type CardCheckboxProps = Omit<CardProps, 'active' | 'accent' | 'hoverable'>
-
+export type CardCheckboxProps = Pick<CardProps, 'disabled' | 'onClick'> & {
+    header: Omit<CardHeaderProps, 'tag' | 'mainLink' | 'secondLink'>
+    body?: CardBodyProps
+}
 
 const CardCheckbox = React.forwardRef<HTMLDivElement, CardCheckboxProps>((props, ref) => {
     const {
-        className: propsClassName,
+        header,
+        body,
         ...rest
     } = props
 
@@ -27,28 +32,29 @@ const CardCheckbox = React.forwardRef<HTMLDivElement, CardCheckboxProps>((props,
         }
     }, [props])
 
-    const className = classNames(propsClassName, {
+    const className = classNames({
         [`${CARD_CLASS_PREFIX}-checked`]: checked,
         [`${CARD_CLASS_PREFIX}-checkbox-type`]: true,
+        [`${CARD_CLASS_PREFIX}-no-body`]: !body,
     })
-    const title = useMemo(() => props.title && (
+    const checkbox = useMemo(() => (
+        <Checkbox
+            className={`${CARD_CLASS_PREFIX}-checkbox`}
+            checked={checked}
+        />
+    ), [checked])
+    const title = useMemo(() => header && (
         <>
-            <Checkbox
-                className={`${CARD_CLASS_PREFIX}-checkbox`}
-                checked={checked}
-            />
-            {rest.title}
+            {checkbox}
+            <CardHeader {...header} />
         </>
-    ), [checked, props.title, rest.title])
-    const children = useMemo(() => props.title ? props.children : (
+    ), [checkbox, header])
+    const children = useMemo(() => header ? <CardBody {...body}/> : (
         <>
-            <Checkbox
-                className={`${CARD_CLASS_PREFIX}-checkbox`}
-                checked={checked}
-            />
-            {props.children}
+            {checkbox}
+            <CardBody {...body}/>
         </>
-    ), [checked, props.children, props.title])
+    ), [body, checkbox, header])
 
     return (
         <Card
@@ -56,10 +62,11 @@ const CardCheckbox = React.forwardRef<HTMLDivElement, CardCheckboxProps>((props,
             ref={ref}
             className={className}
             onClick={handleClick}
-            title={title}
-            children={children}
             hoverable
-        />
+            title={title}
+        >
+            {body && children}
+        </Card>
     )
 })
 

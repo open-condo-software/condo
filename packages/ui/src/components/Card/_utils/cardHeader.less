@@ -1,10 +1,26 @@
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+@import (reference) "@open-condo/ui/src/components/style/core/breakpoints.less";
+
+@condo-card-head-big-image-size: 64px;
+@condo-card-head-small-image-size: 24px;
+
 .condo-card {
   .condo-card-head {
-    padding: 24px;
+    @media @from-mobile-small and @to-tablet-small {
+      & {
+        padding: @condo-global-spacing-16;
+      }
+    }
+
+    @media @from-tablet-large {
+      & {
+        padding: @condo-global-spacing-24;
+      }
+    }
   }
 
   &-no-body .condo-card-head {
-    border-radius: 12px;
+    border-radius: @condo-global-spacing-12;
 
     .condo-card-head-title {
       display: flex;
@@ -13,8 +29,8 @@
 
   & .condo-tag {
     position: absolute;
-    top: 8px;
-    right: 8px;
+    top: @condo-global-spacing-8;
+    right: @condo-global-spacing-8;
   }
 
   & .condo-card-header-content {
@@ -22,13 +38,13 @@
 
     &-image {
       &-size-big {
-        width: 64px;
-        height: 64px;
+        width: @condo-card-head-big-image-size;
+        height: @condo-card-head-big-image-size;
       }
 
       &-size-small {
-        width: 24px;
-        height: 24px;
+        width: @condo-card-head-small-image-size;
+        height: @condo-card-head-small-image-size;
       }
     }
   }
