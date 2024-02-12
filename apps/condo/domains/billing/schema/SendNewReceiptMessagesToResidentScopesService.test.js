@@ -67,6 +67,8 @@ describe('SendNewReceiptMessagesToResidentScopesService', () => {
         organization = userClient0.organization
         property = userClient0.property
 
+        const [resident0] = await createTestResident(adminClient, userClient0.user, userClient0.property)
+        const [resident] = await createTestResident(adminClient, userClient.user, userClient0.property)
         const integrationData = await createTestBillingIntegration(adminClient)
 
         integration = integrationData[0]
