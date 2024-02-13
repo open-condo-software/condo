@@ -1,3 +1,13 @@
+const ms = require('ms')
+
+const {
+    DEFAULT_MAX_TOTAL_RESULTS,
+    DEFAULT_MUTATION_WEIGHT,
+    DEFAULT_QUERY_WEIGHT,
+    DEFAULT_QUOTA_WINDOW,
+    DEFAULT_AUTHED_QUOTA,
+    DEFAULT_NON_AUTHED_QUOTA,
+} = require('./constants')
 const { extractQueriesAndMutationsFromRequest } = require('./request.utils')
 const { extractPossibleArgsFromSchemaQueries, extractKeystoneListsData } = require('./schema.utils')
 
@@ -13,10 +23,16 @@ class ApolloRateLimitingPlugin {
     #queriesArgList = {}
     /** @type {Record<string, Array<{ fieldName: string, listKey: string }>>} */
     #listRelations = {}
+    #queryWeight = DEFAULT_QUERY_WEIGHT
+    #mutationWeight = DEFAULT_MUTATION_WEIGHT
+    #maxTotalResults = DEFAULT_MAX_TOTAL_RESULTS
+    #authedQuota = DEFAULT_AUTHED_QUOTA
+    #nonAuthedQuota = DEFAULT_NON_AUTHED_QUOTA
+    #quotaWindowInMS = ms(DEFAULT_QUOTA_WINDOW)
 
     /**
      * @param keystone {import('@keystonejs/keystone').Keystone} keystone instance
-     * @param opts {Record<string, never>} plugin options
+     * @param opts {{ queryWeight?: number, mutationWeight?: number, window?: string, authedQuota?: number, nonAuthedQuota?: number }} plugin options
      */
     constructor (keystone, opts = {}) {
         this.#keystone = keystone
@@ -24,6 +40,25 @@ class ApolloRateLimitingPlugin {
         this.#listReadQueries = listQueries
         this.#listMetaReadQueries = listMetaQueries
         this.#listRelations = listRelations
+
+        if (opts.queryWeight) {
+            this.#queryWeight = opts.queryWeight
+        }
+        if (opts.mutationWeight) {
+            this.#mutationWeight = opts.mutationWeight
+        }
+        if (keystone.queryLimits && keystone.queryLimits.maxTotalResults) {
+            this.#maxTotalResults = keystone.queryLimits.maxTotalResults
+        }
+        if (opts.window) {
+            this.#quotaWindowInMS = ms(opts.window)
+        }
+        if (opts.authedQuota) {
+            this.#authedQuota = opts.authedQuota
+        }
+        if (opts.nonAuthedQuota) {
+            this.#nonAuthedQuota = opts.nonAuthedQuota
+        }
     }
 
     serverWillStart (service) {
@@ -34,8 +69,7 @@ class ApolloRateLimitingPlugin {
     requestDidStart () {
         return {
             didResolveOperation: (requestContext) => {
-                const res = extractQueriesAndMutationsFromRequest(requestContext)
-                console.log(JSON.stringify(res, null, 2))
+                const { mutations, queries } = extractQueriesAndMutationsFromRequest(requestContext)
             },
         }
     }
