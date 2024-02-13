@@ -2204,6 +2204,8 @@
   "api.miniapp.sendB2CAppPushMessage.WRONG_SENDER_FORMAT": "Invalid format of \"sender\" field value. {details}",
   "api.miniapp.sendB2CAppPushMessage.APP_IN_BLACK_LIST": "Could not send notifications for the blacklisted app",
   "api.analytics.overviewDashboard.FEATURE_IS_DISABLED": "This feature is unavailable for your organization",
+  "api.tourStep.update.updateFieldsAccessDenied": "You can only update following fields of TourStep: {fields}",
+  "api.tourStep.update.updateCompletedStepType": "You can not update status of completed TourStep",
   "excelExport.header.contacts.forAllTime": "Contacts for all time",
   "excelExport.header.contacts.forPeriod": "Contacts for the period",
   "excelExport.header.newsRecipients": "News recipients",
