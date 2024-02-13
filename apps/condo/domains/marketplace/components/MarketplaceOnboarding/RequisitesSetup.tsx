@@ -171,6 +171,7 @@ export const RequisitesSetup: React.FC = () => {
             if (acquiringContext) {
                 promise = updateAction({
                     invoiceRecipient: {
+                        name: get(organization, 'name'),
                         tin: get(organization, 'tin'),
                         bic: values.bic,
                         bankAccount: values.account,
@@ -184,6 +185,7 @@ export const RequisitesSetup: React.FC = () => {
                     invoiceStatus: CONTEXT_IN_PROGRESS_STATUS,
                     organization: { connect: { id: orgId } },
                     invoiceRecipient: {
+                        name: get(organization, 'name'),
                         tin: get(organization, 'tin'),
                         bic: values.bic,
                         bankAccount: values.account,
