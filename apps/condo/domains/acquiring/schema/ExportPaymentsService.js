@@ -77,6 +77,7 @@ const ExportPaymentsService = new GQLCustomSchema('ExportPaymentsService', {
 
                 const timeZone = normalizeTimeZone(timeZoneFromUser) || DEFAULT_ORGANIZATION_TIMEZONE
                 const formatDate = (date) => dayjs(date).tz(timeZone).format(DATE_FORMAT)
+                const isInvoicePayments = !!get(where, 'invoice.organization.id', null)
 
                 const objs = await loadListByChunks({
                     context,
@@ -90,11 +91,19 @@ const ExportPaymentsService = new GQLCustomSchema('ExportPaymentsService', {
                 }
 
                 const excelRows = objs.map(obj => {
+                    const address = isInvoicePayments ?
+                        get(obj, ['invoice', 'property', 'address'], get(obj, ['invoice', 'contact', 'property', 'address'], '-')) :
+                        get(obj, ['receipt', 'property', 'address'], '')
+
+                    const unitName = isInvoicePayments ?
+                        get(obj, ['invoice', 'unitName'], get(obj, ['invoice', 'contact', 'unitName'], '-')) :
+                        get(obj, ['receipt', 'account', 'unitName'], '')
+
                     return {
                         date: formatDate(obj.advancedAt),
                         account: obj.accountNumber,
-                        address: get(obj, ['receipt', 'property', 'address'], ''),
-                        unitName: get(obj, ['receipt', 'account', 'unitName'], ''),
+                        address,
+                        unitName,
                         type: get(obj, ['context', 'integration', 'name'], ''),
                         transaction: get(obj, ['multiPayment', 'transactionId'], ''),
                         status: i18n('payment.status.' + get(obj, 'status'), { locale }),
