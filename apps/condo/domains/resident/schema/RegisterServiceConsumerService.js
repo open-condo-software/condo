@@ -157,7 +157,6 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                                 resident: { connect: { id } },
                                 organization: { connect: { id: billingAccount.context.organization.id } },
                                 paymentCategory: paymentCategory ? paymentCategory : null,
-                                billingAccount: { connect: { id: billingAccount.id } },
                                 billingIntegrationContext: { connect: { id: billingAccount.context.id } },
                                 acquiringIntegrationContext: acquiringIntegrationContext ? { connect: { id: acquiringIntegrationContext.id } } : null,
                             })
@@ -228,6 +227,8 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
 
                 const paymentCategory = get(extra, 'paymentCategory', null)
 
+                let isBillingAccountFound = false
+
                 const attrs = {
                     dv,
                     sender,
@@ -246,12 +247,14 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                             number_i: accountNumber,
                         }
                     )
+                    if (billingAccount) {
+                        isBillingAccountFound = true
+                    }
                     // This is deprecated. These fields are not going to be set in future releases!
-                    attrs.billingAccount = billingAccount ? { connect: { id: billingAccount.id } } : null
                     attrs.billingIntegrationContext = billingAccount ? { connect: { id: billingIntegrationContext.id } } : null
                     attrs.acquiringIntegrationContext = billingAccount && acquiringIntegrationContext ? { connect: { id: acquiringIntegrationContext.id } } : null
                 }
-                if (!attrs.billingAccount) {
+                if (!isBillingAccountFound) {
                     const meters = await Meter.getAll(context, { accountNumber: accountNumber, organization: { id: organizationId, deletedAt: null }, deletedAt: null })
                     if (meters.length < 1) {
                         throw new GQLError(ERRORS.BILLING_ACCOUNT_NOT_FOUND, context)

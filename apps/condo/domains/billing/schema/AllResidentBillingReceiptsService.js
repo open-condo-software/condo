@@ -107,14 +107,18 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                 }
 
                 const serviceConsumers = (await find('ServiceConsumer', serviceConsumerWhere))
-                    .filter(consumer => get(consumer, 'billingAccount'))
-                if (!Array.isArray(serviceConsumers) || !serviceConsumers.length) {
+
+                const serviceConsumersWithBillingAccount = serviceConsumers.filter(consumer => (
+                    get(consumer, 'billingIntegrationContext')
+                ))
+
+                if (!Array.isArray(serviceConsumersWithBillingAccount) || !serviceConsumersWithBillingAccount.length) {
                     return []
                 }
 
                 const processedReceipts = []
                 const receiptsQuery = []
-                for (const serviceConsumer of serviceConsumers) {
+                for (const serviceConsumer of serviceConsumersWithBillingAccount) {
                     const receiptsQueryForConsumer = {
                         ...receiptsWhere,
                         account: {
@@ -165,7 +169,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                         toPayDetails: receipt.toPayDetails,
                         services: receipt.services,
                         printableNumber: receipt.printableNumber,
-                        serviceConsumer: serviceConsumers.find(({ accountNumber, organization }) =>
+                        serviceConsumer: serviceConsumersWithBillingAccount.find(({ accountNumber, organization }) =>
                             get(receipt, ['account', 'number']) === accountNumber &&
                             get(receipt, ['context', 'organization', 'id']) === organization ),
                         currencyCode: get(receipt, ['context', 'integration', 'currencyCode'], null),

@@ -71089,8 +71089,6 @@ export type ServiceConsumer = {
   paymentCategory?: Maybe<Scalars['String']>;
   /**  Resident object  */
   resident?: Maybe<Resident>;
-  /**  [DEPRECATED] Billing account, that will allow this resident to pay for certain service  */
-  billingAccount?: Maybe<BillingAccount>;
   /**  [DEPRECATED] BillingAccount id, that is returned for current serviceConsumer in mobile client  */
   residentBillingAccount?: Maybe<ResidentBillingAccount>;
   /**  [DEPRECATED] Billing integration context, that this serviceConsumer is connected to  */
@@ -71126,7 +71124,6 @@ export type ServiceConsumer = {
 export type ServiceConsumerCreateInput = {
   paymentCategory?: Maybe<Scalars['String']>;
   resident?: Maybe<ResidentRelateToOneInput>;
-  billingAccount?: Maybe<BillingAccountRelateToOneInput>;
   billingIntegrationContext?: Maybe<BillingIntegrationOrganizationContextRelateToOneInput>;
   acquiringIntegrationContext?: Maybe<AcquiringIntegrationContextRelateToOneInput>;
   accountNumber?: Maybe<Scalars['String']>;
@@ -71156,7 +71153,6 @@ export type ServiceConsumerHistoryRecord = {
   _label_?: Maybe<Scalars['String']>;
   paymentCategory?: Maybe<Scalars['String']>;
   resident?: Maybe<Scalars['String']>;
-  billingAccount?: Maybe<Scalars['String']>;
   residentBillingAccount?: Maybe<Scalars['JSON']>;
   billingIntegrationContext?: Maybe<Scalars['String']>;
   acquiringIntegrationContext?: Maybe<Scalars['String']>;
@@ -71183,7 +71179,6 @@ export type ServiceConsumerHistoryRecord = {
 export type ServiceConsumerHistoryRecordCreateInput = {
   paymentCategory?: Maybe<Scalars['String']>;
   resident?: Maybe<Scalars['String']>;
-  billingAccount?: Maybe<Scalars['String']>;
   residentBillingAccount?: Maybe<Scalars['JSON']>;
   billingIntegrationContext?: Maybe<Scalars['String']>;
   acquiringIntegrationContext?: Maybe<Scalars['String']>;
@@ -71215,7 +71210,6 @@ export enum ServiceConsumerHistoryRecordHistoryActionType {
 export type ServiceConsumerHistoryRecordUpdateInput = {
   paymentCategory?: Maybe<Scalars['String']>;
   resident?: Maybe<Scalars['String']>;
-  billingAccount?: Maybe<Scalars['String']>;
   residentBillingAccount?: Maybe<Scalars['JSON']>;
   billingIntegrationContext?: Maybe<Scalars['String']>;
   acquiringIntegrationContext?: Maybe<Scalars['String']>;
@@ -71263,10 +71257,6 @@ export type ServiceConsumerHistoryRecordWhereInput = {
   resident_not?: Maybe<Scalars['String']>;
   resident_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   resident_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  billingAccount?: Maybe<Scalars['String']>;
-  billingAccount_not?: Maybe<Scalars['String']>;
-  billingAccount_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  billingAccount_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   residentBillingAccount?: Maybe<Scalars['JSON']>;
   residentBillingAccount_not?: Maybe<Scalars['JSON']>;
   residentBillingAccount_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -71412,7 +71402,6 @@ export type ServiceConsumerRelateToOneInput = {
 export type ServiceConsumerUpdateInput = {
   paymentCategory?: Maybe<Scalars['String']>;
   resident?: Maybe<ResidentRelateToOneInput>;
-  billingAccount?: Maybe<BillingAccountRelateToOneInput>;
   billingIntegrationContext?: Maybe<BillingIntegrationOrganizationContextRelateToOneInput>;
   acquiringIntegrationContext?: Maybe<AcquiringIntegrationContextRelateToOneInput>;
   accountNumber?: Maybe<Scalars['String']>;
@@ -71452,8 +71441,6 @@ export type ServiceConsumerWhereInput = {
   paymentCategory_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   resident?: Maybe<ResidentWhereInput>;
   resident_is_null?: Maybe<Scalars['Boolean']>;
-  billingAccount?: Maybe<BillingAccountWhereInput>;
-  billingAccount_is_null?: Maybe<Scalars['Boolean']>;
   billingIntegrationContext?: Maybe<BillingIntegrationOrganizationContextWhereInput>;
   billingIntegrationContext_is_null?: Maybe<Scalars['Boolean']>;
   acquiringIntegrationContext?: Maybe<AcquiringIntegrationContextWhereInput>;
@@ -78228,8 +78215,6 @@ export enum SortServiceConsumersBy {
   PaymentCategoryDesc = 'paymentCategory_DESC',
   ResidentAsc = 'resident_ASC',
   ResidentDesc = 'resident_DESC',
-  BillingAccountAsc = 'billingAccount_ASC',
-  BillingAccountDesc = 'billingAccount_DESC',
   BillingIntegrationContextAsc = 'billingIntegrationContext_ASC',
   BillingIntegrationContextDesc = 'billingIntegrationContext_DESC',
   AcquiringIntegrationContextAsc = 'acquiringIntegrationContext_ASC',

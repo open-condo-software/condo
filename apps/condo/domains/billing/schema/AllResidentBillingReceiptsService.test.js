@@ -661,8 +661,8 @@ describe('AllResidentBillingReceiptsService', () => {
             // you can't read billingAccount field as resident, so we should get true serviceConsumer here to further check
             const [serviceConsumerWifeWithAccount] = await ServiceConsumer.getAll(adminClient, { id: serviceConsumerWife.id })
 
-            expect(serviceConsumerHusbandWithAccount.billingAccount.id).toEqual(serviceConsumerWifeWithAccount.billingAccount.id)
-            expect(serviceConsumerHusbandWithAccount.billingAccount.id).toEqual(billingAccount.id)
+            expect(serviceConsumerHusbandWithAccount.accountNumber).toEqual(serviceConsumerWifeWithAccount.accountNumber)
+            expect(serviceConsumerHusbandWithAccount.accountNumber).toEqual(billingAccount.number)
 
             const objsHusband = await ResidentBillingReceipt.getAll(husbandClient, { serviceConsumer: { resident: { id: residentHusband.id } } })
             expect(objsHusband).toHaveLength(1)
