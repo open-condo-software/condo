@@ -10,11 +10,13 @@ const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/gene
 const { OnBoarding: OnBoardingGQL } = require('@condo/domains/onboarding/gql')
 const { OnBoardingStep: OnBoardingStepGQL } = require('@condo/domains/onboarding/gql')
 const { CREATE_ONBOARDING_MUTATION } = require('@condo/domains/onboarding/gql')
+const { TourStep: TourStepGQL } = require('@condo/domains/onboarding/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const OnBoarding = generateGQLTestUtils(OnBoardingGQL)
 const OnBoardingStep = generateGQLTestUtils(OnBoardingStepGQL)
 
+const TourStep = generateGQLTestUtils(TourStepGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestOnBoarding (client, extraAttrs = {}) {
@@ -97,11 +99,41 @@ async function createOnBoardingByTestClient (client, extraAttrs = {}) {
     return [data.result, attrs]
 }
 
+async function createTestTourStep (client, organization, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        organization: { connect: { id: organization.id } },
+        ...extraAttrs,
+    }
+    const obj = await TourStep.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestTourStep (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await TourStep.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     OnBoarding, createTestOnBoarding, updateTestOnBoarding,
     OnBoardingStep, createTestOnBoardingStep, updateTestOnBoardingStep,
     createOnBoardingByTestClient,
+    TourStep, createTestTourStep, updateTestTourStep,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

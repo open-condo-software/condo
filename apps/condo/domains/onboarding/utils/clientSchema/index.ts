@@ -5,4 +5,5 @@
 
 export * as OnBoarding from './OnBoarding'
 export * as OnBoardingStep from './OnBoardingStep'
+export * as TourStep from './TourStep'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
