@@ -21,6 +21,7 @@ const MARKETPLACE = 'marketplace'
 const SHOW_TELEGRAM_NOTIFICATIONS_BANNER = 'show-telegram-notifications-banner'
 const MAX_EMPLOYEE_SIZE_IN_ORGANIZATION_TO_TELEGRAM_NOTIFICATIONS = 'max-employee-size-in-organization-to-telegram-notifications'
 const SEND_TELEGRAM_NOTIFICATIONS = 'send-telegram-notifications'
+const ORGANIZATION_TOUR = 'organization-tour'
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
@@ -46,4 +47,5 @@ module.exports = {
     SHOW_TELEGRAM_NOTIFICATIONS_BANNER,
     MAX_EMPLOYEE_SIZE_IN_ORGANIZATION_TO_TELEGRAM_NOTIFICATIONS,
     SEND_TELEGRAM_NOTIFICATIONS,
+    ORGANIZATION_TOUR,
 }
