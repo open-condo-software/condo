@@ -52,6 +52,8 @@ const { RecurrentPaymentContext: RecurrentPaymentContextGQL } = require('@condo/
 const { RecurrentPayment: RecurrentPaymentGQL } = require('@condo/domains/acquiring/gql')
 const { PAYMENT_BY_LINK_MUTATION } = require('@condo/domains/acquiring/gql')
 const { REGISTER_MULTI_PAYMENT_FOR_INVOICES_MUTATION } = require('@condo/domains/acquiring/gql')
+const { EXPORT_PAYMENTS_TO_EXCEL } = require('@condo/domains/acquiring/gql')
+const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateGQLTestUtils(AcquiringIntegrationGQL)
@@ -726,6 +728,24 @@ async function createPaymentsAndGetSum(paymentsAmount = 1) {
 }
 
 
+async function exportPaymentsServiceByTestClient(client, where, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!where) throw new Error('no where conditions')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        where,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(EXPORT_PAYMENTS_TO_EXCEL, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
+const formatDateWithDefaultTimeZone = (date) => dayjs(date).tz(DEFAULT_ORGANIZATION_TIMEZONE).format('DD.MM.YYYY HH:mm')
+
 module.exports = {
     AcquiringIntegration, createTestAcquiringIntegration, updateTestAcquiringIntegration,
     AcquiringIntegrationAccessRight, createTestAcquiringIntegrationAccessRight, updateTestAcquiringIntegrationAccessRight,
@@ -753,5 +773,7 @@ module.exports = {
     RecurrentPayment, createTestRecurrentPayment, updateTestRecurrentPayment,
     createPaymentByLinkByTestClient,
     registerMultiPaymentForInvoicesByTestClient,
+    exportPaymentsServiceByTestClient,
+    formatDateWithDefaultTimeZone,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

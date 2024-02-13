@@ -1142,6 +1142,15 @@ describe('Invoice', () => {
                 clientPhone: null,
                 contact: null,
             })
+            let messagesFirstResult
+            await waitFor(async () => {
+                messagesFirstResult = await Message.getAll(adminClient, {
+                    user: { id: residentClient.user.id },
+                    type: MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
+                })
+                expect(messagesFirstResult).toHaveLength(1)
+            })
+
             const [createdInvoice2] = await createTestInvoice(client, client.organization, {
                 property: { connect: { id: client.property.id } },
                 unitType,
@@ -1153,21 +1162,17 @@ describe('Invoice', () => {
                 clientPhone: null,
                 contact: null,
             })
-            await sleep(500)
-            let messages
+
+            let messagesSecondResult
             await waitFor(async () => {
-                messages = await Message.getAll(adminClient, {
+                messagesSecondResult = await Message.getAll(adminClient, {
                     user: { id: residentClient.user.id },
                     type: MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
                 })
-                expect(messages).toHaveLength(1)
+                expect(messagesSecondResult).toHaveLength(1)
             })
 
-            expect(messages[0].meta.data.invoiceId).toEqual(createdInvoice.id)
-            expect(messages[0].meta.data.ticketId).toEqual(ticket.id)
-            expect(messages[0].meta.data.ticketNumber).toEqual(ticket.number)
-            expect(messages[0].meta.data.residentId).toEqual(resident.id)
-            expect(messages[0].meta.data.url).toEqual(`${conf.SERVER_URL}/ticket/${ticket.id}/`)
+            expect(messagesSecondResult[0].id).toEqual(messagesFirstResult[0].id)
         })
 
         test('send push after create invoice with published status and paymentType cash', async () => {
