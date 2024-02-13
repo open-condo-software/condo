@@ -1101,6 +1101,85 @@ describe('Invoice', () => {
             expect(messages[0].meta.data.url).toEqual(`${conf.SERVER_URL}/ticket/${ticket.id}/`)
         })
 
+        test('send only 1 push when publish several invoice with same ticket', async () => {
+            const client = await makeClientWithProperty()
+            await createTestAcquiringIntegrationContext(adminClient, client.organization, dummyAcquiringIntegration, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceRecipient: createTestRecipient(),
+            })
+
+            const unitType = FLAT_UNIT_TYPE
+            const unitName = faker.lorem.word()
+
+            const residentClient = await makeClientWithResidentUser()
+            const [resident] = await registerResidentByTestClient(
+                residentClient,
+                {
+                    address: client.property.address,
+                    addressMeta: client.property.addressMeta,
+                    unitType,
+                    unitName,
+                })
+
+            const [ticket] = await createTestTicket(client, client.organization, client.property, {
+                isPayable: true,
+                unitType,
+                unitName,
+                clientName: null,
+                clientPhone: null,
+                contact: null,
+                client: { connect: { id: residentClient.user.id } },
+            })
+            const [createdInvoice] = await createTestInvoice(client, client.organization, {
+                property: { connect: { id: client.property.id } },
+                unitType,
+                unitName,
+                status: INVOICE_STATUS_DRAFT,
+                client: { connect: { id: residentClient.user.id } },
+                ticket: { connect: { id: ticket.id } },
+                clientName: null,
+                clientPhone: null,
+                contact: null,
+            })
+
+            const invoice = await Invoice.update(adminClient, createdInvoice.id, {
+                status: INVOICE_STATUS_PUBLISHED,
+                dv: 1,
+                sender: { dv: 1, fingerprint: 'tests' },
+            })
+
+            let messages1, messages2
+            await waitFor(async () => {
+                messages1 = await Message.getAll(adminClient, {
+                    user: { id: residentClient.user.id },
+                    type: MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
+                })
+                expect(messages1).toHaveLength(1)
+            })
+
+
+            const [createdInvoice2] = await createTestInvoice(client, client.organization, {
+                property: { connect: { id: client.property.id } },
+                unitType,
+                unitName,
+                status: INVOICE_STATUS_DRAFT,
+                client: { connect: { id: residentClient.user.id } },
+                ticket: { connect: { id: ticket.id } },
+                clientName: null,
+                clientPhone: null,
+                contact: null,
+            })
+            await waitFor(async () => {
+                messages2 = await Message.getAll(adminClient, {
+                    user: { id: residentClient.user.id },
+                    type: MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
+                })
+                expect(messages2).toHaveLength(1)
+            })
+
+            expect(messages1[0].id).toEqual(messages2[0].id)
+        })
+
 
         test('send only one push for published invoices related to one ticket', async () => {
             const client = await makeClientWithProperty()
