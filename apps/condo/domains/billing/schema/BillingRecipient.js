@@ -85,6 +85,12 @@ const BillingRecipient = new GQLListSchema('BillingRecipient', {
             },
         },
 
+        classificationCode: {
+            schemaDoc: 'Budget classification code, used for state-funded organizations',
+            type: Text,
+            isRequired: false,
+        },
+
         meta: {
             schemaDoc: 'Structured metadata obtained from the `billing data source`. The structure depends on the integration system.',
             type: Json,

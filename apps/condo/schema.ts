@@ -7389,6 +7389,8 @@ export type BankAccount = {
   bankName?: Maybe<Scalars['String']>;
   /**  Structured non-typed metadata, can be used by mini-apps or external services to store information  */
   meta?: Maybe<Scalars['JSON']>;
+  /**  Budget classification code, used for state-funded organizations  */
+  classificationCode?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -7427,6 +7429,7 @@ export type BankAccountCreateInput = {
   territoryCode?: Maybe<Scalars['String']>;
   bankName?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
+  classificationCode?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -7465,6 +7468,7 @@ export type BankAccountHistoryRecord = {
   territoryCode?: Maybe<Scalars['String']>;
   bankName?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
+  classificationCode?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -7497,6 +7501,7 @@ export type BankAccountHistoryRecordCreateInput = {
   territoryCode?: Maybe<Scalars['String']>;
   bankName?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
+  classificationCode?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -7534,6 +7539,7 @@ export type BankAccountHistoryRecordUpdateInput = {
   territoryCode?: Maybe<Scalars['String']>;
   bankName?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
+  classificationCode?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -7731,6 +7737,24 @@ export type BankAccountHistoryRecordWhereInput = {
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  classificationCode?: Maybe<Scalars['String']>;
+  classificationCode_not?: Maybe<Scalars['String']>;
+  classificationCode_contains?: Maybe<Scalars['String']>;
+  classificationCode_not_contains?: Maybe<Scalars['String']>;
+  classificationCode_starts_with?: Maybe<Scalars['String']>;
+  classificationCode_not_starts_with?: Maybe<Scalars['String']>;
+  classificationCode_ends_with?: Maybe<Scalars['String']>;
+  classificationCode_not_ends_with?: Maybe<Scalars['String']>;
+  classificationCode_i?: Maybe<Scalars['String']>;
+  classificationCode_not_i?: Maybe<Scalars['String']>;
+  classificationCode_contains_i?: Maybe<Scalars['String']>;
+  classificationCode_not_contains_i?: Maybe<Scalars['String']>;
+  classificationCode_starts_with_i?: Maybe<Scalars['String']>;
+  classificationCode_not_starts_with_i?: Maybe<Scalars['String']>;
+  classificationCode_ends_with_i?: Maybe<Scalars['String']>;
+  classificationCode_not_ends_with_i?: Maybe<Scalars['String']>;
+  classificationCode_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  classificationCode_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -8787,6 +8811,7 @@ export type BankAccountUpdateInput = {
   territoryCode?: Maybe<Scalars['String']>;
   bankName?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
+  classificationCode?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -8945,6 +8970,24 @@ export type BankAccountWhereInput = {
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  classificationCode?: Maybe<Scalars['String']>;
+  classificationCode_not?: Maybe<Scalars['String']>;
+  classificationCode_contains?: Maybe<Scalars['String']>;
+  classificationCode_not_contains?: Maybe<Scalars['String']>;
+  classificationCode_starts_with?: Maybe<Scalars['String']>;
+  classificationCode_not_starts_with?: Maybe<Scalars['String']>;
+  classificationCode_ends_with?: Maybe<Scalars['String']>;
+  classificationCode_not_ends_with?: Maybe<Scalars['String']>;
+  classificationCode_i?: Maybe<Scalars['String']>;
+  classificationCode_not_i?: Maybe<Scalars['String']>;
+  classificationCode_contains_i?: Maybe<Scalars['String']>;
+  classificationCode_not_contains_i?: Maybe<Scalars['String']>;
+  classificationCode_starts_with_i?: Maybe<Scalars['String']>;
+  classificationCode_not_starts_with_i?: Maybe<Scalars['String']>;
+  classificationCode_ends_with_i?: Maybe<Scalars['String']>;
+  classificationCode_not_ends_with_i?: Maybe<Scalars['String']>;
+  classificationCode_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  classificationCode_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -17776,6 +17819,8 @@ export type BillingRecipient = {
   name?: Maybe<Scalars['String']>;
   /**  If set to True, then this billing recipient info is considered allowed and users are allowed to pay for receipts with this recipient  */
   isApproved?: Maybe<Scalars['Boolean']>;
+  /**  Budget classification code, used for state-funded organizations  */
+  classificationCode?: Maybe<Scalars['String']>;
   /**  Structured metadata obtained from the `billing data source`. The structure depends on the integration system.  */
   meta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
@@ -17807,6 +17852,7 @@ export type BillingRecipientCreateInput = {
   purpose?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
   isApproved?: Maybe<Scalars['Boolean']>;
+  classificationCode?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -17842,6 +17888,7 @@ export type BillingRecipientHistoryRecord = {
   purpose?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
   isApproved?: Maybe<Scalars['Boolean']>;
+  classificationCode?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -17871,6 +17918,7 @@ export type BillingRecipientHistoryRecordCreateInput = {
   purpose?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
   isApproved?: Maybe<Scalars['Boolean']>;
+  classificationCode?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -17905,6 +17953,7 @@ export type BillingRecipientHistoryRecordUpdateInput = {
   purpose?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
   isApproved?: Maybe<Scalars['Boolean']>;
+  classificationCode?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -18109,6 +18158,24 @@ export type BillingRecipientHistoryRecordWhereInput = {
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isApproved?: Maybe<Scalars['Boolean']>;
   isApproved_not?: Maybe<Scalars['Boolean']>;
+  classificationCode?: Maybe<Scalars['String']>;
+  classificationCode_not?: Maybe<Scalars['String']>;
+  classificationCode_contains?: Maybe<Scalars['String']>;
+  classificationCode_not_contains?: Maybe<Scalars['String']>;
+  classificationCode_starts_with?: Maybe<Scalars['String']>;
+  classificationCode_not_starts_with?: Maybe<Scalars['String']>;
+  classificationCode_ends_with?: Maybe<Scalars['String']>;
+  classificationCode_not_ends_with?: Maybe<Scalars['String']>;
+  classificationCode_i?: Maybe<Scalars['String']>;
+  classificationCode_not_i?: Maybe<Scalars['String']>;
+  classificationCode_contains_i?: Maybe<Scalars['String']>;
+  classificationCode_not_contains_i?: Maybe<Scalars['String']>;
+  classificationCode_starts_with_i?: Maybe<Scalars['String']>;
+  classificationCode_not_starts_with_i?: Maybe<Scalars['String']>;
+  classificationCode_ends_with_i?: Maybe<Scalars['String']>;
+  classificationCode_not_ends_with_i?: Maybe<Scalars['String']>;
+  classificationCode_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  classificationCode_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   meta?: Maybe<Scalars['JSON']>;
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -18224,6 +18291,7 @@ export type BillingRecipientUpdateInput = {
   purpose?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
   isApproved?: Maybe<Scalars['Boolean']>;
+  classificationCode?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -18423,6 +18491,24 @@ export type BillingRecipientWhereInput = {
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isApproved?: Maybe<Scalars['Boolean']>;
   isApproved_not?: Maybe<Scalars['Boolean']>;
+  classificationCode?: Maybe<Scalars['String']>;
+  classificationCode_not?: Maybe<Scalars['String']>;
+  classificationCode_contains?: Maybe<Scalars['String']>;
+  classificationCode_not_contains?: Maybe<Scalars['String']>;
+  classificationCode_starts_with?: Maybe<Scalars['String']>;
+  classificationCode_not_starts_with?: Maybe<Scalars['String']>;
+  classificationCode_ends_with?: Maybe<Scalars['String']>;
+  classificationCode_not_ends_with?: Maybe<Scalars['String']>;
+  classificationCode_i?: Maybe<Scalars['String']>;
+  classificationCode_not_i?: Maybe<Scalars['String']>;
+  classificationCode_contains_i?: Maybe<Scalars['String']>;
+  classificationCode_not_contains_i?: Maybe<Scalars['String']>;
+  classificationCode_starts_with_i?: Maybe<Scalars['String']>;
+  classificationCode_not_starts_with_i?: Maybe<Scalars['String']>;
+  classificationCode_ends_with_i?: Maybe<Scalars['String']>;
+  classificationCode_not_ends_with_i?: Maybe<Scalars['String']>;
+  classificationCode_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  classificationCode_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   meta?: Maybe<Scalars['JSON']>;
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -72938,6 +73024,8 @@ export enum SortBankAccountHistoryRecordsBy {
   TerritoryCodeDesc = 'territoryCode_DESC',
   BankNameAsc = 'bankName_ASC',
   BankNameDesc = 'bankName_DESC',
+  ClassificationCodeAsc = 'classificationCode_ASC',
+  ClassificationCodeDesc = 'classificationCode_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -73113,6 +73201,8 @@ export enum SortBankAccountsBy {
   TerritoryCodeDesc = 'territoryCode_DESC',
   BankNameAsc = 'bankName_ASC',
   BankNameDesc = 'bankName_DESC',
+  ClassificationCodeAsc = 'classificationCode_ASC',
+  ClassificationCodeDesc = 'classificationCode_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -74195,6 +74285,8 @@ export enum SortBillingRecipientHistoryRecordsBy {
   NameDesc = 'name_DESC',
   IsApprovedAsc = 'isApproved_ASC',
   IsApprovedDesc = 'isApproved_DESC',
+  ClassificationCodeAsc = 'classificationCode_ASC',
+  ClassificationCodeDesc = 'classificationCode_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -74238,6 +74330,8 @@ export enum SortBillingRecipientsBy {
   NameDesc = 'name_DESC',
   IsApprovedAsc = 'isApproved_ASC',
   IsApprovedDesc = 'isApproved_DESC',
+  ClassificationCodeAsc = 'classificationCode_ASC',
+  ClassificationCodeDesc = 'classificationCode_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

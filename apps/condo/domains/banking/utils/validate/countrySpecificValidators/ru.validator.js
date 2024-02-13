@@ -8,6 +8,9 @@ const RU_TIN_WRONG_LENGTH = 'Ru tin length was expected to be 10 or 12, but rece
 const RU_TIN_CONTROL_SUM_FAILED = 'Control sum is not valid for tin'
 const RU_TIN_NOT_NUMERIC = 'Tin can contain only digits'
 
+// Classification Code (КБК):
+const WRONG_LENGTH = 'Classification code length was expected to be 20, but received '
+
 /**
  * For RU number:
  * 1) Check checksum verification for number
@@ -22,6 +25,8 @@ const RU_TIN_NOT_NUMERIC = 'Tin can contain only digits'
  */
 const validateRuNumber = (number, routingNumber, errors) => {
 
+    // no validation for state funded organisations
+    if (routingNumber.startsWith('01')) return 
     const controlString = routingNumber.substr(-3) + number
 
     let controlSum = 0
@@ -37,17 +42,17 @@ const validateRuNumber = (number, routingNumber, errors) => {
 /**
  * For RU routing number:
  * *** In Russia, number routing is equivalent to BIC***
- * 1) For RU organizations country code (first two digits) is 04
+ * 1) For RU organizations country code (first two digits) is 04 or 01 (for government organizations)
  *
  * @param {string} routingNumber
  * @param {[]} errors
  */
 const validateRuRoutingNumber = (routingNumber, errors) => {
-    const WRONG_RU_COUNTRY_CODE = 'For RU organizations country code is 04, but routing number have '
+    const WRONG_RU_COUNTRY_CODE = 'For RU organizations country code is 04 or 01, but routing number has '
 
     const countryCode = routingNumber.substr(0, 2)
 
-    if (countryCode !== '04') {
+    if (countryCode !== '04' && countryCode !== '01') {
         errors.push(WRONG_RU_COUNTRY_CODE + countryCode)
     }
 }
@@ -91,11 +96,27 @@ const getRuTinControlSum = (num) => {
     return controlSum % 11 % 10
 }
 
+/**
+ * For RU (budget) classification code  :
+ * *** In Russia, classification code is equivalent to KBK***
+ * 2) Check for length and format (Consists of 20 digits)
+ *  *
+ * Example: 90205039900060030131
+ */
+const validateRuClassificationCode = (code, errors) => {
+    const classificationCodeWithoutSpaces = code.toString().trim()
+
+    if (classificationCodeWithoutSpaces.length !== 20) {
+        errors.push(WRONG_LENGTH + classificationCodeWithoutSpaces.length)
+    }
+}
+
 module.exports = {
     validator: {
         number: validateRuNumber,
         routingNumber: validateRuRoutingNumber,
         tin: validateRuTin,
+        classificationCode: validateRuClassificationCode,
     },
     RU_NUMBER_WEIGHTS,
     RU_TIN_WEIGHTS,

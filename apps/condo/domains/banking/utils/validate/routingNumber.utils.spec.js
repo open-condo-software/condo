@@ -9,7 +9,7 @@ describe('validateRoutingNumber', () => {
     describe('Ru', () => {
 
         const COUNTRY_CODE_RU = 'ru'
-        const VALID_RU_ROUTING_NUMBER = ['045809749', '042612466', '043194972']
+        const VALID_RU_ROUTING_NUMBER = ['045809749', '042612466', '043194972', '011806101']
         const WRONG_LENGTH_RU_ROUTING_NUMBER = '0484528544'
         const WRONG_FORMAT_RU_ROUTING_NUMBER = '04845B854'
         const WRONG_CODE_COUNTRY_RU_ROUTING_NUMBER = '588453854'
@@ -54,7 +54,7 @@ describe('validateRoutingNumber', () => {
         test('for wrong country code as Ru routing number', () => {
             const { result, errors } = validateRoutingNumber(WRONG_CODE_COUNTRY_RU_ROUTING_NUMBER, COUNTRY_CODE_RU)
             expect(result).toBe(false)
-            expect(errors[0]).toBe('For RU organizations country code is 04, but routing number have 58')
+            expect(errors[0]).toBe('For RU organizations country code is 04 or 01, but routing number has 58')
         })
     })
 })
