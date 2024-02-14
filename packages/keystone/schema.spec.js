@@ -1,5 +1,6 @@
 const { Text } = require('@keystonejs/fields')
 
+const { RegexplessText } = require('./fields')
 const { GQLListSchema, GQLCustomSchema, registerSchemas, unregisterAllSchemas } = require('./schema')
 
 const validateInput = async (ctx) => { await EVENT_LIST._emit('validate', ctx) }
@@ -113,7 +114,7 @@ test('registerSchema without preprocessors', () => {
     expect(keystone.createList.mock.calls[0][1]).toMatchObject({
         fields: {
             name: {
-                type: Text,
+                type: RegexplessText,
                 defaultValue: 'username',
             },
         },
@@ -125,7 +126,7 @@ test('registerSchema without preprocessors', () => {
     expect(keystone.createList.mock.calls[1][1]).toMatchObject({
         fields: {
             name: {
-                type: Text,
+                type: RegexplessText,
                 defaultValue: 'orgname',
             },
         },
@@ -192,7 +193,7 @@ test('registerSchema with preprocessors', () => {
     expect(keystone.createList.mock.calls[0][1]).toMatchObject({
         fields: {
             name: {
-                type: Text,
+                type: RegexplessText,
                 defaultValue: 'username',
             },
         },
@@ -205,7 +206,7 @@ test('registerSchema with preprocessors', () => {
     expect(keystone.createList.mock.calls[1][1]).toMatchObject({
         fields: {
             name: {
-                type: Text,
+                type: RegexplessText,
                 defaultValue: 'orgname',
             },
         },
