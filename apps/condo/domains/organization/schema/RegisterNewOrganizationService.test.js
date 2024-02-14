@@ -84,6 +84,7 @@ describe('RegisterNewOrganizationService', () => {
                 organization: { id: org.id },
                 name_contains_i: 'administrator',
             })
+            console.log(administratorRole, getPermissions('Administrator'))
             expect(administratorRole).toMatchObject(getPermissions('Administrator'))
 
             const [dispatcherRole] = await OrganizationEmployeeRole.getAll(admin, {
