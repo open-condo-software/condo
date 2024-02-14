@@ -1,12 +1,12 @@
 import React, { CSSProperties } from 'react'
 
 import './cardBody.less'
-import { CARD_CLASS_PREFIX } from './constants'
-import { CardLinkType, renderLink } from './utils'
 
 import { Button, ButtonProps } from '../../Button'
 import { Space } from '../../Space'
 import { Typography } from '../../Typography'
+import { CardLinkType, renderLink } from '../_utils'
+import { CARD_CLASS_PREFIX } from '../_utils/constants'
 
 
 export type CardBodyProps = {

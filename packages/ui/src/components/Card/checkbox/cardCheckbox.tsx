@@ -2,18 +2,17 @@ import classNames from 'classnames'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import './cardCheckbox.less'
-import { CardBody, CardBodyProps } from './_utils/cardBody'
-import { CardHeader, CardHeaderProps } from './_utils/cardHeader'
-import { CARD_CLASS_PREFIX } from './_utils/constants'
-import { Card } from './card'
+import { Checkbox } from '../../Checkbox'
+import { CARD_CLASS_PREFIX } from '../_utils/constants'
+import { CardBody, CardBodyProps } from '../body/cardBody'
+import { Card } from '../card'
+import { CardHeader, CardHeaderProps } from '../header/cardHeader'
 
-import { Checkbox } from '../Checkbox'
-
-import type { CardProps } from './card'
+import type { CardProps } from '../card'
 
 
 export type CardCheckboxProps = Pick<CardProps, 'disabled' | 'onClick'> & {
-    header: Omit<CardHeaderProps, 'tag' | 'mainLink' | 'secondLink'>
+    header?: Omit<CardHeaderProps, 'tag' | 'mainLink' | 'secondLink'>
     body?: CardBodyProps
 }
 
@@ -51,12 +50,23 @@ const CardCheckbox = React.forwardRef<HTMLDivElement, CardCheckboxProps>((props,
             <CardHeader {...header} />
         </>
     ), [checkbox, header])
-    const children = useMemo(() => header ? <CardBody {...body}/> : (
+    const handleButtonClick = useCallback((e: React.MouseEvent<HTMLButtonElement> & React.MouseEvent<HTMLAnchorElement>) => {
+        e.stopPropagation()
+
+        if (body?.button?.onClick) {
+            body.button.onClick(e)
+        }
+    }, [body])
+    const bodyProps = useMemo(() => ({
+        ...body,
+        button: body?.button && { ...body.button, onClick: handleButtonClick },
+    }), [body, handleButtonClick])
+    const children = useMemo(() => header ? <CardBody {...bodyProps}/> : (
         <>
             {checkbox}
-            <CardBody {...body}/>
+            <CardBody {...bodyProps} />
         </>
-    ), [body, checkbox, header])
+    ), [bodyProps, checkbox, header])
 
     return (
         <Card

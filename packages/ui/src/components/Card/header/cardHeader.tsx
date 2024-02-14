@@ -1,27 +1,17 @@
 import classNames from 'classnames'
 import React from 'react'
 
-import { IconProps } from '@open-condo/icons'
-
-import { CARD_CLASS_PREFIX } from './constants'
-import { ProgressIndicator, ProgressIndicatorProps } from './progressIndicator'
-import { renderLink } from './utils'
-
 import { useBreakpoints } from '../../../hooks'
 import { Emoji, EmojiProps } from '../../Emoji'
+import { ProgressIndicator, ProgressIndicatorProps } from '../../ProgressIndicator'
 import { Space } from '../../Space'
 import { Tag, TagProps } from '../../Tag'
 import { Typography } from '../../Typography'
+import { CardLinkType, renderLink } from '../_utils'
+import { CARD_CLASS_PREFIX } from '../_utils/constants'
 
 import './cardHeader.less'
 
-
-type CardLinkType = {
-    href: string
-    label: string
-    PreIcon?: React.FC<IconProps>
-    AfterIcon?: React.FC<IconProps>
-}
 
 export type CardHeaderProps = {
     tag?: TagProps

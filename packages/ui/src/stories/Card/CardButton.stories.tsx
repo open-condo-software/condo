@@ -14,6 +14,7 @@ type StoryProps = Pick<CardButtonProps, 'accent' | 'disabled'> & {
     accent: boolean
     disabled: boolean
     headerTag: boolean
+    header: boolean
     headerProgressIndicator: boolean
     headerEmoji: boolean
     headerTitle: boolean
@@ -31,11 +32,12 @@ type StoryProps = Pick<CardButtonProps, 'accent' | 'disabled'> & {
 }
 
 export default {
-    title: 'Components/CardButton',
+    title: 'Components/Card',
     component: CardButton,
     args: {
         accent: false,
         disabled: false,
+        header: true,
         headerTag: true,
         headerProgressIndicator: true,
         headerEmoji: true,
@@ -56,6 +58,7 @@ export default {
 
 const Template: Story<StoryProps> = (props) => {
     const {
+        header,
         headerTag,
         headerProgressIndicator,
         headerEmoji,
@@ -78,8 +81,8 @@ const Template: Story<StoryProps> = (props) => {
         progressIndicator: headerProgressIndicator && { steps: ['done'] },
         emoji: headerEmoji && [{ symbol: 0x1F469 }, { symbol: 0x1F468 }],
         headingTitle: headerTitle && 'Resident App',
-        mainLink: headerMainLink && { href: '', label: 'Main link', AfterIcon: PlusCircle, PreIcon: PlusCircle },
-        secondLink: headerSecondLink && { href: '', label: 'Second link', AfterIcon: PlusCircle, PreIcon: PlusCircle },
+        mainLink: headerMainLink && { label: 'Main link', href: '#', AfterIcon: PlusCircle, PreIcon: PlusCircle },
+        secondLink: headerSecondLink && { label: 'Second link', href: '#', AfterIcon: PlusCircle, PreIcon: PlusCircle },
         image: headerImage && { src: 'https://i.imgur.com/ambPuQF.png', size: 'big' },
     })
 
@@ -88,8 +91,8 @@ const Template: Story<StoryProps> = (props) => {
         description: bodyDescription && 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
         image: bodyImage && { src: 'https://i.imgur.com/ambPuQF.png', style: { width: '120px', height: '150px', borderRadius: '10px', marginTop: '10px' } },
         caption: bodyCaption && 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-        mainLink: bodyMainLink && { href: '', label: 'Main link', AfterIcon: PlusCircle, PreIcon: PlusCircle },
-        secondLink: bodySecondLink && { href: '', label: 'Second Link', AfterIcon: PlusCircle, PreIcon: PlusCircle },
+        mainLink: bodyMainLink && { label: 'Main link', href: '#', AfterIcon: PlusCircle, PreIcon: PlusCircle },
+        secondLink: bodySecondLink && { label: 'Second link', href: '#', AfterIcon: PlusCircle, PreIcon: PlusCircle },
         button: bodyButton && { children: 'Body button', type: 'secondary' },
     })
 
@@ -97,7 +100,7 @@ const Template: Story<StoryProps> = (props) => {
         <div style={{ maxWidth: '400px' }}>
             <CardButton
                 {...props}
-                header={headerProps}
+                header={header ? headerProps : undefined}
                 body={body ? bodyProps : undefined}
             />
         </div>

@@ -3,12 +3,12 @@ import React from 'react'
 
 export type EmojiProps = {
     className?: string
-    label?: string
+    ariaLabel?: string
     symbol: number
 }
 
-const Emoji: React.FC<EmojiProps> = React.memo(({ className, label, symbol }) =>
-    <span className={className} role='img' aria-label={label} style={{ fontSize: '20px' }}>
+const Emoji: React.FC<EmojiProps> = React.memo(({ className, ariaLabel, symbol }) =>
+    <span className={className} role='img' aria-label={ariaLabel} style={{ fontSize: '20px' }}>
         {String.fromCodePoint(symbol)}
     </span>
 )

@@ -7,19 +7,28 @@ import { Typography } from '../../Typography'
 
 
 export type CardLinkType = {
-    href: string
+    LinkWrapper?: React.FC<{ children: React.ReactElement, href: string }>
     label: string
+    href: string
     PreIcon?: React.FC<IconProps>
     AfterIcon?: React.FC<IconProps>
 }
 
 export const renderLink = (linkProps: CardLinkType) => {
-    const { PreIcon, AfterIcon, href, label } = linkProps
+    const { PreIcon, AfterIcon, LinkWrapper, label, href } = linkProps
 
     return (
         <Space size={8} direction='horizontal' align='center'>
             {PreIcon && <PreIcon size='small' />}
-            <Typography.Link href={href}>{label}</Typography.Link>
+            {
+                LinkWrapper ? (
+                    <LinkWrapper href={href}>
+                        <Typography.Link href={href}>{label}</Typography.Link>
+                    </LinkWrapper>
+                ) : (
+                    <Typography.Link href={href}>{label}</Typography.Link>
+                )
+            }
             {AfterIcon && <AfterIcon size='small' />}
         </Space>
     )

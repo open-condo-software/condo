@@ -1,15 +1,15 @@
 import classNames from 'classnames'
 import React from 'react'
 
-import './cardCheckbox.less'
-import { CardBody, CardBodyProps } from './_utils/cardBody'
-import { CardHeader, CardHeaderProps } from './_utils/cardHeader'
-import { CARD_CLASS_PREFIX } from './_utils/constants'
-import { Card, CardProps } from './card'
+import '../checkbox/cardCheckbox.less'
+import { CARD_CLASS_PREFIX } from '../_utils/constants'
+import { CardBody, CardBodyProps } from '../body/cardBody'
+import { Card, CardProps } from '../card'
+import { CardHeader, CardHeaderProps } from '../header/cardHeader'
 
 
 export type CardButtonProps = Pick<CardProps, 'accent' | 'disabled'> & {
-    header: CardHeaderProps
+    header?: CardHeaderProps
     body?: CardBodyProps
 }
 
@@ -31,7 +31,7 @@ const CardButton = React.forwardRef<HTMLDivElement, CardButtonProps>((props, ref
             ref={ref}
             className={className}
             hoverable
-            title={<CardHeader {...header} />}
+            title={header && <CardHeader {...header} />}
         >
             {body && <CardBody {...body}/>}
         </Card>

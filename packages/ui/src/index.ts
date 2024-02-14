@@ -62,6 +62,9 @@ export type { TourStepProps } from './components/Tour'
 
 export { Typography } from './components/Typography'
 
+export { ProgressIndicator } from './components/ProgressIndicator'
+export type { ProgressIndicatorProps, ProgressIndicatorStep } from './components/ProgressIndicator'
+
 export type {
     TypographyType,
     TypographyTextProps,
