@@ -60,6 +60,7 @@ function prepareHistoryRecordFields (listKey, listFields, historyField, ignoreFi
             type: 'HiddenRelationship',
             ref: field.ref,
         }),
+        RegexplessText: (field) => ({ type: 'Text' }),
     }
     const ignoreTypes = ignoreFieldTypes || []
     const getFieldType = (field) => get(field, 'type.type', get(field, 'type'))
