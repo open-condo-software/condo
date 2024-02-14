@@ -63,12 +63,18 @@ function convertStringToTypes (schema) {
         if (fieldObj && !isObject(fieldObj)) throw new Error(`convertStringToTypes(): field "${field}" is not an object like!`)
         const type = fieldObj.type
         if (!type) throw new Error(`convertStringToTypes(): field "${field}" no "type" attr`)
+        let ks5type
+        let typeName
         if (isString(type)) {
             // convert to object!
-            const ks5type = mapping[type]
-            if (!ks5type) throw new Error(`convertStringToTypes(): field "${field}" unknown "type" == ${type}`)
-            fieldObj['type'] = mapping[type]
+            typeName = type
+        } else if (isObject(type)) {
+            typeName = get(type, 'type')
         }
+
+        ks5type = get(mapping, typeName)
+        if (!ks5type) throw new Error(`convertStringToTypes(): field "${field}" unknown "type" == ${typeName}`)
+        fieldObj['type'] = ks5type
     })
     return schema
 }
