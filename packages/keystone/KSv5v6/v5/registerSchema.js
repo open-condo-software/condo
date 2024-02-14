@@ -1,5 +1,7 @@
 const { get, isObject, isString } = require('lodash')
 
+const { RegexplessText } = require('@open-condo/keystone/fields')
+
 const { GQL_SCHEMA_TYPES, GQL_CUSTOM_SCHEMA_TYPE, GQL_LIST_SCHEMA_TYPE } = require('../../schema')
 
 function _defaultAdminUiColumns (fields) {
@@ -42,7 +44,7 @@ function convertStringToTypes (schema) {
         Relationship,
         Select,
         Slug,
-        Text,
+        Text: RegexplessText,
         Url,
         Uuid,
         Virtual,
