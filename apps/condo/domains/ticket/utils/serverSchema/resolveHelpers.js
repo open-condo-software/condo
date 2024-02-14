@@ -74,8 +74,9 @@ function calculateStatusUpdatedAt (resolvedData, existedStatusId, resolvedStatus
 function calculateCompletedAt (resolvedData, existedStatus, resolvedStatus) {
     const now = new Date().toISOString()
     const resolvedStatusType = get(resolvedStatus, 'type')
+    const existedStatusType = get(existedStatus, 'type')
 
-    if (resolvedStatusType === COMPLETED_STATUS_TYPE) {
+    if (resolvedStatusType === COMPLETED_STATUS_TYPE && existedStatusType !== COMPLETED_STATUS_TYPE) {
         resolvedData['completedAt'] = now
     }
 }
