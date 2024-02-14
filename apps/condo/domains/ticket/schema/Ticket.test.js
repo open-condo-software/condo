@@ -2435,6 +2435,28 @@ describe('Ticket', () => {
                 expect(updatedTicket2.completedAt).toMatch(DATETIME_RE)
                 expect(dayjs(updatedTicket2.completedAt).isAfter(updatedTicket.completedAt)).toBeTruthy()
             })
+
+            test('should not be updated automatically when ticket status was "completed" before change', async () => {
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
+                const [ticket] = await createTestTicket(admin, organization, property)
+
+                expect(ticket.completedAt).toBeNull()
+
+                const [updatedTicket] = await updateTestTicket(admin, ticket.id, {
+                    status: { connect: { id: STATUS_IDS.COMPLETED } },
+                })
+
+                expect(updatedTicket.completedAt).toBeDefined()
+                expect(updatedTicket.completedAt).toMatch(DATETIME_RE)
+
+                const [updatedTicket1] = await updateTestTicket(admin, ticket.id, {
+                    status: { connect: { id: STATUS_IDS.COMPLETED } },
+                })
+
+                expect(updatedTicket1.completedAt).toEqual(updatedTicket.completedAt)
+                expect(dayjs(updatedTicket1.completedAt).isSame(updatedTicket.completedAt)).toBeTruthy()
+            })
         })
 
         describe('deferredUntil and status', () => {
