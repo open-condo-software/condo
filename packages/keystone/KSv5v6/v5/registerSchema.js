@@ -28,7 +28,7 @@ function applyKeystoneV5AdminFixes (schema) {
 
 /** @deprecated it's part of internal API use prepareKeystone instead */
 function convertStringToTypes (schema) {
-    const { Text, Relationship, Integer, Float, Select, Slug, Virtual, Url, Uuid, Checkbox, DateTimeUtc, CalendarDay, Decimal, Password } = require('@keystonejs/fields')
+    const { Relationship, Integer, Float, Select, Slug, Virtual, Url, Uuid, Checkbox, DateTimeUtc, CalendarDay, Decimal, Password } = require('@keystonejs/fields')
     const { AuthedRelationship } = require('@keystonejs/fields-authed-relationship')
     const { Json, SignedDecimal, AutoIncrementInteger, LocalizedText, DateInterval, FileWithUTF8Name } = require('../../fields')
     const { HiddenRelationship } = require('../../plugins/utils/HiddenRelationship')
