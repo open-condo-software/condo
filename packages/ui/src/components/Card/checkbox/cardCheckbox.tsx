@@ -1,5 +1,5 @@
 import classNames from 'classnames'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import './cardCheckbox.less'
 import { Checkbox } from '../../Checkbox'
@@ -11,28 +11,52 @@ import { CardHeader, CardHeaderProps } from '../header/cardHeader'
 import type { CardProps } from '../card'
 
 
-export type CardCheckboxProps = Pick<CardProps, 'disabled' | 'onClick'> & {
+export type CardCheckboxProps = Pick<CardProps, 'disabled'> & {
     header?: Omit<CardHeaderProps, 'tag' | 'mainLink' | 'secondLink'>
     body?: CardBodyProps
+    defaultChecked?: boolean
+    onChange?: (newValue: boolean) => void
+    checked?: boolean
 }
 
 const CardCheckbox = React.forwardRef<HTMLDivElement, CardCheckboxProps>((props, ref) => {
     const {
         header,
         body,
-        onClick,
+        defaultChecked,
+        onChange,
+        checked: checkedFromProps,
         ...rest
     } = props
 
-    const [checked, setChecked] = useState<boolean>(false)
+    const initialChecked = useMemo(() => {
+        if (typeof checkedFromProps !== 'undefined') {
+            return checkedFromProps
+        } else if (typeof defaultChecked !== 'undefined') {
+            return defaultChecked
+        } else return false
+    }, [checkedFromProps, defaultChecked])
 
-    const handleClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
-        setChecked(prev => !prev)
+    const [checked, setChecked] = useState<boolean>(initialChecked)
 
-        if (onClick) {
-            onClick(event)
+    useEffect(() => {
+        if (typeof checkedFromProps !== 'undefined') {
+            setChecked(checkedFromProps)
+
+            if (onChange) {
+                onChange(checkedFromProps)
+            }
         }
-    }, [onClick])
+    }, [checkedFromProps, onChange])
+
+    const handleClick = useCallback(() => {
+        const newValue = !checked
+        setChecked(newValue)
+
+        if (onChange) {
+            onChange(newValue)
+        }
+    }, [checked, onChange])
 
     const className = classNames({
         [`${CARD_CLASS_PREFIX}-checked`]: checked,
@@ -73,8 +97,8 @@ const CardCheckbox = React.forwardRef<HTMLDivElement, CardCheckboxProps>((props,
         <Card
             {...rest}
             ref={ref}
-            className={className}
             onClick={handleClick}
+            className={className}
             hoverable
             title={title}
         >
