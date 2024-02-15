@@ -370,7 +370,7 @@ const Invoice = new GQLListSchema('Invoice', {
                     deletedAt: null,
                     invoiceStatus: CONTEXT_FINISHED_STATUS,
                 })
-                const integration = await getById('AcquiringIntegration', acquiringContext.integration)
+                const integration = await getById('AcquiringIntegration', get(acquiringContext, 'integration'))
                 return get(integration, 'hostUrl', null)
             },
             access: { create: false, read: true, update: false },

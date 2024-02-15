@@ -1,5 +1,7 @@
 const { get, isObject, isString } = require('lodash')
 
+const { Text } = require('@open-condo/keystone/fields')
+
 const { GQL_SCHEMA_TYPES, GQL_CUSTOM_SCHEMA_TYPE, GQL_LIST_SCHEMA_TYPE } = require('../../schema')
 
 function _defaultAdminUiColumns (fields) {
@@ -26,7 +28,7 @@ function applyKeystoneV5AdminFixes (schema) {
 
 /** @deprecated it's part of internal API use prepareKeystone instead */
 function convertStringToTypes (schema) {
-    const { Text, Relationship, Integer, Float, Select, Slug, Virtual, Url, Uuid, Checkbox, DateTimeUtc, CalendarDay, Decimal, Password } = require('@keystonejs/fields')
+    const { Relationship, Integer, Float, Select, Slug, Virtual, Url, Uuid, Checkbox, DateTimeUtc, CalendarDay, Decimal, Password } = require('@keystonejs/fields')
     const { AuthedRelationship } = require('@keystonejs/fields-authed-relationship')
     const { Json, SignedDecimal, AutoIncrementInteger, LocalizedText, DateInterval, FileWithUTF8Name } = require('../../fields')
     const { HiddenRelationship } = require('../../plugins/utils/HiddenRelationship')
@@ -42,7 +44,7 @@ function convertStringToTypes (schema) {
         Relationship,
         Select,
         Slug,
-        Text,
+        Text: Text,
         Url,
         Uuid,
         Virtual,
@@ -61,12 +63,16 @@ function convertStringToTypes (schema) {
         if (fieldObj && !isObject(fieldObj)) throw new Error(`convertStringToTypes(): field "${field}" is not an object like!`)
         const type = fieldObj.type
         if (!type) throw new Error(`convertStringToTypes(): field "${field}" no "type" attr`)
+        let ks5type
         if (isString(type)) {
             // convert to object!
-            const ks5type = mapping[type]
+            ks5type = get(mapping, type)
             if (!ks5type) throw new Error(`convertStringToTypes(): field "${field}" unknown "type" == ${type}`)
-            fieldObj['type'] = mapping[type]
+        } else if (isObject(type)) {
+            ks5type = get(mapping, get(type, 'type'), type)
         }
+
+        fieldObj['type'] = ks5type
     })
     return schema
 }

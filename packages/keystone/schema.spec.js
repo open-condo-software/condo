@@ -1,5 +1,4 @@
-const { Text } = require('@keystonejs/fields')
-
+const { Text } = require('./fields')
 const { GQLListSchema, GQLCustomSchema, registerSchemas, unregisterAllSchemas } = require('./schema')
 
 const validateInput = async (ctx) => { await EVENT_LIST._emit('validate', ctx) }

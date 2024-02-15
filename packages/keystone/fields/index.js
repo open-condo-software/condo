@@ -7,6 +7,7 @@ const LocalizedText = require('./LocalizedText')
 const Options = require('./Options')
 const SignedDecimal = require('./SignedDecimal')
 const Stars = require('./Stars')
+const Text = require('./Text')
 
 module.exports = {
     Json,
@@ -18,4 +19,5 @@ module.exports = {
     DateInterval,
     AddressPartWithType,
     FileWithUTF8Name,
+    Text,
 }
