@@ -1,10 +1,9 @@
 const { DateTimeUtc } = require('@keystonejs/fields')
-const { Text } = require('@keystonejs/fields')
 const { cloneDeep } = require('lodash/lang')
 
 const { convertStringToTypes } = require('./registerSchema')
 
-const { Json, DateInterval, RegexplessText } = require('../../fields')
+const { Json, DateInterval, Text } = require('../../fields')
 const { GQLListSchema } = require('../../schema')
 
 const TestMessage = new GQLListSchema('TestMessage', {
@@ -99,7 +98,7 @@ test('convertStringToTypes()', () => {
     expect(schema.fields.deliveredAt.type).toBe(DateTimeUtc)
     expect(schema.fields.meta.type).toBe(Json)
     expect(schema.fields.interval.type).toBe(DateInterval)
-    expect(schema.fields.type.type).toBe(RegexplessText)
-    expect(schema.fields.type2.type).toBe(RegexplessText)
+    expect(schema.fields.type.type).toBe(Text)
+    expect(schema.fields.type2.type).toBe(Text)
     expect(schema.fields.type2.type).toMatchObject(schema.fields.type.type)
 })

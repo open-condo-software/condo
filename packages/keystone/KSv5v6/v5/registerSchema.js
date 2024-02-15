@@ -1,6 +1,6 @@
 const { get, isObject, isString } = require('lodash')
 
-const { RegexplessText } = require('@open-condo/keystone/fields')
+const { Text } = require('@open-condo/keystone/fields')
 
 const { GQL_SCHEMA_TYPES, GQL_CUSTOM_SCHEMA_TYPE, GQL_LIST_SCHEMA_TYPE } = require('../../schema')
 
@@ -44,7 +44,7 @@ function convertStringToTypes (schema) {
         Relationship,
         Select,
         Slug,
-        Text: RegexplessText,
+        Text: Text,
         Url,
         Uuid,
         Virtual,

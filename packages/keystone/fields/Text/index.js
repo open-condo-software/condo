@@ -14,7 +14,7 @@ class RegexplessKnexFieldAdapter extends Text.adapters.knex {
 }
 
 module.exports = {
-    type: 'RegexplessText',
+    type: 'Text',
     implementation: Text.implementation,
     views: Text.views,
     adapters: {

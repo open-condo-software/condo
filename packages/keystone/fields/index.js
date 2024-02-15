@@ -5,9 +5,9 @@ const FileWithUTF8Name = require('./FileWithUTF8Name')
 const Json = require('./Json')
 const LocalizedText = require('./LocalizedText')
 const Options = require('./Options')
-const RegexplessText = require('./RegexplessText')
 const SignedDecimal = require('./SignedDecimal')
 const Stars = require('./Stars')
+const Text = require('./Text')
 
 module.exports = {
     Json,
@@ -19,5 +19,5 @@ module.exports = {
     DateInterval,
     AddressPartWithType,
     FileWithUTF8Name,
-    RegexplessText,
+    Text,
 }
