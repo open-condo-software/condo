@@ -72305,7 +72305,7 @@ input RegisterBillingReceiptsInput {
 
 input SendNewBillingReceiptFilesNotificationsInput {
   dv: Int!
-  sender: JSON!
+  sender: SenderFieldInput!
   organization: OrganizationWhereUniqueInput!
   createdAfter: String!
   period: String!

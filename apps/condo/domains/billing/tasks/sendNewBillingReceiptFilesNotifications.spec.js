@@ -18,7 +18,6 @@ const {
     createTestBillingProperty,
     createTestBillingAccount,
     createTestBillingReceipt,
-    createTestBillingReceiptFile,
     updateTestBillingReceipt,
 } = require('@condo/domains/billing/utils/testSchema')
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
@@ -32,12 +31,6 @@ const { sendNewBillingReceiptFilesNotifications } = require('./sendNewBillingRec
 
 const { keystone } = index
 const sender = { dv: 1, fingerprint: 'test-billing-receipt-files' }
-
-function wait (timeout) {
-    return new Promise((resolve) => {
-        setTimeout(resolve, timeout)
-    })
-}
 
 async function createFile (filename, mimetype, content) {
     const stream = Readable.from(content)

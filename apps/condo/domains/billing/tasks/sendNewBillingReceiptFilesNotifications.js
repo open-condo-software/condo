@@ -45,7 +45,7 @@ async function prepareAttachments (files) {
 }
 
 async function sendNewBillingReceiptFilesNotifications ({ organizationId, organizationName, sender, period, watermark }) {
-    const { keystone: context } = await getSchemaCtx('BillingReceiptFile')
+    const { keystone: context } = getSchemaCtx('BillingReceiptFile')
 
     // load new billing receipt files
     const billingReceiptFiles = await loadListByChunks({
@@ -80,7 +80,7 @@ async function sendNewBillingReceiptFilesNotifications ({ organizationId, organi
         // destructuring receipt to build contact search conditions 
         const {
             account: { unitName, unitType },
-            property: { id: billingPropertyId },
+            property: { id: billingPropertyId, addressKey },
         } = receipt
         const billingProperty = await BillingProperty.getOne(context, { id: billingPropertyId })
 
@@ -91,7 +91,12 @@ async function sendNewBillingReceiptFilesNotifications ({ organizationId, organi
 
         // get contacts
         const contacts = await Contact.getAll(context, {
-            property: { id: billingProperty.property.id },
+            property: {
+                OR: [
+                    { addressKey },
+                    { id: billingProperty.property.id },
+                ],
+            },
             email_not: null,
             unitName,
             unitType,

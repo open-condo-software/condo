@@ -71737,7 +71737,7 @@ export enum SendMessageType {
 
 export type SendNewBillingReceiptFilesNotificationsInput = {
   dv: Scalars['Int'];
-  sender: Scalars['JSON'];
+  sender: SenderFieldInput;
   organization: OrganizationWhereUniqueInput;
   createdAfter: Scalars['String'];
   period: Scalars['String'];

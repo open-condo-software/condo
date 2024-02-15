@@ -53,7 +53,7 @@ const SendNewBillingReceiptFilesNotificationsService = new GQLCustomSchema('Send
     types: [
         {
             access: true,
-            type: 'input SendNewBillingReceiptFilesNotificationsInput { dv: Int!, sender: JSON!, organization: OrganizationWhereUniqueInput!, createdAfter: String!, period: String! }',
+            type: 'input SendNewBillingReceiptFilesNotificationsInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, createdAfter: String!, period: String! }',
         },
         {
             access: true,
