@@ -114,6 +114,7 @@ const IncidentHint: React.FC<IncidentHintProps> = (props) => {
 
 type FetchIncidentsType = (props: { sortBy: SortIncidentsBy[], incidentIds: string[], organizationId: string, status?: IncidentStatusType, workFinishedInLastDays?: number }) => Promise<IIncident[]>
 
+const WORK_FINISHED_IN_LAST_DAYS = 7
 
 /**
  *
@@ -137,19 +138,33 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
     const [allIncidents, setAllIncidents] = useState<IIncident[]>([])
     const [incidentsToShow, setIncidentsToShow] = useState<IIncident[]>([])
 
-    const { refetch: refetchAllIncidentProperties } = IncidentProperty.useAllObjects({}, { skip: true })
+    const { refetch: refetchIncidentProperties } = IncidentProperty.useObjects({}, { skip: true })
     const { refetch: refetchIncidents } = Incident.useObjects({}, { skip: true })
-    const { refetch: refetchAllIncidentClassifierIncidents } = IncidentClassifierIncident.useAllObjects({}, { skip: true })
+    const { refetch: refetchIncidentClassifierIncidents } = IncidentClassifierIncident.useObjects({}, { skip: true })
 
     const categoryId = useMemo(() => get(classifier, 'category.id', null), [classifier]) as string | null
     const problemId = useMemo(() => get(classifier, 'problem.id', null), [classifier]) as string | null
 
-    const fetchIncidentProperties = useCallback(async (propertyId: string) => {
-        const res = await refetchAllIncidentProperties({
+    const fetchIncidentProperties = useCallback(async (propertyId: string, organizationId: string) => {
+        const res = await refetchIncidentProperties({
             where: {
                 property: {
                     id: propertyId,
                     deletedAt: null,
+                },
+                incident: {
+                    organization: { id: organizationId },
+                    OR: [
+                        {
+                            AND: [{ status: IncidentStatusType.Actual }],
+                        },
+                        {
+                            AND: [{
+                                status: IncidentStatusType.NotActual,
+                                workFinish_gte: dayjs().subtract(WORK_FINISHED_IN_LAST_DAYS, 'days').toISOString(),
+                            }],
+                        },
+                    ],
                 },
                 deletedAt: null,
             },
@@ -214,7 +229,7 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
             }
         }
 
-        const res = await refetchAllIncidentClassifierIncidents({
+        const res = await refetchIncidentClassifierIncidents({
             where,
         })
 
@@ -222,7 +237,7 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
     }, [])
 
     const getAllIncidents = useCallback(async (propertyId: string, organizationId: string) => {
-        const incidentProperties = await fetchIncidentProperties(propertyId)
+        const incidentProperties = await fetchIncidentProperties(propertyId, organizationId)
         const incidentIds = incidentProperties.map(item => item.incident.id)
         const actualIncidents = await fetchIncidents({
             sortBy: [SortIncidentsBy.WorkStartAsc, SortIncidentsBy.CreatedAtAsc],
@@ -235,7 +250,7 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
             incidentIds,
             organizationId,
             status: IncidentStatusType.NotActual,
-            workFinishedInLastDays: 7,
+            workFinishedInLastDays: WORK_FINISHED_IN_LAST_DAYS,
         })
         const incidents = [...actualIncidents, ...notActualLastIncidents]
         setAllIncidents(incidents)
