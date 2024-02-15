@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { MouseEventHandler } from 'react'
 
 import { IconProps } from '@open-condo/icons'
 
@@ -17,16 +17,18 @@ export type CardLinkType = {
 export const renderLink = (linkProps: CardLinkType) => {
     const { PreIcon, AfterIcon, LinkWrapper, label, href } = linkProps
 
+    const handleLinkClick: MouseEventHandler = e => e.stopPropagation()
+
     return (
         <Space size={8} direction='horizontal' align='center'>
             {PreIcon && <PreIcon size='small' />}
             {
                 LinkWrapper ? (
                     <LinkWrapper href={href}>
-                        <Typography.Link href={href}>{label}</Typography.Link>
+                        <Typography.Link href={href} onClick={handleLinkClick}>{label}</Typography.Link>
                     </LinkWrapper>
                 ) : (
-                    <Typography.Link href={href}>{label}</Typography.Link>
+                    <Typography.Link href={href} onClick={handleLinkClick}>{label}</Typography.Link>
                 )
             }
             {AfterIcon && <AfterIcon size='small' />}

@@ -1,5 +1,5 @@
 import { Meta, Story } from '@storybook/react'
-import {  pickBy } from 'lodash'
+import { pickBy } from 'lodash'
 import React from 'react'
 
 import { PlusCircle } from '@open-condo/icons'

@@ -20,18 +20,19 @@ const CardCheckbox = React.forwardRef<HTMLDivElement, CardCheckboxProps>((props,
     const {
         header,
         body,
+        onClick,
         ...rest
     } = props
 
-    const [checked, setChecked] = useState<boolean>()
+    const [checked, setChecked] = useState<boolean>(false)
 
     const handleClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
         setChecked(prev => !prev)
 
-        if (props.onClick) {
-            props.onClick(event)
+        if (onClick) {
+            onClick(event)
         }
-    }, [props])
+    }, [onClick])
 
     const className = classNames({
         [`${CARD_CLASS_PREFIX}-checked`]: checked,
