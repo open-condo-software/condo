@@ -47,7 +47,7 @@ const CardCheckbox = React.forwardRef<HTMLDivElement, CardCheckboxProps>((props,
                 onChange(checkedFromProps)
             }
         }
-    }, [checkedFromProps, onChange])
+    }, [checkedFromProps])
 
     const handleClick = useCallback(() => {
         const newValue = !checked
