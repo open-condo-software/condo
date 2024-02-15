@@ -1077,6 +1077,48 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@app/eds-mosreg-integration@workspace:apps/eds-mosreg-integration":
+  version: 0.0.0-use.local
+  resolution: "@app/eds-mosreg-integration@workspace:apps/eds-mosreg-integration"
+  dependencies:
+    "@eds-mosreg-integration/domains": "link:./domains"
+    "@keystonejs/adapter-knex": ^13.2.0
+    "@keystonejs/adapter-mongoose": ^11.2.0
+    "@keystonejs/adapter-prisma": ^3.2.0
+    "@keystonejs/app-admin-ui": ^7.5.0
+    "@keystonejs/app-graphql": ^6.3.0
+    "@keystonejs/app-graphql-playground": ^5.2.2
+    "@keystonejs/auth-password": ^6.1.0
+    "@keystonejs/fields": ^22.1.3
+    "@keystonejs/fields-color": ^1.1.0
+    "@keystonejs/fields-content": ^9.1.0
+    "@keystonejs/fields-markdown": ^5.3.2
+    "@keystonejs/fields-wysiwyg-tinymce": ^5.4.0
+    "@keystonejs/file-adapters": ^7.1.0
+    "@keystonejs/keystone": ^19.3.1
+    "@keystonejs/list-plugins": ^8.1.0
+    "@keystonejs/server-side-graphql-client": ^2.1.0
+    "@keystonejs/utils": ^6.1.0
+    "@open-condo/codegen": "workspace:^"
+    "@types/jest": ^29.4.0
+    "@types/node": ^16
+    axios: ^1.6.7
+    babel-jest: ^29.7.0
+    cheerio: ^1.0.0-rc.12
+    cross-env: ^7.0.3
+    dayjs: ^1.10.6
+    express: ^4.17.1
+    jest: ^29.7.0
+    jest-environment-jsdom: ^29.7.0
+    jest-jasmine2: ^29.7.0
+    jest-watch-typeahead: ^0.6.1
+    lodash: ^4.17.21
+    node-fetch: ^2.6.7
+    node-telegram-bot-api: ^0.64.0
+    uuid: ^8.3.0
+  languageName: unknown
+  linkType: soft
+
 "@app/eps@workspace:apps/eps":
   version: 0.0.0-use.local
   resolution: "@app/eps@workspace:apps/eps"
@@ -7192,6 +7234,12 @@ __metadata:
   checksum: 2176d301cc258ea5c2324402997cf8134ebb212469c0d397591636cea8d3c02f2b3cf9fd58dcb748c7a0dade77ebdc1b10284fa63e608c033a1db52fddc69918
   languageName: node
   linkType: hard
+
+"@eds-mosreg-integration/domains@link:./domains::locator=%40app%2Feds-mosreg-integration%40workspace%3Aapps%2Feds-mosreg-integration":
+  version: 0.0.0-use.local
+  resolution: "@eds-mosreg-integration/domains@link:./domains::locator=%40app%2Feds-mosreg-integration%40workspace%3Aapps%2Feds-mosreg-integration"
+  languageName: node
+  linkType: soft
 
 "@emotion/babel-plugin@npm:^11.10.0":
   version: 11.10.0
@@ -18641,6 +18689,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"axios@npm:^1.6.7":
+  version: 1.6.7
+  resolution: "axios@npm:1.6.7"
+  dependencies:
+    follow-redirects: ^1.15.4
+    form-data: ^4.0.0
+    proxy-from-env: ^1.1.0
+  checksum: 87d4d429927d09942771f3b3a6c13580c183e31d7be0ee12f09be6d5655304996bb033d85e54be81606f4e89684df43be7bf52d14becb73a12727bf33298a082
+  languageName: node
+  linkType: hard
+
 "babel-code-frame@npm:^6.26.0":
   version: 6.26.0
   resolution: "babel-code-frame@npm:6.26.0"
@@ -20800,6 +20859,35 @@ __metadata:
   languageName: node
   linkType: hard
 
+"cheerio-select@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "cheerio-select@npm:2.1.0"
+  dependencies:
+    boolbase: ^1.0.0
+    css-select: ^5.1.0
+    css-what: ^6.1.0
+    domelementtype: ^2.3.0
+    domhandler: ^5.0.3
+    domutils: ^3.0.1
+  checksum: 843d6d479922f28a6c5342c935aff1347491156814de63c585a6eb73baf7bb4185c1b4383a1195dca0f12e3946d737c7763bcef0b9544c515d905c5c44c5308b
+  languageName: node
+  linkType: hard
+
+"cheerio@npm:^1.0.0-rc.12":
+  version: 1.0.0-rc.12
+  resolution: "cheerio@npm:1.0.0-rc.12"
+  dependencies:
+    cheerio-select: ^2.1.0
+    dom-serializer: ^2.0.0
+    domhandler: ^5.0.3
+    domutils: ^3.0.1
+    htmlparser2: ^8.0.1
+    parse5: ^7.0.0
+    parse5-htmlparser2-tree-adapter: ^7.0.0
+  checksum: 5d4c1b7a53cf22d3a2eddc0aff70cf23cbb30d01a4c79013e703a012475c02461aa1fcd99127e8d83a02216386ed6942b2c8103845fd0812300dd199e6e7e054
+  languageName: node
+  linkType: hard
+
 "chokidar@npm:2.1.8, chokidar@npm:^2.1.8":
   version: 2.1.8
   resolution: "chokidar@npm:2.1.8"
@@ -22719,6 +22807,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"css-select@npm:^5.1.0":
+  version: 5.1.0
+  resolution: "css-select@npm:5.1.0"
+  dependencies:
+    boolbase: ^1.0.0
+    css-what: ^6.1.0
+    domhandler: ^5.0.2
+    domutils: ^3.0.1
+    nth-check: ^2.0.1
+  checksum: 2772c049b188d3b8a8159907192e926e11824aea525b8282981f72ba3f349cf9ecd523fdf7734875ee2cb772246c22117fc062da105b6d59afe8dcd5c99c9bda
+  languageName: node
+  linkType: hard
+
 "css-selector-tokenizer@npm:^0.7.0":
   version: 0.7.3
   resolution: "css-selector-tokenizer@npm:0.7.3"
@@ -22759,7 +22860,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"css-what@npm:^6.0.1":
+"css-what@npm:^6.0.1, css-what@npm:^6.1.0":
   version: 6.1.0
   resolution: "css-what@npm:6.1.0"
   checksum: b975e547e1e90b79625918f84e67db5d33d896e6de846c9b584094e529f0c63e2ab85ee33b9daffd05bff3a146a1916bec664e18bb76dd5f66cbff9fc13b2bbe
@@ -24039,7 +24140,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"domhandler@npm:^5.0, domhandler@npm:^5.0.1, domhandler@npm:^5.0.2":
+"domhandler@npm:^5.0, domhandler@npm:^5.0.1, domhandler@npm:^5.0.2, domhandler@npm:^5.0.3":
   version: 5.0.3
   resolution: "domhandler@npm:5.0.3"
   dependencies:
@@ -26708,6 +26809,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"follow-redirects@npm:^1.15.4":
+  version: 1.15.5
+  resolution: "follow-redirects@npm:1.15.5"
+  peerDependenciesMeta:
+    debug:
+      optional: true
+  checksum: 5ca49b5ce6f44338cbfc3546823357e7a70813cecc9b7b768158a1d32c1e62e7407c944402a918ea8c38ae2e78266312d617dc68783fac502cbb55e1047b34ec
+  languageName: node
+  linkType: hard
+
 "for-each@npm:^0.3.3":
   version: 0.3.3
   resolution: "for-each@npm:0.3.3"
@@ -28988,6 +29099,18 @@ __metadata:
     domutils: ^3.0.1
     entities: ^4.3.0
   checksum: 06d5c71e8313597722bc429ae2a7a8333d77bd3ab07ccb916628384b37332027b047f8619448d8f4a3312b6609c6ea3302a4e77435d859e9e686999e6699ca39
+  languageName: node
+  linkType: hard
+
+"htmlparser2@npm:^8.0.1":
+  version: 8.0.2
+  resolution: "htmlparser2@npm:8.0.2"
+  dependencies:
+    domelementtype: ^2.3.0
+    domhandler: ^5.0.3
+    domutils: ^3.0.1
+    entities: ^4.4.0
+  checksum: 29167a0f9282f181da8a6d0311b76820c8a59bc9e3c87009e21968264c2987d2723d6fde5a964d4b7b6cba663fca96ffb373c06d8223a85f52a6089ced942700
   languageName: node
   linkType: hard
 
@@ -37497,6 +37620,16 @@ __metadata:
   version: 1.3.0
   resolution: "parse-numeric-range@npm:1.3.0"
   checksum: 289ca126d5b8ace7325b199218de198014f58ea6895ccc88a5247491d07f0143bf047f80b4a31784f1ca8911762278d7d6ecb90a31dfae31da91cc1a2524c8ce
+  languageName: node
+  linkType: hard
+
+"parse5-htmlparser2-tree-adapter@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "parse5-htmlparser2-tree-adapter@npm:7.0.0"
+  dependencies:
+    domhandler: ^5.0.2
+    parse5: ^7.0.0
+  checksum: fc5d01e07733142a1baf81de5c2a9c41426c04b7ab29dd218acb80cd34a63177c90aff4a4aee66cf9f1d0aeecff1389adb7452ad6f8af0a5888e3e9ad6ef733d
   languageName: node
   linkType: hard
 
