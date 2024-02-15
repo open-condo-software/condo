@@ -73,6 +73,12 @@ const VALIDATE_QRCODE_MUTATION = gql`
     }
 `
 
+const SEND_NEW_BILLING_RECEIPT_FILES_NOTIFICATIONS_MUTATION = gql`
+    mutation sendNewBillingReceiptFilesNotifications ($data: SendNewBillingReceiptFilesNotificationsInput!) {
+        result: sendNewBillingReceiptFilesNotifications(data: $data) { taskStarted }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -93,5 +99,6 @@ module.exports = {
     SEND_NEW_RECEIPT_MESSAGES_TO_RESIDENT_SCOPES_MUTATION,
     BillingReceiptFile,
     VALIDATE_QRCODE_MUTATION,
+    SEND_NEW_BILLING_RECEIPT_FILES_NOTIFICATIONS_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

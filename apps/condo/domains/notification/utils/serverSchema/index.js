@@ -28,6 +28,7 @@ const {
     NotificationUserSetting: NotificationUserSettingGQL,
 } = require('@condo/domains/notification/gql')
 const { TelegramUserChat: TelegramUserChatGQL } = require('@condo/domains/notification/gql')
+const { NotificationAnonymousSetting: NotificationAnonymousSettingGQL } = require('@condo/domains/notification/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const logger = getLogger('notification/serverSchema')
@@ -166,6 +167,7 @@ const MessageOrganizationBlackList = generateServerUtils(MessageOrganizationBlac
 const MessageBatch = generateServerUtils(MessageBatchGQL)
 const NotificationUserSetting = generateServerUtils(NotificationUserSettingGQL)
 const TelegramUserChat = generateServerUtils(TelegramUserChatGQL)
+const NotificationAnonymousSetting = generateServerUtils(NotificationAnonymousSettingGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -182,5 +184,6 @@ module.exports = {
     MessageBatch,
     NotificationUserSetting,
     TelegramUserChat,
+    NotificationAnonymousSetting,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

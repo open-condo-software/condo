@@ -31,7 +31,11 @@ const { createTestProperty } = require('@condo/domains/property/utils/testSchema
 const { registerServiceConsumerByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithResidentUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
-const { REGISTER_BILLING_RECEIPTS_MUTATION, SEND_NEW_RECEIPT_MESSAGES_TO_RESIDENT_SCOPES_MUTATION } = require('@condo/domains/billing/gql')
+const {
+    REGISTER_BILLING_RECEIPTS_MUTATION,
+    SEND_NEW_RECEIPT_MESSAGES_TO_RESIDENT_SCOPES_MUTATION,
+    SEND_NEW_BILLING_RECEIPT_FILES_NOTIFICATIONS_MUTATION,
+} = require('@condo/domains/billing/gql')
 const { VALIDATE_QRCODE_MUTATION } = require('@condo/domains/billing/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -873,6 +877,20 @@ async function makeClientWithResidentAndServiceConsumer (property, billingAccoun
     return residentUser
 }
 
+async function sendNewBillingReceiptFilesNotificationsByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(SEND_NEW_BILLING_RECEIPT_FILES_NOTIFICATIONS_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
 
 module.exports = {
     BillingIntegration, createTestBillingIntegration, updateTestBillingIntegration,
@@ -902,6 +920,7 @@ module.exports = {
     BillingReceiptFile, createTestBillingReceiptFile, updateTestBillingReceiptFile,
     PUBLIC_FILE, PRIVATE_FILE,
     validateQRCodeByTestClient,
+    sendNewBillingReceiptFilesNotificationsByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 

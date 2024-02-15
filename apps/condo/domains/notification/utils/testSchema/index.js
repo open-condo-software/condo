@@ -34,6 +34,9 @@ const {
 
 const { NotificationUserSetting: NotificationUserSettingGQL } = require('@condo/domains/notification/gql')
 const { TelegramUserChat: TelegramUserChatGQL } = require('@condo/domains/notification/gql')
+const { NotificationAnonymousSetting: NotificationAnonymousSettingGQL } = require('@condo/domains/notification/gql')
+const { BILLING_RECEIPT_FILE_ADDED_TYPE, EMAIL_TRANSPORT } = require("@condo/domains/notification/constants/constants");
+const { createTestEmail, createTestPhone } = require('@condo/domains/user/utils/testSchema')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Message = generateGQLTestUtils(MessageGQL)
@@ -45,6 +48,7 @@ const MessageBatch = generateGQLTestUtils(MessageBatchGQL)
 
 const NotificationUserSetting = generateGQLTestUtils(NotificationUserSettingGQL)
 const TelegramUserChat = generateGQLTestUtils(TelegramUserChatGQL)
+const NotificationAnonymousSetting = generateGQLTestUtils(NotificationAnonymousSettingGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const lang = 'en'
@@ -349,6 +353,49 @@ async function updateTestTelegramUserChat (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestNotificationAnonymousSetting (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const data = {
+        email: createTestEmail(),
+        phone: createTestPhone(),
+        messageType: BILLING_RECEIPT_FILE_ADDED_TYPE,
+        messageTransport: EMAIL_TRANSPORT,
+        isEnabled: false,
+    }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...data,
+        ...extraAttrs,
+    }
+    const obj = await NotificationAnonymousSetting.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestNotificationAnonymousSetting (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const data = {
+        email: createTestEmail(),
+        messageType: BILLING_RECEIPT_FILE_ADDED_TYPE,
+        messageTransport: EMAIL_TRANSPORT,
+        isEnabled: false,
+    }
+    const attrs = {
+        dv: 1,
+        sender,
+        ...data,
+        ...extraAttrs,
+    }
+    const obj = await NotificationAnonymousSetting.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -363,5 +410,6 @@ module.exports = {
     MessageBatch, createTestMessageBatch, updateTestMessageBatch,
     NotificationUserSetting, createTestNotificationUserSetting, updateTestNotificationUserSetting,
     TelegramUserChat, createTestTelegramUserChat, updateTestTelegramUserChat,
+    NotificationAnonymousSetting, createTestNotificationAnonymousSetting, updateTestNotificationAnonymousSetting,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
