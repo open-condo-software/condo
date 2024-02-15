@@ -1,5 +1,6 @@
 const { GrowthBook } = require('@growthbook/growthbook')
 const { get } = require('lodash')
+const fetch = require('node-fetch')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
