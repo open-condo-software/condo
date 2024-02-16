@@ -3,8 +3,10 @@ const http2 = require('http2')
 const { isEmpty, get } = require('lodash')
 
 const { getLogger } = require('@open-condo/keystone/logging')
+const { getRedisClient } = require('@open-condo/keystone/redis')
 
 const { getCurrTimeStamp } = require('@condo/domains/common/utils/date')
+const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 const SESSION_LIFE_TIME = 60 * 60 * 24
 const SESSION_PING_INTERVAL = 60
@@ -26,6 +28,9 @@ class AppleSession {
     #session = null
     #expires = null
     #timerId = null
+    #redisGuard = new RedisGuard()
+    #redisClient = getRedisClient()
+    #channel = 'guard_lock:apple_session'
 
     constructor (url = APPLE_API_ENDPOINT) {
         this.disconnect = this.disconnect.bind(this)
@@ -46,9 +51,10 @@ class AppleSession {
     /**
      * Closes session if it is still alive, cleans session data and ping interval
      */
-    disconnect () {
+    async disconnect () {
         if (this.#timerId) clearInterval(this.#timerId)
         if (this.#validateSession()) this.#session.close()
+        await this.#redisGuard.unlock('apple_session', 'connect')
 
         this.#session = null
         this.#expires = null
@@ -66,25 +72,15 @@ class AppleSession {
      * Handles session errors, closes session, logs errors
      * @param error
      */
-    errorHandler (error) {
-        this.disconnect()
+    async errorHandler (error) {
+        await this.disconnect()
 
         logger.error({ msg: 'sessionErrorHandler', error })
     }
 
-    /**
-     * Created new session if not alive yet, forced or previous session is expired. Does nothing in other case.
-     * Sets error handler on some session events. Sets ping interval to check session health.
-     * @param force
-     */
-    #connect (force = false) {
-        const currTime = getCurrTimeStamp()
-        const isExpired = !isEmpty(this.#expires) && currTime >= this.#expires
-
-        if (this.#validateSession() && !force && !isExpired) return
-        if (isExpired) this.disconnect()
-
+    async #setupConnection (currTime) {
         this.#expires = currTime + SESSION_LIFE_TIME
+        await this.#redisGuard.lock('apple_session', 'connect')
         this.#session = http2.connect(this.#ENDPOINT)
 
         this.#session.on('error', this.errorHandler)
@@ -94,8 +90,34 @@ class AppleSession {
         this.#timerId = setInterval(this.pingHandler, SESSION_PING_INTERVAL * 1000)
     }
 
-    request (...args) {
-        this.#connect()
+    /**
+     * Created new session if not alive yet, forced or previous session is expired. Does nothing in other case.
+     * Sets error handler on some session events. Sets ping interval to check session health.
+     * @param force
+     */
+    async #connect (force = false) {
+        const currTime = getCurrTimeStamp()
+        const isExpired = !isEmpty(this.#expires) && currTime >= this.#expires
+
+        if (this.#validateSession() && !force && !isExpired) return
+        if (isExpired) this.disconnect()
+
+        const isLocked = await this.#redisGuard.isLocked('apple_session', 'connect')
+        if (isLocked) {
+            this.#redisClient.subscribe(this.#channel)
+            this.#redisClient.on('message', async (channel, message) => {
+                if (message === 'key_deleted') {
+                    await this.#setupConnection()
+                    return
+                }
+            })
+        } else {
+            await this.#setupConnection()
+        }
+    }
+
+    async request (...args) {
+        await this.#connect()
 
         return this.#session.request(...args)
     }
@@ -104,8 +126,8 @@ class AppleSession {
      * Creates session if no alive session available then returns current session object
      * @returns {session}
      */
-    get () {
-        this.#connect()
+    async get () {
+        await this.#connect()
 
         return this.#session
     }

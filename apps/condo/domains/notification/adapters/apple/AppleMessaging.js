@@ -137,6 +137,7 @@ class AppleMessaging {
             })
             stream.write(buffer)
             stream.end()
+            resolve()
         })
     }
 
