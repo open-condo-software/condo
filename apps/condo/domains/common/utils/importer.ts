@@ -13,23 +13,25 @@ export type ProcessedRow = {
     errors?: Array<string>
 }
 
+type ImporterErrorMessage = { title?: string, message: string }
+export type ImporterErrorMessages = {
+    invalidColumns: ImporterErrorMessage
+    tooManyRows: ImporterErrorMessage
+    invalidTypes: ImporterErrorMessage
+    normalization: ImporterErrorMessage
+    validation: ImporterErrorMessage
+    creation: ImporterErrorMessage
+    emptyRows: ImporterErrorMessage
+}
 export type ProgressUpdateHandler = (progress: number) => void
 export type FinishHandler = () => void
 export type SuccessProcessingHandler = (row: TableRow) => void
 export type FailProcessingHandler = (row: ProcessedRow) => void
-export type ErrorHandler = (error: Error) => void
+export type ErrorHandler = (errorMessage: ImporterErrorMessage) => void
 export type RowNormalizer = (row: TableRow) => Promise<Pick<ProcessedRow, 'addons' | 'shouldBeReported' | 'row'>>
 export type RowValidator = (row: ProcessedRow) => Promise<boolean>
 export type ObjectCreator = (row: ProcessedRow) => Promise<unknown>
 export type Columns = Array<ColumnInfo>
-export type ImporterErrorMessages = {
-    invalidColumns: string
-    tooManyRows: string
-    invalidTypes: string
-    normalization: string
-    validation: string
-    creation: string
-}
 export type MutationErrorsToMessagesType = { [errorCode: string]: string }
 
 interface IImporter {
@@ -91,16 +93,21 @@ export class Importer implements IImporter {
         this.tableData = data
         const [columns, ...body] = this.tableData
         if (!columns) {
-            this.errorHandler(new Error(this.errors.invalidColumns))
+            this.errorHandler(this.errors.invalidColumns)
             return
         }
         if (!this.isColumnsValid(columns)) {
-            this.errorHandler(new Error(this.errors.invalidColumns))
+            this.errorHandler(this.errors.invalidColumns)
+            return
+        }
+
+        if (body.length === 0) {
+            this.errorHandler(this.errors.emptyRows)
             return
         }
 
         if (body.length > this.maxTableLength) {
-            this.errorHandler(new Error(this.errors.tooManyRows))
+            this.errorHandler(this.errors.tooManyRows)
             return
         }
 
@@ -199,7 +206,7 @@ export class Importer implements IImporter {
 
         if (!this.parseAndValidateRow(row)) {
             if (this.failProcessingHandler) {
-                this.failProcessingHandler({ row, originalRow, errors: [this.errors.invalidTypes] })
+                this.failProcessingHandler({ row, originalRow, errors: [this.errors.invalidTypes.message] })
             }
             return this.createRecord(table)
         }
@@ -221,7 +228,7 @@ export class Importer implements IImporter {
             // NOTE: The browser console doesn't show all the properties of the error object,
             // so we use a little hack :)
             console.debug('Error details from "rowNormalizer":', { error, originalRow })
-            processedRow.errors.push(this.errors.normalization)
+            processedRow.errors.push(this.errors.normalization.message)
         }
 
         if (isNormalizedRow) {
@@ -231,7 +238,7 @@ export class Importer implements IImporter {
                 console.error('Unexpected error in "rowValidator"!')
                 console.error(error)
                 console.debug('Error details from "rowValidator":', { error, originalRow })
-                processedRow.errors.push(this.errors.validation)
+                processedRow.errors.push(this.errors.validation.message)
             }
         }
 
@@ -272,7 +279,7 @@ export class Importer implements IImporter {
                 }
 
                 if (processedRow.errors.length < 1) {
-                    processedRow.errors.push(this.errors.creation)
+                    processedRow.errors.push(this.errors.creation.message)
                 }
 
                 if (this.failProcessingHandler) {

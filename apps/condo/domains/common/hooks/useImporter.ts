@@ -47,12 +47,16 @@ export const useImporter = ({
     const maxTableLength: number = useFlagValue(BIGGER_LIMIT_FOR_IMPORT) || DEFAULT_RECORDS_LIMIT_FOR_IMPORT
     
     const intl = useIntl()
-    const TooManyRowsErrorMessage = intl.formatMessage({ id: 'TooManyRowsInTable' }, {
+    const TooManyRowsErrorTitle = intl.formatMessage({ id: 'TooManyRowsInTable.title' })
+    const TooManyRowsErrorMessage = intl.formatMessage({ id: 'TooManyRowsInTable.message' }, {
         value: maxTableLength,
     })
-    const InvalidHeadersErrorMessage = intl.formatMessage({ id: 'TableHasInvalidHeaders' }, {
+    const InvalidHeadersErrorTitle = intl.formatMessage({ id: 'TableHasInvalidHeaders.title' })
+    const InvalidHeadersErrorMessage = intl.formatMessage({ id: 'TableHasInvalidHeaders.message' }, {
         value: columns.map(column => `"${column.name}"`).join(', '),
     })
+    const EmptyRowsErrorTitle = intl.formatMessage({ id: 'EmptyRows.title' })
+    const EmptyRowsErrorMessage = intl.formatMessage({ id: 'EmptyRows.message' })
     const NotValidRowTypesMessage = intl.formatMessage({ id:'errors.import.InvalidColumnTypes' })
     const NormalizationErrorMessage = intl.formatMessage({ id:'errors.import.NormalizationError' })
     const ValidationErrorMessage = intl.formatMessage({ id:'errors.import.ValidationError' })
@@ -63,12 +67,13 @@ export const useImporter = ({
     const [isImported, setIsImported] = useState(false)
     const importer = useRef(null)
     const errors: ImporterErrorMessages = {
-        tooManyRows: TooManyRowsErrorMessage,
-        invalidColumns: InvalidHeadersErrorMessage,
-        invalidTypes: NotValidRowTypesMessage,
-        normalization: NormalizationErrorMessage,
-        validation: ValidationErrorMessage,
-        creation: CreationErrorMessage,
+        tooManyRows: { title: TooManyRowsErrorTitle, message: TooManyRowsErrorMessage },
+        invalidColumns: { title: InvalidHeadersErrorTitle, message: InvalidHeadersErrorMessage },
+        invalidTypes: { message: NotValidRowTypesMessage },
+        normalization: { message: NormalizationErrorMessage },
+        validation: { message: ValidationErrorMessage },
+        creation: { message: CreationErrorMessage },
+        emptyRows: { title: EmptyRowsErrorTitle, message: EmptyRowsErrorMessage },
     }
 
     const importData = useCallback((data) => {

@@ -337,6 +337,7 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
                     <Alert
                         type='error'
                         showIcon
+                        message={get(error, 'title')}
                         description={get(error, 'message', ImportDefaultErrorMessage)}
                     />
                 </Modal>
