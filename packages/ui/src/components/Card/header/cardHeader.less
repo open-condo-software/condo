@@ -1,0 +1,51 @@
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+@import (reference) "@open-condo/ui/src/components/style/core/breakpoints.less";
+
+@condo-card-head-big-image-size: 64px;
+@condo-card-head-small-image-size: 24px;
+
+.condo-card {
+  .condo-card-head {
+    @media @from-mobile-small and @to-tablet-small {
+      & {
+        padding: @condo-global-spacing-16;
+      }
+    }
+
+    @media @from-tablet-large {
+      & {
+        padding: @condo-global-spacing-24;
+      }
+    }
+  }
+
+  &-no-body .condo-card-head {
+    border-radius: @condo-global-spacing-12;
+
+    .condo-card-head-title {
+      display: flex;
+    }
+  }
+
+  & .condo-tag {
+    position: absolute;
+    top: @condo-global-spacing-8;
+    right: @condo-global-spacing-8;
+  }
+
+  & .condo-card-header-content {
+    white-space: break-spaces;
+
+    &-image {
+      &-size-big {
+        width: @condo-card-head-big-image-size;
+        height: @condo-card-head-big-image-size;
+      }
+
+      &-size-small {
+        width: @condo-card-head-small-image-size;
+        height: @condo-card-head-small-image-size;
+      }
+    }
+  }
+}

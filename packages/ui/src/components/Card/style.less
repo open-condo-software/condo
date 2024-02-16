@@ -1,13 +1,22 @@
 @import "antd/lib/card/style/index.less";
 @import (reference) "@open-condo/ui/src/tokens/variables.less";
 
+@condo-card-active-outline-indent: 0;
+@condo-card-focus-outline-border-width: @condo-global-border-width-default * 2;
+@condo-card-focus-outline-indent: -(@condo-global-border-width-default + @condo-card-focus-outline-border-width + 1);
+
 .condo-card {
   border: none;
   border-radius: @condo-global-border-radius-large;
 
+  &-disabled {
+    opacity: 0.5;
+    user-select: none;
+    pointer-events: none;
+  }
+
   &-head {
     min-height: 0;
-    padding: @condo-global-spacing-24;
     overflow: hidden;
     border: @condo-global-border-width-default solid @condo-global-color-gray-3;
     border-radius: @condo-global-border-radius-large @condo-global-border-radius-large 0 0;
@@ -25,11 +34,6 @@
     }
   }
 
-  &-head-title {
-    padding: 0;
-    overflow: visible;
-  }
-
   &-hoverable {
     transition-duration: @condo-global-transition-duration-default;
     transition-property: box-shadow;
@@ -45,42 +49,100 @@
     }
   }
 
+  &-head-title {
+    padding: 0;
+    overflow: visible;
+  }
+
   &-active {
-    background:
-      linear-gradient(#fff, #fff) padding-box,
-      @condo-global-color-brand-gradient-5 border-box;
-    border: @condo-global-border-width-default solid transparent;
     box-shadow: @condo-global-box-shadow-active;
 
-    .condo-card-body {
-      // can't use "none" because it produces black border flicker
-      border: 0 solid transparent;
+    // Used for gradient outline on active card
+    &::before {
+      position: absolute;
+      top: @condo-card-active-outline-indent;
+      right: @condo-card-active-outline-indent;
+      bottom: @condo-card-active-outline-indent;
+      left: @condo-card-active-outline-indent;
+      display: block;
+      box-sizing: border-box;
+      background: @condo-global-color-brand-gradient-5 border-box;
+      border: @condo-global-border-width-default solid transparent;
+      border-radius: inherit;
+      content: "";
+      mask: linear-gradient(#111 0 0) padding-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+    }
+  }
+
+  &-accent:not(&-checkbox-type) {
+    background-color: @condo-global-color-black;
+
+    & .condo-card-head {
+      border-color: @condo-global-color-gray-7;
+
+      & * {
+        color: @condo-global-color-white;
+      }
     }
 
-    .condo-card-head {
-      // can't use "none" because it produces black border flicker
-      border: 0 solid transparent;
-      border-bottom: @condo-global-border-width-default solid @condo-global-color-gray-3;
+    & .condo-card-body {
+      border-color: @condo-global-color-gray-7;
+
+      & * {
+        color: @condo-global-color-gray-3;
+      }
+    }
+  }
+
+  // Used for gradient outline on focus
+  &::after {
+    position: absolute;
+    top: @condo-card-focus-outline-indent;
+    right: @condo-card-focus-outline-indent;
+    bottom: @condo-card-focus-outline-indent;
+    left: @condo-card-focus-outline-indent;
+    display: none;
+    box-sizing: border-box;
+    background: @condo-global-color-brand-gradient-5 border-box;
+    border: @condo-card-focus-outline-border-width solid transparent;
+    border-radius: inherit;
+    content: "";
+    mask: linear-gradient(#111 0 0) padding-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+
+  &:focus,
+  &:focus-visible {
+    outline: none;
+
+    &::after {
+      display: block;
     }
   }
 
   &-hoverable:hover {
     box-shadow: @condo-global-box-shadow-default;
+  }
 
+  &-hoverable&-active:hover {
+    box-shadow: @condo-global-box-shadow-active;
+  }
+
+  &-hoverable:not(.condo-card-accent, .condo-card-no-body):hover {
     .condo-card-head {
       background-color: @condo-global-color-gray-1;
-      border-color: @condo-global-color-gray-1;
+      border-color: @condo-global-color-gray-5;
     }
 
     .condo-card-body {
-      border-color: @condo-global-color-white;
+      border-color: @condo-global-color-gray-5;
     }
   }
 
-  &-active&-hoverable:hover {
-    background:
-      linear-gradient(#fff, #fff) padding-box,
-      @condo-global-color-brand-gradient-7 border-box;
-    box-shadow: @condo-global-box-shadow-active;
+  &:active {
+    box-shadow: none;
   }
 }

@@ -5,28 +5,35 @@ import {
 import classNames from 'classnames'
 import React, { CSSProperties } from 'react'
 
-const CARD_CLASS_PREFIX = 'condo-card'
+import { CARD_CLASS_PREFIX } from './_utils/constants'
+
 
 export type CardProps = Omit<React.HTMLAttributes<HTMLDivElement>, 'title'> &
 Pick<DefaultCardProps, 'hoverable' | 'title'> & {
     width?: CSSProperties['width']
     bodyPadding?: CSSProperties['padding']
     titlePadding?: CSSProperties['padding']
+    accent?: boolean
     active?: boolean
+    disabled?: boolean
 }
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>((props, ref) => {
     const {
         width,
-        bodyPadding = 24,
-        titlePadding = 24,
+        bodyPadding,
+        titlePadding,
         active = false,
+        accent = false,
+        disabled = false,
         className: propsClassName,
         ...rest
     } = props
 
     const className = classNames(propsClassName, {
         [`${CARD_CLASS_PREFIX}-active`]: active,
+        [`${CARD_CLASS_PREFIX}-accent`]: accent,
+        [`${CARD_CLASS_PREFIX}-disabled`]: disabled,
     })
     
     return (

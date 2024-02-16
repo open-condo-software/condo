@@ -13,7 +13,7 @@ export { Button } from './components/Button'
 export type { ButtonProps } from './components/Button'
 
 export { Card } from './components/Card'
-export type { CardProps } from './components/Card'
+export type { CardProps, CardCheckboxProps, CardButtonProps } from './components/Card'
 
 export { Carousel } from './components/Carousel'
 export type { CarouselProps, CarouselRef } from './components/Carousel'
@@ -57,11 +57,13 @@ export type { TagProps } from './components/Tag'
 export { Tooltip } from './components/Tooltip'
 export type { TooltipProps } from './components/Tooltip'
 
-
 export { Tour } from './components/Tour'
 export type { TourStepProps } from './components/Tour'
 
 export { Typography } from './components/Typography'
+
+export { ProgressIndicator } from './components/ProgressIndicator'
+export type { ProgressIndicatorProps, ProgressIndicatorStep } from './components/ProgressIndicator'
 
 export type {
     TypographyType,

@@ -1,0 +1,58 @@
+@import (reference) "@open-condo/ui/src/components/Card/style.less";
+
+@condo-card-checkbox-active-outline-indent: 0;
+@condo-card-checkbox-checkbox-padding: @condo-global-spacing-12;
+
+.condo-card {
+  &-checkbox-type {
+    cursor: pointer;
+
+    & .condo-card-checkbox {
+      position: absolute;
+      top: @condo-card-checkbox-checkbox-padding;
+      right: @condo-card-checkbox-checkbox-padding;
+      pointer-events: none;
+    }
+  }
+
+  &-checked&-checkbox-type {
+    & .condo-card-head {
+      background: @condo-global-color-brand-gradient-1;
+      border-color: transparent;
+
+      & * {
+        color: @condo-global-color-green-5;
+      }
+    }
+
+    & .condo-card-body {
+      border-color: transparent;
+    }
+
+    &:hover {
+      box-shadow: @condo-global-box-shadow-active;
+    }
+
+    // Used for gradient outline on checked checkbox card
+    &::before {
+      position: absolute;
+      top: @condo-card-checkbox-active-outline-indent;
+      right: @condo-card-checkbox-active-outline-indent;
+      bottom: @condo-card-checkbox-active-outline-indent;
+      left: @condo-card-checkbox-active-outline-indent;
+      display: block;
+      box-sizing: border-box;
+      background: @condo-global-color-brand-gradient-5 border-box;
+      border: @condo-global-border-width-default solid transparent;
+      border-radius: inherit;
+      content: "";
+      mask: linear-gradient(#111 0 0) padding-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+    }
+
+    &:active {
+      box-shadow: none;
+    }
+  }
+}
