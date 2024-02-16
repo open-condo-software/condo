@@ -41,3 +41,6 @@
 [submodule "apps/telegram-employee-bot"]
     path = apps/telegram-employee-bot
     url = git@github.com:open-condo-software/condo-telegram-employee-bot.git
+[submodule "apps/eds-mosreg-integration"]
+	path = apps/eds-mosreg-integration
+	url = git@github.com:open-condo-software/condo-eds-mosreg-integration.git
