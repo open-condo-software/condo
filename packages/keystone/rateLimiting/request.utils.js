@@ -11,17 +11,30 @@ function extractArgValue (valueNode, variables) {
     }
 }
 
+/**
+ * @param selectionSet
+ * @returns {Selection}
+ */
 function extractSelectionSet (selectionSet) {
-    return Object.assign({}, ...selectionSet.selections.map(selection => ({ [selection.name.value]: selection.selectionSet ? extractSelectionSet(selection.selectionSet) : true })))
+    return selectionSet.selections.map(selection => {
+        const field = {
+            name: selection.name.value,
+        }
+        if (selection.selectionSet) {
+            field.selectionSet = extractSelectionSet(selection.selectionSet)
+        }
+
+        return field
+    })
 }
 
 function extractQueriesAndMutationsFromRequest (requestContext) {
     const ast = requestContext.document
     /**
      * @typedef Selection
-     * @type {Record<string, boolean | Selection>}
+     * @type {Array<{ name: string, selectionSet?: Selection }>}
      * */
-    /** @typedef {{ name: string, args: Record<string, unknown>, selection: Selection }} FieldInfo */
+    /** @typedef {{ name: string, args: Record<string, unknown>, selectionSet: Selection }} FieldInfo */
     /** @type Array<FieldInfo> */
     const queries = []
     /** @type Array<FieldInfo> */
@@ -48,7 +61,7 @@ function extractQueriesAndMutationsFromRequest (requestContext) {
                     const value = {
                         name: fieldName,
                         args: Object.assign({}, ...argList.map(arg => ({ [arg.name]: arg.value }))),
-                        selection: extractSelectionSet(selection.selectionSet),
+                        selectionSet: extractSelectionSet(selection.selectionSet),
                     }
                     const listToPush = definition.operation === 'query' ? queries : mutations
                     listToPush.push(value)
