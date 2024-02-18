@@ -155,7 +155,7 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
                     }
                 })
         }
-    }, [acquiringCtxId, setupOrigin, updateBillingAction, onFinish, orgType, router, billingCtxId])
+    }, [setupOrigin, updateBillingAction, onFinish, orgType, router, billingCtxId])
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
