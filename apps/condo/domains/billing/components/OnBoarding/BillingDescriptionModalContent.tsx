@@ -51,7 +51,6 @@ export const BillingDescriptionModalContent: React.FC<BillingDescriptionModalCon
 
     const { obj: ctx } = BillingContext.useObject({
         where: {
-            integration: { id },
             organization: { id: orgId },
         },
     })
@@ -61,7 +60,10 @@ export const BillingDescriptionModalContent: React.FC<BillingDescriptionModalCon
         status: CONTEXT_IN_PROGRESS_STATUS,
     })
 
+    const ctxSoftDeleteAction = BillingContext.useSoftDelete()
+
     const contextId = get(ctx, 'id', null)
+    const contextIntegrationId = get(ctx, 'integration.id', null)
 
     const handleSetupClick = useCallback(() => {
         if (!contextId) {
@@ -69,10 +71,17 @@ export const BillingDescriptionModalContent: React.FC<BillingDescriptionModalCon
                 .then(() => {
                     router.push({ query: { step: 1, billing: id } })
                 })
+        } else if (contextId && contextIntegrationId !== id) {
+            ctxSoftDeleteAction(ctx).then(()=> {
+                ctxCreateAction({ organization: { connect: { id: orgId } }, integration: { connect: { id } } })
+                    .then(() => {
+                        router.push({ query: { step: 1, billing: id } })
+                    })
+            })
         } else {
             router.push({ query: { step: 1, billing: id } })
         }
-    }, [contextId, orgId, id, ctxCreateAction, router])
+    }, [contextId, orgId, id, ctxCreateAction, router, contextIntegrationId, ctxSoftDeleteAction])
 
     const cols = width >= MODAL_COL_BREAKPOINT ? 2 : 1
 

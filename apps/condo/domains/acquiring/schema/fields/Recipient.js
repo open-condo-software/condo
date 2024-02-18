@@ -13,6 +13,7 @@ const RECIPIENT_FIELDS_DEFINITION = {
     iec: 'String',
     bic: 'String!',
     bankAccount: 'String!',
+    classificationCode: 'String',
 }
 
 const RECIPIENT_FIELD_NAME = 'RecipientField'
