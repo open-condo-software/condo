@@ -22,7 +22,7 @@ import React, { CSSProperties, Key, useCallback, useEffect, useMemo, useRef, use
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
-import { FileUp, Filter, Search, Close, Phone } from '@open-condo/icons'
+import { Filter, Search, Close, Phone } from '@open-condo/icons'
 import { useLazyQuery } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
@@ -45,10 +45,7 @@ import { TableFiltersContainer } from '@condo/domains/common/components/TableFil
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { useWindowTitleContext, WindowTitleContextProvider } from '@condo/domains/common/components/WindowTitleContext'
 import { EXCEL } from '@condo/domains/common/constants/export'
-import { BIGGER_LIMIT_FOR_IMPORT, TICKET_IMPORT } from '@condo/domains/common/constants/featureflags'
-import {
-    DEFAULT_RECORDS_LIMIT_FOR_IMPORT,
-} from '@condo/domains/common/constants/import'
+import { TICKET_IMPORT } from '@condo/domains/common/constants/featureflags'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { useAudio } from '@condo/domains/common/hooks/useAudio'
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
@@ -794,10 +791,7 @@ export const TicketsPageContent = ({
     const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
     const EmptyListMessage = intl.formatMessage({ id: 'ticket.EmptyList.title' })
     const CreateTicket = intl.formatMessage({ id: 'CreateTicket' })
-    const TicketsMessage = intl.formatMessage({ id: 'global.section.tickets' })
-    const TicketReadingObjectsNameManyGenitiveMessage = intl.formatMessage({ id: 'pages.condo.ticket.import.TicketReading.objectsName.many.genitive' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
-    const ImportButtonMessage = intl.formatMessage({ id: 'containers.FormTableExcelImport.ClickOrDragImportFileHint' })
 
     const router = useRouter()
     const { link } = useOrganization()
@@ -820,38 +814,25 @@ export const TicketsPageContent = ({
             favoriteTicketsIds
     }
 
-    const { useFlag, useFlagValue } = useFeatureFlags()
+    const { useFlag } = useFeatureFlags()
     const isTicketImportFeatureEnabled = useFlag(TICKET_IMPORT)
     const [columns, ticketNormalizer, ticketValidator, ticketCreator] = useImporterFunctions()
 
-    const exampleTemplateLink = useMemo(() => `/ticket-import-example-${intl.locale}.xlsx`, [intl.locale])
-
-    const maxTableLength: number = useFlagValue(BIGGER_LIMIT_FOR_IMPORT) || DEFAULT_RECORDS_LIMIT_FOR_IMPORT
     const canManageTickets = useMemo(() => get(link, ['role', 'canManageTickets'], false), [link])
 
     const TicketImportButton = useMemo(() => {
         return canManageTickets && showImport && isTicketImportFeatureEnabled && (
             <ImportWrapper
                 accessCheck={isTicketImportFeatureEnabled}
-                domainTranslate={TicketReadingObjectsNameManyGenitiveMessage}
                 columns={columns}
-                objectsName={TicketsMessage}
                 onFinish={undefined}
                 rowValidator={ticketValidator}
                 rowNormalizer={ticketNormalizer}
                 objectCreator={ticketCreator}
-                exampleTemplateLink={exampleTemplateLink}
-                maxTableLength={maxTableLength}
-            >
-                <Button
-                    type='secondary'
-                    icon={<FileUp size='medium'/>}
-                >
-                    {ticketsWithoutFiltersCount ? ImportButtonMessage : null}
-                </Button>
-            </ImportWrapper>
+                domainName='ticket'
+            />
         )
-    }, [ImportButtonMessage, TicketReadingObjectsNameManyGenitiveMessage, TicketsMessage, canManageTickets, columns, exampleTemplateLink, isTicketImportFeatureEnabled, maxTableLength, showImport, ticketCreator, ticketNormalizer, ticketValidator, ticketsWithoutFiltersCount])
+    }, [canManageTickets, columns, isTicketImportFeatureEnabled, showImport, ticketCreator, ticketNormalizer, ticketValidator])
 
     //TODO(DOMA-7354): Remove featureflag after resolve global search problem
     const disableTicketCounters = useFlag('callcenter-disable-ticket-counters')

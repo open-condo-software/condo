@@ -12,8 +12,7 @@ import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
 import React, { useMemo, useState } from 'react'
 
-import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
-import { FileDown, PlusCircle, Search, Sheet } from '@open-condo/icons'
+import { PlusCircle, Search, Sheet } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, ActionBarProps, Button } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
@@ -23,8 +22,6 @@ import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
-import { BIGGER_LIMIT_FOR_IMPORT } from '@condo/domains/common/constants/featureflags'
-import { DEFAULT_RECORDS_LIMIT_FOR_IMPORT } from '@condo/domains/common/constants/import'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { EXPORT_PROPERTIES_TO_EXCEL } from '@condo/domains/property/gql'
@@ -50,22 +47,16 @@ export default function BuildingsTable (props: BuildingTableProps) {
     const ExportAsExcel = intl.formatMessage({ id: 'ExportAsExcel' })
     const CreateLabel = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
-    const PropertiesMessage = intl.formatMessage({ id: 'global.section.properties' })
     const DownloadExcelLabel = intl.formatMessage({ id: 'pages.condo.property.id.DownloadExcelLabel' })
-    const PropertyTitle = intl.formatMessage({ id: 'pages.condo.property.ImportTitle' })
     const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.property.index.EmptyList.header' })
     const EmptyListMessage = intl.formatMessage({ id: 'pages.condo.property.index.EmptyList.text' })
     const CreateProperty = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
-    const ImportButtonMessage = intl.formatMessage({ id: 'containers.FormTableExcelImport.ClickOrDragImportFileHint' })
 
     const { role, searchPropertiesQuery, tableColumns, sortBy, loading, canDownloadProperties } = props
 
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, PROPERTY_PAGE_SIZE)
-
-    const { useFlagValue } = useFeatureFlags()
-    const maxTableLength: number = useFlagValue(BIGGER_LIMIT_FOR_IMPORT) || DEFAULT_RECORDS_LIMIT_FOR_IMPORT
 
     const { loading: propertiesLoading, refetch, objs: properties, count: total } = PropertyTable.useObjects({
         sortBy,
@@ -104,7 +95,6 @@ export default function BuildingsTable (props: BuildingTableProps) {
     const canManageProperties = get(role, 'canManageProperties', false)
     const isDownloadButtonHidden = !get(role, 'canReadProperties', canDownloadProperties === true)
     const EMPTY_LIST_VIEW_CONTAINER_STYLE = { display: isNoBuildingsData ? 'flex' : 'none', paddingTop : canManageProperties ? 'inherit' : '5%' }
-    const exampleTemplateLink = useMemo(() => `/buildings-import-example-${intl.locale}.xlsx`, [intl.locale])
 
     function onExportToExcelButtonClicked () {
         exportToExcel({
@@ -129,24 +119,14 @@ export default function BuildingsTable (props: BuildingTableProps) {
                         {CreateLabel}
                     </Button>
                     <ImportWrapper
-                        objectsName={PropertiesMessage}
                         accessCheck={canManageProperties}
                         onFinish={refetch}
                         columns={columns}
-                        maxTableLength={maxTableLength}
                         rowNormalizer={propertyNormalizer}
                         rowValidator={propertyValidator}
-                        domainTranslate={PropertyTitle}
                         objectCreator={propertyCreator}
-                        exampleTemplateLink={exampleTemplateLink}
-                    >
-                        <Button
-                            type='secondary'
-                            icon={<FileDown size='medium' />}
-                        >
-                            {ImportButtonMessage}
-                        </Button>
-                    </ImportWrapper>
+                        domainName='property'
+                    />
                 </>
             ),
             !isDownloadButtonHidden && (
@@ -172,7 +152,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
                         </Button>
                     )
             ),
-        ], [CreateLabel, DownloadExcelLabel, ExportAsExcel, ImportButtonMessage, PropertiesMessage, PropertyTitle, canManageProperties, columns, downloadLink, exampleTemplateLink, isDownloadButtonHidden, isXlsLoading, maxTableLength, onExportToExcelButtonClicked, propertyCreator, propertyNormalizer, propertyValidator, refetch, router])
+        ], [CreateLabel, DownloadExcelLabel, ExportAsExcel, canManageProperties, columns, downloadLink, isDownloadButtonHidden, isXlsLoading, onExportToExcelButtonClicked, propertyCreator, propertyNormalizer, propertyValidator, refetch, router])
 
     return (
         <>
@@ -182,22 +162,14 @@ export default function BuildingsTable (props: BuildingTableProps) {
                 accessCheck={canManageProperties}
                 button={(
                     <ImportWrapper
-                        objectsName={PropertiesMessage}
                         accessCheck={canManageProperties}
                         onFinish={refetch}
                         columns={columns}
-                        maxTableLength={maxTableLength}
                         rowNormalizer={propertyNormalizer}
                         rowValidator={propertyValidator}
-                        domainTranslate={PropertyTitle}
                         objectCreator={propertyCreator}
-                        exampleTemplateLink={exampleTemplateLink}
-                    >
-                        <Button
-                            type='secondary'
-                            icon={<FileDown size='medium' />}
-                        />
-                    </ImportWrapper>
+                        domainName='property'
+                    />
                 )}
                 createRoute='/property/create'
                 createLabel={CreateProperty}

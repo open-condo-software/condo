@@ -2,7 +2,6 @@
 import {
     SortMeterReadingsBy,
     MeterReportingPeriod as MeterReportingPeriodType,
-    MutationUpdateMeterReportingPeriodsArgs,
 } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
 import { Col, Row, RowProps, Tabs, Typography } from 'antd'
@@ -17,12 +16,11 @@ import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
-import { FileDown, Filter, QuestionCircle, PlusCircle } from '@open-condo/icons'
+import { Filter, QuestionCircle, PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Space, Tooltip } from '@open-condo/ui'
 
-import { BaseMutationArgs } from '@condo/domains/banking/hooks/useBankTransactionsTable'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
 import {
@@ -37,8 +35,6 @@ import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportT
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
-import { BIGGER_LIMIT_FOR_IMPORT } from '@condo/domains/common/constants/featureflags'
-import { DEFAULT_RECORDS_LIMIT_FOR_IMPORT } from '@condo/domains/common/constants/import'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import {
     MultipleFilterContextProvider,
@@ -75,7 +71,6 @@ const RESET_FILTERS_BUTTON_STYLE: CSSProperties = { paddingLeft: 0 }
 const DEFAULT_PERIOD_TEXT_STYLE = { alignSelf: 'start' }
 const QUICK_FILTERS_COL_STYLE: CSSProperties = { alignSelf: 'center' }
 
-export type UpdateSelectedMeterReportingPeriods = (args: BaseMutationArgs<MutationUpdateMeterReportingPeriodsArgs>) => Promise<unknown>
 
 export const MetersPageContent = ({
     searchMeterReadingsQuery,
@@ -93,12 +88,9 @@ export const MetersPageContent = ({
     const OnlyLatestDescMessage = intl.formatMessage({ id: 'pages.condo.meter.index.QuickFilterOnlyLatestDescription' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
-    const MeterReadingImportObjectsName = intl.formatMessage({ id: 'meter.import.MeterReading.objectsName.many' })
-    const MeterReadingImportObjectsNameManyGenitive = intl.formatMessage({ id: 'meter.import.MeterReading.objectsName.many.genitive' })
     const MeterAccountNumberExistInOtherUnitMessage = intl.formatMessage({ id: 'meter.import.error.MeterAccountNumberExistInOtherUnit' })
     const MeterResourceOwnedByAnotherOrganizationMessage = intl.formatMessage({ id: 'api.meter.METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION' })
     const MeterNumberExistInOrganizationMessage = intl.formatMessage({ id: 'meter.import.error.MeterNumberExistInOrganization' })
-    const ImportButtonMessage = intl.formatMessage({ id: 'containers.FormTableExcelImport.ClickOrDragImportFileHint' })
 
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
@@ -160,12 +152,7 @@ export const MetersPageContent = ({
         [METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION]: MeterResourceOwnedByAnotherOrganizationMessage,
     }), [MeterAccountNumberExistInOtherUnitMessage, MeterNumberExistInOrganizationMessage, MeterResourceOwnedByAnotherOrganizationMessage])
 
-    const exampleTemplateLink = useMemo(() => `/meter-import-example-${intl.locale}.xlsx`, [intl.locale])
-
     const handleCreateMeterReadings = useCallback(() => router.push('/meter/create'), [])
-
-    const { useFlagValue } = useFeatureFlags()
-    const maxTableLength: number = useFlagValue(BIGGER_LIMIT_FOR_IMPORT) || DEFAULT_RECORDS_LIMIT_FOR_IMPORT
 
     return (
         <>
@@ -175,23 +162,15 @@ export const MetersPageContent = ({
                     message=''
                     button={(
                         <ImportWrapper
-                            objectsName={MeterReadingImportObjectsName}
                             accessCheck={canManageMeterReadings}
                             onFinish={refetch}
                             columns={columns}
-                            maxTableLength={maxTableLength}
                             rowNormalizer={meterReadingNormalizer}
                             rowValidator={meterReadingValidator}
                             objectCreator={meterReadingCreator}
-                            domainTranslate={MeterReadingImportObjectsNameManyGenitive}
-                            exampleTemplateLink={exampleTemplateLink}
+                            domainName='meter'
                             mutationErrorsToMessages={mutationErrorsToMessages}
-                        >
-                            <Button
-                                type='secondary'
-                                icon={<FileDown size='medium' />}
-                            />
-                        </ImportWrapper>
+                        />
                     )}
                     createRoute={`/meter/create?meterType=${METER_PAGE_TYPES.meter}`}
                     createLabel={CreateMeter}
@@ -288,25 +267,15 @@ export const MetersPageContent = ({
                                 canManageMeterReadings && (
                                     <ImportWrapper
                                         key='import'
-                                        objectsName={MeterReadingImportObjectsName}
                                         accessCheck={canManageMeterReadings}
                                         onFinish={refetch}
                                         columns={columns}
-                                        maxTableLength={maxTableLength}
                                         rowNormalizer={meterReadingNormalizer}
                                         rowValidator={meterReadingValidator}
                                         objectCreator={meterReadingCreator}
-                                        domainTranslate={MeterReadingImportObjectsNameManyGenitive}
-                                        exampleTemplateLink={exampleTemplateLink}
                                         mutationErrorsToMessages={mutationErrorsToMessages}
-                                    >
-                                        <Button
-                                            type='secondary'
-                                            icon={<FileDown size='medium' />}
-                                        >
-                                            {ImportButtonMessage}
-                                        </Button>
-                                    </ImportWrapper>
+                                        domainName='meter'
+                                    />
                                 ),
                             ]}
                         />
