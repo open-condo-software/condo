@@ -51,16 +51,13 @@ let createApolloClient = (initialState, ctx, apolloCacheConfig, apolloClientConf
         let found
 
         const keys = Object.keys(data)
-        try {
-            while (!found && i < keys.length) {
-                if (data[keys[i]] instanceof File || data[keys[i]] instanceof Blob) {
-                    found = true
-                } else {
-                    i++
-                }
+
+        while (!found && i < keys.length) {
+            if (data[keys[i]] instanceof File || data[keys[i]] instanceof Blob) {
+                found = true
+            } else {
+                i++
             }
-        } catch (e) {
-            return found
         }
 
         return found
