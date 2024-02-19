@@ -11,28 +11,21 @@ const { GQLListSchema, find } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/onboarding/access/TourStep')
 const { ERRORS } = require('@condo/domains/onboarding/constants/errors')
-const { STEP_TYPES, STEP_STATUSES, COMPLETED_STEP_STATUS, ENABLED_STEPS_AFTER_COMPLETE, TODO_STEP_STATUS, AVAILABLE_TO_UPDATE_FIELDS } = require('@condo/domains/onboarding/constants/steps')
+const { STEP_TYPES, STEP_STATUSES, COMPLETED_STEP_STATUS, ENABLED_STEPS_AFTER_COMPLETE, TODO_STEP_STATUS } = require('@condo/domains/onboarding/constants/steps')
 const { TourStep: TourStepApi } = require('@condo/domains/onboarding/utils/serverSchema')
+const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 
-
-const COMMON_UPDATED_FIELDS = ['dv', 'sender', 'v', 'updatedAt', 'updatedBy']
 
 const TourStep = new GQLListSchema('TourStep', {
     schemaDoc: 'One of the few steps in the tour for the organization',
     fields: {
-        organization: {
-            schemaDoc: 'The organization which tour connected',
-            type: 'Relationship',
-            ref: 'Organization',
-            isRequired: true,
-            knexOptions: { isNotNullable: true },
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
-        },
+        organization: ORGANIZATION_OWNED_FIELD,
         type: {
             schemaDoc: 'Type of the tour step. It is need to understand what this step is responsible for',
             type: 'Select',
             options: STEP_TYPES,
             isRequired: true,
+            access: { read: true, create: true, update: false },
         },
         status: {
             schemaDoc: 'Step status, may be todo, waiting, completed and disabled',
@@ -47,13 +40,8 @@ const TourStep = new GQLListSchema('TourStep', {
         },
     },
     hooks: {
-        validateInput: async ({ existingItem, resolvedData, operation, context }) => {
+        validateInput: async ({ existingItem, operation, context }) => {
             if (operation !== 'update') return
-
-            const hasUpdateFieldsAccessDenied = omit(resolvedData, [...COMMON_UPDATED_FIELDS, ...AVAILABLE_TO_UPDATE_FIELDS])
-            if (!isEmpty(hasUpdateFieldsAccessDenied)) {
-                throw new GQLError(ERRORS.UPDATE_FIELDS_ACCESS_DENIED, context)
-            }
 
             const existedStatus = existingItem.status
             if (existedStatus === COMPLETED_STEP_STATUS) {

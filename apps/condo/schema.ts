@@ -90289,7 +90289,7 @@ export type TourStep = {
    *  4. As an alias to the 'id' field on the TourStep List.
    */
   _label_?: Maybe<Scalars['String']>;
-  /**  The organization which tour connected  */
+  /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
   /**  Type of the tour step. It is need to understand what this step is responsible for  */
   type?: Maybe<TourStepTypeType>;

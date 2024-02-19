@@ -7,7 +7,7 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
-const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor, checkPermissionInUserOrganizationOrRelatedOrganization } = require('../../organization/utils/accessSchema')
+const { queryOrganizationEmployeeFor, checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 
 async function canReadTourSteps ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
@@ -16,27 +16,26 @@ async function canReadTourSteps ({ authentication: { item: user } }) {
     if (user.isAdmin || user.isSupport) return {}
 
     return {
-        organization: {
-            OR: [
-                queryOrganizationEmployeeFor(user.id, 'canReadTour'),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadTour'),
-            ],
-        },
+        organization: queryOrganizationEmployeeFor(user.id, 'canReadTour'),
     }
 }
 
 async function canManageTourSteps ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin || user.isSupport) return true
 
     if (operation === 'create') {
         return false
     } else if (operation === 'update') {
+        if (originalInput.deletedAt) return false
+        if (user.isAdmin) return true
+
         const tourStep = await getById('TourStep', itemId)
+        if (tourStep.deletedAt) return false
+
         const organizationId = get(tourStep, 'organization')
 
-        return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageTour')
+        return await checkOrganizationPermission(user.id, organizationId, 'canManageTour')
     }
 
     return false

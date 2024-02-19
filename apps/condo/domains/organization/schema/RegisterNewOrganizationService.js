@@ -47,7 +47,7 @@ const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizat
                     ...dvSenderData,
                     organization: { connect: { id: organization.id } },
                 })
-                await pushOrganizationToSalesCRM(organization)
+                pushOrganizationToSalesCRM(organization)
 
                 return await getById('Organization', organization.id)
             },
