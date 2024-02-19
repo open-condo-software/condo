@@ -1,5 +1,7 @@
 const ms = require('ms')
 
+const { getRedisClient } = require('@open-condo/keystone/redis')
+
 const {
     DEFAULT_MAX_TOTAL_RESULTS,
     DEFAULT_MUTATION_WEIGHT,
@@ -10,7 +12,7 @@ const {
     DEFAULT_WHERE_COMPLEXITY_FACTOR,
 } = require('./constants')
 const { extractWhereComplexityFactor, extractRelationsComplexityFactor } = require('./query.utils')
-const { extractQueriesAndMutationsFromRequest } = require('./request.utils')
+const { extractQueriesAndMutationsFromRequest, extractQuotaKeyFromRequest } = require('./request.utils')
 const { extractPossibleArgsFromSchemaQueries, extractKeystoneListsData } = require('./schema.utils')
 
 /** @implements {import('apollo-server-plugin-base').ApolloServerPlugin} */
@@ -32,6 +34,7 @@ class ApolloRateLimitingPlugin {
     #nonAuthedQuota = DEFAULT_NON_AUTHED_QUOTA
     #quotaWindowInMS = ms(DEFAULT_QUOTA_WINDOW)
     #whereScalingFactor = DEFAULT_WHERE_COMPLEXITY_FACTOR
+    #redisClient = getRedisClient()
 
     /**
      * @param keystone {import('@keystonejs/keystone').Keystone} keystone instance
@@ -118,7 +121,7 @@ class ApolloRateLimitingPlugin {
 
     requestDidStart () {
         return {
-            didResolveOperation: (requestContext) => {
+            didResolveOperation: async (requestContext) => {
                 const { mutations, queries } = extractQueriesAndMutationsFromRequest(requestContext)
 
                 /** @type {Record<string, number>} */
@@ -149,8 +152,33 @@ class ApolloRateLimitingPlugin {
                 const allMutationsComplexity = Object.values(mutationsComplexity).reduce((acc, curr) => acc + curr, 0)
                 const requestComplexity = allQueriesComplexity + allMutationsComplexity
 
-                // TODO: pass all data to requestContext.context.req to log later in pino plugin
-                // TODO: get redis value for user / ip, check quota, throw error if quota exceeded
+                requestContext.context.req.complexity = {
+                    details: {
+                        queries: queriesComplexity,
+                        mutations: mutationsComplexity,
+                    },
+                    queries: allQueriesComplexity,
+                    mutations: allMutationsComplexity,
+                    total: requestComplexity,
+                }
+
+                const { isAuthed, key } = extractQuotaKeyFromRequest(requestContext)
+                const maxQuota = isAuthed ? this.#authedQuota : this.#nonAuthedQuota
+
+                /** @type {string | null} */
+                const currentValue = await this.#redisClient.get(key)
+                const usedQuota = parseInt(currentValue) || 0
+
+                if (usedQuota + requestComplexity > maxQuota) {
+                    // TODO: Throw error instead here
+                    return
+                }
+
+                if (currentValue === null) {
+                    await this.#redisClient.set(key, requestComplexity, 'PX', this.#quotaWindowInMS)
+                } else {
+                    await this.#redisClient.incrby(key, requestComplexity)
+                }
             },
         }
     }

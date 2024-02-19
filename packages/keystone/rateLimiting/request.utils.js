@@ -1,3 +1,5 @@
+const { PLUGIN_KEY_PREFIX } = require('./constants')
+
 function extractArgValue (valueNode, variables) {
     switch (valueNode.kind) {
         case 'Variable':
@@ -73,6 +75,16 @@ function extractQueriesAndMutationsFromRequest (requestContext) {
     return { queries, mutations }
 }
 
+function extractQuotaKeyFromRequest (requestContext) {
+    const isAuthed = Boolean(requestContext.context.authedItem)
+    const identity = isAuthed ? requestContext.context.authedItem.id : requestContext.context.req.ip
+    const identityPrefix = isAuthed ? 'user' : 'ip'
+    const key = [PLUGIN_KEY_PREFIX, identityPrefix, identity].join(':')
+
+    return { isAuthed, key }
+}
+
 module.exports = {
     extractQueriesAndMutationsFromRequest,
+    extractQuotaKeyFromRequest,
 }
