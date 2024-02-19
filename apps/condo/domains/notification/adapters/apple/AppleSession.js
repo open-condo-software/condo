@@ -95,7 +95,7 @@ class AppleSession {
      * Sets error handler on some session events. Sets ping interval to check session health.
      * @param force
      */
-    async #connect (force = false) {
+    async connect (force = false) {
         const currTime = getCurrTimeStamp()
         const isExpired = !isEmpty(this.#expires) && currTime >= this.#expires
 
@@ -117,8 +117,6 @@ class AppleSession {
     }
 
     async request (...args) {
-        await this.#connect()
-
         return await this.#session.request(...args)
     }
 
@@ -127,8 +125,6 @@ class AppleSession {
      * @returns {session}
      */
     async get () {
-        await this.#connect()
-
         return this.#session
     }
 }

@@ -21,13 +21,14 @@ const logger = getLogger('AppleMessaging')
 class AppleMessaging {
     #token = null
     #session = null
+    #url = null
 
     /**
      * @param config
      */
     constructor (config) {
         this.#token = new AppleJSONWebToken(config)
-        this.#session = new AppleSession(config.url)
+        this.#url = config.url
         this.getResponseHandler = this.getResponseHandler.bind(this)
         this.sendPush = this.sendPush.bind(this)
     }
@@ -144,6 +145,9 @@ class AppleMessaging {
     }
 
     async sendAll (notifications, isVoIP = false ) {
+        if (typeof this.#url !== 'string') throw new Error('config.url not provided to AppleMessaging instance')
+        this.#session = new AppleSession(this.#url)
+        await this.#session.connect()
         const responses = []
         let successCount = 0, failureCount = 0
 
@@ -168,6 +172,9 @@ class AppleMessaging {
             let response
             for (let retryCounter = 0; retryCounter < RETRY_RESTRICTION; retryCounter++) {
                 response = await this.sendPush(token, payload, options)
+                // TODO(VKislov): Now any error will cause a retry.
+                //  It is necessary to catch errors like 400 so that the retry works only on unhandled error like ECONNRESET,
+                //  which happen for unknown reasons and may be associated with the some side effects
                 if (response instanceof Error) {
                     logger.warn({ msg: `sendPush not successful on ${retryCounter + 1} try`, err: response })
                     continue
