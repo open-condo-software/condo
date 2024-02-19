@@ -6,6 +6,7 @@ function getReqLoggerContext (req) {
     const userId = get(req, 'user.id')
     const ip = get(req, 'ip')
     const fingerprint = get(req, 'headers.cookie.userId')
+    const complexity = get(req, 'complexity')
     let user
     if (userId) {
         user = {
@@ -16,7 +17,7 @@ function getReqLoggerContext (req) {
         }
     }
 
-    return { reqId, sessionId, user, ip, fingerprint }
+    return { reqId, sessionId, user, ip, fingerprint, complexity }
 }
 
 module.exports = {

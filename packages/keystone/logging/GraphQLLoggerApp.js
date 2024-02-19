@@ -14,7 +14,7 @@ const graphqlErrorLogger = getLogger('graphqlerror')
 
 function getGraphQLReqLoggerContext (requestContext) {
     const req = get(requestContext, 'context.req')
-    const reqContext = getReqLoggerContext(req)  // reqId, sessionId, user, ip, fingerprint
+    const reqContext = getReqLoggerContext(req)  // reqId, sessionId, user, ip, fingerprint, complexity
 
     const authedItemId = get(requestContext, 'context.authedItem.id')
     const operationId = get(requestContext, 'operationId')
