@@ -100,7 +100,7 @@ class AppleSession {
         const isExpired = !isEmpty(this.#expires) && currTime >= this.#expires
 
         if (this.#validateSession() && !force && !isExpired) return
-        if (isExpired) this.disconnect()
+        if (isExpired) await this.disconnect()
 
         const isLocked = await this.#redisGuard.isLocked('apple_session', 'connect')
         if (isLocked) {
@@ -119,7 +119,7 @@ class AppleSession {
     async request (...args) {
         await this.#connect()
 
-        return this.#session.request(...args)
+        return await this.#session.request(...args)
     }
 
     /**

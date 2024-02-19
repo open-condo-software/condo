@@ -101,7 +101,7 @@ class AppleMessaging {
      * @return {Promise} A promise that resolves if the request is successful or rejects
      * with an error
      */
-    sendPush (pushToken, payload, options = {}) {
+    async sendPush (pushToken, payload, options = {}) {
         return new Promise((resolve, reject) => {
             if (!payload) return reject(Error('Parameter `payload` is required'))
             if (!pushToken) return reject(Error('Parameter `pushToken` is required'))
@@ -128,16 +128,18 @@ class AppleMessaging {
 
             logger.info({ msg: 'sendPush before request', headers, options, payload })
 
-            const stream = this.#session.request(headers)
-
-            stream.on('response', this.getResponseHandler(stream, resolve, reject))
-            stream.on('error', (err) => {
-                logger.error({ msg: 'sendPush errored', headers, options, payload, err })
-                return resolve(err)
-            })
-            stream.write(buffer)
-            stream.end()
-            resolve()
+            this.#session.request(headers)
+                .then(stream => {
+                    stream.on('response', this.getResponseHandler(stream, resolve, reject))
+                    stream.on('error', err => {
+                        logger.error({ msg: 'sendPush errored', headers, options, payload, err })
+                        return resolve(err)
+                    })
+                    stream.write(buffer)
+                    stream.end()
+                    resolve()
+                })
+                .catch(err => reject(err))
         })
     }
 
