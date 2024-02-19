@@ -362,11 +362,12 @@ function getDeadlineStopPoint (ticket: Ticket) {
     if (isCompletedTicket(ticket)) {
         const ticketStatusType = get(ticket, ['status', 'type'])
         if (ticketStatusType === CANCELED_STATUS_TYPE) {
-            const ticketStatusUpdatedAt = dayjs(get(ticket, 'statusUpdatedAt')).startOf('day')
-            deadlineStopPoint = ticketStatusUpdatedAt
+            const ticketStatusUpdatedAt = get(ticket, 'statusUpdatedAt')
+            deadlineStopPoint = dayjs(ticketStatusUpdatedAt).startOf('day')
+        } else {
+            const ticketCompletedAt = get(ticket, 'completedAt')
+            deadlineStopPoint = dayjs(ticketCompletedAt).startOf('day')
         }
-        const ticketCompletedAt = get(ticket, 'completedAt')
-        deadlineStopPoint = dayjs(ticketCompletedAt).startOf('day')
     }
 
     return deadlineStopPoint
