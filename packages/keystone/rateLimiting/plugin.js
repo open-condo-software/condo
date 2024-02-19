@@ -10,6 +10,7 @@ const {
     DEFAULT_AUTHED_QUOTA,
     DEFAULT_NON_AUTHED_QUOTA,
     DEFAULT_WHERE_COMPLEXITY_FACTOR,
+    DEFAULT_PAGE_LIMIT,
 } = require('./constants')
 const { extractWhereComplexityFactor, extractRelationsComplexityFactor } = require('./query.utils')
 const { extractQueriesAndMutationsFromRequest, extractQuotaKeyFromRequest } = require('./request.utils')
@@ -35,10 +36,11 @@ class ApolloRateLimitingPlugin {
     #quotaWindowInMS = ms(DEFAULT_QUOTA_WINDOW)
     #whereScalingFactor = DEFAULT_WHERE_COMPLEXITY_FACTOR
     #redisClient = getRedisClient()
+    #pageLimit = DEFAULT_PAGE_LIMIT
 
     /**
      * @param keystone {import('@keystonejs/keystone').Keystone} keystone instance
-     * @param opts {{ queryWeight?: number, mutationWeight?: number, window?: string, authedQuota?: number, nonAuthedQuota?: number, whereScalingFactor?: number }} plugin options
+     * @param opts {{ queryWeight?: number, mutationWeight?: number, window?: string, authedQuota?: number, nonAuthedQuota?: number, whereScalingFactor?: number, pageLimit?: number }} plugin options
      */
     constructor (keystone, opts = {}) {
         this.#keystone = keystone
@@ -68,6 +70,9 @@ class ApolloRateLimitingPlugin {
         if (opts.whereScalingFactor) {
             this.#whereScalingFactor = opts.whereScalingFactor
         }
+        if (opts.pageLimit) {
+            this.#pageLimit = opts.pageLimit
+        }
     }
 
     /**
@@ -82,21 +87,23 @@ class ApolloRateLimitingPlugin {
             const first = query.args.first || this.#maxTotalResults
             const where = query.args.where || {}
 
-            const whereFactor = extractWhereComplexityFactor(where, this.#whereScalingFactor, this.#maxTotalResults)
+            const whereFactor = extractWhereComplexityFactor(where, this.#whereScalingFactor, this.#pageLimit)
             const selectionFactor = extractRelationsComplexityFactor(query.selectionSet, listKey, this.#listRelations)
+            const paginationFactor = Math.max(1.0, Math.ceil(first / this.#pageLimit))
             // TODO: Obtain custom weights overrides for query if needed
-            const totalComplexity = this.#queryWeight * first * (whereFactor + (selectionFactor - 1))
+            const totalComplexity = this.#queryWeight * paginationFactor * (whereFactor + (selectionFactor - 1))
 
-            return Math.ceil(totalComplexity / this.#maxTotalResults)
+            return Math.ceil(totalComplexity)
         }
 
         // all<Object>Meta queries
         if (this.#listMetaReadQueries[query.name]) {
             const where = query.args.where || {}
-            const whereFactor = extractWhereComplexityFactor(where, this.#whereScalingFactor, this.#maxTotalResults)
+            const whereFactor = extractWhereComplexityFactor(where, this.#whereScalingFactor, this.#pageLimit)
+            const maxPaginationFactor = Math.ceil(this.#maxTotalResults / this.#pageLimit)
 
             // TODO: Obtain custom weights overrides for query if needed
-            return this.#queryWeight * whereFactor
+            return this.#queryWeight * whereFactor * maxPaginationFactor
         }
 
         // custom queries

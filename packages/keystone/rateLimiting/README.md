@@ -10,8 +10,27 @@
 ### List query complexity
 Formula for basic list complexity is:
 ```
-queryWeight * ((results * whereFactor) + (results * (selectionFactor - 1)))
+queryWeight * paginationFactor * (whereFactor + (selectionFactor - 1))
 ```
+
+#### queryWeight
+Base query modifier, equal to `1.0` by default. 
+Can be overwritten if some Model has lots of data with a slower lookup.
+
+#### paginationFactor
+`paginationFactor` is designed, so that the number of objects requested affects the complexity of the query.
+
+It can be calculated by the following formula: 
+`paginationFactor = Math.ceil((first || maxTotalResults) / pageLimit)`. 
+By default `pageLimit` is equal to `100`
+
+So, if you're requesting `0-100` objects will be equal to `1`. 
+For `101-200` objects it's `2` and so on.
+
+You can control it by passing `first` argument. 
+If `first` is not passed in, the default is `maxTotalResults`, which is `1000` by default, 
+so be sure to set first to the correct value.
+
 #### selectionFactor
 `selectionFactor` is based on amount of sub-queries needed to obtain relations from selection.  
 
@@ -32,7 +51,7 @@ Contact relation produces 2, nested organization produces 4. They're summed up t
 
 `whereFactor({ id_in: [1, 2, 3], organization: { id_in: [1, 2, ..., 4500] } })` 
 
-`id_in` produce 1 complexity per 1000 objects, 
+`id_in` produce 1 complexity per 100 objects, 
 so organization id_in produce 5, relation scales it to 10, id_in global produce 1, 
 and fields are summed up to 11.
 
@@ -45,10 +64,15 @@ and fields are summed up to 11.
 
 ### List meta query complexity
 Formula for list meta complexity is the same as for list, 
-but without `selectionFactor` part, since there's no JOINS in return:
+but without `selectionFactor`, since there's no JOINS in return:
 ```
-queryWeight * (results * whereFactor)
+queryWeight * whereFactor * maxPaginationFactor
 ```
+
+#### maxPaginationFactor
+`maxPaginationFactor` is a version of `paginationFactor` that does not use `first`, 
+i.e. the `first || maxTotalResults` part of equation will become just `maxTotalResults`
+
 
 ### Custom query complexity
 Custom queries for now just have default weight, you can override its complexity in keystone schema (TODO)
