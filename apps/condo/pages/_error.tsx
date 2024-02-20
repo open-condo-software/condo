@@ -13,7 +13,7 @@ export default function ErrorPage (): React.ReactElement {
 ErrorPage.container = <></>
 
 ErrorPage.getInitialProps = async (props: NextPageContext) => {
-    await Sentry.captureUnderscoreErrorException(props)
+    Sentry.captureException(props)
     const { req, asPath, pathname, res, err } = props
 
     console.error('Pathname, asPath:', pathname, asPath)
