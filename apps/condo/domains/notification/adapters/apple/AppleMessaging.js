@@ -138,7 +138,6 @@ class AppleMessaging {
                     })
                     stream.write(buffer)
                     stream.end()
-                    resolve()
                 })
                 .catch(err => reject(err))
         })
@@ -197,6 +196,7 @@ class AppleMessaging {
             }
         }
 
+        await this.#session.disconnect()
         return { responses, successCount, failureCount }
     }
 }
