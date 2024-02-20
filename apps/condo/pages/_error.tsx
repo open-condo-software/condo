@@ -1,4 +1,5 @@
 import Custom500 from '@app/condo/pages/500'
+import * as Sentry from '@sentry/nextjs'
 import get from 'lodash/get'
 import { NextPageContext } from 'next'
 import NextErrorComponent from 'next/error'
@@ -12,6 +13,7 @@ export default function ErrorPage (): React.ReactElement {
 ErrorPage.container = <></>
 
 ErrorPage.getInitialProps = async (props: NextPageContext) => {
+    await Sentry.captureUnderscoreErrorException(props)
     const { req, asPath, pathname, res, err } = props
 
     console.error('Pathname, asPath:', pathname, asPath)
