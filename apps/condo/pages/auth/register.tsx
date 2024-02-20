@@ -70,8 +70,10 @@ const RegisterPage: AuthPage = () => {
     const handleFinish = useCallback((userId: string) => {
         if (!isOrganizationTourEnabled) {
             initOnBoarding(userId)
+        } else {
+            router.push('/')
         }
-    }, [initOnBoarding, isOrganizationTourEnabled])
+    }, [initOnBoarding, isOrganizationTourEnabled, router])
 
     useEffect(() => {
         if (token && isConfirmed) {

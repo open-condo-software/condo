@@ -3,7 +3,6 @@
  */
 
 const isEmpty = require('lodash/isEmpty')
-const omit = require('lodash/omit')
 
 const { GQLError } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
@@ -37,6 +36,7 @@ const TourStep = new GQLListSchema('TourStep', {
             schemaDoc: 'Used for sorting',
             type: 'Integer',
             isRequired: true,
+            access: { read: true, create: true, update: false },
         },
     },
     hooks: {
