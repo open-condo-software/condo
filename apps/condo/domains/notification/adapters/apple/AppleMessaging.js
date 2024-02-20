@@ -36,7 +36,6 @@ class AppleMessaging {
     getResponseHandler (stream, resolve, reject) {
         const reqErrorHandler = error => {
             stream.close()
-            this.#session.errorHandler(error)
         }
 
         return (headers, flags) => {
