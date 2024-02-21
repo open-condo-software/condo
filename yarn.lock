@@ -13431,7 +13431,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/nextjs@npm:^6.11.0":
+"@sentry/nextjs@npm:^6.19.7":
   version: 6.19.7
   resolution: "@sentry/nextjs@npm:6.19.7"
   dependencies:
@@ -44057,7 +44057,7 @@ __metadata:
     "@mono-pub/github": ^1.0.1
     "@mono-pub/npm": ^1.0.1
     "@open-condo/cli": "workspace:^"
-    "@sentry/nextjs": ^6.11.0
+    "@sentry/nextjs": ^6.19.7
     "@typescript-eslint/eslint-plugin": ^4.15.1
     "@typescript-eslint/parser": ^4.15.1
     babel-eslint: ^10.1.0

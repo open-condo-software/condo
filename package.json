@@ -61,7 +61,7 @@
     "yarn": ">=3.2.0"
   },
   "dependencies": {
-    "@sentry/nextjs": "^6.11.0",
+    "@sentry/nextjs": "^6.19.7",
     "bull": "^4.8.4",
     "bull-repl": "^0.27.2",
     "commitlint-plugin-function-rules": "^1.3.2"
