@@ -7,9 +7,11 @@ import { PropertyTable as PropertyTableGQL } from '@condo/domains/property/gql'
 const {
     useObject,
     useObjects,
+    useCount,
 } = generateReactHooks<Property, PropertyCreateInput, PropertyUpdateInput, QueryAllPropertiesArgs>(PropertyTableGQL)
 
 export {
     useObject,
     useObjects,
+    useCount,
 }
