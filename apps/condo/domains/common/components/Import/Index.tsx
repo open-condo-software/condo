@@ -9,7 +9,7 @@ import XLSX from 'xlsx'
 
 import { Download, FileDown } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Alert, Button, Modal, Typography } from '@open-condo/ui'
+import { Alert, Button, Card, CardBodyProps, CardHeaderProps, Modal, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
@@ -27,7 +27,7 @@ import { DataImporter } from '../DataImporter'
 import { FocusContainer } from '../FocusContainer'
 
 
-interface IImportWrapperProps {
+export interface IImportWrapperProps {
     accessCheck: boolean
     onFinish: (variables: unknown) => void
     columns: Columns
@@ -37,6 +37,10 @@ interface IImportWrapperProps {
     mutationErrorsToMessages?: MutationErrorsToMessagesType
     uploadButtonLabel?: string
     domainName: string
+    importCardButton?: {
+        header: Pick<CardHeaderProps, 'emoji' | 'headingTitle'>,
+        body: Pick<CardBodyProps, 'description'>
+    }
 }
 
 const ImageContaier = styled.div`
@@ -101,6 +105,7 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
         mutationErrorsToMessages,
         uploadButtonLabel,
         domainName,
+        importCardButton,
     } = props
     const intl = useIntl()
     const ImportPluralMessage = intl.formatMessage({ id: `import.${domainName}.plural` })
@@ -227,13 +232,22 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
     return (
         accessCheck && (
             <>
-                <Button
-                    type='secondary'
-                    icon={<FileDown size='medium'/>}
-                    onClick={() => setActiveModal('example')}
-                >
-                    {UploadButtonLabel}
-                </Button>
+                {
+                    importCardButton ? (
+                        <Card.CardButton
+                            {...importCardButton}
+                            onClick={() => setActiveModal('example')}
+                        />
+                    ) : (
+                        <Button
+                            type='secondary'
+                            icon={<FileDown size='medium'/>}
+                            onClick={() => setActiveModal('example')}
+                        >
+                            {UploadButtonLabel}
+                        </Button>
+                    )
+                }
                 <Modal
                     title={UploadModalTitle}
                     onCancel={closeModal}

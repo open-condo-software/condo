@@ -79,7 +79,7 @@ const Template: Story<StoryProps> = (props) => {
     const headerProps = pickBy({
         tag: headerTag && { children: 'Tag text', bgColor: colors.teal[1], textColor: colors.teal[5] },
         progressIndicator: headerProgressIndicator && { steps: ['done'] },
-        emoji: headerEmoji && [{ symbol: 0x1F469 }, { symbol: 0x1F468 }],
+        emoji: headerEmoji && [{ symbol: '✍️' }, { symbol: '🏠' }],
         headingTitle: headerTitle && 'Resident App',
         mainLink: headerMainLink && { label: 'Main link', href: '#', AfterIcon: PlusCircle, PreIcon: PlusCircle },
         secondLink: headerSecondLink && { label: 'Second link', href: '#', AfterIcon: PlusCircle, PreIcon: PlusCircle },

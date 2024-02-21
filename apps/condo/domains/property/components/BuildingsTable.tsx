@@ -49,7 +49,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const DownloadExcelLabel = intl.formatMessage({ id: 'pages.condo.property.id.DownloadExcelLabel' })
     const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.property.index.EmptyList.header' })
-    const EmptyListMessage = intl.formatMessage({ id: 'pages.condo.property.index.EmptyList.text' })
+    const EmptyListManualBodyDescription = intl.formatMessage({ id: 'pages.condo.property.index.EmptyList.manualCreateCard.body.description' })
     const CreateProperty = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
 
     const { role, searchPropertiesQuery, tableColumns, sortBy, loading, canDownloadProperties } = props
@@ -158,22 +158,24 @@ export default function BuildingsTable (props: BuildingTableProps) {
         <>
             <EmptyListView
                 label={EmptyListLabel}
-                message={EmptyListMessage}
                 accessCheck={canManageProperties}
-                button={(
-                    <ImportWrapper
-                        accessCheck={canManageProperties}
-                        onFinish={refetch}
-                        columns={columns}
-                        rowNormalizer={propertyNormalizer}
-                        rowValidator={propertyValidator}
-                        objectCreator={propertyCreator}
-                        domainName='property'
-                    />
-                )}
                 createRoute='/property/create'
                 createLabel={CreateProperty}
                 containerStyle={EMPTY_LIST_VIEW_CONTAINER_STYLE}
+                importLayoutProps={{
+                    manualCreateEmoji: '🏠',
+                    manualCreateDescription: EmptyListManualBodyDescription,
+                    importCreateEmoji: '🏘️',
+                    importWrapper: {
+                        accessCheck: canManageProperties,
+                        onFinish: refetch,
+                        columns: columns,
+                        rowNormalizer: propertyNormalizer,
+                        rowValidator: propertyValidator,
+                        objectCreator: propertyCreator,
+                        domainName: 'property',
+                    },
+                }}
             />
             <Row justify='space-between' gutter={ROW_VERTICAL_GUTTERS} hidden={isNoBuildingsData}>
                 <Col span={24}>

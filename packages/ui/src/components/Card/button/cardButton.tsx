@@ -8,7 +8,7 @@ import { Card, CardProps } from '../card'
 import { CardHeader, CardHeaderProps } from '../header/cardHeader'
 
 
-export type CardButtonProps = Pick<CardProps, 'accent' | 'disabled'> & {
+export type CardButtonProps = Pick<CardProps, 'accent' | 'disabled' | 'onClick'> & {
     header?: CardHeaderProps
     body?: CardBodyProps
 }

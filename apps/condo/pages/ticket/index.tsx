@@ -790,6 +790,7 @@ export const TicketsPageContent = ({
     const intl = useIntl()
     const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
     const EmptyListMessage = intl.formatMessage({ id: 'ticket.EmptyList.title' })
+    const EmptyListManualBodyDescription = intl.formatMessage({ id: 'ticket.EmptyList.manualCreateCard.body.description' })
     const CreateTicket = intl.formatMessage({ id: 'CreateTicket' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
 
@@ -849,8 +850,21 @@ export const TicketsPageContent = ({
                 message={EmptyListMessage}
                 createRoute='/ticket/create'
                 createLabel={CreateTicket}
-                button={TicketImportButton}
                 accessCheck={canManageTickets}
+                importLayoutProps={isTicketImportFeatureEnabled && {
+                    manualCreateEmoji: '📞',
+                    manualCreateDescription: EmptyListManualBodyDescription,
+                    importCreateEmoji: '📋',
+                    importWrapper: {
+                        accessCheck: canManageTickets,
+                        onFinish: undefined,
+                        columns: columns,
+                        rowNormalizer: ticketNormalizer,
+                        rowValidator: ticketValidator,
+                        objectCreator: ticketCreator,
+                        domainName: 'ticket',
+                    },
+                }}
             />
         )
     }

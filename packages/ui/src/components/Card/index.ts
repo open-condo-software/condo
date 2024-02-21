@@ -16,6 +16,8 @@ Card.CardButton = CardButton
 export type { CardProps } from './card'
 export type { CardCheckboxProps } from './checkbox/cardCheckbox'
 export type { CardButtonProps } from './button/cardButton'
+export type { CardHeaderProps } from './header/cardHeader'
+export type { CardBodyProps } from './body/cardBody'
 export {
     Card,
 }

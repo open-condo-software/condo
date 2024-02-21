@@ -83,6 +83,7 @@ export const MetersPageContent = ({
 }) => {
     const intl = useIntl()
     const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.header' })
+    const EmptyListManualBodyDescription = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.manualCreateCard.body.description' })
     const CreateMeter = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterButtonLabel' })
     const CreateMeterReadingsButtonLabel = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterReadingsButtonLabel' })
     const OnlyLatestMessage = intl.formatMessage({ id: 'pages.condo.meter.index.QuickFilterOnlyLatest' })
@@ -160,19 +161,21 @@ export const MetersPageContent = ({
             <TablePageContent>
                 <EmptyListView
                     label={EmptyListLabel}
-                    message=''
-                    button={(
-                        <ImportWrapper
-                            accessCheck={canManageMeterReadings}
-                            onFinish={refetch}
-                            columns={columns}
-                            rowNormalizer={meterReadingNormalizer}
-                            rowValidator={meterReadingValidator}
-                            objectCreator={meterReadingCreator}
-                            domainName='meter'
-                            mutationErrorsToMessages={mutationErrorsToMessages}
-                        />
-                    )}
+                    importLayoutProps={{
+                        manualCreateEmoji: '⏱️',
+                        manualCreateDescription: EmptyListManualBodyDescription,
+                        importCreateEmoji: '📋',
+                        importWrapper: {
+                            accessCheck: canManageMeterReadings,
+                            onFinish: refetch,
+                            columns: columns,
+                            rowNormalizer: meterReadingNormalizer,
+                            rowValidator: meterReadingValidator,
+                            objectCreator: meterReadingCreator,
+                            domainName: 'meter',
+                            mutationErrorsToMessages,
+                        },
+                    }}
                     createRoute={`/meter/create?meterType=${METER_PAGE_TYPES.meter}`}
                     createLabel={CreateMeter}
                     containerStyle={{ display: isNoMeterData ? 'flex' : 'none' }}
@@ -298,7 +301,7 @@ export const PropertyMetersPageContent = ({
     loading,
 }) => {
     const intl = useIntl()
-    const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.header' })
+    const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.propertyMeter.index.EmptyList.header' })
     const CreateMeter = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterButtonLabel' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const CreateMeterReadingsButtonLabel = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterReadingsButtonLabel' })
