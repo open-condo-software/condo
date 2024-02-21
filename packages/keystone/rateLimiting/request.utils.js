@@ -18,7 +18,7 @@ function extractArgValue (valueNode, variables) {
  * @returns {Selection}
  */
 function extractSelectionSet (selectionSet) {
-    return selectionSet.selections.map(selection => {
+    return (selectionSet?.selections || []).map(selection => {
         const field = {
             name: selection.name.value,
         }
