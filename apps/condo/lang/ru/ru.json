@@ -1425,7 +1425,7 @@
   "pages.condo.marketplace.marketItem.id.addressesAndPrices": "Адреса и цены",
   "pages.condo.marketplace.marketItem.filter.allCategories": "Все категории",
   "pages.condo.notification.unsubscribed.PageTitle": "Подписка отменена",
-  "pages.condo.notification.unsubscribed.Description": "Вы успешно отписались от нотификаций",
+  "pages.condo.notification.unsubscribed.Description": "На вашу почту больше не будут приходить квитанции",
   "news.fields.units.label": "Помещение",
   "news.fields.units.message": "Чтобы выбрать помещения, удалите выбранные подъезды",
   "news.fields.sections.label": "Подъезд",
