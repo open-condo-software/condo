@@ -258,6 +258,20 @@ describe('Property', () => {
             expect(updated).toHaveProperty('unitsCount', 25)
             expect(updated).toHaveProperty('uninhabitedUnitsCount', 11)
         })
+        test('Should not update if map is not updated', async () => {
+            const user = await makeClientWithRegisteredOrganization()
+            const [property] = await createTestProperty(user, user.organization, { map: buildingMapJson })
+            expect(property).toHaveProperty('map')
+            expect(property.map).toMatchObject(buildingMapJson)
+            expect(property).toHaveProperty('unitsCount', 28)
+            expect(property).toHaveProperty('uninhabitedUnitsCount', 8)
+
+            const [updatedProperty] = await updateTestProperty(user, property.id, { name: faker.random.word() })
+            expect(updatedProperty).toHaveProperty('map')
+            expect(updatedProperty.map).toMatchObject(buildingMapJson)
+            expect(updatedProperty).toHaveProperty('unitsCount', 28)
+            expect(updatedProperty).toHaveProperty('uninhabitedUnitsCount', 8)
+        })
         test('Can be created with `null` in `map.sections[].floors[].units[]`', async () => {
             const map = {
                 'dv': 1,
