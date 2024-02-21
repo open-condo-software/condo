@@ -31,7 +31,7 @@ import {
 } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
-import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
 import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
@@ -159,7 +159,7 @@ export const MetersPageContent = ({
     return (
         <>
             <TablePageContent>
-                <EmptyListView
+                <EmptyListContent
                     label={EmptyListLabel}
                     importLayoutProps={{
                         manualCreateEmoji: '⏱️',
@@ -345,7 +345,7 @@ export const PropertyMetersPageContent = ({
     return (
         <>
             <TablePageContent>
-                <EmptyListView
+                <EmptyListContent
                     label={EmptyListLabel}
                     message=''
                     createRoute={`/meter/create?meterType=${METER_PAGE_TYPES.propertyMeter}`}
@@ -518,7 +518,7 @@ export const MeterReportingPeriodPageContent = ({
     return (
         <>
             <TablePageContent>
-                <EmptyListView
+                <EmptyListContent
                     label={EmptyListLabel}
                     message=''
                     createRoute='/meter/reportingPeriod/create'

@@ -12,7 +12,7 @@ import { ActionBar, Button } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
-import EmptyListView from '@condo/domains/common/components/EmptyListView'
+import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
 import { Loader } from '@condo/domains/common/components/Loader'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
@@ -167,7 +167,7 @@ export const MarketplaceInvoicesContent = () => {
     }
 
     if (count === 0) {
-        return <EmptyListView
+        return <EmptyListContent
             label={BillsEmptyTitle}
             message={BillsEmptyText}
             createLabel={BillsEmptyButtonText}

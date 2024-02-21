@@ -14,7 +14,7 @@ import { colors } from '@open-condo/ui/dist/colors'
 import Input from '@condo/domains/common/components/antd/Input'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
-import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
@@ -76,7 +76,7 @@ export const EmployeesPageContent = ({
                 <TablePageContent>
                     {
                         !employees.length && !filtersFromQuery
-                            ? <EmptyListView
+                            ? <EmptyListContent
                                 label={EmptyListLabel}
                                 message={EmptyListMessage}
                                 createRoute={ADD_EMPLOYEE_ROUTE}

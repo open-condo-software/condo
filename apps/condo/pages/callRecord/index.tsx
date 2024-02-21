@@ -21,7 +21,7 @@ import { colors } from '@open-condo/ui/dist/colors'
 import Input from '@condo/domains/common/components/antd/Input'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
-import EmptyListView from '@condo/domains/common/components/EmptyListView'
+import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
 import { Loader } from '@condo/domains/common/components/Loader'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
@@ -208,7 +208,7 @@ export const CallRecordsPageContent = (props) => {
 
         if (!callRecordTotal) {
             return (
-                <EmptyListView
+                <EmptyListContent
                     label={EmptyListLabel}
                     message={EmptyListMessage}
                 />

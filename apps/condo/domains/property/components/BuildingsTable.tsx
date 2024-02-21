@@ -18,7 +18,7 @@ import { ActionBar, ActionBarProps, Button } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
-import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
@@ -156,7 +156,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
 
     return (
         <>
-            <EmptyListView
+            <EmptyListContent
                 label={EmptyListLabel}
                 accessCheck={canManageProperties}
                 createRoute='/property/create'
