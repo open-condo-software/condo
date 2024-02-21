@@ -120,7 +120,6 @@ describe('Ticket',  function () {
                         ticketImport
                             .visitTicketsPage()
                             .importTicketTable(filePath)
-                            .waitFetchingContact()
                             .waitErrorModal()
                     })
                 })
