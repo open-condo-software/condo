@@ -18,6 +18,7 @@ import { IImportWrapperProps, ImportWrapper } from './Import/Index'
 export interface IEmptyListProps {
     label: string | React.ReactElement
     message?: string | React.ReactElement
+    button?: React.ReactElement
     createRoute?: string
     createLabel?: string
     containerStyle?: CSSProperties
@@ -102,6 +103,7 @@ export const EmptyListView: React.FC<IEmptyListProps> = (props) => {
     const {
         label,
         message,
+        button,
         createRoute,
         createLabel,
         containerStyle = {},
@@ -200,6 +202,13 @@ export const EmptyListView: React.FC<IEmptyListProps> = (props) => {
                         </Typography.Text>
                     )}
                     <Row gutter={ROW_GUTTER} align='middle' justify='center' style={ROW_STYLE}>
+                        {
+                            button ? (
+                                <Col>
+                                    {button}
+                                </Col>
+                            ) : ''
+                        }
                         {
                             createRoute && (
                                 <Col>

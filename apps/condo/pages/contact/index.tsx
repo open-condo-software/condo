@@ -17,6 +17,7 @@ import Input from '@condo/domains/common/components/antd/Input'
 import { PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { EXCEL } from '@condo/domains/common/constants/export'
@@ -165,16 +166,16 @@ export const ContactsPageContent = ({
                                                     >
                                                         {CreateContact}
                                                     </Button>
-                                                    {/*<ImportWrapper*/}
-                                                    {/*    key='import'*/}
-                                                    {/*    accessCheck={canManageContacts}*/}
-                                                    {/*    onFinish={refetch}*/}
-                                                    {/*    columns={columns}*/}
-                                                    {/*    rowNormalizer={contactNormalizer}*/}
-                                                    {/*    rowValidator={contactValidator}*/}
-                                                    {/*    objectCreator={contactCreator}*/}
-                                                    {/*    domainName='contact'*/}
-                                                    {/*/>*/}
+                                                    <ImportWrapper
+                                                        key='import'
+                                                        accessCheck={canManageContacts}
+                                                        onFinish={refetch}
+                                                        columns={columns}
+                                                        rowNormalizer={contactNormalizer}
+                                                        rowValidator={contactValidator}
+                                                        objectCreator={contactCreator}
+                                                        domainName='contact'
+                                                    />
                                                 </>
                                             ),
                                             <ExportButton key='export' />,
