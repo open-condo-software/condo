@@ -1,11 +1,30 @@
 const { get } = require('lodash')
 
+/**
+ * Extracts useful data stored in request obtained by preprocessors and other plugins such as:
+ * 1. req.ip - user ip address
+ * 2. req.sessionID - id of current session
+ * 3. req.id - unique request id
+ * 4. req.user.id - id of user in case of authorized requests
+ * 5. req.headers.cookie.userId - client-side fingerprint
+ * 6. req.complexity - request complexity obtained by rate-limiting plugin
+ * @param req - express request object
+ * @returns {{
+ *  complexity?: { total: number, mutations: number, queries: number, details: { queries: Record<string, number>, mutations: Record<string, number> } },
+ *  ip?: string,
+ *  fingerprint?: string,
+ *  sessionId?: string,
+ *  user?: {isSupport: boolean, id: string, isAdmin: boolean, type: string},
+ *  reqId?: string
+ *  }}
+ */
 function getReqLoggerContext (req) {
     const reqId = get(req, 'id')
     const sessionId = get(req, 'sessionID')
     const userId = get(req, 'user.id')
     const ip = get(req, 'ip')
     const fingerprint = get(req, 'headers.cookie.userId')
+    const complexity = get(req, 'complexity')
     let user
     if (userId) {
         user = {
@@ -16,7 +35,7 @@ function getReqLoggerContext (req) {
         }
     }
 
-    return { reqId, sessionId, user, ip, fingerprint }
+    return { reqId, sessionId, user, ip, fingerprint, complexity }
 }
 
 module.exports = {
