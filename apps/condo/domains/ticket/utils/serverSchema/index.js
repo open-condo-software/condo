@@ -39,6 +39,7 @@ const { IncidentExportTask: IncidentExportTaskGQL } = require('@condo/domains/ti
 const { CallRecord: CallRecordGQL } = require('@condo/domains/ticket/gql')
 const { CallRecordFragment: CallRecordFragmentGQL } = require('@condo/domains/ticket/gql')
 const { TICKET_MULTIPLE_UPDATE_MUTATION } = require('@condo/domains/ticket/gql')
+const { TicketAutoAssignment: TicketAutoAssignmentGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Ticket = generateServerUtils(TicketGQL)
@@ -101,6 +102,7 @@ async function ticketMultipleUpdate (context, data) {
     })
 }
 
+const TicketAutoAssignment = generateServerUtils(TicketAutoAssignmentGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 /**
@@ -328,5 +330,6 @@ module.exports = {
     CallRecord,
     CallRecordFragment,
     ticketMultipleUpdate,
+    TicketAutoAssignment,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

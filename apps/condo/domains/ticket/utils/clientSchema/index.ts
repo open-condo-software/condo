@@ -30,4 +30,5 @@ export * as UserFavoriteTicket from './UserFavoriteTicket'
 export * as IncidentExportTask from './IncidentExportTask'
 export * as CallRecord from './CallRecord'
 export * as CallRecordFragment from './CallRecordFragment'
+export * as TicketAutoAssignment from './TicketAutoAssignment'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
