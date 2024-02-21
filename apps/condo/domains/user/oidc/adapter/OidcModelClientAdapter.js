@@ -184,12 +184,9 @@ class OidcModelClientAdapter {
      *
      */
     async find (id) {
-        const item = await OidcClient.getOne(this.context, { clientId: id, deletedAt: null })
+        const item = await OidcClient.getOne(this.context, { clientId: id, isEnabled: true, deletedAt: null })
         if (!item) {
-            throw new Error(`There is no OIDC client with clientId=${id}`)
-        }
-        if (!item.isEnabled) {
-            throw new Error('OIDC client with the specified clientId is disabled and therefore cannot be used for OIDC authorization')
+            throw new Error(`There is no active OIDC client with clientId=${id}`)
         }
         return item.payload
     }
