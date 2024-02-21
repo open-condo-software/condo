@@ -46,14 +46,21 @@ let createApolloClient = (initialState, ctx, apolloCacheConfig, apolloClientConf
         }
     }
 
+    const isObject = node => typeof node === 'object' && node !== null
+    const isFile = input => isOnClientSide && input instanceof File
+    const isBlob = input => isOnClientSide && input instanceof Blob
+
     const hasFiles = (data) => {
         let i = 0
         let found
-
         const keys = Object.keys(data)
 
         while (!found && i < keys.length) {
-            if (data[keys[i]] instanceof File || data[keys[i]] instanceof Blob) {
+            if (!isObject(data[keys[i]])) {
+                i++
+            } else if (isFile(data[keys[i]]) || isBlob(data[keys[i]])) {
+                found = true
+            } else if (hasFiles(data[keys[i]])) {
                 found = true
             } else {
                 i++
@@ -85,7 +92,7 @@ let createApolloClient = (initialState, ctx, apolloCacheConfig, apolloClientConf
     return new ApolloClient({
         // connectToDevTools: !Boolean(ctx),
         ssrMode: Boolean(ctx),
-        link: ApolloLink.split(operation => hasFiles(get(operation, 'variables.data', {})), uploadLink, batchLink),
+        link: ApolloLink.split(operation => hasFiles(get(operation, 'variables', {})), uploadLink, batchLink),
         cache: new InMemoryCache(apolloCacheConfig).restore(initialState || {}),
         ...apolloClientConfig,
     })
