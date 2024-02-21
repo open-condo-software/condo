@@ -3,28 +3,14 @@
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
 import * as Sentry from '@sentry/nextjs'
+import getConfig from 'next/config'
 
-Sentry.init({
-    dsn: 'https://708218848724e5607e9eb3f3bf741b38@o4506776962400256.ingest.sentry.io/4506776963907584',
+const { publicRuntimeConfig: { sentryDSN } } = getConfig()
 
-    // Adjust this value in production, or use tracesSampler for greater control
-    tracesSampleRate: 1,
-
-    // Setting this option to true will print useful information to the console while you're setting up Sentry.
-    debug: false,
-
-
-    // replaysOnErrorSampleRate: 1.0,
-    // This sets the sample rate to be 10%. You may want this to be 100% while
-    // in development and sample at a lower rate in production
-    // replaysSessionSampleRate: 0.1,
-
-    // You can remove this option if you're not planning to use the Sentry Session Replay feature:
-    // integrations: [
-    //     Sentry.replayIntegration({
-    //         // Additional Replay configuration goes in here, for example:
-    //         maskAllText: true,
-    //         blockAllMedia: true,
-    //     }),
-    // ],
-})
+if (sentryDSN) {
+    Sentry.init({
+        dsn: sentryDSN,
+        tracesSampleRate: 0.2,
+        debug: false,
+    })
+}

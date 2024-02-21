@@ -77,6 +77,7 @@ module.exports = withTM(withLess(withCSS({
         audioConfig,
         checkTLSClientCertConfig,
         condoRBDomain,
+        sentryDSN,
         apolloBatchingEnabled,
     },
     lessLoaderOptions: {
@@ -142,8 +143,8 @@ module.exports = withSentryConfig(
         autoInstrumentServerFunctions: false,
         autoInstrumentMiddleware: false,
 
-        disableServerWebpackPlugin: true,
-        disableClientWebpackPlugin: true,
+        disableServerWebpackPlugin: false,
+        disableClientWebpackPlugin: false,
     },
     {
         // For all available options, see:
@@ -172,7 +173,7 @@ module.exports = withSentryConfig(
         autoInstrumentServerFunctions: false,
         autoInstrumentMiddleware: false,
 
-        disableServerWebpackPlugin: true,
-        disableClientWebpackPlugin: true,
+        disableServerWebpackPlugin: false,
+        disableClientWebpackPlugin: false,
     }
 )
