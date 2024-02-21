@@ -165,7 +165,7 @@ class OidcModelClientAdapter {
                 fingerprint: OIDC_FINGERPRINT,
             },
         }
-        const item = await OidcClient.getOne(this.context, { clientId: id })
+        const item = await OidcClient.getOne(this.context, { clientId: id, deletedAt: null })
         if (!item) {
             return await OidcClient.create(this.context, { ...dvAndSender, clientId: id, payload, expiresAt })
         } else {
@@ -184,9 +184,9 @@ class OidcModelClientAdapter {
      *
      */
     async find (id) {
-        const item = await OidcClient.getOne(this.context, { clientId: id })
+        const item = await OidcClient.getOne(this.context, { clientId: id, isEnabled: true, deletedAt: null })
         if (!item) {
-            throw new Error(`There is no OIDC client with clientId=${id}`)
+            throw new Error(`There is no active OIDC client with clientId=${id}`)
         }
         return item.payload
     }
