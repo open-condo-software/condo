@@ -84,7 +84,7 @@ let createApolloClient = (initialState, ctx, apolloCacheConfig, apolloClientConf
     const batchLink = new BatchHttpLink({
         ...linkPayload,
         batchMax: 50,
-        batchInterval: 20,
+        batchInterval: 10,
     })
 
     // The `ctx` (NextPageContext) will only be present on the server.
