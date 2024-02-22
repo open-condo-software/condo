@@ -2,13 +2,15 @@ import { Typography } from 'antd'
 import Head from 'next/head'
 import Router, { useRouter } from 'next/router'
 import qs from 'qs'
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useMutation } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 
 import { Button } from '@condo/domains/common/components/Button'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { ORGANIZATION_TOUR } from '@condo/domains/common/constants/featureflags'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
@@ -39,13 +41,16 @@ const RegisterPage: AuthPage = () => {
     const { token, isConfirmed, tokenError, setToken, setTokenError } = useContext(RegisterContext)
     const [step, setStep] = useState('inputPhone')
 
+    const { useFlag } = useFeatureFlags()
+    const isOrganizationTourEnabled = useFlag(ORGANIZATION_TOUR)
+
     const [createOnBoarding] = useMutation(CREATE_ONBOARDING_MUTATION, {
         onCompleted: () => {
             Router.push('/onboarding')
         },
     })
 
-    const initOnBoarding = (userId: string) => {
+    const initOnBoarding = useCallback((userId: string) => {
         const onBoardingExtraData = {
             dv: 1,
             sender: getClientSideSenderInfo(),
@@ -60,7 +65,15 @@ const RegisterPage: AuthPage = () => {
             OnCompletedMsg: null,
             intl,
         })
-    }
+    }, [createOnBoarding, intl])
+
+    const handleFinish = useCallback((userId: string) => {
+        if (!isOrganizationTourEnabled) {
+            initOnBoarding(userId)
+        } else {
+            router.push('/')
+        }
+    }, [initOnBoarding, isOrganizationTourEnabled, router])
 
     useEffect(() => {
         if (token && isConfirmed) {
@@ -114,7 +127,7 @@ const RegisterPage: AuthPage = () => {
             }}
             title={RegistrationTitleMsg}
         />,
-        register: <RegisterForm onFinish={initOnBoarding}/>,
+        register: <RegisterForm onFinish={handleFinish}/>,
     }
 
     return (

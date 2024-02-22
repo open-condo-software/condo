@@ -2204,6 +2204,7 @@
   "api.miniapp.sendB2CAppPushMessage.WRONG_SENDER_FORMAT": "Неверный формат поля \"sender\"",
   "api.miniapp.sendB2CAppPushMessage.APP_IN_BLACK_LIST": "Невозможно отправить уведомления для приложения, находящегося в блэклисте",
   "api.analytics.overviewDashboard.FEATURE_IS_DISABLED": "Эта функция недоступна в вашей организации",
+  "api.tourStep.update.updateCompletedStepType": "Нельзя обновить поле status у выполненного TourStep ",
   "excelExport.header.contacts.forAllTime": "Контакты за всё время",
   "excelExport.header.contacts.forPeriod": "Контакты за период",
   "excelExport.header.newsRecipients": "Получатели новости",

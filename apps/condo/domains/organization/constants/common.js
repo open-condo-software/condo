@@ -89,6 +89,8 @@ const DEFAULT_ROLES = {
         'canManageInvoices': true,
         'canReadMarketItems': true,
         'canManageMarketItems': true,
+        'canReadTour': true,
+        'canManageTour': true,
     },
     'Dispatcher': {
         'name': 'employee.role.Dispatcher.name',
@@ -145,6 +147,8 @@ const DEFAULT_ROLES = {
         'canManageInvoices': false,
         'canReadMarketItems': true,
         'canManageMarketItems': false,
+        'canReadTour': true,
+        'canManageTour': true,
     },
     'Manager': {
         'name': 'employee.role.Manager.name',
@@ -204,6 +208,8 @@ const DEFAULT_ROLES = {
         'canManageInvoices': true,
         'canReadMarketItems': true,
         'canManageMarketItems': true,
+        'canReadTour': true,
+        'canManageTour': true,
     },
     'Foreman': {
         'name': 'employee.role.Foreman.name',
@@ -259,6 +265,8 @@ const DEFAULT_ROLES = {
         'canReadMarketPriceScopes': true,
         'canReadMarketItems': true,
         'canManageMarketItems': false,
+        'canReadTour': true,
+        'canManageTour': true,
     },
     'Technician': {
         'name': 'employee.role.Technician.name',
@@ -313,6 +321,8 @@ const DEFAULT_ROLES = {
         'canReadMarketPriceScopes': true,
         'canReadMarketItems': true,
         'canManageMarketItems': false,
+        'canReadTour': true,
+        'canManageTour': true,
     },
     'Contractor': {
         'name': 'employee.role.Contractor.name',
@@ -365,6 +375,8 @@ const DEFAULT_ROLES = {
         'canManageInvoices': false,
         'canReadMarketItems': false,
         'canManageMarketItems': false,
+        'canReadTour': true,
+        'canManageTour': true,
     },
 }
 

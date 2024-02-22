@@ -36794,6 +36794,30 @@ export type Mutation = {
   deleteOnBoardingStep?: Maybe<OnBoardingStep>;
   /**  Delete multiple OnBoardingStep items by ID.  */
   deleteOnBoardingSteps?: Maybe<Array<Maybe<OnBoardingStep>>>;
+  /**  Create a single TourStepHistoryRecord item.  */
+  createTourStepHistoryRecord?: Maybe<TourStepHistoryRecord>;
+  /**  Create multiple TourStepHistoryRecord items.  */
+  createTourStepHistoryRecords?: Maybe<Array<Maybe<TourStepHistoryRecord>>>;
+  /**  Update a single TourStepHistoryRecord item by ID.  */
+  updateTourStepHistoryRecord?: Maybe<TourStepHistoryRecord>;
+  /**  Update multiple TourStepHistoryRecord items by ID.  */
+  updateTourStepHistoryRecords?: Maybe<Array<Maybe<TourStepHistoryRecord>>>;
+  /**  Delete a single TourStepHistoryRecord item by ID.  */
+  deleteTourStepHistoryRecord?: Maybe<TourStepHistoryRecord>;
+  /**  Delete multiple TourStepHistoryRecord items by ID.  */
+  deleteTourStepHistoryRecords?: Maybe<Array<Maybe<TourStepHistoryRecord>>>;
+  /**  Create a single TourStep item.  */
+  createTourStep?: Maybe<TourStep>;
+  /**  Create multiple TourStep items.  */
+  createTourSteps?: Maybe<Array<Maybe<TourStep>>>;
+  /**  Update a single TourStep item by ID.  */
+  updateTourStep?: Maybe<TourStep>;
+  /**  Update multiple TourStep items by ID.  */
+  updateTourSteps?: Maybe<Array<Maybe<TourStep>>>;
+  /**  Delete a single TourStep item by ID.  */
+  deleteTourStep?: Maybe<TourStep>;
+  /**  Delete multiple TourStep items by ID.  */
+  deleteTourSteps?: Maybe<Array<Maybe<TourStep>>>;
   /**  Create a single MeterResourceHistoryRecord item.  */
   createMeterResourceHistoryRecord?: Maybe<MeterResourceHistoryRecord>;
   /**  Create multiple MeterResourceHistoryRecord items.  */
@@ -45457,6 +45481,68 @@ export type MutationDeleteOnBoardingStepArgs = {
 
 
 export type MutationDeleteOnBoardingStepsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateTourStepHistoryRecordArgs = {
+  data?: Maybe<TourStepHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateTourStepHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<TourStepHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateTourStepHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<TourStepHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateTourStepHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<TourStepHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteTourStepHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteTourStepHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateTourStepArgs = {
+  data?: Maybe<TourStepCreateInput>;
+};
+
+
+export type MutationCreateTourStepsArgs = {
+  data?: Maybe<Array<Maybe<TourStepsCreateInput>>>;
+};
+
+
+export type MutationUpdateTourStepArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<TourStepUpdateInput>;
+};
+
+
+export type MutationUpdateTourStepsArgs = {
+  data?: Maybe<Array<Maybe<TourStepsUpdateInput>>>;
+};
+
+
+export type MutationDeleteTourStepArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteTourStepsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -54279,6 +54365,8 @@ export type OrganizationEmployeeRole = {
   canReadPaymentsWithInvoices?: Maybe<Scalars['Boolean']>;
   canReadMarketplace?: Maybe<Scalars['Boolean']>;
   canManageMarketplace?: Maybe<Scalars['Boolean']>;
+  canReadTour?: Maybe<Scalars['Boolean']>;
+  canManageTour?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -54355,6 +54443,8 @@ export type OrganizationEmployeeRoleCreateInput = {
   canReadPaymentsWithInvoices?: Maybe<Scalars['Boolean']>;
   canReadMarketplace?: Maybe<Scalars['Boolean']>;
   canManageMarketplace?: Maybe<Scalars['Boolean']>;
+  canReadTour?: Maybe<Scalars['Boolean']>;
+  canManageTour?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -54437,6 +54527,8 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canReadPaymentsWithInvoices?: Maybe<Scalars['Boolean']>;
   canReadMarketplace?: Maybe<Scalars['Boolean']>;
   canManageMarketplace?: Maybe<Scalars['Boolean']>;
+  canReadTour?: Maybe<Scalars['Boolean']>;
+  canManageTour?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -54513,6 +54605,8 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   canReadPaymentsWithInvoices?: Maybe<Scalars['Boolean']>;
   canReadMarketplace?: Maybe<Scalars['Boolean']>;
   canManageMarketplace?: Maybe<Scalars['Boolean']>;
+  canReadTour?: Maybe<Scalars['Boolean']>;
+  canManageTour?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -54594,6 +54688,8 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   canReadPaymentsWithInvoices?: Maybe<Scalars['Boolean']>;
   canReadMarketplace?: Maybe<Scalars['Boolean']>;
   canManageMarketplace?: Maybe<Scalars['Boolean']>;
+  canReadTour?: Maybe<Scalars['Boolean']>;
+  canManageTour?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -54785,6 +54881,10 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canReadMarketplace_not?: Maybe<Scalars['Boolean']>;
   canManageMarketplace?: Maybe<Scalars['Boolean']>;
   canManageMarketplace_not?: Maybe<Scalars['Boolean']>;
+  canReadTour?: Maybe<Scalars['Boolean']>;
+  canReadTour_not?: Maybe<Scalars['Boolean']>;
+  canManageTour?: Maybe<Scalars['Boolean']>;
+  canManageTour_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -54933,6 +55033,8 @@ export type OrganizationEmployeeRoleUpdateInput = {
   canReadPaymentsWithInvoices?: Maybe<Scalars['Boolean']>;
   canReadMarketplace?: Maybe<Scalars['Boolean']>;
   canManageMarketplace?: Maybe<Scalars['Boolean']>;
+  canReadTour?: Maybe<Scalars['Boolean']>;
+  canManageTour?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -55101,6 +55203,10 @@ export type OrganizationEmployeeRoleWhereInput = {
   canReadMarketplace_not?: Maybe<Scalars['Boolean']>;
   canManageMarketplace?: Maybe<Scalars['Boolean']>;
   canManageMarketplace_not?: Maybe<Scalars['Boolean']>;
+  canReadTour?: Maybe<Scalars['Boolean']>;
+  canReadTour_not?: Maybe<Scalars['Boolean']>;
+  canManageTour?: Maybe<Scalars['Boolean']>;
+  canManageTour_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -61797,6 +61903,22 @@ export type Query = {
   _allOnBoardingStepsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the OnBoardingStep list.  */
   _OnBoardingStepsMeta?: Maybe<_ListMeta>;
+  /**  Search for all TourStepHistoryRecord items which match the where clause.  */
+  allTourStepHistoryRecords?: Maybe<Array<Maybe<TourStepHistoryRecord>>>;
+  /**  Search for the TourStepHistoryRecord item with the matching ID.  */
+  TourStepHistoryRecord?: Maybe<TourStepHistoryRecord>;
+  /**  Perform a meta-query on all TourStepHistoryRecord items which match the where clause.  */
+  _allTourStepHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the TourStepHistoryRecord list.  */
+  _TourStepHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all TourStep items which match the where clause.  */
+  allTourSteps?: Maybe<Array<Maybe<TourStep>>>;
+  /**  Search for the TourStep item with the matching ID.  */
+  TourStep?: Maybe<TourStep>;
+  /**  Perform a meta-query on all TourStep items which match the where clause.  */
+  _allTourStepsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the TourStep list.  */
+  _TourStepsMeta?: Maybe<_ListMeta>;
   /**  Search for all MeterResourceHistoryRecord items which match the where clause.  */
   allMeterResourceHistoryRecords?: Maybe<Array<Maybe<MeterResourceHistoryRecord>>>;
   /**  Search for the MeterResourceHistoryRecord item with the matching ID.  */
@@ -66528,6 +66650,56 @@ export type Query_AllOnBoardingStepsMetaArgs = {
   where?: Maybe<OnBoardingStepWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortOnBoardingStepsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllTourStepHistoryRecordsArgs = {
+  where?: Maybe<TourStepHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortTourStepHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryTourStepHistoryRecordArgs = {
+  where: TourStepHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllTourStepHistoryRecordsMetaArgs = {
+  where?: Maybe<TourStepHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortTourStepHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllTourStepsArgs = {
+  where?: Maybe<TourStepWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortTourStepsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryTourStepArgs = {
+  where: TourStepWhereUniqueInput;
+};
+
+
+export type Query_AllTourStepsMetaArgs = {
+  where?: Maybe<TourStepWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortTourStepsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -77828,6 +78000,10 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanReadMarketplaceDesc = 'canReadMarketplace_DESC',
   CanManageMarketplaceAsc = 'canManageMarketplace_ASC',
   CanManageMarketplaceDesc = 'canManageMarketplace_DESC',
+  CanReadTourAsc = 'canReadTour_ASC',
+  CanReadTourDesc = 'canReadTour_DESC',
+  CanManageTourAsc = 'canManageTour_ASC',
+  CanManageTourDesc = 'canManageTour_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -77967,6 +78143,10 @@ export enum SortOrganizationEmployeeRolesBy {
   CanReadMarketplaceDesc = 'canReadMarketplace_DESC',
   CanManageMarketplaceAsc = 'canManageMarketplace_ASC',
   CanManageMarketplaceDesc = 'canManageMarketplace_DESC',
+  CanReadTourAsc = 'canReadTour_ASC',
+  CanReadTourDesc = 'canReadTour_DESC',
+  CanManageTourAsc = 'canManageTour_ASC',
+  CanManageTourDesc = 'canManageTour_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -80232,6 +80412,58 @@ export enum SortTicketsBy {
   SourceDesc = 'source_DESC',
   DeferredUntilAsc = 'deferredUntil_ASC',
   DeferredUntilDesc = 'deferredUntil_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
+export enum SortTourStepHistoryRecordsBy {
+  TypeAsc = 'type_ASC',
+  TypeDesc = 'type_DESC',
+  StatusAsc = 'status_ASC',
+  StatusDesc = 'status_DESC',
+  OrderAsc = 'order_ASC',
+  OrderDesc = 'order_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortTourStepsBy {
+  OrganizationAsc = 'organization_ASC',
+  OrganizationDesc = 'organization_DESC',
+  TypeAsc = 'type_ASC',
+  TypeDesc = 'type_DESC',
+  StatusAsc = 'status_ASC',
+  StatusDesc = 'status_DESC',
+  OrderAsc = 'order_ASC',
+  OrderDesc = 'order_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -90044,6 +90276,405 @@ export type TicketsCreateInput = {
 export type TicketsUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<TicketUpdateInput>;
+};
+
+/**  One of the few steps in the tour for the organization  */
+export type TourStep = {
+  __typename?: 'TourStep';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the TourStep List config, or
+   *  2. As an alias to the field set on 'labelField' in the TourStep List config, or
+   *  3. As an alias to a 'name' field on the TourStep List (if one exists), or
+   *  4. As an alias to the 'id' field on the TourStep List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
+  organization?: Maybe<Organization>;
+  /**  Type of the tour step. It is need to understand what this step is responsible for  */
+  type?: Maybe<TourStepTypeType>;
+  /**  Step status, may be todo, waiting, completed and disabled  */
+  status?: Maybe<TourStepStatusType>;
+  /**  Used for sorting  */
+  order?: Maybe<Scalars['Int']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type TourStepCreateInput = {
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  type?: Maybe<TourStepTypeType>;
+  status?: Maybe<TourStepStatusType>;
+  order?: Maybe<Scalars['Int']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type TourStepHistoryRecord = {
+  __typename?: 'TourStepHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the TourStepHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the TourStepHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the TourStepHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the TourStepHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['String']>;
+  status?: Maybe<Scalars['String']>;
+  order?: Maybe<Scalars['Int']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<TourStepHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type TourStepHistoryRecordCreateInput = {
+  organization?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['String']>;
+  status?: Maybe<Scalars['String']>;
+  order?: Maybe<Scalars['Int']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<TourStepHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum TourStepHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type TourStepHistoryRecordUpdateInput = {
+  organization?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['String']>;
+  status?: Maybe<Scalars['String']>;
+  order?: Maybe<Scalars['Int']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<TourStepHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type TourStepHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<TourStepHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<TourStepHistoryRecordWhereInput>>>;
+  organization?: Maybe<Scalars['String']>;
+  organization_not?: Maybe<Scalars['String']>;
+  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  type?: Maybe<Scalars['String']>;
+  type_not?: Maybe<Scalars['String']>;
+  type_contains?: Maybe<Scalars['String']>;
+  type_not_contains?: Maybe<Scalars['String']>;
+  type_starts_with?: Maybe<Scalars['String']>;
+  type_not_starts_with?: Maybe<Scalars['String']>;
+  type_ends_with?: Maybe<Scalars['String']>;
+  type_not_ends_with?: Maybe<Scalars['String']>;
+  type_i?: Maybe<Scalars['String']>;
+  type_not_i?: Maybe<Scalars['String']>;
+  type_contains_i?: Maybe<Scalars['String']>;
+  type_not_contains_i?: Maybe<Scalars['String']>;
+  type_starts_with_i?: Maybe<Scalars['String']>;
+  type_not_starts_with_i?: Maybe<Scalars['String']>;
+  type_ends_with_i?: Maybe<Scalars['String']>;
+  type_not_ends_with_i?: Maybe<Scalars['String']>;
+  type_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  type_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  status?: Maybe<Scalars['String']>;
+  status_not?: Maybe<Scalars['String']>;
+  status_contains?: Maybe<Scalars['String']>;
+  status_not_contains?: Maybe<Scalars['String']>;
+  status_starts_with?: Maybe<Scalars['String']>;
+  status_not_starts_with?: Maybe<Scalars['String']>;
+  status_ends_with?: Maybe<Scalars['String']>;
+  status_not_ends_with?: Maybe<Scalars['String']>;
+  status_i?: Maybe<Scalars['String']>;
+  status_not_i?: Maybe<Scalars['String']>;
+  status_contains_i?: Maybe<Scalars['String']>;
+  status_not_contains_i?: Maybe<Scalars['String']>;
+  status_starts_with_i?: Maybe<Scalars['String']>;
+  status_not_starts_with_i?: Maybe<Scalars['String']>;
+  status_ends_with_i?: Maybe<Scalars['String']>;
+  status_not_ends_with_i?: Maybe<Scalars['String']>;
+  status_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  status_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  order?: Maybe<Scalars['Int']>;
+  order_not?: Maybe<Scalars['Int']>;
+  order_lt?: Maybe<Scalars['Int']>;
+  order_lte?: Maybe<Scalars['Int']>;
+  order_gt?: Maybe<Scalars['Int']>;
+  order_gte?: Maybe<Scalars['Int']>;
+  order_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  order_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<TourStepHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<TourStepHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<TourStepHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<TourStepHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type TourStepHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type TourStepHistoryRecordsCreateInput = {
+  data?: Maybe<TourStepHistoryRecordCreateInput>;
+};
+
+export type TourStepHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<TourStepHistoryRecordUpdateInput>;
+};
+
+export enum TourStepStatusType {
+  Todo = 'todo',
+  Waiting = 'waiting',
+  Disabled = 'disabled',
+  Completed = 'completed'
+}
+
+export enum TourStepTypeType {
+  Ticket = 'ticket',
+  Billing = 'billing',
+  Meter = 'meter',
+  Resident = 'resident',
+  CreateProperty = 'createProperty',
+  CreatePropertyMap = 'createPropertyMap',
+  CreateTicket = 'createTicket',
+  NotifyResidentsAboutTickets = 'notifyResidentsAboutTickets',
+  UploadReceipts = 'uploadReceipts',
+  NotifyResidentsAboutPayments = 'notifyResidentsAboutPayments',
+  CreateMeterReadings = 'createMeterReadings',
+  NotifyResidentsAboutMeterReadings = 'notifyResidentsAboutMeterReadings',
+  ViewResidentsAppGuide = 'viewResidentsAppGuide',
+  CreateNews = 'createNews'
+}
+
+export type TourStepUpdateInput = {
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  type?: Maybe<TourStepTypeType>;
+  status?: Maybe<TourStepStatusType>;
+  order?: Maybe<Scalars['Int']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type TourStepWhereInput = {
+  AND?: Maybe<Array<Maybe<TourStepWhereInput>>>;
+  OR?: Maybe<Array<Maybe<TourStepWhereInput>>>;
+  organization?: Maybe<OrganizationWhereInput>;
+  organization_is_null?: Maybe<Scalars['Boolean']>;
+  type?: Maybe<TourStepTypeType>;
+  type_not?: Maybe<TourStepTypeType>;
+  type_in?: Maybe<Array<Maybe<TourStepTypeType>>>;
+  type_not_in?: Maybe<Array<Maybe<TourStepTypeType>>>;
+  status?: Maybe<TourStepStatusType>;
+  status_not?: Maybe<TourStepStatusType>;
+  status_in?: Maybe<Array<Maybe<TourStepStatusType>>>;
+  status_not_in?: Maybe<Array<Maybe<TourStepStatusType>>>;
+  order?: Maybe<Scalars['Int']>;
+  order_not?: Maybe<Scalars['Int']>;
+  order_lt?: Maybe<Scalars['Int']>;
+  order_lte?: Maybe<Scalars['Int']>;
+  order_gt?: Maybe<Scalars['Int']>;
+  order_gte?: Maybe<Scalars['Int']>;
+  order_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  order_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type TourStepWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type TourStepsCreateInput = {
+  data?: Maybe<TourStepCreateInput>;
+};
+
+export type TourStepsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<TourStepUpdateInput>;
 };
 
 

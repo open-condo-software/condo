@@ -132,6 +132,8 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
         canReadPaymentsWithInvoices: { type: Checkbox, defaultValue: false },
         canReadMarketplace: { type: Checkbox, defaultValue: false },
         canManageMarketplace: { type: Checkbox, defaultValue: false },
+        canReadTour: { type: Checkbox, defaultValue: true },
+        canManageTour: { type: Checkbox, defaultValue: true },
     },
     plugins: [uuided(), versioned(), tracked(), dvAndSender(), historical()],
     access: {
