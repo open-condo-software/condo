@@ -236,18 +236,18 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 }
 
                 const isInvalidData = await redisGuard.isLocked(captcha, 'validation-failed')
-                if (!isInvalidData) {
-                    await ConfirmPhoneAction.create(context, variables)
-                    await sendMessage(context, {
-                        to: { phone },
-                        type: SMS_VERIFY_CODE_MESSAGE_TYPE,
-                        meta: {
-                            dv: 1,
-                            smsCode,
-                        },
-                        sender: sender,
-                    })
-                }
+                if (isInvalidData) return { token }
+
+                await ConfirmPhoneAction.create(context, variables)
+                await sendMessage(context, {
+                    to: { phone },
+                    type: SMS_VERIFY_CODE_MESSAGE_TYPE,
+                    meta: {
+                        dv: 1,
+                        smsCode,
+                    },
+                    sender: sender,
+                })
 
                 return { token }
             },
