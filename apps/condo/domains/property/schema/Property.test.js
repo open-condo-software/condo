@@ -3,6 +3,7 @@
  */
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
+const { cloneDeep } = require('lodash')
 
 const {
     catchErrorFrom,
@@ -249,7 +250,7 @@ describe('Property', () => {
             expect(noMap).toHaveProperty('unitsCount', 0)
             expect(noMap).toHaveProperty('uninhabitedUnitsCount', 0)
 
-            const buildingMap = { ...buildingMapJson }
+            const buildingMap = cloneDeep(buildingMapJson)
             buildingMap['sections'][0]['floors'][0]['units'][0].unitType = 'commercial'
             buildingMap['sections'][0]['floors'][1]['units'][0].unitType = 'warehouse'
             buildingMap['sections'][0]['floors'][2]['units'][0].unitType = 'apartment'
@@ -257,6 +258,20 @@ describe('Property', () => {
             const [updated] = await updateTestProperty(user, property.id, { map: buildingMap })
             expect(updated).toHaveProperty('unitsCount', 25)
             expect(updated).toHaveProperty('uninhabitedUnitsCount', 11)
+        })
+        test('Should not update if map is not updated', async () => {
+            const user = await makeClientWithRegisteredOrganization()
+            const [property] = await createTestProperty(user, user.organization, { map: buildingMapJson })
+            expect(property).toHaveProperty('map')
+            expect(property.map).toMatchObject(buildingMapJson)
+            expect(property).toHaveProperty('unitsCount', 28)
+            expect(property).toHaveProperty('uninhabitedUnitsCount', 8)
+
+            const [updatedProperty] = await updateTestProperty(user, property.id, { name: faker.random.word() })
+            expect(updatedProperty).toHaveProperty('map')
+            expect(updatedProperty.map).toMatchObject(buildingMapJson)
+            expect(updatedProperty).toHaveProperty('unitsCount', 28)
+            expect(updatedProperty).toHaveProperty('uninhabitedUnitsCount', 8)
         })
         test('Can be created with `null` in `map.sections[].floors[].units[]`', async () => {
             const map = {

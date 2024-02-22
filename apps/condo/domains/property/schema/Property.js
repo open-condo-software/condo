@@ -181,8 +181,9 @@ const Property = new GQLListSchema('Property', {
                     }
 
                     if (operation === 'update') {
+                        const newItem = { ...existingItem, ...resolvedData }
                         const existingMap = get(existingItem, 'map')
-                        const updatedMap = get(resolvedData, 'map')
+                        const updatedMap = get(newItem, 'map')
 
                         const isMapDeleted = existingMap && !updatedMap
 
@@ -235,8 +236,9 @@ const Property = new GQLListSchema('Property', {
                     }
 
                     if (operation === 'update') {
+                        const newItem = { ...existingItem, ...resolvedData }
                         const existingMap = get(existingItem, 'map')
-                        const updatedMap = get(resolvedData, 'map')
+                        const updatedMap = get(newItem, 'map')
 
                         const isMapDeleted = existingMap && !updatedMap
 
