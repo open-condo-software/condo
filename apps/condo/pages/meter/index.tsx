@@ -2,10 +2,15 @@
 import {
     SortMeterReadingsBy,
     MeterReportingPeriod as MeterReportingPeriodType,
+    PropertyWhereInput,
+    MeterReadingWhereInput,
+    PropertyMeterReadingWhereInput,
+    SortPropertyMeterReadingsBy,
 } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Col, Row, RowProps, Typography } from 'antd'
+import { ColumnsType } from 'antd/lib/table'
 import { TableRowSelection } from 'antd/lib/table/interface'
 import chunk from 'lodash/chunk'
 import compact from 'lodash/compact'
@@ -34,6 +39,7 @@ import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/D
 import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
 import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
+import { Loader } from '@condo/domains/common/components/Loader'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
@@ -43,6 +49,7 @@ import {
 } from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { MeterReadPermissionRequired } from '@condo/domains/meter/components/PageAccess'
 import { METER_REPORTING_PERIOD_FRONTEND_FEATURE_FLAG } from '@condo/domains/meter/constants/constants'
@@ -72,36 +79,48 @@ const RESET_FILTERS_BUTTON_STYLE: CSSProperties = { paddingLeft: 0 }
 const DEFAULT_PERIOD_TEXT_STYLE = { alignSelf: 'start' }
 const QUICK_FILTERS_COL_STYLE: CSSProperties = { alignSelf: 'center' }
 
+const SORTABLE_PROPERTIES = ['date', 'clientName', 'source']
 
-export const MetersPageContent = ({
-    searchMeterReadingsQuery,
+type MetersTableContentProps = {
+    filtersMeta: FiltersMeta<MeterReadingWhereInput>[]
+    tableColumns: ColumnsType
+    baseSearchQuery: MeterReadingWhereInput
+    canManageMeterReadings: boolean
+    sortableProperties?: string[]
+    mutationErrorsToMessages?: Record<string, string>
+    loading?: boolean
+}
+
+const MetersTableContent: React.FC<MetersTableContentProps> = ({
+    filtersMeta,
     tableColumns,
-    sortBy,
-    filterMetas,
-    role,
+    baseSearchQuery,
+    canManageMeterReadings,
+    mutationErrorsToMessages,
+    sortableProperties,
     loading,
 }) => {
     const intl = useIntl()
-    const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.header' })
-    const EmptyListManualBodyDescription = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.manualCreateCard.body.description' })
-    const CreateMeter = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterButtonLabel' })
     const CreateMeterReadingsButtonLabel = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterReadingsButtonLabel' })
     const OnlyLatestMessage = intl.formatMessage({ id: 'pages.condo.meter.index.QuickFilterOnlyLatest' })
     const OnlyLatestDescMessage = intl.formatMessage({ id: 'pages.condo.meter.index.QuickFilterOnlyLatestDescription' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
-    const MeterAccountNumberExistInOtherUnitMessage = intl.formatMessage({ id: 'meter.import.error.MeterAccountNumberExistInOtherUnit' })
-    const MeterResourceOwnedByAnotherOrganizationMessage = intl.formatMessage({ id: 'api.meter.METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION' })
-    const MeterNumberExistInOrganizationMessage = intl.formatMessage({ id: 'meter.import.error.MeterNumberExistInOrganization' })
 
     const router = useRouter()
-    const { filters, offset } = parseQuery(router.query)
+    const { filters, offset, sorters } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
 
     const reduceNonEmpty = (cnt, filter) => cnt + Number((typeof filters[filter] === 'string' || Array.isArray(filters[filter])) && filters[filter].length > 0)
     const appliedFiltersCount = Object.keys(filters).reduce(reduceNonEmpty, 0)
+    const { filtersToWhere, sortersToSortBy } = useQueryMappers(filtersMeta, sortableProperties || SORTABLE_PROPERTIES)
 
-    const canManageMeterReadings = get(role, 'canManageMeterReadings', false)
+    const sortBy = useMemo(() => sortersToSortBy(sorters) as SortMeterReadingsBy[], [sorters, sortersToSortBy])
+
+    const searchMeterReadingsQuery = useMemo(() => ({
+        ...filtersToWhere(filters),
+        ...baseSearchQuery,
+    }), [baseSearchQuery, filters, filtersToWhere])
 
     const {
         loading: metersLoading,
@@ -120,9 +139,9 @@ export const MetersPageContent = ({
     const { breakpoints } = useLayoutContext()
     const [search, handleSearchChange, handleSearchReset] = useSearch()
     const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch)
-    const { MultipleFiltersModal, setIsMultipleFiltersModalVisible, ResetFiltersModalButton } = useMultipleFiltersModal(filterMetas, MeterReadingFilterTemplate, handleSearchReset)
+    const { MultipleFiltersModal, setIsMultipleFiltersModalVisible, ResetFiltersModalButton } = useMultipleFiltersModal(filtersMeta, MeterReadingFilterTemplate, handleSearchReset)
+
     const [columns, meterReadingNormalizer, meterReadingValidator, meterReadingCreator] = useImporterFunctions()
-    const isNoMeterData = isEmpty(meterReadings) && isEmpty(filters) && !metersLoading && !loading
 
     const [showOnlyLatestReadings, setShowOnlyLatestReadings] = useState(false)
     const switchShowOnlyLatestReadings = useCallback(
@@ -147,6 +166,140 @@ export const MetersPageContent = ({
     const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
     const handleMultipleFiltersButtonClick = useCallback(() => setIsMultipleFiltersModalVisible(true),
         [setIsMultipleFiltersModalVisible])
+    const handleCreateMeterReadings = useCallback(() => router.push('/meter/create'), [])
+
+    return (
+        <>
+            <Row
+                gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}
+                align='middle'
+            >
+                <Col span={24}>
+                    <TableFiltersContainer>
+                        <Row gutter={FILTERS_CONTAINER_GUTTER} align='middle' justify='space-between'>
+                            <Col xs={24} lg={12}>
+                                <Row justify='start' gutter={FILTERS_CONTAINER_GUTTER}>
+                                    <Col>
+                                        <Input
+                                            placeholder={SearchPlaceholder}
+                                            onChange={handleSearch}
+                                            value={search}
+                                            allowClear
+                                        />
+                                    </Col>
+                                    <Col style={QUICK_FILTERS_COL_STYLE}>
+                                        <Tooltip
+                                            placement='rightBottom'
+                                            title={OnlyLatestDescMessage}
+                                            children={<>
+                                                <Checkbox
+                                                    checked={showOnlyLatestReadings}
+                                                    onClick={switchShowOnlyLatestReadings}
+                                                    children={OnlyLatestMessage}
+                                                />
+                                                <QuestionCircle size='medium'/>
+                                            </>}
+                                        />
+                                    </Col>
+                                </Row>
+                            </Col>
+                            <Col>
+                                <Space size={12} direction={breakpoints.TABLET_LARGE ? 'horizontal' : 'vertical'}>
+                                    {
+                                        breakpoints.TABLET_LARGE && appliedFiltersCount > 0 && (
+                                            <ResetFiltersModalButton style={RESET_FILTERS_BUTTON_STYLE} />
+                                        )
+                                    }
+                                    <Button
+                                        type='secondary'
+                                        onClick={handleMultipleFiltersButtonClick}
+                                        icon={<Filter size='medium'/>}
+                                    >
+                                        {
+                                            appliedFiltersCount > 0 ?
+                                                `${FiltersButtonLabel} (${appliedFiltersCount})`
+                                                : FiltersButtonLabel
+                                        }
+                                    </Button>
+                                    {
+                                        !breakpoints.TABLET_LARGE && appliedFiltersCount > 0 && (
+                                            <ResetFiltersModalButton style={RESET_FILTERS_BUTTON_STYLE}/>
+                                        )
+                                    }
+                                </Space>
+                            </Col>
+                        </Row>
+                    </TableFiltersContainer>
+                </Col>
+                <Col span={24}>
+                    <Table
+                        totalRows={total}
+                        loading={metersLoading || loading}
+                        dataSource={showOnlyLatestReadings ? processedMeterReadings : meterReadings}
+                        columns={tableColumns}
+                        onRow={handleRowAction}
+                    />
+                </Col>
+                <Col span={24}>
+                    <ExportToExcelActionBar
+                        searchObjectsQuery={searchMeterReadingsQuery}
+                        exportToExcelQuery={EXPORT_METER_READINGS_QUERY}
+                        sortBy={sortBy}
+                        actions={[
+                            canManageMeterReadings && (
+                                <Button
+                                    key='create'
+                                    type='primary'
+                                    icon={<PlusCircle size='medium' />}
+                                    onClick={handleCreateMeterReadings}
+                                >
+                                    {CreateMeterReadingsButtonLabel}
+                                </Button>
+                            ),
+                            canManageMeterReadings && (
+                                <ImportWrapper
+                                    key='import'
+                                    accessCheck={canManageMeterReadings}
+                                    onFinish={refetch}
+                                    columns={columns}
+                                    rowNormalizer={meterReadingNormalizer}
+                                    rowValidator={meterReadingValidator}
+                                    objectCreator={meterReadingCreator}
+                                    mutationErrorsToMessages={mutationErrorsToMessages}
+                                    domainName='meter'
+                                />
+                            ),
+                        ]}
+                    />
+                </Col>
+            </Row>
+            <UpdateMeterModal />
+            <MultipleFiltersModal />
+        </>
+    )
+}
+
+type MetersPageContentProps = Omit<MetersTableContentProps, 'mutationErrorsToMessages'>
+
+export const MetersPageContent: React.FC<MetersPageContentProps> = ({
+    filtersMeta,
+    tableColumns,
+    baseSearchQuery,
+    canManageMeterReadings,
+    loading,
+}) => {
+    const intl = useIntl()
+    const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.header' })
+    const EmptyListManualBodyDescription = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.manualCreateCard.body.description' })
+    const CreateMeter = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterButtonLabel' })
+    const MeterAccountNumberExistInOtherUnitMessage = intl.formatMessage({ id: 'meter.import.error.MeterAccountNumberExistInOtherUnit' })
+    const MeterResourceOwnedByAnotherOrganizationMessage = intl.formatMessage({ id: 'api.meter.METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION' })
+    const MeterNumberExistInOrganizationMessage = intl.formatMessage({ id: 'meter.import.error.MeterNumberExistInOrganization' })
+
+    const { refetch } = MeterReading.useCount({}, { skip: true })
+    const { count, loading: countLoading } = MeterReading.useCount({ where: baseSearchQuery })
+
+    const [columns, meterReadingNormalizer, meterReadingValidator, meterReadingCreator] = useImporterFunctions()
 
     const mutationErrorsToMessages = useMemo(() => ({
         [EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT]: MeterAccountNumberExistInOtherUnitMessage,
@@ -154,11 +307,11 @@ export const MetersPageContent = ({
         [METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION]: MeterResourceOwnedByAnotherOrganizationMessage,
     }), [MeterAccountNumberExistInOtherUnitMessage, MeterNumberExistInOrganizationMessage, MeterResourceOwnedByAnotherOrganizationMessage])
 
-    const handleCreateMeterReadings = useCallback(() => router.push('/meter/create'), [])
+    const PageContent = useMemo(() => {
+        if (countLoading || loading) return <Loader />
 
-    return (
-        <>
-            <TablePageContent>
+        if (count === 0) {
+            return (
                 <EmptyListContent
                     label={EmptyListLabel}
                     importLayoutProps={{
@@ -178,139 +331,69 @@ export const MetersPageContent = ({
                     }}
                     createRoute={`/meter/create?meterType=${METER_PAGE_TYPES.meter}`}
                     createLabel={CreateMeter}
-                    containerStyle={{ display: isNoMeterData ? 'flex' : 'none' }}
                     accessCheck={canManageMeterReadings}
                 />
-                <Row
-                    gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}
-                    align='middle'
-                    hidden={isNoMeterData}
-                >
-                    <Col span={24}>
-                        <TableFiltersContainer>
-                            <Row gutter={FILTERS_CONTAINER_GUTTER} align='middle' justify='space-between'>
-                                <Col xs={24} lg={12}>
-                                    <Row justify='start' gutter={FILTERS_CONTAINER_GUTTER}>
-                                        <Col>
-                                            <Input
-                                                placeholder={SearchPlaceholder}
-                                                onChange={handleSearch}
-                                                value={search}
-                                                allowClear
-                                            />
-                                        </Col>
-                                        <Col style={QUICK_FILTERS_COL_STYLE}>
-                                            <Tooltip
-                                                placement='rightBottom'
-                                                title={OnlyLatestDescMessage}
-                                                children={<>
-                                                    <Checkbox
-                                                        checked={showOnlyLatestReadings}
-                                                        onClick={switchShowOnlyLatestReadings}
-                                                        children={OnlyLatestMessage}
-                                                    />
-                                                    <QuestionCircle size='medium'/>
-                                                </>}
-                                            />
-                                        </Col>
-                                    </Row>
-                                </Col>
-                                <Col>
-                                    <Space size={12} direction={breakpoints.TABLET_LARGE ? 'horizontal' : 'vertical'}>
-                                        {
-                                            breakpoints.TABLET_LARGE && appliedFiltersCount > 0 && (
-                                                <ResetFiltersModalButton style={RESET_FILTERS_BUTTON_STYLE} />
-                                            )
-                                        }
-                                        <Button
-                                            type='secondary'
-                                            onClick={handleMultipleFiltersButtonClick}
-                                            icon={<Filter size='medium'/>}
-                                        >
-                                            {
-                                                appliedFiltersCount > 0 ?
-                                                    `${FiltersButtonLabel} (${appliedFiltersCount})`
-                                                    : FiltersButtonLabel
-                                            }
-                                        </Button>
-                                        {
-                                            !breakpoints.TABLET_LARGE && appliedFiltersCount > 0 && (
-                                                <ResetFiltersModalButton style={RESET_FILTERS_BUTTON_STYLE}/>
-                                            )
-                                        }
-                                    </Space>
-                                </Col>
-                            </Row>
-                        </TableFiltersContainer>
-                    </Col>
-                    <Col span={24}>
-                        <Table
-                            totalRows={total}
-                            loading={metersLoading || loading}
-                            dataSource={showOnlyLatestReadings ? processedMeterReadings : meterReadings}
-                            columns={tableColumns}
-                            onRow={handleRowAction}
-                        />
-                    </Col>
-                    <Col span={24}>
-                        <ExportToExcelActionBar
-                            searchObjectsQuery={searchMeterReadingsQuery}
-                            exportToExcelQuery={EXPORT_METER_READINGS_QUERY}
-                            sortBy={sortBy}
-                            actions={[
-                                canManageMeterReadings && (
-                                    <Button
-                                        key='create'
-                                        type='primary'
-                                        icon={<PlusCircle size='medium' />}
-                                        onClick={handleCreateMeterReadings}
-                                    >
-                                        {CreateMeterReadingsButtonLabel}
-                                    </Button>
-                                ),
-                                canManageMeterReadings && (
-                                    <ImportWrapper
-                                        key='import'
-                                        accessCheck={canManageMeterReadings}
-                                        onFinish={refetch}
-                                        columns={columns}
-                                        rowNormalizer={meterReadingNormalizer}
-                                        rowValidator={meterReadingValidator}
-                                        objectCreator={meterReadingCreator}
-                                        mutationErrorsToMessages={mutationErrorsToMessages}
-                                        domainName='meter'
-                                    />
-                                ),
-                            ]}
-                        />
-                    </Col>
-                </Row>
-                <UpdateMeterModal />
-                <MultipleFiltersModal />
-            </TablePageContent>
-        </>
+            )
+        }
+
+        return (
+            <MetersTableContent
+                filtersMeta={filtersMeta}
+                tableColumns={tableColumns}
+                baseSearchQuery={baseSearchQuery}
+                canManageMeterReadings={canManageMeterReadings}
+                mutationErrorsToMessages={mutationErrorsToMessages}
+                loading={countLoading}
+            />
+        )
+    }, [
+        CreateMeter, EmptyListLabel, EmptyListManualBodyDescription, baseSearchQuery, canManageMeterReadings,
+        columns, count, countLoading, filtersMeta, loading, meterReadingCreator, meterReadingNormalizer, meterReadingValidator,
+        mutationErrorsToMessages, refetch, tableColumns,
+    ])
+
+    return (
+        <TablePageContent>
+            {PageContent}
+        </TablePageContent>
     )
 }
 
-export const PropertyMetersPageContent = ({
-    searchMeterReadingsQuery,
-    tableColumns,
-    sortBy,
-    filterMetas,
-    role,
-    loading,
-}) => {
+type PropertyMetersTableContentProps = {
+    filtersMeta: FiltersMeta<PropertyMeterReadingWhereInput>[]
+    tableColumns: ColumnsType
+    baseSearchQuery: PropertyMeterReadingWhereInput
+    canManageMeterReadings: boolean
+    sortableProperties?: string[]
+    loading?: boolean
+}
+
+const PropertyMetersTableContent: React.FC<PropertyMetersTableContentProps> = (props) => {
+    const {
+        canManageMeterReadings,
+        baseSearchQuery,
+        filtersMeta,
+        sortableProperties,
+        tableColumns,
+        loading,
+    } = props
+
     const intl = useIntl()
-    const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.propertyMeter.index.EmptyList.header' })
-    const CreateMeter = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterButtonLabel' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const CreateMeterReadingsButtonLabel = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterReadingsButtonLabel' })
 
     const router = useRouter()
-    const { filters, offset } = parseQuery(router.query)
+    const { filters, offset, sorters } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
 
-    const canManageMeterReadings = get(role, 'canManageMeterReadings', false)
+    const { filtersToWhere, sortersToSortBy } = useQueryMappers(filtersMeta, sortableProperties || SORTABLE_PROPERTIES)
+
+    const sortBy = useMemo(() => sortersToSortBy(sorters) as SortPropertyMeterReadingsBy[], [sorters, sortersToSortBy])
+
+    const searchMeterReadingsQuery = useMemo(() => ({
+        ...filtersToWhere(filters),
+        ...baseSearchQuery,
+    }), [baseSearchQuery, filters, filtersToWhere])
 
     const {
         loading: metersLoading,
@@ -326,10 +409,8 @@ export const PropertyMetersPageContent = ({
         fetchPolicy: 'network-only',
     })
 
-    const { breakpoints } = useLayoutContext()
-    const [search, handleSearchChange, handleSearchReset] = useSearch()
+    const [search, handleSearchChange] = useSearch()
     const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch, METER_PAGE_TYPES.propertyMeter)
-    const isNoMeterData = isEmpty(PropertyMeterReadings) && isEmpty(filters) && !metersLoading && !loading
 
     const handleRowAction = useCallback((record) => {
         return {
@@ -344,67 +425,90 @@ export const PropertyMetersPageContent = ({
 
     return (
         <>
-            <TablePageContent>
-                <EmptyListContent
-                    label={EmptyListLabel}
-                    message=''
-                    createRoute={`/meter/create?meterType=${METER_PAGE_TYPES.propertyMeter}`}
-                    createLabel={CreateMeter}
-                    containerStyle={{ display: isNoMeterData ? 'flex' : 'none' }}
-                    accessCheck={canManageMeterReadings}
-                />
-                <Row
-                    gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}
-                    align='middle'
-                    justify='center'
-                    hidden={isNoMeterData}
-                >
-                    <Col span={24}>
-                        <TableFiltersContainer>
-                            <Row justify='space-between' gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}>
-                                <Col xs={24} lg={7}>
-                                    <Input
-                                        placeholder={SearchPlaceholder}
-                                        onChange={handleSearch}
-                                        value={search}
-                                        allowClear
-                                    />
-                                </Col>
-                            </Row>
-                        </TableFiltersContainer>
-                    </Col>
-                    <Col span={24}>
-                        <Table
-                            totalRows={total}
-                            loading={metersLoading || loading}
-                            dataSource={PropertyMeterReadings}
-                            columns={tableColumns}
-                            onRow={handleRowAction}
-                        />
-                    </Col>
-                    <Col span={24}>
-                        <ExportToExcelActionBar
-                            searchObjectsQuery={searchMeterReadingsQuery}
-                            exportToExcelQuery={EXPORT_PROPERTY_METER_READINGS_QUERY}
-                            sortBy={sortBy}
-                            actions={[
-                                canManageMeterReadings && (
-                                    <Button
-                                        key='create'
-                                        type='primary'
-                                        icon={<PlusCircle size='medium' />}
-                                        onClick={handleCreateMeterReadings}
-                                    >
-                                        {CreateMeterReadingsButtonLabel}
-                                    </Button>
-                                ),
-                            ]}
-                        />
-                    </Col>
-                </Row>
-                <UpdateMeterModal />
-            </TablePageContent>
+            <Row
+                gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}
+                align='middle'
+                justify='center'
+            >
+                <Col span={24}>
+                    <TableFiltersContainer>
+                        <Row justify='space-between' gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}>
+                            <Col xs={24} lg={7}>
+                                <Input
+                                    placeholder={SearchPlaceholder}
+                                    onChange={handleSearch}
+                                    value={search}
+                                    allowClear
+                                />
+                            </Col>
+                        </Row>
+                    </TableFiltersContainer>
+                </Col>
+                <Col span={24}>
+                    <Table
+                        totalRows={total}
+                        loading={metersLoading || loading}
+                        dataSource={PropertyMeterReadings}
+                        columns={tableColumns}
+                        onRow={handleRowAction}
+                    />
+                </Col>
+                <Col span={24}>
+                    <ExportToExcelActionBar
+                        searchObjectsQuery={searchMeterReadingsQuery}
+                        exportToExcelQuery={EXPORT_PROPERTY_METER_READINGS_QUERY}
+                        sortBy={sortBy}
+                        actions={[
+                            canManageMeterReadings && (
+                                <Button
+                                    key='create'
+                                    type='primary'
+                                    icon={<PlusCircle size='medium' />}
+                                    onClick={handleCreateMeterReadings}
+                                >
+                                    {CreateMeterReadingsButtonLabel}
+                                </Button>
+                            ),
+                        ]}
+                    />
+                </Col>
+            </Row>
+            <UpdateMeterModal />
         </>
+    )
+}
+
+export const PropertyMetersPageContent: React.FC<PropertyMetersTableContentProps> = (props) => {
+    const {
+        baseSearchQuery,
+        canManageMeterReadings,
+    } = props
+
+    const intl = useIntl()
+    const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.propertyMeter.index.EmptyList.header' })
+    const CreateMeter = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterButtonLabel' })
+
+    const { count, loading: countLoading } = PropertyMeterReading.useCount({ where: baseSearchQuery })
+
+    const pageContent = useMemo(() => {
+        if (countLoading) return <Loader />
+        if (count === 0) return (
+            <EmptyListContent
+                label={EmptyListLabel}
+                message=''
+                createRoute={`/meter/create?meterType=${METER_PAGE_TYPES.propertyMeter}`}
+                createLabel={CreateMeter}
+                accessCheck={canManageMeterReadings}
+            />
+        )
+
+        return <PropertyMetersTableContent {...props} />
+    }, [CreateMeter, EmptyListLabel, canManageMeterReadings, count, countLoading, props])
+
+    return (
+        <TablePageContent>
+            {pageContent}
+        </TablePageContent>
     )
 }
 
@@ -595,8 +699,6 @@ interface IMeterIndexPage extends React.FC {
     requiredAccess?: React.FC
 }
 
-const sortableProperties = ['date', 'clientName', 'source']
-
 function MeterPageTypeFromQuery (tabFromQuery) {
     switch (tabFromQuery) {
         case METER_PAGE_TYPES.meter:
@@ -642,17 +744,16 @@ const MetersPage: IMeterIndexPage = () => {
         }
     }, [])
 
-    const filterMetas = useFilters(tab)
-    const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, sortableProperties)
+    const filtersMeta = useFilters(tab)
+    const { filtersToWhere, sortersToSortBy } = useQueryMappers(filtersMeta, SORTABLE_PROPERTIES)
     const { filters, sorters } = parseQuery(router.query)
-    const tableColumns = useTableColumns(filterMetas, tab)
-    const searchMeterReadingsQuery = useMemo(() => ({
-        ...filtersToWhere(filters),
+    const tableColumns = useTableColumns(filtersMeta, tab)
+    const baseMeterReadingsQuery = useMemo(() => ({
         meter: { deletedAt: null },
         deletedAt: null,
         organization: { id: userOrganizationId },
     }),
-    [filters, filtersToWhere, userOrganizationId])
+    [userOrganizationId])
     const searchMeterReportingPeriodsQuery = useMemo(() => {
         return {
             OR: [
@@ -673,18 +774,21 @@ const MetersPage: IMeterIndexPage = () => {
         router.replace({ query: { ...router.query, tab } })
     }, [tab])
 
+    const canManageMeterReadings = useMemo(() => get(role, 'canManageMeterReadings', false), [role])
+
     const tabItems = useMemo(() => [
         {
             label: MeterMessage,
             key: METER_PAGE_TYPES.meter,
-            children: <MetersPageContent
-                tableColumns={tableColumns}
-                searchMeterReadingsQuery={searchMeterReadingsQuery}
-                sortBy={sortBy}
-                filterMetas={filterMetas}
-                role={role}
-                loading={isLoading}
-            />,
+            children: (
+                <MetersPageContent
+                    filtersMeta={filtersMeta}
+                    tableColumns={tableColumns}
+                    loading={isLoading}
+                    canManageMeterReadings={canManageMeterReadings}
+                    baseSearchQuery={baseMeterReadingsQuery}
+                />
+            ),
         },
         isMeterReportingPeriodEnabled && {
             label: ReportingPeriodMessage,
@@ -693,7 +797,7 @@ const MetersPage: IMeterIndexPage = () => {
                 tableColumns={tableColumns}
                 searchMeterReportingPeriodsQuery={searchMeterReportingPeriodsQuery}
                 sortBy={sortBy}
-                filterMetas={filterMetas}
+                filterMetas={filtersMeta}
                 role={role}
                 loading={isLoading}
             />,
@@ -701,16 +805,17 @@ const MetersPage: IMeterIndexPage = () => {
         {
             label: PropertyMeterMessage,
             key: METER_PAGE_TYPES.propertyMeter,
-            children: <PropertyMetersPageContent
-                tableColumns={tableColumns}
-                searchMeterReadingsQuery={searchMeterReadingsQuery}
-                sortBy={sortBy}
-                filterMetas={filterMetas}
-                role={role}
-                loading={isLoading}
-            />,
+            children: (
+                <PropertyMetersPageContent
+                    filtersMeta={filtersMeta}
+                    tableColumns={tableColumns}
+                    canManageMeterReadings={canManageMeterReadings}
+                    loading={isLoading}
+                    baseSearchQuery={baseMeterReadingsQuery}
+                />
+            ),
         },
-    ].filter(Boolean), [MeterMessage, PropertyMeterMessage, ReportingPeriodMessage, filterMetas, isLoading, isMeterReportingPeriodEnabled, role, searchMeterReadingsQuery, searchMeterReportingPeriodsQuery, sortBy, tableColumns])
+    ].filter(Boolean), [MeterMessage, filtersMeta, tableColumns, isLoading, canManageMeterReadings, baseMeterReadingsQuery, isMeterReportingPeriodEnabled, ReportingPeriodMessage, searchMeterReportingPeriodsQuery, sortBy, role, PropertyMeterMessage])
 
     return (
         <MultipleFilterContextProvider>

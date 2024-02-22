@@ -20,6 +20,7 @@ const {
     useCreate,
     useUpdate,
     useSoftDelete,
+    useCount,
 } = generateReactHooks<PropertyMeterReading, PropertyMeterReadingCreateInput, PropertyMeterReadingUpdateInput, QueryAllPropertyMeterReadingsArgs>(PropertyMeterReadingGQL)
 
 export {
@@ -28,4 +29,5 @@ export {
     useCreate,
     useUpdate,
     useSoftDelete,
+    useCount,
 }
