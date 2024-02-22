@@ -13,6 +13,7 @@ export type TagProps = React.HTMLAttributes<HTMLSpanElement> & {
     bgColor?: CSSProperties['backgroundColor']
     icon?: React.ReactNode
     iconPosition?: 'start' | 'end'
+    className?: string
 }
 
 const Tag = React.forwardRef<HTMLSpanElement, TagProps>((props, ref) => {
@@ -22,6 +23,7 @@ const Tag = React.forwardRef<HTMLSpanElement, TagProps>((props, ref) => {
         bgColor = colors.gray['1'],
         iconPosition = 'start',
         icon,
+        className,
     } = props
 
     return (
@@ -47,6 +49,7 @@ const Tag = React.forwardRef<HTMLSpanElement, TagProps>((props, ref) => {
                 color: textColor,
                 background: bgColor,
             }}
+            className={className}
         />
     )
 })
