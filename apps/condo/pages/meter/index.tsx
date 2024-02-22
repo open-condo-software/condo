@@ -5,7 +5,7 @@ import {
     PropertyWhereInput,
     MeterReadingWhereInput,
     PropertyMeterReadingWhereInput,
-    SortPropertyMeterReadingsBy,
+    SortPropertyMeterReadingsBy, MeterReportingPeriodWhereInput,
 } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
 import styled from '@emotion/styled'
@@ -482,6 +482,7 @@ export const PropertyMetersPageContent: React.FC<PropertyMetersTableContentProps
     const {
         baseSearchQuery,
         canManageMeterReadings,
+        loading,
     } = props
 
     const intl = useIntl()
@@ -491,7 +492,7 @@ export const PropertyMetersPageContent: React.FC<PropertyMetersTableContentProps
     const { count, loading: countLoading } = PropertyMeterReading.useCount({ where: baseSearchQuery })
 
     const pageContent = useMemo(() => {
-        if (countLoading) return <Loader />
+        if (countLoading || loading) return <Loader />
         if (count === 0) return (
             <EmptyListContent
                 label={EmptyListLabel}
@@ -512,16 +513,24 @@ export const PropertyMetersPageContent: React.FC<PropertyMetersTableContentProps
     )
 }
 
-export const MeterReportingPeriodPageContent = ({
-    searchMeterReportingPeriodsQuery,
-    tableColumns,
-    sortBy,
-    filterMetas,
-    role,
-    loading,
-}) => {
+type MeterReportingPeriodPageContentProps = {
+    tableColumns: ColumnsType
+    filtersMeta: FiltersMeta<MeterReportingPeriodWhereInput>[]
+    loading?: boolean
+    canManageMeters?: boolean
+    userOrganizationId?: string
+}
+
+const MeterReportingPeriodTableContent: React.FC<MeterReportingPeriodPageContentProps> = (props) => {
+    const {
+        tableColumns,
+        filtersMeta,
+        loading,
+        canManageMeters,
+        userOrganizationId,
+    } = props
+
     const intl = useIntl()
-    const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.EmptyList.header' })
     const CreateReportingPeriodLabel = intl.formatMessage({ id: 'pages.condo.meter.index.reportingPeriod.EmptyList.create' })
     const DeleteLabel = intl.formatMessage({ id: 'Delete' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
@@ -531,7 +540,21 @@ export const MeterReportingPeriodPageContent = ({
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
-    const canManageMeters = get(role, 'canManageMeters', false)
+    const { filtersToWhere } = useQueryMappers(filtersMeta, SORTABLE_PROPERTIES)
+
+    const searchMeterReportingPeriodsQuery = useMemo(() => {
+        return {
+            OR: [
+                { organization_is_null: true },
+                {
+                    AND: [{
+                        ...filtersToWhere(filters),
+                        organization: { id: userOrganizationId },
+                    }],
+                },
+            ],
+        }},
+    [filters, filtersToWhere, userOrganizationId])
 
     const {
         loading: periodLoading,
@@ -539,7 +562,6 @@ export const MeterReportingPeriodPageContent = ({
         objs: reportingPeriods,
         refetch,
     } = MeterReportingPeriod.useObjects({
-        sortBy,
         where: searchMeterReportingPeriodsQuery,
         first: DEFAULT_PAGE_SIZE,
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
@@ -621,74 +643,110 @@ export const MeterReportingPeriodPageContent = ({
 
     return (
         <>
-            <TablePageContent>
+            <Row
+                gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}
+                align='middle'
+                justify='center'
+                hidden={isNoMeterData}
+            >
+                <Col span={24}>
+                    <TableFiltersContainer>
+                        <Row justify='space-between' gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}>
+                            <Col xs={24} lg={7}>
+                                <Input
+                                    placeholder={SearchPlaceholder}
+                                    onChange={handleSearch}
+                                    value={search}
+                                    allowClear
+                                />
+                            </Col>
+                        </Row>
+                    </TableFiltersContainer>
+                </Col>
+                {defaultPeriod.current && <Col span={24}>
+                    <Typography.Text style={DEFAULT_PERIOD_TEXT_STYLE} type='secondary'>
+                        {DefaultPeriodMessage}
+                    </Typography.Text>
+                </Col>}
+                <Col span={24}>
+                    <Table
+                        totalRows={total}
+                        loading={periodLoading || loading}
+                        dataSource={reportingPeriodsProcessedForTable}
+                        columns={tableColumns}
+                        onRow={handleRowAction}
+                        rowSelection={rowSelection}
+                    />
+                </Col>
+            </Row>
+            {
+                canManageMeters && !isNoMeterData && (
+                    <ActionBar
+                        actions={[
+                            <Button
+                                key='createPeriod'
+                                type='primary'
+                                onClick={handleCreateButtonClick}
+                            >
+                                {CreateReportingPeriodLabel}
+                            </Button>,
+                            selectedRows.length > 0 ? <DeleteButtonWithConfirmModal
+                                key='deleteSelectedPeriods'
+                                title={ConfirmDeleteTitle}
+                                message={ConfirmDeleteMessage}
+                                okButtonLabel={DeleteLabel}
+                                action={handleDeleteButtonClick}
+                                buttonContent={DeleteLabel}
+                            /> : undefined,
+                        ]}
+                    />
+                )
+            }
+        </>
+    )
+}
+
+export const MeterReportingPeriodPageContent: React.FC<MeterReportingPeriodPageContentProps> = (props) => {
+    const {
+        loading,
+        canManageMeters,
+        userOrganizationId,
+    } = props
+
+    const intl = useIntl()
+    const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.EmptyList.header' })
+    const CreateReportingPeriodLabel = intl.formatMessage({ id: 'pages.condo.meter.index.reportingPeriod.EmptyList.create' })
+
+    const searchMeterReportingPeriodsQuery = useMemo(() => {
+        return {
+            OR: [
+                { organization_is_null: true },
+                { AND: [{ organization: { id: userOrganizationId } }] },
+            ],
+        }},
+    [userOrganizationId])
+    const { count, loading: countLoading } = MeterReportingPeriod.useCount({ where: searchMeterReportingPeriodsQuery })
+
+    const pageContent = useMemo(() => {
+        if (countLoading || loading) return <Loader />
+        if (count === 0) {
+            return (
                 <EmptyListContent
                     label={EmptyListLabel}
-                    message=''
                     createRoute='/meter/reportingPeriod/create'
                     createLabel={CreateReportingPeriodLabel}
-                    containerStyle={{ display: isNoMeterData ? 'flex' : 'none' }}
                     accessCheck={canManageMeters}
                 />
-                <Row
-                    gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}
-                    align='middle'
-                    justify='center'
-                    hidden={isNoMeterData}
-                >
-                    <Col span={24}>
-                        <TableFiltersContainer>
-                            <Row justify='space-between' gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}>
-                                <Col xs={24} lg={7}>
-                                    <Input
-                                        placeholder={SearchPlaceholder}
-                                        onChange={handleSearch}
-                                        value={search}
-                                        allowClear
-                                    />
-                                </Col>
-                            </Row>
-                        </TableFiltersContainer>
-                    </Col>
-                    {defaultPeriod.current && <Col span={24}>
-                        <Typography.Text style={DEFAULT_PERIOD_TEXT_STYLE} type='secondary'>
-                            {DefaultPeriodMessage}
-                        </Typography.Text>
-                    </Col>}
-                    <Col span={24}>
-                        <Table
-                            totalRows={total}
-                            loading={periodLoading || loading}
-                            dataSource={reportingPeriodsProcessedForTable}
-                            columns={tableColumns}
-                            onRow={handleRowAction}
-                            rowSelection={rowSelection}
-                        />
-                    </Col>
-                </Row>
-                {
-                    canManageMeters && !isNoMeterData && (
-                        <ActionBar
-                            actions={[
-                                <Button
-                                    key='createPeriod'
-                                    type='primary'
-                                    onClick={handleCreateButtonClick}
-                                >
-                                    {CreateReportingPeriodLabel}
-                                </Button>,
-                                selectedRows.length > 0 ? <DeleteButtonWithConfirmModal
-                                    key='deleteSelectedPeriods'
-                                    title={ConfirmDeleteTitle}
-                                    message={ConfirmDeleteMessage}
-                                    okButtonLabel={DeleteLabel}
-                                    action={handleDeleteButtonClick}
-                                    buttonContent={DeleteLabel}
-                                /> : undefined,
-                            ]}
-                        />
-                    )
-                }
+            )
+        }
+
+        return <MeterReportingPeriodTableContent {...props} />
+    }, [CreateReportingPeriodLabel, EmptyListLabel, canManageMeters, count, countLoading, loading, props])
+
+    return (
+        <>
+            <TablePageContent>
+                {pageContent}
             </TablePageContent>
         </>
     )
@@ -726,7 +784,7 @@ const MetersPage: IMeterIndexPage = () => {
     const ReportingPeriodMessage = intl.formatMessage({ id: 'pages.condo.meter.index.reportingPeriodTab' })
 
     const { organization, link, isLoading } = useOrganization()
-    const userOrganizationId = get(organization, 'id')
+    const userOrganizationId = useMemo(() => get(organization, 'id'), [organization])
     const role = get(link, 'role')
     const router = useRouter()
 
@@ -745,8 +803,6 @@ const MetersPage: IMeterIndexPage = () => {
     }, [])
 
     const filtersMeta = useFilters(tab)
-    const { filtersToWhere, sortersToSortBy } = useQueryMappers(filtersMeta, SORTABLE_PROPERTIES)
-    const { filters, sorters } = parseQuery(router.query)
     const tableColumns = useTableColumns(filtersMeta, tab)
     const baseMeterReadingsQuery = useMemo(() => ({
         meter: { deletedAt: null },
@@ -754,27 +810,13 @@ const MetersPage: IMeterIndexPage = () => {
         organization: { id: userOrganizationId },
     }),
     [userOrganizationId])
-    const searchMeterReportingPeriodsQuery = useMemo(() => {
-        return {
-            OR: [
-                { organization_is_null: true },
-                {
-                    AND: [{
-                        ...filtersToWhere(filters),
-                        organization: { id: userOrganizationId },
-                    }],
-                },
-            ],
-        }},
-    [filters, filtersToWhere, userOrganizationId])
-    const sortBy = useMemo(() => sortersToSortBy(sorters) as SortMeterReadingsBy[], [sorters, sortersToSortBy])
-
     const handleTabChange = useCallback((tab: MeterPageTypes) => {
         setTab(tab)
         router.replace({ query: { ...router.query, tab } })
     }, [tab])
 
     const canManageMeterReadings = useMemo(() => get(role, 'canManageMeterReadings', false), [role])
+    const canManageMeters = useMemo(() => get(role, 'canManageMeters', false), [role])
 
     const tabItems = useMemo(() => [
         {
@@ -793,14 +835,15 @@ const MetersPage: IMeterIndexPage = () => {
         isMeterReportingPeriodEnabled && {
             label: ReportingPeriodMessage,
             key: METER_PAGE_TYPES.reportingPeriod,
-            children: <MeterReportingPeriodPageContent
-                tableColumns={tableColumns}
-                searchMeterReportingPeriodsQuery={searchMeterReportingPeriodsQuery}
-                sortBy={sortBy}
-                filterMetas={filtersMeta}
-                role={role}
-                loading={isLoading}
-            />,
+            children: (
+                <MeterReportingPeriodPageContent
+                    filtersMeta={filtersMeta}
+                    tableColumns={tableColumns}
+                    loading={isLoading}
+                    canManageMeters={canManageMeters}
+                    userOrganizationId={userOrganizationId}
+                />
+            ),
         },
         {
             label: PropertyMeterMessage,
@@ -815,7 +858,7 @@ const MetersPage: IMeterIndexPage = () => {
                 />
             ),
         },
-    ].filter(Boolean), [MeterMessage, filtersMeta, tableColumns, isLoading, canManageMeterReadings, baseMeterReadingsQuery, isMeterReportingPeriodEnabled, ReportingPeriodMessage, searchMeterReportingPeriodsQuery, sortBy, role, PropertyMeterMessage])
+    ].filter(Boolean), [MeterMessage, filtersMeta, tableColumns, isLoading, canManageMeterReadings, baseMeterReadingsQuery, isMeterReportingPeriodEnabled, ReportingPeriodMessage, canManageMeters, userOrganizationId, PropertyMeterMessage])
 
     return (
         <MultipleFilterContextProvider>
