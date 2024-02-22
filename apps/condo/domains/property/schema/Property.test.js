@@ -3,6 +3,7 @@
  */
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
+const { cloneDeep } = require('lodash')
 
 const {
     catchErrorFrom,
@@ -249,7 +250,7 @@ describe('Property', () => {
             expect(noMap).toHaveProperty('unitsCount', 0)
             expect(noMap).toHaveProperty('uninhabitedUnitsCount', 0)
 
-            const buildingMap = { ...buildingMapJson }
+            const buildingMap = cloneDeep(buildingMapJson)
             buildingMap['sections'][0]['floors'][0]['units'][0].unitType = 'commercial'
             buildingMap['sections'][0]['floors'][1]['units'][0].unitType = 'warehouse'
             buildingMap['sections'][0]['floors'][2]['units'][0].unitType = 'apartment'
