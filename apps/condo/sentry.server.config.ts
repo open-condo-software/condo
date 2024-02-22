@@ -5,12 +5,12 @@
 import * as Sentry from '@sentry/nextjs'
 import getConfig from 'next/config'
 
-const { publicRuntimeConfig: { sentryDSN } } = getConfig()
+const { publicRuntimeConfig: { sentryConfig } } = getConfig()
 
-if (sentryDSN) {
+if (sentryConfig['dsn']) {
     Sentry.init({
-        dsn: sentryDSN,
-        tracesSampleRate: 0.2,
+        dsn: sentryConfig['dsn'],
+        tracesSampleRate: sentryConfig['sampleRate'],
         debug: false,
     })
 }

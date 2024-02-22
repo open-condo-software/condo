@@ -47,7 +47,7 @@ const newsItemsSendingDelay = Number(conf['NEWS_ITEMS_SENDING_DELAY_SEC']) || 15
 const audioConfig = JSON.parse(conf['AUDIO_CONFIG'] || '{}')
 const checkTLSClientCertConfig = JSON.parse(conf['CHECK_TLS_CLIENT_CERT_CONFIG'] || '{}')
 const condoRBDomain = conf['CONDORB_DOMAIN']
-const sentryDSN = conf['SENTRY_DSN']
+const sentryConfig = conf['SENTRY_CONFIG'] ? JSON.parse(conf['SENTRY_CONFIG']) : {}
 const apolloBatchingEnabled = !falsey(conf['APOLLO_BATCHING_ENABLED'])
 
 module.exports = withTM(withLess(withCSS({
@@ -77,7 +77,7 @@ module.exports = withTM(withLess(withCSS({
         audioConfig,
         checkTLSClientCertConfig,
         condoRBDomain,
-        sentryDSN,
+        sentryConfig,
         apolloBatchingEnabled,
     },
     lessLoaderOptions: {
@@ -110,21 +110,23 @@ module.exports = withTM(withLess(withCSS({
 
 })))
 
-module.exports = withSentryConfig(
-    module.exports,
-    {
-        silent: true,
-        org: 'qqorgldsp',
-        project: 'javascript-nextjs',
-        validate: true,
-        widenClientFileUpload: true,
-        transpileClientSDK: false,
-        hideSourceMaps: true,
-        disableLogger: true,
-        automaticVercelMonitors: true,
-        autoInstrumentServerFunctions: true,
-        autoInstrumentMiddleware: true,
-        disableServerWebpackPlugin: false,
-        disableClientWebpackPlugin: false,
-    },
-)
+if (sentryConfig['dsn']) {
+    module.exports = withSentryConfig(
+        module.exports,
+        {
+            silent: true,
+            org: sentryConfig['organization'],
+            project: sentryConfig['project'],
+            validate: true,
+            widenClientFileUpload: true,
+            transpileClientSDK: false,
+            hideSourceMaps: true,
+            disableLogger: true,
+            automaticVercelMonitors: true,
+            autoInstrumentServerFunctions: true,
+            autoInstrumentMiddleware: true,
+            disableServerWebpackPlugin: false,
+            disableClientWebpackPlugin: false,
+        },
+    )
+}
