@@ -3,7 +3,7 @@ import React, { CSSProperties } from 'react'
 
 import type { SpaceProps as DefaultSpaceProps } from 'antd'
 
-export declare const SpaceSize: [4, 8, 12, 16, 20, 24, 40, 52, 60]
+export declare const SpaceSize: [4, 8, 12, 16, 20, 24, 32, 40, 52, 60]
 
 export type SpaceProps = {
     width?: CSSProperties['width']
