@@ -37,7 +37,7 @@ export interface IEmptyListProps {
 }
 
 const DesktopEmptyListCardWrapper = styled.div`
-  width: 250px;
+  max-width: 250px;
   height: 300px;
   
   .condo-card {
@@ -46,7 +46,7 @@ const DesktopEmptyListCardWrapper = styled.div`
     flex-flow: column;
     
     .condo-card-head {
-      height: 168px;
+      min-height: 168px;
     }
     
     .condo-card-body {
