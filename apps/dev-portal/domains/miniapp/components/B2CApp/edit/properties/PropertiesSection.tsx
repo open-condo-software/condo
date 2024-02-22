@@ -9,6 +9,7 @@ import { Select } from '@open-condo/ui'
 
 import { Section, SubSection } from '@/domains/miniapp/components/AppSettings'
 import { EmptySubSectionView } from '@/domains/miniapp/components/EmptySubSectionView'
+import { getEnvironment } from '@/domains/miniapp/utils/query'
 import { DEV_ENVIRONMENT, PROD_ENVIRONMENT } from '@dev-api/domains/miniapp/constants/publishing'
 
 import { PropertiesTable } from './PropertiesTable'
@@ -24,17 +25,20 @@ const FULL_COL_SPAN = 24
 export const PropertiesSection: React.FC<{ id: string }> = ({ id }) => {
     const intl = useIntl()
     const PropertiesTitle = intl.formatMessage({ id: 'apps.b2c.sections.properties.title' })
-    const DevStandLabel = intl.formatMessage({ id: 'apps.b2c.sections.publishing.publishForm.items.stand.options.development.label' })
-    const ProdStandLabel = intl.formatMessage({ id: 'apps.b2c.sections.publishing.publishForm.items.stand.options.production.label' })
+    const DevStandLabel = intl.formatMessage({ id: 'apps.environments.development.label' })
+    const ProdStandLabel = intl.formatMessage({ id: 'apps.environments.production.label' })
     const ManagementNotAvailableTitle = intl.formatMessage({ id: 'apps.b2c.sections.properties.waitingView.title' })
     const ManagementNotAvailableText = intl.formatMessage({ id: 'apps.b2c.sections.properties.waitingView.text' })
 
     const router = useRouter()
 
-    const [selectedEnvironment, setSelectedEnvironment] = useState<AppEnvironment>(AppEnvironment.Development)
+    const { env } = router.query
+    const queryEnvironment = getEnvironment(env)
+
+    const [selectedEnvironment, setSelectedEnvironment] = useState<AppEnvironment>(queryEnvironment)
 
     const handleEnvironmentChange = useCallback<Required<SelectProps>['onChange']>((newEnv) => {
-        router.replace({ query: omit(router.query, ['p']) }, undefined, { locale: router.locale })
+        router.replace({ query: { ...omit(router.query, ['p']), env: newEnv as AppEnvironment } }, undefined, { locale: router.locale })
         setSelectedEnvironment(newEnv as AppEnvironment)
     }, [router])
 

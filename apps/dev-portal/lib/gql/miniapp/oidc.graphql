@@ -1,0 +1,13 @@
+query getOIDCCLient($data: GetOIDCClientInput!) {
+    client: OIDCClient(data: $data) {
+        id
+        clientId
+        redirectUri
+    }
+}
+
+mutation createOIDCClient($data: CreateOIDCClientInput!) {
+    client: createOIDCClient(data: $data) {
+        clientSecret
+    }
+}

@@ -39,6 +39,10 @@ export enum AppEnvironment {
     Production = 'production',
 }
 
+export type AppWhereUniqueInput = {
+    id: Scalars['ID']['input'];
+}
+
 export type AuthenticateUserWithPhoneAndPasswordInput = {
     password: Scalars['String']['input'];
     phone: Scalars['String']['input'];
@@ -803,7 +807,6 @@ export type B2CAppPropertyMeta = {
 export type B2CAppPublishOptions = {
     build?: InputMaybe<B2CAppBuildWhereUniqueInput>;
     info?: InputMaybe<Scalars['Boolean']['input']>;
-    oidc?: InputMaybe<Scalars['Boolean']['input']>;
 }
 
 /**  A model that determines the ability to publish a mini-application to the production stand, as well as the status of passing the pre-release checkout  */
@@ -1791,6 +1794,14 @@ export type CreateB2CAppPropertyOutput = {
     id: Scalars['String']['output'];
 }
 
+export type CreateOidcClientInput = {
+    app: AppWhereUniqueInput;
+    dv: Scalars['Int']['input'];
+    environment: AppEnvironment;
+    redirectUri: Scalars['String']['input'];
+    sender: SenderFieldInput;
+}
+
 export type DeleteB2CAppPropertyInput = {
     dv: Scalars['Int']['input'];
     environment: AppEnvironment;
@@ -1814,6 +1825,18 @@ export type File = {
     originalFilename?: Maybe<Scalars['String']['output']>;
     path?: Maybe<Scalars['String']['output']>;
     publicUrl?: Maybe<Scalars['String']['output']>;
+}
+
+export type GenerateOidcClientSecretInput = {
+    app: AppWhereUniqueInput;
+    dv: Scalars['Int']['input'];
+    environment: AppEnvironment;
+    sender: SenderFieldInput;
+}
+
+export type GetOidcClientInput = {
+    app: AppWhereUniqueInput;
+    environment: AppEnvironment;
 }
 
 export type ImportB2CAppFromInput = {
@@ -1883,14 +1906,7 @@ export type Mutation = {
     createConfirmPhoneActionHistoryRecords?: Maybe<Array<Maybe<ConfirmPhoneActionHistoryRecord>>>;
     /**  Create multiple ConfirmPhoneAction items.  */
     createConfirmPhoneActions?: Maybe<Array<Maybe<ConfirmPhoneAction>>>;
-    /**  Create a single OIDCClient item.  */
-    createOIDCClient?: Maybe<OidcClient>;
-    /**  Create a single OIDCClientHistoryRecord item.  */
-    createOIDCClientHistoryRecord?: Maybe<OidcClientHistoryRecord>;
-    /**  Create multiple OIDCClientHistoryRecord items.  */
-    createOIDCClientHistoryRecords?: Maybe<Array<Maybe<OidcClientHistoryRecord>>>;
-    /**  Create multiple OIDCClient items.  */
-    createOIDCClients?: Maybe<Array<Maybe<OidcClient>>>;
+    createOIDCClient?: Maybe<OidcClientWithSecret>;
     /**  Create a single User item.  */
     createUser?: Maybe<User>;
     /**  Create a single UserHistoryRecord item.  */
@@ -1948,14 +1964,6 @@ export type Mutation = {
     deleteConfirmPhoneActionHistoryRecords?: Maybe<Array<Maybe<ConfirmPhoneActionHistoryRecord>>>;
     /**  Delete multiple ConfirmPhoneAction items by ID.  */
     deleteConfirmPhoneActions?: Maybe<Array<Maybe<ConfirmPhoneAction>>>;
-    /**  Delete a single OIDCClient item by ID.  */
-    deleteOIDCClient?: Maybe<OidcClient>;
-    /**  Delete a single OIDCClientHistoryRecord item by ID.  */
-    deleteOIDCClientHistoryRecord?: Maybe<OidcClientHistoryRecord>;
-    /**  Delete multiple OIDCClientHistoryRecord items by ID.  */
-    deleteOIDCClientHistoryRecords?: Maybe<Array<Maybe<OidcClientHistoryRecord>>>;
-    /**  Delete multiple OIDCClient items by ID.  */
-    deleteOIDCClients?: Maybe<Array<Maybe<OidcClient>>>;
     /**  Delete a single User item by ID.  */
     deleteUser?: Maybe<User>;
     /**  Delete a single UserHistoryRecord item by ID.  */
@@ -1980,6 +1988,7 @@ export type Mutation = {
     deleteWebhookSubscriptions?: Maybe<Array<Maybe<WebhookSubscription>>>;
     /**  Delete multiple Webhook items by ID.  */
     deleteWebhooks?: Maybe<Array<Maybe<Webhook>>>;
+    generateOIDCClientSecret?: Maybe<OidcClientWithSecret>;
     importB2CApp?: Maybe<ImportB2CAppOutput>;
     publishB2CApp?: Maybe<PublishB2CAppOutput>;
     registerNewUser?: Maybe<User>;
@@ -2018,14 +2027,7 @@ export type Mutation = {
     updateConfirmPhoneActionHistoryRecords?: Maybe<Array<Maybe<ConfirmPhoneActionHistoryRecord>>>;
     /**  Update multiple ConfirmPhoneAction items by ID.  */
     updateConfirmPhoneActions?: Maybe<Array<Maybe<ConfirmPhoneAction>>>;
-    /**  Update a single OIDCClient item by ID.  */
-    updateOIDCClient?: Maybe<OidcClient>;
-    /**  Update a single OIDCClientHistoryRecord item by ID.  */
-    updateOIDCClientHistoryRecord?: Maybe<OidcClientHistoryRecord>;
-    /**  Update multiple OIDCClientHistoryRecord items by ID.  */
-    updateOIDCClientHistoryRecords?: Maybe<Array<Maybe<OidcClientHistoryRecord>>>;
-    /**  Update multiple OIDCClient items by ID.  */
-    updateOIDCClients?: Maybe<Array<Maybe<OidcClient>>>;
+    updateOIDCClientUrl?: Maybe<OidcClient>;
     /**  Update a single User item by ID.  */
     updateUser?: Maybe<User>;
     /**  Update a single UserHistoryRecord item by ID.  */
@@ -2155,22 +2157,7 @@ export type MutationCreateConfirmPhoneActionsArgs = {
 
 
 export type MutationCreateOidcClientArgs = {
-    data?: InputMaybe<OidcClientCreateInput>;
-}
-
-
-export type MutationCreateOidcClientHistoryRecordArgs = {
-    data?: InputMaybe<OidcClientHistoryRecordCreateInput>;
-}
-
-
-export type MutationCreateOidcClientHistoryRecordsArgs = {
-    data?: InputMaybe<Array<InputMaybe<OidcClientHistoryRecordsCreateInput>>>;
-}
-
-
-export type MutationCreateOidcClientsArgs = {
-    data?: InputMaybe<Array<InputMaybe<OidcClientsCreateInput>>>;
+    data: CreateOidcClientInput;
 }
 
 
@@ -2319,26 +2306,6 @@ export type MutationDeleteConfirmPhoneActionsArgs = {
 }
 
 
-export type MutationDeleteOidcClientArgs = {
-    id: Scalars['ID']['input'];
-}
-
-
-export type MutationDeleteOidcClientHistoryRecordArgs = {
-    id: Scalars['ID']['input'];
-}
-
-
-export type MutationDeleteOidcClientHistoryRecordsArgs = {
-    ids?: InputMaybe<Array<Scalars['ID']['input']>>;
-}
-
-
-export type MutationDeleteOidcClientsArgs = {
-    ids?: InputMaybe<Array<Scalars['ID']['input']>>;
-}
-
-
 export type MutationDeleteUserArgs = {
     id: Scalars['ID']['input'];
 }
@@ -2396,6 +2363,11 @@ export type MutationDeleteWebhookSubscriptionsArgs = {
 
 export type MutationDeleteWebhooksArgs = {
     ids?: InputMaybe<Array<Scalars['ID']['input']>>;
+}
+
+
+export type MutationGenerateOidcClientSecretArgs = {
+    data: GenerateOidcClientSecretInput;
 }
 
 
@@ -2512,25 +2484,8 @@ export type MutationUpdateConfirmPhoneActionsArgs = {
 }
 
 
-export type MutationUpdateOidcClientArgs = {
-    data?: InputMaybe<OidcClientUpdateInput>;
-    id: Scalars['ID']['input'];
-}
-
-
-export type MutationUpdateOidcClientHistoryRecordArgs = {
-    data?: InputMaybe<OidcClientHistoryRecordUpdateInput>;
-    id: Scalars['ID']['input'];
-}
-
-
-export type MutationUpdateOidcClientHistoryRecordsArgs = {
-    data?: InputMaybe<Array<InputMaybe<OidcClientHistoryRecordsUpdateInput>>>;
-}
-
-
-export type MutationUpdateOidcClientsArgs = {
-    data?: InputMaybe<Array<InputMaybe<OidcClientsUpdateInput>>>;
+export type MutationUpdateOidcClientUrlArgs = {
+    data: UpdateOidcClientUrlInput;
 }
 
 
@@ -2599,559 +2554,19 @@ export type MutationUpdateWebhooksArgs = {
     data?: InputMaybe<Array<InputMaybe<WebhooksUpdateInput>>>;
 }
 
-/**  OIDC client configuration for a specific app  */
 export type OidcClient = {
     __typename?: 'OIDCClient';
-    /**
-   * This virtual field will be resolved in one of the following ways (in this order):
-   *  1. Execution of 'labelResolver' set on the OIDCClient List config, or
-   *  2. As an alias to the field set on 'labelField' in the OIDCClient List config, or
-   *  3. As an alias to a 'name' field on the OIDCClient List (if one exists), or
-   *  4. As an alias to the 'id' field on the OIDCClient List.
-   */
-    _label_?: Maybe<Scalars['String']['output']>;
-    /**  Link to the B2C application to which this configuration applies  */
-    b2cApp?: Maybe<B2CApp>;
-    /**  OIDC Client ID  */
-    clientId?: Maybe<Scalars['ID']['output']>;
-    /**  OIDC Client Secret  */
-    clientSecret?: Maybe<Scalars['String']['output']>;
-    createdAt?: Maybe<Scalars['String']['output']>;
-    /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
-    createdBy?: Maybe<User>;
-    deletedAt?: Maybe<Scalars['String']['output']>;
-    /**  ID of this entity in the development environment. If set, subsequent publications to this environment will update the entity with the specified ID.  */
-    developmentExportId?: Maybe<Scalars['String']['output']>;
-    /**  Callback url used for development environment  */
-    developmentRedirectUri?: Maybe<Scalars['String']['output']>;
-    /**  Data structure Version  */
-    dv?: Maybe<Scalars['Int']['output']>;
-    /**  Array of available grant types for client. Can contain each of the following grants: implicit,authorization_code,refresh_token  */
-    grantTypes?: Maybe<Array<OidcGrantType>>;
-    id: Scalars['ID']['output'];
-    newId?: Maybe<Scalars['String']['output']>;
-    /**  ID of this entity in the production environment. If set, subsequent publications to this environment will update the entity with the specified ID.  */
-    productionExportId?: Maybe<Scalars['String']['output']>;
-    /**  Callback url used for production  */
-    productionRedirectUri?: Maybe<Scalars['String']['output']>;
-    /**  Array of available response types, can be one of the following: id_token, id_token token, code, code id_token  */
-    responseTypes?: Maybe<Array<Scalars['String']['output']>>;
-    /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-    sender?: Maybe<SenderField>;
-    /**  Way of authenticating OAuth 2.0 Clients at the /oauth2/token  */
-    tokenAuthMethod?: Maybe<Scalars['String']['output']>;
-    updatedAt?: Maybe<Scalars['String']['output']>;
-    /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
-    updatedBy?: Maybe<User>;
-    v?: Maybe<Scalars['Int']['output']>;
+    clientId: Scalars['String']['output'];
+    id: Scalars['String']['output'];
+    redirectUri: Scalars['String']['output'];
 }
 
-export type OidcClientCreateInput = {
-    b2cApp?: InputMaybe<B2CAppRelateToOneInput>;
-    clientSecret?: InputMaybe<Scalars['String']['input']>;
-    createdAt?: InputMaybe<Scalars['String']['input']>;
-    createdBy?: InputMaybe<UserRelateToOneInput>;
-    deletedAt?: InputMaybe<Scalars['String']['input']>;
-    developmentExportId?: InputMaybe<Scalars['String']['input']>;
-    developmentRedirectUri?: InputMaybe<Scalars['String']['input']>;
-    dv?: InputMaybe<Scalars['Int']['input']>;
-    grantTypes?: InputMaybe<Array<OidcGrantType>>;
-    newId?: InputMaybe<Scalars['String']['input']>;
-    productionExportId?: InputMaybe<Scalars['String']['input']>;
-    productionRedirectUri?: InputMaybe<Scalars['String']['input']>;
-    responseTypes?: InputMaybe<Array<Scalars['String']['input']>>;
-    sender?: InputMaybe<SenderFieldInput>;
-    tokenAuthMethod?: InputMaybe<Scalars['String']['input']>;
-    updatedAt?: InputMaybe<Scalars['String']['input']>;
-    updatedBy?: InputMaybe<UserRelateToOneInput>;
-    v?: InputMaybe<Scalars['Int']['input']>;
-}
-
-/**  A keystone list  */
-export type OidcClientHistoryRecord = {
-    __typename?: 'OIDCClientHistoryRecord';
-    /**
-   * This virtual field will be resolved in one of the following ways (in this order):
-   *  1. Execution of 'labelResolver' set on the OIDCClientHistoryRecord List config, or
-   *  2. As an alias to the field set on 'labelField' in the OIDCClientHistoryRecord List config, or
-   *  3. As an alias to a 'name' field on the OIDCClientHistoryRecord List (if one exists), or
-   *  4. As an alias to the 'id' field on the OIDCClientHistoryRecord List.
-   */
-    _label_?: Maybe<Scalars['String']['output']>;
-    b2cApp?: Maybe<Scalars['String']['output']>;
-    clientId?: Maybe<Scalars['JSON']['output']>;
-    clientSecret?: Maybe<Scalars['String']['output']>;
-    createdAt?: Maybe<Scalars['String']['output']>;
-    createdBy?: Maybe<Scalars['String']['output']>;
-    deletedAt?: Maybe<Scalars['String']['output']>;
-    developmentRedirectUri?: Maybe<Scalars['String']['output']>;
-    dv?: Maybe<Scalars['Int']['output']>;
-    grantTypes?: Maybe<Scalars['JSON']['output']>;
-    history_action?: Maybe<OidcClientHistoryRecordHistoryActionType>;
-    history_date?: Maybe<Scalars['String']['output']>;
-    history_id?: Maybe<Scalars['String']['output']>;
-    id: Scalars['ID']['output'];
-    newId?: Maybe<Scalars['JSON']['output']>;
-    productionRedirectUri?: Maybe<Scalars['String']['output']>;
-    responseTypes?: Maybe<Scalars['JSON']['output']>;
-    sender?: Maybe<Scalars['JSON']['output']>;
-    tokenAuthMethod?: Maybe<Scalars['String']['output']>;
-    updatedAt?: Maybe<Scalars['String']['output']>;
-    updatedBy?: Maybe<Scalars['String']['output']>;
-    v?: Maybe<Scalars['Int']['output']>;
-}
-
-export type OidcClientHistoryRecordCreateInput = {
-    b2cApp?: InputMaybe<Scalars['String']['input']>;
-    clientId?: InputMaybe<Scalars['JSON']['input']>;
-    clientSecret?: InputMaybe<Scalars['String']['input']>;
-    createdAt?: InputMaybe<Scalars['String']['input']>;
-    createdBy?: InputMaybe<Scalars['String']['input']>;
-    deletedAt?: InputMaybe<Scalars['String']['input']>;
-    developmentRedirectUri?: InputMaybe<Scalars['String']['input']>;
-    dv?: InputMaybe<Scalars['Int']['input']>;
-    grantTypes?: InputMaybe<Scalars['JSON']['input']>;
-    history_action?: InputMaybe<OidcClientHistoryRecordHistoryActionType>;
-    history_date?: InputMaybe<Scalars['String']['input']>;
-    history_id?: InputMaybe<Scalars['String']['input']>;
-    newId?: InputMaybe<Scalars['JSON']['input']>;
-    productionRedirectUri?: InputMaybe<Scalars['String']['input']>;
-    responseTypes?: InputMaybe<Scalars['JSON']['input']>;
-    sender?: InputMaybe<Scalars['JSON']['input']>;
-    tokenAuthMethod?: InputMaybe<Scalars['String']['input']>;
-    updatedAt?: InputMaybe<Scalars['String']['input']>;
-    updatedBy?: InputMaybe<Scalars['String']['input']>;
-    v?: InputMaybe<Scalars['Int']['input']>;
-}
-
-export enum OidcClientHistoryRecordHistoryActionType {
-    C = 'c',
-    D = 'd',
-    U = 'u',
-}
-
-export type OidcClientHistoryRecordUpdateInput = {
-    b2cApp?: InputMaybe<Scalars['String']['input']>;
-    clientId?: InputMaybe<Scalars['JSON']['input']>;
-    clientSecret?: InputMaybe<Scalars['String']['input']>;
-    createdAt?: InputMaybe<Scalars['String']['input']>;
-    createdBy?: InputMaybe<Scalars['String']['input']>;
-    deletedAt?: InputMaybe<Scalars['String']['input']>;
-    developmentRedirectUri?: InputMaybe<Scalars['String']['input']>;
-    dv?: InputMaybe<Scalars['Int']['input']>;
-    grantTypes?: InputMaybe<Scalars['JSON']['input']>;
-    history_action?: InputMaybe<OidcClientHistoryRecordHistoryActionType>;
-    history_date?: InputMaybe<Scalars['String']['input']>;
-    history_id?: InputMaybe<Scalars['String']['input']>;
-    newId?: InputMaybe<Scalars['JSON']['input']>;
-    productionRedirectUri?: InputMaybe<Scalars['String']['input']>;
-    responseTypes?: InputMaybe<Scalars['JSON']['input']>;
-    sender?: InputMaybe<Scalars['JSON']['input']>;
-    tokenAuthMethod?: InputMaybe<Scalars['String']['input']>;
-    updatedAt?: InputMaybe<Scalars['String']['input']>;
-    updatedBy?: InputMaybe<Scalars['String']['input']>;
-    v?: InputMaybe<Scalars['Int']['input']>;
-}
-
-export type OidcClientHistoryRecordWhereInput = {
-    AND?: InputMaybe<Array<InputMaybe<OidcClientHistoryRecordWhereInput>>>;
-    OR?: InputMaybe<Array<InputMaybe<OidcClientHistoryRecordWhereInput>>>;
-    b2cApp?: InputMaybe<Scalars['String']['input']>;
-    b2cApp_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    b2cApp_not?: InputMaybe<Scalars['String']['input']>;
-    b2cApp_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    clientId?: InputMaybe<Scalars['JSON']['input']>;
-    clientId_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
-    clientId_not?: InputMaybe<Scalars['JSON']['input']>;
-    clientId_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
-    clientSecret?: InputMaybe<Scalars['String']['input']>;
-    clientSecret_contains?: InputMaybe<Scalars['String']['input']>;
-    clientSecret_contains_i?: InputMaybe<Scalars['String']['input']>;
-    clientSecret_ends_with?: InputMaybe<Scalars['String']['input']>;
-    clientSecret_ends_with_i?: InputMaybe<Scalars['String']['input']>;
-    clientSecret_i?: InputMaybe<Scalars['String']['input']>;
-    clientSecret_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    clientSecret_not?: InputMaybe<Scalars['String']['input']>;
-    clientSecret_not_contains?: InputMaybe<Scalars['String']['input']>;
-    clientSecret_not_contains_i?: InputMaybe<Scalars['String']['input']>;
-    clientSecret_not_ends_with?: InputMaybe<Scalars['String']['input']>;
-    clientSecret_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
-    clientSecret_not_i?: InputMaybe<Scalars['String']['input']>;
-    clientSecret_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    clientSecret_not_starts_with?: InputMaybe<Scalars['String']['input']>;
-    clientSecret_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
-    clientSecret_starts_with?: InputMaybe<Scalars['String']['input']>;
-    clientSecret_starts_with_i?: InputMaybe<Scalars['String']['input']>;
-    createdAt?: InputMaybe<Scalars['String']['input']>;
-    createdAt_gt?: InputMaybe<Scalars['String']['input']>;
-    createdAt_gte?: InputMaybe<Scalars['String']['input']>;
-    createdAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    createdAt_lt?: InputMaybe<Scalars['String']['input']>;
-    createdAt_lte?: InputMaybe<Scalars['String']['input']>;
-    createdAt_not?: InputMaybe<Scalars['String']['input']>;
-    createdAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    createdBy?: InputMaybe<Scalars['String']['input']>;
-    createdBy_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    createdBy_not?: InputMaybe<Scalars['String']['input']>;
-    createdBy_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    deletedAt?: InputMaybe<Scalars['String']['input']>;
-    deletedAt_gt?: InputMaybe<Scalars['String']['input']>;
-    deletedAt_gte?: InputMaybe<Scalars['String']['input']>;
-    deletedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    deletedAt_lt?: InputMaybe<Scalars['String']['input']>;
-    deletedAt_lte?: InputMaybe<Scalars['String']['input']>;
-    deletedAt_not?: InputMaybe<Scalars['String']['input']>;
-    deletedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    developmentRedirectUri?: InputMaybe<Scalars['String']['input']>;
-    developmentRedirectUri_contains?: InputMaybe<Scalars['String']['input']>;
-    developmentRedirectUri_contains_i?: InputMaybe<Scalars['String']['input']>;
-    developmentRedirectUri_ends_with?: InputMaybe<Scalars['String']['input']>;
-    developmentRedirectUri_ends_with_i?: InputMaybe<Scalars['String']['input']>;
-    developmentRedirectUri_i?: InputMaybe<Scalars['String']['input']>;
-    developmentRedirectUri_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    developmentRedirectUri_not?: InputMaybe<Scalars['String']['input']>;
-    developmentRedirectUri_not_contains?: InputMaybe<Scalars['String']['input']>;
-    developmentRedirectUri_not_contains_i?: InputMaybe<Scalars['String']['input']>;
-    developmentRedirectUri_not_ends_with?: InputMaybe<Scalars['String']['input']>;
-    developmentRedirectUri_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
-    developmentRedirectUri_not_i?: InputMaybe<Scalars['String']['input']>;
-    developmentRedirectUri_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    developmentRedirectUri_not_starts_with?: InputMaybe<Scalars['String']['input']>;
-    developmentRedirectUri_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
-    developmentRedirectUri_starts_with?: InputMaybe<Scalars['String']['input']>;
-    developmentRedirectUri_starts_with_i?: InputMaybe<Scalars['String']['input']>;
-    dv?: InputMaybe<Scalars['Int']['input']>;
-    dv_gt?: InputMaybe<Scalars['Int']['input']>;
-    dv_gte?: InputMaybe<Scalars['Int']['input']>;
-    dv_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-    dv_lt?: InputMaybe<Scalars['Int']['input']>;
-    dv_lte?: InputMaybe<Scalars['Int']['input']>;
-    dv_not?: InputMaybe<Scalars['Int']['input']>;
-    dv_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-    grantTypes?: InputMaybe<Scalars['JSON']['input']>;
-    grantTypes_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
-    grantTypes_not?: InputMaybe<Scalars['JSON']['input']>;
-    grantTypes_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
-    history_action?: InputMaybe<OidcClientHistoryRecordHistoryActionType>;
-    history_action_in?: InputMaybe<Array<InputMaybe<OidcClientHistoryRecordHistoryActionType>>>;
-    history_action_not?: InputMaybe<OidcClientHistoryRecordHistoryActionType>;
-    history_action_not_in?: InputMaybe<Array<InputMaybe<OidcClientHistoryRecordHistoryActionType>>>;
-    history_date?: InputMaybe<Scalars['String']['input']>;
-    history_date_gt?: InputMaybe<Scalars['String']['input']>;
-    history_date_gte?: InputMaybe<Scalars['String']['input']>;
-    history_date_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    history_date_lt?: InputMaybe<Scalars['String']['input']>;
-    history_date_lte?: InputMaybe<Scalars['String']['input']>;
-    history_date_not?: InputMaybe<Scalars['String']['input']>;
-    history_date_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    history_id?: InputMaybe<Scalars['String']['input']>;
-    history_id_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    history_id_not?: InputMaybe<Scalars['String']['input']>;
-    history_id_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    id?: InputMaybe<Scalars['ID']['input']>;
-    id_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
-    id_not?: InputMaybe<Scalars['ID']['input']>;
-    id_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
-    newId?: InputMaybe<Scalars['JSON']['input']>;
-    newId_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
-    newId_not?: InputMaybe<Scalars['JSON']['input']>;
-    newId_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
-    productionRedirectUri?: InputMaybe<Scalars['String']['input']>;
-    productionRedirectUri_contains?: InputMaybe<Scalars['String']['input']>;
-    productionRedirectUri_contains_i?: InputMaybe<Scalars['String']['input']>;
-    productionRedirectUri_ends_with?: InputMaybe<Scalars['String']['input']>;
-    productionRedirectUri_ends_with_i?: InputMaybe<Scalars['String']['input']>;
-    productionRedirectUri_i?: InputMaybe<Scalars['String']['input']>;
-    productionRedirectUri_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    productionRedirectUri_not?: InputMaybe<Scalars['String']['input']>;
-    productionRedirectUri_not_contains?: InputMaybe<Scalars['String']['input']>;
-    productionRedirectUri_not_contains_i?: InputMaybe<Scalars['String']['input']>;
-    productionRedirectUri_not_ends_with?: InputMaybe<Scalars['String']['input']>;
-    productionRedirectUri_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
-    productionRedirectUri_not_i?: InputMaybe<Scalars['String']['input']>;
-    productionRedirectUri_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    productionRedirectUri_not_starts_with?: InputMaybe<Scalars['String']['input']>;
-    productionRedirectUri_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
-    productionRedirectUri_starts_with?: InputMaybe<Scalars['String']['input']>;
-    productionRedirectUri_starts_with_i?: InputMaybe<Scalars['String']['input']>;
-    responseTypes?: InputMaybe<Scalars['JSON']['input']>;
-    responseTypes_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
-    responseTypes_not?: InputMaybe<Scalars['JSON']['input']>;
-    responseTypes_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
-    sender?: InputMaybe<Scalars['JSON']['input']>;
-    sender_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
-    sender_not?: InputMaybe<Scalars['JSON']['input']>;
-    sender_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
-    tokenAuthMethod?: InputMaybe<Scalars['String']['input']>;
-    tokenAuthMethod_contains?: InputMaybe<Scalars['String']['input']>;
-    tokenAuthMethod_contains_i?: InputMaybe<Scalars['String']['input']>;
-    tokenAuthMethod_ends_with?: InputMaybe<Scalars['String']['input']>;
-    tokenAuthMethod_ends_with_i?: InputMaybe<Scalars['String']['input']>;
-    tokenAuthMethod_i?: InputMaybe<Scalars['String']['input']>;
-    tokenAuthMethod_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    tokenAuthMethod_not?: InputMaybe<Scalars['String']['input']>;
-    tokenAuthMethod_not_contains?: InputMaybe<Scalars['String']['input']>;
-    tokenAuthMethod_not_contains_i?: InputMaybe<Scalars['String']['input']>;
-    tokenAuthMethod_not_ends_with?: InputMaybe<Scalars['String']['input']>;
-    tokenAuthMethod_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
-    tokenAuthMethod_not_i?: InputMaybe<Scalars['String']['input']>;
-    tokenAuthMethod_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    tokenAuthMethod_not_starts_with?: InputMaybe<Scalars['String']['input']>;
-    tokenAuthMethod_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
-    tokenAuthMethod_starts_with?: InputMaybe<Scalars['String']['input']>;
-    tokenAuthMethod_starts_with_i?: InputMaybe<Scalars['String']['input']>;
-    updatedAt?: InputMaybe<Scalars['String']['input']>;
-    updatedAt_gt?: InputMaybe<Scalars['String']['input']>;
-    updatedAt_gte?: InputMaybe<Scalars['String']['input']>;
-    updatedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    updatedAt_lt?: InputMaybe<Scalars['String']['input']>;
-    updatedAt_lte?: InputMaybe<Scalars['String']['input']>;
-    updatedAt_not?: InputMaybe<Scalars['String']['input']>;
-    updatedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    updatedBy?: InputMaybe<Scalars['String']['input']>;
-    updatedBy_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    updatedBy_not?: InputMaybe<Scalars['String']['input']>;
-    updatedBy_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    v?: InputMaybe<Scalars['Int']['input']>;
-    v_gt?: InputMaybe<Scalars['Int']['input']>;
-    v_gte?: InputMaybe<Scalars['Int']['input']>;
-    v_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-    v_lt?: InputMaybe<Scalars['Int']['input']>;
-    v_lte?: InputMaybe<Scalars['Int']['input']>;
-    v_not?: InputMaybe<Scalars['Int']['input']>;
-    v_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-}
-
-export type OidcClientHistoryRecordWhereUniqueInput = {
-    id: Scalars['ID']['input'];
-}
-
-export type OidcClientHistoryRecordsCreateInput = {
-    data?: InputMaybe<OidcClientHistoryRecordCreateInput>;
-}
-
-export type OidcClientHistoryRecordsUpdateInput = {
-    data?: InputMaybe<OidcClientHistoryRecordUpdateInput>;
-    id: Scalars['ID']['input'];
-}
-
-export type OidcClientUpdateInput = {
-    b2cApp?: InputMaybe<B2CAppRelateToOneInput>;
-    clientSecret?: InputMaybe<Scalars['String']['input']>;
-    createdAt?: InputMaybe<Scalars['String']['input']>;
-    createdBy?: InputMaybe<UserRelateToOneInput>;
-    deletedAt?: InputMaybe<Scalars['String']['input']>;
-    developmentExportId?: InputMaybe<Scalars['String']['input']>;
-    developmentRedirectUri?: InputMaybe<Scalars['String']['input']>;
-    dv?: InputMaybe<Scalars['Int']['input']>;
-    grantTypes?: InputMaybe<Array<OidcGrantType>>;
-    newId?: InputMaybe<Scalars['String']['input']>;
-    productionExportId?: InputMaybe<Scalars['String']['input']>;
-    productionRedirectUri?: InputMaybe<Scalars['String']['input']>;
-    responseTypes?: InputMaybe<Array<Scalars['String']['input']>>;
-    sender?: InputMaybe<SenderFieldInput>;
-    tokenAuthMethod?: InputMaybe<Scalars['String']['input']>;
-    updatedAt?: InputMaybe<Scalars['String']['input']>;
-    updatedBy?: InputMaybe<UserRelateToOneInput>;
-    v?: InputMaybe<Scalars['Int']['input']>;
-}
-
-export type OidcClientWhereInput = {
-    AND?: InputMaybe<Array<InputMaybe<OidcClientWhereInput>>>;
-    OR?: InputMaybe<Array<InputMaybe<OidcClientWhereInput>>>;
-    b2cApp?: InputMaybe<B2CAppWhereInput>;
-    b2cApp_is_null?: InputMaybe<Scalars['Boolean']['input']>;
-    clientSecret?: InputMaybe<Scalars['String']['input']>;
-    clientSecret_contains?: InputMaybe<Scalars['String']['input']>;
-    clientSecret_contains_i?: InputMaybe<Scalars['String']['input']>;
-    clientSecret_ends_with?: InputMaybe<Scalars['String']['input']>;
-    clientSecret_ends_with_i?: InputMaybe<Scalars['String']['input']>;
-    clientSecret_i?: InputMaybe<Scalars['String']['input']>;
-    clientSecret_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    clientSecret_not?: InputMaybe<Scalars['String']['input']>;
-    clientSecret_not_contains?: InputMaybe<Scalars['String']['input']>;
-    clientSecret_not_contains_i?: InputMaybe<Scalars['String']['input']>;
-    clientSecret_not_ends_with?: InputMaybe<Scalars['String']['input']>;
-    clientSecret_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
-    clientSecret_not_i?: InputMaybe<Scalars['String']['input']>;
-    clientSecret_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    clientSecret_not_starts_with?: InputMaybe<Scalars['String']['input']>;
-    clientSecret_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
-    clientSecret_starts_with?: InputMaybe<Scalars['String']['input']>;
-    clientSecret_starts_with_i?: InputMaybe<Scalars['String']['input']>;
-    createdAt?: InputMaybe<Scalars['String']['input']>;
-    createdAt_gt?: InputMaybe<Scalars['String']['input']>;
-    createdAt_gte?: InputMaybe<Scalars['String']['input']>;
-    createdAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    createdAt_lt?: InputMaybe<Scalars['String']['input']>;
-    createdAt_lte?: InputMaybe<Scalars['String']['input']>;
-    createdAt_not?: InputMaybe<Scalars['String']['input']>;
-    createdAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    createdBy?: InputMaybe<UserWhereInput>;
-    createdBy_is_null?: InputMaybe<Scalars['Boolean']['input']>;
-    deletedAt?: InputMaybe<Scalars['String']['input']>;
-    deletedAt_gt?: InputMaybe<Scalars['String']['input']>;
-    deletedAt_gte?: InputMaybe<Scalars['String']['input']>;
-    deletedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    deletedAt_lt?: InputMaybe<Scalars['String']['input']>;
-    deletedAt_lte?: InputMaybe<Scalars['String']['input']>;
-    deletedAt_not?: InputMaybe<Scalars['String']['input']>;
-    deletedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    developmentExportId?: InputMaybe<Scalars['String']['input']>;
-    developmentExportId_contains?: InputMaybe<Scalars['String']['input']>;
-    developmentExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
-    developmentExportId_ends_with?: InputMaybe<Scalars['String']['input']>;
-    developmentExportId_ends_with_i?: InputMaybe<Scalars['String']['input']>;
-    developmentExportId_i?: InputMaybe<Scalars['String']['input']>;
-    developmentExportId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    developmentExportId_not?: InputMaybe<Scalars['String']['input']>;
-    developmentExportId_not_contains?: InputMaybe<Scalars['String']['input']>;
-    developmentExportId_not_contains_i?: InputMaybe<Scalars['String']['input']>;
-    developmentExportId_not_ends_with?: InputMaybe<Scalars['String']['input']>;
-    developmentExportId_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
-    developmentExportId_not_i?: InputMaybe<Scalars['String']['input']>;
-    developmentExportId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    developmentExportId_not_starts_with?: InputMaybe<Scalars['String']['input']>;
-    developmentExportId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
-    developmentExportId_starts_with?: InputMaybe<Scalars['String']['input']>;
-    developmentExportId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
-    developmentRedirectUri?: InputMaybe<Scalars['String']['input']>;
-    developmentRedirectUri_contains?: InputMaybe<Scalars['String']['input']>;
-    developmentRedirectUri_contains_i?: InputMaybe<Scalars['String']['input']>;
-    developmentRedirectUri_ends_with?: InputMaybe<Scalars['String']['input']>;
-    developmentRedirectUri_ends_with_i?: InputMaybe<Scalars['String']['input']>;
-    developmentRedirectUri_i?: InputMaybe<Scalars['String']['input']>;
-    developmentRedirectUri_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    developmentRedirectUri_not?: InputMaybe<Scalars['String']['input']>;
-    developmentRedirectUri_not_contains?: InputMaybe<Scalars['String']['input']>;
-    developmentRedirectUri_not_contains_i?: InputMaybe<Scalars['String']['input']>;
-    developmentRedirectUri_not_ends_with?: InputMaybe<Scalars['String']['input']>;
-    developmentRedirectUri_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
-    developmentRedirectUri_not_i?: InputMaybe<Scalars['String']['input']>;
-    developmentRedirectUri_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    developmentRedirectUri_not_starts_with?: InputMaybe<Scalars['String']['input']>;
-    developmentRedirectUri_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
-    developmentRedirectUri_starts_with?: InputMaybe<Scalars['String']['input']>;
-    developmentRedirectUri_starts_with_i?: InputMaybe<Scalars['String']['input']>;
-    dv?: InputMaybe<Scalars['Int']['input']>;
-    dv_gt?: InputMaybe<Scalars['Int']['input']>;
-    dv_gte?: InputMaybe<Scalars['Int']['input']>;
-    dv_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-    dv_lt?: InputMaybe<Scalars['Int']['input']>;
-    dv_lte?: InputMaybe<Scalars['Int']['input']>;
-    dv_not?: InputMaybe<Scalars['Int']['input']>;
-    dv_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-    grantTypes?: InputMaybe<Array<OidcGrantType>>;
-    grantTypes_in?: InputMaybe<Array<InputMaybe<Array<OidcGrantType>>>>;
-    grantTypes_not?: InputMaybe<Array<OidcGrantType>>;
-    grantTypes_not_in?: InputMaybe<Array<InputMaybe<Array<OidcGrantType>>>>;
-    id?: InputMaybe<Scalars['ID']['input']>;
-    id_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
-    id_not?: InputMaybe<Scalars['ID']['input']>;
-    id_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
-    newId?: InputMaybe<Scalars['String']['input']>;
-    newId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    newId_not?: InputMaybe<Scalars['String']['input']>;
-    newId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    productionExportId?: InputMaybe<Scalars['String']['input']>;
-    productionExportId_contains?: InputMaybe<Scalars['String']['input']>;
-    productionExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
-    productionExportId_ends_with?: InputMaybe<Scalars['String']['input']>;
-    productionExportId_ends_with_i?: InputMaybe<Scalars['String']['input']>;
-    productionExportId_i?: InputMaybe<Scalars['String']['input']>;
-    productionExportId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    productionExportId_not?: InputMaybe<Scalars['String']['input']>;
-    productionExportId_not_contains?: InputMaybe<Scalars['String']['input']>;
-    productionExportId_not_contains_i?: InputMaybe<Scalars['String']['input']>;
-    productionExportId_not_ends_with?: InputMaybe<Scalars['String']['input']>;
-    productionExportId_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
-    productionExportId_not_i?: InputMaybe<Scalars['String']['input']>;
-    productionExportId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    productionExportId_not_starts_with?: InputMaybe<Scalars['String']['input']>;
-    productionExportId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
-    productionExportId_starts_with?: InputMaybe<Scalars['String']['input']>;
-    productionExportId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
-    productionRedirectUri?: InputMaybe<Scalars['String']['input']>;
-    productionRedirectUri_contains?: InputMaybe<Scalars['String']['input']>;
-    productionRedirectUri_contains_i?: InputMaybe<Scalars['String']['input']>;
-    productionRedirectUri_ends_with?: InputMaybe<Scalars['String']['input']>;
-    productionRedirectUri_ends_with_i?: InputMaybe<Scalars['String']['input']>;
-    productionRedirectUri_i?: InputMaybe<Scalars['String']['input']>;
-    productionRedirectUri_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    productionRedirectUri_not?: InputMaybe<Scalars['String']['input']>;
-    productionRedirectUri_not_contains?: InputMaybe<Scalars['String']['input']>;
-    productionRedirectUri_not_contains_i?: InputMaybe<Scalars['String']['input']>;
-    productionRedirectUri_not_ends_with?: InputMaybe<Scalars['String']['input']>;
-    productionRedirectUri_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
-    productionRedirectUri_not_i?: InputMaybe<Scalars['String']['input']>;
-    productionRedirectUri_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    productionRedirectUri_not_starts_with?: InputMaybe<Scalars['String']['input']>;
-    productionRedirectUri_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
-    productionRedirectUri_starts_with?: InputMaybe<Scalars['String']['input']>;
-    productionRedirectUri_starts_with_i?: InputMaybe<Scalars['String']['input']>;
-    responseTypes?: InputMaybe<Array<Scalars['String']['input']>>;
-    responseTypes_in?: InputMaybe<Array<InputMaybe<Array<Scalars['String']['input']>>>>;
-    responseTypes_not?: InputMaybe<Array<Scalars['String']['input']>>;
-    responseTypes_not_in?: InputMaybe<Array<InputMaybe<Array<Scalars['String']['input']>>>>;
-    sender?: InputMaybe<SenderFieldInput>;
-    sender_in?: InputMaybe<Array<InputMaybe<SenderFieldInput>>>;
-    sender_not?: InputMaybe<SenderFieldInput>;
-    sender_not_in?: InputMaybe<Array<InputMaybe<SenderFieldInput>>>;
-    tokenAuthMethod?: InputMaybe<Scalars['String']['input']>;
-    tokenAuthMethod_contains?: InputMaybe<Scalars['String']['input']>;
-    tokenAuthMethod_contains_i?: InputMaybe<Scalars['String']['input']>;
-    tokenAuthMethod_ends_with?: InputMaybe<Scalars['String']['input']>;
-    tokenAuthMethod_ends_with_i?: InputMaybe<Scalars['String']['input']>;
-    tokenAuthMethod_i?: InputMaybe<Scalars['String']['input']>;
-    tokenAuthMethod_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    tokenAuthMethod_not?: InputMaybe<Scalars['String']['input']>;
-    tokenAuthMethod_not_contains?: InputMaybe<Scalars['String']['input']>;
-    tokenAuthMethod_not_contains_i?: InputMaybe<Scalars['String']['input']>;
-    tokenAuthMethod_not_ends_with?: InputMaybe<Scalars['String']['input']>;
-    tokenAuthMethod_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
-    tokenAuthMethod_not_i?: InputMaybe<Scalars['String']['input']>;
-    tokenAuthMethod_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    tokenAuthMethod_not_starts_with?: InputMaybe<Scalars['String']['input']>;
-    tokenAuthMethod_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
-    tokenAuthMethod_starts_with?: InputMaybe<Scalars['String']['input']>;
-    tokenAuthMethod_starts_with_i?: InputMaybe<Scalars['String']['input']>;
-    updatedAt?: InputMaybe<Scalars['String']['input']>;
-    updatedAt_gt?: InputMaybe<Scalars['String']['input']>;
-    updatedAt_gte?: InputMaybe<Scalars['String']['input']>;
-    updatedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    updatedAt_lt?: InputMaybe<Scalars['String']['input']>;
-    updatedAt_lte?: InputMaybe<Scalars['String']['input']>;
-    updatedAt_not?: InputMaybe<Scalars['String']['input']>;
-    updatedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    updatedBy?: InputMaybe<UserWhereInput>;
-    updatedBy_is_null?: InputMaybe<Scalars['Boolean']['input']>;
-    v?: InputMaybe<Scalars['Int']['input']>;
-    v_gt?: InputMaybe<Scalars['Int']['input']>;
-    v_gte?: InputMaybe<Scalars['Int']['input']>;
-    v_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-    v_lt?: InputMaybe<Scalars['Int']['input']>;
-    v_lte?: InputMaybe<Scalars['Int']['input']>;
-    v_not?: InputMaybe<Scalars['Int']['input']>;
-    v_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-}
-
-export type OidcClientWhereUniqueInput = {
-    id: Scalars['ID']['input'];
-}
-
-export type OidcClientsCreateInput = {
-    data?: InputMaybe<OidcClientCreateInput>;
-}
-
-export type OidcClientsUpdateInput = {
-    data?: InputMaybe<OidcClientUpdateInput>;
-    id: Scalars['ID']['input'];
-}
-
-export enum OidcGrantType {
-    AuthorizationCode = 'authorization_code',
-    Implicit = 'implicit',
-    RefreshToken = 'refresh_token',
+export type OidcClientWithSecret = {
+    __typename?: 'OIDCClientWithSecret';
+    clientId: Scalars['String']['output'];
+    clientSecret: Scalars['String']['output'];
+    id: Scalars['String']['output'];
+    redirectUri: Scalars['String']['output'];
 }
 
 export type PublishB2CAppInput = {
@@ -3185,10 +2600,7 @@ export type Query = {
     ConfirmPhoneAction?: Maybe<ConfirmPhoneAction>;
     /**  Search for the ConfirmPhoneActionHistoryRecord item with the matching ID.  */
     ConfirmPhoneActionHistoryRecord?: Maybe<ConfirmPhoneActionHistoryRecord>;
-    /**  Search for the OIDCClient item with the matching ID.  */
     OIDCClient?: Maybe<OidcClient>;
-    /**  Search for the OIDCClientHistoryRecord item with the matching ID.  */
-    OIDCClientHistoryRecord?: Maybe<OidcClientHistoryRecord>;
     /**  Search for the User item with the matching ID.  */
     User?: Maybe<User>;
     /**  Search for the UserHistoryRecord item with the matching ID.  */
@@ -3217,10 +2629,6 @@ export type Query = {
     _ConfirmPhoneActionHistoryRecordsMeta?: Maybe<_ListMeta>;
     /**  Retrieve the meta-data for the ConfirmPhoneAction list.  */
     _ConfirmPhoneActionsMeta?: Maybe<_ListMeta>;
-    /**  Retrieve the meta-data for the OIDCClientHistoryRecord list.  */
-    _OIDCClientHistoryRecordsMeta?: Maybe<_ListMeta>;
-    /**  Retrieve the meta-data for the OIDCClient list.  */
-    _OIDCClientsMeta?: Maybe<_ListMeta>;
     /**  Retrieve the meta-data for the UserHistoryRecord list.  */
     _UserHistoryRecordsMeta?: Maybe<_ListMeta>;
     /**  Retrieve the meta-data for the User list.  */
@@ -3249,10 +2657,6 @@ export type Query = {
     _allConfirmPhoneActionHistoryRecordsMeta?: Maybe<_QueryMeta>;
     /**  Perform a meta-query on all ConfirmPhoneAction items which match the where clause.  */
     _allConfirmPhoneActionsMeta?: Maybe<_QueryMeta>;
-    /**  Perform a meta-query on all OIDCClientHistoryRecord items which match the where clause.  */
-    _allOIDCClientHistoryRecordsMeta?: Maybe<_QueryMeta>;
-    /**  Perform a meta-query on all OIDCClient items which match the where clause.  */
-    _allOIDCClientsMeta?: Maybe<_QueryMeta>;
     /**  Perform a meta-query on all UserHistoryRecord items which match the where clause.  */
     _allUserHistoryRecordsMeta?: Maybe<_QueryMeta>;
     /**  Perform a meta-query on all User items which match the where clause.  */
@@ -3284,10 +2688,6 @@ export type Query = {
     allConfirmPhoneActionHistoryRecords?: Maybe<Array<Maybe<ConfirmPhoneActionHistoryRecord>>>;
     /**  Search for all ConfirmPhoneAction items which match the where clause.  */
     allConfirmPhoneActions?: Maybe<Array<Maybe<ConfirmPhoneAction>>>;
-    /**  Search for all OIDCClientHistoryRecord items which match the where clause.  */
-    allOIDCClientHistoryRecords?: Maybe<Array<Maybe<OidcClientHistoryRecord>>>;
-    /**  Search for all OIDCClient items which match the where clause.  */
-    allOIDCClients?: Maybe<Array<Maybe<OidcClient>>>;
     /**  Search for all UserHistoryRecord items which match the where clause.  */
     allUserHistoryRecords?: Maybe<Array<Maybe<UserHistoryRecord>>>;
     /**  Search for all User items which match the where clause.  */
@@ -3347,12 +2747,7 @@ export type QueryConfirmPhoneActionHistoryRecordArgs = {
 
 
 export type QueryOidcClientArgs = {
-    where: OidcClientWhereUniqueInput;
-}
-
-
-export type QueryOidcClientHistoryRecordArgs = {
-    where: OidcClientHistoryRecordWhereUniqueInput;
+    data: GetOidcClientInput;
 }
 
 
@@ -3463,26 +2858,6 @@ export type Query_AllConfirmPhoneActionsMetaArgs = {
     skip?: InputMaybe<Scalars['Int']['input']>;
     sortBy?: InputMaybe<Array<SortConfirmPhoneActionsBy>>;
     where?: InputMaybe<ConfirmPhoneActionWhereInput>;
-}
-
-
-export type Query_AllOidcClientHistoryRecordsMetaArgs = {
-    first?: InputMaybe<Scalars['Int']['input']>;
-    orderBy?: InputMaybe<Scalars['String']['input']>;
-    search?: InputMaybe<Scalars['String']['input']>;
-    skip?: InputMaybe<Scalars['Int']['input']>;
-    sortBy?: InputMaybe<Array<SortOidcClientHistoryRecordsBy>>;
-    where?: InputMaybe<OidcClientHistoryRecordWhereInput>;
-}
-
-
-export type Query_AllOidcClientsMetaArgs = {
-    first?: InputMaybe<Scalars['Int']['input']>;
-    orderBy?: InputMaybe<Scalars['String']['input']>;
-    search?: InputMaybe<Scalars['String']['input']>;
-    skip?: InputMaybe<Scalars['Int']['input']>;
-    sortBy?: InputMaybe<Array<SortOidcClientsBy>>;
-    where?: InputMaybe<OidcClientWhereInput>;
 }
 
 
@@ -3633,26 +3008,6 @@ export type QueryAllConfirmPhoneActionsArgs = {
     skip?: InputMaybe<Scalars['Int']['input']>;
     sortBy?: InputMaybe<Array<SortConfirmPhoneActionsBy>>;
     where?: InputMaybe<ConfirmPhoneActionWhereInput>;
-}
-
-
-export type QueryAllOidcClientHistoryRecordsArgs = {
-    first?: InputMaybe<Scalars['Int']['input']>;
-    orderBy?: InputMaybe<Scalars['String']['input']>;
-    search?: InputMaybe<Scalars['String']['input']>;
-    skip?: InputMaybe<Scalars['Int']['input']>;
-    sortBy?: InputMaybe<Array<SortOidcClientHistoryRecordsBy>>;
-    where?: InputMaybe<OidcClientHistoryRecordWhereInput>;
-}
-
-
-export type QueryAllOidcClientsArgs = {
-    first?: InputMaybe<Scalars['Int']['input']>;
-    orderBy?: InputMaybe<Scalars['String']['input']>;
-    search?: InputMaybe<Scalars['String']['input']>;
-    skip?: InputMaybe<Scalars['Int']['input']>;
-    sortBy?: InputMaybe<Array<SortOidcClientsBy>>;
-    where?: InputMaybe<OidcClientWhereInput>;
 }
 
 
@@ -3954,66 +3309,6 @@ export enum SortConfirmPhoneActionsBy {
     VDesc = 'v_DESC',
 }
 
-export enum SortOidcClientHistoryRecordsBy {
-    ClientSecretAsc = 'clientSecret_ASC',
-    ClientSecretDesc = 'clientSecret_DESC',
-    CreatedAtAsc = 'createdAt_ASC',
-    CreatedAtDesc = 'createdAt_DESC',
-    DeletedAtAsc = 'deletedAt_ASC',
-    DeletedAtDesc = 'deletedAt_DESC',
-    DevelopmentRedirectUriAsc = 'developmentRedirectUri_ASC',
-    DevelopmentRedirectUriDesc = 'developmentRedirectUri_DESC',
-    DvAsc = 'dv_ASC',
-    DvDesc = 'dv_DESC',
-    HistoryActionAsc = 'history_action_ASC',
-    HistoryActionDesc = 'history_action_DESC',
-    HistoryDateAsc = 'history_date_ASC',
-    HistoryDateDesc = 'history_date_DESC',
-    IdAsc = 'id_ASC',
-    IdDesc = 'id_DESC',
-    ProductionRedirectUriAsc = 'productionRedirectUri_ASC',
-    ProductionRedirectUriDesc = 'productionRedirectUri_DESC',
-    TokenAuthMethodAsc = 'tokenAuthMethod_ASC',
-    TokenAuthMethodDesc = 'tokenAuthMethod_DESC',
-    UpdatedAtAsc = 'updatedAt_ASC',
-    UpdatedAtDesc = 'updatedAt_DESC',
-    VAsc = 'v_ASC',
-    VDesc = 'v_DESC',
-}
-
-export enum SortOidcClientsBy {
-    B2cAppAsc = 'b2cApp_ASC',
-    B2cAppDesc = 'b2cApp_DESC',
-    ClientSecretAsc = 'clientSecret_ASC',
-    ClientSecretDesc = 'clientSecret_DESC',
-    CreatedAtAsc = 'createdAt_ASC',
-    CreatedAtDesc = 'createdAt_DESC',
-    CreatedByAsc = 'createdBy_ASC',
-    CreatedByDesc = 'createdBy_DESC',
-    DeletedAtAsc = 'deletedAt_ASC',
-    DeletedAtDesc = 'deletedAt_DESC',
-    DevelopmentExportIdAsc = 'developmentExportId_ASC',
-    DevelopmentExportIdDesc = 'developmentExportId_DESC',
-    DevelopmentRedirectUriAsc = 'developmentRedirectUri_ASC',
-    DevelopmentRedirectUriDesc = 'developmentRedirectUri_DESC',
-    DvAsc = 'dv_ASC',
-    DvDesc = 'dv_DESC',
-    IdAsc = 'id_ASC',
-    IdDesc = 'id_DESC',
-    ProductionExportIdAsc = 'productionExportId_ASC',
-    ProductionExportIdDesc = 'productionExportId_DESC',
-    ProductionRedirectUriAsc = 'productionRedirectUri_ASC',
-    ProductionRedirectUriDesc = 'productionRedirectUri_DESC',
-    TokenAuthMethodAsc = 'tokenAuthMethod_ASC',
-    TokenAuthMethodDesc = 'tokenAuthMethod_DESC',
-    UpdatedAtAsc = 'updatedAt_ASC',
-    UpdatedAtDesc = 'updatedAt_DESC',
-    UpdatedByAsc = 'updatedBy_ASC',
-    UpdatedByDesc = 'updatedBy_DESC',
-    VAsc = 'v_ASC',
-    VDesc = 'v_DESC',
-}
-
 export enum SortUserHistoryRecordsBy {
     CreatedAtAsc = 'createdAt_ASC',
     CreatedAtDesc = 'createdAt_DESC',
@@ -4204,6 +3499,14 @@ export type StartConfirmPhoneActionOutput = {
     __typename?: 'StartConfirmPhoneActionOutput';
     actionId: Scalars['String']['output'];
     phone: Scalars['String']['output'];
+}
+
+export type UpdateOidcClientUrlInput = {
+    app: AppWhereUniqueInput;
+    dv: Scalars['Int']['input'];
+    environment: AppEnvironment;
+    redirectUri: Scalars['String']['input'];
+    sender: SenderFieldInput;
 }
 
 /**  Account of individual developer or development company.  */
@@ -5884,6 +5187,20 @@ export type DeleteB2CAppPropertyMutationVariables = Exact<{
 
 export type DeleteB2CAppPropertyMutation = { __typename?: 'Mutation', property?: { __typename?: 'DeleteB2CAppPropertyOutput', id: string, address: string } | null }
 
+export type GetOidccLientQueryVariables = Exact<{
+    data: GetOidcClientInput;
+}>
+
+
+export type GetOidccLientQuery = { __typename?: 'Query', client?: { __typename?: 'OIDCClient', id: string, clientId: string, redirectUri: string } | null }
+
+export type CreateOidcClientMutationVariables = Exact<{
+    data: CreateOidcClientInput;
+}>
+
+
+export type CreateOidcClientMutation = { __typename?: 'Mutation', client?: { __typename?: 'OIDCClientWithSecret', clientSecret: string } | null }
+
 export type AuthenticatedUserQueryVariables = Exact<{ [key: string]: never; }>
 
 
@@ -6372,6 +5689,76 @@ export function useDeleteB2CAppPropertyMutation (baseOptions?: Apollo.MutationHo
 export type DeleteB2CAppPropertyMutationHookResult = ReturnType<typeof useDeleteB2CAppPropertyMutation>
 export type DeleteB2CAppPropertyMutationResult = Apollo.MutationResult<DeleteB2CAppPropertyMutation>
 export type DeleteB2CAppPropertyMutationOptions = Apollo.BaseMutationOptions<DeleteB2CAppPropertyMutation, DeleteB2CAppPropertyMutationVariables>
+export const GetOidccLientDocument = gql`
+    query getOIDCCLient($data: GetOIDCClientInput!) {
+  client: OIDCClient(data: $data) {
+    id
+    clientId
+    redirectUri
+  }
+}
+    `
+
+/**
+ * __useGetOidccLientQuery__
+ *
+ * To run a query within a React component, call `useGetOidccLientQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOidccLientQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOidccLientQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetOidccLientQuery (baseOptions: Apollo.QueryHookOptions<GetOidccLientQuery, GetOidccLientQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useQuery<GetOidccLientQuery, GetOidccLientQueryVariables>(GetOidccLientDocument, options)
+}
+export function useGetOidccLientLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions<GetOidccLientQuery, GetOidccLientQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useLazyQuery<GetOidccLientQuery, GetOidccLientQueryVariables>(GetOidccLientDocument, options)
+}
+export type GetOidccLientQueryHookResult = ReturnType<typeof useGetOidccLientQuery>
+export type GetOidccLientLazyQueryHookResult = ReturnType<typeof useGetOidccLientLazyQuery>
+export type GetOidccLientQueryResult = Apollo.QueryResult<GetOidccLientQuery, GetOidccLientQueryVariables>
+export const CreateOidcClientDocument = gql`
+    mutation createOIDCClient($data: CreateOIDCClientInput!) {
+  client: createOIDCClient(data: $data) {
+    clientSecret
+  }
+}
+    `
+export type CreateOidcClientMutationFn = Apollo.MutationFunction<CreateOidcClientMutation, CreateOidcClientMutationVariables>
+
+/**
+ * __useCreateOidcClientMutation__
+ *
+ * To run a mutation, you first call `useCreateOidcClientMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateOidcClientMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createOidcClientMutation, { data, loading, error }] = useCreateOidcClientMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateOidcClientMutation (baseOptions?: Apollo.MutationHookOptions<CreateOidcClientMutation, CreateOidcClientMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<CreateOidcClientMutation, CreateOidcClientMutationVariables>(CreateOidcClientDocument, options)
+}
+export type CreateOidcClientMutationHookResult = ReturnType<typeof useCreateOidcClientMutation>
+export type CreateOidcClientMutationResult = Apollo.MutationResult<CreateOidcClientMutation>
+export type CreateOidcClientMutationOptions = Apollo.BaseMutationOptions<CreateOidcClientMutation, CreateOidcClientMutationVariables>
 export const AuthenticatedUserDocument = gql`
     query authenticatedUser {
   authenticatedUser {
