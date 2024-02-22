@@ -14,7 +14,7 @@ const BASE_APP_URL = __ENV.BASE_URL + '/ticket'
 const DURATION = '60s'
 
 export const options = {
-    tags: { testid: 'ticket' },
+    tags: { testid: 'ticket', serverUrl: __ENV.BASE_URL },
     scenarios: {
         queryTicketEntities: {
             exec: 'queryBasicEntities',

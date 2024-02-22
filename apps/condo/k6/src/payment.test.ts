@@ -13,7 +13,7 @@ import {
 const DURATION = '60s'
 
 export const options = {
-    tags: { testid: 'payment' },
+    tags: { testid: 'payment', serverUrl: __ENV.BASE_URL },
     scenarios: {
         registerBillingReceipts: {
             exec: 'registerBillingReceiptsService',

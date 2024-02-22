@@ -63,9 +63,9 @@ jobs:
           export AUTH_PASSWORD=${{ secrets.K6_AUTH_PASSWORD }}
           export K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM=true
           
-          k6 -o experimental-prometheus-rw run --tag serverUrl=${{ BASE_URL }} apps/condo/k6/dist/ticket.test.js
-          k6 -o experimental-prometheus-rw run --tag serverUrl=${{ BASE_URL }} apps/condo/k6/dist/payment.test.js
-          k6 -o experimental-prometheus-rw run --tag serverUrl=${{ BASE_URL }} apps/condo/k6/dist/news.test.js
+          k6 -o experimental-prometheus-rw run apps/condo/k6/dist/ticket.test.js
+          k6 -o experimental-prometheus-rw run apps/condo/k6/dist/payment.test.js
+          k6 -o experimental-prometheus-rw run apps/condo/k6/dist/news.test.js
 
       - name: Upload screenshots
         uses: actions/upload-artifact@v3
