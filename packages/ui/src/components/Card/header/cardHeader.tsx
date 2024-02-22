@@ -72,7 +72,7 @@ const CardHeader: React.FC<CardHeaderProps> = (props) => {
 
     return (
         <>
-            {tag && <Tag {...tag} />}
+            {tag && <Tag {...tag} className={`${CARD_CLASS_PREFIX}-header-tag`} />}
             {headerContent}
         </>
     )
