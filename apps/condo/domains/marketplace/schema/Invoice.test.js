@@ -1162,7 +1162,7 @@ describe('Invoice', () => {
                 property: { connect: { id: client.property.id } },
                 unitType,
                 unitName,
-                status: INVOICE_STATUS_DRAFT,
+                status: INVOICE_STATUS_PUBLISHED,
                 client: { connect: { id: residentClient.user.id } },
                 ticket: { connect: { id: ticket.id } },
                 clientName: null,
