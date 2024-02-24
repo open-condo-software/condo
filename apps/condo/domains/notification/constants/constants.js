@@ -60,6 +60,7 @@ const CUSTOM_CONTENT_MESSAGE_PUSH_TYPE = 'CUSTOM_CONTENT_MESSAGE_PUSH'
 const CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE = 'CUSTOM_CONTENT_MESSAGE_EMAIL'
 const CUSTOM_CONTENT_MESSAGE_SMS_TYPE = 'CUSTOM_CONTENT_MESSAGE_SMS'
 const VOIP_INCOMING_CALL_MESSAGE_TYPE = 'VOIP_INCOMING_CALL_MESSAGE'
+const DECLINE_VOIP_INCOMING_CALL_MESSAGE_TYPE = 'DECLINE_VOIP_INCOMING_CALL_MESSAGE'
 const RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE = 'RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE'
 const RECURRENT_PAYMENT_PROCEEDING_UNKNOWN_ERROR_MESSAGE_TYPE = 'RECURRENT_PAYMENT_PROCEEDING_UNKNOWN_ERROR_MESSAGE'
 const RECURRENT_PAYMENT_PROCEEDING_ACQUIRING_PAYMENT_PROCEED_ERROR_MESSAGE_TYPE = 'RECURRENT_PAYMENT_PROCEEDING_ACQUIRING_PAYMENT_PROCEED_ERROR_MESSAGE'
@@ -505,6 +506,19 @@ const MESSAGE_META = {
             voipDtfmCommand: { required: false },
         },
     },
+    [DECLINE_VOIP_INCOMING_CALL_MESSAGE_TYPE]: {
+        dv: { required: true },
+        title: { required: false },
+        body: { required: true },
+        data: {
+            B2CAppId: { required: true },
+            B2CAppContext: { required: false },
+            B2CAppName: { required: true },
+            residentId: { required: true },
+            callId: { required: true },
+            declineReason: { required: true },
+        },
+    },
     [B2C_APP_MESSAGE_PUSH_TYPE]: {
         dv: { required: true },
         title: { required: false },
@@ -747,6 +761,11 @@ const MESSAGE_DELIVERY_OPTIONS = {
         defaultTransports: [PUSH_TRANSPORT],
         isAllowedToChangeDefaultTransport: false,
         isVoIP: true,
+    },
+    [DECLINE_VOIP_INCOMING_CALL_MESSAGE_TYPE]: {
+        allowedTransports: [PUSH_TRANSPORT],
+        defaultTransports: [PUSH_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
     },
     [B2C_APP_MESSAGE_PUSH_TYPE]: {
         allowedTransports: [PUSH_TRANSPORT],
@@ -1040,6 +1059,7 @@ module.exports = {
     MESSAGE_DELIVERY_SLOW_PRIORITY,
     MESSAGE_DELIVERY_FAST_PRIORITY,
     VOIP_INCOMING_CALL_MESSAGE_TYPE,
+    DECLINE_VOIP_INCOMING_CALL_MESSAGE_TYPE,
     B2C_APP_MESSAGE_PUSH_TYPE,
     APPLE_CONFIG_ENV,
     APPLE_CONFIG_TEST_PUSHTOKEN_ENV,

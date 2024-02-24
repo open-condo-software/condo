@@ -2205,6 +2205,8 @@
   "api.miniapp.sendB2CAppPushMessage.DV_VERSION_MISMATCH": "Wrong value for data version number",
   "api.miniapp.sendB2CAppPushMessage.WRONG_SENDER_FORMAT": "Invalid format of \"sender\" field value. {details}",
   "api.miniapp.sendB2CAppPushMessage.APP_IN_BLACK_LIST": "Could not send notifications for the blacklisted app",
+  "api.miniapp.sendB2CAppPushMessage.DECLINE_VOIP_WITHOUT_CALLID": "Could not send notifications to decline voip call without callId in data",
+  "api.miniapp.sendB2CAppPushMessage.DECLINE_VOIP_WITHOUT_REASON": "Could not send notifications to decline voip call without declineReason in data",
   "api.analytics.overviewDashboard.FEATURE_IS_DISABLED": "This feature is unavailable for your organization",
   "api.tourStep.update.updateCompletedStepType": "You can not update status of completed TourStep",
   "excelExport.header.contacts.forAllTime": "Contacts for all time",

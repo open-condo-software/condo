@@ -2205,6 +2205,8 @@
   "api.miniapp.sendB2CAppPushMessage.DV_VERSION_MISMATCH": "Неверное значение версии данных",
   "api.miniapp.sendB2CAppPushMessage.WRONG_SENDER_FORMAT": "Неверный формат поля \"sender\"",
   "api.miniapp.sendB2CAppPushMessage.APP_IN_BLACK_LIST": "Невозможно отправить уведомления для приложения, находящегося в блэклисте",
+  "api.miniapp.sendB2CAppPushMessage.DECLINE_VOIP_WITHOUT_CALLID": "Невозможно отправить уведомления об отмене входящего voip звонка не указав callId в data",
+  "api.miniapp.sendB2CAppPushMessage.DECLINE_VOIP_WITHOUT_REASON": "Невозможно отправить уведомления об отмене входящего voip звонка не указав declineReason в data",
   "api.analytics.overviewDashboard.FEATURE_IS_DISABLED": "Эта функция недоступна в вашей организации",
   "api.tourStep.update.updateCompletedStepType": "Нельзя обновить поле status у выполненного TourStep ",
   "excelExport.header.contacts.forAllTime": "Контакты за всё время",
