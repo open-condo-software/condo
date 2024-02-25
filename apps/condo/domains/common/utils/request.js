@@ -21,17 +21,17 @@ const conf = require('@open-condo/config')
  * }
  *
  */
-const DEFAULT_SETS_OF_SPECIFIC_HEADERS_BY_REQUEST_SOURCE = {
+const DEFAULT_SETS_OF_SPECIFIC_REQUEST_HEADERS = {
     ANDROID: [],
     IOS: [],
     SITE: [{}],
 }
 
-const SETS_OF_SPECIFIC_HEADERS_BY_REQUEST_SOURCE = conf.SETS_OF_SPECIFIC_HEADERS_BY_REQUEST_SOURCE
-    ? JSON.parse(conf.SETS_OF_SPECIFIC_HEADERS_BY_REQUEST_SOURCE)
-    : DEFAULT_SETS_OF_SPECIFIC_HEADERS_BY_REQUEST_SOURCE
+const SETS_OF_SPECIFIC_REQUEST_HEADERS = conf.SETS_OF_SPECIFIC_REQUEST_HEADERS
+    ? JSON.parse(conf.SETS_OF_SPECIFIC_REQUEST_HEADERS)
+    : DEFAULT_SETS_OF_SPECIFIC_REQUEST_HEADERS
 
-if (isEmpty(SETS_OF_SPECIFIC_HEADERS_BY_REQUEST_SOURCE)) {
+if (isEmpty(SETS_OF_SPECIFIC_REQUEST_HEADERS)) {
     console.error('You should configure header rules for request sources (Android/iOS/site/...)!' +
         '\nThe default value is used for development - all requests are equal to requests from the site.')
 }
@@ -56,9 +56,9 @@ const hasSpecificHeaders = (reqHeaders, setsOfSpecificHeaders) => {
 
 const getRequestSource = (context) => {
     const headers = get(context, 'req.headers')
-    if (hasSpecificHeaders(headers, SETS_OF_SPECIFIC_HEADERS_BY_REQUEST_SOURCE.ANDROID)) return REQUEST_SOURCES.ANDROID
-    if (hasSpecificHeaders(headers, SETS_OF_SPECIFIC_HEADERS_BY_REQUEST_SOURCE.IOS)) return REQUEST_SOURCES.IOS
-    if (hasSpecificHeaders(headers, SETS_OF_SPECIFIC_HEADERS_BY_REQUEST_SOURCE.SITE)) return REQUEST_SOURCES.SITE
+    if (hasSpecificHeaders(headers, SETS_OF_SPECIFIC_REQUEST_HEADERS.ANDROID)) return REQUEST_SOURCES.ANDROID
+    if (hasSpecificHeaders(headers, SETS_OF_SPECIFIC_REQUEST_HEADERS.IOS)) return REQUEST_SOURCES.IOS
+    if (hasSpecificHeaders(headers, SETS_OF_SPECIFIC_REQUEST_HEADERS.SITE)) return REQUEST_SOURCES.SITE
     return REQUEST_SOURCES.OTHER
 }
 
