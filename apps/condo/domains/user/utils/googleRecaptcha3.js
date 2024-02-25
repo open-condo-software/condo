@@ -26,9 +26,9 @@ if (isEmpty(GOOGLE_RECAPTCHA_CONFIG) || !SITE_KEY || !IOS_KEY || !ANDROID_KEY ||
 
 const getReCaptchaKey = (source) => {
     switch (source) {
-        case REQUEST_SOURCES.ANDROID:
+        case REQUEST_SOURCES.ANDROID_APP:
             return ANDROID_KEY
-        case REQUEST_SOURCES.IOS:
+        case REQUEST_SOURCES.IOS_APP:
             return IOS_KEY
         case REQUEST_SOURCES.SITE:
             return SITE_KEY

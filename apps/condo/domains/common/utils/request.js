@@ -37,8 +37,8 @@ if (isEmpty(SETS_OF_SPECIFIC_REQUEST_HEADERS)) {
 }
 
 const REQUEST_SOURCES = {
-    ANDROID: 'ANDROID',
-    IOS: 'IOS',
+    ANDROID_APP: 'ANDROID_APP',
+    IOS_APP: 'IOS_APP',
     SITE: 'SITE',
     OTHER: 'OTHER',
 }
@@ -56,8 +56,8 @@ const hasSpecificHeaders = (reqHeaders, setsOfSpecificHeaders) => {
 
 const getRequestSource = (context) => {
     const headers = get(context, 'req.headers')
-    if (hasSpecificHeaders(headers, SETS_OF_SPECIFIC_REQUEST_HEADERS.ANDROID)) return REQUEST_SOURCES.ANDROID
-    if (hasSpecificHeaders(headers, SETS_OF_SPECIFIC_REQUEST_HEADERS.IOS)) return REQUEST_SOURCES.IOS
+    if (hasSpecificHeaders(headers, SETS_OF_SPECIFIC_REQUEST_HEADERS.ANDROID)) return REQUEST_SOURCES.ANDROID_APP
+    if (hasSpecificHeaders(headers, SETS_OF_SPECIFIC_REQUEST_HEADERS.IOS)) return REQUEST_SOURCES.IOS_APP
     if (hasSpecificHeaders(headers, SETS_OF_SPECIFIC_REQUEST_HEADERS.SITE)) return REQUEST_SOURCES.SITE
     return REQUEST_SOURCES.OTHER
 }
