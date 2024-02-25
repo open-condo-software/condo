@@ -157,7 +157,9 @@ const AuthLayout: React.FC<IAuthLayoutProps> = (props) => {
             language={intl.locale}
             useRecaptchaNet
             container={GOOGLE_RECAPTCHA_CONTAINER}
-            scriptProps={GOOGLE_RECAPTCHA_SCRIPT_PROPS}>
+            scriptProps={GOOGLE_RECAPTCHA_SCRIPT_PROPS}
+            useEnterprise
+        >
             <Global styles={FROM_INPUT_CSS}/>
             <PosterLayout Header={AuthHeader} Footer={AuthFooter} {...otherProps}>
                 <AuthLayoutContextProvider>
