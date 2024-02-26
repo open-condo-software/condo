@@ -74,6 +74,7 @@ jobs:
           yarn workspace @app/condo node ./bin/generate-initial-data.js
 
           echo 'ADDRESS_SERVICE_CLIENT_MODE=fake' >> .env
+          echo 'DISABLE_CAPTCHA_CHECK=true' >> .env
   
           yarn workspace @app/condo start &
           bash ./.github/workflows/waitForLocalhostApiReady.sh

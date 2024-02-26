@@ -16,6 +16,7 @@ const API_KEY = GOOGLE_RECAPTCHA_CONFIG.API_KEY
 const CAPTCHA_SCORE_URL = `https://recaptchaenterprise.googleapis.com/v1/projects/${PROJECT_ID}/assessments?key=${API_KEY}`
 const SAFE_CAPTCHA_SCORE = 0.5
 const THROW_ERRORS_ON_LOW_CAPTCHA_SCORE = conf.THROW_ERRORS_ON_LOW_CAPTCHA_SCORE === 'true'
+const DISABLE_CAPTCHA_CHECK = conf.DISABLE_CAPTCHA_CHECK === 'true'
 
 const logger = getLogger('googleRecaptcha3')
 
@@ -38,7 +39,7 @@ const getReCaptchaKey = (source) => {
 }
 
 const captchaCheck = async (token, action = '', context = {}) => {
-    if (conf.NODE_ENV === 'test') {
+    if (DISABLE_CAPTCHA_CHECK) {
         return { error: null }
     }
 
