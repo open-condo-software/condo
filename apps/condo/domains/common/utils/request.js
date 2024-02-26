@@ -22,8 +22,8 @@ const conf = require('@open-condo/config')
  *
  */
 const DEFAULT_SETS_OF_SPECIFIC_REQUEST_HEADERS = {
-    ANDROID: [],
-    IOS: [],
+    ANDROID_APP: [],
+    IOS_APP: [],
     SITE: [{}],
 }
 
@@ -56,8 +56,8 @@ const hasSpecificHeaders = (reqHeaders, setsOfSpecificHeaders) => {
 
 const getRequestSource = (context) => {
     const headers = get(context, 'req.headers')
-    if (hasSpecificHeaders(headers, SETS_OF_SPECIFIC_REQUEST_HEADERS.ANDROID)) return REQUEST_SOURCES.ANDROID_APP
-    if (hasSpecificHeaders(headers, SETS_OF_SPECIFIC_REQUEST_HEADERS.IOS)) return REQUEST_SOURCES.IOS_APP
+    if (hasSpecificHeaders(headers, SETS_OF_SPECIFIC_REQUEST_HEADERS.ANDROID_APP)) return REQUEST_SOURCES.ANDROID_APP
+    if (hasSpecificHeaders(headers, SETS_OF_SPECIFIC_REQUEST_HEADERS.IOS_APP)) return REQUEST_SOURCES.IOS_APP
     if (hasSpecificHeaders(headers, SETS_OF_SPECIFIC_REQUEST_HEADERS.SITE)) return REQUEST_SOURCES.SITE
     return REQUEST_SOURCES.OTHER
 }
