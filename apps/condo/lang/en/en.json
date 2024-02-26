@@ -1713,6 +1713,7 @@
   "notification.messages.BANK_ACCOUNT_CREATION_REQUEST.email.title": "New request for Sber account creation",
   "notification.messages.BANK_ACCOUNT_CREATION_REQUEST.email.subject": "Bank account creation",
   "notification.messages.VOIP_INCOMING_CALL_MESSAGE.push.title": "{title}",
+  "notification.messages.DECLINE_VOIP_INCOMING_CALL_MESSAGE.push.title": "{title}",
   "notification.messages.RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE.push.title": "Autopayment successful 🚀",
   "notification.messages.RECURRENT_PAYMENT_PROCEEDING_UNKNOWN_ERROR_MESSAGE.push.title": "Autopayment error 🚨",
   "notification.messages.RECURRENT_PAYMENT_PROCEEDING_ACQUIRING_PAYMENT_PROCEED_ERROR_MESSAGE.push.title": "Autopayment error 🚨",

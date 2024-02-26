@@ -11,7 +11,7 @@ const {
     USER_NOT_FOUND_ERROR, RESIDENT_NOT_FOUND_ERROR,
     APP_NOT_FOUND_ERROR, APP_BLACK_LIST_ERROR, DEBUG_APP_ID,
     DECLINE_VOIP_WITHOUT_REASON_ERROR, DECLINE_VOIP_WITHOUT_CALLID_ERROR, DECLINE_REASONS,
-    DECLINEREASON_NOT_PROVIDED, CALLID_NOT_PROVIDED,
+    DECLINE_REASON_NOT_PROVIDED, CALLID_NOT_PROVIDED,
 } = require('@condo/domains/miniapp/constants')
 const { MessageAppBlackList } = require('@condo/domains/miniapp/utils/serverSchema')
 const { B2CApp } = require('@condo/domains/miniapp/utils/serverSchema')
@@ -92,7 +92,7 @@ const ERRORS = {
     },
     DECLINE_VOIP_WITHOUT_REASON: {
         mutation: SERVICE_NAME,
-        code: DECLINEREASON_NOT_PROVIDED,
+        code: DECLINE_REASON_NOT_PROVIDED,
         type: DECLINE_VOIP_WITHOUT_REASON_ERROR,
         message: 'Could not send notifications to decline voip call without declineReason in data',
         messageForUser: `api.miniapp.${SERVICE_NAME}.DECLINE_VOIP_WITHOUT_REASON`,

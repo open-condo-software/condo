@@ -1713,6 +1713,7 @@
   "notification.messages.BANK_ACCOUNT_CREATION_REQUEST.email.title": "Новая заявка на открытие счета в Сбере",
   "notification.messages.BANK_ACCOUNT_CREATION_REQUEST.email.subject": "Открытие расчетного счета на дом",
   "notification.messages.VOIP_INCOMING_CALL_MESSAGE.push.title": "{title}",
+  "notification.messages.DECLINE_VOIP_INCOMING_CALL_MESSAGE.push.title": "{title}",
   "notification.messages.RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE.push.title": "Автоплатеж прошел 🚀",
   "notification.messages.RECURRENT_PAYMENT_PROCEEDING_UNKNOWN_ERROR_MESSAGE.push.title": "Автоплатеж не прошел 🚨",
   "notification.messages.RECURRENT_PAYMENT_PROCEEDING_ACQUIRING_PAYMENT_PROCEED_ERROR_MESSAGE.push.title": "Автоплатеж не прошел 🚨",
