@@ -6,7 +6,7 @@ import { CreateClientForm } from './CreateClientForm'
 import { EditClientForm } from './EditClientForm'
 import { SecretContextProvider } from './SecretProvider'
 
-import { AppEnvironment, useGetOidccLientQuery } from '@/lib/gql'
+import { AppEnvironment, useGetOidcClientQuery } from '@/lib/gql'
 
 type ClientSettingsSubsectionProps = {
     id: string
@@ -14,7 +14,7 @@ type ClientSettingsSubsectionProps = {
 }
 
 export const ClientSettingsSubsection: React.FC<ClientSettingsSubsectionProps> = ({ id, environment }) => {
-    const { data, loading } = useGetOidccLientQuery({
+    const { data, loading } = useGetOidcClientQuery({
         variables: {
             data: {
                 environment,

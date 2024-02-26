@@ -12,7 +12,7 @@ import { INVALID_PHONE } from '@dev-api/domains/user/constants/errors'
 
 import styles from './PhoneInputStep.module.css'
 
-import { useStartConfirmPhoneActionMutation } from '@/lib/gql'
+import { useStartConfirmPhoneActionMutation, StartConfirmPhoneActionMutation } from '@/lib/gql'
 
 const FULL_SPAN_COL = 24
 const START_CONFIRM_PHONE_ACTION_ERRORS_TO_FIELDS_MAP = {
@@ -58,17 +58,18 @@ export const PhoneInputStep: React.FC<PhoneInputStepProps> = ({ onComplete }) =>
         form,
         typeToFieldMapping: START_CONFIRM_PHONE_ACTION_ERRORS_TO_FIELDS_MAP,
     })
+    const onStartConfirmPhoneActionCompleted = useCallback((data: StartConfirmPhoneActionMutation) => {
+        if (data.startConfirmPhoneAction?.actionId && data.startConfirmPhoneAction.phone) {
+            onComplete({
+                phone: data.startConfirmPhoneAction.phone,
+                actionId: data.startConfirmPhoneAction.actionId,
+                formattedPhone: formattedPhone,
+            })
+        }
+    }, [onComplete, formattedPhone])
 
     const [startConfirmPhoneActionMutation] = useStartConfirmPhoneActionMutation({
-        onCompleted: (data) => {
-            if (data.startConfirmPhoneAction?.actionId && data.startConfirmPhoneAction.phone) {
-                onComplete({
-                    phone: data.startConfirmPhoneAction.phone,
-                    actionId: data.startConfirmPhoneAction.actionId,
-                    formattedPhone: formattedPhone,
-                })
-            }
-        },
+        onCompleted: onStartConfirmPhoneActionCompleted,
         onError: onStartConfirmPhoneActionError,
     })
 

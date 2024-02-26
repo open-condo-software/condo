@@ -8,17 +8,15 @@ import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationError
 import { useValidations } from '@/domains/common/hooks/useValidations'
 import { getClientSideSenderInfo } from '@/domains/common/utils/userid.utils'
 import { EmptySubSectionView } from '@/domains/miniapp/components/EmptySubSectionView'
+import { DEV_REDIRECT_URI_EXAMPLE, PROD_REDIRECT_URI_EXAMPLE, OIDC_DOCS_LINK } from '@/domains/miniapp/constants/common'
 
 import styles from './CreateClientForm.module.css'
 import { useSecretContext } from './SecretProvider'
 
 
-import { AppEnvironment, useCreateOidcClientMutation, GetOidccLientDocument } from '@/lib/gql'
+import { AppEnvironment, useCreateOidcClientMutation, GetOidcClientDocument, CreateOidcClientMutation } from '@/lib/gql'
 
-// TODO: Replace with relative link after migrating docs
-const DOCS_LINK = 'https://docs.google.com/document/d/1pTMq0Qi9307uUIfHK4eGi6T1xtUvrK4Asz9j5Eoo8bI/edit#heading=h.tyzk29z45ac'
-const DEV_REDIRECT_URI_EXAMPLE = 'https://miniapp.dev.example.com/oidc/callback'
-const PROD_REDIRECT_URI_EXAMPLE = 'https://miniapp.example.com/oidc/callback'
+
 
 type CreateClientFormProps = {
     id: string
@@ -56,16 +54,17 @@ export const CreateClientForm: React.FC<CreateClientFormProps> = ({ id, environm
     const { setSecret } = useSecretContext()
 
     const onError = useMutationErrorHandler()
+    const onCompleted = useCallback((data: CreateOidcClientMutation) => {
+        setSecret(data.client?.clientSecret || null)
+        notification.success({ message: SuccessNotificationTitle, description: SuccessNotificationDescription, duration: 20 })
+        closeModal()
+    }, [SuccessNotificationDescription, SuccessNotificationTitle, closeModal, setSecret])
     const [createOIDCClientMutation] = useCreateOidcClientMutation({
         onError,
-        onCompleted: (data) => {
-            setSecret(data.client?.clientSecret || null)
-            notification.success({ message: SuccessNotificationTitle, description: SuccessNotificationDescription, duration: 20 })
-            closeModal()
-        },
+        onCompleted,
         refetchQueries: [
             {
-                query: GetOidccLientDocument,
+                query: GetOidcClientDocument,
                 variables: {
                     data: {
                         environment,
@@ -108,7 +107,7 @@ export const CreateClientForm: React.FC<CreateClientFormProps> = ({ id, environm
                     <Button
                         key='secondary-action'
                         type='secondary'
-                        href={DOCS_LINK}
+                        href={OIDC_DOCS_LINK}
                         target='_blank'
                     >
                         {AboutOIDCLabel}

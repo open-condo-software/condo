@@ -13,3 +13,8 @@ export const B2C_BUILD_ALLOWED_MIMETYPES  = [
 export const B2C_BUILD_MAX_FILE_SIZE_IN_BYTES = 200 * 1024 * 1024  // 200 Mb in bytes
 export const B2C_BUILD_VERSION_REGEXP = /^\d{1,10}.\d{1,10}.\d{1,10}(?:-\w{1,64})?$/
 export const DEFAULT_PAGE_SIZE = 10
+
+// TODO: Replace with relative link after migrating docs
+export const OIDC_DOCS_LINK = 'https://docs.google.com/document/d/1pTMq0Qi9307uUIfHK4eGi6T1xtUvrK4Asz9j5Eoo8bI/edit#heading=h.tyzk29z45ac'
+export const DEV_REDIRECT_URI_EXAMPLE = 'https://miniapp.dev.example.com/oidc/callback'
+export const PROD_REDIRECT_URI_EXAMPLE = 'https://miniapp.example.com/oidc/callback'
