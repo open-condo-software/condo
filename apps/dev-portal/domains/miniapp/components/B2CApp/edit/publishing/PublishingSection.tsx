@@ -35,8 +35,8 @@ export const PublishingSection: React.FC<{ id: string }> = ({ id }) => {
     const intl = useIntl()
     const PublishingTitle = intl.formatMessage({ id: 'apps.b2c.sections.publishing.title' })
     const SelectStandLabel = intl.formatMessage({ id: 'apps.b2c.sections.publishing.publishForm.items.stand.label' })
-    const DevStandLabel = intl.formatMessage({ id: 'apps.b2c.sections.publishing.publishForm.items.stand.options.development.label' })
-    const ProdStandLabel = intl.formatMessage({ id: 'apps.b2c.sections.publishing.publishForm.items.stand.options.production.label' })
+    const DevStandLabel = intl.formatMessage({ id: 'apps.environments.development.label' })
+    const ProdStandLabel = intl.formatMessage({ id: 'apps.environments.production.label' })
     const ChangesPublishedTitle = intl.formatMessage({ id: 'apps.id.notifications.successPublish.title' })
 
     const [form] = Form.useForm()

@@ -14,6 +14,7 @@ import { BuildsSection } from '@/domains/miniapp/components/B2CApp/edit/builds/B
 import { InfoSection } from '@/domains/miniapp/components/B2CApp/edit/info/InfoSection'
 import { PropertiesSection } from '@/domains/miniapp/components/B2CApp/edit/properties/PropertiesSection'
 import { PublishingSection } from '@/domains/miniapp/components/B2CApp/edit/publishing/PublishingSection'
+import { OIDCClientSection } from '@/domains/miniapp/components/OIDC/edit/OIDCClientSection'
 import { DEFAULT_PAGE_SIZE } from '@/domains/miniapp/constants/common'
 import { getCurrentSection, useB2CMenuItems } from '@/domains/miniapp/hooks/useB2CMenuItems'
 import { getCurrentPage } from '@/domains/miniapp/utils/query'
@@ -40,6 +41,7 @@ const SECTIONS: { [key in SectionType]: React.FC<{ id: string }> } = {
     info: InfoSection,
     builds: BuildsSection,
     properties: PropertiesSection,
+    oidc: OIDCClientSection,
     publishing: PublishingSection,
 }
 

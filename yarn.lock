@@ -976,6 +976,7 @@ __metadata:
     "@open-condo/locales": "workspace:^"
     "@types/jest": ^29.4.0
     "@types/node": ^16
+    ajv: 8.11.0
     babel-jest: ^29.7.0
     cross-env: ^7.0.3
     dayjs: ^1.11.10

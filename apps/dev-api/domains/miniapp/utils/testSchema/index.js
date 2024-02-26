@@ -18,6 +18,10 @@ const {
     ALL_B2C_APP_PROPERTIES_QUERY,
     CREATE_B2C_APP_PROPERTY_MUTATION,
     DELETE_B2C_APP_PROPERTY_MUTATION,
+    GET_OIDC_CLIENT_QUERY,
+    CREATE_OIDC_CLIENT_MUTATION,
+    GENERATE_OIDC_CLIENT_SECRET_MUTATION,
+    UPDATE_OIDC_CLIENT_URL_MUTATION,
 } = require('@dev-api/domains/miniapp/gql')
 const { UploadingFile } = require('@open-condo/keystone/test.utils')
 const { DEV_ENVIRONMENT } = require('@dev-api/domains/miniapp/constants/publishing')
@@ -36,6 +40,20 @@ const FAKE_B2C_APP_LOGO_PATH = path.resolve(conf.PROJECT_ROOT, 'apps/dev-api/dom
 const CondoB2CApp = generateGQLTestUtils(generateGqlQueries('B2CApp', '{ id name developer logo { publicUrl filename } currentBuild { id } importId importRemoteSystem deletedAt v }'))
 const CondoB2CAppBuild = generateGQLTestUtils(generateGqlQueries('B2CAppBuild', '{ id version data { publicUrl } importId importRemoteSystem }'))
 const CondoB2CAppProperty = generateGQLTestUtils(generateGqlQueries('B2CAppProperty', '{ id address }'))
+const CondoOIDCClient = generateGQLTestUtils(generateGqlQueries('OidcClient', '{ id clientId payload isEnabled name importId importRemoteSystem }'))
+
+function generateBuildVersion () {
+    return `${faker.datatype.number()}.${faker.datatype.number()}.${faker.datatype.number()}`
+}
+
+function generateRedirectUri () {
+    const url = faker.internet.url()
+    if (!url.endsWith('/')) {
+        return `${url}/`
+    } else {
+        return url
+    }
+}
 
 async function createCondoB2CApp (client) {
     const attrs = {
@@ -133,10 +151,6 @@ async function updateTestB2CApps (client, attrsArray) {
     const objs = await B2CApp.updateMany(client, data)
 
     return [objs, data]
-}
-
-function generateBuildVersion () {
-    return `${faker.datatype.number()}.${faker.datatype.number()}.${faker.datatype.number()}`
 }
 
 async function createTestB2CAppBuild (client, app, extraAttrs = {}) {
@@ -298,19 +312,86 @@ async function deleteB2CAppPropertyByTestClient(client, id, environment) {
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
+async function getOIDCClientByTestClient(client, app, environment = DEV_ENVIRONMENT) {
+    if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app')
+
+    const attrs = {
+        app: { id: app.id },
+        environment,
+    }
+    const { data, errors } = await client.query(GET_OIDC_CLIENT_QUERY, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
+async function createOIDCClientByTestClient(client, app, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        environment: DEV_ENVIRONMENT,
+        app: { id: app.id },
+        redirectUri: generateRedirectUri(),
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(CREATE_OIDC_CLIENT_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
+async function generateOIDCClientSecretByTestClient(client, app, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        environment: DEV_ENVIRONMENT,
+        app: { id: app.id },
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(GENERATE_OIDC_CLIENT_SECRET_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
+async function updateOIDCClientUrlByTestClient(client, app, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        app: { id: app.id },
+        environment: DEV_ENVIRONMENT,
+        redirectUri: generateRedirectUri(),
+        ...extraAttrs,
+    }
+
+    const { data, errors } = await client.mutate(UPDATE_OIDC_CLIENT_URL_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     CondoB2CApp, createCondoB2CApp,
     CondoB2CAppBuild, createCondoB2CAppBuild, updateCondoB2CApp,
     CondoB2CAppProperty, createCondoB2CAppProperties,
+    CondoOIDCClient,
     B2CApp, createTestB2CApp, updateTestB2CApp, updateTestB2CApps,
     B2CAppBuild, createTestB2CAppBuild, updateTestB2CAppBuild, generateBuildVersion,
     B2CAppPublishRequest, createTestB2CAppPublishRequest, updateTestB2CAppPublishRequest,
     publishB2CAppByTestClient,
     importB2CAppByTestClient,
-    allB2CAppPropertiesByTestClient,
-    createB2CAppPropertyByTestClient,
-    deleteB2CAppPropertyByTestClient,
+    allB2CAppPropertiesByTestClient, createB2CAppPropertyByTestClient, deleteB2CAppPropertyByTestClient,
+    getOIDCClientByTestClient, createOIDCClientByTestClient, generateOIDCClientSecretByTestClient, updateOIDCClientUrlByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

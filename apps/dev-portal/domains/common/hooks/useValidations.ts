@@ -13,6 +13,7 @@ type Validators = {
     phoneFormatValidator: Rule
     passwordValidator: Rule
     trimValidator: Rule
+    urlValidator: Rule
 }
 
 export function useValidations (): Validators {
@@ -21,6 +22,7 @@ export function useValidations (): Validators {
     const FileIsRequiredMessage = intl.formatMessage({ id: 'global.forms.validations.fileRequired.message' })
     const InvalidPhoneMessage = intl.formatMessage({ id: 'global.forms.validations.phoneFormat.message' })
     const PasswordIsTooEasyMessage = intl.formatMessage({ id: 'global.forms.validations.passwordTooEasy.message' })
+    const NotAnUrlMessage = intl.formatMessage({ id: 'global.forms.validations.notAnUrl.message' })
 
     const requiredFieldValidator: Rule = useMemo(() => ({
         required: true,
@@ -54,6 +56,11 @@ export function useValidations (): Validators {
         },
     }), [PasswordIsTooEasyMessage])
 
+    const urlValidator: Rule = useMemo(() => ({
+        type: 'url',
+        message: NotAnUrlMessage,
+    }), [NotAnUrlMessage])
+
 
 
     return {
@@ -62,5 +69,6 @@ export function useValidations (): Validators {
         phoneFormatValidator,
         passwordValidator,
         trimValidator,
+        urlValidator,
     }
 }

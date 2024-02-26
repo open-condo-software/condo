@@ -3940,6 +3940,51 @@ type DeleteB2CAppPropertyOutput {
   address: String!
 }
 
+input AppWhereUniqueInput {
+  id: ID!
+}
+
+input GetOIDCClientInput {
+  app: AppWhereUniqueInput!
+  environment: AppEnvironment!
+}
+
+type OIDCClient {
+  id: String!
+  clientId: String!
+  redirectUri: String!
+}
+
+input CreateOIDCClientInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  app: AppWhereUniqueInput!
+  environment: AppEnvironment!
+  redirectUri: String!
+}
+
+type OIDCClientWithSecret {
+  id: String!
+  clientId: String!
+  clientSecret: String!
+  redirectUri: String!
+}
+
+input GenerateOIDCClientSecretInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  app: AppWhereUniqueInput!
+  environment: AppEnvironment!
+}
+
+input UpdateOIDCClientUrlInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  app: AppWhereUniqueInput!
+  environment: AppEnvironment!
+  redirectUri: String!
+}
+
 type unauthenticateUserOutput {
   """
   `true` when unauthentication succeeds.
@@ -4156,6 +4201,7 @@ type Query {
   """ Retrieve the meta-data for all lists. """
   _ksListsMeta(where: _ksListsMetaInput): [_ListMeta]
   allB2CAppProperties(data: AllB2CAppPropertiesInput!): AllB2CAppPropertiesOutput
+  OIDCClient(data: GetOIDCClientInput!): OIDCClient
 
   """The version of the Keystone application serving this API."""
   appVersion: String
@@ -4422,6 +4468,9 @@ type Mutation {
   importB2CApp(data: ImportB2CAppInput!): ImportB2CAppOutput
   createB2CAppProperty(data: CreateB2CAppPropertyInput!): CreateB2CAppPropertyOutput
   deleteB2CAppProperty(data: DeleteB2CAppPropertyInput!): DeleteB2CAppPropertyOutput
+  createOIDCClient(data: CreateOIDCClientInput!): OIDCClientWithSecret
+  generateOIDCClientSecret(data: GenerateOIDCClientSecretInput!): OIDCClientWithSecret
+  updateOIDCClientUrl(data: UpdateOIDCClientUrlInput!): OIDCClient
 
   """ Authenticate and generate a token for a User with the Password Authentication Strategy. 
   """

@@ -12,8 +12,7 @@ import { INVALID_CODE, ACTION_NOT_FOUND } from '@dev-api/domains/user/constants/
 
 import styles from './CodeInputStep.module.css'
 
-import { useCompleteConfirmPhoneActionMutation } from '@/lib/gql'
-import { useStartConfirmPhoneActionMutation } from '@/lib/gql'
+import { useCompleteConfirmPhoneActionMutation, useStartConfirmPhoneActionMutation, StartConfirmPhoneActionMutation } from '@/lib/gql'
 
 
 const FULL_SPAN_COL = 24
@@ -96,13 +95,14 @@ export const CodeInputStep: React.FC<CodeInputStepProps> = ({
     }, [])
 
     const onResendActionError = useMutationErrorHandler()
+    const onResendActionCompleted = useCallback((data: StartConfirmPhoneActionMutation) => {
+        if (data.startConfirmPhoneAction?.actionId) {
+            onCodeResendComplete(data.startConfirmPhoneAction.actionId)
+        }
+    }, [onCodeResendComplete])
     const [restartConfirmPhoneAction] = useStartConfirmPhoneActionMutation({
         onError: onResendActionError,
-        onCompleted: (data) => {
-            if (data.startConfirmPhoneAction?.actionId) {
-                onCodeResendComplete(data.startConfirmPhoneAction.actionId)
-            }
-        },
+        onCompleted: onResendActionCompleted,
     })
 
     const onCompleteConfirmPhoneActionError = useMutationErrorHandler({

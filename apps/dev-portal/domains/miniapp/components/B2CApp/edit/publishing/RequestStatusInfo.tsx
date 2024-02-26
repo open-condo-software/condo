@@ -35,7 +35,7 @@ export const RequestStatusInfo: React.FC<RequestStatusInfoProps> = ({ appId, req
         action: RequestVerificationLabel,
     })
     const VerificationStatusTitle = intl.formatMessage({ id: 'apps.id.verification.activeVerificationAlert.title' })
-    const StandLabel = intl.formatMessage({ id: 'apps.b2c.sections.publishing.publishForm.items.stand.options.production.label' })
+    const StandLabel = intl.formatMessage({ id: 'apps.environments.production.label' })
     const VerificationDetailsText = intl.formatMessage({ id: 'apps.id.verification.activeVerificationAlert.details.text' }, {
         stand: StandLabel.toLowerCase(),
     })

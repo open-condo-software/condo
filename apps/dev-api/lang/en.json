@@ -17,5 +17,8 @@
   "errors.CONDO_APP_NOT_FOUND.message": "The application was not found on the selected stand. Enable the «Application Information» option and try again",
   "errors.BUILD_NOT_FOUND.message": "The application build with the specified ID was not found",
   "errors.MULTIPLE_FOUND.message": "Unable to determine the object to update because multiple objects were found for the specified importID and exportId",
-  "errors.PUBLISH_NOT_ALLOWED.message": "The application cannot be published to the specified stand, as this requires additional verification"
+  "errors.PUBLISH_NOT_ALLOWED.message": "The application cannot be published to the specified stand, as this requires additional verification",
+  "errors.OIDC_CLIENT_NOT_FOUND.message": "OIDC client for the specified application was not found",
+  "errors.INVALID_URL.message": "The specified redirectUri is not a valid URL",
+  "errors.HTTPS_ONLY.message": "The URL has a non-valid protocol. Only https is allowed for the selected environment"
 }

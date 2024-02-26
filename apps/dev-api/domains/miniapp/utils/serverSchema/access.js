@@ -2,8 +2,8 @@ const get = require('lodash/get')
 
 const { find, getByCondition } = require('@open-condo/keystone/schema')
 
-function canReadAppLinkedModelAsOwner ({ authentication: { item: user } }) {
-    return { app: { createdBy: { id: user.id } } }
+function canReadAppLinkedModelAsOwner ({ authentication: { item: user } }, appField = 'app') {
+    return { [appField]: { createdBy: { id: user.id } } }
 }
 
 async function canCreateAppLinkedModelAsOwner ({ authentication: { item: user }, originalInput }, modelName) {

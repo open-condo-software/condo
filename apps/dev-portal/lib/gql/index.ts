@@ -39,6 +39,10 @@ export enum AppEnvironment {
     Production = 'production',
 }
 
+export type AppWhereUniqueInput = {
+    id: Scalars['ID']['input'];
+}
+
 export type AuthenticateUserWithPhoneAndPasswordInput = {
     password: Scalars['String']['input'];
     phone: Scalars['String']['input'];
@@ -1790,6 +1794,14 @@ export type CreateB2CAppPropertyOutput = {
     id: Scalars['String']['output'];
 }
 
+export type CreateOidcClientInput = {
+    app: AppWhereUniqueInput;
+    dv: Scalars['Int']['input'];
+    environment: AppEnvironment;
+    redirectUri: Scalars['String']['input'];
+    sender: SenderFieldInput;
+}
+
 export type DeleteB2CAppPropertyInput = {
     dv: Scalars['Int']['input'];
     environment: AppEnvironment;
@@ -1813,6 +1825,18 @@ export type File = {
     originalFilename?: Maybe<Scalars['String']['output']>;
     path?: Maybe<Scalars['String']['output']>;
     publicUrl?: Maybe<Scalars['String']['output']>;
+}
+
+export type GenerateOidcClientSecretInput = {
+    app: AppWhereUniqueInput;
+    dv: Scalars['Int']['input'];
+    environment: AppEnvironment;
+    sender: SenderFieldInput;
+}
+
+export type GetOidcClientInput = {
+    app: AppWhereUniqueInput;
+    environment: AppEnvironment;
 }
 
 export type ImportB2CAppFromInput = {
@@ -1882,6 +1906,7 @@ export type Mutation = {
     createConfirmPhoneActionHistoryRecords?: Maybe<Array<Maybe<ConfirmPhoneActionHistoryRecord>>>;
     /**  Create multiple ConfirmPhoneAction items.  */
     createConfirmPhoneActions?: Maybe<Array<Maybe<ConfirmPhoneAction>>>;
+    createOIDCClient?: Maybe<OidcClientWithSecret>;
     /**  Create a single User item.  */
     createUser?: Maybe<User>;
     /**  Create a single UserHistoryRecord item.  */
@@ -1963,6 +1988,7 @@ export type Mutation = {
     deleteWebhookSubscriptions?: Maybe<Array<Maybe<WebhookSubscription>>>;
     /**  Delete multiple Webhook items by ID.  */
     deleteWebhooks?: Maybe<Array<Maybe<Webhook>>>;
+    generateOIDCClientSecret?: Maybe<OidcClientWithSecret>;
     importB2CApp?: Maybe<ImportB2CAppOutput>;
     publishB2CApp?: Maybe<PublishB2CAppOutput>;
     registerNewUser?: Maybe<User>;
@@ -2001,6 +2027,7 @@ export type Mutation = {
     updateConfirmPhoneActionHistoryRecords?: Maybe<Array<Maybe<ConfirmPhoneActionHistoryRecord>>>;
     /**  Update multiple ConfirmPhoneAction items by ID.  */
     updateConfirmPhoneActions?: Maybe<Array<Maybe<ConfirmPhoneAction>>>;
+    updateOIDCClientUrl?: Maybe<OidcClient>;
     /**  Update a single User item by ID.  */
     updateUser?: Maybe<User>;
     /**  Update a single UserHistoryRecord item by ID.  */
@@ -2126,6 +2153,11 @@ export type MutationCreateConfirmPhoneActionHistoryRecordsArgs = {
 
 export type MutationCreateConfirmPhoneActionsArgs = {
     data?: InputMaybe<Array<InputMaybe<ConfirmPhoneActionsCreateInput>>>;
+}
+
+
+export type MutationCreateOidcClientArgs = {
+    data: CreateOidcClientInput;
 }
 
 
@@ -2334,6 +2366,11 @@ export type MutationDeleteWebhooksArgs = {
 }
 
 
+export type MutationGenerateOidcClientSecretArgs = {
+    data: GenerateOidcClientSecretInput;
+}
+
+
 export type MutationImportB2CAppArgs = {
     data: ImportB2CAppInput;
 }
@@ -2447,6 +2484,11 @@ export type MutationUpdateConfirmPhoneActionsArgs = {
 }
 
 
+export type MutationUpdateOidcClientUrlArgs = {
+    data: UpdateOidcClientUrlInput;
+}
+
+
 export type MutationUpdateUserArgs = {
     data?: InputMaybe<UserUpdateInput>;
     id: Scalars['ID']['input'];
@@ -2512,6 +2554,21 @@ export type MutationUpdateWebhooksArgs = {
     data?: InputMaybe<Array<InputMaybe<WebhooksUpdateInput>>>;
 }
 
+export type OidcClient = {
+    __typename?: 'OIDCClient';
+    clientId: Scalars['String']['output'];
+    id: Scalars['String']['output'];
+    redirectUri: Scalars['String']['output'];
+}
+
+export type OidcClientWithSecret = {
+    __typename?: 'OIDCClientWithSecret';
+    clientId: Scalars['String']['output'];
+    clientSecret: Scalars['String']['output'];
+    id: Scalars['String']['output'];
+    redirectUri: Scalars['String']['output'];
+}
+
 export type PublishB2CAppInput = {
     app: B2CAppWhereUniqueInput;
     dv: Scalars['Int']['input'];
@@ -2543,6 +2600,7 @@ export type Query = {
     ConfirmPhoneAction?: Maybe<ConfirmPhoneAction>;
     /**  Search for the ConfirmPhoneActionHistoryRecord item with the matching ID.  */
     ConfirmPhoneActionHistoryRecord?: Maybe<ConfirmPhoneActionHistoryRecord>;
+    OIDCClient?: Maybe<OidcClient>;
     /**  Search for the User item with the matching ID.  */
     User?: Maybe<User>;
     /**  Search for the UserHistoryRecord item with the matching ID.  */
@@ -2685,6 +2743,11 @@ export type QueryConfirmPhoneActionArgs = {
 
 export type QueryConfirmPhoneActionHistoryRecordArgs = {
     where: ConfirmPhoneActionHistoryRecordWhereUniqueInput;
+}
+
+
+export type QueryOidcClientArgs = {
+    data: GetOidcClientInput;
 }
 
 
@@ -3436,6 +3499,14 @@ export type StartConfirmPhoneActionOutput = {
     __typename?: 'StartConfirmPhoneActionOutput';
     actionId: Scalars['String']['output'];
     phone: Scalars['String']['output'];
+}
+
+export type UpdateOidcClientUrlInput = {
+    app: AppWhereUniqueInput;
+    dv: Scalars['Int']['input'];
+    environment: AppEnvironment;
+    redirectUri: Scalars['String']['input'];
+    sender: SenderFieldInput;
 }
 
 /**  Account of individual developer or development company.  */
@@ -5116,6 +5187,34 @@ export type DeleteB2CAppPropertyMutationVariables = Exact<{
 
 export type DeleteB2CAppPropertyMutation = { __typename?: 'Mutation', property?: { __typename?: 'DeleteB2CAppPropertyOutput', id: string, address: string } | null }
 
+export type GetOidcClientQueryVariables = Exact<{
+    data: GetOidcClientInput;
+}>
+
+
+export type GetOidcClientQuery = { __typename?: 'Query', client?: { __typename?: 'OIDCClient', id: string, clientId: string, redirectUri: string } | null }
+
+export type CreateOidcClientMutationVariables = Exact<{
+    data: CreateOidcClientInput;
+}>
+
+
+export type CreateOidcClientMutation = { __typename?: 'Mutation', client?: { __typename?: 'OIDCClientWithSecret', clientSecret: string } | null }
+
+export type UpdateOidcClientUrlMutationVariables = Exact<{
+    data: UpdateOidcClientUrlInput;
+}>
+
+
+export type UpdateOidcClientUrlMutation = { __typename?: 'Mutation', client?: { __typename?: 'OIDCClient', redirectUri: string } | null }
+
+export type GenerateOidcClientSecretMutationVariables = Exact<{
+    data: GenerateOidcClientSecretInput;
+}>
+
+
+export type GenerateOidcClientSecretMutation = { __typename?: 'Mutation', client?: { __typename?: 'OIDCClientWithSecret', clientSecret: string } | null }
+
 export type AuthenticatedUserQueryVariables = Exact<{ [key: string]: never; }>
 
 
@@ -5604,6 +5703,142 @@ export function useDeleteB2CAppPropertyMutation (baseOptions?: Apollo.MutationHo
 export type DeleteB2CAppPropertyMutationHookResult = ReturnType<typeof useDeleteB2CAppPropertyMutation>
 export type DeleteB2CAppPropertyMutationResult = Apollo.MutationResult<DeleteB2CAppPropertyMutation>
 export type DeleteB2CAppPropertyMutationOptions = Apollo.BaseMutationOptions<DeleteB2CAppPropertyMutation, DeleteB2CAppPropertyMutationVariables>
+export const GetOidcClientDocument = gql`
+    query getOIDCClient($data: GetOIDCClientInput!) {
+  client: OIDCClient(data: $data) {
+    id
+    clientId
+    redirectUri
+  }
+}
+    `
+
+/**
+ * __useGetOidcClientQuery__
+ *
+ * To run a query within a React component, call `useGetOidcClientQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOidcClientQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOidcClientQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetOidcClientQuery (baseOptions: Apollo.QueryHookOptions<GetOidcClientQuery, GetOidcClientQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useQuery<GetOidcClientQuery, GetOidcClientQueryVariables>(GetOidcClientDocument, options)
+}
+export function useGetOidcClientLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions<GetOidcClientQuery, GetOidcClientQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useLazyQuery<GetOidcClientQuery, GetOidcClientQueryVariables>(GetOidcClientDocument, options)
+}
+export type GetOidcClientQueryHookResult = ReturnType<typeof useGetOidcClientQuery>
+export type GetOidcClientLazyQueryHookResult = ReturnType<typeof useGetOidcClientLazyQuery>
+export type GetOidcClientQueryResult = Apollo.QueryResult<GetOidcClientQuery, GetOidcClientQueryVariables>
+export const CreateOidcClientDocument = gql`
+    mutation createOIDCClient($data: CreateOIDCClientInput!) {
+  client: createOIDCClient(data: $data) {
+    clientSecret
+  }
+}
+    `
+export type CreateOidcClientMutationFn = Apollo.MutationFunction<CreateOidcClientMutation, CreateOidcClientMutationVariables>
+
+/**
+ * __useCreateOidcClientMutation__
+ *
+ * To run a mutation, you first call `useCreateOidcClientMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateOidcClientMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createOidcClientMutation, { data, loading, error }] = useCreateOidcClientMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateOidcClientMutation (baseOptions?: Apollo.MutationHookOptions<CreateOidcClientMutation, CreateOidcClientMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<CreateOidcClientMutation, CreateOidcClientMutationVariables>(CreateOidcClientDocument, options)
+}
+export type CreateOidcClientMutationHookResult = ReturnType<typeof useCreateOidcClientMutation>
+export type CreateOidcClientMutationResult = Apollo.MutationResult<CreateOidcClientMutation>
+export type CreateOidcClientMutationOptions = Apollo.BaseMutationOptions<CreateOidcClientMutation, CreateOidcClientMutationVariables>
+export const UpdateOidcClientUrlDocument = gql`
+    mutation updateOIDCClientUrl($data: UpdateOIDCClientUrlInput!) {
+  client: updateOIDCClientUrl(data: $data) {
+    redirectUri
+  }
+}
+    `
+export type UpdateOidcClientUrlMutationFn = Apollo.MutationFunction<UpdateOidcClientUrlMutation, UpdateOidcClientUrlMutationVariables>
+
+/**
+ * __useUpdateOidcClientUrlMutation__
+ *
+ * To run a mutation, you first call `useUpdateOidcClientUrlMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateOidcClientUrlMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateOidcClientUrlMutation, { data, loading, error }] = useUpdateOidcClientUrlMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateOidcClientUrlMutation (baseOptions?: Apollo.MutationHookOptions<UpdateOidcClientUrlMutation, UpdateOidcClientUrlMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<UpdateOidcClientUrlMutation, UpdateOidcClientUrlMutationVariables>(UpdateOidcClientUrlDocument, options)
+}
+export type UpdateOidcClientUrlMutationHookResult = ReturnType<typeof useUpdateOidcClientUrlMutation>
+export type UpdateOidcClientUrlMutationResult = Apollo.MutationResult<UpdateOidcClientUrlMutation>
+export type UpdateOidcClientUrlMutationOptions = Apollo.BaseMutationOptions<UpdateOidcClientUrlMutation, UpdateOidcClientUrlMutationVariables>
+export const GenerateOidcClientSecretDocument = gql`
+    mutation generateOIDCClientSecret($data: GenerateOIDCClientSecretInput!) {
+  client: generateOIDCClientSecret(data: $data) {
+    clientSecret
+  }
+}
+    `
+export type GenerateOidcClientSecretMutationFn = Apollo.MutationFunction<GenerateOidcClientSecretMutation, GenerateOidcClientSecretMutationVariables>
+
+/**
+ * __useGenerateOidcClientSecretMutation__
+ *
+ * To run a mutation, you first call `useGenerateOidcClientSecretMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useGenerateOidcClientSecretMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [generateOidcClientSecretMutation, { data, loading, error }] = useGenerateOidcClientSecretMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGenerateOidcClientSecretMutation (baseOptions?: Apollo.MutationHookOptions<GenerateOidcClientSecretMutation, GenerateOidcClientSecretMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<GenerateOidcClientSecretMutation, GenerateOidcClientSecretMutationVariables>(GenerateOidcClientSecretDocument, options)
+}
+export type GenerateOidcClientSecretMutationHookResult = ReturnType<typeof useGenerateOidcClientSecretMutation>
+export type GenerateOidcClientSecretMutationResult = Apollo.MutationResult<GenerateOidcClientSecretMutation>
+export type GenerateOidcClientSecretMutationOptions = Apollo.BaseMutationOptions<GenerateOidcClientSecretMutation, GenerateOidcClientSecretMutationVariables>
 export const AuthenticatedUserDocument = gql`
     query authenticatedUser {
   authenticatedUser {

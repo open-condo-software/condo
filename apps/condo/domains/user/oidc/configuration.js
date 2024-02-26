@@ -2,6 +2,8 @@ const { get, isEmpty, isArray } = require('lodash')
 
 const { getById } = require('@open-condo/keystone/schema')
 
+const { CONDO_SUPPORTED_RESPONSE_TYPES } = require('@condo/domains/user/constants/oidc')
+
 const { createAdapterClass } = require('./adapter')
 
 const HTTPS_REGEXP = /^https:/
@@ -125,12 +127,7 @@ module.exports = function createConfiguration (context, conf) {
             Interaction: 60 * 60, // 1 hour in seconds
         },
         // https://github.com/panva/node-oidc-provider/blob/main/docs/README.md#responsetypes
-        responseTypes: [
-            'code id_token',
-            'code',
-            'id_token',
-            'id_token token', // implicit flow with token!
-        ],
+        responseTypes: CONDO_SUPPORTED_RESPONSE_TYPES,
         // TODO(pahaz): think about pkce and keys!
         pkce: {
             required: () => false,

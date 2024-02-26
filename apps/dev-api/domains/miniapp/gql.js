@@ -54,6 +54,30 @@ const DELETE_B2C_APP_PROPERTY_MUTATION = gql`
     }
 `
 
+const GET_OIDC_CLIENT_QUERY = gql`
+    query getGetOIDCClient ($data: GetOIDCClientInput!) {
+        result: OIDCClient(data: $data) { id clientId redirectUri }
+    }
+`
+
+const CREATE_OIDC_CLIENT_MUTATION = gql`
+    mutation createOIDCClient ($data: CreateOIDCClientInput!) {
+        result: createOIDCClient(data: $data) { id clientId clientSecret redirectUri }
+    }
+`
+
+const GENERATE_OIDC_CLIENT_SECRET_MUTATION = gql`
+    mutation generateOIDCClientSecret ($data: GenerateOIDCClientSecretInput!) {
+        result: generateOIDCClientSecret(data: $data) { id clientId clientSecret redirectUri }
+    }
+`
+
+const UPDATE_OIDC_CLIENT_URL_MUTATION = gql`
+    mutation updateOIDCClientUrl ($data: UpdateOIDCClientUrlInput!) {
+        result: updateOIDCClientUrl(data: $data) { id clientId redirectUri }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -65,5 +89,9 @@ module.exports = {
     ALL_B2C_APP_PROPERTIES_QUERY,
     CREATE_B2C_APP_PROPERTY_MUTATION,
     DELETE_B2C_APP_PROPERTY_MUTATION,
+    GET_OIDC_CLIENT_QUERY,
+    CREATE_OIDC_CLIENT_MUTATION,
+    GENERATE_OIDC_CLIENT_SECRET_MUTATION,
+    UPDATE_OIDC_CLIENT_URL_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

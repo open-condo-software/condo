@@ -12,6 +12,7 @@ const AVAILABLE_SECTIONS = [
     'info',
     'builds',
     'properties',
+    'oidc',
     'publishing',
 ] as const
 
