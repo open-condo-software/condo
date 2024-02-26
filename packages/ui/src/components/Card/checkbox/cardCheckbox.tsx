@@ -11,7 +11,7 @@ import { CardHeader, CardHeaderProps } from '../header/cardHeader'
 import type { CardProps } from '../card'
 
 
-export type CardCheckboxProps = Pick<CardProps, 'disabled'> & {
+export type CardCheckboxProps = Pick<CardProps, 'disabled' | 'className'> & {
     header?: Omit<CardHeaderProps, 'tag' | 'mainLink' | 'secondLink'>
     body?: CardBodyProps
     defaultChecked?: boolean
@@ -23,6 +23,7 @@ const CardCheckbox = React.forwardRef<HTMLDivElement, CardCheckboxProps>((props,
     const {
         header,
         body,
+        className: propsClassName,
         defaultChecked,
         onChange,
         checked: checkedFromProps,
@@ -58,7 +59,7 @@ const CardCheckbox = React.forwardRef<HTMLDivElement, CardCheckboxProps>((props,
         }
     }, [checked, onChange])
 
-    const className = classNames({
+    const className = classNames(propsClassName, {
         [`${CARD_CLASS_PREFIX}-checked`]: checked,
         [`${CARD_CLASS_PREFIX}-checkbox-type`]: true,
         [`${CARD_CLASS_PREFIX}-no-body`]: !body,

@@ -86,6 +86,7 @@ import '@condo/domains/common/components/wdyr'
 import '@open-condo/ui/dist/styles.min.css'
 import '@open-condo/ui/dist/style-vars/variables.css'
 import '@condo/domains/common/components/containers/global-styles.css'
+import { TourProvider } from '../domains/onboarding/contexts/TourContext'
 
 
 const ANT_LOCALES = {
@@ -477,29 +478,31 @@ const MyApp = ({ Component, pageProps }) => {
                                 <TasksProvider>
                                     <PostMessageProvider>
                                         <TrackingProvider>
-                                            <OnBoardingProvider>
-                                                <SubscriptionProvider>
-                                                    <GlobalAppsFeaturesProvider>
-                                                        <GlobalAppsContainer/>
-                                                        <TicketVisibilityContextProvider>
-                                                            <ActiveCallContextProvider>
-                                                                <ConnectedAppsWithIconsContextProvider>
-                                                                    <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                                                                        <RequiredAccess>
-                                                                            <Component {...pageProps} />
-                                                                            {
-                                                                                isEndTrialSubscriptionReminderPopupVisible && (
-                                                                                    <EndTrialSubscriptionReminderPopup/>
-                                                                                )
-                                                                            }
-                                                                        </RequiredAccess>
-                                                                    </LayoutComponent>
-                                                                </ConnectedAppsWithIconsContextProvider>
-                                                            </ActiveCallContextProvider>
-                                                        </TicketVisibilityContextProvider>
-                                                    </GlobalAppsFeaturesProvider>
-                                                </SubscriptionProvider>
-                                            </OnBoardingProvider>
+                                            <TourProvider>
+                                                <OnBoardingProvider>
+                                                    <SubscriptionProvider>
+                                                        <GlobalAppsFeaturesProvider>
+                                                            <GlobalAppsContainer/>
+                                                            <TicketVisibilityContextProvider>
+                                                                <ActiveCallContextProvider>
+                                                                    <ConnectedAppsWithIconsContextProvider>
+                                                                        <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                                                            <RequiredAccess>
+                                                                                <Component {...pageProps} />
+                                                                                {
+                                                                                    isEndTrialSubscriptionReminderPopupVisible && (
+                                                                                        <EndTrialSubscriptionReminderPopup/>
+                                                                                    )
+                                                                                }
+                                                                            </RequiredAccess>
+                                                                        </LayoutComponent>
+                                                                    </ConnectedAppsWithIconsContextProvider>
+                                                                </ActiveCallContextProvider>
+                                                            </TicketVisibilityContextProvider>
+                                                        </GlobalAppsFeaturesProvider>
+                                                    </SubscriptionProvider>
+                                                </OnBoardingProvider>
+                                            </TourProvider>
                                         </TrackingProvider>
                                     </PostMessageProvider>
                                 </TasksProvider>

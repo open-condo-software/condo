@@ -8,7 +8,7 @@ import { Card, CardProps } from '../card'
 import { CardHeader, CardHeaderProps } from '../header/cardHeader'
 
 
-export type CardButtonProps = Pick<CardProps, 'accent' | 'disabled' | 'onClick'> & {
+export type CardButtonProps = Pick<CardProps, 'accent' | 'disabled' | 'className' | 'onClick'> & {
     header?: CardHeaderProps
     body?: CardBodyProps
 }
@@ -17,10 +17,11 @@ const CardButton = React.forwardRef<HTMLDivElement, CardButtonProps>((props, ref
     const {
         header,
         body,
+        className: propsClassName,
         ...rest
     } = props
 
-    const className = classNames({
+    const className = classNames(propsClassName, {
         [`${CARD_CLASS_PREFIX}-button-type`]: true,
         [`${CARD_CLASS_PREFIX}-no-body`]: !body,
     })

@@ -12,7 +12,7 @@ type MetaProps = {
 
 const stepMeta = {
     control: 'select',
-    options: [undefined, 'todo', 'done', 'waiting'],
+    options: [undefined, 'todo', 'completed', 'waiting'],
 }
 
 export default {
@@ -25,7 +25,7 @@ export default {
     argTypes: {
         firstStep: {
             control: 'select',
-            options: ['todo', 'done', 'waiting'],
+            options: ['todo', 'completed', 'waiting'],
             defaultValue: 'todo',
         },
         secondStep: stepMeta,
