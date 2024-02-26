@@ -12892,6 +12892,7 @@ type BillingReceiptsRecipientField {
   iec: String
   bic: String!
   bankAccount: String!
+  classificationCode: String
 }
 
 input BillingReceiptsRecipientFieldInput {
@@ -12903,6 +12904,7 @@ input BillingReceiptsRecipientFieldInput {
   iec: String
   bic: String!
   bankAccount: String!
+  classificationCode: String
 }
 
 input BillingRecipientRelateToOneInput {
@@ -52614,6 +52616,7 @@ type RecipientField {
   iec: String
   bic: String!
   bankAccount: String!
+  classificationCode: String
 }
 
 input RecipientFieldInput {
@@ -52625,6 +52628,7 @@ input RecipientFieldInput {
   iec: String
   bic: String!
   bankAccount: String!
+  classificationCode: String
 }
 
 """ Object, which links `acquiring integration` with `service provider`, and stores additional data for it's proper work 

@@ -17766,6 +17766,7 @@ export type BillingReceiptsRecipientField = {
   iec?: Maybe<Scalars['String']>;
   bic: Scalars['String'];
   bankAccount: Scalars['String'];
+  classificationCode?: Maybe<Scalars['String']>;
 };
 
 export type BillingReceiptsRecipientFieldInput = {
@@ -17777,6 +17778,7 @@ export type BillingReceiptsRecipientFieldInput = {
   iec?: Maybe<Scalars['String']>;
   bic: Scalars['String'];
   bankAccount: Scalars['String'];
+  classificationCode?: Maybe<Scalars['String']>;
 };
 
 export type BillingReceiptsUpdateInput = {
@@ -69349,6 +69351,7 @@ export type RecipientField = {
   iec?: Maybe<Scalars['String']>;
   bic: Scalars['String'];
   bankAccount: Scalars['String'];
+  classificationCode?: Maybe<Scalars['String']>;
 };
 
 export type RecipientFieldInput = {
@@ -69360,6 +69363,7 @@ export type RecipientFieldInput = {
   iec?: Maybe<Scalars['String']>;
   bic: Scalars['String'];
   bankAccount: Scalars['String'];
+  classificationCode?: Maybe<Scalars['String']>;
 };
 
 /**  Hold a snapshot of monthly payment data. Used by background recurrent payment process.  */

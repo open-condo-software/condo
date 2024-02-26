@@ -14,7 +14,6 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import { LoginWithSBBOLButton } from '@condo/domains/common/components/LoginWithSBBOLButton'
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
-import { CONTEXT_FINISHED_STATUS as BILLING_FINISHED_STATUS } from '@condo/domains/miniapp/constants'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
 import { SBBOL_IMPORT_NAME } from '@condo/domains/organization/integrations/sbbol/constants'
 
@@ -54,13 +53,12 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
         settings: { dv: 1 },
         state: { dv: 1 },
     })
-    const updateAction = AcquiringContext.useUpdate({
+    const updateBillingAction = BillingContext.useUpdate({
         status: CONTEXT_FINISHED_STATUS,
     })
 
     const { obj: billingCtx, loading: billingCtxLoading, error: billingCtxError } = BillingContext.useObject({
         where: {
-            status: BILLING_FINISHED_STATUS,
             organization: { id: orgId },
         },
     })
@@ -142,12 +140,14 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
     const setupUrl = get(acquiringCtx, ['integration', 'setupUrl'], '')
     const setupOrigin = extractOrigin(setupUrl)
 
+    // when setup is done both Acquiring and Billing contexts get status "Finished"
+    // Acquiring context gets status "Finished" after Accept is created
     const handleDoneMessage = useCallback((event: MessageEvent) => {
         if (event.origin === setupOrigin && get(event.data, 'success') === true) {
-            updateAction({
-                status: orgType === SERVICE_PROVIDER_TYPE ? CONTEXT_VERIFICATION_STATUS : CONTEXT_FINISHED_STATUS,
-            }, { id: acquiringCtxId })
-                .then(() => {
+            updateBillingAction({
+                status: CONTEXT_FINISHED_STATUS,
+            }, { id: billingCtxId })
+                .then(()=> {
                     if (orgType === SERVICE_PROVIDER_TYPE) {
                         router.push({ query: { step: 3 } })
                     } else {
@@ -155,7 +155,7 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
                     }
                 })
         }
-    }, [acquiringCtxId, setupOrigin, updateAction, onFinish, orgType, router])
+    }, [setupOrigin, updateBillingAction, onFinish, orgType, router, billingCtxId])
 
     useEffect(() => {
         if (typeof window !== 'undefined') {

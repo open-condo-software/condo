@@ -7,7 +7,6 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Markdown, Space, Button } from '@open-condo/ui'
 
-import { useOnboardingProgress } from '@condo/domains/billing/hooks/useOnboardingProgress'
 import { BillingIntegrationOrganizationContext as BillingContext } from '@condo/domains/billing/utils/clientSchema'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
@@ -21,25 +20,20 @@ const INSTRUCTION_FOOTER_GUTTER: RowProps['gutter'] = [0, 40]
 const COL_FULL_SPAN = 24
 
 type SetupInstructionBillingProps = {
-    contextId: string
     instruction: string
     instructionExtraLink?: string
 }
 
-const SetupInstructionBilling: React.FC<SetupInstructionBillingProps> = ({ contextId, instruction, instructionExtraLink }) => {
+const SetupInstructionBilling: React.FC<SetupInstructionBillingProps> = ({ instruction, instructionExtraLink }) => {
     const intl = useIntl()
     const DoneButtonMessage = intl.formatMessage({ id:'accrualsAndPayments.setupBilling.instruction.doneButtonLabel' })
     const InstructionButtonMessage = intl.formatMessage({ id:'accrualsAndPayments.setupBilling.instruction.instructionButtonLabel' })
 
     const router = useRouter()
 
-    const updateAction = BillingContext.useUpdate({ status: CONTEXT_FINISHED_STATUS })
     const handleDoneClick = useCallback(() => {
-        updateAction({}, { id: contextId })
-            .then(() => {
-                router.push({ query: { step: 2 } })
-            })
-    }, [contextId, updateAction, router])
+        router.push({ query: { step: 2 } })
+    }, [router])
 
     return (
         <Row gutter={INSTRUCTION_FOOTER_GUTTER}>
@@ -65,19 +59,17 @@ const SetupInstructionBilling: React.FC<SetupInstructionBillingProps> = ({ conte
 }
 
 type SetupInteractiveBillingProps = {
-    contextId: string
     setupUrl: string
 }
 
-const SetupInteractiveBilling: React.FC<SetupInteractiveBillingProps> = ({ contextId, setupUrl }) => {
+const SetupInteractiveBilling: React.FC<SetupInteractiveBillingProps> = ({ setupUrl }) => {
     const router = useRouter()
-    const updateAction = BillingContext.useUpdate({ status: CONTEXT_FINISHED_STATUS })
     const frameOrigin = useMemo(() => extractOrigin(setupUrl), [setupUrl])
     const handleDoneMessage = useCallback((event: MessageEvent) => {
         if (event.origin === frameOrigin && get(event.data, 'success') === true) {
-            updateAction({}, { id: contextId }).then(() => router.push({ query: { step: 2 } }))
+            router.push({ query: { step: 2 } } )
         }
-    }, [frameOrigin, contextId, router, updateAction])
+    }, [frameOrigin, router])
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -102,8 +94,7 @@ export const SetupBilling: React.FC = ()=> {
     const router = useRouter()
     const { organization } = useOrganization()
     const orgId = get(organization, 'id', null)
-    
-    const [, currentBilling] = useOnboardingProgress()
+
     const { obj: connectedCtx, loading: connectedCtxLoading, error: connectedCtxError } = BillingContext.useObject({
         where: {
             organization: { id: orgId },
@@ -113,7 +104,6 @@ export const SetupBilling: React.FC = ()=> {
     const { obj: currentCtx, loading: currentCtxLoading, error: currentCtxError } = BillingContext.useObject({
         where: {
             organization: { id: orgId },
-            integration: { id: currentBilling },
         },
     })
 
@@ -145,12 +135,11 @@ export const SetupBilling: React.FC = ()=> {
     const setupUrl = get(currentCtx, ['integration', 'setupUrl'])
 
     if (setupUrl) {
-        return <SetupInteractiveBilling contextId={currentContextId} setupUrl={setupUrl}/>
+        return <SetupInteractiveBilling setupUrl={setupUrl}/>
     }
 
     return (
         <SetupInstructionBilling
-            contextId={currentContextId}
             instruction={get(currentCtx, ['integration', 'instruction'], '')}
             instructionExtraLink={get(currentCtx, ['integration', 'instructionExtraLink'])}
         />
