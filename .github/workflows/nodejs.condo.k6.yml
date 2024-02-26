@@ -58,13 +58,14 @@ jobs:
           export K6_PROMETHEUS_RW_SERVER_URL=${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }} 
           export K6_PROMETHEUS_RW_USERNAME=${{ secrets.K6_PROMETHEUS_USER }}
           export K6_PROMETHEUS_RW_PASSWORD=${{ secrets.K6_PROMETHEUS_PASSWORD }}
+          export K6_PROMETHEUS_RW_TREND_STATS=avg,min,med,max,p(90),p(95),p(99)
           export BASE_URL=${{ github.event_name == 'schedule' && 'https://condo.d.doma.ai' || env.SERVER_URL }}
           export AUTH_EMAIL=${{ secrets.K6_AUTH_EMAIL }} 
           export AUTH_PASSWORD=${{ secrets.K6_AUTH_PASSWORD }}
           
-          k6 -o experimental-prometheus-rw run apps/condo/k6/dist/ticket.test.js
-          k6 -o experimental-prometheus-rw run apps/condo/k6/dist/payment.test.js
-          k6 -o experimental-prometheus-rw run apps/condo/k6/dist/news.test.js
+          k6 -o experimental-prometheus-rw run --summary-trend-stats="avg,min,med,max,p(90),p(95),p(99)" apps/condo/k6/dist/ticket.test.js
+          k6 -o experimental-prometheus-rw run --summary-trend-stats="avg,min,med,max,p(90),p(95),p(99)" apps/condo/k6/dist/payment.test.js
+          k6 -o experimental-prometheus-rw run --summary-trend-stats="avg,min,med,max,p(90),p(95),p(99)" apps/condo/k6/dist/news.test.js
 
       - name: Upload screenshots
         uses: actions/upload-artifact@v3
