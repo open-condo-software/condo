@@ -10,6 +10,14 @@ const { CondoOIDCClientGql } = require('@dev-api/domains/condo/gql')
 const access = require('@dev-api/domains/miniapp/access/GetOIDCClientService')
 const { PROD_ENVIRONMENT } = require('@dev-api/domains/miniapp/constants/publishing')
 
+function getOIDCClientWhere (app) {
+    return {
+        clientId: app.id,
+        importId: app.id,
+        importRemoteSystem: REMOTE_SYSTEM,
+    }
+}
+
 const GetOIDCClientService = new GQLCustomSchema('GetOIDCClientService', {
     types: [
         {
@@ -39,11 +47,8 @@ const GetOIDCClientService = new GQLCustomSchema('GetOIDCClientService', {
 
                 const oidcClients = await serverClient.getModels({
                     modelGql: CondoOIDCClientGql,
-                    where: {
-                        clientId: app.id,
-                        importId: app.id,
-                        importRemoteSystem: REMOTE_SYSTEM,
-                    },
+                    where: getOIDCClientWhere(app),
+                    first: 1,
                 })
 
                 if (!oidcClients.length) {
@@ -65,4 +70,5 @@ const GetOIDCClientService = new GQLCustomSchema('GetOIDCClientService', {
 
 module.exports = {
     GetOIDCClientService,
+    getOIDCClientWhere,
 }

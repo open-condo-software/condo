@@ -138,7 +138,7 @@
   "apps.b2c.sections.oidc.clientSettings.createClientForm.modal.form.items.redirectUri.label": "Redirect URI",
   "apps.b2c.sections.oidc.clientSettings.createClientForm.modal.form.items.redirectUri.hint": "The link to which the user will be redirected after successful authorization",
   "apps.b2c.sections.oidc.clientSettings.createClientForm.modal.form.notifications.success.title": "OIDC client successfully created",
-  "apps.b2c.sections.oidc.clientSettings.createClientForm.modal.form.notifications.success.description": "It will become available for use after the next time you publish the application to the appropriate environment. Don't forget to save the clientSecret, it will become inaccessible when you close the page",
+  "apps.b2c.sections.oidc.clientSettings.createClientForm.modal.form.notifications.success.description": "It will become available for use after the next time you publish the application to the appropriate environment. Don't forget to save the client secret, it will become inaccessible when you close the page",
   "apps.b2c.sections.oidc.clientSettings.editClientForm.subsection.credentials.label": "OIDC credentials",
   "apps.b2c.sections.oidc.clientSettings.editClientForm.subsection.settings.label": "Client settings",
   "apps.b2c.sections.oidc.clientSettings.editClientForm.items.clientId.label": "Client ID",

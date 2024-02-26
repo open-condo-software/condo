@@ -15,6 +15,7 @@ const { developmentClient, productionClient } = require('@dev-api/domains/common
 const {
     CondoB2CAppGql,
     CondoB2CAppBuildGql,
+    CondoOIDCClientGql,
 } = require('@dev-api/domains/condo/gql')
 const access = require('@dev-api/domains/miniapp/access/PublishB2CAppService')
 const { DEFAULT_COLOR_SCHEMA } = require('@dev-api/domains/miniapp/constants/b2c')
@@ -36,6 +37,8 @@ const {
     B2CAppBuild,
     B2CAppPublishRequest,
 } = require('@dev-api/domains/miniapp/utils/serverSchema/index')
+
+const { getOIDCClientWhere } = require('./GetOIDCClientService')
 
 const ERRORS = {
     FIRST_PUBLISH_WITHOUT_INFO: {
@@ -191,6 +194,39 @@ async function publishBuildChanges ({ build, condoBuild, app, condoApp, context,
     }
 }
 
+async function enableOIDCClient ({ args, serverClient }) {
+    const { data: { dv, sender, app, environment } } = args
+
+    const oidcClients = await serverClient.getModels({
+        modelGql: CondoOIDCClientGql,
+        where: getOIDCClientWhere(app),
+        first: 1,
+    })
+
+    if (!oidcClients.length) {
+        logger.info({ msg: 'No OIDC clients found for app', appId: app.id, environment })
+        return
+    }
+
+    const oidcClient = oidcClients[0]
+
+    if (oidcClient.isEnabled) {
+        logger.info({ msg: 'OIDC client is already enabled', appId: app.id, environment, meta: { oidcClientId: oidcClient.id } })
+        return
+    }
+
+    await serverClient.updateModel({
+        modelGql: CondoOIDCClientGql,
+        id: oidcClient.id,
+        updateInput: {
+            dv,
+            sender,
+            isEnabled: true,
+        },
+    })
+    logger.info({ msg: 'OIDC client is enabled now', appId: app.id, environment, meta: { oidcClientId: oidcClient.id } })
+}
+
 const PublishB2CAppService = new GQLCustomSchema('PublishB2CAppService', {
     types: [
         {
@@ -294,6 +330,9 @@ const PublishB2CAppService = new GQLCustomSchema('PublishB2CAppService', {
                         serverClient,
                     })
                 }
+
+                // Step 4. If OIDC client was created, publish must enable it for usage
+                await enableOIDCClient({ args, serverClient })
 
                 return {
                     success: true,

@@ -34,6 +34,7 @@ const {
     B2CAppBuild,
     createTestB2CAppPublishRequest,
     updateTestB2CAppPublishRequest,
+    createOIDCClientByTestClient,
 } = require('@dev-api/domains/miniapp/utils/testSchema')
 const {
     makeLoggedInAdminClient,
@@ -44,6 +45,8 @@ const {
 
 const CondoB2CApp = generateGQLTestUtils(generateGqlQueries('B2CApp', '{ id name developer logo { publicUrl } currentBuild { id } importId importRemoteSystem deletedAt v }'))
 const CondoB2CAppBuild = generateGQLTestUtils(generateGqlQueries('B2CAppBuild', '{ id version app { id } importId importRemoteSystem deletedAt }'))
+const CondoOIDCClient = generateGQLTestUtils(generateGqlQueries('OidcClient', '{ id deletedAt isEnabled clientId payload }'))
+
 describe('PublishB2CAppService', () => {
     let admin
     let support
@@ -441,6 +444,30 @@ describe('PublishB2CAppService', () => {
                     expect.objectContaining({ id: firstCondoBuild.id }),
                     expect.objectContaining({ id: secondCondoBuild.id }),
                 ]))
+            })
+        })
+        describe('OIDCClient', () => {
+            let app
+            let oidcClient
+            beforeEach(async () => {
+                [app] = await createTestB2CApp(user);
+                [oidcClient] = await createOIDCClientByTestClient(user, app)
+            })
+            test('Created OIDC client must become enabled after publishing', async () => {
+                const condoClientBefore = await CondoOIDCClient.getOne(condoAdmin, { id: oidcClient.id })
+                expect(condoClientBefore).toHaveProperty('isEnabled', false)
+                expect(condoClientBefore).toHaveProperty('deletedAt', null)
+                expect(condoClientBefore).toHaveProperty('payload')
+                expect(condoClientBefore).toHaveProperty('clientId')
+
+                const [result] = await publishB2CAppByTestClient(user, app)
+                expect(result).toHaveProperty('success', true)
+
+                const condoClientAfter = await CondoOIDCClient.getOne(condoAdmin, { id: oidcClient.id })
+                expect(condoClientAfter).toHaveProperty('isEnabled', true)
+                expect(condoClientAfter).toHaveProperty('deletedAt', null)
+                expect(condoClientAfter).toHaveProperty('clientId', condoClientBefore.clientId)
+                expect(condoClientAfter).toHaveProperty('payload', condoClientBefore.payload)
             })
         })
         test('Publish all at once must work as expected', async () => {

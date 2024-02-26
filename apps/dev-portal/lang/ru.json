@@ -138,7 +138,7 @@
   "apps.b2c.sections.oidc.clientSettings.createClientForm.modal.form.items.redirectUri.label": "Redirect URI",
   "apps.b2c.sections.oidc.clientSettings.createClientForm.modal.form.items.redirectUri.hint": "Ссылка, на которую будет перенаправлен пользователь после успешной авторизации",
   "apps.b2c.sections.oidc.clientSettings.createClientForm.modal.form.notifications.success.title": "OIDC клиент успешно создан",
-  "apps.b2c.sections.oidc.clientSettings.createClientForm.modal.form.notifications.success.description": "Он станет доступен для использования после следующей публикации приложения на соответствующий стенд. Не забудьте сохранить clientSecret, он станет недоступным после закрытия страницы",
+  "apps.b2c.sections.oidc.clientSettings.createClientForm.modal.form.notifications.success.description": "Он станет доступен для использования после следующей публикации приложения на соответствующий стенд. Не забудьте сохранить client secret, он станет недоступным после закрытия страницы",
   "apps.b2c.sections.oidc.clientSettings.editClientForm.subsection.credentials.label": "Учетные данные OIDC",
   "apps.b2c.sections.oidc.clientSettings.editClientForm.subsection.settings.label": "Параметры клиента",
   "apps.b2c.sections.oidc.clientSettings.editClientForm.items.clientId.label": "Client ID",
