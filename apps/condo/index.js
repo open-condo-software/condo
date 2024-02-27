@@ -1,5 +1,7 @@
 const { NextApp } = require('@keystonejs/app-next')
 const { createItems } = require('@keystonejs/server-side-graphql-client')
+const Sentry = require('@sentry/node')
+const { ProfilingIntegration } = require('@sentry/profiling-node')
 const dayjs = require('dayjs')
 const duration = require('dayjs/plugin/duration')
 const isBetween = require('dayjs/plugin/isBetween')
@@ -34,6 +36,7 @@ dayjs.extend(isBetween)
 
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production' && conf.DD_TRACE_ENABLED === 'true'
 const IS_BUILD_PHASE = conf.PHASE === 'build'
+const SENTRY_CONFIG = conf.SENTRY_CONFIG ? JSON.parse(conf.SENTRY_CONFIG) : {}
 
 // TODO(zuch): DOMA-2990: add FILE_FIELD_ADAPTER to env during build phase
 if (IS_BUILD_PHASE) {
@@ -103,6 +106,18 @@ const tasks = () => [
     require('@condo/domains/marketplace/tasks'),
 ]
 
+if (SENTRY_CONFIG) {
+    Sentry.init({
+        dsn: SENTRY_CONFIG['server']['dsn'],
+        debug: true,
+        tracesSampleRate: 1.0,
+        integrations: [
+            new Sentry.Integrations.Http({ tracing: true }),
+            new ProfilingIntegration(),
+        ],
+    })
+}
+
 const checks = [
     getRedisHealthCheck(),
     getPostgresHealthCheck(),
@@ -141,9 +156,11 @@ const apps = () => {
 
 /** @type {(app: import('express').Application) => void} */
 const extendExpressApp = (app) => {
+    app.use(Sentry.Handlers.requestHandler())
     app.get('/.well-known/change-password', function (req, res) {
         res.redirect('/auth/forgot')
     })
+    app.use(Sentry.Handlers.errorHandler())
 }
 
 module.exports = prepareKeystone({
