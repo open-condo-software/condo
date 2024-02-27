@@ -220,8 +220,6 @@ export async function checkFrontend (data) {
             'ticket status should be opened': () => page.locator('[data-cy="ticket__status-select"] .ant-select-selection-item').textContent() === 'Open',
         })
 
-        page.waitForSelector('[data-cy="ticket__status-select"]:not(.ant-select-disabled)')
-
         await page.locator('[data-cy="ticket__status-select"]').click()
 
         // Wait for select to become opened
