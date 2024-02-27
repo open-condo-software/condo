@@ -6,12 +6,9 @@ import {
     useLazyQuery,
     useQuery,
     useSubscription,
-    ApolloLink,
 } from '@apollo/client'
-import { BatchHttpLink } from '@apollo/client/link/batch-http'
 import { createUploadLink } from 'apollo-upload-client'
 import fetch from 'isomorphic-unfetch'
-import get from 'lodash/get'
 import getConfig from 'next/config'
 import Head from 'next/head'
 import React from 'react'
@@ -46,53 +43,20 @@ let createApolloClient = (initialState, ctx, apolloCacheConfig, apolloClientConf
         }
     }
 
-    const isObject = node => typeof node === 'object' && node !== null
-    const isFile = input => isOnClientSide && input instanceof File
-    const isBlob = input => isOnClientSide && input instanceof Blob
-
-    const hasFiles = (data) => {
-        let i = 0
-        let found
-        const keys = Object.keys(data)
-
-        while (!found && i < keys.length) {
-            if (!isObject(data[keys[i]])) {
-                i++
-            } else if (isFile(data[keys[i]]) || isBlob(data[keys[i]])) {
-                found = true
-            } else if (hasFiles(data[keys[i]])) {
-                found = true
-            } else {
-                i++
-            }
-        }
-
-        return found
-    }
-
-    const linkPayload = {
-        uri: apolloGraphQLUrl, // Server URL (must be absolute)
-        credentials: 'include',
-        fetchOptions: {
-            mode: 'cors',
-        },
-        fetch: (isOnClientSide && window.fetch) ? window.fetch : fetch,
-        headers: (ctx && ctx.req) ? ctx.req.headers : undefined,  // allow to use client cookies on server side requests
-    }
-
-    const uploadLink = createUploadLink(linkPayload)
-    const batchLink = new BatchHttpLink({
-        ...linkPayload,
-        batchMax: 50,
-        batchInterval: 10,
-    })
-
     // The `ctx` (NextPageContext) will only be present on the server.
     // use it to extract auth headers (ctx.req) or similar.
     return new ApolloClient({
         // connectToDevTools: !Boolean(ctx),
         ssrMode: Boolean(ctx),
-        link: ApolloLink.split(operation => hasFiles(get(operation, 'variables', {})), uploadLink, batchLink),
+        link: createUploadLink({
+            uri: apolloGraphQLUrl, // Server URL (must be absolute)
+            credentials: 'include',
+            fetchOptions: {
+                mode: 'cors',
+            },
+            fetch: (isOnClientSide && window.fetch) ? window.fetch : fetch,
+            headers: (ctx && ctx.req) ? ctx.req.headers : undefined,  // allow to use client cookies on server side requests
+        }),
         cache: new InMemoryCache(apolloCacheConfig).restore(initialState || {}),
         ...apolloClientConfig,
     })
