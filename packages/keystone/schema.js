@@ -1,7 +1,7 @@
 /** @type {import('ow').default} */
 const debug = require('debug')('@open-condo/keystone/schema')
 const Emittery = require('emittery')
-const { pickBy, identity, isFunction, isArray, memoize } = require('lodash')
+const { pickBy, identity, isEmpty, isFunction, isNil, isArray, memoize } = require('lodash')
 const get = require('lodash/get')
 const ow = require('ow')
 
@@ -136,6 +136,24 @@ function transformByPreprocessors (preprocessors, schemaType, name, schema) {
     }, schema)
 }
 
+async function findRaw (schemaName, queryBuilderFn) {
+    if (isNil(queryBuilderFn)) throw new Error('Omit required parameter queryBuilderFn')
+    if (!SCHEMAS.has(schemaName)) throw new Error(`Schema ${schemaName} is not registered yet`)
+    if (SCHEMAS.get(schemaName)._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Schema ${schemaName} type != ${GQL_LIST_SCHEMA_TYPE}`)
+    const schemaList = SCHEMAS.get(schemaName)
+
+    // extract knex required stuff
+    const adapter = schemaList._keystone.lists[schemaName].adapter
+    const knex = adapter.parentAdapter.knex
+    const tableName = adapter.tableName
+
+    // build query by query builder function
+    const query = knex.select()
+    queryBuilderFn(query)
+
+    return query.from(tableName)
+}
+
 async function find (schemaName, condition) {
     if (!SCHEMAS.has(schemaName)) throw new Error(`Schema ${schemaName} is not registered yet`)
     if (SCHEMAS.get(schemaName)._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Schema ${schemaName} type != ${GQL_LIST_SCHEMA_TYPE}`)
@@ -258,6 +276,7 @@ module.exports = {
     unregisterAllSchemas,
     getSchemaCtx,
     find,
+    findRaw,
     getById,
     getByCondition,
     itemsQuery,
