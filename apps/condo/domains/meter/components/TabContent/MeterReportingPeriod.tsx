@@ -12,7 +12,7 @@ import compact from 'lodash/compact'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button } from '@open-condo/ui'
@@ -267,10 +267,8 @@ export const MeterReportingPeriodPageContent: React.FC<MeterReportingPeriodPageC
     }, [CreateReportingPeriodLabel, EmptyListLabel, canManageMeters, count, countLoading, loading, props])
 
     return (
-        <>
-            <TablePageContent>
-                {pageContent}
-            </TablePageContent>
-        </>
+        <TablePageContent>
+            {pageContent}
+        </TablePageContent>
     )
 }

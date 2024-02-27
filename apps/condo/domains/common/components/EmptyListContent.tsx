@@ -11,6 +11,7 @@ import { Button, Card, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { EMOJI } from '@condo/domains/common/constants/emoji'
+import { Either } from '@condo/domains/common/types'
 
 import { BasicEmptyListView, DEFAULT_CONTAINER_STYLE } from './EmptyListView'
 import { IImportWrapperProps, ImportWrapper } from './Import/Index'
@@ -20,15 +21,21 @@ import { useLayoutContext } from './LayoutContext'
 const ROW_GUTTER: Gutter | [Gutter, Gutter] = [10, 10]
 const ROW_STYLE = { marginTop: '16px' }
 
-export interface IEmptyListProps {
+type IBaseEmptyListProps = {
     label: string | React.ReactElement
-    message?: string | React.ReactElement
-    button?: React.ReactElement
     createRoute?: string
-    createLabel?: string
     containerStyle?: CSSProperties
     accessCheck?: boolean
     image?: string
+}
+
+type IEmptyListWithoutImportProps = IBaseEmptyListProps & {
+    button?: React.ReactElement
+    message?: string | React.ReactElement
+    createLabel?: string
+}
+
+type IEmptyListWithImportProps = IBaseEmptyListProps & {
     importLayoutProps?: {
         manualCreateEmoji: string
         manualCreateDescription: string
@@ -36,6 +43,8 @@ export interface IEmptyListProps {
         importWrapper: Omit<IImportWrapperProps, 'importCardButton' | 'accessCheck'>
     }
 }
+
+type IEmptyListProps = Either<IEmptyListWithoutImportProps, IEmptyListWithImportProps>
 
 const DesktopEmptyListCardWrapper = styled.div`
   max-width: 250px;

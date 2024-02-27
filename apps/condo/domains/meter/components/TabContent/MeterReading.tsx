@@ -301,7 +301,6 @@ export const MetersPageContent: React.FC<MetersPageContentProps> = ({
                         },
                     }}
                     createRoute={`/meter/create?meterType=${METER_PAGE_TYPES.meter}`}
-                    createLabel={CreateMeter}
                     accessCheck={canManageMeterReadings}
                 />
             )

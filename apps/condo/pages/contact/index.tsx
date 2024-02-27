@@ -180,7 +180,6 @@ const ContactsPageContent: React.FC<ContactPageContentProps> = (props) => {
     const intl = useIntl()
     const EmptyListLabel = intl.formatMessage({ id: 'contact.EmptyList.header' })
     const EmptyListManualBodyDescription = intl.formatMessage({ id: 'contact.EmptyList.manualCreateCard.body.description' })
-    const CreateContact = intl.formatMessage({ id: 'AddContact' })
 
     const { refetch } = Contact.useObjects({ where: baseSearchQuery }, { skip: true })
     const { count, loading: contactsCountLoading } = Contact.useCount({ where: baseSearchQuery })
@@ -209,7 +208,6 @@ const ContactsPageContent: React.FC<ContactPageContentProps> = (props) => {
                     },
                 }}
                 createRoute={ADD_CONTACT_ROUTE}
-                createLabel={CreateContact}
             />
         )
     }

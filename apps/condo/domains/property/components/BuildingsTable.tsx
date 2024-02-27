@@ -214,7 +214,6 @@ export default function BuildingsTable (props: BuildingTableProps) {
     const intl = useIntl()
     const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.property.index.EmptyList.header' })
     const EmptyListManualBodyDescription = intl.formatMessage({ id: 'pages.condo.property.index.EmptyList.manualCreateCard.body.description' })
-    const CreateProperty = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
 
     const [columns, propertyNormalizer, propertyValidator, propertyCreator] = useImporterFunctions()
 
@@ -232,7 +231,6 @@ export default function BuildingsTable (props: BuildingTableProps) {
             label={EmptyListLabel}
             accessCheck={canManageProperties}
             createRoute='/property/create'
-            createLabel={CreateProperty}
             importLayoutProps={{
                 manualCreateEmoji: EMOJI.HOUSE,
                 manualCreateDescription: EmptyListManualBodyDescription,

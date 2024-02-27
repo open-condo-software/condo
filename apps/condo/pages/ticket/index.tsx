@@ -791,9 +791,7 @@ export const TicketsPageContent = ({
 }): JSX.Element => {
     const intl = useIntl()
     const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
-    const EmptyListMessage = intl.formatMessage({ id: 'ticket.EmptyList.title' })
     const EmptyListManualBodyDescription = intl.formatMessage({ id: 'ticket.EmptyList.manualCreateCard.body.description' })
-    const CreateTicket = intl.formatMessage({ id: 'CreateTicket' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
 
     const router = useRouter()
@@ -849,9 +847,7 @@ export const TicketsPageContent = ({
         return (
             <EmptyListContent
                 label={EmptyListLabel}
-                message={EmptyListMessage}
                 createRoute='/ticket/create'
-                createLabel={CreateTicket}
                 accessCheck={canManageTickets}
                 importLayoutProps={isTicketImportFeatureEnabled && {
                     manualCreateEmoji: EMOJI.PHONE,
