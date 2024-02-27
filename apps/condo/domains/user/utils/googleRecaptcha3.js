@@ -64,8 +64,6 @@ const captchaCheck = async (token, action = '', context = {}) => {
         logger.info({ msg: 'Captcha result', result })
 
         if (serverAnswer.ok) {
-            if (!THROW_ERRORS_ON_LOW_CAPTCHA_SCORE) return { error: null }
-
             if (!get(result, 'tokenProperties.valid', false)) {
                 return { error: `Captcha is invalid : ${get(result, 'tokenProperties.invalidReason')}` }
             }
@@ -74,6 +72,8 @@ const captchaCheck = async (token, action = '', context = {}) => {
             if (tokenAction !== action) {
                 return { error: `Captcha actions mismatch: expected ${action}, but was ${tokenAction}` }
             }
+
+            if (!THROW_ERRORS_ON_LOW_CAPTCHA_SCORE) return { error: null }
 
             const score = get(result, 'riskAnalysis.score', 0)
             if (score < SAFE_CAPTCHA_SCORE) return { error: `Low captcha score ${score}` }
