@@ -307,7 +307,6 @@ export const MarketplaceItemsContent = () => {
                     <Button onClick={() => router.push('/marketplace/marketItem/create')} type='primary'>{ServicesEmptyButtonText}</Button>
                 }
                 accessCheck={canReadMarketItems}
-                withBorder
             />
         )
     }

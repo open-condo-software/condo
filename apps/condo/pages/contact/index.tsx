@@ -22,6 +22,7 @@ import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
+import { EMOJI } from '@condo/domains/common/constants/emoji'
 import { EXCEL } from '@condo/domains/common/constants/export'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
@@ -36,7 +37,6 @@ import { useContactsTableFilters } from '@condo/domains/contact/hooks/useTableFi
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { CONTACT_PAGE_SIZE, IFilters } from '@condo/domains/contact/utils/helpers'
 import { PROPERTY_PAGE_SIZE } from '@condo/domains/property/utils/helpers'
-
 
 const ADD_CONTACT_ROUTE = '/contact/create/'
 const ROW_VERTICAL_GUTTERS: [Gutter, Gutter] = [0, 40]
@@ -196,11 +196,10 @@ const ContactsPageContent: React.FC<ContactPageContentProps> = (props) => {
                 label={EmptyListLabel}
                 accessCheck={canManageContacts}
                 importLayoutProps={{
-                    manualCreateEmoji: '👱‍',
+                    manualCreateEmoji: EMOJI.MAN,
                     manualCreateDescription: EmptyListManualBodyDescription,
-                    importCreateEmoji: '👪️',
+                    importCreateEmoji: EMOJI.FAMILY,
                     importWrapper: {
-                        accessCheck: canManageContacts,
                         onFinish: refetch,
                         columns: columns,
                         rowNormalizer: contactNormalizer,

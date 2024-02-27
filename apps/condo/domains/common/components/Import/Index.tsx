@@ -43,7 +43,7 @@ export interface IImportWrapperProps {
     }
 }
 
-const ImageContaier = styled.div`
+const ImageContainer = styled.div`
   height: 150px;
   width: 100%;
   border-radius: 12px;
@@ -264,9 +264,9 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
                         <Typography.Text>
                             {UploadModalMessage}
                         </Typography.Text>
-                        <ImageContaier>
+                        <ImageContainer>
                             <img alt='example-import-image' src={exampleImageSrc} />
-                        </ImageContaier>
+                        </ImageContainer>
                         <Alert
                             showIcon
                             type='info'

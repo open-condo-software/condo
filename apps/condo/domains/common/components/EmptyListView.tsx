@@ -20,6 +20,7 @@ export const DEFAULT_CONTAINER_STYLE: CSSProperties = {
     width: '100%',
 }
 
+// TODO(DOMA-8502): rename component and file to EmptyView
 export const BasicEmptyListView: React.FC<IBasicEmptyListProps> = ({
     image,
     children,

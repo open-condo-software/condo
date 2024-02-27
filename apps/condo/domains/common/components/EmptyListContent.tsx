@@ -4,11 +4,13 @@ import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
 import isUndefined from 'lodash/isUndefined'
 import { useRouter } from 'next/router'
-import React, { CSSProperties } from 'react'
+import React, { CSSProperties, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Card, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
+
+import { EMOJI } from '@condo/domains/common/constants/emoji'
 
 import { BasicEmptyListView, DEFAULT_CONTAINER_STYLE } from './EmptyListView'
 import { IImportWrapperProps, ImportWrapper } from './Import/Index'
@@ -27,12 +29,11 @@ export interface IEmptyListProps {
     containerStyle?: CSSProperties
     accessCheck?: boolean
     image?: string
-    withBorder?: boolean
     importLayoutProps?: {
         manualCreateEmoji: string
         manualCreateDescription: string
         importCreateEmoji: string
-        importWrapper: Omit<IImportWrapperProps, 'importCardProps'>
+        importWrapper: Omit<IImportWrapperProps, 'importCardButton' | 'accessCheck'>
     }
 }
 
@@ -69,7 +70,6 @@ export const EmptyListContent: React.FC<IEmptyListProps> = (props) => {
         containerStyle = {},
         accessCheck,
         image,
-        withBorder = true,
         importLayoutProps,
     } = props
 
@@ -83,9 +83,9 @@ export const EmptyListContent: React.FC<IEmptyListProps> = (props) => {
     const { breakpoints } = useLayoutContext()
     const isLargeScreen = breakpoints.TABLET_LARGE
 
-    const desktopContainerStyle = withBorder ?
-        { ...DEFAULT_CONTAINER_STYLE, ...containerStyle, border: `1px solid ${colors.gray[3]}`, borderRadius: '8px', padding: '40px' } :
-        { ...DEFAULT_CONTAINER_STYLE, containerStyle }
+    const desktopContainerStyle = useMemo(() => ({
+        ...DEFAULT_CONTAINER_STYLE, ...containerStyle, border: `1px solid ${colors.gray[3]}`, borderRadius: '8px', padding: '40px',
+    }), [containerStyle])
 
     const containerStyles = isLargeScreen ? desktopContainerStyle : { width: '100%' }
 
@@ -114,7 +114,7 @@ export const EmptyListContent: React.FC<IEmptyListProps> = (props) => {
                         <CardWrapper>
                             <Card.CardButton
                                 header={{
-                                    emoji: [{ symbol: '✍️' }, { symbol: manualCreateEmoji }],
+                                    emoji: [{ symbol: EMOJI.WRITING_HAND }, { symbol: manualCreateEmoji }],
                                     headingTitle: EmptyListWithImportManualCreateTitle.replace('{objs}', objsMessage),
                                 }}
                                 body={{
@@ -126,9 +126,10 @@ export const EmptyListContent: React.FC<IEmptyListProps> = (props) => {
                         <CardWrapper>
                             <ImportWrapper
                                 {...importWrapper}
+                                accessCheck={accessCheck}
                                 importCardButton={{
                                     header: {
-                                        emoji: [{ symbol: '🤖' }, { symbol: importCreateEmoji }],
+                                        emoji: [{ symbol: EMOJI.ROBOT }, { symbol: importCreateEmoji }],
                                         headingTitle: EmptyListWithImportImportCreateTitle.replace('{objs}', objsMessage),
                                     },
                                     body: {

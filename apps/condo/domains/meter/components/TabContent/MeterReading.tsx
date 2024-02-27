@@ -25,6 +25,7 @@ import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
+import { EMOJI } from '@condo/domains/common/constants/emoji'
 import { useMultipleFiltersModal } from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
@@ -286,11 +287,10 @@ export const MetersPageContent: React.FC<MetersPageContentProps> = ({
                 <EmptyListContent
                     label={EmptyListLabel}
                     importLayoutProps={{
-                        manualCreateEmoji: '⏱️',
+                        manualCreateEmoji: EMOJI.CLOCK,
                         manualCreateDescription: EmptyListManualBodyDescription,
-                        importCreateEmoji: '📋',
+                        importCreateEmoji: EMOJI.LIST,
                         importWrapper: {
-                            accessCheck: canManageMeterReadings,
                             onFinish: refetch,
                             columns: columns,
                             rowNormalizer: meterReadingNormalizer,

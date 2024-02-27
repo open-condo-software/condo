@@ -174,7 +174,6 @@ export const PropertyMetersPageContent: React.FC<PropertyMetersTableContentProps
         if (count === 0) return (
             <EmptyListContent
                 label={EmptyListLabel}
-                message=''
                 createRoute={`/meter/create?meterType=${METER_PAGE_TYPES.propertyMeter}`}
                 createLabel={CreateMeter}
                 accessCheck={canManageMeterReadings}

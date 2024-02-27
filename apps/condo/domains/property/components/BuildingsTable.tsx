@@ -23,6 +23,7 @@ import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
+import { EMOJI } from '@condo/domains/common/constants/emoji'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
@@ -31,7 +32,6 @@ import { EXPORT_PROPERTIES_TO_EXCEL } from '@condo/domains/property/gql'
 import { useImporterFunctions } from '@condo/domains/property/hooks/useImporterFunctions'
 import { PropertyTable } from '@condo/domains/property/utils/clientSchema'
 import { IFilters, PROPERTY_PAGE_SIZE } from '@condo/domains/property/utils/helpers'
-
 
 type BuildingTableProps = {
     role: OrganizationEmployeeRole
@@ -234,11 +234,10 @@ export default function BuildingsTable (props: BuildingTableProps) {
             createRoute='/property/create'
             createLabel={CreateProperty}
             importLayoutProps={{
-                manualCreateEmoji: '🏠',
+                manualCreateEmoji: EMOJI.HOUSE,
                 manualCreateDescription: EmptyListManualBodyDescription,
-                importCreateEmoji: '🏘️',
+                importCreateEmoji: EMOJI.HOUSES,
                 importWrapper: {
-                    accessCheck: canManageProperties,
                     onFinish: refetch,
                     columns: columns,
                     rowNormalizer: propertyNormalizer,

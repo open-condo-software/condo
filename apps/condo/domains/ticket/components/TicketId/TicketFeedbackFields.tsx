@@ -8,7 +8,7 @@ import { Typography } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
-import { EMOJI } from '@condo/domains/ticket/constants/emoji'
+import { EMOJI } from '@condo/domains/common/constants/emoji'
 import { convertQualityControlOrFeedbackOptionsToText, filterFeedbackOptionsByScore } from '@condo/domains/ticket/utils'
 
 

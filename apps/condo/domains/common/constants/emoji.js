@@ -5,6 +5,15 @@ const EMOJI = {
     SNAIL: '🐌',
     TROPHY: '🏆',
     ROCKET: '🚀',
+    WRITING_HAND: '✍️',
+    ROBOT: '🤖',
+    CLOCK: '⏱️',
+    LIST: '📋',
+    HOUSE: '🏠',
+    HOUSES: '🏘️',
+    MAN: '👱‍',
+    FAMILY: '👪️',
+    PHONE: '📞',
 }
 
 const EMOJI_IMAGES = {

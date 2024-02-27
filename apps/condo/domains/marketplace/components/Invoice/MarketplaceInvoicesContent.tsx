@@ -173,7 +173,6 @@ export const MarketplaceInvoicesContent = () => {
             createLabel={BillsEmptyButtonText}
             createRoute='/marketplace/invoice/create'
             accessCheck={canManageInvoices}
-            withBorder
         />
     }
 

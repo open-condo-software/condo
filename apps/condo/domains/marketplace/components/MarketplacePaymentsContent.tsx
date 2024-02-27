@@ -399,7 +399,6 @@ export const MarketplacePaymentsContent = () => {
                 label={EmptyListTitle}
                 message={EmptyListLabel}
                 accessCheck={canReadPayments}
-                withBorder
             />
         )
     }

@@ -44,6 +44,7 @@ import { DEFAULT_PAGE_SIZE, Table, TableRecord } from '@condo/domains/common/com
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { useWindowTitleContext, WindowTitleContextProvider } from '@condo/domains/common/components/WindowTitleContext'
+import { EMOJI } from '@condo/domains/common/constants/emoji'
 import { EXCEL } from '@condo/domains/common/constants/export'
 import { TICKET_IMPORT } from '@condo/domains/common/constants/featureflags'
 import { fontSizes } from '@condo/domains/common/constants/style'
@@ -83,6 +84,7 @@ import { useTicketTableFilters } from '@condo/domains/ticket/hooks/useTicketTabl
 import { CallRecordFragment, Ticket, TicketFilterTemplate } from '@condo/domains/ticket/utils/clientSchema'
 import { GET_TICKETS_COUNT_QUERY } from '@condo/domains/ticket/utils/clientSchema/search'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
+
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -852,11 +854,10 @@ export const TicketsPageContent = ({
                 createLabel={CreateTicket}
                 accessCheck={canManageTickets}
                 importLayoutProps={isTicketImportFeatureEnabled && {
-                    manualCreateEmoji: '📞',
+                    manualCreateEmoji: EMOJI.PHONE,
                     manualCreateDescription: EmptyListManualBodyDescription,
-                    importCreateEmoji: '📋',
+                    importCreateEmoji: EMOJI.LIST,
                     importWrapper: {
-                        accessCheck: canManageTickets,
                         onFinish: undefined,
                         columns: columns,
                         rowNormalizer: ticketNormalizer,
