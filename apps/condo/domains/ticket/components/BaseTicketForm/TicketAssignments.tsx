@@ -216,7 +216,7 @@ const TicketAssignments = ({
                 <Col span={!breakpoints.TABLET_LARGE ? 24 : 18}>
                     <Row justify='space-between' gutter={[0, 12]}>
                         {
-                            autoAssign && !loading && propertyId && categoryClassifier && (
+                            autoAssign && !loading && propertyId && categoryClassifier && organizationId && (
                                 <AutoAssigner
                                     form={form}
                                     categoryClassifierId={categoryClassifier}
@@ -225,6 +225,7 @@ const TicketAssignments = ({
                                     propertyScopeEmployees={filteredPropertyScopeEmployees}
                                     propertyScopes={propertyScopes}
                                     organizationEmployeeSpecializations={filteredEmployeeSpecializations}
+                                    organizationId={organizationId}
                                 />
                             )
                         }
