@@ -629,6 +629,7 @@ describe('UserRightsSet', () => {
                         canReadB2CAppBuilds: true,
                         canReadB2CAppProperties: true,
                         canReadOidcClients: true,
+                        canReadUsers: true,
 
                         canManageB2BApps: true,
                         canManageB2BAppAccessRights: true,
@@ -794,6 +795,13 @@ describe('UserRightsSet', () => {
                         expect(message).toHaveProperty('meta', meta)
                         expect(message).toHaveProperty('status', MESSAGE_SENT_STATUS)
                     })
+                })
+                test('Can search service users by email', async () => {
+                    const [serviceUser, attrs] = await registerNewServiceUserByTestClient(support)
+                    expect(attrs).toHaveProperty('email')
+                    const foundUser = await User.getOne(portalClient, { email: attrs.email })
+                    expect(foundUser).toBeDefined()
+                    expect(foundUser).toHaveProperty('id', serviceUser.id)
                 })
             })
             describe('Organization', () => {

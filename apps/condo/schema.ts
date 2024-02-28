@@ -80678,6 +80678,8 @@ export enum SortUserRightsSetHistoryRecordsBy {
   CanReadOidcClientsDesc = 'canReadOidcClients_DESC',
   CanManageOidcClientsAsc = 'canManageOidcClients_ASC',
   CanManageOidcClientsDesc = 'canManageOidcClients_DESC',
+  CanReadUsersAsc = 'canReadUsers_ASC',
+  CanReadUsersDesc = 'canReadUsers_DESC',
   CanReadUserRightsSetsAsc = 'canReadUserRightsSets_ASC',
   CanReadUserRightsSetsDesc = 'canReadUserRightsSets_DESC',
   CanManageUserRightsSetsAsc = 'canManageUserRightsSets_ASC',
@@ -80765,6 +80767,8 @@ export enum SortUserRightsSetsBy {
   CanReadOidcClientsDesc = 'canReadOidcClients_DESC',
   CanManageOidcClientsAsc = 'canManageOidcClients_ASC',
   CanManageOidcClientsDesc = 'canManageOidcClients_DESC',
+  CanReadUsersAsc = 'canReadUsers_ASC',
+  CanReadUsersDesc = 'canReadUsers_DESC',
   CanReadUserRightsSetsAsc = 'canReadUserRightsSets_ASC',
   CanReadUserRightsSetsDesc = 'canReadUserRightsSets_DESC',
   CanManageUserRightsSetsAsc = 'canManageUserRightsSets_ASC',
@@ -91901,6 +91905,8 @@ export type UserRightsSet = {
   canReadOidcClients?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "OidcClient" similar to support users  */
   canManageOidcClients?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "User" as support / admin users do  */
+  canReadUsers?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to view all entities of model "UserRightsSet" as support / admin users do  */
   canReadUserRightsSets?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "UserRightsSet" similar to support users  */
@@ -91957,6 +91963,7 @@ export type UserRightsSetCreateInput = {
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canReadOidcClients?: Maybe<Scalars['Boolean']>;
   canManageOidcClients?: Maybe<Scalars['Boolean']>;
+  canReadUsers?: Maybe<Scalars['Boolean']>;
   canReadUserRightsSets?: Maybe<Scalars['Boolean']>;
   canManageUserRightsSets?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
@@ -92013,6 +92020,7 @@ export type UserRightsSetHistoryRecord = {
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canReadOidcClients?: Maybe<Scalars['Boolean']>;
   canManageOidcClients?: Maybe<Scalars['Boolean']>;
+  canReadUsers?: Maybe<Scalars['Boolean']>;
   canReadUserRightsSets?: Maybe<Scalars['Boolean']>;
   canManageUserRightsSets?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
@@ -92063,6 +92071,7 @@ export type UserRightsSetHistoryRecordCreateInput = {
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canReadOidcClients?: Maybe<Scalars['Boolean']>;
   canManageOidcClients?: Maybe<Scalars['Boolean']>;
+  canReadUsers?: Maybe<Scalars['Boolean']>;
   canReadUserRightsSets?: Maybe<Scalars['Boolean']>;
   canManageUserRightsSets?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
@@ -92118,6 +92127,7 @@ export type UserRightsSetHistoryRecordUpdateInput = {
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canReadOidcClients?: Maybe<Scalars['Boolean']>;
   canManageOidcClients?: Maybe<Scalars['Boolean']>;
+  canReadUsers?: Maybe<Scalars['Boolean']>;
   canReadUserRightsSets?: Maybe<Scalars['Boolean']>;
   canManageUserRightsSets?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
@@ -92214,6 +92224,8 @@ export type UserRightsSetHistoryRecordWhereInput = {
   canReadOidcClients_not?: Maybe<Scalars['Boolean']>;
   canManageOidcClients?: Maybe<Scalars['Boolean']>;
   canManageOidcClients_not?: Maybe<Scalars['Boolean']>;
+  canReadUsers?: Maybe<Scalars['Boolean']>;
+  canReadUsers_not?: Maybe<Scalars['Boolean']>;
   canReadUserRightsSets?: Maybe<Scalars['Boolean']>;
   canReadUserRightsSets_not?: Maybe<Scalars['Boolean']>;
   canManageUserRightsSets?: Maybe<Scalars['Boolean']>;
@@ -92352,6 +92364,7 @@ export type UserRightsSetUpdateInput = {
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canReadOidcClients?: Maybe<Scalars['Boolean']>;
   canManageOidcClients?: Maybe<Scalars['Boolean']>;
+  canReadUsers?: Maybe<Scalars['Boolean']>;
   canReadUserRightsSets?: Maybe<Scalars['Boolean']>;
   canManageUserRightsSets?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
@@ -92445,6 +92458,8 @@ export type UserRightsSetWhereInput = {
   canReadOidcClients_not?: Maybe<Scalars['Boolean']>;
   canManageOidcClients?: Maybe<Scalars['Boolean']>;
   canManageOidcClients_not?: Maybe<Scalars['Boolean']>;
+  canReadUsers?: Maybe<Scalars['Boolean']>;
+  canReadUsers_not?: Maybe<Scalars['Boolean']>;
   canReadUserRightsSets?: Maybe<Scalars['Boolean']>;
   canReadUserRightsSets_not?: Maybe<Scalars['Boolean']>;
   canManageUserRightsSets?: Maybe<Scalars['Boolean']>;

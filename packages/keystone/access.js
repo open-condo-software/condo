@@ -1,4 +1,4 @@
-const { get } = require('lodash')
+const get = require('lodash/get')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 // TODO (DOMA-3868) Remove domain specific logic from here
@@ -8,40 +8,40 @@ const RESIDENT_TYPE_USER = 'resident'
 const queryOrganizationEmployeeFor = userId => ({ employees_some: { user: { id: userId }, isBlocked: false, deletedAt: null } })
 const queryOrganizationEmployeeFromRelatedOrganizationFor = userId => ({ relatedOrganizations_some: { from: queryOrganizationEmployeeFor(userId) } })
 
-const userIsAuthenticated = (args) => {
-    const { authentication: { item: user } } = args
+const userIsAuthenticated = (accessArgs) => {
+    const { authentication: { item: user } } = accessArgs
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     return Boolean(user.id)
 }
 
-const userIsAdmin = (args) => {
-    const { authentication: { item: user } } = args
+const userIsAdmin = (accessArgs) => {
+    const { authentication: { item: user } } = accessArgs
 
-    return Boolean(userIsAuthenticated(args) && user.isAdmin)
+    return Boolean(userIsAuthenticated(accessArgs) && user.isAdmin)
 }
 
-const userIsSupport = (args) => {
-    const { authentication: { item: user } } = args
+const userIsSupport = (accessArgs) => {
+    const { authentication: { item: user } } = accessArgs
 
-    return Boolean(userIsAuthenticated(args) && user.isSupport)
+    return Boolean(userIsAuthenticated(accessArgs) && user.isSupport)
 }
 
-const userIsThisItem = (args) => {
-    const { existingItem, authentication: { item: user } } = args
+const userIsThisItem = (accessArgs) => {
+    const { existingItem, authentication: { item: user } } = accessArgs
 
-    if (!userIsAuthenticated(args) || !existingItem || !existingItem.id) {
+    if (!userIsAuthenticated(accessArgs) || !existingItem || !existingItem.id) {
         return false
     }
 
     return existingItem.id === user.id
 }
 
-const userIsOwner = (args) => {
-    const { existingItem, authentication: { item: user } } = args
+const userIsOwner = (accessArgs) => {
+    const { existingItem, authentication: { item: user } } = accessArgs
 
-    if (!userIsAuthenticated(args) || !existingItem || !existingItem.user) {
+    if (!userIsAuthenticated(accessArgs) || !existingItem || !existingItem.user) {
         return false
     }
 
@@ -69,21 +69,21 @@ const userIsAdminOrIsThisItem = auth => {
     return Boolean(isAdmin || isThisItem)
 }
 
-const userIsNotResidentUser = (args) => {
-    const { authentication: { item: user } } = args
-    if (!userIsAuthenticated(args)) return false
+const userIsNotResidentUser = (accessArgs) => {
+    const { authentication: { item: user } } = accessArgs
+    if (!userIsAuthenticated(accessArgs)) return false
 
     return user.type !== RESIDENT_TYPE_USER
 }
 
-const canReadOnlyIfUserIsActiveOrganizationEmployee = async (args) => {
-    const { existingItem, authentication: { item: user } } = args
-    if (!userIsAuthenticated(args)) return false
+const canReadOnlyIfUserIsActiveOrganizationEmployee = async (accessArgs) => {
+    const { existingItem, authentication: { item: user } } = accessArgs
+    if (!userIsAuthenticated(accessArgs)) return false
 
     if (user.isAdmin || user.isSupport)
         return true
 
-    if (!userIsNotResidentUser(args))
+    if (!userIsNotResidentUser(accessArgs))
         return false
 
     const userId = get(user, 'id')
@@ -101,9 +101,9 @@ const canReadOnlyIfUserIsActiveOrganizationEmployee = async (args) => {
     return availableOrganizations.length > 0
 }
 
-const canReadOnlyIfInUsers = (args) => {
-    const { authentication: { item: user } } = args
-    if (!userIsAuthenticated(args)) return throwAuthenticationError()
+const canReadOnlyIfInUsers = (accessArgs) => {
+    const { authentication: { item: user } } = accessArgs
+    if (!userIsAuthenticated(accessArgs)) return throwAuthenticationError()
     if (user.isAdmin) return {}
 
     return {
@@ -142,6 +142,26 @@ const readOnlyFieldAccess = {
     delete: false,
 }
 
+function isFilteringBy (where, fields) {
+    const toProcess = [where]
+
+    while (toProcess.length) {
+        const processing = toProcess.pop()
+        for (const [filterName, filterValue] of Object.entries(processing)) {
+            if (Array.isArray(filterValue) && (filterName === 'AND' || filterName === 'OR')) {
+                toProcess.push(...filterValue)
+            } else {
+                const fieldName = filterName.split('_')[0]
+                if (fields.includes(fieldName)) {
+                    return true
+                }
+            }
+        }
+    }
+
+    return false
+}
+
 // TODO(pahaz): think about naming! ListAccessCheck and FieldAccessCheck has different arguments
 module.exports = {
     userIsAuthenticated,
@@ -157,5 +177,6 @@ module.exports = {
     userIsNotResidentUser,
     canReadOnlyIfUserIsActiveOrganizationEmployee,
     canOnlyServerSideWithoutUserRequest,
+    isFilteringBy,
     readOnlyFieldAccess,
 }

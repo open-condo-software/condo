@@ -17,6 +17,7 @@ const BOT_RIGHTS_SET = {
     canReadB2CAppBuilds: true,
     canReadB2CAppProperties: true,
     canReadOidcClients: true,
+    canReadUsers: true,
 
     canManageB2BApps: true,
     canManageB2BAppAccessRights: true,

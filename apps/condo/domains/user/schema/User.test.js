@@ -11,12 +11,16 @@ const {
     makeLoggedInAdminClient,
     makeClient,
     DEFAULT_TEST_ADMIN_IDENTITY,
+    DEFAULT_TEST_USER_IDENTITY,
     DEFAULT_TEST_USER_SECRET,
-    UUID_RE, expectToThrowGraphQLRequestError,
+    UUID_RE,
+    expectToThrowGraphQLRequestError,
     expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAccessDeniedErrorToObjects,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
-    expectToThrowGQLError, DEFAULT_TEST_USER_IDENTITY, catchErrorFrom,
+    expectToThrowGQLError,
+    catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
 
 const { MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
@@ -680,6 +684,51 @@ describe('Validations', () => {
                     }))
                 }
             )
+        })
+    })
+})
+
+function generateSearchScenarios (field, value) {
+    const prefixes = ['', 'contains', 'starts_with', 'ends_with']
+
+    const allStringFields = []
+    for (const prefix of prefixes) {
+        allStringFields.push([field, prefix].filter(x => x).join('_'))
+        allStringFields.push([field, prefix, 'i'].filter(x => x).join('_'))
+        allStringFields.push([field, 'not', prefix].filter(x => x).join('_'))
+        allStringFields.push([field, 'not', prefix, 'i'].filter(x => x).join('_'))
+    }
+
+    return allStringFields.map(field => ({ [field]: value })).concat([
+        { [`${field}_in`]: [value] },
+        { [`${field}_not_in`]: [value] },
+    ])
+}
+
+describe('Sensitive data search', () => {
+    const testPhone = '+79991234567'
+    const testEmail = 'search@email.com'
+    const cases = [
+        ...generateSearchScenarios('phone', testPhone).map(where => [JSON.stringify(where), where]),
+        ...generateSearchScenarios('email', testEmail).map(where => [JSON.stringify(where), where]),
+        ['AND / OR combo with phone', { OR: [
+            { AND: [{ phone: testPhone }] },
+            { AND: [{ name: 'User' }] },
+        ] }],
+        ['AND / OR combo with email', { OR: [
+            { AND: [{ name: 'User' }] },
+            { AND: [{ email: testEmail }] },
+        ] }],
+    ]
+    describe('Sensitive fields cannot be searched by user', () => {
+        let user
+        beforeAll(async () => {
+            user = await makeClientWithNewRegisteredAndLoggedInUser()
+        })
+        test.each(cases)('%p', async (_, where) => {
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await User.getAll(user, where)
+            })
         })
     })
 })
