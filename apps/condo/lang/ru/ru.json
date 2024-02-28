@@ -2135,6 +2135,8 @@
   "api.ticket.TICKET_FOR_PHONE_DAY_LIMIT_REACHED": "Попробуйте завтра. Сегодня управляющая компания уже получила {ticketLimit} заявок от вас. На главной странице раздела «Заявки» можно уточнить статус по каждой из них.",
   "api.ticket.SAME_TICKET_FOR_PHONE_DAY_LIMIT_REACHED": "Вы уже отправляли эту заявку. Управляющая компания уже занимается вашей проблемой. Уточнить статус можно на главной странице раздела «Заявки».",
   "api.ticket.FEEDBACK_VALUE_MUST_BE_SPECIFIED": "При указании комментария или дополнительных параметров оценки нужно указать саму оценку",
+  "api.ticket.TicketAutoAssignment.error.ASSIGNEE_NOT_FOUND": "Такого сотрудника нет в организации (ответственный)",
+  "api.ticket.TicketAutoAssignment.error.EXECUTOR_NOT_FOUND": "Такого сотрудника нет в организации (исполнитель)",
   "api.property.exportPropertiesToExcel.NOTHING_TO_EXPORT": "Нет домов для экспорта, которые связаны с данной организацией",
   "api.property.create.sameAddressError": "Дом с таким адресом уже создан в выбранной организации",
   "api.meter.exportMeterReadings.NOTHING_TO_EXPORT": "Нет показаний ИПУ для экспорта, которые связаны с указанной организацией",
