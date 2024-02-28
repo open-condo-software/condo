@@ -11,7 +11,7 @@ if (sentryConfig['client']) {
     Sentry.init({
         dsn: sentryConfig['client']['dsn'],
         tracesSampleRate: sentryConfig['client']['sampleRate'],
-        debug: true,
+        debug: false,
         autoSessionTracking: true,
     })
 }
