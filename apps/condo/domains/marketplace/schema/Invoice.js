@@ -68,7 +68,7 @@ const sendPush = async ({ originalInput, userId, propertyId, unitName, unitType,
         })
 
         const uniqKey = `marketplace_invoice_published_${updatedItem.id}`
-        const uniqKeyWithTicket = `marketplace_invoice_published_${updatedItem.ticket}`
+        const uniqKeyWithTicket = `marketplace_invoice_published_with_ticket_${updatedItem.ticket}`
         if (!resident) return
 
         if (updatedItem.paymentType === INVOICE_PAYMENT_TYPE_ONLINE) {

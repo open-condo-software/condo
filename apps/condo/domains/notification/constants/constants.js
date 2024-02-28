@@ -826,6 +826,7 @@ const MESSAGE_DELIVERY_OPTIONS = {
     [MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE]: {
         allowedTransports: [PUSH_TRANSPORT],
         defaultTransports: [PUSH_TRANSPORT],
+        throttlePeriodForUser: 60,
     },
     [MARKETPLACE_INVOICE_CASH_PUBLISHED_MESSAGE_TYPE]: {
         allowedTransports: [PUSH_TRANSPORT],
@@ -834,6 +835,7 @@ const MESSAGE_DELIVERY_OPTIONS = {
     [MARKETPLACE_INVOICE_CASH_WITH_TICKET_PUBLISHED_MESSAGE_TYPE]: {
         allowedTransports: [PUSH_TRANSPORT],
         defaultTransports: [PUSH_TRANSPORT],
+        throttlePeriodForUser: 60,
     },
     [BILLING_RECEIPT_FILE_ADDED_TYPE]: {
         allowedTransports: [EMAIL_TRANSPORT],
