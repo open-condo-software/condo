@@ -11,7 +11,7 @@ import React, { CSSProperties, useCallback, useMemo } from 'react'
 import { ArrowLeft, PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Card, CardButtonProps, Space, Typography } from '@open-condo/ui'
+import { Button, Card, CardButtonProps, Space, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
@@ -39,16 +39,16 @@ import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
 const APP_IMAGE_STYLES: CSSProperties = { width: '120px', paddingTop: '6px' }
 
 const TODO_STEP_ROUTE = {
-    [CREATE_PROPERTY_STEP_TYPE]: '/property',
+    [CREATE_PROPERTY_STEP_TYPE]: '/property/create',
     [CREATE_PROPERTY_MAP_STEP_TYPE]: '/property',
-    [CREATE_TICKET_STEP_TYPE]: '/ticket',
+    [CREATE_TICKET_STEP_TYPE]: '/ticket/create',
     [NOTIFY_RESIDENTS_ABOUT_TICKETS_STEP_TYPE]: '/tour/guide', //TODO(DOMA-8500): update url after guide page will completed
     [UPLOAD_RECEIPTS_STEP_TYPE]: '/billing',
     [NOTIFY_RESIDENTS_ABOUT_PAYMENTS_STEP_TYPE]: '/tour/guide',
-    [CREATE_METER_READINGS_STEP_TYPE]: '/meter',
+    [CREATE_METER_READINGS_STEP_TYPE]: '/meter/create',
     [NOTIFY_RESIDENTS_ABOUT_METER_READINGS_STEP_TYPE]: '/tour/guide',
     [VIEW_RESIDENT_APP_GUIDE_STEP_TYPE]: '/tour/guide',
-    [CREATE_NEWS_STEP_TYPE]: '/news',
+    [CREATE_NEWS_STEP_TYPE]: '/news/create',
 }
 
 const COMPLETED_STEP_LINK: Record<typeof SECOND_LEVEL_STEPS[number], CardButtonProps['header']['mainLink']> = {
@@ -81,6 +81,12 @@ const TourWrapper = styled.div`
     .condo-card {
       width: 100%;
     }
+  }
+  
+  .tour-steps-another-step-btn {
+    display: flex;
+    justify-content: end;
+    width: 100%;
   }
 `
 
@@ -117,25 +123,6 @@ const CardVideo = () => {
                 </Space>
             </Space>
         </Card>
-    )
-}
-
-const BackLink = () => {
-    const intl = useIntl()
-    const BackMessage = intl.formatMessage({ id: 'Back' })
-
-    const { setActiveTourStep } = useTourContext()
-    const handleLinkClick = useCallback(() => setActiveTourStep(null), [setActiveTourStep])
-
-    return (
-        <Link href='/tour'>
-            <Typography.Link onClick={handleLinkClick}>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    <ArrowLeft size='small'/>
-                    {BackMessage}
-                </div>
-            </Typography.Link>
-        </Link>
     )
 }
 
@@ -199,10 +186,12 @@ const TourPageContent = () => {
     const TourDescription = intl.formatMessage({ id: 'tour.description' })
     const ResidentAppCardTitle = intl.formatMessage({ id: 'tour.residentAppCard.title' })
     const TechnicAppCardTitle = intl.formatMessage({ id: 'tour.technicAppCard.title' })
+    const BackMessage = intl.formatMessage({ id: 'Back' })
 
     const router = useRouter()
     const { organization, isLoading } = useOrganization()
     const { activeTourStep, setActiveTourStep } = useTourContext()
+    const handleBackClick = useCallback(() => setActiveTourStep(null), [setActiveTourStep])
 
     const { objs: tourSteps, loading: stepsLoading } = TourStep.useObjects({
         where: {
@@ -244,7 +233,16 @@ const TourPageContent = () => {
             <Col span={13}>
                 <TourWrapper>
                     <Space size={32} direction='vertical'>
-                        {!isEmpty(secondLevelSteps) && <BackLink/>}
+                        {!isEmpty(secondLevelSteps) && (
+                            <Link href='/tour'>
+                                <Typography.Link onClick={handleBackClick}>
+                                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                        <ArrowLeft size='small'/>
+                                        {BackMessage}
+                                    </div>
+                                </Typography.Link>
+                            </Link>
+                        )}
                         <Space size={8} direction='vertical'>
                             <Typography.Title level={2}>{TourSubtitle}</Typography.Title>
                             <Typography.Paragraph type='secondary'>{TourDescription}</Typography.Paragraph>
@@ -261,6 +259,16 @@ const TourPageContent = () => {
                                 ))
                             }
                         </Space>
+                        {
+                            !isEmpty(secondLevelSteps) &&
+                            secondLevelSteps.every(step => step.status === 'completed') && (
+                                <div className='tour-steps-another-step-btn'>
+                                    <Button type='primary' onClick={handleBackClick}>
+                                        Выбрать другую задачу
+                                    </Button>
+                                </div>
+                            )
+                        }
                     </Space>
                 </TourWrapper>
             </Col>
