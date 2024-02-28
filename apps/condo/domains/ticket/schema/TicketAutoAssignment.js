@@ -105,4 +105,5 @@ const TicketAutoAssignment = new GQLListSchema('TicketAutoAssignment', {
 
 module.exports = {
     TicketAutoAssignment,
+    ERRORS,
 }

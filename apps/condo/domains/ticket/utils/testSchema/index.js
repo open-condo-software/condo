@@ -969,21 +969,20 @@ async function ticketMultipleUpdateByTestClient(client, extraAttrs = {}) {
     throwIfError(data, errors)
     return [data.result, attrs]
 }
-async function createTestTicketAutoAssignment (client, assignee, executor, classifier, extraAttrs = {}) {
+async function createTestTicketAutoAssignment (client, organization, assignee, executor, classifier, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    if (!assignee || !assignee.id) throw new Error('no assignee.id')
-    if (!executor || !executor.id) throw new Error('no executor.id')
+    if (assignee && !assignee.id) throw new Error('no assignee.id')
+    if (executor && !executor.id) throw new Error('no executor.id')
     if (!classifier || !classifier.id) throw new Error('no classifier.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestTicketAutoAssignment logic for generate fields
 
     const attrs = {
         dv: 1,
         sender,
-        assignee: { connect: { id: assignee.id } },
-        executor: { connect: { id: executor.id } },
+        organization: { connect: { id: organization.id } },
         classifier: { connect: { id: classifier.id } },
+        ...(assignee ? { assignee: { connect: { id: assignee.id } }} : undefined),
+        ...(executor ? { executor: { connect: { id: executor.id } }} : undefined),
         ...extraAttrs,
     }
     const obj = await TicketAutoAssignment.create(client, attrs)
@@ -994,8 +993,6 @@ async function updateTestTicketAutoAssignment (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestTicketAutoAssignment logic for generate fields
 
     const attrs = {
         dv: 1,
