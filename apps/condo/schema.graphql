@@ -36646,6 +36646,398 @@ input CallRecordFragmentsCreateInput {
   data: CallRecordFragmentCreateInput
 }
 
+enum TicketAutoAssignmentHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type TicketAutoAssignmentHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the TicketAutoAssignmentHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the TicketAutoAssignmentHistoryRecord List config, or
+   3. As an alias to a 'name' field on the TicketAutoAssignmentHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the TicketAutoAssignmentHistoryRecord List.
+  """
+  _label_: String
+  organization: String
+  assignee: String
+  executor: String
+  classifier: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: TicketAutoAssignmentHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input TicketAutoAssignmentHistoryRecordWhereInput {
+  AND: [TicketAutoAssignmentHistoryRecordWhereInput]
+  OR: [TicketAutoAssignmentHistoryRecordWhereInput]
+  organization: String
+  organization_not: String
+  organization_in: [String]
+  organization_not_in: [String]
+  assignee: String
+  assignee_not: String
+  assignee_in: [String]
+  assignee_not_in: [String]
+  executor: String
+  executor_not: String
+  executor_in: [String]
+  executor_not_in: [String]
+  classifier: String
+  classifier_not: String
+  classifier_in: [String]
+  classifier_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: TicketAutoAssignmentHistoryRecordHistoryActionType
+  history_action_not: TicketAutoAssignmentHistoryRecordHistoryActionType
+  history_action_in: [TicketAutoAssignmentHistoryRecordHistoryActionType]
+  history_action_not_in: [TicketAutoAssignmentHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input TicketAutoAssignmentHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortTicketAutoAssignmentHistoryRecordsBy {
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input TicketAutoAssignmentHistoryRecordUpdateInput {
+  organization: String
+  assignee: String
+  executor: String
+  classifier: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: TicketAutoAssignmentHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input TicketAutoAssignmentHistoryRecordsUpdateInput {
+  id: ID!
+  data: TicketAutoAssignmentHistoryRecordUpdateInput
+}
+
+input TicketAutoAssignmentHistoryRecordCreateInput {
+  organization: String
+  assignee: String
+  executor: String
+  classifier: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: TicketAutoAssignmentHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input TicketAutoAssignmentHistoryRecordsCreateInput {
+  data: TicketAutoAssignmentHistoryRecordCreateInput
+}
+
+""" This schema helps decides who should be assigned to ticket as executor and assignee 
+"""
+type TicketAutoAssignment {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the TicketAutoAssignment List config, or
+   2. As an alias to the field set on 'labelField' in the TicketAutoAssignment List config, or
+   3. As an alias to a 'name' field on the TicketAutoAssignment List (if one exists), or
+   4. As an alias to the 'id' field on the TicketAutoAssignment List.
+  """
+  _label_: String
+
+  """ Ref to the organization. The object will be deleted if the organization ceases to exist 
+  """
+  organization: Organization
+
+  """ An employee who will be appointed as assignee of ticket. If "null", then the field will remain empty and dispatcher will have to fill it in independently in UI 
+  """
+  assignee: OrganizationEmployee
+
+  """ An employee who will be appointed as executor of ticketIf "null", then the field will remain empty and dispatcher will have to fill it in independently in UI 
+  """
+  executor: OrganizationEmployee
+
+  """ Ticket classifier """
+  classifier: TicketClassifier
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input TicketAutoAssignmentWhereInput {
+  AND: [TicketAutoAssignmentWhereInput]
+  OR: [TicketAutoAssignmentWhereInput]
+  organization: OrganizationWhereInput
+  organization_is_null: Boolean
+  assignee: OrganizationEmployeeWhereInput
+  assignee_is_null: Boolean
+  executor: OrganizationEmployeeWhereInput
+  executor_is_null: Boolean
+  classifier: TicketClassifierWhereInput
+  classifier_is_null: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input TicketAutoAssignmentWhereUniqueInput {
+  id: ID!
+}
+
+enum SortTicketAutoAssignmentsBy {
+  organization_ASC
+  organization_DESC
+  assignee_ASC
+  assignee_DESC
+  executor_ASC
+  executor_DESC
+  classifier_ASC
+  classifier_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input TicketAutoAssignmentUpdateInput {
+  organization: OrganizationRelateToOneInput
+  assignee: OrganizationEmployeeRelateToOneInput
+  executor: OrganizationEmployeeRelateToOneInput
+  classifier: TicketClassifierRelateToOneInput
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input TicketAutoAssignmentsUpdateInput {
+  id: ID!
+  data: TicketAutoAssignmentUpdateInput
+}
+
+input TicketAutoAssignmentCreateInput {
+  organization: OrganizationRelateToOneInput
+  assignee: OrganizationEmployeeRelateToOneInput
+  executor: OrganizationEmployeeRelateToOneInput
+  classifier: TicketClassifierRelateToOneInput
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input TicketAutoAssignmentsCreateInput {
+  data: TicketAutoAssignmentCreateInput
+}
+
 enum MessageHistoryRecordHistoryActionType {
   c
   u
@@ -75511,6 +75903,36 @@ type Query {
   """ Retrieve the meta-data for the CallRecordFragment list. """
   _CallRecordFragmentsMeta: _ListMeta
 
+  """ Search for all TicketAutoAssignmentHistoryRecord items which match the where clause. 
+  """
+  allTicketAutoAssignmentHistoryRecords(where: TicketAutoAssignmentHistoryRecordWhereInput, search: String, sortBy: [SortTicketAutoAssignmentHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [TicketAutoAssignmentHistoryRecord]
+
+  """ Search for the TicketAutoAssignmentHistoryRecord item with the matching ID. 
+  """
+  TicketAutoAssignmentHistoryRecord(where: TicketAutoAssignmentHistoryRecordWhereUniqueInput!): TicketAutoAssignmentHistoryRecord
+
+  """ Perform a meta-query on all TicketAutoAssignmentHistoryRecord items which match the where clause. 
+  """
+  _allTicketAutoAssignmentHistoryRecordsMeta(where: TicketAutoAssignmentHistoryRecordWhereInput, search: String, sortBy: [SortTicketAutoAssignmentHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the TicketAutoAssignmentHistoryRecord list. 
+  """
+  _TicketAutoAssignmentHistoryRecordsMeta: _ListMeta
+
+  """ Search for all TicketAutoAssignment items which match the where clause. 
+  """
+  allTicketAutoAssignments(where: TicketAutoAssignmentWhereInput, search: String, sortBy: [SortTicketAutoAssignmentsBy!], orderBy: String, first: Int, skip: Int): [TicketAutoAssignment]
+
+  """ Search for the TicketAutoAssignment item with the matching ID. """
+  TicketAutoAssignment(where: TicketAutoAssignmentWhereUniqueInput!): TicketAutoAssignment
+
+  """ Perform a meta-query on all TicketAutoAssignment items which match the where clause. 
+  """
+  _allTicketAutoAssignmentsMeta(where: TicketAutoAssignmentWhereInput, search: String, sortBy: [SortTicketAutoAssignmentsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the TicketAutoAssignment list. """
+  _TicketAutoAssignmentsMeta: _ListMeta
+
   """ Search for all MessageHistoryRecord items which match the where clause. 
   """
   allMessageHistoryRecords(where: MessageHistoryRecordWhereInput, search: String, sortBy: [SortMessageHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [MessageHistoryRecord]
@@ -79757,6 +80179,42 @@ type Mutation {
 
   """ Delete multiple CallRecordFragment items by ID. """
   deleteCallRecordFragments(ids: [ID!]): [CallRecordFragment]
+
+  """ Create a single TicketAutoAssignmentHistoryRecord item. """
+  createTicketAutoAssignmentHistoryRecord(data: TicketAutoAssignmentHistoryRecordCreateInput): TicketAutoAssignmentHistoryRecord
+
+  """ Create multiple TicketAutoAssignmentHistoryRecord items. """
+  createTicketAutoAssignmentHistoryRecords(data: [TicketAutoAssignmentHistoryRecordsCreateInput]): [TicketAutoAssignmentHistoryRecord]
+
+  """ Update a single TicketAutoAssignmentHistoryRecord item by ID. """
+  updateTicketAutoAssignmentHistoryRecord(id: ID!, data: TicketAutoAssignmentHistoryRecordUpdateInput): TicketAutoAssignmentHistoryRecord
+
+  """ Update multiple TicketAutoAssignmentHistoryRecord items by ID. """
+  updateTicketAutoAssignmentHistoryRecords(data: [TicketAutoAssignmentHistoryRecordsUpdateInput]): [TicketAutoAssignmentHistoryRecord]
+
+  """ Delete a single TicketAutoAssignmentHistoryRecord item by ID. """
+  deleteTicketAutoAssignmentHistoryRecord(id: ID!): TicketAutoAssignmentHistoryRecord
+
+  """ Delete multiple TicketAutoAssignmentHistoryRecord items by ID. """
+  deleteTicketAutoAssignmentHistoryRecords(ids: [ID!]): [TicketAutoAssignmentHistoryRecord]
+
+  """ Create a single TicketAutoAssignment item. """
+  createTicketAutoAssignment(data: TicketAutoAssignmentCreateInput): TicketAutoAssignment
+
+  """ Create multiple TicketAutoAssignment items. """
+  createTicketAutoAssignments(data: [TicketAutoAssignmentsCreateInput]): [TicketAutoAssignment]
+
+  """ Update a single TicketAutoAssignment item by ID. """
+  updateTicketAutoAssignment(id: ID!, data: TicketAutoAssignmentUpdateInput): TicketAutoAssignment
+
+  """ Update multiple TicketAutoAssignment items by ID. """
+  updateTicketAutoAssignments(data: [TicketAutoAssignmentsUpdateInput]): [TicketAutoAssignment]
+
+  """ Delete a single TicketAutoAssignment item by ID. """
+  deleteTicketAutoAssignment(id: ID!): TicketAutoAssignment
+
+  """ Delete multiple TicketAutoAssignment items by ID. """
+  deleteTicketAutoAssignments(ids: [ID!]): [TicketAutoAssignment]
 
   """ Create a single MessageHistoryRecord item. """
   createMessageHistoryRecord(data: MessageHistoryRecordCreateInput): MessageHistoryRecord
