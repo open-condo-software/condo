@@ -46,7 +46,7 @@ Patch is done using internal yarn functionality. Patch is applied when user runs
 Patch 1: @keystonejs-keystone-npm-19.3.4-2a53e53061.patch
 Patch 2: @keystonejs-access-control-npm-7.1.2-bec144d41a.patch
 Library issue: https://github.com/keystonejs/keystone-5/issues/419
-Patch PR: https://github.com/open-condo-software/condo/pull/3815
+Patch PR: https://github.com/open-condo-software/condo/pull/4429
 ```
 
 ### Problem
