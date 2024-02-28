@@ -17,6 +17,7 @@ const {
     expectToThrowGraphQLRequestError,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAccessDeniedErrorToObjects,
+    expectToThrowAccessDeniedErrorToCount,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowGQLError,
@@ -729,6 +730,9 @@ describe('Sensitive data search', () => {
             await expectToThrowAccessDeniedErrorToObjects(async () => {
                 await User.getAll(user, where)
             })
+            await expectToThrowAccessDeniedErrorToCount(async () => {
+                await User.count(user, where)
+            }, ['meta'])
         })
     })
 })
