@@ -11192,7 +11192,7 @@ __metadata:
 
 "@keystonejs/keystone@patch:@keystonejs/keystone@npm:19.3.4#.yarn/patches/@keystonejs-keystone-npm-19.3.4-2a53e53061.patch::locator=root%40workspace%3A.":
   version: 19.3.4
-  resolution: "@keystonejs/keystone@patch:@keystonejs/keystone@npm%3A19.3.4#.yarn/patches/@keystonejs-keystone-npm-19.3.4-2a53e53061.patch::version=19.3.4&hash=e3b25e&locator=root%40workspace%3A."
+  resolution: "@keystonejs/keystone@patch:@keystonejs/keystone@npm%3A19.3.4#.yarn/patches/@keystonejs-keystone-npm-19.3.4-2a53e53061.patch::version=19.3.4&hash=3c7fde&locator=root%40workspace%3A."
   dependencies:
     "@keystonejs/access-control": ^7.1.2
     "@keystonejs/app-version": ^2.1.2
@@ -11226,7 +11226,7 @@ __metadata:
     terminal-link: ^2.1.1
   bin:
     keystone: bin/cli.js
-  checksum: 07b4962c7c070cbcc93b94997a418e5b91f4a2f2c587d7051478e709d2e46dc29760317eb0b6b3495c924e5ec833a1a376fb1e82fd8824c971d8b75a7ac85a60
+  checksum: c2f09eb2ef7437ae28e6cb77decd8c353bfba3d12e45a9ff7b12665e88b1013d90a052c5515cf5c67ecc6564d58f23bd64be46d0638069059ca5c62b9e91fcef
   languageName: node
   linkType: hard
 
