@@ -497,6 +497,12 @@ const MESSAGE_META = {
             B2CAppContext: { required: false },
             B2CAppName: { required: true },
             residentId: { required: true },
+            callId: { required: false },
+            voipType: { required: false },
+            voipAddress: { required: false },
+            voipLogin: { required: false },
+            voipPassword: { required: false },
+            voipDtfmCommand: { required: false },
         },
     },
     [B2C_APP_MESSAGE_PUSH_TYPE]: {
