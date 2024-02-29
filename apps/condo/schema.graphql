@@ -3216,6 +3216,7 @@ type UserRightsSetHistoryRecord {
   canManageTickets: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
+  canReadUsers: Boolean
   canReadUserRightsSets: Boolean
   canManageUserRightsSets: Boolean
   canExecuteRegisterNewServiceUser: Boolean
@@ -3313,6 +3314,8 @@ input UserRightsSetHistoryRecordWhereInput {
   canReadOidcClients_not: Boolean
   canManageOidcClients: Boolean
   canManageOidcClients_not: Boolean
+  canReadUsers: Boolean
+  canReadUsers_not: Boolean
   canReadUserRightsSets: Boolean
   canReadUserRightsSets_not: Boolean
   canManageUserRightsSets: Boolean
@@ -3464,6 +3467,8 @@ enum SortUserRightsSetHistoryRecordsBy {
   canReadOidcClients_DESC
   canManageOidcClients_ASC
   canManageOidcClients_DESC
+  canReadUsers_ASC
+  canReadUsers_DESC
   canReadUserRightsSets_ASC
   canReadUserRightsSets_DESC
   canManageUserRightsSets_ASC
@@ -3522,6 +3527,7 @@ input UserRightsSetHistoryRecordUpdateInput {
   canManageTickets: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
+  canReadUsers: Boolean
   canReadUserRightsSets: Boolean
   canManageUserRightsSets: Boolean
   canExecuteRegisterNewServiceUser: Boolean
@@ -3576,6 +3582,7 @@ input UserRightsSetHistoryRecordCreateInput {
   canManageTickets: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
+  canReadUsers: Boolean
   canReadUserRightsSets: Boolean
   canManageUserRightsSets: Boolean
   canExecuteRegisterNewServiceUser: Boolean
@@ -3727,6 +3734,10 @@ type UserRightsSet {
   """
   canManageOidcClients: Boolean
 
+  """ Enables a user with the given UserRightsSet to view all entities of model "User" as support / admin users do 
+  """
+  canReadUsers: Boolean
+
   """ Enables a user with the given UserRightsSet to view all entities of model "UserRightsSet" as support / admin users do 
   """
   canReadUserRightsSets: Boolean
@@ -3846,6 +3857,8 @@ input UserRightsSetWhereInput {
   canReadOidcClients_not: Boolean
   canManageOidcClients: Boolean
   canManageOidcClients_not: Boolean
+  canReadUsers: Boolean
+  canReadUsers_not: Boolean
   canReadUserRightsSets: Boolean
   canReadUserRightsSets_not: Boolean
   canManageUserRightsSets: Boolean
@@ -3977,6 +3990,8 @@ enum SortUserRightsSetsBy {
   canReadOidcClients_DESC
   canManageOidcClients_ASC
   canManageOidcClients_DESC
+  canReadUsers_ASC
+  canReadUsers_DESC
   canReadUserRightsSets_ASC
   canReadUserRightsSets_DESC
   canManageUserRightsSets_ASC
@@ -4035,6 +4050,7 @@ input UserRightsSetUpdateInput {
   canManageTickets: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
+  canReadUsers: Boolean
   canReadUserRightsSets: Boolean
   canManageUserRightsSets: Boolean
   canExecuteRegisterNewServiceUser: Boolean
@@ -4086,6 +4102,7 @@ input UserRightsSetCreateInput {
   canManageTickets: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
+  canReadUsers: Boolean
   canReadUserRightsSets: Boolean
   canManageUserRightsSets: Boolean
   canExecuteRegisterNewServiceUser: Boolean

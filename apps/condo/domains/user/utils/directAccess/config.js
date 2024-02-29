@@ -45,6 +45,7 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
 
         // User domain
         'OidcClient',
+        { schemaName: 'User', readonly: true },
         'UserRightsSet',
     ],
     fields: {

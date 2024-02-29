@@ -10689,12 +10689,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@keystonejs/access-control@npm:^7.1.2":
+"@keystonejs/access-control@npm:7.1.2":
   version: 7.1.2
   resolution: "@keystonejs/access-control@npm:7.1.2"
   dependencies:
     "@keystonejs/utils": ^6.1.2
   checksum: fcc579c7e8a9df824213c248d8b56e843d8a48365b26a391ea3be402ea66bb724c9ffaeb5f516bb8b184e8f67934e4b992a8e37b1d3671a4538f01b6b243ce8d
+  languageName: node
+  linkType: hard
+
+"@keystonejs/access-control@patch:@keystonejs/access-control@npm:7.1.2#.yarn/patches/@keystonejs-access-control-npm-7.1.2-bec144d41a.patch::locator=root%40workspace%3A.":
+  version: 7.1.2
+  resolution: "@keystonejs/access-control@patch:@keystonejs/access-control@npm%3A7.1.2#.yarn/patches/@keystonejs-access-control-npm-7.1.2-bec144d41a.patch::version=7.1.2&hash=248bfe&locator=root%40workspace%3A."
+  dependencies:
+    "@keystonejs/utils": ^6.1.2
+  checksum: 911ef810e86f89628ccb27b802d0a6f4257590c11a33a312d231f42f697a1d1abb13b4e0dc0d184b9ed28bdf43f74a326a025fc221e86b96599209b5e924dc84
   languageName: node
   linkType: hard
 
@@ -11192,7 +11201,7 @@ __metadata:
 
 "@keystonejs/keystone@patch:@keystonejs/keystone@npm:19.3.4#.yarn/patches/@keystonejs-keystone-npm-19.3.4-2a53e53061.patch::locator=root%40workspace%3A.":
   version: 19.3.4
-  resolution: "@keystonejs/keystone@patch:@keystonejs/keystone@npm%3A19.3.4#.yarn/patches/@keystonejs-keystone-npm-19.3.4-2a53e53061.patch::version=19.3.4&hash=e3b25e&locator=root%40workspace%3A."
+  resolution: "@keystonejs/keystone@patch:@keystonejs/keystone@npm%3A19.3.4#.yarn/patches/@keystonejs-keystone-npm-19.3.4-2a53e53061.patch::version=19.3.4&hash=3c7fde&locator=root%40workspace%3A."
   dependencies:
     "@keystonejs/access-control": ^7.1.2
     "@keystonejs/app-version": ^2.1.2
@@ -11226,7 +11235,7 @@ __metadata:
     terminal-link: ^2.1.1
   bin:
     keystone: bin/cli.js
-  checksum: 07b4962c7c070cbcc93b94997a418e5b91f4a2f2c587d7051478e709d2e46dc29760317eb0b6b3495c924e5ec833a1a376fb1e82fd8824c971d8b75a7ac85a60
+  checksum: c2f09eb2ef7437ae28e6cb77decd8c353bfba3d12e45a9ff7b12665e88b1013d90a052c5515cf5c67ecc6564d58f23bd64be46d0638069059ca5c62b9e91fcef
   languageName: node
   linkType: hard
 
