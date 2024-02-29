@@ -260,7 +260,7 @@ const TICKET_MULTIPLE_UPDATE_MUTATION = gql`
     }
 `
 
-const TICKET_AUTO_ASSIGNMENT_FIELDS = `{ organization { id } assignee { id } executor { id } classifier { id } ${COMMON_FIELDS} }`
+const TICKET_AUTO_ASSIGNMENT_FIELDS = `{ organization { id name } assignee { id name } executor { id name } classifier { id place { id name } category { id name } problem { id name } } ${COMMON_FIELDS} }`
 const TicketAutoAssignment = generateGqlQueries('TicketAutoAssignment', TICKET_AUTO_ASSIGNMENT_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */

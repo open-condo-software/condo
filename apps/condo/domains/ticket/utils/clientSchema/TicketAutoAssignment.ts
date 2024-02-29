@@ -8,10 +8,11 @@ import {
     TicketAutoAssignmentUpdateInput,
     QueryAllTicketAutoAssignmentsArgs,
 } from '@app/condo/schema'
+
 import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
 import { TicketAutoAssignment as TicketAutoAssignmentGQL } from '@condo/domains/ticket/gql'
 
-// TODO(codegen): write utils like convertToFormState and formValuesProcessor if needed, otherwise delete this TODO
 
 const {
     useObject,
@@ -19,6 +20,7 @@ const {
     useCreate,
     useUpdate,
     useSoftDelete,
+    useAllObjects,
 } = generateReactHooks<TicketAutoAssignment, TicketAutoAssignmentCreateInput, TicketAutoAssignmentUpdateInput, QueryAllTicketAutoAssignmentsArgs>(TicketAutoAssignmentGQL)
 
 export {
@@ -27,4 +29,5 @@ export {
     useCreate,
     useUpdate,
     useSoftDelete,
+    useAllObjects,
 }
