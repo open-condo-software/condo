@@ -61,6 +61,9 @@ const randomNumber = (numDigits) => {
     return faker.datatype.number({ min, max })
 }
 
+const HOUSING_CATEGORY_ID = '928c97ef-5289-4daa-b80e-4b9fed50c629'
+const REPAIR_CATEGORY_ID = 'c0b9db6a-c351-4bf4-aa35-8e5a500d0195'
+
 describe('RegisterBillingReceiptsService', () => {
 
     const clients = {}
@@ -72,6 +75,7 @@ describe('RegisterBillingReceiptsService', () => {
         const [billingIntegration] = await createTestBillingIntegration(clients.admin)
         const [billingContext] = await createTestBillingIntegrationOrganizationContext(clients.admin, organization, billingIntegration)
         integration = { organization, billingIntegration, billingContext }
+        process.env.ADDRESS_SERVICE_CLIENT_MODE = 'fake'
     })
 
     describe('PeriodResolver',  () => {
@@ -230,6 +234,51 @@ describe('RegisterBillingReceiptsService', () => {
     })
 
     describe('ReceiptResolver', () => {
+        describe('[registry] Create new receipt if category and bank account are both different', () => {
+            test('Overhaul and Housing are on different bank accounts in one request', async () => {
+                const tin = faker.random.numeric(8)
+                const receipt1 = createJSONReceipt({
+                    category: { id: HOUSING_CATEGORY_ID },
+                    ...createRecipient({ tin }),
+                    importId: null,
+                })
+                const receipt2 = createJSONReceipt({
+                    ...receipt1,
+                    category: { id: REPAIR_CATEGORY_ID },
+                    ...createRecipient({ tin }),
+                    importId: null,
+                })
+                const [createdReceipts] = await registerBillingReceiptsByTestClient(clients.admin, {
+                    context: { id: integration.billingContext.id },
+                    receipts: [receipt1, receipt2],
+                })
+                console.log(createdReceipts)
+                expect(createdReceipts).toHaveLength(2)
+            })
+            test('Overhaul and Housing are on different bank accounts in different requests', async () => {
+                const tin = faker.random.numeric(8)
+                const receipt1 = createJSONReceipt({
+                    category: { id: HOUSING_CATEGORY_ID },
+                    importId: null,
+                    ...createRecipient({ tin }),
+                })
+                const receipt2 = createJSONReceipt({
+                    ...receipt1,
+                    category: { id: REPAIR_CATEGORY_ID },
+                    importId: null,
+                    ...createRecipient({ tin }),
+                })
+                const [[housingReceipt]] = await registerBillingReceiptsByTestClient(clients.admin, {
+                    context: { id: integration.billingContext.id },
+                    receipts: [receipt1],
+                })
+                const [[repairReceipt]] = await registerBillingReceiptsByTestClient(clients.admin, {
+                    context: { id: integration.billingContext.id },
+                    receipts: [receipt2],
+                })
+                expect(housingReceipt.id).not.toEqual(repairReceipt.id)
+            })
+        })
         describe('Do not create new receipt on: ', () => {
             test('[importId]. Address change (was resolved wrong and then fixed)', async () => {
                 const wrongAddress = createAddressWithUnit()
