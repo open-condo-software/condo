@@ -34,10 +34,11 @@ class ReceiptResolver extends Resolver {
                 period,
                 account: { id: account, deletedAt: null }, // accountNumber + addressKey
                 OR: [
-                    { receiver: { id: receiver, deletedAt: null } },
-                    { category: { id: category, deletedAt: null } },
+                    { receiver: { id: receiver } },
+                    { category: { id: category } },
                 ],
             }
+            console.log(JSON.stringify(sameReceiptQuery, null, 2))
             const receiptQuery = { ...sameReceiptQuery, context: { id: this.billingContext.id }, deletedAt: null }
 
             const existingReceipts = await find('BillingReceipt', receiptQuery)

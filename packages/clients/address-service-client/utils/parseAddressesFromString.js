@@ -6,7 +6,7 @@ const KEYWORDS = {
     flat: ['квартира', 'кв', 'комн'],
 }
 
-const HOUSE_IDENTIFIERS = 'д.|дом'
+const HOUSE_IDENTIFIERS = 'д|уч|дом|участок|двлд'
 const SPLIT_SYMBOL = '%'
 
 class AddressFromStringParser {
@@ -15,7 +15,7 @@ class AddressFromStringParser {
 
     constructor () {
         const keywordsRegex = this.keywordsToRegexp(Object.values(KEYWORDS).flat())
-        this.splitRegexp = new RegExp(`(.*?[${HOUSE_IDENTIFIERS}].*?)\\s(${keywordsRegex})[.\\s,].*?`, 'i')
+        this.splitRegexp = new RegExp(`[\\s,](${HOUSE_IDENTIFIERS})([\\s.].*?)[\\s,]+(${keywordsRegex})[.\\s]`, 'i')
     }
 
     /**
@@ -81,7 +81,7 @@ class AddressFromStringParser {
     splitByKeyword (input = '') {
         const [housePart, unitPart = ''] = input
             .replace(new RegExp(`[${SPLIT_SYMBOL}]`, 'g'), '')
-            .replace(this.splitRegexp, `$1${SPLIT_SYMBOL}$2`)
+            .replace(this.splitRegexp, ` $1$2${SPLIT_SYMBOL}$3`)
             .split(SPLIT_SYMBOL)
         return {
             housePart: this.trim(housePart),
@@ -109,6 +109,8 @@ class AddressFromStringParser {
     splitToUnitAndAddress (input) {
         const { housePart, unitPart } = this.splitByKeyword(input)
         if (!unitPart) {
+            const houseInTheEndRegexp = new RegExp(`[.\\s](${HOUSE_IDENTIFIERS})([.\\s]+)([0-9А-Я/\\\\]+)$`, 'i')
+            input = input.replace(houseInTheEndRegexp, ' $1$2$3, кв. 1')
             return this.splitByComma(input)
         }
         return { housePart, unitPart }
