@@ -338,22 +338,22 @@ const TicketAutoAssignmentPage: ITicketAutoAssignmentPage = () => {
             title: ExecutorMessage,
             dataIndex: ['executor', 'name'],
             key: 'executor',
-            width: 250,
-            editable: true,
             inputNode: renderEmployeeInput,
             formItemProps: {
                 name: 'executor',
             },
-            filterSearch: true,
-            filters: employeeOptions.map(item => ({ ...item, text: item.label })).sort((a, b) => a.label.localeCompare(b.label)),
-            onFilter: (value: string, record) => {
-                return get(record, 'executor.id') === value
-            },
+            width: 250,
+            editable: true,
             sorter: (a, b) => {
                 const aName = get(a, 'executor.name')
                 const bName = get(b, 'executor.name')
                 if (!aName || !bName) return !aName ? 1 : -1
                 return aName.localeCompare(bName)
+            },
+            filterSearch: true,
+            filters: employeeOptions.map(item => ({ ...item, text: item.label })).sort((a, b) => a.label.localeCompare(b.label)),
+            onFilter: (value: string, record) => {
+                return get(record, 'executor.id') === value
             },
         },
         {
