@@ -19,8 +19,7 @@ import isArray from 'lodash/isArray'
 import isUndefined from 'lodash/isUndefined'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { useQuery } from '@open-condo/next/apollo'
-import { useApolloClient } from '@open-condo/next/apollo'
+import { useQuery, useApolloClient } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -55,24 +54,13 @@ interface EditableCellProps {
     formItemProps?: FormItemProps,
 }
 
-export interface IFormState {
-    id?: undefined
-    organization?: string
-    classifier?: string
-    assignee?: string
-    executor?: string
-}
-
 const RELATIONS = ['assignee', 'organization', 'executor', 'classifier']
 const DISCONNECT_ON_NULL = ['executor', 'assignee']
-const IGNORE_FIELDS = []
 
 type MutationType = ITicketAutoAssignmentCreateInput | ITicketAutoAssignmentUpdateInput
-function formValuesProcessor (formValues: IFormState): MutationType {
+function formValuesProcessor (formValues: Item): MutationType {
     const result: MutationType = {}
     for (const key of Object.keys(formValues)) {
-        if (IGNORE_FIELDS.includes(key)) continue
-
         const isRelation = RELATIONS.includes(key)
         if (isRelation) {
             if (DISCONNECT_ON_NULL.includes(key) && formValues[key] === null) {
@@ -124,21 +112,21 @@ const TicketAutoAssignmentPage: ITicketAutoAssignmentPage = () => {
     const intl = useIntl()
     const NoMessage = intl.formatMessage({ id: 'No' })
     const YesMessage = intl.formatMessage({ id: 'Yes' })
-    const DeleteConfirmMessage = intl.formatMessage({ id: 'pages.ticket.autoAssignment.deleteConfirm.message' }) // Sure to delete?
-    const CancelConfirmMessage = intl.formatMessage({ id: 'pages.ticket.autoAssignment.cancelConfirm.message' }) // Sure to cancel?
-    const ClassifierMessage = intl.formatMessage({ id: 'pages.ticket.autoAssignment.columns.classifier.title' }) // classifier
-    const AssigneeMessage = intl.formatMessage({ id: 'pages.ticket.autoAssignment.columns.assignee.title' }) // assignee
-    const ExecutorMessage = intl.formatMessage({ id: 'pages.ticket.autoAssignment.columns.executor.title' }) // executor
-    const OperationsMessage = intl.formatMessage({ id: 'pages.ticket.autoAssignment.columns.operations.title' }) // Operations
-    const CreateMessage = intl.formatMessage({ id: 'pages.ticket.autoAssignment.button.create.label' }) // create
-    const CancelMessage = intl.formatMessage({ id: 'pages.ticket.autoAssignment.button.cancel.label' }) // Cancel
-    const RefreshMessage = intl.formatMessage({ id: 'pages.ticket.autoAssignment.button.refresh.label' }) // refresh
-    const SaveMessage = intl.formatMessage({ id: 'pages.ticket.autoAssignment.button.save.label' }) // save
-    const EditMessage = intl.formatMessage({ id: 'pages.ticket.autoAssignment.button.edit.label' }) // edit
-    const DeleteMessage = intl.formatMessage({ id: 'pages.ticket.autoAssignment.button.delete.label' }) // delete
-    const SaveNotificationMessage = intl.formatMessage({ id: 'pages.ticket.autoAssignment.notifications.save.message' }) // delete
-    const DeleteNotificationMessage = intl.formatMessage({ id: 'pages.ticket.autoAssignment.notifications.delete.message' }) // delete
-    const ErrorNotificationMessage = intl.formatMessage({ id: 'pages.ticket.autoAssignment.notifications.error.message' }) // delete
+    const DeleteConfirmMessage = intl.formatMessage({ id: 'pages.ticket.autoAssignment.deleteConfirm.message' })
+    const CancelConfirmMessage = intl.formatMessage({ id: 'pages.ticket.autoAssignment.cancelConfirm.message' })
+    const ClassifierMessage = intl.formatMessage({ id: 'pages.ticket.autoAssignment.columns.classifier.title' })
+    const AssigneeMessage = intl.formatMessage({ id: 'pages.ticket.autoAssignment.columns.assignee.title' })
+    const ExecutorMessage = intl.formatMessage({ id: 'pages.ticket.autoAssignment.columns.executor.title' })
+    const OperationsMessage = intl.formatMessage({ id: 'pages.ticket.autoAssignment.columns.operations.title' })
+    const CreateMessage = intl.formatMessage({ id: 'pages.ticket.autoAssignment.button.create.label' })
+    const CancelMessage = intl.formatMessage({ id: 'pages.ticket.autoAssignment.button.cancel.label' })
+    const RefreshMessage = intl.formatMessage({ id: 'pages.ticket.autoAssignment.button.refresh.label' })
+    const SaveMessage = intl.formatMessage({ id: 'pages.ticket.autoAssignment.button.save.label' })
+    const EditMessage = intl.formatMessage({ id: 'pages.ticket.autoAssignment.button.edit.label' })
+    const DeleteMessage = intl.formatMessage({ id: 'pages.ticket.autoAssignment.button.delete.label' })
+    const SaveNotificationMessage = intl.formatMessage({ id: 'pages.ticket.autoAssignment.notifications.save.message' })
+    const DeleteNotificationMessage = intl.formatMessage({ id: 'pages.ticket.autoAssignment.notifications.delete.message' })
+    const ErrorNotificationMessage = intl.formatMessage({ id: 'pages.ticket.autoAssignment.notifications.error.message' })
 
     const { organization } = useOrganization()
     const organizationId = useMemo(() => get(organization, 'id', null), [organization])
@@ -245,9 +233,11 @@ const TicketAutoAssignmentPage: ITicketAutoAssignmentPage = () => {
                 message: ErrorNotificationMessage,
                 description: error.message,
             })
-            console.error('Validate Failed:', error)
+            console.error('Failed to delete data:', error)
         }
     }, [api])
+
+    const handleSaveClick = useCallback((record) => () => save(record), [save])
 
     const employeeOptions = useMemo(() => employees.map(item => ({
         value: item.id,
@@ -264,6 +254,38 @@ const TicketAutoAssignmentPage: ITicketAutoAssignmentPage = () => {
         [classifierOptions]
     )
 
+    const getVisibleClassifiers = useCallback((record: ITicketAutoAssignment) => {
+        return classifierOptions.filter((option) => {
+            const isCurrentClassifier = option.value === get(record, 'classifier.id')
+            const notUsedClassifier = !rules.find(rule => rule.classifier.id === option.value)
+            return isCurrentClassifier || notUsedClassifier
+        })
+    }, [rules, classifierOptions])
+
+    const renderClassifierInput = useCallback((record: ITicketAutoAssignment) => (
+        <Select
+            style={{ maxWidth: 300 }}
+            showSearch
+            optionFilterProp='label'
+            defaultValue={record.id}
+            options={getVisibleClassifiers(record)}
+            allowClear
+            filterSort={(a, b) => a.label.localeCompare(b.label)}
+        />
+    ), [getVisibleClassifiers])
+
+    const renderEmployeeInput = useCallback((record: ITicketAutoAssignment) => (
+        <Select
+            style={{ maxWidth: 250 }}
+            showSearch
+            defaultValue={record.id}
+            options={employeeOptions}
+            allowClear
+            optionFilterProp='label'
+            filterSort={(a, b) => a.label.localeCompare(b.label)}
+        />
+    ), [employeeOptions])
+
     const columns = useMemo(() => [
         {
             title: ClassifierMessage,
@@ -272,22 +294,7 @@ const TicketAutoAssignmentPage: ITicketAutoAssignmentPage = () => {
             width: 300,
             editable: true,
             render: (_, item: ITicketAutoAssignment) => getClassifierName(item.classifier),
-            inputNode: (record: ITicketAutoAssignment) => (
-                <Select
-                    style={{ maxWidth: 300 }}
-                    showSearch
-                    optionFilterProp='label'
-                    defaultValue={record.id}
-                    options={classifierOptions.filter(
-                        option => (option.value === get(record, 'classifier.id'))
-                            || !rules.find(rule => rule.classifier.id === option.value)
-                    )}
-                    allowClear
-                    filterSort={(a, b) => {
-                        return a.label.localeCompare(b.label)
-                    }}
-                />
-            ),
+            inputNode: renderClassifierInput,
             formItemProps: {
                 name: 'classifier',
                 rules: [{
@@ -311,17 +318,7 @@ const TicketAutoAssignmentPage: ITicketAutoAssignmentPage = () => {
             key: 'assignee',
             width: 250,
             editable: true,
-            inputNode: (record: ITicketAutoAssignment) => (
-                <Select
-                    style={{ maxWidth: 250 }}
-                    showSearch
-                    defaultValue={record.id}
-                    options={employeeOptions}
-                    allowClear
-                    optionFilterProp='label'
-                    filterSort={(a, b) => a.label.localeCompare(b.label)}
-                />
-            ),
+            inputNode: renderEmployeeInput,
             formItemProps: {
                 name: 'assignee',
             },
@@ -343,17 +340,7 @@ const TicketAutoAssignmentPage: ITicketAutoAssignmentPage = () => {
             key: 'executor',
             width: 250,
             editable: true,
-            inputNode: (record: ITicketAutoAssignment) => (
-                <Select
-                    style={{ maxWidth: 250 }}
-                    showSearch
-                    defaultValue={record.id}
-                    options={employeeOptions}
-                    allowClear
-                    optionFilterProp='label'
-                    filterSort={(a, b) => a.label.localeCompare(b.label)}
-                />
-            ),
+            inputNode: renderEmployeeInput,
             formItemProps: {
                 name: 'executor',
             },
@@ -404,7 +391,7 @@ const TicketAutoAssignmentPage: ITicketAutoAssignmentPage = () => {
                 )
             },
         },
-    ], [cancel, classifierFilters, classifierOptions, creating, deleteItem, edit, editingKey, employeeOptions, isEditing, rules, save])
+    ], [AssigneeMessage, CancelConfirmMessage, CancelMessage, ClassifierMessage, DeleteConfirmMessage, DeleteMessage, EditMessage, ExecutorMessage, NoMessage, OperationsMessage, SaveMessage, YesMessage, cancel, classifierFilters, creating, deleteItem, edit, editingKey, employeeOptions, isEditing, renderClassifierInput, renderEmployeeInput, save])
 
     const columnsForData = useMemo(() => columns.map((col) => {
         if (!col.editable) return col
@@ -430,7 +417,7 @@ const TicketAutoAssignmentPage: ITicketAutoAssignmentPage = () => {
                 render: (_, record: ITicketAutoAssignment) => {
                     return (
                         <span>
-                            <Typography.Link onClick={() => save(record)} style={{ marginRight: 8 }}>
+                            <Typography.Link onClick={handleSaveClick(record)} style={{ marginRight: 8 }}>
                                 {SaveMessage}
                             </Typography.Link>
                             <Popconfirm title={CancelConfirmMessage} onConfirm={cancel}>
@@ -452,7 +439,7 @@ const TicketAutoAssignmentPage: ITicketAutoAssignmentPage = () => {
                 }
             },
         }
-    }), [cancel, columns, save])
+    }), [CancelConfirmMessage, CancelMessage, SaveMessage, cancel, columns, handleSaveClick])
 
     useEffect(() => {
         setClassifierLoading(true)
