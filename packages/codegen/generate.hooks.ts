@@ -5,7 +5,7 @@ import { TypedDocumentNode } from '@graphql-typed-document-node/core'
 import dayjs from 'dayjs'
 import { DocumentNode } from 'graphql'
 import isFunction from 'lodash/isFunction'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useMutation, useQuery } from '@open-condo/next/apollo'
@@ -369,9 +369,19 @@ export function generateReactHooks<
         const { objs, count, error, loading, refetch: _refetch, fetchMore, stopPolling } = useObjects(variables, options)
         const [data, setData] = useState(objs)
         const [fetchMoreError, setFetchMoreError] = useState()
+        const innerLoadingRef = useRef(false)
 
+        useEffect(() => {
+            innerLoadingRef.current = loading
+        }, [loading])
+
+        // NOTE: returns only the first part of the data
         const refetch: IRefetchType<GQLObject, QueryVariables> = useCallback((...args) => {
             setData([])
+            // NOTE: refetch from Apollo does not immediately update loading status.
+            // Because of this, the resulting array contains outdated data that has already been loaded
+            // That's why we make our own loading indicator to prevent this from happening.
+            innerLoadingRef.current = true
             return _refetch(...args)
         }, [_refetch])
 
@@ -381,7 +391,7 @@ export function generateReactHooks<
 
         useEffect(() => {
             const isAllDataLoaded = objs.length === count || data.length === count
-            if (isAllDataLoaded || loading || error || fetchMoreError) {
+            if (isAllDataLoaded || loading || error || fetchMoreError || innerLoadingRef.current) {
                 return
             }
 
