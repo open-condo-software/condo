@@ -15,6 +15,7 @@ const { IncidentProperty } = require('./IncidentProperty')
 const { PredictTicketClassificationService } = require('./PredictTicketClassificationService')
 const { ShareTicketService } = require('./ShareTicketService')
 const { Ticket } = require('./Ticket')
+const { TicketAutoAssignment } = require('./TicketAutoAssignment')
 const { TicketCategoryClassifier } = require('./TicketCategoryClassifier')
 const { TicketChange } = require('./TicketChange')
 const { TicketClassifier } = require('./TicketClassifier')
@@ -34,7 +35,6 @@ const { TicketSource } = require('./TicketSource')
 const { TicketStatus } = require('./TicketStatus')
 const { UserFavoriteTicket } = require('./UserFavoriteTicket')
 const { UserTicketCommentReadTime } = require('./UserTicketCommentReadTime')
-const { TicketAutoAssignment } = require('./TicketAutoAssignment')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -68,6 +68,6 @@ module.exports = {
     CallRecord,
     CallRecordFragment,
     TicketMultipleUpdateService,
-        TicketAutoAssignment,
+    TicketAutoAssignment,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
