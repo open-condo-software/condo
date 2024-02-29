@@ -3214,6 +3214,8 @@ type UserRightsSetHistoryRecord {
   canManageOrganizations: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
+  canReadTicketAutoAssignments: Boolean
+  canManageTicketAutoAssignments: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
   canReadUsers: Boolean
@@ -3310,6 +3312,10 @@ input UserRightsSetHistoryRecordWhereInput {
   canReadTickets_not: Boolean
   canManageTickets: Boolean
   canManageTickets_not: Boolean
+  canReadTicketAutoAssignments: Boolean
+  canReadTicketAutoAssignments_not: Boolean
+  canManageTicketAutoAssignments: Boolean
+  canManageTicketAutoAssignments_not: Boolean
   canReadOidcClients: Boolean
   canReadOidcClients_not: Boolean
   canManageOidcClients: Boolean
@@ -3463,6 +3469,10 @@ enum SortUserRightsSetHistoryRecordsBy {
   canReadTickets_DESC
   canManageTickets_ASC
   canManageTickets_DESC
+  canReadTicketAutoAssignments_ASC
+  canReadTicketAutoAssignments_DESC
+  canManageTicketAutoAssignments_ASC
+  canManageTicketAutoAssignments_DESC
   canReadOidcClients_ASC
   canReadOidcClients_DESC
   canManageOidcClients_ASC
@@ -3525,6 +3535,8 @@ input UserRightsSetHistoryRecordUpdateInput {
   canManageOrganizations: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
+  canReadTicketAutoAssignments: Boolean
+  canManageTicketAutoAssignments: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
   canReadUsers: Boolean
@@ -3580,6 +3592,8 @@ input UserRightsSetHistoryRecordCreateInput {
   canManageOrganizations: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
+  canReadTicketAutoAssignments: Boolean
+  canManageTicketAutoAssignments: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
   canReadUsers: Boolean
@@ -3726,6 +3740,14 @@ type UserRightsSet {
   """
   canManageTickets: Boolean
 
+  """ Enables a user with the given UserRightsSet to view all entities of model "TicketAutoAssignment" as support / admin users do 
+  """
+  canReadTicketAutoAssignments: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "TicketAutoAssignment" similar to support users 
+  """
+  canManageTicketAutoAssignments: Boolean
+
   """ Enables a user with the given UserRightsSet to view all entities of model "OidcClient" as support / admin users do 
   """
   canReadOidcClients: Boolean
@@ -3853,6 +3875,10 @@ input UserRightsSetWhereInput {
   canReadTickets_not: Boolean
   canManageTickets: Boolean
   canManageTickets_not: Boolean
+  canReadTicketAutoAssignments: Boolean
+  canReadTicketAutoAssignments_not: Boolean
+  canManageTicketAutoAssignments: Boolean
+  canManageTicketAutoAssignments_not: Boolean
   canReadOidcClients: Boolean
   canReadOidcClients_not: Boolean
   canManageOidcClients: Boolean
@@ -3986,6 +4012,10 @@ enum SortUserRightsSetsBy {
   canReadTickets_DESC
   canManageTickets_ASC
   canManageTickets_DESC
+  canReadTicketAutoAssignments_ASC
+  canReadTicketAutoAssignments_DESC
+  canManageTicketAutoAssignments_ASC
+  canManageTicketAutoAssignments_DESC
   canReadOidcClients_ASC
   canReadOidcClients_DESC
   canManageOidcClients_ASC
@@ -4048,6 +4078,8 @@ input UserRightsSetUpdateInput {
   canManageOrganizations: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
+  canReadTicketAutoAssignments: Boolean
+  canManageTicketAutoAssignments: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
   canReadUsers: Boolean
@@ -4100,6 +4132,8 @@ input UserRightsSetCreateInput {
   canManageOrganizations: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
+  canReadTicketAutoAssignments: Boolean
+  canManageTicketAutoAssignments: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
   canReadUsers: Boolean

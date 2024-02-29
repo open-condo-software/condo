@@ -80997,6 +80997,10 @@ export enum SortUserRightsSetHistoryRecordsBy {
   CanReadTicketsDesc = 'canReadTickets_DESC',
   CanManageTicketsAsc = 'canManageTickets_ASC',
   CanManageTicketsDesc = 'canManageTickets_DESC',
+  CanReadTicketAutoAssignmentsAsc = 'canReadTicketAutoAssignments_ASC',
+  CanReadTicketAutoAssignmentsDesc = 'canReadTicketAutoAssignments_DESC',
+  CanManageTicketAutoAssignmentsAsc = 'canManageTicketAutoAssignments_ASC',
+  CanManageTicketAutoAssignmentsDesc = 'canManageTicketAutoAssignments_DESC',
   CanReadOidcClientsAsc = 'canReadOidcClients_ASC',
   CanReadOidcClientsDesc = 'canReadOidcClients_DESC',
   CanManageOidcClientsAsc = 'canManageOidcClients_ASC',
@@ -81086,6 +81090,10 @@ export enum SortUserRightsSetsBy {
   CanReadTicketsDesc = 'canReadTickets_DESC',
   CanManageTicketsAsc = 'canManageTickets_ASC',
   CanManageTicketsDesc = 'canManageTickets_DESC',
+  CanReadTicketAutoAssignmentsAsc = 'canReadTicketAutoAssignments_ASC',
+  CanReadTicketAutoAssignmentsDesc = 'canReadTicketAutoAssignments_DESC',
+  CanManageTicketAutoAssignmentsAsc = 'canManageTicketAutoAssignments_ASC',
+  CanManageTicketAutoAssignmentsDesc = 'canManageTicketAutoAssignments_DESC',
   CanReadOidcClientsAsc = 'canReadOidcClients_ASC',
   CanReadOidcClientsDesc = 'canReadOidcClients_DESC',
   CanManageOidcClientsAsc = 'canManageOidcClients_ASC',
@@ -92557,6 +92565,10 @@ export type UserRightsSet = {
   canReadTickets?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "Ticket" similar to support users  */
   canManageTickets?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "TicketAutoAssignment" as support / admin users do  */
+  canReadTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "TicketAutoAssignment" similar to support users  */
+  canManageTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to view all entities of model "OidcClient" as support / admin users do  */
   canReadOidcClients?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "OidcClient" similar to support users  */
@@ -92617,6 +92629,8 @@ export type UserRightsSetCreateInput = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
+  canReadTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
   canReadOidcClients?: Maybe<Scalars['Boolean']>;
   canManageOidcClients?: Maybe<Scalars['Boolean']>;
   canReadUsers?: Maybe<Scalars['Boolean']>;
@@ -92674,6 +92688,8 @@ export type UserRightsSetHistoryRecord = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
+  canReadTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
   canReadOidcClients?: Maybe<Scalars['Boolean']>;
   canManageOidcClients?: Maybe<Scalars['Boolean']>;
   canReadUsers?: Maybe<Scalars['Boolean']>;
@@ -92725,6 +92741,8 @@ export type UserRightsSetHistoryRecordCreateInput = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
+  canReadTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
   canReadOidcClients?: Maybe<Scalars['Boolean']>;
   canManageOidcClients?: Maybe<Scalars['Boolean']>;
   canReadUsers?: Maybe<Scalars['Boolean']>;
@@ -92781,6 +92799,8 @@ export type UserRightsSetHistoryRecordUpdateInput = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
+  canReadTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
   canReadOidcClients?: Maybe<Scalars['Boolean']>;
   canManageOidcClients?: Maybe<Scalars['Boolean']>;
   canReadUsers?: Maybe<Scalars['Boolean']>;
@@ -92876,6 +92896,10 @@ export type UserRightsSetHistoryRecordWhereInput = {
   canReadTickets_not?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets_not?: Maybe<Scalars['Boolean']>;
+  canReadTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
+  canReadTicketAutoAssignments_not?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments_not?: Maybe<Scalars['Boolean']>;
   canReadOidcClients?: Maybe<Scalars['Boolean']>;
   canReadOidcClients_not?: Maybe<Scalars['Boolean']>;
   canManageOidcClients?: Maybe<Scalars['Boolean']>;
@@ -93018,6 +93042,8 @@ export type UserRightsSetUpdateInput = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
+  canReadTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
   canReadOidcClients?: Maybe<Scalars['Boolean']>;
   canManageOidcClients?: Maybe<Scalars['Boolean']>;
   canReadUsers?: Maybe<Scalars['Boolean']>;
@@ -93110,6 +93136,10 @@ export type UserRightsSetWhereInput = {
   canReadTickets_not?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets_not?: Maybe<Scalars['Boolean']>;
+  canReadTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
+  canReadTicketAutoAssignments_not?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments_not?: Maybe<Scalars['Boolean']>;
   canReadOidcClients?: Maybe<Scalars['Boolean']>;
   canReadOidcClients_not?: Maybe<Scalars['Boolean']>;
   canManageOidcClients?: Maybe<Scalars['Boolean']>;
