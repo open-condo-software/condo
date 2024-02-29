@@ -29,10 +29,15 @@ const selectUserByAutoAssignmentRule = (rule, sortedEmployees, key: 'assignee' |
     return employeeUserId
 }
 
-// todo(DOMA-8404): update docs
 /**
  * Sets the employee user in the assignee and executor fields after selecting ticket category classifier.
- If an employee has a SpecializationScope with a specialization that matches the categoryClassifier
+
+ 1) If the organization has configured rules for auto-substitution of “assignee” and “executor”
+ (the “TicketAutoAssignment” scheme), then we try to find a rule that matches the properties of a ticket
+ and set a corresponding employee users in the assignee and executor fields (there may be empty values).
+ If we couldn’t find the rules (not configured), then go to step 2.
+
+ 2) If an employee has a SpecializationScope with a specialization that matches the categoryClassifier
  and the employee is in a PropertyScope that has a ticket property,
  then the employee's user is set to the assignee and executor fields.
  If there was no such employee, then the author of the ticket is set in the assignee field.
