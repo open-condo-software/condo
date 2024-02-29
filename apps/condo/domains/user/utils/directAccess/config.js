@@ -42,6 +42,7 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
 
         // Ticket domain
         'Ticket',
+        'TicketAutoAssignment',
 
         // User domain
         'OidcClient',
