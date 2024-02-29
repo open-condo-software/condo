@@ -1,4 +1,4 @@
-import { SortTourStepsBy, TourStep as TourStepType } from '@app/condo/schema'
+import { SortTourStepsBy, TourStep as TourStepType, TourStepTypeType } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Row } from 'antd'
 import { get } from 'lodash'
@@ -23,11 +23,8 @@ import {
     CREATE_PROPERTY_STEP_TYPE,
     CREATE_PROPERTY_MAP_STEP_TYPE,
     CREATE_TICKET_STEP_TYPE,
-    NOTIFY_RESIDENTS_ABOUT_TICKETS_STEP_TYPE,
     UPLOAD_RECEIPTS_STEP_TYPE,
-    NOTIFY_RESIDENTS_ABOUT_PAYMENTS_STEP_TYPE,
     CREATE_METER_READINGS_STEP_TYPE,
-    NOTIFY_RESIDENTS_ABOUT_METER_READINGS_STEP_TYPE,
     VIEW_RESIDENT_APP_GUIDE_STEP_TYPE,
     CREATE_NEWS_STEP_TYPE,
     TODO_STEP_STATUS,
@@ -39,16 +36,13 @@ import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
 const APP_IMAGE_STYLES: CSSProperties = { width: '120px', paddingTop: '6px' }
 
 const TODO_STEP_ROUTE = {
-    [CREATE_PROPERTY_STEP_TYPE]: '/property/create',
+    [CREATE_PROPERTY_STEP_TYPE]: '/property',
     [CREATE_PROPERTY_MAP_STEP_TYPE]: '/property',
-    [CREATE_TICKET_STEP_TYPE]: '/ticket/create',
-    [NOTIFY_RESIDENTS_ABOUT_TICKETS_STEP_TYPE]: '/tour/guide', //TODO(DOMA-8500): update url after guide page will completed
+    [CREATE_TICKET_STEP_TYPE]: '/ticket',
     [UPLOAD_RECEIPTS_STEP_TYPE]: '/billing',
-    [NOTIFY_RESIDENTS_ABOUT_PAYMENTS_STEP_TYPE]: '/tour/guide',
-    [CREATE_METER_READINGS_STEP_TYPE]: '/meter/create',
-    [NOTIFY_RESIDENTS_ABOUT_METER_READINGS_STEP_TYPE]: '/tour/guide',
-    [VIEW_RESIDENT_APP_GUIDE_STEP_TYPE]: '/tour/guide',
-    [CREATE_NEWS_STEP_TYPE]: '/news/create',
+    [CREATE_METER_READINGS_STEP_TYPE]: '/meter',
+    [VIEW_RESIDENT_APP_GUIDE_STEP_TYPE]: 'https://drive.google.com/file/d/1mV4A_d8Wzzl-REe73OdoeHEngmnJi9NE/view', // refetch after
+    [CREATE_NEWS_STEP_TYPE]: '/news',
 }
 
 const COMPLETED_STEP_LINK: Record<typeof SECOND_LEVEL_STEPS[number], CardButtonProps['header']['mainLink']> = {
@@ -190,7 +184,7 @@ const TourPageContent = () => {
 
     const router = useRouter()
     const { organization, isLoading } = useOrganization()
-    const { activeTourStep, setActiveTourStep } = useTourContext()
+    const { activeTourStep, setActiveTourStep, updateStepIfNotCompleted, refetch } = useTourContext()
     const handleBackClick = useCallback(() => setActiveTourStep(null), [setActiveTourStep])
 
     const { objs: tourSteps, loading: stepsLoading } = TourStep.useObjects({
@@ -220,9 +214,15 @@ const TourPageContent = () => {
         setActiveTourStep(type)
 
         if (TODO_STEP_ROUTE[type] && status === TODO_STEP_STATUS) {
-            await router.push(TODO_STEP_ROUTE[type])
+            if (type === TourStepTypeType.ViewResidentsAppGuide) {
+                window.open(TODO_STEP_ROUTE[type], '_blank')
+                await updateStepIfNotCompleted(TourStepTypeType.ViewResidentsAppGuide)
+                await refetch()
+            } else {
+                await router.push(TODO_STEP_ROUTE[type])
+            }
         }
-    }, [router, setActiveTourStep])
+    }, [refetch, router, setActiveTourStep, updateStepIfNotCompleted])
 
     if (isLoading || stepsLoading) {
         return <Loader size='large'/>

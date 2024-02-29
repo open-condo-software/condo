@@ -91333,11 +91333,8 @@ export enum TourStepTypeType {
   CreateProperty = 'createProperty',
   CreatePropertyMap = 'createPropertyMap',
   CreateTicket = 'createTicket',
-  NotifyResidentsAboutTickets = 'notifyResidentsAboutTickets',
   UploadReceipts = 'uploadReceipts',
-  NotifyResidentsAboutPayments = 'notifyResidentsAboutPayments',
   CreateMeterReadings = 'createMeterReadings',
-  NotifyResidentsAboutMeterReadings = 'notifyResidentsAboutMeterReadings',
   ViewResidentsAppGuide = 'viewResidentsAppGuide',
   CreateNews = 'createNews'
 }

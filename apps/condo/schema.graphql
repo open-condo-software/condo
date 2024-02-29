@@ -45844,11 +45844,8 @@ enum TourStepTypeType {
   createProperty
   createPropertyMap
   createTicket
-  notifyResidentsAboutTickets
   uploadReceipts
-  notifyResidentsAboutPayments
   createMeterReadings
-  notifyResidentsAboutMeterReadings
   viewResidentsAppGuide
   createNews
 }
