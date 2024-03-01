@@ -12105,6 +12105,7 @@ __metadata:
     "@open-condo/locales": "workspace:^"
     apollo-errors: ^1.9.0
     apollo-server-errors: ^3.1.0
+    apollo-server-express: ^2.23.0
     apollo-upload-client: ^14.1.3
     axios: ^0.21.2
     axios-cookiejar-support: ^1.0.1
