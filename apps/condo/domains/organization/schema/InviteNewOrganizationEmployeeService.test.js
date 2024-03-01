@@ -167,41 +167,8 @@ describe('InviteNewOrganizationEmployeeService', () => {
                 })
             })
 
-            describe('for Employee with duplicated phone', () => {
-                it('throws error with type ALREADY_INVITED', async () => {
-                    const client = await makeClientWithRegisteredOrganization()
-                    const userAttrs = {
-                        name: faker.name.firstName(),
-                        email: createTestEmail(),
-                        phone: createTestPhone(),
-                    }
-
-                    const [role] = await createTestOrganizationEmployeeRole(client, client.organization)
-                    await inviteNewOrganizationEmployee(client, client.organization, userAttrs, role)
-                    const secondUserAttrs = {
-                        ...userAttrs,
-                        email: createTestEmail(),
-                    }
-
-                    await catchErrorFrom(async () => {
-                        await inviteNewOrganizationEmployee(client, client.organization, secondUserAttrs, role)
-                    }, ({ errors }) => {
-                        expect(errors).toMatchObject([{
-                            message: 'Already invited into the organization',
-                            path: ['obj'],
-                            extensions: {
-                                mutation: 'inviteNewOrganizationEmployee',
-                                code: 'BAD_USER_INPUT',
-                                type: 'ALREADY_INVITED',
-                                message: 'Already invited into the organization',
-                            },
-                        }])
-                    })
-                })
-            })
-
-            describe('for Employee with duplicated email', () => {
-                it('throws error with type ALREADY_INVITED', async () => {
+            describe('for Employee with duplicated data', () => {
+                it('throws error with type ALREADY_INVITED_EMAIL if email duplicated', async () => {
                     const client = await makeClientWithRegisteredOrganization()
                     const userAttrs = {
                         name: faker.name.firstName(),
@@ -220,45 +187,44 @@ describe('InviteNewOrganizationEmployeeService', () => {
                         await inviteNewOrganizationEmployee(client, client.organization, secondUserAttrs, role)
                     }, ({ errors }) => {
                         expect(errors).toMatchObject([{
-                            message: 'Already invited into the organization',
+                            message: 'Employee with same email already invited into the organization',
                             path: ['obj'],
                             extensions: {
                                 mutation: 'inviteNewOrganizationEmployee',
                                 code: 'BAD_USER_INPUT',
-                                type: 'ALREADY_INVITED',
-                                message: 'Already invited into the organization',
+                                type: 'ALREADY_INVITED_EMAIL',
+                                message: 'Employee with same email already invited into the organization',
                             },
                         }])
                     })
                 })
-            })
 
-            describe('for Employee with duplicated User', () => {
-                it('throws error with type ALREADY_INVITED', async () => {
-                    const [categoryClassifier1] = await createTestTicketCategoryClassifier(admin)
+                it('throws error with type ALREADY_INVITED_PHONE if phone duplicated', async () => {
                     const client = await makeClientWithRegisteredOrganization()
-                    const inviteClient = await makeClientWithRegisteredOrganization()
-                    const [role] = await createTestOrganizationEmployeeRole(client, client.organization)
-
                     const userAttrs = {
-                        name: client.userAttrs.name,
-                        email: client.userAttrs.email,
-                        phone: inviteClient.userAttrs.phone,
+                        name: faker.name.firstName(),
+                        email: createTestEmail(),
+                        phone: createTestPhone(),
                     }
-                    const extraAttrs = {
-                        specializations: [{ id: categoryClassifier1.id }],
+
+                    const [role] = await createTestOrganizationEmployeeRole(client, client.organization)
+                    await inviteNewOrganizationEmployee(client, client.organization, userAttrs, role)
+                    const secondUserAttrs = {
+                        ...userAttrs,
+                        email: createTestEmail(),
                     }
+
                     await catchErrorFrom(async () => {
-                        await inviteNewOrganizationEmployee(inviteClient, inviteClient.organization, userAttrs, role, extraAttrs)
+                        await inviteNewOrganizationEmployee(client, client.organization, secondUserAttrs, role)
                     }, ({ errors }) => {
                         expect(errors).toMatchObject([{
-                            message: 'Already invited into the organization',
+                            message: 'Employee with same phone already invited into the organization',
                             path: ['obj'],
                             extensions: {
                                 mutation: 'inviteNewOrganizationEmployee',
                                 code: 'BAD_USER_INPUT',
-                                type: 'ALREADY_INVITED',
-                                message: 'Already invited into the organization',
+                                type: 'ALREADY_INVITED_PHONE',
+                                message: 'Employee with same phone already invited into the organization',
                             },
                         }])
                     })

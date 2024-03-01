@@ -9,7 +9,7 @@ const { v4: uuid } = require('uuid')
 const { userIsAdmin } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, tracked, softDeleted, uuided, dvAndSender } = require('@open-condo/keystone/plugins')
-const { GQLListSchema, getByCondition } = require('@open-condo/keystone/schema')
+const { GQLListSchema, getByCondition, find } = require('@open-condo/keystone/schema')
 
 const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const { EMAIL_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
@@ -17,11 +17,29 @@ const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { hasDbFields, hasOneOfFields } = require('@condo/domains/common/utils/validation.utils')
 const access = require('@condo/domains/organization/access/OrganizationEmployee')
+const { ALREADY_INVITED_EMAIL, ALREADY_INVITED_PHONE } = require('@condo/domains/organization/constants/errors')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const { softDeletePropertyScopeOrganizationEmployee } = require('@condo/domains/scope/utils/serverSchema')
+const { STAFF } = require('@condo/domains/user/constants/common')
 
 
 const ERRORS = {
+    ALREADY_INVITED_EMAIL: {
+        mutation: 'updateOrganizationEmployee',
+        code: BAD_USER_INPUT,
+        type: ALREADY_INVITED_EMAIL,
+        message: 'Employee with same email already invited into the organization',
+        messageForUser: 'api.organization.inviteNewOrganizationEmployee.ALREADY_INVITED_EMAIL',
+        variable: ['email'],
+    },
+    ALREADY_INVITED_PHONE: {
+        mutation: 'updateOrganizationEmployee',
+        code: BAD_USER_INPUT,
+        type: ALREADY_INVITED_PHONE,
+        message: 'Employee with same phone already invited into the organization',
+        messageForUser: 'api.organization.inviteNewOrganizationEmployee.ALREADY_INVITED_PHONE',
+        variable: ['phone'],
+    },
     NOT_FOUND_ROLE: {
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
@@ -74,9 +92,28 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
                 resolveInput: async ({ resolvedData }) => {
                     return normalizeEmail(resolvedData['email']) || resolvedData['email']
                 },
-                validateInput: async ({ resolvedData, addFieldValidationError }) => {
-                    if (resolvedData['email'] && normalizeEmail(resolvedData['email']) !== resolvedData['email']) {
+                validateInput: async ({ resolvedData, existingItem, operation, context, addFieldValidationError }) => {
+                    const resolvedEmail = resolvedData['email']
+                    if (!resolvedEmail) return
+
+                    if (resolvedEmail && normalizeEmail(resolvedEmail) !== resolvedEmail) {
                         addFieldValidationError(`${EMAIL_WRONG_FORMAT_ERROR}mail] invalid format`)
+                    }
+
+                    if (operation === 'update') {
+                        const employeeWithSameEmail = await find('OrganizationEmployee', {
+                            id_not: existingItem.id,
+                            deletedAt: null,
+                            organization: { id: existingItem.organization },
+                            OR: [
+                                { email: resolvedEmail },
+                                { user: { AND: [{ deletedAt: null, type: STAFF, email: resolvedEmail }] } },
+                            ],
+                        })
+
+                        if (employeeWithSameEmail.length > 0) {
+                            throw new GQLError(ERRORS.ALREADY_INVITED_EMAIL, context)
+                        }
                     }
                 },
             },
@@ -89,6 +126,26 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
                 resolveInput: async ({ resolvedData }) => {
                     if (resolvedData['phone'] === null) return null
                     return normalizePhone(resolvedData['phone'])
+                },
+                validateInput: async ({ resolvedData, existingItem, operation, context }) => {
+                    const resolvedPhone = resolvedData['phone']
+                    if (!resolvedPhone) return
+
+                    if (operation === 'update') {
+                        const employeeWithSamePhone = await find('OrganizationEmployee', {
+                            id_not: existingItem.id,
+                            deletedAt: null,
+                            organization: { id: existingItem.organization },
+                            OR: [
+                                { phone: resolvedPhone },
+                                { user: { AND: [{ deletedAt: null, type: STAFF, phone: resolvedPhone }] } },
+                            ],
+                        })
+
+                        if (employeeWithSamePhone.length > 0) {
+                            throw new GQLError(ERRORS.ALREADY_INVITED_PHONE, context)
+                        }
+                    }
                 },
             },
         },

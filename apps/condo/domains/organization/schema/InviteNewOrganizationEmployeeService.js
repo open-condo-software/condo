@@ -3,7 +3,7 @@ const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
-const { getById } = require('@open-condo/keystone/schema')
+const { getById, find } = require('@open-condo/keystone/schema')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const { WRONG_FORMAT, NOT_FOUND, WRONG_PHONE_FORMAT, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
@@ -13,21 +13,30 @@ const { DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE, DIRTY_INVITE_NEW_EMPLOYEE_EM
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const access = require('@condo/domains/organization/access/InviteNewOrganizationEmployeeService')
 const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
+const { ALREADY_ACCEPTED_INVITATION, ALREADY_INVITED_EMAIL, ALREADY_INVITED_PHONE, UNABLE_TO_REGISTER_USER } = require('@condo/domains/organization/constants/errors')
 const { Organization, OrganizationEmployee, OrganizationEmployeeSpecialization } = require('@condo/domains/organization/utils/serverSchema')
-const { REGISTER_NEW_USER_MUTATION } = require('@condo/domains/user/gql')
+const guards = require('@condo/domains/organization/utils/serverSchema/guards')
+const { STAFF } = require('@condo/domains/user/constants/common')
 const { createUserAndSendLoginData } = require('@condo/domains/user/utils/serverSchema')
 
-const { ALREADY_ACCEPTED_INVITATION, ALREADY_INVITED, UNABLE_TO_REGISTER_USER } = require('../constants/errors')
-const guards = require('../utils/serverSchema/guards')
 
 const ERRORS = {
     inviteNewOrganizationEmployee: {
-        ALREADY_INVITED: {
+        ALREADY_INVITED_EMAIL: {
             mutation: 'inviteNewOrganizationEmployee',
             code: BAD_USER_INPUT,
-            type: ALREADY_INVITED,
-            message: 'Already invited into the organization',
-            messageForUser: 'api.organization.inviteNewOrganizationEmployee.ALREADY_INVITED',
+            type: ALREADY_INVITED_EMAIL,
+            message: 'Employee with same email already invited into the organization',
+            messageForUser: 'api.organization.inviteNewOrganizationEmployee.ALREADY_INVITED_EMAIL',
+            variable: ['email'],
+        },
+        ALREADY_INVITED_PHONE: {
+            mutation: 'inviteNewOrganizationEmployee',
+            code: BAD_USER_INPUT,
+            type: ALREADY_INVITED_PHONE,
+            message: 'Employee with same phone already invited into the organization',
+            messageForUser: 'api.organization.inviteNewOrganizationEmployee.ALREADY_INVITED_PHONE',
+            variable: ['phone'],
         },
         WRONG_PHONE_FORMAT: {
             mutation: 'inviteNewOrganizationEmployee',
@@ -125,10 +134,37 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                 if (!phone) throw new GQLError(ERRORS.inviteNewOrganizationEmployee.WRONG_PHONE_FORMAT, context)
                 const userOrganization = await Organization.getOne(context, { id: organization.id })
                 let user = await guards.checkStaffUserExistency(context, email, phone)
-                const existedEmployee = await guards.checkEmployeeExistency(context, userOrganization, email, phone, user)
 
-                if (existedEmployee) {
-                    throw new GQLError(ERRORS.inviteNewOrganizationEmployee.ALREADY_INVITED, context)
+                const sameOrganizationEmployees = await find('OrganizationEmployee', {
+                    deletedAt: null,
+                    organization: { id: userOrganization.id },
+                    OR: [
+                        { phone },
+                        { AND: [{ user: { deletedAt: null, type: STAFF, phone } }] },
+                        email && { email },
+                        email && { AND: [{ user: { deletedAt: null, type: STAFF, email } }] },
+                    ].filter(Boolean),
+                })
+
+                if (sameOrganizationEmployees.length > 0) {
+                    const sameEmployee = sameOrganizationEmployees[0]
+
+                    if (sameEmployee.phone === phone) {
+                        throw new GQLError(ERRORS.inviteNewOrganizationEmployee.ALREADY_INVITED_PHONE, context)
+                    }
+                    if (sameEmployee.email === email) {
+                        throw new GQLError(ERRORS.inviteNewOrganizationEmployee.ALREADY_INVITED_EMAIL, context)
+                    }
+                    if (!sameEmployee.user) return
+
+                    const userWithSameData = await getById('User', sameEmployee.user)
+
+                    if (userWithSameData.phone === phone) {
+                        throw new GQLError(ERRORS.inviteNewOrganizationEmployee.ALREADY_INVITED_PHONE, context)
+                    }
+                    if (userWithSameData.email === email) {
+                        throw new GQLError(ERRORS.inviteNewOrganizationEmployee.ALREADY_INVITED_EMAIL, context)
+                    }
                 }
 
                 if (!user) {
