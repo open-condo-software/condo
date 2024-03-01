@@ -73696,6 +73696,12 @@ input SendB2CAppPushMessageData {
   body: String!
   title: String
   B2CAppContext: String
+  callId: String
+  voipType: String
+  voipAddress: String
+  voipLogin: String
+  voipPassword: String
+  voipDtfmCommand: String
 }
 
 input SendB2CAppPushMessageInput {
@@ -83956,6 +83962,24 @@ type Mutation {
   			},
   			"residentId": {
   				"required": true
+  			},
+  			"callId": {
+  				"required": false
+  			},
+  			"voipType": {
+  				"required": false
+  			},
+  			"voipAddress": {
+  				"required": false
+  			},
+  			"voipLogin": {
+  				"required": false
+  			},
+  			"voipPassword": {
+  				"required": false
+  			},
+  			"voipDtfmCommand": {
+  				"required": false
   			}
   		}
   	},

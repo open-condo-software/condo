@@ -88,7 +88,7 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
         },
         {
             access: true,
-            type: 'input SendB2CAppPushMessageData { body: String!, title: String, B2CAppContext: String }',
+            type: 'input SendB2CAppPushMessageData { body: String!, title: String, B2CAppContext: String, callId: String, voipType: String, voipAddress: String, voipLogin: String, voipPassword: String, voipDtfmCommand: String }',
         },
         {
             access: true,
@@ -114,8 +114,9 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
             schema: 'sendB2CAppPushMessage(data: SendB2CAppPushMessageInput!): SendB2CAppPushMessageOutput',
             resolver: async (parent, args, context) => {
                 const { data: argsData } = args
-                const { dv, sender, app, user, resident, type, data, uniqKey } = argsData
-                const { B2CAppContext } = data
+                const { dv, sender, app, user, resident, type, uniqKey,
+                    data: { B2CAppContext, title, body, callId, voipType, voipAddress, voipLogin, voipPassword, voipDtfmCommand },
+                } = argsData
 
                 checkDvAndSender(argsData, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
 
@@ -161,8 +162,8 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
                     to: { user: { id: user.id } },
                     meta: {
                         dv,
-                        title: data.title,
-                        body: data.body,
+                        title,
+                        body,
                         data: {
                             B2CAppContext,
                             B2CAppName,
@@ -170,6 +171,14 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
                             residentId: resident.id,
                         },
                     },
+                }
+
+                if (voipType) {
+                    messageAttrs.meta.data.voipType = voipType
+                    messageAttrs.meta.data.voipAddress = voipAddress
+                    messageAttrs.meta.data.voipLogin = voipLogin
+                    messageAttrs.meta.data.voipPassword = voipPassword
+                    messageAttrs.meta.data.voipDtfmCommand = voipDtfmCommand
                 }
 
                 const sendingResult = await sendMessage(context, messageAttrs)

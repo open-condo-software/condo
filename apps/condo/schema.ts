@@ -39854,6 +39854,24 @@ export type Mutation = {
    * 			},
    * 			"residentId": {
    * 				"required": true
+   * 			},
+   * 			"callId": {
+   * 				"required": false
+   * 			},
+   * 			"voipType": {
+   * 				"required": false
+   * 			},
+   * 			"voipAddress": {
+   * 				"required": false
+   * 			},
+   * 			"voipLogin": {
+   * 				"required": false
+   * 			},
+   * 			"voipPassword": {
+   * 				"required": false
+   * 			},
+   * 			"voipDtfmCommand": {
+   * 				"required": false
    * 			}
    * 		}
    * 	},
@@ -71764,6 +71782,12 @@ export type SendB2CAppPushMessageData = {
   body: Scalars['String'];
   title?: Maybe<Scalars['String']>;
   B2CAppContext?: Maybe<Scalars['String']>;
+  callId?: Maybe<Scalars['String']>;
+  voipType?: Maybe<Scalars['String']>;
+  voipAddress?: Maybe<Scalars['String']>;
+  voipLogin?: Maybe<Scalars['String']>;
+  voipPassword?: Maybe<Scalars['String']>;
+  voipDtfmCommand?: Maybe<Scalars['String']>;
 };
 
 export type SendB2CAppPushMessageInput = {
