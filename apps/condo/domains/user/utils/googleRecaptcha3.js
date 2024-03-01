@@ -2,8 +2,10 @@ const { isEmpty, get } = require('lodash')
 const fetch = require('node-fetch')
 
 const conf = require('@open-condo/config')
+const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { getLogger } = require('@open-condo/keystone/logging')
 
+const { CAPTCHA_CHECK_ENABLED } = require('@app/condo/domains/common/constants/featureflags')
 const { REQUEST_SOURCES, getRequestSource } = require('@condo/domains/common/utils/request')
 
 
@@ -44,6 +46,13 @@ const captchaCheck = async (token, action = '', context = {}) => {
     }
 
     try {
+        // TODO(DOMA-8544): Remove feature flag after mobile app release
+        const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(context, CAPTCHA_CHECK_ENABLED)
+        if (!isFeatureEnabled) {
+            logger.info({ msg: 'Captcha check id disabled' })
+            return
+        }
+
         const source = getRequestSource(context)
 
         const serverAnswer = await fetch(CAPTCHA_SCORE_URL, {
