@@ -21,13 +21,15 @@ const logger = getLogger('AppleMessaging')
 class AppleMessaging {
     #token = null
     #session = null
+    #url = null
 
     /**
      * @param config
      */
     constructor (config) {
+        if (typeof config.url !== 'string') throw new Error('config.url not provided to AppleMessaging instance')
         this.#token = new AppleJSONWebToken(config)
-        this.#session = new AppleSession(config.url)
+        this.#url = config.url
         this.getResponseHandler = this.getResponseHandler.bind(this)
         this.sendPush = this.sendPush.bind(this)
     }
@@ -35,7 +37,6 @@ class AppleMessaging {
     getResponseHandler (stream, resolve, reject) {
         const reqErrorHandler = error => {
             stream.close()
-            this.#session.errorHandler(error)
         }
 
         return (headers, flags) => {
@@ -101,7 +102,7 @@ class AppleMessaging {
      * @return {Promise} A promise that resolves if the request is successful or rejects
      * with an error
      */
-    sendPush (pushToken, payload, options = {}) {
+    async sendPush (pushToken, payload, options = {}) {
         return new Promise((resolve, reject) => {
             if (!payload) return reject(Error('Parameter `payload` is required'))
             if (!pushToken) return reject(Error('Parameter `pushToken` is required'))
@@ -128,19 +129,23 @@ class AppleMessaging {
 
             logger.info({ msg: 'sendPush before request', headers, options, payload })
 
-            const stream = this.#session.request(headers)
-
-            stream.on('response', this.getResponseHandler(stream, resolve, reject))
-            stream.on('error', (err) => {
-                logger.error({ msg: 'sendPush errored', headers, options, payload, err })
-                return resolve(err)
-            })
-            stream.write(buffer)
-            stream.end()
+            this.#session.request(headers)
+                .then(stream => {
+                    stream.on('response', this.getResponseHandler(stream, resolve, reject))
+                    stream.on('error', err => {
+                        logger.error({ msg: 'sendPush errored', headers, options, payload, err })
+                        return resolve(err)
+                    })
+                    stream.write(buffer)
+                    stream.end()
+                })
+                .catch(err => reject(err))
         })
     }
 
     async sendAll (notifications, isVoIP = false ) {
+        this.#session = new AppleSession(this.#url)
+        await this.#session.connect()
         const responses = []
         let successCount = 0, failureCount = 0
 
@@ -164,7 +169,12 @@ class AppleMessaging {
 
             let response
             for (let retryCounter = 0; retryCounter < RETRY_RESTRICTION; retryCounter++) {
-                response = await this.sendPush(token, payload, options)
+
+                try {
+                    response = await this.sendPush(token, payload, options)
+                } catch (err) {
+                    logger.error({ msg: 'http request failed', err })
+                }
                 if (response instanceof Error) {
                     logger.warn({ msg: `sendPush not successful on ${retryCounter + 1} try`, err: response })
                     continue
@@ -187,6 +197,7 @@ class AppleMessaging {
             }
         }
 
+        await this.#session.disconnect()
         return { responses, successCount, failureCount }
     }
 }
