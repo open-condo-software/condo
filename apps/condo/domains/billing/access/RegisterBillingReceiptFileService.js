@@ -5,7 +5,6 @@ const { checkBillingIntegrationsAccessRights } = require('@condo/domains/billing
 const { SERVICE } = require('@condo/domains/user/constants/common')
 
 async function canRegisterBillingReceiptFile ({ authentication: { item: user }, args: { data: { context: { id: contextId } } } } ) {
-    console.log('CHECK:', user)
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true

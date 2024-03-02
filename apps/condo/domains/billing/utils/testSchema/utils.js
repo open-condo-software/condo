@@ -9,52 +9,41 @@ const {
     generateServicesData,
     createTestBillingIntegrationAccessRight,
 } = require('@condo/domains/billing/utils/testSchema')
-const { makeClientWithServiceUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
-
-const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const {
+    makeClientWithServiceUser,
+    makeClientWithSupportUser,
+    makeClientWithNewRegisteredAndLoggedInUser,
+    makeLoggedInClient,
+} = require('@condo/domains/user/utils/testSchema')
+const {
+    createTestOrganization,
     createTestOrganizationEmployeeRole,
-    createTestOrganizationEmployee
-} = require("@condo/domains/organization/utils/testSchema");
-const { makeClientWithNewRegisteredAndLoggedInUser, makeLoggedInClient } = require("../../../user/utils/testSchema");
+    createTestOrganizationEmployee,
+} = require('@condo/domains/organization/utils/testSchema')
+
 
 class BillingTestUtils {
 
-    clients = {
-        anonymous: null,
-        user: null,
-        employee: null,
-        support: null,
-        service: null,
-        admin: null,
-    }
-
-    billingCategoryIds = {
-        HOUSING: '928c97ef-5289-4daa-b80e-4b9fed50c629',
-        REPAIR: 'c0b9db6a-c351-4bf4-aa35-8e5a500d0195',
-    }
-
-    organization = null
-    billingIntegration = null
-    billingContext = null
-
     async init () {
-        this.clients.admin = await makeLoggedInAdminClient()
+        this.clients = {
+            anonymous: await makeClient(),
+            user: await makeLoggedInClient(),
+            employee: null,
+            support: await makeClientWithSupportUser(),
+            service: await makeClientWithServiceUser(),
+            admin: await makeLoggedInAdminClient(),
+        }
         const [organization] = await createTestOrganization(this.clients.admin)
         this.organization = organization
         const [billingIntegration] = await createTestBillingIntegration(this.clients.admin)
         this.billingIntegration = billingIntegration
         const [billingContext] = await createTestBillingIntegrationOrganizationContext(this.clients.admin, organization, billingIntegration)
         this.billingContext = billingContext
-        this.clients.service = await makeClientWithServiceUser()
         await createTestBillingIntegrationAccessRight(this.clients.admin, billingIntegration, this.clients.service.user)
         const roleArgs = { canManageIntegrations: true, canReadBillingReceipts: true, canReadPayments: true }
         const [role] = await createTestOrganizationEmployeeRole(this.clients.admin, organization, roleArgs)
         this.clients.employee = await makeClientWithNewRegisteredAndLoggedInUser()
         await createTestOrganizationEmployee(this.clients.admin, organization, this.clients.employee.user, role)
-        this.clients.support = await makeClientWithSupportUser()
-        this.clients.anonymous = await makeClient()
-        this.clients.user = await makeLoggedInClient()
     }
 
     randomNumber (numDigits) {
