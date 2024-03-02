@@ -26,8 +26,8 @@ const { REGISTER_BILLING_RECEIPTS_MUTATION } = require('@condo/domains/billing/g
 const { BillingReceiptFile: BillingReceiptFileGQL } = require('@condo/domains/billing/gql')
 const { VALIDATE_QRCODE_MUTATION } = require('@condo/domains/billing/gql')
 const { SEND_NEW_BILLING_RECEIPT_FILES_NOTIFICATIONS_MUTATION } = require('@condo/domains/billing/gql')
-const { SEND_RESIDENT_MESSAGE_MUTATION } = require('@condo/domains/resident/gql')
 const { REGISTER_BILLING_RECEIPT_FILE_MUTATION } = require('@condo/domains/billing/gql')
+const { SEND_RESIDENT_MESSAGE_MUTATION } = require('@condo/domains/resident/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateServerUtils(BillingIntegrationGQL)
