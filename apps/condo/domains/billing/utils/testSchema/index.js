@@ -5,6 +5,7 @@
  */
 const { faker } = require('@faker-js/faker')
 const get = require('lodash/get')
+const fs = require('fs')
 const path = require("path");
 const conf = require("@open-condo/config");
 const { makeLoggedInAdminClient, UploadingFile} = require("@open-condo/keystone/test.utils");
@@ -33,10 +34,11 @@ const { registerResidentByTestClient } = require('@condo/domains/resident/utils/
 const { makeClientWithResidentUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 const {
     REGISTER_BILLING_RECEIPTS_MUTATION,
+    REGISTER_BILLING_RECEIPT_FILE_MUTATION,
     SEND_NEW_RECEIPT_MESSAGES_TO_RESIDENT_SCOPES_MUTATION,
     SEND_NEW_BILLING_RECEIPT_FILES_NOTIFICATIONS_MUTATION,
+    VALIDATE_QRCODE_MUTATION,
 } = require('@condo/domains/billing/gql')
-const { VALIDATE_QRCODE_MUTATION } = require('@condo/domains/billing/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateGQLTestUtils(BillingIntegrationGQL)
@@ -605,6 +607,22 @@ async function registerBillingReceiptsByTestClient(client, args, extraAttrs = {}
     return [data.result, errors, attrs]
 }
 
+async function registerBillingReceiptFileByTestClient(client, args = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const attrs = {
+        dv: 1,
+        sender,
+        context: { id: faker.datatype.uuid() },
+        receipt: { id: faker.datatype.uuid() },
+        base64EncodedPDF: fs.readFileSync(PRIVATE_FILE).toString('base64'),
+        ...args,
+    }
+    const { data, errors } = await client.mutate(REGISTER_BILLING_RECEIPT_FILE_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
 function createRegisterBillingReceiptsPayload(extraAttrs = {}) {
     const address = extraAttrs.address || faker.random.alphaNumeric(24)
     return {
@@ -921,6 +939,7 @@ module.exports = {
     PUBLIC_FILE, PRIVATE_FILE,
     validateQRCodeByTestClient,
     sendNewBillingReceiptFilesNotificationsByTestClient,
+    registerBillingReceiptFileByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 

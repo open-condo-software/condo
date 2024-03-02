@@ -18,6 +18,7 @@ const { RegisterBillingReceiptsService } = require('./RegisterBillingReceiptsSer
 const { SendNewBillingReceiptFilesNotificationsService } = require('./SendNewBillingReceiptFilesNotificationsService')
 const { SendNewReceiptMessagesToResidentScopesService } = require('./SendNewReceiptMessagesToResidentScopesService')
 const { ValidateQRCodeService } = require('./ValidateQRCodeService')
+const { RegisterBillingReceiptFileService } = require('./RegisterBillingReceiptFileService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -36,5 +37,6 @@ module.exports = {
     SendNewReceiptMessagesToResidentScopesService,
     BillingReceiptFile,
     ValidateQRCodeService,
+    RegisterBillingReceiptFileService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

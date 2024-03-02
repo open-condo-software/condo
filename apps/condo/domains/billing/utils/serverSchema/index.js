@@ -27,6 +27,7 @@ const { BillingReceiptFile: BillingReceiptFileGQL } = require('@condo/domains/bi
 const { VALIDATE_QRCODE_MUTATION } = require('@condo/domains/billing/gql')
 const { SEND_NEW_BILLING_RECEIPT_FILES_NOTIFICATIONS_MUTATION } = require('@condo/domains/billing/gql')
 const { SEND_RESIDENT_MESSAGE_MUTATION } = require('@condo/domains/resident/gql')
+const { REGISTER_BILLING_RECEIPT_FILE_MUTATION } = require('@condo/domains/billing/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateServerUtils(BillingIntegrationGQL)
@@ -122,6 +123,18 @@ async function sendNewBillingReceiptFilesNotifications (context, data) {
     })
 }
 
+async function registerBillingReceiptFile (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+    return await execGqlWithoutAccess(context, {
+        query: REGISTER_BILLING_RECEIPT_FILE_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to registerBillingReceiptFile',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -142,5 +155,6 @@ module.exports = {
     BillingReceiptFile,
     validateQRCode,
     sendNewBillingReceiptFilesNotifications,
+    registerBillingReceiptFile,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

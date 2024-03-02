@@ -72881,6 +72881,25 @@ type ValidateQRCodeOutput {
   qrCodeFields: JSON!
 }
 
+enum RegisterBillingReceiptFileResultStatus {
+  CREATED
+  UPDATED
+  SKIPPED
+}
+
+input RegisterBillingReceiptFileInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  context: BillingIntegrationOrganizationContextWhereUniqueInput!
+  receipt: BillingReceiptWhereInput!
+  base64EncodedPDF: String!
+}
+
+type RegisterBillingReceiptFileOutput {
+  id: ID!
+  status: RegisterBillingReceiptFileResultStatus!
+}
+
 input CreateBankAccountRequestInput {
   dv: Int!
   sender: JSON!
@@ -82926,6 +82945,7 @@ type Mutation {
   """
   sendNewReceiptMessagesToResidentScopes(data: SendNewReceiptMessagesToResidentScopesInput!): SendNewReceiptMessagesToResidentScopesOutput
   validateQRCode(data: ValidateQRCodeInput!): ValidateQRCodeOutput
+  registerBillingReceiptFile(data: RegisterBillingReceiptFileInput!): RegisterBillingReceiptFileOutput
   createBankAccountRequest(data: CreateBankAccountRequestInput!): CreateBankAccountRequestOutput
   shareTicket(data: ShareTicketInput!): ShareTicketOutput
   ticketMultipleUpdate(data: TicketMultipleUpdateInput!): Ticket!

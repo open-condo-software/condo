@@ -38819,6 +38819,7 @@ export type Mutation = {
    */
   sendNewReceiptMessagesToResidentScopes?: Maybe<SendNewReceiptMessagesToResidentScopesOutput>;
   validateQRCode?: Maybe<ValidateQrCodeOutput>;
+  registerBillingReceiptFile?: Maybe<RegisterBillingReceiptFileOutput>;
   createBankAccountRequest?: Maybe<CreateBankAccountRequestOutput>;
   shareTicket?: Maybe<ShareTicketOutput>;
   ticketMultipleUpdate: Ticket;
@@ -48786,6 +48787,11 @@ export type MutationSendNewReceiptMessagesToResidentScopesArgs = {
 
 export type MutationValidateQrCodeArgs = {
   data: ValidateQrCodeInput;
+};
+
+
+export type MutationRegisterBillingReceiptFileArgs = {
+  data: RegisterBillingReceiptFileInput;
 };
 
 
@@ -70203,6 +70209,26 @@ export type RegisterBillingReceiptAddressMetaInput = {
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
 };
+
+export type RegisterBillingReceiptFileInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  context: BillingIntegrationOrganizationContextWhereUniqueInput;
+  receipt: BillingReceiptWhereInput;
+  base64EncodedPDF: Scalars['String'];
+};
+
+export type RegisterBillingReceiptFileOutput = {
+  __typename?: 'RegisterBillingReceiptFileOutput';
+  id: Scalars['ID'];
+  status: RegisterBillingReceiptFileResultStatus;
+};
+
+export enum RegisterBillingReceiptFileResultStatus {
+  Created = 'CREATED',
+  Updated = 'UPDATED',
+  Skipped = 'SKIPPED'
+}
 
 export type RegisterBillingReceiptInput = {
   importId?: Maybe<Scalars['String']>;

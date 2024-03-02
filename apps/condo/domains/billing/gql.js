@@ -79,6 +79,12 @@ const SEND_NEW_BILLING_RECEIPT_FILES_NOTIFICATIONS_MUTATION = gql`
     }
 `
 
+const REGISTER_BILLING_RECEIPT_FILE_MUTATION = gql`
+    mutation registerBillingReceiptFile ($data: RegisterBillingReceiptFileInput!) {
+        result: registerBillingReceiptFile(data: $data) { id status }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -100,5 +106,6 @@ module.exports = {
     BillingReceiptFile,
     VALIDATE_QRCODE_MUTATION,
     SEND_NEW_BILLING_RECEIPT_FILES_NOTIFICATIONS_MUTATION,
+REGISTER_BILLING_RECEIPT_FILE_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
