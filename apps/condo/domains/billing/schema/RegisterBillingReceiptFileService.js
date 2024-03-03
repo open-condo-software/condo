@@ -75,7 +75,7 @@ const RegisterBillingReceiptFileService = new GQLCustomSchema('RegisterBillingRe
                     throw new GQLError(ERRORS.NO_RECEIPTS_FOUND, context)
                 }
                 const account = await getById('BillingAccount', receipt.account)
-                const [receiptFile] = await find('BillingReceiptFile', { receipt: { id: receipt.id } })
+                const [receiptFile] = await find('BillingReceiptFile', { receipt: { id: receipt.id }, deletedAt: null })
 
                 const sensitiveDataFile = buildUploadInputFrom({
                     stream: Readable.from(Buffer.from(base64EncodedPDF, 'base64')),
