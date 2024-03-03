@@ -2196,7 +2196,7 @@
   "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_BILLING_CATEGORY_PROVIDED": "Необходимо передать id существующей биллинговой категории",
   "api.billing.sendNewReceiptMessagesToResidentScopes.SCOPES_IS_EMPTY": "Необходимо передать хотя бы один элемент в scopes",
   "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_BILLING_PROPERTY_PROVIDED": "Все переданные id домов (billingProperty) в скоупах должны принадлежать организации из переданного биллингового контекста",
-  "api.billing.registerBillingReceiptFile.MULTIPLE_BILLING_RECEIPTS_FOUND": "Найдено несколько квитанций для PDF файла",
+  "api.billing.registerBillingReceiptFile.MULTIPLE_BILLING_RECEIPTS_FOUND": "Найдено больше одной квитанции для PDF файла",
   "api.billing.registerBillingReceiptFile.NO_RECEIPTS_FOUND": "Не найдена квитанция для PDF файла",
   "api.resident.sendMessageToResidentScopes.SCOPES_IS_EMPTY": "Необходимо передать хотя бы один элемент в scopes",
   "api.miniapp.sendB2CAppPushMessage.USER_NOT_FOUND": "Не удалось найти пользователя по переданному id",
