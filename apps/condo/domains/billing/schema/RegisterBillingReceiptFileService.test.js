@@ -66,6 +66,17 @@ describe('RegisterBillingReceiptFileService', () => {
     })
 
     describe('Basic logic', () => {
+        test('Will create new billing receipt file if old one was deleted', async () => {
+            const [[receipt]] = await billingTestUtils.createReceipts()
+            const payload = {
+                context: { id: receipt.context.id },
+                receipt: { id: receipt.id },
+            }
+            const [dataBeforeDelete] = await registerBillingReceiptFileByTestClient(billingTestUtils.clients.admin, payload)
+            await BillingReceiptFile.softDelete(billingTestUtils.clients.admin, dataBeforeDelete.id)
+            const [data] = await registerBillingReceiptFileByTestClient(billingTestUtils.clients.admin, payload)
+            expect(data.status).toEqual(REGISTER_BILLING_RECEIPT_FILE_CREATED_STATUS)
+        })
         test('Will create billing receipt file for matching receipt by id', async () => {
             const [[receipt]] = await billingTestUtils.createReceipts()
             const payload = {
