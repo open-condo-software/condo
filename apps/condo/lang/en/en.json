@@ -2196,6 +2196,8 @@
   "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_BILLING_CATEGORY_PROVIDED": "Please provide existing non-deleted billing category id",
   "api.billing.sendNewReceiptMessagesToResidentScopes.SCOPES_IS_EMPTY": "Scopes could not be empty",
   "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_BILLING_PROPERTY_PROVIDED": "All provided billing properties in scopes should be non-deleted & connected to organization of the billing context",
+  "api.billing.registerBillingReceiptFile.MULTIPLE_BILLING_RECEIPTS_FOUND": "There is more then one BillingReceipt found for this BillingReceiptFile",
+  "api.billing.registerBillingReceiptFile.NO_RECEIPTS_FOUND": "There is no BillingReceipt for this BillingReceiptFile",
   "api.resident.sendMessageToResidentScopes.SCOPES_IS_EMPTY": "Scopes could not be empty",
   "api.miniapp.sendB2CAppPushMessage.USER_NOT_FOUND": "Unable to find user by provided id.",
   "api.miniapp.sendB2CAppPushMessage.RESIDENT_NOT_FOUND": "Unable to find resident by provided id.",

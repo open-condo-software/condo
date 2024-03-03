@@ -14,6 +14,7 @@ const { BillingProperty } = require('./BillingProperty')
 const { BillingReceipt } = require('./BillingReceipt')
 const { BillingReceiptFile } = require('./BillingReceiptFile')
 const { BillingRecipient } = require('./BillingRecipient')
+const { RegisterBillingReceiptFileService } = require('./RegisterBillingReceiptFileService')
 const { RegisterBillingReceiptsService } = require('./RegisterBillingReceiptsService')
 const { SendNewBillingReceiptFilesNotificationsService } = require('./SendNewBillingReceiptFilesNotificationsService')
 const { SendNewReceiptMessagesToResidentScopesService } = require('./SendNewReceiptMessagesToResidentScopesService')
@@ -36,5 +37,6 @@ module.exports = {
     SendNewReceiptMessagesToResidentScopesService,
     BillingReceiptFile,
     ValidateQRCodeService,
+    RegisterBillingReceiptFileService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
