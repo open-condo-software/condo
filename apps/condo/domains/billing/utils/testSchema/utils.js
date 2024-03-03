@@ -28,22 +28,24 @@ class BillingTestUtils {
         this.clients = {
             anonymous: await makeClient(),
             user: await makeLoggedInClient(),
-            employee: null,
+            employee: await makeClientWithNewRegisteredAndLoggedInUser(),
             support: await makeClientWithSupportUser(),
             service: await makeClientWithServiceUser(),
             admin: await makeLoggedInAdminClient(),
         }
         const [organization] = await createTestOrganization(this.clients.admin)
-        this.organization = organization
         const [billingIntegration] = await createTestBillingIntegration(this.clients.admin)
-        this.billingIntegration = billingIntegration
         const [billingContext] = await createTestBillingIntegrationOrganizationContext(this.clients.admin, organization, billingIntegration)
-        this.billingContext = billingContext
+        const [role] = await createTestOrganizationEmployeeRole(this.clients.admin, organization, {
+            canManageIntegrations: true,
+            canReadBillingReceipts: true,
+            canReadPayments: true,
+        })
         await createTestBillingIntegrationAccessRight(this.clients.admin, billingIntegration, this.clients.service.user)
-        const roleArgs = { canManageIntegrations: true, canReadBillingReceipts: true, canReadPayments: true }
-        const [role] = await createTestOrganizationEmployeeRole(this.clients.admin, organization, roleArgs)
-        this.clients.employee = await makeClientWithNewRegisteredAndLoggedInUser()
         await createTestOrganizationEmployee(this.clients.admin, organization, this.clients.employee.user, role)
+        this.organization = organization
+        this.billingIntegration = billingIntegration
+        this.billingContext = billingContext
     }
 
     randomNumber (numDigits) {
