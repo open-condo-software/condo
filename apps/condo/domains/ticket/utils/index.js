@@ -1,3 +1,4 @@
+const { get } = require('lodash')
 const isArray = require('lodash/isArray')
 const isEmpty = require('lodash/isEmpty')
 
@@ -43,8 +44,17 @@ const filterQualityControlOptionsByScore = (score, options) => {
     )
 }
 
+const buildFullClassifierName = (classifier) => {
+    return [
+        get(classifier, 'place.name', '').trim(),
+        get(classifier, 'category.name', '').trim(),
+        get(classifier, 'problem.name', '').trim(),
+    ].filter(Boolean).join(' » ')
+}
+
 module.exports = {
     convertQualityControlOrFeedbackOptionsToText,
     filterFeedbackOptionsByScore,
     filterQualityControlOptionsByScore,
+    buildFullClassifierName,
 }
