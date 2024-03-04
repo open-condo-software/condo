@@ -1,4 +1,3 @@
-import { useApolloClient } from '@apollo/client'
 import { QueryAllTourStepsArgs, TourStepStatusType, TourStepTypeType, TourStep as TourStepType } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Row } from 'antd'
@@ -24,7 +23,6 @@ import {
     STEP_TYPES,
 } from '@condo/domains/onboarding/constants/steps'
 import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
-import { Ticket as TicketGQL } from '@condo/domains/ticket/gql'
 
 
 type ActiveTourStepType = {
@@ -179,7 +177,6 @@ export const TourProvider = ({ children }) => {
             },
         },
     }), [router])
-
     const createPropertyMapBodyText = useMemo(() => ({
         ticket: {
             bodyText: 'Следующий шаг к оптимизации работы с заявками — создание заявки. На ее примере вы увидите, как выглядит диспетчерская и форма заявки. Рекомендуем перенести на платформу реальную заявку, поскольку их нельзя удалять.',
@@ -208,7 +205,6 @@ export const TourProvider = ({ children }) => {
             },
         },
     }), [handleViewGuideClick, router])
-
     const importPropertiesBodyText = useMemo(() => ({
         'ticket': {
             bodyText: 'Следующий шаг к оптимизации работы с заявками — создание заявки. На ее примере вы увидите, как выглядит диспетчерская и форма заявки. Рекомендуем перенести на платформу реальную заявку, поскольку их нельзя удалять.',
@@ -237,9 +233,51 @@ export const TourProvider = ({ children }) => {
             },
         },
     }), [handleViewGuideClick, router])
+    const createTicketBodyText = useMemo(() => ({
+        'ticket': {
+            bodyText: 'Последний шаг к оптимизации работы с заявками — рассказать жителям о мобильном приложении Doma. С его помощью можно отправлять заявки в адрес управляющей организации. Чтобы продвигать приложение среди жителей было проще, мы подготовили гайд с готовыми шаблонами.',
+            buttonLabel: 'Смотреть гайд',
+            onButtonClick: handleViewGuideClick,
+        },
+        'default': {
+            bodyText: 'Работа с заявками на платформе Doma.ai помогает навести порядок в процессах управления. Загляните в путеводитель Домов — он поможет с другими задачами.',
+            buttonLabel: 'В путеводитель',
+            onButtonClick: () => {
+                router.push('/tour')
+            },
+        },
+    }), [handleViewGuideClick, router])
+    const createMeterReadingsBodyText = useMemo(() => ({
+        'meter': {
+            bodyText: 'Последний шаг к оптимизации работы с ИПУ — предложить жителям скачать мобильное приложение Doma и отправлять показания с его помощью. Чтобы продвигать приложение среди жителей было проще, мы подготовили гайд с готовыми шаблонами.',
+            buttonLabel: 'Смотреть гайд',
+            onButtonClick: handleViewGuideClick,
+        },
+        'default': {
+            bodyText: 'Теперь вы можете хранить и работать с данными ИПУ на платформе. Загляните в путеводитель Домов — он поможет с другими задачами.',
+            buttonLabel: 'В путеводитель',
+            onButtonClick: () => {
+                router.push('/tour')
+            },
+        },
+    }), [handleViewGuideClick, router])
+    const uploadBillingReceiptsBodyText = useMemo(() => ({
+        'billing': {
+            bodyText: 'Следующий шаг к снижению дебиторской задолженности — рассказать жителям о мобильном приложении Doma. С его помощью они смогут оплачивать счета и передавать показания для будущих квитанций. Чтобы продвигать приложение среди жителей было проще, мы подготовили гайд с готовыми шаблонами.',
+            buttonLabel: 'Смотреть гайд',
+            onButtonClick: handleViewGuideClick,
+        },
+        'default': {
+            bodyText: 'Теперь жители могут оплачивать квитанции, а вы — следить за поступлениями. Загляните в путеводитель Домов — он поможет с другими задачами.',
+            buttonLabel: 'В путеводитель',
+            onButtonClick: () => {
+                router.push('/tour')
+            },
+        },
+    }), [handleViewGuideClick, router])
 
     const modalDataDescription: ModalDataType = useMemo(() => ({
-        'createProperty': {
+        createProperty: {
             title: 'Все получилось — вы добавили первый дом',
             subtitle: { text: 'Вы сможете добавить больше объектов', link: { label: 'в разделе "Дома"', href: '/property', icon: <Building size='small' /> } },
             newFeatures: {
@@ -250,7 +288,7 @@ export const TourProvider = ({ children }) => {
             buttonLabel: get(createPropertyModalData, [get(activeStep, 'firstLevel'), 'buttonLabel'], createPropertyModalData.default.buttonLabel),
             onButtonClick: get(createPropertyModalData, [get(activeStep, 'firstLevel'), 'onButtonClick'], createPropertyModalData.default.onButtonClick),
         },
-        'createPropertyMap': {
+        createPropertyMap: {
             title: 'Шахматка создана',
             subtitle: { text: 'Вы можете добавлять и редактировать шахматки', link: { label: 'на страницах домов', href: '', icon: <Building size='small' /> } },
             newFeatures: {
@@ -261,7 +299,7 @@ export const TourProvider = ({ children }) => {
             buttonLabel: get(createPropertyMapBodyText, [get(activeStep, 'firstLevel'), 'buttonLabel'], createPropertyMapBodyText.default.buttonLabel),
             onButtonClick: get(createPropertyMapBodyText, [get(activeStep, 'firstLevel'), 'onButtonClick'], createPropertyMapBodyText.default.onButtonClick),
         },
-        'importProperties': {
+        importProperties: {
             title: 'Готово — дома и шахматка созданы',
             subtitle: { text: 'Вы можете добавлять и редактировать данные', link: { label: 'на страницах домов', href: '', icon: <Building size='small' /> } },
             newFeatures: {
@@ -272,41 +310,39 @@ export const TourProvider = ({ children }) => {
             buttonLabel: get(importPropertiesBodyText, [get(activeStep, 'firstLevel'), 'buttonLabel'], importPropertiesBodyText.default.buttonLabel),
             onButtonClick: get(importPropertiesBodyText, [get(activeStep, 'firstLevel'), 'onButtonClick'], importPropertiesBodyText.default.onButtonClick),
         },
-        'createTicket': {
+        createTicket: {
             title: 'Первая заявка создана',
             subtitle: { text: 'Все заявки можно посмотреть', link: { label: 'в разделе «Заявки»', href: '/ticket', icon: <LayoutList size='small' /> } },
             newFeatures: {
                 employee: ['Публиковать новости дома', 'Оставлять информацию об отключениях'],
                 resident: ['Читать новости дома'],
             },
-            bodyText: get(activeStep, 'firstLevel') === 'ticket' ? 'Последний шаг к оптимизации работы с заявками — рассказать жителям о мобильном приложении Doma. С его помощью можно отправлять заявки в адрес управляющей организации. Чтобы продвигать приложение среди жителей было проще, мы подготовили гайд с готовыми шаблонами.' :
-                'Работа с заявками на платформе Doma.ai помогает навести порядок в процессах управления. Загляните в путеводитель Домов — он поможет с другими задачами.',
-            buttonLabel: 'Смотреть гайд',
-            onButtonClick: handleViewGuideClick,
+            bodyText: get(createTicketBodyText, [get(activeStep, 'firstLevel'), 'bodyText'], createTicketBodyText.default),
+            buttonLabel: get(createTicketBodyText, [get(activeStep, 'firstLevel'), 'buttonLabel'], createTicketBodyText.default.buttonLabel),
+            onButtonClick: get(createTicketBodyText, [get(activeStep, 'firstLevel'), 'onButtonClick'], createTicketBodyText.default.onButtonClick),
         },
-        'createMeterReadings': {
+        createMeterReadings: {
             title: 'Первые показания ИПУ загружены',
             subtitle: { text: 'Вы сможете загрузить больше показаний', link: { label: 'в разделе «Приборы учета»', href: '/meter', icon: <Meters size='small' /> } },
             newFeatures: {
                 resident: ['Передавать показания счетчиков в мобильном приложении'],
             },
-            bodyText: get(activeStep, 'firstLevel') === 'meter' ? 'Последний шаг к оптимизации работы с ИПУ — предложить жителям скачать мобильное приложение Doma и отправлять показания с его помощью. Чтобы продвигать приложение среди жителей было проще, мы подготовили гайд с готовыми шаблонами.' :
-                'Теперь вы можете хранить и работать с данными ИПУ на платформе. Загляните в путеводитель Домов — он поможет с другими задачами.',
-            buttonLabel: 'Смотреть гайд',
-            onButtonClick: handleViewGuideClick,
+            bodyText: get(createMeterReadingsBodyText, [get(activeStep, 'firstLevel'), 'bodyText'], createMeterReadingsBodyText.default),
+            buttonLabel: get(createMeterReadingsBodyText, [get(activeStep, 'firstLevel'), 'buttonLabel'], createMeterReadingsBodyText.default.buttonLabel),
+            onButtonClick: get(createMeterReadingsBodyText, [get(activeStep, 'firstLevel'), 'onButtonClick'], createMeterReadingsBodyText.default.onButtonClick),
         },
-        'uploadReceipts': {
+        uploadReceipts: {
             title: 'Все получилось — вы настроили биллинг',
             subtitle: { text: 'Вы можете следить за начислениями и оплатами', link: { label: 'в разделе «Начисления и оплаты»', href: '/billing', icon: <Wallet size='small' /> } },
             newFeatures: {
                 employee: ['Загружать реестры и формировать квитанции', 'Следить за платежами от жителей'],
                 resident: ['Оплачивать квитанции в мобильном приложении'],
             },
-            bodyText: 'Следующий шаг к снижению дебиторской задолженности — рассказать жителям о мобильном приложении Doma. С его помощью они смогут оплачивать счета и передавать показания для будущих квитанций. Чтобы продвигать приложение среди жителей было проще, мы подготовили гайд с готовыми шаблонами.',
-            buttonLabel: 'Добавить новость',
-            onButtonClick: handleViewGuideClick,
+            bodyText: get(uploadBillingReceiptsBodyText, [get(activeStep, 'firstLevel'), 'bodyText'], uploadBillingReceiptsBodyText.default),
+            buttonLabel: get(uploadBillingReceiptsBodyText, [get(activeStep, 'firstLevel'), 'buttonLabel'], uploadBillingReceiptsBodyText.default.buttonLabel),
+            onButtonClick: get(uploadBillingReceiptsBodyText, [get(activeStep, 'firstLevel'), 'onButtonClick'], uploadBillingReceiptsBodyText.default.onButtonClick),
         },
-        'viewResidentsAppGuide': {
+        viewResidentsAppGuide: {
             title: 'Вы посмотрели гайд о внедрении мобильного приложения',
             subtitle: { text: 'Вы можете вернуться у нему', link: { label: 'на странице Путеводителя', href: '/tour', icon: <Guide size='small' /> } },
             newFeatures: {
@@ -319,7 +355,7 @@ export const TourProvider = ({ children }) => {
                 router.push('/news')
             },
         },
-    }), [activeStep, createPropertyMapBodyText, createPropertyModalData, handleViewGuideClick, importPropertiesBodyText, router])
+    }), [activeStep, createMeterReadingsBodyText, createPropertyMapBodyText, createPropertyModalData, createTicketBodyText, importPropertiesBodyText, router, uploadBillingReceiptsBodyText])
 
     const updateStepIfNotCompleted = useCallback(async (type: TourStepTypeType, nextRoute?: string) => {
         const fetchResult = await refetch({
@@ -456,7 +492,6 @@ export const TourProvider = ({ children }) => {
 
     const newEmployeeFeatures = useMemo(() => get(modalData, 'newFeatures.employee'), [modalData])
     const newResidentFeatures = useMemo(() => get(modalData, 'newFeatures.resident'), [modalData])
-
 
     return (
         <>
