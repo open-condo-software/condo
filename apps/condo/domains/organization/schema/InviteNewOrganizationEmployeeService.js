@@ -16,7 +16,6 @@ const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { ALREADY_ACCEPTED_INVITATION, ALREADY_INVITED_EMAIL, ALREADY_INVITED_PHONE, UNABLE_TO_REGISTER_USER } = require('@condo/domains/organization/constants/errors')
 const { Organization, OrganizationEmployee, OrganizationEmployeeSpecialization } = require('@condo/domains/organization/utils/serverSchema')
 const guards = require('@condo/domains/organization/utils/serverSchema/guards')
-const { STAFF } = require('@condo/domains/user/constants/common')
 const { createUserAndSendLoginData } = require('@condo/domains/user/utils/serverSchema')
 
 
@@ -155,15 +154,16 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                     if (sameEmployee.email === email) {
                         throw new GQLError(ERRORS.inviteNewOrganizationEmployee.ALREADY_INVITED_EMAIL, context)
                     }
-                    if (!sameEmployee.user) return
 
-                    const userWithSameData = await getById('User', sameEmployee.user)
+                    if (sameEmployee.user) {
+                        const userWithSameData = await getById('User', sameEmployee.user)
 
-                    if (userWithSameData.phone === phone) {
-                        throw new GQLError(ERRORS.inviteNewOrganizationEmployee.ALREADY_INVITED_PHONE, context)
-                    }
-                    if (userWithSameData.email === email) {
-                        throw new GQLError(ERRORS.inviteNewOrganizationEmployee.ALREADY_INVITED_EMAIL, context)
+                        if (userWithSameData.phone === phone) {
+                            throw new GQLError(ERRORS.inviteNewOrganizationEmployee.ALREADY_INVITED_PHONE, context)
+                        }
+                        if (userWithSameData.email === email) {
+                            throw new GQLError(ERRORS.inviteNewOrganizationEmployee.ALREADY_INVITED_EMAIL, context)
+                        }
                     }
                 }
 

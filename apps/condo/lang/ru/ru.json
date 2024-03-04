@@ -2168,6 +2168,8 @@
   "api.organization.reInviteOrganizationEmployee.EMPLOYEE_NOT_FOUND": "Не найден сотрудник по указанным контактам",
   "api.organization.reInviteOrganizationEmployee.ALREADY_ACCEPTED_INVITATION": "Указанный сотрудник уже принял приглашение",
   "api.organizationEmployee.NOT_FOUND_ROLE": "Роль не найдена в вашей организаии",
+  "api.organizationEmployee.ALREADY_INVITED_EMAIL": "Сотрудник с таким Email уже есть в организации",
+  "api.organizationEmployee.ALREADY_INVITED_PHONE": "Сотрудник с таким номером телефона уже есть в организации",
   "api.common.INVALID_PHONE_NUMBER_FORMAT": "Некорректный формат номера телефона",
   "api.common.WRONG_PERCENT_VALUE": "Некорректное значение процента",
   "api.banking.createBankAccountRequest.INCORRECT_PROPERTY_ID": "Неверное значение propertyId. Данный дом не принадлежит выбранной организации",

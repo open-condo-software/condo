@@ -412,7 +412,7 @@ describe('OrganizationEmployee', () => {
         })
     })
 
-    test('employee: can not update phone if employee with same email exist in organization', async () => {
+    test('employee: can not update email if employee with same email exist in organization', async () => {
         const admin = await makeLoggedInAdminClient()
         const client1 = await makeClientWithRegisteredOrganization()
         const client2 = await makeClientWithNewRegisteredAndLoggedInUser()

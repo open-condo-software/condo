@@ -2168,6 +2168,8 @@
   "api.organization.reInviteOrganizationEmployee.EMPLOYEE_NOT_FOUND": "Could not employee using specified contacts",
   "api.organization.reInviteOrganizationEmployee.ALREADY_ACCEPTED_INVITATION": "Specified employee has already accepted invitation",
   "api.organizationEmployee.NOT_FOUND_ROLE": "Role not found for your organization",
+  "api.organizationEmployee.ALREADY_INVITED_EMAIL": "Employee with same email is already in the organization",
+  "api.organizationEmployee.ALREADY_INVITED_PHONE": "Employee with same phone is already in the organization",
   "api.common.INVALID_PHONE_NUMBER_FORMAT": "Invalid phone number format",
   "api.common.WRONG_PERCENT_VALUE": "Invalid percent value",
   "api.banking.createBankAccountRequest.INCORRECT_PROPERTY_ID": "Incorrect propertyId was provided. Please check that this id related to passed organizationId",

@@ -20,7 +20,6 @@ const access = require('@condo/domains/organization/access/OrganizationEmployee'
 const { ALREADY_INVITED_EMAIL, ALREADY_INVITED_PHONE } = require('@condo/domains/organization/constants/errors')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const { softDeletePropertyScopeOrganizationEmployee } = require('@condo/domains/scope/utils/serverSchema')
-const { STAFF } = require('@condo/domains/user/constants/common')
 
 
 const ERRORS = {
@@ -29,7 +28,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: ALREADY_INVITED_EMAIL,
         message: 'Employee with same email already invited into the organization',
-        messageForUser: 'api.organization.inviteNewOrganizationEmployee.ALREADY_INVITED_EMAIL',
+        messageForUser: 'api.organizationEmployee.ALREADY_INVITED_EMAIL',
         variable: ['email'],
     },
     ALREADY_INVITED_PHONE: {
@@ -37,7 +36,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: ALREADY_INVITED_PHONE,
         message: 'Employee with same phone already invited into the organization',
-        messageForUser: 'api.organization.inviteNewOrganizationEmployee.ALREADY_INVITED_PHONE',
+        messageForUser: 'api.organizationEmployee.ALREADY_INVITED_PHONE',
         variable: ['phone'],
     },
     NOT_FOUND_ROLE: {
