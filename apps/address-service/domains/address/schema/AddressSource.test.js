@@ -97,6 +97,13 @@ describe('AddressSource', () => {
                     expect(data).toEqual({ 'obj': null })
                 })
             })
+
+            test('Source string must be lower-cased', async () => {
+                const source = `${faker.address.city()}, ${faker.address.street() }, ${faker.datatype.number()}, ${faker.datatype.number()}`
+                const [obj] = await createTestAddressSource(adminClient, { source })
+
+                expect(obj.source).toBe(source.toLowerCase())
+            })
         })
 
         describe('update', () => {
@@ -162,7 +169,7 @@ describe('AddressSource', () => {
                 const [updatedObj] = await updateTestAddressSource(adminClient, obj.id, { source: source2 })
 
                 expect(updatedObj.source).not.toEqual(source)
-                expect(updatedObj.source).toEqual(source2)
+                expect(updatedObj.source).toEqual(source2.toLowerCase())
             })
         })
 

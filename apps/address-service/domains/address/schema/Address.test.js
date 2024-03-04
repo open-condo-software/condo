@@ -507,7 +507,7 @@ describe('Address', () => {
 
             const sources = await AddressSource.getAll(adminClient, { address: { id: addressModel.id } })
             const helpersHash = hashJSON(helpers)
-            const fullSource = `${source}|helpers:${helpersHash}`
+            const fullSource = `${source}|helpers:${helpersHash}`.toLowerCase()
 
             expect(sources).toHaveLength(1)
             expect(sources).toEqual(expect.arrayContaining([
