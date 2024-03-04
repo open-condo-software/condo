@@ -140,9 +140,9 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                     organization: { id: userOrganization.id },
                     OR: [
                         { phone },
-                        { AND: [{ user: { deletedAt: null, type: STAFF, phone } }] },
+                        { user: { phone } },
                         email && { email },
-                        email && { AND: [{ user: { deletedAt: null, type: STAFF, email } }] },
+                        email && { user: { email } },
                     ].filter(Boolean),
                 })
 

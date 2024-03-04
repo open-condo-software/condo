@@ -107,7 +107,7 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
                             organization: { id: existingItem.organization },
                             OR: [
                                 { email: resolvedEmail },
-                                { user: { AND: [{ deletedAt: null, type: STAFF, email: resolvedEmail }] } },
+                                { user: { email: resolvedEmail } },
                             ],
                         })
 
@@ -138,7 +138,7 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
                             organization: { id: existingItem.organization },
                             OR: [
                                 { phone: resolvedPhone },
-                                { user: { AND: [{ deletedAt: null, type: STAFF, phone: resolvedPhone }] } },
+                                { user: { phone: resolvedPhone } },
                             ],
                         })
 
