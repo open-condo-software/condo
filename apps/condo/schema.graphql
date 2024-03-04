@@ -82765,9 +82765,23 @@ type Mutation {
   `{
     "mutation": "inviteNewOrganizationEmployee",
     "code": "BAD_USER_INPUT",
-    "type": "ALREADY_INVITED",
-    "message": "Already invited into the organization",
-    "messageForUser": "api.organization.inviteNewOrganizationEmployee.ALREADY_INVITED"
+    "type": "ALREADY_INVITED_EMAIL",
+    "message": "Employee with same email already invited into the organization",
+    "messageForUser": "api.organization.inviteNewOrganizationEmployee.ALREADY_INVITED_EMAIL",
+    "variable": [
+      "email"
+    ]
+  }`
+  
+  `{
+    "mutation": "inviteNewOrganizationEmployee",
+    "code": "BAD_USER_INPUT",
+    "type": "ALREADY_INVITED_PHONE",
+    "message": "Employee with same phone already invited into the organization",
+    "messageForUser": "api.organization.inviteNewOrganizationEmployee.ALREADY_INVITED_PHONE",
+    "variable": [
+      "phone"
+    ]
   }`
   
   `{

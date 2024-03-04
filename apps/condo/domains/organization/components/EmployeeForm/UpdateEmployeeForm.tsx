@@ -9,7 +9,6 @@ import React, { useCallback, useEffect, useMemo } from 'react'
 import { useApolloClient } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Alert, Button } from '@open-condo/ui'
 
 import Input from '@condo/domains/common/components/antd/Input'
@@ -21,7 +20,6 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { EmployeeRoleSelect } from '@condo/domains/organization/components/EmployeeRoleSelect'
-import { useEmployeeValidations } from '@condo/domains/organization/hooks/useEmployeeValidations'
 import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
 import { OrganizationEmployee, OrganizationEmployeeRole } from '@condo/domains/organization/utils/clientSchema'
 import {
@@ -55,12 +53,9 @@ export const UpdateEmployeeForm: React.FC = () => {
     const PromptTitle = intl.formatMessage({ id: 'form.prompt.title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'form.prompt.message' })
 
-    const { organization } = useOrganization()
     const { query, push } = useRouter()
     const classifiersLoader = new ClassifiersQueryRemote(useApolloClient())
     const { breakpoints } = useLayoutContext()
-
-    const organizationId = get(organization, 'id')
 
     const employeeId = String(get(query, 'id', ''))
     const { obj: employee, loading: employeeLoading, error: employeeError } = OrganizationEmployee.useObject({ where: { id: employeeId } })
@@ -77,9 +72,8 @@ export const UpdateEmployeeForm: React.FC = () => {
         [organizationEmployeeSpecializations])
 
     const { emailValidator } = useValidations()
-    const { alreadyRegisteredEmailValidator } = useEmployeeValidations(organizationId, employeeId)
     const validations: { [key: string]: Rule[] } = {
-        email: [emailValidator, alreadyRegisteredEmailValidator],
+        email: [emailValidator],
     }
 
     const { user } = useAuth()
