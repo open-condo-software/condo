@@ -40,12 +40,15 @@ const AddressSource = new GQLListSchema('AddressSource', {
                     return get(resolvedData, fieldPath)
                 },
                 validateInput: async ({ resolvedData, fieldPath, context, existingItem, operation }) => {
-                    const source = resolvedData[fieldPath]
+                    const lowerCasedSource = get(resolvedData, fieldPath, '').toLowerCase()
                     const isCreate = operation === 'create'
-                    const isUpdateAddress = operation === 'update' && resolvedData.source !== existingItem.source
+                    const isUpdateAddress = operation === 'update' && lowerCasedSource !== existingItem.source
 
                     if (isCreate || isUpdateAddress) {
-                        const sameAddressSourceRows = await find('AddressSource', { source, deletedAt: null })
+                        const sameAddressSourceRows = await find('AddressSource', {
+                            source: lowerCasedSource,
+                            deletedAt: null,
+                        })
 
                         if (!isEmpty(sameAddressSourceRows)) {
                             throw new GQLError(ERRORS.SAME_SOURCE, context)
