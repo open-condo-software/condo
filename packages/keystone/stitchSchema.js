@@ -3,12 +3,13 @@ const { GraphQLUpload } = require('@graphql-tools/links')
 const { loadSchema } = require('@graphql-tools/load')
 const { stitchSchemas } = require('@graphql-tools/stitch')
 const { RenameTypes, RenameRootFields } = require('@graphql-tools/wrap')
-const { ApolloServer } = require('apollo-server-express')
 const bodyParser = require('body-parser')
 const { fetch } = require('cross-fetch')
 const express = require('express')
+const { graphqlHTTP } = require('express-graphql')
 const FormData = require('form-data')
 const { print } = require('graphql')
+const NoIntrospectionRule = require('graphql-disable-introspection')
 const graphqlUploadExpress = require('graphql-upload/graphqlUploadExpress.js')
 const get = require('lodash/get')
 
@@ -138,7 +139,7 @@ function makeRemoteExecutor (api_url, token_field) {
 }
 
 async function makeGatewaySchema (appTokenKey, condoAccessTokenKey) {
-    const appAPIUrl = `${conf.PASS_DOMAIN}/admin/api`
+    const appAPIUrl = `${conf.SERVER_URL}/admin/api`
     const condoAPIUrl = `${conf.CONDO_DOMAIN}/admin/api`
     const appExecutor = makeRemoteExecutor(appAPIUrl, appTokenKey)
     const condoExecutor = makeRemoteExecutor(condoAPIUrl, condoAccessTokenKey)
@@ -191,26 +192,26 @@ class StitchSchemaMiddleware {
         const app = express()
         const schema = await makeGatewaySchema()
 
-        const server = new ApolloServer({
-            schema,
-            context: (req) => ({
-                [this.condoAccessTokenKey]: get(req, ['session', this.condoAccessTokenKey]),
-                [this.appTokenKey]: get(req, ['session', this.appTokenKey]),
-                [ACCEPT_LANGUAGE]: get(req,  ['headers', ACCEPT_LANGUAGE]),
-            }),
-            introspection: false,
-            playground: false,
-            debug: false,
-            uploads: false,
-        })
-
         app.use(
             this.apiUrl,
             bodyParser.json(),
             graphqlUploadExpress({ maxFiles: MAX_FILES, maxFileSize: MAX_FILE_SIZE }),
+            // TODO(INFRA-280): migrate from graphqlHttp to Apollo server for client-side batching support
+            graphqlHTTP((req) => {
+                const context = {
+                    [this.condoAccessTokenKey]: get(req, ['session', this.condoAccessTokenKey]),
+                    [this.appTokenKey]: get(req, ['session', this.appTokenKey]),
+                    [ACCEPT_LANGUAGE]: get(req,  ['headers', ACCEPT_LANGUAGE]),
+                }
+                return {
+                    schema,
+                    context,
+                    graphiql: false,
+                    uploads: false,
+                    validationRules: [NoIntrospectionRule],
+                }
+            })
         )
-
-        app.use(server.getMiddleware({ path: this.apiUrl, cors: false }))
 
         return app
     }
