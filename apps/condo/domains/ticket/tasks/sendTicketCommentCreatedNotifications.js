@@ -2,7 +2,7 @@ const dayjs = require('dayjs')
 const { get } = require('lodash')
 
 const conf = require('@open-condo/config')
-const { getByCondition, getSchemaCtx, getById, itemsQuery } = require('@open-condo/keystone/schema')
+const { getByCondition, getSchemaCtx, getById } = require('@open-condo/keystone/schema')
 const { i18n } = require('@open-condo/locales/loader')
 
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
@@ -62,30 +62,13 @@ const sendTicketCommentCreatedNotifications = async (commentId, ticketId) => {
         const commentType = get(createdComment, 'type', ORGANIZATION_COMMENT_TYPE)
         const ticketStatus = await getById('TicketStatus', ticket.status)
         const ticketUrl = `${conf.SERVER_URL}/ticket/${ticketId}`
-        const { count: commentFilesCount } = await itemsQuery('TicketCommentFile', {
-            where: {
-                ticket: { id: ticketId },
-                ticketComment: { id: commentId },
-                deletedAt: null,
-            },
-        }, { meta: true })
-        const { count: ticketFilesCount } = await itemsQuery('TicketFile', {
-            where: {
-                ticket: { id: ticketId },
-                deletedAt: null,
-            },
-        }, { meta: true })
         const classifier = await TicketClassifier.getOne(context, { id: ticket.classifier })
 
         const OpenTicketMessage = i18n(`notification.messages.${TICKET_COMMENT_CREATED_TYPE}.telegram.openTicket`, { locale: lang })
         const TicketStatusName = i18n(`ticket.status.${ticketStatus.type}.name`, { locale: lang })
         const TicketUnitType = i18n(`field.UnitType.prefix.${ticket.unitType}`, { locale: lang }).toLowerCase()
-        const CommentFilesCountMessage = i18n(`notification.messages.${TICKET_COMMENT_CREATED_TYPE}.telegram.commentFilesCount`, { locale: lang, meta: { commentFilesCount } })
-        const TicketFilesCountMessage = i18n(`notification.messages.${TICKET_COMMENT_CREATED_TYPE}.telegram.ticketFilesCount`, { locale: lang, meta: { ticketFilesCount } })
         const CommentTypeMessage = getCommentTypeMessage(commentType, commentAuthorType, lang)
 
-        const ticketDetails = [get(ticket, 'details', '').trim(), ticketFilesCount && TicketFilesCountMessage].filter(Boolean).join(' ')
-        const commentContent = [get(createdComment, 'content', '').trim(), commentFilesCount && CommentFilesCountMessage].filter(Boolean).join(' ')
         const ticketClassifier = buildFullClassifierName(classifier)
 
         const users = await getUsersAvailableToReadTicketByPropertyScope({
@@ -108,12 +91,12 @@ const sendTicketCommentCreatedNotifications = async (commentId, ticketId) => {
                         organizationId: organization.id,
                         organizationName: organization.name,
                         commentId,
-                        commentContent,
+                        commentContent: createdComment.content || EMPTY_CONTENT,
                         commentType: createdComment.type,
                         CommentTypeMessage,
                         commentCreatedAt: dayjs(createdComment.createdAt).format('YYYY-MM-DD HH:mm'),
                         ticketId,
-                        ticketDetails,
+                        ticketDetails: ticket.details,
                         ticketClassifier,
                         ticketNumber: ticket.number,
                         ticketStatus: TicketStatusName,
