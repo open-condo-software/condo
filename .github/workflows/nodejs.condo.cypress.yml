@@ -68,6 +68,7 @@ jobs:
           export NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE=true
           export NOTIFICATION__DISABLE_LOGGING=true
           export WORKER_CONCURRENCY=50
+          export APOLLO_BATCHING_ENABLED=true
 
           yarn workspace @app/condo migrate
           
