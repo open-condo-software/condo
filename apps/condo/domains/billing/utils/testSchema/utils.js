@@ -67,6 +67,10 @@ class BillingTestUtils {
         }
     }
 
+    createPropertyAddress () {
+        return `${faker.address.cityName()} ${faker.address.streetAddress(false)}`
+    }
+
     createAddressWithUnit () {
         return `${faker.address.cityName()} ${faker.address.streetAddress(true)}`
     }
