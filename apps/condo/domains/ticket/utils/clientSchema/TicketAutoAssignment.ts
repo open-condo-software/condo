@@ -21,6 +21,7 @@ const {
     useUpdate,
     useSoftDelete,
     useAllObjects,
+    useSoftDeleteMany,
 } = generateReactHooks<TicketAutoAssignment, TicketAutoAssignmentCreateInput, TicketAutoAssignmentUpdateInput, QueryAllTicketAutoAssignmentsArgs>(TicketAutoAssignmentGQL)
 
 export {
@@ -30,4 +31,5 @@ export {
     useUpdate,
     useSoftDelete,
     useAllObjects,
+    useSoftDeleteMany,
 }

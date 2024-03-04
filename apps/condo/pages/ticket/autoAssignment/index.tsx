@@ -14,6 +14,7 @@ import {
 import { Button, Col, Form, Popconfirm, Row, Select, Table, Typography, notification } from 'antd'
 import { FormItemProps } from 'antd/lib/form/FormItem'
 import { gql } from 'graphql-tag'
+import chunk from 'lodash/chunk'
 import get from 'lodash/get'
 import isArray from 'lodash/isArray'
 import isUndefined from 'lodash/isUndefined'
@@ -124,6 +125,7 @@ const TicketAutoAssignmentPage: ITicketAutoAssignmentPage = () => {
     const SaveMessage = intl.formatMessage({ id: 'pages.ticket.autoAssignment.button.save.label' })
     const EditMessage = intl.formatMessage({ id: 'pages.ticket.autoAssignment.button.edit.label' })
     const DeleteMessage = intl.formatMessage({ id: 'pages.ticket.autoAssignment.button.delete.label' })
+    const DeleteEverythingMessage = intl.formatMessage({ id: 'pages.ticket.autoAssignment.button.deleteEverything.label' })
     const SaveNotificationMessage = intl.formatMessage({ id: 'pages.ticket.autoAssignment.notifications.save.message' })
     const DeleteNotificationMessage = intl.formatMessage({ id: 'pages.ticket.autoAssignment.notifications.delete.message' })
     const ErrorNotificationMessage = intl.formatMessage({ id: 'pages.ticket.autoAssignment.notifications.error.message' })
@@ -143,7 +145,8 @@ const TicketAutoAssignmentPage: ITicketAutoAssignmentPage = () => {
     const updateTicketAutoAssignment = TicketAutoAssignment.useUpdate({})
     const createTicketAutoAssignment = TicketAutoAssignment.useCreate({})
     const deleteTicketAutoAssignment = TicketAutoAssignment.useSoftDelete()
-    const { objs: rules, refetch, allDataLoaded: rulesLoaded, error: rolesError } = TicketAutoAssignment.useAllObjects({
+    const deleteManyTicketAutoAssignment = TicketAutoAssignment.useSoftDeleteMany()
+    const { objs: rules, refetch: refetchRoles, allDataLoaded: rulesLoaded, error: rolesError, loading: rolesLoading } = TicketAutoAssignment.useAllObjects({
         where: {
             organization: { id: organizationId },
         },
@@ -162,7 +165,7 @@ const TicketAutoAssignmentPage: ITicketAutoAssignmentPage = () => {
     const isEditing = useCallback((record: ITicketAutoAssignment) => record.id === editingKey, [editingKey])
     const [saving, setSaving] = useState(false)
 
-    const loading = classifierLoading || !rulesLoaded || employeesLoading
+    const loading = classifierLoading || !rulesLoaded || employeesLoading || rolesLoading
     const error = rolesError || employeesError
 
     const edit = useCallback((record: Partial<ITicketAutoAssignment>) => {
@@ -202,7 +205,7 @@ const TicketAutoAssignmentPage: ITicketAutoAssignmentPage = () => {
                 await updateTicketAutoAssignment(formValuesProcessor(newData), { id })
             }
             if (creating || hasChanges) {
-                await refetch()
+                await refetchRoles()
             }
             api.success({
                 message: SaveNotificationMessage,
@@ -214,17 +217,40 @@ const TicketAutoAssignmentPage: ITicketAutoAssignmentPage = () => {
             })
             console.error('Failed to save data:', error)
         } finally {
-            setEditingKey('')
-            setCreating(false)
-            form.resetFields()
+            cancel()
             setSaving(false)
         }
-    }, [creating, form, organizationId, saving, api])
+    }, [saving, form, creating, api, SaveNotificationMessage, organizationId, ErrorNotificationMessage, cancel])
 
     const deleteItem = useCallback(async (item) => {
         try {
+            if (saving) return
+            setSaving(true)
             await deleteTicketAutoAssignment({ id: item.id })
-            await refetch()
+            await refetchRoles()
+            api.success({
+                message: DeleteNotificationMessage,
+            })
+            cancel()
+        } catch (error) {
+            api.error({
+                message: ErrorNotificationMessage,
+                description: error.message,
+            })
+            console.error('Failed to delete data:', error)
+        } finally {
+            setSaving(false)
+        }
+    }, [DeleteNotificationMessage, ErrorNotificationMessage, api, cancel, saving])
+
+    const deleteAll = useCallback(async () => {
+        try {
+            if (saving) return
+            setSaving(true)
+            const chunks = chunk(rules, 50)
+            for (const chunk of chunks) {
+                await deleteManyTicketAutoAssignment(chunk)
+            }
             api.success({
                 message: DeleteNotificationMessage,
             })
@@ -233,9 +259,11 @@ const TicketAutoAssignmentPage: ITicketAutoAssignmentPage = () => {
                 message: ErrorNotificationMessage,
                 description: error.message,
             })
-            console.error('Failed to delete data:', error)
+            console.error('Failed to delete all data:', error)
+        } finally {
+            setSaving(false)
         }
-    }, [api])
+    }, [DeleteNotificationMessage, ErrorNotificationMessage, api, rules, saving])
 
     const handleSaveClick = useCallback((record) => () => save(record), [save])
 
@@ -363,13 +391,19 @@ const TicketAutoAssignmentPage: ITicketAutoAssignmentPage = () => {
             width: 100,
             render: (_, record: ITicketAutoAssignment) => {
                 const editable = isEditing(record)
-                const disabled = !!creating || editingKey !== ''
+                const disabled = saving
                 return editable ? (
                     <span>
-                        <Typography.Link onClick={() => save(record)} style={{ marginRight: 8 }}>
+                        <Typography.Link disabled={disabled} onClick={() => save(record)} style={{ marginRight: 8 }}>
                             {SaveMessage}
                         </Typography.Link>
-                        <Popconfirm title={CancelConfirmMessage} onConfirm={cancel} cancelText={NoMessage} okText={YesMessage}>
+                        <Popconfirm
+                            disabled={disabled}
+                            title={CancelConfirmMessage}
+                            onConfirm={cancel}
+                            cancelText={NoMessage}
+                            okText={YesMessage}
+                        >
                             <a>{CancelMessage}</a>
                         </Popconfirm>
                     </span>
@@ -391,7 +425,7 @@ const TicketAutoAssignmentPage: ITicketAutoAssignmentPage = () => {
                 )
             },
         },
-    ], [AssigneeMessage, CancelConfirmMessage, CancelMessage, ClassifierMessage, DeleteConfirmMessage, DeleteMessage, EditMessage, ExecutorMessage, NoMessage, OperationsMessage, SaveMessage, YesMessage, cancel, classifierFilters, creating, deleteItem, edit, editingKey, employeeOptions, isEditing, renderClassifierInput, renderEmployeeInput, save])
+    ], [AssigneeMessage, CancelConfirmMessage, CancelMessage, ClassifierMessage, DeleteConfirmMessage, DeleteMessage, EditMessage, ExecutorMessage, NoMessage, OperationsMessage, SaveMessage, YesMessage, cancel, classifierFilters, deleteItem, edit, employeeOptions, isEditing, renderClassifierInput, renderEmployeeInput, save, saving])
 
     const columnsForData = useMemo(() => columns.map((col) => {
         if (!col.editable) return col
@@ -415,12 +449,13 @@ const TicketAutoAssignmentPage: ITicketAutoAssignmentPage = () => {
             return {
                 ...col,
                 render: (_, record: ITicketAutoAssignment) => {
+                    const disabled = saving
                     return (
                         <span>
-                            <Typography.Link onClick={handleSaveClick(record)} style={{ marginRight: 8 }}>
+                            <Typography.Link disabled={disabled} onClick={handleSaveClick(record)} style={{ marginRight: 8 }}>
                                 {SaveMessage}
                             </Typography.Link>
-                            <Popconfirm title={CancelConfirmMessage} onConfirm={cancel}>
+                            <Popconfirm disabled={disabled} title={CancelConfirmMessage} onConfirm={cancel}>
                                 <a>{CancelMessage}</a>
                             </Popconfirm>
                         </span>
@@ -439,7 +474,7 @@ const TicketAutoAssignmentPage: ITicketAutoAssignmentPage = () => {
                 }
             },
         }
-    }), [CancelConfirmMessage, CancelMessage, SaveMessage, cancel, columns, handleSaveClick])
+    }), [CancelConfirmMessage, CancelMessage, SaveMessage, cancel, columns, handleSaveClick, saving])
 
     useEffect(() => {
         setClassifierLoading(true)
@@ -477,10 +512,19 @@ const TicketAutoAssignmentPage: ITicketAutoAssignmentPage = () => {
                         </Button>
                         <Button
                             disabled={loading || saving}
-                            onClick={() => refetch()}
+                            onClick={() => refetchRoles()}
                         >
                             {RefreshMessage}
                         </Button>
+                        <Popconfirm
+                            title={DeleteConfirmMessage}
+                            disabled={!!creating || !!editingKey || loading || saving}
+                            onConfirm={deleteAll}
+                            cancelText={NoMessage}
+                            okText={YesMessage}
+                        >
+                            <Button>{DeleteEverythingMessage}</Button>
+                        </Popconfirm>
                     </Col>
                     {
                         creating && (
@@ -491,6 +535,7 @@ const TicketAutoAssignmentPage: ITicketAutoAssignmentPage = () => {
                                             cell: EditableCell,
                                         },
                                     }}
+                                    loading={loading || saving}
                                     columns={columnsForCreating as any}
                                     dataSource={EMPTY_TABLE_DATA}
                                     pagination={false}
@@ -505,7 +550,7 @@ const TicketAutoAssignmentPage: ITicketAutoAssignmentPage = () => {
                                     cell: EditableCell,
                                 },
                             }}
-                            loading={loading}
+                            loading={loading || saving}
                             columns={columnsForData as any}
                             dataSource={rules}
                             scroll={{ x: true }}
