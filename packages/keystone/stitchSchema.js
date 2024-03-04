@@ -190,7 +190,7 @@ class StitchSchemaMiddleware {
         // creates middleware - no routes exposed
         // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
-        const schema = await makeGatewaySchema()
+        const schema = await makeGatewaySchema(this.appTokenKey, this.condoAccessTokenKey)
 
         app.use(
             this.apiUrl,
