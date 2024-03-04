@@ -13,18 +13,18 @@ import {
 import { TicketAutoAssignment } from '@condo/domains/ticket/utils/clientSchema'
 
 
-const selectUserByAutoAssignmentRule = (rule, sortedEmployees, key: 'assignee' | 'executor', defaultUserId?: string) => {
-    if (!rule) return defaultUserId
+const selectUserByAutoAssignmentRule = (rule, employees, key: 'assignee' | 'executor') => {
+    if (!rule) return null
 
     const desiredEmployee = get(rule, key)
     if (desiredEmployee === null) return null
 
     const desiredEmployeeId = get(desiredEmployee, 'id')
-    if (!desiredEmployeeId) return defaultUserId
+    if (!desiredEmployeeId) return null
 
-    const employee = sortedEmployees.find(employee => employee.id === desiredEmployeeId && !employee.isBlocked)
+    const employee = employees.find(employee => employee.id === desiredEmployeeId && !employee.isBlocked)
     const employeeUserId = get(employee, 'user.id')
-    if (!employeeUserId) return defaultUserId
+    if (!employeeUserId) return null
 
     return employeeUserId
 }
@@ -78,6 +78,21 @@ export const AutoAssigner = ({
 
     useDeepCompareEffect(() => {
         if (allLoaded) {
+
+            // 1 - try set assignee and executor by TicketAutoAssignment
+            if (rule) {
+                const autoSelectedAssigneeUserId = selectUserByAutoAssignmentRule(rule, employees, 'assignee')
+                const autoSelectedExecutorUserId = selectUserByAutoAssignmentRule(rule, employees, 'executor')
+
+                form.setFieldsValue({
+                    assignee: autoSelectedAssigneeUserId,
+                    executor: autoSelectedExecutorUserId,
+                })
+                setAutoAssigneePropertyScopeName(null)
+                return
+            }
+
+            // 2 - set assignee and executor by specialization and ticket visibility or current user
             const employeesWithMatchesPropertyAndSpecializationScope = employees.filter(
                 isEmployeeSpecializationAndPropertyMatchesToScope(
                     {
@@ -98,25 +113,21 @@ export const AutoAssigner = ({
 
                 const firstEmployee = sortedEmployees.find(employee => !employee.isBlocked)
                 const firstEmployeeUserId = get(firstEmployee, 'user.id')
-
-                const autoSelectedAssigneeId = selectUserByAutoAssignmentRule(rule, sortedEmployees, 'assignee', firstEmployeeUserId)
-                const autoSelectedExecutorId = selectUserByAutoAssignmentRule(rule, sortedEmployees, 'executor', firstEmployeeUserId)
-
-                form.setFieldsValue({
-                    assignee: autoSelectedAssigneeId,
-                    executor: autoSelectedExecutorId,
-                })
-
                 const propertyScopeName = getPropertyScopeNameByEmployee(firstEmployee, propertyScopes, propertyScopeEmployees)
-                setAutoAssigneePropertyScopeName(propertyScopeName)
-            } else {
-                form.setFieldsValue({
-                    assignee: currentUserCanBeAssignee ? currentUserId : null,
-                    executor: null,
-                })
 
-                setAutoAssigneePropertyScopeName(null)
+                form.setFieldsValue({
+                    assignee: firstEmployeeUserId,
+                    executor: firstEmployeeUserId,
+                })
+                setAutoAssigneePropertyScopeName(propertyScopeName)
+                return
             }
+
+            form.setFieldsValue({
+                assignee: currentUserCanBeAssignee ? currentUserId : null,
+                executor: null,
+            })
+            setAutoAssigneePropertyScopeName(null)
         }
     }, [
         categoryClassifierId, employees, form, organizationEmployeeSpecializations,
