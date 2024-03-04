@@ -38,6 +38,7 @@ const {
     SEND_NEW_RECEIPT_MESSAGES_TO_RESIDENT_SCOPES_MUTATION,
     SEND_NEW_BILLING_RECEIPT_FILES_NOTIFICATIONS_MUTATION,
     VALIDATE_QRCODE_MUTATION,
+    SUM_BILLING_RECEIPTS_MUTATION,
 } = require('@condo/domains/billing/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -59,6 +60,8 @@ const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const {SUM_PAYMENTS_QUERY} = require("../../../acquiring/gql");
+const Big = require("big.js");
 
 const bannerVariants = [
     { bannerColor: "#9b9dfa", bannerTextColor: "WHITE" },
@@ -910,6 +913,14 @@ async function sendNewBillingReceiptFilesNotificationsByTestClient(client, extra
 }
 
 
+async function sumBillingReceiptsByTestClient (client, where={}) {
+    if (!client) throw new Error('no client')
+
+    const { data, errors } = await client.query(SUM_BILLING_RECEIPTS_QUERY, { where: where })
+    throwIfError(data, errors)
+    return data.result
+}
+
 module.exports = {
     BillingIntegration, createTestBillingIntegration, updateTestBillingIntegration,
     BillingIntegrationAccessRight, createTestBillingIntegrationAccessRight, updateTestBillingIntegrationAccessRight,
@@ -939,6 +950,7 @@ module.exports = {
     PUBLIC_FILE, PRIVATE_FILE,
     validateQRCodeByTestClient,
     sendNewBillingReceiptFilesNotificationsByTestClient,
+    sumBillingReceiptsByTestClient,
     registerBillingReceiptFileByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

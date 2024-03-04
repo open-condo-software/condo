@@ -540,11 +540,16 @@ async function makePayer (receiptsAmount = 1) {
     const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, billingIntegration)
     const [billingProperty] = await createTestBillingProperty(admin, billingContext, {address: property.address})
     const [billingAccount] = await createTestBillingAccount(admin, billingContext, billingProperty)
+
     const billingReceipts = []
     for (let i = 0; i < receiptsAmount; i++) {
         const [receipt] = await createTestBillingReceipt(admin, billingContext, billingProperty, billingAccount, { period: dayjs().format('YYYY-MM-01') })
         billingReceipts.push(receipt)
     }
+
+    const toPaySum = billingReceipts.reduce((accumulator, receipt) => {
+        return accumulator.plus(new Big(receipt.toPay))
+    }, new Big(0)).toFixed(8)
 
     const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
     const [acquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration)
@@ -573,6 +578,7 @@ async function makePayer (receiptsAmount = 1) {
         billingReceipts,
         resident,
         serviceConsumer,
+        toPaySum
     }
 }
 
