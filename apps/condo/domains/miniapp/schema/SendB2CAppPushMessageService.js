@@ -18,7 +18,7 @@ const { B2CApp } = require('@condo/domains/miniapp/utils/serverSchema')
 const {
     VOIP_INCOMING_CALL_MESSAGE_TYPE,
     B2C_APP_MESSAGE_PUSH_TYPE,
-    DECLINE_VOIP_INCOMING_CALL_MESSAGE_TYPE,
+    PUSH_TYPE_SILENT_DATA,
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
@@ -29,7 +29,7 @@ const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 const CACHE_TTL = {
     DEFAULT: 3600,
     VOIP_INCOMING_CALL_MESSAGE: 2,
-    DECLINE_VOIP_INCOMING_CALL_MESSAGE: 2,
+    PUSH_TYPE_SILENT_DATA: 2,
     B2C_APP_MESSAGE_PUSH: 3600,
 }
 
@@ -103,7 +103,7 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
     types: [
         {
             access: true,
-            type: `enum SendB2CAppPushMessageType { ${VOIP_INCOMING_CALL_MESSAGE_TYPE} ${B2C_APP_MESSAGE_PUSH_TYPE} ${DECLINE_VOIP_INCOMING_CALL_MESSAGE_TYPE} }`,
+            type: `enum SendB2CAppPushMessageType { ${VOIP_INCOMING_CALL_MESSAGE_TYPE} ${B2C_APP_MESSAGE_PUSH_TYPE} ${PUSH_TYPE_SILENT_DATA} }`,
         },
         {
             access: true,
@@ -147,7 +147,7 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
 
                 if (!userExisted) throw new GQLError(ERRORS.USER_NOT_FOUND, context)
 
-                if (type === DECLINE_VOIP_INCOMING_CALL_MESSAGE_TYPE) {
+                if (type === PUSH_TYPE_SILENT_DATA) {
                     if (!callId) throw new GQLError(ERRORS.DECLINE_VOIP_WITHOUT_CALLID, context)
                     if (!declineReason) throw new GQLError(ERRORS.DECLINE_VOIP_WITHOUT_REASON, context)
                 }
@@ -209,7 +209,7 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
                     messageAttrs.meta.data.voipDtfmCommand = voipDtfmCommand
                 }
 
-                if (type === 'decline') {
+                if (type === PUSH_TYPE_SILENT_DATA) {
                     messageAttrs.meta.data.callId = callId
                     messageAttrs.meta.data.declineReason = declineReason
                 }
