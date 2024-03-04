@@ -313,28 +313,6 @@ const TicketAutoAssignmentPage: ITicketAutoAssignmentPage = () => {
             },
         },
         {
-            title: AssigneeMessage,
-            dataIndex: ['assignee', 'name'],
-            key: 'assignee',
-            width: 250,
-            editable: true,
-            inputNode: renderEmployeeInput,
-            formItemProps: {
-                name: 'assignee',
-            },
-            filterSearch: true,
-            filters: employeeOptions.map(item => ({ ...item, text: item.label })).sort((a, b) => a.label.localeCompare(b.label)),
-            onFilter: (value: string, record) => {
-                return get(record, 'assignee.id') === value
-            },
-            sorter: (a, b) => {
-                const aName = get(a, 'assignee.name')
-                const bName = get(b, 'assignee.name')
-                if (!aName || !bName) return !aName ? 1 : -1
-                return aName.localeCompare(bName)
-            },
-        },
-        {
             title: ExecutorMessage,
             dataIndex: ['executor', 'name'],
             key: 'executor',
@@ -354,6 +332,28 @@ const TicketAutoAssignmentPage: ITicketAutoAssignmentPage = () => {
             filters: employeeOptions.map(item => ({ ...item, text: item.label })).sort((a, b) => a.label.localeCompare(b.label)),
             onFilter: (value: string, record) => {
                 return get(record, 'executor.id') === value
+            },
+        },
+        {
+            title: AssigneeMessage,
+            dataIndex: ['assignee', 'name'],
+            key: 'assignee',
+            width: 250,
+            editable: true,
+            inputNode: renderEmployeeInput,
+            formItemProps: {
+                name: 'assignee',
+            },
+            filterSearch: true,
+            filters: employeeOptions.map(item => ({ ...item, text: item.label })).sort((a, b) => a.label.localeCompare(b.label)),
+            onFilter: (value: string, record) => {
+                return get(record, 'assignee.id') === value
+            },
+            sorter: (a, b) => {
+                const aName = get(a, 'assignee.name')
+                const bName = get(b, 'assignee.name')
+                if (!aName || !bName) return !aName ? 1 : -1
+                return aName.localeCompare(bName)
             },
         },
         {
