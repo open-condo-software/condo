@@ -82,6 +82,7 @@ const MARKETPLACE_INVOICE_PUBLISHED_MESSAGE_TYPE = 'MARKETPLACE_INVOICE_PUBLISHE
 const MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE = 'MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE'
 const MARKETPLACE_INVOICE_CASH_PUBLISHED_MESSAGE_TYPE = 'MARKETPLACE_INVOICE_CASH_PUBLISHED_MESSAGE'
 const MARKETPLACE_INVOICE_CASH_WITH_TICKET_PUBLISHED_MESSAGE_TYPE = 'MARKETPLACE_INVOICE_CASH_WITH_TICKET_PUBLISHED_MESSAGE'
+const SERVICE_USER_CREATED_MESSAGE_TYPE = 'SERVICE_USER_CREATED'
 
 const SMS_FORBIDDEN_SYMBOLS_REGEXP = /[&#|«»]+/gim
 
@@ -631,6 +632,14 @@ const MESSAGE_META = {
             url: { required: true },
         },
     },
+    [SERVICE_USER_CREATED_MESSAGE_TYPE]: {
+        dv: { required: true },
+        data: {
+            serverUrl: { required: true },
+            email: { required: true },
+            password: { required: true },
+        },
+    },
 }
 
 /** Used to validate type field for sendMessage mutation payload */
@@ -846,6 +855,11 @@ const MESSAGE_DELIVERY_OPTIONS = {
     [BILLING_RECEIPT_FILE_ADDED_TYPE]: {
         allowedTransports: [EMAIL_TRANSPORT],
         defaultTransports: [EMAIL_TRANSPORT],
+    },
+    [SERVICE_USER_CREATED_MESSAGE_TYPE]: {
+        allowedTransports: [EMAIL_TRANSPORT],
+        defaultTransports: [EMAIL_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
     },
 }
 
@@ -1066,5 +1080,6 @@ module.exports = {
     MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
     MARKETPLACE_INVOICE_CASH_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
     MARKETPLACE_INVOICE_CASH_PUBLISHED_MESSAGE_TYPE,
+    SERVICE_USER_CREATED_MESSAGE_TYPE,
 }
 
