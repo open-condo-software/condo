@@ -7,6 +7,7 @@ import { Col, Row, RowProps } from 'antd'
 import { TableRowSelection } from 'antd/lib/table/interface'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 import { useIntl } from 'react-intl'
@@ -137,6 +138,7 @@ const MarketplacePaymentsTableContent = () => {
         },
     }), [orgId])
 
+    const [selectedRows, setSelectedRows] = useState([])
     const searchPaymentsQuery = useMemo(() => {
         return {
             ...invoiceOrganizationQuery,
@@ -176,8 +178,6 @@ const MarketplacePaymentsTableContent = () => {
         ...invoiceOrganizationQuery,
         status_in: [PAYMENT_WITHDRAWN_STATUS],
     })
-
-    const [selectedRows, setSelectedRows] = useState([])
 
     const [search, handleSearchChange] = useSearch()
     const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
@@ -340,10 +340,12 @@ const MarketplacePaymentsTableContent = () => {
                 (
                     <ExportToExcelActionBar
                         key='exportToExcel'
-                        searchObjectsQuery={{
+                        searchObjectsQuery={ isEmpty(selectedRows) ? {
                             ...searchPaymentsQuery,
                             ...filtersToWhere(filters),
-                        }}
+                        } : {
+                            id_in: selectedRows.map(payment => payment.id),
+                        } }
                         sortBy={sortBy}
                         exportToExcelQuery={EXPORT_PAYMENTS_TO_EXCEL}
                         disabled={total < 1}
