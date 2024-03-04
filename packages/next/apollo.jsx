@@ -26,14 +26,14 @@ const { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityL
 
 let getApolloClientConfig = () => {
     const {
-        publicRuntimeConfig: { serverUrl, apolloGraphQLUrl },
+        publicRuntimeConfig: { serverUrl, apolloGraphQLUrl, apolloBatchingEnabled },
     } = getConfig()
     if (!serverUrl || !apolloGraphQLUrl) throw new Error('You should set next.js publicRuntimeConfig { serverUrl, apolloGraphQLUrl } variables. Check your next.config.js')
-    return { serverUrl, apolloGraphQLUrl }
+    return { serverUrl, apolloGraphQLUrl, apolloBatchingEnabled }
 }
 
 let createApolloClient = (initialState, ctx, apolloCacheConfig, apolloClientConfig) => {
-    const { serverUrl, apolloGraphQLUrl } = getApolloClientConfig()
+    const { serverUrl, apolloGraphQLUrl, apolloBatchingEnabled } = getApolloClientConfig()
     if (DEBUG_RERENDERS) console.log('WithApollo(): getApolloClientConfig()', { serverUrl, apolloGraphQLUrl })
 
     // Note: isOnClientSide === true for browser and expo
@@ -87,12 +87,16 @@ let createApolloClient = (initialState, ctx, apolloCacheConfig, apolloClientConf
         batchInterval: 10,
     })
 
+    const apolloLink = apolloBatchingEnabled
+        ? ApolloLink.split(operation => hasFiles(get(operation, 'variables', {})), uploadLink, batchLink)
+        : uploadLink
+
     // The `ctx` (NextPageContext) will only be present on the server.
     // use it to extract auth headers (ctx.req) or similar.
     return new ApolloClient({
         // connectToDevTools: !Boolean(ctx),
         ssrMode: Boolean(ctx),
-        link: ApolloLink.split(operation => hasFiles(get(operation, 'variables', {})), uploadLink, batchLink),
+        link: apolloLink,
         cache: new InMemoryCache(apolloCacheConfig).restore(initialState || {}),
         ...apolloClientConfig,
     })
