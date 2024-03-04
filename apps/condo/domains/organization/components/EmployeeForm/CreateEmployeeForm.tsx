@@ -20,7 +20,6 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { EmployeeRoleSelect } from '@condo/domains/organization/components/EmployeeRoleSelect'
-import { useEmployeeValidations } from '@condo/domains/organization/hooks/useEmployeeValidations'
 import {
     OrganizationEmployeeRole,
     useInviteNewOrganizationEmployee,
@@ -70,11 +69,10 @@ export const CreateEmployeeForm: React.FC = () => {
     )
 
     const { changeMessage, requiredValidator, emailValidator, phoneValidator, trimValidator, specCharValidator } = useValidations()
-    const { alreadyRegisteredEmailValidator, alreadyRegisteredPhoneValidator } = useEmployeeValidations(organizationId)
 
     const validations: { [key: string]: Rule[] } = {
-        phone: [requiredValidator, phoneValidator, alreadyRegisteredPhoneValidator],
-        email: [emailValidator, alreadyRegisteredEmailValidator],
+        phone: [requiredValidator, phoneValidator],
+        email: [emailValidator],
         name: [
             changeMessage(trimValidator, FullNameRequiredMessage),
             changeMessage(specCharValidator, FullNameInvalidCharMessage),
@@ -143,7 +141,7 @@ export const CreateEmployeeForm: React.FC = () => {
                     return (
                         <>
                             <Row>
-                                <Col lg={14} xs={24}>
+                                <Col md={14} xs={24}>
                                     <Row gutter={[0, 60]}>
                                         <Col span={24}>
                                             <Row gutter={[0, 40]}>

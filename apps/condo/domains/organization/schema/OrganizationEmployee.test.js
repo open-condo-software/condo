@@ -8,7 +8,7 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObj,
-    expectToThrowUniqueConstraintViolationError, expectToThrowGQLError,
+    expectToThrowUniqueConstraintViolationError, expectToThrowGQLError, catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
 
 const {
@@ -383,6 +383,60 @@ describe('OrganizationEmployee', () => {
         const [employee] = await OrganizationEmployee.getAll(client1, { user: { id: client2.user.id } })
         expect(employee.phone).toEqual(phone)
         expect(employee.email).toEqual(email)
+    })
+
+    test('employee: can not update phone if employee with same phone exist in organization', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const client1 = await makeClientWithRegisteredOrganization()
+        const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
+
+        const [role] = await createTestOrganizationEmployeeRole(client1, client1.organization)
+        const [invitedEmployee] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs, role)
+        await acceptOrRejectOrganizationInviteById(client2, invitedEmployee)
+
+        await catchErrorFrom(async () => {
+            await updateTestOrganizationEmployee(admin, invitedEmployee.id, {
+                phone: client1.userAttrs.phone,
+            })
+        }, ({ errors }) => {
+            expect(errors).toMatchObject([{
+                message: 'Employee with same phone already invited into the organization',
+                path: ['obj'],
+                extensions: {
+                    mutation: 'updateOrganizationEmployee',
+                    code: 'BAD_USER_INPUT',
+                    type: 'ALREADY_INVITED_PHONE',
+                    message: 'Employee with same phone already invited into the organization',
+                },
+            }])
+        })
+    })
+
+    test('employee: can not update email if employee with same email exist in organization', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const client1 = await makeClientWithRegisteredOrganization()
+        const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
+
+        const [role] = await createTestOrganizationEmployeeRole(client1, client1.organization)
+        const [invitedEmployee] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs, role)
+        await acceptOrRejectOrganizationInviteById(client2, invitedEmployee)
+
+        await catchErrorFrom(async () => {
+            await updateTestOrganizationEmployee(admin, invitedEmployee.id, {
+                email: client1.userAttrs.email,
+            })
+        }, ({ errors }) => {
+            expect(errors).toMatchObject([{
+                message: 'Employee with same email already invited into the organization',
+                path: ['obj'],
+                extensions: {
+                    mutation: 'updateOrganizationEmployee',
+                    code: 'BAD_USER_INPUT',
+                    type: 'ALREADY_INVITED_EMAIL',
+                    message: 'Employee with same email already invited into the organization',
+                },
+            }])
+        })
     })
 
     test('employee: did not update phone and email when user reject invite', async () => {
