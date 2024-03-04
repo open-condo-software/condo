@@ -551,11 +551,6 @@ const TicketAutoAssignmentPermissionRequired: React.FC = ({ children }) => {
         [userWithRightSets]
     )
 
-    console.log({
-        data,
-        userWithRightSets,
-    })
-
     if (loading || error) {
         return <LoadingOrErrorPage loading={loading} error={error} />
     }
