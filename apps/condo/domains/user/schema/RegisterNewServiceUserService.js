@@ -10,7 +10,7 @@ const { SERVICE_USER_CREATED_MESSAGE_TYPE } = require('@condo/domains/notificati
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const access = require('@condo/domains/user/access/RegisterNewServiceUserService')
 const { SERVICE } = require('@condo/domains/user/constants/common')
-const { User } = require('@condo/domains/user/utils/serverSchema')
+const { UserAdmin: User } = require('@condo/domains/user/utils/serverSchema')
 
 const LOWER_LETTERS = 'abcdefghijklmnopqrstuvwxyz'
 const UPPER_LETTERS = LOWER_LETTERS.toUpperCase()
