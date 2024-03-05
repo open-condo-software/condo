@@ -32,13 +32,6 @@ if (IS_OTEL_TRACING_ENABLED) {
             url: tracesUrl,
             headers: headers,
         }),
-        metricReader: new PeriodicExportingMetricReader({
-            exporter: new OTLPMetricExporter({
-                url: metricsUrl,
-                headers: headers,
-                concurrencyLimit: 1,
-            }),
-        }),
 
         instrumentations: [
             new PgInstrumentation(),
