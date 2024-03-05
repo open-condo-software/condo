@@ -2223,6 +2223,7 @@
   "excelExport.headers.payments.status": "Status",
   "excelExport.headers.payments.order": "P/O",
   "excelExport.headers.payments.amount": "Amount",
+  "excelExport.headers.payments.invoiceNumber": "Invoice",
   "excelExport.headers.contacts.name": "Name",
   "excelExport.headers.contacts.address": "Address",
   "excelExport.headers.contacts.unitName": "Unit name",

@@ -2223,6 +2223,7 @@
   "excelExport.headers.payments.status": "Статус",
   "excelExport.headers.payments.order": "П/П",
   "excelExport.headers.payments.amount": "Сумма",
+  "excelExport.headers.payments.invoiceNumber": "Счет",
   "excelExport.headers.contacts.name": "Имя",
   "excelExport.headers.contacts.address": "Адрес",
   "excelExport.headers.contacts.unitName": "Помещение",
