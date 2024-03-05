@@ -38877,6 +38877,10 @@ export type Mutation = {
    * 				"defaultValue": "",
    * 				"required": true
    * 			},
+   * 			"ticketClassifier": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
    * 			"userId": {
    * 				"defaultValue": "",
    * 				"required": true
@@ -38890,10 +38894,6 @@ export type Mutation = {
    * 				"required": true
    * 			},
    * 			"organizationName": {
-   * 				"defaultValue": "",
-   * 				"required": true
-   * 			},
-   * 			"details": {
    * 				"defaultValue": "",
    * 				"required": true
    * 			}
@@ -38928,6 +38928,14 @@ export type Mutation = {
    * 				"defaultValue": "",
    * 				"required": true
    * 			},
+   * 			"ticketDetails": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"ticketClassifier": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
    * 			"userId": {
    * 				"defaultValue": "",
    * 				"required": true
@@ -38945,6 +38953,14 @@ export type Mutation = {
    * 				"required": true
    * 			},
    * 			"commentCreatedAt": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"CommentType": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"CommentTypeMessage": {
    * 				"defaultValue": "",
    * 				"required": true
    * 			},
