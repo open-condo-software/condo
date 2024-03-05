@@ -1736,6 +1736,7 @@
   "notification.messages.TICKET_CREATED.telegram.openTicket": "Открыть заявку",
   "notification.messages.TICKET_COMMENT_CREATED.telegram.openTicket": "Открыть заявку",
   "notification.messages.BILLING_RECEIPT_FILE_ADDED.email.subject": "{data.organization}. Квитанции за услуги ЖКХ",
+  "notification.messages.SERVICE_USER_CREATED.email.subject": "Сервисная учетная запись успешно зарегистрирована",
   "news.ConfirmDeleteTitle": "Удалить новость?",
   "news.ConfirmDeleteMessage": "Восстановить ее будет нельзя. Но можно создать заново.",
   "news.CancelMessage": "Оставить",
