@@ -99,7 +99,7 @@ const sendTicketCommentCreatedNotifications = async (commentId, ticketId) => {
                         commentId,
                         commentContent: createdComment.content || EMPTY_CONTENT,
                         commentType: createdComment.type,
-                        CommentTypeMessage,
+                        commentTypeMessage: CommentTypeMessage,
                         commentCreatedAt: dayjs(createdComment.createdAt).format('YYYY-MM-DD HH:mm'),
                         ticketId,
                         ticketDetails: ticket.details,
@@ -109,7 +109,6 @@ const sendTicketCommentCreatedNotifications = async (commentId, ticketId) => {
                         ticketAddress: ticket.propertyAddress,
                         ticketUnit: ticket.unitName ? `${TicketUnitType} ${ticket.unitName}` : EMPTY_CONTENT,
                         userId: employeeUserId,
-                        userName: commentAuthor.name,
                         url: ticketUrl,
                     },
                     telegramMeta: {

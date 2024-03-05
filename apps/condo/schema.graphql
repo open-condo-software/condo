@@ -83070,10 +83070,6 @@ type Mutation {
   				"defaultValue": "",
   				"required": true
   			},
-  			"userName": {
-  				"defaultValue": "",
-  				"required": true
-  			},
   			"commentId": {
   				"defaultValue": "",
   				"required": true
@@ -83086,11 +83082,11 @@ type Mutation {
   				"defaultValue": "",
   				"required": true
   			},
-  			"CommentType": {
+  			"commentType": {
   				"defaultValue": "",
   				"required": true
   			},
-  			"CommentTypeMessage": {
+  			"commentTypeMessage": {
   				"defaultValue": "",
   				"required": true
   			},

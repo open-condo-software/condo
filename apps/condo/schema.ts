@@ -38940,10 +38940,6 @@ export type Mutation = {
    * 				"defaultValue": "",
    * 				"required": true
    * 			},
-   * 			"userName": {
-   * 				"defaultValue": "",
-   * 				"required": true
-   * 			},
    * 			"commentId": {
    * 				"defaultValue": "",
    * 				"required": true
@@ -38956,11 +38952,11 @@ export type Mutation = {
    * 				"defaultValue": "",
    * 				"required": true
    * 			},
-   * 			"CommentType": {
+   * 			"commentType": {
    * 				"defaultValue": "",
    * 				"required": true
    * 			},
-   * 			"CommentTypeMessage": {
+   * 			"commentTypeMessage": {
    * 				"defaultValue": "",
    * 				"required": true
    * 			},
