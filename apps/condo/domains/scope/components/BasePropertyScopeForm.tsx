@@ -18,7 +18,7 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import { Loader } from '@condo/domains/common/components/Loader'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { searchEmployeeWithSpecializations } from '@condo/domains/organization/utils/clientSchema/search'
-import { MAX_NAME_LENGTH } from '@condo/domains/scope/constants/index'
+import { MAX_NAME_LENGTH } from '@condo/domains/scope/constants'
 import { PropertyScopeOrganizationEmployee, PropertyScopeProperty } from '@condo/domains/scope/utils/clientSchema'
 import {
     searchOrganizationProperty,
@@ -165,7 +165,8 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
     }), [PropertiesMessage])
     const propertiesSelectProps = useMemo(() => ({
         initialValue: initialProperties,
-        search: searchOrganizationProperty(organizationId),
+        search: searchOrganizationProperty(organizationId, initialProperties),
+        initialValueSearch: searchOrganizationProperty(organizationId),
         disabled: !organizationId,
         eventName: 'PropertyScopeFormSelectProperty',
         ...BASE_SELECT_PROPS,
@@ -178,7 +179,8 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
     const employeesSelectProps = useMemo(() => ({
         disabled: !organizationId,
         initialValue: initialEmployees,
-        search: searchEmployeeWithSpecializations(intl, organizationId, null),
+        search: searchEmployeeWithSpecializations(intl, organizationId, null, initialEmployees),
+        initialValueSearch: searchEmployeeWithSpecializations(intl, organizationId, null),
         onChange: (value) => setShowHintAlert(!isEmpty(value)),
         renderOptions: renderEmployees,
         eventName: 'PropertyScopeFormSelectEmployee',
