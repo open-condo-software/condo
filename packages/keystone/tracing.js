@@ -21,13 +21,15 @@ const KEYSTONE_MUTATION_QUERY_REGEX = /(?:mutation|query)\s+(\w+)/
 const IS_OTEL_TRACING_ENABLED = conf.IS_OTEL_TRACING_ENABLED === '1'
 const OTEL_CONFIG = conf.OTEL_CONFIG ? JSON.parse(conf.OTEL_CONFIG) : {}
 
-const { tracesUrl, metricsUrl, headers = {} } = OTEL_CONFIG
+const { tracesUrl, headers = {} } = OTEL_CONFIG
 
 const tracers = {}
 
 if (IS_OTEL_TRACING_ENABLED) {
+
     const sdk = new otelSdk.NodeSDK({
         serviceName: `condo${DELIMETER}${SERVER_URL.replace(/^(https?:\/\/)/, '')}`,
+
         traceExporter: new OTLPTraceExporter({
             url: tracesUrl,
             headers: headers,
