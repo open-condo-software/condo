@@ -547,11 +547,11 @@ const apolloCacheConfig = {
 }
 
 const apolloClientConfig = {
-    // defaultOptions: {
-    //     watchQuery: {
-    //         fetchPolicy: 'no-cache',
-    //     },
-    // },
+    defaultOptions: {
+        watchQuery: {
+            fetchPolicy: 'no-cache',
+        },
+    },
 }
 
 export default (

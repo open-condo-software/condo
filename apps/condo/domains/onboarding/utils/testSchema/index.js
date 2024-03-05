@@ -11,6 +11,7 @@ const { OnBoarding: OnBoardingGQL } = require('@condo/domains/onboarding/gql')
 const { OnBoardingStep: OnBoardingStepGQL } = require('@condo/domains/onboarding/gql')
 const { CREATE_ONBOARDING_MUTATION } = require('@condo/domains/onboarding/gql')
 const { TourStep: TourStepGQL } = require('@condo/domains/onboarding/gql')
+const { SYNC_TOUR_STEPS_MUTATION } = require('@condo/domains/onboarding/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const OnBoarding = generateGQLTestUtils(OnBoardingGQL)
@@ -128,6 +129,20 @@ async function updateTestTourStep (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+
+async function syncTourStepsByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(SYNC_TOUR_STEPS_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -135,5 +150,6 @@ module.exports = {
     OnBoardingStep, createTestOnBoardingStep, updateTestOnBoardingStep,
     createOnBoardingByTestClient,
     TourStep, createTestTourStep, updateTestTourStep,
+    syncTourStepsByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

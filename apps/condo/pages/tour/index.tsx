@@ -35,6 +35,7 @@ import {
     TODO_STEP_STATUS,
 } from '@condo/domains/onboarding/constants/steps'
 import { useTourContext } from '@condo/domains/onboarding/contexts/TourContext'
+import { useSyncSteps } from '@condo/domains/onboarding/hooks/useSyncSteps'
 import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
@@ -235,31 +236,37 @@ const TourPageContent = () => {
 
     const router = useRouter()
     const { organization, isLoading } = useOrganization()
-    const { activeTourStep, setActiveTourStep, updateStepIfNotCompleted, refetch } = useTourContext()
+    const organizationId = get(organization, 'id')
+    const { activeTourStep, setActiveTourStep, updateStepIfNotCompleted } = useTourContext()
     const handleBackClick = useCallback(() => setActiveTourStep(null), [setActiveTourStep])
 
-    const { objs: tourSteps, loading: stepsLoading } = TourStep.useObjects({
+    const { objs: tourSteps, loading: stepsLoading, refetch: refetchSteps } = TourStep.useObjects({
         where: {
-            organization: { id: get(organization, 'id') },
+            organization: { id: organizationId },
         },
         sortBy: [SortTourStepsBy.OrderAsc],
-    }, { skip: isLoading || !organization })
+    }, { skip: isLoading || !organizationId })
 
     const firstLevelSteps = useMemo(
         () => tourSteps.filter(step => FIRST_LEVEL_STEPS.includes(step.type)),
         [tourSteps])
+
     const secondLevelSteps = useMemo(
         () => tourSteps.filter(step => SECOND_LEVEL_STEPS.includes(step.type)),
         [tourSteps])
+
     const activeStepInnerSteps = useMemo(() => {
         if (!get(activeTourStep, 'firstLevel')) return []
         const secondLevelStepsTypes = STEP_TRANSITIONS[get(activeTourStep, 'firstLevel')]
 
         return tourSteps.filter(step => secondLevelStepsTypes.includes(step.type))
     }, [activeTourStep, tourSteps])
+
     const stepsToRender = useMemo(
         () => !isEmpty(activeStepInnerSteps) ? activeStepInnerSteps : firstLevelSteps,
         [firstLevelSteps, activeStepInnerSteps])
+
+    const syncLoading = useSyncSteps({ refetchSteps, organizationId })
 
     const handleStepCardClick = useCallback(async (step) => {
         const type = step.type
@@ -271,27 +278,12 @@ const TourPageContent = () => {
             if (type === TourStepTypeType.ViewResidentsAppGuide) {
                 window.open(TODO_STEP_ROUTE[type], '_blank')
                 await updateStepIfNotCompleted(TourStepTypeType.ViewResidentsAppGuide)
-                await refetch()
+                await refetchSteps()
             } else {
                 await router.push(TODO_STEP_ROUTE[type])
             }
         }
-    }, [refetch, router, setActiveTourStep, updateStepIfNotCompleted])
-
-    const { count: propertiesCount, loading: propertiesLoading } = Property.useCount({
-        where: {
-            organization: { id: get(organization, 'id') },
-        },
-    }, { skip: isLoading })
-
-    const { count: propertiesWithMapCount, loading: propertiesWithMapLoading } = Property.useCount({
-        where: {
-            organization: { id: get(organization, 'id') },
-            map_not: null,
-        },
-    }, { skip: isLoading })
-
-    const countersLoading = propertiesLoading || propertiesWithMapLoading
+    }, [refetchSteps, router, setActiveTourStep, updateStepIfNotCompleted])
 
     const isAllSecondStepsCompleted = useMemo(() => secondLevelSteps.every(step => step.status === 'completed'), [secondLevelSteps])
     const isInnerStepsCompleted = useMemo(() => activeStepInnerSteps &&
@@ -393,9 +385,8 @@ const TourPageContent = () => {
 
     const { breakpoints } = useLayoutContext()
     const isMiddleScreen = useMemo(() => !breakpoints.DESKTOP_SMALL, [breakpoints.DESKTOP_SMALL])
-    const isSmallScreen = useMemo(() => !breakpoints.TABLET_LARGE, [breakpoints.TABLET_LARGE])
 
-    if (isLoading || stepsLoading) {
+    if (isLoading || stepsLoading || syncLoading) {
         return <Loader size='large'/>
     }
 
@@ -484,20 +475,13 @@ const TourPage = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'tour.title' })
 
-    const { breakpoints } = useLayoutContext()
-    const isSmallScreen = useMemo(() => !breakpoints.TABLET_LARGE, [breakpoints.TABLET_LARGE])
-
     return (
         <>
             <Head>
                 <title>{PageTitle}</title>
             </Head>
             <PageWrapper>
-                {
-                    !isSmallScreen && (
-                        <PageHeader title={<Typography.Title>{PageTitle}</Typography.Title>}/>
-                    )
-                }
+                <PageHeader title={<Typography.Title>{PageTitle}</Typography.Title>}/>
                 <PageContent>
                     <TourPageContent/>
                 </PageContent>

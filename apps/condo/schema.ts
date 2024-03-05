@@ -40881,6 +40881,7 @@ export type Mutation = {
    * }`
    */
   createOnBoardingByType?: Maybe<OnBoarding>;
+  syncTourSteps?: Maybe<SyncTourStepsOutput>;
   /**
    * This mutation deletes meters and meter readings in specified organization.
    *
@@ -49107,6 +49108,11 @@ export type MutationRegisterResidentInvoiceArgs = {
 
 export type MutationCreateOnBoardingByTypeArgs = {
   data: CreateOnBoardingInput;
+};
+
+
+export type MutationSyncTourStepsArgs = {
+  data: SyncTourStepsInput;
 };
 
 
@@ -81481,6 +81487,17 @@ export type SyncRemoteClientInput = {
   pushTokenVoIP?: Maybe<Scalars['String']>;
   pushTransportVoIP?: Maybe<PushTransportType>;
   pushTypeVoIP?: Maybe<PushType>;
+};
+
+export type SyncTourStepsInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  organizationId: Scalars['ID'];
+};
+
+export type SyncTourStepsOutput = {
+  __typename?: 'SyncTourStepsOutput';
+  ok: Scalars['String'];
 };
 
 /**  Link between condo user and user's telegram chat with bot  */
