@@ -1,5 +1,5 @@
 import styled from '@emotion/styled'
-import { Col, Form, FormInstance, FormItemProps, Row, SelectProps } from 'antd'
+import { Col, Form, FormInstance, FormItemProps, Row } from 'antd'
 import get from 'lodash/get'
 import isArray from 'lodash/isArray'
 import isFunction from 'lodash/isFunction'
@@ -28,7 +28,6 @@ export type InputWithCheckAllProps = {
     disabled?: boolean
     checkboxDisabled?: boolean
     checkboxHidden?: boolean
-    mode?: SelectProps['mode']
     onDataLoaded?: (data: GraphQlSearchInputOption['data']) => void
     /**
      * When your form has a complex structure, for example when fields change dynamically,
@@ -68,7 +67,6 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
         mutationOfFormAfterCheckAll,
         checkboxDisabled,
         checkboxHidden,
-        mode,
     }
 ) => {
     const intl = useIntl()
