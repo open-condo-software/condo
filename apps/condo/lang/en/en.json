@@ -1736,6 +1736,7 @@
   "notification.messages.TICKET_CREATED.telegram.openTicket": "Open a ticket",
   "notification.messages.TICKET_COMMENT_CREATED.telegram.openTicket": "Open a ticket",
   "notification.messages.BILLING_RECEIPT_FILE_ADDED.email.subject": "{data.organization}. New billing receipt",
+  "notification.messages.SERVICE_USER_CREATED.email.subject": "Service account successfully registered",
   "news.ConfirmDeleteTitle": "Delete news?",
   "news.ConfirmDeleteMessage": "It cannot be restored. But you can recreate it.",
   "news.CancelMessage": "Keep",
