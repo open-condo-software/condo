@@ -15,10 +15,9 @@ const { BillingTestUtils } = require('@condo/domains/billing/utils/testSchema/ut
 
 describe('RegisterBillingReceiptFileService', () => {
 
-    let billingTestUtils = null
+    const billingTestUtils = new BillingTestUtils()
 
     beforeAll(async () => {
-        billingTestUtils = new BillingTestUtils()
         await billingTestUtils.init()
     })
 

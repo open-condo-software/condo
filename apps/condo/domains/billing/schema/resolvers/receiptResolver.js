@@ -38,7 +38,6 @@ class ReceiptResolver extends Resolver {
                     { category: { id: category } },
                 ],
             }
-            console.log(JSON.stringify(sameReceiptQuery, null, 2))
             const receiptQuery = { ...sameReceiptQuery, context: { id: this.billingContext.id }, deletedAt: null }
 
             const existingReceipts = await find('BillingReceipt', receiptQuery)

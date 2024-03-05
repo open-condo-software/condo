@@ -1,20 +1,24 @@
 // ELS is a 10-digit code, where 3 and 4 characters are russian letters and the rest are numbers.
 const IS_ELS_REGEXP = /^\d{2}[А-Я]{2}\d{6}$/i
 
-const { isEmpty, isNil } = require('lodash')
+const { isEmpty, isNil, get } = require('lodash')
 
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
-const { find } = require('@open-condo/keystone/schema')
+const { find, getById } = require('@open-condo/keystone/schema')
 
 const { BILLING_ACCOUNT_OWNER_TYPE_COMPANY, BILLING_ACCOUNT_OWNER_TYPE_PERSON } = require('@condo/domains/billing/constants/constants')
-const { ERRORS } = require('@condo/domains/billing/constants/registerBillingReceiptService')
+const {
+    ERRORS,
+    NO_PROPERTY_IN_ORGANIZATION,
+} = require('@condo/domains/billing/constants/registerBillingReceiptService')
 const { Resolver } = require('@condo/domains/billing/schema/resolvers/resolver')
 const { clearAccountNumber, isPerson } = require('@condo/domains/billing/schema/resolvers/utils')
 
 const BILLING_ACCOUNT_FIELDS = '{ id }'
 const BillingAccountGQL = generateGqlQueries('BillingAccount', BILLING_ACCOUNT_FIELDS)
 const BillingAccountApi = generateServerUtils(BillingAccountGQL)
+
 
 class AccountResolver extends Resolver {
     constructor ({ billingContext, context }) {
@@ -44,7 +48,7 @@ class AccountResolver extends Resolver {
     async processReceipts (receiptIndex) {
         await this.createIndexByImportId(receiptIndex)
         for (const [index, receipt] of Object.entries(receiptIndex)) {
-            const { unitName, unitType } = receipt.addressResolve
+            let { unitName, unitType } = receipt.addressResolve
             let { accountNumber, accountMeta = {} } = receipt
             let { globalId, importId, fullName, isClosed, ownerType } = accountMeta
             if (fullName && isNil(ownerType)) {
@@ -60,6 +64,24 @@ class AccountResolver extends Resolver {
             }
             if (!existingAccount) {
                 existingAccount = this.accounts.find(({ number, property }) => number === accountNumber && receipt.property === property)
+            }
+            if (!existingAccount) {
+                const sameNumberAccount = this.accounts.find(({ number }) => number === accountNumber)
+                if (sameNumberAccount) {
+                    const oldBillingProperty = await getById('BillingProperty', sameNumberAccount.property)
+                    const [organizationProperty] = await find('Property', { addressKey: oldBillingProperty.addressKey })
+                    if (!organizationProperty) {
+                        existingAccount = sameNumberAccount
+                    } else {
+                        const newAccountResolvePropertyProblem = get(receipt, 'addressResolve.propertyAddress.problem')
+                        if (newAccountResolvePropertyProblem === NO_PROPERTY_IN_ORGANIZATION) {
+                            existingAccount = sameNumberAccount
+                            receipt.property = sameNumberAccount.property
+                            receipt.unitName = sameNumberAccount.unitName
+                            receipt.unitType = sameNumberAccount.unitType
+                        }
+                    }
+                }
             }
             if (existingAccount) {
                 const updateInput = this.buildUpdateInput({
