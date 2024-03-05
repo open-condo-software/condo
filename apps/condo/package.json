@@ -144,7 +144,7 @@
     "prop-types": "^15.7.2",
     "qs": "6.11.0",
     "rc-field-form": "~1.27.0",
-    "rc-picker": "~2.6.10",
+    "rc-picker": "^4.2.0",
     "rc-queue-anim": "^1.8.5",
     "rc-table": "~7.25.3",
     "rc-upload": "~4.3.0",
