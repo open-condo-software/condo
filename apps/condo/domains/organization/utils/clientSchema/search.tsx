@@ -38,13 +38,12 @@ async function _search (client, query, variables) {
     })
 }
 
-export function searchEmployeeWithSpecializations (intl, organizationId, filter, excludedEmployeeIds = []) {
+export function searchEmployeeWithSpecializations (intl, organizationId, filter) {
     if (!organizationId) return
 
     return async function (client, value, query = {}, first, skip) {
         const where = {
             organization: { id: organizationId },
-            id_not_in: excludedEmployeeIds,
             ...query,
         }
         const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { value, where, first, skip })

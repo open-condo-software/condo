@@ -84,7 +84,7 @@ export function searchOrganizationPropertyScope (organizationId: string) {
     }
 }
 
-export function searchOrganizationProperty (organizationId, excludedPropertyIds = []) {
+export function searchOrganizationProperty (organizationId) {
     if (!organizationId) return
 
     return async function (client, searchText, query = {}, first = 10, skip = 0) {
@@ -92,7 +92,6 @@ export function searchOrganizationProperty (organizationId, excludedPropertyIds 
             organization: {
                 id: organizationId,
             },
-            id_not_in: excludedPropertyIds,
             ...!isEmpty(searchText) ? { address_contains_i: searchText } : {},
             ...query,
         }
