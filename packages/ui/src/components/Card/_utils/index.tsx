@@ -12,12 +12,14 @@ export type CardLinkType = {
     href: string
     PreIcon?: React.FC<IconProps>
     AfterIcon?: React.FC<IconProps>
+    openInNewTab?: boolean
 }
 
 export const renderLink = (linkProps: CardLinkType) => {
-    const { PreIcon, AfterIcon, LinkWrapper, label, href } = linkProps
+    const { PreIcon, AfterIcon, LinkWrapper, label, href, openInNewTab } = linkProps
 
     const handleLinkClick: MouseEventHandler = e => e.stopPropagation()
+    const target = openInNewTab ? '_bank' : '_self'
 
     return (
         <Space size={8} direction='horizontal' align='center'>
@@ -25,10 +27,22 @@ export const renderLink = (linkProps: CardLinkType) => {
             {
                 LinkWrapper ? (
                     <LinkWrapper href={href}>
-                        <Typography.Link href={href} onClick={handleLinkClick}>{label}</Typography.Link>
+                        <Typography.Link
+                            href={href}
+                            onClick={handleLinkClick}
+                            target={target}
+                        >
+                            {label}
+                        </Typography.Link>
                     </LinkWrapper>
                 ) : (
-                    <Typography.Link href={href} onClick={handleLinkClick}>{label}</Typography.Link>
+                    <Typography.Link
+                        href={href}
+                        onClick={handleLinkClick}
+                        target={target}
+                    >
+                        {label}
+                    </Typography.Link>
                 )
             }
             {AfterIcon && <AfterIcon size='small' />}
