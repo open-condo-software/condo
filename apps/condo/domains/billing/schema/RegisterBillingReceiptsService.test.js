@@ -29,7 +29,6 @@ describe('RegisterBillingReceiptsService', () => {
 
     beforeAll(async () => {
         await billingTestUtils.init()
-        process.env.ADDRESS_SERVICE_CLIENT_MODE = 'fake'
     })
 
     describe('Permission check', () => {
