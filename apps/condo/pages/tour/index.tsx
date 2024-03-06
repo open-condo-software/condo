@@ -1,4 +1,8 @@
-import { SortTourStepsBy, TourStep as TourStepType, TourStepTypeType } from '@app/condo/schema'
+import {
+    SortTourStepsBy,
+    TourStep as TourStepType,
+    TourStepTypeType,
+} from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Row } from 'antd'
 import { get } from 'lodash'
@@ -8,10 +12,10 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useMemo } from 'react'
 
-import { ArrowLeft, PlusCircle, Building, ExternalLink } from '@open-condo/icons'
+import { ArrowLeft, Building, ExternalLink, PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Button, Card, CardButtonProps, Space, Typography } from '@open-condo/ui'
+import { Button, Card, Space, Tooltip, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import {
@@ -33,11 +37,12 @@ import {
     VIEW_RESIDENT_APP_GUIDE_STEP_TYPE,
     CREATE_NEWS_STEP_TYPE,
     TODO_STEP_STATUS,
+    RESIDENT_STEP_TYPE,
+    COMPLETED_STEP_STATUS,
 } from '@condo/domains/onboarding/constants/steps'
 import { useTourContext } from '@condo/domains/onboarding/contexts/TourContext'
 import { useSyncSteps } from '@condo/domains/onboarding/hooks/useSyncSteps'
 import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
-import { Property } from '@condo/domains/property/utils/clientSchema'
 
 
 const APP_IMAGE_STYLES: CSSProperties = { width: 'inherit', maxWidth: '120px', paddingTop: '6px' }
@@ -50,54 +55,6 @@ const TODO_STEP_ROUTE = {
     [CREATE_METER_READINGS_STEP_TYPE]: '/meter',
     [VIEW_RESIDENT_APP_GUIDE_STEP_TYPE]: 'https://drive.google.com/file/d/1mV4A_d8Wzzl-REe73OdoeHEngmnJi9NE/view',
     [CREATE_NEWS_STEP_TYPE]: '/news',
-}
-
-const COMPLETED_STEP_DATA = {
-    [CREATE_PROPERTY_STEP_TYPE]: {
-        title: 'Вы добавили дом',
-        link: {
-            LinkWrapper: Link,
-            label: 'Добавить еще',
-            href: '/property/create',
-            AfterIcon: PlusCircle,
-        },
-    },
-    [CREATE_PROPERTY_MAP_STEP_TYPE]: {
-        title: 'Вы добавили шахматку',
-        link: {
-            LinkWrapper: Link,
-            label: 'Открыть список',
-            href: '/property',
-            AfterIcon: Building,
-        },
-    },
-    [CREATE_TICKET_STEP_TYPE]: {
-        title: 'Вы создали заявку',
-        link: {
-            LinkWrapper: Link,
-            label: 'Добавить еще',
-            href: '/ticket/create',
-            AfterIcon: PlusCircle,
-        },
-    },
-    [VIEW_RESIDENT_APP_GUIDE_STEP_TYPE]: {
-        title: 'Вы посмотрели гайд для управляющих организаций',
-        link: {
-            label: 'Смотреть снова',
-            href: 'https://drive.google.com/file/d/1mV4A_d8Wzzl-REe73OdoeHEngmnJi9NE/view',
-            AfterIcon: ExternalLink,
-            openInNewTab: true,
-        },
-    },
-    [CREATE_NEWS_STEP_TYPE]: {
-        title: 'Вы опубликовали новость',
-        link: {
-            LinkWrapper: Link,
-            label: 'Добавить еще',
-            href: '/ticket/create',
-            AfterIcon: PlusCircle,
-        },
-    },
 }
 
 const TourWrapper = styled.div`
@@ -177,8 +134,67 @@ type TourStepCardProps = {
     onClick: () => void
 }
 
+const COMPLETED_STEP_DATA = {
+    [CREATE_PROPERTY_STEP_TYPE]: {
+        title: 'Вы добавили дом',
+        link: {
+            LinkWrapper: Link,
+            label: 'Добавить еще',
+            href: '/property/create',
+            AfterIcon: PlusCircle,
+        },
+    },
+    [CREATE_PROPERTY_MAP_STEP_TYPE]: {
+        title: 'Вы добавили шахматку',
+        link: {
+            LinkWrapper: Link,
+            label: 'Открыть список',
+            href: '/property',
+            AfterIcon: Building,
+        },
+    },
+    [CREATE_TICKET_STEP_TYPE]: {
+        title: 'Вы создали заявку',
+        link: {
+            LinkWrapper: Link,
+            label: 'Добавить еще',
+            href: '/ticket/create',
+            AfterIcon: PlusCircle,
+        },
+    },
+    [VIEW_RESIDENT_APP_GUIDE_STEP_TYPE]: {
+        title: 'Вы посмотрели гайд для управляющих организаций',
+        link: {
+            label: 'Смотреть снова',
+            href: 'https://drive.google.com/file/d/1mV4A_d8Wzzl-REe73OdoeHEngmnJi9NE/view',
+            AfterIcon: ExternalLink,
+            openInNewTab: true,
+        },
+    },
+    [CREATE_NEWS_STEP_TYPE]: {
+        title: 'Вы опубликовали новость',
+        link: {
+            LinkWrapper: Link,
+            label: 'Добавить еще',
+            href: '/ticket/create',
+            AfterIcon: PlusCircle,
+        },
+    },
+}
+
+const STEP_TO_PERMISSION = {
+    [CREATE_PROPERTY_STEP_TYPE]: 'canManageProperties',
+    [CREATE_PROPERTY_MAP_STEP_TYPE]: 'canManageProperties',
+    [CREATE_TICKET_STEP_TYPE]: 'canManageTickets',
+    [CREATE_METER_READINGS_STEP_TYPE]: 'canManageMeterReadings',
+    [CREATE_NEWS_STEP_TYPE]: 'canManageNewsItems',
+}
+
 const TourStepCard: React.FC<TourStepCardProps> = (props) => {
     const { step, steps, onClick } = props
+    const { link } = useOrganization()
+    const role = useMemo(() => get(link, 'role'), [link])
+
     const stepType = useMemo(() => step.type, [step.type])
     const stepStatus = useMemo(() => step.status, [step.status])
 
@@ -193,10 +209,7 @@ const TourStepCard: React.FC<TourStepCardProps> = (props) => {
     , [innerStepsTypes, steps])
     const innerSteps = useMemo(() => isEmpty(innerStepsStatuses) ? [stepStatus] : innerStepsStatuses,
         [innerStepsStatuses, stepStatus])
-    const isDisabledStatus = useMemo(() => stepStatus === 'disabled', [stepStatus])
-    const isInnerTodoStep = useMemo(() =>
-        SECOND_LEVEL_STEPS.includes(stepType) && stepStatus === 'todo',
-    [stepStatus, stepType])
+    const isInnerTodoStep = useMemo(() => SECOND_LEVEL_STEPS.includes(stepType) && stepStatus === 'todo', [stepStatus, stepType])
     const bodyDescription = useMemo(() =>
         SECOND_LEVEL_STEPS.includes(stepType) &&
             (stepStatus === 'todo' || stepStatus === 'waiting') &&
@@ -209,21 +222,55 @@ const TourStepCard: React.FC<TourStepCardProps> = (props) => {
         SECOND_LEVEL_STEPS.includes(stepType) && stepStatus === 'completed' &&  get(COMPLETED_STEP_DATA, [stepType, 'title'])
     , [stepStatus, stepType])
 
-    return (
+    const noPermissionsMessage = 'Сейчас у вас недостаточно прав для этой задачи. Попросите руководителя вашей организации открыть вам доступ в «Настройках» или поручите задачу другому сотруднику.'
+    const completePreviousStepMessage = 'Выполните предыдущие шаги, чтобы разблокировать задачу'
+    const completeBillingStepResidentStepMessage = 'Выполните все шаги в задаче «Снизить дебиторскую задолженность», чтобы разблокировать эту'
+
+    const hasPermission = useMemo(() => stepStatus !== COMPLETED_STEP_STATUS && STEP_TO_PERMISSION[stepType] ?
+        get(role, STEP_TO_PERMISSION[stepType]) : true, [role, stepStatus, stepType])
+    const disabledMessage = useMemo(() => {
+        if (!hasPermission) {
+            return noPermissionsMessage
+        }
+
+        if (stepType === RESIDENT_STEP_TYPE) {
+            const uploadReceiptsStep = steps.find(step => step.type === UPLOAD_RECEIPTS_STEP_TYPE)
+            if (uploadReceiptsStep && uploadReceiptsStep.status !== COMPLETED_STEP_STATUS) {
+                return completeBillingStepResidentStepMessage
+            }
+        }
+
+        return completePreviousStepMessage
+    }, [hasPermission, stepType, steps])
+    const isDisabledStatus = useMemo(() => stepStatus === 'disabled' || !hasPermission, [hasPermission, stepStatus])
+
+    const cardContent = (
         <Card.CardButton
             header={{
                 progressIndicator: { disabled: isDisabledStatus, steps: innerSteps },
                 headingTitle: completedStepTitle || CardTitle,
                 mainLink: completedStepLink,
             }}
-            body={bodyDescription && {
+            body={!isDisabledStatus && bodyDescription && {
                 description: bodyDescription,
             }}
             onClick={onClick}
             disabled={isDisabledStatus}
-            accent={isInnerTodoStep}
+            accent={!isDisabledStatus && isInnerTodoStep}
         />
     )
+
+    if (isDisabledStatus) {
+        return (
+            <Tooltip title={disabledMessage}>
+                <div style={{ width: '100%' }}>
+                    {cardContent}
+                </div>
+            </Tooltip>
+        )
+    }
+
+    return cardContent
 }
 
 const TourPageContent = () => {
@@ -456,6 +503,9 @@ const TourPageContent = () => {
                                 headingTitle: ResidentAppCardTitle,
                             }}
                             body={{ image: { src: '/onboarding/tourResidentCard.webp', style: APP_IMAGE_STYLES } }}
+                            onClick={() => {
+                                window.open('https://doma.ai/app_landing', '_blank')
+                            }}
                         />
                         <Card.CardButton
                             header={{
