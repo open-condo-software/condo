@@ -3,10 +3,12 @@
  */
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
-async function canSyncTourSteps ({ authentication: { item: user } }) {
+async function canSyncTourSteps ({ authentication: { item: user }, originalInput }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
+
+    console.log('originalInput', originalInput)
 
     return true
 }

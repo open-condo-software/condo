@@ -7,6 +7,44 @@ exports.up = async (knex) => {
 --
 -- Alter field type on tourstep
 --
+
+--
+-- [CUSTOM] Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
+--
+SET statement_timeout = '1500s';
+
+--
+-- [CUSTOM] Added tour steps to existed organizations
+--
+DO
+$$
+    DECLARE
+        orgId uuid;
+    BEGIN
+        FOR orgId IN SELECT id FROM "Organization"
+            LOOP
+                INSERT INTO "TourStep" (id, organization, type, status, "order", v, "createdAt", "updatedAt", dv, sender)
+                VALUES (uuid_generate_v4(), orgId, 'ticket', 'todo', 100, 1, now(), now(), 1, '{"dv": 1,"fingerprint": "migration"}'::json),
+                (uuid_generate_v4(), orgId, 'billing', 'todo', 200, 1, now(), now(), 1, '{"dv": 1,"fingerprint": "migration"}'::json),
+                (uuid_generate_v4(), orgId, 'meter', 'todo', 300, 1, now(), now(), 1, '{"dv": 1,"fingerprint": "migration"}'::json),
+                (uuid_generate_v4(), orgId, 'resident', 'disabled', 400, 1, now(), now(), 1, '{"dv": 1,"fingerprint": "migration"}'::json),
+                (uuid_generate_v4(), orgId, 'createProperty', 'todo', 100, 1, now(), now(), 1, '{"dv": 1,"fingerprint": "migration"}'::json),
+                (uuid_generate_v4(), orgId, 'createPropertyMap', 'disabled', 200, 1, now(), now(), 1, '{"dv": 1,"fingerprint": "migration"}'::json),
+                (uuid_generate_v4(), orgId, 'createTicket', 'disabled', 300, 1, now(), now(), 1, '{"dv": 1,"fingerprint": "migration"}'::json),
+                (uuid_generate_v4(), orgId, 'uploadReceipts', 'todo', 100, 1, now(), now(), 1, '{"dv": 1,"fingerprint": "migration"}'::json),
+                (uuid_generate_v4(), orgId, 'createMeterReadings', 'disabled', 300, 1, now(), now(), 1, '{"dv": 1,"fingerprint": "migration"}'::json),
+                (uuid_generate_v4(), orgId, 'viewResidentsAppGuide', 'disabled', 400, 1, now(), now(), 1, '{"dv": 1,"fingerprint": "migration"}'::json),
+                (uuid_generate_v4(), orgId, 'createNews', 'disabled', 500, 1, now(), now(), 1, '{"dv": 1,"fingerprint": "migration"}'::json)
+                ;
+            END LOOP;
+    END
+$$;
+
+--
+-- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
+--
+SET statement_timeout = '10s';
+
 COMMIT;
 
     `)

@@ -9,10 +9,9 @@ const { syncTourStepsByTestClient } = require('@condo/domains/onboarding/utils/t
  
 describe('SyncTourStepsService', () => {
     test('user: execute', async () => {
-        const client = await makeClient()  // TODO(codegen): use truly useful client!
-        const payload = {}  // TODO(codegen): change the 'user: update SyncTourStepsService' payload
+        const client = await makeClient()
+        const payload = {}
         const [data, attrs] = await syncTourStepsByTestClient(client, payload)
-        // TODO(codegen): write user expect logic
         throw new Error('Not implemented yet')
     })
  

@@ -7,7 +7,6 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 
-import { IRefetchType } from '@open-condo/codegen/generate.hooks'
 import { Building, Guide, LayoutList, Meters, Unlock, Wallet } from '@open-condo/icons'
 import { MUTATION_RESULT_EVENT, MutationEmitter } from '@open-condo/next/_useEmitterMutation'
 import { useOrganization } from '@open-condo/next/organization'
@@ -22,6 +21,7 @@ import {
     SECOND_LEVEL_STEPS,
     STEP_TYPES,
 } from '@condo/domains/onboarding/constants/steps'
+import { useSyncSteps } from '@condo/domains/onboarding/hooks/useSyncSteps'
 import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
 
 
@@ -34,7 +34,6 @@ type TourContextType = {
     activeTourStep: ActiveTourStepType
     setActiveTourStep: (stepType: typeof STEP_TYPES) => void
     updateStepIfNotCompleted: (stepType: string) => Promise<void>
-    refetch: IRefetchType<TourStepType, QueryAllTourStepsArgs>
 }
 
 const initialActiveTourStepValue: ActiveTourStepType = {
@@ -46,7 +45,6 @@ const TourContext = createContext<TourContextType>({
     activeTourStep: initialActiveTourStepValue,
     setActiveTourStep: () => { return },
     updateStepIfNotCompleted: () => { return Promise.resolve() },
-    refetch: null,
 })
 
 const getActiveTourStepFromStorage = (): ActiveTourStepType => {
@@ -122,10 +120,13 @@ const StyledFocusContainer = styled(FocusContainer)`
 export const TourProvider = ({ children }) => {
     const router = useRouter()
     const { organization } = useOrganization()
-    const { refetch } = TourStep.useObjects({
+    const { refetch: refetchSteps } = TourStep.useObjects({
         where: { organization: { id: get(organization, 'id', null) } },
     }, { skip: true })
     const updateTourStep = TourStep.useUpdate({})
+
+    const organizationId = useMemo(() => get(organization, 'id'), [organization])
+    useSyncSteps({ refetchSteps, organizationId })
 
     const [activeStep, setActiveStep] = useState<ActiveTourStepType>(getActiveTourStepFromStorage())
     const [modalData, setModalData] = useState<ModalDataValueType | null>()
@@ -145,9 +146,9 @@ export const TourProvider = ({ children }) => {
         window.open('https://drive.google.com/file/d/1mV4A_d8Wzzl-REe73OdoeHEngmnJi9NE/view', '_blank')
         setIsCompletedModalOpen(true)
 
-        const fetchResult = await refetch({
+        const fetchResult = await refetchSteps({
             where: {
-                organization: { id: get(organization, 'id', null) },
+                organization: { id: organizationId },
                 type: TourStepTypeType.ViewResidentsAppGuide,
             },
         })
@@ -157,7 +158,7 @@ export const TourProvider = ({ children }) => {
         }
 
         await updateTourStep({ status: TourStepStatusType.Completed }, tourStep)
-    }, [organization, refetch, updateTourStep])
+    }, [organizationId, refetchSteps, updateTourStep])
 
     const createPropertyModalData = useMemo(() => ({
         'ticket': {
@@ -358,9 +359,9 @@ export const TourProvider = ({ children }) => {
     }), [activeStep, createMeterReadingsBodyText, createPropertyMapBodyText, createPropertyModalData, createTicketBodyText, importPropertiesBodyText, router, uploadBillingReceiptsBodyText])
 
     const updateStepIfNotCompleted = useCallback(async (type: TourStepTypeType, nextRoute?: string) => {
-        const fetchResult = await refetch({
+        const fetchResult = await refetchSteps({
             where: {
-                organization: { id: get(organization, 'id', null) },
+                organization: { id: organizationId },
                 type,
             },
         })
@@ -388,7 +389,7 @@ export const TourProvider = ({ children }) => {
                 setModalData(modalValue)
             }
         }
-    }, [organization, refetch, updateTourStep])
+    }, [organizationId, refetchSteps, updateTourStep])
 
     useEffect(() => {
         const mutationHandler = async ({ data, name }) => {
@@ -465,7 +466,7 @@ export const TourProvider = ({ children }) => {
             MutationEmitter.removeListener(MUTATION_RESULT_EVENT, mutationHandler)
             ImportEmitter.removeListener(IMPORT_EVENT, importHandler)
         }
-    }, [activeStep, organization, updateStepIfNotCompleted])
+    }, [activeStep, updateStepIfNotCompleted])
 
     const setActiveTourStep = useCallback((type) => {
         try {
@@ -500,7 +501,6 @@ export const TourProvider = ({ children }) => {
                     activeTourStep: activeStep,
                     setActiveTourStep,
                     updateStepIfNotCompleted,
-                    refetch,
                 }}
             >
                 {children}
