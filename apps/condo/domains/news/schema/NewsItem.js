@@ -15,6 +15,7 @@ const { itemsQuery } = require('@open-condo/keystone/schema')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/news/access/NewsItem')
+const { BAD_WORDS_EXCLUSIONS_CONFIG } = require('@condo/domains/news/constants/badWordExclusions')
 const {
     EMPTY_VALID_BEFORE_DATE,
     VALIDITY_DATE_LESS_THAN_SEND_DATE,
@@ -28,14 +29,14 @@ const {
 const { NEWS_TYPES, NEWS_TYPE_EMERGENCY, NEWS_TYPE_COMMON } = require('@condo/domains/news/constants/newsTypes')
 const { notifyResidentsAboutNewsItem } = require('@condo/domains/news/tasks')
 const { NewsItemScope } = require('@condo/domains/news/utils/serverSchema')
-const { BadWordsExclusions, BAD_WORDS_EXCLUSIONS } = require('@condo/domains/news/utils/serverSchema/badWordsExclusions')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 
 
 const badWords = new BadWordsNext()
 badWords.add(badWordsRu)
 badWords.add(badWordsRuLat)
-const badWordsExclusions = new BadWordsExclusions({ words: BAD_WORDS_EXCLUSIONS })
+const badWordsExclusions = new BadWordsNext()
+badWordsExclusions.add(BAD_WORDS_EXCLUSIONS_CONFIG)
 
 const ERRORS = {
     EMPTY_VALID_BEFORE_DATE: {
