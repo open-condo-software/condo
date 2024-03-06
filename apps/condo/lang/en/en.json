@@ -2404,7 +2404,7 @@
   "ticketBlankExport.heading.totalCostWork": "Cost of work performed",
   "ticketBlankExport.message.workCompleted": "The work has been completed in full. I have no complaints about the quality.",
   "billing.category.housing.name": "Rent",
-  "billing.category.repair.name": "Capital Repairs",
+  "billing.category.repair.name": "Capital repairs",
   "billing.category.electricity.name": "Electricity",
   "billing.category.heating_hot_water.name": "Heating and hot water",
   "billing.category.cold_water.name": "Cold water",
