@@ -14,7 +14,7 @@ import { ActionBar, Button, Select } from '@open-condo/ui'
 import Input from '@condo/domains/common/components/antd/Input'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import EmptyListView from '@condo/domains/common/components/EmptyListView'
+import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
@@ -300,14 +300,13 @@ export const MarketplaceItemsContent = () => {
 
     if (count === 0) {
         return (
-            <EmptyListView
+            <EmptyListContent
                 label={ServicesEmptyTitle}
                 message={ServicesEmptyText}
                 button={
                     <Button onClick={() => router.push('/marketplace/marketItem/create')} type='primary'>{ServicesEmptyButtonText}</Button>
                 }
                 accessCheck={canReadMarketItems}
-                withBorder
             />
         )
     }

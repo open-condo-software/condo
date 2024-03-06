@@ -11,8 +11,8 @@ import { Button, ButtonProps, Card, Checkbox, CheckboxProps, Modal, Typography }
 import Input from '@condo/domains/common/components/antd/Input'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { EMOJI_IMAGES } from '@condo/domains/common/constants/emoji'
 import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
-import { EMOJI_IMAGES } from '@condo/domains/ticket/constants/emoji'
 import { QUALITY_CONTROL_BAD_OPTIONS, QUALITY_CONTROL_GOOD_OPTIONS } from '@condo/domains/ticket/constants/qualityControl'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 

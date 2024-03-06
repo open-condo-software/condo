@@ -11,8 +11,8 @@ import { Button } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { CONTEXT_FINISHED_STATUS } from '@condo/domains/acquiring/constants/context'
-import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import { MarketplaceInvoicesContent } from '@condo/domains/marketplace/components/Invoice/MarketplaceInvoicesContent'
 import { MarketplaceItemsContent } from '@condo/domains/marketplace/components/MarketItemContent'
@@ -90,25 +90,27 @@ export const MarketplacePageContent = () => {
         <StyledPageWrapper>
             {GlobalHints}
             <PageHeader tags={RenderNotSetupTag} title={<Typography.Title>{PageTitle}</Typography.Title>} />
-            {!marketplaceIsSetup ? (
-                <EmptyListView
-                    image='dino/playing@2x.png'
-                    message={NotSetupText}
-                    label={NotSetupTitle}
-                    createLabel={NotSetupButton}
-                    button={
-                        <Button type='primary' onClick={handleGoToSetup}>{NotSetupButton}</Button>
-                    }
-                    accessCheck={canManageMarketplace}
-                />
-            ) : (
-                <Tabs
-                    activeKey={currentTab}
-                    onChange={onTabChange}
-                    items={items}
-                    destroyInactiveTabPane
-                />
-            )}
+            <PageContent>
+                {!marketplaceIsSetup ? (
+                    <EmptyListContent
+                        image='dino/playing@2x.png'
+                        message={NotSetupText}
+                        label={NotSetupTitle}
+                        createLabel={NotSetupButton}
+                        button={
+                            <Button type='primary' onClick={handleGoToSetup}>{NotSetupButton}</Button>
+                        }
+                        accessCheck={canManageMarketplace}
+                    />
+                ) : (
+                    <Tabs
+                        activeKey={currentTab}
+                        onChange={onTabChange}
+                        items={items}
+                        destroyInactiveTabPane
+                    />
+                )}
+            </PageContent>
         </StyledPageWrapper>
     )
 }

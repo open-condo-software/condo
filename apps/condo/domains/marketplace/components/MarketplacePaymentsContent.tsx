@@ -13,7 +13,7 @@ import { useIntl } from 'react-intl'
 
 import { Search } from '@open-condo/icons'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button, Modal, Checkbox, Typography } from '@open-condo/ui'
+import { Button, Modal, Checkbox, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { PaymentsSumTable } from '@condo/domains/acquiring/components/payments/PaymentsSumTable'
@@ -22,7 +22,7 @@ import { EXPORT_PAYMENTS_TO_EXCEL, SUM_PAYMENTS_QUERY } from '@condo/domains/acq
 import { Payment } from '@condo/domains/acquiring/utils/clientSchema'
 import Input from '@condo/domains/common/components/antd/Input'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
-import EmptyListView from '@condo/domains/common/components/EmptyListView'
+import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
 import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
 import { Loader } from '@condo/domains/common/components/Loader'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
@@ -395,11 +395,10 @@ export const MarketplacePaymentsContent = () => {
 
     if (count === 0) {
         return (
-            <EmptyListView
+            <EmptyListContent
                 label={EmptyListTitle}
                 message={EmptyListLabel}
                 accessCheck={canReadPayments}
-                withBorder
             />
         )
     }

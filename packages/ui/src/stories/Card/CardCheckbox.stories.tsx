@@ -65,7 +65,7 @@ const Template: Story<StoryProps> = (props) => {
 
     const headerProps = pickBy({
         progressIndicator: headerProgressIndicator && { steps: ['done'] },
-        emoji: headerEmoji && [{ symbol: 0x1F469 }, { symbol: 0x1F468 }],
+        emoji: headerEmoji && [{ symbol: '✍️' }, { symbol: '🏠' }],
         headingTitle: headerTitle && 'Resident App',
         image: headerImage && { src: 'https://i.imgur.com/ambPuQF.png', size: 'big' },
     })

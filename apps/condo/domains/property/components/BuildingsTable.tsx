@@ -18,44 +18,63 @@ import { ActionBar, ActionBarProps, Button } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
-import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
+import { Loader } from '@condo/domains/common/components/Loader'
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
+import { EMOJI } from '@condo/domains/common/constants/emoji'
+import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { EXPORT_PROPERTIES_TO_EXCEL } from '@condo/domains/property/gql'
 import { useImporterFunctions } from '@condo/domains/property/hooks/useImporterFunctions'
 import { PropertyTable } from '@condo/domains/property/utils/clientSchema'
 import { IFilters, PROPERTY_PAGE_SIZE } from '@condo/domains/property/utils/helpers'
 
-
 type BuildingTableProps = {
     role: OrganizationEmployeeRole
-    searchPropertiesQuery: PropertyWhereInput
+    baseSearchQuery: PropertyWhereInput
     tableColumns: ColumnsType
-    sortBy: SortPropertiesBy[]
+    propertyFilterMeta: FiltersMeta<PropertyWhereInput>[]
     loading?: boolean
     canDownloadProperties?: boolean
 }
 
 const ROW_VERTICAL_GUTTERS: [Gutter, Gutter] = [0, 40]
 
-export default function BuildingsTable (props: BuildingTableProps) {
-    const intl = useIntl()
+const BuildingTableContent: React.FC<BuildingTableProps> = (props) => {
+    const {
+        role,
+        tableColumns,
+        loading,
+        canDownloadProperties,
+        baseSearchQuery,
+        propertyFilterMeta,
+    } = props
 
+    const intl = useIntl()
     const ExportAsExcel = intl.formatMessage({ id: 'ExportAsExcel' })
     const CreateLabel = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const DownloadExcelLabel = intl.formatMessage({ id: 'pages.condo.property.id.DownloadExcelLabel' })
-    const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.property.index.EmptyList.header' })
-    const EmptyListMessage = intl.formatMessage({ id: 'pages.condo.property.index.EmptyList.text' })
-    const CreateProperty = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
-
-    const { role, searchPropertiesQuery, tableColumns, sortBy, loading, canDownloadProperties } = props
 
     const router = useRouter()
-    const { filters, offset } = parseQuery(router.query)
+    const { filters, sorters, offset } = parseQuery(router.query)
+
+    const {
+        filtersToWhere: filtersToPropertiesWhere,
+        sortersToSortBy: sortersToSortPropertiesBy,
+    } = useQueryMappers<PropertyWhereInput>(propertyFilterMeta, ['address'])
+
+    const searchPropertiesQuery = useMemo(() => ({
+        ...filtersToPropertiesWhere(filters),
+        ...baseSearchQuery,
+    }), [baseSearchQuery, filters, filtersToPropertiesWhere])
+
+    const sortBy = sortersToSortPropertiesBy(sorters) as SortPropertiesBy[]
+
     const currentPageIndex = getPageIndexFromOffset(offset, PROPERTY_PAGE_SIZE)
 
     const { loading: propertiesLoading, refetch, objs: properties, count: total } = PropertyTable.useObjects({
@@ -90,11 +109,9 @@ export default function BuildingsTable (props: BuildingTableProps) {
     const [columns, propertyNormalizer, propertyValidator, propertyCreator] = useImporterFunctions()
 
     const [search, handleSearchChange] = useSearch<IFilters>()
-    const isNoBuildingsData = isEmpty(properties) && isEmpty(filters) && !propertiesLoading && !loading
 
     const canManageProperties = get(role, 'canManageProperties', false)
     const isDownloadButtonHidden = !get(role, 'canReadProperties', canDownloadProperties === true)
-    const EMPTY_LIST_VIEW_CONTAINER_STYLE = { display: isNoBuildingsData ? 'flex' : 'none', paddingTop : canManageProperties ? 'inherit' : '5%' }
 
     function onExportToExcelButtonClicked () {
         exportToExcel({
@@ -155,60 +172,82 @@ export default function BuildingsTable (props: BuildingTableProps) {
         ], [CreateLabel, DownloadExcelLabel, ExportAsExcel, canManageProperties, columns, downloadLink, isDownloadButtonHidden, isXlsLoading, onExportToExcelButtonClicked, propertyCreator, propertyNormalizer, propertyValidator, refetch, router])
 
     return (
-        <>
-            <EmptyListView
-                label={EmptyListLabel}
-                message={EmptyListMessage}
-                accessCheck={canManageProperties}
-                button={(
-                    <ImportWrapper
-                        accessCheck={canManageProperties}
-                        onFinish={refetch}
-                        columns={columns}
-                        rowNormalizer={propertyNormalizer}
-                        rowValidator={propertyValidator}
-                        objectCreator={propertyCreator}
-                        domainName='property'
+        <Row justify='space-between' gutter={ROW_VERTICAL_GUTTERS}>
+            <Col span={24}>
+                <TableFiltersContainer>
+                    <Input
+                        placeholder={SearchPlaceholder}
+                        onChange={(e) => {
+                            handleSearchChange(e.target.value)
+                        }}
+                        value={search}
+                        allowClear={true}
+                        suffix={<Search size='medium' color={colors.gray[7]} />}
                     />
-                )}
-                createRoute='/property/create'
-                createLabel={CreateProperty}
-                containerStyle={EMPTY_LIST_VIEW_CONTAINER_STYLE}
-            />
-            <Row justify='space-between' gutter={ROW_VERTICAL_GUTTERS} hidden={isNoBuildingsData}>
-                <Col span={24}>
-                    <TableFiltersContainer>
-                        <Input
-                            placeholder={SearchPlaceholder}
-                            onChange={(e) => {
-                                handleSearchChange(e.target.value)
-                            }}
-                            value={search}
-                            allowClear={true}
-                            suffix={<Search size='medium' color={colors.gray[7]} />}
-                        />
-                    </TableFiltersContainer>
-                </Col>
-                <Col span={24}>
-                    <Table
-                        totalRows={total}
-                        loading={propertiesLoading || loading}
-                        dataSource={properties}
-                        onRow={handleRowAction}
-                        columns={tableColumns}
-                        pageSize={PROPERTY_PAGE_SIZE}
-                        data-cy='property__table'
-                    />
-                </Col>
-                {
-                    !isEmpty(actionBarButtons.filter(Boolean)) && (
-                        <Col span={24}>
-                            <ActionBar actions={actionBarButtons}
-                            />
-                        </Col>
-                    )
-                }
-            </Row>
-        </>
+                </TableFiltersContainer>
+            </Col>
+            <Col span={24}>
+                <Table
+                    totalRows={total}
+                    loading={propertiesLoading || loading}
+                    dataSource={properties}
+                    onRow={handleRowAction}
+                    columns={tableColumns}
+                    pageSize={PROPERTY_PAGE_SIZE}
+                    data-cy='property__table'
+                />
+            </Col>
+            {
+                !isEmpty(actionBarButtons.filter(Boolean)) && (
+                    <Col span={24}>
+                        <ActionBar actions={actionBarButtons}/>
+                    </Col>
+                )
+            }
+        </Row>
+    )
+}
+
+export default function BuildingsTable (props: BuildingTableProps) {
+    const { role, baseSearchQuery, loading } = props
+
+    const intl = useIntl()
+    const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.property.index.EmptyList.header' })
+    const EmptyListManualBodyDescription = intl.formatMessage({ id: 'pages.condo.property.index.EmptyList.manualCreateCard.body.description' })
+
+    const [columns, propertyNormalizer, propertyValidator, propertyCreator] = useImporterFunctions()
+
+    const canManageProperties = get(role, 'canManageProperties', false)
+
+    const { count, loading: propertiesCountLoading } = PropertyTable.useCount({ where: baseSearchQuery })
+    const { refetch } = PropertyTable.useObjects({ where: baseSearchQuery }, { skip: true })
+
+    if (propertiesCountLoading || loading) {
+        return <Loader />
+    }
+
+    if (count === 0) {
+        return <EmptyListContent
+            label={EmptyListLabel}
+            accessCheck={canManageProperties}
+            createRoute='/property/create'
+            importLayoutProps={{
+                manualCreateEmoji: EMOJI.HOUSE,
+                manualCreateDescription: EmptyListManualBodyDescription,
+                importCreateEmoji: EMOJI.HOUSES,
+                importWrapper: {
+                    onFinish: refetch,
+                    columns: columns,
+                    rowNormalizer: propertyNormalizer,
+                    rowValidator: propertyValidator,
+                    objectCreator: propertyCreator,
+                    domainName: 'property',
+                },
+            }}
+        />
+    }
+
+    return (
+        <BuildingTableContent {...props} />
     )
 }

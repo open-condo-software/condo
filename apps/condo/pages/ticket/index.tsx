@@ -37,13 +37,14 @@ import { Button as CommonButton } from '@condo/domains/common/components/Button'
 import { PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { DEFAULT_PAGE_SIZE, Table, TableRecord } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { useWindowTitleContext, WindowTitleContextProvider } from '@condo/domains/common/components/WindowTitleContext'
+import { EMOJI } from '@condo/domains/common/constants/emoji'
 import { EXCEL } from '@condo/domains/common/constants/export'
 import { TICKET_IMPORT } from '@condo/domains/common/constants/featureflags'
 import { fontSizes } from '@condo/domains/common/constants/style'
@@ -83,6 +84,7 @@ import { useTicketTableFilters } from '@condo/domains/ticket/hooks/useTicketTabl
 import { CallRecordFragment, Ticket, TicketFilterTemplate } from '@condo/domains/ticket/utils/clientSchema'
 import { GET_TICKETS_COUNT_QUERY } from '@condo/domains/ticket/utils/clientSchema/search'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
+
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -789,8 +791,7 @@ export const TicketsPageContent = ({
 }): JSX.Element => {
     const intl = useIntl()
     const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
-    const EmptyListMessage = intl.formatMessage({ id: 'ticket.EmptyList.title' })
-    const CreateTicket = intl.formatMessage({ id: 'CreateTicket' })
+    const EmptyListManualBodyDescription = intl.formatMessage({ id: 'ticket.EmptyList.manualCreateCard.body.description' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
 
     const router = useRouter()
@@ -844,13 +845,23 @@ export const TicketsPageContent = ({
 
     if (ticketsWithoutFiltersCount === 0) {
         return (
-            <EmptyListView
+            <EmptyListContent
                 label={EmptyListLabel}
-                message={EmptyListMessage}
                 createRoute='/ticket/create'
-                createLabel={CreateTicket}
-                button={TicketImportButton}
                 accessCheck={canManageTickets}
+                importLayoutProps={isTicketImportFeatureEnabled && {
+                    manualCreateEmoji: EMOJI.PHONE,
+                    manualCreateDescription: EmptyListManualBodyDescription,
+                    importCreateEmoji: EMOJI.LIST,
+                    importWrapper: {
+                        onFinish: undefined,
+                        columns: columns,
+                        rowNormalizer: ticketNormalizer,
+                        rowValidator: ticketValidator,
+                        objectCreator: ticketCreator,
+                        domainName: 'ticket',
+                    },
+                }}
             />
         )
     }
@@ -1004,9 +1015,6 @@ export const TicketTypeFilterSwitch = ({ ticketFilterQuery }) => {
     )
 }
 
-const HEADER_STYLES: CSSProperties = { padding: 0 }
-const EMPTY_TICKETS_ROW_STYLE: CSSProperties = { height: '100%' }
-
 const TicketsPage: ITicketIndexPage = () => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
@@ -1048,64 +1056,54 @@ const TicketsPage: ITicketIndexPage = () => {
                         extraTicketsQuery={{ ...ticketFilterQuery, organization: { id: userOrganizationId } }}
                     >
                         <WindowTitleContextProvider title={PageTitleMessage}>
-                            <Row
-                                gutter={MEDIUM_VERTICAL_ROW_GUTTER}
-                                style={ticketsWithoutFiltersCount === 0 && EMPTY_TICKETS_ROW_STYLE}
-                            >
-                                <Col span={24}>
-                                    <Row justify='space-between' gutter={MEDIUM_VERTICAL_ROW_GUTTER}>
-                                        <Col>
-                                            <PageHeader
-                                                style={HEADER_STYLES}
-                                                title={
-                                                    <Typography.Title>
-                                                        {PageTitleMessage}
-                                                    </Typography.Title>
-                                                }
-                                            />
-                                        </Col>
-                                        <Col>
-                                            <Space size={20} direction={breakpoints.TABLET_SMALL ? 'horizontal' : 'vertical'}>
-                                                {
-                                                    callRecordsCount > 0 && (
-                                                        <Link href='/callRecord'>
-                                                            <Typography.Link size='large'>
-                                                                <Space size={8}>
-                                                                    <Phone size='medium'/>
-                                                                    {CallRecordsLogMessage}
-                                                                </Space>
-                                                            </Typography.Link>
-                                                        </Link>
-                                                    )
-                                                }
-                                                {
-                                                    !ticketsWithoutFiltersCountLoading && ticketsWithoutFiltersCount > 0 && (
-                                                        <TicketTypeFilterSwitch
-                                                            ticketFilterQuery={ticketFilterQuery}
-                                                        />
-                                                    )
-                                                }
-                                            </Space>
-                                        </Col>
-                                    </Row>
+                            <Row justify='space-between' gutter={MEDIUM_VERTICAL_ROW_GUTTER}>
+                                <Col>
+                                    <PageHeader
+                                        title={
+                                            <Typography.Title>
+                                                {PageTitleMessage}
+                                            </Typography.Title>
+                                        }
+                                    />
                                 </Col>
-                                <Col span={24}>
-                                    <TablePageContent>
-                                        <MultipleFilterContextProvider>
-                                            <TicketsPageContent
-                                                filterMetas={filterMetas}
-                                                useTableColumns={useTableColumns}
-                                                baseTicketsQuery={ticketFilterQuery}
-                                                loading={ticketFilterQueryLoading || ticketsWithoutFiltersCountLoading}
-                                                sortableProperties={SORTABLE_PROPERTIES}
-                                                showImport
-                                                ticketsWithoutFiltersCount={ticketsWithoutFiltersCount}
-                                                error={error}
-                                            />
-                                        </MultipleFilterContextProvider>
-                                    </TablePageContent>
+                                <Col>
+                                    <Space size={20} direction={breakpoints.TABLET_SMALL ? 'horizontal' : 'vertical'}>
+                                        {
+                                            callRecordsCount > 0 && (
+                                                <Link href='/callRecord'>
+                                                    <Typography.Link size='large'>
+                                                        <Space size={8}>
+                                                            <Phone size='medium'/>
+                                                            {CallRecordsLogMessage}
+                                                        </Space>
+                                                    </Typography.Link>
+                                                </Link>
+                                            )
+                                        }
+                                        {
+                                            !ticketsWithoutFiltersCountLoading && ticketsWithoutFiltersCount > 0 && (
+                                                <TicketTypeFilterSwitch
+                                                    ticketFilterQuery={ticketFilterQuery}
+                                                />
+                                            )
+                                        }
+                                    </Space>
                                 </Col>
                             </Row>
+                            <TablePageContent>
+                                <MultipleFilterContextProvider>
+                                    <TicketsPageContent
+                                        filterMetas={filterMetas}
+                                        useTableColumns={useTableColumns}
+                                        baseTicketsQuery={ticketFilterQuery}
+                                        loading={ticketFilterQueryLoading || ticketsWithoutFiltersCountLoading}
+                                        sortableProperties={SORTABLE_PROPERTIES}
+                                        showImport
+                                        ticketsWithoutFiltersCount={ticketsWithoutFiltersCount}
+                                        error={error}
+                                    />
+                                </MultipleFilterContextProvider>
+                            </TablePageContent>
                         </WindowTitleContextProvider>
                     </FavoriteTicketsContextProvider>
                 </AutoRefetchTicketsContextProvider>

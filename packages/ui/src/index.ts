@@ -13,7 +13,7 @@ export { Button } from './components/Button'
 export type { ButtonProps } from './components/Button'
 
 export { Card } from './components/Card'
-export type { CardProps, CardCheckboxProps, CardButtonProps } from './components/Card'
+export type { CardProps, CardCheckboxProps, CardButtonProps, CardHeaderProps, CardBodyProps } from './components/Card'
 
 export { Carousel } from './components/Carousel'
 export type { CarouselProps, CarouselRef } from './components/Carousel'

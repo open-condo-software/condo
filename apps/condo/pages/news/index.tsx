@@ -13,10 +13,10 @@ import { ActionBar, ActionBarProps, Button, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
-import { PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
@@ -155,7 +155,7 @@ const NewsPageContent = ({
 
     if (newsWithoutFiltersCount === 0) {
         return (
-            <EmptyListView
+            <EmptyListContent
                 label={EmptyListLabel}
                 message={EmptyListMessage}
                 createRoute='/news/create'
@@ -214,21 +214,13 @@ const NewsPage: INewsIndexPage = () => {
             </Head>
             <PageWrapper>
                 {GlobalHints}
+                <PageHeader title={<Typography.Title>{PageTitleMessage}</Typography.Title>} />
                 <TablePageContent>
-                    <Row gutter={PAGE_ROW_GUTTER} justify='space-between'>
-                        <Col md={12} xs={24}>
-                            <Typography.Title>
-                                {PageTitleMessage}
-                            </Typography.Title>
-                        </Col>
-                        <Col span={24}>
-                            <NewsPageContent
-                                baseNewsQuery={baseNewsQuery}
-                                filterMetas={filterMetas}
-                                sortableProperties={SORTABLE_PROPERTIES}
-                            />
-                        </Col>
-                    </Row>
+                    <NewsPageContent
+                        baseNewsQuery={baseNewsQuery}
+                        filterMetas={filterMetas}
+                        sortableProperties={SORTABLE_PROPERTIES}
+                    />
                 </TablePageContent>
             </PageWrapper>
         </>

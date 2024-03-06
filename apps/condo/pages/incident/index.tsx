@@ -24,7 +24,7 @@ import { colors } from '@open-condo/ui/dist/colors'
 import Input from '@condo/domains/common/components/antd/Input'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
-import EmptyListView from '@condo/domains/common/components/EmptyListView'
+import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
@@ -366,7 +366,7 @@ export const IncidentsPageContent: React.FC<IncidentsPageContentProps> = (props)
 
         if (!incidentTotal) {
             return (
-                <EmptyListView
+                <EmptyListContent
                     label={EmptyListLabel}
                     createRoute='/incident/create'
                     createLabel={CreateIncidentLabel}

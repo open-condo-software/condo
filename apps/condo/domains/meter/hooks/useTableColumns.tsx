@@ -73,7 +73,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, meterPa
         }
     }, [DeletedMessage, search, meterPageType])
 
-    const renderSource = useCallback((source) => getTableCellRenderer({ search })(source.name), [search])
+    const renderSource = useCallback((source) => getTableCellRenderer({ search })(get(source, 'name')), [search])
 
     return useMemo(() => {
         return meterPageType === METER_PAGE_TYPES.reportingPeriod ? [

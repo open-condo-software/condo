@@ -20,7 +20,7 @@ import type { ITask } from '@condo/domains/common/components/tasks'
 
 type UseContactExportToExcelTaskProps = {
     where: ContactWhereInput
-    sortBy: SortContactsBy
+    sortBy: SortContactsBy[]
     format: ContactExportTaskType['format']
     locale: ContactExportTaskType['locale']
     timeZone: ContactExportTaskType['timeZone']
