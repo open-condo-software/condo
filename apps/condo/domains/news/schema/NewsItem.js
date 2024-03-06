@@ -15,7 +15,7 @@ const { itemsQuery } = require('@open-condo/keystone/schema')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/news/access/NewsItem')
-const { BAD_WORDS_EXCLUSIONS_CONFIG } = require('@condo/domains/news/constants/badWordExclusions')
+const { BAD_WORDS_EXCLUSIONS_CONFIG } = require('@condo/domains/news/constants/badWordsExclusions')
 const {
     EMPTY_VALID_BEFORE_DATE,
     VALIDITY_DATE_LESS_THAN_SEND_DATE,
