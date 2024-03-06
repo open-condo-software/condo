@@ -112,12 +112,13 @@ describe('ExportPaymentsService', () => {
         const data = await readXlsx(filename)
 
         expectDataFormat(data, [
-            ['Дата', 'ЛС', 'Адрес', 'Помещение', 'Тип', 'Транзакция', 'П/П', 'Статус', 'Сумма'],
+            ['Дата', 'Счет', 'ЛС', 'Адрес', 'Помещение', 'Тип', 'Транзакция', 'П/П', 'Статус', 'Сумма'],
             [
                 formatDateWithDefaultTimeZone(invoicePayment.advancedAt),
+                '1',
                 invoicePayment.accountNumber,
                 '-',
-                '-',
+                '',
                 acquiringIntegration.name,
                 '',
                 '',
@@ -139,9 +140,10 @@ describe('ExportPaymentsService', () => {
         const data2 = await readXlsx(filename2)
 
         expectDataFormat(data2, [
-            ['Дата', 'ЛС', 'Адрес', 'Помещение', 'Тип', 'Транзакция', 'П/П', 'Статус', 'Сумма'],
+            ['Дата', 'Счет', 'ЛС', 'Адрес', 'Помещение', 'Тип', 'Транзакция', 'П/П', 'Статус', 'Сумма'],
             [
                 formatDateWithDefaultTimeZone(receiptPayment.advancedAt),
+                '-',
                 receiptPayment.accountNumber,
                 receiptPayment.receipt.property.address,
                 receiptPayment.receipt.account.unitName,
