@@ -110,7 +110,7 @@ module.exports = withTM(withLess(withCSS({
 
 })))
 
-if (sentryConfig['dsn']) {
+if (sentryConfig['client']) {
     module.exports = withSentryConfig(
         module.exports,
         {

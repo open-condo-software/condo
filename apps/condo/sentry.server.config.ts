@@ -7,10 +7,12 @@ import getConfig from 'next/config'
 
 const { publicRuntimeConfig: { sentryConfig } } = getConfig()
 
-if (sentryConfig['client']['dsn']) {
+if (sentryConfig['client']) {
     Sentry.init({
         dsn: sentryConfig['client']['dsn'],
         tracesSampleRate: sentryConfig['client']['sampleRate'],
         debug: false,
+        autoSessionTracking: true,
+        environment: 'local-env',
     })
 }

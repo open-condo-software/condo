@@ -13,5 +13,6 @@ if (sentryConfig['client']) {
         tracesSampleRate: sentryConfig['client']['sampleRate'],
         debug: false,
         autoSessionTracking: true,
+        environment: 'local-env',
     })
 }
