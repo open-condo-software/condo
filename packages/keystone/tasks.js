@@ -16,20 +16,31 @@ const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
 const FAKE_WORKER_MODE = conf.TESTS_FAKE_WORKER_MODE
 const logger = getLogger('worker')
 
-const taskQueue = (IS_BUILD) ? undefined : new Queue('tasks', {
-    /**
-     * @param {'client' | 'subscriber' | 'bclient'} type
-     * @return {import('ioredis')}
-     */
-    createClient: (type, opts) => {
-        // NOTE(pahaz): https://github.com/OptimalBits/bull/issues/1873
-        //   Bull uses three Redis connection. Probably, we can share regular Redis connection for type 'client' think about it!
-        if (['bclient', 'subscriber'].includes(type)) {
-            opts.maxRetriesPerRequest = null
-        }
-        return getRedisClient('worker', type, opts)
-    },
-})
+const QUEUES = new Map()
+
+function createTaskQueue (name) {
+    if (!name) throw new Error('Queue creation requires name')
+    if (QUEUES.has(name)) throw new Error(`Queue with name ${name} already created`)
+
+    QUEUES.set(name, IS_BUILD ? undefined : new Queue(name, {
+        /**
+         * @param {'client' | 'subscriber' | 'bclient'} type
+         * @return {import('ioredis')}
+         */
+        createClient: (type, opts) => {
+            // NOTE(pahaz): https://github.com/OptimalBits/bull/issues/1873
+            //   Bull uses three Redis connection. Probably, we can share regular Redis connection for type 'client' think about it!
+            if (['bclient', 'subscriber'].includes(type)) {
+                opts.maxRetriesPerRequest = null
+            }
+            return getRedisClient('worker', type, opts)
+        },
+    }))
+
+    return QUEUES.get(name)
+}
+
+const taskQueue = createTaskQueue('tasks')
 
 const KEEP_JOBS_CONFIG = { age: 60 * 60 * 24 * 30 } // 30 days
 const GLOBAL_TASK_OPTIONS = { removeOnComplete: KEEP_JOBS_CONFIG, removeOnFail: KEEP_JOBS_CONFIG }
@@ -38,13 +49,14 @@ const CRON_TASKS = new Map()
 const REMOVE_CRON_TASKS = []
 let isWorkerCreated = false
 
-function createTask (name, fn, opts = {}) {
+// TODO: think about default queue argument. Maybe it should be done inside createTaskWrapper or somewhere else
+function createTask (name, fn, opts = {}, queue = 'low') {
     if (typeof fn !== 'function') throw new Error('unsupported fn argument type. Function expected')
     if (!name) throw new Error('no name')
 
     if (TASKS.has(name)) throw new Error(`Task with name ${name} is already registered`)
     TASKS.set(name, fn)
-    return createTaskWrapper(name, fn, opts)
+    return createTaskWrapper(name, fn, opts, queue)
 }
 
 function createCronTask (name, cron, fn, opts = {}) {
@@ -53,7 +65,7 @@ function createCronTask (name, cron, fn, opts = {}) {
     if (!cron) throw new Error('no cron string')
 
     const taskOpts = { repeat: { cron }, ...opts }
-    const task = createTask(name, fn, taskOpts)
+    const task = createTask(name, fn, taskOpts, 'tasks')
     CRON_TASKS.set(name, taskOpts)
     return task
 }
@@ -63,8 +75,9 @@ function removeCronTask (name, cron, opts = {}) {
     REMOVE_CRON_TASKS.push([name, taskOpts])
 }
 
-async function _scheduleRemoteTask (name, preparedArgs, preparedOpts) {
-    logger.info({ msg: 'Scheduling task', name, data: { preparedArgs, preparedOpts } })
+async function _scheduleRemoteTask (name, preparedArgs, preparedOpts, queue = 'low') {
+    logger.info({ msg: 'Scheduling task', name, queue, data: { preparedArgs, preparedOpts } })
+    const taskQueue = QUEUES.get(queue)
     const job = await taskQueue.add(name, { args: preparedArgs }, preparedOpts)
     return {
         id: String(job.id),
@@ -142,7 +155,7 @@ async function _scheduleInProcessTask (name, preparedArgs, preparedOpts) {
  * Internal function! please don't use it directly! Use `task.delay(..)`
  * @deprecated for any external usage!
  */
-async function scheduleTaskByNameWithArgsAndOpts (name, args, opts = {}) {
+async function scheduleTaskByNameWithArgsAndOpts (name, args, opts = {}, queue = 'low') {
     if (typeof name !== 'string' || !name) throw new Error('task name invalid or empty')
     if (!isSerializable(args)) throw new Error('task args is not serializable')
 
@@ -156,10 +169,10 @@ async function scheduleTaskByNameWithArgsAndOpts (name, args, opts = {}) {
         return await _scheduleInProcessTask(name, preparedArgs, preparedOpts)
     }
 
-    return await _scheduleRemoteTask(name, preparedArgs, preparedOpts)
+    return await _scheduleRemoteTask(name, preparedArgs, preparedOpts, queue)
 }
 
-function createTaskWrapper (name, fn, defaultTaskOptions = {}) {
+function createTaskWrapper (name, fn, defaultTaskOptions = {}, queue = 'low') {
     async function applyAsync (args, taskOptions) {
         const preparedOpts = {
             ...GLOBAL_TASK_OPTIONS,
@@ -167,7 +180,7 @@ function createTaskWrapper (name, fn, defaultTaskOptions = {}) {
             ...taskOptions,
         }
 
-        return await scheduleTaskByNameWithArgsAndOpts(name, args, preparedOpts)
+        return await scheduleTaskByNameWithArgsAndOpts(name, args, preparedOpts, queue)
     }
 
     async function delay () {
@@ -238,7 +251,19 @@ function getTaskLoggingContext (job) {
     return jobData
 }
 
-async function createWorker (keystoneModule) {
+/**
+ *
+ * @param keystoneModule
+ * @param queuesList {Array<string>}
+ * @return {Promise<void>}
+ */
+async function createWorker (keystoneModule, queuesList) {
+    let initialQueues = ['low', 'medium', 'high']
+
+    if (queuesList.length > 0) {
+        initialQueues = queuesList[0].split(',').map(e => e.trim())
+    }
+
     // NOTE: we should have only one worker per node process!
     if (isWorkerCreated) {
         logger.warn('Call createWorker() more than one time! (ignored)')
@@ -255,26 +280,35 @@ async function createWorker (keystoneModule) {
         logger.warn('Keystone APP context is not prepared! You can\'t use Keystone GQL query inside the tasks!')
     }
 
-    taskQueue.process('*', WORKER_CONCURRENCY, async function (job) {
-        logger.info({ taskId: job.id, status: 'processing', task: getTaskLoggingContext(job) })
-        try {
-            return await executeTask(job.name, job.data.args, job)
-        } catch (error) {
-            logger.error({ taskId: job.id, status: 'error', error, task: getTaskLoggingContext(job) })
-            throw error
-        }
+    initialQueues.forEach(queue => createTaskQueue(queue))
+
+    const activeQueues = Array.from(QUEUES.entries())
+
+    // Apply callbacks to each created queue
+
+    activeQueues.forEach(([queueName, queue]) => {
+        queue.process('*', WORKER_CONCURRENCY, async function (job) {
+            logger.info({ taskId: job.id, status: 'processing', queue: queueName, task: getTaskLoggingContext(job) })
+            try {
+                return await executeTask(job.name, job.data.args, job)
+            } catch (error) {
+                logger.error({ taskId: job.id, status: 'error', error, queue: queueName, task: getTaskLoggingContext(job) })
+                throw error
+            }
+        })
+
+        queue.on('failed', function (job) {
+            logger.info({ taskId: job.id, status: 'failed', queue: queueName, task: getTaskLoggingContext(job) })
+        })
+
+        queue.on('completed', function (job) {
+            logger.info({ taskId: job.id, status: 'completed', queue: queueName, task: getTaskLoggingContext(job), t0: job.finishedOn - job.timestamp, t1: job.processedOn - job.timestamp, t2: job.finishedOn - job.processedOn })
+            gauge({ name: `worker.${job.name}ExecutionTime`, value: job.finishedOn - job.processedOn })
+        })
     })
 
-    taskQueue.on('failed', function (job) {
-        logger.info({ taskId: job.id, status: 'failed', task: getTaskLoggingContext(job) })
-    })
+    await Promise.all(activeQueues.map(([,queue]) => queue.isReady()))
 
-    taskQueue.on('completed', function (job) {
-        logger.info({ taskId: job.id, status: 'completed', task: getTaskLoggingContext(job), t0: job.finishedOn - job.timestamp, t1: job.processedOn - job.timestamp, t2: job.finishedOn - job.processedOn })
-        gauge({ name: `worker.${job.name}ExecutionTime`, value: job.finishedOn - job.processedOn })
-    })
-
-    await taskQueue.isReady()
     logger.info('Worker: ready to work!')
     const cronTasksNames = [...CRON_TASKS.keys()]
     if (cronTasksNames.length > 0) {
