@@ -1,10 +1,10 @@
 import styled from '@emotion/styled'
-import { Col, Form, FormInstance, FormItemProps, Row, SelectProps } from 'antd'
+import { Col, Form, FormInstance, FormItemProps, Row } from 'antd'
 import get from 'lodash/get'
 import isArray from 'lodash/isArray'
 import isFunction from 'lodash/isFunction'
 import isUndefined from 'lodash/isUndefined'
-import React, { ComponentProps, useCallback, useEffect, useState } from 'react'
+import React, { ComponentProps, useCallback, useEffect, useRef, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
@@ -28,7 +28,6 @@ export type InputWithCheckAllProps = {
     disabled?: boolean
     checkboxDisabled?: boolean
     checkboxHidden?: boolean
-    mode?: SelectProps['mode']
     onDataLoaded?: (data: GraphQlSearchInputOption['data']) => void
     /**
      * When your form has a complex structure, for example when fields change dynamically,
@@ -68,13 +67,13 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
         mutationOfFormAfterCheckAll,
         checkboxDisabled,
         checkboxHidden,
-        mode,
     }
 ) => {
     const intl = useIntl()
     const CheckedAllMessage = intl.formatMessage({ id: 'CheckedAll' })
 
     const [allDataLength, setAllDataLength] = useState<number>()
+    const allDataLoadedRef = useRef<boolean>(false)
     const [isAllChecked, setIsAllChecked] = useState<boolean>(checkAllInitialValue)
     const [isRequired, setIsRequired] = useState<boolean>(selectFormItemProps.required)
     const { requiredValidator } = useValidations()
@@ -87,16 +86,17 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
             onCheckBoxChange(value)
         }
     }, [onCheckBoxChange])
-    const handleOnDataLoaded = useCallback((data) => {
+    const handleOnDataLoaded = useCallback((data, allDataLoaded) => {
         setAllDataLength(data.length)
+        allDataLoadedRef.current = allDataLoaded
         if (isFunction(onDataLoaded)) {
-            onDataLoaded(data)
+            onDataLoaded(data, allDataLoaded)
         }
     }, [onDataLoaded])
     const handleOnChange = useCallback((data) => {
         const selectedDataLength = get(data, 'length')
 
-        if (selectedDataLength === allDataLength && !checkboxHidden) {
+        if (allDataLoadedRef.current && selectedDataLength === allDataLength && !checkboxHidden) {
             setIsAllChecked(true)
         }
 

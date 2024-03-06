@@ -43,7 +43,7 @@ export interface ISearchInputProps extends SelectProps<string> {
     initialValueSearch?: (client: ApolloClient<Record<string, unknown>>, searchText: string, where?: WhereType, first?: number, skip?: number) => Promise<Array<Record<string, unknown>>>
     onSelect?: (...args: Array<unknown>) => void
     onChange?: (...args: Array<unknown>) => void
-    onAllDataLoading?: (data) => void
+    onAllDataLoading?: (data: Array<unknown>, allDataLoaded: boolean) => void
     mode?: 'multiple' | 'tags'
     value?: string | string[]
     placeholder?: string
@@ -111,9 +111,10 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
 
     useEffect(() => {
         if (isFunction(onAllDataLoading)) {
-            onAllDataLoading(allData)
+            const data = uniqBy([...initialData, ...allData], keyField)
+            onAllDataLoading(data, isAllDataLoaded)
         }
-    }, [allData, onAllDataLoading])
+    }, [allData, onAllDataLoading, isAllDataLoaded])
 
     const { logEvent, getEventName } = useTracking()
 
