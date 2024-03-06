@@ -84,9 +84,9 @@ const sendTicketCommentCreatedNotifications = async (commentId, ticketId) => {
             ticketAssigneeId: ticket.executor,
             ticketCategoryClassifierId: ticket.categoryClassifier,
         })
-        const usersWithoutSender = users.filter(userId => userId !== createdComment.user)
+        const usersWithoutCommentAuthor = users.filter(userId => userId !== createdComment.user)
 
-        for (const employeeUserId of usersWithoutSender) {
+        for (const employeeUserId of usersWithoutCommentAuthor) {
             await sendMessage(context, {
                 lang,
                 to: { user: { id: employeeUserId } },
