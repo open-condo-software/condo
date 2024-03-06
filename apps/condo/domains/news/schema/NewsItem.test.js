@@ -897,7 +897,7 @@ describe('NewsItems', () => {
 
         test('must create news item if profanity exclusion detected within body', async () => {
             const [newsItem, attrs] = await createTestNewsItem(adminClient, dummyO10n, {
-                body: 'ИПУ муниципальная потребители', // Sorry, guys. Nothing personal, just a job.
+                body: 'ИПУ муниципальная потребители',
             })
             expect(newsItem).toHaveProperty('body', attrs.body)
         })
