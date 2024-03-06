@@ -11,7 +11,6 @@ import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useMutation, useQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 
-
 import { useDeepCompareEffect } from './utils/useDeepCompareEffect'
 
 type IUUIDObject = { id: string }
