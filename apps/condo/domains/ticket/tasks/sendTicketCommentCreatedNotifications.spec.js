@@ -4,7 +4,9 @@
 
 const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
+const dayjs = require('dayjs')
 
+const conf = require('@open-condo/config')
 const { setFakeClientMode, makeLoggedInAdminClient, waitFor } = require('@open-condo/keystone/test.utils')
 
 const { TICKET_COMMENT_CREATED_TYPE } = require('@condo/domains/notification/constants/constants')
@@ -90,6 +92,34 @@ describe('sendTicketCommentCreatedNotifications', ()  => {
             expect(messages[0].status).toEqual('sent')
             expect(messages[0].processingMeta.messageContext.telegramChatId).toEqual(telegramChatId)
             expect(messages[0].processingMeta.messageContext.userId).toEqual(employeeClient.user.id)
+
+            expect(messages[0]).toHaveProperty('meta', expect.objectContaining({
+                dv: 1,
+                data: expect.objectContaining({
+                    organizationId: organization.id,
+                    organizationName: organization.name,
+                    commentId: ticketComment.id,
+                    commentContent: ticketComment.content,
+                    commentType: ticketComment.type,
+                    commentTypeMessage: expect.stringContaining(''),
+                    commentCreatedAt: dayjs(ticketComment.createdAt).format('YYYY-MM-DD HH:mm'),
+                    ticketId: ticket.id,
+                    ticketDetails: ticket.details,
+                    ticketClassifier: expect.stringContaining(''),
+                    ticketNumber: ticket.number,
+                    ticketStatus: expect.stringContaining(''),
+                    ticketAddress: ticket.propertyAddress,
+                    ticketUnit: expect.stringContaining(ticket.unitName),
+                    userId: employeeClient.user.id,
+                    url: `${conf.SERVER_URL}/ticket/${ticket.id}`,
+                }),
+                telegramMeta: expect.objectContaining({
+                    inlineKeyboard: [[expect.objectContaining({
+                        text: expect.stringContaining(''),
+                        url: `${conf.SERVER_URL}/ticket/${ticket.id}`,
+                    })]],
+                }),
+            }))
         })
     })
 

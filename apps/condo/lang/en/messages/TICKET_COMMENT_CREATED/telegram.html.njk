@@ -1,7 +1,9 @@
 <b>New comment in ticket №{{ message.meta.data.ticketNumber }}</b>
-Date of creation: {{ message.meta.data.commentCreatedAt }}
 Organization: {{ message.meta.data.organizationName }}
+Date of creation: {{ message.meta.data.commentCreatedAt }}
 Status: {{ message.meta.data.ticketStatus }}
 Address: {{ message.meta.data.ticketAddress }}
 Unit: {{ message.meta.data.ticketUnit }}
-Comment: {{ message.meta.data.commentContent }}
+Classifier: {{ message.meta.data.ticketClassifier }}
+Problem: {{ message.meta.data.ticketDetails }}
+Comment {{ message.meta.data.commentTypeMessage }}: {{ message.meta.data.commentContent }}

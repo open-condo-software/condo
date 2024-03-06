@@ -4,6 +4,7 @@
 
 const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
+const dayjs = require('dayjs')
 const { get } = require('lodash')
 
 const conf = require('@open-condo/config')
@@ -101,9 +102,30 @@ describe('sendTicketCreatedNotifications', ()  => {
             expect(messages[0].status).toEqual('sent')
             expect(messages[0].processingMeta.messageContext.telegramChatId).toEqual(telegramChatId2)
             expect(messages[0].processingMeta.messageContext.userId).toEqual(employeeUser2.user.id)
-            expect(messages[0].meta.data.organizationId).toEqual(organization.id)
-            expect(messages[0].meta.data.ticketId).toEqual(ticket.id)
-            expect(messages[0].meta.data.userId).toEqual(employeeUser2.user.id)
+
+            expect(messages[0]).toHaveProperty('meta', expect.objectContaining({
+                dv: 1,
+                data: expect.objectContaining({
+                    organizationId: organization.id,
+                    organizationName: organization.name,
+                    ticketId: ticket.id,
+                    ticketClassifier: expect.stringContaining(''),
+                    ticketNumber: ticket.number,
+                    ticketStatus: expect.stringContaining(''),
+                    ticketAddress: ticket.propertyAddress,
+                    ticketUnit: expect.stringContaining(ticket.unitName),
+                    ticketCreatedAt: dayjs(ticket.createdAt).format('YYYY-MM-DD HH:mm'),
+                    ticketDetails: ticket.details,
+                    userId: employeeUser2.user.id,
+                    url: `${conf.SERVER_URL}/ticket/${ticket.id}`,
+                }),
+                telegramMeta: expect.objectContaining({
+                    inlineKeyboard: [[expect.objectContaining({
+                        text: expect.stringContaining(''),
+                        url: `${conf.SERVER_URL}/ticket/${ticket.id}`,
+                    })]],
+                }),
+            }))
         })
     })
 
