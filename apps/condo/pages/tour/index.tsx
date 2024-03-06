@@ -3,6 +3,7 @@ import {
     TourStep as TourStepType,
     TourStepTypeType,
 } from '@app/condo/schema'
+import { jsx } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Col, Row } from 'antd'
 import { get } from 'lodash'
@@ -10,12 +11,12 @@ import isEmpty from 'lodash/isEmpty'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useMemo } from 'react'
+import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { ArrowLeft, Building, ExternalLink, PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Button, Card, Space, Tooltip, Typography } from '@open-condo/ui'
+import { Button, Card, Modal, Radio, RadioGroup, Space, Tabs, Tooltip, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import {
@@ -273,12 +274,119 @@ const TourStepCard: React.FC<TourStepCardProps> = (props) => {
     return cardContent
 }
 
+const TechnicAppCard = () => {
+    const intl = useIntl()
+    const TechnicAppCardTitle = intl.formatMessage({ id: 'tour.technicAppCard.title' })
+
+    const [activeModal, setActiveModal] = useState<'info' | 'download' | null>()
+    const [currentTab, setCurrentTab] = useState<'admin' | 'technic' | 'security'>('admin')
+
+    const tabText = useMemo(() => {
+        if (currentTab === 'admin') return 'Через приложение руководители управляющей организации могут следить за передачей показаний, работой по заявкам, статусом начислений и оплат'
+        if (currentTab === 'technic') return 'Через приложение удобно брать заявки в работу и менять их статус. У каждой есть чат для связи с диспетчером и жителем. А еще через приложение можно передать показания ИПУ и ОДПУ'
+        if (currentTab === 'security') return 'В приложении отображаются статусы оформленных пропусков'
+    }, [currentTab])
+
+    return (
+        <>
+            <Card.CardButton
+                header={{
+                    emoji: [{ symbol: '🧑‍🔧' }, { symbol: '🔧' }],
+                    headingTitle: TechnicAppCardTitle,
+                }}
+                body={{ image: { src: '/onboarding/tourTechnicCard.webp', style: APP_IMAGE_STYLES } }}
+                onClick={() => setActiveModal('info')}
+            />
+            <Modal
+                open={activeModal === 'info'}
+                title={TechnicAppCardTitle}
+                onCancel={() => setActiveModal(null)}
+                footer={[
+                    <Button
+                        type='primary'
+                        key='download'
+                        onClick={() => setActiveModal('download')}
+                    >
+                        Скачать приложение
+                    </Button>,
+                ]}
+            >
+                <Space direction='vertical' size={24}>
+                    <RadioGroup
+                        optionType='button'
+                        onChange={(e) => setCurrentTab(e.target.value)}
+                        value={currentTab}
+                    >
+                        <Radio key='admin' value='admin' label='Руководителю'/>
+                        <Radio key='technic' value='technic' label='Технику и мастеру'/>
+                        <Radio key='security' value='security' label='Охране'/>
+                    </RadioGroup>
+                    <div style={{ height: '240px', width: '100%', backgroundColor: colors.blue[1], overflow: 'hidden', padding: '24px' }}>
+                        <div style={{ margin: 'auto', width: 'fit-content' }}>
+                            <img src='/onboarding/tourTechnicCard.webp' style={{ width: '200px' }} />
+                        </div>
+                    </div>
+                    <Typography.Text>
+                        {tabText}
+                    </Typography.Text>
+                </Space>
+            </Modal>
+            <Modal
+                open={activeModal === 'download'}
+                title={(
+                    <Space size={8} direction='vertical'>
+                        <Typography.Title level={3}>Скачать приложение</Typography.Title>
+                        <Typography.Text type='secondary' size='medium'>Доступно для Android и IOS</Typography.Text>
+                    </Space>
+                )}
+                onCancel={() => setActiveModal(null)}
+                footer={[
+                    <Button
+                        type='secondary'
+                        key='back'
+                        onClick={() => setActiveModal('info')}
+                    >
+                        Назад
+                    </Button>,
+                    <Button
+                        type='primary'
+                        key='close'
+                        onClick={() => setActiveModal(null)}
+                    >
+                        Спасибо
+                    </Button>,
+                ]}
+            >
+                <Space size={16} direction='horizontal'>
+                    <Space size={8} direction='vertical' align='center'>
+                        <img style={{ width: '150px', height: '150px' }} src='/onboarding/qr-technic-app/GooglePlay.svg'/>
+                        <Typography.Title level={4}>
+                            Google Play
+                        </Typography.Title>
+                    </Space>
+                    <Space size={8} direction='vertical' align='center'>
+                        <img style={{ width: '150px', height: '150px' }} src='/onboarding/qr-technic-app/AppStore.svg'/>
+                        <Typography.Title level={4}>
+                            App Store
+                        </Typography.Title>
+                    </Space>
+                    <Space size={8} direction='vertical' align='center'>
+                        <img style={{ width: '150px', height: '150px' }} src='/onboarding/qr-technic-app/AppGalery.svg'/>
+                        <Typography.Title level={4}>
+                            App Gallery
+                        </Typography.Title>
+                    </Space>
+                </Space>
+            </Modal>
+        </>
+    )
+}
+
 const TourPageContent = () => {
     const intl = useIntl()
     const TourSubtitle = intl.formatMessage({ id: 'tour.subtitle' })
     const TourDescription = intl.formatMessage({ id: 'tour.description' })
     const ResidentAppCardTitle = intl.formatMessage({ id: 'tour.residentAppCard.title' })
-    const TechnicAppCardTitle = intl.formatMessage({ id: 'tour.technicAppCard.title' })
     const BackMessage = intl.formatMessage({ id: 'Back' })
 
     const router = useRouter()
@@ -507,13 +615,7 @@ const TourPageContent = () => {
                                 window.open('https://doma.ai/app_landing', '_blank')
                             }}
                         />
-                        <Card.CardButton
-                            header={{
-                                emoji: [{ symbol: '🧑‍🔧' }, { symbol: '🔧' }],
-                                headingTitle: TechnicAppCardTitle,
-                            }}
-                            body={{ image: { src: '/onboarding/tourTechnicCard.webp', style: APP_IMAGE_STYLES } }}
-                        />
+                        <TechnicAppCard />
                     </div>
                 </CardsWrapper>
             </Col>
