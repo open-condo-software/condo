@@ -130,14 +130,14 @@ async function updateTestTourStep (client, id, extraAttrs = {}) {
 }
 
 
-async function syncTourStepsByTestClient(client, extraAttrs = {}) {
+async function syncTourStepsByTestClient(client, organization) {
     if (!client) throw new Error('no client')
+    if (!organization) throw new Error('no organization')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
     const attrs = {
         dv: 1,
         sender,
-        ...extraAttrs,
+        organization: { id: organization.id }
     }
     const { data, errors } = await client.mutate(SYNC_TOUR_STEPS_MUTATION, { data: attrs })
     throwIfError(data, errors)

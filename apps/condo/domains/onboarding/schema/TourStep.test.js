@@ -7,7 +7,7 @@ const { expectToThrowAccessDeniedErrorToObj } = require('@open-condo/keystone/te
 
 const { ORGANIZATION_TOUR } = require('@condo/domains/common/constants/featureflags')
 const { ERRORS } = require('@condo/domains/onboarding/constants/errors')
-const { STEP_TYPES, COMPLETED_STEP_STATUS, CREATE_PROPERTY_STEP_TYPE, BILLING_STEP_TYPE, RESIDENT_STEP_TYPE, TODO_STEP_STATUS, DISABLED_STEP_STATUS, CREATE_PROPERTY_MAP_STEP_TYPE } = require('@condo/domains/onboarding/constants/steps')
+const { STEP_TYPES, COMPLETED_STEP_STATUS, CREATE_PROPERTY_STEP_TYPE, TODO_STEP_STATUS, DISABLED_STEP_STATUS, CREATE_PROPERTY_MAP_STEP_TYPE } = require('@condo/domains/onboarding/constants/steps')
 const { TourStep, createTestTourStep, updateTestTourStep } = require('@condo/domains/onboarding/utils/testSchema')
 const { registerNewOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')

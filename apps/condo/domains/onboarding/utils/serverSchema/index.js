@@ -32,7 +32,6 @@ async function syncTourSteps (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
-    // TODO(codegen): write syncTourSteps serverSchema guards
 
     return await execGqlWithoutAccess(context, {
         query: SYNC_TOUR_STEPS_MUTATION,

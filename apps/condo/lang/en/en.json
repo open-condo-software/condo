@@ -2268,6 +2268,7 @@
   "api.miniapp.sendB2CAppPushMessage.APP_IN_BLACK_LIST": "Could not send notifications for the blacklisted app",
   "api.analytics.overviewDashboard.FEATURE_IS_DISABLED": "This feature is unavailable for your organization",
   "api.tourStep.update.updateCompletedStepType": "You can not update status of completed TourStep",
+  "api.onboarding.syncTourSteps.TOUR_STEPS_NOT_FOUND": "Tour steps not found for this organization",
   "excelExport.header.contacts.forAllTime": "Contacts for all time",
   "excelExport.header.contacts.forPeriod": "Contacts for the period",
   "excelExport.header.newsRecipients": "News recipients",

@@ -20,7 +20,7 @@ export const useSyncSteps = ({ refetchSteps, organizationId }) => {
             mutation: SYNC_TOUR_STEPS_MUTATION,
             variables: {
                 data: {
-                    organizationId,
+                    organization: { id: organizationId },
                     dv: 1,
                     sender: getClientSideSenderInfo(),
                 },
