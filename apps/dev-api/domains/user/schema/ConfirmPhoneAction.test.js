@@ -9,7 +9,7 @@ const {
     expectToThrowAuthenticationErrorToObjects,
 } = require('@open-condo/keystone/test.utils')
 
-const { CONFIRM_ACTION_CODE_LENGTH } = require('@dev-api/domains/user/constants')
+const { CONFIRM_PHONE_ACTION_CODE_LENGTH } = require('@dev-api/domains/user/constants')
 const {
     ConfirmPhoneAction,
     createTestConfirmPhoneAction,
@@ -46,7 +46,7 @@ describe('ConfirmPhoneAction', () => {
         })
         describe('Read', () => {
             test('Admin can read ConfirmPhoneActions', async () => {
-                const actions = await ConfirmPhoneAction.getAll(actors.admin, {})
+                const actions = await ConfirmPhoneAction.getAll(actors.admin, {}, { first: 100 })
                 expect(actions.length).toBeGreaterThan(0)
             })
             test('Support cannot', async () => {
@@ -74,7 +74,7 @@ describe('ConfirmPhoneAction', () => {
 
                 const payloads = [
                     { phone: createTestPhone() },
-                    { code: faker.random.numeric(CONFIRM_ACTION_CODE_LENGTH) },
+                    { code: faker.random.numeric(CONFIRM_PHONE_ACTION_CODE_LENGTH) },
                     { isVerified: true },
                 ]
 

@@ -10,10 +10,11 @@ const { makeLoggedInClient, makeClient } = require('@open-condo/keystone/test.ut
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 const { getAppEnvValue } = require('@open-condo/cli')
 
-const { User: UserGQL } = require('@dev-api/domains/user/gql')
-const { ConfirmPhoneAction: ConfirmPhoneActionGQL } = require('@dev-api/domains/user/gql')
-const { REGISTER_NEW_USER_MUTATION } = require('@dev-api/domains/user/gql')
 const {
+    User: UserGQL,
+    ConfirmEmailAction: ConfirmEmailActionGQL,
+    ConfirmPhoneAction: ConfirmPhoneActionGQL,
+    REGISTER_NEW_USER_MUTATION,
     AUTHENTICATE_USER_WITH_PHONE_AND_PASSWORD_MUTATION,
     START_CONFIRM_PHONE_ACTION_MUTATION,
     COMPLETE_CONFIRM_PHONE_ACTION_MUTATION,
@@ -22,11 +23,17 @@ const conf = require("@open-condo/config");
 const get = require('lodash/get')
 const max = require('lodash/max')
 const repeat = require('lodash/repeat')
-const { CONFIRM_ACTION_CODE_LENGTH, CONFIRM_ACTION_TTL_IN_SEC} = require("@dev-api/domains/user/constants");
+const {
+    CONFIRM_PHONE_ACTION_CODE_LENGTH,
+    CONFIRM_PHONE_ACTION_TTL_IN_SEC,
+    CONFIRM_EMAIL_ACTION_CODE_LENGTH,
+    CONFIRM_EMAIL_ACTION_TTL_IN_SEC,
+} = require("@dev-api/domains/user/constants");
 const dayjs = require("dayjs");
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateGQLTestUtils(UserGQL)
+const ConfirmEmailAction = generateGQLTestUtils(ConfirmEmailActionGQL)
 const ConfirmPhoneAction = generateGQLTestUtils(ConfirmPhoneActionGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -71,6 +78,37 @@ async function updateTestUser (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestConfirmEmailAction (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        email: faker.internet.email(),
+        code: faker.random.numeric(CONFIRM_EMAIL_ACTION_CODE_LENGTH),
+        expiresAt: dayjs().add(CONFIRM_EMAIL_ACTION_TTL_IN_SEC, 's').toISOString(),
+        ...extraAttrs,
+    }
+    const obj = await ConfirmEmailAction.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestConfirmEmailAction (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await ConfirmEmailAction.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+
 async function createTestConfirmPhoneAction(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -79,8 +117,8 @@ async function createTestConfirmPhoneAction(client, extraAttrs = {}) {
         dv: 1,
         sender,
         phone: createTestPhone(),
-        code: faker.random.numeric(CONFIRM_ACTION_CODE_LENGTH),
-        expiresAt: dayjs().add(CONFIRM_ACTION_TTL_IN_SEC, 's'),
+        code: faker.random.numeric(CONFIRM_PHONE_ACTION_CODE_LENGTH),
+        expiresAt: dayjs().add(CONFIRM_PHONE_ACTION_TTL_IN_SEC, 's').toISOString(),
         ...extraAttrs,
     }
     const obj = await ConfirmPhoneAction.create(client, attrs)
@@ -129,7 +167,7 @@ async function completeConfirmPhoneActionByTestClient(id, attrs = {}, client) {
     attrs.dv ??= 1
     attrs.sender ??= { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     attrs.actionId = id
-    attrs.code ??= faker.random.numeric(CONFIRM_ACTION_CODE_LENGTH)
+    attrs.code ??= faker.random.numeric(CONFIRM_PHONE_ACTION_CODE_LENGTH)
 
     const { data, errors } = await client.mutate(COMPLETE_CONFIRM_PHONE_ACTION_MUTATION, {
         data: attrs,
@@ -214,6 +252,7 @@ async function makeLoggedInSupportClient () {
 module.exports = {
     User, createTestUser, updateTestUser,
     ConfirmPhoneAction, createTestConfirmPhoneAction, updateTestConfirmPhoneAction,
+    ConfirmEmailAction, createTestConfirmEmailAction, updateTestConfirmEmailAction,
     startConfirmPhoneActionByTestClient, completeConfirmPhoneActionByTestClient,
     registerNewTestUser, authenticateUserWithPhoneAndPasswordByTestClient,
     makeLoggedInAdminClient, makeRegisteredAndLoggedInUser, makeLoggedInSupportClient,

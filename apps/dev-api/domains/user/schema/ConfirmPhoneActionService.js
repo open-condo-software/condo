@@ -11,11 +11,11 @@ const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 const { extractReqLocale, getLocalizedMessage } = require('@dev-api/domains/common/utils/messages')
 const { sendMessage } = require('@dev-api/domains/common/utils/sms')
 const {
-    CONFIRM_ACTION_TTL_IN_SEC,
-    CONFIRM_ACTION_CODE_LENGTH,
-    CONFIRM_ACTION_DAILY_LIMIT_BY_IP,
-    CONFIRM_ACTION_DAILY_LIMIT_BY_PHONE,
-    CONFIRM_ACTION_MAX_ATTEMPTS,
+    CONFIRM_PHONE_ACTION_TTL_IN_SEC,
+    CONFIRM_PHONE_ACTION_CODE_LENGTH,
+    CONFIRM_PHONE_ACTION_DAILY_LIMIT_BY_IP,
+    CONFIRM_PHONE_ACTION_DAILY_LIMIT_BY_PHONE,
+    CONFIRM_PHONE_ACTION_MAX_ATTEMPTS,
 } = require('@dev-api/domains/user/constants')
 const { SMS_DAILY_LIMIT_REACHED, ACTION_NOT_FOUND, INVALID_CODE } = require('@dev-api/domains/user/constants/errors')
 const { ERRORS: UserErrors } = require('@dev-api/domains/user/schema/User')
@@ -63,12 +63,12 @@ async function checkDailySMSLimits (phone, context) {
     }
 
     const byIpCounter = await redisGuard.incrementDayCounter(`confirm_phone_action:ip:${ip}`)
-    if (byIpCounter > CONFIRM_ACTION_DAILY_LIMIT_BY_IP) {
+    if (byIpCounter > CONFIRM_PHONE_ACTION_DAILY_LIMIT_BY_IP) {
         throw new GQLError(ERRORS.SMS_FOR_IP_DAY_LIMIT_REACHED, context)
     }
 
     const byPhoneCounter = await redisGuard.incrementDayCounter(`confirm_phone_action:phone:${phone}`)
-    if (byPhoneCounter > CONFIRM_ACTION_DAILY_LIMIT_BY_PHONE) {
+    if (byPhoneCounter > CONFIRM_PHONE_ACTION_DAILY_LIMIT_BY_PHONE) {
         throw new GQLError(ERRORS.SMS_FOR_PHONE_DAY_LIMIT_REACHED, context)
     }
 }
@@ -108,12 +108,12 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
 
                 const code = SMS_WHITE_LIST.hasOwnProperty(phone)
                     ? SMS_WHITE_LIST[normalizedPhone]
-                    : faker.random.numeric(CONFIRM_ACTION_CODE_LENGTH)
+                    : faker.random.numeric(CONFIRM_PHONE_ACTION_CODE_LENGTH)
 
                 const actionPayload = {
                     phone: normalizedPhone,
                     code,
-                    expiresAt: dayjs().add(CONFIRM_ACTION_TTL_IN_SEC, 'second').toISOString(),
+                    expiresAt: dayjs().add(CONFIRM_PHONE_ACTION_TTL_IN_SEC, 'second').toISOString(),
                     dv,
                     sender,
                 }
@@ -161,7 +161,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                         sender,
                         attempts,
                     }
-                    if (attempts >= CONFIRM_ACTION_MAX_ATTEMPTS) {
+                    if (attempts >= CONFIRM_PHONE_ACTION_MAX_ATTEMPTS) {
                         updateAttrs.deletedAt = currentTime
                     }
                     await ConfirmPhoneAction.update(context, requestedAction.id, updateAttrs)

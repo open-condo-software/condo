@@ -7,7 +7,7 @@ import { Typography, Input } from '@open-condo/ui'
 
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { getClientSideSenderInfo } from '@/domains/common/utils/userid.utils'
-import { CONFIRM_ACTION_CODE_LENGTH } from '@dev-api/domains/user/constants'
+import { CONFIRM_PHONE_ACTION_CODE_LENGTH } from '@dev-api/domains/user/constants'
 import { INVALID_CODE, ACTION_NOT_FOUND } from '@dev-api/domains/user/constants/errors'
 
 import styles from './CodeInputStep.module.css'
@@ -137,10 +137,10 @@ export const CodeInputStep: React.FC<CodeInputStepProps> = ({
 
     const handleCodeValueChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         let value = event.target.value
-        if (value.length === CONFIRM_ACTION_CODE_LENGTH) {
+        if (value.length === CONFIRM_PHONE_ACTION_CODE_LENGTH) {
             form.submit()
-        } else if (value.length > CONFIRM_ACTION_CODE_LENGTH) {
-            value = value.substring(0, CONFIRM_ACTION_CODE_LENGTH)
+        } else if (value.length > CONFIRM_PHONE_ACTION_CODE_LENGTH) {
+            value = value.substring(0, CONFIRM_PHONE_ACTION_CODE_LENGTH)
             form.setFieldsValue([{ name: 'code', value }])
         }
     }, [form])
@@ -177,7 +177,7 @@ export const CodeInputStep: React.FC<CodeInputStepProps> = ({
                             pattern='[0-9]*'
                             placeholder='1234'
                             onChange={handleCodeValueChange}
-                            maxLength={CONFIRM_ACTION_CODE_LENGTH}
+                            maxLength={CONFIRM_PHONE_ACTION_CODE_LENGTH}
                             autoComplete='one-time-code'
                         />
                     </Form.Item>

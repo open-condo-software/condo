@@ -6,13 +6,17 @@
 
 const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 
-const { User: UserGQL } = require('@dev-api/domains/user/gql')
-const { ConfirmPhoneAction: ConfirmPhoneActionGQL } = require('@dev-api/domains/user/gql')
-const { REGISTER_NEW_USER_MUTATION } = require('@dev-api/domains/user/gql')
-const { AUTHENTICATE_USER_WITH_PHONE_AND_PASSWORD_MUTATION } = require('@dev-api/domains/user/gql')
+const {
+    User: UserGQL,
+    ConfirmEmailAction: ConfirmEmailActionGQL,
+    ConfirmPhoneAction: ConfirmPhoneActionGQL,
+    REGISTER_NEW_USER_MUTATION,
+    AUTHENTICATE_USER_WITH_PHONE_AND_PASSWORD_MUTATION,
+} = require('@dev-api/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateServerUtils(UserGQL)
+const ConfirmEmailAction = generateServerUtils(ConfirmEmailActionGQL)
 const ConfirmPhoneAction = generateServerUtils(ConfirmPhoneActionGQL)
 
 async function registerNewUser (context, data) {
@@ -46,6 +50,7 @@ async function authenticateUserWithPhoneAndPassword (context, data) {
 module.exports = {
     User,
     ConfirmPhoneAction,
+    ConfirmEmailAction,
     registerNewUser,
     authenticateUserWithPhoneAndPassword,
 /* AUTOGENERATE MARKER <EXPORTS> */

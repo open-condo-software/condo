@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react'
 import { useCountdown } from 'usehooks-ts'
 
-import { CONFIRM_ACTION_TTL_IN_SEC } from '@dev-api/domains/user/constants'
+import { CONFIRM_PHONE_ACTION_TTL_IN_SEC } from '@dev-api/domains/user/constants'
 
 import { CodeInputStep } from './CodeInputStep'
 import { IdentityInputStep } from './IdentityInputStep'
@@ -12,7 +12,7 @@ import type { PhoneInputStepProps } from './PhoneInputStep'
 // NOTE: ConfirmPhoneAction is valid for 5 min, but registration form filling time is included in it
 // So, we need to cut this time a bit, so user can resend code earlier (in case on delivery failure)
 const RESET_MAX_TIMEOUT_IN_SEC = 90
-const RESET_TIMEOUT_IN_SEC = Math.min(RESET_MAX_TIMEOUT_IN_SEC, CONFIRM_ACTION_TTL_IN_SEC)
+const RESET_TIMEOUT_IN_SEC = Math.min(RESET_MAX_TIMEOUT_IN_SEC, CONFIRM_PHONE_ACTION_TTL_IN_SEC)
 
 type ConfirmActionType =  {
     phone: string

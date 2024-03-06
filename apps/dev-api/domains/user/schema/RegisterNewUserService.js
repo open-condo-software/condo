@@ -45,6 +45,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                 const currentTime = dayjs().toISOString()
                 const confirmAction = await ConfirmPhoneAction.getOne(context, {
                     deletedAt: null,
+                    usedAt: null,
                     id: confirmPhoneActionId,
                     isVerified: true,
                     expiresAt_gte: currentTime,
@@ -53,6 +54,12 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                 if (!confirmAction) {
                     throw new GQLError(ERRORS.ACTION_NOT_FOUND, context)
                 }
+
+                await ConfirmPhoneAction.update(context, confirmAction.id, {
+                    usedAt: currentTime,
+                    dv,
+                    sender,
+                })
 
 
                 const createdUser = await User.create(context, {
