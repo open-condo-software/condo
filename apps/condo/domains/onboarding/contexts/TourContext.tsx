@@ -296,7 +296,7 @@ export const TourProvider = ({ children }) => {
                 employee: ['Публиковать новости дома', 'Получать заявки от конкретных квартир'],
                 resident: ['Читать новости дома', 'Создавать заявки в мобильном приложении'],
             },
-            bodyText: get(createPropertyMapBodyText, [get(activeStep, 'firstLevel'), 'bodyText'], createPropertyMapBodyText.default),
+            bodyText: get(createPropertyMapBodyText, [get(activeStep, 'firstLevel'), 'bodyText'], createPropertyMapBodyText.default.bodyText),
             buttonLabel: get(createPropertyMapBodyText, [get(activeStep, 'firstLevel'), 'buttonLabel'], createPropertyMapBodyText.default.buttonLabel),
             onButtonClick: get(createPropertyMapBodyText, [get(activeStep, 'firstLevel'), 'onButtonClick'], createPropertyMapBodyText.default.onButtonClick),
         },
@@ -307,7 +307,7 @@ export const TourProvider = ({ children }) => {
                 employee: ['Публиковать новости дома', 'Получать заявки от конкретных квартир'],
                 resident: ['Читать новости дома', 'Создавать заявки в мобильном приложении'],
             },
-            bodyText: get(importPropertiesBodyText, [get(activeStep, 'firstLevel'), 'bodyText'], importPropertiesBodyText.default),
+            bodyText: get(importPropertiesBodyText, [get(activeStep, 'firstLevel'), 'bodyText'], importPropertiesBodyText.default.bodyText),
             buttonLabel: get(importPropertiesBodyText, [get(activeStep, 'firstLevel'), 'buttonLabel'], importPropertiesBodyText.default.buttonLabel),
             onButtonClick: get(importPropertiesBodyText, [get(activeStep, 'firstLevel'), 'onButtonClick'], importPropertiesBodyText.default.onButtonClick),
         },
@@ -318,7 +318,7 @@ export const TourProvider = ({ children }) => {
                 employee: ['Публиковать новости дома', 'Оставлять информацию об отключениях'],
                 resident: ['Читать новости дома'],
             },
-            bodyText: get(createTicketBodyText, [get(activeStep, 'firstLevel'), 'bodyText'], createTicketBodyText.default),
+            bodyText: get(createTicketBodyText, [get(activeStep, 'firstLevel'), 'bodyText'], createTicketBodyText.default.bodyText),
             buttonLabel: get(createTicketBodyText, [get(activeStep, 'firstLevel'), 'buttonLabel'], createTicketBodyText.default.buttonLabel),
             onButtonClick: get(createTicketBodyText, [get(activeStep, 'firstLevel'), 'onButtonClick'], createTicketBodyText.default.onButtonClick),
         },
@@ -328,7 +328,7 @@ export const TourProvider = ({ children }) => {
             newFeatures: {
                 resident: ['Передавать показания счетчиков в мобильном приложении'],
             },
-            bodyText: get(createMeterReadingsBodyText, [get(activeStep, 'firstLevel'), 'bodyText'], createMeterReadingsBodyText.default),
+            bodyText: get(createMeterReadingsBodyText, [get(activeStep, 'firstLevel'), 'bodyText'], createMeterReadingsBodyText.default.bodyText),
             buttonLabel: get(createMeterReadingsBodyText, [get(activeStep, 'firstLevel'), 'buttonLabel'], createMeterReadingsBodyText.default.buttonLabel),
             onButtonClick: get(createMeterReadingsBodyText, [get(activeStep, 'firstLevel'), 'onButtonClick'], createMeterReadingsBodyText.default.onButtonClick),
         },
@@ -339,7 +339,7 @@ export const TourProvider = ({ children }) => {
                 employee: ['Загружать реестры и формировать квитанции', 'Следить за платежами от жителей'],
                 resident: ['Оплачивать квитанции в мобильном приложении'],
             },
-            bodyText: get(uploadBillingReceiptsBodyText, [get(activeStep, 'firstLevel'), 'bodyText'], uploadBillingReceiptsBodyText.default),
+            bodyText: get(uploadBillingReceiptsBodyText, [get(activeStep, 'firstLevel'), 'bodyText'], uploadBillingReceiptsBodyText.default.bodyText),
             buttonLabel: get(uploadBillingReceiptsBodyText, [get(activeStep, 'firstLevel'), 'buttonLabel'], uploadBillingReceiptsBodyText.default.buttonLabel),
             onButtonClick: get(uploadBillingReceiptsBodyText, [get(activeStep, 'firstLevel'), 'onButtonClick'], uploadBillingReceiptsBodyText.default.onButtonClick),
         },
@@ -379,15 +379,18 @@ export const TourProvider = ({ children }) => {
         if (currentImport.current) {
             isFirstSuccessImport.current = true
         } else {
-            if (get(activeStep, 'firstLevel') !== TourStepTypeType.Resident && type === TourStepTypeType.ViewResidentsAppGuide) {
-                setIsCompletedModalOpen(true)
-            } else {
-                const modalValue = nextRoute ? {
-                    ...modalDataDescription[type], onButtonClick: () => router.push(nextRoute),
-                } : modalDataDescription[type]
-
-                setModalData(modalValue)
+            if (
+                get(activeStep, 'firstLevel') !== TourStepTypeType.Resident && type === TourStepTypeType.ViewResidentsAppGuide ||
+                get(activeStep, 'firstLevel') === TourStepTypeType.Resident && type === TourStepTypeType.CreateNews
+            ) {
+                return setIsCompletedModalOpen(true)
             }
+
+            const modalValue = nextRoute ? {
+                ...modalDataDescription[type], onButtonClick: () => router.push(nextRoute),
+            } : modalDataDescription[type]
+
+            setModalData(modalValue)
         }
     }, [organizationId, refetchSteps, updateTourStep])
 
@@ -493,6 +496,8 @@ export const TourProvider = ({ children }) => {
 
     const newEmployeeFeatures = useMemo(() => get(modalData, 'newFeatures.employee'), [modalData])
     const newResidentFeatures = useMemo(() => get(modalData, 'newFeatures.resident'), [modalData])
+
+    console.log('modalData', modalData)
 
     return (
         <>
