@@ -57,7 +57,7 @@ const {
     createTestOrganizationEmployeeRole,
     updateTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
-const { FLAT_UNIT_TYPE, SECTION_SECTION_TYPE } = require('@condo/domains/property/constants/common')
+const { FLAT_UNIT_TYPE, SECTION_SECTION_TYPE, COMMERCIAL_UNIT_TYPE, PARKING_SECTION_TYPE } = require('@condo/domains/property/constants/common')
 const {
     makeClientWithProperty,
     createTestProperty,
@@ -2836,40 +2836,106 @@ describe('Ticket', () => {
                 [property] = await createTestProperty(admin, organization)
             })
 
-            test('sectionType must be reset if not pass sectionName', async () => {
-                const [ticket] = await createTestTicket(admin, organization, property, {
-                    sectionType: SECTION_SECTION_TYPE,
-                    sectionName: null,
+            describe('create', () => {
+                test('sectionType must be reset if not pass sectionName', async () => {
+                    const [ticket] = await createTestTicket(admin, organization, property, {
+                        sectionType: PARKING_SECTION_TYPE,
+                        sectionName: null,
+                    })
+                    expect(ticket).toHaveProperty('sectionType', null)
+                    expect(ticket).toHaveProperty('sectionName', null)
                 })
-                expect(ticket).toHaveProperty('sectionType', null)
-                expect(ticket).toHaveProperty('sectionName', null)
+
+                test('sectionType must be set to default values if pass sectionName and not pass sectionType', async () => {
+                    const [ticket, attrs] = await createTestTicket(admin, organization, property, {
+                        sectionType: null,
+                        sectionName: faker.random.alphaNumeric(5),
+                    })
+                    expect(ticket).toHaveProperty('sectionType', SECTION_SECTION_TYPE)
+                    expect(ticket).toHaveProperty('sectionName', attrs.sectionName)
+                })
+
+                test('sectionType and sectionName must be empty if they were not passed', async () => {
+                    const [ticket] = await createTestTicket(admin, organization, property, {
+                        sectionType: null,
+                        sectionName: null,
+                    })
+                    expect(ticket).toHaveProperty('sectionType', null)
+                    expect(ticket).toHaveProperty('sectionName', null)
+                })
+
+                test('sectionType and sectionName must not be empty if they were passed', async () => {
+                    const [ticket, attrs] = await createTestTicket(admin, organization, property, {
+                        sectionType: PARKING_SECTION_TYPE,
+                        sectionName: faker.random.alphaNumeric(5),
+                    })
+                    expect(ticket).toHaveProperty('sectionType', PARKING_SECTION_TYPE)
+                    expect(ticket).toHaveProperty('sectionName', attrs.sectionName)
+                })
             })
 
-            test('sectionType must be set to default values if pass sectionName and not pass sectionType', async () => {
-                const [ticket, attrs] = await createTestTicket(admin, organization, property, {
-                    sectionType: null,
-                    sectionName: faker.random.alphaNumeric(5),
+            describe('update', () => {
+                test('sectionType must not be update if sectionName is not null and sectionType try update to null', async () => {
+                    const [ticket] = await createTestTicket(admin, organization, property, {
+                        sectionType: PARKING_SECTION_TYPE,
+                        sectionName: faker.random.alphaNumeric(5),
+                    })
+                    expect(ticket).toHaveProperty('sectionType', PARKING_SECTION_TYPE)
+                    const [updatedTicket] = await updateTestTicket(admin, ticket.id, {
+                        sectionType: null,
+                    })
+                    expect(updatedTicket).toHaveProperty('sectionType', PARKING_SECTION_TYPE)
+                    expect(updatedTicket).toHaveProperty('sectionName', ticket.sectionName)
                 })
-                expect(ticket).toHaveProperty('sectionType', SECTION_SECTION_TYPE)
-                expect(ticket).toHaveProperty('sectionName', attrs.sectionName)
-            })
 
-            test('sectionType and sectionName must be empty if they were not passed', async () => {
-                const [ticket] = await createTestTicket(admin, organization, property, {
-                    sectionType: null,
-                    sectionName: null,
+                test('sectionType must be set null if sectionType is not null and sectionName update to null', async () => {
+                    const [ticket] = await createTestTicket(admin, organization, property, {
+                        sectionType: PARKING_SECTION_TYPE,
+                        sectionName: faker.random.alphaNumeric(5),
+                    })
+                    const [updatedTicket] = await updateTestTicket(admin, ticket.id, {
+                        sectionName: null,
+                    })
+                    expect(updatedTicket).toHaveProperty('sectionType', null)
+                    expect(updatedTicket).toHaveProperty('sectionName', null)
                 })
-                expect(ticket).toHaveProperty('sectionType', null)
-                expect(ticket).toHaveProperty('sectionName', null)
-            })
 
-            test('sectionType and sectionName must not be empty if they were passed', async () => {
-                const [ticket, attrs] = await createTestTicket(admin, organization, property, {
-                    sectionType: SECTION_SECTION_TYPE,
-                    sectionName: faker.random.alphaNumeric(5),
+                test('sectionType and sectionName must be set null if sectionType and sectionName update to null', async () => {
+                    const [ticket] = await createTestTicket(admin, organization, property, {
+                        sectionType: PARKING_SECTION_TYPE,
+                        sectionName: faker.random.alphaNumeric(5),
+                    })
+                    const [updatedTicket] = await updateTestTicket(admin, ticket.id, {
+                        sectionType: null,
+                        sectionName: null,
+                    })
+                    expect(updatedTicket).toHaveProperty('sectionType', null)
+                    expect(updatedTicket).toHaveProperty('sectionName', null)
                 })
-                expect(ticket).toHaveProperty('sectionType', attrs.sectionType)
-                expect(ticket).toHaveProperty('sectionName', attrs.sectionName)
+
+                test('sectionType must be updatable', async () => {
+                    const [ticket] = await createTestTicket(admin, organization, property, {
+                        sectionType: SECTION_SECTION_TYPE,
+                        sectionName: faker.random.alphaNumeric(5),
+                    })
+                    const [updatedTicket] = await updateTestTicket(admin, ticket.id, {
+                        sectionType: PARKING_SECTION_TYPE,
+                    })
+                    expect(updatedTicket).toHaveProperty('sectionType', PARKING_SECTION_TYPE)
+                    expect(updatedTicket).toHaveProperty('sectionName', ticket.sectionName)
+                })
+
+                test('sectionName must be updatable', async () => {
+                    const [ticket] = await createTestTicket(admin, organization, property, {
+                        sectionType: PARKING_SECTION_TYPE,
+                        sectionName: faker.random.alphaNumeric(5),
+                    })
+                    const [updatedTicket, attrs] = await updateTestTicket(admin, ticket.id, {
+                        sectionName: faker.random.alphaNumeric(5),
+                    })
+                    expect(updatedTicket).toHaveProperty('sectionType', PARKING_SECTION_TYPE)
+                    expect(updatedTicket).toHaveProperty('sectionName', attrs.sectionName)
+                })
             })
         })
 
@@ -2881,40 +2947,91 @@ describe('Ticket', () => {
                 [property] = await createTestProperty(admin, organization)
             })
 
-            test('unitType must be reset if not pass unitName', async () => {
-                const [ticket] = await createTestTicket(admin, organization, property, {
-                    unitType: FLAT_UNIT_TYPE,
-                    unitName: null,
+            describe('create', () => {
+                test('unitType must be reset if not pass unitName', async () => {
+                    const [ticket] = await createTestTicket(admin, organization, property, {
+                        unitType: COMMERCIAL_UNIT_TYPE,
+                        unitName: null,
+                    })
+                    expect(ticket).toHaveProperty('unitType', null)
+                    expect(ticket).toHaveProperty('unitName', null)
                 })
-                expect(ticket).toHaveProperty('unitType', null)
-                expect(ticket).toHaveProperty('unitName', null)
+
+                test('unitType must be set to default values if pass unitName and not pass unitType', async () => {
+                    const [ticket, attrs] = await createTestTicket(admin, organization, property, {
+                        unitType: null,
+                        unitName: faker.random.alphaNumeric(5),
+                    })
+                    expect(ticket).toHaveProperty('unitType', FLAT_UNIT_TYPE)
+                    expect(ticket).toHaveProperty('unitName', attrs.unitName)
+                })
+
+                test('unitType and unitName must be empty if they were not passed', async () => {
+                    const [ticket] = await createTestTicket(admin, organization, property, {
+                        unitType: null,
+                        unitName: null,
+                    })
+                    expect(ticket).toHaveProperty('unitType', null)
+                    expect(ticket).toHaveProperty('unitName', null)
+                })
+
+                test('unitType and unitName must not be empty if they were passed', async () => {
+                    const [ticket, attrs] = await createTestTicket(admin, organization, property, {
+                        unitType: COMMERCIAL_UNIT_TYPE,
+                        unitName: faker.random.alphaNumeric(5),
+                    })
+                    expect(ticket).toHaveProperty('unitType', COMMERCIAL_UNIT_TYPE)
+                    expect(ticket).toHaveProperty('unitName', attrs.unitName)
+                })
             })
 
-            test('unitType must be set to default values if pass unitName and not pass unitType', async () => {
-                const [ticket, attrs] = await createTestTicket(admin, organization, property, {
-                    unitType: null,
-                    unitName: faker.random.alphaNumeric(5),
+            describe('update', () => {
+                test('unitType must not be update if unitName is not null and unitType try update to null', async () => {
+                    const [ticket] = await createTestTicket(admin, organization, property, { unitType: COMMERCIAL_UNIT_TYPE })
+                    expect(ticket).toHaveProperty('unitType', COMMERCIAL_UNIT_TYPE)
+                    const [updatedTicket] = await updateTestTicket(admin, ticket.id, {
+                        unitType: null,
+                    })
+                    expect(updatedTicket).toHaveProperty('unitType', COMMERCIAL_UNIT_TYPE)
+                    expect(updatedTicket).toHaveProperty('unitName', ticket.unitName)
                 })
-                expect(ticket).toHaveProperty('unitType', FLAT_UNIT_TYPE)
-                expect(ticket).toHaveProperty('unitName', attrs.unitName)
-            })
 
-            test('unitType and unitName must be empty if they were not passed', async () => {
-                const [ticket] = await createTestTicket(admin, organization, property, {
-                    unitType: null,
-                    unitName: null,
+                test('unitType must be set null if unitType is not null and unitName update to null', async () => {
+                    const [ticket] = await createTestTicket(admin, organization, property, { unitType: COMMERCIAL_UNIT_TYPE })
+                    const [updatedTicket] = await updateTestTicket(admin, ticket.id, {
+                        unitName: null,
+                    })
+                    expect(updatedTicket).toHaveProperty('unitType', null)
+                    expect(updatedTicket).toHaveProperty('unitName', null)
                 })
-                expect(ticket).toHaveProperty('unitType', null)
-                expect(ticket).toHaveProperty('unitName', null)
-            })
 
-            test('unitType and unitName must not be empty if they were passed', async () => {
-                const [ticket, attrs] = await createTestTicket(admin, organization, property, {
-                    unitType: FLAT_UNIT_TYPE,
-                    unitName: faker.random.alphaNumeric(5),
+                test('unitType and unitName must be set null if unitType and unitName update to null', async () => {
+                    const [ticket] = await createTestTicket(admin, organization, property, { unitType: COMMERCIAL_UNIT_TYPE })
+                    const [updatedTicket] = await updateTestTicket(admin, ticket.id, {
+                        unitType: null,
+                        unitName: null,
+                    })
+                    expect(updatedTicket).toHaveProperty('unitType', null)
+                    expect(updatedTicket).toHaveProperty('unitName', null)
                 })
-                expect(ticket).toHaveProperty('unitType', attrs.unitType)
-                expect(ticket).toHaveProperty('unitName', attrs.unitName)
+
+                test('unitType must be updatable', async () => {
+                    const [ticket] = await createTestTicket(admin, organization, property, { unitType: FLAT_UNIT_TYPE })
+                    const [updatedTicket] = await updateTestTicket(admin, ticket.id, {
+                        unitType: COMMERCIAL_UNIT_TYPE,
+                    })
+                    expect(updatedTicket).toHaveProperty('unitType', COMMERCIAL_UNIT_TYPE)
+                    expect(updatedTicket).toHaveProperty('unitName', ticket.unitName)
+                })
+
+                test('unitName must be updatable', async () => {
+                    const [ticket] = await createTestTicket(admin, organization, property, { unitType: COMMERCIAL_UNIT_TYPE })
+                    const [updatedTicket, attrs] = await updateTestTicket(admin, ticket.id, {
+                        unitName: faker.random.alphaNumeric(5),
+                    })
+                    expect(updatedTicket).toHaveProperty('unitType', COMMERCIAL_UNIT_TYPE)
+                    expect(updatedTicket).toHaveProperty('unitName', attrs.unitName)
+                })
             })
         })
     })

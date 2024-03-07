@@ -277,25 +277,6 @@ async function classifyTicket (context, details) {
     })
 }
 
-function setDefaultsUnitAndSection (newItem, resolvedData) {
-    const unitType = get(newItem, 'unitType')
-    const unitName = get(newItem, 'unitName')
-    const sectionType = get(newItem, 'sectionType')
-    const sectionName = get(newItem, 'sectionName')
-
-    if (!sectionName && sectionType) {
-        resolvedData['sectionType'] = null
-    } else if (!sectionType && sectionName) {
-        resolvedData['sectionType'] = SECTION_SECTION_TYPE
-    }
-
-    if (!unitName && unitType) {
-        resolvedData['unitType'] = null
-    } else if (!unitType && unitName) {
-        resolvedData['unitType'] = FLAT_UNIT_TYPE
-    }
-}
-
 
 module.exports = {
     calculateReopenedCounter,
@@ -313,5 +294,4 @@ module.exports = {
     setDeadline,
     updateStatusAfterResidentFeedback,
     classifyTicket,
-    setDefaultsUnitAndSection,
 }

@@ -37,7 +37,7 @@ const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const { INVOICE_STATUS_CANCELED, INVOICE_STATUS_PAID, INVOICE_STATUS_PUBLISHED, INVOICE_STATUS_DRAFT } = require('@condo/domains/marketplace/constants')
 const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
-const { SECTION_TYPES } = require('@condo/domains/property/constants/common')
+const { SECTION_TYPES, SECTION_SECTION_TYPE, FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const access = require('@condo/domains/ticket/access/Ticket')
 const {
     OMIT_TICKET_CHANGE_TRACKABLE_FIELDS, REVIEW_VALUES, DEFERRED_STATUS_TYPE,
@@ -57,7 +57,7 @@ const {
     calculateStatusUpdatedAt,
     calculateDeferredUntil,
     setDeadline, updateStatusAfterResidentFeedback,
-    classifyTicket, setDefaultsUnitAndSection,
+    classifyTicket,
 } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
 const {
     createTicketChange,
@@ -621,6 +621,25 @@ const Ticket = new GQLListSchema('Ticket', {
             defaultValue: null,
             knexOptions: { isNotNullable: false },
             kmigratorOptions: { null: true },
+            hooks: {
+                resolveInput: async ({ resolvedData, existingItem }) => {
+                    const newItem = { ...existingItem, ...resolvedData }
+                    const sectionType = get(newItem, 'sectionType')
+                    const sectionName = get(newItem, 'sectionName')
+                    const existedSectionType = get(existingItem, 'sectionType')
+
+                    if (!sectionName && sectionType) {
+                        return null
+                    } else if (!sectionType && sectionName) {
+                        if (existedSectionType) {
+                            return existedSectionType
+                        }
+                        return SECTION_SECTION_TYPE
+                    } else {
+                        return sectionType
+                    }
+                },
+            },
         },
         floorName: {
             schemaDoc: 'Floor of an apartment building (property). You need to take from Property.map',
@@ -637,6 +656,25 @@ const Ticket = new GQLListSchema('Ticket', {
             knexOptions: { isNotNullable: false },
             kmigratorOptions: { null: true },
             defaultValue: null,
+            hooks: {
+                resolveInput: async ({ resolvedData, existingItem }) => {
+                    const newItem = { ...existingItem, ...resolvedData }
+                    const unitType = get(newItem, 'unitType')
+                    const unitName = get(newItem, 'unitName')
+                    const existedUnitType = get(existingItem, 'unitType')
+
+                    if (!unitName && unitType) {
+                        return null
+                    } else if (!unitType && unitName) {
+                        if (existedUnitType) {
+                            return existedUnitType
+                        }
+                        return FLAT_UNIT_TYPE
+                    } else {
+                        return unitType
+                    }
+                },
+            },
         },
         source: {
             schemaDoc: 'Ticket source channel/system. Examples: call, email, visit, ...',
@@ -751,8 +789,6 @@ const Ticket = new GQLListSchema('Ticket', {
             const newItem = { ...existingItem, ...resolvedData }
             const resolvedStatusId = get(newItem, 'status', null)
             const resolvedClient = get(newItem, 'client', null)
-
-            setDefaultsUnitAndSection(newItem, resolvedData)
 
             // Set isAutoClassified to false if classifier was passed
             if ((isCreateOperation || newItem.isAutoClassified) && resolvedData.classifier) {
