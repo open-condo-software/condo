@@ -50,7 +50,7 @@ const captchaCheck = async (token, action = '', context = {}) => {
         const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(context, CAPTCHA_CHECK_ENABLED)
         if (!isFeatureEnabled) {
             logger.info({ msg: 'Captcha check id disabled' })
-            return
+            return { error: null }
         }
 
         const source = getRequestSource(context)
