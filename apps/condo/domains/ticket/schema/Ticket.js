@@ -37,7 +37,7 @@ const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const { INVOICE_STATUS_CANCELED, INVOICE_STATUS_PAID, INVOICE_STATUS_PUBLISHED, INVOICE_STATUS_DRAFT } = require('@condo/domains/marketplace/constants')
 const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
-const { SECTION_TYPES, SECTION_SECTION_TYPE } = require('@condo/domains/property/constants/common')
+const { SECTION_TYPES } = require('@condo/domains/property/constants/common')
 const access = require('@condo/domains/ticket/access/Ticket')
 const {
     OMIT_TICKET_CHANGE_TRACKABLE_FIELDS, REVIEW_VALUES, DEFERRED_STATUS_TYPE,
@@ -57,7 +57,7 @@ const {
     calculateStatusUpdatedAt,
     calculateDeferredUntil,
     setDeadline, updateStatusAfterResidentFeedback,
-    classifyTicket,
+    classifyTicket, setDefaultsUnitAndSection,
 } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
 const {
     createTicketChange,
@@ -618,7 +618,7 @@ const Ticket = new GQLListSchema('Ticket', {
             options: SECTION_TYPES,
             dataType: 'string',
             isRequired: false,
-            defaultValue: SECTION_SECTION_TYPE,
+            defaultValue: null,
             knexOptions: { isNotNullable: false },
             kmigratorOptions: { null: true },
         },
@@ -751,6 +751,8 @@ const Ticket = new GQLListSchema('Ticket', {
             const newItem = { ...existingItem, ...resolvedData }
             const resolvedStatusId = get(newItem, 'status', null)
             const resolvedClient = get(newItem, 'client', null)
+
+            setDefaultsUnitAndSection(newItem, resolvedData)
 
             // Set isAutoClassified to false if classifier was passed
             if ((isCreateOperation || newItem.isAutoClassified) && resolvedData.classifier) {
