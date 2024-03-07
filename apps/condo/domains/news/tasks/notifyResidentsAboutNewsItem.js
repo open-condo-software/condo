@@ -1,6 +1,7 @@
 const dayjs = require('dayjs')
 const get = require('lodash/get')
 const truncate = require('lodash/truncate')
+const { v4: uuid } = require('uuid')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -27,19 +28,19 @@ const BODY_MAX_LEN = 150
  * @param {NewsItem} newsItem
  * @returns {boolean}
  */
-function checkSendingPossibility (newsItem) {
+function checkSendingPossibility (newsItem, taskId) {
     if (newsItem.deletedAt) {
-        logger.warn({ message: 'Trying to send deleted news item', newsItem })
+        logger.warn({ msg: 'Trying to send deleted news item', newsItem, taskId })
         return false
     }
 
     if (newsItem.sentAt) {
-        logger.warn({ message: 'Trying to send news item which already been sent', newsItem })
+        logger.warn({ msg: 'Trying to send news item which already been sent', newsItem, taskId })
         return false
     }
 
     if (!newsItem.isPublished) {
-        logger.warn({ message: 'Trying to send unpublished news item', newsItem })
+        logger.warn({ msg: 'Trying to send unpublished news item', newsItem, taskId })
         return false
     }
 
@@ -50,9 +51,9 @@ function checkSendingPossibility (newsItem) {
  * @param {NewsItem} newsItem
  * @returns {Promise<void>}
  */
-async function sendNotifications (context, newsItem) {
+async function sendNotifications (context, newsItem, taskId) {
 
-    if (!checkSendingPossibility(newsItem)) {
+    if (!checkSendingPossibility(newsItem, taskId)) {
         return
     }
 
@@ -146,37 +147,49 @@ async function sendNotifications (context, newsItem) {
  * @returns {Promise<void>}
  */
 async function notifyResidentsAboutNewsItem (newsItemId) {
-    const { keystone: context } = await getSchemaCtx('NewsItem')
+    const taskId = uuid()
 
-    const newsItem = await NewsItem.getOne(context, { id: newsItemId })
+    try {
+        const { keystone: context } = await getSchemaCtx('NewsItem')
 
-    if (!checkSendingPossibility(newsItem)) {
-        return
-    }
+        const newsItem = await NewsItem.getOne(context, { id: newsItemId })
 
-    if (get(newsItem, 'sendAt')) {
-        // Send delayed items immediately
-        await sendNotifications(context, newsItem)
-    } else {
-        // TODO(DOMA-6931) refactor this
-        // We wait some number of seconds in the case of not delayed news items to take a chance for the user to turn all back
-        setTimeout(async () => {
-            // The record can be changed during waiting timeout, for example, a user can edit it, therefore it should be requested again right before sending
-            const actualNewsItem = await NewsItem.getOne(context, { id: newsItemId })
-            // Checking if the timeout was expired to send the news item
-            const now = dayjs().unix()
-            if (now - dayjs(actualNewsItem.publishedAt).unix() < SENDING_DELAY_SEC) {
-                logger.warn({
-                    message: 'NewsItem was re-published before sending timeout passed. Do nothing',
-                    actualNewsItem,
-                    SENDING_DELAY_SEC,
-                    now,
-                })
-                return
-            }
+        if (!checkSendingPossibility(newsItem, taskId)) {
+            return
+        }
 
-            await sendNotifications(context, actualNewsItem)
-        }, SENDING_DELAY_SEC * 1000)
+        if (get(newsItem, 'sendAt')) {
+            // Send delayed items immediately
+            await sendNotifications(context, newsItem, taskId)
+        } else {
+            // TODO(DOMA-6931) refactor this
+            // We wait some number of seconds in the case of not delayed news items to take a chance for the user to turn all back
+            setTimeout(async () => {
+                // The record can be changed during waiting timeout, for example, a user can edit it, therefore it should be requested again right before sending
+                const actualNewsItem = await NewsItem.getOne(context, { id: newsItemId })
+                // Checking if the timeout was expired to send the news item
+                const now = dayjs().unix()
+                if (now - dayjs(actualNewsItem.publishedAt).unix() < SENDING_DELAY_SEC) {
+                    logger.warn({
+                        msg: 'NewsItem was re-published before sending timeout passed. Do nothing',
+                        actualNewsItem,
+                        SENDING_DELAY_SEC,
+                        now,
+                        taskId,
+                    })
+                    return
+                }
+
+                await sendNotifications(context, actualNewsItem, taskId)
+            }, SENDING_DELAY_SEC * 1000)
+        }
+    } catch (error) {
+        logger.error({
+            msg: 'failed to send news to residents',
+            error,
+            taskId,
+        })
+        throw error
     }
 }
 
