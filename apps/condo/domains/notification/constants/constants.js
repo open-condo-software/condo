@@ -585,6 +585,7 @@ const MESSAGE_META = {
     [DEV_PORTAL_MESSAGE_TYPE]: {
         dv: { required: true },
         body: { required: true },
+        subject: { required: false },
     },
     [SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE_TYPE]: {
         dv: { required: true },
@@ -829,8 +830,8 @@ const MESSAGE_DELIVERY_OPTIONS = {
         defaultTransports: [PUSH_TRANSPORT],
     },
     [DEV_PORTAL_MESSAGE_TYPE]: {
-        allowedTransports: [SMS_TRANSPORT],
-        defaultTransports: [SMS_TRANSPORT],
+        allowedTransports: [SMS_TRANSPORT, EMAIL_TRANSPORT],
+        defaultTransports: [SMS_TRANSPORT, EMAIL_TRANSPORT],
         isAllowedToChangeDefaultTransport: false,
     },
     [SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE_TYPE]: {
