@@ -873,6 +873,13 @@ describe('NewsItems', () => {
             )
         })
 
+        test('must create news item if profanity exclusion detected within title', async () => {
+            const [newsItem, attrs] = await createTestNewsItem(adminClient, dummyO10n, {
+                title: 'ИПУ муниципальная потребители',
+            })
+            expect(newsItem).toHaveProperty('title', attrs.title)
+        })
+
         test('must throw an error if profanity detected within body', async () => {
             await expectToThrowGQLError(
                 async () => await createTestNewsItem(adminClient, dummyO10n, {
@@ -886,6 +893,13 @@ describe('NewsItems', () => {
                     badWords: expect.any(String),
                 },
             )
+        })
+
+        test('must create news item if profanity exclusion detected within body', async () => {
+            const [newsItem, attrs] = await createTestNewsItem(adminClient, dummyO10n, {
+                body: 'ИПУ муниципальная потребители',
+            })
+            expect(newsItem).toHaveProperty('body', attrs.body)
         })
 
         test('should create news if exceptions of profanity are detected within title or body (case insensitive)', async () => {
