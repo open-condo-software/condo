@@ -5,7 +5,7 @@ const { createTask } = require('@open-condo/keystone/tasks')
 const { discoverServiceConsumers } = require('@condo/domains/resident/utils/serverSchema')
 
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'discoverServiceConsumersTask' } }
-const logger = getLogger('notifyResidentsAboutNewsItem')
+const logger = getLogger('discoverServiceConsumersTask')
 
 /**
  * @param {DiscoverServiceConsumersInput} data
