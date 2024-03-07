@@ -26,7 +26,9 @@ export const useSyncSteps = ({ refetchSteps, organizationId }) => {
                 },
             },
         })
-            .then(() => refetchSteps())
+            .then(() => {
+                refetchSteps()
+            })
             .then(() => setLoading(false))
     }, [organizationId])
 

@@ -73780,7 +73780,7 @@ input CreateOnBoardingInput {
 input SyncTourStepsInput {
   dv: Int!
   sender: SenderFieldInput!
-  organizationId: ID!
+  organization: OrganizationWhereUniqueInput!
 }
 
 type SyncTourStepsOutput {

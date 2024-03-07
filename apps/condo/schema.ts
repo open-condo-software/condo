@@ -81492,7 +81492,7 @@ export type SyncRemoteClientInput = {
 export type SyncTourStepsInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
-  organizationId: Scalars['ID'];
+  organization: OrganizationWhereUniqueInput;
 };
 
 export type SyncTourStepsOutput = {

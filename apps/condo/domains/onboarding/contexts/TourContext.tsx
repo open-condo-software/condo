@@ -1,4 +1,4 @@
-import { QueryAllTourStepsArgs, TourStepStatusType, TourStepTypeType, TourStep as TourStepType } from '@app/condo/schema'
+import { TourStepStatusType, TourStepTypeType } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Row } from 'antd'
 import get from 'lodash/get'
@@ -18,38 +18,33 @@ import { IMPORT_EVENT, ImportEmitter } from '@condo/domains/common/components/Im
 import {
     ACTIVE_STEPS_STORAGE_KEY,
     FIRST_LEVEL_STEPS,
-    SECOND_LEVEL_STEPS,
     STEP_TYPES,
 } from '@condo/domains/onboarding/constants/steps'
 import { useSyncSteps } from '@condo/domains/onboarding/hooks/useSyncSteps'
 import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
 
 
-type ActiveTourStepType = {
-    firstLevel?: typeof FIRST_LEVEL_STEPS[number]
-    secondLevel?: typeof SECOND_LEVEL_STEPS[number]
-}
+type ActiveTourStepType = typeof FIRST_LEVEL_STEPS[number] | null
 
 type TourContextType = {
     activeTourStep: ActiveTourStepType
     setActiveTourStep: (stepType: typeof STEP_TYPES) => void
     updateStepIfNotCompleted: (stepType: string) => Promise<void>
+    syncLoading: boolean
 }
 
-const initialActiveTourStepValue: ActiveTourStepType = {
-    firstLevel: null,
-    secondLevel: null,
-}
+const initialActiveTourStepValue: ActiveTourStepType = null
 
 const TourContext = createContext<TourContextType>({
     activeTourStep: initialActiveTourStepValue,
     setActiveTourStep: () => { return },
     updateStepIfNotCompleted: () => { return Promise.resolve() },
+    syncLoading: true,
 })
 
 const getActiveTourStepFromStorage = (): ActiveTourStepType => {
     try {
-        return JSON.parse(localStorage.getItem(ACTIVE_STEPS_STORAGE_KEY))
+        return localStorage.getItem(ACTIVE_STEPS_STORAGE_KEY)
     } catch (e) {
         console.error('Failed to parse initial activeTourStep from LocalStorage')
     }
@@ -126,7 +121,7 @@ export const TourProvider = ({ children }) => {
     const updateTourStep = TourStep.useUpdate({})
 
     const organizationId = useMemo(() => get(organization, 'id'), [organization])
-    useSyncSteps({ refetchSteps, organizationId })
+    const syncLoading = useSyncSteps({ refetchSteps, organizationId })
 
     const [activeStep, setActiveStep] = useState<ActiveTourStepType>(getActiveTourStepFromStorage())
     const [modalData, setModalData] = useState<ModalDataValueType | null>()
@@ -285,9 +280,9 @@ export const TourProvider = ({ children }) => {
                 employee: ['Публиковать новости дома', 'Рассказывать жителям об отключениях'],
                 resident: ['Узнавать новости через приложение Doma', 'Узнавать об отключениях'],
             },
-            bodyText: get(createPropertyModalData, [get(activeStep, 'firstLevel'), 'bodyText'], createPropertyModalData.default.bodyText),
-            buttonLabel: get(createPropertyModalData, [get(activeStep, 'firstLevel'), 'buttonLabel'], createPropertyModalData.default.buttonLabel),
-            onButtonClick: get(createPropertyModalData, [get(activeStep, 'firstLevel'), 'onButtonClick'], createPropertyModalData.default.onButtonClick),
+            bodyText: get(createPropertyModalData, [activeStep, 'bodyText'], createPropertyModalData.default.bodyText),
+            buttonLabel: get(createPropertyModalData, [activeStep, 'buttonLabel'], createPropertyModalData.default.buttonLabel),
+            onButtonClick: get(createPropertyModalData, [activeStep, 'onButtonClick'], createPropertyModalData.default.onButtonClick),
         },
         createPropertyMap: {
             title: 'Шахматка создана',
@@ -296,9 +291,9 @@ export const TourProvider = ({ children }) => {
                 employee: ['Публиковать новости дома', 'Получать заявки от конкретных квартир'],
                 resident: ['Читать новости дома', 'Создавать заявки в мобильном приложении'],
             },
-            bodyText: get(createPropertyMapBodyText, [get(activeStep, 'firstLevel'), 'bodyText'], createPropertyMapBodyText.default.bodyText),
-            buttonLabel: get(createPropertyMapBodyText, [get(activeStep, 'firstLevel'), 'buttonLabel'], createPropertyMapBodyText.default.buttonLabel),
-            onButtonClick: get(createPropertyMapBodyText, [get(activeStep, 'firstLevel'), 'onButtonClick'], createPropertyMapBodyText.default.onButtonClick),
+            bodyText: get(createPropertyMapBodyText, [activeStep, 'bodyText'], createPropertyMapBodyText.default.bodyText),
+            buttonLabel: get(createPropertyMapBodyText, [activeStep, 'buttonLabel'], createPropertyMapBodyText.default.buttonLabel),
+            onButtonClick: get(createPropertyMapBodyText, [activeStep, 'onButtonClick'], createPropertyMapBodyText.default.onButtonClick),
         },
         importProperties: {
             title: 'Готово — дома и шахматка созданы',
@@ -307,9 +302,9 @@ export const TourProvider = ({ children }) => {
                 employee: ['Публиковать новости дома', 'Получать заявки от конкретных квартир'],
                 resident: ['Читать новости дома', 'Создавать заявки в мобильном приложении'],
             },
-            bodyText: get(importPropertiesBodyText, [get(activeStep, 'firstLevel'), 'bodyText'], importPropertiesBodyText.default.bodyText),
-            buttonLabel: get(importPropertiesBodyText, [get(activeStep, 'firstLevel'), 'buttonLabel'], importPropertiesBodyText.default.buttonLabel),
-            onButtonClick: get(importPropertiesBodyText, [get(activeStep, 'firstLevel'), 'onButtonClick'], importPropertiesBodyText.default.onButtonClick),
+            bodyText: get(importPropertiesBodyText, [activeStep, 'bodyText'], importPropertiesBodyText.default.bodyText),
+            buttonLabel: get(importPropertiesBodyText, [activeStep, 'buttonLabel'], importPropertiesBodyText.default.buttonLabel),
+            onButtonClick: get(importPropertiesBodyText, [activeStep, 'onButtonClick'], importPropertiesBodyText.default.onButtonClick),
         },
         createTicket: {
             title: 'Первая заявка создана',
@@ -318,9 +313,9 @@ export const TourProvider = ({ children }) => {
                 employee: ['Публиковать новости дома', 'Оставлять информацию об отключениях'],
                 resident: ['Читать новости дома'],
             },
-            bodyText: get(createTicketBodyText, [get(activeStep, 'firstLevel'), 'bodyText'], createTicketBodyText.default.bodyText),
-            buttonLabel: get(createTicketBodyText, [get(activeStep, 'firstLevel'), 'buttonLabel'], createTicketBodyText.default.buttonLabel),
-            onButtonClick: get(createTicketBodyText, [get(activeStep, 'firstLevel'), 'onButtonClick'], createTicketBodyText.default.onButtonClick),
+            bodyText: get(createTicketBodyText, [activeStep, 'bodyText'], createTicketBodyText.default.bodyText),
+            buttonLabel: get(createTicketBodyText, [activeStep, 'buttonLabel'], createTicketBodyText.default.buttonLabel),
+            onButtonClick: get(createTicketBodyText, [activeStep, 'onButtonClick'], createTicketBodyText.default.onButtonClick),
         },
         createMeterReadings: {
             title: 'Первые показания ИПУ загружены',
@@ -328,9 +323,9 @@ export const TourProvider = ({ children }) => {
             newFeatures: {
                 resident: ['Передавать показания счетчиков в мобильном приложении'],
             },
-            bodyText: get(createMeterReadingsBodyText, [get(activeStep, 'firstLevel'), 'bodyText'], createMeterReadingsBodyText.default.bodyText),
-            buttonLabel: get(createMeterReadingsBodyText, [get(activeStep, 'firstLevel'), 'buttonLabel'], createMeterReadingsBodyText.default.buttonLabel),
-            onButtonClick: get(createMeterReadingsBodyText, [get(activeStep, 'firstLevel'), 'onButtonClick'], createMeterReadingsBodyText.default.onButtonClick),
+            bodyText: get(createMeterReadingsBodyText, [activeStep, 'bodyText'], createMeterReadingsBodyText.default.bodyText),
+            buttonLabel: get(createMeterReadingsBodyText, [activeStep, 'buttonLabel'], createMeterReadingsBodyText.default.buttonLabel),
+            onButtonClick: get(createMeterReadingsBodyText, [activeStep, 'onButtonClick'], createMeterReadingsBodyText.default.onButtonClick),
         },
         uploadReceipts: {
             title: 'Все получилось — вы настроили биллинг',
@@ -339,9 +334,9 @@ export const TourProvider = ({ children }) => {
                 employee: ['Загружать реестры и формировать квитанции', 'Следить за платежами от жителей'],
                 resident: ['Оплачивать квитанции в мобильном приложении'],
             },
-            bodyText: get(uploadBillingReceiptsBodyText, [get(activeStep, 'firstLevel'), 'bodyText'], uploadBillingReceiptsBodyText.default.bodyText),
-            buttonLabel: get(uploadBillingReceiptsBodyText, [get(activeStep, 'firstLevel'), 'buttonLabel'], uploadBillingReceiptsBodyText.default.buttonLabel),
-            onButtonClick: get(uploadBillingReceiptsBodyText, [get(activeStep, 'firstLevel'), 'onButtonClick'], uploadBillingReceiptsBodyText.default.onButtonClick),
+            bodyText: get(uploadBillingReceiptsBodyText, [activeStep, 'bodyText'], uploadBillingReceiptsBodyText.default.bodyText),
+            buttonLabel: get(uploadBillingReceiptsBodyText, [activeStep, 'buttonLabel'], uploadBillingReceiptsBodyText.default.buttonLabel),
+            onButtonClick: get(uploadBillingReceiptsBodyText, [activeStep, 'onButtonClick'], uploadBillingReceiptsBodyText.default.onButtonClick),
         },
         viewResidentsAppGuide: {
             title: 'Вы посмотрели гайд о внедрении мобильного приложения',
@@ -380,8 +375,8 @@ export const TourProvider = ({ children }) => {
             isFirstSuccessImport.current = true
         } else {
             if (
-                get(activeStep, 'firstLevel') !== TourStepTypeType.Resident && type === TourStepTypeType.ViewResidentsAppGuide ||
-                get(activeStep, 'firstLevel') === TourStepTypeType.Resident && type === TourStepTypeType.CreateNews
+                activeStep !== TourStepTypeType.Resident && type === TourStepTypeType.ViewResidentsAppGuide ||
+                activeStep === TourStepTypeType.Resident && type === TourStepTypeType.CreateNews
             ) {
                 return setIsCompletedModalOpen(true)
             }
@@ -476,17 +471,10 @@ export const TourProvider = ({ children }) => {
             if (!type) {
                 localStorage.removeItem(ACTIVE_STEPS_STORAGE_KEY)
                 setActiveStep(null)
+            } else {
+                localStorage.setItem(ACTIVE_STEPS_STORAGE_KEY, type)
+                setActiveStep(type)
             }
-
-            const previousValue: ActiveTourStepType = JSON.parse(localStorage.getItem(ACTIVE_STEPS_STORAGE_KEY)) || initialActiveTourStepValue
-            const isFirstLevelStep = FIRST_LEVEL_STEPS.includes(type)
-
-            const valueToSet: ActiveTourStepType = isFirstLevelStep ?
-                { firstLevel: type, secondLevel: null } :
-                { ...previousValue, secondLevel: type }
-
-            localStorage.setItem(ACTIVE_STEPS_STORAGE_KEY, JSON.stringify(valueToSet))
-            setActiveStep(valueToSet)
         } catch (e) {
             console.error('Failed to parse activeTourStep from LocalStorage')
             localStorage && localStorage.removeItem(ACTIVE_STEPS_STORAGE_KEY)
@@ -497,8 +485,6 @@ export const TourProvider = ({ children }) => {
     const newEmployeeFeatures = useMemo(() => get(modalData, 'newFeatures.employee'), [modalData])
     const newResidentFeatures = useMemo(() => get(modalData, 'newFeatures.resident'), [modalData])
 
-    console.log('modalData', modalData)
-
     return (
         <>
             <TourContext.Provider
@@ -506,6 +492,7 @@ export const TourProvider = ({ children }) => {
                     activeTourStep: activeStep,
                     setActiveTourStep,
                     updateStepIfNotCompleted,
+                    syncLoading,
                 }}
             >
                 {children}
@@ -590,8 +577,8 @@ export const TourProvider = ({ children }) => {
                 </Space>
             </Modal>
             <SuccessModal
-                open={get(activeStep, 'firstLevel') && isCompletedModalOpen}
-                title={completeTasksModalDataDescription[get(activeStep, 'firstLevel')]}
+                open={activeStep && isCompletedModalOpen}
+                title={completeTasksModalDataDescription[activeStep]}
                 onCancel={() => setIsCompletedModalOpen(false)}
                 footer={[
                     <Button key='tourButton' type='primary' onClick={async () => {

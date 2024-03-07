@@ -11,7 +11,7 @@ import isEmpty from 'lodash/isEmpty'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { ArrowLeft, Building, ExternalLink, PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
@@ -392,7 +392,7 @@ const TourPageContent = () => {
     const router = useRouter()
     const { organization, isLoading } = useOrganization()
     const organizationId = get(organization, 'id')
-    const { activeTourStep, setActiveTourStep, updateStepIfNotCompleted } = useTourContext()
+    const { activeTourStep, setActiveTourStep, updateStepIfNotCompleted, syncLoading } = useTourContext()
     const handleBackClick = useCallback(() => setActiveTourStep(null), [setActiveTourStep])
 
     const { objs: tourSteps, loading: stepsLoading, refetch: refetchSteps } = TourStep.useObjects({
@@ -400,7 +400,7 @@ const TourPageContent = () => {
             organization: { id: organizationId },
         },
         sortBy: [SortTourStepsBy.OrderAsc],
-    }, { skip: isLoading || !organizationId })
+    }, { skip: isLoading || !organizationId || syncLoading })
 
     const firstLevelSteps = useMemo(
         () => tourSteps.filter(step => FIRST_LEVEL_STEPS.includes(step.type)),
@@ -411,8 +411,8 @@ const TourPageContent = () => {
         [tourSteps])
 
     const activeStepInnerSteps = useMemo(() => {
-        if (!get(activeTourStep, 'firstLevel')) return []
-        const secondLevelStepsTypes = STEP_TRANSITIONS[get(activeTourStep, 'firstLevel')]
+        if (!activeTourStep) return []
+        const secondLevelStepsTypes = STEP_TRANSITIONS[activeTourStep]
 
         return tourSteps.filter(step => secondLevelStepsTypes.includes(step.type))
     }, [activeTourStep, tourSteps])
@@ -421,13 +421,13 @@ const TourPageContent = () => {
         () => !isEmpty(activeStepInnerSteps) ? activeStepInnerSteps : firstLevelSteps,
         [firstLevelSteps, activeStepInnerSteps])
 
-    const syncLoading = useSyncSteps({ refetchSteps, organizationId })
-
     const handleStepCardClick = useCallback(async (step) => {
         const type = step.type
         const status = step.status
 
-        setActiveTourStep(type)
+        if (FIRST_LEVEL_STEPS.includes(type)) {
+            setActiveTourStep(type)
+        }
 
         if (TODO_STEP_ROUTE[type] && status === TODO_STEP_STATUS) {
             if (type === TourStepTypeType.ViewResidentsAppGuide) {
@@ -522,7 +522,7 @@ const TourPageContent = () => {
         },
     }), [TourDescription, TourSubtitle, handleBackClick])
 
-    const firstLevelPath = get(activeTourStep, 'firstLevel') || 'default'
+    const firstLevelPath = activeTourStep || 'default'
     const secondLevelPath = useMemo(() => {
         if (firstLevelPath === 'default') {
             return isAllSecondStepsCompleted ? 'completed' : 'todo'
