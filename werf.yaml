@@ -54,6 +54,10 @@ shell:
   - "cd /app"
   - "npm i -g turbo"
   - "yarn install --immutable"
+  echo_env:
+  - 'echo "${SENTRY_CONFIG}"'
+  - 'echo "${WERF_SET_SENTRY_CONFIG}"'
+  - 'echo "${{secrets.SENTRY_CONFIG}}"'
   setup:
   - "cd /app"
   - 'echo "${SENTRY_CONFIG}"'

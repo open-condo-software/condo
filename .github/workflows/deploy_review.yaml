@@ -63,6 +63,7 @@ jobs:
           WERF_REPO: swr.ru-moscow-1.hc.sbercloud.ru/condo/condo
           WERF_REPO_CONTAINER_REGISTRY: default
           SENTRY_CONFIG: '{ "client": { "dsn": "https://45a27dc88be9ee095b1daf8533f6f23f@sentry.in.doma.ai/5", "sampleRate": 1.0, "organization": "condo", "project": "javascript-nextjs", "environment": "review" }, "server": { "dsn": "https://b1ac304b0162962a5c8602882f63951a@sentry.in.doma.ai/7", "organization": "condo", "project": "node", "environment": "review", "sampleRate": 1.0 } }'
+          WERF_SET_SENTRY_CONFIG: '{ "client": { "dsn": "https://45a27dc88be9ee095b1daf8533f6f23f@sentry.in.doma.ai/5", "sampleRate": 1.0, "organization": "condo", "project": "javascript-nextjs", "environment": "review" }, "server": { "dsn": "https://b1ac304b0162962a5c8602882f63951a@sentry.in.doma.ai/7", "organization": "condo", "project": "node", "environment": "review", "sampleRate": 1.0 } }'
       - name: Urls output
         run: |
           echo "condo: https://review-${{ env.REVIEW_URL_PREFIX }}-condo.r.doma.ai"
