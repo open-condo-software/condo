@@ -51,6 +51,9 @@ const sentryConfig = conf['SENTRY_CONFIG'] ? JSON.parse(conf['SENTRY_CONFIG']) :
 const apolloBatchingEnabled = !falsey(conf['APOLLO_BATCHING_ENABLED'])
 
 console.log('PARSED SENTRY CONFIG AT NEXT.CONFIG.JS ', sentryConfig)
+if (!sentryConfig['client']) {
+    throw new Error('no sentry config at env')
+}
 
 module.exports = withTM(withLess(withCSS({
     publicRuntimeConfig: {

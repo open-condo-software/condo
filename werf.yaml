@@ -62,7 +62,7 @@ shell:
   - "echo 'REDIS_URL=undefined' >> /app/.env"
   - "echo 'NODE_ENV=production' >> /app/.env"
   - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
-  - 'echo "${SENTRY_CONFIG}" >> /app/.env'
+  - 'echo "SENTRY_CONFIG=${SENTRY_CONFIG}" >> /app/.env'
   - 'echo "${SENTRY_CONFIG}"'
   - "yarn workspace @app/condo next telemetry disable"
   - "yarn workspace @app/condo build:deps"
