@@ -24,6 +24,7 @@
   "Completed": "Completed",
   "ConfirmPassword": "Confirm password",
   "ConfirmVerificationCode": "Confirm verification code",
+  "Thanks": "Thanks",
   "import.Errors": "Errors",
   "import.uploadButtonLabel": "Import list from file",
   "import.uploadModal.title": "Add {plural} to the platform",
@@ -1861,29 +1862,117 @@
   "ticket.deadline.CompletedEarlier": "Completed {days} early",
   "ticket.deadline.CompletedLessThenDay": "Completed a few hours early",
   "ticket.deadline.CompletedLate": "Completed {days} late",
+
   "tour.title": "Путеводитель",
-  "tour.subtitle": "Что вы хотите сделать с помощью Домов?",
-  "tour.description": "Выберите задачу, а мы поможем настроить платформу. Вы всегда сможете вернуться к этому экрану и выбрать следующую задачу.",
+  "tour.openGuide": "Открыть гайд",
+  "tour.chooseOtherTask": "Выбрать другую задачу",
+
+  "tour.pageData.default.todo.title": "Что вы хотите сделать с помощью Домов?",
+  "tour.pageData.default.todo.subtitle": "Выберите задачу, а мы поможем настроить платформу. Вы всегда сможете вернуться к этому экрану и выбрать следующую задачу.",
+  "tour.pageData.default.completed.title": "Вы настроили Дома́ — поздравляем!",
+  "tour.pageData.default.completed.subtitle": "Платформа готова для работы над задачами вашего бизнеса",
+  "tour.pageData.default.completed.description": "Рекомендуем время от времени открывать гайд и напоминать жителям о функциях мобильного приложения с помощью готовых шаблонов. Чем больше жителей скачают его и начнут пользоваться, тем больше процессов получится автоматизировать.",
+
+  "tour.pageData.billing.todo.title": "Снизить дебиторскую задолженность",
+  "tour.pageData.billing.todo.subtitle": "По статистике, 83% пользователей платформы Doma.ai снизили дебиторскую задолженность на 50% и более",
+  "tour.pageData.billing.completed.title": "Вы поработали над снижением дебеторской задолжности",
+  "tour.pageData.billing.completed.subtitle": "Теперь жители могут оплачивать квитанции, а вы — следить за поступлениями",
+
+  "tour.pageData.ticket.todo.title": "Оптимизировать работу с заявками",
+  "tour.pageData.ticket.todo.subtitle": "Когда выполните все задачи из списка, жители смогут отправлять заявки через мобильное приложение, а вы увидите их на платформе.",
+  "tour.pageData.ticket.completed.title": "Вы оптимизировали работу с заявками",
+  "tour.pageData.ticket.completed.subtitle": "Теперь жители могут отправлять заявки через мобильное приложение, а вы увидите их на платформе",
+
+  "tour.pageData.meter.todo.title": "Упростить работу с показаниями счетчиков",
+  "tour.pageData.meter.todo.subtitle": "Когда выполните все задачи из списка, жители смогут отправлять показания через мобильное приложение, а вы увидите их на платформе",
+  "tour.pageData.meter.completed.title": "Вы упростили работу с показаниями счетчиков",
+  "tour.pageData.meter.completed.subtitle": "Теперь жители могут передавать показания счетчиков, а вы — получать их на платформе",
+
+  "tour.pageData.resident.todo.title": "Выстроить отношения с жителями",
+  "tour.pageData.resident.todo.subtitle": "Когда выполните все задачи из списка, жители смогут отправлять показания и заявки через мобильное приложение. Вы увидите их на платформе и получите возможность сообщать жителям важные новости.",
+  "tour.pageData.resident.completed.title": "Отношения с жителями выстроены",
+  "tour.pageData.resident.completed.subtitle": "Теперь жители могут отправлять показания и заявки через мобильное приложение. Вы увидите их на платформе и сможете сообщать жителям важные новости.",
+
   "tour.cardVideo.title": "Познакомьтесь с Домами",
   "tour.cardVideo.description": "Рассказываем, как Дома́ помогают управляющим организациям",
+
   "tour.residentAppCard.title": "Приложение Жителя",
+
   "tour.technicAppCard.title": "Приложение Техника",
+  "tour.technicAppCard.radio.label.admin": "Руководителю",
+  "tour.technicAppCard.radio.label.technic": "Технику и мастеру",
+  "tour.technicAppCard.radio.label.security": "Охране",
+  "tour.technicAppCard.radio.text.admin": "Через приложение руководители управляющей организации могут следить за передачей показаний, работой по заявкам, статусом начислений и оплат",
+  "tour.technicAppCard.radio.text.technic": "Через приложение удобно брать заявки в работу и менять их статус. У каждой есть чат для связи с диспетчером и жителем. А еще через приложение можно передать показания ИПУ и ОДПУ",
+  "tour.technicAppCard.radio.text.security": "В приложении отображаются статусы оформленных пропусков",
+  "tour.technicAppCard.download.buttonLabel": "Скачать приложение",
+  "tour.technicAppCard.download.description": "Доступно для Android и IOS",
+  "tour.technicAppCard.download.googlePlay": "Google Play",
+  "tour.technicAppCard.download.appStore": "App Store",
+  "tour.technicAppCard.download.appGallery": "App Gallery",
+
   "tour.step.ticket.todo.title": "Оптимизировать работу с заявками",
+
   "tour.step.billing.todo.title": "Снизить дебеторскую задолжность",
+
   "tour.step.meter.todo.title": "Упростить работу с показаниями счетчиков",
+
   "tour.step.resident.todo.title": "Выстроить общение с жителями",
+
   "tour.step.createProperty.todo.title": "Добавьте дома",
   "tour.step.createProperty.todo.description": "Это нужно для работы с объектами на платформе. Чтобы добавить дом, укажите его точный адрес.",
+  "tour.step.createProperty.waiting.title": "Вы добавили дома в нестандартном формате",
   "tour.step.createProperty.waiting.description": "Менеджер обработает их вручную и добавит их на платформу. Обычно это занимает от 1 до 3 рабочих дней, в зависимости от объема данных.",
+  "tour.step.createProperty.completed.title": "Вы добавили дом",
+  "tour.step.createProperty.completed.linkTitle": "Добавить еще",
+
   "tour.step.createPropertyMap.todo.title": "Создайте шахмату",
-  "tour.step.createTicket.todo.title": "Создайте заявку",
-  "tour.step.notifyResidentsAboutTickets.todo.title": "Расскажите о заявках жителям",
+  "tour.step.createPropertyMap.todo.description": "Шахматка нужна, чтобы получать заявки от конкретных квартир. Чтобы добавить шахматку, нужно знать количество помещений, подъездов и этажей в доме.",
+  "tour.step.createPropertyMap.completed.title": "Вы создали шахматку",
+  "tour.step.createPropertyMap.completed.linkTitle": "Открыть список",
+
   "tour.step.uploadReceipts.todo.title": "Настройте биллинг и загрузите начисления",
-  "tour.step.notifyResidentsAboutPayments.todo.title": "Напомнить жителям об оплате в мобильном приложении",
+  "tour.step.uploadReceipts.todo.description": "Вы сможете отправлять жителям квитанции и отслеживать оплаты прямо на платформе",
+  "tour.step.uploadReceipts.completed.title": "Вы настроили биллинг",
+  "tour.step.uploadReceipts.completed.linkTitle": "Посмотреть начисления",
+
+  "tour.step.viewResidentsAppGuide.todo.billing.title": "Напомнить жителям об оплате в мобильном приложении",
+  "tour.step.viewResidentsAppGuide.todo.billing.description": "Для оплаты квитанций жителям нужно скачать приложение Doma. Мы подготовили гайд с готовыми шаблонами для продвижения приложение среди жителей.",
+  "tour.step.viewResidentsAppGuide.completed.billing.title": "Вы посмотрели гайд для управляющих организаций",
+
+  "tour.step.createTicket.todo.title": "Создайте заявку",
+  "tour.step.createTicket.todo.description": "На ее примере вы увидите, как выглядит диспетчерская и форма заявки. Рекомендуем перенести на платформу реальную заявку, поскольку их нельзя удалять.",
+  "tour.step.createTicket.completed.title": "Вы создали шахматку",
+  "tour.step.createTicket.completed.linkTitle": "Добавить заявку",
+
+  "tour.step.viewResidentsAppGuide.todo.ticket.title": "Расскажите о заявках жителям",
+  "tour.step.viewResidentsAppGuide.todo.ticket.description": "Чтобы отправлять заявки, жителям нужно скачать приложение Doma. Мы подготовили гайд с готовыми шаблонами для продвижения приложение среди жителей.",
+  "tour.step.viewResidentsAppGuide.completed.ticket.title": "Вы посмотрели гайд для управляющих организаций",
+
   "tour.step.createMeterReadings.todo.title": "Добавьте показания ИПУ",
-  "tour.step.notifyResidentsAboutMeterReadings.todo.title": "Предложите жителям сдать показания",
-  "tour.step.viewResidentsAppGuide.todo.title": "Загляните в гайд о внедрении мобильного приложения и выполните рекомендации",
+  "tour.step.createMeterReadings.todo.description": "Это нужно для работы с показаниями на платформе. Вы можете добавить реальные показания ИПУ или указать любые данные, чтобы разобраться, как это работает.",
+  "tour.step.createMeterReadings.completed.title": "Вы добавили показания ИПУ",
+  "tour.step.createMeterReadings.completed.linkTitle": "Открыть список",
+
+  "tour.step.viewResidentsAppGuide.todo.meter.title": "Предложите жителям сдать показания",
+  "tour.step.viewResidentsAppGuide.todo.meter.description": "Для самостоятельной передачи показаний жителям нужно скачать приложение Doma. Мы подготовили гайд с готовыми шаблонами для продвижения приложения среди жителей.",
+  "tour.step.viewResidentsAppGuide.completed.meter.title": "Вы посмотрели гайд для управляющих организаций",
+
+  "tour.step.viewResidentsAppGuide.todo.resident.title": "Загляните в гайд о внедрении мобильного приложения и выполните рекомендации",
+  "tour.step.viewResidentsAppGuide.todo.resident.description": "Для самостоятельной передачи показаний жителям нужно скачать приложение Doma. Мы подготовили гайд с готовыми шаблонами для продвижения приложения среди жителей.",
+  "tour.step.viewResidentsAppGuide.completed.resident.title": "Вы посмотрели гайд о внедрении мобильного приложения. Не забудьте выполнить все рекомендации.",
+
+  "tour.step.viewResidentsAppGuide.completed.linkTitle": "Смотреть снова",
+
   "tour.step.createNews.todo.title": "Создайте первую новость",
+  "tour.step.createNews.todo.description": "Жители увидят ее в приложении, а вы разберетесь, как работать с новостями на платформе",
+  "tour.step.createNews.completed.title": "Вы опубликовали новость",
+  "tour.step.createNews.completed.linkTitle": "Добавить еще",
+
+  "tour.step.disabledTooltip.noPermission": "Сейчас у вас недостаточно прав для этой задачи. Попросите руководителя вашей организации открыть вам доступ в «Настройках» или поручите задачу другому сотруднику.",
+  "tour.step.disabledTooltip.completePreviousSteps": "Выполните предыдущие шаги, чтобы разблокировать задачу",
+  "tour.step.disabledTooltip.completeBillingStep": "Выполните все шаги в задаче «Снизить дебиторскую задолженность», чтобы разблокировать эту",
+
   "tasks.export.error.NOTHING_TO_EXPORT": "No records found for export with specified filtering conditions",
   "tasks.progressNotification.title": "Processes",
   "tasks.TicketExportTask.progress.title": "Exporting tickets",
