@@ -75,8 +75,6 @@ describe('SumBillingReceiptsService', () => {
         test('should throw error if period not specified', async () => {
             const where = { context: { organization: { id: payers.multipleReceipts.organization.id } } }
 
-            const { sum } = await sumBillingReceiptsByTestClient(adminClient, where)
-
             await expectToThrowGQLError(
                 async () => {
                     const { sum } = await sumBillingReceiptsByTestClient(adminClient, where)
