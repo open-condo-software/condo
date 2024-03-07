@@ -52,10 +52,9 @@ git:
 shell:
   install:
   - "cd /app"
+  - "printenv"
   - "npm i -g turbo"
   - "yarn install --immutable"
-  - 'echo "${SENTRY_CONFIG}"'
-  - 'echo "${WERF_SET_SENTRY_CONFIG}"'
   setup:
   - "cd /app"
   - 'echo "${SENTRY_CONFIG}"'
