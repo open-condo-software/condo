@@ -113,7 +113,7 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
 
                 const locale = extractReqLocale(context.req)
                 const subject = getLocalizedMessage('messages.confirmEmailAction.subject', { locale })
-                const body = getLocalizedMessage('messages.confirmEmailAction.subject', {
+                const body = getLocalizedMessage('messages.confirmEmailAction.body', {
                     locale,
                     values: { code },
                 })

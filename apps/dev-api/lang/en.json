@@ -1,6 +1,6 @@
 {
   "messages.confirmPhoneAction.body": "Your confirmation code: {code}",
-  "messages.confirmEmailAction.subject": "Email confirmation for the developer portal",
+  "messages.confirmEmailAction.subject": "[Developers portal] Email confirmation",
   "messages.confirmEmailAction.body": "Use the following code to confirm your email: {code}",
   "errors.AUTH_ATTEMPTS_DAILY_LIMIT_REACHED.message": "Too many authorization attempts have been made from this IP address. Please try again later",
   "errors.INCORRECT_PHONE_OR_PASSWORD.message": "Incorrect phone number or password",

@@ -1,6 +1,6 @@
 {
   "messages.confirmPhoneAction.body": "Ваш код подтверждения: {code}",
-  "messages.confirmEmailAction.subject": "Подтверждение электронной почты для портала разработчиков",
+  "messages.confirmEmailAction.subject": "[Портал разработчиков] Подтверждение электронной почты",
   "messages.confirmEmailAction.body": "Для подтверждения электронной почты используйте следующий код: {code}",
   "errors.AUTH_ATTEMPTS_DAILY_LIMIT_REACHED.message": "С этого IP-адреса было предпринято слишком много попыток авторизации. Пожалуйста, повторите попытку позже",
   "errors.INCORRECT_PHONE_OR_PASSWORD.message": "Неверный номер телефона или пароль",
