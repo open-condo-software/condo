@@ -11,9 +11,10 @@ const { Contact, createTestContact, updateTestContact } = require('@condo/domain
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
-const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { FLAT_UNIT_TYPE, COMMERCIAL_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { makeClientWithProperty, createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestPhone, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+
 
 describe('Contact', () => {
     test('required fields', async () => {
@@ -114,6 +115,103 @@ describe('Contact', () => {
                 expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
                 expect(errors[0].data.messages[0]).toMatch(`${PHONE_WRONG_FORMAT_ERROR}phone] invalid format`)
                 expect(data.obj).toBeNull()
+            })
+        })
+
+        describe('unitType and unitName', () => {
+            let organization, property, admin
+
+            beforeAll(async () => {
+                admin = await makeLoggedInAdminClient();
+                [organization] = await createTestOrganization(admin);
+                [property] = await createTestProperty(admin, organization)
+            })
+
+            describe('create', () => {
+                test('unitType must be reset if not pass unitName', async () => {
+                    const [contact] = await createTestContact(admin, organization, property, {
+                        unitType: COMMERCIAL_UNIT_TYPE,
+                        unitName: null,
+                    })
+                    expect(contact).toHaveProperty('unitType', null)
+                    expect(contact).toHaveProperty('unitName', null)
+                })
+
+                test('unitType must be set to default values if pass unitName and not pass unitType', async () => {
+                    const [contact, attrs] = await createTestContact(admin, organization, property, {
+                        unitType: null,
+                        unitName: faker.random.alphaNumeric(5),
+                    })
+                    expect(contact).toHaveProperty('unitType', FLAT_UNIT_TYPE)
+                    expect(contact).toHaveProperty('unitName', attrs.unitName)
+                })
+
+                test('unitType and unitName must be empty if they were not passed', async () => {
+                    const [contact] = await createTestContact(admin, organization, property, {
+                        unitType: null,
+                        unitName: null,
+                    })
+                    expect(contact).toHaveProperty('unitType', null)
+                    expect(contact).toHaveProperty('unitName', null)
+                })
+
+                test('unitType and unitName must not be empty if they were passed', async () => {
+                    const [contact, attrs] = await createTestContact(admin, organization, property, {
+                        unitType: COMMERCIAL_UNIT_TYPE,
+                        unitName: faker.random.alphaNumeric(5),
+                    })
+                    expect(contact).toHaveProperty('unitType', COMMERCIAL_UNIT_TYPE)
+                    expect(contact).toHaveProperty('unitName', attrs.unitName)
+                })
+            })
+
+            describe('update', () => {
+                test('unitType must not be update if unitName is not null and unitType try update to null', async () => {
+                    const [contact] = await createTestContact(admin, organization, property, { unitType: COMMERCIAL_UNIT_TYPE })
+                    expect(contact).toHaveProperty('unitType', COMMERCIAL_UNIT_TYPE)
+                    const [updatedContact] = await updateTestContact(admin, contact.id, {
+                        unitType: null,
+                    })
+                    expect(updatedContact).toHaveProperty('unitType', COMMERCIAL_UNIT_TYPE)
+                    expect(updatedContact).toHaveProperty('unitName', contact.unitName)
+                })
+
+                test('unitType must be set null if unitType is not null and unitName update to null', async () => {
+                    const [contact] = await createTestContact(admin, organization, property, { unitType: COMMERCIAL_UNIT_TYPE })
+                    const [updatedContact] = await updateTestContact(admin, contact.id, {
+                        unitName: null,
+                    })
+                    expect(updatedContact).toHaveProperty('unitType', null)
+                    expect(updatedContact).toHaveProperty('unitName', null)
+                })
+
+                test('unitType and unitName must be set null if unitType and unitName update to null', async () => {
+                    const [contact] = await createTestContact(admin, organization, property, { unitType: COMMERCIAL_UNIT_TYPE })
+                    const [updatedContact] = await updateTestContact(admin, contact.id, {
+                        unitType: null,
+                        unitName: null,
+                    })
+                    expect(updatedContact).toHaveProperty('unitType', null)
+                    expect(updatedContact).toHaveProperty('unitName', null)
+                })
+
+                test('unitType must be updatable', async () => {
+                    const [contact] = await createTestContact(admin, organization, property, { unitType: FLAT_UNIT_TYPE })
+                    const [updatedContact] = await updateTestContact(admin, contact.id, {
+                        unitType: COMMERCIAL_UNIT_TYPE,
+                    })
+                    expect(updatedContact).toHaveProperty('unitType', COMMERCIAL_UNIT_TYPE)
+                    expect(updatedContact).toHaveProperty('unitName', contact.unitName)
+                })
+
+                test('unitName must be updatable', async () => {
+                    const [contact] = await createTestContact(admin, organization, property, { unitType: COMMERCIAL_UNIT_TYPE })
+                    const [updatedContact, attrs] = await updateTestContact(admin, contact.id, {
+                        unitName: faker.random.alphaNumeric(5),
+                    })
+                    expect(updatedContact).toHaveProperty('unitType', COMMERCIAL_UNIT_TYPE)
+                    expect(updatedContact).toHaveProperty('unitName', attrs.unitName)
+                })
             })
         })
     })
