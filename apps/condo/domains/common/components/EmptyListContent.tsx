@@ -56,7 +56,7 @@ const DesktopEmptyListCardWrapper = styled.div`
     flex-flow: column;
     
     .condo-card-head {
-      min-height: 168px;
+      height: 168px;
     }
     
     .condo-card-body {
@@ -87,6 +87,7 @@ export const EmptyListContent: React.FC<IEmptyListProps> = (props) => {
     const EmptyListWithImportManualCreateTitle = intl.formatMessage({ id: 'emptyList.withImport.manualCreate.title' })
     const EmptyListWithImportImportCreateTitle = intl.formatMessage({ id: 'emptyList.withImport.importCreate.title' })
     const EmptyListWithImportImportCreateDescription = intl.formatMessage({ id: 'emptyList.withImport.importCreate.description' })
+    const AddMessage = intl.formatMessage({ id: 'Add' })
 
     const router = useRouter()
     const { breakpoints } = useLayoutContext()
@@ -186,7 +187,7 @@ export const EmptyListContent: React.FC<IEmptyListProps> = (props) => {
                                         type='primary'
                                         onClick={() => router.push(createRoute)}
                                     >
-                                        {createLabel}
+                                        {createLabel || AddMessage}
                                     </Button>
                                 </Col>
                             )
