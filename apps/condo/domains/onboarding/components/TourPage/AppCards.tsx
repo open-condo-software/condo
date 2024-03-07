@@ -4,6 +4,8 @@ import { useIntl } from '@open-condo/next/intl'
 import { Button, Card, Modal, Radio, RadioGroup, Space, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
+import { EMOJI } from '@condo/domains/common/constants/emoji'
+
 
 const APP_CARD_IMAGE_STYLES: CSSProperties = { width: 'inherit', maxWidth: '120px', paddingTop: '6px' }
 const TAB_IMAGE_BACKGROUND_STYLES: CSSProperties = { height: '240px', width: '100%', backgroundColor: colors.blue[1], overflow: 'hidden', padding: '24px' }
@@ -37,7 +39,7 @@ export const TechnicAppCard = () => {
         <>
             <Card.CardButton
                 header={{
-                    emoji: [{ symbol: '🧑‍🔧' }, { symbol: '🔧' }],
+                    emoji: [{ symbol: EMOJI.MECHANIC }, { symbol: EMOJI.WRENCH }],
                     headingTitle: TechnicAppCardTitle,
                 }}
                 body={{ image: { src: '/onboarding/tourTechnicCard.webp', style: APP_CARD_IMAGE_STYLES } }}
@@ -135,7 +137,7 @@ export const ResidentAppCard = () => {
     return (
         <Card.CardButton
             header={{
-                emoji: [{ symbol: '👩' }, { symbol: '👨' }],
+                emoji: [{ symbol: EMOJI.WOMAN }, { symbol: EMOJI.MAN }],
                 headingTitle: ResidentAppCardTitle,
             }}
             body={{ image: { src: '/onboarding/tourResidentCard.webp', style: APP_CARD_IMAGE_STYLES } }}

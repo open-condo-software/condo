@@ -145,7 +145,7 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
 
     const { logEvent, getEventName } = useTracking()
 
-    const [activeModal, setActiveModal] = useState<ActiveModalType>()
+    const [activeModal, setActiveModal] = useState<ActiveModalType>(null)
 
     useEffect(() => {
         if (typeof activeModal !== 'undefined') {
