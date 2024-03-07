@@ -1,27 +1,27 @@
 directive @cacheControl(maxAge: Int, scope: CacheControlScope) on FIELD_DEFINITION | OBJECT | INTERFACE
 
-enum UserHistoryRecordHistoryActionType {
+enum ConfirmEmailActionHistoryRecordHistoryActionType {
   c
   u
   d
 }
 
 """ A keystone list """
-type UserHistoryRecord {
+type ConfirmEmailActionHistoryRecord {
   """
   This virtual field will be resolved in one of the following ways (in this order):
-   1. Execution of 'labelResolver' set on the UserHistoryRecord List config, or
-   2. As an alias to the field set on 'labelField' in the UserHistoryRecord List config, or
-   3. As an alias to a 'name' field on the UserHistoryRecord List (if one exists), or
-   4. As an alias to the 'id' field on the UserHistoryRecord List.
+   1. Execution of 'labelResolver' set on the ConfirmEmailActionHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the ConfirmEmailActionHistoryRecord List config, or
+   3. As an alias to a 'name' field on the ConfirmEmailActionHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the ConfirmEmailActionHistoryRecord List.
   """
   _label_: String
-  name: String
-  password: String
-  phone: String
   email: String
-  isAdmin: Boolean
-  isSupport: Boolean
+  code: String
+  isVerified: Boolean
+  expiresAt: String
+  usedAt: String
+  attempts: Int
   id: ID!
   v: Int
   createdAt: String
@@ -33,67 +33,13 @@ type UserHistoryRecord {
   dv: Int
   sender: JSON
   history_date: String
-  history_action: UserHistoryRecordHistoryActionType
+  history_action: ConfirmEmailActionHistoryRecordHistoryActionType
   history_id: String
 }
 
-input UserHistoryRecordWhereInput {
-  AND: [UserHistoryRecordWhereInput]
-  OR: [UserHistoryRecordWhereInput]
-  name: String
-  name_not: String
-  name_contains: String
-  name_not_contains: String
-  name_starts_with: String
-  name_not_starts_with: String
-  name_ends_with: String
-  name_not_ends_with: String
-  name_i: String
-  name_not_i: String
-  name_contains_i: String
-  name_not_contains_i: String
-  name_starts_with_i: String
-  name_not_starts_with_i: String
-  name_ends_with_i: String
-  name_not_ends_with_i: String
-  name_in: [String]
-  name_not_in: [String]
-  password: String
-  password_not: String
-  password_contains: String
-  password_not_contains: String
-  password_starts_with: String
-  password_not_starts_with: String
-  password_ends_with: String
-  password_not_ends_with: String
-  password_i: String
-  password_not_i: String
-  password_contains_i: String
-  password_not_contains_i: String
-  password_starts_with_i: String
-  password_not_starts_with_i: String
-  password_ends_with_i: String
-  password_not_ends_with_i: String
-  password_in: [String]
-  password_not_in: [String]
-  phone: String
-  phone_not: String
-  phone_contains: String
-  phone_not_contains: String
-  phone_starts_with: String
-  phone_not_starts_with: String
-  phone_ends_with: String
-  phone_not_ends_with: String
-  phone_i: String
-  phone_not_i: String
-  phone_contains_i: String
-  phone_not_contains_i: String
-  phone_starts_with_i: String
-  phone_not_starts_with_i: String
-  phone_ends_with_i: String
-  phone_not_ends_with_i: String
-  phone_in: [String]
-  phone_not_in: [String]
+input ConfirmEmailActionHistoryRecordWhereInput {
+  AND: [ConfirmEmailActionHistoryRecordWhereInput]
+  OR: [ConfirmEmailActionHistoryRecordWhereInput]
   email: String
   email_not: String
   email_contains: String
@@ -112,10 +58,50 @@ input UserHistoryRecordWhereInput {
   email_not_ends_with_i: String
   email_in: [String]
   email_not_in: [String]
-  isAdmin: Boolean
-  isAdmin_not: Boolean
-  isSupport: Boolean
-  isSupport_not: Boolean
+  code: String
+  code_not: String
+  code_contains: String
+  code_not_contains: String
+  code_starts_with: String
+  code_not_starts_with: String
+  code_ends_with: String
+  code_not_ends_with: String
+  code_i: String
+  code_not_i: String
+  code_contains_i: String
+  code_not_contains_i: String
+  code_starts_with_i: String
+  code_not_starts_with_i: String
+  code_ends_with_i: String
+  code_not_ends_with_i: String
+  code_in: [String]
+  code_not_in: [String]
+  isVerified: Boolean
+  isVerified_not: Boolean
+  expiresAt: String
+  expiresAt_not: String
+  expiresAt_lt: String
+  expiresAt_lte: String
+  expiresAt_gt: String
+  expiresAt_gte: String
+  expiresAt_in: [String]
+  expiresAt_not_in: [String]
+  usedAt: String
+  usedAt_not: String
+  usedAt_lt: String
+  usedAt_lte: String
+  usedAt_gt: String
+  usedAt_gte: String
+  usedAt_in: [String]
+  usedAt_not_in: [String]
+  attempts: Int
+  attempts_not: Int
+  attempts_lt: Int
+  attempts_lte: Int
+  attempts_gt: Int
+  attempts_gte: Int
+  attempts_in: [Int]
+  attempts_not_in: [Int]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -184,33 +170,33 @@ input UserHistoryRecordWhereInput {
   history_date_gte: String
   history_date_in: [String]
   history_date_not_in: [String]
-  history_action: UserHistoryRecordHistoryActionType
-  history_action_not: UserHistoryRecordHistoryActionType
-  history_action_in: [UserHistoryRecordHistoryActionType]
-  history_action_not_in: [UserHistoryRecordHistoryActionType]
+  history_action: ConfirmEmailActionHistoryRecordHistoryActionType
+  history_action_not: ConfirmEmailActionHistoryRecordHistoryActionType
+  history_action_in: [ConfirmEmailActionHistoryRecordHistoryActionType]
+  history_action_not_in: [ConfirmEmailActionHistoryRecordHistoryActionType]
   history_id: String
   history_id_not: String
   history_id_in: [String]
   history_id_not_in: [String]
 }
 
-input UserHistoryRecordWhereUniqueInput {
+input ConfirmEmailActionHistoryRecordWhereUniqueInput {
   id: ID!
 }
 
-enum SortUserHistoryRecordsBy {
-  name_ASC
-  name_DESC
-  password_ASC
-  password_DESC
-  phone_ASC
-  phone_DESC
+enum SortConfirmEmailActionHistoryRecordsBy {
   email_ASC
   email_DESC
-  isAdmin_ASC
-  isAdmin_DESC
-  isSupport_ASC
-  isSupport_DESC
+  code_ASC
+  code_DESC
+  isVerified_ASC
+  isVerified_DESC
+  expiresAt_ASC
+  expiresAt_DESC
+  usedAt_ASC
+  usedAt_DESC
+  attempts_ASC
+  attempts_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -229,13 +215,13 @@ enum SortUserHistoryRecordsBy {
   history_action_DESC
 }
 
-input UserHistoryRecordUpdateInput {
-  name: String
-  password: String
-  phone: String
+input ConfirmEmailActionHistoryRecordUpdateInput {
   email: String
-  isAdmin: Boolean
-  isSupport: Boolean
+  code: String
+  isVerified: Boolean
+  expiresAt: String
+  usedAt: String
+  attempts: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -246,22 +232,22 @@ input UserHistoryRecordUpdateInput {
   dv: Int
   sender: JSON
   history_date: String
-  history_action: UserHistoryRecordHistoryActionType
+  history_action: ConfirmEmailActionHistoryRecordHistoryActionType
   history_id: String
 }
 
-input UserHistoryRecordsUpdateInput {
+input ConfirmEmailActionHistoryRecordsUpdateInput {
   id: ID!
-  data: UserHistoryRecordUpdateInput
+  data: ConfirmEmailActionHistoryRecordUpdateInput
 }
 
-input UserHistoryRecordCreateInput {
-  name: String
-  password: String
-  phone: String
+input ConfirmEmailActionHistoryRecordCreateInput {
   email: String
-  isAdmin: Boolean
-  isSupport: Boolean
+  code: String
+  isVerified: Boolean
+  expiresAt: String
+  usedAt: String
+  attempts: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -272,12 +258,12 @@ input UserHistoryRecordCreateInput {
   dv: Int
   sender: JSON
   history_date: String
-  history_action: UserHistoryRecordHistoryActionType
+  history_action: ConfirmEmailActionHistoryRecordHistoryActionType
   history_id: String
 }
 
-input UserHistoryRecordsCreateInput {
-  data: UserHistoryRecordCreateInput
+input ConfirmEmailActionHistoryRecordsCreateInput {
+  data: ConfirmEmailActionHistoryRecordCreateInput
 }
 
 input UserRelateToOneInput {
@@ -297,34 +283,40 @@ input SenderFieldInput {
   fingerprint: String!
 }
 
-""" Account of individual developer or development company. """
-type User {
+""" Internal schema used for user email confirmation. It's impossible to work with it via API. 
+"""
+type ConfirmEmailAction {
   """
   This virtual field will be resolved in one of the following ways (in this order):
-   1. Execution of 'labelResolver' set on the User List config, or
-   2. As an alias to the field set on 'labelField' in the User List config, or
-   3. As an alias to a 'name' field on the User List (if one exists), or
-   4. As an alias to the 'id' field on the User List.
+   1. Execution of 'labelResolver' set on the ConfirmEmailAction List config, or
+   2. As an alias to the field set on 'labelField' in the ConfirmEmailAction List config, or
+   3. As an alias to a 'name' field on the ConfirmEmailAction List (if one exists), or
+   4. As an alias to the 'id' field on the ConfirmEmailAction List.
   """
   _label_: String
 
-  """ Name. If impersonal account should be a company name """
-  name: String
-
-  """ User password used for authentication. Self-update only field """
-  password_is_set: Boolean
-
-  """ User phone. Required for authentication, used as main contact info """
-  phone: String
-
-  """ User email. Currently used only for internal Keystone mutations. """
+  """ Email to be verified """
   email: String
 
-  """ Provides a superuser access to any schema data """
-  isAdmin: Boolean
+  """ Confirmation code. Generated inside one of action-creators, such as startConfirmEmailAction 
+  """
+  code: String
 
-  """ Provide access to admin-panel, where different task can be performed """
-  isSupport: Boolean
+  """ Verifies specified email. If the email has been recently verified (before ConfirmEmailAction expired), then knowing the ID of ConfirmEmailAction allows to register the user. 
+  """
+  isVerified: Boolean
+
+  """ Action expiration time. After the expiration time, it will not be possible to call action-required mutations with the current ConfirmEmailAction. 
+  """
+  expiresAt: String
+
+  """ The time at which the action was used by the mutation requiring the action. A used action cannot be reused by any mutation. 
+  """
+  usedAt: String
+
+  """ Number of used attempts to enter the code. When 5 attempts are reached, this action becomes invalid. 
+  """
+  attempts: Int
   id: ID!
   v: Int
   createdAt: String
@@ -348,46 +340,9 @@ type User {
   sender: SenderField
 }
 
-input UserWhereInput {
-  AND: [UserWhereInput]
-  OR: [UserWhereInput]
-  name: String
-  name_not: String
-  name_contains: String
-  name_not_contains: String
-  name_starts_with: String
-  name_not_starts_with: String
-  name_ends_with: String
-  name_not_ends_with: String
-  name_i: String
-  name_not_i: String
-  name_contains_i: String
-  name_not_contains_i: String
-  name_starts_with_i: String
-  name_not_starts_with_i: String
-  name_ends_with_i: String
-  name_not_ends_with_i: String
-  name_in: [String]
-  name_not_in: [String]
-  password_is_set: Boolean
-  phone: String
-  phone_not: String
-  phone_contains: String
-  phone_not_contains: String
-  phone_starts_with: String
-  phone_not_starts_with: String
-  phone_ends_with: String
-  phone_not_ends_with: String
-  phone_i: String
-  phone_not_i: String
-  phone_contains_i: String
-  phone_not_contains_i: String
-  phone_starts_with_i: String
-  phone_not_starts_with_i: String
-  phone_ends_with_i: String
-  phone_not_ends_with_i: String
-  phone_in: [String]
-  phone_not_in: [String]
+input ConfirmEmailActionWhereInput {
+  AND: [ConfirmEmailActionWhereInput]
+  OR: [ConfirmEmailActionWhereInput]
   email: String
   email_not: String
   email_contains: String
@@ -406,10 +361,50 @@ input UserWhereInput {
   email_not_ends_with_i: String
   email_in: [String]
   email_not_in: [String]
-  isAdmin: Boolean
-  isAdmin_not: Boolean
-  isSupport: Boolean
-  isSupport_not: Boolean
+  code: String
+  code_not: String
+  code_contains: String
+  code_not_contains: String
+  code_starts_with: String
+  code_not_starts_with: String
+  code_ends_with: String
+  code_not_ends_with: String
+  code_i: String
+  code_not_i: String
+  code_contains_i: String
+  code_not_contains_i: String
+  code_starts_with_i: String
+  code_not_starts_with_i: String
+  code_ends_with_i: String
+  code_not_ends_with_i: String
+  code_in: [String]
+  code_not_in: [String]
+  isVerified: Boolean
+  isVerified_not: Boolean
+  expiresAt: String
+  expiresAt_not: String
+  expiresAt_lt: String
+  expiresAt_lte: String
+  expiresAt_gt: String
+  expiresAt_gte: String
+  expiresAt_in: [String]
+  expiresAt_not_in: [String]
+  usedAt: String
+  usedAt_not: String
+  usedAt_lt: String
+  usedAt_lte: String
+  usedAt_gt: String
+  usedAt_gte: String
+  usedAt_in: [String]
+  usedAt_not_in: [String]
+  attempts: Int
+  attempts_not: Int
+  attempts_lt: Int
+  attempts_lte: Int
+  attempts_gt: Int
+  attempts_gte: Int
+  attempts_in: [Int]
+  attempts_not_in: [Int]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -468,21 +463,23 @@ input UserWhereInput {
   sender_not_in: [SenderFieldInput]
 }
 
-input UserWhereUniqueInput {
+input ConfirmEmailActionWhereUniqueInput {
   id: ID!
 }
 
-enum SortUsersBy {
-  name_ASC
-  name_DESC
-  phone_ASC
-  phone_DESC
+enum SortConfirmEmailActionsBy {
   email_ASC
   email_DESC
-  isAdmin_ASC
-  isAdmin_DESC
-  isSupport_ASC
-  isSupport_DESC
+  code_ASC
+  code_DESC
+  isVerified_ASC
+  isVerified_DESC
+  expiresAt_ASC
+  expiresAt_DESC
+  usedAt_ASC
+  usedAt_DESC
+  attempts_ASC
+  attempts_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -501,13 +498,13 @@ enum SortUsersBy {
   dv_DESC
 }
 
-input UserUpdateInput {
-  name: String
-  password: String
-  phone: String
+input ConfirmEmailActionUpdateInput {
   email: String
-  isAdmin: Boolean
-  isSupport: Boolean
+  code: String
+  isVerified: Boolean
+  expiresAt: String
+  usedAt: String
+  attempts: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -519,18 +516,18 @@ input UserUpdateInput {
   sender: SenderFieldInput
 }
 
-input UsersUpdateInput {
+input ConfirmEmailActionsUpdateInput {
   id: ID!
-  data: UserUpdateInput
+  data: ConfirmEmailActionUpdateInput
 }
 
-input UserCreateInput {
-  name: String
-  password: String
-  phone: String
+input ConfirmEmailActionCreateInput {
   email: String
-  isAdmin: Boolean
-  isSupport: Boolean
+  code: String
+  isVerified: Boolean
+  expiresAt: String
+  usedAt: String
+  attempts: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -542,8 +539,8 @@ input UserCreateInput {
   sender: SenderFieldInput
 }
 
-input UsersCreateInput {
-  data: UserCreateInput
+input ConfirmEmailActionsCreateInput {
+  data: ConfirmEmailActionCreateInput
 }
 
 enum ConfirmPhoneActionHistoryRecordHistoryActionType {
@@ -843,7 +840,7 @@ type ConfirmPhoneAction {
   """
   usedAt: String
 
-  """ Number of attempts to enter the code. When 5 attempts are reached, this action becomes invalid. 
+  """ Number of used attempts to enter the code. When 5 attempts are reached, this action becomes invalid. 
   """
   attempts: Int
   id: ID!
@@ -1072,28 +1069,28 @@ input ConfirmPhoneActionsCreateInput {
   data: ConfirmPhoneActionCreateInput
 }
 
-enum ConfirmEmailActionHistoryRecordHistoryActionType {
+enum UserHistoryRecordHistoryActionType {
   c
   u
   d
 }
 
 """ A keystone list """
-type ConfirmEmailActionHistoryRecord {
+type UserHistoryRecord {
   """
   This virtual field will be resolved in one of the following ways (in this order):
-   1. Execution of 'labelResolver' set on the ConfirmEmailActionHistoryRecord List config, or
-   2. As an alias to the field set on 'labelField' in the ConfirmEmailActionHistoryRecord List config, or
-   3. As an alias to a 'name' field on the ConfirmEmailActionHistoryRecord List (if one exists), or
-   4. As an alias to the 'id' field on the ConfirmEmailActionHistoryRecord List.
+   1. Execution of 'labelResolver' set on the UserHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the UserHistoryRecord List config, or
+   3. As an alias to a 'name' field on the UserHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the UserHistoryRecord List.
   """
   _label_: String
+  name: String
+  password: String
+  phone: String
   email: String
-  code: String
-  isVerified: Boolean
-  expiresAt: String
-  usedAt: String
-  attempts: Int
+  isAdmin: Boolean
+  isSupport: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -1105,13 +1102,67 @@ type ConfirmEmailActionHistoryRecord {
   dv: Int
   sender: JSON
   history_date: String
-  history_action: ConfirmEmailActionHistoryRecordHistoryActionType
+  history_action: UserHistoryRecordHistoryActionType
   history_id: String
 }
 
-input ConfirmEmailActionHistoryRecordWhereInput {
-  AND: [ConfirmEmailActionHistoryRecordWhereInput]
-  OR: [ConfirmEmailActionHistoryRecordWhereInput]
+input UserHistoryRecordWhereInput {
+  AND: [UserHistoryRecordWhereInput]
+  OR: [UserHistoryRecordWhereInput]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
+  password: String
+  password_not: String
+  password_contains: String
+  password_not_contains: String
+  password_starts_with: String
+  password_not_starts_with: String
+  password_ends_with: String
+  password_not_ends_with: String
+  password_i: String
+  password_not_i: String
+  password_contains_i: String
+  password_not_contains_i: String
+  password_starts_with_i: String
+  password_not_starts_with_i: String
+  password_ends_with_i: String
+  password_not_ends_with_i: String
+  password_in: [String]
+  password_not_in: [String]
+  phone: String
+  phone_not: String
+  phone_contains: String
+  phone_not_contains: String
+  phone_starts_with: String
+  phone_not_starts_with: String
+  phone_ends_with: String
+  phone_not_ends_with: String
+  phone_i: String
+  phone_not_i: String
+  phone_contains_i: String
+  phone_not_contains_i: String
+  phone_starts_with_i: String
+  phone_not_starts_with_i: String
+  phone_ends_with_i: String
+  phone_not_ends_with_i: String
+  phone_in: [String]
+  phone_not_in: [String]
   email: String
   email_not: String
   email_contains: String
@@ -1130,50 +1181,10 @@ input ConfirmEmailActionHistoryRecordWhereInput {
   email_not_ends_with_i: String
   email_in: [String]
   email_not_in: [String]
-  code: String
-  code_not: String
-  code_contains: String
-  code_not_contains: String
-  code_starts_with: String
-  code_not_starts_with: String
-  code_ends_with: String
-  code_not_ends_with: String
-  code_i: String
-  code_not_i: String
-  code_contains_i: String
-  code_not_contains_i: String
-  code_starts_with_i: String
-  code_not_starts_with_i: String
-  code_ends_with_i: String
-  code_not_ends_with_i: String
-  code_in: [String]
-  code_not_in: [String]
-  isVerified: Boolean
-  isVerified_not: Boolean
-  expiresAt: String
-  expiresAt_not: String
-  expiresAt_lt: String
-  expiresAt_lte: String
-  expiresAt_gt: String
-  expiresAt_gte: String
-  expiresAt_in: [String]
-  expiresAt_not_in: [String]
-  usedAt: String
-  usedAt_not: String
-  usedAt_lt: String
-  usedAt_lte: String
-  usedAt_gt: String
-  usedAt_gte: String
-  usedAt_in: [String]
-  usedAt_not_in: [String]
-  attempts: Int
-  attempts_not: Int
-  attempts_lt: Int
-  attempts_lte: Int
-  attempts_gt: Int
-  attempts_gte: Int
-  attempts_in: [Int]
-  attempts_not_in: [Int]
+  isAdmin: Boolean
+  isAdmin_not: Boolean
+  isSupport: Boolean
+  isSupport_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -1242,33 +1253,33 @@ input ConfirmEmailActionHistoryRecordWhereInput {
   history_date_gte: String
   history_date_in: [String]
   history_date_not_in: [String]
-  history_action: ConfirmEmailActionHistoryRecordHistoryActionType
-  history_action_not: ConfirmEmailActionHistoryRecordHistoryActionType
-  history_action_in: [ConfirmEmailActionHistoryRecordHistoryActionType]
-  history_action_not_in: [ConfirmEmailActionHistoryRecordHistoryActionType]
+  history_action: UserHistoryRecordHistoryActionType
+  history_action_not: UserHistoryRecordHistoryActionType
+  history_action_in: [UserHistoryRecordHistoryActionType]
+  history_action_not_in: [UserHistoryRecordHistoryActionType]
   history_id: String
   history_id_not: String
   history_id_in: [String]
   history_id_not_in: [String]
 }
 
-input ConfirmEmailActionHistoryRecordWhereUniqueInput {
+input UserHistoryRecordWhereUniqueInput {
   id: ID!
 }
 
-enum SortConfirmEmailActionHistoryRecordsBy {
+enum SortUserHistoryRecordsBy {
+  name_ASC
+  name_DESC
+  password_ASC
+  password_DESC
+  phone_ASC
+  phone_DESC
   email_ASC
   email_DESC
-  code_ASC
-  code_DESC
-  isVerified_ASC
-  isVerified_DESC
-  expiresAt_ASC
-  expiresAt_DESC
-  usedAt_ASC
-  usedAt_DESC
-  attempts_ASC
-  attempts_DESC
+  isAdmin_ASC
+  isAdmin_DESC
+  isSupport_ASC
+  isSupport_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -1287,13 +1298,13 @@ enum SortConfirmEmailActionHistoryRecordsBy {
   history_action_DESC
 }
 
-input ConfirmEmailActionHistoryRecordUpdateInput {
+input UserHistoryRecordUpdateInput {
+  name: String
+  password: String
+  phone: String
   email: String
-  code: String
-  isVerified: Boolean
-  expiresAt: String
-  usedAt: String
-  attempts: Int
+  isAdmin: Boolean
+  isSupport: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -1304,22 +1315,22 @@ input ConfirmEmailActionHistoryRecordUpdateInput {
   dv: Int
   sender: JSON
   history_date: String
-  history_action: ConfirmEmailActionHistoryRecordHistoryActionType
+  history_action: UserHistoryRecordHistoryActionType
   history_id: String
 }
 
-input ConfirmEmailActionHistoryRecordsUpdateInput {
+input UserHistoryRecordsUpdateInput {
   id: ID!
-  data: ConfirmEmailActionHistoryRecordUpdateInput
+  data: UserHistoryRecordUpdateInput
 }
 
-input ConfirmEmailActionHistoryRecordCreateInput {
+input UserHistoryRecordCreateInput {
+  name: String
+  password: String
+  phone: String
   email: String
-  code: String
-  isVerified: Boolean
-  expiresAt: String
-  usedAt: String
-  attempts: Int
+  isAdmin: Boolean
+  isSupport: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -1330,48 +1341,42 @@ input ConfirmEmailActionHistoryRecordCreateInput {
   dv: Int
   sender: JSON
   history_date: String
-  history_action: ConfirmEmailActionHistoryRecordHistoryActionType
+  history_action: UserHistoryRecordHistoryActionType
   history_id: String
 }
 
-input ConfirmEmailActionHistoryRecordsCreateInput {
-  data: ConfirmEmailActionHistoryRecordCreateInput
+input UserHistoryRecordsCreateInput {
+  data: UserHistoryRecordCreateInput
 }
 
-""" Internal schema used for user email confirmation. It's impossible to work with it via API. 
-"""
-type ConfirmEmailAction {
+""" Account of individual developer or development company. """
+type User {
   """
   This virtual field will be resolved in one of the following ways (in this order):
-   1. Execution of 'labelResolver' set on the ConfirmEmailAction List config, or
-   2. As an alias to the field set on 'labelField' in the ConfirmEmailAction List config, or
-   3. As an alias to a 'name' field on the ConfirmEmailAction List (if one exists), or
-   4. As an alias to the 'id' field on the ConfirmEmailAction List.
+   1. Execution of 'labelResolver' set on the User List config, or
+   2. As an alias to the field set on 'labelField' in the User List config, or
+   3. As an alias to a 'name' field on the User List (if one exists), or
+   4. As an alias to the 'id' field on the User List.
   """
   _label_: String
 
-  """ Email to be verified """
+  """ Name. If impersonal account should be a company name """
+  name: String
+
+  """ User password used for authentication. Self-update only field """
+  password_is_set: Boolean
+
+  """ User phone. Required for authentication, used as main contact info """
+  phone: String
+
+  """ User email. Currently used only for internal Keystone mutations. """
   email: String
 
-  """ Confirmation code. Generated inside one of action-creators, such as startConfirmEmailAction 
-  """
-  code: String
+  """ Provides a superuser access to any schema data """
+  isAdmin: Boolean
 
-  """ Verifies specified email. If the email has been recently verified (before ConfirmEmailAction expired), then knowing the ID of ConfirmEmailAction allows to register the user. 
-  """
-  isVerified: Boolean
-
-  """ Action expiration time. After the expiration time, it will not be possible to call action-required mutations with the current ConfirmEmailAction. 
-  """
-  expiresAt: String
-
-  """ The time at which the action was used by the mutation requiring the action. A used action cannot be reused by any mutation. 
-  """
-  usedAt: String
-
-  """ Number of attempts to enter the code. When 5 attempts are reached, this action becomes invalid. 
-  """
-  attempts: Int
+  """ Provide access to admin-panel, where different task can be performed """
+  isSupport: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -1395,9 +1400,46 @@ type ConfirmEmailAction {
   sender: SenderField
 }
 
-input ConfirmEmailActionWhereInput {
-  AND: [ConfirmEmailActionWhereInput]
-  OR: [ConfirmEmailActionWhereInput]
+input UserWhereInput {
+  AND: [UserWhereInput]
+  OR: [UserWhereInput]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
+  password_is_set: Boolean
+  phone: String
+  phone_not: String
+  phone_contains: String
+  phone_not_contains: String
+  phone_starts_with: String
+  phone_not_starts_with: String
+  phone_ends_with: String
+  phone_not_ends_with: String
+  phone_i: String
+  phone_not_i: String
+  phone_contains_i: String
+  phone_not_contains_i: String
+  phone_starts_with_i: String
+  phone_not_starts_with_i: String
+  phone_ends_with_i: String
+  phone_not_ends_with_i: String
+  phone_in: [String]
+  phone_not_in: [String]
   email: String
   email_not: String
   email_contains: String
@@ -1416,50 +1458,10 @@ input ConfirmEmailActionWhereInput {
   email_not_ends_with_i: String
   email_in: [String]
   email_not_in: [String]
-  code: String
-  code_not: String
-  code_contains: String
-  code_not_contains: String
-  code_starts_with: String
-  code_not_starts_with: String
-  code_ends_with: String
-  code_not_ends_with: String
-  code_i: String
-  code_not_i: String
-  code_contains_i: String
-  code_not_contains_i: String
-  code_starts_with_i: String
-  code_not_starts_with_i: String
-  code_ends_with_i: String
-  code_not_ends_with_i: String
-  code_in: [String]
-  code_not_in: [String]
-  isVerified: Boolean
-  isVerified_not: Boolean
-  expiresAt: String
-  expiresAt_not: String
-  expiresAt_lt: String
-  expiresAt_lte: String
-  expiresAt_gt: String
-  expiresAt_gte: String
-  expiresAt_in: [String]
-  expiresAt_not_in: [String]
-  usedAt: String
-  usedAt_not: String
-  usedAt_lt: String
-  usedAt_lte: String
-  usedAt_gt: String
-  usedAt_gte: String
-  usedAt_in: [String]
-  usedAt_not_in: [String]
-  attempts: Int
-  attempts_not: Int
-  attempts_lt: Int
-  attempts_lte: Int
-  attempts_gt: Int
-  attempts_gte: Int
-  attempts_in: [Int]
-  attempts_not_in: [Int]
+  isAdmin: Boolean
+  isAdmin_not: Boolean
+  isSupport: Boolean
+  isSupport_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -1518,23 +1520,21 @@ input ConfirmEmailActionWhereInput {
   sender_not_in: [SenderFieldInput]
 }
 
-input ConfirmEmailActionWhereUniqueInput {
+input UserWhereUniqueInput {
   id: ID!
 }
 
-enum SortConfirmEmailActionsBy {
+enum SortUsersBy {
+  name_ASC
+  name_DESC
+  phone_ASC
+  phone_DESC
   email_ASC
   email_DESC
-  code_ASC
-  code_DESC
-  isVerified_ASC
-  isVerified_DESC
-  expiresAt_ASC
-  expiresAt_DESC
-  usedAt_ASC
-  usedAt_DESC
-  attempts_ASC
-  attempts_DESC
+  isAdmin_ASC
+  isAdmin_DESC
+  isSupport_ASC
+  isSupport_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -1553,13 +1553,13 @@ enum SortConfirmEmailActionsBy {
   dv_DESC
 }
 
-input ConfirmEmailActionUpdateInput {
+input UserUpdateInput {
+  name: String
+  password: String
+  phone: String
   email: String
-  code: String
-  isVerified: Boolean
-  expiresAt: String
-  usedAt: String
-  attempts: Int
+  isAdmin: Boolean
+  isSupport: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -1571,18 +1571,18 @@ input ConfirmEmailActionUpdateInput {
   sender: SenderFieldInput
 }
 
-input ConfirmEmailActionsUpdateInput {
+input UsersUpdateInput {
   id: ID!
-  data: ConfirmEmailActionUpdateInput
+  data: UserUpdateInput
 }
 
-input ConfirmEmailActionCreateInput {
+input UserCreateInput {
+  name: String
+  password: String
+  phone: String
   email: String
-  code: String
-  isVerified: Boolean
-  expiresAt: String
-  usedAt: String
-  attempts: Int
+  isAdmin: Boolean
+  isSupport: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -1594,8 +1594,8 @@ input ConfirmEmailActionCreateInput {
   sender: SenderFieldInput
 }
 
-input ConfirmEmailActionsCreateInput {
-  data: ConfirmEmailActionCreateInput
+input UsersCreateInput {
+  data: UserCreateInput
 }
 
 enum B2CAppHistoryRecordHistoryActionType {
@@ -4359,6 +4359,27 @@ input _ListSchemaFieldsInput {
   type: String
 }
 
+input AuthenticateUserWithPhoneAndPasswordInput {
+  phone: String!
+  password: String!
+}
+
+type AuthenticateUserWithPhoneAndPasswordOutput {
+  token: String!
+  item: User!
+}
+
+input StartConfirmEmailActionInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  email: String!
+}
+
+type StartConfirmEmailActionOutput {
+  actionId: String!
+  email: String!
+}
+
 input StartConfirmPhoneActionInput {
   dv: Int!
   sender: SenderFieldInput!
@@ -4387,16 +4408,6 @@ input RegisterNewUserInput {
   confirmPhoneActionId: String!
   name: String!
   password: String!
-}
-
-input AuthenticateUserWithPhoneAndPasswordInput {
-  phone: String!
-  password: String!
-}
-
-type AuthenticateUserWithPhoneAndPasswordOutput {
-  token: String!
-  item: User!
 }
 
 input B2CAppPublishOptions {
@@ -4558,30 +4569,34 @@ type authenticateUserOutput {
 }
 
 type Query {
-  """ Search for all UserHistoryRecord items which match the where clause. """
-  allUserHistoryRecords(where: UserHistoryRecordWhereInput, search: String, sortBy: [SortUserHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [UserHistoryRecord]
-
-  """ Search for the UserHistoryRecord item with the matching ID. """
-  UserHistoryRecord(where: UserHistoryRecordWhereUniqueInput!): UserHistoryRecord
-
-  """ Perform a meta-query on all UserHistoryRecord items which match the where clause. 
+  """ Search for all ConfirmEmailActionHistoryRecord items which match the where clause. 
   """
-  _allUserHistoryRecordsMeta(where: UserHistoryRecordWhereInput, search: String, sortBy: [SortUserHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+  allConfirmEmailActionHistoryRecords(where: ConfirmEmailActionHistoryRecordWhereInput, search: String, sortBy: [SortConfirmEmailActionHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [ConfirmEmailActionHistoryRecord]
 
-  """ Retrieve the meta-data for the UserHistoryRecord list. """
-  _UserHistoryRecordsMeta: _ListMeta
+  """ Search for the ConfirmEmailActionHistoryRecord item with the matching ID. 
+  """
+  ConfirmEmailActionHistoryRecord(where: ConfirmEmailActionHistoryRecordWhereUniqueInput!): ConfirmEmailActionHistoryRecord
 
-  """ Search for all User items which match the where clause. """
-  allUsers(where: UserWhereInput, search: String, sortBy: [SortUsersBy!], orderBy: String, first: Int, skip: Int): [User]
+  """ Perform a meta-query on all ConfirmEmailActionHistoryRecord items which match the where clause. 
+  """
+  _allConfirmEmailActionHistoryRecordsMeta(where: ConfirmEmailActionHistoryRecordWhereInput, search: String, sortBy: [SortConfirmEmailActionHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
-  """ Search for the User item with the matching ID. """
-  User(where: UserWhereUniqueInput!): User
+  """ Retrieve the meta-data for the ConfirmEmailActionHistoryRecord list. """
+  _ConfirmEmailActionHistoryRecordsMeta: _ListMeta
 
-  """ Perform a meta-query on all User items which match the where clause. """
-  _allUsersMeta(where: UserWhereInput, search: String, sortBy: [SortUsersBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+  """ Search for all ConfirmEmailAction items which match the where clause. 
+  """
+  allConfirmEmailActions(where: ConfirmEmailActionWhereInput, search: String, sortBy: [SortConfirmEmailActionsBy!], orderBy: String, first: Int, skip: Int): [ConfirmEmailAction]
 
-  """ Retrieve the meta-data for the User list. """
-  _UsersMeta: _ListMeta
+  """ Search for the ConfirmEmailAction item with the matching ID. """
+  ConfirmEmailAction(where: ConfirmEmailActionWhereUniqueInput!): ConfirmEmailAction
+
+  """ Perform a meta-query on all ConfirmEmailAction items which match the where clause. 
+  """
+  _allConfirmEmailActionsMeta(where: ConfirmEmailActionWhereInput, search: String, sortBy: [SortConfirmEmailActionsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the ConfirmEmailAction list. """
+  _ConfirmEmailActionsMeta: _ListMeta
 
   """ Search for all ConfirmPhoneActionHistoryRecord items which match the where clause. 
   """
@@ -4612,34 +4627,30 @@ type Query {
   """ Retrieve the meta-data for the ConfirmPhoneAction list. """
   _ConfirmPhoneActionsMeta: _ListMeta
 
-  """ Search for all ConfirmEmailActionHistoryRecord items which match the where clause. 
+  """ Search for all UserHistoryRecord items which match the where clause. """
+  allUserHistoryRecords(where: UserHistoryRecordWhereInput, search: String, sortBy: [SortUserHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [UserHistoryRecord]
+
+  """ Search for the UserHistoryRecord item with the matching ID. """
+  UserHistoryRecord(where: UserHistoryRecordWhereUniqueInput!): UserHistoryRecord
+
+  """ Perform a meta-query on all UserHistoryRecord items which match the where clause. 
   """
-  allConfirmEmailActionHistoryRecords(where: ConfirmEmailActionHistoryRecordWhereInput, search: String, sortBy: [SortConfirmEmailActionHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [ConfirmEmailActionHistoryRecord]
+  _allUserHistoryRecordsMeta(where: UserHistoryRecordWhereInput, search: String, sortBy: [SortUserHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
-  """ Search for the ConfirmEmailActionHistoryRecord item with the matching ID. 
-  """
-  ConfirmEmailActionHistoryRecord(where: ConfirmEmailActionHistoryRecordWhereUniqueInput!): ConfirmEmailActionHistoryRecord
+  """ Retrieve the meta-data for the UserHistoryRecord list. """
+  _UserHistoryRecordsMeta: _ListMeta
 
-  """ Perform a meta-query on all ConfirmEmailActionHistoryRecord items which match the where clause. 
-  """
-  _allConfirmEmailActionHistoryRecordsMeta(where: ConfirmEmailActionHistoryRecordWhereInput, search: String, sortBy: [SortConfirmEmailActionHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+  """ Search for all User items which match the where clause. """
+  allUsers(where: UserWhereInput, search: String, sortBy: [SortUsersBy!], orderBy: String, first: Int, skip: Int): [User]
 
-  """ Retrieve the meta-data for the ConfirmEmailActionHistoryRecord list. """
-  _ConfirmEmailActionHistoryRecordsMeta: _ListMeta
+  """ Search for the User item with the matching ID. """
+  User(where: UserWhereUniqueInput!): User
 
-  """ Search for all ConfirmEmailAction items which match the where clause. 
-  """
-  allConfirmEmailActions(where: ConfirmEmailActionWhereInput, search: String, sortBy: [SortConfirmEmailActionsBy!], orderBy: String, first: Int, skip: Int): [ConfirmEmailAction]
+  """ Perform a meta-query on all User items which match the where clause. """
+  _allUsersMeta(where: UserWhereInput, search: String, sortBy: [SortUsersBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
-  """ Search for the ConfirmEmailAction item with the matching ID. """
-  ConfirmEmailAction(where: ConfirmEmailActionWhereUniqueInput!): ConfirmEmailAction
-
-  """ Perform a meta-query on all ConfirmEmailAction items which match the where clause. 
-  """
-  _allConfirmEmailActionsMeta(where: ConfirmEmailActionWhereInput, search: String, sortBy: [SortConfirmEmailActionsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
-
-  """ Retrieve the meta-data for the ConfirmEmailAction list. """
-  _ConfirmEmailActionsMeta: _ListMeta
+  """ Retrieve the meta-data for the User list. """
+  _UsersMeta: _ListMeta
 
   """ Search for all B2CAppHistoryRecord items which match the where clause. 
   """
@@ -4793,41 +4804,41 @@ type Query {
 }
 
 type Mutation {
-  """ Create a single UserHistoryRecord item. """
-  createUserHistoryRecord(data: UserHistoryRecordCreateInput): UserHistoryRecord
+  """ Create a single ConfirmEmailActionHistoryRecord item. """
+  createConfirmEmailActionHistoryRecord(data: ConfirmEmailActionHistoryRecordCreateInput): ConfirmEmailActionHistoryRecord
 
-  """ Create multiple UserHistoryRecord items. """
-  createUserHistoryRecords(data: [UserHistoryRecordsCreateInput]): [UserHistoryRecord]
+  """ Create multiple ConfirmEmailActionHistoryRecord items. """
+  createConfirmEmailActionHistoryRecords(data: [ConfirmEmailActionHistoryRecordsCreateInput]): [ConfirmEmailActionHistoryRecord]
 
-  """ Update a single UserHistoryRecord item by ID. """
-  updateUserHistoryRecord(id: ID!, data: UserHistoryRecordUpdateInput): UserHistoryRecord
+  """ Update a single ConfirmEmailActionHistoryRecord item by ID. """
+  updateConfirmEmailActionHistoryRecord(id: ID!, data: ConfirmEmailActionHistoryRecordUpdateInput): ConfirmEmailActionHistoryRecord
 
-  """ Update multiple UserHistoryRecord items by ID. """
-  updateUserHistoryRecords(data: [UserHistoryRecordsUpdateInput]): [UserHistoryRecord]
+  """ Update multiple ConfirmEmailActionHistoryRecord items by ID. """
+  updateConfirmEmailActionHistoryRecords(data: [ConfirmEmailActionHistoryRecordsUpdateInput]): [ConfirmEmailActionHistoryRecord]
 
-  """ Delete a single UserHistoryRecord item by ID. """
-  deleteUserHistoryRecord(id: ID!): UserHistoryRecord
+  """ Delete a single ConfirmEmailActionHistoryRecord item by ID. """
+  deleteConfirmEmailActionHistoryRecord(id: ID!): ConfirmEmailActionHistoryRecord
 
-  """ Delete multiple UserHistoryRecord items by ID. """
-  deleteUserHistoryRecords(ids: [ID!]): [UserHistoryRecord]
+  """ Delete multiple ConfirmEmailActionHistoryRecord items by ID. """
+  deleteConfirmEmailActionHistoryRecords(ids: [ID!]): [ConfirmEmailActionHistoryRecord]
 
-  """ Create a single User item. """
-  createUser(data: UserCreateInput): User
+  """ Create a single ConfirmEmailAction item. """
+  createConfirmEmailAction(data: ConfirmEmailActionCreateInput): ConfirmEmailAction
 
-  """ Create multiple User items. """
-  createUsers(data: [UsersCreateInput]): [User]
+  """ Create multiple ConfirmEmailAction items. """
+  createConfirmEmailActions(data: [ConfirmEmailActionsCreateInput]): [ConfirmEmailAction]
 
-  """ Update a single User item by ID. """
-  updateUser(id: ID!, data: UserUpdateInput): User
+  """ Update a single ConfirmEmailAction item by ID. """
+  updateConfirmEmailAction(id: ID!, data: ConfirmEmailActionUpdateInput): ConfirmEmailAction
 
-  """ Update multiple User items by ID. """
-  updateUsers(data: [UsersUpdateInput]): [User]
+  """ Update multiple ConfirmEmailAction items by ID. """
+  updateConfirmEmailActions(data: [ConfirmEmailActionsUpdateInput]): [ConfirmEmailAction]
 
-  """ Delete a single User item by ID. """
-  deleteUser(id: ID!): User
+  """ Delete a single ConfirmEmailAction item by ID. """
+  deleteConfirmEmailAction(id: ID!): ConfirmEmailAction
 
-  """ Delete multiple User items by ID. """
-  deleteUsers(ids: [ID!]): [User]
+  """ Delete multiple ConfirmEmailAction items by ID. """
+  deleteConfirmEmailActions(ids: [ID!]): [ConfirmEmailAction]
 
   """ Create a single ConfirmPhoneActionHistoryRecord item. """
   createConfirmPhoneActionHistoryRecord(data: ConfirmPhoneActionHistoryRecordCreateInput): ConfirmPhoneActionHistoryRecord
@@ -4865,41 +4876,41 @@ type Mutation {
   """ Delete multiple ConfirmPhoneAction items by ID. """
   deleteConfirmPhoneActions(ids: [ID!]): [ConfirmPhoneAction]
 
-  """ Create a single ConfirmEmailActionHistoryRecord item. """
-  createConfirmEmailActionHistoryRecord(data: ConfirmEmailActionHistoryRecordCreateInput): ConfirmEmailActionHistoryRecord
+  """ Create a single UserHistoryRecord item. """
+  createUserHistoryRecord(data: UserHistoryRecordCreateInput): UserHistoryRecord
 
-  """ Create multiple ConfirmEmailActionHistoryRecord items. """
-  createConfirmEmailActionHistoryRecords(data: [ConfirmEmailActionHistoryRecordsCreateInput]): [ConfirmEmailActionHistoryRecord]
+  """ Create multiple UserHistoryRecord items. """
+  createUserHistoryRecords(data: [UserHistoryRecordsCreateInput]): [UserHistoryRecord]
 
-  """ Update a single ConfirmEmailActionHistoryRecord item by ID. """
-  updateConfirmEmailActionHistoryRecord(id: ID!, data: ConfirmEmailActionHistoryRecordUpdateInput): ConfirmEmailActionHistoryRecord
+  """ Update a single UserHistoryRecord item by ID. """
+  updateUserHistoryRecord(id: ID!, data: UserHistoryRecordUpdateInput): UserHistoryRecord
 
-  """ Update multiple ConfirmEmailActionHistoryRecord items by ID. """
-  updateConfirmEmailActionHistoryRecords(data: [ConfirmEmailActionHistoryRecordsUpdateInput]): [ConfirmEmailActionHistoryRecord]
+  """ Update multiple UserHistoryRecord items by ID. """
+  updateUserHistoryRecords(data: [UserHistoryRecordsUpdateInput]): [UserHistoryRecord]
 
-  """ Delete a single ConfirmEmailActionHistoryRecord item by ID. """
-  deleteConfirmEmailActionHistoryRecord(id: ID!): ConfirmEmailActionHistoryRecord
+  """ Delete a single UserHistoryRecord item by ID. """
+  deleteUserHistoryRecord(id: ID!): UserHistoryRecord
 
-  """ Delete multiple ConfirmEmailActionHistoryRecord items by ID. """
-  deleteConfirmEmailActionHistoryRecords(ids: [ID!]): [ConfirmEmailActionHistoryRecord]
+  """ Delete multiple UserHistoryRecord items by ID. """
+  deleteUserHistoryRecords(ids: [ID!]): [UserHistoryRecord]
 
-  """ Create a single ConfirmEmailAction item. """
-  createConfirmEmailAction(data: ConfirmEmailActionCreateInput): ConfirmEmailAction
+  """ Create a single User item. """
+  createUser(data: UserCreateInput): User
 
-  """ Create multiple ConfirmEmailAction items. """
-  createConfirmEmailActions(data: [ConfirmEmailActionsCreateInput]): [ConfirmEmailAction]
+  """ Create multiple User items. """
+  createUsers(data: [UsersCreateInput]): [User]
 
-  """ Update a single ConfirmEmailAction item by ID. """
-  updateConfirmEmailAction(id: ID!, data: ConfirmEmailActionUpdateInput): ConfirmEmailAction
+  """ Update a single User item by ID. """
+  updateUser(id: ID!, data: UserUpdateInput): User
 
-  """ Update multiple ConfirmEmailAction items by ID. """
-  updateConfirmEmailActions(data: [ConfirmEmailActionsUpdateInput]): [ConfirmEmailAction]
+  """ Update multiple User items by ID. """
+  updateUsers(data: [UsersUpdateInput]): [User]
 
-  """ Delete a single ConfirmEmailAction item by ID. """
-  deleteConfirmEmailAction(id: ID!): ConfirmEmailAction
+  """ Delete a single User item by ID. """
+  deleteUser(id: ID!): User
 
-  """ Delete multiple ConfirmEmailAction items by ID. """
-  deleteConfirmEmailActions(ids: [ID!]): [ConfirmEmailAction]
+  """ Delete multiple User items by ID. """
+  deleteUsers(ids: [ID!]): [User]
 
   """ Create a single B2CAppHistoryRecord item. """
   createB2CAppHistoryRecord(data: B2CAppHistoryRecordCreateInput): B2CAppHistoryRecord
@@ -5080,10 +5091,11 @@ type Mutation {
 
   """ Delete multiple WebhookSubscription items by ID. """
   deleteWebhookSubscriptions(ids: [ID!]): [WebhookSubscription]
+  authenticateUserWithPhoneAndPassword(data: AuthenticateUserWithPhoneAndPasswordInput!): AuthenticateUserWithPhoneAndPasswordOutput
+  startConfirmEmailAction(data: StartConfirmEmailActionInput!): StartConfirmEmailActionOutput
   startConfirmPhoneAction(data: StartConfirmPhoneActionInput!): StartConfirmPhoneActionOutput
   completeConfirmPhoneAction(data: CompleteConfirmPhoneActionInput!): CompleteConfirmPhoneActionOutput
   registerNewUser(data: RegisterNewUserInput!): User
-  authenticateUserWithPhoneAndPassword(data: AuthenticateUserWithPhoneAndPasswordInput!): AuthenticateUserWithPhoneAndPasswordOutput
   publishB2CApp(data: PublishB2CAppInput!): PublishB2CAppOutput
   importB2CApp(data: ImportB2CAppInput!): ImportB2CAppOutput
   createB2CAppProperty(data: CreateB2CAppPropertyInput!): CreateB2CAppPropertyOutput

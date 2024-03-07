@@ -4,6 +4,7 @@
  */
 const { AuthenticateUserWithPhoneAndPasswordService } = require('./AuthenticateUserWithPhoneAndPasswordService')
 const { ConfirmEmailAction } = require('./ConfirmEmailAction')
+const { ConfirmEmailActionService } = require('./ConfirmEmailActionService')
 const { ConfirmPhoneAction } = require('./ConfirmPhoneAction')
 const { ConfirmPhoneActionService } = require('./ConfirmPhoneActionService')
 const { RegisterNewUserService } = require('./RegisterNewUserService') 
@@ -13,6 +14,7 @@ const { User } = require('./User')
 module.exports = {
     AuthenticateUserWithPhoneAndPasswordService,
     ConfirmEmailAction,
+    ConfirmEmailActionService,
     ConfirmPhoneAction,
     ConfirmPhoneActionService,
     RegisterNewUserService,

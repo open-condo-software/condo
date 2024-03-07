@@ -80,7 +80,7 @@ describe('ConfirmPhoneAction', () => {
 
                 for (const payload of payloads) {
                     await expectToThrowAccessDeniedErrorToObj(async () => {
-                        await updateTestConfirmPhoneAction(actors.admin, actionId, payload)
+                        await updateTestConfirmPhoneAction(actors.admin, updatedAction.id, payload)
                     })
                 }
             })
@@ -138,5 +138,4 @@ describe('ConfirmPhoneAction', () => {
             })
         })
     })
-
 })

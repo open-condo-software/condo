@@ -33,6 +33,7 @@ class SMSAdapter {
                 break
             default:
                 this.#internalAdapter = new FakeSMSAdapter()
+                break
         }
     }
 

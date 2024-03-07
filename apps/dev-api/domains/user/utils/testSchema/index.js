@@ -9,6 +9,7 @@ const { makeLoggedInClient, makeClient } = require('@open-condo/keystone/test.ut
 
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 const { getAppEnvValue } = require('@open-condo/cli')
+const { generateNumericCode } = require('@dev-api/domains/user/utils/password')
 
 const {
     User: UserGQL,
@@ -18,6 +19,7 @@ const {
     AUTHENTICATE_USER_WITH_PHONE_AND_PASSWORD_MUTATION,
     START_CONFIRM_PHONE_ACTION_MUTATION,
     COMPLETE_CONFIRM_PHONE_ACTION_MUTATION,
+    START_CONFIRM_EMAIL_ACTION_MUTATION,
 } = require('@dev-api/domains/user/gql')
 const conf = require("@open-condo/config");
 const get = require('lodash/get')
@@ -86,7 +88,7 @@ async function createTestConfirmEmailAction (client, extraAttrs = {}) {
         dv: 1,
         sender,
         email: faker.internet.email(),
-        code: faker.random.numeric(CONFIRM_EMAIL_ACTION_CODE_LENGTH),
+        code: generateNumericCode(CONFIRM_EMAIL_ACTION_CODE_LENGTH),
         expiresAt: dayjs().add(CONFIRM_EMAIL_ACTION_TTL_IN_SEC, 's').toISOString(),
         ...extraAttrs,
     }
@@ -117,7 +119,7 @@ async function createTestConfirmPhoneAction(client, extraAttrs = {}) {
         dv: 1,
         sender,
         phone: createTestPhone(),
-        code: faker.random.numeric(CONFIRM_PHONE_ACTION_CODE_LENGTH),
+        code: generateNumericCode(CONFIRM_PHONE_ACTION_CODE_LENGTH),
         expiresAt: dayjs().add(CONFIRM_PHONE_ACTION_TTL_IN_SEC, 's').toISOString(),
         ...extraAttrs,
     }
@@ -162,12 +164,25 @@ async function startConfirmPhoneActionByTestClient(attrs = {}, client) {
     return [data.result, attrs]
 }
 
+async function startConfirmEmailActionByTestClient(client, attrs = {}) {
+    attrs.dv ??= 1
+    attrs.sender ??= { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    attrs.email ??= faker.internet.email()
+
+    const { data, errors } = await client.mutate(START_CONFIRM_EMAIL_ACTION_MUTATION, {
+        data: attrs
+    })
+    throwIfError(data, errors)
+
+    return [data.result, attrs]
+}
+
 async function completeConfirmPhoneActionByTestClient(id, attrs = {}, client) {
     client ??= await makeClient()
     attrs.dv ??= 1
     attrs.sender ??= { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     attrs.actionId = id
-    attrs.code ??= faker.random.numeric(CONFIRM_PHONE_ACTION_CODE_LENGTH)
+    attrs.code ??= generateNumericCode(CONFIRM_PHONE_ACTION_CODE_LENGTH)
 
     const { data, errors } = await client.mutate(COMPLETE_CONFIRM_PHONE_ACTION_MUTATION, {
         data: attrs,
@@ -254,6 +269,7 @@ module.exports = {
     ConfirmPhoneAction, createTestConfirmPhoneAction, updateTestConfirmPhoneAction,
     ConfirmEmailAction, createTestConfirmEmailAction, updateTestConfirmEmailAction,
     startConfirmPhoneActionByTestClient, completeConfirmPhoneActionByTestClient,
+    startConfirmEmailActionByTestClient,
     registerNewTestUser, authenticateUserWithPhoneAndPasswordByTestClient,
     makeLoggedInAdminClient, makeRegisteredAndLoggedInUser, makeLoggedInSupportClient,
     createTestPhone,

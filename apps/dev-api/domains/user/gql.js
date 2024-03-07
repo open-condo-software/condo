@@ -31,6 +31,12 @@ const COMPLETE_CONFIRM_PHONE_ACTION_MUTATION = gql`
     }
 `
 
+const START_CONFIRM_EMAIL_ACTION_MUTATION = gql`
+    mutation startConfirmEmailAction ($data: StartConfirmEmailActionInput!) {
+        result: startConfirmEmailAction(data: $data) { actionId email }
+    }
+`
+
 const REGISTER_NEW_USER_MUTATION = gql`
     mutation registerNewUser ($data: RegisterNewUserInput!) {
         result: registerNewUser(data: $data) { id }
@@ -53,5 +59,6 @@ module.exports = {
     COMPLETE_CONFIRM_PHONE_ACTION_MUTATION,
     REGISTER_NEW_USER_MUTATION,
     AUTHENTICATE_USER_WITH_PHONE_AND_PASSWORD_MUTATION,
+    START_CONFIRM_EMAIL_ACTION_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
