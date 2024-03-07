@@ -12,7 +12,7 @@ const { WRONG_VALUE } = require('@condo/domains/common/constants/errors')
 const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
 
 const ERRORS = {
-    PERIOD_FIELD_NOT_SPECIFIED: {
+    PERIOD_BADLY_SPECIFIED: {
         mutation: 'registerBillingReceipts',
         variable: ['where', 'period'],
         code: BAD_USER_INPUT,
@@ -37,13 +37,16 @@ const SumBillingReceiptsService = new GQLCustomSchema('SumBillingReceiptsService
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { where } = args
 
-                // TODO (@toplenboren) Need to discuss this:
-                // We do not want to give user an easy way to query whole database. You need to specify period in where query.
-                // It was done like this, and not as a separate argument in order to keep validation of period in one place - in GraphQL
+                // We do not want to give user an easy way to query whole database. You must specify period in where query.
+                //
+                // It was done like this, and not as a separate argument for several reasons:
+                // 1. in order to keep validation of period in one place - in GraphQL
+                // 2. in order to keep all<model> styled api arguments somewhat consistent (e.x _allPaymentsSum / allBillingReceipts )
+                //
                 // If you try to add more periods to the where clause, like: where: (period=a1 period=a2) you will get an error
                 // If you try to be hacky and do this: where: (period=a1 period_gt=a1) you are going to have intersection of these clauses which means you will get only period=a1 ones!
-                if (!where.period || where.period !== 'string') {
-                    throw new GQLError(ERRORS.PERIOD_FIELD_NOT_SPECIFIED)
+                if (!where.period || typeof where.period !== 'string') {
+                    throw new GQLError(ERRORS.PERIOD_BADLY_SPECIFIED)
                 }
 
                 const billingReceiptsLoader = new GqlWithKnexLoadList({
