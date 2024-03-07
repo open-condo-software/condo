@@ -125,8 +125,6 @@ if (sentryConfig['client']) {
             automaticVercelMonitors: true,
             autoInstrumentServerFunctions: true,
             autoInstrumentMiddleware: true,
-            disableServerWebpackPlugin: false,
-            disableClientWebpackPlugin: false,
         },
     )
 }

@@ -10,9 +10,11 @@ const { publicRuntimeConfig: { sentryConfig } } = getConfig()
 if (sentryConfig['client']) {
     Sentry.init({
         dsn: sentryConfig['client']['dsn'],
+        sampleRate: sentryConfig['client']['sampleRate'],
         tracesSampleRate: sentryConfig['client']['sampleRate'],
+        sendClientReports: true,
         debug: false,
         autoSessionTracking: true,
-        environment: 'local-env',
+        environment: sentryConfig['client']['environment'],
     })
 }
