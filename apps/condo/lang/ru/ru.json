@@ -1973,6 +1973,18 @@
   "tour.step.disabledTooltip.completePreviousSteps": "Выполните предыдущие шаги, чтобы разблокировать задачу",
   "tour.step.disabledTooltip.completeBillingStep": "Выполните все шаги в задаче «Снизить дебиторскую задолженность», чтобы разблокировать эту",
 
+
+  "tour.completedStepModal.createProperty.title": "Все получилось — вы добавили первый дом",
+  "tour.completedStepModal.createProperty.subtitle": "Вы сможете добавить больше объектов",
+  "tour.completedStepModal.createProperty.subtitleLinkLabel": "в разделе «Дома»",
+
+  "tour.newFeatures.employee.publishNews": "Публиковать новости дома",
+  "tour.newFeatures.employee.notifyAboutIncidents": "Рассказывать жителям об отключениях",
+
+  "tour.newFeatures.resident.readNews": "Узнавать новости через приложение Doma",
+  "tour.newFeatures.resident.publishNews": "Узнавать об отключениях",
+
+
   "tasks.export.error.NOTHING_TO_EXPORT": "Не найдено записей для экспорта по выбранным критериям фильтрации",
   "tasks.progressNotification.title": "Процессы",
   "tasks.TicketExportTask.progress.title": "Выгрузка заявок",
