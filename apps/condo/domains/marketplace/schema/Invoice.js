@@ -59,6 +59,7 @@ const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 const sendPush = async ({ originalInput, userId, propertyId, unitName, unitType, updatedItem, context }) => {
     if (originalInput.status === INVOICE_STATUS_PUBLISHED && userId && propertyId && unitName && unitType) {
+        const sender = { dv: 1, fingerprint: get(context, 'authedItem.sender.fingerprint', 'Invoice_afterChange') }
         const resident = await getByCondition('Resident', {
             user: { id: userId },
             property: { id: propertyId },
@@ -68,14 +69,14 @@ const sendPush = async ({ originalInput, userId, propertyId, unitName, unitType,
         })
 
         const uniqKey = `marketplace_invoice_published_${updatedItem.id}`
-        const uniqKeyWithTicket = `marketplace_invoice_published_with_ticket_${updatedItem.ticket}`
+        const uniqKeyWithTicket = `marketplace_invoice_${updatedItem.id}_published_with_ticket_${updatedItem.ticket}`
         if (!resident) return
 
         if (updatedItem.paymentType === INVOICE_PAYMENT_TYPE_ONLINE) {
             if (isNil(updatedItem.ticket)) {
                 await sendMessage(context, {
                     dv: 1,
-                    sender: { dv: 1, fingerprint: 'invoice_afterChange' },
+                    sender,
                     to: { user: { id: userId } },
                     type: MARKETPLACE_INVOICE_PUBLISHED_MESSAGE_TYPE,
                     uniqKey,
@@ -95,7 +96,7 @@ const sendPush = async ({ originalInput, userId, propertyId, unitName, unitType,
                 if (ticketSource.type !== TICKET_SOURCE_TYPES.MOBILE_APP ) {
                     await sendMessage(context, {
                         dv: 1,
-                        sender: { dv: 1, fingerprint: 'invoice_afterChange' },
+                        sender,
                         to: { user: { id: userId } },
                         type: MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
                         uniqKey: uniqKeyWithTicket,
@@ -118,7 +119,7 @@ const sendPush = async ({ originalInput, userId, propertyId, unitName, unitType,
             if (isNil(updatedItem.ticket)) {
                 await sendMessage(context, {
                     dv: 1,
-                    sender: { dv: 1, fingerprint: 'invoice_afterChange' },
+                    sender,
                     to: { user: { id: userId } },
                     type: MARKETPLACE_INVOICE_CASH_PUBLISHED_MESSAGE_TYPE,
                     uniqKey,
@@ -138,7 +139,7 @@ const sendPush = async ({ originalInput, userId, propertyId, unitName, unitType,
                 if (ticketSource.type !== TICKET_SOURCE_TYPES.MOBILE_APP ) {
                     await sendMessage(context, {
                         dv: 1,
-                        sender: { dv: 1, fingerprint: 'invoice_afterChange' },
+                        sender,
                         to: { user: { id: userId } },
                         type: MARKETPLACE_INVOICE_CASH_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
                         uniqKey: uniqKeyWithTicket,

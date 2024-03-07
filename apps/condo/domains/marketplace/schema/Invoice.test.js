@@ -23,7 +23,6 @@ const {
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { createTestAcquiringIntegration, createTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBillingIntegration, createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
-const { sleep } = require('@condo/domains/common/utils/sleep')
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const {
     INVOICE_STATUS_DRAFT,
@@ -48,7 +47,7 @@ const {
     MARKETPLACE_INVOICE_PUBLISHED_MESSAGE_TYPE,
     MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
     MARKETPLACE_INVOICE_CASH_PUBLISHED_MESSAGE_TYPE,
-    MARKETPLACE_INVOICE_CASH_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
+    MARKETPLACE_INVOICE_CASH_WITH_TICKET_PUBLISHED_MESSAGE_TYPE, MESSAGE_THROTTLED_STATUS,
 } = require('@condo/domains/notification/constants/constants')
 const { Message } = require('@condo/domains/notification/utils/testSchema')
 const {
@@ -1157,7 +1156,6 @@ describe('Invoice', () => {
                 expect(messages1).toHaveLength(1)
             })
 
-
             const [createdInvoice2] = await createTestInvoice(client, client.organization, {
                 property: { connect: { id: client.property.id } },
                 unitType,
@@ -1173,8 +1171,9 @@ describe('Invoice', () => {
                 messages2 = await Message.getAll(adminClient, {
                     user: { id: residentClient.user.id },
                     type: MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
-                })
-                expect(messages2).toHaveLength(1)
+                }, { sortBy: 'createdAt_ASC' })
+                expect(messages2).toHaveLength(2)
+                expect(messages2[1].status).toEqual(MESSAGE_THROTTLED_STATUS)
             })
 
             expect(messages1[0].id).toEqual(messages2[0].id)
@@ -1247,11 +1246,12 @@ describe('Invoice', () => {
                 messagesSecondResult = await Message.getAll(adminClient, {
                     user: { id: residentClient.user.id },
                     type: MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
-                })
-                expect(messagesSecondResult).toHaveLength(1)
+                }, { sortBy: 'createdAt_ASC' })
+                expect(messagesSecondResult).toHaveLength(2)
             })
 
             expect(messagesSecondResult[0].id).toEqual(messagesFirstResult[0].id)
+            expect(messagesSecondResult[1].status).toEqual(MESSAGE_THROTTLED_STATUS)
         })
 
         test('send push after create invoice with published status and paymentType cash', async () => {
