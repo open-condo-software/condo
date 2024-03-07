@@ -114,14 +114,15 @@ if (sentryConfig['client']) {
     module.exports = withSentryConfig(
         module.exports,
         {
-            silent: true,
+            dryRun: true,
+            silent: false,
             org: sentryConfig['organization'],
             project: sentryConfig['project'],
             validate: true,
             widenClientFileUpload: true,
             transpileClientSDK: false,
             hideSourceMaps: true,
-            disableLogger: true,
+            disableLogger: false,
             automaticVercelMonitors: true,
             autoInstrumentServerFunctions: true,
             autoInstrumentMiddleware: true,

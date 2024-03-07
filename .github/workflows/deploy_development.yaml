@@ -37,7 +37,7 @@ jobs:
           key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
           name: id_rsa
           known_hosts: ${{ secrets.SSH_DOCK_SERVER_KNOWN_HOSTS }}
-          if_key_exists: replace          
+          if_key_exists: replace
       - name: Set env for branch name
         run: echo "BRANCH_NAME=$(echo ${GITHUB_REF##*/} | sed 's/\_/-/g')" >> $GITHUB_ENV
       - name: Converge
@@ -70,3 +70,4 @@ jobs:
           WERF_SET_CI_REF: "ci.werf.io/ref=${GITHUB_REF_NAME}"
           WERF_REPO: swr.ru-moscow-1.hc.sbercloud.ru/condo/condo
           WERF_REPO_CONTAINER_REGISTRY: default
+          SENTRY_CONFIG: ${{ secrets.SENTRY_CONFIG_DEVELOPMENT }}
