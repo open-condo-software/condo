@@ -140,7 +140,6 @@ async function sumBillingReceipts (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
-    // TODO(codegen): write sumBillingReceipts serverSchema guards
 
     return await execGqlWithoutAccess(context, {
         query: SUM_BILLING_RECEIPTS_MUTATION,
