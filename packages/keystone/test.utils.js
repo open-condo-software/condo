@@ -170,8 +170,9 @@ let __expressTestServers = {}
  * Use ONLY inside jest test files!
  * @param {string} name
  * @param {Express} app
+ * @param {string} protocol like http, ssh, rdp, https. Used only in address
  */
-function initTestExpressApp (name, app) {
+function initTestExpressApp (name, app, protocol = 'http') {
     if (!name) {
         throw new Error('initTestExpressApp(name, app) no name!')
     }
@@ -199,7 +200,7 @@ function initTestExpressApp (name, app) {
         const addressInfo = __expressTestServers[name].server.address()
         __expressTestServers[name].address = addressInfo.address === '::' ? 'localhost' : addressInfo.address
         __expressTestServers[name].port = addressInfo.port
-        __expressTestServers[name].baseUrl = `http://${__expressTestServers[name].address}:${__expressTestServers[name].port}`
+        __expressTestServers[name].baseUrl = `${protocol}://${__expressTestServers[name].address}:${__expressTestServers[name].port}`
     })
 
     afterAll(async () => {
