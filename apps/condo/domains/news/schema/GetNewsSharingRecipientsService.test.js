@@ -160,7 +160,7 @@ describe('GetNewsSharingRecipientsService', () => {
 
     test('fails if remote server is inaccessible', async () => {
         const [B2BAppFailingNewsSharingConfig] = await createTestB2BAppNewsSharingConfig(adminClient, {
-            getRecipientsUrl: 'http://192.168.255.255',
+            getRecipientsUrl: 'https://192.168.255.255',
             previewUrl: `${testExpressAppBaseUrl}${SUCCESS_PREVIEW_URL}`,
             publishUrl: `${testExpressAppBaseUrl}${SUCCESS_PUBLISH_URL}`,
         })
