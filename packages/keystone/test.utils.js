@@ -165,6 +165,11 @@ function setFakeClientMode (entryPoint, prepareKeystoneOptions = {}) {
 
 let __expressTestServers = {}
 
+/**
+ * Initializes provided express server on a free port. Returns an address of the server. Removes server after finishing tests
+ * @param {string} name
+ * @param {Express} app
+ */
 function initTestExpressApp (name, app) {
     if (!name) {
         throw new Error('initTestExpressApp(name, app) no name!')
@@ -203,6 +208,11 @@ function initTestExpressApp (name, app) {
     })
 }
 
+/**
+ * Returns test express app. Use when you need to get address of the app
+ * @param name
+ * @returns {*}
+ */
 function getTestExpressApp (name){
     return __expressTestServers[name]
 }
