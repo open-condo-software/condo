@@ -167,6 +167,7 @@ let __expressTestServers = {}
 
 /**
  * Initializes provided express server on a free port. Returns an address of the server. Removes server after finishing tests
+ * Use ONLY inside jest test files!
  * @param {string} name
  * @param {Express} app
  */
@@ -184,14 +185,15 @@ function initTestExpressApp (name, app) {
     }
 
     beforeAll(async () => {
-        // test app express
-        // nosemgrep: problem-based-packs.insecure-transport.js-node.using-http-server.using-http-server
+
         __expressTestServers[name] = {
             server: null,
             address: null,
             port: null,
             baseUrl: null,
         }
+        // This express runs only in tests
+        // nosemgrep: problem-based-packs.insecure-transport.js-node.using-http-server.using-http-server
         __expressTestServers[name].server = await http.createServer(app).listen(0)
 
         const addressInfo = __expressTestServers[name].server.address()
