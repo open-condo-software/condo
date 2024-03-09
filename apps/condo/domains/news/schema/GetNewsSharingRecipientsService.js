@@ -27,13 +27,11 @@
  * {...}
  * ]
  *
- * GetRecipients endpoint should be covered behind BASIC auth
- *
  * --
  *
  * This method is just a proxy between Condo and miniapp.
  **
- * <Condo /news> -> <Condo.GetNewsSharingRecipientsService> -> BASIC-AUTH -> <Miniapp.GetRecipients>
+ * <Condo /news> -> <Condo.GetNewsSharingRecipientsService> -> <Miniapp.GetRecipients>
  */
 
 const fetch = require('node-fetch')
@@ -43,6 +41,21 @@ const { GQLCustomSchema, getById } = require('@open-condo/keystone/schema')
 
 const { WRONG_VALUE, NETWORK_ERROR } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/news/access/GetNewsSharingRecipientsService')
+
+async function fetchWithTimeout (url, options = {}, timeout = 5000) {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), timeout)
+
+    try {
+        const response = await fetch(url, { ...options, signal: controller.signal })
+        clearTimeout(timeoutId)
+        return response
+    } catch (error) {
+        clearTimeout(timeoutId)
+        throw error.name === 'AbortError' ? new Error('Timeout') : error
+    }
+}
+
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -116,9 +129,7 @@ const GetNewsSharingRecipientsService = new GQLCustomSchema('GetNewsSharingRecip
 
                 // Check that we can obtain result data
                 try {
-                    getRecipientsResult = await fetch(
-                        `${getRecipientsUrl}?organizationId=${organizationId}`,
-                    )
+                    getRecipientsResult = await fetchWithTimeout(`${getRecipientsUrl}?organizationId=${organizationId}`)
                 }
                 catch (err) {
                     throw new GQLError(ERRORS.NEWS_SHARING_APP_REQUEST_FAILED)

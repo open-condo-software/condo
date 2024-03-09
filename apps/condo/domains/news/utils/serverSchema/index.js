@@ -48,12 +48,13 @@ async function getNewsItemsRecipientsCounters (context, data) {
 }
 
 const NewsItemRecipientsExportTask = generateServerUtils(NewsItemRecipientsExportTaskGQL)
+
 const NewsItemSharing = generateServerUtils(NewsItemSharingGQL)
+
 async function getNewsItemSharingRecipients (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
-    // TODO(codegen): write getNewsItemSharingRecipients serverSchema guards
 
     return await execGqlWithoutAccess(context, {
         query: GET_NEWS_SHARING_RECIPIENTS_MUTATION,

@@ -46,7 +46,6 @@ const TESTS_LOG_REQUEST_RESPONSE = conf.TESTS_LOG_REQUEST_RESPONSE
 const TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS = conf.TESTS_FAKE_CLIENT_MODE && conf.TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS
 const TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS = !conf.TESTS_FAKE_CLIENT_MODE && conf.TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS
 const TESTS_REAL_CLIENT_REMOTE_API_URL = conf.TESTS_REAL_CLIENT_REMOTE_API_URL || `${conf.SERVER_URL}${API_PATH}`
-const TESTS_FAKE_CLIENT_EXPRESS_PORT = conf['TESTS_FAKE_CLIENT_EXPRESS_PORT'] || '3000'
 
 const SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION = gql`
     mutation authenticateUserWithPhoneAndPassword ($phone: String!, $password: String!) {
@@ -150,7 +149,7 @@ function setFakeClientMode (entryPoint, prepareKeystoneOptions = {}) {
             __keystone = res.keystone
             // tests express for a fake gql client
             // nosemgrep: problem-based-packs.insecure-transport.js-node.using-http-server.using-http-server
-            __expressServer = http.createServer(__expressApp).listen(TESTS_FAKE_CLIENT_EXPRESS_PORT)
+            __expressServer = http.createServer(__expressApp).listen(0)
         })
         afterAll(async () => {
             if (__expressServer) __expressServer.close()
@@ -162,6 +161,50 @@ function setFakeClientMode (entryPoint, prepareKeystoneOptions = {}) {
     }
     if (!mode) throw new Error('setFakeServerOption(entryPoint) unknown module type')
     __isAwaiting = true
+}
+
+let __expressTestServers = {}
+
+function initTestExpressApp (name, app) {
+    if (!name) {
+        throw new Error('initTestExpressApp(name, app) no name!')
+    }
+
+    if (!app) {
+        throw new Error('initTestExpressApp(name, app) no app!')
+    }
+
+    if (getTestExpressApp(name)) {
+        throw new Error('initTestExpressApp(name, app) express app with this name is already initialized')
+    }
+
+    beforeAll(async () => {
+        // test app express
+        // nosemgrep: problem-based-packs.insecure-transport.js-node.using-http-server.using-http-server
+        __expressTestServers[name] = {
+            server: null,
+            address: null,
+            port: null,
+            baseUrl: null,
+        }
+        __expressTestServers[name].server = await http.createServer(app).listen(0)
+
+        const addressInfo = __expressTestServers[name].server.address()
+        __expressTestServers[name].address = addressInfo.address === '::' ? 'localhost' : addressInfo.address
+        __expressTestServers[name].port = addressInfo.port
+        __expressTestServers[name].baseUrl = `http://${__expressTestServers[name].address}:${__expressTestServers[name].port}`
+    })
+
+    afterAll(async () => {
+        if (__expressTestServers[name]) {
+            __expressTestServers[name].server.close()
+            delete __expressTestServers[name]
+        }
+    })
+}
+
+function getTestExpressApp (name){
+    return __expressTestServers[name]
 }
 
 /**
@@ -832,4 +875,6 @@ module.exports = {
     setFeatureFlag,
     getFeatureFlag,
     setAllFeatureFlags,
+    initTestExpressApp,
+    getTestExpressApp,
 }

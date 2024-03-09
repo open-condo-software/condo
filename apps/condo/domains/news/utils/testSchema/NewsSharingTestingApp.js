@@ -41,7 +41,7 @@ const INCORRECT_GET_RECIPIENTS_RESULT = [
 
 
 class NewsSharingTestingApp {
-    async prepareMiddleware () {
+    prepareMiddleware () {
         // this route can not be used for csrf attack (because no cookies and tokens are used in a public route)
         // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
@@ -76,6 +76,7 @@ class NewsSharingTestingApp {
 
 module.exports = {
     NewsSharingTestingApp,
+
     SUCCESS_GET_RECIPIENTS_URL,
     SUCCESS_PUBLISH_URL,
     SUCCESS_PREVIEW_URL,

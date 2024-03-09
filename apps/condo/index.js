@@ -125,10 +125,6 @@ const checks = [
 
 const lastApp = conf.NODE_ENV === 'test' ? undefined : new NextApp({ dir: '.' })
 
-const testApps = (conf.NODE_ENV === 'test' || conf.NODE_ENV === 'development') ? [
-    new NewsSharingTestingApp(),
-] : []
-
 const apps = () => {
     return [
         new HealthCheck({ checks }),
@@ -141,7 +137,6 @@ const apps = () => {
         new UnsubscribeMiddleware(),
         FileAdapter.makeFileAdapterMiddleware(),
         new UserExternalIdentityMiddleware(),
-        ...testApps,
     ]
 }
 

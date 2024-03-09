@@ -3,15 +3,14 @@
  */
 
 const conf = require('@open-condo/config')
-const { makeLoggedInAdminClient, makeClient, expectToThrowAuthenticationError, expectToThrowAccessDeniedErrorToResult, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObjects } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, expectToThrowAuthenticationError, expectToThrowAccessDeniedErrorToResult, expectToThrowGQLError, initTestExpressApp, getTestExpressApp } = require('@open-condo/keystone/test.utils')
 
 const {
     createTestB2BAppNewsSharingConfig,
     createTestB2BApp,
     createTestB2BAppContext,
 } = require('@condo/domains/miniapp/utils/testSchema')
-const { ERRORS} = require('@condo/domains/news/schema/GetNewsSharingRecipientsService')
+const { ERRORS } = require('@condo/domains/news/schema/GetNewsSharingRecipientsService')
 const { getNewsSharingRecipientsByTestClient } = require('@condo/domains/news/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 
@@ -29,12 +28,20 @@ const {
     SUCCESS_PREVIEW_URL,
     SUCCESS_PUBLISH_URL,
     SUCCESS_GET_RECIPIENTS_RESULT,
+    NewsSharingTestingApp,
 } = require('../utils/testSchema/NewsSharingTestingApp')
 
-let adminClient, dummyO10n, staffClientWithPermissions, dummyB2BContextWithNewsSharingConfig
+let adminClient, dummyO10n, staffClientWithPermissions, dummyB2BContextWithNewsSharingConfig, testExpressAppBaseUrl
+
 
 describe('GetNewsSharingRecipientsService', () => {
+
+    initTestExpressApp('NewsSharing', new NewsSharingTestingApp().prepareMiddleware())
+
     beforeAll(async () => {
+        const testExpressApp = getTestExpressApp('NewsSharing')
+        testExpressAppBaseUrl = testExpressApp.baseUrl
+
         adminClient = await makeLoggedInAdminClient()
 
         const [o10n] = await createTestOrganization(adminClient)
@@ -45,9 +52,9 @@ describe('GetNewsSharingRecipientsService', () => {
         await createTestOrganizationEmployee(adminClient, o10n, staffClientWithPermissions.user, roleYes)
 
         const [B2BAppNewsSharingConfig] = await createTestB2BAppNewsSharingConfig(adminClient, {
-            getRecipientsUrl: `${conf['SERVER_URL']}${SUCCESS_GET_RECIPIENTS_URL}`,
-            previewUrl: `${conf['SERVER_URL']}${SUCCESS_PREVIEW_URL}`,
-            publishUrl: `${conf['SERVER_URL']}${SUCCESS_PUBLISH_URL}`,
+            getRecipientsUrl: `${testExpressAppBaseUrl}${SUCCESS_GET_RECIPIENTS_URL}`,
+            previewUrl: `${testExpressAppBaseUrl}${SUCCESS_PREVIEW_URL}`,
+            publishUrl: `${testExpressAppBaseUrl}${SUCCESS_PUBLISH_URL}`,
         })
         const [B2BAppWithNewsSharing] = await createTestB2BApp(adminClient, { newsSharingConfig: { connect: { id: B2BAppNewsSharingConfig.id } } })
         const [B2BContextWithNewsSharingConfig] = await createTestB2BAppContext(adminClient, B2BAppWithNewsSharing, o10n)
@@ -81,9 +88,9 @@ describe('GetNewsSharingRecipientsService', () => {
 
     test('fails if remote server return bad response code: 404', async () => {
         const [B2BAppFailingNewsSharingConfig] = await createTestB2BAppNewsSharingConfig(adminClient, {
-            getRecipientsUrl: `${conf['SERVER_URL']}${FAULTY_GET_RECIPIENTS_URL_404}`,
-            previewUrl: `${conf['SERVER_URL']}${SUCCESS_PREVIEW_URL}`,
-            publishUrl: `${conf['SERVER_URL']}${SUCCESS_PUBLISH_URL}`,
+            getRecipientsUrl: `${testExpressAppBaseUrl}${FAULTY_GET_RECIPIENTS_URL_404}`,
+            previewUrl: `${testExpressAppBaseUrl}${SUCCESS_PREVIEW_URL}`,
+            publishUrl: `${testExpressAppBaseUrl}${SUCCESS_PUBLISH_URL}`,
         })
         const [B2BApp] = await createTestB2BApp(adminClient, { newsSharingConfig: { connect: { id: B2BAppFailingNewsSharingConfig.id } } })
         const [B2BContext] = await createTestB2BAppContext(adminClient, B2BApp, dummyO10n)
@@ -99,9 +106,9 @@ describe('GetNewsSharingRecipientsService', () => {
 
     test('fails if remote server return bad response code: 500', async () => {
         const [B2BAppFailingNewsSharingConfig] = await createTestB2BAppNewsSharingConfig(adminClient, {
-            getRecipientsUrl: `${conf['SERVER_URL']}${FAULTY_GET_RECIPIENTS_URL_500}`,
-            previewUrl: `${conf['SERVER_URL']}${SUCCESS_PREVIEW_URL}`,
-            publishUrl: `${conf['SERVER_URL']}${SUCCESS_PUBLISH_URL}`,
+            getRecipientsUrl: `${testExpressAppBaseUrl}${FAULTY_GET_RECIPIENTS_URL_500}`,
+            previewUrl: `${testExpressAppBaseUrl}${SUCCESS_PREVIEW_URL}`,
+            publishUrl: `${testExpressAppBaseUrl}${SUCCESS_PUBLISH_URL}`,
         })
         const [B2BApp] = await createTestB2BApp(adminClient, { newsSharingConfig: { connect: { id: B2BAppFailingNewsSharingConfig.id } } })
         const [B2BContext] = await createTestB2BAppContext(adminClient, B2BApp, dummyO10n)
@@ -117,9 +124,9 @@ describe('GetNewsSharingRecipientsService', () => {
 
     test('fails if remote server returns wrong data', async () => {
         const [B2BAppFailingNewsSharingConfig] = await createTestB2BAppNewsSharingConfig(adminClient, {
-            getRecipientsUrl: `${conf['SERVER_URL']}${INCORRECT_GET_RECIPIENTS_URL}`,
-            previewUrl: `${conf['SERVER_URL']}${SUCCESS_PREVIEW_URL}`,
-            publishUrl: `${conf['SERVER_URL']}${SUCCESS_PUBLISH_URL}`,
+            getRecipientsUrl: `${testExpressAppBaseUrl}${INCORRECT_GET_RECIPIENTS_URL}`,
+            previewUrl: `${testExpressAppBaseUrl}${SUCCESS_PREVIEW_URL}`,
+            publishUrl: `${testExpressAppBaseUrl}${SUCCESS_PUBLISH_URL}`,
         })
         const [B2BApp] = await createTestB2BApp(adminClient, { newsSharingConfig: { connect: { id: B2BAppFailingNewsSharingConfig.id } } })
         const [B2BContext] = await createTestB2BAppContext(adminClient, B2BApp, dummyO10n)
@@ -133,11 +140,29 @@ describe('GetNewsSharingRecipientsService', () => {
         }, 'result')
     })
 
+    test('fails if url is wrong', async () => {
+        const [B2BAppFailingNewsSharingConfig] = await createTestB2BAppNewsSharingConfig(adminClient, {
+            getRecipientsUrl: 'ssh://192.168.255.255',
+            previewUrl: `${testExpressAppBaseUrl}${SUCCESS_PREVIEW_URL}`,
+            publishUrl: `${testExpressAppBaseUrl}${SUCCESS_PUBLISH_URL}`,
+        })
+        const [B2BApp] = await createTestB2BApp(adminClient, { newsSharingConfig: { connect: { id: B2BAppFailingNewsSharingConfig.id } } })
+        const [B2BContext] = await createTestB2BAppContext(adminClient, B2BApp, dummyO10n)
+
+        await expectToThrowGQLError(async () => {
+            await getNewsSharingRecipientsByTestClient(staffClientWithPermissions, B2BContext)
+        }, {
+            type: ERRORS.NEWS_SHARING_APP_REQUEST_FAILED.type,
+            code: ERRORS.NEWS_SHARING_APP_REQUEST_FAILED.code,
+            message: ERRORS.NEWS_SHARING_APP_REQUEST_FAILED.message,
+        }, 'result')
+    })
+
     test('fails if remote server is inaccessible', async () => {
         const [B2BAppFailingNewsSharingConfig] = await createTestB2BAppNewsSharingConfig(adminClient, {
-            getRecipientsUrl: 'https://101.101.101.101:10101',
-            previewUrl: `${conf['SERVER_URL']}${SUCCESS_PREVIEW_URL}`,
-            publishUrl: `${conf['SERVER_URL']}${SUCCESS_PUBLISH_URL}`,
+            getRecipientsUrl: 'http://192.168.255.255',
+            previewUrl: `${testExpressAppBaseUrl}${SUCCESS_PREVIEW_URL}`,
+            publishUrl: `${testExpressAppBaseUrl}${SUCCESS_PUBLISH_URL}`,
         })
         const [B2BApp] = await createTestB2BApp(adminClient, { newsSharingConfig: { connect: { id: B2BAppFailingNewsSharingConfig.id } } })
         const [B2BContext] = await createTestB2BAppContext(adminClient, B2BApp, dummyO10n)
