@@ -1863,15 +1863,15 @@
   "ticket.deadline.CompletedLessThenDay": "Completed a few hours early",
   "ticket.deadline.CompletedLate": "Completed {days} late",
 
-  "tour.title": "Путеводитель",
-  "tour.openGuide": "Открыть гайд",
-  "tour.chooseOtherTask": "Выбрать другую задачу",
-  "tour.viewGuide": "Смотреть гайд",
-  "tour.toTour": "В путеводитель",
+  "tour.title": "Tour",
+  "tour.openGuide": "Open guide",
+  "tour.chooseOtherTask": "Choose other task",
+  "tour.viewGuide": "View Guide",
+  "tour.toTour": "Go to tour",
 
-  "tour.pageData.default.todo.title": "Что вы хотите сделать с помощью Домов?",
-  "tour.pageData.default.todo.subtitle": "Выберите задачу, а мы поможем настроить платформу. Вы всегда сможете вернуться к этому экрану и выбрать следующую задачу.",
-  "tour.pageData.default.completed.title": "Вы настроили Дома́ — поздравляем!",
+  "tour.pageData.default.todo.title": "What do you want to do with Doma?",
+  "tour.pageData.default.todo.subtitle": "Select a task and we will help you set up the platform. You can always go back to that screen and choose the next task.",
+  "tour.pageData.default.completed.title": "You set up Doma - congratulations!",
   "tour.pageData.default.completed.subtitle": "Платформа готова для работы над задачами вашего бизнеса",
   "tour.pageData.default.completed.description": "Рекомендуем время от времени открывать гайд и напоминать жителям о функциях мобильного приложения с помощью готовых шаблонов. Чем больше жителей скачают его и начнут пользоваться, тем больше процессов получится автоматизировать.",
 
@@ -2038,6 +2038,11 @@
   "tour.completedStepModal.viewResidentsAppGuide.subtitleLinkLabel": "на странице Путеводителя",
   "tour.completedStepModal.viewResidentsAppGuide.bodyText.resident": "Следующий шаг к укреплению отношений с жителями — создание и публикация первой новости. Жители увидят ее в приложении, а вы разберетесь, как работать с новостями на платформе",
   "tour.completedStepModal.viewResidentsAppGuide.buttonLabel.resident": "Добавить новость",
+
+  "tour.completedFlowModal.ticket.title": "Вы оптимизировали работу с заявками. Поздравляем!",
+  "tour.completedFlowModal.billing.title": "Вы сделали все, чтобы снизить дебиторскую задолженность. Поздравляем!",
+  "tour.completedFlowModal.meter.title": "Вы упростили работу с показаниями счетчиков. Поздравляем!",
+  "tour.completedFlowModal.resident.title": "Вы выстроили отношения с жителями. Поздравляем!",
 
   "tour.newFeatures.employee.publishNews": "Публиковать новости дома",
   "tour.newFeatures.employee.notifyAboutIncidents": "Рассказывать жителям об отключениях",

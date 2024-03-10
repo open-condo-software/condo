@@ -1944,7 +1944,7 @@
 
   "tour.step.createTicket.todo.title": "Создайте заявку",
   "tour.step.createTicket.todo.description": "На ее примере вы увидите, как выглядит диспетчерская и форма заявки. Рекомендуем перенести на платформу реальную заявку, поскольку их нельзя удалять.",
-  "tour.step.createTicket.completed.title": "Вы создали шахматку",
+  "tour.step.createTicket.completed.title": "Вы создали заявку",
   "tour.step.createTicket.completed.linkTitle": "Добавить заявку",
 
   "tour.step.viewResidentsAppGuide.todo.ticket.title": "Расскажите о заявках жителям",
@@ -2038,6 +2038,11 @@
   "tour.completedStepModal.viewResidentsAppGuide.subtitleLinkLabel": "на странице Путеводителя",
   "tour.completedStepModal.viewResidentsAppGuide.bodyText.resident": "Следующий шаг к укреплению отношений с жителями — создание и публикация первой новости. Жители увидят ее в приложении, а вы разберетесь, как работать с новостями на платформе",
   "tour.completedStepModal.viewResidentsAppGuide.buttonLabel.resident": "Добавить новость",
+
+  "tour.completedFlowModal.ticket.title": "Вы оптимизировали работу с заявками. Поздравляем!",
+  "tour.completedFlowModal.billing.title": "Вы сделали все, чтобы снизить дебиторскую задолженность. Поздравляем!",
+  "tour.completedFlowModal.meter.title": "Вы упростили работу с показаниями счетчиков. Поздравляем!",
+  "tour.completedFlowModal.resident.title": "Вы выстроили отношения с жителями. Поздравляем!",
 
   "tour.newFeatures.employee.publishNews": "Публиковать новости дома",
   "tour.newFeatures.employee.notifyAboutIncidents": "Рассказывать жителям об отключениях",
