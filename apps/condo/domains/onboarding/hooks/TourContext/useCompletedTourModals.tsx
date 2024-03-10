@@ -9,6 +9,7 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import { Building, Guide, LayoutList, Meters, Unlock, Wallet } from '@open-condo/icons'
+import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Button, Modal, Space, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
@@ -16,7 +17,6 @@ import { colors } from '@open-condo/ui/dist/colors'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
 import { EXTERNAL_GUIDE_LINK } from '@condo/domains/onboarding/utils/clientSchema/constants'
-
 
 type ButtonClickType = () => void
 
@@ -106,6 +106,10 @@ type ComputedCompletedFlowModalDataType = {
 }
 
 export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchSteps }) => {
+    const intl = useIntl()
+    const ViewGuideMessage = intl.formatMessage({ id: 'tour.viewGuide' })
+    const ToTourMessage = intl.formatMessage({ id: 'tour.toTour' })
+
     const router = useRouter()
     const { organization } = useOrganization()
     const organizationId = useMemo(() => get(organization, 'id'), [organization])
@@ -196,10 +200,10 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
                 [TourStepTypeType.Resident]: 'Следующий шаг к укреплению отношений с жителями — внедрение приложения. Это нужно, чтобы жители самостоятельно оплачивали квитанции, оставляли заявки и передавали показания счетчиков. Чтобы продвигать приложение среди жителей было проще, мы подготовили гайд с готовыми шаблонами.',
             },
             buttonLabel: {
-                default: 'В путеводитель',
+                default: ToTourMessage,
                 [TourStepTypeType.Ticket]: 'Создать заявку',
                 [TourStepTypeType.Meter]: 'Добавить показания ИПУ',
-                [TourStepTypeType.Resident]: 'Смотреть гайд',
+                [TourStepTypeType.Resident]: ViewGuideMessage,
             },
             onButtonClick: {
                 default: () => { router.push('/tour') },
@@ -222,10 +226,10 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
                 [TourStepTypeType.Resident]: 'Следующий шаг к укреплению отношений с жителями — внедрение приложения. Это нужно, чтобы жители самостоятельно оплачивали квитанции, оставляли заявки и передавали показания счетчиков. Чтобы продвигать приложение среди жителей было проще, мы подготовили гайд с готовыми шаблонами.',
             },
             buttonLabel: {
-                default: 'В путеводитель',
+                default: ToTourMessage,
                 [TourStepTypeType.Ticket]: 'Создать заявку',
                 [TourStepTypeType.Meter]: 'Добавить показания ИПУ',
-                [TourStepTypeType.Resident]: 'Смотреть гайд',
+                [TourStepTypeType.Resident]: ViewGuideMessage,
             },
             onButtonClick: {
                 default: () => { router.push('/tour') },
@@ -246,8 +250,8 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
                 [TourStepTypeType.Ticket]: 'Последний шаг к оптимизации работы с заявками — рассказать жителям о мобильном приложении Doma. С его помощью можно отправлять заявки в адрес управляющей организации. Чтобы продвигать приложение среди жителей было проще, мы подготовили гайд с готовыми шаблонами.',
             },
             buttonLabel: {
-                default: 'В путеводитель',
-                [TourStepTypeType.Ticket]: 'Смотреть гайд',
+                default: ToTourMessage,
+                [TourStepTypeType.Ticket]: ViewGuideMessage,
             },
             onButtonClick: {
                 default: () => { router.push('/tour') },
@@ -265,8 +269,8 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
                 [TourStepTypeType.Meter]: 'Последний шаг к оптимизации работы с ИПУ — предложить жителям скачать мобильное приложение Doma и отправлять показания с его помощью. Чтобы продвигать приложение среди жителей было проще, мы подготовили гайд с готовыми шаблонами.',
             },
             buttonLabel: {
-                default: 'В путеводитель',
-                [TourStepTypeType.Meter]: 'Смотреть гайд',
+                default: ToTourMessage,
+                [TourStepTypeType.Meter]: ViewGuideMessage,
             },
             onButtonClick: {
                 default: () => { router.push('/tour') },
@@ -285,8 +289,8 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
                 [TourStepTypeType.Billing]: 'Следующий шаг к снижению дебиторской задолженности — рассказать жителям о мобильном приложении Doma. С его помощью они смогут оплачивать счета и передавать показания для будущих квитанций. Чтобы продвигать приложение среди жителей было проще, мы подготовили гайд с готовыми шаблонами.',
             },
             buttonLabel: {
-                default: 'В путеводитель',
-                [TourStepTypeType.Billing]: 'Смотреть гайд',
+                default: ToTourMessage,
+                [TourStepTypeType.Billing]: ViewGuideMessage,
             },
             onButtonClick: {
                 default: () => { router.push('/tour') },

@@ -142,7 +142,9 @@ export const ResidentAppCard = () => {
             }}
             body={{ image: { src: '/onboarding/tourResidentCard.webp', style: APP_CARD_IMAGE_STYLES } }}
             onClick={() => {
-                window.open('https://doma.ai/app_landing', '_blank')
+                if (typeof window !== 'undefined') {
+                    window.open('https://doma.ai/app_landing', '_blank')
+                }
             }}
         />
     )
