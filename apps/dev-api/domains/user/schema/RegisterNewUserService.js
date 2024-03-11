@@ -44,19 +44,19 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
 
                 const currentTime = dayjs().toISOString()
                 const confirmAction = await ConfirmPhoneAction.getOne(context, {
-                    deletedAt: null,
-                    usedAt: null,
                     id: confirmPhoneActionId,
-                    isVerified: true,
                     expiresAt_gte: currentTime,
+                    deletedAt: null,
+                    isVerified: true,
                 })
 
                 if (!confirmAction) {
                     throw new GQLError(ERRORS.ACTION_NOT_FOUND, context)
                 }
 
+                // NOTE: Mark action as used by deleting it
                 await ConfirmPhoneAction.update(context, confirmAction.id, {
-                    usedAt: currentTime,
+                    deletedAt: currentTime,
                     dv,
                     sender,
                 })

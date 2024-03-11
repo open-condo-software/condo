@@ -76,9 +76,8 @@ describe('RegisterNewUserService', () => {
             type: ACTION_NOT_FOUND,
         }, 'result')
 
-        const { usedAt } = await ConfirmPhoneAction.getOne(adminClient, { id: actionId })
-        expect(usedAt).toBeDefined()
-        expect(usedAt).not.toBeNull()
+        const action = await ConfirmPhoneAction.getOne(adminClient, { id: actionId })
+        expect(action).not.toBeDefined()
     })
     test('Cannot register with expired ConfirmPhoneAction', async () => {
         const client = await makeClient()

@@ -46,14 +46,6 @@ function getConfirmActionFields (protectedField, maxAttempts) {
             type: 'DateTimeUtc',
             isRequired: true,
         },
-        usedAt: {
-            schemaDoc:
-                'The time at which the action was used by the mutation requiring the action. ' +
-                'A used action cannot be reused by any mutation.',
-            type: 'DateTimeUtc',
-            isRequired: false,
-            access: readonlyField,
-        },
         attempts: {
             schemaDoc:
                 'Number of used attempts to enter the code. ' +

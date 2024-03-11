@@ -14,20 +14,22 @@ const { extractReqLocale, getLocalizedMessage } = require('@dev-api/domains/comm
 const access = require('@dev-api/domains/user/access/ConfirmEmailActionService')
 const {
     CONFIRM_EMAIL_ACTION_DAILY_LIMIT_BY_EMAIL,
-    CONFIRM_EMAIL_ACTION_DAILY_LIMIT_BY_IP,
+    CONFIRM_EMAIL_ACTION_DAILY_LIMIT_BY_USER,
     CONFIRM_EMAIL_ACTION_CODE_LENGTH,
     CONFIRM_EMAIL_ACTION_TTL_IN_SEC,
+    CONFIRM_EMAIL_ACTION_MAX_ATTEMPTS,
 } = require('@dev-api/domains/user/constants')
 const {
     INVALID_EMAIL,
     EMAILS_DAILY_LIMIT_REACHED,
+    ACTION_NOT_FOUND,
+    INVALID_CODE,
 } = require('@dev-api/domains/user/constants/errors')
 const { RedisGuard } = require('@dev-api/domains/user/utils/guards')
 const { generateNumericCode } = require('@dev-api/domains/user/utils/password')
 const { ConfirmEmailAction } = require('@dev-api/domains/user/utils/serverSchema')
 
 const EMAIL_WHITE_LIST = JSON.parse(conf['EMAIL_WHITE_LIST'] || '{}')
-const IP_WHITE_LIST = JSON.parse(conf['IP_WHITE_LIST'] || '[]')
 
 const ERRORS = {
     INVALID_EMAIL: {
@@ -36,38 +38,49 @@ const ERRORS = {
         message: 'The provided email is in the wrong format',
         messageForUser: 'errors.INVALID_EMAIL.message',
     },
-    EMAILS_FOR_IP_DAY_LIMIT_REACHED: {
+    EMAILS_FOR_USER_DAY_LIMIT_REACHED: {
         code: TOO_MANY_REQUESTS,
         type: EMAILS_DAILY_LIMIT_REACHED,
-        message: 'Your IP address has exceeded the daily email request limit',
-        messageForUser: 'errors.EMAILS_DAILY_LIMIT_REACHED.ip.message',
+        message: 'You exceeded the daily email request limit',
+        messageForUser: 'errors.EMAILS_DAILY_LIMIT_REACHED.user.message',
     },
-    EMAILS_FOR_PHONE_DAY_LIMIT_REACHED: {
+    EMAILS_FOR_ADDRESS_DAY_LIMIT_REACHED: {
         code: TOO_MANY_REQUESTS,
         type: EMAILS_DAILY_LIMIT_REACHED,
         message: 'The specified email has exceeded the daily SMS request limit',
         messageForUser: 'errors.EMAILS_DAILY_LIMIT_REACHED.email.message',
+    },
+    ACTION_NOT_FOUND: {
+        code: BAD_USER_INPUT,
+        type: ACTION_NOT_FOUND,
+        message: 'ConfirmEmailAction with the specified ID is expired, or does not exist',
+        messageForUser: 'errors.ACTION_NOT_FOUND.code.message',
+    },
+    INVALID_CODE: {
+        code: BAD_USER_INPUT,
+        type: INVALID_CODE,
+        message: 'Invalid verification code',
+        messageForUser: 'errors.INVALID_CODE.message',
     },
 }
 
 const redisGuard = new RedisGuard()
 
 async function checkDailyMailingLimits (email, context) {
-    const rawIP = context.req.ip
-    const ip = rawIP.split(':').pop()
+    const userId = context.req.user.id
 
-    if (EMAIL_WHITE_LIST.hasOwnProperty(email) || IP_WHITE_LIST.includes(ip)) {
+    if (EMAIL_WHITE_LIST.hasOwnProperty(email)) {
         return
     }
 
-    const byIpCounter = await redisGuard.incrementDayCounter(`confirm_email_action:ip:${ip}`)
-    if (byIpCounter > CONFIRM_EMAIL_ACTION_DAILY_LIMIT_BY_IP) {
-        throw new GQLError(ERRORS.EMAILS_FOR_IP_DAY_LIMIT_REACHED, context)
+    const byUserCounter = await redisGuard.incrementDayCounter(`confirm_email_action:user:${userId}`)
+    if (byUserCounter > CONFIRM_EMAIL_ACTION_DAILY_LIMIT_BY_USER) {
+        throw new GQLError(ERRORS.EMAILS_FOR_USER_DAY_LIMIT_REACHED, context)
     }
 
     const byEmailCounter = await redisGuard.incrementDayCounter(`confirm_email_action:email:${email}`)
     if (byEmailCounter > CONFIRM_EMAIL_ACTION_DAILY_LIMIT_BY_EMAIL) {
-        throw new GQLError(ERRORS.EMAILS_FOR_PHONE_DAY_LIMIT_REACHED, context)
+        throw new GQLError(ERRORS.EMAILS_FOR_ADDRESS_DAY_LIMIT_REACHED, context)
     }
 }
 
@@ -81,13 +94,21 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
             access: true,
             type: 'type StartConfirmEmailActionOutput { actionId: String!, email: String! }',
         },
+        {
+            access: true,
+            type: 'input CompleteConfirmEmailActionInput { dv: Int!, sender: SenderFieldInput!, actionId: String!, code: String! }',
+        },
+        {
+            access: true,
+            type: 'type CompleteConfirmEmailActionOutput { status: String! }',
+        },
     ],
     
     mutations: [
         {
             access: access.canConfirmEmailAction,
             schema: 'startConfirmEmailAction(data: StartConfirmEmailActionInput!): StartConfirmEmailActionOutput',
-            resolver: async (parent, args, context, info, extra = {}) => {
+            resolver: async (parent, args, context) => {
                 const { data: { dv, sender, email } } = args
 
                 const normalizedEmail = normalizeEmail(email)
@@ -126,10 +147,58 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
                 }
             },
         },
+        {
+            access: access.canConfirmEmailAction,
+            schema: 'completeConfirmEmailAction(data: CompleteConfirmEmailActionInput!): CompleteConfirmEmailActionOutput',
+            resolver: async (parent, args, context) => {
+                const { data: { dv, sender, actionId, code: inputCode } } = args
+
+                const currentTime = dayjs().toISOString()
+                const requestedAction = await ConfirmEmailAction.getOne(context, {
+                    id: actionId,
+                    expiresAt_gt: currentTime,
+                    deletedAt: null,
+                    isVerified: false,
+                })
+
+                if (!requestedAction) {
+                    throw new GQLError(ERRORS.ACTION_NOT_FOUND, context)
+                }
+
+                let { attempts, code: actionCode } = requestedAction
+                attempts += 1
+
+                if (inputCode !== actionCode) {
+                    const updateAttrs = {
+                        dv,
+                        sender,
+                        attempts,
+                    }
+                    if (attempts >= CONFIRM_EMAIL_ACTION_MAX_ATTEMPTS) {
+                        updateAttrs.deletedAt = currentTime
+                    }
+                    await ConfirmEmailAction.update(context, requestedAction.id,  updateAttrs)
+
+                    throw new GQLError(ERRORS.INVALID_CODE, context)
+                }
+
+                await ConfirmEmailAction.update(context, requestedAction.id, {
+                    isVerified: true,
+                    dv,
+                    sender,
+                    attempts,
+                })
+
+                return {
+                    status: 'success',
+                }
+            },
+        },
     ],
     
 })
 
 module.exports = {
     ConfirmEmailActionService,
+    ERRORS,
 }

@@ -6,7 +6,7 @@
   "errors.INCORRECT_PHONE_OR_PASSWORD.message": "Неверный номер телефона или пароль",
   "errors.SMS_DAILY_LIMIT_REACHED.ip.message": "С этого IP-адреса было предпринято слишком много попыток регистрации. Пожалуйста, повторите попытку позже",
   "errors.SMS_DAILY_LIMIT_REACHED.phone.message": "Указанный телефон превысил суточный лимит запросов SMS-сообщений",
-  "errors.EMAILS_DAILY_LIMIT_REACHED.ip.message": "С этого IP-адреса было отправлено слишком большое число сообщений. Пожалуйста, повторите попытку позже",
+  "errors.EMAILS_DAILY_LIMIT_REACHED.user.message": "Вами было отправлено слишком большое число сообщений. Пожалуйста, повторите попытку позже",
   "errors.EMAILS_DAILY_LIMIT_REACHED.email.message": "Указанная электронная почта превысила суточный лимит запросов на отправку сообщений",
   "errors.INVALID_PHONE.message": "Указанный номер телефона имеет неправильный формат",
   "errors.INVALID_EMAIL.message": "Введенная электронная почта имеет неправильный формат",

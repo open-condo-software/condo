@@ -80,7 +80,7 @@ describe('ConfirmPhoneActionService', () => {
             })
         })
         describe('Attempts guard', () => {
-            test(`Each confirm action can be guessed ${CONFIRM_PHONE_ACTION_MAX_ATTEMPTS} times before it expires`, async () => {
+            test(`Each confirm action can be guessed ${CONFIRM_PHONE_ACTION_MAX_ATTEMPTS} times before it becomes invalid`, async () => {
                 const client = await makeClient()
                 const [startResult] = await startConfirmPhoneActionByTestClient({}, client)
                 expect(startResult).toHaveProperty('actionId')

@@ -20,7 +20,6 @@ type ConfirmEmailActionHistoryRecord {
   code: String
   isVerified: Boolean
   expiresAt: String
-  usedAt: String
   attempts: Int
   id: ID!
   v: Int
@@ -86,14 +85,6 @@ input ConfirmEmailActionHistoryRecordWhereInput {
   expiresAt_gte: String
   expiresAt_in: [String]
   expiresAt_not_in: [String]
-  usedAt: String
-  usedAt_not: String
-  usedAt_lt: String
-  usedAt_lte: String
-  usedAt_gt: String
-  usedAt_gte: String
-  usedAt_in: [String]
-  usedAt_not_in: [String]
   attempts: Int
   attempts_not: Int
   attempts_lt: Int
@@ -193,8 +184,6 @@ enum SortConfirmEmailActionHistoryRecordsBy {
   isVerified_DESC
   expiresAt_ASC
   expiresAt_DESC
-  usedAt_ASC
-  usedAt_DESC
   attempts_ASC
   attempts_DESC
   id_ASC
@@ -220,7 +209,6 @@ input ConfirmEmailActionHistoryRecordUpdateInput {
   code: String
   isVerified: Boolean
   expiresAt: String
-  usedAt: String
   attempts: Int
   v: Int
   createdAt: String
@@ -246,7 +234,6 @@ input ConfirmEmailActionHistoryRecordCreateInput {
   code: String
   isVerified: Boolean
   expiresAt: String
-  usedAt: String
   attempts: Int
   v: Int
   createdAt: String
@@ -309,10 +296,6 @@ type ConfirmEmailAction {
   """ Action expiration time. After the expiration time, it will not be possible to call action-required mutations with the current ConfirmEmailAction. 
   """
   expiresAt: String
-
-  """ The time at which the action was used by the mutation requiring the action. A used action cannot be reused by any mutation. 
-  """
-  usedAt: String
 
   """ Number of used attempts to enter the code. When 5 attempts are reached, this action becomes invalid. 
   """
@@ -389,14 +372,6 @@ input ConfirmEmailActionWhereInput {
   expiresAt_gte: String
   expiresAt_in: [String]
   expiresAt_not_in: [String]
-  usedAt: String
-  usedAt_not: String
-  usedAt_lt: String
-  usedAt_lte: String
-  usedAt_gt: String
-  usedAt_gte: String
-  usedAt_in: [String]
-  usedAt_not_in: [String]
   attempts: Int
   attempts_not: Int
   attempts_lt: Int
@@ -476,8 +451,6 @@ enum SortConfirmEmailActionsBy {
   isVerified_DESC
   expiresAt_ASC
   expiresAt_DESC
-  usedAt_ASC
-  usedAt_DESC
   attempts_ASC
   attempts_DESC
   id_ASC
@@ -503,7 +476,6 @@ input ConfirmEmailActionUpdateInput {
   code: String
   isVerified: Boolean
   expiresAt: String
-  usedAt: String
   attempts: Int
   v: Int
   createdAt: String
@@ -526,7 +498,6 @@ input ConfirmEmailActionCreateInput {
   code: String
   isVerified: Boolean
   expiresAt: String
-  usedAt: String
   attempts: Int
   v: Int
   createdAt: String
@@ -563,7 +534,6 @@ type ConfirmPhoneActionHistoryRecord {
   code: String
   isVerified: Boolean
   expiresAt: String
-  usedAt: String
   attempts: Int
   id: ID!
   v: Int
@@ -629,14 +599,6 @@ input ConfirmPhoneActionHistoryRecordWhereInput {
   expiresAt_gte: String
   expiresAt_in: [String]
   expiresAt_not_in: [String]
-  usedAt: String
-  usedAt_not: String
-  usedAt_lt: String
-  usedAt_lte: String
-  usedAt_gt: String
-  usedAt_gte: String
-  usedAt_in: [String]
-  usedAt_not_in: [String]
   attempts: Int
   attempts_not: Int
   attempts_lt: Int
@@ -736,8 +698,6 @@ enum SortConfirmPhoneActionHistoryRecordsBy {
   isVerified_DESC
   expiresAt_ASC
   expiresAt_DESC
-  usedAt_ASC
-  usedAt_DESC
   attempts_ASC
   attempts_DESC
   id_ASC
@@ -763,7 +723,6 @@ input ConfirmPhoneActionHistoryRecordUpdateInput {
   code: String
   isVerified: Boolean
   expiresAt: String
-  usedAt: String
   attempts: Int
   v: Int
   createdAt: String
@@ -789,7 +748,6 @@ input ConfirmPhoneActionHistoryRecordCreateInput {
   code: String
   isVerified: Boolean
   expiresAt: String
-  usedAt: String
   attempts: Int
   v: Int
   createdAt: String
@@ -835,10 +793,6 @@ type ConfirmPhoneAction {
   """ Action expiration time. After the expiration time, it will not be possible to call action-required mutations with the current ConfirmPhoneAction. 
   """
   expiresAt: String
-
-  """ The time at which the action was used by the mutation requiring the action. A used action cannot be reused by any mutation. 
-  """
-  usedAt: String
 
   """ Number of used attempts to enter the code. When 5 attempts are reached, this action becomes invalid. 
   """
@@ -915,14 +869,6 @@ input ConfirmPhoneActionWhereInput {
   expiresAt_gte: String
   expiresAt_in: [String]
   expiresAt_not_in: [String]
-  usedAt: String
-  usedAt_not: String
-  usedAt_lt: String
-  usedAt_lte: String
-  usedAt_gt: String
-  usedAt_gte: String
-  usedAt_in: [String]
-  usedAt_not_in: [String]
   attempts: Int
   attempts_not: Int
   attempts_lt: Int
@@ -1002,8 +948,6 @@ enum SortConfirmPhoneActionsBy {
   isVerified_DESC
   expiresAt_ASC
   expiresAt_DESC
-  usedAt_ASC
-  usedAt_DESC
   attempts_ASC
   attempts_DESC
   id_ASC
@@ -1029,7 +973,6 @@ input ConfirmPhoneActionUpdateInput {
   code: String
   isVerified: Boolean
   expiresAt: String
-  usedAt: String
   attempts: Int
   v: Int
   createdAt: String
@@ -1052,7 +995,6 @@ input ConfirmPhoneActionCreateInput {
   code: String
   isVerified: Boolean
   expiresAt: String
-  usedAt: String
   attempts: Int
   v: Int
   createdAt: String
@@ -4380,6 +4322,17 @@ type StartConfirmEmailActionOutput {
   email: String!
 }
 
+input CompleteConfirmEmailActionInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  actionId: String!
+  code: String!
+}
+
+type CompleteConfirmEmailActionOutput {
+  status: String!
+}
+
 input StartConfirmPhoneActionInput {
   dv: Int!
   sender: SenderFieldInput!
@@ -5093,6 +5046,7 @@ type Mutation {
   deleteWebhookSubscriptions(ids: [ID!]): [WebhookSubscription]
   authenticateUserWithPhoneAndPassword(data: AuthenticateUserWithPhoneAndPasswordInput!): AuthenticateUserWithPhoneAndPasswordOutput
   startConfirmEmailAction(data: StartConfirmEmailActionInput!): StartConfirmEmailActionOutput
+  completeConfirmEmailAction(data: CompleteConfirmEmailActionInput!): CompleteConfirmEmailActionOutput
   startConfirmPhoneAction(data: StartConfirmPhoneActionInput!): StartConfirmPhoneActionOutput
   completeConfirmPhoneAction(data: CompleteConfirmPhoneActionInput!): CompleteConfirmPhoneActionOutput
   registerNewUser(data: RegisterNewUserInput!): User

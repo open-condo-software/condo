@@ -20,6 +20,7 @@ const {
     START_CONFIRM_PHONE_ACTION_MUTATION,
     COMPLETE_CONFIRM_PHONE_ACTION_MUTATION,
     START_CONFIRM_EMAIL_ACTION_MUTATION,
+    COMPLETE_CONFIRM_EMAIL_ACTION_MUTATION,
 } = require('@dev-api/domains/user/gql')
 const conf = require("@open-condo/config");
 const get = require('lodash/get')
@@ -164,6 +165,21 @@ async function startConfirmPhoneActionByTestClient(attrs = {}, client) {
     return [data.result, attrs]
 }
 
+async function completeConfirmPhoneActionByTestClient(id, attrs = {}, client) {
+    client ??= await makeClient()
+    attrs.dv ??= 1
+    attrs.sender ??= { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    attrs.actionId = id
+    attrs.code ??= generateNumericCode(CONFIRM_PHONE_ACTION_CODE_LENGTH)
+
+    const { data, errors } = await client.mutate(COMPLETE_CONFIRM_PHONE_ACTION_MUTATION, {
+        data: attrs,
+    })
+    throwIfError(data, errors)
+
+    return [data.result, attrs]
+}
+
 async function startConfirmEmailActionByTestClient(client, attrs = {}) {
     attrs.dv ??= 1
     attrs.sender ??= { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -177,14 +193,13 @@ async function startConfirmEmailActionByTestClient(client, attrs = {}) {
     return [data.result, attrs]
 }
 
-async function completeConfirmPhoneActionByTestClient(id, attrs = {}, client) {
-    client ??= await makeClient()
+async function completeConfirmEmailActionByTestClient(client, id, attrs = {}) {
     attrs.dv ??= 1
     attrs.sender ??= { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     attrs.actionId = id
-    attrs.code ??= generateNumericCode(CONFIRM_PHONE_ACTION_CODE_LENGTH)
+    attrs.code ??= generateNumericCode(CONFIRM_EMAIL_ACTION_CODE_LENGTH)
 
-    const { data, errors } = await client.mutate(COMPLETE_CONFIRM_PHONE_ACTION_MUTATION, {
+    const { data, errors } = await client.mutate(COMPLETE_CONFIRM_EMAIL_ACTION_MUTATION, {
         data: attrs,
     })
     throwIfError(data, errors)
@@ -269,7 +284,7 @@ module.exports = {
     ConfirmPhoneAction, createTestConfirmPhoneAction, updateTestConfirmPhoneAction,
     ConfirmEmailAction, createTestConfirmEmailAction, updateTestConfirmEmailAction,
     startConfirmPhoneActionByTestClient, completeConfirmPhoneActionByTestClient,
-    startConfirmEmailActionByTestClient,
+    startConfirmEmailActionByTestClient, completeConfirmEmailActionByTestClient,
     registerNewTestUser, authenticateUserWithPhoneAndPasswordByTestClient,
     makeLoggedInAdminClient, makeRegisteredAndLoggedInUser, makeLoggedInSupportClient,
     createTestPhone,

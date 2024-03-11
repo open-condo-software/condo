@@ -142,9 +142,9 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
 
                 const currentTime = dayjs().toISOString()
                 const requestedAction = await ConfirmPhoneAction.getOne(context, {
-                    deletedAt: null,
                     id: actionId,
                     expiresAt_gt: currentTime,
+                    deletedAt: null,
                     isVerified: false,
                 })
 
