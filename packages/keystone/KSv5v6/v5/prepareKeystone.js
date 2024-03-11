@@ -30,6 +30,7 @@ const { prepareDefaultKeystoneConfig } = require('../../setup.utils')
 
 const IS_BUILD_PHASE = conf.PHASE === 'build'
 const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
+const IS_SENTRY_ENABLED = conf['SENTRY_CONFIG'] !== undefined
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
 // NOTE: should be disabled in production: https://www.apollographql.com/docs/apollo-server/testing/graphql-playground/
 // WARN: https://github.com/graphql/graphql-playground/tree/main/packages/graphql-playground-html/examples/xss-attack
@@ -136,6 +137,15 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
         setInterval(sendAppMetrics, 2000)
     }
 
+    const apolloPlugins = [
+        new ApolloRateLimitingPlugin(keystone),
+        new GraphQLLoggerPlugin(),
+    ]
+
+    if (IS_SENTRY_ENABLED) {
+        apolloPlugins.unshift(new ApolloSentryPlugin())
+    }
+
     return {
         keystone,
         // NOTE(pahaz): please, check the `executeDefaultServer(..)` to understand how it works.
@@ -153,11 +163,12 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
                     debug: IS_ENABLE_APOLLO_DEBUG,
                     introspection: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
                     playground: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
-                    plugins: [
-                        new ApolloSentryPlugin(),
-                        new ApolloRateLimitingPlugin(keystone),
-                        new GraphQLLoggerPlugin(),
-                    ],
+                    plugins: apolloPlugins,
+                    // plugins: [
+                    //     new ApolloSentryPlugin(),
+                    //     new ApolloRateLimitingPlugin(keystone),
+                    //     new GraphQLLoggerPlugin(),
+                    // ],
                 },
                 ...(graphql || {}),
             }),
