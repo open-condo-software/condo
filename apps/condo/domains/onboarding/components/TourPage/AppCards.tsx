@@ -45,6 +45,7 @@ export const TechnicAppCard = () => {
                 }}
                 body={{ image: { src: '/onboarding/tourTechnicCard.webp', style: APP_CARD_IMAGE_STYLES } }}
                 onClick={() => setActiveModal('info')}
+                id='tour-technic-app-card'
             />
             <Modal
                 open={activeModal === 'info'}
@@ -55,6 +56,7 @@ export const TechnicAppCard = () => {
                         type='primary'
                         key='download'
                         onClick={() => setActiveModal('download')}
+                        id='tour-technic-app-card-downloadButton'
                     >
                         {DownloadLabel}
                     </Button>,

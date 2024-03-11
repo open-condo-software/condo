@@ -20,9 +20,7 @@ export const CardVideo = () => {
                         title='YouTube video player' frameBorder='0'
                         allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
                         allowFullScreen
-                    >
-                        
-                    </iframe>
+                    />
                 </div>
                 <Space size={8} direction='vertical'>
                     <Typography.Title level={2}>{CardVideoTitle}</Typography.Title>

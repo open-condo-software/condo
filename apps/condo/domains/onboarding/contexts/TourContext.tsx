@@ -181,7 +181,7 @@ export const TourProvider = ({ children }) => {
             MutationEmitter.removeListener(MUTATION_RESULT_EVENT, mutationHandler)
             ImportEmitter.removeListener(IMPORT_EVENT, importHandler)
         }
-    }, [activeStep, updateStepIfNotCompleted])
+    }, [activeStep, updateCompletedStepModalData, updateStepIfNotCompleted])
 
     const contextValue = useMemo(() => ({
         activeTourStep: activeStep,

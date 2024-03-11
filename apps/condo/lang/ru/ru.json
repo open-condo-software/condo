@@ -2043,6 +2043,7 @@
   "tour.completedFlowModal.billing.title": "Вы сделали все, чтобы снизить дебиторскую задолженность. Поздравляем!",
   "tour.completedFlowModal.meter.title": "Вы упростили работу с показаниями счетчиков. Поздравляем!",
   "tour.completedFlowModal.resident.title": "Вы выстроили отношения с жителями. Поздравляем!",
+  "tour.completedFlowModal.goToTour": "Вернуться в путеводитель",
 
   "tour.newFeatures.employee.publishNews": "Публиковать новости дома",
   "tour.newFeatures.employee.notifyAboutIncidents": "Рассказывать жителям об отключениях",

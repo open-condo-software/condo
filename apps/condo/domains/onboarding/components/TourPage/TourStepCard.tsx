@@ -109,6 +109,7 @@ export const TourStepCard: React.FC<TourStepCardProps> = (props) => {
             onClick={onClick}
             disabled={isDisabledStatus}
             accent={!isDisabledStatus && isInnerTodoStep}
+            id={step.type}
         />
     )
 

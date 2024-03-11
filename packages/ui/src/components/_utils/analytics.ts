@@ -17,6 +17,7 @@ type ComponentSpecificClickEventProps = {
     Button: { value: string, type: string }
     'Typography.Link': { value: string, href?: string }
     Dropdown: { optionValue: string, optionKey?: string, optionKeyPath?: Array<string>, triggerValue?: string }
+    Card: { title: string }
     TourStep: { title: string, message: string, step: number }
 }
 

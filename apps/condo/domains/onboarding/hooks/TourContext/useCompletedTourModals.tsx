@@ -15,8 +15,10 @@ import { Button, Modal, Space, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
+import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
 import { EXTERNAL_GUIDE_LINK } from '@condo/domains/onboarding/utils/clientSchema/constants'
+
 
 type ButtonClickType = () => void
 
@@ -99,13 +101,13 @@ type ComputedCompletedFlowModalDataType = {
 
 export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchSteps }) => {
     const intl = useIntl()
+    const GoToTourMessage = intl.formatMessage({ id: 'tour.completedFlowModal.goToTour' })
     const PublishNewsEmployeeFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.employee.publishNews' })
     const NotifyAboutIncidentsEmployeeFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.employee.notifyAboutIncidents' })
     const CreateIncidentsEmployeeFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.employee.createIncidents' })
     const UploadReceiptsEmployeeFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.employee.uploadReceipts' })
     const TrackResidentPaymentsEmployeeFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.employee.trackResidentPayments' })
     const NotifyResidentsAboutAppEmployeeFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.employee.notifyResidentsAboutApp' })
-
     const ReadNewsResidentFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.resident.readNews' })
     const ReadIncidentsResidentFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.resident.readIncidents' })
     const CreateMeterReadingsResidentFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.resident.createMeterReadings' })
@@ -115,6 +117,7 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
     const router = useRouter()
     const { organization } = useOrganization()
     const organizationId = useMemo(() => get(organization, 'id'), [organization])
+    const { logEvent } = useTracking()
 
     const [completedStepModalData, setCompletedStepModalData] = useState<CompletedStepModalDataValueType | null>()
     const [completedTourFlow, setCompletedTourFlow] = useState<TourStepTypeType | null>()
@@ -122,8 +125,12 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
     const updateTourStep = TourStep.useUpdate({})
 
     const updateCompletedFlowModalData = useCallback((type: TourStepTypeType) => {
+        if (type !== null) {
+            logEvent({ eventName: 'TourCompleteFlowModalOpen', eventProperties: { activeStep, type } })
+        }
+
         setCompletedTourFlow(type)
-    }, [])
+    }, [activeStep, logEvent])
 
     const computedCompletedFlowModalData: ComputedCompletedFlowModalDataType = useMemo(() => ({
         title: completedTourFlow && intl.formatMessage({ id: `tour.completedFlowModal.${completedTourFlow}.title` }),
@@ -253,13 +260,17 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
             return updateCompletedFlowModalData(activeStep)
         }
 
+        if (type !== null) {
+            logEvent({ eventName: 'TourCompleteStepModalOpen', eventProperties: { activeStep, type } })
+        }
+
         const modalValue = nextRoute ? {
             ...completedStepModalDataDescription[type],
             onButtonClick: { ...completedStepModalDataDescription[type].onButtonClick, [activeStep || 'default']: () => router.push(nextRoute) },
         } : completedStepModalDataDescription[type]
 
         setCompletedStepModalData({ type, ...modalValue })
-    }, [activeStep, completedStepModalDataDescription, router, updateCompletedFlowModalData])
+    }, [activeStep, completedStepModalDataDescription, logEvent, router, updateCompletedFlowModalData])
 
     const computedCompletedStepModalData: ComputedCompletedStepModalDataType = useMemo(() => {
         const completedActionType = get(completedStepModalData, 'type')
@@ -289,6 +300,7 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
             <Modal
                 open={!isEmpty(pickBy(computedCompletedStepModalData, Boolean))}
                 onCancel={() => {
+                    logEvent({ eventName: 'TourCompleteStepModalClose', eventProperties: { activeStep, type: completedStepModalData.type } })
                     updateCompletedStepModalData(null)
                     setActiveTourStep(null)
                 }}
@@ -313,6 +325,7 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
                 }
                 footer={[
                     <Button key='create' type='primary' onClick={() => {
+                        logEvent({ eventName: 'TourCompleteStepModalButtonClick', eventProperties: { activeStep, type: completedStepModalData.type } })
                         updateCompletedStepModalData(null)
 
                         if (get(computedCompletedStepModalData, 'buttonOnClick')) {
@@ -378,7 +391,7 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
 
                         await router.push('/tour')
                     }}>
-                        Вернуться в путеводитель
+                        {GoToTourMessage}
                     </Button>,
                 ]}
             >

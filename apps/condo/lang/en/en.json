@@ -2043,6 +2043,7 @@
   "tour.completedFlowModal.billing.title": "You have done everything to reduce accounts receivable. Congratulations!",
   "tour.completedFlowModal.meter.title": "You have simplified the work with meter readings. Congratulations!",
   "tour.completedFlowModal.resident.title": "You have built relationships with the residents. Congratulations!",
+  "tour.completedFlowModal.goToTour": "Go to tour",
 
   "tour.newFeatures.employee.publishNews": "Publish property news",
   "tour.newFeatures.employee.notifyAboutIncidents": "Tell residents about incidents",
