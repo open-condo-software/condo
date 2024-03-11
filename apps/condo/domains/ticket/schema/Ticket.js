@@ -31,13 +31,14 @@ const {
 } = require('@condo/domains/common/schema/fields')
 const { md5 } = require('@condo/domains/common/utils/crypto')
 const { buildSetOfFieldsToTrackFrom, storeChangesIfUpdated } = require('@condo/domains/common/utils/serverSchema/changeTrackable')
+const { getUnitTypeFieldResolveInput, getSectionTypeFieldResolveInput } = require('@condo/domains/common/utils/serverSchema/resolveHelpers')
 const { normalizeText } = require('@condo/domains/common/utils/text')
 const { hasDbFields } = require('@condo/domains/common/utils/validation.utils')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const { INVOICE_STATUS_CANCELED, INVOICE_STATUS_PAID, INVOICE_STATUS_PUBLISHED, INVOICE_STATUS_DRAFT } = require('@condo/domains/marketplace/constants')
 const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
-const { SECTION_TYPES, SECTION_SECTION_TYPE, FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { SECTION_TYPES } = require('@condo/domains/property/constants/common')
 const access = require('@condo/domains/ticket/access/Ticket')
 const {
     OMIT_TICKET_CHANGE_TRACKABLE_FIELDS, REVIEW_VALUES, DEFERRED_STATUS_TYPE,
@@ -622,23 +623,7 @@ const Ticket = new GQLListSchema('Ticket', {
             knexOptions: { isNotNullable: false },
             kmigratorOptions: { null: true },
             hooks: {
-                resolveInput: async ({ resolvedData, existingItem }) => {
-                    const newItem = { ...existingItem, ...resolvedData }
-                    const sectionType = get(newItem, 'sectionType')
-                    const sectionName = get(newItem, 'sectionName')
-                    const existedSectionType = get(existingItem, 'sectionType')
-
-                    if (!sectionName && sectionType) {
-                        return null
-                    } else if (!sectionType && sectionName) {
-                        if (existedSectionType) {
-                            return existedSectionType
-                        }
-                        return SECTION_SECTION_TYPE
-                    } else {
-                        return sectionType
-                    }
-                },
+                resolveInput: getSectionTypeFieldResolveInput(),
             },
         },
         floorName: {
@@ -657,23 +642,7 @@ const Ticket = new GQLListSchema('Ticket', {
             kmigratorOptions: { null: true },
             defaultValue: null,
             hooks: {
-                resolveInput: async ({ resolvedData, existingItem }) => {
-                    const newItem = { ...existingItem, ...resolvedData }
-                    const unitType = get(newItem, 'unitType')
-                    const unitName = get(newItem, 'unitName')
-                    const existedUnitType = get(existingItem, 'unitType')
-
-                    if (!unitName && unitType) {
-                        return null
-                    } else if (!unitType && unitName) {
-                        if (existedUnitType) {
-                            return existedUnitType
-                        }
-                        return FLAT_UNIT_TYPE
-                    } else {
-                        return unitType
-                    }
-                },
+                resolveInput: getUnitTypeFieldResolveInput(),
             },
         },
         source: {

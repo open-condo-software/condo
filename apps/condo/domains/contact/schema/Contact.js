@@ -3,7 +3,6 @@
  */
 
 const { Text, Relationship, Checkbox } = require('@keystonejs/fields')
-const { get } = require('lodash')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
@@ -14,9 +13,9 @@ const { PHONE_WRONG_FORMAT_ERROR, EMAIL_WRONG_FORMAT_ERROR, PROPERTY_REQUIRED_ER
 const { UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
+const { getUnitTypeFieldResolveInput } = require('@condo/domains/common/utils/serverSchema/resolveHelpers')
 const access = require('@condo/domains/contact/access/Contact')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
-const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { UNABLE_TO_CREATE_CONTACT_DUPLICATE, UNABLE_TO_UPDATE_CONTACT_DUPLICATE } = require('@condo/domains/user/constants/errors')
 
 
@@ -68,23 +67,7 @@ const Contact = new GQLListSchema('Contact', {
             kmigratorOptions: { null: true },
             defaultValue: null,
             hooks: {
-                resolveInput: async ({ resolvedData, existingItem }) => {
-                    const newItem = { ...existingItem, ...resolvedData }
-                    const unitType = get(newItem, 'unitType')
-                    const unitName = get(newItem, 'unitName')
-                    const existedUnitType = get(existingItem, 'unitType')
-
-                    if (!unitName && unitType) {
-                        return null
-                    } else if (!unitType && unitName) {
-                        if (existedUnitType) {
-                            return existedUnitType
-                        }
-                        return FLAT_UNIT_TYPE
-                    } else {
-                        return unitType
-                    }
-                },
+                resolveInput: getUnitTypeFieldResolveInput(),
             },
         },
 
