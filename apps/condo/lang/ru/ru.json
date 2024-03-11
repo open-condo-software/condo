@@ -2050,6 +2050,7 @@
   "tour.newFeatures.employee.uploadReceipts": "Загружать реестры и формировать квитанции",
   "tour.newFeatures.employee.trackResidentPayments": "Следить за платежами от жителей",
   "tour.newFeatures.employee.notifyResidentsAboutApp": "Рассказать жителям о мобильном приложении",
+  "tour.newFeatures.employee.createIncidents": "Оставлять информацию об отключениях",
 
   "tour.newFeatures.resident.readNews": "Узнавать новости через приложение Doma",
   "tour.newFeatures.resident.readIncidents": "Узнавать об отключениях",

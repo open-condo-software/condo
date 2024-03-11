@@ -5,6 +5,7 @@ import { Button, Card, Modal, Radio, RadioGroup, Space, Typography } from '@open
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { EMOJI } from '@condo/domains/common/constants/emoji'
+import { RESIDENT_APP_LANDING_EXTERNAL_LINK } from '@condo/domains/onboarding/utils/clientSchema/constants'
 
 
 const APP_CARD_IMAGE_STYLES: CSSProperties = { width: 'inherit', maxWidth: '120px', paddingTop: '6px' }
@@ -143,7 +144,7 @@ export const ResidentAppCard = () => {
             body={{ image: { src: '/onboarding/tourResidentCard.webp', style: APP_CARD_IMAGE_STYLES } }}
             onClick={() => {
                 if (typeof window !== 'undefined') {
-                    window.open('https://doma.ai/app_landing', '_blank')
+                    window.open(RESIDENT_APP_LANDING_EXTERNAL_LINK, '_blank')
                 }
             }}
         />

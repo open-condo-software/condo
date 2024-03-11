@@ -35,6 +35,8 @@ const TourContext = createContext<TourContextType>({
 })
 
 const getActiveTourStepFromStorage = (): ActiveTourStepType => {
+    if (typeof window === 'undefined') return
+
     try {
         return localStorage.getItem(ACTIVE_STEPS_STORAGE_KEY)
     } catch (e) {
@@ -67,7 +69,6 @@ export const TourProvider = ({ children }) => {
                 setActiveStep(type)
             }
         } catch (e) {
-            console.error('Failed to parse activeTourStep from LocalStorage')
             localStorage && localStorage.removeItem(ACTIVE_STEPS_STORAGE_KEY)
             setActiveStep(null)
         }

@@ -99,8 +99,18 @@ type ComputedCompletedFlowModalDataType = {
 
 export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchSteps }) => {
     const intl = useIntl()
-    const ViewGuideMessage = intl.formatMessage({ id: 'tour.viewGuide' })
-    const ToTourMessage = intl.formatMessage({ id: 'tour.toTour' })
+    const PublishNewsEmployeeFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.employee.publishNews' })
+    const NotifyAboutIncidentsEmployeeFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.employee.notifyAboutIncidents' })
+    const CreateIncidentsEmployeeFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.employee.createIncidents' })
+    const UploadReceiptsEmployeeFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.employee.uploadReceipts' })
+    const TrackResidentPaymentsEmployeeFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.employee.trackResidentPayments' })
+    const NotifyResidentsAboutAppEmployeeFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.employee.notifyResidentsAboutApp' })
+
+    const ReadNewsResidentFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.resident.readNews' })
+    const ReadIncidentsResidentFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.resident.readIncidents' })
+    const CreateMeterReadingsResidentFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.resident.createMeterReadings' })
+    const PayBillsResidentFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.resident.payBills' })
+    const DownloadAppResidentFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.resident.downloadApp' })
 
     const router = useRouter()
     const { organization } = useOrganization()
@@ -145,8 +155,8 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
             subtitleLinkHref: '/property',
             subtitleLinkIcon: <Building size='small' />,
             newFeatures: {
-                employee: ['Публиковать новости дома', 'Рассказывать жителям об отключениях'],
-                resident: ['Узнавать новости через приложение Doma', 'Узнавать об отключениях'],
+                employee: [PublishNewsEmployeeFeatureMessage, NotifyAboutIncidentsEmployeeFeatureMessage],
+                resident: [ReadNewsResidentFeatureMessage, ReadIncidentsResidentFeatureMessage],
             },
             onButtonClick: {
                 default: () => { router.push('/property') },
@@ -157,8 +167,8 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
             subtitleLinkHref: '/property',
             subtitleLinkIcon: <Building size='small' />,
             newFeatures: {
-                employee: ['Публиковать новости дома', 'Получать заявки от конкретных квартир'],
-                resident: ['Читать новости дома', 'Создавать заявки в мобильном приложении'],
+                employee: [PublishNewsEmployeeFeatureMessage, NotifyAboutIncidentsEmployeeFeatureMessage],
+                resident: [ReadNewsResidentFeatureMessage, ReadIncidentsResidentFeatureMessage],
             },
             onButtonClick: {
                 default: () => { router.push('/tour') },
@@ -172,8 +182,8 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
             subtitleLinkHref: '/property',
             subtitleLinkIcon: <Building size='small' />,
             newFeatures: {
-                employee: ['Публиковать новости дома', 'Получать заявки от конкретных квартир'],
-                resident: ['Читать новости дома', 'Создавать заявки в мобильном приложении'],
+                employee: [PublishNewsEmployeeFeatureMessage, NotifyAboutIncidentsEmployeeFeatureMessage],
+                resident: [ReadNewsResidentFeatureMessage, ReadIncidentsResidentFeatureMessage],
             },
             onButtonClick: {
                 default: () => { router.push('/tour') },
@@ -187,8 +197,8 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
             subtitleLinkHref: '/ticket',
             subtitleLinkIcon: <LayoutList size='small' />,
             newFeatures: {
-                employee: ['Публиковать новости дома', 'Оставлять информацию об отключениях'],
-                resident: ['Читать новости дома'],
+                employee: [PublishNewsEmployeeFeatureMessage, CreateIncidentsEmployeeFeatureMessage],
+                resident: [ReadNewsResidentFeatureMessage],
             },
             onButtonClick: {
                 default: () => { router.push('/tour') },
@@ -200,7 +210,7 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
             subtitleLinkHref: '/meter',
             subtitleLinkIcon: <Meters size='small' />,
             newFeatures: {
-                resident: ['Передавать показания счетчиков в мобильном приложении'],
+                resident: [CreateMeterReadingsResidentFeatureMessage],
             },
             onButtonClick: {
                 default: () => { router.push('/tour') },
@@ -212,8 +222,8 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
             subtitleLinkHref: '/billing',
             subtitleLinkIcon: <Wallet size='small' />,
             newFeatures: {
-                employee: ['Загружать реестры и формировать квитанции', 'Следить за платежами от жителей'],
-                resident: ['Оплачивать квитанции в мобильном приложении'],
+                employee: [UploadReceiptsEmployeeFeatureMessage, TrackResidentPaymentsEmployeeFeatureMessage],
+                resident: [PayBillsResidentFeatureMessage],
             },
             onButtonClick: {
                 default: () => { router.push('/tour') },
@@ -225,8 +235,8 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
             subtitleLinkHref: '/tour',
             subtitleLinkIcon: <Guide size='small' />,
             newFeatures: {
-                employee: ['Рассказать жителям о мобильном приложении'],
-                resident: ['Скачать приложение и зарегистрироваться'],
+                employee: [NotifyResidentsAboutAppEmployeeFeatureMessage],
+                resident: [DownloadAppResidentFeatureMessage],
             },
             onButtonClick: {
                 default: () => { return },

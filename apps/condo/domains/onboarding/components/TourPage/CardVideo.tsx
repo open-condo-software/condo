@@ -16,10 +16,12 @@ export const CardVideo = () => {
             <Space size={24} direction='vertical'>
                 <div style={CARD_VIDEO_WRAPPER_STYLES}>
                     <iframe width='100%' height='100%'
-                        src='https://www.youtube.com/embed/xNRJwmlRBNU?si=iryPQNp7dhipnWC-'
+                        src='https://www.youtube.com/embed/NpEaa2P7qZI?si=oMpwQ-gMvTzAcyNu'
                         title='YouTube video player' frameBorder='0'
                         allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
-                        allowFullScreen>
+                        allowFullScreen
+                    >
+                        
                     </iframe>
                 </div>
                 <Space size={8} direction='vertical'>

@@ -11,6 +11,7 @@ import {
 
 
 export const EXTERNAL_GUIDE_LINK = 'https://drive.google.com/file/d/1mV4A_d8Wzzl-REe73OdoeHEngmnJi9NE/view'
+export const RESIDENT_APP_LANDING_EXTERNAL_LINK = 'https://doma.ai/app_landing'
 
 export const TODO_STEP_CLICK_ROUTE = {
     [CREATE_PROPERTY_STEP_TYPE]: '/property',
