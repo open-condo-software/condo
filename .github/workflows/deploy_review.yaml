@@ -62,6 +62,16 @@ jobs:
           WERF_SET_CI_REF: "ci.werf.io/ref=${GITHUB_REF_NAME}"
           WERF_REPO: swr.ru-moscow-1.hc.sbercloud.ru/condo/condo
           WERF_REPO_CONTAINER_REGISTRY: default
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      - name: Create sentry release
+        uses: getsentry/action-release@v1.7.0
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+          SENTRY_URL: https://sentry.in.doma.ai/
+        with:
+          environment: review
       - name: Urls output
         run: |
           echo "condo: https://review-${{ env.REVIEW_URL_PREFIX }}-condo.r.doma.ai"

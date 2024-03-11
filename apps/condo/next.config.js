@@ -114,7 +114,7 @@ if (sentryConfig['client']) {
     module.exports = withSentryConfig(
         module.exports,
         {
-            dryRun: true,
+            dryRun: false,
             silent: false,
             org: sentryConfig['client']['organization'],
             project: sentryConfig['client']['project'],
