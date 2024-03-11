@@ -30,14 +30,14 @@ exports.up = async (knex) => {
         WHERE "unitName" IS NOT NULL AND "unitType" IS NULL;
         
         --
-        -- [CUSTOM] Set sectionType to NULL in Tickets which have unitName null and not null unitType 
+        -- [CUSTOM] Set sectionType to NULL in Tickets which have sectionName null and not null sectionType 
         --
         UPDATE "Ticket"
         SET "sectionType" = NULL
         WHERE "sectionName" IS NULL AND "sectionType" IS NOT NULL;
         
         --
-        -- [CUSTOM] Set sectionType to 'section' in Tickets which have unitName not null and null unitType 
+        -- [CUSTOM] Set sectionType to 'section' in Tickets which have sectionName not null and null sectionType 
         --
         UPDATE "Ticket"
         SET "sectionType" = 'section'
