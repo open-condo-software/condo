@@ -374,8 +374,10 @@ describe('Address', () => {
             })
 
             const ret = await createReturnObject({
+                context: adminClient,
                 addressModel: obj,
                 overridden,
+                AddressSourceServerUtils: AddressSource,
             })
 
             expect(ret).toEqual(expect.objectContaining({
