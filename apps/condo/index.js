@@ -106,7 +106,7 @@ const tasks = () => [
     require('@condo/domains/marketplace/tasks'),
 ]
 
-if (SENTRY_CONFIG['server']) {
+if (!IS_BUILD_PHASE && SENTRY_CONFIG['server']) {
     Sentry.init({
         dsn: SENTRY_CONFIG['server']['dsn'],
         debug: false,
@@ -117,6 +117,7 @@ if (SENTRY_CONFIG['server']) {
         ],
         environment: SENTRY_CONFIG['server']['environment'],
         organization: SENTRY_CONFIG['server']['organization'],
+        project: SENTRY_CONFIG['server']['project'],
     })
 }
 

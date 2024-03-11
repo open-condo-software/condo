@@ -52,20 +52,17 @@ git:
 shell:
   install:
   - "cd /app"
-  - "printenv"
   - "npm i -g turbo"
   - "yarn install --immutable"
   setup:
   - "cd /app"
-  - 'echo "${SENTRY_CONFIG}"'
   - "echo '# Build time .env config!' >> /app/.env"
   - "echo 'COOKIE_SECRET=undefined' >> /app/.env"
   - "echo 'DATABASE_URL=undefined' >> /app/.env"
   - "echo 'REDIS_URL=undefined' >> /app/.env"
   - "echo 'NODE_ENV=production' >> /app/.env"
   - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
-  - 'echo "SENTRY_CONFIG=${SENTRY_CONFIG}" >> /app/.env'
-  - 'echo "${SENTRY_CONFIG}"'
+  - "echo 'SENTRY_CONFIG={\"client\":{\"organization\":\"condo\",\"project\":\"javascript-nextjs\"},\"server\":{}}' >> /app/.env"
   - "yarn workspace @app/condo next telemetry disable"
   - "yarn workspace @app/condo build:deps"
   - "yarn workspace @app/condo build:static"
