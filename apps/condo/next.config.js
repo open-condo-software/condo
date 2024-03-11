@@ -50,8 +50,6 @@ const condoRBDomain = conf['CONDORB_DOMAIN']
 const sentryConfig = conf['SENTRY_CONFIG'] ? JSON.parse(conf['SENTRY_CONFIG']) : {}
 const apolloBatchingEnabled = !falsey(conf['APOLLO_BATCHING_ENABLED'])
 
-console.log('PARSED SENTRY CONFIG AT NEXT.CONFIG.JS ', sentryConfig)
-
 module.exports = withTM(withLess(withCSS({
     publicRuntimeConfig: {
         // Will be available on both server and client
