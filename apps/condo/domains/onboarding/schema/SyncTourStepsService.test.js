@@ -78,7 +78,23 @@ describe('SyncTourStepsService', () => {
         })
 
         it('dont update completed step two times', async () => {
+            const [organization] = await registerNewOrganization(admin)
+            await createTestProperty(admin, organization)
 
+            await syncTourStepsByTestClient(admin, organization)
+
+            const syncedCreatePropertyStep = await TourStep.getOne(admin, {
+                organization: { id: organization.id }, type: CREATE_PROPERTY_STEP_TYPE,
+            })
+
+            expect(syncedCreatePropertyStep.status).toEqual(COMPLETED_STEP_STATUS)
+
+            const twoTimesSyncedCreatePropertyStep = await TourStep.getOne(admin, {
+                organization: { id: organization.id }, type: CREATE_PROPERTY_STEP_TYPE,
+            })
+
+            expect(twoTimesSyncedCreatePropertyStep.status).toEqual(COMPLETED_STEP_STATUS)
+            expect(twoTimesSyncedCreatePropertyStep.updatedAt).toEqual(syncedCreatePropertyStep.updatedAt)
         })
 
         it('throws TOUR_STEPS_NOT_FOUND error if no steps in organization', async () => {
