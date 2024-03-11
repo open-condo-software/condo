@@ -51,9 +51,8 @@ git:
 
 shell:
   install:
-  - "printenv"
-  - echo {{ env "SENTRY_AUTH_TOKEN" }}
-  - echo "SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN"
+  - "echo 'install check werf envs'"
+  - echo 'SENTRY_AUTH_TOKEN={{ env "SENTRY_AUTH_TOKEN" }}'
   - "cd /app"
   - "npm i -g turbo"
   - "yarn install --immutable"
@@ -66,7 +65,7 @@ shell:
   - "echo 'NODE_ENV=production' >> /app/.env"
   - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
   - "echo 'SENTRY_CONFIG={\"client\":{\"organization\":\"condo\",\"project\":\"javascript-nextjs\"},\"server\":{}}' >> /app/.env"
-  - echo "SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN" >> /app/.env
+  - echo "SENTRY_AUTH_TOKEN={{ env "SENTRY_AUTH_TOKEN" }}" >> /app/.env
   - "echo 'SENTRY_ORG=condo' >> /app/.env"
   - "echo 'SENTRY_PROJECT=javascript-nextjs' >> /app/.env"
   - "yarn workspace @app/condo next telemetry disable"
