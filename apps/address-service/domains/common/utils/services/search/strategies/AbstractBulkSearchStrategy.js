@@ -66,7 +66,6 @@ class AbstractBulkSearchStrategy {
         })
 
         return await createReturnObject({
-            context: this.keystoneContext.sudo(),
             addressModel: searchResult,
             overridden,
         })

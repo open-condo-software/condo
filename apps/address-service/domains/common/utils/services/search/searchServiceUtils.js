@@ -1,6 +1,7 @@
 const { isEmpty, isObject } = require('lodash')
 
-const { AddressSource } = require('@address-service/domains/address/utils/serverSchema')
+const { find } = require('@open-condo/keystone/schema')
+
 const { md5 } = require('@condo/domains/common/utils/crypto')
 
 /**
@@ -66,19 +67,15 @@ async function createOrUpdateAddressWithSource (context, addressServerUtils, add
 
 /**
  * Converts the `Address` model to service response
- * @param context Keystone context
  * @param {Address} addressModel
  * @param {Object} overridden Original values of overridden fields
- * @param AddressSourceServerUtils The AddressSource server utils (differs for prod and test env)
  * @returns {Promise<AddressData>}
  */
 async function createReturnObject ({
-    context,
     addressModel,
     overridden = {},
-    AddressSourceServerUtils = AddressSource,
 }) {
-    const addressSources = await AddressSourceServerUtils.getAll(context, { address: { id: addressModel.id } }) || []
+    const addressSources = await find('AddressSource', { address: { id: addressModel.id } }) || []
     const ret = {
         address: addressModel.address,
         addressKey: addressModel.id,
