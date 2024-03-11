@@ -51,8 +51,6 @@ git:
 
 shell:
   install:
-  - "echo 'install check werf envs'"
-  - echo 'SENTRY_AUTH_TOKEN={{ env "SENTRY_AUTH_TOKEN" }}'
   - "cd /app"
   - "npm i -g turbo"
   - "yarn install --immutable"
