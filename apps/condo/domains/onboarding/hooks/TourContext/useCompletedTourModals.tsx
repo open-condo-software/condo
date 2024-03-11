@@ -383,7 +383,7 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
                 ]}
             >
                 <StyledFocusContainer>
-                    <img src='/successDino.webp' width={240} height={240} />
+                    <img src='/successDino.webp' alt='Dino image' width={240} height={240} />
                 </StyledFocusContainer>
             </SuccessModal>
         ),

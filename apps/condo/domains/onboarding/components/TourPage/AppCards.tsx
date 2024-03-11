@@ -72,7 +72,7 @@ export const TechnicAppCard = () => {
                     </RadioGroup>
                     <div style={TAB_IMAGE_BACKGROUND_STYLES}>
                         <div style={TAB_IMAGE_WRAPPER_STYLES}>
-                            <img src='/onboarding/tourTechnicCard.webp' style={TAB_IMAGE_STYLES} />
+                            <img src='/onboarding/tourTechnicCard.webp' alt='Technic app preview' style={TAB_IMAGE_STYLES} />
                         </div>
                     </div>
                     <Typography.Text>
@@ -108,19 +108,19 @@ export const TechnicAppCard = () => {
             >
                 <Space size={16} direction='horizontal'>
                     <Space size={8} direction='vertical' align='center'>
-                        <img style={QR_CODE_IMAGE_STYLES} src='/onboarding/qr-technic-app/GooglePlay.svg'/>
+                        <img style={QR_CODE_IMAGE_STYLES} src='/onboarding/qr-technic-app/GooglePlay.svg' alt='Google Play QR code'/>
                         <Typography.Title level={4}>
                             {GooglePlayMessage}
                         </Typography.Title>
                     </Space>
                     <Space size={8} direction='vertical' align='center'>
-                        <img style={QR_CODE_IMAGE_STYLES} src='/onboarding/qr-technic-app/AppStore.svg'/>
+                        <img style={QR_CODE_IMAGE_STYLES} src='/onboarding/qr-technic-app/AppStore.svg' alt='App Store QR code'/>
                         <Typography.Title level={4}>
                             {AppStoreMessage}
                         </Typography.Title>
                     </Space>
                     <Space size={8} direction='vertical' align='center'>
-                        <img style={QR_CODE_IMAGE_STYLES} src='/onboarding/qr-technic-app/AppGalery.svg'/>
+                        <img style={QR_CODE_IMAGE_STYLES} src='/onboarding/qr-technic-app/AppGalery.svg' alt='App Galery QR code'/>
                         <Typography.Title level={4}>
                             {AppGalleryMessage}
                         </Typography.Title>

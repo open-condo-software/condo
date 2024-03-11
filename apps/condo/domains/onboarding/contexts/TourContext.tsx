@@ -183,15 +183,17 @@ export const TourProvider = ({ children }) => {
         }
     }, [activeStep, updateStepIfNotCompleted])
 
+    const contextValue = useMemo(() => ({
+        activeTourStep: activeStep,
+        setActiveTourStep,
+        updateStepIfNotCompleted,
+        syncLoading,
+    }), [activeStep, setActiveTourStep, syncLoading, updateStepIfNotCompleted])
+
     return (
         <>
             <TourContext.Provider
-                value={{
-                    activeTourStep: activeStep,
-                    setActiveTourStep,
-                    updateStepIfNotCompleted,
-                    syncLoading,
-                }}
+                value={contextValue}
             >
                 {children}
             </TourContext.Provider>
