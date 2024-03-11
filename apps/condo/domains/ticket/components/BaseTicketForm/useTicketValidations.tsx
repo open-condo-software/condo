@@ -89,11 +89,6 @@ export function useTicketValidations (): IFormFieldsRuleMap {
             },
         ],
         executor: [],
-        assignee: [
-            {
-                required: true,
-                message: intl.formatMessage({ id: 'field.Assignee.requiredError' }),
-            },
-        ],
+        assignee: [],
     }
 }
