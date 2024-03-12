@@ -14,6 +14,13 @@ const TAB_IMAGE_WRAPPER_STYLES: CSSProperties = { margin: 'auto', width: 'fit-co
 const TAB_IMAGE_STYLES: CSSProperties = { width: '200px' }
 const QR_CODE_IMAGE_STYLES: CSSProperties = { width: '150px', height: '150px' }
 
+// Change it after pics will be ready
+const MODAL_IMAGE_SRC_BY_TYPE = {
+    admin: '/onboarding/tourTechnicCard.webp',
+    technic: '/onboarding/tourResidentCard.webp',
+    security: '/dino/success.png',
+}
+
 type ActiveModalType = 'info' | 'download' | null
 type RadioOptionType = 'admin' | 'technic' | 'security'
 
@@ -74,7 +81,7 @@ export const TechnicAppCard = () => {
                     </RadioGroup>
                     <div style={TAB_IMAGE_BACKGROUND_STYLES}>
                         <div style={TAB_IMAGE_WRAPPER_STYLES}>
-                            <img src='/onboarding/tourTechnicCard.webp' alt='Technic app preview' style={TAB_IMAGE_STYLES} />
+                            <img src={MODAL_IMAGE_SRC_BY_TYPE[radioValue]} alt='Technic app preview' style={TAB_IMAGE_STYLES} />
                         </div>
                     </div>
                     <Typography.Text>
@@ -145,9 +152,7 @@ export const ResidentAppCard = () => {
             }}
             body={{ image: { src: '/onboarding/tourResidentCard.webp', style: APP_CARD_IMAGE_STYLES } }}
             onClick={() => {
-                if (typeof window !== 'undefined') {
-                    window.open(RESIDENT_APP_LANDING_EXTERNAL_LINK, '_blank')
-                }
+                window.open(RESIDENT_APP_LANDING_EXTERNAL_LINK, '_blank')
             }}
         />
     )

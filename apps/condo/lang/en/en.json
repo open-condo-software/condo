@@ -2057,6 +2057,8 @@
   "tour.completedFlowModal.resident.title": "You have built relationships with the residents. Congratulations!",
   "tour.completedFlowModal.goToTour": "Go to tour",
 
+  "tour.newFeatures.employee.title": "Now you can:",
+
   "tour.newFeatures.employee.publishNews": "Publish property news",
   "tour.newFeatures.employee.notifyAboutIncidents": "Tell residents about incidents",
   "tour.newFeatures.employee.receiveTickets": "Receive applications from specific apartments",
@@ -2064,6 +2066,8 @@
   "tour.newFeatures.employee.trackResidentPayments": "Monitor payments from residents",
   "tour.newFeatures.employee.notifyResidentsAboutApp": "Tell the residents about the mobile app",
   "tour.newFeatures.employee.createIncidents": "Leave information about incidents",
+
+  "tour.newFeatures.resident.title": "Now residents can:",
 
   "tour.newFeatures.resident.readNews": "Find out the news through the Doma app",
   "tour.newFeatures.resident.readIncidents": "Learn about incidents",
@@ -2455,7 +2459,7 @@
   "api.miniapp.sendB2CAppPushMessage.WRONG_SENDER_FORMAT": "Invalid format of \"sender\" field value. {details}",
   "api.miniapp.sendB2CAppPushMessage.APP_IN_BLACK_LIST": "Could not send notifications for the blacklisted app",
   "api.analytics.overviewDashboard.FEATURE_IS_DISABLED": "This feature is unavailable for your organization",
-  "api.tourStep.update.updateCompletedStepType": "You can not update status of completed TourStep",
+  "api.tourStep.update.updateCompletedStepType": "You can not update status of completed tour step",
   "api.onboarding.syncTourSteps.TOUR_STEPS_NOT_FOUND": "Tour steps not found for this organization",
   "excelExport.header.contacts.forAllTime": "Contacts for all time",
   "excelExport.header.contacts.forPeriod": "Contacts for the period",

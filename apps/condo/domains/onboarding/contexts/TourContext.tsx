@@ -71,6 +71,7 @@ export const TourProvider = ({ children }) => {
         } catch (e) {
             localStorage && localStorage.removeItem(ACTIVE_STEPS_STORAGE_KEY)
             setActiveStep(null)
+            console.error('Failed to set activeTourStep in LocalStorage')
         }
     }, [])
 
@@ -87,7 +88,9 @@ export const TourProvider = ({ children }) => {
                 type,
             },
         })
-        const tourStep = fetchResult.data.objs[0]
+        const tourStep = get(fetchResult, 'data.objs.0')
+
+        if (!tourStep) return
 
         if (tourStep.status === TourStepStatusType.Completed) {
             if (currentImport.current) {
@@ -116,7 +119,7 @@ export const TourProvider = ({ children }) => {
                         await updateStepIfNotCompleted(TourStepTypeType.CreateProperty)
                         await updateStepIfNotCompleted(TourStepTypeType.CreatePropertyMap)
                     } else {
-                        await updateStepIfNotCompleted(TourStepTypeType.CreateProperty, `/property/${data.obj.id}/map/update`)
+                        await updateStepIfNotCompleted(TourStepTypeType.CreateProperty, `/property/${get(data, 'obj.id')}/map/update`)
                     }
 
                     break

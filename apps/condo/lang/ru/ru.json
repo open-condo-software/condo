@@ -2057,6 +2057,8 @@
   "tour.completedFlowModal.resident.title": "Вы выстроили отношения с жителями. Поздравляем!",
   "tour.completedFlowModal.goToTour": "Вернуться в путеводитель",
 
+  "tour.newFeatures.employee.title": "Теперь вы можете:",
+
   "tour.newFeatures.employee.publishNews": "Публиковать новости дома",
   "tour.newFeatures.employee.notifyAboutIncidents": "Рассказывать жителям об отключениях",
   "tour.newFeatures.employee.receiveTickets": "Получать заявки от конкретных квартир",
@@ -2064,6 +2066,8 @@
   "tour.newFeatures.employee.trackResidentPayments": "Следить за платежами от жителей",
   "tour.newFeatures.employee.notifyResidentsAboutApp": "Рассказать жителям о мобильном приложении",
   "tour.newFeatures.employee.createIncidents": "Оставлять информацию об отключениях",
+
+  "tour.newFeatures.resident.title": "Жители могут:",
 
   "tour.newFeatures.resident.readNews": "Узнавать новости через приложение Doma",
   "tour.newFeatures.resident.readIncidents": "Узнавать об отключениях",
@@ -2455,8 +2459,8 @@
   "api.miniapp.sendB2CAppPushMessage.WRONG_SENDER_FORMAT": "Неверный формат поля \"sender\"",
   "api.miniapp.sendB2CAppPushMessage.APP_IN_BLACK_LIST": "Невозможно отправить уведомления для приложения, находящегося в блэклисте",
   "api.analytics.overviewDashboard.FEATURE_IS_DISABLED": "Эта функция недоступна в вашей организации",
-  "api.tourStep.update.updateCompletedStepType": "Нельзя обновить поле status у выполненного TourStep",
-  "api.onboarding.syncTourSteps.TOUR_STEPS_NOT_FOUND": "Для переданной организации не найдены TourSteps",
+  "api.tourStep.update.updateCompletedStepType": "Нельзя обновить статус у выполненого шага",
+  "api.onboarding.syncTourSteps.TOUR_STEPS_NOT_FOUND": "Для переданной организации не найдены шаги путеводителя",
   "excelExport.header.contacts.forAllTime": "Контакты за всё время",
   "excelExport.header.contacts.forPeriod": "Контакты за период",
   "excelExport.header.newsRecipients": "Получатели новости",

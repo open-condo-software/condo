@@ -8,10 +8,18 @@ exports.up = async (knex) => {
 -- Alter field type on tourstep
 --
 
+
+
 --
 -- [CUSTOM] Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
 --
 SET statement_timeout = '1500s';
+
+
+--
+-- [CUSTOM] Clear TourStep table if it was not empty
+--
+DELETE FROM "TourStep";
 
 --
 -- [CUSTOM] Added tour steps to existed organizations

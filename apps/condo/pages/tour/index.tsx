@@ -1,7 +1,7 @@
 import { SortTourStepsBy, TourStepStatusType, TourStepTypeType } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Row, RowProps } from 'antd'
-import { get } from 'lodash'
+import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import Head from 'next/head'
 import Link from 'next/link'

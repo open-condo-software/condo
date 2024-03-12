@@ -113,6 +113,8 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
     const CreateMeterReadingsResidentFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.resident.createMeterReadings' })
     const PayBillsResidentFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.resident.payBills' })
     const DownloadAppResidentFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.resident.downloadApp' })
+    const NowYouCanMessage = intl.formatMessage({ id: 'tour.newFeatures.employee.title' })
+    const NowResidentCanMessage = intl.formatMessage({ id: 'tour.newFeatures.resident.title' })
 
     const router = useRouter()
     const { organization } = useOrganization()
@@ -137,8 +139,6 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
     }), [completedTourFlow, intl])
 
     const handleViewGuideClick = useCallback(async () => {
-        if (typeof window === 'undefined') return
-
         window.open(EXTERNAL_GUIDE_LINK, '_blank')
         updateCompletedFlowModalData(activeStep)
 
@@ -148,7 +148,10 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
                 type: TourStepTypeType.ViewResidentsAppGuide,
             },
         })
-        const tourStep = fetchResult.data.objs[0]
+        const tourStep = get(fetchResult, 'data.objs.0')
+
+        if (!tourStep) return
+
         if (tourStep.status === TourStepStatusType.Completed) {
             return
         }
@@ -343,7 +346,7 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
                                 !isEmpty(get(computedCompletedStepModalData, 'newEmployeeFeatures')) && (
                                     <Col span={12}>
                                         <Space size={20} direction='vertical'>
-                                            <Typography.Title level={4}>Теперь вы можете:</Typography.Title>
+                                            <Typography.Title level={4}>{NowYouCanMessage}</Typography.Title>
                                             <Space size={16} direction='vertical'>
                                                 {
                                                     computedCompletedStepModalData.newEmployeeFeatures.map(label => (
@@ -359,7 +362,7 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
                                 !isEmpty(get(computedCompletedStepModalData, 'newResidentFeatures')) && (
                                     <Col span={12}>
                                         <Space size={20} direction='vertical'>
-                                            <Typography.Title level={4}>Жители могут:</Typography.Title>
+                                            <Typography.Title level={4}>{NowResidentCanMessage}</Typography.Title>
                                             <Space size={16} direction='vertical'>
                                                 {
                                                     computedCompletedStepModalData.newResidentFeatures.map(label => (

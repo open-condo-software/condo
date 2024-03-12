@@ -12,12 +12,14 @@ const { buildingMapJson } = require('@condo/domains/property/constants/property'
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 
 describe('SyncTourStepsService', () => {
-    let admin, organization
+    let admin, support, organization
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
+        support = await makeClientWithSupportUser()
         const [testOrganization] = await registerNewOrganization(admin)
         organization = testOrganization
     })
@@ -28,6 +30,12 @@ describe('SyncTourStepsService', () => {
 
             await expectToThrowAuthenticationErrorToResult(async () => {
                 await syncTourStepsByTestClient(client, organization)
+            })
+        })
+
+        it('support: can not execute', async () => {
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await syncTourStepsByTestClient(support, organization)
             })
         })
 
@@ -61,6 +69,25 @@ describe('SyncTourStepsService', () => {
             const [organization] = await registerNewOrganization(admin)
             const stepsBeforeSync = await TourStep.getAll(admin, { organization: { id: organization.id } })
 
+            expect(stepsBeforeSync).toEqual(expect.arrayContaining([
+                expect.objectContaining({
+                    type: CREATE_PROPERTY_STEP_TYPE,
+                    status: TODO_STEP_STATUS,
+                }),
+            ]))
+            expect(stepsBeforeSync).toEqual(expect.arrayContaining([
+                expect.objectContaining({
+                    type: CREATE_PROPERTY_MAP_STEP_TYPE,
+                    status: DISABLED_STEP_STATUS,
+                }),
+            ]))
+            expect(stepsBeforeSync).toEqual(expect.arrayContaining([
+                expect.objectContaining({
+                    type: CREATE_TICKET_STEP_TYPE,
+                    status: DISABLED_STEP_STATUS,
+                }),
+            ]))
+
             const [property] = await createTestProperty(admin, organization, { map: buildingMapJson })
             await createTestTicket(admin, organization, property)
 
@@ -68,13 +95,24 @@ describe('SyncTourStepsService', () => {
 
             const stepsAfterSync = await TourStep.getAll(admin, { organization: { id: organization.id } })
 
-            expect(stepsBeforeSync.find(step => step.type === CREATE_PROPERTY_STEP_TYPE).status).toEqual(TODO_STEP_STATUS)
-            expect(stepsBeforeSync.find(step => step.type === CREATE_PROPERTY_MAP_STEP_TYPE).status).toEqual(DISABLED_STEP_STATUS)
-            expect(stepsBeforeSync.find(step => step.type === CREATE_TICKET_STEP_TYPE).status).toEqual(DISABLED_STEP_STATUS)
-
-            expect(stepsAfterSync.find(step => step.type === CREATE_PROPERTY_STEP_TYPE).status).toEqual(COMPLETED_STEP_STATUS)
-            expect(stepsAfterSync.find(step => step.type === CREATE_PROPERTY_MAP_STEP_TYPE).status).toEqual(COMPLETED_STEP_STATUS)
-            expect(stepsAfterSync.find(step => step.type === CREATE_TICKET_STEP_TYPE).status).toEqual(COMPLETED_STEP_STATUS)
+            expect(stepsAfterSync).toEqual(expect.arrayContaining([
+                expect.objectContaining({
+                    type: CREATE_PROPERTY_STEP_TYPE,
+                    status: COMPLETED_STEP_STATUS,
+                }),
+            ]))
+            expect(stepsAfterSync).toEqual(expect.arrayContaining([
+                expect.objectContaining({
+                    type: CREATE_PROPERTY_MAP_STEP_TYPE,
+                    status: COMPLETED_STEP_STATUS,
+                }),
+            ]))
+            expect(stepsAfterSync).toEqual(expect.arrayContaining([
+                expect.objectContaining({
+                    type: CREATE_TICKET_STEP_TYPE,
+                    status: COMPLETED_STEP_STATUS,
+                }),
+            ]))
         })
 
         it('dont update completed step two times', async () => {

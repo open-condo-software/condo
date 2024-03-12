@@ -22,6 +22,7 @@ const CardButton = React.forwardRef<HTMLDivElement, CardButtonProps>((props, ref
         className: propsClassName,
         id,
         onClick,
+        accent,
         ...rest
     } = props
 
@@ -31,15 +32,19 @@ const CardButton = React.forwardRef<HTMLDivElement, CardButtonProps>((props, ref
     })
 
     const handleClick = useCallback((event: React.MouseEvent<HTMLDivElement> & React.MouseEvent<HTMLAnchorElement>) => {
-        const title = get(header, 'headingTitle')
-        if (title) {
-            sendAnalyticsClickEvent('Card', { title, id })
+        const headerTitle = get(header, 'headingTitle')
+        const bodyTitle = get(body, 'bodyTitle')
+
+        if (headerTitle) {
+            sendAnalyticsClickEvent('Card', { title: headerTitle, accent, id })
+        } else if (bodyTitle) {
+            sendAnalyticsClickEvent('Card', { title: bodyTitle, accent, id })
         }
 
         if (onClick) {
             onClick(event)
         }
-    }, [header, id, onClick])
+    }, [accent, body, header, id, onClick])
 
     return (
         <Card
@@ -50,6 +55,7 @@ const CardButton = React.forwardRef<HTMLDivElement, CardButtonProps>((props, ref
             hoverable
             title={header && <CardHeader {...header} />}
             onClick={handleClick}
+            accent={accent}
         >
             {body && <CardBody {...body}/>}
         </Card>
