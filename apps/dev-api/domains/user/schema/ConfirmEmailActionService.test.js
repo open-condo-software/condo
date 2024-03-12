@@ -128,4 +128,16 @@ describe('ConfirmEmailActionService', () => {
             })
         })
     })
+    describe('Logic', () => {
+        test('Email must be normalized', async () => {
+            const email = `${faker.name.firstName()}.${faker.name.lastName()}@gmail.com`
+            const normalizedEmail = email.replace('.', '').toLowerCase()
+            const [result] = await startConfirmEmailActionByTestClient(user, { email })
+            expect(result).toHaveProperty('actionId')
+
+            // NOTE: admin client is used to read a confirmation code
+            const createdAction = await ConfirmEmailAction.getOne(admin, { id: result.actionId })
+            expect(createdAction).toHaveProperty('email', normalizedEmail)
+        })
+    })
 })

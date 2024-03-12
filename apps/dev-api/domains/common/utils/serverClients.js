@@ -7,7 +7,7 @@ const { GQLError, GQLErrorCode: { INTERNAL_ERROR } } = require('@open-condo/keys
 const { REMOTE_SYSTEM } = require('@dev-api/domains/common/constants/common')
 const { MULTIPLE_FOUND } = require('@dev-api/domains/common/constants/errors')
 const { DEFAULT_LOCALE } = require('@dev-api/domains/common/constants/locales')
-const { SEND_MESSAGE_MUTATION } = require('@dev-api/domains/common/gql')
+const { SEND_MESSAGE_MUTATION, REGISTER_SERVICE_USER_MUTATION } = require('@dev-api/domains/common/gql')
 
 const DEV_AUTH_CONFIG = JSON.parse(conf['CONDO_DEV_BOT_CONFIG'] || '{}')
 const PROD_AUTH_CONFIG = JSON.parse(conf['CONDO_PROD_BOT_CONFIG'] || '{}')
@@ -54,6 +54,27 @@ class CondoClient extends ApolloServerClient {
                 },
             },
         })
+    }
+
+    async registerServiceUser (args) {
+        try {
+            const { data: { result } } = await this.executeAuthorizedMutation({
+                mutation: REGISTER_SERVICE_USER_MUTATION,
+                variables: {
+                    data: {
+                        ...this.dvSender(),
+                        ...args,
+                    },
+                },
+            })
+
+            return result
+        } catch (err) {
+            if (err.graphQLErrors) {
+                console.log(JSON.stringify(err.graphQLErrors, null, 2))
+            }
+            return null
+        }
     }
 
     async findExportedModel ({ modelGql, exportId, id, context }) {

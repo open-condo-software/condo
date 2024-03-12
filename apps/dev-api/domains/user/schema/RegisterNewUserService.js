@@ -24,7 +24,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: ACTION_NOT_FOUND,
         message: 'ConfirmPhoneAction with the specified ID is not verified, expired, or does not exist',
-        messageForUser: 'errors.ACTION_NOT_FOUND.user.message',
+        messageForUser: 'errors.ACTION_NOT_FOUND.phone.message',
     },
 }
 

@@ -235,7 +235,7 @@ async function registerNewTestUser (userAttrs = {}, client) {
 
 
     const { data, errors } = await client.mutate(REGISTER_NEW_USER_MUTATION, {
-        data: { dv: 1, sender, confirmPhoneActionId: actionId, name, password }
+        data: { dv: 1, sender, confirmPhoneAction: { id: actionId }, name, password }
     })
 
     throwIfError(data, errors)

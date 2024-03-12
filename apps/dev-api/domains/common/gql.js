@@ -6,6 +6,15 @@ const SEND_MESSAGE_MUTATION = gql`
     }
 `
 
+const REGISTER_SERVICE_USER_MUTATION = gql`
+    mutation registerNewServiceUser ($data: RegisterNewServiceUserInput!) {
+        result: registerNewServiceUser(data: $data) {
+            id
+        }
+    }
+`
+
 module.exports = {
     SEND_MESSAGE_MUTATION,
+    REGISTER_SERVICE_USER_MUTATION,
 }
