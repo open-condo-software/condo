@@ -25,6 +25,16 @@ jobs:
           fetch-depth: 0
           submodules: recursive
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+      - name: Create sentry review release
+        uses: tclindner/sentry-releases-action@v1.2.0
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_ACTION_TOKEN }}
+          SENTRY_ORG: condo
+          SENTRY_PROJECT: javascript-nextjs
+          SENTRY_URL: https://sentry.in.doma.ai/
+        with:
+          environment: review
+          tagName: ${{ GITHUB_REF_NAME }}
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
         with:
@@ -63,16 +73,6 @@ jobs:
           WERF_REPO: swr.ru-moscow-1.hc.sbercloud.ru/condo/condo
           WERF_REPO_CONTAINER_REGISTRY: default
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-      - name: Create sentry review release
-        uses: tclindner/sentry-releases-action@v1.2.0
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_ACTION_TOKEN }}
-          SENTRY_ORG: condo
-          SENTRY_PROJECT: javascript-nextjs
-          SENTRY_URL: https://sentry.in.doma.ai/
-        with:
-          environment: review
-          tagName: ${{ github.ref }}
       - name: Urls output
         run: |
           echo "condo: https://review-${{ env.REVIEW_URL_PREFIX }}-condo.r.doma.ai"
