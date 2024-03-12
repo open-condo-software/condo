@@ -36,6 +36,8 @@ import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
 import { TODO_STEP_CLICK_ROUTE } from '@condo/domains/onboarding/utils/clientSchema/constants'
 
 
+
+
 const TourWrapper = styled.div`
   background-color: ${colors.gray[1]};
   padding: 40px;
@@ -149,6 +151,13 @@ const TourPageContent = () => {
     const { breakpoints } = useLayoutContext()
     const isSmallScreen = useMemo(() => !breakpoints.DESKTOP_SMALL, [breakpoints.DESKTOP_SMALL])
 
+    const isDisabledStep = useCallback(step => {
+        if (FIRST_LEVEL_STEPS.includes(step.type) || step.status === TourStepStatusType.Completed) return false
+
+        const firstTodoStep = stepsToRender.find(step => step.status === TourStepStatusType.Todo)
+        if (firstTodoStep.id !== step.id) return true
+    }, [stepsToRender])
+
     if (isLoading || stepsLoading || syncLoading) {
         return <Loader size='large'/>
     }
@@ -180,6 +189,7 @@ const TourPageContent = () => {
                                         step={step}
                                         steps={tourSteps}
                                         onClick={() => handleStepCardClick(step)}
+                                        disabled={isDisabledStep(step)}
                                     />
                                 ))
                             }

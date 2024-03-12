@@ -19,10 +19,11 @@ type TourStepCardProps = {
     step: TourStepType
     steps: TourStepType[]
     onClick: () => void
+    disabled: boolean
 }
 
 export const TourStepCard: React.FC<TourStepCardProps> = (props) => {
-    const { step, steps, onClick } = props
+    const { step, steps, onClick, disabled } = props
     const { link } = useOrganization()
     const role = useMemo(() => get(link, 'role'), [link])
 
@@ -94,7 +95,7 @@ export const TourStepCard: React.FC<TourStepCardProps> = (props) => {
 
         return CompletePreviousStepMessage
     }, [CompleteBillingStepResidentStepMessage, CompletePreviousStepMessage, NoPermissionsMessage, hasPermission, stepType, steps])
-    const isDisabledStatus = useMemo(() => stepStatus === TourStepStatusType.Disabled || !hasPermission, [hasPermission, stepStatus])
+    const isDisabledStatus = useMemo(() => stepStatus === TourStepStatusType.Disabled || !hasPermission || disabled, [disabled, hasPermission, stepStatus])
 
     const cardContent = (
         <Card.CardButton
