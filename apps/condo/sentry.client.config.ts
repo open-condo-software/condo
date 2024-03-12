@@ -13,7 +13,7 @@ if (sentryConfig['client']) {
         sampleRate: sentryConfig['client']['sampleRate'],
         tracesSampleRate: sentryConfig['client']['sampleRate'],
         sendClientReports: true,
-        debug: true,
+        debug: false,
         autoSessionTracking: true,
         environment: sentryConfig['client']['environment'],
     })
