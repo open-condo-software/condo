@@ -64,9 +64,9 @@ jobs:
           WERF_REPO_CONTAINER_REGISTRY: default
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
       - name: Create sentry review release
-        uses: getsentry/action-release@v1
+        uses: getsentry/action-release@v1.2.0
         env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_ACTION_TOKEN }}
           SENTRY_ORG: condo
           SENTRY_PROJECT: javascript-nextjs
           SENTRY_URL: https://sentry.in.doma.ai/
