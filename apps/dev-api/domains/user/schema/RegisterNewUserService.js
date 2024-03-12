@@ -32,7 +32,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
     types: [
         {
             access: true,
-            type: 'input RegisterNewUserInput { dv: Int!, sender: SenderFieldInput!, confirmPhoneActionId: String!, name: String!, password: String!}',
+            type: 'input RegisterNewUserInput { dv: Int!, sender: SenderFieldInput!, confirmPhoneAction: ConfirmPhoneActionWhereUniqueInput!, name: String!, password: String!}',
         },
     ],
     mutations: [
@@ -40,11 +40,11 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
             access: true,
             schema: 'registerNewUser(data: RegisterNewUserInput!): User',
             resolver: async (parent, args, context) => {
-                const { data: { dv, sender, confirmPhoneActionId, name, password } } = args
+                const { data: { dv, sender, confirmPhoneAction: { id }, name, password } } = args
 
                 const currentTime = dayjs().toISOString()
                 const confirmAction = await ConfirmPhoneAction.getOne(context, {
-                    id: confirmPhoneActionId,
+                    id,
                     expiresAt_gte: currentTime,
                     deletedAt: null,
                     isVerified: true,

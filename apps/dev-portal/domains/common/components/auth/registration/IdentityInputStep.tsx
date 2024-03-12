@@ -66,7 +66,7 @@ export const IdentityInputStep: React.FC<IdentityInputStepProps> = ({ phone, act
             password: values.password,
             dv: 1,
             sender: getClientSideSenderInfo(),
-            confirmPhoneActionId: actionId,
+            confirmPhoneAction: { id: actionId },
         }
         const { data: response } = await registerNewUserMutation({ variables: { data } })
         if (response?.registerNewUser?.id) {

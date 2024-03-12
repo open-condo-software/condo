@@ -23,6 +23,7 @@ const {
     CREATE_OIDC_CLIENT_MUTATION,
     GENERATE_OIDC_CLIENT_SECRET_MUTATION,
     UPDATE_OIDC_CLIENT_URL_MUTATION,
+    REGISTER_APP_USER_SERVICE_MUTATION,
 } = require('@dev-api/domains/miniapp/gql')
 const { UploadingFile } = require('@open-condo/keystone/test.utils')
 const { DEV_ENVIRONMENT } = require('@dev-api/domains/miniapp/constants/publishing')
@@ -412,6 +413,25 @@ async function updateTestB2CAppAccessRight (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+
+async function registerAppUserServiceByTestClient(client, app, confirmEmailAction, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app.id')
+    if (!confirmEmailAction || !confirmEmailAction.id) throw new Error('no confirmEmailAction.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        environment: DEV_ENVIRONMENT,
+        app: { id: app.id },
+        confirmEmailAction: { id: confirmEmailAction.id },
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(REGISTER_APP_USER_SERVICE_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -427,5 +447,6 @@ module.exports = {
     importB2CAppByTestClient,
     allB2CAppPropertiesByTestClient, createB2CAppPropertyByTestClient, deleteB2CAppPropertyByTestClient,
     getOIDCClientByTestClient, createOIDCClientByTestClient, generateOIDCClientSecretByTestClient, updateOIDCClientUrlByTestClient,
+    registerAppUserServiceByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

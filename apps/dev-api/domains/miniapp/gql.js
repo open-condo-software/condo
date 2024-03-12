@@ -82,6 +82,12 @@ const UPDATE_OIDC_CLIENT_URL_MUTATION = gql`
     }
 `
 
+const REGISTER_APP_USER_SERVICE_MUTATION = gql`
+    mutation registerAppUserService ($data: RegisterAppUserServiceInput!) {
+        result: registerAppUserService(data: $data) { id }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -98,5 +104,6 @@ module.exports = {
     CREATE_OIDC_CLIENT_MUTATION,
     GENERATE_OIDC_CLIENT_SECRET_MUTATION,
     UPDATE_OIDC_CLIENT_URL_MUTATION,
+    REGISTER_APP_USER_SERVICE_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
