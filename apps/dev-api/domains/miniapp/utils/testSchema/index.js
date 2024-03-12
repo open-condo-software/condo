@@ -11,6 +11,7 @@ const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testS
 
 const {
     B2CApp: B2CAppGQL,
+    B2CAppAccessRight: B2CAppAccessRightGQL,
     B2CAppBuild: B2CAppBuildGQL,
     B2CAppPublishRequest: B2CAppPublishRequestGQL,
     PUBLISH_B2C_APP_MUTATION,
@@ -30,6 +31,7 @@ const { DEFAULT_COLOR_SCHEMA } = require("@dev-api/domains/miniapp/constants/b2c
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const B2CApp = generateGQLTestUtils(B2CAppGQL)
+const B2CAppAccessRight = generateGQLTestUtils(B2CAppAccessRightGQL)
 const B2CAppBuild = generateGQLTestUtils(B2CAppBuildGQL)
 const B2CAppPublishRequest = generateGQLTestUtils(B2CAppPublishRequestGQL)
 /* AUTOGENERATE MARKER <CONST> */
@@ -379,6 +381,37 @@ async function updateOIDCClientUrlByTestClient(client, app, extraAttrs = {}) {
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+async function createTestB2CAppAccessRight (client, app, condoUserId, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app.id')
+    if (!condoUserId) throw new Error('no condoUserId')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        app: { connect: { id: app.id } },
+        condoUserId,
+        ...extraAttrs,
+    }
+    const obj = await B2CAppAccessRight.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestB2CAppAccessRight (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await B2CAppAccessRight.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -387,6 +420,7 @@ module.exports = {
     CondoB2CAppProperty, createCondoB2CAppProperties,
     CondoOIDCClient,
     B2CApp, createTestB2CApp, updateTestB2CApp, updateTestB2CApps,
+    B2CAppAccessRight, createTestB2CAppAccessRight, updateTestB2CAppAccessRight,
     B2CAppBuild, createTestB2CAppBuild, updateTestB2CAppBuild, generateBuildVersion,
     B2CAppPublishRequest, createTestB2CAppPublishRequest, updateTestB2CAppPublishRequest,
     publishB2CAppByTestClient,

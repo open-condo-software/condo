@@ -9,6 +9,7 @@ const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.ut
 
 const {
     B2CApp: B2CAppGQL,
+    B2CAppAccessRight: B2CAppAccessRightGQL,
     B2CAppBuild: B2CAppBuildGQL,
     B2CAppPublishRequest: B2CAppPublishRequestGQL,
     PUBLISH_B2C_APP_MUTATION,
@@ -24,6 +25,7 @@ const {
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const B2CApp = generateServerUtils(B2CAppGQL)
+const B2CAppAccessRight = generateServerUtils(B2CAppAccessRightGQL)
 const B2CAppBuild = generateServerUtils(B2CAppBuildGQL)
 const B2CAppPublishRequest = generateServerUtils(B2CAppPublishRequestGQL)
 
@@ -141,11 +143,11 @@ async function updateOIDCClientUrl (context, data) {
         dataPath: 'result',
     })
 }
-
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     B2CApp,
+    B2CAppAccessRight,
     B2CAppBuild,
     B2CAppPublishRequest,
     publishB2CApp,

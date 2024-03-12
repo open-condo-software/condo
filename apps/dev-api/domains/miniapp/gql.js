@@ -15,6 +15,10 @@ const EXPORT_FIELDS = AVAILABLE_ENVIRONMENTS.map(environment => `${environment}E
 const B2C_APP_FIELDS = `{ name developer logo { publicUrl originalFilename } ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
 const B2CApp = generateGqlQueries('B2CApp', B2C_APP_FIELDS)
 
+const B2C_APP_ACCESS_RIGHT_FIELDS = `{ app { id } condoUserId ${COMMON_FIELDS} }`
+const B2CAppAccessRight = generateGqlQueries('B2CAppAccessRight', B2C_APP_ACCESS_RIGHT_FIELDS)
+
+
 const B2C_APP_BUILD_FIELDS = `{ app { id } version data { publicUrl originalFilename mimetype encoding } ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
 const B2CAppBuild = generateGqlQueries('B2CAppBuild', B2C_APP_BUILD_FIELDS)
 
@@ -82,6 +86,7 @@ const UPDATE_OIDC_CLIENT_URL_MUTATION = gql`
 
 module.exports = {
     B2CApp,
+    B2CAppAccessRight,
     B2CAppBuild,
     B2CAppPublishRequest,
     PUBLISH_B2C_APP_MUTATION,
