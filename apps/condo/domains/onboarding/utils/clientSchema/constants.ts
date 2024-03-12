@@ -1,3 +1,5 @@
+import get from 'lodash/get'
+import getConfig from 'next/config'
 import Link from 'next/link'
 
 import { Building, ExternalLink, Meters, PlusCircle, Wallet } from '@open-condo/icons'
@@ -10,8 +12,14 @@ import {
 } from '@condo/domains/onboarding/constants/steps'
 
 
-export const EXTERNAL_GUIDE_LINK = 'https://drive.google.com/file/d/1mV4A_d8Wzzl-REe73OdoeHEngmnJi9NE/view'
-export const RESIDENT_APP_LANDING_EXTERNAL_LINK = 'https://doma.ai/app_landing'
+const {
+    publicRuntimeConfig,
+} = getConfig()
+
+const { tourConfig } = publicRuntimeConfig
+
+export const EXTERNAL_GUIDE_LINK = get(tourConfig, 'external_guide_url', '')
+export const RESIDENT_APP_LANDING_EXTERNAL_LINK = get(tourConfig, 'resident_app_landing_url', '')
 
 export const TODO_STEP_CLICK_ROUTE = {
     [CREATE_PROPERTY_STEP_TYPE]: '/property',

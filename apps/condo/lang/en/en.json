@@ -1895,8 +1895,20 @@
   "tour.pageData.resident.completed.title": "Relations with residents established",
   "tour.pageData.resident.completed.subtitle": "Residents can now submit statements and tickets via the mobile app. You will see them on the platform and be able to tell the residents important news.",
 
-  "tour.cardVideo.title": "Meet Doma",
-  "tour.cardVideo.description": "Learn how Doma helps management organizations",
+  "tour.cardVideo.title.default": "Meet Doma",
+  "tour.cardVideo.description.default": "Learn how Doma helps management organizations",
+
+  "tour.cardVideo.title.ticket": "How Doma makes it easier to work with tickets",
+  "tour.cardVideo.description.ticket": "We tell you how residents can submit tickets, and management organizations can receive and process them",
+
+  "tour.cardVideo.title.billing": "How Doma helps reduce accounts receivable",
+  "tour.cardVideo.description.billing": "We tell you how to work with accruals and make sure that residents pay their receipts on time",
+
+  "tour.cardVideo.title.meter": "How to simplify work with meter readings",
+  "tour.cardVideo.description.meter": "We tell you how management organizations and residents can work with meter readings on the Doma platform and in the mobile application",
+
+  "tour.cardVideo.title.resident": "How can a management organization build relationships with residents",
+  "tour.cardVideo.description.resident": "We tell you how the Doma mobile application helps managing organizations. Using practical examples, we show how to implement it.",
 
   "tour.residentAppCard.title": "Resident App",
 

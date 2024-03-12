@@ -50,6 +50,7 @@ const checkTLSClientCertConfig = JSON.parse(conf['CHECK_TLS_CLIENT_CERT_CONFIG']
 const condoRBDomain = conf['CONDORB_DOMAIN']
 const sentryConfig = conf['SENTRY_CONFIG'] ? JSON.parse(conf['SENTRY_CONFIG']) : {}
 const apolloBatchingEnabled = !falsey(conf['APOLLO_BATCHING_ENABLED'])
+const tourConfig = JSON.parse(conf['TOUR_CONFIG'] || '{}')
 
 let nextConfig = withTM(withLess(withCSS({
     publicRuntimeConfig: {
@@ -81,6 +82,7 @@ let nextConfig = withTM(withLess(withCSS({
         sentryConfig,
         apolloBatchingEnabled,
         currentVersion: getCurrentVersion(),
+        tourConfig,
     },
     lessLoaderOptions: {
         javascriptEnabled: true,

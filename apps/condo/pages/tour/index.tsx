@@ -36,8 +36,6 @@ import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
 import { TODO_STEP_CLICK_ROUTE } from '@condo/domains/onboarding/utils/clientSchema/constants'
 
 
-
-
 const TourWrapper = styled.div`
   background-color: ${colors.gray[1]};
   padding: 40px;
@@ -71,6 +69,8 @@ const CardsWrapper = styled.div<{ isSmallScreen: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 24px;
+  max-width: 500px;
+  width: 100%;
   
   & .tour-app-cards-wrapper {
     display: flex;
@@ -93,6 +93,7 @@ const TourPageContent = () => {
     const BackMessage = intl.formatMessage({ id: 'Back' })
 
     const router = useRouter()
+    const { locale } = useIntl()
     const { organization, isLoading } = useOrganization()
     const organizationId = get(organization, 'id')
     const { activeTourStep, setActiveTourStep, updateStepIfNotCompleted, syncLoading } = useTourContext()
@@ -221,7 +222,11 @@ const TourPageContent = () => {
             </Col>
             <Col span={isSmallScreen ? 24 : 10} style={APP_CARDS_COL_STYLES}>
                 <CardsWrapper isSmallScreen={isSmallScreen}>
-                    <CardVideo/>
+                    {
+                        locale === 'ru' && (
+                            <CardVideo activeTourStep={activeTourStep}/>
+                        )
+                    }
                     <div className='tour-app-cards-wrapper'>
                         <ResidentAppCard/>
                         <TechnicAppCard/>
