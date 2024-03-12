@@ -63,6 +63,16 @@ jobs:
           WERF_REPO: swr.ru-moscow-1.hc.sbercloud.ru/condo/condo
           WERF_REPO_CONTAINER_REGISTRY: default
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      - name: Create sentry review release
+        uses: getsentry/action-release@v1.7.0
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: condo
+          SENTRY_PROJECT: javascript-nextjs
+          SENTRY_URL: https://sentry.in.doma.ai/
+        with:
+          environment: review
+          finalize: false
       - name: Urls output
         run: |
           echo "condo: https://review-${{ env.REVIEW_URL_PREFIX }}-condo.r.doma.ai"
