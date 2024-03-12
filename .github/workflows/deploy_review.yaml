@@ -64,7 +64,7 @@ jobs:
           WERF_REPO_CONTAINER_REGISTRY: default
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
       - name: Create sentry review release
-        uses: getsentry/action-release@v1.2.0
+        uses: tclindner/sentry-releases-action@v1.2.0
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_ACTION_TOKEN }}
           SENTRY_ORG: condo
@@ -72,7 +72,7 @@ jobs:
           SENTRY_URL: https://sentry.in.doma.ai/
         with:
           environment: review
-          finalize: false
+          tagName: ${{ github.ref }}
       - name: Urls output
         run: |
           echo "condo: https://review-${{ env.REVIEW_URL_PREFIX }}-condo.r.doma.ai"
