@@ -25,6 +25,10 @@ jobs:
           fetch-depth: 0
           submodules: recursive
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+      - name: Set release name from current branch
+        run: |
+          REF_NAME=${{ github.event.ref_name }}
+          echo "SENTRY_RELEASE_NAME=$(echo ${REF_NAME} | sed 's/\_/-/g')" >> $GITHUB_ENV
       - name: Create sentry review release
         uses: tclindner/sentry-releases-action@v1.2.0
         env:
@@ -34,7 +38,7 @@ jobs:
           SENTRY_URL: https://sentry.in.doma.ai/
         with:
           environment: review
-          tagName: ${{ github.ref_name }} | sed 's|.*/||'
+          tagName: ${{ env.SENTRY_RELEASE_NAME }}
           releaseNamePrefix: review-
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
