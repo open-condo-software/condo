@@ -34,7 +34,8 @@ jobs:
           SENTRY_URL: https://sentry.in.doma.ai/
         with:
           environment: review
-          tagName: ${{ github.ref_name }}
+          tagName: ${{ github.ref_name }} | sed 's|.*/||'
+          releaseNamePrefix: review-
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
         with:
