@@ -5,6 +5,10 @@ const { AddressFromStringParser } = require('@open-condo/clients/address-service
 const { AbstractBulkSearchStrategy } = require('./AbstractBulkSearchStrategy')
 const { BULK_SEARCH_CHUNK_SIZE, SEARCH_ERROR_COMMON, SEARCH_ERROR_NO_PLUGINS, SEARCH_ERROR_NOT_FOUND } = require('./constants')
 
+/**
+ * This search strategy pass each search item to the chain of search plugins.
+ * The first not empty result will be returned.
+ */
 class StrategyEachItemToPlugins extends AbstractBulkSearchStrategy {
 
     /**
