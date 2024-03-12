@@ -892,6 +892,7 @@
   "pages.ticket.autoAssignment.button.save.label": "Сохранить",
   "pages.ticket.autoAssignment.button.edit.label": "Редактировать",
   "pages.ticket.autoAssignment.button.delete.label": "Удалить",
+  "pages.ticket.autoAssignment.button.deleteEverything.label": "Удалить все",
   "pages.ticket.autoAssignment.notifications.save.message": "Данные сохранены",
   "pages.ticket.autoAssignment.notifications.delete.message": "Данные удалены",
   "pages.ticket.autoAssignment.notifications.error.message": "Что-то пошло не так",

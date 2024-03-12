@@ -892,6 +892,7 @@
   "pages.ticket.autoAssignment.button.save.label": "Save",
   "pages.ticket.autoAssignment.button.edit.label": "Edit",
   "pages.ticket.autoAssignment.button.delete.label": "Delete",
+  "pages.ticket.autoAssignment.button.deleteEverything.label": "Delete everything",
   "pages.ticket.autoAssignment.notifications.save.message": "Data saved",
   "pages.ticket.autoAssignment.notifications.delete.message": "Data deleted",
   "pages.ticket.autoAssignment.notifications.error.message": "Failed to load data",
