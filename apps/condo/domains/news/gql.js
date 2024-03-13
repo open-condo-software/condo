@@ -38,7 +38,7 @@ const NewsItemSharing = generateGqlQueries('NewsItemSharing', NEWS_ITEM_SHARING_
 
 const GET_NEWS_SHARING_RECIPIENTS_MUTATION = gql`
     query getGetNewsSharingRecipients ($data: GetNewsSharingRecipientsInput!) {
-        result: getNewsSharingRecipients(data: $data) { id name recipients }
+        result: getNewsSharingRecipients(data: $data) { id name receiversCount }
     }
 `
 

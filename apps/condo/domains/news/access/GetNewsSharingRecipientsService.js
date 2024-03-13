@@ -19,7 +19,7 @@ async function canGetNewsSharingRecipients ({ authentication: { item: user }, ar
     const organizationId = get(b2bContext, 'organization', null)
     if (!organizationId) { return false }
 
-    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canReadNewsItems')
+    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageNewsItems')
 }
 
 /*

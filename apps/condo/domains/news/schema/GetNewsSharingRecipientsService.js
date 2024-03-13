@@ -34,6 +34,7 @@
  * <Condo /news> -> <Condo.GetNewsSharingRecipientsService> -> <Miniapp.GetRecipients>
  */
 
+const Ajv = require('ajv')
 const fetch = require('node-fetch')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
@@ -41,6 +42,23 @@ const { GQLCustomSchema, getById } = require('@open-condo/keystone/schema')
 
 const { WRONG_VALUE, NETWORK_ERROR } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/news/access/GetNewsSharingRecipientsService')
+
+const SCHEMA = {
+    'type': 'array',
+    'items': {
+        'type': 'object',
+        'properties': {
+            'id': { 'type': 'string' },
+            'name': { 'type': 'string' },
+            'receiversCount': { 'type': 'number' },
+        },
+        'required': ['id', 'name'],
+        'additionalProperties': false,
+    },
+}
+
+const ajv = new Ajv()
+const validateSchema = ajv.compile(SCHEMA)
 
 async function fetchWithTimeout (url, options = {}, timeout = 5000) {
     const controller = new AbortController()
@@ -96,7 +114,7 @@ const GetNewsSharingRecipientsService = new GQLCustomSchema('GetNewsSharingRecip
         },
         {
             access: true,
-            type: 'type GetNewsSharingRecipientsOutput { id: String!, name: String!, recipients: Int }',
+            type: 'type GetNewsSharingRecipientsOutput { id: String!, name: String!, receiversCount: Int }',
         },
     ],
     
@@ -141,21 +159,17 @@ const GetNewsSharingRecipientsService = new GQLCustomSchema('GetNewsSharingRecip
                 }
 
                 // Check that result data is in good shape
-                const getRecipientsResultData = await getRecipientsResult.json()
+                let getRecipientsResultData
 
-                if (!getRecipientsResultData || !Array.isArray(getRecipientsResultData)) {
+                try {
+                    getRecipientsResultData = await getRecipientsResult.json()
+                } catch (err) {
                     throw new GQLError(ERRORS.NEWS_SHARING_APP_REQUEST_BAD_RESPONSE)
                 }
 
-                getRecipientsResultData.forEach(x => {
-                    if (
-                        (typeof x.id !== 'string') ||
-                        (typeof x.name !== 'string') ||
-                        (x.recipients && typeof x.recipients !== 'number')
-                    ) {
-                        throw new GQLError(ERRORS.NEWS_SHARING_APP_REQUEST_BAD_RESPONSE)
-                    }
-                })
+                if (!validateSchema(getRecipientsResultData)) {
+                    throw new GQLError(ERRORS.NEWS_SHARING_APP_REQUEST_BAD_RESPONSE)
+                }
 
                 return getRecipientsResultData
             },
