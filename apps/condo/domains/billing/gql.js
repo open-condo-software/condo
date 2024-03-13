@@ -85,6 +85,12 @@ const REGISTER_BILLING_RECEIPT_FILE_MUTATION = gql`
     }
 `
 
+const SUM_BILLING_RECEIPTS_QUERY = gql`
+    query _allBillingReceiptsSum ($where: BillingReceiptWhereInput!) {
+        result: _allBillingReceiptsSum(where: $where) { sum }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -106,6 +112,7 @@ module.exports = {
     BillingReceiptFile,
     VALIDATE_QRCODE_MUTATION,
     SEND_NEW_BILLING_RECEIPT_FILES_NOTIFICATIONS_MUTATION,
+    SUM_BILLING_RECEIPTS_QUERY,
     REGISTER_BILLING_RECEIPT_FILE_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

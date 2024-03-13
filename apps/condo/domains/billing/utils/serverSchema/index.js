@@ -27,6 +27,7 @@ const { BillingReceiptFile: BillingReceiptFileGQL } = require('@condo/domains/bi
 const { VALIDATE_QRCODE_MUTATION } = require('@condo/domains/billing/gql')
 const { SEND_NEW_BILLING_RECEIPT_FILES_NOTIFICATIONS_MUTATION } = require('@condo/domains/billing/gql')
 const { REGISTER_BILLING_RECEIPT_FILE_MUTATION } = require('@condo/domains/billing/gql')
+const { SUM_BILLING_RECEIPTS_QUERY } = require('@condo/domains/billing/gql')
 const { SEND_RESIDENT_MESSAGE_MUTATION } = require('@condo/domains/resident/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -135,6 +136,19 @@ async function registerBillingReceiptFile (context, data) {
     })
 }
 
+async function sumBillingReceipts (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: SUM_BILLING_RECEIPTS_QUERY,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to sumBillingReceipts',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -155,6 +169,7 @@ module.exports = {
     BillingReceiptFile,
     validateQRCode,
     sendNewBillingReceiptFilesNotifications,
+    sumBillingReceipts,
     registerBillingReceiptFile,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -20,6 +20,9 @@ const {
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { makeClientWithPropertyAndBilling, createTestBillingRecipient } = require('@condo/domains/billing/utils/testSchema')
 const { createTestBillingAccount, createTestBillingProperty, createTestBillingIntegrationOrganizationContext, createTestBillingIntegrationAccessRight, makeClientWithResidentAndServiceConsumer } = require('@condo/domains/billing/utils/testSchema')
+const { createTestBillingIntegration, createTestBillingReceipt, updateTestBillingReceipt, ResidentBillingReceipt,
+    generateServicesData, createTestBillingReceiptFile, updateTestBillingReceiptFile, PUBLIC_FILE, PRIVATE_FILE,
+} = require('@condo/domains/billing/utils/testSchema')
 const {
     createTestContact,
     updateTestContact,
@@ -32,9 +35,6 @@ const { makeClientWithProperty, createTestProperty } = require('@condo/domains/p
 const { registerServiceConsumerByTestClient, updateTestServiceConsumer, registerResidentByTestClient, createTestResident, ServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { addResidentAccess, makeClientWithResidentUser, makeClientWithSupportUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 
-const { createTestBillingIntegration, createTestBillingReceipt, updateTestBillingReceipt, ResidentBillingReceipt,
-    generateServicesData, createTestBillingReceiptFile, updateTestBillingReceiptFile, PUBLIC_FILE, PRIVATE_FILE,
-} = require('../utils/testSchema')
 
 const HOUSING_CATEGORY = '928c97ef-5289-4daa-b80e-4b9fed50c629'
 const OVERHAUL_CATEGORY = 'c0b9db6a-c351-4bf4-aa35-8e5a500d0195'

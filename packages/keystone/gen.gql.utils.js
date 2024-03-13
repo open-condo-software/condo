@@ -76,7 +76,7 @@ function genTestGQLUtils (key, fields) {
     const DELETE_OBJ_MUTATION = genDeleteGQL(MODEL, fields)
 
     async function getAll (client, where, { raw = false, sortBy } = {}) {
-        const { data, errors } = await client.query(GET_ALL_OBJS_QUERY, { where: where, sortBy })
+        const { data, errors } = await client.query(GET_ALL_OBJS_QUERY, { where, sortBy })
         if (raw) return { data, errors }
         expect(errors).toEqual(undefined)
         return data.objs

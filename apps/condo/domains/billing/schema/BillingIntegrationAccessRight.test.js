@@ -5,9 +5,9 @@
 const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
 const { expectToThrowAccessDeniedErrorToObjects, expectToThrowAuthenticationErrorToObjects, expectToThrowAuthenticationErrorToObj, expectToThrowAccessDeniedErrorToObj } = require('@open-condo/keystone/test.utils')
 
+const { BillingIntegrationAccessRight, createTestBillingIntegrationAccessRight, updateTestBillingIntegrationAccessRight, createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 
-const { BillingIntegrationAccessRight, createTestBillingIntegrationAccessRight, updateTestBillingIntegrationAccessRight, createTestBillingIntegration } = require('../utils/testSchema')
 
 describe('BillingIntegrationAccessRight', () => {
     test('user: create BillingIntegrationAccessRight', async () => {

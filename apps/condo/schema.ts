@@ -17781,6 +17781,11 @@ export type BillingReceiptsRecipientFieldInput = {
   classificationCode?: Maybe<Scalars['String']>;
 };
 
+export type BillingReceiptsSumOutput = {
+  __typename?: 'BillingReceiptsSumOutput';
+  sum: Scalars['String'];
+};
+
 export type BillingReceiptsUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<BillingReceiptUpdateInput>;
@@ -62861,6 +62866,7 @@ export type Query = {
   getAccessTokenByUserId?: Maybe<GetAccessTokenByUserIdOutput>;
   exportPropertiesToExcel?: Maybe<ExportPropertiesToExcelOutput>;
   allResidentBillingReceipts?: Maybe<Array<Maybe<ResidentBillingReceiptOutput>>>;
+  _allBillingReceiptsSum?: Maybe<BillingReceiptsSumOutput>;
   /**
    * Returns id of BankCostItem corresponding to specified payment purpose string
    *
@@ -69320,6 +69326,11 @@ export type QueryAllResidentBillingReceiptsArgs = {
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
   sortBy?: Maybe<Array<SortResidentBillingReceiptsBy>>;
+};
+
+
+export type Query_AllBillingReceiptsSumArgs = {
+  where: BillingReceiptWhereInput;
 };
 
 

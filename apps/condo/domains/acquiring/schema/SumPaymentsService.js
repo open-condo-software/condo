@@ -27,7 +27,7 @@ const SumPaymentsService = new GQLCustomSchema('SumPaymentsService', {
                 const paymentLoader = new GqlWithKnexLoadList({
                     listKey: 'Payment',
                     fields: 'id',
-                    where: where,
+                    where,
                 })
                 const idObjects = await paymentLoader.load()
                 const aggregate = await paymentLoader.loadAggregate('SUM(amount) as "amountSum"', idObjects.map(({ id }) => id))

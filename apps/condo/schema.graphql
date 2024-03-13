@@ -72902,6 +72902,10 @@ type RegisterBillingReceiptFileOutput {
   status: RegisterBillingReceiptFileResultStatus!
 }
 
+type BillingReceiptsSumOutput {
+  sum: String!
+}
+
 input CreateBankAccountRequestInput {
   dv: Int!
   sender: JSON!
@@ -77439,6 +77443,7 @@ type Query {
   getAccessTokenByUserId(data: GetAccessTokenByUserIdInput!): GetAccessTokenByUserIdOutput
   exportPropertiesToExcel(data: ExportPropertiesToExcelInput!): ExportPropertiesToExcelOutput
   allResidentBillingReceipts(where: ResidentBillingReceiptWhereInput, first: Int, skip: Int, sortBy: [SortResidentBillingReceiptsBy!]): [ResidentBillingReceiptOutput]
+  _allBillingReceiptsSum(where: BillingReceiptWhereInput!): BillingReceiptsSumOutput
 
   """
   Returns id of BankCostItem corresponding to specified payment purpose string
