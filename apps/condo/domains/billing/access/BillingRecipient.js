@@ -15,6 +15,7 @@ async function canReadBillingRecipients ({ authentication }) {
     return await canReadBillingEntity(authentication)
 }
 
+// TODO(dkovyazin): Remove support and STAFF access to create or update BillingRecipient
 async function canManageBillingRecipients ({ authentication: { item: user }, operation, originalInput, itemId, listKey }) {
 
     if (!user) return throwAuthenticationError()

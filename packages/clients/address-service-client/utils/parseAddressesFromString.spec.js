@@ -24,60 +24,63 @@ const ADDRESS_USE_CASES = [
     ['ул.Щорса, двлд 12', 'ул.Щорса, двлд 12', 'flat', '1'],
     ['ул.Щорса двлд. 12', 'ул.Щорса двлд. 12', 'flat', '1'],
     ['ул.Щорса участок. 12,4', 'ул.Щорса участок. 12', 'flat', '4'],
+    ['ул.Щорса участок. 12,к/п4', 'ул.Щорса участок. 12', 'apartment', '4'],
 ]
 
+describe('AddressFromStringParser', () => {
+    describe('Parsing unit names with unit types and house address from address strings', () => {
+        for (const rawData of ADDRESS_USE_CASES) {
+            const [ rawInput, house, unitType, unit ] = rawData
+            test(`"${rawInput}" to be: "${house} = ${unitType} = ${unit}" `, () => {
+                const [{ result: { address, unitName: parsedUnitName, unitType: parsedUnitType } }] = parseAddressesFromString([ rawInput ])
+                expect(address).toEqual(house)
+                expect(parsedUnitName).toEqual(unit)
+                expect(unitType).toEqual(parsedUnitType)
+            })
+        }
 
-describe('Parsing unit names with unit types and house address from address strings', () => {
-    for (const rawData of ADDRESS_USE_CASES) {
-        const [ rawInput, house, unitType, unit ] = rawData
-        test(`"${rawInput}" to be: "${house} = ${unitType} = ${unit}" `, () => {
-            const [{ result: { address, unitName: parsedUnitName, unitType: parsedUnitType } }] = parseAddressesFromString([ rawInput ])
-            expect(address).toEqual(house)
-            expect(parsedUnitName).toEqual(unit)
-            expect(unitType).toEqual(parsedUnitType)
+        test('parseAddressesFromString should correctly parse multiple addresses', () => {
+            const addresses = ['г. Казань, ул. Кремлевская, д. 18, кв. 25', 'г. Москва, ул. Пушкина, д. 10, кв. 5']
+            const result = parseAddressesFromString(addresses)
+            expect(result).toHaveLength(2)
+            expect(result[0].result.address).toEqual('г. Казань, ул. Кремлевская, д. 18')
+            expect(result[0].result.unitName).toEqual('25')
+            expect(result[1].result.address).toEqual('г. Москва, ул. Пушкина, д. 10')
+            expect(result[1].result.unitName).toEqual('5')
         })
-    }
+    })
 
-    test('parseAddressesFromString should correctly parse multiple addresses', () => {
-        const addresses = ['г. Казань, ул. Кремлевская, д. 18, кв. 25', 'г. Москва, ул. Пушкина, д. 10, кв. 5']
-        const result = parseAddressesFromString(addresses)
-        expect(result).toHaveLength(2)
-        expect(result[0].result.address).toEqual('г. Казань, ул. Кремлевская, д. 18')
-        expect(result[0].result.unitName).toEqual('25')
-        expect(result[1].result.address).toEqual('г. Москва, ул. Пушкина, д. 10')
-        expect(result[1].result.unitName).toEqual('5')
+    describe('check AddressFromStringParser methods', () => {
+
+        test('parseUnit should return flat if no unit type is detected', () => {
+            const parser = new AddressFromStringParser()
+            const unitInput = 'Flat 1'
+            const result = parser.parseUnit(unitInput)
+            expect(result.unitType).toEqual('flat')
+        })
+
+        test('parseUnit should correctly detect unit types', () => {
+            const parser = new AddressFromStringParser()
+            const unitInput = 'офис 123'
+            const result = parser.parseUnit(unitInput)
+            expect(result.unitType).toEqual('commercial')
+        })
+
+        test('splitByKeyword should return empty unitPart if no unit is found', () => {
+            const parser = new AddressFromStringParser()
+            const input = 'г. Москва, ул. Пушкина, д. 10'
+            const result = parser.splitByKeyword(input)
+            expect(result.unitPart).toEqual('')
+        })
+
+        test('splitToUnitAndAddress should correctly split addresses', () => {
+            const parser = new AddressFromStringParser()
+            const input = 'г. Казань, ул. Кремлевская, д. 18, кв. 25'
+            const result = parser.splitToUnitAndAddress(input)
+            expect(result.housePart).toEqual('г. Казань, ул. Кремлевская, д. 18')
+            expect(result.unitPart).toEqual('кв 25')
+        })
     })
 })
 
-describe('check AddressFromStringParser methods', () => {
-
-    test('parseUnit should return flat if no unit type is detected', () => {
-        const parser = new AddressFromStringParser()
-        const unitInput = 'Flat 1'
-        const result = parser.parseUnit(unitInput)
-        expect(result.unitType).toEqual('flat')
-    })
-
-    test('parseUnit should correctly detect unit types', () => {
-        const parser = new AddressFromStringParser()
-        const unitInput = 'офис 123'
-        const result = parser.parseUnit(unitInput)
-        expect(result.unitType).toEqual('commercial')
-    })
-
-    test('splitByKeyword should return empty unitPart if no unit is found', () => {
-        const parser = new AddressFromStringParser()
-        const input = 'г. Москва, ул. Пушкина, д. 10'
-        const result = parser.splitByKeyword(input)
-        expect(result.unitPart).toEqual('')
-    })
-
-    test('splitToUnitAndAddress should correctly split addresses', () => {
-        const parser = new AddressFromStringParser()
-        const input = 'г. Казань, ул. Кремлевская, д. 18, кв. 25'
-        const result = parser.splitToUnitAndAddress(input)
-        expect(result.housePart).toEqual('г. Казань, ул. Кремлевская, д. 18')
-        expect(result.unitPart).toEqual('кв. 25')
-    })
-})
 
