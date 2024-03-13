@@ -3,17 +3,22 @@
  */
 
 const dayjs = require('dayjs')
+const get = require('lodash/get')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, getByCondition } = require('@open-condo/keystone/schema')
 
+const { EMAIL_ALREADY_REGISTERED_ERROR } = require('@condo/domains/user/constants/errors')
+const { REMOTE_SYSTEM } = require('@dev-api/domains/common/constants/common')
+const { REGISTER_SERVICE_USER_MUTATION } = require('@dev-api/domains/common/gql')
 const { productionClient, developmentClient } = require('@dev-api/domains/common/utils/serverClients')
 const access = require('@dev-api/domains/miniapp/access/RegisterAppServiceUserService')
-const { APP_NOT_FOUND } = require('@dev-api/domains/miniapp/constants/errors')
+const { APP_NOT_FOUND, ACCESS_RIGHT_ALREADY_EXISTS } = require('@dev-api/domains/miniapp/constants/errors')
 const { PROD_ENVIRONMENT } = require('@dev-api/domains/miniapp/constants/publishing')
 const { B2CAppAccessRight } = require('@dev-api/domains/miniapp/utils/serverSchema')
-const { ACTION_NOT_FOUND } = require('@dev-api/domains/user/constants/errors')
+const { ACTION_NOT_FOUND, CONDO_USER_ALREADY_EXISTS } = require('@dev-api/domains/user/constants/errors')
 const { ConfirmEmailAction } = require('@dev-api/domains/user/utils/serverSchema')
+
 
 const ERRORS = {
     ACTION_NOT_FOUND: {
@@ -28,6 +33,44 @@ const ERRORS = {
         message: 'The application with the specified ID was not found',
         messageForUser: 'errors.APP_NOT_FOUND.message',
     },
+    CONDO_USER_ALREADY_EXISTS: {
+        code: BAD_USER_INPUT,
+        type: CONDO_USER_ALREADY_EXISTS,
+        message: 'Service user with specified email already exists',
+        messageForUser: 'errors.CONDO_USER_ALREADY_EXISTS.message',
+    },
+    ACCESS_RIGHT_ALREADY_EXISTS: {
+        code: BAD_USER_INPUT,
+        type: ACCESS_RIGHT_ALREADY_EXISTS,
+        message: 'Another service user is already linked to specified app',
+        messageForUser: 'errors.ACCESS_RIGHT_ALREADY_EXISTS.message',
+    },
+}
+
+async function registerCondoUser (serverClient, data, context) {
+    try {
+        const { data: { result } } = await serverClient.executeAuthorizedMutation({
+            mutation: REGISTER_SERVICE_USER_MUTATION,
+            variables: {
+                data,
+            },
+        })
+
+        return result
+    } catch (err) {
+        const graphQLErrors = get(err, 'graphQLErrors', [])
+        for (const graphQLError of graphQLErrors) {
+            const gqlErrors = get(graphQLError, ['originalError', 'errors'], [])
+            for (const gqlError of gqlErrors) {
+                const messages = get(gqlError, ['data', 'messages'], [])
+                if (messages.some(message => message.includes(EMAIL_ALREADY_REGISTERED_ERROR))) {
+                    throw new GQLError(ERRORS.CONDO_USER_ALREADY_EXISTS, context)
+                }
+            }
+        }
+
+        throw err
+    }
 }
 
 const RegisterAppServiceUserService = new GQLCustomSchema('RegisterAppServiceUserService', {
@@ -87,16 +130,25 @@ const RegisterAppServiceUserService = new GQLCustomSchema('RegisterAppServiceUse
                 const appType = 'B2C'
                 const appName = b2cApp.name
 
-                const condoUser = await serverClient.registerServiceUser({
+                const existingAccessRights = await B2CAppAccessRight.getOne(context, {
+                    deletedAt: null,
+                    app: { id: appId },
+                })
+
+                if (existingAccessRights) {
+                    throw new GQLError(ERRORS.ACCESS_RIGHT_ALREADY_EXISTS, context)
+                }
+
+                const condoUser = await registerCondoUser(serverClient, {
                     email: normalizedEmail,
                     dv,
                     sender,
-                    name: `[DEV-API][${appType}] ${appName}`,
+                    name: `[${REMOTE_SYSTEM.toUpperCase()}][${appType}] ${appName}`,
                     meta: {
                         appType,
                         appId,
                     },
-                })
+                }, context)
 
                 await B2CAppAccessRight.create(context, {
                     dv,
@@ -118,4 +170,5 @@ const RegisterAppServiceUserService = new GQLCustomSchema('RegisterAppServiceUse
 
 module.exports = {
     RegisterAppServiceUserService,
+    ERRORS,
 }

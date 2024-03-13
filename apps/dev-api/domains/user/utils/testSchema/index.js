@@ -33,6 +33,7 @@ const {
     CONFIRM_EMAIL_ACTION_TTL_IN_SEC,
 } = require("@dev-api/domains/user/constants");
 const dayjs = require("dayjs");
+const { generateGqlQueries } = require("@open-condo/codegen/generate.gql")
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateGQLTestUtils(UserGQL)
@@ -42,6 +43,8 @@ const ConfirmPhoneAction = generateGQLTestUtils(ConfirmPhoneActionGQL)
 
 const DEFAULT_TEST_ADMIN_IDENTITY = conf.DEFAULT_TEST_ADMIN_IDENTITY || '+79068888888'
 const DEFAULT_TEST_ADMIN_SECRET = conf.DEFAULT_TEST_ADMIN_SECRET || '3a74b3f07978'
+
+const CondoUser = generateGQLTestUtils(generateGqlQueries('User', '{ type name email meta deletedAt }'))
 
 function createTestPhone () {
     const { country_code, mobile_begin_with, phone_number_lengths } = faker.helpers.arrayElement(countryPhoneData.filter(x => get(x, 'mobile_begin_with.length', 0) > 0))
@@ -207,6 +210,18 @@ async function completeConfirmEmailActionByTestClient(client, id, attrs = {}) {
     return [data.result, attrs]
 }
 
+async function verifyEmailByTestClient(client, admin, email = null) {
+    if (!email) {
+        email = faker.internet.email()
+    }
+    const [{ actionId }] = await startConfirmEmailActionByTestClient(client, { email })
+    // NOTE: admin client is used to read a confirmation code
+    const { code } = await ConfirmEmailAction.getOne(admin, { id: actionId })
+    await completeConfirmEmailActionByTestClient(client, actionId, { code })
+
+    return { id: actionId }
+}
+
 async function registerNewTestUser (userAttrs = {}, client) {
     // NOTE: needed to read confirmation code
     const adminClient = await makeLoggedInAdminClient()
@@ -284,10 +299,11 @@ module.exports = {
     ConfirmPhoneAction, createTestConfirmPhoneAction, updateTestConfirmPhoneAction,
     ConfirmEmailAction, createTestConfirmEmailAction, updateTestConfirmEmailAction,
     startConfirmPhoneActionByTestClient, completeConfirmPhoneActionByTestClient,
-    startConfirmEmailActionByTestClient, completeConfirmEmailActionByTestClient,
+    startConfirmEmailActionByTestClient, completeConfirmEmailActionByTestClient, verifyEmailByTestClient,
     registerNewTestUser, authenticateUserWithPhoneAndPasswordByTestClient,
     makeLoggedInAdminClient, makeRegisteredAndLoggedInUser, makeLoggedInSupportClient,
     createTestPhone,
     makeLoggedInCondoAdminClient,
+    CondoUser,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

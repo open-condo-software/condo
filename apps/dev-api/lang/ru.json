@@ -15,6 +15,8 @@
   "errors.ACTION_NOT_FOUND.email.message": "С момента подтверждения электронной почты прошло слишком много времени",
   "errors.INVALID_CODE.message": "Неверный код подтверждения",
   "errors.USER_ALREADY_EXISTS.message": "Пользователь с таким номером телефона уже был зарегистрирован ранее",
+  "errors.CONDO_USER_ALREADY_EXISTS.message": "Пользователь с такой электронной почтой уже был зарегистрирован на выбранном стенде",
+  "errors.ACCESS_RIGHT_ALREADY_EXISTS.message": "К данному приложению уже привязан сервисный пользователь",
   "errors.PASSWORD_TOO_SIMPLE.message": "Указанный пароль слишком короткий или содержит много повторяющихся символов",
   "errors.INVALID_MIMETYPE.message": "Неверный тип файла. Файл должен иметь одно из следующих расширений: {types}",
   "errors.INVALID_BUILD_VERSION.message": "Указанная версия сборки не является семантически корректной",

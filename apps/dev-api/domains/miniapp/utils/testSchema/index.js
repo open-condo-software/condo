@@ -27,7 +27,7 @@ const {
 } = require('@dev-api/domains/miniapp/gql')
 const { UploadingFile } = require('@open-condo/keystone/test.utils')
 const { DEV_ENVIRONMENT } = require('@dev-api/domains/miniapp/constants/publishing')
-const { generateGqlQueries } = require("@open-condo/codegen/generate.gql");
+const { generateGqlQueries } = require("@open-condo/codegen/generate.gql")
 const { DEFAULT_COLOR_SCHEMA } = require("@dev-api/domains/miniapp/constants/b2c")
 /* AUTOGENERATE MARKER <IMPORT> */
 
