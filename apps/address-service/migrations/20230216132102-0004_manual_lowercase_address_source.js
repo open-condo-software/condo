@@ -5,7 +5,7 @@ exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
 
-SET statement_timeout = '1500s';
+SET statement_timeout = '15000s';
 
 UPDATE "AddressSource" SET source = lower(source);
 
