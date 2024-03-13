@@ -5,7 +5,7 @@
 import * as Sentry from '@sentry/nextjs'
 import getConfig from 'next/config'
 
-const { publicRuntimeConfig: { sentryConfig } } = getConfig()
+const { publicRuntimeConfig: { sentryConfig, currentVersion } } = getConfig()
 
 if (sentryConfig['client']) {
     Sentry.init({
@@ -16,5 +16,6 @@ if (sentryConfig['client']) {
         debug: false,
         autoSessionTracking: true,
         environment: sentryConfig['client']['environment'],
+        release: `${sentryConfig['client']['environment']}-${currentVersion}`,
     })
 }

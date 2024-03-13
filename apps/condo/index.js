@@ -24,7 +24,7 @@ const { getWebhookModels } = require('@open-condo/webhooks/schema')
 
 const { PaymentLinkMiddleware } = require('@condo/domains/acquiring/PaymentLinkMiddleware')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
-const { VersioningMiddleware } = require('@condo/domains/common/utils/VersioningMiddleware')
+const { VersioningMiddleware, getCurrentVersion } = require('@condo/domains/common/utils/VersioningMiddleware')
 const { UnsubscribeMiddleware } = require('@condo/domains/notification/UnsubscribeMiddleware')
 const { UserExternalIdentityMiddleware } = require('@condo/domains/user/integration/UserExternalIdentityMiddleware')
 const { OIDCMiddleware } = require('@condo/domains/user/oidc')
@@ -109,7 +109,7 @@ const tasks = () => [
 if (!IS_BUILD_PHASE && SENTRY_CONFIG['server']) {
     Sentry.init({
         dsn: SENTRY_CONFIG['server']['dsn'],
-        debug: false,
+        debug: SENTRY_CONFIG['server']['environment'] === 'review',
         tracesSampleRate: SENTRY_CONFIG['server']['sampleRate'],
         integrations: [
             new Sentry.Integrations.Http({ tracing: true }),
@@ -118,6 +118,7 @@ if (!IS_BUILD_PHASE && SENTRY_CONFIG['server']) {
         environment: SENTRY_CONFIG['server']['environment'],
         organization: SENTRY_CONFIG['server']['organization'],
         project: SENTRY_CONFIG['server']['project'],
+        release: `${SENTRY_CONFIG['server']['environment']}-${getCurrentVersion()}`,
     })
 }
 

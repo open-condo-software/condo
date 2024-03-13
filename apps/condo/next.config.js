@@ -9,6 +9,7 @@ const withTMModule = require('next-transpile-modules')
 const conf = require('@open-condo/config')
 
 const { antGlobalVariables } = require('@condo/domains/common/constants/style')
+const { getCurrentVersion } = require('@condo/domains/common/utils/VersioningMiddleware')
 
 // Tell webpack to compile the "@open-condo/next" package, necessary
 // https://www.npmjs.com/package/next-transpile-modules
@@ -79,6 +80,7 @@ module.exports = withTM(withLess(withCSS({
         condoRBDomain,
         sentryConfig,
         apolloBatchingEnabled,
+        currentVersion: getCurrentVersion(),
     },
     lessLoaderOptions: {
         javascriptEnabled: true,
@@ -115,14 +117,14 @@ if (sentryConfig['client']) {
         module.exports,
         {
             dryRun: false,
-            silent: true,
+            silent: false,
             org: sentryConfig['client']['organization'],
             project: sentryConfig['client']['project'],
             validate: true,
             widenClientFileUpload: true,
             transpileClientSDK: false,
             hideSourceMaps: true,
-            disableLogger: false,
+            disableLogger: true,
             automaticVercelMonitors: true,
             autoInstrumentServerFunctions: true,
             autoInstrumentMiddleware: true,

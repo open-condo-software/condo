@@ -26,7 +26,7 @@ jobs:
           username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
           password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           submodules: recursive
@@ -70,3 +70,6 @@ jobs:
           WERF_SET_CI_REF: "ci.werf.io/ref=${GITHUB_REF_NAME}"
           WERF_REPO: swr.ru-moscow-1.hc.sbercloud.ru/condo/condo
           WERF_REPO_CONTAINER_REGISTRY: default
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_RELEASE: "development-${{ github.sha }}"
+          SENTRY_ENVIRONMENT: "development"
