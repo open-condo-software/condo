@@ -18,15 +18,7 @@
  * Where:
  * - URL = getRecipeints endpoint url provided in NewsItemSharingConfig
  *
- * Response payload:
- * [{
- *  id: <string>
- *  subscribers: <number>
- *  name: <string>
- * },
- * {...}
- * ]
- *
+ * Check response Payload in SCHEMA variable
  * --
  *
  * This method is just a proxy between Condo and miniapp.
