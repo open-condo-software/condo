@@ -539,6 +539,8 @@
   "pages.condo.property.EmptyBuildingBlock.view.CreateMapAutomaticallyTitle": "Generate map",
   "pages.condo.property.EmptyBuildingBlock.edit.EmptyBuildingHeader": "Press on «Add element» button",
   "pages.condo.property.EmptyBuildingBlock.view.EmptyBuildingHeader": "Map has not been created yet",
+  "pages.condo.property.EmptyBuildingBlock.edit.CardVideoTitle": "How to work with map in Doma",
+  "pages.condo.property.EmptyBuildingBlock.edit.CardVideoDescription": "On the example of how to create map",
   "pages.condo.property.SectionSelect.AllTitle": "All sections",
   "pages.condo.property.ParkingSectionSelect.AllTitle": "All parking sections",
   "pages.condo.property.SectionSelect.OptionPrefix": "Section №",

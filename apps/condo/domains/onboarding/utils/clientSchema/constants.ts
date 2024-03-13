@@ -1,4 +1,3 @@
-import get from 'lodash/get'
 import getConfig from 'next/config'
 import Link from 'next/link'
 
@@ -16,10 +15,10 @@ const {
     publicRuntimeConfig,
 } = getConfig()
 
-const { tourConfig } = publicRuntimeConfig
+const { externalGuideUrl, residentAppLandingUrl } = publicRuntimeConfig
 
-export const EXTERNAL_GUIDE_LINK = get(tourConfig, 'external_guide_url', '')
-export const RESIDENT_APP_LANDING_EXTERNAL_LINK = get(tourConfig, 'resident_app_landing_url', '')
+export const EXTERNAL_GUIDE_LINK = externalGuideUrl
+export const RESIDENT_APP_LANDING_EXTERNAL_LINK = residentAppLandingUrl
 
 export const TODO_STEP_CLICK_ROUTE = {
     [CREATE_PROPERTY_STEP_TYPE]: '/property',

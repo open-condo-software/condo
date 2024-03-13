@@ -3,6 +3,7 @@ import styled from '@emotion/styled'
 import { Col, Row, RowProps } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
+import getConfig from 'next/config'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -14,6 +15,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import { Button, Space, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
+import { CardVideo } from '@condo/domains/common/components/CardVideo'
 import {
     PageContent,
     PageHeader,
@@ -22,7 +24,6 @@ import {
 } from '@condo/domains/common/components/containers/BaseLayout'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { ResidentAppCard, TechnicAppCard } from '@condo/domains/onboarding/components/TourPage/AppCards'
-import { CardVideo } from '@condo/domains/onboarding/components/TourPage/CardVideo'
 import { TourStepCard } from '@condo/domains/onboarding/components/TourPage/TourStepCard'
 import {
     FIRST_LEVEL_STEPS,
@@ -35,6 +36,12 @@ import { useTourPageData } from '@condo/domains/onboarding/hooks/TourPage/useTou
 import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
 import { TODO_STEP_CLICK_ROUTE } from '@condo/domains/onboarding/utils/clientSchema/constants'
 
+
+const {
+    publicRuntimeConfig,
+} = getConfig()
+
+const { tourConfig } = publicRuntimeConfig
 
 const TourWrapper = styled.div`
   background-color: ${colors.gray[1]};
@@ -159,6 +166,12 @@ const TourPageContent = () => {
         if (firstTodoStep.id !== step.id) return true
     }, [stepsToRender])
 
+    const activeStepWithDefault = useMemo(() => activeTourStep || 'default', [activeTourStep])
+    const CardVideoTitle = intl.formatMessage({ id: `tour.cardVideo.title.${activeStepWithDefault}` })
+    const CardVideoDescription = intl.formatMessage({ id: `tour.cardVideo.description.${activeStepWithDefault}` })
+
+    const videoUrl = useMemo(() => get(tourConfig, activeStepWithDefault), [activeStepWithDefault])
+
     if (isLoading || stepsLoading || syncLoading) {
         return <Loader size='large'/>
     }
@@ -223,8 +236,12 @@ const TourPageContent = () => {
             <Col span={isSmallScreen ? 24 : 10} style={APP_CARDS_COL_STYLES}>
                 <CardsWrapper isSmallScreen={isSmallScreen}>
                     {
-                        locale === 'ru' && (
-                            <CardVideo activeTourStep={activeTourStep}/>
+                        locale === 'ru' && videoUrl && (
+                            <CardVideo
+                                src={videoUrl}
+                                title={CardVideoTitle}
+                                description={CardVideoDescription}
+                            />
                         )
                     }
                     <div className='tour-app-cards-wrapper'>

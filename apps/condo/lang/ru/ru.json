@@ -539,6 +539,8 @@
   "pages.condo.property.EmptyBuildingBlock.view.CreateMapAutomaticallyTitle": "Сгенерировать автоматически",
   "pages.condo.property.EmptyBuildingBlock.edit.EmptyBuildingHeader": "Нажмите кнопку «Добавить элемент»",
   "pages.condo.property.EmptyBuildingBlock.view.EmptyBuildingHeader": "Шахматка пока не создана",
+  "pages.condo.property.EmptyBuildingBlock.edit.CardVideoTitle": "Как работать с шахматкой в Домах",
+  "pages.condo.property.EmptyBuildingBlock.edit.CardVideoDescription": "На примере покажем, как создать шахматку",
   "pages.condo.property.SectionSelect.AllTitle": "Все подъезды",
   "pages.condo.property.ParkingSectionSelect.AllTitle": "Все паркинги",
   "pages.condo.property.SectionSelect.OptionPrefix": "Подъезд №",

@@ -5,19 +5,20 @@ import { jsx, css } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Col, Row, Typography, RowProps, Radio, RadioProps } from 'antd'
 import debounce from 'lodash/debounce'
+import get from 'lodash/get'
+import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { useRef, useEffect, useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
-
 import { Button } from '@condo/domains/common/components/Button'
+import { CardVideo } from '@condo/domains/common/components/CardVideo'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { fontSizes, colors, gradients, UNIT_TYPE_COLOR_SET } from '@condo/domains/common/constants/style'
 import { useGlobalAppsFeaturesContext } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
 import { IPropertyMapFormProps } from '@condo/domains/property/components/BasePropertyMapForm'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
-
 
 import { FullscreenFooter } from './Fullscreen'
 import { MapEdit, MapView, MapViewMode } from './MapConstructor'
@@ -90,12 +91,23 @@ const EMPTY_BUILDING_BLOCK_BUTTON_STYLE = {
     marginTop: '20px',
 }
 
+const CARD_VIDEO_CONTAINER_STYLE = { display: 'flex', alignItems: 'center', justifyContent: 'center' }
+const CARD_VIDEO_WRAPPER_STYLE = { maxHeight: '390px', maxWidth: '500px' }
+
+const {
+    publicRuntimeConfig,
+} = getConfig()
+
+const { createMapVideoUrl } = publicRuntimeConfig
+
 export const EmptyBuildingBlock: React.FC<IEmptyBuildingBlock> = ({ mode = 'view', canManageProperties = false }) => {
     const intl = useIntl()
     const EmptyPropertyBuildingHeader = intl.formatMessage({ id: `pages.condo.property.EmptyBuildingBlock.${mode}.EmptyBuildingHeader` })
     const MapManualCreateTitle = intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingBlock.view.CreateMapManuallyTitle' })
     const MapAutoCreateTitle = intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingBlock.view.CreateMapAutomaticallyTitle' })
     const MapEditEmptyBuildingDescription = intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingBlock.edit.EmptyBuildingDescription' })
+    const CardVideoTitle = intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingBlock.edit.CardVideoTitle' })
+    const CardVideoDescription = intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingBlock.edit.CardVideoDescription' })
 
     const { push, asPath, query: { id: propertyId } } = useRouter()
     const createMapCallback = useCallback(() => {
@@ -133,6 +145,21 @@ export const EmptyBuildingBlock: React.FC<IEmptyBuildingBlock> = ({ mode = 'view
         debouncedGenerateRequest()
     }, [debouncedGenerateRequest])
 
+    const locale = useMemo(() => get(intl, 'locale'), [intl])
+
+    if (mode === 'edit' && locale === 'ru' && createMapVideoUrl) {
+        return (
+            <div style={CARD_VIDEO_CONTAINER_STYLE}>
+                <div style={CARD_VIDEO_WRAPPER_STYLE}>
+                    <CardVideo
+                        src={createMapVideoUrl}
+                        title={CardVideoTitle}
+                        description={CardVideoDescription}
+                    />
+                </div>
+            </div>
+        )
+    }
 
     return (
         <BasicEmptyListView image='/propertyEmpty.svg'>
