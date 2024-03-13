@@ -6,7 +6,7 @@ const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 const { cloneDeep } = require('lodash')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor, expectToThrowValidationFailureError } = require('@open-condo/keystone/test.utils')
 const {
     catchErrorFrom,
     expectToThrowAccessDeniedErrorToObj,
@@ -35,7 +35,7 @@ const { COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants
 const { MeterResource } = require('@condo/domains/meter/utils/testSchema')
 const { createTestMeter } = require('@condo/domains/meter/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { FLAT_UNIT_TYPE, COMMERCIAL_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const {
     createTestProperty,
@@ -58,6 +58,7 @@ const {
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { addResidentAccess } = require('@condo/domains/user/utils/testSchema')
 
+
 describe('Resident', () => {
 
     describe('resolveInput', () => {
@@ -78,6 +79,78 @@ describe('Resident', () => {
 
             const [objCreated] = await createTestResident(adminClient, userClient.user, userClient.property, attrs)
             expect(objCreated.address).toEqual(userClient.property.addressMeta.value)
+        })
+
+        describe('unitType and unitName', () => {
+            let admin, user
+
+            beforeAll(async () => {
+                admin = await makeLoggedInAdminClient()
+            })
+
+            beforeEach(async () => {
+                user = await makeClientWithProperty()
+            })
+
+            test('unitName is required field', async () => {
+                await expectToThrowValidationFailureError(async () => {
+                    await createTestResident(admin, user.user, user.property, {
+                        unitType: COMMERCIAL_UNIT_TYPE,
+                        unitName: null,
+                    })
+                }, 'Required field "unitName" is null or undefined.')
+
+                const [resident] = await createTestResident(admin, user.user, user.property, {
+                    unitType: COMMERCIAL_UNIT_TYPE,
+                    unitName: faker.random.alphaNumeric(5),
+                })
+                await expectToThrowValidationFailureError(async () => {
+                    await updateTestResident(admin, resident.id, {
+                        unitName: null,
+                    })
+                }, 'Required field "unitName" is null or undefined.')
+            })
+
+            describe('create', () => {
+                test('unitType must be set to default values if pass unitName and not pass unitType', async () => {
+                    const [resident, attrs] = await createTestResident(admin, user.user, user.property, {
+                        unitType: null,
+                        unitName: faker.random.alphaNumeric(5),
+                    })
+                    expect(resident).toHaveProperty('unitType', FLAT_UNIT_TYPE)
+                    expect(resident).toHaveProperty('unitName', attrs.unitName)
+                })
+
+                test('unitType and unitName must not be empty if they were passed', async () => {
+                    const [resident, attrs] = await createTestResident(admin, user.user, user.property, {
+                        unitType: COMMERCIAL_UNIT_TYPE,
+                        unitName: faker.random.alphaNumeric(5),
+                    })
+                    expect(resident).toHaveProperty('unitType', COMMERCIAL_UNIT_TYPE)
+                    expect(resident).toHaveProperty('unitName', attrs.unitName)
+                })
+            })
+
+            describe('update', () => {
+                test('unitType must not be update if unitName is not null and unitType try update to null', async () => {
+                    const [resident] = await createTestResident(admin, user.user, user.property, { unitType: COMMERCIAL_UNIT_TYPE })
+                    expect(resident).toHaveProperty('unitType', COMMERCIAL_UNIT_TYPE)
+                    const [updatedResident] = await updateTestResident(admin, resident.id, {
+                        unitType: null,
+                    })
+                    expect(updatedResident).toHaveProperty('unitType', COMMERCIAL_UNIT_TYPE)
+                    expect(updatedResident).toHaveProperty('unitName', resident.unitName)
+                })
+
+                test('unitType must be updatable', async () => {
+                    const [resident] = await createTestResident(admin, user.user, user.property, { unitType: FLAT_UNIT_TYPE })
+                    const [updatedResident] = await updateTestResident(admin, resident.id, {
+                        unitType: COMMERCIAL_UNIT_TYPE,
+                    })
+                    expect(updatedResident).toHaveProperty('unitType', COMMERCIAL_UNIT_TYPE)
+                    expect(updatedResident).toHaveProperty('unitName', resident.unitName)
+                })
+            })
         })
     })
 

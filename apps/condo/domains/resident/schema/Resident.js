@@ -18,6 +18,7 @@ const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/
 const { DEFAULT_BILLING_INTEGRATION_NAME } = require('@condo/domains/billing/constants/constants')
 const { BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/serverSchema')
 const { UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
+const { getUnitTypeFieldResolveInput } = require('@condo/domains/common/utils/serverSchema/resolveHelpers')
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { addOrganizationFieldPlugin } = require(
     '@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
@@ -33,7 +34,6 @@ const {
 const { Resident: ResidentAPI } = require('@condo/domains/resident/utils/serverSchema')
 
 const { RESIDENT_ORGANIZATION_FIELD } = require('./fields')
-
 
 const { manageResidentToTicketClientConnections } = require('../tasks')
 
@@ -194,6 +194,9 @@ const Resident = new GQLListSchema('Resident', {
 
         unitType: {
             ...UNIT_TYPE_FIELD,
+            hooks: {
+                resolveInput: getUnitTypeFieldResolveInput(),
+            },
         },
     },
     plugins: [
@@ -236,7 +239,7 @@ const Resident = new GQLListSchema('Resident', {
                 }
             }
         },
-        afterChange: async ({ context, operation, updatedItem, originalInput }) => {
+        afterChange: async ({ operation, updatedItem, originalInput }) => {
             const deletedAt = get(updatedItem, 'deletedAt', null)
             const userId = get(updatedItem, 'user', null)
             const propertyId = get(updatedItem, 'property', null)
