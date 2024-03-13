@@ -20,26 +20,11 @@ jobs:
           username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
           password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           submodules: recursive
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
-      - name: Set release name from current branch
-        run: |
-          REF_NAME=${{ github.ref_name }}
-          echo "SENTRY_RELEASE_NAME=$(echo ${REF_NAME} | sed 's|.*/||')" >> $GITHUB_ENV
-      - name: Create sentry review release
-        uses: tclindner/sentry-releases-action@v1.2.0
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_ACTION_TOKEN }}
-          SENTRY_ORG: condo
-          SENTRY_PROJECT: javascript-nextjs
-          SENTRY_URL: https://sentry.in.doma.ai/
-        with:
-          environment: review
-          tagName: ${{ env.SENTRY_RELEASE_NAME }}
-          releaseNamePrefix: review-
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
         with:
@@ -78,6 +63,7 @@ jobs:
           WERF_REPO: swr.ru-moscow-1.hc.sbercloud.ru/condo/condo
           WERF_REPO_CONTAINER_REGISTRY: default
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_RELEASE: "review-${{ env.REVIEW_URL_PREFIX }}"
       - name: Urls output
         run: |
           echo "condo: https://review-${{ env.REVIEW_URL_PREFIX }}-condo.r.doma.ai"

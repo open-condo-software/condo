@@ -64,6 +64,7 @@ shell:
   - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
   - "echo 'SENTRY_CONFIG={\"client\":{\"organization\":\"condo\",\"project\":\"javascript-nextjs\"},\"server\":{}}' >> /app/.env"
   - echo 'SENTRY_AUTH_TOKEN={{ env "SENTRY_AUTH_TOKEN" }}' >> /app/.env
+  - echo 'SENTRY_RELEASE={{ env "SENTRY_RELEASE" }}' >> /app/.env
   - "echo 'SENTRY_ORG=condo' >> /app/.env"
   - "echo 'SENTRY_PROJECT=javascript-nextjs' >> /app/.env"
   - "yarn workspace @app/condo next telemetry disable"
