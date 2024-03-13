@@ -16,11 +16,6 @@ const { Resolver } = require('@condo/domains/billing/schema/resolvers/resolver')
 const { isValidFias } = require('@condo/domains/billing/schema/resolvers/utils')
 const { FLAT_UNIT_TYPE : DEFAULT_UNIT_TYPE, UNIT_TYPES } = require('@condo/domains/property/constants/common')
 
-const COTTAGE_UNIT = {
-    unitName: '1',
-    unitType: DEFAULT_UNIT_TYPE,
-}
-
 const BILLING_PROPERTY_FIELDS = '{ id importId globalId address addressKey }'
 const BillingPropertyGQL = generateGqlQueries('BillingProperty', BILLING_PROPERTY_FIELDS)
 const BillingPropertyApi = generateServerUtils(BillingPropertyGQL)
@@ -59,7 +54,8 @@ class PropertyResolver extends Resolver {
             } = {},
         } = receipt
         if (this.isCottageVillage) {
-            return { addresses: [addressInput], ...COTTAGE_UNIT }
+            let { unitName: unitNameFromAddress, unitType: unitTypeFromAddress, address: houseFromAddress } = this.parser.parse(addressInput)
+            return { addresses: [houseFromAddress], unitType: unitTypeFromAddress, unitName: unitNameFromAddress }
         }
         // support for deprecated params
         const unitNameInput = unitNameFromMeta || ''
