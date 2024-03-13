@@ -1,15 +1,14 @@
-import { Col, Form, FormInstance, notification, Row, RowProps } from 'antd'
+import { Col, Form, FormInstance, notification, Row } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 
 import { omitRecursively } from '@open-condo/keystone/fields/Json/utils/cleaner'
 import { useIntl } from '@open-condo/next/intl'
-import { Typography } from '@open-condo/ui'
+import { Input, Typography } from '@open-condo/ui'
 
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
-import Input from '@condo/domains/common/components/antd/Input'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import Prompt from '@condo/domains/common/components/Prompt'
@@ -35,24 +34,16 @@ interface IPropertyFormProps {
     ) => React.ReactElement
 }
 
-const INPUT_LAYOUT_PROPS = {
-    style: {
-        paddingBottom: '24px',
-    },
-}
-const FORM_WITH_ACTION_STYLES = {
-    width: '100%',
-}
-const PROPERTY_FULLSCREEN_ROW_GUTTER: RowProps['gutter'] = [0, 40]
-const PROPERTY_ROW_GUTTER: RowProps['gutter'] = [40, 40]
-
 const FORM_WITH_ACTION_VALIDATION_TRIGGERS = ['onBlur', 'onSubmit']
-
 
 const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
     const intl = useIntl()
     const AddressLabel = intl.formatMessage({ id: 'pages.condo.property.field.Address' })
     const AddressTitle = intl.formatMessage({ id: 'pages.condo.property.form.AddressTitle' })
+    const NamePlaceholder = intl.formatMessage({ id: 'pages.condo.property.form.NamePlaceholder' })
+    const AreaPlaceholder = intl.formatMessage({ id: 'pages.condo.property.form.AreaPlaceholder' })
+    const AreaSuffix = intl.formatMessage({ id: 'pages.condo.property.form.AreaSuffix' })
+    const YearPlaceholder = intl.formatMessage({ id: 'pages.condo.property.form.YearPlaceholder' })
     const NameMsg = intl.formatMessage({ id: 'pages.condo.property.form.field.Name' })
     const AreaTitle = intl.formatMessage({ id: 'pages.condo.property.form.AreaTitle' })
     const YearOfConstructionTitle = intl.formatMessage({ id: 'pages.condo.property.form.YearOfConstructionTitle' })
@@ -116,6 +107,21 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
         yearOfConstruction: [yearOfConstructionValidator],
     }
 
+    const formLayout = useMemo(() => ({
+        labelCol: {
+            lg: 6,
+            md: 10,
+            xs: 24,
+        },
+        wrapperCol: {
+            lg: 7,
+            md: 10,
+            xs: 24,
+        },
+        layout: breakpoints.TABLET_LARGE ? 'horizontal' : 'vertical',
+        labelAlign: 'left',
+    }), [breakpoints])
+
     return (
         <>
             <FormWithAction
@@ -123,7 +129,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                 initialValues={initialValues}
                 validateTrigger={FORM_WITH_ACTION_VALIDATION_TRIGGERS}
                 formValuesToMutationDataPreprocessor={formValuesToMutationDataPreprocessor}
-                style={FORM_WITH_ACTION_STYLES}
+                {...formLayout}
             >
                 {({ handleSave, isLoading, form }) => {
                     return (
@@ -137,61 +143,73 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                     {PromptHelpMessage}
                                 </Typography.Paragraph>
                             </Prompt>
-                            <Row gutter={PROPERTY_FULLSCREEN_ROW_GUTTER}>
-                                <Col xs={24} lg={11}>
-                                    <Form.Item
-                                        name='address'
-                                        label={AddressLabel}
-                                        rules={validations.address}
-                                        {...INPUT_LAYOUT_PROPS}
-                                    >
-                                        <AddressSuggestionsSearchInput
-                                            placeholder={AddressTitle}
-                                            addressValidatorError={addressValidatorError}
-                                            setAddressValidatorError={setAddressValidatorError}
-                                            onSelect={onSuggestionSelected}
-                                        />
-                                    </Form.Item>
-                                    <Form.Item
-                                        name='map'
-                                        hidden
-                                    >
-                                        <Input/>
-                                    </Form.Item>
+                            <Row gutter={[0, 40]}>
+                                <Col span={24}>
+                                    <Row gutter={[0, 16]}>
+                                        <Col span={24}>
+                                            <Form.Item
+                                                name='address'
+                                                label={AddressLabel}
+                                                rules={validations.address}
+                                            >
+                                                <AddressSuggestionsSearchInput
+                                                    placeholder={AddressTitle}
+                                                    addressValidatorError={addressValidatorError}
+                                                    setAddressValidatorError={setAddressValidatorError}
+                                                    onSelect={onSuggestionSelected}
+                                                />
+                                            </Form.Item>
+                                            <Form.Item
+                                                name='map'
+                                                hidden
+                                            >
+                                                <Input/>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={24}>
+                                            <Form.Item
+                                                name='name'
+                                                label={NameMsg}
+                                            >
+                                                <Input
+                                                    allowClear={true}
+                                                    placeholder={NamePlaceholder}
+                                                />
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={24}>
+                                            <Form.Item
+                                                name='area'
+                                                label={AreaTitle}
+                                                rules={validations.area}
+                                                wrapperCol={{
+                                                    lg: 3,
+                                                    md: 5,
+                                                    xs: 24,
+                                                }}
+                                            >
+                                                <Input
+                                                    placeholder={AreaPlaceholder}
+                                                    suffix={AreaSuffix}
+                                                />
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={24}>
+                                            <Form.Item
+                                                name='yearOfConstruction'
+                                                label={YearOfConstructionTitle}
+                                                rules={validations.yearOfConstruction}
+                                                wrapperCol={{
+                                                    lg: 3,
+                                                    md: 5,
+                                                    xs: 24,
+                                                }}
+                                            >
+                                                <Input placeholder={YearPlaceholder} />
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
                                 </Col>
-                            </Row>
-                            <Row gutter={PROPERTY_FULLSCREEN_ROW_GUTTER}>
-                                <Col xs={24} lg={11}>
-                                    <Form.Item
-                                        name='name'
-                                        label={NameMsg}
-                                        {...INPUT_LAYOUT_PROPS}
-                                    >
-                                        <Input allowClear={true}/>
-                                    </Form.Item>
-                                </Col>
-                            </Row>
-                            <Row gutter={PROPERTY_ROW_GUTTER}>
-                                <Col span={!breakpoints.TABLET_LARGE ? 12 : 4}>
-                                    <Form.Item
-                                        name='area'
-                                        label={AreaTitle}
-                                        rules={validations.area}
-                                    >
-                                        <Input/>
-                                    </Form.Item>
-                                </Col>
-                                <Col span={!breakpoints.TABLET_LARGE ? 12 : 4}>
-                                    <Form.Item
-                                        name='yearOfConstruction'
-                                        label={YearOfConstructionTitle}
-                                        rules={validations.yearOfConstruction}
-                                    >
-                                        <Input/>
-                                    </Form.Item>
-                                </Col>
-                            </Row>
-                            <Row gutter={PROPERTY_FULLSCREEN_ROW_GUTTER}>
                                 <Col span={24}>
                                     {props.children({ handleSave, isLoading, form })}
                                 </Col>

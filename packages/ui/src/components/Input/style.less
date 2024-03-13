@@ -11,6 +11,27 @@
   .condo-typography-text-large();
 }
 
+.condo-input-with-suffix.condo-input-affix-wrapper {
+  padding-right: 4px;
+
+  & > .condo-input {
+    padding-right: 4px;
+  }
+
+  & > .condo-input-suffix {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: -7px 0;
+    padding: 10px 12px;
+    color: #707695;
+    font-weight: 600;
+    font-size: 12px;
+    background-color: #e1e5ed;
+    border-radius: 0 4px 4px 0;
+  }
+}
+
 .condo-input:not(.condo-input-affix-wrapper .condo-input),
 .condo-input-affix-wrapper {
   box-sizing: border-box;

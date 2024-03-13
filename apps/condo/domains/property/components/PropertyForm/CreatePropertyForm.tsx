@@ -6,18 +6,13 @@ import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { Button } from '@open-condo/ui'
 
-import { Button } from '@condo/domains/common/components/Button'
 import BasePropertyForm from '@condo/domains/property/components/BasePropertyForm'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
 
-
 const DEFAULT_PROPERTY_TYPE = PropertyTypeType.Building
-
-const FORM_SUBMIT_BUTTON_STYLES = {
-    marginTop: '60px',
-}
 const FORM_DEPENDENCIES = ['address']
 
 export const CreatePropertyForm: React.FC = () => {
@@ -55,11 +50,12 @@ export const CreatePropertyForm: React.FC = () => {
                                     <Button
                                         key='submit'
                                         onClick={handleSave}
-                                        type='sberDefaultGradient'
+                                        type='primary'
                                         loading={isLoading}
                                         disabled={!canManageProperties || !address}
-                                        style={FORM_SUBMIT_BUTTON_STYLES}
-                                    >{CreatePropertyMessage}</Button>
+                                    >
+                                        {CreatePropertyMessage}
+                                    </Button>
                                 )
                             }
                         }

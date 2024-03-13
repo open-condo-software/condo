@@ -10,6 +10,7 @@ export default {
         placeholder: 'Placeholder',
         disabled: false,
         allowClear: false,
+        suffix: '',
     },
 } as ComponentMeta<typeof Component>
 
