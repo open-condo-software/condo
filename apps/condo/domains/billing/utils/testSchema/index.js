@@ -913,7 +913,7 @@ async function sendNewBillingReceiptFilesNotificationsByTestClient(client, extra
 async function sumBillingReceiptsByTestClient (client, where={}) {
     if (!client) throw new Error('no client')
 
-    const { data, errors } = await client.query(SUM_BILLING_RECEIPTS_QUERY, { where: where })
+    const { data, errors } = await client.query(SUM_BILLING_RECEIPTS_QUERY, { where })
     throwIfError(data, errors)
     return data.result
 }
