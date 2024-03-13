@@ -37,7 +37,7 @@ const {
     createTestOrganization,
     makeEmployeeUserClientWithAbilities,
 } = require('@condo/domains/organization/utils/testSchema')
-const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { FLAT_UNIT_TYPE, COMMERCIAL_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
@@ -485,6 +485,58 @@ describe('NewsItemScope', () => {
                 async () => await createTestNewsItemScope(adminClient, newsItem, { unitName: '1' }),
                 'Required field "type" is null or undefined.',
             )
+        })
+    })
+
+    describe('resolveInput', () => {
+        describe('fields', () => {
+            describe('unitType and unitName', () => {
+                beforeAll(async () => {
+                    [dummyNewsItem] = await createTestNewsItem(adminClient, dummyO10n)
+                })
+
+                describe('create', () => {
+                    test('unitType must be save if not pass unitName', async () => {
+                        const [scope] = await createTestNewsItemScope(adminClient, dummyNewsItem, {
+                            property: { connect: { id: dummyProperty.id } },
+                            unitType: COMMERCIAL_UNIT_TYPE,
+                            unitName: null,
+                        })
+                        expect(scope).toHaveProperty('unitType', COMMERCIAL_UNIT_TYPE)
+                        expect(scope).toHaveProperty('unitName', null)
+                    })
+
+                    test('unitType must be set to default values if pass unitName and not pass unitType', async () => {
+                        const [scope, attrs] = await createTestNewsItemScope(adminClient, dummyNewsItem, {
+                            property: { connect: { id: dummyProperty.id } },
+                            unitType: null,
+                            unitName: faker.random.alphaNumeric(5),
+                        })
+                        expect(scope).toHaveProperty('unitType', FLAT_UNIT_TYPE)
+                        expect(scope).toHaveProperty('unitName', attrs.unitName)
+                    })
+
+                    test('unitType and unitName must be empty if they were not passed', async () => {
+                        const [scope] = await createTestNewsItemScope(adminClient, dummyNewsItem, {
+                            property: { connect: { id: dummyProperty.id } },
+                            unitType: null,
+                            unitName: null,
+                        })
+                        expect(scope).toHaveProperty('unitType', null)
+                        expect(scope).toHaveProperty('unitName', null)
+                    })
+
+                    test('unitType and unitName must not be empty if they were passed', async () => {
+                        const [scope, attrs] = await createTestNewsItemScope(adminClient, dummyNewsItem, {
+                            property: { connect: { id: dummyProperty.id } },
+                            unitType: COMMERCIAL_UNIT_TYPE,
+                            unitName: faker.random.alphaNumeric(5),
+                        })
+                        expect(scope).toHaveProperty('unitType', COMMERCIAL_UNIT_TYPE)
+                        expect(scope).toHaveProperty('unitName', attrs.unitName)
+                    })
+                })
+            })
         })
     })
 })
