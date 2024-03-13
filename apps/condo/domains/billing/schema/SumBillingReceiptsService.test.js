@@ -4,13 +4,14 @@
 
 const { makeLoggedInAdminClient, makeClient, expectToThrowAuthenticationErrorToResult, expectToThrowAccessDeniedErrorToResult, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 
+const { makePayer } = require('@condo/domains/acquiring/utils/testSchema')
 const { sumBillingReceiptsByTestClient } = require('@condo/domains/billing/utils/testSchema')
+const { createTestBillingReceipt } = require('@condo/domains/billing/utils/testSchema')
+const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 const { ERRORS } = require('./SumBillingReceiptsService')
 
-const { makePayer } = require('../../acquiring/utils/testSchema')
-const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('../../user/utils/testSchema')
-const { createTestBillingReceipt } = require('../utils/testSchema')
+
 
 describe('SumBillingReceiptsService', () => {
     let adminClient

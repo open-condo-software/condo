@@ -17,6 +17,7 @@ const {
     createTestBillingIntegrationOrganizationContext,
     updateTestBillingIntegrationOrganizationContext,
 } = require('@condo/domains/billing/utils/testSchema')
+const { createTestBillingIntegration, createReceiptsReader } = require('@condo/domains/billing/utils/testSchema')
 const { CONTEXT_STATUSES, CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/miniapp/constants')
 const { createTestOrganizationEmployee, createTestOrganizationEmployeeRole, updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganization, updateTestOrganization } = require('@condo/domains/organization/utils/testSchema')
@@ -25,7 +26,6 @@ const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/u
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { catchErrorFrom } = require('@miniapp/domains/common/utils/testSchema')
 
-const { createTestBillingIntegration, createReceiptsReader } = require('../utils/testSchema')
 
 describe('BillingIntegrationOrganizationContext', () => {
     describe('CRUD tests', () => {

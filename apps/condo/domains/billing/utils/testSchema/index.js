@@ -57,11 +57,8 @@ const BillingReceiptFile = generateGQLTestUtils(BillingReceiptFileGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
-const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
-const {SUM_PAYMENTS_QUERY} = require("../../../acquiring/gql");
-const Big = require("big.js");
 
 const bannerVariants = [
     { bannerColor: "#9b9dfa", bannerTextColor: "WHITE" },

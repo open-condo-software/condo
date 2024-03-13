@@ -52,7 +52,7 @@ const SumBillingReceiptsService = new GQLCustomSchema('SumBillingReceiptsService
                 const billingReceiptsLoader = new GqlWithKnexLoadList({
                     listKey: 'BillingReceipt',
                     fields: 'id toPay',
-                    where: where,
+                    where,
                     sortBy: 'createdAt_DESC',
                 })
                 const objs = await billingReceiptsLoader.load()
