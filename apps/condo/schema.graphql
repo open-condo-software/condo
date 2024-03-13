@@ -73678,7 +73678,7 @@ input GetNewsSharingRecipientsInput {
 type GetNewsSharingRecipientsOutput {
   id: String!
   name: String!
-  recipients: Int
+  receiversCount: Int
 }
 
 enum AppCategory {

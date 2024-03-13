@@ -22931,7 +22931,7 @@ export type GetNewsSharingRecipientsOutput = {
   __typename?: 'GetNewsSharingRecipientsOutput';
   id: Scalars['String'];
   name: Scalars['String'];
-  recipients?: Maybe<Scalars['Int']>;
+  receiversCount?: Maybe<Scalars['Int']>;
 };
 
 export enum GetOverviewDashboardAggregatePeriod {

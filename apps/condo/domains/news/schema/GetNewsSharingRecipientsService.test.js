@@ -67,6 +67,12 @@ describe('GetNewsSharingRecipientsService', () => {
     test('Admin can execute query', async () => {
         const [data, attrs] = await getNewsSharingRecipientsByTestClient(adminClient, dummyB2BContextWithNewsSharingConfig)
 
+        // If you are changing this test, that means you have changed schema of getRecipients.
+        // You need to make sure our integrations sustain this change!
+        expect(data[0]).toHaveProperty('id')
+        expect(data[0]).toHaveProperty('name')
+        expect(data[0]).toHaveProperty('receiversCount')
+
         expect(data).toMatchObject(SUCCESS_GET_RECIPIENTS_RESULT)
     })
 
