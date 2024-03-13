@@ -2167,7 +2167,7 @@
   "api.user.registerNewUser.USER_WITH_SPECIFIED_PHONE_ALREADY_EXISTS": "User with specified phone number already exists. Try to login or reset password",
   "api.user.registerNewUser.USER_WITH_SPECIFIED_EMAIL_ALREADY_EXISTS": "User with specified email number already exists. Try to login or reset password",
   "api.user.registerNewUser.UNABLE_TO_CREATE_USER": "Something went wrong during registration :( Try again or ask our support",
-  "api.user.CAPTCHA_CHECK_FAILED": "Failed to check CAPTCHA. Try again",
+  "api.user.CAPTCHA_CHECK_FAILED": "The operation could not be completed. Please update the application",
   "api.user.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION": "Unable to verify your phone number. Try again or ask our support",
   "api.user.completeConfirmPhoneAction.SMS_CODE_EXPIRED": "SMS code expired, try to verify phone number again",
   "api.user.completeConfirmPhoneAction.SMS_CODE_MAX_RETRIES_REACHED": "Max retries reached for SMS code confirmation. Try to initiate phone confirmation again",
