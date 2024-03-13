@@ -56,17 +56,18 @@ const {
     createTestOrganizationEmployee,
     makeClientWithRegisteredOrganization,
 } = require('@condo/domains/organization/utils/testSchema')
-const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { FLAT_UNIT_TYPE, COMMERCIAL_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { makeClientWithProperty, createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { registerResidentByTestClient, registerResidentInvoiceByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
-const { createTestTicket, updateTestTicket, Ticket, TicketStatus } = require('@condo/domains/ticket/utils/testSchema')
+const { createTestTicket, updateTestTicket, TicketStatus } = require('@condo/domains/ticket/utils/testSchema')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
     makeClientWithResidentUser,
     makeClientWithStaffUser, createTestPhone,
 } = require('@condo/domains/user/utils/testSchema')
+
 
 dayjs.extend(isSameOrAfter)
 
@@ -781,6 +782,112 @@ describe('Invoice', () => {
                 }),
             ])
         })
+
+        describe('fields', () => {
+            describe('unitType and unitName', () => {
+                describe('create', () => {
+                    test('unitType must be reset if not pass unitName', async () => {
+                        const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                            unitType: COMMERCIAL_UNIT_TYPE,
+                            unitName: null,
+                        })
+                        expect(invoice).toHaveProperty('unitType', null)
+                        expect(invoice).toHaveProperty('unitName', null)
+                    })
+
+                    test('unitType must be set to default values if pass unitName and not pass unitType', async () => {
+                        const [invoice, attrs] = await createTestInvoice(adminClient, dummyOrganization, {
+                            unitType: null,
+                            unitName: faker.random.alphaNumeric(5),
+                        })
+                        expect(invoice).toHaveProperty('unitType', FLAT_UNIT_TYPE)
+                        expect(invoice).toHaveProperty('unitName', attrs.unitName)
+                    })
+
+                    test('unitType and unitName must be empty if they were not passed', async () => {
+                        const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                            unitType: null,
+                            unitName: null,
+                        })
+                        expect(invoice).toHaveProperty('unitType', null)
+                        expect(invoice).toHaveProperty('unitName', null)
+                    })
+
+                    test('unitType and unitName must not be empty if they were passed', async () => {
+                        const [invoice, attrs] = await createTestInvoice(adminClient, dummyOrganization, {
+                            unitType: COMMERCIAL_UNIT_TYPE,
+                            unitName: faker.random.alphaNumeric(5),
+                        })
+                        expect(invoice).toHaveProperty('unitType', COMMERCIAL_UNIT_TYPE)
+                        expect(invoice).toHaveProperty('unitName', attrs.unitName)
+                    })
+                })
+
+                describe('update', () => {
+                    test('unitType must not be update if unitName is not null and unitType try update to null', async () => {
+                        const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                            unitType: COMMERCIAL_UNIT_TYPE,
+                            unitName: faker.random.alphaNumeric(5),
+                        })
+                        expect(invoice).toHaveProperty('unitType', COMMERCIAL_UNIT_TYPE)
+                        const [updatedInvoice] = await updateTestInvoice(adminClient, invoice.id, {
+                            unitType: null,
+                        })
+                        expect(updatedInvoice).toHaveProperty('unitType', COMMERCIAL_UNIT_TYPE)
+                        expect(updatedInvoice).toHaveProperty('unitName', invoice.unitName)
+                    })
+
+                    test('unitType must be set null if unitType is not null and unitName update to null', async () => {
+                        const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                            unitType: COMMERCIAL_UNIT_TYPE,
+                            unitName: faker.random.alphaNumeric(5),
+                        })
+                        const [updatedInvoice] = await updateTestInvoice(adminClient, invoice.id, {
+                            unitName: null,
+                        })
+                        expect(updatedInvoice).toHaveProperty('unitType', null)
+                        expect(updatedInvoice).toHaveProperty('unitName', null)
+                    })
+
+                    test('unitType and unitName must be set null if unitType and unitName update to null', async () => {
+                        const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                            unitType: COMMERCIAL_UNIT_TYPE,
+                            unitName: faker.random.alphaNumeric(5),
+                        })
+                        const [updatedInvoice] = await updateTestInvoice(adminClient, invoice.id, {
+                            unitType: null,
+                            unitName: null,
+                        })
+                        expect(updatedInvoice).toHaveProperty('unitType', null)
+                        expect(updatedInvoice).toHaveProperty('unitName', null)
+                    })
+
+                    test('unitType must be updatable', async () => {
+                        const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                            unitType: FLAT_UNIT_TYPE,
+                            unitName: faker.random.alphaNumeric(5),
+                        })
+                        const [updatedInvoice] = await updateTestInvoice(adminClient, invoice.id, {
+                            unitType: COMMERCIAL_UNIT_TYPE,
+                        })
+                        expect(updatedInvoice).toHaveProperty('unitType', COMMERCIAL_UNIT_TYPE)
+                        expect(updatedInvoice).toHaveProperty('unitName', invoice.unitName)
+                    })
+
+                    test('unitName must be updatable', async () => {
+                        const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                            unitType: COMMERCIAL_UNIT_TYPE,
+                            unitName: faker.random.alphaNumeric(5),
+                        })
+                        const [updatedInvoice, attrs] = await updateTestInvoice(adminClient, invoice.id, {
+                            unitName: faker.random.alphaNumeric(5),
+                        })
+                        expect(updatedInvoice).toHaveProperty('unitType', COMMERCIAL_UNIT_TYPE)
+                        expect(updatedInvoice).toHaveProperty('unitName', attrs.unitName)
+                    })
+                })
+            })
+        })
     })
 
     describe('virtual fields check', () => {
@@ -791,7 +898,7 @@ describe('Invoice', () => {
             const clientPhone = createTestPhone()
             const clientName = faker.random.alphaNumeric(5)
 
-            const [contact] = await createTestContact(adminClient, dummyOrganization, property, {
+            await createTestContact(adminClient, dummyOrganization, property, {
                 unitType, unitName, phone: clientPhone, name: clientName,
             })
 
@@ -1111,7 +1218,7 @@ describe('Invoice', () => {
             const unitName = faker.lorem.word()
 
             const residentClient = await makeClientWithResidentUser()
-            const [resident] = await registerResidentByTestClient(
+            await registerResidentByTestClient(
                 residentClient,
                 {
                     address: client.property.address,
@@ -1141,7 +1248,7 @@ describe('Invoice', () => {
                 contact: null,
             })
 
-            const invoice = await Invoice.update(adminClient, createdInvoice.id, {
+            await Invoice.update(adminClient, createdInvoice.id, {
                 status: INVOICE_STATUS_PUBLISHED,
                 dv: 1,
                 sender: { dv: 1, fingerprint: 'tests' },
@@ -1156,7 +1263,8 @@ describe('Invoice', () => {
                 expect(messages1).toHaveLength(1)
             })
 
-            const [createdInvoice2] = await createTestInvoice(client, client.organization, {
+            // createdInvoice2
+            await createTestInvoice(client, client.organization, {
                 property: { connect: { id: client.property.id } },
                 unitType,
                 unitName,
@@ -1191,7 +1299,7 @@ describe('Invoice', () => {
             const unitName = faker.lorem.word()
 
             const residentClient = await makeClientWithResidentUser()
-            const [resident] = await registerResidentByTestClient(
+            await registerResidentByTestClient(
                 residentClient,
                 {
                     address: client.property.address,
@@ -1209,7 +1317,8 @@ describe('Invoice', () => {
                 contact: null,
                 client: { connect: { id: residentClient.user.id } },
             })
-            const [createdInvoice] = await createTestInvoice(client, client.organization, {
+            // createdInvoice1
+            await createTestInvoice(client, client.organization, {
                 property: { connect: { id: client.property.id } },
                 unitType,
                 unitName,
@@ -1229,7 +1338,8 @@ describe('Invoice', () => {
                 expect(messagesFirstResult).toHaveLength(1)
             })
 
-            const [createdInvoice2] = await createTestInvoice(client, client.organization, {
+            // createdInvoice2
+            await createTestInvoice(client, client.organization, {
                 property: { connect: { id: client.property.id } },
                 unitType,
                 unitName,
