@@ -2167,7 +2167,7 @@
   "api.user.registerNewUser.USER_WITH_SPECIFIED_PHONE_ALREADY_EXISTS": "Пользователь с таким номером телефона уже есть в системе. Попробуйте войти или восстановить доступ",
   "api.user.registerNewUser.USER_WITH_SPECIFIED_EMAIL_ALREADY_EXISTS": "Пользователь с таким email уже есть в системе. Попробуйте войти или восстановить доступ",
   "api.user.registerNewUser.UNABLE_TO_CREATE_USER": "Не удалось зарегистрировать пользователя :( Поробуйте ещё раз или обратитесь в тех-поддержку",
-  "api.user.CAPTCHA_CHECK_FAILED": "Не удалось проверить капчу. Попробуйте ещё раз",
+  "api.user.CAPTCHA_CHECK_FAILED": "Не удалось завершить операцию. Пожалуйста, обновите приложение",
   "api.user.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION": "Не удалось подтвердить номер телефона. Попробуйте ещё раз или обратитесь в тех-поддержку",
   "api.user.completeConfirmPhoneAction.SMS_CODE_EXPIRED": "Просрочен код подтверждения телефона по СМС, попробуйте пройти подтверждение номера телефона заново",
   "api.user.completeConfirmPhoneAction.SMS_CODE_MAX_RETRIES_REACHED": "Превышено количество попыток подтверждения номера телефона по СМС. Попробуйте заново пройти подтверждение номера телефона",
