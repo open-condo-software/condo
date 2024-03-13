@@ -3,6 +3,7 @@ import { Typography } from 'antd'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Tour } from '@open-condo/ui'
 
 import { BaseMeterModalForm } from '@condo/domains/meter/components/BaseMeterModal/BaseMeterModalForm'
 import { PropertyMeter, Meter, MeterPageTypes, METER_PAGE_TYPES } from '@condo/domains/meter/utils/clientSchema'
@@ -19,6 +20,7 @@ type CreateMeterModalProps = {
 
 type CreateMeterModalReturnType = {
     CreateMeterModal: () => JSX.Element
+    isCreateMeterModalVisible: boolean
     setIsCreateMeterModalVisible: React.Dispatch<React.SetStateAction<boolean>>
 }
 
@@ -58,6 +60,8 @@ export function useCreateMeterModal (props: CreateMeterModalProps): CreateMeterM
     const handleCancelModal = useCallback(() => setIsCreateMeterModalVisible(false),
         [setIsCreateMeterModalVisible])
 
+    const { currentStep } = Tour.useTourContext()
+
     const CreateMeterModal = useCallback(() => {
         return (
             <BaseMeterModalForm
@@ -73,11 +77,13 @@ export function useCreateMeterModal (props: CreateMeterModalProps): CreateMeterM
                 cancelModal={handleCancelModal}
                 organizationId={organizationId}
                 meterType={meterType}
+                submitButtonProps={{
+                    focus: currentStep === 2,
+                }}
                 centered
             />
         )
-    }, [AddMeterMessage, handleCancelModal, handleMeterCreate, initialValues, isCreateMeterModalVisible,
-        propertyId, unitName, unitType, meterType, organizationId, addressKey])
+    }, [propertyId, addressKey, unitName, unitType, initialValues, AddMeterMessage, isCreateMeterModalVisible, handleMeterCreate, handleCancelModal, organizationId, meterType, currentStep])
 
-    return useMemo(() => ({ CreateMeterModal, setIsCreateMeterModalVisible }), [CreateMeterModal])
+    return useMemo(() => ({ CreateMeterModal, isCreateMeterModalVisible, setIsCreateMeterModalVisible }), [CreateMeterModal])
 }

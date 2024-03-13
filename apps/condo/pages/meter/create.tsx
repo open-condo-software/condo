@@ -5,6 +5,7 @@ import React, { useCallback, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { Tour } from '@open-condo/ui'
 
 
 
@@ -62,10 +63,13 @@ const CreateMeterPage: ICreateMeterPage = () => {
                                         role={role}
                                     />
                                 ) : (
-                                    <CreateMeterReadingsForm
-                                        organization={organization}
-                                        role={role}
-                                    />)
+                                    <Tour.Provider>
+                                        <CreateMeterReadingsForm
+                                            organization={organization}
+                                            role={role}
+                                        />
+                                    </Tour.Provider>
+                                )
                             }
                         </Col>
                     </Row>

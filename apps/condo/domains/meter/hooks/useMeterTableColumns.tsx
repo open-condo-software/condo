@@ -8,6 +8,7 @@ import pickBy from 'lodash/pickBy'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Tour } from '@open-condo/ui'
 
 import { getDateRender, getTextRender } from '@condo/domains/common/components/Table/Renders'
 import { colors } from '@condo/domains/common/constants/style'
@@ -47,9 +48,10 @@ const METER_READING_INPUT_ADDON_STYLE: CSSProperties = {
     color: colors.sberGrey[6],
 }
 
-const MeterReadingInput = ({ record, newMeterReadings, setNewMeterReadings }) => {
+const MeterReadingInput = ({ index, record, newMeterReadings, setNewMeterReadings }) => {
     const intl = useIntl()
     const AddMeterReadingPlaceholderMessage = intl.formatMessage({ id: 'pages.condo.meter.create.AddMeterReadingPlaceholder' })
+    const MeterReadingTourStepTitle = intl.formatMessage({ id: 'pages.condo.meter.create.meterReadingTourStepTitle' })
 
     const meterId = get(record, ['meter', 'id'])
     const tariffNumber = get(record, 'tariffNumber')
@@ -71,6 +73,31 @@ const MeterReadingInput = ({ record, newMeterReadings, setNewMeterReadings }) =>
 
     const handleInputContainerClick = useCallback(e => e.stopPropagation(), [])
 
+    const { currentStep } = Tour.useTourContext()
+
+    if (index === 0) {
+        return (
+            <Tour.TourStep step={2} title={MeterReadingTourStepTitle}>
+                <div style={INPUT_CONTAINER_STYLE} onClick={handleInputContainerClick}>
+                    <InputNumber
+                        placeholder={AddMeterReadingPlaceholderMessage}
+                        css={inputNumberCSS}
+                        stringMode
+                        onChange={meterReadingValueChangeHandler}
+                        value={inputValue}
+                        formatter={inputMeterReadingFormatter}
+                        parser={inputMeterReadingParser}
+                        min={0}
+                        autoFocus
+                    />
+                    <div style={METER_READING_INPUT_ADDON_STYLE}>
+                        {meterResourceMeasure}
+                    </div>
+                </div>
+            </Tour.TourStep>
+        )
+    }
+
     return (
         <div style={INPUT_CONTAINER_STYLE} onClick={handleInputContainerClick}>
             <InputNumber
@@ -82,6 +109,7 @@ const MeterReadingInput = ({ record, newMeterReadings, setNewMeterReadings }) =>
                 formatter={inputMeterReadingFormatter}
                 parser={inputMeterReadingParser}
                 min={0}
+                autoFocus={currentStep === 2 && index === 0}
             />
             <div style={METER_READING_INPUT_ADDON_STYLE}>
                 {meterResourceMeasure}
@@ -124,8 +152,9 @@ export const useMeterTableColumns = (meterType: MeterPageTypes) => {
         return meterResource
     }, [tariffNumberMessages])
 
-    const meterReadingRenderer = useCallback((record) => (
+    const meterReadingRenderer = useCallback((record, _, index) => (
         <MeterReadingInput
+            index={index}
             record={record}
             newMeterReadings={newMeterReadings}
             setNewMeterReadings={setNewMeterReadings}

@@ -6,7 +6,9 @@ import get from 'lodash/get'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
+import { Building } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
+import { Space, Typography } from '@open-condo/ui'
 
 
 import { PARKING_SECTION_TYPE, SECTION_SECTION_TYPE } from '@condo/domains/property/constants/common'
@@ -14,6 +16,9 @@ import { TicketFormItem } from '@condo/domains/ticket/components/BaseTicketForm'
 import { FloorNameInput } from '@condo/domains/user/components/FloorNameInput'
 import { SectionNameInput } from '@condo/domains/user/components/SectionNameInput'
 import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
+
+import { FormItemTooltipWrapper } from '../../common/components/Form/FormItemTooltipWrapper'
+import { LinkWithIcon } from '../../common/components/LinkWithIcon'
 
 interface IGetSectionAndFloorByUnit {
     (unitName: string, sections: BuildingSection[], unitType: BuildingUnitSubType): {
@@ -78,6 +83,7 @@ interface IUnitInfo {
     selectedSectionType?: string
     setSelectedSectionType?: React.Dispatch<React.SetStateAction<string>>
     disabled?: boolean
+    required?: boolean
 }
 
 const UNIT_FIELDS_GUTTER: [Gutter, Gutter] = [40, 0]
@@ -99,6 +105,7 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
         selectedSectionType,
         setSelectedSectionType,
         disabled,
+        required,
     } = props
 
     const [selectedSectionName, setSelectedSectionName] = useState<string>(get(initialValues, 'sectionName'))
@@ -191,11 +198,30 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
         }
     }, [form])
 
+    const SectionAndFloorTooltip = useMemo(() => (
+        <FormItemTooltipWrapper>
+            <Typography.Text size='small'>
+                Определяется по шахматке. Если подъезд определен неверно, отредактируйте шахматку.
+            </Typography.Text>
+            <Typography.Link
+                target='_blank'
+                href={`/property/${get(property, 'id')}/map/update`}
+                size='medium'
+            >
+                Редактировать шахматку
+            </Typography.Link>
+        </FormItemTooltipWrapper>
+    ), [property])
+
     return (
         <Col span={24} md={20} xl={18} xxl={16}>
             <Row gutter={UNIT_FIELDS_GUTTER}>
                 <Col span={inputColSpan} data-cy='unit-name-input-item'>
-                    <TicketFormItem name='unitName' label={FlatNumberLabel}>
+                    <TicketFormItem
+                        name='unitName'
+                        label={FlatNumberLabel}
+                        required={required}
+                    >
                         <UnitNameInput
                             property={property}
                             loading={loading}
@@ -210,7 +236,11 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
                     </TicketFormItem>
                 </Col>
                 <Col span={inputColSpan}>
-                    <TicketFormItem name='sectionName' label={SectionNameLabel}>
+                    <TicketFormItem
+                        name='sectionName'
+                        label={SectionNameLabel}
+                        tooltip={SectionAndFloorTooltip}
+                    >
                         <SectionNameInput
                             disabled={disableSectionInputCondition}
                             property={property}
@@ -219,7 +249,11 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
                     </TicketFormItem>
                 </Col>
                 <Col span={inputColSpan}>
-                    <TicketFormItem name='floorName' label={FloorNameLabel}>
+                    <TicketFormItem
+                        name='floorName'
+                        label={FloorNameLabel}
+                        tooltip={SectionAndFloorTooltip}
+                    >
                         <FloorNameInput
                             disabled={disableFloorInputCondition}
                             property={property}

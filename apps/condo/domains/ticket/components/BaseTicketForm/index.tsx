@@ -70,10 +70,13 @@ import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticke
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
 import { RESIDENT } from '@condo/domains/user/constants/common'
 
+
 import { TicketAssignments } from './TicketAssignments'
 import { TicketDeadlineField } from './TicketDeadlineField'
 import { TicketDeferredDateField } from './TicketDeferredDateField'
 import { useTicketValidations } from './useTicketValidations'
+
+import { PropertyFormItemTooltip } from '../../../property/PropertyFormItemTooltip'
 
 
 const HINTS_COL_PROPS: ColProps = { span: 24 }
@@ -666,7 +669,7 @@ const FORM_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
 const TICKET_PROPERTY_HINT_STYLES: CSSProperties = { maxHeight: '11em', maxWidth: '250px' }
 const HINTS_WRAPPER_STYLE: CSSProperties = { overflow: 'auto', maxHeight: 'calc(100vh - 220px)', paddingRight: 8 }
 const CAN_READ_BY_RESIDENT_WRAPPER_STYLE: CSSProperties = { display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'center' }
-const CAN_READ_BY_RESIDENT_ICON_WRAPPER_STYLE: CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'center' }
+const CAN_READ_BY_RESIDENT_ICON_WRAPPER_STYLE: CSSProperties = { padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }
 
 export interface ITicketFormProps {
     organization?: Organization
@@ -942,6 +945,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                                 name='property'
                                                                                 label={AddressLabel}
                                                                                 rules={PROPERTY_VALIDATION_RULES}
+                                                                                tooltip={<PropertyFormItemTooltip />}
                                                                             >
                                                                                 <PropertyAddressSearchInput
                                                                                     organizationId={get(organization, 'id')}

@@ -1,4 +1,4 @@
-import { Col, FormInstance, Row, Select, Typography } from 'antd'
+import { Col, FormInstance, Row, Select } from 'antd'
 import { every } from 'lodash'
 import { differenceBy } from 'lodash'
 import get from 'lodash/get'
@@ -6,6 +6,7 @@ import { Rule } from 'rc-field-form/lib/interface'
 import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Typography } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { GraphQlSearchInput, renderDeletedOption } from '@condo/domains/common/components/GraphQlSearchInput'
@@ -26,8 +27,11 @@ import {
     isEmployeeSpecializationAndPropertyMatchesToScope,
 } from '@condo/domains/scope/utils/clientSchema/utils'
 
-
 import { AutoAssigner } from './AutoAssigner'
+
+import { FormItemTooltipWrapper } from '../../../common/components/Form/FormItemTooltipWrapper'
+
+
 
 import { TicketFormItem } from './index'
 
@@ -233,7 +237,12 @@ const TicketAssignments = ({
                             <TicketFormItem
                                 name='executor'
                                 rules={validations.executor}
-                                label={<LabelWithInfo title={ExecutorExtra} message={ExecutorLabel}/>}
+                                label={ExecutorLabel}
+                                tooltip={(
+                                    <FormItemTooltipWrapper>
+                                        <Typography.Text size='small'>{ExecutorExtra}</Typography.Text>
+                                    </FormItemTooltipWrapper>
+                                )}
                             >
                                 {
                                     !loading && (
@@ -253,7 +262,12 @@ const TicketAssignments = ({
                                 data-cy='ticket__assignee-item'
                                 name='assignee'
                                 rules={validations.assignee}
-                                label={<LabelWithInfo title={ResponsibleExtra} message={ResponsibleLabel}/>}
+                                label={ResponsibleLabel}
+                                tooltip={(
+                                    <FormItemTooltipWrapper>
+                                        <Typography.Text size='small'>{ResponsibleExtra}</Typography.Text>
+                                    </FormItemTooltipWrapper>
+                                )}
                             >
                                 {
                                     !loading && (

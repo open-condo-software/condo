@@ -14,6 +14,7 @@ import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { useTicketFormContext } from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
 
+import { FormItemTooltipWrapper } from '../../../common/components/Form/FormItemTooltipWrapper'
 import { LinkWithIcon } from '../../../common/components/LinkWithIcon'
 
 import { TicketFormItem } from './index'
@@ -78,7 +79,7 @@ export const TicketDeadlineField = ({ initialValues, form }) => {
                     <Col span={24}>
                         <Tooltip
                             title={(
-                                <Space size={12} direction='vertical'>
+                                <FormItemTooltipWrapper padding='4px'>
                                     <Typography.Text>
                                         {TicketDeadlineTooltipTitle}
                                     </Typography.Text>
@@ -88,7 +89,7 @@ export const TicketDeadlineField = ({ initialValues, form }) => {
                                         PostfixIcon={Settings}
                                         size='medium'
                                     />
-                                </Space>
+                                </FormItemTooltipWrapper>
                             )}
                         >
                             <Typography.Text type='secondary' style={AUTO_COMPLETE_MESSAGE_STYLE}>

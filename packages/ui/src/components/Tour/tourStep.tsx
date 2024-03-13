@@ -23,7 +23,7 @@ export type TourStepProps = Pick<DefaultPopoverProps,
 | 'zIndex'> & {
     step: number
     title: string
-    message: string
+    message?: string
     onClose?: () => void
     children?: React.ReactNode
     placement?: 'top' | 'bottom' | 'left' | 'right'
@@ -76,7 +76,7 @@ export const TourStep: React.FC<TourStepProps> = (props) => {
         </>
     ), [handleClose, title])
 
-    const popoverContent = useMemo(() => (
+    const popoverContent = useMemo(() => message && (
         <Typography.Text size='small'>
             {message}
         </Typography.Text>

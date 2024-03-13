@@ -14,6 +14,7 @@ import {
 import cloneDeep from 'lodash/cloneDeep'
 import debounce from 'lodash/debounce'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import isFunction from 'lodash/isFunction'
 import isNull from 'lodash/isNull'
 import last from 'lodash/last'
@@ -22,10 +23,12 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import ScrollContainer from 'react-indiana-drag-scroll'
 
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
+import { Button, Tour } from '@open-condo/ui'
 
 import Select from '@condo/domains/common/components/antd/Select'
-import { Button } from '@condo/domains/common/components/Button'
+import { Button as OldButton } from '@condo/domains/common/components/Button'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { colors, fontSizes, shadows } from '@condo/domains/common/constants/style'
 import { IPropertyMapFormProps } from '@condo/domains/property/components/BasePropertyMapForm'
@@ -51,6 +54,7 @@ import {
 } from './BuildingPanelCommon'
 import { FullscreenHeader, FullscreenWrapper } from './Fullscreen'
 import { MapEdit, MapEditMode, MapViewMode } from './MapConstructor'
+
 
 const DEBOUNCE_TIMEOUT = 800
 const INSTANT_ACTIONS = ['addBasement', 'addAttic']
@@ -145,7 +149,7 @@ const BuildingPanelTopModal: React.FC<IBuildingPanelTopModalProps> = ({ visible,
                 )}
             </Col>
             <Col span={2}>
-                <Button
+                <OldButton
                     onClick={onClose}
                     icon={<CloseOutlined />}
                     size='small'
@@ -216,6 +220,12 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
 
     const { push, query: { id } } = useRouter()
     const [mapEdit, setMapEdit] = useState(new MapEdit(map, updateFormField))
+
+    const { user } = useAuth()
+    const { currentStep, setCurrentStep } = Tour.useTourContext()
+    const { count } = Property.useCount({
+        where: { createdBy: { id: get(user, 'id', null) } },
+    }, { skip: !user })
 
     const mode = mapEdit.editMode
     const sections = mapEdit.sections
@@ -295,6 +305,21 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     const showViewModeSelect = !mapEdit.isEmptySections && !mapEdit.isEmptyParking
     const showSectionFilter = mapEdit.viewMode === MapViewMode.section && sections.length >= MIN_SECTIONS_TO_SHOW_FILTER
     const showParkingFilter = mapEdit.viewMode === MapViewMode.parking && mapEdit.parking.length >= MIN_SECTIONS_TO_SHOW_FILTER
+
+    const isSubmitDisabled = useMemo(() => !canManageProperties || !address || mapEdit.hasPreviewComponents, [address, canManageProperties, mapEdit.hasPreviewComponents])
+
+    useEffect(() => {
+        const map = get(mapEdit, 'map')
+        const mapSections = get(map, 'sections', [])
+        const mapParking = get(map, 'parking', [])
+        const isUnitsAdded = !isEmpty(mapSections) || !isEmpty(mapParking)
+
+        if (!isSubmitDisabled && isUnitsAdded && count === 0) {
+            setCurrentStep(1)
+        } else {
+            setCurrentStep(0)
+        }
+    }, [count, isSubmitDisabled, mapEdit, setCurrentStep])
 
     return (
         <FullscreenWrapper className='fullscreen'>
@@ -387,16 +412,16 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                             key='submit'
                             data-cy='property-map__save-map-button'
                             onClick={saveCallback}
-                            type='sberDefaultGradient'
-                            disabled={!canManageProperties || !address || mapEdit.hasPreviewComponents}
+                            type='primary'
+                            disabled={isSubmitDisabled}
+                            focus={currentStep === 1}
                         >
                             {SaveLabel}
                         </Button>
                         <Button
                             key='cancel'
                             onClick={onCancel}
-                            type='sberDefaultGradient'
-                            secondary
+                            type='secondary'
                         >
                             {CancelLabel}
                         </Button>

@@ -1,4 +1,4 @@
-import { Col, Row } from 'antd'
+import { Col, Form, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import dayjs, { Dayjs } from 'dayjs'
 import get from 'lodash/get'
@@ -90,6 +90,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
     organizationId,
     disabled,
     meterType,
+    submitButtonProps = {},
     ...otherProps
 }) => {
     const intl = useIntl()
@@ -186,6 +187,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
                 handleSubmit={handleSubmit}
                 submitButtonProps={{
                     disabled: disabledFields,
+                    ...submitButtonProps,
                 }}
                 ErrorToFormFieldMsgMapping={ErrorToFormFieldMsgMapping}
                 {...otherProps}
