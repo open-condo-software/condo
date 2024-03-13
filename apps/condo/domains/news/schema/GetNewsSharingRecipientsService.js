@@ -16,7 +16,7 @@
  * GET <URL>?organizationId=string
  *
  * Where:
- * - URL = getRecipeints endpoint url provided in NewsItemSharingConfig
+ * - URL = getRecipients endpoint url provided in NewsItemSharingConfig
  *
  * Check response Payload in SCHEMA variable
  * --
