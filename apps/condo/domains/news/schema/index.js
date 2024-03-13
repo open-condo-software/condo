@@ -4,6 +4,7 @@
  */
 
 const { GetNewsItemsRecipientsCountersService } = require('./GetNewsItemsRecipientsCountersService')
+const { GetNewsSharingRecipientsService } = require('./GetNewsSharingRecipientsService')
 const { NewsItem } = require('./NewsItem')
 const { NewsItemRecipientsExportTask } = require('./NewsItemRecipientsExportTask')
 const { NewsItemScope } = require('./NewsItemScope')
@@ -20,5 +21,6 @@ module.exports = {
     GetNewsItemsRecipientsCountersService,
     NewsItemRecipientsExportTask,
     NewsItemSharing,
+    GetNewsSharingRecipientsService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -73669,6 +73669,18 @@ type GetNewsItemsRecipientsCountersOutput {
   receiversCount: Int!
 }
 
+input GetNewsSharingRecipientsInput {
+  dv: Int!
+  sender: JSON!
+  b2bAppContext: B2BAppContextWhereUniqueInput!
+}
+
+type GetNewsSharingRecipientsOutput {
+  id: String!
+  name: String!
+  receiversCount: Int
+}
+
 enum AppCategory {
   DISPATCHING
   GIS
@@ -77525,6 +77537,7 @@ type Query {
   getOverviewDashboard(data: GetOverviewDashboardInput!): GetOverviewDashboardOutput
   exportPropertyScopesToExcel(data: ExportPropertyScopeToExcelInput!): ExportPropertyScopeToExcelOutput
   getNewsItemsRecipientsCounters(data: GetNewsItemsRecipientsCountersInput!): GetNewsItemsRecipientsCountersOutput
+  getNewsSharingRecipients(data: GetNewsSharingRecipientsInput!): [GetNewsSharingRecipientsOutput]
   allMiniApps(data: AllMiniAppsInput!): [MiniAppOutput!]
 
   """The version of the Keystone application serving this API."""

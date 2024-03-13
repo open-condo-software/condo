@@ -163,6 +163,63 @@ function setFakeClientMode (entryPoint, prepareKeystoneOptions = {}) {
     __isAwaiting = true
 }
 
+let __expressTestServers = {}
+
+/**
+ * Initializes provided express server on a free port. Returns an address of the server. Removes server after finishing tests
+ * Use ONLY inside jest test files!
+ * @param {string} name
+ * @param {Express} app
+ * @param {string} protocol like http, ssh, rdp, https. Used only in address
+ */
+function initTestExpressApp (name, app, protocol = 'http') {
+    if (!name) {
+        throw new Error('initTestExpressApp(name, app) no name!')
+    }
+
+    if (!app) {
+        throw new Error('initTestExpressApp(name, app) no app!')
+    }
+
+    if (getTestExpressApp(name)) {
+        throw new Error('initTestExpressApp(name, app) express app with this name is already initialized')
+    }
+
+    beforeAll(async () => {
+
+        __expressTestServers[name] = {
+            server: null,
+            address: null,
+            port: null,
+            baseUrl: null,
+        }
+        // This express runs only in tests
+        // nosemgrep: problem-based-packs.insecure-transport.js-node.using-http-server.using-http-server
+        __expressTestServers[name].server = await http.createServer(app).listen(0)
+
+        const addressInfo = __expressTestServers[name].server.address()
+        __expressTestServers[name].address = addressInfo.address === '::' ? 'localhost' : addressInfo.address
+        __expressTestServers[name].port = addressInfo.port
+        __expressTestServers[name].baseUrl = `${protocol}://${__expressTestServers[name].address}:${__expressTestServers[name].port}`
+    })
+
+    afterAll(async () => {
+        if (__expressTestServers[name]) {
+            __expressTestServers[name].server.close()
+            delete __expressTestServers[name]
+        }
+    })
+}
+
+/**
+ * Returns test express app. Use when you need to get address of the app
+ * @param name
+ * @returns {*}
+ */
+function getTestExpressApp (name){
+    return __expressTestServers[name]
+}
+
 /**
  * @param {function} callable
  * @param {Object} params
@@ -831,4 +888,6 @@ module.exports = {
     setFeatureFlag,
     getFeatureFlag,
     setAllFeatureFlags,
+    initTestExpressApp,
+    getTestExpressApp,
 }

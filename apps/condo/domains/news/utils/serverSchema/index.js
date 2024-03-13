@@ -14,6 +14,7 @@ const { EXPORT_NEWS_RECIPIENTS_MUTATION } = require('@condo/domains/news/gql')
 const { GET_NEWS_ITEMS_RECIPIENTS_COUNTERS_MUTATION } = require('@condo/domains/news/gql')
 const { NewsItemRecipientsExportTask: NewsItemRecipientsExportTaskGQL } = require('@condo/domains/news/gql')
 const { NewsItemSharing: NewsItemSharingGQL } = require('@condo/domains/news/gql')
+const { GET_NEWS_SHARING_RECIPIENTS_MUTATION } = require('@condo/domains/news/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const NewsItem = generateServerUtils(NewsItemGQL)
@@ -47,7 +48,22 @@ async function getNewsItemsRecipientsCounters (context, data) {
 }
 
 const NewsItemRecipientsExportTask = generateServerUtils(NewsItemRecipientsExportTaskGQL)
+
 const NewsItemSharing = generateServerUtils(NewsItemSharingGQL)
+
+async function getNewsItemSharingRecipients (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: GET_NEWS_SHARING_RECIPIENTS_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to getNewsSharingRecipients',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -59,5 +75,6 @@ module.exports = {
     getNewsItemsRecipientsCounters,
     NewsItemRecipientsExportTask,
     NewsItemSharing,
+    getNewsItemSharingRecipients,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

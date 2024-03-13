@@ -123,6 +123,7 @@ const checks = [
 ]
 
 const lastApp = conf.NODE_ENV === 'test' ? undefined : new NextApp({ dir: '.' })
+
 const apps = () => {
     return [
         new HealthCheck({ checks }),

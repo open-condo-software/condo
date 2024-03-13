@@ -36,6 +36,12 @@ const NewsItemRecipientsExportTask = generateGqlQueries('NewsItemRecipientsExpor
 const NEWS_ITEM_SHARING_FIELDS = `{ b2bAppContext { id } newsItem { id } sharingParams status statusMessage lastPostRequest ${COMMON_FIELDS} }`
 const NewsItemSharing = generateGqlQueries('NewsItemSharing', NEWS_ITEM_SHARING_FIELDS)
 
+const GET_NEWS_SHARING_RECIPIENTS_MUTATION = gql`
+    query getGetNewsSharingRecipients ($data: GetNewsSharingRecipientsInput!) {
+        result: getNewsSharingRecipients(data: $data) { id name receiversCount }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -46,5 +52,6 @@ module.exports = {
     GET_NEWS_ITEMS_RECIPIENTS_COUNTERS_MUTATION,
     NewsItemRecipientsExportTask,
     NewsItemSharing,
+    GET_NEWS_SHARING_RECIPIENTS_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
