@@ -41,7 +41,7 @@ export const LinkWithIcon: React.FC<LinkWithIconPropsType> = ({ href, title, siz
 
     return (
         <Link href={href}>
-            <Typography.Link size={size}>
+            <Typography.Link size={size} onClick={onClick}>
                 {linkContent}
             </Typography.Link>
         </Link>

@@ -190,7 +190,7 @@ export const OnBoardingProvider: React.FC = (props) => {
             refetchOnBoarding,
         }}>
             {props.children}
-            <ModalForm/>
+            {!isOrganizationTourEnabled && <ModalForm/>}
             {!isOrganizationTourEnabled && <OnBoardingCompleteModal/>}
         </OnBoardingContext.Provider>
     )

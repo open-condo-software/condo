@@ -6,19 +6,16 @@ import get from 'lodash/get'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
-import { Building } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Space, Typography } from '@open-condo/ui'
+import { Typography } from '@open-condo/ui'
 
-
+import { FormItemTooltipWrapper } from '@condo/domains/common/components/Form/FormItemTooltipWrapper'
 import { PARKING_SECTION_TYPE, SECTION_SECTION_TYPE } from '@condo/domains/property/constants/common'
 import { TicketFormItem } from '@condo/domains/ticket/components/BaseTicketForm'
 import { FloorNameInput } from '@condo/domains/user/components/FloorNameInput'
 import { SectionNameInput } from '@condo/domains/user/components/SectionNameInput'
 import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
 
-import { FormItemTooltipWrapper } from '../../common/components/Form/FormItemTooltipWrapper'
-import { LinkWithIcon } from '../../common/components/LinkWithIcon'
 
 interface IGetSectionAndFloorByUnit {
     (unitName: string, sections: BuildingSection[], unitType: BuildingUnitSubType): {
@@ -93,6 +90,9 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
     const FlatNumberLabel = intl.formatMessage({ id: 'field.FlatNumber' })
     const SectionNameLabel = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
     const FloorNameLabel = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
+    const SectionAndFloorTooltipTitle = intl.formatMessage({ id: 'pages.condo.property.section.Name.tooltip.title' })
+    const SectionAndFloorTooltipButtonLabel = intl.formatMessage({ id: 'pages.condo.property.section.Name.tooltip.button' })
+
     const {
         initialValues = {},
         property,
@@ -201,17 +201,17 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
     const SectionAndFloorTooltip = useMemo(() => (
         <FormItemTooltipWrapper>
             <Typography.Text size='small'>
-                Определяется по шахматке. Если подъезд определен неверно, отредактируйте шахматку.
+                {SectionAndFloorTooltipTitle}
             </Typography.Text>
             <Typography.Link
                 target='_blank'
                 href={`/property/${get(property, 'id')}/map/update`}
                 size='medium'
             >
-                Редактировать шахматку
+                {SectionAndFloorTooltipButtonLabel}
             </Typography.Link>
         </FormItemTooltipWrapper>
-    ), [property])
+    ), [SectionAndFloorTooltipButtonLabel, SectionAndFloorTooltipTitle, property])
 
     return (
         <Col span={24} md={20} xl={18} xxl={16}>

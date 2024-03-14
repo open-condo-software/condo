@@ -622,6 +622,8 @@
   "pages.condo.property.parking.form.hideMinFloor": "Скрыть минимальный этаж",
   "pages.condo.property.parking.form.numberOfParkingSection": "Номер паркинга",
   "pages.condo.property.section.Name": "Подъезд",
+  "pages.condo.property.section.Name.tooltip.title": "Определяется по шахматке. Если подъезд определен неверно, отредактируйте шахматку.",
+  "pages.condo.property.section.Name.tooltip.button": "Редактировать шахматку",
   "pages.condo.property.parkingSection.name": "Секция",
   "pages.condo.property.select.option.section": "Подъезд",
   "pages.condo.property.select.option.unit": "Помещение",

@@ -622,6 +622,8 @@
   "pages.condo.property.parking.form.hideMinFloor": "Hide min floor",
   "pages.condo.property.parking.form.numberOfParkingSection": "Parking number",
   "pages.condo.property.section.Name": "Section",
+  "pages.condo.property.section.Name.tooltip.title": "Determined by map. If the entrance is not correctly determined, edit the chess.",
+  "pages.condo.property.section.Name.tooltip.button": "Update map",
   "pages.condo.property.parkingSection.name": "Parking section",
   "pages.condo.property.select.option.section": "Section",
   "pages.condo.property.select.option.unit": "Unit",

@@ -8,7 +8,7 @@ import { Loader } from './Loader'
 const CARD_VIDEO_WRAPPER_STYLES: CSSProperties = {
     borderRadius: '12px',
     overflow: 'hidden',
-    height: '259px',
+    height: '260px',
     width: '100%',
     display: 'flex',
     alignItems: 'center',

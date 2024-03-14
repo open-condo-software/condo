@@ -40,7 +40,6 @@ interface AddressSearchInputProps extends SelectProps<string> {
     addressValidatorError?: string
 }
 
-const NOT_FOUNT_CONTENT_WRAPPER_STYLES: CSSProperties = { cursor: 'pointer' }
 const BACK_LINK_WRAPPER_STYLE: CSSProperties = { display: 'flex', justifyContent: 'end' }
 const HELP_OPTION_WRAPPER_STYLE: CSSProperties = { width: '100%', padding: '10px 16px', display: 'flex', gap: '18px', backgroundColor: colors.gray[1], borderRadius: '8px', alignItems: 'center', justifyContent: 'space-between' }
 
@@ -150,9 +149,13 @@ export const AddressSuggestionsSearchInput: React.FC<AddressSearchInputProps> = 
                     onSelect={handleOptionSelect}
                     id='addressSuggestionsSearchInput'
                     notFoundContent={(
-                        <div style={NOT_FOUNT_CONTENT_WRAPPER_STYLES} onClick={() => setHelpModalState('message')}>
-                            <Typography.Text size='medium' type='secondary'>{NoSuchAddressMessage}</Typography.Text>
-                        </div>
+                        <Typography.Text
+                            onClick={() => setHelpModalState('message')}
+                            size='medium'
+                            type='secondary'
+                        >
+                            {NoSuchAddressMessage}
+                        </Typography.Text>
                     )}
                 />
             </BaseSearchInputWrapper>
@@ -201,12 +204,16 @@ export const AddressSuggestionsSearchInput: React.FC<AddressSearchInputProps> = 
                             <Typography.Text>{ContactsModalDescriptionEmail} {SupportEmail}</Typography.Text>
                         </Space>
                     </a>
-                    <a href={`https://t.me/${SupportBotName}`} target='_blank' style={HELP_OPTION_WRAPPER_STYLE} rel='noreferrer'>
-                        <Space size={16}>
-                            <Send size='medium' color={colors.gray[7]} />
-                            <Typography.Text>{ContactsModalDescriptionBot} @{SupportBotName}</Typography.Text>
-                        </Space>
-                    </a>
+                    {
+                        SupportBotName && (
+                            <a href={`https://t.me/${SupportBotName}`} target='_blank' style={HELP_OPTION_WRAPPER_STYLE} rel='noreferrer'>
+                                <Space size={16}>
+                                    <Send size='medium' color={colors.gray[7]} />
+                                    <Typography.Text>{ContactsModalDescriptionBot} @{SupportBotName}</Typography.Text>
+                                </Space>
+                            </a>
+                        )
+                    }
                 </Space>
             </Modal>
         </>

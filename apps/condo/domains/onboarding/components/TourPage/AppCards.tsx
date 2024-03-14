@@ -14,7 +14,7 @@ const TAB_IMAGE_WRAPPER_STYLES: CSSProperties = { margin: 'auto', width: 'fit-co
 const TAB_IMAGE_STYLES: CSSProperties = { width: '200px' }
 const QR_CODE_IMAGE_STYLES: CSSProperties = { width: '150px', height: '150px' }
 
-// Change it after pics will be ready
+//TODO(DOMA-8644): replace urls after pics will be ready
 const MODAL_IMAGE_SRC_BY_TYPE = {
     admin: '/onboarding/tourTechnicCard.webp',
     technic: '/onboarding/tourResidentCard.webp',
@@ -50,6 +50,7 @@ export const TechnicAppCard = () => {
                     emoji: [{ symbol: EMOJI.MECHANIC }, { symbol: EMOJI.WRENCH }],
                     headingTitle: TechnicAppCardTitle,
                 }}
+                //TODO(DOMA-8644): replace image on en locale
                 body={{ image: { src: '/onboarding/tourTechnicCard.webp', style: APP_CARD_IMAGE_STYLES } }}
                 onClick={() => setActiveModal('info')}
                 id='tour-technic-app-card'
@@ -150,6 +151,7 @@ export const ResidentAppCard = () => {
                 emoji: [{ symbol: EMOJI.WOMAN }, { symbol: EMOJI.MAN }],
                 headingTitle: ResidentAppCardTitle,
             }}
+            //TODO(DOMA-8644): replace image on en locale
             body={{ image: { src: '/onboarding/tourResidentCard.webp', style: APP_CARD_IMAGE_STYLES } }}
             onClick={() => {
                 window.open(RESIDENT_APP_LANDING_EXTERNAL_LINK, '_blank')

@@ -73,7 +73,6 @@ export const CreateTicketActionBar = ({ handleSave, isLoading, form }) => {
                         || !details
                         || !placeClassifier
                         || !categoryClassifier
-                        || !assignee
                         || (isRequiredDeadline && !deadline)
                         || ticketSettingLoading
 
