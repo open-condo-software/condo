@@ -72,9 +72,11 @@ export const AutoAssigner = ({
     }, {
         skip: !organizationId || !classifierId,
         fetchPolicy: 'cache-and-network',
+        nextFetchPolicy: 'cache-and-network',
     })
 
-    const allLoaded = allDataLoaded && !loading
+    const loadedRule = !!rule || !loading
+    const allLoaded = allDataLoaded && loadedRule
 
     useDeepCompareEffect(() => {
         if (allLoaded) {
