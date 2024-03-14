@@ -9,13 +9,13 @@ import { QuestionCircle, Settings } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Space, Tooltip } from '@open-condo/ui'
 
+import { FormItemTooltipWrapper } from '@condo/domains/common/components/Form/FormItemTooltipWrapper'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { useTicketFormContext } from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
 
-import { FormItemTooltipWrapper } from '../../../common/components/Form/FormItemTooltipWrapper'
-import { LinkWithIcon } from '../../../common/components/LinkWithIcon'
 
 import { TicketFormItem } from './index'
 

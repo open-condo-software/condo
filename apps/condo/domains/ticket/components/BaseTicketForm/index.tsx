@@ -22,7 +22,7 @@ import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
-import { Info, PlusCircle, QuestionCircle } from '@open-condo/icons'
+import { PlusCircle, QuestionCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Alert, Space, Tooltip } from '@open-condo/ui'
@@ -54,6 +54,7 @@ import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { UnitInfo, UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
+import { PropertyFormItemTooltip } from '@condo/domains/property/PropertyFormItemTooltip'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { IncidentHints } from '@condo/domains/ticket/components/IncidentHints'
 import { useTicketThreeLevelsClassifierHook } from '@condo/domains/ticket/components/TicketClassifierSelect'
@@ -75,8 +76,6 @@ import { TicketAssignments } from './TicketAssignments'
 import { TicketDeadlineField } from './TicketDeadlineField'
 import { TicketDeferredDateField } from './TicketDeferredDateField'
 import { useTicketValidations } from './useTicketValidations'
-
-import { PropertyFormItemTooltip } from '../../../property/PropertyFormItemTooltip'
 
 
 const HINTS_COL_PROPS: ColProps = { span: 24 }

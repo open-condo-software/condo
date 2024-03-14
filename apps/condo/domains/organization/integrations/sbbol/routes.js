@@ -2,6 +2,7 @@ const { isObject, get } = require('lodash')
 const { generators } = require('openid-client') // certified openid client will all checks
 
 const conf = require('@open-condo/config')
+const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
@@ -13,6 +14,8 @@ const sync = require('./sync')
 const { getOnBoardingStatus } = require('./sync/getOnBoadringStatus')
 const { initializeSbbolAuthApi } = require('./utils')
 const { getSbbolUserInfoErrors } = require('./utils/getSbbolUserInfoErrors')
+
+const { ORGANIZATION_TOUR } = require('../../../common/constants/featureflags')
 
 const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}
 
@@ -100,7 +103,10 @@ class SbbolRoutes {
 
             logger.info({ msg: 'SBBOL OK Authenticated', userId: user.id, organizationId: organization.id, employeeId: organizationEmployee.id, data: { finished } })
             if (redirectUrl) return res.redirect(redirectUrl)
-            return res.redirect(finished || !created ? '/' : '/onboarding')
+
+            const isOrganizationTourEnabled = await featureToggleManager.isFeatureEnabled(keystone, ORGANIZATION_TOUR)
+
+            return res.redirect(finished || !created || isOrganizationTourEnabled ? '/' : '/onboarding')
         } catch (error) {
             logger.error({ msg: 'SBBOL auth-callback error', err: error, reqId })
             return next(error)

@@ -9,8 +9,8 @@ import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
+import { FormItemTooltipWrapper } from '@condo/domains/common/components/Form/FormItemTooltipWrapper'
 import { GraphQlSearchInput, renderDeletedOption } from '@condo/domains/common/components/GraphQlSearchInput'
-import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
 import {
     OrganizationEmployee,
     OrganizationEmployeeSpecialization,
@@ -29,11 +29,8 @@ import {
 
 import { AutoAssigner } from './AutoAssigner'
 
-import { FormItemTooltipWrapper } from '../../../common/components/Form/FormItemTooltipWrapper'
-
-
-
 import { TicketFormItem } from './index'
+
 
 type TicketAssignmentsProps = {
     validations: { [key: string]: Rule[] },
