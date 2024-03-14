@@ -82,7 +82,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
     children,
     inputNode,
     formItemProps,
-    cellProps,
+    ...cellProps
 }) => {
     return (
         <td {...cellProps}>
