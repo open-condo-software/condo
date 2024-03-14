@@ -164,11 +164,6 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
                     introspection: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
                     playground: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
                     plugins: apolloPlugins,
-                    // plugins: [
-                    //     new ApolloSentryPlugin(),
-                    //     new ApolloRateLimitingPlugin(keystone),
-                    //     new GraphQLLoggerPlugin(),
-                    // ],
                 },
                 ...(graphql || {}),
             }),
