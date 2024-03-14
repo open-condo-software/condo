@@ -6,8 +6,9 @@ const { v4: uuid } = require('uuid')
 const { execGqlAsUser } = require('@open-condo/codegen/generate.server.utils')
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
+const { getRedisClient } = require('@open-condo/keystone/redis')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
-const { taskQueue, createTask } = require('@open-condo/keystone/tasks')
+const { createTask } = require('@open-condo/keystone/tasks')
 const { DEFAULT_MAX_PACK_SIZE } = require('@open-condo/webhooks/constants')
 const { WebhookSubscription } = require('@open-condo/webhooks/schema/utils/serverSchema')
 const { trySendData, buildQuery } = require('@open-condo/webhooks/tasks/tasks.utils')
@@ -19,7 +20,7 @@ const BAD_RESPONSE_STATUS = 'BAD_RESPONSE'
 const NO_RESPONSE_STATUS = 'NO_RESPONSE'
 const NO_SUBSCRIPTION_STATUS = 'NO_SUBSCRIPTION'
 
-const rLock = (IS_BUILD) ? undefined : new RedLock([taskQueue.client])
+const rLock = (IS_BUILD) ? undefined : new RedLock([getRedisClient('worker')])
 const logger = getLogger('sendWebhook')
 
 
@@ -131,7 +132,7 @@ async function sendWebhook (subscriptionId) {
             }
         }
 
-        // TODO(pahaz): We do not need to update the WebhookSubscription if no updates are found, as we can utilize the same query and cache it. 
+        // TODO(pahaz): We do not need to update the WebhookSubscription if no updates are found, as we can utilize the same query and cache it.
         //     We also want to prevent the unnecessary expansion of the history log/database
         await WebhookSubscription.update(keystone, subscriptionId, {
             syncedAt: lastSyncTime,
