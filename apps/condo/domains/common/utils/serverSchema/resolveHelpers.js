@@ -12,10 +12,7 @@ const getUnitTypeFieldResolveInput = ({ unitTypeFieldName = 'unitType', unitName
     if (!unitName && unitType) {
         return null
     } else if (!unitType && unitName) {
-        if (existedUnitType) {
-            return existedUnitType
-        }
-        return FLAT_UNIT_TYPE
+        return existedUnitType || FLAT_UNIT_TYPE
     } else {
         return unitType
     }
@@ -30,10 +27,7 @@ const getSectionTypeFieldResolveInput = ({ sectionTypeFieldName = 'sectionType',
     if (!sectionName && sectionType) {
         return null
     } else if (!sectionType && sectionName) {
-        if (existedSectionType) {
-            return existedSectionType
-        }
-        return SECTION_SECTION_TYPE
+        return existedSectionType || SECTION_SECTION_TYPE
     } else {
         return sectionType
     }
