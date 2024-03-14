@@ -18,14 +18,14 @@ const { getKeystonePinoOptions, GraphQLLoggerPlugin } = require('@open-condo/key
 const metrics = require('@open-condo/keystone/metrics')
 const { schemaDocPreprocessor, adminDocPreprocessor, escapeSearchPreprocessor, customAccessPostProcessor } = require('@open-condo/keystone/preprocessors')
 const { ApolloRateLimitingPlugin } = require('@open-condo/keystone/rateLimiting')
+const { getRedisClient } = require('@open-condo/keystone/redis')
 const { ApolloSentryPlugin } = require('@open-condo/keystone/sentry')
-const { registerTasks, taskQueue } = require('@open-condo/keystone/tasks')
+const { registerTasks, registerTaskQueues, taskQueues } = require('@open-condo/keystone/tasks')
 const { KeystoneTracingApp } = require('@open-condo/keystone/tracing')
 
 const { parseCorsSettings } = require('../../cors.utils')
 const { _internalGetExecutionContextAsyncLocalStorage } = require('../../executionContext')
 const { expressErrorHandler } = require('../../logging/expressErrorHandler')
-const { getRedisClient } = require('../../redis')
 const { prepareDefaultKeystoneConfig } = require('../../setup.utils')
 
 const IS_BUILD_PHASE = conf.PHASE === 'build'
@@ -59,19 +59,21 @@ const sendAppMetrics = () => {
     metrics.gauge({ name: 'processMemoryUsage.rss', value: memUsage.rss })
     metrics.gauge({ name: 'processMemoryUsage.external', value: memUsage.external })
 
-    if (taskQueue) {
-        taskQueue.getJobCounts().then(jobCounts => {
-            metrics.gauge({ name: 'worker.activeTasks', value: jobCounts.active })
-            metrics.gauge({ name: 'worker.waitingTasks', value: jobCounts.waiting })
-            metrics.gauge({ name: 'worker.completedTasks', value: jobCounts.completed })
-            metrics.gauge({ name: 'worker.failedTasks', value: jobCounts.failed })
-            metrics.gauge({ name: 'worker.delayedTasks', value: jobCounts.delayed })
-            metrics.gauge({ name: 'worker.pausedTasks', value: jobCounts.paused })
+    if (taskQueues.length > 0) {
+        taskQueues.forEach(([queueName, queue]) => {
+            queue.getJobCounts().then(jobCounts => {
+                metrics.gauge({ name: `worker.${queueName}.activeTasks`, value: jobCounts.active })
+                metrics.gauge({ name: `worker.${queueName}.waitingTasks`, value: jobCounts.waiting })
+                metrics.gauge({ name: `worker.${queueName}.completedTasks`, value: jobCounts.completed })
+                metrics.gauge({ name: `worker.${queueName}.failedTasks`, value: jobCounts.failed })
+                metrics.gauge({ name: `worker.${queueName}.delayedTasks`, value: jobCounts.delayed })
+                metrics.gauge({ name: `worker.${queueName}.pausedTasks`, value: jobCounts.paused })
+            })
         })
     }
 }
 
-function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, schemas, schemasPreprocessors, tasks, apps, lastApp, graphql, ui }) {
+function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, schemas, schemasPreprocessors, tasks, queues, apps, lastApp, graphql, ui }) {
     // trying to be compatible with keystone-6 and keystone-5
     // TODO(pahaz): add storage like https://keystonejs.com/docs/config/config#storage-images-and-files
 
@@ -131,6 +133,7 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
         // Since tasks may require Redis connection, and Redis variable is not present during build time:
         // We need to register all tasks as they will be possible to execute
         if (tasks) registerTasks(tasks())
+        if (queues) registerTaskQueues(queues)
     }
 
     if (!IS_BUILD_PHASE) {

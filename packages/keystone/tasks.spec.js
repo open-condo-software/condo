@@ -1,4 +1,4 @@
-const { createTask, createWorker, taskQueue } = require('./tasks')
+const { createTask, createWorker, taskQueues } = require('./tasks')
 
 function createTaskFactory () {
     return async function asyncAddTask (a, b) {
@@ -8,11 +8,11 @@ function createTaskFactory () {
 }
 
 beforeAll(async () => {
-    return createWorker()
+    return await createWorker()
 })
 
-afterAll(() => {
-    return taskQueue.close()
+afterAll(async () => {
+    await Promise.all(taskQueues.map(([,queue]) => queue.close()))
 })
 
 describe('tasks', () => {
