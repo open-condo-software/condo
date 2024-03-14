@@ -167,7 +167,7 @@ const IMPORT_ID_FIELD = {
 }
 
 const UNIT_TYPE_FIELD = {
-    schemaDoc: 'Type of unit, such as parking lot or flat',
+    schemaDoc: 'Type of unit, such as parking lot or flat. Default value: "flat"',
     type: Select,
     options: UNIT_TYPES,
     dataType: 'string',

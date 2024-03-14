@@ -12910,7 +12910,7 @@ export type BillingAccount = {
   number?: Maybe<Scalars['String']>;
   /**  Flat number / door number of an apartment building (property)  */
   unitName?: Maybe<Scalars['String']>;
-  /**  Type of unit, such as parking lot or flat  */
+  /**  Type of unit, such as parking lot or flat. Default value: "flat"  */
   unitType?: Maybe<Scalars['String']>;
   /**  Full name of the account holder  */
   fullName?: Maybe<Scalars['String']>;
@@ -20022,7 +20022,7 @@ export type Contact = {
   property?: Maybe<Property>;
   /**  Property unit, that is a subject of an issue, reported by this person in first ticket. Meaning of this field will be revised in the future  */
   unitName?: Maybe<Scalars['String']>;
-  /**  Type of unit, such as parking lot or flat  */
+  /**  Type of unit, such as parking lot or flat. Default value: "flat"  */
   unitType?: Maybe<Scalars['String']>;
   /**  Normalized contact email of this person  */
   email?: Maybe<Scalars['String']>;
@@ -25504,7 +25504,7 @@ export type Invoice = {
   number?: Maybe<Scalars['Int']>;
   /**  The payer's property  */
   property?: Maybe<Property>;
-  /**  Type of unit, such as parking lot or flat  */
+  /**  Type of unit, such as parking lot or flat. Default value: "flat"  */
   unitType?: Maybe<Scalars['String']>;
   /**  The payer's unitName  */
   unitName?: Maybe<Scalars['String']>;
@@ -30601,7 +30601,7 @@ export type Meter = {
   accountNumber?: Maybe<Scalars['String']>;
   /**  Unit with this meter  */
   unitName?: Maybe<Scalars['String']>;
-  /**  Type of unit, such as parking lot or flat  */
+  /**  Type of unit, such as parking lot or flat. Default value: "flat"  */
   unitType?: Maybe<Scalars['String']>;
   /**  Certain place in unit where meter is, such as kitchen  */
   place?: Maybe<Scalars['String']>;
@@ -71230,7 +71230,7 @@ export type Resident = {
   paymentCategories?: Maybe<Array<Maybe<PaymentCategory>>>;
   /**  Unit of the property, in which this person resides  */
   unitName?: Maybe<Scalars['String']>;
-  /**  Type of unit, such as parking lot or flat  */
+  /**  Type of unit, such as parking lot or flat. Default value: "flat"  */
   unitType?: Maybe<Scalars['String']>;
   /**  Ref to the organization. It is filled in on the server and is read-only  */
   organization?: Maybe<Organization>;
@@ -81621,13 +81621,13 @@ export type Ticket = {
   propertyAddressMeta?: Maybe<AddressMetaField>;
   /**  Section name/number of an apartment building (property). You need to take from Property.map  */
   sectionName?: Maybe<Scalars['String']>;
-  /**  Type of section, such as parking or section  */
+  /**  Type of section, such as parking or section. Default value: "section"  */
   sectionType?: Maybe<Scalars['String']>;
   /**  Floor of an apartment building (property). You need to take from Property.map  */
   floorName?: Maybe<Scalars['String']>;
   /**  Flat number / door number of an apartment building (property). You need to take from Property.map  */
   unitName?: Maybe<Scalars['String']>;
-  /**  Type of unit, such as parking lot or flat  */
+  /**  Type of unit, such as parking lot or flat. Default value: "flat"  */
   unitType?: Maybe<Scalars['String']>;
   /**  Ticket source channel/system. Examples: call, email, visit, ...  */
   source?: Maybe<TicketSource>;
@@ -82144,9 +82144,9 @@ export type TicketChange = {
   sectionNameFrom?: Maybe<Scalars['String']>;
   /**  Section name/number of an apartment building (property). You need to take from Property.map  */
   sectionNameTo?: Maybe<Scalars['String']>;
-  /**  Type of section, such as parking or section  */
+  /**  Type of section, such as parking or section. Default value: "section"  */
   sectionTypeFrom?: Maybe<Scalars['String']>;
-  /**  Type of section, such as parking or section  */
+  /**  Type of section, such as parking or section. Default value: "section"  */
   sectionTypeTo?: Maybe<Scalars['String']>;
   /**  Floor of an apartment building (property). You need to take from Property.map  */
   floorNameFrom?: Maybe<Scalars['String']>;
@@ -82156,9 +82156,9 @@ export type TicketChange = {
   unitNameFrom?: Maybe<Scalars['String']>;
   /**  Flat number / door number of an apartment building (property). You need to take from Property.map  */
   unitNameTo?: Maybe<Scalars['String']>;
-  /**  Type of unit, such as parking lot or flat  */
+  /**  Type of unit, such as parking lot or flat. Default value: "flat"  */
   unitTypeFrom?: Maybe<Scalars['String']>;
-  /**  Type of unit, such as parking lot or flat  */
+  /**  Type of unit, such as parking lot or flat. Default value: "flat"  */
   unitTypeTo?: Maybe<Scalars['String']>;
   /**  In the case of remote system sync, you can store some extra analytics. Examples: email, name, phone, ...  */
   sourceMetaFrom?: Maybe<Scalars['JSON']>;

@@ -614,7 +614,7 @@ const Ticket = new GQLListSchema('Ticket', {
             type: Text,
         },
         sectionType: {
-            schemaDoc: 'Type of section, such as parking or section',
+            schemaDoc: 'Type of section, such as parking or section. Default value: "section"',
             type: Select,
             options: SECTION_TYPES,
             dataType: 'string',

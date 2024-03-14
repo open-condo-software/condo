@@ -12055,7 +12055,7 @@ type BillingAccount {
   """ Flat number / door number of an apartment building (property) """
   unitName: String
 
-  """ Type of unit, such as parking lot or flat """
+  """ Type of unit, such as parking lot or flat. Default value: "flat" """
   unitType: String
 
   """ Full name of the account holder """
@@ -22765,7 +22765,8 @@ type Ticket {
   """
   sectionName: String
 
-  """ Type of section, such as parking or section """
+  """ Type of section, such as parking or section. Default value: "section" 
+  """
   sectionType: String
 
   """ Floor of an apartment building (property). You need to take from Property.map 
@@ -22776,7 +22777,7 @@ type Ticket {
   """
   unitName: String
 
-  """ Type of unit, such as parking lot or flat """
+  """ Type of unit, such as parking lot or flat. Default value: "flat" """
   unitType: String
 
   """ Ticket source channel/system. Examples: call, email, visit, ... """
@@ -25016,10 +25017,12 @@ type TicketChange {
   """
   sectionNameTo: String
 
-  """ Type of section, such as parking or section """
+  """ Type of section, such as parking or section. Default value: "section" 
+  """
   sectionTypeFrom: String
 
-  """ Type of section, such as parking or section """
+  """ Type of section, such as parking or section. Default value: "section" 
+  """
   sectionTypeTo: String
 
   """ Floor of an apartment building (property). You need to take from Property.map 
@@ -25038,10 +25041,10 @@ type TicketChange {
   """
   unitNameTo: String
 
-  """ Type of unit, such as parking lot or flat """
+  """ Type of unit, such as parking lot or flat. Default value: "flat" """
   unitTypeFrom: String
 
-  """ Type of unit, such as parking lot or flat """
+  """ Type of unit, such as parking lot or flat. Default value: "flat" """
   unitTypeTo: String
 
   """ In the case of remote system sync, you can store some extra analytics. Examples: email, name, phone, ... 
@@ -41565,7 +41568,7 @@ type Contact {
   """
   unitName: String
 
-  """ Type of unit, such as parking lot or flat """
+  """ Type of unit, such as parking lot or flat. Default value: "flat" """
   unitType: String
 
   """ Normalized contact email of this person """
@@ -43265,7 +43268,7 @@ type Resident {
   """ Unit of the property, in which this person resides """
   unitName: String
 
-  """ Type of unit, such as parking lot or flat """
+  """ Type of unit, such as parking lot or flat. Default value: "flat" """
   unitType: String
 
   """ Ref to the organization. It is filled in on the server and is read-only 
@@ -47673,7 +47676,7 @@ type Meter {
   """ Unit with this meter """
   unitName: String
 
-  """ Type of unit, such as parking lot or flat """
+  """ Type of unit, such as parking lot or flat. Default value: "flat" """
   unitType: String
 
   """ Certain place in unit where meter is, such as kitchen """
@@ -69593,7 +69596,7 @@ type Invoice {
   """ The payer's property """
   property: Property
 
-  """ Type of unit, such as parking lot or flat """
+  """ Type of unit, such as parking lot or flat. Default value: "flat" """
   unitType: String
 
   """ The payer's unitName """
