@@ -69,7 +69,7 @@ export function searchEmployeeWithSpecializations (intl, organizationId, filter)
     }
 }
 
-export function searchEmployeeUserWithSpecializations (intl, organizationId, filter) {
+export function searchEmployeeUser (intl, organizationId, filter) {
     if (!organizationId) return
 
     return async function (client, value, query = {}, first, skip) {

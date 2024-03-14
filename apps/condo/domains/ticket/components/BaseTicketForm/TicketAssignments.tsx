@@ -14,7 +14,7 @@ import {
     OrganizationEmployee,
     OrganizationEmployeeSpecialization,
 } from '@condo/domains/organization/utils/clientSchema'
-import { searchEmployeeUserWithSpecializations } from '@condo/domains/organization/utils/clientSchema/search'
+import { searchEmployeeUser } from '@condo/domains/organization/utils/clientSchema/search'
 import {
     PropertyScope,
     PropertyScopeOrganizationEmployee,
@@ -202,7 +202,7 @@ const TicketAssignments = ({
         filteredPropertyScopeEmployees, intl, DeletedEmployeeMessage, EmployeesOnPropertyMessage, OtherMessage,
     ])
 
-    const search = useMemo(() => searchEmployeeUserWithSpecializations(intl, organizationId, null),
+    const search = useMemo(() => searchEmployeeUser(intl, organizationId, null),
         [intl, organizationId])
 
     const loading = propertiesLoading || scopesLoading || employeesLoading || specializationsLoading
@@ -216,7 +216,7 @@ const TicketAssignments = ({
                 <Col span={!breakpoints.TABLET_LARGE ? 24 : 18}>
                     <Row justify='space-between' gutter={[0, 12]}>
                         {
-                            autoAssign && !loading && propertyId && categoryClassifier && (
+                            autoAssign && !loading && propertyId && categoryClassifier && organizationId && (
                                 <AutoAssigner
                                     form={form}
                                     categoryClassifierId={categoryClassifier}
@@ -225,6 +225,7 @@ const TicketAssignments = ({
                                     propertyScopeEmployees={filteredPropertyScopeEmployees}
                                     propertyScopes={propertyScopes}
                                     organizationEmployeeSpecializations={filteredEmployeeSpecializations}
+                                    organizationId={organizationId}
                                 />
                             )
                         }

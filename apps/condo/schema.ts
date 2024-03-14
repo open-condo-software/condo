@@ -36454,6 +36454,30 @@ export type Mutation = {
   deleteCallRecordFragment?: Maybe<CallRecordFragment>;
   /**  Delete multiple CallRecordFragment items by ID.  */
   deleteCallRecordFragments?: Maybe<Array<Maybe<CallRecordFragment>>>;
+  /**  Create a single TicketAutoAssignmentHistoryRecord item.  */
+  createTicketAutoAssignmentHistoryRecord?: Maybe<TicketAutoAssignmentHistoryRecord>;
+  /**  Create multiple TicketAutoAssignmentHistoryRecord items.  */
+  createTicketAutoAssignmentHistoryRecords?: Maybe<Array<Maybe<TicketAutoAssignmentHistoryRecord>>>;
+  /**  Update a single TicketAutoAssignmentHistoryRecord item by ID.  */
+  updateTicketAutoAssignmentHistoryRecord?: Maybe<TicketAutoAssignmentHistoryRecord>;
+  /**  Update multiple TicketAutoAssignmentHistoryRecord items by ID.  */
+  updateTicketAutoAssignmentHistoryRecords?: Maybe<Array<Maybe<TicketAutoAssignmentHistoryRecord>>>;
+  /**  Delete a single TicketAutoAssignmentHistoryRecord item by ID.  */
+  deleteTicketAutoAssignmentHistoryRecord?: Maybe<TicketAutoAssignmentHistoryRecord>;
+  /**  Delete multiple TicketAutoAssignmentHistoryRecord items by ID.  */
+  deleteTicketAutoAssignmentHistoryRecords?: Maybe<Array<Maybe<TicketAutoAssignmentHistoryRecord>>>;
+  /**  Create a single TicketAutoAssignment item.  */
+  createTicketAutoAssignment?: Maybe<TicketAutoAssignment>;
+  /**  Create multiple TicketAutoAssignment items.  */
+  createTicketAutoAssignments?: Maybe<Array<Maybe<TicketAutoAssignment>>>;
+  /**  Update a single TicketAutoAssignment item by ID.  */
+  updateTicketAutoAssignment?: Maybe<TicketAutoAssignment>;
+  /**  Update multiple TicketAutoAssignment items by ID.  */
+  updateTicketAutoAssignments?: Maybe<Array<Maybe<TicketAutoAssignment>>>;
+  /**  Delete a single TicketAutoAssignment item by ID.  */
+  deleteTicketAutoAssignment?: Maybe<TicketAutoAssignment>;
+  /**  Delete multiple TicketAutoAssignment items by ID.  */
+  deleteTicketAutoAssignments?: Maybe<Array<Maybe<TicketAutoAssignment>>>;
   /**  Create a single MessageHistoryRecord item.  */
   createMessageHistoryRecord?: Maybe<MessageHistoryRecord>;
   /**  Create multiple MessageHistoryRecord items.  */
@@ -44632,6 +44656,68 @@ export type MutationDeleteCallRecordFragmentArgs = {
 
 
 export type MutationDeleteCallRecordFragmentsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateTicketAutoAssignmentHistoryRecordArgs = {
+  data?: Maybe<TicketAutoAssignmentHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateTicketAutoAssignmentHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<TicketAutoAssignmentHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateTicketAutoAssignmentHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<TicketAutoAssignmentHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateTicketAutoAssignmentHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<TicketAutoAssignmentHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteTicketAutoAssignmentHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteTicketAutoAssignmentHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateTicketAutoAssignmentArgs = {
+  data?: Maybe<TicketAutoAssignmentCreateInput>;
+};
+
+
+export type MutationCreateTicketAutoAssignmentsArgs = {
+  data?: Maybe<Array<Maybe<TicketAutoAssignmentsCreateInput>>>;
+};
+
+
+export type MutationUpdateTicketAutoAssignmentArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<TicketAutoAssignmentUpdateInput>;
+};
+
+
+export type MutationUpdateTicketAutoAssignmentsArgs = {
+  data?: Maybe<Array<Maybe<TicketAutoAssignmentsUpdateInput>>>;
+};
+
+
+export type MutationDeleteTicketAutoAssignmentArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteTicketAutoAssignmentsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -61751,6 +61837,22 @@ export type Query = {
   _allCallRecordFragmentsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the CallRecordFragment list.  */
   _CallRecordFragmentsMeta?: Maybe<_ListMeta>;
+  /**  Search for all TicketAutoAssignmentHistoryRecord items which match the where clause.  */
+  allTicketAutoAssignmentHistoryRecords?: Maybe<Array<Maybe<TicketAutoAssignmentHistoryRecord>>>;
+  /**  Search for the TicketAutoAssignmentHistoryRecord item with the matching ID.  */
+  TicketAutoAssignmentHistoryRecord?: Maybe<TicketAutoAssignmentHistoryRecord>;
+  /**  Perform a meta-query on all TicketAutoAssignmentHistoryRecord items which match the where clause.  */
+  _allTicketAutoAssignmentHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the TicketAutoAssignmentHistoryRecord list.  */
+  _TicketAutoAssignmentHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all TicketAutoAssignment items which match the where clause.  */
+  allTicketAutoAssignments?: Maybe<Array<Maybe<TicketAutoAssignment>>>;
+  /**  Search for the TicketAutoAssignment item with the matching ID.  */
+  TicketAutoAssignment?: Maybe<TicketAutoAssignment>;
+  /**  Perform a meta-query on all TicketAutoAssignment items which match the where clause.  */
+  _allTicketAutoAssignmentsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the TicketAutoAssignment list.  */
+  _TicketAutoAssignmentsMeta?: Maybe<_ListMeta>;
   /**  Search for all MessageHistoryRecord items which match the where clause.  */
   allMessageHistoryRecords?: Maybe<Array<Maybe<MessageHistoryRecord>>>;
   /**  Search for the MessageHistoryRecord item with the matching ID.  */
@@ -65990,6 +66092,56 @@ export type Query_AllCallRecordFragmentsMetaArgs = {
   where?: Maybe<CallRecordFragmentWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortCallRecordFragmentsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllTicketAutoAssignmentHistoryRecordsArgs = {
+  where?: Maybe<TicketAutoAssignmentHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortTicketAutoAssignmentHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryTicketAutoAssignmentHistoryRecordArgs = {
+  where: TicketAutoAssignmentHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllTicketAutoAssignmentHistoryRecordsMetaArgs = {
+  where?: Maybe<TicketAutoAssignmentHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortTicketAutoAssignmentHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllTicketAutoAssignmentsArgs = {
+  where?: Maybe<TicketAutoAssignmentWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortTicketAutoAssignmentsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryTicketAutoAssignmentArgs = {
+  where: TicketAutoAssignmentWhereUniqueInput;
+};
+
+
+export type Query_AllTicketAutoAssignmentsMetaArgs = {
+  where?: Maybe<TicketAutoAssignmentWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortTicketAutoAssignmentsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -79442,6 +79594,52 @@ export enum SortTelegramUserChatsBy {
   DvDesc = 'dv_DESC'
 }
 
+export enum SortTicketAutoAssignmentHistoryRecordsBy {
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortTicketAutoAssignmentsBy {
+  OrganizationAsc = 'organization_ASC',
+  OrganizationDesc = 'organization_DESC',
+  AssigneeAsc = 'assignee_ASC',
+  AssigneeDesc = 'assignee_DESC',
+  ExecutorAsc = 'executor_ASC',
+  ExecutorDesc = 'executor_DESC',
+  ClassifierAsc = 'classifier_ASC',
+  ClassifierDesc = 'classifier_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
 export enum SortTicketCategoryClassifierHistoryRecordsBy {
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
@@ -80799,6 +80997,10 @@ export enum SortUserRightsSetHistoryRecordsBy {
   CanReadTicketsDesc = 'canReadTickets_DESC',
   CanManageTicketsAsc = 'canManageTickets_ASC',
   CanManageTicketsDesc = 'canManageTickets_DESC',
+  CanReadTicketAutoAssignmentsAsc = 'canReadTicketAutoAssignments_ASC',
+  CanReadTicketAutoAssignmentsDesc = 'canReadTicketAutoAssignments_DESC',
+  CanManageTicketAutoAssignmentsAsc = 'canManageTicketAutoAssignments_ASC',
+  CanManageTicketAutoAssignmentsDesc = 'canManageTicketAutoAssignments_DESC',
   CanReadOidcClientsAsc = 'canReadOidcClients_ASC',
   CanReadOidcClientsDesc = 'canReadOidcClients_DESC',
   CanManageOidcClientsAsc = 'canManageOidcClients_ASC',
@@ -80888,6 +81090,10 @@ export enum SortUserRightsSetsBy {
   CanReadTicketsDesc = 'canReadTickets_DESC',
   CanManageTicketsAsc = 'canManageTickets_ASC',
   CanManageTicketsDesc = 'canManageTickets_DESC',
+  CanReadTicketAutoAssignmentsAsc = 'canReadTicketAutoAssignments_ASC',
+  CanReadTicketAutoAssignmentsDesc = 'canReadTicketAutoAssignments_DESC',
+  CanManageTicketAutoAssignmentsAsc = 'canManageTicketAutoAssignments_ASC',
+  CanManageTicketAutoAssignmentsDesc = 'canManageTicketAutoAssignments_DESC',
   CanReadOidcClientsAsc = 'canReadOidcClients_ASC',
   CanReadOidcClientsDesc = 'canReadOidcClients_DESC',
   CanManageOidcClientsAsc = 'canManageOidcClients_ASC',
@@ -81679,6 +81885,339 @@ export type TicketAnalyticsReportOutput = {
   __typename?: 'TicketAnalyticsReportOutput';
   groups?: Maybe<Array<TicketGroupedCounter>>;
   ticketLabels?: Maybe<Array<Maybe<TicketLabel>>>;
+};
+
+/**  This schema helps decides who should be assigned to ticket as executor and assignee  */
+export type TicketAutoAssignment = {
+  __typename?: 'TicketAutoAssignment';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the TicketAutoAssignment List config, or
+   *  2. As an alias to the field set on 'labelField' in the TicketAutoAssignment List config, or
+   *  3. As an alias to a 'name' field on the TicketAutoAssignment List (if one exists), or
+   *  4. As an alias to the 'id' field on the TicketAutoAssignment List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
+  organization?: Maybe<Organization>;
+  /**  An employee who will be appointed as assignee of ticket. If "null", then the field will remain empty and dispatcher will have to fill it in independently in UI  */
+  assignee?: Maybe<OrganizationEmployee>;
+  /**  An employee who will be appointed as executor of ticketIf "null", then the field will remain empty and dispatcher will have to fill it in independently in UI  */
+  executor?: Maybe<OrganizationEmployee>;
+  /**  Ticket classifier  */
+  classifier?: Maybe<TicketClassifier>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type TicketAutoAssignmentCreateInput = {
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  assignee?: Maybe<OrganizationEmployeeRelateToOneInput>;
+  executor?: Maybe<OrganizationEmployeeRelateToOneInput>;
+  classifier?: Maybe<TicketClassifierRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type TicketAutoAssignmentHistoryRecord = {
+  __typename?: 'TicketAutoAssignmentHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the TicketAutoAssignmentHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the TicketAutoAssignmentHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the TicketAutoAssignmentHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the TicketAutoAssignmentHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
+  assignee?: Maybe<Scalars['String']>;
+  executor?: Maybe<Scalars['String']>;
+  classifier?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<TicketAutoAssignmentHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type TicketAutoAssignmentHistoryRecordCreateInput = {
+  organization?: Maybe<Scalars['String']>;
+  assignee?: Maybe<Scalars['String']>;
+  executor?: Maybe<Scalars['String']>;
+  classifier?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<TicketAutoAssignmentHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum TicketAutoAssignmentHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type TicketAutoAssignmentHistoryRecordUpdateInput = {
+  organization?: Maybe<Scalars['String']>;
+  assignee?: Maybe<Scalars['String']>;
+  executor?: Maybe<Scalars['String']>;
+  classifier?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<TicketAutoAssignmentHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type TicketAutoAssignmentHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<TicketAutoAssignmentHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<TicketAutoAssignmentHistoryRecordWhereInput>>>;
+  organization?: Maybe<Scalars['String']>;
+  organization_not?: Maybe<Scalars['String']>;
+  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  assignee?: Maybe<Scalars['String']>;
+  assignee_not?: Maybe<Scalars['String']>;
+  assignee_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  assignee_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  executor?: Maybe<Scalars['String']>;
+  executor_not?: Maybe<Scalars['String']>;
+  executor_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  executor_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  classifier?: Maybe<Scalars['String']>;
+  classifier_not?: Maybe<Scalars['String']>;
+  classifier_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  classifier_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<TicketAutoAssignmentHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<TicketAutoAssignmentHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<TicketAutoAssignmentHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<TicketAutoAssignmentHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type TicketAutoAssignmentHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type TicketAutoAssignmentHistoryRecordsCreateInput = {
+  data?: Maybe<TicketAutoAssignmentHistoryRecordCreateInput>;
+};
+
+export type TicketAutoAssignmentHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<TicketAutoAssignmentHistoryRecordUpdateInput>;
+};
+
+export type TicketAutoAssignmentUpdateInput = {
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  assignee?: Maybe<OrganizationEmployeeRelateToOneInput>;
+  executor?: Maybe<OrganizationEmployeeRelateToOneInput>;
+  classifier?: Maybe<TicketClassifierRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type TicketAutoAssignmentWhereInput = {
+  AND?: Maybe<Array<Maybe<TicketAutoAssignmentWhereInput>>>;
+  OR?: Maybe<Array<Maybe<TicketAutoAssignmentWhereInput>>>;
+  organization?: Maybe<OrganizationWhereInput>;
+  organization_is_null?: Maybe<Scalars['Boolean']>;
+  assignee?: Maybe<OrganizationEmployeeWhereInput>;
+  assignee_is_null?: Maybe<Scalars['Boolean']>;
+  executor?: Maybe<OrganizationEmployeeWhereInput>;
+  executor_is_null?: Maybe<Scalars['Boolean']>;
+  classifier?: Maybe<TicketClassifierWhereInput>;
+  classifier_is_null?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type TicketAutoAssignmentWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type TicketAutoAssignmentsCreateInput = {
+  data?: Maybe<TicketAutoAssignmentCreateInput>;
+};
+
+export type TicketAutoAssignmentsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<TicketAutoAssignmentUpdateInput>;
 };
 
 /**  Describes what type of work needs to be done to fix incident  */
@@ -92026,6 +92565,10 @@ export type UserRightsSet = {
   canReadTickets?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "Ticket" similar to support users  */
   canManageTickets?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "TicketAutoAssignment" as support / admin users do  */
+  canReadTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "TicketAutoAssignment" similar to support users  */
+  canManageTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to view all entities of model "OidcClient" as support / admin users do  */
   canReadOidcClients?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "OidcClient" similar to support users  */
@@ -92086,6 +92629,8 @@ export type UserRightsSetCreateInput = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
+  canReadTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
   canReadOidcClients?: Maybe<Scalars['Boolean']>;
   canManageOidcClients?: Maybe<Scalars['Boolean']>;
   canReadUsers?: Maybe<Scalars['Boolean']>;
@@ -92143,6 +92688,8 @@ export type UserRightsSetHistoryRecord = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
+  canReadTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
   canReadOidcClients?: Maybe<Scalars['Boolean']>;
   canManageOidcClients?: Maybe<Scalars['Boolean']>;
   canReadUsers?: Maybe<Scalars['Boolean']>;
@@ -92194,6 +92741,8 @@ export type UserRightsSetHistoryRecordCreateInput = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
+  canReadTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
   canReadOidcClients?: Maybe<Scalars['Boolean']>;
   canManageOidcClients?: Maybe<Scalars['Boolean']>;
   canReadUsers?: Maybe<Scalars['Boolean']>;
@@ -92250,6 +92799,8 @@ export type UserRightsSetHistoryRecordUpdateInput = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
+  canReadTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
   canReadOidcClients?: Maybe<Scalars['Boolean']>;
   canManageOidcClients?: Maybe<Scalars['Boolean']>;
   canReadUsers?: Maybe<Scalars['Boolean']>;
@@ -92345,6 +92896,10 @@ export type UserRightsSetHistoryRecordWhereInput = {
   canReadTickets_not?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets_not?: Maybe<Scalars['Boolean']>;
+  canReadTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
+  canReadTicketAutoAssignments_not?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments_not?: Maybe<Scalars['Boolean']>;
   canReadOidcClients?: Maybe<Scalars['Boolean']>;
   canReadOidcClients_not?: Maybe<Scalars['Boolean']>;
   canManageOidcClients?: Maybe<Scalars['Boolean']>;
@@ -92487,6 +93042,8 @@ export type UserRightsSetUpdateInput = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
+  canReadTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
   canReadOidcClients?: Maybe<Scalars['Boolean']>;
   canManageOidcClients?: Maybe<Scalars['Boolean']>;
   canReadUsers?: Maybe<Scalars['Boolean']>;
@@ -92579,6 +93136,10 @@ export type UserRightsSetWhereInput = {
   canReadTickets_not?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets_not?: Maybe<Scalars['Boolean']>;
+  canReadTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
+  canReadTicketAutoAssignments_not?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments_not?: Maybe<Scalars['Boolean']>;
   canReadOidcClients?: Maybe<Scalars['Boolean']>;
   canReadOidcClients_not?: Maybe<Scalars['Boolean']>;
   canManageOidcClients?: Maybe<Scalars['Boolean']>;

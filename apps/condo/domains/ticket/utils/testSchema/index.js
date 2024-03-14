@@ -46,6 +46,7 @@ const { CallRecord: CallRecordGQL } = require('@condo/domains/ticket/gql')
 const { CallRecordFragment: CallRecordFragmentGQL } = require('@condo/domains/ticket/gql')
 const { createTestPhone } = require('@condo/domains/user/utils/testSchema')
 const { TICKET_MULTIPLE_UPDATE_MUTATION } = require('@condo/domains/ticket/gql')
+const { TicketAutoAssignment: TicketAutoAssignmentGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -79,6 +80,7 @@ const UserFavoriteTicket = generateGQLTestUtils(UserFavoriteTicketGQL)
 const IncidentExportTask = generateGQLTestUtils(IncidentExportTaskGQL)
 const CallRecord = generateGQLTestUtils(CallRecordGQL)
 const CallRecordFragment = generateGQLTestUtils(CallRecordFragmentGQL)
+const TicketAutoAssignment = generateGQLTestUtils(TicketAutoAssignmentGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestTicket (client, organization, property, extraAttrs = {}) {
@@ -967,6 +969,40 @@ async function ticketMultipleUpdateByTestClient(client, extraAttrs = {}) {
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+async function createTestTicketAutoAssignment (client, organization, assignee, executor, classifier, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (assignee && !assignee.id) throw new Error('no assignee.id')
+    if (executor && !executor.id) throw new Error('no executor.id')
+    if (!classifier || !classifier.id) throw new Error('no classifier.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        organization: { connect: { id: organization.id } },
+        classifier: { connect: { id: classifier.id } },
+        ...(assignee ? { assignee: { connect: { id: assignee.id } }} : undefined),
+        ...(executor ? { executor: { connect: { id: executor.id } }} : undefined),
+        ...extraAttrs,
+    }
+    const obj = await TicketAutoAssignment.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestTicketAutoAssignment (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await TicketAutoAssignment.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 async function makeClientWithTicket () {
@@ -1021,5 +1057,6 @@ module.exports = {
     CallRecord, createTestCallRecord, updateTestCallRecord,
     CallRecordFragment, createTestCallRecordFragment, updateTestCallRecordFragment,
     ticketMultipleUpdateByTestClient,
+    TicketAutoAssignment, createTestTicketAutoAssignment, updateTestTicketAutoAssignment,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -15,6 +15,7 @@ const { IncidentProperty } = require('./IncidentProperty')
 const { PredictTicketClassificationService } = require('./PredictTicketClassificationService')
 const { ShareTicketService } = require('./ShareTicketService')
 const { Ticket } = require('./Ticket')
+const { TicketAutoAssignment } = require('./TicketAutoAssignment')
 const { TicketCategoryClassifier } = require('./TicketCategoryClassifier')
 const { TicketChange } = require('./TicketChange')
 const { TicketClassifier } = require('./TicketClassifier')
@@ -67,5 +68,6 @@ module.exports = {
     CallRecord,
     CallRecordFragment,
     TicketMultipleUpdateService,
-    /* AUTOGENERATE MARKER <EXPORTS> */
+    TicketAutoAssignment,
+/* AUTOGENERATE MARKER <EXPORTS> */
 }
