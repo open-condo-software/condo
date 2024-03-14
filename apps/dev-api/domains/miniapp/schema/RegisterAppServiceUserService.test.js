@@ -15,6 +15,7 @@ const {
 const { SERVICE } = require('@condo/domains/user/constants/common')
 const { REMOTE_SYSTEM } = require('@dev-api/domains/common/constants/common')
 const {
+    B2CAppAccessRight,
     createTestB2CApp,
     registerAppUserServiceByTestClient,
 } = require('@dev-api/domains/miniapp/utils/testSchema')
@@ -104,6 +105,19 @@ describe('RegisterAppServiceUserService', () => {
                 await expectToThrowGQLError(async () => {
                     await registerAppUserServiceByTestClient(newUser, newApp, anotherAction)
                 }, ERRORS.ACCESS_RIGHT_ALREADY_EXISTS, 'result')
+            })
+            test('Proper access right must be created', async () => {
+                const newUser = await makeRegisteredAndLoggedInUser()
+                const [newApp] = await createTestB2CApp(newUser)
+                const confirmAction = await verifyEmailByTestClient(newUser, admin)
+
+                const [result] = await registerAppUserServiceByTestClient(newUser, newApp, confirmAction)
+                expect(result).toBeDefined()
+
+                const accessRight = await B2CAppAccessRight.getOne(newUser, { app: { id: newApp.id } })
+                expect(accessRight).toBeDefined()
+                expect(accessRight).toHaveProperty('condoUserId', result.id)
+                expect(accessRight).toHaveProperty(['app', 'id'], newApp.id)
             })
         })
         describe('ConfirmEmailAction tests', () => {
