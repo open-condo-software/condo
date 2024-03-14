@@ -1,4 +1,5 @@
 // @ts-check
+const { withSentryConfig } = require('@sentry/nextjs')
 const withCSS = require('@zeit/next-css')
 const withLess = require('@zeit/next-less')
 const AntdDayjsWebpackPlugin = require('antd-dayjs-webpack-plugin')
@@ -8,6 +9,7 @@ const withTMModule = require('next-transpile-modules')
 const conf = require('@open-condo/config')
 
 const { antGlobalVariables } = require('@condo/domains/common/constants/style')
+const { getCurrentVersion } = require('@condo/domains/common/utils/VersioningMiddleware')
 
 // Tell webpack to compile the "@open-condo/next" package, necessary
 // https://www.npmjs.com/package/next-transpile-modules
@@ -46,9 +48,10 @@ const newsItemsSendingDelay = Number(conf['NEWS_ITEMS_SENDING_DELAY_SEC']) || 15
 const audioConfig = JSON.parse(conf['AUDIO_CONFIG'] || '{}')
 const checkTLSClientCertConfig = JSON.parse(conf['CHECK_TLS_CLIENT_CERT_CONFIG'] || '{}')
 const condoRBDomain = conf['CONDORB_DOMAIN']
+const sentryConfig = conf['SENTRY_CONFIG'] ? JSON.parse(conf['SENTRY_CONFIG']) : {}
 const apolloBatchingEnabled = !falsey(conf['APOLLO_BATCHING_ENABLED'])
 
-module.exports = withTM(withLess(withCSS({
+let nextConfig = withTM(withLess(withCSS({
     publicRuntimeConfig: {
         // Will be available on both server and client
         serverUrl,
@@ -75,7 +78,9 @@ module.exports = withTM(withLess(withCSS({
         audioConfig,
         checkTLSClientCertConfig,
         condoRBDomain,
+        sentryConfig,
         apolloBatchingEnabled,
+        currentVersion: getCurrentVersion(),
     },
     lessLoaderOptions: {
         javascriptEnabled: true,
@@ -104,4 +109,27 @@ module.exports = withTM(withLess(withCSS({
 
         return config
     },
+
 })))
+
+if (sentryConfig['client']) {
+    nextConfig = withSentryConfig(
+        nextConfig,
+        {
+            dryRun: false,
+            silent: false,
+            org: sentryConfig['client']['organization'],
+            project: sentryConfig['client']['project'],
+            validate: true,
+            widenClientFileUpload: true,
+            transpileClientSDK: false,
+            hideSourceMaps: true,
+            disableLogger: true,
+            automaticVercelMonitors: true,
+            autoInstrumentServerFunctions: true,
+            autoInstrumentMiddleware: true,
+        },
+    )
+}
+
+module.exports = nextConfig

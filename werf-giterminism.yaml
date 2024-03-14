@@ -5,3 +5,6 @@ config:
     allowEnvVariables:
       - PULL_USER
       - PULL_PERSONAL_ACCESS_KEY
+      - SENTRY_AUTH_TOKEN
+      - SENTRY_RELEASE
+      - SENTRY_ENVIRONMENT
