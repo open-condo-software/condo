@@ -6,7 +6,8 @@ import { Typography, TypographyLinkProps } from '@open-condo/ui'
 
 
 type LinkWithIconPropsType = {
-    href: string
+    href?: string
+    onClick?: () => void
     title: string
     size: TypographyLinkProps['size']
     target?: '_self' | '_blank'
@@ -16,7 +17,7 @@ type LinkWithIconPropsType = {
 
 const CONTENT_WRAPPER_STYLE = { display: 'flex', flexFlow: 'row', gap: '8px', alignItems: 'center' }
 
-export const LinkWithIcon: React.FC<LinkWithIconPropsType> = ({ href, title, size, PrefixIcon, PostfixIcon, target = '_self' }) => {
+export const LinkWithIcon: React.FC<LinkWithIconPropsType> = ({ href, title, size, onClick, PrefixIcon, PostfixIcon, target = '_self' }) => {
     const linkContent = useMemo(() => (
         <div style={CONTENT_WRAPPER_STYLE}>
             {PrefixIcon && <PrefixIcon size='small' />}
@@ -25,9 +26,14 @@ export const LinkWithIcon: React.FC<LinkWithIconPropsType> = ({ href, title, siz
         </div>
     ), [PostfixIcon, PrefixIcon, title])
 
-    if (target === '_blank') {
+    if (target === '_blank' || !href) {
         return (
-            <Typography.Link href='/property' target='_blank' size={size}>
+            <Typography.Link
+                href={href}
+                onClick={onClick}
+                target='_blank'
+                size={size}
+            >
                 {linkContent}
             </Typography.Link>
         )
