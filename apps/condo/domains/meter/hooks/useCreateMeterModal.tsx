@@ -3,10 +3,10 @@ import { Typography } from 'antd'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Tour } from '@open-condo/ui'
 
 import { BaseMeterModalForm } from '@condo/domains/meter/components/BaseMeterModal/BaseMeterModalForm'
 import { PropertyMeter, Meter, MeterPageTypes, METER_PAGE_TYPES } from '@condo/domains/meter/utils/clientSchema'
+
 
 type CreateMeterModalProps = {
     organizationId: string
@@ -60,8 +60,6 @@ export function useCreateMeterModal (props: CreateMeterModalProps): CreateMeterM
     const handleCancelModal = useCallback(() => setIsCreateMeterModalVisible(false),
         [setIsCreateMeterModalVisible])
 
-    const { currentStep } = Tour.useTourContext()
-
     const CreateMeterModal = useCallback(() => {
         return (
             <BaseMeterModalForm
@@ -77,13 +75,10 @@ export function useCreateMeterModal (props: CreateMeterModalProps): CreateMeterM
                 cancelModal={handleCancelModal}
                 organizationId={organizationId}
                 meterType={meterType}
-                submitButtonProps={{
-                    focus: currentStep === 2,
-                }}
                 centered
             />
         )
-    }, [propertyId, addressKey, unitName, unitType, initialValues, AddMeterMessage, isCreateMeterModalVisible, handleMeterCreate, handleCancelModal, organizationId, meterType, currentStep])
+    }, [propertyId, addressKey, unitName, unitType, initialValues, AddMeterMessage, isCreateMeterModalVisible, handleMeterCreate, handleCancelModal, organizationId, meterType])
 
     return useMemo(() => ({ CreateMeterModal, isCreateMeterModalVisible, setIsCreateMeterModalVisible }), [CreateMeterModal])
 }

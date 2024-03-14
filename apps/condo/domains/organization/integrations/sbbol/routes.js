@@ -7,6 +7,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 
+const { ORGANIZATION_TOUR } = require('@condo/domains/common/constants/featureflags')
 const { isSafeUrl } = require('@condo/domains/common/utils/url.utils')
 
 const { SBBOL_SESSION_KEY } = require('./constants')
@@ -15,7 +16,6 @@ const { getOnBoardingStatus } = require('./sync/getOnBoadringStatus')
 const { initializeSbbolAuthApi } = require('./utils')
 const { getSbbolUserInfoErrors } = require('./utils/getSbbolUserInfoErrors')
 
-const { ORGANIZATION_TOUR } = require('../../../common/constants/featureflags')
 
 const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}
 

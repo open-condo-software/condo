@@ -7,6 +7,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { getRedisClient } = require('@open-condo/keystone/redis')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
+const { ORGANIZATION_TOUR } = require('@condo/domains/common/constants/featureflags')
 const { getOnBoardingStatus } = require('@condo/domains/organization/integrations/sbbol/sync/getOnBoadringStatus')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { AppleIdIdentityIntegration } = require('@condo/domains/user/integration/appleid/AppleIdIdentityIntegration')
@@ -25,7 +26,6 @@ const {
     User,
 } = require('@condo/domains/user/utils/serverSchema')
 
-const { ORGANIZATION_TOUR } = require('../../../../common/constants/featureflags')
 
 const redisClient = getRedisClient()
 const REDIS_APPLE_ID_AUTH_FLOW_PREFIX_KEY = 'APPLE_ID_AUTH_FLOW'

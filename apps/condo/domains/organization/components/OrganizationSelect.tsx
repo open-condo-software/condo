@@ -76,9 +76,9 @@ export const InlineOrganizationSelect: React.FC = () => {
 
     const isTourEnabled = useFlag(ORGANIZATION_TOUR)
     const { setIsVisible: showCreateOrganizationModal, ModalForm: CreateOrganizationModalForm } = useCreateOrganizationModalForm({
-        onFinish: () => {
+        onFinish: async () => {
             if (isTourEnabled) {
-                router.push('/tour')
+                await router.push('/tour')
             }
         },
     })

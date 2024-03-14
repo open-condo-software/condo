@@ -1,7 +1,6 @@
 import { Typography } from 'antd'
 import get from 'lodash/get'
-import { useRouter } from 'next/router'
-import React, { useEffect, useMemo } from 'react'
+import React, { useMemo } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
@@ -11,7 +10,6 @@ import { AccessDeniedPage } from '@condo/domains/common/components/containers/Ac
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Loader } from '@condo/domains/common/components/Loader'
-import { OnBoarding as OnBoardingHooks } from '@condo/domains/onboarding/utils/clientSchema'
 
 
 const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions?: boolean }> = ({ children, withEmployeeRestrictions }) => {
@@ -19,26 +17,10 @@ const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions
     const EmployeeRestrictedTitle = intl.formatMessage({ id: 'employee.emptyList.title' })
     const EmployeeRestrictedDescription = intl.formatMessage({ id: 'employee.emptyList.description' })
     const SelectOrganizationRequiredMessage = intl.formatMessage({ id: 'SelectOrganizationRequired' })
-    const { isLoading: isLoadingAuth, user } = useAuth()
+    const { isLoading: isLoadingAuth } = useAuth()
     const organization = useOrganization()
-    const router = useRouter()
-
-    const { obj: onBoardingHookObj, loading: isOnBoardingLoading } = OnBoardingHooks
-        .useObject(
-            { where: { user: { id: get(user, 'id') } } },
-            { fetchPolicy: 'network-only' },
-        )
 
     const { isLoading, link } = organization
-
-    useEffect(() => {
-        if (isOnBoardingLoading || isLoadingAuth || isLoading) return
-        if (!link) {
-            if (onBoardingHookObj && !get(onBoardingHookObj, 'completed', false)) {
-                router.push('/onboarding')
-            }
-        }
-    }, [isOnBoardingLoading, isLoadingAuth, isLoading, onBoardingHookObj, link])
 
     let pageView = children
 

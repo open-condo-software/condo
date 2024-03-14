@@ -8,6 +8,7 @@ import get from 'lodash/get'
 import Router, { useRouter } from 'next/router'
 import React, { createContext, useContext, useEffect } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useApolloClient } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 
@@ -17,6 +18,7 @@ import { useFocusContext } from '@condo/domains/common/components/Focus/FocusCon
 import { HouseIcon } from '@condo/domains/common/components/icons/HouseIcon'
 import { UserIcon } from '@condo/domains/common/components/icons/UserIcon'
 import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
+import { ORGANIZATION_TOUR } from '@condo/domains/common/constants/featureflags'
 import { CONTEXT_FINISHED_STATUS } from '@condo/domains/miniapp/constants'
 import { ONBOARDING_COMPLETED_PROGRESS } from '@condo/domains/onboarding/constants'
 import { useOnBoardingCompleteModal } from '@condo/domains/onboarding/hooks/useOnBoardingCompleeteModal'
@@ -176,17 +178,20 @@ export const OnBoardingProvider: React.FC = (props) => {
         })
     }, [onBoarding, onBoardingSteps, isOnBoardingCompleteVisible, stepsCompleted])
 
+    const { useFlag } = useFeatureFlags()
+    const isOrganizationTourEnabled = useFlag(ORGANIZATION_TOUR)
+
     return (
         <OnBoardingContext.Provider value={{
             progress,
             onBoarding,
-            isLoading: stepsLoading,
+            isLoading: stepsLoading || onBoardingLoading,
             onBoardingSteps: decoratedSteps,
             refetchOnBoarding,
         }}>
             {props.children}
             <ModalForm/>
-            <OnBoardingCompleteModal/>
+            {!isOrganizationTourEnabled && <OnBoardingCompleteModal/>}
         </OnBoardingContext.Provider>
     )
 }

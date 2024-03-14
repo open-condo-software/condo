@@ -16,6 +16,7 @@ import { Button, Space, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { CardVideo } from '@condo/domains/common/components/CardVideo'
+import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
 import {
     PageContent,
     PageHeader,
@@ -272,5 +273,7 @@ const TourPage = () => {
         </>
     )
 }
+
+TourPage.requiredAccess = AuthRequired
 
 export default TourPage
