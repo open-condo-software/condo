@@ -71,7 +71,7 @@ export const AutoAssigner = ({
         },
     }, {
         skip: !organizationId || !classifierId,
-        fetchPolicy: 'cache-first',
+        fetchPolicy: 'cache-and-network',
     })
 
     const allLoaded = allDataLoaded && !loading
@@ -92,7 +92,7 @@ export const AutoAssigner = ({
                 return
             }
 
-            // 2 - set assignee and executor by specialization and ticket visibility or current user
+            // 2 - try set assignee and executor by specialization and ticket visibility
             const employeesWithMatchesPropertyAndSpecializationScope = employees.filter(
                 isEmployeeSpecializationAndPropertyMatchesToScope(
                     {
@@ -123,6 +123,7 @@ export const AutoAssigner = ({
                 return
             }
 
+            // 3 - set current user as assignee or null and executor to null
             form.setFieldsValue({
                 assignee: currentUserCanBeAssignee ? currentUserId : null,
                 executor: null,
