@@ -24,6 +24,7 @@ const {
     catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
 
+const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
 const {
     WRONG_EMAIL_ERROR, WRONG_PASSWORD_ERROR, EMPTY_PASSWORD_ERROR, GQL_ERRORS: ERRORS,
@@ -34,7 +35,9 @@ const {
     UserAdmin,
     createTestUser,
     updateTestUser,
+    createTestUserRightsSet,
     makeClientWithNewRegisteredAndLoggedInUser,
+    makeClientWithServiceUser,
     makeLoggedInClient,
     createTestLandlineNumber,
     createTestPhone,
@@ -734,5 +737,59 @@ describe('Sensitive data search', () => {
                 await User.count(user, where)
             }, ['meta'])
         })
+    })
+    test('Email address of service users can be read by another service users with direct access', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const [rightsSet] = await createTestUserRightsSet(admin, {
+            canReadUsers: true,
+            canReadUserEmailField: true,
+        })
+        const firstServiceUser = await makeClientWithServiceUser({
+            rightsSet: { connect: { id: rightsSet.id } },
+        })
+        const secondServiceUser = await makeClientWithServiceUser()
+        const nonServiceUser = await makeClientWithNewRegisteredAndLoggedInUser()
+
+        const UserWithEmail = generateGQLTestUtils(generateGqlQueries('User', '{ id email deletedAt }'))
+
+        const readUser = await UserWithEmail.getOne(firstServiceUser, { id: secondServiceUser.user.id })
+        expect(readUser).toHaveProperty('id', secondServiceUser.user.id)
+        expect(readUser).toHaveProperty('email', normalizeEmail(secondServiceUser.userAttrs.email))
+        expect(readUser).toHaveProperty('deletedAt')
+        expect(readUser.deletedAt).toBeNull()
+
+        const accessDeniedCases = [
+            [firstServiceUser, nonServiceUser],
+            [secondServiceUser, firstServiceUser],
+            [secondServiceUser, nonServiceUser],
+            [nonServiceUser, secondServiceUser],
+        ]
+
+        for (const [client, target] of accessDeniedCases) {
+            await catchErrorFrom(async () => {
+                await UserWithEmail.getOne(client, { id: target.user.id })
+            }, (caught) => {
+                expect(caught).toMatchObject({
+                    name: 'TestClientResponseError',
+                    data: {
+                        objs: [
+                            {
+                                deletedAt: null,
+                                email: null,
+                                id: target.user.id,
+                            },
+                        ],
+                    },
+                    errors: [expect.objectContaining({
+                        'message': 'You do not have access to this resource',
+                        'name': 'AccessDeniedError',
+                        'path': ['objs', 0, 'email'],
+                        'extensions': {
+                            'code': 'INTERNAL_SERVER_ERROR',
+                        },
+                    })],
+                })
+            })
+        }
     })
 })

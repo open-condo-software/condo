@@ -81017,6 +81017,8 @@ export enum SortUserRightsSetHistoryRecordsBy {
   CanExecuteSendMessageDesc = 'canExecuteSendMessage_DESC',
   CanManageOrganizationIsApprovedFieldAsc = 'canManageOrganizationIsApprovedField_ASC',
   CanManageOrganizationIsApprovedFieldDesc = 'canManageOrganizationIsApprovedField_DESC',
+  CanReadUserEmailFieldAsc = 'canReadUserEmailField_ASC',
+  CanReadUserEmailFieldDesc = 'canReadUserEmailField_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -81110,6 +81112,8 @@ export enum SortUserRightsSetsBy {
   CanExecuteSendMessageDesc = 'canExecuteSendMessage_DESC',
   CanManageOrganizationIsApprovedFieldAsc = 'canManageOrganizationIsApprovedField_ASC',
   CanManageOrganizationIsApprovedFieldDesc = 'canManageOrganizationIsApprovedField_DESC',
+  CanReadUserEmailFieldAsc = 'canReadUserEmailField_ASC',
+  CanReadUserEmailFieldDesc = 'canReadUserEmailField_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -92585,6 +92589,8 @@ export type UserRightsSet = {
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to update "isApproved" field of model "Organization"  */
   canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to read "email" field of model "User"  */
+  canReadUserEmailField?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -92639,6 +92645,7 @@ export type UserRightsSetCreateInput = {
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
   canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']>;
+  canReadUserEmailField?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -92698,6 +92705,7 @@ export type UserRightsSetHistoryRecord = {
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
   canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']>;
+  canReadUserEmailField?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -92751,6 +92759,7 @@ export type UserRightsSetHistoryRecordCreateInput = {
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
   canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']>;
+  canReadUserEmailField?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -92809,6 +92818,7 @@ export type UserRightsSetHistoryRecordUpdateInput = {
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
   canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']>;
+  canReadUserEmailField?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -92916,6 +92926,8 @@ export type UserRightsSetHistoryRecordWhereInput = {
   canExecuteSendMessage_not?: Maybe<Scalars['Boolean']>;
   canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']>;
   canManageOrganizationIsApprovedField_not?: Maybe<Scalars['Boolean']>;
+  canReadUserEmailField?: Maybe<Scalars['Boolean']>;
+  canReadUserEmailField_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -93052,6 +93064,7 @@ export type UserRightsSetUpdateInput = {
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
   canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']>;
+  canReadUserEmailField?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -93156,6 +93169,8 @@ export type UserRightsSetWhereInput = {
   canExecuteSendMessage_not?: Maybe<Scalars['Boolean']>;
   canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']>;
   canManageOrganizationIsApprovedField_not?: Maybe<Scalars['Boolean']>;
+  canReadUserEmailField?: Maybe<Scalars['Boolean']>;
+  canReadUserEmailField_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;

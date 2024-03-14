@@ -27,7 +27,11 @@ function generateManageSchemaFieldName (schemaName) {
     return `canManage${pluralize.plural(schemaName)}`
 }
 
-function generateFieldNameToManageField (schemaName, fieldName) {
+function generateReadSensitiveFieldFieldName (schemaName, fieldName) {
+    return `canRead${schemaName}${_capitalize(fieldName)}Field`
+}
+
+function generateManageSensitiveFieldFieldName (schemaName, fieldName) {
     return `canManage${schemaName}${_capitalize(fieldName)}Field`
 }
 
@@ -54,10 +58,14 @@ function generateFieldNames (config) {
         fields.push(generateExecuteServiceFieldName(serviceName))
     }
 
-    const fieldsConfig = Object.entries(config.fields)
-    for (const [schemaName, fieldNames] of fieldsConfig) {
-        for (const fieldName of fieldNames) {
-            fields.push(generateFieldNameToManageField(schemaName, fieldName))
+    for (const [schemaName, schemaFields] of Object.entries(config.fields)) {
+        for (const field of schemaFields) {
+            if (field.read) {
+                fields.push(generateReadSensitiveFieldFieldName(schemaName, field.fieldName))
+            }
+            if (field.manage) {
+                fields.push(generateManageSensitiveFieldFieldName(schemaName, field.fieldName))
+            }
         }
     }
 
@@ -66,9 +74,10 @@ function generateFieldNames (config) {
 
 module.exports = {
     getListConfig,
-    generateFieldNameToManageField,
     generateReadSchemaFieldName,
     generateManageSchemaFieldName,
+    generateReadSensitiveFieldFieldName,
+    generateManageSensitiveFieldFieldName,
     generateExecuteServiceFieldName,
     generateFieldNames,
 }

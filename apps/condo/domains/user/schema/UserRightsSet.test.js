@@ -5,6 +5,8 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
+const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
+const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
 const { makeLoggedInAdminClient, makeClient, waitFor } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj,
@@ -630,6 +632,7 @@ describe('UserRightsSet', () => {
                         canReadB2CAppProperties: true,
                         canReadOidcClients: true,
                         canReadUsers: true,
+                        canReadUserEmailField: true,
 
                         canManageB2BApps: true,
                         canManageB2BAppAccessRights: true,
@@ -797,11 +800,21 @@ describe('UserRightsSet', () => {
                     })
                 })
                 test('Can search service users by email', async () => {
-                    const [serviceUser, attrs] = await registerNewServiceUserByTestClient(support)
-                    expect(attrs).toHaveProperty('email')
-                    const foundUser = await User.getOne(portalClient, { email: attrs.email })
+                    const [serviceUser] = await registerNewServiceUserByTestClient(support)
+                    expect(serviceUser).toHaveProperty('email')
+                    const foundUser = await User.getOne(portalClient, { email: serviceUser.email })
                     expect(foundUser).toBeDefined()
                     expect(foundUser).toHaveProperty('id', serviceUser.id)
+                })
+                test('Can read service users emails', async () => {
+                    const [serviceUser] = await registerNewServiceUserByTestClient(support)
+                    expect(serviceUser).toHaveProperty('email')
+                    const UserWithEmail = generateGQLTestUtils(generateGqlQueries('User', '{ id email deletedAt }'))
+                    const readUser = await UserWithEmail.getOne(portalClient, { id: serviceUser.id })
+                    expect(readUser).toHaveProperty('id', serviceUser.id)
+                    expect(readUser).toHaveProperty('email', serviceUser.email)
+                    expect(readUser).toHaveProperty('deletedAt')
+                    expect(readUser.deletedAt).toBeNull()
                 })
             })
             describe('Organization', () => {

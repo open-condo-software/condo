@@ -5,8 +5,15 @@
  */
 
 /**
+ * @typedef {Object} DirectAccessField
+ * @property {string} fieldName
+ * @property {boolean} read
+ * @property {boolean} manage
+ */
+
+/**
  * @typedef {Object} DirectAccessConfig
- * @property {Object.<string, Array.<string>>} fields
+ * @property {Object.<string, Array.<DirectAccessField>>} fields
  * @property {Array.<DirectAccessList | string>} lists
  * @property {Array.<string>} services
  */
@@ -50,7 +57,12 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
         'UserRightsSet',
     ],
     fields: {
-        Organization: ['isApproved'],
+        Organization: [
+            { fieldName: 'isApproved', manage: true },
+        ],
+        User: [
+            { fieldName: 'email', read: true },
+        ],
     },
     services: [
         'registerNewServiceUser',

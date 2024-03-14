@@ -8,7 +8,8 @@ const {
     generateReadSchemaFieldName,
     generateManageSchemaFieldName,
     generateExecuteServiceFieldName,
-    generateFieldNameToManageField,
+    generateReadSensitiveFieldFieldName,
+    generateManageSensitiveFieldFieldName,
 } = require('./common.utils')
 const { DIRECT_ACCESS_AVAILABLE_SCHEMAS } = require('./config')
 
@@ -61,13 +62,21 @@ function generateRightSetFields (config) {
         }
     }
 
-    const fieldsConfig = Object.entries(config.fields)
-    for (const [schemaName, fieldNames] of fieldsConfig) {
-        for (const fieldName of fieldNames) {
-            fields[generateFieldNameToManageField(schemaName, fieldName)] = {
-                ...DEFAULT_CHECKBOX_FIELD,
-                schemaDoc:
-                    `Enables a user with the given UserRightsSet to update "${fieldName}" field of model "${schemaName}"`,
+    for (const [schemaName, schemaFields] of Object.entries(config.fields)) {
+        for (const field of schemaFields) {
+            if (field.read) {
+                fields[generateReadSensitiveFieldFieldName(schemaName, field.fieldName)] = {
+                    ...DEFAULT_CHECKBOX_FIELD,
+                    schemaDoc:
+                        `Enables a user with the given UserRightsSet to read "${field.fieldName}" field of model "${schemaName}"`,
+                }
+            }
+            if (field.manage) {
+                fields[generateManageSensitiveFieldFieldName(schemaName, field.fieldName)] = {
+                    ...DEFAULT_CHECKBOX_FIELD,
+                    schemaDoc:
+                        `Enables a user with the given UserRightsSet to update "${field.fieldName}" field of model "${schemaName}"`,
+                }
             }
         }
     }
@@ -117,29 +126,26 @@ const FIELD_NAMES_TO_SKIP_ACCESS = ['dv', 'sender']
  */
 async function canDirectlyManageSchemaObjects (user, schemaName, originalInput, operation) {
     const fieldNamesWithAccess = get(DIRECT_ACCESS_AVAILABLE_SCHEMAS, ['fields', schemaName], [])
-    const isUpdateOperation = operation === 'update'
+        .filter(schemaField => schemaField.manage)
+        .map(schemaField => schemaField.fieldName)
 
     const originalInputFieldNames = Object.keys(originalInput).filter(fieldName => !FIELD_NAMES_TO_SKIP_ACCESS.includes(fieldName))
     const fieldNamesToCheckRights = originalInputFieldNames.filter(originalInputFieldName => fieldNamesWithAccess.includes(originalInputFieldName))
     const commonFieldNamesToUpdate = originalInputFieldNames.filter(originalInputFieldName => !fieldNamesWithAccess.includes(originalInputFieldName))
 
-    const canManageObjects = await _hasSpecificRights(user, [generateManageSchemaFieldName(schemaName)])
-    if (!isUpdateOperation && !canManageObjects) return false
+    const rightsToCheck = fieldNamesToCheckRights.map(fieldName => generateManageSensitiveFieldFieldName(schemaName, fieldName))
 
-    let canManageFields = false
-    if (!isEmpty(fieldNamesToCheckRights)) {
-        const rightNamesToCheck = fieldNamesToCheckRights.map(fieldName => generateFieldNameToManageField(schemaName, fieldName))
-        canManageFields = await _hasSpecificRights(user, rightNamesToCheck)
+    const shouldCheckSchema = (operation !== 'update') || (!isEmpty(commonFieldNamesToUpdate))
+
+    if (shouldCheckSchema) {
+        rightsToCheck.push(generateManageSchemaFieldName(schemaName))
     }
 
-    if (!isEmpty(fieldNamesToCheckRights) && !isEmpty(commonFieldNamesToUpdate)) {
-        return canManageObjects && canManageFields
-    }
-    if (!isEmpty(fieldNamesToCheckRights) && isEmpty(commonFieldNamesToUpdate)) {
-        return canManageFields
-    }
+    return await _hasSpecificRights(user, rightsToCheck)
+}
 
-    return canManageObjects
+async function canDirectlyReadSchemaField (user, schemaName, fieldName) {
+    return await _hasSpecificRights(user, [generateReadSensitiveFieldFieldName(schemaName, fieldName)])
 }
 
 /**
@@ -156,6 +162,7 @@ async function canDirectlyExecuteService (user, serviceName) {
 module.exports = {
     generateRightSetFields,
     canDirectlyReadSchemaObjects,
+    canDirectlyReadSchemaField,
     canDirectlyManageSchemaObjects,
     canDirectlyExecuteService,
 }

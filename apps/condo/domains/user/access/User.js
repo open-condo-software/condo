@@ -7,7 +7,8 @@ const access = require('@open-condo/keystone/access')
 const { isFilteringBy } = require('@open-condo/keystone/access')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
-const { canDirectlyReadSchemaObjects } = require('@condo/domains/user/utils/directAccess')
+const { SERVICE } = require('@condo/domains/user/constants/common')
+const { canDirectlyReadSchemaObjects, canDirectlyReadSchemaField } = require('@condo/domains/user/utils/directAccess')
 
 async function canReadUsers ({ authentication: { item: user }, listKey, args }) {
     if (!user) return throwAuthenticationError()
@@ -46,7 +47,23 @@ const readBySupportUpdateByAdminField = {
 }
 
 const canAccessToEmailField = {
-    read: access.userIsAdminOrIsThisItem,
+    read: async (args) => {
+        const nonDirectAccess = access.userIsAdminOrIsThisItem(args)
+
+        if (nonDirectAccess) {
+            return nonDirectAccess
+        }
+
+        const { existingItem, authentication: { item: user }, listKey, fieldKey } = args
+
+        // Service users with right set (dev-api) can read only emails of service users
+        if (user.type === SERVICE && existingItem.type === SERVICE) {
+            return await canDirectlyReadSchemaField(user, listKey, fieldKey)
+        }
+
+        // Otherwise no access
+        return false
+    },
     create: access.userIsAdmin,
     // TODO(pahaz): !!! change it to access.userIsAdmin
     update: access.userIsAdminOrIsThisItem,
