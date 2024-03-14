@@ -162,7 +162,10 @@ const Meter = new GQLListSchema('Meter', {
             type: Text,
             isRequired: true,
         },
-        unitType: UNIT_TYPE_FIELD,
+        unitType: {
+            ...UNIT_TYPE_FIELD,
+            isRequired: true,
+        },
         place: {
             schemaDoc: 'Certain place in unit where meter is, such as kitchen',
             type: Text,

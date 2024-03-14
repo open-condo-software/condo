@@ -13,6 +13,7 @@ const { PHONE_WRONG_FORMAT_ERROR, EMAIL_WRONG_FORMAT_ERROR, PROPERTY_REQUIRED_ER
 const { UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
+const { getUnitTypeFieldResolveInput } = require('@condo/domains/common/utils/serverSchema/resolveHelpers')
 const access = require('@condo/domains/contact/access/Contact')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const { UNABLE_TO_CREATE_CONTACT_DUPLICATE, UNABLE_TO_UPDATE_CONTACT_DUPLICATE } = require('@condo/domains/user/constants/errors')
@@ -64,6 +65,10 @@ const Contact = new GQLListSchema('Contact', {
             // Allow to set unitType to null
             knexOptions: { isNotNullable: false },
             kmigratorOptions: { null: true },
+            defaultValue: null,
+            hooks: {
+                resolveInput: getUnitTypeFieldResolveInput(),
+            },
         },
 
         email: {

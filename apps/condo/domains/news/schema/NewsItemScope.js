@@ -16,7 +16,8 @@ const {
     NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE,
     NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE_UNIT_NAME,
 } = require('@condo/domains/news/constants/scopesTypes')
-const { UNIT_TYPES } = require('@condo/domains/property/constants/common')
+const { UNIT_TYPES, FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+
 
 const ERRORS = {
     EDIT_DENIED_PUBLISHED: {
@@ -47,32 +48,6 @@ const NewsItemScope = new GQLListSchema('NewsItemScope', {
                 create: false,
                 update: false,
             },
-            hooks: {
-                resolveInput: async ({ operation, resolvedData, fieldPath }) => {
-                    if (operation === 'create') {
-                        let type
-                        const { property, unitType, unitName } = resolvedData
-
-                        if (!property && !unitType && !unitName) {
-                            type = NEWS_ITEM_SCOPE_TYPE_ORGANIZATION
-                        } else if (!!property && !unitType && !unitName) {
-                            type = NEWS_ITEM_SCOPE_TYPE_PROPERTY
-                        } else if (!!property && !!unitType && !unitName) {
-                            type = NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE
-                        } else if (!!property && !!unitType && !!unitName) {
-                            type = NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE_UNIT_NAME
-                        }
-
-                        if (type) {
-                            return type
-                        }
-
-                        return null
-                    }
-
-                    return resolvedData[fieldPath]
-                },
-            },
         },
 
         newsItem: {
@@ -97,6 +72,19 @@ const NewsItemScope = new GQLListSchema('NewsItemScope', {
             schemaDoc: 'Filter on Resident by unit type, who can read news',
             type: 'Select',
             options: UNIT_TYPES,
+            hooks: {
+                resolveInput: ({ resolvedData, existingItem }) => {
+                    const newItem = { ...existingItem, ...resolvedData }
+                    const unitType = get(newItem, 'unitType')
+                    const unitName = get(newItem, 'unitName')
+
+                    // NewsItem can be sent to a specific unitType only (without unitName)
+                    if (unitName && !unitType) {
+                        return FLAT_UNIT_TYPE
+                    }
+                    return unitType
+                },
+            },
         },
 
         unitName: {
@@ -126,6 +114,26 @@ const NewsItemScope = new GQLListSchema('NewsItemScope', {
             if (!!newsItem && newsItem.isPublished) {
                 throw new GQLError(ERRORS.EDIT_DENIED_PUBLISHED, context)
             }
+        },
+        resolveInput: async ({ operation, resolvedData }) => {
+            if (operation === 'create') {
+                let type
+                const { property, unitType, unitName } = resolvedData
+
+                if (!property && !unitType && !unitName) {
+                    type = NEWS_ITEM_SCOPE_TYPE_ORGANIZATION
+                } else if (!!property && !unitType && !unitName) {
+                    type = NEWS_ITEM_SCOPE_TYPE_PROPERTY
+                } else if (!!property && !!unitType && !unitName) {
+                    type = NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE
+                } else if (!!property && !!unitType && !!unitName) {
+                    type = NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE_UNIT_NAME
+                }
+
+                resolvedData['type'] = type || null
+            }
+
+            return resolvedData
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],

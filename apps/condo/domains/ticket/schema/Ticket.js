@@ -31,13 +31,14 @@ const {
 } = require('@condo/domains/common/schema/fields')
 const { md5 } = require('@condo/domains/common/utils/crypto')
 const { buildSetOfFieldsToTrackFrom, storeChangesIfUpdated } = require('@condo/domains/common/utils/serverSchema/changeTrackable')
+const { getUnitTypeFieldResolveInput, getSectionTypeFieldResolveInput } = require('@condo/domains/common/utils/serverSchema/resolveHelpers')
 const { normalizeText } = require('@condo/domains/common/utils/text')
 const { hasDbFields } = require('@condo/domains/common/utils/validation.utils')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const { INVOICE_STATUS_CANCELED, INVOICE_STATUS_PAID, INVOICE_STATUS_PUBLISHED, INVOICE_STATUS_DRAFT } = require('@condo/domains/marketplace/constants')
 const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
-const { SECTION_TYPES, SECTION_SECTION_TYPE } = require('@condo/domains/property/constants/common')
+const { SECTION_TYPES } = require('@condo/domains/property/constants/common')
 const access = require('@condo/domains/ticket/access/Ticket')
 const {
     OMIT_TICKET_CHANGE_TRACKABLE_FIELDS, REVIEW_VALUES, DEFERRED_STATUS_TYPE,
@@ -613,14 +614,17 @@ const Ticket = new GQLListSchema('Ticket', {
             type: Text,
         },
         sectionType: {
-            schemaDoc: 'Type of section, such as parking or section',
+            schemaDoc: 'Type of section, such as parking or section. Default value: "section"',
             type: Select,
             options: SECTION_TYPES,
             dataType: 'string',
             isRequired: false,
-            defaultValue: SECTION_SECTION_TYPE,
+            defaultValue: null,
             knexOptions: { isNotNullable: false },
             kmigratorOptions: { null: true },
+            hooks: {
+                resolveInput: getSectionTypeFieldResolveInput(),
+            },
         },
         floorName: {
             schemaDoc: 'Floor of an apartment building (property). You need to take from Property.map',
@@ -637,6 +641,9 @@ const Ticket = new GQLListSchema('Ticket', {
             knexOptions: { isNotNullable: false },
             kmigratorOptions: { null: true },
             defaultValue: null,
+            hooks: {
+                resolveInput: getUnitTypeFieldResolveInput(),
+            },
         },
         source: {
             schemaDoc: 'Ticket source channel/system. Examples: call, email, visit, ...',

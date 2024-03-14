@@ -44,7 +44,7 @@ const {
     makeEmployeeUserClientWithAbilities,
     updateTestOrganization,
 } = require('@condo/domains/organization/utils/testSchema')
-const { FLAT_UNIT_TYPE, PARKING_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { FLAT_UNIT_TYPE, PARKING_UNIT_TYPE, COMMERCIAL_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { createTestProperty, Property } = require('@condo/domains/property/utils/testSchema')
 const { createTestResident, updateTestServiceConsumer, createTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
@@ -1169,6 +1169,71 @@ describe('Meter', () => {
                     })
 
                     expect(updatedMeter.accountNumber).toEqual(String(updatedAttrs.accountNumber).trim())
+                })
+            })
+
+            describe('unitType and unitName', () => {
+                let client, resource
+
+                beforeAll(async () => {
+                    [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
+                })
+
+                beforeEach(async () => {
+                    client = await makeEmployeeUserClientWithAbilities({
+                        canManageMeters: true,
+                    })
+                })
+
+                test('unitType and unitName are required fields', async () => {
+                    await expectToThrowValidationFailureError(async () => {
+                        await createTestMeter(client, client.organization, client.property, resource, {
+                            unitType: null,
+                            unitName: faker.random.alphaNumeric(5),
+                        })
+                    }, 'Required field "unitType" is null or undefined.')
+
+                    await expectToThrowValidationFailureError(async () => {
+                        await createTestMeter(client, client.organization, client.property, resource, {
+                            unitType: COMMERCIAL_UNIT_TYPE,
+                            unitName: null,
+                        })
+                    }, 'Required field "unitName" is null or undefined.')
+
+                    const [meter] = await createTestMeter(client, client.organization, client.property, resource, {
+                        unitType: COMMERCIAL_UNIT_TYPE,
+                        unitName: faker.random.alphaNumeric(5),
+                    })
+
+                    await expectToThrowValidationFailureError(async () => {
+                        await updateTestMeter(client, meter.id, {
+                            unitType: null,
+                        })
+                    }, 'Required field "unitType" is null or undefined.')
+
+                    await expectToThrowValidationFailureError(async () => {
+                        await updateTestMeter(client, meter.id, {
+                            unitName: null,
+                        })
+                    }, 'Required field "unitName" is null or undefined.')
+                })
+
+                test('unitType must be updatable', async () => {
+                    const [meter] = await createTestMeter(client, client.organization, client.property, resource, { unitType: FLAT_UNIT_TYPE })
+                    const [updatedMeter] = await updateTestMeter(admin, meter.id, {
+                        unitType: COMMERCIAL_UNIT_TYPE,
+                    })
+                    expect(updatedMeter).toHaveProperty('unitType', COMMERCIAL_UNIT_TYPE)
+                    expect(updatedMeter).toHaveProperty('unitName', meter.unitName)
+                })
+
+                test('unitName must be updatable', async () => {
+                    const [meter] = await createTestMeter(client, client.organization, client.property, resource, { unitType: COMMERCIAL_UNIT_TYPE })
+                    const [updatedMeter, attrs] = await updateTestMeter(admin, meter.id, {
+                        unitName: faker.random.alphaNumeric(5),
+                    })
+                    expect(updatedMeter).toHaveProperty('unitType', COMMERCIAL_UNIT_TYPE)
+                    expect(updatedMeter).toHaveProperty('unitName', attrs.unitName)
                 })
             })
         })

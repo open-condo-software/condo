@@ -22,6 +22,7 @@ const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/
 const { RECIPIENT_FIELD } = require('@condo/domains/acquiring/schema/fields/Recipient')
 const { MONEY_AMOUNT_FIELD, UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 const { CLIENT_NAME_FIELD, CLIENT_PHONE_LANDLINE_FIELD } = require('@condo/domains/common/schema/fields')
+const { getUnitTypeFieldResolveInput } = require('@condo/domains/common/utils/serverSchema/resolveHelpers')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const access = require('@condo/domains/marketplace/access/Invoice')
 const {
@@ -251,6 +252,9 @@ const Invoice = new GQLListSchema('Invoice', {
             knexOptions: { isNotNullable: false },
             kmigratorOptions: { null: true },
             defaultValue: null,
+            hooks: {
+                resolveInput: getUnitTypeFieldResolveInput(),
+            },
         },
 
         unitName: {
@@ -350,7 +354,7 @@ const Invoice = new GQLListSchema('Invoice', {
             schemaDoc: 'Integration ID through which this invoice can be paid',
             type: 'Virtual',
             graphQLReturnType: 'ID',
-            resolver: async (item, args, context) => {
+            resolver: async (item) => {
                 const acquiringContext = await getByCondition('AcquiringIntegrationContext', {
                     organization: { id: item.organization },
                     deletedAt: null,
@@ -365,7 +369,7 @@ const Invoice = new GQLListSchema('Invoice', {
             schemaDoc: 'Url to acquiring integration service. Mobile devices will use it communicate with external acquiring. List of endpoints is the same for all of them.',
             type: 'Virtual',
             graphQLReturnType: 'String',
-            resolver: async (item, args, context) => {
+            resolver: async (item) => {
                 const acquiringContext = await getByCondition('AcquiringIntegrationContext', {
                     organization: { id: item.organization },
                     deletedAt: null,
@@ -381,7 +385,7 @@ const Invoice = new GQLListSchema('Invoice', {
             schemaDoc: 'Can multiple receipts be united through this acquiring',
             type: 'Virtual',
             graphQLReturnType: 'Boolean',
-            resolver: async (item, args, context) => {
+            resolver: async (item) => {
                 const acquiringContext = await getByCondition('AcquiringIntegrationContext', {
                     organization: { id: item.organization },
                     deletedAt: null,
@@ -397,7 +401,7 @@ const Invoice = new GQLListSchema('Invoice', {
             schemaDoc: 'Code of currency in ISO-4217 format',
             type: 'Virtual',
             graphQLReturnType: 'String',
-            resolver: async (item, args, context) => {
+            resolver: async () => {
                 return DEFAULT_INVOICE_CURRENCY_CODE // Now we only allow payments in RUB, so temporarily this field will return a constant
             },
             access: { create: false, read: true, update: false },
@@ -618,7 +622,7 @@ const Invoice = new GQLListSchema('Invoice', {
 
             return resolvedData
         },
-        afterChange: async ({ context, operation, originalInput, updatedItem }) => {
+        afterChange: async ({ context, originalInput, updatedItem }) => {
             const { client: userId, property: propertyId, unitName, unitType } = updatedItem
             await sendPush({ originalInput, userId, propertyId, unitName, unitType, updatedItem, context })
         },
