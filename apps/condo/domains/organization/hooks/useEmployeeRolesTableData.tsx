@@ -52,7 +52,7 @@ const getB2BRolePermissionGroups = (intl, connectedB2BApps, b2BAppPermissions): 
     })
 }
 
-const addNamesToPermissions = (intl) => (permissionGroup): PermissionsGroup => ({
+export const addNamesToPermissions = (intl) => (permissionGroup): PermissionsGroup => ({
     ...permissionGroup,
     groupName: intl.formatMessage({ id: `pages.condo.settings.employeeRoles.permissionGroup.${permissionGroup.key}` }),
     permissions: permissionGroup.permissions.map(
@@ -63,7 +63,9 @@ const addNamesToPermissions = (intl) => (permissionGroup): PermissionsGroup => (
     ),
 })
 
-export const useEmployeeRolesTableData = (connectedB2BApps: B2BApp[], b2BAppPermissions: B2BAppPermission[]): PermissionsGroup[] => {
+export type UseEmployeeRolesTableData = (connectedB2BApps: B2BApp[], b2BAppPermissions: B2BAppPermission[]) => PermissionsGroup[]
+
+export const useEmployeeRolesTableData: UseEmployeeRolesTableData = (connectedB2BApps, b2BAppPermissions) => {
     const intl = useIntl()
 
     const employeeRolePermissionGroups: PermissionsGroup[] = useMemo(() => [

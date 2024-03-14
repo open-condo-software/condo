@@ -47,7 +47,8 @@ import {
     useEmployeeRolesTableColumns,
     useEmployeeRoleTicketVisibilityInfoTableColumns,
 } from '@condo/domains/organization/hooks/useEmployeeRolesTableColumns'
-import { PermissionRow, useEmployeeRolesTableData, PermissionsGroup } from '@condo/domains/organization/hooks/useEmployeeRolesTableData'
+import { UseEmployeeRolesTableData } from '@condo/domains/organization/hooks/useEmployeeRolesTableData'
+import { PermissionRow, PermissionsGroup } from '@condo/domains/organization/hooks/useEmployeeRolesTableData'
 import { OrganizationEmployeeRole } from '@condo/domains/organization/utils/clientSchema'
 
 
@@ -64,6 +65,7 @@ type EmployeeRolesTableProps = {
     updateB2BAppRoleAction: IUseUpdateActionType<B2BAppRoleType, B2BAppRoleUpdateInput>,
     updateOrganizationEmployeeRoleAction: IUseUpdateActionType<OrganizationEmployeeRoleType, OrganizationEmployeeRoleUpdateInput>
     refetchEmployeeRoles
+    useEmployeeRolesTableData: UseEmployeeRolesTableData
 }
 
 type PermissionsType = { [permissionKey: string]: boolean }
@@ -389,7 +391,7 @@ const ExpandableRow = ({ permissionsGroup, employeeRoles, permissionsState, setP
 export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
     connectedB2BApps, employeeRoles, b2BAppRoles, b2BAppPermissions,
     loading, softDeleteB2BAppRoleAction, updateB2BAppRoleAction, createB2BAppRoleAction,
-    updateOrganizationEmployeeRoleAction, refetchEmployeeRoles,
+    updateOrganizationEmployeeRoleAction, refetchEmployeeRoles, useEmployeeRolesTableData,
 }) => {
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Save' })
@@ -556,7 +558,7 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
     )
 }
 
-export const EmployeeRolesSettingsContent = () => {
+export const EmployeeRolesSettingsContent = ({ useEmployeeRolesTableData }) => {
     const userOrganization = useOrganization()
     const userOrganizationId = useMemo(() => get(userOrganization, ['organization', 'id']), [userOrganization])
 
@@ -616,6 +618,7 @@ export const EmployeeRolesSettingsContent = () => {
         employeeRoles={employeeRoles}
         b2BAppRoles={b2BAppRoles}
         b2BAppPermissions={b2BAppPermissions}
+        useEmployeeRolesTableData={useEmployeeRolesTableData}
     />
 }
 

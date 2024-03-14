@@ -29,6 +29,7 @@ import {
 } from '@condo/domains/organization/components/EmployeeRolesSettingsContent'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { RecipientSettingsContent } from '@condo/domains/organization/components/Recipient/SettingsContent'
+import { useEmployeeRolesTableData } from '@condo/domains/organization/hooks/useEmployeeRolesTableData'
 import { SettingsReadPermissionRequired } from '@condo/domains/settings/components/PageAccess'
 import { SubscriptionPane } from '@condo/domains/subscription/components/SubscriptionPane'
 
@@ -80,7 +81,7 @@ const SettingsPage = () => {
             isEmployeeTabAvailable && {
                 key: SETTINGS_TAB_EMPLOYEE_ROLES,
                 label: EmployeeRolesTitle,
-                children: <EmployeeRolesSettingsContent/>,
+                children: <EmployeeRolesSettingsContent useEmployeeRolesTableData={useEmployeeRolesTableData} />,
             },
             {
                 key: SETTINGS_TAB_PAYMENT_DETAILS,
