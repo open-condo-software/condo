@@ -85,17 +85,39 @@ class SearchKeystoneApp {
                 set(req, ['body', 'items'], [s])
 
                 try {
-                    res.json(await strategy.search(req))
+                    const strategyResult = await strategy.search(req)
+                    const addressResult = get(strategyResult, ['map', s])
+                    if (!addressResult) {
+                        this.logger.warn({
+                            msg: 'Address not found',
+                            data: {
+                                s,
+                                strategy: strategy.constructor.name,
+                                strategyResult,
+                                plugins: this.plugins.map((plugin) => plugin.constructor.name),
+                            },
+                        })
+                        res.sendStatus(404)
+                        return
+                    }
+
+                    if (addressResult.err) {
+                        throw new Error(addressResult.err)
+                    }
+
+                    const addressKey = get(addressResult, ['data', 'addressKey'])
+
+                    res.json(get(strategyResult, ['addresses', addressKey]))
                 } catch (err) {
                     this.logger.error({
                         err,
-                        msg: 'Bulk search error',
+                        msg: 'Search error',
                         data: {
                             strategy: strategy.constructor.name,
                             plugins: this.plugins.map((plugin) => plugin.constructor.name),
                         },
                     })
-                    res.status(400).send('Bulk search error')
+                    res.status(400).send('Search error')
                 }
             },
         )
