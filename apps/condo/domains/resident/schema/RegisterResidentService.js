@@ -11,6 +11,7 @@ const { getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { BillingAccount } = require('@condo/domains/billing/utils/serverSchema')
+const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { Property: PropertyAPI } = require('@condo/domains/property/utils/serverSchema')
 const { getAddressUpToBuildingFrom } = require('@condo/domains/property/utils/serverSchema/helpers')
@@ -87,6 +88,7 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                             { address_i: propertyAddress },
                             { addressKey: addressItem.addressKey },
                         ],
+                        organization: { type: MANAGING_COMPANY_TYPE },
                         deletedAt: null,
                     },
                     { sortBy: ['isApproved_DESC', 'createdAt_ASC'], first: 1 },
