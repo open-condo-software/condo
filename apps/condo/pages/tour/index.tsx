@@ -42,7 +42,7 @@ const {
     publicRuntimeConfig,
 } = getConfig()
 
-const { tourConfig } = publicRuntimeConfig
+const { tourVideoUrl } = publicRuntimeConfig
 
 const TourWrapper = styled.div`
   background-color: ${colors.gray[1]};
@@ -171,7 +171,7 @@ const TourPageContent = () => {
     const CardVideoTitle = intl.formatMessage({ id: `tour.cardVideo.title.${activeStepWithDefault}` })
     const CardVideoDescription = intl.formatMessage({ id: `tour.cardVideo.description.${activeStepWithDefault}` })
 
-    const videoUrl = useMemo(() => get(tourConfig, activeStepWithDefault), [activeStepWithDefault])
+    const videoUrl = useMemo(() => get(tourVideoUrl, activeStepWithDefault), [activeStepWithDefault])
 
     if (isLoading || stepsLoading || syncLoading) {
         return <Loader size='large'/>
