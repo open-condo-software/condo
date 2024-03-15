@@ -267,7 +267,7 @@ function isSerializable (data) {
     }
 }
 
-async function executeTask (name, args, job = null) {
+function executeTask (name, args, job = null) {
     // Since executeTask is synchronous we should use enterWith:
     // From the docs:
     // Transitions into the context for the remainder of the current synchronous execution and then persists the store through any following asynchronous calls.
@@ -277,7 +277,7 @@ async function executeTask (name, args, job = null) {
     if (!isSerializable(args)) throw new Error('executeTask: args is not serializable')
 
     const fn = TASKS.get(name)
-    const result = await fn.apply(job, args)
+    const result = fn.apply(job, args)
 
     return result
 }
