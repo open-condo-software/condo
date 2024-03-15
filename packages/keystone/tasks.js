@@ -95,7 +95,7 @@ function removeCronTask (name, cron, opts = {}) {
     REMOVE_CRON_TASKS.push([name, taskOpts])
 }
 
-async function _scheduleRemoteTask (name, preparedArgs, preparedOpts, queue = DEFAULT_QUEUE_NAME) {
+async function _scheduleRemoteTask (name, preparedArgs, preparedOpts, queue) {
     logger.info({ msg: 'Scheduling task', name, queue, data: { preparedArgs, preparedOpts } })
     const taskQueue = QUEUES.get(queue)
 
@@ -184,7 +184,7 @@ async function _scheduleInProcessTask (name, preparedArgs, preparedOpts) {
  * Internal function! please don't use it directly! Use `task.delay(..)`
  * @deprecated for any external usage!
  */
-async function scheduleTaskByNameWithArgsAndOpts (name, args, opts = {}, queue = DEFAULT_QUEUE_NAME) {
+async function scheduleTaskByNameWithArgsAndOpts (name, args, opts = {}, queue) {
     if (typeof name !== 'string' || !name) throw new Error('task name invalid or empty')
     if (!isSerializable(args)) throw new Error('task args is not serializable')
 
@@ -267,7 +267,7 @@ function isSerializable (data) {
     }
 }
 
-function executeTask (name, args, job = null) {
+async function executeTask (name, args, job = null) {
     // Since executeTask is synchronous we should use enterWith:
     // From the docs:
     // Transitions into the context for the remainder of the current synchronous execution and then persists the store through any following asynchronous calls.
@@ -277,7 +277,7 @@ function executeTask (name, args, job = null) {
     if (!isSerializable(args)) throw new Error('executeTask: args is not serializable')
 
     const fn = TASKS.get(name)
-    const result = fn.apply(job, args)
+    const result = await fn.apply(job, args)
 
     return result
 }
@@ -359,7 +359,9 @@ async function createWorker (keystoneModule, config) {
         })
     })
 
-    await Promise.all(activeQueues.map(([,queue]) => queue.isReady()))
+    for (const [, queue] of activeQueues) {
+        await queue.isReady()
+    }
 
     logger.info(`Worker[${activeQueues.map(([name]) => name).join(',')}]: ready to work!`)
 
