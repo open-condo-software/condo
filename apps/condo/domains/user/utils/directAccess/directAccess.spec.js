@@ -24,20 +24,34 @@ describe('Direct access utils specs', () => {
             ['canExecuteAllMiniApps', 'canExecuteRegisterNewServiceUser'],
         ],
         [
-            'field',
-            { lists: [], fields: { Organization: ['isApproved'] }, services: [] },
+            'manage-only field',
+            { lists: [], fields: { Organization: [{ fieldName: 'isApproved', manage: true }] }, services: [] },
             ['canManageOrganizationIsApprovedField'],
+        ],
+        [
+            'read-only field',
+            { lists: [], fields: { User: [{ fieldName: 'email', read: true }] }, services: [] },
+            ['canReadUserEmailField'],
+        ],
+        [
+            'read and manage field',
+            { lists: [], fields: { Model: [{ fieldName: 'field', read: true, manage: true }] }, services: [] },
+            ['canReadModelFieldField', 'canManageModelFieldField'],
         ],
         [
             'complex example',
             {
                 lists: ['B2BApp', { schemaName: 'Organization', readonly: true }],
-                fields: { Organization: ['isApproved'] },
+                fields: {
+                    Organization: [{ fieldName: 'isApproved', manage: true }],
+                    User: [{ fieldName: 'email', read: true }],
+                },
                 services: ['registerNewServiceUser'],
             },
             [
                 'canReadB2BApps', 'canManageB2BApps', 'canReadOrganizations', 'canExecuteRegisterNewServiceUser',
                 'canManageOrganizationIsApprovedField',
+                'canReadUserEmailField',
             ],
         ],
     ]
