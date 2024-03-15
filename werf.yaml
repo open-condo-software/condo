@@ -63,9 +63,9 @@ shell:
   - "echo 'NODE_ENV=production' >> /app/.env"
   - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
   - "echo 'SENTRY_CONFIG={\"client\":{\"organization\":\"condo\",\"project\":\"javascript-nextjs\"},\"server\":{}}' >> /app/.env"
-  - echo 'SENTRY_AUTH_TOKEN={{ env "SENTRY_AUTH_TOKEN" }}' >> /app/.env
-  - echo 'SENTRY_RELEASE={{ env "SENTRY_RELEASE" }}' >> /app/.env
-  - echo 'SENTRY_ENVIRONMENT={{ env "SENTRY_ENVIRONMENT" }}' >> /app/.env
+  - echo 'SENTRY_AUTH_TOKEN={{ env "SENTRY_AUTH_TOKEN" "null" }}' >> /app/.env
+  - echo 'SENTRY_RELEASE={{ env "SENTRY_RELEASE" "null" }}' >> /app/.env
+  - echo 'SENTRY_ENVIRONMENT={{ env "SENTRY_ENVIRONMENT" "null" }}' >> /app/.env
   - "echo 'SENTRY_ORG=condo' >> /app/.env"
   - "echo 'SENTRY_PROJECT=javascript-nextjs' >> /app/.env"
   - "yarn workspace @app/condo next telemetry disable"
