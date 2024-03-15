@@ -1,4 +1,5 @@
 const Queue = require('bull')
+const { get } = require('lodash')
 
 const conf = require('@open-condo/config')
 
@@ -10,18 +11,18 @@ const { getRedisClient } = require('./redis')
 const { getRandomString } = require('./test.utils')
 
 const TASK_TYPE = 'TASK'
-const DEFAULT_QUEUES = ['low', 'tasks', 'high']
 /* TODO: change this value to 'medium'
    The 'tasks' name was initially defined as default queue name.
    So for better migration experience we decided to leave this name as a default queue name */
 const DEFAULT_QUEUE_NAME = 'tasks'
+const DEFAULT_QUEUES = ['low', 'tasks', 'high']
 const WORKER_CONCURRENCY = parseInt(conf.WORKER_CONCURRENCY || '2')
 const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
 // NOTE: If this is True, all tasks will be executed in the node process with setTimeout.
 const FAKE_WORKER_MODE = conf.TESTS_FAKE_WORKER_MODE
 const logger = getLogger('worker')
 
-const QUEUES = new Map()
+const QUEUES = new Map([['low', null], ['tasks', null], ['high', null]])
 
 const KEEP_JOBS_CONFIG = { age: 60 * 60 * 24 * 30 } // 30 days
 const GLOBAL_TASK_OPTIONS = { removeOnComplete: KEEP_JOBS_CONFIG, removeOnFail: KEEP_JOBS_CONFIG }
@@ -50,20 +51,38 @@ function createTaskQueue (name) {
     }))
 }
 
-// TODO: think about default queue argument. Maybe it should be done inside createTaskWrapper or somewhere else
+/**
+ * Creates and register task. After that you can call it with delay or applyAsync methods
+ * @param name {String} name of the task
+ * @param fn {Function} function that will be executed at the worker side
+ * @param opts {Object} bull task options
+ * @param queue {String} task queue to which this function will be added. Can be used for change priority of the task execution
+ * @return {(function(): never)|*}
+ */
 function createTask (name, fn, opts = {}, queue) {
     if (typeof fn !== 'function') throw new Error('unsupported fn argument type. Function expected')
     if (!name) throw new Error('no name')
+    if (get(opts, 'priority')) throw new Error('Deprecated task parameter priority. Please don\'t use it. You can change task running priority via queue property')
 
     if (TASKS.has(name)) throw new Error(`Task with name ${name} is already registered`)
     TASKS.set(name, fn)
     return createTaskWrapper(name, fn, opts, queue)
 }
 
+/**
+ * Creates and register cron task. It will be called at the defined period of time
+ * @param name {String} name of cron task
+ * @param cron {String} cron style definition string. For example, 0 12 * * *
+ * @param fn {Function} function that will be executed at the worker side
+ * @param opts {Object} bull task options
+ * @param queue {String} task queue to which this function will be added. Can be used for change priority of the task execution
+ * @return {(function(): never)|*}
+ */
 function createCronTask (name, cron, fn, opts = {}, queue) {
     if (typeof fn !== 'function') throw new Error('unsupported fn argument type. Function expected')
     if (!name) throw new Error('no name')
     if (!cron) throw new Error('no cron string')
+    if (get(opts, 'priority')) throw new Error('Deprecated task parameter priority. Please don\'t use it. You can change task running priority via queue property')
 
     const taskOpts = { repeat: { cron }, ...opts }
     const task = createTask(name, fn, taskOpts, queue)
@@ -182,16 +201,15 @@ async function scheduleTaskByNameWithArgsAndOpts (name, args, opts = {}, queue =
     return await _scheduleRemoteTask(name, preparedArgs, preparedOpts, queue)
 }
 
-// TODO: reuse defaultTaskOptions to point at concrete queue
 function createTaskWrapper (name, fn, defaultTaskOptions = {}, queue = DEFAULT_QUEUE_NAME) {
-    async function applyAsync (args, taskOptions) {
+    async function applyAsync (args, taskOptions, queueOverride) {
         const preparedOpts = {
             ...GLOBAL_TASK_OPTIONS,
             ...defaultTaskOptions,
             ...taskOptions,
         }
 
-        return await scheduleTaskByNameWithArgsAndOpts(name, args, preparedOpts, queue)
+        return await scheduleTaskByNameWithArgsAndOpts(name, args, preparedOpts, queueOverride ? queueOverride : queue)
     }
 
     async function delay () {
@@ -294,7 +312,8 @@ async function createWorker (keystoneModule, config) {
         logger.warn('Keystone APP context is not prepared! You can\'t use Keystone GQL query inside the tasks!')
     }
 
-    if (config.length > 0) {
+    // Reapply queues configuration with worker startup config
+    if (get(config, '0', []).length > 0) {
         let parsedConfig
         try {
             parsedConfig = JSON.parse(config[0])
@@ -319,7 +338,6 @@ async function createWorker (keystoneModule, config) {
     const activeQueues = Array.from(QUEUES.entries())
 
     // Apply callbacks to each created queue
-
     activeQueues.forEach(([queueName, queue]) => {
         queue.process('*', WORKER_CONCURRENCY, async function (job) {
             logger.info({ taskId: job.id, status: 'processing', queue: queueName, task: getTaskLoggingContext(job) })
@@ -344,6 +362,7 @@ async function createWorker (keystoneModule, config) {
     await Promise.all(activeQueues.map(([,queue]) => queue.isReady()))
 
     logger.info(`Worker[${activeQueues.map(([name]) => name).join(',')}]: ready to work!`)
+
     const cronTasksNames = [...CRON_TASKS.keys()]
     if (cronTasksNames.length > 0) {
         logger.info({ msg: 'Worker: add repeatable tasks!', names: cronTasksNames })
