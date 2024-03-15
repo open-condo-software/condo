@@ -1,7 +1,4 @@
-const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
-
 const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
-const { ORGANIZATION_TOUR } = require('@condo/domains/common/constants/featureflags')
 const { REGISTER_NEW_USER_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { CREATE_ONBOARDING_MUTATION } = require('@condo/domains/onboarding/gql.js')
@@ -136,10 +133,7 @@ const syncUser = async ({ context: { context, keystone }, userInfo, identityId }
             ...dvSenderFields,
         })
 
-        const isOrganizationTourEnabled = await featureToggleManager.isFeatureEnabled(context, ORGANIZATION_TOUR)
-        if (!isOrganizationTourEnabled) {
-            await createOnboarding({ keystone, user, dvSenderFields })
-        }
+        await createOnboarding({ keystone, user, dvSenderFields })
 
         return user
     }
