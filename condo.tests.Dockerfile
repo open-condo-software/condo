@@ -9,6 +9,7 @@ RUN set -ex \
 	&& groupadd -r app --gid=999 \
 	&& useradd --system --create-home --home /app --gid 999 --uid=999 --shell /bin/bash app \
 	&& rm -f /usr/local/bin/docker-entrypoint.sh \
+	&& npm i -g turbo \
 	&& python --version \
 	&& pip --version \
 	&& node --version \
