@@ -4,54 +4,112 @@
 
 const { faker } = require('@faker-js/faker')
 
-const { makeClient } = require('@open-condo/keystone/test.utils')
+const {
+    makeClient,
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAuthenticationErrorToObj,
+} = require('@open-condo/keystone/test.utils')
 
-const { REGISTER_SERVICE_USER_MUTATION } = require('@dev-api/domains/common/gql')
+const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const {
     createTestB2CApp,
     B2CAppAccessRight,
     createTestB2CAppAccessRight,
     updateTestB2CAppAccessRight,
+    registerAppUserServiceByTestClient,
 } = require('@dev-api/domains/miniapp/utils/testSchema')
 const {
     makeLoggedInAdminClient,
     makeLoggedInSupportClient,
     makeRegisteredAndLoggedInUser,
-    makeLoggedInCondoAdminClient,
+    verifyEmailByTestClient,
 } = require('@dev-api/domains/user/utils/testSchema')
 
 
 describe('B2CAppAccessRight', () => {
-    let admin
-    let support
-    let user
-    let anonymous
-    let condoAdmin
-    let condoUser
+    let actors = {
+        admin: undefined,
+        support: undefined,
+        user: undefined,
+        anonymous: undefined,
+    }
+
+    let app
+    let email
+    let condoUserId
+    let accessRight
+    const accessDeniedRoles = ['admin', 'support', 'user']
     beforeAll(async () => {
-        admin = await makeLoggedInAdminClient()
-        support = await makeLoggedInSupportClient()
-        user = await makeRegisteredAndLoggedInUser()
-        anonymous = await makeClient()
-        condoAdmin = await makeLoggedInCondoAdminClient()
-        const response = await condoAdmin.mutate(REGISTER_SERVICE_USER_MUTATION, {
-            data: {
-                email: faker.internet.email(),
-                dv: 1,
-                sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
-                name: faker.internet.userName(),
-            },
-        })
-        condoUser = response.data.result
+        actors.admin = await makeLoggedInAdminClient()
+        actors.support = await makeLoggedInSupportClient()
+        actors.user = await makeRegisteredAndLoggedInUser()
+        actors.anonymous = await makeClient();
+
+        [app] = await createTestB2CApp(actors.user)
+        email = faker.internet.email()
+        const confirmAction = await verifyEmailByTestClient(actors.user, actors.admin, email)
+        const [{ id }] = await registerAppUserServiceByTestClient(actors.user, app, confirmAction)
+        condoUserId = id
+        accessRight = await B2CAppAccessRight.getOne(actors.admin, { app: { id: app.id } })
     })
     describe('CRUD tests', () => {
         describe('Create', () => {
-            test('Admin can', async () => {
-                const [app] = await createTestB2CApp(user)
-                const [right] = await createTestB2CAppAccessRight(admin, app, condoUser.id)
-                expect(right).toHaveProperty('id')
-                expect(right).toHaveProperty(['app', 'id'], app.id)
-                expect(right).toHaveProperty('condoUserId', condoUser.id)
+            describe('B2CAppAccessRight cannot be created manually', () => {
+                test.each(accessDeniedRoles)('%p cannot create', async (role) => {
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await createTestB2CAppAccessRight(actors[role], app, condoUserId)
+                    })
+                })
+                test('Anonymous cannot create', async () => {
+                    await expectToThrowAuthenticationErrorToObj(async () => {
+                        await createTestB2CAppAccessRight(actors.anonymous, app, condoUserId)
+                    })
+                })
+            })
+        })
+        describe('Update', () => {
+            describe('B2CAppAccessRight cannot be updated manually', () => {
+                test.each(accessDeniedRoles)('%p cannot update', async (role) => {
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await updateTestB2CAppAccessRight(actors[role], accessRight.id, { condoUserId: faker.datatype.uuid() })
+                    })
+                })
+                test('Anonymous cannot update', async () => {
+                    await expectToThrowAuthenticationErrorToObj(async () => {
+                        await updateTestB2CAppAccessRight(actors.anonymous, accessRight.id, { condoUserId: faker.datatype.uuid() })
+                    })
+                })
+            })
+        })
+        describe('Read', () => {
+            test('Admin can read any B2CAccessRight', async () => {
+                const right = await B2CAppAccessRight.getOne(actors.admin, { app: { id: app.id } })
+                expect(right).toBeDefined()
+            })
+            test('Support can read any B2CAccessRight', async () => {
+                const right = await B2CAppAccessRight.getOne(actors.support, { app: { id: app.id } })
+                expect(right).toBeDefined()
+            })
+            describe('User', () => {
+                test('Can read B2CAccessRight linked to app he created', async () => {
+                    const right = await B2CAppAccessRight.getOne(actors.user, { app: { id: app.id } })
+                    expect(right).toBeDefined()
+                    expect(right).toHaveProperty('condoUserEmail', normalizeEmail(email))
+                })
+                test('Cannot read other B2CAccessRights', async () => {
+                    const anotherUser = await makeRegisteredAndLoggedInUser()
+                    const right = await B2CAppAccessRight.getOne(anotherUser, { app: { id: app.id } })
+                    expect(right).not.toBeDefined()
+                })
+            })
+        })
+        describe('Hard-delete', () => {
+            describe('B2CAppAccessRight cannot be hard-deleted', () => {
+                test.each(Object.keys(actors))('%p cannot hard-delete', async (role) => {
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await B2CAppAccessRight.delete(actors[role], accessRight.id)
+                    })
+                })
             })
         })
     })

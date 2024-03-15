@@ -2103,6 +2103,7 @@ type B2CAppAccessRightHistoryRecord {
   _label_: String
   app: String
   condoUserId: ID
+  condoUserEmail: JSON
   environment: String
   id: ID!
   v: Int
@@ -2130,6 +2131,10 @@ input B2CAppAccessRightHistoryRecordWhereInput {
   condoUserId_not: ID
   condoUserId_in: [ID]
   condoUserId_not_in: [ID]
+  condoUserEmail: JSON
+  condoUserEmail_not: JSON
+  condoUserEmail_in: [JSON]
+  condoUserEmail_not_in: [JSON]
   environment: String
   environment_not: String
   environment_contains: String
@@ -2256,6 +2261,7 @@ enum SortB2CAppAccessRightHistoryRecordsBy {
 input B2CAppAccessRightHistoryRecordUpdateInput {
   app: String
   condoUserId: ID
+  condoUserEmail: JSON
   environment: String
   v: Int
   createdAt: String
@@ -2279,6 +2285,7 @@ input B2CAppAccessRightHistoryRecordsUpdateInput {
 input B2CAppAccessRightHistoryRecordCreateInput {
   app: String
   condoUserId: ID
+  condoUserEmail: JSON
   environment: String
   v: Int
   createdAt: String
@@ -2325,8 +2332,11 @@ type B2CAppAccessRight {
   """ Link to B2CApp """
   app: B2CApp
 
-  """ ID of condo user, which will be linked to app """
+  """ ID of condo user, which will be linked to the published app """
   condoUserId: ID
+
+  """ Email of service condo user linked to the published app """
+  condoUserEmail: String
 
   """ Condo environment """
   environment: B2CAppAccessRightEnvironmentType

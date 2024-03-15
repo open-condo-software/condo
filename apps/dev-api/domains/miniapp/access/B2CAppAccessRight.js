@@ -21,7 +21,7 @@ async function canManageB2CAppAccessRights ({ authentication: { item: user } }) 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
-    return Boolean(user.isAdmin || user.isSupport)
+    return false
 }
 
 /*
