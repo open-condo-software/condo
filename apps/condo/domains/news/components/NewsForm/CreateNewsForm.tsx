@@ -3,6 +3,7 @@ import { Gutter } from 'antd/es/grid/row'
 import { ArgsProps as NotificationApiProps } from 'antd/es/notification'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
+import keyBy from 'lodash/keyBy'
 import getConfig from 'next/config'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { IntlShape } from 'react-intl/src/types'
@@ -126,7 +127,7 @@ export const CreateNewsForm: React.FC = () => {
     const createNewsItemSharing = NewsItemSharing.useCreate({})
 
     const action: BaseNewsFormProps['newsItemAction'] = useCallback(async (values) => { return await createNewsItem(values) }, [createNewsItem])
-    const createNewsItemSharingAction: BaseNewsFormProps['createNewsItemSharingAction'] = useCallback(async (values) => { return await createNewsItemSharing(values) }, [createNewsItemSharing])
+    const createNewsItemSharingAction: BaseNewsFormProps['newsItemSharingAction'] = useCallback(async (values) => { return await createNewsItemSharing(values) }, [createNewsItemSharing])
 
     const {
         loading: isNewsItemTemplatesFetching,
@@ -214,7 +215,7 @@ export const CreateNewsForm: React.FC = () => {
             ActionBar={CreateNewsActionBar}
             templates={templates}
             sharingAppContexts={sharingAppContexts}
-            createNewsItemSharingAction={createNewsItemSharingAction}
+            newsItemSharingAction={createNewsItemSharingAction}
             OnCompletedMsg={OnCompletedMsg}
             allNews={allNews}
             actionName='create'

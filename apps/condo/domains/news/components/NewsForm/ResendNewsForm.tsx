@@ -33,7 +33,7 @@ export const ResendNewsForm: React.FC<IResendNewsForm> = ({ id }) => {
     const action: BaseNewsFormProps['newsItemAction'] = useCallback(async (values) => {
         return await createNewsItem(values)
     }, [createNewsItem])
-    const createNewsItemSharingAction: BaseNewsFormProps['createNewsItemSharingAction'] = useCallback(async (values) => { return await createNewsItemSharing(values) }, [createNewsItemSharing])
+    const newsItemSharingAction: BaseNewsFormProps['newsItemSharingAction'] = useCallback(async (values) => { return await createNewsItemSharing(values) }, [createNewsItemSharing])
 
     const {
         loading: totalPropertiesLoading,
@@ -87,18 +87,6 @@ export const ResendNewsForm: React.FC<IResendNewsForm> = ({ id }) => {
         sendAt: sendAt ? sendAt : null,
         validBefore: validBefore ? validBefore : null,
     }), [hasAllProperties, newsItem, newsItemScopes, properties, sendAt, sendPeriod, validBefore])
-
-    const dateStart = dayjs().startOf('day')
-    const {
-        loading: isNewsFetching,
-        objs: allNews,
-        error: allNewsError,
-    } = NewsItem.useAllObjects({
-        where: {
-            organization: { id: organizationId },
-            createdAt_gte: dateStart.toISOString(),
-        },
-    })
 
     const {
         loading: isNewsItemTemplatesFetching,
@@ -176,7 +164,7 @@ export const ResendNewsForm: React.FC<IResendNewsForm> = ({ id }) => {
             newsItem={newsItem}
             templates={templates}
             sharingAppContexts={sharingAppContexts}
-            createNewsItemSharingAction={createNewsItemSharingAction}
+            newsItemSharingAction={newsItemSharingAction}
             OnCompletedMsg={OnCompletedMsg}
             allNews={allNews}
             actionName='create'
