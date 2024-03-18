@@ -333,6 +333,8 @@ async function createWorker (keystoneModule, config) {
                 }
             }
         }
+    } else {
+        registerTaskQueues(get(keystoneModule, 'queues', DEFAULT_QUEUES))
     }
 
     const activeQueues = Array.from(QUEUES.entries())
