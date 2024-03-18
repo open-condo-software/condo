@@ -13,7 +13,6 @@ const { productionClient, developmentClient } = require('@dev-api/domains/common
 const access = require('@dev-api/domains/miniapp/access/B2CAppAccessRight')
 const {
     B2C_APP_ACCESS_RIGHT_UNIQUE_APP_CONSTRAINT,
-    B2C_APP_ACCESS_RIGHT_UNIQUE_USER_CONSTRAINT,
 } = require('@dev-api/domains/miniapp/constants/constraints')
 const { AVAILABLE_ENVIRONMENTS, PROD_ENVIRONMENT } = require('@dev-api/domains/miniapp/constants/publishing')
 const { exportable } = require('@dev-api/domains/miniapp/plugins/exportable')
@@ -74,12 +73,6 @@ const B2CAppAccessRight = new GQLListSchema('B2CAppAccessRight', {
                 fields: ['environment', 'app'],
                 condition: 'Q(deletedAt__isnull=True)',
                 name: B2C_APP_ACCESS_RIGHT_UNIQUE_APP_CONSTRAINT,
-            },
-            {
-                type: 'models.UniqueConstraint',
-                fields: ['environment', 'condoUserId'],
-                condition: 'Q(deletedAt__isnull=True)',
-                name: B2C_APP_ACCESS_RIGHT_UNIQUE_USER_CONSTRAINT,
             },
         ],
     },

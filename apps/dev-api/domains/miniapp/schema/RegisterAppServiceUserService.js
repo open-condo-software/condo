@@ -133,6 +133,7 @@ const RegisterAppServiceUserService = new GQLCustomSchema('RegisterAppServiceUse
                 const existingAccessRights = await B2CAppAccessRight.getOne(context, {
                     deletedAt: null,
                     app: { id: appId },
+                    environment,
                 })
 
                 if (existingAccessRights) {

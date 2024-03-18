@@ -119,8 +119,12 @@ async function createCondoB2CAppProperties(client, condoApp, amount) {
     return [objs, attrs]
 }
 
-async function createCondoB2CAppAccessRight(client, condoApp) {
-    const [user] = await registerNewServiceUserByTestClient(client)
+async function createCondoB2CAppAccessRight(client, condoApp, condoUser = null) {
+    let user = condoUser
+
+    if (!condoUser) {
+        [user] = await registerNewServiceUserByTestClient(client)
+    }
 
     const attrs = {
         dv: 1,

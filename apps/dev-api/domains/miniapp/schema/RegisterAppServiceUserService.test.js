@@ -14,6 +14,7 @@ const {
 
 const { SERVICE } = require('@condo/domains/user/constants/common')
 const { REMOTE_SYSTEM } = require('@dev-api/domains/common/constants/common')
+const { PROD_ENVIRONMENT, DEV_ENVIRONMENT } = require('@dev-api/domains/miniapp/constants/publishing')
 const {
     B2CAppAccessRight,
     createTestB2CApp,
@@ -118,6 +119,22 @@ describe('RegisterAppServiceUserService', () => {
                 expect(accessRight).toBeDefined()
                 expect(accessRight).toHaveProperty('condoUserId', result.id)
                 expect(accessRight).toHaveProperty(['app', 'id'], newApp.id)
+            })
+            test('Each app can have separate access right for each environment', async () => {
+                const newUser = await makeRegisteredAndLoggedInUser()
+                const [newApp] = await createTestB2CApp(newUser)
+                const firstConfirmAction = await verifyEmailByTestClient(newUser, admin)
+                const secondConfirmAction = await verifyEmailByTestClient(newUser, admin)
+                const [firstResult] = await registerAppUserServiceByTestClient(newUser, newApp, firstConfirmAction)
+                expect(firstResult).toBeDefined()
+                const [secondResult] = await registerAppUserServiceByTestClient(newUser, newApp, secondConfirmAction, { environment: PROD_ENVIRONMENT })
+                expect(secondResult).toBeDefined()
+
+                const accessRights = await B2CAppAccessRight.getAll(newUser, { app: { id: newApp.id } })
+                expect(accessRights).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ environment: PROD_ENVIRONMENT }),
+                    expect.objectContaining({ environment: DEV_ENVIRONMENT }),
+                ]))
             })
         })
         describe('ConfirmEmailAction tests', () => {
