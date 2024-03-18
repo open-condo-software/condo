@@ -3,12 +3,12 @@ import { Col, Row, Typography } from 'antd'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo } from 'react'
-import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3'
 
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl, FormattedMessage } from '@open-condo/next/intl'
 
 import { FROM_INPUT_CSS } from '@condo/domains/common/components/containers/BaseLayout/components/styles'
+import { HCaptchaProvider } from '@condo/domains/common/components/HCaptcha'
 import { Logo } from '@condo/domains/common/components/Logo'
 import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
 import { colors } from '@condo/domains/common/constants/style'
@@ -16,8 +16,6 @@ import { colors } from '@condo/domains/common/constants/style'
 import { AuthLayoutContextProvider } from './AuthLayoutContext'
 import { PosterLayout } from './PosterLayout'
 
-
-const { publicRuntimeConfig: { googleCaptcha } } = getConfig()
 
 export interface AuthPage extends React.FC {
     headerAction?: React.ReactElement
@@ -27,36 +25,6 @@ export interface AuthPage extends React.FC {
 interface IAuthLayoutProps {
     headerAction: React.ReactElement
     children: JSX.Element
-}
-interface IGoogleReCaptchaContainer {
-    element: string | HTMLElement;
-    parameters: {
-        badge?: 'inline' | 'bottomleft' | 'bottomright';
-        theme?: 'dark' | 'light';
-        tabindex?: number;
-        callback?: () => void;
-        expiredCallback?: () => void;
-        errorCallback?: () => void;
-    }
-}
-interface IGoogleReCaptchaScriptProps {
-    nonce?: string;
-    defer?: boolean;
-    async?: boolean;
-    appendTo?: 'head' | 'body';
-    id?: string;
-    onLoadCallbackName?: string;
-}
-const GOOGLE_RECAPTCHA_CONTAINER: IGoogleReCaptchaContainer = {
-    element: 'ReCaptchaContainer',
-    parameters: {
-        badge: 'inline',
-    },
-}
-const GOOGLE_RECAPTCHA_SCRIPT_PROPS: IGoogleReCaptchaScriptProps = {
-    async: true,
-    defer: true,
-    appendTo: 'body',
 }
 const LOGO_HEADER_STYLES = { width: '100%', justifyContent: 'space-between' }
 const HEADER_ACTION_STYLES = { alignSelf:'center', paddingRight: '8px' }
@@ -152,21 +120,14 @@ const AuthLayout: React.FC<IAuthLayoutProps> = (props) => {
     ), [PrivacyPolicy, TermsOfService])
 
     return (
-        <GoogleReCaptchaProvider
-            reCaptchaKey={googleCaptcha && googleCaptcha.SITE_KEY}
-            language={intl.locale}
-            useRecaptchaNet
-            container={GOOGLE_RECAPTCHA_CONTAINER}
-            scriptProps={GOOGLE_RECAPTCHA_SCRIPT_PROPS}
-            useEnterprise
-        >
+        <HCaptchaProvider>
             <Global styles={FROM_INPUT_CSS}/>
             <PosterLayout Header={AuthHeader} Footer={AuthFooter} {...otherProps}>
                 <AuthLayoutContextProvider>
                     {children}
                 </AuthLayoutContextProvider>
             </PosterLayout>
-        </GoogleReCaptchaProvider>
+        </HCaptchaProvider>
     )
 }
 

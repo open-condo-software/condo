@@ -2,13 +2,13 @@ import { Form, Row, Col } from 'antd'
 import Head from 'next/head'
 import  { useRouter } from 'next/router'
 import React, { useContext, useState } from 'react'
-import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 
 import { useMutation } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography, Button } from '@open-condo/ui'
 
 import { CountDownTimer } from '@condo/domains/common/components/CountDownTimer'
+import { useHCaptcha } from '@condo/domains/common/components/HCaptcha'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { colors } from '@condo/domains/common/constants/style'
@@ -47,7 +47,7 @@ function ResetPageView () {
     const REGISTER_PHONE_LABEL = <label style={ { alignSelf:'end' } }>{PhoneMsg}</label>
 
     const [form] = Form.useForm()
-    const { executeRecaptcha } = useGoogleReCaptcha()
+    const { executeCaptcha } = useHCaptcha()
     const { token, setToken, setPhone } = useContext(RegisterContext)
 
     type StepType = 'inputPhone' | 'validatePhone'
@@ -84,10 +84,10 @@ function ResetPageView () {
 
     const startConfirmPhoneAction = async () => {
         setIsLoading(true)
-        if (!executeRecaptcha) {
+        if (!executeCaptcha) {
             return
         }
-        const captcha = await executeRecaptcha('start_confirm_phone')
+        const captcha = await executeCaptcha()
         if (!captcha) {
             return
         }
