@@ -22,7 +22,7 @@ const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
 const FAKE_WORKER_MODE = conf.TESTS_FAKE_WORKER_MODE
 const logger = getLogger('worker')
 
-const QUEUES = new Map([['low', null], ['tasks', null], ['high', null]])
+const QUEUES = new Map()
 
 const KEEP_JOBS_CONFIG = { age: 60 * 60 * 24 * 30 } // 30 days
 const GLOBAL_TASK_OPTIONS = { removeOnComplete: KEEP_JOBS_CONFIG, removeOnFail: KEEP_JOBS_CONFIG }
@@ -33,7 +33,7 @@ let isWorkerCreated = false
 
 function createTaskQueue (name) {
     if (IS_BUILD) return
-    if (!QUEUES.has(name)) throw new Error(`Can't find queue with name ${name}. Maybe you forgot to register it at prepareKeystone first`)
+    // if (!QUEUES.has(name)) throw new Error(`Can't find queue with name ${name}. Maybe you forgot to register it at prepareKeystone first`)
 
     QUEUES.set(name, new Queue(name, {
         /**
@@ -97,9 +97,8 @@ function removeCronTask (name, cron, opts = {}) {
 
 async function _scheduleRemoteTask (name, preparedArgs, preparedOpts, queue) {
     logger.info({ msg: 'Scheduling task', name, queue, data: { preparedArgs, preparedOpts } })
-    const taskQueue = QUEUES.get(queue)
 
-    if (!taskQueue) {
+    if (!QUEUES.has(queue)) {
         logger.warn({
             msg: `No active queues with name = ${queue} was found. This task never been picked by this worker due to queue filters policy`,
             name, queue, data: { preparedOpts, preparedArgs },
@@ -107,7 +106,7 @@ async function _scheduleRemoteTask (name, preparedArgs, preparedOpts, queue) {
         return false
     }
 
-    const job = await taskQueue.add(name, { args: preparedArgs }, preparedOpts)
+    const job = await QUEUES.get(queue).add(name, { args: preparedArgs }, preparedOpts)
     return {
         id: String(job.id),
         getState: async () => {
@@ -250,7 +249,7 @@ function registerTaskQueues (queueNames = DEFAULT_QUEUES) {
         if (!name) throw new Error('Queue creation requires name')
         if (QUEUES.has(name)) throw new Error(`Queue with name ${name} already created`)
 
-        QUEUES.set(name, null)
+        createTaskQueue(name)
     })
 }
 
@@ -322,18 +321,19 @@ async function createWorker (keystoneModule, config) {
         }
 
         if (parsedConfig['include'] && parsedConfig['include'].length > 0) {
-            QUEUES.clear()
             registerTaskQueues(parsedConfig['include'])
         }
 
         if (parsedConfig['exclude'] && parsedConfig['exclude'].length > 0) {
-            parsedConfig['exclude'].forEach(queueName => {
-                QUEUES.delete(queueName)
-            })
+            for (const queueName of parsedConfig) {
+                const queue = QUEUES.get(queueName)
+                if (queue) {
+                    await queue.close()
+                    QUEUES.delete(queueName)
+                }
+            }
         }
     }
-
-    Array.from(QUEUES.keys()).forEach(name => createTaskQueue(name))
 
     const activeQueues = Array.from(QUEUES.entries())
 
@@ -386,7 +386,7 @@ async function createWorker (keystoneModule, config) {
 }
 
 module.exports = {
-    taskQueues: QUEUES.entries(),
+    taskQueues: QUEUES,
     createTask,
     createCronTask,
     removeCronTask,
