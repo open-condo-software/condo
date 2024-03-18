@@ -12,7 +12,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
-    await Promise.all(Array.from(taskQueues).map(([,queue]) => queue.close()))
+    await Promise.all(Array.from(taskQueues.entries()).map(([,queue]) => queue.close()))
 })
 
 describe('tasks', () => {
