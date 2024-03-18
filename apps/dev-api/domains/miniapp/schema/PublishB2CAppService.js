@@ -240,6 +240,8 @@ async function addAccessRight ({ args, serverClient, context, condoApp }) {
         deletedAt: null,
     })
 
+    logger.info({ msg: 'Access right found for app', appId: id, environment, meta: { accessRightId: accessRight.id } })
+
     if (accessRight) {
         const condoRights = await serverClient.getModels({
             modelGql: CondoB2CAppAccessRightGql,
@@ -248,14 +250,15 @@ async function addAccessRight ({ args, serverClient, context, condoApp }) {
             },
             first: 1,
         })
-
         if (condoRights.length) {
             const condoRight = condoRights[0]
+            logger.info({ msg: 'Existing condo access right found for app', appId: id, environment, meta: { accessRightId: accessRight.id, condoAccessRightId: condoRight.id  } })
             const condoUserId = condoRight.user?.id
 
             if (condoUserId === accessRight.condoUserId) {
                 return
             } else {
+                logger.info({ msg: 'Existing condo access right user does not match with dev-api one', appId: id, environment, meta: { accessRightId: accessRight.id, condoAccessRightId: condoRight.id  } })
                 await serverClient.updateModel({
                     modelGql: CondoB2CAppAccessRightGql,
                     id: condoRight.id,
@@ -265,9 +268,11 @@ async function addAccessRight ({ args, serverClient, context, condoApp }) {
                         deletedAt: dayjs().toISOString(),
                     },
                 })
+                logger.info({ msg: 'Existing condo access right successfully deleted', appId: id, environment, meta: { accessRightId: accessRight.id, condoAccessRightId: condoRight.id  } })
             }
         }
 
+        logger.info({ msg: 'Creating new condo access right', appId: id, environment, meta: { accessRightId: accessRight.id } })
         const condoRight = await serverClient.createModel({
             modelGql: CondoB2CAppAccessRightGql,
             createInput: {
@@ -279,7 +284,7 @@ async function addAccessRight ({ args, serverClient, context, condoApp }) {
                 importRemoteSystem: REMOTE_SYSTEM,
             },
         })
-
+        logger.info({ msg: 'Updating dev-api access right info', appId: id, environment, meta: { accessRightId: accessRight.id, condoAccessRightId: condoRight.id } })
         await B2CAppAccessRight.update(context, accessRight.id, {
             dv,
             sender,
