@@ -7,6 +7,7 @@ const get = require('lodash/get')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
+
 const { GET_USER_EMAIL_QUERY } = require('@dev-api/domains/common/gql')
 const { productionClient, developmentClient } = require('@dev-api/domains/common/utils/serverClients')
 const access = require('@dev-api/domains/miniapp/access/B2CAppAccessRight')
@@ -15,6 +16,7 @@ const {
     B2C_APP_ACCESS_RIGHT_UNIQUE_USER_CONSTRAINT,
 } = require('@dev-api/domains/miniapp/constants/constraints')
 const { AVAILABLE_ENVIRONMENTS, PROD_ENVIRONMENT } = require('@dev-api/domains/miniapp/constants/publishing')
+const { exportable } = require('@dev-api/domains/miniapp/plugins/exportable')
 
 
 
@@ -81,7 +83,7 @@ const B2CAppAccessRight = new GQLListSchema('B2CAppAccessRight', {
             },
         ],
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), exportable(), historical()],
     access: {
         read: access.canReadB2CAppAccessRights,
         create: access.canManageB2CAppAccessRights,

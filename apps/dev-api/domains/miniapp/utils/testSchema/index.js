@@ -8,6 +8,7 @@ const conf = require('@open-condo/config')
 const path = require('path')
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
+const { registerNewServiceUserByTestClient } = require('@condo/domains/user/utils/testSchema')
 
 const {
     B2CApp: B2CAppGQL,
@@ -44,6 +45,7 @@ const CondoB2CApp = generateGQLTestUtils(generateGqlQueries('B2CApp', '{ id name
 const CondoB2CAppBuild = generateGQLTestUtils(generateGqlQueries('B2CAppBuild', '{ id version data { publicUrl } importId importRemoteSystem }'))
 const CondoB2CAppProperty = generateGQLTestUtils(generateGqlQueries('B2CAppProperty', '{ id address }'))
 const CondoOIDCClient = generateGQLTestUtils(generateGqlQueries('OidcClient', '{ id clientId payload isEnabled name importId importRemoteSystem }'))
+const CondoB2CAppAccessRight = generateGQLTestUtils(generateGqlQueries('B2CAppAccessRight', '{ id user { id } app { id } importId importRemoteSystem }'))
 
 function generateBuildVersion () {
     return `${faker.datatype.number()}.${faker.datatype.number()}.${faker.datatype.number()}`
@@ -115,6 +117,21 @@ async function createCondoB2CAppProperties(client, condoApp, amount) {
     const objs = await CondoB2CAppProperty.createMany(client, attrs)
 
     return [objs, attrs]
+}
+
+async function createCondoB2CAppAccessRight(client, condoApp) {
+    const [user] = await registerNewServiceUserByTestClient(client)
+
+    const attrs = {
+        dv: 1,
+        sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+        app: { connect: { id: condoApp.id } },
+        user: { connect: { id: user.id } },
+    }
+
+    const obj =  await CondoB2CAppAccessRight.create(client, attrs)
+
+    return [obj, attrs]
 }
 
 async function createTestB2CApp (client, extraAttrs = {}) {
@@ -256,7 +273,7 @@ async function importB2CAppByTestClient(client, app, condoDevApp = null, condoPr
         sender,
         to: { app: { id: app.id } },
         from,
-        options: { info: true, builds: true, publish: true },
+        options: { info: true, builds: true, publish: true, accessRight: true },
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(IMPORT_B2C_APP_MUTATION, { data: attrs })
@@ -438,6 +455,7 @@ module.exports = {
     CondoB2CApp, createCondoB2CApp,
     CondoB2CAppBuild, createCondoB2CAppBuild, updateCondoB2CApp,
     CondoB2CAppProperty, createCondoB2CAppProperties,
+    CondoB2CAppAccessRight, createCondoB2CAppAccessRight,
     CondoOIDCClient,
     B2CApp, createTestB2CApp, updateTestB2CApp, updateTestB2CApps,
     B2CAppAccessRight, createTestB2CAppAccessRight, updateTestB2CAppAccessRight,

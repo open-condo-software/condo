@@ -239,6 +239,8 @@ async function importAppBuilds ({ args, context }) {
 async function _importAppAccessRightFromEnvironment ({ condoAppId, context, environment, args }) {
     const { data: { dv, sender, to: { app: { id: appId } } } } = args
 
+    const exportField = `${environment}ExportId`
+
     const serverClient = environment === PROD_ENVIRONMENT
         ? productionClient
         : developmentClient
@@ -258,6 +260,7 @@ async function _importAppAccessRightFromEnvironment ({ condoAppId, context, envi
             condoUserId: condoAccessRight.user.id,
             app: { connect: { id: appId } },
             environment,
+            [exportField]: condoAccessRight.id,
         })
 
         await serverClient.updateModel({
@@ -339,7 +342,7 @@ const ImportB2CAppService = new GQLCustomSchema('ImportB2CAppService', {
 
                 // Step 3. Import access right
                 if (options.accessRight) {
-                    await importAppAccessRight({ args })
+                    await importAppAccessRight({ args, context })
                 }
 
                 // Step 4. Allow publishing

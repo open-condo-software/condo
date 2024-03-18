@@ -2115,6 +2115,8 @@ type B2CAppAccessRightHistoryRecord {
   newId: JSON
   dv: Int
   sender: JSON
+  developmentExportId: String
+  productionExportId: String
   history_date: String
   history_action: B2CAppAccessRightHistoryRecordHistoryActionType
   history_id: String
@@ -2213,6 +2215,42 @@ input B2CAppAccessRightHistoryRecordWhereInput {
   sender_not: JSON
   sender_in: [JSON]
   sender_not_in: [JSON]
+  developmentExportId: String
+  developmentExportId_not: String
+  developmentExportId_contains: String
+  developmentExportId_not_contains: String
+  developmentExportId_starts_with: String
+  developmentExportId_not_starts_with: String
+  developmentExportId_ends_with: String
+  developmentExportId_not_ends_with: String
+  developmentExportId_i: String
+  developmentExportId_not_i: String
+  developmentExportId_contains_i: String
+  developmentExportId_not_contains_i: String
+  developmentExportId_starts_with_i: String
+  developmentExportId_not_starts_with_i: String
+  developmentExportId_ends_with_i: String
+  developmentExportId_not_ends_with_i: String
+  developmentExportId_in: [String]
+  developmentExportId_not_in: [String]
+  productionExportId: String
+  productionExportId_not: String
+  productionExportId_contains: String
+  productionExportId_not_contains: String
+  productionExportId_starts_with: String
+  productionExportId_not_starts_with: String
+  productionExportId_ends_with: String
+  productionExportId_not_ends_with: String
+  productionExportId_i: String
+  productionExportId_not_i: String
+  productionExportId_contains_i: String
+  productionExportId_not_contains_i: String
+  productionExportId_starts_with_i: String
+  productionExportId_not_starts_with_i: String
+  productionExportId_ends_with_i: String
+  productionExportId_not_ends_with_i: String
+  productionExportId_in: [String]
+  productionExportId_not_in: [String]
   history_date: String
   history_date_not: String
   history_date_lt: String
@@ -2252,6 +2290,10 @@ enum SortB2CAppAccessRightHistoryRecordsBy {
   deletedAt_DESC
   dv_ASC
   dv_DESC
+  developmentExportId_ASC
+  developmentExportId_DESC
+  productionExportId_ASC
+  productionExportId_DESC
   history_date_ASC
   history_date_DESC
   history_action_ASC
@@ -2272,6 +2314,8 @@ input B2CAppAccessRightHistoryRecordUpdateInput {
   newId: JSON
   dv: Int
   sender: JSON
+  developmentExportId: String
+  productionExportId: String
   history_date: String
   history_action: B2CAppAccessRightHistoryRecordHistoryActionType
   history_id: String
@@ -2296,6 +2340,8 @@ input B2CAppAccessRightHistoryRecordCreateInput {
   newId: JSON
   dv: Int
   sender: JSON
+  developmentExportId: String
+  productionExportId: String
   history_date: String
   history_action: B2CAppAccessRightHistoryRecordHistoryActionType
   history_id: String
@@ -2361,6 +2407,14 @@ type B2CAppAccessRight {
   """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
   """
   sender: SenderField
+
+  """ ID of this entity in the development environment. If set, subsequent publications to this environment will update the entity with the specified ID. 
+  """
+  developmentExportId: String
+
+  """ ID of this entity in the production environment. If set, subsequent publications to this environment will update the entity with the specified ID. 
+  """
+  productionExportId: String
 }
 
 input B2CAppAccessRightWhereInput {
@@ -2432,6 +2486,42 @@ input B2CAppAccessRightWhereInput {
   sender_not: SenderFieldInput
   sender_in: [SenderFieldInput]
   sender_not_in: [SenderFieldInput]
+  developmentExportId: String
+  developmentExportId_not: String
+  developmentExportId_contains: String
+  developmentExportId_not_contains: String
+  developmentExportId_starts_with: String
+  developmentExportId_not_starts_with: String
+  developmentExportId_ends_with: String
+  developmentExportId_not_ends_with: String
+  developmentExportId_i: String
+  developmentExportId_not_i: String
+  developmentExportId_contains_i: String
+  developmentExportId_not_contains_i: String
+  developmentExportId_starts_with_i: String
+  developmentExportId_not_starts_with_i: String
+  developmentExportId_ends_with_i: String
+  developmentExportId_not_ends_with_i: String
+  developmentExportId_in: [String]
+  developmentExportId_not_in: [String]
+  productionExportId: String
+  productionExportId_not: String
+  productionExportId_contains: String
+  productionExportId_not_contains: String
+  productionExportId_starts_with: String
+  productionExportId_not_starts_with: String
+  productionExportId_ends_with: String
+  productionExportId_not_ends_with: String
+  productionExportId_i: String
+  productionExportId_not_i: String
+  productionExportId_contains_i: String
+  productionExportId_not_contains_i: String
+  productionExportId_starts_with_i: String
+  productionExportId_not_starts_with_i: String
+  productionExportId_ends_with_i: String
+  productionExportId_not_ends_with_i: String
+  productionExportId_in: [String]
+  productionExportId_not_in: [String]
 }
 
 input B2CAppAccessRightWhereUniqueInput {
@@ -2461,6 +2551,10 @@ enum SortB2CAppAccessRightsBy {
   deletedAt_DESC
   dv_ASC
   dv_DESC
+  developmentExportId_ASC
+  developmentExportId_DESC
+  productionExportId_ASC
+  productionExportId_DESC
 }
 
 input B2CAppAccessRightUpdateInput {
@@ -2476,6 +2570,8 @@ input B2CAppAccessRightUpdateInput {
   newId: String
   dv: Int
   sender: SenderFieldInput
+  developmentExportId: String
+  productionExportId: String
 }
 
 input B2CAppAccessRightsUpdateInput {
@@ -2496,6 +2592,8 @@ input B2CAppAccessRightCreateInput {
   newId: String
   dv: Int
   sender: SenderFieldInput
+  developmentExportId: String
+  productionExportId: String
 }
 
 input B2CAppAccessRightsCreateInput {
@@ -4808,6 +4906,7 @@ input ImportB2CAppOptionsInput {
   info: Boolean!
   builds: Boolean!
   publish: Boolean!
+  accessRight: Boolean!
 }
 
 input ImportB2CAppInput {

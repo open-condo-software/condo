@@ -15,7 +15,7 @@ const EXPORT_FIELDS = AVAILABLE_ENVIRONMENTS.map(environment => `${environment}E
 const B2C_APP_FIELDS = `{ name developer logo { publicUrl originalFilename } ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
 const B2CApp = generateGqlQueries('B2CApp', B2C_APP_FIELDS)
 
-const B2C_APP_ACCESS_RIGHT_FIELDS = `{ app { id } condoUserId condoUserEmail ${COMMON_FIELDS} }`
+const B2C_APP_ACCESS_RIGHT_FIELDS = `{ app { id } condoUserId condoUserEmail environment ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
 const B2CAppAccessRight = generateGqlQueries('B2CAppAccessRight', B2C_APP_ACCESS_RIGHT_FIELDS)
 
 
