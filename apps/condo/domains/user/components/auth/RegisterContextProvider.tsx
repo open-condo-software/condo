@@ -1,14 +1,15 @@
 import { isEmpty } from 'lodash'
 import { useRouter } from 'next/router'
 import React, { createContext, Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react'
-import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 
 import { useLazyQuery } from '@open-condo/next/apollo'
 
+import { useHCaptcha } from '@condo/domains/common/components/HCaptcha'
 import { GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY } from '@condo/domains/user/gql'
 
+
 interface IRegisterContext {
-    handleReCaptchaVerify: (action: string) => Promise<string>
+    handleReCaptchaVerify: () => Promise<string>
     token: string
     setToken: Dispatch<SetStateAction<string>>
     phone: string
@@ -35,13 +36,13 @@ export const RegisterContextProvider = ({ children }): React.ReactElement => {
     const [phone, setPhone] = useState('')
     const [tokenError, setTokenError] = useState<Error | null>(null)
     const [isConfirmed, setIsConfirmed] = useState(false)
-    const { executeRecaptcha } = useGoogleReCaptcha()
+    const { executeCaptcha } = useHCaptcha()
 
-    const handleReCaptchaVerify = useCallback(async (action) => {
-        if (executeRecaptcha) {
-            return await executeRecaptcha(action)
+    const handleReCaptchaVerify = useCallback(async () => {
+        if (executeCaptcha) {
+            return await executeCaptcha()
         }
-    }, [executeRecaptcha])
+    }, [executeCaptcha])
 
     const [loadTokenInfo] = useLazyQuery(GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY, {
         onError: error => {
@@ -56,7 +57,7 @@ export const RegisterContextProvider = ({ children }): React.ReactElement => {
 
     useEffect(() => {
         if (!isEmpty(queryToken)) {
-            handleReCaptchaVerify('get_confirm_phone_token_info').then(captcha => {
+            handleReCaptchaVerify().then(captcha => {
                 if (captcha) {
                     loadTokenInfo({ variables: { data: { token: queryToken, captcha } } })
                 }

@@ -772,6 +772,7 @@ __metadata:
     "@formatjs/intl": ^2.2.1
     "@graphql-codegen/cli": 1.21.8
     "@graphql-typed-document-node/core": ^3.1.1
+    "@hcaptcha/react-hcaptcha": ^1.10.1
     "@keystonejs/adapter-knex": ^13.2.0
     "@keystonejs/adapter-mongoose": ^11.2.0
     "@keystonejs/adapter-prisma": ^3.2.0
@@ -6409,21 +6410,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/runtime@npm:^7.17.9, @babel/runtime@npm:^7.20.7, @babel/runtime@npm:^7.23.2":
+  version: 7.24.0
+  resolution: "@babel/runtime@npm:7.24.0"
+  dependencies:
+    regenerator-runtime: ^0.14.0
+  checksum: 7a6a5d40fbdd68491ec183ba2e631c07415119960083b4fd76564cce3751e9acd2f12ab89575e38496fa389fa06d458732776e69ee1858e366cc3fbdb049f847
+  languageName: node
+  linkType: hard
+
 "@babel/runtime@npm:^7.20.0":
   version: 7.20.13
   resolution: "@babel/runtime@npm:7.20.13"
   dependencies:
     regenerator-runtime: ^0.13.11
   checksum: 09b7a97a05c80540db6c9e4ddf8c5d2ebb06cae5caf3a87e33c33f27f8c4d49d9c67a2d72f1570e796045288fad569f98a26ceba0c4f5fad2af84b6ad855c4fb
-  languageName: node
-  linkType: hard
-
-"@babel/runtime@npm:^7.20.7, @babel/runtime@npm:^7.23.2":
-  version: 7.24.0
-  resolution: "@babel/runtime@npm:7.24.0"
-  dependencies:
-    regenerator-runtime: ^0.14.0
-  checksum: 7a6a5d40fbdd68491ec183ba2e631c07415119960083b4fd76564cce3751e9acd2f12ab89575e38496fa389fa06d458732776e69ee1858e366cc3fbdb049f847
   languageName: node
   linkType: hard
 
@@ -10289,6 +10290,26 @@ __metadata:
   dependencies:
     "@hapi/hoek": ^9.0.0
   checksum: 604dfd5dde76d5c334bd03f9001fce69c7ce529883acf92da96f4fe7e51221bf5e5110e964caca287a6a616ba027c071748ab636ff178ad750547fba611d6014
+  languageName: node
+  linkType: hard
+
+"@hcaptcha/loader@npm:^1.2.1":
+  version: 1.2.3
+  resolution: "@hcaptcha/loader@npm:1.2.3"
+  checksum: a8ef2bfa198f86bfa6d737bbc562210f8c533ca1f7ea5c48f38990a42152a8fdd60f7cc62813c17e53baa2f7796e92ff247d9e69d3460f7bd08d95645b35867e
+  languageName: node
+  linkType: hard
+
+"@hcaptcha/react-hcaptcha@npm:^1.10.1":
+  version: 1.10.1
+  resolution: "@hcaptcha/react-hcaptcha@npm:1.10.1"
+  dependencies:
+    "@babel/runtime": ^7.17.9
+    "@hcaptcha/loader": ^1.2.1
+  peerDependencies:
+    react: ">= 16.3.0"
+    react-dom: ">= 16.3.0"
+  checksum: f45a4280c53c1a901a59166aac3da58bea3d8dde7ef1530472c05b729f97acc0f1f2fc017b4f5d057f5f23deec73aa90116ce832ea17e1c2dcaa104ea4868bee
   languageName: node
   linkType: hard
 

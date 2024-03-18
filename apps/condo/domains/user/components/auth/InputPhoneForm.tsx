@@ -99,7 +99,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
         }
 
         setPhone(phone)
-        const captcha = await handleReCaptchaVerify('start_confirm_phone')
+        const captcha = await handleReCaptchaVerify()
         const variables = { data: { ...registerExtraData, phone, captcha } }
         setIsLoading(true)
 
