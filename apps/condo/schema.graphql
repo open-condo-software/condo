@@ -63927,6 +63927,8 @@ type B2CAppAccessRightHistoryRecord {
   newId: JSON
   dv: Int
   sender: JSON
+  importId: String
+  importRemoteSystem: String
   history_date: String
   history_action: B2CAppAccessRightHistoryRecordHistoryActionType
   history_id: String
@@ -64003,6 +64005,42 @@ input B2CAppAccessRightHistoryRecordWhereInput {
   sender_not: JSON
   sender_in: [JSON]
   sender_not_in: [JSON]
+  importId: String
+  importId_not: String
+  importId_contains: String
+  importId_not_contains: String
+  importId_starts_with: String
+  importId_not_starts_with: String
+  importId_ends_with: String
+  importId_not_ends_with: String
+  importId_i: String
+  importId_not_i: String
+  importId_contains_i: String
+  importId_not_contains_i: String
+  importId_starts_with_i: String
+  importId_not_starts_with_i: String
+  importId_ends_with_i: String
+  importId_not_ends_with_i: String
+  importId_in: [String]
+  importId_not_in: [String]
+  importRemoteSystem: String
+  importRemoteSystem_not: String
+  importRemoteSystem_contains: String
+  importRemoteSystem_not_contains: String
+  importRemoteSystem_starts_with: String
+  importRemoteSystem_not_starts_with: String
+  importRemoteSystem_ends_with: String
+  importRemoteSystem_not_ends_with: String
+  importRemoteSystem_i: String
+  importRemoteSystem_not_i: String
+  importRemoteSystem_contains_i: String
+  importRemoteSystem_not_contains_i: String
+  importRemoteSystem_starts_with_i: String
+  importRemoteSystem_not_starts_with_i: String
+  importRemoteSystem_ends_with_i: String
+  importRemoteSystem_not_ends_with_i: String
+  importRemoteSystem_in: [String]
+  importRemoteSystem_not_in: [String]
   history_date: String
   history_date_not: String
   history_date_lt: String
@@ -64038,6 +64076,10 @@ enum SortB2CAppAccessRightHistoryRecordsBy {
   deletedAt_DESC
   dv_ASC
   dv_DESC
+  importId_ASC
+  importId_DESC
+  importRemoteSystem_ASC
+  importRemoteSystem_DESC
   history_date_ASC
   history_date_DESC
   history_action_ASC
@@ -64056,6 +64098,8 @@ input B2CAppAccessRightHistoryRecordUpdateInput {
   newId: JSON
   dv: Int
   sender: JSON
+  importId: String
+  importRemoteSystem: String
   history_date: String
   history_action: B2CAppAccessRightHistoryRecordHistoryActionType
   history_id: String
@@ -64078,6 +64122,8 @@ input B2CAppAccessRightHistoryRecordCreateInput {
   newId: JSON
   dv: Int
   sender: JSON
+  importId: String
+  importRemoteSystem: String
   history_date: String
   history_action: B2CAppAccessRightHistoryRecordHistoryActionType
   history_id: String
@@ -64125,6 +64171,12 @@ type B2CAppAccessRight {
   """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
   """
   sender: SenderField
+
+  """ ID of the object in the system from which it was imported """
+  importId: String
+
+  """ Name of the system from which object was imported """
+  importRemoteSystem: String
 }
 
 input B2CAppAccessRightWhereInput {
@@ -64190,6 +64242,42 @@ input B2CAppAccessRightWhereInput {
   sender_not: SenderFieldInput
   sender_in: [SenderFieldInput]
   sender_not_in: [SenderFieldInput]
+  importId: String
+  importId_not: String
+  importId_contains: String
+  importId_not_contains: String
+  importId_starts_with: String
+  importId_not_starts_with: String
+  importId_ends_with: String
+  importId_not_ends_with: String
+  importId_i: String
+  importId_not_i: String
+  importId_contains_i: String
+  importId_not_contains_i: String
+  importId_starts_with_i: String
+  importId_not_starts_with_i: String
+  importId_ends_with_i: String
+  importId_not_ends_with_i: String
+  importId_in: [String]
+  importId_not_in: [String]
+  importRemoteSystem: String
+  importRemoteSystem_not: String
+  importRemoteSystem_contains: String
+  importRemoteSystem_not_contains: String
+  importRemoteSystem_starts_with: String
+  importRemoteSystem_not_starts_with: String
+  importRemoteSystem_ends_with: String
+  importRemoteSystem_not_ends_with: String
+  importRemoteSystem_i: String
+  importRemoteSystem_not_i: String
+  importRemoteSystem_contains_i: String
+  importRemoteSystem_not_contains_i: String
+  importRemoteSystem_starts_with_i: String
+  importRemoteSystem_not_starts_with_i: String
+  importRemoteSystem_ends_with_i: String
+  importRemoteSystem_not_ends_with_i: String
+  importRemoteSystem_in: [String]
+  importRemoteSystem_not_in: [String]
 }
 
 input B2CAppAccessRightWhereUniqueInput {
@@ -64217,6 +64305,10 @@ enum SortB2CAppAccessRightsBy {
   deletedAt_DESC
   dv_ASC
   dv_DESC
+  importId_ASC
+  importId_DESC
+  importRemoteSystem_ASC
+  importRemoteSystem_DESC
 }
 
 input B2CAppAccessRightUpdateInput {
@@ -64231,6 +64323,8 @@ input B2CAppAccessRightUpdateInput {
   newId: String
   dv: Int
   sender: SenderFieldInput
+  importId: String
+  importRemoteSystem: String
 }
 
 input B2CAppAccessRightsUpdateInput {
@@ -64250,6 +64344,8 @@ input B2CAppAccessRightCreateInput {
   newId: String
   dv: Int
   sender: SenderFieldInput
+  importId: String
+  importRemoteSystem: String
 }
 
 input B2CAppAccessRightsCreateInput {

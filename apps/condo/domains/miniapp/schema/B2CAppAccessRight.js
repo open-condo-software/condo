@@ -4,7 +4,7 @@
 
 const { Relationship } = require('@keystonejs/fields')
 
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, importable } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/miniapp/access/B2CAppAccessRight')
@@ -34,7 +34,7 @@ const B2CAppAccessRight = new GQLListSchema('B2CAppAccessRight', {
             },
         ],
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), importable(), historical()],
     access: {
         read: access.canReadB2CAppAccessRights,
         create: access.canManageB2CAppAccessRights,
