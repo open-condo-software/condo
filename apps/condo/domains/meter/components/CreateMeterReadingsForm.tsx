@@ -242,7 +242,6 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     const intl = useIntl()
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
     const AddressPlaceholder = intl.formatMessage({ id: 'placeholder.Address' })
-    const AddressNotFoundContent = intl.formatMessage({ id: 'field.Address.notFound' })
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.HelpMessage' })
     const ClientInfoMessage = intl.formatMessage({ id: 'ClientInfo' })
@@ -374,7 +373,6 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                                                 autoFocus={true}
                                                                 onSelect={getHandleSelectPropertyAddress(form)}
                                                                 placeholder={AddressPlaceholder}
-                                                                notFoundContent={AddressNotFoundContent}
                                                             />
                                                         </Form.Item>
                                                     </Col>
@@ -528,7 +526,6 @@ export const CreatePropertyMeterReadingsForm = ({ organization, role }) => {
     const intl = useIntl()
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
     const AddressPlaceholder = intl.formatMessage({ id: 'placeholder.Address' })
-    const AddressNotFoundContent = intl.formatMessage({ id: 'field.Address.notFound' })
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.HelpMessage' })
 
@@ -620,7 +617,6 @@ export const CreatePropertyMeterReadingsForm = ({ organization, role }) => {
                                                                 autoFocus={true}
                                                                 onSelect={getHandleSelectPropertyAddress(form)}
                                                                 placeholder={AddressPlaceholder}
-                                                                notFoundContent={AddressNotFoundContent}
                                                             />
                                                         </Form.Item>
                                                     </Col>

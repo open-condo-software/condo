@@ -687,7 +687,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const AddMessage = intl.formatMessage({ id: 'Add' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
     const AddressPlaceholder = intl.formatMessage({ id: 'placeholder.Address' })
-    const AddressNotFoundContent = intl.formatMessage({ id: 'field.Address.notFound' })
     const AddressNotSelected = intl.formatMessage({ id: 'field.Property.nonSelectedError' })
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.ticket.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.ticket.warning.modal.HelpMessage' })
@@ -952,7 +951,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                                     onSelect={handlePropertySelectChange(form)}
                                                                                     onClear={handlePropertiesSelectClear(form)}
                                                                                     placeholder={AddressPlaceholder}
-                                                                                    notFoundContent={AddressNotFoundContent}
                                                                                     disabled={!isEmpty(invoices)}
                                                                                 />
                                                                             </TicketFormItem>
