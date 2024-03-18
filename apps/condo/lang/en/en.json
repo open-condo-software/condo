@@ -2530,7 +2530,7 @@
   "banking.costItem.DEBT_COLLECTION.name": "Debt collection",
   "banking.costItem.DRAINAGE.name": "Drainage",
   "incident.index.title": "Incidents log",
-  "incident.index.emptyList.label": "While there are no entries in the log",
+  "incident.index.emptyList.label": "There were no incidents",
   "incident.index.createIncident.label": "New",
   "incident.index.filter.searchByAddress.placeholder": "Search by address",
   "incident.index.filter.attributes.actual.label": "Actual",
