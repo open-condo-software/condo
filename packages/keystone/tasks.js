@@ -33,7 +33,6 @@ let isWorkerCreated = false
 
 function createTaskQueue (name) {
     if (IS_BUILD) return
-    // if (!QUEUES.has(name)) throw new Error(`Can't find queue with name ${name}. Maybe you forgot to register it at prepareKeystone first`)
 
     QUEUES.set(name, new Queue(name, {
         /**
@@ -103,7 +102,8 @@ async function _scheduleRemoteTask (name, preparedArgs, preparedOpts, queue) {
             msg: `No active queues with name = ${queue} was found. This task never been picked by this worker due to queue filters policy`,
             name, queue, data: { preparedOpts, preparedArgs },
         })
-        throw new Error(`No active queues with name = ${queue} was found. This task never been picked by worker due to queue creation policy`)
+        // Maybe we should completely remove this task from TASKS
+        return false
     }
 
     const job = await QUEUES.get(queue).add(name, { args: preparedArgs }, preparedOpts)
@@ -253,6 +253,13 @@ function registerTaskQueues (queueNames = DEFAULT_QUEUES) {
     })
 }
 
+async function removeQueue (name) {
+    if (!QUEUES.has(name)) throw new Error('You are trying to delete queue that doesn\'t exist')
+
+    await QUEUES.get(name).close()
+    QUEUES.delete(name)
+}
+
 function createSerializableCopy (data) {
     return JSON.parse(JSON.stringify(data))
 }
@@ -311,33 +318,30 @@ async function createWorker (keystoneModule, config) {
         logger.warn('Keystone APP context is not prepared! You can\'t use Keystone GQL query inside the tasks!')
     }
 
-    //FIXME: Queues already created at prepareKeystoneExpressApp. So I need to handle this!
     // Reapply queues configuration with worker startup config
-    // if (get(config, '0', []).length > 0) {
-    //     let parsedConfig
-    //     try {
-    //         parsedConfig = JSON.parse(config[0])
-    //     } catch (e) {
-    //         throw new Error('Can\'t parse worker config. Please provide correct value')
-    //     }
-    //
-    //     if (parsedConfig['include'] && parsedConfig['include'].length > 0) {
-    //         registerTaskQueues(parsedConfig['include'])
-    //     }
-    //
-    //     if (parsedConfig['exclude'] && parsedConfig['exclude'].length > 0) {
-    //         for (const queueName of parsedConfig) {
-    //             const queue = QUEUES.get(queueName)
-    //             if (queue) {
-    //                 await queue.close()
-    //                 QUEUES.delete(queueName)
-    //             }
-    //         }
-    //     }
-    // }
-    // else {
-    //     registerTaskQueues(get(keystoneModule, 'queues', DEFAULT_QUEUES))
-    // }
+    if (get(config, '0', []).length > 0) {
+        let parsedConfig
+        try {
+            parsedConfig = JSON.parse(config[0])
+        } catch (e) {
+            throw new Error('Can\'t parse worker config. Please provide correct value')
+        }
+
+        if (parsedConfig['include'] && parsedConfig['include'].length > 0) {
+            const queuesToDelete = Array.from(QUEUES.entries()).filter(queue => !parsedConfig['include'].includes(queue[0]))
+
+            for (const [queueName] of queuesToDelete) {
+                QUEUES.delete(queueName)
+            }
+        }
+
+        if (parsedConfig['exclude'] && parsedConfig['exclude'].length > 0) {
+            const queuesToDelete = Array.from(QUEUES.entries()).filter(queue => parsedConfig['exclude'].includes(queue[0]))
+            for (const [queueName] of queuesToDelete) {
+                await removeQueue(queueName)
+            }
+        }
+    }
 
     const activeQueues = Array.from(QUEUES.entries())
 
