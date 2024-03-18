@@ -239,6 +239,7 @@ async function addAccessRight ({ args, serverClient, context, condoApp }) {
         environment,
         deletedAt: null,
     })
+
     if (accessRight) {
         const condoRights = await serverClient.getModels({
             modelGql: CondoB2CAppAccessRightGql,
@@ -251,6 +252,7 @@ async function addAccessRight ({ args, serverClient, context, condoApp }) {
         if (condoRights.length) {
             const condoRight = condoRights[0]
             const condoUserId = condoRight.user?.id
+
             if (condoUserId === accessRight.condoUserId) {
                 return
             } else {

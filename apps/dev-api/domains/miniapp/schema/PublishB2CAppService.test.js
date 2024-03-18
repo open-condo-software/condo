@@ -23,7 +23,7 @@ const {
     BUILD_NOT_FOUND,
     PUBLISH_NOT_ALLOWED,
 } = require('@dev-api/domains/miniapp/constants/errors')
-const { PROD_ENVIRONMENT, PUBLISH_REQUEST_APPROVED_STATUS } = require('@dev-api/domains/miniapp/constants/publishing')
+const { PROD_ENVIRONMENT, PUBLISH_REQUEST_APPROVED_STATUS, DEV_ENVIRONMENT } = require('@dev-api/domains/miniapp/constants/publishing')
 const {
     publishB2CAppByTestClient,
     createTestB2CApp,
@@ -34,18 +34,25 @@ const {
     B2CAppBuild,
     createTestB2CAppPublishRequest,
     updateTestB2CAppPublishRequest,
+    B2CAppAccessRight,
     createOIDCClientByTestClient,
+    registerAppUserServiceByTestClient,
+    createCondoB2CApp,
+    createCondoB2CAppAccessRight,
+    importB2CAppByTestClient,
 } = require('@dev-api/domains/miniapp/utils/testSchema')
 const {
     makeLoggedInAdminClient,
     makeLoggedInSupportClient,
     makeRegisteredAndLoggedInUser,
     makeLoggedInCondoAdminClient,
+    verifyEmailByTestClient,
 } = require('@dev-api/domains/user/utils/testSchema')
 
 const CondoB2CApp = generateGQLTestUtils(generateGqlQueries('B2CApp', '{ id name developer logo { publicUrl } currentBuild { id } importId importRemoteSystem deletedAt v }'))
 const CondoB2CAppBuild = generateGQLTestUtils(generateGqlQueries('B2CAppBuild', '{ id version app { id } importId importRemoteSystem deletedAt }'))
 const CondoOIDCClient = generateGQLTestUtils(generateGqlQueries('OidcClient', '{ id deletedAt isEnabled clientId payload }'))
+const CondoB2CAppAccessRight = generateGQLTestUtils(generateGqlQueries('B2CAppAccessRight', '{ id user { id } app { id } importId importRemoteSystem v deletedAt }'))
 
 describe('PublishB2CAppService', () => {
     let admin
@@ -468,6 +475,76 @@ describe('PublishB2CAppService', () => {
                 expect(condoClientAfter).toHaveProperty('deletedAt', null)
                 expect(condoClientAfter).toHaveProperty('clientId', condoClientBefore.clientId)
                 expect(condoClientAfter).toHaveProperty('payload', condoClientBefore.payload)
+            })
+        })
+        describe('B2CAppAccessRight', () => {
+            test('Publishing application for the first time after registeringAppUser must create B2CAppAccessRight in condo', async () => {
+                const [app] = await createTestB2CApp(user)
+                const confirmAction = await verifyEmailByTestClient(user, admin)
+                const [registerResult] = await registerAppUserServiceByTestClient(user, app, confirmAction)
+                expect(registerResult).toHaveProperty('id')
+                const [publishResult] = await publishB2CAppByTestClient(user, app)
+                expect(publishResult).toHaveProperty('success', true)
+
+                const exportField = `${DEV_ENVIRONMENT}ExportId`
+
+                const apiApp = await B2CApp.getOne(admin, { id: app.id })
+                expect(apiApp).toHaveProperty(exportField)
+                expect(apiApp[exportField]).not.toBeNull()
+                const apiRight = await B2CAppAccessRight.getOne(user, { app: { id: app.id }, environment: DEV_ENVIRONMENT })
+                expect(apiRight).toHaveProperty(exportField)
+                expect(apiRight[exportField]).not.toBeNull()
+
+                const condoAccessRight = await CondoB2CAppAccessRight.getOne(condoAdmin, { app: { id: apiApp[exportField] } })
+                expect(condoAccessRight).toHaveProperty('id', apiRight[exportField])
+                expect(condoAccessRight).toHaveProperty('importId', apiRight.id)
+                expect(condoAccessRight).toHaveProperty('importRemoteSystem', REMOTE_SYSTEM)
+                expect(condoAccessRight).toHaveProperty(['user', 'id'], registerResult.id)
+            })
+            test('Republishing app must not update accessRight', async () => {
+                const [app] = await createTestB2CApp(user)
+                const confirmAction = await verifyEmailByTestClient(user, admin)
+                const [registerResult] = await registerAppUserServiceByTestClient(user, app, confirmAction)
+                expect(registerResult).toHaveProperty('id')
+                const [publishResult] = await publishB2CAppByTestClient(user, app)
+                expect(publishResult).toHaveProperty('success', true)
+
+                const exportField = `${DEV_ENVIRONMENT}ExportId`
+
+                const apiRight = await B2CAppAccessRight.getOne(user, { app: { id: app.id }, environment: DEV_ENVIRONMENT })
+
+                const condoAccessRight = await CondoB2CAppAccessRight.getOne(condoAdmin, { id: apiRight[exportField] })
+                expect(condoAccessRight).toHaveProperty('v', 1)
+
+                const [secondPublishResult] = await publishB2CAppByTestClient(user, app)
+                expect(secondPublishResult).toHaveProperty('success', true)
+
+                const finalCondoRight = await CondoB2CAppAccessRight.getOne(condoAdmin, { id: apiRight[exportField] })
+                expect(finalCondoRight).toHaveProperty('v', 1)
+            })
+            test('Publishing app must delete existing access right if it\'s linked to another user', async () => {
+                const [condoApp] = await createCondoB2CApp(condoAdmin)
+                const [condoRight] = await createCondoB2CAppAccessRight(condoAdmin, condoApp)
+                expect(condoRight).toHaveProperty('id')
+                const [app] = await createTestB2CApp(user)
+
+                // NOTE: app was imported before .accessRight option exists
+                await importB2CAppByTestClient(support, app, condoApp, null, { options: { info: true, builds: true, publish: true, accessRight: false } })
+
+                const confirmAction = await verifyEmailByTestClient(user, admin)
+                const [registerResult] = await registerAppUserServiceByTestClient(user, app, confirmAction)
+                expect(registerResult).toHaveProperty('id')
+                const [publishResult] = await publishB2CAppByTestClient(user, app)
+                expect(publishResult).toHaveProperty('success', true)
+
+                const oldRight = await CondoB2CAppAccessRight.getOne(condoAdmin, { id: condoRight.id })
+                expect(oldRight).toBeUndefined()
+
+                const exportField = `${DEV_ENVIRONMENT}ExportId`
+                const apiApp = await B2CApp.getOne(admin, { id: app.id })
+                const newRight = await CondoB2CAppAccessRight.getOne(condoAdmin, { app: { id: apiApp[exportField] } })
+                expect(newRight).toHaveProperty('id')
+                expect(newRight).toHaveProperty(['user', 'id'], registerResult.id)
             })
         })
         test('Publish all at once must work as expected', async () => {
