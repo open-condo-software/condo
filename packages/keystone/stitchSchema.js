@@ -11,14 +11,16 @@ const FormData = require('form-data')
 const { print } = require('graphql')
 const NoIntrospectionRule = require('graphql-disable-introspection')
 const graphqlUploadExpress = require('graphql-upload/graphqlUploadExpress.js')
-const get = require('lodash/get')
+const { isObject, get } = require('lodash')
+const nextCookie = require('next-cookies')
 
 const conf = require('@open-condo/config')
 
 
 const CONDO_ACCESS_TOKEN_KEY = 'condoAccessToken'
 const APP_TOKEN_KEY = 'appToken'
-const ACCEPT_LANGUAGE = 'accept-language'
+const ACCEPT_LANGUAGE_KEY = 'accept-language'
+const COOKIES_KEY = 'cookies'
 // NOTE: DEFAULT VALUES OF GraphQLApp
 const MAX_FILE_SIZE = 200 * 1024 * 1024
 const MAX_FILES = 5
@@ -73,11 +75,14 @@ function makeRemoteExecutor (api_url, token_field) {
         const query = typeof document === 'string' ? document : print(document)
 
         const headers = {}
-        if (context && context[ACCEPT_LANGUAGE]) {
-            headers[ACCEPT_LANGUAGE] = context[ACCEPT_LANGUAGE]
+        if (context && context[ACCEPT_LANGUAGE_KEY]) {
+            headers[ACCEPT_LANGUAGE_KEY] = context[ACCEPT_LANGUAGE_KEY]
         }
         if (context && context[token_field]) {
             headers.Authorization = `Bearer ${context[token_field]}`
+        }
+        if (context && isObject(context[COOKIES_KEY])) {
+            headers.cookie = Object.entries(context[COOKIES_KEY]).map(([key, value]) => `${key}=${value}`).join('; ')
         }
 
         const { maps, variables: packedVariables } = await packVariablesRecursively(variables)
@@ -198,10 +203,15 @@ class StitchSchemaMiddleware {
             graphqlUploadExpress({ maxFiles: MAX_FILES, maxFileSize: MAX_FILE_SIZE }),
             // TODO(INFRA-280): migrate from graphqlHttp to Apollo server for client-side batching support
             graphqlHTTP((req) => {
+                const cookies = nextCookie({ req })
                 const context = {
                     [this.condoAccessTokenKey]: get(req, ['session', this.condoAccessTokenKey]),
                     [this.appTokenKey]: get(req, ['session', this.appTokenKey]),
-                    [ACCEPT_LANGUAGE]: get(req,  ['headers', ACCEPT_LANGUAGE]),
+                    [ACCEPT_LANGUAGE_KEY]: get(req,  ['headers', ACCEPT_LANGUAGE_KEY]),
+                    [COOKIES_KEY]: {
+                        locale: get(cookies, 'locale'),
+                        NEXT_LOCALE: get(cookies, 'NEXT_LOCALE'),
+                    },
                 }
                 return {
                     schema,
