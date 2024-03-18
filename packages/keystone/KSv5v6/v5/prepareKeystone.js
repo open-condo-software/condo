@@ -137,8 +137,8 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
     if (!IS_BUILD) {
         // Since tasks may require Redis connection, and Redis variable is not present during build time:
         // We need to register all tasks as they will be possible to execute
+        registerTaskQueues(queues)
         if (tasks) registerTasks(tasks())
-        if (queues) registerTaskQueues(queues)
     }
 
     if (!IS_BUILD_PHASE) {

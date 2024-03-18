@@ -103,7 +103,7 @@ async function _scheduleRemoteTask (name, preparedArgs, preparedOpts, queue) {
             msg: `No active queues with name = ${queue} was found. This task never been picked by this worker due to queue filters policy`,
             name, queue, data: { preparedOpts, preparedArgs },
         })
-        return false
+        throw new Error(`No active queues with name = ${queue} was found. This task never been picked by worker due to queue creation policy`)
     }
 
     const job = await QUEUES.get(queue).add(name, { args: preparedArgs }, preparedOpts)
@@ -311,31 +311,33 @@ async function createWorker (keystoneModule, config) {
         logger.warn('Keystone APP context is not prepared! You can\'t use Keystone GQL query inside the tasks!')
     }
 
+    //FIXME: Queues already created at prepareKeystoneExpressApp. So I need to handle this!
     // Reapply queues configuration with worker startup config
-    if (get(config, '0', []).length > 0) {
-        let parsedConfig
-        try {
-            parsedConfig = JSON.parse(config[0])
-        } catch (e) {
-            throw new Error('Can\'t parse worker config. Please provide correct value')
-        }
-
-        if (parsedConfig['include'] && parsedConfig['include'].length > 0) {
-            registerTaskQueues(parsedConfig['include'])
-        }
-
-        if (parsedConfig['exclude'] && parsedConfig['exclude'].length > 0) {
-            for (const queueName of parsedConfig) {
-                const queue = QUEUES.get(queueName)
-                if (queue) {
-                    await queue.close()
-                    QUEUES.delete(queueName)
-                }
-            }
-        }
-    } else {
-        registerTaskQueues(get(keystoneModule, 'queues', DEFAULT_QUEUES))
-    }
+    // if (get(config, '0', []).length > 0) {
+    //     let parsedConfig
+    //     try {
+    //         parsedConfig = JSON.parse(config[0])
+    //     } catch (e) {
+    //         throw new Error('Can\'t parse worker config. Please provide correct value')
+    //     }
+    //
+    //     if (parsedConfig['include'] && parsedConfig['include'].length > 0) {
+    //         registerTaskQueues(parsedConfig['include'])
+    //     }
+    //
+    //     if (parsedConfig['exclude'] && parsedConfig['exclude'].length > 0) {
+    //         for (const queueName of parsedConfig) {
+    //             const queue = QUEUES.get(queueName)
+    //             if (queue) {
+    //                 await queue.close()
+    //                 QUEUES.delete(queueName)
+    //             }
+    //         }
+    //     }
+    // }
+    // else {
+    //     registerTaskQueues(get(keystoneModule, 'queues', DEFAULT_QUEUES))
+    // }
 
     const activeQueues = Array.from(QUEUES.entries())
 
