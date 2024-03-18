@@ -62,6 +62,6 @@ module.exports = {
         'syncSbbolBankAccountsCron',
         '0 0 * * *',
         syncSbbolBankAccounts,
-        { priority: 2 }
+        {}
     ),
 }

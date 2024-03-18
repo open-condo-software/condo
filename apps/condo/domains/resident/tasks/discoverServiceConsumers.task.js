@@ -23,5 +23,5 @@ async function discoverServiceConsumersTask (data) {
 }
 
 module.exports = {
-    discoverServiceConsumersTask: createTask('discoverServiceConsumers', discoverServiceConsumersTask, { priority: 10 }),
+    discoverServiceConsumersTask: createTask('discoverServiceConsumers', discoverServiceConsumersTask, {}),
 }
