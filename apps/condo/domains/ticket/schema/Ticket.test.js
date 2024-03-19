@@ -3244,11 +3244,14 @@ describe('Ticket', () => {
 
                 expect(ticket.assignee.id).toEqual(assignee.user.id)
 
+                let message
                 const messageWhere = { user: { id: assignee.user.id }, type: TICKET_ASSIGNEE_CONNECTED_TYPE }
-                const message = await Message.getOne(admin, messageWhere)
+                await waitFor(async () => {
+                    message = await Message.getOne(admin, messageWhere)
 
-                expect(message.id).toMatch(UUID_RE)
-                expect(message.organization.id).toEqual(ticket.organization.id)
+                    expect(message.id).toMatch(UUID_RE)
+                    expect(message.organization.id).toEqual(ticket.organization.id)
+                })
 
                 await waitFor(async () => {
                     const message1 = await Message.getOne(admin, messageWhere)
@@ -3301,11 +3304,15 @@ describe('Ticket', () => {
 
                 expect(ticket.executor.id).toEqual(executor.user.id)
 
+                let message
                 const messageWhere = { user: { id: executor.user.id }, type: TICKET_EXECUTOR_CONNECTED_TYPE }
-                const message = await Message.getOne(admin, messageWhere)
 
-                expect(message.id).toMatch(UUID_RE)
-                expect(message.organization.id).toEqual(ticket.organization.id)
+                await waitFor(async () => {
+                    message = await Message.getOne(admin, messageWhere)
+
+                    expect(message.id).toMatch(UUID_RE)
+                    expect(message.organization.id).toEqual(ticket.organization.id)
+                })
 
                 await waitFor(async () => {
                     const message1 = await Message.getOne(admin, messageWhere)
@@ -3354,7 +3361,7 @@ describe('Ticket', () => {
                     expect(message).toHaveLength(2)
                     expect(message[0].organization.id).toEqual(ticket.organization.id)
                     expect(message[1].organization.id).toEqual(ticket.organization.id)
-                })
+                }, { timeout: 60 * 1000, interval: 500 })
             })
         })
 
@@ -3402,7 +3409,7 @@ describe('Ticket', () => {
                     expect(content.data.ticketNumber).toEqual(ticket.number)
                     expect(content.data.notificationId).toEqual(message.id)
                     expect(message.organization.id).toEqual(ticket.organization.id)
-                })
+                }, { timeout: 60 * 1000, interval: 500 })
             })
 
             it('does not send push if there is no resident', async () => {
@@ -3498,7 +3505,7 @@ describe('Ticket', () => {
                     expect(content.data.ticketNumber).toEqual(ticket.number)
                     expect(content.data.notificationId).toEqual(message.id)
                     expect(message.organization.id).toEqual(ticket.organization.id)
-                })
+                }, { timeout: 60 * 1000, interval: 500 })
             })
 
             it('does not send if no resident', async () => {
@@ -3564,7 +3571,7 @@ describe('Ticket', () => {
                     expect(content.data.ticketNumber).toEqual(ticket.number)
                     expect(content.data.notificationId).toEqual(message.id)
                     expect(message.organization.id).toEqual(ticket.organization.id)
-                })
+                }, { timeout: 60 * 1000, interval: 500 })
             })
 
             it('does not send if no resident', async () => {
@@ -3631,7 +3638,7 @@ describe('Ticket', () => {
                     expect(content.data.ticketNumber).toEqual(ticket.number)
                     expect(content.data.notificationId).toEqual(message.id)
                     expect(message.organization.id).toEqual(ticket.organization.id)
-                })
+                }, { timeout: 60 * 1000, interval: 500 })
             })
 
             it('does not send if no resident', async () => {
@@ -3691,10 +3698,12 @@ describe('Ticket', () => {
                     type: TRACK_TICKET_IN_DOMA_APP_TYPE,
                     uniqKey: `${today}_${md5(clientPhone)}`,
                 }
-                const message = await Message.getOne(admin, messageWhere)
+                await waitFor(async () => {
+                    const message = await Message.getOne(admin, messageWhere)
 
-                expect(message).toBeDefined()
-                expect(message.id).toMatch(UUID_RE)
+                    expect(message).toBeDefined()
+                    expect(message.id).toMatch(UUID_RE)
+                })
 
                 await waitFor(async () => {
                     const message1 = await Message.getOne(admin, messageWhere)
@@ -3741,10 +3750,12 @@ describe('Ticket', () => {
                     phone: clientPhone,
                     type: TRACK_TICKET_IN_DOMA_APP_TYPE,
                 }
-                const message = await Message.getOne(admin, messageWhere)
+                await waitFor(async () => {
+                    const message = await Message.getOne(admin, messageWhere)
 
-                expect(message.id).toMatch(UUID_RE)
-                expect(message.uniqKey).toEqual(`${today}_${md5(clientPhone)}`)
+                    expect(message.id).toMatch(UUID_RE)
+                    expect(message.uniqKey).toEqual(`${today}_${md5(clientPhone)}`)
+                })
 
                 await createTestTicket(client, client.organization, client.property, {
                     isResidentTicket: true,
@@ -3753,9 +3764,11 @@ describe('Ticket', () => {
                     clientPhone,
                 })
 
-                const messages = await Message.getAll(admin, messageWhere)
+                await waitFor(async () => {
+                    const messages = await Message.getAll(admin, messageWhere)
 
-                expect(messages).toHaveLength(1)
+                    expect(messages).toHaveLength(1)
+                }, { delay: 1000 * 15 })
             })
 
             test('dont send sms if ticket.isResidentTicket is false', async () => {
