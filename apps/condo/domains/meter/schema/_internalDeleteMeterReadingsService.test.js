@@ -239,7 +239,7 @@ describe('_internalDeleteMeterReadingsService', () => {
             const [property2] = await createTestProperty(admin, organization)
             const [meter2] = await createTestMeter(admin, organization, property2, resource, {})
             const [meterReading2] = await createTestMeterReading(admin, meter2, condoImportSource)
-            const [meterReading3] = await createTestMeterReading(admin, meter2, condoImportSource)
+            const [meterReading3] = await createTestMeterReading(admin, meter2, condoImportSource, { value1: meterReading2.value1 })
 
             const [result] = await _internalDeleteMeterReadingsByTestClient(support, {
                 ...payload,
