@@ -240,9 +240,9 @@ async function addAccessRight ({ args, serverClient, context, condoApp }) {
         deletedAt: null,
     })
 
-    logger.info({ msg: 'Access right found for app', appId: id, environment, meta: { accessRightId: accessRight.id } })
-
     if (accessRight) {
+        logger.info({ msg: 'Access right found for app', appId: id, environment, meta: { accessRightId: accessRight.id } })
+
         const condoRights = await serverClient.getModels({
             modelGql: CondoB2CAppAccessRightGql,
             where: {
