@@ -5,6 +5,7 @@ const { exportIncidents } = require('./exportIncidents')
 const { exportTickets } = require('./exportTickets')
 const { manageTicketPropertyAddressChange } = require('./manageTicketPropertyAddressChange')
 const { reopenDeferredTicketsCron: reopenDeferredTickets } = require('./reopenDeferredTickets')
+const { sendTicketChangedNotifications } = require('./sendTicketChangedNotifications')
 const { sendTicketCommentCreatedNotifications } = require('./sendTicketCommentCreatedNotifications')
 const { sendTicketCreatedNotifications } = require('./sendTicketCreatedNotifications')
 
@@ -16,4 +17,5 @@ module.exports = {
     exportIncidents,
     sendTicketCommentCreatedNotifications: createTask('sendTicketCommentCreatedNotifications', sendTicketCommentCreatedNotifications),
     sendTicketCreatedNotifications: createTask('sendTicketCreatedNotifications', sendTicketCreatedNotifications),
+    sendTicketChangedNotifications: createTask('sendTicketChangedNotifications', sendTicketChangedNotifications),
 }
