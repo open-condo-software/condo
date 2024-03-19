@@ -109,7 +109,7 @@ const tasks = () => [
 if (!IS_BUILD_PHASE && SENTRY_CONFIG['server']) {
     Sentry.init({
         dsn: SENTRY_CONFIG['server']['dsn'],
-        debug: SENTRY_CONFIG['server']['environment'] === 'review',
+        debug: false,
         tracesSampleRate: SENTRY_CONFIG['server']['sampleRate'],
         integrations: [
             new Sentry.Integrations.Http({ tracing: true }),
