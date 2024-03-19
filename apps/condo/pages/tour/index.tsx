@@ -181,7 +181,7 @@ const TourPageContent = () => {
         <Row justify='space-between' gutter={MAIN_GUTTER}>
             <Col span={isSmallScreen ? 24 : 13}>
                 <TourWrapper>
-                    <Space size={32} direction='vertical'>
+                    <Space size={40} direction='vertical'>
                         {!isEmpty(activeStepInnerSteps) && (
                             <Link href='/tour'>
                                 <Typography.Link onClick={handleBackClick}>
