@@ -37,13 +37,13 @@ const HCaptchaProvider: FC = ({ children }) => {
         <HCaptchaContext.Provider value={{
             executeCaptcha,
         }}>
-            <HCaptcha
-                sitekey={hCaptcha && hCaptcha.SITE_KEY}
-                languageOverride={intl.locale}
-                size='invisible'
-                loadAsync={true}
-                ref={ref}
-            />
+            {/*<HCaptcha*/}
+            {/*    sitekey={hCaptcha && hCaptcha.SITE_KEY}*/}
+            {/*    languageOverride={intl.locale}*/}
+            {/*    size='invisible'*/}
+            {/*    loadAsync={true}*/}
+            {/*    ref={ref}*/}
+            {/*/>*/}
             {children}
         </HCaptchaContext.Provider>
     )
