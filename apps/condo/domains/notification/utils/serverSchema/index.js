@@ -29,6 +29,7 @@ const {
 } = require('@condo/domains/notification/gql')
 const { TelegramUserChat: TelegramUserChatGQL } = require('@condo/domains/notification/gql')
 const { NotificationAnonymousSetting: NotificationAnonymousSettingGQL } = require('@condo/domains/notification/gql')
+const { _INTERNAL_SEND_NOTIFICATION_NEW_MOBILE_APP_VERSION_MUTATION } = require('@condo/domains/notification/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const logger = getLogger('notification/serverSchema')
@@ -168,6 +169,19 @@ const MessageBatch = generateServerUtils(MessageBatchGQL)
 const NotificationUserSetting = generateServerUtils(NotificationUserSettingGQL)
 const TelegramUserChat = generateServerUtils(TelegramUserChatGQL)
 const NotificationAnonymousSetting = generateServerUtils(NotificationAnonymousSettingGQL)
+async function _internalSendNotificationNewMobileAppVersion (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: _INTERNAL_SEND_NOTIFICATION_NEW_MOBILE_APP_VERSION_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to _internalSendNotificationNewMobileAppVersion',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -185,5 +199,6 @@ module.exports = {
     NotificationUserSetting,
     TelegramUserChat,
     NotificationAnonymousSetting,
+    _internalSendNotificationNewMobileAppVersion,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
