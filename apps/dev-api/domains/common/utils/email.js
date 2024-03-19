@@ -42,7 +42,7 @@ class EmailAdapter {
     }
 }
 
-const DEFAULT_EMAIL_ADAPTER = new EmailAdapter(conf['EMAIL_ADAPTER'] || 'fake')
+const DEFAULT_EMAIL_ADAPTER = new EmailAdapter(conf['EMAIL_PROVIDER'] || 'fake')
 
 async function sendMessage (email, subject, body) {
     await DEFAULT_EMAIL_ADAPTER.sendMessage(email, subject, body)
