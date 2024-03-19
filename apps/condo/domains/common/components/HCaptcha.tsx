@@ -43,6 +43,7 @@ const HCaptchaProvider: FC = ({ children }) => {
                 size='invisible'
                 loadAsync={true}
                 reCaptchaCompat={false}
+                sentry={false}
                 ref={ref}
             />
             {children}
