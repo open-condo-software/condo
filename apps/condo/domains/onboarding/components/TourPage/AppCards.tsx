@@ -1,4 +1,4 @@
-import React, { CSSProperties, useState } from 'react'
+import React, { CSSProperties, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Card, Modal, Radio, RadioGroup, Space, Typography } from '@open-condo/ui'
@@ -8,21 +8,29 @@ import { EMOJI } from '@condo/domains/common/constants/emoji'
 import { RESIDENT_APP_LANDING_EXTERNAL_LINK } from '@condo/domains/onboarding/utils/clientSchema/constants'
 
 
-const APP_CARD_IMAGE_STYLES: CSSProperties = { width: 'inherit', maxWidth: '120px', paddingTop: '6px' }
-const TAB_IMAGE_BACKGROUND_STYLES: CSSProperties = { height: '240px', width: '100%', backgroundColor: colors.blue[1], overflow: 'hidden', padding: '24px' }
-const TAB_IMAGE_WRAPPER_STYLES: CSSProperties = { margin: 'auto', width: 'fit-content' }
-const TAB_IMAGE_STYLES: CSSProperties = { width: '200px' }
-const QR_CODE_IMAGE_STYLES: CSSProperties = { width: '150px', height: '150px' }
-
-//TODO(DOMA-8644): replace urls after pics will be ready
-const MODAL_IMAGE_SRC_BY_TYPE = {
-    admin: '/onboarding/tourTechnicCard.webp',
-    technic: '/onboarding/tourResidentCard.webp',
-    security: '/dino/success.png',
-}
-
 type ActiveModalType = 'info' | 'download' | null
 type RadioOptionType = 'admin' | 'technic' | 'security'
+
+const APP_CARD_IMAGE_STYLES: CSSProperties = { width: 'inherit', maxWidth: '120px', paddingTop: '6px' }
+const TAB_IMAGE_WRAPPER_STYLES: CSSProperties = { margin: 'auto', width: 'fit-content' }
+const BASE_IMAGE_CONTAINER_STYLES: CSSProperties =  { height: '240px', width: '100%', backgroundColor: '', overflow: 'hidden', padding: '24px' }
+const TAB_IMAGE_STYLES_BY_TYPE: Record<RadioOptionType, CSSProperties> = {
+    admin: { width: '277px' },
+    technic: { width: '350px' },
+    security: { width: '427px' },
+}
+const MODAL_IMAGE_SRC_BY_TYPE = {
+    admin: '/onboarding/technic-app-card/admin.webp',
+    technic: '/onboarding/technic-app-card/technic.webp',
+    security: '/onboarding/technic-app-card/security.webp',
+}
+const IMAGE_WRAPPER_BG_COLOR_BY_TYPE = {
+    admin: colors.blue[1],
+    technic: colors.purple[1],
+    security: colors.teal[1],
+}
+
+const QR_CODE_IMAGE_STYLES: CSSProperties = { width: '150px', height: '150px' }
 
 export const TechnicAppCard = () => {
     const intl = useIntl()
@@ -43,6 +51,10 @@ export const TechnicAppCard = () => {
 
     const TechnicAppCardText = intl.formatMessage({ id: `tour.technicAppCard.radio.text.${radioValue}` })
 
+    const imageContainerStyles: CSSProperties = useMemo(() =>
+        ({ ...BASE_IMAGE_CONTAINER_STYLES, backgroundColor: IMAGE_WRAPPER_BG_COLOR_BY_TYPE[radioValue] })
+    , [radioValue])
+
     return (
         <>
             <Card.CardButton
@@ -50,7 +62,6 @@ export const TechnicAppCard = () => {
                     emoji: [{ symbol: EMOJI.MECHANIC }, { symbol: EMOJI.WRENCH }],
                     headingTitle: TechnicAppCardTitle,
                 }}
-                //TODO(DOMA-8644): replace image on en locale
                 body={{ image: { src: '/onboarding/tourTechnicCard.webp', style: APP_CARD_IMAGE_STYLES } }}
                 onClick={() => setActiveModal('info')}
                 id='tour-technic-app-card'
@@ -80,9 +91,9 @@ export const TechnicAppCard = () => {
                         <Radio key='technic' value='technic' label={TechnicAppCardTechnicLabel}/>
                         <Radio key='security' value='security' label={TechnicAppCardSecurityLabel}/>
                     </RadioGroup>
-                    <div style={TAB_IMAGE_BACKGROUND_STYLES}>
+                    <div style={imageContainerStyles}>
                         <div style={TAB_IMAGE_WRAPPER_STYLES}>
-                            <img src={MODAL_IMAGE_SRC_BY_TYPE[radioValue]} alt='Technic app preview' style={TAB_IMAGE_STYLES} />
+                            <img src={MODAL_IMAGE_SRC_BY_TYPE[radioValue]} alt='Technic app preview' style={TAB_IMAGE_STYLES_BY_TYPE[radioValue]} />
                         </div>
                     </div>
                     <Typography.Text>
@@ -118,19 +129,19 @@ export const TechnicAppCard = () => {
             >
                 <Space size={16} direction='horizontal'>
                     <Space size={8} direction='vertical' align='center'>
-                        <img style={QR_CODE_IMAGE_STYLES} src='/onboarding/qr-technic-app/GooglePlay.svg' alt='Google Play QR code'/>
+                        <img style={QR_CODE_IMAGE_STYLES} src='/onboarding/technic-app-card/qr-technic-app/GooglePlay.svg' alt='Google Play QR code'/>
                         <Typography.Title level={4}>
                             {GooglePlayMessage}
                         </Typography.Title>
                     </Space>
                     <Space size={8} direction='vertical' align='center'>
-                        <img style={QR_CODE_IMAGE_STYLES} src='/onboarding/qr-technic-app/AppStore.svg' alt='App Store QR code'/>
+                        <img style={QR_CODE_IMAGE_STYLES} src='/onboarding/technic-app-card/qr-technic-app/AppStore.svg' alt='App Store QR code'/>
                         <Typography.Title level={4}>
                             {AppStoreMessage}
                         </Typography.Title>
                     </Space>
                     <Space size={8} direction='vertical' align='center'>
-                        <img style={QR_CODE_IMAGE_STYLES} src='/onboarding/qr-technic-app/AppGalery.svg' alt='App Galery QR code'/>
+                        <img style={QR_CODE_IMAGE_STYLES} src='/onboarding/technic-app-card/qr-technic-app/AppGalery.svg' alt='App Galery QR code'/>
                         <Typography.Title level={4}>
                             {AppGalleryMessage}
                         </Typography.Title>
@@ -151,7 +162,6 @@ export const ResidentAppCard = () => {
                 emoji: [{ symbol: EMOJI.WOMAN }, { symbol: EMOJI.MAN }],
                 headingTitle: ResidentAppCardTitle,
             }}
-            //TODO(DOMA-8644): replace image on en locale
             body={{ image: { src: '/onboarding/tourResidentCard.webp', style: APP_CARD_IMAGE_STYLES } }}
             onClick={() => {
                 window.open(RESIDENT_APP_LANDING_EXTERNAL_LINK, '_blank')

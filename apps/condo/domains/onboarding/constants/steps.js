@@ -26,6 +26,10 @@ const STEP_TYPES = [
     CREATE_NEWS_STEP_TYPE,
 ]
 
+/**
+ * Specify which tour flow step type belongs.
+ * If it's a new tour flow, the type should be an object key; if it's an internal step, it should be an element in the array value.
+ */
 const STEP_TRANSITIONS = {
     [TICKET_STEP_TYPE]: [CREATE_PROPERTY_STEP_TYPE, CREATE_PROPERTY_MAP_STEP_TYPE, CREATE_TICKET_STEP_TYPE, VIEW_RESIDENT_APP_GUIDE_STEP_TYPE],
     [BILLING_STEP_TYPE]: [UPLOAD_RECEIPTS_STEP_TYPE, VIEW_RESIDENT_APP_GUIDE_STEP_TYPE],
@@ -36,8 +40,15 @@ const STEP_TRANSITIONS = {
 const FIRST_LEVEL_STEPS = Object.keys(STEP_TRANSITIONS)
 const SECOND_LEVEL_STEPS = uniq(Object.values(STEP_TRANSITIONS).flat())
 
+/**
+ * Steps with initial "TODO_STEP_STATUS" status (by default it's DISABLED_STEP_STATUS)
+ */
 const INITIAL_ENABLED_STEPS = [TICKET_STEP_TYPE, BILLING_STEP_TYPE, METER_STEP_TYPE, CREATE_PROPERTY_STEP_TYPE, UPLOAD_RECEIPTS_STEP_TYPE]
 
+/**
+ * After which type of step the step will be "TODO_STEP_STATUS" upon completion.
+ * Object key - completed step
+ */
 const ENABLED_STEPS_AFTER_COMPLETE = {
     [CREATE_PROPERTY_STEP_TYPE]: [CREATE_PROPERTY_MAP_STEP_TYPE],
     [CREATE_PROPERTY_MAP_STEP_TYPE]: [CREATE_TICKET_STEP_TYPE, CREATE_METER_READINGS_STEP_TYPE],
@@ -47,6 +58,9 @@ const ENABLED_STEPS_AFTER_COMPLETE = {
     [VIEW_RESIDENT_APP_GUIDE_STEP_TYPE]: [CREATE_NEWS_STEP_TYPE],
 }
 
+/**
+ * Step weight for client-side sorting (Sorting in ascending order)
+ */
 const STEP_ORDER = {
     [TICKET_STEP_TYPE]: 100,
     [BILLING_STEP_TYPE]: 200,

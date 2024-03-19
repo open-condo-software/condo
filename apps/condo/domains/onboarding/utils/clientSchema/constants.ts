@@ -20,6 +20,9 @@ const { externalGuideUrl, residentAppLandingUrl } = publicRuntimeConfig
 export const EXTERNAL_GUIDE_LINK = externalGuideUrl
 export const RESIDENT_APP_LANDING_EXTERNAL_LINK = residentAppLandingUrl
 
+/**
+ * Link when clicking on an active step in the tour page
+ */
 export const TODO_STEP_CLICK_ROUTE = {
     [CREATE_PROPERTY_STEP_TYPE]: '/property',
     [CREATE_PROPERTY_MAP_STEP_TYPE]: '/property',
@@ -30,6 +33,9 @@ export const TODO_STEP_CLICK_ROUTE = {
     [CREATE_NEWS_STEP_TYPE]: '/news',
 }
 
+/**
+ * Permission allowing the step to be completed (if not specified, anyone can)
+ */
 export const TOUR_STEP_ACTION_PERMISSION = {
     [CREATE_PROPERTY_STEP_TYPE]: 'canManageProperties',
     [CREATE_PROPERTY_MAP_STEP_TYPE]: 'canManageProperties',
@@ -39,6 +45,9 @@ export const TOUR_STEP_ACTION_PERMISSION = {
     [CREATE_NEWS_STEP_TYPE]: 'canManageNewsItems',
 }
 
+/**
+ * Link in the completed step in the tour page
+ */
 export const COMPLETED_STEP_LINK = {
     [CREATE_PROPERTY_STEP_TYPE]: {
         LinkWrapper: Link,
