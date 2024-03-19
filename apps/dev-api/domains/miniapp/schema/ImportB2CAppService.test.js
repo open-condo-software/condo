@@ -278,7 +278,7 @@ describe('ImportB2CAppService', () => {
                 const [result] = await importB2CAppByTestClient(support, anotherApp, condoApp)
                 expect(result).toHaveProperty('success', true)
 
-                const accessRight = await B2CAppAccessRight.getOne(support, { app: { id: anotherApp.id, environment: DEV_ENVIRONMENT } })
+                const accessRight = await B2CAppAccessRight.getOne(support, { app: { id: anotherApp.id }, environment: DEV_ENVIRONMENT })
                 expect(accessRight).toHaveProperty('condoUserId', condoAccessRight.user.id)
                 expect(accessRight).toHaveProperty('environment', DEV_ENVIRONMENT)
                 expect(accessRight).toHaveProperty(['app', 'id'], anotherApp.id)
