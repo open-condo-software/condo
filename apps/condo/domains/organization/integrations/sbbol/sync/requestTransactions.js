@@ -110,6 +110,10 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                     bankAccount: bankAccount.number,
                     statementDate,
                     page,
+                },
+                responses: {
+                    transactions: response,
+                    summary,
                 } })
             } else {
                 receivedTransactions.map( transaction => transactions.push(transaction))
