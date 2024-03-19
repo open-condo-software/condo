@@ -40463,6 +40463,9 @@ export type Mutation = {
    * 		},
    * 		"body": {
    * 			"required": true
+   * 		},
+   * 		"subject": {
+   * 			"required": false
    * 		}
    * 	},
    * 	"SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE": {
