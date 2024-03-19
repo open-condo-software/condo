@@ -86,6 +86,6 @@ module.exports = {
     NotificationUserSetting,
     TelegramUserChat,
     NotificationAnonymousSetting,
-_INTERNAL_SEND_NOTIFICATION_NEW_MOBILE_APP_VERSION_MUTATION,
+    _INTERNAL_SEND_NOTIFICATION_NEW_MOBILE_APP_VERSION_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
