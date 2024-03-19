@@ -74257,6 +74257,31 @@ type SetMessageStatusOutput {
   status: String!
 }
 
+enum App {
+  resident
+  master
+}
+
+enum Platform {
+  android
+  ios
+}
+
+input _internalSendNotificationNewMobileAppVersionInput {
+  dv: Int!
+  sender: JSON!
+  platform: Platform!
+  app: App!
+  buildVersion: String!
+  title: String
+  body: String
+  organizationIds: [ID!]
+}
+
+type _internalSendNotificationNewMobileAppVersionOutput {
+  messageBatchId: ID!
+}
+
 input _internalSyncContactsWithResidentsForOrganizationInput {
   dv: Int!
   sender: SenderFieldInput!
@@ -86037,6 +86062,7 @@ type Mutation {
   syncRemoteClient(data: SyncRemoteClientInput!): RemoteClient
   disconnectUserFromRemoteClient(data: DisconnectUserFromRemoteClientInput!): DisconnectUserFromRemoteClientOutput
   setMessageStatus(data: SetMessageStatusInput!): SetMessageStatusOutput
+  _internalSendNotificationNewMobileAppVersion(data: _internalSendNotificationNewMobileAppVersionInput!): _internalSendNotificationNewMobileAppVersionOutput
   _internalSyncContactsWithResidentsForOrganization(data: _internalSyncContactsWithResidentsForOrganizationInput!): [Contact]
   registerResident(data: RegisterResidentInput!): Resident
 

@@ -1864,6 +1864,11 @@ export type AllMiniAppsWhereInput = {
   accessible?: Maybe<Scalars['Boolean']>;
 };
 
+export enum App {
+  Resident = 'resident',
+  Master = 'master'
+}
+
 export enum AppCategory {
   Dispatching = 'DISPATCHING',
   Gis = 'GIS',
@@ -40612,6 +40617,7 @@ export type Mutation = {
   syncRemoteClient?: Maybe<RemoteClient>;
   disconnectUserFromRemoteClient?: Maybe<DisconnectUserFromRemoteClientOutput>;
   setMessageStatus?: Maybe<SetMessageStatusOutput>;
+  _internalSendNotificationNewMobileAppVersion?: Maybe<_InternalSendNotificationNewMobileAppVersionOutput>;
   _internalSyncContactsWithResidentsForOrganization?: Maybe<Array<Maybe<Contact>>>;
   registerResident?: Maybe<Resident>;
   /**
@@ -49139,6 +49145,11 @@ export type MutationDisconnectUserFromRemoteClientArgs = {
 
 export type MutationSetMessageStatusArgs = {
   data: SetMessageStatusInput;
+};
+
+
+export type Mutation_InternalSendNotificationNewMobileAppVersionArgs = {
+  data: _InternalSendNotificationNewMobileAppVersionInput;
 };
 
 
@@ -58328,6 +58339,11 @@ export type PaymentsUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<PaymentUpdateInput>;
 };
+
+export enum Platform {
+  Android = 'android',
+  Ios = 'ios'
+}
 
 export type PredictTicketClassificationInput = {
   details: Scalars['String'];
@@ -95956,6 +95972,22 @@ export type _InternalScheduleTaskByNameInput = {
 export type _InternalScheduleTaskByNameOutput = {
   __typename?: '_internalScheduleTaskByNameOutput';
   id: Scalars['String'];
+};
+
+export type _InternalSendNotificationNewMobileAppVersionInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  platform: Platform;
+  app: App;
+  buildVersion: Scalars['String'];
+  title?: Maybe<Scalars['String']>;
+  body?: Maybe<Scalars['String']>;
+  organizationIds?: Maybe<Array<Scalars['ID']>>;
+};
+
+export type _InternalSendNotificationNewMobileAppVersionOutput = {
+  __typename?: '_internalSendNotificationNewMobileAppVersionOutput';
+  messageBatchId: Scalars['ID'];
 };
 
 export type _InternalSyncContactsWithResidentsForOrganizationInput = {
