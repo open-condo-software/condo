@@ -58,7 +58,7 @@ const NewsTableContainer = ({
         loading: isNewsFetching,
         count: total,
         objs: news,
-    } = NewsItem.useAllObjects({
+    } = NewsItem.useObjects({
         sortBy,
         where: searchNewsQuery,
         first: DEFAULT_PAGE_SIZE,
