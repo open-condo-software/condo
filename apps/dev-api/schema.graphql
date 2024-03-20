@@ -2358,11 +2358,6 @@ input B2CAppRelateToOneInput {
   disconnectAll: Boolean
 }
 
-enum B2CAppAccessRightEnvironmentType {
-  development
-  production
-}
-
 """ Link between service user and B2C App. The existence of this connection means that this condo user will have the rights to perform actions on behalf of the integration and modify some B2CApp-related models, such as B2CAppProperty / B2CAppBuild as soon as app will be published to specified environment 
 """
 type B2CAppAccessRight {
@@ -2385,7 +2380,7 @@ type B2CAppAccessRight {
   condoUserEmail: String
 
   """ Condo environment """
-  environment: B2CAppAccessRightEnvironmentType
+  environment: AppEnvironment
   id: ID!
   v: Int
   createdAt: String
@@ -2426,10 +2421,10 @@ input B2CAppAccessRightWhereInput {
   condoUserId_not: ID
   condoUserId_in: [ID]
   condoUserId_not_in: [ID]
-  environment: B2CAppAccessRightEnvironmentType
-  environment_not: B2CAppAccessRightEnvironmentType
-  environment_in: [B2CAppAccessRightEnvironmentType]
-  environment_not_in: [B2CAppAccessRightEnvironmentType]
+  environment: AppEnvironment
+  environment_not: AppEnvironment
+  environment_in: [AppEnvironment]
+  environment_not_in: [AppEnvironment]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -2560,7 +2555,7 @@ enum SortB2CAppAccessRightsBy {
 input B2CAppAccessRightUpdateInput {
   app: B2CAppRelateToOneInput
   condoUserId: ID
-  environment: B2CAppAccessRightEnvironmentType
+  environment: AppEnvironment
   v: Int
   createdAt: String
   updatedAt: String
@@ -2582,7 +2577,7 @@ input B2CAppAccessRightsUpdateInput {
 input B2CAppAccessRightCreateInput {
   app: B2CAppRelateToOneInput
   condoUserId: ID
-  environment: B2CAppAccessRightEnvironmentType
+  environment: AppEnvironment
   v: Int
   createdAt: String
   updatedAt: String

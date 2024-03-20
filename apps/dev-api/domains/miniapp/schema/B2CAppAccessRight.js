@@ -63,7 +63,6 @@ const B2CAppAccessRight = new GQLListSchema('B2CAppAccessRight', {
             options: AVAILABLE_ENVIRONMENTS,
             isRequired: true,
             graphQLReturnType: 'AppEnvironment',
-            graphQLInputType: 'AppEnvironment',
         },
     },
     kmigratorOptions: {
