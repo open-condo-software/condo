@@ -102,6 +102,7 @@ const FEEDBACK_VALUES_WITHOUT_RETURNED = FEEDBACK_VALUES.filter(item => item !==
 // TODO(DOMA-5833): delete REVIEW_VALUES_WITHOUT_RETURNED when the mobile app will use 'feedback*' fields
 /** @deprecated */
 const REVIEW_VALUES_WITHOUT_RETURNED = [REVIEW_VALUES.GOOD, REVIEW_VALUES.BAD]
+const MESSAGE_SENDING_DElAY = 1000 * 5
 
 describe('Ticket', () => {
     let admin
@@ -3284,7 +3285,6 @@ describe('Ticket', () => {
                     expect(content1.data.ticketNumber).toEqual(ticket.number)
                     expect(content1.data.userId).toEqual(assignee.user.id)
                     expect(content1.data.notificationId).toEqual(message.id)
-
                 })
             })
 
@@ -3340,7 +3340,6 @@ describe('Ticket', () => {
                     expect(content1.data.ticketNumber).toEqual(ticket.number)
                     expect(content1.data.userId).toEqual(executor.user.id)
                     expect(content1.data.notificationId).toEqual(message.id)
-
                 })
             })
 
@@ -3360,7 +3359,7 @@ describe('Ticket', () => {
                     expect(message).toHaveLength(2)
                     expect(message[0].organization.id).toEqual(ticket.organization.id)
                     expect(message[1].organization.id).toEqual(ticket.organization.id)
-                }, { timeout: 60 * 1000, interval: 500 })
+                })
             })
         })
 
@@ -3408,7 +3407,7 @@ describe('Ticket', () => {
                     expect(content.data.ticketNumber).toEqual(ticket.number)
                     expect(content.data.notificationId).toEqual(message.id)
                     expect(message.organization.id).toEqual(ticket.organization.id)
-                }, { timeout: 60 * 1000, interval: 500 })
+                })
             })
 
             it('does not send push if there is no resident', async () => {
@@ -3420,10 +3419,12 @@ describe('Ticket', () => {
 
                 await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.IN_PROGRESS } } })
 
-                const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_IN_PROGRESS_TYPE }
-                const messageCount = await Message.count(admin, messageWhere)
+                await waitFor(async () => {
+                    const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_IN_PROGRESS_TYPE }
+                    const messageCount = await Message.count(admin, messageWhere)
 
-                expect(messageCount).toEqual(0)
+                    expect(messageCount).toEqual(0)
+                }, { delay: MESSAGE_SENDING_DElAY })
             })
 
             it('does not send push if Ticket.canReadByResident == false', async () => {
@@ -3453,10 +3454,13 @@ describe('Ticket', () => {
 
                 await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.IN_PROGRESS } } })
 
-                const messageWhere = { user: { id: residentClient.user.id }, type: TICKET_STATUS_IN_PROGRESS_TYPE }
-                const messageCount = await Message.count(admin, messageWhere)
 
-                expect(messageCount).toEqual(0)
+                await waitFor(async () => {
+                    const messageWhere = { user: { id: residentClient.user.id }, type: TICKET_STATUS_IN_PROGRESS_TYPE }
+                    const messageCount = await Message.count(admin, messageWhere)
+
+                    expect(messageCount).toEqual(0)
+                }, { delay: MESSAGE_SENDING_DElAY })
             })
         })
 
@@ -3504,7 +3508,7 @@ describe('Ticket', () => {
                     expect(content.data.ticketNumber).toEqual(ticket.number)
                     expect(content.data.notificationId).toEqual(message.id)
                     expect(message.organization.id).toEqual(ticket.organization.id)
-                }, { timeout: 60 * 1000, interval: 500 })
+                })
             })
 
             it('does not send if no resident', async () => {
@@ -3516,10 +3520,13 @@ describe('Ticket', () => {
 
                 await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.COMPLETED } } })
 
-                const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_COMPLETED_TYPE }
-                const messageCount = await Message.count(admin, messageWhere)
 
-                expect(messageCount).toEqual(0)
+                await waitFor(async () => {
+                    const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_COMPLETED_TYPE }
+                    const messageCount = await Message.count(admin, messageWhere)
+
+                    expect(messageCount).toEqual(0)
+                }, { delay: MESSAGE_SENDING_DElAY })
             })
         })
 
@@ -3570,7 +3577,7 @@ describe('Ticket', () => {
                     expect(content.data.ticketNumber).toEqual(ticket.number)
                     expect(content.data.notificationId).toEqual(message.id)
                     expect(message.organization.id).toEqual(ticket.organization.id)
-                }, { timeout: 60 * 1000, interval: 500 })
+                })
             })
 
             it('does not send if no resident', async () => {
@@ -3586,10 +3593,12 @@ describe('Ticket', () => {
 
                 await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.OPEN } } })
 
-                const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_RETURNED_TYPE }
-                const messageCount = await Message.count(admin, messageWhere)
+                await waitFor(async () => {
+                    const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_RETURNED_TYPE }
+                    const messageCount = await Message.count(admin, messageWhere)
 
-                expect(messageCount).toEqual(0)
+                    expect(messageCount).toEqual(0)
+                }, { delay: MESSAGE_SENDING_DElAY })
             })
         })
 
@@ -3637,7 +3646,7 @@ describe('Ticket', () => {
                     expect(content.data.ticketNumber).toEqual(ticket.number)
                     expect(content.data.notificationId).toEqual(message.id)
                     expect(message.organization.id).toEqual(ticket.organization.id)
-                }, { timeout: 60 * 1000, interval: 500 })
+                })
             })
 
             it('does not send if no resident', async () => {
@@ -3658,7 +3667,7 @@ describe('Ticket', () => {
                     const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_DECLINED_TYPE }
                     const messageCount = await Message.count(admin, messageWhere)
                     expect(messageCount).toEqual(0)
-                })
+                }, { delay: MESSAGE_SENDING_DElAY })
             })
         })
 
@@ -3767,7 +3776,7 @@ describe('Ticket', () => {
                     const messages = await Message.getAll(admin, messageWhere)
 
                     expect(messages).toHaveLength(1)
-                }, { delay: 1000 * 15 })
+                }, { delay: MESSAGE_SENDING_DElAY })
             })
 
             test('dont send sms if ticket.isResidentTicket is false', async () => {
@@ -3782,10 +3791,12 @@ describe('Ticket', () => {
                     clientPhone,
                 })
 
-                const messageWhere = { phone: clientPhone, type: TRACK_TICKET_IN_DOMA_APP_TYPE }
-                const message = await Message.getOne(admin, messageWhere)
+                await waitFor(async () => {
+                    const messageWhere = { phone: clientPhone, type: TRACK_TICKET_IN_DOMA_APP_TYPE }
+                    const message = await Message.getOne(admin, messageWhere)
 
-                expect(message).toBeUndefined()
+                    expect(message).toBeUndefined()
+                }, { delay: MESSAGE_SENDING_DElAY })
             })
 
             test('dont send sms if resident matches ticket contact data', async () => {
@@ -3811,10 +3822,12 @@ describe('Ticket', () => {
                     unitType,
                 })
 
-                const messageWhere = { phone, type: TRACK_TICKET_IN_DOMA_APP_TYPE }
-                const message = await Message.getOne(admin, messageWhere)
+                await waitFor(async () => {
+                    const messageWhere = { phone, type: TRACK_TICKET_IN_DOMA_APP_TYPE }
+                    const message = await Message.getOne(admin, messageWhere)
 
-                expect(message).toBeUndefined()
+                    expect(message).toBeUndefined()
+                }, { delay: MESSAGE_SENDING_DElAY })
             })
 
             test('dont send sms if resident user create ticket', async () => {
@@ -3836,10 +3849,12 @@ describe('Ticket', () => {
                     unitType,
                 })
 
-                const messageWhere = { phone, type: TRACK_TICKET_IN_DOMA_APP_TYPE }
-                const message = await Message.getOne(admin, messageWhere)
+                await waitFor(async () => {
+                    const messageWhere = { phone, type: TRACK_TICKET_IN_DOMA_APP_TYPE }
+                    const message = await Message.getOne(admin, messageWhere)
 
-                expect(message).toBeUndefined()
+                    expect(message).toBeUndefined()
+                }, { delay: MESSAGE_SENDING_DElAY })
             })
         })
     })

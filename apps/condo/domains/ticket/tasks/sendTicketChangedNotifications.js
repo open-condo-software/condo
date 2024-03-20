@@ -28,8 +28,7 @@ const { detectTicketEventTypes, TICKET_CREATED, ASSIGNEE_CONNECTED_EVENT_TYPE, E
 } = require('@condo/domains/ticket/utils/detectTicketEventTypes')
 
 
-const appLogger = getLogger('condo')
-const taskLogger = appLogger.child({ module: 'tasks/sendTicketChangedNotifications' })
+const taskLogger = getLogger('tasks/sendTicketChangedNotifications')
 
 
 const sendTicketChangedNotifications = async ({ ticketId, existingItem, operation }) => {
@@ -85,14 +84,14 @@ const sendTicketChangedNotifications = async ({ ticketId, existingItem, operatio
                     await sendTicketCreatedNotifications.delay(updatedItem.id, lang, organization.id, organization.name)
                 }
             } catch (error) {
-                taskLogger.error({ msg: 'Failed to send notifications by "TICKET_CREATED" event', taskId, error })
+                taskLogger.error({ msg: 'Failed to send notifications by "TICKET_CREATED" event', taskId, error, data: { ticketId, operation } })
             }
         }
 
         if (eventTypes[ASSIGNEE_CONNECTED_EVENT_TYPE]) {
-            try {
-                const userId = nextAssigneeId || prevAssigneeId
+            const userId = nextAssigneeId || prevAssigneeId
 
+            try {
                 await sendMessage(context, {
                     lang,
                     to: { user: { id: userId } },
@@ -111,14 +110,14 @@ const sendTicketChangedNotifications = async ({ ticketId, existingItem, operatio
                     organization: { id: organization.id },
                 })
             } catch (error) {
-                taskLogger.error({ msg: 'Failed to send notifications by "ASSIGNEE_CONNECTED" event', taskId, error })
+                taskLogger.error({ msg: 'Failed to send notifications by "ASSIGNEE_CONNECTED" event', taskId, error, data: { ticketId, operation, userId } })
             }
         }
 
         if (eventTypes[EXECUTOR_CONNECTED_EVENT_TYPE]) {
-            try {
-                const userId = nextExecutorId || prevExecutorId
+            const userId = nextExecutorId || prevExecutorId
 
+            try {
                 await sendMessage(context, {
                     lang,
                     to: { user: { id: userId } },
@@ -137,7 +136,7 @@ const sendTicketChangedNotifications = async ({ ticketId, existingItem, operatio
                     organization: { id: organization.id },
                 })
             } catch (error) {
-                taskLogger.error({ msg: 'Failed to send notifications by "EXECUTOR_CONNECTED" event', taskId, error })
+                taskLogger.error({ msg: 'Failed to send notifications by "EXECUTOR_CONNECTED" event', taskId, error, data: { ticketId, operation, userId } })
             }
         }
 
@@ -199,7 +198,7 @@ const sendTicketChangedNotifications = async ({ ticketId, existingItem, operatio
                     })
                 }
             } catch (error) {
-                taskLogger.error({ msg: 'Failed to send notifications by "STATUS_CHANGED" event', taskId, error })
+                taskLogger.error({ msg: 'Failed to send notifications by "STATUS_CHANGED" event', taskId, error, data: { ticketId, operation } })
             }
         }
 
@@ -235,13 +234,13 @@ const sendTicketChangedNotifications = async ({ ticketId, existingItem, operatio
                     })
                 }
             } catch (error) {
-                taskLogger.error({ msg: 'Failed to send notifications by "TICKET_WITHOUT_RESIDENT_CREATED" event', taskId, error })
+                taskLogger.error({ msg: 'Failed to send notifications by "TICKET_WITHOUT_RESIDENT_CREATED" event', taskId, error, data: { ticketId, operation } })
             }
         }
 
         taskLogger.info({ msg: 'Successful sending ticket changed notifications', taskId, data: { ticketId, operation } })
     } catch (error) {
-        taskLogger.error({ msg: 'sendTicketChangedNotifications internal error', taskId, error })
+        taskLogger.error({ msg: 'sendTicketChangedNotifications internal error', taskId, error, data: { ticketId, operation } })
         throw error
     }
 }
