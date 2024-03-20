@@ -101,12 +101,12 @@ async function _scheduleRemoteTask (name, preparedArgs, preparedOpts, queue = DE
     logger.info({ msg: 'Scheduling task', name, queue, data: { preparedArgs, preparedOpts } })
 
     if (!QUEUES.has(queue)) {
-        logger.warn({
+        logger.error({
             msg: `No active queues with name = ${queue} was found. This task never been picked by this worker due to queue filters policy`,
             name, queue, data: { preparedOpts, preparedArgs },
         })
-        // Maybe we should completely remove this task from TASKS
-        return false
+
+        throw new Error(`No active queues with name = ${queue} was found. You should register at prepareKeystone`)
     }
 
     const job = await QUEUES.get(queue).add(name, { args: preparedArgs }, preparedOpts)
@@ -318,6 +318,7 @@ async function createWorker (keystoneModule, config) {
     if (keystoneModule) {
         await prepareKeystoneExpressApp(keystoneModule)
     } else {
+        createTaskQueue(DEFAULT_QUEUE_NAME)
         logger.warn('Keystone APP context is not prepared! You can\'t use Keystone GQL query inside the tasks!')
     }
 
