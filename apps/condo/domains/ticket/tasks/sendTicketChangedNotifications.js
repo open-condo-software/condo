@@ -22,11 +22,10 @@ const { sendMessage } = require('@condo/domains/notification/utils/serverSchema'
 const { ORGANIZATION_NAME_PREFIX_AND_QUOTES_REGEXP } = require('@condo/domains/organization/constants/common')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
+const { sendTicketCreatedNotifications } = require('@condo/domains/ticket/tasks')
 const { detectTicketEventTypes, TICKET_CREATED, ASSIGNEE_CONNECTED_EVENT_TYPE, EXECUTOR_CONNECTED_EVENT_TYPE,
     STATUS_CHANGED_EVENT_TYPE, TICKET_WITHOUT_RESIDENT_CREATED_EVENT_TYPE,
 } = require('@condo/domains/ticket/utils/detectTicketEventTypes')
-
-const { sendTicketCreatedNotifications } = require('./index')
 
 
 const appLogger = getLogger('condo')
@@ -37,7 +36,7 @@ const sendTicketChangedNotifications = async ({ ticketId, existingItem, operatio
     const taskId = this.id || uuid()
 
     try {
-        taskLogger.log({ msg: 'Start of sending ticket changed notifications', taskId, data: { ticketId, operation } })
+        taskLogger.info({ msg: 'Start of sending ticket changed notifications', taskId, data: { ticketId, operation } })
 
         if (!ticketId) throw new Error('no ticketId!')
         if (!operation) throw new Error('no operation!')
@@ -240,7 +239,7 @@ const sendTicketChangedNotifications = async ({ ticketId, existingItem, operatio
             }
         }
 
-        taskLogger.log({ msg: 'Successful sending ticket changed notifications', taskId, data: { ticketId, operation } })
+        taskLogger.info({ msg: 'Successful sending ticket changed notifications', taskId, data: { ticketId, operation } })
     } catch (error) {
         taskLogger.error({ msg: 'sendTicketChangedNotifications internal error', taskId, error })
         throw error
