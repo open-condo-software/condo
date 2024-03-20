@@ -22,6 +22,7 @@ const { MeterReportingPeriod: MeterReportingPeriodGQL } = require('@condo/domain
 const { MeterResourceOwner: MeterResourceOwnerGQL } = require('@condo/domains/meter/gql')
 const { EXPORT_PROPERTY_METER_READINGS_QUERY } = require('@condo/domains/meter/gql')
 const { INTERNAL_DELETE_METER_READINGS_MUTATION } = require('@condo/domains/meter/gql')
+const { REGISTER_METERS_MUTATION } = require('@condo/domains/meter/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateGQLTestUtils(MeterResourceGQL)
@@ -403,6 +404,26 @@ async function exportPropertyMeterReadingsByTestClient(client, extraAttrs = {}) 
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
+async function registerMetersByTestClient(client, organization, items, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    if (!items) throw new Error('no items')
+    if (!Array.isArray(items)) throw new Error('items is not an array')
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        organization: { id: organization.id },
+        items,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(REGISTER_METERS_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -414,11 +435,12 @@ module.exports = {
     MeterReadingFilterTemplate, createTestMeterReadingFilterTemplate, updateTestMeterReadingFilterTemplate,
     makeClientWithResidentAndMeter,
     _internalDeleteMeterAndMeterReadingsByTestClient,
-        PropertyMeter, createTestPropertyMeter, updateTestPropertyMeter,
+    PropertyMeter, createTestPropertyMeter, updateTestPropertyMeter,
     PropertyMeterReading, createTestPropertyMeterReading, updateTestPropertyMeterReading,
     MeterReportingPeriod, createTestMeterReportingPeriod, updateTestMeterReportingPeriod,
     MeterResourceOwner, createTestMeterResourceOwner, updateTestMeterResourceOwner,
     _internalDeleteMeterReadingsByTestClient,
     exportPropertyMeterReadingsByTestClient,
+    registerMetersByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
