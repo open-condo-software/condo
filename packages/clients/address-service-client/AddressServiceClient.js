@@ -107,6 +107,11 @@ class AddressServiceClient {
         return this.call(`${this.url}/search?${urlParams}`)
     }
 
+    /**
+     *
+     * @param params
+     * @return {Promise<{ addresses: Object<addressKey: string, address: AddressData>, map: Object<addressSource: string, {err: string, data: Object<addressKey: string, ?unitType: string, ?unitName: string>}> }>}
+     */
     async bulkSearch (params = {}) {
         return this.call(`${this.url}/bulkSearch`, 'POST', params)
     }

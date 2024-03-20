@@ -1,5 +1,14 @@
 const { PLUGIN_KEY_PREFIX } = require('./constants')
 
+/**
+ * @typedef Selection
+ * @type {Array<{ name: string, selectionSet?: Selection }>}
+ * */
+
+/**
+ * @typedef {{ name: string, args: Record<string, unknown>, selectionSet: Selection }} FieldInfo
+ * */
+
 function extractArgValue (valueNode, variables) {
     switch (valueNode.kind) {
         case 'Variable':
@@ -19,9 +28,18 @@ function extractArgValue (valueNode, variables) {
  */
 function extractSelectionSet (selectionSet) {
     return (selectionSet?.selections || []).map(selection => {
-        const field = {
-            name: selection.name.value,
+        let name
+        switch (selection.kind) {
+            case 'Field':
+                name = selection.name.value
+                break
+            case 'InlineFragment':
+                name = selection.typeCondition.name.value
+                break
+            default:
+                throw new Error(`Please add processing for selection.kind="${selection.kind}"`)
         }
+        const field = { name }
         if (selection.selectionSet) {
             field.selectionSet = extractSelectionSet(selection.selectionSet)
         }
@@ -32,11 +50,6 @@ function extractSelectionSet (selectionSet) {
 
 function extractQueriesAndMutationsFromRequest (requestContext) {
     const ast = requestContext.document
-    /**
-     * @typedef Selection
-     * @type {Array<{ name: string, selectionSet?: Selection }>}
-     * */
-    /** @typedef {{ name: string, args: Record<string, unknown>, selectionSet: Selection }} FieldInfo */
     /** @type Array<FieldInfo> */
     const queries = []
     /** @type Array<FieldInfo> */

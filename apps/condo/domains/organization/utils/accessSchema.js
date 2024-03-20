@@ -53,6 +53,25 @@ async function checkPermissionInUserOrganizationOrRelatedOrganization (userId, o
     return await checkRelatedOrganizationPermission(userId, organizationId, permission)
 }
 
+async function checkPermissionsInUserOrganizationOrRelatedOrganization (userId, organizationId, permissions) {
+    if (!userId || !organizationId) return false
+
+    const promises = []
+    for (const permission of permissions) {
+        promises.push(new Promise((resolve) => {
+            checkPermissionInUserOrganizationOrRelatedOrganization(userId, organizationId, permission).then((res) => {
+                resolve(res)
+            }).catch(() => {
+                resolve(false)
+            })
+        }))
+    }
+
+    const results = await Promise.all(promises)
+
+    return results.every((result) => result === true)
+}
+
 /**
  * Check that the user has access in each organization
  *
@@ -184,6 +203,7 @@ const checkUserPermissionsInOrganizations = async ({ userId, organizationIds, pe
 module.exports = {
     checkUserPermissionsInOrganizations,
     checkPermissionInUserOrganizationOrRelatedOrganization,
+    checkPermissionsInUserOrganizationOrRelatedOrganization,
     checkOrganizationPermission,
     checkUserBelongsToOrganization,
     checkRelatedOrganizationPermission,

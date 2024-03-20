@@ -167,7 +167,7 @@ describe('Organization', () => {
                     name: newName,
                 }))
             })
-            test('Organization employee with "canManageOrganization" cannot', async () => {
+            test('Organization employee without "canManageOrganization" cannot', async () => {
                 const anotherUser = await makeEmployeeUserClientWithAbilities({
                     canManageOrganization: false,
                 })

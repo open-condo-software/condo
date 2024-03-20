@@ -74131,6 +74131,118 @@ type ExportPropertyMeterReadingsOutput {
   linkToFile: String!
 }
 
+input RegisterMetersMeterReading {
+  date: String!
+  v1: String!
+  v2: String
+  v3: String
+  v4: String
+}
+
+input RegisterMetersMeterDates {
+  verificationDate: String
+  nextVerificationDate: String
+  installationDate: String
+  commissioningDate: String
+  sealingDate: String
+  controlReadingsDate: String
+}
+
+input RegisterMetersMeterInput {
+  number: String!
+  resourceTypeId: ID
+  numberOfTariffs: Int
+  place: String
+  readings: [RegisterMetersMeterReading!]
+  dates: RegisterMetersMeterDates
+}
+
+input RegisterMetersItemInput {
+  address: String!
+  accountNumber: String!
+  addressMeta: RegisterBillingReceiptAddressMetaInput
+  unitType: String
+  unitName: String
+  meters: [RegisterMetersMeterInput!]!
+}
+
+input RegisterMetersInput {
+  dv: Int!
+  sender: JSON!
+  organization: OrganizationWhereUniqueInput!
+  items: [RegisterMetersItemInput!]!
+}
+
+type RegisterMetersMeterReadingResultSuccessOutput {
+  id: ID!
+}
+
+type RegisterMetersMeterReadingResultErroneousOutput {
+  error: String!
+}
+
+union RegisterMetersMeterReadingResultDataUnion = RegisterMetersMeterReadingResultSuccessOutput | RegisterMetersMeterReadingResultErroneousOutput
+
+type RegisterMetersMeterReadingResultOutput {
+  err: Boolean!
+  data: RegisterMetersMeterReadingResultDataUnion!
+}
+
+type RegisterMetersMeterReadingOutput {
+  v1: String!
+  v2: String
+  v3: String
+  v4: String
+  result: RegisterMetersMeterReadingResultOutput
+}
+
+type RegisterMetersMeterResultSuccessOutput {
+  id: ID!
+  readings: [RegisterMetersMeterReadingOutput!]!
+}
+
+type RegisterMetersMeterResultErroneousOutput {
+  error: String!
+}
+
+union RegisterMetersMeterResultDataUnion = RegisterMetersMeterResultSuccessOutput | RegisterMetersMeterResultErroneousOutput
+
+type RegisterMetersMeterResultOutput {
+  err: Boolean!
+  data: RegisterMetersMeterResultDataUnion!
+}
+
+type RegisterMetersMeterOutput {
+  number: String!
+  result: RegisterMetersMeterResultOutput!
+}
+
+type RegisterMetersItemResultSuccessOutput {
+  propertyId: ID!
+  meters: [RegisterMetersMeterOutput!]!
+}
+
+type RegisterMetersItemResultErroneousOutput {
+  error: String!
+}
+
+union RegisterMetersItemResultDataUnion = RegisterMetersItemResultSuccessOutput | RegisterMetersItemResultErroneousOutput
+
+type RegisterMetersItemResultOutput {
+  err: Boolean!
+  data: RegisterMetersItemResultDataUnion!
+}
+
+type RegisterMetersItemOutput {
+  address: String!
+  accountNumber: String!
+  result: RegisterMetersItemResultOutput!
+}
+
+type RegisterMetersOutput {
+  items: [RegisterMetersItemOutput!]!
+}
+
 input RegisterMultiPaymentServiceConsumerInput {
   serviceConsumer: ServiceConsumerWhereUniqueInput!
   receipts: [BillingReceiptWhereUniqueInput!]!
@@ -86028,6 +86140,7 @@ type Mutation {
   }`
   """
   _internalDeleteMeterReadings(data: _internalDeleteMeterReadingsInput!): _internalDeleteMeterReadingsOutput
+  registerMeters(data: RegisterMetersInput!): RegisterMetersOutput
   registerMultiPayment(data: RegisterMultiPaymentInput!): RegisterMultiPaymentOutput
   registerMultiPaymentForOneReceipt(data: RegisterMultiPaymentForOneReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
   registerMultiPaymentForVirtualReceipt(data: RegisterMultiPaymentForVirtualReceiptInput!): RegisterMultiPaymentForOneReceiptOutput

@@ -34,7 +34,7 @@ class PropertyResolver extends Resolver {
         this.tin = get(billingContext, 'organization.tin')
         this.transform.init(get(billingContext, 'settings.addressTransform', {}))
         this.isCottageVillage = !!(get(billingContext, 'settings.isCottageVillage'))
-        this.addressService = createInstance(conf['ADDRESSSERVICE_DOMAIN'])
+        this.addressService = createInstance()
     }
 
     async init () {

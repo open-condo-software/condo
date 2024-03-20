@@ -85,9 +85,7 @@ class AbstractBulkSearchStrategy {
             const err = get(searchedAddress, 'err')
             let data
 
-            if (err) {
-                data = get(searchedAddress, 'data', err)
-            } else {
+            if (!err) {
                 const addressKey = get(searchedAddress, ['data', 'addressKey'])
                 const { unitType, unitName, ...restAddressFields } = get(searchedAddress, 'data')
                 result.addresses[addressKey] = restAddressFields
