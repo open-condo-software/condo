@@ -47,6 +47,9 @@ function createTaskQueue (name) {
             }
             return getRedisClient('worker', type, opts)
         },
+        settings: {
+            isSharedChildPool: true,
+        },
     }))
 }
 
