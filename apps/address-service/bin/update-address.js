@@ -97,7 +97,7 @@ async function main (args) {
 
         console.log(`Address model updated. New address: ${updatedAddressItem.address}`)
 
-        const addressSourceItem = await AddressSource.getOne(context, { source: searchString })
+        const addressSourceItem = await AddressSource.getOne(context, { source: searchString.toLowerCase() })
 
         if (addressSourceItem) {
             console.log(`Found address source with id=${addressSourceItem.id}`)
