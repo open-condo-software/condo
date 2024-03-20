@@ -8,13 +8,14 @@ import isFunction from 'lodash/isFunction'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import XLSX from 'xlsx'
 
-import { Download, FileDown } from '@open-condo/icons'
+import { Download, FileDown, QuestionCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Alert, Button, Card, CardBodyProps, CardHeaderProps, Modal, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
 import { useImporter } from '@condo/domains/common/hooks/useImporter'
+import { useImportHelpModal } from '@condo/domains/common/hooks/useImportHelpModal'
 import {
     Columns,
     RowNormalizer,
@@ -26,6 +27,7 @@ import {
 
 import { DataImporter } from '../DataImporter'
 import { FocusContainer } from '../FocusContainer'
+import { LinkWithIcon } from '../LinkWithIcon'
 
 
 export interface IImportWrapperProps {
@@ -153,6 +155,8 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
         }
     }, [activeModal])
 
+    const { Modal: ImportHelpModal, openImportHelpModal } = useImportHelpModal()
+
     const totalRowsRef = useRef(0)
     const setTotalRowsRef = (value: number) => {
         totalRowsRef.current = value
@@ -268,11 +272,22 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
                     onCancel={closeModal}
                     open={activeModal === 'example'}
                     footer={
-                        <DataImporter onUpload={handleUpload}>
-                            <Button type='primary'>
-                                {ChooseFileForUploadLabel}
-                            </Button>
-                        </DataImporter>
+                        <Space size={16} direction='horizontal'>
+                            <LinkWithIcon
+                                title='Нужна помощь'
+                                size='medium'
+                                PostfixIcon={QuestionCircle}
+                                onClick={() => {
+                                    setActiveModal(null)
+                                    openImportHelpModal()
+                                }}
+                            />
+                            <DataImporter onUpload={handleUpload}>
+                                <Button type='primary'>
+                                    {ChooseFileForUploadLabel}
+                                </Button>
+                            </DataImporter>
+                        </Space>
                     }
                 >
                     <Space direction='vertical' size={24}>
@@ -288,15 +303,13 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
                             message={RequiredFieldsTitle}
                             description={ImportRequiredFieldsMessage}
                         />
-                        <Space size={8} align='center'>
-                            <Download size='small' />
-                            <Typography.Link
-                                href={exampleTemplateLink}
-                                target='_blank'
-                            >
-                                {ExampleLinkMessage}
-                            </Typography.Link>
-                        </Space>
+                        <LinkWithIcon
+                            title={ExampleLinkMessage}
+                            size='medium'
+                            PrefixIcon={Download}
+                            href={exampleTemplateLink}
+                            target='_blank'
+                        />
                     </Space>
                 </Modal>
                 <Modal
@@ -387,6 +400,7 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
                         <img alt='success-image' src='/successDino.webp' />
                     </StyledFocusContainer>
                 </SuccessModal>
+                <ImportHelpModal />
             </>
         )
     )
