@@ -71,40 +71,23 @@ const REGISTER_METERS_MUTATION = gql`
                 address
                 accountNumber
                 result {
-                    err
+                    error { message }
                     data {
-                        ... on RegisterMetersItemResultErroneousOutput {
-                            error
-                        }
-                        ... on RegisterMetersItemResultSuccessOutput {
-                            propertyId
-                            meters {
-                                number
-                                result {
-                                    err
-                                    data {
-                                        ... on RegisterMetersMeterResultErroneousOutput {
-                                            error
-                                        }
-                                        ... on RegisterMetersMeterResultSuccessOutput {
-                                            id
-                                            readings {
-                                                v1
-                                                v2
-                                                v3
-                                                v4
-                                                result {
-                                                    err
-                                                    data {
-                                                        ... on RegisterMetersMeterReadingResultErroneousOutput {
-                                                            error
-                                                        }
-                                                        ... on RegisterMetersMeterReadingResultSuccessOutput {
-                                                            id
-                                                        }
-                                                    }
-                                                }
-                                            }
+                        propertyId
+                        meters {
+                            number
+                            result {
+                                error { message }
+                                data {
+                                    id
+                                    readings {
+                                        v1
+                                        v2
+                                        v3
+                                        v4
+                                        result {
+                                            error { message }
+                                            data { id }
                                         }
                                     }
                                 }

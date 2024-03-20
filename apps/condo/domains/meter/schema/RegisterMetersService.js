@@ -5,29 +5,15 @@
 const dayjs = require('dayjs')
 const { get, set } = require('lodash')
 
-const { createInstance: createAddressServiceClient } = require('@open-condo/clients/address-service-client')
 const conf = require('@open-condo/config')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, getByCondition, getById } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { i18n } = require('@open-condo/locales/loader')
 
 const { PropertyResolver } = require('@condo/domains/billing/schema/resolvers')
-const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/meter/access/RegisterMetersService')
 const { IMPORT_CONDO_METER_READING_SOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const { Meter, MeterReading } = require('@condo/domains/meter/utils/serverSchema')
-
-const ERRORS = {
-    NAME_OF_ERROR_FOR_USAGE_INSIDE_THIS_MODULE_ONLY: {
-        mutation: 'registerMeters',
-        variable: ['data', 'someVar'], // TODO(codegen): Provide path to a query/mutation variable, whose value caused this error. Remove this property, if variables are not relevant to this error
-        code: BAD_USER_INPUT, // TODO(codegen): use one of the basic codes, declared in '@open-condo/keystone/errors'
-        type: NOT_FOUND, // TODO(codegen): use value from `constants/errors.js` either from 'common' or current domain
-        message: 'Describe what happened for developer',
-        messageForUser: 'api.user.registerMeters.NAME_OF_ERROR_FOR_USAGE_INSIDE_THIS_MODULE_ONLY', // TODO(codegen): localized message for user, use translation files
-    },
-}
 
 function toISO (str) {
     return dayjs(str).toISOString()
@@ -64,15 +50,11 @@ const RegisterMetersService = new GQLCustomSchema('RegisterMetersService', {
         },
         {
             access: true,
-            type: 'type RegisterMetersMeterReadingResultErroneousOutput { error: String! }',
+            type: 'type RegisterMetersMeterReadingResultErroneousOutput { message: String! }',
         },
         {
             access: true,
-            type: 'union RegisterMetersMeterReadingResultDataUnion = RegisterMetersMeterReadingResultSuccessOutput | RegisterMetersMeterReadingResultErroneousOutput',
-        },
-        {
-            access: true,
-            type: 'type RegisterMetersMeterReadingResultOutput { err: Boolean!, data: RegisterMetersMeterReadingResultDataUnion! }',
+            type: 'type RegisterMetersMeterReadingResultOutput { error: RegisterMetersMeterReadingResultErroneousOutput, data: RegisterMetersMeterReadingResultSuccessOutput }',
         },
         {
             access: true,
@@ -84,15 +66,11 @@ const RegisterMetersService = new GQLCustomSchema('RegisterMetersService', {
         },
         {
             access: true,
-            type: 'type RegisterMetersMeterResultErroneousOutput { error: String! }',
+            type: 'type RegisterMetersMeterResultErroneousOutput { message: String! }',
         },
         {
             access: true,
-            type: 'union RegisterMetersMeterResultDataUnion = RegisterMetersMeterResultSuccessOutput | RegisterMetersMeterResultErroneousOutput',
-        },
-        {
-            access: true,
-            type: 'type RegisterMetersMeterResultOutput { err: Boolean!, data: RegisterMetersMeterResultDataUnion! }',
+            type: 'type RegisterMetersMeterResultOutput { error: RegisterMetersMeterResultErroneousOutput, data: RegisterMetersMeterResultSuccessOutput }',
         },
         {
             access: true,
@@ -104,15 +82,11 @@ const RegisterMetersService = new GQLCustomSchema('RegisterMetersService', {
         },
         {
             access: true,
-            type: 'type RegisterMetersItemResultErroneousOutput { error: String! }',
+            type: 'type RegisterMetersItemResultErroneousOutput { message: String! }',
         },
         {
             access: true,
-            type: 'union RegisterMetersItemResultDataUnion = RegisterMetersItemResultSuccessOutput | RegisterMetersItemResultErroneousOutput',
-        },
-        {
-            access: true,
-            type: 'type RegisterMetersItemResultOutput { err: Boolean!, data: RegisterMetersItemResultDataUnion! }',
+            type: 'type RegisterMetersItemResultOutput { error: RegisterMetersItemResultErroneousOutput, data: RegisterMetersItemResultSuccessOutput }',
         },
         {
             access: true,
@@ -128,7 +102,7 @@ const RegisterMetersService = new GQLCustomSchema('RegisterMetersService', {
         {
             access: access.canRegisterMeters,
             schema: 'registerMeters(data: RegisterMetersInput!): RegisterMetersOutput',
-            resolver: async (parent, /**{ data: RegisterMetersInput }*/args, context, info, extra = {}) => {
+            resolver: async (parent, /**{ data: RegisterMetersInput }*/args, context) => {
                 const { data: { dv, sender, organization, items } } = args
                 const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
 
@@ -146,11 +120,7 @@ const RegisterMetersService = new GQLCustomSchema('RegisterMetersService', {
                         address: item.address,
                         accountNumber: item.accountNumber,
                         result: {
-                            err: true,
-                            data: {
-                                __typename: 'RegisterMetersItemResultErroneousOutput',
-                                error: i18n('common.errors.serverError', { locale }),
-                            },
+                            error: { message: i18n('common.errors.serverError', { locale }) },
                         },
                     }
 
@@ -169,29 +139,21 @@ const RegisterMetersService = new GQLCustomSchema('RegisterMetersService', {
 
                     if (!property) {
                         set(itemResult, 'result', {
-                            err: true,
-                            data: {
-                                __typename: 'RegisterMetersItemResultErroneousOutput',
-                                error: i18n('field.Address.notFound', { locale }),
-                            },
+                            error: { message: i18n('field.Address.notFound', { locale }) },
                         })
                     } else {
-                        set(itemResult, ['result', 'err'], false)
-                        set(itemResult, ['result', 'data'], {
-                            __typename: 'RegisterMetersItemResultSuccessOutput',
-                            propertyId: property.id,
-                            meters: [],
+                        set(itemResult, 'result', {
+                            data: {
+                                propertyId: property.id,
+                                meters: [],
+                            },
                         })
 
                         const itemResultMeters = []
                         for (const meterData of item.meters) {
                             /** @type RegisterMetersMeterResultOutput */
                             const meterResult = {
-                                err: true,
-                                data: {
-                                    __typename: 'RegisterMetersMeterResultErroneousOutput',
-                                    error: i18n('common.errors.serverError', { locale }),
-                                },
+                                error: { message: i18n('common.errors.serverError', { locale }) },
                             }
                             let meterId
                             const foundMeter = await getByCondition('Meter', {
@@ -244,20 +206,13 @@ const RegisterMetersService = new GQLCustomSchema('RegisterMetersService', {
                                     meterId = createdMeter.id
                                 }
 
-                                set(meterResult, 'err', false)
-                                set(meterResult, 'data', {
-                                    __typename: 'RegisterMetersMeterResultSuccessOutput',
-                                    id: meterId,
-                                })
+                                meterResult.error = undefined
+                                meterResult.data = { id: meterId, readings: [] }
 
                                 const meterReadingsResults = []
-                                for (const readingData of get(meterData, 'readings', [])) {
+                                for (const /**RegisterMetersMeterReading*/readingData of get(meterData, 'readings', [])) {
                                     const meterReadingResult = {
-                                        err: true,
-                                        data: {
-                                            __typename: 'RegisterMetersMeterReadingResultErroneousOutput',
-                                            error: i18n('common.errors.serverError', { locale }),
-                                        },
+                                        error: { message: i18n('common.errors.serverError', { locale }) },
                                     }
                                     try {
                                         const meterReadingModel = await MeterReading.create(context, {
@@ -271,17 +226,11 @@ const RegisterMetersService = new GQLCustomSchema('RegisterMetersService', {
                                             value4: readingData.v4,
                                             date: toISO(readingData.date),
                                         })
-                                        set(meterReadingResult, 'err', false)
-                                        set(meterReadingResult, 'data', {
-                                            __typename: 'RegisterMetersMeterReadingResultSuccessOutput',
-                                            id: meterReadingModel.id,
-                                        })
+                                        meterReadingResult.error = undefined
+                                        meterReadingResult.data = { id: meterReadingModel.id }
                                     } catch (err) {
-                                        set(meterReadingResult, 'err', true)
-                                        set(meterReadingResult, 'data', {
-                                            __typename: 'RegisterMetersMeterReadingResultErroneousOutput',
-                                            error: get(err, ['graphQLErrors', 0, 'extensions', 'messageForUser'], err.message),
-                                        })
+                                        meterReadingResult.error = { message: get(err, ['graphQLErrors', 0, 'extensions', 'messageForUser'], err.message) }
+                                        meterReadingResult.data = undefined
                                     }
                                     meterReadingsResults.push({
                                         v1: readingData.v1,
@@ -294,11 +243,8 @@ const RegisterMetersService = new GQLCustomSchema('RegisterMetersService', {
 
                                 set(meterResult, ['data', 'readings'], meterReadingsResults)
                             } catch (err) {
-                                set(meterResult, 'err', true)
-                                set(meterResult, 'data', {
-                                    __typename: 'RegisterMetersMeterResultErroneousOutput',
-                                    error: get(err, ['graphQLErrors', 0, 'extensions', 'messageForUser'], err.message),
-                                })
+                                meterResult.error = { message: get(err, ['graphQLErrors', 0, 'extensions', 'messageForUser'], err.message) }
+                                meterResult.data = undefined
                             }
 
                             itemResultMeters.push({ number: meterData.number, result: meterResult })
