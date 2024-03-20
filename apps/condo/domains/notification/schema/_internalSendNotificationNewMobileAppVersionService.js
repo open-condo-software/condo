@@ -28,7 +28,7 @@ const _internalSendNotificationNewMobileAppVersionService = new GQLCustomSchema(
         },
         {
             access: true,
-            type: 'input _internalSendNotificationNewMobileAppVersionInput { dv: Int!, sender: JSON! platform: Platform!, app: App!, buildVersion: String!, title: String, body: String, organizationIds: [ID!] }',
+            type: 'input _internalSendNotificationNewMobileAppVersionInput { dv: Int!, sender: SenderFieldInput! platform: Platform!, app: App!, buildVersion: String!, title: String!, body: String, organizationIds: [ID!] }',
         },
         {
             access: true,
@@ -39,6 +39,7 @@ const _internalSendNotificationNewMobileAppVersionService = new GQLCustomSchema(
     mutations: [
         {
             access: access.can_internalSendNotificationNewMobileAppVersion,
+            schemaDoc: 'The mutation is necessary to send push notifications directly to a specific user device with an outdated version of the mobile application build.',
             schema: '_internalSendNotificationNewMobileAppVersion(data: _internalSendNotificationNewMobileAppVersionInput!): _internalSendNotificationNewMobileAppVersionOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
 
@@ -49,6 +50,7 @@ const _internalSendNotificationNewMobileAppVersionService = new GQLCustomSchema(
 
                 const userType = app === RESIDENT ? RESIDENT : STAFF
                 let remoteClientKeys
+
                 //The case when a push is sent to all suitable devices, regardless of organization
                 if (isEmpty(organizationIds)) {
                     remoteClientKeys = await loadListByChunks({
@@ -74,49 +76,50 @@ const _internalSendNotificationNewMobileAppVersionService = new GQLCustomSchema(
                             return rcWithLowerBuild
                         },
                     })
-                }
-
-                //The case when a push is sent to suitable devices of a specific or several organizations
-                if (!isEmpty(organizationIds)) {
-                    for (const organizationId of organizationIds) {
-                        const residents = await loadListByChunks({
-                            context: adminContext,
-                            list: Resident,
-                            where: {
-                                organization: {
-                                    id: organizationId,
-                                },
+                } else {    //The case when a push is sent to suitable devices of a specific or several organizations
+                    const userIds = await loadListByChunks({
+                        context: adminContext,
+                        list: Resident,
+                        where: {
+                            organization: {
+                                id_in: organizationIds,
                             },
-                            chunkSize: 50,
-                        })
+                        },
+                        chunkSize: 50,
+                        chunkProcessor: (/** @type {Resident[]} */ chunk) => {
+                            const userIds = []
+                            chunk.map(resident => {
+                                const userId = get(resident, 'user.id')
+                                if (userId) userIds.push(userId)
+                            })
+                            return userIds
+                        },
+                    })
 
-                        const userIds = residents.map(r => r.user.id)
-
-                        remoteClientKeys = await loadListByChunks({
-                            context: adminContext,
-                            list: RemoteClient,
-                            where: {
-                                devicePlatform: platform,
-                                deletedAt: null,
-                                owner: {
-                                    type: userType,
-                                    id_in: userIds,
-                                },
+                    remoteClientKeys = await loadListByChunks({
+                        context: adminContext,
+                        list: RemoteClient,
+                        where: {
+                            devicePlatform: platform,
+                            deletedAt: null,
+                            owner: {
+                                type: userType,
+                                id_in: userIds,
                             },
-                            chunkSize: 50,
-                            chunkProcessor: (/** @type {RemoteClient[]} */ chunk) => {
-                                const rcWithLowerBuild = []
+                        },
+                        chunkSize: 50,
+                        chunkProcessor: (/** @type {RemoteClient[]} */ chunk) => {
+                            const rcWithLowerBuild = []
 
-                                if (buildVersion) {
-                                    for (const rc of chunk) {
-                                        if (get(rc, 'meta.Build', buildVersion) < buildVersion) rcWithLowerBuild.push(`rc:${rc.id}`)
-                                    }
+                            if (buildVersion) {
+                                for (const rc of chunk) {
+                                    if (get(rc, 'meta.Build', buildVersion) < buildVersion) rcWithLowerBuild.push(`rc:${rc.id}`)
                                 }
+                            }
 
-                                return rcWithLowerBuild
-                            },
-                        })
-                    }
+                            return rcWithLowerBuild
+                        },
+                    })
                 }
 
                 const messageBatch = await MessageBatch.create(adminContext, {
