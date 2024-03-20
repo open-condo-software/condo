@@ -9,6 +9,7 @@ const dayjs = require('dayjs')
 const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 
+const { canOnlyServerSideWithoutUserRequest } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { itemsQuery } = require('@open-condo/keystone/schema')
@@ -186,8 +187,14 @@ const NewsItem = new GQLListSchema('NewsItem', {
         },
 
         sentAt: {
-            schemaDoc: 'The date when newsItem was sent to residents. This is an internal field used to detect was the message has already been sent or not.',
+            schemaDoc: 'The date when newsItem was sent to residents.' +
+                ' This is an internal field used to detect was the message has already been sent or not.',
             type: 'DateTimeUtc',
+            access: {
+                read: true,
+                create: canOnlyServerSideWithoutUserRequest,
+                update: canOnlyServerSideWithoutUserRequest,
+            },
         },
 
         isPublished: {

@@ -945,6 +945,22 @@ describe('NewsItems', () => {
                 errorFieldsToCheck,
             )
         })
+
+        test('users cannot set the "sentAt" field', async () => {
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await createTestNewsItem(adminClient, dummyO10n, {
+                    sentAt: dayjs().toISOString(),
+                })
+            })
+
+            const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestNewsItem(adminClient, newsItem.id, {
+                    sentAt: dayjs().toISOString(),
+                })
+            })
+        })
     })
 
     describe('Delayed news items', () => {
