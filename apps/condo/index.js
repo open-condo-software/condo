@@ -1,7 +1,6 @@
 const { NextApp } = require('@keystonejs/app-next')
 const { createItems } = require('@keystonejs/server-side-graphql-client')
 const Sentry = require('@sentry/node')
-const { ProfilingIntegration } = require('@sentry/profiling-node')
 const dayjs = require('dayjs')
 const duration = require('dayjs/plugin/duration')
 const isBetween = require('dayjs/plugin/isBetween')
@@ -111,10 +110,6 @@ if (!IS_BUILD_PHASE && SENTRY_CONFIG['server']) {
         dsn: SENTRY_CONFIG['server']['dsn'],
         debug: false,
         tracesSampleRate: SENTRY_CONFIG['server']['sampleRate'],
-        integrations: [
-            new Sentry.Integrations.Http({ tracing: true }),
-            new ProfilingIntegration(),
-        ],
         environment: SENTRY_CONFIG['server']['environment'],
         organization: SENTRY_CONFIG['server']['organization'],
         project: SENTRY_CONFIG['server']['project'],

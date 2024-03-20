@@ -125,9 +125,9 @@ if (sentryConfig['client']) {
             transpileClientSDK: false,
             hideSourceMaps: true,
             disableLogger: true,
-            automaticVercelMonitors: true,
-            autoInstrumentServerFunctions: true,
-            autoInstrumentMiddleware: true,
+            automaticVercelMonitors: false,
+            autoInstrumentServerFunctions: false,
+            autoInstrumentMiddleware: false,
         },
     )
 }
