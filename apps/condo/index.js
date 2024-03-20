@@ -119,6 +119,7 @@ if (!IS_BUILD_PHASE && SENTRY_CONFIG['server']) {
         organization: SENTRY_CONFIG['server']['organization'],
         project: SENTRY_CONFIG['server']['project'],
         release: `${SENTRY_CONFIG['server']['environment']}-${getCurrentVersion()}`,
+        ignoreErrors: ['No or incorrect authentication credentials'],
     })
 }
 
