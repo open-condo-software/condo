@@ -137,8 +137,40 @@ const NewsItem = new GQLListSchema('NewsItem', {
         },
 
         sendAt: {
-            schemaDoc: 'UTC (!) Date to publish the news item and to send notifications',
+            schemaDoc: 'UTC (!)' +
+                '\nDate to publish the news item and to send notifications.' +
+                '\nIf left blank, it will be published immediately.',
             type: 'DateTimeUtc',
+        },
+
+        deliverAt: {
+            // todo(DOMA-6931): update schemaDoc
+            schemaDoc: '(Internal auto-calculated field)' +
+                '\nStart time for sending notifications.' +
+                '\nDepends on the "sendAt" field:' +
+                '\n 1) If "sendAt" is empty, then current time + delay of 15 seconds is specified;' +
+                '\n 2) If "sendAt" is specified, then the value is taken from it.',
+            type: 'DateTimeUtc',
+            hooks: {
+                resolveInput: async ({ existingItem, resolvedData, fieldName }) => {
+                    const newItem = { ...existingItem, ...resolvedData }
+                    const prevIsPublished = get(existingItem, 'isPublished', false)
+                    const sendAt = get(newItem, 'sendAt', null)
+                    const isPublished = get(newItem, 'isPublished', false)
+
+                    const updatedIsPublished = prevIsPublished !== isPublished
+
+                    if (!isPublished) return get(resolvedData, fieldName)
+                    if (!updatedIsPublished) return get(resolvedData, fieldName)
+                    if (!sendAt) return dayjs().add(15, 'second').toISOString()
+                    return sendAt
+                },
+            },
+            access: {
+                read: true,
+                create: false,
+                update: false,
+            },
         },
 
         scopes: {
