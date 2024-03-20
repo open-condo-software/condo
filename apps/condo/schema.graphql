@@ -73886,14 +73886,12 @@ type RegisterMetersMeterReadingResultSuccessOutput {
 }
 
 type RegisterMetersMeterReadingResultErroneousOutput {
-  error: String!
+  message: String!
 }
 
-union RegisterMetersMeterReadingResultDataUnion = RegisterMetersMeterReadingResultSuccessOutput | RegisterMetersMeterReadingResultErroneousOutput
-
 type RegisterMetersMeterReadingResultOutput {
-  err: Boolean!
-  data: RegisterMetersMeterReadingResultDataUnion!
+  error: RegisterMetersMeterReadingResultErroneousOutput
+  data: RegisterMetersMeterReadingResultSuccessOutput
 }
 
 type RegisterMetersMeterReadingOutput {
@@ -73910,14 +73908,12 @@ type RegisterMetersMeterResultSuccessOutput {
 }
 
 type RegisterMetersMeterResultErroneousOutput {
-  error: String!
+  message: String!
 }
 
-union RegisterMetersMeterResultDataUnion = RegisterMetersMeterResultSuccessOutput | RegisterMetersMeterResultErroneousOutput
-
 type RegisterMetersMeterResultOutput {
-  err: Boolean!
-  data: RegisterMetersMeterResultDataUnion!
+  error: RegisterMetersMeterResultErroneousOutput
+  data: RegisterMetersMeterResultSuccessOutput
 }
 
 type RegisterMetersMeterOutput {
@@ -73931,14 +73927,12 @@ type RegisterMetersItemResultSuccessOutput {
 }
 
 type RegisterMetersItemResultErroneousOutput {
-  error: String!
+  message: String!
 }
 
-union RegisterMetersItemResultDataUnion = RegisterMetersItemResultSuccessOutput | RegisterMetersItemResultErroneousOutput
-
 type RegisterMetersItemResultOutput {
-  err: Boolean!
-  data: RegisterMetersItemResultDataUnion!
+  error: RegisterMetersItemResultErroneousOutput
+  data: RegisterMetersItemResultSuccessOutput
 }
 
 type RegisterMetersItemOutput {

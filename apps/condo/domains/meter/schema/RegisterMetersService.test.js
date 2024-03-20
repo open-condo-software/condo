@@ -94,13 +94,13 @@ describe('RegisterMetersService', () => {
                     address: items[0].address,
                     accountNumber: items[0].accountNumber,
                     result: {
-                        err: false,
+                        error: null,
                         data: {
                             propertyId: property.id,
                             meters: [{
                                 number: items[0].meters[0].number,
                                 result: {
-                                    err: false,
+                                    error: null,
                                     data: {
                                         id: meters[0].id,
                                         readings: [{
@@ -109,7 +109,7 @@ describe('RegisterMetersService', () => {
                                             v3: null,
                                             v4: null,
                                             result: {
-                                                err: false,
+                                                error: null,
                                                 data: {
                                                     id: metersReadings[0].id,
                                                 },
@@ -146,13 +146,13 @@ describe('RegisterMetersService', () => {
                     address: items[0].address,
                     accountNumber: items[0].accountNumber,
                     result: {
-                        err: false,
+                        error: null,
                         data: {
                             propertyId: property.id,
                             meters: [{
                                 number: items[0].meters[0].number,
                                 result: {
-                                    err: false,
+                                    error: null,
                                     data: {
                                         id: meters[0].id,
                                         readings: [{
@@ -161,7 +161,7 @@ describe('RegisterMetersService', () => {
                                             v3: null,
                                             v4: null,
                                             result: {
-                                                err: false,
+                                                error: null,
                                                 data: {
                                                     id: metersReadings[0].id,
                                                 },
@@ -202,13 +202,13 @@ describe('RegisterMetersService', () => {
                         address: items[0].address,
                         accountNumber: items[0].accountNumber,
                         result: {
-                            err: false,
+                            error: null,
                             data: {
                                 propertyId: staffClient.property.id,
                                 meters: [{
                                     number: items[0].meters[0].number,
                                     result: {
-                                        err: false,
+                                        error: null,
                                         data: {
                                             id: meters[0].id,
                                             readings: [{
@@ -217,7 +217,7 @@ describe('RegisterMetersService', () => {
                                                 v3: null,
                                                 v4: null,
                                                 result: {
-                                                    err: false,
+                                                    error: null,
                                                     data: {
                                                         id: metersReadings[0].id,
                                                     },
@@ -269,13 +269,13 @@ describe('RegisterMetersService', () => {
                         address: items[0].address,
                         accountNumber: items[0].accountNumber,
                         result: {
-                            err: false,
+                            error: null,
                             data: {
                                 propertyId: property.id,
                                 meters: [{
                                     number: items[0].meters[0].number,
                                     result: {
-                                        err: false,
+                                        error: null,
                                         data: {
                                             id: meters[0].id,
                                             readings: [{
@@ -284,7 +284,7 @@ describe('RegisterMetersService', () => {
                                                 v3: null,
                                                 v4: null,
                                                 result: {
-                                                    err: false,
+                                                    error: null,
                                                     data: {
                                                         id: metersReadings[0].id,
                                                     },
