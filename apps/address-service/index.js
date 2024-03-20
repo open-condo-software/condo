@@ -102,8 +102,8 @@ module.exports = {
         new SuggestionKeystoneApp(),
         new SearchKeystoneApp([
             new SearchByAddressKey(),
-            new SearchByInjectionId(),
             new SearchBySource(),
+            new SearchByInjectionId(),
             new SearchByFiasId(),
             new SearchByGooglePlaceId(),
             new SearchByProvider(),

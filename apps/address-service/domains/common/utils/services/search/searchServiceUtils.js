@@ -33,7 +33,7 @@ async function createOrUpdateAddressWithSource (context, addressServerUtils, add
     // Address source
     //
     const compoundedAddressSource = mergeAddressAndHelpers(addressSource, helpers)
-    const addressSourceItem = await addressSourceServerUtils.getOne(context, { source: compoundedAddressSource })
+    const addressSourceItem = await addressSourceServerUtils.getOne(context, { source: compoundedAddressSource.toLowerCase() })
 
     if (addressSourceItem) {
         await addressSourceServerUtils.update(context, addressSourceItem.id, {
