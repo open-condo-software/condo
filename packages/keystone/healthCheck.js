@@ -81,6 +81,7 @@ const DEFAULT_TIMEOUT = 5000 // 5s
 const PASS = 'pass'
 const WARN = 'warn'
 const FAIL = 'fail'
+const TIMEOUT = 'timeout'
 
 const BAD_REQUEST = 400
 const HEALTHCHECK_OK = 200
@@ -254,10 +255,10 @@ class HealthCheck {
 
         const checkResult = await Promise.race([
             check.run(),
-            new Promise(r => { setTimeout(r, DEFAULT_TIMEOUT) }).then(() => FAIL),
+            new Promise(r => { setTimeout(r, DEFAULT_TIMEOUT) }).then(() => TIMEOUT),
         ])
 
-        if (![PASS, WARN, FAIL].includes(checkResult)) {
+        if (![PASS, WARN, FAIL, TIMEOUT].includes(checkResult)) {
             throw new Error(`Check.run function output not allowed value for check named ${check.name}`)
         }
         this.cache.set(check.name, checkResult)
