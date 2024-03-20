@@ -57,6 +57,28 @@ describe('RegisterNewUserService', () => {
             type: ACTION_NOT_FOUND,
         }, 'result')
     })
+    test('Cannot use same ConfirmPhoneAction twice', async () => {
+        const client = await makeClient()
+        const [{ actionId }] = await startConfirmPhoneActionByTestClient({}, client)
+        const { code } = await ConfirmPhoneAction.getOne(adminClient, { id: actionId })
+        expect(code).toBeDefined()
+
+        const [{ status }] = await completeConfirmPhoneActionByTestClient(actionId, { code }, client)
+        expect(status).toEqual('success')
+
+        const [user, { phone }] =  await registerNewTestUser({ actionId }, client)
+        expect(user).toHaveProperty('id')
+
+        await expectToThrowGQLError(async () => {
+            await registerNewTestUser({ actionId, phone }, client)
+        }, {
+            code: BAD_USER_INPUT,
+            type: ACTION_NOT_FOUND,
+        }, 'result')
+
+        const action = await ConfirmPhoneAction.getOne(adminClient, { id: actionId })
+        expect(action).not.toBeDefined()
+    })
     test('Cannot register with expired ConfirmPhoneAction', async () => {
         const client = await makeClient()
         const [{ actionId }] = await startConfirmPhoneActionByTestClient({}, client)

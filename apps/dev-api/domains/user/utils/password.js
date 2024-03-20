@@ -1,3 +1,5 @@
+const crypto = require('crypto')
+
 const { MIN_PASSWORD_LENGTH, MIN_PASSWORD_DIFFERENT_CHARACTERS } = require('@dev-api/domains/user/constants')
 
 const UNICODE_CHARS_REGEX = /[\w\W]/gu
@@ -28,10 +30,14 @@ function isValidPassword (password, extraData = {}) {
     }
 
     return !(extraData.hasOwnProperty('phone') && hasPhoneInside(password, extraData.phone))
+}
 
-
+function generateNumericCode (length = 4) {
+    const maxValue = Math.pow(10, length)
+    return String(crypto.randomInt(maxValue)).padStart(length, '0')
 }
 
 module.exports = {
     isValidPassword,
+    generateNumericCode,
 }

@@ -8,9 +8,11 @@ const conf = require('@open-condo/config')
 const path = require('path')
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
+const { registerNewServiceUserByTestClient } = require('@condo/domains/user/utils/testSchema')
 
 const {
     B2CApp: B2CAppGQL,
+    B2CAppAccessRight: B2CAppAccessRightGQL,
     B2CAppBuild: B2CAppBuildGQL,
     B2CAppPublishRequest: B2CAppPublishRequestGQL,
     PUBLISH_B2C_APP_MUTATION,
@@ -22,14 +24,16 @@ const {
     CREATE_OIDC_CLIENT_MUTATION,
     GENERATE_OIDC_CLIENT_SECRET_MUTATION,
     UPDATE_OIDC_CLIENT_URL_MUTATION,
+    REGISTER_APP_USER_SERVICE_MUTATION,
 } = require('@dev-api/domains/miniapp/gql')
 const { UploadingFile } = require('@open-condo/keystone/test.utils')
 const { DEV_ENVIRONMENT } = require('@dev-api/domains/miniapp/constants/publishing')
-const { generateGqlQueries } = require("@open-condo/codegen/generate.gql");
+const { generateGqlQueries } = require("@open-condo/codegen/generate.gql")
 const { DEFAULT_COLOR_SCHEMA } = require("@dev-api/domains/miniapp/constants/b2c")
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const B2CApp = generateGQLTestUtils(B2CAppGQL)
+const B2CAppAccessRight = generateGQLTestUtils(B2CAppAccessRightGQL)
 const B2CAppBuild = generateGQLTestUtils(B2CAppBuildGQL)
 const B2CAppPublishRequest = generateGQLTestUtils(B2CAppPublishRequestGQL)
 /* AUTOGENERATE MARKER <CONST> */
@@ -41,6 +45,7 @@ const CondoB2CApp = generateGQLTestUtils(generateGqlQueries('B2CApp', '{ id name
 const CondoB2CAppBuild = generateGQLTestUtils(generateGqlQueries('B2CAppBuild', '{ id version data { publicUrl } importId importRemoteSystem }'))
 const CondoB2CAppProperty = generateGQLTestUtils(generateGqlQueries('B2CAppProperty', '{ id address }'))
 const CondoOIDCClient = generateGQLTestUtils(generateGqlQueries('OidcClient', '{ id clientId payload isEnabled name importId importRemoteSystem }'))
+const CondoB2CAppAccessRight = generateGQLTestUtils(generateGqlQueries('B2CAppAccessRight', '{ id user { id } app { id } importId importRemoteSystem }'))
 
 function generateBuildVersion () {
     return `${faker.datatype.number()}.${faker.datatype.number()}.${faker.datatype.number()}`
@@ -112,6 +117,25 @@ async function createCondoB2CAppProperties(client, condoApp, amount) {
     const objs = await CondoB2CAppProperty.createMany(client, attrs)
 
     return [objs, attrs]
+}
+
+async function createCondoB2CAppAccessRight(client, condoApp, condoUser = null) {
+    let user = condoUser
+
+    if (!condoUser) {
+        [user] = await registerNewServiceUserByTestClient(client)
+    }
+
+    const attrs = {
+        dv: 1,
+        sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+        app: { connect: { id: condoApp.id } },
+        user: { connect: { id: user.id } },
+    }
+
+    const obj =  await CondoB2CAppAccessRight.create(client, attrs)
+
+    return [obj, attrs]
 }
 
 async function createTestB2CApp (client, extraAttrs = {}) {
@@ -253,7 +277,7 @@ async function importB2CAppByTestClient(client, app, condoDevApp = null, condoPr
         sender,
         to: { app: { id: app.id } },
         from,
-        options: { info: true, builds: true, publish: true },
+        options: { info: true, builds: true, publish: true, accessRight: true },
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(IMPORT_B2C_APP_MUTATION, { data: attrs })
@@ -379,19 +403,72 @@ async function updateOIDCClientUrlByTestClient(client, app, extraAttrs = {}) {
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+async function createTestB2CAppAccessRight (client, app, condoUserId, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app.id')
+    if (!condoUserId) throw new Error('no condoUserId')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        app: { connect: { id: app.id } },
+        condoUserId,
+        ...extraAttrs,
+    }
+    const obj = await B2CAppAccessRight.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestB2CAppAccessRight (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await B2CAppAccessRight.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+
+async function registerAppUserServiceByTestClient(client, app, confirmEmailAction, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app.id')
+    if (!confirmEmailAction || !confirmEmailAction.id) throw new Error('no confirmEmailAction.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        environment: DEV_ENVIRONMENT,
+        app: { id: app.id },
+        confirmEmailAction: { id: confirmEmailAction.id },
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(REGISTER_APP_USER_SERVICE_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     CondoB2CApp, createCondoB2CApp,
     CondoB2CAppBuild, createCondoB2CAppBuild, updateCondoB2CApp,
     CondoB2CAppProperty, createCondoB2CAppProperties,
+    CondoB2CAppAccessRight, createCondoB2CAppAccessRight,
     CondoOIDCClient,
     B2CApp, createTestB2CApp, updateTestB2CApp, updateTestB2CApps,
+    B2CAppAccessRight, createTestB2CAppAccessRight, updateTestB2CAppAccessRight,
     B2CAppBuild, createTestB2CAppBuild, updateTestB2CAppBuild, generateBuildVersion,
     B2CAppPublishRequest, createTestB2CAppPublishRequest, updateTestB2CAppPublishRequest,
     publishB2CAppByTestClient,
     importB2CAppByTestClient,
     allB2CAppPropertiesByTestClient, createB2CAppPropertyByTestClient, deleteB2CAppPropertyByTestClient,
     getOIDCClientByTestClient, createOIDCClientByTestClient, generateOIDCClientSecretByTestClient, updateOIDCClientUrlByTestClient,
+    registerAppUserServiceByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

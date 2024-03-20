@@ -9,6 +9,7 @@ const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.ut
 
 const {
     B2CApp: B2CAppGQL,
+    B2CAppAccessRight: B2CAppAccessRightGQL,
     B2CAppBuild: B2CAppBuildGQL,
     B2CAppPublishRequest: B2CAppPublishRequestGQL,
     PUBLISH_B2C_APP_MUTATION,
@@ -20,10 +21,12 @@ const {
     CREATE_OIDC_CLIENT_MUTATION,
     GENERATE_OIDC_CLIENT_SECRET_MUTATION,
     UPDATE_OIDC_CLIENT_URL_MUTATION,
+    REGISTER_APP_USER_SERVICE_MUTATION,
 } = require('@dev-api/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const B2CApp = generateServerUtils(B2CAppGQL)
+const B2CAppAccessRight = generateServerUtils(B2CAppAccessRightGQL)
 const B2CAppBuild = generateServerUtils(B2CAppBuildGQL)
 const B2CAppPublishRequest = generateServerUtils(B2CAppPublishRequestGQL)
 
@@ -141,11 +144,24 @@ async function updateOIDCClientUrl (context, data) {
         dataPath: 'result',
     })
 }
+async function registerAppUserService (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: REGISTER_APP_USER_SERVICE_MUTATION,
+        variables: { data },
+        errorMessage: '[error] Unable to registerAppUserService',
+        dataPath: 'obj',
+    })
+}
 
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     B2CApp,
+    B2CAppAccessRight,
     B2CAppBuild,
     B2CAppPublishRequest,
     publishB2CApp,
@@ -157,5 +173,6 @@ module.exports = {
     createOIDCClient,
     generateOIDCClientSecret,
     updateOIDCClientUrl,
+    registerAppUserService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

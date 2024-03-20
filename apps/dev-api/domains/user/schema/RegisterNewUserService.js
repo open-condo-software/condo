@@ -24,7 +24,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: ACTION_NOT_FOUND,
         message: 'ConfirmPhoneAction with the specified ID is not verified, expired, or does not exist',
-        messageForUser: 'errors.ACTION_NOT_FOUND.user.message',
+        messageForUser: 'errors.ACTION_NOT_FOUND.phone.message',
     },
 }
 
@@ -32,7 +32,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
     types: [
         {
             access: true,
-            type: 'input RegisterNewUserInput { dv: Int!, sender: SenderFieldInput!, confirmPhoneActionId: String!, name: String!, password: String!}',
+            type: 'input RegisterNewUserInput { dv: Int!, sender: SenderFieldInput!, confirmPhoneAction: ConfirmPhoneActionWhereUniqueInput!, name: String!, password: String!}',
         },
     ],
     mutations: [
@@ -40,19 +40,26 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
             access: true,
             schema: 'registerNewUser(data: RegisterNewUserInput!): User',
             resolver: async (parent, args, context) => {
-                const { data: { dv, sender, confirmPhoneActionId, name, password } } = args
+                const { data: { dv, sender, confirmPhoneAction: { id }, name, password } } = args
 
                 const currentTime = dayjs().toISOString()
                 const confirmAction = await ConfirmPhoneAction.getOne(context, {
-                    deletedAt: null,
-                    id: confirmPhoneActionId,
-                    isVerified: true,
+                    id,
                     expiresAt_gte: currentTime,
+                    deletedAt: null,
+                    isVerified: true,
                 })
 
                 if (!confirmAction) {
                     throw new GQLError(ERRORS.ACTION_NOT_FOUND, context)
                 }
+
+                // NOTE: Mark action as used by deleting it
+                await ConfirmPhoneAction.update(context, confirmAction.id, {
+                    deletedAt: currentTime,
+                    dv,
+                    sender,
+                })
 
 
                 const createdUser = await User.create(context, {

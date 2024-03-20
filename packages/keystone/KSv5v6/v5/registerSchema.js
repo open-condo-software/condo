@@ -1,7 +1,11 @@
+const { Relationship, Integer, Float, Slug, Virtual, Url, Uuid, Checkbox, DateTimeUtc, CalendarDay, Decimal, Password } = require('@keystonejs/fields')
+const { AuthedRelationship } = require('@keystonejs/fields-authed-relationship')
 const { get, isObject, isString } = require('lodash')
 
 const { Text } = require('@open-condo/keystone/fields')
 
+const { Json, SignedDecimal, AutoIncrementInteger, LocalizedText, DateInterval, FileWithUTF8Name, Select } = require('../../fields')
+const { HiddenRelationship } = require('../../plugins/utils/HiddenRelationship')
 const { GQL_SCHEMA_TYPES, GQL_CUSTOM_SCHEMA_TYPE, GQL_LIST_SCHEMA_TYPE } = require('../../schema')
 
 function _defaultAdminUiColumns (fields) {
@@ -28,10 +32,6 @@ function applyKeystoneV5AdminFixes (schema) {
 
 /** @deprecated it's part of internal API use prepareKeystone instead */
 function convertStringToTypes (schema) {
-    const { Relationship, Integer, Float, Select, Slug, Virtual, Url, Uuid, Checkbox, DateTimeUtc, CalendarDay, Decimal, Password } = require('@keystonejs/fields')
-    const { AuthedRelationship } = require('@keystonejs/fields-authed-relationship')
-    const { Json, SignedDecimal, AutoIncrementInteger, LocalizedText, DateInterval, FileWithUTF8Name } = require('../../fields')
-    const { HiddenRelationship } = require('../../plugins/utils/HiddenRelationship')
     const mapping = {
         CalendarDay,
         Checkbox,
@@ -44,7 +44,7 @@ function convertStringToTypes (schema) {
         Relationship,
         Select,
         Slug,
-        Text: Text,
+        Text,
         Url,
         Uuid,
         Virtual,

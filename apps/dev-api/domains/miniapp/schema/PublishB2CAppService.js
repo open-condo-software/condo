@@ -4,6 +4,7 @@
 
 const fs = require('fs')
 
+const dayjs = require('dayjs')
 const got = require('got')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
@@ -16,6 +17,7 @@ const {
     CondoB2CAppGql,
     CondoB2CAppBuildGql,
     CondoOIDCClientGql,
+    CondoB2CAppAccessRightGql,
 } = require('@dev-api/domains/condo/gql')
 const access = require('@dev-api/domains/miniapp/access/PublishB2CAppService')
 const { DEFAULT_COLOR_SCHEMA } = require('@dev-api/domains/miniapp/constants/b2c')
@@ -36,6 +38,7 @@ const {
     B2CApp,
     B2CAppBuild,
     B2CAppPublishRequest,
+    B2CAppAccessRight,
 } = require('@dev-api/domains/miniapp/utils/serverSchema/index')
 
 const { getOIDCClientWhere } = require('./GetOIDCClientService')
@@ -227,6 +230,69 @@ async function enableOIDCClient ({ args, serverClient }) {
     logger.info({ msg: 'OIDC client is enabled now', appId: app.id, environment, meta: { oidcClientId: oidcClient.id } })
 }
 
+async function addAccessRight ({ args, serverClient, context, condoApp }) {
+    const { data: { dv, sender, app: { id }, environment } } = args
+    const exportField = `${environment}ExportId`
+
+    const accessRight = await B2CAppAccessRight.getOne(context, {
+        app: { id },
+        environment,
+        deletedAt: null,
+    })
+
+    if (accessRight) {
+        logger.info({ msg: 'Access right found for app', appId: id, environment, meta: { accessRightId: accessRight.id } })
+
+        const condoRights = await serverClient.getModels({
+            modelGql: CondoB2CAppAccessRightGql,
+            where: {
+                app: { id: condoApp.id },
+            },
+            first: 1,
+        })
+        if (condoRights.length) {
+            const condoRight = condoRights[0]
+            logger.info({ msg: 'Existing condo access right found for app', appId: id, environment, meta: { accessRightId: accessRight.id, condoAccessRightId: condoRight.id  } })
+            const condoUserId = condoRight.user?.id
+
+            if (condoUserId === accessRight.condoUserId) {
+                return
+            } else {
+                logger.info({ msg: 'Existing condo access right user does not match with dev-api one', appId: id, environment, meta: { accessRightId: accessRight.id, condoAccessRightId: condoRight.id  } })
+                await serverClient.updateModel({
+                    modelGql: CondoB2CAppAccessRightGql,
+                    id: condoRight.id,
+                    updateInput: {
+                        dv: 1,
+                        sender,
+                        deletedAt: dayjs().toISOString(),
+                    },
+                })
+                logger.info({ msg: 'Existing condo access right successfully deleted', appId: id, environment, meta: { accessRightId: accessRight.id, condoAccessRightId: condoRight.id  } })
+            }
+        }
+
+        logger.info({ msg: 'Creating new condo access right', appId: id, environment, meta: { accessRightId: accessRight.id } })
+        const condoRight = await serverClient.createModel({
+            modelGql: CondoB2CAppAccessRightGql,
+            createInput: {
+                dv,
+                sender,
+                app: { connect: { id: condoApp.id } },
+                user: { connect: { id: accessRight.condoUserId } },
+                importId: accessRight.id,
+                importRemoteSystem: REMOTE_SYSTEM,
+            },
+        })
+        logger.info({ msg: 'Updating dev-api access right info', appId: id, environment, meta: { accessRightId: accessRight.id, condoAccessRightId: condoRight.id } })
+        await B2CAppAccessRight.update(context, accessRight.id, {
+            dv,
+            sender,
+            [exportField]: condoRight.id,
+        })
+    }
+}
+
 const PublishB2CAppService = new GQLCustomSchema('PublishB2CAppService', {
     types: [
         {
@@ -330,6 +396,9 @@ const PublishB2CAppService = new GQLCustomSchema('PublishB2CAppService', {
                         serverClient,
                     })
                 }
+
+                // Step 3. Create accessRight is necessary
+                await addAccessRight({ args, serverClient, context, condoApp })
 
                 // Step 4. If OIDC client was created, publish must enable it for usage
                 await enableOIDCClient({ args, serverClient })

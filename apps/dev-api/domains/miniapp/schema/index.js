@@ -5,6 +5,7 @@
 
 const { AllB2CAppPropertiesService } = require('./AllB2CAppPropertiesService')
 const { B2CApp } = require('./B2CApp')
+const { B2CAppAccessRight } = require('./B2CAppAccessRight')
 const { B2CAppBuild } = require('./B2CAppBuild')
 const { B2CAppPublishRequest } = require('./B2CAppPublishRequest')
 const { CreateB2CAppPropertyService } = require('./CreateB2CAppPropertyService')
@@ -14,11 +15,13 @@ const { GenerateOIDCClientSecretService } = require('./GenerateOIDCClientSecretS
 const { GetOIDCClientService } = require('./GetOIDCClientService')
 const { ImportB2CAppService } = require('./ImportB2CAppService')
 const { PublishB2CAppService } = require('./PublishB2CAppService')
+const { RegisterAppServiceUserService } = require('./RegisterAppServiceUserService')
 const { UpdateOIDCClientUrlService } = require('./UpdateOIDCClientUrlService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     B2CApp,
+    B2CAppAccessRight,
     B2CAppBuild,
     B2CAppPublishRequest,
     PublishB2CAppService,
@@ -30,5 +33,6 @@ module.exports = {
     CreateOIDCClientService,
     GenerateOIDCClientSecretService,
     UpdateOIDCClientUrlService,
+    RegisterAppServiceUserService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

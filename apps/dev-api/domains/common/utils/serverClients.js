@@ -37,7 +37,7 @@ class CondoClient extends ApolloServerClient {
         super(endpoint, authRequisites, opts)
     }
 
-    async sendMessage (to, message) {
+    async sendMessage (to, message, extraMeta = {}) {
         await this.executeAuthorizedMutation({
             mutation: SEND_MESSAGE_MUTATION,
             variables: {
@@ -49,6 +49,7 @@ class CondoClient extends ApolloServerClient {
                     meta: {
                         dv: 1,
                         body: message,
+                        ...extraMeta,
                     },
                 },
             },

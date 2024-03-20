@@ -39,6 +39,11 @@ export enum AppEnvironment {
     Production = 'production',
 }
 
+export enum AppType {
+    B2B = 'B2B',
+    B2C = 'B2C',
+}
+
 export type AppWhereUniqueInput = {
     id: Scalars['ID']['input'];
 }
@@ -89,6 +94,349 @@ export type B2CApp = {
     /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
     updatedBy?: Maybe<User>;
     v?: Maybe<Scalars['Int']['output']>;
+}
+
+/**  Link between service user and B2C App. The existence of this connection means that this condo user will have the rights to perform actions on behalf of the integration and modify some B2CApp-related models, such as B2CAppProperty / B2CAppBuild as soon as app will be published to specified environment  */
+export type B2CAppAccessRight = {
+    __typename?: 'B2CAppAccessRight';
+    /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the B2CAppAccessRight List config, or
+   *  2. As an alias to the field set on 'labelField' in the B2CAppAccessRight List config, or
+   *  3. As an alias to a 'name' field on the B2CAppAccessRight List (if one exists), or
+   *  4. As an alias to the 'id' field on the B2CAppAccessRight List.
+   */
+    _label_?: Maybe<Scalars['String']['output']>;
+    /**  Link to B2CApp  */
+    app?: Maybe<B2CApp>;
+    /**  ID of condo user, which will be linked to app  */
+    condoUserId?: Maybe<Scalars['ID']['output']>;
+    createdAt?: Maybe<Scalars['String']['output']>;
+    /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+    createdBy?: Maybe<User>;
+    deletedAt?: Maybe<Scalars['String']['output']>;
+    /**  Data structure Version  */
+    dv?: Maybe<Scalars['Int']['output']>;
+    /**  Condo environment  */
+    environment?: Maybe<B2CAppAccessRightEnvironmentType>;
+    id: Scalars['ID']['output'];
+    newId?: Maybe<Scalars['String']['output']>;
+    /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+    sender?: Maybe<SenderField>;
+    updatedAt?: Maybe<Scalars['String']['output']>;
+    /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+    updatedBy?: Maybe<User>;
+    v?: Maybe<Scalars['Int']['output']>;
+}
+
+export type B2CAppAccessRightCreateInput = {
+    app?: InputMaybe<B2CAppRelateToOneInput>;
+    condoUserId?: InputMaybe<Scalars['ID']['input']>;
+    createdAt?: InputMaybe<Scalars['String']['input']>;
+    createdBy?: InputMaybe<UserRelateToOneInput>;
+    deletedAt?: InputMaybe<Scalars['String']['input']>;
+    dv?: InputMaybe<Scalars['Int']['input']>;
+    environment?: InputMaybe<B2CAppAccessRightEnvironmentType>;
+    newId?: InputMaybe<Scalars['String']['input']>;
+    sender?: InputMaybe<SenderFieldInput>;
+    updatedAt?: InputMaybe<Scalars['String']['input']>;
+    updatedBy?: InputMaybe<UserRelateToOneInput>;
+    v?: InputMaybe<Scalars['Int']['input']>;
+}
+
+export enum B2CAppAccessRightEnvironmentType {
+    Development = 'development',
+    Production = 'production',
+}
+
+/**  A keystone list  */
+export type B2CAppAccessRightHistoryRecord = {
+    __typename?: 'B2CAppAccessRightHistoryRecord';
+    /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the B2CAppAccessRightHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the B2CAppAccessRightHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the B2CAppAccessRightHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the B2CAppAccessRightHistoryRecord List.
+   */
+    _label_?: Maybe<Scalars['String']['output']>;
+    app?: Maybe<Scalars['String']['output']>;
+    condoUserId?: Maybe<Scalars['ID']['output']>;
+    createdAt?: Maybe<Scalars['String']['output']>;
+    createdBy?: Maybe<Scalars['String']['output']>;
+    deletedAt?: Maybe<Scalars['String']['output']>;
+    dv?: Maybe<Scalars['Int']['output']>;
+    environment?: Maybe<Scalars['String']['output']>;
+    history_action?: Maybe<B2CAppAccessRightHistoryRecordHistoryActionType>;
+    history_date?: Maybe<Scalars['String']['output']>;
+    history_id?: Maybe<Scalars['String']['output']>;
+    id: Scalars['ID']['output'];
+    newId?: Maybe<Scalars['JSON']['output']>;
+    sender?: Maybe<Scalars['JSON']['output']>;
+    updatedAt?: Maybe<Scalars['String']['output']>;
+    updatedBy?: Maybe<Scalars['String']['output']>;
+    v?: Maybe<Scalars['Int']['output']>;
+}
+
+export type B2CAppAccessRightHistoryRecordCreateInput = {
+    app?: InputMaybe<Scalars['String']['input']>;
+    condoUserId?: InputMaybe<Scalars['ID']['input']>;
+    createdAt?: InputMaybe<Scalars['String']['input']>;
+    createdBy?: InputMaybe<Scalars['String']['input']>;
+    deletedAt?: InputMaybe<Scalars['String']['input']>;
+    dv?: InputMaybe<Scalars['Int']['input']>;
+    environment?: InputMaybe<Scalars['String']['input']>;
+    history_action?: InputMaybe<B2CAppAccessRightHistoryRecordHistoryActionType>;
+    history_date?: InputMaybe<Scalars['String']['input']>;
+    history_id?: InputMaybe<Scalars['String']['input']>;
+    newId?: InputMaybe<Scalars['JSON']['input']>;
+    sender?: InputMaybe<Scalars['JSON']['input']>;
+    updatedAt?: InputMaybe<Scalars['String']['input']>;
+    updatedBy?: InputMaybe<Scalars['String']['input']>;
+    v?: InputMaybe<Scalars['Int']['input']>;
+}
+
+export enum B2CAppAccessRightHistoryRecordHistoryActionType {
+    C = 'c',
+    D = 'd',
+    U = 'u',
+}
+
+export type B2CAppAccessRightHistoryRecordUpdateInput = {
+    app?: InputMaybe<Scalars['String']['input']>;
+    condoUserId?: InputMaybe<Scalars['ID']['input']>;
+    createdAt?: InputMaybe<Scalars['String']['input']>;
+    createdBy?: InputMaybe<Scalars['String']['input']>;
+    deletedAt?: InputMaybe<Scalars['String']['input']>;
+    dv?: InputMaybe<Scalars['Int']['input']>;
+    environment?: InputMaybe<Scalars['String']['input']>;
+    history_action?: InputMaybe<B2CAppAccessRightHistoryRecordHistoryActionType>;
+    history_date?: InputMaybe<Scalars['String']['input']>;
+    history_id?: InputMaybe<Scalars['String']['input']>;
+    newId?: InputMaybe<Scalars['JSON']['input']>;
+    sender?: InputMaybe<Scalars['JSON']['input']>;
+    updatedAt?: InputMaybe<Scalars['String']['input']>;
+    updatedBy?: InputMaybe<Scalars['String']['input']>;
+    v?: InputMaybe<Scalars['Int']['input']>;
+}
+
+export type B2CAppAccessRightHistoryRecordWhereInput = {
+    AND?: InputMaybe<Array<InputMaybe<B2CAppAccessRightHistoryRecordWhereInput>>>;
+    OR?: InputMaybe<Array<InputMaybe<B2CAppAccessRightHistoryRecordWhereInput>>>;
+    app?: InputMaybe<Scalars['String']['input']>;
+    app_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    app_not?: InputMaybe<Scalars['String']['input']>;
+    app_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    condoUserId?: InputMaybe<Scalars['ID']['input']>;
+    condoUserId_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+    condoUserId_not?: InputMaybe<Scalars['ID']['input']>;
+    condoUserId_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+    createdAt?: InputMaybe<Scalars['String']['input']>;
+    createdAt_gt?: InputMaybe<Scalars['String']['input']>;
+    createdAt_gte?: InputMaybe<Scalars['String']['input']>;
+    createdAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    createdAt_lt?: InputMaybe<Scalars['String']['input']>;
+    createdAt_lte?: InputMaybe<Scalars['String']['input']>;
+    createdAt_not?: InputMaybe<Scalars['String']['input']>;
+    createdAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    createdBy?: InputMaybe<Scalars['String']['input']>;
+    createdBy_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    createdBy_not?: InputMaybe<Scalars['String']['input']>;
+    createdBy_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    deletedAt?: InputMaybe<Scalars['String']['input']>;
+    deletedAt_gt?: InputMaybe<Scalars['String']['input']>;
+    deletedAt_gte?: InputMaybe<Scalars['String']['input']>;
+    deletedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    deletedAt_lt?: InputMaybe<Scalars['String']['input']>;
+    deletedAt_lte?: InputMaybe<Scalars['String']['input']>;
+    deletedAt_not?: InputMaybe<Scalars['String']['input']>;
+    deletedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    dv?: InputMaybe<Scalars['Int']['input']>;
+    dv_gt?: InputMaybe<Scalars['Int']['input']>;
+    dv_gte?: InputMaybe<Scalars['Int']['input']>;
+    dv_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+    dv_lt?: InputMaybe<Scalars['Int']['input']>;
+    dv_lte?: InputMaybe<Scalars['Int']['input']>;
+    dv_not?: InputMaybe<Scalars['Int']['input']>;
+    dv_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+    environment?: InputMaybe<Scalars['String']['input']>;
+    environment_contains?: InputMaybe<Scalars['String']['input']>;
+    environment_contains_i?: InputMaybe<Scalars['String']['input']>;
+    environment_ends_with?: InputMaybe<Scalars['String']['input']>;
+    environment_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    environment_i?: InputMaybe<Scalars['String']['input']>;
+    environment_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    environment_not?: InputMaybe<Scalars['String']['input']>;
+    environment_not_contains?: InputMaybe<Scalars['String']['input']>;
+    environment_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+    environment_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+    environment_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    environment_not_i?: InputMaybe<Scalars['String']['input']>;
+    environment_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    environment_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+    environment_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+    environment_starts_with?: InputMaybe<Scalars['String']['input']>;
+    environment_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+    history_action?: InputMaybe<B2CAppAccessRightHistoryRecordHistoryActionType>;
+    history_action_in?: InputMaybe<Array<InputMaybe<B2CAppAccessRightHistoryRecordHistoryActionType>>>;
+    history_action_not?: InputMaybe<B2CAppAccessRightHistoryRecordHistoryActionType>;
+    history_action_not_in?: InputMaybe<Array<InputMaybe<B2CAppAccessRightHistoryRecordHistoryActionType>>>;
+    history_date?: InputMaybe<Scalars['String']['input']>;
+    history_date_gt?: InputMaybe<Scalars['String']['input']>;
+    history_date_gte?: InputMaybe<Scalars['String']['input']>;
+    history_date_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    history_date_lt?: InputMaybe<Scalars['String']['input']>;
+    history_date_lte?: InputMaybe<Scalars['String']['input']>;
+    history_date_not?: InputMaybe<Scalars['String']['input']>;
+    history_date_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    history_id?: InputMaybe<Scalars['String']['input']>;
+    history_id_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    history_id_not?: InputMaybe<Scalars['String']['input']>;
+    history_id_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    id?: InputMaybe<Scalars['ID']['input']>;
+    id_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+    id_not?: InputMaybe<Scalars['ID']['input']>;
+    id_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+    newId?: InputMaybe<Scalars['JSON']['input']>;
+    newId_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+    newId_not?: InputMaybe<Scalars['JSON']['input']>;
+    newId_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+    sender?: InputMaybe<Scalars['JSON']['input']>;
+    sender_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+    sender_not?: InputMaybe<Scalars['JSON']['input']>;
+    sender_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+    updatedAt?: InputMaybe<Scalars['String']['input']>;
+    updatedAt_gt?: InputMaybe<Scalars['String']['input']>;
+    updatedAt_gte?: InputMaybe<Scalars['String']['input']>;
+    updatedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    updatedAt_lt?: InputMaybe<Scalars['String']['input']>;
+    updatedAt_lte?: InputMaybe<Scalars['String']['input']>;
+    updatedAt_not?: InputMaybe<Scalars['String']['input']>;
+    updatedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    updatedBy?: InputMaybe<Scalars['String']['input']>;
+    updatedBy_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    updatedBy_not?: InputMaybe<Scalars['String']['input']>;
+    updatedBy_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    v?: InputMaybe<Scalars['Int']['input']>;
+    v_gt?: InputMaybe<Scalars['Int']['input']>;
+    v_gte?: InputMaybe<Scalars['Int']['input']>;
+    v_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+    v_lt?: InputMaybe<Scalars['Int']['input']>;
+    v_lte?: InputMaybe<Scalars['Int']['input']>;
+    v_not?: InputMaybe<Scalars['Int']['input']>;
+    v_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+}
+
+export type B2CAppAccessRightHistoryRecordWhereUniqueInput = {
+    id: Scalars['ID']['input'];
+}
+
+export type B2CAppAccessRightHistoryRecordsCreateInput = {
+    data?: InputMaybe<B2CAppAccessRightHistoryRecordCreateInput>;
+}
+
+export type B2CAppAccessRightHistoryRecordsUpdateInput = {
+    data?: InputMaybe<B2CAppAccessRightHistoryRecordUpdateInput>;
+    id: Scalars['ID']['input'];
+}
+
+export type B2CAppAccessRightUpdateInput = {
+    app?: InputMaybe<B2CAppRelateToOneInput>;
+    condoUserId?: InputMaybe<Scalars['ID']['input']>;
+    createdAt?: InputMaybe<Scalars['String']['input']>;
+    createdBy?: InputMaybe<UserRelateToOneInput>;
+    deletedAt?: InputMaybe<Scalars['String']['input']>;
+    dv?: InputMaybe<Scalars['Int']['input']>;
+    environment?: InputMaybe<B2CAppAccessRightEnvironmentType>;
+    newId?: InputMaybe<Scalars['String']['input']>;
+    sender?: InputMaybe<SenderFieldInput>;
+    updatedAt?: InputMaybe<Scalars['String']['input']>;
+    updatedBy?: InputMaybe<UserRelateToOneInput>;
+    v?: InputMaybe<Scalars['Int']['input']>;
+}
+
+export type B2CAppAccessRightWhereInput = {
+    AND?: InputMaybe<Array<InputMaybe<B2CAppAccessRightWhereInput>>>;
+    OR?: InputMaybe<Array<InputMaybe<B2CAppAccessRightWhereInput>>>;
+    app?: InputMaybe<B2CAppWhereInput>;
+    app_is_null?: InputMaybe<Scalars['Boolean']['input']>;
+    condoUserId?: InputMaybe<Scalars['ID']['input']>;
+    condoUserId_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+    condoUserId_not?: InputMaybe<Scalars['ID']['input']>;
+    condoUserId_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+    createdAt?: InputMaybe<Scalars['String']['input']>;
+    createdAt_gt?: InputMaybe<Scalars['String']['input']>;
+    createdAt_gte?: InputMaybe<Scalars['String']['input']>;
+    createdAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    createdAt_lt?: InputMaybe<Scalars['String']['input']>;
+    createdAt_lte?: InputMaybe<Scalars['String']['input']>;
+    createdAt_not?: InputMaybe<Scalars['String']['input']>;
+    createdAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    createdBy?: InputMaybe<UserWhereInput>;
+    createdBy_is_null?: InputMaybe<Scalars['Boolean']['input']>;
+    deletedAt?: InputMaybe<Scalars['String']['input']>;
+    deletedAt_gt?: InputMaybe<Scalars['String']['input']>;
+    deletedAt_gte?: InputMaybe<Scalars['String']['input']>;
+    deletedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    deletedAt_lt?: InputMaybe<Scalars['String']['input']>;
+    deletedAt_lte?: InputMaybe<Scalars['String']['input']>;
+    deletedAt_not?: InputMaybe<Scalars['String']['input']>;
+    deletedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    dv?: InputMaybe<Scalars['Int']['input']>;
+    dv_gt?: InputMaybe<Scalars['Int']['input']>;
+    dv_gte?: InputMaybe<Scalars['Int']['input']>;
+    dv_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+    dv_lt?: InputMaybe<Scalars['Int']['input']>;
+    dv_lte?: InputMaybe<Scalars['Int']['input']>;
+    dv_not?: InputMaybe<Scalars['Int']['input']>;
+    dv_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+    environment?: InputMaybe<B2CAppAccessRightEnvironmentType>;
+    environment_in?: InputMaybe<Array<InputMaybe<B2CAppAccessRightEnvironmentType>>>;
+    environment_not?: InputMaybe<B2CAppAccessRightEnvironmentType>;
+    environment_not_in?: InputMaybe<Array<InputMaybe<B2CAppAccessRightEnvironmentType>>>;
+    id?: InputMaybe<Scalars['ID']['input']>;
+    id_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+    id_not?: InputMaybe<Scalars['ID']['input']>;
+    id_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+    newId?: InputMaybe<Scalars['String']['input']>;
+    newId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    newId_not?: InputMaybe<Scalars['String']['input']>;
+    newId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    sender?: InputMaybe<SenderFieldInput>;
+    sender_in?: InputMaybe<Array<InputMaybe<SenderFieldInput>>>;
+    sender_not?: InputMaybe<SenderFieldInput>;
+    sender_not_in?: InputMaybe<Array<InputMaybe<SenderFieldInput>>>;
+    updatedAt?: InputMaybe<Scalars['String']['input']>;
+    updatedAt_gt?: InputMaybe<Scalars['String']['input']>;
+    updatedAt_gte?: InputMaybe<Scalars['String']['input']>;
+    updatedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    updatedAt_lt?: InputMaybe<Scalars['String']['input']>;
+    updatedAt_lte?: InputMaybe<Scalars['String']['input']>;
+    updatedAt_not?: InputMaybe<Scalars['String']['input']>;
+    updatedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    updatedBy?: InputMaybe<UserWhereInput>;
+    updatedBy_is_null?: InputMaybe<Scalars['Boolean']['input']>;
+    v?: InputMaybe<Scalars['Int']['input']>;
+    v_gt?: InputMaybe<Scalars['Int']['input']>;
+    v_gte?: InputMaybe<Scalars['Int']['input']>;
+    v_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+    v_lt?: InputMaybe<Scalars['Int']['input']>;
+    v_lte?: InputMaybe<Scalars['Int']['input']>;
+    v_not?: InputMaybe<Scalars['Int']['input']>;
+    v_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+}
+
+export type B2CAppAccessRightWhereUniqueInput = {
+    id: Scalars['ID']['input'];
+}
+
+export type B2CAppAccessRightsCreateInput = {
+    data?: InputMaybe<B2CAppAccessRightCreateInput>;
+}
+
+export type B2CAppAccessRightsUpdateInput = {
+    data?: InputMaybe<B2CAppAccessRightUpdateInput>;
+    id: Scalars['ID']['input'];
 }
 
 /**  Cordova build of B2C Application  */
@@ -1344,6 +1692,18 @@ export enum CacheControlScope {
     Public = 'PUBLIC',
 }
 
+export type CompleteConfirmEmailActionInput = {
+    actionId: Scalars['String']['input'];
+    code: Scalars['String']['input'];
+    dv: Scalars['Int']['input'];
+    sender: SenderFieldInput;
+}
+
+export type CompleteConfirmEmailActionOutput = {
+    __typename?: 'CompleteConfirmEmailActionOutput';
+    status: Scalars['String']['output'];
+}
+
 export type CompleteConfirmPhoneActionInput = {
     actionId: Scalars['String']['input'];
     code: Scalars['String']['input'];
@@ -1354,6 +1714,430 @@ export type CompleteConfirmPhoneActionInput = {
 export type CompleteConfirmPhoneActionOutput = {
     __typename?: 'CompleteConfirmPhoneActionOutput';
     status: Scalars['String']['output'];
+}
+
+/**  Internal schema used for user email confirmation. It's impossible to work with it via API.  */
+export type ConfirmEmailAction = {
+    __typename?: 'ConfirmEmailAction';
+    /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the ConfirmEmailAction List config, or
+   *  2. As an alias to the field set on 'labelField' in the ConfirmEmailAction List config, or
+   *  3. As an alias to a 'name' field on the ConfirmEmailAction List (if one exists), or
+   *  4. As an alias to the 'id' field on the ConfirmEmailAction List.
+   */
+    _label_?: Maybe<Scalars['String']['output']>;
+    /**  Number of used attempts to enter the code. When 5 attempts are reached, this action becomes invalid.  */
+    attempts?: Maybe<Scalars['Int']['output']>;
+    /**  Confirmation code. Generated inside one of action-creators, such as startConfirmEmailAction  */
+    code?: Maybe<Scalars['String']['output']>;
+    createdAt?: Maybe<Scalars['String']['output']>;
+    /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+    createdBy?: Maybe<User>;
+    deletedAt?: Maybe<Scalars['String']['output']>;
+    /**  Data structure Version  */
+    dv?: Maybe<Scalars['Int']['output']>;
+    /**  Email to be verified  */
+    email?: Maybe<Scalars['String']['output']>;
+    /**  Action expiration time. After the expiration time, it will not be possible to call action-required mutations with the current ConfirmEmailAction.  */
+    expiresAt?: Maybe<Scalars['String']['output']>;
+    id: Scalars['ID']['output'];
+    /**  Verifies specified email. If the email has been recently verified (before ConfirmEmailAction expired), then knowing the ID of ConfirmEmailAction allows to register the user.  */
+    isVerified?: Maybe<Scalars['Boolean']['output']>;
+    newId?: Maybe<Scalars['String']['output']>;
+    /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+    sender?: Maybe<SenderField>;
+    updatedAt?: Maybe<Scalars['String']['output']>;
+    /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+    updatedBy?: Maybe<User>;
+    v?: Maybe<Scalars['Int']['output']>;
+}
+
+export type ConfirmEmailActionCreateInput = {
+    attempts?: InputMaybe<Scalars['Int']['input']>;
+    code?: InputMaybe<Scalars['String']['input']>;
+    createdAt?: InputMaybe<Scalars['String']['input']>;
+    createdBy?: InputMaybe<UserRelateToOneInput>;
+    deletedAt?: InputMaybe<Scalars['String']['input']>;
+    dv?: InputMaybe<Scalars['Int']['input']>;
+    email?: InputMaybe<Scalars['String']['input']>;
+    expiresAt?: InputMaybe<Scalars['String']['input']>;
+    isVerified?: InputMaybe<Scalars['Boolean']['input']>;
+    newId?: InputMaybe<Scalars['String']['input']>;
+    sender?: InputMaybe<SenderFieldInput>;
+    updatedAt?: InputMaybe<Scalars['String']['input']>;
+    updatedBy?: InputMaybe<UserRelateToOneInput>;
+    v?: InputMaybe<Scalars['Int']['input']>;
+}
+
+/**  A keystone list  */
+export type ConfirmEmailActionHistoryRecord = {
+    __typename?: 'ConfirmEmailActionHistoryRecord';
+    /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the ConfirmEmailActionHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the ConfirmEmailActionHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the ConfirmEmailActionHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the ConfirmEmailActionHistoryRecord List.
+   */
+    _label_?: Maybe<Scalars['String']['output']>;
+    attempts?: Maybe<Scalars['Int']['output']>;
+    code?: Maybe<Scalars['String']['output']>;
+    createdAt?: Maybe<Scalars['String']['output']>;
+    createdBy?: Maybe<Scalars['String']['output']>;
+    deletedAt?: Maybe<Scalars['String']['output']>;
+    dv?: Maybe<Scalars['Int']['output']>;
+    email?: Maybe<Scalars['String']['output']>;
+    expiresAt?: Maybe<Scalars['String']['output']>;
+    history_action?: Maybe<ConfirmEmailActionHistoryRecordHistoryActionType>;
+    history_date?: Maybe<Scalars['String']['output']>;
+    history_id?: Maybe<Scalars['String']['output']>;
+    id: Scalars['ID']['output'];
+    isVerified?: Maybe<Scalars['Boolean']['output']>;
+    newId?: Maybe<Scalars['JSON']['output']>;
+    sender?: Maybe<Scalars['JSON']['output']>;
+    updatedAt?: Maybe<Scalars['String']['output']>;
+    updatedBy?: Maybe<Scalars['String']['output']>;
+    v?: Maybe<Scalars['Int']['output']>;
+}
+
+export type ConfirmEmailActionHistoryRecordCreateInput = {
+    attempts?: InputMaybe<Scalars['Int']['input']>;
+    code?: InputMaybe<Scalars['String']['input']>;
+    createdAt?: InputMaybe<Scalars['String']['input']>;
+    createdBy?: InputMaybe<Scalars['String']['input']>;
+    deletedAt?: InputMaybe<Scalars['String']['input']>;
+    dv?: InputMaybe<Scalars['Int']['input']>;
+    email?: InputMaybe<Scalars['String']['input']>;
+    expiresAt?: InputMaybe<Scalars['String']['input']>;
+    history_action?: InputMaybe<ConfirmEmailActionHistoryRecordHistoryActionType>;
+    history_date?: InputMaybe<Scalars['String']['input']>;
+    history_id?: InputMaybe<Scalars['String']['input']>;
+    isVerified?: InputMaybe<Scalars['Boolean']['input']>;
+    newId?: InputMaybe<Scalars['JSON']['input']>;
+    sender?: InputMaybe<Scalars['JSON']['input']>;
+    updatedAt?: InputMaybe<Scalars['String']['input']>;
+    updatedBy?: InputMaybe<Scalars['String']['input']>;
+    v?: InputMaybe<Scalars['Int']['input']>;
+}
+
+export enum ConfirmEmailActionHistoryRecordHistoryActionType {
+    C = 'c',
+    D = 'd',
+    U = 'u',
+}
+
+export type ConfirmEmailActionHistoryRecordUpdateInput = {
+    attempts?: InputMaybe<Scalars['Int']['input']>;
+    code?: InputMaybe<Scalars['String']['input']>;
+    createdAt?: InputMaybe<Scalars['String']['input']>;
+    createdBy?: InputMaybe<Scalars['String']['input']>;
+    deletedAt?: InputMaybe<Scalars['String']['input']>;
+    dv?: InputMaybe<Scalars['Int']['input']>;
+    email?: InputMaybe<Scalars['String']['input']>;
+    expiresAt?: InputMaybe<Scalars['String']['input']>;
+    history_action?: InputMaybe<ConfirmEmailActionHistoryRecordHistoryActionType>;
+    history_date?: InputMaybe<Scalars['String']['input']>;
+    history_id?: InputMaybe<Scalars['String']['input']>;
+    isVerified?: InputMaybe<Scalars['Boolean']['input']>;
+    newId?: InputMaybe<Scalars['JSON']['input']>;
+    sender?: InputMaybe<Scalars['JSON']['input']>;
+    updatedAt?: InputMaybe<Scalars['String']['input']>;
+    updatedBy?: InputMaybe<Scalars['String']['input']>;
+    v?: InputMaybe<Scalars['Int']['input']>;
+}
+
+export type ConfirmEmailActionHistoryRecordWhereInput = {
+    AND?: InputMaybe<Array<InputMaybe<ConfirmEmailActionHistoryRecordWhereInput>>>;
+    OR?: InputMaybe<Array<InputMaybe<ConfirmEmailActionHistoryRecordWhereInput>>>;
+    attempts?: InputMaybe<Scalars['Int']['input']>;
+    attempts_gt?: InputMaybe<Scalars['Int']['input']>;
+    attempts_gte?: InputMaybe<Scalars['Int']['input']>;
+    attempts_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+    attempts_lt?: InputMaybe<Scalars['Int']['input']>;
+    attempts_lte?: InputMaybe<Scalars['Int']['input']>;
+    attempts_not?: InputMaybe<Scalars['Int']['input']>;
+    attempts_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+    code?: InputMaybe<Scalars['String']['input']>;
+    code_contains?: InputMaybe<Scalars['String']['input']>;
+    code_contains_i?: InputMaybe<Scalars['String']['input']>;
+    code_ends_with?: InputMaybe<Scalars['String']['input']>;
+    code_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    code_i?: InputMaybe<Scalars['String']['input']>;
+    code_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    code_not?: InputMaybe<Scalars['String']['input']>;
+    code_not_contains?: InputMaybe<Scalars['String']['input']>;
+    code_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+    code_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+    code_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    code_not_i?: InputMaybe<Scalars['String']['input']>;
+    code_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    code_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+    code_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+    code_starts_with?: InputMaybe<Scalars['String']['input']>;
+    code_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+    createdAt?: InputMaybe<Scalars['String']['input']>;
+    createdAt_gt?: InputMaybe<Scalars['String']['input']>;
+    createdAt_gte?: InputMaybe<Scalars['String']['input']>;
+    createdAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    createdAt_lt?: InputMaybe<Scalars['String']['input']>;
+    createdAt_lte?: InputMaybe<Scalars['String']['input']>;
+    createdAt_not?: InputMaybe<Scalars['String']['input']>;
+    createdAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    createdBy?: InputMaybe<Scalars['String']['input']>;
+    createdBy_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    createdBy_not?: InputMaybe<Scalars['String']['input']>;
+    createdBy_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    deletedAt?: InputMaybe<Scalars['String']['input']>;
+    deletedAt_gt?: InputMaybe<Scalars['String']['input']>;
+    deletedAt_gte?: InputMaybe<Scalars['String']['input']>;
+    deletedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    deletedAt_lt?: InputMaybe<Scalars['String']['input']>;
+    deletedAt_lte?: InputMaybe<Scalars['String']['input']>;
+    deletedAt_not?: InputMaybe<Scalars['String']['input']>;
+    deletedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    dv?: InputMaybe<Scalars['Int']['input']>;
+    dv_gt?: InputMaybe<Scalars['Int']['input']>;
+    dv_gte?: InputMaybe<Scalars['Int']['input']>;
+    dv_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+    dv_lt?: InputMaybe<Scalars['Int']['input']>;
+    dv_lte?: InputMaybe<Scalars['Int']['input']>;
+    dv_not?: InputMaybe<Scalars['Int']['input']>;
+    dv_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+    email?: InputMaybe<Scalars['String']['input']>;
+    email_contains?: InputMaybe<Scalars['String']['input']>;
+    email_contains_i?: InputMaybe<Scalars['String']['input']>;
+    email_ends_with?: InputMaybe<Scalars['String']['input']>;
+    email_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    email_i?: InputMaybe<Scalars['String']['input']>;
+    email_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    email_not?: InputMaybe<Scalars['String']['input']>;
+    email_not_contains?: InputMaybe<Scalars['String']['input']>;
+    email_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+    email_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+    email_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    email_not_i?: InputMaybe<Scalars['String']['input']>;
+    email_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    email_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+    email_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+    email_starts_with?: InputMaybe<Scalars['String']['input']>;
+    email_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+    expiresAt?: InputMaybe<Scalars['String']['input']>;
+    expiresAt_gt?: InputMaybe<Scalars['String']['input']>;
+    expiresAt_gte?: InputMaybe<Scalars['String']['input']>;
+    expiresAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    expiresAt_lt?: InputMaybe<Scalars['String']['input']>;
+    expiresAt_lte?: InputMaybe<Scalars['String']['input']>;
+    expiresAt_not?: InputMaybe<Scalars['String']['input']>;
+    expiresAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    history_action?: InputMaybe<ConfirmEmailActionHistoryRecordHistoryActionType>;
+    history_action_in?: InputMaybe<Array<InputMaybe<ConfirmEmailActionHistoryRecordHistoryActionType>>>;
+    history_action_not?: InputMaybe<ConfirmEmailActionHistoryRecordHistoryActionType>;
+    history_action_not_in?: InputMaybe<Array<InputMaybe<ConfirmEmailActionHistoryRecordHistoryActionType>>>;
+    history_date?: InputMaybe<Scalars['String']['input']>;
+    history_date_gt?: InputMaybe<Scalars['String']['input']>;
+    history_date_gte?: InputMaybe<Scalars['String']['input']>;
+    history_date_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    history_date_lt?: InputMaybe<Scalars['String']['input']>;
+    history_date_lte?: InputMaybe<Scalars['String']['input']>;
+    history_date_not?: InputMaybe<Scalars['String']['input']>;
+    history_date_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    history_id?: InputMaybe<Scalars['String']['input']>;
+    history_id_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    history_id_not?: InputMaybe<Scalars['String']['input']>;
+    history_id_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    id?: InputMaybe<Scalars['ID']['input']>;
+    id_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+    id_not?: InputMaybe<Scalars['ID']['input']>;
+    id_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+    isVerified?: InputMaybe<Scalars['Boolean']['input']>;
+    isVerified_not?: InputMaybe<Scalars['Boolean']['input']>;
+    newId?: InputMaybe<Scalars['JSON']['input']>;
+    newId_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+    newId_not?: InputMaybe<Scalars['JSON']['input']>;
+    newId_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+    sender?: InputMaybe<Scalars['JSON']['input']>;
+    sender_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+    sender_not?: InputMaybe<Scalars['JSON']['input']>;
+    sender_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+    updatedAt?: InputMaybe<Scalars['String']['input']>;
+    updatedAt_gt?: InputMaybe<Scalars['String']['input']>;
+    updatedAt_gte?: InputMaybe<Scalars['String']['input']>;
+    updatedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    updatedAt_lt?: InputMaybe<Scalars['String']['input']>;
+    updatedAt_lte?: InputMaybe<Scalars['String']['input']>;
+    updatedAt_not?: InputMaybe<Scalars['String']['input']>;
+    updatedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    updatedBy?: InputMaybe<Scalars['String']['input']>;
+    updatedBy_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    updatedBy_not?: InputMaybe<Scalars['String']['input']>;
+    updatedBy_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    v?: InputMaybe<Scalars['Int']['input']>;
+    v_gt?: InputMaybe<Scalars['Int']['input']>;
+    v_gte?: InputMaybe<Scalars['Int']['input']>;
+    v_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+    v_lt?: InputMaybe<Scalars['Int']['input']>;
+    v_lte?: InputMaybe<Scalars['Int']['input']>;
+    v_not?: InputMaybe<Scalars['Int']['input']>;
+    v_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+}
+
+export type ConfirmEmailActionHistoryRecordWhereUniqueInput = {
+    id: Scalars['ID']['input'];
+}
+
+export type ConfirmEmailActionHistoryRecordsCreateInput = {
+    data?: InputMaybe<ConfirmEmailActionHistoryRecordCreateInput>;
+}
+
+export type ConfirmEmailActionHistoryRecordsUpdateInput = {
+    data?: InputMaybe<ConfirmEmailActionHistoryRecordUpdateInput>;
+    id: Scalars['ID']['input'];
+}
+
+export type ConfirmEmailActionUpdateInput = {
+    attempts?: InputMaybe<Scalars['Int']['input']>;
+    code?: InputMaybe<Scalars['String']['input']>;
+    createdAt?: InputMaybe<Scalars['String']['input']>;
+    createdBy?: InputMaybe<UserRelateToOneInput>;
+    deletedAt?: InputMaybe<Scalars['String']['input']>;
+    dv?: InputMaybe<Scalars['Int']['input']>;
+    email?: InputMaybe<Scalars['String']['input']>;
+    expiresAt?: InputMaybe<Scalars['String']['input']>;
+    isVerified?: InputMaybe<Scalars['Boolean']['input']>;
+    newId?: InputMaybe<Scalars['String']['input']>;
+    sender?: InputMaybe<SenderFieldInput>;
+    updatedAt?: InputMaybe<Scalars['String']['input']>;
+    updatedBy?: InputMaybe<UserRelateToOneInput>;
+    v?: InputMaybe<Scalars['Int']['input']>;
+}
+
+export type ConfirmEmailActionWhereInput = {
+    AND?: InputMaybe<Array<InputMaybe<ConfirmEmailActionWhereInput>>>;
+    OR?: InputMaybe<Array<InputMaybe<ConfirmEmailActionWhereInput>>>;
+    attempts?: InputMaybe<Scalars['Int']['input']>;
+    attempts_gt?: InputMaybe<Scalars['Int']['input']>;
+    attempts_gte?: InputMaybe<Scalars['Int']['input']>;
+    attempts_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+    attempts_lt?: InputMaybe<Scalars['Int']['input']>;
+    attempts_lte?: InputMaybe<Scalars['Int']['input']>;
+    attempts_not?: InputMaybe<Scalars['Int']['input']>;
+    attempts_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+    code?: InputMaybe<Scalars['String']['input']>;
+    code_contains?: InputMaybe<Scalars['String']['input']>;
+    code_contains_i?: InputMaybe<Scalars['String']['input']>;
+    code_ends_with?: InputMaybe<Scalars['String']['input']>;
+    code_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    code_i?: InputMaybe<Scalars['String']['input']>;
+    code_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    code_not?: InputMaybe<Scalars['String']['input']>;
+    code_not_contains?: InputMaybe<Scalars['String']['input']>;
+    code_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+    code_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+    code_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    code_not_i?: InputMaybe<Scalars['String']['input']>;
+    code_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    code_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+    code_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+    code_starts_with?: InputMaybe<Scalars['String']['input']>;
+    code_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+    createdAt?: InputMaybe<Scalars['String']['input']>;
+    createdAt_gt?: InputMaybe<Scalars['String']['input']>;
+    createdAt_gte?: InputMaybe<Scalars['String']['input']>;
+    createdAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    createdAt_lt?: InputMaybe<Scalars['String']['input']>;
+    createdAt_lte?: InputMaybe<Scalars['String']['input']>;
+    createdAt_not?: InputMaybe<Scalars['String']['input']>;
+    createdAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    createdBy?: InputMaybe<UserWhereInput>;
+    createdBy_is_null?: InputMaybe<Scalars['Boolean']['input']>;
+    deletedAt?: InputMaybe<Scalars['String']['input']>;
+    deletedAt_gt?: InputMaybe<Scalars['String']['input']>;
+    deletedAt_gte?: InputMaybe<Scalars['String']['input']>;
+    deletedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    deletedAt_lt?: InputMaybe<Scalars['String']['input']>;
+    deletedAt_lte?: InputMaybe<Scalars['String']['input']>;
+    deletedAt_not?: InputMaybe<Scalars['String']['input']>;
+    deletedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    dv?: InputMaybe<Scalars['Int']['input']>;
+    dv_gt?: InputMaybe<Scalars['Int']['input']>;
+    dv_gte?: InputMaybe<Scalars['Int']['input']>;
+    dv_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+    dv_lt?: InputMaybe<Scalars['Int']['input']>;
+    dv_lte?: InputMaybe<Scalars['Int']['input']>;
+    dv_not?: InputMaybe<Scalars['Int']['input']>;
+    dv_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+    email?: InputMaybe<Scalars['String']['input']>;
+    email_contains?: InputMaybe<Scalars['String']['input']>;
+    email_contains_i?: InputMaybe<Scalars['String']['input']>;
+    email_ends_with?: InputMaybe<Scalars['String']['input']>;
+    email_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    email_i?: InputMaybe<Scalars['String']['input']>;
+    email_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    email_not?: InputMaybe<Scalars['String']['input']>;
+    email_not_contains?: InputMaybe<Scalars['String']['input']>;
+    email_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+    email_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+    email_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    email_not_i?: InputMaybe<Scalars['String']['input']>;
+    email_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    email_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+    email_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+    email_starts_with?: InputMaybe<Scalars['String']['input']>;
+    email_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+    expiresAt?: InputMaybe<Scalars['String']['input']>;
+    expiresAt_gt?: InputMaybe<Scalars['String']['input']>;
+    expiresAt_gte?: InputMaybe<Scalars['String']['input']>;
+    expiresAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    expiresAt_lt?: InputMaybe<Scalars['String']['input']>;
+    expiresAt_lte?: InputMaybe<Scalars['String']['input']>;
+    expiresAt_not?: InputMaybe<Scalars['String']['input']>;
+    expiresAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    id?: InputMaybe<Scalars['ID']['input']>;
+    id_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+    id_not?: InputMaybe<Scalars['ID']['input']>;
+    id_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+    isVerified?: InputMaybe<Scalars['Boolean']['input']>;
+    isVerified_not?: InputMaybe<Scalars['Boolean']['input']>;
+    newId?: InputMaybe<Scalars['String']['input']>;
+    newId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    newId_not?: InputMaybe<Scalars['String']['input']>;
+    newId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    sender?: InputMaybe<SenderFieldInput>;
+    sender_in?: InputMaybe<Array<InputMaybe<SenderFieldInput>>>;
+    sender_not?: InputMaybe<SenderFieldInput>;
+    sender_not_in?: InputMaybe<Array<InputMaybe<SenderFieldInput>>>;
+    updatedAt?: InputMaybe<Scalars['String']['input']>;
+    updatedAt_gt?: InputMaybe<Scalars['String']['input']>;
+    updatedAt_gte?: InputMaybe<Scalars['String']['input']>;
+    updatedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    updatedAt_lt?: InputMaybe<Scalars['String']['input']>;
+    updatedAt_lte?: InputMaybe<Scalars['String']['input']>;
+    updatedAt_not?: InputMaybe<Scalars['String']['input']>;
+    updatedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    updatedBy?: InputMaybe<UserWhereInput>;
+    updatedBy_is_null?: InputMaybe<Scalars['Boolean']['input']>;
+    v?: InputMaybe<Scalars['Int']['input']>;
+    v_gt?: InputMaybe<Scalars['Int']['input']>;
+    v_gte?: InputMaybe<Scalars['Int']['input']>;
+    v_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+    v_lt?: InputMaybe<Scalars['Int']['input']>;
+    v_lte?: InputMaybe<Scalars['Int']['input']>;
+    v_not?: InputMaybe<Scalars['Int']['input']>;
+    v_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+}
+
+export type ConfirmEmailActionWhereUniqueInput = {
+    id: Scalars['ID']['input'];
+}
+
+export type ConfirmEmailActionsCreateInput = {
+    data?: InputMaybe<ConfirmEmailActionCreateInput>;
+}
+
+export type ConfirmEmailActionsUpdateInput = {
+    data?: InputMaybe<ConfirmEmailActionUpdateInput>;
+    id: Scalars['ID']['input'];
 }
 
 /**  Internal schema used for user phone confirmation. It's impossible to work with it via API.  */
@@ -1367,7 +2151,7 @@ export type ConfirmPhoneAction = {
    *  4. As an alias to the 'id' field on the ConfirmPhoneAction List.
    */
     _label_?: Maybe<Scalars['String']['output']>;
-    /**  Number of attempts to enter the code. When 5 attempts are reached, this action becomes invalid.  */
+    /**  Number of used attempts to enter the code. When 5 attempts are reached, this action becomes invalid.  */
     attempts?: Maybe<Scalars['Int']['output']>;
     /**  Confirmation code. Generated inside one of action-creators, such as startConfirmPhoneAction  */
     code?: Maybe<Scalars['String']['output']>;
@@ -1377,13 +2161,13 @@ export type ConfirmPhoneAction = {
     deletedAt?: Maybe<Scalars['String']['output']>;
     /**  Data structure Version  */
     dv?: Maybe<Scalars['Int']['output']>;
-    /**  Action expiration time. After the expiration time, it will not be possible to register a user using this action.  */
+    /**  Action expiration time. After the expiration time, it will not be possible to call action-required mutations with the current ConfirmPhoneAction.  */
     expiresAt?: Maybe<Scalars['String']['output']>;
     id: Scalars['ID']['output'];
-    /**  Verifies number verification. If the number has been recently verified (before ConfirmPhoneAction expired), then knowing the ID ConfirmPhoneAction allows to register the user.  */
+    /**  Verifies specified phone. If the phone has been recently verified (before ConfirmPhoneAction expired), then knowing the ID of ConfirmPhoneAction allows to register the user.  */
     isVerified?: Maybe<Scalars['Boolean']['output']>;
     newId?: Maybe<Scalars['String']['output']>;
-    /**  Phone number to be verified  */
+    /**  Phone to be verified  */
     phone?: Maybe<Scalars['String']['output']>;
     /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
     sender?: Maybe<SenderField>;
@@ -1872,9 +2656,18 @@ export type Mutation = {
     /**  Authenticate and generate a token for a User with the Password Authentication Strategy.  */
     authenticateUserWithPassword?: Maybe<AuthenticateUserOutput>;
     authenticateUserWithPhoneAndPassword?: Maybe<AuthenticateUserWithPhoneAndPasswordOutput>;
+    completeConfirmEmailAction?: Maybe<CompleteConfirmEmailActionOutput>;
     completeConfirmPhoneAction?: Maybe<CompleteConfirmPhoneActionOutput>;
     /**  Create a single B2CApp item.  */
     createB2CApp?: Maybe<B2CApp>;
+    /**  Create a single B2CAppAccessRight item.  */
+    createB2CAppAccessRight?: Maybe<B2CAppAccessRight>;
+    /**  Create a single B2CAppAccessRightHistoryRecord item.  */
+    createB2CAppAccessRightHistoryRecord?: Maybe<B2CAppAccessRightHistoryRecord>;
+    /**  Create multiple B2CAppAccessRightHistoryRecord items.  */
+    createB2CAppAccessRightHistoryRecords?: Maybe<Array<Maybe<B2CAppAccessRightHistoryRecord>>>;
+    /**  Create multiple B2CAppAccessRight items.  */
+    createB2CAppAccessRights?: Maybe<Array<Maybe<B2CAppAccessRight>>>;
     /**  Create a single B2CAppBuild item.  */
     createB2CAppBuild?: Maybe<B2CAppBuild>;
     /**  Create a single B2CAppBuildHistoryRecord item.  */
@@ -1898,6 +2691,14 @@ export type Mutation = {
     createB2CAppPublishRequests?: Maybe<Array<Maybe<B2CAppPublishRequest>>>;
     /**  Create multiple B2CApp items.  */
     createB2CApps?: Maybe<Array<Maybe<B2CApp>>>;
+    /**  Create a single ConfirmEmailAction item.  */
+    createConfirmEmailAction?: Maybe<ConfirmEmailAction>;
+    /**  Create a single ConfirmEmailActionHistoryRecord item.  */
+    createConfirmEmailActionHistoryRecord?: Maybe<ConfirmEmailActionHistoryRecord>;
+    /**  Create multiple ConfirmEmailActionHistoryRecord items.  */
+    createConfirmEmailActionHistoryRecords?: Maybe<Array<Maybe<ConfirmEmailActionHistoryRecord>>>;
+    /**  Create multiple ConfirmEmailAction items.  */
+    createConfirmEmailActions?: Maybe<Array<Maybe<ConfirmEmailAction>>>;
     /**  Create a single ConfirmPhoneAction item.  */
     createConfirmPhoneAction?: Maybe<ConfirmPhoneAction>;
     /**  Create a single ConfirmPhoneActionHistoryRecord item.  */
@@ -1933,6 +2734,14 @@ export type Mutation = {
     createWebhooks?: Maybe<Array<Maybe<Webhook>>>;
     /**  Delete a single B2CApp item by ID.  */
     deleteB2CApp?: Maybe<B2CApp>;
+    /**  Delete a single B2CAppAccessRight item by ID.  */
+    deleteB2CAppAccessRight?: Maybe<B2CAppAccessRight>;
+    /**  Delete a single B2CAppAccessRightHistoryRecord item by ID.  */
+    deleteB2CAppAccessRightHistoryRecord?: Maybe<B2CAppAccessRightHistoryRecord>;
+    /**  Delete multiple B2CAppAccessRightHistoryRecord items by ID.  */
+    deleteB2CAppAccessRightHistoryRecords?: Maybe<Array<Maybe<B2CAppAccessRightHistoryRecord>>>;
+    /**  Delete multiple B2CAppAccessRight items by ID.  */
+    deleteB2CAppAccessRights?: Maybe<Array<Maybe<B2CAppAccessRight>>>;
     /**  Delete a single B2CAppBuild item by ID.  */
     deleteB2CAppBuild?: Maybe<B2CAppBuild>;
     /**  Delete a single B2CAppBuildHistoryRecord item by ID.  */
@@ -1956,6 +2765,14 @@ export type Mutation = {
     deleteB2CAppPublishRequests?: Maybe<Array<Maybe<B2CAppPublishRequest>>>;
     /**  Delete multiple B2CApp items by ID.  */
     deleteB2CApps?: Maybe<Array<Maybe<B2CApp>>>;
+    /**  Delete a single ConfirmEmailAction item by ID.  */
+    deleteConfirmEmailAction?: Maybe<ConfirmEmailAction>;
+    /**  Delete a single ConfirmEmailActionHistoryRecord item by ID.  */
+    deleteConfirmEmailActionHistoryRecord?: Maybe<ConfirmEmailActionHistoryRecord>;
+    /**  Delete multiple ConfirmEmailActionHistoryRecord items by ID.  */
+    deleteConfirmEmailActionHistoryRecords?: Maybe<Array<Maybe<ConfirmEmailActionHistoryRecord>>>;
+    /**  Delete multiple ConfirmEmailAction items by ID.  */
+    deleteConfirmEmailActions?: Maybe<Array<Maybe<ConfirmEmailAction>>>;
     /**  Delete a single ConfirmPhoneAction item by ID.  */
     deleteConfirmPhoneAction?: Maybe<ConfirmPhoneAction>;
     /**  Delete a single ConfirmPhoneActionHistoryRecord item by ID.  */
@@ -1991,12 +2808,22 @@ export type Mutation = {
     generateOIDCClientSecret?: Maybe<OidcClientWithSecret>;
     importB2CApp?: Maybe<ImportB2CAppOutput>;
     publishB2CApp?: Maybe<PublishB2CAppOutput>;
+    registerAppUserService?: Maybe<RegisterAppUserServiceOutput>;
     registerNewUser?: Maybe<User>;
+    startConfirmEmailAction?: Maybe<StartConfirmEmailActionOutput>;
     startConfirmPhoneAction?: Maybe<StartConfirmPhoneActionOutput>;
     unauthenticateUser?: Maybe<UnauthenticateUserOutput>;
     updateAuthenticatedUser?: Maybe<User>;
     /**  Update a single B2CApp item by ID.  */
     updateB2CApp?: Maybe<B2CApp>;
+    /**  Update a single B2CAppAccessRight item by ID.  */
+    updateB2CAppAccessRight?: Maybe<B2CAppAccessRight>;
+    /**  Update a single B2CAppAccessRightHistoryRecord item by ID.  */
+    updateB2CAppAccessRightHistoryRecord?: Maybe<B2CAppAccessRightHistoryRecord>;
+    /**  Update multiple B2CAppAccessRightHistoryRecord items by ID.  */
+    updateB2CAppAccessRightHistoryRecords?: Maybe<Array<Maybe<B2CAppAccessRightHistoryRecord>>>;
+    /**  Update multiple B2CAppAccessRight items by ID.  */
+    updateB2CAppAccessRights?: Maybe<Array<Maybe<B2CAppAccessRight>>>;
     /**  Update a single B2CAppBuild item by ID.  */
     updateB2CAppBuild?: Maybe<B2CAppBuild>;
     /**  Update a single B2CAppBuildHistoryRecord item by ID.  */
@@ -2019,6 +2846,14 @@ export type Mutation = {
     updateB2CAppPublishRequests?: Maybe<Array<Maybe<B2CAppPublishRequest>>>;
     /**  Update multiple B2CApp items by ID.  */
     updateB2CApps?: Maybe<Array<Maybe<B2CApp>>>;
+    /**  Update a single ConfirmEmailAction item by ID.  */
+    updateConfirmEmailAction?: Maybe<ConfirmEmailAction>;
+    /**  Update a single ConfirmEmailActionHistoryRecord item by ID.  */
+    updateConfirmEmailActionHistoryRecord?: Maybe<ConfirmEmailActionHistoryRecord>;
+    /**  Update multiple ConfirmEmailActionHistoryRecord items by ID.  */
+    updateConfirmEmailActionHistoryRecords?: Maybe<Array<Maybe<ConfirmEmailActionHistoryRecord>>>;
+    /**  Update multiple ConfirmEmailAction items by ID.  */
+    updateConfirmEmailActions?: Maybe<Array<Maybe<ConfirmEmailAction>>>;
     /**  Update a single ConfirmPhoneAction item by ID.  */
     updateConfirmPhoneAction?: Maybe<ConfirmPhoneAction>;
     /**  Update a single ConfirmPhoneActionHistoryRecord item by ID.  */
@@ -2066,6 +2901,11 @@ export type MutationAuthenticateUserWithPhoneAndPasswordArgs = {
 }
 
 
+export type MutationCompleteConfirmEmailActionArgs = {
+    data: CompleteConfirmEmailActionInput;
+}
+
+
 export type MutationCompleteConfirmPhoneActionArgs = {
     data: CompleteConfirmPhoneActionInput;
 }
@@ -2073,6 +2913,26 @@ export type MutationCompleteConfirmPhoneActionArgs = {
 
 export type MutationCreateB2CAppArgs = {
     data?: InputMaybe<B2CAppCreateInput>;
+}
+
+
+export type MutationCreateB2CAppAccessRightArgs = {
+    data?: InputMaybe<B2CAppAccessRightCreateInput>;
+}
+
+
+export type MutationCreateB2CAppAccessRightHistoryRecordArgs = {
+    data?: InputMaybe<B2CAppAccessRightHistoryRecordCreateInput>;
+}
+
+
+export type MutationCreateB2CAppAccessRightHistoryRecordsArgs = {
+    data?: InputMaybe<Array<InputMaybe<B2CAppAccessRightHistoryRecordsCreateInput>>>;
+}
+
+
+export type MutationCreateB2CAppAccessRightsArgs = {
+    data?: InputMaybe<Array<InputMaybe<B2CAppAccessRightsCreateInput>>>;
 }
 
 
@@ -2133,6 +2993,26 @@ export type MutationCreateB2CAppPublishRequestsArgs = {
 
 export type MutationCreateB2CAppsArgs = {
     data?: InputMaybe<Array<InputMaybe<B2CAppsCreateInput>>>;
+}
+
+
+export type MutationCreateConfirmEmailActionArgs = {
+    data?: InputMaybe<ConfirmEmailActionCreateInput>;
+}
+
+
+export type MutationCreateConfirmEmailActionHistoryRecordArgs = {
+    data?: InputMaybe<ConfirmEmailActionHistoryRecordCreateInput>;
+}
+
+
+export type MutationCreateConfirmEmailActionHistoryRecordsArgs = {
+    data?: InputMaybe<Array<InputMaybe<ConfirmEmailActionHistoryRecordsCreateInput>>>;
+}
+
+
+export type MutationCreateConfirmEmailActionsArgs = {
+    data?: InputMaybe<Array<InputMaybe<ConfirmEmailActionsCreateInput>>>;
 }
 
 
@@ -2226,6 +3106,26 @@ export type MutationDeleteB2CAppArgs = {
 }
 
 
+export type MutationDeleteB2CAppAccessRightArgs = {
+    id: Scalars['ID']['input'];
+}
+
+
+export type MutationDeleteB2CAppAccessRightHistoryRecordArgs = {
+    id: Scalars['ID']['input'];
+}
+
+
+export type MutationDeleteB2CAppAccessRightHistoryRecordsArgs = {
+    ids?: InputMaybe<Array<Scalars['ID']['input']>>;
+}
+
+
+export type MutationDeleteB2CAppAccessRightsArgs = {
+    ids?: InputMaybe<Array<Scalars['ID']['input']>>;
+}
+
+
 export type MutationDeleteB2CAppBuildArgs = {
     id: Scalars['ID']['input'];
 }
@@ -2282,6 +3182,26 @@ export type MutationDeleteB2CAppPublishRequestsArgs = {
 
 
 export type MutationDeleteB2CAppsArgs = {
+    ids?: InputMaybe<Array<Scalars['ID']['input']>>;
+}
+
+
+export type MutationDeleteConfirmEmailActionArgs = {
+    id: Scalars['ID']['input'];
+}
+
+
+export type MutationDeleteConfirmEmailActionHistoryRecordArgs = {
+    id: Scalars['ID']['input'];
+}
+
+
+export type MutationDeleteConfirmEmailActionHistoryRecordsArgs = {
+    ids?: InputMaybe<Array<Scalars['ID']['input']>>;
+}
+
+
+export type MutationDeleteConfirmEmailActionsArgs = {
     ids?: InputMaybe<Array<Scalars['ID']['input']>>;
 }
 
@@ -2381,8 +3301,18 @@ export type MutationPublishB2CAppArgs = {
 }
 
 
+export type MutationRegisterAppUserServiceArgs = {
+    data: RegisterAppUserServiceInput;
+}
+
+
 export type MutationRegisterNewUserArgs = {
     data: RegisterNewUserInput;
+}
+
+
+export type MutationStartConfirmEmailActionArgs = {
+    data: StartConfirmEmailActionInput;
 }
 
 
@@ -2399,6 +3329,28 @@ export type MutationUpdateAuthenticatedUserArgs = {
 export type MutationUpdateB2CAppArgs = {
     data?: InputMaybe<B2CAppUpdateInput>;
     id: Scalars['ID']['input'];
+}
+
+
+export type MutationUpdateB2CAppAccessRightArgs = {
+    data?: InputMaybe<B2CAppAccessRightUpdateInput>;
+    id: Scalars['ID']['input'];
+}
+
+
+export type MutationUpdateB2CAppAccessRightHistoryRecordArgs = {
+    data?: InputMaybe<B2CAppAccessRightHistoryRecordUpdateInput>;
+    id: Scalars['ID']['input'];
+}
+
+
+export type MutationUpdateB2CAppAccessRightHistoryRecordsArgs = {
+    data?: InputMaybe<Array<InputMaybe<B2CAppAccessRightHistoryRecordsUpdateInput>>>;
+}
+
+
+export type MutationUpdateB2CAppAccessRightsArgs = {
+    data?: InputMaybe<Array<InputMaybe<B2CAppAccessRightsUpdateInput>>>;
 }
 
 
@@ -2459,6 +3411,28 @@ export type MutationUpdateB2CAppPublishRequestsArgs = {
 
 export type MutationUpdateB2CAppsArgs = {
     data?: InputMaybe<Array<InputMaybe<B2CAppsUpdateInput>>>;
+}
+
+
+export type MutationUpdateConfirmEmailActionArgs = {
+    data?: InputMaybe<ConfirmEmailActionUpdateInput>;
+    id: Scalars['ID']['input'];
+}
+
+
+export type MutationUpdateConfirmEmailActionHistoryRecordArgs = {
+    data?: InputMaybe<ConfirmEmailActionHistoryRecordUpdateInput>;
+    id: Scalars['ID']['input'];
+}
+
+
+export type MutationUpdateConfirmEmailActionHistoryRecordsArgs = {
+    data?: InputMaybe<Array<InputMaybe<ConfirmEmailActionHistoryRecordsUpdateInput>>>;
+}
+
+
+export type MutationUpdateConfirmEmailActionsArgs = {
+    data?: InputMaybe<Array<InputMaybe<ConfirmEmailActionsUpdateInput>>>;
 }
 
 
@@ -2586,6 +3560,10 @@ export type Query = {
     __typename?: 'Query';
     /**  Search for the B2CApp item with the matching ID.  */
     B2CApp?: Maybe<B2CApp>;
+    /**  Search for the B2CAppAccessRight item with the matching ID.  */
+    B2CAppAccessRight?: Maybe<B2CAppAccessRight>;
+    /**  Search for the B2CAppAccessRightHistoryRecord item with the matching ID.  */
+    B2CAppAccessRightHistoryRecord?: Maybe<B2CAppAccessRightHistoryRecord>;
     /**  Search for the B2CAppBuild item with the matching ID.  */
     B2CAppBuild?: Maybe<B2CAppBuild>;
     /**  Search for the B2CAppBuildHistoryRecord item with the matching ID.  */
@@ -2596,6 +3574,10 @@ export type Query = {
     B2CAppPublishRequest?: Maybe<B2CAppPublishRequest>;
     /**  Search for the B2CAppPublishRequestHistoryRecord item with the matching ID.  */
     B2CAppPublishRequestHistoryRecord?: Maybe<B2CAppPublishRequestHistoryRecord>;
+    /**  Search for the ConfirmEmailAction item with the matching ID.  */
+    ConfirmEmailAction?: Maybe<ConfirmEmailAction>;
+    /**  Search for the ConfirmEmailActionHistoryRecord item with the matching ID.  */
+    ConfirmEmailActionHistoryRecord?: Maybe<ConfirmEmailActionHistoryRecord>;
     /**  Search for the ConfirmPhoneAction item with the matching ID.  */
     ConfirmPhoneAction?: Maybe<ConfirmPhoneAction>;
     /**  Search for the ConfirmPhoneActionHistoryRecord item with the matching ID.  */
@@ -2613,6 +3595,10 @@ export type Query = {
     WebhookSubscription?: Maybe<WebhookSubscription>;
     /**  Search for the WebhookSubscriptionHistoryRecord item with the matching ID.  */
     WebhookSubscriptionHistoryRecord?: Maybe<WebhookSubscriptionHistoryRecord>;
+    /**  Retrieve the meta-data for the B2CAppAccessRightHistoryRecord list.  */
+    _B2CAppAccessRightHistoryRecordsMeta?: Maybe<_ListMeta>;
+    /**  Retrieve the meta-data for the B2CAppAccessRight list.  */
+    _B2CAppAccessRightsMeta?: Maybe<_ListMeta>;
     /**  Retrieve the meta-data for the B2CAppBuildHistoryRecord list.  */
     _B2CAppBuildHistoryRecordsMeta?: Maybe<_ListMeta>;
     /**  Retrieve the meta-data for the B2CAppBuild list.  */
@@ -2625,6 +3611,10 @@ export type Query = {
     _B2CAppPublishRequestsMeta?: Maybe<_ListMeta>;
     /**  Retrieve the meta-data for the B2CApp list.  */
     _B2CAppsMeta?: Maybe<_ListMeta>;
+    /**  Retrieve the meta-data for the ConfirmEmailActionHistoryRecord list.  */
+    _ConfirmEmailActionHistoryRecordsMeta?: Maybe<_ListMeta>;
+    /**  Retrieve the meta-data for the ConfirmEmailAction list.  */
+    _ConfirmEmailActionsMeta?: Maybe<_ListMeta>;
     /**  Retrieve the meta-data for the ConfirmPhoneActionHistoryRecord list.  */
     _ConfirmPhoneActionHistoryRecordsMeta?: Maybe<_ListMeta>;
     /**  Retrieve the meta-data for the ConfirmPhoneAction list.  */
@@ -2641,6 +3631,10 @@ export type Query = {
     _WebhookSubscriptionsMeta?: Maybe<_ListMeta>;
     /**  Retrieve the meta-data for the Webhook list.  */
     _WebhooksMeta?: Maybe<_ListMeta>;
+    /**  Perform a meta-query on all B2CAppAccessRightHistoryRecord items which match the where clause.  */
+    _allB2CAppAccessRightHistoryRecordsMeta?: Maybe<_QueryMeta>;
+    /**  Perform a meta-query on all B2CAppAccessRight items which match the where clause.  */
+    _allB2CAppAccessRightsMeta?: Maybe<_QueryMeta>;
     /**  Perform a meta-query on all B2CAppBuildHistoryRecord items which match the where clause.  */
     _allB2CAppBuildHistoryRecordsMeta?: Maybe<_QueryMeta>;
     /**  Perform a meta-query on all B2CAppBuild items which match the where clause.  */
@@ -2653,6 +3647,10 @@ export type Query = {
     _allB2CAppPublishRequestsMeta?: Maybe<_QueryMeta>;
     /**  Perform a meta-query on all B2CApp items which match the where clause.  */
     _allB2CAppsMeta?: Maybe<_QueryMeta>;
+    /**  Perform a meta-query on all ConfirmEmailActionHistoryRecord items which match the where clause.  */
+    _allConfirmEmailActionHistoryRecordsMeta?: Maybe<_QueryMeta>;
+    /**  Perform a meta-query on all ConfirmEmailAction items which match the where clause.  */
+    _allConfirmEmailActionsMeta?: Maybe<_QueryMeta>;
     /**  Perform a meta-query on all ConfirmPhoneActionHistoryRecord items which match the where clause.  */
     _allConfirmPhoneActionHistoryRecordsMeta?: Maybe<_QueryMeta>;
     /**  Perform a meta-query on all ConfirmPhoneAction items which match the where clause.  */
@@ -2671,6 +3669,10 @@ export type Query = {
     _allWebhooksMeta?: Maybe<_QueryMeta>;
     /**  Retrieve the meta-data for all lists.  */
     _ksListsMeta?: Maybe<Array<Maybe<_ListMeta>>>;
+    /**  Search for all B2CAppAccessRightHistoryRecord items which match the where clause.  */
+    allB2CAppAccessRightHistoryRecords?: Maybe<Array<Maybe<B2CAppAccessRightHistoryRecord>>>;
+    /**  Search for all B2CAppAccessRight items which match the where clause.  */
+    allB2CAppAccessRights?: Maybe<Array<Maybe<B2CAppAccessRight>>>;
     /**  Search for all B2CAppBuildHistoryRecord items which match the where clause.  */
     allB2CAppBuildHistoryRecords?: Maybe<Array<Maybe<B2CAppBuildHistoryRecord>>>;
     /**  Search for all B2CAppBuild items which match the where clause.  */
@@ -2684,6 +3686,10 @@ export type Query = {
     allB2CAppPublishRequests?: Maybe<Array<Maybe<B2CAppPublishRequest>>>;
     /**  Search for all B2CApp items which match the where clause.  */
     allB2CApps?: Maybe<Array<Maybe<B2CApp>>>;
+    /**  Search for all ConfirmEmailActionHistoryRecord items which match the where clause.  */
+    allConfirmEmailActionHistoryRecords?: Maybe<Array<Maybe<ConfirmEmailActionHistoryRecord>>>;
+    /**  Search for all ConfirmEmailAction items which match the where clause.  */
+    allConfirmEmailActions?: Maybe<Array<Maybe<ConfirmEmailAction>>>;
     /**  Search for all ConfirmPhoneActionHistoryRecord items which match the where clause.  */
     allConfirmPhoneActionHistoryRecords?: Maybe<Array<Maybe<ConfirmPhoneActionHistoryRecord>>>;
     /**  Search for all ConfirmPhoneAction items which match the where clause.  */
@@ -2711,6 +3717,16 @@ export type QueryB2CAppArgs = {
 }
 
 
+export type QueryB2CAppAccessRightArgs = {
+    where: B2CAppAccessRightWhereUniqueInput;
+}
+
+
+export type QueryB2CAppAccessRightHistoryRecordArgs = {
+    where: B2CAppAccessRightHistoryRecordWhereUniqueInput;
+}
+
+
 export type QueryB2CAppBuildArgs = {
     where: B2CAppBuildWhereUniqueInput;
 }
@@ -2733,6 +3749,16 @@ export type QueryB2CAppPublishRequestArgs = {
 
 export type QueryB2CAppPublishRequestHistoryRecordArgs = {
     where: B2CAppPublishRequestHistoryRecordWhereUniqueInput;
+}
+
+
+export type QueryConfirmEmailActionArgs = {
+    where: ConfirmEmailActionWhereUniqueInput;
+}
+
+
+export type QueryConfirmEmailActionHistoryRecordArgs = {
+    where: ConfirmEmailActionHistoryRecordWhereUniqueInput;
 }
 
 
@@ -2778,6 +3804,26 @@ export type QueryWebhookSubscriptionArgs = {
 
 export type QueryWebhookSubscriptionHistoryRecordArgs = {
     where: WebhookSubscriptionHistoryRecordWhereUniqueInput;
+}
+
+
+export type Query_AllB2CAppAccessRightHistoryRecordsMetaArgs = {
+    first?: InputMaybe<Scalars['Int']['input']>;
+    orderBy?: InputMaybe<Scalars['String']['input']>;
+    search?: InputMaybe<Scalars['String']['input']>;
+    skip?: InputMaybe<Scalars['Int']['input']>;
+    sortBy?: InputMaybe<Array<SortB2CAppAccessRightHistoryRecordsBy>>;
+    where?: InputMaybe<B2CAppAccessRightHistoryRecordWhereInput>;
+}
+
+
+export type Query_AllB2CAppAccessRightsMetaArgs = {
+    first?: InputMaybe<Scalars['Int']['input']>;
+    orderBy?: InputMaybe<Scalars['String']['input']>;
+    search?: InputMaybe<Scalars['String']['input']>;
+    skip?: InputMaybe<Scalars['Int']['input']>;
+    sortBy?: InputMaybe<Array<SortB2CAppAccessRightsBy>>;
+    where?: InputMaybe<B2CAppAccessRightWhereInput>;
 }
 
 
@@ -2838,6 +3884,26 @@ export type Query_AllB2CAppsMetaArgs = {
     skip?: InputMaybe<Scalars['Int']['input']>;
     sortBy?: InputMaybe<Array<SortB2CAppsBy>>;
     where?: InputMaybe<B2CAppWhereInput>;
+}
+
+
+export type Query_AllConfirmEmailActionHistoryRecordsMetaArgs = {
+    first?: InputMaybe<Scalars['Int']['input']>;
+    orderBy?: InputMaybe<Scalars['String']['input']>;
+    search?: InputMaybe<Scalars['String']['input']>;
+    skip?: InputMaybe<Scalars['Int']['input']>;
+    sortBy?: InputMaybe<Array<SortConfirmEmailActionHistoryRecordsBy>>;
+    where?: InputMaybe<ConfirmEmailActionHistoryRecordWhereInput>;
+}
+
+
+export type Query_AllConfirmEmailActionsMetaArgs = {
+    first?: InputMaybe<Scalars['Int']['input']>;
+    orderBy?: InputMaybe<Scalars['String']['input']>;
+    search?: InputMaybe<Scalars['String']['input']>;
+    skip?: InputMaybe<Scalars['Int']['input']>;
+    sortBy?: InputMaybe<Array<SortConfirmEmailActionsBy>>;
+    where?: InputMaybe<ConfirmEmailActionWhereInput>;
 }
 
 
@@ -2926,6 +3992,26 @@ export type Query_KsListsMetaArgs = {
 }
 
 
+export type QueryAllB2CAppAccessRightHistoryRecordsArgs = {
+    first?: InputMaybe<Scalars['Int']['input']>;
+    orderBy?: InputMaybe<Scalars['String']['input']>;
+    search?: InputMaybe<Scalars['String']['input']>;
+    skip?: InputMaybe<Scalars['Int']['input']>;
+    sortBy?: InputMaybe<Array<SortB2CAppAccessRightHistoryRecordsBy>>;
+    where?: InputMaybe<B2CAppAccessRightHistoryRecordWhereInput>;
+}
+
+
+export type QueryAllB2CAppAccessRightsArgs = {
+    first?: InputMaybe<Scalars['Int']['input']>;
+    orderBy?: InputMaybe<Scalars['String']['input']>;
+    search?: InputMaybe<Scalars['String']['input']>;
+    skip?: InputMaybe<Scalars['Int']['input']>;
+    sortBy?: InputMaybe<Array<SortB2CAppAccessRightsBy>>;
+    where?: InputMaybe<B2CAppAccessRightWhereInput>;
+}
+
+
 export type QueryAllB2CAppBuildHistoryRecordsArgs = {
     first?: InputMaybe<Scalars['Int']['input']>;
     orderBy?: InputMaybe<Scalars['String']['input']>;
@@ -2988,6 +4074,26 @@ export type QueryAllB2CAppsArgs = {
     skip?: InputMaybe<Scalars['Int']['input']>;
     sortBy?: InputMaybe<Array<SortB2CAppsBy>>;
     where?: InputMaybe<B2CAppWhereInput>;
+}
+
+
+export type QueryAllConfirmEmailActionHistoryRecordsArgs = {
+    first?: InputMaybe<Scalars['Int']['input']>;
+    orderBy?: InputMaybe<Scalars['String']['input']>;
+    search?: InputMaybe<Scalars['String']['input']>;
+    skip?: InputMaybe<Scalars['Int']['input']>;
+    sortBy?: InputMaybe<Array<SortConfirmEmailActionHistoryRecordsBy>>;
+    where?: InputMaybe<ConfirmEmailActionHistoryRecordWhereInput>;
+}
+
+
+export type QueryAllConfirmEmailActionsArgs = {
+    first?: InputMaybe<Scalars['Int']['input']>;
+    orderBy?: InputMaybe<Scalars['String']['input']>;
+    search?: InputMaybe<Scalars['String']['input']>;
+    skip?: InputMaybe<Scalars['Int']['input']>;
+    sortBy?: InputMaybe<Array<SortConfirmEmailActionsBy>>;
+    where?: InputMaybe<ConfirmEmailActionWhereInput>;
 }
 
 
@@ -3070,8 +4176,21 @@ export type QueryAllWebhooksArgs = {
     where?: InputMaybe<WebhookWhereInput>;
 }
 
+export type RegisterAppUserServiceInput = {
+    app: AppWhereUniqueInput;
+    confirmEmailAction: ConfirmEmailActionWhereUniqueInput;
+    dv: Scalars['Int']['input'];
+    environment: AppEnvironment;
+    sender: SenderFieldInput;
+}
+
+export type RegisterAppUserServiceOutput = {
+    __typename?: 'RegisterAppUserServiceOutput';
+    id: Scalars['ID']['output'];
+}
+
 export type RegisterNewUserInput = {
-    confirmPhoneActionId: Scalars['String']['input'];
+    confirmPhoneAction: ConfirmPhoneActionWhereUniqueInput;
     dv: Scalars['Int']['input'];
     name: Scalars['String']['input'];
     password: Scalars['String']['input'];
@@ -3087,6 +4206,54 @@ export type SenderField = {
 export type SenderFieldInput = {
     dv: Scalars['Int']['input'];
     fingerprint: Scalars['String']['input'];
+}
+
+export enum SortB2CAppAccessRightHistoryRecordsBy {
+    CondoUserIdAsc = 'condoUserId_ASC',
+    CondoUserIdDesc = 'condoUserId_DESC',
+    CreatedAtAsc = 'createdAt_ASC',
+    CreatedAtDesc = 'createdAt_DESC',
+    DeletedAtAsc = 'deletedAt_ASC',
+    DeletedAtDesc = 'deletedAt_DESC',
+    DvAsc = 'dv_ASC',
+    DvDesc = 'dv_DESC',
+    EnvironmentAsc = 'environment_ASC',
+    EnvironmentDesc = 'environment_DESC',
+    HistoryActionAsc = 'history_action_ASC',
+    HistoryActionDesc = 'history_action_DESC',
+    HistoryDateAsc = 'history_date_ASC',
+    HistoryDateDesc = 'history_date_DESC',
+    IdAsc = 'id_ASC',
+    IdDesc = 'id_DESC',
+    UpdatedAtAsc = 'updatedAt_ASC',
+    UpdatedAtDesc = 'updatedAt_DESC',
+    VAsc = 'v_ASC',
+    VDesc = 'v_DESC',
+}
+
+export enum SortB2CAppAccessRightsBy {
+    AppAsc = 'app_ASC',
+    AppDesc = 'app_DESC',
+    CondoUserIdAsc = 'condoUserId_ASC',
+    CondoUserIdDesc = 'condoUserId_DESC',
+    CreatedAtAsc = 'createdAt_ASC',
+    CreatedAtDesc = 'createdAt_DESC',
+    CreatedByAsc = 'createdBy_ASC',
+    CreatedByDesc = 'createdBy_DESC',
+    DeletedAtAsc = 'deletedAt_ASC',
+    DeletedAtDesc = 'deletedAt_DESC',
+    DvAsc = 'dv_ASC',
+    DvDesc = 'dv_DESC',
+    EnvironmentAsc = 'environment_ASC',
+    EnvironmentDesc = 'environment_DESC',
+    IdAsc = 'id_ASC',
+    IdDesc = 'id_DESC',
+    UpdatedAtAsc = 'updatedAt_ASC',
+    UpdatedAtDesc = 'updatedAt_DESC',
+    UpdatedByAsc = 'updatedBy_ASC',
+    UpdatedByDesc = 'updatedBy_DESC',
+    VAsc = 'v_ASC',
+    VDesc = 'v_DESC',
 }
 
 export enum SortB2CAppBuildHistoryRecordsBy {
@@ -3243,6 +4410,64 @@ export enum SortB2CAppsBy {
     NameDesc = 'name_DESC',
     ProductionExportIdAsc = 'productionExportId_ASC',
     ProductionExportIdDesc = 'productionExportId_DESC',
+    UpdatedAtAsc = 'updatedAt_ASC',
+    UpdatedAtDesc = 'updatedAt_DESC',
+    UpdatedByAsc = 'updatedBy_ASC',
+    UpdatedByDesc = 'updatedBy_DESC',
+    VAsc = 'v_ASC',
+    VDesc = 'v_DESC',
+}
+
+export enum SortConfirmEmailActionHistoryRecordsBy {
+    AttemptsAsc = 'attempts_ASC',
+    AttemptsDesc = 'attempts_DESC',
+    CodeAsc = 'code_ASC',
+    CodeDesc = 'code_DESC',
+    CreatedAtAsc = 'createdAt_ASC',
+    CreatedAtDesc = 'createdAt_DESC',
+    DeletedAtAsc = 'deletedAt_ASC',
+    DeletedAtDesc = 'deletedAt_DESC',
+    DvAsc = 'dv_ASC',
+    DvDesc = 'dv_DESC',
+    EmailAsc = 'email_ASC',
+    EmailDesc = 'email_DESC',
+    ExpiresAtAsc = 'expiresAt_ASC',
+    ExpiresAtDesc = 'expiresAt_DESC',
+    HistoryActionAsc = 'history_action_ASC',
+    HistoryActionDesc = 'history_action_DESC',
+    HistoryDateAsc = 'history_date_ASC',
+    HistoryDateDesc = 'history_date_DESC',
+    IdAsc = 'id_ASC',
+    IdDesc = 'id_DESC',
+    IsVerifiedAsc = 'isVerified_ASC',
+    IsVerifiedDesc = 'isVerified_DESC',
+    UpdatedAtAsc = 'updatedAt_ASC',
+    UpdatedAtDesc = 'updatedAt_DESC',
+    VAsc = 'v_ASC',
+    VDesc = 'v_DESC',
+}
+
+export enum SortConfirmEmailActionsBy {
+    AttemptsAsc = 'attempts_ASC',
+    AttemptsDesc = 'attempts_DESC',
+    CodeAsc = 'code_ASC',
+    CodeDesc = 'code_DESC',
+    CreatedAtAsc = 'createdAt_ASC',
+    CreatedAtDesc = 'createdAt_DESC',
+    CreatedByAsc = 'createdBy_ASC',
+    CreatedByDesc = 'createdBy_DESC',
+    DeletedAtAsc = 'deletedAt_ASC',
+    DeletedAtDesc = 'deletedAt_DESC',
+    DvAsc = 'dv_ASC',
+    DvDesc = 'dv_DESC',
+    EmailAsc = 'email_ASC',
+    EmailDesc = 'email_DESC',
+    ExpiresAtAsc = 'expiresAt_ASC',
+    ExpiresAtDesc = 'expiresAt_DESC',
+    IdAsc = 'id_ASC',
+    IdDesc = 'id_DESC',
+    IsVerifiedAsc = 'isVerified_ASC',
+    IsVerifiedDesc = 'isVerified_DESC',
     UpdatedAtAsc = 'updatedAt_ASC',
     UpdatedAtDesc = 'updatedAt_DESC',
     UpdatedByAsc = 'updatedBy_ASC',
@@ -3487,6 +4712,18 @@ export enum SortWebhooksBy {
     UserDesc = 'user_DESC',
     VAsc = 'v_ASC',
     VDesc = 'v_DESC',
+}
+
+export type StartConfirmEmailActionInput = {
+    dv: Scalars['Int']['input'];
+    email: Scalars['String']['input'];
+    sender: SenderFieldInput;
+}
+
+export type StartConfirmEmailActionOutput = {
+    __typename?: 'StartConfirmEmailActionOutput';
+    actionId: Scalars['String']['output'];
+    email: Scalars['String']['output'];
 }
 
 export type StartConfirmPhoneActionInput = {

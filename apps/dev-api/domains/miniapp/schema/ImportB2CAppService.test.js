@@ -9,19 +9,22 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { REMOTE_SYSTEM } = require('@dev-api/domains/common/constants/common')
-const { PUBLISH_REQUEST_APPROVED_STATUS, PUBLISH_REQUEST_PENDING_STATUS } = require('@dev-api/domains/miniapp/constants/publishing')
+const { PUBLISH_REQUEST_APPROVED_STATUS, PUBLISH_REQUEST_PENDING_STATUS, DEV_ENVIRONMENT } = require('@dev-api/domains/miniapp/constants/publishing')
 const {
     importB2CAppByTestClient,
     createTestB2CApp,
     createTestB2CAppBuild,
     createCondoB2CApp,
     createCondoB2CAppBuild,
+    createCondoB2CAppAccessRight,
     createTestB2CAppPublishRequest,
     B2CApp,
     B2CAppBuild,
     B2CAppPublishRequest,
+    B2CAppAccessRight,
     CondoB2CApp,
     CondoB2CAppBuild,
+    CondoB2CAppAccessRight,
 } = require('@dev-api/domains/miniapp/utils/testSchema')
 const {
     makeLoggedInAdminClient,
@@ -112,7 +115,7 @@ describe('ImportB2CAppService', () => {
                 expect(updatedProdApp).toHaveProperty('importRemoteSystem', REMOTE_SYSTEM)
             })
             test('App info must not be updated if options.info set to false', async () => {
-                const [result] = await importB2CAppByTestClient(support, app, condoDevApp, condoProdApp, { options: { info: false, builds: true, publish: true } })
+                const [result] = await importB2CAppByTestClient(support, app, condoDevApp, condoProdApp, { options: { info: false, builds: true, publish: true, accessRight: true } })
                 expect(result).toHaveProperty('success', true)
 
                 const updatedApp = await B2CApp.getOne(support, { id: app.id })
@@ -206,13 +209,13 @@ describe('ImportB2CAppService', () => {
                 const [condoProdApp] = await createCondoB2CApp(condoAdmin)
                 await createCondoB2CAppBuild(condoAdmin, condoProdApp)
 
-                const [firstResult] = await importB2CAppByTestClient(support, app, condoDevApp, condoProdApp, { options: { info: true, builds: false, publish: true } })
+                const [firstResult] = await importB2CAppByTestClient(support, app, condoDevApp, condoProdApp, { options: { info: true, builds: false, publish: true, accessRight: true } })
                 expect(firstResult).toHaveProperty('success', true)
 
                 const allBuilds = await B2CAppBuild.getAll(support, { app: { id: app.id } })
                 expect(allBuilds).toHaveLength(0)
 
-                const [secondResult] = await importB2CAppByTestClient(support, app, condoDevApp, condoProdApp, { options: { info: true, builds: true, publish: true } })
+                const [secondResult] = await importB2CAppByTestClient(support, app, condoDevApp, condoProdApp, { options: { info: true, builds: true, publish: true, accessRight: true } })
                 expect(secondResult).toHaveProperty('success', true)
 
                 const allNewBuilds = await B2CAppBuild.getAll(support, { app: { id: app.id } })
@@ -258,11 +261,52 @@ describe('ImportB2CAppService', () => {
                 const [app] = await createTestB2CApp(user)
                 const [condoDevApp] = await createCondoB2CApp(condoAdmin)
 
-                const [result] = await importB2CAppByTestClient(support, app, condoDevApp, condoProdApp, { options: { info: true, builds: true, publish: false } })
+                const [result] = await importB2CAppByTestClient(support, app, condoDevApp, condoProdApp, { options: { info: true, builds: true, publish: false, accessRight: true } })
                 expect(result).toHaveProperty('success', true)
 
                 const request = await B2CAppPublishRequest.getOne(support, { app: { id: app.id } })
                 expect(request).not.toBeDefined()
+            })
+        })
+        describe('Access right', () => {
+            test('Proper access right must be created if options.accessRight is set to true', async () => {
+                const [anotherApp] = await createTestB2CApp(user)
+                const [condoApp] = await createCondoB2CApp(condoAdmin)
+                const [condoAccessRight] = await createCondoB2CAppAccessRight(condoAdmin, condoApp)
+                expect(condoAccessRight).toBeDefined()
+
+                const [result] = await importB2CAppByTestClient(support, anotherApp, condoApp)
+                expect(result).toHaveProperty('success', true)
+
+                const accessRight = await B2CAppAccessRight.getOne(support, { app: { id: anotherApp.id }, environment: DEV_ENVIRONMENT })
+                expect(accessRight).toHaveProperty('condoUserId', condoAccessRight.user.id)
+                expect(accessRight).toHaveProperty('environment', DEV_ENVIRONMENT)
+                expect(accessRight).toHaveProperty(['app', 'id'], anotherApp.id)
+                expect(accessRight).toHaveProperty(`${DEV_ENVIRONMENT}ExportId`, condoAccessRight.id)
+
+                const updatedCondoRight = await CondoB2CAppAccessRight.getOne(condoAdmin, { id: condoAccessRight.id })
+                expect(updatedCondoRight).toHaveProperty('importRemoteSystem', REMOTE_SYSTEM)
+                expect(updatedCondoRight).toHaveProperty('importId', accessRight.id)
+            })
+            test('Same condo user can be imported for multiple dev-api apps', async () => {
+                const [firstApp] = await createTestB2CApp(user)
+                const [secondApp] = await createTestB2CApp(user)
+                const [firstCondoApp] = await createCondoB2CApp(condoAdmin)
+                const [secondCondoApp] = await createCondoB2CApp(condoAdmin)
+                const [firstCondoAccessRight] = await createCondoB2CAppAccessRight(condoAdmin, firstCondoApp)
+                expect(firstCondoAccessRight).toHaveProperty(['user', 'id'])
+                const [secondCondoAccessRight] = await createCondoB2CAppAccessRight(condoAdmin, secondCondoApp, { id: firstCondoAccessRight.user.id })
+                expect(secondCondoAccessRight).toHaveProperty(['user', 'id'], firstCondoAccessRight.user.id)
+
+                const [firstResult] = await importB2CAppByTestClient(support, firstApp, firstCondoApp)
+                expect(firstResult).toHaveProperty('success', true)
+                const [secondResult] = await importB2CAppByTestClient(support, secondApp, secondCondoApp)
+                expect(secondResult).toHaveProperty('success', true)
+
+                const firstAccessRight = await B2CAppAccessRight.getOne(user, { app: { id: firstApp.id }, environment: DEV_ENVIRONMENT })
+                expect(firstAccessRight).toHaveProperty('condoUserId', firstCondoAccessRight.user.id)
+                const secondAccessRight = await B2CAppAccessRight.getOne(user, { app: { id: secondApp.id }, environment: DEV_ENVIRONMENT })
+                expect(secondAccessRight).toHaveProperty('condoUserId', secondCondoAccessRight.user.id)
             })
         })
     })

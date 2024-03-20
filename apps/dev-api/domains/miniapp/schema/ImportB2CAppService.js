@@ -14,8 +14,8 @@ const { REMOTE_SYSTEM } = require('@dev-api/domains/common/constants/common')
 const { productionClient, developmentClient } = require('@dev-api/domains/common/utils/serverClients')
 const access = require('@dev-api/domains/miniapp/access/ImportB2CAppService')
 const { APP_NOT_FOUND } = require('@dev-api/domains/miniapp/constants/errors')
-const { PUBLISH_REQUEST_APPROVED_STATUS } = require('@dev-api/domains/miniapp/constants/publishing')
-const { B2CApp, B2CAppBuild, B2CAppPublishRequest } = require('@dev-api/domains/miniapp/utils/serverSchema')
+const { PUBLISH_REQUEST_APPROVED_STATUS, PROD_ENVIRONMENT, DEV_ENVIRONMENT } = require('@dev-api/domains/miniapp/constants/publishing')
+const { B2CApp, B2CAppBuild, B2CAppPublishRequest, B2CAppAccessRight } = require('@dev-api/domains/miniapp/utils/serverSchema')
 
 const ERRORS = {
     DEV_APP_NOT_FOUND: {
@@ -34,6 +34,7 @@ const FETCH_BUILDS_CHUNK_SIZE = 10
 const IMPORTABLE_VERSION = /^\d{1,10}.\d{1,10}.\d{1,10}$/
 const CondoB2CAppGQL = generateGqlQueries('B2CApp', '{ id developer name logo { publicUrl filename mimetype encoding } }')
 const CondoB2CAppBuildGQL = generateGqlQueries('B2CAppBuild', '{ id version data { publicUrl originalFilename mimetype encoding } }')
+const CondoB2CAppAccessRightGQL = generateGqlQueries('B2CAppAccessRight', '{ id user { id } }')
 
 async function importAppInfo ({ args, context }) {
     const {
@@ -235,6 +236,69 @@ async function importAppBuilds ({ args, context }) {
     }
 }
 
+async function _importAppAccessRightFromEnvironment ({ condoAppId, context, environment, args }) {
+    const { data: { dv, sender, to: { app: { id: appId } } } } = args
+
+    const exportField = `${environment}ExportId`
+
+    const serverClient = environment === PROD_ENVIRONMENT
+        ? productionClient
+        : developmentClient
+
+    const accessRights = await serverClient.getModels({
+        modelGql: CondoB2CAppAccessRightGQL,
+        where: { app: { id: condoAppId } },
+        first: 1,
+    })
+
+    if (accessRights.length) {
+        const condoAccessRight = accessRights[0]
+
+        const accessRight = await B2CAppAccessRight.create(context, {
+            dv,
+            sender,
+            condoUserId: condoAccessRight.user.id,
+            app: { connect: { id: appId } },
+            environment,
+            [exportField]: condoAccessRight.id,
+        })
+
+        await serverClient.updateModel({
+            modelGql: CondoB2CAppAccessRightGQL,
+            id: condoAccessRight.id,
+            updateInput: {
+                dv,
+                sender,
+                importId: accessRight.id,
+                importRemoteSystem: REMOTE_SYSTEM,
+            },
+        })
+    }
+}
+
+async function importAppAccessRight ({ args, context }) {
+    const developmentAppId = get(args, ['data', 'from', 'developmentApp', 'id'])
+    const productionAppId = get(args, ['data', 'from', 'productionApp', 'id'])
+
+    if (developmentAppId) {
+        await _importAppAccessRightFromEnvironment({
+            condoAppId: developmentAppId,
+            environment: DEV_ENVIRONMENT,
+            args,
+            context,
+        })
+    }
+
+    if (productionAppId) {
+        await _importAppAccessRightFromEnvironment({
+            condoAppId: productionAppId,
+            environment: PROD_ENVIRONMENT,
+            args,
+            context,
+        })
+    }
+}
+
 const ImportB2CAppService = new GQLCustomSchema('ImportB2CAppService', {
     types: [
         {
@@ -247,7 +311,7 @@ const ImportB2CAppService = new GQLCustomSchema('ImportB2CAppService', {
         },
         {
             access: true,
-            type: 'input ImportB2CAppOptionsInput { info: Boolean!, builds: Boolean!, publish: Boolean! }',
+            type: 'input ImportB2CAppOptionsInput { info: Boolean!, builds: Boolean!, publish: Boolean!, accessRight: Boolean! }',
         },
         {
             access: true,
@@ -276,7 +340,12 @@ const ImportB2CAppService = new GQLCustomSchema('ImportB2CAppService', {
                     await importAppBuilds({ args, context })
                 }
 
+                // Step 3. Import access right
+                if (options.accessRight) {
+                    await importAppAccessRight({ args, context })
+                }
 
+                // Step 4. Allow publishing
                 if (options.publish) {
                     const publishPayload = {
                         dv,
