@@ -45,7 +45,7 @@ function createTaskQueue (name) {
             if (['bclient', 'subscriber'].includes(type)) {
                 opts.maxRetriesPerRequest = null
             }
-            return getRedisClient('worker', type, opts)
+            return getRedisClient(`worker:${name}`, type, opts)
         },
         settings: {
             isSharedChildPool: true,
