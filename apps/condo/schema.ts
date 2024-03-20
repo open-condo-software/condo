@@ -36843,6 +36843,30 @@ export type Mutation = {
   deleteTourStep?: Maybe<TourStep>;
   /**  Delete multiple TourStep items by ID.  */
   deleteTourSteps?: Maybe<Array<Maybe<TourStep>>>;
+  /**  Create a single UserHelpRequestHistoryRecord item.  */
+  createUserHelpRequestHistoryRecord?: Maybe<UserHelpRequestHistoryRecord>;
+  /**  Create multiple UserHelpRequestHistoryRecord items.  */
+  createUserHelpRequestHistoryRecords?: Maybe<Array<Maybe<UserHelpRequestHistoryRecord>>>;
+  /**  Update a single UserHelpRequestHistoryRecord item by ID.  */
+  updateUserHelpRequestHistoryRecord?: Maybe<UserHelpRequestHistoryRecord>;
+  /**  Update multiple UserHelpRequestHistoryRecord items by ID.  */
+  updateUserHelpRequestHistoryRecords?: Maybe<Array<Maybe<UserHelpRequestHistoryRecord>>>;
+  /**  Delete a single UserHelpRequestHistoryRecord item by ID.  */
+  deleteUserHelpRequestHistoryRecord?: Maybe<UserHelpRequestHistoryRecord>;
+  /**  Delete multiple UserHelpRequestHistoryRecord items by ID.  */
+  deleteUserHelpRequestHistoryRecords?: Maybe<Array<Maybe<UserHelpRequestHistoryRecord>>>;
+  /**  Create a single UserHelpRequest item.  */
+  createUserHelpRequest?: Maybe<UserHelpRequest>;
+  /**  Create multiple UserHelpRequest items.  */
+  createUserHelpRequests?: Maybe<Array<Maybe<UserHelpRequest>>>;
+  /**  Update a single UserHelpRequest item by ID.  */
+  updateUserHelpRequest?: Maybe<UserHelpRequest>;
+  /**  Update multiple UserHelpRequest items by ID.  */
+  updateUserHelpRequests?: Maybe<Array<Maybe<UserHelpRequest>>>;
+  /**  Delete a single UserHelpRequest item by ID.  */
+  deleteUserHelpRequest?: Maybe<UserHelpRequest>;
+  /**  Delete multiple UserHelpRequest items by ID.  */
+  deleteUserHelpRequests?: Maybe<Array<Maybe<UserHelpRequest>>>;
   /**  Create a single MeterResourceHistoryRecord item.  */
   createMeterResourceHistoryRecord?: Maybe<MeterResourceHistoryRecord>;
   /**  Create multiple MeterResourceHistoryRecord items.  */
@@ -45699,6 +45723,68 @@ export type MutationDeleteTourStepArgs = {
 
 
 export type MutationDeleteTourStepsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateUserHelpRequestHistoryRecordArgs = {
+  data?: Maybe<UserHelpRequestHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateUserHelpRequestHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<UserHelpRequestHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateUserHelpRequestHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<UserHelpRequestHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateUserHelpRequestHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<UserHelpRequestHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteUserHelpRequestHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteUserHelpRequestHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateUserHelpRequestArgs = {
+  data?: Maybe<UserHelpRequestCreateInput>;
+};
+
+
+export type MutationCreateUserHelpRequestsArgs = {
+  data?: Maybe<Array<Maybe<UserHelpRequestsCreateInput>>>;
+};
+
+
+export type MutationUpdateUserHelpRequestArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<UserHelpRequestUpdateInput>;
+};
+
+
+export type MutationUpdateUserHelpRequestsArgs = {
+  data?: Maybe<Array<Maybe<UserHelpRequestsUpdateInput>>>;
+};
+
+
+export type MutationDeleteUserHelpRequestArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteUserHelpRequestsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -62057,6 +62143,22 @@ export type Query = {
   _allTourStepsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the TourStep list.  */
   _TourStepsMeta?: Maybe<_ListMeta>;
+  /**  Search for all UserHelpRequestHistoryRecord items which match the where clause.  */
+  allUserHelpRequestHistoryRecords?: Maybe<Array<Maybe<UserHelpRequestHistoryRecord>>>;
+  /**  Search for the UserHelpRequestHistoryRecord item with the matching ID.  */
+  UserHelpRequestHistoryRecord?: Maybe<UserHelpRequestHistoryRecord>;
+  /**  Perform a meta-query on all UserHelpRequestHistoryRecord items which match the where clause.  */
+  _allUserHelpRequestHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the UserHelpRequestHistoryRecord list.  */
+  _UserHelpRequestHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all UserHelpRequest items which match the where clause.  */
+  allUserHelpRequests?: Maybe<Array<Maybe<UserHelpRequest>>>;
+  /**  Search for the UserHelpRequest item with the matching ID.  */
+  UserHelpRequest?: Maybe<UserHelpRequest>;
+  /**  Perform a meta-query on all UserHelpRequest items which match the where clause.  */
+  _allUserHelpRequestsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the UserHelpRequest list.  */
+  _UserHelpRequestsMeta?: Maybe<_ListMeta>;
   /**  Search for all MeterResourceHistoryRecord items which match the where clause.  */
   allMeterResourceHistoryRecords?: Maybe<Array<Maybe<MeterResourceHistoryRecord>>>;
   /**  Search for the MeterResourceHistoryRecord item with the matching ID.  */
@@ -66890,6 +66992,56 @@ export type Query_AllTourStepsMetaArgs = {
   where?: Maybe<TourStepWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortTourStepsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllUserHelpRequestHistoryRecordsArgs = {
+  where?: Maybe<UserHelpRequestHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortUserHelpRequestHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryUserHelpRequestHistoryRecordArgs = {
+  where: UserHelpRequestHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllUserHelpRequestHistoryRecordsMetaArgs = {
+  where?: Maybe<UserHelpRequestHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortUserHelpRequestHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllUserHelpRequestsArgs = {
+  where?: Maybe<UserHelpRequestWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortUserHelpRequestsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryUserHelpRequestArgs = {
+  where: UserHelpRequestWhereUniqueInput;
+};
+
+
+export type Query_AllUserHelpRequestsMetaArgs = {
+  where?: Maybe<UserHelpRequestWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortUserHelpRequestsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -80808,6 +80960,54 @@ export enum SortUserFavoriteTicketsBy {
   DvDesc = 'dv_DESC'
 }
 
+export enum SortUserHelpRequestHistoryRecordsBy {
+  TypeAsc = 'type_ASC',
+  TypeDesc = 'type_DESC',
+  PhoneAsc = 'phone_ASC',
+  PhoneDesc = 'phone_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortUserHelpRequestsBy {
+  TypeAsc = 'type_ASC',
+  TypeDesc = 'type_DESC',
+  OrganizationAsc = 'organization_ASC',
+  OrganizationDesc = 'organization_DESC',
+  PhoneAsc = 'phone_ASC',
+  PhoneDesc = 'phone_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
 export enum SortUserHistoryRecordsBy {
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
@@ -92056,6 +92256,407 @@ export type UserFavoriteTicketsCreateInput = {
 export type UserFavoriteTicketsUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<UserFavoriteTicketUpdateInput>;
+};
+
+/**  Request from the user to help him with some functionality  */
+export type UserHelpRequest = {
+  __typename?: 'UserHelpRequest';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the UserHelpRequest List config, or
+   *  2. As an alias to the field set on 'labelField' in the UserHelpRequest List config, or
+   *  3. As an alias to a 'name' field on the UserHelpRequest List (if one exists), or
+   *  4. As an alias to the 'id' field on the UserHelpRequest List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Type of request. It's can be, for example, request for callback or request to help with import  */
+  type?: Maybe<UserHelpRequestTypeType>;
+  /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
+  organization?: Maybe<Organization>;
+  /**  Specified phone in request for callback  */
+  phone?: Maybe<Scalars['String']>;
+  /**  File attached to request  */
+  file?: Maybe<File>;
+  /**  Additional info about request. May contain information about page where user made request or import type  */
+  meta?: Maybe<Scalars['JSON']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type UserHelpRequestCreateInput = {
+  type?: Maybe<UserHelpRequestTypeType>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  phone?: Maybe<Scalars['String']>;
+  file?: Maybe<Scalars['Upload']>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type UserHelpRequestHistoryRecord = {
+  __typename?: 'UserHelpRequestHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the UserHelpRequestHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the UserHelpRequestHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the UserHelpRequestHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the UserHelpRequestHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
+  phone?: Maybe<Scalars['String']>;
+  file?: Maybe<Scalars['JSON']>;
+  meta?: Maybe<Scalars['JSON']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<UserHelpRequestHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type UserHelpRequestHistoryRecordCreateInput = {
+  type?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
+  phone?: Maybe<Scalars['String']>;
+  file?: Maybe<Scalars['JSON']>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<UserHelpRequestHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum UserHelpRequestHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type UserHelpRequestHistoryRecordUpdateInput = {
+  type?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
+  phone?: Maybe<Scalars['String']>;
+  file?: Maybe<Scalars['JSON']>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<UserHelpRequestHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type UserHelpRequestHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<UserHelpRequestHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<UserHelpRequestHistoryRecordWhereInput>>>;
+  type?: Maybe<Scalars['String']>;
+  type_not?: Maybe<Scalars['String']>;
+  type_contains?: Maybe<Scalars['String']>;
+  type_not_contains?: Maybe<Scalars['String']>;
+  type_starts_with?: Maybe<Scalars['String']>;
+  type_not_starts_with?: Maybe<Scalars['String']>;
+  type_ends_with?: Maybe<Scalars['String']>;
+  type_not_ends_with?: Maybe<Scalars['String']>;
+  type_i?: Maybe<Scalars['String']>;
+  type_not_i?: Maybe<Scalars['String']>;
+  type_contains_i?: Maybe<Scalars['String']>;
+  type_not_contains_i?: Maybe<Scalars['String']>;
+  type_starts_with_i?: Maybe<Scalars['String']>;
+  type_not_starts_with_i?: Maybe<Scalars['String']>;
+  type_ends_with_i?: Maybe<Scalars['String']>;
+  type_not_ends_with_i?: Maybe<Scalars['String']>;
+  type_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  type_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization?: Maybe<Scalars['String']>;
+  organization_not?: Maybe<Scalars['String']>;
+  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  phone?: Maybe<Scalars['String']>;
+  phone_not?: Maybe<Scalars['String']>;
+  phone_contains?: Maybe<Scalars['String']>;
+  phone_not_contains?: Maybe<Scalars['String']>;
+  phone_starts_with?: Maybe<Scalars['String']>;
+  phone_not_starts_with?: Maybe<Scalars['String']>;
+  phone_ends_with?: Maybe<Scalars['String']>;
+  phone_not_ends_with?: Maybe<Scalars['String']>;
+  phone_i?: Maybe<Scalars['String']>;
+  phone_not_i?: Maybe<Scalars['String']>;
+  phone_contains_i?: Maybe<Scalars['String']>;
+  phone_not_contains_i?: Maybe<Scalars['String']>;
+  phone_starts_with_i?: Maybe<Scalars['String']>;
+  phone_not_starts_with_i?: Maybe<Scalars['String']>;
+  phone_ends_with_i?: Maybe<Scalars['String']>;
+  phone_not_ends_with_i?: Maybe<Scalars['String']>;
+  phone_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  phone_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  file?: Maybe<Scalars['JSON']>;
+  file_not?: Maybe<Scalars['JSON']>;
+  file_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  file_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta?: Maybe<Scalars['JSON']>;
+  meta_not?: Maybe<Scalars['JSON']>;
+  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<UserHelpRequestHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<UserHelpRequestHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<UserHelpRequestHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<UserHelpRequestHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type UserHelpRequestHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type UserHelpRequestHistoryRecordsCreateInput = {
+  data?: Maybe<UserHelpRequestHistoryRecordCreateInput>;
+};
+
+export type UserHelpRequestHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<UserHelpRequestHistoryRecordUpdateInput>;
+};
+
+export enum UserHelpRequestTypeType {
+  Callback = 'callback',
+  ImportFile = 'importFile'
+}
+
+export type UserHelpRequestUpdateInput = {
+  type?: Maybe<UserHelpRequestTypeType>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  phone?: Maybe<Scalars['String']>;
+  file?: Maybe<Scalars['Upload']>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type UserHelpRequestWhereInput = {
+  AND?: Maybe<Array<Maybe<UserHelpRequestWhereInput>>>;
+  OR?: Maybe<Array<Maybe<UserHelpRequestWhereInput>>>;
+  type?: Maybe<UserHelpRequestTypeType>;
+  type_not?: Maybe<UserHelpRequestTypeType>;
+  type_in?: Maybe<Array<Maybe<UserHelpRequestTypeType>>>;
+  type_not_in?: Maybe<Array<Maybe<UserHelpRequestTypeType>>>;
+  organization?: Maybe<OrganizationWhereInput>;
+  organization_is_null?: Maybe<Scalars['Boolean']>;
+  phone?: Maybe<Scalars['String']>;
+  phone_not?: Maybe<Scalars['String']>;
+  phone_contains?: Maybe<Scalars['String']>;
+  phone_not_contains?: Maybe<Scalars['String']>;
+  phone_starts_with?: Maybe<Scalars['String']>;
+  phone_not_starts_with?: Maybe<Scalars['String']>;
+  phone_ends_with?: Maybe<Scalars['String']>;
+  phone_not_ends_with?: Maybe<Scalars['String']>;
+  phone_i?: Maybe<Scalars['String']>;
+  phone_not_i?: Maybe<Scalars['String']>;
+  phone_contains_i?: Maybe<Scalars['String']>;
+  phone_not_contains_i?: Maybe<Scalars['String']>;
+  phone_starts_with_i?: Maybe<Scalars['String']>;
+  phone_not_starts_with_i?: Maybe<Scalars['String']>;
+  phone_ends_with_i?: Maybe<Scalars['String']>;
+  phone_not_ends_with_i?: Maybe<Scalars['String']>;
+  phone_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  phone_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  file?: Maybe<Scalars['String']>;
+  file_not?: Maybe<Scalars['String']>;
+  file_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  file_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  meta?: Maybe<Scalars['JSON']>;
+  meta_not?: Maybe<Scalars['JSON']>;
+  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type UserHelpRequestWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type UserHelpRequestsCreateInput = {
+  data?: Maybe<UserHelpRequestCreateInput>;
+};
+
+export type UserHelpRequestsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<UserHelpRequestUpdateInput>;
 };
 
 /**  A keystone list  */
