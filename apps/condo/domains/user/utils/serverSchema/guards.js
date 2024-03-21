@@ -111,11 +111,6 @@ class RedisGuard {
         await this.redis.expire(`${this.lockPrefix}${actionFolder}${variable}`, ttl )
     }
 
-    async unlock (variable, action = '') {
-        const actionFolder = action ? `${action}:` : ''
-        await this.redis.del(`${this.lockPrefix}${actionFolder}${variable}`)
-    }
-
 }
 
 module.exports = {
