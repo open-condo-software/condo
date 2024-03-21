@@ -1,5 +1,4 @@
 const { find, getById } = require('@open-condo/keystone/schema')
-const { createTask } = require('@open-condo/keystone/tasks')
 
 const { publishSharedNewsItem } = require('./publishSharedNewsItem')
 
@@ -17,4 +16,6 @@ async function publishSharedNewsItemsByNewsItem (newsItemId, sharedNewsItemsIds)
     }
 }
 
-module.exports = createTask('publishSharedNewsItemsByNewsItem', publishSharedNewsItemsByNewsItem, { priority: 2 })
+module.exports = {
+    publishSharedNewsItemsByNewsItem,
+}

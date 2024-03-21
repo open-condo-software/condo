@@ -6,7 +6,6 @@ const { v4: uuid } = require('uuid')
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
-const { createTask } = require('@open-condo/keystone/tasks')
 
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { defineMessageType } = require('@condo/domains/news/tasks/notifyResidentsAboutNewsItem.helpers')
@@ -180,4 +179,6 @@ async function notifyResidentsAboutNewsItem (newsItemId) {
     }
 }
 
-module.exports = createTask('notifyResidentsAboutNewsItem', notifyResidentsAboutNewsItem, { priority: 2 })
+module.exports = {
+    notifyResidentsAboutNewsItem,
+}
