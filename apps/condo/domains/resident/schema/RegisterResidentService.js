@@ -88,7 +88,7 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                             { address_i: propertyAddress },
                             { addressKey: addressItem.addressKey },
                         ],
-                        organization: { type: MANAGING_COMPANY_TYPE },
+                        //organization: { type: MANAGING_COMPANY_TYPE },
                         deletedAt: null,
                     },
                     { sortBy: ['isApproved_DESC', 'createdAt_ASC'], first: 1 },
