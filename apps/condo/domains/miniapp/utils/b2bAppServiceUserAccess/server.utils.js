@@ -227,8 +227,6 @@ const canExecuteServiceAsB2BAppServiceUser = async (args) => {
     if (!isServiceUser(args)) return false
     const schemaConfig = get(B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS.services, fieldName)
     if (!isObject(schemaConfig)) return false
-    const canBeExecuted = get(schemaConfig, 'canBeExecuted', true)
-    if (!canBeExecuted) return false
     return await canExecuteByServiceUser(args, schemaConfig)
 }
 

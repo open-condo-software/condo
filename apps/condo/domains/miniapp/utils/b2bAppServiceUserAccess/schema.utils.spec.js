@@ -63,9 +63,6 @@ describe('Schema functions', () => {
                     },
                     services: {
                         registerSomething: {},
-                        simSalabim: {
-                            canBeExecuted: false,
-                        },
                     },
                 },
             },
@@ -86,7 +83,6 @@ describe('Schema functions', () => {
                     schemaDoc: 'Currently, this field is read-only. You cannot get manage access for the specified schema.',
                 },
                 canExecuteRegisterSomething: PERMISSION_FIELD,
-                canExecuteSimSalabim: PERMISSION_FIELD,
             },
         }]
 
