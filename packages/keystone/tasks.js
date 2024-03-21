@@ -31,6 +31,10 @@ const CRON_TASKS = new Map()
 const REMOVE_CRON_TASKS = []
 let isWorkerCreated = false
 
+/**
+ * Create bull queue. For internal use only!
+ * @param name {string} name of bull queue
+ */
 function createTaskQueue (name) {
     if (IS_BUILD) return
 
@@ -44,11 +48,11 @@ function createTaskQueue (name) {
             //   Bull uses three Redis connection. Probably, we can share regular Redis connection for type 'client' think about it!
             if (['bclient', 'subscriber'].includes(type)) {
                 opts.maxRetriesPerRequest = null
+                if (type === 'subscriber') {
+                    return getRedisClient('worker', type, opts)
+                }
             }
             return getRedisClient(`worker:${name}`, type, opts)
-        },
-        settings: {
-            isSharedChildPool: true,
         },
     }))
 }
