@@ -14,6 +14,8 @@ ALTER TABLE "NewsItem" ADD COLUMN "deliverAt" timestamp with time zone NULL;
 ALTER TABLE "NewsItemHistoryRecord" ADD COLUMN "deliverAt" timestamp with time zone NULL;
 
 --
+-- [CUSTOM] Set “deliverAt” for existing objects
+--
 -- [CUSTOM] Set "deliverAt" to "publishedAt" + 15 seconds if news is already published and has not "sendAt"
 --
 UPDATE "NewsItem" SET "deliverAt" = "publishedAt" + interval '15 seconds' WHERE "isPublished" = TRUE AND "sendAt" IS NULL AND "publishedAt" IS NOT NULL;
