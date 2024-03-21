@@ -148,10 +148,11 @@ export const CreateNewsForm: React.FC = () => {
         error: sharingAppContextsError,
     } = B2BAppContext.useObjects({
         where: {
-            app: { newsSharingConfig_is_null: false },
+            organization: { id: organizationId },
+            app: { newsSharingConfig_is_null: false, deletedAt: null },
+            deletedAt: null,
         },
     })
-    const sharingAppContextsIndex = keyBy(sharingAppContexts, 'id')
 
     const {
         loading: totalPropertiesLoading,

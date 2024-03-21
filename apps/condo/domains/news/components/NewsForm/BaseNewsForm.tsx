@@ -15,7 +15,7 @@ import {
     B2BAppContext as IB2BAppContext,
 } from '@app/condo/schema'
 import styled from '@emotion/styled'
-import { Col, Form, FormInstance, notification, Row } from 'antd'
+import { Col, Form, FormInstance, notification, Row, Checkbox } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { ArgsProps } from 'antd/lib/notification'
 import dayjs from 'dayjs'
@@ -29,6 +29,7 @@ import isArray from 'lodash/isArray'
 import isEmpty from 'lodash/isEmpty'
 import isFunction from 'lodash/isFunction'
 import isNull from 'lodash/isNull'
+import keyBy from 'lodash/keyBy'
 import transform from 'lodash/transform'
 import uniq from 'lodash/uniq'
 import { useRouter } from 'next/router'
@@ -38,7 +39,7 @@ import { Options as ScrollOptions } from 'scroll-into-view-if-needed'
 
 import { IGenerateHooksResult } from '@open-condo/codegen/generate.hooks'
 import { useIntl } from '@open-condo/next/intl'
-import { Alert, Radio, RadioGroup, Space, Typography } from '@open-condo/ui'
+import { ActionBar as UIActionBar, Alert, Button, Radio, RadioGroup, Space, Steps, Typography, Card } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
@@ -67,6 +68,8 @@ import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSc
 import { SectionNameInput } from '@condo/domains/user/components/SectionNameInput'
 import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
 
+const CardCheckbox = Card.CardCheckbox
+const CardButton = Card.CardButton
 
 type FormWithActionChildrenProps = ComponentProps<ComponentProps<typeof FormWithAction>['children']>
 
@@ -116,6 +119,7 @@ const MARGIN_BOTTOM_10_STYLE: React.CSSProperties = { marginBottom: '10px' }
 const MARGIN_BOTTOM_24_STYLE: React.CSSProperties = { marginBottom: '24px' }
 const MARGIN_TOP_8_STYLE: React.CSSProperties = { marginTop: '8px' }
 const MARGIN_TOP_44_STYLE: React.CSSProperties = { marginTop: '44px' }
+const CARD_CHECKBOX_CONTAINER_STYLE = { width: '246px', minHeight: '400px', marginRight: '40px' }
 const FORM_FILED_COL_PROPS = { style: { width: '100%', padding: 0, height: '44px' } }
 export const SCROLL_TO_FIRST_ERROR_CONFIG: ScrollOptions = { behavior: 'smooth', block: 'center' }
 export const SHOW_TIME_CONFIG = { defaultValue: dayjs('00:00:00:000', 'HH:mm:ss:SSS') }
@@ -340,6 +344,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const TimezoneMskTitle = intl.formatMessage({ id: 'timezone.msk' })
     const ProfanityInTitle = intl.formatMessage({ id: 'news.fields.profanityInTitle.error' })
     const ProfanityInBody = intl.formatMessage({ id: 'news.fields.profanityInBody.error' })
+    const SelectSharingAppLabel = intl.formatMessage({ id: 'news.fields.selectSharingApp' })
 
     const { logEvent, getEventName } = useTracking()
 
@@ -413,6 +418,16 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             }
         }, {})
     }, [templates])
+
+    const sharingAppContextsIndex = useMemo(() => keyBy(sharingAppContexts, 'id'), [sharingAppContexts])
+    const selectedSharingAppsOptions = useMemo(() => sharingAppContexts.map((x) => ({ label: get(x, ['app', 'newsSharingConfig', 'name']), value: x.id })), [sharingAppContexts])
+    const [selectedSharingApps, setSelectedSharingApps] = useState<Set<string>>(new Set())
+
+    const isAnySharingAppSelected: boolean = selectedSharingApps.size > 0
+
+    const [selectedSharingAppsRecipients, setSelectedSharingAppsRecipients] = useState<{ [key: string]: string[] }>({})
+    // Todo @toplenboren what to do with re-renders ?
+    const [sharingAppRecipientsData, setSharingAppsRecipientsData] = useState<{ [key: string]: { name: string, recipients: number } }>({})
 
     const [sendPeriod, setSendPeriod] = useState<string>(get(initialValues, 'sendPeriod', 'now'))
 
@@ -511,6 +526,26 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             onlyPropertyThatCanBeSelected.current = data[0]
         }
     }, [])
+
+    const handleSelectSharingApp = useCallback(({ value, checked }: { value: string, checked: boolean }) => {
+        setSelectedSharingApps(prevSelected => {
+            const newSelected = new Set(prevSelected)
+            if (checked) {
+                newSelected.add(value)
+            } else {
+                newSelected.delete(value)
+            }
+            return newSelected
+        })
+    }, [])
+
+    // TODO: @toplenboren why do we need setSelectedSharingAppsRecipients ?
+    const handleSharingAppRecipientsChange = useCallback((recipients: string[], appContextId: string) => {
+        setSelectedSharingAppsRecipients(prevState => ({
+            ...prevState,
+            [appContextId]: recipients,
+        }))
+    }, [setSelectedSharingAppsRecipients])
 
     const Title = useInputWithCounter(Input.TextArea, 150)
     const Body = useInputWithCounter(Input.TextArea, 800)
@@ -889,6 +924,30 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         }
     }, [initialValues, newsItemForOneProperty])
 
+    const [currentStep, setCurrentStep] = useState<number>(0)
+
+    const handleNextStep = () => {
+        setCurrentStep((currentStep) => currentStep + 1 )
+    }
+
+    const handleStepClick = (value: number) => {
+        setCurrentStep(value)
+    }
+
+    const getSteps = useCallback((): { title: string }[] => {
+        return [
+            { title: 'Куда' },
+            { title: 'Doma' },
+            ...Array.from(selectedSharingApps).map(app => ({ title: sharingAppContextsIndex[app].app.newsSharingConfig.name })),
+            { title: 'Превью и время' },
+        ]
+    }, [ selectedSharingApps ])
+
+    const getLastStep = useCallback(() => {
+        return getSteps().length - 1
+    }, [ getSteps ])
+
+    // @ts-ignore
     return (
         <Row gutter={BIG_HORIZONTAL_GUTTER}>
             <Col span={24} flex='auto'>
@@ -910,331 +969,452 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                     }}
                     children={({ handleSave, isLoading, form }) => (
                         <>
-                            <Row>
-                                <Col span={24} style={BIG_MARGIN_BOTTOM_STYLE}>
-                                    <Row gutter={BIG_HORIZONTAL_GUTTER}>
-                                        <Col span={formFieldsColSpan}>
-                                            <Row>
-                                                <Col span={24} style={MARGIN_BOTTOM_32_STYLE}>
-                                                    <Row gutter={EXTRA_SMALL_VERTICAL_GUTTER}>
-                                                        <Col span={24}>
-                                                            <Typography.Title level={2}>
-                                                                {MakeTextLabel}
-                                                            </Typography.Title>
-                                                        </Col>
+                            <Row style={BIG_MARGIN_BOTTOM_STYLE}>
+                                <Col span={24}>
+                                    <Steps
+                                        current={currentStep}
+                                        items={getSteps()}
+                                        onChange={handleStepClick}
+                                    />
+                                </Col>
+                            </Row>
+
+                            <Row style={BIG_MARGIN_BOTTOM_STYLE}>
+                                { currentStep === 0 && (
+                                    <Col span={24}>
+                                        <Row style={BIG_MARGIN_BOTTOM_STYLE}>
+                                            <Col span={18}>
+                                                <Row>
+                                                    <Col span={10}>
+                                                        <Form.Item
+                                                            label={TypeLabel}
+                                                            name='type'
+                                                            required
+                                                            style={FLEX_START_STYLE}
+                                                        >
+                                                            <RadioGroup onChange={handleTypeChange(form)}>
+                                                                <Space size={8} wrap>
+                                                                    <Radio value={NEWS_TYPE_COMMON}>
+                                                                        {CommonTypeLabel}
+                                                                    </Radio>
+                                                                    <Radio value={NEWS_TYPE_EMERGENCY}>
+                                                                        {EmergencyTypeLabel}
+                                                                    </Radio>
+                                                                </Space>
+                                                            </RadioGroup>
+                                                        </Form.Item>
+                                                    </Col>
+                                                    { selectedType === NEWS_TYPE_EMERGENCY && (
                                                         <Col span={12}>
                                                             <Form.Item
-                                                                label={TypeLabel}
-                                                                name='type'
+                                                                label={(
+                                                                    <LabelWithInfo
+                                                                        title={ValidBeforeTitle}
+                                                                        message={ValidBeforeLabel}/>
+                                                                )}
+                                                                labelCol={FORM_FILED_COL_PROPS}
+                                                                name='validBefore'
                                                                 required
-                                                                style = {FLEX_START_STYLE}
+                                                                rules={[finishWorkRule, commonRule, dateRule]}
+                                                                validateFirst={true}
                                                             >
-                                                                <RadioGroup onChange={handleTypeChange(form)}>
-                                                                    <Space size={8} wrap>
-                                                                        <Radio value={NEWS_TYPE_COMMON}>
-                                                                            {CommonTypeLabel}
-                                                                        </Radio>
-                                                                        <Radio value={NEWS_TYPE_EMERGENCY}>
-                                                                            {EmergencyTypeLabel}
-                                                                        </Radio>
-                                                                    </Space>
-                                                                </RadioGroup>
+                                                                <DatePicker
+                                                                    style={FULL_WIDTH_STYLE}
+                                                                    format='DD MMMM YYYY HH:mm'
+                                                                    showTime={SHOW_TIME_CONFIG}
+                                                                    onChange={handleValidBeforeChange(form, 'validBefore')}
+                                                                    placeholder={SelectPlaceholder}
+                                                                    disabledDate={isDateDisabled}
+                                                                    disabledTime={isTimeDisabled}
+                                                                    showNow={false}/>
                                                             </Form.Item>
                                                         </Col>
-                                                        {selectedType === NEWS_TYPE_EMERGENCY && (
-                                                            <Col span={12}>
-                                                                <Form.Item
-                                                                    label={(
-                                                                        <LabelWithInfo
-                                                                            title={ValidBeforeTitle}
-                                                                            message={ValidBeforeLabel}
-                                                                        />
-                                                                    )}
-                                                                    labelCol={FORM_FILED_COL_PROPS}
-                                                                    name='validBefore'
-                                                                    required
-                                                                    rules={[finishWorkRule, commonRule, dateRule]}
-                                                                    validateFirst={true}
-                                                                >
-                                                                    <DatePicker
-                                                                        style={FULL_WIDTH_STYLE}
-                                                                        format='DD MMMM YYYY HH:mm'
-                                                                        showTime={SHOW_TIME_CONFIG}
-                                                                        onChange={handleValidBeforeChange(form, 'validBefore')}
-                                                                        placeholder={SelectPlaceholder}
-                                                                        disabledDate={isDateDisabled}
-                                                                        disabledTime={isTimeDisabled}
-                                                                        showNow={false}
-                                                                    />
-                                                                </Form.Item>
+                                                    )}
+                                                </Row>
+                                            </Col>
+                                        </Row>
+
+                                        <Row style={MARGIN_BOTTOM_24_STYLE}>
+                                            <Typography.Title level={2}>Выберите, куда отправить новость</Typography.Title>
+                                        </Row>
+
+                                        <Row>
+                                            <div style={CARD_CHECKBOX_CONTAINER_STYLE}>
+                                                <CardCheckbox
+                                                    disabled
+                                                    checked
+                                                    header={{
+                                                        headingTitle: 'Doma',
+                                                        image: {
+                                                            size: 'big',
+                                                            src: 'https://i.imgur.com/ambPuQF.png',
+                                                        },
+                                                    }}
+                                                    body={{
+                                                        description: 'Новость появится в приложении Doma',
+                                                        image: {
+                                                            src: 'https://i.imgur.com/ambPuQF.png',
+                                                            style: {
+                                                                borderRadius: '10px',
+                                                                height: '150px',
+                                                                marginTop: '25px',
+                                                                width: '120px',
+                                                            },
+                                                        },
+                                                    }}
+                                                    // @ts-ignore
+                                                    bodyDescription
+                                                    bodyImage
+                                                    headerImage
+                                                    headerTitle
+                                                />
+                                            </div>
+                                            { sharingAppContexts.map( ctx => {
+                                                const sharingAppName = ctx.app.newsSharingConfig.name
+                                                const sharingAppIcon = get(ctx, ['app', 'newsSharingConfig', 'icon', 'publicUrl'], null)
+
+                                                return (
+                                                    <div key={ctx.id} style={CARD_CHECKBOX_CONTAINER_STYLE}>
+                                                        <CardCheckbox
+                                                            header={{
+                                                                headingTitle: sharingAppName,
+                                                                image: {
+                                                                    size: 'big',
+                                                                    src: sharingAppIcon,
+                                                                },
+                                                            }}
+                                                            body={{
+                                                                description: `Новость появится в приложении ${sharingAppName}`,
+                                                                image: {
+                                                                    src: 'https://i.imgur.com/ambPuQF.png',
+                                                                    style: {
+                                                                        borderRadius: '10px',
+                                                                        height: '150px',
+                                                                        marginTop: '25px',
+                                                                        width: '120px',
+                                                                    },
+                                                                },
+                                                            }}
+                                                            // @ts-ignore
+                                                            bodyDescription
+                                                            bodyImage
+                                                            headerImage
+                                                            headerTitle
+                                                            checked={selectedSharingApps.has(ctx.id)}
+                                                            onChange={(checked) => handleSelectSharingApp({ value: ctx.id, checked })}
+                                                        />
+                                                    </div>
+                                                )
+                                            })}
+                                            { sharingAppContexts.length === 0 && (
+                                                <div style={CARD_CHECKBOX_CONTAINER_STYLE}>
+                                                    <Card style={{ height: '100%' }}>
+                                                        <Typography.Title level={3}>Другие каналы</Typography.Title>
+                                                        <Typography.Paragraph>Отправлять новости можно не только в приложение Doma, но и по другим каналам</Typography.Paragraph>
+                                                        <img style={{ padding: '30px' }}/>
+                                                        {/*// @ts-ignore*/}
+                                                        <Button style={{ width: '100%' }} children='Подробнее' href='/news/settings' type='secondary'/>
+                                                    </Card>
+                                                </div>
+                                            ) }
+                                        </Row>
+                                    </Col>
+                                ) }
+                                { currentStep === 1 && (
+                                    <>
+                                        <Col span={24} style={BIG_MARGIN_BOTTOM_STYLE}>
+                                            <Row gutter={BIG_HORIZONTAL_GUTTER}>
+                                                <Col span={formFieldsColSpan}>
+                                                    <Row>
+                                                        <Col span={24} style={MARGIN_BOTTOM_32_STYLE}>
+                                                            <Row gutter={EXTRA_SMALL_VERTICAL_GUTTER}>
+                                                                <Col span={24}>
+                                                                    <Typography.Title level={2}>
+                                                                        {MakeTextLabel}
+                                                                    </Typography.Title>
+                                                                </Col>
+                                                            </Row>
+                                                        </Col>
+
+                                                        {/*Templates */}
+                                                        {templates && (
+                                                            <Row gutter={SMALL_VERTICAL_GUTTER}
+                                                                style={MARGIN_BOTTOM_38_STYLE}>
+                                                                <Col span={24}>
+                                                                    <Typography.Title level={4}>
+                                                                        {TemlatesLabel}
+                                                                    </Typography.Title>
+                                                                </Col>
+                                                                <Col span={24}>
+                                                                    <Form.Item
+                                                                        name='template'
+                                                                    >
+                                                                        {selectedType === NEWS_TYPE_COMMON && (
+                                                                            <TemplatesTabs
+                                                                                onChange={handleTemplateChange(form, 'template')}
+                                                                                items={Object.keys(commonTemplates).map(id => ({
+                                                                                    key: id,
+                                                                                    label: commonTemplates[id].title,
+                                                                                }))}/>
+                                                                        )}
+                                                                        {selectedType === NEWS_TYPE_EMERGENCY && (
+                                                                            <TemplatesTabs
+                                                                                onChange={handleTemplateChange(form, 'template')}
+                                                                                items={Object.keys(emergencyTemplates).map(id => ({
+                                                                                    key: id,
+                                                                                    label: emergencyTemplates[id].title,
+                                                                                }))}/>
+                                                                        )}
+                                                                    </Form.Item>
+                                                                </Col>
+                                                            </Row>
+                                                        )}
+
+                                                        {/*Make text*/}
+                                                        <Col span={24}>
+                                                            <Col span={24} style={MARGIN_BOTTOM_10_STYLE}>
+                                                                <Typography.Title level={4}>{SelectTextLabel}</Typography.Title>
                                                             </Col>
+                                                            <Col span={24}>
+                                                                <Form.Item
+                                                                    label={TitleLabel}
+                                                                    labelCol={FORM_FILED_COL_PROPS}
+                                                                    name='title'
+                                                                    required
+                                                                    rules={titleRules}
+                                                                    data-cy='news__create-title-input'
+                                                                >
+                                                                    <Title.InputWithCounter
+                                                                        style={NO_RESIZE_STYLE}
+                                                                        rows={4}
+                                                                        placeholder={TitlePlaceholderMessage}
+                                                                        onChange={handleTitleChange}/>
+                                                                </Form.Item>
+                                                                <Col style={buildCounterStyle(Title.textLength, 'Title')}>
+                                                                    <Title.Counter type='inverted'/>
+                                                                </Col>
+                                                            </Col>
+                                                            <Col span={24}>
+                                                                <Form.Item
+                                                                    label={BodyLabel}
+                                                                    labelCol={FORM_FILED_COL_PROPS}
+                                                                    name='body'
+                                                                    required
+                                                                    rules={[bodyRule, bodyTemplateChanged]}
+                                                                    validateFirst={true}
+                                                                    data-cy='news__create-body-input'
+                                                                >
+                                                                    <Body.InputWithCounter
+                                                                        style={NO_RESIZE_STYLE}
+                                                                        rows={7}
+                                                                        placeholder={BodyPlaceholderMessage}
+                                                                        onChange={handleBodyChange}/>
+                                                                </Form.Item>
+                                                                <Col style={buildCounterStyle(Body.textLength, 'Body')}>
+                                                                    <Body.Counter type='inverted'/>
+                                                                </Col>
+                                                            </Col>
+                                                        </Col>
+                                                    </Row>
+                                                </Col>
+                                                <Col span={formInfoColSpan}>
+                                                    {(!!selectedBody || !!selectedTitle) && (
+                                                        <MemoizedNewsPreview
+                                                            body={selectedBody}
+                                                            title={selectedTitle}
+                                                            validBefore={selectedType === NEWS_TYPE_EMERGENCY ? selectedValidBeforeText : null}
+                                                            sharingApps={null}/>
+                                                    )}
+                                                </Col>
+                                            </Row>
+                                        </Col>
+
+                                        <Col span={24}>
+                                            <Row gutter={BIG_HORIZONTAL_GUTTER}>
+                                                <Col span={formFieldsColSpan}>
+                                                    <Row gutter={EXTRA_SMALL_VERTICAL_GUTTER}>
+                                                        <Col span={24}>
+                                                            <Typography.Title
+                                                                level={2}>{SelectAddressLabel}</Typography.Title>
+                                                        </Col>
+                                                        <Col span={24} data-cy='news__create-property-search'>
+                                                            {newsItemForOneProperty && (
+                                                                <Form.Item
+                                                                    {...propertySelectFormItemProps}
+                                                                    name='property'
+                                                                    rules={[requiredValidator]}
+                                                                >
+                                                                    <GraphQlSearchInput
+                                                                        {...propertySelectProps(form)}
+                                                                        onAllDataLoading={handleAllPropertiesLoading(form)}/>
+                                                                </Form.Item>
+                                                            )}
+                                                            <HiddenBlock hide={newsItemForOneProperty}>
+                                                                <GraphQlSearchInputWithCheckAll
+                                                                    checkAllFieldName='hasAllProperties'
+                                                                    checkAllInitialValue={get(initialValues, 'hasAllProperties', false)}
+                                                                    selectFormItemProps={propertySelectFormItemProps}
+                                                                    selectProps={propertySelectProps(form)}
+                                                                    onCheckBoxChange={propertyCheckboxChange(form)}
+                                                                    CheckAllMessage={CheckAllLabel}
+                                                                    onDataLoaded={handleAllPropertiesDataLoading}
+                                                                    form={form}/>
+                                                            </HiddenBlock>
+                                                        </Col>
+                                                        {isOnlyOnePropertySelected && (
+                                                            <>
+                                                                <Col span={11}>
+                                                                    <Form.Item
+                                                                        name='unitNames'
+                                                                        label={selectedPropertiesLoading || !isEmpty(selectedSectionKeys)
+                                                                            ? (<LabelWithInfo
+                                                                                title={UnitsMessage}
+                                                                                message={UnitsLabel}/>)
+                                                                            : UnitsLabel}
+                                                                    >
+                                                                        <UnitNameInput
+                                                                            multiple={true}
+                                                                            property={selectedProperties[0]}
+                                                                            loading={selectedPropertiesLoading}
+                                                                            disabled={selectedPropertiesLoading || !isEmpty(selectedSectionKeys)}
+                                                                            onChange={handleChangeUnitNameInput}/>
+                                                                    </Form.Item>
+                                                                </Col>
+                                                                <Col span={11} offset={2}>
+                                                                    <Form.Item
+                                                                        name='sectionIds'
+                                                                        label={selectedPropertiesLoading || !isEmpty(selectedUnitNameKeys)
+                                                                            ? (<LabelWithInfo
+                                                                                title={SectionsMessage}
+                                                                                message={SectionsLabel}/>)
+                                                                            : SectionsLabel}
+                                                                    >
+                                                                        <SectionNameInput
+                                                                            disabled={selectedPropertiesLoading || !isEmpty(selectedUnitNameKeys)}
+                                                                            property={selectedProperties[0]}
+                                                                            onChange={handleChangeSectionNameInput(selectedProperties[0])}
+                                                                            mode='multiple'
+                                                                            data-cy='news__create-property-section-search'/>
+                                                                    </Form.Item>
+                                                                </Col>
+                                                            </>
                                                         )}
                                                     </Row>
                                                 </Col>
-                                                {templates && (
-                                                    <Row gutter={SMALL_VERTICAL_GUTTER} style={MARGIN_BOTTOM_38_STYLE}>
-                                                        <Col span={24}>
-                                                            <Typography.Title level={4}>
-                                                                {TemlatesLabel}
-                                                            </Typography.Title>
-                                                        </Col>
-                                                        <Col span={24}>
-                                                            <Form.Item
-                                                                name='template'
-                                                            >
-                                                                {selectedType === NEWS_TYPE_COMMON && (
-                                                                    <TemplatesTabs
-                                                                        onChange={handleTemplateChange(form, 'template')}
-                                                                        items={
-                                                                            Object.keys(commonTemplates).map(id => ({
-                                                                                key: id,
-                                                                                label: commonTemplates[id].title,
-                                                                            }))
-                                                                        }
-                                                                    />
-                                                                )}
-                                                                {selectedType === NEWS_TYPE_EMERGENCY && (
-                                                                    <TemplatesTabs
-                                                                        onChange={handleTemplateChange(form, 'template')}
-                                                                        items={
-                                                                            Object.keys(emergencyTemplates).map(id => ({
-                                                                                key: id,
-                                                                                label: emergencyTemplates[id].title,
-                                                                            }))
-                                                                        }
-                                                                    />
-                                                                )}
-                                                            </Form.Item>
-                                                        </Col>
-                                                    </Row>
-                                                )}
-                                                <Col span={24}>
-                                                    <Col span={24} style={MARGIN_BOTTOM_10_STYLE}>
-                                                        <Typography.Title level={4}>{SelectTextLabel}</Typography.Title>
-                                                    </Col>
-                                                    <Col span={24}>
-                                                        <Form.Item
-                                                            label={TitleLabel}
-                                                            labelCol={FORM_FILED_COL_PROPS}
-                                                            name='title'
-                                                            required
-                                                            rules={titleRules}
-                                                            data-cy='news__create-title-input'
-                                                        >
-                                                            <Title.InputWithCounter
-                                                                style={NO_RESIZE_STYLE}
-                                                                rows={4}
-                                                                placeholder={TitlePlaceholderMessage}
-                                                                onChange={handleTitleChange}
-                                                            />
-                                                        </Form.Item>
-                                                        <Col style={buildCounterStyle(Title.textLength, 'Title')}>
-                                                            <Title.Counter type='inverted'/>
-                                                        </Col>
-                                                    </Col>
-                                                    <Col span={24}>
-                                                        <Form.Item
-                                                            label={BodyLabel}
-                                                            labelCol={FORM_FILED_COL_PROPS}
-                                                            name='body'
-                                                            required
-                                                            rules={[bodyRule, bodyTemplateChanged]}
-                                                            validateFirst={true}
-                                                            data-cy='news__create-body-input'
-                                                        >
-                                                            <Body.InputWithCounter
-                                                                style={NO_RESIZE_STYLE}
-                                                                rows={7}
-                                                                placeholder={BodyPlaceholderMessage}
-                                                                onChange={handleBodyChange}
-                                                            />
-                                                        </Form.Item>
-                                                        <Col style={buildCounterStyle(Body.textLength, 'Body')}>
-                                                            <Body.Counter type='inverted'/>
-                                                        </Col>
-                                                    </Col>
+                                                <Col span={formInfoColSpan}>
+                                                    {(newsItemScopesNoInstance.length > 0) && (
+                                                        <RecipientCounter newsItemScopes={newsItemScopesNoInstance}/>
+                                                    )}
                                                 </Col>
                                             </Row>
                                         </Col>
-                                        <Col span={formInfoColSpan}>
-                                            {(!!selectedBody || !!selectedTitle) && (
-                                                <MemoizedNewsPreview
-                                                    body={selectedBody}
-                                                    title={selectedTitle}
-                                                    validBefore={selectedType === NEWS_TYPE_EMERGENCY ? selectedValidBeforeText : null}
-                                                    sharingApps={null}
-                                                />
-                                            )}
-                                        </Col>
-                                    </Row>
-                                </Col>
-                                <Col span={24} style={BIG_MARGIN_BOTTOM_STYLE}>
-                                    <Row gutter={BIG_HORIZONTAL_GUTTER}>
-                                        <Col span={formFieldsColSpan}>
-                                            <Row gutter={EXTRA_SMALL_VERTICAL_GUTTER}>
-                                                <Col span={24}>
-                                                    <Typography.Title level={2}>{SelectAddressLabel}</Typography.Title>
-                                                </Col>
-                                                <Col span={24} data-cy='news__create-property-search'>
-                                                    {
-                                                        newsItemForOneProperty && (
+                                    </>
+                                ) }
+
+                                { currentStep === getLastStep() && (
+                                    <Col span={24}>
+                                        <Row gutter={BIG_HORIZONTAL_GUTTER}>
+                                            <Col span={formFieldsColSpan}>
+                                                <Row>
+                                                    <Col span={24} style={MARGIN_BOTTOM_24_STYLE}>
+                                                        <Typography.Title level={2}>
+                                                            {SelectSendPeriodLabel} ({tzInfo})
+                                                        </Typography.Title>
+                                                    </Col>
+                                                    <Col span={24}>
+                                                        <Form.Item
+                                                            name='sendPeriod'
+                                                            required
+                                                        >
+                                                            <RadioGroup onChange={handleSendPeriodChange(form)}>
+                                                                <Space size={20} wrap direction='vertical'>
+                                                                    <Radio value='now'>{SendPeriodNowLabel}</Radio>
+                                                                    <Radio value='later'>{SendPeriodLaterLabel}</Radio>
+                                                                </Space>
+                                                            </RadioGroup>
+                                                        </Form.Item>
+                                                    </Col>
+                                                    {sendPeriod === 'later' && (
+                                                        <Col span={24} style={MARGIN_TOP_8_STYLE}>
                                                             <Form.Item
-                                                                {...propertySelectFormItemProps}
-                                                                name='property'
-                                                                rules={[requiredValidator]}
+                                                                label={SendAtLabel}
+                                                                labelCol={FORM_FILED_COL_PROPS}
+                                                                name='sendAt'
+                                                                required
+                                                                rules={[commonRule, dateRule]}
                                                             >
-                                                                <GraphQlSearchInput
-                                                                    {...propertySelectProps(form)}
-                                                                    onAllDataLoading={handleAllPropertiesLoading(form)}
+                                                                <DatePicker
+                                                                    style={FULL_WIDTH_STYLE}
+                                                                    format='DD MMMM YYYY HH:mm'
+                                                                    showTime={SHOW_TIME_CONFIG}
+                                                                    onChange={handleSendAtChange(form, 'sendAt')}
+                                                                    placeholder={SelectPlaceholder}
+                                                                    disabledDate={isDateDisabled}
+                                                                    disabledTime={isTimeDisabled}
+                                                                    showNow={false}
                                                                 />
                                                             </Form.Item>
+                                                        </Col>
+                                                    )}
+                                                    {
+                                                        !isValidBeforeAfterSendAt && (
+                                                            <Alert
+                                                                type='error'
+                                                                showIcon
+                                                                message={ValidBeforeErrorMessage}
+                                                                description=' '
+                                                            />
                                                         )
                                                     }
-                                                    <HiddenBlock hide={newsItemForOneProperty}>
-                                                        <GraphQlSearchInputWithCheckAll
-                                                            checkAllFieldName='hasAllProperties'
-                                                            checkAllInitialValue={get(initialValues, 'hasAllProperties', false)}
-                                                            selectFormItemProps={propertySelectFormItemProps}
-                                                            selectProps={propertySelectProps(form)}
-                                                            onCheckBoxChange={propertyCheckboxChange(form)}
-                                                            CheckAllMessage={CheckAllLabel}
-                                                            onDataLoaded={handleAllPropertiesDataLoading}
-                                                            form={form}
-                                                        />
-                                                    </HiddenBlock>
-                                                </Col>
-                                                {
-                                                    isOnlyOnePropertySelected && (
-                                                        <>
-                                                            <Col span={11}>
-                                                                <Form.Item
-                                                                    name='unitNames'
-                                                                    label={
-                                                                        selectedPropertiesLoading || !isEmpty(selectedSectionKeys)
-                                                                            ? (<LabelWithInfo
-                                                                                title={UnitsMessage}
-                                                                                message={UnitsLabel}
-                                                                            />)
-                                                                            : UnitsLabel
-                                                                    }
-                                                                >
-                                                                    <UnitNameInput
-                                                                        multiple={true}
-                                                                        property={selectedProperties[0]}
-                                                                        loading={selectedPropertiesLoading}
-                                                                        disabled={selectedPropertiesLoading || !isEmpty(selectedSectionKeys)}
-                                                                        onChange={handleChangeUnitNameInput}
-                                                                    />
-                                                                </Form.Item>
-                                                            </Col>
-                                                            <Col span={11} offset={2}>
-                                                                <Form.Item
-                                                                    name='sectionIds'
-                                                                    label={selectedPropertiesLoading || !isEmpty(selectedUnitNameKeys)
-                                                                        ? (<LabelWithInfo
-                                                                            title={SectionsMessage}
-                                                                            message={SectionsLabel}
-                                                                        />)
-                                                                        : SectionsLabel}
-                                                                >
-                                                                    <SectionNameInput
-                                                                        disabled={selectedPropertiesLoading || !isEmpty(selectedUnitNameKeys)}
-                                                                        property={selectedProperties[0]}
-                                                                        onChange={handleChangeSectionNameInput(selectedProperties[0])}
-                                                                        mode='multiple'
-                                                                        data-cy='news__create-property-section-search'
-                                                                    />
-                                                                </Form.Item>
-                                                            </Col>
-                                                        </>
-                                                    )
-                                                }
-                                            </Row>
-                                        </Col>
-                                        <Col span={formInfoColSpan}>
-                                            {(newsItemScopesNoInstance.length > 0) && (
-                                                <RecipientCounter newsItemScopes={newsItemScopesNoInstance}/>
-                                            )}
-                                        </Col>
-                                    </Row>
-                                </Col>
-                                <Col span={24}>
-                                    <Row gutter={BIG_HORIZONTAL_GUTTER}>
-                                        <Col span={formFieldsColSpan}>
-                                            <Row>
-                                                <Col span={24} style={MARGIN_BOTTOM_24_STYLE}>
-                                                    <Typography.Title level={2}>
-                                                        {SelectSendPeriodLabel} ({tzInfo})
-                                                    </Typography.Title>
-                                                </Col>
-                                                <Col span={24}>
-                                                    <Form.Item
-                                                        name='sendPeriod'
-                                                        required
-                                                    >
-                                                        <RadioGroup onChange={handleSendPeriodChange(form)}>
-                                                            <Space size={20} wrap direction='vertical'>
-                                                                <Radio value='now'>{SendPeriodNowLabel}</Radio>
-                                                                <Radio value='later'>{SendPeriodLaterLabel}</Radio>
-                                                            </Space>
-                                                        </RadioGroup>
-                                                    </Form.Item>
-                                                </Col>
-                                                {sendPeriod === 'later' && (
-                                                    <Col span={24} style={MARGIN_TOP_8_STYLE}>
-                                                        <Form.Item
-                                                            label={SendAtLabel}
-                                                            labelCol={FORM_FILED_COL_PROPS}
-                                                            name='sendAt'
-                                                            required
-                                                            rules={[commonRule, dateRule]}
-                                                        >
-                                                            <DatePicker
-                                                                style={FULL_WIDTH_STYLE}
-                                                                format='DD MMMM YYYY HH:mm'
-                                                                showTime={SHOW_TIME_CONFIG}
-                                                                onChange={handleSendAtChange(form, 'sendAt')}
-                                                                placeholder={SelectPlaceholder}
-                                                                disabledDate={isDateDisabled}
-                                                                disabledTime={isTimeDisabled}
-                                                                showNow={false}
+                                                    {
+                                                        newsItemCountAtSameDay >= 5 && (
+                                                            <Alert
+                                                                type='warning'
+                                                                showIcon
+                                                                message={ToManyMessagesMessage}
+                                                                description=' '
                                                             />
-                                                        </Form.Item>
-                                                    </Col>
-                                                )}
-                                                {
-                                                    !isValidBeforeAfterSendAt && (
-                                                        <Alert
-                                                            type='error'
-                                                            showIcon
-                                                            message={ValidBeforeErrorMessage}
-                                                            description=' '
-                                                        />
-                                                    )
-                                                }
-                                                {
-                                                    newsItemCountAtSameDay >= 5 && (
-                                                        <Alert
-                                                            type='warning'
-                                                            showIcon
-                                                            message={ToManyMessagesMessage}
-                                                            description=' '
-                                                        />
-                                                    )
-                                                }
-                                            </Row>
-                                        </Col>
-                                    </Row>
-                                </Col>
-                                {isFunction(ActionBar) && (
-                                    <Col span={24} style={MARGIN_TOP_44_STYLE}>
-                                        <ActionBar
-                                            handleSave={handleSave}
-                                            isLoading={isLoading}
-                                            form={form}
-                                        />
+                                                        )
+                                                    }
+                                                </Row>
+                                            </Col>
+                                        </Row>
                                     </Col>
-                                )}
+                                ) }
+                            </Row>
+
+                            <Row>
+                                <Col span={24} style={MARGIN_TOP_44_STYLE}>
+                                    { currentStep === getLastStep() && isFunction(ActionBar) && (
+                                        <Col span={24} style={MARGIN_TOP_44_STYLE}>
+                                            <ActionBar
+                                                handleSave={handleSave}
+                                                isLoading={isLoading}
+                                                form={form}
+                                            />
+                                        </Col>
+                                    )}
+                                    { currentStep !== getLastStep() && (
+                                        <UIActionBar
+                                            actions={[
+                                                <Button
+                                                    key='submit'
+                                                    type='primary'
+                                                    children='Далее'
+                                                    onClick={handleNextStep}
+                                                    disabled={false}
+                                                />,
+                                                currentStep > 1 && <Button
+                                                    key='submit'
+                                                    type='secondary'
+                                                    children='Пропустить шаг'
+                                                    onClick={handleNextStep}
+                                                    disabled={false}
+                                                />,
+                                            ]}
+                                        />
+                                    )}
+                                </Col>
                             </Row>
                         </>
                     )}

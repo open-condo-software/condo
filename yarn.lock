@@ -884,7 +884,7 @@ __metadata:
     apollo-link-http: ^1.5.17
     apollo-server-errors: ^3.1.0
     axios: ^0.26.0
-    babel-jest: ^29.7.0
+    babel-jest: ^29.4.0
     big.js: ^6.1.1
     body-parser: ^1.19.1
     body-parser-xml: ^2.0.3
@@ -908,9 +908,9 @@ __metadata:
     iconv-lite: ^0.6.3
     identity-obj-proxy: ^3.0.0
     immer: 9.0.13
-    jest: ^29.7.0
-    jest-environment-jsdom: ^29.7.0
-    jest-jasmine2: ^29.7.0
+    jest: ^29.4.0
+    jest-environment-jsdom: ^29.4.0
+    jest-jasmine2: ^29.4.0
     jest-watch-typeahead: ^0.6.1
     less: ^3.12.2
     lodash: ^4.17.21
@@ -1078,48 +1078,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@app/eds-mosreg-integration@workspace:apps/eds-mosreg-integration":
-  version: 0.0.0-use.local
-  resolution: "@app/eds-mosreg-integration@workspace:apps/eds-mosreg-integration"
-  dependencies:
-    "@eds-mosreg-integration/domains": "link:./domains"
-    "@keystonejs/adapter-knex": ^13.2.0
-    "@keystonejs/adapter-mongoose": ^11.2.0
-    "@keystonejs/adapter-prisma": ^3.2.0
-    "@keystonejs/app-admin-ui": ^7.5.0
-    "@keystonejs/app-graphql": ^6.3.0
-    "@keystonejs/app-graphql-playground": ^5.2.2
-    "@keystonejs/auth-password": ^6.1.0
-    "@keystonejs/fields": ^22.1.3
-    "@keystonejs/fields-color": ^1.1.0
-    "@keystonejs/fields-content": ^9.1.0
-    "@keystonejs/fields-markdown": ^5.3.2
-    "@keystonejs/fields-wysiwyg-tinymce": ^5.4.0
-    "@keystonejs/file-adapters": ^7.1.0
-    "@keystonejs/keystone": ^19.3.1
-    "@keystonejs/list-plugins": ^8.1.0
-    "@keystonejs/server-side-graphql-client": ^2.1.0
-    "@keystonejs/utils": ^6.1.0
-    "@open-condo/codegen": "workspace:^"
-    "@types/jest": ^29.4.0
-    "@types/node": ^16
-    axios: ^1.6.7
-    babel-jest: ^29.7.0
-    cheerio: ^1.0.0-rc.12
-    cross-env: ^7.0.3
-    dayjs: ^1.10.6
-    express: ^4.17.1
-    jest: ^29.7.0
-    jest-environment-jsdom: ^29.7.0
-    jest-jasmine2: ^29.7.0
-    jest-watch-typeahead: ^0.6.1
-    lodash: ^4.17.21
-    node-fetch: ^2.6.7
-    node-telegram-bot-api: ^0.64.0
-    uuid: ^8.3.0
-  languageName: unknown
-  linkType: soft
-
 "@app/eps@workspace:apps/eps":
   version: 0.0.0-use.local
   resolution: "@app/eps@workspace:apps/eps"
@@ -1181,7 +1139,7 @@ __metadata:
     apollo-link-http: ^1.5.17
     apollo-server-errors: ^3.1.0
     apollo-upload-client: ^14.1.3
-    babel-jest: ^29.7.0
+    babel-jest: ^29.4.0
     big.js: ^6.1.1
     classnames: 2.2.6
     cross-env: ^7.0.3
@@ -1200,9 +1158,9 @@ __metadata:
     identity-obj-proxy: ^3.0.0
     ignore-loader: 0.1.2
     immer: 9.0.13
-    jest: ^29.7.0
-    jest-environment-jsdom: ^29.7.0
-    jest-jasmine2: ^29.7.0
+    jest: ^29.4.0
+    jest-environment-jsdom: ^29.4.0
+    jest-jasmine2: ^29.4.0
     jest-watch-typeahead: ^0.6.1
     js-cookie: ^2.2.1
     less: ^3.12.2
@@ -1286,7 +1244,7 @@ __metadata:
     antd: ^4.24.12
     antd-dayjs-webpack-plugin: ^1.0.6
     apollo-server-errors: ^3.1.0
-    babel-jest: ^29.7.0
+    babel-jest: ^29.4.0
     classnames: 2.2.6
     css-loader: 1.0.0
     dayjs: ^1.10.6
@@ -1303,9 +1261,9 @@ __metadata:
     identity-obj-proxy: ^3.0.0
     ignore-loader: 0.1.2
     immer: 9.0.13
-    jest: ^29.7.0
-    jest-environment-jsdom: ^29.7.0
-    jest-jasmine2: ^29.7.0
+    jest: ^29.4.0
+    jest-environment-jsdom: ^29.4.0
+    jest-jasmine2: ^29.4.0
     jest-watch-typeahead: ^0.6.1
     js-cookie: ^2.2.1
     less: ^3.12.2
@@ -1499,6 +1457,7 @@ __metadata:
     less: ^3.12.2
     less-loader: ^4.0.0
     lodash: ^4.17.21
+    nanoid: ^5.0.4
     next: ^9.5.5
     next-transpile-modules: ^4.1.0
     numeral: 2.0.6
@@ -1515,6 +1474,7 @@ __metadata:
     react-markdown: ^4.3.1
     react-responsive: ^8.1.0
     react-test-renderer: ^16.13.1
+    regexp-to-ast: ^0.5.0
     telegraf: ^4.15.0
     telegram-login-button: ^0.1.0
     typescript: ^4.1.5
@@ -1561,7 +1521,6 @@ __metadata:
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@open-condo/next": "workspace:^"
-    "@open-condo/ui": "workspace:^"
     "@pass/domains": "link:./domains"
     "@testing-library/react": ^11.2.5
     "@types/jest": ^29.4.0
@@ -1573,7 +1532,7 @@ __metadata:
     ajv: 8.11.0
     antd: ^4.24.12
     antd-dayjs-webpack-plugin: ^1.0.6
-    babel-jest: ^29.7.0
+    babel-jest: ^29.4.0
     classnames: 2.2.6
     cross-env: ^7.0.3
     css-loader: 1.0.1
@@ -1588,9 +1547,9 @@ __metadata:
     identity-obj-proxy: ^3.0.0
     ignore-loader: 0.1.2
     immer: 9.0.13
-    jest: ^29.7.0
-    jest-environment-jsdom: ^29.7.0
-    jest-jasmine2: ^29.7.0
+    jest: ^29.4.0
+    jest-environment-jsdom: ^29.4.0
+    jest-jasmine2: ^29.4.0
     jest-watch-typeahead: 0.6.5
     less: ^3.12.2
     less-loader: ^4.0.0
@@ -1665,7 +1624,7 @@ __metadata:
     antd-dayjs-webpack-plugin: ^1.0.6
     apollo-boost: ^0.4.9
     apollo-link-error: ^1.1.13
-    babel-jest: ^29.7.0
+    babel-jest: ^29.4.0
     classnames: 2.2.6
     cross-env: ^7.0.3
     cross-fetch: ^3.1.5
@@ -1682,9 +1641,9 @@ __metadata:
     identity-obj-proxy: ^3.0.0
     ignore-loader: 0.1.2
     immer: 9.0.13
-    jest: ^29.7.0
-    jest-environment-jsdom: ^29.7.0
-    jest-jasmine2: ^29.7.0
+    jest: ^29.4.0
+    jest-environment-jsdom: ^29.4.0
+    jest-jasmine2: ^29.4.0
     jest-watch-typeahead: ^0.6.1
     js-cookie: ^2.2.1
     less: ^3.12.2
@@ -1769,7 +1728,7 @@ __metadata:
     apollo-link-error: ^1.1.13
     apollo-upload-client: ^14.1.3
     apollo-upload-server: ^7.1.0
-    babel-jest: ^29.7.0
+    babel-jest: ^29.4.0
     big.js: ^6.1.1
     body-parser: ^1.19.1
     carbone: 3.2.3
@@ -1783,11 +1742,13 @@ __metadata:
     emotion: ^10.0.27
     emotion-server: ^10.0.27
     express: ^4.17.1
+    express-graphql: ^0.12.0
     extracted-loader: ^1.0.7
     facepaint: ^1.2.1
     form-data: ^4.0.0
     get-contrast: ^2.0.0
     graphql: ^15.6.1
+    graphql-disable-introspection: ^1.2.0
     graphql-tag: ^2.12.6
     graphql-upload: ^15.0.1
     iconv: ^3.0.1
@@ -1795,9 +1756,9 @@ __metadata:
     ignore-loader: 0.1.2
     immer: 9.0.13
     ip-range-check: ^0.2.0
-    jest: ^29.7.0
-    jest-environment-jsdom: ^29.7.0
-    jest-jasmine2: ^29.7.0
+    jest: ^29.4.0
+    jest-environment-jsdom: ^29.4.0
+    jest-jasmine2: ^29.4.0
     jest-watch-typeahead: ^0.6.1
     jschardet: ^3.0.0
     less: ^3.12.2
@@ -1829,45 +1790,6 @@ __metadata:
     validator: ^13.1.1
     webpack: ^4.46.0
     xlsx: ^0.18.5
-  languageName: unknown
-  linkType: soft
-
-"@app/telegram-employee-bot@workspace:apps/telegram-employee-bot":
-  version: 0.0.0-use.local
-  resolution: "@app/telegram-employee-bot@workspace:apps/telegram-employee-bot"
-  dependencies:
-    "@keystonejs/adapter-knex": ^13.2.0
-    "@keystonejs/adapter-mongoose": ^11.2.0
-    "@keystonejs/adapter-prisma": ^3.2.0
-    "@keystonejs/app-admin-ui": ^7.5.0
-    "@keystonejs/app-graphql": ^6.3.0
-    "@keystonejs/app-graphql-playground": ^5.2.2
-    "@keystonejs/auth-password": ^6.1.0
-    "@keystonejs/fields": ^22.1.3
-    "@keystonejs/fields-color": ^1.1.0
-    "@keystonejs/fields-content": ^9.1.0
-    "@keystonejs/fields-markdown": ^5.3.2
-    "@keystonejs/fields-wysiwyg-tinymce": ^5.4.0
-    "@keystonejs/file-adapters": ^7.1.0
-    "@keystonejs/keystone": ^19.3.1
-    "@keystonejs/list-plugins": ^8.1.0
-    "@keystonejs/server-side-graphql-client": ^2.1.0
-    "@keystonejs/utils": ^6.1.0
-    "@open-condo/codegen": "workspace:^"
-    "@telegram-employee-bot/domains": "link:./domains"
-    "@types/jest": ^29.4.0
-    "@types/node": ^16
-    axios: ^1.5.1
-    babel-jest: ^29.7.0
-    dayjs: ^1.10.6
-    express: ^4.17.1
-    jest: ^29.7.0
-    jest-environment-jsdom: ^29.7.0
-    jest-jasmine2: ^29.7.0
-    jest-watch-typeahead: ^0.6.1
-    lodash: ^4.17.21
-    node-telegram-bot-api: ^0.64.0
-    uuid: ^8.3.0
   languageName: unknown
   linkType: soft
 
@@ -1936,7 +1858,7 @@ __metadata:
     "@zeit/next-less": ^1.0.1
     antd: ^4.24.12
     antd-dayjs-webpack-plugin: ^1.0.6
-    babel-jest: ^29.7.0
+    babel-jest: ^29.4.0
     classnames: 2.2.6
     css-loader: 1.0.0
     dayjs: ^1.10.6
@@ -1949,9 +1871,9 @@ __metadata:
     identity-obj-proxy: ^3.0.0
     ignore-loader: 0.1.2
     immer: 9.0.13
-    jest: ^29.7.0
-    jest-environment-jsdom: ^29.7.0
-    jest-jasmine2: ^29.7.0
+    jest: ^29.4.0
+    jest-environment-jsdom: ^29.4.0
+    jest-jasmine2: ^29.4.0
     jest-watch-typeahead: ^0.6.1
     jsonwebtoken: ^9.0.0
     less: ^3.12.2
@@ -7151,20 +7073,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@cypress/request-promise@npm:^5.0.0":
-  version: 5.0.0
-  resolution: "@cypress/request-promise@npm:5.0.0"
-  dependencies:
-    bluebird: ^3.5.0
-    request-promise-core: 1.1.3
-    stealthy-require: ^1.1.1
-    tough-cookie: ^4.1.3
-  peerDependencies:
-    "@cypress/request": ^3.0.0
-  checksum: 72d17a3dd512a7b616b4d2c23d9aa0008d9ca10a8cb0c5f3d945b62705c7f4b57b6c8dc595934931be826bb0adfe5d2073c18648ed67ddf5e936f33d6b37c7ad
-  languageName: node
-  linkType: hard
-
 "@cypress/request@npm:^2.88.11":
   version: 2.88.12
   resolution: "@cypress/request@npm:2.88.12"
@@ -7188,32 +7096,6 @@ __metadata:
     tunnel-agent: ^0.6.0
     uuid: ^8.3.2
   checksum: 2c6fbf7f3127d41bffca8374beaa8cf95450495a8a077b00309ea9d94dd2a4da450a77fe038e8ad26c97cdd7c39b65c53c850f8338ce9bc2dbe23ce2e2b48329
-  languageName: node
-  linkType: hard
-
-"@cypress/request@npm:^3.0.1":
-  version: 3.0.1
-  resolution: "@cypress/request@npm:3.0.1"
-  dependencies:
-    aws-sign2: ~0.7.0
-    aws4: ^1.8.0
-    caseless: ~0.12.0
-    combined-stream: ~1.0.6
-    extend: ~3.0.2
-    forever-agent: ~0.6.1
-    form-data: ~2.3.2
-    http-signature: ~1.3.6
-    is-typedarray: ~1.0.0
-    isstream: ~0.1.2
-    json-stringify-safe: ~5.0.1
-    mime-types: ~2.1.19
-    performance-now: ^2.1.0
-    qs: 6.10.4
-    safe-buffer: ^5.1.2
-    tough-cookie: ^4.1.3
-    tunnel-agent: ^0.6.0
-    uuid: ^8.3.2
-  checksum: 7175522ebdbe30e3c37973e204c437c23ce659e58d5939466615bddcd58d778f3a8ea40f087b965ae8b8138ea8d102b729c6eb18c6324f121f3778f4a2e8e727
   languageName: node
   linkType: hard
 
@@ -7351,12 +7233,6 @@ __metadata:
   checksum: 2176d301cc258ea5c2324402997cf8134ebb212469c0d397591636cea8d3c02f2b3cf9fd58dcb748c7a0dade77ebdc1b10284fa63e608c033a1db52fddc69918
   languageName: node
   linkType: hard
-
-"@eds-mosreg-integration/domains@link:./domains::locator=%40app%2Feds-mosreg-integration%40workspace%3Aapps%2Feds-mosreg-integration":
-  version: 0.0.0-use.local
-  resolution: "@eds-mosreg-integration/domains@link:./domains::locator=%40app%2Feds-mosreg-integration%40workspace%3Aapps%2Feds-mosreg-integration"
-  languageName: node
-  linkType: soft
 
 "@emotion/babel-plugin@npm:^11.10.0":
   version: 11.10.0
@@ -15262,12 +15138,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@telegram-employee-bot/domains@link:./domains::locator=%40app%2Ftelegram-employee-bot%40workspace%3Aapps%2Ftelegram-employee-bot":
-  version: 0.0.0-use.local
-  resolution: "@telegram-employee-bot/domains@link:./domains::locator=%40app%2Ftelegram-employee-bot%40workspace%3Aapps%2Ftelegram-employee-bot"
-  languageName: node
-  linkType: soft
-
 "@telephony/domains@link:./domains::locator=%40app%2Ftelephony%40workspace%3Aapps%2Ftelephony":
   version: 0.0.0-use.local
   resolution: "@telephony/domains@link:./domains::locator=%40app%2Ftelephony%40workspace%3Aapps%2Ftelephony"
@@ -19069,28 +18939,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^1.5.1":
-  version: 1.5.1
-  resolution: "axios@npm:1.5.1"
-  dependencies:
-    follow-redirects: ^1.15.0
-    form-data: ^4.0.0
-    proxy-from-env: ^1.1.0
-  checksum: 4444f06601f4ede154183767863d2b8e472b4a6bfc5253597ed6d21899887e1fd0ee2b3de792ac4f8459fe2e359d2aa07c216e45fd8b9e4e0688a6ebf48a5a8d
-  languageName: node
-  linkType: hard
-
-"axios@npm:^1.6.7":
-  version: 1.6.7
-  resolution: "axios@npm:1.6.7"
-  dependencies:
-    follow-redirects: ^1.15.4
-    form-data: ^4.0.0
-    proxy-from-env: ^1.1.0
-  checksum: 87d4d429927d09942771f3b3a6c13580c183e31d7be0ee12f09be6d5655304996bb033d85e54be81606f4e89684df43be7bf52d14becb73a12727bf33298a082
-  languageName: node
-  linkType: hard
-
 "babel-code-frame@npm:^6.26.0":
   version: 6.26.0
   resolution: "babel-code-frame@npm:6.26.0"
@@ -19118,7 +18966,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-jest@npm:^29.7.0":
+"babel-jest@npm:^29.4.0, babel-jest@npm:^29.7.0":
   version: 29.7.0
   resolution: "babel-jest@npm:29.7.0"
   dependencies:
@@ -21250,35 +21098,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cheerio-select@npm:^2.1.0":
-  version: 2.1.0
-  resolution: "cheerio-select@npm:2.1.0"
-  dependencies:
-    boolbase: ^1.0.0
-    css-select: ^5.1.0
-    css-what: ^6.1.0
-    domelementtype: ^2.3.0
-    domhandler: ^5.0.3
-    domutils: ^3.0.1
-  checksum: 843d6d479922f28a6c5342c935aff1347491156814de63c585a6eb73baf7bb4185c1b4383a1195dca0f12e3946d737c7763bcef0b9544c515d905c5c44c5308b
-  languageName: node
-  linkType: hard
-
-"cheerio@npm:^1.0.0-rc.12":
-  version: 1.0.0-rc.12
-  resolution: "cheerio@npm:1.0.0-rc.12"
-  dependencies:
-    cheerio-select: ^2.1.0
-    dom-serializer: ^2.0.0
-    domhandler: ^5.0.3
-    domutils: ^3.0.1
-    htmlparser2: ^8.0.1
-    parse5: ^7.0.0
-    parse5-htmlparser2-tree-adapter: ^7.0.0
-  checksum: 5d4c1b7a53cf22d3a2eddc0aff70cf23cbb30d01a4c79013e703a012475c02461aa1fcd99127e8d83a02216386ed6942b2c8103845fd0812300dd199e6e7e054
-  languageName: node
-  linkType: hard
-
 "chokidar@npm:2.1.8, chokidar@npm:^2.1.8":
   version: 2.1.8
   resolution: "chokidar@npm:2.1.8"
@@ -23198,19 +23017,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"css-select@npm:^5.1.0":
-  version: 5.1.0
-  resolution: "css-select@npm:5.1.0"
-  dependencies:
-    boolbase: ^1.0.0
-    css-what: ^6.1.0
-    domhandler: ^5.0.2
-    domutils: ^3.0.1
-    nth-check: ^2.0.1
-  checksum: 2772c049b188d3b8a8159907192e926e11824aea525b8282981f72ba3f349cf9ecd523fdf7734875ee2cb772246c22117fc062da105b6d59afe8dcd5c99c9bda
-  languageName: node
-  linkType: hard
-
 "css-selector-tokenizer@npm:^0.7.0":
   version: 0.7.3
   resolution: "css-selector-tokenizer@npm:0.7.3"
@@ -23251,7 +23057,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"css-what@npm:^6.0.1, css-what@npm:^6.1.0":
+"css-what@npm:^6.0.1":
   version: 6.1.0
   resolution: "css-what@npm:6.1.0"
   checksum: b975e547e1e90b79625918f84e67db5d33d896e6de846c9b584094e529f0c63e2ab85ee33b9daffd05bff3a146a1916bec664e18bb76dd5f66cbff9fc13b2bbe
@@ -24538,7 +24344,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"domhandler@npm:^5.0, domhandler@npm:^5.0.1, domhandler@npm:^5.0.2, domhandler@npm:^5.0.3":
+"domhandler@npm:^5.0, domhandler@npm:^5.0.1, domhandler@npm:^5.0.2":
   version: 5.0.3
   resolution: "domhandler@npm:5.0.3"
   dependencies:
@@ -27207,16 +27013,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"follow-redirects@npm:^1.15.4":
-  version: 1.15.5
-  resolution: "follow-redirects@npm:1.15.5"
-  peerDependenciesMeta:
-    debug:
-      optional: true
-  checksum: 5ca49b5ce6f44338cbfc3546823357e7a70813cecc9b7b768158a1d32c1e62e7407c944402a918ea8c38ae2e78266312d617dc68783fac502cbb55e1047b34ec
-  languageName: node
-  linkType: hard
-
 "for-each@npm:^0.3.3":
   version: 0.3.3
   resolution: "for-each@npm:0.3.3"
@@ -29500,18 +29296,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"htmlparser2@npm:^8.0.1":
-  version: 8.0.2
-  resolution: "htmlparser2@npm:8.0.2"
-  dependencies:
-    domelementtype: ^2.3.0
-    domhandler: ^5.0.3
-    domutils: ^3.0.1
-    entities: ^4.4.0
-  checksum: 29167a0f9282f181da8a6d0311b76820c8a59bc9e3c87009e21968264c2987d2723d6fde5a964d4b7b6cba663fca96ffb373c06d8223a85f52a6089ced942700
-  languageName: node
-  linkType: hard
-
 "http-assert@npm:^1.3.0":
   version: 1.5.0
   resolution: "http-assert@npm:1.5.0"
@@ -31752,7 +31536,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-environment-jsdom@npm:^29.7.0":
+"jest-environment-jsdom@npm:^29.4.0, jest-environment-jsdom@npm:^29.7.0":
   version: 29.7.0
   resolution: "jest-environment-jsdom@npm:29.7.0"
   dependencies:
@@ -31849,7 +31633,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-jasmine2@npm:^29.7.0":
+"jest-jasmine2@npm:^29.4.0, jest-jasmine2@npm:^29.7.0":
   version: 29.7.0
   resolution: "jest-jasmine2@npm:29.7.0"
   dependencies:
@@ -32299,7 +32083,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest@npm:^29.7.0":
+"jest@npm:^29.4.0, jest@npm:^29.7.0":
   version: 29.7.0
   resolution: "jest@npm:29.7.0"
   dependencies:
@@ -36255,6 +36039,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"nanoid@npm:^5.0.4":
+  version: 5.0.4
+  resolution: "nanoid@npm:5.0.4"
+  bin:
+    nanoid: bin/nanoid.js
+  checksum: cf09cca3774f3147100948f7478f75f4c9ee97a4af65c328dd9abbd83b12f8bb35cf9f89a21c330f3b759d667a4cd0140ed84aa5fdd522c61e0d341aeaa7fb6f
+  languageName: node
+  linkType: hard
+
 "nanomatch@npm:^1.2.9":
   version: 1.2.13
   resolution: "nanomatch@npm:1.2.13"
@@ -36859,23 +36652,6 @@ __metadata:
     request: ^2.83.0
     request-promise: ^4.2.2
   checksum: dca2ed06b2ac6b0fb94984c1232a16258258c8cc21f8512418fe66a73537e5281451032dfbfddee43e6499abf35fe223a407092058606f4d33c257f18e5cff3b
-  languageName: node
-  linkType: hard
-
-"node-telegram-bot-api@npm:^0.64.0":
-  version: 0.64.0
-  resolution: "node-telegram-bot-api@npm:0.64.0"
-  dependencies:
-    "@cypress/request": ^3.0.1
-    "@cypress/request-promise": ^5.0.0
-    array.prototype.findindex: ^2.0.2
-    bl: ^1.2.3
-    debug: ^3.2.7
-    eventemitter3: ^3.0.0
-    file-type: ^3.9.0
-    mime: ^1.6.0
-    pump: ^2.0.0
-  checksum: 371a5fc1ca3505b7779a812d62474131694d730a5900220bb4bef68e1dc1ab38bfac236c11f1fc796db9affd6ddac35a5aa5758340ca3114d780f3cf11006131
   languageName: node
   linkType: hard
 
@@ -38080,16 +37856,6 @@ __metadata:
   version: 1.3.0
   resolution: "parse-numeric-range@npm:1.3.0"
   checksum: 289ca126d5b8ace7325b199218de198014f58ea6895ccc88a5247491d07f0143bf047f80b4a31784f1ca8911762278d7d6ecb90a31dfae31da91cc1a2524c8ce
-  languageName: node
-  linkType: hard
-
-"parse5-htmlparser2-tree-adapter@npm:^7.0.0":
-  version: 7.0.0
-  resolution: "parse5-htmlparser2-tree-adapter@npm:7.0.0"
-  dependencies:
-    domhandler: ^5.0.2
-    parse5: ^7.0.0
-  checksum: fc5d01e07733142a1baf81de5c2a9c41426c04b7ab29dd218acb80cd34a63177c90aff4a4aee66cf9f1d0aeecff1389adb7452ad6f8af0a5888e3e9ad6ef733d
   languageName: node
   linkType: hard
 
@@ -40513,15 +40279,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"qs@npm:6.10.4, qs@npm:~6.10.3":
-  version: 6.10.4
-  resolution: "qs@npm:6.10.4"
-  dependencies:
-    side-channel: ^1.0.4
-  checksum: 31e4fedd759d01eae52dde6692abab175f9af3e639993c5caaa513a2a3607b34d8058d3ae52ceeccf37c3025f22ed5e90e9ddd6c2537e19c0562ddd10dc5b1eb
-  languageName: node
-  linkType: hard
-
 "qs@npm:6.11.0, qs@npm:^6.10.0, qs@npm:^6.10.3, qs@npm:^6.9.4":
   version: 6.11.0
   resolution: "qs@npm:6.11.0"
@@ -40535,6 +40292,15 @@ __metadata:
   version: 6.9.3
   resolution: "qs@npm:6.9.3"
   checksum: 89cd1b5e521c19a7e0a7a056ddc261c5c30889664608cf9ce6085f9f25606fc48568cf6a6249e641b4b5c04dac7889e3b82133142523abf397228eb4f488fc38
+  languageName: node
+  linkType: hard
+
+"qs@npm:~6.10.3":
+  version: 6.10.4
+  resolution: "qs@npm:6.10.4"
+  dependencies:
+    side-channel: ^1.0.4
+  checksum: 31e4fedd759d01eae52dde6692abab175f9af3e639993c5caaa513a2a3607b34d8058d3ae52ceeccf37c3025f22ed5e90e9ddd6c2537e19c0562ddd10dc5b1eb
   languageName: node
   linkType: hard
 
@@ -43158,13 +42924,6 @@ __metadata:
   linkType: hard
 
 "regenerator-runtime@npm:^0.14.0":
-  version: 0.14.0
-  resolution: "regenerator-runtime@npm:0.14.0"
-  checksum: 1c977ad82a82a4412e4f639d65d22be376d3ebdd30da2c003eeafdaaacd03fc00c2320f18120007ee700900979284fc78a9f00da7fb593f6e6eeebc673fba9a3
-  languageName: node
-  linkType: hard
-
-"regenerator-runtime@npm:^0.14.0":
   version: 0.14.1
   resolution: "regenerator-runtime@npm:0.14.1"
   checksum: 9f57c93277b5585d3c83b0cf76be47b473ae8c6d9142a46ce8b0291a04bb2cf902059f0f8445dcabb3fb7378e5fe4bb4ea1e008876343d42e46d3b484534ce38
@@ -43210,6 +42969,13 @@ __metadata:
   version: 1.0.0
   resolution: "regexp-clone@npm:1.0.0"
   checksum: ca4960bbdc4237c84813b12aed351606be7db60a8c8867ef46b44f00eec4e83f51b31de34e294900517db9d7a39636117af80916f6ce7dc45ea00cae3c6d6fc3
+  languageName: node
+  linkType: hard
+
+"regexp-to-ast@npm:^0.5.0":
+  version: 0.5.0
+  resolution: "regexp-to-ast@npm:0.5.0"
+  checksum: 72e32f2a1217bb22398ac30867ddd43e16943b6b569dd4eb472de47494c7a39e34f47ee3e92ad4cbf92308f98997da366fe094a0e58eb6b93eab0ee956fff86d
   languageName: node
   linkType: hard
 
@@ -43711,17 +43477,6 @@ __metadata:
   dependencies:
     throttleit: ^1.0.0
   checksum: 6ea1761dcc8a8b7b5894afd478c0286aa31bd69438d7050294bd4fd0d0b3e09b5cde417d38deef9c49809039c337d8744e4bb49d8632b0c3e4ffa5e8a687e0fd
-  languageName: node
-  linkType: hard
-
-"request-promise-core@npm:1.1.3":
-  version: 1.1.3
-  resolution: "request-promise-core@npm:1.1.3"
-  dependencies:
-    lodash: ^4.17.15
-  peerDependencies:
-    request: ^2.34
-  checksum: 8572b5dd21c8927b85d78c4d7ea8a3c9438b10100143372e0e6b90a55fb98f4119a6e57df6f7adc213432b50712b0a8039e32fb0673c0243cdd14ddef3f5ef68
   languageName: node
   linkType: hard
 
