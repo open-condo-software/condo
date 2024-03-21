@@ -374,11 +374,11 @@ describe('NewsItems', () => {
                 const [property] = await createTestProperty(adminClient, o10n)
 
                 const unitType1 = FLAT_UNIT_TYPE
-                const unitName1 = faker.lorem.word()
+                const unitName1 = `${faker.lorem.word()}-1`
                 const unitType2 = FLAT_UNIT_TYPE
-                const unitName2 = faker.lorem.word()
+                const unitName2 = `${faker.lorem.word()}-2`
                 const unitType3 = FLAT_UNIT_TYPE
-                const unitName3 = faker.lorem.word()
+                const unitName3 = `${faker.lorem.word()}-3`
 
                 await createTestResident(adminClient, residentClient1.user, property, {
                     unitType: unitType1,
