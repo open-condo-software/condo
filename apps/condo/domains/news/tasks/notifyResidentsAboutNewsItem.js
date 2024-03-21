@@ -96,29 +96,39 @@ async function sendNotifications (context, newsItem, taskId) {
 
     const { keystone: contextMessage } = getSchemaCtx('Message')
     for (const resident of residentsData) {
-        await sendMessage(contextMessage, {
-            ...DV_SENDER,
-            to: { user: { id: resident.user.id } },
-            lang: conf.DEFAULT_LOCALE,
-            type: defineMessageType(newsItem),
-            meta: {
-                dv: 1,
-                title: truncate(newsItem.title, { length: TITLE_MAX_LEN, separator: ' ', omission: '...' }),
-                body: truncate(newsItem.body, { length: BODY_MAX_LEN, separator: ' ', omission: '...' }),
-                data: {
-                    newsItemId: newsItem.id,
-                    organizationId: newsItem.organization.id,
-                    userId: resident.user.id,
-                    residentId: resident.id,
-                    userRelatedResidentsIds: get(residentsIdsByUser, resident.user.id, []).join(','),
-                    url: `${conf.SERVER_URL}/newsItem/${newsItem.id}`,
-                    validBefore: get(newsItem, 'validBefore', null),
-                    // The first truthy value will be returned, or null if no values are found.
-                    dateCreated: ['deliverAt', 'sendAt', 'publishedAt', 'updatedAt', 'createdAt'].reduce((result, field) => (result || get(newsItem, field)), null),
+        try {
+            await sendMessage(contextMessage, {
+                ...DV_SENDER,
+                to: { user: { id: resident.user.id } },
+                lang: conf.DEFAULT_LOCALE,
+                type: defineMessageType(newsItem),
+                meta: {
+                    dv: 1,
+                    title: truncate(newsItem.title, { length: TITLE_MAX_LEN, separator: ' ', omission: '...' }),
+                    body: truncate(newsItem.body, { length: BODY_MAX_LEN, separator: ' ', omission: '...' }),
+                    data: {
+                        newsItemId: newsItem.id,
+                        organizationId: newsItem.organization.id,
+                        userId: resident.user.id,
+                        residentId: resident.id,
+                        userRelatedResidentsIds: get(residentsIdsByUser, resident.user.id, []).join(','),
+                        url: `${conf.SERVER_URL}/newsItem/${newsItem.id}`,
+                        validBefore: get(newsItem, 'validBefore', null),
+                        // The first truthy value will be returned, or null if no values are found.
+                        dateCreated: ['deliverAt', 'sendAt', 'publishedAt', 'updatedAt', 'createdAt'].reduce((result, field) => (result || get(newsItem, field)), null),
+                    },
                 },
-            },
-            uniqKey: generateUniqueMessageKey(resident.user.id, newsItem.id),
-        })
+                uniqKey: generateUniqueMessageKey(resident.user.id, newsItem.id),
+            })
+        } catch (error) {
+            logger.error({
+                msg: 'failed to send message to a resident',
+                error,
+                taskId,
+                data: { newsItemId: get(newsItem, 'id'), residentId: get(resident, 'id') },
+            })
+        }
+
     }
 
     //
@@ -164,6 +174,7 @@ async function notifyResidentsAboutNewsItem (newsItemId) {
             msg: 'failed to send news to residents',
             error,
             taskId,
+            data: { newsItemId },
         })
         throw error
     }
