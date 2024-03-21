@@ -143,9 +143,9 @@ const NewsItem = new GQLListSchema('NewsItem', {
         },
 
         deliverAt: {
-            // todo(DOMA-6931): update schemaDoc
             schemaDoc: '(Internal auto-calculated field)' +
                 '\nStart time for sending notifications.' +
+                '\nThis field is updated when the "isPublished" field is updated to "true".' +
                 '\nDepends on the "sendAt" field:' +
                 '\n 1) If "sendAt" is empty, then current time + delay of 15 seconds is specified;' +
                 '\n 2) If "sendAt" is specified, then the value is taken from it.',
@@ -156,11 +156,9 @@ const NewsItem = new GQLListSchema('NewsItem', {
                     const prevIsPublished = get(existingItem, 'isPublished', false)
                     const sendAt = get(newItem, 'sendAt', null)
                     const isPublished = get(newItem, 'isPublished', false)
-
                     const updatedIsPublished = prevIsPublished !== isPublished
 
-                    if (!isPublished) return get(resolvedData, fieldName)
-                    if (!updatedIsPublished) return get(resolvedData, fieldName)
+                    if (!isPublished || !updatedIsPublished) return get(resolvedData, fieldName)
                     if (!sendAt) return dayjs().add(15, 'second').toISOString()
                     return sendAt
                 },

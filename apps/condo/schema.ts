@@ -49198,6 +49198,7 @@ export type NewsItem = {
   /**
    *  (Internal auto-calculated field)
    * Start time for sending notifications.
+   * This field is updated when the "isPublished" field is updated to "true".
    * Depends on the "sendAt" field:
    *  1) If "sendAt" is empty, then current time + delay of 15 seconds is specified;
    *  2) If "sendAt" is specified, then the value is taken from it.
