@@ -15,7 +15,9 @@ const TASK_TYPE = 'TASK'
    The 'tasks' name was initially defined as default queue name.
    So for better migration experience we decided to leave this name as a default queue name */
 const DEFAULT_QUEUE_NAME = 'tasks'
-const DEFAULT_QUEUES = ['low', 'tasks', 'high']
+const TASK_QUEUE_REMAPPING = { medium: DEFAULT_QUEUE_NAME, default: DEFAULT_QUEUE_NAME }
+const DEFAULT_QUEUES = ['low', 'medium', 'high']
+const QUEUE_NAME_REGEX = new RegExp(/^[a-zA-z]*$/)
 const WORKER_CONCURRENCY = parseInt(conf.WORKER_CONCURRENCY || '2')
 const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
 // NOTE: If this is True, all tasks will be executed in the node process with setTimeout.
@@ -251,9 +253,17 @@ function registerTasks (modulesList) {
         })
 }
 
+/**
+ * Check provided array of names for uniqueness and matching pattern and creates task execution queues
+ * @param queueNames {Array<string>}. If no value was passed, function will register and create three queues -> low, tasks and high
+ */
 function registerTaskQueues (queueNames = DEFAULT_QUEUES) {
     queueNames.forEach(name => {
         if (!name) throw new Error('Queue creation requires name')
+        name = name.toLowerCase()
+        if (!QUEUE_NAME_REGEX.test(name)) throw new Error(`Error at registering queue with name ${name}. Queue name should be named with letters only`)
+        // We need this due to tasks already registered at queue with name 'tasks'. After a while 'tasks' queue should be completely cleaned and replaced with 'medium'
+        if (name in TASK_QUEUE_REMAPPING) name = TASK_QUEUE_REMAPPING[name]
         if (QUEUES.has(name)) throw new Error(`Queue with name ${name} already created`)
 
         createTaskQueue(name)
