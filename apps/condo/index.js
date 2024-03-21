@@ -155,7 +155,6 @@ const apps = () => {
 
 /** @type {(app: import('express').Application) => void} */
 const extendExpressApp = (app) => {
-    app.use(Sentry.Handlers.requestHandler())
     app.get('/.well-known/change-password', function (req, res) {
         res.redirect('/auth/forgot')
     })
