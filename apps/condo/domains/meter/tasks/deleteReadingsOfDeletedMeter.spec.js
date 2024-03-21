@@ -25,7 +25,7 @@ describe('deleteReadingsOfDeletedMeter', () => {
         const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
         const [meter] = await createTestMeter(client, client.organization, client.property, resource, {})
         const [meterReading1] = await createTestMeterReading(client, meter, source)
-        const [meterReading2] = await createTestMeterReading(client, meter, source)
+        const [meterReading2] = await createTestMeterReading(client, meter, source, { value1: meterReading1.value1 })
 
         expect(meterReading1.deletedAt).toBeNull()
         expect(meterReading2.deletedAt).toBeNull()
@@ -46,7 +46,7 @@ describe('deleteReadingsOfDeletedMeter', () => {
         const [meter] = await createTestMeter(client, client.organization, client.property, resource, {})
         const [meter1] = await createTestMeter(client, client.organization, client.property, resource, {})
         const [meterReading1] = await createTestMeterReading(client, meter, source)
-        const [meterReading2] = await createTestMeterReading(client, meter, source)
+        const [meterReading2] = await createTestMeterReading(client, meter, source, { value1: meterReading1.value1 })
 
         expect(meterReading1.deletedAt).toBeNull()
         expect(meterReading2.deletedAt).toBeNull()
@@ -67,7 +67,7 @@ describe('deleteReadingsOfDeletedMeter', () => {
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
             const [meter] = await createTestPropertyMeter(client, client.organization, client.property, resource, {})
             const [meterReading1] = await createTestPropertyMeterReading(client, meter, source)
-            const [meterReading2] = await createTestPropertyMeterReading(client, meter, source)
+            const [meterReading2] = await createTestPropertyMeterReading(client, meter, source, { value1: meterReading1.value1 })
 
             expect(meterReading1.deletedAt).toBeNull()
             expect(meterReading2.deletedAt).toBeNull()

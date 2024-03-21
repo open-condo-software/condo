@@ -239,7 +239,7 @@ describe('_internalDeleteMeterReadingsService', () => {
             const [property2] = await createTestProperty(admin, organization)
             const [meter2] = await createTestMeter(admin, organization, property2, resource, {})
             const [meterReading2] = await createTestMeterReading(admin, meter2, condoImportSource)
-            const [meterReading3] = await createTestMeterReading(admin, meter2, condoImportSource)
+            const [meterReading3] = await createTestMeterReading(admin, meter2, condoImportSource, { value1: meterReading2.value1 })
 
             const [result] = await _internalDeleteMeterReadingsByTestClient(support, {
                 ...payload,
@@ -262,11 +262,11 @@ describe('_internalDeleteMeterReadingsService', () => {
         test('Readings only for specified period should be deleted', async () => {
             await sleep(1200)
             const startDateTime = dayjs().format(DATE_FORMAT)
-            const [meterReading2] = await createTestMeterReading(admin, meter, condoImportSource)
-            const [meterReading3] = await createTestMeterReading(admin, meter, condoImportSource)
+            const [meterReading2] = await createTestMeterReading(admin, meter, condoImportSource, { value1: meterReading.value1 })
+            const [meterReading3] = await createTestMeterReading(admin, meter, condoImportSource, { value1: meterReading2.value1 })
             const endDateTime = dayjs().format(DATE_FORMAT)
             await sleep(1200)
-            const [meterReading4] = await createTestMeterReading(admin, meter, condoImportSource)
+            const [meterReading4] = await createTestMeterReading(admin, meter, condoImportSource, { value1: meterReading3.value1 })
 
             const [result] = await _internalDeleteMeterReadingsByTestClient(support, {
                 ...payload,
@@ -298,8 +298,8 @@ describe('_internalDeleteMeterReadingsService', () => {
                 type: METER_READING_SOURCE_CRM_TYPE,
                 name: faker.name.suffix(),
             })
-            const [meterReading2] = await createTestMeterReading(admin, meter, source2)
-            const [meterReading3] = await createTestMeterReading(admin, meter, source3)
+            const [meterReading2] = await createTestMeterReading(admin, meter, source2, { value1: meterReading.value1 })
+            const [meterReading3] = await createTestMeterReading(admin, meter, source3, { value1: meterReading2.value1 })
 
             const [result] = await _internalDeleteMeterReadingsByTestClient(support, {
                 ...payload,
@@ -325,7 +325,7 @@ describe('_internalDeleteMeterReadingsService', () => {
             const createdReadingIds = [meterReading.id]
 
             for (let i = 0; i < 150; i++) {
-                const [newMeterReading] = await createTestMeterReading(admin, meter, condoImportSource)
+                const [newMeterReading] = await createTestMeterReading(admin, meter, condoImportSource, { value1: meterReading.value1 })
                 createdReadingIds.push(newMeterReading.id)
             }
 

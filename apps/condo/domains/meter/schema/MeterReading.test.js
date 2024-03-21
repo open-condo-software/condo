@@ -4,7 +4,7 @@
 
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 const {
     catchErrorFrom,
     expectToThrowAuthenticationErrorToObjects,
@@ -1349,6 +1349,50 @@ describe('MeterReading', () => {
             })
         })
 
+        describe('MeterReading values cannot be smaller than previous ones', () => {
+            const dates = {
+                oldest: new Date('01/01/2000'),
+                old: new Date('01/01/2001'),
+                new: new Date('01/01/2002'),
+            }
+            const cases = [
+                ['100.0000', '200.0000', '150.0000'],
+                [null, '200.0000', '100.0000'],
+                ['100.0000', null, '50.0000'],
+            ]
+
+            test.each(cases)('%#', async (oldestValue, oldValue, newValue) => {
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
+                const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+                const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
+                const [meter] = await createTestMeter(admin, organization, property, resource, {})
+
+                const [meterReadingOldest] = await createTestMeterReading(admin, meter, source, {
+                    value1: oldestValue,
+                    date: dates.oldest,
+                })
+                const [meterReadingOld] = await createTestMeterReading(admin, meter, source, {
+                    value1: oldValue,
+                    date: dates.old,
+                })
+                expect(meterReadingOldest).toHaveProperty('value1', oldestValue)
+                expect(meterReadingOld).toHaveProperty('value1', oldValue)
+
+                await expectToThrowGQLError(async () => {
+                    await createTestMeterReading(admin, meter, source, {
+                        value1: newValue,
+                        date: dates.new,
+                    })
+                }, {
+                    code: 'BAD_USER_INPUT',
+                    type: 'METER_READING_VALUE_IS_INVALID',
+                    message: 'Value of MeterReading is smaller than the previous value, should be more or equal',
+                    variable: ['data', 'value1'],
+                })
+            })
+        })
+
         describe('Fields', () => {
             describe('date', () => {
                 test('server side set date if it\'s not passed in resolvedData', async () => {
@@ -1392,6 +1436,7 @@ describe('MeterReading', () => {
                     const [meterReading2] = await createTestMeterReading(admin, meter, source, {
                         clientName: faker.name.firstName(),
                         clientPhone: landLinePhone,
+                        value1: meterReading1.value1,
                     })
                     expect(meterReading2.clientPhone).toBe(landLinePhone)
                 })
