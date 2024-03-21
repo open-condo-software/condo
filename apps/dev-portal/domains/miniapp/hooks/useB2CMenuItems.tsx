@@ -13,10 +13,19 @@ const AVAILABLE_SECTIONS = [
     'builds',
     'properties',
     'oidc',
+    'service-user',
     'publishing',
 ] as const
 
 export type SectionType = typeof AVAILABLE_SECTIONS[number]
+
+type CamelSectionType<S extends string> = S extends `${infer T}-${infer U}`
+    ? `${T}${Capitalize<CamelSectionType<U>>}`
+    : S
+
+function _camelize (s: SectionType): CamelSectionType<SectionType> {
+    return s.replace(/-./g, x => x[1].toUpperCase()) as CamelSectionType<SectionType>
+}
 
 export function getCurrentSection (querySection?: string | Array<string>): SectionType {
     if (!querySection || Array.isArray(querySection)) {
@@ -41,7 +50,7 @@ export function useB2CMenuItems (): [SectionType, Array<MenuItem>] {
                 label: (
                     <Typography.Title level={4} ellipsis type={textType}>
                         <FormattedMessage
-                            id={`apps.b2c.sections.${section}.title`}
+                            id={`apps.b2c.sections.${_camelize(section)}.title`}
                         />
                     </Typography.Title>
                 ),

@@ -1,7 +1,7 @@
-import { Spin } from 'antd'
 import React from 'react'
 
-import styles from './ClientSettingsSubsection.module.css'
+import { Spin } from '@/domains/common/components/Spin'
+
 import { CreateClientForm } from './CreateClientForm'
 import { EditClientForm } from './EditClientForm'
 import { SecretContextProvider } from './SecretProvider'
@@ -26,7 +26,7 @@ export const ClientSettingsSubsection: React.FC<ClientSettingsSubsectionProps> =
 
     if (loading) {
         return (
-            <Spin size='large' className={styles.spinnerContainer}/>
+            <Spin size='large'/>
         )
     }
 

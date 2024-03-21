@@ -93,3 +93,9 @@ mutation deleteB2CAppProperty($data: DeleteB2CAppPropertyInput!) {
         address
     }
 }
+
+query allB2CAppAccessRights($appId: ID!, $environment: AppEnvironment!) {
+    rights: allB2CAppAccessRights(where: { app: { id: $appId }, environment: $environment }, first: 1) {
+        condoUserEmail
+    }
+}
