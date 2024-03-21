@@ -51,23 +51,29 @@ const StatsDClient = new StatsD({
     globalTags: { hostname: HOSTNAME, command: process.argv[1] },
 })
 
-const gauge = ({ name, value }) => {
+const gauge = ({ name, value, tags }) => {
     validateName(name)
-    StatsDClient.gauge(name, value)
+    StatsDClient.gauge(name, value, tags)
 }
 
-const histogram = ({ name, value }) => {
+const histogram = ({ name, value, tags }) => {
     validateName(name)
-    StatsDClient.histogram(name, value)
+    StatsDClient.histogram(name, value, tags)
 }
 
-const count = ({ name, value }) => {
+const increment = ({ name, value, tags }) => {
     validateName(name)
-    StatsDClient.count(name, value)
+    StatsDClient.increment(name, value, tags)
+}
+
+const decrement = ({ name, value, tags }) => {
+    validateName(name)
+    StatsDClient.decrement(name, value, tags)
 }
 
 module.exports = {
     gauge,
-    count,
+    increment,
+    decrement,
     histogram,
 }

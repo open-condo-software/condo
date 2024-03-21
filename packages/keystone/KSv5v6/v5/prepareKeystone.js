@@ -11,6 +11,7 @@ const nextCookie = require('next-cookies')
 const { v4 } = require('uuid')
 
 const conf = require('@open-condo/config')
+const { fetch } = require('@open-condo/keystone/fetch')
 const { formatError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { IpBlackListMiddleware } = require('@open-condo/keystone/ipBlackList')
 const { registerSchemas } = require('@open-condo/keystone/KSv5v6/v5/registerSchema')
@@ -58,6 +59,10 @@ const sendAppMetrics = () => {
     metrics.gauge({ name: 'processMemoryUsage.heapUsed', value: memUsage.heapUsed })
     metrics.gauge({ name: 'processMemoryUsage.rss', value: memUsage.rss })
     metrics.gauge({ name: 'processMemoryUsage.external', value: memUsage.external })
+
+    fetch('https://google.com/space/monke').then(r => console.log('ok'))
+    fetch('https://boogle.com/space/monke').then(r => console.log('ok'))
+    fetch('https://google.com?query=lol').then(r => console.log('ok'))
 
     if (taskQueue) {
         taskQueue.getJobCounts().then(jobCounts => {
