@@ -26,39 +26,34 @@ const BODY_MAX_LEN = 150
  * @param {NewsItem} newsItem
  * @returns {boolean}
  */
-function checkSendingPossibility (newsItem, taskId) {
+function checkSendingPossibility (newsItem) {
     if (newsItem.deletedAt) {
-        logger.warn({ msg: 'Trying to send deleted news item', newsItem, taskId })
-        return false
+        throw new Error('Trying to send deleted news item')
     }
 
     if (newsItem.sentAt) {
-        logger.warn({ msg: 'Trying to send news item which already been sent', newsItem, taskId })
-        return false
+        throw new Error('Trying to send news item which already been sent')
     }
 
     if (!newsItem.isPublished) {
-        logger.warn({ msg: 'Trying to send unpublished news item', newsItem, taskId })
-        return false
+        throw new Error('Trying to send unpublished news item')
     }
 
     if (!newsItem.deliverAt) {
-        logger.warn({ msg: 'Trying to send news item without "deliverAt"', newsItem, taskId })
-        return false
+        throw new Error('Trying to send news item without "deliverAt"')
     }
-
-    return true
 }
 
 /**
+ * @param context
  * @param {NewsItem} newsItem
+ * @param {string} taskId
  * @returns {Promise<void>}
  */
 async function sendNotifications (context, newsItem, taskId) {
+    logger.info({ msg: 'Data of news item for sending', taskId, data: { newsItem } })
 
-    if (!checkSendingPossibility(newsItem, taskId)) {
-        return
-    }
+    checkSendingPossibility(newsItem)
 
     const scopes = await NewsItemScope.getAll(context, { newsItem: { id: newsItem.id } })
 
