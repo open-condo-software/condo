@@ -104,9 +104,9 @@ const getSchemaDocForReadOnlyPermissionField = (permissionFieldName) => {
  *         },
  *    },
  *    services: {
- *        registerMeters: {
- *            // All services can be executed by default, but you may change this behavior with next field:
- *            canBeExecuted: false,
+ *        registerSomething: {
+ *            // Default value ['organization', 'id'] => get value from input data for service
+ *            pathToOrganizationId: ['organizationId'],
  *        },
  *    },
  * }
