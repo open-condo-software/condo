@@ -50,9 +50,6 @@ function createTaskQueue (name) {
             //   Bull uses three Redis connection. Probably, we can share regular Redis connection for type 'client' think about it!
             if (['bclient', 'subscriber'].includes(type)) {
                 opts.maxRetriesPerRequest = null
-                if (type === 'subscriber') {
-                    return getRedisClient('worker', type, opts)
-                }
             }
             return getRedisClient(`worker:${name}`, type, opts)
         },
