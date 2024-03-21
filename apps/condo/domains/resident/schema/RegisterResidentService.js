@@ -93,7 +93,7 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
 
                 const [property] = await PropertyAPI.getAll(context, {
                     addressKey: addressItem.addressKey,
-                    organization: { type: MANAGING_COMPANY_TYPE },
+                    //organization: { type: MANAGING_COMPANY_TYPE },
                     deletedAt: null,
                 },
                 'id',
