@@ -1,17 +1,21 @@
 import styled from '@emotion/styled'
-import { Col, Form, Row, Space, Upload } from 'antd'
+import { Col, Form, notification, Row, Space } from 'antd'
 import get from 'lodash/get'
 import React, { Dispatch, SetStateAction, useCallback, useMemo, useState } from 'react'
 
 import { ArrowLeft, Phone } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
+import { useOrganization } from '@open-condo/next/organization'
 import { Alert, Button, Card, Modal, Typography } from '@open-condo/ui'
 
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
+import { useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 
 import { useValidations } from './useValidations'
+
+import { UserHelpRequest, UserHelpRequestFile } from '../../onboarding/utils/clientSchema'
 
 
 const CardsWrapper = styled.div`
@@ -37,32 +41,56 @@ const CallModal = styled(Modal)`
 
 type ActiveModalType = 'choose' | 'call' | 'upload'
 type ImportHelpModalProps = {
-    activeModal: ActiveModalType,
+    domainName: string
+    activeModal: ActiveModalType
     setActiveModal: Dispatch<SetStateAction<ActiveModalType>>
 }
 
-export const ImportHelpModal: React.FC<ImportHelpModalProps> = ({ activeModal, setActiveModal }) => {
-
+export const ImportHelpModal: React.FC<ImportHelpModalProps> = ({ domainName, activeModal, setActiveModal }) => {
     const { user } = useAuth()
+    const { organization } = useOrganization()
     const phone = useMemo(() => get(user, 'phone'), [user])
     const initialValues = useMemo(() => ({ phone }), [phone])
+    const createHelpRequestAction = UserHelpRequest.useCreate({
+        organization: { connect: { id: get(organization, 'id', null) } },
+        meta: { importType: domainName },
+    })
+    const updateHelpRequestAction = UserHelpRequest.useUpdate({})
 
     const { requiredValidator, phoneValidator } = useValidations()
 
     const [callForm] = Form.useForm()
     const [uploadForm] = Form.useForm()
 
-    const callFormAction = useCallback(values => console.log(values), [])
-    const uploadFormAction = useCallback(values => console.log(values), [])
+    const { UploadComponent, syncModifiedFiles } = useMultipleFileUploadHook({
+        Model: UserHelpRequestFile,
+        relationField: 'userHelpRequest',
+        initialFileList: [],
+    })
 
-    const getFile = (e) => {
-        console.log('Upload event:', e)
+    const callFormAction = useCallback(async values => {
+        await createHelpRequestAction({
+            type: 'callback',
+            phone: get(values, 'phone'),
+        })
 
-        if (Array.isArray(e)) {
-            return e
-        }
-        return e && e.fileList
-    }
+        setActiveModal(null)
+    }, [createHelpRequestAction, setActiveModal])
+
+    const uploadFormAction = useCallback(async values => {
+        const helpRequest = await createHelpRequestAction({
+            type: 'importFile',
+            phone: get(values, 'phone'),
+            isReadyToSend: false,
+        })
+
+        await syncModifiedFiles(helpRequest.id)
+
+        await updateHelpRequestAction({
+            isReadyToSend: true,
+        }, helpRequest)
+        setActiveModal(null)
+    }, [createHelpRequestAction, setActiveModal, syncModifiedFiles, updateHelpRequestAction])
 
     return (
         <>
@@ -147,6 +175,7 @@ export const ImportHelpModal: React.FC<ImportHelpModalProps> = ({ activeModal, s
                     layout='vertical'
                     validateTrigger={['onBlur', 'onSubmit']}
                     formInstance={callForm}
+                    OnCompletedMsg='Отправлено'
                 >
                     <Form.Item
                         name='phone'
@@ -174,7 +203,7 @@ export const ImportHelpModal: React.FC<ImportHelpModalProps> = ({ activeModal, s
                             type='primary'
                             onClick={() => uploadForm.submit()}
                         >
-                            Подтвердить
+                            Загрузить
                         </Button>
                     </Space>
                 )}
@@ -194,6 +223,7 @@ export const ImportHelpModal: React.FC<ImportHelpModalProps> = ({ activeModal, s
                         layout='vertical'
                         validateTrigger={['onBlur', 'onSubmit']}
                         formInstance={uploadForm}
+                        OnCompletedMsg='Отправлено'
                     >
                         <Row gutter={[0, 24]}>
                             <Col span={24}>
@@ -207,15 +237,8 @@ export const ImportHelpModal: React.FC<ImportHelpModalProps> = ({ activeModal, s
                                 </Form.Item>
                             </Col>
                             <Col span={24}>
-                                <Form.Item name='file' valuePropName='fileList' getValueFromEvent={getFile}>
-                                    <Upload
-                                        maxCount={1}
-                                        multiple={false}
-                                    >
-                                        <Button type='secondary'>
-                                            Добавить файл
-                                        </Button>
-                                    </Upload>
+                                <Form.Item name='file' valuePropName='fileList'>
+                                    <UploadComponent initialFileList={[]} />
                                 </Form.Item>
                             </Col>
                         </Row>
@@ -226,12 +249,16 @@ export const ImportHelpModal: React.FC<ImportHelpModalProps> = ({ activeModal, s
     )
 }
 
-export const useImportHelpModal = () => {
+export const useImportHelpModal = ({ domainName }) => {
     const [activeModal, setActiveModal] = useState<ActiveModalType>()
     const openImportHelpModal = useCallback(() => setActiveModal('choose'), [])
 
     const Modal = useCallback(() => (
-        <ImportHelpModal activeModal={activeModal} setActiveModal={setActiveModal}/>
+        <ImportHelpModal
+            domainName={domainName}
+            activeModal={activeModal}
+            setActiveModal={setActiveModal}
+        />
     ), [activeModal])
 
     return useMemo(() => ({ Modal, openImportHelpModal }), [Modal, openImportHelpModal])

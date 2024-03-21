@@ -3,11 +3,17 @@
  */
 
 const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
+const omit = require('lodash/omit')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
+const { getById } = require('@open-condo/keystone/schema')
 
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
+const { STAFF } = require('@condo/domains/user/constants/common')
 
+
+const AVAILABLE_TO_UPDATE_USER_HELP_REQUEST_FIELDS = ['dv', 'sender', 'isReadyToSend']
 
 async function canReadUserHelpRequests ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
@@ -15,7 +21,7 @@ async function canReadUserHelpRequests ({ authentication: { item: user } }) {
 
     if (user.isAdmin || user.isSupport) return {}
 
-    return { createdBy: { id: get(user, 'id', null) } }
+    return { createdBy: { id: user.id } }
 }
 
 async function canManageUserHelpRequests ({ authentication: { item: user }, originalInput, operation, itemId }) {
@@ -23,11 +29,27 @@ async function canManageUserHelpRequests ({ authentication: { item: user }, orig
     if (user.deletedAt) return false
     if (user.isAdmin) return true
 
-    if (operation !== 'create') return false
+    if (user.type !== STAFF) return false
 
-    const organizationIdInRequest = get(originalInput, 'organization.connect.id', null)
+    if (operation === 'create') {
+        const organizationIdInRequest = get(originalInput, 'organization.connect.id', null)
 
-    return await checkOrganizationPermission(user.id, organizationIdInRequest)
+        return await checkOrganizationPermission(user.id, organizationIdInRequest)
+    } else if (operation === 'update') {
+        const helpRequest = await getById('UserHelpRequest', itemId)
+        const inaccessibleUpdatedFields = omit(originalInput, AVAILABLE_TO_UPDATE_USER_HELP_REQUEST_FIELDS)
+
+        // can update only isReadyToSend field from false to true
+        if (
+            helpRequest.createdBy !== user.id ||
+            !isEmpty(inaccessibleUpdatedFields) ||
+            (helpRequest.isReadyToSend && !originalInput.isReadyToSend)
+        ) return false
+
+        return true
+    }
+
+    return false
 }
 
 /*
