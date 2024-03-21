@@ -30,7 +30,7 @@ const { prepareDefaultKeystoneConfig } = require('../../setup.utils')
 
 const IS_BUILD_PHASE = conf.PHASE === 'build'
 const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
-const IS_SENTRY_ENABLED = conf['SENTRY_CONFIG'] !== undefined
+const IS_SENTRY_ENABLED = conf['SENTRY_CONFIG'] && conf['SENTRY_CONFIG']['server'] !== undefined
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
 // NOTE: should be disabled in production: https://www.apollographql.com/docs/apollo-server/testing/graphql-playground/
 // WARN: https://github.com/graphql/graphql-playground/tree/main/packages/graphql-playground-html/examples/xss-attack
