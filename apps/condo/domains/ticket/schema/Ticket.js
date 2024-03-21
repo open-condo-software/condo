@@ -48,7 +48,7 @@ const { QUALITY_CONTROL_VALUES } = require('@condo/domains/ticket/constants/qual
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { QUALITY_CONTROL_ADDITIONAL_OPTIONS_FIELD } = require('@condo/domains/ticket/schema/fields/QualityControlAdditionalOptions')
 const { FEEDBACK_ADDITIONAL_OPTIONS_FIELD } = require('@condo/domains/ticket/schema/fields/TicketFeedbackAdditionalOptions')
-const { sendTicketNotifications } = require('@condo/domains/ticket/utils/handlers')
+const { sendTicketChangedNotifications } = require('@condo/domains/ticket/tasks')
 const { TicketStatus } = require('@condo/domains/ticket/utils/serverSchema')
 const {
     calculateTicketOrder, calculateReopenedCounter,
@@ -982,7 +982,7 @@ const Ticket = new GQLListSchema('Ticket', {
             )(...args)
 
             /* NOTE: this sends different kinds of notifications on ticket create/update */
-            await sendTicketNotifications(requestData)
+            await sendTicketChangedNotifications.delay({ ticketId: updatedItem.id, existingItem, operation })
         },
     },
     access: {
