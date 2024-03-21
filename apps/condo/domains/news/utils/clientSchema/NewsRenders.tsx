@@ -5,7 +5,6 @@ import { TextProps } from 'antd/es/typography/Text'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
-import isNull from 'lodash/isNil'
 import map from 'lodash/map'
 import getConfig from 'next/config'
 import Link from 'next/link'
@@ -65,23 +64,27 @@ export const getRenderBody: GetRenderBodyType = (search) => (body) => {
     return getTableCellRenderer({ search, extraTitle: body, ellipsis: true })(body)
 }
 
-export const getRenderNewsDate: GetRenderNewsDateType = (intl, search) => (stringDate, news) => {
-    const NotSentNews = intl.formatMessage({ id: 'pages.condo.news.index.field.notSentYet' })
-
-    if (!stringDate) return '—'
-
-    const text = getNewsDate(intl, stringDate, TIME_FORMAT)
-    const postfix = `\n${NotSentNews}`
+export const getRenderNewsDate: GetRenderNewsDateType = (intl, search) => (_, news) => {
+    const NotSentNews = intl.formatMessage({ id: 'pages.condo.news.index.field.date.notSentYet' })
+    const Sending = intl.formatMessage({ id: 'pages.condo.news.index.field.date.sending' })
 
     const sendAt = get(news, 'sendAt', null)
     const sentAt = get(news, 'sentAt', null)
+    const deliverAt = get(news, 'deliverAt', null)
+    const isPublished = get(news, 'isPublished', null)
+    const publishedAt = get(news, 'publishedAt', null)
+    const isStartSending = deliverAt && dayjs().diff(dayjs(deliverAt)) > 0
+
+    const dateToShow = sendAt || publishedAt
+
+    if (!dateToShow) return '—'
+
+    const text = getNewsDate(intl, dateToShow, TIME_FORMAT)
+    const postfix = (isPublished && isStartSending) ? `\n${Sending}` : `\n${NotSentNews}`
 
     if (sentAt) return getTableCellRenderer({ search, ellipsis: true })(text)
 
-    if (isNull(sendAt)) return getTableCellRenderer({ search, ellipsis: true, postfix, extraPostfixProps: POSTFIX_PROPS })(text)
-
-    const sendAtDate = getNewsDate(intl, sendAt, TIME_FORMAT)
-    return getTableCellRenderer({ search, ellipsis: true, postfix, extraPostfixProps: POSTFIX_PROPS })(sendAtDate)
+    return getTableCellRenderer({ search, ellipsis: true, postfix, extraPostfixProps: POSTFIX_PROPS })(text)
 }
 
 const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }

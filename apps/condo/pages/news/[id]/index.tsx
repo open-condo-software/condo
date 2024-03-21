@@ -71,7 +71,7 @@ const NewsItemCard: React.FC = () => {
     const Emergency = intl.formatMessage({ id: 'pages.news.newsItemCard.type.emergency' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
     const NotFoundMsg = intl.formatMessage({ id: 'NotFound' })
-    const SentAtLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.field.sentAt' })
+    const SendAtLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.field.sendAt' })
     const TypeLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.field.type' })
     const ValidBeforeLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.field.validBefore' })
     const TitleLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.field.title' })
@@ -185,13 +185,8 @@ const NewsItemCard: React.FC = () => {
     })
 
     const sendDateStr = useMemo(() => {
-        let date = get(newsItem, 'sentAt')
-
-        if (!date) {
-            date = get(newsItem, 'sendAt')
-        }
-
-        return date ? dayjs(date).format('YYYY.MM.DD HH:mm') : null
+        const dateToShow = get(newsItem, 'sendAt') || get(newsItem, 'publishedAt')
+        return dateToShow ? dayjs(dateToShow).format('YYYY.MM.DD HH:mm') : '—'
     }, [newsItem])
 
     const isLoading = employeeLoading || newsItemLoading || isAccessLoading || newsItemScopesLoading || propertyLoading
@@ -221,12 +216,10 @@ const NewsItemCard: React.FC = () => {
                         <Col span={16}>
                             <FrontLayerContainer>
                                 <Row gutter={HORIZONTAL_ROW_GUTTER}>
-                                    {sendDateStr && (
-                                        <FieldPairRow
-                                            fieldTitle={SentAtLabel}
-                                            fieldValue={sendDateStr}
-                                        />
-                                    )}
+                                    <FieldPairRow
+                                        fieldTitle={SendAtLabel}
+                                        fieldValue={sendDateStr}
+                                    />
                                     <FieldPairRow
                                         fieldTitle={TypeLabel}
                                         fieldValue={newsItemType}
