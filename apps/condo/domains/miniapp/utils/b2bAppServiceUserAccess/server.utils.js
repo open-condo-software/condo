@@ -132,8 +132,8 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
     return !isEmpty(B2BAppContexts)
 }
 
-const canExecuteByServiceUser = async (args, schemaConfig, parentSchemaName = 'delete me') => {
-    const { authentication: { item: user }, args: { data }, info: { fieldName }, context } = args
+const canExecuteByServiceUser = async (args, schemaConfig) => {
+    const { authentication: { item: user }, args: { data }, info: { fieldName } } = args
 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false

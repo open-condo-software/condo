@@ -3,13 +3,13 @@
  */
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
-const { map } = require('lodash')
+const { map, flatten } = require('lodash')
 
 const {
     makeLoggedInAdminClient,
     makeClient,
     expectToThrowAuthenticationError,
-    expectToThrowAccessDeniedErrorToResult,
+    expectToThrowAccessDeniedErrorToResult, expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
 const {
@@ -32,6 +32,27 @@ const {
     makeClientWithServiceUser,
 } = require('@condo/domains/user/utils/testSchema')
 
+const getItemsForAccessTest = (property) => ([
+    {
+        address: property.address,
+        unitType: 'flat',
+        unitName: faker.random.alphaNumeric(4),
+        accountNumber: faker.random.alphaNumeric(12),
+        meters: [
+            {
+                numberOfTariffs: 1,
+                resourceTypeId: COLD_WATER_METER_RESOURCE_ID,
+                number: faker.random.numeric(8),
+                readings: [{
+                    date: dayjs().toISOString(),
+                    v1: faker.random.numeric(3),
+                    v2: faker.random.numeric(4),
+                }],
+            },
+        ],
+    },
+])
+
 describe('RegisterMetersService', () => {
 
     let adminClient, supportClient, residentClient, anonymousClient
@@ -50,27 +71,6 @@ describe('RegisterMetersService', () => {
         beforeAll(async () => {
             [o10n] = await createTestOrganization(adminClient)
         })
-
-        const getItemsForAccessTest = (property) => ([
-            {
-                address: property.address,
-                unitType: 'flat',
-                unitName: faker.random.alphaNumeric(4),
-                accountNumber: faker.random.alphaNumeric(12),
-                meters: [
-                    {
-                        numberOfTariffs: 1,
-                        resourceTypeId: COLD_WATER_METER_RESOURCE_ID,
-                        number: faker.random.numeric(8),
-                        readings: [{
-                            date: dayjs().toISOString(),
-                            v1: faker.random.numeric(3),
-                            v2: faker.random.numeric(4),
-                        }],
-                    },
-                ],
-            },
-        ])
 
         test('admin can', async () => {
             const [o10n] = await createTestOrganization(adminClient)
@@ -329,7 +329,59 @@ describe('RegisterMetersService', () => {
         })
     })
 
-    test('cannot create Meter if Meter with same accountNumber exist in user organization in other unit type', async () => {
-        // тут должна быть ошибка внутри возвращаемого json
+    test('error on too much items', async () => {
+        const [o10n] = await createTestOrganization(adminClient)
+        await expectToThrowGQLError(
+            async () => await registerMetersByTestClient(
+                adminClient,
+                o10n,
+                flatten(Array(501).fill(getItemsForAccessTest({ address: faker.address.streetAddress(true) }))),
+            ),
+            {
+                code: 'BAD_USER_INPUT',
+                type: 'TOO_MUCH_ITEMS',
+                message: 'Too much items. Maximum is 500.',
+            },
+            'result',
+        )
+    })
+
+    test('Check for Meter model error: cannot create Meter if Meter with same accountNumber exist in user organization in other unit', async () => {
+        const [o10n] = await createTestOrganization(adminClient)
+        const [property1] = await createTestProperty(adminClient, o10n)
+        const [property2] = await createTestProperty(adminClient, o10n)
+
+        const accountNumber = faker.random.alphaNumeric(12)
+
+        const items1 = getItemsForAccessTest(property1)
+        items1[0].accountNumber = accountNumber
+
+        await registerMetersByTestClient(adminClient, o10n, items1)
+
+        const items2 = getItemsForAccessTest(property2)
+        items2[0].accountNumber = accountNumber
+
+        const [data] = await registerMetersByTestClient(adminClient, o10n, items2)
+        expect(data).toEqual({
+            items: [{
+                address: items2[0].address,
+                accountNumber: items2[0].accountNumber,
+                result: {
+                    error: null,
+                    data: {
+                        propertyId: property2.id,
+                        meters: [{
+                            number: items2[0].meters[0].number,
+                            result: {
+                                error: {
+                                    message: '[unique:alreadyExists:accountNumber] Meter with same account number exist in current organization in other unit',
+                                },
+                                data: null,
+                            },
+                        }],
+                    },
+                },
+            }],
+        })
     })
 })

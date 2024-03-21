@@ -6,6 +6,7 @@ const dayjs = require('dayjs')
 const { get, set } = require('lodash')
 
 const conf = require('@open-condo/config')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, getByCondition, getById } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { i18n } = require('@open-condo/locales/loader')
@@ -13,7 +14,18 @@ const { i18n } = require('@open-condo/locales/loader')
 const { PropertyResolver } = require('@condo/domains/billing/schema/resolvers')
 const access = require('@condo/domains/meter/access/RegisterMetersService')
 const { IMPORT_CONDO_METER_READING_SOURCE_ID } = require('@condo/domains/meter/constants/constants')
+const { TOO_MUCH_ITEMS } = require('@condo/domains/meter/constants/errors')
 const { Meter, MeterReading } = require('@condo/domains/meter/utils/serverSchema')
+
+const MAX_ITEMS = 500
+
+const ERRORS = {
+    TOO_MUCH_ITEMS: {
+        code: BAD_USER_INPUT,
+        type: TOO_MUCH_ITEMS,
+        message: `Too much items. Maximum is ${MAX_ITEMS}.`,
+    },
+}
 
 function toISO (str) {
     return dayjs(str).toISOString()
@@ -104,6 +116,11 @@ const RegisterMetersService = new GQLCustomSchema('RegisterMetersService', {
             schema: 'registerMeters(data: RegisterMetersInput!): RegisterMetersOutput',
             resolver: async (parent, /**{ data: RegisterMetersInput }*/args, context) => {
                 const { data: { dv, sender, organization, items } } = args
+
+                if (items.length > MAX_ITEMS) {
+                    throw new GQLError(ERRORS.TOO_MUCH_ITEMS, context)
+                }
+
                 const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
 
                 const organizationData = await getById('Organization', organization.id)
@@ -194,7 +211,7 @@ const RegisterMetersService = new GQLCustomSchema('RegisterMetersService', {
                                         sender,
                                         organization: { connect: organization },
                                         property: { connect: { id: property.id } },
-                                        unitType: String(item.unitType), // TODO
+                                        unitType: String(item.unitType),
                                         unitName: String(item.unitName),
                                         accountNumber: item.accountNumber,
                                         number: meterData.number,
@@ -229,7 +246,16 @@ const RegisterMetersService = new GQLCustomSchema('RegisterMetersService', {
                                         meterReadingResult.error = undefined
                                         meterReadingResult.data = { id: meterReadingModel.id }
                                     } catch (err) {
-                                        meterReadingResult.error = { message: get(err, ['graphQLErrors', 0, 'extensions', 'messageForUser'], err.message) }
+                                        meterReadingResult.error = {
+                                            message: get(
+                                                err,
+                                                ['errors', 0, 'originalError', 'data', 'messages', 0],
+                                                get(err,
+                                                    ['graphQLErrors', 0, 'extensions', 'messageForUser'],
+                                                    err.message,
+                                                ),
+                                            ),
+                                        }
                                         meterReadingResult.data = undefined
                                     }
                                     meterReadingsResults.push({
@@ -243,7 +269,16 @@ const RegisterMetersService = new GQLCustomSchema('RegisterMetersService', {
 
                                 set(meterResult, ['data', 'readings'], meterReadingsResults)
                             } catch (err) {
-                                meterResult.error = { message: get(err, ['graphQLErrors', 0, 'extensions', 'messageForUser'], err.message) }
+                                meterResult.error = {
+                                    message: get(
+                                        err,
+                                        ['errors', 0, 'originalError', 'data', 'messages', 0],
+                                        get(err,
+                                            ['graphQLErrors', 0, 'extensions', 'messageForUser'],
+                                            err.message,
+                                        ),
+                                    ),
+                                }
                                 meterResult.data = undefined
                             }
 
