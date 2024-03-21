@@ -16,6 +16,6 @@ module.exports = {
     exportTickets,
     exportIncidents,
     sendTicketCommentCreatedNotifications: createTask('sendTicketCommentCreatedNotifications', sendTicketCommentCreatedNotifications),
-    sendTicketCreatedNotifications: createTask('sendTicketCreatedNotifications', sendTicketCreatedNotifications),
+    sendTicketCreatedNotifications,
     sendTicketChangedNotifications: createTask('sendTicketChangedNotifications', sendTicketChangedNotifications),
 }

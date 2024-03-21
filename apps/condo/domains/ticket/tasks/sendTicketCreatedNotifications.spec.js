@@ -19,7 +19,7 @@ const { createTestProperty } = require('@condo/domains/property/utils/testSchema
 const { createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
-const { sendTicketCreatedNotifications } = require('./sendTicketCreatedNotifications')
+const { sendTicketCreatedNotificationsFn } = require('./sendTicketCreatedNotifications')
 
 
 describe('sendTicketCreatedNotifications', ()  => {
@@ -88,7 +88,7 @@ describe('sendTicketCreatedNotifications', ()  => {
             telegramChatId: telegramChatId2,
         })
 
-        await sendTicketCreatedNotifications(ticket.id, lang, organization.id, organization.name)
+        await sendTicketCreatedNotificationsFn(ticket.id, lang, organization.id, organization.name)
 
         await waitFor(async () => {
             const messages = await Message.getAll(admin, {
@@ -130,7 +130,7 @@ describe('sendTicketCreatedNotifications', ()  => {
     })
 
     it('Does not send notification if employee has not TelegramUserChat', async () => {
-        await sendTicketCreatedNotifications(ticket.id, lang, organization.id, organization.name)
+        await sendTicketCreatedNotificationsFn(ticket.id, lang, organization.id, organization.name)
 
         await waitFor(async () => {
             const messages = await Message.getAll(admin, {

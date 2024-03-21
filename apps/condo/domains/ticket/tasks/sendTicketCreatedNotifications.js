@@ -4,6 +4,7 @@ const { v4: uuid } = require('uuid')
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx, getById } = require('@open-condo/keystone/schema')
+const { createTask } = require('@open-condo/keystone/tasks')
 const { i18n } = require('@open-condo/locales/loader')
 
 const { setLocaleForKeystoneContext } = require('@condo/domains/common/utils/serverSchema/setLocaleForKeystoneContext')
@@ -86,6 +87,8 @@ const sendTicketCreatedNotifications = async (ticketId, lang, organizationId, or
     }
 }
 
+// TODO(DOMA-8677): debug exports to sendTicketChangedNotifications task
 module.exports = {
-    sendTicketCreatedNotifications,
+    sendTicketCreatedNotificationsFn: sendTicketCreatedNotifications,
+    sendTicketCreatedNotifications: createTask('sendTicketCreatedNotifications', sendTicketCreatedNotifications),
 }
