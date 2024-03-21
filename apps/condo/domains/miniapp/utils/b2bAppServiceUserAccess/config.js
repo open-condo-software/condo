@@ -36,22 +36,28 @@
  * @type {B2bAppServiceUserAccessConfig}
  */
 const B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS = {
-    // Contact domain
-    Contact: {},
+    lists: {
+        // Contact domain
+        Contact: {},
 
-    // Meter domain
-    Meter: {},
-    MeterReading: {},
+        // Meter domain
+        Meter: {},
+        MeterReading: {},
 
-    // Organization domain
-    Organization: {
-        pathToOrganizationId: ['id'],
-        // NOTE: service users cannot manage organizations!
-        canBeManaged: false,
+        // Organization domain
+        Organization: {
+            pathToOrganizationId: ['id'],
+            // NOTE: service users cannot manage organizations!
+            canBeManaged: false,
+        },
+
+        // Property domain
+        Property: {},
     },
 
-    // Property domain
-    Property: {},
+    services: {
+        registerMeters: {},
+    },
 }
 
 module.exports = {

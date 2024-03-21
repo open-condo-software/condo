@@ -14,13 +14,13 @@ const {
 
 const {
     COLD_WATER_METER_RESOURCE_ID,
-    ELECTRICITY_METER_RESOURCE_ID,
-    GAS_SUPPLY_METER_RESOURCE_ID,
-    HEAT_SUPPLY_METER_RESOURCE_ID,
-    HOT_WATER_METER_RESOURCE_ID,
-    IMPORT_CONDO_METER_READING_SOURCE_ID,
 } = require('@condo/domains/meter/constants/constants')
 const { registerMetersByTestClient, Meter, MeterReading } = require('@condo/domains/meter/utils/testSchema')
+const {
+    createTestB2BApp,
+    createTestB2BAppContext,
+    createTestB2BAppAccessRight, createTestB2BAppAccessRightSet,
+} = require('@condo/domains/miniapp/utils/testSchema')
 const {
     createTestOrganization,
     makeEmployeeUserClientWithAbilities,
@@ -244,11 +244,18 @@ describe('RegisterMetersService', () => {
             })
         })
 
-        describe.skip('service user', () => {
+        describe('service user', () => {
             test('with access rights can', async () => {
                 const serviceClient = await makeClientWithServiceUser()
                 const [o10n] = await createTestOrganization(adminClient)
                 const [property] = await createTestProperty(adminClient, o10n)
+
+                const [app] = await createTestB2BApp(adminClient)
+                await createTestB2BAppContext(adminClient, app, o10n, { status: 'Finished' })
+                const [accessRightSet] = await createTestB2BAppAccessRightSet(adminClient, app, {
+                    canExecuteRegisterMeters: true,
+                })
+                await createTestB2BAppAccessRight(adminClient, serviceClient.user, app, accessRightSet)
 
                 const items = getItemsForAccessTest(property)
                 const [data] = await registerMetersByTestClient(serviceClient, o10n, items)
@@ -300,13 +307,11 @@ describe('RegisterMetersService', () => {
             })
 
             test('without permissions can\'t', async () => {
-                const staffClient = await makeEmployeeUserClientWithAbilities({
-                    canManageMeters: false,
-                    canManageMeterReadings: false,
-                })
+                const serviceClient = await makeClientWithServiceUser()
+                const [o10n] = await createTestOrganization(adminClient)
 
                 await expectToThrowAccessDeniedErrorToResult(async () => {
-                    await registerMetersByTestClient(staffClient, staffClient.organization, [])
+                    await registerMetersByTestClient(serviceClient, o10n, [])
                 })
             })
         })

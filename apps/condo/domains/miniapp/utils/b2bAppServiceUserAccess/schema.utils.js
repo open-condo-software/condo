@@ -1,4 +1,4 @@
-const { get, isObject, isString } = require('lodash')
+const { get, isObject, isString, upperFirst } = require('lodash')
 const pluralize = require('pluralize')
 
 
@@ -18,7 +18,7 @@ const READ_ONLY_PERMISSION_FIELD = {
 }
 
 const getReadOnlyPermissionFieldNames = (config) => {
-    return Object.entries(config)
+    return Object.entries(config.lists)
         .map(([schemaName, schemaConfig]) => {
             const readOnlyFieldsBySchema = []
             if (!get(schemaConfig, 'canBeRead', true)) {
@@ -32,12 +32,21 @@ const getReadOnlyPermissionFieldNames = (config) => {
         .flat()
 }
 
-const getPermissionFieldNames = (config) => {
-    return Object.entries(config)
+const getListPermissionFieldNames = (config) => {
+    return Object.entries(config.lists)
         .map(([schemaName]) => {
             const canReadName = `canRead${pluralize.plural(schemaName)}`
             const canManageName = `canManage${pluralize.plural(schemaName)}`
             return [canReadName, canManageName]
+        })
+        .flat()
+}
+
+const getServicePermissionFieldNames = (config) => {
+    return Object.entries(config.services)
+        .map(([schemaName]) => {
+            const canExecuteName = `canExecute${upperFirst(schemaName)}`
+            return [canExecuteName]
         })
         .flat()
 }
@@ -64,7 +73,7 @@ const getSchemaDocForReadOnlyPermissionField = (permissionFieldName) => {
  *
  * Overrides the default access behavior for the specified schema
  *
- * @typedef {Object} B2bAppServiceUserAccessSchemaConfig
+ * @typedef {Object} B2bAppServiceUserAccessListSchemaConfig
  * @property {Array.<string>} pathToOrganizationId - Way to get the organization id (default value: ['organization', 'id'])
  * @property {boolean} canBeRead - Service users can read schema (default value: true)
  * @property {boolean} canBeManaged - Service users can manage schema (default value: true)
@@ -72,20 +81,37 @@ const getSchemaDocForReadOnlyPermissionField = (permissionFieldName) => {
 
 /**
  *
+ * Overrides the default access behavior for the specified service
+ *
+ * @typedef {Object} B2bAppServiceUserAccessServiceSchemaConfig
+ * @property {Array.<string>} pathToOrganizationId - Way to get the organization id (default value: ['organization', 'id'])
+ * @property {boolean} canBeExecuted - Service users can read schema (default value: true)
+ */
+
+/**
+ *
  * Determines which models can be accessed by a service user linked to a B2B app
  *
- * @example Config for Organization schema
+ * @example Config for Organization schema and for some abstract service
  * {
- *    Organization: {
- *       // Default value ['organization', 'id'] => get value from <SchemaName>.organization.id
- *       // But for the Organization schema get value from <SchemaName>.id
- *       pathToOrganizationId: ['id'],
- *       // By default schemas can be manage, but for Organization schema cannot be managed
- *       canBeManaged: false,
+ *    lists: {
+ *        Organization: {
+ *            // Default value ['organization', 'id'] => get value from <SchemaName>.organization.id
+ *            // But for the Organization schema get value from <SchemaName>.id
+ *            pathToOrganizationId: ['id'],
+ *            // By default schemas can be manage, but for Organization schema cannot be managed
+ *            canBeManaged: false,
+ *         },
+ *    },
+ *    services: {
+ *        registerMeters: {
+ *            // All services can be executed by default, but you may change this behavior with next field:
+ *            canBeExecuted: false,
+ *        },
  *    },
  * }
  *
- * @typedef {Object.<string, B2bAppServiceUserAccessSchemaConfig>} B2bAppServiceUserAccessConfig
+ * @typedef {{lists: Object.<string, B2bAppServiceUserAccessListSchemaConfig>, services: Object.<string, B2bAppServiceUserAccessServiceSchemaConfig>}} B2bAppServiceUserAccessConfig
  */
 
 /**
@@ -97,13 +123,14 @@ const getSchemaDocForReadOnlyPermissionField = (permissionFieldName) => {
 const generatePermissionFields = ({ config }) => {
     if (!isObject(config)) throw new Error('Config not object!')
 
-    const allPermissionFieldNames = getPermissionFieldNames(config)
-    const readOnlyPermissionFieldNames = getReadOnlyPermissionFieldNames(config)
+    const allListPermissionFieldNames = getListPermissionFieldNames(config)
+    const readOnlyListPermissionFieldNames = getReadOnlyPermissionFieldNames(config)
+    const allServicePermissionFieldNames = getServicePermissionFieldNames(config)
 
     const permissionFields = {}
 
-    for (const permissionFieldName of allPermissionFieldNames) {
-        if (readOnlyPermissionFieldNames.includes(permissionFieldName)) {
+    for (const permissionFieldName of allListPermissionFieldNames) {
+        if (readOnlyListPermissionFieldNames.includes(permissionFieldName)) {
             permissionFields[permissionFieldName] = {
                 ...READ_ONLY_PERMISSION_FIELD,
                 schemaDoc: getSchemaDocForReadOnlyPermissionField(permissionFieldName),
@@ -111,6 +138,10 @@ const generatePermissionFields = ({ config }) => {
         } else {
             permissionFields[permissionFieldName] = PERMISSION_FIELD
         }
+    }
+
+    for (const permissionFieldName of allServicePermissionFieldNames) {
+        permissionFields[permissionFieldName] = PERMISSION_FIELD
     }
 
     return permissionFields
