@@ -12,7 +12,6 @@ const { v4 } = require('uuid')
 
 const conf = require('@open-condo/config')
 const { formatError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { fetch } = require('@open-condo/keystone/fetch')
 const { IpBlackListMiddleware } = require('@open-condo/keystone/ipBlackList')
 const { registerSchemas } = require('@open-condo/keystone/KSv5v6/v5/registerSchema')
 const { getKeystonePinoOptions, GraphQLLoggerPlugin } = require('@open-condo/keystone/logging')
