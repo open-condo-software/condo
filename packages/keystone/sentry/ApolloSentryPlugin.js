@@ -1,5 +1,11 @@
 const Sentry = require('@sentry/node')
 
+const IGNORED_ERRORS = [
+    'No or incorrect authentication credentials',
+    'Your request exceeded server limits',
+    'No or incorrect authentication credentials',
+]
+
 class ApolloSentryPlugin {
     requestDidStart ({ request }) {
         const transaction = Sentry.startTransaction({
@@ -30,7 +36,9 @@ class ApolloSentryPlugin {
             didEncounterErrors (requestContext) {
                 if (!requestContext.operation) return
 
-                for (const error of requestContext.errors) {
+                const filteredErrors = requestContext.errors.filter(error => !IGNORED_ERRORS.includes(error))
+
+                for (const error of filteredErrors) {
                     Sentry.withScope(scope => {
                         scope.setTag('kind', requestContext.operation.operation)
                         scope.setExtra('query', requestContext.context.query)
