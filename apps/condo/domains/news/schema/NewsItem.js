@@ -146,8 +146,9 @@ const NewsItem = new GQLListSchema('NewsItem', {
         deliverAt: {
             schemaDoc: '(Internal auto-calculated field)' +
                 '\nStart time for sending notifications.' +
-                '\nThis field is updated when the "isPublished" field is updated to "true".' +
-                '\nDepends on the "sendAt" field:' +
+                '\nThis field is updated when the "isPublished" field is updated.' +
+                '\nIf set "isPublished" to false then "deliverAt" set to null.' +
+                '\nIf set "isPublished" to true then "deliverAt" depends on the "sendAt" field:' +
                 '\n 1) If "sendAt" is empty, then current time + delay of 15 seconds is specified;' +
                 '\n 2) If "sendAt" is specified, then the value is taken from it.',
             type: 'DateTimeUtc',
@@ -159,7 +160,8 @@ const NewsItem = new GQLListSchema('NewsItem', {
                     const isPublished = get(newItem, 'isPublished', false)
                     const updatedIsPublished = prevIsPublished !== isPublished
 
-                    if (!isPublished || !updatedIsPublished) return get(resolvedData, fieldName)
+                    if (!updatedIsPublished) return get(resolvedData, fieldName)
+                    if (!isPublished) return null
                     if (!sendAt) return dayjs().add(SENDING_DELAY_SEC, 'second').toISOString()
                     return sendAt
                 },

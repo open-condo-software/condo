@@ -1105,7 +1105,7 @@ describe('NewsItems', () => {
                 })
             })
 
-            describe('should be auto-calculate', () => {
+            describe('should be auto-calculated', () => {
                 test('should be updated to value from "sendAt" if it set when "isPublished" updated to true', async () => {
                     const [newsItem] = await createTestNewsItem(adminClient, dummyO10n, { sendAt: dayjs().add(1, 'day').toISOString() })
                     expect(newsItem.deliverAt).toBeNull()
@@ -1124,8 +1124,21 @@ describe('NewsItems', () => {
                     await createTestNewsItemScope(adminClient, newsItem)
 
                     const [publishedNewsItem] = await publishTestNewsItem(adminClient, newsItem.id)
-                    expect(publishedNewsItem.deliverAt).toBeDefined()
+                    expect(publishedNewsItem.deliverAt).not.toBeNull()
                     expect(dayjs(publishedNewsItem.deliverAt).diff(dayjs(publishedNewsItem.createdAt), 'second')).toBeLessThanOrEqual(15)
+                })
+
+                test('should be updated to null when "isPublished" updated to false', async () => {
+                    const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
+                    expect(newsItem.deliverAt).toBeNull()
+
+                    await createTestNewsItemScope(adminClient, newsItem)
+
+                    const [publishedNewsItem] = await publishTestNewsItem(adminClient, newsItem.id)
+                    expect(publishedNewsItem.deliverAt).not.toBeNull()
+
+                    const [updatedNewsItem] = await updateTestNewsItem(adminClient, newsItem.id, { isPublished: false })
+                    expect(updatedNewsItem.deliverAt).toBeNull()
                 })
 
                 test('should not be updated in other cases', async () => {
@@ -1140,13 +1153,13 @@ describe('NewsItems', () => {
                     expect(updatedNewsItem2.deliverAt).toBeNull() // should not be updated
 
                     const [publishedNewsItem] = await publishTestNewsItem(adminClient, newsItem.id)
-                    expect(publishedNewsItem).toHaveProperty('deliverAt', publishedNewsItem.sendAt) // should be updated
+                    expect(publishedNewsItem).toHaveProperty('deliverAt', publishedNewsItem.sendAt) // should be updated to sendAt
 
                     const [updatedNewsItem3] = await updateTestNewsItem(adminClient, newsItem.id, { isPublished: false })
-                    expect(updatedNewsItem3).toHaveProperty('deliverAt', publishedNewsItem.deliverAt) // should not be updated
+                    expect(updatedNewsItem3.deliverAt).toBeNull() // should be updated to null
 
                     const [updatedNewsItem4] = await updateTestNewsItem(adminClient, newsItem.id, { sendAt: dayjs().add(2, 'day').toISOString() })
-                    expect(updatedNewsItem4).toHaveProperty('deliverAt', publishedNewsItem.deliverAt) // should not be updated
+                    expect(updatedNewsItem4.deliverAt).toBeNull() // should not be updated
                 })
             })
         })
