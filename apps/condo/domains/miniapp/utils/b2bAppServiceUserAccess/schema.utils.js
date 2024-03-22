@@ -42,14 +42,7 @@ const getListPermissionFieldNames = (config) => {
         .flat()
 }
 
-const getServicePermissionFieldNames = (config) => {
-    return Object.entries(config.services)
-        .map(([schemaName]) => {
-            const canExecuteName = `canExecute${upperFirst(schemaName)}`
-            return [canExecuteName]
-        })
-        .flat()
-}
+const getServicePermissionFieldNames = (config) => Object.entries(config.services).map(([schemaName]) => `canExecute${upperFirst(schemaName)}`)
 
 /**
  * @param permissionFieldName {string}
