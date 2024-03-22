@@ -70483,12 +70483,12 @@ export type RegisterMetersInput = {
   items: Array<RegisterMetersItemInput>;
 };
 
-export type RegisterMetersItemAccountMeta = {
+export type RegisterMetersItemAccountMetaInput = {
   globalId?: Maybe<Scalars['String']>;
   clientName?: Maybe<Scalars['String']>;
 };
 
-export type RegisterMetersItemAddressMeta = {
+export type RegisterMetersItemAddressMetaInput = {
   unitType?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
   globalId?: Maybe<Scalars['String']>;
@@ -70496,9 +70496,9 @@ export type RegisterMetersItemAddressMeta = {
 
 export type RegisterMetersItemInput = {
   address: Scalars['String'];
-  addressMeta?: Maybe<RegisterMetersItemAddressMeta>;
+  addressMeta?: Maybe<RegisterMetersItemAddressMetaInput>;
   accountNumber: Scalars['String'];
-  accountMeta?: Maybe<RegisterMetersItemAccountMeta>;
+  accountMeta?: Maybe<RegisterMetersItemAccountMetaInput>;
   meters: Array<RegisterMetersMeterInput>;
 };
 
@@ -70526,7 +70526,7 @@ export type RegisterMetersItemResultSuccessOutput = {
   meters: Array<RegisterMetersMeterOutput>;
 };
 
-export type RegisterMetersMeterDates = {
+export type RegisterMetersMeterDatesInput = {
   verificationDate?: Maybe<Scalars['String']>;
   nextVerificationDate?: Maybe<Scalars['String']>;
   installationDate?: Maybe<Scalars['String']>;
@@ -70540,8 +70540,8 @@ export type RegisterMetersMeterInput = {
   resourceTypeId?: Maybe<Scalars['ID']>;
   numberOfTariffs?: Maybe<Scalars['Int']>;
   place?: Maybe<Scalars['String']>;
-  readings?: Maybe<Array<RegisterMetersMeterReading>>;
-  dates?: Maybe<RegisterMetersMeterDates>;
+  readings?: Maybe<Array<RegisterMetersMeterReadingInput>>;
+  dates?: Maybe<RegisterMetersMeterDatesInput>;
 };
 
 export type RegisterMetersMeterOutput = {
@@ -70550,7 +70550,7 @@ export type RegisterMetersMeterOutput = {
   result: RegisterMetersMeterResultOutput;
 };
 
-export type RegisterMetersMeterReading = {
+export type RegisterMetersMeterReadingInput = {
   date: Scalars['String'];
   v1: Scalars['String'];
   v2?: Maybe<Scalars['String']>;
