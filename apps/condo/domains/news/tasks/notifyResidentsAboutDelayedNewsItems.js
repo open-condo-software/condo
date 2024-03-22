@@ -1,6 +1,7 @@
 const dayjs = require('dayjs')
 
 const { find } = require('@open-condo/keystone/schema')
+const { createCronTask } = require('@open-condo/keystone/tasks')
 
 const notifyResidentsAboutNewsItem = require('./notifyResidentsAboutNewsItem')
 
@@ -23,6 +24,4 @@ async function notifyResidentsAboutDelayedNewsItems () {
     }
 }
 
-module.exports = {
-    notifyResidentsAboutDelayedNewsItems,
-}
+module.exports = createCronTask('notifyResidentsAboutDelayedNewsItems', '* * * * *', notifyResidentsAboutDelayedNewsItems)

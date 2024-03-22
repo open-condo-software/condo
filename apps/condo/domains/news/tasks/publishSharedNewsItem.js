@@ -3,6 +3,7 @@ const fetch = require('node-fetch')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx, getById } = require('@open-condo/keystone/schema')
+const { createTask } = require('@open-condo/keystone/tasks')
 
 const { NewsItemSharing } = require('@condo/domains/news/utils/serverSchema')
 
@@ -73,6 +74,4 @@ async function publishSharedNewsItem (newsItemSharingId) {
     return await _publishSharedNewsItem(newsItem, newsItemSharing)
 }
 
-module.exports = {
-    publishSharedNewsItem,
-}
+module.exports = createTask('publishSharedNewsItem', publishSharedNewsItem, { priority: 3 })
