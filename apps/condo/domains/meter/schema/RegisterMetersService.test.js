@@ -32,12 +32,23 @@ const {
     makeClientWithServiceUser,
 } = require('@condo/domains/user/utils/testSchema')
 
+/**
+ * @param property
+ * @return {RegisterMetersItemInput[]}
+ */
 const getItemsForAccessTest = (property) => ([
     {
         address: property.address,
-        unitType: 'flat',
-        unitName: faker.random.alphaNumeric(4),
+        addressMeta: {
+            unitType: 'flat',
+            unitName: faker.random.alphaNumeric(4),
+            globalId: faker.datatype.uuid(),
+        },
         accountNumber: faker.random.alphaNumeric(12),
+        accountMeta: {
+            globalId: faker.datatype.uuid(),
+            clientName: faker.name.fullName(),
+        },
         meters: [
             {
                 numberOfTariffs: 1,

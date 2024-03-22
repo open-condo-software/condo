@@ -48,7 +48,15 @@ const RegisterMetersService = new GQLCustomSchema('RegisterMetersService', {
         },
         {
             access: true,
-            type: 'input RegisterMetersItemInput { address: String!, accountNumber: String!, addressMeta: RegisterBillingReceiptAddressMetaInput, unitType: String, unitName: String, meters: [RegisterMetersMeterInput!]! }',
+            type: 'input RegisterMetersItemAddressMeta { unitType: String, unitName: String, globalId: String }',
+        },
+        {
+            access: true,
+            type: 'input RegisterMetersItemAccountMeta { globalId: String, clientName: String }',
+        },
+        {
+            access: true,
+            type: 'input RegisterMetersItemInput { address: String!, addressMeta: RegisterMetersItemAddressMeta, accountNumber: String!, accountMeta: RegisterMetersItemAccountMeta, meters: [RegisterMetersMeterInput!]! }',
         },
         {
             access: true,
@@ -176,8 +184,8 @@ const RegisterMetersService = new GQLCustomSchema('RegisterMetersService', {
                             const foundMeter = await getByCondition('Meter', {
                                 organization,
                                 property: { id: property.id },
-                                unitType: item.unitType,
-                                unitName: item.unitName,
+                                unitType: item.addressMeta.unitType,
+                                unitName: item.addressMeta.unitName,
                                 accountNumber: item.accountNumber,
                                 number: meterData.number,
                             })
@@ -211,8 +219,8 @@ const RegisterMetersService = new GQLCustomSchema('RegisterMetersService', {
                                         sender,
                                         organization: { connect: organization },
                                         property: { connect: { id: property.id } },
-                                        unitType: String(item.unitType),
-                                        unitName: String(item.unitName),
+                                        unitType: String(item.addressMeta.unitType),
+                                        unitName: String(item.addressMeta.unitName),
                                         accountNumber: item.accountNumber,
                                         number: meterData.number,
                                         resource: { connect: { id: meterData.resourceTypeId } },
