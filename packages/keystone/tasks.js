@@ -83,7 +83,7 @@ function createTask (name, fn, queue = DEFAULT_QUEUE_NAME, opts = {}) {
  * @param opts {Object} bull task options
  * @return {(function(): never)|*}
  */
-function createCronTask (name, cron, fn, queue, opts = {}) {
+function createCronTask (name, cron, fn, queue = DEFAULT_QUEUE_NAME, opts = {}) {
     if (typeof fn !== 'function') throw new Error('unsupported fn argument type. Function expected')
     if (!name) throw new Error('no name')
     if (!cron) throw new Error('no cron string')
@@ -109,7 +109,7 @@ async function _scheduleRemoteTask (name, preparedArgs, preparedOpts, queue = DE
             name, queue, data: { preparedOpts, preparedArgs },
         })
 
-        throw new Error(`No active queues with name = ${queue} was found. You should register at prepareKeystone`)
+        throw new Error(`Task ${name} register error. No active queues with name = ${queue} was found. You should register at prepareKeystone`)
     }
 
     const job = await QUEUES.get(queue).add(name, { args: preparedArgs }, preparedOpts)
