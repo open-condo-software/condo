@@ -87,7 +87,7 @@ const sendTicketCreatedNotifications = async (ticketId, lang, organizationId, or
     }
 }
 
-// TODO(DOMA-8677): debug exports to sendTicketChangedNotifications task
+// TODO(DOMA-8677): think about tasks export
 module.exports = {
     sendTicketCreatedNotificationsFn: sendTicketCreatedNotifications,
     sendTicketCreatedNotifications: createTask('sendTicketCreatedNotifications', sendTicketCreatedNotifications),
