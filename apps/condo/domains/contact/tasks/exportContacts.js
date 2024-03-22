@@ -167,5 +167,5 @@ async function exportContacts (taskId) {
 }
 
 module.exports = {
-    exportContacts: createTask('exportContacts', exportContacts, {}, 'low'),
+    exportContacts: createTask('exportContacts', exportContacts, 'low'),
 }

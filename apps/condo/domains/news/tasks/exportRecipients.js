@@ -195,5 +195,5 @@ async function exportRecipients (taskId) {
 }
 
 module.exports = {
-    exportRecipients: createTask('exportRecipients', exportRecipients, {}, 'low'),
+    exportRecipients: createTask('exportRecipients', exportRecipients, 'low'),
 }

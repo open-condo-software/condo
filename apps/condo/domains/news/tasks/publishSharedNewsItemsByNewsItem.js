@@ -17,4 +17,4 @@ async function publishSharedNewsItemsByNewsItem (newsItemId, sharedNewsItemsIds)
     }
 }
 
-module.exports = createTask('publishSharedNewsItemsByNewsItem', publishSharedNewsItemsByNewsItem, {})
+module.exports = createTask('publishSharedNewsItemsByNewsItem', publishSharedNewsItemsByNewsItem)

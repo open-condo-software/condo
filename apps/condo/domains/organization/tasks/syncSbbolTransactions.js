@@ -102,5 +102,5 @@ module.exports = {
         const date = dayjs().format('YYYY-MM-DD')
         await syncSbbolTransactions([date])
     }),
-    syncSbbolTransactionsBankSyncTask: createTask('syncSbbolTransactionsBankSyncTask', syncSbbolTransactionsBankSyncTask, {}),
+    syncSbbolTransactionsBankSyncTask: createTask('syncSbbolTransactionsBankSyncTask', syncSbbolTransactionsBankSyncTask),
 }

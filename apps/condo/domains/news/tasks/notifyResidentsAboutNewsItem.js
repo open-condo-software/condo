@@ -179,5 +179,5 @@ async function notifyResidentsAboutNewsItem (newsItemId) {
 
 module.exports = {
     notifyResidentsAboutNewsItem,
-    notifyResidentsAboutNewsItemTask: createTask('notifyResidentsAboutNewsItem', notifyResidentsAboutNewsItem, {}),
+    notifyResidentsAboutNewsItemTask: createTask('notifyResidentsAboutNewsItem', notifyResidentsAboutNewsItem),
 }

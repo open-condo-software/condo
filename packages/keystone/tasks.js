@@ -60,18 +60,18 @@ function createTaskQueue (name) {
  * Creates and register task. After that you can call it with delay or applyAsync methods
  * @param name {String} name of the task
  * @param fn {Function} function that will be executed at the worker side
- * @param opts {Object} bull task options
  * @param queue {String} task queue to which this function will be added. Can be used for change priority of the task execution
+ * @param opts {Object} bull task options
  * @return {(function(): never)|*}
  */
-function createTask (name, fn, opts = {}, queue) {
+function createTask (name, fn, queue = DEFAULT_QUEUE_NAME, opts = {}) {
     if (typeof fn !== 'function') throw new Error('unsupported fn argument type. Function expected')
     if (!name) throw new Error('no name')
     if (get(opts, 'priority')) throw new Error('Deprecated task parameter priority. Please don\'t use it. You can change task running priority via queue property')
 
     if (TASKS.has(name)) throw new Error(`Task with name ${name} is already registered`)
     TASKS.set(name, fn)
-    return createTaskWrapper(name, fn, opts, queue)
+    return createTaskWrapper(name, fn, queue, opts)
 }
 
 /**
@@ -79,18 +79,18 @@ function createTask (name, fn, opts = {}, queue) {
  * @param name {String} name of cron task
  * @param cron {String} cron style definition string. For example, 0 12 * * *
  * @param fn {Function} function that will be executed at the worker side
- * @param opts {Object} bull task options
  * @param queue {String} task queue to which this function will be added. Can be used for change priority of the task execution
+ * @param opts {Object} bull task options
  * @return {(function(): never)|*}
  */
-function createCronTask (name, cron, fn, opts = {}, queue) {
+function createCronTask (name, cron, fn, queue, opts = {}) {
     if (typeof fn !== 'function') throw new Error('unsupported fn argument type. Function expected')
     if (!name) throw new Error('no name')
     if (!cron) throw new Error('no cron string')
     if (get(opts, 'priority')) throw new Error('Deprecated task parameter priority. Please don\'t use it. You can change task running priority via queue property')
 
     const taskOpts = { repeat: { cron }, ...opts }
-    const task = createTask(name, fn, taskOpts, queue)
+    const task = createTask(name, fn, queue, taskOpts)
     CRON_TASKS.set(name, taskOpts)
     return task
 }
@@ -206,8 +206,16 @@ async function scheduleTaskByNameWithArgsAndOpts (name, args, opts = {}, queue) 
     return await _scheduleRemoteTask(name, preparedArgs, preparedOpts, queue)
 }
 
-function createTaskWrapper (name, fn, defaultTaskOptions = {}, queue = DEFAULT_QUEUE_NAME) {
-    async function applyAsync (args, taskOptions, queueOverride) {
+/**
+ *
+ * @param name {string}
+ * @param fn {Function}
+ * @param queue {string}
+ * @param defaultTaskOptions {Object}
+ * @return {(function(): never)|*}
+ */
+function createTaskWrapper (name, fn, queue = DEFAULT_QUEUE_NAME, defaultTaskOptions = {}) {
+    async function applyAsync (args, queueOverride, taskOptions) {
         const preparedOpts = {
             ...GLOBAL_TASK_OPTIONS,
             ...defaultTaskOptions,
