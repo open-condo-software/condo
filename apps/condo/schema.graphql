@@ -74171,12 +74171,22 @@ input RegisterMetersMeterInput {
   dates: RegisterMetersMeterDates
 }
 
-input RegisterMetersItemInput {
-  address: String!
-  accountNumber: String!
-  addressMeta: RegisterBillingReceiptAddressMetaInput
+input RegisterMetersItemAddressMeta {
   unitType: String
   unitName: String
+  globalId: String
+}
+
+input RegisterMetersItemAccountMeta {
+  globalId: String
+  clientName: String
+}
+
+input RegisterMetersItemInput {
+  address: String!
+  addressMeta: RegisterMetersItemAddressMeta
+  accountNumber: String!
+  accountMeta: RegisterMetersItemAccountMeta
   meters: [RegisterMetersMeterInput!]!
 }
 

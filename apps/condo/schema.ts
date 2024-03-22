@@ -70483,12 +70483,22 @@ export type RegisterMetersInput = {
   items: Array<RegisterMetersItemInput>;
 };
 
-export type RegisterMetersItemInput = {
-  address: Scalars['String'];
-  accountNumber: Scalars['String'];
-  addressMeta?: Maybe<RegisterBillingReceiptAddressMetaInput>;
+export type RegisterMetersItemAccountMeta = {
+  globalId?: Maybe<Scalars['String']>;
+  clientName?: Maybe<Scalars['String']>;
+};
+
+export type RegisterMetersItemAddressMeta = {
   unitType?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
+  globalId?: Maybe<Scalars['String']>;
+};
+
+export type RegisterMetersItemInput = {
+  address: Scalars['String'];
+  addressMeta?: Maybe<RegisterMetersItemAddressMeta>;
+  accountNumber: Scalars['String'];
+  accountMeta?: Maybe<RegisterMetersItemAccountMeta>;
   meters: Array<RegisterMetersMeterInput>;
 };
 
