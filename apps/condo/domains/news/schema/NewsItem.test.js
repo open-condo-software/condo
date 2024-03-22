@@ -21,6 +21,7 @@ const {
     catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
 
+const { _internalScheduleTaskByNameByTestClient } = require('@condo/domains/common/utils/testSchema')
 const { SENDING_DELAY_SEC } = require('@condo/domains/news/constants/common')
 const { NEWS_TYPE_EMERGENCY, NEWS_TYPE_COMMON } = require('@condo/domains/news/constants/newsTypes')
 const {
@@ -46,6 +47,7 @@ const {
     makeClientWithSupportUser,
     makeClientWithResidentUser,
 } = require('@condo/domains/user/utils/testSchema')
+
 
 let adminClient, supportClient, anonymousClient, dummyO10n
 
@@ -813,6 +815,34 @@ describe('NewsItems', () => {
                     message: 'The validity date is less than send date',
                     mutation: 'updateNewsItem',
                     messageForUser: 'api.newsItem.VALIDITY_DATE_LESS_THAN_SEND_DATE',
+                },
+            )
+        })
+
+        test('must throw an error on user trying to edit the news item which already been sent', async () => {
+            const [o10n] = await createTestOrganization(adminClient)
+            const [newsItem] = await createTestNewsItem(adminClient, o10n)
+            await createTestNewsItemScope(adminClient, newsItem)
+            await publishTestNewsItem(adminClient, newsItem.id)
+
+            await waitFor(async () => {
+                const [res] = await _internalScheduleTaskByNameByTestClient(adminClient, { taskName: 'notifyResidentsAboutDelayedNewsItems' })
+                expect(res.id).toBeDefined()
+            }, { delay: (SENDING_DELAY_SEC + 2) * 1000 })
+
+            await waitFor(async () => {
+                const sentNewsItem = await NewsItem.getOne(adminClient, { id: newsItem.id })
+                expect(sentNewsItem.sentAt).not.toBeNull()
+            })
+
+            await expectToThrowGQLError(
+                async () => await updateTestNewsItem(adminClient, newsItem.id, { title: faker.lorem.words(3) }),
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'EDIT_DENIED_ALREADY_SENT',
+                    message: 'The sent news item is restricted from editing',
+                    mutation: 'updateNewsItem',
+                    messageForUser: 'api.newsItem.EDIT_DENIED_ALREADY_SENT',
                 },
             )
         })

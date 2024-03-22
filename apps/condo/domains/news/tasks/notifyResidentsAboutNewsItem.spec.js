@@ -5,10 +5,10 @@
 const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
 
-const { waitFor, UUID_RE, makeLoggedInAdminClient, setFakeClientMode, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
+const { waitFor, UUID_RE, makeLoggedInAdminClient, setFakeClientMode } = require('@open-condo/keystone/test.utils')
 
 const { notifyResidentsAboutNewsItem } = require('@condo/domains/news/tasks/notifyResidentsAboutNewsItem')
-const { NewsItem, updateTestNewsItem, createTestNewsItem, createTestNewsItemScope, publishTestNewsItem } = require('@condo/domains/news/utils/testSchema')
+const { updateTestNewsItem, createTestNewsItem, createTestNewsItemScope, publishTestNewsItem } = require('@condo/domains/news/utils/testSchema')
 const {
     NEWS_ITEM_COMMON_MESSAGE_TYPE,
     DEVICE_PLATFORM_ANDROID,
@@ -34,7 +34,6 @@ describe('notifyResidentsAboutNewsItem', () => {
     })
 
     describe('Basic logic', () => {
-
         test('the user receives a push notification on a news item created and does not receive notification for 2nd news item', async () => {
             const residentClient1 = await makeClientWithResidentUser()
             const [o10n] = await createTestOrganization(adminClient)
@@ -166,31 +165,6 @@ describe('notifyResidentsAboutNewsItem', () => {
             const [newsItem] = await createTestNewsItem(adminClient, o10n)
             await createTestNewsItemScope(adminClient, newsItem)
             await expect(notifyResidentsAboutNewsItem(newsItem.id)).rejects.toThrow('Trying to send unpublished news item')
-        })
-    })
-
-    describe('NewsItem', () => {
-        // NOTE: Why is this test not in the file "@condo/domains/notification/schema/NewsItem.test.js"?
-        // We cannot update the "sentAt" field with client utilities (which means we cannot update it with test utilities either).
-        // Therefore, it is necessary to run sending news items (notifyResidentsAboutNewsItem)
-        test('must throw an error on user trying to edit the news item which already been sent', async () => {
-            const [o10n] = await createTestOrganization(adminClient)
-            const [newsItem] = await createTestNewsItem(adminClient, o10n)
-            await createTestNewsItemScope(adminClient, newsItem)
-            await publishTestNewsItem(adminClient, newsItem.id)
-            await notifyResidentsAboutNewsItem(newsItem.id)
-            const sentNewsItem = await NewsItem.getOne(adminClient, { id: newsItem.id })
-            expect(sentNewsItem.sentAt).not.toBeNull()
-            await expectToThrowGQLError(
-                async () => await updateTestNewsItem(adminClient, sentNewsItem.id, { title: faker.lorem.words(3) }),
-                {
-                    code: 'BAD_USER_INPUT',
-                    type: 'EDIT_DENIED_ALREADY_SENT',
-                    message: 'The sent news item is restricted from editing',
-                    mutation: 'updateNewsItem',
-                    messageForUser: 'api.newsItem.EDIT_DENIED_ALREADY_SENT',
-                },
-            )
         })
     })
 })

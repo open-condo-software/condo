@@ -17,6 +17,7 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/news/access/NewsItem')
 const { BAD_WORDS_EXCLUSIONS_CONFIG } = require('@condo/domains/news/constants/badWordsExclusions')
+const { SENDING_DELAY_SEC } = require('@condo/domains/news/constants/common')
 const {
     EMPTY_VALID_BEFORE_DATE,
     VALIDITY_DATE_LESS_THAN_SEND_DATE,
@@ -159,7 +160,7 @@ const NewsItem = new GQLListSchema('NewsItem', {
                     const updatedIsPublished = prevIsPublished !== isPublished
 
                     if (!isPublished || !updatedIsPublished) return get(resolvedData, fieldName)
-                    if (!sendAt) return dayjs().add(15, 'second').toISOString()
+                    if (!sendAt) return dayjs().add(SENDING_DELAY_SEC, 'second').toISOString()
                     return sendAt
                 },
             },
