@@ -60,10 +60,6 @@ const sendAppMetrics = () => {
     metrics.gauge({ name: 'processMemoryUsage.rss', value: memUsage.rss })
     metrics.gauge({ name: 'processMemoryUsage.external', value: memUsage.external })
 
-    fetch('https://google.com/space/monke').then(r => console.log('ok'))
-    fetch('https://boogle.com/space/monke').then(r => console.log('ok'))
-    fetch('https://google.com?query=lol').then(r => console.log('ok'))
-
     if (taskQueue) {
         taskQueue.getJobCounts().then(jobCounts => {
             metrics.gauge({ name: 'worker.activeTasks', value: jobCounts.active })
