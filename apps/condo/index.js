@@ -108,7 +108,7 @@ const tasks = () => [
 if (!IS_BUILD_PHASE && SENTRY_CONFIG['server']) {
     Sentry.init({
         dsn: SENTRY_CONFIG['server']['dsn'],
-        debug: false,
+        debug: true,
         tracesSampleRate: SENTRY_CONFIG['server']['sampleRate'],
         environment: SENTRY_CONFIG['server']['environment'],
         organization: SENTRY_CONFIG['server']['organization'],
