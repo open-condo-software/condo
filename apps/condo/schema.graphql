@@ -73853,7 +73853,7 @@ type ExportPropertyMeterReadingsOutput {
   linkToFile: String!
 }
 
-input RegisterMetersMeterReading {
+input RegisterMetersMeterReadingInput {
   date: String!
   v1: String!
   v2: String
@@ -73861,7 +73861,7 @@ input RegisterMetersMeterReading {
   v4: String
 }
 
-input RegisterMetersMeterDates {
+input RegisterMetersMeterDatesInput {
   verificationDate: String
   nextVerificationDate: String
   installationDate: String
@@ -73875,26 +73875,26 @@ input RegisterMetersMeterInput {
   resourceTypeId: ID
   numberOfTariffs: Int
   place: String
-  readings: [RegisterMetersMeterReading!]
-  dates: RegisterMetersMeterDates
+  readings: [RegisterMetersMeterReadingInput!]
+  dates: RegisterMetersMeterDatesInput
 }
 
-input RegisterMetersItemAddressMeta {
+input RegisterMetersItemAddressMetaInput {
   unitType: String
   unitName: String
   globalId: String
 }
 
-input RegisterMetersItemAccountMeta {
+input RegisterMetersItemAccountMetaInput {
   globalId: String
   clientName: String
 }
 
 input RegisterMetersItemInput {
   address: String!
-  addressMeta: RegisterMetersItemAddressMeta
+  addressMeta: RegisterMetersItemAddressMetaInput
   accountNumber: String!
-  accountMeta: RegisterMetersItemAccountMeta
+  accountMeta: RegisterMetersItemAccountMetaInput
   meters: [RegisterMetersMeterInput!]!
 }
 

@@ -36,27 +36,27 @@ const RegisterMetersService = new GQLCustomSchema('RegisterMetersService', {
         // IN
         {
             access: true,
-            type: 'input RegisterMetersMeterReading { date: String!, v1: String!, v2: String, v3: String, v4: String }',
+            type: 'input RegisterMetersMeterReadingInput { date: String!, v1: String!, v2: String, v3: String, v4: String }',
         },
         {
             access: true,
-            type: 'input RegisterMetersMeterDates { verificationDate: String, nextVerificationDate: String, installationDate: String, commissioningDate: String, sealingDate: String, controlReadingsDate: String }',
+            type: 'input RegisterMetersMeterDatesInput { verificationDate: String, nextVerificationDate: String, installationDate: String, commissioningDate: String, sealingDate: String, controlReadingsDate: String }',
         },
         {
             access: true,
-            type: 'input RegisterMetersMeterInput { number: String!, resourceTypeId: ID, numberOfTariffs: Int, place: String, readings: [RegisterMetersMeterReading!], dates: RegisterMetersMeterDates }',
+            type: 'input RegisterMetersMeterInput { number: String!, resourceTypeId: ID, numberOfTariffs: Int, place: String, readings: [RegisterMetersMeterReadingInput!], dates: RegisterMetersMeterDatesInput }',
         },
         {
             access: true,
-            type: 'input RegisterMetersItemAddressMeta { unitType: String, unitName: String, globalId: String }',
+            type: 'input RegisterMetersItemAddressMetaInput { unitType: String, unitName: String, globalId: String }',
         },
         {
             access: true,
-            type: 'input RegisterMetersItemAccountMeta { globalId: String, clientName: String }',
+            type: 'input RegisterMetersItemAccountMetaInput { globalId: String, clientName: String }',
         },
         {
             access: true,
-            type: 'input RegisterMetersItemInput { address: String!, addressMeta: RegisterMetersItemAddressMeta, accountNumber: String!, accountMeta: RegisterMetersItemAccountMeta, meters: [RegisterMetersMeterInput!]! }',
+            type: 'input RegisterMetersItemInput { address: String!, addressMeta: RegisterMetersItemAddressMetaInput, accountNumber: String!, accountMeta: RegisterMetersItemAccountMetaInput, meters: [RegisterMetersMeterInput!]! }',
         },
         {
             access: true,
