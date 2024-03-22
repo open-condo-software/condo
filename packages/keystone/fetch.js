@@ -30,8 +30,12 @@ async function fetch (url, options) {
 
         return response
     } catch (error) {
+        const endTime = Date.now()
+        const elapsedTime = endTime - startTime
+
+        logger.error({ msg: 'fetch: failed with error', url, path, host, reqId: parentReqId, error, elapsedTime })
+
         Mertrics.increment({ name: 'fetch.error.' + metricUrl, value: 1, tags: { path } })
-        logger.error({ msg: 'fetch: failed with error', url, path, host, reqId: parentReqId, error })
         throw error
     }
 }
