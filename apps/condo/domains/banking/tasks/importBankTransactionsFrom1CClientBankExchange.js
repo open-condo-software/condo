@@ -344,5 +344,5 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
 }
 
 module.exports = {
-    importBankTransactionsFrom1CClientBankExchange: createTask('importBankTransactionsFrom1CClientBankExchange', importBankTransactionsFrom1CClientBankExchange),
+    importBankTransactionsFrom1CClientBankExchange: createTask('importBankTransactionsFrom1CClientBankExchange', importBankTransactionsFrom1CClientBankExchange, 'low'),
 }

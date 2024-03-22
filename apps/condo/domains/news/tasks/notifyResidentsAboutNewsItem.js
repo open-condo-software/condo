@@ -193,4 +193,4 @@ async function notifyResidentsAboutNewsItem (newsItemId) {
     }
 }
 
-module.exports = createTask('notifyResidentsAboutNewsItem', notifyResidentsAboutNewsItem, {})
+module.exports = createTask('notifyResidentsAboutNewsItem', notifyResidentsAboutNewsItem)

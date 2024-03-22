@@ -229,5 +229,5 @@ async function exportIncidents (taskId) {
 }
 
 module.exports = {
-    exportIncidents: createTask('exportIncidents', exportIncidents, {}, 'low'),
+    exportIncidents: createTask('exportIncidents', exportIncidents, 'low'),
 }

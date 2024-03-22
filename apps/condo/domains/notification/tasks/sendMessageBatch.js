@@ -77,5 +77,5 @@ async function sendMessageBatch (batchId) {
 }
 
 module.exports = {
-    sendMessageBatch: createTask('sendMessageBatch', sendMessageBatch, {}, 'high'),
+    sendMessageBatch: createTask('sendMessageBatch', sendMessageBatch, 'high'),
 }

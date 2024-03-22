@@ -329,5 +329,5 @@ async function exportTickets (taskId) {
 }
 
 module.exports = {
-    exportTickets: createTask('exportTickets', exportTickets, {}, 'low'),
+    exportTickets: createTask('exportTickets', exportTickets, 'low'),
 }
