@@ -11,7 +11,7 @@ const { getRedisClient } = require('./redis')
 const { getRandomString } = require('./test.utils')
 
 const TASK_TYPE = 'TASK'
-/* TODO: change this value to 'medium'
+/* TODO(INFRA-290): change this value to 'medium'
    The 'tasks' name was initially defined as default queue name.
    So for better migration experience we decided to leave this name as a default queue name */
 const DEFAULT_QUEUE_NAME = 'tasks'
