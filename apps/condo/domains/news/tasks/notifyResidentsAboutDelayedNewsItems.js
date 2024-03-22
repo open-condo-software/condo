@@ -3,7 +3,7 @@ const dayjs = require('dayjs')
 const { find } = require('@open-condo/keystone/schema')
 const { createCronTask } = require('@open-condo/keystone/tasks')
 
-const notifyResidentsAboutNewsItem = require('./notifyResidentsAboutNewsItem')
+const { notifyResidentsAboutNewsItemTask } = require('./notifyResidentsAboutNewsItem')
 
 async function notifyResidentsAboutDelayedNewsItems () {
     const now = dayjs().toISOString()
@@ -20,7 +20,7 @@ async function notifyResidentsAboutDelayedNewsItems () {
     )
 
     for (const newsItem of newsItems) {
-        await notifyResidentsAboutNewsItem.delay(newsItem.id)
+        await notifyResidentsAboutNewsItemTask.delay(newsItem.id)
     }
 }
 
