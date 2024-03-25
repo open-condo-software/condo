@@ -85,10 +85,17 @@ function ResetPageView () {
     const startConfirmPhoneAction = async () => {
         setIsLoading(true)
         if (!executeCaptcha) {
+            setIsLoading(false)
             return
         }
-        const captcha = await executeCaptcha()
+        let captcha
+        try {
+            captcha = await executeCaptcha()
+        } catch (error) {
+            console.error(error)
+        }
         if (!captcha) {
+            setIsLoading(false)
             return
         }
 
