@@ -165,7 +165,7 @@ const extendExpressApp = (app) => {
 module.exports = prepareKeystone({
     onConnect,
     extendExpressApp,
-    schemas, tasks,
+    schemas, tasks, queues: ['low', 'medium', 'high'],
     apps, lastApp,
     ui: { hooks: require.resolve('@app/condo/admin-ui') },
 })
