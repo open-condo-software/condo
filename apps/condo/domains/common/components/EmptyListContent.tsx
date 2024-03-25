@@ -12,6 +12,10 @@ import { colors } from '@open-condo/ui/dist/colors'
 
 import { EMOJI } from '@condo/domains/common/constants/emoji'
 import { Either } from '@condo/domains/common/types'
+import {
+    IMeterReadingImportWrapperProps,
+    MeterReadingImportWrapper,
+} from '@condo/domains/meter/components/MeterReadingImportWrapper'
 
 import { BasicEmptyListView, DEFAULT_CONTAINER_STYLE } from './EmptyListView'
 import { IImportWrapperProps, ImportWrapper } from './Import/Index'
@@ -41,6 +45,7 @@ type IEmptyListWithImportProps = IBaseEmptyListProps & {
         manualCreateDescription: string
         importCreateEmoji: string
         importWrapper: Omit<IImportWrapperProps, 'importCardButton' | 'accessCheck'>
+        & Omit<IMeterReadingImportWrapperProps, 'accessCheck'>
     }
 }
 
@@ -112,6 +117,15 @@ export const EmptyListContent: React.FC<IEmptyListProps> = (props) => {
         const domainName = get(importWrapper, 'domainName')
         const objsMessage = intl.formatMessage({ id: `import.${domainName}.plural` }).toLowerCase()
 
+        const importCardButton = {
+            header: {
+                emoji: [{ symbol: EMOJI.ROBOT }, { symbol: importCreateEmoji }],
+                headingTitle: EmptyListWithImportImportCreateTitle.replace('{objs}', objsMessage),
+            },
+            body: {
+                description: EmptyListWithImportImportCreateDescription,
+            } }
+
         return (
             <div style={containerStyles}>
                 <Space size={isLargeScreen ? 40 : 16} direction='vertical' style={spaceStyles}>
@@ -134,19 +148,15 @@ export const EmptyListContent: React.FC<IEmptyListProps> = (props) => {
                             />
                         </CardWrapper>
                         <CardWrapper>
-                            <ImportWrapper
-                                {...importWrapper}
-                                accessCheck={accessCheck}
-                                importCardButton={{
-                                    header: {
-                                        emoji: [{ symbol: EMOJI.ROBOT }, { symbol: importCreateEmoji }],
-                                        headingTitle: EmptyListWithImportImportCreateTitle.replace('{objs}', objsMessage),
-                                    },
-                                    body: {
-                                        description: EmptyListWithImportImportCreateDescription,
-                                    },
-                                }}
-                            />
+                            {domainName === 'meter' ? (
+                                <MeterReadingImportWrapper accessCheck={accessCheck} {...importWrapper} importCardButton={importCardButton}/>
+                            ) : (
+                                <ImportWrapper
+                                    {...importWrapper}
+                                    accessCheck={accessCheck}
+                                    importCardButton={importCardButton}
+                                />
+                            )}
                         </CardWrapper>
                     </Space>
                 </Space>
