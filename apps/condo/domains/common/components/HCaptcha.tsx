@@ -1,4 +1,5 @@
 import HCaptcha from '@hcaptcha/react-hcaptcha'
+import { notification } from 'antd'
 import get from 'lodash/get'
 import getConfig from 'next/config'
 import React, { createContext, FC, useCallback, useContext, useMemo, useRef } from 'react'
@@ -18,6 +19,7 @@ const useHCaptcha = (): IHCaptchaContext => useContext(HCaptchaContext)
 
 const HCaptchaProvider: FC = ({ children }) => {
     const intl = useIntl()
+    const requestFailedMessage = intl.formatMessage({ id: 'global.errors.requestFailed.title' })
 
     const { publicRuntimeConfig: { hCaptcha: hCaptchaConfig, disableCaptcha } } = getConfig()
     const siteKey = useMemo(() => get(hCaptchaConfig, 'SITE_KEY'), [])
@@ -31,8 +33,15 @@ const HCaptchaProvider: FC = ({ children }) => {
 
         ref.current.resetCaptcha()
 
-        const result = await ref.current.execute({ async: true })
-        return get(result, 'response', '')
+        try {
+            const result = await ref.current.execute({ async: true })
+            return get(result, 'response', '')
+        } catch (error) {
+            console.error({ msg: 'failed to get captcha token', error })
+            // TODO(DOMA-8659): This is not the final error output, it may change
+            notification.error({ message: requestFailedMessage })
+            throw error
+        }
     }, [])
 
     return (
