@@ -24,6 +24,7 @@ const {
     PeriodResolver,
     ReceiptResolver,
 } = require('@condo/domains/billing/schema/resolvers')
+const { sortPeriodFunction } = require('@condo/domains/billing/schema/resolvers/utils')
 const { BillingAccount, BillingProperty, BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 const { BillingIntegrationOrganizationContext: BillingContextApi } = require('@condo/domains/billing/utils/serverSchema')
 const { getAddressSuggestions } = require('@condo/domains/common/utils/serverSideAddressApi')
@@ -316,6 +317,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                     let errorsIndex = {}
                     const debug = []
                     const resolvers = [PeriodResolver, RecipientResolver, PropertyResolver, AccountResolver, CategoryResolver, ReceiptResolver]
+                    let receiptsPeriods = []
                     for (const resolver of resolvers) {
                         try {
                             const worker = new resolver({ context, billingContext })
@@ -324,15 +326,31 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                             debug.push(...worker.debugMessages)
                             errorsIndex = { ...errorsIndex, ...errorReceipts }
                             receiptIndex = receipts
+                            if (!receiptsPeriods.length) {
+                                receiptsPeriods = [...new Set(Object.values(receiptIndex).map(({ period }) => period).filter(Boolean))]
+                            }
                         } catch (error) {
                             registerReceiptLogger.error({ msg: 'Resolver fail', payload: { error } })
                         }
                     }
                     registerReceiptLogger.info({ msg: 'register-receipts-profiler', debug, context: billingContextInput, receiptsCount: receiptsInput.length })
                     const receiptIds = Object.values(receiptIndex).map(({ id }) => id)
-
                     const receipts = receiptIds.length ? await find('BillingReceipt', { id_in: receiptIds }) : []
                     const receiptsIndex = Object.fromEntries(receipts.map(receipt => ([receipt.id, receipt])))
+
+                    const newestPeriodFromReceipts = receiptsPeriods.sort(sortPeriodFunction).pop()
+                    const newerReceiptsCount = await BillingReceipt.count(context, { context: billingContextInput, period_gt: newestPeriodFromReceipts })
+                    if (!newerReceiptsCount) {
+                        const currentPeriodReceiptsCount = await BillingReceipt.count(context, { context: billingContextInput, period: newestPeriodFromReceipts })
+                        await BillingContextApi.update(context, billingContextId, {
+                            dv, sender,
+                            lastReport: {
+                                period: newestPeriodFromReceipts,
+                                finishTime: new Date().toISOString(),
+                                totalReceipts: currentPeriodReceiptsCount,
+                            },
+                        })
+                    }
                     return Object.values({ ...receiptIndex, ...errorsIndex }).map(idOrError => {
                         const id = get(idOrError, 'id')
                         if (id) {
