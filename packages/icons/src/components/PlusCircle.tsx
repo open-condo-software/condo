@@ -18,7 +18,19 @@ export const PlusCircle: React.FC<IconProps> = ({ svgProps: props, ...restProps 
                     <path
                         fillRule='evenodd'
                         clipRule='evenodd'
-                        d='M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18ZM1 12C1 5.925 5.925 1 12 1s11 4.925 11 11-4.925 11-11 11S1 18.075 1 12Zm11-5a1 1 0 0 1 1 1v3h3a1 1 0 1 1 0 2h-3v3a1 1 0 1 1-2 0v-3H8a1 1 0 1 1 0-2h3V8a1 1 0 0 1 1-1Z'
+                        d='M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18ZM1 12C1 5.925 5.925 1 12 1s11 4.925 11 11-4.925 11-11 11S1 18.075 1 12Z'
+                        fill='currentColor'
+                    />
+                    <path
+                        fillRule='evenodd'
+                        clipRule='evenodd'
+                        d='M12 7a1 1 0 0 1 1 1v8a1 1 0 1 1-2 0V8a1 1 0 0 1 1-1Z'
+                        fill='currentColor'
+                    />
+                    <path
+                        fillRule='evenodd'
+                        clipRule='evenodd'
+                        d='M7 12a1 1 0 0 1 1-1h8a1 1 0 1 1 0 2H8a1 1 0 0 1-1-1Z'
                         fill='currentColor'
                     />
                 </svg>

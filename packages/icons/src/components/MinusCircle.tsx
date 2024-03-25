@@ -18,7 +18,7 @@ export const MinusCircle: React.FC<IconProps> = ({ svgProps: props, ...restProps
                     <path
                         fillRule='evenodd'
                         clipRule='evenodd'
-                        d='M3 12a9 9 0 1 1 18 0 9 9 0 0 1-18 0Zm9-11C5.925 1 1 5.925 1 12s4.925 11 11 11 11-4.925 11-11S18.075 1 12 1ZM8 11a1 1 0 1 0 0 2h8a1 1 0 1 0 0-2H8Z'
+                        d='M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18ZM1 12C1 5.925 5.925 1 12 1s11 4.925 11 11-4.925 11-11 11S1 18.075 1 12Zm6 0a1 1 0 0 1 1-1h8a1 1 0 1 1 0 2H8a1 1 0 0 1-1-1Z'
                         fill='currentColor'
                     />
                 </svg>

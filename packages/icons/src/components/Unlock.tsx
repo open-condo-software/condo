@@ -3,7 +3,7 @@ import React from 'react'
 
 import { IconWrapper, IconProps } from '../wrappers'
 
-export const Info: React.FC<IconProps> = ({ svgProps: props, ...restProps }) => {
+export const Unlock: React.FC<IconProps> = ({ svgProps: props, ...restProps }) => {
     return (
         <IconWrapper
             icon={
@@ -18,7 +18,7 @@ export const Info: React.FC<IconProps> = ({ svgProps: props, ...restProps }) => 
                     <path
                         fillRule='evenodd'
                         clipRule='evenodd'
-                        d='M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18ZM1 12C1 5.925 5.925 1 12 1s11 4.925 11 11-4.925 11-11 11S1 18.075 1 12Zm10-4a1 1 0 0 1 1-1h.01a1 1 0 1 1 0 2H12a1 1 0 0 1-1-1Zm1 3a1 1 0 0 1 1 1v4a1 1 0 1 1-2 0v-4a1 1 0 0 1 1-1Z'
+                        d='M5 10a3 3 0 0 0-3 3v7a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-7a3 3 0 0 0-3-3H8V7c0-1 .5-4 4-4s4 3 4 3c0 .5.5 1 1 1s1-.5 1-1c0 0-.453-4.86-6-5C6.453.86 6 6 6 7v3H5Zm0 2a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7a1 1 0 0 0-1-1H5Z'
                         fill='currentColor'
                     />
                 </svg>

@@ -18,7 +18,13 @@ export const PieChart: React.FC<IconProps> = ({ svgProps: props, ...restProps })
                     <path
                         fillRule='evenodd'
                         clipRule='evenodd'
-                        d='M12 1a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1A11 11 0 0 0 12 1Zm1 10V3.056A9 9 0 0 1 20.944 11H13ZM8.4 3.747a1 1 0 0 0-.8-1.834A11 11 0 1 0 22.131 16.28a1 1 0 1 0-1.842-.778A9 9 0 1 1 8.399 3.747Z'
+                        d='M8.917 2.43A1 1 0 0 1 8.4 3.747 9 9 0 1 0 20.29 15.5a1 1 0 0 1 1.841.778A11 11 0 1 1 7.601 1.913a1 1 0 0 1 1.316.517Z'
+                        fill='currentColor'
+                    />
+                    <path
+                        fillRule='evenodd'
+                        clipRule='evenodd'
+                        d='M11.293 1.293A1 1 0 0 1 12 1a11 11 0 0 1 11 11 1 1 0 0 1-1 1H12a1 1 0 0 1-1-1V2a1 1 0 0 1 .293-.707ZM13 3.056V11h7.945A9 9 0 0 0 13 3.056Z'
                         fill='currentColor'
                     />
                 </svg>

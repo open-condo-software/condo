@@ -18,7 +18,7 @@ export const ArrowRight: React.FC<IconProps> = ({ svgProps: props, ...restProps 
                     <path
                         fillRule='evenodd'
                         clipRule='evenodd'
-                        d='M12.707 4.293a1 1 0 1 0-1.414 1.414L16.586 11H5a1 1 0 1 0 0 2h11.586l-5.293 5.293a1 1 0 0 0 1.414 1.414l7-7 .007-.007a.997.997 0 0 0 .286-.697v-.006a.996.996 0 0 0-.286-.697l-.008-.008m-6.999-7 7 7-7-7Z'
+                        d='M11.293 4.293a1 1 0 0 1 1.414 0l7 7a1 1 0 0 1 0 1.414l-7 7a1 1 0 0 1-1.414-1.414L16.586 13H5a1 1 0 1 1 0-2h11.586l-5.293-5.293a1 1 0 0 1 0-1.414Z'
                         fill='currentColor'
                     />
                 </svg>

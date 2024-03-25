@@ -18,7 +18,7 @@ export const CircleEllipsis: React.FC<IconProps> = ({ svgProps: props, ...restPr
                     <path
                         fillRule='evenodd'
                         clipRule='evenodd'
-                        d='M3 12a9 9 0 1 1 18 0 9 9 0 0 1-18 0Zm9-11C5.925 1 1 5.925 1 12s4.925 11 11 11 11-4.925 11-11S18.075 1 12 1Zm5 10a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H17Zm-6 1a1 1 0 0 1 1-1h.01a1 1 0 1 1 0 2H12a1 1 0 0 1-1-1Zm-4-1a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H7Z'
+                        d='M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18ZM1 12C1 5.925 5.925 1 12 1s11 4.925 11 11-4.925 11-11 11S1 18.075 1 12Zm5 0a1 1 0 0 1 1-1h.01a1 1 0 1 1 0 2H7a1 1 0 0 1-1-1Zm5 0a1 1 0 0 1 1-1h.01a1 1 0 1 1 0 2H12a1 1 0 0 1-1-1Zm5 0a1 1 0 0 1 1-1h.01a1 1 0 1 1 0 2H17a1 1 0 0 1-1-1Z'
                         fill='currentColor'
                     />
                 </svg>
