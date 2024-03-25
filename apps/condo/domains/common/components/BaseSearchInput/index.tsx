@@ -1,3 +1,4 @@
+import styled from '@emotion/styled'
 import { isEmpty } from 'lodash'
 import debounce from 'lodash/debounce'
 import get from 'lodash/get'
@@ -6,7 +7,9 @@ import throttle from 'lodash/throttle'
 import uniqBy from 'lodash/uniqBy'
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
 
+import { Close } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
+import { colors } from '@open-condo/ui/dist/colors'
 
 import Select, { CustomSelectProps } from '@condo/domains/common/components/antd/Select'
 import { Loader } from '@condo/domains/common/components/Loader'
@@ -15,6 +18,7 @@ import { isNeedToLoadNewElements } from '@condo/domains/common/utils/select.util
 
 import { InitialValuesGetter, useInitialValueGetter } from './useInitialValueGetter'
 import { useSelectCareeteControls } from './useSelectCareeteControls'
+
 
 const { Option } = Select
 
@@ -32,6 +36,18 @@ interface ISearchInput<S> extends Omit<CustomSelectProps<S>, 'onSelect'> {
     eventProperties?: TrackingEventPropertiesType
     setIsMatchSelectedProperty?: Dispatch<SetStateAction<boolean>>
 }
+
+const StyledSelect = styled(Select)`
+  .ant-select-selection-placeholder {
+    color: ${colors.gray[7]};
+    opacity: 0.6;
+  }
+  
+  .ant-select-clear {
+    right: 16px;
+    color: ${colors.black};
+  }
+`
 
 const SELECT_LOADER_STYLE = { display: 'flex', justifyContent: 'center', padding: '10px 0' }
 
@@ -212,10 +228,11 @@ export const BaseSearchInput = <S extends string> (props: ISearchInput<S>) => {
     }, [fetching, isEmptyDataFetched, loading, propsNotFoundContent])
 
     return (
-        <Select
+        <StyledSelect
             showSearch
             autoFocus={autoFocus}
             allowClear
+            clearIcon={<Close size='small' />}
             id={props.id}
             value={isInitialValueFetching ? LoadingMessage : searchValue}
             disabled={props.disabled || Boolean(isInitialValueFetching)}
@@ -242,6 +259,6 @@ export const BaseSearchInput = <S extends string> (props: ISearchInput<S>) => {
             loading={loading}
         >
             {options}
-        </Select>
+        </StyledSelect>
     )
 }
