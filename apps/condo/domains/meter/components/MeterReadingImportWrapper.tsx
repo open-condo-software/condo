@@ -12,11 +12,11 @@ import { Alert, Button, Card, CardBodyProps, CardHeaderProps, Modal, Typography 
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { DataImporter } from '@condo/domains/common/components/DataImporter'
-import { ImageContainer, StyledFocusContainer, SuccessModal } from '@condo/domains/common/components/Import'
+import { ImageContainer, StyledFocusContainer, SuccessModal } from '@condo/domains/common/components/Import/Index'
 import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
 import { Columns, MutationErrorsToMessagesType } from '@condo/domains/common/utils/importer'
-import { processMeterReadings } from '@condo/domains/meter/hooks/processMeterReadings'
 import { useMeterImporter } from '@condo/domains/meter/hooks/useMeterImporter'
+import { useProcessMeterReadings } from '@condo/domains/meter/hooks/useProcessMeterReadings'
 import { ObjectsCreator, ProcessedChunk } from '@condo/domains/meter/utils/meterImporter'
 
 export interface IMeterReadingImportWrapperProps {
@@ -101,6 +101,8 @@ const MeterReadingImportWrapper: React.FC<IMeterReadingImportWrapperProps> = (pr
         errors.current.push(chunk)
     }
 
+    const [processMeterReadings] = useProcessMeterReadings()
+
     const [importData, progress, error, breakImport] = useMeterImporter({
         columns,
         objectsCreator,
@@ -132,7 +134,7 @@ const MeterReadingImportWrapper: React.FC<IMeterReadingImportWrapperProps> = (pr
         if (errors.current.length > 0) clearErrors()
 
         importData(processedReadings)
-    }, [importData])
+    }, [importData, processMeterReadings])
 
     const handleDownloadPartyLoadedData = useCallback(() => {
         return new Promise<void>((resolve, reject) => {
