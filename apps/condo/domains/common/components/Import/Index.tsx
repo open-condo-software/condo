@@ -8,12 +8,17 @@ import isFunction from 'lodash/isFunction'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import XLSX from 'xlsx'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { Download, FileDown, QuestionCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Alert, Button, Card, CardBodyProps, CardHeaderProps, Modal, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
+import { DataImporter } from '@condo/domains/common/components/DataImporter'
+import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
+import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
 import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
+import { IMPORT_HELP_MODAL } from '@condo/domains/common/constants/featureflags'
 import { useImporter } from '@condo/domains/common/hooks/useImporter'
 import { useImportHelpModal } from '@condo/domains/common/hooks/useImportHelpModal'
 import {
@@ -24,10 +29,6 @@ import {
     ProcessedRow,
     MutationErrorsToMessagesType,
 } from '@condo/domains/common/utils/importer'
-
-import { DataImporter } from '../DataImporter'
-import { FocusContainer } from '../FocusContainer'
-import { LinkWithIcon } from '../LinkWithIcon'
 
 
 export interface IImportWrapperProps {
@@ -141,6 +142,7 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
     const ErrorModalTitle = intl.formatMessage({ id: 'import.errorModal.title' }, { plural: ImportPluralMessage })
     const SuccessModalButtonLabel = intl.formatMessage({ id: 'import.successModal.buttonLabel' })
     const ErrorsMessage = intl.formatMessage({ id: 'import.Errors' })
+    const NeedHelpMessage = intl.formatMessage({ id: 'import.uploadModal.needHelp' })
 
     const exampleTemplateLink = useMemo(() => `/import/${domainName}/${intl.locale}/${domainName}-import-example.xlsx`, [domainName, intl.locale])
     const exampleImageSrc = useMemo(() => `/import/${domainName}/${intl.locale}/${domainName}-import-example.webp`, [domainName, intl.locale])
@@ -156,6 +158,8 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
     }, [activeModal])
 
     const { Modal: ImportHelpModal, openImportHelpModal } = useImportHelpModal({ domainName })
+    const { useFlag } = useFeatureFlags()
+    const isImportHelpModalEnabled = useFlag(IMPORT_HELP_MODAL)
 
     const totalRowsRef = useRef(0)
     const setTotalRowsRef = (value: number) => {
@@ -273,15 +277,19 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
                     open={activeModal === 'example'}
                     footer={
                         <Space size={16} direction='horizontal'>
-                            <LinkWithIcon
-                                title='Нужна помощь'
-                                size='medium'
-                                PostfixIcon={QuestionCircle}
-                                onClick={() => {
-                                    setActiveModal(null)
-                                    openImportHelpModal()
-                                }}
-                            />
+                            {
+                                isImportHelpModalEnabled && (
+                                    <LinkWithIcon
+                                        title={NeedHelpMessage}
+                                        size='medium'
+                                        PostfixIcon={QuestionCircle}
+                                        onClick={() => {
+                                            setActiveModal(null)
+                                            openImportHelpModal()
+                                        }}
+                                    />
+                                )
+                            }
                             <DataImporter onUpload={handleUpload}>
                                 <Button type='primary'>
                                     {ChooseFileForUploadLabel}

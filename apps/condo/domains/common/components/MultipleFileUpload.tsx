@@ -90,7 +90,7 @@ interface IUploadComponentProps {
     initialFileList: DBFile[]
     UploadButton?: React.ReactElement
     uploadProps?: UploadProps
-    onFileListChange: (fileList) => void
+    onFileListChange?: (fileList) => void
 }
 
 interface IMultipleFileUploadHookArgs {
@@ -241,7 +241,7 @@ interface IMultipleFileUploadProps {
     updateFileList: React.Dispatch<{ type: string, payload: DBFile }>
     UploadButton?: React.FC
     uploadProps?: UploadProps
-    onFileListChange: (fileList) => void
+    onFileListChange?: (fileList) => void
 }
 
 const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {

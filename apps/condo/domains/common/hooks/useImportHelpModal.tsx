@@ -6,6 +6,7 @@ import React, { Dispatch, SetStateAction, useCallback, useMemo, useState } from 
 
 import { ArrowLeft, Phone } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
+import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Alert, Button, Card, Modal, Typography } from '@open-condo/ui'
 
@@ -44,6 +45,13 @@ const UserHelpModal = styled(Modal)`
 `
 
 const CallBackModal = ({ domainName, activeModal, setActiveModal }) => {
+    const intl = useIntl()
+    const ModalTitle = intl.formatMessage({ id: 'import.callbackModal.title' })
+    const BackMessage = intl.formatMessage({ id: 'Back' })
+    const SubmitButtonLabel = intl.formatMessage({ id: 'import.callbackModal.submitButtonLabel' })
+    const ModalBodyText = intl.formatMessage({ id: 'import.callbackModal.body' })
+    const PhoneLabel = intl.formatMessage({ id: 'import.callbackModal.phoneLabel' })
+
     const { user } = useAuth()
     const { organization } = useOrganization()
     const phone = useMemo(() => get(user, 'phone'), [user])
@@ -76,16 +84,15 @@ const CallBackModal = ({ domainName, activeModal, setActiveModal }) => {
             layout='vertical'
             validateTrigger={['onBlur', 'onSubmit']}
             formInstance={callForm}
-            OnCompletedMsg='Отправлено'
         >
             <UserHelpModal
                 open={activeModal === 'call'}
                 onCancel={() => setActiveModal(null)}
-                title='Проверьте номер телефона'
+                title={ModalTitle}
                 footer={(
                     <Space size={16} direction='horizontal'>
                         <LinkWithIcon
-                            title='Назад'
+                            title={BackMessage}
                             size='large'
                             onClick={() => setActiveModal('choose')}
                             PrefixIcon={ArrowLeft}
@@ -102,7 +109,7 @@ const CallBackModal = ({ domainName, activeModal, setActiveModal }) => {
                                             disabled={!isEmpty(errors)}
                                             loading={loading}
                                         >
-                                            Номер верный — звоните
+                                            {SubmitButtonLabel}
                                         </Button>
                                     )
                                 }
@@ -114,13 +121,13 @@ const CallBackModal = ({ domainName, activeModal, setActiveModal }) => {
                 <Row gutter={[0, 40]}>
                     <Col span={24}>
                         <Typography.Text size='medium' type='secondary'>
-                            Менеджер позвонит в течение 40 минут и поможет разобраться
+                            {ModalBodyText}
                         </Typography.Text>
                     </Col>
                     <Col span={24}>
                         <Form.Item
                             name='phone'
-                            label='Номер телефона'
+                            label={PhoneLabel}
                             required
                             rules={[phoneValidator, requiredValidator]}
                             colon={false}
@@ -136,6 +143,16 @@ const CallBackModal = ({ domainName, activeModal, setActiveModal }) => {
 }
 
 const FileImportModal = ({ domainName, activeModal, setActiveModal }) => {
+    const intl = useIntl()
+    const ModalTitle = intl.formatMessage({ id: 'import.fileImportHelpModal.title' })
+    const BackMessage = intl.formatMessage({ id: 'Back' })
+    const SubmitButtonLabel = intl.formatMessage({ id: 'import.fileImportHelpModal.submitButtonLabel' })
+    const ModalBodyText = intl.formatMessage({ id: 'import.fileImportHelpModal.body' })
+    const AlertMessage = intl.formatMessage({ id: 'import.fileImportHelpModal.alert.message' })
+    const AlertDescription = intl.formatMessage({ id: 'import.fileImportHelpModal.alert.description' })
+    const PhoneCheckMessage = intl.formatMessage({ id: 'import.fileImportHelpModal.phoneCheck' })
+    const PhoneLabel = intl.formatMessage({ id: 'import.fileImportHelpModal.phoneLabel' })
+
     const { user } = useAuth()
     const { organization } = useOrganization()
     const phone = useMemo(() => get(user, 'phone'), [user])
@@ -182,16 +199,15 @@ const FileImportModal = ({ domainName, activeModal, setActiveModal }) => {
             layout='vertical'
             validateTrigger={['onBlur', 'onSubmit']}
             formInstance={uploadForm}
-            OnCompletedMsg='Отправлено'
         >
             <Modal
                 open={activeModal === 'upload'}
                 onCancel={() => setActiveModal(null)}
-                title='Загрузить в другом формате'
+                title={ModalTitle}
                 footer={(
                     <Space size={16} direction='horizontal'>
                         <LinkWithIcon
-                            title='Назад'
+                            title={BackMessage}
                             size='large'
                             onClick={() => setActiveModal('choose')}
                             PrefixIcon={ArrowLeft}
@@ -209,7 +225,7 @@ const FileImportModal = ({ domainName, activeModal, setActiveModal }) => {
                                             disabled={!isEmpty(errors) || filesUploading}
                                             loading={loading}
                                         >
-                                            Загрузить
+                                            {SubmitButtonLabel}
                                         </Button>
                                     )
                                 }
@@ -220,12 +236,12 @@ const FileImportModal = ({ domainName, activeModal, setActiveModal }) => {
             >
                 <Space size={40} direction='vertical'>
                     <Typography.Text size='large' type='secondary'>
-                        Информацию можно загрузить в другом формате: Excel-таблицы с другими полями, фото документов, выгрузки из CRM и т. д.
+                        {ModalBodyText}
                     </Typography.Text>
                     <Alert
                         type='info'
-                        message='Загрузка займет от 1 до 3 рабочих дней'
-                        description='Менеджер будет добавлять информацию вручную. Мы позвоним и сообщим, когда все будет готово.'
+                        message={AlertMessage}
+                        description={AlertDescription}
                     />
                     <Form.Item
                         name='file'
@@ -242,13 +258,13 @@ const FileImportModal = ({ domainName, activeModal, setActiveModal }) => {
                     <Row gutter={[0, 24]}>
                         <Col span={24}>
                             <Typography.Text type='secondary'>
-                                Проверьте ваш номер телефона, чтобы мы могли оперативно с вами связаться, если у нас возникнут вопросы по файлу.
+                                {PhoneCheckMessage}
                             </Typography.Text>
                         </Col>
                         <Col span={24}>
                             <Form.Item
                                 name='phone'
-                                label='Номер телефона'
+                                label={PhoneLabel}
                                 required
                                 rules={[phoneValidator, requiredValidator]}
                                 colon={false}
@@ -272,6 +288,15 @@ type ImportHelpModalProps = {
 }
 
 export const ImportHelpModal: React.FC<ImportHelpModalProps> = ({ domainName, activeModal, setActiveModal }) => {
+    const intl = useIntl()
+    const ModalTitle = intl.formatMessage({ id: 'import.helpModal.title' })
+    const ChooseVariantMessage = intl.formatMessage({ id: 'import.helpModal.chooseVariant' })
+    const ReadInstructionsCardTitle = intl.formatMessage({ id: 'import.helpModal.readInstruction.title' })
+    const ReadInstructionsCardBody = intl.formatMessage({ id: 'import.helpModal.readInstruction.body' })
+    const ImportFileCardTitle = intl.formatMessage({ id: 'import.helpModal.importFile.card.title' })
+    const ImportFileCardBody = intl.formatMessage({ id: 'import.helpModal.importFile.card.body' })
+    const RequestCallMessage = intl.formatMessage({ id: 'import.helpModal.callback' })
+
     if (!activeModal) return null
 
     return (
@@ -279,36 +304,37 @@ export const ImportHelpModal: React.FC<ImportHelpModalProps> = ({ domainName, ac
             <UserHelpModal
                 open={activeModal === 'choose'}
                 onCancel={() => setActiveModal(null)}
-                title='Мы обязательно поможем'
+                title={ModalTitle}
             >
                 <Space size={40} direction='vertical'>
                     <Typography.Text size='medium' type='secondary'>
-                        Выберите наиболее удобный вариант:
+                        {ChooseVariantMessage}
                     </Typography.Text>
                     <Space size={20} direction='vertical' align='end'>
                         <CardsWrapper>
+                            {/*TODO(DOMA-8667): Add links to instructions after they are ready*/}
                             <Card.CardButton
                                 header={{
                                     emoji: [{ symbol: '📄' }],
-                                    headingTitle: 'Изучить инструкцию',
+                                    headingTitle: ReadInstructionsCardTitle,
                                 }}
                                 body={{
-                                    description: 'Мы подготовили подробный документ с примерами',
+                                    description: ReadInstructionsCardBody,
                                 }}
                             />
                             <Card.CardButton
                                 onClick={() => setActiveModal('upload')}
                                 header={{
                                     emoji: [{ symbol: '🙀' }],
-                                    headingTitle: 'Загрузить данные в другом формате',
+                                    headingTitle: ImportFileCardTitle,
                                 }}
                                 body={{
-                                    description: 'Объемные данные в нестандартном формате можно отправить менеджеру – он добавит их на платформу.',
+                                    description: ImportFileCardBody,
                                 }}
                             />
                         </CardsWrapper>
                         <LinkWithIcon
-                            title='Заказать звонок'
+                            title={RequestCallMessage}
                             size='large'
                             PostfixIcon={Phone}
                             onClick={() => setActiveModal('call')}
