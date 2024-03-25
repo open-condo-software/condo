@@ -1,9 +1,8 @@
-const { isEmpty } = require('lodash')
+const { isEmpty, get } = require('lodash')
 
 const conf = require('@open-condo/config')
 
 const { FinanceInfoClient } = require('./FinanceInfoClient')
-const get = require("lodash/get");
 
 /**
  * @typedef {Object} BankInfoResult
