@@ -1,3 +1,5 @@
+const dayjs = require('dayjs')
+
 const NOT_USED_WORDS_IN_ACCOUNT_NUMBER_REGEXP = /(л\/с|лс|№)/gi
 const FIO_REGEXP = /^[А-ЯЁ][а-яё]*([-' .][А-ЯЁ][а-яё]*){0,2}\s+[IVА-ЯЁ][a-zа-яё.]*([- .'ёЁ][IVА-ЯЁ][a-zа-яё.]*)*$/
 const FIO_ENDINGS = 'оглы|кызы'
@@ -35,9 +37,11 @@ const isPerson = (fullName) => {
 
 const isValidFias = (fias = '') => FIAS_REGEXP.test(fias)
 
+const sortPeriodFunction = (periodA, periodB) => (dayjs(periodA, 'YYYY-MM-DD').isAfter(dayjs(periodB, 'YYYY-MM-DD')) ? 1 : -1)
 
 module.exports = {
     clearAccountNumber,
     isPerson,
     isValidFias,
+    sortPeriodFunction,
 }
