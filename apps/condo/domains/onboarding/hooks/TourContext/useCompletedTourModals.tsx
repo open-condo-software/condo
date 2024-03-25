@@ -316,7 +316,7 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
                                 {get(computedCompletedStepModalData, 'subtitleText')}
                             </Typography.Text>
                             <Link href={get(computedCompletedStepModalData, 'subtitleLink', '')}>
-                                <Typography.Link size='medium'>
+                                <Typography.Link size='medium' onClick={() => updateCompletedStepModalData(null)}>
                                     <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                                         {get(computedCompletedStepModalData, 'subtitleLinkLabel')}
                                         {get(computedCompletedStepModalData, 'subtitleLinkIcon')}

@@ -86,6 +86,7 @@ export const TicketDeadlineField = ({ initialValues, form }) => {
                                     <LinkWithIcon
                                         title={TicketDeadlineTooltipLink}
                                         href='/settings/ticketDeadlines'
+                                        target='_blank'
                                         PostfixIcon={Settings}
                                         size='medium'
                                     />

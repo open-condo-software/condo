@@ -14,16 +14,6 @@ type RadioOptionType = 'admin' | 'technic' | 'security'
 const APP_CARD_IMAGE_STYLES: CSSProperties = { width: 'inherit', maxWidth: '120px', paddingTop: '6px' }
 const TAB_IMAGE_WRAPPER_STYLES: CSSProperties = { margin: 'auto', width: 'fit-content' }
 const BASE_IMAGE_CONTAINER_STYLES: CSSProperties =  { height: '240px', width: '100%', backgroundColor: '', overflow: 'hidden', padding: '24px' }
-const TAB_IMAGE_STYLES_BY_TYPE: Record<RadioOptionType, CSSProperties> = {
-    admin: { width: '277px' },
-    technic: { width: '350px' },
-    security: { width: '427px' },
-}
-const MODAL_IMAGE_SRC_BY_TYPE = {
-    admin: '/onboarding/technic-app-card/admin.webp',
-    technic: '/onboarding/technic-app-card/technic.webp',
-    security: '/onboarding/technic-app-card/security.webp',
-}
 const IMAGE_WRAPPER_BG_COLOR_BY_TYPE = {
     admin: colors.blue[1],
     technic: colors.purple[1],
@@ -91,14 +81,60 @@ export const TechnicAppCard = () => {
                         <Radio key='technic' value='technic' label={TechnicAppCardTechnicLabel}/>
                         <Radio key='security' value='security' label={TechnicAppCardSecurityLabel}/>
                     </RadioGroup>
-                    <div style={imageContainerStyles}>
-                        <div style={TAB_IMAGE_WRAPPER_STYLES}>
-                            <img src={MODAL_IMAGE_SRC_BY_TYPE[radioValue]} alt='Technic app preview' style={TAB_IMAGE_STYLES_BY_TYPE[radioValue]} />
-                        </div>
-                    </div>
-                    <Typography.Text>
-                        {TechnicAppCardText}
-                    </Typography.Text>
+                    {
+                        radioValue === 'admin' && (
+                            <>
+                                <div style={imageContainerStyles}>
+                                    <div style={TAB_IMAGE_WRAPPER_STYLES}>
+                                        <img
+                                            src='/onboarding/technic-app-card/admin.webp'
+                                            alt='Technic app preview for admins'
+                                            style={{ width: '277px' }}
+                                        />
+                                    </div>
+                                </div>
+                                <Typography.Text>
+                                    {TechnicAppCardText}
+                                </Typography.Text>
+                            </>
+                        )
+                    }
+                    {
+                        radioValue === 'technic' && (
+                            <>
+                                <div style={imageContainerStyles}>
+                                    <div style={TAB_IMAGE_WRAPPER_STYLES}>
+                                        <img
+                                            src='/onboarding/technic-app-card/technic.webp'
+                                            alt='Technic app preview for technics'
+                                            style={{ width: '350px' }}
+                                        />
+                                    </div>
+                                </div>
+                                <Typography.Text>
+                                    {TechnicAppCardText}
+                                </Typography.Text>
+                            </>
+                        )
+                    }
+                    {
+                        radioValue === 'security' && (
+                            <>
+                                <div style={imageContainerStyles}>
+                                    <div style={TAB_IMAGE_WRAPPER_STYLES}>
+                                        <img
+                                            src='/onboarding/technic-app-card/security.webp'
+                                            alt='Technic app preview for security'
+                                            style={{ width: '427px' }}
+                                        />
+                                    </div>
+                                </div>
+                                <Typography.Text>
+                                    {TechnicAppCardText}
+                                </Typography.Text>
+                            </>
+                        )
+                    }
                 </Space>
             </Modal>
             <Modal
