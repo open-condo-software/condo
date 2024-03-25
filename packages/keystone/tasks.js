@@ -91,7 +91,7 @@ function createCronTask (name, cron, fn, queue = DEFAULT_QUEUE_NAME, opts = {}) 
 
     const taskOpts = { repeat: { cron }, ...opts }
     const task = createTask(name, fn, queue, taskOpts)
-    CRON_TASKS.set(name, taskOpts)
+    CRON_TASKS.set(name, { taskOpts, queue })
     return task
 }
 
@@ -394,16 +394,23 @@ async function createWorker (keystoneModule, config) {
         await queue.isReady()
     }
 
-    logger.info(`Worker[${activeQueues.map(([name]) => name).join(',')}]: ready to work!`)
+    const activeQueueNames = activeQueues.map(([name]) => name)
 
-    const cronTasksNames = [...CRON_TASKS.keys()]
-    if (cronTasksNames.length > 0) {
-        logger.info({ msg: 'Worker: add repeatable tasks!', names: cronTasksNames })
-        cronTasksNames.forEach((name) => {
-            const fn = TASKS.get(name)
-            fn.delay()
+    logger.info(`Worker[${activeQueueNames.join(',')}]: ready to work!`)
+
+    const cronTasks = Array.from(CRON_TASKS.entries())
+    if (cronTasks.length > 0) {
+        const addedCronTasks = []
+        cronTasks.forEach(([name, opts]) => {
+            if (activeQueueNames.includes(opts.queue)) {
+                const fn = TASKS.get(name)
+                fn.delay()
+                addedCronTasks.push(name)
+            }
         })
+        logger.info({ msg: 'Worker: add repeatable tasks!', names: addedCronTasks })
     }
+
     const removeTasksNames = REMOVE_CRON_TASKS.map(x => x[0])
     if (removeTasksNames.length > 0) {
         logger.info({ msg: 'Worker: remove tasks!', names: removeTasksNames })
