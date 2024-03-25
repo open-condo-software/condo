@@ -17,7 +17,19 @@ const API_KEY = CAPTHCA_CONFIG.API_KEY
 const CAPTCHA_SCORE_URL = 'https://api.hcaptcha.com/siteverify'
 const SAFE_CAPTCHA_SCORE = 0.5
 const THROW_ERRORS_ON_LOW_CAPTCHA_SCORE = conf.THROW_ERRORS_ON_LOW_CAPTCHA_SCORE === 'true'
-const DISABLE_CAPTCHA_CHECK = conf.DISABLE_CAPTCHA_CHECK === 'true'
+const DISABLE_CAPTCHA = conf.DISABLE_CAPTCHA === 'true'
+
+const ERROR_MESSAGES = {
+    'missing-input-secret': 'Your secret key is missing.',
+    'invalid-input-secret': 'Your secret key is invalid or malformed.',
+    'missing-input-response': 'The response parameter (verification token) is missing.',
+    'invalid-input-response': 'The response parameter (verification token) is invalid or malformed.',
+    'bad-request': 'The request is invalid or malformed.',
+    'invalid-or-already-seen-response': 'The response parameter has already been checked, or has another issue.',
+    'not-using-dummy-passcode': 'You have used a testing sitekey but have not used its matching secret.',
+    'sitekey-secret-mismatch': 'The sitekey is not registered with the provided secret.',
+}
+
 
 const logger = getLogger('hCaptcha')
 
@@ -51,23 +63,8 @@ const convertToForm = (data) => {
     return formBody.join('&')
 }
 
-/*
-
-NOTE: Error codes
-
-missing-input-secret	            Your secret key is missing.
-invalid-input-secret	            Your secret key is invalid or malformed.
-missing-input-response	            The response parameter (verification token) is missing.
-invalid-input-response	            The response parameter (verification token) is invalid or malformed.
-bad-request	                        The request is invalid or malformed.
-invalid-or-already-seen-response	The response parameter has already been checked, or has another issue.
-not-using-dummy-passcode	        You have used a testing sitekey but have not used its matching secret.
-sitekey-secret-mismatch	            The sitekey is not registered with the provided secret.
-
- */
-
 const captchaCheck = async (context = {}, token) => {
-    if (DISABLE_CAPTCHA_CHECK) {
+    if (DISABLE_CAPTCHA) {
         return { error: null }
     }
 
@@ -98,12 +95,13 @@ const captchaCheck = async (context = {}, token) => {
 
         if (serverAnswer.ok) {
             if (!get(result, 'success', false)) {
-                return { error: `Captcha is invalid: ${get(result, 'error-codes')}` }
+                const errorCode = get(result, 'error-codes')
+                const errorMessage = get(ERROR_MESSAGES, errorCode, 'Unknown error')
+                return { error: `Captcha is invalid: ${errorCode} (${errorMessage})` }
             }
 
-            if (!THROW_ERRORS_ON_LOW_CAPTCHA_SCORE) return { error: null }
-
-            // TODO(DOMA-8659): Only works in Enterprise plan!!! (risk score: human 0 -> 1 bot)
+            // if (!THROW_ERRORS_ON_LOW_CAPTCHA_SCORE) return { error: null }
+            // NOTE: Only works in Enterprise plan! (risk score: human 0 -> 1 bot)
             // const riskScore = get(result, 'score', 1)
             // if (riskScore >= SAFE_CAPTCHA_SCORE) return { error: `Low captcha score ${riskScore}` }
 
