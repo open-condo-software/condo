@@ -15,8 +15,8 @@ export type ProcessedRow = {
 
 type ImporterErrorMessage = { title?: string, message: string }
 export type ImporterErrorMessages = {
-    invalidColumns: ImporterErrorMessage
-    tooManyRows: ImporterErrorMessage
+    invalidColumns?: ImporterErrorMessage
+    tooManyRows?: ImporterErrorMessage
     invalidTypes: ImporterErrorMessage
     normalization: ImporterErrorMessage
     validation: ImporterErrorMessage
@@ -34,7 +34,7 @@ export type ObjectCreator = (row: ProcessedRow) => Promise<unknown>
 export type Columns = Array<ColumnInfo>
 export type MutationErrorsToMessagesType = { [errorCode: string]: string }
 
-interface IImporter {
+export interface IImporter {
     import: (data: Array<TableRow>) => Promise<void>
     onProgressUpdate: (handleProgressUpdate: ProgressUpdateHandler) => void
     onFinish: (handleFinish: FinishHandler) => void

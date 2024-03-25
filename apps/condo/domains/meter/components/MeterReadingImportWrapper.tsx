@@ -1,4 +1,3 @@
-import styled from '@emotion/styled'
 import { Col, Progress, Row, Space } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
@@ -12,28 +11,19 @@ import { useIntl } from '@open-condo/next/intl'
 import { Alert, Button, Card, CardBodyProps, CardHeaderProps, Modal, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
+import { DataImporter } from '@condo/domains/common/components/DataImporter'
+import { ImageContainer, StyledFocusContainer, SuccessModal } from '@condo/domains/common/components/Import'
 import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
-import { useImporter } from '@condo/domains/common/hooks/useImporter'
-import {
-    Columns,
-    RowNormalizer,
-    RowValidator,
-    ObjectCreator,
-    ProcessedRow,
-    MutationErrorsToMessagesType,
-} from '@condo/domains/common/utils/importer'
+import { Columns, MutationErrorsToMessagesType } from '@condo/domains/common/utils/importer'
+import { processMeterReadings } from '@condo/domains/meter/hooks/processMeterReadings'
+import { useMeterImporter } from '@condo/domains/meter/hooks/useMeterImporter'
+import { ObjectsCreator, ProcessedChunk } from '@condo/domains/meter/utils/meterImporter'
 
-import { DataImporter } from '../DataImporter'
-import { FocusContainer } from '../FocusContainer'
-
-
-export interface IImportWrapperProps {
+export interface IMeterReadingImportWrapperProps {
     accessCheck: boolean
     onFinish: (variables: unknown) => void
     columns: Columns
-    rowNormalizer?: RowNormalizer
-    rowValidator?: RowValidator
-    objectCreator?: ObjectCreator
+    objectsCreator?: ObjectsCreator
     mutationErrorsToMessages?: MutationErrorsToMessagesType
     uploadButtonLabel?: string
     domainName: string
@@ -43,49 +33,6 @@ export interface IImportWrapperProps {
     }
 }
 
-export const ImageContainer = styled.div`
-  height: 150px;
-  width: 100%;
-  border-radius: 12px;
-  padding: 16px;
-  background-color: ${colors.gray[3]};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
-  & img {
-    width: 100%;
-    height: 120px;
-    border-radius: 12px;
-  }
-`
-
-export const StyledFocusContainer = styled(FocusContainer)`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  margin: 0;
-  padding: 32px 24px;
-  text-align: center;
-
-  & img {
-    height: 240px;
-  }
-`
-
-export const SuccessModal = styled(Modal)`
-  &.condo-modal > .condo-modal-content {
-    & > .condo-modal-body {
-      padding-bottom: 20px;
-    }
-
-    & > .condo-modal-footer {
-      border-top: none;
-    }
-  }
-`
-
 function fitToColumn (arrayOfArray) {
     return arrayOfArray[0].map((_, index) => (
         { wch: Math.max(...arrayOfArray.map(row => row[index] ? row[index].toString().length : 0)) }
@@ -94,13 +41,11 @@ function fitToColumn (arrayOfArray) {
 
 type ActiveModalType = null | 'example' | 'progress' | 'partlyLoaded' | 'success' | 'error'
 
-const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
+const MeterReadingImportWrapper: React.FC<IMeterReadingImportWrapperProps> = (props) => {
     const {
         accessCheck,
         columns,
-        rowNormalizer,
-        rowValidator,
-        objectCreator,
+        objectsCreator,
         onFinish: handleFinish,
         mutationErrorsToMessages,
         uploadButtonLabel,
@@ -138,32 +83,30 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
 
     const [activeModal, setActiveModal] = useState<ActiveModalType>(null)
 
-    const totalRowsRef = useRef(0)
-    const setTotalRowsRef = (value: number) => {
-        totalRowsRef.current = value
+    const totalRef = useRef(0)
+    const setTotalRef = (value: number) => {
+        totalRef.current = value
     }
 
-    const successRowsRef = useRef(0)
-    const setSuccessRowsRef = () => {
-        successRowsRef.current = successRowsRef.current + 1
+    const successRef = useRef(0)
+    const setSuccessRef = (n = 50) => {
+        successRef.current = successRef.current + n
     }
 
     const errors = useRef([])
     const clearErrors = () => {
         errors.current.splice(0, errors.current.length)
     }
-    const handleRowError = (row: ProcessedRow) => {
-        errors.current.push(row)
+    const handleChunkError = (chunk: ProcessedChunk) => {
+        errors.current.push(chunk)
     }
 
-    const [importData, progress, error, isImported, breakImport] = useImporter({
+    const [importData, progress, error, breakImport] = useMeterImporter({
         columns,
-        rowNormalizer,
-        rowValidator,
-        objectCreator,
-        setTotalRows: setTotalRowsRef,
-        setSuccessRows: setSuccessRowsRef,
-        handleRowError,
+        objectsCreator,
+        setTotal: setTotalRef,
+        setSuccess: setSuccessRef,
+        handleError: handleChunkError,
         onFinish: () => {
             setActiveModal(errors.current.length > 0 ? 'partlyLoaded' : 'success')
 
@@ -182,10 +125,13 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
     const handleUpload = useCallback((file) => {
         setActiveModal('progress')
 
-        totalRowsRef.current = 0
-        successRowsRef.current = 0
+        const processedReadings = processMeterReadings(file.data)
+
+        totalRef.current = 0
+        successRef.current = 0
         if (errors.current.length > 0) clearErrors()
-        importData(file.data)
+
+        importData(processedReadings)
     }, [importData])
 
     const handleDownloadPartyLoadedData = useCallback(() => {
@@ -329,8 +275,8 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
                         showIcon
                         message={
                             PartlyDataLoadedModalAlertMessage
-                                .replace('{success}', successRowsRef.current)
-                                .replace('{total}', totalRowsRef.current)
+                                .replace('{success}', successRef.current)
+                                .replace('{total}', totalRef.current)
                                 .replace('{genitive}', ImportGenitiveMessage.toLowerCase())
                         }
                         description={PartlyDataLoadedModalAlertDescription}
@@ -378,5 +324,5 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
 }
 
 export {
-    ImportWrapper,
+    MeterReadingImportWrapper,
 }
