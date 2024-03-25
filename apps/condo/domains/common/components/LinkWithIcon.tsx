@@ -15,7 +15,7 @@ type LinkWithIconPropsType = {
     PostfixIcon?: React.ComponentType<IconProps>
 }
 
-const CONTENT_WRAPPER_STYLE = { display: 'flex', flexFlow: 'row', gap: '8px', alignItems: 'center' }
+const CONTENT_WRAPPER_STYLE = { display: 'inline-flex', textDecoration: 'underline', flexFlow: 'row', gap: '8px', alignItems: 'center' }
 
 export const LinkWithIcon: React.FC<LinkWithIconPropsType> = ({ href, title, size, onClick, PrefixIcon, PostfixIcon, target = '_self' }) => {
     const linkContent = useMemo(() => (

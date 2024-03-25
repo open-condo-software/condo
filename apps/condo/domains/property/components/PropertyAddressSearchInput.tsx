@@ -8,7 +8,7 @@ import React, { CSSProperties, useCallback, useMemo } from 'react'
 import { Building } from '@open-condo/icons'
 import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
-import { Space, Typography } from '@open-condo/ui'
+import { Typography } from '@open-condo/ui'
 
 import { BaseSearchInput } from '@condo/domains/common/components/BaseSearchInput'
 import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
@@ -91,10 +91,11 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
         if (propsNotFoundContent) return propsNotFoundContent
 
         return (
-            <Space size={4} direction='horizontal'>
+            <div>
                 <Typography.Text type='secondary' size='medium'>
                     {NotFoundDefaultMessage}
                 </Typography.Text>
+                &nbsp;
                 <LinkWithIcon
                     title={NotFountDefaultLinkMessage}
                     size='medium'
@@ -102,7 +103,7 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
                     href='/property'
                     target='_blank'
                 />
-            </Space>
+            </div>
         )
     }, [NotFoundDefaultMessage, NotFountDefaultLinkMessage, propsNotFoundContent])
 
