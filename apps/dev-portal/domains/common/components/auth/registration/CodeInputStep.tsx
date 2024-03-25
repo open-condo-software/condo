@@ -14,7 +14,7 @@ import styles from './CodeInputStep.module.css'
 
 import { useCompleteConfirmPhoneActionMutation, useStartConfirmPhoneActionMutation, StartConfirmPhoneActionMutation } from '@/lib/gql'
 
-
+const CODE_PLACEHOLDER = [...Array(CONFIRM_PHONE_ACTION_CODE_LENGTH).keys()].map(idx => idx + 1).join('')
 const FULL_SPAN_COL = 24
 const RAW_PHONE_REGEXP = /^\+\d+$/
 const CODE_FORM_ERRORS_TO_FIELDS_MAP = {
@@ -175,7 +175,7 @@ export const CodeInputStep: React.FC<CodeInputStepProps> = ({
                         <Input
                             inputMode='numeric'
                             pattern='[0-9]*'
-                            placeholder='1234'
+                            placeholder={CODE_PLACEHOLDER}
                             onChange={handleCodeValueChange}
                             maxLength={CONFIRM_PHONE_ACTION_CODE_LENGTH}
                             autoComplete='one-time-code'

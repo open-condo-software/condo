@@ -16,9 +16,9 @@ type RegisterUserFormProps = {
 
 export const RegisterUserForm: React.FC<RegisterUserFormProps> = ({ id, environment }) => {
     const intl = useIntl()
-    const NoUserMessage = intl.formatMessage({ id: 'apps.b2c.sections.serviceUser.userSettings.registerUserForm.emptyView.message' })
-    const NoUserDescription = intl.formatMessage({ id: 'apps.b2c.sections.serviceUser.userSettings.registerUserForm.emptyView.description' })
-    const RegisterUserActionLabel = intl.formatMessage({ id: 'apps.b2c.sections.serviceUser.userSettings.registerUserForm.emptyView.actions.register' })
+    const NoUserMessage = intl.formatMessage({ id: 'apps.id.sections.serviceUser.userSettings.registerUserForm.emptyView.message' })
+    const NoUserDescription = intl.formatMessage({ id: 'apps.id.sections.serviceUser.userSettings.registerUserForm.emptyView.description' })
+    const RegisterUserActionLabel = intl.formatMessage({ id: 'apps.id.sections.serviceUser.userSettings.registerUserForm.emptyView.actions.register' })
 
     const [registerUserModalOpen, setRegisterUserModalOpen] = useState(false)
 
@@ -51,7 +51,7 @@ export const RegisterUserForm: React.FC<RegisterUserFormProps> = ({ id, environm
                     id={id}
                     environment={environment}
                     open={registerUserModalOpen}
-                    onCancel={closeRegisterModal}
+                    onClose={closeRegisterModal}
                 />
             )}
         </>

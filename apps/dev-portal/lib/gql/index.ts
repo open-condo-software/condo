@@ -6559,6 +6559,27 @@ export type GenerateOidcClientSecretMutationVariables = Exact<{
 
 export type GenerateOidcClientSecretMutation = { __typename?: 'Mutation', client?: { __typename?: 'OIDCClientWithSecret', clientSecret: string } | null }
 
+export type StartConfirmEmailActionMutationVariables = Exact<{
+    data: StartConfirmEmailActionInput;
+}>
+
+
+export type StartConfirmEmailActionMutation = { __typename?: 'Mutation', startConfirmEmailAction?: { __typename?: 'StartConfirmEmailActionOutput', actionId: string, email: string } | null }
+
+export type CompleteConfirmEmailActionMutationVariables = Exact<{
+    data: CompleteConfirmEmailActionInput;
+}>
+
+
+export type CompleteConfirmEmailActionMutation = { __typename?: 'Mutation', completeConfirmEmailAction?: { __typename?: 'CompleteConfirmEmailActionOutput', status: string } | null }
+
+export type RegisterAppUserServiceMutationVariables = Exact<{
+    data: RegisterAppUserServiceInput;
+}>
+
+
+export type RegisterAppUserServiceMutation = { __typename?: 'Mutation', condoUser?: { __typename?: 'RegisterAppUserServiceOutput', id: string } | null }
+
 export type AuthenticatedUserQueryVariables = Exact<{ [key: string]: never; }>
 
 
@@ -7222,6 +7243,106 @@ export function useGenerateOidcClientSecretMutation (baseOptions?: Apollo.Mutati
 export type GenerateOidcClientSecretMutationHookResult = ReturnType<typeof useGenerateOidcClientSecretMutation>
 export type GenerateOidcClientSecretMutationResult = Apollo.MutationResult<GenerateOidcClientSecretMutation>
 export type GenerateOidcClientSecretMutationOptions = Apollo.BaseMutationOptions<GenerateOidcClientSecretMutation, GenerateOidcClientSecretMutationVariables>
+export const StartConfirmEmailActionDocument = gql`
+    mutation startConfirmEmailAction($data: StartConfirmEmailActionInput!) {
+  startConfirmEmailAction(data: $data) {
+    actionId
+    email
+  }
+}
+    `
+export type StartConfirmEmailActionMutationFn = Apollo.MutationFunction<StartConfirmEmailActionMutation, StartConfirmEmailActionMutationVariables>
+
+/**
+ * __useStartConfirmEmailActionMutation__
+ *
+ * To run a mutation, you first call `useStartConfirmEmailActionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useStartConfirmEmailActionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [startConfirmEmailActionMutation, { data, loading, error }] = useStartConfirmEmailActionMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useStartConfirmEmailActionMutation (baseOptions?: Apollo.MutationHookOptions<StartConfirmEmailActionMutation, StartConfirmEmailActionMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<StartConfirmEmailActionMutation, StartConfirmEmailActionMutationVariables>(StartConfirmEmailActionDocument, options)
+}
+export type StartConfirmEmailActionMutationHookResult = ReturnType<typeof useStartConfirmEmailActionMutation>
+export type StartConfirmEmailActionMutationResult = Apollo.MutationResult<StartConfirmEmailActionMutation>
+export type StartConfirmEmailActionMutationOptions = Apollo.BaseMutationOptions<StartConfirmEmailActionMutation, StartConfirmEmailActionMutationVariables>
+export const CompleteConfirmEmailActionDocument = gql`
+    mutation completeConfirmEmailAction($data: CompleteConfirmEmailActionInput!) {
+  completeConfirmEmailAction(data: $data) {
+    status
+  }
+}
+    `
+export type CompleteConfirmEmailActionMutationFn = Apollo.MutationFunction<CompleteConfirmEmailActionMutation, CompleteConfirmEmailActionMutationVariables>
+
+/**
+ * __useCompleteConfirmEmailActionMutation__
+ *
+ * To run a mutation, you first call `useCompleteConfirmEmailActionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCompleteConfirmEmailActionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [completeConfirmEmailActionMutation, { data, loading, error }] = useCompleteConfirmEmailActionMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCompleteConfirmEmailActionMutation (baseOptions?: Apollo.MutationHookOptions<CompleteConfirmEmailActionMutation, CompleteConfirmEmailActionMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<CompleteConfirmEmailActionMutation, CompleteConfirmEmailActionMutationVariables>(CompleteConfirmEmailActionDocument, options)
+}
+export type CompleteConfirmEmailActionMutationHookResult = ReturnType<typeof useCompleteConfirmEmailActionMutation>
+export type CompleteConfirmEmailActionMutationResult = Apollo.MutationResult<CompleteConfirmEmailActionMutation>
+export type CompleteConfirmEmailActionMutationOptions = Apollo.BaseMutationOptions<CompleteConfirmEmailActionMutation, CompleteConfirmEmailActionMutationVariables>
+export const RegisterAppUserServiceDocument = gql`
+    mutation registerAppUserService($data: RegisterAppUserServiceInput!) {
+  condoUser: registerAppUserService(data: $data) {
+    id
+  }
+}
+    `
+export type RegisterAppUserServiceMutationFn = Apollo.MutationFunction<RegisterAppUserServiceMutation, RegisterAppUserServiceMutationVariables>
+
+/**
+ * __useRegisterAppUserServiceMutation__
+ *
+ * To run a mutation, you first call `useRegisterAppUserServiceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRegisterAppUserServiceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [registerAppUserServiceMutation, { data, loading, error }] = useRegisterAppUserServiceMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useRegisterAppUserServiceMutation (baseOptions?: Apollo.MutationHookOptions<RegisterAppUserServiceMutation, RegisterAppUserServiceMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<RegisterAppUserServiceMutation, RegisterAppUserServiceMutationVariables>(RegisterAppUserServiceDocument, options)
+}
+export type RegisterAppUserServiceMutationHookResult = ReturnType<typeof useRegisterAppUserServiceMutation>
+export type RegisterAppUserServiceMutationResult = Apollo.MutationResult<RegisterAppUserServiceMutation>
+export type RegisterAppUserServiceMutationOptions = Apollo.BaseMutationOptions<RegisterAppUserServiceMutation, RegisterAppUserServiceMutationVariables>
 export const AuthenticatedUserDocument = gql`
     query authenticatedUser {
   authenticatedUser {

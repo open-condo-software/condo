@@ -8,10 +8,9 @@ import { Select } from '@open-condo/ui'
 
 import { Spin } from '@/domains/common/components/Spin'
 import { Section, SubSection } from '@/domains/miniapp/components/AppSettings'
+import { RegisterUserForm } from '@/domains/miniapp/components/User/edit/RegisterUserForm'
 import { getEnvironment } from '@/domains/miniapp/utils/query'
 import { DEV_ENVIRONMENT, PROD_ENVIRONMENT } from '@dev-api/domains/miniapp/constants/publishing'
-
-import { RegisterUserForm } from './RegisterUserForm'
 
 import type { RowProps } from 'antd'
 

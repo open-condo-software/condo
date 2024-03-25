@@ -1,0 +1,18 @@
+mutation startConfirmEmailAction($data: StartConfirmEmailActionInput!){
+    startConfirmEmailAction(data: $data) {
+        actionId
+        email
+    }
+}
+
+mutation completeConfirmEmailAction($data: CompleteConfirmEmailActionInput!) {
+    completeConfirmEmailAction(data: $data) {
+        status
+    }
+}
+
+mutation registerAppUserService($data: RegisterAppUserServiceInput!) {
+    condoUser: registerAppUserService(data: $data) {
+        id
+    }
+}
