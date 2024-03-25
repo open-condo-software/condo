@@ -3,6 +3,7 @@
  */
 const { faker  } = require('@faker-js/faker/locale/ru')
 const Big = require('big.js')
+const dayjs = require('dayjs')
 
 const {
     catchErrorFrom, expectToThrowAuthenticationErrorToResult, expectToThrowAccessDeniedErrorToResult,
@@ -17,7 +18,7 @@ const {
 } = require('@condo/domains/billing/constants/registerBillingReceiptService')
 const { registerBillingReceiptsByTestClient } = require('@condo/domains/billing/utils/testSchema')
 const { generateServicesData, updateTestBillingRecipient } = require('@condo/domains/billing/utils/testSchema')
-const { createTestBillingCategory } = require('@condo/domains/billing/utils/testSchema')
+const { createTestBillingCategory, BillingIntegrationOrganizationContext: BillingContext } = require('@condo/domains/billing/utils/testSchema')
 const { BillingTestUtils } = require('@condo/domains/billing/utils/testSchema/utils')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const HOUSING_CATEGORY_ID = '928c97ef-5289-4daa-b80e-4b9fed50c629'
@@ -78,6 +79,48 @@ describe('RegisterBillingReceiptsService', () => {
                 receipts: [billingTestUtils.createJSONReceipt()],
             })
             expect(receipt).toHaveProperty('id')
+        })
+
+    })
+
+    describe('ReportCreat', () => {
+
+        test('should update lastReport for BillingContext if new period was loaded', async () => {
+            const currentMonthPeriod = dayjs().add(5, 'year').format('YYYY-MM-01')
+            const nextMonthPeriod = dayjs().add(5, 'year').add(1, 'month').format('YYYY-MM-01')
+            const [currentYear, currentMonth] = currentMonthPeriod.split('-').map(Number)
+            await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
+                context: { id: billingTestUtils.billingContext.id },
+                receipts: [billingTestUtils.createJSONReceipt({ month: currentMonth, year: currentYear })],
+            })
+            const contextBefore = await BillingContext.getOne(billingTestUtils.clients.admin, { id: billingTestUtils.billingContext.id })
+            expect(contextBefore.lastReport.period).toEqual(currentMonthPeriod)
+            const [nextYear, nextMonth] = nextMonthPeriod.split('-').map(Number)
+            await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
+                context: { id: billingTestUtils.billingContext.id },
+                receipts: [billingTestUtils.createJSONReceipt({ month: nextMonth, year: nextYear })],
+            })
+            const contextAfter = await BillingContext.getOne(billingTestUtils.clients.admin, { id: billingTestUtils.billingContext.id })
+            expect(contextAfter.lastReport.period).toEqual(nextMonthPeriod)
+        })
+
+        test('should not update lastReport if older receipts was loaded', async () => {
+            const currentMonthPeriod = dayjs().add(6, 'year').format('YYYY-MM-01')
+            const nextMonthPeriod = dayjs().add(6, 'year').add(1, 'month').format('YYYY-MM-01')
+            const [nextYear, nextMonth] = nextMonthPeriod.split('-').map(Number)
+            await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
+                context: { id: billingTestUtils.billingContext.id },
+                receipts: [billingTestUtils.createJSONReceipt({ month: nextMonth, year: nextYear })],
+            })
+            const contextBefore = await BillingContext.getOne(billingTestUtils.clients.admin, { id: billingTestUtils.billingContext.id })
+            expect(contextBefore.lastReport.period).toEqual(nextMonthPeriod)
+            const [currentYear, currentMonth] = currentMonthPeriod.split('-').map(Number)
+            await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
+                context: { id: billingTestUtils.billingContext.id },
+                receipts: [billingTestUtils.createJSONReceipt({ month: currentMonth, year: currentYear })],
+            })
+            const contextAfter = await BillingContext.getOne(billingTestUtils.clients.admin, { id: billingTestUtils.billingContext.id })
+            expect(contextAfter.lastReport.period).toEqual(nextMonthPeriod)
         })
 
     })
