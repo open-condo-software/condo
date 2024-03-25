@@ -337,19 +337,20 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                     const receiptIds = Object.values(receiptIndex).map(({ id }) => id)
                     const receipts = receiptIds.length ? await find('BillingReceipt', { id_in: receiptIds }) : []
                     const receiptsIndex = Object.fromEntries(receipts.map(receipt => ([receipt.id, receipt])))
-
-                    const newestPeriodFromReceipts = receiptsPeriods.sort(sortPeriodFunction).pop()
-                    const newerReceiptsCount = await BillingReceipt.count(context, { context: billingContextInput, period_gt: newestPeriodFromReceipts })
-                    if (!newerReceiptsCount) {
-                        const currentPeriodReceiptsCount = await BillingReceipt.count(context, { context: billingContextInput, period: newestPeriodFromReceipts })
-                        await BillingContextApi.update(context, billingContextId, {
-                            dv, sender,
-                            lastReport: {
-                                period: newestPeriodFromReceipts,
-                                finishTime: new Date().toISOString(),
-                                totalReceipts: currentPeriodReceiptsCount,
-                            },
-                        })
+                    if (receiptsPeriods.length) {
+                        const newestPeriodFromReceipts = receiptsPeriods.sort(sortPeriodFunction).pop()
+                        const newerReceiptsCount = await BillingReceipt.count(context, { context: billingContextInput, period_gt: newestPeriodFromReceipts })
+                        if (!newerReceiptsCount) {
+                            const currentPeriodReceiptsCount = await BillingReceipt.count(context, { context: billingContextInput, period: newestPeriodFromReceipts })
+                            await BillingContextApi.update(context, billingContextId, {
+                                dv, sender,
+                                lastReport: {
+                                    period: newestPeriodFromReceipts,
+                                    finishTime: new Date().toISOString(),
+                                    totalReceipts: currentPeriodReceiptsCount,
+                                },
+                            })
+                        }
                     }
                     return Object.values({ ...receiptIndex, ...errorsIndex }).map(idOrError => {
                         const id = get(idOrError, 'id')
