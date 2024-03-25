@@ -59,6 +59,7 @@ class ForgotPassword {
     fillPhone (value): this {
         // @ts-ignore
         // cy.waitForCaptcha()
+        cy.get('[data-cy=forgot-phone-item] input').should('be.visible')
         cy.get('[data-cy=forgot-phone-item] input')
             .clear()
             .type(value)
@@ -141,6 +142,7 @@ class Registration {
     startRegistrationClick (): this {
         // @ts-ignore
         // cy.waitForCaptcha()
+        cy.get('[data-cy=register-button]').should('be.visible')
         cy.get('[data-cy=register-button]')
             .click()
         return this
