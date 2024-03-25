@@ -1903,7 +1903,7 @@
   "tour.pageData.default.completed.description": "We recommend opening the tour from time to time and remind residents of the mobile application features with ready-made templates. The more residents download it and start using it, the more processes will be able to automate.",
 
   "tour.pageData.billing.todo.title": "Reduce accounts receivable",
-  "tour.pageData.billing.todo.subtitle": "According to statistics, 83% of users of Doma.ai platform reduced accounts receivable by 50% or more",
+  "tour.pageData.billing.todo.subtitle": "As soon as you set up the upload, the invoices will arrive faster. And residents will be able to pay the receipts through the mobile app.",
   "tour.pageData.billing.completed.title": "Have you worked on reducing debit debt",
   "tour.pageData.billing.completed.subtitle": "Now residents can pay the receipts, and you – follow the receipts",
 
@@ -2000,7 +2000,7 @@
   "tour.step.viewResidentsAppGuide.completed.meter.title": "Have you looked at the guide for managing organizations",
 
   "tour.step.viewResidentsAppGuide.todo.resident.title": "Take a look at the guide on the implementation of the mobile application and follow the recommendations",
-  "tour.step.viewResidentsAppGuide.todo.resident.description": "To independently transfer readings to residents, you need to download the Doma application. We have prepared a guide with ready-made templates to promote the application among residents.",
+  "tour.step.viewResidentsAppGuide.todo.resident.description": "We have prepared a guide with ready-made templates that make it easier to tell residents about the mobile application",
   "tour.step.viewResidentsAppGuide.completed.resident.title": "You have seen the guide about the implementation of the mobile application. Do not forget to follow all the recommendations.",
 
   "tour.step.viewResidentsAppGuide.completed.linkTitle": "Watch again",
@@ -2086,21 +2086,30 @@
 
   "tour.newFeatures.employee.title": "Now you can:",
 
-  "tour.newFeatures.employee.publishNews": "Publish property news",
-  "tour.newFeatures.employee.notifyAboutIncidents": "Tell residents about incidents",
-  "tour.newFeatures.employee.receiveTickets": "Receive applications from specific apartments",
+  "tour.newFeatures.employee.createTicketsOnProperty": "Create tickets on property",
+  "tour.newFeatures.employee.createNewsOnProperty": "Publish news on property",
+  "tour.newFeatures.employee.createReadingsOnProperty": "Submit readings on property meter",
+  "tour.newFeatures.employee.createTicketsOnPropertyAndUnits": "Create tickets on property and specific units",
+  "tour.newFeatures.employee.createNewsOnPropertyAndUnits": "Publish news on property and specific units or entrances",
+  "tour.newFeatures.employee.createReadingsOnPropertyAndUnits": "Submit readings on property meter and meter",
+  "tour.newFeatures.employee.createContacts": "Add resident contacts",
+  "tour.newFeatures.employee.trackAndChangeTicketStatus": "Track and change ticket status",
+  "tour.newFeatures.employee.chatWithResident": "Communicate with resident in ticket chat",
+  "tour.newFeatures.employee.chatWithEmployees": "Leave comments for colleagues in ticket chat",
   "tour.newFeatures.employee.uploadReceipts": "Upload registries and generate receipts",
-  "tour.newFeatures.employee.trackResidentPayments": "Monitor payments from residents",
-  "tour.newFeatures.employee.notifyResidentsAboutApp": "Tell the residents about the mobile app",
-  "tour.newFeatures.employee.createIncidents": "Leave information about incidents",
+  "tour.newFeatures.employee.trackResidentPayments": "Track payments received through the Doma app",
+  "tour.newFeatures.employee.notifyResidentsAboutApp": "Inform residents about the mobile app",
 
-  "tour.newFeatures.resident.title": "Now residents can:",
+  "tour.newFeatures.resident.title": "Residents can:",
 
-  "tour.newFeatures.resident.readNews": "Find out the news through the Doma app",
-  "tour.newFeatures.resident.readIncidents": "Learn about incidents",
-  "tour.newFeatures.resident.createTickets": "Create tickets in the mobile application",
-  "tour.newFeatures.resident.createMeterReadings": "Transmit meter readings in a mobile app",
-  "tour.newFeatures.resident.payBills": "Pay for receipts in the mobile app",
+  "tour.newFeatures.resident.createTickets": "Submit tickets through the Doma app",
+  "tour.newFeatures.resident.readNews": "Receive news through the app",
+  "tour.newFeatures.resident.readTicketsFromCRM": "View tickets created via CRM according to their units in the Doma app",
+  "tour.newFeatures.resident.readNewsByUnit": "Receive news only for their units",
+  "tour.newFeatures.resident.trackTicket": "Track ticket progress in the Doma app",
+  "tour.newFeatures.resident.chatWithOrganization": "Leave comments on tickets in the chat",
+  "tour.newFeatures.resident.payBills": "Pay bills in the Doma app",
+  "tour.newFeatures.resident.createMeterReadings": "Submit meter readings in the mobile app",
   "tour.newFeatures.resident.downloadApp": "Download the app and register",
 
   "tasks.export.error.NOTHING_TO_EXPORT": "No records found for export with specified filtering conditions",

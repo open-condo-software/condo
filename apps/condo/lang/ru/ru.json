@@ -1903,17 +1903,17 @@
   "tour.pageData.default.completed.description": "Рекомендуем время от времени открывать гайд и напоминать жителям о функциях мобильного приложения с помощью готовых шаблонов. Чем больше жителей скачают его и начнут пользоваться, тем больше процессов получится автоматизировать.",
 
   "tour.pageData.billing.todo.title": "Снизить дебиторскую задолженность",
-  "tour.pageData.billing.todo.subtitle": "По статистике, 83% пользователей платформы Doma.ai снизили дебиторскую задолженность на 50% и более",
+  "tour.pageData.billing.todo.subtitle": "Как только настроите загрузку начислений, счета на оплату будут приходить быстрее. А жители смогут оплачивать квитанции через мобильное приложение.",
   "tour.pageData.billing.completed.title": "Вы поработали над снижением дебеторской задолжности",
   "tour.pageData.billing.completed.subtitle": "Теперь жители могут оплачивать квитанции, а вы — следить за поступлениями",
 
   "tour.pageData.ticket.todo.title": "Оптимизировать работу с заявками",
-  "tour.pageData.ticket.todo.subtitle": "Когда выполните все задачи из списка, жители смогут отправлять заявки через мобильное приложение, а вы увидите их на платформе.",
+  "tour.pageData.ticket.todo.subtitle": "Когда настроите работу с заявками, сможете обрабатывать их быстрее. Например, общаться в чатах по конкретной заявке. У жителей будет возможность оценивать заявки.",
   "tour.pageData.ticket.completed.title": "Вы оптимизировали работу с заявками",
   "tour.pageData.ticket.completed.subtitle": "Теперь жители могут отправлять заявки через мобильное приложение, а вы увидите их на платформе",
 
   "tour.pageData.meter.todo.title": "Упростить работу с показаниями счетчиков",
-  "tour.pageData.meter.todo.subtitle": "Когда выполните все задачи из списка, жители смогут отправлять показания через мобильное приложение, а вы увидите их на платформе",
+  "tour.pageData.meter.todo.subtitle": "Когда вы выполните все задачи, жители смогут передавать показания счетчиков через мобильное приложение, а вы будете видеть их на платформе",
   "tour.pageData.meter.completed.title": "Вы упростили работу с показаниями счетчиков",
   "tour.pageData.meter.completed.subtitle": "Теперь жители могут передавать показания счетчиков, а вы — получать их на платформе",
 
@@ -1969,7 +1969,7 @@
 
   "tour.step.createPropertyMap.todo.title": "Создайте шахмату",
   "tour.step.createPropertyMap.todo.description": "Шахматка нужна, чтобы получать заявки от конкретных квартир. Чтобы добавить шахматку, нужно знать количество помещений, подъездов и этажей в доме.",
-  "tour.step.createPropertyMap.completed.title": "Вы создали шахматку",
+  "tour.step.createPropertyMap.completed.title": "Вы создали шахматку для дома",
   "tour.step.createPropertyMap.completed.linkTitle": "Открыть список",
 
   "tour.step.uploadReceipts.todo.title": "Настройте биллинг и загрузите начисления",
@@ -2000,7 +2000,7 @@
   "tour.step.viewResidentsAppGuide.completed.meter.title": "Вы посмотрели гайд для управляющих организаций",
 
   "tour.step.viewResidentsAppGuide.todo.resident.title": "Загляните в гайд о внедрении мобильного приложения и выполните рекомендации",
-  "tour.step.viewResidentsAppGuide.todo.resident.description": "Для самостоятельной передачи показаний жителям нужно скачать приложение Doma. Мы подготовили гайд с готовыми шаблонами для продвижения приложения среди жителей.",
+  "tour.step.viewResidentsAppGuide.todo.resident.description": "Мы подготовили гайд с готовыми шаблонами, с помощью которых проще рассказать жителям о мобильном приложении",
   "tour.step.viewResidentsAppGuide.completed.resident.title": "Вы посмотрели гайд о внедрении мобильного приложения. Не забудьте выполнить все рекомендации.",
 
   "tour.step.viewResidentsAppGuide.completed.linkTitle": "Смотреть снова",
@@ -2086,21 +2086,30 @@
 
   "tour.newFeatures.employee.title": "Теперь вы можете:",
 
-  "tour.newFeatures.employee.publishNews": "Публиковать новости дома",
-  "tour.newFeatures.employee.notifyAboutIncidents": "Рассказывать жителям об отключениях",
-  "tour.newFeatures.employee.receiveTickets": "Получать заявки от конкретных квартир",
+  "tour.newFeatures.employee.createTicketsOnProperty": "Создавать заявки на дом",
+  "tour.newFeatures.employee.createNewsOnProperty": "Публиковать новости на дом",
+  "tour.newFeatures.employee.createReadingsOnProperty": "Передавать показания ОДПУ",
+  "tour.newFeatures.employee.createTicketsOnPropertyAndUnits": "Создавать заявки на дом и на определенные помещения",
+  "tour.newFeatures.employee.createNewsOnPropertyAndUnits": "Публиковать новости на дом и определенные помещения или подъезды",
+  "tour.newFeatures.employee.createReadingsOnPropertyAndUnits": "Передавать показания ОДПУ и ИПУ",
+  "tour.newFeatures.employee.createContacts": "Добавлять контакты жителей",
+  "tour.newFeatures.employee.trackAndChangeTicketStatus": "Отслеживать и менять статус заявки",
+  "tour.newFeatures.employee.chatWithResident": "Общаться с жителем в чате заявки",
+  "tour.newFeatures.employee.chatWithEmployees": "Оставлять комментарии коллегам в чате заявки",
   "tour.newFeatures.employee.uploadReceipts": "Загружать реестры и формировать квитанции",
-  "tour.newFeatures.employee.trackResidentPayments": "Следить за платежами от жителей",
+  "tour.newFeatures.employee.trackResidentPayments": "Следить за оплатами, поступившими через приложение Doma",
   "tour.newFeatures.employee.notifyResidentsAboutApp": "Рассказать жителям о мобильном приложении",
-  "tour.newFeatures.employee.createIncidents": "Оставлять информацию об отключениях",
 
   "tour.newFeatures.resident.title": "Жители могут:",
 
-  "tour.newFeatures.resident.readNews": "Узнавать новости через приложение Doma",
-  "tour.newFeatures.resident.readIncidents": "Узнавать об отключениях",
-  "tour.newFeatures.resident.createTickets": "Создавать заявки в мобильном приложении",
+  "tour.newFeatures.resident.createTickets": "Отправлять заявки через приложение Doma",
+  "tour.newFeatures.resident.readNews": "Узнавать новости через приложение",
+  "tour.newFeatures.resident.readTicketsFromCRM": "Видеть созданные через CRM заявки по их помещениям в приложении Doma",
+  "tour.newFeatures.resident.readNewsByUnit": "Получать новости только по своим помещениям",
+  "tour.newFeatures.resident.trackTicket": "Отслеживать выполнение заявки в приложении Doma",
+  "tour.newFeatures.resident.chatWithOrganization": "Оставлять комментарии по заявке в чате",
+  "tour.newFeatures.resident.payBills": "Оплачивать квитанции в приложении Doma",
   "tour.newFeatures.resident.createMeterReadings": "Передавать показания счетчиков в мобильном приложении",
-  "tour.newFeatures.resident.payBills": "Оплачивать квитанции в мобильном приложении",
   "tour.newFeatures.resident.downloadApp": "Скачать приложение и зарегистрироваться",
 
   "tasks.export.error.NOTHING_TO_EXPORT": "Не найдено записей для экспорта по выбранным критериям фильтрации",

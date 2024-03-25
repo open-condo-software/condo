@@ -102,19 +102,32 @@ type ComputedCompletedFlowModalDataType = {
 export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchSteps }) => {
     const intl = useIntl()
     const GoToTourMessage = intl.formatMessage({ id: 'tour.completedFlowModal.goToTour' })
-    const PublishNewsEmployeeFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.employee.publishNews' })
-    const NotifyAboutIncidentsEmployeeFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.employee.notifyAboutIncidents' })
-    const CreateIncidentsEmployeeFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.employee.createIncidents' })
+    const NowYouCanMessage = intl.formatMessage({ id: 'tour.newFeatures.employee.title' })
+    const NowResidentCanMessage = intl.formatMessage({ id: 'tour.newFeatures.resident.title' })
+
+    const CreateTicketsOnPropertyEmployeeFeature = intl.formatMessage({ id: 'tour.newFeatures.employee.createTicketsOnProperty' })
+    const CreateNewsOnPropertyEmployeeFeature = intl.formatMessage({ id: 'tour.newFeatures.employee.createNewsOnProperty' })
+    const CreateReadingsOnPropertyEmployeeFeature = intl.formatMessage({ id: 'tour.newFeatures.employee.createReadingsOnProperty' })
+    const CreateTicketsEmployeeFeature = intl.formatMessage({ id: 'tour.newFeatures.employee.createTicketsOnPropertyAndUnits' })
+    const CreateNewsEmployeeFeature = intl.formatMessage({ id: 'tour.newFeatures.employee.createNewsOnPropertyAndUnits' })
+    const CreateReadingsEmployeeFeature = intl.formatMessage({ id: 'tour.newFeatures.employee.createReadingsOnPropertyAndUnits' })
+    const CreateContactsEmployeeFeature = intl.formatMessage({ id: 'tour.newFeatures.employee.createContacts' })
+    const TrackAndChangeTicketStatusEmployeeFeature = intl.formatMessage({ id: 'tour.newFeatures.employee.trackAndChangeTicketStatus' })
+    const ChatWithResidentEmployeeFeature = intl.formatMessage({ id: 'tour.newFeatures.employee.chatWithResident' })
+    const ChatWithEmployeesEmployeeFeature = intl.formatMessage({ id: 'tour.newFeatures.employee.chatWithEmployees' })
     const UploadReceiptsEmployeeFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.employee.uploadReceipts' })
     const TrackResidentPaymentsEmployeeFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.employee.trackResidentPayments' })
     const NotifyResidentsAboutAppEmployeeFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.employee.notifyResidentsAboutApp' })
-    const ReadNewsResidentFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.resident.readNews' })
-    const ReadIncidentsResidentFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.resident.readIncidents' })
-    const CreateMeterReadingsResidentFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.resident.createMeterReadings' })
+
+    const CreateTicketsResidentFeature = intl.formatMessage({ id: 'tour.newFeatures.resident.createTickets' })
+    const ReadNewsResidentFeature = intl.formatMessage({ id: 'tour.newFeatures.resident.readNews' })
+    const ReadTicketsResidentFeature = intl.formatMessage({ id: 'tour.newFeatures.resident.readTicketsFromCRM' })
+    const ReadNewsByUnitResidentFeature = intl.formatMessage({ id: 'tour.newFeatures.resident.readNewsByUnit' })
+    const TrackTicketsResidentFeature = intl.formatMessage({ id: 'tour.newFeatures.resident.trackTicket' })
+    const ChatWithOrganizationResidentFeature = intl.formatMessage({ id: 'tour.newFeatures.resident.chatWithOrganization' })
     const PayBillsResidentFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.resident.payBills' })
+    const CreateMeterReadingsResidentFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.resident.createMeterReadings' })
     const DownloadAppResidentFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.resident.downloadApp' })
-    const NowYouCanMessage = intl.formatMessage({ id: 'tour.newFeatures.employee.title' })
-    const NowResidentCanMessage = intl.formatMessage({ id: 'tour.newFeatures.resident.title' })
 
     const router = useRouter()
     const { organization } = useOrganization()
@@ -165,8 +178,8 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
             subtitleLinkHref: '/property',
             subtitleLinkIcon: <Building size='small' />,
             newFeatures: {
-                employee: [PublishNewsEmployeeFeatureMessage, NotifyAboutIncidentsEmployeeFeatureMessage],
-                resident: [ReadNewsResidentFeatureMessage, ReadIncidentsResidentFeatureMessage],
+                employee: [CreateTicketsOnPropertyEmployeeFeature, CreateNewsOnPropertyEmployeeFeature, CreateReadingsOnPropertyEmployeeFeature],
+                resident: [CreateTicketsResidentFeature, ReadNewsResidentFeature],
             },
             onButtonClick: {
                 default: () => { router.push('/property') },
@@ -177,8 +190,8 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
             subtitleLinkHref: '/property',
             subtitleLinkIcon: <Building size='small' />,
             newFeatures: {
-                employee: [PublishNewsEmployeeFeatureMessage, NotifyAboutIncidentsEmployeeFeatureMessage],
-                resident: [ReadNewsResidentFeatureMessage, ReadIncidentsResidentFeatureMessage],
+                employee: [CreateTicketsEmployeeFeature, CreateNewsEmployeeFeature, CreateReadingsEmployeeFeature, CreateContactsEmployeeFeature],
+                resident: [ReadTicketsResidentFeature, ReadNewsByUnitResidentFeature],
             },
             onButtonClick: {
                 default: () => { router.push('/tour') },
@@ -192,8 +205,8 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
             subtitleLinkHref: '/property',
             subtitleLinkIcon: <Building size='small' />,
             newFeatures: {
-                employee: [PublishNewsEmployeeFeatureMessage, NotifyAboutIncidentsEmployeeFeatureMessage],
-                resident: [ReadNewsResidentFeatureMessage, ReadIncidentsResidentFeatureMessage],
+                employee: [CreateTicketsEmployeeFeature, CreateNewsEmployeeFeature, CreateReadingsEmployeeFeature, CreateContactsEmployeeFeature],
+                resident: [CreateTicketsResidentFeature, ReadTicketsResidentFeature, ReadNewsByUnitResidentFeature],
             },
             onButtonClick: {
                 default: () => { router.push('/tour') },
@@ -207,8 +220,8 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
             subtitleLinkHref: '/ticket',
             subtitleLinkIcon: <LayoutList size='small' />,
             newFeatures: {
-                employee: [PublishNewsEmployeeFeatureMessage, CreateIncidentsEmployeeFeatureMessage],
-                resident: [ReadNewsResidentFeatureMessage],
+                employee: [TrackAndChangeTicketStatusEmployeeFeature, ChatWithResidentEmployeeFeature, ChatWithEmployeesEmployeeFeature],
+                resident: [TrackTicketsResidentFeature, ChatWithOrganizationResidentFeature],
             },
             onButtonClick: {
                 default: () => { router.push('/tour') },
