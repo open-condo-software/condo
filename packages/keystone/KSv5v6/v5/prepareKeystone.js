@@ -1,3 +1,4 @@
+const process = require('node:process')
 const v8 = require('v8')
 
 const { AdminUIApp } = require('@keystonejs/app-admin-ui')
@@ -12,21 +13,22 @@ const { v4 } = require('uuid')
 
 const conf = require('@open-condo/config')
 const { formatError } = require('@open-condo/keystone/apolloErrorFormatter')
+const { parseCorsSettings } = require('@open-condo/keystone/cors.utils')
+const { _internalGetExecutionContextAsyncLocalStorage } = require('@open-condo/keystone/executionContext')
 const { IpBlackListMiddleware } = require('@open-condo/keystone/ipBlackList')
 const { registerSchemas } = require('@open-condo/keystone/KSv5v6/v5/registerSchema')
+const { getLogger } = require('@open-condo/keystone/logging')
 const { getKeystonePinoOptions, GraphQLLoggerPlugin } = require('@open-condo/keystone/logging')
+const { expressErrorHandler } = require('@open-condo/keystone/logging/expressErrorHandler')
 const metrics = require('@open-condo/keystone/metrics')
 const { schemaDocPreprocessor, adminDocPreprocessor, escapeSearchPreprocessor, customAccessPostProcessor } = require('@open-condo/keystone/preprocessors')
 const { ApolloRateLimitingPlugin } = require('@open-condo/keystone/rateLimiting')
+const { getRedisClient } = require('@open-condo/keystone/redis')
 const { ApolloSentryPlugin } = require('@open-condo/keystone/sentry')
+const { prepareDefaultKeystoneConfig } = require('@open-condo/keystone/setup.utils')
 const { registerTasks, taskQueue } = require('@open-condo/keystone/tasks')
 const { KeystoneTracingApp } = require('@open-condo/keystone/tracing')
 
-const { parseCorsSettings } = require('../../cors.utils')
-const { _internalGetExecutionContextAsyncLocalStorage } = require('../../executionContext')
-const { expressErrorHandler } = require('../../logging/expressErrorHandler')
-const { getRedisClient } = require('../../redis')
-const { prepareDefaultKeystoneConfig } = require('../../setup.utils')
 
 const IS_BUILD_PHASE = conf.PHASE === 'build'
 const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
@@ -38,6 +40,8 @@ const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = conf.ENABLE_DANGEROUS_GRAPHQL_PLA
 // NOTE(pahaz): it's a magic number tested by @arichiv at https://developer.chrome.com/blog/cookie-max-age-expires/
 const INFINITY_MAX_AGE_COOKIE = 1707195600
 const SERVICE_USER_SESSION_TTL_IN_SEC = 7 * 24 * 60 * 60 // 7 days in sec
+
+const logger = getLogger('uncaughtError')
 
 const sendAppMetrics = () => {
     const v8Stats = v8.getHeapStatistics()
@@ -218,6 +222,14 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
         },
     }
 }
+
+process.on('uncaughtException', (error, origin) => {
+    logger.error({ msg: 'Unhandled rejection', error, origin })
+})
+
+process.on('unhandledRejection', (error, promise) => {
+    logger.error({ msg: 'Unhandled promise rejection', error, promise })
+})
 
 module.exports = {
     prepareKeystone,
