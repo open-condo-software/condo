@@ -18,7 +18,17 @@ export const Readings: React.FC<IconProps> = ({ svgProps: props, ...restProps })
                     <path
                         fillRule='evenodd'
                         clipRule='evenodd'
-                        d='M3 12a9 9 0 1 1 18 0 9 9 0 0 1-18 0Zm9-11C5.925 1 1 5.925 1 12s4.925 11 11 11 11-4.925 11-11S18.075 1 12 1Zm0 4.5a1 1 0 0 0-1 1v4c0 .056.005.112.014.166A3.001 3.001 0 0 0 11 16.329V17a1 1 0 1 0 2 0v-.67a3.001 3.001 0 0 0-.014-5.664c.01-.054.014-.11.014-.166v-4a1 1 0 0 0-1-1Zm1.3 8a1.3 1.3 0 1 1-2.6 0 1.3 1.3 0 0 1 2.6 0Z'
+                        d='M12 14.8a1.3 1.3 0 1 0 0-2.6 1.3 1.3 0 0 0 0 2.6Zm0 1.7a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z'
+                        fill='currentColor'
+                    />
+                    <path
+                        d='M11 6.5a1 1 0 1 1 2 0v4a1 1 0 1 1-2 0v-4ZM11 16a1 1 0 1 1 2 0v1a1 1 0 1 1-2 0v-1Z'
+                        fill='currentColor'
+                    />
+                    <path
+                        fillRule='evenodd'
+                        clipRule='evenodd'
+                        d='M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18ZM1 12C1 5.925 5.925 1 12 1s11 4.925 11 11-4.925 11-11 11S1 18.075 1 12Z'
                         fill='currentColor'
                     />
                 </svg>

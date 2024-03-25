@@ -16,11 +16,10 @@ export const RefreshCw: React.FC<IconProps> = ({ svgProps: props, ...restProps }
                     {...props}
                 >
                     <path
-                        d='M21 2v6m0 0h-6m6 0-3-2.7A9 9 0 0 0 3 12m0 10v-6m0 0h6m-6 0 3 2.7A9 9 0 0 0 21 12'
-                        stroke='currentColor'
-                        strokeWidth={2}
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
+                        fillRule='evenodd'
+                        clipRule='evenodd'
+                        d='M21 1a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-6a1 1 0 1 1 0-2h3.394l-1.06-.955h-.002A8 8 0 0 0 4 12a1 1 0 0 1-2-.002 10 10 0 0 1 16.667-7.444l.002.002L20 5.755V2a1 1 0 0 1 1-1Zm0 10a1 1 0 0 1 1 1 10 10 0 0 1-16.667 7.445l-.002-.002L4 18.245V22a1 1 0 1 1-2 0v-6a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H5.606l1.06.955h.002A8 8 0 0 0 20 12 1 1 0 0 1 21 11Z'
+                        fill='currentColor'
                     />
                 </svg>
             }
