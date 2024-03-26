@@ -62,7 +62,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
 
     const { publicRuntimeConfig: { hasSbbolAuth } } = getConfig()
 
-    const { setToken, setPhone, handleReCaptchaVerify } = useContext(RegisterContext)
+    const { setToken, setPhone, handleCaptchaVerify } = useContext(RegisterContext)
     const [isLoading, setIsLoading] = useState(false)
     const [startPhoneVerify] = useMutation(START_CONFIRM_PHONE_MUTATION)
 
@@ -99,7 +99,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
         }
 
         setPhone(phone)
-        const captcha = await handleReCaptchaVerify('start_confirm_phone')
+        const captcha = await handleCaptchaVerify()
         const variables = { data: { ...registerExtraData, phone, captcha } }
         setIsLoading(true)
 
@@ -131,7 +131,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
             form,
             ErrorToFormFieldMsgMapping,
         })
-    }, [intl, form, handleReCaptchaVerify, WrongPhoneFormatErrorMsg, setPhone, setIsLoading, onFinish])
+    }, [intl, form, handleCaptchaVerify, WrongPhoneFormatErrorMsg, setPhone, setIsLoading, onFinish])
 
     return (
         <Row justify='center'>

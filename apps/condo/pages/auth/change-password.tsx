@@ -2,7 +2,6 @@ import styled from '@emotion/styled'
 import { Col, Form, Row, RowProps } from 'antd'
 import Router, { useRouter } from 'next/router'
 import React, { useState, useEffect, useContext, useCallback } from 'react'
-import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 
 import { useLazyQuery, useMutation } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
@@ -11,6 +10,7 @@ import { Button } from '@open-condo/ui'
 import { Typography } from '@open-condo/ui'
 
 import Input from '@condo/domains/common/components/antd/Input'
+import { useHCaptcha } from '@condo/domains/common/components/HCaptcha'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
@@ -45,7 +45,7 @@ const ChangePasswordPage: AuthPage = () => {
     const [isSaving, setIsSaving] = useState(false)
     const [changePassword] = useMutation(CHANGE_PASSWORD_WITH_TOKEN_MUTATION)
     const auth = useAuth()
-    const { executeRecaptcha } = useGoogleReCaptcha()
+    const { executeCaptcha } = useHCaptcha()
 
     const intl = useIntl()
     const SaveMsg = intl.formatMessage({ id: 'Save' })
@@ -123,11 +123,11 @@ const ChangePasswordPage: AuthPage = () => {
     const [recoveryTokenError, setRecoveryTokenError] = useState<Error | null>(null)
 
     useEffect(() => {
-        if (!executeRecaptcha || !token) return
+        if (!executeCaptcha || !token) return
 
-        executeRecaptcha('get_confirm_phone_token_info')
+        executeCaptcha()
             .then(captcha => checkConfirmPhoneActionToken({ variables: { data: { token, captcha } } }))
-    }, [executeRecaptcha, token])
+    }, [executeCaptcha, token])
 
     if (isLoading) {
         return <Loader size='large' delay={0} fill/>

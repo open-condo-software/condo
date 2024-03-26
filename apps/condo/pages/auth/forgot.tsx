@@ -2,13 +2,13 @@ import { Form, Row, Col } from 'antd'
 import Head from 'next/head'
 import  { useRouter } from 'next/router'
 import React, { useContext, useState } from 'react'
-import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 
 import { useMutation } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography, Button } from '@open-condo/ui'
 
 import { CountDownTimer } from '@condo/domains/common/components/CountDownTimer'
+import { useHCaptcha } from '@condo/domains/common/components/HCaptcha'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { colors } from '@condo/domains/common/constants/style'
@@ -47,7 +47,7 @@ function ResetPageView () {
     const REGISTER_PHONE_LABEL = <label style={ { alignSelf:'end' } }>{PhoneMsg}</label>
 
     const [form] = Form.useForm()
-    const { executeRecaptcha } = useGoogleReCaptcha()
+    const { executeCaptcha } = useHCaptcha()
     const { token, setToken, setPhone } = useContext(RegisterContext)
 
     type StepType = 'inputPhone' | 'validatePhone'
@@ -72,23 +72,20 @@ function ResetPageView () {
         phone: [requiredValidator, phoneValidator],
     }
 
-    if (step === 'validatePhone') {
-        return (
-            <ValidatePhoneForm
-                onFinish={() => router.push('/auth/change-password?token=' + token)}
-                onReset={() => setStep('inputPhone')}
-                title={ResetTitleMsg}
-            />
-        )
-    }
-
     const startConfirmPhoneAction = async () => {
         setIsLoading(true)
-        if (!executeRecaptcha) {
+        if (!executeCaptcha) {
+            setIsLoading(false)
             return
         }
-        const captcha = await executeRecaptcha('start_confirm_phone')
+        let captcha
+        try {
+            captcha = await executeCaptcha()
+        } catch (error) {
+            console.error(error)
+        }
         if (!captcha) {
+            setIsLoading(false)
             return
         }
 
@@ -116,83 +113,87 @@ function ResetPageView () {
             setIsLoading(false)
         })
     }
-    const Content = () => {
-        if (isLoading) {
-            return <Loader size='large' />
-        }
 
+    if (isLoading) {
+        return <Loader size='large' />
+    }
+
+    if (step === 'validatePhone') {
         return (
-            <>
-                <Head><title>{ResetTitleMsg}</title></Head>
-                <Form
-                    form={form}
-                    name='forgot-password'
-                    validateTrigger={['onBlur', 'onSubmit']}
-                    initialValues={initialValues}
-                    colon={false}
-                    requiredMark={false}
-                    layout='vertical'
-                >
-                    <Row style={ROW_STYLES}>
-                        <ResponsiveCol span={24}>
-                            <Row gutter={[0, 20]}>
-                                <Col span={24}>
-                                    <Typography.Title level={2}>{ResetTitleMsg}</Typography.Title>
-                                </Col>
-                                <Col span={24}>
-                                    <Typography.Paragraph size='medium'>{InstructionsMsg}</Typography.Paragraph>
-                                </Col>
-                            </Row>
-                            <Row gutter={[0, 40]}>
-                                <Col span={24}>
-                                    <Form.Item
-                                        name='phone'
-                                        label={REGISTER_PHONE_LABEL}
-                                        rules={validations.phone}
-                                        data-cy='forgot-phone-item'
-                                    >
-                                        <PhoneInput style={FORM_PHONE_STYLES} placeholder={ExamplePhoneMsg} />
-                                    </Form.Item>
-                                </Col>
-                                <Col span={24}>
-                                    <Form.Item>
-                                        <CountDownTimer action={startConfirmPhoneAction} id='FORGOT_ACTION' timeout={SMS_CODE_TTL}>
-                                            {({ countdown, runAction }) => {
-                                                const isCountDownActive = countdown > 0
-
-                                                return (
-                                                    <Button
-                                                        onClick={() => {
-                                                            form.validateFields().then(() => {
-                                                                runAction()
-                                                            }).catch(_ => {
-                                                                // validation check failed - don't invoke runAction
-                                                            })
-                                                        }}
-                                                        type='primary'
-                                                        disabled={isCountDownActive}
-                                                        loading={isLoading}
-                                                        htmlType='submit'
-                                                        block
-                                                        data-cy='forgot-button'
-                                                    >
-                                                        {isCountDownActive ? `${RestorePasswordMsg} ${countdown}` : RestorePasswordMsg}
-                                                    </Button>
-                                                )
-                                            }}
-                                        </CountDownTimer>
-                                    </Form.Item>
-                                </Col>
-                            </Row>
-                        </ResponsiveCol>
-                    </Row>
-                </Form>
-            </>)
+            <ValidatePhoneForm
+                onFinish={() => router.push('/auth/change-password?token=' + token)}
+                onReset={() => setStep('inputPhone')}
+                title={ResetTitleMsg}
+            />
+        )
     }
 
     return (
         <Row gutter={[0, 40]}>
-            <Content />
+            <Head><title>{ResetTitleMsg}</title></Head>
+            <Form
+                form={form}
+                name='forgot-password'
+                validateTrigger={['onBlur', 'onSubmit']}
+                initialValues={initialValues}
+                colon={false}
+                requiredMark={false}
+                layout='vertical'
+            >
+                <Row style={ROW_STYLES}>
+                    <ResponsiveCol span={24}>
+                        <Row gutter={[0, 20]}>
+                            <Col span={24}>
+                                <Typography.Title level={2}>{ResetTitleMsg}</Typography.Title>
+                            </Col>
+                            <Col span={24}>
+                                <Typography.Paragraph size='medium'>{InstructionsMsg}</Typography.Paragraph>
+                            </Col>
+                        </Row>
+                        <Row gutter={[0, 40]}>
+                            <Col span={24}>
+                                <Form.Item
+                                    name='phone'
+                                    label={REGISTER_PHONE_LABEL}
+                                    rules={validations.phone}
+                                    data-cy='forgot-phone-item'
+                                >
+                                    <PhoneInput style={FORM_PHONE_STYLES} placeholder={ExamplePhoneMsg} />
+                                </Form.Item>
+                            </Col>
+                            <Col span={24}>
+                                <Form.Item>
+                                    <CountDownTimer action={startConfirmPhoneAction} id='FORGOT_ACTION' timeout={SMS_CODE_TTL}>
+                                        {({ countdown, runAction }) => {
+                                            const isCountDownActive = countdown > 0
+
+                                            return (
+                                                <Button
+                                                    onClick={() => {
+                                                        form.validateFields().then(() => {
+                                                            runAction()
+                                                        }).catch(_ => {
+                                                            // validation check failed - don't invoke runAction
+                                                        })
+                                                    }}
+                                                    type='primary'
+                                                    disabled={isCountDownActive}
+                                                    loading={isLoading}
+                                                    htmlType='submit'
+                                                    block
+                                                    data-cy='forgot-button'
+                                                >
+                                                    {isCountDownActive ? `${RestorePasswordMsg} ${countdown}` : RestorePasswordMsg}
+                                                </Button>
+                                            )
+                                        }}
+                                    </CountDownTimer>
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                    </ResponsiveCol>
+                </Row>
+            </Form>
         </Row>
     )
 }
