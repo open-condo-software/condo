@@ -15,8 +15,6 @@ const IOS_KEY = CAPTHCA_CONFIG.IOS_KEY
 const ANDROID_KEY = CAPTHCA_CONFIG.ANDROID_KEY
 const API_KEY = CAPTHCA_CONFIG.API_KEY
 const CAPTCHA_SCORE_URL = 'https://api.hcaptcha.com/siteverify'
-const SAFE_CAPTCHA_SCORE = 0.5
-const THROW_ERRORS_ON_LOW_CAPTCHA_SCORE = conf.THROW_ERRORS_ON_LOW_CAPTCHA_SCORE === 'true'
 const DISABLE_CAPTCHA = conf.DISABLE_CAPTCHA === 'true'
 
 const ERROR_MESSAGES = {
@@ -99,12 +97,6 @@ const captchaCheck = async (context = {}, token) => {
                 const errorMessage = get(ERROR_MESSAGES, errorCode, 'Unknown error')
                 return { error: `Captcha is invalid: ${errorCode} (${errorMessage})` }
             }
-
-            // if (!THROW_ERRORS_ON_LOW_CAPTCHA_SCORE) return { error: null }
-            // NOTE: Only works in Enterprise plan! (risk score: human 0 -> 1 bot)
-            // const riskScore = get(result, 'score', 1)
-            // if (riskScore >= SAFE_CAPTCHA_SCORE) return { error: `Low captcha score ${riskScore}` }
-
             return { error: null }
         } else {
             return { error: 'Captcha check failed' }
