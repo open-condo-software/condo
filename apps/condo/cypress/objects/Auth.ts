@@ -59,7 +59,7 @@ class ForgotPassword {
     fillPhone (value): this {
         cy.get('[data-cy=forgot-phone-item] input')
             .clear()
-            .type(value, { force: true })
+            .type(value)
         return this
     }
 
