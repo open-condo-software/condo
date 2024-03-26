@@ -62,6 +62,7 @@ class ForgotPassword {
         // cy.waitForCaptcha()
         cy.get('[data-cy=forgot-phone-item] input').should('be.visible').should('not.be.disabled')
         cy.get('[data-cy=forgot-phone-item] input')
+            .focus()
             .clear()
             .type(value)
         return this
