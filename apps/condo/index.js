@@ -19,7 +19,7 @@ const {
 } = require('@open-condo/keystone/healthCheck')
 const { prepareKeystone } = require('@open-condo/keystone/KSv5v6/v5/prepareKeystone')
 const { RequestCache } = require('@open-condo/keystone/requestCache')
-const { getWebhookModels } = require('@open-condo/webhooks/schema')
+const { getWebhookModels, getWebhookTasks } = require('@open-condo/webhooks/schema')
 
 const { PaymentLinkMiddleware } = require('@condo/domains/acquiring/PaymentLinkMiddleware')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
@@ -101,7 +101,7 @@ const tasks = () => [
     require('@condo/domains/scope/tasks'),
     require('@condo/domains/news/tasks'),
     require('@condo/domains/miniapp/tasks'),
-    require('@open-condo/webhooks/tasks'),
+    getWebhookTasks('low'),
     require('@condo/domains/marketplace/tasks'),
 ]
 
