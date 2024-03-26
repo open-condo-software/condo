@@ -8,7 +8,6 @@ const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getRedisClient } = require('@open-condo/keystone/redis')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
-const { createTask } = require('@open-condo/keystone/tasks')
 const { DEFAULT_MAX_PACK_SIZE } = require('@open-condo/webhooks/constants')
 const { WebhookSubscription } = require('@open-condo/webhooks/schema/utils/serverSchema')
 const { trySendData, buildQuery } = require('@open-condo/webhooks/tasks/tasks.utils')
@@ -23,7 +22,11 @@ const NO_SUBSCRIPTION_STATUS = 'NO_SUBSCRIPTION'
 const rLock = (IS_BUILD) ? undefined : new RedLock([getRedisClient('worker')])
 const logger = getLogger('sendWebhook')
 
-
+/**
+ *
+ * @param subscriptionId
+ * @return {Promise<{status: string}>}
+ */
 async function sendWebhook (subscriptionId) {
     const taskId = this.id || uuid()
     const { keystone } = await getSchemaCtx('WebhookSubscription')
@@ -152,5 +155,5 @@ async function sendWebhook (subscriptionId) {
 
 module.exports = {
     trySendData,
-    sendWebhook: createTask('sendWebHook', sendWebhook, 'low'),
+    sendWebhook,
 }

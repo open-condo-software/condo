@@ -432,4 +432,5 @@ module.exports = {
     createWorker,
     registerTaskQueues,
     scheduleTaskByNameWithArgsAndOpts,
+    DEFAULT_QUEUE_NAME,
 }
