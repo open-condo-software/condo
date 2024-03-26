@@ -80,7 +80,7 @@ export const ValidatePhoneForm = ({ onFinish, onReset, title }): React.ReactElem
     }, [intl])
 
     const [form] = Form.useForm()
-    const { token, phone, handleReCaptchaVerify } = useContext(RegisterContext)
+    const { token, phone, handleCaptchaVerify } = useContext(RegisterContext)
     const [showPhone, setShowPhone] = useState(phone)
     const [isPhoneVisible, setIsPhoneVisible] = useState(false)
     const [phoneValidateError, setPhoneValidateError] = useState(null)
@@ -102,7 +102,7 @@ export const ValidatePhoneForm = ({ onFinish, onReset, title }): React.ReactElem
 
     const resendSms = useCallback(async () => {
         const sender = getClientSideSenderInfo()
-        const captcha = await handleReCaptchaVerify()
+        const captcha = await handleCaptchaVerify()
         const variables = { data: { token, sender, captcha, dv: 1 } }
         return runMutation({
             mutation: resendSmsMutation,
@@ -113,7 +113,7 @@ export const ValidatePhoneForm = ({ onFinish, onReset, title }): React.ReactElem
         }).catch(error => {
             console.error(error)
         })
-    }, [intl, form, handleReCaptchaVerify, resendSmsMutation])
+    }, [intl, form, handleCaptchaVerify, resendSmsMutation])
 
     const confirmPhone = useCallback(async () => {
         const sender = getClientSideSenderInfo()
@@ -121,7 +121,7 @@ export const ValidatePhoneForm = ({ onFinish, onReset, title }): React.ReactElem
         if (isNaN(smsCode)) {
             throw new Error(SMSBadFormat)
         }
-        const captcha = await handleReCaptchaVerify()
+        const captcha = await handleCaptchaVerify()
         const variables = { data: { token, smsCode, captcha, dv: 1, sender } }
         return runMutation({
             mutation: completeConfirmPhoneMutation,
