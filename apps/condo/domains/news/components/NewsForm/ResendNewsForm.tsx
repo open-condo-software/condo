@@ -67,9 +67,9 @@ export const ResendNewsForm: React.FC<IResendNewsForm> = ({ id }) => {
     })
 
     const sendPeriod: SendPeriodType = useMemo(() => {
-        return get(newsItem, 'sendAt', null) ? 'later' : 'now'
+        return get(newsItem, 'postponeUntil', null) ? 'later' : 'now'
     }, [newsItem])
-    const sendAt = useMemo(() => get(newsItem, 'sendAt', null), [newsItem])
+    const postponeUntil = useMemo(() => get(newsItem, 'postponeUntil', null), [newsItem])
     const validBefore = useMemo(() => get(newsItem, 'validBefore', null), [newsItem])
     const hasAllProperties = useMemo(() => {
         return newsItemScopes.filter((scope) => scope.property === null && scope.unitType === null && scope.unitName === null).length > 0
@@ -80,9 +80,9 @@ export const ResendNewsForm: React.FC<IResendNewsForm> = ({ id }) => {
         hasAllProperties: hasAllProperties,
         properties: properties,
         sendPeriod: sendPeriod,
-        sendAt: sendAt ? sendAt : null,
+        postponeUntil: postponeUntil ? postponeUntil : null,
         validBefore: validBefore ? validBefore : null,
-    }), [hasAllProperties, newsItem, newsItemScopes, properties, sendAt, sendPeriod, validBefore])
+    }), [hasAllProperties, newsItem, newsItemScopes, properties, postponeUntil, sendPeriod, validBefore])
 
     const dateStart = dayjs().startOf('day')
     const {

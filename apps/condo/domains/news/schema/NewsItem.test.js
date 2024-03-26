@@ -247,7 +247,7 @@ describe('NewsItems', () => {
                 expect(objUnpublished.title).toEqual(objCreated.title)
                 expect(objUnpublished.body).toEqual(objCreated.body)
                 expect(objUnpublished.validBefore).toEqual(objCreated.validBefore)
-                expect(objUnpublished.sendAt).toEqual(objCreated.sendAt)
+                expect(objUnpublished.postponeUntil).toEqual(objCreated.postponeUntil)
                 expect(objUnpublished.type).toEqual(objCreated.type)
             })
 
@@ -651,7 +651,7 @@ describe('NewsItems', () => {
                     // Generate utils containing the `scopes` field
                     const CustomNewsItemGQL = generateGqlQueries(
                         'NewsItem',
-                        '{ organization { id } title body type validBefore scopes { id property { id address } unitType unitName } sendAt sentAt isPublished }',
+                        '{ organization { id } title body type validBefore scopes { id property { id address } unitType unitName } postponeUntil sentAt isPublished }',
                     )
                     CustomNewsItemUtils = generateGQLTestUtils(CustomNewsItemGQL)
 
@@ -806,7 +806,7 @@ describe('NewsItems', () => {
         test('must throw an error if validity date is less than send date', async () => {
             await expectToThrowGQLError(
                 async () => await createTestNewsItem(adminClient, dummyO10n, {
-                    sendAt: dayjs().add(1, 'hour').toISOString(),
+                    postponeUntil: dayjs().add(1, 'hour').toISOString(),
                     validBefore: dayjs().add(57, 'minutes').toISOString(),
                 }),
                 {
@@ -920,7 +920,7 @@ describe('NewsItems', () => {
         test('must throw an error if send date points to the past', async () => {
             await expectToThrowGQLError(
                 async () => await createTestNewsItem(adminClient, dummyO10n, {
-                    sendAt: dayjs().subtract(1, 'day').toISOString(),
+                    postponeUntil: dayjs().subtract(1, 'day').toISOString(),
                 }),
                 {
                     code: 'BAD_USER_INPUT',
@@ -983,7 +983,7 @@ describe('NewsItems', () => {
             })
 
             // Schedule publication at 1 hour later
-            const [newsItem1] = await createTestNewsItem(adminClient, o10n1, { sendAt: dayjs().add(1, 'hour').toISOString() })
+            const [newsItem1] = await createTestNewsItem(adminClient, o10n1, { postponeUntil: dayjs().add(1, 'hour').toISOString() })
             await createTestNewsItemScope(adminClient, newsItem1, {
                 property: { connect: { id: property1.id } },
             })
@@ -992,7 +992,7 @@ describe('NewsItems', () => {
             expect(newsItems1).toHaveLength(0)
 
             // Imagine that publication scheduled after 3 seconds
-            await updateTestNewsItem(adminClient, newsItem1.id, { sendAt: dayjs().add(3, 'seconds').toISOString() })
+            await updateTestNewsItem(adminClient, newsItem1.id, { postponeUntil: dayjs().add(3, 'seconds').toISOString() })
 
             const newsItems2 = await NewsItem.getAll(residentClient1, {})
             expect(newsItems2).toHaveLength(0)
@@ -1083,83 +1083,83 @@ describe('NewsItems', () => {
             })
         })
 
-        describe('deliverAt', () => {
+        describe('sendAt', () => {
             test('cannot be created or updated by anyone', async () => {
                 await catchErrorFrom(async () => {
                     await createTestNewsItem(adminClient, dummyO10n, {
-                        deliverAt: faker.date.soon().toISOString(),
+                        sendAt: faker.date.soon().toISOString(),
                     })
                 }, (error) => {
                     expect(error.errors[0].name).toEqual('UserInputError')
-                    expect(error.errors[0].message).toContain('Field "deliverAt" is not defined by type "NewsItemCreateInput"')
+                    expect(error.errors[0].message).toContain('Field "sendAt" is not defined by type "NewsItemCreateInput"')
                 })
 
                 const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
                 await catchErrorFrom(async () => {
                     await updateTestNewsItem(adminClient, newsItem.id, {
-                        deliverAt: faker.date.soon().toISOString(),
+                        sendAt: faker.date.soon().toISOString(),
                     })
                 }, (error) => {
                     expect(error.errors[0].name).toEqual('UserInputError')
-                    expect(error.errors[0].message).toContain('Field "deliverAt" is not defined by type "NewsItemUpdateInput"')
+                    expect(error.errors[0].message).toContain('Field "sendAt" is not defined by type "NewsItemUpdateInput"')
                 })
             })
 
             describe('should be auto-calculated', () => {
-                test('should be updated to value from "sendAt" if it set when "isPublished" updated to true', async () => {
-                    const [newsItem] = await createTestNewsItem(adminClient, dummyO10n, { sendAt: dayjs().add(1, 'day').toISOString() })
-                    expect(newsItem.deliverAt).toBeNull()
+                test('should be updated to value from "postponeUntil" if it set when "isPublished" updated to true', async () => {
+                    const [newsItem] = await createTestNewsItem(adminClient, dummyO10n, { postponeUntil: dayjs().add(1, 'day').toISOString() })
+                    expect(newsItem.sendAt).toBeNull()
 
                     await createTestNewsItemScope(adminClient, newsItem)
 
                     const [publishedNewsItem] = await publishTestNewsItem(adminClient, newsItem.id)
-                    expect(publishedNewsItem).toHaveProperty('deliverAt', publishedNewsItem.sendAt)
-                    expect(publishedNewsItem).toHaveProperty('sendAt', newsItem.sendAt)
+                    expect(publishedNewsItem).toHaveProperty('sendAt', publishedNewsItem.postponeUntil)
+                    expect(publishedNewsItem).toHaveProperty('postponeUntil', newsItem.postponeUntil)
                 })
 
-                test('should be updated to now() + 15 seconds if "sendAt" not set when "isPublished" updated to true', async () => {
+                test('should be updated to now() + 15 seconds if "postponeUntil" not set when "isPublished" updated to true', async () => {
                     const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
-                    expect(newsItem.deliverAt).toBeNull()
+                    expect(newsItem.sendAt).toBeNull()
 
                     await createTestNewsItemScope(adminClient, newsItem)
 
                     const [publishedNewsItem] = await publishTestNewsItem(adminClient, newsItem.id)
-                    expect(publishedNewsItem.deliverAt).not.toBeNull()
-                    expect(dayjs(publishedNewsItem.deliverAt).diff(dayjs(publishedNewsItem.createdAt), 'second')).toBeLessThanOrEqual(15)
+                    expect(publishedNewsItem.sendAt).not.toBeNull()
+                    expect(dayjs(publishedNewsItem.sendAt).diff(dayjs(publishedNewsItem.createdAt), 'second')).toBeLessThanOrEqual(15)
                 })
 
                 test('should be updated to null when "isPublished" updated to false', async () => {
                     const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
-                    expect(newsItem.deliverAt).toBeNull()
+                    expect(newsItem.sendAt).toBeNull()
 
                     await createTestNewsItemScope(adminClient, newsItem)
 
                     const [publishedNewsItem] = await publishTestNewsItem(adminClient, newsItem.id)
-                    expect(publishedNewsItem.deliverAt).not.toBeNull()
+                    expect(publishedNewsItem.sendAt).not.toBeNull()
 
                     const [updatedNewsItem] = await updateTestNewsItem(adminClient, newsItem.id, { isPublished: false })
-                    expect(updatedNewsItem.deliverAt).toBeNull()
+                    expect(updatedNewsItem.sendAt).toBeNull()
                 })
 
                 test('should not be updated in other cases', async () => {
                     const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
-                    expect(newsItem.deliverAt).toBeNull()
+                    expect(newsItem.sendAt).toBeNull()
 
                     const [updatedNewsItem] = await updateTestNewsItem(adminClient, newsItem.id, { body: faker.lorem.sentence() })
-                    expect(updatedNewsItem.deliverAt).toBeNull()
+                    expect(updatedNewsItem.sendAt).toBeNull()
 
                     await createTestNewsItemScope(adminClient, newsItem)
-                    const [updatedNewsItem2] = await updateTestNewsItem(adminClient, newsItem.id, { sendAt: dayjs().add(1, 'day').toISOString() })
-                    expect(updatedNewsItem2.deliverAt).toBeNull() // should not be updated
+                    const [updatedNewsItem2] = await updateTestNewsItem(adminClient, newsItem.id, { postponeUntil: dayjs().add(1, 'day').toISOString() })
+                    expect(updatedNewsItem2.sendAt).toBeNull() // should not be updated
 
                     const [publishedNewsItem] = await publishTestNewsItem(adminClient, newsItem.id)
-                    expect(publishedNewsItem).toHaveProperty('deliverAt', publishedNewsItem.sendAt) // should be updated to sendAt
+                    expect(publishedNewsItem).toHaveProperty('sendAt', publishedNewsItem.postponeUntil) // should be updated to postponeUntil
 
                     const [updatedNewsItem3] = await updateTestNewsItem(adminClient, newsItem.id, { isPublished: false })
-                    expect(updatedNewsItem3.deliverAt).toBeNull() // should be updated to null
+                    expect(updatedNewsItem3.sendAt).toBeNull() // should be updated to null
 
-                    const [updatedNewsItem4] = await updateTestNewsItem(adminClient, newsItem.id, { sendAt: dayjs().add(2, 'day').toISOString() })
-                    expect(updatedNewsItem4.deliverAt).toBeNull() // should not be updated
+                    const [updatedNewsItem4] = await updateTestNewsItem(adminClient, newsItem.id, { postponeUntil: dayjs().add(2, 'day').toISOString() })
+                    expect(updatedNewsItem4.sendAt).toBeNull() // should not be updated
                 })
             })
         })

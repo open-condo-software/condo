@@ -1488,7 +1488,7 @@
   "news.fields.body.placeholder": "Сформулируйте текст новости — он появится на главном экране приложения жителя, в разделе «Новости» и в качестве push-уведомления",
   "news.fields.properties.allSelected": "Все дома",
   "news.fields.validBefore.title": "Сообщение будет закреплено на главном экране приложения до указанного срока или пока житель его не прочитает. После — останется в ленте новостей и разделе уведомлений",
-  "news.fields.sendAt.label": "Отправить в",
+  "news.fields.postponeUntil.label": "Отправить в",
   "news.fields.title.error.length": "Пожалуйста, добавьте заголовок",
   "news.fields.body.error.length": "Пожалуйста, добавьте основной текст",
   "news.fields.makeText.label": "Составьте текст",

@@ -185,7 +185,7 @@ const NewsItemCard: React.FC = () => {
     })
 
     const sendDateStr = useMemo(() => {
-        const dateToShow = get(newsItem, 'sendAt') || get(newsItem, 'publishedAt')
+        const dateToShow = get(newsItem, 'postponeUntil') || get(newsItem, 'publishedAt')
         return dateToShow ? dayjs(dateToShow).format('YYYY.MM.DD HH:mm') : '—'
     }, [newsItem])
 
@@ -254,7 +254,7 @@ const NewsItemCard: React.FC = () => {
                                             <Button type='primary'>{ResendTitle}</Button>
                                         </Link>
                                     ) : ( <ActionBar actions={[
-                                        newsItem.sendAt && (
+                                        newsItem.postponeUntil && (
                                             <Link key='update' href={`/news/${get(newsItem, 'id')}/update`}>
                                                 <Button type='primary'>{EditTitle}</Button>
                                             </Link>

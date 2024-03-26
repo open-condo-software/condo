@@ -96,7 +96,7 @@ const ERRORS = {
 }
 
 const COMPACT_SCOPES_SIZE = 2
-const readOnlyFieldsWhenPublished = ['organization', 'title', 'body', 'type', 'sendAt']
+const readOnlyFieldsWhenPublished = ['organization', 'title', 'body', 'type', 'postponeUntil']
 
 const NewsItem = new GQLListSchema('NewsItem', {
     schemaDoc: 'The news item created by the organization to show on resident\'s mobile devices',
@@ -136,34 +136,34 @@ const NewsItem = new GQLListSchema('NewsItem', {
             type: 'DateTimeUtc',
         },
 
-        sendAt: {
+        postponeUntil: {
             schemaDoc: 'UTC (!)' +
                 '\nDate to publish the news item and to send notifications.' +
                 '\nIf left blank, it will be published immediately.',
             type: 'DateTimeUtc',
         },
 
-        deliverAt: {
-            schemaDoc: '(Internal auto-calculated field)' +
+        sendAt: {
+            schemaDoc: '(Auto-calculated field)' +
                 '\nStart time for sending notifications.' +
                 '\nThis field is updated when the "isPublished" field is updated.' +
-                '\nIf set "isPublished" to false then "deliverAt" set to null.' +
-                '\nIf set "isPublished" to true then "deliverAt" depends on the "sendAt" field:' +
-                '\n 1) If "sendAt" is empty, then current time + delay of 15 seconds is specified;' +
-                '\n 2) If "sendAt" is specified, then the value is taken from it.',
+                '\nIf set "isPublished" to false then "sendAt" set to null.' +
+                '\nIf set "isPublished" to true then "sendAt" depends on the "postponeUntil" field:' +
+                '\n 1) If "postponeUntil" is empty, then current time + delay of 15 seconds is specified;' +
+                '\n 2) If "postponeUntil" is specified, then the value is taken from it.',
             type: 'DateTimeUtc',
             hooks: {
                 resolveInput: async ({ existingItem, resolvedData, fieldName }) => {
                     const newItem = { ...existingItem, ...resolvedData }
                     const prevIsPublished = get(existingItem, 'isPublished', false)
-                    const sendAt = get(newItem, 'sendAt', null)
+                    const postponeUntil = get(newItem, 'postponeUntil', null)
                     const isPublished = get(newItem, 'isPublished', false)
                     const updatedIsPublished = prevIsPublished !== isPublished
 
                     if (!updatedIsPublished) return get(resolvedData, fieldName)
                     if (!isPublished) return null
-                    if (!sendAt) return dayjs().add(SENDING_DELAY_SEC, 'second').toISOString()
-                    return sendAt
+                    if (!postponeUntil) return dayjs().add(SENDING_DELAY_SEC, 'second').toISOString()
+                    return postponeUntil
                 },
             },
             access: {
@@ -266,9 +266,9 @@ const NewsItem = new GQLListSchema('NewsItem', {
             const { resolvedData, existingItem, context, operation } = args
             const resultItemData = { ...existingItem, ...resolvedData }
 
-            const sendAt = get(resolvedData, 'sendAt')
+            const postponeUntil = get(resolvedData, 'postponeUntil')
             const sentAt = get(existingItem, 'sentAt')
-            const resultSendAt = get(resultItemData, 'sendAt')
+            const resultPostponeUntil = get(resultItemData, 'postponeUntil')
             const resultValidBefore = get(resultItemData, 'validBefore')
             const isPublished = get(existingItem, 'isPublished')
             const type = get(resultItemData, 'type')
@@ -298,11 +298,11 @@ const NewsItem = new GQLListSchema('NewsItem', {
                 throw new GQLError(ERRORS.EMPTY_VALID_BEFORE_DATE, context)
             }
 
-            if (!!sendAt && Date.parse(sendAt) < Date.parse(dayjs())) {
+            if (!!postponeUntil && Date.parse(postponeUntil) < Date.parse(dayjs())) {
                 throw new GQLError(ERRORS.WRONG_SEND_DATE, context)
             }
 
-            if (!!resultSendAt && !!resultValidBefore && Date.parse(resultValidBefore) < Date.parse(resultSendAt)) {
+            if (!!resultPostponeUntil && !!resultValidBefore && Date.parse(resultValidBefore) < Date.parse(resultPostponeUntil)) {
                 throw new GQLError(ERRORS.VALIDITY_DATE_LESS_THAN_SEND_DATE, context)
             }
 
@@ -341,7 +341,7 @@ const NewsItem = new GQLListSchema('NewsItem', {
         afterChange: async ({ updatedItem }) => {
             if (
                 updatedItem.isPublished
-                && !updatedItem.sendAt // There is a cron task to send delayed news items
+                && !updatedItem.postponeUntil // There is a cron task to send delayed news items
                 && !updatedItem.sentAt
             ) {
                 // Publish connected NewsItemSharing items

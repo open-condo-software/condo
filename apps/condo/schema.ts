@@ -49194,16 +49194,17 @@ export type NewsItem = {
    * Date to publish the news item and to send notifications.
    * If left blank, it will be published immediately.
    */
-  sendAt?: Maybe<Scalars['String']>;
+  postponeUntil?: Maybe<Scalars['String']>;
   /**
-   *  (Internal auto-calculated field)
+   *  (Auto-calculated field)
    * Start time for sending notifications.
-   * This field is updated when the "isPublished" field is updated to "true".
-   * Depends on the "sendAt" field:
-   *  1) If "sendAt" is empty, then current time + delay of 15 seconds is specified;
-   *  2) If "sendAt" is specified, then the value is taken from it.
+   * This field is updated when the "isPublished" field is updated.
+   * If set "isPublished" to false then "sendAt" set to null.
+   * If set "isPublished" to true then "sendAt" depends on the "postponeUntil" field:
+   *  1) If "postponeUntil" is empty, then current time + delay of 15 seconds is specified;
+   *  2) If "postponeUntil" is specified, then the value is taken from it.
    */
-  deliverAt?: Maybe<Scalars['String']>;
+  sendAt?: Maybe<Scalars['String']>;
   scopes: Array<NewsItemScope>;
   _scopesMeta?: Maybe<_QueryMeta>;
   /**
@@ -49262,8 +49263,8 @@ export type NewsItemCreateInput = {
   body?: Maybe<Scalars['String']>;
   type?: Maybe<NewsItemTypeType>;
   validBefore?: Maybe<Scalars['String']>;
+  postponeUntil?: Maybe<Scalars['String']>;
   sendAt?: Maybe<Scalars['String']>;
-  deliverAt?: Maybe<Scalars['String']>;
   scopes?: Maybe<NewsItemScopeRelateToManyInput>;
   sentAt?: Maybe<Scalars['String']>;
   isPublished?: Maybe<Scalars['Boolean']>;
@@ -49296,8 +49297,8 @@ export type NewsItemHistoryRecord = {
   body?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
   validBefore?: Maybe<Scalars['String']>;
+  postponeUntil?: Maybe<Scalars['String']>;
   sendAt?: Maybe<Scalars['String']>;
-  deliverAt?: Maybe<Scalars['String']>;
   compactScopes?: Maybe<Scalars['JSON']>;
   sentAt?: Maybe<Scalars['String']>;
   isPublished?: Maybe<Scalars['Boolean']>;
@@ -49324,8 +49325,8 @@ export type NewsItemHistoryRecordCreateInput = {
   body?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
   validBefore?: Maybe<Scalars['String']>;
+  postponeUntil?: Maybe<Scalars['String']>;
   sendAt?: Maybe<Scalars['String']>;
-  deliverAt?: Maybe<Scalars['String']>;
   compactScopes?: Maybe<Scalars['JSON']>;
   sentAt?: Maybe<Scalars['String']>;
   isPublished?: Maybe<Scalars['Boolean']>;
@@ -49357,8 +49358,8 @@ export type NewsItemHistoryRecordUpdateInput = {
   body?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
   validBefore?: Maybe<Scalars['String']>;
+  postponeUntil?: Maybe<Scalars['String']>;
   sendAt?: Maybe<Scalars['String']>;
-  deliverAt?: Maybe<Scalars['String']>;
   compactScopes?: Maybe<Scalars['JSON']>;
   sentAt?: Maybe<Scalars['String']>;
   isPublished?: Maybe<Scalars['Boolean']>;
@@ -49450,6 +49451,14 @@ export type NewsItemHistoryRecordWhereInput = {
   validBefore_gte?: Maybe<Scalars['String']>;
   validBefore_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   validBefore_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  postponeUntil?: Maybe<Scalars['String']>;
+  postponeUntil_not?: Maybe<Scalars['String']>;
+  postponeUntil_lt?: Maybe<Scalars['String']>;
+  postponeUntil_lte?: Maybe<Scalars['String']>;
+  postponeUntil_gt?: Maybe<Scalars['String']>;
+  postponeUntil_gte?: Maybe<Scalars['String']>;
+  postponeUntil_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  postponeUntil_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   sendAt?: Maybe<Scalars['String']>;
   sendAt_not?: Maybe<Scalars['String']>;
   sendAt_lt?: Maybe<Scalars['String']>;
@@ -49458,14 +49467,6 @@ export type NewsItemHistoryRecordWhereInput = {
   sendAt_gte?: Maybe<Scalars['String']>;
   sendAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   sendAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  deliverAt?: Maybe<Scalars['String']>;
-  deliverAt_not?: Maybe<Scalars['String']>;
-  deliverAt_lt?: Maybe<Scalars['String']>;
-  deliverAt_lte?: Maybe<Scalars['String']>;
-  deliverAt_gt?: Maybe<Scalars['String']>;
-  deliverAt_gte?: Maybe<Scalars['String']>;
-  deliverAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  deliverAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   compactScopes?: Maybe<Scalars['JSON']>;
   compactScopes_not?: Maybe<Scalars['JSON']>;
   compactScopes_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -51232,8 +51233,8 @@ export type NewsItemUpdateInput = {
   body?: Maybe<Scalars['String']>;
   type?: Maybe<NewsItemTypeType>;
   validBefore?: Maybe<Scalars['String']>;
+  postponeUntil?: Maybe<Scalars['String']>;
   sendAt?: Maybe<Scalars['String']>;
-  deliverAt?: Maybe<Scalars['String']>;
   scopes?: Maybe<NewsItemScopeRelateToManyInput>;
   sentAt?: Maybe<Scalars['String']>;
   isPublished?: Maybe<Scalars['Boolean']>;
@@ -51617,6 +51618,14 @@ export type NewsItemWhereInput = {
   validBefore_gte?: Maybe<Scalars['String']>;
   validBefore_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   validBefore_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  postponeUntil?: Maybe<Scalars['String']>;
+  postponeUntil_not?: Maybe<Scalars['String']>;
+  postponeUntil_lt?: Maybe<Scalars['String']>;
+  postponeUntil_lte?: Maybe<Scalars['String']>;
+  postponeUntil_gt?: Maybe<Scalars['String']>;
+  postponeUntil_gte?: Maybe<Scalars['String']>;
+  postponeUntil_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  postponeUntil_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   sendAt?: Maybe<Scalars['String']>;
   sendAt_not?: Maybe<Scalars['String']>;
   sendAt_lt?: Maybe<Scalars['String']>;
@@ -51625,14 +51634,6 @@ export type NewsItemWhereInput = {
   sendAt_gte?: Maybe<Scalars['String']>;
   sendAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   sendAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  deliverAt?: Maybe<Scalars['String']>;
-  deliverAt_not?: Maybe<Scalars['String']>;
-  deliverAt_lt?: Maybe<Scalars['String']>;
-  deliverAt_lte?: Maybe<Scalars['String']>;
-  deliverAt_gt?: Maybe<Scalars['String']>;
-  deliverAt_gte?: Maybe<Scalars['String']>;
-  deliverAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  deliverAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   /**  condition must be true for all nodes  */
   scopes_every?: Maybe<NewsItemScopeWhereInput>;
   /**  condition must be true for at least 1 node  */
@@ -77661,10 +77662,10 @@ export enum SortNewsItemHistoryRecordsBy {
   TypeDesc = 'type_DESC',
   ValidBeforeAsc = 'validBefore_ASC',
   ValidBeforeDesc = 'validBefore_DESC',
+  PostponeUntilAsc = 'postponeUntil_ASC',
+  PostponeUntilDesc = 'postponeUntil_DESC',
   SendAtAsc = 'sendAt_ASC',
   SendAtDesc = 'sendAt_DESC',
-  DeliverAtAsc = 'deliverAt_ASC',
-  DeliverAtDesc = 'deliverAt_DESC',
   SentAtAsc = 'sentAt_ASC',
   SentAtDesc = 'sentAt_DESC',
   IsPublishedAsc = 'isPublished_ASC',
@@ -77946,10 +77947,10 @@ export enum SortNewsItemsBy {
   TypeDesc = 'type_DESC',
   ValidBeforeAsc = 'validBefore_ASC',
   ValidBeforeDesc = 'validBefore_DESC',
+  PostponeUntilAsc = 'postponeUntil_ASC',
+  PostponeUntilDesc = 'postponeUntil_DESC',
   SendAtAsc = 'sendAt_ASC',
   SendAtDesc = 'sendAt_DESC',
-  DeliverAtAsc = 'deliverAt_ASC',
-  DeliverAtDesc = 'deliverAt_DESC',
   ScopesAsc = 'scopes_ASC',
   ScopesDesc = 'scopes_DESC',
   SentAtAsc = 'sentAt_ASC',
