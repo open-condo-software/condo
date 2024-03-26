@@ -65,6 +65,7 @@ jobs:
           WERF_SET_CI_DEVPORTALAPI_URL: "global.ci_devportalapi_url=developers-api.d.doma.ai"
           WERF_SET_CI_TELEGRAM_EMPLOYEE_BOT_URL: "global.ci_telegram_employee_bot_url=telegram-employee-bot.d.doma.ai"
           WERF_SET_CI_EDS_INTEGRATION_URL: "global.ci_eds_integration_url=eds-integration.d.doma.ai"
+          WERF_SET_CI_CONDO_RESTAPI_URL: "global.ci_condo_restapi_url=bank-rest-api.d.doma.ai"
           WERF_NAMESPACE: "development"
           WERF_VIRTUAL_MERGE_FROM_COMMIT: "true"
           WERF_SET_CI_REF: "ci.werf.io/ref=${GITHUB_REF_NAME}"
