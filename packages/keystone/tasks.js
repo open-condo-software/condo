@@ -16,7 +16,7 @@ const TASK_TYPE = 'TASK'
    So for better migration experience we decided to leave this name as a default queue name */
 const DEFAULT_QUEUE_NAME = 'tasks'
 const TASK_QUEUE_REMAPPING = { medium: DEFAULT_QUEUE_NAME, default: DEFAULT_QUEUE_NAME }
-const DEFAULT_QUEUES = ['low', 'medium', 'high']
+const DEFAULT_QUEUES = [DEFAULT_QUEUE_NAME]
 const QUEUE_NAME_REGEX = new RegExp(/^[a-zA-z]*$/)
 const WORKER_CONCURRENCY = parseInt(conf.WORKER_CONCURRENCY || '2')
 const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
@@ -260,7 +260,7 @@ function registerTasks (modulesList) {
 
 /**
  * Check provided array of names for uniqueness and matching pattern and creates task execution queues
- * @param queueNames {Array<string>}. If no value was passed, function will register and create three queues -> low, tasks and high
+ * @param queueNames {Array<string>}. If no value was passed, function will register and create one default queue -> tasks
  */
 function registerTaskQueues (queueNames = DEFAULT_QUEUES) {
     queueNames.forEach(name => {
