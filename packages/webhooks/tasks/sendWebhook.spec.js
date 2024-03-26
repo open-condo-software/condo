@@ -37,7 +37,7 @@ jest.spyOn(utils, 'trySendData').mockImplementation((url, objs) => {
 })
 
 // eslint-disable-next-line import/order
-const { getWebhookTasks } = require('@open-condo/webhooks/schema')
+const { getWebhookTasks } = require('@open-condo/webhooks/tasks')
 
 const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer, entryPointPath) => {
     describe(`sendWebhook task basic tests for ${appName} app`, () => {

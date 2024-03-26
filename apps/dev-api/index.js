@@ -1,5 +1,6 @@
 const { prepareKeystone } = require('@open-condo/keystone/KSv5v6/v5/prepareKeystone')
-const { getWebhookModels, getWebhookTasks } = require('@open-condo/webhooks/schema')
+const { getWebhookModels } = require('@open-condo/webhooks/schema')
+const { getWebhookTasks } = require('@open-condo/webhooks/tasks')
 
 const { makeFileAdapterMiddleware } = require('@dev-api/domains/common/utils/files')
 
