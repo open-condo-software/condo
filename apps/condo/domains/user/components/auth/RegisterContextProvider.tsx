@@ -9,7 +9,7 @@ import { GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY } from '@condo/domains/user/gql'
 
 
 interface IRegisterContext {
-    handleReCaptchaVerify: () => Promise<string>
+    handleCaptchaVerify: () => Promise<string>
     token: string
     setToken: Dispatch<SetStateAction<string>>
     phone: string
@@ -20,7 +20,7 @@ interface IRegisterContext {
 }
 
 export const RegisterContext = createContext<IRegisterContext>({
-    handleReCaptchaVerify: () => null,
+    handleCaptchaVerify: () => null,
     token: '',
     setToken: () => null,
     phone: '',
@@ -38,7 +38,7 @@ export const RegisterContextProvider = ({ children }): React.ReactElement => {
     const [isConfirmed, setIsConfirmed] = useState(false)
     const { executeCaptcha } = useHCaptcha()
 
-    const handleReCaptchaVerify = useCallback(async () => {
+    const handleCaptchaVerify = useCallback(async () => {
         if (executeCaptcha) {
             return await executeCaptcha()
         }
@@ -57,7 +57,7 @@ export const RegisterContextProvider = ({ children }): React.ReactElement => {
 
     useEffect(() => {
         if (!isEmpty(queryToken)) {
-            handleReCaptchaVerify().then(captcha => {
+            handleCaptchaVerify().then(captcha => {
                 if (captcha) {
                     loadTokenInfo({ variables: { data: { token: queryToken, captcha } } })
                 }
@@ -66,7 +66,7 @@ export const RegisterContextProvider = ({ children }): React.ReactElement => {
             setPhone(phone) // NOSONAR
             setIsConfirmed(false)
         }
-    }, [queryToken, handleReCaptchaVerify, loadTokenInfo, phone])
+    }, [queryToken, handleCaptchaVerify, loadTokenInfo, phone])
 
     return (
         <RegisterContext.Provider
@@ -78,7 +78,7 @@ export const RegisterContextProvider = ({ children }): React.ReactElement => {
                 tokenError,
                 setTokenError,
                 isConfirmed,
-                handleReCaptchaVerify,
+                handleCaptchaVerify,
             }}
         >
             {children}

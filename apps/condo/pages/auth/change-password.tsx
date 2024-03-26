@@ -45,7 +45,6 @@ const ChangePasswordPage: AuthPage = () => {
     const [isSaving, setIsSaving] = useState(false)
     const [changePassword] = useMutation(CHANGE_PASSWORD_WITH_TOKEN_MUTATION)
     const auth = useAuth()
-    // const { executeRecaptcha } = useGoogleReCaptcha()
     const { executeCaptcha } = useHCaptcha()
 
     const intl = useIntl()
