@@ -92,5 +92,5 @@ async function discoverServiceConsumersCronTask () {
 
 module.exports = {
     REDIS_KEY,
-    discoverServiceConsumersCronTask: createCronTask('discoverServiceConsumersCronTask', '13 */4 * * *', discoverServiceConsumersCronTask, { priority: 10 }),
+    discoverServiceConsumersCronTask: createCronTask('discoverServiceConsumersCronTask', '13 */4 * * *', discoverServiceConsumersCronTask),
 }

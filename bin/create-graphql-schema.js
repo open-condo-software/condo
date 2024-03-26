@@ -8,7 +8,7 @@ const { program } = require('commander')
 const { printSchema } = require('graphql')
 
 const { prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeystoneApp')
-const { taskQueue } = require('@open-condo/keystone/tasks')
+const { taskQueues } = require('@open-condo/keystone/tasks')
 
 const writeFile = promisify(fs.writeFile)
 
@@ -34,7 +34,7 @@ async function getGraphQLSchema (keystoneModule) {
     const internalSchema = keystone._schemas['internal']
     const result = printSchema(internalSchema)
     await keystone.disconnect()
-    await taskQueue.close()
+    await Promise.all(Array.from(taskQueues.values()).map(queue => queue.close()))
     return result
 }
 

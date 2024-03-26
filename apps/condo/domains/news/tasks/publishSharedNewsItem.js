@@ -74,4 +74,4 @@ async function publishSharedNewsItem (newsItemSharingId) {
     return await _publishSharedNewsItem(newsItem, newsItemSharing)
 }
 
-module.exports = createTask('publishSharedNewsItem', publishSharedNewsItem, { priority: 3 })
+module.exports = createTask('publishSharedNewsItem', publishSharedNewsItem, 'low')

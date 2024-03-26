@@ -1,4 +1,4 @@
-const { createTask, createWorker, taskQueue } = require('./tasks')
+const { createTask, createWorker, taskQueues } = require('./tasks')
 
 function createTaskFactory () {
     return async function asyncAddTask (a, b) {
@@ -8,11 +8,11 @@ function createTaskFactory () {
 }
 
 beforeAll(async () => {
-    return createWorker()
+    return await createWorker()
 })
 
-afterAll(() => {
-    return taskQueue.close()
+afterAll(async () => {
+    await Promise.all(Array.from(taskQueues.entries()).map(([,queue]) => queue.close()))
 })
 
 describe('tasks', () => {
@@ -34,14 +34,14 @@ describe('tasks', () => {
     })
 
     test('awaitResult', async () => {
-        const task = createTask('asyncAddTask3', createTaskFactory(), { attempts: 3, backoff: true })
+        const task = createTask('asyncAddTask3', createTaskFactory())
         const delayed = await task.delay(44, 2)
         const result = await delayed.awaitResult()
         expect(result).toEqual(22)
     })
 
     test('awaitResult error', async () => {
-        const task = createTask('asyncAddTask3E', createTaskFactory(), { attempts: 1 })
+        const task = createTask('asyncAddTask3E', createTaskFactory())
         const delayed = await task.delay(10, 0)
         const func = async () => await delayed.awaitResult()
         await expect(func()).rejects.toThrow('DivBy0')
@@ -50,14 +50,15 @@ describe('tasks', () => {
     test('getState', async () => {
         const task = createTask('asyncAddTask4', createTaskFactory())
         const delayed = await task.delay(44, 11)
-        await delayed.awaitResult()
+        const result = await delayed.awaitResult()
+        expect(result).toEqual(4)
         const state2 = await delayed.getState()
         expect(state2).toEqual('completed')
     })
 
     test('createTask().applyAsync result', async () => {
         const task = createTask('asyncAddTask5', createTaskFactory())
-        const delayed = await task.applyAsync([333, 3], { attempts: 2, backoff: true })
+        const delayed = await task.applyAsync([333, 3])
         expect(delayed).toHaveProperty('getState')
         expect(delayed).toHaveProperty('awaitResult')
     })

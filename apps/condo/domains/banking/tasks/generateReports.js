@@ -290,5 +290,5 @@ const generateReports = async (taskId) => {
 module.exports = {
     generateReportsTask: createTask('generateReportsTask', async (taskId) => {
         await generateReports(taskId)
-    }),
+    }, 'low'),
 }

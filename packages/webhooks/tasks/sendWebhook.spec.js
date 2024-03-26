@@ -37,11 +37,14 @@ jest.spyOn(utils, 'trySendData').mockImplementation((url, objs) => {
 })
 
 // eslint-disable-next-line import/order
-const { sendWebhook } = require('@open-condo/webhooks/tasks/sendWebhook')
+const { getWebhookTasks } = require('@open-condo/webhooks/tasks')
+
 const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer, entryPointPath) => {
     describe(`sendWebhook task basic tests for ${appName} app`, () => {
         const appEntryPoint = require(entryPointPath)
         setFakeClientMode(appEntryPoint, { excludeApps: ['OIDCMiddleware'] })
+
+        let sendWebhook
         let actors
         let firstUser
         let deletedUser
@@ -52,6 +55,7 @@ const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer
             const secondUser = await userCreator()
             deletedUser = await userDestroyer(actors.admin, secondUser)
             lastUser = await userCreator()
+            sendWebhook = getWebhookTasks()['sendWebhook']
         })
         it('Must correctly send requests and update subscription state', async () => {
             const [hook] = await createTestWebhook(actors.admin, actors.admin.user)
