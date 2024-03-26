@@ -24,6 +24,8 @@
   "Completed": "Completed",
   "ConfirmPassword": "Confirm password",
   "ConfirmVerificationCode": "Confirm verification code",
+  "InMoreDetail": "More",
+  "Next": "Next",
   "Thanks": "Thanks",
   "import.Errors": "Errors",
   "import.uploadButtonLabel": "Import list from file",
@@ -2116,6 +2118,64 @@
   "tour.newFeatures.resident.payBills": "Pay bills in the Doma app",
   "tour.newFeatures.resident.createMeterReadings": "Submit meter readings in the mobile app",
   "tour.newFeatures.resident.downloadApp": "Download the app and register",
+  "tour.guide.title": "Doma — мобильное приложение жителя",
+
+  "tour.guide.aboutApp.title": "Как приложение для Жителя помогает УК",
+  "tour.guide.aboutApp.modal.card.link": "Узнать подробности",
+
+  "tour.guide.aboutApp.payments.card.body": "Повышает собираемость платежей и снижает дебиторскую задолженность",
+  "tour.guide.aboutApp.payments.modal.picText": "Приложение для Жителя повышает собираемость платежей и снижает дебиторскую задолженность",
+  "tour.guide.aboutApp.payments.modal.body": "Жители чаще оплачивают квитанции, если это быстро и удобно. В приложении можно оплатить все квитанции в два клика: поскольку квитанции загружаются автоматически — не нужно каждый раз сканировать QR-код или вводить реквизиты, а еще можно оплатить несколько квитанций одной кнопкой с помощью сохраненной карты или SberPay.\nЧтобы жители не пропускали платежи, мы пришлем пуш-уведомление о новой квитанции. Должников уведомляем два раза в месяц. А после каждой оплаты — предлагаем настроить автоплатеж.",
+  "tour.guide.aboutApp.payments.modal.card.body": "УК «Садовый квартал» снизила дебиторскую задолженность с помощью платежей через ммобильное приложение",
+
+  "tour.guide.aboutApp.costs.card.body": "Сокращает операционные расходы",
+  "tour.guide.aboutApp.costs.modal.picText": "Приложение для Жителя сокращает операционные расходы",
+  "tour.guide.aboutApp.costs.modal.body": "Приложение позволяет жителям получать уведомления об авариях, создавать заявки, отслеживать их статус, а также взаимодействовать с УК внутри заявки. Это сокращает количество звонков в диспетчерскую и уменьшает время обработки одной заявки, что в конечном итоге снижает операционные расходы.",
+  "tour.guide.aboutApp.costs.modal.card.body": "в УК «Основа» отмечают про мобильное приложение, что «гораздо проще “ловить” заявки от жителей с его помощью, чем в чатах. Этот способ связи удобен и для сотрудников: не приходится долго разговаривать с собственниками и занимать телефонную линию».",
+
+  "tour.guide.aboutApp.quality.card.body": "Улучшает качество обслуживания",
+  "tour.guide.aboutApp.quality.modal.picText": "Приложение для Жителя улучшает качество обслуживания",
+  "tour.guide.aboutApp.quality.modal.body": "Оперативная реакция на запросы делает коммуникацию прозрачнее и повышает лояльность жителей. Приложение позволяет получать новости о важных событиях в жизни дома и оповещает о ходе выполнения заявок. Возможность оценивать заявки, комментировать их и общаться с УК в чате помогает контролировать качество услуг.",
+  "tour.guide.aboutApp.quality.modal.card.body": "УК «Зеленый бульвар» научили большинство жителей общаться через приложение, а о событиях рассказывают через оповещения и push-уведомления — сведения о событии появляется в мобильном приложении Doma и на экране смартфона жителя.",
+
+  "tour.guide.aboutApp.communication.card.body": "Делает коммуникацию прозрачнее",
+  "tour.guide.aboutApp.communication.modal.picText": "Приложение для Жителя приносит дополнительный доход от платных услуг",
+  "tour.guide.aboutApp.communication.modal.body": "Управляющая компания может предлагать жителям дополнительные услуги через приложение. Это приносит доход, а за счет автоматизации процессов затраты на обработку платных заявок снижаются. Качественный сервис, проверенные мастера, удобное оформление и оплата услуги повышает лояльность жителей.",
+  "tour.guide.aboutApp.communication.modal.card.body": "УК «Садовый квартал» снизила дебиторскую задолженность с помощью платежей через ммобильное приложение",
+
+
+  "tour.guide.introduceApp.title": "Как внедрить мобильное приложение",
+
+  "tour.guide.introduceApp.step": "Шаг",
+
+  "tour.guide.introduceApp.step.announcement.title": "Разместите объявление на инфостенде в подъездах",
+  "tour.guide.introduceApp.step.announcement.body": "Разместите объявление на инфостенде в подъездах",
+  "tour.guide.introduceApp.step.announcement.downloadMaterials": "Скачать материалы",
+
+  "tour.guide.introduceApp.step.chats.title": "Расскажите в чатах с жителями",
+  "tour.guide.introduceApp.step.chats.body": "Отправьте сообщение о возможностях мобильного приложения в чаты с жителями. Мы подготовили шаблон такого сообщения — подставьте название вашей УК и сообщение готово.",
+  "tour.guide.introduceApp.step.chats.downloadMaterials": "Скачать шаблон сообщения",
+
+  "tour.guide.introduceApp.step.layout.title": "Разместите макет на квитанциях",
+  "tour.guide.introduceApp.step.layout.body": "Добавьте на квитанцию готовую информацию о мобильном приложении, например на обратную сторону.\nЖители смогут загрузить приложение через QR-код на квитанции.\nПлюс, Домá сами сделают СМС-рассылку жителям при первой загрузке квитанций. Это еще один способ рассказать о приложении для УК, которые отправляют жителям квитанции.",
+  "tour.guide.introduceApp.step.layout.downloadMaterials": "Скачать для квитанции",
+
+  "tour.guide.introduceApp.step.banner.title": "Разместите баннер на сайте УК",
+  "tour.guide.introduceApp.step.banner.body": "Скачайте баннер с информацией о мобильном приложении и разместите на главной странице вашего сайта, если он у вас есть. Жители смогут загрузить приложение через QR-код на баннере.",
+  "tour.guide.introduceApp.step.banner.downloadMaterials": "Скачать для сайта",
+
+  "tour.guide.introduceApp.step.socialNetworks.title": "Опубликуйте пост в соцсетях",
+  "tour.guide.introduceApp.step.socialNetworks.body": "Мы подготовили материалы для поста в соцсетях, где в шести картинках расписали преимущества мобильного приложения, и как жителям его скачать. Скачайте текст публикации и картинки, подставьте название вашей УК в текст — и пост готов.",
+  "tour.guide.introduceApp.step.socialNetworks.downloadPics": "Скачать картинки",
+  "tour.guide.introduceApp.step.socialNetworks.downloadText": "Скачать текст поста",
+
+  "tour.guide.introduceApp.step.leaflet.title": "Передайте лифлет жителям при заселении",
+  "tour.guide.introduceApp.step.leaflet.body": "Лифлет — это двухсторонний отпечатанный лист в виде «книжки» или «гармошки». Скачайте и распечатайте материалы на цветном принтере, чтобы можно было раздать жителям. Они смогут загрузить приложение через QR-код на лифлете.",
+  "tour.guide.introduceApp.step.leaflet.downloadMaterials": "Скачать для лифлета",
+
+  "tour.guide.introduceApp.step.stickers.title": "Разместите наклейки в часто посещаемых местах дома",
+  "tour.guide.introduceApp.step.stickers.body": "Скачайте и прикрепите симпатичную наклейку на поверхностях, с которыми жители часто взаимодействуют, например на двери, в лифте или на почтовых ящиках. Жители смогут загрузить приложение через QR-код на наклейке.",
+  "tour.guide.introduceApp.step.stickers.downloadMaterials": "Скачать макет наклейки",
 
   "tasks.export.error.NOTHING_TO_EXPORT": "No records found for export with specified filtering conditions",
   "tasks.progressNotification.title": "Processes",
