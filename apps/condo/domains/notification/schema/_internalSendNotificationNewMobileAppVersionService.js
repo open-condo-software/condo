@@ -8,10 +8,17 @@ const isEmpty = require('lodash/isEmpty')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, getSchemaCtx } = require('@open-condo/keystone/schema')
 
-const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const access = require('@condo/domains/notification/access/_internalSendNotificationNewMobileAppVersionService')
-const { DEVICE_PLATFORM_IOS, DEVICE_PLATFORM_ANDROID, APP_MASTER_KEY, APP_RESIDENT_KEY } = require('@condo/domains/notification/constants/constants')
+const {
+    DEVICE_PLATFORM_IOS,
+    DEVICE_PLATFORM_ANDROID,
+    APP_MASTER_KEY,
+    APP_RESIDENT_KEY,
+    DEFAULT_TITLE_FOR_NEW_MOBILE_APP_VERSION_PUSH_NOTIFICATION,
+    DEFAULT_BODY_FOR_NEW_MOBILE_APP_VERSION_PUSH_NOTIFICATION,
+    MOBILE_APP_UPDATE_AVAILABLE_MESSAGE_PUSH_TYPE,
+} = require('@condo/domains/notification/constants/constants')
 const { MessageBatch, RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
@@ -28,7 +35,7 @@ const _internalSendNotificationNewMobileAppVersionService = new GQLCustomSchema(
         },
         {
             access: true,
-            type: 'input _internalSendNotificationNewMobileAppVersionInput { dv: Int!, sender: SenderFieldInput! platform: Platform!, app: App!, buildVersion: String!, title: String!, body: String, organizationIds: [ID!] }',
+            type: 'input _internalSendNotificationNewMobileAppVersionInput { dv: Int!, sender: SenderFieldInput! platform: Platform!, app: App!, buildVersion: String!, title: String, body: String, organizationIds: [ID!] }',
         },
         {
             access: true,
@@ -125,9 +132,10 @@ const _internalSendNotificationNewMobileAppVersionService = new GQLCustomSchema(
                 const messageBatch = await MessageBatch.create(adminContext, {
                     dv,
                     sender,
+                    messageType: MOBILE_APP_UPDATE_AVAILABLE_MESSAGE_PUSH_TYPE,
                     targets: remoteClientKeys,
-                    title: title || 'title',
-                    message: body || 'body',
+                    title: title || DEFAULT_TITLE_FOR_NEW_MOBILE_APP_VERSION_PUSH_NOTIFICATION,
+                    message: body || DEFAULT_BODY_FOR_NEW_MOBILE_APP_VERSION_PUSH_NOTIFICATION,
                 })
                 return {
                     messageBatchId: messageBatch.id,

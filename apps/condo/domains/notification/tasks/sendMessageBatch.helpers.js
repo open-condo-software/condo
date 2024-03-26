@@ -4,15 +4,15 @@ const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { md5 } = require('@condo/domains/common/utils/crypto')
-const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-
 const {
     SMS_TRANSPORT, EMAIL_TRANSPORT, PUSH_TRANSPORT,
     CUSTOM_CONTENT_MESSAGE_TYPE,
     CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
     CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE,
     CUSTOM_CONTENT_MESSAGE_SMS_TYPE,
-} = require('../constants/constants')
+    MOBILE_APP_UPDATE_AVAILABLE_MESSAGE_PUSH_TYPE, 
+} = require('@condo/domains/notification/constants/constants')
+const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 
 const EMAIL_FROM = 'noreply@doma.ai'
 const DATE_FORMAT = 'YYYY-MM-DD'
@@ -25,6 +25,9 @@ const MESSAGE_TYPES_BY_TRANSPORTS = {
         [PUSH_TRANSPORT]: CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
         [EMAIL_TRANSPORT]: CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE,
         [SMS_TRANSPORT]: CUSTOM_CONTENT_MESSAGE_SMS_TYPE,
+    },
+    [MOBILE_APP_UPDATE_AVAILABLE_MESSAGE_PUSH_TYPE]: {
+        [PUSH_TRANSPORT]: MOBILE_APP_UPDATE_AVAILABLE_MESSAGE_PUSH_TYPE,
     },
 }
 

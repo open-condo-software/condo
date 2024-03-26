@@ -57,6 +57,7 @@ const STAFF_UPGRADE_APP_TYPE = 'STAFF_UPGRADE_APP'
 const BANK_ACCOUNT_CREATION_REQUEST_TYPE = 'BANK_ACCOUNT_CREATION_REQUEST'
 const CUSTOM_CONTENT_MESSAGE_TYPE = 'CUSTOM_CONTENT_MESSAGE'
 const CUSTOM_CONTENT_MESSAGE_PUSH_TYPE = 'CUSTOM_CONTENT_MESSAGE_PUSH'
+const MOBILE_APP_UPDATE_AVAILABLE_MESSAGE_PUSH_TYPE = 'MOBILE_APP_UPDATE_AVAILABLE_MESSAGE_PUSH'
 const CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE = 'CUSTOM_CONTENT_MESSAGE_EMAIL'
 const CUSTOM_CONTENT_MESSAGE_SMS_TYPE = 'CUSTOM_CONTENT_MESSAGE_SMS'
 const VOIP_INCOMING_CALL_MESSAGE_TYPE = 'VOIP_INCOMING_CALL_MESSAGE'
@@ -473,6 +474,17 @@ const MESSAGE_META = {
             messageBatchId: { required: false },
         },
     },
+    [MOBILE_APP_UPDATE_AVAILABLE_MESSAGE_PUSH_TYPE]: {
+        dv: { required: true },
+        title: { required: false },
+        body: { required: true },
+        data: {
+            userId: { required: false },
+            remoteClient: { required: false },
+            url: { defaultValue: '', required: false },
+            messageBatchId: { required: false },
+        },
+    },
     [CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE]: {
         dv: { required: true },
         title: { required: false },
@@ -730,6 +742,11 @@ const MESSAGE_DELIVERY_OPTIONS = {
         defaultTransports: [PUSH_TRANSPORT],
         isAllowedToChangeDefaultTransport: false,
     },
+    [MOBILE_APP_UPDATE_AVAILABLE_MESSAGE_PUSH_TYPE]: {
+        allowedTransports: [PUSH_TRANSPORT],
+        defaultTransports: [PUSH_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
+    },
     [CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE]: {
         allowedTransports: [EMAIL_TRANSPORT],
         defaultTransports: [EMAIL_TRANSPORT],
@@ -897,7 +914,7 @@ const MESSAGE_BATCH_PROCESSING_STATUS = 'processing'
 const MESSAGE_BATCH_FAILED_STATUS = 'failed'
 const MESSAGE_BATCH_DONE_STATUS = 'done'
 const MESSAGE_BATCH_STATUSES = [MESSAGE_BATCH_CREATED_STATUS, MESSAGE_BATCH_PROCESSING_STATUS, MESSAGE_BATCH_FAILED_STATUS, MESSAGE_BATCH_DONE_STATUS]
-const MESSAGE_BATCH_TYPE_OPTIONS = [CUSTOM_CONTENT_MESSAGE_TYPE]
+const MESSAGE_BATCH_TYPE_OPTIONS = [CUSTOM_CONTENT_MESSAGE_TYPE, MOBILE_APP_UPDATE_AVAILABLE_MESSAGE_PUSH_TYPE]
 
 const DEVICE_PLATFORM_ANDROID = 'android'
 const DEVICE_PLATFORM_IOS = 'ios'
@@ -949,6 +966,9 @@ const HUAWEI_APP_TYPE_BY_APP_ID = {
 
 const DEFAULT_TEMPLATE_FILE_EXTENSION = 'njk'
 const DEFAULT_TEMPLATE_FILE_NAME = `default.${DEFAULT_TEMPLATE_FILE_EXTENSION}`
+
+const DEFAULT_TITLE_FOR_NEW_MOBILE_APP_VERSION_PUSH_NOTIFICATION = 'Пора обновиться 😉'
+const DEFAULT_BODY_FOR_NEW_MOBILE_APP_VERSION_PUSH_NOTIFICATION = 'Давайте обновим приложение Doma, чтобы получить доступ к новым функциям\n Update the app. Try out the new features in the latest version of the Doma app'
 
 module.exports = {
     JSON_NO_REQUIRED_ATTR_ERROR,
@@ -1085,5 +1105,8 @@ module.exports = {
     MARKETPLACE_INVOICE_CASH_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
     MARKETPLACE_INVOICE_CASH_PUBLISHED_MESSAGE_TYPE,
     SERVICE_USER_CREATED_MESSAGE_TYPE,
+    DEFAULT_TITLE_FOR_NEW_MOBILE_APP_VERSION_PUSH_NOTIFICATION,
+    DEFAULT_BODY_FOR_NEW_MOBILE_APP_VERSION_PUSH_NOTIFICATION,
+    MOBILE_APP_UPDATE_AVAILABLE_MESSAGE_PUSH_TYPE,
 }
 
