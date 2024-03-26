@@ -152,5 +152,5 @@ async function sendWebhook (subscriptionId) {
 
 module.exports = {
     trySendData,
-    sendWebhook: createTask('sendWebHook', sendWebhook),
+    sendWebhook: createTask('sendWebHook', sendWebhook, 'low'),
 }
