@@ -110,6 +110,7 @@ if (!IS_BUILD_PHASE && SENTRY_CONFIG['server']) {
         dsn: SENTRY_CONFIG['server']['dsn'],
         debug: false,
         tracesSampleRate: SENTRY_CONFIG['server']['sampleRate'],
+        sampleRate: SENTRY_CONFIG['server']['sampleRate'],
         environment: SENTRY_CONFIG['server']['environment'],
         organization: SENTRY_CONFIG['server']['organization'],
         project: SENTRY_CONFIG['server']['project'],
@@ -155,7 +156,6 @@ const apps = () => {
 
 /** @type {(app: import('express').Application) => void} */
 const extendExpressApp = (app) => {
-    app.use(Sentry.Handlers.requestHandler())
     app.get('/.well-known/change-password', function (req, res) {
         res.redirect('/auth/forgot')
     })
