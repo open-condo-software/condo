@@ -53,13 +53,14 @@ class ForgotPassword {
 */
     visit (): this {
         cy.visit(FORGOT_PASSWORD_URL)
+        cy.location('pathname').should('contain', FORGOT_PASSWORD_URL)
         return this
     }
 
     fillPhone (value): this {
         // @ts-ignore
         // cy.waitForCaptcha()
-        cy.get('[data-cy=forgot-phone-item] input').should('be.visible')
+        cy.get('[data-cy=forgot-phone-item] input').should('be.visible').should('not.be.disabled')
         cy.get('[data-cy=forgot-phone-item] input')
             .clear()
             .type(value)
