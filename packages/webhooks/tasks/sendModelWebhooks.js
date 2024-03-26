@@ -17,5 +17,5 @@ async function sendModelWebhooks (modelName) {
 }
 
 module.exports = {
-    sendModelWebhooks: createTask('sendModelWebhooks', sendModelWebhooks),
+    sendModelWebhooks: createTask('sendModelWebhooks', sendModelWebhooks, 'low'),
 }
