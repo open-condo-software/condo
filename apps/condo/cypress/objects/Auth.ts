@@ -58,8 +58,6 @@ class ForgotPassword {
 
     fillPhone (value): this {
         cy.get('[data-cy=forgot-phone-item] input')
-            .should('be.visible')
-            .click().focused()
             .clear()
             .type(value, { force: true })
         return this
