@@ -1,5 +1,5 @@
 import { Form, Row, Col } from 'antd'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { FormattedMessage, useIntl } from 'react-intl'
 
 import { Typography, Input } from '@open-condo/ui'
@@ -16,6 +16,7 @@ const FULL_SPAN_COL = 24
 export type CodeInputStepProps = {
     form: FormInstance
     actionTTL: number
+    actionId: string
     email: string
     onEmailChange: () => void
     onResendEmailClick: () => void
@@ -48,6 +49,7 @@ function hideEmail (email: string, minHiddenLength = 3): string {
 }
 
 export const CodeInputStep: React.FC<CodeInputStepProps> = ({
+    actionId,
     email,
     onEmailChange,
     form,
@@ -83,8 +85,13 @@ export const CodeInputStep: React.FC<CodeInputStepProps> = ({
         onEmailChange()
     }, [form, onEmailChange])
 
+    useEffect(() => {
+        form.setFieldValue('code', '')
+    }, [actionId, form])
+
     return (
         <Form
+            key={actionId}
             name='register-code'
             form={form}
             layout='vertical'

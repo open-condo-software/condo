@@ -183,6 +183,7 @@ export const RegisterUserModal: React.FC<RegisterUserModalProps> = ({ onClose, o
         return [
             <CodeInputStep
                 key={`code-form-${confirmAction.actionId}`}
+                actionId={confirmAction.actionId}
                 form={form}
                 email={confirmAction.email}
                 onEmailChange={resetConfirmAction}
