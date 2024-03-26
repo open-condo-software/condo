@@ -132,6 +132,7 @@ const MarketplacePaymentsTableContent = () => {
     )
 
     const invoiceOrganizationQuery = useMemo(() => ({
+        organization: { id: orgId },
         invoice: {
             organization: { id: orgId },
         },
