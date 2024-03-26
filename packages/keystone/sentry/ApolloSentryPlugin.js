@@ -3,7 +3,7 @@ const Sentry = require('@sentry/node')
 const IGNORED_ERRORS = [
     'No or incorrect authentication credentials',
     'Your request exceeded server limits',
-    'No or incorrect authentication credentials',
+    'You do not have access to this resource',
 ]
 
 class ApolloSentryPlugin {
