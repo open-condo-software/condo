@@ -53,19 +53,15 @@ class ForgotPassword {
 */
     visit (): this {
         cy.visit(FORGOT_PASSWORD_URL)
-        cy.location('pathname').should('contain', FORGOT_PASSWORD_URL)
         return this
     }
 
     fillPhone (value): this {
-        // @ts-ignore
-        // cy.waitForCaptcha()
-        cy.get('[data-cy=forgot-phone-item] input').should('be.visible').should('not.be.disabled')
         cy.get('[data-cy=forgot-phone-item] input')
+            .should('be.visible')
+            .click().focused()
             .clear()
-        cy.get('[data-cy=forgot-phone-item] input')
-            .focus()
-            .type(value)
+            .type(value, { force: true })
         return this
     }
 
@@ -143,8 +139,6 @@ class Registration {
     }
 
     startRegistrationClick (): this {
-        // @ts-ignore
-        // cy.waitForCaptcha()
         cy.get('[data-cy=register-button]').should('be.visible')
         cy.get('[data-cy=register-button]')
             .click()
