@@ -17,5 +17,5 @@ const tasks = () => [
 ]
 
 module.exports = prepareKeystone({
-    schemas, apps, tasks, queues: ['medium'],
+    schemas, apps, tasks,
 })
