@@ -6,9 +6,10 @@ import { useCountdown } from 'usehooks-ts'
 import { Modal, Button } from '@open-condo/ui'
 import type { ModalProps } from '@open-condo/ui'
 
-import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
+import { useMutationErrorHandler, ErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { getClientSideSenderInfo } from '@/domains/common/utils/userid.utils'
 import { CONFIRM_EMAIL_ACTION_TTL_IN_SEC } from '@dev-api/domains/user/constants'
+import { INVALID_EMAIL, ACTION_NOT_FOUND, INVALID_CODE, CONDO_USER_ALREADY_EXISTS } from '@dev-api/domains/user/constants/errors'
 
 import { CodeInputStep } from './CodeInputStep'
 import { EmailInputStep } from './EmailInputStep'
@@ -40,6 +41,15 @@ type ConfirmAction = {
     email: string
 }
 
+const EMAIL_FORM_ERRORS_TO_FIELDS_MAP = {
+    [INVALID_EMAIL]: 'email',
+}
+
+const CODE_FORM_ERRORS_TO_FIELDS_MAP = {
+    [ACTION_NOT_FOUND]: 'code',
+    [INVALID_CODE]: 'code',
+}
+
 export const RegisterUserModal: React.FC<RegisterUserModalProps> = ({ onClose, open, id, environment }) => {
     const intl = useIntl()
     const ModalTitle = intl.formatMessage({ id: 'apps.id.sections.serviceUser.userSettings.registerUserForm.modal.title' })
@@ -55,12 +65,17 @@ export const RegisterUserModal: React.FC<RegisterUserModalProps> = ({ onClose, o
     })
 
     const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(null)
+    // NOTE: Used to display error in email form in case of error in registerServiceUser
+    const [registerError, setRegisterError] = useState<string | null>(null)
 
     const resetConfirmAction = useCallback(() => {
         setConfirmAction(null)
     }, [])
 
-    const onStartConfirmEmailActionError = useMutationErrorHandler()
+    const onStartConfirmEmailActionError = useMutationErrorHandler({
+        form,
+        typeToFieldMapping: EMAIL_FORM_ERRORS_TO_FIELDS_MAP,
+    })
     const onStartConfirmEmailActionCompleted = useCallback((data: StartConfirmEmailActionMutation) => {
         if (data.startConfirmEmailAction?.actionId && data.startConfirmEmailAction.email) {
             setConfirmAction(data.startConfirmEmailAction)
@@ -74,6 +89,7 @@ export const RegisterUserModal: React.FC<RegisterUserModalProps> = ({ onClose, o
     })
 
     const startConfirmEmailAction: EmailInputStepProps['onFinish'] = useCallback(({ email }) => {
+        setRegisterError(null)
         startConfirmEmailActionMutation({
             variables: {
                 data: {
@@ -85,7 +101,19 @@ export const RegisterUserModal: React.FC<RegisterUserModalProps> = ({ onClose, o
         })
     }, [startConfirmEmailActionMutation])
 
-    const onRegisterServiceUserError = useMutationErrorHandler()
+    const registerServiceUserErrorHandlers = useMemo(() => ({
+        [CONDO_USER_ALREADY_EXISTS]: (errorMessage: string) => {
+            setRegisterError(errorMessage)
+        },
+    }), [])
+    const registerServiceUserErrorHandler = useMutationErrorHandler({
+        errorHandlers: registerServiceUserErrorHandlers,
+    })
+    const onRegisterServiceUserError: ErrorHandler = useCallback((error) => {
+        // At this stage code is valid, so we need to move back to email form in case of error
+        setConfirmAction(null)
+        registerServiceUserErrorHandler(error)
+    }, [registerServiceUserErrorHandler])
     const onRegisterServiceUserCompleted = useCallback(() => {
         notification.success({ message: SuccessNotificationTitle, description: SuccessNotificationDescription, duration: 15 })
         onClose()
@@ -98,7 +126,10 @@ export const RegisterUserModal: React.FC<RegisterUserModalProps> = ({ onClose, o
         ],
     })
 
-    const onCompleteConfirmEmailActionError = useMutationErrorHandler()
+    const onCompleteConfirmEmailActionError = useMutationErrorHandler({
+        form,
+        typeToFieldMapping: CODE_FORM_ERRORS_TO_FIELDS_MAP,
+    })
     const onCompleteConfirmEmailActionCompleted = useCallback(() => {
         if (confirmAction) {
             registerServiceUserMutation({
@@ -144,14 +175,14 @@ export const RegisterUserModal: React.FC<RegisterUserModalProps> = ({ onClose, o
     const [modalContent, modalFooter] = useMemo<[React.ReactNode, React.ReactNode]>(() => {
         if (!confirmAction) {
             return [
-                <EmailInputStep key='form' form={form} onFinish={startConfirmEmailAction}/>,
+                <EmailInputStep key='email-form' form={form} onFinish={startConfirmEmailAction} errorMsg={registerError}/>,
                 <Button key='action' type='primary' onClick={form.submit}>{ContinueActionLabel}</Button>,
             ]
         }
 
         return [
             <CodeInputStep
-                key='form'
+                key={`code-form-${confirmAction.actionId}`}
                 form={form}
                 email={confirmAction.email}
                 onEmailChange={resetConfirmAction}
@@ -162,14 +193,15 @@ export const RegisterUserModal: React.FC<RegisterUserModalProps> = ({ onClose, o
             null,
         ]
     }, [
-        form,
         confirmAction,
-        ContinueActionLabel,
         resetConfirmAction,
         startConfirmEmailAction,
-        completeConfirmEmailAction,
-        actionTTL,
         handleResendEmailAction,
+        completeConfirmEmailAction,
+        form,
+        actionTTL,
+        registerError,
+        ContinueActionLabel,
     ])
 
     return (

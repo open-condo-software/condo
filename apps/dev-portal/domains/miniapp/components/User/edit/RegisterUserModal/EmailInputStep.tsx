@@ -1,5 +1,5 @@
 import { Col, Form, Row } from 'antd'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useIntl } from 'react-intl'
 
 import { Input, Alert } from '@open-condo/ui'
@@ -13,15 +13,22 @@ const FULL_SPAN_COL = 24
 export type EmailInputStepProps = {
     form: FormInstance
     onFinish: (values: { email: string }) => void
+    errorMsg?: string | null
 }
 
-export const EmailInputStep: React.FC<EmailInputStepProps> = ({ form, onFinish }) => {
+export const EmailInputStep: React.FC<EmailInputStepProps> = ({ form, onFinish, errorMsg }) => {
     const intl = useIntl()
     const EmailLabel = intl.formatMessage({ id: 'apps.id.sections.serviceUser.userSettings.registerUserForm.items.email.label' })
     const EmailPlaceholder = intl.formatMessage({ id: 'apps.id.sections.serviceUser.userSettings.registerUserForm.items.email.placeholder' })
     const EmailHintMessage = intl.formatMessage({ id: 'apps.id.sections.serviceUser.userSettings.registerUserForm.items.email.hint' })
 
     const { emailValidator, requiredFieldValidator } = useValidations()
+
+    useEffect(() => {
+        if (errorMsg && form) {
+            form.setFields([{ name: 'email', errors: [errorMsg] }])
+        }
+    }, [form, errorMsg])
 
     return (
         <Form
