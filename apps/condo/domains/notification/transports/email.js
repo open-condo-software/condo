@@ -3,9 +3,10 @@ const https = require('https')
 
 const FormData = require('form-data')
 const { get } = require('lodash')
-const fetch = require('node-fetch')
 
 const conf = require('@open-condo/config')
+const { fetch } = require('@open-condo/keystone/fetch')
+
 
 const { EMAIL_TRANSPORT } = require('../constants/constants')
 const { renderTemplate } = require('../templates')

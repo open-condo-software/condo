@@ -9,9 +9,8 @@ const path = require('path')
 
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { get, isNil } = require('lodash')
-const fetch = require('node-fetch')
 
-const { getLogger } = require('@open-condo/keystone/logging')
+const { fetch } = require('@open-condo/keystone/fetch')
 
 const { BillingProperty } = require('@condo/domains/billing/utils/serverSchema')
 const { B2CAppProperty } = require('@condo/domains/miniapp/utils/serverSchema')

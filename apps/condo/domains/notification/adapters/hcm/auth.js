@@ -1,6 +1,6 @@
 const { isEmpty, get } = require('lodash')
-const fetch = require('node-fetch')
 
+const { fetch } = require('@open-condo/keystone/fetch')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { getCurrTimeStamp } = require('@condo/domains/common/utils/date')

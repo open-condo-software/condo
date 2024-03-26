@@ -27,9 +27,9 @@
  */
 
 const Ajv = require('ajv')
-const fetch = require('node-fetch')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
+const { fetch } = require('@open-condo/keystone/fetch')
 const { GQLCustomSchema, getById } = require('@open-condo/keystone/schema')
 
 const { WRONG_VALUE, NETWORK_ERROR } = require('@condo/domains/common/constants/errors')

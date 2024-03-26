@@ -1,6 +1,6 @@
 const get = require('lodash/get')
-const fetch = require('node-fetch')
 
+const { fetch } = require('@open-condo/keystone/fetch')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx, getById } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')

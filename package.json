@@ -15,6 +15,7 @@
     "build:apps": "turbo run build --filter='./apps/*' --concurrency=100%",
     "build": "turbo run build",
     "lint:code": "yarn run eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint:code:fix": "yarn run eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "lint:translations": "turbo run lint-translations",
     "createapp": "node ./bin/createapp",
     "prepare": "husky install"
