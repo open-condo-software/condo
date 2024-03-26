@@ -101,12 +101,12 @@ function removeCronTask (name, cron, opts = {}) {
 }
 
 async function _scheduleRemoteTask (name, preparedArgs, preparedOpts, queue = DEFAULT_QUEUE_NAME) {
-    logger.info({ msg: 'Scheduling task', name, queue, data: { preparedArgs, preparedOpts } })
+    logger.info({ msg: 'Scheduling task', name, queue, meta: { preparedArgs, preparedOpts } })
 
     if (!QUEUES.has(queue)) {
         logger.error({
             msg: `No active queues with name = ${queue} was found. This task never been picked by this worker due to queue filters policy`,
-            name, queue, data: { preparedOpts, preparedArgs },
+            name, queue, meta: { preparedOpts, preparedArgs },
         })
 
         throw new Error(`Task ${name} register error. No active queues with name = ${queue} was found. You should register at prepareKeystone`)
@@ -145,7 +145,7 @@ class InProcessFakeJob {
 async function _scheduleInProcessTask (name, preparedArgs, preparedOpts) {
     // NOTE: it's just for test purposes
     // similar to https://docs.celeryproject.org/en/3.1/configuration.html#celery-always-eager
-    logger.info({ msg: 'Scheduling task', name, data: { preparedArgs, preparedOpts } })
+    logger.info({ msg: 'Scheduling task', name, meta: { preparedArgs, preparedOpts } })
 
     const job = new InProcessFakeJob(name)
     let error = undefined
@@ -153,12 +153,12 @@ async function _scheduleInProcessTask (name, preparedArgs, preparedOpts) {
     let status = 'processing'
     let executor = async function inProcessExecutor () {
         try {
-            logger.info({ msg: 'Executing task', name, data: { preparedArgs, preparedOpts } })
+            logger.info({ msg: 'Executing task', name, meta: { preparedArgs, preparedOpts } })
             result = await executeTask(name, preparedArgs, job)
             status = 'completed'
-            logger.info({ msg: 'Task result', name, status, data: { result, preparedArgs, preparedOpts } })
+            logger.info({ msg: 'Task result', name, status, meta: { result, preparedArgs, preparedOpts } })
         } catch (e) {
-            logger.error({ msg: 'Error executing task', name, error: e, data: { preparedArgs, preparedOpts } })
+            logger.error({ msg: 'Error executing task', name, error: e, meta: { preparedArgs, preparedOpts } })
             status = 'error'
             error = e
         }
