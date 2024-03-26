@@ -8,6 +8,7 @@ import { Select } from '@open-condo/ui'
 
 import { Spin } from '@/domains/common/components/Spin'
 import { Section, SubSection } from '@/domains/miniapp/components/AppSettings'
+import { EditUserForm } from '@/domains/miniapp/components/User/edit/EditUserForm'
 import { RegisterUserForm } from '@/domains/miniapp/components/User/edit/RegisterUserForm'
 import { getEnvironment } from '@/domains/miniapp/utils/query'
 import { DEV_ENVIRONMENT, PROD_ENVIRONMENT } from '@dev-api/domains/miniapp/constants/publishing'
@@ -63,7 +64,7 @@ export const ServiceUserSection: React.FC<{ id: string }> = ({ id }) => {
                         {loading && <Spin size='large'/>}
                         {!loading && !error && (
                             rights.length
-                                ? null
+                                ? <EditUserForm id={id} environment={selectedEnvironment} email={rights[0]?.condoUserEmail}/>
                                 : <RegisterUserForm id={id} environment={selectedEnvironment}/>
                         )}
                     </Col>

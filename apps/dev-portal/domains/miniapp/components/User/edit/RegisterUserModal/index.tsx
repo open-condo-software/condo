@@ -87,7 +87,7 @@ export const RegisterUserModal: React.FC<RegisterUserModalProps> = ({ onClose, o
 
     const onRegisterServiceUserError = useMutationErrorHandler()
     const onRegisterServiceUserCompleted = useCallback(() => {
-        notification.success({ message: SuccessNotificationTitle, description: SuccessNotificationDescription, duration: 10 })
+        notification.success({ message: SuccessNotificationTitle, description: SuccessNotificationDescription, duration: 15 })
         onClose()
     }, [SuccessNotificationDescription, SuccessNotificationTitle, onClose])
     const [registerServiceUserMutation] = useRegisterAppUserServiceMutation({

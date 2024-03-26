@@ -107,7 +107,9 @@
   "apps.id.sections.serviceUser.userSettings.registerUserForm.actions.changeEmail": "Change email",
   "apps.id.sections.serviceUser.userSettings.registerUserForm.actions.resendCode": "Resend the code",
   "apps.id.sections.serviceUser.userSettings.registerUserForm.notifications.success.title": "The service user has been successfully registered",
-  "apps.id.sections.serviceUser.userSettings.registerUserForm.notifications.success.description": "It will be linked to the application on the environment after the next publication of the application",
+  "apps.id.sections.serviceUser.userSettings.registerUserForm.notifications.success.description": "It will be linked to the application on the environment after the next publication of the application. The password for it was sent to specified email address",
+  "apps.id.sections.serviceUser.userSettings.editUserForm.subsection.credentials.label": "Service user info",
+  "apps.id.sections.serviceUser.userSettings.editUserForm.items.email.label": "Email",
 
   "apps.b2c.sections.info.title": "Info",
   "apps.b2c.sections.info.commonInfo.subtitle": "Common info",

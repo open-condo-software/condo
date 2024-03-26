@@ -107,7 +107,9 @@
   "apps.id.sections.serviceUser.userSettings.registerUserForm.actions.changeEmail": "Изменить email",
   "apps.id.sections.serviceUser.userSettings.registerUserForm.actions.resendCode": "Отправить код еще раз",
   "apps.id.sections.serviceUser.userSettings.registerUserForm.notifications.success.title": "Сервисный пользователь успешно зарегистрирован",
-  "apps.id.sections.serviceUser.userSettings.registerUserForm.notifications.success.description": "Он привяжется к приложению на стенде при следующей публикации приложения",
+  "apps.id.sections.serviceUser.userSettings.registerUserForm.notifications.success.description": "Он привяжется к приложению на стенде при следующей публикации приложения, а пароль от него был выслан на указанный email",
+  "apps.id.sections.serviceUser.userSettings.editUserForm.subsection.credentials.label": "Информация о сервисном пользователе",
+  "apps.id.sections.serviceUser.userSettings.editUserForm.items.email.label": "Email",
 
   "apps.b2c.sections.info.title": "Информация",
   "apps.b2c.sections.info.commonInfo.subtitle": "Общая информация",
