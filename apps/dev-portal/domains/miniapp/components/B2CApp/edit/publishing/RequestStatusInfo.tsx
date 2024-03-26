@@ -1,9 +1,9 @@
-import { Spin } from 'antd'
 import React, { useCallback } from 'react'
 import { useIntl, FormattedMessage } from 'react-intl'
 
 import { Alert, Space, Typography, Button, Checkbox } from '@open-condo/ui'
 
+import { Spin } from '@/domains/common/components/Spin'
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { getClientSideSenderInfo } from '@/domains/common/utils/userid.utils'
 
@@ -62,7 +62,7 @@ export const RequestStatusInfo: React.FC<RequestStatusInfoProps> = ({ appId, req
 
     if (loading) {
         return (
-            <Spin size='large' className={styles.spinnerContainer}/>
+            <Spin size='large'/>
         )
     }
 

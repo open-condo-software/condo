@@ -14,10 +14,11 @@ import { BuildsSection } from '@/domains/miniapp/components/B2CApp/edit/builds/B
 import { InfoSection } from '@/domains/miniapp/components/B2CApp/edit/info/InfoSection'
 import { PropertiesSection } from '@/domains/miniapp/components/B2CApp/edit/properties/PropertiesSection'
 import { PublishingSection } from '@/domains/miniapp/components/B2CApp/edit/publishing/PublishingSection'
+import { ServiceUserSection } from '@/domains/miniapp/components/B2CApp/edit/service-user/ServiceUserSection'
 import { OIDCClientSection } from '@/domains/miniapp/components/OIDC/edit/OIDCClientSection'
 import { DEFAULT_PAGE_SIZE } from '@/domains/miniapp/constants/common'
 import { getCurrentSection, useB2CMenuItems } from '@/domains/miniapp/hooks/useB2CMenuItems'
-import { getCurrentPage } from '@/domains/miniapp/utils/query'
+import { getCurrentPage, getEnvironment } from '@/domains/miniapp/utils/query'
 
 import type { SectionType } from '@/domains/miniapp/hooks/useB2CMenuItems'
 import type { RowProps, MenuProps } from 'antd'
@@ -32,17 +33,22 @@ import {
     AllB2CAppBuildsDocument,
     AllB2CAppBuildsQuery,
     AllB2CAppBuildsQueryVariables,
+    AllB2CAppAccessRightsDocument,
+    AllB2CAppAccessRightsQuery,
+    AllB2CAppAccessRightsQueryVariables,
     useGetB2CAppQuery,
+
 } from '@/lib/gql'
 
 const TITLE_GUTTER: RowProps['gutter'] = [40, 40]
 const FULL_COL_SPAN = 24
 const SECTIONS: { [key in SectionType]: React.FC<{ id: string }> } = {
-    info: InfoSection,
-    builds: BuildsSection,
-    properties: PropertiesSection,
-    oidc: OIDCClientSection,
-    publishing: PublishingSection,
+    'info': InfoSection,
+    'builds': BuildsSection,
+    'properties': PropertiesSection,
+    'oidc': OIDCClientSection,
+    'service-user': ServiceUserSection,
+    'publishing': PublishingSection,
 }
 
 const AppSettingsPage: React.FC = () => {
@@ -108,7 +114,7 @@ const AppSettingsPage: React.FC = () => {
 export default AppSettingsPage
 
 export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
-    const { id, section, p } = query
+    const { id, section, p, env } = query
 
     if (!id || Array.isArray(id)) {
         return {
@@ -149,6 +155,16 @@ export const getServerSideProps: GetServerSideProps = async ({ req, query }) => 
                 where: { app: { id } },
                 first: DEFAULT_PAGE_SIZE,
                 skip: DEFAULT_PAGE_SIZE * (currentPage - 1),
+            },
+            context: { headers },
+        })
+    } else if (currentSection === 'service-user') {
+        const environment = getEnvironment(env)
+        await client.query<AllB2CAppAccessRightsQuery, AllB2CAppAccessRightsQueryVariables>({
+            query: AllB2CAppAccessRightsDocument,
+            variables: {
+                appId: id,
+                environment,
             },
             context: { headers },
         })

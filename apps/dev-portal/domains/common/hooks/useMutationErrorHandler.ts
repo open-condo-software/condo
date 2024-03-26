@@ -7,14 +7,6 @@ import { z } from 'zod'
 import type { ApolloError } from '@apollo/client'
 import type { FormInstance } from 'antd'
 
-export type ErrorHandler = (error: ApolloError) => void
-
-type UseMutationErrorHandlerArgs<FormType> = {
-    form?: FormInstance<FormType>
-    typeToFieldMapping?: Record<string, string>
-    constraintToMessageMapping?: Record<string, string>
-}
-
 const GQLErrorSchema = z.object({
     name: z.literal('GQLError'),
     extensions: z.object({
@@ -32,6 +24,15 @@ const ConstraintErrorSchema = z.object({
     message: z.string().includes('violates unique constraint'),
 })
 
+export type ErrorHandler = (error: ApolloError) => void
+
+type UseMutationErrorHandlerArgs<FormType> = {
+    form?: FormInstance<FormType>
+    typeToFieldMapping?: Record<string, string>
+    constraintToMessageMapping?: Record<string, string>
+    errorHandlers?: Record<string, (errorMessage: string) => void>
+}
+
 /**
  * Generates the error handler, which can be passed as onError prop for useMutation calls and does the following.
  * If there's a form and typeToFieldMapping props passed and some related to form errors happened, updates form status
@@ -43,11 +44,11 @@ export function useMutationErrorHandler<FormType> (opts: UseMutationErrorHandler
     const intl = useIntl()
     const ServerErrorMessage = intl.formatMessage({ id: 'global.errors.serverError.title' })
     const DefaultConstraintErrorDescription = intl.formatMessage({ id: 'global.errors.constraintError.default.description' })
-    const { form, typeToFieldMapping, constraintToMessageMapping } = opts
+    const { form, typeToFieldMapping, constraintToMessageMapping, errorHandlers } = opts
 
     return useCallback((error) => {
         let messageToShow = error.message
-        let formAffected = false
+        let bypassNotification = false
         for (const graphQLError of error.graphQLErrors) {
             let errorMessage: string | undefined
             let errorType:  string | undefined
@@ -72,19 +73,29 @@ export function useMutationErrorHandler<FormType> (opts: UseMutationErrorHandler
 
             if (errorMessage) {
                 if (errorType && form && typeToFieldMapping && typeToFieldMapping.hasOwnProperty(errorType)) {
-                    formAffected = true
+                    bypassNotification = true
                     const fieldName = typeToFieldMapping[errorType]
                     form.setFields([{
                         name: fieldName,
                         errors: [errorMessage],
                     }])
+                } else if (errorType && errorHandlers && errorHandlers.hasOwnProperty(errorType)) {
+                    bypassNotification = true
+                    errorHandlers[errorType](errorMessage)
                 } else {
                     messageToShow = errorMessage
                 }
             }
         }
-        if (!formAffected) {
+        if (!bypassNotification) {
             notification.error({ message: ServerErrorMessage, description: messageToShow })
         }
-    }, [ServerErrorMessage, DefaultConstraintErrorDescription, form, typeToFieldMapping, constraintToMessageMapping])
+    }, [
+        ServerErrorMessage,
+        DefaultConstraintErrorDescription,
+        form,
+        typeToFieldMapping,
+        constraintToMessageMapping,
+        errorHandlers,
+    ])
 }

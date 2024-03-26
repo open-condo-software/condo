@@ -109,18 +109,24 @@ export type B2CAppAccessRight = {
     _label_?: Maybe<Scalars['String']['output']>;
     /**  Link to B2CApp  */
     app?: Maybe<B2CApp>;
-    /**  ID of condo user, which will be linked to app  */
+    /**  Email of service condo user linked to the published app  */
+    condoUserEmail?: Maybe<Scalars['String']['output']>;
+    /**  ID of condo user, which will be linked to the published app  */
     condoUserId?: Maybe<Scalars['ID']['output']>;
     createdAt?: Maybe<Scalars['String']['output']>;
     /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
     createdBy?: Maybe<User>;
     deletedAt?: Maybe<Scalars['String']['output']>;
+    /**  ID of this entity in the development environment. If set, subsequent publications to this environment will update the entity with the specified ID.  */
+    developmentExportId?: Maybe<Scalars['String']['output']>;
     /**  Data structure Version  */
     dv?: Maybe<Scalars['Int']['output']>;
     /**  Condo environment  */
-    environment?: Maybe<B2CAppAccessRightEnvironmentType>;
+    environment?: Maybe<AppEnvironment>;
     id: Scalars['ID']['output'];
     newId?: Maybe<Scalars['String']['output']>;
+    /**  ID of this entity in the production environment. If set, subsequent publications to this environment will update the entity with the specified ID.  */
+    productionExportId?: Maybe<Scalars['String']['output']>;
     /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
     sender?: Maybe<SenderField>;
     updatedAt?: Maybe<Scalars['String']['output']>;
@@ -135,18 +141,15 @@ export type B2CAppAccessRightCreateInput = {
     createdAt?: InputMaybe<Scalars['String']['input']>;
     createdBy?: InputMaybe<UserRelateToOneInput>;
     deletedAt?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId?: InputMaybe<Scalars['String']['input']>;
     dv?: InputMaybe<Scalars['Int']['input']>;
-    environment?: InputMaybe<B2CAppAccessRightEnvironmentType>;
+    environment?: InputMaybe<AppEnvironment>;
     newId?: InputMaybe<Scalars['String']['input']>;
+    productionExportId?: InputMaybe<Scalars['String']['input']>;
     sender?: InputMaybe<SenderFieldInput>;
     updatedAt?: InputMaybe<Scalars['String']['input']>;
     updatedBy?: InputMaybe<UserRelateToOneInput>;
     v?: InputMaybe<Scalars['Int']['input']>;
-}
-
-export enum B2CAppAccessRightEnvironmentType {
-    Development = 'development',
-    Production = 'production',
 }
 
 /**  A keystone list  */
@@ -161,10 +164,12 @@ export type B2CAppAccessRightHistoryRecord = {
    */
     _label_?: Maybe<Scalars['String']['output']>;
     app?: Maybe<Scalars['String']['output']>;
+    condoUserEmail?: Maybe<Scalars['JSON']['output']>;
     condoUserId?: Maybe<Scalars['ID']['output']>;
     createdAt?: Maybe<Scalars['String']['output']>;
     createdBy?: Maybe<Scalars['String']['output']>;
     deletedAt?: Maybe<Scalars['String']['output']>;
+    developmentExportId?: Maybe<Scalars['String']['output']>;
     dv?: Maybe<Scalars['Int']['output']>;
     environment?: Maybe<Scalars['String']['output']>;
     history_action?: Maybe<B2CAppAccessRightHistoryRecordHistoryActionType>;
@@ -172,6 +177,7 @@ export type B2CAppAccessRightHistoryRecord = {
     history_id?: Maybe<Scalars['String']['output']>;
     id: Scalars['ID']['output'];
     newId?: Maybe<Scalars['JSON']['output']>;
+    productionExportId?: Maybe<Scalars['String']['output']>;
     sender?: Maybe<Scalars['JSON']['output']>;
     updatedAt?: Maybe<Scalars['String']['output']>;
     updatedBy?: Maybe<Scalars['String']['output']>;
@@ -180,16 +186,19 @@ export type B2CAppAccessRightHistoryRecord = {
 
 export type B2CAppAccessRightHistoryRecordCreateInput = {
     app?: InputMaybe<Scalars['String']['input']>;
+    condoUserEmail?: InputMaybe<Scalars['JSON']['input']>;
     condoUserId?: InputMaybe<Scalars['ID']['input']>;
     createdAt?: InputMaybe<Scalars['String']['input']>;
     createdBy?: InputMaybe<Scalars['String']['input']>;
     deletedAt?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId?: InputMaybe<Scalars['String']['input']>;
     dv?: InputMaybe<Scalars['Int']['input']>;
     environment?: InputMaybe<Scalars['String']['input']>;
     history_action?: InputMaybe<B2CAppAccessRightHistoryRecordHistoryActionType>;
     history_date?: InputMaybe<Scalars['String']['input']>;
     history_id?: InputMaybe<Scalars['String']['input']>;
     newId?: InputMaybe<Scalars['JSON']['input']>;
+    productionExportId?: InputMaybe<Scalars['String']['input']>;
     sender?: InputMaybe<Scalars['JSON']['input']>;
     updatedAt?: InputMaybe<Scalars['String']['input']>;
     updatedBy?: InputMaybe<Scalars['String']['input']>;
@@ -204,16 +213,19 @@ export enum B2CAppAccessRightHistoryRecordHistoryActionType {
 
 export type B2CAppAccessRightHistoryRecordUpdateInput = {
     app?: InputMaybe<Scalars['String']['input']>;
+    condoUserEmail?: InputMaybe<Scalars['JSON']['input']>;
     condoUserId?: InputMaybe<Scalars['ID']['input']>;
     createdAt?: InputMaybe<Scalars['String']['input']>;
     createdBy?: InputMaybe<Scalars['String']['input']>;
     deletedAt?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId?: InputMaybe<Scalars['String']['input']>;
     dv?: InputMaybe<Scalars['Int']['input']>;
     environment?: InputMaybe<Scalars['String']['input']>;
     history_action?: InputMaybe<B2CAppAccessRightHistoryRecordHistoryActionType>;
     history_date?: InputMaybe<Scalars['String']['input']>;
     history_id?: InputMaybe<Scalars['String']['input']>;
     newId?: InputMaybe<Scalars['JSON']['input']>;
+    productionExportId?: InputMaybe<Scalars['String']['input']>;
     sender?: InputMaybe<Scalars['JSON']['input']>;
     updatedAt?: InputMaybe<Scalars['String']['input']>;
     updatedBy?: InputMaybe<Scalars['String']['input']>;
@@ -227,6 +239,10 @@ export type B2CAppAccessRightHistoryRecordWhereInput = {
     app_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
     app_not?: InputMaybe<Scalars['String']['input']>;
     app_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    condoUserEmail?: InputMaybe<Scalars['JSON']['input']>;
+    condoUserEmail_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+    condoUserEmail_not?: InputMaybe<Scalars['JSON']['input']>;
+    condoUserEmail_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
     condoUserId?: InputMaybe<Scalars['ID']['input']>;
     condoUserId_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
     condoUserId_not?: InputMaybe<Scalars['ID']['input']>;
@@ -251,6 +267,24 @@ export type B2CAppAccessRightHistoryRecordWhereInput = {
     deletedAt_lte?: InputMaybe<Scalars['String']['input']>;
     deletedAt_not?: InputMaybe<Scalars['String']['input']>;
     deletedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    developmentExportId?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_contains?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_ends_with?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    developmentExportId_not?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_contains?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    developmentExportId_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_starts_with?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
     dv?: InputMaybe<Scalars['Int']['input']>;
     dv_gt?: InputMaybe<Scalars['Int']['input']>;
     dv_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -301,6 +335,24 @@ export type B2CAppAccessRightHistoryRecordWhereInput = {
     newId_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
     newId_not?: InputMaybe<Scalars['JSON']['input']>;
     newId_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+    productionExportId?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_contains?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_ends_with?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    productionExportId_not?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_contains?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    productionExportId_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_starts_with?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
     sender?: InputMaybe<Scalars['JSON']['input']>;
     sender_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
     sender_not?: InputMaybe<Scalars['JSON']['input']>;
@@ -346,9 +398,11 @@ export type B2CAppAccessRightUpdateInput = {
     createdAt?: InputMaybe<Scalars['String']['input']>;
     createdBy?: InputMaybe<UserRelateToOneInput>;
     deletedAt?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId?: InputMaybe<Scalars['String']['input']>;
     dv?: InputMaybe<Scalars['Int']['input']>;
-    environment?: InputMaybe<B2CAppAccessRightEnvironmentType>;
+    environment?: InputMaybe<AppEnvironment>;
     newId?: InputMaybe<Scalars['String']['input']>;
+    productionExportId?: InputMaybe<Scalars['String']['input']>;
     sender?: InputMaybe<SenderFieldInput>;
     updatedAt?: InputMaybe<Scalars['String']['input']>;
     updatedBy?: InputMaybe<UserRelateToOneInput>;
@@ -382,6 +436,24 @@ export type B2CAppAccessRightWhereInput = {
     deletedAt_lte?: InputMaybe<Scalars['String']['input']>;
     deletedAt_not?: InputMaybe<Scalars['String']['input']>;
     deletedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    developmentExportId?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_contains?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_ends_with?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    developmentExportId_not?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_contains?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    developmentExportId_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_starts_with?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
     dv?: InputMaybe<Scalars['Int']['input']>;
     dv_gt?: InputMaybe<Scalars['Int']['input']>;
     dv_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -390,10 +462,10 @@ export type B2CAppAccessRightWhereInput = {
     dv_lte?: InputMaybe<Scalars['Int']['input']>;
     dv_not?: InputMaybe<Scalars['Int']['input']>;
     dv_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-    environment?: InputMaybe<B2CAppAccessRightEnvironmentType>;
-    environment_in?: InputMaybe<Array<InputMaybe<B2CAppAccessRightEnvironmentType>>>;
-    environment_not?: InputMaybe<B2CAppAccessRightEnvironmentType>;
-    environment_not_in?: InputMaybe<Array<InputMaybe<B2CAppAccessRightEnvironmentType>>>;
+    environment?: InputMaybe<AppEnvironment>;
+    environment_in?: InputMaybe<Array<InputMaybe<AppEnvironment>>>;
+    environment_not?: InputMaybe<AppEnvironment>;
+    environment_not_in?: InputMaybe<Array<InputMaybe<AppEnvironment>>>;
     id?: InputMaybe<Scalars['ID']['input']>;
     id_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
     id_not?: InputMaybe<Scalars['ID']['input']>;
@@ -402,6 +474,24 @@ export type B2CAppAccessRightWhereInput = {
     newId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
     newId_not?: InputMaybe<Scalars['String']['input']>;
     newId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    productionExportId?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_contains?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_ends_with?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    productionExportId_not?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_contains?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    productionExportId_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_starts_with?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
     sender?: InputMaybe<SenderFieldInput>;
     sender_in?: InputMaybe<Array<InputMaybe<SenderFieldInput>>>;
     sender_not?: InputMaybe<SenderFieldInput>;
@@ -2637,6 +2727,7 @@ export type ImportB2CAppInput = {
 }
 
 export type ImportB2CAppOptionsInput = {
+    accessRight: Scalars['Boolean']['input'];
     builds: Scalars['Boolean']['input'];
     info: Scalars['Boolean']['input'];
     publish: Scalars['Boolean']['input'];
@@ -4215,6 +4306,8 @@ export enum SortB2CAppAccessRightHistoryRecordsBy {
     CreatedAtDesc = 'createdAt_DESC',
     DeletedAtAsc = 'deletedAt_ASC',
     DeletedAtDesc = 'deletedAt_DESC',
+    DevelopmentExportIdAsc = 'developmentExportId_ASC',
+    DevelopmentExportIdDesc = 'developmentExportId_DESC',
     DvAsc = 'dv_ASC',
     DvDesc = 'dv_DESC',
     EnvironmentAsc = 'environment_ASC',
@@ -4225,6 +4318,8 @@ export enum SortB2CAppAccessRightHistoryRecordsBy {
     HistoryDateDesc = 'history_date_DESC',
     IdAsc = 'id_ASC',
     IdDesc = 'id_DESC',
+    ProductionExportIdAsc = 'productionExportId_ASC',
+    ProductionExportIdDesc = 'productionExportId_DESC',
     UpdatedAtAsc = 'updatedAt_ASC',
     UpdatedAtDesc = 'updatedAt_DESC',
     VAsc = 'v_ASC',
@@ -4242,12 +4337,16 @@ export enum SortB2CAppAccessRightsBy {
     CreatedByDesc = 'createdBy_DESC',
     DeletedAtAsc = 'deletedAt_ASC',
     DeletedAtDesc = 'deletedAt_DESC',
+    DevelopmentExportIdAsc = 'developmentExportId_ASC',
+    DevelopmentExportIdDesc = 'developmentExportId_DESC',
     DvAsc = 'dv_ASC',
     DvDesc = 'dv_DESC',
     EnvironmentAsc = 'environment_ASC',
     EnvironmentDesc = 'environment_DESC',
     IdAsc = 'id_ASC',
     IdDesc = 'id_DESC',
+    ProductionExportIdAsc = 'productionExportId_ASC',
+    ProductionExportIdDesc = 'productionExportId_DESC',
     UpdatedAtAsc = 'updatedAt_ASC',
     UpdatedAtDesc = 'updatedAt_DESC',
     UpdatedByAsc = 'updatedBy_ASC',
@@ -6424,6 +6523,14 @@ export type DeleteB2CAppPropertyMutationVariables = Exact<{
 
 export type DeleteB2CAppPropertyMutation = { __typename?: 'Mutation', property?: { __typename?: 'DeleteB2CAppPropertyOutput', id: string, address: string } | null }
 
+export type AllB2CAppAccessRightsQueryVariables = Exact<{
+    appId: Scalars['ID']['input'];
+    environment: AppEnvironment;
+}>
+
+
+export type AllB2CAppAccessRightsQuery = { __typename?: 'Query', rights?: Array<{ __typename?: 'B2CAppAccessRight', condoUserEmail?: string | null } | null> | null }
+
 export type GetOidcClientQueryVariables = Exact<{
     data: GetOidcClientInput;
 }>
@@ -6451,6 +6558,27 @@ export type GenerateOidcClientSecretMutationVariables = Exact<{
 
 
 export type GenerateOidcClientSecretMutation = { __typename?: 'Mutation', client?: { __typename?: 'OIDCClientWithSecret', clientSecret: string } | null }
+
+export type StartConfirmEmailActionMutationVariables = Exact<{
+    data: StartConfirmEmailActionInput;
+}>
+
+
+export type StartConfirmEmailActionMutation = { __typename?: 'Mutation', startConfirmEmailAction?: { __typename?: 'StartConfirmEmailActionOutput', actionId: string, email: string } | null }
+
+export type CompleteConfirmEmailActionMutationVariables = Exact<{
+    data: CompleteConfirmEmailActionInput;
+}>
+
+
+export type CompleteConfirmEmailActionMutation = { __typename?: 'Mutation', completeConfirmEmailAction?: { __typename?: 'CompleteConfirmEmailActionOutput', status: string } | null }
+
+export type RegisterAppUserServiceMutationVariables = Exact<{
+    data: RegisterAppUserServiceInput;
+}>
+
+
+export type RegisterAppUserServiceMutation = { __typename?: 'Mutation', condoUser?: { __typename?: 'RegisterAppUserServiceOutput', id: string } | null }
 
 export type AuthenticatedUserQueryVariables = Exact<{ [key: string]: never; }>
 
@@ -6940,6 +7068,45 @@ export function useDeleteB2CAppPropertyMutation (baseOptions?: Apollo.MutationHo
 export type DeleteB2CAppPropertyMutationHookResult = ReturnType<typeof useDeleteB2CAppPropertyMutation>
 export type DeleteB2CAppPropertyMutationResult = Apollo.MutationResult<DeleteB2CAppPropertyMutation>
 export type DeleteB2CAppPropertyMutationOptions = Apollo.BaseMutationOptions<DeleteB2CAppPropertyMutation, DeleteB2CAppPropertyMutationVariables>
+export const AllB2CAppAccessRightsDocument = gql`
+    query allB2CAppAccessRights($appId: ID!, $environment: AppEnvironment!) {
+  rights: allB2CAppAccessRights(
+    where: {app: {id: $appId}, environment: $environment}
+    first: 1
+  ) {
+    condoUserEmail
+  }
+}
+    `
+
+/**
+ * __useAllB2CAppAccessRightsQuery__
+ *
+ * To run a query within a React component, call `useAllB2CAppAccessRightsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAllB2CAppAccessRightsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAllB2CAppAccessRightsQuery({
+ *   variables: {
+ *      appId: // value for 'appId'
+ *      environment: // value for 'environment'
+ *   },
+ * });
+ */
+export function useAllB2CAppAccessRightsQuery (baseOptions: Apollo.QueryHookOptions<AllB2CAppAccessRightsQuery, AllB2CAppAccessRightsQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useQuery<AllB2CAppAccessRightsQuery, AllB2CAppAccessRightsQueryVariables>(AllB2CAppAccessRightsDocument, options)
+}
+export function useAllB2CAppAccessRightsLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions<AllB2CAppAccessRightsQuery, AllB2CAppAccessRightsQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useLazyQuery<AllB2CAppAccessRightsQuery, AllB2CAppAccessRightsQueryVariables>(AllB2CAppAccessRightsDocument, options)
+}
+export type AllB2CAppAccessRightsQueryHookResult = ReturnType<typeof useAllB2CAppAccessRightsQuery>
+export type AllB2CAppAccessRightsLazyQueryHookResult = ReturnType<typeof useAllB2CAppAccessRightsLazyQuery>
+export type AllB2CAppAccessRightsQueryResult = Apollo.QueryResult<AllB2CAppAccessRightsQuery, AllB2CAppAccessRightsQueryVariables>
 export const GetOidcClientDocument = gql`
     query getOIDCClient($data: GetOIDCClientInput!) {
   client: OIDCClient(data: $data) {
@@ -7076,6 +7243,106 @@ export function useGenerateOidcClientSecretMutation (baseOptions?: Apollo.Mutati
 export type GenerateOidcClientSecretMutationHookResult = ReturnType<typeof useGenerateOidcClientSecretMutation>
 export type GenerateOidcClientSecretMutationResult = Apollo.MutationResult<GenerateOidcClientSecretMutation>
 export type GenerateOidcClientSecretMutationOptions = Apollo.BaseMutationOptions<GenerateOidcClientSecretMutation, GenerateOidcClientSecretMutationVariables>
+export const StartConfirmEmailActionDocument = gql`
+    mutation startConfirmEmailAction($data: StartConfirmEmailActionInput!) {
+  startConfirmEmailAction(data: $data) {
+    actionId
+    email
+  }
+}
+    `
+export type StartConfirmEmailActionMutationFn = Apollo.MutationFunction<StartConfirmEmailActionMutation, StartConfirmEmailActionMutationVariables>
+
+/**
+ * __useStartConfirmEmailActionMutation__
+ *
+ * To run a mutation, you first call `useStartConfirmEmailActionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useStartConfirmEmailActionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [startConfirmEmailActionMutation, { data, loading, error }] = useStartConfirmEmailActionMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useStartConfirmEmailActionMutation (baseOptions?: Apollo.MutationHookOptions<StartConfirmEmailActionMutation, StartConfirmEmailActionMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<StartConfirmEmailActionMutation, StartConfirmEmailActionMutationVariables>(StartConfirmEmailActionDocument, options)
+}
+export type StartConfirmEmailActionMutationHookResult = ReturnType<typeof useStartConfirmEmailActionMutation>
+export type StartConfirmEmailActionMutationResult = Apollo.MutationResult<StartConfirmEmailActionMutation>
+export type StartConfirmEmailActionMutationOptions = Apollo.BaseMutationOptions<StartConfirmEmailActionMutation, StartConfirmEmailActionMutationVariables>
+export const CompleteConfirmEmailActionDocument = gql`
+    mutation completeConfirmEmailAction($data: CompleteConfirmEmailActionInput!) {
+  completeConfirmEmailAction(data: $data) {
+    status
+  }
+}
+    `
+export type CompleteConfirmEmailActionMutationFn = Apollo.MutationFunction<CompleteConfirmEmailActionMutation, CompleteConfirmEmailActionMutationVariables>
+
+/**
+ * __useCompleteConfirmEmailActionMutation__
+ *
+ * To run a mutation, you first call `useCompleteConfirmEmailActionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCompleteConfirmEmailActionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [completeConfirmEmailActionMutation, { data, loading, error }] = useCompleteConfirmEmailActionMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCompleteConfirmEmailActionMutation (baseOptions?: Apollo.MutationHookOptions<CompleteConfirmEmailActionMutation, CompleteConfirmEmailActionMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<CompleteConfirmEmailActionMutation, CompleteConfirmEmailActionMutationVariables>(CompleteConfirmEmailActionDocument, options)
+}
+export type CompleteConfirmEmailActionMutationHookResult = ReturnType<typeof useCompleteConfirmEmailActionMutation>
+export type CompleteConfirmEmailActionMutationResult = Apollo.MutationResult<CompleteConfirmEmailActionMutation>
+export type CompleteConfirmEmailActionMutationOptions = Apollo.BaseMutationOptions<CompleteConfirmEmailActionMutation, CompleteConfirmEmailActionMutationVariables>
+export const RegisterAppUserServiceDocument = gql`
+    mutation registerAppUserService($data: RegisterAppUserServiceInput!) {
+  condoUser: registerAppUserService(data: $data) {
+    id
+  }
+}
+    `
+export type RegisterAppUserServiceMutationFn = Apollo.MutationFunction<RegisterAppUserServiceMutation, RegisterAppUserServiceMutationVariables>
+
+/**
+ * __useRegisterAppUserServiceMutation__
+ *
+ * To run a mutation, you first call `useRegisterAppUserServiceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRegisterAppUserServiceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [registerAppUserServiceMutation, { data, loading, error }] = useRegisterAppUserServiceMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useRegisterAppUserServiceMutation (baseOptions?: Apollo.MutationHookOptions<RegisterAppUserServiceMutation, RegisterAppUserServiceMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<RegisterAppUserServiceMutation, RegisterAppUserServiceMutationVariables>(RegisterAppUserServiceDocument, options)
+}
+export type RegisterAppUserServiceMutationHookResult = ReturnType<typeof useRegisterAppUserServiceMutation>
+export type RegisterAppUserServiceMutationResult = Apollo.MutationResult<RegisterAppUserServiceMutation>
+export type RegisterAppUserServiceMutationOptions = Apollo.BaseMutationOptions<RegisterAppUserServiceMutation, RegisterAppUserServiceMutationVariables>
 export const AuthenticatedUserDocument = gql`
     query authenticatedUser {
   authenticatedUser {
