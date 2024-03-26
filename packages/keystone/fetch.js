@@ -6,12 +6,14 @@ const Mertrics = require('./metrics')
 
 const logger = getLogger('fetch')
 
+const FETCH_COUNT_METRIC_NAME = 'fetch.count'
+const FETCH_TIME_METRIC_NAME = 'fetch.time'
+
 async function fetch (url, options) {
 
     const urlObject = new URL(url)
-    const host = urlObject.hostname
+    const hostname = urlObject.hostname
     const path = urlObject.pathname
-    const metricUrl = host.replace(/[^a-zA-Z0-9]/g, '')
 
     const executionContext = getExecutionContext()
     const parentReqId = executionContext.reqId
@@ -24,18 +26,21 @@ async function fetch (url, options) {
         const endTime = Date.now()
         const elapsedTime = endTime - startTime
 
-        logger.info({ msg: 'fetch: request successful', url, reqId: parentReqId, path, host, status: response.status, elapsedTime })
-        Mertrics.increment({ name: 'fetch.status.' + metricUrl, value: response.status, tags: { path } })
-        Mertrics.gauge({ name: 'fetch.time.' + metricUrl, value: elapsedTime, tags: { path } })
+        logger.info({ msg: 'fetch: request successful', url, reqId: parentReqId, path, hostname, status: response.status, elapsedTime })
+
+        Mertrics.increment({ name: FETCH_COUNT_METRIC_NAME, value: 1, tags: { status: response.status, hostname, path } })
+        Mertrics.gauge({ name: FETCH_TIME_METRIC_NAME, value: elapsedTime, tags: { status: response.status, hostname, path } })
 
         return response
     } catch (error) {
         const endTime = Date.now()
         const elapsedTime = endTime - startTime
 
-        logger.error({ msg: 'fetch: failed with error', url, path, host, reqId: parentReqId, error, elapsedTime })
+        logger.error({ msg: 'fetch: failed with error', url, path, hostname, reqId: parentReqId, error, elapsedTime })
 
-        Mertrics.increment({ name: 'fetch.error.' + metricUrl, value: 1, tags: { path } })
+        Mertrics.increment({ name: FETCH_COUNT_METRIC_NAME, value: 1, tags: { status: 'failed', hostname, path } })
+        Mertrics.gauge({ name: FETCH_TIME_METRIC_NAME, value: elapsedTime, tags: { status: 'failed', hostname, path } })
+
         throw error
     }
 }
