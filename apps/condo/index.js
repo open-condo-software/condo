@@ -110,6 +110,7 @@ if (!IS_BUILD_PHASE && SENTRY_CONFIG['server']) {
         dsn: SENTRY_CONFIG['server']['dsn'],
         debug: false,
         tracesSampleRate: SENTRY_CONFIG['server']['sampleRate'],
+        sampleRate: SENTRY_CONFIG['server']['sampleRate'],
         environment: SENTRY_CONFIG['server']['environment'],
         organization: SENTRY_CONFIG['server']['organization'],
         project: SENTRY_CONFIG['server']['project'],
