@@ -72,16 +72,6 @@ function ResetPageView () {
         phone: [requiredValidator, phoneValidator],
     }
 
-    if (step === 'validatePhone') {
-        return (
-            <ValidatePhoneForm
-                onFinish={() => router.push('/auth/change-password?token=' + token)}
-                onReset={() => setStep('inputPhone')}
-                title={ResetTitleMsg}
-            />
-        )
-    }
-
     const startConfirmPhoneAction = async () => {
         setIsLoading(true)
         if (!executeCaptcha) {
@@ -123,83 +113,87 @@ function ResetPageView () {
             setIsLoading(false)
         })
     }
-    const Content = () => {
-        if (isLoading) {
-            return <Loader size='large' />
-        }
 
+    if (isLoading) {
+        return <Loader size='large' />
+    }
+
+    if (step === 'validatePhone') {
         return (
-            <>
-                <Head><title>{ResetTitleMsg}</title></Head>
-                <Form
-                    form={form}
-                    name='forgot-password'
-                    validateTrigger={['onBlur', 'onSubmit']}
-                    initialValues={initialValues}
-                    colon={false}
-                    requiredMark={false}
-                    layout='vertical'
-                >
-                    <Row style={ROW_STYLES}>
-                        <ResponsiveCol span={24}>
-                            <Row gutter={[0, 20]}>
-                                <Col span={24}>
-                                    <Typography.Title level={2}>{ResetTitleMsg}</Typography.Title>
-                                </Col>
-                                <Col span={24}>
-                                    <Typography.Paragraph size='medium'>{InstructionsMsg}</Typography.Paragraph>
-                                </Col>
-                            </Row>
-                            <Row gutter={[0, 40]}>
-                                <Col span={24}>
-                                    <Form.Item
-                                        name='phone'
-                                        label={REGISTER_PHONE_LABEL}
-                                        rules={validations.phone}
-                                        data-cy='forgot-phone-item'
-                                    >
-                                        <PhoneInput style={FORM_PHONE_STYLES} placeholder={ExamplePhoneMsg} />
-                                    </Form.Item>
-                                </Col>
-                                <Col span={24}>
-                                    <Form.Item>
-                                        <CountDownTimer action={startConfirmPhoneAction} id='FORGOT_ACTION' timeout={SMS_CODE_TTL}>
-                                            {({ countdown, runAction }) => {
-                                                const isCountDownActive = countdown > 0
-
-                                                return (
-                                                    <Button
-                                                        onClick={() => {
-                                                            form.validateFields().then(() => {
-                                                                runAction()
-                                                            }).catch(_ => {
-                                                                // validation check failed - don't invoke runAction
-                                                            })
-                                                        }}
-                                                        type='primary'
-                                                        disabled={isCountDownActive}
-                                                        loading={isLoading}
-                                                        htmlType='submit'
-                                                        block
-                                                        data-cy='forgot-button'
-                                                    >
-                                                        {isCountDownActive ? `${RestorePasswordMsg} ${countdown}` : RestorePasswordMsg}
-                                                    </Button>
-                                                )
-                                            }}
-                                        </CountDownTimer>
-                                    </Form.Item>
-                                </Col>
-                            </Row>
-                        </ResponsiveCol>
-                    </Row>
-                </Form>
-            </>)
+            <ValidatePhoneForm
+                onFinish={() => router.push('/auth/change-password?token=' + token)}
+                onReset={() => setStep('inputPhone')}
+                title={ResetTitleMsg}
+            />
+        )
     }
 
     return (
         <Row gutter={[0, 40]}>
-            <Content />
+            <Head><title>{ResetTitleMsg}</title></Head>
+            <Form
+                form={form}
+                name='forgot-password'
+                validateTrigger={['onBlur', 'onSubmit']}
+                initialValues={initialValues}
+                colon={false}
+                requiredMark={false}
+                layout='vertical'
+            >
+                <Row style={ROW_STYLES}>
+                    <ResponsiveCol span={24}>
+                        <Row gutter={[0, 20]}>
+                            <Col span={24}>
+                                <Typography.Title level={2}>{ResetTitleMsg}</Typography.Title>
+                            </Col>
+                            <Col span={24}>
+                                <Typography.Paragraph size='medium'>{InstructionsMsg}</Typography.Paragraph>
+                            </Col>
+                        </Row>
+                        <Row gutter={[0, 40]}>
+                            <Col span={24}>
+                                <Form.Item
+                                    name='phone'
+                                    label={REGISTER_PHONE_LABEL}
+                                    rules={validations.phone}
+                                    data-cy='forgot-phone-item'
+                                >
+                                    <PhoneInput style={FORM_PHONE_STYLES} placeholder={ExamplePhoneMsg} />
+                                </Form.Item>
+                            </Col>
+                            <Col span={24}>
+                                <Form.Item>
+                                    <CountDownTimer action={startConfirmPhoneAction} id='FORGOT_ACTION' timeout={SMS_CODE_TTL}>
+                                        {({ countdown, runAction }) => {
+                                            const isCountDownActive = countdown > 0
+
+                                            return (
+                                                <Button
+                                                    onClick={() => {
+                                                        form.validateFields().then(() => {
+                                                            runAction()
+                                                        }).catch(_ => {
+                                                            // validation check failed - don't invoke runAction
+                                                        })
+                                                    }}
+                                                    type='primary'
+                                                    disabled={isCountDownActive}
+                                                    loading={isLoading}
+                                                    htmlType='submit'
+                                                    block
+                                                    data-cy='forgot-button'
+                                                >
+                                                    {isCountDownActive ? `${RestorePasswordMsg} ${countdown}` : RestorePasswordMsg}
+                                                </Button>
+                                            )
+                                        }}
+                                    </CountDownTimer>
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                    </ResponsiveCol>
+                </Row>
+            </Form>
         </Row>
     )
 }
