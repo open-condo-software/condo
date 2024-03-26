@@ -10,8 +10,6 @@ const { makeLoggedInAdminClient, makeClient, expectToThrowAuthenticationErrorToR
 const { DEVICE_PLATFORM_IOS } = require('@condo/domains/notification/constants/constants')
 const { _internalSendNotificationNewMobileAppVersionByTestClient, MessageBatch } = require('@condo/domains/notification/utils/testSchema')
 const { createTestRemoteClient } = require('@condo/domains/notification/utils/testSchema')
-const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
