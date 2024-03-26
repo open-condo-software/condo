@@ -5,6 +5,7 @@ import getConfig from 'next/config'
 import React, { createContext, FC, useCallback, useContext, useMemo, useRef } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Button } from '@open-condo/ui'
 
 
 type IHCaptchaContext = {
@@ -20,6 +21,7 @@ const useHCaptcha = (): IHCaptchaContext => useContext(HCaptchaContext)
 const HCaptchaProvider: FC = ({ children }) => {
     const intl = useIntl()
     const requestFailedMessage = intl.formatMessage({ id: 'global.errors.requestFailed.title' })
+    const OkMessage = intl.formatMessage({ id: 'OK' })
 
     const { publicRuntimeConfig: { hCaptcha: hCaptchaConfig, disableCaptcha } } = getConfig()
     const siteKey = useMemo(() => get(hCaptchaConfig, 'SITE_KEY'), [])
@@ -38,8 +40,18 @@ const HCaptchaProvider: FC = ({ children }) => {
             return get(result, 'response', '')
         } catch (error) {
             console.error({ msg: 'failed to get captcha token', error })
-            // TODO(DOMA-8659): This is not the final error output, it may change
-            notification.error({ message: requestFailedMessage })
+            notification.error({
+                message: requestFailedMessage,
+                description: (
+                    <Button
+                        type='primary'
+                        onClick={() => {
+                            notification.destroy()
+                        }}>
+                        {OkMessage}
+                    </Button>
+                ),
+            })
             throw error
         }
     }, [])
