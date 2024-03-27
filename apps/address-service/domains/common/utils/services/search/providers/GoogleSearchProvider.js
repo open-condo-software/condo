@@ -1,7 +1,8 @@
 const get = require('lodash/get')
-const { fetch } = require('@open-condo/keystone/fetch')
 
 const conf = require('@open-condo/config')
+const { fetch } = require('@open-condo/keystone/fetch')
+
 
 const { GOOGLE_PROVIDER, DADATA_PROVIDER } = require('@address-service/domains/common/constants/providers')
 

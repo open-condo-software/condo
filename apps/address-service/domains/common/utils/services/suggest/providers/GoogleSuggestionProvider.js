@@ -1,8 +1,8 @@
 const get = require('lodash/get')
-const { fetch } = require('@open-condo/keystone/fetch')
 const { v4: uuid } = require('uuid')
 
 const conf = require('@open-condo/config')
+const { fetch } = require('@open-condo/keystone/fetch')
 
 const { BUILDING_ADDRESS_TYPE } = require('@address-service/domains/common/constants/addressTypes')
 const { GOOGLE_PROVIDER } = require('@address-service/domains/common/constants/providers')
