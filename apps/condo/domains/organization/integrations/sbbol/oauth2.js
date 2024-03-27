@@ -9,6 +9,7 @@ const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}
+const SBBOL_AUTH_CONFIG_EXTENDED = conf.SBBOL_AUTH_CONFIG_EXTENDED ? JSON.parse(conf.SBBOL_AUTH_CONFIG_EXTENDED) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
 const SERVER_URL = conf.SERVER_URL
 const JWT_ALG = 'gost34.10-2012'
@@ -77,10 +78,10 @@ class SbbolOauth2Api {
         this.issuer = sbbolIssuer
     }
 
-    authorizationUrlWithParams (checks) {
+    authorizationUrlWithParams (checks, useExtendedConfig) {
         return this.client.authorizationUrl({
             response_type: 'code',
-            scope: SBBOL_AUTH_CONFIG.scope,
+            scope: useExtendedConfig ? SBBOL_AUTH_CONFIG_EXTENDED.scope : SBBOL_AUTH_CONFIG.scope,
             ...checks,
         })
     }

@@ -174,7 +174,7 @@ const PropertyImportBankTransactions: IPropertyImportBankTransactions = ({ bankA
                         type='sberAction'
                         secondary
                         icon={<SberIconWithoutLabel/>}
-                        href={`/api/sbbol/auth?redirectUrl=${asPath}?${SBBOL_SYNC_CALLBACK_QUERY}`}
+                        href={`/api/sbbol/auth?redirectUrl=${asPath}?${SBBOL_SYNC_CALLBACK_QUERY}&useExtendedConfig=true`}
                         block
                         disabled={fileImportLoading}
                         className='sbbol-button'
