@@ -4,11 +4,13 @@ import React, { useCallback } from 'react'
 
 import { Card, Typography } from '@open-condo/ui'
 
+import { B2C_LOGO_SIZE } from '@/domains/miniapp/constants/common'
+
 import styles from './InlineAppCard.module.css'
 
 import type { AppInfo } from '@/domains/miniapp/utils/merge'
 
-const IMG_SIZE = 44
+const IMG_SIZE = B2C_LOGO_SIZE / 3
 const TITLE_ELLIPSIS = {
     rows: 2,
 }

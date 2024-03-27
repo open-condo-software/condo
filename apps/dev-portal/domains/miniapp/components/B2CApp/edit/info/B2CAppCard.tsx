@@ -3,9 +3,11 @@ import React from 'react'
 
 import { Typography } from '@open-condo/ui'
 
+import { B2C_LOGO_SIZE } from '@/domains/miniapp/constants/common'
+
 import styles from './B2CAppCard.module.css'
 
-const IMG_SIZE = 40
+const IMG_SIZE = B2C_LOGO_SIZE / 3
 const ELLIPSIS_CONFIG = { rows: 2 }
 
 export const B2CAppCard: React.FC<{ name: string, logo: string }> = ({ name, logo }) => {

@@ -7,9 +7,12 @@
 
 .app-card-logo-container {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   width: 60px;
   height: 60px;
-  padding: 8px;
   background: var(--condo-global-color-gray-3);
   border-radius: 8px;
 }

@@ -46,14 +46,14 @@ export function useFileValidator (opts: FileValidatorOpts): ValidatorType {
                         const { width, height } = image
                         if (opts.dimensionsLimit?.max && (width > opts.dimensionsLimit.max.width || height > opts.dimensionsLimit.max.height)) {
                             const ErrorDescription = intl.formatMessage({ id: 'global.errors.imageUpload.tooBig.description' }, {
-                                maxSize: `${opts.dimensionsLimit.max.width}x${opts.dimensionsLimit.max.height}`,
+                                maxSize: `${opts.dimensionsLimit.max.width}×${opts.dimensionsLimit.max.height}`,
                             })
                             notification.error({ message: ErrorTitle, description: ErrorDescription })
                             return resolve(Upload.LIST_IGNORE)
                         }
                         if (opts.dimensionsLimit?.min && (width < opts.dimensionsLimit.min.width || height < opts.dimensionsLimit.min.height)) {
                             const ErrorDescription = intl.formatMessage({ id: 'global.errors.imageUpload.tooSmall.description' }, {
-                                minSize: `${opts.dimensionsLimit.min.width}x${opts.dimensionsLimit.min.height}`,
+                                minSize: `${opts.dimensionsLimit.min.width}×${opts.dimensionsLimit.min.height}`,
                             })
                             notification.error({ message: ErrorTitle, description: ErrorDescription })
                             return resolve(Upload.LIST_IGNORE)
