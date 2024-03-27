@@ -7,6 +7,7 @@ import { useIntl } from 'react-intl'
 import { Button, Typography } from '@open-condo/ui'
 
 import { useCreateAppContext } from '@/domains/common/components/CreateAppContext'
+import { B2C_LOGO_SIZE } from '@/domains/miniapp/constants/common'
 import { mergeApps } from '@/domains/miniapp/utils/merge'
 
 import styles from './RecentAppsPopover.module.css'
@@ -22,7 +23,7 @@ const APP_ROW_GUTTER: RowProps['gutter'] = [0, 0]
 const POPOVER_OVERLAY_STYLES: CSSProperties = { width: 340 }
 const FULL_COL_SPAN = 24
 const MAX_APPS_SHOWN = 3
-const IMG_SIZE = 44
+const IMG_SIZE = B2C_LOGO_SIZE / 3
 
 type WithOnClose = {
     onClose: () => void
