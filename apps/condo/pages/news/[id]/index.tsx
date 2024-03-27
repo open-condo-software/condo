@@ -5,6 +5,7 @@ import dayjs from 'dayjs'
 import every from 'lodash/every'
 import get from 'lodash/get'
 import has from 'lodash/has'
+import getConfig from 'next/config'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -31,8 +32,8 @@ import { RecipientCounter } from '@condo/domains/news/components/RecipientCounte
 import { TNewsItemScopeNoInstance } from '@condo/domains/news/components/types'
 import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess'
+import { isPostponedNewsItem } from '@condo/domains/news/utils'
 import { NewsItem, NewsItemScope } from '@condo/domains/news/utils/clientSchema'
-import { isPostponedNewsItem } from '@condo/domains/news/utils/helpres'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
@@ -83,6 +84,8 @@ const NewsItemCard: React.FC = () => {
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'news.ConfirmDeleteTitle' })
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'news.ConfirmDeleteMessage' })
     const CancelMessage = intl.formatMessage({ id: 'news.CancelMessage' })
+
+    const { publicRuntimeConfig: { newsItemsSendingDelay } } = getConfig()
 
     const { user } = useAuth()
     const { query, push } = useRouter()
@@ -189,6 +192,14 @@ const NewsItemCard: React.FC = () => {
         const dateToShow = get(newsItem, 'sendAt', null)
         return dateToShow ? dayjs(dateToShow).format('YYYY.MM.DD HH:mm') : '—'
     }, [newsItem])
+    const isStartSending = useMemo(() => {
+        const sendAt = get(newsItem, 'sendAt', null)
+        return sendAt && dayjs().diff(dayjs(sendAt)) > 0
+    }, [newsItem])
+    const canBeUpdated = useMemo(
+        () => isPostponedNewsItem(newsItem, newsItemsSendingDelay) && !isStartSending,
+        [newsItem, isStartSending]
+    )
 
     const isLoading = employeeLoading || newsItemLoading || isAccessLoading || newsItemScopesLoading || propertyLoading
     const hasError = employeeError || newsItemError || newsItemScopesError
@@ -255,7 +266,7 @@ const NewsItemCard: React.FC = () => {
                                             <Button type='primary'>{ResendTitle}</Button>
                                         </Link>
                                     ) : ( <ActionBar actions={[
-                                        isPostponedNewsItem(newsItem) && (
+                                        canBeUpdated && (
                                             <Link key='update' href={`/news/${get(newsItem, 'id')}/update`}>
                                                 <Button type='primary'>{EditTitle}</Button>
                                             </Link>
