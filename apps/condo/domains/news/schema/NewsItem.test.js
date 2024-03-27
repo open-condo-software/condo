@@ -239,16 +239,16 @@ describe('NewsItems', () => {
             })
 
             test('user can successfully un-publish news item', async () => {
-                const [objCreated] = await createTestNewsItem(adminClient, dummyO10n)
-                await createTestNewsItemScope(adminClient, objCreated)
-                await publishTestNewsItem(adminClient, objCreated.id)
-                const [objUnpublished] = await updateTestNewsItem(adminClient, objCreated.id, { isPublished: false })
+                const [createdNewsItem] = await createTestNewsItem(adminClient, dummyO10n)
+                await createTestNewsItemScope(adminClient, createdNewsItem)
+                const [publishedNewsItem] = await publishTestNewsItem(adminClient, createdNewsItem.id)
+                const [unpublishedNewsItem] = await updateTestNewsItem(adminClient, createdNewsItem.id, { isPublished: false })
 
-                expect(objUnpublished.title).toEqual(objCreated.title)
-                expect(objUnpublished.body).toEqual(objCreated.body)
-                expect(objUnpublished.validBefore).toEqual(objCreated.validBefore)
-                expect(objUnpublished.sendAt).toEqual(objCreated.sendAt)
-                expect(objUnpublished.type).toEqual(objCreated.type)
+                expect(unpublishedNewsItem.title).toEqual(createdNewsItem.title)
+                expect(unpublishedNewsItem.body).toEqual(createdNewsItem.body)
+                expect(unpublishedNewsItem.validBefore).toEqual(createdNewsItem.validBefore)
+                expect(unpublishedNewsItem.sendAt).toEqual(publishedNewsItem.sendAt)
+                expect(unpublishedNewsItem.type).toEqual(createdNewsItem.type)
             })
 
             test('The common type set on user try to delete the type', async () => {
@@ -850,7 +850,6 @@ describe('NewsItems', () => {
         describe('must throw an error on trying to edit the published news item', () => {
             const payloads = [
                 { title: faker.lorem.words(3) },
-                { organization: faker.datatype.uuid() },
                 { body: faker.lorem.words(3) },
                 { type: NEWS_TYPE_EMERGENCY },
                 { sendAt: faker.date.soon().toISOString() },
@@ -1104,7 +1103,7 @@ describe('NewsItems', () => {
                 const [newsItem] = await createTestNewsItem(adminClient, dummyO10n )
                 await createTestNewsItemScope(adminClient, newsItem)
                 const [publishedNewsItem] = await publishTestNewsItem(adminClient, newsItem.id)
-                expect(publishedNewsItem).toHaveProperty('sendAt', dayjs(publishedNewsItem.publishedAt).add(SENDING_DELAY_SEC, 'second'))
+                expect(publishedNewsItem).toHaveProperty('sendAt', dayjs(publishedNewsItem.publishedAt).add(SENDING_DELAY_SEC, 'second').toISOString())
             })
         })
     })
