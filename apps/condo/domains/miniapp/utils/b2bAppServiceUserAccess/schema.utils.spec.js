@@ -50,14 +50,19 @@ describe('Schema functions', () => {
         const cases = [{
             input: {
                 config: {
-                    Organization: {
-                        pathToOrganizationId: ['id'],
-                        canBeManaged: false,
+                    lists: {
+                        Organization: {
+                            pathToOrganizationId: ['id'],
+                            canBeManaged: false,
+                        },
+                        Contact: {},
+                        Abracadabra: {
+                            canBeRead: false,
+                            canBeManaged: false,
+                        },
                     },
-                    Contact: {},
-                    Abracadabra: {
-                        canBeRead: false,
-                        canBeManaged: false,
+                    services: {
+                        registerSomething: {},
                     },
                 },
             },
@@ -77,6 +82,7 @@ describe('Schema functions', () => {
                     ...READ_ONLY_PERMISSION_FIELD,
                     schemaDoc: 'Currently, this field is read-only. You cannot get manage access for the specified schema.',
                 },
+                canExecuteRegisterSomething: PERMISSION_FIELD,
             },
         }]
 

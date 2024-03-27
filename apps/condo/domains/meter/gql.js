@@ -64,6 +64,42 @@ const EXPORT_PROPERTY_METER_READINGS_QUERY = gql`
     }
 `
 
+const REGISTER_METERS_MUTATION = gql`
+    mutation registerMeters ($data: RegisterMetersInput!) {
+        result: registerMeters(data: $data) {
+            items {
+                address
+                accountNumber
+                result {
+                    error { message }
+                    data {
+                        propertyId
+                        meters {
+                            number
+                            result {
+                                error { message }
+                                data {
+                                    id
+                                    readings {
+                                        v1
+                                        v2
+                                        v3
+                                        v4
+                                        result {
+                                            error { message }
+                                            data { id }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -80,6 +116,7 @@ module.exports = {
     MeterResourceOwner,
     INTERNAL_DELETE_METER_READINGS_MUTATION,
     EXPORT_PROPERTY_METER_READINGS_QUERY,
+    REGISTER_METERS_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 

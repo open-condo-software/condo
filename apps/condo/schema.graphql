@@ -67205,6 +67205,7 @@ type B2BAppAccessRightSetHistoryRecord {
   canManageOrganizations: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
+  canExecuteRegisterMeters: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -67247,6 +67248,8 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canReadProperties_not: Boolean
   canManageProperties: Boolean
   canManageProperties_not: Boolean
+  canExecuteRegisterMeters: Boolean
+  canExecuteRegisterMeters_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -67350,6 +67353,8 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canReadProperties_DESC
   canManageProperties_ASC
   canManageProperties_DESC
+  canExecuteRegisterMeters_ASC
+  canExecuteRegisterMeters_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -67380,6 +67385,7 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   canManageOrganizations: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
+  canExecuteRegisterMeters: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -67411,6 +67417,7 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   canManageOrganizations: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
+  canExecuteRegisterMeters: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -67462,6 +67469,7 @@ type B2BAppAccessRightSet {
   canManageOrganizations: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
+  canExecuteRegisterMeters: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -67510,6 +67518,8 @@ input B2BAppAccessRightSetWhereInput {
   canReadProperties_not: Boolean
   canManageProperties: Boolean
   canManageProperties_not: Boolean
+  canExecuteRegisterMeters: Boolean
+  canExecuteRegisterMeters_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -67595,6 +67605,8 @@ enum SortB2BAppAccessRightSetsBy {
   canReadProperties_DESC
   canManageProperties_ASC
   canManageProperties_DESC
+  canExecuteRegisterMeters_ASC
+  canExecuteRegisterMeters_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -67625,6 +67637,7 @@ input B2BAppAccessRightSetUpdateInput {
   canManageOrganizations: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
+  canExecuteRegisterMeters: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -67653,6 +67666,7 @@ input B2BAppAccessRightSetCreateInput {
   canManageOrganizations: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
+  canExecuteRegisterMeters: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -73837,6 +73851,122 @@ input ExportPropertyMeterReadingsInput {
 type ExportPropertyMeterReadingsOutput {
   status: String!
   linkToFile: String!
+}
+
+input RegisterMetersMeterReadingInput {
+  date: String!
+  v1: String!
+  v2: String
+  v3: String
+  v4: String
+}
+
+input RegisterMetersMeterDatesInput {
+  verificationDate: String
+  nextVerificationDate: String
+  installationDate: String
+  commissioningDate: String
+  sealingDate: String
+  controlReadingsDate: String
+}
+
+input RegisterMetersMeterInput {
+  number: String!
+  resourceTypeId: ID
+  numberOfTariffs: Int
+  place: String
+  readings: [RegisterMetersMeterReadingInput!]
+  dates: RegisterMetersMeterDatesInput
+}
+
+input RegisterMetersItemAddressMetaInput {
+  unitType: String
+  unitName: String
+  globalId: String
+}
+
+input RegisterMetersItemAccountMetaInput {
+  globalId: String
+  clientName: String
+}
+
+input RegisterMetersItemInput {
+  address: String!
+  addressMeta: RegisterMetersItemAddressMetaInput
+  accountNumber: String!
+  accountMeta: RegisterMetersItemAccountMetaInput
+  meters: [RegisterMetersMeterInput!]!
+}
+
+input RegisterMetersInput {
+  dv: Int!
+  sender: JSON!
+  organization: OrganizationWhereUniqueInput!
+  items: [RegisterMetersItemInput!]!
+}
+
+type RegisterMetersMeterReadingResultSuccessOutput {
+  id: ID!
+}
+
+type RegisterMetersMeterReadingResultErroneousOutput {
+  message: String!
+}
+
+type RegisterMetersMeterReadingResultOutput {
+  error: RegisterMetersMeterReadingResultErroneousOutput
+  data: RegisterMetersMeterReadingResultSuccessOutput
+}
+
+type RegisterMetersMeterReadingOutput {
+  v1: String!
+  v2: String
+  v3: String
+  v4: String
+  result: RegisterMetersMeterReadingResultOutput
+}
+
+type RegisterMetersMeterResultSuccessOutput {
+  id: ID!
+  readings: [RegisterMetersMeterReadingOutput!]!
+}
+
+type RegisterMetersMeterResultErroneousOutput {
+  message: String!
+}
+
+type RegisterMetersMeterResultOutput {
+  error: RegisterMetersMeterResultErroneousOutput
+  data: RegisterMetersMeterResultSuccessOutput
+}
+
+type RegisterMetersMeterOutput {
+  number: String!
+  result: RegisterMetersMeterResultOutput!
+}
+
+type RegisterMetersItemResultSuccessOutput {
+  propertyId: ID!
+  meters: [RegisterMetersMeterOutput!]!
+}
+
+type RegisterMetersItemResultErroneousOutput {
+  message: String!
+}
+
+type RegisterMetersItemResultOutput {
+  error: RegisterMetersItemResultErroneousOutput
+  data: RegisterMetersItemResultSuccessOutput
+}
+
+type RegisterMetersItemOutput {
+  address: String!
+  accountNumber: String!
+  result: RegisterMetersItemResultOutput!
+}
+
+type RegisterMetersOutput {
+  items: [RegisterMetersItemOutput!]!
 }
 
 input RegisterMultiPaymentServiceConsumerInput {
@@ -85619,6 +85749,7 @@ type Mutation {
   }`
   """
   _internalDeleteMeterReadings(data: _internalDeleteMeterReadingsInput!): _internalDeleteMeterReadingsOutput
+  registerMeters(data: RegisterMetersInput!): RegisterMetersOutput
   registerMultiPayment(data: RegisterMultiPaymentInput!): RegisterMultiPaymentOutput
   registerMultiPaymentForOneReceipt(data: RegisterMultiPaymentForOneReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
   registerMultiPaymentForVirtualReceipt(data: RegisterMultiPaymentForVirtualReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
