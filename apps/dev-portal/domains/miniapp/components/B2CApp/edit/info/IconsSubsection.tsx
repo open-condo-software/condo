@@ -32,6 +32,7 @@ const ROW_ICONS_CONTENT_GUTTER: RowProps['gutter'] = [12, 12]
 const ICON_WARNING_ROW_GUTTER: RowProps['gutter'] = [0, 0]
 const FORM_BUTTON_ROW_GUTTER: RowProps['gutter'] = [60, 60]
 const FULL_COL_SPAN = 24
+const ICONS_STYLE_GUIDE_LINK = 'https://www.figma.com/file/kcIVFtPIEZCADGkqHGPoiW/B2C-mini-apps-%E2%80%94-guide-for-partners?type=design&node-id=980%3A410&mode=design&t=KufWfS9FTHDDl0xH-1'
 
 function getFormFile (e: UploadChangeParam) {
     return e.fileList
@@ -64,6 +65,10 @@ export const IconsSubsection: React.FC<{ id: string }> = ({ id }) => {
         size: <Typography.Text size='medium' strong>{B2C_LOGO_SIZE}×{B2C_LOGO_SIZE}</Typography.Text>,
         mainColor: <ColorSpan color={colors.white} bg={B2C_LOGO_MAIN_COLOR}>{B2C_LOGO_MAIN_COLOR}</ColorSpan>,
         secondaryColor: <ColorSpan color={colors.black} bg={B2C_LOGO_SECONDARY_COLOR}>{B2C_LOGO_SECONDARY_COLOR}</ColorSpan>,
+    })
+    const IconGuideLinkText = intl.formatMessage({ id: 'apps.b2c.sections.info.icons.items.main.guide.link' })
+    const IconGuideText = intl.formatMessage({ id: 'apps.b2c.sections.info.icons.items.main.guide.text' }, {
+        link: <Typography.Link href={ICONS_STYLE_GUIDE_LINK} target='_blank'>{IconGuideLinkText}</Typography.Link>,
     })
     const RulesWarningText = intl.formatMessage({ id: 'apps.b2c.sections.info.icons.warning.description' })
     const UploadImageMessage = intl.formatMessage({ id: 'apps.b2c.sections.info.icons.actions.uploadImage' })
@@ -133,6 +138,7 @@ export const IconsSubsection: React.FC<{ id: string }> = ({ id }) => {
                                 </Col>
                                 <Col span={FULL_COL_SPAN}>
                                     <Typography.Paragraph size='medium'>{MainIconDescription}</Typography.Paragraph>
+                                    <Typography.Paragraph size='medium'>{IconGuideText}</Typography.Paragraph>
                                 </Col>
                                 <Col span={FULL_COL_SPAN}>
                                     <Form.Item name='mainIcon' valuePropName='fileList' getValueFromEvent={getFormFile}>

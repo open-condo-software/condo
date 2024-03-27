@@ -118,6 +118,8 @@
   "apps.b2c.sections.info.icons.actions.uploadImage": "Upload image",
   "apps.b2c.sections.info.icons.items.main.title": "Main application icon",
   "apps.b2c.sections.info.icons.items.main.description": "Used in to display on the home screen of the resident's mobile app. Must be in {format} format, have a size of {size} pixels, and adhere to the following color palette: {mainColor} as the primary color and {secondaryColor} as the secondary color.",
+  "apps.b2c.sections.info.icons.items.main.guide.text": "To see examples of icons along with a style guide, check out our {link}.",
+  "apps.b2c.sections.info.icons.items.main.guide.link": "designer resources",
   "apps.b2c.sections.info.icons.warning.description": "In case of non-compliance with the specified requirements, the application will not be allowed before subsequent publication on the product environment, previously published application may be hidden completely or have the icon removed without prior notice.",
   "apps.b2c.sections.builds.title": "App builds",
   "apps.b2c.sections.builds.table.columns.version.title": "Version",

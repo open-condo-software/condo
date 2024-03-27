@@ -118,6 +118,8 @@
   "apps.b2c.sections.info.icons.actions.uploadImage": "Загрузить изображение",
   "apps.b2c.sections.info.icons.items.main.title": "Главная иконка приложения",
   "apps.b2c.sections.info.icons.items.main.description": "Используется в для отображения на главном экране мобильного приложения жителя. Должна быть в формате {format}, иметь размер {size} пикселей и соблюдать следующую цветовую палитру: {mainColor} в качестве основного цвета и {secondaryColor} в качестве дополнительного.",
+  "apps.b2c.sections.info.icons.items.main.guide.text": "Посмотреть примеры иконок вместе со стайл-гайдом можно в наших {link}.",
+  "apps.b2c.sections.info.icons.items.main.guide.link": "материалах для дизайнеров",
   "apps.b2c.sections.info.icons.warning.description": "В случае несоблюдения указанных требований приложение не будет допущено до последующей публикации на продуктовый стенд, ранее опубликованное приложение может быть скрыто полностью или с него может быть удалена иконка без предварительного уведомления.",
   "apps.b2c.sections.builds.title": "Сборки приложения",
   "apps.b2c.sections.builds.table.columns.version.title": "Версия сборки",
