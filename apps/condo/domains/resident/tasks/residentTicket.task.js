@@ -25,7 +25,7 @@ async function manageResidentToPropertyAndOrganizationConnections (address, dv, 
     const [oldestProperty] = await PropertyAPI.getAll(context, {
         address_i: address,
         deletedAt: null,
-        organization: { type: MANAGING_COMPANY_TYPE },
+        //organization: { type: MANAGING_COMPANY_TYPE },
     }, {
         sortBy: ['isApproved_DESC', 'createdAt_ASC'], // sorting order is essential here
         first: 1,
