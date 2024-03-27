@@ -49190,20 +49190,10 @@ export type NewsItem = {
   /**  Date before which the news item makes sense  */
   validBefore?: Maybe<Scalars['String']>;
   /**
-   *  UTC (!)
-   * Date to publish the news item and to send notifications.
-   * If left blank, it will be published immediately.
+   *  Start time for sending notifications.
+   * If the value is null, but the “isPublished” flag is true, then the "sendAt" value will be automatically set to "publishedAt" + 15 sec
    */
   sendAt?: Maybe<Scalars['String']>;
-  /**
-   *  (Internal auto-calculated field)
-   * Start time for sending notifications.
-   * This field is updated when the "isPublished" field is updated to "true".
-   * Depends on the "sendAt" field:
-   *  1) If "sendAt" is empty, then current time + delay of 15 seconds is specified;
-   *  2) If "sendAt" is specified, then the value is taken from it.
-   */
-  deliverAt?: Maybe<Scalars['String']>;
   scopes: Array<NewsItemScope>;
   _scopesMeta?: Maybe<_QueryMeta>;
   /**
@@ -49263,7 +49253,6 @@ export type NewsItemCreateInput = {
   type?: Maybe<NewsItemTypeType>;
   validBefore?: Maybe<Scalars['String']>;
   sendAt?: Maybe<Scalars['String']>;
-  deliverAt?: Maybe<Scalars['String']>;
   scopes?: Maybe<NewsItemScopeRelateToManyInput>;
   sentAt?: Maybe<Scalars['String']>;
   isPublished?: Maybe<Scalars['Boolean']>;
@@ -49297,7 +49286,6 @@ export type NewsItemHistoryRecord = {
   type?: Maybe<Scalars['String']>;
   validBefore?: Maybe<Scalars['String']>;
   sendAt?: Maybe<Scalars['String']>;
-  deliverAt?: Maybe<Scalars['String']>;
   compactScopes?: Maybe<Scalars['JSON']>;
   sentAt?: Maybe<Scalars['String']>;
   isPublished?: Maybe<Scalars['Boolean']>;
@@ -49325,7 +49313,6 @@ export type NewsItemHistoryRecordCreateInput = {
   type?: Maybe<Scalars['String']>;
   validBefore?: Maybe<Scalars['String']>;
   sendAt?: Maybe<Scalars['String']>;
-  deliverAt?: Maybe<Scalars['String']>;
   compactScopes?: Maybe<Scalars['JSON']>;
   sentAt?: Maybe<Scalars['String']>;
   isPublished?: Maybe<Scalars['Boolean']>;
@@ -49358,7 +49345,6 @@ export type NewsItemHistoryRecordUpdateInput = {
   type?: Maybe<Scalars['String']>;
   validBefore?: Maybe<Scalars['String']>;
   sendAt?: Maybe<Scalars['String']>;
-  deliverAt?: Maybe<Scalars['String']>;
   compactScopes?: Maybe<Scalars['JSON']>;
   sentAt?: Maybe<Scalars['String']>;
   isPublished?: Maybe<Scalars['Boolean']>;
@@ -49458,14 +49444,6 @@ export type NewsItemHistoryRecordWhereInput = {
   sendAt_gte?: Maybe<Scalars['String']>;
   sendAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   sendAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  deliverAt?: Maybe<Scalars['String']>;
-  deliverAt_not?: Maybe<Scalars['String']>;
-  deliverAt_lt?: Maybe<Scalars['String']>;
-  deliverAt_lte?: Maybe<Scalars['String']>;
-  deliverAt_gt?: Maybe<Scalars['String']>;
-  deliverAt_gte?: Maybe<Scalars['String']>;
-  deliverAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  deliverAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   compactScopes?: Maybe<Scalars['JSON']>;
   compactScopes_not?: Maybe<Scalars['JSON']>;
   compactScopes_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -51233,7 +51211,6 @@ export type NewsItemUpdateInput = {
   type?: Maybe<NewsItemTypeType>;
   validBefore?: Maybe<Scalars['String']>;
   sendAt?: Maybe<Scalars['String']>;
-  deliverAt?: Maybe<Scalars['String']>;
   scopes?: Maybe<NewsItemScopeRelateToManyInput>;
   sentAt?: Maybe<Scalars['String']>;
   isPublished?: Maybe<Scalars['Boolean']>;
@@ -51625,14 +51602,6 @@ export type NewsItemWhereInput = {
   sendAt_gte?: Maybe<Scalars['String']>;
   sendAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   sendAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  deliverAt?: Maybe<Scalars['String']>;
-  deliverAt_not?: Maybe<Scalars['String']>;
-  deliverAt_lt?: Maybe<Scalars['String']>;
-  deliverAt_lte?: Maybe<Scalars['String']>;
-  deliverAt_gt?: Maybe<Scalars['String']>;
-  deliverAt_gte?: Maybe<Scalars['String']>;
-  deliverAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  deliverAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   /**  condition must be true for all nodes  */
   scopes_every?: Maybe<NewsItemScopeWhereInput>;
   /**  condition must be true for at least 1 node  */
@@ -77663,8 +77632,6 @@ export enum SortNewsItemHistoryRecordsBy {
   ValidBeforeDesc = 'validBefore_DESC',
   SendAtAsc = 'sendAt_ASC',
   SendAtDesc = 'sendAt_DESC',
-  DeliverAtAsc = 'deliverAt_ASC',
-  DeliverAtDesc = 'deliverAt_DESC',
   SentAtAsc = 'sentAt_ASC',
   SentAtDesc = 'sentAt_DESC',
   IsPublishedAsc = 'isPublished_ASC',
@@ -77948,8 +77915,6 @@ export enum SortNewsItemsBy {
   ValidBeforeDesc = 'validBefore_DESC',
   SendAtAsc = 'sendAt_ASC',
   SendAtDesc = 'sendAt_DESC',
-  DeliverAtAsc = 'deliverAt_ASC',
-  DeliverAtDesc = 'deliverAt_DESC',
   ScopesAsc = 'scopes_ASC',
   ScopesDesc = 'scopes_DESC',
   SentAtAsc = 'sentAt_ASC',
