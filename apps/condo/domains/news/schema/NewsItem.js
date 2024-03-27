@@ -138,7 +138,7 @@ const NewsItem = new GQLListSchema('NewsItem', {
 
         sendAt: {
             schemaDoc: 'Start time for sending notifications.' +
-                `\nIf the value is null, but the “isPublished” flag is true, then the "sendAt" value will be automatically set to "publishedAt" + ${SENDING_DELAY_SEC} sec`,
+                '\nIf the value is null, but the “isPublished” flag is true, then the "sendAt" value will be automatically set to "publishedAt" + 15 sec',
             type: 'DateTimeUtc',
         },
 
