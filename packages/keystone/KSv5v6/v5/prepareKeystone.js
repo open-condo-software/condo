@@ -34,6 +34,7 @@ const IS_BUILD_PHASE = conf.PHASE === 'build'
 const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
 const IS_SENTRY_ENABLED = JSON.parse(get(conf, 'SENTRY_CONFIG', '{}'))['server'] !== undefined
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
+const IS_KEEP_ALIVE_ON_ERROR = get(conf, 'KEEP_ALIVE_ON_ERROR', false) === 'true'
 // NOTE: should be disabled in production: https://www.apollographql.com/docs/apollo-server/testing/graphql-playground/
 // WARN: https://github.com/graphql/graphql-playground/tree/main/packages/graphql-playground-html/examples/xss-attack
 const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = conf.ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND === 'true'
@@ -224,11 +225,17 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
 }
 
 process.on('uncaughtException', (error, origin) => {
-    logger.error({ msg: 'Unhandled rejection', error, origin })
+    logger.error({ msg: 'Unhandled exception', error, origin })
+    if (!IS_KEEP_ALIVE_ON_ERROR) {
+        throw error
+    }
 })
 
 process.on('unhandledRejection', (error, promise) => {
     logger.error({ msg: 'Unhandled promise rejection', error, promise })
+    if (!IS_KEEP_ALIVE_ON_ERROR) {
+        throw error
+    }
 })
 
 module.exports = {
