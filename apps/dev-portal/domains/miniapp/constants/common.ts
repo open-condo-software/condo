@@ -1,6 +1,7 @@
 export const DEFAULT_B2C_LOGO_URL = '/icons/b2c.png'
-export const B2C_LOGO_MIN_SIZE = 80
-export const B2C_LOGO_MAX_SIZE = 200
+export const B2C_LOGO_SIZE = 126
+export const B2C_LOGO_MAIN_COLOR = '#82879F'
+export const B2C_LOGO_SECONDARY_COLOR = '#D0D3E5'
 export const B2C_LOGO_ALLOWED_MIMETYPES = ['image/png']
 export const B2C_LOGO_MAX_FILE_SIZE_IN_BYTES = 1024 * 1024   // 1 Mb in bytes
 export const B2C_BUILD_ALLOWED_MIMETYPES  = [

@@ -7,3 +7,10 @@
 .sub-section-main-col {
   min-width: 0;
 }
+
+.color-selection {
+  padding: 2px 4px;
+  font-weight: var(--condo-global-font-weight-semibold);
+  border-radius: 4px;
+  cursor: pointer;
+}

@@ -79,6 +79,7 @@
   "apps.id.notifications.successSave.title": "Изменения сохранены",
   "apps.id.notifications.successSave.description": "Не забудьте опубликовать изменения на соответствующий стенд, чтобы они вступили в силу",
   "apps.id.notifications.successPublish.title": "Изменения опубликованы",
+  "apps.id.notifications.colorCopied.title": "Цвет скопирован",
 
   "apps.id.verification.verificationRequiredAlert.title": "Необходима верификация",
   "apps.id.verification.verificationRequiredAlert.details.aboutVerification": "Для получения разрешения на публикацию приложения на данный стенд необходимо пройти дополнительную верификацию, включающую в себя тестирование приложения, заключение партнерского договора, а также дополнительную проверку материалов о приложении.",
@@ -116,7 +117,8 @@
   "apps.b2c.sections.info.icons.subtitle": "Иконки приложения",
   "apps.b2c.sections.info.icons.actions.uploadImage": "Загрузить изображение",
   "apps.b2c.sections.info.icons.items.main.title": "Главная иконка приложения",
-  "apps.b2c.sections.info.icons.items.main.description": "Используется в для отображения на главном экране мобильного приложения жителя. Должна быть в формате {format} и быть размером от {minSize} до {maxSize} пикселей",
+  "apps.b2c.sections.info.icons.items.main.description": "Используется в для отображения на главном экране мобильного приложения жителя. Должна быть в формате {format}, иметь размер {size} пикселей и соблюдать следующую цветовую палитру: {mainColor} в качестве основного цвета и {secondaryColor} в качестве дополнительного.",
+  "apps.b2c.sections.info.icons.warning.description": "В случае несоблюдения указанных требований приложение не будет допущено до последующей публикации на продуктовый стенд, существующее приложение может быть скрыто полностью или с него может быть удалена иконка без предварительного уведомления.",
   "apps.b2c.sections.builds.title": "Сборки приложения",
   "apps.b2c.sections.builds.table.columns.version.title": "Версия сборки",
   "apps.b2c.sections.builds.table.columns.createdAt.title": "Дата загрузки",
