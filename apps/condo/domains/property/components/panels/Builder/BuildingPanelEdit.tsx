@@ -224,7 +224,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     const { user } = useAuth()
     const { currentStep, setCurrentStep } = Tour.useTourContext()
     const { count } = Property.useCount({
-        where: { createdBy: { id: get(user, 'id', null) } },
+        where: { createdBy: { id: get(user, 'id', null) }, map_not: null },
     }, { skip: !user })
 
     const mode = mapEdit.editMode

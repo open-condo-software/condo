@@ -3,10 +3,12 @@ import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import React, { useMemo } from 'react'
 
+import { Settings } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Card, Tooltip } from '@open-condo/ui'
+import { Card, Space, Tooltip, Typography } from '@open-condo/ui'
 
+import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
 import { SECOND_LEVEL_STEPS, STEP_TRANSITIONS } from '@condo/domains/onboarding/constants/steps'
 import { useTourContext } from '@condo/domains/onboarding/contexts/TourContext'
 import {
@@ -63,6 +65,7 @@ export const TourStepCard: React.FC<TourStepCardProps> = (props) => {
             stepStatus === TourStepStatusType.Completed &&
             intl.formatMessage({ id: `tour.step.${stepType}.completed.linkTitle` })
     , [intl, stepStatus, stepType])
+    const SettingsMessage = intl.formatMessage({ id: 'global.section.settings' })
 
     const completedStepLink = useMemo(() => SECOND_LEVEL_STEPS.includes(stepType) &&
         stepStatus === TourStepStatusType.Completed &&
@@ -83,7 +86,18 @@ export const TourStepCard: React.FC<TourStepCardProps> = (props) => {
         get(role, TOUR_STEP_ACTION_PERMISSION[stepType]) : true, [role, stepStatus, stepType])
     const disabledMessage = useMemo(() => {
         if (!hasPermission) {
-            return NoPermissionsMessage
+            return (
+                <Space size={12} direction='vertical'>
+                    <Typography.Text size='small'>{NoPermissionsMessage}</Typography.Text>
+                    <LinkWithIcon
+                        PrefixIcon={Settings}
+                        title={SettingsMessage}
+                        href='/settings'
+                        target='_blank'
+                        size='medium'
+                    />
+                </Space>
+            )
         }
 
         if (stepType === TourStepTypeType.Resident) {
