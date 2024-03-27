@@ -163,6 +163,8 @@ async function notifyResidentsAboutNewsItem (newsItemId) {
 
         const newsItem = await NewsItem.getOne(context, { id: newsItemId })
 
+        // TODO(DOMA-8712): add a check that the news is not sent to another worker
+
         await sendNotifications(context, newsItem, taskId)
     } catch (error) {
         logger.error({
