@@ -119,8 +119,11 @@ async function authorizeUser (req, res, context, userId) {
         return res.redirect(APPLE_ID_CONFIG.residentRedirectUri || '/')
     } else if (isNil(redirectUrl)) {
         const isOrganizationTourEnabled = await featureToggleManager.isFeatureEnabled(context, ORGANIZATION_TOUR)
+        if (isOrganizationTourEnabled) {
+            return res.redirect('/tour')
+        }
         // staff entry page
-        return res.redirect(finished || !created || isOrganizationTourEnabled ? '/' : '/onboarding')
+        return res.redirect(finished || !created ? '/' : '/onboarding')
     } else {
         // specified redirect page (mobile app case)
         const link = new URL(redirectUrl)

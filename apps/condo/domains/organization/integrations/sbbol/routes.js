@@ -105,8 +105,11 @@ class SbbolRoutes {
             if (redirectUrl) return res.redirect(redirectUrl)
 
             const isOrganizationTourEnabled = await featureToggleManager.isFeatureEnabled(keystone, ORGANIZATION_TOUR)
+            if (isOrganizationTourEnabled) {
+                return res.redirect('/tour')
+            }
 
-            return res.redirect(finished || !created || isOrganizationTourEnabled ? '/' : '/onboarding')
+            return res.redirect(finished || !created ? '/' : '/onboarding')
         } catch (error) {
             logger.error({ msg: 'SBBOL auth-callback error', err: error, reqId })
             return next(error)

@@ -118,15 +118,18 @@ class SberIdRoutes {
 
         // get on boarding status
         const { finished, created } = await getOnBoardingStatus(user)
-        const isOrganizationTourEnabled = await featureToggleManager.isFeatureEnabled(context, ORGANIZATION_TOUR)
 
         // redirect
         if (isNil(redirectUrl) && RESIDENT === user.type) {
             // resident entry page
             return res.redirect(SBER_ID_CONFIG.residentRedirectUri || '/')
         } else if (isNil(redirectUrl)) {
+            const isOrganizationTourEnabled = await featureToggleManager.isFeatureEnabled(context, ORGANIZATION_TOUR)
+            if (isOrganizationTourEnabled) {
+                return res.redirect('/tour')
+            }
             // staff entry page
-            return res.redirect(finished || !created || isOrganizationTourEnabled ? '/' : '/onboarding')
+            return res.redirect(finished || !created ? '/' : '/onboarding')
         } else {
             // specified redirect page (mobile app case)
             const link = new URL(redirectUrl)
