@@ -164,10 +164,10 @@ const getIsDateInFuture = (form, fieldName) => {
     const date = form.getFieldsValue([fieldName])[fieldName]
     return date.isSameOrAfter(dayjs(), 'minute')
 }
-const getValidBeforeAfterPostponeUntil = (form) => {
-    const { postponeUntil, validBefore } = form.getFieldsValue(['postponeUntil', 'validBefore'])
-    if (postponeUntil && validBefore) {
-        const diff = dayjs(validBefore).diff(postponeUntil)
+const getValidBeforeAfterSendAt = (form) => {
+    const { sendAt, validBefore } = form.getFieldsValue(['sendAt', 'validBefore'])
+    if (sendAt && validBefore) {
+        const diff = dayjs(validBefore).diff(sendAt)
         if (diff < 0) return false
     }
     return true
@@ -226,7 +226,7 @@ export const getFinishWorkRule: (error: string) => Rule = (error) => (form) => {
     return {
         message: error,
         validator: () => {
-            return getValidBeforeAfterPostponeUntil(form) ? Promise.resolve() : Promise.reject()
+            return getValidBeforeAfterSendAt(form) ? Promise.resolve() : Promise.reject()
         },
     }
 }
@@ -242,7 +242,7 @@ export const getBodyTemplateChangedRule: (error: string) => Rule = (error) => (f
 type handleChangeDateType = (form: FormInstance, fieldName: string, action: any) => ComponentProps<typeof DatePicker>['onChange']
 export const handleChangeDate: handleChangeDateType = (form, fieldName, action) => (value) => {
     if (!value) return
-    action(getValidBeforeAfterPostponeUntil(form))
+    action(getValidBeforeAfterSendAt(form))
     // NOTE: We do forced zeroing of seconds and milliseconds so that there are no problems with validation
     form.setFieldValue(fieldName, value.set('seconds', 0).set('milliseconds', 0))
 }
@@ -263,7 +263,7 @@ const getNewsItemCountAtSameDay = (value, allNews) => {
     const isSendNow = isNull(value)
 
     const sendDate = isSendNow ? dayjs() : value
-    return allNews.filter(newsItem => sendDate.isSame(newsItem.sentAt, 'day') || sendDate.isSame(newsItem.postponeUntil, 'day')).length
+    return allNews.filter(newsItem => sendDate.isSame(newsItem.sentAt, 'day') || sendDate.isSame(newsItem.sendAt, 'day')).length
 }
 
 const getAllUnits = (property: IProperty): IBuildingUnit[] => {
@@ -311,7 +311,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const PropertiesLabel = intl.formatMessage({ id: 'field.Address' })
     const SelectPlaceholder = intl.formatMessage({ id: 'Select' })
     const SelectAddressPlaceholder = intl.formatMessage({ id: 'global.select.address' })
-    const PostponeUntilLabel = intl.formatMessage({ id: 'news.fields.postponeUntil.label' })
+    const SendAtLabel = intl.formatMessage({ id: 'news.fields.sendAt.label' })
     const SendPeriodNowLabel = intl.formatMessage({ id: 'global.now' })
     const SendPeriodLaterLabel = intl.formatMessage({ id: 'global.later' })
     const ValidBeforeLabel = intl.formatMessage({ id: 'global.actualUntil' })
@@ -341,7 +341,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const formInfoColSpan = 24 - formFieldsColSpan
 
     const initialValidBefore = useMemo(() => get(initialValues, 'validBefore', null), [initialValues])
-    const initialPostponeUntil = useMemo(() => get(initialValues, 'postponeUntil', null), [initialValues])
+    const initialSendAt = useMemo(() => get(initialValues, 'sendAt', null), [initialValues])
     const initialNewsItemScopes: INewsItemScope[] = useMemo(() => get(initialValues, 'newsItemScopes', []), [initialValues])
     const initialHasAllProperties = useMemo(() => get(initialValues, 'hasAllProperties', false), [initialValues])
     const initialProperties = useMemo(() => get(initialValues, 'properties', []), [initialValues])
@@ -410,7 +410,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const [selectedTitle, setSelectedTitle] = useState<string>(get(initialValues, 'title', ''))
     const [selectedBody, setSelectedBody] = useState<string>(get(initialValues, 'body', ''))
     const [selectedValidBeforeText, setSelectedValidBeforeText] = useState<string>(initialValidBefore)
-    const [isValidBeforeAfterPostponeUntil, setIsValidBeforeAfterPostponeUntil] = useState<boolean>(true)
+    const [isValidBeforeAfterSendAt, setIsValidBeforeAfterSendAt] = useState<boolean>(true)
     const [newsItemCountAtSameDay, setNewsItemCountAtSameDay] = useState(getNewsItemCountAtSameDay(null, allNews))
     const [selectedUnitNameKeys, setSelectedUnitNameKeys] = useState(initialUnitKeys)
     const [selectedPropertiesId, setSelectedPropertiesId] = useState(initialPropertyIds)
@@ -438,15 +438,15 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const handleSendPeriodChange = useCallback((form) => (e) => {
         if (e.target.value === 'now') {
             handleSetSendDate(null)
-            setIsValidBeforeAfterPostponeUntil(true)
-            form.setFieldValue('postponeUntil', null)
+            setIsValidBeforeAfterSendAt(true)
+            form.setFieldValue('sendAt', null)
         }
         setSendPeriod(e.target.value)
     }, [handleSetSendDate])
 
     const handleTypeChange = useCallback((form) => (e) => {
         if (e.target.value === NEWS_TYPE_COMMON) {
-            setIsValidBeforeAfterPostponeUntil(true)
+            setIsValidBeforeAfterSendAt(true)
             form.setFieldValue('validBefore', null)
         }
         setSelectedType(e.target.value)
@@ -461,14 +461,14 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     }, [])
 
     const handleValidBeforeChange = useCallback((form, fieldName) => (value, dateString) => {
-        const handleChangeDateEvent = handleChangeDate(form, fieldName, setIsValidBeforeAfterPostponeUntil)
+        const handleChangeDateEvent = handleChangeDate(form, fieldName, setIsValidBeforeAfterSendAt)
         handleChangeDateEvent(value, dateString)
 
         setSelectedValidBeforeText(dateString)
     }, [])
 
-    const handlePostponeUntilChange = useCallback((form, fieldName) => (value, dateString) => {
-        const handleChangeDateEvent = handleChangeDate(form, fieldName, setIsValidBeforeAfterPostponeUntil)
+    const handleSendAtChange = useCallback((form, fieldName) => (value, dateString) => {
+        const handleChangeDateEvent = handleChangeDate(form, fieldName, setIsValidBeforeAfterSendAt)
         handleChangeDateEvent(value, dateString)
 
         handleSetSendDate(value)
@@ -606,7 +606,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             properties: selectedPropertiesId,
             ...(totalProperties === 1 && selectedPropertiesId.length === 1 ? { property: selectedPropertiesId[0] } : undefined),
             validBefore: initialValidBefore ? dayjs(initialValidBefore) : null,
-            postponeUntil: initialPostponeUntil ? dayjs(initialPostponeUntil) : null,
+            sendAt: initialSendAt ? dayjs(initialSendAt) : null,
         }
     }, [initialValues])
 
@@ -621,7 +621,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             sendPeriod,
             template,
             type,
-            postponeUntil,
+            sendAt,
             validBefore,
             unitNames,
             sectionIds,
@@ -631,7 +631,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
 
         const updatedNewsItemValues = {
             validBefore: type === NEWS_TYPE_EMERGENCY ? validBefore : null,
-            postponeUntil: sendPeriod === 'later' ? postponeUntil : null,
+            sendAt: sendPeriod === 'later' ? sendAt : null,
             type: type,
             ...newsItemValues,
         }
@@ -1172,9 +1172,9 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                 {sendPeriod === 'later' && (
                                                     <Col span={24} style={MARGIN_TOP_8_STYLE}>
                                                         <Form.Item
-                                                            label={PostponeUntilLabel}
+                                                            label={SendAtLabel}
                                                             labelCol={FORM_FILED_COL_PROPS}
-                                                            name='postponeUntil'
+                                                            name='sendAt'
                                                             required
                                                             rules={[commonRule, dateRule]}
                                                         >
@@ -1182,7 +1182,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                 style={FULL_WIDTH_STYLE}
                                                                 format='DD MMMM YYYY HH:mm'
                                                                 showTime={SHOW_TIME_CONFIG}
-                                                                onChange={handlePostponeUntilChange(form, 'postponeUntil')}
+                                                                onChange={handleSendAtChange(form, 'sendAt')}
                                                                 placeholder={SelectPlaceholder}
                                                                 disabledDate={isDateDisabled}
                                                                 disabledTime={isTimeDisabled}
@@ -1192,7 +1192,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                     </Col>
                                                 )}
                                                 {
-                                                    !isValidBeforeAfterPostponeUntil && (
+                                                    !isValidBeforeAfterSendAt && (
                                                         <Alert
                                                             type='error'
                                                             showIcon

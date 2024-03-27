@@ -1488,7 +1488,7 @@
   "news.fields.body.placeholder": "Form message text of the news - it will appear on the main screen of the resident's app, in the «News» section and as a push notification",
   "news.fields.properties.allSelected":"All houses",
   "news.fields.validBefore.title":"The message will be pinned to the home screen of the app until the specified time or until the resident reads it. After that, it stays in the newsfeed and notification section",
-  "news.fields.postponeUntil.label": "Send at",
+  "news.fields.sendAt.label": "Send at",
   "news.fields.title.error.length": "Please add title",
   "news.fields.body.error.length": "Please add message",
   "news.fields.makeText.label": "Make up a text",

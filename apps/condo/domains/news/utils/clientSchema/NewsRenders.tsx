@@ -68,14 +68,14 @@ export const getRenderNewsDate: GetRenderNewsDateType = (intl, search) => (_, ne
     const NotSentNews = intl.formatMessage({ id: 'pages.condo.news.index.field.date.notSentYet' })
     const Sending = intl.formatMessage({ id: 'pages.condo.news.index.field.date.sending' })
 
-    const postponeUntil = get(news, 'postponeUntil', null)
-    const sentAt = get(news, 'sentAt', null)
     const sendAt = get(news, 'sendAt', null)
+    const sentAt = get(news, 'sentAt', null)
+    const deliverAt = get(news, 'deliverAt', null)
     const isPublished = get(news, 'isPublished', null)
     const publishedAt = get(news, 'publishedAt', null)
-    const isStartSending = sendAt && dayjs().diff(dayjs(sendAt)) > 0
+    const isStartSending = deliverAt && dayjs().diff(dayjs(deliverAt)) > 0
 
-    const dateToShow = postponeUntil || publishedAt
+    const dateToShow = sendAt || publishedAt
 
     if (!dateToShow) return '—'
 

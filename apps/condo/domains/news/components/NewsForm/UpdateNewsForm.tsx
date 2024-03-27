@@ -83,12 +83,12 @@ export const UpdateNewsForm: React.FC<IUpdateNewsForm> = ({ id }) => {
         [id, router])
 
     const sendPeriod: SendPeriodType = useMemo(() => {
-        return get(newsItem, 'postponeUntil', null) ? 'later' : 'now'
+        return get(newsItem, 'sendAt', null) ? 'later' : 'now'
     }, [newsItem])
     const hasAllProperties = useMemo(() => {
         return newsItemScopes.length === 1 && !has(newsItemScopes[0], ['property', 'id'])
     }, [newsItemScopes])
-    const postponeUntil = useMemo(() => get(newsItem, 'postponeUntil', null), [newsItem])
+    const sendAt = useMemo(() => get(newsItem, 'sendAt', null), [newsItem])
     const validBefore = useMemo(() => get(newsItem, 'validBefore', null), [newsItem])
     const initialValues = useMemo(() => ({
         ...newsItem,
@@ -96,9 +96,9 @@ export const UpdateNewsForm: React.FC<IUpdateNewsForm> = ({ id }) => {
         hasAllProperties: hasAllProperties,
         properties: properties,
         sendPeriod: sendPeriod,
-        postponeUntil: postponeUntil ? postponeUntil : null,
+        sendAt: sendAt ? sendAt : null,
         validBefore: validBefore ? validBefore : null,
-    }), [hasAllProperties, newsItem, newsItemScopes, properties, postponeUntil, sendPeriod, validBefore])
+    }), [hasAllProperties, newsItem, newsItemScopes, properties, sendAt, sendPeriod, validBefore])
 
     const organizationId = useMemo(() => get(newsItem, 'organization.id', null), [newsItem])
 

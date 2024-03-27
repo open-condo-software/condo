@@ -58512,8 +58512,8 @@ type NewsItemHistoryRecord {
   body: String
   type: String
   validBefore: String
-  postponeUntil: String
   sendAt: String
+  deliverAt: String
   compactScopes: JSON
   sentAt: String
   isPublished: Boolean
@@ -58606,14 +58606,6 @@ input NewsItemHistoryRecordWhereInput {
   validBefore_gte: String
   validBefore_in: [String]
   validBefore_not_in: [String]
-  postponeUntil: String
-  postponeUntil_not: String
-  postponeUntil_lt: String
-  postponeUntil_lte: String
-  postponeUntil_gt: String
-  postponeUntil_gte: String
-  postponeUntil_in: [String]
-  postponeUntil_not_in: [String]
   sendAt: String
   sendAt_not: String
   sendAt_lt: String
@@ -58622,6 +58614,14 @@ input NewsItemHistoryRecordWhereInput {
   sendAt_gte: String
   sendAt_in: [String]
   sendAt_not_in: [String]
+  deliverAt: String
+  deliverAt_not: String
+  deliverAt_lt: String
+  deliverAt_lte: String
+  deliverAt_gt: String
+  deliverAt_gte: String
+  deliverAt_in: [String]
+  deliverAt_not_in: [String]
   compactScopes: JSON
   compactScopes_not: JSON
   compactScopes_in: [JSON]
@@ -58735,10 +58735,10 @@ enum SortNewsItemHistoryRecordsBy {
   type_DESC
   validBefore_ASC
   validBefore_DESC
-  postponeUntil_ASC
-  postponeUntil_DESC
   sendAt_ASC
   sendAt_DESC
+  deliverAt_ASC
+  deliverAt_DESC
   sentAt_ASC
   sentAt_DESC
   isPublished_ASC
@@ -58770,8 +58770,8 @@ input NewsItemHistoryRecordUpdateInput {
   body: String
   type: String
   validBefore: String
-  postponeUntil: String
   sendAt: String
+  deliverAt: String
   compactScopes: JSON
   sentAt: String
   isPublished: Boolean
@@ -58802,8 +58802,8 @@ input NewsItemHistoryRecordCreateInput {
   body: String
   type: String
   validBefore: String
-  postponeUntil: String
   sendAt: String
+  deliverAt: String
   compactScopes: JSON
   sentAt: String
   isPublished: Boolean
@@ -58880,18 +58880,17 @@ type NewsItem {
   Date to publish the news item and to send notifications.
   If left blank, it will be published immediately. 
   """
-  postponeUntil: String
+  sendAt: String
 
   """
-   (Auto-calculated field)
+   (Internal auto-calculated field)
   Start time for sending notifications.
-  This field is updated when the "isPublished" field is updated.
-  If set "isPublished" to false then "sendAt" set to null.
-  If set "isPublished" to true then "sendAt" depends on the "postponeUntil" field:
-   1) If "postponeUntil" is empty, then current time + delay of 15 seconds is specified;
-   2) If "postponeUntil" is specified, then the value is taken from it. 
+  This field is updated when the "isPublished" field is updated to "true".
+  Depends on the "sendAt" field:
+   1) If "sendAt" is empty, then current time + delay of 15 seconds is specified;
+   2) If "sendAt" is specified, then the value is taken from it. 
   """
-  sendAt: String
+  deliverAt: String
   scopes(where: NewsItemScopeWhereInput, search: String, sortBy: [SortNewsItemScopesBy!], orderBy: String, first: Int, skip: Int): [NewsItemScope!]!
   _scopesMeta(where: NewsItemScopeWhereInput, search: String, sortBy: [SortNewsItemScopesBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
@@ -58995,14 +58994,6 @@ input NewsItemWhereInput {
   validBefore_gte: String
   validBefore_in: [String]
   validBefore_not_in: [String]
-  postponeUntil: String
-  postponeUntil_not: String
-  postponeUntil_lt: String
-  postponeUntil_lte: String
-  postponeUntil_gt: String
-  postponeUntil_gte: String
-  postponeUntil_in: [String]
-  postponeUntil_not_in: [String]
   sendAt: String
   sendAt_not: String
   sendAt_lt: String
@@ -59011,6 +59002,14 @@ input NewsItemWhereInput {
   sendAt_gte: String
   sendAt_in: [String]
   sendAt_not_in: [String]
+  deliverAt: String
+  deliverAt_not: String
+  deliverAt_lt: String
+  deliverAt_lte: String
+  deliverAt_gt: String
+  deliverAt_gte: String
+  deliverAt_in: [String]
+  deliverAt_not_in: [String]
 
   """ condition must be true for all nodes """
   scopes_every: NewsItemScopeWhereInput
@@ -59113,10 +59112,10 @@ enum SortNewsItemsBy {
   type_DESC
   validBefore_ASC
   validBefore_DESC
-  postponeUntil_ASC
-  postponeUntil_DESC
   sendAt_ASC
   sendAt_DESC
+  deliverAt_ASC
+  deliverAt_DESC
   scopes_ASC
   scopes_DESC
   sentAt_ASC
@@ -59150,8 +59149,8 @@ input NewsItemUpdateInput {
   body: String
   type: NewsItemTypeType
   validBefore: String
-  postponeUntil: String
   sendAt: String
+  deliverAt: String
   scopes: NewsItemScopeRelateToManyInput
   sentAt: String
   isPublished: Boolean
@@ -59179,8 +59178,8 @@ input NewsItemCreateInput {
   body: String
   type: NewsItemTypeType
   validBefore: String
-  postponeUntil: String
   sendAt: String
+  deliverAt: String
   scopes: NewsItemScopeRelateToManyInput
   sentAt: String
   isPublished: Boolean

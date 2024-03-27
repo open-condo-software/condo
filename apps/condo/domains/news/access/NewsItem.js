@@ -33,7 +33,7 @@ async function canReadNewsItems ({ authentication: { item: user } }) {
             isPublished: true,
             organization: { id_in: organizationsIds },
             scopes_some: scopesCondition,
-            sendAt_lte: dayjs().toISOString(),
+            deliverAt_lte: dayjs().toISOString(),
         }
     }
 

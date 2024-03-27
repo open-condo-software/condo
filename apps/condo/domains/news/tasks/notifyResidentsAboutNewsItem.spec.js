@@ -107,7 +107,7 @@ describe('notifyResidentsAboutNewsItem', () => {
                             userRelatedResidentsIds: resident.id,
                             organizationId: o10n.id,
                             validBefore: null,
-                            dateCreated: updatedItem1.sendAt,
+                            dateCreated: updatedItem1.deliverAt,
                         }),
                     }),
                 }))

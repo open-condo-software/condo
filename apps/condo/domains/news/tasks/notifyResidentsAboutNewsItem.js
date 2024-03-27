@@ -40,8 +40,8 @@ function checkSendingPossibility (newsItem) {
         throw new Error('Trying to send unpublished news item')
     }
 
-    if (!newsItem.sendAt) {
-        throw new Error('Trying to send news item without "sendAt"')
+    if (!newsItem.deliverAt) {
+        throw new Error('Trying to send news item without "deliverAt"')
     }
 }
 
@@ -110,7 +110,7 @@ async function sendNotifications (context, newsItem, taskId) {
                         url: `${conf.SERVER_URL}/newsItem/${newsItem.id}`,
                         validBefore: get(newsItem, 'validBefore', null),
                         // The first truthy value will be returned, or null if no values are found.
-                        dateCreated: ['sendAt', 'postponeUntil', 'publishedAt', 'updatedAt', 'createdAt'].reduce((result, field) => (result || get(newsItem, field)), null),
+                        dateCreated: ['deliverAt', 'sendAt', 'publishedAt', 'updatedAt', 'createdAt'].reduce((result, field) => (result || get(newsItem, field)), null),
                     },
                 },
                 uniqKey: generateUniqueMessageKey(resident.user.id, newsItem.id),
