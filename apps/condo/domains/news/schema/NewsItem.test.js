@@ -847,20 +847,36 @@ describe('NewsItems', () => {
             )
         })
 
-        test('must throw an error on trying to edit the published news item', async () => {
-            const [sentNewsItem] = await createTestNewsItem(adminClient, dummyO10n)
-            await createTestNewsItemScope(adminClient, sentNewsItem)
-            await publishTestNewsItem(adminClient, sentNewsItem.id)
-            await expectToThrowGQLError(
-                async () => await updateTestNewsItem(adminClient, sentNewsItem.id, { title: faker.lorem.words(3) }),
-                {
-                    code: 'BAD_USER_INPUT',
-                    type: 'EDIT_DENIED_PUBLISHED',
-                    message: 'The published news item is restricted from editing',
-                    mutation: 'updateNewsItem',
-                    messageForUser: 'api.newsItem.EDIT_DENIED_PUBLISHED',
-                },
-            )
+        describe('must throw an error on trying to edit the published news item', () => {
+            const payloads = [
+                { title: faker.lorem.words(3) },
+                { organization: faker.datatype.uuid() },
+                { body: faker.lorem.words(3) },
+                { type: NEWS_TYPE_EMERGENCY },
+                { sendAt: faker.date.soon().toISOString() },
+            ]
+
+            let newsItemId
+
+            beforeAll(async () => {
+                const [sentNewsItem] = await createTestNewsItem(adminClient, dummyO10n)
+                await createTestNewsItemScope(adminClient, sentNewsItem)
+                await publishTestNewsItem(adminClient, sentNewsItem.id)
+                newsItemId = sentNewsItem.id
+            })
+
+            test.each(payloads)('%p', async (payload) => {
+                await expectToThrowGQLError(
+                    async () => await updateTestNewsItem(adminClient, newsItemId, payload),
+                    {
+                        code: 'BAD_USER_INPUT',
+                        type: 'EDIT_DENIED_PUBLISHED',
+                        message: 'The published news item is restricted from editing',
+                        mutation: 'updateNewsItem',
+                        messageForUser: 'api.newsItem.EDIT_DENIED_PUBLISHED',
+                    },
+                )
+            })
         })
 
         test('must throw an error if profanity detected within title', async () => {
@@ -1083,84 +1099,12 @@ describe('NewsItems', () => {
             })
         })
 
-        describe('deliverAt', () => {
-            test('cannot be created or updated by anyone', async () => {
-                await catchErrorFrom(async () => {
-                    await createTestNewsItem(adminClient, dummyO10n, {
-                        deliverAt: faker.date.soon().toISOString(),
-                    })
-                }, (error) => {
-                    expect(error.errors[0].name).toEqual('UserInputError')
-                    expect(error.errors[0].message).toContain('Field "deliverAt" is not defined by type "NewsItemCreateInput"')
-                })
-
-                const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
-                await catchErrorFrom(async () => {
-                    await updateTestNewsItem(adminClient, newsItem.id, {
-                        deliverAt: faker.date.soon().toISOString(),
-                    })
-                }, (error) => {
-                    expect(error.errors[0].name).toEqual('UserInputError')
-                    expect(error.errors[0].message).toContain('Field "deliverAt" is not defined by type "NewsItemUpdateInput"')
-                })
-            })
-
-            describe('should be auto-calculated', () => {
-                test('should be updated to value from "sendAt" if it set when "isPublished" updated to true', async () => {
-                    const [newsItem] = await createTestNewsItem(adminClient, dummyO10n, { sendAt: dayjs().add(1, 'day').toISOString() })
-                    expect(newsItem.deliverAt).toBeNull()
-
-                    await createTestNewsItemScope(adminClient, newsItem)
-
-                    const [publishedNewsItem] = await publishTestNewsItem(adminClient, newsItem.id)
-                    expect(publishedNewsItem).toHaveProperty('deliverAt', publishedNewsItem.sendAt)
-                    expect(publishedNewsItem).toHaveProperty('sendAt', newsItem.sendAt)
-                })
-
-                test('should be updated to now() + 15 seconds if "sendAt" not set when "isPublished" updated to true', async () => {
-                    const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
-                    expect(newsItem.deliverAt).toBeNull()
-
-                    await createTestNewsItemScope(adminClient, newsItem)
-
-                    const [publishedNewsItem] = await publishTestNewsItem(adminClient, newsItem.id)
-                    expect(publishedNewsItem.deliverAt).not.toBeNull()
-                    expect(dayjs(publishedNewsItem.deliverAt).diff(dayjs(publishedNewsItem.createdAt), 'second')).toBeLessThanOrEqual(15)
-                })
-
-                test('should be updated to null when "isPublished" updated to false', async () => {
-                    const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
-                    expect(newsItem.deliverAt).toBeNull()
-
-                    await createTestNewsItemScope(adminClient, newsItem)
-
-                    const [publishedNewsItem] = await publishTestNewsItem(adminClient, newsItem.id)
-                    expect(publishedNewsItem.deliverAt).not.toBeNull()
-
-                    const [updatedNewsItem] = await updateTestNewsItem(adminClient, newsItem.id, { isPublished: false })
-                    expect(updatedNewsItem.deliverAt).toBeNull()
-                })
-
-                test('should not be updated in other cases', async () => {
-                    const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
-                    expect(newsItem.deliverAt).toBeNull()
-
-                    const [updatedNewsItem] = await updateTestNewsItem(adminClient, newsItem.id, { body: faker.lorem.sentence() })
-                    expect(updatedNewsItem.deliverAt).toBeNull()
-
-                    await createTestNewsItemScope(adminClient, newsItem)
-                    const [updatedNewsItem2] = await updateTestNewsItem(adminClient, newsItem.id, { sendAt: dayjs().add(1, 'day').toISOString() })
-                    expect(updatedNewsItem2.deliverAt).toBeNull() // should not be updated
-
-                    const [publishedNewsItem] = await publishTestNewsItem(adminClient, newsItem.id)
-                    expect(publishedNewsItem).toHaveProperty('deliverAt', publishedNewsItem.sendAt) // should be updated to sendAt
-
-                    const [updatedNewsItem3] = await updateTestNewsItem(adminClient, newsItem.id, { isPublished: false })
-                    expect(updatedNewsItem3.deliverAt).toBeNull() // should be updated to null
-
-                    const [updatedNewsItem4] = await updateTestNewsItem(adminClient, newsItem.id, { sendAt: dayjs().add(2, 'day').toISOString() })
-                    expect(updatedNewsItem4.deliverAt).toBeNull() // should not be updated
-                })
+        describe('sendAt', () => {
+            test(`should be auto-calculated to "publishedAt" + ${SENDING_DELAY_SEC} seconds when news item is published and sendAt is null`, async () => {
+                const [newsItem] = await createTestNewsItem(adminClient, dummyO10n )
+                await createTestNewsItemScope(adminClient, newsItem)
+                const [publishedNewsItem] = await publishTestNewsItem(adminClient, newsItem.id)
+                expect(publishedNewsItem).toHaveProperty('sendAt', dayjs(publishedNewsItem.publishedAt).add(SENDING_DELAY_SEC, 'second'))
             })
         })
     })

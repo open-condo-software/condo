@@ -14,8 +14,7 @@ async function notifyResidentsAboutDelayedNewsItems () {
             isPublished: true,
             deletedAt: null,
             sentAt: null,
-            deliverAt_not: null,
-            deliverAt_lte: now,
+            sendAt_lte: now,
         },
     )
 

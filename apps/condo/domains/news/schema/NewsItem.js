@@ -137,40 +137,9 @@ const NewsItem = new GQLListSchema('NewsItem', {
         },
 
         sendAt: {
-            schemaDoc: 'UTC (!)' +
-                '\nDate to publish the news item and to send notifications.' +
-                '\nIf left blank, it will be published immediately.',
+            schemaDoc: 'Start time for sending notifications.' +
+                `\nIf the value is null, but the “isPublished” flag is true, then the "sendAt" value will be automatically set to "publishedAt" + ${SENDING_DELAY_SEC} sec`,
             type: 'DateTimeUtc',
-        },
-
-        deliverAt: {
-            schemaDoc: '(Internal auto-calculated field)' +
-                '\nStart time for sending notifications.' +
-                '\nThis field is updated when the "isPublished" field is updated.' +
-                '\nIf set "isPublished" to false then "deliverAt" set to null.' +
-                '\nIf set "isPublished" to true then "deliverAt" depends on the "sendAt" field:' +
-                '\n 1) If "sendAt" is empty, then current time + delay of 15 seconds is specified;' +
-                '\n 2) If "sendAt" is specified, then the value is taken from it.',
-            type: 'DateTimeUtc',
-            hooks: {
-                resolveInput: async ({ existingItem, resolvedData, fieldName }) => {
-                    const newItem = { ...existingItem, ...resolvedData }
-                    const prevIsPublished = get(existingItem, 'isPublished', false)
-                    const sendAt = get(newItem, 'sendAt', null)
-                    const isPublished = get(newItem, 'isPublished', false)
-                    const updatedIsPublished = prevIsPublished !== isPublished
-
-                    if (!updatedIsPublished) return get(resolvedData, fieldName)
-                    if (!isPublished) return null
-                    if (!sendAt) return dayjs().add(SENDING_DELAY_SEC, 'second').toISOString()
-                    return sendAt
-                },
-            },
-            access: {
-                read: true,
-                create: false,
-                update: false,
-            },
         },
 
         scopes: {
@@ -255,9 +224,16 @@ const NewsItem = new GQLListSchema('NewsItem', {
         resolveInput: async (args) => {
             const { resolvedData, existingItem } = args
             const resultItemData = { ...existingItem, ...resolvedData }
+            const sendAt = get(resultItemData, 'sendAt', null)
+            const isPublished = get(resultItemData, 'isPublished', false)
+            const publishedAt = get(resultItemData, 'publishedAt', null)
 
             if (!get(resultItemData, 'type')) {
                 resolvedData['type'] = NEWS_TYPE_COMMON
+            }
+
+            if (!sendAt && isPublished && publishedAt) {
+                resolvedData['sendAt'] = dayjs(publishedAt).add(SENDING_DELAY_SEC, 'second').toISOString()
             }
 
             return resolvedData

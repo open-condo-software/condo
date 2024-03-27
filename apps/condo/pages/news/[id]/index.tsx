@@ -32,6 +32,7 @@ import { TNewsItemScopeNoInstance } from '@condo/domains/news/components/types'
 import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess'
 import { NewsItem, NewsItemScope } from '@condo/domains/news/utils/clientSchema'
+import { isPostponedNewsItem } from '@condo/domains/news/utils/helpres'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
@@ -184,8 +185,8 @@ const NewsItemCard: React.FC = () => {
         isOwner: createdBy === user.id,
     })
 
-    const sendDateStr = useMemo(() => {
-        const dateToShow = get(newsItem, 'sendAt') || get(newsItem, 'publishedAt')
+    const formattedSendAt = useMemo(() => {
+        const dateToShow = get(newsItem, 'sendAt', null)
         return dateToShow ? dayjs(dateToShow).format('YYYY.MM.DD HH:mm') : '—'
     }, [newsItem])
 
@@ -218,7 +219,7 @@ const NewsItemCard: React.FC = () => {
                                 <Row gutter={HORIZONTAL_ROW_GUTTER}>
                                     <FieldPairRow
                                         fieldTitle={SendAtLabel}
-                                        fieldValue={sendDateStr}
+                                        fieldValue={formattedSendAt}
                                     />
                                     <FieldPairRow
                                         fieldTitle={TypeLabel}
@@ -254,7 +255,7 @@ const NewsItemCard: React.FC = () => {
                                             <Button type='primary'>{ResendTitle}</Button>
                                         </Link>
                                     ) : ( <ActionBar actions={[
-                                        newsItem.sendAt && (
+                                        isPostponedNewsItem(newsItem) && (
                                             <Link key='update' href={`/news/${get(newsItem, 'id')}/update`}>
                                                 <Button type='primary'>{EditTitle}</Button>
                                             </Link>
