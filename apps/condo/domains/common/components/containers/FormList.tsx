@@ -17,6 +17,7 @@ import {
 import { FormProps } from 'antd/lib/form/Form'
 import { ArgsProps } from 'antd/lib/notification'
 import { isUndefined, throttle } from 'lodash'
+import isFunction from 'lodash/isFunction'
 import omitBy from 'lodash/omitBy'
 import React, { useCallback, useState, useRef, CSSProperties, ComponentProps } from 'react'
 import { Options } from 'scroll-into-view-if-needed'
@@ -408,7 +409,7 @@ const FormWithAction: React.FC<IFormWithAction> = (props) => {
             {...formProps}
         >
             <Form.Item hidden={isNonFieldErrorHidden} className='ant-non-field-error' name={NON_FIELD_ERROR_NAME}><Input /></Form.Item>
-            {children({ handleSave, isLoading, handleSubmit: _handleSubmit, form })}
+            {isFunction(children) ? children({ handleSave, isLoading, handleSubmit: _handleSubmit, form }) : children}
         </Form>
     )
 }

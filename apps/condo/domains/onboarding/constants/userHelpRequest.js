@@ -1,0 +1,16 @@
+const CALLBACK_TYPE = 'callback'
+const IMPORT_FILE_TYPE = 'importFile'
+
+const USER_HELP_REQUEST_TYPES = [
+    CALLBACK_TYPE,
+    IMPORT_FILE_TYPE,
+]
+
+const USER_HELP_REQUEST_FOLDER_NAME = 'UserHelpRequest'
+
+module.exports = {
+    CALLBACK_TYPE,
+    IMPORT_FILE_TYPE,
+    USER_HELP_REQUEST_TYPES,
+    USER_HELP_REQUEST_FOLDER_NAME,
+}

@@ -18,6 +18,10 @@ const UploadListWrapperStyles = css`
   .ant-upload-list-text-container:first-child .ant-upload-list-item {
     margin-top: 0;
   }
+
+  .ant-upload-list-item:hover .ant-upload-list-item-info {
+    background-color: inherit;
+  }
   
   & .ant-upload-span a.ant-upload-list-item-name {
     color: ${colors.black};

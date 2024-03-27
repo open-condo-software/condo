@@ -457,7 +457,6 @@ export default function GlobalStyle () {
                 margin-left: 8px;
               }
               
-              ${uploadControlCss}
               ${radioGroupCss}
               ${inputControlCss}
               ${page}
@@ -548,52 +547,6 @@ const radioGroupCss = css`
   }
   .sberRadioGroup .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover::before{
     background-color:${colors.black};
-  }
-`
-
-
-const uploadControlCss = css`
-  .upload-control-wrapper .ant-upload-list-text-container {
-    transition: none;
-  }
-  .upload-control-wrapper .ant-upload-list-item-info .ant-upload-text-icon .anticon,
-  .upload-control-wrapper a.ant-upload-list-item-name,
-  .upload-control-wrapper a.ant-upload-list-item-name:active,
-  .upload-control-wrapper a.ant-upload-list-item-name:focus {
-    color: ${colors.green[7]};
-  }
-  .upload-control-wrapper .ant-upload-list-item:hover a,
-  .upload-control-wrapper .ant-upload-list-item:hover .ant-upload-text-icon > .anticon.anticon-paper-clip,
-  .upload-control-wrapper .ant-upload-list-item:hover .ant-upload-list-item-info.ant-upload-text-icon.anticon {
-    color: ${colors.green[5]};
-  }
-  .upload-control-wrapper .ant-upload-list-item.ant-upload-list-item-error .ant-upload-list-item-info .ant-upload-text-icon .anticon,
-  .upload-control-wrapper .ant-upload-list-item.ant-upload-list-item-error:hover .ant-upload-list-item-info .ant-upload-text-icon .anticon {
-    color: ${colors.sberDanger[5]};
-  }
-  .upload-control-wrapper .ant-upload-list-item:hover .ant-upload-list-item-info {
-    background-color: transparent;
-  }
-  .upload-control-wrapper > span {
-    display: flex;
-    flex-direction: column;
-  }
-  .upload-control-wrapper .ant-upload.ant-upload-select {
-    order:1;
-    margin-top:5px;
-  }
-  .ant-upload-select-block {
-    width: 100%;
-    
-    .ant-upload {
-      width: 100%;
-    }
-  }
-  .upload-control-wrapper .ant-upload-list-item-card-actions .anticon.anticon-delete {
-    font-size:18px;
-  }
-  .upload-control-wrapper .ant-upload-list-item-card-actions {
-    margin-left: 50px;
   }
 `
 

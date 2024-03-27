@@ -7,6 +7,8 @@ const { OnBoarding: OnBoardingGQL } = require('@condo/domains/onboarding/gql')
 const { OnBoardingStep: OnBoardingStepGQL } = require('@condo/domains/onboarding/gql')
 const { CREATE_ON_BOARDING_MUTATION } = require('@condo/domains/onboarding/gql')
 const { TourStep: TourStepGQL } = require('@condo/domains/onboarding/gql')
+const { UserHelpRequest: UserHelpRequestGQL } = require('@condo/domains/onboarding/gql')
+const { UserHelpRequestFile: UserHelpRequestFileGQL } = require('@condo/domains/onboarding/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const OnBoarding = generateServerUtils(OnBoardingGQL)
@@ -26,6 +28,8 @@ async function createOnBoarding (context, data) {
 }
 
 const TourStep = generateServerUtils(TourStepGQL)
+const UserHelpRequest = generateServerUtils(UserHelpRequestGQL)
+const UserHelpRequestFile = generateServerUtils(UserHelpRequestFileGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const createTourStepsForOrganization = async (context, organization, dvSenderData) => {
@@ -48,5 +52,7 @@ module.exports = {
     createOnBoarding,
     createTourStepsForOrganization,
     TourStep,
+    UserHelpRequest,
+    UserHelpRequestFile,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

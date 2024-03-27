@@ -6,4 +6,6 @@
 export * as OnBoarding from './OnBoarding'
 export * as OnBoardingStep from './OnBoardingStep'
 export * as TourStep from './TourStep'
+export * as UserHelpRequest from './UserHelpRequest'
+export * as UserHelpRequestFile from './UserHelpRequestFile'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
