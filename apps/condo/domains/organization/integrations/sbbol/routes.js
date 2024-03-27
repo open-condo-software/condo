@@ -27,6 +27,7 @@ class SbbolRoutes {
             const query = get(req, 'query', {})
             const redirectUrl = get(query, 'redirectUrl')
             const queryFeatures = get(query, 'features', [])
+            const useExtendedConfig = get(query, 'useExtendedConfig', false)
             const features = Array.isArray(queryFeatures) ? queryFeatures : [queryFeatures]
 
             if (redirectUrl && !isSafeUrl(redirectUrl)) throw new Error('redirectUrl is incorrect')
@@ -35,7 +36,7 @@ class SbbolRoutes {
             const checks = { nonce: generators.nonce(), state: generators.state() }
             req.session[SBBOL_SESSION_KEY] = { checks, redirectUrl, features }
             await req.session.save()
-            const authUrl = sbbolAuthApi.authorizationUrlWithParams(checks)
+            const authUrl = sbbolAuthApi.authorizationUrlWithParams(checks, useExtendedConfig)
             return res.redirect(authUrl)
         } catch (error) {
             logger.error({ msg: 'SBBOL start-auth error', err: error, reqId })
