@@ -1,15 +1,20 @@
 import styled from '@emotion/styled'
-import { Col, Row, RowProps } from 'antd'
+import { Col, Collapse, Row, RowProps } from 'antd'
 import Head from 'next/head'
-import React, { CSSProperties, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
-import { ExternalLink } from '@open-condo/icons'
+import { ChevronDown, ChevronUp, Download, ExternalLink } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Card, Modal, Space, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
-import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import {
+    PageContent,
+    PageHeader,
+    PageWrapper,
+    useLayoutContext,
+} from '@condo/domains/common/components/containers/BaseLayout'
 
 
 const MEDIUM_GUTTER: RowProps['gutter'] = [0, 40]
@@ -18,24 +23,31 @@ const LARGE_GUTTER: RowProps['gutter'] = [0, 60]
 const ABOUT_APP_CARD_TYPES = ['payments', 'costs', 'quality', 'communication'] as const
 type AboutAppCardType = typeof ABOUT_APP_CARD_TYPES[number] | null
 
+const getNextCardType = (cardType: AboutAppCardType) => {
+    const currentTypeIndex = ABOUT_APP_CARD_TYPES.indexOf(cardType)
+    const isLastIndex = currentTypeIndex === ABOUT_APP_CARD_TYPES.length - 1
+
+    return isLastIndex ? null : ABOUT_APP_CARD_TYPES[currentTypeIndex + 1]
+}
+
 const CardsWrapper = styled.div`
   display: flex;
   flex-direction: row;
   gap: 40px;
   overflow-x: auto;
   padding: 8px 0;
-  
+
   .condo-card {
-    width: 268px; 
+    width: 268px;
     height: 290px;
     min-width: 268px;
 
     display: flex;
     flex-direction: column;
-    
+
     .condo-card-body {
       flex-grow: 1;
-      
+
       .condo-card-body-content {
         height: 100%;
         display: flex;
@@ -44,22 +56,25 @@ const CardsWrapper = styled.div`
     }
   }
 `
-
-const MODAL_IMAGE_BG_STYLES: CSSProperties = {
-    display: 'flex',
-    flexDirection: 'row',
-    width: '100%',
-    height: '320px',
-    color: colors.white,
-    borderRadius: '12px',
-    padding: '40px 70px 0 40px',
-}
+const BANNER_IMAGE_STYLES: CSSProperties = { height: '100%' }
+const CARD_IMAGE_STYLES: CSSProperties = { height: '30px' }
 
 const MODAL_TYPE_TO_CARD_LINK = {
     payments: 'https://doma.ai/blog/business_start',
     costs: 'https://doma.ai/blog/free_to_use',
     quality: 'https://doma.ai/blog/communication',
-    communication: 'https://doma.ai/blog/business_start',
+}
+
+const getTextWithAccent = (text) => {
+    const parts = text.split(/\{accent\}(.*?)\{\/accent\}/)
+
+    return parts.map((part, index) => {
+        if (index % 2 === 0) {
+            return <Typography.Text type='secondary'>{part}</Typography.Text>
+        } else {
+            return <Typography.Text type='primary'>{part}</Typography.Text>
+        }
+    })
 }
 
 const AboutAppBlock = () => {
@@ -67,7 +82,20 @@ const AboutAppBlock = () => {
     const BlockTitle = intl.formatMessage({ id: 'tour.guide.aboutApp.title' })
     const InMoreDetailMessage = intl.formatMessage({ id: 'InMoreDetail' })
     const NextMessage = intl.formatMessage({ id: 'Next' })
+    const CloseMessage = intl.formatMessage({ id: 'Close' })
     const ModalCardLinkMessage = intl.formatMessage({ id: 'tour.guide.aboutApp.modal.card.link' })
+
+    const { breakpoints } = useLayoutContext()
+
+    const modalImageBgStyles: CSSProperties = useMemo(() => ({
+        display: 'flex',
+        flexDirection: 'row',
+        width: '100%',
+        height: '320px',
+        color: colors.white,
+        borderRadius: '12px',
+        padding: breakpoints.TABLET_LARGE ? '40px 70px 0 40px' : '40px',
+    }), [breakpoints])
 
     const [openModal, setOpenModal] = useState<AboutAppCardType>(null)
 
@@ -80,30 +108,34 @@ const AboutAppBlock = () => {
 
     return (
         <Row gutter={MEDIUM_GUTTER}>
-            <Typography.Title level={2}>{BlockTitle}</Typography.Title>
-            <CardsWrapper>
-                {
-                    ABOUT_APP_CARD_TYPES.map(type => (
-                        <Card.CardButton
-                            key={type}
-                            header={{
-                                image: {
-                                    src: `/onboarding/guide/aboutApp/${type}/cardImage.png`,
-                                    size: 'big',
-                                },
-                            }}
-                            body={{
-                                description: intl.formatMessage({ id: `tour.guide.aboutApp.${type}.card.body` }),
-                                button: {
-                                    type: 'secondary',
-                                    children: InMoreDetailMessage,
-                                    onClick: () => setOpenModal(type),
-                                },
-                            }}
-                        />
-                    ))
-                }
-            </CardsWrapper>
+            <Col span={24}>
+                <Typography.Title level={2}>{BlockTitle}</Typography.Title>
+            </Col>
+            <Col span={24}>
+                <CardsWrapper>
+                    {
+                        ABOUT_APP_CARD_TYPES.map(type => (
+                            <Card.CardButton
+                                key={type}
+                                header={{
+                                    image: {
+                                        src: `/onboarding/guide/aboutApp/${type}/cardImage.png`,
+                                        size: 'big',
+                                    },
+                                }}
+                                body={{
+                                    description: intl.formatMessage({ id: `tour.guide.aboutApp.${type}.card.body` }),
+                                    button: {
+                                        type: 'secondary',
+                                        children: InMoreDetailMessage,
+                                        onClick: () => setOpenModal(type),
+                                    },
+                                }}
+                            />
+                        ))
+                    }
+                </CardsWrapper>
+            </Col>
             {
                 ABOUT_APP_CARD_TYPES.map(type => (
                     <Modal
@@ -115,63 +147,214 @@ const AboutAppBlock = () => {
                             <Button
                                 type='primary'
                                 onClick={() => {
-                                    const currentTypeIndex = ABOUT_APP_CARD_TYPES.indexOf(type)
-                                    const nextModalTypeIndex = currentTypeIndex + 1 === ABOUT_APP_CARD_TYPES.length
-                                        ? 0 : currentTypeIndex + 1
-                                    setOpenModal(ABOUT_APP_CARD_TYPES[nextModalTypeIndex])
+                                    const nextType = getNextCardType(type)
+                                    setOpenModal(nextType)
                                 }}
                             >
-                                {NextMessage}
+                                {getNextCardType(type) ? NextMessage : CloseMessage}
                             </Button>
                         )}
                     >
                         <Space size={40} direction='vertical'>
-                            <div style={{ ...MODAL_IMAGE_BG_STYLES, backgroundColor: typeToModalBgColor[type] }}>
+                            <div style={{ ...modalImageBgStyles, backgroundColor: typeToModalBgColor[type] }}>
                                 <Typography.Title type='inherit' level={2}>
                                     {intl.formatMessage({ id: `tour.guide.aboutApp.${type}.modal.picText` })}
                                 </Typography.Title>
-                                <img style={{ height: '100%' }} src={`/onboarding/guide/aboutApp/${type}/modalImage.png`} />
-                            </div>
-                            <Row gutter={[40, 0]}>
-                                <Col span={12}>
-                                    <Typography.Text type='secondary'>
-                                        {intl.formatMessage({ id: `tour.guide.aboutApp.${type}.modal.body` })}
-                                    </Typography.Text>
-                                </Col>
-                                <Col span={12}>
-                                    <Card title={(
-                                        <img src={`/onboarding/guide/aboutApp/${type}/modalLogo.png`} style={{ height: '29px' }} />
-                                    )}
-                                    >
-                                        <Card.CardBody
-                                            description={intl.formatMessage({ id: `tour.guide.aboutApp.${type}.modal.card.body` })}
-                                            mainLink={{ href: MODAL_TYPE_TO_CARD_LINK[type], PreIcon: ExternalLink, label: ModalCardLinkMessage, openInNewTab: true }}
+                                {
+                                    breakpoints.TABLET_LARGE && (
+                                        <img
+                                            style={BANNER_IMAGE_STYLES}
+                                            src={`/onboarding/guide/aboutApp/${type}/modalImage.png`}
                                         />
-                                    </Card>
+                                    )
+                                }
+                            </div>
+                            <Row gutter={[40, 40]}>
+                                <Col xs={24} md={12}>
+                                    <Typography.Paragraph type='secondary'>
+                                        {getTextWithAccent(intl.formatMessage({ id: `tour.guide.aboutApp.${type}.modal.body` }))}
+                                    </Typography.Paragraph>
+                                    {
+                                        type === 'payments' && (
+                                            <Typography.Paragraph type='secondary'>
+                                                {getTextWithAccent(intl.formatMessage({ id: `tour.guide.aboutApp.${type}.modal.body.secondParagraph` }))}
+                                            </Typography.Paragraph>
+                                        )
+                                    }
                                 </Col>
+                                {
+                                    MODAL_TYPE_TO_CARD_LINK[type] && (
+                                        <Col xs={24} md={12}>
+                                            <Card title={(
+                                                <img
+                                                    src={`/onboarding/guide/aboutApp/${type}/modalLogo.png`}
+                                                    style={CARD_IMAGE_STYLES}
+                                                />
+                                            )}
+                                            >
+                                                <Card.CardBody
+                                                    description={intl.formatMessage({ id: `tour.guide.aboutApp.${type}.modal.card.body` })}
+                                                    mainLink={{
+                                                        href: MODAL_TYPE_TO_CARD_LINK[type],
+                                                        PreIcon: ExternalLink,
+                                                        label: ModalCardLinkMessage,
+                                                        openInNewTab: true,
+                                                    }}
+                                                />
+                                            </Card>
+                                        </Col>
+                                    )
+                                }
                             </Row>
                         </Space>
                     </Modal>
-                )) 
+                ))
             }
         </Row>
     )
 }
 
-const IntroduceAppBlock = () => {
-
-    return <></>
+const BADGE_STYLES: CSSProperties = {
+    color: 'white',
+    borderRadius: '100px',
+    display: 'inline-flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: '12px 16px',
+    background: colors.brandGradient[7],
+    whiteSpace: 'nowrap',
 }
 
-const GuidePageContent = () => {
+const Badge = ({ title }) => {
+    return (
+        <div style={BADGE_STYLES}>
+            <Typography.Title level={5} type='inherit'>{title}</Typography.Title>
+        </div>
+    )
+}
+
+// TODO(DOMA-8714): Move Accordion to UI-kit component
+const StyledCollapse = styled(Collapse)`
+  & > .ant-collapse-item {
+    padding: 0;
+    flex-flow: column;
+    border-radius: 12px;
+    border: 1px solid ${colors.gray[3]};
+
+    .ant-collapse-header {
+      padding: 24px;
+    }
+
+    & > .ant-collapse-content > .ant-collapse-content-box {
+      padding: 16px 24px 24px 24px;
+    }
+  }
+`
+const REF_HANDLER_STYLES: CSSProperties = { marginBottom: '8px' }
+const PANEL_IMAGE_STYLES: CSSProperties = { maxHeight: '300px', maxWidth: '100%' }
+const STEP_TEXT_CONTAINER_STYLES: CSSProperties = { maxWidth: '630px' }
+
+const { Panel } = Collapse
+
+const INTRODUCE_APP_STEP_TYPES = ['announcement', 'chats', 'layout', 'banner', 'socialNetworks', 'leaflet', 'stickers'] as const
+
+const IntroduceAppBlock = () => {
+    const intl = useIntl()
+    const BlockTitle = intl.formatMessage({ id: 'tour.guide.introduceApp.title' })
+
+    const { breakpoints } = useLayoutContext()
+
+    const scrollRefs = React.useRef(INTRODUCE_APP_STEP_TYPES.reduce((acc, type) => {
+        acc[type] = React.createRef()
+        return acc
+    }, {}))
+
+    const executeScroll = useCallback((index) => {
+        if (!index) return
+
+        scrollRefs.current[index].current.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+        })
+    }, [])
 
     return (
-        <Row gutter={LARGE_GUTTER}>
+        <Row gutter={MEDIUM_GUTTER}>
             <Col span={24}>
-                <AboutAppBlock/>
+                <Typography.Title level={2}>{BlockTitle}</Typography.Title>
             </Col>
             <Col span={24}>
-                <IntroduceAppBlock/>
+                <StyledCollapse
+                    accordion
+                    ghost
+                    expandIconPosition='end'
+                    expandIcon={({ isActive }) => isActive ? <ChevronUp/> : <ChevronDown/>}
+                    onChange={(type) => window.setTimeout(() => executeScroll(type), 200)}
+                >
+                    {
+                        INTRODUCE_APP_STEP_TYPES.map((type, index) => (
+                            <>
+                                <div ref={scrollRefs.current[type]} style={REF_HANDLER_STYLES} />
+                                <Panel
+                                    header={(
+                                        <Space size={12}>
+                                            <Badge title={`Шаг ${index + 1}`} />
+                                            <Typography.Title level={3}>
+                                                {intl.formatMessage({ id: `tour.guide.introduceApp.step.${type}.title` })}
+                                            </Typography.Title>
+                                        </Space>
+                                    )}
+                                    key={type}
+                                >
+                                    <Space size={40} direction='vertical'>
+                                        <img style={PANEL_IMAGE_STYLES} src={`/onboarding/guide/introduceApp/${type}/panelImage.png`}/>
+                                        <div style={STEP_TEXT_CONTAINER_STYLES}>
+                                            <Typography.Paragraph type='secondary'>
+                                                {getTextWithAccent(intl.formatMessage({ id: `tour.guide.introduceApp.step.${type}.body` }))}
+                                            </Typography.Paragraph>
+                                            {
+                                                type === 'announcement' || type === 'layout' && (
+                                                    <Typography.Paragraph type='secondary'>
+                                                        {getTextWithAccent(intl.formatMessage({ id: `tour.guide.introduceApp.step.${type}.body.secondParagraph` }))}
+                                                    </Typography.Paragraph>
+                                                )
+                                            }
+                                            {
+                                                type === 'layout' && (
+                                                    <Typography.Paragraph type='secondary'>
+                                                        {getTextWithAccent(intl.formatMessage({ id: `tour.guide.introduceApp.step.${type}.body.thirdParagraph` }))}
+                                                    </Typography.Paragraph>
+                                                )
+                                            }
+                                        </div>
+                                        {
+                                            type === 'socialNetworks' ? (
+                                                <Space size={16} direction={breakpoints.TABLET_LARGE ? 'horizontal' : 'vertical'}>
+                                                    <a href='/onboarding/guide/introduceApp/socialNetworks/socialNetworks-pics.zip'>
+                                                        <Button type='secondary' icon={<Download />}>
+                                                            {intl.formatMessage({ id: 'tour.guide.introduceApp.step.socialNetworks.downloadPics' })}
+                                                        </Button>
+                                                    </a>
+                                                    <a href='/onboarding/guide/introduceApp/socialNetworks/socialNetworks-text.zip'>
+                                                        <Button type='secondary' icon={<Download />}>
+                                                            {intl.formatMessage({ id: 'tour.guide.introduceApp.step.socialNetworks.downloadText' })}
+                                                        </Button>
+                                                    </a>
+                                                </Space>
+                                            ) : (
+                                                <a href={`/onboarding/guide/introduceApp/${type}/${type}-materials.zip`}>
+                                                    <Button type='primary' icon={<Download />}>
+                                                        {intl.formatMessage({ id: `tour.guide.introduceApp.step.${type}.downloadMaterials` })}
+                                                    </Button>
+                                                </a>
+                                            )
+                                        }
+                                    </Space>
+                                </Panel>
+                            </>
+                        ))
+                    }
+                </StyledCollapse>
             </Col>
         </Row>
     )
@@ -187,9 +370,16 @@ const GuidePage = () => {
                 <title>{PageTitle}</title>
             </Head>
             <PageWrapper>
-                <PageHeader title={<Typography.Title>{PageTitle}</Typography.Title>}/>
+                <PageHeader spaced title={<Typography.Title>{PageTitle}</Typography.Title>}/>
                 <PageContent>
-                    <GuidePageContent/>
+                    <Row gutter={LARGE_GUTTER}>
+                        <Col span={24}>
+                            <AboutAppBlock/>
+                        </Col>
+                        <Col span={24}>
+                            <IntroduceAppBlock/>
+                        </Col>
+                    </Row>
                 </PageContent>
             </PageWrapper>
         </>

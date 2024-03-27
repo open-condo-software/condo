@@ -15,9 +15,9 @@ const {
     publicRuntimeConfig,
 } = getConfig()
 
-const { externalGuideUrl, residentAppLandingUrl } = publicRuntimeConfig
+const { residentAppLandingUrl } = publicRuntimeConfig
 
-export const EXTERNAL_GUIDE_LINK = externalGuideUrl
+export const EXTERNAL_GUIDE_LINK = '/tour/guide'
 export const RESIDENT_APP_LANDING_EXTERNAL_LINK = residentAppLandingUrl
 
 /**
