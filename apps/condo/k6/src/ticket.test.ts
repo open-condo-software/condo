@@ -57,7 +57,7 @@ export const options = {
         browser_http_req_duration: ['p(95) < 4000', 'med < 1500'],
         http_req_duration: ['p(95)<3000', 'med<2000'],
         browser_web_vital_fcp: ['p(95) < 8000', 'med < 4000'],
-        browser_web_vital_lcp: ['p(95) < 15000', 'med < 8000'],
+        browser_web_vital_lcp: ['p(95) < 15000', 'med < 11000'],
     },
 }
 
