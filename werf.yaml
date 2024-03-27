@@ -830,3 +830,28 @@ shell:
     - "yarn workspace @app/eds-mosreg-integration build"
     - "rm -rf /app/.env"
     - "rm -rf /app/.config"
+---
+image: condorestapi
+fromImage: base
+fromCacheVersion: "1"
+git:
+  - add: /
+    to: /app
+    stageDependencies:
+      install:
+        - "yarn.lock"
+        - "package.json"
+        - "**/yarn.lock"
+        - "**/package.json"
+    excludePaths:
+      - .github
+      - .helm
+      - werf.yaml
+      - werf-giterminism.yaml
+    owner: app
+    group: app
+
+shell:
+  install:
+    - "cd /app"
+    - "yarn install --immutable"
