@@ -3,6 +3,7 @@ import Head from 'next/head'
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Tour } from '@open-condo/ui'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
@@ -28,7 +29,9 @@ export default function CreatePropertyPage () {
                             </Typography.Title>
                         </Col>
                         <Col span={24}>
-                            <PropertyForm />
+                            <Tour.Provider>
+                                <PropertyForm />
+                            </Tour.Provider>
                         </Col>
                     </Row>
                 </PageContent>

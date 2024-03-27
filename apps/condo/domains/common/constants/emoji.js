@@ -12,8 +12,11 @@ const EMOJI = {
     HOUSE: '🏠',
     HOUSES: '🏘️',
     MAN: '👱‍',
+    WOMAN: '👩',
     FAMILY: '👪️',
     PHONE: '📞',
+    MECHANIC: '🧑‍🔧',
+    WRENCH: '🔧',
 }
 
 const EMOJI_IMAGES = {

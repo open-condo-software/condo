@@ -14,7 +14,7 @@ import {
 import { colors } from '../../colors'
 
 
-export type ProgressIndicatorStep = 'todo' | 'done' | 'waiting'
+export type ProgressIndicatorStep = 'todo' | 'completed' | 'waiting' | 'disabled'
 
 export type ProgressIndicatorProps = {
     steps: readonly [ProgressIndicatorStep, ProgressIndicatorStep?, ProgressIndicatorStep?, ProgressIndicatorStep?]
@@ -24,12 +24,14 @@ export type ProgressIndicatorProps = {
 const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({ steps, disabled }) => {
     const filteredSteps = useMemo(() => steps.filter(step => Boolean(step)),
         [steps])
-    const isAllStepsDone = useMemo(() => filteredSteps.every(step => step === 'done'),
+    const isAllStepsDone = useMemo(() => filteredSteps.every(step => step === 'completed'),
         [filteredSteps])
     const isAllStepsWaiting = useMemo(() => filteredSteps.every(step => step === 'waiting'),
         [filteredSteps])
+    const isAllStepsDisabled = useMemo(() => filteredSteps.every(step => step === 'disabled'),
+        [filteredSteps])
 
-    if (disabled) return <DisabledSVG />
+    if (disabled || isAllStepsDisabled) return <DisabledSVG />
     if (isAllStepsDone) return <DoneSVG />
     if (isAllStepsWaiting) return <WaitingSvg />
 
@@ -44,8 +46,9 @@ const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({ steps, disabled }
     const stepColors = filteredSteps.map((step, index) => {
         switch (step) {
             case 'waiting': return colors.orange[5]
-            case 'done': return `url(#gradient-${index})`
+            case 'completed': return `url(#gradient-${index})`
             case 'todo': return colors.gray[5]
+            case 'disabled': return colors.gray[5]
             default: return ''
         }
     })

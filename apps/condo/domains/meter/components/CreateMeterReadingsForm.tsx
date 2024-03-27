@@ -6,15 +6,18 @@ import {
     PropertyMeter as PropertyMeterType,
     SortPropertyMeterReadingsBy,
 } from '@app/condo/schema'
-import { Col, ColProps, Form, Row, Typography } from 'antd'
+import { Col, ColProps, Form, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import isNull from 'lodash/isNull'
 import uniqWith from 'lodash/uniqWith'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
+import { Tour, Typography } from '@open-condo/ui'
 
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
@@ -39,6 +42,7 @@ import {
 import { usePropertyValidations } from '@condo/domains/property/components/BasePropertyForm/usePropertyValidations'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { UnitInfo } from '@condo/domains/property/components/UnitInfo'
+import { PropertyFormItemTooltip } from '@condo/domains/property/PropertyFormItemTooltip'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { ContactsInfo } from '@condo/domains/ticket/components/BaseTicketForm'
 
@@ -110,6 +114,7 @@ export const MetersForm = ({
     const intl = useIntl()
     const MetersAndReadingsMessage = intl.formatMessage({ id: 'pages.condo.meter.create.MetersAndReadings' })
 
+    const { user } = useAuth()
     const { breakpoints } = useLayoutContext()
     const tableScrollConfig = useMemo(() => !breakpoints.TABLET_LARGE ? TABLE_SCROlL_CONFIG : null,  [breakpoints.TABLET_LARGE])
 
@@ -135,7 +140,7 @@ export const MetersForm = ({
     }, [refetchMeterReadings, refetchMeters])
 
     const loading = metersLoading || meterReadingsLoading
-    const { CreateMeterModal, setIsCreateMeterModalVisible } = useCreateMeterModal({
+    const { CreateMeterModal, isCreateMeterModalVisible, setIsCreateMeterModalVisible } = useCreateMeterModal({
         organizationId,
         addressKey,
         meterType: METER_PAGE_TYPES.meter,
@@ -162,6 +167,36 @@ export const MetersForm = ({
     }, [setSelectedMeter])
     const handleAddMeterButtonClick = useCallback(() => setIsCreateMeterModalVisible(true),
         [setIsCreateMeterModalVisible])
+
+    const { count, loading: countLoading } = Meter.useCount({
+        where: {
+            createdBy: { id: user.id },
+        },
+    }, { skip: !user })
+    const { setCurrentStep } = Tour.useTourContext()
+
+    useEffect(() => {
+        if (!user || countLoading || count > 0 || loading || isCreateMeterModalVisible) return setCurrentStep(0)
+
+        // 0 - no hint
+        // 1 - create meter button
+        // 2 - meter readings input
+        // 3 - form submit button
+        if (!selectedUnitName) {
+            return setCurrentStep(0)
+        }
+        if (meters.length === 0) {
+            return setCurrentStep(1)
+        }
+        if (isEmpty(newMeterReadings)) {
+            return setCurrentStep(2)
+        }
+
+        return setCurrentStep(3)
+    }, [
+        count, countLoading, isCreateMeterModalVisible, loading, meters.length,
+        newMeterReadings, selectedUnitName, setCurrentStep, user,
+    ])
 
     return (
         <>
@@ -207,7 +242,6 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     const intl = useIntl()
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
     const AddressPlaceholder = intl.formatMessage({ id: 'placeholder.Address' })
-    const AddressNotFoundContent = intl.formatMessage({ id: 'field.Address.notFound' })
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.HelpMessage' })
     const ClientInfoMessage = intl.formatMessage({ id: 'ClientInfo' })
@@ -332,13 +366,13 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                                             rules={validations.property}
                                                             wrapperCol={FORM_ITEM_WRAPPER_COLUMN_STYLE}
                                                             shouldUpdate
+                                                            tooltip={<PropertyFormItemTooltip />}
                                                         >
                                                             <PropertyAddressSearchInput
                                                                 organizationId={get(organization, 'id')}
                                                                 autoFocus={true}
                                                                 onSelect={getHandleSelectPropertyAddress(form)}
                                                                 placeholder={AddressPlaceholder}
-                                                                notFoundContent={AddressNotFoundContent}
                                                             />
                                                         </Form.Item>
                                                     </Col>
@@ -351,6 +385,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                                                     setSelectedUnitName={setSelectedUnitName}
                                                                     setSelectedUnitType={setSelectedUnitType}
                                                                     form={form}
+                                                                    required
                                                                 />
                                                             </Col>
                                                         )
@@ -491,7 +526,6 @@ export const CreatePropertyMeterReadingsForm = ({ organization, role }) => {
     const intl = useIntl()
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
     const AddressPlaceholder = intl.formatMessage({ id: 'placeholder.Address' })
-    const AddressNotFoundContent = intl.formatMessage({ id: 'field.Address.notFound' })
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.HelpMessage' })
 
@@ -583,7 +617,6 @@ export const CreatePropertyMeterReadingsForm = ({ organization, role }) => {
                                                                 autoFocus={true}
                                                                 onSelect={getHandleSelectPropertyAddress(form)}
                                                                 placeholder={AddressPlaceholder}
-                                                                notFoundContent={AddressNotFoundContent}
                                                             />
                                                         </Form.Item>
                                                     </Col>

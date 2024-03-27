@@ -20,6 +20,7 @@ export default {
         danger: false,
         stateless: false,
         block: false,
+        focus: false,
     },
     argTypes: {
         block: { type: 'boolean', default: false },
@@ -35,6 +36,7 @@ export default {
         href: { control: false },
         target: { control: false },
         htmlType: { defaultValue: 'button' },
+        focus: { type: 'boolean', default: false },
     },
 } as ComponentMeta<typeof Button>
 

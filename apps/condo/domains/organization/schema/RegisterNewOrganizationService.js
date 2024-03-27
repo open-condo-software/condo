@@ -1,7 +1,5 @@
-const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
 
-const { ORGANIZATION_TOUR } = require('@condo/domains/common/constants/featureflags')
 const { createTourStepsForOrganization } = require('@condo/domains/onboarding/utils/serverSchema')
 const access = require('@condo/domains/organization/access/RegisterNewOrganizationService')
 const { ORGANIZATION_TYPES } = require('@condo/domains/organization/constants/common')
@@ -38,11 +36,7 @@ const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizat
                 const adminRole = defaultRoles.Administrator
                 await createConfirmedEmployee(context, organization, context.authedItem, adminRole, dvSenderData)
                 await createTrialSubscription(context, organization, dvSenderData)
-
-                const isOrganizationTourEnabled = await featureToggleManager.isFeatureEnabled(context, ORGANIZATION_TOUR)
-                if (isOrganizationTourEnabled) {
-                    await createTourStepsForOrganization(context, organization, dvSenderData)
-                }
+                await createTourStepsForOrganization(context, organization, dvSenderData)
                 await TicketOrganizationSetting.create(context, {
                     ...dvSenderData,
                     organization: { connect: { id: organization.id } },

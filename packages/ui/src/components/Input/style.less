@@ -11,6 +11,27 @@
   .condo-typography-text-large();
 }
 
+.condo-input-with-suffix.condo-input-affix-wrapper {
+  padding-right: @condo-global-spacing-4;
+
+  & > .condo-input {
+    padding-right: @condo-global-spacing-4;
+  }
+
+  & > .condo-input-suffix {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: -@condo-global-spacing-8 0;
+    padding: @condo-global-spacing-8 @condo-global-spacing-12;
+    color: @condo-global-color-gray-7;
+    font-weight: @condo-global-font-weight-semibold;
+    font-size: @condo-global-spacing-12;
+    background-color: @condo-global-color-gray-3;
+    border-radius: 0 @condo-global-spacing-4 @condo-global-spacing-4 0;
+  }
+}
+
 .condo-input:not(.condo-input-affix-wrapper .condo-input),
 .condo-input-affix-wrapper {
   box-sizing: border-box;

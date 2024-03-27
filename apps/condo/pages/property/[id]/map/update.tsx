@@ -6,7 +6,7 @@ import { useRouter } from 'next/router'
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-
+import { Tour } from '@open-condo/ui'
 
 import { PageWrapper, PageContent } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
@@ -29,7 +29,9 @@ const CreatePropertyMapPage = () => {
                 <PageContent>
                     <Row gutter={PAGE_ROW_GUTTER} css={CustomScrollbarCss}>
                         <Col span={24}>
-                            <CreatePropertyMapForm id={id as string} />
+                            <Tour.Provider>
+                                <CreatePropertyMapForm id={id as string} />
+                            </Tour.Provider>
                         </Col>
                     </Row>
                 </PageContent>

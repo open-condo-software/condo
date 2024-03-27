@@ -7,6 +7,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { BaseMeterModalForm } from '@condo/domains/meter/components/BaseMeterModal/BaseMeterModalForm'
 import { PropertyMeter, Meter, MeterPageTypes, METER_PAGE_TYPES } from '@condo/domains/meter/utils/clientSchema'
 
+
 type CreateMeterModalProps = {
     organizationId: string
     propertyId: string
@@ -19,6 +20,7 @@ type CreateMeterModalProps = {
 
 type CreateMeterModalReturnType = {
     CreateMeterModal: () => JSX.Element
+    isCreateMeterModalVisible: boolean
     setIsCreateMeterModalVisible: React.Dispatch<React.SetStateAction<boolean>>
 }
 
@@ -76,8 +78,7 @@ export function useCreateMeterModal (props: CreateMeterModalProps): CreateMeterM
                 centered
             />
         )
-    }, [AddMeterMessage, handleCancelModal, handleMeterCreate, initialValues, isCreateMeterModalVisible,
-        propertyId, unitName, unitType, meterType, organizationId, addressKey])
+    }, [propertyId, addressKey, unitName, unitType, initialValues, AddMeterMessage, isCreateMeterModalVisible, handleMeterCreate, handleCancelModal, organizationId, meterType])
 
-    return useMemo(() => ({ CreateMeterModal, setIsCreateMeterModalVisible }), [CreateMeterModal])
+    return useMemo(() => ({ CreateMeterModal, isCreateMeterModalVisible, setIsCreateMeterModalVisible }), [CreateMeterModal])
 }

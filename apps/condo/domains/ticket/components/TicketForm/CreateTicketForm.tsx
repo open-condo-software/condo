@@ -5,13 +5,13 @@ import isToday from 'dayjs/plugin/isToday'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo, useState, useEffect } from 'react'
 
 import { useApolloClient } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Space, Typography } from '@open-condo/ui'
+import { ActionBar, Space, Typography, Tour } from '@open-condo/ui'
 
 import { getObjectValueFromQuery } from '@condo/domains/common/utils/query'
 import { ClientType, getClientCardTabKey } from '@condo/domains/contact/utils/clientCard'
@@ -34,18 +34,36 @@ dayjs.extend(isToday)
 
 const OPEN_STATUS = '6ef3abc4-022f-481b-90fb-8430345ebfc2'
 
+
 export const CreateTicketActionBar = ({ handleSave, isLoading, form }) => {
     const intl = useIntl()
     const CreateTicketMessage = intl.formatMessage({ id: 'CreateTicket' })
     const AddressNotSelected = intl.formatMessage({ id: 'field.Property.nonSelectedError' })
+    const OnboardingTooltipTitle = intl.formatMessage({ id: 'onboarding.tourStep.tooltip.ticket.title' })
+    const OnboardingTooltipMessage = intl.formatMessage({ id: 'onboarding.tourStep.tooltip.ticket.message' })
 
     const { ticketSetting, ticketSettingLoading } = useTicketFormContext()
+    const { setCurrentStep, currentStep } = Tour.useTourContext()
+    const [disabled, setDisabled] = useState<boolean>(true)
+
+    const { user } = useAuth()
+    const userId = get(user, 'id', null)
+
+    const { count } = Ticket.useCount({
+        where: {
+            createdBy: { id: userId },
+        },
+    })
+
+    useEffect(() => {
+        setCurrentStep((count === 0 && !disabled) ? 1 : 0)
+    }, [disabled, setCurrentStep, count])
 
     return (
         <Form.Item noStyle shouldUpdate>
             {
                 ({ getFieldsValue, getFieldError }) => {
-                    const { property, details, placeClassifier, categoryClassifier, deadline } = getFieldsValue(REQUIRED_TICKET_FIELDS)
+                    const { property, details, placeClassifier, categoryClassifier, assignee, deadline } = getFieldsValue(REQUIRED_TICKET_FIELDS)
                     const propertyMismatchError = getFieldError('property').find((error)=>error.includes(AddressNotSelected))
                     const isPayable = form.getFieldValue('isPayable')
                     const isEmergency = form.getFieldValue('isEmergency')
@@ -58,24 +76,33 @@ export const CreateTicketActionBar = ({ handleSave, isLoading, form }) => {
                         || (isRequiredDeadline && !deadline)
                         || ticketSettingLoading
 
+                    setDisabled(disabledCondition)
+
                     return (
                         <ActionBar
                             actions={[
-                                <TicketSubmitButton
+                                <Tour.TourStep
+                                    step={1}
+                                    title={OnboardingTooltipTitle}
+                                    message={OnboardingTooltipMessage}
                                     key='submit'
-                                    data-cy='ticket__submit-button'
-                                    ApplyChangesMessage={CreateTicketMessage}
-                                    handleSave={handleSave}
-                                    isLoading={isLoading}
-                                    disabledCondition={disabledCondition}
-                                    property={property}
-                                    details={details}
-                                    placeClassifier={placeClassifier}
-                                    categoryClassifier={categoryClassifier}
-                                    deadline={deadline}
-                                    propertyMismatchError={propertyMismatchError}
-                                    isRequiredDeadline={isRequiredDeadline}
-                                />,
+                                >
+                                    <TicketSubmitButton
+                                        data-cy='ticket__submit-button'
+                                        ApplyChangesMessage={CreateTicketMessage}
+                                        handleSave={handleSave}
+                                        isLoading={isLoading}
+                                        disabledCondition={disabledCondition}
+                                        property={property}
+                                        details={details}
+                                        placeClassifier={placeClassifier}
+                                        categoryClassifier={categoryClassifier}
+                                        deadline={deadline}
+                                        propertyMismatchError={propertyMismatchError}
+                                        isRequiredDeadline={isRequiredDeadline}
+                                        focus={currentStep === 1}
+                                    />
+                                </Tour.TourStep>,
                             ]}
                         >
                         </ActionBar>
@@ -219,16 +246,18 @@ export const CreateTicketForm: React.FC = () => {
     }), [auth.user.id, initialValuesFromQuery])
 
     return useMemo(() => (
-        <BaseTicketForm
-            action={createAction}
-            initialValues={initialValues}
-            organization={organization}
-            role={link.role}
-            autoAssign
-            OnCompletedMsg={null}
-            isExisted={false}
-        >
-            {({ handleSave, isLoading, form }) => <CreateTicketActionBar handleSave={handleSave} isLoading={isLoading} form={form} />}
-        </BaseTicketForm>
+        <Tour.Provider>
+            <BaseTicketForm
+                action={createAction}
+                initialValues={initialValues}
+                organization={organization}
+                role={link.role}
+                autoAssign
+                OnCompletedMsg={null}
+                isExisted={false}
+            >
+                {({ handleSave, isLoading, form }) => <CreateTicketActionBar handleSave={handleSave} isLoading={isLoading} form={form} />}
+            </BaseTicketForm>
+        </Tour.Provider>
     ), [createAction, initialValues, link.role, organization])
 }

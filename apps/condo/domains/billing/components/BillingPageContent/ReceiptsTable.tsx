@@ -1,4 +1,4 @@
-import { SortBillingReceiptsBy, BillingReceipt as BillingReceiptType } from '@app/condo/schema'
+import { SortBillingReceiptsBy, BillingReceipt as BillingReceiptType, TourStepTypeType } from '@app/condo/schema'
 import { Row, Col, Typography, Space } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
@@ -6,6 +6,7 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState, CSSProperties } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 
 import { ServicesModal } from '@condo/domains/billing/components/BillingPageContent/ServicesModal'
@@ -16,6 +17,7 @@ import Input from '@condo/domains/common/components/antd/Input'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { Table, DEFAULT_PAGE_SIZE } from '@condo/domains/common/components/Table/Index'
+import { ORGANIZATION_TOUR } from '@condo/domains/common/constants/featureflags'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
@@ -25,8 +27,10 @@ import {
     getPageIndexFromOffset,
     parseQuery,
 } from '@condo/domains/common/utils/tables.utils'
+import { useTourContext } from '@condo/domains/onboarding/contexts/TourContext'
 
 import { useBillingAndAcquiringContexts } from './ContextProvider'
+
 
 const SORTABLE_PROPERTIES = ['toPay']
 const INPUT_STYLE: CSSProperties = { width: '18em' }
@@ -70,6 +74,15 @@ export const ReceiptsTable: React.FC = () => {
         first: DEFAULT_PAGE_SIZE,
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
     })
+
+    const { updateStepIfNotCompleted } = useTourContext()
+    const { useFlag } = useFeatureFlags()
+    const isTourEnabled = useFlag(ORGANIZATION_TOUR)
+    useDeepCompareEffect(() => {
+        if (isTourEnabled && receipts.length > 0) {
+            updateStepIfNotCompleted(TourStepTypeType.UploadReceipts)
+        }
+    }, [receipts, isTourEnabled])
 
     const mainTableColumns = useReceiptTableColumns(filterMetas, hasToPayDetails, currencyCode)
 

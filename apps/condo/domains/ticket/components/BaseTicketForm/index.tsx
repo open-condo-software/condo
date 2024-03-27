@@ -22,7 +22,7 @@ import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
-import { Info, PlusCircle } from '@open-condo/icons'
+import { PlusCircle, QuestionCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Alert, Space, Tooltip } from '@open-condo/ui'
@@ -54,6 +54,7 @@ import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { UnitInfo, UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
+import { PropertyFormItemTooltip } from '@condo/domains/property/PropertyFormItemTooltip'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { IncidentHints } from '@condo/domains/ticket/components/IncidentHints'
 import { useTicketThreeLevelsClassifierHook } from '@condo/domains/ticket/components/TicketClassifierSelect'
@@ -69,6 +70,7 @@ import { TicketFile, TicketSource } from '@condo/domains/ticket/utils/clientSche
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
 import { RESIDENT } from '@condo/domains/user/constants/common'
+
 
 import { TicketAssignments } from './TicketAssignments'
 import { TicketDeadlineField } from './TicketDeadlineField'
@@ -665,6 +667,8 @@ export const TicketSourceSelect: React.FC = () => {
 const FORM_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
 const TICKET_PROPERTY_HINT_STYLES: CSSProperties = { maxHeight: '11em', maxWidth: '250px' }
 const HINTS_WRAPPER_STYLE: CSSProperties = { overflow: 'auto', maxHeight: 'calc(100vh - 220px)', paddingRight: 8 }
+const CAN_READ_BY_RESIDENT_WRAPPER_STYLE: CSSProperties = { display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'center' }
+const CAN_READ_BY_RESIDENT_ICON_WRAPPER_STYLE: CSSProperties = { padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }
 
 export interface ITicketFormProps {
     organization?: Organization
@@ -683,7 +687,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const AddMessage = intl.formatMessage({ id: 'Add' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
     const AddressPlaceholder = intl.formatMessage({ id: 'placeholder.Address' })
-    const AddressNotFoundContent = intl.formatMessage({ id: 'field.Address.notFound' })
     const AddressNotSelected = intl.formatMessage({ id: 'field.Property.nonSelectedError' })
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.ticket.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.ticket.warning.modal.HelpMessage' })
@@ -940,6 +943,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                                 name='property'
                                                                                 label={AddressLabel}
                                                                                 rules={PROPERTY_VALIDATION_RULES}
+                                                                                tooltip={<PropertyFormItemTooltip />}
                                                                             >
                                                                                 <PropertyAddressSearchInput
                                                                                     organizationId={get(organization, 'id')}
@@ -947,7 +951,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                                     onSelect={handlePropertySelectChange(form)}
                                                                                     onClear={handlePropertiesSelectClear(form)}
                                                                                     placeholder={AddressPlaceholder}
-                                                                                    notFoundContent={AddressNotFoundContent}
                                                                                     disabled={!isEmpty(invoices)}
                                                                                 />
                                                                             </TicketFormItem>
@@ -1024,23 +1027,23 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                                     {
                                                                                         !isResidentTicket && (
                                                                                             <Col span={24}>
-                                                                                                <Space size={8} align='center'>
-                                                                                                    <Form.Item name='canReadByResident' valuePropName='checked' initialValue={initialCanReadByResidentValue}>
-                                                                                                        <Checkbox
-                                                                                                            disabled={disableUserInteraction}
-                                                                                                            eventName='TicketCreateCheckboxCanReadByResident'
-                                                                                                        >
-                                                                                                            {CanReadByResidentMessage}
-                                                                                                        </Checkbox>
-                                                                                                    </Form.Item>
-                                                                                                    <Tooltip
-                                                                                                        title={CanReadByResidentTooltip}
+                                                                                                <Form.Item name='canReadByResident' valuePropName='checked' initialValue={initialCanReadByResidentValue}>
+                                                                                                    <Checkbox
+                                                                                                        disabled={disableUserInteraction}
+                                                                                                        eventName='TicketCreateCheckboxCanReadByResident'
                                                                                                     >
-                                                                                                        <Space size={4} align='center'>
-                                                                                                            <Info />
-                                                                                                        </Space>
-                                                                                                    </Tooltip>
-                                                                                                </Space>
+                                                                                                        <div style={CAN_READ_BY_RESIDENT_WRAPPER_STYLE}>
+                                                                                                            <Typography.Text>
+                                                                                                                {CanReadByResidentMessage}
+                                                                                                            </Typography.Text>
+                                                                                                            <Tooltip title={CanReadByResidentTooltip}>
+                                                                                                                <div style={CAN_READ_BY_RESIDENT_ICON_WRAPPER_STYLE}>
+                                                                                                                    <QuestionCircle size='small' />
+                                                                                                                </div>
+                                                                                                            </Tooltip>
+                                                                                                        </div>
+                                                                                                    </Checkbox>
+                                                                                                </Form.Item>
                                                                                             </Col>
                                                                                         )
                                                                                     }

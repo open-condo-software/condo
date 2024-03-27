@@ -5,7 +5,7 @@ import { OperationVariables } from '@apollo/client/core'
 import { FetchResult } from '@apollo/client/link/core'
 import { MutationFunctionOptions, MutationHookOptions, MutationTuple } from '@apollo/client/react/types/types'
 import { TypedDocumentNode } from '@graphql-typed-document-node/core'
-import * as EventEmitter from 'eventemitter3'
+import { EventEmitter } from 'eventemitter3'
 import { DocumentNode } from 'graphql'
 import { get } from 'lodash'
 
@@ -18,6 +18,8 @@ const MutationEmitter = {
     once: (event, fn) => eventEmitter.once(event, fn),
     off: (event, fn) => eventEmitter.off(event, fn),
     emit: (event, payload) => eventEmitter.emit(event, payload),
+    addListener: (event, fn) => eventEmitter.addListener(event, fn),
+    removeListener: (event, fn) => eventEmitter.removeListener(event, fn),
 }
 
 export function _useEmitterMutation<TData = any, TVariables = OperationVariables> (mutation: DocumentNode | TypedDocumentNode<TData, TVariables>, options?: MutationHookOptions<TData, TVariables>): MutationTuple<TData, TVariables> {

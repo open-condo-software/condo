@@ -63,6 +63,7 @@ const TourStep = new GQLListSchema('TourStep', {
                         deletedAt: null,
                         type_in: typesToEnable,
                         organization: { id: stepOrganizationId },
+                        status_not: COMPLETED_STEP_STATUS,
                     })
                     const data = stepsToUpdate.map(step => ({
                         id: step.id,

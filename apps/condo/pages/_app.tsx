@@ -39,8 +39,9 @@ import { TASK_STATUS } from '@condo/domains/common/components/tasks'
 import { TasksContextProvider } from '@condo/domains/common/components/tasks/TasksContextProvider'
 import { TrackingProvider } from '@condo/domains/common/components/TrackingContext'
 import UseDeskWidget from '@condo/domains/common/components/UseDeskWidget'
-import { SERVICE_PROVIDER_PROFILE, MARKETPLACE } from '@condo/domains/common/constants/featureflags'
+import { SERVICE_PROVIDER_PROFILE, MARKETPLACE, ORGANIZATION_TOUR } from '@condo/domains/common/constants/featureflags'
 import {
+    TOUR_CATEGORY,
     DASHBOARD_CATEGORY,
     COMMUNICATION_CATEGORY,
     PROPERTIES_CATEGORY,
@@ -65,6 +66,7 @@ import {
 import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess'
 import { OnBoardingProvider } from '@condo/domains/onboarding/components/OnBoardingContext'
 import { OnBoardingProgressIconContainer } from '@condo/domains/onboarding/components/OnBoardingProgressIconContainer'
+import { TourProvider } from '@condo/domains/onboarding/contexts/TourContext'
 import { useNoOrganizationToolTip } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
 import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
@@ -118,6 +120,7 @@ const MenuItems: React.FC = () => {
     const { updateContext, useFlag } = useFeatureFlags()
     const isSPPOrg = useFlag(SERVICE_PROVIDER_PROFILE)
     const isMarketplaceEnabled = useFlag(MARKETPLACE)
+    const isTourEnabled = useFlag(ORGANIZATION_TOUR)
 
     const { link, organization } = useOrganization()
     const { isExpired } = useServiceSubscriptionContext()
@@ -145,6 +148,7 @@ const MenuItems: React.FC = () => {
     const hasAccessToSettings = get(role, 'canReadSettings', false)
     const hasAccessToMarketplace = get(role, 'canReadMarketItems', false) ||
         get(role, 'canReadInvoices', false) || get(role, 'canReadPaymentsWithInvoices', false)
+    const hasAccessToTour = isTourEnabled && get(role, 'canReadTour', false)
 
     const { canRead: hasAccessToNewsItems } = useNewsItemsAccess()
 
@@ -155,6 +159,18 @@ const MenuItems: React.FC = () => {
     }, [updateContext, orgFeatures])
 
     const menuCategoriesData = useMemo<Array<IMenuCategoryData>>(() => ([
+        {
+            key: TOUR_CATEGORY,
+            items: [
+                {
+                    id: 'menuitem-tour',
+                    path: 'tour',
+                    icon: AllIcons['Guide'],
+                    label: 'global.section.tour',
+                    access: hasAccessToTour && isManagingCompany,
+                },
+            ].filter(checkItemAccess),
+        },
         {
             key: DASHBOARD_CATEGORY,
             items: [
@@ -307,7 +323,7 @@ const MenuItems: React.FC = () => {
     return (
         <>
             {
-                isManagingCompany &&  (
+                !isTourEnabled && isManagingCompany &&  (
                     <FocusElement>
                         <OnBoardingProgressIconContainer>
                             <MenuItem
@@ -462,29 +478,31 @@ const MyApp = ({ Component, pageProps }) => {
                                 <TasksProvider>
                                     <PostMessageProvider>
                                         <TrackingProvider>
-                                            <OnBoardingProvider>
-                                                <SubscriptionProvider>
-                                                    <GlobalAppsFeaturesProvider>
-                                                        <GlobalAppsContainer/>
-                                                        <TicketVisibilityContextProvider>
-                                                            <ActiveCallContextProvider>
-                                                                <ConnectedAppsWithIconsContextProvider>
-                                                                    <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                                                                        <RequiredAccess>
-                                                                            <Component {...pageProps} />
-                                                                            {
-                                                                                isEndTrialSubscriptionReminderPopupVisible && (
-                                                                                    <EndTrialSubscriptionReminderPopup/>
-                                                                                )
-                                                                            }
-                                                                        </RequiredAccess>
-                                                                    </LayoutComponent>
-                                                                </ConnectedAppsWithIconsContextProvider>
-                                                            </ActiveCallContextProvider>
-                                                        </TicketVisibilityContextProvider>
-                                                    </GlobalAppsFeaturesProvider>
-                                                </SubscriptionProvider>
-                                            </OnBoardingProvider>
+                                            <TourProvider>
+                                                <OnBoardingProvider>
+                                                    <SubscriptionProvider>
+                                                        <GlobalAppsFeaturesProvider>
+                                                            <GlobalAppsContainer/>
+                                                            <TicketVisibilityContextProvider>
+                                                                <ActiveCallContextProvider>
+                                                                    <ConnectedAppsWithIconsContextProvider>
+                                                                        <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                                                            <RequiredAccess>
+                                                                                <Component {...pageProps} />
+                                                                                {
+                                                                                    isEndTrialSubscriptionReminderPopupVisible && (
+                                                                                        <EndTrialSubscriptionReminderPopup/>
+                                                                                    )
+                                                                                }
+                                                                            </RequiredAccess>
+                                                                        </LayoutComponent>
+                                                                    </ConnectedAppsWithIconsContextProvider>
+                                                                </ActiveCallContextProvider>
+                                                            </TicketVisibilityContextProvider>
+                                                        </GlobalAppsFeaturesProvider>
+                                                    </SubscriptionProvider>
+                                                </OnBoardingProvider>
+                                            </TourProvider>
                                         </TrackingProvider>
                                     </PostMessageProvider>
                                 </TasksProvider>

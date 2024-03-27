@@ -3,9 +3,11 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Close } from '@open-condo/icons'
 
+
 import { useTourContext } from './tourContext'
 
 import { sendAnalyticsChangeEvent, sendAnalyticsClickEvent } from '../_utils/analytics'
+import { useBreakpoints } from '../_utils/hooks'
 import { Typography } from '../Typography'
 
 import type { PopoverProps as DefaultPopoverProps } from 'antd'
@@ -17,14 +19,17 @@ export type TourStepProps = Pick<DefaultPopoverProps,
 | 'className'
 | 'id'
 | 'destroyTooltipOnHide'
+| 'getPopupContainer'
 | 'zIndex'> & {
     step: number
     title: string
-    message: string
+    message?: string
     onClose?: () => void
     children?: React.ReactNode
     placement?: 'top' | 'bottom' | 'left' | 'right'
 }
+
+type GetPopupContainerType = (triggerNode: HTMLElement) => HTMLElement
 
 export const TourStep: React.FC<TourStepProps> = (props) => {
     const {
@@ -36,6 +41,7 @@ export const TourStep: React.FC<TourStepProps> = (props) => {
     } = props
 
     const { currentStep } = useTourContext()
+    const { TABLET_SMALL } = useBreakpoints()
 
     const [open, setOpen] = useState<boolean>(step === currentStep)
 
@@ -70,18 +76,36 @@ export const TourStep: React.FC<TourStepProps> = (props) => {
         </>
     ), [handleClose, title])
 
-    const popoverContent = useMemo(() => (
+    const popoverContent = useMemo(() => message && (
         <Typography.Text size='small'>
             {message}
         </Typography.Text>
     ), [message])
+
+    const getPopupContainer: GetPopupContainerType = useCallback(trigger => {
+        if (props.getPopupContainer) {
+            return props.getPopupContainer(trigger)
+        }
+
+        return trigger.parentElement || trigger
+    }, [props])
+
+    const placement = useMemo(() => {
+        if (props.placement) {
+            return props.placement
+        }
+
+        return TABLET_SMALL ? 'right' : 'top'
+    }, [TABLET_SMALL, props.placement])
     
     return (
         <DefaultPopover
             {...otherProps}
+            getPopupContainer={getPopupContainer}
             title={popoverTitle}
             content={popoverContent}
             open={open}
+            placement={placement}
             showArrow
             arrowPointAtCenter
             prefixCls={TOUR_STEP_CLASS_PREFIX}

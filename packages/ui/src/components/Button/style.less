@@ -7,7 +7,7 @@
 @condo-button-padding-hor: @condo-global-spacing-20;
 @condo-button-border-width: @condo-global-border-width-default;
 @condo-button-line-height: @condo-global-typography-h4-line-height;
-@condo-button-focus-outline-width: @condo-global-border-width-default * 2;
+@condo-button-focus-outline-width: @condo-global-border-width-default * 4;
 @condo-button-border-radius: @condo-global-border-radius-medium;
 @condo-button-gap: @condo-global-spacing-8;
 
@@ -34,7 +34,8 @@
   }
 
   // After layer is used to show gradient outline on tab-focusing
-  &:focus-visible::after {
+  &:focus-visible::after,
+  &-focus::after {
     box-sizing: border-box;
     background: @condo-global-color-brand-gradient-5 border-box;
     border: @condo-button-focus-outline-width solid transparent;
@@ -44,13 +45,15 @@
     mask-composite: exclude;
   }
 
-  &-primary:focus::after {
+  &-primary:focus::after,
+  &-primary.condo-btn-focus::after {
     .condo-btn-layer(-@condo-button-focus-outline-width);
 
     border-radius: @condo-button-border-radius + @condo-button-focus-outline-width;
   }
 
-  &-secondary:focus::after {
+  &-secondary:focus::after,
+  &-secondary.condo-btn-focus::after {
     .condo-btn-layer(-(@condo-button-focus-outline-width + @condo-button-border-width));
 
     border-radius: @condo-button-border-radius + @condo-button-focus-outline-width;
@@ -76,7 +79,8 @@
       transition: opacity @condo-global-transition-duration-default ease-in-out;
     }
 
-    &:focus {
+    &:focus,
+    &-focus {
       background: @condo-global-color-black;
     }
 
@@ -99,7 +103,8 @@
     &.condo-btn-stateless {
       &:focus,
       &:hover,
-      &:active {
+      &:active,
+      &-focus {
         background: @condo-global-color-black;
 
         &::before {
@@ -112,7 +117,8 @@
       background: @condo-global-color-red-5;
       transition: background @condo-global-transition-duration-default ease-in-out;
 
-      &:focus {
+      &:focus,
+      &-focus {
         background: @condo-global-color-red-5;
       }
 
@@ -126,6 +132,7 @@
 
       &.condo-btn-stateless {
         &:focus,
+        &-focus,
         &:hover,
         &:active {
           background: @condo-global-color-red-5;
@@ -144,7 +151,8 @@
     &.condo-btn-dangerous:disabled,
     &.condo-btn-dangerous:disabled:hover,
     &.condo-btn-dangerous:disabled:active,
-    &.condo-btn-dangerous:disabled:focus {
+    &.condo-btn-dangerous:disabled:focus,
+    &-focus:disabled {
       color: @condo-global-color-white;
       background: @condo-global-color-black;
       opacity: @condo-global-opacity-disabled;
@@ -169,7 +177,8 @@
     }
 
     &,
-    &:focus {
+    &:focus,
+    &-focus {
       background: transparent;
       border: @condo-button-border-width solid @condo-global-color-gray-7;
     }
@@ -203,7 +212,8 @@
       }
 
       &::before,
-      &:focus::before {
+      &:focus::before,
+      &-focus::before {
         background: @condo-global-color-red-5 border-box;
       }
 
@@ -218,13 +228,15 @@
       &.condo-btn-stateless {
         &:hover,
         &:active,
-        &:focus {
+        &:focus,
+        &-focus {
           .condo-btn-content-color(@condo-global-color-red-5);
           .condo-btn-static-text-color(@condo-global-color-red-5);
         }
 
         &::before,
         &:focus::before,
+        &-focus::before,
         &:hover::before,
         &:active::before {
           background: @condo-global-color-red-5 border-box;
@@ -247,7 +259,8 @@
     }
 
     &::before,
-    &:focus::before {
+    &:focus::before,
+    &-focus::before {
       background: @condo-global-color-brand-gradient-5 border-box;
     }
 
@@ -301,7 +314,8 @@
     &.condo-btn-dangerous:disabled,
     &.condo-btn-dangerous:disabled:hover,
     &.condo-btn-dangerous:disabled:active,
-    &.condo-btn-dangerous:disabled:focus {
+    &.condo-btn-dangerous:disabled:focus,
+    &.condo-btn-focus:disabled {
       background: transparent;
       border: @condo-button-border-width solid @condo-global-color-gray-7;
       opacity: @condo-global-opacity-disabled;

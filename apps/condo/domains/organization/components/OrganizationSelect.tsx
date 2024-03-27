@@ -1,9 +1,11 @@
 import { Dropdown } from 'antd'
 import get from 'lodash/get'
 import uniqBy from 'lodash/uniqBy'
+import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, CSSProperties } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { ChevronDown, PlusCircle } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
@@ -12,6 +14,7 @@ import { Space, Typography  } from '@open-condo/ui'
 import type { TypographyTextProps } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { ORGANIZATION_TOUR } from '@condo/domains/common/constants/featureflags'
 import { HOLDING_TYPE } from '@condo/domains/organization/constants/common'
 import { useCreateOrganizationModalForm } from '@condo/domains/organization/hooks/useCreateOrganizationModalForm'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
@@ -20,6 +23,7 @@ import { SBBOLIndicator } from './SBBOLIndicator'
 
 import type { OrganizationEmployee as OrganizationEmployeeType } from '@app/condo/schema'
 import type { DropdownProps } from 'antd'
+
 
 function compareEmployees (lhs: OrganizationEmployeeType, rhs: OrganizationEmployeeType) {
     return get(lhs, ['organization', 'name'], '')
@@ -41,12 +45,15 @@ export const InlineOrganizationSelect: React.FC = () => {
     const intl = useIntl()
     const AddOrganizationTitle = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationButtonLabel' })
 
+    const router = useRouter()
+
     const { breakpoints } = useLayoutContext()
     const textSize: TypographyTextProps['size'] = !breakpoints.TABLET_LARGE ? 'small' : 'medium'
 
     const { user } = useAuth()
     const { link, selectLink, isLoading: organizationLoading } = useOrganization()
     const userId = get(user, 'id', null)
+    const { useFlag } = useFeatureFlags()
 
     const { objs: userEmployees, allDataLoaded: employeesLoaded } = OrganizationEmployee.useAllObjects({
         where: {
@@ -67,7 +74,14 @@ export const InlineOrganizationSelect: React.FC = () => {
     // Note: Filter case where organization was deleted
     const filteredEmployees = uniqBy(userEmployees.filter(employee => employee.organization), employee => employee.organization.id)
 
-    const { setIsVisible: showCreateOrganizationModal, ModalForm: CreateOrganizationModalForm } = useCreateOrganizationModalForm({})
+    const isTourEnabled = useFlag(ORGANIZATION_TOUR)
+    const { setIsVisible: showCreateOrganizationModal, ModalForm: CreateOrganizationModalForm } = useCreateOrganizationModalForm({
+        onFinish: async () => {
+            if (isTourEnabled) {
+                await router.push('/tour')
+            }
+        },
+    })
 
     const showCreateModal = useCallback(() => {
         showCreateOrganizationModal(true)

@@ -2,10 +2,12 @@ const { isNil } = require('lodash')
 const { v4: uuid } = require('uuid')
 
 const conf = require('@open-condo/config')
+const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getRedisClient } = require('@open-condo/keystone/redis')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
+const { ORGANIZATION_TOUR } = require('@condo/domains/common/constants/featureflags')
 const { getOnBoardingStatus } = require('@condo/domains/organization/integrations/sbbol/sync/getOnBoadringStatus')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { AppleIdIdentityIntegration } = require('@condo/domains/user/integration/appleid/AppleIdIdentityIntegration')
@@ -23,6 +25,7 @@ const {
 const {
     User,
 } = require('@condo/domains/user/utils/serverSchema')
+
 
 const redisClient = getRedisClient()
 const REDIS_APPLE_ID_AUTH_FLOW_PREFIX_KEY = 'APPLE_ID_AUTH_FLOW'
@@ -115,6 +118,10 @@ async function authorizeUser (req, res, context, userId) {
         // resident entry page
         return res.redirect(APPLE_ID_CONFIG.residentRedirectUri || '/')
     } else if (isNil(redirectUrl)) {
+        const isOrganizationTourEnabled = await featureToggleManager.isFeatureEnabled(context, ORGANIZATION_TOUR)
+        if (isOrganizationTourEnabled) {
+            return res.redirect('/tour')
+        }
         // staff entry page
         return res.redirect(finished || !created ? '/' : '/onboarding')
     } else {

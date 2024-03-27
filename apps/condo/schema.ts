@@ -40881,6 +40881,7 @@ export type Mutation = {
    * }`
    */
   createOnBoardingByType?: Maybe<OnBoarding>;
+  syncTourSteps?: Maybe<SyncTourStepsOutput>;
   /**
    * This mutation deletes meters and meter readings in specified organization.
    *
@@ -49107,6 +49108,11 @@ export type MutationRegisterResidentInvoiceArgs = {
 
 export type MutationCreateOnBoardingByTypeArgs = {
   data: CreateOnBoardingInput;
+};
+
+
+export type MutationSyncTourStepsArgs = {
+  data: SyncTourStepsInput;
 };
 
 
@@ -81483,6 +81489,17 @@ export type SyncRemoteClientInput = {
   pushTypeVoIP?: Maybe<PushType>;
 };
 
+export type SyncTourStepsInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  organization: OrganizationWhereUniqueInput;
+};
+
+export type SyncTourStepsOutput = {
+  __typename?: 'SyncTourStepsOutput';
+  ok: Scalars['String'];
+};
+
 /**  Link between condo user and user's telegram chat with bot  */
 export type TelegramUserChat = {
   __typename?: 'TelegramUserChat';
@@ -91333,11 +91350,8 @@ export enum TourStepTypeType {
   CreateProperty = 'createProperty',
   CreatePropertyMap = 'createPropertyMap',
   CreateTicket = 'createTicket',
-  NotifyResidentsAboutTickets = 'notifyResidentsAboutTickets',
   UploadReceipts = 'uploadReceipts',
-  NotifyResidentsAboutPayments = 'notifyResidentsAboutPayments',
   CreateMeterReadings = 'createMeterReadings',
-  NotifyResidentsAboutMeterReadings = 'notifyResidentsAboutMeterReadings',
   ViewResidentsAppGuide = 'viewResidentsAppGuide',
   CreateNews = 'createNews'
 }

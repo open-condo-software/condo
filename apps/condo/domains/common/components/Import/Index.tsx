@@ -1,10 +1,11 @@
 import styled from '@emotion/styled'
 import { Col, Progress, Row, Space } from 'antd'
 import dayjs from 'dayjs'
+import { EventEmitter } from 'eventemitter3'
 import get from 'lodash/get'
 import isDate from 'lodash/isDate'
 import isFunction from 'lodash/isFunction'
-import React, { useCallback, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import XLSX from 'xlsx'
 
 import { Download, FileDown } from '@open-condo/icons'
@@ -92,6 +93,14 @@ function fitToColumn (arrayOfArray) {
     ))
 }
 
+const eventEmitter = new EventEmitter()
+export const IMPORT_EVENT = 'ImportEvent'
+export const ImportEmitter = {
+    addListener: (event, fn) => eventEmitter.addListener(event, fn),
+    removeListener: (event, fn) => eventEmitter.removeListener(event, fn),
+    emit: (event, payload) => eventEmitter.emit(event, payload),
+}
+
 type ActiveModalType = null | 'example' | 'progress' | 'partlyLoaded' | 'success' | 'error'
 
 const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
@@ -136,7 +145,13 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
 
     const { logEvent, getEventName } = useTracking()
 
-    const [activeModal, setActiveModal] = useState<ActiveModalType>(null)
+    const [activeModal, setActiveModal] = useState<ActiveModalType>()
+
+    useEffect(() => {
+        if (typeof activeModal !== 'undefined') {
+            ImportEmitter.emit(IMPORT_EVENT, { domain: domainName, status: activeModal })
+        }
+    }, [activeModal])
 
     const totalRowsRef = useRef(0)
     const setTotalRowsRef = (value: number) => {

@@ -3,9 +3,10 @@ import { LabeledValue } from 'antd/lib/select'
 import flattenDeep from 'lodash/flattenDeep'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Space, Typography } from '@open-condo/ui'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import Select, { CustomSelectProps } from '@condo/domains/common/components/antd/Select'
@@ -103,6 +104,9 @@ export const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
     const WarehouseGroupLabel = intl.formatMessage({ id: 'pages.condo.ticket.select.group.warehouse' })
     const CommercialGroupLabel = intl.formatMessage({ id: 'pages.condo.ticket.select.group.commercial' })
     const ApartmentGroupLabel = intl.formatMessage({ id: 'pages.condo.ticket.select.group.apartment' })
+    const NotFoundMessage = intl.formatMessage({ id: 'field.UnitName.notFound' })
+    const NotFoundLinkMessage = intl.formatMessage({ id: 'field.UnitName.notFound.link' })
+
     const {
         placeholder, property, loading, disabled = false, mode, selectedFloorName, selectedSectionName, selectedSections, multiple, ...restInputProps
     } = props
@@ -118,6 +122,17 @@ export const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
         }
     }, [mode, selectedFloorName, selectedSectionName, selectedSections])
 
+    const notFoundContent = useMemo(() => (
+        <Space size={12} direction='vertical'>
+            <Typography.Text size='medium' type='secondary'>
+                {NotFoundMessage}
+            </Typography.Text>
+            <Typography.Link href={`/property/${get(property, 'id')}/map/update`} target='_blank'>
+                {NotFoundLinkMessage}
+            </Typography.Link>
+        </Space>
+    ), [NotFoundLinkMessage, NotFoundMessage, property])
+
     return (
         <Select
             mode={multiple ? 'multiple' : undefined}
@@ -127,6 +142,7 @@ export const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
             optionFilterProp='title'
             loading={loading}
             disabled={disabled}
+            notFoundContent={notFoundContent}
             {...restInputProps}
         >
             {getOptionGroupBySectionType({

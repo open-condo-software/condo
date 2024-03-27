@@ -18,6 +18,7 @@ interface IErrorsContainerProps {
     deadline: string
     propertyMismatchError: string
     isRequiredDeadline?: boolean
+    focus?: boolean
 }
 
 export const TicketSubmitButton: React.FC<IErrorsContainerProps> = ({
@@ -56,6 +57,7 @@ export const TicketSubmitButton: React.FC<IErrorsContainerProps> = ({
 
     return (
         <ButtonWithDisabledTooltip
+            {...otherProps}
             title={errors}
             onClick={handleSave}
             type='primary'

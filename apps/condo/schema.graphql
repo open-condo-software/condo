@@ -45844,11 +45844,8 @@ enum TourStepTypeType {
   createProperty
   createPropertyMap
   createTicket
-  notifyResidentsAboutTickets
   uploadReceipts
-  notifyResidentsAboutPayments
   createMeterReadings
-  notifyResidentsAboutMeterReadings
   viewResidentsAppGuide
   createNews
 }
@@ -73780,6 +73777,16 @@ input CreateOnBoardingInput {
   userId: ID!
 }
 
+input SyncTourStepsInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  organization: OrganizationWhereUniqueInput!
+}
+
+type SyncTourStepsOutput {
+  ok: String!
+}
+
 input ExportMeterReadingsInput {
   dv: Int!
   sender: SenderFieldInput!
@@ -85513,6 +85520,7 @@ type Mutation {
   }`
   """
   createOnBoardingByType(data: CreateOnBoardingInput!): OnBoarding
+  syncTourSteps(data: SyncTourStepsInput!): SyncTourStepsOutput
 
   """
   This mutation deletes meters and meter readings in specified organization.

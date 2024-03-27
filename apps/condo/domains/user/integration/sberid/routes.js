@@ -2,9 +2,11 @@ const { isNil } = require('lodash')
 const { generators } = require('openid-client')
 
 const conf = require('@open-condo/config')
+const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
+const { ORGANIZATION_TOUR } = require('@condo/domains/common/constants/featureflags')
 const { getOnBoardingStatus } = require('@condo/domains/organization/integrations/sbbol/sync/getOnBoadringStatus')
 const { RESIDENT, SBER_ID_SESSION_KEY } = require('@condo/domains/user/constants/common')
 const { SberIdIdentityIntegration } = require('@condo/domains/user/integration/sberid/SberIdIdentityIntegration')
@@ -19,6 +21,7 @@ const {
 const {
     User,
 } = require('@condo/domains/user/utils/serverSchema')
+
 
 const SBER_ID_CONFIG = conf.SBER_ID_CONFIG ? JSON.parse(conf.SBER_ID_CONFIG) : {}
 
@@ -121,6 +124,10 @@ class SberIdRoutes {
             // resident entry page
             return res.redirect(SBER_ID_CONFIG.residentRedirectUri || '/')
         } else if (isNil(redirectUrl)) {
+            const isOrganizationTourEnabled = await featureToggleManager.isFeatureEnabled(context, ORGANIZATION_TOUR)
+            if (isOrganizationTourEnabled) {
+                return res.redirect('/tour')
+            }
             // staff entry page
             return res.redirect(finished || !created ? '/' : '/onboarding')
         } else {
