@@ -38,6 +38,8 @@ import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSc
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 
+const { publicRuntimeConfig: { newsItemsSendingDelay } } = getConfig()
+
 
 const PAGE_ROW_GUTTER: RowProps['gutter'] = [0, 40]
 const HORIZONTAL_ROW_GUTTER: RowProps['gutter'] = [0, 24]
@@ -84,8 +86,6 @@ const NewsItemCard: React.FC = () => {
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'news.ConfirmDeleteTitle' })
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'news.ConfirmDeleteMessage' })
     const CancelMessage = intl.formatMessage({ id: 'news.CancelMessage' })
-
-    const { publicRuntimeConfig: { newsItemsSendingDelay } } = getConfig()
 
     const { user } = useAuth()
     const { query, push } = useRouter()
