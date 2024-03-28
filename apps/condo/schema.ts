@@ -49189,7 +49189,10 @@ export type NewsItem = {
   type?: Maybe<NewsItemTypeType>;
   /**  Date before which the news item makes sense  */
   validBefore?: Maybe<Scalars['String']>;
-  /**  UTC (!) Date to publish the news item and to send notifications  */
+  /**
+   *  Start time for sending notifications.
+   * If the value is null, but the “isPublished” flag is true, then the "sendAt" value will be automatically set to "publishedAt" + 15 sec
+   */
   sendAt?: Maybe<Scalars['String']>;
   scopes: Array<NewsItemScope>;
   _scopesMeta?: Maybe<_QueryMeta>;

@@ -3,7 +3,6 @@
  */
 
 const { faker } = require('@faker-js/faker')
-const dayjs = require('dayjs')
 
 const {
     makeLoggedInAdminClient,
@@ -15,8 +14,11 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowValidationFailureError, expectToThrowAccessDeniedErrorToObjects,
+    waitFor,
 } = require('@open-condo/keystone/test.utils')
 
+const { _internalScheduleTaskByNameByTestClient } = require('@condo/domains/common/utils/testSchema')
+const { SENDING_DELAY_SEC } = require('@condo/domains/news/constants/common')
 const {
     NEWS_ITEM_SCOPE_TYPE_ORGANIZATION,
     NEWS_ITEM_SCOPE_TYPE_PROPERTY,
@@ -24,12 +26,12 @@ const {
     NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE_UNIT_NAME,
 } = require('@condo/domains/news/constants/scopesTypes')
 const {
+    NewsItem,
     NewsItemScope,
     createTestNewsItemScope,
     updateTestNewsItemScope,
     createTestNewsItem,
     publishTestNewsItem,
-    updateTestNewsItem,
 } = require('@condo/domains/news/utils/testSchema')
 const {
     createTestOrganizationEmployeeRole,
@@ -465,8 +467,16 @@ describe('NewsItemScope', () => {
             await createTestNewsItemScope(adminClient, newsItem)
             await publishTestNewsItem(adminClient, newsItem.id)
 
-            // Emulate sending
-            await updateTestNewsItem(adminClient, newsItem.id, { sentAt: dayjs().toISOString() })
+            // run sending
+            await waitFor(async () => {
+                const [res] = await _internalScheduleTaskByNameByTestClient(adminClient, { taskName: 'notifyResidentsAboutDelayedNewsItems' })
+                expect(res.id).toBeDefined()
+            }, { delay: (SENDING_DELAY_SEC + 2) * 1000 })
+
+            await waitFor(async () => {
+                const sentNewsItem = await NewsItem.getOne(adminClient, { id: newsItem.id })
+                expect(sentNewsItem.sentAt).not.toBeNull()
+            })
 
             await expectToThrowGQLError(
                 async () => await createTestNewsItemScope(adminClient, newsItem, { property: { connect: { id: dummyProperty.id } } }),
