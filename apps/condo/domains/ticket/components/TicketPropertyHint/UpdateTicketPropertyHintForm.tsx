@@ -1,5 +1,5 @@
 import { get } from 'lodash'
-import React, { useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button } from '@open-condo/ui'
@@ -15,12 +15,12 @@ export const UpdateTicketPropertyHintForm = ({ id }) => {
 
     const { obj: ticketPropertyHint, loading } = TicketPropertyHint.useObject({ where: { id } })
     const action = TicketPropertyHint.useUpdate({})
-    const updateAction = (value) => {
+    const updateAction = useCallback(async (value) => {
         if (value.organization) {
             value.organization = { connect: { id: value.organization } }
         }
-        action(value, ticketPropertyHint)
-    }
+        await action(value, ticketPropertyHint)
+    }, [ticketPropertyHint])
     const organizationId = useMemo(() => get(ticketPropertyHint, ['organization', 'id']), [ticketPropertyHint])
 
     if (loading) {
