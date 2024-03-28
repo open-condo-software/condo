@@ -62,7 +62,7 @@ export const Table: React.FC<ITableProps> = ({
     const { shouldTableScroll } = LayoutContext
 
     const router = useRouter()
-    const { filters, offset, sorters } = parseQuery(router.query)
+    const { filters, offset, sorters } = useMemo(() => parseQuery(router.query), [router.query])
     const currentPageIndex = getPageIndexFromOffset(offset, rowsPerPage)
 
     const tablePaginationConfig: false | TablePaginationConfig = useMemo(() => ({
@@ -80,7 +80,7 @@ export const Table: React.FC<ITableProps> = ({
 
     // Triggered, when table pagination/filters/sorting changes
     // Modifies the query to match the state of the table
-    const handleChange = debounce((...tableChangeArguments) => {
+    const handleChange = useMemo(() => debounce((...tableChangeArguments) => {
         const [
             nextPagination,
             nextFilters,
@@ -134,7 +134,7 @@ export const Table: React.FC<ITableProps> = ({
             const newParameters = getFiltersQueryData(newFilters, newSorters, newOffset)
             return updateQuery(router, { newParameters }, { resetOldParameters: false })
         }
-    }, 400)
+    }, 400), [applyQuery, filters, router, rowsPerPage, sorters])
 
     const pagination = useMemo(
         () => totalRows > rowsPerPage ? tablePaginationConfig : false,
