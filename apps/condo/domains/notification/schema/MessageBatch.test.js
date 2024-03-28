@@ -275,7 +275,7 @@ describe('MessageBatch', () => {
 
             await syncRemoteClientWithPushTokenByTestClient(userClient, payload)
 
-            const extraData = { targets: [userClient.user.id] }
+            const extraData = { messageType: CUSTOM_CONTENT_MESSAGE_TYPE, targets: [userClient.user.id] }
             const [customMessage] = await createTestMessageBatch(admin, extraData)
             const date = dayjs().format(DATE_FORMAT)
             const messageWhere = {
@@ -309,7 +309,7 @@ describe('MessageBatch', () => {
             const [remoteClientObj] = await createTestRemoteClient(admin, payload)
             const remoteClientId = remoteClientObj.id
             const remoteClient = `rc:${remoteClientId}`
-            const [customMessage] = await createTestMessageBatch(admin, { targets: [remoteClient] })
+            const [customMessage] = await createTestMessageBatch(admin, { messageType: CUSTOM_CONTENT_MESSAGE_TYPE, targets: [remoteClient] })
             const date = dayjs().format(DATE_FORMAT)
             const messagesWhere = {
                 type: CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
@@ -336,7 +336,7 @@ describe('MessageBatch', () => {
 
         it('handles messageBatch and creates sms notification of CUSTOM_CONTENT_MESSAGE_SMS_TYPE for phone', async () => {
             const phone = faker.phone.number('+79#########')
-            const [customMessage] = await createTestMessageBatch(admin, { targets: [phone] })
+            const [customMessage] = await createTestMessageBatch(admin, { messageType: CUSTOM_CONTENT_MESSAGE_TYPE, targets: [phone] })
             const date = dayjs().format(DATE_FORMAT)
             const messagesWhere = {
                 type: CUSTOM_CONTENT_MESSAGE_SMS_TYPE,
@@ -362,7 +362,7 @@ describe('MessageBatch', () => {
 
         it('handles messageBatch and creates email notification of CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE for email', async () => {
             const email = `${faker.random.alphaNumeric(8)}@${faker.random.alphaNumeric(8)}.com`
-            const [customMessage] = await createTestMessageBatch(admin, { targets: [email] })
+            const [customMessage] = await createTestMessageBatch(admin, { messageType: CUSTOM_CONTENT_MESSAGE_TYPE, targets: [email] })
             const date = dayjs().format(DATE_FORMAT)
             const messagesWhere = {
                 type: CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE,
@@ -400,7 +400,7 @@ describe('MessageBatch', () => {
                 17,
                 new Date(),
             ]
-            const [customMessage] = await createTestMessageBatch(admin, { targets })
+            const [customMessage] = await createTestMessageBatch(admin, { messageType: CUSTOM_CONTENT_MESSAGE_TYPE, targets })
 
             await waitFor(async () => {
                 const customMessage1 = await MessageBatch.getOne(admin, { id: customMessage.id })
@@ -428,7 +428,7 @@ describe('MessageBatch', () => {
             const email = `${faker.random.alphaNumeric(8)}@${faker.random.alphaNumeric(8)}.com`
             const phone = faker.phone.number('+79#########')
             const targets = [email, email, email, phone, phone, phone, admin.user.id, admin.user.id, admin.user.id]
-            const [customMessage] = await createTestMessageBatch(admin, { targets })
+            const [customMessage] = await createTestMessageBatch(admin, { messageType: CUSTOM_CONTENT_MESSAGE_TYPE, targets })
 
             await waitFor(async () => {
                 const customMessage1 = await MessageBatch.getOne(admin, { id: customMessage.id })

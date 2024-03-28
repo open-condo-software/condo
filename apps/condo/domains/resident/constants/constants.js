@@ -56,7 +56,7 @@ const PAYMENT_CATEGORIES_META = [
     {
         id: '2',
         active: false,
-        name: 'Интернет, ТВ, домашний телефон',
+        name: 'Интернет',
         key: 'billing.category.internet.name',
         uuid: '11bb27ce-3f11-40f2-8fdf-f6aa1364df08',
         canGetBillingFromOrganization: false,
@@ -82,7 +82,7 @@ const PAYMENT_CATEGORIES_META = [
     },
     {
         id: '5',
-        name: 'ХВС',
+        name: 'Холодная вода',
         key: 'billing.category.cold_water.name',
         uuid: 'b84acc8b-ee9d-401c-bde6-75a284d84789',
         active: true,
@@ -91,7 +91,7 @@ const PAYMENT_CATEGORIES_META = [
     },
     {
         id: '6',
-        name: 'Отопление и ГВС',
+        name: 'Отопление и горячая вода',
         key: 'billing.category.heating_hot_water.name',
         uuid: 'ebf9524e-b5ad-44ef-9343-01ab6147d400',
         active: true,
@@ -100,7 +100,7 @@ const PAYMENT_CATEGORIES_META = [
     },
     {
         id: '7',
-        name: 'ТКО',
+        name: 'Мусор',
         key: 'billing.category.trash.name',
         uuid: '182998d2-ed32-4b1a-8876-982f7e7eb645',
         active: true,
@@ -109,7 +109,7 @@ const PAYMENT_CATEGORIES_META = [
     },
     {
         id: '8',
-        name: 'Охрана и домофон',
+        name: 'Домофон',
         key: 'billing.category.intercom.name',
         uuid: 'fff4549a-8abc-42d1-b888-93ffd49a7366',
         active: false,

@@ -12,7 +12,7 @@ const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/gene
 
 const {
     PUSH_TRANSPORT_TYPES, DEVICE_PLATFORM_TYPES, INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
-    MESSAGE_BATCH_TYPE_OPTIONS, PUSH_TRANSPORT_FIREBASE, PUSH_FAKE_TOKEN_SUCCESS, MESSAGE_TYPES, MESSAGE_TRANSPORTS,
+    MESSAGE_BATCH_TYPE_OPTIONS, PUSH_TRANSPORT_FIREBASE, PUSH_FAKE_TOKEN_SUCCESS, MESSAGE_TYPES, MESSAGE_TRANSPORTS, DEVICE_PLATFORM_IOS,
 } = require('@condo/domains/notification/constants/constants')
 const {
     getRandomTokenData,
@@ -37,6 +37,8 @@ const { TelegramUserChat: TelegramUserChatGQL } = require('@condo/domains/notifi
 const { NotificationAnonymousSetting: NotificationAnonymousSettingGQL } = require('@condo/domains/notification/gql')
 const { BILLING_RECEIPT_FILE_ADDED_TYPE, EMAIL_TRANSPORT } = require("@condo/domains/notification/constants/constants");
 const { createTestEmail, createTestPhone } = require('@condo/domains/user/utils/testSchema')
+const { _INTERNAL_SEND_NOTIFICATION_NEW_MOBILE_APP_VERSION_MUTATION } = require('@condo/domains/notification/gql')
+const { APP_RESIDENT_KEY } = require('@condo/domains/notification/constants/constants')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Message = generateGQLTestUtils(MessageGQL)
@@ -396,6 +398,23 @@ async function updateTestNotificationAnonymousSetting (client, id, extraAttrs = 
     return [obj, attrs]
 }
 
+
+async function _internalSendNotificationNewMobileAppVersionByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        app: APP_RESIDENT_KEY,
+        platform: DEVICE_PLATFORM_IOS,
+        buildVersion: '1.0.0',
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(_INTERNAL_SEND_NOTIFICATION_NEW_MOBILE_APP_VERSION_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -411,5 +430,6 @@ module.exports = {
     NotificationUserSetting, createTestNotificationUserSetting, updateTestNotificationUserSetting,
     TelegramUserChat, createTestTelegramUserChat, updateTestTelegramUserChat,
     NotificationAnonymousSetting, createTestNotificationAnonymousSetting, updateTestNotificationAnonymousSetting,
+    _internalSendNotificationNewMobileAppVersionByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

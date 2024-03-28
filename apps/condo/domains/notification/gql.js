@@ -64,6 +64,12 @@ const TelegramUserChat = generateGqlQueries('TelegramUserChat', TELEGRAM_USER_CH
 const NOTIFICATION_ANONYMOUS_SETTING_FIELDS = `{ email phone messageType messageTransport isEnabled ${COMMON_FIELDS} }`
 const NotificationAnonymousSetting = generateGqlQueries('NotificationAnonymousSetting', NOTIFICATION_ANONYMOUS_SETTING_FIELDS)
 
+const _INTERNAL_SEND_NOTIFICATION_NEW_MOBILE_APP_VERSION_MUTATION = gql`
+    mutation _internalSendNotificationNewMobileAppVersion ($data: _internalSendNotificationNewMobileAppVersionInput!) {
+        result: _internalSendNotificationNewMobileAppVersion(data: $data) { messageBatchId }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -80,5 +86,6 @@ module.exports = {
     NotificationUserSetting,
     TelegramUserChat,
     NotificationAnonymousSetting,
+    _INTERNAL_SEND_NOTIFICATION_NEW_MOBILE_APP_VERSION_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
