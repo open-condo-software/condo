@@ -1,10 +1,11 @@
 import { TourStepStatusType } from '@app/condo/schema'
+import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
 import { useTourContext } from '@condo/domains/onboarding/contexts/TourContext'
-import { EXTERNAL_GUIDE_LINK } from '@condo/domains/onboarding/utils/clientSchema/constants'
+import { GUIDE_LINK } from '@condo/domains/onboarding/utils/clientSchema/constants'
 
 
 export const useTourPageData = ({ isAllSecondStepsCompleted, isInnerStepsCompleted }) => {
@@ -13,14 +14,12 @@ export const useTourPageData = ({ isAllSecondStepsCompleted, isInnerStepsComplet
     const OpenGuideMessage = intl.formatMessage({ id: 'tour.openGuide' })
     const ChooseOtherTaskMessage = intl.formatMessage({ id: 'tour.chooseOtherTask' })
 
+    const router = useRouter()
+
     const { activeTourStep, setActiveTourStep } = useTourContext()
 
     const handleBackClick = useCallback(() => setActiveTourStep(null), [setActiveTourStep])
-    const handleOpenGuide = useCallback(() => {
-        if (typeof window !== 'undefined') {
-            window.open(EXTERNAL_GUIDE_LINK, '_blank')
-        }
-    }, [])
+    const handleOpenGuide = useCallback(() => router.push(GUIDE_LINK), [router])
 
     const activeStepType = activeTourStep || 'default'
     const isDefaultStep = activeStepType === 'default'

@@ -17,7 +17,7 @@ const {
 
 const { residentAppLandingUrl } = publicRuntimeConfig
 
-export const EXTERNAL_GUIDE_LINK = '/tour/guide'
+export const GUIDE_LINK = '/tour/guide'
 export const RESIDENT_APP_LANDING_EXTERNAL_LINK = residentAppLandingUrl
 
 /**
@@ -29,7 +29,7 @@ export const TODO_STEP_CLICK_ROUTE = {
     [CREATE_TICKET_STEP_TYPE]: '/ticket',
     [UPLOAD_RECEIPTS_STEP_TYPE]: '/billing',
     [CREATE_METER_READINGS_STEP_TYPE]: '/meter',
-    [VIEW_RESIDENT_APP_GUIDE_STEP_TYPE]: EXTERNAL_GUIDE_LINK,
+    [VIEW_RESIDENT_APP_GUIDE_STEP_TYPE]: GUIDE_LINK,
     [CREATE_NEWS_STEP_TYPE]: '/news',
 }
 
@@ -75,8 +75,8 @@ export const COMPLETED_STEP_LINK = {
         AfterIcon: Meters,
     },
     [VIEW_RESIDENT_APP_GUIDE_STEP_TYPE]: {
-        openInNewTab: true,
-        href: EXTERNAL_GUIDE_LINK,
+        LinkWrapper: Link,
+        href: GUIDE_LINK,
         AfterIcon: ExternalLink,
     },
     [CREATE_NEWS_STEP_TYPE]: {

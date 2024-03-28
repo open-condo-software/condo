@@ -17,7 +17,7 @@ import { colors } from '@open-condo/ui/dist/colors'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
-import { EXTERNAL_GUIDE_LINK } from '@condo/domains/onboarding/utils/clientSchema/constants'
+import { GUIDE_LINK } from '@condo/domains/onboarding/utils/clientSchema/constants'
 
 
 type ButtonClickType = () => void
@@ -152,7 +152,7 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
     }), [completedTourFlow, intl])
 
     const handleViewGuideClick = useCallback(async () => {
-        window.open(EXTERNAL_GUIDE_LINK, '_blank')
+        window.open(GUIDE_LINK, '_blank')
         if (activeStep !== TourStepTypeType.Resident) {
             updateCompletedFlowModalData(activeStep)
         }

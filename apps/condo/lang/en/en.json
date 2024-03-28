@@ -1894,56 +1894,43 @@
   "ticket.deadline.CompletedLate": "Completed {days} late",
   "ticket.deadline.tooltip.title": "The platform automatically fills the field «Complete before», adding N days to the current date. You can set your default value for each type of ticket.",
   "ticket.deadline.tooltip.link": "Go to settings",
-
   "tour.title": "Tour",
   "tour.openGuide": "Open guide",
   "tour.chooseOtherTask": "Choose other task",
   "tour.viewGuide": "View Guide",
   "tour.toTour": "Go to tour",
-
   "tour.pageData.default.todo.title": "What do you want to do with Doma?",
   "tour.pageData.default.todo.subtitle": "Select a task and we will help you set up the platform. You can always go back to that screen and choose the next task.",
   "tour.pageData.default.completed.title": "You set up Doma - congratulations!",
   "tour.pageData.default.completed.subtitle": "The platform is ready to work on the tasks of your business",
   "tour.pageData.default.completed.description": "We recommend opening the tour from time to time and remind residents of the mobile application features with ready-made templates. The more residents download it and start using it, the more processes will be able to automate.",
-
   "tour.pageData.billing.todo.title": "Reduce accounts receivable",
   "tour.pageData.billing.todo.subtitle": "As soon as you set up the upload, the invoices will arrive faster. And residents will be able to pay the receipts through the mobile app.",
   "tour.pageData.billing.completed.title": "Have you worked on reducing debit debt",
   "tour.pageData.billing.completed.subtitle": "Now residents can pay the receipts, and you – follow the receipts",
-
   "tour.pageData.ticket.todo.title": "Optimize tickets management",
   "tour.pageData.ticket.todo.subtitle": "When you complete all of the tasks in the list, residents will be able to submit tickets through the mobile app, and you will see them on the platform.",
   "tour.pageData.ticket.completed.title": "You have optimized work with tickets",
   "tour.pageData.ticket.completed.subtitle": "Now residents can submit tickets through the mobile app, and you will see them on the platform",
-
   "tour.pageData.meter.todo.title": "Simplify work with meter readings",
   "tour.pageData.meter.todo.subtitle": "When you complete all the tasks in the list, residents will be able to send statements through the mobile app, and you will see them on the platform",
   "tour.pageData.meter.completed.title": "You have simplified the work with meter readings",
   "tour.pageData.meter.completed.subtitle": "Now residents can transmit the meter, and you - get them on the platform",
-
   "tour.pageData.resident.todo.title": "Establish relations with residents",
   "tour.pageData.resident.todo.subtitle": "When you complete all of the tasks in the list, residents will be able to submit statements and tickets via the mobile app. You will see them on the platform and get the opportunity to tell the residents important news.",
   "tour.pageData.resident.completed.title": "Relations with residents established",
   "tour.pageData.resident.completed.subtitle": "Residents can now submit statements and tickets via the mobile app. You will see them on the platform and be able to tell the residents important news.",
-
   "tour.cardVideo.title.default": "Meet Doma",
   "tour.cardVideo.description.default": "Learn how Doma helps management organizations",
-
   "tour.cardVideo.title.ticket": "How Doma makes it easier to work with tickets",
   "tour.cardVideo.description.ticket": "We tell you how residents can submit tickets, and management organizations can receive and process them",
-
   "tour.cardVideo.title.billing": "How Doma helps reduce accounts receivable",
   "tour.cardVideo.description.billing": "We tell you how to work with accruals and make sure that residents pay their receipts on time",
-
   "tour.cardVideo.title.meter": "How to simplify work with meter readings",
   "tour.cardVideo.description.meter": "We tell you how management organizations and residents can work with meter readings on the Doma platform and in the mobile application",
-
   "tour.cardVideo.title.resident": "How can a management organization build relationships with residents",
   "tour.cardVideo.description.resident": "We tell you how the Doma mobile application helps managing organizations. Using practical examples, we show how to implement it.",
-
   "tour.residentAppCard.title": "Resident App",
-
   "tour.technicAppCard.title": "Technic App",
   "tour.technicAppCard.radio.label.admin": "Director",
   "tour.technicAppCard.radio.label.technic": "Technician",
@@ -1956,70 +1943,52 @@
   "tour.technicAppCard.download.googlePlay": "Google Play",
   "tour.technicAppCard.download.appStore": "App Store",
   "tour.technicAppCard.download.appGallery": "App Gallery",
-
   "tour.step.ticket.todo.title": "Optimize tickets management",
-
   "tour.step.billing.todo.title": "Reduce debit debt",
-
   "tour.step.meter.todo.title": "Simplify work with meter readings",
-
   "tour.step.resident.todo.title": "Build communication with residents",
-
   "tour.step.createProperty.todo.title": "Add properties",
   "tour.step.createProperty.todo.description": "This is for working with objects on the platform. To add a property, specify its exact address.",
   "tour.step.createProperty.waiting.title": "You have added properties in a non-standard format",
   "tour.step.createProperty.waiting.description": "The manager will process them manually and add them to the platform. It usually takes 1 to 3 working days, depending on the amount of data.",
   "tour.step.createProperty.completed.title": "You have added a property",
   "tour.step.createProperty.completed.linkTitle": "Add more",
-
   "tour.step.createPropertyMap.todo.title": "Create map",
   "tour.step.createPropertyMap.todo.description": "The map is needed to receive applications from specific apartments. To add a map, you need to know the number of rooms, entrances and floors in the property.",
   "tour.step.createPropertyMap.completed.title": "You have created a map",
   "tour.step.createPropertyMap.completed.linkTitle": "Open the list",
-
   "tour.step.uploadReceipts.todo.title": "Set up billing and upload charges",
   "tour.step.uploadReceipts.todo.description": "You will be able to send receipts to residents and track payments directly on the platform",
   "tour.step.uploadReceipts.completed.title": "You have set up billing",
   "tour.step.uploadReceipts.completed.linkTitle": "View the accruals",
-
   "tour.step.viewResidentsAppGuide.todo.billing.title": "To remind residents about the payment in the mobile application",
   "tour.step.viewResidentsAppGuide.todo.billing.description": "To pay for the receipts, residents need to download the Doma application. We have prepared a guide with ready-made templates to promote the application among residents.",
   "tour.step.viewResidentsAppGuide.completed.billing.title": "Have you looked at the guide for managing organizations",
-
   "tour.step.createTicket.todo.title": "Create a ticket",
   "tour.step.createTicket.todo.description": "Using her example, you will see what the control room and the ticket form look like. We recommend transferring the real ticket to the platform, since they cannot be deleted.",
   "tour.step.createTicket.completed.title": "You have created ticket",
   "tour.step.createTicket.completed.linkTitle": "Add ticket",
-
   "tour.step.viewResidentsAppGuide.todo.ticket.title": "Tell the residents about the tickets",
   "tour.step.viewResidentsAppGuide.todo.ticket.description": "To send tickets, residents need to download the Doma application. We have prepared a guide with ready-made templates to promote the application among residents.",
   "tour.step.viewResidentsAppGuide.completed.ticket.title": "Have you looked at the guide for managing organizations",
-
   "tour.step.createMeterReadings.todo.title": "Add the meter readings",
   "tour.step.createMeterReadings.todo.description": "This is necessary to work with readings on the platform. You can add real meter readings or specify any data to figure out how it works.",
   "tour.step.createMeterReadings.completed.title": "You have added the meter readings",
   "tour.step.createMeterReadings.completed.linkTitle": "Open the list",
-
   "tour.step.viewResidentsAppGuide.todo.meter.title": "Invite residents to give meter readings",
   "tour.step.viewResidentsAppGuide.todo.meter.description": "To independently transfer readings to residents, you need to download the Doma application. We have prepared a guide with ready-made templates to promote the application among residents.",
   "tour.step.viewResidentsAppGuide.completed.meter.title": "Have you looked at the guide for managing organizations",
-
   "tour.step.viewResidentsAppGuide.todo.resident.title": "Take a look at the guide on the implementation of the mobile application and follow the recommendations",
   "tour.step.viewResidentsAppGuide.todo.resident.description": "We have prepared a guide with ready-made templates that make it easier to tell residents about the mobile application",
   "tour.step.viewResidentsAppGuide.completed.resident.title": "You have seen the guide about the implementation of the mobile application. Do not forget to follow all the recommendations.",
-
   "tour.step.viewResidentsAppGuide.completed.linkTitle": "Watch again",
-
   "tour.step.createNews.todo.title": "Create the first news item",
   "tour.step.createNews.todo.description": "Residents will see it in the app, and you will figure out how to work with the news on the platform",
   "tour.step.createNews.completed.title": "You published the news",
   "tour.step.createNews.completed.linkTitle": "Add more",
-
   "tour.step.disabledTooltip.noPermission": "You don't have enough rights for this task right now. Ask the head of your organization to give you access in the \"Settings\" or assign the task to another employee.",
   "tour.step.disabledTooltip.completePreviousSteps": "Follow the previous steps to unlock the task",
   "tour.step.disabledTooltip.completeBillingStep": "Follow all the steps in the \"Reduce Accounts Receivable\" task to unlock this",
-
-
   "tour.completedStepModal.createProperty.title": "Everything worked out — you added the first house",
   "tour.completedStepModal.createProperty.subtitle": "You will be able to add more objects",
   "tour.completedStepModal.createProperty.subtitleLinkLabel": "in the \"Properties\" section",
@@ -2031,7 +2000,6 @@
   "tour.completedStepModal.createProperty.buttonLabel.ticket": "Create map",
   "tour.completedStepModal.createProperty.buttonLabel.meter": "Create map",
   "tour.completedStepModal.createProperty.buttonLabel.resident": "Create map",
-
   "tour.completedStepModal.createPropertyMap.title": "Map created",
   "tour.completedStepModal.createPropertyMap.subtitle": "You can add and edit maps",
   "tour.completedStepModal.createPropertyMap.subtitleLinkLabel": "on the pages of properties",
@@ -2043,7 +2011,6 @@
   "tour.completedStepModal.createPropertyMap.buttonLabel.ticket": "Create ticket",
   "tour.completedStepModal.createPropertyMap.buttonLabel.meter": "Add meter readings",
   "tour.completedStepModal.createPropertyMap.buttonLabel.resident": "View guide",
-
   "tour.completedStepModal.importProperties.title": "That's it — the properties and the map have been created",
   "tour.completedStepModal.importProperties.subtitle": "You can add and edit data",
   "tour.completedStepModal.importProperties.subtitleLinkLabel": "on the pages of properties",
@@ -2055,7 +2022,6 @@
   "tour.completedStepModal.importProperties.buttonLabel.ticket": "Create ticket",
   "tour.completedStepModal.importProperties.buttonLabel.meter": "Add meter readings",
   "tour.completedStepModal.importProperties.buttonLabel.resident": "View guide",
-
   "tour.completedStepModal.createTicket.title": "First ticket created",
   "tour.completedStepModal.createTicket.subtitle": "All applications can be viewed",
   "tour.completedStepModal.createTicket.subtitleLinkLabel": "in the \"Tickets\" section",
@@ -2063,7 +2029,6 @@
   "tour.completedStepModal.createTicket.bodyText.ticket": "The last step to optimizing the work with tickets is to tell residents about the Doma mobile application. You can use it to send tickets to the address of the managing organization. To make it easier to promote the application among residents, we have prepared a guide with ready-made templates.",
   "tour.completedStepModal.createTicket.buttonLabel.default": "To the tour",
   "tour.completedStepModal.createTicket.buttonLabel.ticket": "View guide",
-
   "tour.completedStepModal.createMeterReadings.title": "First meter readings created",
   "tour.completedStepModal.createMeterReadings.subtitle": "You will be able to upload more readings",
   "tour.completedStepModal.createMeterReadings.subtitleLinkLabel": "in the section \"Meters\"",
@@ -2071,7 +2036,6 @@
   "tour.completedStepModal.createMeterReadings.bodyText.meter": "The last step to optimizing work with meters is to offer residents to download the Doma mobile application and send readings using it. To make it easier to promote the application among residents, we have prepared a guide with ready-made templates.",
   "tour.completedStepModal.createMeterReadings.buttonLabel.default": "To the tour",
   "tour.completedStepModal.createMeterReadings.buttonLabel.meter": "View guide",
-
   "tour.completedStepModal.uploadReceipts.title": "Everything worked out — you set up billing",
   "tour.completedStepModal.uploadReceipts.subtitle": "You can keep track of accruals and payments",
   "tour.completedStepModal.uploadReceipts.subtitleLinkLabel": "in the section \"Accruals and payments\"",
@@ -2079,21 +2043,17 @@
   "tour.completedStepModal.uploadReceipts.bodyText.billing": "The next step to reducing accounts receivable is to tell residents about the Doma mobile app. With it, they will be able to pay bills and transfer readings for future receipts. To make it easier to promote the application among residents, we have prepared a guide with ready-made templates.",
   "tour.completedStepModal.uploadReceipts.buttonLabel.default": "To the tour",
   "tour.completedStepModal.uploadReceipts.buttonLabel.billing": "View guide",
-
   "tour.completedStepModal.viewResidentsAppGuide.title": "Вы посмотрели гайд о внедрении мобильного приложения",
   "tour.completedStepModal.viewResidentsAppGuide.subtitle": "Вы можете вернуться у нему",
   "tour.completedStepModal.viewResidentsAppGuide.subtitleLinkLabel": "на странице Путеводителя",
   "tour.completedStepModal.viewResidentsAppGuide.bodyText.resident": "Следующий шаг к укреплению отношений с жителями — создание и публикация первой новости. Жители увидят ее в приложении, а вы разберетесь, как работать с новостями на платформе",
   "tour.completedStepModal.viewResidentsAppGuide.buttonLabel.resident": "Добавить новость",
-
   "tour.completedFlowModal.ticket.title": "You have optimized the work with tickets. Congratulations!",
   "tour.completedFlowModal.billing.title": "You have done everything to reduce accounts receivable. Congratulations!",
   "tour.completedFlowModal.meter.title": "You have simplified the work with meter readings. Congratulations!",
   "tour.completedFlowModal.resident.title": "You have built relationships with the residents. Congratulations!",
   "tour.completedFlowModal.goToTour": "Go to tour",
-
   "tour.newFeatures.employee.title": "Now you can:",
-
   "tour.newFeatures.employee.createTicketsOnProperty": "Create tickets on property",
   "tour.newFeatures.employee.createNewsOnProperty": "Publish news on property",
   "tour.newFeatures.employee.createReadingsOnProperty": "Submit readings on property meter",
@@ -2107,9 +2067,7 @@
   "tour.newFeatures.employee.uploadReceipts": "Upload registries and generate receipts",
   "tour.newFeatures.employee.trackResidentPayments": "Track payments received through the Doma app",
   "tour.newFeatures.employee.notifyResidentsAboutApp": "Inform residents about the mobile app",
-
   "tour.newFeatures.resident.title": "Residents can:",
-
   "tour.newFeatures.resident.createTickets": "Submit tickets through the Doma app",
   "tour.newFeatures.resident.readNews": "Receive news through the app",
   "tour.newFeatures.resident.readTicketsFromCRM": "View tickets created via CRM according to their units in the Doma app",
@@ -2119,69 +2077,52 @@
   "tour.newFeatures.resident.payBills": "Pay bills in the Doma app",
   "tour.newFeatures.resident.createMeterReadings": "Submit meter readings in the mobile app",
   "tour.newFeatures.resident.downloadApp": "Download the app and register",
-
   "tour.guide.title": "Doma - Resident Mobile App",
-
-
   "tour.guide.aboutApp.title": "How the Resident App helps Management Companies",
   "tour.guide.aboutApp.modal.card.link": "Learn More",
-
   "tour.guide.aboutApp.payments.card.body": "Increases payment collection rates and reduces accounts receivable",
   "tour.guide.aboutApp.payments.modal.picText": "The Resident App increases payment collection rates and reduces accounts receivable",
   "tour.guide.aboutApp.payments.modal.body": "Residents are more likely to pay bills if it's fast and convenient. In the app, you can pay all bills in two clicks: because {accent}bills are automatically loaded{/accent} — no need to scan QR codes or enter details every time, and you can also {accent}pay multiple bills{/accent} with one button using a saved card or SberPay.",
   "tour.guide.aboutApp.payments.modal.body.secondParagraph": "To ensure residents don't miss payments, we send {accent}push notifications{/accent} about new bills. {accent}Debtors are notified{/accent} twice a month. And after each payment, we suggest setting up autopay.",
   "tour.guide.aboutApp.payments.modal.card.body": "The 'Sadovy Kvartal' management company reduced accounts receivable through payments via the mobile app",
-
   "tour.guide.aboutApp.costs.card.body": "Reduces operational expenses",
   "tour.guide.aboutApp.costs.modal.picText": "The Resident App reduces operational expenses",
   "tour.guide.aboutApp.costs.modal.body": "The app allows residents to receive notifications about accidents, create requests, track their status, and interact with the management company within the request. This reduces the number of calls to the dispatch center and decreases the processing time of each request, ultimately reducing operational expenses.",
   "tour.guide.aboutApp.costs.modal.card.body": "At 'Osnova' management company, they note that the mobile app is 'much easier to handle' requests from residents with it than in chats. This method of communication is convenient for employees as well: they don't have to talk to owners for a long time and occupy the phone line.",
-
   "tour.guide.aboutApp.quality.card.body": "Improves service quality",
   "tour.guide.aboutApp.quality.modal.picText": "The Resident App improves service quality",
   "tour.guide.aboutApp.quality.modal.body": "Quick responses to requests make communication more transparent and increase residents' loyalty. The app allows receiving news about important events in the life of the building and notifies about the progress of requests. The ability to evaluate requests, comment on them, and communicate with the management company in the chat helps control the quality of services.",
   "tour.guide.aboutApp.quality.modal.card.body": "'Zeleny Bulvar' management company taught most residents to communicate through the app, and they inform about events through notifications and push notifications — information about the event appears in the Doma mobile app and on the resident's smartphone screen.",
-
   "tour.guide.aboutApp.communication.card.body": "Makes communication transparent",
   "tour.guide.aboutApp.communication.modal.picText": "The Resident App brings additional revenue from paid services",
   "tour.guide.aboutApp.communication.modal.body": "The management company can offer residents additional services through the app. This brings in revenue, and thanks to process automation, costs for processing paid requests are reduced. Quality service, verified craftsmen, convenient registration, and payment for services increase residents' loyalty.",
-
   "tour.guide.introduceApp.title": "How to Implement the Mobile App",
-
   "tour.guide.introduceApp.step": "Step",
-
   "tour.guide.introduceApp.step.announcement.title": "Post an Announcement on the Notice Board in the Entrances",
   "tour.guide.introduceApp.step.announcement.body": "Download and print materials for the information board in the entrances of your buildings. Residents will be able to download the app through {accent}the QR code in the announcement.{/accent}",
   "tour.guide.introduceApp.step.announcement.body.secondParagraph": "We also prepared a set of materials for management companies that {accent}do not charge residents{/accent} for payments - this is {accent}an important argument in favor of payment{/accent} of bills through the app.",
   "tour.guide.introduceApp.step.announcement.downloadMaterials": "Download Materials",
-
   "tour.guide.introduceApp.step.chats.title": "Tell Residents in Chats",
   "tour.guide.introduceApp.step.chats.body": "Send a message about the capabilities of the mobile app in chats with residents. {accent}We've prepared a template for such a message{/accent} — just insert the name of your management company, and the message is ready.",
   "tour.guide.introduceApp.step.chats.downloadMaterials": "Download Message Template",
-
   "tour.guide.introduceApp.step.layout.title": "Place the Layout on Invoices",
   "tour.guide.introduceApp.step.layout.body": "Add ready information about the mobile app to the invoice, {accent}for example, on the back.{/accent}",
   "tour.guide.introduceApp.step.layout.body.secondParagraph": "Residents will be able to download the app through the QR code on the invoice.",
   "tour.guide.introduceApp.step.layout.body.thirdParagraph": "Plus, {accent}Doma will send SMS notifications to residents{/accent} when they first download invoices. This is another way to tell about the app for management companies that send invoices to residents.",
   "tour.guide.introduceApp.step.layout.downloadMaterials": "Download for Invoice",
-
   "tour.guide.introduceApp.step.banner.title": "Place a Banner on the Management Company's Website",
   "tour.guide.introduceApp.step.banner.body": "{accent}Download a banner{/accent} with information about the mobile app and place it on the main page of your website, if you have one. Residents will be able to download the app through the QR code on the banner.",
   "tour.guide.introduceApp.step.banner.downloadMaterials": "Download for Website",
-
   "tour.guide.introduceApp.step.socialNetworks.title": "Post on Social Networks",
   "tour.guide.introduceApp.step.socialNetworks.body": "We've prepared materials for a post on social networks, where {accent}we've illustrated the advantages{/accent} of the mobile app in six images and explained how residents can download it. Download the post text and images, insert the name of your management company into the text, and the post is ready.",
   "tour.guide.introduceApp.step.socialNetworks.downloadPics": "Download Images",
   "tour.guide.introduceApp.step.socialNetworks.downloadText": "Download Post Text",
-
   "tour.guide.introduceApp.step.leaflet.title": "Hand Out Leaflets to Residents Upon Move-In",
   "tour.guide.introduceApp.step.leaflet.body": "{accent}A leaflet is a two-sided printed sheet{/accent} in the form of a 'booklet' or 'accordion'. Download and print materials on a color printer to distribute to residents. They will be able to download the app through the QR code on the leaflet.",
   "tour.guide.introduceApp.step.leaflet.downloadMaterials": "Download for Leaflet",
-
   "tour.guide.introduceApp.step.stickers.title": "Place Stickers in Frequently Visited Areas of the Building",
   "tour.guide.introduceApp.step.stickers.body": "Download and {accent}attach an attractive sticker{/accent} to surfaces that residents frequently interact with, such as {accent}doors{/accent}, in the elevator, or on mailboxes. Residents will be able to download the app through the QR code on the sticker.",
   "tour.guide.introduceApp.step.stickers.downloadMaterials": "Download Sticker Template",
-
   "tasks.export.error.NOTHING_TO_EXPORT": "No records found for export with specified filtering conditions",
   "tasks.progressNotification.title": "Processes",
   "tasks.TicketExportTask.progress.title": "Exporting tickets",

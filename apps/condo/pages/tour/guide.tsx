@@ -289,7 +289,7 @@ const IntroduceAppBlock = () => {
                     ghost
                     expandIconPosition='end'
                     expandIcon={({ isActive }) => isActive ? <ChevronUp/> : <ChevronDown/>}
-                    onChange={(type) => window.setTimeout(() => executeScroll(type), 200)}
+                    onChange={(type) => window.setTimeout(() => executeScroll(type), 300)}
                 >
                     {
                         INTRODUCE_APP_STEP_TYPES.map((type, index) => (
