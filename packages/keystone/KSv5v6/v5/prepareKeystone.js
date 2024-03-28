@@ -227,14 +227,14 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
 process.on('uncaughtException', (error, origin) => {
     logger.error({ msg: 'Unhandled exception', error, origin })
     if (!IS_KEEP_ALIVE_ON_ERROR) {
-        throw error
+        process.exit(1)
     }
 })
 
 process.on('unhandledRejection', (error, promise) => {
     logger.error({ msg: 'Unhandled promise rejection', error, promise })
     if (!IS_KEEP_ALIVE_ON_ERROR) {
-        throw error
+        process.exit(1)
     }
 })
 
