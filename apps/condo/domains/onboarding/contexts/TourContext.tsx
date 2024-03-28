@@ -16,6 +16,7 @@ import {
 import { useCompletedTourModals } from '@condo/domains/onboarding/hooks/TourContext/useCompletedTourModals'
 import { useSyncSteps } from '@condo/domains/onboarding/hooks/TourContext/useSyncSteps'
 import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
+import { MANAGING_COMPANY_TYPE } from '@condo/domains/organization/constants/common'
 
 
 type ActiveTourStepType = typeof FIRST_LEVEL_STEPS[number] | null
@@ -54,6 +55,7 @@ export const TourProvider = ({ children }) => {
     const updateTourStep = TourStep.useUpdate({})
 
     const organizationId = useMemo(() => get(organization, 'id'), [organization])
+    const organizationType = useMemo(() => get(organization, 'type'), [organization])
     const syncLoading = useSyncSteps({ refetchSteps, organizationId })
 
     const [activeStep, setActiveStep] = useState<ActiveTourStepType>(getActiveTourStepFromStorage())
@@ -87,7 +89,7 @@ export const TourProvider = ({ children }) => {
     const isOrganizationTourEnabled = useFlag(ORGANIZATION_TOUR)
 
     const updateStepIfNotCompleted = useCallback(async (type: TourStepTypeType, nextRoute?: string) => {
-        if (!isOrganizationTourEnabled) return
+        if (!isOrganizationTourEnabled || organizationType !== MANAGING_COMPANY_TYPE) return
         
         const fetchResult = await refetchSteps({
             where: {
@@ -114,7 +116,7 @@ export const TourProvider = ({ children }) => {
         } else {
             updateCompletedStepModalData(type, nextRoute)
         }
-    }, [organizationId, refetchSteps, updateCompletedStepModalData, updateTourStep])
+    }, [isOrganizationTourEnabled, organizationId, organizationType, refetchSteps, updateCompletedStepModalData, updateTourStep])
 
     useEffect(() => {
         const mutationHandler = async ({ data, name }) => {

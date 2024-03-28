@@ -16,6 +16,7 @@ import type { TypographyTextProps } from '@open-condo/ui'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { ORGANIZATION_TOUR } from '@condo/domains/common/constants/featureflags'
 import { HOLDING_TYPE } from '@condo/domains/organization/constants/common'
+import { MANAGING_COMPANY_TYPE } from '@condo/domains/organization/constants/common'
 import { useCreateOrganizationModalForm } from '@condo/domains/organization/hooks/useCreateOrganizationModalForm'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
@@ -76,8 +77,10 @@ export const InlineOrganizationSelect: React.FC = () => {
 
     const isTourEnabled = useFlag(ORGANIZATION_TOUR)
     const { setIsVisible: showCreateOrganizationModal, ModalForm: CreateOrganizationModalForm } = useCreateOrganizationModalForm({
-        onFinish: async () => {
-            if (isTourEnabled) {
+        onFinish: async (createdOrganization) => {
+            const organizationType = get(createdOrganization, 'type')
+
+            if (isTourEnabled && organizationType === MANAGING_COMPANY_TYPE) {
                 await router.push('/tour')
             }
         },
