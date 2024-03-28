@@ -1,7 +1,7 @@
 const { get } = require('lodash')
-const fetch = require('node-fetch')
 
 const conf = require('@open-condo/config')
+const { fetch } = require('@open-condo/keystone/fetch')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const TOKEN_CONFIG = 'DADATA_SUGGESTIONS'

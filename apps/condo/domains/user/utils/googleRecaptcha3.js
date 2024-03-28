@@ -1,8 +1,9 @@
 const { isEmpty, get } = require('lodash')
-const fetch = require('node-fetch')
+
 
 const conf = require('@open-condo/config')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
+const { fetch } = require('@open-condo/keystone/fetch')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { CAPTCHA_CHECK_ENABLED } = require('@app/condo/domains/common/constants/featureflags')
