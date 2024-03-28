@@ -1,4 +1,5 @@
 import { BaseQueryOptions } from '@apollo/client'
+import { Organization } from '@app/condo/schema'
 import { Form } from 'antd'
 import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
@@ -18,6 +19,7 @@ import { EMPTY_NAME_ERROR, TIN_TOO_SHORT_ERROR, TIN_VALUE_INVALID } from '@condo
 import { REGISTER_NEW_ORGANIZATION_MUTATION } from '@condo/domains/organization/gql'
 import { convertUIStateToGQLItem, OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
+
 interface ICreateOrganizationModalFormResult {
     ModalForm: React.FC
     setIsVisible: Dispatch<SetStateAction<boolean>>
@@ -25,7 +27,7 @@ interface ICreateOrganizationModalFormResult {
 }
 
 interface IUseCreateOrganizationModalFormProps {
-    onFinish?: () => void
+    onFinish?: (organization: Organization) => void
 }
 
 const MODAL_VALIDATE_TRIGGERS = ['onBlur', 'onSubmit']
@@ -136,7 +138,7 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
             }
         }
 
-        if (isFunction(onFinish)) onFinish()
+        if (isFunction(onFinish)) onFinish(get(createResult, 'data.obj'))
 
         return null
     }, [userId, selectLink, setIsVisible, refetch, onFinish])
