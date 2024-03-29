@@ -2023,6 +2023,9 @@
   "tour.completedStepModal.createProperty.bodyText.meter": "The next step to simplify working with meter readings is to create a map. It will help you get readings from specific apartments. To add a map, you need to know the number of rooms, entrances and floors in the house.",
   "tour.completedStepModal.createProperty.bodyText.resident": "The next step to strengthening relations with residents is the creation of a map. It is necessary for residents of specific apartments to use the application. To add a map, you need to know the number of rooms, entrances and floors in the house.",
   "tour.completedStepModal.createProperty.buttonLabel.default": "Create map",
+  "tour.completedStepModal.createProperty.buttonLabel.ticket": "Create map",
+  "tour.completedStepModal.createProperty.buttonLabel.meter": "Create map",
+  "tour.completedStepModal.createProperty.buttonLabel.resident": "Create map",
 
   "tour.completedStepModal.createPropertyMap.title": "Map created",
   "tour.completedStepModal.createPropertyMap.subtitle": "You can add and edit maps",
