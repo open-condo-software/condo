@@ -9,6 +9,7 @@ const dayjs = require('dayjs')
 const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 
+const { canOnlyServerSideWithoutUserRequest } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { itemsQuery } = require('@open-condo/keystone/schema')
@@ -16,6 +17,7 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/news/access/NewsItem')
 const { BAD_WORDS_EXCLUSIONS_CONFIG } = require('@condo/domains/news/constants/badWordsExclusions')
+const { SENDING_DELAY_SEC } = require('@condo/domains/news/constants/common')
 const {
     EMPTY_VALID_BEFORE_DATE,
     VALIDITY_DATE_LESS_THAN_SEND_DATE,
@@ -27,7 +29,6 @@ const {
     NO_NEWS_ITEM_SCOPES,
 } = require('@condo/domains/news/constants/errors')
 const { NEWS_TYPES, NEWS_TYPE_EMERGENCY, NEWS_TYPE_COMMON } = require('@condo/domains/news/constants/newsTypes')
-const { notifyResidentsAboutNewsItem } = require('@condo/domains/news/tasks')
 const { NewsItemScope } = require('@condo/domains/news/utils/serverSchema')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 
@@ -136,7 +137,8 @@ const NewsItem = new GQLListSchema('NewsItem', {
         },
 
         sendAt: {
-            schemaDoc: 'UTC (!) Date to publish the news item and to send notifications',
+            schemaDoc: 'Start time for sending notifications.' +
+                '\nIf the value is null, but the “isPublished” flag is true, then the "sendAt" value will be automatically set to "publishedAt" + 15 sec',
             type: 'DateTimeUtc',
         },
 
@@ -186,8 +188,14 @@ const NewsItem = new GQLListSchema('NewsItem', {
         },
 
         sentAt: {
-            schemaDoc: 'The date when newsItem was sent to residents. This is an internal field used to detect was the message has already been sent or not.',
+            schemaDoc: 'The date when newsItem was sent to residents.' +
+                ' This is an internal field used to detect was the message has already been sent or not.',
             type: 'DateTimeUtc',
+            access: {
+                read: true,
+                create: canOnlyServerSideWithoutUserRequest,
+                update: canOnlyServerSideWithoutUserRequest,
+            },
         },
 
         isPublished: {
@@ -216,9 +224,16 @@ const NewsItem = new GQLListSchema('NewsItem', {
         resolveInput: async (args) => {
             const { resolvedData, existingItem } = args
             const resultItemData = { ...existingItem, ...resolvedData }
+            const sendAt = get(resultItemData, 'sendAt', null)
+            const isPublished = get(resultItemData, 'isPublished', false)
+            const publishedAt = get(resultItemData, 'publishedAt', null)
 
             if (!get(resultItemData, 'type')) {
                 resolvedData['type'] = NEWS_TYPE_COMMON
+            }
+
+            if (!sendAt && isPublished && publishedAt) {
+                resolvedData['sendAt'] = dayjs(publishedAt).add(SENDING_DELAY_SEC, 'second').toISOString()
             }
 
             return resolvedData
@@ -305,9 +320,6 @@ const NewsItem = new GQLListSchema('NewsItem', {
                 && !updatedItem.sendAt // There is a cron task to send delayed news items
                 && !updatedItem.sentAt
             ) {
-                // Send push notifications
-                await notifyResidentsAboutNewsItem.delay(updatedItem.id)
-
                 // Publish connected NewsItemSharing items
                 // Todo: @toplenboren (DOMA-7887) turn this on when one of miniapps is ready
                 // await publishSharedNewsItemsByNewsItem.delay(updatedItem.id)

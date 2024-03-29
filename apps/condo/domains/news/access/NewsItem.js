@@ -8,7 +8,6 @@ const { get, isEmpty } = require('lodash')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { find, getById } = require('@open-condo/keystone/schema')
 
-const { SENDING_DELAY_SEC } = require('@condo/domains/news/constants/common')
 const { queryFindNewsItemsScopesByResidents } = require('@condo/domains/news/utils/accessSchema')
 const {
     queryOrganizationEmployeeFor,
@@ -33,19 +32,8 @@ async function canReadNewsItems ({ authentication: { item: user } }) {
         return {
             isPublished: true,
             organization: { id_in: organizationsIds },
-            AND: [
-                { scopes_some: scopesCondition },
-                {
-                    // TODO(AleX83Xpert) Think about removing dynamic conditions from here to make the index works
-                    OR: [
-                        // We should show delayed news items on time
-                        { AND: [{ sendAt_not: null }, { sendAt_lte: dayjs().toISOString() }] },
-
-                        // We should show not delayed news items that have expired publication delay
-                        { AND: [{ sendAt: null }, { publishedAt_lte: dayjs().subtract(SENDING_DELAY_SEC, 'second').toISOString() }] },
-                    ],
-                },
-            ],
+            scopes_some: scopesCondition,
+            sendAt_lte: dayjs().toISOString(),
         }
     }
 

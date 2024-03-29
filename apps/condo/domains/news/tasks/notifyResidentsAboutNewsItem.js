@@ -9,7 +9,6 @@ const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
 
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
-const { SENDING_DELAY_SEC } = require('@condo/domains/news/constants/common')
 const { defineMessageType } = require('@condo/domains/news/tasks/notifyResidentsAboutNewsItem.helpers')
 const { queryFindResidentsByOrganizationAndScopes } = require('@condo/domains/news/utils/accessSchema')
 const { NewsItem, NewsItemScope } = require('@condo/domains/news/utils/serverSchema')
@@ -28,34 +27,34 @@ const BODY_MAX_LEN = 150
  * @param {NewsItem} newsItem
  * @returns {boolean}
  */
-function checkSendingPossibility (newsItem, taskId) {
+function checkSendingPossibility (newsItem) {
     if (newsItem.deletedAt) {
-        logger.warn({ msg: 'Trying to send deleted news item', newsItem, taskId })
-        return false
+        throw new Error('Trying to send deleted news item')
     }
 
     if (newsItem.sentAt) {
-        logger.warn({ msg: 'Trying to send news item which already been sent', newsItem, taskId })
-        return false
+        throw new Error('Trying to send news item which already been sent')
     }
 
     if (!newsItem.isPublished) {
-        logger.warn({ msg: 'Trying to send unpublished news item', newsItem, taskId })
-        return false
+        throw new Error('Trying to send unpublished news item')
     }
 
-    return true
+    if (!newsItem.sendAt) {
+        throw new Error('Trying to send news item which has not send date')
+    }
 }
 
 /**
+ * @param context
  * @param {NewsItem} newsItem
+ * @param {string} taskId
  * @returns {Promise<void>}
  */
 async function sendNotifications (context, newsItem, taskId) {
+    logger.info({ msg: 'Data of news item for sending', taskId, data: { newsItem } })
 
-    if (!checkSendingPossibility(newsItem, taskId)) {
-        return
-    }
+    checkSendingPossibility(newsItem)
 
     const scopes = await NewsItemScope.getAll(context, { newsItem: { id: newsItem.id } })
 
@@ -90,31 +89,41 @@ async function sendNotifications (context, newsItem, taskId) {
         ],
     }), {})
 
-    const { keystone: contextMessage } = await getSchemaCtx('Message')
+    const { keystone: contextMessage } = getSchemaCtx('Message')
     for (const resident of residentsData) {
-        await sendMessage(contextMessage, {
-            ...DV_SENDER,
-            to: { user: { id: resident.user.id } },
-            lang: conf.DEFAULT_LOCALE,
-            type: defineMessageType(newsItem),
-            meta: {
-                dv: 1,
-                title: truncate(newsItem.title, { length: TITLE_MAX_LEN, separator: ' ', omission: '...' }),
-                body: truncate(newsItem.body, { length: BODY_MAX_LEN, separator: ' ', omission: '...' }),
-                data: {
-                    newsItemId: newsItem.id,
-                    organizationId: newsItem.organization.id,
-                    userId: resident.user.id,
-                    residentId: resident.id,
-                    userRelatedResidentsIds: get(residentsIdsByUser, resident.user.id, []).join(','),
-                    url: `${conf.SERVER_URL}/newsItem/${newsItem.id}`,
-                    validBefore: get(newsItem, 'validBefore', null),
-                    // The first truthy value will be returned, or null if no values are found.
-                    dateCreated: ['sendAt', 'publishedAt', 'updatedAt', 'createdAt'].reduce((result, field) => (result || get(newsItem, field)), null),
+        try {
+            await sendMessage(contextMessage, {
+                ...DV_SENDER,
+                to: { user: { id: resident.user.id } },
+                lang: conf.DEFAULT_LOCALE,
+                type: defineMessageType(newsItem),
+                meta: {
+                    dv: 1,
+                    title: truncate(newsItem.title, { length: TITLE_MAX_LEN, separator: ' ', omission: '...' }),
+                    body: truncate(newsItem.body, { length: BODY_MAX_LEN, separator: ' ', omission: '...' }),
+                    data: {
+                        newsItemId: newsItem.id,
+                        organizationId: newsItem.organization.id,
+                        userId: resident.user.id,
+                        residentId: resident.id,
+                        userRelatedResidentsIds: get(residentsIdsByUser, resident.user.id, []).join(','),
+                        url: `${conf.SERVER_URL}/newsItem/${newsItem.id}`,
+                        validBefore: get(newsItem, 'validBefore', null),
+                        // The first truthy value will be returned, or null if no values are found.
+                        dateCreated: ['sendAt', 'publishedAt', 'updatedAt', 'createdAt'].reduce((result, field) => (result || get(newsItem, field)), null),
+                    },
                 },
-            },
-            uniqKey: generateUniqueMessageKey(resident.user.id, newsItem.id),
-        })
+                uniqKey: generateUniqueMessageKey(resident.user.id, newsItem.id),
+            })
+        } catch (error) {
+            logger.error({
+                msg: 'failed to send message to a resident',
+                error,
+                taskId,
+                data: { newsItemId: get(newsItem, 'id'), residentId: get(resident, 'id') },
+            })
+        }
+
     }
 
     //
@@ -137,7 +146,7 @@ async function sendNotifications (context, newsItem, taskId) {
     //
 
     // Mark the news item as sent
-    const { keystone: contextNewsItem } = await getSchemaCtx('NewsItem')
+    const { keystone: contextNewsItem } = getSchemaCtx('NewsItem')
     await NewsItem.update(contextNewsItem, newsItem.id, { sentAt: dayjs().toISOString(), ...DV_SENDER })
 
 }
@@ -150,47 +159,25 @@ async function notifyResidentsAboutNewsItem (newsItemId) {
     const taskId = uuid()
 
     try {
-        const { keystone: context } = await getSchemaCtx('NewsItem')
+        const { keystone: context } = getSchemaCtx('NewsItem')
 
         const newsItem = await NewsItem.getOne(context, { id: newsItemId })
 
-        if (!checkSendingPossibility(newsItem, taskId)) {
-            return
-        }
+        // TODO(DOMA-8712): add a check that the news is not sent to another worker
 
-        if (get(newsItem, 'sendAt')) {
-            // Send delayed items immediately
-            await sendNotifications(context, newsItem, taskId)
-        } else {
-            // TODO(DOMA-6931) refactor this
-            // We wait some number of seconds in the case of not delayed news items to take a chance for the user to turn all back
-            setTimeout(async () => {
-                // The record can be changed during waiting timeout, for example, a user can edit it, therefore it should be requested again right before sending
-                const actualNewsItem = await NewsItem.getOne(context, { id: newsItemId })
-                // Checking if the timeout was expired to send the news item
-                const now = dayjs().unix()
-                if (now - dayjs(actualNewsItem.publishedAt).unix() < SENDING_DELAY_SEC) {
-                    logger.warn({
-                        msg: 'NewsItem was re-published before sending timeout passed. Do nothing',
-                        actualNewsItem,
-                        SENDING_DELAY_SEC,
-                        now,
-                        taskId,
-                    })
-                    return
-                }
-
-                await sendNotifications(context, actualNewsItem, taskId)
-            }, SENDING_DELAY_SEC * 1000)
-        }
+        await sendNotifications(context, newsItem, taskId)
     } catch (error) {
         logger.error({
             msg: 'failed to send news to residents',
             error,
             taskId,
+            data: { newsItemId },
         })
         throw error
     }
 }
 
-module.exports = createTask('notifyResidentsAboutNewsItem', notifyResidentsAboutNewsItem, { priority: 2 })
+module.exports = {
+    notifyResidentsAboutNewsItem,
+    notifyResidentsAboutNewsItemTask: createTask('notifyResidentsAboutNewsItem', notifyResidentsAboutNewsItem, { priority: 2 }),
+}

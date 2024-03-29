@@ -5,6 +5,7 @@ import dayjs from 'dayjs'
 import every from 'lodash/every'
 import get from 'lodash/get'
 import has from 'lodash/has'
+import getConfig from 'next/config'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -31,10 +32,13 @@ import { RecipientCounter } from '@condo/domains/news/components/RecipientCounte
 import { TNewsItemScopeNoInstance } from '@condo/domains/news/components/types'
 import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess'
+import { isPostponedNewsItem } from '@condo/domains/news/utils'
 import { NewsItem, NewsItemScope } from '@condo/domains/news/utils/clientSchema'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
+
+const { publicRuntimeConfig: { newsItemsSendingDelay } } = getConfig()
 
 
 const PAGE_ROW_GUTTER: RowProps['gutter'] = [0, 40]
@@ -71,7 +75,7 @@ const NewsItemCard: React.FC = () => {
     const Emergency = intl.formatMessage({ id: 'pages.news.newsItemCard.type.emergency' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
     const NotFoundMsg = intl.formatMessage({ id: 'NotFound' })
-    const SentAtLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.field.sentAt' })
+    const SendAtLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.field.sendAt' })
     const TypeLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.field.type' })
     const ValidBeforeLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.field.validBefore' })
     const TitleLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.field.title' })
@@ -184,15 +188,18 @@ const NewsItemCard: React.FC = () => {
         isOwner: createdBy === user.id,
     })
 
-    const sendDateStr = useMemo(() => {
-        let date = get(newsItem, 'sentAt')
-
-        if (!date) {
-            date = get(newsItem, 'sendAt')
-        }
-
-        return date ? dayjs(date).format('YYYY.MM.DD HH:mm') : null
+    const formattedSendAt = useMemo(() => {
+        const dateToShow = get(newsItem, 'sendAt', null)
+        return dateToShow ? dayjs(dateToShow).format('YYYY.MM.DD HH:mm') : '—'
     }, [newsItem])
+    const isStartSending = useMemo(() => {
+        const sendAt = get(newsItem, 'sendAt', null)
+        return sendAt && dayjs().diff(dayjs(sendAt)) > 0
+    }, [newsItem])
+    const canBeUpdated = useMemo(
+        () => isPostponedNewsItem(newsItem, newsItemsSendingDelay) && !isStartSending,
+        [newsItem, isStartSending]
+    )
 
     const isLoading = employeeLoading || newsItemLoading || isAccessLoading || newsItemScopesLoading || propertyLoading
     const hasError = employeeError || newsItemError || newsItemScopesError
@@ -221,12 +228,10 @@ const NewsItemCard: React.FC = () => {
                         <Col span={16}>
                             <FrontLayerContainer>
                                 <Row gutter={HORIZONTAL_ROW_GUTTER}>
-                                    {sendDateStr && (
-                                        <FieldPairRow
-                                            fieldTitle={SentAtLabel}
-                                            fieldValue={sendDateStr}
-                                        />
-                                    )}
+                                    <FieldPairRow
+                                        fieldTitle={SendAtLabel}
+                                        fieldValue={formattedSendAt}
+                                    />
                                     <FieldPairRow
                                         fieldTitle={TypeLabel}
                                         fieldValue={newsItemType}
@@ -261,7 +266,7 @@ const NewsItemCard: React.FC = () => {
                                             <Button type='primary'>{ResendTitle}</Button>
                                         </Link>
                                     ) : ( <ActionBar actions={[
-                                        newsItem.sendAt && (
+                                        canBeUpdated && (
                                             <Link key='update' href={`/news/${get(newsItem, 'id')}/update`}>
                                                 <Button type='primary'>{EditTitle}</Button>
                                             </Link>
