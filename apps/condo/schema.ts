@@ -40722,7 +40722,8 @@ export type Mutation = {
    *   ],
    *   "code": "BAD_USER_INPUT",
    *   "type": "NOT_FOUND",
-   *   "message": "Can't find billingAccount and any meters with this accountNumber, unitName and address"
+   *   "message": "Can't find billingAccount and any meters with this accountNumber, unitName and address",
+   *   "messageForUser": "api.resident.RegisterServiceConsumerService.BILLING_ACCOUNT_OR_METER_NOT_FOUND"
    * }`
    *
    * `{
@@ -40733,7 +40734,8 @@ export type Mutation = {
    *   ],
    *   "code": "BAD_USER_INPUT",
    *   "type": "NOT_FOUND",
-   *   "message": "Can't find billingAccount and any meters with this accountNumber, unitName and organization combination"
+   *   "message": "Can't find billingAccount and any meters with this accountNumber, unitName and organization combination",
+   *   "messageForUser": "api.resident.RegisterServiceConsumerService.BILLING_ACCOUNT_NOT_FOUND"
    * }`
    *
    * `{
@@ -40799,7 +40801,8 @@ export type Mutation = {
    *   ],
    *   "code": "BAD_USER_INPUT",
    *   "type": "NOT_FOUND",
-   *   "message": "Can't find billingAccount and any meters with this accountNumber, unitName and address"
+   *   "message": "Can't find billingAccount and any meters with this accountNumber, unitName and address",
+   *   "messageForUser": "api.resident.RegisterServiceConsumerService.BILLING_ACCOUNT_OR_METER_NOT_FOUND"
    * }`
    *
    * `{
@@ -40810,7 +40813,8 @@ export type Mutation = {
    *   ],
    *   "code": "BAD_USER_INPUT",
    *   "type": "NOT_FOUND",
-   *   "message": "Can't find billingAccount and any meters with this accountNumber, unitName and organization combination"
+   *   "message": "Can't find billingAccount and any meters with this accountNumber, unitName and organization combination",
+   *   "messageForUser": "api.resident.RegisterServiceConsumerService.BILLING_ACCOUNT_NOT_FOUND"
    * }`
    *
    * `{
