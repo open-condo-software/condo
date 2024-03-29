@@ -52,7 +52,7 @@ mkdir -p ./apps/condo/dist/admin
 
 [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/condo migrate
 
-yarn workspace @app/condo dev 2>&1 > condo.dev.log &
+yarn workspace @app/condo dev 2>&1 > /app/test_logs/condo.dev.log &
 
 # waitForLocalhostApiReady.sh
 API_SLEEP_INTERVAL=3
@@ -70,9 +70,9 @@ yarn workspace @app/condo makemigrations --check &> /dev/null
 
 source bin/validate-db-schema-ts-to-match-graphql-api.sh
 
-yarn workspace @app/condo worker 2>&1 > condo.worker.log &
+yarn workspace @app/condo worker 2>&1 > /app/test_logs/condo.worker.log &
 sleep 3
-yarn workspace @app/condo worker 2>&1 > condo.worker1.log &
+yarn workspace @app/condo worker 2>&1 > /app/test_logs/condo.worker1.log &
 sleep 3
 
 
@@ -82,10 +82,10 @@ sleep 3
 
 if [ $domain_name != "others" ]; then
     # TESTS
-    yarn workspace @app/condo test --workerIdleMemoryLimit="256MB" --testTimeout=15000 -w=3 --forceExit --silent=false --verbose --bail --testPathPattern '/domains/'$domain_name'/schema/(.*)[.]test.js$' 2>&1 > 'condo.'$domain_name'.tests.log'
+    yarn workspace @app/condo test --workerIdleMemoryLimit="256MB" --testTimeout=15000 -w=3 --forceExit --silent=false --verbose --bail --testPathPattern '/domains/'$domain_name'/schema/(.*)[.]test.js$' 2>&1 > '/app/test_logs/condo.'$domain_name'.tests.log'
     # SPECS
     if [ -n "$(find apps/condo/domains/$domain_name -name '*spec.js' 2>/dev/null)" ]; then
-        yarn workspace @app/condo test --workerIdleMemoryLimit="256MB" --testTimeout=15000 -w=3 --forceExit --silent=false --verbose --bail --testPathPattern '/domains/'$domain_name'/(.*)[.]spec.js$' 2>&1 > 'condo.'$domain_name'.specs.log'
+        yarn workspace @app/condo test --workerIdleMemoryLimit="256MB" --testTimeout=15000 -w=3 --forceExit --silent=false --verbose --bail --testPathPattern '/domains/'$domain_name'/(.*)[.]spec.js$' 2>&1 > '/app/test_logs/condo.'$domain_name'.specs.log'
     else
         echo "Files matching (.*)[.]spec.js in directory apps/condo/domains/$domain_name not found! Skipping..."
     fi
@@ -94,10 +94,10 @@ if [ $domain_name != "others" ]; then
     killall node || echo 'no node processes'
 else
     # TESTS
-    yarn workspace @app/condo test --workerIdleMemoryLimit="256MB" --testTimeout=15000 -w=3 --forceExit --silent=false --verbose --bail --testPathPattern '/schema/(.*)[.]test.js$' --testPathIgnorePatterns='/domains/(organization|user|scope|property|acquiring|billing|miniapp|banking|ticket|meter|contact|resident|notification|common)/' 2>&1 > condo.others.tests.log
-    yarn workspace @app/condo test --workerIdleMemoryLimit="256MB" --testTimeout=15000 -w=3 --forceExit --silent=false --verbose --bail --testPathPattern '(.*)[.]test.js$' --testPathIgnorePatterns='/schema/(.*)[.]test.js$' 2>&1 > condo.5.test.others.log
+    yarn workspace @app/condo test --workerIdleMemoryLimit="256MB" --testTimeout=15000 -w=3 --forceExit --silent=false --verbose --bail --testPathPattern '/schema/(.*)[.]test.js$' --testPathIgnorePatterns='/domains/(organization|user|scope|property|acquiring|billing|miniapp|banking|ticket|meter|contact|resident|notification|common)/' 2>&1 > /app/test_logs/condo.others.tests.log
+    yarn workspace @app/condo test --workerIdleMemoryLimit="256MB" --testTimeout=15000 -w=3 --forceExit --silent=false --verbose --bail --testPathPattern '(.*)[.]test.js$' --testPathIgnorePatterns='/schema/(.*)[.]test.js$' 2>&1 > /app/test_logs/condo.5.test.others.log
     # SPECS
-    yarn workspace @app/condo test --workerIdleMemoryLimit="256MB" --testTimeout=15000 -w=3 --forceExit --silent=false --verbose --bail --testPathPattern '(.*)[.]spec.js$' --testPathIgnorePatterns='/domains/(organization|user|scope|property|acquiring|billing|miniapp|banking|ticket|meter|contact|resident|notification|common)/' 2>&1 > condo.others.specs.log
+    yarn workspace @app/condo test --workerIdleMemoryLimit="256MB" --testTimeout=15000 -w=3 --forceExit --silent=false --verbose --bail --testPathPattern '(.*)[.]spec.js$' --testPathIgnorePatterns='/domains/(organization|user|scope|property|acquiring|billing|miniapp|banking|ticket|meter|contact|resident|notification|common)/' 2>&1 > /app/test_logs/condo.others.specs.log
     # Note: we need to stop background worker! because packages tests use the same redis queue
     kill $(jobs -p) || echo 'background worker and dev server is already killed!'
     killall node || echo 'no node processes'
