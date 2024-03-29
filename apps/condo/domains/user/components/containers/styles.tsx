@@ -42,12 +42,6 @@ export const PageContent = styled.div`
   overflow-y: auto;
 `
 
-export const ReCaptchaContainer = styled.div`
-  visibility: hidden;
-  position: absolute;
-  height: 0;
-`
-
 export const Layout = styled(AntLayout)`
   background: ${colors.white};
 `

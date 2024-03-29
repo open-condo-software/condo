@@ -12,7 +12,6 @@ import {
     MobileHeader,
     PageContent,
     PosterWrapperFullHeight,
-    ReCaptchaContainer,
 } from './styles'
 
 
@@ -77,7 +76,6 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, Header, F
                 </Col>
                 <Col md={11} sm={24}>
                     <PageContent>
-                        <ReCaptchaContainer id='ReCaptchaContainer'/>
                         <ChildrenWrapper isSmall={!breakpoints.TABLET_LARGE}>
                             {children}
                         </ChildrenWrapper>

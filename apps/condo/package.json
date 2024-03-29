@@ -35,6 +35,7 @@
     "@emotion/styled": "^11.10.0",
     "@formatjs/intl": "^2.2.1",
     "@graphql-typed-document-node/core": "^3.1.1",
+    "@hcaptcha/react-hcaptcha": "^1.10.1",
     "@keystonejs/adapter-knex": "^13.2.0",
     "@keystonejs/adapter-mongoose": "^11.2.0",
     "@keystonejs/adapter-prisma": "^3.2.0",

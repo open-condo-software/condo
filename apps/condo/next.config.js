@@ -31,7 +31,9 @@ const mapApiKey = conf['MAP_API_KEY']
 const behaviorRecorder = { 'plerdy': conf['BEHAVIOR_RECORDER_PLERDY_CONFIG'] }
 const featureFlagsConfig = conf['FEATURE_FLAGS_CONFIG']
 const docsConfig = { 'isGraphqlPlaygroundEnabled': conf['ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND'] === 'true' }
-const googleCaptcha = conf['GOOGLE_RECAPTCHA_CONFIG'] && JSON.parse(conf['GOOGLE_RECAPTCHA_CONFIG'])
+// TODO(DOMA-8696): Update next.config in cc, eps, miniapp
+const hCaptcha = conf['HCAPTCHA_CONFIG'] && JSON.parse(conf['HCAPTCHA_CONFIG'])
+const disableCaptcha = conf.DISABLE_CAPTCHA === 'true'
 const yandexMetrikaID = conf['YANDEX_METRIKA_ID']
 const trackingConfig = conf['TRACKING_CONFIG'] && JSON.parse(conf['TRACKING_CONFIG'])
 const defaultLocale = conf.DEFAULT_LOCALE
@@ -62,7 +64,8 @@ let nextConfig = withTM(withLess(withCSS({
         apolloGraphQLUrl,
         addressServiceUrl,
         mapApiKey,
-        googleCaptcha,
+        hCaptcha,
+        disableCaptcha,
         behaviorRecorder,
         featureFlagsConfig,
         docsConfig,
