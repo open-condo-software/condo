@@ -44,6 +44,7 @@ const ORGANIZATION_EMPLOYEE_WHERE_QUERY = {
 
 export const InlineOrganizationSelect: React.FC = () => {
     const intl = useIntl()
+    const ChooseOrganizationMessage = intl.formatMessage({ id: 'pages.organizations.ChooseOrganizationLabel' })
     const AddOrganizationTitle = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationButtonLabel' })
 
     const router = useRouter()
@@ -151,7 +152,7 @@ export const InlineOrganizationSelect: React.FC = () => {
         return null
     }
 
-    const currentOrgName = get(link, ['organization', 'name'], '')
+    const currentOrgName = get(link, ['organization', 'name'], ChooseOrganizationMessage)
 
     return (
         <>
