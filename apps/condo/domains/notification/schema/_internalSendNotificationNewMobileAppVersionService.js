@@ -15,13 +15,12 @@ const {
     DEVICE_PLATFORM_ANDROID,
     APP_MASTER_KEY,
     APP_RESIDENT_KEY,
-    DEFAULT_TITLE_FOR_NEW_MOBILE_APP_VERSION_PUSH_NOTIFICATION,
-    DEFAULT_BODY_FOR_NEW_MOBILE_APP_VERSION_PUSH_NOTIFICATION,
     MOBILE_APP_UPDATE_AVAILABLE_MESSAGE_PUSH_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { MessageBatch, RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
+const { Property } = require('@condo/domains/property/utils/serverSchema')
 
 const _internalSendNotificationNewMobileAppVersionService = new GQLCustomSchema('_internalSendNotificationNewMobileAppVersionService', {
     types: [
@@ -84,21 +83,39 @@ const _internalSendNotificationNewMobileAppVersionService = new GQLCustomSchema(
                         },
                     })
                 } else {    //The case when a push is sent to suitable devices of a specific or several organizations
-                    const userIds = await loadListByChunks({
+                    const propertyIds = await loadListByChunks({
                         context: adminContext,
-                        list: Resident,
+                        list: Property,
                         where: {
                             organization: {
                                 id_in: organizationIds,
                             },
                         },
                         chunkSize: 50,
+                        chunkProcessor: (/** @type {Property[]} */ chunk) => {
+                            const propertyIds = []
+                            for (const property of chunk) {
+                                propertyIds.push(property.id)
+                            }
+                            return propertyIds
+                        },
+                    })
+
+                    const userIds = await loadListByChunks({
+                        context: adminContext,
+                        list: Resident,
+                        where: {
+                            property: {
+                                id_in: propertyIds,
+                            },
+                        },
+                        chunkSize: 50,
                         chunkProcessor: (/** @type {Resident[]} */ chunk) => {
                             const userIds = []
-                            chunk.map(resident => {
+                            for (const resident of chunk) {
                                 const userId = get(resident, 'user.id')
                                 if (userId) userIds.push(userId)
-                            })
+                            }
                             return userIds
                         },
                     })
@@ -129,14 +146,16 @@ const _internalSendNotificationNewMobileAppVersionService = new GQLCustomSchema(
                     })
                 }
 
-                const messageBatch = await MessageBatch.create(adminContext, {
+                const data = {
                     dv,
                     sender,
                     messageType: MOBILE_APP_UPDATE_AVAILABLE_MESSAGE_PUSH_TYPE,
                     targets: remoteClientKeys,
-                    title: title || DEFAULT_TITLE_FOR_NEW_MOBILE_APP_VERSION_PUSH_NOTIFICATION,
-                    message: body || DEFAULT_BODY_FOR_NEW_MOBILE_APP_VERSION_PUSH_NOTIFICATION,
-                })
+                }
+                if (title) data.title = title
+                if (body) data.message = body
+
+                const messageBatch = await MessageBatch.create(adminContext, data)
                 return {
                     messageBatchId: messageBatch.id,
                 }
