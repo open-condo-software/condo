@@ -153,7 +153,9 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
 
     const handleViewGuideClick = useCallback(async () => {
         window.open(EXTERNAL_GUIDE_LINK, '_blank')
-        updateCompletedFlowModalData(activeStep)
+        if (activeStep !== TourStepTypeType.Resident) {
+            updateCompletedFlowModalData(activeStep)
+        }
 
         const fetchResult = await refetchSteps({
             where: {
@@ -174,7 +176,7 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
 
     const completedStepModalDataDescription: CompletedStepModalDataType = useMemo(() => ({
         createProperty: {
-            availableTourFlow: [],
+            availableTourFlow: [TourStepTypeType.Ticket, TourStepTypeType.Meter, TourStepTypeType.Resident],
             subtitleLinkHref: '/property',
             subtitleLinkIcon: <Building size='small' />,
             newFeatures: {
@@ -269,6 +271,8 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
     }), [handleViewGuideClick, router])
 
     const updateCompletedStepModalData = useCallback((type: TourStepTypeType | 'importProperties', nextRoute?: string) => {
+        if (activeStep !== TourStepTypeType.Resident && type === TourStepTypeType.CreateNews) return
+
         if (
             activeStep !== TourStepTypeType.Resident && type === TourStepTypeType.ViewResidentsAppGuide ||
             activeStep === TourStepTypeType.Resident && type === TourStepTypeType.CreateNews
@@ -342,7 +346,10 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
                 footer={[
                     <Button key='create' type='primary' onClick={() => {
                         logEvent({ eventName: 'TourCompleteStepModalButtonClick', eventProperties: { activeStep, type: completedStepModalData.type } })
-                        updateCompletedStepModalData(null)
+                        const nextModalTypeOnButtonClick = (
+                            activeStep === TourStepTypeType.Resident && get(completedStepModalData, 'type') === TourStepTypeType.CreatePropertyMap
+                        ) ? TourStepTypeType.ViewResidentsAppGuide : null
+                        updateCompletedStepModalData(nextModalTypeOnButtonClick)
 
                         if (get(computedCompletedStepModalData, 'buttonOnClick')) {
                             computedCompletedStepModalData.buttonOnClick()

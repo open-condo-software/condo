@@ -2023,6 +2023,9 @@
   "tour.completedStepModal.createProperty.bodyText.meter": "Следующий шаг к упрощению работы с ИПУ — создание шахматки. Она поможет получать показания от конкретных квартир. Чтобы добавить шахматку, нужно знать количество помещений, подъездов и этажей в доме.",
   "tour.completedStepModal.createProperty.bodyText.resident": "Следующий шаг к укреплению отношений с жителями — создание шахматки. Она нужна, чтобы жители конкретных квартир пользовались приложением. Чтобы добавить шахматку, нужно знать количество помещений, подъездов и этажей в доме.",
   "tour.completedStepModal.createProperty.buttonLabel.default": "Создать шахматку",
+  "tour.completedStepModal.createProperty.buttonLabel.ticket": "Создать шахматку",
+  "tour.completedStepModal.createProperty.buttonLabel.meter": "Создать шахматку",
+  "tour.completedStepModal.createProperty.buttonLabel.resident": "Создать шахматку",
 
   "tour.completedStepModal.createPropertyMap.title": "Шахматка создана",
   "tour.completedStepModal.createPropertyMap.subtitle": "Вы можете добавлять и редактировать шахматки",
