@@ -2710,7 +2710,7 @@
   "billing.category.intercom.name": "Домофон",
   "billing.category.telecom.name": "Антенна",
   "billing.category.heating.name": "Отопление",
-  "billing.category.membership_fee.name": "Членские взносы",
+  "billing.category.membership_fee.name": "Взносы",
   "billing.category.housing.name.declined": "квартплату",
   "billing.category.repair.name.declined": "капремонт",
   "billing.category.electricity.name.declined": "электричество",
