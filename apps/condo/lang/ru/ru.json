@@ -2275,6 +2275,7 @@
   "Comments.actions.delete.confirm.cancelText": "Ой, нет",
   "Comments.deleted": "Комментарий был удалён",
   "Comments.meta.updated": "Обновлено",
+  "Comments.user.deleted": "Удалённый пользователь",
   "Contact.NotFound.Title": "Контакт не найден",
   "Contact.NotFound.Message": "Контакта с данным ID не существует или же это контакт не вашей организации",
   "Contact": "Житель",

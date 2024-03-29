@@ -268,7 +268,7 @@ const getCommentAuthorRoleMessage = (author: User, intl) => {
     const ResidentMessage = intl.formatMessage({ id: 'Contact' }).toLowerCase()
     const EmployeeMessage = intl.formatMessage({ id: 'Employee' }).toLowerCase()
 
-    switch (author.type) {
+    switch (get(author, 'type')) {
         case RESIDENT: {
             return ResidentMessage
         }
@@ -285,6 +285,7 @@ export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, 
     const ConfirmDeleteCancelText = intl.formatMessage({ id: 'Comments.actions.delete.confirm.cancelText' })
     const CommentDeletedText = intl.formatMessage({ id: 'Comments.deleted' })
     const MetaUpdatedText = intl.formatMessage({ id: 'Comments.meta.updated' })
+    const DeletedUserText = intl.formatMessage({ id: 'Comments.user.deleted' })
 
     const { user } = useAuth()
 
@@ -298,6 +299,9 @@ export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, 
         [comment.createdAt, comment.updatedAt, dateShowMode])
     const datetimeTitle = useMemo(() => comment.createdAt !== comment.updatedAt ? MetaUpdatedText : null,
         [MetaUpdatedText, comment.createdAt, comment.updatedAt])
+
+    const authorRole = getCommentAuthorRoleMessage(get(comment, 'user'), intl)
+
     const actions = useMemo(() => user.id === comment.user.id && ([
         <Popconfirm
             key='delete'
@@ -345,9 +349,9 @@ export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, 
             author={
                 <Typography.Text type='secondary'>
                     <Typography.Text type='secondary' underline style={AUTHOR_TEXT_STYLES}>
-                        {comment.user.name}
+                        {get(comment, 'user.name', DeletedUserText)}
                     </Typography.Text>
-                    ({getCommentAuthorRoleMessage(comment.user, intl)}),
+                    {authorRole && `(${authorRole})`},
                 </Typography.Text>
             }
             datetime={
@@ -368,6 +372,9 @@ export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, 
 
 export const CommentPreview: React.FC<{ comment: TicketComment }> = ({ comment }) => {
     const intl = useIntl()
+    const DeletedUserText = intl.formatMessage({ id: 'Comments.user.deleted' })
+
+    const authorRole = getCommentAuthorRoleMessage(get(comment, 'user'), intl)
 
     return (
         <AntComment
@@ -379,9 +386,9 @@ export const CommentPreview: React.FC<{ comment: TicketComment }> = ({ comment }
             author={
                 <Typography.Text type='secondary'>
                     <Typography.Text type='secondary' style={AUTHOR_TEXT_STYLES}>
-                        {comment.user.name}
+                        {get(comment, 'user.name', DeletedUserText)}
                     </Typography.Text>
-                    ({getCommentAuthorRoleMessage(comment.user, intl)}),
+                    {authorRole && `(${authorRole})`},
                 </Typography.Text>
             }
             datetime={
