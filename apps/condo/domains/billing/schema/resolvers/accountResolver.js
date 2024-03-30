@@ -69,7 +69,7 @@ class AccountResolver extends Resolver {
                 const sameNumberAccount = this.accounts.find(({ number }) => number === accountNumber)
                 if (sameNumberAccount) {
                     const oldBillingProperty = await getById('BillingProperty', sameNumberAccount.property)
-                    const [organizationProperty] = await find('Property', { addressKey: oldBillingProperty.addressKey })
+                    const [organizationProperty] = await find('Property', { addressKey: oldBillingProperty.addressKey, deletedAt: null, organization: { id: get(this.billingContext, 'organization.id') } })
                     if (!organizationProperty) {
                         existingAccount = sameNumberAccount
                     } else {

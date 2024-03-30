@@ -36,6 +36,7 @@ const isPerson = (fullName) => {
 }
 
 const isValidFias = (fias = '') => FIAS_REGEXP.test(fias)
+const normalizePropertyGlobalId = (fiasCode) => fiasCode ? fiasCode.split(',') [0] : ''
 
 const sortPeriodFunction = (periodA, periodB) => (dayjs(periodA, 'YYYY-MM-DD').isAfter(dayjs(periodB, 'YYYY-MM-DD')) ? 1 : -1)
 
@@ -44,4 +45,5 @@ module.exports = {
     isPerson,
     isValidFias,
     sortPeriodFunction,
+    normalizePropertyGlobalId,
 }
