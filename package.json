@@ -95,6 +95,8 @@
     "protobufjs@>=6.0.0": "^6.11.4",
     "google-gax@npm:2.30.5/protobufjs": "^6.11.4",
     "mongoose@^5.12.11": "^5.13.20",
-    "@keystonejs/file-adapters/cloudinary@>=1.0.0": "^1.41.3"
+    "@keystonejs/file-adapters/cloudinary@>=1.0.0": "^1.41.3",
+    "shell-quote@1.7.2": "^1.7.3",
+    "webpack-bundle-analyzer@^3.3.2": "^4"
   }
 }
