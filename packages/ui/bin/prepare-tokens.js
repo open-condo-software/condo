@@ -40,7 +40,11 @@ function prepareTokens (tokenFile) {
             excludedSets,
             '--expandTypography',
             '--throwErrorWhenNotResolved',
-        ])
+        ], {
+            // Note: we need to use the same shell on windows to find `yarn` command
+            //   and fix the `Error: spawn yarn ENOENT`
+            shell: true,
+        })
 
         // After set is created we need to wrap it wit setName
         // So the token will look like: <prefix>-<namespace>-...
