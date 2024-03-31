@@ -42,7 +42,8 @@ function prepareTokens (tokenFile) {
             '--throwErrorWhenNotResolved',
         ], {
             // Note: we need to use the same shell on windows to find `yarn` command
-            //   and fix the `Error: spawn yarn ENOENT`
+            //   and fix the `Error: spawn yarn ENOENT`. 
+            // nosemgrep: javascript.lang.security.audit.spawn-shell-true.spawn-shell-true
             shell: true,
         })
 
