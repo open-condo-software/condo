@@ -50,6 +50,8 @@ import sys
 DATA = '__KNEX_SCHEMA_DATA__'
 NAME = '_django_model_generator'
 MODELS_TPL = """
+# -*- coding: utf-8 -*-
+
 from django.db import models
 from datetime import date, time, datetime, timedelta
 from django.db.models import *
