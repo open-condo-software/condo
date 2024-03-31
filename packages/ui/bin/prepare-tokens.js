@@ -30,6 +30,7 @@ function prepareTokens (tokenFile) {
         const excludedSets = tokenSetOrder.slice(0, i).concat(tokenSetOrder.slice(i + 1, tokenSetOrder.length)).join(',')
 
         // Generate child process to transform tokens
+        // nosemgrep: javascript.lang.security.audit.spawn-shell-true.spawn-shell-true
         const chile_process = spawn('yarn', [
             'workspace',
             '@open-condo/ui',
@@ -40,7 +41,11 @@ function prepareTokens (tokenFile) {
             excludedSets,
             '--expandTypography',
             '--throwErrorWhenNotResolved',
-        ])
+        ], {
+            // Note: we need to use the same shell on windows to find `yarn` command
+            //   and fix the `Error: spawn yarn ENOENT`. 
+            shell: true,
+        })
 
         // After set is created we need to wrap it wit setName
         // So the token will look like: <prefix>-<namespace>-...
