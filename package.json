@@ -93,6 +93,7 @@
     "@keystonejs/access-control": "patch:@keystonejs/access-control@npm:7.1.2#.yarn/patches/@keystonejs-access-control-npm-7.1.2-bec144d41a.patch",
     "@babel/traverse": "^7.23.2",
     "protobufjs@>=6.0.0": "^6.11.4",
-    "google-gax@npm:2.30.5/protobufjs": "^6.11.4"
+    "google-gax@npm:2.30.5/protobufjs": "^6.11.4",
+    "mongoose@^5.12.11": "^5.13.20"
   }
 }
