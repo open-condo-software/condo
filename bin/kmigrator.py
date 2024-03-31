@@ -32,7 +32,7 @@ from datetime import datetime
 from pathlib import Path
 from time import time
 
-VERSION = (1, 5, 7)
+VERSION = (1, 5, 8)
 CACHE_DIR = Path('.kmigrator')
 KNEX_MIGRATIONS_DIR = Path('migrations')
 GET_KNEX_SETTINGS_SCRIPT = CACHE_DIR / 'get.knex.settings.js'
@@ -40,6 +40,8 @@ KNEX_MIGRATE_SCRIPT = CACHE_DIR / 'knex.run.js'
 GET_KNEX_SETTINGS_LOG = CACHE_DIR / 'get.knex.settings.log'
 DJANGO_DIR = CACHE_DIR / '_django_schema'
 DJANGO_MODEL_GENERATOR_SCRIPT = '''
+# -*- coding: utf-8 -*-
+
 import json
 from django.template import Library, Template, Engine, Context
 import keyword
@@ -241,14 +243,16 @@ def index_to_code(index, options=['fields', 'opclasses', 'name']):
     return '{}({}),'.format(index['type'], ', '.join(code))
 
 
+def printutf8(text):
+    sys.stdout.buffer.write(text.encode('utf-8'))
+
 def main():
     engine = Engine(libraries={NAME: NAME}, builtins=[NAME])
     template = Template(MODELS_TPL, engine=engine)
     # data = sorted(json.loads(DATA).items(), key=lambda x: 0 if '_' in x[0] else 1)
     context = Context({"schema": json.loads(DATA)})
     models = template.render(context)
-    print(models)
-
+    printutf8(models)
 
 if __name__ == '__main__':
     main()
@@ -503,6 +507,8 @@ async function runInContext(knex, config) {
 })()
 """
 DJANGO_SETTINGS_SCRIPT = """
+# -*- coding: utf-8 -*-
+
 import json
 data = json.loads('__KNEX_CONNECTION_DATA__')
 SECRET_KEY = 'qn2228$&awf126b^auv%awfa*ieh)hh&^e6o!^q(zhz!l$m4'
@@ -532,6 +538,8 @@ USE_L10N = True
 USE_TZ = True
 """
 DJANGO_MANAGE_SCRIPT = '''
+# -*- coding: utf-8 -*-
+
 import os
 import sys
 def main():
