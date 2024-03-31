@@ -55,7 +55,7 @@
     "stylelint": "^14.11.0",
     "stylelint-config-rational-order": "^0.1.2",
     "stylelint-config-standard": "^28.0.0",
-    "turbo": "^1.10.16",
+    "turbo": "^1.13.0",
     "typescript": "^4.1.5"
   },
   "engines": {
@@ -90,6 +90,15 @@
     "knex": "0.95.15",
     "@keystonejs/app-graphql": "patch:@keystonejs/app-graphql@npm:6.3.2#.yarn/patches/@keystonejs-app-graphql-npm-6.3.2-26fe50b988.patch",
     "@keystonejs/keystone": "patch:@keystonejs/keystone@npm:19.3.4#.yarn/patches/@keystonejs-keystone-npm-19.3.4-2a53e53061.patch",
-    "@keystonejs/access-control": "patch:@keystonejs/access-control@npm:7.1.2#.yarn/patches/@keystonejs-access-control-npm-7.1.2-bec144d41a.patch"
+    "@keystonejs/access-control": "patch:@keystonejs/access-control@npm:7.1.2#.yarn/patches/@keystonejs-access-control-npm-7.1.2-bec144d41a.patch",
+    "@babel/traverse": "^7.23.2",
+    "protobufjs@>=6.0.0": "^6.11.4",
+    "google-gax@npm:2.30.5/protobufjs": "^6.11.4",
+    "mongoose@^5.12.11": "^5.13.20",
+    "@keystonejs/file-adapters/cloudinary@>=1.0.0": "^1.41.3",
+    "shell-quote@1.7.2": "^1.7.3",
+    "webpack-bundle-analyzer@^3.3.2": "^4",
+    "loader-utils@1.2.3": "^1.4.1",
+    "loader-utils@>=1.0.0": "^1.4.1"
   }
 }

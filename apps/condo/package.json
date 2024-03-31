@@ -138,7 +138,7 @@
     "oidc-provider": "7.14.3",
     "openid-client": "4.7.4",
     "pdf-lib": "^1.17.1",
-    "pdfmake": "^0.2.6",
+    "pdfmake": "^0.2.10",
     "phone": "3.1.36",
     "pino": "^6.13.3",
     "pino-std-serializers": "^4.0.0",
