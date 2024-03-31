@@ -5,7 +5,7 @@ const { faker } = require('@faker-js/faker')
 const { prepareAppEnvLocalAdminUsers, getAppEnvValue, updateAppEnvFile, safeExec } = require('@open-condo/cli')
 
 const APP_NAME = path.basename(path.resolve(__dirname, '..'))
-const BOT_RIGHTS_SET = {
+const BOT_RIGHTS_SET = JSON.stringify({
     name: '[DEV-API] Service bot permissions',
     canReadB2BApps: true,
     canReadB2BAppAccessRights: true,
@@ -33,7 +33,7 @@ const BOT_RIGHTS_SET = {
 
     canExecuteRegisterNewServiceUser: true,
     canExecuteSendMessage: true,
-}
+})
 
 async function main () {
     await prepareAppEnvLocalAdminUsers(APP_NAME, 'phone')
@@ -55,10 +55,10 @@ async function main () {
     prodBotConfig.apiUrl = `${condoUrl}/admin/api`
     await updateAppEnvFile(APP_NAME, 'CONDO_PROD_BOT_CONFIG', JSON.stringify(prodBotConfig))
 
-    const devBotOptions = { type: 'service', password: devBotConfig.password, name: '[DEV-API] Dev bot' }
-    const prodBotOptions = { type: 'service', password: prodBotConfig.password, name: '[DEV-API] Prod bot' }
-    await safeExec(`yarn workspace @app/condo node bin/create-user.js ${devBotConfig.email} '${JSON.stringify(devBotOptions)}' '${JSON.stringify(BOT_RIGHTS_SET)}'`)
-    await safeExec(`yarn workspace @app/condo node bin/create-user.js ${prodBotConfig.email} '${JSON.stringify(prodBotOptions)}' '${JSON.stringify(BOT_RIGHTS_SET)}'`)
+    const devBotOptions = JSON.stringify({ type: 'service', password: devBotConfig.password, name: '[DEV-API] Dev bot' })
+    const prodBotOptions = JSON.stringify({ type: 'service', password: prodBotConfig.password, name: '[DEV-API] Prod bot' })
+    await safeExec(`yarn workspace @app/condo node bin/create-user.js ${JSON.stringify(devBotConfig.email)} ${JSON.stringify(devBotOptions)} ${JSON.stringify(BOT_RIGHTS_SET)}`)
+    await safeExec(`yarn workspace @app/condo node bin/create-user.js ${JSON.stringify(prodBotConfig.email)} ${JSON.stringify(prodBotOptions)} ${JSON.stringify(BOT_RIGHTS_SET)}`)
 }
 
 main().then(() => {
