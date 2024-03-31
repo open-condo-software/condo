@@ -248,6 +248,7 @@ def index_to_code(index, options=['fields', 'opclasses', 'name']):
 def printutf8(text):
     sys.stdout.buffer.write(text.encode('utf-8'))
 
+
 def main():
     engine = Engine(libraries={NAME: NAME}, builtins=[NAME])
     template = Template(MODELS_TPL, engine=engine)
