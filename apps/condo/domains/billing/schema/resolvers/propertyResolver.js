@@ -14,6 +14,7 @@ const {
 } = require('@condo/domains/billing/constants/registerBillingReceiptService')
 const { Resolver } = require('@condo/domains/billing/schema/resolvers/resolver')
 const { isValidFias, normalizePropertyGlobalId } = require('@condo/domains/billing/schema/resolvers/utils')
+const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
 const { FLAT_UNIT_TYPE : DEFAULT_UNIT_TYPE, UNIT_TYPES } = require('@condo/domains/property/constants/common')
 
 const BILLING_PROPERTY_FIELDS = '{ id importId globalId address addressKey }'
@@ -180,13 +181,21 @@ class PropertyResolver extends Resolver {
         }
         return receiptIndex
     }
+    
+    addressFieldValue (address, addressKey) {
+        // In the tests we create addressKey as a md5 hash of address
+        if (UUID_REGEXP.test(addressKey)) {
+            return `key:${addressKey}`
+        }
+        return address
+    }
 
     async processReceipts (receiptIndex) {
         const updated = new Set()
         await this.normalizeAddresses(receiptIndex)
         for (const [index, receipt] of Object.entries(receiptIndex)) {
             const { propertyAddress, addresses } = receipt.addressResolve
-            const { addressKey: resultAddressKey, error, problem  } = propertyAddress
+            const { addressKey: resultAddressKey, address, error, problem  } = propertyAddress
             if (error) {
                 receiptIndex[index].error = error
                 continue
@@ -208,7 +217,7 @@ class PropertyResolver extends Resolver {
                     const updateInput = this.buildUpdateInput({
                         importId: importIdInput,
                         globalId: normalizePropertyGlobalId(globalId),
-                        address: resultAddressKey !== existingProperty.addressKey ? `key:${resultAddressKey}` : null,
+                        address: resultAddressKey !== existingProperty.addressKey ? this.addressFieldValue(address, resultAddressKey) : null,
                     }, existingProperty)
                     if (!isEmpty(updateInput)) {
                         try {
@@ -225,7 +234,7 @@ class PropertyResolver extends Resolver {
                 try {
                     const newProperty = await BillingPropertyApi.create(this.context, this.buildCreateInput({
                         context: this.billingContext.id,
-                        address: `key:${resultAddressKey}`,
+                        address: this.addressFieldValue(address, resultAddressKey),
                         importId: importIdInput,
                         globalId: normalizePropertyGlobalId(globalId),
                     }, ['context']))
