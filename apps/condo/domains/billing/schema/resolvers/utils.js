@@ -36,7 +36,14 @@ const isPerson = (fullName) => {
 }
 
 const isValidFias = (fias = '') => FIAS_REGEXP.test(fias)
-const normalizePropertyGlobalId = (fiasCode) => fiasCode ? fiasCode.split(',') [0] : ''
+const normalizePropertyGlobalId = (fiasCode) => {
+    // FIAS CODE can contain information about unit separated with comma. We need only house part
+    const [fias] = fiasCode.split(',')
+    if (isValidFias(fias)) {
+        return fias
+    }
+    return null
+}
 
 const sortPeriodFunction = (periodA, periodB) => (dayjs(periodA, 'YYYY-MM-DD').isAfter(dayjs(periodB, 'YYYY-MM-DD')) ? 1 : -1)
 
