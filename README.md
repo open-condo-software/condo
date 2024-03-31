@@ -26,11 +26,13 @@ docker-compose up -d postgresdb redis
 # 4) create base .env file
 cp .env.example .env
 
-# 5) create databases for all apps and apps/.env files
+# 5) prepare local packages
+yarn build
+
+# 6) create databases for all apps and apps/.env files
 node ./bin/prepare.js
 
-# 6) launch project
-yarn workspace @app/condo build
+# 7) launch project
 yarn workspace @app/condo start
 ```
 
