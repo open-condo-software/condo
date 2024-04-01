@@ -391,95 +391,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@apollo/react-common@npm:^3.1.4":
-  version: 3.1.4
-  resolution: "@apollo/react-common@npm:3.1.4"
-  dependencies:
-    ts-invariant: ^0.4.4
-    tslib: ^1.10.0
-  peerDependencies:
-    "@types/react": ^16.8.0
-    apollo-client: ^2.6.4
-    apollo-utilities: ^1.3.2
-    graphql: ^14.3.1
-    react: ^16.8.0
-  checksum: 1851fa5bf4e87ca1edc556b810617b960968fac4fe0691f263b9c0d04ce19f346c6be33349e3ae41c490115ad345855a8e717254401c11c0a16c748d2e7ebf07
-  languageName: node
-  linkType: hard
-
-"@apollo/react-components@npm:^3.1.5":
-  version: 3.1.5
-  resolution: "@apollo/react-components@npm:3.1.5"
-  dependencies:
-    "@apollo/react-common": ^3.1.4
-    "@apollo/react-hooks": ^3.1.5
-    prop-types: ^15.7.2
-    ts-invariant: ^0.4.4
-    tslib: ^1.10.0
-  peerDependencies:
-    "@types/react": ^16.8.0
-    apollo-cache: ^1.3.2
-    apollo-client: ^2.6.4
-    apollo-link: ^1.2.12
-    apollo-utilities: ^1.3.2
-    graphql: ^14.3.1
-    react: ^16.8.0
-    react-dom: ^16.8.0
-  checksum: a96911fa191d99398cc565a69789529eca255a8f24c888b1c2f3c1b72c8f2ba41bc818bff70f04993f6788353c0cb72ab35dcf024aaf5f46b07b1bd82b75f4f7
-  languageName: node
-  linkType: hard
-
-"@apollo/react-hoc@npm:^3.1.5":
-  version: 3.1.5
-  resolution: "@apollo/react-hoc@npm:3.1.5"
-  dependencies:
-    "@apollo/react-common": ^3.1.4
-    "@apollo/react-components": ^3.1.5
-    hoist-non-react-statics: ^3.3.0
-    ts-invariant: ^0.4.4
-    tslib: ^1.10.0
-  peerDependencies:
-    "@types/react": ^16.8.0
-    apollo-client: ^2.6.4
-    graphql: ^14.3.1
-    react: ^16.8.0
-    react-dom: ^16.8.0
-  checksum: b54af496548b333c367e776a3257696a85c1f9af7e636ff703c6700fc3e9ac8ea201a891ade3acc143c84a56f9ae78fc4c316219cc563bb0f8254ac1054e95ec
-  languageName: node
-  linkType: hard
-
-"@apollo/react-hooks@npm:^3.1.5":
-  version: 3.1.5
-  resolution: "@apollo/react-hooks@npm:3.1.5"
-  dependencies:
-    "@apollo/react-common": ^3.1.4
-    "@wry/equality": ^0.1.9
-    ts-invariant: ^0.4.4
-    tslib: ^1.10.0
-  peerDependencies:
-    "@types/react": ^16.8.0
-    apollo-client: ^2.6.4
-    graphql: ^14.3.1
-    react: ^16.8.0
-    react-dom: ^16.8.0
-  checksum: fb1b2d53248a67f3b65da315add64897c59ad41b768ad22af51b98c42c804e151ef1b9e257bf33a2df41182124b9ee77204dad652b59aca01d5a44482f7d15d5
-  languageName: node
-  linkType: hard
-
-"@apollo/react-ssr@npm:^3.1.5":
-  version: 3.1.5
-  resolution: "@apollo/react-ssr@npm:3.1.5"
-  dependencies:
-    "@apollo/react-common": ^3.1.4
-    "@apollo/react-hooks": ^3.1.5
-    tslib: ^1.10.0
-  peerDependencies:
-    react: ^16.8.0
-    react-dom: ^16.8.0
-  checksum: 1480ec59fb689fda48b660034264a17edc4c8cf780c97f457218a30af0d6a72f4c20d4991a3cfb36b416853231841726cf1b0968d21a727f6719a1c41c2ee86b
-  languageName: node
-  linkType: hard
-
 "@apollographql/apollo-tools@npm:^0.5.0":
   version: 0.5.4
   resolution: "@apollographql/apollo-tools@npm:0.5.4"
@@ -730,30 +641,6 @@ __metadata:
     typescript: ^4.1.5
     webpack: ^4.46.0
     xss: ^1.0.13
-  languageName: unknown
-  linkType: soft
-
-"@app/condo-restapi@workspace:apps/condo-restapi":
-  version: 0.0.0-use.local
-  resolution: "@app/condo-restapi@workspace:apps/condo-restapi"
-  dependencies:
-    "@faker-js/faker": ^8.3.1
-    apollo-boost: ^0.4.9
-    apollo-client: ^2.6.10
-    apollo-link-error: ^1.1.13
-    apollo-upload-client: 17.0.0
-    body-parser: ^1.20.2
-    cross-fetch: ^4.0.0
-    cypress: ^13.6.3
-    dotenv: ^16.3.2
-    express: ^4.18.2
-    graphql: ^16.8.1
-    graphql-tag: ^2.12.6
-    lodash: ^4.17.21
-    node-fetch: 2.6.7
-    pluralize: ^8.0.0
-    react-apollo: ^3.1.5
-    uuid: ^9.0.1
   languageName: unknown
   linkType: soft
 
@@ -7138,7 +7025,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@cypress/request@npm:^3.0.0, @cypress/request@npm:^3.0.1":
+"@cypress/request@npm:^3.0.1":
   version: 3.0.1
   resolution: "@cypress/request@npm:3.0.1"
   dependencies:
@@ -7603,13 +7490,13 @@ __metadata:
 
 "@eps/bicrypt@file:./packages/bicrypt::locator=%40app%2Feps%40workspace%3Aapps%2Feps":
   version: 1.1.6
-  resolution: "@eps/bicrypt@file:./packages/bicrypt#./packages/bicrypt::hash=fd773c&locator=%40app%2Feps%40workspace%3Aapps%2Feps"
+  resolution: "@eps/bicrypt@file:./packages/bicrypt#./packages/bicrypt::hash=cca5c2&locator=%40app%2Feps%40workspace%3Aapps%2Feps"
   dependencies:
     "@xmldom/xmldom": ^0.8.6
     node-addon-api: ^1.1.0
     node-gyp: ^9.1.0
     xml-c14n: ^0.0.6
-  checksum: b731bde63c7e97f4d97022abec445f08dd977f6dc53af9cc4d3f4347dbbf8c218c499a455a4667a2870c4d2ad02f36c46d8b6cc3fc4bac2e85530e4ac6a28216
+  checksum: 7bd05249d4e10ffd47770bd8e9e5f9f0fac330e3f8e4b8fcaf3918506c4aa1be8bf3ff315408069997cafaf44cc8bccdf39b3eaa0e5a63e57b8040eead27128d
   languageName: node
   linkType: hard
 
@@ -7690,13 +7577,6 @@ __metadata:
   version: 7.6.0
   resolution: "@faker-js/faker@npm:7.6.0"
   checksum: 942af6221774e8c98a0eb6bc75265e05fb81a941170377666c3439aab9495dd321d6beedc5406f07e6ad44262b3e43c20961f666d116ad150b78e7437dd1bb2b
-  languageName: node
-  linkType: hard
-
-"@faker-js/faker@npm:^8.3.1":
-  version: 8.4.1
-  resolution: "@faker-js/faker@npm:8.4.1"
-  checksum: d802d531f8929562715adc279cfec763c9a4bc596ec67b0ce43fd0ae61b285d2b0eec6f1f4aa852452a63721a842fe7e81926dce7bd92acca94b01e2a1f55f5a
   languageName: node
   linkType: hard
 
@@ -17370,7 +17250,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@wry/equality@npm:^0.1.2, @wry/equality@npm:^0.1.9":
+"@wry/equality@npm:^0.1.2":
   version: 0.1.11
   resolution: "@wry/equality@npm:0.1.11"
   dependencies:
@@ -20079,26 +19959,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"body-parser@npm:^1.20.2":
-  version: 1.20.2
-  resolution: "body-parser@npm:1.20.2"
-  dependencies:
-    bytes: 3.1.2
-    content-type: ~1.0.5
-    debug: 2.6.9
-    depd: 2.0.0
-    destroy: 1.2.0
-    http-errors: 2.0.0
-    iconv-lite: 0.4.24
-    on-finished: 2.4.1
-    qs: 6.11.0
-    raw-body: 2.5.2
-    type-is: ~1.6.18
-    unpipe: 1.0.0
-  checksum: 14d37ec638ab5c93f6099ecaed7f28f890d222c650c69306872e00b9efa081ff6c596cd9afb9930656aae4d6c4e1c17537bea12bb73c87a217cb3cfea8896737
-  languageName: node
-  linkType: hard
-
 "boolbase@npm:^1.0.0":
   version: 1.0.0
   resolution: "boolbase@npm:1.0.0"
@@ -20563,7 +20423,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"buffer@npm:^5.1.0, buffer@npm:^5.2.1, buffer@npm:^5.5.0, buffer@npm:^5.6.0, buffer@npm:^5.7.0, buffer@npm:^5.7.1":
+"buffer@npm:^5.1.0, buffer@npm:^5.2.1, buffer@npm:^5.5.0, buffer@npm:^5.6.0, buffer@npm:^5.7.0":
   version: 5.7.1
   resolution: "buffer@npm:5.7.1"
   dependencies:
@@ -22432,13 +22292,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"content-type@npm:~1.0.5":
-  version: 1.0.5
-  resolution: "content-type@npm:1.0.5"
-  checksum: 566271e0a251642254cde0f845f9dd4f9856e52d988f4eb0d0dcffbb7a1f8ec98de7a5215fc628f3bce30fe2fb6fd2bc064b562d721658c59b544e2d34ea2766
-  languageName: node
-  linkType: hard
-
 "conventional-changelog-angular@npm:^5.0.11":
   version: 5.0.13
   resolution: "conventional-changelog-angular@npm:5.0.13"
@@ -23065,15 +22918,6 @@ __metadata:
   dependencies:
     node-fetch: 2.6.7
   checksum: f6b8c6ee3ef993ace6277fd789c71b6acf1b504fd5f5c7128df4ef2f125a429e29cd62dc8c127523f04a5f2fa4771ed80e3f3d9695617f441425045f505cf3bb
-  languageName: node
-  linkType: hard
-
-"cross-fetch@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "cross-fetch@npm:4.0.0"
-  dependencies:
-    node-fetch: ^2.6.12
-  checksum: ecca4f37ffa0e8283e7a8a590926b66713a7ef7892757aa36c2d20ffa27b0ac5c60dcf453119c809abe5923fc0bae3702a4d896bfb406ef1077b0d0018213e24
   languageName: node
   linkType: hard
 
@@ -23795,58 +23639,6 @@ __metadata:
   bin:
     cypress: bin/cypress
   checksum: 1da3922cac45c35ee282116fe2af2278e92cc08bd2d8586e0f2346cbe5c9f62129cec567bc9274c585e8c2e887341fa4e5c8623cfaa41dba87331cfb5a023721
-  languageName: node
-  linkType: hard
-
-"cypress@npm:^13.6.3":
-  version: 13.6.6
-  resolution: "cypress@npm:13.6.6"
-  dependencies:
-    "@cypress/request": ^3.0.0
-    "@cypress/xvfb": ^1.2.4
-    "@types/sinonjs__fake-timers": 8.1.1
-    "@types/sizzle": ^2.3.2
-    arch: ^2.2.0
-    blob-util: ^2.0.2
-    bluebird: ^3.7.2
-    buffer: ^5.7.1
-    cachedir: ^2.3.0
-    chalk: ^4.1.0
-    check-more-types: ^2.24.0
-    cli-cursor: ^3.1.0
-    cli-table3: ~0.6.1
-    commander: ^6.2.1
-    common-tags: ^1.8.0
-    dayjs: ^1.10.4
-    debug: ^4.3.4
-    enquirer: ^2.3.6
-    eventemitter2: 6.4.7
-    execa: 4.1.0
-    executable: ^4.1.1
-    extract-zip: 2.0.1
-    figures: ^3.2.0
-    fs-extra: ^9.1.0
-    getos: ^3.2.1
-    is-ci: ^3.0.1
-    is-installed-globally: ~0.4.0
-    lazy-ass: ^1.6.0
-    listr2: ^3.8.3
-    lodash: ^4.17.21
-    log-symbols: ^4.0.0
-    minimist: ^1.2.8
-    ospath: ^1.2.2
-    pretty-bytes: ^5.6.0
-    process: ^0.11.10
-    proxy-from-env: 1.0.0
-    request-progress: ^3.0.0
-    semver: ^7.5.3
-    supports-color: ^8.1.1
-    tmp: ~0.2.1
-    untildify: ^4.0.0
-    yauzl: ^2.10.0
-  bin:
-    cypress: bin/cypress
-  checksum: 8a7db7d2941ea9fd698b9311b4f23fb6491038fe57e4c19b29a1ee58a25f9d98646674f876c1068a97428c2e81548bb0dd8701cd08e84c6b17ed75f9c2266908
   languageName: node
   linkType: hard
 
@@ -24963,13 +24755,6 @@ __metadata:
   version: 16.0.3
   resolution: "dotenv@npm:16.0.3"
   checksum: afcf03f373d7a6d62c7e9afea6328e62851d627a4e73f2e12d0a8deae1cd375892004f3021883f8aec85932cd2834b091f568ced92b4774625b321db83b827f8
-  languageName: node
-  linkType: hard
-
-"dotenv@npm:^16.3.2":
-  version: 16.4.5
-  resolution: "dotenv@npm:16.4.5"
-  checksum: 301a12c3d44fd49888b74eb9ccf9f07a1f5df43f489e7fcb89647a2edcd84c42d6bc349dc8df099cd18f07c35c7b04685c1a4f3e6a6a9e6b30f8d48c15b7f49c
   languageName: node
   linkType: hard
 
@@ -30997,7 +30782,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"is-ci@npm:^3.0.0, is-ci@npm:^3.0.1":
+"is-ci@npm:^3.0.0":
   version: 3.0.1
   resolution: "is-ci@npm:3.0.1"
   dependencies:
@@ -37123,20 +36908,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-fetch@npm:^2.6.12":
-  version: 2.7.0
-  resolution: "node-fetch@npm:2.7.0"
-  dependencies:
-    whatwg-url: ^5.0.0
-  peerDependencies:
-    encoding: ^0.1.0
-  peerDependenciesMeta:
-    encoding:
-      optional: true
-  checksum: d76d2f5edb451a3f05b15115ec89fc6be39de37c6089f1b6368df03b91e1633fd379a7e01b7ab05089a25034b2023d959b47e59759cb38d88341b2459e89d6e5
-  languageName: node
-  linkType: hard
-
 "node-fetch@npm:^3.3.2":
   version: 3.3.2
   resolution: "node-fetch@npm:3.3.2"
@@ -41159,7 +40930,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"raw-body@npm:2.5.2, raw-body@npm:^2.4.1":
+"raw-body@npm:^2.4.1":
   version: 2.5.2
   resolution: "raw-body@npm:2.5.2"
   dependencies:
@@ -42197,25 +41968,6 @@ __metadata:
   dependencies:
     object-assign: ^4.1.0
   checksum: e18a527a4eee5e08e5dab5b8eb560d04bbd1b63198cd13f080fdd5c0a5fe59c1cc41a545158989d934e9c25903b0789fc107cbc992094f600e30d1c18bba81e6
-  languageName: node
-  linkType: hard
-
-"react-apollo@npm:^3.1.5":
-  version: 3.1.5
-  resolution: "react-apollo@npm:3.1.5"
-  dependencies:
-    "@apollo/react-common": ^3.1.4
-    "@apollo/react-components": ^3.1.5
-    "@apollo/react-hoc": ^3.1.5
-    "@apollo/react-hooks": ^3.1.5
-    "@apollo/react-ssr": ^3.1.5
-  peerDependencies:
-    "@types/react": ^16.8.0
-    apollo-client: ^2.6.4
-    graphql: ^14.3.1
-    react: ^16.8.0
-    react-dom: ^16.8.0
-  checksum: 45e76993b5c31f8a098fe68e1be8f1c588ac66a6a30a83a12340a620e74e62bbb7faf84bf9e3368196ad4da16a4ab3c700ac6ddd05558afae806d61a9d2811da
   languageName: node
   linkType: hard
 
@@ -48467,7 +48219,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-invariant@npm:^0.4.0, ts-invariant@npm:^0.4.4":
+"ts-invariant@npm:^0.4.0":
   version: 0.4.4
   resolution: "ts-invariant@npm:0.4.4"
   dependencies:
@@ -50047,15 +49799,6 @@ __metadata:
   bin:
     uuid: dist/bin/uuid
   checksum: 8dd2c83c43ddc7e1c71e36b60aea40030a6505139af6bee0f382ebcd1a56f6cd3028f7f06ffb07f8cf6ced320b76aea275284b224b002b289f89fe89c389b028
-  languageName: node
-  linkType: hard
-
-"uuid@npm:^9.0.1":
-  version: 9.0.1
-  resolution: "uuid@npm:9.0.1"
-  bin:
-    uuid: dist/bin/uuid
-  checksum: 39931f6da74e307f51c0fb463dc2462807531dc80760a9bff1e35af4316131b4fc3203d16da60ae33f07fdca5b56f3f1dd662da0c99fea9aaeab2004780cc5f4
   languageName: node
   linkType: hard
 
