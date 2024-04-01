@@ -1252,7 +1252,7 @@ __metadata:
     "@emotion/core": ^10.1.1
     "@emotion/react": ^11.9.3
     "@emotion/styled": ^11.10.0
-    "@eps/bicrypt": "file:./packages/bicrypt"
+    "@eps/bicrypt": "link:./packages/bicrypt"
     "@eps/domains": "link:./domains"
     "@keystonejs/adapter-knex": ^13.2.0
     "@keystonejs/adapter-mongoose": ^11.2.0
@@ -7601,17 +7601,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eps/bicrypt@file:./packages/bicrypt::locator=%40app%2Feps%40workspace%3Aapps%2Feps":
-  version: 1.1.6
-  resolution: "@eps/bicrypt@file:./packages/bicrypt#./packages/bicrypt::hash=cca5c2&locator=%40app%2Feps%40workspace%3Aapps%2Feps"
-  dependencies:
-    "@xmldom/xmldom": ^0.8.6
-    node-addon-api: ^1.1.0
-    node-gyp: ^9.1.0
-    xml-c14n: ^0.0.6
-  checksum: 7bd05249d4e10ffd47770bd8e9e5f9f0fac330e3f8e4b8fcaf3918506c4aa1be8bf3ff315408069997cafaf44cc8bccdf39b3eaa0e5a63e57b8040eead27128d
+"@eps/bicrypt@link:./packages/bicrypt::locator=%40app%2Feps%40workspace%3Aapps%2Feps":
+  version: 0.0.0-use.local
+  resolution: "@eps/bicrypt@link:./packages/bicrypt::locator=%40app%2Feps%40workspace%3Aapps%2Feps"
   languageName: node
-  linkType: hard
+  linkType: soft
 
 "@eps/domains@link:./domains::locator=%40app%2Feps%40workspace%3Aapps%2Feps":
   version: 0.0.0-use.local
@@ -17422,7 +17416,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@xmldom/xmldom@npm:^0.8.2, @xmldom/xmldom@npm:^0.8.6":
+"@xmldom/xmldom@npm:^0.8.2":
   version: 0.8.6
   resolution: "@xmldom/xmldom@npm:0.8.6"
   checksum: f17ac6d99a971a6aeb831fcfc5cfa86f367664e45815046548814b2deb17ccc421fef4e0d5ba29e66179d112b552f6caa5680064f8e7bd8a389b788a60404c8e
@@ -37051,15 +37045,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-addon-api@npm:^1.1.0":
-  version: 1.7.2
-  resolution: "node-addon-api@npm:1.7.2"
-  dependencies:
-    node-gyp: latest
-  checksum: 938922b3d7cb34ee137c5ec39df6289a3965e8cab9061c6848863324c21a778a81ae3bc955554c56b6b86962f6ccab2043dd5fa3f33deab633636bd28039333f
-  languageName: node
-  linkType: hard
-
 "node-addon-api@npm:^7.0.0":
   version: 7.0.0
   resolution: "node-addon-api@npm:7.0.0"
@@ -37184,7 +37169,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-gyp@npm:^9.1.0, node-gyp@npm:latest":
+"node-gyp@npm:latest":
   version: 9.1.0
   resolution: "node-gyp@npm:9.1.0"
   dependencies:
