@@ -36,9 +36,15 @@ const isPerson = (fullName) => {
 }
 
 const isValidFias = (fias = '') => FIAS_REGEXP.test(fias)
-const normalizePropertyGlobalId = (fiasCode) => {
-    // FIAS CODE can contain information about unit separated with comma. We need only house part
-    const [fias] = fiasCode.split(',')
+
+/**
+ * Normalize FIAS code to extract the house part.
+ *
+ * @param {string} rawFiasCode - FIAS code containing information about the unit separated with a comma.
+ * @returns {string|null} Returns the house part of the FIAS code if valid, otherwise returns null.
+ */
+const normalizePropertyGlobalId = (rawFiasCode) => {
+    const [fias] = rawFiasCode.split(',')
     if (isValidFias(fias)) {
         return fias
     }

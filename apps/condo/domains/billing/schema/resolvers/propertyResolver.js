@@ -204,6 +204,7 @@ class PropertyResolver extends Resolver {
                 receiptIndex[index].problems.push({ problem, params: { addresses } })
             }
             const { importId: importIdInput = '', globalId = '' } = get(receipt, 'addressMeta') || {}
+            const propertyGlobalId = normalizePropertyGlobalId(globalId)
             let existingProperty
             if (importIdInput) {
                 existingProperty = this.properties.find(({ importId }) => importId === importIdInput)
@@ -216,7 +217,7 @@ class PropertyResolver extends Resolver {
                 if (!updated.has(existingProperty.id)) {
                     const updateInput = this.buildUpdateInput({
                         importId: importIdInput,
-                        globalId: normalizePropertyGlobalId(globalId),
+                        globalId: propertyGlobalId,
                         address: resultAddressKey !== existingProperty.addressKey ? this.addressFieldValue(address, resultAddressKey) : null,
                     }, existingProperty)
                     if (!isEmpty(updateInput)) {
@@ -236,7 +237,7 @@ class PropertyResolver extends Resolver {
                         context: this.billingContext.id,
                         address: this.addressFieldValue(address, resultAddressKey),
                         importId: importIdInput,
-                        globalId: normalizePropertyGlobalId(globalId),
+                        globalId: propertyGlobalId,
                     }, ['context']))
                     this.properties.push(newProperty)
                     receiptIndex[index].property = newProperty.id
