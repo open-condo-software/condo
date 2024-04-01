@@ -45,8 +45,6 @@ export const UserInfoPageContent: React.FC<IUserInfoPageContentProps> = ({ organ
     const RuTitle = intl.formatMessage({ id: 'language.russian.withFlag' })
     const EnTitle = intl.formatMessage({ id: 'language.english-us.withFlag' })
 
-    const locale = intl.locale
-
     const [showGlobalHints, setShowGlobalHints] = useState<boolean>(false)
 
     const { user, refetch } = useAuth()
@@ -187,26 +185,22 @@ export const UserInfoPageContent: React.FC<IUserInfoPageContentProps> = ({ organ
                                                 </Col>
                                             </Row>
                                         </Col>
-                                        {/* NOTE: At the moment, our support portal only works in 'ru' locale,*/}
-                                        {/* so hints for other locales are hidden*/}
-                                        {locale === 'ru' && (
-                                            <Col span={24}>
-                                                <Row gutter={ROW_GUTTER_MID}>
-                                                    <Col lg={3} xs={10}>
-                                                        <Typography.Text type='secondary'>
-                                                            {GlobalHintsTitle}
-                                                        </Typography.Text>
-                                                    </Col>
-                                                    <Col lg={5} offset={2}>
-                                                        <Switch
-                                                            checked={showGlobalHints}
-                                                            onChange={handleGlobalHintsChange}
-                                                            disabled={!user}
-                                                        />
-                                                    </Col>
-                                                </Row>
-                                            </Col>
-                                        )}
+                                        <Col span={24}>
+                                            <Row gutter={ROW_GUTTER_MID}>
+                                                <Col lg={3} xs={10}>
+                                                    <Typography.Text type='secondary'>
+                                                        {GlobalHintsTitle}
+                                                    </Typography.Text>
+                                                </Col>
+                                                <Col lg={5} offset={2}>
+                                                    <Switch
+                                                        checked={showGlobalHints}
+                                                        onChange={handleGlobalHintsChange}
+                                                        disabled={!user}
+                                                    />
+                                                </Col>
+                                            </Row>
+                                        </Col>
                                     </Row>
                                 </Col>
                             </Row>

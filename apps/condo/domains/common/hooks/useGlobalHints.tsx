@@ -56,10 +56,6 @@ export const useGlobalHints = () => {
     const locale = intl.locale
     const showHints = get(user, 'showGlobalHints', false)
 
-    // NOTE: At the moment, our support portal only works in 'ru' locale,
-    // so hints for other locales are hidden
-    const hideHints = locale !== 'ru'
-
     const handleBannerClick = useCallback((url) => () => {
         if (!url || !isString(url)) return
 
@@ -68,7 +64,7 @@ export const useGlobalHints = () => {
 
     useEffect(() => {
         if ((isArray(HINTS_BY_PAGES) && !isEmpty(HINTS_BY_PAGES))
-            && !hideHints && showHints
+            && showHints
             && (isString(locale) && locale !== '')
         ) {
             const hintsByRoute: Hint[] = get(HINTS_BY_PAGES.find(page => get(page, 'routeTemplate') === route), 'hints', []) || []
@@ -104,7 +100,7 @@ export const useGlobalHints = () => {
         } else {
             setHints([])
         }
-    }, [route, showHints, locale, hideHints])
+    }, [route, showHints, locale])
 
     const renderHints = useMemo(() => !isEmpty(hints) && (
         <div style={HINTS_WRAPPER_STYLE} className={HINTS_CONTAINER_CLASS}>
