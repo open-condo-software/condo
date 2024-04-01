@@ -75,7 +75,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         onSearch,
         formatLabel,
         renderOptions,
-        autoClearSearchValue = true,
+        autoClearSearchValue = false,
         initialValue,
         getInitialValueQuery,
         infinityScroll,
@@ -91,6 +91,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         SearchInputComponentType = SearchComponentType.Select,
         showLoadingMessage = true,
         notFoundContent: propsNotFoundContent,
+        mode,
         ...restProps
     } = props
 
@@ -221,11 +222,11 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
                 logEvent({ eventName, eventProperties: componentProperties })
             }
         }
-        if (autoClearSearchValue) {
+        if (autoClearSearchValue || !mode) {
             setSearchValue('')
             setSearchData([])
         }
-    }, [onSelect])
+    }, [onSelect, mode])
 
     const searchMoreSuggestions = useCallback(
         async (value, skip) => {
@@ -292,10 +293,11 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         loading: isInitialLoading || isSearchLoading,
         disabled: isDisabled,
         notFoundContent,
+        mode,
         ...restProps,
     }),
     [allowClear, autoClearSearchValue, handleClear, handleScroll, handleSearch, handleSelect, infinityScroll,
-        isDisabled, isInitialLoading, isSearchLoading, notFoundContent, placeholder, restProps, searchValue, selectedValue])
+        isDisabled, isInitialLoading, isSearchLoading, notFoundContent, placeholder, restProps, searchValue, selectedValue, mode])
 
     if (SearchInputComponentType === SearchComponentType.Select) {
         return (
