@@ -76,6 +76,7 @@ export type SelectProps<ValueType = SelectValueTypeBase> = Pick<DefaultSelectPro
     notFoundContentLabel?: string
 } & CustomSelectProps<ValueType>
 
+// TODO(DOMA-8757): default props autoClearSearchValue = false. Multi select search should not reset after selection
 const Select = <ValueType extends SelectValueTypeBase>(props: SelectProps<ValueType>): React.ReactElement => {
     const { mode, options, displayMode = 'fill-parent', type, onChange, id, notFoundContentLabel, value,  ...rest } = props
 
