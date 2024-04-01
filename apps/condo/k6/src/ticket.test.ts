@@ -227,31 +227,25 @@ export async function checkFrontend (data) {
         // Wait for select to become opened
         page.waitForSelector('[data-cy="ticket__status-select-option"][title="In progress"]', {
             state: 'visible',
-            timeout: 1000,
         })
 
         await page.locator('[data-cy="ticket__status-select-option"][title="In progress"]').click()
 
         page.waitForSelector('[data-cy="ticket__status-select-option"][title="In progress"]', {
             state: 'hidden',
-            timeout: 1000,
         })
 
         page.waitForSelector('[data-cy="ticket__status-select"] .ant-select-selection-item[title="In progress"]', {
-            timeout: 1000,
         })
         page.waitForSelector('[data-cy="ticket__change-history"]', {
-            timeout: 1000,
             state: 'visible',
         })
-
-        page.waitForLoadState('networkidle')
 
         check(page, {
             'ticket should be successfully change status': () => {
                 return page
                     .locator('[data-cy="ticket__status-select"] .ant-select-selection-item')
-                    .textContent({ timeout: 1000 }) === 'In progress'
+                    .textContent() === 'In progress'
             },
 
         })

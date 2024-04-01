@@ -29,11 +29,10 @@ export const options = {
 }
 
 export function setup () {
-    const { token, cookie } = setupCondoAuth()
+    const { token } = setupCondoAuth(true)
 
     const createdOrganization = createOrganization({ token })
     const organizationId = createdOrganization.json('data.obj.id')
-    // createProperty({ token, organizationId })
     const billingIntegration = createBillingIntegration({ token })
 
     const billingContext = createBillingIntegrationOrganizationContext(
@@ -44,7 +43,6 @@ export function setup () {
 
     return {
         token,
-        cookie,
         organizationId,
         billingContext: billingContext.json('data.obj'),
     }
