@@ -1252,6 +1252,7 @@ __metadata:
     "@emotion/core": ^10.1.1
     "@emotion/react": ^11.9.3
     "@emotion/styled": ^11.10.0
+    "@eps/bicrypt": "file:./packages/bicrypt"
     "@eps/domains": "link:./domains"
     "@keystonejs/adapter-knex": ^13.2.0
     "@keystonejs/adapter-mongoose": ^11.2.0
@@ -1271,7 +1272,6 @@ __metadata:
     "@keystonejs/list-plugins": ^8.1.0
     "@keystonejs/server-side-graphql-client": ^2.1.0
     "@keystonejs/utils": ^6.1.0
-    "@open-condo/bicrypt": "workspace:^"
     "@open-condo/bridge": "workspace:^"
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
@@ -7601,6 +7601,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@eps/bicrypt@file:./packages/bicrypt::locator=%40app%2Feps%40workspace%3Aapps%2Feps":
+  version: 1.1.6
+  resolution: "@eps/bicrypt@file:./packages/bicrypt#./packages/bicrypt::hash=fd773c&locator=%40app%2Feps%40workspace%3Aapps%2Feps"
+  dependencies:
+    "@xmldom/xmldom": ^0.8.6
+    node-addon-api: ^1.1.0
+    node-gyp: ^9.1.0
+    xml-c14n: ^0.0.6
+  checksum: b731bde63c7e97f4d97022abec445f08dd977f6dc53af9cc4d3f4347dbbf8c218c499a455a4667a2870c4d2ad02f36c46d8b6cc3fc4bac2e85530e4ac6a28216
+  languageName: node
+  linkType: hard
+
 "@eps/domains@link:./domains::locator=%40app%2Feps%40workspace%3Aapps%2Feps":
   version: 0.0.0-use.local
   resolution: "@eps/domains@link:./domains::locator=%40app%2Feps%40workspace%3Aapps%2Feps"
@@ -12067,17 +12079,6 @@ __metadata:
     graphql: ^16.6.0
     graphql-tag: ^2.12.6
     react: ^18.2.0
-  languageName: unknown
-  linkType: soft
-
-"@open-condo/bicrypt@workspace:^, @open-condo/bicrypt@workspace:packages/bicrypt":
-  version: 0.0.0-use.local
-  resolution: "@open-condo/bicrypt@workspace:packages/bicrypt"
-  dependencies:
-    "@xmldom/xmldom": ^0.8.6
-    node-addon-api: ^1.1.0
-    node-gyp: ^9.1.0
-    xml-c14n: ^0.0.6
   languageName: unknown
   linkType: soft
 
