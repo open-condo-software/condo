@@ -43,7 +43,7 @@ async function canManageUserHelpRequests ({ authentication: { item: user }, orig
         if (
             helpRequest.createdBy !== user.id ||
             !isEmpty(inaccessibleUpdatedFields) ||
-            (helpRequest.isReadyToSend && !originalInput.isReadyToSend)
+            (helpRequest.isReadyToSend && originalInput.isReadyToSend === false)
         ) return false
 
         return true

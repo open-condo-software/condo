@@ -43,7 +43,7 @@ const UserHelpRequest = new GQLListSchema('UserHelpRequest', {
                 validateInput: async ({ resolvedData, fieldPath, context }) => {
                     const newValue = resolvedData[fieldPath]
 
-                    if (newValue && newValue !==  normalizePhone(newValue)) {
+                    if (newValue && newValue !== normalizePhone(newValue)) {
                         throw new GQLError(COMMON_ERRORS.WRONG_PHONE_FORMAT, context)
                     }
                 },
@@ -68,7 +68,7 @@ const UserHelpRequest = new GQLListSchema('UserHelpRequest', {
                         const currentMeta = { ...get(existingItem, fieldPath, {}), ...get(resolvedData, fieldPath, {}) }
                         const urls = files.map(file => get(file, 'file.publicUrl')).filter(Boolean)
 
-                        return currentMeta ? { ...currentMeta, files: urls } : { files: urls }
+                        return { ...currentMeta, files: urls }
                     }
 
                     return resolvedData[fieldPath]

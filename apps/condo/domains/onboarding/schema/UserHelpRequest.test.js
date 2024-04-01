@@ -17,6 +17,8 @@ const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser, m
 const { createTestPhone } = require('@condo/domains/user/utils/testSchema')
 
 
+const UPDATE_PAYLOAD = { isReadyToSend: true }
+
 describe('UserHelpRequest', () => {
     let admin, support, anonymous, organization, employeeUser, notEmployeeUser, employeeUserRequest, residentClient
 
@@ -116,16 +118,11 @@ describe('UserHelpRequest', () => {
         })
 
         describe('Update', () => {
-            let payload
-            beforeAll(async () => {
-                payload = { isReadyToSend: true }
-            })
-
             it('admin can', async () => {
                 const [helpRequest] = await createTestUserHelpRequest(admin, organization, {
                     isReadyToSend: false,
                 })
-                const [updatedHelpRequest] = await updateTestUserHelpRequest(admin, helpRequest.id, payload)
+                const [updatedHelpRequest] = await updateTestUserHelpRequest(admin, helpRequest.id, UPDATE_PAYLOAD)
 
                 expect(updatedHelpRequest.isReadyToSend).toBeTruthy()
             })
@@ -136,7 +133,7 @@ describe('UserHelpRequest', () => {
                 })
 
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await updateTestUserHelpRequest(anonymous, helpRequest.id, payload)
+                    await updateTestUserHelpRequest(anonymous, helpRequest.id, UPDATE_PAYLOAD)
                 })
             })
 
@@ -146,7 +143,7 @@ describe('UserHelpRequest', () => {
                 })
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestUserHelpRequest(support, helpRequest.id, payload)
+                    await updateTestUserHelpRequest(support, helpRequest.id, UPDATE_PAYLOAD)
                 })
             })
 
@@ -155,7 +152,7 @@ describe('UserHelpRequest', () => {
                     isReadyToSend: false,
                 })
 
-                const [updatedHelpRequest] = await updateTestUserHelpRequest(employeeUser, helpRequest.id, payload)
+                const [updatedHelpRequest] = await updateTestUserHelpRequest(employeeUser, helpRequest.id, UPDATE_PAYLOAD)
 
                 expect(updatedHelpRequest.isReadyToSend).toBeTruthy()
             })
@@ -166,7 +163,7 @@ describe('UserHelpRequest', () => {
                 })
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestUserHelpRequest(employeeUser, helpRequest.id, payload)
+                    await updateTestUserHelpRequest(employeeUser, helpRequest.id, UPDATE_PAYLOAD)
                 })
             })
 
@@ -198,7 +195,7 @@ describe('UserHelpRequest', () => {
                 })
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestUserHelpRequest(residentClient, helpRequest.id, payload)
+                    await updateTestUserHelpRequest(residentClient, helpRequest.id, UPDATE_PAYLOAD)
                 })
             })
         })
