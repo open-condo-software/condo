@@ -2,6 +2,7 @@ import styled from '@emotion/styled'
 import { Col, Form, Row, Space } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
+import getConfig from 'next/config'
 import React, { Dispatch, SetStateAction, useCallback, useMemo, useState } from 'react'
 
 import { ArrowLeft, Phone } from '@open-condo/icons'
@@ -19,13 +20,15 @@ import { UserHelpRequest, UserHelpRequestFile } from '@condo/domains/onboarding/
 import { useValidations } from './useValidations'
 
 
-const CardsWrapper = styled.div`
+const { publicRuntimeConfig: { importInstructionUrl } } = getConfig()
+
+const CardsWrapper = styled.div<{ hasInstructionCard: boolean }>`
   display: flex;
   flex-direction: row;
   gap: 8px;
 
   & .condo-card {
-    width: 240px;
+    width: ${props => props.hasInstructionCard ? '240px' : 'auto'};
     display: flex;
     flex-direction: column;
 
@@ -297,6 +300,9 @@ export const ImportHelpModal: React.FC<ImportHelpModalProps> = ({ domainName, ac
     const ImportFileCardBody = intl.formatMessage({ id: 'import.helpModal.importFile.card.body' })
     const RequestCallMessage = intl.formatMessage({ id: 'import.helpModal.callback' })
 
+    const locale = useMemo(() => get(intl, 'locale'), [intl])
+    const instructionUrl = useMemo(() => get(importInstructionUrl, [locale, domainName]), [domainName, locale])
+
     if (!activeModal) return null
 
     return (
@@ -311,17 +317,21 @@ export const ImportHelpModal: React.FC<ImportHelpModalProps> = ({ domainName, ac
                         {ChooseVariantMessage}
                     </Typography.Text>
                     <Space size={20} direction='vertical' align='end'>
-                        <CardsWrapper>
-                            {/*TODO(DOMA-8667): Add links to instructions after they are ready*/}
-                            <Card.CardButton
-                                header={{
-                                    emoji: [{ symbol: '📄' }],
-                                    headingTitle: ReadInstructionsCardTitle,
-                                }}
-                                body={{
-                                    description: ReadInstructionsCardBody,
-                                }}
-                            />
+                        <CardsWrapper hasInstructionCard={Boolean(instructionUrl)}>
+                            {
+                                instructionUrl && (
+                                    <Card.CardButton
+                                        onClick={() => window.open(instructionUrl, '_blank')}
+                                        header={{
+                                            emoji: [{ symbol: '📄' }],
+                                            headingTitle: ReadInstructionsCardTitle,
+                                        }}
+                                        body={{
+                                            description: ReadInstructionsCardBody,
+                                        }}
+                                    />
+                                )
+                            }
                             <Card.CardButton
                                 onClick={() => setActiveModal('upload')}
                                 header={{
