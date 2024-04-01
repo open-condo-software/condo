@@ -1488,8 +1488,10 @@ __metadata:
     "@open-condo/cli": "workspace:^"
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
+    "@open-condo/icons": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@open-condo/next": "workspace:^"
+    "@open-condo/ui": "workspace:^"
     "@testing-library/react": ^11.2.5
     "@types/jest": ^29.4.0
     "@types/node": ^16
@@ -1772,8 +1774,10 @@ __metadata:
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/featureflags": "workspace:^"
+    "@open-condo/icons": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@open-condo/next": "workspace:^"
+    "@open-condo/ui": "workspace:^"
     "@registry/domains": "link:./domains"
     "@testing-library/react": ^11.2.5
     "@types/jest": ^29.4.0
