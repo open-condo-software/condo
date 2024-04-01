@@ -88,7 +88,7 @@ const AboutAppBlock = () => {
     const ModalCardLinkMessage = intl.formatMessage({ id: 'tour.guide.aboutApp.modal.card.link' })
 
     const { breakpoints } = useLayoutContext()
-    const locale = useMemo(() => get(intl, locale), [intl])
+    const locale = useMemo(() => get(intl, 'locale'), [intl])
 
     const modalImageBgStyles: CSSProperties = useMemo(() => ({
         display: 'flex',
@@ -123,7 +123,7 @@ const AboutAppBlock = () => {
                                 key={type}
                                 header={{
                                     image: {
-                                        src: `/onboarding/guide/aboutApp/${type}/cardImage.png`,
+                                        src: `/onboarding/guide/aboutApp/${locale}/${type}/cardImage.png`,
                                         size: 'big',
                                     },
                                 }}
@@ -168,7 +168,7 @@ const AboutAppBlock = () => {
                                     breakpoints.TABLET_LARGE && (
                                         <img
                                             style={BANNER_IMAGE_STYLES}
-                                            src={`/onboarding/guide/aboutApp/${type}/modalImage.png`}
+                                            src={`/onboarding/guide/aboutApp/${locale}/${type}/modalImage.png`}
                                         />
                                     )
                                 }
@@ -191,7 +191,7 @@ const AboutAppBlock = () => {
                                         <Col xs={24} md={12}>
                                             <Card title={(
                                                 <img
-                                                    src={`/onboarding/guide/aboutApp/${type}/modalLogo.png`}
+                                                    src={`/onboarding/guide/aboutApp/${locale}/${type}/modalLogo.png`}
                                                     style={CARD_IMAGE_STYLES}
                                                 />
                                             )}
@@ -265,8 +265,11 @@ const INTRODUCE_APP_STEP_TYPES = ['announcement', 'chats', 'layout', 'banner', '
 const IntroduceAppBlock = () => {
     const intl = useIntl()
     const BlockTitle = intl.formatMessage({ id: 'tour.guide.introduceApp.title' })
+    const DownloadPicsMessage = intl.formatMessage({ id: 'tour.guide.introduceApp.step.socialNetworks.downloadPics' })
+    const DownloadTextMessage = intl.formatMessage({ id: 'tour.guide.introduceApp.step.socialNetworks.downloadText' })
 
     const { breakpoints } = useLayoutContext()
+    const locale = useMemo(() => get(intl, 'locale'), [intl])
 
     const scrollRefs = React.useRef(INTRODUCE_APP_STEP_TYPES.reduce((acc, type) => {
         acc[type] = React.createRef()
@@ -311,7 +314,7 @@ const IntroduceAppBlock = () => {
                                     key={type}
                                 >
                                     <Space size={40} direction='vertical'>
-                                        <img style={PANEL_IMAGE_STYLES} src={`/onboarding/guide/introduceApp/${type}/panelImage.png`}/>
+                                        <img style={PANEL_IMAGE_STYLES} src={`/onboarding/guide/introduceApp/${locale}/${type}/panelImage.png`}/>
                                         <div style={STEP_TEXT_CONTAINER_STYLES}>
                                             <Typography.Paragraph type='secondary'>
                                                 {getTextWithAccent(intl.formatMessage({ id: `tour.guide.introduceApp.step.${type}.body` }))}
@@ -334,19 +337,19 @@ const IntroduceAppBlock = () => {
                                         {
                                             type === 'socialNetworks' ? (
                                                 <Space size={16} direction={breakpoints.TABLET_LARGE ? 'horizontal' : 'vertical'}>
-                                                    <a href='/onboarding/guide/introduceApp/socialNetworks/socialNetworks-pics.zip'>
+                                                    <a href={`/onboarding/guide/introduceApp/${locale}/socialNetworks/socialNetworks-pics.zip`}>
                                                         <Button type='secondary' icon={<Download />}>
-                                                            {intl.formatMessage({ id: 'tour.guide.introduceApp.step.socialNetworks.downloadPics' })}
+                                                            {DownloadPicsMessage}
                                                         </Button>
                                                     </a>
-                                                    <a href='/onboarding/guide/introduceApp/socialNetworks/socialNetworks-text.zip'>
+                                                    <a href={`/onboarding/guide/introduceApp/${locale}/socialNetworks/socialNetworks-text.zip`}>
                                                         <Button type='secondary' icon={<Download />}>
-                                                            {intl.formatMessage({ id: 'tour.guide.introduceApp.step.socialNetworks.downloadText' })}
+                                                            {DownloadTextMessage}
                                                         </Button>
                                                     </a>
                                                 </Space>
                                             ) : (
-                                                <a href={`/onboarding/guide/introduceApp/${type}/${type}-materials.zip`}>
+                                                <a href={`/onboarding/guide/introduceApp/${locale}/${type}/${type}-materials.zip`}>
                                                     <Button type='primary' icon={<Download />}>
                                                         {intl.formatMessage({ id: `tour.guide.introduceApp.step.${type}.downloadMaterials` })}
                                                     </Button>

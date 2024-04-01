@@ -61,7 +61,7 @@ export const TechnicAppCard = () => {
                     emoji: [{ symbol: EMOJI.MECHANIC }, { symbol: EMOJI.WRENCH }],
                     headingTitle: TechnicAppCardTitle,
                 }}
-                body={{ image: { src: `/onboarding/technic-app-card/card-image/${locale}/tourTechnicCard.webp`, style: APP_CARD_IMAGE_STYLES } }}
+                body={{ image: { src: `/onboarding/technic-app-card/${locale}/card-image/tourTechnicCard.webp`, style: APP_CARD_IMAGE_STYLES } }}
                 onClick={() => setActiveModal('info')}
                 id='tour-technic-app-card'
             />
@@ -96,7 +96,7 @@ export const TechnicAppCard = () => {
                                 <div style={imageContainerStyles}>
                                     <div style={TAB_IMAGE_WRAPPER_STYLES}>
                                         <img
-                                            src={`/onboarding/technic-app-card/tabs/${locale}/admin.webp`}
+                                            src={`/onboarding/technic-app-card/${locale}/tabs/admin.webp`}
                                             alt='Technic app preview for admins'
                                             style={{ width: '277px' }}
                                         />
@@ -114,7 +114,7 @@ export const TechnicAppCard = () => {
                                 <div style={imageContainerStyles}>
                                     <div style={TAB_IMAGE_WRAPPER_STYLES}>
                                         <img
-                                            src={`/onboarding/technic-app-card/tabs/${locale}/technic.webp`}
+                                            src={`/onboarding/technic-app-card/${locale}/tabs/technic.webp`}
                                             alt='Technic app preview for technics'
                                             style={{ width: '350px' }}
                                         />
@@ -132,7 +132,7 @@ export const TechnicAppCard = () => {
                                 <div style={imageContainerStyles}>
                                     <div style={TAB_IMAGE_WRAPPER_STYLES}>
                                         <img
-                                            src={`/onboarding/technic-app-card/tabs/${locale}/security.webp`}
+                                            src={`/onboarding/technic-app-card/${locale}/tabs/security.webp`}
                                             alt='Technic app preview for security'
                                             style={{ width: '427px' }}
                                         />
@@ -212,7 +212,7 @@ export const ResidentAppCard = () => {
                 emoji: [{ symbol: EMOJI.WOMAN }, { symbol: EMOJI.MAN }],
                 headingTitle: ResidentAppCardTitle,
             }}
-            body={{ image: { src: `/onboarding/tour-resident-card/card-image/${locale}/tourResidentCard.webp`, style: APP_CARD_IMAGE_STYLES } }}
+            body={{ image: { src: `/onboarding/tour-resident-card/${locale}/card-image/tourResidentCard.webp`, style: APP_CARD_IMAGE_STYLES } }}
             onClick={() => {
                 window.open(landingLink, '_blank')
             }}
