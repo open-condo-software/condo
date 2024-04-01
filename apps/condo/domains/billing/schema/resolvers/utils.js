@@ -37,6 +37,20 @@ const isPerson = (fullName) => {
 
 const isValidFias = (fias = '') => FIAS_REGEXP.test(fias)
 
+/**
+ * Normalize FIAS code to extract the house part.
+ *
+ * @param {string} rawFiasCode - FIAS code containing information about the unit separated with a comma.
+ * @returns {string|null} Returns the house part of the FIAS code if valid, otherwise returns null.
+ */
+const normalizePropertyGlobalId = (rawFiasCode) => {
+    const [fias] = rawFiasCode.split(',')
+    if (isValidFias(fias)) {
+        return fias
+    }
+    return null
+}
+
 const sortPeriodFunction = (periodA, periodB) => (dayjs(periodA, 'YYYY-MM-DD').isAfter(dayjs(periodB, 'YYYY-MM-DD')) ? 1 : -1)
 
 module.exports = {
@@ -44,4 +58,5 @@ module.exports = {
     isPerson,
     isValidFias,
     sortPeriodFunction,
+    normalizePropertyGlobalId,
 }
