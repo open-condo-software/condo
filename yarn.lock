@@ -1389,6 +1389,7 @@ __metadata:
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@open-condo/next": "workspace:^"
+    "@open-condo/ui": "workspace:^"
     "@testing-library/react": ^11.2.5
     "@types/jest": ^29.4.0
     "@types/node": ^16
@@ -1950,6 +1951,7 @@ __metadata:
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@open-condo/next": "workspace:^"
+    "@open-condo/ui": "workspace:^"
     "@telephony/domains": "link:./domains"
     "@testing-library/react": ^11.2.5
     "@types/jest": ^29.4.0
