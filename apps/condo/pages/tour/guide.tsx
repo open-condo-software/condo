@@ -1,5 +1,7 @@
 import styled from '@emotion/styled'
 import { Col, Collapse, Row, RowProps } from 'antd'
+import get from 'lodash/get'
+import getConfig from 'next/config'
 import Head from 'next/head'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
@@ -16,6 +18,12 @@ import {
     useLayoutContext,
 } from '@condo/domains/common/components/containers/BaseLayout'
 
+
+const {
+    publicRuntimeConfig,
+} = getConfig()
+
+const { guideModalCardLink } = publicRuntimeConfig
 
 const MEDIUM_GUTTER: RowProps['gutter'] = [0, 40]
 const LARGE_GUTTER: RowProps['gutter'] = [0, 60]
@@ -59,12 +67,6 @@ const CardsWrapper = styled.div`
 const BANNER_IMAGE_STYLES: CSSProperties = { height: '100%' }
 const CARD_IMAGE_STYLES: CSSProperties = { height: '30px' }
 
-const MODAL_TYPE_TO_CARD_LINK = {
-    payments: 'https://doma.ai/blog/business_start',
-    costs: 'https://doma.ai/blog/free_to_use',
-    quality: 'https://doma.ai/blog/communication',
-}
-
 const getTextWithAccent = (text) => {
     const parts = text.split(/\{accent\}(.*?)\{\/accent\}/)
 
@@ -86,6 +88,7 @@ const AboutAppBlock = () => {
     const ModalCardLinkMessage = intl.formatMessage({ id: 'tour.guide.aboutApp.modal.card.link' })
 
     const { breakpoints } = useLayoutContext()
+    const locale = useMemo(() => get(intl, locale), [intl])
 
     const modalImageBgStyles: CSSProperties = useMemo(() => ({
         display: 'flex',
@@ -105,6 +108,7 @@ const AboutAppBlock = () => {
         quality: colors.blue[5],
         communication: colors.pink[5],
     }), [])
+
 
     return (
         <Row gutter={MEDIUM_GUTTER}>
@@ -183,7 +187,7 @@ const AboutAppBlock = () => {
                                     }
                                 </Col>
                                 {
-                                    MODAL_TYPE_TO_CARD_LINK[type] && (
+                                    get(guideModalCardLink, [locale, type]) && (
                                         <Col xs={24} md={12}>
                                             <Card title={(
                                                 <img
@@ -195,7 +199,7 @@ const AboutAppBlock = () => {
                                                 <Card.CardBody
                                                     description={intl.formatMessage({ id: `tour.guide.aboutApp.${type}.modal.card.body` })}
                                                     mainLink={{
-                                                        href: MODAL_TYPE_TO_CARD_LINK[type],
+                                                        href: get(guideModalCardLink, [locale, type]),
                                                         PreIcon: ExternalLink,
                                                         label: ModalCardLinkMessage,
                                                         openInNewTab: true,

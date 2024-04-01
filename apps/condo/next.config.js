@@ -53,8 +53,9 @@ const condoRBDomain = conf['CONDORB_DOMAIN']
 const sentryConfig = conf['SENTRY_CONFIG'] ? JSON.parse(conf['SENTRY_CONFIG']) : {}
 const apolloBatchingEnabled = !falsey(conf['APOLLO_BATCHING_ENABLED'])
 const tourVideoUrl = JSON.parse(conf['TOUR_VIDEO_URL'] || '{}')
-const residentAppLandingUrl = conf['RESIDENT_APP_LANDING_URL'] || ''
-const createMapVideoUrl = conf['CREATE_MAP_VIDEO_URL'] || ''
+const residentAppLandingUrl = JSON.parse(conf['RESIDENT_APP_LANDING_URL'] || '{}')
+const createMapVideoUrl = JSON.parse(conf['CREATE_MAP_VIDEO_URL'] || '{}')
+const guideModalCardLink = JSON.parse(conf['GUIDE_MODAL_CARD_LINK'] || '{}')
 
 let nextConfig = withTM(withLess(withCSS({
     publicRuntimeConfig: {
@@ -90,6 +91,7 @@ let nextConfig = withTM(withLess(withCSS({
         tourVideoUrl,
         residentAppLandingUrl,
         createMapVideoUrl,
+        guideModalCardLink,
     },
     lessLoaderOptions: {
         javascriptEnabled: true,

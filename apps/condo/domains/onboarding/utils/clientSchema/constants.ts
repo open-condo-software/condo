@@ -1,4 +1,3 @@
-import getConfig from 'next/config'
 import Link from 'next/link'
 
 import { Building, ExternalLink, Meters, PlusCircle, Wallet } from '@open-condo/icons'
@@ -11,14 +10,7 @@ import {
 } from '@condo/domains/onboarding/constants/steps'
 
 
-const {
-    publicRuntimeConfig,
-} = getConfig()
-
-const { residentAppLandingUrl } = publicRuntimeConfig
-
 export const GUIDE_LINK = '/tour/guide'
-export const RESIDENT_APP_LANDING_EXTERNAL_LINK = residentAppLandingUrl
 
 /**
  * Link when clicking on an active step in the tour page
