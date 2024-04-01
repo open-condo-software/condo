@@ -18,9 +18,9 @@ const {
     MOBILE_APP_UPDATE_AVAILABLE_MESSAGE_PUSH_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { MessageBatch, RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
+const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
-const { Property } = require('@condo/domains/property/utils/serverSchema')
 
 const _internalSendNotificationNewMobileAppVersionService = new GQLCustomSchema('_internalSendNotificationNewMobileAppVersionService', {
     types: [

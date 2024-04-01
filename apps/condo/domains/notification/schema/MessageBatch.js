@@ -6,6 +6,7 @@ const { Text, Select } = require('@keystonejs/fields')
 const { isArray, isEmpty } = require('lodash')
 
 
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
@@ -21,9 +22,7 @@ const {
     BODY_IS_REQUIRED_FOR_CUSTOM_CONTENT_MESSAGE_TYPE,
     TITLE_IS_REQUIRED_FOR_CUSTOM_CONTENT_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
-
-const { sendMessageBatch } = require('../tasks/sendMessageBatch')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { sendMessageBatch } = require('@condo/domains/notification/tasks/sendMessageBatch')
 
 const operationForbiddenValidator = ({ fieldPath, addFieldValidationError, operation }) => {
     if (operation === 'update') addFieldValidationError(`${OPERATION_FORBIDDEN}] Updating ${fieldPath} is forbidden.`)
