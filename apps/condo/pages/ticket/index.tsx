@@ -75,6 +75,7 @@ import {
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 import { Ticket as TicketGQL } from '@condo/domains/ticket/gql'
 import { useBooleanAttributesSearch } from '@condo/domains/ticket/hooks/useBooleanAttributesSearch'
+import { useCheckboxSearch } from '@condo/domains/ticket/hooks/useCheckboxSearch'
 import { useFiltersTooltipData } from '@condo/domains/ticket/hooks/useFiltersTooltipData'
 import { useImporterFunctions } from '@condo/domains/ticket/hooks/useImporterFunctions'
 import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
@@ -609,6 +610,7 @@ const FiltersContainer = ({ filterMetas }) => {
     const WarrantiesLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.WarrantiesLabel' })
     const ReturnedLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.ReturnedLabel' })
     const PayableLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.PayableLabel' })
+    const ExpiredLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.ExpiredLabel' })
 
     const router = useRouter()
     const { filters } = parseQuery(router.query)
@@ -626,6 +628,7 @@ const FiltersContainer = ({ filterMetas }) => {
         statusReopenedCounter: returned,
         isPayable: payable,
     } = attributes
+    const [isCompletedAfterDeadline, handleChangeIsCompletedAfterDeadline, handleResetIsCompletedAfterDeadline, handleUpdateIsCompletedAfterDeadline] = useCheckboxSearch('isCompletedAfterDeadline')
 
     const handleAttributeCheckboxChange = useCallback((attributeName: string) => (e: CheckboxChangeEvent) => {
         const isChecked = get(e, ['target', 'checked'])
@@ -635,17 +638,22 @@ const FiltersContainer = ({ filterMetas }) => {
     const handleResetFilters = useCallback(() => {
         handleResetAllAttributes()
         handleResetSearch()
-    }, [handleResetAllAttributes, handleResetSearch])
+        handleResetIsCompletedAfterDeadline()
+    }, [handleResetAllAttributes, handleResetSearch, handleResetIsCompletedAfterDeadline])
+
+    const handleSubmitFilters = useCallback((filters) => {
+        handleChangeAllAttributes(filters)
+        handleUpdateIsCompletedAfterDeadline(filters)
+    }, [handleChangeAllAttributes, handleUpdateIsCompletedAfterDeadline])
 
     const { MultipleFiltersModal, ResetFiltersModalButton, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(
-        filterMetas, TicketFilterTemplate, handleResetFilters, handleChangeAllAttributes, 'Ticket', DETAILED_LOGGING
+        filterMetas, TicketFilterTemplate, handleResetFilters, handleSubmitFilters, 'Ticket', DETAILED_LOGGING
     )
 
     const handleSearchChange = useCallback((e) => {
         changeSearch(e.target.value)
     }, [changeSearch])
 
-    let inputColSpan = 24
     let checkboxColSpan = 24
     let filterButtonColSpan = 24
 
@@ -658,8 +666,7 @@ const FiltersContainer = ({ filterMetas }) => {
     }
 
     if (isXxlContainerSize) {
-        inputColSpan = 5
-        checkboxColSpan = 12
+        checkboxColSpan = 17
         filterButtonColSpan = 7
     }
 
@@ -667,7 +674,7 @@ const FiltersContainer = ({ filterMetas }) => {
         <>
             <TableFiltersContainer ref={setRef}>
                 <Row gutter={FILTERS_CONTAINER_ROW_GUTTER} align='middle'>
-                    <Col span={inputColSpan}>
+                    <Col span={24}>
                         <Input
                             placeholder={SearchPlaceholder}
                             onChange={handleSearchChange}
@@ -677,61 +684,79 @@ const FiltersContainer = ({ filterMetas }) => {
                         />
                     </Col>
                     <Col span={checkboxColSpan}>
-                        <Row gutter={CHECKBOX_WRAPPER_GUTTERS} style={CHECKBOX_WRAPPER_STYLES}>
-                            <Col>
-                                <Checkbox
-                                    onChange={handleAttributeCheckboxChange('isRegular')}
-                                    checked={regular}
-                                    style={CHECKBOX_STYLE}
-                                    eventName='TicketFilterCheckboxRegular'
-                                    data-cy='ticket__filter-isRegular'
-                                >
-                                    {RegularLabel}
-                                </Checkbox>
+                        <Row gutter={CHECKBOX_WRAPPER_GUTTERS}>
+                            <Col span={24}>
+                                <Row gutter={CHECKBOX_WRAPPER_GUTTERS} style={CHECKBOX_WRAPPER_STYLES}>
+                                    <Col>
+                                        <Checkbox
+                                            onChange={handleAttributeCheckboxChange('isRegular')}
+                                            checked={regular}
+                                            style={CHECKBOX_STYLE}
+                                            eventName='TicketFilterCheckboxRegular'
+                                            data-cy='ticket__filter-isRegular'
+                                        >
+                                            {RegularLabel}
+                                        </Checkbox>
+                                    </Col>
+                                    <Col>
+                                        <Checkbox
+                                            onChange={handleAttributeCheckboxChange('isEmergency')}
+                                            checked={emergency}
+                                            style={CHECKBOX_STYLE}
+                                            eventName='TicketFilterCheckboxEmergency'
+                                            data-cy='ticket__filter-isEmergency'
+                                        >
+                                            {EmergenciesLabel}
+                                        </Checkbox>
+                                    </Col>
+                                    <Col>
+                                        <Checkbox
+                                            onChange={handleAttributeCheckboxChange('isPayable')}
+                                            checked={payable}
+                                            style={CHECKBOX_STYLE}
+                                            eventName='TicketFilterCheckboxPayable'
+                                            data-cy='ticket__filter-isPayable'
+                                        >
+                                            {PayableLabel}
+                                        </Checkbox>
+                                    </Col>
+                                    <Col>
+                                        <Checkbox
+                                            onChange={handleAttributeCheckboxChange('isWarranty')}
+                                            checked={warranty}
+                                            style={CHECKBOX_STYLE}
+                                            eventName='TicketFilterCheckboxWarranty'
+                                            data-cy='ticket__filter-isWarranty'
+                                        >
+                                            {WarrantiesLabel}
+                                        </Checkbox>
+                                    </Col>
+                                    <Col>
+                                        <Checkbox
+                                            onChange={handleAttributeCheckboxChange('statusReopenedCounter')}
+                                            checked={returned}
+                                            style={CHECKBOX_STYLE}
+                                            eventName='TicketFilterCheckboxReturned'
+                                            data-cy='ticket__filter-isReturned'
+                                        >
+                                            {ReturnedLabel}
+                                        </Checkbox>
+                                    </Col>
+                                </Row>
                             </Col>
-                            <Col>
-                                <Checkbox
-                                    onChange={handleAttributeCheckboxChange('isEmergency')}
-                                    checked={emergency}
-                                    style={CHECKBOX_STYLE}
-                                    eventName='TicketFilterCheckboxEmergency'
-                                    data-cy='ticket__filter-isEmergency'
-                                >
-                                    {EmergenciesLabel}
-                                </Checkbox>
-                            </Col>
-                            <Col>
-                                <Checkbox
-                                    onChange={handleAttributeCheckboxChange('isPayable')}
-                                    checked={payable}
-                                    style={CHECKBOX_STYLE}
-                                    eventName='TicketFilterCheckboxPayable'
-                                    data-cy='ticket__filter-isPayable'
-                                >
-                                    {PayableLabel}
-                                </Checkbox>
-                            </Col>
-                            <Col>
-                                <Checkbox
-                                    onChange={handleAttributeCheckboxChange('isWarranty')}
-                                    checked={warranty}
-                                    style={CHECKBOX_STYLE}
-                                    eventName='TicketFilterCheckboxWarranty'
-                                    data-cy='ticket__filter-isWarranty'
-                                >
-                                    {WarrantiesLabel}
-                                </Checkbox>
-                            </Col>
-                            <Col>
-                                <Checkbox
-                                    onChange={handleAttributeCheckboxChange('statusReopenedCounter')}
-                                    checked={returned}
-                                    style={CHECKBOX_STYLE}
-                                    eventName='TicketFilterCheckboxReturned'
-                                    data-cy='ticket__filter-isReturned'
-                                >
-                                    {ReturnedLabel}
-                                </Checkbox>
+                            <Col span={24}>
+                                <Row gutter={CHECKBOX_WRAPPER_GUTTERS}>
+                                    <Col>
+                                        <Checkbox
+                                            onChange={(event) => handleChangeIsCompletedAfterDeadline(get(event, 'target.checked', false))}
+                                            checked={isCompletedAfterDeadline}
+                                            style={CHECKBOX_STYLE}
+                                            eventName='TicketFilterCheckboxIsCompletedAfterDeadline'
+                                            data-cy='ticket__filter-isCompletedAfterDeadline'
+                                            children={ExpiredLabel}
+                                        />
+                                    </Col>
+                                </Row>
                             </Col>
                         </Row>
                     </Col>

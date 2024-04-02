@@ -26,9 +26,7 @@ import {
     getNumberFilter,
     getStringContainsFilter,
 } from '@condo/domains/common/utils/tables.utils'
-import {
-    searchOrganizationPropertyScope,
-} from '@condo/domains/scope/utils/clientSchema/search'
+import { searchOrganizationPropertyScope } from '@condo/domains/scope/utils/clientSchema/search'
 import { VISIBLE_TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/common'
 import { FEEDBACK_VALUES_BY_KEY } from '@condo/domains/ticket/constants/feedback'
 import { QUALITY_CONTROL_VALUES_BY_KEY } from '@condo/domains/ticket/constants/qualityControl'
@@ -40,16 +38,16 @@ import {
     FilterModalProblemClassifierSelect,
 } from './useModalFilterClassifiers'
 
-import {
-    searchEmployeeUser,
-    searchOrganizationProperty,
-} from '../utils/clientSchema/search'
+import { FilterModalCompletedAfterDeadline } from '../components/TicketModalFilters'
+import { searchEmployeeUser, searchOrganizationProperty } from '../utils/clientSchema/search'
 import {
     getClientNameFilter,
     getFilterAddressForSearch,
+    getIsCompletedAfterDeadlineFilter,
     getIsResidentContactFilter,
     getPropertyScopeFilter,
-    getTicketAttributesFilter, getTicketTypeFilter,
+    getTicketAttributesFilter,
+    getTicketTypeFilter,
 } from '../utils/tables.utils'
 
 
@@ -85,6 +83,7 @@ const filterClientPhone = getFilter('clientPhone', 'array', 'string', 'in')
 const filterTicketAuthor = getFilter(['createdBy', 'id'], 'array', 'string', 'in')
 const filterTicketContact = getFilter(['contact', 'id'], 'array', 'string', 'in')
 const filterPropertyScope = getPropertyScopeFilter()
+const filterIsCompletedAfterDeadline = getIsCompletedAfterDeadlineFilter()
 
 
 export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ticket>> {
@@ -438,7 +437,25 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
                     modalFilterComponentWrapper: {
                         label: AttributeLabel,
                         size: FilterComponentSize.Small,
-                        spaceSizeAfter: FilterComponentSize.Small,
+                    },
+                },
+            },
+            {
+                keyword: 'isCompletedAfterDeadline',
+                filters: [filterIsCompletedAfterDeadline],
+                component: {
+                    type: ComponentType.Custom,
+                    modalFilterComponent: (form) => <FilterModalCompletedAfterDeadline form={form} />,
+                    modalFilterComponentWrapper: {
+                        size: FilterComponentSize.Small,
+                        formItemProps: {
+                            valuePropName: 'checked',
+                            style: {
+                                height: '100%',
+                                display: 'flex',
+                                alignItems: 'flex-end',
+                            },
+                        },
                     },
                 },
             },

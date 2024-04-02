@@ -6,6 +6,7 @@ import uniq from 'lodash/uniq'
 import { ADDRESS_SEARCH_STOP_WORDS } from '@condo/domains/common/constants'
 import { OMIT_SEARCH_CHARACTERS_REGEXP } from '@condo/domains/common/constants/regexps'
 import { DataIndexType, FilterType } from '@condo/domains/common/utils/tables.utils'
+import { NEW_OR_REOPENED_STATUS_TYPE, PROCESSING_STATUS_TYPE, COMPLETED_STATUS_TYPE, CLOSED_STATUS_TYPE } from '@condo/domains/ticket/constants'
 import { INCIDENT_STATUS_ACTUAL, INCIDENT_STATUS_NOT_ACTUAL } from '@condo/domains/ticket/constants/incident'
 
 
@@ -40,6 +41,19 @@ export const getTicketAttributesFilter: AttributesFilterGetterType = (dataIndice
                     [wrappedDataIndex]: true,
                 }
             }).filter(Boolean),
+        }
+    }
+}
+
+export const getIsCompletedAfterDeadlineFilter = (): FilterType => {
+    return function getWhereQuery (search) {
+        if (search !== 'true') return
+
+        return {
+            OR: [
+                { AND: { status: { type_in: [COMPLETED_STATUS_TYPE, CLOSED_STATUS_TYPE] }, isCompletedAfterDeadline: true } },
+                { AND: { status: { type_in: [NEW_OR_REOPENED_STATUS_TYPE, PROCESSING_STATUS_TYPE] }, deadline_lt: (new Date()).toISOString() } },
+            ],
         }
     }
 }
