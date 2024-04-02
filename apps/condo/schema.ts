@@ -17881,7 +17881,6 @@ export type BillingRecipientCreateInput = {
   territoryCode?: Maybe<Scalars['String']>;
   purpose?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
-  isApproved?: Maybe<Scalars['Boolean']>;
   classificationCode?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
@@ -17917,7 +17916,7 @@ export type BillingRecipientHistoryRecord = {
   territoryCode?: Maybe<Scalars['String']>;
   purpose?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
-  isApproved?: Maybe<Scalars['Boolean']>;
+  isApproved?: Maybe<Scalars['JSON']>;
   classificationCode?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
@@ -17947,7 +17946,7 @@ export type BillingRecipientHistoryRecordCreateInput = {
   territoryCode?: Maybe<Scalars['String']>;
   purpose?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
-  isApproved?: Maybe<Scalars['Boolean']>;
+  isApproved?: Maybe<Scalars['JSON']>;
   classificationCode?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
@@ -17982,7 +17981,7 @@ export type BillingRecipientHistoryRecordUpdateInput = {
   territoryCode?: Maybe<Scalars['String']>;
   purpose?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
-  isApproved?: Maybe<Scalars['Boolean']>;
+  isApproved?: Maybe<Scalars['JSON']>;
   classificationCode?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
@@ -18186,8 +18185,10 @@ export type BillingRecipientHistoryRecordWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  isApproved?: Maybe<Scalars['Boolean']>;
-  isApproved_not?: Maybe<Scalars['Boolean']>;
+  isApproved?: Maybe<Scalars['JSON']>;
+  isApproved_not?: Maybe<Scalars['JSON']>;
+  isApproved_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  isApproved_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   classificationCode?: Maybe<Scalars['String']>;
   classificationCode_not?: Maybe<Scalars['String']>;
   classificationCode_contains?: Maybe<Scalars['String']>;
@@ -18320,7 +18321,6 @@ export type BillingRecipientUpdateInput = {
   territoryCode?: Maybe<Scalars['String']>;
   purpose?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
-  isApproved?: Maybe<Scalars['Boolean']>;
   classificationCode?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
@@ -18519,8 +18519,6 @@ export type BillingRecipientWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  isApproved?: Maybe<Scalars['Boolean']>;
-  isApproved_not?: Maybe<Scalars['Boolean']>;
   classificationCode?: Maybe<Scalars['String']>;
   classificationCode_not?: Maybe<Scalars['String']>;
   classificationCode_contains?: Maybe<Scalars['String']>;
@@ -75655,8 +75653,6 @@ export enum SortBillingRecipientHistoryRecordsBy {
   PurposeDesc = 'purpose_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
-  IsApprovedAsc = 'isApproved_ASC',
-  IsApprovedDesc = 'isApproved_DESC',
   ClassificationCodeAsc = 'classificationCode_ASC',
   ClassificationCodeDesc = 'classificationCode_DESC',
   IdAsc = 'id_ASC',
@@ -75700,8 +75696,6 @@ export enum SortBillingRecipientsBy {
   PurposeDesc = 'purpose_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
-  IsApprovedAsc = 'isApproved_ASC',
-  IsApprovedDesc = 'isApproved_DESC',
   ClassificationCodeAsc = 'classificationCode_ASC',
   ClassificationCodeDesc = 'classificationCode_DESC',
   IdAsc = 'id_ASC',
