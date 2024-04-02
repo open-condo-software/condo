@@ -21632,6 +21632,7 @@ type TicketHistoryRecord {
   source: String
   sourceMeta: JSON
   deferredUntil: String
+  isCompletedAfterDeadline: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -22130,6 +22131,8 @@ input TicketHistoryRecordWhereInput {
   deferredUntil_gte: String
   deferredUntil_in: [String]
   deferredUntil_not_in: [String]
+  isCompletedAfterDeadline: Boolean
+  isCompletedAfterDeadline_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -22281,6 +22284,8 @@ enum SortTicketHistoryRecordsBy {
   unitType_DESC
   deferredUntil_ASC
   deferredUntil_DESC
+  isCompletedAfterDeadline_ASC
+  isCompletedAfterDeadline_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -22354,6 +22359,7 @@ input TicketHistoryRecordUpdateInput {
   source: String
   sourceMeta: JSON
   deferredUntil: String
+  isCompletedAfterDeadline: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -22428,6 +22434,7 @@ input TicketHistoryRecordCreateInput {
   source: String
   sourceMeta: JSON
   deferredUntil: String
+  isCompletedAfterDeadline: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -22728,6 +22735,10 @@ type Ticket {
 
   """ Date until which the ticket is deferred """
   deferredUntil: String
+
+  """ (Auto-set) Used to filter tickets that were completed after the deadline 
+  """
+  isCompletedAfterDeadline: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -23140,6 +23151,8 @@ input TicketWhereInput {
   deferredUntil_gte: String
   deferredUntil_in: [String]
   deferredUntil_not_in: [String]
+  isCompletedAfterDeadline: Boolean
+  isCompletedAfterDeadline_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -23301,6 +23314,8 @@ enum SortTicketsBy {
   source_DESC
   deferredUntil_ASC
   deferredUntil_DESC
+  isCompletedAfterDeadline_ASC
+  isCompletedAfterDeadline_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -23374,6 +23389,7 @@ input TicketUpdateInput {
   source: TicketSourceRelateToOneInput
   sourceMeta: JSON
   deferredUntil: String
+  isCompletedAfterDeadline: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -23445,6 +23461,7 @@ input TicketCreateInput {
   source: TicketSourceRelateToOneInput
   sourceMeta: JSON
   deferredUntil: String
+  isCompletedAfterDeadline: Boolean
   v: Int
   createdAt: String
   updatedAt: String
