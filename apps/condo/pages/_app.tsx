@@ -55,6 +55,7 @@ import {
 } from '@condo/domains/common/constants/menuCategories'
 import { useHotCodeReload } from '@condo/domains/common/hooks/useHotCodeReload'
 import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
+import { usePreviousQueryParams } from '@condo/domains/common/hooks/usePreviousFilters'
 import { messagesImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
 import { useContactExportTaskUIInterface } from '@condo/domains/contact/hooks/useContactExportTaskUIInterface'
 import { ConnectedAppsWithIconsContextProvider, useConnectedAppsWithIconsContext } from '@condo/domains/miniapp/components/ConnectedAppsWithIconsProvider'
@@ -437,11 +438,26 @@ const TasksProvider = ({ children }) => {
     )
 }
 
+const PAGES_WITH_SAVING_OF_QUERY_PARAMS = [
+    '/callRecord',
+    '/contact',
+    '/employee',
+    '/incident',
+    '/marketplace',
+    '/meter',
+    '/news',
+    '/property',
+    '/settings/hint',
+    '/ticket',
+]
+
 const MyApp = ({ Component, pageProps }) => {
     const intl = useIntl()
     useHotCodeReload()
     dayjs.locale(intl.locale)
     const router = useRouter()
+
+    usePreviousQueryParams(PAGES_WITH_SAVING_OF_QUERY_PARAMS)
 
     const LayoutComponent = Component.container || BaseLayout
     // TODO(Dimitreee): remove this mess later
