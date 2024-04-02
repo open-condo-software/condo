@@ -452,8 +452,8 @@ describe('BankAccount', () => {
                 const [updatedObj] = await updateTestBankAccount(adminClient, createdObj.id, { approvedAt: 'true'  })
 
                 expect(createdObj.id).toEqual(updatedObj.id)
-                expect(createdObj.approvedAt).toBeNull()
-                expect(createdObj.approvedBy).toBeNull()
+                expect(createdObj.approvedAt).toMatch(ISO_8601_FULL)
+                expect(createdObj.approvedBy.id).toEqual(adminClient.user.id)
 
                 expect(updatedObj.approvedAt).toMatch(ISO_8601_FULL)
                 expect(updatedObj.approvedBy.id).toEqual(adminClient.user.id)
@@ -468,8 +468,8 @@ describe('BankAccount', () => {
                 expect(createdObj.id).toEqual(updatedObj.id)
                 expect(createdObj.approvedBy.id).toEqual(adminClient.user.id)
 
-                expect(updatedObj.approvedBy).toBeNull()
-                expect(updatedObj.approvedAt).toBeNull()
+                expect(updatedObj.approvedAt).toMatch(ISO_8601_FULL)
+                expect(updatedObj.approvedBy.id).toEqual(adminClient.user.id)
                 expect(updatedObj.bankName).toEqual('NewBankName')
             })
 
@@ -480,8 +480,8 @@ describe('BankAccount', () => {
                 const [updatedObj] = await updateTestBankAccount(supportClient, createdObj.id, { approvedAt: 'true' })
 
                 expect(createdObj.id).toEqual(updatedObj.id)
-                expect(createdObj.approvedAt).toBeNull()
-                expect(createdObj.approvedBy).toBeNull()
+                expect(createdObj.approvedAt).toMatch(ISO_8601_FULL)
+                expect(createdObj.approvedBy.id).toEqual(supportClient.user.id)
                 expect(updatedObj.approvedBy.id).toEqual(supportClient.user.id)
             })
 

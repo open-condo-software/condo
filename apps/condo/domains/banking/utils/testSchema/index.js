@@ -112,6 +112,7 @@ async function createTestBankAccount (client, organization, extraAttrs = {}) {
         sender,
         organization: { connect: { id: organization.id } },
         importId: faker.datatype.uuid(),
+        isApproved: true,
         ...requisitesForRuBankAccount,
         ...extraAttrs,
     }

@@ -466,6 +466,28 @@ describe('BillingRecipient', () => {
                 const recipient = await BillingRecipient.getOne(admin, { id: createdObj.id })
                 expect(recipient.isApproved).toEqual(false)
             })
+
+            test('related organization different tin and bank account not approved', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const { context, organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+                const [createdObj] = await createTestBillingRecipient(admin, context)
+
+                // create account
+                const [account] = await createTestBankAccount(admin, organization, {
+                    isApproved: false,
+                })
+
+                // update recipient tin
+                await updateTestBillingRecipient(admin, createdObj.id, {
+                    tin: account.tin,
+                    bic: account.routingNumber,
+                    bankAccount: account.number,
+                })
+
+                // get recipient
+                const recipient = await BillingRecipient.getOne(admin, { id: createdObj.id })
+                expect(recipient.isApproved).toEqual(false)
+            })
         })
     })
 
