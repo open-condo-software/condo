@@ -1,7 +1,8 @@
 import debounce from 'lodash/debounce'
 import get from 'lodash/get'
+import isEqual from 'lodash/isEqual'
 import { useRouter } from 'next/router'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
 import { getFiltersFromQuery, updateQuery } from '@condo/domains/common/utils/helpers'
@@ -10,12 +11,13 @@ import { FiltersFromQueryType } from '@condo/domains/common/utils/tables.utils'
 
 type UseCheckboxSearchOutputType = [boolean, (isChecked: boolean) => void, () => void, (filters) => void]
 
-const getStateFromQuery = (filtersFromQuery, fieldName) => get(filtersFromQuery, fieldName, false) === 'true'
+const getCheckboxValue = (filtersFromQuery, fieldName) => get(filtersFromQuery, fieldName, false) === 'true'
 
 export const useCheckboxSearch = <F> (fieldName: string): UseCheckboxSearchOutputType => {
     const router = useRouter()
     const filtersFromQuery = useMemo(() => getFiltersFromQuery<F>(router.query), [router.query])
-    const [value, setValue] = useState<boolean>(getStateFromQuery(filtersFromQuery, fieldName))
+    const checkboxValueFromQuery = useMemo(() => getCheckboxValue(filtersFromQuery, fieldName), [fieldName, filtersFromQuery])
+    const [value, setValue] = useState<boolean>(checkboxValueFromQuery)
 
     const changeQuery = useMemo(() => debounce(async (isChecked: boolean) => {
         const newFilters = { ...filtersFromQuery } as FiltersFromQueryType
@@ -35,12 +37,18 @@ export const useCheckboxSearch = <F> (fieldName: string): UseCheckboxSearchOutpu
     }, [changeQuery])
 
     const handleChangeCheckboxWithoutUpdateQuery = useCallback((filters) => {
-        setValue(getStateFromQuery(filters, fieldName))
+        setValue(getCheckboxValue(filters, fieldName))
     }, [fieldName])
 
     const handleResetCheckboxWithoutUpdateQuery = useCallback(() => {
         setValue(false)
     }, [])
+
+    useEffect(() => {
+        if (!isEqual(checkboxValueFromQuery, value)) {
+            setValue(checkboxValueFromQuery)
+        }
+    }, [checkboxValueFromQuery])
 
     return [value, handleChangeCheckbox, handleResetCheckboxWithoutUpdateQuery, handleChangeCheckboxWithoutUpdateQuery]
 }
