@@ -117,6 +117,7 @@ const BillingRecipient = new GQLListSchema('BillingRecipient', {
                     tin: get(recipient, 'tin'),
                     routingNumber: get(recipient, 'bic'),
                     number: get(recipient, 'bankAccount'),
+                    isApproved: true,
                     deletedAt: null,
                 })
 

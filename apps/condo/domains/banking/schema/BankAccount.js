@@ -157,6 +157,13 @@ const BankAccount = new GQLListSchema('BankAccount', {
 
         currencyCode: CURRENCY_CODE_FIELD,
 
+        isApproved: {
+            schemaDoc: 'Shows whether the bank account approved or not',
+            type: 'Checkbox',
+            defaultValue: false,
+            kmigratorOptions: { default: false },
+        },
+
         approvedAt: {
             schemaDoc: 'When the bank account received the status of approved',
             type: DateTimeUtc,
@@ -230,18 +237,18 @@ const BankAccount = new GQLListSchema('BankAccount', {
         auth: true,
     },
     hooks: {
-        resolveInput: async ({ resolvedData, context }) => {
+        resolveInput: async ({ context, resolvedData, existingItem }) => {
+            // do not change approvedAt && approvedBy fields
+            resolvedData.approvedAt = get(existingItem, 'approvedAt')
+            resolvedData.approvedBy = get(existingItem, 'approvedBy')
 
-            // If bank account is being updated -> drop approvedBy and approvedAt!
-            if (('approvedAt' in resolvedData && get(resolvedData, 'approvedAt'))) {
+            // If bank account is being approved (and existingItem.isApproved is false)
+            if (('isApproved' in resolvedData && get(resolvedData, 'isApproved')) && !get(existingItem, 'isApproved')) {
                 const dateNow = new Date().toISOString()
                 const { authedItem: { id } }  = context
 
                 resolvedData.approvedAt = dateNow
                 resolvedData.approvedBy = id
-            } else {
-                resolvedData.approvedAt = null
-                resolvedData.approvedBy = null
             }
 
             return resolvedData

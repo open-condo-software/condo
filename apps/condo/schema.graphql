@@ -15167,6 +15167,7 @@ type BankAccountHistoryRecord {
   routingNumberMeta: JSON
   number: String
   currencyCode: String
+  isApproved: Boolean
   approvedAt: String
   approvedBy: String
   importId: String
@@ -15302,6 +15303,8 @@ input BankAccountHistoryRecordWhereInput {
   currencyCode_not_ends_with_i: String
   currencyCode_in: [String]
   currencyCode_not_in: [String]
+  isApproved: Boolean
+  isApproved_not: Boolean
   approvedAt: String
   approvedAt_not: String
   approvedAt_lt: String
@@ -15483,6 +15486,8 @@ enum SortBankAccountHistoryRecordsBy {
   number_DESC
   currencyCode_ASC
   currencyCode_DESC
+  isApproved_ASC
+  isApproved_DESC
   approvedAt_ASC
   approvedAt_DESC
   importId_ASC
@@ -15522,6 +15527,7 @@ input BankAccountHistoryRecordUpdateInput {
   routingNumberMeta: JSON
   number: String
   currencyCode: String
+  isApproved: Boolean
   approvedAt: String
   approvedBy: String
   importId: String
@@ -15559,6 +15565,7 @@ input BankAccountHistoryRecordCreateInput {
   routingNumberMeta: JSON
   number: String
   currencyCode: String
+  isApproved: Boolean
   approvedAt: String
   approvedBy: String
   importId: String
@@ -15645,6 +15652,9 @@ type BankAccount {
 
   """ Code of currency in ISO-4217 format """
   currencyCode: String
+
+  """ Shows whether the bank account approved or not """
+  isApproved: Boolean
 
   """ When the bank account received the status of approved """
   approvedAt: String
@@ -15771,6 +15781,8 @@ input BankAccountWhereInput {
   currencyCode_not: String
   currencyCode_in: [String]
   currencyCode_not_in: [String]
+  isApproved: Boolean
+  isApproved_not: Boolean
   approvedAt: String
   approvedAt_not: String
   approvedAt_lt: String
@@ -15936,6 +15948,8 @@ enum SortBankAccountsBy {
   number_DESC
   currencyCode_ASC
   currencyCode_DESC
+  isApproved_ASC
+  isApproved_DESC
   approvedAt_ASC
   approvedAt_DESC
   approvedBy_ASC
@@ -15977,6 +15991,7 @@ input BankAccountUpdateInput {
   routingNumberMeta: JSON
   number: String
   currencyCode: String
+  isApproved: Boolean
   approvedAt: String
   approvedBy: UserRelateToOneInput
   importId: String
@@ -16011,6 +16026,7 @@ input BankAccountCreateInput {
   routingNumberMeta: JSON
   number: String
   currencyCode: String
+  isApproved: Boolean
   approvedAt: String
   approvedBy: UserRelateToOneInput
   importId: String
