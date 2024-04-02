@@ -16,9 +16,21 @@ services:
       - app-network
   postgresdb:
     image: postgres:13.2
-    command: postgres -c 'max_connections=2000'
+    container_name: master
+    command: postgres -c 'max_connections=2000 && wal_level=logical'
     ports:
       - "127.0.0.1:5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: main
+    networks:
+      - app-network
+  replica1:
+    image: postgres:13.2
+    container_name: replica1
+    ports:
+      - "127.0.0.1:5433:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
