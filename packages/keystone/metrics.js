@@ -47,7 +47,8 @@ if (!nameChecker.test(STATSD_METRIC_PREFIX)) { throw new Error(`You prefix ${STA
 const StatsDClient = new StatsD({
     port: STATSD_PORT,
     prefix: STATSD_METRIC_PREFIX,
-    errorHandler: (err) => logger.error({ 'msg':'Something went wrong when sending metrics:', 'err': err }),
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    errorHandler: () => {},
     globalTags: { hostname: HOSTNAME, command: process.argv[1] },
 })
 
