@@ -410,7 +410,6 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
                 footer={[
                     <Button key='tourButton' type='primary' onClick={async () => {
                         updateCompletedFlowModalData(null)
-                        setActiveTourStep(null)
 
                         await router.push('/tour')
                     }}>

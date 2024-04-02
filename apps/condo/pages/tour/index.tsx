@@ -16,6 +16,7 @@ import { Button, Space, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { CardVideo } from '@condo/domains/common/components/CardVideo'
+import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
 import {
     PageContent,
@@ -36,6 +37,7 @@ import { useTourContext } from '@condo/domains/onboarding/contexts/TourContext'
 import { useTourPageData } from '@condo/domains/onboarding/hooks/TourPage/useTourPageData'
 import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
 import { TODO_STEP_CLICK_ROUTE } from '@condo/domains/onboarding/utils/clientSchema/constants'
+import { SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
 
 
 const {
@@ -258,6 +260,12 @@ const TourPageContent = () => {
 const TourPage = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'tour.title' })
+
+    const { organization, isLoading } = useOrganization()
+
+    if (!isLoading && get(organization, 'type') === SERVICE_PROVIDER_TYPE) {
+        return <AccessDeniedPage />
+    }
 
     return (
         <>
