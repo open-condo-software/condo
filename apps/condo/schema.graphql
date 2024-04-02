@@ -13385,7 +13385,7 @@ type BillingRecipientHistoryRecord {
   territoryCode: String
   purpose: String
   name: String
-  isApproved: Boolean
+  isApproved: JSON
   classificationCode: String
   meta: JSON
   id: ID!
@@ -13590,8 +13590,10 @@ input BillingRecipientHistoryRecordWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
-  isApproved: Boolean
-  isApproved_not: Boolean
+  isApproved: JSON
+  isApproved_not: JSON
+  isApproved_in: [JSON]
+  isApproved_not_in: [JSON]
   classificationCode: String
   classificationCode_not: String
   classificationCode_contains: String
@@ -13717,8 +13719,6 @@ enum SortBillingRecipientHistoryRecordsBy {
   purpose_DESC
   name_ASC
   name_DESC
-  isApproved_ASC
-  isApproved_DESC
   classificationCode_ASC
   classificationCode_DESC
   id_ASC
@@ -13751,7 +13751,7 @@ input BillingRecipientHistoryRecordUpdateInput {
   territoryCode: String
   purpose: String
   name: String
-  isApproved: Boolean
+  isApproved: JSON
   classificationCode: String
   meta: JSON
   v: Int
@@ -13785,7 +13785,7 @@ input BillingRecipientHistoryRecordCreateInput {
   territoryCode: String
   purpose: String
   name: String
-  isApproved: Boolean
+  isApproved: JSON
   classificationCode: String
   meta: JSON
   v: Int
@@ -14070,8 +14070,6 @@ input BillingRecipientWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
-  isApproved: Boolean
-  isApproved_not: Boolean
   classificationCode: String
   classificationCode_not: String
   classificationCode_contains: String
@@ -14179,8 +14177,6 @@ enum SortBillingRecipientsBy {
   purpose_DESC
   name_ASC
   name_DESC
-  isApproved_ASC
-  isApproved_DESC
   classificationCode_ASC
   classificationCode_DESC
   id_ASC
@@ -14213,7 +14209,6 @@ input BillingRecipientUpdateInput {
   territoryCode: String
   purpose: String
   name: String
-  isApproved: Boolean
   classificationCode: String
   meta: JSON
   v: Int
@@ -14244,7 +14239,6 @@ input BillingRecipientCreateInput {
   territoryCode: String
   purpose: String
   name: String
-  isApproved: Boolean
   classificationCode: String
   meta: JSON
   v: Int
