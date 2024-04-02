@@ -3035,6 +3035,80 @@ describe('Ticket', () => {
                 })
             })
         })
+
+        describe('isCompletedAfterDeadline', () => {
+            let organization, property
+
+            beforeAll(async () => {
+                [organization] = await createTestOrganization(admin);
+                [property] = await createTestProperty(admin, organization)
+            })
+
+            test('can be read', async () => {
+                const [ticket] = await createTestTicket(admin, organization, property)
+                expect(ticket).toHaveProperty('isCompletedAfterDeadline', false)
+            })
+
+            test('can not be update', async () => {
+                await expectToThrowGraphQLRequestError(async () => {
+                    await createTestTicket(admin, organization, property, { isCompletedAfterDeadline: false })
+                }, 'Field "isCompletedAfterDeadline" is not defined by type "TicketCreateInput"')
+
+                const [ticket] = await createTestTicket(admin, organization, property)
+                await expectToThrowGraphQLRequestError(async () => {
+                    await updateTestTicket(admin, ticket.id, { isCompletedAfterDeadline: true })
+                }, 'Field "isCompletedAfterDeadline" is not defined by type "TicketUpdateInput"')
+            })
+
+            test('Should be auto-set true if the status change to "completed" and the deadline is overdue', async () => {
+                const [ticket] = await createTestTicket(admin, organization, property, {
+                    deadline: dayjs().subtract(1, 'minute'),
+                })
+                expect(ticket).toHaveProperty('isCompletedAfterDeadline', false)
+                expect(ticket).toHaveProperty('status.id', STATUS_IDS.OPEN)
+
+                const [updatedTicket1] = await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.IN_PROGRESS } } })
+                expect(updatedTicket1).toHaveProperty('isCompletedAfterDeadline', false)
+
+                const [updatedTicket2] = await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.COMPLETED } } })
+                expect(updatedTicket2).toHaveProperty('isCompletedAfterDeadline', true)
+
+                const [updatedTicket3] = await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.CLOSED } } })
+                expect(updatedTicket3).toHaveProperty('isCompletedAfterDeadline', true)
+            })
+
+            test('Should be save false if the status change to "completed" and the deadline is not overdue', async () => {
+                const [ticket] = await createTestTicket(admin, organization, property, {
+                    deadline: dayjs().add(1, 'hour'),
+                })
+                expect(ticket).toHaveProperty('isCompletedAfterDeadline', false)
+                expect(ticket).toHaveProperty('status.id', STATUS_IDS.OPEN)
+
+                const [updatedTicket1] = await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.IN_PROGRESS } } })
+                expect(updatedTicket1).toHaveProperty('isCompletedAfterDeadline', false)
+
+                const [updatedTicket2] = await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.COMPLETED } } })
+                expect(updatedTicket2).toHaveProperty('isCompletedAfterDeadline', false)
+
+                const [updatedTicket3] = await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.CLOSED } } })
+                expect(updatedTicket3).toHaveProperty('isCompletedAfterDeadline', false)
+            })
+
+            test('Should be save true if the status change to "completed" and deadline is null', async () => {
+                const [ticket] = await createTestTicket(admin, organization, property)
+                expect(ticket).toHaveProperty('isCompletedAfterDeadline', false)
+                expect(ticket).toHaveProperty('status.id', STATUS_IDS.OPEN)
+
+                const [updatedTicket1] = await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.IN_PROGRESS } } })
+                expect(updatedTicket1).toHaveProperty('isCompletedAfterDeadline', false)
+
+                const [updatedTicket2] = await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.COMPLETED } } })
+                expect(updatedTicket2).toHaveProperty('isCompletedAfterDeadline', false)
+
+                const [updatedTicket3] = await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.CLOSED } } })
+                expect(updatedTicket3).toHaveProperty('isCompletedAfterDeadline', false)
+            })
+        })
     })
 
     describe('backward compatibility', () => {

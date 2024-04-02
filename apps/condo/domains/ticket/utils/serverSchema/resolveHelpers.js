@@ -81,6 +81,17 @@ function calculateCompletedAt (resolvedData, existedStatus, resolvedStatus) {
     }
 }
 
+function calculateIsCompletedAfterDeadline (resolvedData, existedStatus, resolvedStatus, deadline) {
+    const now = new Date().toISOString()
+    const resolvedStatusType = get(resolvedStatus, 'type')
+    const existedStatusType = get(existedStatus, 'type')
+
+    if (!deadline) return
+    if (resolvedStatusType !== COMPLETED_STATUS_TYPE || existedStatusType === resolvedStatusType) return
+
+    resolvedData['isCompletedAfterDeadline'] = dayjs(now).diff(deadline) > 0
+}
+
 function calculateDeferredUntil (resolvedData, existedStatus, resolvedStatus) {
     if (existedStatus.type === DEFERRED_STATUS_TYPE && resolvedStatus.type !== existedStatus.type) {
         resolvedData.deferredUntil = null
@@ -294,4 +305,5 @@ module.exports = {
     setDeadline,
     updateStatusAfterResidentFeedback,
     classifyTicket,
+    calculateIsCompletedAfterDeadline,
 }

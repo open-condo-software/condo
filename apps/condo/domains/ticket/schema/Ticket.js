@@ -6,6 +6,7 @@ const dayjs = require('dayjs')
 const { isEmpty, get, isNull, compact, isArray, isString, uniq } = require('lodash')
 
 const conf = require('@open-condo/config')
+const { readOnlyFieldAccess } = require('@open-condo/keystone/access')
 const { GQLErrorCode: { BAD_USER_INPUT }, GQLError } = require('@open-condo/keystone/errors')
 const { Json, AutoIncrementInteger } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
@@ -59,6 +60,7 @@ const {
     calculateDeferredUntil,
     setDeadline, updateStatusAfterResidentFeedback,
     classifyTicket,
+    calculateIsCompletedAfterDeadline,
 } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
 const {
     createTicketChange,
@@ -677,6 +679,13 @@ const Ticket = new GQLListSchema('Ticket', {
                 },
             },
         },
+        isCompletedAfterDeadline: {
+            schemaDoc: '(Auto-set) Used to filter tickets that were completed after the deadline',
+            type: 'Checkbox',
+            defaultValue: false,
+            kmigratorOptions: { default: false },
+            access: readOnlyFieldAccess,
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked()],
     hooks: {
@@ -758,6 +767,7 @@ const Ticket = new GQLListSchema('Ticket', {
             const newItem = { ...existingItem, ...resolvedData }
             const resolvedStatusId = get(newItem, 'status', null)
             const resolvedClient = get(newItem, 'client', null)
+            const resolvedDeadline = get(newItem, 'deadline', null)
 
             // Set isAutoClassified to false if classifier was passed
             if ((isCreateOperation || newItem.isAutoClassified) && resolvedData.classifier) {
@@ -782,6 +792,7 @@ const Ticket = new GQLListSchema('Ticket', {
 
                     await calculateReopenedCounter(context, existingItem, resolvedData, existedStatus, resolvedStatus)
                     calculateCompletedAt(resolvedData, existedStatus, resolvedStatus)
+                    calculateIsCompletedAfterDeadline(resolvedData, existedStatus, resolvedStatus, resolvedDeadline)
                     calculateStatusUpdatedAt(resolvedData, existedStatusId, resolvedStatusId)
                     calculateDeferredUntil(resolvedData, existedStatus, resolvedStatus)
                 }
