@@ -51,16 +51,13 @@ const _internalSendNotificationNewMobileAppVersionService = new GQLCustomSchema(
 
                 const { data: { dv, sender, platform, app, buildVersion, title, body, organizationIds } } = args
 
-                const { keystone } = await getSchemaCtx('MessageBatch')
-                const adminContext = await keystone.createContext({ skipAccessControl: true })
-
                 const userType = app === RESIDENT ? RESIDENT : STAFF
                 let remoteClientKeys
 
                 //The case when a push is sent to all suitable devices, regardless of organization
                 if (isEmpty(organizationIds)) {
                     remoteClientKeys = await loadListByChunks({
-                        context: adminContext,
+                        context: context,
                         list: RemoteClient,
                         where: {
                             devicePlatform: platform,
@@ -84,7 +81,7 @@ const _internalSendNotificationNewMobileAppVersionService = new GQLCustomSchema(
                     })
                 } else {    //The case when a push is sent to suitable devices of a specific or several organizations
                     const propertyIds = await loadListByChunks({
-                        context: adminContext,
+                        context: context,
                         list: Property,
                         where: {
                             organization: {
@@ -102,7 +99,7 @@ const _internalSendNotificationNewMobileAppVersionService = new GQLCustomSchema(
                     })
 
                     const userIds = await loadListByChunks({
-                        context: adminContext,
+                        context: context,
                         list: Resident,
                         where: {
                             property: {
@@ -121,7 +118,7 @@ const _internalSendNotificationNewMobileAppVersionService = new GQLCustomSchema(
                     })
 
                     remoteClientKeys = await loadListByChunks({
-                        context: adminContext,
+                        context: context,
                         list: RemoteClient,
                         where: {
                             devicePlatform: platform,
@@ -155,7 +152,7 @@ const _internalSendNotificationNewMobileAppVersionService = new GQLCustomSchema(
                 if (title) data.title = title
                 if (body) data.message = body
 
-                const messageBatch = await MessageBatch.create(adminContext, data)
+                const messageBatch = await MessageBatch.create(context, data)
                 return {
                     messageBatchId: messageBatch.id,
                 }
