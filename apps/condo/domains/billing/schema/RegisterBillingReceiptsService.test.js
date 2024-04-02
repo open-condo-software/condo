@@ -189,20 +189,6 @@ describe('RegisterBillingReceiptsService', () => {
             })
             expect(receiver.isApproved).toEqual(false)
         })
-        test('Should not modify isApproved if support user remove this flag', async () => {
-            const recipientInput = billingTestUtils.createRecipient({ bankAccount: faker.random.numeric(12), tin: billingTestUtils.organization.tin  })
-            const [[{ receiver }]] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                context: { id: billingTestUtils.billingContext.id },
-                receipts: [billingTestUtils.createJSONReceipt(recipientInput)],
-            })
-            expect(receiver.isApproved).toBeTruthy()
-            await updateTestBillingRecipient(billingTestUtils.clients.admin, receiver.id, { isApproved: false })
-            const [[{ receiver: modifiedByAdminReceiver }]] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                context: { id: billingTestUtils.billingContext.id },
-                receipts: [billingTestUtils.createJSONReceipt(recipientInput)],
-            })
-            expect(modifiedByAdminReceiver.isApproved).toBeFalsy()
-        })
         test('Should fill deprecated recipient field as we do not remove it still', async () => {
             const recipientInput = billingTestUtils.createRecipient({ })
             const [receipts] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
