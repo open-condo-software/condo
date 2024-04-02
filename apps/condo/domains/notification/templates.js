@@ -295,7 +295,6 @@ async function renderTemplate (transport, message) {
 
 module.exports = {
     renderTemplate,
-    getEmailTemplate,
     translationStringKeyForEmailSubject,
     translationStringKeyForPushTitle,
     substituteTranslations,
