@@ -1864,11 +1864,6 @@ export type AllMiniAppsWhereInput = {
   accessible?: Maybe<Scalars['Boolean']>;
 };
 
-export enum App {
-  Resident = 'resident',
-  Master = 'master'
-}
-
 export enum AppCategory {
   Dispatching = 'DISPATCHING',
   Gis = 'GIS',
@@ -33796,6 +33791,11 @@ export type MiniAppOutput = {
   menuCategory?: Maybe<Scalars['String']>;
 };
 
+export enum MobileApp {
+  Resident = 'resident',
+  Master = 'master'
+}
+
 /**  Manages availability of some features in mobile application, stores data required in disabled state of a feature.  */
 export type MobileFeatureConfig = {
   __typename?: 'MobileFeatureConfig';
@@ -34169,6 +34169,11 @@ export type MobileFeatureConfigsUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<MobileFeatureConfigUpdateInput>;
 };
+
+export enum MobilePlatform {
+  Android = 'android',
+  Ios = 'ios'
+}
 
 /**  Information about resident's payment for single or multiple services/receipts  */
 export type MultiPayment = {
@@ -58368,11 +58373,6 @@ export type PaymentsUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<PaymentUpdateInput>;
 };
-
-export enum Platform {
-  Android = 'android',
-  Ios = 'ios'
-}
 
 export type PredictTicketClassificationInput = {
   details: Scalars['String'];
@@ -96007,8 +96007,8 @@ export type _InternalScheduleTaskByNameOutput = {
 export type _InternalSendNotificationNewMobileAppVersionInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
-  platform: Platform;
-  app: App;
+  platform: MobilePlatform;
+  app: MobileApp;
   buildVersion: Scalars['String'];
   title?: Maybe<Scalars['String']>;
   body?: Maybe<Scalars['String']>;

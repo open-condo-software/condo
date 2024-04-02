@@ -26,15 +26,15 @@ const _internalSendNotificationNewMobileAppVersionService = new GQLCustomSchema(
     types: [
         {
             access: true,
-            type: `enum App { ${APP_RESIDENT_KEY}, ${APP_MASTER_KEY} }`,
+            type: `enum MobileApp { ${APP_RESIDENT_KEY}, ${APP_MASTER_KEY} }`,
         },
         {
             access: true,
-            type: `enum Platform { ${DEVICE_PLATFORM_ANDROID}, ${DEVICE_PLATFORM_IOS} }`,
+            type: `enum MobilePlatform { ${DEVICE_PLATFORM_ANDROID}, ${DEVICE_PLATFORM_IOS} }`,
         },
         {
             access: true,
-            type: 'input _internalSendNotificationNewMobileAppVersionInput { dv: Int!, sender: SenderFieldInput! platform: Platform!, app: App!, buildVersion: String!, title: String, body: String, organizationIds: [ID!] }',
+            type: 'input _internalSendNotificationNewMobileAppVersionInput { dv: Int!, sender: SenderFieldInput! platform: MobilePlatform!, app: MobileApp!, buildVersion: String!, title: String, body: String, organizationIds: [ID!] }',
         },
         {
             access: true,

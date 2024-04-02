@@ -74261,12 +74261,12 @@ type SetMessageStatusOutput {
   status: String!
 }
 
-enum App {
+enum MobileApp {
   resident
   master
 }
 
-enum Platform {
+enum MobilePlatform {
   android
   ios
 }
@@ -74274,8 +74274,8 @@ enum Platform {
 input _internalSendNotificationNewMobileAppVersionInput {
   dv: Int!
   sender: SenderFieldInput!
-  platform: Platform!
-  app: App!
+  platform: MobilePlatform!
+  app: MobileApp!
   buildVersion: String!
   title: String
   body: String
