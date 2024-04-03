@@ -226,5 +226,5 @@ async function deliverMessage (messageId) {
 }
 
 module.exports = {
-    deliverMessage: createTask('deliverMessage', deliverMessage, 'high'),
+    deliverMessage: createTask('deliverMessage', deliverMessage),
 }
