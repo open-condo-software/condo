@@ -29,6 +29,7 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
+import { usePreviousQueryParams } from '@condo/domains/common/hooks/usePreviousFilters'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
@@ -402,9 +403,12 @@ export const IncidentsPageContent: React.FC<IncidentsPageContentProps> = (props)
 
 const IncidentsPage: IIncidentIndexPage = () => {
     const filterMetas = useIncidentTableFilters()
-    const { organization } = useOrganization()
+    const { organization, link } = useOrganization()
     const organizationId = get(organization, 'id')
+    const employeeId = get(link, 'id')
     const baseQuery: BaseQueryType = useMemo(() => ({ organization: { id: organizationId } }), [organizationId])
+
+    usePreviousQueryParams({ trackedParamNames: ['sort', 'filters'], employeeId })
 
     return (
         <IncidentsPageContent

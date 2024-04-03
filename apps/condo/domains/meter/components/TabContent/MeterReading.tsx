@@ -80,7 +80,7 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
     const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
 
     const router = useRouter()
-    const { filters, offset, sorters } = parseQuery(router.query)
+    const { filters, offset, sorters, tab } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
 
     const reduceNonEmpty = (cnt, filter) => cnt + Number((typeof filters[filter] === 'string' || Array.isArray(filters[filter])) && filters[filter].length > 0)
@@ -111,7 +111,15 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
     const { breakpoints } = useLayoutContext()
     const [search, handleSearchChange, handleSearchReset] = useSearch()
     const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch)
-    const { MultipleFiltersModal, setIsMultipleFiltersModalVisible, ResetFiltersModalButton } = useMultipleFiltersModal(filtersMeta, MeterReadingFilterTemplate, handleSearchReset)
+    const { MultipleFiltersModal, setIsMultipleFiltersModalVisible, ResetFiltersModalButton } = useMultipleFiltersModal(
+        filtersMeta,
+        MeterReadingFilterTemplate,
+        handleSearchReset,
+        null,
+        null,
+        [],
+        { tab }
+    )
 
     const [columns, meterReadingNormalizer, meterReadingValidator, meterReadingCreator] = useImporterFunctions()
 

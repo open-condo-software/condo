@@ -9,6 +9,7 @@ import { CONTEXT_FINISHED_STATUS } from '@condo/domains/acquiring/constants/cont
 import { AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clientSchema'
 import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
+import { usePreviousQueryParams } from '@condo/domains/common/hooks/usePreviousFilters'
 import { MarketplacePageContent } from '@condo/domains/marketplace/components/MarketplacePageContent'
 import {
     AcquiringContext as AcquiringContextProvider,
@@ -25,9 +26,12 @@ const MarketplacePage: PageType = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'pages.condo.marketplace.title' })
 
-    const { organization } = useOrganization()
+    const { organization, link } = useOrganization()
     const orgId = get(organization, 'id', null)
+    const employeeId = get(link, 'id')
     const isServiceProviderOrganization = useMemo(() => (get(organization, 'type', MANAGING_COMPANY_TYPE) === SERVICE_PROVIDER_TYPE), [organization])
+
+    usePreviousQueryParams({ trackedParamNames: ['sort', 'filters'], delimitersParamNames: ['tab'], employeeId })
 
     const {
         obj: acquiringIntegrationContext,

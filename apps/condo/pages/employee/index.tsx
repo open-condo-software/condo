@@ -18,6 +18,7 @@ import { EmptyListContent } from '@condo/domains/common/components/EmptyListCont
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
+import { usePreviousQueryParams } from '@condo/domains/common/hooks/usePreviousFilters'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
@@ -133,9 +134,12 @@ export const EmployeesPageContent = ({
 }
 
 const EmployeesPage = () => {
-    const { link: { role = {} }, organization }  = useOrganization()
+    const { link, organization }  = useOrganization()
     const userOrganizationId = get(organization, 'id', null)
-    const canManageEmployee = get(role, 'canInviteNewOrganizationEmployees', null)
+    const canManageEmployee = get(link, 'role.canInviteNewOrganizationEmployees', null)
+    const employeeId = get(link, 'id')
+
+    usePreviousQueryParams({ trackedParamNames: ['sort', 'filters'], employeeId })
 
     const router = useRouter()
     const { filters, sorters, offset } = parseQuery(router.query)

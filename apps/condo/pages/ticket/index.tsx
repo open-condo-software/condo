@@ -49,6 +49,7 @@ import { EXCEL } from '@condo/domains/common/constants/export'
 import { TICKET_IMPORT } from '@condo/domains/common/constants/featureflags'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { useAudio } from '@condo/domains/common/hooks/useAudio'
+import { useCheckboxSearch } from '@condo/domains/common/hooks/useCheckboxSearch'
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import {
@@ -56,6 +57,7 @@ import {
     FiltersTooltip,
     useMultipleFiltersModal,
 } from '@condo/domains/common/hooks/useMultipleFiltersModal'
+import { usePreviousQueryParams } from '@condo/domains/common/hooks/usePreviousFilters'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
@@ -75,7 +77,6 @@ import {
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 import { Ticket as TicketGQL } from '@condo/domains/ticket/gql'
 import { useBooleanAttributesSearch } from '@condo/domains/ticket/hooks/useBooleanAttributesSearch'
-import { useCheckboxSearch } from '@condo/domains/ticket/hooks/useCheckboxSearch'
 import { useFiltersTooltipData } from '@condo/domains/ticket/hooks/useFiltersTooltipData'
 import { useImporterFunctions } from '@condo/domains/ticket/hooks/useImporterFunctions'
 import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
@@ -1050,11 +1051,13 @@ const TicketsPage: ITicketIndexPage = () => {
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
+    const employeeId = get(userOrganization, 'link.id')
 
     const filterMetas = useTicketTableFilters()
 
     const { GlobalHints } = useGlobalHints()
     const { breakpoints } = useLayoutContext()
+    usePreviousQueryParams({ trackedParamNames: ['sort', 'filters'], employeeId })
 
     const {
         count: ticketsWithoutFiltersCount,
