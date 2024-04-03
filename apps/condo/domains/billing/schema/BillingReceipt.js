@@ -349,7 +349,6 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
                     iec: get(recipient, 'iec'),
                     bic: get(recipient, 'bic'),
                     bankAccount: get(recipient, 'bankAccount'),
-                    isApproved: isTrustedBankAccountSource && tinMatches,
                     bankName, territoryCode, offsettingAccount,
                 })
                 receiverId = createdRecipient.id
