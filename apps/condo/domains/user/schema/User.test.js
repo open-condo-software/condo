@@ -47,10 +47,6 @@ const {
 
 
 describe('SIGNIN', () => {
-    test('for testing artefacts', () => {
-        expect(1).toBe(2)
-    })
-
     test('anonymous: SIGNIN_MUTATION', async () => {
         const client = await makeClient()
         const { data, errors } = await client.mutate(SIGNIN_MUTATION, {
