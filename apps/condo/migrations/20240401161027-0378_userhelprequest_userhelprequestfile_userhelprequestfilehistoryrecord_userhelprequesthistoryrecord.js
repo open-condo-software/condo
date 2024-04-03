@@ -3,7 +3,12 @@
 
 exports.up = async (knex) => {
     await knex.raw(`
-    BEGIN;
+    BEGIN;    
+--
+-- [CUSTOM] Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
+--
+SET statement_timeout = '1500s';  
+
 --
 -- Create model userhelprequest
 --
@@ -40,6 +45,12 @@ CREATE INDEX "UserHelpRequestFile_deletedAt_ea09d53e" ON "UserHelpRequestFile" (
 CREATE INDEX "UserHelpRequestFile_createdBy_a8b1d090" ON "UserHelpRequestFile" ("createdBy");
 CREATE INDEX "UserHelpRequestFile_updatedBy_618548f6" ON "UserHelpRequestFile" ("updatedBy");
 CREATE INDEX "UserHelpRequestFile_userHelpRequest_f4ab33aa" ON "UserHelpRequestFile" ("userHelpRequest");
+
+--
+-- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
+--
+SET statement_timeout = '10s';
+
 COMMIT;
 
     `)
