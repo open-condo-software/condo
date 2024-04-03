@@ -419,7 +419,7 @@
   "MobileAppName": "Doma",
   "ContactSupportToCancelIntegration": "To cancel integration contact support of «{company}».",
   "ClickToSeeMore": "Click to see more information",
-  "ClearAllFilters": "Clear all filters",
+  "ClearAllFilters": "Clear",
   "component.CookieAgreement.title": "We use Cookie.",
   "component.CookieAgreement.description": "DOMA LLC uses cookies to personalize services and user convenience. Cookies allow you to log in without re-entering your username and password. You can delete cookies or opt out of using them in your browser settings.",
   "component.CookieAgreement.action.accept": "Accept",

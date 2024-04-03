@@ -419,7 +419,7 @@
   "MobileAppName": "Doma",
   "ContactSupportToCancelIntegration": "Чтобы отключить интеграцию свяжитесь с тех. поддержкой «{company}».",
   "ClickToSeeMore": "Нажмите, чтобы посмотреть подробнее",
-  "ClearAllFilters": "Сбросить все фильтры",
+  "ClearAllFilters": "Сбросить",
   "component.CookieAgreement.title": "Мы используем файлы Cookie.",
   "component.CookieAgreement.description": "ООО \"ДОМА\" использует cookie для персонализации сервисов и удобства пользователей. Cookie обеспечивают вход без повторного ввода логина и пароля. Вы можете удалить файлы cookie или отказаться от их использования в настройках браузера.",
   "component.CookieAgreement.action.accept": "Принять",

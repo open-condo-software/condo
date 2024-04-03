@@ -11,7 +11,7 @@ import uniqBy from 'lodash/uniqBy'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
-import { Filter, QuestionCircle, PlusCircle } from '@open-condo/icons'
+import { QuestionCircle, PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Space, Tooltip } from '@open-condo/ui'
 
@@ -77,7 +77,6 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
     const OnlyLatestMessage = intl.formatMessage({ id: 'pages.condo.meter.index.QuickFilterOnlyLatest' })
     const OnlyLatestDescMessage = intl.formatMessage({ id: 'pages.condo.meter.index.QuickFilterOnlyLatestDescription' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
-    const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
 
     const router = useRouter()
     const { filters, offset, sorters, tab } = parseQuery(router.query)
@@ -111,7 +110,7 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
     const { breakpoints } = useLayoutContext()
     const [search, handleSearchChange, handleSearchReset] = useSearch()
     const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch)
-    const { MultipleFiltersModal, setIsMultipleFiltersModalVisible, ResetFiltersModalButton } = useMultipleFiltersModal(
+    const { MultipleFiltersModal, ResetFiltersModalButton, OpenFiltersButton } = useMultipleFiltersModal(
         filtersMeta,
         MeterReadingFilterTemplate,
         handleSearchReset,
@@ -144,8 +143,6 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
         }
     }, [setSelectedMeter])
     const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
-    const handleMultipleFiltersButtonClick = useCallback(() => setIsMultipleFiltersModalVisible(true),
-        [setIsMultipleFiltersModalVisible])
     const handleCreateMeterReadings = useCallback(() => router.push('/meter/create'), [])
 
     return (
@@ -190,17 +187,7 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
                                             <ResetFiltersModalButton style={RESET_FILTERS_BUTTON_STYLE} />
                                         )
                                     }
-                                    <Button
-                                        type='secondary'
-                                        onClick={handleMultipleFiltersButtonClick}
-                                        icon={<Filter size='medium'/>}
-                                    >
-                                        {
-                                            appliedFiltersCount > 0 ?
-                                                `${FiltersButtonLabel} (${appliedFiltersCount})`
-                                                : FiltersButtonLabel
-                                        }
-                                    </Button>
+                                    <OpenFiltersButton />
                                     {
                                         !breakpoints.TABLET_LARGE && appliedFiltersCount > 0 && (
                                             <ResetFiltersModalButton style={RESET_FILTERS_BUTTON_STYLE}/>

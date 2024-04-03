@@ -22,7 +22,7 @@ import React, { CSSProperties, Key, useCallback, useEffect, useMemo, useRef, use
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
-import { Filter, Search, Close, Phone } from '@open-condo/icons'
+import { Search, Close, Phone } from '@open-condo/icons'
 import { useLazyQuery } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
@@ -33,7 +33,6 @@ import { colors } from '@open-condo/ui/dist/colors'
 
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
-import { Button as CommonButton } from '@condo/domains/common/components/Button'
 import { PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -100,12 +99,6 @@ const MEDIUM_VERTICAL_ROW_GUTTER: RowProps['gutter'] = [0, 24]
 const HEADER_STYLES: CSSProperties = { padding: 0 }
 const CHECKBOX_STYLE: CSSProperties = { paddingLeft: '0px', fontSize: fontSizes.label }
 const DEBOUNCE_TIMEOUT = 400
-const FILTERS_BUTTON_STYLES: CSSProperties = {
-    position: 'relative',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
-}
 
 const StyledTable = styled(Table)`
   .ant-checkbox-input {
@@ -552,51 +545,6 @@ const TicketStatusFilterContainer = ({ searchTicketsQuery, searchTicketsWithoutS
     )
 }
 
-const AppliedFiltersCounter = styled.div`
-  width: 23px;
-  height: 22px;
-  border-radius: 100px;
-  color: ${colors.white};
-  background-color: ${colors.black};
-  border: 3px solid ${colors.gray[1]};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  position: absolute;
-  right: -10px;
-  top: -10px;
-  box-sizing: content-box;
-`
-const FiltersButton = ({ appliedFiltersCount, setIsMultipleFiltersModalVisible }) => {
-    const intl = useIntl()
-    const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
-
-    const handleOpenMultipleFilter = useCallback(() => {
-        setIsMultipleFiltersModalVisible(true)
-    }, [setIsMultipleFiltersModalVisible])
-
-    return (
-        <CommonButton
-            secondary
-            type='sberBlack'
-            onClick={handleOpenMultipleFilter}
-            data-cy='ticket__filters-button'
-            style={FILTERS_BUTTON_STYLES}
-        >
-            <Filter size='medium'/>
-            {FiltersButtonLabel}
-            {
-                appliedFiltersCount > 0 ? (
-                    <AppliedFiltersCounter>
-                        {appliedFiltersCount}
-                    </AppliedFiltersCounter>
-                ) : null
-            }
-        </CommonButton>
-    )
-}
-
 const FILTERS_CONTAINER_ROW_GUTTER: RowProps['gutter'] = [20, 20]
 const CHECKBOX_WRAPPER_STYLES: CSSProperties = { flexWrap: 'nowrap', overflowX: 'auto', overflowY: 'hidden' }
 const FILTERS_BUTTON_ROW_GUTTER: RowProps['gutter'] = [16, 10]
@@ -647,7 +595,7 @@ const FiltersContainer = ({ filterMetas }) => {
         handleUpdateIsCompletedAfterDeadline(filters)
     }, [handleChangeAllAttributes, handleUpdateIsCompletedAfterDeadline])
 
-    const { MultipleFiltersModal, ResetFiltersModalButton, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(
+    const { MultipleFiltersModal, ResetFiltersModalButton, OpenFiltersButton } = useMultipleFiltersModal(
         filterMetas, TicketFilterTemplate, handleResetFilters, handleSubmitFilters, 'Ticket', DETAILED_LOGGING
     )
 
@@ -767,33 +715,27 @@ const FiltersContainer = ({ filterMetas }) => {
                                 <Row justify='end' align='middle' gutter={FILTERS_BUTTON_ROW_GUTTER}
                                     style={FILTERS_BUTTON_ROW_STYLES}>
                                     {
-                                        appliedFiltersCount > 0 ? (
+                                        appliedFiltersCount > 0 && (
                                             <Col>
                                                 <ResetFiltersModalButton style={RESET_FILTERS_BUTTON_STYLES}/>
                                             </Col>
-                                        ) : null
+                                        )
                                     }
                                     <Col>
-                                        <FiltersButton
-                                            appliedFiltersCount={appliedFiltersCount}
-                                            setIsMultipleFiltersModalVisible={setIsMultipleFiltersModalVisible}
-                                        />
+                                        <OpenFiltersButton />
                                     </Col>
                                 </Row>
                             ) : (
                                 <Row justify='start' align='middle' gutter={FILTERS_BUTTON_ROW_GUTTER}>
                                     <Col>
-                                        <FiltersButton
-                                            appliedFiltersCount={appliedFiltersCount}
-                                            setIsMultipleFiltersModalVisible={setIsMultipleFiltersModalVisible}
-                                        />
+                                        <OpenFiltersButton />
                                     </Col>
                                     {
-                                        appliedFiltersCount > 0 ? (
+                                        appliedFiltersCount > 0 && (
                                             <Col>
                                                 <ResetFiltersModalButton style={RESET_FILTERS_BUTTON_STYLES}/>
                                             </Col>
-                                        ) : null
+                                        )
                                     }
                                 </Row>
                             )

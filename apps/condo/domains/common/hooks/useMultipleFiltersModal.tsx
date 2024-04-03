@@ -1,5 +1,5 @@
-import { CloseOutlined } from '@ant-design/icons'
 import { Ticket } from '@app/condo/schema'
+import styled from '@emotion/styled'
 import { Col, FormInstance, Row, RowProps, Tabs } from 'antd'
 import { FormItemProps } from 'antd/es'
 import { SizeType } from 'antd/lib/config-provider/SizeContext'
@@ -17,9 +17,11 @@ import { useRouter } from 'next/router'
 import React, { createContext, CSSProperties, useCallback, useContext, useMemo, useRef, useState } from 'react'
 import { Options } from 'scroll-into-view-if-needed'
 
+import { Close, Filter } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Modal as DefaultModal, Button, Typography } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
 
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
@@ -317,9 +319,9 @@ export const MultipleFilterContextProvider: React.FC = ({ children }) => {
     )
 }
 
-const CLEAR_ALL_MESSAGE_STYLE: CSSProperties = { fontSize: '12px' }
 const FILTER_WRAPPERS_GUTTER: RowProps['gutter'] = [24, 12]
 const MODAL_FORM_VALIDATE_TRIGGER: string[] = ['onBlur', 'onSubmit']
+const RESET_BUTTON_CONTENT_STYLE = { display: 'flex', alignItems: 'center', gap: 4 }
 
 type ResetFiltersModalButtonProps = {
     handleReset?: () => void
@@ -355,9 +357,10 @@ const ResetFiltersModalButton: React.FC<ResetFiltersModalButtonProps> = ({
             size={size}
             data-cy='common__filters-button-reset'
         >
-            <Typography.Text>
-                <CloseOutlined style={CLEAR_ALL_MESSAGE_STYLE} /> {ClearAllFiltersMessage}
-            </Typography.Text>
+            <div style={RESET_BUTTON_CONTENT_STYLE}>
+                <Close size='medium' />
+                <Typography.Text>{ClearAllFiltersMessage}</Typography.Text>
+            </div>
         </CommonButton>
     )
 }
@@ -770,6 +773,59 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     )
 }
 
+const AppliedFiltersCounter = styled.div`
+  width: 23px;
+  height: 22px;
+  border-radius: 100px;
+  color: ${colors.gray[1]};
+  background-color: ${colors.pink[5]};
+  border: 3px solid ${colors.gray[1]};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  position: absolute;
+  right: -10px;
+  top: -10px;
+  box-sizing: content-box;
+  z-index: 10;
+`
+
+const FILTERS_BUTTON_WRAPPER_STYLES: CSSProperties = { position: 'relative' }
+
+const FiltersButton = ({ setIsMultipleFiltersModalVisible }) => {
+    const intl = useIntl()
+    const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
+
+    const router = useRouter()
+    const { filters } = parseQuery(router.query)
+    const reduceNonEmpty = (cnt, filter) => cnt + Number((typeof filters[filter] === 'string' || Array.isArray(filters[filter])) && filters[filter].length > 0)
+    const appliedFiltersCount = Object.keys(filters).reduce(reduceNonEmpty, 0)
+
+    const handleOpenMultipleFilter = useCallback(() => {
+        setIsMultipleFiltersModalVisible(true)
+    }, [setIsMultipleFiltersModalVisible])
+
+    return (
+        <div style={FILTERS_BUTTON_WRAPPER_STYLES}>
+            <Button
+                type='secondary'
+                onClick={handleOpenMultipleFilter}
+                icon={<Filter size='medium'/>}
+                data-cy='ticket__filters-button'
+                children={FiltersButtonLabel}
+            />
+            {
+                appliedFiltersCount > 0 ? (
+                    <AppliedFiltersCounter>
+                        {appliedFiltersCount}
+                    </AppliedFiltersCounter>
+                ) : null
+            }
+        </div>
+    )
+}
+
 export function useMultipleFiltersModal <T> (filterMetas: Array<FiltersMeta<T>>, filtersSchemaGql, onReset = undefined, onSubmit = undefined, eventNamePrefix?: string, detailedLogging: string[] = [], extraQueryParameters?: Record<string, unknown>) {
     const [isMultipleFiltersModalVisible, setIsMultipleFiltersModalVisible] = useState<boolean>()
 
@@ -791,5 +847,9 @@ export function useMultipleFiltersModal <T> (filterMetas: Array<FiltersMeta<T>>,
         <ResetFiltersModalButton handleReset={onReset} {...props} />
     ), [onReset])
 
-    return { MultipleFiltersModal, ResetFiltersModalButton: ResetFilterButton, setIsMultipleFiltersModalVisible }
+    const OpenFiltersButton = useCallback(() => (
+        <FiltersButton setIsMultipleFiltersModalVisible={setIsMultipleFiltersModalVisible} />
+    ), [])
+
+    return { MultipleFiltersModal, ResetFiltersModalButton: ResetFilterButton, OpenFiltersButton }
 }
