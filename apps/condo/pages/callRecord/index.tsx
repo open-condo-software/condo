@@ -49,6 +49,7 @@ const ROW_GUTTER: RowProps['gutter'] = [0, 40]
 const FILTER_ROW_GUTTER: RowProps['gutter'] = [16, 16]
 
 const SHOW_TIME_CONFIG = { defaultValue: dayjs('00:00:00:000', 'HH:mm:ss:SSS') }
+const FULL_WIDTH_STYLE: React.CSSProperties = { width: '100%' }
 
 const StartedAtFilter = ({ placeholder, field }) => {
     const router = useRouter()
@@ -73,6 +74,7 @@ const StartedAtFilter = ({ placeholder, field }) => {
             placeholder={placeholder}
             onChange={handleDateChange}
             defaultValue={initialStartedAtFilter}
+            style={FULL_WIDTH_STYLE}
         />
     )
 }
@@ -93,7 +95,7 @@ const FilterContainer = () => {
         <Col span={24}>
             <TableFiltersContainer>
                 <Row gutter={FILTER_ROW_GUTTER} align='middle'>
-                    <Col xs={24} md={15}>
+                    <Col span={24}>
                         <Input
                             placeholder={SearchPlaceholderMessage}
                             onChange={handleSearchChange}
@@ -103,15 +105,15 @@ const FilterContainer = () => {
                             suffix={<Search size='medium' color={colors.gray[7]} />}
                         />
                     </Col>
-                    <Col xs={24} sm={24} md={9}>
-                        <Row gutter={FILTER_ROW_GUTTER} align='middle' justify='space-between'>
-                            <Col md={12}>
+                    <Col span={24} lg={20} xl={14} xxl={12}>
+                        <Row gutter={FILTER_ROW_GUTTER} align='middle'>
+                            <Col span={24} xs={24} sm={12}>
                                 <StartedAtFilter
                                     placeholder={StartDateMessage}
                                     field='startedAtGte'
                                 />
                             </Col>
-                            <Col md={12}>
+                            <Col span={24} xs={24} sm={12}>
                                 <StartedAtFilter
                                     placeholder={EndDateMessage}
                                     field='startedAtLte'
