@@ -10,6 +10,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
+import { useBreakpoints } from '@open-condo/ui/dist/hooks'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
@@ -32,6 +33,7 @@ const TableContent = () => {
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const CreateInvoiceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.invoiceList.createInvoice' })
 
+    const breakpoints = useBreakpoints()
     const router = useRouter()
     const { organization, link } = useOrganization()
     const role = get(link, ['role'], {})
@@ -94,8 +96,8 @@ const TableContent = () => {
         <Row gutter={[0, 40]}>
             <Col span={24}>
                 <TableFiltersContainer>
-                    <Row gutter={[24, 24]} align='middle'>
-                        <Col xs={24} lg={7}>
+                    <Row gutter={[16, 16]} align='middle'>
+                        <Col span={24}>
                             <Input
                                 placeholder={SearchPlaceholder}
                                 onChange={handleSearch}
@@ -104,8 +106,9 @@ const TableContent = () => {
                                 suffix={<Search size='medium' color={colors.gray[7]} />}
                             />
                         </Col>
-                        <Col>
+                        <Col span={!breakpoints.TABLET_SMALL ? 24 : undefined}>
                             <DateRangePicker
+                                style={!breakpoints.TABLET_SMALL ? { width: '100%' } : null}
                                 value={dateRange}
                                 onChange={setDateRange}
                                 allowClear
