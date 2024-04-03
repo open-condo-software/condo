@@ -1,4 +1,5 @@
 const Queue = require('bull')
+const { get } = require('lodash')
 
 const conf = require('@open-condo/config')
 
@@ -10,26 +11,20 @@ const { getRedisClient } = require('./redis')
 const { getRandomString } = require('./test.utils')
 
 const TASK_TYPE = 'TASK'
+/* TODO(INFRA-290): change this value to 'medium'
+   The 'tasks' name was initially defined as default queue name.
+   So for better migration experience we decided to leave this name as a default queue name */
+const DEFAULT_QUEUE_NAME = 'tasks'
+const TASK_QUEUE_REMAPPING = { medium: DEFAULT_QUEUE_NAME, default: DEFAULT_QUEUE_NAME }
+const DEFAULT_QUEUES = [DEFAULT_QUEUE_NAME]
+const QUEUE_NAME_REGEX = new RegExp(/^[a-zA-z]*$/)
 const WORKER_CONCURRENCY = parseInt(conf.WORKER_CONCURRENCY || '2')
 const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
 // NOTE: If this is True, all tasks will be executed in the node process with setTimeout.
 const FAKE_WORKER_MODE = conf.TESTS_FAKE_WORKER_MODE
 const logger = getLogger('worker')
 
-const taskQueue = (IS_BUILD) ? undefined : new Queue('tasks', {
-    /**
-     * @param {'client' | 'subscriber' | 'bclient'} type
-     * @return {import('ioredis')}
-     */
-    createClient: (type, opts) => {
-        // NOTE(pahaz): https://github.com/OptimalBits/bull/issues/1873
-        //   Bull uses three Redis connection. Probably, we can share regular Redis connection for type 'client' think about it!
-        if (['bclient', 'subscriber'].includes(type)) {
-            opts.maxRetriesPerRequest = null
-        }
-        return getRedisClient('worker', type, opts)
-    },
-})
+const QUEUES = new Map()
 
 const KEEP_JOBS_CONFIG = { age: 60 * 60 * 24 * 30 } // 30 days
 const GLOBAL_TASK_OPTIONS = { removeOnComplete: KEEP_JOBS_CONFIG, removeOnFail: KEEP_JOBS_CONFIG }
@@ -38,23 +33,65 @@ const CRON_TASKS = new Map()
 const REMOVE_CRON_TASKS = []
 let isWorkerCreated = false
 
-function createTask (name, fn, opts = {}) {
+/**
+ * Create bull queue. For internal use only!
+ * @param name {string} name of bull queue
+ */
+function createTaskQueue (name) {
+    if (IS_BUILD) return
+
+    QUEUES.set(name, new Queue(name, {
+        /**
+         * @param {'client' | 'subscriber' | 'bclient'} type
+         * @return {import('ioredis')}
+         */
+        createClient: (type, opts) => {
+            // NOTE(pahaz): https://github.com/OptimalBits/bull/issues/1873
+            //   Bull uses three Redis connection. Probably, we can share regular Redis connection for type 'client' think about it!
+            if (['bclient', 'subscriber'].includes(type)) {
+                opts.maxRetriesPerRequest = null
+            }
+            return getRedisClient(`worker:${name}`, type, opts)
+        },
+    }))
+}
+
+/**
+ * Creates and register task. After that you can call it with delay or applyAsync methods
+ * @param name {String} name of the task
+ * @param fn {Function} function that will be executed at the worker side
+ * @param queue {String} task queue to which this function will be added. Can be used for change priority of the task execution
+ * @param opts {Object} bull task options
+ * @return {(function(): never)|*}
+ */
+function createTask (name, fn, queue = DEFAULT_QUEUE_NAME, opts = {}) {
     if (typeof fn !== 'function') throw new Error('unsupported fn argument type. Function expected')
     if (!name) throw new Error('no name')
+    if (get(opts, 'priority')) throw new Error('Deprecated task parameter priority. Please don\'t use it. You can change task running priority via queue property')
 
     if (TASKS.has(name)) throw new Error(`Task with name ${name} is already registered`)
     TASKS.set(name, fn)
-    return createTaskWrapper(name, fn, opts)
+    return createTaskWrapper(name, fn, queue, opts)
 }
 
-function createCronTask (name, cron, fn, opts = {}) {
+/**
+ * Creates and register cron task. It will be called at the defined period of time
+ * @param name {String} name of cron task
+ * @param cron {String} cron style definition string. For example, 0 12 * * *
+ * @param fn {Function} function that will be executed at the worker side
+ * @param queue {String} task queue to which this function will be added. Can be used for change priority of the task execution
+ * @param opts {Object} bull task options
+ * @return {(function(): never)|*}
+ */
+function createCronTask (name, cron, fn, queue = DEFAULT_QUEUE_NAME, opts = {}) {
     if (typeof fn !== 'function') throw new Error('unsupported fn argument type. Function expected')
     if (!name) throw new Error('no name')
     if (!cron) throw new Error('no cron string')
+    if (get(opts, 'priority')) throw new Error('Deprecated task parameter priority. Please don\'t use it. You can change task running priority via queue property')
 
     const taskOpts = { repeat: { cron }, ...opts }
-    const task = createTask(name, fn, taskOpts)
-    CRON_TASKS.set(name, taskOpts)
+    const task = createTask(name, fn, queue, taskOpts)
+    CRON_TASKS.set(name, { taskOpts, queue })
     return task
 }
 
@@ -63,9 +100,19 @@ function removeCronTask (name, cron, opts = {}) {
     REMOVE_CRON_TASKS.push([name, taskOpts])
 }
 
-async function _scheduleRemoteTask (name, preparedArgs, preparedOpts) {
-    logger.info({ msg: 'Scheduling task', name, data: { preparedArgs, preparedOpts } })
-    const job = await taskQueue.add(name, { args: preparedArgs }, preparedOpts)
+async function _scheduleRemoteTask (name, preparedArgs, preparedOpts, queue = DEFAULT_QUEUE_NAME) {
+    logger.info({ msg: 'Scheduling task', name, queue, meta: { preparedArgs, preparedOpts } })
+
+    if (!QUEUES.has(queue)) {
+        logger.error({
+            msg: `No active queues with name = ${queue} was found. This task never been picked by this worker due to queue filters policy`,
+            name, queue, meta: { preparedOpts, preparedArgs },
+        })
+
+        throw new Error(`Task ${name} register error. No active queues with name = ${queue} was found. You should register at prepareKeystone`)
+    }
+
+    const job = await QUEUES.get(queue).add(name, { args: preparedArgs }, preparedOpts)
     return {
         id: String(job.id),
         getState: async () => {
@@ -98,7 +145,7 @@ class InProcessFakeJob {
 async function _scheduleInProcessTask (name, preparedArgs, preparedOpts) {
     // NOTE: it's just for test purposes
     // similar to https://docs.celeryproject.org/en/3.1/configuration.html#celery-always-eager
-    logger.info({ msg: 'Scheduling task', name, data: { preparedArgs, preparedOpts } })
+    logger.info({ msg: 'Scheduling task', name, meta: { preparedArgs, preparedOpts } })
 
     const job = new InProcessFakeJob(name)
     let error = undefined
@@ -106,12 +153,12 @@ async function _scheduleInProcessTask (name, preparedArgs, preparedOpts) {
     let status = 'processing'
     let executor = async function inProcessExecutor () {
         try {
-            logger.info({ msg: 'Executing task', name, data: { preparedArgs, preparedOpts } })
+            logger.info({ msg: 'Executing task', name, meta: { preparedArgs, preparedOpts } })
             result = await executeTask(name, preparedArgs, job)
             status = 'completed'
-            logger.info({ msg: 'Task result', name, status, data: { result, preparedArgs, preparedOpts } })
+            logger.info({ msg: 'Task result', name, status, meta: { result, preparedArgs, preparedOpts } })
         } catch (e) {
-            logger.error({ msg: 'Error executing task', name, error: e, data: { preparedArgs, preparedOpts } })
+            logger.error({ msg: 'Error executing task', name, error: e, meta: { preparedArgs, preparedOpts } })
             status = 'error'
             error = e
         }
@@ -142,7 +189,7 @@ async function _scheduleInProcessTask (name, preparedArgs, preparedOpts) {
  * Internal function! please don't use it directly! Use `task.delay(..)`
  * @deprecated for any external usage!
  */
-async function scheduleTaskByNameWithArgsAndOpts (name, args, opts = {}) {
+async function scheduleTaskByNameWithArgsAndOpts (name, args, opts = {}, queue) {
     if (typeof name !== 'string' || !name) throw new Error('task name invalid or empty')
     if (!isSerializable(args)) throw new Error('task args is not serializable')
 
@@ -156,18 +203,26 @@ async function scheduleTaskByNameWithArgsAndOpts (name, args, opts = {}) {
         return await _scheduleInProcessTask(name, preparedArgs, preparedOpts)
     }
 
-    return await _scheduleRemoteTask(name, preparedArgs, preparedOpts)
+    return await _scheduleRemoteTask(name, preparedArgs, preparedOpts, queue)
 }
 
-function createTaskWrapper (name, fn, defaultTaskOptions = {}) {
-    async function applyAsync (args, taskOptions) {
+/**
+ *
+ * @param name {string}
+ * @param fn {Function}
+ * @param queue {string}
+ * @param defaultTaskOptions {Object}
+ * @return {(function(): never)|*}
+ */
+function createTaskWrapper (name, fn, queue = DEFAULT_QUEUE_NAME, defaultTaskOptions = {}) {
+    async function applyAsync (args, queueOverride, taskOptions) {
         const preparedOpts = {
             ...GLOBAL_TASK_OPTIONS,
             ...defaultTaskOptions,
             ...taskOptions,
         }
 
-        return await scheduleTaskByNameWithArgsAndOpts(name, args, preparedOpts)
+        return await scheduleTaskByNameWithArgsAndOpts(name, args, preparedOpts, queueOverride ? queueOverride : queue)
     }
 
     async function delay () {
@@ -201,6 +256,30 @@ function registerTasks (modulesList) {
                     }
                 })
         })
+}
+
+/**
+ * Check provided array of names for uniqueness and matching pattern and creates task execution queues
+ * @param queueNames {Array<string>}. If no value was passed, function will register and create one default queue -> tasks
+ */
+function registerTaskQueues (queueNames = DEFAULT_QUEUES) {
+    queueNames.forEach(name => {
+        if (!name) throw new Error('Queue creation requires name')
+        name = name.toLowerCase()
+        if (!QUEUE_NAME_REGEX.test(name)) throw new Error(`Error at registering queue with name ${name}. Queue name should be named with letters only`)
+        // We need this due to tasks already registered at queue with name 'tasks'. After a while 'tasks' queue should be completely cleaned and replaced with 'medium'
+        if (name in TASK_QUEUE_REMAPPING) name = TASK_QUEUE_REMAPPING[name]
+        if (QUEUES.has(name)) throw new Error(`Queue with name ${name} already created`)
+
+        createTaskQueue(name)
+    })
+}
+
+async function removeQueue (name) {
+    if (!QUEUES.has(name)) throw new Error('You are trying to delete queue that doesn\'t exist')
+
+    await QUEUES.get(name).close()
+    QUEUES.delete(name)
 }
 
 function createSerializableCopy (data) {
@@ -238,7 +317,13 @@ function getTaskLoggingContext (job) {
     return jobData
 }
 
-async function createWorker (keystoneModule) {
+/**
+ *
+ * @param keystoneModule
+ * @param config
+ * @return {Promise<void>}
+ */
+async function createWorker (keystoneModule, config) {
     // NOTE: we should have only one worker per node process!
     if (isWorkerCreated) {
         logger.warn('Call createWorker() more than one time! (ignored)')
@@ -252,53 +337,108 @@ async function createWorker (keystoneModule) {
     if (keystoneModule) {
         await prepareKeystoneExpressApp(keystoneModule)
     } else {
+        createTaskQueue(DEFAULT_QUEUE_NAME)
         logger.warn('Keystone APP context is not prepared! You can\'t use Keystone GQL query inside the tasks!')
     }
 
-    taskQueue.process('*', WORKER_CONCURRENCY, async function (job) {
-        logger.info({ taskId: job.id, status: 'processing', task: getTaskLoggingContext(job) })
+    // Reapply queues configuration with worker startup config
+    if (get(config, '0', []).length > 0) {
+        let parsedConfig
         try {
-            return await executeTask(job.name, job.data.args, job)
-        } catch (error) {
-            logger.error({ taskId: job.id, status: 'error', error, task: getTaskLoggingContext(job) })
-            throw error
+            parsedConfig = JSON.parse(config[0])
+        } catch (e) {
+            throw new Error('Can\'t parse worker config. Please provide correct value')
         }
-    })
 
-    taskQueue.on('failed', function (job) {
-        logger.info({ taskId: job.id, status: 'failed', task: getTaskLoggingContext(job) })
-    })
+        if (parsedConfig['include'] && parsedConfig['include'].length > 0) {
+            const queuesToDelete = Array.from(QUEUES.entries()).filter(queue => !parsedConfig['include'].includes(queue[0]))
 
-    taskQueue.on('completed', function (job) {
-        logger.info({ taskId: job.id, status: 'completed', task: getTaskLoggingContext(job), t0: job.finishedOn - job.timestamp, t1: job.processedOn - job.timestamp, t2: job.finishedOn - job.processedOn })
-        gauge({ name: `worker.${job.name}ExecutionTime`, value: job.finishedOn - job.processedOn })
-    })
+            for (const [queueName] of queuesToDelete) {
+                QUEUES.delete(queueName)
+            }
+        }
 
-    await taskQueue.isReady()
-    logger.info('Worker: ready to work!')
-    const cronTasksNames = [...CRON_TASKS.keys()]
-    if (cronTasksNames.length > 0) {
-        logger.info({ msg: 'Worker: add repeatable tasks!', names: cronTasksNames })
-        cronTasksNames.forEach((name) => {
-            const fn = TASKS.get(name)
-            fn.delay()
-        })
+        if (parsedConfig['exclude'] && parsedConfig['exclude'].length > 0) {
+            const queuesToDelete = Array.from(QUEUES.entries()).filter(queue => parsedConfig['exclude'].includes(queue[0]))
+            for (const [queueName] of queuesToDelete) {
+                await removeQueue(queueName)
+            }
+        }
     }
+
+    const activeQueues = Array.from(QUEUES.entries())
+
+    // Apply callbacks to each created queue
+    activeQueues.forEach(([queueName, queue]) => {
+        queue.process('*', WORKER_CONCURRENCY, async function (job) {
+            logger.info({ taskId: job.id, status: 'processing', queue: queueName, task: getTaskLoggingContext(job) })
+            try {
+                return await executeTask(job.name, job.data.args, job)
+            } catch (error) {
+                logger.error({ taskId: job.id, status: 'error', error, queue: queueName, task: getTaskLoggingContext(job) })
+                throw error
+            }
+        })
+
+        queue.on('failed', function (job) {
+            logger.info({ taskId: job.id, status: 'failed', queue: queueName, task: getTaskLoggingContext(job) })
+        })
+
+        queue.on('completed', function (job) {
+            logger.info({
+                taskId: job.id,
+                status: 'completed',
+                queue: queueName,
+                task: getTaskLoggingContext(job),
+                processingTime: job.finishedOn - job.timestamp,
+                waitTime: job.processedOn - job.timestamp,
+                executionTime: job.finishedOn - job.processedOn,
+            })
+            gauge({ name: `worker.${queueName}.${job.name}ExecutionTime`, value: job.finishedOn - job.processedOn })
+        })
+    })
+
+    for (const [, queue] of activeQueues) {
+        await queue.isReady()
+    }
+
+    const activeQueueNames = activeQueues.map(([name]) => name)
+
+    logger.info(`Worker[${activeQueueNames.join(',')}]: ready to work!`)
+
+    const cronTasks = Array.from(CRON_TASKS.entries())
+    if (cronTasks.length > 0) {
+        const addedCronTasks = []
+        cronTasks.forEach(([name, opts]) => {
+            if (activeQueueNames.includes(opts.queue)) {
+                const fn = TASKS.get(name)
+                fn.delay()
+                addedCronTasks.push(name)
+            }
+        })
+        logger.info({ msg: 'Worker: add repeatable tasks!', names: addedCronTasks })
+    }
+
     const removeTasksNames = REMOVE_CRON_TASKS.map(x => x[0])
     if (removeTasksNames.length > 0) {
         logger.info({ msg: 'Worker: remove tasks!', names: removeTasksNames })
+
         REMOVE_CRON_TASKS.forEach(([name, opts]) => {
-            taskQueue.removeRepeatable(name, opts.repeat)
+            activeQueues.forEach(([_, queue]) => {
+                queue.removeRepeatable(name, opts.repeat)
+            })
         })
     }
 }
 
 module.exports = {
-    taskQueue,
+    taskQueues: QUEUES,
     createTask,
     createCronTask,
     removeCronTask,
     registerTasks,
     createWorker,
+    registerTaskQueues,
     scheduleTaskByNameWithArgsAndOpts,
+    DEFAULT_QUEUE_NAME,
 }
