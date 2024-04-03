@@ -101,6 +101,7 @@ describe('syncBankTransaction from SBBOL', () => {
             routingNumber: '044525225',
             organization: { connect: { id: commonOrganization.id } },
             integrationContext: { connect: { id: bankIntegrationAccountContext.id } },
+            isApproved: false,
             meta: {
                 sbbol: {
                     type: 'test',
