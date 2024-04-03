@@ -19,7 +19,7 @@ import {
 } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
-import { usePreviousQueryParams } from '@condo/domains/common/hooks/usePreviousFilters'
+import { usePreviousQueryParams } from '@condo/domains/common/hooks/usePreviousQueryParams'
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import BuildingsTable from '@condo/domains/property/components/BuildingsTable'

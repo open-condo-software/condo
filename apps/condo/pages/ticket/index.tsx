@@ -57,7 +57,7 @@ import {
     FiltersTooltip,
     useMultipleFiltersModal,
 } from '@condo/domains/common/hooks/useMultipleFiltersModal'
-import { usePreviousQueryParams } from '@condo/domains/common/hooks/usePreviousFilters'
+import { usePreviousQueryParams } from '@condo/domains/common/hooks/usePreviousQueryParams'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'

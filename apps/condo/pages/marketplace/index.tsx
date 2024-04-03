@@ -9,7 +9,7 @@ import { CONTEXT_FINISHED_STATUS } from '@condo/domains/acquiring/constants/cont
 import { AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clientSchema'
 import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { usePreviousQueryParams } from '@condo/domains/common/hooks/usePreviousFilters'
+import { usePreviousQueryParams } from '@condo/domains/common/hooks/usePreviousQueryParams'
 import { MarketplacePageContent } from '@condo/domains/marketplace/components/MarketplacePageContent'
 import {
     AcquiringContext as AcquiringContextProvider,

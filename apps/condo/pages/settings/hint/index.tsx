@@ -6,7 +6,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { usePreviousQueryParams } from '@condo/domains/common/hooks/usePreviousFilters'
+import { usePreviousQueryParams } from '@condo/domains/common/hooks/usePreviousQueryParams'
 import { SettingsReadPermissionRequired } from '@condo/domains/settings/components/PageAccess'
 import {
     SettingsContent as TicketPropertyHintSettings,
