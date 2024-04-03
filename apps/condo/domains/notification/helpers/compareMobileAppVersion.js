@@ -1,33 +1,22 @@
 function compareMobileAppVersions (ver1, ver2) {
-    // Splitting strings into arrays of numbers
-    const ver1_nums = ver1.split('(')[0].split('.').map(Number)
-    const ver2_nums = ver2.split('(')[0].split('.').map(Number)
+    const digitRegex = /\d+/g
+    const digitsArrayOfVer1 = ver1.match(digitRegex)
+    const digitsArrayOfVer2 = ver2.match(digitRegex)
 
     // Comparing the main versions
-    for (let i = 0; i < Math.min(ver1_nums.length, ver2_nums.length); i++) {
-        if (ver1_nums[i] < ver2_nums[i]) {
+    for (let i = 0; i < Math.min(digitsArrayOfVer1.length, digitsArrayOfVer2.length); i++) {
+        if (digitsArrayOfVer1[i] < digitsArrayOfVer2[i]) {
             return -1
-        } else if (ver1_nums[i] > ver2_nums[i]) {
+        } else if (digitsArrayOfVer1[i] > digitsArrayOfVer2[i]) {
             return 1
         }
     }
 
     // If the major versions are the same, compare the build numbers (if any)
-    if (ver1_nums.length < ver2_nums.length) {
+    if (digitsArrayOfVer1.length < digitsArrayOfVer2.length) {
         return -1
-    } else if (ver1_nums.length > ver2_nums.length) {
+    } else if (digitsArrayOfVer1.length > digitsArrayOfVer2.length) {
         return 1
-    }
-
-    // If the build numbers also match, compare the release numbers (in parentheses)
-    const buildVer1 = parseInt(ver1.split('(')[1])
-    const buildVer2 = parseInt(ver2.split('(')[1])
-    if (!isNaN(buildVer1) && !isNaN(buildVer2)) {
-        if (buildVer1 < buildVer2) {
-            return -1
-        } else if (buildVer1 > buildVer2) {
-            return 1
-        }
     }
 
     // Versions are the same
