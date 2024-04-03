@@ -33,7 +33,7 @@ interface IMeterIndexPage extends React.FC {
     requiredAccess?: React.FC
 }
 
-function MeterPageTypeFromQuery (tabFromQuery) {
+export function MeterPageTypeFromQuery (tabFromQuery) {
     switch (tabFromQuery) {
         case METER_PAGE_TYPES.meter:
             return METER_PAGE_TYPES.meter
