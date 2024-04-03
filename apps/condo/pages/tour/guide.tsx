@@ -1,6 +1,7 @@
 import styled from '@emotion/styled'
 import { Col, Collapse, Row, RowProps } from 'antd'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import getConfig from 'next/config'
 import Head from 'next/head'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
@@ -23,7 +24,7 @@ const {
     publicRuntimeConfig,
 } = getConfig()
 
-const { guideModalCardLink } = publicRuntimeConfig
+const { guideModalCardLink, guideIntroduceAppMaterials } = publicRuntimeConfig
 
 const MEDIUM_GUTTER: RowProps['gutter'] = [0, 40]
 const LARGE_GUTTER: RowProps['gutter'] = [0, 60]
@@ -271,7 +272,12 @@ const IntroduceAppBlock = () => {
     const { breakpoints } = useLayoutContext()
     const locale = useMemo(() => get(intl, 'locale'), [intl])
 
-    const scrollRefs = React.useRef(INTRODUCE_APP_STEP_TYPES.reduce((acc, type) => {
+    const stepMaterials = get(guideIntroduceAppMaterials, locale, {})
+    const availableSteps = useMemo(
+        () => INTRODUCE_APP_STEP_TYPES.filter(type => Boolean(stepMaterials[type])
+        ), [stepMaterials])
+
+    const scrollRefs = React.useRef(availableSteps.reduce((acc, type) => {
         acc[type] = React.createRef()
         return acc
     }, {}))
@@ -284,6 +290,10 @@ const IntroduceAppBlock = () => {
             block: 'start',
         })
     }, [])
+
+    if (isEmpty(stepMaterials)) {
+        return null
+    }
 
     return (
         <Row gutter={MEDIUM_GUTTER}>
@@ -299,7 +309,7 @@ const IntroduceAppBlock = () => {
                     onChange={(type) => window.setTimeout(() => executeScroll(type), 300)}
                 >
                     {
-                        INTRODUCE_APP_STEP_TYPES.map((type, index) => (
+                        availableSteps.map((type, index) => (
                             <>
                                 <div ref={scrollRefs.current[type]} style={REF_HANDLER_STYLES} />
                                 <Panel
@@ -314,7 +324,7 @@ const IntroduceAppBlock = () => {
                                     key={type}
                                 >
                                     <Space size={40} direction='vertical'>
-                                        <img style={PANEL_IMAGE_STYLES} src={`/onboarding/guide/introduceApp/${locale}/${type}/panelImage.png`}/>
+                                        <img style={PANEL_IMAGE_STYLES} src={get(stepMaterials, [type, 'imageUrl', ''])}/>
                                         <div style={STEP_TEXT_CONTAINER_STYLES}>
                                             <Typography.Paragraph type='secondary'>
                                                 {getTextWithAccent(intl.formatMessage({ id: `tour.guide.introduceApp.step.${type}.body` }))}
@@ -337,19 +347,19 @@ const IntroduceAppBlock = () => {
                                         {
                                             type === 'socialNetworks' ? (
                                                 <Space size={16} direction={breakpoints.TABLET_LARGE ? 'horizontal' : 'vertical'}>
-                                                    <a href={`/onboarding/guide/introduceApp/${locale}/socialNetworks/socialNetworks-pics.zip`}>
+                                                    <a href={get(stepMaterials, [type, 'materialsUrl.pics', ''])}>
                                                         <Button type='secondary' icon={<Download />}>
                                                             {DownloadPicsMessage}
                                                         </Button>
                                                     </a>
-                                                    <a href={`/onboarding/guide/introduceApp/${locale}/socialNetworks/socialNetworks-text.zip`}>
+                                                    <a href={get(stepMaterials, [type, 'materialsUrl.text', ''])}>
                                                         <Button type='secondary' icon={<Download />}>
                                                             {DownloadTextMessage}
                                                         </Button>
                                                     </a>
                                                 </Space>
                                             ) : (
-                                                <a href={`/onboarding/guide/introduceApp/${locale}/${type}/${type}-materials.zip`}>
+                                                <a href={get(stepMaterials, [type, 'materialsUrl', ''])}>
                                                     <Button type='primary' icon={<Download />}>
                                                         {intl.formatMessage({ id: `tour.guide.introduceApp.step.${type}.downloadMaterials` })}
                                                     </Button>

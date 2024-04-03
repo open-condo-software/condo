@@ -56,6 +56,7 @@ const tourVideoUrl = JSON.parse(conf['TOUR_VIDEO_URL'] || '{}')
 const residentAppLandingUrl = JSON.parse(conf['RESIDENT_APP_LANDING_URL'] || '{}')
 const createMapVideoUrl = JSON.parse(conf['CREATE_MAP_VIDEO_URL'] || '{}')
 const guideModalCardLink = JSON.parse(conf['GUIDE_MODAL_CARD_LINK'] || '{}')
+const guideIntroduceAppMaterials = JSON.parse(conf['GUIDE_INTRODUCE_APP_MATERIALS'] || '{}')
 
 let nextConfig = withTM(withLess(withCSS({
     publicRuntimeConfig: {
@@ -92,6 +93,7 @@ let nextConfig = withTM(withLess(withCSS({
         residentAppLandingUrl,
         createMapVideoUrl,
         guideModalCardLink,
+        guideIntroduceAppMaterials,
     },
     lessLoaderOptions: {
         javascriptEnabled: true,
