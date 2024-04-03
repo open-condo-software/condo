@@ -1,6 +1,8 @@
 const { KnexAdapter } = require('@keystonejs/adapter-knex')
 const { MongooseAdapter } = require('@keystonejs/adapter-mongoose')
 
+const { ScalableDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/ScalableDatabaseAdapter')
+
 const { getAdapter, getCookieSecret } = require('./setup.utils')
 
 describe('getAdapter()', () => {
@@ -12,6 +14,11 @@ describe('getAdapter()', () => {
     test('Postgres url', () => {
         const adapter = getAdapter('postgresql://postgres:postgres@127.0.0.1/main')
         expect(adapter).toBeInstanceOf(KnexAdapter)
+    })
+
+    test('custom', () => {
+        const adapter = getAdapter('custom:{"default": "postgresql://postgres:postgres@127.0.0.1/main"}', '[{"match": "*", "query": "default", "command": "default"}]')
+        expect(adapter).toBeInstanceOf(ScalableDatabaseAdapter)
     })
 
     test('undefined', () => {
