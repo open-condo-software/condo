@@ -74,7 +74,6 @@ type TableContainerProps = {
 const ROW_GUTTER: RowProps['gutter'] = [0, 40]
 const FILTER_ROW_GUTTER: RowProps['gutter'] = [24, 20]
 const CHECKBOX_WRAPPER_GUTTERS: RowProps['gutter'] = [16, 16]
-const SEARCH_WRAPPER_GUTTERS: RowProps['gutter'] = [20, 20]
 
 const IS_ACTUAL_ATTRIBUTE_NAME = INCIDENT_STATUS_ACTUAL
 const IS_NOT_ACTUAL_ATTRIBUTE_NAME = INCIDENT_STATUS_NOT_ACTUAL
@@ -106,21 +105,17 @@ const FilterContainer: React.FC<FilterContainerProps> = () => {
         <Col span={24}>
             <TableFiltersContainer>
                 <Row gutter={FILTER_ROW_GUTTER} align='middle'>
-                    <Col xs={24} md={8}>
-                        <Row gutter={SEARCH_WRAPPER_GUTTERS}>
-                            <Col span={24}>
-                                <Input
-                                    placeholder={SearchPlaceholderMessage}
-                                    onChange={handleSearchChange}
-                                    value={search}
-                                    allowClear
-                                    id='searchIncidents'
-                                    suffix={<Search size='medium' color={colors.gray[7]} />}
-                                />
-                            </Col>
-                        </Row>
+                    <Col span={24}>
+                        <Input
+                            placeholder={SearchPlaceholderMessage}
+                            onChange={handleSearchChange}
+                            value={search}
+                            allowClear
+                            id='searchIncidents'
+                            suffix={<Search size='medium' color={colors.gray[7]} />}
+                        />
                     </Col>
-                    <Col xs={24} md={16}>
+                    <Col xs={24}>
                         <Row gutter={CHECKBOX_WRAPPER_GUTTERS} align='middle'>
                             <Col>
                                 <Checkbox
