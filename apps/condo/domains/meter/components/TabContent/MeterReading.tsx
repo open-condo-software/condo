@@ -11,13 +11,13 @@ import uniqBy from 'lodash/uniqBy'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
-import { QuestionCircle, PlusCircle } from '@open-condo/icons'
+import { QuestionCircle, PlusCircle, Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Space, Tooltip } from '@open-condo/ui'
+import { Button, Tooltip } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
 
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
-import { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
 import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
@@ -47,7 +47,7 @@ import {
 
 
 const METERS_PAGE_CONTENT_ROW_GUTTERS: RowProps['gutter'] = [0, 40]
-const FILTERS_CONTAINER_GUTTER: RowProps['gutter'] = [20, 20]
+const FILTERS_CONTAINER_GUTTER: RowProps['gutter'] = [16, 16]
 const RESET_FILTERS_BUTTON_STYLE: CSSProperties = { paddingLeft: 0 }
 const QUICK_FILTERS_COL_STYLE: CSSProperties = { alignSelf: 'center' }
 
@@ -107,7 +107,6 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
         fetchPolicy: 'network-only',
     })
 
-    const { breakpoints } = useLayoutContext()
     const [search, handleSearchChange, handleSearchReset] = useSearch()
     const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch)
     const { MultipleFiltersModal, ResetFiltersModalButton, OpenFiltersButton } = useMultipleFiltersModal(
@@ -154,16 +153,17 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
                 <Col span={24}>
                     <TableFiltersContainer>
                         <Row gutter={FILTERS_CONTAINER_GUTTER} align='middle' justify='space-between'>
-                            <Col xs={24} lg={12}>
-                                <Row justify='start' gutter={FILTERS_CONTAINER_GUTTER}>
-                                    <Col>
-                                        <Input
-                                            placeholder={SearchPlaceholder}
-                                            onChange={handleSearch}
-                                            value={search}
-                                            allowClear
-                                        />
-                                    </Col>
+                            <Col span={24}>
+                                <Input
+                                    placeholder={SearchPlaceholder}
+                                    onChange={handleSearch}
+                                    value={search}
+                                    allowClear
+                                    suffix={<Search size='medium' color={colors.gray[7]}/>}
+                                />
+                            </Col>
+                            <Col>
+                                <Row justify='start' gutter={FILTERS_CONTAINER_GUTTER} style={{ flexWrap: 'nowrap' }}>
                                     <Col style={QUICK_FILTERS_COL_STYLE}>
                                         <Tooltip
                                             placement='rightBottom'
@@ -181,19 +181,18 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
                                 </Row>
                             </Col>
                             <Col>
-                                <Space size={12} direction={breakpoints.TABLET_LARGE ? 'horizontal' : 'vertical'}>
+                                <Row gutter={[16, 10]} align='middle' style={{ flexWrap: 'nowrap' }}>
                                     {
-                                        breakpoints.TABLET_LARGE && appliedFiltersCount > 0 && (
-                                            <ResetFiltersModalButton style={RESET_FILTERS_BUTTON_STYLE} />
+                                        appliedFiltersCount > 0 && (
+                                            <Col>
+                                                <ResetFiltersModalButton style={RESET_FILTERS_BUTTON_STYLE} />
+                                            </Col>
                                         )
                                     }
-                                    <OpenFiltersButton />
-                                    {
-                                        !breakpoints.TABLET_LARGE && appliedFiltersCount > 0 && (
-                                            <ResetFiltersModalButton style={RESET_FILTERS_BUTTON_STYLE}/>
-                                        )
-                                    }
-                                </Space>
+                                    <Col>
+                                        <OpenFiltersButton />
+                                    </Col>
+                                </Row>
                             </Col>
                         </Row>
                     </TableFiltersContainer>
