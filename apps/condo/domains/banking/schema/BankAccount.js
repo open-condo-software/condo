@@ -245,10 +245,9 @@ const BankAccount = new GQLListSchema('BankAccount', {
             // If bank account is being approved (and existingItem.isApproved is false)
             if (('isApproved' in resolvedData && get(resolvedData, 'isApproved')) && !get(existingItem, 'isApproved')) {
                 const dateNow = new Date().toISOString()
-                const { authedItem: { id } }  = context
 
                 resolvedData.approvedAt = dateNow
-                resolvedData.approvedBy = id
+                resolvedData.approvedBy = get(context, ['authedItem', 'id'])
             }
 
             return resolvedData
