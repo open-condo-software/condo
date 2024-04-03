@@ -3,7 +3,6 @@ const get = require('lodash/get')
 const { getSchemaCtx, getById, find } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
 
-const { sleep } = require('@condo/domains/common/utils/sleep')
 const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
 const { Property: PropertyAPI } = require('@condo/domains/property/utils/serverSchema')
 const { disconnectResidents, connectResidents } = require('@condo/domains/resident/utils/helpers')
@@ -30,11 +29,6 @@ async function manageResidentToPropertyAndOrganizationConnections (address, dv, 
         sortBy: ['isApproved_DESC', 'createdAt_ASC'], // sorting order is essential here
         first: 1,
     })
-
-    // This task affects those tests, which somehow connected with property creation, deletion, restoration and address update
-    // that causes resident reconnections. So we have to wait here, so that old tests like Meter or MeterReading one
-    // can finish their standard flow, after property created/updated but before residents reconnected.
-    await sleep(500)
 
     if (oldestProperty) {
         const residents = await ResidentAPI.getAll(context, {
