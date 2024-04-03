@@ -627,7 +627,7 @@ const FiltersContainer = ({ filterMetas }) => {
     return (
         <>
             <TableFiltersContainer ref={setRef}>
-                <Row gutter={FILTERS_CONTAINER_ROW_GUTTER} align='bottom'>
+                <Row gutter={FILTERS_CONTAINER_ROW_GUTTER} align='middle'>
                     <Col span={24}>
                         <Input
                             placeholder={SearchPlaceholder}
@@ -640,7 +640,6 @@ const FiltersContainer = ({ filterMetas }) => {
                     <Col span={checkboxColSpan}>
                         <Row
                             align='middle'
-                            style={isXlContainerSize ? { minHeight: 48 } : null}
                             gutter={CHECKBOX_WRAPPER_GUTTERS}
                         >
                             <Col span={24}>
@@ -714,7 +713,7 @@ const FiltersContainer = ({ filterMetas }) => {
                             </Col>
                         </Row>
                     </Col>
-                    <Col span={filterButtonColSpan}>
+                    <Col span={filterButtonColSpan} style={{ alignSelf: 'end' }}>
                         <Row justify={isXlContainerSize ? 'end' : 'start'} align='bottom'>
                             <Col>
                                 <Row align='middle' gutter={FILTERS_BUTTON_ROW_GUTTER} style={FILTERS_BUTTON_ROW_STYLES}>
