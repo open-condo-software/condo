@@ -41,7 +41,9 @@ jobs:
 
       - name: run tests
         run: |
-          docker run -e SERVER_URL=$SERVER_URL -e COOKIE_SECRET=$COOKIE_SECRET -e REDIS_URL=$REDIS_URL -e DATABASE_URL=$DATABASE_URL -e NODE_ENV=$NODE_ENV -e DISABLE_LOGGING=$DISABLE_LOGGING --network="host" ${{ inputs.image }} bash -c "/app/run_condo_domain_tests.sh -d ${{ inputs.domain_name }}"
+          mkdir test_logs
+          chmod -R a+rw ./test_logs
+          docker run -e SERVER_URL=$SERVER_URL -e COOKIE_SECRET=$COOKIE_SECRET -e REDIS_URL=$REDIS_URL -e DATABASE_URL=$DATABASE_URL -e NODE_ENV=$NODE_ENV -e DISABLE_LOGGING=$DISABLE_LOGGING -v ./test_logs:/app/test_logs --network="host" ${{ inputs.image }} bash -c "/app/run_condo_domain_tests.sh -d ${{ inputs.domain_name }}"
         env:
           DATABASE_URL: postgresql://postgres:postgres@127.0.0.1/main
           NODE_ENV: development
@@ -50,19 +52,19 @@ jobs:
           COOKIE_SECRET: test
           SERVER_URL: http://localhost:3000
 
-      # # TODO: these two should collect logs from dirs which will be volumes for container above
-      # - name: Collect docker logs on failure
-      #   if: failure()
-      #   uses: jwalton/gh-docker-logs@v1
-      #   with:
-      #     dest: './docker-logs'
+      - name: Collect docker logs on failure
+        if: failure()
+        uses: jwalton/gh-docker-logs@v1
+        with:
+         dest: './docker-logs'
 
-      # - name: Upload log artifact
-      #   uses: actions/upload-artifact@v3
-      #   if: failure()
-      #   with:
-      #     name: logs
-      #     path: |
-      #       *.log
-      #       ./docker-logs
-      #     retention-days: 2
+      - name: Upload log artifact
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+         name: logs
+         path: |
+           ./test_logs/*
+           *.log
+           ./docker-logs
+         retention-days: 2
