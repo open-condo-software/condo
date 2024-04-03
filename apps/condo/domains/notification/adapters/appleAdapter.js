@@ -63,17 +63,6 @@ class AppleAdapter {
     }
 
     /**
-     * We need to escape certain characters in order to send messages to Apple:
-     * https://forums.developer.apple.com/forums/thread/73669
-     * @param {string} string
-     * @return {string}
-     */
-    static escapeSpecialCharacters (string) {
-        // 'hello "username"' -> "hello \\"username\\""
-        return string.replaceAll('"', '\\"')
-    }
-
-    /**
      * Validates and prepares notification significant fields
      * @param title
      * @param body
@@ -82,10 +71,7 @@ class AppleAdapter {
     static validateAndPrepareNotification ({ title, body } = {}) {
         if (!title || !body || isEmpty(title) || isEmpty(body)) throw new Error(EMPTY_NOTIFICATION_TITLE_BODY_ERROR)
 
-        return {
-            title: AppleAdapter.escapeSpecialCharacters(title),
-            body: AppleAdapter.escapeSpecialCharacters(body),
-        }
+        return { title, body }
     }
 
     /**

@@ -252,10 +252,17 @@ function pushRenderer ({ message, env }) {
     const { id: notificationId, lang: locale, type } = message
     const messageTranslated = substituteTranslations(message, locale)
 
+    const renderedTitle = i18n(translationStringKeyForPushTitle(type), { locale, meta: messageTranslated.meta })
+
+    // For push messages emails we unescape message to prevent HTML entities in push body
+    // See https://lodash.com/docs/4.17.15#unescape
+    // &amp;, &lt;, &gt;, &quot;, and &#39; will be replaced to corresponding characters
+    const renderedBody =  unescape(nunjucks.render(getTemplate(locale, type, PUSH_TRANSPORT), { message: messageTranslated, env  }))
+
     return {
         notification: {
-            title: i18n(translationStringKeyForPushTitle(type), { locale, meta: messageTranslated.meta }),
-            body: nunjucks.render(getTemplate(locale, type, PUSH_TRANSPORT), { message: messageTranslated, env }),
+            title: renderedTitle,
+            body: renderedBody,
         },
         data: { ...get(message, ['meta', 'data'], {}), notificationId, type },
     }

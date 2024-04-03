@@ -104,6 +104,67 @@ describe('push transport', () => {
 
             })
 
+            it('successfully sends messages with quotes', async () => {
+                const residentUser = await makeClientWithResidentUser()
+                const payload = getRandomTokenData({
+                    devicePlatform: DEVICE_PLATFORM_ANDROID,
+                    pushTransport: PUSH_TRANSPORT_HUAWEI,
+                    appId: APP_RESIDENT_ID_ANDROID,
+                    pushToken: getRandomFakeSuccessToken(),
+                })
+
+                await syncRemoteClientByTestClient(residentUser, payload)
+
+                const target = residentUser.user.id
+                const batch = {
+                    id: faker.datatype.uuid(),
+                    title: 'Test message with "quotes"',
+                    message: 'Test message with "quotes"',
+                    deepLink: faker.random.alphaNumeric(30),
+                    messageType: CUSTOM_CONTENT_MESSAGE_TYPE,
+                }
+                const today = dayjs().format(DATE_FORMAT_Z)
+                const messageData = prepareMessageData(target, batch, today)
+
+                expect(messageData).not.toEqual(0)
+
+                const [messageStatus] = await sendMessageByTestClient(admin, messageData)
+
+                expect(messageStatus.isDuplicateMessage).toBeFalsy()
+
+                const messageWhere = {
+                    type: CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
+                    uniqKey: messageData.uniqKey,
+                }
+
+                let message, transportMeta
+
+                await waitFor(async () => {
+                    message = await Message.getOne(admin, messageWhere)
+                    transportMeta = message.processingMeta.transportsMeta[0]
+
+                    expect(message).toBeDefined()
+                    expect(transportMeta.status).toEqual(MESSAGE_SENT_STATUS)
+                    expect(transportMeta.transport).toEqual(PUSH_TRANSPORT)
+                })
+
+                transportMeta = message.processingMeta.transportsMeta[0]
+
+                const { responses, pushContext, successCount, failureCount } = transportMeta.deliveryMetadata
+
+                expect(responses).toHaveLength(1)
+                expect(responses[0].code).toEqual(PUSH_SUCCESS_CODE)
+                expect(responses[0].type).toEqual('Fake')
+                expect(responses[0].appType).toEqual(HUAWEI_APP_TYPE_BY_APP_ID[payload.appId])
+                expect(responses[0].pushToken).toEqual(payload.pushToken)
+                expect(successCount).toEqual(1)
+                expect(failureCount).toEqual(0)
+                expect(pushContext[PUSH_TYPE_DEFAULT]).toBeDefined()
+                expect(pushContext[PUSH_TYPE_DEFAULT].notification).toBeDefined()
+                expect(pushContext[PUSH_TYPE_DEFAULT].notification.title).toEqual(batch.title)
+                expect(pushContext[PUSH_TYPE_DEFAULT].notification.body).toEqual(batch.message)
+            })
+
             it('fails to send fake ordinary notification of CUSTOM_CONTENT_MESSAGE_TYPE', async () => {
                 const residentUser = await makeClientWithResidentUser()
                 const payload = getRandomTokenData({
