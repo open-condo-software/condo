@@ -577,7 +577,12 @@ const FiltersContainer = ({ filterMetas }) => {
         statusReopenedCounter: returned,
         isPayable: payable,
     } = attributes
-    const [isCompletedAfterDeadline, handleChangeIsCompletedAfterDeadline, handleResetIsCompletedAfterDeadline, handleUpdateIsCompletedAfterDeadline] = useCheckboxSearch('isCompletedAfterDeadline')
+    const [
+        isCompletedAfterDeadline,
+        handleChangeIsCompletedAfterDeadline,
+        handleResetIsCompletedAfterDeadline,
+        handleUpdateIsCompletedAfterDeadline,
+    ] = useCheckboxSearch('isCompletedAfterDeadline')
 
     const handleAttributeCheckboxChange = useCallback((attributeName: string) => (e: CheckboxChangeEvent) => {
         const isChecked = get(e, ['target', 'checked'])
@@ -610,19 +615,19 @@ const FiltersContainer = ({ filterMetas }) => {
     const isXxlContainerSize = contentWidth >= 1288
 
     if (isXlContainerSize) {
-        checkboxColSpan = 16
-        filterButtonColSpan = 8
+        checkboxColSpan = 17
+        filterButtonColSpan = 7
     }
 
     if (isXxlContainerSize) {
-        checkboxColSpan = 17
-        filterButtonColSpan = 7
+        checkboxColSpan = 18
+        filterButtonColSpan = 6
     }
 
     return (
         <>
             <TableFiltersContainer ref={setRef}>
-                <Row gutter={FILTERS_CONTAINER_ROW_GUTTER} align='middle'>
+                <Row gutter={FILTERS_CONTAINER_ROW_GUTTER} align='bottom'>
                     <Col span={24}>
                         <Input
                             placeholder={SearchPlaceholder}
@@ -633,9 +638,13 @@ const FiltersContainer = ({ filterMetas }) => {
                         />
                     </Col>
                     <Col span={checkboxColSpan}>
-                        <Row gutter={CHECKBOX_WRAPPER_GUTTERS}>
+                        <Row
+                            align='middle'
+                            style={isXlContainerSize ? { minHeight: 48 } : null}
+                            gutter={CHECKBOX_WRAPPER_GUTTERS}
+                        >
                             <Col span={24}>
-                                <Row gutter={CHECKBOX_WRAPPER_GUTTERS} style={CHECKBOX_WRAPPER_STYLES}>
+                                <Row gutter={CHECKBOX_WRAPPER_GUTTERS} style={!isXlContainerSize ? CHECKBOX_WRAPPER_STYLES : null}>
                                     <Col>
                                         <Checkbox
                                             onChange={handleAttributeCheckboxChange('isRegular')}
@@ -691,10 +700,6 @@ const FiltersContainer = ({ filterMetas }) => {
                                             {ReturnedLabel}
                                         </Checkbox>
                                     </Col>
-                                </Row>
-                            </Col>
-                            <Col span={24}>
-                                <Row gutter={CHECKBOX_WRAPPER_GUTTERS}>
                                     <Col>
                                         <Checkbox
                                             onChange={(event) => handleChangeIsCompletedAfterDeadline(get(event, 'target.checked', false))}
@@ -710,10 +715,9 @@ const FiltersContainer = ({ filterMetas }) => {
                         </Row>
                     </Col>
                     <Col span={filterButtonColSpan}>
-                        {
-                            isXlContainerSize ? (
-                                <Row justify='end' align='middle' gutter={FILTERS_BUTTON_ROW_GUTTER}
-                                    style={FILTERS_BUTTON_ROW_STYLES}>
+                        <Row justify={isXlContainerSize ? 'end' : 'start'} align='bottom'>
+                            <Col>
+                                <Row align='middle' gutter={FILTERS_BUTTON_ROW_GUTTER} style={FILTERS_BUTTON_ROW_STYLES}>
                                     {
                                         appliedFiltersCount > 0 && (
                                             <Col>
@@ -725,21 +729,8 @@ const FiltersContainer = ({ filterMetas }) => {
                                         <OpenFiltersButton />
                                     </Col>
                                 </Row>
-                            ) : (
-                                <Row justify='start' align='middle' gutter={FILTERS_BUTTON_ROW_GUTTER}>
-                                    <Col>
-                                        <OpenFiltersButton />
-                                    </Col>
-                                    {
-                                        appliedFiltersCount > 0 && (
-                                            <Col>
-                                                <ResetFiltersModalButton style={RESET_FILTERS_BUTTON_STYLES}/>
-                                            </Col>
-                                        )
-                                    }
-                                </Row>
-                            )
-                        }
+                            </Col>
+                        </Row>
                     </Col>
                 </Row>
             </TableFiltersContainer>
