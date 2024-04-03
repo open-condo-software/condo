@@ -321,12 +321,6 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             const newItem = { ...existingItem, ...resolvedData }
             const contextId = get(newItem, 'context')
             const recipient = get(newItem, 'recipient')
-            const billingIntegrationContext = await getById('BillingIntegrationOrganizationContext', contextId)
-            const billingIntegration = await getById('BillingIntegration', get(billingIntegrationContext, 'integration'))
-            const organization = await getById('Organization', get(billingIntegrationContext, 'organization'))
-            const isTrustedBankAccountSource = get(billingIntegration, 'isTrustedBankAccountSource')
-
-            const tinMatches = recipient.tin && recipient.tin === organization.tin
 
             let receiverId
             const sameRecipient = await getByCondition('BillingRecipient', {
