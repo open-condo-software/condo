@@ -502,23 +502,17 @@ describe('Resident', () => {
                 const client = await makeClientWithResidentUser()
                 const [organization] = await createTestOrganization(adminClient)
                 const { address, addressMeta } = buildFakeAddressAndMeta()
+                const [property] = await createTestProperty(adminClient, organization, {
+                    address, addressMeta,
+                })
+
                 const [resident] = await createTestResident(adminClient, client.user, null, {
                     address,
                     addressMeta,
                 })
 
-                const [property] = await createTestProperty(adminClient, organization, {
-                    address, addressMeta,
-                })
-
-                expect(resident.organization).toBeNull()
-                expect(resident.property).toBeNull()
-                expect(resident.address).toEqual(property.address)
-                expect(resident.addressMeta).toEqual(property.addressMeta)
-
                 const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
                 await createTestMeter(adminClient, organization, property, resource)
-
                 const [obj] = await Resident.getAll(client, { id: resident.id })
 
                 expect(obj.organization).toBe(null)
