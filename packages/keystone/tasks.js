@@ -385,8 +385,16 @@ async function createWorker (keystoneModule, config) {
         })
 
         queue.on('completed', function (job) {
-            logger.info({ taskId: job.id, status: 'completed', queue: queueName, task: getTaskLoggingContext(job), t0: job.finishedOn - job.timestamp, t1: job.processedOn - job.timestamp, t2: job.finishedOn - job.processedOn })
-            gauge({ name: `worker.${job.name}ExecutionTime`, value: job.finishedOn - job.processedOn })
+            logger.info({
+                taskId: job.id,
+                status: 'completed',
+                queue: queueName,
+                task: getTaskLoggingContext(job),
+                processingTime: job.finishedOn - job.timestamp,
+                waitTime: job.processedOn - job.timestamp,
+                executionTime: job.finishedOn - job.processedOn,
+            })
+            gauge({ name: `worker.${queueName}.${job.name}ExecutionTime`, value: job.finishedOn - job.processedOn })
         })
     })
 
