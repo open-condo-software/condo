@@ -6,30 +6,17 @@ const { Relationship, DateTimeUtc, Decimal } = require('@keystonejs/fields')
 const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const { GQLListSchema, find } = require('@open-condo/keystone/schema')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const { CONTACT_FIELD, CLIENT_EMAIL_FIELD, CLIENT_NAME_FIELD, CLIENT_PHONE_LANDLINE_FIELD, CLIENT_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/meter/access/MeterReading')
-const { METER_READING_VALUE_IS_INVALID } = require('@condo/domains/meter/constants/errors')
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { connectContactToMeterReading } = require('@condo/domains/meter/utils/serverSchema/resolveHelpers')
 const { addClientInfoToResidentMeterReading } = require('@condo/domains/meter/utils/serverSchema/resolveHelpers')
 const { addOrganizationFieldPlugin } = require('@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
-
-const ERRORS = {
-    METER_READING_VALUE_IS_INVALID: {
-        code: BAD_USER_INPUT,
-        type: METER_READING_VALUE_IS_INVALID,
-        message: 'Value of MeterReading is smaller than the previous value, should be more or equal',
-        messageForUser: 'api.meter.MeterReading.INVALID_VALUE',
-        mutation: 'createMeterReading',
-        variable: ['data', 'value1'],
-    },
-}
 
 const MeterReading = new GQLListSchema('MeterReading', {
     schemaDoc: 'Meter reading taken from a client or billing',
@@ -95,27 +82,6 @@ const MeterReading = new GQLListSchema('MeterReading', {
 
             if (operation === 'create' && user.type === RESIDENT) {
                 addClientInfoToResidentMeterReading(context, resolvedData)
-            }
-
-            // Check if values are not smaller than previous ones
-            if (operation === 'create' || operation === 'update') {
-                const meterReadingsWithBiggerValues = await find('MeterReading', {
-                    deletedAt: null,
-                    meter: {
-                        deletedAt: null,
-                        id: resolvedData['meter'] || existingItem['meter'],
-                    },
-                    OR: [
-                        resolvedData['value1'] ? { value1_gt: resolvedData['value1'] } : {},
-                        resolvedData['value2'] ? { value2_gt: resolvedData['value2'] } : {},
-                        resolvedData['value3'] ? { value3_gt: resolvedData['value3'] } : {},
-                        resolvedData['value4'] ? { value4_gt: resolvedData['value4'] } : {},
-                    ],
-                })
-
-                if (meterReadingsWithBiggerValues.length) {
-                    throw new GQLError(ERRORS.METER_READING_VALUE_IS_INVALID, context)
-                }
             }
 
             const meter = await Meter.getOne(context, {
