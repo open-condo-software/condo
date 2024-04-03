@@ -12,7 +12,7 @@ import intersection from 'lodash/intersection'
 import uniq from 'lodash/uniq'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { PlusCircle, Search } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
@@ -71,6 +71,8 @@ type TableContainerProps = {
 }
 
 
+const CHECKBOX_WRAPPER_STYLES: CSSProperties = { flexWrap: 'nowrap', overflowX: 'auto', overflowY: 'hidden' }
+
 const ROW_GUTTER: RowProps['gutter'] = [0, 40]
 const FILTER_ROW_GUTTER: RowProps['gutter'] = [24, 20]
 const CHECKBOX_WRAPPER_GUTTERS: RowProps['gutter'] = [16, 16]
@@ -115,13 +117,13 @@ const FilterContainer: React.FC<FilterContainerProps> = () => {
                             suffix={<Search size='medium' color={colors.gray[7]} />}
                         />
                     </Col>
-                    <Col xs={24}>
-                        <Row gutter={CHECKBOX_WRAPPER_GUTTERS} align='middle'>
+                    <Col>
+                        <Row gutter={CHECKBOX_WRAPPER_GUTTERS} align='middle' style={CHECKBOX_WRAPPER_STYLES}>
                             <Col>
                                 <Checkbox
                                     onChange={handleAttributeCheckboxChange(IS_ACTUAL_ATTRIBUTE_NAME)}
                                     checked={isActual}
-                                    label={ActualLabel}
+                                    children={ActualLabel}
                                     id='changeFilterActualIncidents'
                                 />
                             </Col>
@@ -129,7 +131,7 @@ const FilterContainer: React.FC<FilterContainerProps> = () => {
                                 <Checkbox
                                     onChange={handleAttributeCheckboxChange(IS_NOT_ACTUAL_ATTRIBUTE_NAME)}
                                     checked={isNotActual}
-                                    label={NotActualLabel}
+                                    children={NotActualLabel}
                                     id='changeFilterNotActualIncidents'
                                 />
                             </Col>
