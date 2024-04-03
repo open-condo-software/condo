@@ -17,6 +17,7 @@ const {
     APP_RESIDENT_KEY,
     MOBILE_APP_UPDATE_AVAILABLE_MESSAGE_PUSH_TYPE,
 } = require('@condo/domains/notification/constants/constants')
+const { compareMobileAppVersions } = require('@condo/domains/notification/helpers/compareMobileAppVersion')
 const { MessageBatch, RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
@@ -72,7 +73,7 @@ const _internalSendNotificationNewMobileAppVersionService = new GQLCustomSchema(
 
                             if (buildVersion) {
                                 for (const rc of chunk) {
-                                    if (get(rc, 'meta.Build', buildVersion) < buildVersion) rcWithLowerBuild.push(`rc:${rc.id}`)
+                                    if (compareMobileAppVersions(get(rc, 'meta.Build') || buildVersion, buildVersion) < 0) rcWithLowerBuild.push(`rc:${rc.id}`)
                                 }
                             }
 
@@ -134,7 +135,7 @@ const _internalSendNotificationNewMobileAppVersionService = new GQLCustomSchema(
 
                             if (buildVersion) {
                                 for (const rc of chunk) {
-                                    if (get(rc, 'meta.Build', buildVersion) < buildVersion) rcWithLowerBuild.push(`rc:${rc.id}`)
+                                    if (compareMobileAppVersions(get(rc, 'meta.Build') || buildVersion, buildVersion) < 0) rcWithLowerBuild.push(`rc:${rc.id}`)
                                 }
                             }
 
