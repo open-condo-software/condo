@@ -169,6 +169,7 @@ const FileImportModal = ({ domainName, activeModal, setActiveModal }) => {
 
     const [loading, setLoading] = useState<boolean>(false)
     const [filesUploading, setFilesUploading] = useState<boolean>(false)
+    const [files, setFiles] = useState([])
     const [uploadForm] = Form.useForm()
 
     const { UploadComponent, syncModifiedFiles } = useMultipleFileUploadHook({
@@ -225,7 +226,7 @@ const FileImportModal = ({ domainName, activeModal, setActiveModal }) => {
                                         <Button
                                             type='primary'
                                             onClick={() => uploadForm.submit()}
-                                            disabled={!isEmpty(errors) || filesUploading}
+                                            disabled={!isEmpty(errors) || filesUploading || isEmpty(files)}
                                             loading={loading}
                                         >
                                             {SubmitButtonLabel}
@@ -253,6 +254,7 @@ const FileImportModal = ({ domainName, activeModal, setActiveModal }) => {
                         <UploadComponent
                             initialFileList={[]}
                             onFileListChange={(files) => {
+                                setFiles(files)
                                 const isFilesUploading = files.some(file => get(file, 'status') === 'uploading')
                                 setFilesUploading(isFilesUploading)
                             }}
