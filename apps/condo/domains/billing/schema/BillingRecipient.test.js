@@ -394,7 +394,6 @@ describe('BillingRecipient', () => {
 
                 // update recipient tin
                 await updateTestBillingRecipient(admin, createdObj.id, {
-                    tin: account.tin,
                     bic: account.routingNumber,
                     bankAccount: account.number,
                 })
@@ -414,7 +413,6 @@ describe('BillingRecipient', () => {
 
                 // update recipient tin
                 await updateTestBillingRecipient(admin, createdObj.id, {
-                    tin: account.tin,
                     bankAccount: account.number,
                 })
 
@@ -433,7 +431,6 @@ describe('BillingRecipient', () => {
 
                 // update recipient tin
                 await updateTestBillingRecipient(admin, createdObj.id, {
-                    tin: account.tin,
                     bic: account.routingNumber,
                 })
 
@@ -452,7 +449,6 @@ describe('BillingRecipient', () => {
 
                 // update recipient tin
                 await updateTestBillingRecipient(admin, createdObj.id, {
-                    tin: account.tin,
                     bic: account.routingNumber,
                     bankAccount: account.number,
                 })
@@ -479,7 +475,6 @@ describe('BillingRecipient', () => {
 
                 // update recipient tin
                 await updateTestBillingRecipient(admin, createdObj.id, {
-                    tin: account.tin,
                     bic: account.routingNumber,
                     bankAccount: account.number,
                 })
