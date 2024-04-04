@@ -33,7 +33,7 @@ const {
     makeContextWithOrganizationAndIntegrationAsAdmin,
     createTestBillingCategory,
 } = require('@condo/domains/billing/utils/testSchema')
-const { createTestContact, updateTestContact } = require('@condo/domains/contact/utils/testSchema')
+const { createTestContact, updateTestContact, createTestContactRole, updateTestContactRole } = require('@condo/domains/contact/utils/testSchema')
 const { COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const { MeterResource } = require('@condo/domains/meter/utils/testSchema')
 const { createTestMeter } = require('@condo/domains/meter/utils/testSchema')
@@ -625,7 +625,7 @@ describe('Resident', () => {
         })
 
         describe('Contact-related fields', () => {
-            const ResidentWithContactInfo = generateGQLTestUtils(generateGqlQueries('Resident', '{ id isVerifiedByManagingCompany }'))
+            const ResidentWithContactInfo = generateGQLTestUtils(generateGqlQueries('Resident', '{ id isVerifiedByManagingCompany managingCompanyContactRole { id name organization } }'))
 
             test('isVerifiedByManagingCompany must return true if corresponding contact is verified', async () => {
                 const staffClient = await makeClientWithProperty()
@@ -701,6 +701,61 @@ describe('Resident', () => {
 
                 const residentWithNonManagingContact = await ResidentWithContactInfo.getOne(residentUser, { id: resident.id })
                 expect(residentWithNonManagingContact).toHaveProperty('isVerifiedByManagingCompany', false)
+            })
+            test('managingCompanyContactRole must return proper ContactRole is there\'s contact in resident property', async () => {
+                // NOTE: managingCompanyContactRole and isVerifiedByManagingCompany share common logic of obtaining contact,
+                // so only role logic is tested
+
+                const staffClient = await makeClientWithProperty()
+                const phone = createTestPhone()
+                const residentUser = await makeClientWithResidentUser({
+                    phone,
+                })
+                const [resident] = await registerResidentByTestClient(residentUser, {
+                    address: staffClient.property.address,
+                    addressMeta: staffClient.property.addressMeta,
+                    unitType: FLAT_UNIT_TYPE,
+                })
+                expect(resident).toHaveProperty(['property', 'id'], staffClient.property.id)
+
+                const [contact] = await createTestContact(staffClient, staffClient.organization, staffClient.property, {
+                    unitName: resident.unitName,
+                    unitType: resident.unitType,
+                    phone,
+                    isVerified: false,
+                })
+
+                // Case 1: Contact with no role
+                const residentWithNoRole = await ResidentWithContactInfo.getOne(residentUser, { id: resident.id })
+                expect(residentWithNoRole).toHaveProperty('managingCompanyContactRole', null)
+
+                // Case 2: Contact with default role
+                // NOTE: ID was taken from migration, since it does not exist as const
+                const residentRoleId = 'f9e88ba8-669e-417c-9511-9e33003c9e65'
+                await updateTestContact(staffClient, contact.id, { role: { connect: { id: residentRoleId } } })
+                const residentWithDefaultRole = await ResidentWithContactInfo.getOne(residentUser, { id: resident.id })
+                expect(residentWithDefaultRole.managingCompanyContactRole).toEqual({
+                    id: residentRoleId,
+                    name: 'contact.role.resident.name',
+                    organization: null,
+                })
+
+                // Case 3: Organization-specific role
+                const [contactRole, contactRoleAttrs] = await createTestContactRole(staffClient, {
+                    organization: { connect: { id: staffClient.organization.id } },
+                })
+                await updateTestContact(staffClient, contact.id, { role: { connect: { id: contactRole.id } } })
+                const residentWithOrgRole = await ResidentWithContactInfo.getOne(residentUser, { id: resident.id })
+                expect(residentWithOrgRole.managingCompanyContactRole).toEqual({
+                    id: contactRole.id,
+                    name: contactRoleAttrs.name,
+                    organization: staffClient.organization.id,
+                })
+
+                // Case 4: Role deleted
+                await updateTestContactRole(staffClient, contactRole.id, { deletedAt: dayjs().toISOString() })
+                const residentWithDeletedRole = await ResidentWithContactInfo.getOne(residentUser, { id: resident.id })
+                expect(residentWithDeletedRole).toHaveProperty('managingCompanyContactRole', null)
             })
         })
     })

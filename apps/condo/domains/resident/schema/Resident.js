@@ -240,7 +240,7 @@ const Resident = new GQLListSchema('Resident', {
         managingCompanyContactRole: {
             schema: 'Role of the contact corresponding to this resident in the managing company',
             type: 'Virtual',
-            extendGraphQLTypes: ['type ResidentContactRole { organization: ID, id: ID! }'],
+            extendGraphQLTypes: ['type ResidentContactRole { id: ID!, name: String!, organization: ID }'],
             graphQLReturnType: 'ResidentContactRole',
             resolver: async (item) => {
                 const contact = await getManagingCompanyContactFromItem(item)
@@ -248,9 +248,7 @@ const Resident = new GQLListSchema('Resident', {
                     return null
                 }
 
-                const role =  await getByCondition('ContactRole', { id: contact.role, deletedAt: null })
-                console.log(role)
-                return role
+                return await getByCondition('ContactRole', { id: contact.role, deletedAt: null })
             },
         },
     },
