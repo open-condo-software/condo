@@ -344,28 +344,11 @@ const IntroduceAppBlock = () => {
                                                 )
                                             }
                                         </div>
-                                        {
-                                            type === 'socialNetworks' ? (
-                                                <Space size={16} direction={breakpoints.TABLET_LARGE ? 'horizontal' : 'vertical'}>
-                                                    <a href={get(stepMaterials, [type, 'materialsUrl.pics'], '')}>
-                                                        <Button type='secondary' icon={<Download />}>
-                                                            {DownloadPicsMessage}
-                                                        </Button>
-                                                    </a>
-                                                    <a href={get(stepMaterials, [type, 'materialsUrl.text'], '')}>
-                                                        <Button type='secondary' icon={<Download />}>
-                                                            {DownloadTextMessage}
-                                                        </Button>
-                                                    </a>
-                                                </Space>
-                                            ) : (
-                                                <a href={get(stepMaterials, [type, 'materialsUrl'], '')}>
-                                                    <Button type='primary' icon={<Download />}>
-                                                        {intl.formatMessage({ id: `tour.guide.introduceApp.step.${type}.downloadMaterials` })}
-                                                    </Button>
-                                                </a>
-                                            )
-                                        }
+                                        <a href={get(stepMaterials, [type, 'materialsUrl'], '')} target='_blank' rel='noreferrer'>
+                                            <Button type='primary' icon={<Download />}>
+                                                {intl.formatMessage({ id: `tour.guide.introduceApp.step.${type}.downloadMaterials` })}
+                                            </Button>
+                                        </a>
                                     </Space>
                                 </Panel>
                             </>
