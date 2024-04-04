@@ -120,7 +120,7 @@ class AppleAdapter {
 
     /**
      * For testing purpose we have to emulate Apple push response for predefined FAKE tokens,
-     * because it's almost impossible to get real Apple push push token in automated way.
+     * because it's almost impossible to get real Apple push token in automated way.
      * @param result
      * @param fakeNotifications
      * @returns {*}
