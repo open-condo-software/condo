@@ -53,5 +53,6 @@ module.exports = {
     NewsItemRecipientsExportTask,
     NewsItemSharing,
     GET_NEWS_SHARING_RECIPIENTS_MUTATION,
+    NEWS_ITEM_SCOPE_FIELDS,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
