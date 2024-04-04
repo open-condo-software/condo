@@ -28963,6 +28963,7 @@ type TicketFilter {
   completedAt: [String]
   lastCommentAt: [String]
   type: String
+  isCompletedAfterDeadline: String
 }
 
 """ Employee specific ticket filter template """

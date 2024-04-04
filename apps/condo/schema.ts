@@ -86812,6 +86812,7 @@ export type TicketFilter = {
   completedAt?: Maybe<Array<Maybe<Scalars['String']>>>;
   lastCommentAt?: Maybe<Array<Maybe<Scalars['String']>>>;
   type?: Maybe<Scalars['String']>;
+  isCompletedAfterDeadline?: Maybe<Scalars['String']>;
 };
 
 /**  Employee specific ticket filter template  */
