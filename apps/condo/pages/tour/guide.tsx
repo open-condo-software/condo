@@ -324,7 +324,7 @@ const IntroduceAppBlock = () => {
                                     key={type}
                                 >
                                     <Space size={40} direction='vertical'>
-                                        <img style={PANEL_IMAGE_STYLES} src={get(stepMaterials, [type, 'imageUrl', ''])}/>
+                                        <img style={PANEL_IMAGE_STYLES} src={get(stepMaterials, [type, 'imageUrl'], '')}/>
                                         <div style={STEP_TEXT_CONTAINER_STYLES}>
                                             <Typography.Paragraph type='secondary'>
                                                 {getTextWithAccent(intl.formatMessage({ id: `tour.guide.introduceApp.step.${type}.body` }))}
@@ -347,19 +347,19 @@ const IntroduceAppBlock = () => {
                                         {
                                             type === 'socialNetworks' ? (
                                                 <Space size={16} direction={breakpoints.TABLET_LARGE ? 'horizontal' : 'vertical'}>
-                                                    <a href={get(stepMaterials, [type, 'materialsUrl.pics', ''])}>
+                                                    <a href={get(stepMaterials, [type, 'materialsUrl.pics'], '')}>
                                                         <Button type='secondary' icon={<Download />}>
                                                             {DownloadPicsMessage}
                                                         </Button>
                                                     </a>
-                                                    <a href={get(stepMaterials, [type, 'materialsUrl.text', ''])}>
+                                                    <a href={get(stepMaterials, [type, 'materialsUrl.text'], '')}>
                                                         <Button type='secondary' icon={<Download />}>
                                                             {DownloadTextMessage}
                                                         </Button>
                                                     </a>
                                                 </Space>
                                             ) : (
-                                                <a href={get(stepMaterials, [type, 'materialsUrl', ''])}>
+                                                <a href={get(stepMaterials, [type, 'materialsUrl'], '')}>
                                                     <Button type='primary' icon={<Download />}>
                                                         {intl.formatMessage({ id: `tour.guide.introduceApp.step.${type}.downloadMaterials` })}
                                                     </Button>

@@ -1,4 +1,4 @@
-import { get } from 'lodash'
+import get from 'lodash/get'
 import getConfig from 'next/config'
 import React, { CSSProperties, useMemo, useState } from 'react'
 
@@ -20,7 +20,7 @@ type RadioOptionType = 'admin' | 'technic' | 'security'
 
 const APP_CARD_IMAGE_STYLES: CSSProperties = { width: 'inherit', maxWidth: '120px', paddingTop: '6px' }
 const TAB_IMAGE_WRAPPER_STYLES: CSSProperties = { margin: 'auto', width: 'fit-content' }
-const BASE_IMAGE_CONTAINER_STYLES: CSSProperties =  { height: '240px', width: '100%', backgroundColor: '', overflow: 'hidden', padding: '24px' }
+const BASE_IMAGE_CONTAINER_STYLES: CSSProperties =  { borderRadius: '12px', height: '240px', width: '100%', backgroundColor: '', overflow: 'hidden', padding: '24px' }
 const IMAGE_WRAPPER_BG_COLOR_BY_TYPE = {
     admin: colors.blue[1],
     technic: colors.purple[1],
@@ -98,7 +98,7 @@ export const TechnicAppCard = () => {
                                         <img
                                             src={`/onboarding/technic-app-card/${locale}/tabs/admin.webp`}
                                             alt='Technic app preview for admins'
-                                            style={{ width: '277px' }}
+                                            style={{ width: '310px' }}
                                         />
                                     </div>
                                 </div>
