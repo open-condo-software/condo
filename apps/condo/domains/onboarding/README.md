@@ -26,4 +26,4 @@ When a user performs an action on the platform (web client) related to a specifi
   - RESIDENT_APP_LANDING_URL='{ [locale]: landingUrl }'
   - CREATE_MAP_VIDEO_URL='{ [locale]: videoUrl }'
   - GUIDE_MODAL_CARD_LINK='{ [locale]: { "payments": url, "costs": url, "quality": url } }'
-  - GUIDE_INTRODUCE_APP_MATERIALS='{ [locale]: { "announcement": { "imageUrl": url, "materialsUrl": url }, "banner": { "imageUrl": url, "materialsUrl": url }, "chats": { "imageUrl": url, "materialsUrl": url }, "layout": { "imageUrl": url, "materialsUrl": url }, "leaflet":  { "imageUrl": url, "materialsUrl": url }, "socialNetworks": { "imageUrl": url, "materialsUrl": { "pics": url, "text": url } }, "stickers": { "imageUrl": url, "materialsUrl": url } } }'
+  - GUIDE_INTRODUCE_APP_MATERIALS='{ [locale]: { "announcement": { "imageUrl": url, "materialsUrl": url }, "banner": { "imageUrl": url, "materialsUrl": url }, "chats": { "imageUrl": url, "materialsUrl": url }, "layout": { "imageUrl": url, "materialsUrl": url }, "leaflet":  { "imageUrl": url, "materialsUrl": url }, "socialNetworks": { "imageUrl": url, "materialsUrl": url }, "stickers": { "imageUrl": url, "materialsUrl": url } } }'

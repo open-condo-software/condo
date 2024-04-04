@@ -124,7 +124,7 @@ const AboutAppBlock = () => {
                                 key={type}
                                 header={{
                                     image: {
-                                        src: `/onboarding/guide/aboutApp/${locale}/${type}/cardImage.png`,
+                                        src: `/onboarding/guide/aboutApp/${locale}/${type}/cardImage.webp`,
                                         size: 'big',
                                     },
                                 }}
@@ -169,7 +169,7 @@ const AboutAppBlock = () => {
                                     breakpoints.TABLET_LARGE && (
                                         <img
                                             style={BANNER_IMAGE_STYLES}
-                                            src={`/onboarding/guide/aboutApp/${locale}/${type}/modalImage.png`}
+                                            src={`/onboarding/guide/aboutApp/${locale}/${type}/modalImage.webp`}
                                         />
                                     )
                                 }
@@ -192,7 +192,7 @@ const AboutAppBlock = () => {
                                         <Col xs={24} md={12}>
                                             <Card title={(
                                                 <img
-                                                    src={`/onboarding/guide/aboutApp/${locale}/${type}/modalLogo.png`}
+                                                    src={`/onboarding/guide/aboutApp/${locale}/${type}/modalLogo.webp`}
                                                     style={CARD_IMAGE_STYLES}
                                                 />
                                             )}
