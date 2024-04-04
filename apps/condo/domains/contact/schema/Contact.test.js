@@ -13,7 +13,7 @@ const { createTestOrganizationEmployeeRole } = require('@condo/domains/organizat
 const { createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { FLAT_UNIT_TYPE, COMMERCIAL_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { makeClientWithProperty, createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { createTestPhone, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { createTestPhone, createTestEmail, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 
 describe('Contact', () => {
@@ -396,7 +396,11 @@ describe('Contact', () => {
             const adminClient = await makeLoggedInAdminClient()
             const [obj] = await createTestContact(adminClient, userClient.organization, userClient.property)
 
-            const [objUpdated, attrs] = await updateTestContact(adminClient, obj.id)
+            const [objUpdated, attrs] = await updateTestContact(adminClient, obj.id, {
+                name: faker.name.firstName(),
+                email: createTestEmail(),
+                phone: createTestPhone(),
+            })
 
             expect(objUpdated.id).toEqual(obj.id)
             expect(objUpdated.dv).toEqual(1)
@@ -425,7 +429,11 @@ describe('Contact', () => {
 
             const [obj] = await createTestContact(adminClient, organization, userClient.property)
 
-            const [objUpdated, attrs] = await updateTestContact(userClient, obj.id)
+            const [objUpdated, attrs] = await updateTestContact(userClient, obj.id, {
+                name: faker.name.firstName(),
+                email: createTestEmail(),
+                phone: createTestPhone(),
+            })
 
             expect(objUpdated.id).toEqual(obj.id)
             expect(objUpdated.dv).toEqual(1)

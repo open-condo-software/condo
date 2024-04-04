@@ -6,6 +6,8 @@ const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 const { cloneDeep } = require('lodash')
 
+const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
+const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor, expectToThrowValidationFailureError } = require('@open-condo/keystone/test.utils')
 const {
     catchErrorFrom,
@@ -31,10 +33,12 @@ const {
     makeContextWithOrganizationAndIntegrationAsAdmin,
     createTestBillingCategory,
 } = require('@condo/domains/billing/utils/testSchema')
+const { createTestContact, updateTestContact } = require('@condo/domains/contact/utils/testSchema')
 const { COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const { MeterResource } = require('@condo/domains/meter/utils/testSchema')
 const { createTestMeter } = require('@condo/domains/meter/utils/testSchema')
-const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
+const { createTestOrganization, registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { FLAT_UNIT_TYPE, COMMERCIAL_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const {
@@ -48,6 +52,7 @@ const {
     createTestResident,
     updateTestResident,
     makeClientWithServiceConsumer,
+    registerResidentByTestClient,
 } = require('@condo/domains/resident/utils/testSchema')
 const {
     createTestTicketFile,
@@ -55,8 +60,9 @@ const {
     createTestTicket,
     updateTestTicket,
 } = require('@condo/domains/ticket/utils/testSchema')
-const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
-const { addResidentAccess } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithResidentUser, addResidentAccess, createTestPhone } = require('@condo/domains/user/utils/testSchema')
+
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('../../user/utils/testSchema')
 
 
 describe('Resident', () => {
@@ -615,6 +621,86 @@ describe('Resident', () => {
                 expect(obj.paymentCategories).toBeDefined()
                 expect(obj.paymentCategories[0].billingName).toEqual(DEFAULT_BILLING_INTEGRATION_NAME)
                 expect(obj.paymentCategories[0].acquiringName).toEqual(DEFAULT_ACQUIRING_INTEGRATION_NAME)
+            })
+        })
+
+        describe('Contact-related fields', () => {
+            const ResidentWithContactInfo = generateGQLTestUtils(generateGqlQueries('Resident', '{ id isVerifiedByManagingCompany }'))
+
+            test('isVerifiedByManagingCompany must return true if corresponding contact is verified', async () => {
+                const staffClient = await makeClientWithProperty()
+                const phone = createTestPhone()
+                const residentUser = await makeClientWithResidentUser({
+                    phone,
+                })
+                const [resident] = await registerResidentByTestClient(residentUser, {
+                    address: staffClient.property.address,
+                    addressMeta: staffClient.property.addressMeta,
+                    unitType: FLAT_UNIT_TYPE,
+                })
+                expect(resident).toHaveProperty(['property', 'id'], staffClient.property.id)
+
+                // Case 1: No contact
+                const residentWithNoContact = await ResidentWithContactInfo.getOne(residentUser, { id: resident.id })
+                expect(residentWithNoContact).toHaveProperty('isVerifiedByManagingCompany', false)
+
+                // Case 2: Matched but not verified contact
+                const [contact] = await createTestContact(staffClient, staffClient.organization, staffClient.property, {
+                    unitName: resident.unitName,
+                    unitType: resident.unitType,
+                    phone,
+                })
+                const residentWithContact = await ResidentWithContactInfo.getOne(residentUser, { id: resident.id })
+                expect(residentWithContact).toHaveProperty('isVerifiedByManagingCompany', false)
+
+                // Case 3: Matched and verified contact
+                await updateTestContact(staffClient, contact.id, { isVerified: true })
+                const residentWithVerifiedContact = await ResidentWithContactInfo.getOne(residentUser, { id: resident.id })
+                expect(residentWithVerifiedContact).toHaveProperty('isVerifiedByManagingCompany', true)
+
+                // Case 4: Same unit, different user
+                const anotherPhoneResidentUser = await makeClientWithResidentUser()
+                const [anotherPhoneResident] = await registerResidentByTestClient(anotherPhoneResidentUser, {
+                    address: staffClient.property.address,
+                    addressMeta: staffClient.property.addressMeta,
+                    unitName: resident.unitName,
+                    unitType: resident.unitType,
+                })
+
+                const residentWithDifferentPhone = await ResidentWithContactInfo.getOne(anotherPhoneResidentUser, { id: anotherPhoneResident.id })
+                expect(residentWithDifferentPhone).toHaveProperty('isVerifiedByManagingCompany', false)
+
+                // Case 5: Deleted contact
+                await updateTestContact(staffClient, contact.id, { deletedAt: dayjs().toISOString() })
+                const residentWithDeletedContact = await ResidentWithContactInfo.getOne(residentUser, { id: resident.id })
+                expect(residentWithDeletedContact).toHaveProperty('isVerifiedByManagingCompany', false)
+
+                // Case 6: Same user different unit
+                await createTestContact(staffClient, staffClient.organization, staffClient.property, {
+                    unitName: resident.unitName,
+                    unitType: COMMERCIAL_UNIT_TYPE,
+                    phone,
+                    isVerified: true,
+                })
+                const residentWithNoFlatContact = await ResidentWithContactInfo.getOne(residentUser, { id: resident.id })
+                expect(residentWithNoFlatContact).toHaveProperty('isVerifiedByManagingCompany', false)
+
+                // Case 7: Same user, same unit, not managing company
+                const anotherStaffClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [serviceProvider] = await registerNewOrganization(anotherStaffClient, { type: SERVICE_PROVIDER_TYPE })
+                const [providerProperty] = await createTestProperty(anotherStaffClient, serviceProvider, {
+                    address: staffClient.property.address,
+                    addressMeta: staffClient.property.addressMeta,
+                })
+                await createTestContact(anotherStaffClient, serviceProvider, providerProperty, {
+                    unitName: resident.unitName,
+                    unitType: COMMERCIAL_UNIT_TYPE,
+                    phone,
+                    isVerified: true,
+                })
+
+                const residentWithNonManagingContact = await ResidentWithContactInfo.getOne(residentUser, { id: resident.id })
+                expect(residentWithNonManagingContact).toHaveProperty('isVerifiedByManagingCompany', false)
             })
         })
     })
