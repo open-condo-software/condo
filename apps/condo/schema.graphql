@@ -43221,6 +43221,8 @@ type ResidentHistoryRecord {
   property: String
   unitName: String
   unitType: String
+  isVerifiedByManagingCompany: JSON
+  managingCompanyContactRole: JSON
   organization: String
   id: ID!
   address: String
@@ -43288,6 +43290,14 @@ input ResidentHistoryRecordWhereInput {
   unitType_not_ends_with_i: String
   unitType_in: [String]
   unitType_not_in: [String]
+  isVerifiedByManagingCompany: JSON
+  isVerifiedByManagingCompany_not: JSON
+  isVerifiedByManagingCompany_in: [JSON]
+  isVerifiedByManagingCompany_not_in: [JSON]
+  managingCompanyContactRole: JSON
+  managingCompanyContactRole_not: JSON
+  managingCompanyContactRole_in: [JSON]
+  managingCompanyContactRole_not_in: [JSON]
   organization: String
   organization_not: String
   organization_in: [String]
@@ -43450,6 +43460,8 @@ input ResidentHistoryRecordUpdateInput {
   property: String
   unitName: String
   unitType: String
+  isVerifiedByManagingCompany: JSON
+  managingCompanyContactRole: JSON
   organization: String
   address: String
   addressKey: String
@@ -43479,6 +43491,8 @@ input ResidentHistoryRecordCreateInput {
   property: String
   unitName: String
   unitType: String
+  isVerifiedByManagingCompany: JSON
+  managingCompanyContactRole: JSON
   organization: String
   address: String
   addressKey: String
@@ -43528,6 +43542,12 @@ type PaymentCategory {
   acquiringName: String!
 }
 
+type ResidentContactRole {
+  id: ID!
+  name: String!
+  organization: ID
+}
+
 """ Person, that resides in a specified property and unit """
 type Resident {
   """
@@ -43566,6 +43586,8 @@ type Resident {
 
   """ Type of unit, such as parking lot or flat. Default value: "flat" """
   unitType: String
+  isVerifiedByManagingCompany: Boolean
+  managingCompanyContactRole: ResidentContactRole
 
   """ Ref to the organization. It is filled in on the server and is read-only 
   """

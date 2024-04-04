@@ -71332,6 +71332,8 @@ export type Resident = {
   unitName?: Maybe<Scalars['String']>;
   /**  Type of unit, such as parking lot or flat. Default value: "flat"  */
   unitType?: Maybe<Scalars['String']>;
+  isVerifiedByManagingCompany?: Maybe<Scalars['Boolean']>;
+  managingCompanyContactRole?: Maybe<ResidentContactRole>;
   /**  Ref to the organization. It is filled in on the server and is read-only  */
   organization?: Maybe<Organization>;
   id: Scalars['ID'];
@@ -71453,6 +71455,13 @@ export type ResidentBillingReceiptWhereInput = {
   serviceConsumer_is_null?: Maybe<Scalars['Boolean']>;
 };
 
+export type ResidentContactRole = {
+  __typename?: 'ResidentContactRole';
+  id: Scalars['ID'];
+  name: Scalars['String'];
+  organization?: Maybe<Scalars['ID']>;
+};
+
 export type ResidentCreateInput = {
   user?: Maybe<UserRelateToOneInput>;
   property?: Maybe<PropertyRelateToOneInput>;
@@ -71495,6 +71504,8 @@ export type ResidentHistoryRecord = {
   property?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
+  isVerifiedByManagingCompany?: Maybe<Scalars['JSON']>;
+  managingCompanyContactRole?: Maybe<Scalars['JSON']>;
   organization?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   address?: Maybe<Scalars['String']>;
@@ -71520,6 +71531,8 @@ export type ResidentHistoryRecordCreateInput = {
   property?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
+  isVerifiedByManagingCompany?: Maybe<Scalars['JSON']>;
+  managingCompanyContactRole?: Maybe<Scalars['JSON']>;
   organization?: Maybe<Scalars['String']>;
   address?: Maybe<Scalars['String']>;
   addressKey?: Maybe<Scalars['String']>;
@@ -71550,6 +71563,8 @@ export type ResidentHistoryRecordUpdateInput = {
   property?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
+  isVerifiedByManagingCompany?: Maybe<Scalars['JSON']>;
+  managingCompanyContactRole?: Maybe<Scalars['JSON']>;
   organization?: Maybe<Scalars['String']>;
   address?: Maybe<Scalars['String']>;
   addressKey?: Maybe<Scalars['String']>;
@@ -71616,6 +71631,14 @@ export type ResidentHistoryRecordWhereInput = {
   unitType_not_ends_with_i?: Maybe<Scalars['String']>;
   unitType_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   unitType_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isVerifiedByManagingCompany?: Maybe<Scalars['JSON']>;
+  isVerifiedByManagingCompany_not?: Maybe<Scalars['JSON']>;
+  isVerifiedByManagingCompany_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  isVerifiedByManagingCompany_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  managingCompanyContactRole?: Maybe<Scalars['JSON']>;
+  managingCompanyContactRole_not?: Maybe<Scalars['JSON']>;
+  managingCompanyContactRole_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  managingCompanyContactRole_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   organization?: Maybe<Scalars['String']>;
   organization_not?: Maybe<Scalars['String']>;
   organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
