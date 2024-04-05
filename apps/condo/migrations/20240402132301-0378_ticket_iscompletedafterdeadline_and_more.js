@@ -20,8 +20,18 @@ ALTER TABLE "Ticket" ALTER COLUMN "isCompletedAfterDeadline" DROP DEFAULT;
 --
 ALTER TABLE "TicketHistoryRecord" ADD COLUMN "isCompletedAfterDeadline" boolean NULL;
 
+--
 -- [CUSTOM] Set "isCompletedAfterDeadline" to "true" for tickets in status "completed" and "closed" that were completed after the deadline
 UPDATE "Ticket" SET "isCompletedAfterDeadline" = true WHERE "status" IN ('5b9decd7-792c-42bb-b16d-822142fd2d69', 'c14a58e0-6b5d-4ec2-b91c-980a90111c7d') AND "deadline" < "completedAt";
+
+--
+-- [CUSTOM] Set "isCompletedAfterDeadline" to "true" for tickets in status "closed" that has not "completedAt" and has "statusUpdatedAt" more then "deadline"
+UPDATE "Ticket" SET "isCompletedAfterDeadline" = true WHERE "status" = 'c14a58e0-6b5d-4ec2-b91c-980a90111c7d' AND "completedAt" IS NULL AND "deadline" < "statusUpdatedAt";
+
+--
+-- [CUSTOM] Set "isCompletedAfterDeadline" to "true" for tickets in status "cancelled" that has "statusUpdatedAt" more then "deadline"
+UPDATE "Ticket" SET "isCompletedAfterDeadline" = true WHERE "status" = 'f0fa0093-8d86-4e69-ae1a-70a2914da82f' AND "deadline" < "statusUpdatedAt";
+
 
 --
 -- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
