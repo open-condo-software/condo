@@ -190,7 +190,7 @@ const PERCENT_FIELD = {
 }
 
 const getPhoneFieldHooks = ({ allowLandline }) => ({
-    resolveInput: async ({ resolvedData, fieldPath }) => {
+    resolveInput: ({ resolvedData, fieldPath }) => {
         const newValue = normalizePhone(resolvedData[fieldPath], allowLandline)
         return newValue || resolvedData[fieldPath]
     },

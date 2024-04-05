@@ -34,6 +34,12 @@ const SYNC_TOUR_STEPS_MUTATION = gql`
     }
 `
 
+const USER_HELP_REQUEST_FIELDS = `{ type organization { id } phone meta isReadyToSend ${COMMON_FIELDS} }`
+const UserHelpRequest = generateGqlQueries('UserHelpRequest', USER_HELP_REQUEST_FIELDS)
+
+const USER_HELP_REQUEST_FILE_FIELDS = `{ userHelpRequest { id } file { id publicUrl } ${COMMON_FIELDS} }`
+const UserHelpRequestFile = generateGqlQueries('UserHelpRequestFile', USER_HELP_REQUEST_FILE_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -42,5 +48,7 @@ module.exports = {
     CREATE_ONBOARDING_MUTATION,
     TourStep,
     SYNC_TOUR_STEPS_MUTATION,
+    UserHelpRequest,
+    UserHelpRequestFile,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

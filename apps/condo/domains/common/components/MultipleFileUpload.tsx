@@ -1,15 +1,18 @@
-import { DeleteFilled, EditFilled } from '@ant-design/icons'
 import { File } from '@app/condo/schema'
+import styled from '@emotion/styled'
 import { Upload, UploadProps } from 'antd'
 import { UploadFile, UploadFileStatus } from 'antd/lib/upload/interface'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
+import isFunction from 'lodash/isFunction'
 import { UploadRequestOption } from 'rc-upload/lib/interface'
 import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 
+import { Paperclip, Trash } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
+import { Button } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
 
-import { Button } from '@condo/domains/common/components/Button'
 import { MAX_UPLOAD_FILE_SIZE } from '@condo/domains/common/constants/uploads'
 
 import { useTracking, TrackingEventType } from './TrackingContext'
@@ -87,7 +90,9 @@ interface IUploadComponentProps {
     initialFileList: DBFile[]
     UploadButton?: React.ReactElement
     uploadProps?: UploadProps
+    onFileListChange?: (fileList) => void
 }
+
 interface IMultipleFileUploadHookArgs {
     Model: Module
     relationField: string
@@ -95,6 +100,7 @@ interface IMultipleFileUploadHookArgs {
     initialCreateValues?: Record<string, unknown>,
     dependenciesForRerenderUploadComponent?: Array<unknown>
 }
+
 interface IMultipleFileUploadHookResult {
     UploadComponent: React.FC<IUploadComponentProps>,
     syncModifiedFiles: (id: string) => Promise<void>
@@ -139,7 +145,10 @@ export const useMultipleFileUploadHook = ({
         dispatch({ type: 'reset' })
     }, [])
 
-    const initialValues = useMemo(() => ({ ...initialCreateValues, [relationField]: null }), [initialCreateValues, relationField])
+    const initialValues = useMemo(() => ({
+        ...initialCreateValues,
+        [relationField]: null,
+    }), [initialCreateValues, relationField])
 
     const UploadComponent: React.FC<IUploadComponentProps> = useMemo(() => {
         const UploadWrapper = (props) => (
@@ -148,7 +157,7 @@ export const useMultipleFileUploadHook = ({
                 fileList={initialFileList}
                 initialCreateValues={initialValues}
                 Model={Model}
-                onFilesChange={dispatch}
+                updateFileList={dispatch}
                 {...props}
             />
         )
@@ -163,14 +172,76 @@ export const useMultipleFileUploadHook = ({
     }
 }
 
+const StyledUpload = styled(Upload)`
+  display: flex;
+  flex-flow: column-reverse;
+
+  .ant-upload-list-item:hover .ant-upload-list-item-info {
+    background-color: inherit;
+  }
+
+  .ant-upload-list-item-info {
+    & .ant-upload-text-icon {
+      transform: rotate(180deg);
+
+      span {
+        color: black;
+        font-size: 16px;
+      }
+    }
+  }
+
+  .ant-upload-list-text-container {
+    & .ant-upload-list-item-name {
+      font-size: 16px;
+      width: auto;
+      flex-grow: 0;
+    }
+
+    &:last-child {
+      margin-bottom: 24px;
+      width: auto;
+    }
+  }
+  
+  .ant-upload-list-item-card-actions {
+    display: flex;
+    align-items: center;
+  }
+  
+  .ant-upload-list-item:not(.ant-upload-list-item-error) {
+    & .ant-upload-list-item-name {
+      text-decoration: underline;
+      color: ${colors.black};
+
+      &:hover {
+        color: ${colors.green[5]};
+        text-decoration-color: ${colors.green[5]};
+      }
+    }
+  }
+  
+  .ant-upload-list-item-error {
+    & .ant-upload-list-item-name {
+      text-decoration: none;
+      color: ${colors.red[5]};
+    }
+
+    & .ant-upload-text-icon span {
+      color: ${colors.red[5]};
+    }
+  }
+`
+
 interface IMultipleFileUploadProps {
     setFilesCount: React.Dispatch<React.SetStateAction<number>>
     fileList: DBFile[]
     initialCreateValues: Record<string, unknown>
     Model: Module
-    onFilesChange: React.Dispatch<{ type: string, payload: DBFile }>
+    updateFileList: React.Dispatch<{ type: string, payload: DBFile }>
     UploadButton?: React.FC
     uploadProps?: UploadProps
+    onFileListChange?: (fileList) => void
 }
 
 const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
@@ -184,9 +255,10 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
         fileList,
         initialCreateValues,
         Model,
-        onFilesChange,
+        updateFileList,
         UploadButton,
         uploadProps = {},
+        onFileListChange,
     } = props
 
     const [listFiles, setListFiles] = useState<UploadListFile[]>([])
@@ -217,27 +289,35 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
                 return file
             })
             setListFiles(fileList)
+
+            if (isFunction(onFileListChange)) {
+                onFileListChange(fileList)
+            }
         },
         showUploadList: {
             showRemoveIcon: true,
             removeIcon: (file) => {
                 const removeIcon = (
-                    <DeleteFilled onClick={() => {
-                        const { id, uid } = file
-                        const fileError = get(file, 'error')
-                        if (!fileError) {
-                            setFilesCount(filesCount => filesCount - 1)
-                        }
+                    <Trash
+                        color={colors.red[5]}
+                        size='small'
+                        onClick={() => {
+                            const { id, uid } = file
+                            const fileError = get(file, 'error')
+                            if (!fileError) {
+                                setFilesCount(filesCount => filesCount - 1)
+                            }
 
-                        if (!id) {
-                            // remove file that failed to upload from list
-                            setListFiles([...listFiles].filter(file => file.uid !== uid))
-                            onFilesChange({ type: 'delete', payload: file })
-                            return
-                        }
-                        setListFiles([...listFiles].filter(file => file.id !== id))
-                        onFilesChange({ type: 'delete', payload: file })
-                    }} />
+                            if (!id) {
+                                // remove file that failed to upload from list
+                                setListFiles([...listFiles].filter(file => file.uid !== uid))
+                                updateFileList({ type: 'delete', payload: file })
+                                return
+                            }
+                            setListFiles([...listFiles].filter(file => file.id !== id))
+                            updateFileList({ type: 'delete', payload: file })
+                        }}
+                    />
                 )
                 return removeIcon
             },
@@ -250,10 +330,10 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
                 onError(error)
                 return
             }
-            return createAction({ ...initialCreateValues, file }).then( dbFile  => {
+            return createAction({ ...initialCreateValues, file }).then(dbFile => {
                 const [uploadFile] = convertFilesToUploadFormat([dbFile])
                 onSuccess(uploadFile, null)
-                onFilesChange({ type: 'add', payload: dbFile })
+                updateFileList({ type: 'add', payload: dbFile })
                 setFilesCount(filesCount => filesCount + 1)
 
                 logEvent({
@@ -270,20 +350,17 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
     }
 
     return (
-        <div className='upload-control-wrapper'>
-            <Upload { ...options }>
-                {
-                    UploadButton || (
-                        <Button
-                            type='sberDefaultGradient'
-                            secondary
-                            icon={<EditFilled />}
-                        >
-                            {AddFileLabel}
-                        </Button>
-                    )
-                }
-            </Upload>
-        </div>
+        <StyledUpload {...options}>
+            {
+                UploadButton || (
+                    <Button
+                        type='secondary'
+                        icon={<Paperclip size='medium'/>}
+                    >
+                        {AddFileLabel}
+                    </Button>
+                )
+            }
+        </StyledUpload>
     )
 }

@@ -8,13 +8,19 @@ import isFunction from 'lodash/isFunction'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import XLSX from 'xlsx'
 
-import { Download, FileDown } from '@open-condo/icons'
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
+import { Download, FileDown, QuestionCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Alert, Button, Card, CardBodyProps, CardHeaderProps, Modal, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
+import { DataImporter } from '@condo/domains/common/components/DataImporter'
+import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
+import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
 import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
+import { IMPORT_HELP_MODAL } from '@condo/domains/common/constants/featureflags'
 import { useImporter } from '@condo/domains/common/hooks/useImporter'
+import { useImportHelpModal } from '@condo/domains/common/hooks/useImportHelpModal'
 import {
     Columns,
     RowNormalizer,
@@ -23,9 +29,6 @@ import {
     ProcessedRow,
     MutationErrorsToMessagesType,
 } from '@condo/domains/common/utils/importer'
-
-import { DataImporter } from '../DataImporter'
-import { FocusContainer } from '../FocusContainer'
 
 
 export interface IImportWrapperProps {
@@ -139,6 +142,7 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
     const ErrorModalTitle = intl.formatMessage({ id: 'import.errorModal.title' }, { plural: ImportPluralMessage })
     const SuccessModalButtonLabel = intl.formatMessage({ id: 'import.successModal.buttonLabel' })
     const ErrorsMessage = intl.formatMessage({ id: 'import.Errors' })
+    const NeedHelpMessage = intl.formatMessage({ id: 'import.uploadModal.needHelp' })
 
     const exampleTemplateLink = useMemo(() => `/import/${domainName}/${intl.locale}/${domainName}-import-example.xlsx`, [domainName, intl.locale])
     const exampleImageSrc = useMemo(() => `/import/${domainName}/${intl.locale}/${domainName}-import-example.webp`, [domainName, intl.locale])
@@ -152,6 +156,10 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
             ImportEmitter.emit(IMPORT_EVENT, { domain: domainName, status: activeModal })
         }
     }, [activeModal])
+
+    const { Modal: ImportHelpModal, openImportHelpModal } = useImportHelpModal({ domainName })
+    const { useFlag } = useFeatureFlags()
+    const isImportHelpModalEnabled = useFlag(IMPORT_HELP_MODAL)
 
     const totalRowsRef = useRef(0)
     const setTotalRowsRef = (value: number) => {
@@ -268,11 +276,26 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
                     onCancel={closeModal}
                     open={activeModal === 'example'}
                     footer={
-                        <DataImporter onUpload={handleUpload}>
-                            <Button type='primary'>
-                                {ChooseFileForUploadLabel}
-                            </Button>
-                        </DataImporter>
+                        <Space size={16} direction='horizontal'>
+                            {
+                                isImportHelpModalEnabled && (
+                                    <LinkWithIcon
+                                        title={NeedHelpMessage}
+                                        size='medium'
+                                        PostfixIcon={QuestionCircle}
+                                        onClick={() => {
+                                            setActiveModal(null)
+                                            openImportHelpModal()
+                                        }}
+                                    />
+                                )
+                            }
+                            <DataImporter onUpload={handleUpload}>
+                                <Button type='primary'>
+                                    {ChooseFileForUploadLabel}
+                                </Button>
+                            </DataImporter>
+                        </Space>
                     }
                 >
                     <Space direction='vertical' size={24}>
@@ -288,15 +311,13 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
                             message={RequiredFieldsTitle}
                             description={ImportRequiredFieldsMessage}
                         />
-                        <Space size={8} align='center'>
-                            <Download size='small' />
-                            <Typography.Link
-                                href={exampleTemplateLink}
-                                target='_blank'
-                            >
-                                {ExampleLinkMessage}
-                            </Typography.Link>
-                        </Space>
+                        <LinkWithIcon
+                            title={ExampleLinkMessage}
+                            size='medium'
+                            PrefixIcon={Download}
+                            href={exampleTemplateLink}
+                            target='_blank'
+                        />
                     </Space>
                 </Modal>
                 <Modal
@@ -387,6 +408,7 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
                         <img alt='success-image' src='/successDino.webp' />
                     </StyledFocusContainer>
                 </SuccessModal>
+                <ImportHelpModal />
             </>
         )
     )
