@@ -4,6 +4,12 @@
 exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
+
+--
+-- [CUSTOM] Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
+--
+SET statement_timeout = '1500s'; 
+
 --
 -- Remove field relatedTransactions from bankcontractoraccounthistoryrecord
 --
@@ -128,8 +134,12 @@ ALTER TABLE "TicketStatusHistoryRecord" DROP COLUMN "colors" CASCADE;
 -- Remove field hasEmail from userhistoryrecord
 --
 ALTER TABLE "UserHistoryRecord" DROP COLUMN "hasEmail" CASCADE;
-COMMIT;
+--
+-- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
+--
+SET statement_timeout = '10s';
 
+COMMIT;
     `)
 }
 
