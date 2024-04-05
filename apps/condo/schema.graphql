@@ -17,7 +17,6 @@ type UserHistoryRecord {
   """
   _label_: String
   name: String
-  hasEmail: JSON
   password: String
   type: String
   isAdmin: Boolean
@@ -68,10 +67,6 @@ input UserHistoryRecordWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
-  hasEmail: JSON
-  hasEmail_not: JSON
-  hasEmail_in: [JSON]
-  hasEmail_not_in: [JSON]
   password: String
   password_not: String
   password_contains: String
@@ -313,7 +308,6 @@ enum SortUserHistoryRecordsBy {
 
 input UserHistoryRecordUpdateInput {
   name: String
-  hasEmail: JSON
   password: String
   type: String
   isAdmin: Boolean
@@ -349,7 +343,6 @@ input UserHistoryRecordsUpdateInput {
 
 input UserHistoryRecordCreateInput {
   name: String
-  hasEmail: JSON
   password: String
   type: String
   isAdmin: Boolean
@@ -4199,8 +4192,6 @@ type OrganizationHistoryRecord {
   meta: JSON
   phone: String
   phoneNumberPrefix: String
-  statusTransitions: JSON
-  defaultEmployeeRoleStatusTransitions: JSON
   importRemoteSystem: String
   importId: String
   features: JSON
@@ -4343,14 +4334,6 @@ input OrganizationHistoryRecordWhereInput {
   phoneNumberPrefix_not_ends_with_i: String
   phoneNumberPrefix_in: [String]
   phoneNumberPrefix_not_in: [String]
-  statusTransitions: JSON
-  statusTransitions_not: JSON
-  statusTransitions_in: [JSON]
-  statusTransitions_not_in: [JSON]
-  defaultEmployeeRoleStatusTransitions: JSON
-  defaultEmployeeRoleStatusTransitions_not: JSON
-  defaultEmployeeRoleStatusTransitions_in: [JSON]
-  defaultEmployeeRoleStatusTransitions_not_in: [JSON]
   importRemoteSystem: String
   importRemoteSystem_not: String
   importRemoteSystem_contains: String
@@ -4522,8 +4505,6 @@ input OrganizationHistoryRecordUpdateInput {
   meta: JSON
   phone: String
   phoneNumberPrefix: String
-  statusTransitions: JSON
-  defaultEmployeeRoleStatusTransitions: JSON
   importRemoteSystem: String
   importId: String
   features: JSON
@@ -4557,8 +4538,6 @@ input OrganizationHistoryRecordCreateInput {
   meta: JSON
   phone: String
   phoneNumberPrefix: String
-  statusTransitions: JSON
-  defaultEmployeeRoleStatusTransitions: JSON
   importRemoteSystem: String
   importId: String
   features: JSON
@@ -5712,7 +5691,6 @@ type OrganizationEmployeeRoleHistoryRecord {
   organization: String
   name: String
   description: String
-  statusTransitions: JSON
   canManageOrganization: Boolean
   canReadEmployees: Boolean
   canManageEmployees: Boolean
@@ -5829,10 +5807,6 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   description_not_ends_with_i: String
   description_in: [String]
   description_not_in: [String]
-  statusTransitions: JSON
-  statusTransitions_not: JSON
-  statusTransitions_in: [JSON]
-  statusTransitions_not_in: [JSON]
   canManageOrganization: Boolean
   canManageOrganization_not: Boolean
   canReadEmployees: Boolean
@@ -6184,7 +6158,6 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   organization: String
   name: String
   description: String
-  statusTransitions: JSON
   canManageOrganization: Boolean
   canReadEmployees: Boolean
   canManageEmployees: Boolean
@@ -6266,7 +6239,6 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   organization: String
   name: String
   description: String
-  statusTransitions: JSON
   canManageOrganization: Boolean
   canReadEmployees: Boolean
   canManageEmployees: Boolean
@@ -7720,9 +7692,6 @@ type PropertyHistoryRecord {
   map: JSON
   unitsCount: Int
   uninhabitedUnitsCount: Int
-  ticketsClosed: JSON
-  ticketsDeferred: JSON
-  ticketsInWork: JSON
   isApproved: Boolean
   yearOfConstruction: String
   area: String
@@ -7808,18 +7777,6 @@ input PropertyHistoryRecordWhereInput {
   uninhabitedUnitsCount_gte: Int
   uninhabitedUnitsCount_in: [Int]
   uninhabitedUnitsCount_not_in: [Int]
-  ticketsClosed: JSON
-  ticketsClosed_not: JSON
-  ticketsClosed_in: [JSON]
-  ticketsClosed_not_in: [JSON]
-  ticketsDeferred: JSON
-  ticketsDeferred_not: JSON
-  ticketsDeferred_in: [JSON]
-  ticketsDeferred_not_in: [JSON]
-  ticketsInWork: JSON
-  ticketsInWork_not: JSON
-  ticketsInWork_in: [JSON]
-  ticketsInWork_not_in: [JSON]
   isApproved: Boolean
   isApproved_not: Boolean
   yearOfConstruction: String
@@ -8008,9 +7965,6 @@ input PropertyHistoryRecordUpdateInput {
   map: JSON
   unitsCount: Int
   uninhabitedUnitsCount: Int
-  ticketsClosed: JSON
-  ticketsDeferred: JSON
-  ticketsInWork: JSON
   isApproved: Boolean
   yearOfConstruction: String
   area: String
@@ -8044,9 +7998,6 @@ input PropertyHistoryRecordCreateInput {
   map: JSON
   unitsCount: Int
   uninhabitedUnitsCount: Int
-  ticketsClosed: JSON
-  ticketsDeferred: JSON
-  ticketsInWork: JSON
   isApproved: Boolean
   yearOfConstruction: String
   area: String
@@ -11050,7 +11001,6 @@ type BillingPropertyHistoryRecord {
   globalId: String
   normalizedAddress: String
   meta: JSON
-  property: JSON
   id: ID!
   address: String
   addressKey: String
@@ -11139,10 +11089,6 @@ input BillingPropertyHistoryRecordWhereInput {
   meta_not: JSON
   meta_in: [JSON]
   meta_not_in: [JSON]
-  property: JSON
-  property_not: JSON
-  property_in: [JSON]
-  property_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -11305,7 +11251,6 @@ input BillingPropertyHistoryRecordUpdateInput {
   globalId: String
   normalizedAddress: String
   meta: JSON
-  property: JSON
   address: String
   addressKey: String
   addressMeta: JSON
@@ -11336,7 +11281,6 @@ input BillingPropertyHistoryRecordCreateInput {
   globalId: String
   normalizedAddress: String
   meta: JSON
-  property: JSON
   address: String
   addressKey: String
   addressMeta: JSON
@@ -12454,13 +12398,7 @@ type BillingReceiptHistoryRecord {
   services: JSON
   recipient: JSON
   receiver: String
-  invalidServicesError: JSON
   file: String
-  isPayable: JSON
-  acquiringIntegrationId: JSON
-  acquiringHostUrl: JSON
-  canGroupReceipts: JSON
-  currencyCode: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -12633,34 +12571,10 @@ input BillingReceiptHistoryRecordWhereInput {
   receiver_not: String
   receiver_in: [String]
   receiver_not_in: [String]
-  invalidServicesError: JSON
-  invalidServicesError_not: JSON
-  invalidServicesError_in: [JSON]
-  invalidServicesError_not_in: [JSON]
   file: String
   file_not: String
   file_in: [String]
   file_not_in: [String]
-  isPayable: JSON
-  isPayable_not: JSON
-  isPayable_in: [JSON]
-  isPayable_not_in: [JSON]
-  acquiringIntegrationId: JSON
-  acquiringIntegrationId_not: JSON
-  acquiringIntegrationId_in: [JSON]
-  acquiringIntegrationId_not_in: [JSON]
-  acquiringHostUrl: JSON
-  acquiringHostUrl_not: JSON
-  acquiringHostUrl_in: [JSON]
-  acquiringHostUrl_not_in: [JSON]
-  canGroupReceipts: JSON
-  canGroupReceipts_not: JSON
-  canGroupReceipts_in: [JSON]
-  canGroupReceipts_not_in: [JSON]
-  currencyCode: JSON
-  currencyCode_not: JSON
-  currencyCode_in: [JSON]
-  currencyCode_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -12805,13 +12719,7 @@ input BillingReceiptHistoryRecordUpdateInput {
   services: JSON
   recipient: JSON
   receiver: String
-  invalidServicesError: JSON
   file: String
-  isPayable: JSON
-  acquiringIntegrationId: JSON
-  acquiringHostUrl: JSON
-  canGroupReceipts: JSON
-  currencyCode: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -12852,13 +12760,7 @@ input BillingReceiptHistoryRecordCreateInput {
   services: JSON
   recipient: JSON
   receiver: String
-  invalidServicesError: JSON
   file: String
-  isPayable: JSON
-  acquiringIntegrationId: JSON
-  acquiringHostUrl: JSON
-  canGroupReceipts: JSON
-  currencyCode: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -14766,7 +14668,6 @@ type BillingReceiptFileHistoryRecord {
    4. As an alias to the 'id' field on the BillingReceiptFileHistoryRecord List.
   """
   _label_: String
-  file: JSON
   sensitiveDataFile: JSON
   publicDataFile: JSON
   context: String
@@ -14791,10 +14692,6 @@ type BillingReceiptFileHistoryRecord {
 input BillingReceiptFileHistoryRecordWhereInput {
   AND: [BillingReceiptFileHistoryRecordWhereInput]
   OR: [BillingReceiptFileHistoryRecordWhereInput]
-  file: JSON
-  file_not: JSON
-  file_in: [JSON]
-  file_not_in: [JSON]
   sensitiveDataFile: JSON
   sensitiveDataFile_not: JSON
   sensitiveDataFile_in: [JSON]
@@ -14953,7 +14850,6 @@ enum SortBillingReceiptFileHistoryRecordsBy {
 }
 
 input BillingReceiptFileHistoryRecordUpdateInput {
-  file: JSON
   sensitiveDataFile: JSON
   publicDataFile: JSON
   context: String
@@ -14980,7 +14876,6 @@ input BillingReceiptFileHistoryRecordsUpdateInput {
 }
 
 input BillingReceiptFileHistoryRecordCreateInput {
-  file: JSON
   sensitiveDataFile: JSON
   publicDataFile: JSON
   context: String
@@ -16961,7 +16856,6 @@ type BankContractorAccountHistoryRecord {
   territoryCode: String
   bankName: String
   meta: JSON
-  relatedTransactions: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -17154,10 +17048,6 @@ input BankContractorAccountHistoryRecordWhereInput {
   meta_not: JSON
   meta_in: [JSON]
   meta_not_in: [JSON]
-  relatedTransactions: JSON
-  relatedTransactions_not: JSON
-  relatedTransactions_in: [JSON]
-  relatedTransactions_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -17290,7 +17180,6 @@ input BankContractorAccountHistoryRecordUpdateInput {
   territoryCode: String
   bankName: String
   meta: JSON
-  relatedTransactions: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -17323,7 +17212,6 @@ input BankContractorAccountHistoryRecordCreateInput {
   territoryCode: String
   bankName: String
   meta: JSON
-  relatedTransactions: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -24029,7 +23917,6 @@ type TicketStatusHistoryRecord {
   organization: String
   type: String
   name: String
-  colors: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -24088,10 +23975,6 @@ input TicketStatusHistoryRecordWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
-  colors: JSON
-  colors_not: JSON
-  colors_in: [JSON]
-  colors_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -24201,7 +24084,6 @@ input TicketStatusHistoryRecordUpdateInput {
   organization: String
   type: String
   name: String
-  colors: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -24225,7 +24107,6 @@ input TicketStatusHistoryRecordCreateInput {
   organization: String
   type: String
   name: String
-  colors: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -43337,11 +43218,7 @@ type ResidentHistoryRecord {
   """
   _label_: String
   user: String
-  residentOrganization: JSON
   property: String
-  residentProperty: JSON
-  organizationFeatures: JSON
-  paymentCategories: JSON
   unitName: String
   unitType: String
   organization: String
@@ -43371,26 +43248,10 @@ input ResidentHistoryRecordWhereInput {
   user_not: String
   user_in: [String]
   user_not_in: [String]
-  residentOrganization: JSON
-  residentOrganization_not: JSON
-  residentOrganization_in: [JSON]
-  residentOrganization_not_in: [JSON]
   property: String
   property_not: String
   property_in: [String]
   property_not_in: [String]
-  residentProperty: JSON
-  residentProperty_not: JSON
-  residentProperty_in: [JSON]
-  residentProperty_not_in: [JSON]
-  organizationFeatures: JSON
-  organizationFeatures_not: JSON
-  organizationFeatures_in: [JSON]
-  organizationFeatures_not_in: [JSON]
-  paymentCategories: JSON
-  paymentCategories_not: JSON
-  paymentCategories_in: [JSON]
-  paymentCategories_not_in: [JSON]
   unitName: String
   unitName_not: String
   unitName_contains: String
@@ -43586,11 +43447,7 @@ enum SortResidentHistoryRecordsBy {
 
 input ResidentHistoryRecordUpdateInput {
   user: String
-  residentOrganization: JSON
   property: String
-  residentProperty: JSON
-  organizationFeatures: JSON
-  paymentCategories: JSON
   unitName: String
   unitType: String
   organization: String
@@ -43619,11 +43476,7 @@ input ResidentHistoryRecordsUpdateInput {
 
 input ResidentHistoryRecordCreateInput {
   user: String
-  residentOrganization: JSON
   property: String
-  residentProperty: JSON
-  organizationFeatures: JSON
-  paymentCategories: JSON
   unitName: String
   unitType: String
   organization: String
@@ -43992,13 +43845,10 @@ type ServiceConsumerHistoryRecord {
   _label_: String
   paymentCategory: String
   resident: String
-  residentBillingAccount: JSON
   billingIntegrationContext: String
   acquiringIntegrationContext: String
-  residentAcquiringIntegrationContext: JSON
   accountNumber: String
   organization: String
-  residentOrganization: JSON
   isDiscovered: Boolean
   id: ID!
   v: Int
@@ -44040,10 +43890,6 @@ input ServiceConsumerHistoryRecordWhereInput {
   resident_not: String
   resident_in: [String]
   resident_not_in: [String]
-  residentBillingAccount: JSON
-  residentBillingAccount_not: JSON
-  residentBillingAccount_in: [JSON]
-  residentBillingAccount_not_in: [JSON]
   billingIntegrationContext: String
   billingIntegrationContext_not: String
   billingIntegrationContext_in: [String]
@@ -44052,10 +43898,6 @@ input ServiceConsumerHistoryRecordWhereInput {
   acquiringIntegrationContext_not: String
   acquiringIntegrationContext_in: [String]
   acquiringIntegrationContext_not_in: [String]
-  residentAcquiringIntegrationContext: JSON
-  residentAcquiringIntegrationContext_not: JSON
-  residentAcquiringIntegrationContext_in: [JSON]
-  residentAcquiringIntegrationContext_not_in: [JSON]
   accountNumber: String
   accountNumber_not: String
   accountNumber_contains: String
@@ -44078,10 +43920,6 @@ input ServiceConsumerHistoryRecordWhereInput {
   organization_not: String
   organization_in: [String]
   organization_not_in: [String]
-  residentOrganization: JSON
-  residentOrganization_not: JSON
-  residentOrganization_in: [JSON]
-  residentOrganization_not_in: [JSON]
   isDiscovered: Boolean
   isDiscovered_not: Boolean
   id: ID
@@ -44194,13 +44032,10 @@ enum SortServiceConsumerHistoryRecordsBy {
 input ServiceConsumerHistoryRecordUpdateInput {
   paymentCategory: String
   resident: String
-  residentBillingAccount: JSON
   billingIntegrationContext: String
   acquiringIntegrationContext: String
-  residentAcquiringIntegrationContext: JSON
   accountNumber: String
   organization: String
-  residentOrganization: JSON
   isDiscovered: Boolean
   v: Int
   createdAt: String
@@ -44224,13 +44059,10 @@ input ServiceConsumerHistoryRecordsUpdateInput {
 input ServiceConsumerHistoryRecordCreateInput {
   paymentCategory: String
   resident: String
-  residentBillingAccount: JSON
   billingIntegrationContext: String
   acquiringIntegrationContext: String
-  residentAcquiringIntegrationContext: JSON
   accountNumber: String
   organization: String
-  residentOrganization: JSON
   isDiscovered: Boolean
   v: Int
   createdAt: String
@@ -53504,7 +53336,6 @@ type MultiPaymentHistoryRecord {
    4. As an alias to the 'id' field on the MultiPaymentHistoryRecord List.
   """
   _label_: String
-  amount: JSON
   explicitFee: String
   explicitServiceCharge: String
   serviceFee: String
@@ -53541,10 +53372,6 @@ type MultiPaymentHistoryRecord {
 input MultiPaymentHistoryRecordWhereInput {
   AND: [MultiPaymentHistoryRecordWhereInput]
   OR: [MultiPaymentHistoryRecordWhereInput]
-  amount: JSON
-  amount_not: JSON
-  amount_in: [JSON]
-  amount_not_in: [JSON]
   explicitFee: String
   explicitFee_not: String
   explicitFee_lt: String
@@ -53883,7 +53710,6 @@ enum SortMultiPaymentHistoryRecordsBy {
 }
 
 input MultiPaymentHistoryRecordUpdateInput {
-  amount: JSON
   explicitFee: String
   explicitServiceCharge: String
   serviceFee: String
@@ -53922,7 +53748,6 @@ input MultiPaymentHistoryRecordsUpdateInput {
 }
 
 input MultiPaymentHistoryRecordCreateInput {
-  amount: JSON
   explicitFee: String
   explicitServiceCharge: String
   serviceFee: String
@@ -58513,7 +58338,6 @@ type NewsItemHistoryRecord {
   type: String
   validBefore: String
   sendAt: String
-  compactScopes: JSON
   sentAt: String
   isPublished: Boolean
   publishedAt: String
@@ -58613,10 +58437,6 @@ input NewsItemHistoryRecordWhereInput {
   sendAt_gte: String
   sendAt_in: [String]
   sendAt_not_in: [String]
-  compactScopes: JSON
-  compactScopes_not: JSON
-  compactScopes_in: [JSON]
-  compactScopes_not_in: [JSON]
   sentAt: String
   sentAt_not: String
   sentAt_lt: String
@@ -58760,7 +58580,6 @@ input NewsItemHistoryRecordUpdateInput {
   type: String
   validBefore: String
   sendAt: String
-  compactScopes: JSON
   sentAt: String
   isPublished: Boolean
   publishedAt: String
@@ -58791,7 +58610,6 @@ input NewsItemHistoryRecordCreateInput {
   type: String
   validBefore: String
   sendAt: String
-  compactScopes: JSON
   sentAt: String
   isPublished: Boolean
   publishedAt: String
@@ -69643,11 +69461,6 @@ type InvoiceHistoryRecord {
   publishedAt: String
   paidAt: String
   canceledAt: String
-  recipient: JSON
-  acquiringIntegrationId: JSON
-  acquiringHostUrl: JSON
-  canGroupReceipts: JSON
-  currencyCode: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -69852,26 +69665,6 @@ input InvoiceHistoryRecordWhereInput {
   canceledAt_gte: String
   canceledAt_in: [String]
   canceledAt_not_in: [String]
-  recipient: JSON
-  recipient_not: JSON
-  recipient_in: [JSON]
-  recipient_not_in: [JSON]
-  acquiringIntegrationId: JSON
-  acquiringIntegrationId_not: JSON
-  acquiringIntegrationId_in: [JSON]
-  acquiringIntegrationId_not_in: [JSON]
-  acquiringHostUrl: JSON
-  acquiringHostUrl_not: JSON
-  acquiringHostUrl_in: [JSON]
-  acquiringHostUrl_not_in: [JSON]
-  canGroupReceipts: JSON
-  canGroupReceipts_not: JSON
-  canGroupReceipts_in: [JSON]
-  canGroupReceipts_not_in: [JSON]
-  currencyCode: JSON
-  currencyCode_not: JSON
-  currencyCode_in: [JSON]
-  currencyCode_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -70014,11 +69807,6 @@ input InvoiceHistoryRecordUpdateInput {
   publishedAt: String
   paidAt: String
   canceledAt: String
-  recipient: JSON
-  acquiringIntegrationId: JSON
-  acquiringHostUrl: JSON
-  canGroupReceipts: JSON
-  currencyCode: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -70057,11 +69845,6 @@ input InvoiceHistoryRecordCreateInput {
   publishedAt: String
   paidAt: String
   canceledAt: String
-  recipient: JSON
-  acquiringIntegrationId: JSON
-  acquiringHostUrl: JSON
-  canGroupReceipts: JSON
-  currencyCode: JSON
   v: Int
   createdAt: String
   updatedAt: String

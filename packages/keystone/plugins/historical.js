@@ -134,7 +134,7 @@ function prepareHistoryRecordInput (
     return hist
 }
 
-const historical = ({ historyField = 'history', ignoreFieldTypes = ['Content'], isStrictMode = true } = {}) => plugin(({ fields = {}, hooks = {}, access, ...rest }, { schemaName, addSchema }) => {
+const historical = ({ historyField = 'history', ignoreFieldTypes = ['Content', 'Virtual'], isStrictMode = true } = {}) => plugin(({ fields = {}, hooks = {}, access, ...rest }, { schemaName, addSchema }) => {
     const historicalFields = prepareHistoryRecordFields(schemaName, fields, historyField, ignoreFieldTypes)
     const historicalListKey = `${schemaName}${GQL_TYPE_SUFFIX}`
     const query = `

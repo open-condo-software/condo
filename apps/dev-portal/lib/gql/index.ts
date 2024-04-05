@@ -164,7 +164,6 @@ export type B2CAppAccessRightHistoryRecord = {
    */
     _label_?: Maybe<Scalars['String']['output']>;
     app?: Maybe<Scalars['String']['output']>;
-    condoUserEmail?: Maybe<Scalars['JSON']['output']>;
     condoUserId?: Maybe<Scalars['ID']['output']>;
     createdAt?: Maybe<Scalars['String']['output']>;
     createdBy?: Maybe<Scalars['String']['output']>;
@@ -186,7 +185,6 @@ export type B2CAppAccessRightHistoryRecord = {
 
 export type B2CAppAccessRightHistoryRecordCreateInput = {
     app?: InputMaybe<Scalars['String']['input']>;
-    condoUserEmail?: InputMaybe<Scalars['JSON']['input']>;
     condoUserId?: InputMaybe<Scalars['ID']['input']>;
     createdAt?: InputMaybe<Scalars['String']['input']>;
     createdBy?: InputMaybe<Scalars['String']['input']>;
@@ -213,7 +211,6 @@ export enum B2CAppAccessRightHistoryRecordHistoryActionType {
 
 export type B2CAppAccessRightHistoryRecordUpdateInput = {
     app?: InputMaybe<Scalars['String']['input']>;
-    condoUserEmail?: InputMaybe<Scalars['JSON']['input']>;
     condoUserId?: InputMaybe<Scalars['ID']['input']>;
     createdAt?: InputMaybe<Scalars['String']['input']>;
     createdBy?: InputMaybe<Scalars['String']['input']>;
@@ -239,10 +236,6 @@ export type B2CAppAccessRightHistoryRecordWhereInput = {
     app_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
     app_not?: InputMaybe<Scalars['String']['input']>;
     app_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    condoUserEmail?: InputMaybe<Scalars['JSON']['input']>;
-    condoUserEmail_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
-    condoUserEmail_not?: InputMaybe<Scalars['JSON']['input']>;
-    condoUserEmail_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
     condoUserId?: InputMaybe<Scalars['ID']['input']>;
     condoUserId_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
     condoUserId_not?: InputMaybe<Scalars['ID']['input']>;
