@@ -81,15 +81,16 @@ function calculateCompletedAt (resolvedData, existedStatus, resolvedStatus) {
     }
 }
 
-function calculateIsCompletedAfterDeadline (resolvedData, existedStatus, resolvedStatus, deadline) {
-    const now = new Date().toISOString()
-    const resolvedStatusType = get(resolvedStatus, 'type')
-    const existedStatusType = get(existedStatus, 'type')
+function calculateIsCompletedAfterDeadline (resolvedData, existingItem) {
+    const newItem = { ...existingItem, ...resolvedData }
+    const completedAt = get(newItem, 'completedAt')
+    const deadline = get(newItem, 'deadline')
 
-    if (!deadline) return
-    if (resolvedStatusType !== COMPLETED_STATUS_TYPE || existedStatusType === resolvedStatusType) return
-
-    resolvedData['isCompletedAfterDeadline'] = dayjs(now).diff(deadline) > 0
+    if (!deadline || !completedAt) {
+        resolvedData['isCompletedAfterDeadline'] = false
+    } else {
+        resolvedData['isCompletedAfterDeadline'] = dayjs(completedAt).diff(deadline) > 0
+    }
 }
 
 function calculateDeferredUntil (resolvedData, existedStatus, resolvedStatus) {

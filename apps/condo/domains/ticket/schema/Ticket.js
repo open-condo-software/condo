@@ -766,8 +766,8 @@ const Ticket = new GQLListSchema('Ticket', {
 
             const newItem = { ...existingItem, ...resolvedData }
             const resolvedStatusId = get(newItem, 'status', null)
+            const existedStatusId = get(existingItem, 'status', null)
             const resolvedClient = get(newItem, 'client', null)
-            const resolvedDeadline = get(newItem, 'deadline', null)
 
             // Set isAutoClassified to false if classifier was passed
             if ((isCreateOperation || newItem.isAutoClassified) && resolvedData.classifier) {
@@ -785,17 +785,16 @@ const Ticket = new GQLListSchema('Ticket', {
             if (resolvedStatusId) {
                 calculateTicketOrder(resolvedData, resolvedStatusId)
 
-                const existedStatusId = get(existingItem, 'status', null)
+                const resolvedStatus = await TicketStatus.getOne(context, { id: resolvedStatusId })
+                let existedStatus = null
                 if (existedStatusId) {
-                    const existedStatus = await TicketStatus.getOne(context, { id: existedStatusId })
-                    const resolvedStatus = await TicketStatus.getOne(context, { id: resolvedStatusId })
+                    existedStatus = await TicketStatus.getOne(context, { id: existedStatusId })
 
                     await calculateReopenedCounter(context, existingItem, resolvedData, existedStatus, resolvedStatus)
-                    calculateCompletedAt(resolvedData, existedStatus, resolvedStatus)
-                    calculateIsCompletedAfterDeadline(resolvedData, existedStatus, resolvedStatus, resolvedDeadline)
                     calculateStatusUpdatedAt(resolvedData, existedStatusId, resolvedStatusId)
                     calculateDeferredUntil(resolvedData, existedStatus, resolvedStatus)
                 }
+                calculateCompletedAt(resolvedData, existedStatus, resolvedStatus)
             }
 
             if (userType === RESIDENT && isCreateOperation) {
@@ -805,6 +804,7 @@ const Ticket = new GQLListSchema('Ticket', {
                 await setDeadline(resolvedData)
             }
 
+            calculateIsCompletedAfterDeadline(resolvedData, existingItem)
             await connectContactToTicket(context, resolvedData, existingItem)
 
             // When creating ticket or updating ticket address,
