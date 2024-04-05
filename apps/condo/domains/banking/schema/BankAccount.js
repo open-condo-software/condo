@@ -162,6 +162,11 @@ const BankAccount = new GQLListSchema('BankAccount', {
             type: 'Checkbox',
             defaultValue: false,
             kmigratorOptions: { default: false },
+            access: {
+                read: true,
+                create: access.canManageIsApprovedField,
+                update: access.canManageIsApprovedField,
+            },
         },
 
         approvedAt: {
@@ -170,8 +175,8 @@ const BankAccount = new GQLListSchema('BankAccount', {
             isRequired: false,
             access: {
                 read: true,
-                create: access.canManageIsApprovedField,
-                update: access.canManageIsApprovedField,
+                create: false,
+                update: false,
             },
         },
 
