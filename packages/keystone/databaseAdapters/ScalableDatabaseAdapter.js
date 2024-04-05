@@ -1,10 +1,11 @@
 const { KnexAdapter } = require('@keystonejs/adapter-knex')
 const { BaseKeystoneAdapter } = require('@keystonejs/keystone')
-const { find } = require('lodash/collection')
-const { mapValues } = require('lodash/object')
+const { find, mapValues } = require('lodash')
 
 const { FakeDatabaseAdapter } = require('./FakeDatabaseAdapter')
+const { ReplicaKnexAdapter } = require('./ReplicaKnexAdapter')
 const { parseDatabaseUrl, parseDatabaseMapping, matchDatabase } = require('./utils')
+
 
 function initDatabaseAdapters (databases) {
     return mapValues(databases, initDatabaseAdapter)
@@ -12,7 +13,8 @@ function initDatabaseAdapters (databases) {
 
 function initDatabaseAdapter (databaseUrl) {
     if (databaseUrl.startsWith('postgresql:')) {
-        return new KnexAdapter({ knexOptions: { connection: databaseUrl } })
+        return new ReplicaKnexAdapter()
+        // return new KnexAdapter({ knexOptions: { connection: databaseUrl } })
     } else if (databaseUrl.startsWith('fake:')) {
         // NOTE: case for testing!
         return new FakeDatabaseAdapter()
