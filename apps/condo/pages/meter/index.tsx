@@ -70,7 +70,7 @@ const MetersPage: IMeterIndexPage = () => {
     const isMeterReportingPeriodEnabled = useFlag(METER_REPORTING_PERIOD_FRONTEND_FEATURE_FLAG)
 
     const { GlobalHints } = useGlobalHints()
-    usePreviousQueryParams({ trackedParamNames: ['sort', 'filters'], delimitersParamNames: ['tab'], employeeSpecificKey: employeeId })
+    usePreviousQueryParams({ trackedParamNames: ['sort', 'filters'], paramNamesForPageChange: ['tab'], employeeSpecificKey: employeeId })
 
     const availableTabs = useMemo(() => {
         return AVAILABLE_TABS.filter((tab) => {

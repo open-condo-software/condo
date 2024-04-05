@@ -31,7 +31,7 @@ const MarketplacePage: PageType = () => {
     const employeeId = get(link, 'id')
     const isServiceProviderOrganization = useMemo(() => (get(organization, 'type', MANAGING_COMPANY_TYPE) === SERVICE_PROVIDER_TYPE), [organization])
 
-    usePreviousQueryParams({ trackedParamNames: ['sort', 'filters'], delimitersParamNames: ['tab'], employeeSpecificKey: employeeId })
+    usePreviousQueryParams({ trackedParamNames: ['sort', 'filters'], paramNamesForPageChange: ['tab'], employeeSpecificKey: employeeId })
 
     const {
         obj: acquiringIntegrationContext,
