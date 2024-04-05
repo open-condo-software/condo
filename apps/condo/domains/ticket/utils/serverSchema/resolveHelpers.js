@@ -85,11 +85,33 @@ function calculateIsCompletedAfterDeadline (resolvedData, existingItem) {
     const newItem = { ...existingItem, ...resolvedData }
     const completedAt = get(newItem, 'completedAt')
     const deadline = get(newItem, 'deadline')
+    const statusUpdatedAt = get(newItem, 'statusUpdatedAt')
 
-    if (!deadline || !completedAt) {
+    const prevStatusId = get(existingItem, 'status')
+    const nextStatusId = get(newItem, 'status')
+
+    let stopPoint
+
+    if (nextStatusId === STATUS_IDS.DECLINED) {
+        if ((prevStatusId === STATUS_IDS.COMPLETED || prevStatusId === STATUS_IDS.CLOSED || nextStatusId === STATUS_IDS.DECLINED) && completedAt) {
+            stopPoint = completedAt
+        } else {
+            stopPoint = statusUpdatedAt
+        }
+    } else if (nextStatusId === STATUS_IDS.COMPLETED) {
+        stopPoint = completedAt
+    } else if (nextStatusId === STATUS_IDS.CLOSED) {
+        if ((prevStatusId === STATUS_IDS.COMPLETED || nextStatusId === STATUS_IDS.CLOSED) && completedAt) {
+            stopPoint = completedAt
+        } else {
+            stopPoint = statusUpdatedAt
+        }
+    }
+
+    if (!deadline || !stopPoint) {
         resolvedData['isCompletedAfterDeadline'] = false
     } else {
-        resolvedData['isCompletedAfterDeadline'] = dayjs(completedAt).diff(deadline) > 0
+        resolvedData['isCompletedAfterDeadline'] = dayjs(stopPoint).diff(deadline) > 0
     }
 }
 

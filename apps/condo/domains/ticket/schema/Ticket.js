@@ -680,7 +680,7 @@ const Ticket = new GQLListSchema('Ticket', {
             },
         },
         isCompletedAfterDeadline: {
-            schemaDoc: '(Auto-set) Used to filter tickets that were completed after the deadline',
+            schemaDoc: '(Auto-set) Used to filter tickets that were completed (,closed or cancelled) after the deadline. ',
             type: 'Checkbox',
             defaultValue: false,
             kmigratorOptions: { default: false },
