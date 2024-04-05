@@ -82053,7 +82053,7 @@ export type Ticket = {
   sourceMeta?: Maybe<Scalars['JSON']>;
   /**  Date until which the ticket is deferred  */
   deferredUntil?: Maybe<Scalars['String']>;
-  /**  (Auto-set) Used to filter tickets that were completed after the deadline  */
+  /**  (Auto-set) Used to filter tickets that were completed (,closed or cancelled) after the deadline.   */
   isCompletedAfterDeadline?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;

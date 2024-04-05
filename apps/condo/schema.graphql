@@ -22736,7 +22736,7 @@ type Ticket {
   """ Date until which the ticket is deferred """
   deferredUntil: String
 
-  """ (Auto-set) Used to filter tickets that were completed after the deadline 
+  """ (Auto-set) Used to filter tickets that were completed (,closed or cancelled) after the deadline.  
   """
   isCompletedAfterDeadline: Boolean
   id: ID!
