@@ -9577,7 +9577,6 @@ export type BankContractorAccountHistoryRecord = {
   territoryCode?: Maybe<Scalars['String']>;
   bankName?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
-  relatedTransactions?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -9606,7 +9605,6 @@ export type BankContractorAccountHistoryRecordCreateInput = {
   territoryCode?: Maybe<Scalars['String']>;
   bankName?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
-  relatedTransactions?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -9640,7 +9638,6 @@ export type BankContractorAccountHistoryRecordUpdateInput = {
   territoryCode?: Maybe<Scalars['String']>;
   bankName?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
-  relatedTransactions?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -9832,10 +9829,6 @@ export type BankContractorAccountHistoryRecordWhereInput = {
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  relatedTransactions?: Maybe<Scalars['JSON']>;
-  relatedTransactions_not?: Maybe<Scalars['JSON']>;
-  relatedTransactions_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  relatedTransactions_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -16055,7 +16048,6 @@ export type BillingPropertyHistoryRecord = {
   globalId?: Maybe<Scalars['String']>;
   normalizedAddress?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
-  property?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   address?: Maybe<Scalars['String']>;
   addressKey?: Maybe<Scalars['String']>;
@@ -16082,7 +16074,6 @@ export type BillingPropertyHistoryRecordCreateInput = {
   globalId?: Maybe<Scalars['String']>;
   normalizedAddress?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
-  property?: Maybe<Scalars['JSON']>;
   address?: Maybe<Scalars['String']>;
   addressKey?: Maybe<Scalars['String']>;
   addressMeta?: Maybe<Scalars['JSON']>;
@@ -16114,7 +16105,6 @@ export type BillingPropertyHistoryRecordUpdateInput = {
   globalId?: Maybe<Scalars['String']>;
   normalizedAddress?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
-  property?: Maybe<Scalars['JSON']>;
   address?: Maybe<Scalars['String']>;
   addressKey?: Maybe<Scalars['String']>;
   addressMeta?: Maybe<Scalars['JSON']>;
@@ -16202,10 +16192,6 @@ export type BillingPropertyHistoryRecordWhereInput = {
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  property?: Maybe<Scalars['JSON']>;
-  property_not?: Maybe<Scalars['JSON']>;
-  property_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  property_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -16727,7 +16713,6 @@ export type BillingReceiptFileHistoryRecord = {
    *  4. As an alias to the 'id' field on the BillingReceiptFileHistoryRecord List.
    */
   _label_?: Maybe<Scalars['String']>;
-  file?: Maybe<Scalars['JSON']>;
   sensitiveDataFile?: Maybe<Scalars['JSON']>;
   publicDataFile?: Maybe<Scalars['JSON']>;
   context?: Maybe<Scalars['String']>;
@@ -16750,7 +16735,6 @@ export type BillingReceiptFileHistoryRecord = {
 };
 
 export type BillingReceiptFileHistoryRecordCreateInput = {
-  file?: Maybe<Scalars['JSON']>;
   sensitiveDataFile?: Maybe<Scalars['JSON']>;
   publicDataFile?: Maybe<Scalars['JSON']>;
   context?: Maybe<Scalars['String']>;
@@ -16778,7 +16762,6 @@ export enum BillingReceiptFileHistoryRecordHistoryActionType {
 }
 
 export type BillingReceiptFileHistoryRecordUpdateInput = {
-  file?: Maybe<Scalars['JSON']>;
   sensitiveDataFile?: Maybe<Scalars['JSON']>;
   publicDataFile?: Maybe<Scalars['JSON']>;
   context?: Maybe<Scalars['String']>;
@@ -16802,10 +16785,6 @@ export type BillingReceiptFileHistoryRecordUpdateInput = {
 export type BillingReceiptFileHistoryRecordWhereInput = {
   AND?: Maybe<Array<Maybe<BillingReceiptFileHistoryRecordWhereInput>>>;
   OR?: Maybe<Array<Maybe<BillingReceiptFileHistoryRecordWhereInput>>>;
-  file?: Maybe<Scalars['JSON']>;
-  file_not?: Maybe<Scalars['JSON']>;
-  file_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  file_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   sensitiveDataFile?: Maybe<Scalars['JSON']>;
   sensitiveDataFile_not?: Maybe<Scalars['JSON']>;
   sensitiveDataFile_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -17127,13 +17106,7 @@ export type BillingReceiptHistoryRecord = {
   services?: Maybe<Scalars['JSON']>;
   recipient?: Maybe<Scalars['JSON']>;
   receiver?: Maybe<Scalars['String']>;
-  invalidServicesError?: Maybe<Scalars['JSON']>;
   file?: Maybe<Scalars['String']>;
-  isPayable?: Maybe<Scalars['JSON']>;
-  acquiringIntegrationId?: Maybe<Scalars['JSON']>;
-  acquiringHostUrl?: Maybe<Scalars['JSON']>;
-  canGroupReceipts?: Maybe<Scalars['JSON']>;
-  currencyCode?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -17170,13 +17143,7 @@ export type BillingReceiptHistoryRecordCreateInput = {
   services?: Maybe<Scalars['JSON']>;
   recipient?: Maybe<Scalars['JSON']>;
   receiver?: Maybe<Scalars['String']>;
-  invalidServicesError?: Maybe<Scalars['JSON']>;
   file?: Maybe<Scalars['String']>;
-  isPayable?: Maybe<Scalars['JSON']>;
-  acquiringIntegrationId?: Maybe<Scalars['JSON']>;
-  acquiringHostUrl?: Maybe<Scalars['JSON']>;
-  canGroupReceipts?: Maybe<Scalars['JSON']>;
-  currencyCode?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -17218,13 +17185,7 @@ export type BillingReceiptHistoryRecordUpdateInput = {
   services?: Maybe<Scalars['JSON']>;
   recipient?: Maybe<Scalars['JSON']>;
   receiver?: Maybe<Scalars['String']>;
-  invalidServicesError?: Maybe<Scalars['JSON']>;
   file?: Maybe<Scalars['String']>;
-  isPayable?: Maybe<Scalars['JSON']>;
-  acquiringIntegrationId?: Maybe<Scalars['JSON']>;
-  acquiringHostUrl?: Maybe<Scalars['JSON']>;
-  canGroupReceipts?: Maybe<Scalars['JSON']>;
-  currencyCode?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -17396,34 +17357,10 @@ export type BillingReceiptHistoryRecordWhereInput = {
   receiver_not?: Maybe<Scalars['String']>;
   receiver_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   receiver_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  invalidServicesError?: Maybe<Scalars['JSON']>;
-  invalidServicesError_not?: Maybe<Scalars['JSON']>;
-  invalidServicesError_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  invalidServicesError_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   file?: Maybe<Scalars['String']>;
   file_not?: Maybe<Scalars['String']>;
   file_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   file_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  isPayable?: Maybe<Scalars['JSON']>;
-  isPayable_not?: Maybe<Scalars['JSON']>;
-  isPayable_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  isPayable_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  acquiringIntegrationId?: Maybe<Scalars['JSON']>;
-  acquiringIntegrationId_not?: Maybe<Scalars['JSON']>;
-  acquiringIntegrationId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  acquiringIntegrationId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  acquiringHostUrl?: Maybe<Scalars['JSON']>;
-  acquiringHostUrl_not?: Maybe<Scalars['JSON']>;
-  acquiringHostUrl_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  acquiringHostUrl_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  canGroupReceipts?: Maybe<Scalars['JSON']>;
-  canGroupReceipts_not?: Maybe<Scalars['JSON']>;
-  canGroupReceipts_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  canGroupReceipts_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  currencyCode?: Maybe<Scalars['JSON']>;
-  currencyCode_not?: Maybe<Scalars['JSON']>;
-  currencyCode_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  currencyCode_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -25705,11 +25642,6 @@ export type InvoiceHistoryRecord = {
   publishedAt?: Maybe<Scalars['String']>;
   paidAt?: Maybe<Scalars['String']>;
   canceledAt?: Maybe<Scalars['String']>;
-  recipient?: Maybe<Scalars['JSON']>;
-  acquiringIntegrationId?: Maybe<Scalars['JSON']>;
-  acquiringHostUrl?: Maybe<Scalars['JSON']>;
-  canGroupReceipts?: Maybe<Scalars['JSON']>;
-  currencyCode?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -25744,11 +25676,6 @@ export type InvoiceHistoryRecordCreateInput = {
   publishedAt?: Maybe<Scalars['String']>;
   paidAt?: Maybe<Scalars['String']>;
   canceledAt?: Maybe<Scalars['String']>;
-  recipient?: Maybe<Scalars['JSON']>;
-  acquiringIntegrationId?: Maybe<Scalars['JSON']>;
-  acquiringHostUrl?: Maybe<Scalars['JSON']>;
-  canGroupReceipts?: Maybe<Scalars['JSON']>;
-  currencyCode?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -25788,11 +25715,6 @@ export type InvoiceHistoryRecordUpdateInput = {
   publishedAt?: Maybe<Scalars['String']>;
   paidAt?: Maybe<Scalars['String']>;
   canceledAt?: Maybe<Scalars['String']>;
-  recipient?: Maybe<Scalars['JSON']>;
-  acquiringIntegrationId?: Maybe<Scalars['JSON']>;
-  acquiringHostUrl?: Maybe<Scalars['JSON']>;
-  canGroupReceipts?: Maybe<Scalars['JSON']>;
-  currencyCode?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -25996,26 +25918,6 @@ export type InvoiceHistoryRecordWhereInput = {
   canceledAt_gte?: Maybe<Scalars['String']>;
   canceledAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   canceledAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  recipient?: Maybe<Scalars['JSON']>;
-  recipient_not?: Maybe<Scalars['JSON']>;
-  recipient_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  recipient_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  acquiringIntegrationId?: Maybe<Scalars['JSON']>;
-  acquiringIntegrationId_not?: Maybe<Scalars['JSON']>;
-  acquiringIntegrationId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  acquiringIntegrationId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  acquiringHostUrl?: Maybe<Scalars['JSON']>;
-  acquiringHostUrl_not?: Maybe<Scalars['JSON']>;
-  acquiringHostUrl_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  acquiringHostUrl_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  canGroupReceipts?: Maybe<Scalars['JSON']>;
-  canGroupReceipts_not?: Maybe<Scalars['JSON']>;
-  canGroupReceipts_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  canGroupReceipts_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  currencyCode?: Maybe<Scalars['JSON']>;
-  currencyCode_not?: Maybe<Scalars['JSON']>;
-  currencyCode_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  currencyCode_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -34394,7 +34296,6 @@ export type MultiPaymentHistoryRecord = {
    *  4. As an alias to the 'id' field on the MultiPaymentHistoryRecord List.
    */
   _label_?: Maybe<Scalars['String']>;
-  amount?: Maybe<Scalars['JSON']>;
   explicitFee?: Maybe<Scalars['String']>;
   explicitServiceCharge?: Maybe<Scalars['String']>;
   serviceFee?: Maybe<Scalars['String']>;
@@ -34429,7 +34330,6 @@ export type MultiPaymentHistoryRecord = {
 };
 
 export type MultiPaymentHistoryRecordCreateInput = {
-  amount?: Maybe<Scalars['JSON']>;
   explicitFee?: Maybe<Scalars['String']>;
   explicitServiceCharge?: Maybe<Scalars['String']>;
   serviceFee?: Maybe<Scalars['String']>;
@@ -34469,7 +34369,6 @@ export enum MultiPaymentHistoryRecordHistoryActionType {
 }
 
 export type MultiPaymentHistoryRecordUpdateInput = {
-  amount?: Maybe<Scalars['JSON']>;
   explicitFee?: Maybe<Scalars['String']>;
   explicitServiceCharge?: Maybe<Scalars['String']>;
   serviceFee?: Maybe<Scalars['String']>;
@@ -34505,10 +34404,6 @@ export type MultiPaymentHistoryRecordUpdateInput = {
 export type MultiPaymentHistoryRecordWhereInput = {
   AND?: Maybe<Array<Maybe<MultiPaymentHistoryRecordWhereInput>>>;
   OR?: Maybe<Array<Maybe<MultiPaymentHistoryRecordWhereInput>>>;
-  amount?: Maybe<Scalars['JSON']>;
-  amount_not?: Maybe<Scalars['JSON']>;
-  amount_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  amount_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   explicitFee?: Maybe<Scalars['String']>;
   explicitFee_not?: Maybe<Scalars['String']>;
   explicitFee_lt?: Maybe<Scalars['String']>;
@@ -49290,7 +49185,6 @@ export type NewsItemHistoryRecord = {
   type?: Maybe<Scalars['String']>;
   validBefore?: Maybe<Scalars['String']>;
   sendAt?: Maybe<Scalars['String']>;
-  compactScopes?: Maybe<Scalars['JSON']>;
   sentAt?: Maybe<Scalars['String']>;
   isPublished?: Maybe<Scalars['Boolean']>;
   publishedAt?: Maybe<Scalars['String']>;
@@ -49317,7 +49211,6 @@ export type NewsItemHistoryRecordCreateInput = {
   type?: Maybe<Scalars['String']>;
   validBefore?: Maybe<Scalars['String']>;
   sendAt?: Maybe<Scalars['String']>;
-  compactScopes?: Maybe<Scalars['JSON']>;
   sentAt?: Maybe<Scalars['String']>;
   isPublished?: Maybe<Scalars['Boolean']>;
   publishedAt?: Maybe<Scalars['String']>;
@@ -49349,7 +49242,6 @@ export type NewsItemHistoryRecordUpdateInput = {
   type?: Maybe<Scalars['String']>;
   validBefore?: Maybe<Scalars['String']>;
   sendAt?: Maybe<Scalars['String']>;
-  compactScopes?: Maybe<Scalars['JSON']>;
   sentAt?: Maybe<Scalars['String']>;
   isPublished?: Maybe<Scalars['Boolean']>;
   publishedAt?: Maybe<Scalars['String']>;
@@ -49448,10 +49340,6 @@ export type NewsItemHistoryRecordWhereInput = {
   sendAt_gte?: Maybe<Scalars['String']>;
   sendAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   sendAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  compactScopes?: Maybe<Scalars['JSON']>;
-  compactScopes_not?: Maybe<Scalars['JSON']>;
-  compactScopes_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  compactScopes_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   sentAt?: Maybe<Scalars['String']>;
   sentAt_not?: Maybe<Scalars['String']>;
   sentAt_lt?: Maybe<Scalars['String']>;
@@ -54744,7 +54632,6 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   organization?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
-  statusTransitions?: Maybe<Scalars['JSON']>;
   canManageOrganization?: Maybe<Scalars['Boolean']>;
   canReadEmployees?: Maybe<Scalars['Boolean']>;
   canManageEmployees?: Maybe<Scalars['Boolean']>;
@@ -54822,7 +54709,6 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   organization?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
-  statusTransitions?: Maybe<Scalars['JSON']>;
   canManageOrganization?: Maybe<Scalars['Boolean']>;
   canReadEmployees?: Maybe<Scalars['Boolean']>;
   canManageEmployees?: Maybe<Scalars['Boolean']>;
@@ -54905,7 +54791,6 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   organization?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
-  statusTransitions?: Maybe<Scalars['JSON']>;
   canManageOrganization?: Maybe<Scalars['Boolean']>;
   canReadEmployees?: Maybe<Scalars['Boolean']>;
   canManageEmployees?: Maybe<Scalars['Boolean']>;
@@ -55021,10 +54906,6 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   description_not_ends_with_i?: Maybe<Scalars['String']>;
   description_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   description_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  statusTransitions?: Maybe<Scalars['JSON']>;
-  statusTransitions_not?: Maybe<Scalars['JSON']>;
-  statusTransitions_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  statusTransitions_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   canManageOrganization?: Maybe<Scalars['Boolean']>;
   canManageOrganization_not?: Maybe<Scalars['Boolean']>;
   canReadEmployees?: Maybe<Scalars['Boolean']>;
@@ -56066,8 +55947,6 @@ export type OrganizationHistoryRecord = {
   meta?: Maybe<Scalars['JSON']>;
   phone?: Maybe<Scalars['String']>;
   phoneNumberPrefix?: Maybe<Scalars['String']>;
-  statusTransitions?: Maybe<Scalars['JSON']>;
-  defaultEmployeeRoleStatusTransitions?: Maybe<Scalars['JSON']>;
   importRemoteSystem?: Maybe<Scalars['String']>;
   importId?: Maybe<Scalars['String']>;
   features?: Maybe<Scalars['JSON']>;
@@ -56097,8 +55976,6 @@ export type OrganizationHistoryRecordCreateInput = {
   meta?: Maybe<Scalars['JSON']>;
   phone?: Maybe<Scalars['String']>;
   phoneNumberPrefix?: Maybe<Scalars['String']>;
-  statusTransitions?: Maybe<Scalars['JSON']>;
-  defaultEmployeeRoleStatusTransitions?: Maybe<Scalars['JSON']>;
   importRemoteSystem?: Maybe<Scalars['String']>;
   importId?: Maybe<Scalars['String']>;
   features?: Maybe<Scalars['JSON']>;
@@ -56133,8 +56010,6 @@ export type OrganizationHistoryRecordUpdateInput = {
   meta?: Maybe<Scalars['JSON']>;
   phone?: Maybe<Scalars['String']>;
   phoneNumberPrefix?: Maybe<Scalars['String']>;
-  statusTransitions?: Maybe<Scalars['JSON']>;
-  defaultEmployeeRoleStatusTransitions?: Maybe<Scalars['JSON']>;
   importRemoteSystem?: Maybe<Scalars['String']>;
   importId?: Maybe<Scalars['String']>;
   features?: Maybe<Scalars['JSON']>;
@@ -56276,14 +56151,6 @@ export type OrganizationHistoryRecordWhereInput = {
   phoneNumberPrefix_not_ends_with_i?: Maybe<Scalars['String']>;
   phoneNumberPrefix_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   phoneNumberPrefix_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  statusTransitions?: Maybe<Scalars['JSON']>;
-  statusTransitions_not?: Maybe<Scalars['JSON']>;
-  statusTransitions_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  statusTransitions_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  defaultEmployeeRoleStatusTransitions?: Maybe<Scalars['JSON']>;
-  defaultEmployeeRoleStatusTransitions_not?: Maybe<Scalars['JSON']>;
-  defaultEmployeeRoleStatusTransitions_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  defaultEmployeeRoleStatusTransitions_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   importRemoteSystem?: Maybe<Scalars['String']>;
   importRemoteSystem_not?: Maybe<Scalars['String']>;
   importRemoteSystem_contains?: Maybe<Scalars['String']>;
@@ -58417,9 +58284,6 @@ export type PropertyHistoryRecord = {
   map?: Maybe<Scalars['JSON']>;
   unitsCount?: Maybe<Scalars['Int']>;
   uninhabitedUnitsCount?: Maybe<Scalars['Int']>;
-  ticketsClosed?: Maybe<Scalars['JSON']>;
-  ticketsDeferred?: Maybe<Scalars['JSON']>;
-  ticketsInWork?: Maybe<Scalars['JSON']>;
   isApproved?: Maybe<Scalars['Boolean']>;
   yearOfConstruction?: Maybe<Scalars['String']>;
   area?: Maybe<Scalars['String']>;
@@ -58449,9 +58313,6 @@ export type PropertyHistoryRecordCreateInput = {
   map?: Maybe<Scalars['JSON']>;
   unitsCount?: Maybe<Scalars['Int']>;
   uninhabitedUnitsCount?: Maybe<Scalars['Int']>;
-  ticketsClosed?: Maybe<Scalars['JSON']>;
-  ticketsDeferred?: Maybe<Scalars['JSON']>;
-  ticketsInWork?: Maybe<Scalars['JSON']>;
   isApproved?: Maybe<Scalars['Boolean']>;
   yearOfConstruction?: Maybe<Scalars['String']>;
   area?: Maybe<Scalars['String']>;
@@ -58486,9 +58347,6 @@ export type PropertyHistoryRecordUpdateInput = {
   map?: Maybe<Scalars['JSON']>;
   unitsCount?: Maybe<Scalars['Int']>;
   uninhabitedUnitsCount?: Maybe<Scalars['Int']>;
-  ticketsClosed?: Maybe<Scalars['JSON']>;
-  ticketsDeferred?: Maybe<Scalars['JSON']>;
-  ticketsInWork?: Maybe<Scalars['JSON']>;
   isApproved?: Maybe<Scalars['Boolean']>;
   yearOfConstruction?: Maybe<Scalars['String']>;
   area?: Maybe<Scalars['String']>;
@@ -58573,18 +58431,6 @@ export type PropertyHistoryRecordWhereInput = {
   uninhabitedUnitsCount_gte?: Maybe<Scalars['Int']>;
   uninhabitedUnitsCount_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   uninhabitedUnitsCount_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  ticketsClosed?: Maybe<Scalars['JSON']>;
-  ticketsClosed_not?: Maybe<Scalars['JSON']>;
-  ticketsClosed_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  ticketsClosed_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  ticketsDeferred?: Maybe<Scalars['JSON']>;
-  ticketsDeferred_not?: Maybe<Scalars['JSON']>;
-  ticketsDeferred_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  ticketsDeferred_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  ticketsInWork?: Maybe<Scalars['JSON']>;
-  ticketsInWork_not?: Maybe<Scalars['JSON']>;
-  ticketsInWork_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  ticketsInWork_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   isApproved?: Maybe<Scalars['Boolean']>;
   isApproved_not?: Maybe<Scalars['Boolean']>;
   yearOfConstruction?: Maybe<Scalars['String']>;
@@ -71646,11 +71492,7 @@ export type ResidentHistoryRecord = {
    */
   _label_?: Maybe<Scalars['String']>;
   user?: Maybe<Scalars['String']>;
-  residentOrganization?: Maybe<Scalars['JSON']>;
   property?: Maybe<Scalars['String']>;
-  residentProperty?: Maybe<Scalars['JSON']>;
-  organizationFeatures?: Maybe<Scalars['JSON']>;
-  paymentCategories?: Maybe<Scalars['JSON']>;
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
@@ -71675,11 +71517,7 @@ export type ResidentHistoryRecord = {
 
 export type ResidentHistoryRecordCreateInput = {
   user?: Maybe<Scalars['String']>;
-  residentOrganization?: Maybe<Scalars['JSON']>;
   property?: Maybe<Scalars['String']>;
-  residentProperty?: Maybe<Scalars['JSON']>;
-  organizationFeatures?: Maybe<Scalars['JSON']>;
-  paymentCategories?: Maybe<Scalars['JSON']>;
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
@@ -71709,11 +71547,7 @@ export enum ResidentHistoryRecordHistoryActionType {
 
 export type ResidentHistoryRecordUpdateInput = {
   user?: Maybe<Scalars['String']>;
-  residentOrganization?: Maybe<Scalars['JSON']>;
   property?: Maybe<Scalars['String']>;
-  residentProperty?: Maybe<Scalars['JSON']>;
-  organizationFeatures?: Maybe<Scalars['JSON']>;
-  paymentCategories?: Maybe<Scalars['JSON']>;
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
@@ -71742,26 +71576,10 @@ export type ResidentHistoryRecordWhereInput = {
   user_not?: Maybe<Scalars['String']>;
   user_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   user_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  residentOrganization?: Maybe<Scalars['JSON']>;
-  residentOrganization_not?: Maybe<Scalars['JSON']>;
-  residentOrganization_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  residentOrganization_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   property?: Maybe<Scalars['String']>;
   property_not?: Maybe<Scalars['String']>;
   property_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   property_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  residentProperty?: Maybe<Scalars['JSON']>;
-  residentProperty_not?: Maybe<Scalars['JSON']>;
-  residentProperty_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  residentProperty_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  organizationFeatures?: Maybe<Scalars['JSON']>;
-  organizationFeatures_not?: Maybe<Scalars['JSON']>;
-  organizationFeatures_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  organizationFeatures_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  paymentCategories?: Maybe<Scalars['JSON']>;
-  paymentCategories_not?: Maybe<Scalars['JSON']>;
-  paymentCategories_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  paymentCategories_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   unitName?: Maybe<Scalars['String']>;
   unitName_not?: Maybe<Scalars['String']>;
   unitName_contains?: Maybe<Scalars['String']>;
@@ -72420,13 +72238,10 @@ export type ServiceConsumerHistoryRecord = {
   _label_?: Maybe<Scalars['String']>;
   paymentCategory?: Maybe<Scalars['String']>;
   resident?: Maybe<Scalars['String']>;
-  residentBillingAccount?: Maybe<Scalars['JSON']>;
   billingIntegrationContext?: Maybe<Scalars['String']>;
   acquiringIntegrationContext?: Maybe<Scalars['String']>;
-  residentAcquiringIntegrationContext?: Maybe<Scalars['JSON']>;
   accountNumber?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
-  residentOrganization?: Maybe<Scalars['JSON']>;
   isDiscovered?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -72446,13 +72261,10 @@ export type ServiceConsumerHistoryRecord = {
 export type ServiceConsumerHistoryRecordCreateInput = {
   paymentCategory?: Maybe<Scalars['String']>;
   resident?: Maybe<Scalars['String']>;
-  residentBillingAccount?: Maybe<Scalars['JSON']>;
   billingIntegrationContext?: Maybe<Scalars['String']>;
   acquiringIntegrationContext?: Maybe<Scalars['String']>;
-  residentAcquiringIntegrationContext?: Maybe<Scalars['JSON']>;
   accountNumber?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
-  residentOrganization?: Maybe<Scalars['JSON']>;
   isDiscovered?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -72477,13 +72289,10 @@ export enum ServiceConsumerHistoryRecordHistoryActionType {
 export type ServiceConsumerHistoryRecordUpdateInput = {
   paymentCategory?: Maybe<Scalars['String']>;
   resident?: Maybe<Scalars['String']>;
-  residentBillingAccount?: Maybe<Scalars['JSON']>;
   billingIntegrationContext?: Maybe<Scalars['String']>;
   acquiringIntegrationContext?: Maybe<Scalars['String']>;
-  residentAcquiringIntegrationContext?: Maybe<Scalars['JSON']>;
   accountNumber?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
-  residentOrganization?: Maybe<Scalars['JSON']>;
   isDiscovered?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -72524,10 +72333,6 @@ export type ServiceConsumerHistoryRecordWhereInput = {
   resident_not?: Maybe<Scalars['String']>;
   resident_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   resident_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  residentBillingAccount?: Maybe<Scalars['JSON']>;
-  residentBillingAccount_not?: Maybe<Scalars['JSON']>;
-  residentBillingAccount_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  residentBillingAccount_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   billingIntegrationContext?: Maybe<Scalars['String']>;
   billingIntegrationContext_not?: Maybe<Scalars['String']>;
   billingIntegrationContext_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -72536,10 +72341,6 @@ export type ServiceConsumerHistoryRecordWhereInput = {
   acquiringIntegrationContext_not?: Maybe<Scalars['String']>;
   acquiringIntegrationContext_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   acquiringIntegrationContext_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  residentAcquiringIntegrationContext?: Maybe<Scalars['JSON']>;
-  residentAcquiringIntegrationContext_not?: Maybe<Scalars['JSON']>;
-  residentAcquiringIntegrationContext_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  residentAcquiringIntegrationContext_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   accountNumber?: Maybe<Scalars['String']>;
   accountNumber_not?: Maybe<Scalars['String']>;
   accountNumber_contains?: Maybe<Scalars['String']>;
@@ -72562,10 +72363,6 @@ export type ServiceConsumerHistoryRecordWhereInput = {
   organization_not?: Maybe<Scalars['String']>;
   organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  residentOrganization?: Maybe<Scalars['JSON']>;
-  residentOrganization_not?: Maybe<Scalars['JSON']>;
-  residentOrganization_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  residentOrganization_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   isDiscovered?: Maybe<Scalars['Boolean']>;
   isDiscovered_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
@@ -90222,7 +90019,6 @@ export type TicketStatusHistoryRecord = {
   organization?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
-  colors?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -90242,7 +90038,6 @@ export type TicketStatusHistoryRecordCreateInput = {
   organization?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
-  colors?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -90267,7 +90062,6 @@ export type TicketStatusHistoryRecordUpdateInput = {
   organization?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
-  colors?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -90325,10 +90119,6 @@ export type TicketStatusHistoryRecordWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  colors?: Maybe<Scalars['JSON']>;
-  colors_not?: Maybe<Scalars['JSON']>;
-  colors_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  colors_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -92280,7 +92070,6 @@ export type UserHistoryRecord = {
    */
   _label_?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
-  hasEmail?: Maybe<Scalars['JSON']>;
   password?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
   isAdmin?: Maybe<Scalars['Boolean']>;
@@ -92312,7 +92101,6 @@ export type UserHistoryRecord = {
 
 export type UserHistoryRecordCreateInput = {
   name?: Maybe<Scalars['String']>;
-  hasEmail?: Maybe<Scalars['JSON']>;
   password?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
   isAdmin?: Maybe<Scalars['Boolean']>;
@@ -92349,7 +92137,6 @@ export enum UserHistoryRecordHistoryActionType {
 
 export type UserHistoryRecordUpdateInput = {
   name?: Maybe<Scalars['String']>;
-  hasEmail?: Maybe<Scalars['JSON']>;
   password?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
   isAdmin?: Maybe<Scalars['Boolean']>;
@@ -92399,10 +92186,6 @@ export type UserHistoryRecordWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  hasEmail?: Maybe<Scalars['JSON']>;
-  hasEmail_not?: Maybe<Scalars['JSON']>;
-  hasEmail_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  hasEmail_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   password?: Maybe<Scalars['String']>;
   password_not?: Maybe<Scalars['String']>;
   password_contains?: Maybe<Scalars['String']>;
