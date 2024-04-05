@@ -18,6 +18,7 @@ const { getSbbolUserInfoErrors } = require('./utils/getSbbolUserInfoErrors')
 
 
 const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}
+const SBBOL_AUTH_CONFIG_EXTENDED = conf.SBBOL_AUTH_CONFIG_EXTENDED ? JSON.parse(conf.SBBOL_AUTH_CONFIG_EXTENDED) : {}
 
 const logger = getLogger('sbbol/routes')
 
@@ -26,11 +27,12 @@ class SbbolRoutes {
         const reqId = req.id
         try {
             if (!SBBOL_AUTH_CONFIG.client_id) throw new Error('SBBOL_AUTH_CONFIG.client_id is not configured')
-            const sbbolAuthApi = await initializeSbbolAuthApi()
+            if (!SBBOL_AUTH_CONFIG_EXTENDED.client_id) throw new Error('SBBOL_AUTH_CONFIG_EXTENDED.client_id is not configured')
             const query = get(req, 'query', {})
             const redirectUrl = get(query, 'redirectUrl')
             const queryFeatures = get(query, 'features', [])
             const useExtendedConfig = get(query, 'useExtendedConfig', false)
+            const sbbolAuthApi = await initializeSbbolAuthApi(useExtendedConfig)
             const features = Array.isArray(queryFeatures) ? queryFeatures : [queryFeatures]
 
             if (redirectUrl && !isSafeUrl(redirectUrl)) throw new Error('redirectUrl is incorrect')
@@ -39,7 +41,7 @@ class SbbolRoutes {
             const checks = { nonce: generators.nonce(), state: generators.state() }
             req.session[SBBOL_SESSION_KEY] = { checks, redirectUrl, features }
             await req.session.save()
-            const authUrl = sbbolAuthApi.authorizationUrlWithParams(checks, useExtendedConfig)
+            const authUrl = sbbolAuthApi.authorizationUrlWithParams(checks)
             return res.redirect(authUrl)
         } catch (error) {
             logger.error({ msg: 'SBBOL start-auth error', err: error, reqId })
@@ -51,7 +53,9 @@ class SbbolRoutes {
         const reqId = req.id
         try {
             if (!SBBOL_AUTH_CONFIG.client_id) throw new Error('SBBOL_AUTH_CONFIG.client_id is not configured')
-            const sbbolAuthApi = await initializeSbbolAuthApi()
+            if (!SBBOL_AUTH_CONFIG_EXTENDED.client_id) throw new Error('SBBOL_AUTH_CONFIG_EXTENDED.client_id is not configured')
+            const useExtendedConfig = get(req, 'query.useExtendedConfig', false)
+            const sbbolAuthApi = await initializeSbbolAuthApi(useExtendedConfig)
             const checks = get(req, ['session', SBBOL_SESSION_KEY, 'checks'])
             if (!isObject(checks)) {
                 logger.info({ msg: 'SBBOL invalid nonce and state', reqId })

@@ -8,10 +8,11 @@ const { OrganizationEmployee } = require('@condo/domains/organization/utils/serv
  * Client Secret. This covers a case, when a client secret will get periodically updated.
  * @return {Promise<SbbolOauth2Api>}
  */
-async function initializeSbbolAuthApi () {
-    const sbbolSecretStorage = getSbbolSecretStorage()
+async function initializeSbbolAuthApi (useExtendedConfig = false) {
+    const sbbolSecretStorage = getSbbolSecretStorage(useExtendedConfig)
     return new SbbolOauth2Api({
         clientSecret: await sbbolSecretStorage.getClientSecret(),
+        useExtendedConfig,
     })
 }
 
@@ -23,8 +24,8 @@ async function initializeSbbolAuthApi () {
  * NOTE: To request data, related to our organization as a partner of SBBOL, we need to pass id of first user (admin) of our Organization, that can be found by `importId` equals to `SBBOL_FINTECH_CONFIG.service_organization_hashOrgId`.
  * @return {Promise<string|*>}
  */
-async function getAccessTokenForUser (userId) {
-    const sbbolSecretStorage = getSbbolSecretStorage()
+async function getAccessTokenForUser (userId, useExtendedConfig) {
+    const sbbolSecretStorage = getSbbolSecretStorage(useExtendedConfig)
     if (await sbbolSecretStorage.isRefreshTokenExpired(userId)) {
         const instructionsMessage = 'Please, login through SBBOL for this organization, so its accessToken and refreshToken will be obtained and saved in TokenSet table for further renewals'
         throw new Error(`refreshToken is expired for clientId = ${sbbolSecretStorage.clientId}. ${instructionsMessage}`)

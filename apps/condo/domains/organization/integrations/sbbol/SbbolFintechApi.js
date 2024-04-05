@@ -234,12 +234,12 @@ class SbbolFintechApi extends SbbolRequestApi {
  * NOTE: Constructor of `SbbolFintechApi` cannot be used, because it must be async, which is not allowed by ES6
  * @return {null|SbbolFintechApi}
  */
-const initSbbolFintechApi = async (userId) => {
+const initSbbolFintechApi = async (userId, useExtendedConfig) => {
     let accessToken
     try {
         // `service_organization_hashOrgId` is a `userInfo.HashOrgId` from SBBOL, that corresponds to our organization
         // as a partner of SBBOL
-        ({ accessToken } = await getAccessTokenForUser(userId))
+        ({ accessToken } = await getAccessTokenForUser(userId, useExtendedConfig))
     } catch (error) {
         logger.error({
             msg: 'Failed to obtain organization access token from SBBOL',
