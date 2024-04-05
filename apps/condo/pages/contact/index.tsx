@@ -250,7 +250,7 @@ const ContactsPage = () => {
         organization: { id: userOrganizationId },
     }), [userOrganizationId])
 
-    usePreviousQueryParams({ trackedParamNames: ['sort', 'filters'], employeeId })
+    usePreviousQueryParams({ trackedParamNames: ['sort', 'filters'], employeeSpecificKey: employeeId })
 
     return (
         <ContactPageContentWrapper

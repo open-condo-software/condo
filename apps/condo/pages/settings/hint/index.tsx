@@ -18,7 +18,7 @@ const PropertyHintsPage = () => {
 
     const { link }  = useOrganization()
     const employeeId = get(link, 'id')
-    usePreviousQueryParams({ trackedParamNames: ['sort', 'filters'], employeeId })
+    usePreviousQueryParams({ trackedParamNames: ['sort', 'filters'], employeeSpecificKey: employeeId })
 
     return (
         <>

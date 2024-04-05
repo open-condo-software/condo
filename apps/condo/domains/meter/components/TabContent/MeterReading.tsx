@@ -82,8 +82,6 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
     const { filters, offset, sorters, tab } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
 
-    const reduceNonEmpty = (cnt, filter) => cnt + Number((typeof filters[filter] === 'string' || Array.isArray(filters[filter])) && filters[filter].length > 0)
-    const appliedFiltersCount = Object.keys(filters).reduce(reduceNonEmpty, 0)
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filtersMeta, sortableProperties || SORTABLE_PROPERTIES)
 
     const sortBy = useMemo(() => sortersToSortBy(sorters) as SortMeterReadingsBy[], [sorters, sortersToSortBy])
@@ -109,15 +107,12 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
 
     const [search, handleSearchChange, handleSearchReset] = useSearch()
     const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch)
-    const { MultipleFiltersModal, ResetFiltersModalButton, OpenFiltersButton } = useMultipleFiltersModal(
-        filtersMeta,
-        MeterReadingFilterTemplate,
-        handleSearchReset,
-        null,
-        null,
-        [],
-        { tab }
-    )
+    const { MultipleFiltersModal, ResetFiltersModalButton, OpenFiltersButton, appliedFiltersCount } = useMultipleFiltersModal({
+        filterMetas: filtersMeta,
+        filtersSchemaGql: MeterReadingFilterTemplate,
+        onReset: handleSearchReset,
+        extraQueryParameters: { tab },
+    })
 
     const [columns, meterReadingNormalizer, meterReadingValidator, meterReadingCreator] = useImporterFunctions()
 

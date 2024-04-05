@@ -90,60 +90,69 @@ const getParams = (query, paramsForSave) => {
     return pick(query, paramsForSave)
 }
 
-type usePreviousQueryParamsType = (props: { trackedParamNames: Array<string>, delimitersParamNames?: Array<string>, employeeId?: string }) => void
+type usePreviousQueryParamsType = (props: { trackedParamNames: Array<string>, paramNamesForPageChange?: Array<string>, employeeSpecificKey?: string }) => void
 
+/**
+ * This hook saves the tracked parameters from the URL in local storage when they change.
+ * When opening the page again takes out the saved parameters from local storage and inserts them into the URL.
+ *
+ * If the URL already contains tracked parameters, then they are used.
+ *
+ * @param paramNamesForPageChange Names of sensitive parameters whose changes are perceived as a page change
+ * @param employeeSpecificKey It could just be employee ID or organization ID + user ID
+ * @param trackedParamNames Names of parameters whose changes need to be tracked and saved
+ */
 export const usePreviousQueryParams: usePreviousQueryParamsType = ({
-    delimitersParamNames,
-    employeeId,
+    paramNamesForPageChange,
+    employeeSpecificKey,
     trackedParamNames,
 }) => {
     const router = useRouter()
     const path = router.pathname
     const query = router.query
-    const tab = get(router, 'query.tab')
 
-    const withDelimitersParams = useMemo(() => isArray(delimitersParamNames) && !isEmpty(delimitersParamNames), [])
+    const withDelimitersParams = useMemo(() => isArray(paramNamesForPageChange) && !isEmpty(paramNamesForPageChange), [])
 
     const trackedParams = useMemo(() => getParams(query, trackedParamNames), [query])
-    const delimitersParams = useMemo(() => withDelimitersParams ? getParams(query, delimitersParamNames) : null, [query])
+    const delimitersParams = useMemo(() => withDelimitersParams ? getParams(query, paramNamesForPageChange) : null, [query])
 
     const applyQueryParamsFromLocalStorage = useCallback(async () => {
         const haveParamsFromQuery = trackedParamNames.some(paramName => !isEmpty(get(trackedParams, paramName)))
         if (haveParamsFromQuery) return
 
-        const paramsFromLocalStorage = PreviousQueryParams.get(employeeId, path, withDelimitersParams ? delimitersParams : null)
+        const paramsFromLocalStorage = PreviousQueryParams.get(employeeSpecificKey, path, delimitersParams)
         if (!paramsFromLocalStorage) return
 
         const newParameters = { ...query, ...paramsFromLocalStorage }
         await updateQuery(router, { newParameters }, { routerAction: 'replace', resetOldParameters: false })
-    }, [trackedParams, path, query, router, tab, employeeId, delimitersParams])
+    }, [trackedParams, path, query, router, employeeSpecificKey, delimitersParams])
     
     const saveQueryParamsToLocalStorage = useCallback(() => {
         const queryParamsToSave = getParams(query, trackedParamNames)
-        PreviousQueryParams.set(employeeId, path, queryParamsToSave, withDelimitersParams ? delimitersParams : null)
-    }, [path, query, tab, employeeId, delimitersParams])
+        PreviousQueryParams.set(employeeSpecificKey, path, queryParamsToSave, delimitersParams)
+    }, [path, query, employeeSpecificKey, delimitersParams])
+
+    // // Case without tabs
+    // useEffect(() => {
+    //     if (!employeeId) return
+    //     if (withDelimitersParams) return
+    //     applyQueryParamsFromLocalStorage()
+    // }, [employeeId])
+    // useDeepCompareEffect(() => {
+    //     if (!employeeId) return
+    //     if (withDelimitersParams) return
+    //     saveQueryParamsToLocalStorage()
+    // }, [employeeId, trackedParams])
 
     // Case with tabs
     useDeepCompareEffect(() => {
-        if (!employeeId) return
-        if (withDelimitersParams) return
-        applyQueryParamsFromLocalStorage()
-    }, [employeeId])
-    useDeepCompareEffect(() => {
-        if (!employeeId) return
-        if (withDelimitersParams) return
-        saveQueryParamsToLocalStorage()
-    }, [employeeId, trackedParams])
-
-    // Case without tabs
-    useDeepCompareEffect(() => {
-        if (!employeeId) return
+        if (!employeeSpecificKey) return
         if (!withDelimitersParams) return
         applyQueryParamsFromLocalStorage()
-    }, [employeeId, delimitersParams])
+    }, [employeeSpecificKey, delimitersParams])
     useDeepCompareEffect(() => {
-        if (!employeeId) return
+        if (!employeeSpecificKey) return
         if (!withDelimitersParams) return
         saveQueryParamsToLocalStorage()
-    }, [employeeId, trackedParams, delimitersParams])
+    }, [employeeSpecificKey, trackedParams, delimitersParams])
 }

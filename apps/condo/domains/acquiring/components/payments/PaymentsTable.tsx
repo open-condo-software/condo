@@ -111,7 +111,6 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
 
     const { filters, sorters, offset } = parseQuery(router.query)
 
-    const appliedFiltersCount = Object.keys(filters).length
     const currencyCode = get(billingContext, ['integration', 'currencyCode'], 'RUB')
 
     const [isStatusDescModalVisible, setIsStatusDescModalVisible] = useState<boolean>(false)
@@ -178,20 +177,18 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
     const onReset = useCallback(() => {
         setFiltersAreReset(true)
     }, [])
-    
+
     const {
         MultipleFiltersModal,
         ResetFiltersModalButton,
         OpenFiltersButton,
-    } = useMultipleFiltersModal(
-        queryMetas,
-        PaymentsFilterTemplate,
-        handleResetSearch,
-        null,
-        null,
-        [],
-        { tab: 'payments' },
-    )
+        appliedFiltersCount,
+    } = useMultipleFiltersModal({
+        filterMetas: queryMetas,
+        filtersSchemaGql: PaymentsFilterTemplate,
+        onReset: handleResetSearch,
+        extraQueryParameters: { tab: 'payments' },
+    })
 
     return (
         <>

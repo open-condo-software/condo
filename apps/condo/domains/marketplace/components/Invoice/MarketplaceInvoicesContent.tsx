@@ -106,7 +106,7 @@ const TableContent = () => {
                                 suffix={<Search size='medium' color={colors.gray[7]} />}
                             />
                         </Col>
-                        <Col span={!breakpoints.TABLET_SMALL ? 24 : undefined}>
+                        <Col span={!breakpoints.TABLET_SMALL && 24}>
                             <DateRangePicker
                                 style={!breakpoints.TABLET_SMALL ? { width: '100%' } : null}
                                 value={dateRange}

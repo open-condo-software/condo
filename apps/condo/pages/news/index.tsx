@@ -200,7 +200,7 @@ const NewsPage: INewsIndexPage = () => {
     const { isLoading: isAccessLoading } = useNewsItemsAccess()
 
     const { GlobalHints } = useGlobalHints()
-    usePreviousQueryParams({ trackedParamNames: ['sort', 'filters'], employeeId })
+    usePreviousQueryParams({ trackedParamNames: ['sort', 'filters'], employeeSpecificKey: employeeId })
 
     const baseNewsQuery = {
         organization: { id: organization.id },

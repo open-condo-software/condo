@@ -139,7 +139,7 @@ const EmployeesPage = () => {
     const canManageEmployee = get(link, 'role.canInviteNewOrganizationEmployees', null)
     const employeeId = get(link, 'id')
 
-    usePreviousQueryParams({ trackedParamNames: ['sort', 'filters'], employeeId })
+    usePreviousQueryParams({ trackedParamNames: ['sort', 'filters'], employeeSpecificKey: employeeId })
 
     const router = useRouter()
     const { filters, sorters, offset } = parseQuery(router.query)

@@ -6,6 +6,7 @@ import { SizeType } from 'antd/lib/config-provider/SizeContext'
 import Form from 'antd/lib/form'
 import get from 'lodash/get'
 import has from 'lodash/has'
+import isArray from 'lodash/isArray'
 import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
 import isFunction from 'lodash/isFunction'
@@ -373,15 +374,15 @@ const MOBILE_RESET_BUTTON_STYLE: CSSProperties = { paddingLeft: 12, paddingRight
 const DESKTOP_MODAL_FOOTER_GUTTER: RowProps['gutter'] = [16, 16]
 const BUTTON_GROUP_GUTTER: RowProps['gutter'] = [16, 0]
 
-type MultipleFiltersModalProps = {
+type MultipleFiltersModalProps<F = unknown> = {
     isMultipleFiltersModalVisible: boolean
     setIsMultipleFiltersModalVisible: React.Dispatch<React.SetStateAction<boolean>>
-    filterMetas: Array<FiltersMeta<unknown>>
+    filterMetas: Array<FiltersMeta<F>>
     filtersSchemaGql?
     onReset?: () => void
     onSubmit?: (filters) => void
     eventNamePrefix?: string
-    detailedLogging?: string[]
+    detailedLogging?: Array<string>
     extraQueryParameters?: Record<string, unknown>
 }
 
@@ -520,11 +521,13 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
             const filterDetails = {}
             const eventProperties = {}
 
-            detailedLogging.forEach(key => {
-                if (key in selectedFilters) {
-                    filterDetails[key] = selectedFilters[key]
-                }
-            })
+            if (isArray(detailedLogging)) {
+                detailedLogging.forEach(key => {
+                    if (key in selectedFilters) {
+                        filterDetails[key] = selectedFilters[key]
+                    }
+                })
+            }
 
             eventProperties['filters'] = { details: filterDetails, list: filterKeyList }
             // will help find the event if eventName with default value
@@ -773,6 +776,13 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     )
 }
 
+export const useAppliedFiltersCount = (): number => {
+    const router = useRouter()
+    const { filters } = useMemo(() => parseQuery(router.query), [router.query])
+    const reduceNonEmpty = useCallback((cnt, filter) => cnt + Number((typeof filters[filter] === 'string' || Array.isArray(filters[filter])) && filters[filter].length > 0), [filters])
+    return useMemo(() => Object.keys(filters).reduce(reduceNonEmpty, 0), [filters, reduceNonEmpty])
+}
+
 const AppliedFiltersCounter = styled.div`
   width: 23px;
   height: 22px;
@@ -797,10 +807,7 @@ const FiltersButton = ({ setIsMultipleFiltersModalVisible }) => {
     const intl = useIntl()
     const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
 
-    const router = useRouter()
-    const { filters } = parseQuery(router.query)
-    const reduceNonEmpty = (cnt, filter) => cnt + Number((typeof filters[filter] === 'string' || Array.isArray(filters[filter])) && filters[filter].length > 0)
-    const appliedFiltersCount = Object.keys(filters).reduce(reduceNonEmpty, 0)
+    const appliedFiltersCount = useAppliedFiltersCount()
 
     const handleOpenMultipleFilter = useCallback(() => {
         setIsMultipleFiltersModalVisible(true)
@@ -826,8 +833,33 @@ const FiltersButton = ({ setIsMultipleFiltersModalVisible }) => {
     )
 }
 
-export function useMultipleFiltersModal <T> (filterMetas: Array<FiltersMeta<T>>, filtersSchemaGql, onReset = undefined, onSubmit = undefined, eventNamePrefix?: string, detailedLogging: string[] = [], extraQueryParameters?: Record<string, unknown>) {
+type UseMultipleFiltersModalInput<F = unknown> = Pick<MultipleFiltersModalProps,
+'filtersSchemaGql'
+| 'onReset'
+| 'onSubmit'
+| 'eventNamePrefix'
+| 'detailedLogging'
+| 'extraQueryParameters'> & { filterMetas: Array<FiltersMeta<F>> }
+
+type UseMultipleFiltersModalOutput = {
+    MultipleFiltersModal: React.FC
+    ResetFiltersModalButton: typeof ResetFiltersModalButton
+    OpenFiltersButton: React.FC
+    appliedFiltersCount: number
+}
+
+export function useMultipleFiltersModal <F> ({
+    filterMetas,
+    filtersSchemaGql,
+    onReset,
+    onSubmit,
+    eventNamePrefix,
+    detailedLogging = [],
+    extraQueryParameters,
+}: UseMultipleFiltersModalInput<F>): UseMultipleFiltersModalOutput {
     const [isMultipleFiltersModalVisible, setIsMultipleFiltersModalVisible] = useState<boolean>()
+
+    const appliedFiltersCount = useAppliedFiltersCount()
 
     const MultipleFiltersModal = useCallback(() => (
         <Modal
@@ -851,5 +883,5 @@ export function useMultipleFiltersModal <T> (filterMetas: Array<FiltersMeta<T>>,
         <FiltersButton setIsMultipleFiltersModalVisible={setIsMultipleFiltersModalVisible} />
     ), [])
 
-    return { MultipleFiltersModal, ResetFiltersModalButton: ResetFilterButton, OpenFiltersButton }
+    return useMemo(() => ({ MultipleFiltersModal, ResetFiltersModalButton: ResetFilterButton, OpenFiltersButton, appliedFiltersCount }), [MultipleFiltersModal, OpenFiltersButton, ResetFilterButton, appliedFiltersCount])
 }

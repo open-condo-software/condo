@@ -9,9 +9,9 @@ import { Checkbox } from '@open-condo/ui'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 
 
-type FilterModalCompletedAfterDeadlineType = React.FC<{ form: FormInstance }>
+type ExpiredTicketsFilterType = React.FC<{ form: FormInstance }>
 
-export const FilterModalCompletedAfterDeadline: FilterModalCompletedAfterDeadlineType = ({ form }) => {
+export const ExpiredTicketsFilter: ExpiredTicketsFilterType = ({ form }) => {
     const intl = useIntl()
     const ExpiredTickets = intl.formatMessage({ id: 'pages.condo.ticket.filters.ExpiredTickets' })
     const router = useRouter()

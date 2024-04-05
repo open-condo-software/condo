@@ -561,15 +561,10 @@ const FiltersContainer = ({ filterMetas }) => {
     const PayableLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.PayableLabel' })
     const ExpiredLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.ExpiredLabel' })
 
-    const router = useRouter()
-    const { filters } = parseQuery(router.query)
     const [{ width: contentWidth }, setRef] = useContainerSize()
 
-    const reduceNonEmpty = (cnt, filter) => cnt + Number((typeof filters[filter] === 'string' || Array.isArray(filters[filter])) && filters[filter].length > 0)
-    const appliedFiltersCount = Object.keys(filters).reduce(reduceNonEmpty, 0)
-
     const [search, changeSearch, handleResetSearch] = useSearch<IFilters>()
-    const [attributes, handleChangeAttribute, handleResetAllAttributes, handleChangeAllAttributes] = useBooleanAttributesSearch(ATTRIBUTE_NAMES_To_FILTERS)
+    const [attributes, handleChangeAttribute, handleResetAllAttributes, handleFilterChangesAllAttributes] = useBooleanAttributesSearch(ATTRIBUTE_NAMES_To_FILTERS)
     const {
         isEmergency: emergency,
         isRegular: regular,
@@ -577,12 +572,12 @@ const FiltersContainer = ({ filterMetas }) => {
         statusReopenedCounter: returned,
         isPayable: payable,
     } = attributes
-    const [
-        isCompletedAfterDeadline,
-        handleChangeIsCompletedAfterDeadline,
-        handleResetIsCompletedAfterDeadline,
-        handleUpdateIsCompletedAfterDeadline,
-    ] = useCheckboxSearch('isCompletedAfterDeadline')
+    const {
+        value: isCompletedAfterDeadline,
+        handleChange: handleChangeIsCompletedAfterDeadline,
+        handleFilterChanges: handleFilterChangesIsCompletedAfterDeadline,
+        handleResetWithoutUpdateQuery: handleResetIsCompletedAfterDeadline,
+    } = useCheckboxSearch('isCompletedAfterDeadline')
 
     const handleAttributeCheckboxChange = useCallback((attributeName: string) => (e: CheckboxChangeEvent) => {
         const isChecked = get(e, ['target', 'checked'])
@@ -596,13 +591,18 @@ const FiltersContainer = ({ filterMetas }) => {
     }, [handleResetAllAttributes, handleResetSearch, handleResetIsCompletedAfterDeadline])
 
     const handleSubmitFilters = useCallback((filters) => {
-        handleChangeAllAttributes(filters)
-        handleUpdateIsCompletedAfterDeadline(filters)
-    }, [handleChangeAllAttributes, handleUpdateIsCompletedAfterDeadline])
+        handleFilterChangesAllAttributes(filters)
+        handleFilterChangesIsCompletedAfterDeadline(filters)
+    }, [handleFilterChangesAllAttributes, handleFilterChangesIsCompletedAfterDeadline])
 
-    const { MultipleFiltersModal, ResetFiltersModalButton, OpenFiltersButton } = useMultipleFiltersModal(
-        filterMetas, TicketFilterTemplate, handleResetFilters, handleSubmitFilters, 'Ticket', DETAILED_LOGGING
-    )
+    const { MultipleFiltersModal, ResetFiltersModalButton, OpenFiltersButton, appliedFiltersCount } = useMultipleFiltersModal({
+        filterMetas,
+        filtersSchemaGql: TicketFilterTemplate,
+        onReset: handleResetFilters,
+        onSubmit: handleSubmitFilters,
+        eventNamePrefix: 'Ticket',
+        detailedLogging: DETAILED_LOGGING,
+    })
 
     const handleSearchChange = useCallback((e) => {
         changeSearch(e.target.value)
@@ -989,7 +989,7 @@ const TicketsPage: ITicketIndexPage = () => {
 
     const { GlobalHints } = useGlobalHints()
     const { breakpoints } = useLayoutContext()
-    usePreviousQueryParams({ trackedParamNames: ['sort', 'filters'], employeeId })
+    usePreviousQueryParams({ trackedParamNames: ['sort', 'filters'], employeeSpecificKey: employeeId })
 
     const {
         count: ticketsWithoutFiltersCount,

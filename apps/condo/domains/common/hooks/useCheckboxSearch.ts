@@ -9,7 +9,12 @@ import { getFiltersFromQuery, updateQuery } from '@condo/domains/common/utils/he
 import { FiltersFromQueryType } from '@condo/domains/common/utils/tables.utils'
 
 
-type UseCheckboxSearchOutputType = [boolean, (isChecked: boolean) => void, () => void, (filters) => void]
+type UseCheckboxSearchOutputType = {
+    value: boolean
+    handleChange: (isChecked: boolean) => Promise<void>
+    handleFilterChanges: (filters) => void
+    handleResetWithoutUpdateQuery: () => void
+}
 
 const getCheckboxValue = (filtersFromQuery, fieldName) => get(filtersFromQuery, fieldName, false) === 'true'
 
@@ -31,16 +36,16 @@ export const useCheckboxSearch = <F> (fieldName: string): UseCheckboxSearchOutpu
         await updateQuery(router, { newParameters }, { routerAction: 'replace' })
     }, 400), [fieldName, filtersFromQuery, router])
 
-    const handleChangeCheckbox = useCallback(async (isChecked: boolean) => {
+    const handleChange: UseCheckboxSearchOutputType['handleChange'] = useCallback(async (isChecked: boolean) => {
         setValue(isChecked)
         await changeQuery(isChecked)
     }, [changeQuery])
 
-    const handleChangeCheckboxWithoutUpdateQuery = useCallback((filters) => {
+    const handleFilterChanges: UseCheckboxSearchOutputType['handleFilterChanges'] = useCallback((filters) => {
         setValue(getCheckboxValue(filters, fieldName))
     }, [fieldName])
 
-    const handleResetCheckboxWithoutUpdateQuery = useCallback(() => {
+    const handleResetWithoutUpdateQuery: UseCheckboxSearchOutputType['handleResetWithoutUpdateQuery'] = useCallback(() => {
         setValue(false)
     }, [])
 
@@ -50,5 +55,5 @@ export const useCheckboxSearch = <F> (fieldName: string): UseCheckboxSearchOutpu
         }
     }, [checkboxValueFromQuery])
 
-    return [value, handleChangeCheckbox, handleResetCheckboxWithoutUpdateQuery, handleChangeCheckboxWithoutUpdateQuery]
+    return { value, handleChange, handleFilterChanges, handleResetWithoutUpdateQuery }
 }

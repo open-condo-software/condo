@@ -84,7 +84,7 @@ const PropertiesPage: IPropertiesPage = () => {
     const role = get(link, 'role', {}) || {}
     const employeeId = get(link, 'id')
 
-    usePreviousQueryParams({ trackedParamNames: ['sort', 'filters'], employeeId })
+    usePreviousQueryParams({ trackedParamNames: ['sort', 'filters'], employeeSpecificKey: employeeId })
 
     const propertyFilterMeta = usePropertyTableFilters()
     const propertiesTableColumns = usePropertiesTableColumns(propertyFilterMeta)

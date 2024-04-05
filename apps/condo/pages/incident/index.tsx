@@ -405,7 +405,7 @@ const IncidentsPage: IIncidentIndexPage = () => {
     const employeeId = get(link, 'id')
     const baseQuery: BaseQueryType = useMemo(() => ({ organization: { id: organizationId } }), [organizationId])
 
-    usePreviousQueryParams({ trackedParamNames: ['sort', 'filters'], employeeId })
+    usePreviousQueryParams({ trackedParamNames: ['sort', 'filters'], employeeSpecificKey: employeeId })
 
     return (
         <IncidentsPageContent
