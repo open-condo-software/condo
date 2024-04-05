@@ -22,7 +22,8 @@ When a user performs an action on the platform (web client) related to a specifi
 
 ## Additional:
 - To display all content in the feature, add environment variables to `.env`:
-  - TOUR_VIDEO_URL='{"default": videoUrl, "ticket": videoUrl, "billing": videoUrl, "meter": videoUrl, "resident": videoUrl }'
-  - EXTERNAL_GUIDE_URL=guideUrl
-  - RESIDENT_APP_LANDING_URL=landingUrl
-  - CREATE_MAP_VIDEO_URL=videoUrl
+  - TOUR_VIDEO_URL='{ [locale]: { "default": videoUrl, "ticket": videoUrl, "billing": videoUrl, "meter": videoUrl, "resident": videoUrl } }'
+  - RESIDENT_APP_LANDING_URL='{ [locale]: landingUrl }'
+  - CREATE_MAP_VIDEO_URL='{ [locale]: videoUrl }'
+  - GUIDE_MODAL_CARD_LINK='{ [locale]: { "payments": url, "costs": url, "quality": url } }'
+  - GUIDE_INTRODUCE_APP_MATERIALS='{ [locale]: { "announcement": { "imageUrl": url, "materialsUrl": url }, "banner": { "imageUrl": url, "materialsUrl": url }, "chats": { "imageUrl": url, "materialsUrl": url }, "layout": { "imageUrl": url, "materialsUrl": url }, "leaflet":  { "imageUrl": url, "materialsUrl": url }, "socialNetworks": { "imageUrl": url, "materialsUrl": url }, "stickers": { "imageUrl": url, "materialsUrl": url } } }'

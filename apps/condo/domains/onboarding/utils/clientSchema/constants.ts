@@ -1,4 +1,3 @@
-import getConfig from 'next/config'
 import Link from 'next/link'
 
 import { Building, ExternalLink, Meters, PlusCircle, Wallet } from '@open-condo/icons'
@@ -11,14 +10,7 @@ import {
 } from '@condo/domains/onboarding/constants/steps'
 
 
-const {
-    publicRuntimeConfig,
-} = getConfig()
-
-const { externalGuideUrl, residentAppLandingUrl } = publicRuntimeConfig
-
-export const EXTERNAL_GUIDE_LINK = externalGuideUrl
-export const RESIDENT_APP_LANDING_EXTERNAL_LINK = residentAppLandingUrl
+export const GUIDE_LINK = '/tour/guide'
 
 /**
  * Link when clicking on an active step in the tour page
@@ -29,7 +21,7 @@ export const TODO_STEP_CLICK_ROUTE = {
     [CREATE_TICKET_STEP_TYPE]: '/ticket',
     [UPLOAD_RECEIPTS_STEP_TYPE]: '/billing',
     [CREATE_METER_READINGS_STEP_TYPE]: '/meter',
-    [VIEW_RESIDENT_APP_GUIDE_STEP_TYPE]: EXTERNAL_GUIDE_LINK,
+    [VIEW_RESIDENT_APP_GUIDE_STEP_TYPE]: GUIDE_LINK,
     [CREATE_NEWS_STEP_TYPE]: '/news',
 }
 
@@ -75,8 +67,8 @@ export const COMPLETED_STEP_LINK = {
         AfterIcon: Meters,
     },
     [VIEW_RESIDENT_APP_GUIDE_STEP_TYPE]: {
-        openInNewTab: true,
-        href: EXTERNAL_GUIDE_LINK,
+        LinkWrapper: Link,
+        href: GUIDE_LINK,
         AfterIcon: ExternalLink,
     },
     [CREATE_NEWS_STEP_TYPE]: {

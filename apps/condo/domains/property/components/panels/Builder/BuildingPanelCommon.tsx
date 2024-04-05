@@ -146,13 +146,14 @@ export const EmptyBuildingBlock: React.FC<IEmptyBuildingBlock> = ({ mode = 'view
     }, [debouncedGenerateRequest])
 
     const locale = useMemo(() => get(intl, 'locale'), [intl])
+    const videoUrl = get(createMapVideoUrl, locale)
 
-    if (mode === 'edit' && locale === 'ru' && createMapVideoUrl) {
+    if (mode === 'edit' && videoUrl) {
         return (
             <div style={CARD_VIDEO_CONTAINER_STYLE}>
                 <div style={CARD_VIDEO_WRAPPER_STYLE}>
                     <CardVideo
-                        src={createMapVideoUrl}
+                        src={videoUrl}
                         title={CardVideoTitle}
                         description={CardVideoDescription}
                     />

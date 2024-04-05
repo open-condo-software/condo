@@ -1,3 +1,5 @@
+import get from 'lodash/get'
+import getConfig from 'next/config'
 import React, { CSSProperties, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -5,15 +7,20 @@ import { Button, Card, Modal, Radio, RadioGroup, Space, Typography } from '@open
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { EMOJI } from '@condo/domains/common/constants/emoji'
-import { RESIDENT_APP_LANDING_EXTERNAL_LINK } from '@condo/domains/onboarding/utils/clientSchema/constants'
 
+
+const {
+    publicRuntimeConfig,
+} = getConfig()
+
+const { residentAppLandingUrl } = publicRuntimeConfig
 
 type ActiveModalType = 'info' | 'download' | null
 type RadioOptionType = 'admin' | 'technic' | 'security'
 
 const APP_CARD_IMAGE_STYLES: CSSProperties = { width: 'inherit', maxWidth: '120px', paddingTop: '6px' }
 const TAB_IMAGE_WRAPPER_STYLES: CSSProperties = { margin: 'auto', width: 'fit-content' }
-const BASE_IMAGE_CONTAINER_STYLES: CSSProperties =  { height: '240px', width: '100%', backgroundColor: '', overflow: 'hidden', padding: '24px' }
+const BASE_IMAGE_CONTAINER_STYLES: CSSProperties =  { borderRadius: '12px', height: '240px', width: '100%', backgroundColor: '', overflow: 'hidden', padding: '24px' }
 const IMAGE_WRAPPER_BG_COLOR_BY_TYPE = {
     admin: colors.blue[1],
     technic: colors.purple[1],
@@ -45,6 +52,8 @@ export const TechnicAppCard = () => {
         ({ ...BASE_IMAGE_CONTAINER_STYLES, backgroundColor: IMAGE_WRAPPER_BG_COLOR_BY_TYPE[radioValue] })
     , [radioValue])
 
+    const locale = useMemo(() => get(intl, 'locale'), [intl])
+
     return (
         <>
             <Card.CardButton
@@ -52,7 +61,7 @@ export const TechnicAppCard = () => {
                     emoji: [{ symbol: EMOJI.MECHANIC }, { symbol: EMOJI.WRENCH }],
                     headingTitle: TechnicAppCardTitle,
                 }}
-                body={{ image: { src: '/onboarding/tourTechnicCard.webp', style: APP_CARD_IMAGE_STYLES } }}
+                body={{ image: { src: `/onboarding/technic-app-card/${locale}/card-image/tourTechnicCard.webp`, style: APP_CARD_IMAGE_STYLES } }}
                 onClick={() => setActiveModal('info')}
                 id='tour-technic-app-card'
             />
@@ -87,9 +96,9 @@ export const TechnicAppCard = () => {
                                 <div style={imageContainerStyles}>
                                     <div style={TAB_IMAGE_WRAPPER_STYLES}>
                                         <img
-                                            src='/onboarding/technic-app-card/admin.webp'
+                                            src={`/onboarding/technic-app-card/${locale}/tabs/admin.webp`}
                                             alt='Technic app preview for admins'
-                                            style={{ width: '277px' }}
+                                            style={{ width: '310px' }}
                                         />
                                     </div>
                                 </div>
@@ -105,7 +114,7 @@ export const TechnicAppCard = () => {
                                 <div style={imageContainerStyles}>
                                     <div style={TAB_IMAGE_WRAPPER_STYLES}>
                                         <img
-                                            src='/onboarding/technic-app-card/technic.webp'
+                                            src={`/onboarding/technic-app-card/${locale}/tabs/technic.webp`}
                                             alt='Technic app preview for technics'
                                             style={{ width: '350px' }}
                                         />
@@ -123,7 +132,7 @@ export const TechnicAppCard = () => {
                                 <div style={imageContainerStyles}>
                                     <div style={TAB_IMAGE_WRAPPER_STYLES}>
                                         <img
-                                            src='/onboarding/technic-app-card/security.webp'
+                                            src={`/onboarding/technic-app-card/${locale}/tabs/security.webp`}
                                             alt='Technic app preview for security'
                                             style={{ width: '427px' }}
                                         />
@@ -192,15 +201,20 @@ export const ResidentAppCard = () => {
     const intl = useIntl()
     const ResidentAppCardTitle = intl.formatMessage({ id: 'tour.residentAppCard.title' })
 
+    const locale = useMemo(() => get(intl, 'locale'), [intl])
+    const landingLink = useMemo(() => get(residentAppLandingUrl, locale), [locale])
+
+    if (!landingLink) return null
+
     return (
         <Card.CardButton
             header={{
                 emoji: [{ symbol: EMOJI.WOMAN }, { symbol: EMOJI.MAN }],
                 headingTitle: ResidentAppCardTitle,
             }}
-            body={{ image: { src: '/onboarding/tourResidentCard.webp', style: APP_CARD_IMAGE_STYLES } }}
+            body={{ image: { src: `/onboarding/tour-resident-card/${locale}/card-image/tourResidentCard.webp`, style: APP_CARD_IMAGE_STYLES } }}
             onClick={() => {
-                window.open(RESIDENT_APP_LANDING_EXTERNAL_LINK, '_blank')
+                window.open(landingLink, '_blank')
             }}
         />
     )

@@ -4,20 +4,20 @@ import { Col, Row } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import pickBy from 'lodash/pickBy'
-import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
 
-import { Building, Guide, LayoutList, Meters, Unlock, Wallet } from '@open-condo/icons'
+import { Building, Guide, IconProps, LayoutList, Meters, Unlock, Wallet } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Button, Modal, Space, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
+import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
-import { EXTERNAL_GUIDE_LINK } from '@condo/domains/onboarding/utils/clientSchema/constants'
+import { GUIDE_LINK } from '@condo/domains/onboarding/utils/clientSchema/constants'
 
 
 type ButtonClickType = () => void
@@ -26,7 +26,7 @@ type CompletedStepModalDataValueType = {
     type?: TourStepTypeType | 'importProperties'
     availableTourFlow: TourStepTypeType[]
     subtitleLinkHref: string
-    subtitleLinkIcon: React.ReactElement
+    subtitleLinkIcon: React.ComponentType<IconProps>
     newFeatures: {
         employee?: string[]
         resident?: string[]
@@ -87,7 +87,7 @@ type ComputedCompletedStepModalDataType = {
     subtitleText: string
     subtitleLink: string
     subtitleLinkLabel: string
-    subtitleLinkIcon: React.ReactElement
+    subtitleLinkIcon: React.ComponentType<IconProps>
     newEmployeeFeatures: string[]
     newResidentFeatures: string[]
     buttonLabel: string
@@ -152,7 +152,7 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
     }), [completedTourFlow, intl])
 
     const handleViewGuideClick = useCallback(async () => {
-        window.open(EXTERNAL_GUIDE_LINK, '_blank')
+        window.open(GUIDE_LINK, '_blank')
         if (activeStep !== TourStepTypeType.Resident) {
             updateCompletedFlowModalData(activeStep)
         }
@@ -178,7 +178,7 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
         createProperty: {
             availableTourFlow: [TourStepTypeType.Ticket, TourStepTypeType.Meter, TourStepTypeType.Resident],
             subtitleLinkHref: '/property',
-            subtitleLinkIcon: <Building size='small' />,
+            subtitleLinkIcon: Building,
             newFeatures: {
                 employee: [CreateTicketsOnPropertyEmployeeFeature, CreateNewsOnPropertyEmployeeFeature, CreateReadingsOnPropertyEmployeeFeature],
                 resident: [CreateTicketsResidentFeature, ReadNewsResidentFeature],
@@ -190,7 +190,7 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
         createPropertyMap: {
             availableTourFlow: [TourStepTypeType.Ticket, TourStepTypeType.Meter, TourStepTypeType.Resident],
             subtitleLinkHref: '/property',
-            subtitleLinkIcon: <Building size='small' />,
+            subtitleLinkIcon: Building,
             newFeatures: {
                 employee: [CreateTicketsEmployeeFeature, CreateNewsEmployeeFeature, CreateReadingsEmployeeFeature, CreateContactsEmployeeFeature],
                 resident: [ReadTicketsResidentFeature, ReadNewsByUnitResidentFeature],
@@ -205,7 +205,7 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
         importProperties: {
             availableTourFlow: [TourStepTypeType.Ticket, TourStepTypeType.Meter, TourStepTypeType.Resident],
             subtitleLinkHref: '/property',
-            subtitleLinkIcon: <Building size='small' />,
+            subtitleLinkIcon: Building,
             newFeatures: {
                 employee: [CreateTicketsEmployeeFeature, CreateNewsEmployeeFeature, CreateReadingsEmployeeFeature, CreateContactsEmployeeFeature],
                 resident: [CreateTicketsResidentFeature, ReadTicketsResidentFeature, ReadNewsByUnitResidentFeature],
@@ -220,7 +220,7 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
         createTicket: {
             availableTourFlow: [TourStepTypeType.Ticket],
             subtitleLinkHref: '/ticket',
-            subtitleLinkIcon: <LayoutList size='small' />,
+            subtitleLinkIcon: LayoutList,
             newFeatures: {
                 employee: [TrackAndChangeTicketStatusEmployeeFeature, ChatWithResidentEmployeeFeature, ChatWithEmployeesEmployeeFeature],
                 resident: [TrackTicketsResidentFeature, ChatWithOrganizationResidentFeature],
@@ -233,7 +233,7 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
         createMeterReadings: {
             availableTourFlow: [TourStepTypeType.Meter],
             subtitleLinkHref: '/meter',
-            subtitleLinkIcon: <Meters size='small' />,
+            subtitleLinkIcon: Meters,
             newFeatures: {
                 resident: [CreateMeterReadingsResidentFeatureMessage],
             },
@@ -245,7 +245,7 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
         uploadReceipts: {
             availableTourFlow: [TourStepTypeType.Billing],
             subtitleLinkHref: '/billing',
-            subtitleLinkIcon: <Wallet size='small' />,
+            subtitleLinkIcon: Wallet,
             newFeatures: {
                 employee: [UploadReceiptsEmployeeFeatureMessage, TrackResidentPaymentsEmployeeFeatureMessage],
                 resident: [PayBillsResidentFeatureMessage],
@@ -258,7 +258,7 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
         viewResidentsAppGuide: {
             availableTourFlow: [TourStepTypeType.Resident],
             subtitleLinkHref: '/tour',
-            subtitleLinkIcon: <Guide size='small' />,
+            subtitleLinkIcon: Guide,
             newFeatures: {
                 employee: [NotifyResidentsAboutAppEmployeeFeatureMessage],
                 resident: [DownloadAppResidentFeatureMessage],
@@ -332,14 +332,13 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
                             <Typography.Text size='medium' type='secondary'>
                                 {get(computedCompletedStepModalData, 'subtitleText')}
                             </Typography.Text>
-                            <Link href={get(computedCompletedStepModalData, 'subtitleLink', '')}>
-                                <Typography.Link size='medium' onClick={() => updateCompletedStepModalData(null)}>
-                                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                                        {get(computedCompletedStepModalData, 'subtitleLinkLabel')}
-                                        {get(computedCompletedStepModalData, 'subtitleLinkIcon')}
-                                    </div>
-                                </Typography.Link>
-                            </Link>
+                            <LinkWithIcon
+                                size='medium'
+                                title={get(computedCompletedStepModalData, 'subtitleLinkLabel')}
+                                href={get(computedCompletedStepModalData, 'subtitleLink', '')}
+                                PostfixIcon={get(computedCompletedStepModalData, 'subtitleLinkIcon')}
+                                onClick={() => updateCompletedStepModalData(null)}
+                            />
                         </Space>
                     </Space>
                 }

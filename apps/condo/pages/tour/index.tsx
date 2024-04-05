@@ -173,7 +173,7 @@ const TourPageContent = () => {
     const CardVideoTitle = intl.formatMessage({ id: `tour.cardVideo.title.${activeStepWithDefault}` })
     const CardVideoDescription = intl.formatMessage({ id: `tour.cardVideo.description.${activeStepWithDefault}` })
 
-    const videoUrl = useMemo(() => get(tourVideoUrl, activeStepWithDefault), [activeStepWithDefault])
+    const videoUrl = useMemo(() => get(tourVideoUrl, [locale, activeStepWithDefault]), [activeStepWithDefault, locale])
 
     if (isLoading || stepsLoading || syncLoading) {
         return <Loader size='large'/>
@@ -239,7 +239,7 @@ const TourPageContent = () => {
             <Col span={isSmallScreen ? 24 : 10} style={APP_CARDS_COL_STYLES}>
                 <CardsWrapper isSmallScreen={isSmallScreen}>
                     {
-                        locale === 'ru' && videoUrl && (
+                        videoUrl && (
                             <CardVideo
                                 src={videoUrl}
                                 title={CardVideoTitle}
