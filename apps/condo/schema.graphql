@@ -43221,8 +43221,6 @@ type ResidentHistoryRecord {
   property: String
   unitName: String
   unitType: String
-  isVerifiedByManagingCompany: JSON
-  managingCompanyContactRole: JSON
   organization: String
   id: ID!
   address: String
@@ -43290,14 +43288,6 @@ input ResidentHistoryRecordWhereInput {
   unitType_not_ends_with_i: String
   unitType_in: [String]
   unitType_not_in: [String]
-  isVerifiedByManagingCompany: JSON
-  isVerifiedByManagingCompany_not: JSON
-  isVerifiedByManagingCompany_in: [JSON]
-  isVerifiedByManagingCompany_not_in: [JSON]
-  managingCompanyContactRole: JSON
-  managingCompanyContactRole_not: JSON
-  managingCompanyContactRole_in: [JSON]
-  managingCompanyContactRole_not_in: [JSON]
   organization: String
   organization_not: String
   organization_in: [String]
@@ -43460,8 +43450,6 @@ input ResidentHistoryRecordUpdateInput {
   property: String
   unitName: String
   unitType: String
-  isVerifiedByManagingCompany: JSON
-  managingCompanyContactRole: JSON
   organization: String
   address: String
   addressKey: String
@@ -43491,8 +43479,6 @@ input ResidentHistoryRecordCreateInput {
   property: String
   unitName: String
   unitType: String
-  isVerifiedByManagingCompany: JSON
-  managingCompanyContactRole: JSON
   organization: String
   address: String
   addressKey: String
