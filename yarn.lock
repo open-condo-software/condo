@@ -1252,7 +1252,7 @@ __metadata:
     "@emotion/core": ^10.1.1
     "@emotion/react": ^11.9.3
     "@emotion/styled": ^11.10.0
-    "@eps/bicrypt": "link:./packages/bicrypt"
+    "@eps/bicrypt": "workspace:^"
     "@eps/domains": "link:./domains"
     "@keystonejs/adapter-knex": ^13.2.0
     "@keystonejs/adapter-mongoose": ^11.2.0
@@ -7604,10 +7604,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eps/bicrypt@link:./packages/bicrypt::locator=%40app%2Feps%40workspace%3Aapps%2Feps":
+"@eps/bicrypt@workspace:^, @eps/bicrypt@workspace:apps/eps/packages/bicrypt":
   version: 0.0.0-use.local
-  resolution: "@eps/bicrypt@link:./packages/bicrypt::locator=%40app%2Feps%40workspace%3Aapps%2Feps"
-  languageName: node
+  resolution: "@eps/bicrypt@workspace:apps/eps/packages/bicrypt"
+  dependencies:
+    "@xmldom/xmldom": ^0.8.10
+    node-addon-api: ^8.0.0
+    node-gyp: ^10.1.0
+    xml-c14n: ^0.0.6
+  languageName: unknown
   linkType: soft
 
 "@eps/domains@link:./domains::locator=%40app%2Feps%40workspace%3Aapps%2Feps":
