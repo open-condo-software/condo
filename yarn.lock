@@ -7606,13 +7606,13 @@ __metadata:
 
 "@eps/bicrypt@file:./packages/bicrypt::locator=%40app%2Feps%40workspace%3Aapps%2Feps":
   version: 1.1.6
-  resolution: "@eps/bicrypt@file:./packages/bicrypt#./packages/bicrypt::hash=b11f2e&locator=%40app%2Feps%40workspace%3Aapps%2Feps"
+  resolution: "@eps/bicrypt@file:./packages/bicrypt#./packages/bicrypt::hash=d48c27&locator=%40app%2Feps%40workspace%3Aapps%2Feps"
   dependencies:
-    "@xmldom/xmldom": ^0.8.6
-    node-addon-api: ^1.1.0
+    "@xmldom/xmldom": ^0.8.10
+    node-addon-api: ^8.0.0
     node-gyp: ^10.1.0
     xml-c14n: ^0.0.6
-  checksum: eae3eaac68ce7b4e94f7255222000064044181b27f6a37336ed7b6e707867df9a98e2e7eed99bbc311b9cb62d72025d7fc44bb218e5c89b04ea0e67e0d32dd4d
+  checksum: 81f9336dc60bb81d9586e4f299c8d3e0be0849f641adbb419ab1f8af6c3a83988ffb2cad98aa6d1943bc2453d3a3e50c98f2df77a4fae237eca36f1c81cf4f61
   languageName: node
   linkType: hard
 
