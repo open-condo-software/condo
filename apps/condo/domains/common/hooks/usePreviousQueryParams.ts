@@ -90,7 +90,8 @@ const getParams = (query, paramsForSave) => {
     return pick(query, paramsForSave)
 }
 
-type usePreviousQueryParamsType = (props: { trackedParamNames: Array<string>, paramNamesForPageChange?: Array<string>, employeeSpecificKey?: string }) => void
+type UsePreviousQueryParamsProps = { trackedParamNames: Array<string>, paramNamesForPageChange?: Array<string>, employeeSpecificKey?: string }
+type UsePreviousQueryParamsType = (props: UsePreviousQueryParamsProps) => void
 
 /**
  * This hook saves the tracked parameters from the URL in local storage when they change.
@@ -102,7 +103,7 @@ type usePreviousQueryParamsType = (props: { trackedParamNames: Array<string>, pa
  * @param employeeSpecificKey It could just be employee ID or organization ID + user ID
  * @param trackedParamNames Names of parameters whose changes need to be tracked and saved
  */
-export const usePreviousQueryParams: usePreviousQueryParamsType = ({
+export const usePreviousQueryParams: UsePreviousQueryParamsType = ({
     paramNamesForPageChange,
     employeeSpecificKey,
     trackedParamNames,
@@ -132,27 +133,19 @@ export const usePreviousQueryParams: usePreviousQueryParamsType = ({
         PreviousQueryParams.set(employeeSpecificKey, path, queryParamsToSave, delimitersParams)
     }, [path, query, employeeSpecificKey, delimitersParams])
 
-    // // Case without tabs
-    // useEffect(() => {
-    //     if (!employeeId) return
-    //     if (withDelimitersParams) return
-    //     applyQueryParamsFromLocalStorage()
-    // }, [employeeId])
-    // useDeepCompareEffect(() => {
-    //     if (!employeeId) return
-    //     if (withDelimitersParams) return
-    //     saveQueryParamsToLocalStorage()
-    // }, [employeeId, trackedParams])
-
-    // Case with tabs
     useDeepCompareEffect(() => {
         if (!employeeSpecificKey) return
-        if (!withDelimitersParams) return
         applyQueryParamsFromLocalStorage()
     }, [employeeSpecificKey, delimitersParams])
     useDeepCompareEffect(() => {
         if (!employeeSpecificKey) return
-        if (!withDelimitersParams) return
         saveQueryParamsToLocalStorage()
     }, [employeeSpecificKey, trackedParams, delimitersParams])
+}
+
+type UsePreviousSortAndFiltersProps = Pick<UsePreviousQueryParamsProps, 'employeeSpecificKey' | 'paramNamesForPageChange'>
+type UsePreviousSortAndFiltersType = (props: UsePreviousSortAndFiltersProps) => void
+
+export const usePreviousSortAndFilters: UsePreviousSortAndFiltersType = ({ employeeSpecificKey, paramNamesForPageChange }) => {
+    usePreviousQueryParams({ trackedParamNames: ['sort', 'filters'], employeeSpecificKey, paramNamesForPageChange })
 }

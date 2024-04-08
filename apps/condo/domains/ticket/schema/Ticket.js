@@ -50,7 +50,6 @@ const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransition
 const { QUALITY_CONTROL_ADDITIONAL_OPTIONS_FIELD } = require('@condo/domains/ticket/schema/fields/QualityControlAdditionalOptions')
 const { FEEDBACK_ADDITIONAL_OPTIONS_FIELD } = require('@condo/domains/ticket/schema/fields/TicketFeedbackAdditionalOptions')
 const { sendTicketChangedNotifications } = require('@condo/domains/ticket/tasks')
-const { TicketStatus } = require('@condo/domains/ticket/utils/serverSchema')
 const {
     calculateTicketOrder, calculateReopenedCounter,
     setSectionAndFloorFieldsByDataFromPropertyMap, setClientNamePhoneEmailFieldsByDataFromUser,
@@ -785,10 +784,10 @@ const Ticket = new GQLListSchema('Ticket', {
             if (resolvedStatusId) {
                 calculateTicketOrder(resolvedData, resolvedStatusId)
 
-                const resolvedStatus = await TicketStatus.getOne(context, { id: resolvedStatusId })
+                const resolvedStatus = await getById('TicketStatus', resolvedStatusId)
                 let existedStatus = null
                 if (existedStatusId) {
-                    existedStatus = await TicketStatus.getOne(context, { id: existedStatusId })
+                    existedStatus = await getById('TicketStatus', existedStatusId)
 
                     await calculateReopenedCounter(context, existingItem, resolvedData, existedStatus, resolvedStatus)
                     calculateStatusUpdatedAt(resolvedData, existedStatusId, resolvedStatusId)

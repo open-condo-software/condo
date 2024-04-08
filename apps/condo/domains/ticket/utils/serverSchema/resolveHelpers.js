@@ -93,7 +93,7 @@ function calculateIsCompletedAfterDeadline (resolvedData, existingItem) {
     let stopPoint
 
     if (nextStatusId === STATUS_IDS.DECLINED) {
-        if ((prevStatusId === STATUS_IDS.COMPLETED || prevStatusId === STATUS_IDS.CLOSED || nextStatusId === STATUS_IDS.DECLINED) && completedAt) {
+        if ((prevStatusId === STATUS_IDS.COMPLETED || prevStatusId === STATUS_IDS.CLOSED || prevStatusId === STATUS_IDS.DECLINED) && completedAt) {
             stopPoint = completedAt
         } else {
             stopPoint = statusUpdatedAt
@@ -101,7 +101,7 @@ function calculateIsCompletedAfterDeadline (resolvedData, existingItem) {
     } else if (nextStatusId === STATUS_IDS.COMPLETED) {
         stopPoint = completedAt
     } else if (nextStatusId === STATUS_IDS.CLOSED) {
-        if ((prevStatusId === STATUS_IDS.COMPLETED || nextStatusId === STATUS_IDS.CLOSED) && completedAt) {
+        if ((prevStatusId === STATUS_IDS.COMPLETED || prevStatusId === STATUS_IDS.CLOSED) && completedAt) {
             stopPoint = completedAt
         } else {
             stopPoint = statusUpdatedAt

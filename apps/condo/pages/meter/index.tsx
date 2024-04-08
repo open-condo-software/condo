@@ -15,7 +15,7 @@ import { Tabs } from '@open-condo/ui'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import { MultipleFilterContextProvider } from '@condo/domains/common/hooks/useMultipleFiltersModal'
-import { usePreviousQueryParams } from '@condo/domains/common/hooks/usePreviousQueryParams'
+import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { MeterReadPermissionRequired } from '@condo/domains/meter/components/PageAccess'
@@ -70,7 +70,7 @@ const MetersPage: IMeterIndexPage = () => {
     const isMeterReportingPeriodEnabled = useFlag(METER_REPORTING_PERIOD_FRONTEND_FEATURE_FLAG)
 
     const { GlobalHints } = useGlobalHints()
-    usePreviousQueryParams({ trackedParamNames: ['sort', 'filters'], paramNamesForPageChange: ['tab'], employeeSpecificKey: employeeId })
+    usePreviousSortAndFilters({ paramNamesForPageChange: ['tab'], employeeSpecificKey: employeeId })
 
     const availableTabs = useMemo(() => {
         return AVAILABLE_TABS.filter((tab) => {

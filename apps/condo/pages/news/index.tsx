@@ -21,7 +21,7 @@ import { EmptyListContent } from '@condo/domains/common/components/EmptyListCont
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
-import { usePreviousQueryParams } from '@condo/domains/common/hooks/usePreviousQueryParams'
+import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
@@ -200,7 +200,7 @@ const NewsPage: INewsIndexPage = () => {
     const { isLoading: isAccessLoading } = useNewsItemsAccess()
 
     const { GlobalHints } = useGlobalHints()
-    usePreviousQueryParams({ trackedParamNames: ['sort', 'filters'], employeeSpecificKey: employeeId })
+    usePreviousSortAndFilters({ employeeSpecificKey: employeeId })
 
     const baseNewsQuery = {
         organization: { id: organization.id },

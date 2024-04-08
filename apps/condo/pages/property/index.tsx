@@ -19,7 +19,7 @@ import {
 } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
-import { usePreviousQueryParams } from '@condo/domains/common/hooks/usePreviousQueryParams'
+import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import BuildingsTable from '@condo/domains/property/components/BuildingsTable'
@@ -84,7 +84,7 @@ const PropertiesPage: IPropertiesPage = () => {
     const role = get(link, 'role', {}) || {}
     const employeeId = get(link, 'id')
 
-    usePreviousQueryParams({ trackedParamNames: ['sort', 'filters'], employeeSpecificKey: employeeId })
+    usePreviousSortAndFilters({ employeeSpecificKey: employeeId })
 
     const propertyFilterMeta = usePropertyTableFilters()
     const propertiesTableColumns = usePropertiesTableColumns(propertyFilterMeta)

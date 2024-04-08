@@ -3109,7 +3109,7 @@ describe('Ticket', () => {
                 expect(updatedTicket8).toHaveProperty('isCompletedAfterDeadline', true)
             })
 
-            test('Should be auto-set false if status changed to "completed", "closed" or "closed" before deadline', async () => {
+            test('Should be auto-set false if status changed to "completed", "closed" or "canceled" before deadline', async () => {
                 const [ticket] = await createTestTicket(admin, organization, property, { deadline: dayjs().add(1, 'day') })
                 expect(ticket).toHaveProperty('isCompletedAfterDeadline', false)
 

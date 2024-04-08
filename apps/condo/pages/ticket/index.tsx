@@ -56,7 +56,7 @@ import {
     FiltersTooltip,
     useMultipleFiltersModal,
 } from '@condo/domains/common/hooks/useMultipleFiltersModal'
-import { usePreviousQueryParams } from '@condo/domains/common/hooks/usePreviousQueryParams'
+import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
@@ -989,7 +989,7 @@ const TicketsPage: ITicketIndexPage = () => {
 
     const { GlobalHints } = useGlobalHints()
     const { breakpoints } = useLayoutContext()
-    usePreviousQueryParams({ trackedParamNames: ['sort', 'filters'], employeeSpecificKey: employeeId })
+    usePreviousSortAndFilters({ employeeSpecificKey: employeeId })
 
     const {
         count: ticketsWithoutFiltersCount,
