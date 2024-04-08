@@ -71636,6 +71636,8 @@ export type Resident = {
   unitName?: Maybe<Scalars['String']>;
   /**  Type of unit, such as parking lot or flat. Default value: "flat"  */
   unitType?: Maybe<Scalars['String']>;
+  isVerifiedByManagingCompany?: Maybe<Scalars['Boolean']>;
+  managingCompanyContactRole?: Maybe<ResidentContactRole>;
   /**  Ref to the organization. It is filled in on the server and is read-only  */
   organization?: Maybe<Organization>;
   id: Scalars['ID'];
@@ -71755,6 +71757,13 @@ export type ResidentBillingReceiptWhereInput = {
   printableNumber_not_ends_with_i?: Maybe<Scalars['String']>;
   serviceConsumer?: Maybe<ServiceConsumerWhereInput>;
   serviceConsumer_is_null?: Maybe<Scalars['Boolean']>;
+};
+
+export type ResidentContactRole = {
+  __typename?: 'ResidentContactRole';
+  id: Scalars['ID'];
+  name: Scalars['String'];
+  organization?: Maybe<Scalars['ID']>;
 };
 
 export type ResidentCreateInput = {

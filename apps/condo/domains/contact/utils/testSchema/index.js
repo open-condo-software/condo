@@ -51,9 +51,6 @@ async function updateTestContact (client, id, extraAttrs = {}) {
     const attrs = {
         dv: 1,
         sender,
-        name: faker.name.firstName(),
-        email: createTestEmail(),
-        phone: createTestPhone(),
         ...extraAttrs,
     }
     const obj = await Contact.update(client, id, attrs)

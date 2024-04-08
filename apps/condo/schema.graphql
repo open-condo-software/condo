@@ -43528,6 +43528,12 @@ type PaymentCategory {
   acquiringName: String!
 }
 
+type ResidentContactRole {
+  id: ID!
+  name: String!
+  organization: ID
+}
+
 """ Person, that resides in a specified property and unit """
 type Resident {
   """
@@ -43566,6 +43572,8 @@ type Resident {
 
   """ Type of unit, such as parking lot or flat. Default value: "flat" """
   unitType: String
+  isVerifiedByManagingCompany: Boolean
+  managingCompanyContactRole: ResidentContactRole
 
   """ Ref to the organization. It is filled in on the server and is read-only 
   """
