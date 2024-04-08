@@ -25,6 +25,10 @@ class ReplicaKnexAdapter extends KnexAdapter {
             connection: process.env.DATABASE_READ,
         })
 
+        this.knex.context.transaction = (...props) => {
+            return this.knexMaster.context.transaction(...props)
+        }
+
         const checkUseMasterSingle = (object) => {
             // if object.method equals "insert", "del" or "update" then use master endpoint
             return ['insert', 'del', 'update'].includes(object.method)
