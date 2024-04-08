@@ -33,7 +33,12 @@ const {
     makeContextWithOrganizationAndIntegrationAsAdmin,
     createTestBillingCategory,
 } = require('@condo/domains/billing/utils/testSchema')
-const { createTestContact, updateTestContact, createTestContactRole, updateTestContactRole } = require('@condo/domains/contact/utils/testSchema')
+const {
+    createTestContact,
+    updateTestContact,
+    createTestContactRole,
+    updateTestContactRole,
+} = require('@condo/domains/contact/utils/testSchema')
 const { COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const { MeterResource } = require('@condo/domains/meter/utils/testSchema')
 const { createTestMeter } = require('@condo/domains/meter/utils/testSchema')
@@ -60,9 +65,12 @@ const {
     createTestTicket,
     updateTestTicket,
 } = require('@condo/domains/ticket/utils/testSchema')
-const { makeClientWithResidentUser, addResidentAccess, createTestPhone } = require('@condo/domains/user/utils/testSchema')
-
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('../../user/utils/testSchema')
+const {
+    makeClientWithResidentUser,
+    makeClientWithNewRegisteredAndLoggedInUser,
+    addResidentAccess,
+    createTestPhone,
+} = require('@condo/domains/user/utils/testSchema')
 
 
 describe('Resident', () => {

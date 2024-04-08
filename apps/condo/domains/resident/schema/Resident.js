@@ -46,6 +46,11 @@ const addressFieldHooks = {
     },
 }
 
+/**
+ * Obtains a resident's associated managing company contact
+ * @param {Record<string, unknown>} item
+ * @returns {Promise<Record<string, unknown>|null>}
+ */
 async function getManagingCompanyContactFromItem (item) {
     const propertyId = get(item, 'property')
     const unitName = get(item, 'unitName')
