@@ -1972,7 +1972,7 @@
   "tour.step.createProperty.waiting.description": "Менеджер обработает их вручную и добавит их на платформу. Обычно это занимает от 1 до 3 рабочих дней, в зависимости от объема данных.",
   "tour.step.createProperty.completed.title": "Вы добавили дом",
   "tour.step.createProperty.completed.linkTitle": "Добавить еще",
-  "tour.step.createPropertyMap.todo.title": "Создайте шахмату",
+  "tour.step.createPropertyMap.todo.title": "Создайте шахматку",
   "tour.step.createPropertyMap.todo.description": "Шахматка нужна, чтобы получать заявки от конкретных квартир. Чтобы добавить шахматку, нужно знать количество помещений, подъездов и этажей в доме.",
   "tour.step.createPropertyMap.completed.title": "Вы создали шахматку для дома",
   "tour.step.createPropertyMap.completed.linkTitle": "Открыть список",
