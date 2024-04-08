@@ -479,13 +479,7 @@ const MESSAGE_META = {
     [MOBILE_APP_UPDATE_AVAILABLE_MESSAGE_PUSH_TYPE]: {
         dv: { required: true },
         title: { required: false },
-        body: { required: true },
-        data: {
-            userId: { required: false },
-            remoteClient: { required: false },
-            url: { defaultValue: '', required: false },
-            messageBatchId: { required: false },
-        },
+        body: { required: false },
     },
     [CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE]: {
         dv: { required: true },

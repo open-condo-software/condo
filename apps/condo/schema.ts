@@ -39908,22 +39908,7 @@ export type Mutation = {
    * 			"required": false
    * 		},
    * 		"body": {
-   * 			"required": true
-   * 		},
-   * 		"data": {
-   * 			"userId": {
-   * 				"required": false
-   * 			},
-   * 			"remoteClient": {
-   * 				"required": false
-   * 			},
-   * 			"url": {
-   * 				"defaultValue": "",
-   * 				"required": false
-   * 			},
-   * 			"messageBatchId": {
-   * 				"required": false
-   * 			}
+   * 			"required": false
    * 		}
    * 	},
    * 	"CUSTOM_CONTENT_MESSAGE_EMAIL": {
