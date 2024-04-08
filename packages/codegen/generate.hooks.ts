@@ -76,6 +76,9 @@ export interface IGenerateHooksResult<GQLObject, GQLCreateInput, GQLUpdateInput,
 }
 
 type IGQLType = {
+    SINGULAR_FORM: string
+    PLURAL_FORM: string
+    MODEL_FIELDS: string
     CREATE_OBJ_MUTATION: DocumentNode
     CREATE_OBJS_MUTATION: DocumentNode
     UPDATE_OBJ_MUTATION: DocumentNode
@@ -424,7 +427,15 @@ export function generateReactHooks<
 
     function useObject (variables: QueryVariables, options?: QueryHookOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>) {
         const { objs, count, error, loading, refetch, fetchMore, stopPolling } = useObjects(variables, options)
-        if (count && count > 1) throw new Error('Wrong query condition! useObject hook must return single value!')
+        if (count && count > 1) {
+            console.error({
+                msg: 'Wrong query condition! useObject hook must return single value!',
+                singularName: gql.SINGULAR_FORM,
+                pluralName: gql.PLURAL_FORM,
+                modelFields: gql.MODEL_FIELDS,
+            })
+            throw new Error('Wrong query condition! useObject hook must return single value!')
+        }
         const obj = (objs && objs.length) ? objs[0] : null
 
         return {
