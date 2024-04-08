@@ -83,6 +83,9 @@ class SearchKeystoneApp {
                 const strategy = new StrategyEachItemToPlugins(keystone, this.plugins)
 
                 set(req, ['body', 'items'], [s])
+                for (const p of ['context', 'helpers', 'extractUnit']) {
+                    set(req, ['body', p], get(req, ['query', p]))
+                }
 
                 try {
                     const strategyResult = await strategy.search(req)
