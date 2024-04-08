@@ -83,6 +83,28 @@ describe('RegisterBillingReceiptsService', () => {
 
     })
 
+    describe('Mixed output check', () => {
+        test('should return errors together with good receipts', async () => {
+            await catchErrorFrom(async () => {
+                await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
+                    context: { id: billingTestUtils.billingContext.id },
+                    receipts: [
+                        billingTestUtils.createJSONReceipt(),
+                        billingTestUtils.createJSONReceipt({ month: -1 }),
+                        billingTestUtils.createJSONReceipt(),
+                    ],
+                })
+            }, ({ data: { result }, errors }) => {
+                expect(errors).toHaveLength(1)
+                expect(result).toEqual([
+                    expect.objectContaining({ id: expect.anything() }),
+                    null,
+                    expect.objectContaining({ id: expect.anything() }),
+                ])
+            })
+        })
+    })
+
     describe('ReportCreat', () => {
 
         test('should update lastReport for BillingContext if new period was loaded', async () => {
