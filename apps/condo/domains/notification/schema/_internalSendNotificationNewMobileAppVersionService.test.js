@@ -19,15 +19,10 @@ describe('_internalSendNotificationNewMobileAppVersionService', () => {
         const admin = await makeLoggedInAdminClient()
         const userClient = await makeClientWithResidentAccessAndProperty()
 
-        const addressMetaWithFlat = cloneDeep(userClient.property.addressMeta)
-        addressMetaWithFlat.data.flat = '123'
-        addressMetaWithFlat.data.flat_type = 'кв.'
-        addressMetaWithFlat.value = addressMetaWithFlat.value + ', кв. 123'
-
         const [objCreated] = await createTestResident(admin, userClient.user, userClient.property, {
-            address: addressMetaWithFlat.value,
+            address: userClient.property.address,
             unitName: faker.random.alphaNumeric(3),
-            addressMeta: addressMetaWithFlat,
+            addressMeta: userClient.property.addressMeta,
         })
 
         const [obj] = await createTestRemoteClient(admin, { owner: { connect: { id: userClient.user.id } }, devicePlatform: DEVICE_PLATFORM_IOS, meta: { Build: '1.0.0(1)' } })
@@ -48,15 +43,10 @@ describe('_internalSendNotificationNewMobileAppVersionService', () => {
         const userClient = await makeClientWithResidentAccessAndProperty()
         const userClient2 = await makeClientWithResidentAccessAndProperty()
 
-        const addressMetaWithFlat = cloneDeep(userClient.property.addressMeta)
-        addressMetaWithFlat.data.flat = '123'
-        addressMetaWithFlat.data.flat_type = 'кв.'
-        addressMetaWithFlat.value = addressMetaWithFlat.value + ', кв. 123'
-
         const [objCreated] = await createTestResident(admin, userClient.user, userClient.property, {
-            address: addressMetaWithFlat.value,
+            address: userClient.property.address,
             unitName: faker.random.alphaNumeric(3),
-            addressMeta: addressMetaWithFlat,
+            addressMeta: userClient.property.addressMeta,
         })
 
         const [rc1] = await createTestRemoteClient(admin, { owner: { connect: { id: userClient.user.id } }, devicePlatform: DEVICE_PLATFORM_IOS, meta: { Build: '1.0.0(1)' } })
@@ -88,15 +78,10 @@ describe('_internalSendNotificationNewMobileAppVersionService', () => {
         const userClient = await makeClientWithResidentAccessAndProperty()
         const support = await makeClientWithSupportUser()
 
-        const addressMetaWithFlat = cloneDeep(userClient.property.addressMeta)
-        addressMetaWithFlat.data.flat = '123'
-        addressMetaWithFlat.data.flat_type = 'кв.'
-        addressMetaWithFlat.value = addressMetaWithFlat.value + ', кв. 123'
-
         const [objCreated] = await createTestResident(admin, userClient.user, userClient.property, {
-            address: addressMetaWithFlat.value,
+            address: userClient.property.address,
             unitName: faker.random.alphaNumeric(3),
-            addressMeta: addressMetaWithFlat,
+            addressMeta: userClient.property.addressMeta,
         })
 
         const [obj] = await createTestRemoteClient(admin, { owner: { connect: { id: userClient.user.id } }, devicePlatform: DEVICE_PLATFORM_IOS, meta: { Build: '1.0.0(1)' } })

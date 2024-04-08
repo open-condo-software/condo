@@ -73,7 +73,8 @@ const _internalSendNotificationNewMobileAppVersionService = new GQLCustomSchema(
 
                             if (buildVersion) {
                                 for (const rc of chunk) {
-                                    if (compareMobileAppVersions(get(rc, 'meta.Build') || buildVersion, buildVersion) < 0) rcWithLowerBuild.push(`rc:${rc.id}`)
+                                    const buildVersionFromRC = get(rc, 'meta.Build')
+                                    if (compareMobileAppVersions(typeof buildVersionFromRC === 'string' ? buildVersionFromRC : buildVersion, buildVersion) < 0) rcWithLowerBuild.push(`rc:${rc.id}`)
                                 }
                             }
 
@@ -135,8 +136,8 @@ const _internalSendNotificationNewMobileAppVersionService = new GQLCustomSchema(
 
                             if (buildVersion) {
                                 for (const rc of chunk) {
-                                    if (compareMobileAppVersions(get(rc, 'meta.Build') || buildVersion, buildVersion) < 0) rcWithLowerBuild.push(`rc:${rc.id}`)
-                                }
+                                    const buildVersionFromRC = get(rc, 'meta.Build')
+                                    if (compareMobileAppVersions(typeof buildVersionFromRC === 'string' ? buildVersionFromRC : buildVersion, buildVersion) < 0) rcWithLowerBuild.push(`rc:${rc.id}`)                                }
                             }
 
                             return rcWithLowerBuild

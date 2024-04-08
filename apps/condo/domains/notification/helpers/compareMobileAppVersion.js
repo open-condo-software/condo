@@ -1,21 +1,21 @@
-function compareMobileAppVersions (ver1, ver2) {
+function compareMobileAppVersions (lhs, rhs) {
     const digitRegex = /\d+/g
-    const digitsArrayOfVer1 = ver1.match(digitRegex)
-    const digitsArrayOfVer2 = ver2.match(digitRegex)
+    const digitsArrayOfLhs = lhs.match(digitRegex)
+    const digitsArrayOfRhs = rhs.match(digitRegex)
 
     // Comparing the main versions
-    for (let i = 0; i < Math.min(digitsArrayOfVer1.length, digitsArrayOfVer2.length); i++) {
-        if (digitsArrayOfVer1[i] < digitsArrayOfVer2[i]) {
+    for (let i = 0; i < Math.min(digitsArrayOfLhs.length, digitsArrayOfRhs.length); i++) {
+        if (digitsArrayOfLhs[i] < digitsArrayOfRhs[i]) {
             return -1
-        } else if (digitsArrayOfVer1[i] > digitsArrayOfVer2[i]) {
+        } else if (digitsArrayOfLhs[i] > digitsArrayOfRhs[i]) {
             return 1
         }
     }
 
     // If the major versions are the same, compare the build numbers (if any)
-    if (digitsArrayOfVer1.length < digitsArrayOfVer2.length) {
+    if (digitsArrayOfLhs.length < digitsArrayOfRhs.length) {
         return -1
-    } else if (digitsArrayOfVer1.length > digitsArrayOfVer2.length) {
+    } else if (digitsArrayOfLhs.length > digitsArrayOfRhs.length) {
         return 1
     }
 
