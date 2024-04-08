@@ -439,6 +439,7 @@ describe('BankTransaction', () => {
                 await createTestBankIntegrationOrganizationContext(admin, SBBOLBankIntegration, organization)
                 const [integrationContext] = await createTestBankIntegrationAccountContext(serviceClient, SBBOLBankIntegration, organization)
                 const [account] = await createTestBankAccount(serviceClient, organization, {
+                    isApproved: undefined, // since isApproved can be set up only by supports & admins
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
                 const [contractorAccount] = await createTestBankContractorAccount(serviceClient, organization)
