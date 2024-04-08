@@ -13385,7 +13385,6 @@ type BillingRecipientHistoryRecord {
   territoryCode: String
   purpose: String
   name: String
-  isApproved: JSON
   classificationCode: String
   meta: JSON
   id: ID!
@@ -13590,10 +13589,6 @@ input BillingRecipientHistoryRecordWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
-  isApproved: JSON
-  isApproved_not: JSON
-  isApproved_in: [JSON]
-  isApproved_not_in: [JSON]
   classificationCode: String
   classificationCode_not: String
   classificationCode_contains: String
@@ -13751,7 +13746,6 @@ input BillingRecipientHistoryRecordUpdateInput {
   territoryCode: String
   purpose: String
   name: String
-  isApproved: JSON
   classificationCode: String
   meta: JSON
   v: Int
@@ -13785,7 +13779,6 @@ input BillingRecipientHistoryRecordCreateInput {
   territoryCode: String
   purpose: String
   name: String
-  isApproved: JSON
   classificationCode: String
   meta: JSON
   v: Int

@@ -17927,7 +17927,6 @@ export type BillingRecipientHistoryRecord = {
   territoryCode?: Maybe<Scalars['String']>;
   purpose?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
-  isApproved?: Maybe<Scalars['JSON']>;
   classificationCode?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
@@ -17957,7 +17956,6 @@ export type BillingRecipientHistoryRecordCreateInput = {
   territoryCode?: Maybe<Scalars['String']>;
   purpose?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
-  isApproved?: Maybe<Scalars['JSON']>;
   classificationCode?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
@@ -17992,7 +17990,6 @@ export type BillingRecipientHistoryRecordUpdateInput = {
   territoryCode?: Maybe<Scalars['String']>;
   purpose?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
-  isApproved?: Maybe<Scalars['JSON']>;
   classificationCode?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
@@ -18196,10 +18193,6 @@ export type BillingRecipientHistoryRecordWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  isApproved?: Maybe<Scalars['JSON']>;
-  isApproved_not?: Maybe<Scalars['JSON']>;
-  isApproved_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  isApproved_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   classificationCode?: Maybe<Scalars['String']>;
   classificationCode_not?: Maybe<Scalars['String']>;
   classificationCode_contains?: Maybe<Scalars['String']>;
