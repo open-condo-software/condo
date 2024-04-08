@@ -1,11 +1,11 @@
-version: '3'
-services:
-  x-postgres-common:
-    &postgres-common
-    image: postgres:13.8
-    user: postgres
-    restart: always
+version: '3.8'
+x-postgres-common:
+  &postgres-common
+  image: postgres:13.8
+  user: postgres
+  restart: always
 
+services:
   app:
     image: app
     build:
@@ -52,12 +52,15 @@ services:
       PGPASSWORD: replicator_password
     command: |
       bash -c "
-      until pg_basebackup --pgdata=/var/lib/postgresql/data -R --slot=replication_slot --host=postgres_primary --port=5432
-      do
-      sleep 1s
-      done
-      chmod 0700 /var/lib/postgresql/data
-      postgres
+      if [ ! -f /var/lib/postgresql/initialized ]; then
+        until pg_basebackup --pgdata=/var/lib/postgresql/data -R --slot=replication_slot --host=postgres_primary --port=5432
+        do
+          sleep 1s
+        done
+        chmod 0700 /var/lib/postgresql/data
+        touch /var/lib/postgresql/initialized
+      fi
+        postgres
       "
     depends_on:
       - postgres_primary
