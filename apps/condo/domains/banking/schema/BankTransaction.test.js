@@ -82,7 +82,7 @@ describe('BankTransaction', () => {
                 await createTestBankIntegrationOrganizationContext(admin, SBBOLBankIntegration, organization)
                 const [accountContext] = await createTestBankIntegrationAccountContext(serviceClient, SBBOLBankIntegration, organization)
                 const [contractorAccount] = await createTestBankContractorAccount(serviceClient, organization)
-                const [account] = await createTestBankAccount(serviceClient, organization, { integrationContext: { connect: { id: accountContext.id } } })
+                const [account] = await createTestBankAccount(admin, organization, { integrationContext: { connect: { id: accountContext.id } } })
 
                 const [obj, attrs] = await createTestBankTransaction(serviceClient, account, contractorAccount, accountContext, organization)
 
