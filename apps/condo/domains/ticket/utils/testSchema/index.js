@@ -464,16 +464,14 @@ async function updateTestTicketCommentFile (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestTicketCommentsTime (client, organization, ticket, extraAttrs = {}) {
+async function createTestTicketCommentsTime (client, ticket, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    if (!organization || !organization.id) throw new Error('no organization.id')
     if (!ticket || !ticket.id) throw new Error('no ticket.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
         dv: 1,
         sender,
-        organization: { connect: { id: organization.id } },
         ticket: { connect: { id: ticket.id } },
         ...extraAttrs,
     }

@@ -5,16 +5,15 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
-const { makeLoggedInAdminClient, UUID_RE, DATETIME_RE } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, UUID_RE, DATETIME_RE, expectToThrowUniqueConstraintViolationError } = require('@open-condo/keystone/test.utils')
 
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
-const { TicketCommentsTime, createTestTicket, createTestTicketComment } = require('@condo/domains/ticket/utils/testSchema')
+const { RESIDENT_COMMENT_TYPE, ORGANIZATION_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
+const { TicketCommentsTime, createTestTicket, createTestTicketComment, createTestTicketCommentsTime } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
-
-const { RESIDENT_COMMENT_TYPE, ORGANIZATION_COMMENT_TYPE } = require('../constants')
 
 
 describe('TicketCommentsTime', () => {
@@ -309,6 +308,19 @@ describe('TicketCommentsTime', () => {
                 expect(ticketCommentsTimeAfterSecondResidentComment.lastResidentCommentAt).toEqual(ticketCommentsTimeAfterSecondResidentComment.lastCommentAt)
                 expect(dayjs(ticketCommentsTimeAfterEmployeeComment.lastCommentAt).isBefore(ticketCommentsTimeAfterSecondResidentComment.lastCommentAt)).toBeTruthy()
             })
+        })
+    })
+
+    describe('Validations', () => {
+        test('cannot create two or more items for one ticket', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [organization] = await createTestOrganization(admin)
+            const [property] = await createTestProperty(admin, organization)
+            const [ticket] = await createTestTicket(admin, organization, property)
+            await createTestTicketCommentsTime(admin, ticket, { lastCommentAt: faker.date.past() })
+            await expectToThrowUniqueConstraintViolationError(async () => {
+                await createTestTicketCommentsTime(admin, ticket, { lastCommentAt: faker.date.past() })
+            }, 'ticket_comments_time_unique_ticket')
         })
     })
 })
