@@ -20,8 +20,14 @@ export interface IUpdateIncidentForm {
 export const UpdateIncidentActionBar: React.FC<ComponentProps<BaseIncidentFormProps['ActionBar']>> = (props) => {
     const intl = useIntl()
     const UpdateLabel = intl.formatMessage({ id: 'incident.form.save.label' })
+    const CancelLabel = intl.formatMessage({ id: 'Cancel' })
 
     const { handleSave, isLoading } = props
+    const router = useRouter()
+    const incidentId = get(router, 'query.id')
+    const onCancel = useCallback(async () => {
+        incidentId && await router.push(`/incident/${incidentId}`)
+    }, [incidentId, router])
 
     return (
         <ActionBar
@@ -33,6 +39,13 @@ export const UpdateIncidentActionBar: React.FC<ComponentProps<BaseIncidentFormPr
                     onClick={handleSave}
                     disabled={isLoading}
                 />,
+                <Button
+                    key='cancel'
+                    onClick={onCancel}
+                    type='secondary'
+                >
+                    {CancelLabel}
+                </Button>,
             ]}
         />
     )
