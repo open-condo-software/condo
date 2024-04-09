@@ -55,7 +55,7 @@ const SendMessageToResidentScopesService = new GQLCustomSchema('SendMessageToRes
             type:   'input SendMessageToResidentScopesServiceInput { ' +
                         'dv: Int!, ' +
                         'sender: JSON!, ' +
-                        'type: SendMessageType!, ' +
+                        'type: MessageType!, ' +
                         'lang: SendMessageLang, ' +
                         'uniqKeyTemplate: String, ' +
                         'scopes: [ResidentScopesInput!]!, ' +

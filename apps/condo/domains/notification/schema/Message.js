@@ -9,6 +9,7 @@ const { LOCALES } = require('@condo/domains/common/constants/locale')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 const access = require('@condo/domains/notification/access/Message')
 const { MESSAGE_STATUSES, MESSAGE_SENDING_STATUS } = require('@condo/domains/notification/constants/constants')
+const { getMessageTypeField } = require('@condo/domains/notification/schema/fields/MessageType')
 
 const Message = new GQLListSchema('Message', {
     schemaDoc: 'Notification message',
@@ -71,11 +72,10 @@ const Message = new GQLListSchema('Message', {
             isRequired: true,
         },
 
-        type: {
-            schemaDoc: 'Message type',
-            type: 'Text',
+        type: getMessageTypeField({
             isRequired: true,
-        },
+            schemaDoc: 'Message type',
+        }),
 
         meta: {
             schemaDoc: 'Message context',

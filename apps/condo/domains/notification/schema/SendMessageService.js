@@ -108,11 +108,11 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
         },
         {
             access: true,
-            type: `enum SendMessageType { ${MESSAGE_TYPES.join(' ')} }`,
+            type: `enum MessageType { ${MESSAGE_TYPES.join(' ')} }`,
         },
         {
             access: true,
-            type: 'input SendMessageInput { dv: Int!, sender: SenderFieldInput!, to: SendMessageToInput!, emailFrom: String, type: SendMessageType!, lang: SendMessageLang!, meta: JSON!, organization: OrganizationWhereUniqueInput, uniqKey: String }',
+            type: 'input SendMessageInput { dv: Int!, sender: SenderFieldInput!, to: SendMessageToInput!, emailFrom: String, type: MessageType!, lang: SendMessageLang!, meta: JSON!, organization: OrganizationWhereUniqueInput, uniqKey: String }',
         },
         {
             access: true,
