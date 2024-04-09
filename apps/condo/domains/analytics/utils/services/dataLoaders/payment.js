@@ -16,7 +16,7 @@ class BillingResidentKnexLoader extends GqlToKnexBaseAdapter {
 
     async loadData () {
         const { keystone } = await getSchemaCtx(this.domainName)
-        const knex = keystone.adapter.knex
+        const knex = keystone.adapter.__databaseAdapters.default.knex
 
         const propertyIds = get(this.where, 'property.id_in', [])
 
@@ -55,7 +55,7 @@ class PaymentGqlKnexLoader extends GqlToKnexBaseAdapter {
     async loadData () {
         this.result = null
         const { keystone } = await getSchemaCtx(this.domainName)
-        const knex = keystone.adapter.knex
+        const knex = keystone.adapter.__databaseAdapters.default.knex
 
         this.extendAggregationWithFilter(this.aggregateBy)
 
