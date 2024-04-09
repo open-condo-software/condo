@@ -32,6 +32,7 @@ import { Alert, Space, Radio, RadioGroup } from '@open-condo/ui'
 import Input from '@condo/domains/common/components/antd/Input'
 import Select from '@condo/domains/common/components/antd/Select'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
+import { renderDeletedOption } from '@condo/domains/common/components/GraphQlSearchInput'
 import {
     GraphQlSearchInputWithCheckAll,
     InputWithCheckAllProps,
@@ -279,6 +280,7 @@ export const handleChangeDate: handleChangeDateType = (form, fieldName) => (valu
     form.setFieldValue(fieldName, value.set('seconds', 0).set('milliseconds', 0))
 }
 
+const getPropertyKey = (incidentProperty) => get(incidentProperty, 'property.id', `incident-property-${get(incidentProperty, 'id')}`)
 
 const INITIAL_VALUES = {} as BaseIncidentFormProps['initialValues']
 
@@ -333,7 +335,8 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const initialIncidentProperties = useMemo(() => get(initialValues, 'incidentProperties', []), [initialValues]) as IIncidentProperty[]
     const initialIncidentClassifiers = useMemo(() => get(initialValues, 'incidentClassifiers', []), [initialValues]) as IIncidentClassifierIncident[]
 
-    const initialPropertyIds = useMemo(() => initialIncidentProperties.map(item => get(item, 'property.id')), [initialIncidentProperties])
+    const initialPropertyIds = useMemo(() => initialIncidentProperties.map(item => get(item, 'property.id')).filter(Boolean), [initialIncidentProperties])
+    const initialPropertyIdsWithDeleted = useMemo(() => initialIncidentProperties.map(item => getPropertyKey(item)), [initialIncidentProperties])
     const initialClassifierIds = useMemo(() => initialIncidentClassifiers.map(item => get(item, 'classifier.id')), [initialIncidentClassifiers])
 
     const handleFormSubmit = useCallback(async (values) => {
@@ -341,7 +344,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
 
         const incident = await createOrUpdateIncident(incidentValues)
 
-        const addedPropertyIds = difference(properties, initialPropertyIds)
+        const addedPropertyIds = difference(properties, initialPropertyIdsWithDeleted)
         for (const propertyId of addedPropertyIds) {
             await createIncidentProperty({
                 property: { connect: { id: propertyId } },
@@ -349,9 +352,9 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
             })
         }
 
-        const deletedPropertyIds = difference(initialPropertyIds, properties)
+        const deletedPropertyIds = difference(initialPropertyIdsWithDeleted, properties)
         const incidentPropertyToDelete = initialIncidentProperties
-            .filter(incidentProperty => deletedPropertyIds.includes(incidentProperty.property.id))
+            .filter(incidentProperty => deletedPropertyIds.includes(getPropertyKey(incidentProperty)))
         for (const incidentProperty of incidentPropertyToDelete) {
             await softDeleteIncidentProperty(incidentProperty)
         }
@@ -389,7 +392,29 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
         } else {
             await router.push('/incident')
         }
-    }, [afterAction, createIncidentProperty, createIncidentClassifierIncident, createOrUpdateIncident, initialClassifierIds, initialIncidentClassifiers, initialIncidentProperties, initialPropertyIds, router, softDeleteIncidentProperty, softDeleteIncidentClassifierIncident])
+    }, [createOrUpdateIncident, initialPropertyIdsWithDeleted, initialIncidentProperties, initialClassifierIds, initialIncidentClassifiers, afterAction, createIncidentProperty, softDeleteIncidentProperty, createIncidentClassifierIncident, softDeleteIncidentClassifierIncident, router])
+
+    const renderPropertyOptions: InputWithCheckAllProps['selectProps']['renderOptions'] = useCallback((options, renderOption) => {
+        const deletedPropertyOptions = initialIncidentProperties.map((incidentProperty) => {
+            const property = {
+                id: getPropertyKey(incidentProperty),
+                address: get(incidentProperty, 'property.address', get(incidentProperty, 'propertyAddress', null)),
+                addressMeta: get(incidentProperty, 'property.addressMeta', get(incidentProperty, 'propertyAddressMeta', null)),
+                deletedAt: get(incidentProperty, 'property.deletedAt', true),
+            }
+            return {
+                value: property.id,
+                text: `${property.address}`,
+                data: { property },
+            }
+        }).filter((option) => !!get(option, 'data.property.deletedAt', false))
+
+        return [...deletedPropertyOptions, ...options]
+            .map((option) => get(option, 'data.property.deletedAt', false)
+                ? renderDeletedOption(intl, option)
+                : renderOption(option)
+            )
+    }, [initialIncidentProperties])
 
     const propertySelectProps: InputWithCheckAllProps['selectProps'] = useMemo(() => ({
         showArrow: false,
@@ -399,7 +424,8 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
         disabled: !organizationId,
         required: true,
         placeholder: SelectPlaceholder,
-    }), [initialPropertyIds, organizationId, SelectPlaceholder])
+        renderOptions: renderPropertyOptions,
+    }), [initialPropertyIds, organizationId, SelectPlaceholder, renderPropertyOptions])
 
     const propertySelectFormItemProps: InputWithCheckAllProps['selectFormItemProps'] = useMemo(() => ({
         label: PropertiesLabel,
@@ -411,9 +437,9 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const initialFormValues = useMemo(() => ({
         workType: null,
         ...initialValues,
-        properties: initialPropertyIds,
+        properties: initialPropertyIdsWithDeleted,
         classifiers: initialIncidentClassifiers,
-    }), [initialIncidentClassifiers, initialPropertyIds, initialValues])
+    }), [initialIncidentClassifiers, initialPropertyIdsWithDeleted, initialValues])
 
     const commonRules = useMemo(() => [requiredValidator], [requiredValidator])
     const detailsRules = useMemo(() => [{
