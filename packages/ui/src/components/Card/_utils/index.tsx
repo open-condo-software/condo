@@ -2,7 +2,8 @@ import React, { MouseEventHandler } from 'react'
 
 import { IconProps } from '@open-condo/icons'
 
-import { Space } from '../../Space'
+import { CARD_CLASS_PREFIX } from './constants'
+
 import { Typography } from '../../Typography'
 
 
@@ -21,31 +22,27 @@ export const renderLink = (linkProps: CardLinkType) => {
     const handleLinkClick: MouseEventHandler = e => e.stopPropagation()
     const target = openInNewTab ? '_bank' : '_self'
 
-    return (
-        <Space size={8} direction='horizontal' align='center'>
-            {PreIcon && <PreIcon size='small' />}
-            {
-                LinkWrapper ? (
-                    <LinkWrapper href={href}>
-                        <Typography.Link
-                            href={href}
-                            onClick={handleLinkClick}
-                            target={target}
-                        >
-                            {label}
-                        </Typography.Link>
-                    </LinkWrapper>
-                ) : (
-                    <Typography.Link
-                        href={href}
-                        onClick={handleLinkClick}
-                        target={target}
-                    >
-                        {label}
-                    </Typography.Link>
-                )
-            }
-            {AfterIcon && <AfterIcon size='small' />}
-        </Space>
+    const linkContent = (
+        <Typography.Link
+            href={href}
+            onClick={handleLinkClick}
+            target={target}
+        >
+            <div className={`${CARD_CLASS_PREFIX}-link-content`}>
+                {PreIcon && <PreIcon size='small' />}
+                {label}
+                {AfterIcon && <AfterIcon size='small' />}
+            </div>
+        </Typography.Link>
     )
+
+    if (LinkWrapper) {
+        return (
+            <LinkWrapper href={href}>
+                {linkContent}
+            </LinkWrapper>
+        )
+    }
+
+    return linkContent
 }
