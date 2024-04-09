@@ -1,3 +1,5 @@
+const get = require('lodash/get')
+
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, getByCondition } = require('@open-condo/keystone/schema')
 
@@ -5,8 +7,13 @@ const { REQUIRED, UNKNOWN_ATTRIBUTE, WRONG_VALUE, DV_VERSION_MISMATCH } = requir
 const { LOCALES } = require('@condo/domains/common/constants/locale')
 const access = require('@condo/domains/notification/access/SendMessageService')
 const {
-    MESSAGE_TYPES, MESSAGE_META,
-    MESSAGE_SENDING_STATUS, MESSAGE_RESENDING_STATUS,
+    MESSAGE_TYPES,
+    MESSAGE_META,
+    MESSAGE_SENDING_STATUS,
+    MESSAGE_RESENDING_STATUS,
+    MESSAGE_DELIVERY_OPTIONS,
+    MESSAGE_DELIVERY_DEFAULT_PRIORITY,
+    MESSAGE_DELIVERY_PRIORITY_TO_TASK_QUEUE_MAP,
 } = require('@condo/domains/notification/constants/constants')
 const { deliverMessage } = require('@condo/domains/notification/tasks')
 const { Message } = require('@condo/domains/notification/utils/serverSchema')
@@ -76,6 +83,19 @@ async function checkSendMessageMeta (type, meta, context) {
     }
 }
 
+/**
+ * Gets condo tasks queue on which to start message delivery
+ * @param {string} type Message type
+ * @returns {'medium' | 'high' | 'low'} condo task queue
+ */
+function getMessageQueue ({ type }) {
+    // TODO(VKislov): separate queue for VoIP here?
+    const defaultQueue = MESSAGE_DELIVERY_PRIORITY_TO_TASK_QUEUE_MAP[MESSAGE_DELIVERY_DEFAULT_PRIORITY]
+    const messagePriority = get(MESSAGE_DELIVERY_OPTIONS, [type, 'priority'], MESSAGE_DELIVERY_DEFAULT_PRIORITY)
+
+    return get(MESSAGE_DELIVERY_PRIORITY_TO_TASK_QUEUE_MAP, messagePriority, defaultQueue)
+}
+
 const SendMessageService = new GQLCustomSchema('SendMessageService', {
     types: [
         {
@@ -100,7 +120,7 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
         },
         {
             access: true,
-            type: 'input ResendMessageInput { dv: Int!, sender: SenderFieldInput!, message: MessageWhereUniqueInput }',
+            type: 'input ResendMessageInput { dv: Int!, sender: SenderFieldInput!, message: MessageWhereUniqueInput! }',
         },
         {
             access: true,
@@ -152,7 +172,7 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
                     ? messageWithSameUniqKey
                     : await Message.create(context, messageAttrs)
 
-                if (!messageWithSameUniqKey) await deliverMessage.delay(message.id)
+                if (!messageWithSameUniqKey) await deliverMessage.applyAsync([message.id], getMessageQueue({ type }))
 
                 return {
                     isDuplicateMessage: !!messageWithSameUniqKey,
@@ -176,7 +196,7 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
                     readAt: null,
                 })
 
-                await deliverMessage.delay(message.id)
+                await deliverMessage.applyAsync([message.id], getMessageQueue({ type: message.type }))
 
                 return {
                     id: message.id,

@@ -71607,7 +71607,7 @@ export type ResendConfirmPhoneActionSmsOutput = {
 export type ResendMessageInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
-  message?: Maybe<MessageWhereUniqueInput>;
+  message: MessageWhereUniqueInput;
 };
 
 export type ResendMessageOutput = {

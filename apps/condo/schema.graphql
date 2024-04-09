@@ -74205,7 +74205,7 @@ type SendMessageOutput {
 input ResendMessageInput {
   dv: Int!
   sender: SenderFieldInput!
-  message: MessageWhereUniqueInput
+  message: MessageWhereUniqueInput!
 }
 
 type ResendMessageOutput {
