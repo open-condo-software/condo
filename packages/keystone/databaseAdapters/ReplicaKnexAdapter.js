@@ -11,6 +11,8 @@ class ReplicaKnexAdapter extends KnexAdapter {
     async _connect () {
         this.knex = knex({
             client: 'postgres',
+            pool: { min: 0, max: 1 },
+            connection: process.env.DATABASE_MASTER,
         })
 
         this.knexMaster = knex({
@@ -31,7 +33,12 @@ class ReplicaKnexAdapter extends KnexAdapter {
 
         const checkUseMasterSingle = (object) => {
             // if object.method equals "insert", "del" or "update" then use master endpoint
-            return ['insert', 'del', 'update'].includes(object.method)
+            if (object.method !== undefined) {
+                return ['insert', 'del', 'update'].includes(object.method)
+            }
+
+            // try to parse sql
+            return ['create'].some(sub => object.sql.includes(sub))
 
             /** As a bonus (I will not provide code since it's still very poorly done on my side and kind of weird...)
              * But here you can also parse the sql query in object.sql
@@ -112,6 +119,7 @@ class ReplicaKnexAdapter extends KnexAdapter {
     disconnect () {
         this.knexMaster.destroy()
         this.knexRead.destroy()
+        this.knex.destroy()
     }
 }
 

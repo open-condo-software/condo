@@ -23,7 +23,7 @@ class ReceiptGqlKnexLoader extends GqlToKnexBaseAdapter {
         this.result = null
 
         const { keystone } = await getSchemaCtx(this.domainName)
-        const knex = keystone.adapter.knex
+        const knex = keystone.adapter.__databaseAdapters.default.knex
 
         this.whereIn = {}
 

@@ -93,7 +93,7 @@ class GqlWithKnexLoadList {
     async initContext () {
         const { keystone: modelAdapter } = await getSchemaCtx(this.listKey)
         this.keystone = modelAdapter
-        this.knex = modelAdapter.adapter.knex
+        this.knex = modelAdapter.adapter.__databaseAdapters.default.knex
     }
 
     // Takes rawAggregate SQL function and apply it on all objects with id from ids

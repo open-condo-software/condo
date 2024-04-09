@@ -14,7 +14,7 @@ class IncidentPropertyGqlKnexLoader extends GqlToKnexBaseAdapter {
 
     async loadData () {
         const { keystone } = await getSchemaCtx(this.domainName)
-        const knex = keystone.adapter.knex
+        const knex = keystone.adapter.__databaseAdapters.default.knex
 
 
         const propertyFilter = get(find(this.where, 'property', {}), 'property.id_in', [])
