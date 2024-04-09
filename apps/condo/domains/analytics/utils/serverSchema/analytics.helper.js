@@ -47,7 +47,7 @@ class TicketGqlToKnexAdapter extends GqlToKnexBaseAdapter {
     async loadData () {
         this.result = null
         const { keystone } = await getSchemaCtx(this.domainName)
-        const knex = keystone.adapter.knex
+        const knex = keystone.adapter.__databaseAdapters.default.knex
 
         this.whereIn = Object.fromEntries(this.whereIn)
         // create whereIn structure [['property_id', 'user_id'], [['some_property_id', 'some_user_id'], ...]]
