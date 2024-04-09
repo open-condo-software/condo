@@ -112,7 +112,12 @@ export const getRenderProperties: GetRenderPropertiesType = (intl, search, incid
 
     const properties = incidentProperties
         .filter(item => get(item, 'incident.id') === incident.id)
-        .map(item => item.property)
+        .map(item => ({
+            id: get(item, 'property.id', null),
+            address: get(item, 'property.address', get(item, 'propertyAddress', null)),
+            addressMeta: get(item, 'property.addressMeta', get(item, 'propertyAddressMeta', null)),
+            deletedAt: get(item, 'property.deletedAt', true),
+        }))
 
     return getOneAddressAndPropertiesCountRender(search)(intl, properties)
 }

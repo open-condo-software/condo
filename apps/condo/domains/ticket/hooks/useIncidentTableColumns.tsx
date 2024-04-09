@@ -68,11 +68,10 @@ export const useIncidentRelatedData: UseIncidentRelatedDataType = (incidents) =>
 
         const response = await refetchIncidentProperty({
             where: {
-                incident: { id_in: incidentIds, deletedAt: null },
-                deletedAt: null,
+                incident: { id_in: incidentIds },
             },
         })
-        return { incidentProperties: response.data.objs }
+        return { incidentProperties: get(response, 'data.objs', []) }
     }, [])
 
     const getIncidentClassifierIncidents = useCallback(async (incidentIds: string[]) => {
@@ -82,11 +81,10 @@ export const useIncidentRelatedData: UseIncidentRelatedDataType = (incidents) =>
 
         const response = await refetchIncidentClassifierIncident({
             where: {
-                incident: { id_in: incidentIds, deletedAt: null },
-                deletedAt: null,
+                incident: { id_in: incidentIds },
             },
         })
-        return { incidentClassifiers: response.data.objs }
+        return { incidentClassifiers: get(response, 'data.objs', []) }
     }, [])
 
     const getPropertiesAndClassifiers = useCallback(async (incidentIds: string[]) => {

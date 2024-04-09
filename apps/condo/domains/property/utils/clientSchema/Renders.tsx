@@ -2,6 +2,7 @@ import { Property } from '@app/condo/schema'
 import { Typography } from 'antd'
 import { FilterValue } from 'antd/es/table/interface'
 import { TextProps } from 'antd/es/typography/Text'
+import get from 'lodash/get'
 import isArray from 'lodash/isArray'
 import isEmpty from 'lodash/isEmpty'
 import isInteger from 'lodash/isInteger'
@@ -16,8 +17,13 @@ export const getAddressCellRender = (property: Property, DeletedMessage?: string
     const { postfix, extraProps, text } = getPropertyAddressParts(property, DeletedMessage)
 
     if (shortAddress) {
+        const isDeleted = !!get(property,  'deletedAt')
         const addressWithoutComma = text.substring(0, text.length - 1)
-        return getTableCellRenderer({ search, extraPostfixProps: ADDRESS_RENDER_POSTFIX_PROPS })(addressWithoutComma)
+        return getTableCellRenderer({
+            search,
+            extraPostfixProps: ADDRESS_RENDER_POSTFIX_PROPS,
+            postfix: (isDeleted && DeletedMessage) ? `(${DeletedMessage})` : '',
+        })(addressWithoutComma)
     }
 
     return getTableCellRenderer({ search, postfix, extraHighlighterProps: extraProps, extraPostfixProps: ADDRESS_RENDER_POSTFIX_PROPS })(text)

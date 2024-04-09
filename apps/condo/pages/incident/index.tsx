@@ -173,7 +173,6 @@ const useIncidentsSearch = ({ baseQuery, filterMetas }) => {
 
     const incidentWhere = useMemo(() => ({
         ...filtersToWhere(filters),
-        deletedAt: null,
     }), [filters, filtersToWhere])
 
     const getWhereByAddress = useCallback(async (search?: string) => {
@@ -190,7 +189,6 @@ const useIncidentsSearch = ({ baseQuery, filterMetas }) => {
             where: {
                 ...baseQuery,
                 ...propertyWhere.property,
-                deletedAt: null,
             },
         })
 
@@ -201,7 +199,6 @@ const useIncidentsSearch = ({ baseQuery, filterMetas }) => {
         const { data: { objs: foundedIncidentProperties } } = await incidentProperties.refetch({
             where: {
                 property: { id_in: foundedProperties.map(item => item.id) },
-                deletedAt: null,
             },
         })
 
@@ -403,7 +400,7 @@ export const IncidentsPageContent: React.FC<IncidentsPageContentProps> = (props)
     )
 }
 
-const IncidentsPage: IIncidentIndexPage = (props) => {
+const IncidentsPage: IIncidentIndexPage = () => {
     const filterMetas = useIncidentTableFilters()
     const { organization } = useOrganization()
     const organizationId = get(organization, 'id')
