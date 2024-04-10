@@ -24,19 +24,7 @@ const canReadByServiceUser = async ({ authentication: { item: user }, args, list
 
     const B2BAppContexts = await find('B2BAppContext', {
         organization: { deletedAt: null },
-        app: {
-            accessRights_some: {
-                accessRightSet: {
-                    [`canRead${pluralize.plural(listKey)}`]: true,
-                    deletedAt: null,
-                },
-                user: { id: user.id, type: 'service', deletedAt: null },
-                deletedAt: null,
-            },
-            deletedAt: null,
-        },
-        status: 'Finished',
-        deletedAt: null,
+        ...buildB2BAppContextCommonConditions(user, { [`canRead${pluralize.plural(listKey)}`]: true }),
     })
 
     const organizationIds = B2BAppContexts.map(ctx => ctx.organization)
@@ -114,19 +102,7 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
 
     const B2BAppContexts = await find('B2BAppContext', {
         organization: { id: organizationId, deletedAt: null },
-        app: {
-            accessRights_some: {
-                accessRightSet: {
-                    [`canManage${pluralize.plural(listKey)}`]: true,
-                    deletedAt: null,
-                },
-                user: { id: user.id, type: 'service', deletedAt: null },
-                deletedAt: null,
-            },
-            deletedAt: null,
-        },
-        status: 'Finished',
-        deletedAt: null,
+        ...buildB2BAppContextCommonConditions(user, { [`canManage${pluralize.plural(listKey)}`]: true }),
     })
 
     return !isEmpty(B2BAppContexts)
@@ -149,23 +125,32 @@ const canExecuteByServiceUser = async (params, serviceConfig) => {
 
     const B2BAppContexts = await find('B2BAppContext', {
         organization: { id: organizationId, deletedAt: null },
-        app: {
-            accessRights_some: {
-                accessRightSet: {
-                    [`canExecute${upperFirst(fieldName)}`]: true,
-                    deletedAt: null,
-                },
-                user: { id: user.id, type: 'service', deletedAt: null },
-                deletedAt: null,
-            },
-            deletedAt: null,
-        },
-        status: 'Finished',
-        deletedAt: null,
+        ...buildB2BAppContextCommonConditions(user, { [`canExecute${upperFirst(gqlName)}`]: true }),
     })
 
     return !isEmpty(B2BAppContexts)
 }
+
+/**
+ * @param {User} user
+ * @param {Partial<B2BAppAccessRightSet>} accessRightsSet - the only canRead*, canManage*, canExecute* fields
+ * @return {Object}
+ */
+const buildB2BAppContextCommonConditions = (user, accessRightsSet) => ({
+    app: {
+        accessRights_some: {
+            accessRightSet: {
+                ...accessRightsSet,
+                deletedAt: null,
+            },
+            user: { id: user.id, type: 'service', deletedAt: null },
+            deletedAt: null,
+        },
+        deletedAt: null,
+    },
+    status: 'Finished',
+    deletedAt: null,
+})
 
 const isServiceUser = ({ authentication: { item: user } }) => {
     return get(user, 'type') === SERVICE
