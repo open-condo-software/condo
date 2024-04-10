@@ -41696,7 +41696,7 @@ export type Mutation = {
    * }`
    */
   _internalDeleteMeterReadings?: Maybe<_InternalDeleteMeterReadingsOutput>;
-  registerMetersReadings?: Maybe<RegisterMetersReadingsOutput>;
+  registerMetersReadings?: Maybe<Array<Maybe<MeterReading>>>;
   registerMultiPayment?: Maybe<RegisterMultiPaymentOutput>;
   registerMultiPaymentForOneReceipt?: Maybe<RegisterMultiPaymentForOneReceiptOutput>;
   registerMultiPaymentForVirtualReceipt?: Maybe<RegisterMultiPaymentForOneReceiptOutput>;
@@ -70476,50 +70476,16 @@ export type RegisterBillingReceiptsInput = {
   receipts: Array<RegisterBillingReceiptInput>;
 };
 
-export type RegisterMetersItemAccountMetaInput = {
-  globalId?: Maybe<Scalars['String']>;
-  clientName?: Maybe<Scalars['String']>;
+export type RegisterMetersReadingsInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  organization: OrganizationWhereUniqueInput;
+  readings: Array<RegisterMetersReadingsReadingInput>;
 };
 
-export type RegisterMetersItemAddressMetaInput = {
-  unitType?: Maybe<Scalars['String']>;
-  unitName?: Maybe<Scalars['String']>;
-  globalId?: Maybe<Scalars['String']>;
-};
-
-export type RegisterMetersItemInput = {
-  address: Scalars['String'];
-  addressMeta?: Maybe<RegisterMetersItemAddressMetaInput>;
-  accountNumber: Scalars['String'];
-  accountMeta?: Maybe<RegisterMetersItemAccountMetaInput>;
-  meters: Array<RegisterMetersMeterInput>;
-};
-
-export type RegisterMetersItemOutput = {
-  __typename?: 'RegisterMetersItemOutput';
-  address: Scalars['String'];
-  accountNumber: Scalars['String'];
-  result: RegisterMetersItemResultOutput;
-};
-
-export type RegisterMetersItemResultErroneousOutput = {
-  __typename?: 'RegisterMetersItemResultErroneousOutput';
-  message: Scalars['String'];
-};
-
-export type RegisterMetersItemResultOutput = {
-  __typename?: 'RegisterMetersItemResultOutput';
-  error?: Maybe<RegisterMetersItemResultErroneousOutput>;
-  data?: Maybe<RegisterMetersItemResultSuccessOutput>;
-};
-
-export type RegisterMetersItemResultSuccessOutput = {
-  __typename?: 'RegisterMetersItemResultSuccessOutput';
-  propertyId: Scalars['ID'];
-  meters: Array<RegisterMetersMeterOutput>;
-};
-
-export type RegisterMetersMeterDatesInput = {
+export type RegisterMetersReadingsMeterMetaInput = {
+  numberOfTariffs?: Maybe<Scalars['Int']>;
+  place?: Maybe<Scalars['String']>;
   verificationDate?: Maybe<Scalars['String']>;
   nextVerificationDate?: Maybe<Scalars['String']>;
   installationDate?: Maybe<Scalars['String']>;
@@ -70528,81 +70494,24 @@ export type RegisterMetersMeterDatesInput = {
   controlReadingsDate?: Maybe<Scalars['String']>;
 };
 
-export type RegisterMetersMeterInput = {
-  number: Scalars['String'];
-  resourceTypeId?: Maybe<Scalars['ID']>;
-  numberOfTariffs?: Maybe<Scalars['Int']>;
-  place?: Maybe<Scalars['String']>;
-  readings?: Maybe<Array<RegisterMetersMeterReadingInput>>;
-  dates?: Maybe<RegisterMetersMeterDatesInput>;
+export type RegisterMetersReadingsReadingAddressMetaInput = {
+  unitType?: Maybe<Scalars['String']>;
+  unitName?: Maybe<Scalars['String']>;
+  globalId?: Maybe<Scalars['String']>;
 };
 
-export type RegisterMetersMeterOutput = {
-  __typename?: 'RegisterMetersMeterOutput';
-  number: Scalars['String'];
-  result: RegisterMetersMeterResultOutput;
-};
-
-export type RegisterMetersMeterReadingInput = {
+export type RegisterMetersReadingsReadingInput = {
+  address: Scalars['String'];
+  addressMeta?: Maybe<RegisterMetersReadingsReadingAddressMetaInput>;
+  accountNumber: Scalars['String'];
+  meterNumber: Scalars['String'];
+  meterResource: MeterResourceWhereUniqueInput;
   date: Scalars['String'];
-  v1: Scalars['String'];
-  v2?: Maybe<Scalars['String']>;
-  v3?: Maybe<Scalars['String']>;
-  v4?: Maybe<Scalars['String']>;
-};
-
-export type RegisterMetersMeterReadingOutput = {
-  __typename?: 'RegisterMetersMeterReadingOutput';
-  v1: Scalars['String'];
-  v2?: Maybe<Scalars['String']>;
-  v3?: Maybe<Scalars['String']>;
-  v4?: Maybe<Scalars['String']>;
-  result?: Maybe<RegisterMetersMeterReadingResultOutput>;
-};
-
-export type RegisterMetersMeterReadingResultErroneousOutput = {
-  __typename?: 'RegisterMetersMeterReadingResultErroneousOutput';
-  message: Scalars['String'];
-};
-
-export type RegisterMetersMeterReadingResultOutput = {
-  __typename?: 'RegisterMetersMeterReadingResultOutput';
-  error?: Maybe<RegisterMetersMeterReadingResultErroneousOutput>;
-  data?: Maybe<RegisterMetersMeterReadingResultSuccessOutput>;
-};
-
-export type RegisterMetersMeterReadingResultSuccessOutput = {
-  __typename?: 'RegisterMetersMeterReadingResultSuccessOutput';
-  id: Scalars['ID'];
-};
-
-export type RegisterMetersMeterResultErroneousOutput = {
-  __typename?: 'RegisterMetersMeterResultErroneousOutput';
-  message: Scalars['String'];
-};
-
-export type RegisterMetersMeterResultOutput = {
-  __typename?: 'RegisterMetersMeterResultOutput';
-  error?: Maybe<RegisterMetersMeterResultErroneousOutput>;
-  data?: Maybe<RegisterMetersMeterResultSuccessOutput>;
-};
-
-export type RegisterMetersMeterResultSuccessOutput = {
-  __typename?: 'RegisterMetersMeterResultSuccessOutput';
-  id: Scalars['ID'];
-  readings: Array<RegisterMetersMeterReadingOutput>;
-};
-
-export type RegisterMetersReadingsInput = {
-  dv: Scalars['Int'];
-  sender: Scalars['JSON'];
-  organization: OrganizationWhereUniqueInput;
-  items: Array<RegisterMetersItemInput>;
-};
-
-export type RegisterMetersReadingsOutput = {
-  __typename?: 'RegisterMetersReadingsOutput';
-  items: Array<RegisterMetersItemOutput>;
+  value1: Scalars['String'];
+  value2?: Maybe<Scalars['String']>;
+  value3?: Maybe<Scalars['String']>;
+  value4?: Maybe<Scalars['String']>;
+  meterMeta?: Maybe<RegisterMetersReadingsMeterMetaInput>;
 };
 
 export type RegisterMultiPaymentForInvoicesInput = {

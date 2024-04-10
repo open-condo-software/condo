@@ -74145,15 +74145,9 @@ type ExportPropertyMeterReadingsOutput {
   linkToFile: String!
 }
 
-input RegisterMetersMeterReadingInput {
-  date: String!
-  v1: String!
-  v2: String
-  v3: String
-  v4: String
-}
-
-input RegisterMetersMeterDatesInput {
+input RegisterMetersReadingsMeterMetaInput {
+  numberOfTariffs: Int
+  place: String
   verificationDate: String
   nextVerificationDate: String
   installationDate: String
@@ -74162,103 +74156,31 @@ input RegisterMetersMeterDatesInput {
   controlReadingsDate: String
 }
 
-input RegisterMetersMeterInput {
-  number: String!
-  resourceTypeId: ID
-  numberOfTariffs: Int
-  place: String
-  readings: [RegisterMetersMeterReadingInput!]
-  dates: RegisterMetersMeterDatesInput
-}
-
-input RegisterMetersItemAddressMetaInput {
+input RegisterMetersReadingsReadingAddressMetaInput {
   unitType: String
   unitName: String
   globalId: String
 }
 
-input RegisterMetersItemAccountMetaInput {
-  globalId: String
-  clientName: String
-}
-
-input RegisterMetersItemInput {
+input RegisterMetersReadingsReadingInput {
   address: String!
-  addressMeta: RegisterMetersItemAddressMetaInput
+  addressMeta: RegisterMetersReadingsReadingAddressMetaInput
   accountNumber: String!
-  accountMeta: RegisterMetersItemAccountMetaInput
-  meters: [RegisterMetersMeterInput!]!
+  meterNumber: String!
+  meterResource: MeterResourceWhereUniqueInput!
+  date: String!
+  value1: String!
+  value2: String
+  value3: String
+  value4: String
+  meterMeta: RegisterMetersReadingsMeterMetaInput
 }
 
 input RegisterMetersReadingsInput {
   dv: Int!
-  sender: JSON!
+  sender: SenderFieldInput!
   organization: OrganizationWhereUniqueInput!
-  items: [RegisterMetersItemInput!]!
-}
-
-type RegisterMetersMeterReadingResultSuccessOutput {
-  id: ID!
-}
-
-type RegisterMetersMeterReadingResultErroneousOutput {
-  message: String!
-}
-
-type RegisterMetersMeterReadingResultOutput {
-  error: RegisterMetersMeterReadingResultErroneousOutput
-  data: RegisterMetersMeterReadingResultSuccessOutput
-}
-
-type RegisterMetersMeterReadingOutput {
-  v1: String!
-  v2: String
-  v3: String
-  v4: String
-  result: RegisterMetersMeterReadingResultOutput
-}
-
-type RegisterMetersMeterResultSuccessOutput {
-  id: ID!
-  readings: [RegisterMetersMeterReadingOutput!]!
-}
-
-type RegisterMetersMeterResultErroneousOutput {
-  message: String!
-}
-
-type RegisterMetersMeterResultOutput {
-  error: RegisterMetersMeterResultErroneousOutput
-  data: RegisterMetersMeterResultSuccessOutput
-}
-
-type RegisterMetersMeterOutput {
-  number: String!
-  result: RegisterMetersMeterResultOutput!
-}
-
-type RegisterMetersItemResultSuccessOutput {
-  propertyId: ID!
-  meters: [RegisterMetersMeterOutput!]!
-}
-
-type RegisterMetersItemResultErroneousOutput {
-  message: String!
-}
-
-type RegisterMetersItemResultOutput {
-  error: RegisterMetersItemResultErroneousOutput
-  data: RegisterMetersItemResultSuccessOutput
-}
-
-type RegisterMetersItemOutput {
-  address: String!
-  accountNumber: String!
-  result: RegisterMetersItemResultOutput!
-}
-
-type RegisterMetersReadingsOutput {
-  items: [RegisterMetersItemOutput!]!
+  readings: [RegisterMetersReadingsReadingInput!]!
 }
 
 input RegisterMultiPaymentServiceConsumerInput {
@@ -86158,7 +86080,7 @@ type Mutation {
   }`
   """
   _internalDeleteMeterReadings(data: _internalDeleteMeterReadingsInput!): _internalDeleteMeterReadingsOutput
-  registerMetersReadings(data: RegisterMetersReadingsInput!): RegisterMetersReadingsOutput
+  registerMetersReadings(data: RegisterMetersReadingsInput!): [MeterReading]
   registerMultiPayment(data: RegisterMultiPaymentInput!): RegisterMultiPaymentOutput
   registerMultiPaymentForOneReceipt(data: RegisterMultiPaymentForOneReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
   registerMultiPaymentForVirtualReceipt(data: RegisterMultiPaymentForVirtualReceiptInput!): RegisterMultiPaymentForOneReceiptOutput

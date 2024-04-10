@@ -33,95 +33,28 @@ function toISO (str) {
 
 const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReadingsService', {
     types: [
-        // IN
         {
             access: true,
-            type: 'input RegisterMetersMeterReadingInput { date: String!, v1: String!, v2: String, v3: String, v4: String }',
+            type: 'input RegisterMetersReadingsMeterMetaInput { numberOfTariffs: Int, place: String, verificationDate: String, nextVerificationDate: String, installationDate: String, commissioningDate: String, sealingDate: String, controlReadingsDate: String }',
         },
         {
             access: true,
-            type: 'input RegisterMetersMeterDatesInput { verificationDate: String, nextVerificationDate: String, installationDate: String, commissioningDate: String, sealingDate: String, controlReadingsDate: String }',
+            type: 'input RegisterMetersReadingsReadingAddressMetaInput { unitType: String, unitName: String, globalId: String }',
         },
         {
             access: true,
-            type: 'input RegisterMetersMeterInput { number: String!, resourceTypeId: ID, numberOfTariffs: Int, place: String, readings: [RegisterMetersMeterReadingInput!], dates: RegisterMetersMeterDatesInput }',
+            type: 'input RegisterMetersReadingsReadingInput { address: String!, addressMeta: RegisterMetersReadingsReadingAddressMetaInput, accountNumber: String!, meterNumber: String!, meterResource: MeterResourceWhereUniqueInput!, date: String!, value1: String!, value2: String, value3: String, value4: String, meterMeta: RegisterMetersReadingsMeterMetaInput }',
         },
         {
             access: true,
-            type: 'input RegisterMetersItemAddressMetaInput { unitType: String, unitName: String, globalId: String }',
-        },
-        {
-            access: true,
-            type: 'input RegisterMetersItemAccountMetaInput { globalId: String, clientName: String }',
-        },
-        {
-            access: true,
-            type: 'input RegisterMetersItemInput { address: String!, addressMeta: RegisterMetersItemAddressMetaInput, accountNumber: String!, accountMeta: RegisterMetersItemAccountMetaInput, meters: [RegisterMetersMeterInput!]! }',
-        },
-        {
-            access: true,
-            type: 'input RegisterMetersReadingsInput { dv: Int!, sender: JSON!, organization: OrganizationWhereUniqueInput!, items: [RegisterMetersItemInput!]! }',
-        },
-
-        // OUT
-        {
-            access: true,
-            type: 'type RegisterMetersMeterReadingResultSuccessOutput { id: ID! }',
-        },
-        {
-            access: true,
-            type: 'type RegisterMetersMeterReadingResultErroneousOutput { message: String! }',
-        },
-        {
-            access: true,
-            type: 'type RegisterMetersMeterReadingResultOutput { error: RegisterMetersMeterReadingResultErroneousOutput, data: RegisterMetersMeterReadingResultSuccessOutput }',
-        },
-        {
-            access: true,
-            type: 'type RegisterMetersMeterReadingOutput { v1: String!, v2: String, v3: String, v4: String, result: RegisterMetersMeterReadingResultOutput }',
-        },
-        {
-            access: true,
-            type: 'type RegisterMetersMeterResultSuccessOutput { id: ID!, readings: [RegisterMetersMeterReadingOutput!]! }',
-        },
-        {
-            access: true,
-            type: 'type RegisterMetersMeterResultErroneousOutput { message: String! }',
-        },
-        {
-            access: true,
-            type: 'type RegisterMetersMeterResultOutput { error: RegisterMetersMeterResultErroneousOutput, data: RegisterMetersMeterResultSuccessOutput }',
-        },
-        {
-            access: true,
-            type: 'type RegisterMetersMeterOutput { number: String!, result: RegisterMetersMeterResultOutput! }',
-        },
-        {
-            access: true,
-            type: 'type RegisterMetersItemResultSuccessOutput { propertyId: ID!, meters: [RegisterMetersMeterOutput!]! }',
-        },
-        {
-            access: true,
-            type: 'type RegisterMetersItemResultErroneousOutput { message: String! }',
-        },
-        {
-            access: true,
-            type: 'type RegisterMetersItemResultOutput { error: RegisterMetersItemResultErroneousOutput, data: RegisterMetersItemResultSuccessOutput }',
-        },
-        {
-            access: true,
-            type: 'type RegisterMetersItemOutput { address: String!, accountNumber: String!, result: RegisterMetersItemResultOutput! }',
-        },
-        {
-            access: true,
-            type: 'type RegisterMetersReadingsOutput { items: [RegisterMetersItemOutput!]! }',
+            type: 'input RegisterMetersReadingsInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, readings: [RegisterMetersReadingsReadingInput!]! }',
         },
     ],
 
     mutations: [
         {
             access: access.canRegisterMetersReadings,
-            schema: 'registerMetersReadings(data: RegisterMetersReadingsInput!): RegisterMetersReadingsOutput',
+            schema: 'registerMetersReadings(data: RegisterMetersReadingsInput!): [MeterReading]',
             resolver: async (parent, /**{ data: RegisterMetersReadingsInput }*/args, context) => {
                 const { data: { dv, sender, organization, items } } = args
 
