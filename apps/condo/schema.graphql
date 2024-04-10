@@ -74190,7 +74190,7 @@ input RegisterMetersItemInput {
   meters: [RegisterMetersMeterInput!]!
 }
 
-input RegisterMetersInput {
+input RegisterMetersReadingsInput {
   dv: Int!
   sender: JSON!
   organization: OrganizationWhereUniqueInput!
@@ -74257,7 +74257,7 @@ type RegisterMetersItemOutput {
   result: RegisterMetersItemResultOutput!
 }
 
-type RegisterMetersOutput {
+type RegisterMetersReadingsOutput {
   items: [RegisterMetersItemOutput!]!
 }
 
@@ -86158,7 +86158,7 @@ type Mutation {
   }`
   """
   _internalDeleteMeterReadings(data: _internalDeleteMeterReadingsInput!): _internalDeleteMeterReadingsOutput
-  registerMeters(data: RegisterMetersInput!): RegisterMetersOutput
+  registerMetersReadings(data: RegisterMetersReadingsInput!): RegisterMetersReadingsOutput
   registerMultiPayment(data: RegisterMultiPaymentInput!): RegisterMultiPaymentOutput
   registerMultiPaymentForOneReceipt(data: RegisterMultiPaymentForOneReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
   registerMultiPaymentForVirtualReceipt(data: RegisterMultiPaymentForVirtualReceiptInput!): RegisterMultiPaymentForOneReceiptOutput

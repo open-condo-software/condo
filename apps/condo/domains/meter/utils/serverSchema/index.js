@@ -19,7 +19,7 @@ const { PropertyMeter: PropertyMeterGQL } = require('@condo/domains/meter/gql')
 const { PropertyMeterReading: PropertyMeterReadingGQL } = require('@condo/domains/meter/gql')
 const { MeterReportingPeriod: MeterReportingPeriodGQL } = require('@condo/domains/meter/gql')
 const { MeterResourceOwner: MeterResourceOwnerGQL } = require('@condo/domains/meter/gql')
-const { REGISTER_METERS_MUTATION } = require('@condo/domains/meter/gql')
+const { REGISTER_METERS_READINGS_MUTATION } = require('@condo/domains/meter/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateServerUtils(MeterResourceGQL)
@@ -31,15 +31,15 @@ const PropertyMeter = generateServerUtils(PropertyMeterGQL)
 const PropertyMeterReading = generateServerUtils(PropertyMeterReadingGQL)
 const MeterReportingPeriod = generateServerUtils(MeterReportingPeriodGQL)
 const MeterResourceOwner = generateServerUtils(MeterResourceOwnerGQL)
-async function registerMeters (context, data) {
+async function registerMetersReadings (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
 
     return await execGqlWithoutAccess(context, {
-        query: REGISTER_METERS_MUTATION,
+        query: REGISTER_METERS_READINGS_MUTATION,
         variables: { data: { dv: 1, ...data } },
-        errorMessage: '[error] Unable to registerMeters',
+        errorMessage: '[error] Unable to registerMetersReadings',
         dataPath: 'obj',
     })
 }
@@ -235,6 +235,6 @@ module.exports = {
     PropertyMeterReading,
     MeterReportingPeriod,
     MeterResourceOwner,
-    registerMeters,
+    registerMetersReadings,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

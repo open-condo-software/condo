@@ -64,9 +64,9 @@ const EXPORT_PROPERTY_METER_READINGS_QUERY = gql`
     }
 `
 
-const REGISTER_METERS_MUTATION = gql`
-    mutation registerMeters ($data: RegisterMetersInput!) {
-        result: registerMeters(data: $data) {
+const REGISTER_METERS_READINGS_MUTATION = gql`
+    mutation registerMetersReadings ($data: RegisterMetersReadingsInput!) {
+        result: registerMetersReadings(data: $data) {
             items {
                 address
                 accountNumber
@@ -116,7 +116,7 @@ module.exports = {
     MeterResourceOwner,
     INTERNAL_DELETE_METER_READINGS_MUTATION,
     EXPORT_PROPERTY_METER_READINGS_QUERY,
-    REGISTER_METERS_MUTATION,
+    REGISTER_METERS_READINGS_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 

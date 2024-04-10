@@ -22,7 +22,7 @@ const { MeterReportingPeriod: MeterReportingPeriodGQL } = require('@condo/domain
 const { MeterResourceOwner: MeterResourceOwnerGQL } = require('@condo/domains/meter/gql')
 const { EXPORT_PROPERTY_METER_READINGS_QUERY } = require('@condo/domains/meter/gql')
 const { INTERNAL_DELETE_METER_READINGS_MUTATION } = require('@condo/domains/meter/gql')
-const { REGISTER_METERS_MUTATION } = require('@condo/domains/meter/gql')
+const { REGISTER_METERS_READINGS_MUTATION } = require('@condo/domains/meter/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateGQLTestUtils(MeterResourceGQL)
@@ -405,7 +405,7 @@ async function exportPropertyMeterReadingsByTestClient(client, extraAttrs = {}) 
     return [data.result, attrs]
 }
 
-async function registerMetersByTestClient(client, organization, items, extraAttrs = {}) {
+async function registerMetersReadingsByTestClient(client, organization, items, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization.id')
     if (!items) throw new Error('no items')
@@ -420,7 +420,7 @@ async function registerMetersByTestClient(client, organization, items, extraAttr
         items,
         ...extraAttrs,
     }
-    const { data, errors } = await client.mutate(REGISTER_METERS_MUTATION, { data: attrs })
+    const { data, errors } = await client.mutate(REGISTER_METERS_READINGS_MUTATION, { data: attrs })
     throwIfError(data, errors)
     return [data.result, attrs]
 }
@@ -441,6 +441,6 @@ module.exports = {
     MeterResourceOwner, createTestMeterResourceOwner, updateTestMeterResourceOwner,
     _internalDeleteMeterReadingsByTestClient,
     exportPropertyMeterReadingsByTestClient,
-    registerMetersByTestClient,
+    registerMetersReadingsByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

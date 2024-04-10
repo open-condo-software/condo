@@ -41696,7 +41696,7 @@ export type Mutation = {
    * }`
    */
   _internalDeleteMeterReadings?: Maybe<_InternalDeleteMeterReadingsOutput>;
-  registerMeters?: Maybe<RegisterMetersOutput>;
+  registerMetersReadings?: Maybe<RegisterMetersReadingsOutput>;
   registerMultiPayment?: Maybe<RegisterMultiPaymentOutput>;
   registerMultiPaymentForOneReceipt?: Maybe<RegisterMultiPaymentForOneReceiptOutput>;
   registerMultiPaymentForVirtualReceipt?: Maybe<RegisterMultiPaymentForOneReceiptOutput>;
@@ -49961,8 +49961,8 @@ export type Mutation_InternalDeleteMeterReadingsArgs = {
 };
 
 
-export type MutationRegisterMetersArgs = {
-  data: RegisterMetersInput;
+export type MutationRegisterMetersReadingsArgs = {
+  data: RegisterMetersReadingsInput;
 };
 
 
@@ -70476,13 +70476,6 @@ export type RegisterBillingReceiptsInput = {
   receipts: Array<RegisterBillingReceiptInput>;
 };
 
-export type RegisterMetersInput = {
-  dv: Scalars['Int'];
-  sender: Scalars['JSON'];
-  organization: OrganizationWhereUniqueInput;
-  items: Array<RegisterMetersItemInput>;
-};
-
 export type RegisterMetersItemAccountMetaInput = {
   globalId?: Maybe<Scalars['String']>;
   clientName?: Maybe<Scalars['String']>;
@@ -70600,8 +70593,15 @@ export type RegisterMetersMeterResultSuccessOutput = {
   readings: Array<RegisterMetersMeterReadingOutput>;
 };
 
-export type RegisterMetersOutput = {
-  __typename?: 'RegisterMetersOutput';
+export type RegisterMetersReadingsInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  organization: OrganizationWhereUniqueInput;
+  items: Array<RegisterMetersItemInput>;
+};
+
+export type RegisterMetersReadingsOutput = {
+  __typename?: 'RegisterMetersReadingsOutput';
   items: Array<RegisterMetersItemOutput>;
 };
 
