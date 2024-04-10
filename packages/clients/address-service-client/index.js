@@ -31,7 +31,7 @@ function createTestInstance (existingItem = null) {
  * @returns {MockedAddressServiceClient|AddressServiceClient}
  */
 function createInstance (testItem) {
-    const addressServiceUrl = get(conf, 'ADDRESSSERVICE_DOMAIN')
+    const addressServiceUrl = get(conf, 'ADDRESS_SERVICE_DOMAIN')
     return addressServiceUrl && get(conf, 'ADDRESS_SERVICE_CLIENT_MODE') !== 'fake'
         ? createRealInstance(addressServiceUrl)
         : createTestInstance(testItem)
