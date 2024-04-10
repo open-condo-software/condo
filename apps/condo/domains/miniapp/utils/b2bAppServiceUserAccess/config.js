@@ -2,12 +2,13 @@
  * In this configuration, you should specify all schemas for which you want to propagate service user access for b2b apps
  * ------
  * ________
- * @example How to add a new schema? (For example MySchema schema)
+ * @example How to add a new schema? (For example MySchema schema and doSomething service)
  *
  * // 1) You should add config for MySchema schema
  * {
+ *    lists: {
  *    // in the "B2BAppAccessRightSet" schema, the "canReadMySchemas" and "canManageMySchemas" fields will be added.
- *    MySchema: {
+ *      MySchema: {
  *       // Below are the default values
  *       // If nothing is specified, they will apply:
  *       // pathToOrganizationId: ['organization', 'id'],
@@ -15,6 +16,15 @@
  *       // canBeRead: true,
  *
  *       // You can override values as needed
+ *      },
+ *    },
+ *    services: {
+ *    // in the "B2BAppAccessRightSet" schema, the "canExecuteDoSomething" field will be added.
+ *      doSomething: {
+ *        // Below are the default values
+ *        // If nothing is specified, they will apply:
+ *        // pathToOrganizationId: ['data', 'organization', 'id'], // the path within the input data
+ *      },
  *    },
  * }
  *
