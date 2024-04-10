@@ -132,18 +132,18 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
     return !isEmpty(B2BAppContexts)
 }
 
-const canExecuteByServiceUser = async (args, schemaConfig) => {
-    const { authentication: { item: user }, args: { data }, info: { fieldName } } = args
+const canExecuteByServiceUser = async (params, serviceConfig) => {
+    const { authentication: { item: user }, args, gqlName } = params
 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
-    if (!fieldName) return false
+    if (!gqlName) return false
 
-    const pathToOrganizationId = get(schemaConfig, 'pathToOrganizationId', ['organization', 'id'])
+    const pathToOrganizationId = get(serviceConfig, 'pathToOrganizationId', ['data', 'organization', 'id'])
     if (!isArray(pathToOrganizationId) || isEmpty(pathToOrganizationId)) return false
 
-    let organizationId = get(data, pathToOrganizationId)
+    let organizationId = get(args, pathToOrganizationId)
 
     if (!organizationId) return false
 
@@ -225,9 +225,9 @@ const canManageObjectsAsB2BAppServiceUser = async (args) => {
 const canExecuteServiceAsB2BAppServiceUser = async (args) => {
     const { info: { fieldName: serviceName } } = args
     if (!isServiceUser(args)) return false
-    const schemaConfig = get(B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS.services, serviceName)
-    if (!isObject(schemaConfig)) return false
-    return await canExecuteByServiceUser(args, schemaConfig)
+    const serviceConfig = get(B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS.services, serviceName)
+    if (!isObject(serviceConfig)) return false
+    return await canExecuteByServiceUser(args, serviceConfig)
 }
 
 module.exports = {

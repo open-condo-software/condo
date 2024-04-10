@@ -17,7 +17,7 @@ const READ_ONLY_PERMISSION_FIELD = {
     },
 }
 
-const getReadOnlyPermissionFieldNames = (config) => {
+const getReadOnlyPermissionsFieldsNames = (config) => {
     return Object.entries(config.lists)
         .map(([schemaName, schemaConfig]) => {
             const readOnlyFieldsBySchema = []
@@ -32,7 +32,7 @@ const getReadOnlyPermissionFieldNames = (config) => {
         .flat()
 }
 
-const getListPermissionFieldNames = (config) => {
+const getListsPermissionsFieldsNames = (config) => {
     return Object.entries(config.lists)
         .map(([schemaName]) => {
             const canReadName = `canRead${pluralize.plural(schemaName)}`
@@ -42,7 +42,7 @@ const getListPermissionFieldNames = (config) => {
         .flat()
 }
 
-const getServicePermissionFieldNames = (config) => Object.entries(config.services).map(([schemaName]) => `canExecute${upperFirst(schemaName)}`)
+const getServicesPermissionsFieldsNames = (config) => Object.entries(config.services).map(([schemaName]) => `canExecute${upperFirst(schemaName)}`)
 
 /**
  * @param permissionFieldName {string}
@@ -77,8 +77,7 @@ const getSchemaDocForReadOnlyPermissionField = (permissionFieldName) => {
  * Overrides the default access behavior for the specified service
  *
  * @typedef {Object} B2bAppServiceUserAccessServiceSchemaConfig
- * @property {Array.<string>} pathToOrganizationId - Way to get the organization id (default value: ['organization', 'id'])
- * @property {boolean} canBeExecuted - Service users can read schema (default value: true)
+ * @property {Array<string>} pathToOrganizationId - Way to get the organization id (default value: ['data', 'organization', 'id'])
  */
 
 /**
@@ -98,32 +97,32 @@ const getSchemaDocForReadOnlyPermissionField = (permissionFieldName) => {
  *    },
  *    services: {
  *        registerSomething: {
- *            // Default value ['organization', 'id'] => get value from input data for service
+ *            // Default value ['data', 'organization', 'id'] => get value from input data for service
  *            pathToOrganizationId: ['organizationId'],
  *        },
  *    },
  * }
  *
- * @typedef {{lists: Object.<string, B2bAppServiceUserAccessListSchemaConfig>, services: Object.<string, B2bAppServiceUserAccessServiceSchemaConfig>}} B2bAppServiceUserAccessConfig
+ * @typedef {{lists: Record<string, B2bAppServiceUserAccessListSchemaConfig>, services: Record<string, B2bAppServiceUserAccessServiceSchemaConfig>}} B2bAppServiceUserAccessConfig
  */
 
 /**
  * Generation of fields for scheme  B2BAppAccessRightSet canRead... and canManage... for the necessary schemes.
  *
  * @param {B2bAppServiceUserAccessConfig} config  - Determines which models can be accessed by a service user linked to a B2B app
- * @return {Object.<string, Object>}
+ * @return {Record<string, Object>}
  */
 const generatePermissionFields = ({ config }) => {
     if (!isObject(config)) throw new Error('Config not object!')
 
-    const allListPermissionFieldNames = getListPermissionFieldNames(config)
-    const readOnlyListPermissionFieldNames = getReadOnlyPermissionFieldNames(config)
-    const allServicePermissionFieldNames = getServicePermissionFieldNames(config)
+    const allListsPermissionsFieldsNames = getListsPermissionsFieldsNames(config)
+    const readOnlyListsPermissionsFieldsNames = getReadOnlyPermissionsFieldsNames(config)
+    const allServicesPermissionsFieldsNames = getServicesPermissionsFieldsNames(config)
 
     const permissionFields = {}
 
-    for (const permissionFieldName of allListPermissionFieldNames) {
-        if (readOnlyListPermissionFieldNames.includes(permissionFieldName)) {
+    for (const permissionFieldName of allListsPermissionsFieldsNames) {
+        if (readOnlyListsPermissionsFieldsNames.includes(permissionFieldName)) {
             permissionFields[permissionFieldName] = {
                 ...READ_ONLY_PERMISSION_FIELD,
                 schemaDoc: getSchemaDocForReadOnlyPermissionField(permissionFieldName),
@@ -133,7 +132,7 @@ const generatePermissionFields = ({ config }) => {
         }
     }
 
-    for (const permissionFieldName of allServicePermissionFieldNames) {
+    for (const permissionFieldName of allServicesPermissionsFieldsNames) {
         permissionFields[permissionFieldName] = PERMISSION_FIELD
     }
 
