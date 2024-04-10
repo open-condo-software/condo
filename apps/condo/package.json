@@ -56,6 +56,7 @@
     "@keystonejs/list-plugins": "^8.1.0",
     "@keystonejs/server-side-graphql-client": "^2.1.0",
     "@keystonejs/utils": "^6.1.0",
+    "@open-condo/bicrypt": "workspace:^",
     "@open-condo/bridge": "workspace:^",
     "@open-condo/cli": "workspace:^",
     "@open-condo/codegen": "workspace:^",
