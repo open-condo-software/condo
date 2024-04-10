@@ -14,9 +14,8 @@ const access = require('@condo/domains/ticket/access/TicketComment')
 const { COMMENT_TYPES, RESIDENT_COMMENT_TYPE, ORGANIZATION_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
 const { USER_MUST_BE_SAME_AS_CREATED_BY } = require('@condo/domains/ticket/constants/errors')
 const { sendTicketCommentNotifications, updateTicketLastCommentTime } = require('@condo/domains/ticket/utils/handlers')
+const { updateTicketReadCommentTime } = require('@condo/domains/ticket/utils/handlers')
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
-
-const { updateTicketReadCommentTime } = require('../utils/handlers')
 
 
 const ERRORS = {

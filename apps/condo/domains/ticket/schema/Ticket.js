@@ -362,17 +362,14 @@ const Ticket = new GQLListSchema('Ticket', {
             schemaDoc: 'When status of the ticket was changed to completed',
             type: DateTimeUtc,
         },
-        // Время последнего коммента в заявке
         lastCommentAt: {
             schemaDoc: 'Last comment time in ticket',
             type: DateTimeUtc,
         },
-        // Время последнего коммента жителя
         lastResidentCommentAt: {
             schemaDoc: 'Time of the last comment with resident author in ticket',
             type: DateTimeUtc,
         },
-        // Время последнего коммента во вкладке с жителем? = TicketCommentsTime.lastCommentAt
         lastCommentWithResidentTypeAt: {
             schemaDoc: 'Time of the last comment with resident type (from staff or resident user) in ticket',
             type: DateTimeUtc,

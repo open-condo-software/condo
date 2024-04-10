@@ -80,7 +80,6 @@ import {
     TicketChange,
     TicketComment,
     TicketCommentFile,
-    TicketCommentsTime,
     TicketLastCommentsTime,
     UserTicketCommentReadTime,
 } from '@condo/domains/ticket/utils/clientSchema'

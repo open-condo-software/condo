@@ -171,12 +171,20 @@ COMMIT;
 DROP TABLE IF EXISTS "AssigneeScope" CASCADE;
 DROP TABLE IF EXISTS "AssigneeScopeHistoryRecord" CASCADE;
 
+COMMIT;
+
 --
 -- 20240212204212-0365_remove_serviceconsumer_billingaccount_and_more.js Remove ServiceConsumer.billingAccount field
 --
 SET CONSTRAINTS "ServiceConsumer_billingAccount_71105b51_fk_BillingAccount_id" IMMEDIATE; ALTER TABLE "ServiceConsumer" DROP CONSTRAINT "ServiceConsumer_billingAccount_71105b51_fk_BillingAccount_id";
 ALTER TABLE "ServiceConsumer" DROP COLUMN "billingAccount" CASCADE;
 ALTER TABLE "ServiceConsumerHistoryRecord" DROP COLUMN "billingAccount" CASCADE;
+
+--
+-- 20240411111538-0380_auto_20240411_0615.js Remove TicketCommentsTime schema
+--
+DROP TABLE "TicketCommentsTime" CASCADE;
+DROP TABLE "TicketCommentsTimeHistoryRecord" CASCADE;
 
 COMMIT;
 
