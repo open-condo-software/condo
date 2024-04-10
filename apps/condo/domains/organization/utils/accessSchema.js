@@ -7,6 +7,16 @@ const { getByCondition, find } = require('@open-condo/keystone/schema')
 
 
 async function checkOrganizationPermission (userId, organizationId, permission) {
+    return checkOrganizationPermissions(userId, organizationId, [permission])
+}
+
+/**
+ * @param {string} userId
+ * @param {string} organizationId
+ * @param {string[]} permissions
+ * @return {Promise<boolean>}
+ */
+async function checkOrganizationPermissions (userId, organizationId, permissions) {
     if (!userId || !organizationId) return false
     const [employee] = await find('OrganizationEmployee', {
         organization: { id: organizationId },
@@ -15,7 +25,7 @@ async function checkOrganizationPermission (userId, organizationId, permission) 
         isBlocked: false,
     })
 
-    if (!permission && employee) {
+    if (!permissions && employee) {
         return true
     }
 
@@ -29,10 +39,20 @@ async function checkOrganizationPermission (userId, organizationId, permission) 
     })
 
     if (!employeeRole) return false
-    return employeeRole[permission] || false
+    return permissions.every((permission) => !!employeeRole[permission]) || false
 }
 
 async function checkRelatedOrganizationPermission (userId, organizationId, permission) {
+    return checkRelatedOrganizationPermissions(userId, organizationId, [permission])
+}
+
+/**
+ * @param {string} userId
+ * @param {string} organizationId
+ * @param {string[]} permissions
+ * @return {Promise<boolean>}
+ */
+async function checkRelatedOrganizationPermissions (userId, organizationId, permissions) {
     if (!userId || !organizationId) return false
     const [organizationLink] = await find('OrganizationLink', {
         from: queryOrganizationEmployeeFor(userId),
@@ -41,35 +61,26 @@ async function checkRelatedOrganizationPermission (userId, organizationId, permi
     })
     if (!organizationLink) return false
 
-    return checkOrganizationPermission(userId, organizationLink.from, permission)
+    return checkOrganizationPermissions(userId, organizationLink.from, permissions)
 }
 
 // TODO(nomerdvadcatpyat): use this function where checkRelatedOrganizationPermission and checkOrganizationPermission used together
 async function checkPermissionInUserOrganizationOrRelatedOrganization (userId, organizationId, permission) {
-    if (!userId || !organizationId) return false
-
-    const hasPermissionInUserOrganization = await checkOrganizationPermission(userId, organizationId, permission)
-    if (hasPermissionInUserOrganization) return true
-    return await checkRelatedOrganizationPermission(userId, organizationId, permission)
+    return checkPermissionsInUserOrganizationOrRelatedOrganization(userId, organizationId, [permission])
 }
 
+/**
+ * @param {string} userId
+ * @param {string} organizationId
+ * @param {string[]} permissions
+ * @return {Promise<boolean>}
+ */
 async function checkPermissionsInUserOrganizationOrRelatedOrganization (userId, organizationId, permissions) {
     if (!userId || !organizationId) return false
 
-    const promises = []
-    for (const permission of permissions) {
-        promises.push(new Promise((resolve) => {
-            checkPermissionInUserOrganizationOrRelatedOrganization(userId, organizationId, permission).then((res) => {
-                resolve(res)
-            }).catch(() => {
-                resolve(false)
-            })
-        }))
-    }
-
-    const results = await Promise.all(promises)
-
-    return results.every((result) => result === true)
+    const hasPermissionInUserOrganization = await checkOrganizationPermissions(userId, organizationId, permissions)
+    if (hasPermissionInUserOrganization) return true
+    return await checkRelatedOrganizationPermissions(userId, organizationId, permissions)
 }
 
 /**
