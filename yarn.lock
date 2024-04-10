@@ -794,6 +794,7 @@ __metadata:
     "@keystonejs/list-plugins": ^8.1.0
     "@keystonejs/server-side-graphql-client": ^2.1.0
     "@keystonejs/utils": ^6.1.0
+    "@open-condo/bicrypt": "workspace:^"
     "@open-condo/bridge": "workspace:^"
     "@open-condo/cli": "workspace:^"
     "@open-condo/codegen": "workspace:^"
@@ -12072,7 +12073,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@open-condo/bicrypt@workspace:packages/bicrypt":
+"@open-condo/bicrypt@workspace:^, @open-condo/bicrypt@workspace:packages/bicrypt":
   version: 0.0.0-use.local
   resolution: "@open-condo/bicrypt@workspace:packages/bicrypt"
   dependencies:
