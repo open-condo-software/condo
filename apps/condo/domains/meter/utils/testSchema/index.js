@@ -405,11 +405,11 @@ async function exportPropertyMeterReadingsByTestClient(client, extraAttrs = {}) 
     return [data.result, attrs]
 }
 
-async function registerMetersReadingsByTestClient(client, organization, items, extraAttrs = {}) {
+async function registerMetersReadingsByTestClient(client, organization, readings, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization.id')
-    if (!items) throw new Error('no items')
-    if (!Array.isArray(items)) throw new Error('items is not an array')
+    if (!readings) throw new Error('no readings')
+    if (!Array.isArray(readings)) throw new Error('readings is not an array')
 
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -417,7 +417,7 @@ async function registerMetersReadingsByTestClient(client, organization, items, e
         dv: 1,
         sender,
         organization: { id: organization.id },
-        items,
+        readings,
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(REGISTER_METERS_READINGS_MUTATION, { data: attrs })

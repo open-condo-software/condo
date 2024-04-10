@@ -9,9 +9,10 @@ const {
     makeLoggedInAdminClient,
     makeClient,
     expectToThrowAuthenticationError,
-    expectToThrowAccessDeniedErrorToResult, expectToThrowGQLError,
+    expectToThrowAccessDeniedErrorToResult, expectToThrowGQLError, catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
 
+const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
 const {
     COLD_WATER_METER_RESOURCE_ID,
 } = require('@condo/domains/meter/constants/constants')
@@ -25,6 +26,7 @@ const {
     createTestOrganization,
     makeEmployeeUserClientWithAbilities,
 } = require('@condo/domains/organization/utils/testSchema')
+const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const {
     makeClientWithSupportUser,
@@ -34,33 +36,25 @@ const {
 
 /**
  * @param property
- * @return {RegisterMetersItemInput[]}
+ * @return {RegisterMetersReadingsReadingInput[]}
  */
-const getItemsForAccessTest = (property) => ([
+const getReadingsForAccessTest = (property) => ([
     {
         address: property.address,
         addressMeta: {
-            unitType: 'flat',
+            unitType: FLAT_UNIT_TYPE,
             unitName: faker.random.alphaNumeric(4),
             globalId: faker.datatype.uuid(),
         },
         accountNumber: faker.random.alphaNumeric(12),
-        accountMeta: {
-            globalId: faker.datatype.uuid(),
-            clientName: faker.name.fullName(),
+        meterNumber: faker.random.numeric(8),
+        meterResource: { id: COLD_WATER_METER_RESOURCE_ID },
+        date: dayjs().toISOString(),
+        value1: faker.random.numeric(3),
+        value2: faker.random.numeric(4),
+        meterMeta: {
+            numberOfTariffs: 1,
         },
-        meters: [
-            {
-                numberOfTariffs: 1,
-                resourceTypeId: COLD_WATER_METER_RESOURCE_ID,
-                number: faker.random.numeric(8),
-                readings: [{
-                    date: dayjs().toISOString(),
-                    v1: faker.random.numeric(3),
-                    v2: faker.random.numeric(4),
-                }],
-            },
-        ],
     },
 ])
 
@@ -86,105 +80,85 @@ describe('RegisterMetersReadingsService', () => {
         test('admin can', async () => {
             const [o10n] = await createTestOrganization(adminClient)
             const [property] = await createTestProperty(adminClient, o10n)
-            const items = getItemsForAccessTest(property)
-            const [data] = await registerMetersReadingsByTestClient(adminClient, o10n, items)
+            const readings = getReadingsForAccessTest(property)
+            const [data] = await registerMetersReadingsByTestClient(adminClient, o10n, readings)
+
+            expect(data).toEqual([expect.objectContaining({
+                id: expect.stringMatching(UUID_REGEXP),
+                value1: Number(readings[0].value1).toFixed(4),
+                value2: Number(readings[0].value2).toFixed(4),
+                value3: null,
+                value4: null,
+                date: readings[0].date,
+                organization: expect.objectContaining({
+                    id: o10n.id,
+                }),
+                meter: expect.objectContaining({
+                    number: readings[0].meterNumber,
+                    organization: expect.objectContaining({
+                        id: o10n.id,
+                    }),
+                    property: expect.objectContaining({
+                        id: property.id,
+                    }),
+                    resource: expect.objectContaining({
+                        id: readings[0].meterResource.id,
+                    }),
+                }),
+            })])
 
             const meters = await Meter.getAll(adminClient, {
                 organization: { id: o10n.id },
                 property: { id: property.id },
             })
             expect(meters).toHaveLength(1)
-            expect(meters[0].number).toBe(items[0].meters[0].number)
+            expect(meters[0].number).toBe(readings[0].meterNumber)
 
             const metersReadings = await MeterReading.getAll(adminClient, { meter: { id_in: map(meters, 'id') } })
             expect(metersReadings).toHaveLength(1)
-            expect(metersReadings[0].date).toBe(items[0].meters[0].readings[0].date)
-
-            expect(data).toEqual({
-                items: [{
-                    address: items[0].address,
-                    accountNumber: items[0].accountNumber,
-                    result: {
-                        error: null,
-                        data: {
-                            propertyId: property.id,
-                            meters: [{
-                                number: items[0].meters[0].number,
-                                result: {
-                                    error: null,
-                                    data: {
-                                        id: meters[0].id,
-                                        readings: [{
-                                            v1: items[0].meters[0].readings[0].v1,
-                                            v2: items[0].meters[0].readings[0].v2,
-                                            v3: null,
-                                            v4: null,
-                                            result: {
-                                                error: null,
-                                                data: {
-                                                    id: metersReadings[0].id,
-                                                },
-                                            },
-                                        }],
-                                    },
-                                },
-                            }],
-                        },
-                    },
-                }],
-            })
+            expect(metersReadings[0].date).toBe(readings[0].date)
         })
 
         test('support can', async () => {
             const [o10n] = await createTestOrganization(adminClient)
             const [property] = await createTestProperty(adminClient, o10n)
-            const items = getItemsForAccessTest(property)
-            const [data] = await registerMetersReadingsByTestClient(supportClient, o10n, items)
+            const readings = getReadingsForAccessTest(property)
+            const [data] = await registerMetersReadingsByTestClient(supportClient, o10n, readings)
+
+            expect(data).toEqual([expect.objectContaining({
+                id: expect.stringMatching(UUID_REGEXP),
+                value1: Number(readings[0].value1).toFixed(4),
+                value2: Number(readings[0].value2).toFixed(4),
+                value3: null,
+                value4: null,
+                date: readings[0].date,
+                organization: expect.objectContaining({
+                    id: o10n.id,
+                }),
+                meter: expect.objectContaining({
+                    number: readings[0].meterNumber,
+                    organization: expect.objectContaining({
+                        id: o10n.id,
+                    }),
+                    property: expect.objectContaining({
+                        id: property.id,
+                    }),
+                    resource: expect.objectContaining({
+                        id: readings[0].meterResource.id,
+                    }),
+                }),
+            })])
 
             const meters = await Meter.getAll(adminClient, {
                 organization: { id: o10n.id },
                 property: { id: property.id },
             })
             expect(meters).toHaveLength(1)
-            expect(meters[0].number).toBe(items[0].meters[0].number)
+            expect(meters[0].number).toBe(readings[0].meterNumber)
 
             const metersReadings = await MeterReading.getAll(adminClient, { meter: { id_in: map(meters, 'id') } })
             expect(metersReadings).toHaveLength(1)
-            expect(metersReadings[0].date).toBe(items[0].meters[0].readings[0].date)
-
-            expect(data).toEqual({
-                items: [{
-                    address: items[0].address,
-                    accountNumber: items[0].accountNumber,
-                    result: {
-                        error: null,
-                        data: {
-                            propertyId: property.id,
-                            meters: [{
-                                number: items[0].meters[0].number,
-                                result: {
-                                    error: null,
-                                    data: {
-                                        id: meters[0].id,
-                                        readings: [{
-                                            v1: items[0].meters[0].readings[0].v1,
-                                            v2: items[0].meters[0].readings[0].v2,
-                                            v3: null,
-                                            v4: null,
-                                            result: {
-                                                error: null,
-                                                data: {
-                                                    id: metersReadings[0].id,
-                                                },
-                                            },
-                                        }],
-                                    },
-                                },
-                            }],
-                        },
-                    },
-                }],
-            })
+            expect(metersReadings[0].date).toBe(readings[0].date)
         })
 
         describe('staff', () => {
@@ -194,53 +168,43 @@ describe('RegisterMetersReadingsService', () => {
                     canManageMeterReadings: true,
                 })
 
-                const items = getItemsForAccessTest(staffClient.property)
-                const [data] = await registerMetersReadingsByTestClient(staffClient, staffClient.organization, items)
+                const readings = getReadingsForAccessTest(staffClient.property)
+                const [data] = await registerMetersReadingsByTestClient(staffClient, staffClient.organization, readings)
+
+                expect(data).toEqual([expect.objectContaining({
+                    id: expect.stringMatching(UUID_REGEXP),
+                    value1: Number(readings[0].value1).toFixed(4),
+                    value2: Number(readings[0].value2).toFixed(4),
+                    value3: null,
+                    value4: null,
+                    date: readings[0].date,
+                    organization: expect.objectContaining({
+                        id: staffClient.organization.id,
+                    }),
+                    meter: expect.objectContaining({
+                        number: readings[0].meterNumber,
+                        organization: expect.objectContaining({
+                            id: staffClient.organization.id,
+                        }),
+                        property: expect.objectContaining({
+                            id: staffClient.property.id,
+                        }),
+                        resource: expect.objectContaining({
+                            id: readings[0].meterResource.id,
+                        }),
+                    }),
+                })])
 
                 const meters = await Meter.getAll(adminClient, {
                     organization: { id: staffClient.organization.id },
                     property: { id: staffClient.property.id },
                 })
                 expect(meters).toHaveLength(1)
-                expect(meters[0].number).toBe(items[0].meters[0].number)
+                expect(meters[0].number).toBe(readings[0].meterNumber)
 
                 const metersReadings = await MeterReading.getAll(adminClient, { meter: { id_in: map(meters, 'id') } })
                 expect(metersReadings).toHaveLength(1)
-                expect(metersReadings[0].date).toBe(items[0].meters[0].readings[0].date)
-
-                expect(data).toEqual({
-                    items: [{
-                        address: items[0].address,
-                        accountNumber: items[0].accountNumber,
-                        result: {
-                            error: null,
-                            data: {
-                                propertyId: staffClient.property.id,
-                                meters: [{
-                                    number: items[0].meters[0].number,
-                                    result: {
-                                        error: null,
-                                        data: {
-                                            id: meters[0].id,
-                                            readings: [{
-                                                v1: items[0].meters[0].readings[0].v1,
-                                                v2: items[0].meters[0].readings[0].v2,
-                                                v3: null,
-                                                v4: null,
-                                                result: {
-                                                    error: null,
-                                                    data: {
-                                                        id: metersReadings[0].id,
-                                                    },
-                                                },
-                                            }],
-                                        },
-                                    },
-                                }],
-                            },
-                        },
-                    }],
-                })
+                expect(metersReadings[0].date).toBe(readings[0].date)
             })
 
             test('without permissions can\'t', async () => {
@@ -265,56 +229,50 @@ describe('RegisterMetersReadingsService', () => {
                 await createTestB2BAppContext(adminClient, app, o10n, { status: 'Finished' })
                 const [accessRightSet] = await createTestB2BAppAccessRightSet(adminClient, app, {
                     canExecuteRegisterMetersReadings: true,
+                    canReadMeters: true,
+                    canReadMeterReadings: true,
+                    canReadOrganizations: true,
+                    canReadProperties: true,
                 })
                 await createTestB2BAppAccessRight(adminClient, serviceClient.user, app, accessRightSet)
 
-                const items = getItemsForAccessTest(property)
-                const [data] = await registerMetersReadingsByTestClient(serviceClient, o10n, items)
+                const readings = getReadingsForAccessTest(property)
+                const [data] = await registerMetersReadingsByTestClient(serviceClient, o10n, readings)
+
+                expect(data).toEqual([expect.objectContaining({
+                    id: expect.stringMatching(UUID_REGEXP),
+                    value1: Number(readings[0].value1).toFixed(4),
+                    value2: Number(readings[0].value2).toFixed(4),
+                    value3: null,
+                    value4: null,
+                    date: readings[0].date,
+                    organization: expect.objectContaining({
+                        id: o10n.id,
+                    }),
+                    meter: expect.objectContaining({
+                        number: readings[0].meterNumber,
+                        organization: expect.objectContaining({
+                            id: o10n.id,
+                        }),
+                        property: expect.objectContaining({
+                            id: property.id,
+                        }),
+                        resource: expect.objectContaining({
+                            id: readings[0].meterResource.id,
+                        }),
+                    }),
+                })])
 
                 const meters = await Meter.getAll(adminClient, {
                     organization: { id: o10n.id },
                     property: { id: property.id },
                 })
                 expect(meters).toHaveLength(1)
-                expect(meters[0].number).toBe(items[0].meters[0].number)
+                expect(meters[0].number).toBe(readings[0].meterNumber)
 
                 const metersReadings = await MeterReading.getAll(adminClient, { meter: { id_in: map(meters, 'id') } })
                 expect(metersReadings).toHaveLength(1)
-                expect(metersReadings[0].date).toBe(items[0].meters[0].readings[0].date)
-
-                expect(data).toEqual({
-                    items: [{
-                        address: items[0].address,
-                        accountNumber: items[0].accountNumber,
-                        result: {
-                            error: null,
-                            data: {
-                                propertyId: property.id,
-                                meters: [{
-                                    number: items[0].meters[0].number,
-                                    result: {
-                                        error: null,
-                                        data: {
-                                            id: meters[0].id,
-                                            readings: [{
-                                                v1: items[0].meters[0].readings[0].v1,
-                                                v2: items[0].meters[0].readings[0].v2,
-                                                v3: null,
-                                                v4: null,
-                                                result: {
-                                                    error: null,
-                                                    data: {
-                                                        id: metersReadings[0].id,
-                                                    },
-                                                },
-                                            }],
-                                        },
-                                    },
-                                }],
-                            },
-                        },
-                    }],
-                })
+                expect(metersReadings[0].date).toBe(readings[0].date)
             })
 
             test('without permissions can\'t', async () => {
@@ -346,12 +304,14 @@ describe('RegisterMetersReadingsService', () => {
             async () => await registerMetersReadingsByTestClient(
                 adminClient,
                 o10n,
-                flatten(Array(501).fill(getItemsForAccessTest({ address: faker.address.streetAddress(true) }))),
+                flatten(Array(501).fill(getReadingsForAccessTest({ address: faker.address.streetAddress(true) }))),
             ),
             {
                 code: 'BAD_USER_INPUT',
-                type: 'TOO_MUCH_ITEMS',
-                message: 'Too much items. Maximum is 500.',
+                type: 'TOO_MUCH_READINGS',
+                message: 'Too much readings. Maximum is 500.',
+                messageForUser: 'api.meter.registerMetersReadings.TOO_MUCH_READINGS',
+                messageInterpolation: { limit: 500, sentCount: 501 },
             },
             'result',
         )
@@ -364,35 +324,34 @@ describe('RegisterMetersReadingsService', () => {
 
         const accountNumber = faker.random.alphaNumeric(12)
 
-        const items1 = getItemsForAccessTest(property1)
-        items1[0].accountNumber = accountNumber
+        const readings1 = getReadingsForAccessTest(property1)
+        readings1[0].accountNumber = accountNumber
 
-        await registerMetersReadingsByTestClient(adminClient, o10n, items1)
+        await registerMetersReadingsByTestClient(adminClient, o10n, readings1)
 
-        const items2 = getItemsForAccessTest(property2)
-        items2[0].accountNumber = accountNumber
+        const readings2 = getReadingsForAccessTest(property2)
+        readings2[0].accountNumber = accountNumber
 
-        const [data] = await registerMetersReadingsByTestClient(adminClient, o10n, items2)
-        expect(data).toEqual({
-            items: [{
-                address: items2[0].address,
-                accountNumber: items2[0].accountNumber,
-                result: {
-                    error: null,
-                    data: {
-                        propertyId: property2.id,
-                        meters: [{
-                            number: items2[0].meters[0].number,
-                            result: {
-                                error: {
-                                    message: '[unique:alreadyExists:accountNumber] Meter with same account number exist in current organization in other unit',
-                                },
-                                data: null,
-                            },
-                        }],
-                    },
-                },
-            }],
-        })
+        await catchErrorFrom(
+            async () => {
+                await registerMetersReadingsByTestClient(adminClient, o10n, readings2)
+            },
+            ({ data: { result }, errors }) => {
+                expect(result).toEqual([null])
+                expect(errors).toEqual([
+                    expect.objectContaining({
+                        message: '[error] Create Meter internal error',
+                        originalError: expect.objectContaining({
+                            message: '[error] Create Meter internal error',
+                            errors: [expect.objectContaining({
+                                data: expect.objectContaining({
+                                    messages: ['[unique:alreadyExists:accountNumber] Meter with same account number exist in current organization in other unit'],
+                                }),
+                            })],
+                        }),
+                    }),
+                ])
+            },
+        )
     })
 })
