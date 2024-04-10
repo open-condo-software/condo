@@ -6,7 +6,6 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { INJECTIONS_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const { InjectionsSeeker } = require('@address-service/domains/common/utils/services/InjectionsSeeker')
 const { getSuggestionsProvider } = require('@address-service/domains/common/utils/services/providerDetectors')
-const { getReqParam, getReqJson } = require('@address-service/domains/common/utils/services/requestHelper')
 
 /**
  * @typedef {Object} NormalizedSuggestion
@@ -15,6 +14,27 @@ const { getReqParam, getReqJson } = require('@address-service/domains/common/uti
  */
 
 const SUGGEST_ENDPOINT = '/suggest'
+
+/**
+ * @param {IncomingMessage} req express request
+ * @param {string} param Parameter to extract from body or query
+ * @param {*} [defaultValue] Default value
+ */
+const getReqParam = (req, param, defaultValue) => {
+    const reqQuery = get(req, 'query', {})
+    const reqBody = get(req, 'body', {})
+    return get(reqBody, param, get(reqQuery, param, defaultValue))
+}
+
+const getReqJson = (req, param, defaultValue) => {
+    const val = getReqParam(req, param)
+    if (!val || typeof val !== 'string') return defaultValue
+    try {
+        return JSON.parse(val)
+    } catch (e) {
+        return defaultValue
+    }
+}
 
 class SuggestionKeystoneApp {
     constructor () {
