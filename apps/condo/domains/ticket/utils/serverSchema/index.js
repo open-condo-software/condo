@@ -26,7 +26,6 @@ const { TicketSource: TicketSourceGQL } = require('@condo/domains/ticket/gql')
 const { TicketFilterTemplate: TicketFilterTemplateGQL } = require('@condo/domains/ticket/gql')
 const { PREDICT_TICKET_CLASSIFICATION_QUERY } = require('@condo/domains/ticket/gql')
 const { TicketCommentFile: TicketCommentFileGQL } = require('@condo/domains/ticket/gql')
-const { TicketCommentsTime: TicketCommentsTimeGQL } = require('@condo/domains/ticket/gql')
 const { UserTicketCommentReadTime: UserTicketCommentReadTimeGQL } = require('@condo/domains/ticket/gql')
 const { TicketPropertyHint: TicketPropertyHintGQL } = require('@condo/domains/ticket/gql')
 const { TicketPropertyHintProperty: TicketPropertyHintPropertyGQL } = require('@condo/domains/ticket/gql')
@@ -73,7 +72,6 @@ async function predictTicketClassification (context, data) {
 
 
 const TicketCommentFile = generateServerUtils(TicketCommentFileGQL)
-const TicketCommentsTime = generateServerUtils(TicketCommentsTimeGQL)
 const UserTicketCommentReadTime = generateServerUtils(UserTicketCommentReadTimeGQL)
 const TicketPropertyHint = generateServerUtils(TicketPropertyHintGQL)
 const TicketPropertyHintProperty = generateServerUtils(TicketPropertyHintPropertyGQL)
@@ -310,7 +308,6 @@ module.exports = {
     TicketFilterTemplate,
     predictTicketClassification,
     TicketCommentFile,
-    TicketCommentsTime,
     UserTicketCommentReadTime,
     TicketPropertyHint,
     TicketPropertyHintProperty,

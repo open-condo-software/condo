@@ -187,9 +187,6 @@ const PREDICT_TICKET_CLASSIFICATION_QUERY = gql`
 const TICKET_COMMENT_FILE_FIELDS = `{ id file { id originalFilename publicUrl mimetype } organization { id } ticketComment { id } ticket { id } ${COMMON_FIELDS} }`
 const TicketCommentFile = generateGqlQueries('TicketCommentFile', TICKET_COMMENT_FILE_FIELDS)
 
-const TICKET_COMMENTS_TIME_FIELDS = `{ organization { id } ticket { id } lastCommentAt lastResidentCommentAt ${COMMON_FIELDS} }`
-const TicketCommentsTime = generateGqlQueries('TicketCommentsTime', TICKET_COMMENTS_TIME_FIELDS)
-
 const USER_TICKET_COMMENT_READ_TIME_FIELDS = `{ user { id } ticket { id } readResidentCommentAt readCommentAt ${COMMON_FIELDS} }`
 const UserTicketCommentReadTime = generateGqlQueries('UserTicketCommentReadTime', USER_TICKET_COMMENT_READ_TIME_FIELDS)
 
@@ -286,7 +283,6 @@ module.exports = {
     TicketFilterTemplate,
     PREDICT_TICKET_CLASSIFICATION_QUERY,
     TicketCommentFile,
-    TicketCommentsTime,
     UserTicketCommentReadTime,
     TicketPropertyHint,
     TicketPropertyHintProperty,
