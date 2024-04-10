@@ -4,6 +4,7 @@
  */
 
 export * as Ticket from './Ticket'
+export * as TicketLastCommentsTime from './TicketLastCommentsTime'
 export * as TicketStatus from './TicketStatus'
 export * as TicketSource from './TicketSource'
 export * as TicketChange from './TicketChange'

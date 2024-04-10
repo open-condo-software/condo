@@ -22,12 +22,14 @@ const TicketCommentsTime = new GQLListSchema('TicketCommentsTime', {
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
 
+        // Время последнего коммента во вкладке с жителем
         lastCommentAt: {
             schemaDoc: 'Time of last comment with resident type in this ticket',
             type: DateTimeUtc,
             isRequired: true,
         },
 
+        // Время последнего коммента жителя во вкладке с жителем
         lastResidentCommentAt: {
             schemaDoc: 'Time of last comment with resident user in this ticket',
             type: DateTimeUtc,

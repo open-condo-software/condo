@@ -37,6 +37,8 @@ const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser }
 
 const { ERRORS: TicketCommmentErrors } = require('./TicketComment')
 
+const { Property } = require('../../property/utils/testSchema')
+
 
 describe('TicketComment', () => {
     let admin
@@ -556,18 +558,14 @@ describe('TicketComment', () => {
                 const admin = await makeLoggedInAdminClient()
                 const residentClient = await makeClientWithResidentUser()
 
-                const [organization] = await createTestOrganization(admin)
-                const [property] = await createTestProperty(admin, organization)
-                const unitName = faker.random.alphaNumeric(5)
                 const content = faker.lorem.sentence()
 
+                const property = await Property.getOne(admin, { id: '254b852b-e6cd-4b7c-844c-c7c1536fe22e' })
+
                 await createTestResident(admin, residentClient.user, property, {
-                    unitName,
+                    unitName: '1',
                 })
-                const [ticket] = await createTestTicket(residentClient, organization, property, {
-                    unitName,
-                })
-                const [ticketComment] = await createTestTicketComment(residentClient, ticket, residentClient.user, {
+                const [ticketComment] = await createTestTicketComment(residentClient, { id: '0d9bb499-a0fc-4297-a935-d210ff4374b9' }, residentClient.user, {
                     type: RESIDENT_COMMENT_TYPE,
                     content,
                 })

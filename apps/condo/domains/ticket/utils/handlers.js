@@ -1,7 +1,7 @@
 const get = require('lodash/get')
 
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
-const { getByCondition, find, getById } = require('@open-condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
 
 const { SEND_TELEGRAM_NOTIFICATIONS } = require('@condo/domains/common/constants/featureflags')
 const { sendTicketCommentCreatedNotifications } = require('@condo/domains/ticket/tasks')
@@ -9,10 +9,12 @@ const {
     sendTicketCommentNotifications: sendTicketCommentNotificationsTask,
 } = require('@condo/domains/ticket/tasks/sendTicketCommentNotifications')
 const { UserTicketCommentReadTime } = require('@condo/domains/ticket/utils/serverSchema')
-const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 
 const { detectTicketEventTypes, ASSIGNEE_CONNECTED_EVENT_TYPE, EXECUTOR_CONNECTED_EVENT_TYPE, STATUS_CHANGED_EVENT_TYPE } = require('./detectTicketEventTypes')
-const { Ticket, TicketCommentsTime } = require('./serverSchema')
+const { Ticket } = require('./serverSchema')
+
+const { RESIDENT_COMMENT_TYPE } = require('../constants')
 
 
 const sendTicketCommentNotifications = async (requestData) => {
@@ -40,88 +42,48 @@ const sendTicketCommentNotifications = async (requestData) => {
     })
 }
 
-const createOrUpdateTicketCommentsTime = async (context, updatedItem, userType) => {
+const updateTicketReadCommentTime = async (context, updatedItem) => {
     const ticketId = get(updatedItem, 'ticket')
     const dv = get(updatedItem, 'dv')
     const sender = get(updatedItem, 'sender')
     const now = new Date().toISOString()
 
-    const ticketCommentsTime = await getByCondition('TicketCommentsTime', {
+    const userTicketCommentReadTimeObjects = await find('UserTicketCommentReadTime', {
         ticket: { id: ticketId },
+        user: { type: STAFF },
     })
 
-    if (userType === RESIDENT) {
-        if (!ticketCommentsTime) {
-            const ticket = await getById('Ticket', ticketId)
-            if (!ticket) return false
-
-            await TicketCommentsTime.create(context, {
-                dv,
-                sender,
-                ticket: { connect: { id: ticketId } },
-                lastCommentAt: now,
-                lastResidentCommentAt: now,
-            })
-        } else {
-            await TicketCommentsTime.update(context, ticketCommentsTime.id, {
-                dv,
-                sender,
-                lastCommentAt: now,
-                lastResidentCommentAt: now,
-            })
-        }
-    } else {
-        if (!ticketCommentsTime) {
-            const ticket = await getById('Ticket', ticketId)
-            if (!ticket) return false
-
-            await TicketCommentsTime.create(context, {
-                dv,
-                sender,
-                ticket: { connect: { id: ticketId } },
-                lastCommentAt: now,
-            })
-        } else {
-            await TicketCommentsTime.update(context, ticketCommentsTime.id, {
-                dv,
-                sender,
-                lastCommentAt: now,
-            })
-        }
-
-        const userTicketCommentReadTimeObjects = await find('UserTicketCommentReadTime', {
-            ticket: { id: ticketId },
+    // TODO: use update many
+    for (const { id } of userTicketCommentReadTimeObjects) {
+        await UserTicketCommentReadTime.update(context, id, {
+            dv,
+            sender,
+            readResidentCommentAt: now,
         })
-
-        for (const { id } of userTicketCommentReadTimeObjects) {
-            await UserTicketCommentReadTime.update(context, id, {
-                dv: 1,
-                sender,
-                readResidentCommentAt: now,
-            })
-        }
     }
 }
 
-const updateTicketLastCommentTime = async (context, updatedItem, userType) => {
+const updateTicketLastCommentTime = async (context, updatedItem, userType, commentCreatedAt) => {
     const ticketId = get(updatedItem, 'ticket')
     const dv = get(updatedItem, 'dv')
     const sender = get(updatedItem, 'sender')
-    const lastCommentAt = get(updatedItem, 'createdAt', new Date()).toISOString()
-    const lastResidentCommentAt = userType === RESIDENT ? lastCommentAt : undefined
+
+    const lastResidentCommentAt = userType === RESIDENT ? commentCreatedAt : undefined
+    const lastCommentWithResidentTypeAt =  get(updatedItem, 'type') === RESIDENT_COMMENT_TYPE ? commentCreatedAt : undefined
 
     await Ticket.update(context, ticketId, {
         dv,
         sender,
-        lastCommentAt,
+        lastCommentAt: commentCreatedAt,
         lastResidentCommentAt,
+        lastCommentWithResidentTypeAt,
     })
 }
 
 module.exports = {
     sendTicketCommentNotifications,
     detectTicketEventTypes,
-    createOrUpdateTicketCommentsTime,
+    updateTicketReadCommentTime,
     updateTicketLastCommentTime,
     ASSIGNEE_CONNECTED_EVENT_TYPE,
     EXECUTOR_CONNECTED_EVENT_TYPE,

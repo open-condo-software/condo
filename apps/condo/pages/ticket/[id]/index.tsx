@@ -81,6 +81,7 @@ import {
     TicketComment,
     TicketCommentFile,
     TicketCommentsTime,
+    TicketLastCommentsTime,
     UserTicketCommentReadTime,
 } from '@condo/domains/ticket/utils/clientSchema'
 import { FavoriteTicketIndicator } from '@condo/domains/ticket/utils/clientSchema/Renders'
@@ -580,11 +581,10 @@ export const TicketPageContent = ({ ticket, refetchTicket, organization, employe
         user: { connect: { id: auth.user && auth.user.id } },
     })
 
-    const { obj: ticketCommentsTime, refetch: refetchTicketCommentsTime } = TicketCommentsTime.useObject({
-        where: {
-            ticket: { id: id },
-        },
+    const { obj: ticketCommentsTime, refetch: refetchTicketCommentsTime } = TicketLastCommentsTime.useObject({
+        where: { id },
     })
+
     const {
         obj: userTicketCommentReadTime,
         refetch: refetchUserTicketCommentReadTime,
