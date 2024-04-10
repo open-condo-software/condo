@@ -177,7 +177,7 @@ describe('notifyResidentsAboutNewsItem', () => {
             await createTestNewsItemScope(adminClient, newsItem)
             await publishTestNewsItem(adminClient, newsItem.id)
             await expect(notifyResidentsAboutNewsItem(newsItem.id)).resolves.toBeUndefined()
-            await expect(notifyResidentsAboutNewsItem(newsItem.id)).resolves.toBe('IS_LOCKED')
+            await expect(notifyResidentsAboutNewsItem(newsItem.id)).rejects.toThrow('Trying to send news item which already was sent recently')
             await waitFor(async () => {
                 await expect(notifyResidentsAboutNewsItem(newsItem.id)).rejects.toThrow('Trying to send news item which already been sent')
             }, { delay: (NEWS_SENDING_TTL_IN_SEC) * 1000 })

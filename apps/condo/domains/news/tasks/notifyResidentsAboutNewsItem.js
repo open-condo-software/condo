@@ -168,12 +168,7 @@ async function notifyResidentsAboutNewsItem (newsItemId) {
         const isLocked = await REDIS_GUARD.isLocked(newsItemId, action)
         if (isLocked) {
             const timeRemain = await REDIS_GUARD.lockTimeRemain(newsItemId, action)
-            logger.info({
-                msg: 'This news is already being sent or was sent recently.',
-                taskId,
-                data: { timeRemain, newsItemId },
-            })
-            return 'IS_LOCKED'
+            throw new Error(`Trying to send news item which already was sent recently (time remain: ${timeRemain})`)
         }
 
         await REDIS_GUARD.lock(newsItemId, action, NEWS_SENDING_TTL_IN_SEC)
