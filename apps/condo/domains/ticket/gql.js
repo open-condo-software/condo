@@ -27,8 +27,11 @@ const REVIEW_CONTROL_FIELDS = 'reviewValue reviewComment'
  * @type {string}
  */
 const IS_PAID_FIELD = 'isPaid'
-const TICKET_FIELDS = `{ canReadByResident completedAt isCompletedAfterDeadline lastCommentAt lastResidentCommentAt isResidentTicket ${REVIEW_CONTROL_FIELDS} ${FEEDBACK_CONTROL_FIELDS} ${TICKET_QUALITY_CONTROL_FIELDS} deadline deferredUntil organization { id name country phone phoneNumberPrefix } property { ${TICKET_PROPERTY_FIELDS} } propertyAddress propertyAddressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitType unitName sectionName sectionType floorName status { id name type organization { id } colors { primary secondary additional } } statusReopenedCounter statusUpdatedAt statusReason number client { id name } clientName clientEmail clientPhone contact { id name phone email unitName unitType } assignee { id name } executor { id name } details related { id details } isAutoClassified isEmergency ${IS_PAID_FIELD} isPayable isWarranty meta source { id name type } sourceMeta categoryClassifier { id } placeClassifier { id } problemClassifier { id } ${TICKET_CLASSIFIER_ATTRIBUTES_FIELDS} ${COMMON_FIELDS} }`
+const TICKET_FIELDS = `{ canReadByResident completedAt isCompletedAfterDeadline lastCommentAt lastResidentCommentAt lastCommentWithResidentTypeAt isResidentTicket ${REVIEW_CONTROL_FIELDS} ${FEEDBACK_CONTROL_FIELDS} ${TICKET_QUALITY_CONTROL_FIELDS} deadline deferredUntil organization { id name country phone phoneNumberPrefix } property { ${TICKET_PROPERTY_FIELDS} } propertyAddress propertyAddressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitType unitName sectionName sectionType floorName status { id name type organization { id } colors { primary secondary additional } } statusReopenedCounter statusUpdatedAt statusReason number client { id name } clientName clientEmail clientPhone contact { id name phone email unitName unitType } assignee { id name } executor { id name } details related { id details } isAutoClassified isEmergency ${IS_PAID_FIELD} isPayable isWarranty meta source { id name type } sourceMeta categoryClassifier { id } placeClassifier { id } problemClassifier { id } ${TICKET_CLASSIFIER_ATTRIBUTES_FIELDS} ${COMMON_FIELDS} }`
 const Ticket = generateGqlQueries('Ticket', TICKET_FIELDS)
+
+const TICKET_LAST_COMMENTS_TIME_FIELDS = '{ id lastResidentCommentAt lastCommentWithResidentTypeAt }'
+const TicketLastCommentsTime = generateGqlQueries('Ticket', TICKET_LAST_COMMENTS_TIME_FIELDS)
 
 const TICKET_STATUS_FIELDS = `{ organization { id } type name nameNonLocalized colors { primary secondary additional } ${COMMON_FIELDS} }`
 const TicketStatus = generateGqlQueries('TicketStatus', TICKET_STATUS_FIELDS)
@@ -266,6 +269,7 @@ const TicketAutoAssignment = generateGqlQueries('TicketAutoAssignment', TICKET_A
 /* AUTOGENERATE MARKER <CONST> */
 module.exports = {
     Ticket,
+    TicketLastCommentsTime,
     TicketStatus,
     TicketChange,
     TicketSource,

@@ -342,10 +342,10 @@ const Comments: React.FC<ICommentsListProps> = ({
     }, [createOrUpdateUserTicketCommentReadTime])
 
     const lastResidentCommentAt = get(ticketCommentsTime, 'lastResidentCommentAt')
-    const lastCommentAt = get(ticketCommentsTime, 'lastCommentAt')
+    const lastCommentWithResidentTypeAt = get(ticketCommentsTime, 'lastCommentWithResidentTypeAt')
     const readResidentCommentByUserAt = get(userTicketCommentReadTime, 'readResidentCommentAt')
-    const showIndicator = useMemo(() => hasUnreadResidentComments(lastResidentCommentAt, readResidentCommentByUserAt, lastCommentAt),
-        [lastCommentAt, lastResidentCommentAt, readResidentCommentByUserAt])
+    const showIndicator = useMemo(() => hasUnreadResidentComments(lastResidentCommentAt, readResidentCommentByUserAt, lastCommentWithResidentTypeAt),
+        [lastCommentWithResidentTypeAt, lastResidentCommentAt, readResidentCommentByUserAt])
 
     const organizationCommentsTabContentProps = {
         comments: commentsWithOrganization,

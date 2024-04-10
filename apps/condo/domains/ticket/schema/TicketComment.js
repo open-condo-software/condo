@@ -14,9 +14,9 @@ const access = require('@condo/domains/ticket/access/TicketComment')
 const { COMMENT_TYPES, RESIDENT_COMMENT_TYPE, ORGANIZATION_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
 const { USER_MUST_BE_SAME_AS_CREATED_BY } = require('@condo/domains/ticket/constants/errors')
 const { sendTicketCommentNotifications, updateTicketLastCommentTime } = require('@condo/domains/ticket/utils/handlers')
-const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 
-const { createOrUpdateTicketCommentsTime } = require('../utils/handlers')
+const { updateTicketReadCommentTime } = require('../utils/handlers')
 
 
 const ERRORS = {
@@ -107,10 +107,12 @@ const TicketComment = new GQLListSchema('TicketComment', {
             const commentType = get(updatedItem, 'type')
 
             if (operation === 'create') {
-                await updateTicketLastCommentTime(context, updatedItem, userType)
+                const commentCreatedAt = get(updatedItem, 'createdAt').toISOString()
 
-                if (commentType === RESIDENT_COMMENT_TYPE) {
-                    await createOrUpdateTicketCommentsTime(context, updatedItem, userType)
+                await updateTicketLastCommentTime(context, updatedItem, userType, commentCreatedAt)
+
+                if (commentType === RESIDENT_COMMENT_TYPE && userType === STAFF) {
+                    await updateTicketReadCommentTime(context, updatedItem, commentCreatedAt)
                 }
             }
 

@@ -22,7 +22,7 @@ import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useAutoRefetchTickets } from '@condo/domains/ticket/contexts/AutoRefetchTicketsContext'
-import { TicketCommentsTime, TicketStatus, UserTicketCommentReadTime } from '@condo/domains/ticket/utils/clientSchema'
+import { TicketStatus, UserTicketCommentReadTime } from '@condo/domains/ticket/utils/clientSchema'
 import {
     FavoriteTicketIndicator,
     getClassifierRender, getCommentsIndicatorRender,
@@ -116,25 +116,13 @@ export function useTableColumns<T> (
             },
         },
     })
-    const {
-        objs: ticketsCommentTimes,
-        refetch: refetchTicketsCommentsTimes,
-        loading: ticketCommentTimesLoading,
-    } = TicketCommentsTime.useObjects({
-        where: {
-            ticket: {
-                id_in: ticketIds,
-            },
-        },
-    })
 
     const { isRefetchTicketsFeatureEnabled, refetchInterval } = useAutoRefetchTickets()
 
     const refetch = useCallback(async () => {
         await refetchTickets()
         await refetchUserTicketCommentReadTimes()
-        await refetchTicketsCommentsTimes()
-    }, [refetchTickets, refetchTicketsCommentsTimes, refetchUserTicketCommentReadTimes])
+    }, [refetchTickets, refetchUserTicketCommentReadTimes])
 
     useEffect(() => {
         if (isRefetchTicketsFeatureEnabled) {
@@ -163,7 +151,7 @@ export function useTableColumns<T> (
                 key: 'commentsIndicator',
                 width: COLUMNS_WIDTH.commentsIndicator,
                 render: getCommentsIndicatorRender({
-                    intl, ticketsCommentTimes, userTicketCommentReadTimes, breakpoints,
+                    intl, tickets, userTicketCommentReadTimes, breakpoints,
                 }),
                 align: 'center',
                 className: 'comments-column',
@@ -299,8 +287,8 @@ export function useTableColumns<T> (
                 ellipsis: true,
             },
         ],
-        loading: userTicketCommentReadTimesLoading || ticketCommentTimesLoading,
-    }), [intl, ticketsCommentTimes, userTicketCommentReadTimes, breakpoints, NumberMessage, sorterMap, filters, filterMetas, search, DateMessage, StatusMessage, renderStatusFilterDropdown, AddressMessage, renderAddress, UnitMessage, DescriptionMessage, ClassifierTitle, ClientNameMessage, ExecutorMessage, renderExecutor, ResponsibleMessage, renderAssignee, userTicketCommentReadTimesLoading, ticketCommentTimesLoading])
+        loading: userTicketCommentReadTimesLoading,
+    }), [intl, userTicketCommentReadTimes, breakpoints, NumberMessage, sorterMap, filters, filterMetas, search, DateMessage, StatusMessage, renderStatusFilterDropdown, AddressMessage, renderAddress, UnitMessage, DescriptionMessage, ClassifierTitle, ClientNameMessage, ExecutorMessage, renderExecutor, ResponsibleMessage, renderAssignee, userTicketCommentReadTimesLoading])
 }
 
 export function useTicketQualityTableColumns (): { columns: ColumnsType<Ticket> } {

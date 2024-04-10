@@ -51,19 +51,18 @@ const NEW_COMMENTS_INDICATOR_STYLES: CSSProperties = {
 }
 const ADDRESS_RENDER_POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
 
-export const getCommentsIndicatorRender = ({ intl, breakpoints, userTicketCommentReadTimes, ticketsCommentTimes }) => {
+export const getCommentsIndicatorRender = ({ intl, breakpoints, userTicketCommentReadTimes, tickets }) => {
     const NewResidentCommentMessage = intl.formatMessage({ id: 'ticket.newResidentComment' })
 
     return function render (ticket: Ticket) {
         const ticketId = get(ticket, 'id')
         const currentTicketUserTicketCommentReadTimes = ticketId ? userTicketCommentReadTimes.find(obj => get(obj, 'ticket.id') === ticketId) : null
-        const currentTicketCommentTimes = ticketId ? ticketsCommentTimes.find(obj => get(obj, 'ticket.id') === ticketId) : null
 
         const readResidentCommentByUserAt = get(currentTicketUserTicketCommentReadTimes, 'readResidentCommentAt')
-        const lastResidentCommentAt = get(currentTicketCommentTimes, 'lastResidentCommentAt')
-        const lastCommentAt = get(currentTicketCommentTimes, 'lastCommentAt')
+        const lastResidentCommentAt = get(ticket, 'lastResidentCommentAt')
+        const lastCommentWithResidentTypeAt = get(ticket, 'lastCommentWithResidentTypeAt')
 
-        return hasUnreadResidentComments(lastResidentCommentAt, readResidentCommentByUserAt, lastCommentAt) && (
+        return hasUnreadResidentComments(lastResidentCommentAt, readResidentCommentByUserAt, lastCommentWithResidentTypeAt) && (
             <div style={breakpoints.DESKTOP_LARGE ? NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_LARGER_THAN_XL : {}}>
                 <Tooltip title={NewResidentCommentMessage} placement='topRight'>
                     <Typography.Text title={NewResidentCommentMessage}>

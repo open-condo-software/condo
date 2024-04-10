@@ -14,7 +14,7 @@ import { get, isUndefined, isNull } from 'lodash'
 
 import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
 
-import { Ticket as TicketGQL } from '@condo/domains/ticket/gql'
+import { Ticket as TicketGQL, TicketLastCommentsTime as TicketLastCommentsTimeGql } from '@condo/domains/ticket/gql'
 
 const RELATIONS = ['status', 'client', 'contact', 'operator', 'assignee', 'organization', 'source', 'property', 'executor', 'related', 'classifier']
 const DISCONNECT_ON_NULL = ['assignee', 'executor', 'contact']

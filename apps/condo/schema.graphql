@@ -21595,6 +21595,7 @@ type TicketHistoryRecord {
   completedAt: String
   lastCommentAt: String
   lastResidentCommentAt: String
+  lastCommentWithResidentTypeAt: String
   statusReason: String
   status: String
   deadline: String
@@ -21831,6 +21832,14 @@ input TicketHistoryRecordWhereInput {
   lastResidentCommentAt_gte: String
   lastResidentCommentAt_in: [String]
   lastResidentCommentAt_not_in: [String]
+  lastCommentWithResidentTypeAt: String
+  lastCommentWithResidentTypeAt_not: String
+  lastCommentWithResidentTypeAt_lt: String
+  lastCommentWithResidentTypeAt_lte: String
+  lastCommentWithResidentTypeAt_gt: String
+  lastCommentWithResidentTypeAt_gte: String
+  lastCommentWithResidentTypeAt_in: [String]
+  lastCommentWithResidentTypeAt_not_in: [String]
   statusReason: String
   statusReason_not: String
   statusReason_contains: String
@@ -22242,6 +22251,8 @@ enum SortTicketHistoryRecordsBy {
   lastCommentAt_DESC
   lastResidentCommentAt_ASC
   lastResidentCommentAt_DESC
+  lastCommentWithResidentTypeAt_ASC
+  lastCommentWithResidentTypeAt_DESC
   statusReason_ASC
   statusReason_DESC
   deadline_ASC
@@ -22322,6 +22333,7 @@ input TicketHistoryRecordUpdateInput {
   completedAt: String
   lastCommentAt: String
   lastResidentCommentAt: String
+  lastCommentWithResidentTypeAt: String
   statusReason: String
   status: String
   deadline: String
@@ -22397,6 +22409,7 @@ input TicketHistoryRecordCreateInput {
   completedAt: String
   lastCommentAt: String
   lastResidentCommentAt: String
+  lastCommentWithResidentTypeAt: String
   statusReason: String
   status: String
   deadline: String
@@ -22600,8 +22613,12 @@ type Ticket {
   """ Last comment time in ticket """
   lastCommentAt: String
 
-  """ Last resident comment time in ticket """
+  """ Time of the last comment with resident author in ticket """
   lastResidentCommentAt: String
+
+  """ Time of the last comment with resident type (from staff or resident user) in ticket 
+  """
+  lastCommentWithResidentTypeAt: String
 
   """ Text reason for status changes. Sometimes you should describe the reason why you change the `status` 
   """
@@ -22899,6 +22916,14 @@ input TicketWhereInput {
   lastResidentCommentAt_gte: String
   lastResidentCommentAt_in: [String]
   lastResidentCommentAt_not_in: [String]
+  lastCommentWithResidentTypeAt: String
+  lastCommentWithResidentTypeAt_not: String
+  lastCommentWithResidentTypeAt_lt: String
+  lastCommentWithResidentTypeAt_lte: String
+  lastCommentWithResidentTypeAt_gt: String
+  lastCommentWithResidentTypeAt_gte: String
+  lastCommentWithResidentTypeAt_in: [String]
+  lastCommentWithResidentTypeAt_not_in: [String]
   statusReason: String
   statusReason_not: String
   statusReason_contains: String
@@ -23246,6 +23271,8 @@ enum SortTicketsBy {
   lastCommentAt_DESC
   lastResidentCommentAt_ASC
   lastResidentCommentAt_DESC
+  lastCommentWithResidentTypeAt_ASC
+  lastCommentWithResidentTypeAt_DESC
   statusReason_ASC
   statusReason_DESC
   status_ASC
@@ -23352,6 +23379,7 @@ input TicketUpdateInput {
   completedAt: String
   lastCommentAt: String
   lastResidentCommentAt: String
+  lastCommentWithResidentTypeAt: String
   statusReason: String
   status: TicketStatusRelateToOneInput
   deadline: String
@@ -23424,6 +23452,7 @@ input TicketCreateInput {
   completedAt: String
   lastCommentAt: String
   lastResidentCommentAt: String
+  lastCommentWithResidentTypeAt: String
   statusReason: String
   status: TicketStatusRelateToOneInput
   deadline: String
@@ -24844,6 +24873,14 @@ type TicketChange {
   """
   qualityControlAdditionalOptionsTo: JSON
 
+  """ Time of the last comment with resident type (from staff or resident user) in ticket 
+  """
+  lastCommentWithResidentTypeAtFrom: String
+
+  """ Time of the last comment with resident type (from staff or resident user) in ticket 
+  """
+  lastCommentWithResidentTypeAtTo: String
+
   """ Text reason for status changes. Sometimes you should describe the reason why you change the `status` 
   """
   statusReasonFrom: String
@@ -25365,6 +25402,22 @@ input TicketChangeWhereInput {
   qualityControlAdditionalOptionsTo_not: JSON
   qualityControlAdditionalOptionsTo_in: [JSON]
   qualityControlAdditionalOptionsTo_not_in: [JSON]
+  lastCommentWithResidentTypeAtFrom: String
+  lastCommentWithResidentTypeAtFrom_not: String
+  lastCommentWithResidentTypeAtFrom_lt: String
+  lastCommentWithResidentTypeAtFrom_lte: String
+  lastCommentWithResidentTypeAtFrom_gt: String
+  lastCommentWithResidentTypeAtFrom_gte: String
+  lastCommentWithResidentTypeAtFrom_in: [String]
+  lastCommentWithResidentTypeAtFrom_not_in: [String]
+  lastCommentWithResidentTypeAtTo: String
+  lastCommentWithResidentTypeAtTo_not: String
+  lastCommentWithResidentTypeAtTo_lt: String
+  lastCommentWithResidentTypeAtTo_lte: String
+  lastCommentWithResidentTypeAtTo_gt: String
+  lastCommentWithResidentTypeAtTo_gte: String
+  lastCommentWithResidentTypeAtTo_in: [String]
+  lastCommentWithResidentTypeAtTo_not_in: [String]
   statusReasonFrom: String
   statusReasonFrom_not: String
   statusReasonFrom_contains: String
@@ -26314,6 +26367,10 @@ enum SortTicketChangesBy {
   qualityControlCommentFrom_DESC
   qualityControlCommentTo_ASC
   qualityControlCommentTo_DESC
+  lastCommentWithResidentTypeAtFrom_ASC
+  lastCommentWithResidentTypeAtFrom_DESC
+  lastCommentWithResidentTypeAtTo_ASC
+  lastCommentWithResidentTypeAtTo_DESC
   statusReasonFrom_ASC
   statusReasonFrom_DESC
   statusReasonTo_ASC
@@ -26508,6 +26565,8 @@ input TicketChangeUpdateInput {
   qualityControlCommentTo: String
   qualityControlAdditionalOptionsFrom: JSON
   qualityControlAdditionalOptionsTo: JSON
+  lastCommentWithResidentTypeAtFrom: String
+  lastCommentWithResidentTypeAtTo: String
   statusReasonFrom: String
   statusReasonTo: String
   deadlineFrom: String
@@ -26627,6 +26686,8 @@ input TicketChangeCreateInput {
   qualityControlCommentTo: String
   qualityControlAdditionalOptionsFrom: JSON
   qualityControlAdditionalOptionsTo: JSON
+  lastCommentWithResidentTypeAtFrom: String
+  lastCommentWithResidentTypeAtTo: String
   statusReasonFrom: String
   statusReasonTo: String
   deadlineFrom: String
