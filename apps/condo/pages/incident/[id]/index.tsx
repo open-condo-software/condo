@@ -68,7 +68,6 @@ const IncidentPropertiesField: React.FC<IncidentFieldProps> = ({ incident }) => 
     const { objs: incidentProperties, allDataLoaded } = IncidentProperty.useAllObjects({
         where: {
             incident: { id: incident.id },
-            deletedAt: null,
         },
     })
 
@@ -82,13 +81,19 @@ const IncidentPropertiesField: React.FC<IncidentFieldProps> = ({ incident }) => 
         }
 
         // TODO(DOMA-2567) refactor duplicate in '@condo/pages/settings/propertyScope/[id]/index.tsx'
-        return incidentProperties.map(({ property }) => {
+        return incidentProperties.map((incidentProperty) => {
+            const property = {
+                id: get(incidentProperty, 'property.id', get(incidentProperty, 'id', null)),
+                address: get(incidentProperty, 'property.address', get(incidentProperty, 'propertyAddress', null)),
+                addressMeta: get(incidentProperty, 'property.addressMeta', get(incidentProperty, 'propertyAddressMeta', null)),
+                deletedAt: get(incidentProperty, 'property.deletedAt', true),
+            }
             const isDeleted = Boolean(get(property, 'deletedAt'))
             const propertyMessage = getAddressRender(property, null, DeletedMessage)
 
             return (
                 <div
-                    key={property.id}
+                    key={get(property, 'id')}
                 >
                     {
                         isDeleted ? (
@@ -196,7 +201,6 @@ const IncidentClassifiersField: React.FC<IncidentFieldProps> = ({ incident }) =>
     const { objs: incidentClassifiers, allDataLoaded } = IncidentClassifierIncident.useAllObjects({
         where: {
             incident: { id: incident.id },
-            deletedAt: null,
         },
     })
     const categories = useMemo(

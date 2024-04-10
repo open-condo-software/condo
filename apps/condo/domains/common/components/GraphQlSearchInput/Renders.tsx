@@ -39,7 +39,7 @@ export const renderDeletedOption = (intl, option) => {
 
     return (
         <Select.Option key={option.key || value} value={value} style={HIDDEN_OPTION_STYLE}>
-            ({text || DeletedMessage})
+            {text} ({DeletedMessage})
         </Select.Option>
     )
 }
