@@ -5,9 +5,8 @@ const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
 const conf = require('@open-condo/config')
-const { makeLoggedInAdminClient, UUID_RE } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, UUID_RE, waitFor } = require('@open-condo/keystone/test.utils')
 
-const { sleep } = require('@condo/domains/common/utils/sleep')
 const {
     TICKET_ASSIGNEE_CONNECTED_TYPE,
     PUSH_FAKE_TOKEN_SUCCESS,
@@ -29,9 +28,8 @@ describe('SetMessageStatusService', () => {
         const randomFakeSuccessPushtoken = `${PUSH_FAKE_TOKEN_SUCCESS}-${faker.datatype.uuid()}`
         const tokenData = { pushToken: randomFakeSuccessPushtoken, pushTransport: PUSH_TRANSPORT_FIREBASE }
         const payload = getRandomTokenData(tokenData)
-        /**
-         * Register fake success pushToken in order for user to be able to receive push notifications
-         */
+
+        // Register fake success pushToken in order for user to be able to receive push notifications
         const [device] = await syncRemoteClientByTestClient(assignee, payload)
 
         expect(device.pushTransport).toEqual(payload.pushTransport)
@@ -51,31 +49,22 @@ describe('SetMessageStatusService', () => {
             },
         }
 
-        /**
-         * Send push notification to user
-         */
+        // Send push notification to user
         const [message] = await sendMessageByTestClient(admin, extraAttrs)
 
         expect(message.status).toEqual(MESSAGE_SENDING_STATUS)
 
-        /**
-         * Give worker some time to proceed async logic
-         */
-        // TODO(DOMA-2765) Get rid of sleep
-        await sleep(1000)
-
         const messageWhere = { user: { id: assignee.user.id }, type: TICKET_ASSIGNEE_CONNECTED_TYPE }
-        const message1 = await Message.getOne(admin, messageWhere)
 
-        /**
-         * Make sure message status is MESSAGE_SENT_STATUS
-         */
-        expect(message1.id).toMatch(UUID_RE)
-        expect(message1.status).toEqual(MESSAGE_SENT_STATUS)
+        await waitFor(async () => {
+            const message1 = await Message.getOne(admin, messageWhere)
 
-        /**
-         * Emulate request from mobile device to set message status to MESSAGE_DELIVERED_STATUS
-         */
+            // Make sure message status is MESSAGE_SENT_STATUS
+            expect(message1.id).toMatch(UUID_RE)
+            expect(message1.status).toEqual(MESSAGE_SENT_STATUS)
+        })
+
+        // Emulate request from mobile device to set message status to MESSAGE_DELIVERED_STATUS
         const payload1 = { message: { id: message.id }, deliveredAt: dayjs().toISOString() }
         const [data] = await setMessageStatusByTestClient(admin, payload1)
 
@@ -85,9 +74,8 @@ describe('SetMessageStatusService', () => {
 
         expect(message2.status).toEqual(MESSAGE_DELIVERED_STATUS)
 
-        /**
-         * Emulate request from mobile device to set message status to MESSAGE_READ_STATUS
-         */
+        // Emulate request from mobile device to set message status to MESSAGE_READ_STATUS
+
         const payload2 = { message: { id: message.id }, readAt: dayjs().toISOString() }
         const [data1] = await setMessageStatusByTestClient(admin, payload2)
 

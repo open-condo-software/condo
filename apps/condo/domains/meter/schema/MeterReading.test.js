@@ -4,7 +4,7 @@
 
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor } = require('@open-condo/keystone/test.utils')
 const {
     catchErrorFrom,
     expectToThrowAuthenticationErrorToObjects,
@@ -17,13 +17,13 @@ const {
     createTestBillingAccount,
     makeContextWithOrganizationAndIntegrationAsAdmin,
 } = require('@condo/domains/billing/utils/testSchema')
-const { sleep } = require('@condo/domains/common/utils/sleep')
 const { Contact, createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const {
     CALL_METER_READING_SOURCE_ID,
     COLD_WATER_METER_RESOURCE_ID,
     METER_READING_SOURCE_INTERNAL_IMPORT_TYPE,
     METER_READING_SOURCE_EXTERNAL_IMPORT_TYPE,
+    HOT_WATER_METER_RESOURCE_ID,
 } = require('@condo/domains/meter/constants/constants')
 const {
     MeterResource,
@@ -63,7 +63,6 @@ const {
 } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
-const { HOT_WATER_METER_RESOURCE_ID } = require('../constants/constants')
 
 describe('MeterReading', () => {
     let admin
@@ -433,12 +432,11 @@ describe('MeterReading', () => {
                         await createTestMeterReading(residentClient, meter, source)
                     })
 
-                    // NOTE: give worker some time
-                    await sleep(1500)
-
                     // test access after residents reconnection worker task done
-                    await expectToThrowAccessDeniedErrorToObj(async () => {
-                        await createTestMeterReading(residentClient, meter, source)
+                    await waitFor(async () => {
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await createTestMeterReading(residentClient, meter, source)
+                        })
                     })
                 })
 
@@ -1211,15 +1209,14 @@ describe('MeterReading', () => {
 
                     expect(meterReadingsBeforeReconnect).toHaveLength(0)
 
-                    // NOTE: give worker some time
-                    await sleep(1500)
-
                     // test access after residents reconnection worker task done
-                    const meterReadingsAfterReconnect = await MeterReading.getAll(residentClient, {
-                        id: meterReading.id,
-                    })
+                    await waitFor(async () => {
+                        const meterReadingsAfterReconnect = await MeterReading.getAll(residentClient, {
+                            id: meterReading.id,
+                        })
 
-                    expect(meterReadingsAfterReconnect).toHaveLength(0)
+                        expect(meterReadingsAfterReconnect).toHaveLength(0)
+                    })
                 })
 
                 test('can read readings from another organization if it has resource ownership', async () => {
