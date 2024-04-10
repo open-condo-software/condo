@@ -2254,7 +2254,7 @@ export type B2BAppAccessRightSet = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
-  canExecuteRegisterMeters?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterMetersReadings?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -2283,7 +2283,7 @@ export type B2BAppAccessRightSetCreateInput = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
-  canExecuteRegisterMeters?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterMetersReadings?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -2317,7 +2317,7 @@ export type B2BAppAccessRightSetHistoryRecord = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
-  canExecuteRegisterMeters?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterMetersReadings?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -2345,7 +2345,7 @@ export type B2BAppAccessRightSetHistoryRecordCreateInput = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
-  canExecuteRegisterMeters?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterMetersReadings?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -2378,7 +2378,7 @@ export type B2BAppAccessRightSetHistoryRecordUpdateInput = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
-  canExecuteRegisterMeters?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterMetersReadings?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -2420,8 +2420,8 @@ export type B2BAppAccessRightSetHistoryRecordWhereInput = {
   canReadProperties_not?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties_not?: Maybe<Scalars['Boolean']>;
-  canExecuteRegisterMeters?: Maybe<Scalars['Boolean']>;
-  canExecuteRegisterMeters_not?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterMetersReadings?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterMetersReadings_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -2532,7 +2532,7 @@ export type B2BAppAccessRightSetUpdateInput = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
-  canExecuteRegisterMeters?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterMetersReadings?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -2569,8 +2569,8 @@ export type B2BAppAccessRightSetWhereInput = {
   canReadProperties_not?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties_not?: Maybe<Scalars['Boolean']>;
-  canExecuteRegisterMeters?: Maybe<Scalars['Boolean']>;
-  canExecuteRegisterMeters_not?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterMetersReadings?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterMetersReadings_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -73512,8 +73512,8 @@ export enum SortB2BAppAccessRightSetHistoryRecordsBy {
   CanReadPropertiesDesc = 'canReadProperties_DESC',
   CanManagePropertiesAsc = 'canManageProperties_ASC',
   CanManagePropertiesDesc = 'canManageProperties_DESC',
-  CanExecuteRegisterMetersAsc = 'canExecuteRegisterMeters_ASC',
-  CanExecuteRegisterMetersDesc = 'canExecuteRegisterMeters_DESC',
+  CanExecuteRegisterMetersReadingsAsc = 'canExecuteRegisterMetersReadings_ASC',
+  CanExecuteRegisterMetersReadingsDesc = 'canExecuteRegisterMetersReadings_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -73555,8 +73555,8 @@ export enum SortB2BAppAccessRightSetsBy {
   CanReadPropertiesDesc = 'canReadProperties_DESC',
   CanManagePropertiesAsc = 'canManageProperties_ASC',
   CanManagePropertiesDesc = 'canManageProperties_DESC',
-  CanExecuteRegisterMetersAsc = 'canExecuteRegisterMeters_ASC',
-  CanExecuteRegisterMetersDesc = 'canExecuteRegisterMeters_DESC',
+  CanExecuteRegisterMetersReadingsAsc = 'canExecuteRegisterMetersReadings_ASC',
+  CanExecuteRegisterMetersReadingsDesc = 'canExecuteRegisterMetersReadings_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

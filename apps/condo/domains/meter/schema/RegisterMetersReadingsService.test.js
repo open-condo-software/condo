@@ -264,7 +264,7 @@ describe('RegisterMetersReadingsService', () => {
                 const [app] = await createTestB2BApp(adminClient)
                 await createTestB2BAppContext(adminClient, app, o10n, { status: 'Finished' })
                 const [accessRightSet] = await createTestB2BAppAccessRightSet(adminClient, app, {
-                    canExecuteRegisterMeters: true,
+                    canExecuteRegisterMetersReadings: true,
                 })
                 await createTestB2BAppAccessRight(adminClient, serviceClient.user, app, accessRightSet)
 

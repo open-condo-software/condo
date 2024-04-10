@@ -66688,7 +66688,7 @@ type B2BAppAccessRightSetHistoryRecord {
   canManageOrganizations: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
-  canExecuteRegisterMeters: Boolean
+  canExecuteRegisterMetersReadings: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -66731,8 +66731,8 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canReadProperties_not: Boolean
   canManageProperties: Boolean
   canManageProperties_not: Boolean
-  canExecuteRegisterMeters: Boolean
-  canExecuteRegisterMeters_not: Boolean
+  canExecuteRegisterMetersReadings: Boolean
+  canExecuteRegisterMetersReadings_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -66836,8 +66836,8 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canReadProperties_DESC
   canManageProperties_ASC
   canManageProperties_DESC
-  canExecuteRegisterMeters_ASC
-  canExecuteRegisterMeters_DESC
+  canExecuteRegisterMetersReadings_ASC
+  canExecuteRegisterMetersReadings_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -66868,7 +66868,7 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   canManageOrganizations: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
-  canExecuteRegisterMeters: Boolean
+  canExecuteRegisterMetersReadings: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -66900,7 +66900,7 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   canManageOrganizations: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
-  canExecuteRegisterMeters: Boolean
+  canExecuteRegisterMetersReadings: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -66952,7 +66952,7 @@ type B2BAppAccessRightSet {
   canManageOrganizations: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
-  canExecuteRegisterMeters: Boolean
+  canExecuteRegisterMetersReadings: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -67001,8 +67001,8 @@ input B2BAppAccessRightSetWhereInput {
   canReadProperties_not: Boolean
   canManageProperties: Boolean
   canManageProperties_not: Boolean
-  canExecuteRegisterMeters: Boolean
-  canExecuteRegisterMeters_not: Boolean
+  canExecuteRegisterMetersReadings: Boolean
+  canExecuteRegisterMetersReadings_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -67088,8 +67088,8 @@ enum SortB2BAppAccessRightSetsBy {
   canReadProperties_DESC
   canManageProperties_ASC
   canManageProperties_DESC
-  canExecuteRegisterMeters_ASC
-  canExecuteRegisterMeters_DESC
+  canExecuteRegisterMetersReadings_ASC
+  canExecuteRegisterMetersReadings_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -67120,7 +67120,7 @@ input B2BAppAccessRightSetUpdateInput {
   canManageOrganizations: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
-  canExecuteRegisterMeters: Boolean
+  canExecuteRegisterMetersReadings: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -67149,7 +67149,7 @@ input B2BAppAccessRightSetCreateInput {
   canManageOrganizations: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
-  canExecuteRegisterMeters: Boolean
+  canExecuteRegisterMetersReadings: Boolean
   v: Int
   createdAt: String
   updatedAt: String
