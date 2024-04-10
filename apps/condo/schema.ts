@@ -70495,14 +70495,14 @@ export type RegisterMetersReadingsMeterMetaInput = {
 };
 
 export type RegisterMetersReadingsReadingAddressMetaInput = {
-  unitType?: Maybe<Scalars['String']>;
-  unitName?: Maybe<Scalars['String']>;
+  unitType: Scalars['String'];
+  unitName: Scalars['String'];
   globalId?: Maybe<Scalars['String']>;
 };
 
 export type RegisterMetersReadingsReadingInput = {
   address: Scalars['String'];
-  addressMeta?: Maybe<RegisterMetersReadingsReadingAddressMetaInput>;
+  addressMeta: RegisterMetersReadingsReadingAddressMetaInput;
   accountNumber: Scalars['String'];
   meterNumber: Scalars['String'];
   meterResource: MeterResourceWhereUniqueInput;

@@ -74157,14 +74157,14 @@ input RegisterMetersReadingsMeterMetaInput {
 }
 
 input RegisterMetersReadingsReadingAddressMetaInput {
-  unitType: String
-  unitName: String
+  unitType: String!
+  unitName: String!
   globalId: String
 }
 
 input RegisterMetersReadingsReadingInput {
   address: String!
-  addressMeta: RegisterMetersReadingsReadingAddressMetaInput
+  addressMeta: RegisterMetersReadingsReadingAddressMetaInput!
   accountNumber: String!
   meterNumber: String!
   meterResource: MeterResourceWhereUniqueInput!
