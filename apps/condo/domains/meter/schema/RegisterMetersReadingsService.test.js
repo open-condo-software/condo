@@ -354,4 +354,17 @@ describe('RegisterMetersReadingsService', () => {
             },
         )
     })
+
+    test('error if organization not exists', async () => {
+        await expectToThrowGQLError(
+            async () => await registerMetersReadingsByTestClient(adminClient, { id: faker.datatype.uuid() }, []),
+            {
+                code: 'BAD_USER_INPUT',
+                type: 'ORGANIZATION_NOT_FOUND',
+                message: 'Organization not found',
+                messageForUser: 'api.meter.registerMetersReadings.ORGANIZATION_NOT_FOUND',
+            },
+            'result',
+        )
+    })
 })
