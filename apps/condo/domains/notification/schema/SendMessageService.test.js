@@ -316,7 +316,7 @@ describe('SendMessageService', () => {
                     })
                 }, ({ errors, data }) => {
                     expect(errors).toMatchObject([{
-                        message: 'Variable "$data" got invalid value "unknownMessageType" at "data.type"; Value "unknownMessageType" does not exist in "SendMessageType" enum.',
+                        message: 'Variable "$data" got invalid value "unknownMessageType" at "data.type"; Value "unknownMessageType" does not exist in "MessageType" enum.',
                     }])
                     expect(data).toBeUndefined()
                 })

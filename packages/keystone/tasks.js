@@ -100,7 +100,9 @@ function removeCronTask (name, cron, opts = {}) {
     REMOVE_CRON_TASKS.push([name, taskOpts])
 }
 
-async function _scheduleRemoteTask (name, preparedArgs, preparedOpts, queue = DEFAULT_QUEUE_NAME) {
+async function _scheduleRemoteTask (name, preparedArgs, preparedOpts, queueName = DEFAULT_QUEUE_NAME) {
+    const queue = TASK_QUEUE_REMAPPING.hasOwnProperty(queueName) ? TASK_QUEUE_REMAPPING[queueName] : queueName
+
     logger.info({ msg: 'Scheduling task', name, queue, meta: { preparedArgs, preparedOpts } })
 
     if (!QUEUES.has(queue)) {

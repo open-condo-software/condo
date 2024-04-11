@@ -226,7 +226,7 @@ describe('NotificationUserSetting', () => {
             const messageType = faker.random.word()
             await expectToThrowGraphQLRequestError(
                 async () => await createTestNotificationUserSetting(adminClient, { messageType }),
-                `Value "${messageType}" does not exist in "NotificationUserSettingMessageTypeType" enum`,
+                `Value "${messageType}" does not exist in "MessageType" enum`,
             )
         })
 

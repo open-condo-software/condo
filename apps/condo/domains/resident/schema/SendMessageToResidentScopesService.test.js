@@ -134,7 +134,7 @@ describe('SendMessageToResidentScopesService', () => {
                     type: faker.datatype.uuid(),
                     scopes: [{ property: { id: property.id } }],
                 }
-                const expectedErrorMessage = `Variable "$data" got invalid value "${payload.type}" at "data.type"; Value "${payload.type}" does not exist in "SendMessageType" enum.`
+                const expectedErrorMessage = `Variable "$data" got invalid value "${payload.type}" at "data.type"; Value "${payload.type}" does not exist in "MessageType" enum.`
 
                 await catchErrorFrom(
                     async () => { await sendMessageToResidentScopesByTestClient(adminClient, payload) },

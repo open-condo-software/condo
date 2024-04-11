@@ -412,16 +412,13 @@ describe('MessageBatch', () => {
 
             const uniqKeys = targets.map(target => getUniqKey(date, customMessage.title, target))
             const messagesWhere = {
-                type: CUSTOM_CONTENT_MESSAGE_TYPE,
+                type_in: [CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE, CUSTOM_CONTENT_MESSAGE_PUSH_TYPE, CUSTOM_CONTENT_MESSAGE_SMS_TYPE],
                 uniqKey_in: uniqKeys,
             }
             const messagesSort = { sortBy: ['createdAt_DESC'] }
 
-            await waitFor(async () => {
-                const messages = await Message.getAll(admin, messagesWhere, messagesSort)
-
-                expect(messages).toHaveLength(0)
-            })
+            const messages = await Message.getAll(admin, messagesWhere, messagesSort)
+            expect(messages).toHaveLength(0)
         })
 
         it('handles messageBatch, creates notifications of CUSTOM_CONTENT_MESSAGE_TYPE, skips duplicate targets', async () => {
