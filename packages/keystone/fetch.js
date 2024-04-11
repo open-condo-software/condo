@@ -17,6 +17,21 @@ async function fetchWithLogger (url, options) {
 
     const executionContext = getExecutionContext()
     const parentReqId = executionContext.reqId
+    const parentTaskId = executionContext.taskId
+
+    // We want to set special headers to track requests across the microservices:
+    // Client --reqId-> Condo --reqId-> AddressService
+    //                    ^                   ^
+    //                    |                   |
+    //               log reqId           log reqId
+    //
+    if (!options.headers) {
+        options.headers = {}
+    }
+
+    options.headers['X-Request-Id'] = parentReqId || parentTaskId
+    options.headers['reqId'] = parentReqId ? parentReqId : null
+    options.headers['taskId'] = parentTaskId ? parentTaskId : null
 
     const startTime = Date.now()
 
@@ -26,7 +41,7 @@ async function fetchWithLogger (url, options) {
         const endTime = Date.now()
         const elapsedTime = endTime - startTime
 
-        logger.info({ msg: 'fetch: request successful', url, reqId: parentReqId, path, hostname, status: response.status, elapsedTime })
+        logger.info({ msg: 'fetch: request successful', url, reqId: parentReqId, taskId: parentTaskId, path, hostname, status: response.status, elapsedTime })
 
         Mertrics.increment({ name: FETCH_COUNT_METRIC_NAME, value: 1, tags: { status: response.status, hostname, path } })
         Mertrics.gauge({ name: FETCH_TIME_METRIC_NAME, value: elapsedTime, tags: { status: response.status, hostname, path } })
@@ -36,7 +51,7 @@ async function fetchWithLogger (url, options) {
         const endTime = Date.now()
         const elapsedTime = endTime - startTime
 
-        logger.error({ msg: 'fetch: failed with error', url, path, hostname, reqId: parentReqId, error, elapsedTime })
+        logger.error({ msg: 'fetch: failed with error', url, path, hostname, reqId: parentReqId, taskId: parentTaskId, error, elapsedTime })
 
         Mertrics.increment({ name: FETCH_COUNT_METRIC_NAME, value: 1, tags: { status: 'failed', hostname, path } })
         Mertrics.gauge({ name: FETCH_TIME_METRIC_NAME, value: elapsedTime, tags: { status: 'failed', hostname, path } })
