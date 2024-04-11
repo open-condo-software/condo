@@ -65,11 +65,11 @@ exports.down = async (knex) => {
 --
 -- Delete model ticketcommentstimehistoryrecord
 --
-CREATE TABLE "TicketCommentsTimeHistoryRecord" ("dv" integer NULL, "sender" jsonb NULL, "organization" uuid NULL, "ticket" uuid NULL, "lastCommentAt" timestamp with time zone NULL, "lastResidentCommentAt" timestamp with time zone NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "createdBy" uuid NULL, "updatedBy" uuid NULL, "deletedAt" timestamp with time zone NULL, "newId" jsonb NULL, "history_date" timestamp with time zone NOT NULL, "history_action" varchar(50) NOT NULL, "history_id" uuid NOT NULL);
+CREATE TABLE IF NOT EXISTS "TicketCommentsTimeHistoryRecord" ("dv" integer NULL, "sender" jsonb NULL, "organization" uuid NULL, "ticket" uuid NULL, "lastCommentAt" timestamp with time zone NULL, "lastResidentCommentAt" timestamp with time zone NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "createdBy" uuid NULL, "updatedBy" uuid NULL, "deletedAt" timestamp with time zone NULL, "newId" jsonb NULL, "history_date" timestamp with time zone NOT NULL, "history_action" varchar(50) NOT NULL, "history_id" uuid NOT NULL);
 --
 -- Delete model ticketcommentstime
 --
-CREATE TABLE "TicketCommentsTime" ("dv" integer NOT NULL, "sender" jsonb NOT NULL, "lastCommentAt" timestamp with time zone NOT NULL, "lastResidentCommentAt" timestamp with time zone NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NOT NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "deletedAt" timestamp with time zone NULL, "newId" uuid NULL, "createdBy" uuid NULL, "organization" uuid NOT NULL, "ticket" uuid NOT NULL, "updatedBy" uuid NULL);
+CREATE TABLE IF NOT EXISTS "TicketCommentsTime" ("dv" integer NOT NULL, "sender" jsonb NOT NULL, "lastCommentAt" timestamp with time zone NOT NULL, "lastResidentCommentAt" timestamp with time zone NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NOT NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "deletedAt" timestamp with time zone NULL, "newId" uuid NULL, "createdBy" uuid NULL, "organization" uuid NOT NULL, "ticket" uuid NOT NULL, "updatedBy" uuid NULL);
 --
 -- Add field lastCommentWithResidentTypeAt to tickethistoryrecord
 --
@@ -78,18 +78,22 @@ ALTER TABLE "TicketHistoryRecord" DROP COLUMN "lastCommentWithResidentTypeAt" CA
 -- Add field lastCommentWithResidentTypeAt to ticket
 --
 ALTER TABLE "Ticket" DROP COLUMN "lastCommentWithResidentTypeAt" CASCADE;
-CREATE INDEX "TicketCommentsTimeHistoryRecord_history_id_e7111640" ON "TicketCommentsTimeHistoryRecord" ("history_id");
+CREATE INDEX IF NOT EXISTS "TicketCommentsTimeHistoryRecord_history_id_e7111640" ON "TicketCommentsTimeHistoryRecord" ("history_id");
+ALTER TABLE "TicketCommentsTime" DROP CONSTRAINT IF EXISTS "TicketCommentsTime_createdBy_1afab486_fk_User_id";
 ALTER TABLE "TicketCommentsTime" ADD CONSTRAINT "TicketCommentsTime_createdBy_1afab486_fk_User_id" FOREIGN KEY ("createdBy") REFERENCES "User" ("id") DEFERRABLE INITIALLY DEFERRED;
+ALTER TABLE "TicketCommentsTime" DROP CONSTRAINT IF EXISTS "TicketCommentsTime_organization_53dc9c14_fk_Organization_id";
 ALTER TABLE "TicketCommentsTime" ADD CONSTRAINT "TicketCommentsTime_organization_53dc9c14_fk_Organization_id" FOREIGN KEY ("organization") REFERENCES "Organization" ("id") DEFERRABLE INITIALLY DEFERRED;
+ALTER TABLE "TicketCommentsTime" DROP CONSTRAINT IF EXISTS "TicketCommentsTime_ticket_c029460f_fk_Ticket_id";
 ALTER TABLE "TicketCommentsTime" ADD CONSTRAINT "TicketCommentsTime_ticket_c029460f_fk_Ticket_id" FOREIGN KEY ("ticket") REFERENCES "Ticket" ("id") DEFERRABLE INITIALLY DEFERRED;
+ALTER TABLE "TicketCommentsTime" DROP CONSTRAINT IF EXISTS "TicketCommentsTime_updatedBy_f363c717_fk_User_id";
 ALTER TABLE "TicketCommentsTime" ADD CONSTRAINT "TicketCommentsTime_updatedBy_f363c717_fk_User_id" FOREIGN KEY ("updatedBy") REFERENCES "User" ("id") DEFERRABLE INITIALLY DEFERRED;
-CREATE INDEX "TicketCommentsTime_createdAt_45c0dd44" ON "TicketCommentsTime" ("createdAt");
-CREATE INDEX "TicketCommentsTime_updatedAt_d2bc7de3" ON "TicketCommentsTime" ("updatedAt");
-CREATE INDEX "TicketCommentsTime_deletedAt_783b0035" ON "TicketCommentsTime" ("deletedAt");
-CREATE INDEX "TicketCommentsTime_createdBy_1afab486" ON "TicketCommentsTime" ("createdBy");
-CREATE INDEX "TicketCommentsTime_organization_53dc9c14" ON "TicketCommentsTime" ("organization");
-CREATE INDEX "TicketCommentsTime_ticket_c029460f" ON "TicketCommentsTime" ("ticket");
-CREATE INDEX "TicketCommentsTime_updatedBy_f363c717" ON "TicketCommentsTime" ("updatedBy");
+CREATE INDEX IF NOT EXISTS "TicketCommentsTime_createdAt_45c0dd44" ON "TicketCommentsTime" ("createdAt");
+CREATE INDEX IF NOT EXISTS "TicketCommentsTime_updatedAt_d2bc7de3" ON "TicketCommentsTime" ("updatedAt");
+CREATE INDEX IF NOT EXISTS "TicketCommentsTime_deletedAt_783b0035" ON "TicketCommentsTime" ("deletedAt");
+CREATE INDEX IF NOT EXISTS "TicketCommentsTime_createdBy_1afab486" ON "TicketCommentsTime" ("createdBy");
+CREATE INDEX IF NOT EXISTS "TicketCommentsTime_organization_53dc9c14" ON "TicketCommentsTime" ("organization");
+CREATE INDEX IF NOT EXISTS "TicketCommentsTime_ticket_c029460f" ON "TicketCommentsTime" ("ticket");
+CREATE INDEX IF NOT EXISTS "TicketCommentsTime_updatedBy_f363c717" ON "TicketCommentsTime" ("updatedBy");
 COMMIT;
 
     `)
