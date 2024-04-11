@@ -17,7 +17,7 @@ export const GUIDE_LINK = '/tour/guide'
  */
 export const TODO_STEP_CLICK_ROUTE = {
     [CREATE_PROPERTY_STEP_TYPE]: '/property',
-    [CREATE_PROPERTY_MAP_STEP_TYPE]: '/property',
+    [CREATE_PROPERTY_MAP_STEP_TYPE]: ({ lastCreatedPropertyId }) => `/property/${lastCreatedPropertyId}/map/update`,
     [CREATE_TICKET_STEP_TYPE]: '/ticket',
     [UPLOAD_RECEIPTS_STEP_TYPE]: '/billing',
     [CREATE_METER_READINGS_STEP_TYPE]: '/meter',

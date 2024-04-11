@@ -78,13 +78,13 @@ export type BaseNewsFormProps = {
     organizationId: string
     ActionBar: React.FC<ActionBarProps>
     action: (values: INewsItemCreateInput | INewsItemUpdateInput) => ReturnType<ReturnType<NewsItemClientUtilsType['useCreate' | 'useUpdate']>>
-    initialValues?: INewsItem
-    & {
+    initialValues?: Partial<INewsItem>
+    & Partial<{
         newsItemScopes: INewsItemScope[],
         hasAllProperties: boolean,
         sendPeriod: SendPeriodType,
         properties?: IProperty[],
-    },
+    }>,
     templates: { [key: string]: Pick<INewsItemTemplate, 'title' | 'body' | 'type'> }
     afterAction?: () => void,
     newsItem?: INewsItem,
@@ -92,6 +92,7 @@ export type BaseNewsFormProps = {
     allNews: INewsItem[],
     actionName: ActionNameProps,
     totalProperties: number
+    autoFocusBody?: boolean
 }
 
 const HiddenBlock = styled.div<{ hide?: boolean }>`
@@ -294,6 +295,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     allNews,
     actionName,
     totalProperties,
+    autoFocusBody,
 }) => {
     const intl = useIntl()
     const TypeLabel = intl.formatMessage({ id: 'news.fields.type.label' })
@@ -1033,6 +1035,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                             data-cy='news__create-body-input'
                                                         >
                                                             <Body.InputWithCounter
+                                                                autoFocus={autoFocusBody}
                                                                 style={NO_RESIZE_STYLE}
                                                                 rows={7}
                                                                 placeholder={BodyPlaceholderMessage}
