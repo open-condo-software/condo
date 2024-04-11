@@ -5,7 +5,7 @@ const dayjs = require('dayjs')
 const { get, isUndefined, isEmpty, isNumber, isString } = require('lodash')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { GQLCustomSchema, getByCondition, getById } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, find, getByCondition, getById } = require('@open-condo/keystone/schema')
 
 const { PropertyResolver } = require('@condo/domains/billing/schema/resolvers')
 const access = require('@condo/domains/meter/access/RegisterMetersReadingsService')
@@ -139,22 +139,36 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                 const propertyResolver = new PropertyResolver({ context })
                 propertyResolver.tin = organizationData.tin
 
+                const resolvedAddresses = await propertyResolver.normalizeAddresses(readings.reduce((res, reading, index) => ({
+                    ...res,
+                    [reading.address]: {
+                        address: reading.address,
+                        addressMeta: reading.addressMeta,
+                    },
+                }), {}))
+
+                const propertyOrConditions = []
+                for (const reading of readings) {
+                    const addressKey = get(resolvedAddresses, [reading.address, 'addressResolve', 'propertyAddress', 'addressKey'])
+                    propertyOrConditions.push({ ...addressKey ? { OR: [{ address_i: reading.address }, { addressKey }] } : { address_i: reading.address } })
+                }
+
+                /** @type Property[] */
+                const properties = await find('Property', {
+                    organization,
+                    deletedAt: null,
+                    OR: propertyOrConditions,
+                })
+
                 const resultRows = []
 
                 for (const index in readings) {
                     const reading = readings[index]
 
-                    const resolvedAddress = await propertyResolver.normalizeAddresses({
-                        [reading.address]: {
-                            address: reading.address,
-                            addressMeta: reading.addressMeta,
-                        },
-                    })
+                    const addressKey = get(resolvedAddresses, [reading.address, 'addressResolve', 'propertyAddress', 'addressKey'])
 
-                    const addressKey = get(resolvedAddress, [reading.address, 'addressResolve', 'propertyAddress', 'addressKey'])
-                    const property = await getByCondition('Property', {
-                        organization,
-                        ...addressKey ? { OR: [{ address_i: reading.address }, { addressKey }] } : { address_i: reading.address },
+                    const property = properties.find((p) => {
+                        return p.address === reading.address || p.addressKey === addressKey
                     })
 
                     if (!property) {
