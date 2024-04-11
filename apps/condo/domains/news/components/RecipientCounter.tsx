@@ -1,7 +1,7 @@
 import { QuestionCircleOutlined } from '@ant-design/icons'
 import { useLazyQuery } from '@apollo/client'
 import { BuildingSection, NewsItemScope, Property as PropertyType } from '@app/condo/schema'
-import { ButtonProps, Col, notification, Row } from 'antd'
+import { ButtonProps, Col, notification, Row, Skeleton } from 'antd'
 import every from 'lodash/every'
 import filter from 'lodash/filter'
 import get from 'lodash/get'
@@ -31,26 +31,34 @@ interface CounterProps {
     type?: TypographyTitleProps['type'],
     hint?: string
     downloadButton?: ButtonProps
+    isLoading?: boolean
 }
 
 const styleQuestionCircle: CSSProperties = { color: colors.gray['5'], cursor: 'help' }
-const styleMaxWidth: CSSProperties = { maxWidth: '500px' }
 
-const Counter: React.FC<CounterProps> = ({ label, value, type = 'success', hint, downloadButton }) => (
-    <Space direction='vertical' align='center' size={8}>
-        <Space size={8} direction='horizontal' align='start'>
-            <Typography.Title level={3} type={type}>{value}</Typography.Title>
-            {hint && (
-                <Tooltip
-                    title={hint}
-                    placement='bottom'
-                    children={<QuestionCircleOutlined style={styleQuestionCircle}/>}
-                />
-            )}
+const Counter: React.FC<CounterProps> = ({ label, value, type = 'success', hint, downloadButton, isLoading }) => (
+    <Space size={8} align='center' direction='vertical'>
+        <Space size={8} direction='horizontal' align='center'>
+            {
+                isLoading
+                    ? (<Skeleton paragraph={false} title={{ style: { height: '100%' } }} active style={{ height: 28, minWidth: 30 }} />)
+                    : (
+                        <Space size={8} direction='horizontal'>
+                            <Typography.Title level={3} type={type}>{value}</Typography.Title>
+                            {hint && (
+                                <Tooltip
+                                    title={hint}
+                                    placement='bottom'
+                                    children={<QuestionCircleOutlined style={styleQuestionCircle}/>}
+                                />
+                            )}
+                        </Space>
+                    )
+            }
         </Space>
-        <Row>
+        <Row wrap={false} style={{ lineBreak: 'anywhere' }} align='middle'>
             <Typography.Text type='secondary'>{label}</Typography.Text>
-            {downloadButton ?? ''}
+            {downloadButton}
         </Row>
     </Space>
 )
@@ -156,6 +164,7 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
     const WillZeroNotReceiveHintMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.willNotReceive.hintZero' })
     const formatWillReceiveHintMessage = (count) => intl.formatMessage({ id: 'news.component.RecipientCounter.willReceive.hint' }, { count })
     const WillZeroReceiveHintMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.willReceive.hintZero' })
+    const ErrorLoadingMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.error.loading' })
 
     const [counters, setCounters] = useState<{
         propertiesCount: number,
@@ -196,9 +205,11 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
                 setCounters(data.result)
             },
             onError: (error) => {
-                const message = get(error, ['graphQLErrors', 0, 'extensions', 'messageForUser'], error.message)
+                console.error({ msg: 'Failed to load recipients counters', error })
+                const message = get(error, ['graphQLErrors', 0, 'extensions', 'messageForUser'], ErrorLoadingMessage)
                 notification.error({ message })
             },
+            fetchPolicy: 'cache-first',
         },
     )
 
@@ -217,10 +228,6 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
         })
     }, [getCounters, organization.id, processedNewsItemScope])
 
-    if (isCountersLoading || !counters) {
-        return null
-    }
-
     const message = buildMessageFromNewsItemScopes(newsItemScopes, intl)
 
     // NOTE(antonal): Not all corner cases are handled, because they rarely will occur:
@@ -228,45 +235,52 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
     // - When some records of NewsItemScope have unitName, that does not exist in connected Property
     // - When some Resident's unitName is out of units range of a property, that can happen if Property.map was changed after Resident was registered
 
-    const { propertiesCount, unitsCount, receiversCount } = counters
+    const propertiesCount = get(counters, 'propertiesCount', 0)
+    const unitsCount = get(counters, 'unitsCount', 0)
+    const receiversCount = get(counters, 'receiversCount', 0)
     const willNotReceiveUnitsCount = unitsCount - receiversCount
 
+    const isLoadingCounters = isCountersLoading || !counters
+
     return (
-        <div style={styleMaxWidth}>
-            <Card>
-                <Space direction='vertical' size={24} width='100%'>
-                    <Typography.Text>{MailingMessage} <Typography.Text
-                        strong>{message}</Typography.Text></Typography.Text>
-                    <Col xs={24}>
-                        <Row align='top' justify='space-evenly'>
-                            <Col>
-                                <Counter
-                                    label={formatPropertiesLabelMessage(propertiesCount)}
-                                    value={propertiesCount}
-                                />
-                            </Col>
-                            <Col>
-                                <Counter
-                                    label={WillReceiveLabelMessage}
-                                    value={receiversCount}
-                                    hint={receiversCount === 0 ? WillZeroReceiveHintMessage : formatWillReceiveHintMessage(receiversCount)}
-                                />
-                            </Col>
-                            <Col>
-                                <Counter
-                                    label={WillNotReceiveLabelMessage}
-                                    value={unitsCount - receiversCount}
-                                    type='danger'
-                                    hint={willNotReceiveUnitsCount === 0 ? WillZeroNotReceiveHintMessage : formatWillNotReceiveHintMessage(willNotReceiveUnitsCount)}
-                                    downloadButton={(
-                                        <NewsItemRecipientsExportToXlsxButton key='exportToExcel' />
-                                    )}
-                                />
-                            </Col>
-                        </Row>
-                    </Col>
-                </Space>
-            </Card>
-        </div>
+        <Card>
+            <Space direction='vertical' size={24} width='100%'>
+                <Typography.Text>
+                    {MailingMessage}
+                    <Typography.Text strong>{message}</Typography.Text>
+                </Typography.Text>
+                <Col xs={24}>
+                    <Row align='top' justify='space-evenly'>
+                        <Col>
+                            <Counter
+                                label={formatPropertiesLabelMessage(propertiesCount)}
+                                value={propertiesCount}
+                                isLoading={isLoadingCounters}
+                            />
+                        </Col>
+                        <Col>
+                            <Counter
+                                label={WillReceiveLabelMessage}
+                                value={receiversCount}
+                                hint={receiversCount === 0 ? WillZeroReceiveHintMessage : formatWillReceiveHintMessage(receiversCount)}
+                                isLoading={isLoadingCounters}
+                            />
+                        </Col>
+                        <Col>
+                            <Counter
+                                label={WillNotReceiveLabelMessage}
+                                value={unitsCount - receiversCount}
+                                type='danger'
+                                hint={willNotReceiveUnitsCount === 0 ? WillZeroNotReceiveHintMessage : formatWillNotReceiveHintMessage(willNotReceiveUnitsCount)}
+                                downloadButton={(
+                                    <NewsItemRecipientsExportToXlsxButton key='exportToExcel' />
+                                )}
+                                isLoading={isLoadingCounters}
+                            />
+                        </Col>
+                    </Row>
+                </Col>
+            </Space>
+        </Card>
     )
 }
