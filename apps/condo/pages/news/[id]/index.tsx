@@ -22,11 +22,12 @@ import { AccessDeniedPage } from '@condo/domains/common/components/containers/Ac
 import {
     PageContent,
     PageHeader,
-    PageWrapper,
+    PageWrapper, useLayoutContext,
 } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
+import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { NewsReadPermissionRequired } from '@condo/domains/news/components/PageAccess'
 import { RecipientCounter } from '@condo/domains/news/components/RecipientCounter'
 import { TNewsItemScopeNoInstance } from '@condo/domains/news/components/types'
@@ -43,29 +44,24 @@ const { publicRuntimeConfig: { newsItemsSendingDelay } } = getConfig()
 
 const PAGE_ROW_GUTTER: RowProps['gutter'] = [0, 40]
 const HORIZONTAL_ROW_GUTTER: RowProps['gutter'] = [0, 24]
-const fieldPairRowStyle: React.CSSProperties = { width: '100%' }
 const HEADER_STYLES: React.CSSProperties = { paddingBottom: '20px' }
 
 interface IFieldPairRowProps {
     fieldTitle: string,
-    fieldValue: string,
+    fieldValue: string | React.ReactNode,
 }
 const FieldPairRow: React.FC<IFieldPairRowProps> = (props) => {
     const {
         fieldTitle,
         fieldValue,
     } = props
+
+    const { breakpoints } = useLayoutContext()
+
     return (
-        <>
-            <Col span={8}>
-                <Typography.Text type='secondary'>
-                    {fieldTitle}
-                </Typography.Text>
-            </Col>
-            <Col span={16} style={fieldPairRowStyle}>
-                <NotDefinedField value={fieldValue}/>
-            </Col>
-        </>
+        <PageFieldRow title={fieldTitle} ellipsis labelSpan={!breakpoints.TABLET_LARGE ? 5 : 7}>
+            <NotDefinedField value={fieldValue}/>
+        </PageFieldRow>
     )
 }
 
@@ -86,6 +82,8 @@ const NewsItemCard: React.FC = () => {
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'news.ConfirmDeleteTitle' })
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'news.ConfirmDeleteMessage' })
     const CancelMessage = intl.formatMessage({ id: 'news.CancelMessage' })
+    const NotSentMessage = intl.formatMessage({ id: 'pages.news.newsItemCard.status.notSent' })
+    const SendingMessage = intl.formatMessage({ id: 'pages.news.newsItemCard.status.sending' })
 
     const { user } = useAuth()
     const { query, push } = useRouter()
@@ -188,18 +186,33 @@ const NewsItemCard: React.FC = () => {
         isOwner: createdBy === user.id,
     })
 
+    const isSent = get(newsItem, 'sentAt')
+    const isSending = useMemo(() => {
+        const sendAt = get(newsItem, 'sendAt', null)
+        return sendAt && dayjs().diff(dayjs(sendAt)) > 0 && !isSent
+    }, [newsItem, isSent])
+    const canBeUpdated = useMemo(
+        () => isPostponedNewsItem(newsItem, newsItemsSendingDelay) && !isSending,
+        [newsItem, isSending]
+    )
     const formattedSendAt = useMemo(() => {
         const dateToShow = get(newsItem, 'sendAt', null)
-        return dateToShow ? dayjs(dateToShow).format('YYYY.MM.DD HH:mm') : '—'
-    }, [newsItem])
-    const isStartSending = useMemo(() => {
-        const sendAt = get(newsItem, 'sendAt', null)
-        return sendAt && dayjs().diff(dayjs(sendAt)) > 0
-    }, [newsItem])
-    const canBeUpdated = useMemo(
-        () => isPostponedNewsItem(newsItem, newsItemsSendingDelay) && !isStartSending,
-        [newsItem, isStartSending]
-    )
+        if (!dateToShow) return '—'
+
+        let status
+        if (isSending) {
+            status = SendingMessage
+        } else if (!isSent) {
+            status = NotSentMessage
+        }
+
+        return (
+            <>
+                {dayjs(dateToShow).format('YYYY.MM.DD HH:mm')}
+                {status && <Typography.Text type='secondary'> ({status})</Typography.Text>}
+            </>
+        )
+    }, [NotSentMessage, SendingMessage, isSending, isSent, newsItem])
 
     const isLoading = employeeLoading || newsItemLoading || isAccessLoading || newsItemScopesLoading || propertyLoading
     const hasError = employeeError || newsItemError || newsItemScopesError
@@ -225,7 +238,7 @@ const NewsItemCard: React.FC = () => {
                                 {CreatedByLabel}
                             </Typography.Text>
                         </Col>
-                        <Col span={16}>
+                        <Col span={24} lg={16}>
                             <FrontLayerContainer>
                                 <Row gutter={HORIZONTAL_ROW_GUTTER}>
                                     <FieldPairRow
@@ -257,34 +270,36 @@ const NewsItemCard: React.FC = () => {
                         </Col>
                         {canManage && (
                             <>
-                                <Col span={8}>
+                                <Col span={24} sm={24} md={16} lg={8}>
                                     <RecipientCounter newsItemScopes={newsItemScopesNoInstance}/>
                                 </Col>
-                                <Row>
-                                    {get(newsItem, 'sentAt') ? (
-                                        <Link key='resend' href={`/news/${get(newsItem, 'id')}/resend`}>
-                                            <Button type='primary'>{ResendTitle}</Button>
-                                        </Link>
-                                    ) : ( <ActionBar actions={[
-                                        canBeUpdated && (
+                                <Col span={24}>
+                                    <ActionBar actions={[
+                                        !isSent && canBeUpdated && (
                                             <Link key='update' href={`/news/${get(newsItem, 'id')}/update`}>
                                                 <Button type='primary'>{EditTitle}</Button>
                                             </Link>
                                         ),
-                                        <DeleteButtonWithConfirmModal
-                                            key='delete'
-                                            title={ConfirmDeleteTitle}
-                                            message={ConfirmDeleteMessage}
-                                            okButtonLabel={DeleteTitle}
-                                            action={handleDeleteButtonClick}
-                                            buttonContent={DeleteTitle}
-                                            showCancelButton={true}
-                                            cancelMessage={CancelMessage}
-                                            messageType='secondary'
-                                        />,
-                                    ]}/>)
-                                    }
-                                </Row>
+                                        !isSent && canBeUpdated && (
+                                            <DeleteButtonWithConfirmModal
+                                                key='delete'
+                                                title={ConfirmDeleteTitle}
+                                                message={ConfirmDeleteMessage}
+                                                okButtonLabel={DeleteTitle}
+                                                action={handleDeleteButtonClick}
+                                                buttonContent={DeleteTitle}
+                                                showCancelButton={true}
+                                                cancelMessage={CancelMessage}
+                                                messageType='secondary'
+                                            />
+                                        ),
+                                        isSent && (
+                                            <Link key='resend' href={`/news/${get(newsItem, 'id')}/resend`}>
+                                                <Button type='primary'>{ResendTitle}</Button>
+                                            </Link>
+                                        ),
+                                    ]}/>
+                                </Col>
                             </>
                         )}
                     </Row>

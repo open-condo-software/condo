@@ -1273,6 +1273,8 @@
   "pages.news.newsItemCard.field.body": "Text",
   "pages.news.newsItemCard.resendButton": "Resend",
   "pages.news.newsItemCard.author": "author {createdBy}{isOwner, plural, other {} one { (you)}}",
+  "pages.news.newsItemCard.status.notSent": "Not sent yet",
+  "pages.news.newsItemCard.status.sending": "Sending",
   "pages.news.create.preview.app.notificationFromOrganization": "Notification from organization",
   "pages.news.create.preview.app.receivedAt": "Today, 9:00",
   "pages.news.create.preview.app.validUntil": "valid until {validBefore}",
