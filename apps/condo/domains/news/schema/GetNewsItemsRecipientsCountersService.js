@@ -16,6 +16,8 @@ const {
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 
 
+const CHUNK_SIZE = 20
+
 const GetNewsItemsRecipientsCountersService = new GQLCustomSchema('GetNewsItemsRecipientsCountersService', {
     types: [
         {
@@ -48,7 +50,7 @@ const GetNewsItemsRecipientsCountersService = new GQLCustomSchema('GetNewsItemsR
                     await loadListByChunks({
                         context,
                         list: Property,
-                        chunkSize: 50,
+                        chunkSize: CHUNK_SIZE,
                         where: { organization: { id: organizationId }, deletedAt: null },
                         /**
                          * @param {Property[]} chunk
@@ -90,7 +92,7 @@ const GetNewsItemsRecipientsCountersService = new GQLCustomSchema('GetNewsItemsR
                     await loadListByChunks({
                         context,
                         list: Property,
-                        chunkSize: 50,
+                        chunkSize: CHUNK_SIZE,
                         where: { id_in: propertiesIds, deletedAt: null },
                         /**
                          * @param {Property[]} chunk
