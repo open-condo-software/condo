@@ -6,6 +6,7 @@ const { Text, Select } = require('@keystonejs/fields')
 const { isArray, isEmpty } = require('lodash')
 
 
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
@@ -18,12 +19,28 @@ const {
     MESSAGE_BATCH_STATUSES,
     MESSAGE_BATCH_CREATED_STATUS,
     MESSAGE_BATCH_TYPE_OPTIONS,
+    BODY_IS_REQUIRED_FOR_CUSTOM_CONTENT_MESSAGE_TYPE,
+    TITLE_IS_REQUIRED_FOR_CUSTOM_CONTENT_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
-
-const { sendMessageBatch } = require('../tasks/sendMessageBatch')
+const { sendMessageBatch } = require('@condo/domains/notification/tasks/sendMessageBatch')
 
 const operationForbiddenValidator = ({ fieldPath, addFieldValidationError, operation }) => {
     if (operation === 'update') addFieldValidationError(`${OPERATION_FORBIDDEN}] Updating ${fieldPath} is forbidden.`)
+}
+
+const ERRORS = {
+    TITLE_IS_REQUIRED_FOR_CUSTOM_CONTENT_MESSAGE_TYPE: {
+        code: BAD_USER_INPUT,
+        type: TITLE_IS_REQUIRED_FOR_CUSTOM_CONTENT_MESSAGE_TYPE,
+        message: 'Field "title" required for create MessageBatch with CUSTOM_CONTENT_MESSAGE type',
+        mutation: 'createMessageBatch',
+    },
+    MESSAGE_IS_REQUIRED_FOR_CUSTOM_CONTENT_MESSAGE_TYPE: {
+        code: BAD_USER_INPUT,
+        type: BODY_IS_REQUIRED_FOR_CUSTOM_CONTENT_MESSAGE_TYPE,
+        message: 'Field "body" required for create MessageBatch with CUSTOM_CONTENT_MESSAGE type',
+        mutation: 'createMessageBatch',
+    },
 }
 
 const MessageBatch = new GQLListSchema('MessageBatch', {
@@ -43,7 +60,6 @@ const MessageBatch = new GQLListSchema('MessageBatch', {
         title: {
             schemaDoc: 'Common title for messages to be sent. Single line, shouldn\'t be very long.',
             type: Text,
-            isRequired: true,
             hooks: {
                 validateInput: operationForbiddenValidator,
             },
@@ -52,7 +68,6 @@ const MessageBatch = new GQLListSchema('MessageBatch', {
         message: {
             schemaDoc: 'Common body for messages to be sent. Can be multiline, but shouldn\'t be very long in case of SMS or Push.',
             type: Text,
-            isRequired: true,
             hooks: {
                 validateInput: operationForbiddenValidator,
             },
@@ -111,6 +126,12 @@ const MessageBatch = new GQLListSchema('MessageBatch', {
         auth: true,
     },
     hooks: {
+        validateInput: async ({ operation, resolvedData, context }) => {
+            if (operation === 'create' && resolvedData.messageType === CUSTOM_CONTENT_MESSAGE_TYPE) {
+                if (!resolvedData.title) throw new GQLError(ERRORS.TITLE_IS_REQUIRED_FOR_CUSTOM_CONTENT_MESSAGE_TYPE, context)
+                if (!resolvedData.message) throw new GQLError(ERRORS.MESSAGE_IS_REQUIRED_FOR_CUSTOM_CONTENT_MESSAGE_TYPE, context)
+            }
+        },
         resolveInput: async ({ operation, resolvedData }) => {
             if (operation === 'create') resolvedData.status = MESSAGE_BATCH_CREATED_STATUS
 
