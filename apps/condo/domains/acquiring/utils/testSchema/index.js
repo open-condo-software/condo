@@ -751,6 +751,20 @@ async function exportPaymentsServiceByTestClient(client, where, extraAttrs = {})
 
 const formatDateWithDefaultTimeZone = (date) => dayjs(date).tz(DEFAULT_ORGANIZATION_TIMEZONE).format('DD.MM.YYYY HH:mm')
 
+const generateVirtualReceipt = ({ period, bankAccount, accountNumber }, extraAttrs = {}) => {
+    return {
+        currencyCode: 'RUB',
+        amount: '100.45',
+        period,
+        recipient: {
+            routingNumber: bankAccount.routingNumber,
+            bankAccount: bankAccount.number,
+            accountNumber,
+        },
+        ...extraAttrs,
+    }
+}
+
 module.exports = {
     AcquiringIntegration, createTestAcquiringIntegration, updateTestAcquiringIntegration,
     AcquiringIntegrationAccessRight, createTestAcquiringIntegrationAccessRight, updateTestAcquiringIntegrationAccessRight,
@@ -780,5 +794,6 @@ module.exports = {
     registerMultiPaymentForInvoicesByTestClient,
     exportPaymentsServiceByTestClient,
     formatDateWithDefaultTimeZone,
+    generateVirtualReceipt,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

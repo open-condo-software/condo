@@ -4,6 +4,7 @@
 
 const { faker } = require('@faker-js/faker')
 const Big = require('big.js')
+const dayjs = require('dayjs')
 
 const {
     makeLoggedInAdminClient, makeClient, expectToThrowAuthenticationErrorToResult, catchErrorFrom,
@@ -11,10 +12,14 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { PAYMENT_DONE_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const {
     Payment,
     createPaymentByLinkByTestClient,
     addAcquiringIntegrationAndContext, MultiPayment,
+    registerMultiPaymentForVirtualReceiptByTestClient,
+    updateTestPayment,
+    generateVirtualReceipt,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBankAccount } = require('@condo/domains/banking/utils/testSchema')
 const {
@@ -80,10 +85,38 @@ async function createOrganizationAndPropertyAndQrCode (client, houseNumber, flat
     return { organization, property, qrCode, qrCodeAttrs }
 }
 
-// TODO(DOMA-7078) Must be modified within 7078
-describe.skip('CreatePaymentByLinkService', () => {
+async function createBillingReceiptAndAllDependencies (admin, organization, qrCodeAttrs, month) {
+    const { billingIntegrationContext } = await addBillingIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
+    const {
+        acquiringIntegrationContext,
+    } = await addAcquiringIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
+
+    const [bankAccount] = await createTestBankAccount(admin, organization, {
+        number: qrCodeAttrs.PersonalAcc,
+        routingNumber: qrCodeAttrs.BIC,
+    })
+    const [billingProperty] = await createTestBillingProperty(admin, billingIntegrationContext)
+    const [billingAccount] = await createTestBillingAccount(admin, billingIntegrationContext, billingProperty, { number: qrCodeAttrs.PersAcc })
+    const [billingRecipient] = await createTestBillingRecipient(admin, billingIntegrationContext, {
+        bankAccount: qrCodeAttrs.PersonalAcc,
+        bic: qrCodeAttrs.BIC,
+    })
+    const [billingReceipt] = await createTestBillingReceipt(admin, billingIntegrationContext, billingProperty, billingAccount, {
+        period: `2024-${month}-01`,
+        receiver: { connect: { id: billingRecipient.id } },
+        recipient: createTestRecipient({
+            bic: billingRecipient.bic,
+        }),
+        toPay: Big(qrCodeAttrs.Sum).div(100),
+    })
+
+    return { billingReceipt, billingAccount, bankAccount, acquiringIntegrationContext }
+}
+
+describe('CreatePaymentByLinkService', () => {
     let qrCode, qrCodeObj
     let admin, support, user, anonymous, staff, service
+
     beforeAll(async () => {
         const generateIpLike = () => Array(4).fill(null).map(() => faker.random.numeric(3)).join('.')
         admin = await makeLoggedInAdminClient()
@@ -348,6 +381,211 @@ describe.skip('CreatePaymentByLinkService', () => {
     test('service: can\'t execute', async () => {
         await expectToThrowAccessDeniedErrorToResult(async () => {
             await validateQRCodeByTestClient(service, { qrCode })
+        })
+    })
+
+    describe('Filter out duplicates', () => {
+        test('scanned receipt period equals the last billing receipt in out database', async () => {
+            const {
+                organization,
+                qrCode,
+                qrCodeAttrs,
+            } = await createOrganizationAndPropertyAndQrCode(admin, 16, 6, '07.2024')
+
+            // create the receipt
+            const {
+                billingAccount: { number: accountNumber },
+                bankAccount,
+                acquiringIntegrationContext,
+            } = await createBillingReceiptAndAllDependencies(admin, organization, qrCodeAttrs, '07')
+
+            // register multi payment
+            const receipt = generateVirtualReceipt({
+                period: '2024-07-01',
+                bankAccount,
+                accountNumber,
+            })
+            const [result] = await registerMultiPaymentForVirtualReceiptByTestClient(admin, receipt, {
+                id: acquiringIntegrationContext.id,
+            })
+            expect(result).toBeDefined()
+            expect(result).toHaveProperty('dv', 1)
+            expect(result).toHaveProperty('multiPaymentId')
+
+            // get payments
+            const payments = await Payment.getAll(admin, {
+                multiPayment: {
+                    id: result.multiPaymentId,
+                },
+            })
+            expect(payments).toBeDefined()
+            expect(payments).toHaveLength(1)
+
+            // mark payment as payed
+            await updateTestPayment(admin, payments[0].id, {
+                status: PAYMENT_DONE_STATUS,
+                advancedAt: dayjs().toISOString(),
+            })
+
+            await catchErrorFrom(async () => {
+                await createPaymentByLinkByTestClient(admin, { qrCode })
+            }, (error) => {
+                expect(error.message).toContain('Provided receipt already paid')
+            })
+        })
+        test('scanned receipt period less the last billing receipt in out database', async () => {
+            const {
+                organization,
+                qrCode,
+                qrCodeAttrs,
+            } = await createOrganizationAndPropertyAndQrCode(admin, 16, 6, '06.2024')
+
+            // create the receipt
+            const {
+                billingAccount: { number: accountNumber },
+                bankAccount,
+                acquiringIntegrationContext,
+            } = await createBillingReceiptAndAllDependencies(admin, organization, qrCodeAttrs, '07')
+
+            // register multi payment
+            const receipt = generateVirtualReceipt({
+                period: '2024-07-01',
+                bankAccount,
+                accountNumber,
+            })
+            const [result] = await registerMultiPaymentForVirtualReceiptByTestClient(admin, receipt, {
+                id: acquiringIntegrationContext.id,
+            })
+            expect(result).toBeDefined()
+            expect(result).toHaveProperty('dv', 1)
+            expect(result).toHaveProperty('multiPaymentId')
+
+            // get payments
+            const payments = await Payment.getAll(admin, {
+                multiPayment: {
+                    id: result.multiPaymentId,
+                },
+            })
+            expect(payments).toBeDefined()
+            expect(payments).toHaveLength(1)
+
+            // mark payment as payed
+            await updateTestPayment(admin, payments[0].id, {
+                status: PAYMENT_DONE_STATUS,
+                advancedAt: dayjs().toISOString(),
+            })
+
+            await catchErrorFrom(async () => {
+                await createPaymentByLinkByTestClient(admin, { qrCode })
+            }, (error) => {
+                expect(error.message).toContain('Provided receipt already paid')
+            })
+        })
+        test('scanned receipt period great the last billing receipt in out database', async () => {
+            const {
+                organization,
+                qrCode,
+                qrCodeAttrs,
+            } = await createOrganizationAndPropertyAndQrCode(admin, 16, 6, '08.2024')
+
+            // create the receipt
+            const {
+                billingAccount: { number: accountNumber },
+                bankAccount,
+                acquiringIntegrationContext,
+            } = await createBillingReceiptAndAllDependencies(admin, organization, qrCodeAttrs, '07')
+
+            // register multi payment
+            const receipt = generateVirtualReceipt({
+                period: '2024-08-01',
+                bankAccount,
+                accountNumber,
+            })
+            const [result] = await registerMultiPaymentForVirtualReceiptByTestClient(admin, receipt, {
+                id: acquiringIntegrationContext.id,
+            })
+            expect(result).toBeDefined()
+            expect(result).toHaveProperty('dv', 1)
+            expect(result).toHaveProperty('multiPaymentId')
+
+            // get payments
+            const payments = await Payment.getAll(admin, {
+                multiPayment: {
+                    id: result.multiPaymentId,
+                },
+            })
+            expect(payments).toBeDefined()
+            expect(payments).toHaveLength(1)
+
+            // mark payment as payed
+            await updateTestPayment(admin, payments[0].id, {
+                status: PAYMENT_DONE_STATUS,
+                advancedAt: dayjs().toISOString(),
+            })
+
+            await catchErrorFrom(async () => {
+                await createPaymentByLinkByTestClient(admin, { qrCode })
+            }, (error) => {
+                expect(error.message).toContain('Provided receipt already paid')
+            })
+        })
+        test('scanned receipt not in out database', async () => {
+            const {
+                organization,
+                qrCode,
+                qrCodeAttrs,
+            } = await createOrganizationAndPropertyAndQrCode(admin, 16, 6, '07.2024')
+
+            // create billing entities
+            const { billingIntegrationContext } = await addBillingIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
+            const {
+                acquiringIntegrationContext,
+            } = await addAcquiringIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
+
+            const [bankAccount] = await createTestBankAccount(admin, organization, {
+                number: qrCodeAttrs.PersonalAcc,
+                routingNumber: qrCodeAttrs.BIC,
+            })
+            const [billingProperty] = await createTestBillingProperty(admin, billingIntegrationContext)
+            const [billingAccount] = await createTestBillingAccount(admin, billingIntegrationContext, billingProperty, { number: qrCodeAttrs.PersAcc })
+            const [billingRecipient] = await createTestBillingRecipient(admin, billingIntegrationContext, {
+                bankAccount: qrCodeAttrs.PersonalAcc,
+                bic: qrCodeAttrs.BIC,
+            })
+
+            // register multi payment
+            const receipt = generateVirtualReceipt({
+                period: '2024-07-01',
+                bankAccount,
+                accountNumber: billingAccount.number,
+            })
+            const [result] = await registerMultiPaymentForVirtualReceiptByTestClient(admin, receipt, {
+                id: acquiringIntegrationContext.id,
+            })
+            expect(result).toBeDefined()
+            expect(result).toHaveProperty('dv', 1)
+            expect(result).toHaveProperty('multiPaymentId')
+
+            // get payments
+            const payments = await Payment.getAll(admin, {
+                multiPayment: {
+                    id: result.multiPaymentId,
+                },
+            })
+            expect(payments).toBeDefined()
+            expect(payments).toHaveLength(1)
+
+            // mark payment as payed
+            await updateTestPayment(admin, payments[0].id, {
+                status: PAYMENT_DONE_STATUS,
+                advancedAt: dayjs().toISOString(),
+            })
+
+            await catchErrorFrom(async () => {
+                await createPaymentByLinkByTestClient(admin, { qrCode })
+            }, (error) => {
+                expect(error.message).toContain('Provided receipt already paid')
+            })
         })
     })
 })

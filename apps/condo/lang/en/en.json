@@ -2517,6 +2517,7 @@
   "api.newsItem.NO_NEWS_ITEM_SCOPES": "Scope-less news item publishing is forbidden",
   "api.ticket.QUALITY_CONTROL_ADDITIONAL_OPTION_DOES_NOT_MATCH_QUALITY_CONTROL_VALUE": "Additional quality control parameters must match the specified scoring",
   "api.ticket.QUALITY_CONTROL_VALUE_MUST_BE_SPECIFIED": "When specifying a comment or additional evaluation parameters, you must specify the evaluation itself",
+  "api.billing.error.alreadyPaid": "Receipt already paid",
   "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_PERIOD_PROVIDED": "Please provide proper period not before start of previous and not later than start of current month, valid format is YYYY-MM-DD",
   "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_BILLING_CONTEXT_PROVIDED": "Please provide existing non-deleted billing integration organization context id",
   "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_BILLING_CATEGORY_PROVIDED": "Please provide existing non-deleted billing category id",
