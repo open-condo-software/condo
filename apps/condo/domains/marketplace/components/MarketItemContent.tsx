@@ -213,8 +213,8 @@ const TableContent = () => {
             <Row gutter={[0, 40]}>
                 <Col span={24}>
                     <TableFiltersContainer>
-                        <Row gutter={[24, 24]}>
-                            <Col xs={24} lg={7}>
+                        <Row gutter={[16, 16]}>
+                            <Col span={24}>
                                 <Input
                                     placeholder={SearchPlaceholder}
                                     onChange={handleSearch}
@@ -222,7 +222,7 @@ const TableContent = () => {
                                     allowClear
                                 />
                             </Col>
-                            <Col xs={24} lg={5}>
+                            <Col span={24} md={14} lg={10} xl={8} xxl={6}>
                                 <Select
                                     options={categorySelectOptions}
                                     onChange={handleCategorySelectChange}

@@ -1,10 +1,12 @@
 import debounce from 'lodash/debounce'
 import get from 'lodash/get'
+import isEqual from 'lodash/isEqual'
 import { useRouter } from 'next/router'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
 import { getFiltersFromQuery, updateQuery } from '@condo/domains/common/utils/helpers'
+
 
 type UseSearchOutputType = [string, (search: string) => void, () => void]
 
@@ -27,6 +29,12 @@ export const useSearch = <F> (): UseSearchOutputType => {
     const handleResetSearch = useCallback(() => {
         setSearch('')
     }, [])
+
+    useEffect(() => {
+        if (!isEqual(searchValueFromQuery, search)) {
+            setSearch(searchValueFromQuery)
+        }
+    }, [searchValueFromQuery])
 
     return [search, handleSearchChange, handleResetSearch]
 }

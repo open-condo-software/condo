@@ -41,6 +41,7 @@ const TicketFilterFields = {
     completedAt: '[String]',
     lastCommentAt: '[String]',
     type: 'String',
+    isCompletedAfterDeadline: 'String',
 }
 
 const TICKET_FILTER_TYPE = `

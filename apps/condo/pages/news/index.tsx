@@ -2,6 +2,7 @@
 import { jsx } from '@emotion/react'
 import { Col, Row, RowProps } from 'antd'
 import { isEmpty } from 'lodash'
+import get from 'lodash/get'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
@@ -20,6 +21,7 @@ import { EmptyListContent } from '@condo/domains/common/components/EmptyListCont
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
+import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
@@ -192,10 +194,13 @@ const NewsPage: INewsIndexPage = () => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.news.index.pageTitle' })
 
-    const { organization } = useOrganization()
+
+    const { link, organization }  = useOrganization()
+    const employeeId = get(link, 'id')
     const { isLoading: isAccessLoading } = useNewsItemsAccess()
 
     const { GlobalHints } = useGlobalHints()
+    usePreviousSortAndFilters({ employeeSpecificKey: employeeId })
 
     const baseNewsQuery = {
         organization: { id: organization.id },

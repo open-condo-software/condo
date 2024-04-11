@@ -6,6 +6,7 @@ const dayjs = require('dayjs')
 const { isEmpty, get, isNull, compact, isArray, isString, uniq } = require('lodash')
 
 const conf = require('@open-condo/config')
+const { readOnlyFieldAccess } = require('@open-condo/keystone/access')
 const { GQLErrorCode: { BAD_USER_INPUT }, GQLError } = require('@open-condo/keystone/errors')
 const { Json, AutoIncrementInteger } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
@@ -49,7 +50,6 @@ const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransition
 const { QUALITY_CONTROL_ADDITIONAL_OPTIONS_FIELD } = require('@condo/domains/ticket/schema/fields/QualityControlAdditionalOptions')
 const { FEEDBACK_ADDITIONAL_OPTIONS_FIELD } = require('@condo/domains/ticket/schema/fields/TicketFeedbackAdditionalOptions')
 const { sendTicketChangedNotifications } = require('@condo/domains/ticket/tasks')
-const { TicketStatus } = require('@condo/domains/ticket/utils/serverSchema')
 const {
     calculateTicketOrder, calculateReopenedCounter,
     setSectionAndFloorFieldsByDataFromPropertyMap, setClientNamePhoneEmailFieldsByDataFromUser,
@@ -59,6 +59,7 @@ const {
     calculateDeferredUntil,
     setDeadline, updateStatusAfterResidentFeedback,
     classifyTicket,
+    calculateIsCompletedAfterDeadline,
 } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
 const {
     createTicketChange,
@@ -677,6 +678,13 @@ const Ticket = new GQLListSchema('Ticket', {
                 },
             },
         },
+        isCompletedAfterDeadline: {
+            schemaDoc: '(Auto-set) Used to filter tickets that were completed (,closed or cancelled) after the deadline. ',
+            type: 'Checkbox',
+            defaultValue: false,
+            kmigratorOptions: { default: false },
+            access: readOnlyFieldAccess,
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked()],
     hooks: {
@@ -757,6 +765,7 @@ const Ticket = new GQLListSchema('Ticket', {
 
             const newItem = { ...existingItem, ...resolvedData }
             const resolvedStatusId = get(newItem, 'status', null)
+            const existedStatusId = get(existingItem, 'status', null)
             const resolvedClient = get(newItem, 'client', null)
 
             // Set isAutoClassified to false if classifier was passed
@@ -775,16 +784,16 @@ const Ticket = new GQLListSchema('Ticket', {
             if (resolvedStatusId) {
                 calculateTicketOrder(resolvedData, resolvedStatusId)
 
-                const existedStatusId = get(existingItem, 'status', null)
+                const resolvedStatus = await getById('TicketStatus', resolvedStatusId)
+                let existedStatus = null
                 if (existedStatusId) {
-                    const existedStatus = await TicketStatus.getOne(context, { id: existedStatusId })
-                    const resolvedStatus = await TicketStatus.getOne(context, { id: resolvedStatusId })
+                    existedStatus = await getById('TicketStatus', existedStatusId)
 
                     await calculateReopenedCounter(context, existingItem, resolvedData, existedStatus, resolvedStatus)
-                    calculateCompletedAt(resolvedData, existedStatus, resolvedStatus)
                     calculateStatusUpdatedAt(resolvedData, existedStatusId, resolvedStatusId)
                     calculateDeferredUntil(resolvedData, existedStatus, resolvedStatus)
                 }
+                calculateCompletedAt(resolvedData, existedStatus, resolvedStatus)
             }
 
             if (userType === RESIDENT && isCreateOperation) {
@@ -794,6 +803,7 @@ const Ticket = new GQLListSchema('Ticket', {
                 await setDeadline(resolvedData)
             }
 
+            calculateIsCompletedAfterDeadline(resolvedData, existingItem)
             await connectContactToTicket(context, resolvedData, existingItem)
 
             // When creating ticket or updating ticket address,

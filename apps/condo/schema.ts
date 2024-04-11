@@ -80399,6 +80399,8 @@ export enum SortTicketHistoryRecordsBy {
   UnitTypeDesc = 'unitType_DESC',
   DeferredUntilAsc = 'deferredUntil_ASC',
   DeferredUntilDesc = 'deferredUntil_DESC',
+  IsCompletedAfterDeadlineAsc = 'isCompletedAfterDeadline_ASC',
+  IsCompletedAfterDeadlineDesc = 'isCompletedAfterDeadline_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -80840,6 +80842,8 @@ export enum SortTicketsBy {
   SourceDesc = 'source_DESC',
   DeferredUntilAsc = 'deferredUntil_ASC',
   DeferredUntilDesc = 'deferredUntil_DESC',
+  IsCompletedAfterDeadlineAsc = 'isCompletedAfterDeadline_ASC',
+  IsCompletedAfterDeadlineDesc = 'isCompletedAfterDeadline_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -82049,6 +82053,8 @@ export type Ticket = {
   sourceMeta?: Maybe<Scalars['JSON']>;
   /**  Date until which the ticket is deferred  */
   deferredUntil?: Maybe<Scalars['String']>;
+  /**  (Auto-set) Used to filter tickets that were completed (,closed or cancelled) after the deadline.   */
+  isCompletedAfterDeadline?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -85844,6 +85850,7 @@ export type TicketCreateInput = {
   source?: Maybe<TicketSourceRelateToOneInput>;
   sourceMeta?: Maybe<Scalars['JSON']>;
   deferredUntil?: Maybe<Scalars['String']>;
+  isCompletedAfterDeadline?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -86805,6 +86812,7 @@ export type TicketFilter = {
   completedAt?: Maybe<Array<Maybe<Scalars['String']>>>;
   lastCommentAt?: Maybe<Array<Maybe<Scalars['String']>>>;
   type?: Maybe<Scalars['String']>;
+  isCompletedAfterDeadline?: Maybe<Scalars['String']>;
 };
 
 /**  Employee specific ticket filter template  */
@@ -87236,6 +87244,7 @@ export type TicketHistoryRecord = {
   source?: Maybe<Scalars['String']>;
   sourceMeta?: Maybe<Scalars['JSON']>;
   deferredUntil?: Maybe<Scalars['String']>;
+  isCompletedAfterDeadline?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -87306,6 +87315,7 @@ export type TicketHistoryRecordCreateInput = {
   source?: Maybe<Scalars['String']>;
   sourceMeta?: Maybe<Scalars['JSON']>;
   deferredUntil?: Maybe<Scalars['String']>;
+  isCompletedAfterDeadline?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -87381,6 +87391,7 @@ export type TicketHistoryRecordUpdateInput = {
   source?: Maybe<Scalars['String']>;
   sourceMeta?: Maybe<Scalars['JSON']>;
   deferredUntil?: Maybe<Scalars['String']>;
+  isCompletedAfterDeadline?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -87878,6 +87889,8 @@ export type TicketHistoryRecordWhereInput = {
   deferredUntil_gte?: Maybe<Scalars['String']>;
   deferredUntil_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   deferredUntil_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isCompletedAfterDeadline?: Maybe<Scalars['Boolean']>;
+  isCompletedAfterDeadline_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -90680,6 +90693,7 @@ export type TicketUpdateInput = {
   source?: Maybe<TicketSourceRelateToOneInput>;
   sourceMeta?: Maybe<Scalars['JSON']>;
   deferredUntil?: Maybe<Scalars['String']>;
+  isCompletedAfterDeadline?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -91080,6 +91094,8 @@ export type TicketWhereInput = {
   deferredUntil_gte?: Maybe<Scalars['String']>;
   deferredUntil_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   deferredUntil_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isCompletedAfterDeadline?: Maybe<Scalars['Boolean']>;
+  isCompletedAfterDeadline_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;

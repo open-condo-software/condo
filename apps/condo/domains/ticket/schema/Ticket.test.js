@@ -2408,8 +2408,6 @@ describe('Ticket', () => {
 
         describe('completedAt', () => {
             test('should be filled and updated automatically when ticket status changes to "completed" value', async () => {
-
-
                 const [organization] = await createTestOrganization(admin)
                 const [property] = await createTestProperty(admin, organization)
                 const [ticket] = await createTestTicket(admin, organization, property)
@@ -2436,6 +2434,11 @@ describe('Ticket', () => {
                 expect(updatedTicket2.completedAt).toBeDefined()
                 expect(updatedTicket2.completedAt).toMatch(DATETIME_RE)
                 expect(dayjs(updatedTicket2.completedAt).isAfter(updatedTicket.completedAt)).toBeTruthy()
+
+                const [completedTicket] = await createTestTicket(admin, organization, property, {
+                    status: { connect: { id: STATUS_IDS.COMPLETED } },
+                })
+                expect(completedTicket.completedAt).toMatch(DATETIME_RE)
             })
 
             test('should not be updated automatically when ticket status was "completed" before change', async () => {
@@ -3033,6 +3036,135 @@ describe('Ticket', () => {
                     expect(updatedTicket).toHaveProperty('unitType', COMMERCIAL_UNIT_TYPE)
                     expect(updatedTicket).toHaveProperty('unitName', attrs.unitName)
                 })
+            })
+        })
+
+        describe('isCompletedAfterDeadline', () => {
+            let organization, property
+
+            beforeAll(async () => {
+                [organization] = await createTestOrganization(admin);
+                [property] = await createTestProperty(admin, organization)
+            })
+
+            test('can be read', async () => {
+                const [ticket] = await createTestTicket(admin, organization, property)
+                expect(ticket).toHaveProperty('isCompletedAfterDeadline', false)
+            })
+
+            test('can not be update', async () => {
+                await expectToThrowGraphQLRequestError(async () => {
+                    await createTestTicket(admin, organization, property, { isCompletedAfterDeadline: false })
+                }, 'Field "isCompletedAfterDeadline" is not defined by type "TicketCreateInput"')
+
+                const [ticket] = await createTestTicket(admin, organization, property)
+                await expectToThrowGraphQLRequestError(async () => {
+                    await updateTestTicket(admin, ticket.id, { isCompletedAfterDeadline: true })
+                }, 'Field "isCompletedAfterDeadline" is not defined by type "TicketUpdateInput"')
+            })
+
+            test('Should be auto-updated if "deadline" is updated', async () => {
+                const [ticket] = await createTestTicket(admin, organization, property, {
+                    status: { connect: { id: STATUS_IDS.COMPLETED } },
+                })
+                expect(ticket).toHaveProperty('isCompletedAfterDeadline', false)
+
+                const [updatedTicket] = await updateTestTicket(admin, ticket.id, {
+                    deadline: dayjs().subtract(1, 'minute'),
+                })
+                expect(updatedTicket).toHaveProperty('isCompletedAfterDeadline', true)
+
+                const [updatedTicket3] = await updateTestTicket(admin, ticket.id, {
+                    deadline: dayjs().add(1, 'day'),
+                })
+                expect(updatedTicket3).toHaveProperty('isCompletedAfterDeadline', false)
+            })
+
+            test('Should be auto-set true if status changed to "completed", "closed" or "cancelled" after deadline', async () => {
+                const [ticket] = await createTestTicket(admin, organization, property, { deadline: dayjs().subtract(1, 'minute') })
+                expect(ticket).toHaveProperty('isCompletedAfterDeadline', false)
+
+                const [updatedTicket] = await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.DECLINED } } })
+                expect(updatedTicket).toHaveProperty('isCompletedAfterDeadline', true)
+
+                const [updatedTicket2] = await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.OPEN } } })
+                expect(updatedTicket2).toHaveProperty('isCompletedAfterDeadline', false)
+
+                const [updatedTicket3] = await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.DEFERRED } }, deferredUntil: dayjs().add(1, 'day') })
+                expect(updatedTicket3).toHaveProperty('isCompletedAfterDeadline', false)
+
+                const [updatedTicket4] = await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.OPEN } } })
+                expect(updatedTicket4).toHaveProperty('isCompletedAfterDeadline', false)
+
+                const [updatedTicket5] = await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.IN_PROGRESS } } })
+                expect(updatedTicket5).toHaveProperty('isCompletedAfterDeadline', false)
+
+                const [updatedTicket6] = await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.COMPLETED } } })
+                expect(updatedTicket6).toHaveProperty('isCompletedAfterDeadline', true)
+
+                const [updatedTicket7] = await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.OPEN } } })
+                expect(updatedTicket7).toHaveProperty('isCompletedAfterDeadline', false)
+
+                const [updatedTicket8] = await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.CLOSED } } })
+                expect(updatedTicket8).toHaveProperty('isCompletedAfterDeadline', true)
+            })
+
+            test('Should be auto-set false if status changed to "completed", "closed" or "canceled" before deadline', async () => {
+                const [ticket] = await createTestTicket(admin, organization, property, { deadline: dayjs().add(1, 'day') })
+                expect(ticket).toHaveProperty('isCompletedAfterDeadline', false)
+
+                const [updatedTicket] = await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.DECLINED } } })
+                expect(updatedTicket).toHaveProperty('isCompletedAfterDeadline', false)
+
+                const [updatedTicket2] = await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.OPEN } } })
+                expect(updatedTicket2).toHaveProperty('isCompletedAfterDeadline', false)
+
+                const [updatedTicket3] = await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.DEFERRED } }, deferredUntil: dayjs().add(1, 'day') })
+                expect(updatedTicket3).toHaveProperty('isCompletedAfterDeadline', false)
+
+                const [updatedTicket4] = await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.OPEN } } })
+                expect(updatedTicket4).toHaveProperty('isCompletedAfterDeadline', false)
+
+                const [updatedTicket5] = await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.IN_PROGRESS } } })
+                expect(updatedTicket5).toHaveProperty('isCompletedAfterDeadline', false)
+
+                const [updatedTicket6] = await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.COMPLETED } } })
+                expect(updatedTicket6).toHaveProperty('isCompletedAfterDeadline', false)
+
+                const [updatedTicket7] = await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.OPEN } } })
+                expect(updatedTicket7).toHaveProperty('isCompletedAfterDeadline', false)
+
+                const [updatedTicket8] = await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.CLOSED } } })
+                expect(updatedTicket8).toHaveProperty('isCompletedAfterDeadline', false)
+            })
+
+            test('Should be auto-set false if deadline is null', async () => {
+                const [ticket] = await createTestTicket(admin, organization, property)
+                expect(ticket).toHaveProperty('isCompletedAfterDeadline', false)
+
+                const [updatedTicket] = await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.DECLINED } } })
+                expect(updatedTicket).toHaveProperty('isCompletedAfterDeadline', false)
+
+                const [updatedTicket2] = await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.OPEN } } })
+                expect(updatedTicket2).toHaveProperty('isCompletedAfterDeadline', false)
+
+                const [updatedTicket3] = await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.DEFERRED } }, deferredUntil: dayjs().add(1, 'day') })
+                expect(updatedTicket3).toHaveProperty('isCompletedAfterDeadline', false)
+
+                const [updatedTicket4] = await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.OPEN } } })
+                expect(updatedTicket4).toHaveProperty('isCompletedAfterDeadline', false)
+
+                const [updatedTicket5] = await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.IN_PROGRESS } } })
+                expect(updatedTicket5).toHaveProperty('isCompletedAfterDeadline', false)
+
+                const [updatedTicket6] = await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.COMPLETED } } })
+                expect(updatedTicket6).toHaveProperty('isCompletedAfterDeadline', false)
+
+                const [updatedTicket7] = await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.OPEN } } })
+                expect(updatedTicket7).toHaveProperty('isCompletedAfterDeadline', false)
+
+                const [updatedTicket8] = await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.CLOSED } } })
+                expect(updatedTicket8).toHaveProperty('isCompletedAfterDeadline', false)
             })
         })
     })

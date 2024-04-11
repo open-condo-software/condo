@@ -5,7 +5,7 @@ import { Typography } from 'antd'
 import get from 'lodash/get'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
@@ -15,6 +15,9 @@ import { Tabs } from '@open-condo/ui'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import { MultipleFilterContextProvider } from '@condo/domains/common/hooks/useMultipleFiltersModal'
+import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
+import { updateQuery } from '@condo/domains/common/utils/helpers'
+import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { MeterReadPermissionRequired } from '@condo/domains/meter/components/PageAccess'
 import { MetersPageContent } from '@condo/domains/meter/components/TabContent/MeterReading'
 import { MeterReportingPeriodPageContent } from '@condo/domains/meter/components/TabContent/MeterReportingPeriod'
@@ -22,7 +25,7 @@ import { PropertyMetersPageContent } from '@condo/domains/meter/components/TabCo
 import { METER_REPORTING_PERIOD_FRONTEND_FEATURE_FLAG } from '@condo/domains/meter/constants/constants'
 import { useFilters } from '@condo/domains/meter/hooks/useFilters'
 import { useTableColumns } from '@condo/domains/meter/hooks/useTableColumns'
-import { MeterPageTypes, METER_PAGE_TYPES } from '@condo/domains/meter/utils/clientSchema'
+import { METER_PAGE_TYPES } from '@condo/domains/meter/utils/clientSchema'
 
 
 interface IMeterIndexPage extends React.FC {
@@ -30,7 +33,7 @@ interface IMeterIndexPage extends React.FC {
     requiredAccess?: React.FC
 }
 
-function MeterPageTypeFromQuery (tabFromQuery) {
+export function MeterPageTypeFromQuery (tabFromQuery) {
     switch (tabFromQuery) {
         case METER_PAGE_TYPES.meter:
             return METER_PAGE_TYPES.meter
@@ -48,6 +51,7 @@ const StyledPageWrapper = styled(PageWrapper)`
        height: 100%;
      }
 `
+const AVAILABLE_TABS = [METER_PAGE_TYPES.meter, METER_PAGE_TYPES.reportingPeriod, METER_PAGE_TYPES.propertyMeter]
 
 const MetersPage: IMeterIndexPage = () => {
     const intl = useIntl()
@@ -59,34 +63,52 @@ const MetersPage: IMeterIndexPage = () => {
     const { organization, link, isLoading } = useOrganization()
     const userOrganizationId = useMemo(() => get(organization, 'id'), [organization])
     const role = get(link, 'role')
+    const employeeId = get(link, 'id')
     const router = useRouter()
 
     const { useFlag } = useFeatureFlags()
     const isMeterReportingPeriodEnabled = useFlag(METER_REPORTING_PERIOD_FRONTEND_FEATURE_FLAG)
 
     const { GlobalHints } = useGlobalHints()
+    usePreviousSortAndFilters({ paramNamesForPageChange: ['tab'], employeeSpecificKey: employeeId })
 
-    const [tab, setTab] = useState<MeterPageTypes>(METER_PAGE_TYPES.meter)
+    const availableTabs = useMemo(() => {
+        return AVAILABLE_TABS.filter((tab) => {
+            if (tab === METER_PAGE_TYPES.reportingPeriod) return isMeterReportingPeriodEnabled
+            return true
+        })
+    }, [isMeterReportingPeriodEnabled])
+
+    const { tab } = parseQuery(router.query)
+    const tabAsMeterPageType = tab ? MeterPageTypeFromQuery(tab) : null
+    const activeTab = useMemo(() => availableTabs.includes(tabAsMeterPageType) ? tabAsMeterPageType : get(availableTabs, [0], ''),  [tabAsMeterPageType, availableTabs])
+
+    const changeRouteToActiveTab = useCallback(async (activeTab: string, routerAction: 'replace' | 'push' = 'push') => {
+        await updateQuery(router, {
+            newParameters: {
+                tab: activeTab,
+            },
+        }, { routerAction, resetOldParameters: true })
+    }, [router])
+
     useEffect(() => {
-        const tabFromRoute = MeterPageTypeFromQuery(router.query.tab ? router.query.tab : METER_PAGE_TYPES.meter)
-        if (tabFromRoute) {
-            setTab(tabFromRoute)
-            router.replace({ query: { ...router.query, tab: tabFromRoute } })
+        if (!activeTab) return
+        if (!tab || tab !== activeTab) {
+            changeRouteToActiveTab(activeTab, 'replace')
         }
-    }, [])
+    }, [activeTab, changeRouteToActiveTab, tab])
 
-    const filtersMeta = useFilters(tab)
-    const tableColumns = useTableColumns(filtersMeta, tab)
+    const filtersMeta = useFilters(tabAsMeterPageType)
+    const tableColumns = useTableColumns(filtersMeta, tabAsMeterPageType)
     const baseMeterReadingsQuery = useMemo(() => ({
         meter: { deletedAt: null },
         deletedAt: null,
         organization: { id: userOrganizationId },
     }),
     [userOrganizationId])
-    const handleTabChange = useCallback((tab: MeterPageTypes) => {
-        setTab(tab)
-        router.replace({ query: { ...router.query, tab } })
-    }, [tab])
+    const handleTabChange = useCallback(async (activeTab) => {
+        await changeRouteToActiveTab(activeTab)
+    }, [changeRouteToActiveTab])
 
     const canManageMeterReadings = useMemo(() => get(role, 'canManageMeterReadings', false), [role])
     const canManageMeters = useMemo(() => get(role, 'canManageMeters', false), [role])
@@ -142,6 +164,7 @@ const MetersPage: IMeterIndexPage = () => {
                 {GlobalHints}
                 <PageHeader title={<Typography.Title>{PageTitleMessage}</Typography.Title>}/>
                 <Tabs
+                    defaultActiveKey={METER_PAGE_TYPES.meter}
                     activeKey={tab}
                     onChange={handleTabChange}
                     items={tabItems}

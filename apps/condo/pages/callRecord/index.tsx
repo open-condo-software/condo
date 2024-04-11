@@ -26,6 +26,7 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
+import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
@@ -48,6 +49,7 @@ const ROW_GUTTER: RowProps['gutter'] = [0, 40]
 const FILTER_ROW_GUTTER: RowProps['gutter'] = [16, 16]
 
 const SHOW_TIME_CONFIG = { defaultValue: dayjs('00:00:00:000', 'HH:mm:ss:SSS') }
+const FULL_WIDTH_STYLE: React.CSSProperties = { width: '100%' }
 
 const StartedAtFilter = ({ placeholder, field }) => {
     const router = useRouter()
@@ -72,6 +74,7 @@ const StartedAtFilter = ({ placeholder, field }) => {
             placeholder={placeholder}
             onChange={handleDateChange}
             defaultValue={initialStartedAtFilter}
+            style={FULL_WIDTH_STYLE}
         />
     )
 }
@@ -92,7 +95,7 @@ const FilterContainer = () => {
         <Col span={24}>
             <TableFiltersContainer>
                 <Row gutter={FILTER_ROW_GUTTER} align='middle'>
-                    <Col xs={24} md={15}>
+                    <Col span={24}>
                         <Input
                             placeholder={SearchPlaceholderMessage}
                             onChange={handleSearchChange}
@@ -102,15 +105,15 @@ const FilterContainer = () => {
                             suffix={<Search size='medium' color={colors.gray[7]} />}
                         />
                     </Col>
-                    <Col xs={24} sm={24} md={9}>
-                        <Row gutter={FILTER_ROW_GUTTER} align='middle' justify='space-between'>
-                            <Col md={12}>
+                    <Col span={24} lg={20} xl={14} xxl={12}>
+                        <Row gutter={FILTER_ROW_GUTTER} align='middle'>
+                            <Col span={24} xs={24} sm={12}>
                                 <StartedAtFilter
                                     placeholder={StartDateMessage}
                                     field='startedAtGte'
                                 />
                             </Col>
-                            <Col md={12}>
+                            <Col span={24} xs={24} sm={12}>
                                 <StartedAtFilter
                                     placeholder={EndDateMessage}
                                     field='startedAtLte'
@@ -244,9 +247,12 @@ export const CallRecordsPageContent = (props) => {
 
 const CallRecordsPage: ICallRecordIndexPage = () => {
     const filterMetas = useCallRecordTableFilters()
-    const { organization } = useOrganization()
+    const { organization, link } = useOrganization()
     const organizationId = get(organization, 'id')
+    const employeeId = get(link, 'id')
     const baseQuery: BaseQueryType = useMemo(() => ({ organization: { id: organizationId } }), [organizationId])
+
+    usePreviousSortAndFilters({ employeeSpecificKey: employeeId })
 
     return (
         <CallRecordsPageContent

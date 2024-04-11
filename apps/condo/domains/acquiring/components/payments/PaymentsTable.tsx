@@ -1,4 +1,3 @@
-import { FilterFilled } from '@ant-design/icons'
 import { Col, Row, Space } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
 import dayjs, { Dayjs } from 'dayjs'
@@ -97,7 +96,6 @@ function usePaymentsSum (whereQuery) {
 const PaymentsTableContent: React.FC = (): JSX.Element => {
     const intl = useIntl()
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
-    const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
     const StartDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
     const EndDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
     const ConfirmTitle = intl.formatMessage({ id: 'component.TicketWarningModal.ConfirmTitle' })
@@ -113,7 +111,6 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
 
     const { filters, sorters, offset } = parseQuery(router.query)
 
-    const appliedFiltersCount = Object.keys(filters).length
     const currencyCode = get(billingContext, ['integration', 'currencyCode'], 'RUB')
 
     const [isStatusDescModalVisible, setIsStatusDescModalVisible] = useState<boolean>(false)
@@ -141,7 +138,6 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
     const [dateRange, setDateRange] = useDateRangeSearch('advancedAt')
     const dateFilterValue = dateRange || dateFallback
     const dateFilter = dateFilterValue ? dateFilterValue.map(el => el.toISOString()) : null
-
 
 
     const searchPaymentsQuery: Record<string, unknown> = {
@@ -178,24 +174,21 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
     }, [setDateRange])
 
 
-
     const onReset = useCallback(() => {
         setFiltersAreReset(true)
     }, [])
-    
+
     const {
         MultipleFiltersModal,
         ResetFiltersModalButton,
-        setIsMultipleFiltersModalVisible,
-    } = useMultipleFiltersModal(
-        queryMetas,
-        PaymentsFilterTemplate,
-        handleResetSearch,
-        null,
-        null,
-        [],
-        { tab: 'payments' },
-    )
+        OpenFiltersButton,
+        appliedFiltersCount,
+    } = useMultipleFiltersModal({
+        filterMetas: queryMetas,
+        filtersSchemaGql: PaymentsFilterTemplate,
+        onReset: handleResetSearch,
+        extraQueryParameters: { tab: 'payments' },
+    })
 
     return (
         <>
@@ -235,15 +228,7 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
                                         )
                                     }
                                     <Col>
-                                        <Button
-                                            secondary
-                                            type='sberBlack'
-                                            onClick={() => setIsMultipleFiltersModalVisible(true)}
-                                        >
-                                            <FilterFilled/>
-                                            {FiltersButtonLabel}
-                                            {appliedFiltersCount > 0 && ` (${appliedFiltersCount})`}
-                                        </Button>
+                                        <OpenFiltersButton />
                                     </Col>
                                 </Row>
                             </Col>

@@ -55,7 +55,7 @@ const Select = <T extends SelectValueType> (props: CustomSelectProps<T>) => {
     }
 
     return (
-        <DefaultSelect <T> {...restProps } onChange={onChangeCallback} />
+        <DefaultSelect <T> autoClearSearchValue={props.mode === 'tags'} {...restProps } onChange={onChangeCallback} />
     )
 }
 

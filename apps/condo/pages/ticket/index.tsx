@@ -22,7 +22,7 @@ import React, { CSSProperties, Key, useCallback, useEffect, useMemo, useRef, use
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
-import { Filter, Search, Close, Phone } from '@open-condo/icons'
+import { Search, Close, Phone } from '@open-condo/icons'
 import { useLazyQuery } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
@@ -33,7 +33,6 @@ import { colors } from '@open-condo/ui/dist/colors'
 
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
-import { Button as CommonButton } from '@condo/domains/common/components/Button'
 import { PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -49,6 +48,7 @@ import { EXCEL } from '@condo/domains/common/constants/export'
 import { TICKET_IMPORT } from '@condo/domains/common/constants/featureflags'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { useAudio } from '@condo/domains/common/hooks/useAudio'
+import { useCheckboxSearch } from '@condo/domains/common/hooks/useCheckboxSearch'
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import {
@@ -56,6 +56,7 @@ import {
     FiltersTooltip,
     useMultipleFiltersModal,
 } from '@condo/domains/common/hooks/useMultipleFiltersModal'
+import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
@@ -98,12 +99,6 @@ const MEDIUM_VERTICAL_ROW_GUTTER: RowProps['gutter'] = [0, 24]
 const HEADER_STYLES: CSSProperties = { padding: 0 }
 const CHECKBOX_STYLE: CSSProperties = { paddingLeft: '0px', fontSize: fontSizes.label }
 const DEBOUNCE_TIMEOUT = 400
-const FILTERS_BUTTON_STYLES: CSSProperties = {
-    position: 'relative',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
-}
 
 const StyledTable = styled(Table)`
   .ant-checkbox-input {
@@ -550,51 +545,6 @@ const TicketStatusFilterContainer = ({ searchTicketsQuery, searchTicketsWithoutS
     )
 }
 
-const AppliedFiltersCounter = styled.div`
-  width: 23px;
-  height: 22px;
-  border-radius: 100px;
-  color: ${colors.white};
-  background-color: ${colors.black};
-  border: 3px solid ${colors.gray[1]};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  position: absolute;
-  right: -10px;
-  top: -10px;
-  box-sizing: content-box;
-`
-const FiltersButton = ({ appliedFiltersCount, setIsMultipleFiltersModalVisible }) => {
-    const intl = useIntl()
-    const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
-
-    const handleOpenMultipleFilter = useCallback(() => {
-        setIsMultipleFiltersModalVisible(true)
-    }, [setIsMultipleFiltersModalVisible])
-
-    return (
-        <CommonButton
-            secondary
-            type='sberBlack'
-            onClick={handleOpenMultipleFilter}
-            data-cy='ticket__filters-button'
-            style={FILTERS_BUTTON_STYLES}
-        >
-            <Filter size='medium'/>
-            {FiltersButtonLabel}
-            {
-                appliedFiltersCount > 0 ? (
-                    <AppliedFiltersCounter>
-                        {appliedFiltersCount}
-                    </AppliedFiltersCounter>
-                ) : null
-            }
-        </CommonButton>
-    )
-}
-
 const FILTERS_CONTAINER_ROW_GUTTER: RowProps['gutter'] = [20, 20]
 const CHECKBOX_WRAPPER_STYLES: CSSProperties = { flexWrap: 'nowrap', overflowX: 'auto', overflowY: 'hidden' }
 const FILTERS_BUTTON_ROW_GUTTER: RowProps['gutter'] = [16, 10]
@@ -609,16 +559,12 @@ const FiltersContainer = ({ filterMetas }) => {
     const WarrantiesLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.WarrantiesLabel' })
     const ReturnedLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.ReturnedLabel' })
     const PayableLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.PayableLabel' })
+    const ExpiredLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.ExpiredLabel' })
 
-    const router = useRouter()
-    const { filters } = parseQuery(router.query)
     const [{ width: contentWidth }, setRef] = useContainerSize()
 
-    const reduceNonEmpty = (cnt, filter) => cnt + Number((typeof filters[filter] === 'string' || Array.isArray(filters[filter])) && filters[filter].length > 0)
-    const appliedFiltersCount = Object.keys(filters).reduce(reduceNonEmpty, 0)
-
     const [search, changeSearch, handleResetSearch] = useSearch<IFilters>()
-    const [attributes, handleChangeAttribute, handleResetAllAttributes, handleChangeAllAttributes] = useBooleanAttributesSearch(ATTRIBUTE_NAMES_To_FILTERS)
+    const [attributes, handleChangeAttribute, handleResetAllAttributes, handleFilterChangesAllAttributes] = useBooleanAttributesSearch(ATTRIBUTE_NAMES_To_FILTERS)
     const {
         isEmergency: emergency,
         isRegular: regular,
@@ -626,6 +572,12 @@ const FiltersContainer = ({ filterMetas }) => {
         statusReopenedCounter: returned,
         isPayable: payable,
     } = attributes
+    const {
+        value: isCompletedAfterDeadline,
+        handleChange: handleChangeIsCompletedAfterDeadline,
+        handleFilterChanges: handleFilterChangesIsCompletedAfterDeadline,
+        handleResetWithoutUpdateQuery: handleResetIsCompletedAfterDeadline,
+    } = useCheckboxSearch('isCompletedAfterDeadline')
 
     const handleAttributeCheckboxChange = useCallback((attributeName: string) => (e: CheckboxChangeEvent) => {
         const isChecked = get(e, ['target', 'checked'])
@@ -635,17 +587,27 @@ const FiltersContainer = ({ filterMetas }) => {
     const handleResetFilters = useCallback(() => {
         handleResetAllAttributes()
         handleResetSearch()
-    }, [handleResetAllAttributes, handleResetSearch])
+        handleResetIsCompletedAfterDeadline()
+    }, [handleResetAllAttributes, handleResetSearch, handleResetIsCompletedAfterDeadline])
 
-    const { MultipleFiltersModal, ResetFiltersModalButton, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(
-        filterMetas, TicketFilterTemplate, handleResetFilters, handleChangeAllAttributes, 'Ticket', DETAILED_LOGGING
-    )
+    const handleSubmitFilters = useCallback((filters) => {
+        handleFilterChangesAllAttributes(filters)
+        handleFilterChangesIsCompletedAfterDeadline(filters)
+    }, [handleFilterChangesAllAttributes, handleFilterChangesIsCompletedAfterDeadline])
+
+    const { MultipleFiltersModal, ResetFiltersModalButton, OpenFiltersButton, appliedFiltersCount } = useMultipleFiltersModal({
+        filterMetas,
+        filtersSchemaGql: TicketFilterTemplate,
+        onReset: handleResetFilters,
+        onSubmit: handleSubmitFilters,
+        eventNamePrefix: 'Ticket',
+        detailedLogging: DETAILED_LOGGING,
+    })
 
     const handleSearchChange = useCallback((e) => {
         changeSearch(e.target.value)
     }, [changeSearch])
 
-    let inputColSpan = 24
     let checkboxColSpan = 24
     let filterButtonColSpan = 24
 
@@ -653,21 +615,20 @@ const FiltersContainer = ({ filterMetas }) => {
     const isXxlContainerSize = contentWidth >= 1288
 
     if (isXlContainerSize) {
-        checkboxColSpan = 16
-        filterButtonColSpan = 8
+        checkboxColSpan = 17
+        filterButtonColSpan = 7
     }
 
     if (isXxlContainerSize) {
-        inputColSpan = 5
-        checkboxColSpan = 12
-        filterButtonColSpan = 7
+        checkboxColSpan = 18
+        filterButtonColSpan = 6
     }
 
     return (
         <>
             <TableFiltersContainer ref={setRef}>
                 <Row gutter={FILTERS_CONTAINER_ROW_GUTTER} align='middle'>
-                    <Col span={inputColSpan}>
+                    <Col span={24}>
                         <Input
                             placeholder={SearchPlaceholder}
                             onChange={handleSearchChange}
@@ -677,101 +638,98 @@ const FiltersContainer = ({ filterMetas }) => {
                         />
                     </Col>
                     <Col span={checkboxColSpan}>
-                        <Row gutter={CHECKBOX_WRAPPER_GUTTERS} style={CHECKBOX_WRAPPER_STYLES}>
-                            <Col>
-                                <Checkbox
-                                    onChange={handleAttributeCheckboxChange('isRegular')}
-                                    checked={regular}
-                                    style={CHECKBOX_STYLE}
-                                    eventName='TicketFilterCheckboxRegular'
-                                    data-cy='ticket__filter-isRegular'
-                                >
-                                    {RegularLabel}
-                                </Checkbox>
-                            </Col>
-                            <Col>
-                                <Checkbox
-                                    onChange={handleAttributeCheckboxChange('isEmergency')}
-                                    checked={emergency}
-                                    style={CHECKBOX_STYLE}
-                                    eventName='TicketFilterCheckboxEmergency'
-                                    data-cy='ticket__filter-isEmergency'
-                                >
-                                    {EmergenciesLabel}
-                                </Checkbox>
-                            </Col>
-                            <Col>
-                                <Checkbox
-                                    onChange={handleAttributeCheckboxChange('isPayable')}
-                                    checked={payable}
-                                    style={CHECKBOX_STYLE}
-                                    eventName='TicketFilterCheckboxPayable'
-                                    data-cy='ticket__filter-isPayable'
-                                >
-                                    {PayableLabel}
-                                </Checkbox>
-                            </Col>
-                            <Col>
-                                <Checkbox
-                                    onChange={handleAttributeCheckboxChange('isWarranty')}
-                                    checked={warranty}
-                                    style={CHECKBOX_STYLE}
-                                    eventName='TicketFilterCheckboxWarranty'
-                                    data-cy='ticket__filter-isWarranty'
-                                >
-                                    {WarrantiesLabel}
-                                </Checkbox>
-                            </Col>
-                            <Col>
-                                <Checkbox
-                                    onChange={handleAttributeCheckboxChange('statusReopenedCounter')}
-                                    checked={returned}
-                                    style={CHECKBOX_STYLE}
-                                    eventName='TicketFilterCheckboxReturned'
-                                    data-cy='ticket__filter-isReturned'
-                                >
-                                    {ReturnedLabel}
-                                </Checkbox>
+                        <Row
+                            align='middle'
+                            gutter={CHECKBOX_WRAPPER_GUTTERS}
+                        >
+                            <Col span={24}>
+                                <Row gutter={CHECKBOX_WRAPPER_GUTTERS} style={!isXlContainerSize ? CHECKBOX_WRAPPER_STYLES : null}>
+                                    <Col>
+                                        <Checkbox
+                                            onChange={handleAttributeCheckboxChange('isRegular')}
+                                            checked={regular}
+                                            style={CHECKBOX_STYLE}
+                                            eventName='TicketFilterCheckboxRegular'
+                                            data-cy='ticket__filter-isRegular'
+                                        >
+                                            {RegularLabel}
+                                        </Checkbox>
+                                    </Col>
+                                    <Col>
+                                        <Checkbox
+                                            onChange={handleAttributeCheckboxChange('isEmergency')}
+                                            checked={emergency}
+                                            style={CHECKBOX_STYLE}
+                                            eventName='TicketFilterCheckboxEmergency'
+                                            data-cy='ticket__filter-isEmergency'
+                                        >
+                                            {EmergenciesLabel}
+                                        </Checkbox>
+                                    </Col>
+                                    <Col>
+                                        <Checkbox
+                                            onChange={handleAttributeCheckboxChange('isPayable')}
+                                            checked={payable}
+                                            style={CHECKBOX_STYLE}
+                                            eventName='TicketFilterCheckboxPayable'
+                                            data-cy='ticket__filter-isPayable'
+                                        >
+                                            {PayableLabel}
+                                        </Checkbox>
+                                    </Col>
+                                    <Col>
+                                        <Checkbox
+                                            onChange={handleAttributeCheckboxChange('isWarranty')}
+                                            checked={warranty}
+                                            style={CHECKBOX_STYLE}
+                                            eventName='TicketFilterCheckboxWarranty'
+                                            data-cy='ticket__filter-isWarranty'
+                                        >
+                                            {WarrantiesLabel}
+                                        </Checkbox>
+                                    </Col>
+                                    <Col>
+                                        <Checkbox
+                                            onChange={handleAttributeCheckboxChange('statusReopenedCounter')}
+                                            checked={returned}
+                                            style={CHECKBOX_STYLE}
+                                            eventName='TicketFilterCheckboxReturned'
+                                            data-cy='ticket__filter-isReturned'
+                                        >
+                                            {ReturnedLabel}
+                                        </Checkbox>
+                                    </Col>
+                                    <Col>
+                                        <Checkbox
+                                            onChange={(event) => handleChangeIsCompletedAfterDeadline(get(event, 'target.checked', false))}
+                                            checked={isCompletedAfterDeadline}
+                                            style={CHECKBOX_STYLE}
+                                            eventName='TicketFilterCheckboxIsCompletedAfterDeadline'
+                                            data-cy='ticket__filter-isCompletedAfterDeadline'
+                                            children={ExpiredLabel}
+                                        />
+                                    </Col>
+                                </Row>
                             </Col>
                         </Row>
                     </Col>
-                    <Col span={filterButtonColSpan}>
-                        {
-                            isXlContainerSize ? (
-                                <Row justify='end' align='middle' gutter={FILTERS_BUTTON_ROW_GUTTER}
-                                    style={FILTERS_BUTTON_ROW_STYLES}>
+                    <Col span={filterButtonColSpan} style={{ alignSelf: 'end' }}>
+                        <Row justify={isXlContainerSize ? 'end' : 'start'} align='bottom'>
+                            <Col>
+                                <Row align='middle' gutter={FILTERS_BUTTON_ROW_GUTTER} style={FILTERS_BUTTON_ROW_STYLES}>
                                     {
-                                        appliedFiltersCount > 0 ? (
+                                        appliedFiltersCount > 0 && (
                                             <Col>
                                                 <ResetFiltersModalButton style={RESET_FILTERS_BUTTON_STYLES}/>
                                             </Col>
-                                        ) : null
+                                        )
                                     }
                                     <Col>
-                                        <FiltersButton
-                                            appliedFiltersCount={appliedFiltersCount}
-                                            setIsMultipleFiltersModalVisible={setIsMultipleFiltersModalVisible}
-                                        />
+                                        <OpenFiltersButton />
                                     </Col>
                                 </Row>
-                            ) : (
-                                <Row justify='start' align='middle' gutter={FILTERS_BUTTON_ROW_GUTTER}>
-                                    <Col>
-                                        <FiltersButton
-                                            appliedFiltersCount={appliedFiltersCount}
-                                            setIsMultipleFiltersModalVisible={setIsMultipleFiltersModalVisible}
-                                        />
-                                    </Col>
-                                    {
-                                        appliedFiltersCount > 0 ? (
-                                            <Col>
-                                                <ResetFiltersModalButton style={RESET_FILTERS_BUTTON_STYLES}/>
-                                            </Col>
-                                        ) : null
-                                    }
-                                </Row>
-                            )
-                        }
+                            </Col>
+                        </Row>
                     </Col>
                 </Row>
             </TableFiltersContainer>
@@ -1025,11 +983,13 @@ const TicketsPage: ITicketIndexPage = () => {
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
+    const employeeId = get(userOrganization, 'link.id')
 
     const filterMetas = useTicketTableFilters()
 
     const { GlobalHints } = useGlobalHints()
     const { breakpoints } = useLayoutContext()
+    usePreviousSortAndFilters({ employeeSpecificKey: employeeId })
 
     const {
         count: ticketsWithoutFiltersCount,

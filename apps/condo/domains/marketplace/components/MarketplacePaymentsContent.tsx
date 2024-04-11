@@ -15,6 +15,7 @@ import { Search } from '@open-condo/icons'
 import { useOrganization } from '@open-condo/next/organization'
 import { Button, Modal, Checkbox, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
+import { useBreakpoints } from '@open-condo/ui/dist/hooks'
 
 import { PaymentsSumTable } from '@condo/domains/acquiring/components/payments/PaymentsSumTable'
 import { PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS } from '@condo/domains/acquiring/constants/payment'
@@ -40,7 +41,7 @@ import { useMarketplacePaymentTableColumns } from '@condo/domains/marketplace/ho
 import { MARKETPLACE_PAGE_TYPES } from '@condo/domains/marketplace/utils/clientSchema'
 
 
-const ROW_GUTTERS: RowProps['gutter'] = [0, 16]
+const ROW_GUTTERS: RowProps['gutter'] = [16, 16]
 const SUM_BAR_COL_GUTTER: RowProps['gutter'] = [40, 0]
 const QUICK_FILTERS_COL_STYLE: CSSProperties = { alignSelf: 'center' }
 
@@ -102,6 +103,7 @@ const MarketplacePaymentsTableContent = () => {
     const ConfirmTitle = intl.formatMessage({ id: 'component.TicketWarningModal.ConfirmTitle' })
     const PaymentsOnlyInDoneStatusMessage = intl.formatMessage({ id: 'pages.condo.marketplace.payments.filters.onlyDoneStatus' })
 
+    const breakpoints = useBreakpoints()
     const router = useRouter()
     const userOrganization = useOrganization()
     const orgId = get(userOrganization, ['organization', 'id'], null)
@@ -238,8 +240,8 @@ const MarketplacePaymentsTableContent = () => {
                     <Row gutter={[0, 24]}>
                         <Col span={24}>
                             <TableFiltersContainer>
-                                <Row justify='space-between' gutter={ROW_GUTTERS}>
-                                    <Col xxl={16} xl={14} lg={10} md={24} sm={24} xs={24}>
+                                <Row gutter={ROW_GUTTERS} justify='start' align='middle'>
+                                    <Col span={24}>
                                         <Input
                                             placeholder={SearchPlaceholder}
                                             onChange={handleSearch}
@@ -248,8 +250,9 @@ const MarketplacePaymentsTableContent = () => {
                                             suffix={<Search size='medium' color={colors.gray[7]} />}
                                         />
                                     </Col>
-                                    <Col >
+                                    <Col span={!breakpoints.TABLET_SMALL && 24}>
                                         <DateRangePicker
+                                            style={!breakpoints.TABLET_SMALL ? { width: '100%' } : null}
                                             value={dateRange}
                                             onChange={setDateRange}
                                             allowClear

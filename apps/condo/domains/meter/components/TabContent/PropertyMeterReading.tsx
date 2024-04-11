@@ -10,9 +10,10 @@ import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
-import { PlusCircle } from '@open-condo/icons'
+import { PlusCircle, Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
@@ -111,12 +112,13 @@ const PropertyMetersTableContent: React.FC<PropertyMetersTableContentProps> = (p
                 <Col span={24}>
                     <TableFiltersContainer>
                         <Row justify='space-between' gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}>
-                            <Col xs={24} lg={7}>
+                            <Col span={24}>
                                 <Input
                                     placeholder={SearchPlaceholder}
                                     onChange={handleSearch}
                                     value={search}
                                     allowClear
+                                    suffix={<Search size='medium' color={colors.gray[7]}/>}
                                 />
                             </Col>
                         </Row>

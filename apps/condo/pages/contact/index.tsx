@@ -25,6 +25,7 @@ import { TableFiltersContainer } from '@condo/domains/common/components/TableFil
 import { EMOJI } from '@condo/domains/common/constants/emoji'
 import { EXCEL } from '@condo/domains/common/constants/export'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
+import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
@@ -243,10 +244,13 @@ const ContactsPage = () => {
     const { organization, link, isLoading } = useOrganization()
     const userOrganizationId = get(organization, ['id'])
     const role = get(link, 'role')
+    const employeeId = get(link, 'id')
 
     const baseSearchQuery = useMemo(() => ({
         organization: { id: userOrganizationId },
     }), [userOrganizationId])
+
+    usePreviousSortAndFilters({ employeeSpecificKey: employeeId })
 
     return (
         <ContactPageContentWrapper

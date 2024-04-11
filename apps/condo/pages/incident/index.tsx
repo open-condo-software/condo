@@ -12,7 +12,7 @@ import intersection from 'lodash/intersection'
 import uniq from 'lodash/uniq'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { PlusCircle, Search } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
@@ -29,6 +29,7 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
+import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
@@ -70,10 +71,11 @@ type TableContainerProps = {
 }
 
 
+const CHECKBOX_WRAPPER_STYLES: CSSProperties = { flexWrap: 'nowrap', overflowX: 'auto', overflowY: 'hidden' }
+
 const ROW_GUTTER: RowProps['gutter'] = [0, 40]
 const FILTER_ROW_GUTTER: RowProps['gutter'] = [24, 20]
 const CHECKBOX_WRAPPER_GUTTERS: RowProps['gutter'] = [16, 16]
-const SEARCH_WRAPPER_GUTTERS: RowProps['gutter'] = [20, 20]
 
 const IS_ACTUAL_ATTRIBUTE_NAME = INCIDENT_STATUS_ACTUAL
 const IS_NOT_ACTUAL_ATTRIBUTE_NAME = INCIDENT_STATUS_NOT_ACTUAL
@@ -105,27 +107,23 @@ const FilterContainer: React.FC<FilterContainerProps> = () => {
         <Col span={24}>
             <TableFiltersContainer>
                 <Row gutter={FILTER_ROW_GUTTER} align='middle'>
-                    <Col xs={24} md={8}>
-                        <Row gutter={SEARCH_WRAPPER_GUTTERS}>
-                            <Col span={24}>
-                                <Input
-                                    placeholder={SearchPlaceholderMessage}
-                                    onChange={handleSearchChange}
-                                    value={search}
-                                    allowClear
-                                    id='searchIncidents'
-                                    suffix={<Search size='medium' color={colors.gray[7]} />}
-                                />
-                            </Col>
-                        </Row>
+                    <Col span={24}>
+                        <Input
+                            placeholder={SearchPlaceholderMessage}
+                            onChange={handleSearchChange}
+                            value={search}
+                            allowClear
+                            id='searchIncidents'
+                            suffix={<Search size='medium' color={colors.gray[7]} />}
+                        />
                     </Col>
-                    <Col xs={24} md={16}>
-                        <Row gutter={CHECKBOX_WRAPPER_GUTTERS} align='middle'>
+                    <Col>
+                        <Row gutter={CHECKBOX_WRAPPER_GUTTERS} align='middle' style={CHECKBOX_WRAPPER_STYLES}>
                             <Col>
                                 <Checkbox
                                     onChange={handleAttributeCheckboxChange(IS_ACTUAL_ATTRIBUTE_NAME)}
                                     checked={isActual}
-                                    label={ActualLabel}
+                                    children={ActualLabel}
                                     id='changeFilterActualIncidents'
                                 />
                             </Col>
@@ -133,7 +131,7 @@ const FilterContainer: React.FC<FilterContainerProps> = () => {
                                 <Checkbox
                                     onChange={handleAttributeCheckboxChange(IS_NOT_ACTUAL_ATTRIBUTE_NAME)}
                                     checked={isNotActual}
-                                    label={NotActualLabel}
+                                    children={NotActualLabel}
                                     id='changeFilterNotActualIncidents'
                                 />
                             </Col>
@@ -402,9 +400,12 @@ export const IncidentsPageContent: React.FC<IncidentsPageContentProps> = (props)
 
 const IncidentsPage: IIncidentIndexPage = () => {
     const filterMetas = useIncidentTableFilters()
-    const { organization } = useOrganization()
+    const { organization, link } = useOrganization()
     const organizationId = get(organization, 'id')
+    const employeeId = get(link, 'id')
     const baseQuery: BaseQueryType = useMemo(() => ({ organization: { id: organizationId } }), [organizationId])
+
+    usePreviousSortAndFilters({ employeeSpecificKey: employeeId })
 
     return (
         <IncidentsPageContent

@@ -75,7 +75,6 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         onSearch,
         formatLabel,
         renderOptions,
-        autoClearSearchValue = true,
         initialValue,
         getInitialValueQuery,
         infinityScroll,
@@ -91,8 +90,12 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         SearchInputComponentType = SearchComponentType.Select,
         showLoadingMessage = true,
         notFoundContent: propsNotFoundContent,
+        mode,
+        onBlur,
         ...restProps
     } = props
+
+    const autoClearSearchValue = get(props, 'autoClearSearchValue', mode === 'tags')
 
     const intl = useIntl()
     const LoadingMessage = intl.formatMessage({ id: 'LoadingInProgress' })
@@ -221,11 +224,11 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
                 logEvent({ eventName, eventProperties: componentProperties })
             }
         }
-        if (autoClearSearchValue) {
+        if (autoClearSearchValue || !mode) {
             setSearchValue('')
             setSearchData([])
         }
-    }, [onSelect])
+    }, [onSelect, mode])
 
     const searchMoreSuggestions = useCallback(
         async (value, skip) => {
@@ -276,9 +279,14 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         setOptions(uniqBy(updatedData, keyField))
     }, [initialData, allData, searchData, searchValue, keyField])
 
+    const handleBlur = useCallback((event) => {
+        setSearchValue('')
+        if (isFunction(onBlur)) onBlur(event)
+    }, [onBlur])
+
     const commonProps = useMemo(() => ({
         showSearch: true,
-        autoClearSearchValue: autoClearSearchValue,
+        autoClearSearchValue,
         allowClear: allowClear,
         optionFilterProp: 'title',
         defaultActiveFirstOption: false,
@@ -292,10 +300,12 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         loading: isInitialLoading || isSearchLoading,
         disabled: isDisabled,
         notFoundContent,
+        mode,
+        onBlur: handleBlur,
         ...restProps,
     }),
     [allowClear, autoClearSearchValue, handleClear, handleScroll, handleSearch, handleSelect, infinityScroll,
-        isDisabled, isInitialLoading, isSearchLoading, notFoundContent, placeholder, restProps, searchValue, selectedValue])
+        isDisabled, isInitialLoading, isSearchLoading, notFoundContent, placeholder, restProps, searchValue, selectedValue, mode, handleBlur])
 
     if (SearchInputComponentType === SearchComponentType.Select) {
         return (
