@@ -415,4 +415,46 @@ describe('RegisterMetersReadingsService', () => {
             },
         )
     })
+
+    test('error on invalid meter value', async () => {
+        const [o10n] = await createTestOrganization(adminClient)
+        const [property1] = await createTestProperty(adminClient, o10n)
+
+        const badReadings = getReadingsForAccessTest(property1)
+        badReadings[0].value1 = '-100500'
+
+        const readings = [
+            ...getReadingsForAccessTest(property1),
+            ...badReadings,
+        ]
+
+        await catchErrorFrom(
+            async () => {
+                await registerMetersReadingsByTestClient(adminClient, o10n, readings)
+            },
+            ({ data: { result }, errors }) => {
+                expect(result).toEqual([
+                    expect.objectContaining({
+                        value1: Number(readings[0].value1).toFixed(4),
+                        value2: Number(readings[0].value2).toFixed(4),
+                        organization: expect.objectContaining({
+                            id: o10n.id,
+                        }),
+                    }),
+                    null,
+                ])
+                expect(errors).toEqual([
+                    expect.objectContaining({
+                        message: 'Invalid meter value',
+                        name: 'GQLError',
+                        extensions: expect.objectContaining({
+                            code: 'BAD_USER_INPUT',
+                            type: 'INVALID_METER_VALUE',
+                            message: 'Invalid meter value',
+                        }),
+                    }),
+                ])
+            },
+        )
+    })
 })
