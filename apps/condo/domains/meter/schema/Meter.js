@@ -267,7 +267,7 @@ const Meter = new GQLListSchema('Meter', {
                 if (!originalInput['deletedAt'] && !hasMeterResourceOwnership) {
                     await MeterResourceOwner.create(context, {
                         dv: 1, sender: originalInput.sender,
-                        address: property.address,
+                        address: property.addressKey ? `key:${property.addressKey}` : property.address,
                         organization: { connect: { id: updatedItem.organization } },
                         resource: { connect: { id: updatedItem.resource } },
                     })
