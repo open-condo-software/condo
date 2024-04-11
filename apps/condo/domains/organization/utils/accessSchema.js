@@ -176,6 +176,18 @@ async function checkUserBelongsToOrganization (userId, organizationId) {
     return employee.deletedAt === null
 }
 
+async function checkUserBelongsToRelatedOrganization (userId, organizationId) {
+    if (!userId || !organizationId) return false
+    const [organizationLink] = await find('OrganizationLink', {
+        from: queryOrganizationEmployeeFor(userId),
+        to: { id: organizationId },
+        deletedAt: null,
+    })
+    if (!organizationLink) return false
+
+    return checkUserBelongsToOrganization(userId, organizationLink.from)
+}
+
 const queryOrganizationEmployeeFor = (userId, permission) => {
     const baseEmployeeQuery = { user: { id: userId }, isBlocked: false, deletedAt: null }
 
@@ -217,6 +229,7 @@ module.exports = {
     checkPermissionsInUserOrganizationOrRelatedOrganization,
     checkOrganizationPermission,
     checkUserBelongsToOrganization,
+    checkUserBelongsToRelatedOrganization,
     checkRelatedOrganizationPermission,
     queryOrganizationEmployeeFromRelatedOrganizationFor,
     queryOrganizationEmployeeFor,

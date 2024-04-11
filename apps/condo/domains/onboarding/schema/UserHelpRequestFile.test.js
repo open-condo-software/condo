@@ -33,7 +33,7 @@ describe('UserHelpRequestFileFile', () => {
             canManageCallRecords: true,
             canManageTickets: true,
         })
-        await createTestOrganizationEmployee(admin, organization, employeeUser.user, role)
+        await createTestOrganizationEmployee(admin, organization, employeeUser.user, role, { isAccepted: true })
 
         const [helpRequest] = await createTestUserHelpRequest(employeeUser, organization)
         employeeUserRequest = helpRequest
