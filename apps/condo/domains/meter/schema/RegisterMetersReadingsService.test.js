@@ -457,4 +457,46 @@ describe('RegisterMetersReadingsService', () => {
             },
         )
     })
+
+    test('error on invalid meter resource', async () => {
+        const [o10n] = await createTestOrganization(adminClient)
+        const [property1] = await createTestProperty(adminClient, o10n)
+
+        const badReadings = getReadingsForAccessTest(property1)
+        badReadings[0].meterResource = { id: faker.datatype.uuid() }
+
+        const readings = [
+            ...getReadingsForAccessTest(property1),
+            ...badReadings,
+        ]
+
+        await catchErrorFrom(
+            async () => {
+                await registerMetersReadingsByTestClient(adminClient, o10n, readings)
+            },
+            ({ data: { result }, errors }) => {
+                expect(result).toEqual([
+                    expect.objectContaining({
+                        value1: Number(readings[0].value1).toFixed(4),
+                        value2: Number(readings[0].value2).toFixed(4),
+                        organization: expect.objectContaining({
+                            id: o10n.id,
+                        }),
+                    }),
+                    null,
+                ])
+                expect(errors).toEqual([
+                    expect.objectContaining({
+                        message: '[error] Create Meter internal error',
+                        originalError: expect.objectContaining({
+                            message: '[error] Create Meter internal error',
+                            errors: [expect.objectContaining({
+                                message: 'Unable to connect a Meter.resource<MeterResource>',
+                            })],
+                        }),
+                    }),
+                ])
+            },
+        )
+    })
 })
