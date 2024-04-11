@@ -12,9 +12,10 @@ function initDatabaseAdapters (databases) {
 }
 
 function initDatabaseAdapter (databaseUrl) {
-    if (databaseUrl.startsWith('postgresql:')) {
-        return new ReplicaKnexAdapter()
-        // return new KnexAdapter({ knexOptions: { connection: databaseUrl } })
+    if (typeof databaseUrl === 'object') {
+        return new ReplicaKnexAdapter({ connection: databaseUrl })
+    } else if (databaseUrl.startsWith('postgresql:')) {
+        return new KnexAdapter({ knexOptions: { connection: databaseUrl } })
     } else if (databaseUrl.startsWith('fake:')) {
         // NOTE: case for testing!
         return new FakeDatabaseAdapter()
@@ -35,12 +36,13 @@ function initListAdapter (rootAdapter, parentAdapter, key, adapterConfig) {
     return listAdapter
 }
 
+// TODO: add public api to get db adapter by provided table name
 class ScalableDatabaseAdapter extends BaseKeystoneAdapter {
     static PUBLIC_API = [
-        'name', 'config',  // base keystone adapter props
-        'newListAdapter', 'getListAdapterByKey', 'connect', '_connect', 'checkDatabaseVersion', 'postConnect', 'disconnect',  // keystone interface props
-        '__databaseAdapters', '__listMappingRule', '__listMappingAdapters', '__listToDatabase',  // own private props
-        '__kmigratorKnexAdapters',  // kmigrator hacks for backward compatibility
+        'name', 'config', // base keystone adapter props
+        'newListAdapter', 'getListAdapterByKey', 'connect', '_connect', 'checkDatabaseVersion', 'postConnect', 'disconnect', // keystone interface props
+        '__databaseAdapters', '__listMappingRule', '__listMappingAdapters', '__listToDatabase', // own private props
+        '__kmigratorKnexAdapters', // kmigrator hacks for backward compatibility
     ]
 
     constructor (opts = {}) {

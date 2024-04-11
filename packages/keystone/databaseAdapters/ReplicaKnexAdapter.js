@@ -1,30 +1,32 @@
 const { KnexAdapter } = require('@keystonejs/adapter-knex')
-const { BaseKeystoneAdapter } = require('@keystonejs/keystone')
 const { knex } = require('knex')
+const { get, omit } = require('lodash')
 
 
 class ReplicaKnexAdapter extends KnexAdapter {
-    // constructor ({ knexOptions = {}, schemaName = 'public' } = {}) {
-    //     super(...arguments)
-    // }
+    constructor (props) {
+        super(omit(props, ['connection']))
+        this.readConnection = get(props, ['connection', 'read'])
+        this.writeConnection = get(props, ['connection', 'write'])
+    }
 
     async _connect () {
         this.knex = knex({
             client: 'postgres',
             pool: { min: 0, max: 1 },
-            connection: process.env.DATABASE_MASTER,
+            connection: this.writeConnection,
         })
 
         this.knexMaster = knex({
             client: 'postgres',
             pool: { min: 0, max: 1 },
-            connection: process.env.DATABASE_MASTER,
+            connection: this.writeConnection,
         })
 
         this.knexRead = knex({
             client: 'postgres',
             pool: { min: 0, max: 1 },
-            connection: process.env.DATABASE_READ,
+            connection: this.readConnection,
         })
 
         this.knex.context.transaction = (...props) => {
@@ -39,19 +41,6 @@ class ReplicaKnexAdapter extends KnexAdapter {
 
             // try to parse sql
             return ['create'].some(sub => object.sql.includes(sub))
-
-            /** As a bonus (I will not provide code since it's still very poorly done on my side and kind of weird...)
-             * But here you can also parse the sql query in object.sql
-             * Find a way to retrieve all table names usage in the query
-             * and if you find some "critical" one, let's say ("shopping_cart") then force to use master endpoint
-             * This can be done if you don't want developpers to know when to force select queries on master endpoint using .queryContext({ useMaster: true })
-             * Note that parsing every select queries to check for table names usage will take some times on every requests
-             * So I suggest you to save a hash of the current query:  const hash = crypto.createHash('md5').update(object.sql).digest('hex');
-             * and save the result (if it should use master endpoint or not) in an object, hash map or any other way
-             * I think this is fine to do like this since object.sql do not contains variables, ex: select * from "table_name" where "column" in (?, ?, ?) (Note: this is not true If you use knex.raw)
-             * It depends on your application and how many different queries your application have
-             * Maybe you can still process / parse / transform the sql query to be more abstract and reduce the number (remove all after where condition, care with subqueries)
-             **/
         }
 
         const checkUseMasterMultiple = (array) => {
@@ -65,14 +54,6 @@ class ReplicaKnexAdapter extends KnexAdapter {
 
         //override runner method
         this.knex.client.runner = (builder) => {
-            // here we will redirect the query on the correct knex object,
-            // We use this method since this is one of the first executed
-            // after your query has been built and it's still before the aquireConnection process
-
-            // bypass with knex.select('*').queryContext({ useMaster: true })....
-            // this is to force your query to be executed on read or write endpoint
-            // not sure about using queryContext for this but it seems ok to me
-
             if (builder._queryContext && builder._queryContext.useMaster === true) {
                 return this.knexMaster.client.runner(builder)
             } else if (
@@ -82,8 +63,6 @@ class ReplicaKnexAdapter extends KnexAdapter {
                 return this.knexRead.client.runner(builder)
             }
 
-            // .toSQL() return an object or an array of object (not sure about that but this is what I found in /lib/runner.js)
-            // if toSQL fails, just point at master. this is because the query won't run anyway, but stack trace will be preserved.
             let sql
             let useMaster = true
             try {

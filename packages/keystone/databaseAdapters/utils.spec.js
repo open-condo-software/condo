@@ -6,11 +6,22 @@ function getBillingCaseDatabaseMapping () {
     return { mapping, databases }
 }
 
+/**
+ * TODO: check that provided config might work with new knex adapter
+ * DATABASE_URL = 'custom:{"default:read":"postgresql://postgres@127.0.0.1/main","default:write":"postgresql://postgres@127.0.0.1:5411/main"}'
+ * DATABASE_MAPPING = '[{"match":"*","query":"default:read","command":"default:write"}]'
+ */
+
 describe('parseDatabaseUrl', () => {
     test('real case 1', () => {
         const data = 'custom:{"default":"postgresql://postgres@127.0.0.1/main","billing":"postgresql://postgres@127.0.0.1/main"}'
         const result = parseDatabaseUrl(data)
         expect(result).toMatchSnapshot()
+    })
+    test('real case 2', () => {
+        const data = 'custom:{"default":{"read":"postgresql://postgres:postgres@127.0.0.1:5433/main","write":"postgresql://postgres:postgres@127.0.0.1/main"}}'
+        const result = parseDatabaseUrl(data)
+        expect(result).toBeDefined()
     })
 
     test('no custom prefix', () => {
@@ -44,6 +55,16 @@ describe('parseDatabaseMapping', () => {
         const mapping = '[{"match":"Billing*","query":"billing","command":"default"},{"match":"*","query":"default","command":"default"}]'
         const result = parseDatabaseMapping(mapping, databases)
         expect(result).toMatchSnapshot()
+    })
+
+    test('real case 2', () => {
+        const data = 'custom:{"default":{"read":"postgresql://postgres:postgres@127.0.0.1:5433/main","write":"postgresql://postgres:postgres@127.0.0.1/main"}}'
+        const mapping = '[{"match":"*","query":"default","command":"default"}]'
+        const databases = parseDatabaseUrl(data)
+        const result = parseDatabaseMapping(mapping, databases)
+
+        expect(databases).toBeDefined()
+        expect(result).toBeDefined()
     })
 
     test('wrong json type', () => {
