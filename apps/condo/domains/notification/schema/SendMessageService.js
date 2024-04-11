@@ -89,7 +89,7 @@ async function checkSendMessageMeta (type, meta, context) {
  * @returns {'medium' | 'high' | 'low'} condo task queue
  */
 function getMessageQueue ({ type }) {
-    // TODO(VKislov): separate queue for VoIP here?
+    // TODO(VKislov): DOMA-7915 separate queue for VoIP here?
     const defaultQueue = MESSAGE_DELIVERY_PRIORITY_TO_TASK_QUEUE_MAP[MESSAGE_DELIVERY_DEFAULT_PRIORITY]
     const messagePriority = get(MESSAGE_DELIVERY_OPTIONS, [type, 'priority'], MESSAGE_DELIVERY_DEFAULT_PRIORITY)
 

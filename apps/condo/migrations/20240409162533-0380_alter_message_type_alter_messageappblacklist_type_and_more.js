@@ -5,6 +5,11 @@ exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
 --
+-- [CUSTOM] Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
+--
+SET statement_timeout = '1500s';  
+
+--
 -- Alter field type on message
 --
 ALTER TABLE "Message" ALTER COLUMN "type" TYPE varchar(128) USING "type"::varchar(128);
@@ -28,6 +33,12 @@ ALTER TABLE "NotificationAnonymousSetting" ALTER COLUMN "messageType" TYPE varch
 -- Alter field messageType on notificationusersetting
 --
 ALTER TABLE "NotificationUserSetting" ALTER COLUMN "messageType" TYPE varchar(128);
+
+--
+-- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
+--
+SET statement_timeout = '10s';
+
 COMMIT;
 
     `)
