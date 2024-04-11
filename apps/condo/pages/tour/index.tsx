@@ -1,8 +1,9 @@
-import { SortTourStepsBy, TourStepStatusType, TourStepTypeType } from '@app/condo/schema'
+import { SortPropertiesBy, SortTourStepsBy, TourStepStatusType, TourStepTypeType } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Row, RowProps } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
+import isFunction from 'lodash/isFunction'
 import getConfig from 'next/config'
 import Head from 'next/head'
 import Link from 'next/link'
@@ -38,6 +39,7 @@ import { useTourPageData } from '@condo/domains/onboarding/hooks/TourPage/useTou
 import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
 import { TODO_STEP_CLICK_ROUTE } from '@condo/domains/onboarding/utils/clientSchema/constants'
 import { SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
+import { Property } from '@condo/domains/property/utils/clientSchema'
 
 
 const {
@@ -116,6 +118,14 @@ const TourPageContent = () => {
         sortBy: [SortTourStepsBy.OrderAsc],
     }, { skip: isLoading || !organizationId || syncLoading })
 
+    const { objs: lastCreatedProperty } = Property.useObjects({
+        where: {
+            organization: { id: organizationId },
+        },
+        sortBy: [SortPropertiesBy.CreatedAtDesc],
+        first: 1,
+    })
+
     const firstLevelSteps = useMemo(
         () => tourSteps.filter(step => FIRST_LEVEL_STEPS.includes(step.type)),
         [tourSteps])
@@ -146,7 +156,12 @@ const TourPageContent = () => {
         }
 
         if (TODO_STEP_CLICK_ROUTE[type] && status === TODO_STEP_STATUS) {
-            const newRoute = TODO_STEP_CLICK_ROUTE[type]
+            let newRoute = TODO_STEP_CLICK_ROUTE[type]
+
+            if (isFunction(newRoute)) {
+                newRoute = newRoute({ lastCreatedPropertyId: get(lastCreatedProperty, '0.id') })
+            }
+            if (typeof newRoute !== 'string') return
 
             if (type === TourStepTypeType.ViewResidentsAppGuide && typeof window !== 'undefined') {
                 window.open(newRoute, '_blank')
@@ -157,7 +172,7 @@ const TourPageContent = () => {
                 await router.push(newRoute)
             }
         }
-    }, [refetchSteps, router, setActiveTourStep, updateStepIfNotCompleted])
+    }, [lastCreatedProperty, refetchSteps, router, setActiveTourStep, updateStepIfNotCompleted])
 
     const { breakpoints } = useLayoutContext()
     const isSmallScreen = useMemo(() => !breakpoints.DESKTOP_SMALL, [breakpoints.DESKTOP_SMALL])

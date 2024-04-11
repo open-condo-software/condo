@@ -121,6 +121,7 @@ const AboutAppBlock = () => {
                     {
                         ABOUT_APP_CARD_TYPES.map(type => (
                             <Card.CardButton
+                                onClick={() => setOpenModal(type)}
                                 key={type}
                                 header={{
                                     image: {
@@ -133,7 +134,6 @@ const AboutAppBlock = () => {
                                     button: {
                                         type: 'secondary',
                                         children: InMoreDetailMessage,
-                                        onClick: () => setOpenModal(type),
                                     },
                                 }}
                             />
@@ -266,10 +266,7 @@ const INTRODUCE_APP_STEP_TYPES = ['announcement', 'chats', 'layout', 'banner', '
 const IntroduceAppBlock = () => {
     const intl = useIntl()
     const BlockTitle = intl.formatMessage({ id: 'tour.guide.introduceApp.title' })
-    const DownloadPicsMessage = intl.formatMessage({ id: 'tour.guide.introduceApp.step.socialNetworks.downloadPics' })
-    const DownloadTextMessage = intl.formatMessage({ id: 'tour.guide.introduceApp.step.socialNetworks.downloadText' })
 
-    const { breakpoints } = useLayoutContext()
     const locale = useMemo(() => get(intl, 'locale'), [intl])
 
     const stepMaterials = get(guideIntroduceAppMaterials, locale, {})

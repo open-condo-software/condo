@@ -1,4 +1,5 @@
 import { TourStep as TourStepType, TourStepStatusType, TourStepTypeType } from '@app/condo/schema'
+import styled from '@emotion/styled'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import React, { useMemo } from 'react'
@@ -23,6 +24,10 @@ type TourStepCardProps = {
     onClick: () => void
     disabled: boolean
 }
+
+const StyledCardButton = styled(Card.CardButton)<{ status: string }>`
+    cursor: ${(props) => props.status === TourStepStatusType.Todo ? 'pointer' : 'auto'};
+`
 
 export const TourStepCard: React.FC<TourStepCardProps> = (props) => {
     const { step, steps, onClick, disabled } = props
@@ -112,7 +117,8 @@ export const TourStepCard: React.FC<TourStepCardProps> = (props) => {
     const isDisabledStatus = useMemo(() => stepStatus === TourStepStatusType.Disabled || !hasPermission || disabled, [disabled, hasPermission, stepStatus])
 
     const cardContent = (
-        <Card.CardButton
+        <StyledCardButton
+            status={stepStatus}
             header={{
                 progressIndicator: { disabled: isDisabledStatus, steps: innerSteps },
                 headingTitle: CardTitle,
