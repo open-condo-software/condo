@@ -8,6 +8,7 @@ import find from 'lodash/find'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isFunction from 'lodash/isFunction'
+import pickBy from 'lodash/pickBy'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
@@ -204,6 +205,9 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         if (!isInitialContactsLoaded && !contactsLoading) {
             setInitialContacts(fetchedContacts)
             setIsInitialContactsLoaded(true)
+            if (isEmpty(pickBy(initialValue))) {
+                triggerOnChange(get(fetchedContacts, '0'), false)
+            }
         }
     }, [contactsLoading, fetchedContacts, isInitialContactsLoaded])
 
