@@ -1530,6 +1530,8 @@
   "news.createNews": "Add news",
   "news.create.title": "New news",
   "news.update.title": "Edit news",
+  "news.initialOrganizationNewsItem.title": "Management company letter \uD83D\uDCE9",
+  "news.initialOrganizationNewsItem.body": "The property management company [name of the PMC] is pleased to welcome you to the Doma app!\nEvery day, we work to ensure your life in the building is comfortable. Our staff is ready to promptly address any questions regarding the maintenance of the building, its surrounding area, and the operations of the property management company.\n\nHow to reach us:\n1. Submit a ticket through the mobile app: you can do this in the «Tickets» section.\n2. Call the emergency dispatch service number: +7 000 000 0000 — operates 24/7.\n3. Call the property management office: +7 000 000 0000 — we operate [OFFICE HOURS].\n4. Visit the property management office: [OFFICE ADDRESS AND HOURS OF OPERATION].\n\nIn the app, we will share important news with you. Thank you for choosing us ❤\uFE0F",
   "property.import.column.Address": "Address",
   "property.import.column.Units": "Units",
   "property.import.column.Sections": "Sections",

@@ -17,6 +17,7 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 
 import { BaseNewsForm, BaseNewsFormProps } from './BaseNewsForm'
 
+
 const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 28]
 
 export const CreateNewsActionBar: React.FC<{ handleSave: () => void, isLoading: boolean }> = (props) => {
@@ -117,6 +118,8 @@ export const CreateNewsForm: React.FC = () => {
     const intl: IntlShape = useIntl()
     const EmptyTemplateTitle = intl.formatMessage({ id: 'news.fields.emptyTemplate.title' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
+    const InitialOrganizationNewsItemTitle = intl.formatMessage({ id: 'news.initialOrganizationNewsItem.title' })
+    const InitialOrganizationNewsItemBody = intl.formatMessage({ id: 'news.initialOrganizationNewsItem.body' })
 
     const { organization } = useOrganization()
     const organizationId = useMemo(() => get(organization, 'id'), [organization])
@@ -159,6 +162,12 @@ export const CreateNewsForm: React.FC = () => {
         },
     })
 
+    const { count: organizationNewsCount } = NewsItem.useCount({
+        where: {
+            organization: { id: organizationId },
+        },
+    })
+
     const templates = isNewsItemTemplatesFetching ? null : newsItemTemplates
         .reduce((acc, template) => {
             acc[template.id] = {
@@ -185,6 +194,11 @@ export const CreateNewsForm: React.FC = () => {
     const error = useMemo(() => newsItemTemplatesError || allNewsError || totalPropertiesError, [allNewsError, newsItemTemplatesError, totalPropertiesError])
     const loading = isNewsFetching || isNewsItemTemplatesFetching || totalPropertiesLoading
 
+    const initialValues = useMemo(() => organizationNewsCount === 0 && ({
+        title: InitialOrganizationNewsItemTitle,
+        body: InitialOrganizationNewsItemBody,
+    }), [InitialOrganizationNewsItemBody, InitialOrganizationNewsItemTitle, organizationNewsCount])
+
     if (loading || error) {
         return (
             <LoadingOrErrorPage
@@ -196,6 +210,8 @@ export const CreateNewsForm: React.FC = () => {
 
     return (
         <BaseNewsForm
+            autoFocusBody={organizationNewsCount === 0}
+            initialValues={initialValues}
             action={action}
             organizationId={organizationId}
             ActionBar={CreateNewsActionBar}
