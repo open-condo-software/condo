@@ -367,4 +367,52 @@ describe('RegisterMetersReadingsService', () => {
             'result',
         )
     })
+
+    test('error for row if trying to add meter reading for property which not added to organization', async () => {
+        const [o10n] = await createTestOrganization(adminClient)
+        const [property1] = await createTestProperty(adminClient, o10n)
+        const [property2] = await createTestProperty(adminClient, o10n)
+
+        const readings = [
+            ...getReadingsForAccessTest(property1),
+            ...getReadingsForAccessTest({ address: faker.address.streetAddress(true) }),
+            ...getReadingsForAccessTest(property2),
+        ]
+
+        await catchErrorFrom(
+            async () => {
+                await registerMetersReadingsByTestClient(adminClient, o10n, readings)
+            },
+            ({ data: { result }, errors }) => {
+                expect(result).toEqual([
+                    expect.objectContaining({
+                        value1: Number(readings[0].value1).toFixed(4),
+                        value2: Number(readings[0].value2).toFixed(4),
+                        organization: expect.objectContaining({
+                            id: o10n.id,
+                        }),
+                    }),
+                    null,
+                    expect.objectContaining({
+                        value1: Number(readings[2].value1).toFixed(4),
+                        value2: Number(readings[2].value2).toFixed(4),
+                        organization: expect.objectContaining({
+                            id: o10n.id,
+                        }),
+                    }),
+                ])
+                expect(errors).toEqual([
+                    expect.objectContaining({
+                        message: 'Property not found',
+                        name: 'GQLError',
+                        extensions: expect.objectContaining({
+                            code: 'BAD_USER_INPUT',
+                            type: 'PROPERTY_NOT_FOUND',
+                            message: 'Property not found',
+                        }),
+                    }),
+                ])
+            },
+        )
+    })
 })
