@@ -8,7 +8,9 @@ function parseDatabaseUrl (url) {
         const data = JSON.parse(url.substring('custom:'.length))
         Object.keys(data).forEach((key) => {
             if (!key || !data[key]) throw new Error('wrong database url format: empty key')
-            if (typeof key !== 'string' || typeof data[key] !== 'string') throw new Error('wrong database url format: should contains only strings')
+            if (typeof key !== 'string' || !['string', 'object'].includes(typeof data[key])) {
+                throw new Error('wrong database url format: should contains only strings')
+            }
         })
         return data
     } catch (e) {
@@ -26,8 +28,8 @@ function parseDatabaseMapping (mapping, databases) {
         list.forEach((item) => {
             if (!item.match || !item.query || !item.command) throw new Error('invalid database mapping item: no match, query or command key')
             if (typeof item.match !== 'string' || typeof item.query !== 'string' || typeof item.command !== 'string') throw new Error('invalid database mapping item type')
-            if (typeof databases[item.query] !== 'string') throw new Error('invalid database mapping database `query` name')
-            if (typeof databases[item.command] !== 'string') throw new Error('invalid database mapping database `command` name')
+            if (!['string', 'object'].includes(typeof databases[item.query])) throw new Error('invalid database mapping database `query` name')
+            if (!['string', 'object'].includes(typeof databases[item.command])) throw new Error('invalid database mapping database `command` name')
             if (item.match === '*') {
                 hasDefaultMatch++
             }
