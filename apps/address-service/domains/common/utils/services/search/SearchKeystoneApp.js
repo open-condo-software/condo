@@ -116,7 +116,11 @@ class SearchKeystoneApp {
 
                     const addressKey = get(addressResult, ['data', 'addressKey'])
 
-                    res.json(get(strategyResult, ['addresses', addressKey]))
+                    res.json({
+                        ...get(strategyResult, ['addresses', addressKey], {}),
+                        unitType: get(addressResult, ['data', 'unitType']),
+                        unitName: get(addressResult, ['data', 'unitName']),
+                    })
                 } catch (err) {
                     this.logger.error({
                         err,

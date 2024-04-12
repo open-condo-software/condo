@@ -239,8 +239,8 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                         unrestricted_value: get(normalizedAddress, ['addressMeta', 'unrestricted_value'], ''),
                         data: get(normalizedAddress, ['addressMeta', 'data'], null),
                     },
-                    unitType: get(normalizedAddress, ['addressMeta', 'unitType']),
-                    unitName: get(normalizedAddress, ['addressMeta', 'unitName']),
+                    unitType: get(normalizedAddress, 'unitType'),
+                    unitName: get(normalizedAddress, 'unitName'),
                     accountNumber: PersonalAcc,
                     period,
                 }
