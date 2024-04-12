@@ -1,3 +1,5 @@
+const crypto = require('crypto')
+
 const { isEmpty, get, has } = require('lodash')
 
 const conf = require('@open-condo/config')
@@ -27,6 +29,12 @@ class SMSAdapter {
                 break
             case 'SMSC':
                 this.adapter = new SmsCRu()
+                break
+            case 'TWILIO':
+                this.adapter = new TwilioSms()
+                break
+            case 'INSTASENT':
+                this.adapter = new InstasentSms()
                 break
             default:
                 console.error(`Unknown SMS-adapter: ${type}`)
@@ -58,6 +66,122 @@ class SMSAdapter {
     }
 }
 
+class InstasentSms {
+
+    isConfigured = false
+
+    constructor () {
+        let config = conf['INSTASENT_API_CONFIG'] ?  JSON.parse(conf['INSTASENT_API_CONFIG']) : {}
+        this.isConfigured = validateConfig(config, [
+            'apiKey',
+        ])
+        this.apiKey = config.apiKey
+    }
+
+    isPhoneSupported (phoneNumber) {
+        return AllCountriesTest.test(phoneNumber)
+    }
+
+    async checkIsAvailable () {
+        const result = await fetch(
+            'https://api.instasent.com/organization/account',
+            {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${this.apiKey}`,
+                    'Accept': 'application/json',
+                },
+            }
+        )
+        return result.ok
+    }
+
+    async send ({ phone, message }, extendedParams = {}) {
+        const body = {
+            clientId: crypto.randomBytes(16).toString('hex'),
+            from: 'CondoDevApi',
+            to: phone,
+            text: message,
+            allowUnicode: true,
+            ...extendedParams,
+        }
+        const result = await fetch(
+            'https://api.instasent.com/sms',
+            {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${this.apiKey}`,
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify(body),
+            }
+        )
+        const json = await result.json()
+        const isOk =  result.ok
+        return [isOk, json]
+    }
+}
+
+class TwilioSms {
+
+    isConfigured = false
+
+    constructor () {
+        let config = conf['TWILIO_API_CONFIG'] ?  JSON.parse(conf['TWILIO_API_CONFIG']) : {}
+        this.isConfigured = validateConfig(config, [
+            'accountSid',
+            'authToken',
+            'fromNumber',
+        ])
+        this.accountSid = config.accountSid
+        this.authToken = config.authToken
+        this.fromNumber = config.fromNumber
+    }
+
+    isPhoneSupported (phoneNumber) {
+        return AllCountriesTest.test(phoneNumber)
+    }
+
+    async checkIsAvailable () {
+        const result = await fetch(
+            `https://api.twilio.com/2010-04-01/Accounts/${this.accountSid}/Balance.json`,
+            {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Basic ' + Buffer.from(this.accountSid + ':' + this.authToken).toString('base64'),
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+            }
+        )
+        return result.ok
+    }
+
+    async send ({ phone, message }, extendedParams = {}) {
+        const body = {
+            To: phone,
+            From: this.fromNumber,
+            Body: message,
+            ...extendedParams,
+        }
+        const result = await fetch(
+            `https://api.twilio.com/2010-04-01/Accounts/${this.accountSid}/Messages.json`,
+            {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Basic ' + Buffer.from(this.accountSid + ':' + this.authToken).toString('base64'),
+                    'Content-Type': 'application/x-www-form-urlencoded', 
+                },
+                body: Object.entries(body)
+                    .map(([name, value]) => `${name}=${encodeURI(value)}`)
+                    .join('&'),
+            }
+        )
+        const json = await result.json()
+        const status = json['status']
+        const isOk =  status === 'queued'
+        return [isOk, json]
+    }
+}
 
 class SmsRu {
 
