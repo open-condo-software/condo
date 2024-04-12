@@ -7,6 +7,7 @@ const { faker } = require('@faker-js/faker')
 
 const { waitFor, UUID_RE, makeLoggedInAdminClient, setFakeClientMode } = require('@open-condo/keystone/test.utils')
 
+const { NEWS_SENDING_TTL_IN_SEC } = require('@condo/domains/news/constants/common')
 const { notifyResidentsAboutNewsItem } = require('@condo/domains/news/tasks/notifyResidentsAboutNewsItem')
 const { updateTestNewsItem, createTestNewsItem, createTestNewsItemScope, publishTestNewsItem } = require('@condo/domains/news/utils/testSchema')
 const {
@@ -157,7 +158,9 @@ describe('notifyResidentsAboutNewsItem', () => {
             await createTestNewsItemScope(adminClient, newsItem)
             await publishTestNewsItem(adminClient, newsItem.id)
             await notifyResidentsAboutNewsItem(newsItem.id)
-            await expect(notifyResidentsAboutNewsItem(newsItem.id)).rejects.toThrow('Trying to send news item which already been sent')
+            await waitFor(async () => {
+                await expect(notifyResidentsAboutNewsItem(newsItem.id)).rejects.toThrow('Trying to send news item which already been sent')
+            }, { delay: (NEWS_SENDING_TTL_IN_SEC) * 1000 })
         })
 
         test('cannot run sending news items if news item is not published', async () => {
@@ -165,6 +168,18 @@ describe('notifyResidentsAboutNewsItem', () => {
             const [newsItem] = await createTestNewsItem(adminClient, o10n)
             await createTestNewsItemScope(adminClient, newsItem)
             await expect(notifyResidentsAboutNewsItem(newsItem.id)).rejects.toThrow('Trying to send unpublished news item')
+        })
+
+        test('cannot run sending news items if this news item was sent recently', async () => {
+            const [o10n] = await createTestOrganization(adminClient)
+            const [newsItem] = await createTestNewsItem(adminClient, o10n)
+            await createTestNewsItemScope(adminClient, newsItem)
+            await publishTestNewsItem(adminClient, newsItem.id)
+            await expect(notifyResidentsAboutNewsItem(newsItem.id)).resolves.toBeUndefined()
+            await expect(notifyResidentsAboutNewsItem(newsItem.id)).rejects.toThrow('Trying to send news item which already was sent recently')
+            await waitFor(async () => {
+                await expect(notifyResidentsAboutNewsItem(newsItem.id)).rejects.toThrow('Trying to send news item which already been sent')
+            }, { delay: (NEWS_SENDING_TTL_IN_SEC) * 1000 })
         })
     })
 })

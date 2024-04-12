@@ -9,15 +9,21 @@ const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
 
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
+const { NEWS_SENDING_TTL_IN_SEC } = require('@condo/domains/news/constants/common')
 const { defineMessageType } = require('@condo/domains/news/tasks/notifyResidentsAboutNewsItem.helpers')
 const { queryFindResidentsByOrganizationAndScopes } = require('@condo/domains/news/utils/accessSchema')
 const { NewsItem, NewsItemScope } = require('@condo/domains/news/utils/serverSchema')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
+const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 const { generateUniqueMessageKey } = require('./notifyResidentsAboutNewsItem.helpers')
 
+
 const logger = getLogger('notifyResidentsAboutNewsItem')
+
+const REDIS_GUARD = new RedisGuard()
+const action = 'notifyResidentsAboutNewsItem'
 
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'notifyResidentsAboutNewsItem' } }
 const TITLE_MAX_LEN = 50
@@ -153,17 +159,23 @@ async function sendNotifications (context, newsItem, taskId) {
 
 /**
  * @param {String} newsItemId in uuid format
- * @returns {Promise<void>}
+ * @returns {Promise<void|string>}
  */
 async function notifyResidentsAboutNewsItem (newsItemId) {
     const taskId = uuid()
 
     try {
+        const isLocked = await REDIS_GUARD.isLocked(newsItemId, action)
+        if (isLocked) {
+            const timeRemain = await REDIS_GUARD.lockTimeRemain(newsItemId, action)
+            throw new Error(`Trying to send news item which already was sent recently (time remain: ${timeRemain})`)
+        }
+
+        await REDIS_GUARD.lock(newsItemId, action, NEWS_SENDING_TTL_IN_SEC)
+
         const { keystone: context } = getSchemaCtx('NewsItem')
 
         const newsItem = await NewsItem.getOne(context, { id: newsItemId })
-
-        // TODO(DOMA-8712): add a check that the news is not sent to another worker
 
         await sendNotifications(context, newsItem, taskId)
     } catch (error) {
