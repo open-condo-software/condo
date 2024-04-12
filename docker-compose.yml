@@ -3,7 +3,6 @@ x-postgres-common:
   &postgres-common
   image: postgres:13.8
   user: postgres
-  restart: always
 
 services:
   app:
@@ -20,7 +19,7 @@ services:
       - ./.env:/app/.env
     networks:
       - app-network
-  postgres_primary:
+  postgres_master:
     <<: *postgres-common
     container_name: master
     ports:
@@ -53,7 +52,7 @@ services:
     command: |
       bash -c "
       if [ ! -f /var/lib/postgresql/initialized ]; then
-        until pg_basebackup --pgdata=/var/lib/postgresql/data -R --slot=replication_slot --host=postgres_primary --port=5432
+        until pg_basebackup --pgdata=/var/lib/postgresql/data -R --slot=replication_slot --host=postgres_master --port=5432
         do
           sleep 1s
         done
@@ -63,7 +62,7 @@ services:
         postgres
       "
     depends_on:
-      - postgres_primary
+      - postgres_master
     networks:
       - app-network
   redis:
