@@ -142,6 +142,13 @@ const readOnlyFieldAccess = {
     delete: false,
 }
 
+const writeOnlyServerSideFieldAccess = {
+    read: true,
+    create: canOnlyServerSideWithoutUserRequest,
+    update: canOnlyServerSideWithoutUserRequest,
+    delete: false,
+}
+
 function isFilteringBy (where, fields) {
     const toProcess = [where]
 
@@ -179,4 +186,5 @@ module.exports = {
     canOnlyServerSideWithoutUserRequest,
     isFilteringBy,
     readOnlyFieldAccess,
+    writeOnlyServerSideFieldAccess,
 }
