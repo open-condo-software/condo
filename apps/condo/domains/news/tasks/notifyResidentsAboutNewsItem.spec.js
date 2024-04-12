@@ -27,7 +27,6 @@ const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSc
 
 describe('notifyResidentsAboutNewsItem', () => {
     setFakeClientMode(index)
-    jest.setTimeout(30000)
 
     let adminClient
 
