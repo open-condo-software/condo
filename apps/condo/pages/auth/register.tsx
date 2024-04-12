@@ -4,13 +4,11 @@ import Router, { useRouter } from 'next/router'
 import qs from 'qs'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 
-import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useMutation } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 
 import { Button } from '@condo/domains/common/components/Button'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
-import { ORGANIZATION_TOUR } from '@condo/domains/common/constants/featureflags'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
@@ -41,16 +39,7 @@ const RegisterPage: AuthPage = () => {
     const { token, isConfirmed, tokenError, setToken, setTokenError } = useContext(RegisterContext)
     const [step, setStep] = useState('inputPhone')
 
-    const { useFlag } = useFeatureFlags()
-    const isOrganizationTourEnabled = useFlag(ORGANIZATION_TOUR)
-
-    const [createOnBoarding] = useMutation(CREATE_ONBOARDING_MUTATION, {
-        onCompleted: () => {
-            if (!isOrganizationTourEnabled) {
-                Router.push('/onboarding')
-            }
-        },
-    })
+    const [createOnBoarding] = useMutation(CREATE_ONBOARDING_MUTATION)
 
     const initOnBoarding = useCallback((userId: string) => {
         const onBoardingExtraData = {
@@ -71,11 +60,8 @@ const RegisterPage: AuthPage = () => {
 
     const handleFinish = useCallback(async (userId: string) => {
         await initOnBoarding(userId)
-
-        if (isOrganizationTourEnabled) {
-            await router.push('/')
-        }
-    }, [initOnBoarding, isOrganizationTourEnabled, router])
+        await router.push('/')
+    }, [initOnBoarding, router])
 
     useEffect(() => {
         if (token && isConfirmed) {

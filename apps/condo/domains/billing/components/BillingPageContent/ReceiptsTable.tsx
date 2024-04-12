@@ -6,7 +6,6 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState, CSSProperties } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
-import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 
 import { ServicesModal } from '@condo/domains/billing/components/BillingPageContent/ServicesModal'
@@ -17,7 +16,6 @@ import Input from '@condo/domains/common/components/antd/Input'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { Table, DEFAULT_PAGE_SIZE } from '@condo/domains/common/components/Table/Index'
-import { ORGANIZATION_TOUR } from '@condo/domains/common/constants/featureflags'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
@@ -76,13 +74,11 @@ export const ReceiptsTable: React.FC = () => {
     })
 
     const { updateStepIfNotCompleted } = useTourContext()
-    const { useFlag } = useFeatureFlags()
-    const isTourEnabled = useFlag(ORGANIZATION_TOUR)
     useDeepCompareEffect(() => {
-        if (isTourEnabled && receipts.length > 0) {
+        if (receipts.length > 0) {
             updateStepIfNotCompleted(TourStepTypeType.UploadReceipts)
         }
-    }, [receipts, isTourEnabled])
+    }, [receipts])
 
     const mainTableColumns = useReceiptTableColumns(filterMetas, hasToPayDetails, currencyCode)
 

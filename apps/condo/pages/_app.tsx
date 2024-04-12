@@ -28,8 +28,6 @@ import { hasFeature } from '@condo/domains/common/components/containers/FeatureF
 import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
 import YandexMetrika from '@condo/domains/common/components/containers/YandexMetrika'
 import { FocusContextProvider } from '@condo/domains/common/components/Focus/FocusContextProvider'
-import { FocusElement } from '@condo/domains/common/components/Focus/FocusElement'
-import { OnBoardingProgress } from '@condo/domains/common/components/icons/OnBoardingProgress'
 import { LayoutContextProvider } from '@condo/domains/common/components/LayoutContext'
 import { MenuItem } from '@condo/domains/common/components/MenuItem'
 import PopupSmart from '@condo/domains/common/components/PopupSmart'
@@ -39,7 +37,7 @@ import { TASK_STATUS } from '@condo/domains/common/components/tasks'
 import { TasksContextProvider } from '@condo/domains/common/components/tasks/TasksContextProvider'
 import { TrackingProvider } from '@condo/domains/common/components/TrackingContext'
 import UseDeskWidget from '@condo/domains/common/components/UseDeskWidget'
-import { SERVICE_PROVIDER_PROFILE, MARKETPLACE, ORGANIZATION_TOUR } from '@condo/domains/common/constants/featureflags'
+import { SERVICE_PROVIDER_PROFILE, MARKETPLACE } from '@condo/domains/common/constants/featureflags'
 import {
     TOUR_CATEGORY,
     DASHBOARD_CATEGORY,
@@ -64,8 +62,6 @@ import {
     useNewsItemRecipientsExportTaskUIInterface,
 } from '@condo/domains/news/hooks/useNewsItemRecipientsExportTaskUIInterface'
 import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess'
-import { OnBoardingProvider } from '@condo/domains/onboarding/components/OnBoardingContext'
-import { OnBoardingProgressIconContainer } from '@condo/domains/onboarding/components/OnBoardingProgressIconContainer'
 import { TourProvider } from '@condo/domains/onboarding/contexts/TourContext'
 import { useNoOrganizationToolTip } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
@@ -120,7 +116,6 @@ const MenuItems: React.FC = () => {
     const { updateContext, useFlag } = useFeatureFlags()
     const isSPPOrg = useFlag(SERVICE_PROVIDER_PROFILE)
     const isMarketplaceEnabled = useFlag(MARKETPLACE)
-    const isTourEnabled = useFlag(ORGANIZATION_TOUR)
 
     const { link, organization } = useOrganization()
     const { isExpired } = useServiceSubscriptionContext()
@@ -148,7 +143,7 @@ const MenuItems: React.FC = () => {
     const hasAccessToSettings = get(role, 'canReadSettings', false)
     const hasAccessToMarketplace = get(role, 'canReadMarketItems', false) ||
         get(role, 'canReadInvoices', false) || get(role, 'canReadPaymentsWithInvoices', false)
-    const hasAccessToTour = isTourEnabled && get(role, 'canReadTour', false)
+    const hasAccessToTour = get(role, 'canReadTour', false)
 
     const { canRead: hasAccessToNewsItems } = useNewsItemsAccess()
 
@@ -321,59 +316,42 @@ const MenuItems: React.FC = () => {
     ]), [hasAccessToAnalytics, isManagingCompany, hasAccessToTickets, hasAccessToIncidents, hasAccessToNewsItems, hasAccessToProperties, hasAccessToContacts, hasAccessToEmployees, isMarketplaceEnabled, hasAccessToMarketplace, isSPPOrg, hasAccessToBilling, anyReceiptsLoaded, sppBillingId, hasAccessToMeters, hasAccessToServices, connectedAppsIds, hasAccessToSettings])
 
     return (
-        <>
-            {
-                !isTourEnabled && isManagingCompany &&  (
-                    <FocusElement>
-                        <OnBoardingProgressIconContainer>
-                            <MenuItem
-                                id='menuitem-onboarding'
-                                path='/onboarding'
-                                icon={OnBoardingProgress}
-                                label='global.section.onBoarding'
-                                isCollapsed={isCollapsed}
-                            />
-                        </OnBoardingProgressIconContainer>
-                    </FocusElement>
-                )
-            }
-            <div>
-                {menuCategoriesData.map((category) => (
-                    <>
-                        {category.items.map((item) => (
-                            <MenuItem
-                                id={item.id}
-                                key={`menu-item-${item.path}`}
-                                path={`/${item.path}`}
-                                icon={item.icon}
-                                label={item.label}
-                                disabled={disabled}
-                                isCollapsed={isCollapsed}
-                                toolTipDecorator={disabled ? wrapElementIntoNoOrganizationToolTip : null}
-                                excludePaths={item.excludePaths}
-                            />
-                        ))}
-                        {get(appsByCategories, category.key, []).map((app) => {
-                            // not a ReDoS issue: running on end user browser
-                            // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
-                            const miniAppsPattern = new RegExp(`/miniapps/${app.id}/.+`)
-                            return <MenuItem
-                                id={`menu-item-app-${app.id}`}
-                                key={`menu-item-app-${app.id}`}
-                                path={`/miniapps/${app.id}`}
-                                icon={get(AllIcons, app.icon, AllIcons['QuestionCircle'])}
-                                label={app.name}
-                                labelRaw
-                                disabled={disabled}
-                                isCollapsed={isCollapsed}
-                                toolTipDecorator={disabled ? wrapElementIntoNoOrganizationToolTip : null}
-                                excludePaths={[miniAppsPattern]}
-                            />
-                        })}
-                    </>
-                ))}
-            </div>
-        </>
+        <div>
+            {menuCategoriesData.map((category) => (
+                <>
+                    {category.items.map((item) => (
+                        <MenuItem
+                            id={item.id}
+                            key={`menu-item-${item.path}`}
+                            path={`/${item.path}`}
+                            icon={item.icon}
+                            label={item.label}
+                            disabled={disabled}
+                            isCollapsed={isCollapsed}
+                            toolTipDecorator={disabled ? wrapElementIntoNoOrganizationToolTip : null}
+                            excludePaths={item.excludePaths}
+                        />
+                    ))}
+                    {get(appsByCategories, category.key, []).map((app) => {
+                        // not a ReDoS issue: running on end user browser
+                        // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
+                        const miniAppsPattern = new RegExp(`/miniapps/${app.id}/.+`)
+                        return <MenuItem
+                            id={`menu-item-app-${app.id}`}
+                            key={`menu-item-app-${app.id}`}
+                            path={`/miniapps/${app.id}`}
+                            icon={get(AllIcons, app.icon, AllIcons['QuestionCircle'])}
+                            label={app.name}
+                            labelRaw
+                            disabled={disabled}
+                            isCollapsed={isCollapsed}
+                            toolTipDecorator={disabled ? wrapElementIntoNoOrganizationToolTip : null}
+                            excludePaths={[miniAppsPattern]}
+                        />
+                    })}
+                </>
+            ))}
+        </div>
     )
 }
 
@@ -479,29 +457,27 @@ const MyApp = ({ Component, pageProps }) => {
                                     <PostMessageProvider>
                                         <TrackingProvider>
                                             <TourProvider>
-                                                <OnBoardingProvider>
-                                                    <SubscriptionProvider>
-                                                        <GlobalAppsFeaturesProvider>
-                                                            <GlobalAppsContainer/>
-                                                            <TicketVisibilityContextProvider>
-                                                                <ActiveCallContextProvider>
-                                                                    <ConnectedAppsWithIconsContextProvider>
-                                                                        <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                                                                            <RequiredAccess>
-                                                                                <Component {...pageProps} />
-                                                                                {
-                                                                                    isEndTrialSubscriptionReminderPopupVisible && (
-                                                                                        <EndTrialSubscriptionReminderPopup/>
-                                                                                    )
-                                                                                }
-                                                                            </RequiredAccess>
-                                                                        </LayoutComponent>
-                                                                    </ConnectedAppsWithIconsContextProvider>
-                                                                </ActiveCallContextProvider>
-                                                            </TicketVisibilityContextProvider>
-                                                        </GlobalAppsFeaturesProvider>
-                                                    </SubscriptionProvider>
-                                                </OnBoardingProvider>
+                                                <SubscriptionProvider>
+                                                    <GlobalAppsFeaturesProvider>
+                                                        <GlobalAppsContainer/>
+                                                        <TicketVisibilityContextProvider>
+                                                            <ActiveCallContextProvider>
+                                                                <ConnectedAppsWithIconsContextProvider>
+                                                                    <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                                                        <RequiredAccess>
+                                                                            <Component {...pageProps} />
+                                                                            {
+                                                                                isEndTrialSubscriptionReminderPopupVisible && (
+                                                                                    <EndTrialSubscriptionReminderPopup/>
+                                                                                )
+                                                                            }
+                                                                        </RequiredAccess>
+                                                                    </LayoutComponent>
+                                                                </ConnectedAppsWithIconsContextProvider>
+                                                            </ActiveCallContextProvider>
+                                                        </TicketVisibilityContextProvider>
+                                                    </GlobalAppsFeaturesProvider>
+                                                </SubscriptionProvider>
                                             </TourProvider>
                                         </TrackingProvider>
                                     </PostMessageProvider>

@@ -14,7 +14,6 @@ import { Space, Typography  } from '@open-condo/ui'
 import type { TypographyTextProps } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { ORGANIZATION_TOUR } from '@condo/domains/common/constants/featureflags'
 import { HOLDING_TYPE } from '@condo/domains/organization/constants/common'
 import { MANAGING_COMPANY_TYPE } from '@condo/domains/organization/constants/common'
 import { useCreateOrganizationModalForm } from '@condo/domains/organization/hooks/useCreateOrganizationModalForm'
@@ -76,12 +75,11 @@ export const InlineOrganizationSelect: React.FC = () => {
     // Note: Filter case where organization was deleted
     const filteredEmployees = uniqBy(userEmployees.filter(employee => employee.organization), employee => employee.organization.id)
 
-    const isTourEnabled = useFlag(ORGANIZATION_TOUR)
     const { setIsVisible: showCreateOrganizationModal, ModalForm: CreateOrganizationModalForm } = useCreateOrganizationModalForm({
         onFinish: async (createdOrganization) => {
             const organizationType = get(createdOrganization, 'type')
 
-            if (isTourEnabled && organizationType === MANAGING_COMPANY_TYPE) {
+            if (organizationType === MANAGING_COMPANY_TYPE) {
                 await router.push('/tour')
             }
         },

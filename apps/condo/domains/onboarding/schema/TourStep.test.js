@@ -5,7 +5,6 @@
 const { makeLoggedInAdminClient, makeClient, setFeatureFlag, expectToThrowGQLError, catchErrorFrom, expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects } = require('@open-condo/keystone/test.utils')
 const { expectToThrowAccessDeniedErrorToObj } = require('@open-condo/keystone/test.utils')
 
-const { ORGANIZATION_TOUR } = require('@condo/domains/common/constants/featureflags')
 const { ERRORS } = require('@condo/domains/onboarding/constants/errors')
 const { STEP_TYPES, COMPLETED_STEP_STATUS, CREATE_PROPERTY_STEP_TYPE, TODO_STEP_STATUS, DISABLED_STEP_STATUS, CREATE_PROPERTY_MAP_STEP_TYPE } = require('@condo/domains/onboarding/constants/steps')
 const { TourStep, createTestTourStep, updateTestTourStep } = require('@condo/domains/onboarding/utils/testSchema')
@@ -18,8 +17,6 @@ describe('TourStep', () => {
     let admin, organization, employeeWithPermissions, employeeWithoutPermissions, anonymous, support
 
     beforeAll(async () => {
-        setFeatureFlag(ORGANIZATION_TOUR, true)
-
         admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()
         anonymous = await makeClient()
@@ -40,10 +37,6 @@ describe('TourStep', () => {
 
         await createTestOrganizationEmployee(admin, organization, employeeWithPermissions.user, roleWithPermissions)
         await createTestOrganizationEmployee(admin, organization, employeeWithoutPermissions.user, roleWithoutPermissions)
-    })
-
-    afterAll(() => {
-        setFeatureFlag(ORGANIZATION_TOUR, false)
     })
 
     describe('Access', () => {
