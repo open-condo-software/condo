@@ -7,19 +7,19 @@ exports.up = async (knex) => {
 --
 -- Delete model onboardingstep
 --
-DROP TABLE "OnBoardingStep" CASCADE;
+-- DROP TABLE "OnBoardingStep" CASCADE;
 --
 -- Delete model onboarding
 --
-DROP TABLE "OnBoarding" CASCADE;
+-- DROP TABLE "OnBoarding" CASCADE;
 --
 -- Delete model onboardingstephistoryrecord
 --
-DROP TABLE "OnBoardingStepHistoryRecord" CASCADE;
+-- DROP TABLE "OnBoardingStepHistoryRecord" CASCADE;
 --
 -- Delete model onboardinghistoryrecord
 --
-DROP TABLE "OnBoardingHistoryRecord" CASCADE;
+-- DROP TABLE "OnBoardingHistoryRecord" CASCADE;
 COMMIT;
 
     `)
@@ -31,40 +31,46 @@ exports.down = async (knex) => {
 --
 -- Delete model onboardinghistoryrecord
 --
-CREATE TABLE "OnBoardingHistoryRecord" ("dv" integer NULL, "sender" jsonb NULL, "completed" boolean NULL, "stepsTransitions" jsonb NULL, "user" uuid NULL, "type" text NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "createdBy" uuid NULL, "updatedBy" uuid NULL, "deletedAt" timestamp with time zone NULL, "newId" jsonb NULL, "history_date" timestamp with time zone NOT NULL, "history_action" varchar(50) NOT NULL, "history_id" uuid NOT NULL);
+CREATE TABLE IF NOT EXISTS "OnBoardingHistoryRecord" ("dv" integer NULL, "sender" jsonb NULL, "completed" boolean NULL, "stepsTransitions" jsonb NULL, "user" uuid NULL, "type" text NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "createdBy" uuid NULL, "updatedBy" uuid NULL, "deletedAt" timestamp with time zone NULL, "newId" jsonb NULL, "history_date" timestamp with time zone NOT NULL, "history_action" varchar(50) NOT NULL, "history_id" uuid NOT NULL);
 --
 -- Delete model onboardingstephistoryrecord
 --
-CREATE TABLE "OnBoardingStepHistoryRecord" ("dv" integer NULL, "sender" jsonb NULL, "icon" text NULL, "order" integer NULL, "title" text NULL, "description" text NULL, "required" boolean NULL, "completed" boolean NULL, "action" text NULL, "entity" text NULL, "onBoarding" uuid NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "createdBy" uuid NULL, "updatedBy" uuid NULL, "deletedAt" timestamp with time zone NULL, "newId" jsonb NULL, "history_date" timestamp with time zone NOT NULL, "history_action" varchar(50) NOT NULL, "history_id" uuid NOT NULL);
+CREATE TABLE IF NOT EXISTS "OnBoardingStepHistoryRecord" ("dv" integer NULL, "sender" jsonb NULL, "icon" text NULL, "order" integer NULL, "title" text NULL, "description" text NULL, "required" boolean NULL, "completed" boolean NULL, "action" text NULL, "entity" text NULL, "onBoarding" uuid NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "createdBy" uuid NULL, "updatedBy" uuid NULL, "deletedAt" timestamp with time zone NULL, "newId" jsonb NULL, "history_date" timestamp with time zone NOT NULL, "history_action" varchar(50) NOT NULL, "history_id" uuid NOT NULL);
 --
 -- Delete model onboarding
 --
-CREATE TABLE "OnBoarding" ("dv" integer NOT NULL, "sender" jsonb NOT NULL, "completed" boolean NOT NULL, "stepsTransitions" jsonb NOT NULL, "type" varchar(50) NOT NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NOT NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "deletedAt" timestamp with time zone NULL, "newId" uuid NULL, "createdBy" uuid NULL, "updatedBy" uuid NULL, "user" uuid NOT NULL);
+CREATE TABLE IF NOT EXISTS "OnBoarding" ("dv" integer NOT NULL, "sender" jsonb NOT NULL, "completed" boolean NOT NULL, "stepsTransitions" jsonb NOT NULL, "type" varchar(50) NOT NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NOT NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "deletedAt" timestamp with time zone NULL, "newId" uuid NULL, "createdBy" uuid NULL, "updatedBy" uuid NULL, "user" uuid NOT NULL);
 --
 -- Delete model onboardingstep
 --
-CREATE TABLE "OnBoardingStep" ("dv" integer NOT NULL, "sender" jsonb NOT NULL, "icon" text NOT NULL, "order" integer NULL, "title" text NOT NULL, "description" text NOT NULL, "required" boolean NULL, "completed" boolean NOT NULL, "action" varchar(50) NOT NULL, "entity" text NOT NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NOT NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "deletedAt" timestamp with time zone NULL, "newId" uuid NULL, "createdBy" uuid NULL, "onBoarding" uuid NOT NULL, "updatedBy" uuid NULL);
-CREATE INDEX "OnBoardingHistoryRecord_history_id_47e5f848" ON "OnBoardingHistoryRecord" ("history_id");
-CREATE INDEX "OnBoardingStepHistoryRecord_history_id_5f634742" ON "OnBoardingStepHistoryRecord" ("history_id");
+CREATE TABLE IF NOT EXISTS "OnBoardingStep" ("dv" integer NOT NULL, "sender" jsonb NOT NULL, "icon" text NOT NULL, "order" integer NULL, "title" text NOT NULL, "description" text NOT NULL, "required" boolean NULL, "completed" boolean NOT NULL, "action" varchar(50) NOT NULL, "entity" text NOT NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NOT NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "deletedAt" timestamp with time zone NULL, "newId" uuid NULL, "createdBy" uuid NULL, "onBoarding" uuid NOT NULL, "updatedBy" uuid NULL);
+CREATE INDEX IF NOT EXISTS "OnBoardingHistoryRecord_history_id_47e5f848" ON "OnBoardingHistoryRecord" ("history_id");
+CREATE INDEX IF NOT EXISTS "OnBoardingStepHistoryRecord_history_id_5f634742" ON "OnBoardingStepHistoryRecord" ("history_id");
+ALTER TABLE "OnBoarding" DROP CONSTRAINT IF EXISTS "OnBoarding_createdBy_89b6c64e_fk_User_id";
 ALTER TABLE "OnBoarding" ADD CONSTRAINT "OnBoarding_createdBy_89b6c64e_fk_User_id" FOREIGN KEY ("createdBy") REFERENCES "User" ("id") DEFERRABLE INITIALLY DEFERRED;
+ALTER TABLE "OnBoarding" DROP CONSTRAINT IF EXISTS "OnBoarding_updatedBy_9a51f8d6_fk_User_id";
 ALTER TABLE "OnBoarding" ADD CONSTRAINT "OnBoarding_updatedBy_9a51f8d6_fk_User_id" FOREIGN KEY ("updatedBy") REFERENCES "User" ("id") DEFERRABLE INITIALLY DEFERRED;
+ALTER TABLE "OnBoarding" DROP CONSTRAINT IF EXISTS "OnBoarding_user_0f5708d6_fk_User_id";
 ALTER TABLE "OnBoarding" ADD CONSTRAINT "OnBoarding_user_0f5708d6_fk_User_id" FOREIGN KEY ("user") REFERENCES "User" ("id") DEFERRABLE INITIALLY DEFERRED;
-CREATE UNIQUE INDEX "OnBoarding_unique_user_type" ON "OnBoarding" ("user", "type") WHERE "deletedAt" IS NULL;
-CREATE INDEX "OnBoarding_createdAt_3ed5e40f" ON "OnBoarding" ("createdAt");
-CREATE INDEX "OnBoarding_updatedAt_a2eb2a5f" ON "OnBoarding" ("updatedAt");
-CREATE INDEX "OnBoarding_deletedAt_ddea4359" ON "OnBoarding" ("deletedAt");
-CREATE INDEX "OnBoarding_createdBy_89b6c64e" ON "OnBoarding" ("createdBy");
-CREATE INDEX "OnBoarding_updatedBy_9a51f8d6" ON "OnBoarding" ("updatedBy");
-CREATE INDEX "OnBoarding_user_0f5708d6" ON "OnBoarding" ("user");
+CREATE UNIQUE INDEX IF NOT EXISTS "OnBoarding_unique_user_type" ON "OnBoarding" ("user", "type") WHERE "deletedAt" IS NULL;
+CREATE INDEX IF NOT EXISTS "OnBoarding_createdAt_3ed5e40f" ON "OnBoarding" ("createdAt");
+CREATE INDEX IF NOT EXISTS "OnBoarding_updatedAt_a2eb2a5f" ON "OnBoarding" ("updatedAt");
+CREATE INDEX IF NOT EXISTS "OnBoarding_deletedAt_ddea4359" ON "OnBoarding" ("deletedAt");
+CREATE INDEX IF NOT EXISTS "OnBoarding_createdBy_89b6c64e" ON "OnBoarding" ("createdBy");
+CREATE INDEX IF NOT EXISTS "OnBoarding_updatedBy_9a51f8d6" ON "OnBoarding" ("updatedBy");
+CREATE INDEX IF NOT EXISTS "OnBoarding_user_0f5708d6" ON "OnBoarding" ("user");
+ALTER TABLE "OnBoardingStep" DROP CONSTRAINT IF EXISTS "OnBoardingStep_createdBy_1662b8f5_fk_User_id";
 ALTER TABLE "OnBoardingStep" ADD CONSTRAINT "OnBoardingStep_createdBy_1662b8f5_fk_User_id" FOREIGN KEY ("createdBy") REFERENCES "User" ("id") DEFERRABLE INITIALLY DEFERRED;
+ALTER TABLE "OnBoardingStep" DROP CONSTRAINT IF EXISTS "OnBoardingStep_onBoarding_9e17a46e_fk_OnBoarding_id";
 ALTER TABLE "OnBoardingStep" ADD CONSTRAINT "OnBoardingStep_onBoarding_9e17a46e_fk_OnBoarding_id" FOREIGN KEY ("onBoarding") REFERENCES "OnBoarding" ("id") DEFERRABLE INITIALLY DEFERRED;
+ALTER TABLE "OnBoardingStep" DROP CONSTRAINT IF EXISTS "OnBoardingStep_updatedBy_53091601_fk_User_id";
 ALTER TABLE "OnBoardingStep" ADD CONSTRAINT "OnBoardingStep_updatedBy_53091601_fk_User_id" FOREIGN KEY ("updatedBy") REFERENCES "User" ("id") DEFERRABLE INITIALLY DEFERRED;
-CREATE INDEX "OnBoardingStep_createdAt_3356b5f6" ON "OnBoardingStep" ("createdAt");
-CREATE INDEX "OnBoardingStep_updatedAt_4b5a114a" ON "OnBoardingStep" ("updatedAt");
-CREATE INDEX "OnBoardingStep_deletedAt_63dc0b3d" ON "OnBoardingStep" ("deletedAt");
-CREATE INDEX "OnBoardingStep_createdBy_1662b8f5" ON "OnBoardingStep" ("createdBy");
-CREATE INDEX "OnBoardingStep_onBoarding_9e17a46e" ON "OnBoardingStep" ("onBoarding");
-CREATE INDEX "OnBoardingStep_updatedBy_53091601" ON "OnBoardingStep" ("updatedBy");
+CREATE INDEX IF NOT EXISTS "OnBoardingStep_createdAt_3356b5f6" ON "OnBoardingStep" ("createdAt");
+CREATE INDEX IF NOT EXISTS "OnBoardingStep_updatedAt_4b5a114a" ON "OnBoardingStep" ("updatedAt");
+CREATE INDEX IF NOT EXISTS "OnBoardingStep_deletedAt_63dc0b3d" ON "OnBoardingStep" ("deletedAt");
+CREATE INDEX IF NOT EXISTS "OnBoardingStep_createdBy_1662b8f5" ON "OnBoardingStep" ("createdBy");
+CREATE INDEX IF NOT EXISTS "OnBoardingStep_onBoarding_9e17a46e" ON "OnBoardingStep" ("onBoarding");
+CREATE INDEX IF NOT EXISTS "OnBoardingStep_updatedBy_53091601" ON "OnBoardingStep" ("updatedBy");
 COMMIT;
 
     `)
