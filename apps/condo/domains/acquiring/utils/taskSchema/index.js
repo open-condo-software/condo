@@ -287,7 +287,7 @@ async function getReadyForProcessingPaymentsPage (context, pageSize, offset, ext
     return await RecurrentPayment.getAll(context, {
         OR: [ { payAfter: null }, { payAfter_lte: dayjs().toISOString() }],
         tryCount_lt: RETRY_COUNT,
-        status_in: [RECURRENT_PAYMENT_INIT_STATUS, RECURRENT_PAYMENT_ERROR_NEED_RETRY_STATUS],
+        createdAt_gte: dayjs().add(-7, 'day').toISOString(), // just to not get paginated over older payments
         deletedAt: null,
         ...extraArgs,
     }, {
@@ -295,6 +295,11 @@ async function getReadyForProcessingPaymentsPage (context, pageSize, offset, ext
         first: pageSize,
         skip: offset,
     })
+}
+
+async function filterNotPayablePayment (recurrentPayments) {
+    return recurrentPayments
+        .filter(item => item.status === RECURRENT_PAYMENT_INIT_STATUS || item.status === RECURRENT_PAYMENT_ERROR_NEED_RETRY_STATUS)
 }
 
 async function registerMultiPayment (context, recurrentPayment) {
@@ -671,6 +676,7 @@ module.exports = {
     getReceiptsForServiceConsumer,
     filterPaidBillingReceipts,
     getReadyForProcessingPaymentsPage,
+    filterNotPayablePayment,
     registerMultiPayment,
     setRecurrentPaymentAsSuccess,
     setRecurrentPaymentAsFailed,

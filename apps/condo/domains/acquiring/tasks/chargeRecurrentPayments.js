@@ -20,6 +20,7 @@ const {
 } = require('@condo/domains/acquiring/utils/serverSchema')
 const {
     getReadyForProcessingPaymentsPage,
+    filterNotPayablePayment,
     registerMultiPayment,
     setRecurrentPaymentAsFailed,
     setRecurrentPaymentAsSuccess,
@@ -75,9 +76,10 @@ async function chargeRecurrentPayments () {
         logger.info({ msg: `Processing recurrent payment page #${Math.floor(offset / pageSize)}`, taskId })
         // get page (can be empty)
         const page = await getReadyForProcessingPaymentsPage(context, pageSize, offset)
+        const itemsWithPayableStatus = await filterNotPayablePayment(page)
 
         // process each page in parallel
-        await processArrayOf(page).inParallelWith(async (recurrentPayment) => {
+        await processArrayOf(itemsWithPayableStatus).inParallelWith(async (recurrentPayment) => {
             try {
                 // first step create multi payment
                 const {
