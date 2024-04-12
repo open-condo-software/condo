@@ -46,10 +46,16 @@ const B2BApp = new GQLListSchema('B2BApp', {
             isRequired: true,
         },
         logo: LOGO_FIELD,
-        shortDescription: SHORT_DESCRIPTION_FIELD,
+        shortDescription: {
+            ...SHORT_DESCRIPTION_FIELD,
+            isRequired: false,
+        },
         developer: DEVELOPER_FIELD,
         partnerUrl: PARTNER_URL_FIELD,
-        detailedDescription: APP_DETAILS_FIELD,
+        detailedDescription: {
+            ...APP_DETAILS_FIELD,
+            isRequired: false,
+        },
         appUrl: IFRAME_URL_FIELD,
         isHidden: IS_HIDDEN_FIELD,
         isGlobal: {

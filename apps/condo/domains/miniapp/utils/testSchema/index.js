@@ -90,9 +90,7 @@ async function createTestB2BApp (client, extraAttrs = {}) {
         dv: 1,
         sender,
         name: faker.company.name().replace(/ /, '-').toUpperCase() + ' B2B APP',
-        shortDescription: faker.commerce.productDescription(),
         developer: faker.company.name(),
-        detailedDescription: faker.lorem.paragraphs(5),
         isHidden: true,
         ...extraAttrs,
     }
