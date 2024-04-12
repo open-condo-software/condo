@@ -8,7 +8,7 @@ Open Source condominium management platform.
 
 You should have `docker-compose`, `git`, `node` and `python3` commands.
 
-> **Node should be > 16.** You can check node version using `node -v` command in your terminal.
+> **Node version must be 16.X**. You can check node version using `node -v` command in your terminal.
 
 ```bash
 # 1) Clone the repo
@@ -23,13 +23,10 @@ python3 -m pip install psycopg2-binary
 # 3) startup redis and postgres
 docker-compose up -d postgresdb redis
 
-# 4) create base .env file
-cp .env.example .env
-
-# 5) create databases for all apps and apps/.env files
+# 4) create databases for all apps and apps/.env files
 node ./bin/prepare.js
 
-# 6) launch project
+# 5) launch project
 yarn workspace @app/condo build
 yarn workspace @app/condo start
 ```
