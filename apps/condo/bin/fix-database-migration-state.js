@@ -181,7 +181,7 @@ ALTER TABLE "ServiceConsumer" DROP COLUMN "billingAccount" CASCADE;
 ALTER TABLE "ServiceConsumerHistoryRecord" DROP COLUMN "billingAccount" CASCADE;
 
 --
--- 20240411111538-0380_auto_20240411_0615.js Remove TicketCommentsTime schema
+-- 20240412104246-0383_auto_20240412_0542.js Remove TicketCommentsTime schema
 --
 DROP TABLE "TicketCommentsTime" CASCADE;
 DROP TABLE "TicketCommentsTimeHistoryRecord" CASCADE;

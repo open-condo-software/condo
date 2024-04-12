@@ -316,7 +316,7 @@ describe('TicketComment', () => {
                     unitType,
                 })
 
-                const [ticketComment] = await createTestTicketComment(residentClient, ticket, residentClient.user, {
+                const [residentCommentWithResidentType] = await createTestTicketComment(residentClient, ticket, residentClient.user, {
                     type: RESIDENT_COMMENT_TYPE,
                 })
 
@@ -324,21 +324,21 @@ describe('TicketComment', () => {
                     id: ticket.id,
                 })
 
-                expect(readTicket.lastCommentWithResidentTypeAt).toEqual(ticketComment.createdAt)
-                expect(readTicket.lastResidentCommentAt).toEqual(ticketComment.createdAt)
-                expect(readTicket.lastCommentAt).toEqual(ticketComment.createdAt)
+                expect(readTicket.lastCommentWithResidentTypeAt).toEqual(residentCommentWithResidentType.createdAt)
+                expect(readTicket.lastResidentCommentAt).toEqual(residentCommentWithResidentType.createdAt)
+                expect(readTicket.lastCommentAt).toEqual(residentCommentWithResidentType.createdAt)
 
-                const [ticketComment1] = await createTestTicketComment(employeeClient, ticket, employeeClient.user, {
+                const [staffCommentWithResidentType] = await createTestTicketComment(employeeClient, ticket, employeeClient.user, {
                     type: RESIDENT_COMMENT_TYPE,
                 })
 
-                const readTicket1 = await Ticket.getOne(residentClient, {
+                const readStaffCommentWithResidentType = await Ticket.getOne(residentClient, {
                     id: ticket.id,
                 })
 
-                expect(readTicket1.lastCommentWithResidentTypeAt).toEqual(ticketComment1.createdAt)
-                expect(readTicket1.lastResidentCommentAt).toEqual(ticketComment.createdAt)
-                expect(readTicket1.lastCommentAt).toEqual(ticketComment1.createdAt)
+                expect(readStaffCommentWithResidentType.lastCommentWithResidentTypeAt).toEqual(staffCommentWithResidentType.createdAt)
+                expect(readStaffCommentWithResidentType.lastResidentCommentAt).toEqual(residentCommentWithResidentType.createdAt)
+                expect(readStaffCommentWithResidentType.lastCommentAt).toEqual(staffCommentWithResidentType.createdAt)
             })
         })
 
