@@ -2,12 +2,10 @@ import { TourStepStatusType, TourStepTypeType } from '@app/condo/schema'
 import get from 'lodash/get'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 
-import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { MUTATION_RESULT_EVENT, MutationEmitter } from '@open-condo/next/_useEmitterMutation'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { IMPORT_EVENT, ImportEmitter } from '@condo/domains/common/components/Import/Index'
-import { ORGANIZATION_TOUR } from '@condo/domains/common/constants/featureflags'
 import {
     ACTIVE_STEPS_STORAGE_KEY,
     FIRST_LEVEL_STEPS,
@@ -85,11 +83,8 @@ export const TourProvider = ({ children }) => {
         CompletedFlowModal,
     } = useCompletedTourModals({ activeStep, setActiveTourStep, refetchSteps })
 
-    const { useFlag } = useFeatureFlags()
-    const isOrganizationTourEnabled = useFlag(ORGANIZATION_TOUR)
-
     const updateStepIfNotCompleted = useCallback(async (type: TourStepTypeType, nextRoute?: string) => {
-        if (!isOrganizationTourEnabled || organizationType !== MANAGING_COMPANY_TYPE) return
+        if (organizationType !== MANAGING_COMPANY_TYPE) return
         
         const fetchResult = await refetchSteps({
             where: {
@@ -116,7 +111,7 @@ export const TourProvider = ({ children }) => {
         } else {
             updateCompletedStepModalData(type, nextRoute)
         }
-    }, [isOrganizationTourEnabled, organizationId, organizationType, refetchSteps, updateCompletedStepModalData, updateTourStep])
+    }, [organizationId, organizationType, refetchSteps, updateCompletedStepModalData, updateTourStep])
 
     useEffect(() => {
         const mutationHandler = async ({ data, name }) => {
