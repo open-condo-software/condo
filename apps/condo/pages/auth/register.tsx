@@ -4,15 +4,11 @@ import Router, { useRouter } from 'next/router'
 import qs from 'qs'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 
-import { useMutation } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 
 import { Button } from '@condo/domains/common/components/Button'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { fontSizes } from '@condo/domains/common/constants/style'
-import { runMutation } from '@condo/domains/common/utils/mutations.utils'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import { CREATE_ONBOARDING_MUTATION } from '@condo/domains/onboarding/gql'
 import { InputPhoneForm } from '@condo/domains/user/components/auth/InputPhoneForm'
 import { RegisterContext, RegisterContextProvider } from '@condo/domains/user/components/auth/RegisterContextProvider'
 import { RegisterForm } from '@condo/domains/user/components/auth/RegisterForm'
@@ -39,29 +35,9 @@ const RegisterPage: AuthPage = () => {
     const { token, isConfirmed, tokenError, setToken, setTokenError } = useContext(RegisterContext)
     const [step, setStep] = useState('inputPhone')
 
-    const [createOnBoarding] = useMutation(CREATE_ONBOARDING_MUTATION)
-
-    const initOnBoarding = useCallback((userId: string) => {
-        const onBoardingExtraData = {
-            dv: 1,
-            sender: getClientSideSenderInfo(),
-        }
-
-        const data = { ...onBoardingExtraData, type: 'ADMINISTRATOR', userId }
-
-        return runMutation({
-            mutation: createOnBoarding,
-            variables: { data },
-            // Skip notification
-            OnCompletedMsg: null,
-            intl,
-        })
-    }, [createOnBoarding, intl])
-
-    const handleFinish = useCallback(async (userId: string) => {
-        await initOnBoarding(userId)
+    const handleFinish = useCallback(async () => {
         await router.push('/')
-    }, [initOnBoarding, router])
+    }, [router])
 
     useEffect(() => {
         if (token && isConfirmed) {
