@@ -180,6 +180,14 @@ ALTER TABLE "ServiceConsumerHistoryRecord" DROP COLUMN "billingAccount" CASCADE;
 
 COMMIT;
 
+--
+-- 20240412124306-0383_auto_20240412_0743.js – Remove OnBoarding, OnBoardingStep schemas
+--
+DROP TABLE "OnBoardingStep" CASCADE;
+DROP TABLE "OnBoarding" CASCADE;
+DROP TABLE "OnBoardingStepHistoryRecord" CASCADE;
+DROP TABLE "OnBoardingHistoryRecord" CASCADE;
+
     `))
 }
 
