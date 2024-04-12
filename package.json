@@ -108,6 +108,12 @@
     "loader-utils/json5@^1.0.1": "^1.0.2",
     "@storybook/react/webpack": "^5.91.0",
     "@storybook/manager-webpack5/webpack": "^5.91.0",
-    "@storybook/builder-webpack5/webpack": "^5.91.0"
+    "@storybook/builder-webpack5/webpack": "^5.91.0",
+    "cacache/tar": "^6.2.1",
+    "@prisma/sdk/tar": "^6.2.1",
+    "node-gyp/tar": "^6.2.1",
+    "msgpackr": "^1.10.1",
+    "browserify-sign": "^4.2.3",
+    "dd-trace@npm:1.5.1/import-in-the-middle": "^1.4.2"
   }
 }
