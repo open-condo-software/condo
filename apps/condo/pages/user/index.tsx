@@ -187,7 +187,7 @@ export const UserInfoPageContent: React.FC<IUserInfoPageContentProps> = ({ organ
                                                             </Typography.Text>
                                                         </Col>
                                                         <Col lg={19} xs={10} offset={2}>
-                                                            <Typography.Link href={`https://t.me/${'dev_employee_bot'}`} target='_blank'>
+                                                            <Typography.Link href={`https://t.me/${telegramEmployeeBotName}`} target='_blank'>
                                                                 {EmployeeTelegramOpenMessage}
                                                             </Typography.Link>
                                                         </Col>
