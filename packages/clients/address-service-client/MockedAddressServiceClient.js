@@ -126,14 +126,13 @@ class MockedAddressServiceClient {
                 unitName = un
             }
         }
+
         return {
             addressSources: [s],
             address,
             addressKey: get(item, 'addressKey', createHash('sha512').update(address).digest('hex')),
             addressMeta: {
                 data: get(item, ['addressMeta', 'data'], this.DEFAULT_META_DATA),
-                unitType,
-                unitName,
                 provider: {
                     name: 'dadata',
                     rawData: get(
@@ -151,6 +150,8 @@ class MockedAddressServiceClient {
                 value: get(item, ['addressMeta', 'value'], s),
                 unrestricted_value: get(item, ['addressMeta', 'unrestricted_value'], s),
             },
+            unitType,
+            unitName,
         }
     }
 
