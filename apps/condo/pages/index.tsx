@@ -1,3 +1,4 @@
+import { TourStepStatusType } from '@app/condo/schema'
 import get from 'lodash/get'
 import pickBy from 'lodash/pickBy'
 import { useRouter } from 'next/router'
@@ -10,7 +11,6 @@ import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
 
-import { TourStepStatusType } from '../schema'
 
 // Equality of read access name of OrganizationEmployeeRole and page url sorted by menu items order
 const ACCESS_REDIRECTS = {
