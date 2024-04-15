@@ -31,7 +31,6 @@ class RecipientResolver extends Resolver {
     async syncBillingRecipient (existing, data){
         if (!existing) {
             try {
-                data.isApproved = data.tin && data.tin === this.organization.tin
                 const newRecipient = await BillingRecipientApi.create(this.context, this.buildCreateInput(data, ['context']))
                 await this.loadExistingRecipients()
                 return newRecipient

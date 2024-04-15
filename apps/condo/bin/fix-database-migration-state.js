@@ -180,6 +180,12 @@ ALTER TABLE "ServiceConsumerHistoryRecord" DROP COLUMN "billingAccount" CASCADE;
 
 COMMIT;
 
+--
+-- 20240415202251-0385_remove_billingrecipient_isapproved_and_more Remove field isApproved from billingrecipient
+--
+ALTER TABLE "BillingRecipient" DROP COLUMN "isApproved" CASCADE;
+COMMIT;
+
     `))
 }
 

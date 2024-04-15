@@ -84,6 +84,7 @@ describe('syncBankAccount from SBBOL', () => {
                 routingNumber: account.bic,
                 dv: 1,
                 sender: { dv: 1, fingerprint: 'tests' },
+                isApproved: true,
             })
 
             await _syncBankAccounts([account], commonOrganization)
