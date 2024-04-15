@@ -74772,7 +74772,7 @@ type MiniAppOutput {
   connected: Boolean!
   accessible: Boolean!
   name: String!
-  shortDescription: String!
+  shortDescription: String
   category: AppCategory!
   logo: String
   label: String

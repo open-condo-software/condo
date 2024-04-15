@@ -48,7 +48,7 @@ type TopCardProps = {
     name: string
     category: string
     label?: string
-    description: string
+    description?: string
     price?: string
     gallery?: Array<string>
     contextStatus: string | null
@@ -204,9 +204,11 @@ const TopCard = React.memo<TopCardProps>(({
                         <Typography.Title level={1}>
                             {name}
                         </Typography.Title>
-                        <Typography.Paragraph type='secondary'>
-                            {description}
-                        </Typography.Paragraph>
+                        {Boolean(description) && (
+                            <Typography.Paragraph type='secondary'>
+                                {description}
+                            </Typography.Paragraph>
+                        )}
                         {Boolean(price) && (
                             <Typography.Title level={3}>
                                 {price}

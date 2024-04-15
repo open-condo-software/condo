@@ -33837,7 +33837,7 @@ export type MiniAppOutput = {
   connected: Scalars['Boolean'];
   accessible: Scalars['Boolean'];
   name: Scalars['String'];
-  shortDescription: Scalars['String'];
+  shortDescription?: Maybe<Scalars['String']>;
   category: AppCategory;
   logo?: Maybe<Scalars['String']>;
   label?: Maybe<Scalars['String']>;
