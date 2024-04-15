@@ -72,6 +72,7 @@ const {
     getReceiptsForServiceConsumer,
     filterPaidBillingReceipts,
     getReadyForProcessingPaymentsPage,
+    filterNotPayablePayment,
     registerMultiPayment,
     setRecurrentPaymentAsSuccess,
     setRecurrentPaymentAsFailed,
@@ -1060,6 +1061,102 @@ describe('task schema queries', () => {
             expect(recurrentPayments).toHaveLength(0)
         })
 
+        it('should validate inputs', async () => {
+            await catchErrorFrom(async () => {
+                await getReadyForProcessingPaymentsPage(adminContext, null, offset)
+            }, (error) => {
+                expect(error.message).toContain('invalid pageSize argument')
+            })
+
+            await catchErrorFrom(async () => {
+                await getReadyForProcessingPaymentsPage(adminContext, -1, offset)
+            }, (error) => {
+                expect(error.message).toContain('invalid pageSize argument')
+            })
+
+            await catchErrorFrom(async () => {
+                await getReadyForProcessingPaymentsPage(adminContext, pageSize, null)
+            }, (error) => {
+                expect(error.message).toContain('invalid offset argument')
+            })
+
+            await catchErrorFrom(async () => {
+                await getReadyForProcessingPaymentsPage(adminContext, pageSize, -1)
+            }, (error) => {
+                expect(error.message).toContain('invalid offset argument')
+            })
+        })
+
+        it('should return all payments within multi page request', async () => {
+            const payAfter = null
+            const tryCount = 0
+
+            // create test recurrent payment
+            const readyRecurrentPayments = []
+            for (let i = 0 ; i < 21; i++) {
+                const [recurrentPayment] = await createTestRecurrentPayment(
+                    admin,
+                    getPaymentRequest({ payAfter, tryCount }),
+                )
+                readyRecurrentPayments.push(recurrentPayment)
+            }
+
+            let offset = 0
+            const pages = []
+            for (let i = 0 ; i < 3; i++) {
+                const page = await getReadyForProcessingPaymentsPage(adminContext, 10, offset, {
+                    recurrentPaymentContext: { id: recurrentPaymentContext.id },
+                })
+
+                pages.push(page)
+                offset += pageSize
+            }
+
+            expect(pages).toBeDefined()
+            expect(pages).toHaveLength(3)
+            expect(pages[0]).toHaveLength(10)
+            expect(pages[1]).toHaveLength(10)
+            expect(pages[2]).toHaveLength(1)
+        })
+    })
+
+    describe('filterNotPayablePayment', () => {
+        let admin,
+            getContextRequest,
+            getPaymentRequest,
+            billingCategory,
+            serviceConsumerClient,
+            recurrentPaymentContext
+
+        beforeEach( async () => {
+            serviceConsumerClient = await makeClientWithServiceConsumer()
+            recurrentPaymentContext = (await createTestRecurrentPaymentContext(admin, getContextRequest()))[0]
+        })
+
+        beforeAll(async () => {
+            admin = await makeLoggedInAdminClient()
+            billingCategory = (await createTestBillingCategory(admin, { name: `Category ${new Date()}` }))[0]
+
+            getContextRequest = () => ({
+                enabled: false,
+                limit: '10000',
+                autoPayReceipts: false,
+                paymentDay: 10,
+                settings: { cardId: faker.datatype.uuid() },
+                serviceConsumer: { connect: { id: serviceConsumerClient.serviceConsumer.id } },
+                billingCategory: { connect: { id: billingCategory.id } },
+            })
+
+            getPaymentRequest = ({ payAfter = null,  tryCount = 0, status = RECURRENT_PAYMENT_INIT_STATUS }) => ({
+                payAfter,
+                tryCount,
+                status,
+                state: {},
+                billingReceipts: [ { id: faker.datatype.uuid() }],
+                recurrentPaymentContext: { connect: { id: recurrentPaymentContext.id } },
+            })
+        })
+
         it('should return payment only with RECURRENT_PAYMENT_INIT_STATUS status', async () => {
             const payAfter = null
             const tryCount = 0
@@ -1086,9 +1183,9 @@ describe('task schema queries', () => {
                 getPaymentRequest({ payAfter, tryCount, status:  RECURRENT_PAYMENT_CANCEL_STATUS }),
             )
 
-            const recurrentPayments = await getReadyForProcessingPaymentsPage(adminContext, pageSize, 0, {
+            const recurrentPayments = await filterNotPayablePayment(await getReadyForProcessingPaymentsPage(adminContext, pageSize, 0, {
                 recurrentPaymentContext: { id: recurrentPaymentContext.id },
-            })
+            }))
 
             expect(recurrentPayments).toBeDefined()
             expect(recurrentPayments).toHaveLength(1)
@@ -1122,40 +1219,14 @@ describe('task schema queries', () => {
                 getPaymentRequest({ payAfter, tryCount, status:  RECURRENT_PAYMENT_CANCEL_STATUS }),
             )
 
-            const recurrentPayments = await getReadyForProcessingPaymentsPage(adminContext, pageSize, 0, {
+            const recurrentPayments = await filterNotPayablePayment(await getReadyForProcessingPaymentsPage(adminContext, pageSize, 0, {
                 recurrentPaymentContext: { id: recurrentPaymentContext.id },
-            })
+            }))
 
             expect(recurrentPayments).toBeDefined()
             expect(recurrentPayments).toHaveLength(1)
             expect(recurrentPayments[0]).toHaveProperty('id')
             expect(recurrentPayments[0].id).toEqual(recurrentPayment.id)
-        })
-
-        it('should validate inputs', async () => {
-            await catchErrorFrom(async () => {
-                await getReadyForProcessingPaymentsPage(adminContext, null, offset)
-            }, (error) => {
-                expect(error.message).toContain('invalid pageSize argument')
-            })
-
-            await catchErrorFrom(async () => {
-                await getReadyForProcessingPaymentsPage(adminContext, -1, offset)
-            }, (error) => {
-                expect(error.message).toContain('invalid pageSize argument')
-            })
-
-            await catchErrorFrom(async () => {
-                await getReadyForProcessingPaymentsPage(adminContext, pageSize, null)
-            }, (error) => {
-                expect(error.message).toContain('invalid offset argument')
-            })
-
-            await catchErrorFrom(async () => {
-                await getReadyForProcessingPaymentsPage(adminContext, pageSize, -1)
-            }, (error) => {
-                expect(error.message).toContain('invalid offset argument')
-            })
         })
     })
 
