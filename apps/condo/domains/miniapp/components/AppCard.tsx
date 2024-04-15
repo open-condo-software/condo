@@ -27,7 +27,7 @@ type AppCardTitleProps = {
 type AppCardProps = {
     connected: boolean
     name: string
-    description: string
+    description?: string
     logoUrl?: string
     label?: string
     onClick?: () => void

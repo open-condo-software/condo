@@ -78,7 +78,7 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
         },
         {
             access: true,
-            type: 'type MiniAppOutput { id: ID!, connected: Boolean!, accessible: Boolean!, name: String!, shortDescription: String!, category: AppCategory!, logo: String, label: String, icon: String, menuCategory: String }',
+            type: 'type MiniAppOutput { id: ID!, connected: Boolean!, accessible: Boolean!, name: String!, shortDescription: String, category: AppCategory!, logo: String, label: String, icon: String, menuCategory: String }',
         },
     ],
     queries: [

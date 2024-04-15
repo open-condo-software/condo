@@ -38,8 +38,8 @@ type PageContentProps = {
     name: string
     category: string
     label?: string
-    shortDescription: string
-    detailedDescription: string
+    shortDescription?: string
+    detailedDescription?: string
     price?: string
     developer: string
     publishedAt: string

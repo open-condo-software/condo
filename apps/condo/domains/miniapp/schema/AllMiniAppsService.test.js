@@ -175,6 +175,7 @@ describe('AllMiniAppsService', () => {
     describe('Data shown', () => {
         test('Must include all necessary fields', async () => {
             const [app, appAttrs] = await createTestB2BApp(support, {
+                shortDescription: faker.commerce.productDescription(),
                 isHidden: false,
                 category: SMART_HOME_CATEGORY,
                 icon: 'House',
