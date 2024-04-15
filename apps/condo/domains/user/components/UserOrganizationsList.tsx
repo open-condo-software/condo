@@ -1,15 +1,15 @@
 import { OrganizationEmployee as OrganizationEmployeeType } from '@app/condo/schema'
-import { Col, Row, Skeleton, Tag, Typography } from 'antd'
+import { Col, Row, Skeleton } from 'antd'
 import get from 'lodash/get'
 import uniqBy from 'lodash/uniqBy'
 import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Typography, Tag } from '@open-condo/ui'
 
-import { Button } from '@condo/domains/common/components/Button'
-import { fontSizes } from '@condo/domains/common/constants/style'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
+
 
 interface IOrganizationName {
     name: string
@@ -30,12 +30,12 @@ const OrganizationName: React.FC<IOrganizationName> = (props) => {
     } = props
 
     if (organizationId === employeeOrganizationId) {
-        return (<Typography.Text style={{ fontSize: fontSizes.content, fontWeight: 'bold' }}>{ name }</Typography.Text>)
+        return (<Typography.Text strong>{name}</Typography.Text>)
     }
 
     return (
-        <Typography.Text style={{ fontSize: fontSizes.content }}>
-            { name } (<Button type='inlineLink' onClick={selectOrganization}>{ EnterMessage }</Button>)
+        <Typography.Text>
+            {name} (<Typography.Link onClick={selectOrganization}>{EnterMessage}</Typography.Link>)
         </Typography.Text>
     )
 }
@@ -98,7 +98,7 @@ const OrganizationEmployeeItem: React.FC<IOrganizationEmployeeItem> = (props) =>
                 <Col lg={18} xs={12} offset={1}>
                     <NotDefinedField
                         value={get(employee, ['role', 'name'])}
-                        render={(roleName) => (<Tag color='default'>{roleName}</Tag>)}
+                        render={(roleName) => (<Tag children={roleName as string} />)}
                     />
                 </Col>
             </Row>

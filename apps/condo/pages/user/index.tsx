@@ -1,4 +1,4 @@
-import { Col, Row, Switch, Typography } from 'antd'
+import { Col, Row, Switch } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { SwitchChangeEventHandler } from 'antd/lib/switch'
 import debounce from 'lodash/debounce'
@@ -13,7 +13,7 @@ import { Edit, Info } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { LocaleContext, useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button, Select, Tooltip } from '@open-condo/ui'
+import { ActionBar, Button, Select, Tooltip, Typography } from '@open-condo/ui'
 
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
 import { PageContent, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
@@ -123,7 +123,6 @@ export const UserInfoPageContent: React.FC<IUserInfoPageContentProps> = ({ organ
                                                 <Col span={24}>
                                                     <Typography.Title
                                                         level={1}
-                                                        style={{ margin: 0, fontWeight: 'bold' }}
                                                     >
                                                         {name}
                                                     </Typography.Title>
