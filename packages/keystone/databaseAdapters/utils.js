@@ -1,4 +1,6 @@
-const { escapeRegExp, isLength } = require('lodash')
+const { escapeRegExp, isLength, get } = require('lodash')
+
+const conf = require('@open-condo/config')
 
 function parseDatabaseUrl (url) {
     try {
@@ -65,9 +67,25 @@ function matchDatabase (mapping, str) {
     return undefined
 }
 
+function getDatabaseAdapter (keystone, list = '*') {
+    const databaseUrl = get(conf, 'DATABASE_URL')
+
+    if (databaseUrl.startsWith('postgres')) {
+        return keystone.adapter
+    } else if (databaseUrl.startsWith('custom')) {
+        if (list === '*') {
+            return keystone.adapter.__databaseAdapters.default
+        }
+        throw new Error('Multiple list adapters support is not implemented!')
+    } else {
+        throw new Error('invalid database adapter')
+    }
+}
+
 module.exports = {
     parseDatabaseUrl,
     parseDatabaseMapping,
     matchPattern,
     matchDatabase,
+    getDatabaseAdapter,
 }
