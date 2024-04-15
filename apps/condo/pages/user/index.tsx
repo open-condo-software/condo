@@ -4,15 +4,16 @@ import { SwitchChangeEventHandler } from 'antd/lib/switch'
 import debounce from 'lodash/debounce'
 import get from 'lodash/get'
 import isBoolean from 'lodash/isBoolean'
+import getConfig from 'next/config'
 import Head from 'next/head'
 import Link from 'next/link'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { Edit } from '@open-condo/icons'
+import { Edit, Info } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { LocaleContext, useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button, Select } from '@open-condo/ui'
+import { ActionBar, Button, Select, Tooltip } from '@open-condo/ui'
 
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
 import { PageContent, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
@@ -29,6 +30,12 @@ const ROW_GUTTER_BIG: [Gutter, Gutter] = [0, 60]
 const ROW_GUTTER_MID: [Gutter, Gutter] = [0, 40]
 const ROW_GUTTER_SMALL: [Gutter, Gutter] = [0, 24]
 
+const {
+    publicRuntimeConfig: {
+        telegramEmployeeBotName,
+    },
+} = getConfig()
+
 interface IUserInfoPageContentProps {
     organizationEmployeesQuery: { where: OrganizationEmployeeWhereInput },
 }
@@ -41,6 +48,9 @@ export const UserInfoPageContent: React.FC<IUserInfoPageContentProps> = ({ organ
     const UpdateMessage = intl.formatMessage({ id: 'Edit' })
     const InterfaceLanguageTitle = intl.formatMessage({ id: 'pages.condo.profile.interfaceLanguage' })
     const ChooseInterfaceLanguageTitle = intl.formatMessage({ id: 'pages.condo.profile.chooseInterfaceLanguage' })
+    const EmployeeTelegramTitle = intl.formatMessage({ id: 'pages.condo.profile.employeeTelegramBot.title' })
+    const EmployeeTelegramTooltipMessage = intl.formatMessage({ id: 'pages.condo.profile.employeeTelegramBot.description' })
+    const EmployeeTelegramOpenMessage = intl.formatMessage({ id: 'pages.condo.profile.employeeTelegramBot.open' })
     const GlobalHintsTitle = intl.formatMessage({ id: 'pages.condo.profile.globalHints' })
     const RuTitle = intl.formatMessage({ id: 'language.russian.withFlag' })
     const EnTitle = intl.formatMessage({ id: 'language.english-us.withFlag' })
@@ -162,6 +172,29 @@ export const UserInfoPageContent: React.FC<IUserInfoPageContentProps> = ({ organ
                                                     : null
                                             }
                                         </Col>
+                                        {
+                                            telegramEmployeeBotName && (
+                                                <Col span={24}>
+                                                    <Row>
+                                                        <Col lg={3} xs={10}>
+                                                            <Typography.Text type='secondary'>
+                                                                {EmployeeTelegramTitle}
+                                                                <Tooltip title={EmployeeTelegramTooltipMessage}>
+                                                                    <span style={{ verticalAlign: 'middle', marginLeft: 8 }}>
+                                                                        <Info size='small' />
+                                                                    </span>
+                                                                </Tooltip>
+                                                            </Typography.Text>
+                                                        </Col>
+                                                        <Col lg={19} xs={10} offset={2}>
+                                                            <Typography.Link href={`https://t.me/${'dev_employee_bot'}`} target='_blank'>
+                                                                {EmployeeTelegramOpenMessage}
+                                                            </Typography.Link>
+                                                        </Col>
+                                                    </Row>
+                                                </Col>
+                                            )
+                                        }
                                         <Col span={24}>
                                             <Row gutter={ROW_GUTTER_MID}>
                                                 <Col lg={3} xs={10}>
