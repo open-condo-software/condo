@@ -55,7 +55,7 @@ const ERRORS = {
     },
 }
 
-const validateReceiptDuplicates = async (context, accountNumber, period, organizationIds) => {
+const validateReceiptDuplicates = async (context, accountNumber, period, organizationIds, recipientBankAccount) => {
     // check if receipt already paid
     // at this point no mater if receipt was paid as a virtual one or by billing receipt
     // since all of them must have enough information about payment destination
@@ -67,6 +67,7 @@ const validateReceiptDuplicates = async (context, accountNumber, period, organiz
         period,
         organization: { id_in: organizationIds },
         status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS],
+        recipientBankAccount,
         deletedAt: null,
     })
 
@@ -181,7 +182,7 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                 let multiPaymentId
                 if (isNil(lastBillingReceipt)) {
                     // No receipts found at our side - let's create a virtual one
-                    await validateReceiptDuplicates(context, PersAcc, period, organizationsIds)
+                    await validateReceiptDuplicates(context, PersAcc, period, organizationsIds, PersonalAcc)
                     const { multiPaymentId: id } = await registerMultiPaymentForVirtualReceipt(context, {
                         dv, sender,
                         receipt: {
@@ -202,7 +203,7 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                     multiPaymentId = id
                 } else if (lastBillingReceipt.period === period) {
                     // if period matches we use found receipt to create MultiPayment
-                    await validateReceiptDuplicates(context, PersAcc, lastBillingReceipt.period, organizationsIds)
+                    await validateReceiptDuplicates(context, PersAcc, lastBillingReceipt.period, organizationsIds, PersonalAcc)
                     const { multiPaymentId: id } = await registerMultiPaymentForOneReceipt(context, {
                         dv, sender,
                         receipt: { id: lastBillingReceipt.id },
@@ -211,7 +212,7 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                     multiPaymentId = id
                 } else if (lastBillingReceipt.period > period) {
                     // we have a newer receipt at our side - let's pay for newer one
-                    await validateReceiptDuplicates(context, PersAcc, lastBillingReceipt.period, organizationsIds)
+                    await validateReceiptDuplicates(context, PersAcc, lastBillingReceipt.period, organizationsIds, PersonalAcc)
                     const { multiPaymentId: id } = await registerMultiPaymentForOneReceipt(context, {
                         dv, sender,
                         receipt: { id: lastBillingReceipt.id },
@@ -220,7 +221,7 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                     multiPaymentId = id
                 } else {
                     // the last receipt is older than the scanned one - let's create a virtual one to follow scanned one
-                    await validateReceiptDuplicates(context, PersAcc, period, organizationsIds)
+                    await validateReceiptDuplicates(context, PersAcc, period, organizationsIds, PersonalAcc)
 
                     // find acquiring context and routing number from older receipt
                     const billingIntegrationContext = await getById('BillingIntegrationOrganizationContext', lastBillingReceipt.context.id)
