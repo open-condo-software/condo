@@ -130,32 +130,32 @@ export const UserInfoPageContent: React.FC<IUserInfoPageContentProps> = ({ organ
                                                 </Col>
                                                 <Col span={24}>
                                                     <Row gutter={ROW_GUTTER_SMALL}>
-                                                        <Col lg={3} xs={10}>
+                                                        <Col lg={5} xs={10}>
                                                             <Typography.Text type='secondary'>
                                                                 {PhoneMessage}
                                                             </Typography.Text>
                                                         </Col>
-                                                        <Col lg={19} xs={10} offset={2}>
+                                                        <Col lg={18} xs={10} offset={1}>
                                                             <NotDefinedField value={phone}/>
                                                         </Col>
                                                         {
                                                             email && <>
-                                                                <Col lg={3} xs={10}>
+                                                                <Col lg={5} xs={10}>
                                                                     <Typography.Text type='secondary'>
                                                                         {EmailMessage}
                                                                     </Typography.Text>
                                                                 </Col>
-                                                                <Col lg={19} xs={10} offset={2}>
+                                                                <Col lg={18} xs={10} offset={1}>
                                                                     <NotDefinedField value={email}/>
                                                                 </Col>
                                                             </>
                                                         }
-                                                        <Col lg={3} xs={10}>
+                                                        <Col lg={5} xs={10}>
                                                             <Typography.Text type='secondary'>
                                                                 {PasswordMessage}
                                                             </Typography.Text>
                                                         </Col>
-                                                        <Col lg={19} xs={10} offset={2}>
+                                                        <Col lg={18} xs={10} offset={1}>
                                                             <NotDefinedField value='******'/>
                                                         </Col>
                                                     </Row>
@@ -176,17 +176,19 @@ export const UserInfoPageContent: React.FC<IUserInfoPageContentProps> = ({ organ
                                             telegramEmployeeBotName && (
                                                 <Col span={24}>
                                                     <Row>
-                                                        <Col lg={3} xs={10}>
+                                                        <Col lg={5} xs={10}>
                                                             <Typography.Text type='secondary'>
-                                                                {EmployeeTelegramTitle}
+                                                                <span style={{ marginRight: 8 }}>
+                                                                    {EmployeeTelegramTitle}
+                                                                </span>
                                                                 <Tooltip title={EmployeeTelegramTooltipMessage}>
-                                                                    <span style={{ verticalAlign: 'middle', marginLeft: 8 }}>
+                                                                    <span style={{ verticalAlign: 'middle' }}>
                                                                         <Info size='small' />
                                                                     </span>
                                                                 </Tooltip>
                                                             </Typography.Text>
                                                         </Col>
-                                                        <Col lg={19} xs={10} offset={2}>
+                                                        <Col lg={18} xs={10} offset={1}>
                                                             <Typography.Link href={`https://t.me/${telegramEmployeeBotName}`} target='_blank'>
                                                                 {EmployeeTelegramOpenMessage}
                                                             </Typography.Link>
@@ -197,12 +199,12 @@ export const UserInfoPageContent: React.FC<IUserInfoPageContentProps> = ({ organ
                                         }
                                         <Col span={24}>
                                             <Row gutter={ROW_GUTTER_MID}>
-                                                <Col lg={3} xs={10}>
+                                                <Col lg={5} xs={10}>
                                                     <Typography.Text type='secondary'>
                                                         {InterfaceLanguageTitle}
                                                     </Typography.Text>
                                                 </Col>
-                                                <Col lg={5} offset={2}>
+                                                <Col lg={7} xl={5} offset={1}>
                                                     <LocaleContext.Consumer>
                                                         {({ locale, setLocale }) => {
                                                             return (
@@ -220,12 +222,12 @@ export const UserInfoPageContent: React.FC<IUserInfoPageContentProps> = ({ organ
                                         </Col>
                                         <Col span={24}>
                                             <Row gutter={ROW_GUTTER_MID}>
-                                                <Col lg={3} xs={10}>
+                                                <Col lg={5} xs={10}>
                                                     <Typography.Text type='secondary'>
                                                         {GlobalHintsTitle}
                                                     </Typography.Text>
                                                 </Col>
-                                                <Col lg={5} offset={2}>
+                                                <Col lg={5} offset={1}>
                                                     <Switch
                                                         checked={showGlobalHints}
                                                         onChange={handleGlobalHintsChange}
