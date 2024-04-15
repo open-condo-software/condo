@@ -2517,6 +2517,7 @@
   "api.newsItem.NO_NEWS_ITEM_SCOPES": "Нельзя публиковать новость без получателей",
   "api.ticket.QUALITY_CONTROL_ADDITIONAL_OPTION_DOES_NOT_MATCH_QUALITY_CONTROL_VALUE": "Дополнительные параметры контроля качества должны соответсоввать указанной оценке",
   "api.ticket.QUALITY_CONTROL_VALUE_MUST_BE_SPECIFIED": "При указании комментария или дополнительных параметров оценки нужно указать саму оценку",
+  "api.billing.error.alreadyPaid": "Счет уже был оплачен",
   "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_PERIOD_PROVIDED": "Необходимо передать период не ранее начала прошлого месяца и не позднее начала текущего месяца, валидный формат - YYYY-MM-DD",
   "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_BILLING_CONTEXT_PROVIDED": "Необходимо передать id существующей биллинговой интеграции для организации",
   "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_BILLING_CATEGORY_PROVIDED": "Необходимо передать id существующей биллинговой категории",
