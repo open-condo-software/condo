@@ -4,6 +4,7 @@
 const { Text, Relationship } = require('@keystonejs/fields')
 const { get, isString } = require('lodash')
 
+const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
@@ -26,6 +27,8 @@ const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 
 const { numberOfTariffs, installationDate, commissioningDate, verificationDate, nextVerificationDate, controlReadingsDate, sealingDate, isAutomatic, resource, b2bApp } = require('./fields')
+
+const ADDRESS_SERVICE_ENABLED = get(conf, 'ADDRESS_SERVICE_URL', false)
 
 
 const ERRORS = {
@@ -265,9 +268,15 @@ const Meter = new GQLListSchema('Meter', {
                 })
 
                 if (!originalInput['deletedAt'] && !hasMeterResourceOwnership) {
+                    // TODO(DOMA-8836): remove environment dependency when address service will run in production mode in tests
+                    let address = property.addressKey ? `key:${property.addressKey}` : property.address
+                    if (!ADDRESS_SERVICE_ENABLED) {
+                        address = property.address
+                    }
+
                     await MeterResourceOwner.create(context, {
                         dv: 1, sender: originalInput.sender,
-                        address: property.address,
+                        address,
                         organization: { connect: { id: updatedItem.organization } },
                         resource: { connect: { id: updatedItem.resource } },
                     })
