@@ -17,16 +17,17 @@ const JWT_ALG = 'gost34.10-2012'
 const logger = getLogger('sbbol/oauth2')
 
 class SbbolOauth2Api {
-    constructor ({ clientSecret }) {
+    constructor ({ clientSecret, useExtendedConfig }) {
         if (!clientSecret) throw new Error('SbbolOauth2Api: unknown clientSecret')
         this.createClient(clientSecret)
+        this.useExtendedConfig = useExtendedConfig
     }
 
     createClient (clientSecret) {
         this.enableDebugMode()
         this.createIssuer()
         const client = new this.issuer.Client({
-            client_id: String(SBBOL_AUTH_CONFIG.client_id),
+            client_id: String(this.useExtendedConfig ? SBBOL_AUTH_CONFIG_EXTENDED.client_id : SBBOL_AUTH_CONFIG.client_id),
             client_secret: clientSecret,
             redirect_uris: [this.redirectUrl],
             response_types: ['code'],
@@ -65,7 +66,7 @@ class SbbolOauth2Api {
 
     createIssuer () {
         const sbbolIssuer = new Issuer({
-            issuer: SBBOL_AUTH_CONFIG.issuer,
+            issuer: this.useExtendedConfig ? SBBOL_AUTH_CONFIG_EXTENDED.issuer : SBBOL_AUTH_CONFIG.issuer,
             authorization_endpoint: this.authUrl,
             token_endpoint: this.tokenUrl,
             userinfo_endpoint: this.userInfoUrl,
@@ -78,10 +79,10 @@ class SbbolOauth2Api {
         this.issuer = sbbolIssuer
     }
 
-    authorizationUrlWithParams (checks, useExtendedConfig) {
+    authorizationUrlWithParams (checks) {
         return this.client.authorizationUrl({
             response_type: 'code',
-            scope: useExtendedConfig ? SBBOL_AUTH_CONFIG_EXTENDED.scope : SBBOL_AUTH_CONFIG.scope,
+            scope: this.useExtendedConfig ? SBBOL_AUTH_CONFIG_EXTENDED.scope : SBBOL_AUTH_CONFIG.scope,
             ...checks,
         })
     }
@@ -120,11 +121,11 @@ class SbbolOauth2Api {
     }
 
     get url () {
-        return `${SBBOL_AUTH_CONFIG.host}:${SBBOL_AUTH_CONFIG.port}`
+        return this.useExtendedConfig ? `${SBBOL_AUTH_CONFIG_EXTENDED.host}:${SBBOL_AUTH_CONFIG_EXTENDED.port}` : `${SBBOL_AUTH_CONFIG.host}:${SBBOL_AUTH_CONFIG.port}`
     }
 
     get protectedUrl () {
-        return `${SBBOL_AUTH_CONFIG.protected_host}:${SBBOL_AUTH_CONFIG.protected_port || SBBOL_AUTH_CONFIG.port}`
+        return this.useExtendedConfig ? `${SBBOL_AUTH_CONFIG_EXTENDED.protected_host}:${SBBOL_AUTH_CONFIG_EXTENDED.protected_port || SBBOL_AUTH_CONFIG_EXTENDED.port}` : `${SBBOL_AUTH_CONFIG.protected_host}:${SBBOL_AUTH_CONFIG.protected_port || SBBOL_AUTH_CONFIG.port}`
     }
 
     /**

@@ -97,7 +97,7 @@ const syncBankAccounts = async (userId, organization) => {
     if (!userId) throw new Error('userId is required')
     if (!organization) throw new Error('organization is required')
 
-    const fintechApi = await initSbbolFintechApi(userId)
+    const fintechApi = await initSbbolFintechApi(userId, true)
 
     if (!fintechApi) return
 
