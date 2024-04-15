@@ -63,7 +63,6 @@ const _syncBankAccounts = async (accounts, organization) => {
                     ...dvSenderFields,
                     integrationContext: { connect: { id: bankIntegrationAccountContext.id } },
                     organization: { connect: { id: organization.id } },
-                    isApproved: true,
                 }
             )
             logger.info({ msg: 'Created BankAccount', bankAccount: { id: account.number, organization: { id: organization.id, name: organization.name } } })

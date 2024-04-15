@@ -165,7 +165,6 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
             meta: bankAccountData.meta,
             organization: { connect: { id: organization.id } },
             integrationContext: { connect: { id: integrationContext.id } },
-            isApproved: true,
         }
 
         if (property) data.property = { connect: { id: property.id } }
