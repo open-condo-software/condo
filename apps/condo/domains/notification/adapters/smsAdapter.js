@@ -1,5 +1,3 @@
-const crypto = require('crypto')
-
 const { isEmpty, get, has } = require('lodash')
 
 const conf = require('@open-condo/config')
@@ -74,8 +72,12 @@ class InstasentSms {
         let config = conf['INSTASENT_API_CONFIG'] ?  JSON.parse(conf['INSTASENT_API_CONFIG']) : {}
         this.isConfigured = validateConfig(config, [
             'apiKey',
+            'api_url',
+            'from',
         ])
         this.apiKey = config.apiKey
+        this.api_url = config.api_url
+        this.from = config.from
     }
 
     isPhoneSupported (phoneNumber) {
@@ -84,7 +86,7 @@ class InstasentSms {
 
     async checkIsAvailable () {
         const result = await fetch(
-            'https://api.instasent.com/organization/account',
+            `${this.api_url}/organization/account`,
             {
                 method: 'GET',
                 headers: {
@@ -98,15 +100,14 @@ class InstasentSms {
 
     async send ({ phone, message }, extendedParams = {}) {
         const body = {
-            clientId: crypto.randomBytes(16).toString('hex'),
-            from: 'CondoDevApi',
+            from: this.from,
             to: phone,
             text: message,
             allowUnicode: true,
             ...extendedParams,
         }
         const result = await fetch(
-            'https://api.instasent.com/sms',
+            `${this.api_url}/sms`,
             {
                 method: 'POST',
                 headers: {
@@ -132,10 +133,12 @@ class TwilioSms {
             'accountSid',
             'authToken',
             'fromNumber',
+            'api_url',
         ])
         this.accountSid = config.accountSid
         this.authToken = config.authToken
         this.fromNumber = config.fromNumber
+        this.api_url = config.api_url
     }
 
     isPhoneSupported (phoneNumber) {
@@ -144,7 +147,7 @@ class TwilioSms {
 
     async checkIsAvailable () {
         const result = await fetch(
-            `https://api.twilio.com/2010-04-01/Accounts/${this.accountSid}/Balance.json`,
+            `${this.api_url}/${this.accountSid}/Balance.json`,
             {
                 method: 'GET',
                 headers: {
@@ -164,16 +167,14 @@ class TwilioSms {
             ...extendedParams,
         }
         const result = await fetch(
-            `https://api.twilio.com/2010-04-01/Accounts/${this.accountSid}/Messages.json`,
+            `${this.api_url}/${this.accountSid}/Messages.json`,
             {
                 method: 'POST',
                 headers: {
                     'Authorization': 'Basic ' + Buffer.from(this.accountSid + ':' + this.authToken).toString('base64'),
                     'Content-Type': 'application/x-www-form-urlencoded', 
                 },
-                body: Object.entries(body)
-                    .map(([name, value]) => `${name}=${encodeURI(value)}`)
-                    .join('&'),
+                body: new URLSearchParams(body).toString(),
             }
         )
         const json = await result.json()
