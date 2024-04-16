@@ -25,7 +25,7 @@ async function checkOrganizationPermissions (userId, organizationId, permissions
         isBlocked: false,
     })
 
-    if (!permissions && employee) {
+    if (isEmpty(permissions) && employee) {
         return true
     }
 
@@ -78,8 +78,8 @@ async function checkPermissionInUserOrganizationOrRelatedOrganization (userId, o
 async function checkPermissionsInUserOrganizationOrRelatedOrganization (userId, organizationId, permissions) {
     if (!userId || !organizationId) return false
 
-    const hasPermissionInUserOrganization = await checkOrganizationPermissions(userId, organizationId, permissions)
-    if (hasPermissionInUserOrganization) return true
+    const hasPermissionsInUserOrganization = await checkOrganizationPermissions(userId, organizationId, permissions)
+    if (hasPermissionsInUserOrganization) return true
     return await checkRelatedOrganizationPermissions(userId, organizationId, permissions)
 }
 
