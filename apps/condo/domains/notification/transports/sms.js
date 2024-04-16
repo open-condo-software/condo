@@ -13,7 +13,7 @@ async function prepareMessageToSend (message) {
 
     const { text } = await renderTemplate(SMS_TRANSPORT, message)
 
-    return { phone, message: text }
+    return { phone, message: text, meta: message.meta }
 }
 
 /**
@@ -25,10 +25,10 @@ async function prepareMessageToSend (message) {
  * @typedef {[boolean, Object]} StatusAndMetadata
  * @return {StatusAndMetadata} Status and delivery Metadata (debug only)
  */
-async function send ({ phone, message } = {}) {
+async function send ({ phone, message, meta } = {}) {
     const Adapter = new SMSAdapter()
-    const result = await Adapter.send({ phone, message })
-    return result
+
+    return await Adapter.send({ phone, message, meta })
 }
 
 module.exports = {

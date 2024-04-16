@@ -51,7 +51,7 @@ class SMSAdapter {
         return this.adapter.isPhoneSupported(phone)
     }
 
-    async send ({ phone, message }, extendedParams = {}) {
+    async send ({ phone, message, meta }, extendedParams = {}) {
         if (!this.isPhoneSupported(phone)) {
             throw new Error(`Unsupported phone number ${phone}`)
         }
@@ -59,8 +59,8 @@ class SMSAdapter {
         if (has(this.whitelist, phone)) {
             return [true, {}]
         }
-        const result = await this.adapter.send({ phone, message }, extendedParams)
-        return result
+
+        return await this.adapter.send({ phone, message, meta }, extendedParams)
     }
 }
 
@@ -250,22 +250,29 @@ class SmsRu {
 }
 
 class SmsCRu {
+    static fieldsToCheck = ['api_url', 'login', 'password', 'sender']
 
     isConfigured = false
 
     constructor () {
-        const config = conf['SMSCRU_API_CONFIG'] ? JSON.parse(conf['SMSCRU_API_CONFIG']) : {}
-        this.isConfigured = validateConfig(config, [
-            'api_url',
-            'login',
-            'password',
-            'sender',
-        ])
-        this.api_url = config.api_url
-        this.login = config.login
-        this.password = config.password
-        this.flash = config.flash || 0 // sms that appears on screen and is not saved to history
-        this.sender = config.sender
+        const defaultConfig = conf['SMSCRU_API_CONFIG'] ? JSON.parse(conf['SMSCRU_API_CONFIG']) : {}
+        const appsConfigs = conf['SMSCRU_API_APPS_CONFIGS'] ? JSON.parse(conf['SMSCRU_API_APPS_CONFIGS']) : {}
+
+        this.isConfigured = validateConfig(defaultConfig, SmsCRu.fieldsToCheck)
+            && Object.values(appsConfigs).every(config => validateConfig(config, SmsCRu.fieldsToCheck))
+
+        this.defaultConfig = SmsCRu.parseConfig(defaultConfig)
+        this.appsConfigs = Object.assign({},
+            ...Object.entries(appsConfigs)
+                .map(([app, config]) => ({ [app]: SmsCRu.parseConfig(config) }))
+        )
+    }
+
+    static parseConfig (config) {
+        return {
+            ...config,
+            flash: config.flash || 0, // sms that appears on screen and is not saved to history
+        }
     }
 
     isPhoneSupported (phoneNumber) {
@@ -274,18 +281,16 @@ class SmsCRu {
 
     async checkIsAvailable () {
         const body = {
-            login: this.login,
-            psw: this.password,
+            login: this.defaultConfig.login,
+            psw: this.defaultConfig.password,
             fmt: 3, // JSON answer
         }
         const result = await fetch(
-            `${this.api_url}/sys/balance.php`,
+            `${this.defaultConfig.api_url}/sys/balance.php`,
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: Object.entries(body)
-                    .map(([name, value]) => `${name}=${encodeURI(value)}`)
-                    .join('&'),
+                body: new URLSearchParams(body).toString(),
             }
         )
         const json = await result.json()
@@ -294,25 +299,26 @@ class SmsCRu {
         return isOk
     }
 
-    async send ({ phone, message }, extendedParams = {}) {
+    async send ({ phone, message, meta }, extendedParams = {}) {
+        const appId = get(meta, 'appId')
+        const config = appId && this.appsConfigs.hasOwnProperty(appId) ? this.appsConfigs[appId] : this.defaultConfig
+
         const body = {
-            login: this.login,
-            psw: this.password,
-            sender: this.sender,
+            login: config.login,
+            psw: config.password,
+            sender: config.sender,
             phones: phone,
             mes: message,
-            flash: this.flash,
+            flash: config.flash,
             fmt: 3, // JSON answer
             ...extendedParams,
         }
         const result = await fetch(
-            `${this.api_url}/sys/send.php`,
+            `${config.api_url}/sys/send.php`,
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: Object.entries(body)
-                    .map(([name, value]) => `${name}=${encodeURI(value)}`)
-                    .join('&'),
+                body: new URLSearchParams(body).toString(),
             }
         )
         const json = await result.json()
