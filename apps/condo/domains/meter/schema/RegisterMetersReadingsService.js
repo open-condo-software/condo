@@ -188,25 +188,28 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                         number: reading.meterNumber,
                     })
 
-                    const values = ['value1', 'value2', 'value3', 'value4'].reduce((result, currentValue) => {
-                        const value = reading[currentValue]
-                        const normalizedValue = normalizeMeterValue(value)
-
-                        if (!validateMeterValue(normalizedValue)) {
-                            throw new GQLError(ERRORS.INVALID_METER_VALUE(currentValue, value), context)
-                        }
-
-                        return {
-                            ...result,
-                            [currentValue]: normalizedValue,
-                        }
-                    }, {})
+                    let values
 
                     if (foundMeter) {
                         meterId = foundMeter.id
                     } else {
                         try {
+                            values = ['value1', 'value2', 'value3', 'value4'].reduce((result, currentValue) => {
+                                const value = reading[currentValue]
+                                const normalizedValue = normalizeMeterValue(value)
+
+                                if (!validateMeterValue(normalizedValue)) {
+                                    throw new GQLError(ERRORS.INVALID_METER_VALUE(currentValue, value), context)
+                                }
+
+                                return {
+                                    ...result,
+                                    [currentValue]: normalizedValue,
+                                }
+                            }, {})
+
                             const rawControlReadingsDate = get(reading, ['meterMeta', 'controlReadingsDate'])
+
                             const createdMeter = await Meter.create(context, {
                                 dv,
                                 sender,

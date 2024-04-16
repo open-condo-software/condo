@@ -57,7 +57,7 @@ const createTestReadingData = (property, extraAttrs = {}) => ({
     value1: faker.random.numeric(3),
     value2: faker.random.numeric(4),
     meterMeta: {
-        numberOfTariffs: 1,
+        numberOfTariffs: 2,
     },
     ...extraAttrs,
 })
@@ -427,25 +427,19 @@ describe('RegisterMetersReadingsService', () => {
         const badReading1 = createTestReadingData(property, {
             meterResource: { id: GAS_SUPPLY_METER_RESOURCE_ID },
             value1: '-100500',
-            value2: null,
+            value2: undefined,
         })
 
         const badReading2 = createTestReadingData(property, {
-            meterResource: { id: HOT_WATER_METER_RESOURCE_ID },
-            value1: '',
-            value2: null,
+            meterResource: { id: ELECTRICITY_METER_RESOURCE_ID },
+            value1: 'oops',
+            value2: undefined,
         })
 
         const badReading3 = createTestReadingData(property, {
-            meterResource: { id: ELECTRICITY_METER_RESOURCE_ID },
-            value1: 'oops',
-            value2: null,
-        })
-
-        const badReading4 = createTestReadingData(property, {
             meterResource: { id: HEAT_SUPPLY_METER_RESOURCE_ID },
             value1: 'Infinity',
-            value2: null,
+            value2: undefined,
         })
 
         const readings = [
@@ -453,7 +447,6 @@ describe('RegisterMetersReadingsService', () => {
             badReading1,
             badReading2,
             badReading3,
-            badReading4,
         ]
 
         await catchErrorFrom(
@@ -473,18 +466,8 @@ describe('RegisterMetersReadingsService', () => {
                     null,
                     null,
                     null,
-                    null,
                 ])
                 expect(errors).toEqual([
-                    expect.objectContaining({
-                        message: 'Invalid meter value',
-                        name: 'GQLError',
-                        extensions: expect.objectContaining({
-                            code: 'BAD_USER_INPUT',
-                            type: 'INVALID_METER_VALUE',
-                            message: 'Invalid meter value',
-                        }),
-                    }),
                     expect.objectContaining({
                         message: 'Invalid meter value',
                         name: 'GQLError',
