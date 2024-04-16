@@ -16,6 +16,9 @@ const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
 const {
     COLD_WATER_METER_RESOURCE_ID,
     HOT_WATER_METER_RESOURCE_ID,
+    ELECTRICITY_METER_RESOURCE_ID,
+    HEAT_SUPPLY_METER_RESOURCE_ID,
+    GAS_SUPPLY_METER_RESOURCE_ID,
 } = require('@condo/domains/meter/constants/constants')
 const { registerMetersReadingsByTestClient, Meter, MeterReading } = require('@condo/domains/meter/utils/testSchema')
 const {
@@ -421,19 +424,44 @@ describe('RegisterMetersReadingsService', () => {
         const [o10n] = await createTestOrganization(adminClient)
         const [property] = await createTestProperty(adminClient, o10n)
 
-        const badReading = createTestReadingData(property, { meterResource: { id: HOT_WATER_METER_RESOURCE_ID } })
-        badReading.value1 = '-100500'
+        const badReading1 = createTestReadingData(property, {
+            meterResource: { id: GAS_SUPPLY_METER_RESOURCE_ID },
+            value1: '-100500',
+            value2: null,
+        })
+
+        const badReading2 = createTestReadingData(property, {
+            meterResource: { id: HOT_WATER_METER_RESOURCE_ID },
+            value1: '',
+            value2: null,
+        })
+
+        const badReading3 = createTestReadingData(property, {
+            meterResource: { id: ELECTRICITY_METER_RESOURCE_ID },
+            value1: 'oops',
+            value2: null,
+        })
+
+        const badReading4 = createTestReadingData(property, {
+            meterResource: { id: HEAT_SUPPLY_METER_RESOURCE_ID },
+            value1: 'Infinity',
+            value2: null,
+        })
 
         const readings = [
             createTestReadingData(property),
-            badReading,
+            badReading1,
+            badReading2,
+            badReading3,
+            badReading4,
         ]
 
         await catchErrorFrom(
             async () => {
                 await registerMetersReadingsByTestClient(adminClient, o10n, readings)
             },
-            ({ data: { result }, errors }) => {
+            (err) => {
+                const { data: { result }, errors } = err
                 expect(result).toEqual([
                     expect.objectContaining({
                         value1: Number(readings[0].value1).toFixed(4),
@@ -443,8 +471,38 @@ describe('RegisterMetersReadingsService', () => {
                         }),
                     }),
                     null,
+                    null,
+                    null,
+                    null,
                 ])
                 expect(errors).toEqual([
+                    expect.objectContaining({
+                        message: 'Invalid meter value',
+                        name: 'GQLError',
+                        extensions: expect.objectContaining({
+                            code: 'BAD_USER_INPUT',
+                            type: 'INVALID_METER_VALUE',
+                            message: 'Invalid meter value',
+                        }),
+                    }),
+                    expect.objectContaining({
+                        message: 'Invalid meter value',
+                        name: 'GQLError',
+                        extensions: expect.objectContaining({
+                            code: 'BAD_USER_INPUT',
+                            type: 'INVALID_METER_VALUE',
+                            message: 'Invalid meter value',
+                        }),
+                    }),
+                    expect.objectContaining({
+                        message: 'Invalid meter value',
+                        name: 'GQLError',
+                        extensions: expect.objectContaining({
+                            code: 'BAD_USER_INPUT',
+                            type: 'INVALID_METER_VALUE',
+                            message: 'Invalid meter value',
+                        }),
+                    }),
                     expect.objectContaining({
                         message: 'Invalid meter value',
                         name: 'GQLError',
