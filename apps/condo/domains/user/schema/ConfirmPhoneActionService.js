@@ -1,3 +1,4 @@
+const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 const pick = require('lodash/pick')
 const { v4: uuid } = require('uuid')
@@ -105,6 +106,7 @@ const phoneWhiteList = Object.keys(conf.SMS_WHITE_LIST ? JSON.parse(conf.SMS_WHI
 const ipWhiteList = conf.IP_WHITE_LIST ? JSON.parse(conf.IP_WHITE_LIST) : []
 const maxSmsForIpByDay = Number(conf['MAX_SMS_FOR_IP_BY_DAY']) || MAX_SMS_FOR_IP_BY_DAY
 const maxSmsForPhoneByDay = Number(conf['MAX_SMS_FOR_PHONE_BY_DAY']) || MAX_SMS_FOR_PHONE_BY_DAY
+const APP_ID_HEADER = 'x-request-app'
 
 const checkSMSDayLimitCounters = async (phone, rawIp) => {
     const ip = rawIp.split(':').pop()
@@ -239,12 +241,16 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 if (isInvalidData) return { token }
 
                 await ConfirmPhoneAction.create(context, variables)
+
+                const appId = get(context.req, ['headers', APP_ID_HEADER])
+
                 await sendMessage(context, {
                     to: { phone },
                     type: SMS_VERIFY_CODE_MESSAGE_TYPE,
                     meta: {
                         dv: 1,
                         smsCode,
+                        appId,
                     },
                     sender: sender,
                 })
@@ -296,12 +302,14 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     smsCodeExpiresAt: new Date(now + SMS_CODE_TTL * 1000).toISOString(),
                     smsCodeRequestedAt: new Date(now).toISOString(),
                 })
+                const appId = get(context.req, ['headers', APP_ID_HEADER])
                 await sendMessage(context, {
                     to: { phone },
                     type: SMS_VERIFY_CODE_MESSAGE_TYPE,
                     meta: {
                         dv: 1,
                         smsCode: newSmsCode,
+                        appId,
                     },
                     sender,
                 })
