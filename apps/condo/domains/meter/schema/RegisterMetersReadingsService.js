@@ -136,7 +136,7 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                 /** @type Organization */
                 const organizationData = await getById('Organization', organization.id)
 
-                if (!organizationData) {
+                if (!organizationData || !!organizationData.deletedAt) {
                     throw new GQLError(ERRORS.ORGANIZATION_NOT_FOUND, context)
                 }
 
@@ -166,9 +166,7 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
 
                 const resultRows = []
 
-                for (const index in readings) {
-                    const reading = readings[index]
-
+                for (const reading of readings) {
                     const addressKey = get(resolvedAddresses, [reading.address, 'addressResolve', 'propertyAddress', 'addressKey'])
 
                     const property = properties.find((p) => {
@@ -208,6 +206,7 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                         meterId = foundMeter.id
                     } else {
                         try {
+                            const rawControlReadingsDate = get(reading, ['meterMeta', 'controlReadingsDate'])
                             const createdMeter = await Meter.create(context, {
                                 dv,
                                 sender,
@@ -225,7 +224,7 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                                 installationDate: toISO(get(reading, ['meterMeta', 'installationDate'])),
                                 commissioningDate: toISO(get(reading, ['meterMeta', 'commissioningDate'])),
                                 sealingDate: toISO(get(reading, ['meterMeta', 'sealingDate'])),
-                                controlReadingsDate: reading.meterMeta.controlReadingsDate ? toISO(reading.meterMeta.controlReadingsDate) : dayjs().toISOString(),
+                                controlReadingsDate: rawControlReadingsDate ? toISO(rawControlReadingsDate) : dayjs().toISOString(),
                             })
                             meterId = createdMeter.id
                         } catch (e) {
