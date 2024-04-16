@@ -57,9 +57,9 @@ const getAllAccessTokensByOrganization = async (context, organizationId) => {
     })
 
     let accessTokens = []
-    const sbbolSecretStorage = getSbbolSecretStorage()
+    const sbbolSecretStorage = getSbbolSecretStorage(true)
     const clientSecret = await sbbolSecretStorage.getClientSecret()
-    const oauth2 = new SbbolOauth2Api({ clientSecret })
+    const oauth2 = new SbbolOauth2Api({ clientSecret, useExtendedConfig: true })
 
     for (let employee of employees) {
         const userId = employee.user.id
