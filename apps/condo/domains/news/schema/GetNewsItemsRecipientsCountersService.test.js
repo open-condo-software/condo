@@ -123,9 +123,12 @@ describe('GetNewsItemsRecipientsCountersService', () => {
     })
 
     test('The data for counters calculated correctly for several resident chunks', async () => {
-        const [property1] = await createTestProperty(adminClient, dummyO10n, { map: getPropertyMap(15, 4) })
-        const [user] = await createTestUser(adminClient)
         const residentsCount = LOAD_RESIDENTS_CHUNK_SIZE + 10
+        const floorsCount = 15
+        const unitsOnFloorCount = 4
+        const unitsCount = floorsCount * unitsOnFloorCount
+        const [property1] = await createTestProperty(adminClient, dummyO10n, { map: getPropertyMap(floorsCount, unitsOnFloorCount) })
+        const [user] = await createTestUser(adminClient)
 
         await Promise.all(
             Array.from(
@@ -143,7 +146,7 @@ describe('GetNewsItemsRecipientsCountersService', () => {
         }
         const [data] = await getNewsItemsRecipientsCountersByTestClient(staffClientYes, payload)
 
-        expect(data).toEqual({ propertiesCount: 1, unitsCount: residentsCount, receiversCount: residentsCount })
+        expect(data).toEqual({ propertiesCount: 1, unitsCount: unitsCount, receiversCount: residentsCount })
     })
 
     test('anonymous can\'t execute', async () => {

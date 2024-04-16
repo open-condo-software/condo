@@ -1273,6 +1273,8 @@
   "pages.news.newsItemCard.field.body": "Текст",
   "pages.news.newsItemCard.resendButton": "Повторить отправку",
   "pages.news.newsItemCard.author": "автор {createdBy}{isOwner, plural, other {} one { (вы)}}",
+  "pages.news.newsItemCard.status.notSent": "Ещё не отправлено",
+  "pages.news.newsItemCard.status.sending": "Отправляется",
   "pages.news.create.preview.app.notificationFromOrganization": "Уведомление от УК",
   "pages.news.create.preview.app.receivedAt": "Сегодня, 9:00",
   "pages.news.create.preview.app.validUntil": "актуально до {validBefore}",

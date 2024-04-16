@@ -4,7 +4,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
 
-type DisplayValue = string | any[]
+type DisplayValue = string | any[] | React.ReactNode
 
 interface INotDefinedFieldProps {
     showMessage?: boolean

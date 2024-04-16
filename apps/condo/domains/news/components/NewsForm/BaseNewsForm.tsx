@@ -1049,15 +1049,17 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                 </Col>
                                             </Row>
                                         </Col>
-                                        <Col span={formInfoColSpan}>
-                                            {(!!selectedBody || !!selectedTitle) && (
-                                                <MemoizedNewsPreview
-                                                    body={selectedBody}
-                                                    title={selectedTitle}
-                                                    validBefore={selectedType === NEWS_TYPE_EMERGENCY ? selectedValidBeforeText : null}
-                                                />
-                                            )}
-                                        </Col>
+                                        {
+                                            !!formInfoColSpan && (!!selectedBody || !!selectedTitle) && (
+                                                <Col span={formInfoColSpan}>
+                                                    <MemoizedNewsPreview
+                                                        body={selectedBody}
+                                                        title={selectedTitle}
+                                                        validBefore={selectedType === NEWS_TYPE_EMERGENCY ? selectedValidBeforeText : null}
+                                                    />
+                                                </Col>
+                                            )
+                                        }
                                     </Row>
                                 </Col>
                                 <Col span={24} style={BIG_MARGIN_BOTTOM_STYLE}>
@@ -1143,11 +1145,13 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                 }
                                             </Row>
                                         </Col>
-                                        <Col span={formInfoColSpan}>
-                                            {(newsItemScopesNoInstance.length > 0) && (
-                                                <RecipientCounter newsItemScopes={newsItemScopesNoInstance}/>
-                                            )}
-                                        </Col>
+                                        {
+                                            !!formInfoColSpan && newsItemScopesNoInstance.length > 0 && (
+                                                <Col span={formInfoColSpan}>
+                                                    <RecipientCounter newsItemScopes={newsItemScopesNoInstance}/>
+                                                </Col>
+                                            )
+                                        }
                                     </Row>
                                 </Col>
                                 <Col span={24}>
