@@ -42,17 +42,17 @@ export const useTourPageData = ({ isAllSecondStepsCompleted, isInnerStepsComplet
     }, [isAllSecondStepsCompleted, isDefaultStep, isInnerStepsCompleted])
 
     const withLinkToEmployeeBot = activeStepType === 'ticket' && innerStepsStatus === 'todo'
-    const andLinkToBot = useMemo(() => telegramEmployeeBotName ? (
+    const andLinkToEmployeeBot = useMemo(() => telegramEmployeeBotName ? (
         <> {AndMessage} <Typography.Link
             href={`https://t.me/${telegramEmployeeBotName}`}
             target='_blank'
-            id='employee-telegram-bot'
+            id='employee-telegram-bot-from-onboarding-by-ticket-step'
         >
             {ChantBotMessage}
         </Typography.Link></>
     ) : null, [AndMessage, ChantBotMessage])
 
-    const valuesToMessage = withLinkToEmployeeBot ? { andLinkToBot } : null
+    const valuesToMessage = withLinkToEmployeeBot ? { andLinkToEmployeeBot } : null
 
     const title = intl.formatMessage({ id: `tour.pageData.${activeStepType}.${innerStepsStatus}.title` })
     const subtitle = intl.formatMessage({ id: `tour.pageData.${activeStepType}.${innerStepsStatus}.subtitle` }, valuesToMessage)

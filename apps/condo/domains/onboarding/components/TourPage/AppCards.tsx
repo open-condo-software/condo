@@ -13,7 +13,7 @@ const {
     publicRuntimeConfig,
 } = getConfig()
 
-const { residentAppLandingUrl } = publicRuntimeConfig
+const { residentAppLandingUrl, telegramEmployeeBotName } = publicRuntimeConfig
 
 type ActiveModalType = 'info' | 'download' | null
 type RadioOptionType = 'admin' | 'technic' | 'security'
@@ -42,11 +42,25 @@ export const TechnicAppCard = () => {
     const TechnicAppCardAdminLabel = intl.formatMessage({ id: 'tour.technicAppCard.radio.label.admin' })
     const TechnicAppCardTechnicLabel = intl.formatMessage({ id: 'tour.technicAppCard.radio.label.technic' })
     const TechnicAppCardSecurityLabel = intl.formatMessage({ id: 'tour.technicAppCard.radio.label.security' })
+    const ChantBotMessage = intl.formatMessage({ id: 'ChatBot' }).toLowerCase()
+    const OpenChatBotMessage = intl.formatMessage({ id: 'tour.technicAppCard.download.linkToEmployeeBot' })
 
     const [activeModal, setActiveModal] = useState<ActiveModalType>()
     const [radioValue, setRadioValue] = useState<RadioOptionType>('admin')
 
     const TechnicAppCardText = intl.formatMessage({ id: `tour.technicAppCard.radio.text.${radioValue}` })
+
+    const showLinkToEmployeeBot = !!telegramEmployeeBotName && (radioValue === 'admin' || radioValue === 'technic')
+    const linkToEmployeeBot = useMemo(() => telegramEmployeeBotName ? (
+        <Typography.Link
+            href={`https://t.me/${telegramEmployeeBotName}`}
+            target='_blank'
+            id={`employee-telegram-bot-from-onboarding-by-technic-app-card-as-${radioValue}`}
+        >
+            {ChantBotMessage}
+        </Typography.Link>
+    ) : null, [ChantBotMessage, radioValue])
+    const LinkToEmployeeBotMessage = intl.formatMessage({ id: `tour.technicAppCard.radio.text.${radioValue}.linkToEmployeeBot` }, { linkToEmployeeBot })
 
     const imageContainerStyles: CSSProperties = useMemo(() =>
         ({ ...BASE_IMAGE_CONTAINER_STYLES, backgroundColor: IMAGE_WRAPPER_BG_COLOR_BY_TYPE[radioValue] })
@@ -104,6 +118,7 @@ export const TechnicAppCard = () => {
                                 </div>
                                 <Typography.Text>
                                     {TechnicAppCardText}
+                                    {showLinkToEmployeeBot && (<>. {LinkToEmployeeBotMessage}</>)}
                                 </Typography.Text>
                             </>
                         )
@@ -122,6 +137,7 @@ export const TechnicAppCard = () => {
                                 </div>
                                 <Typography.Text>
                                     {TechnicAppCardText}
+                                    {showLinkToEmployeeBot && (<>. {LinkToEmployeeBotMessage}</>)}
                                 </Typography.Text>
                             </>
                         )
@@ -172,25 +188,38 @@ export const TechnicAppCard = () => {
                     </Button>,
                 ]}
             >
-                <Space size={16} direction='horizontal'>
-                    <Space size={8} direction='vertical' align='center'>
-                        <img style={QR_CODE_IMAGE_STYLES} src='/onboarding/technic-app-card/qr-technic-app/GooglePlay.svg' alt='Google Play QR code'/>
-                        <Typography.Title level={4}>
-                            {GooglePlayMessage}
-                        </Typography.Title>
+                <Space size={24} direction='vertical'>
+                    <Space size={16} direction='horizontal'>
+                        <Space size={8} direction='vertical' align='center'>
+                            <img style={QR_CODE_IMAGE_STYLES} src='/onboarding/technic-app-card/qr-technic-app/GooglePlay.svg' alt='Google Play QR code'/>
+                            <Typography.Title level={4}>
+                                {GooglePlayMessage}
+                            </Typography.Title>
+                        </Space>
+                        <Space size={8} direction='vertical' align='center'>
+                            <img style={QR_CODE_IMAGE_STYLES} src='/onboarding/technic-app-card/qr-technic-app/AppStore.svg' alt='App Store QR code'/>
+                            <Typography.Title level={4}>
+                                {AppStoreMessage}
+                            </Typography.Title>
+                        </Space>
+                        <Space size={8} direction='vertical' align='center'>
+                            <img style={QR_CODE_IMAGE_STYLES} src='/onboarding/technic-app-card/qr-technic-app/AppGalery.svg' alt='App Galery QR code'/>
+                            <Typography.Title level={4}>
+                                {AppGalleryMessage}
+                            </Typography.Title>
+                        </Space>
                     </Space>
-                    <Space size={8} direction='vertical' align='center'>
-                        <img style={QR_CODE_IMAGE_STYLES} src='/onboarding/technic-app-card/qr-technic-app/AppStore.svg' alt='App Store QR code'/>
-                        <Typography.Title level={4}>
-                            {AppStoreMessage}
-                        </Typography.Title>
-                    </Space>
-                    <Space size={8} direction='vertical' align='center'>
-                        <img style={QR_CODE_IMAGE_STYLES} src='/onboarding/technic-app-card/qr-technic-app/AppGalery.svg' alt='App Galery QR code'/>
-                        <Typography.Title level={4}>
-                            {AppGalleryMessage}
-                        </Typography.Title>
-                    </Space>
+                    {
+                        telegramEmployeeBotName && (
+                            <Typography.Link
+                                href={`https://t.me/${telegramEmployeeBotName}`}
+                                target='_blank'
+                                id='employee-telegram-bot-from-onboarding-by-download-modal'
+                            >
+                                {OpenChatBotMessage}
+                            </Typography.Link>
+                        )
+                    }
                 </Space>
             </Modal>
         </>
