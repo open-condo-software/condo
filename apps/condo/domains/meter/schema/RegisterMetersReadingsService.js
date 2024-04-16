@@ -50,6 +50,10 @@ const ERRORS = {
 }
 
 function toISO (str) {
+    if (isEmpty(str)) {
+        return undefined
+    }
+
     return dayjs(str).toISOString()
 }
 
@@ -186,6 +190,20 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                         number: reading.meterNumber,
                     })
 
+                    const values = ['value1', 'value2', 'value3', 'value4'].reduce((result, currentValue) => {
+                        const value = reading[currentValue]
+                        const normalizedValue = normalizeMeterValue(value)
+
+                        if (!validateMeterValue(normalizedValue)) {
+                            throw new GQLError(ERRORS.INVALID_METER_VALUE(currentValue, value), context)
+                        }
+
+                        return {
+                            ...result,
+                            [currentValue]: normalizedValue,
+                        }
+                    }, {})
+
                     if (foundMeter) {
                         meterId = foundMeter.id
                     } else {
@@ -200,13 +218,13 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                                 accountNumber: reading.accountNumber,
                                 number: reading.meterNumber,
                                 resource: { connect: reading.meterResource },
-                                numberOfTariffs: reading.meterMeta.numberOfTariffs,
-                                place: reading.meterMeta.place,
-                                verificationDate: toISO(reading.meterMeta.verificationDate),
-                                nextVerificationDate: toISO(reading.meterMeta.nextVerificationDate),
-                                installationDate: toISO(reading.meterMeta.installationDate),
-                                commissioningDate: toISO(reading.meterMeta.commissioningDate),
-                                sealingDate: toISO(reading.meterMeta.sealingDate),
+                                numberOfTariffs: get(reading, ['meterMeta', 'numberOfTariffs'], Object.values(values).filter(Boolean).length),
+                                place: get(reading, ['meterMeta', 'place']),
+                                verificationDate: toISO(get(reading, ['meterMeta', 'verificationDate'])),
+                                nextVerificationDate: toISO(get(reading, ['meterMeta', 'nextVerificationDate'])),
+                                installationDate: toISO(get(reading, ['meterMeta', 'installationDate'])),
+                                commissioningDate: toISO(get(reading, ['meterMeta', 'commissioningDate'])),
+                                sealingDate: toISO(get(reading, ['meterMeta', 'sealingDate'])),
                                 controlReadingsDate: reading.meterMeta.controlReadingsDate ? toISO(reading.meterMeta.controlReadingsDate) : dayjs().toISOString(),
                             })
                             meterId = createdMeter.id
@@ -217,19 +235,6 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                     }
 
                     try {
-                        const values = ['value1', 'value2', 'value3', 'value4'].reduce((result, currentValue) => {
-                            const value = reading[currentValue]
-                            const normalizedValue = normalizeMeterValue(value)
-
-                            if (!validateMeterValue(normalizedValue)) {
-                                throw new GQLError(ERRORS.INVALID_METER_VALUE(currentValue, value), context)
-                            }
-
-                            return {
-                                ...result,
-                                [currentValue]: normalizedValue,
-                            }
-                        }, {})
                         const createdMeterReading = await MeterReading.create(context, {
                             dv,
                             sender,

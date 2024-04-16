@@ -558,4 +558,46 @@ describe('RegisterMetersReadingsService', () => {
             },
         )
     })
+
+    test('number of tariffs calculated correctly', async () => {
+        const [o10n] = await createTestOrganization(adminClient)
+        const [property] = await createTestProperty(adminClient, o10n)
+        const reading = createTestReadingData(property)
+        reading.value3 = faker.random.numeric(3)
+        reading.meterMeta.numberOfTariffs = undefined
+
+        const [data] = await registerMetersReadingsByTestClient(adminClient, o10n, [reading])
+
+        expect(data).toEqual([expect.objectContaining({
+            id: expect.stringMatching(UUID_REGEXP),
+            value1: Number(reading.value1).toFixed(4),
+            value2: Number(reading.value2).toFixed(4),
+            value3: Number(reading.value3).toFixed(4),
+            value4: null,
+            date: reading.date,
+            organization: expect.objectContaining({
+                id: o10n.id,
+            }),
+            meter: expect.objectContaining({
+                number: reading.meterNumber,
+                organization: expect.objectContaining({
+                    id: o10n.id,
+                }),
+                property: expect.objectContaining({
+                    id: property.id,
+                }),
+                resource: expect.objectContaining({
+                    id: reading.meterResource.id,
+                }),
+            }),
+        })])
+
+        const meters = await Meter.getAll(adminClient, {
+            organization: { id: o10n.id },
+            property: { id: property.id },
+        })
+        expect(meters).toEqual([
+            expect.objectContaining({ numberOfTariffs: 3 }),
+        ])
+    })
 })
