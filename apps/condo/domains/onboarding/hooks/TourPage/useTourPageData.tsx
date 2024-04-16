@@ -10,19 +10,19 @@ import { useTourContext } from '@condo/domains/onboarding/contexts/TourContext'
 import { GUIDE_LINK } from '@condo/domains/onboarding/utils/clientSchema/constants'
 
 
-// const {
-//     publicRuntimeConfig: {
-//         telegramEmployeeBotName,
-//     },
-// } = getConfig()
-
-const telegramEmployeeBotName = 'Doma_ai_bot'
+const {
+    publicRuntimeConfig: {
+        telegramEmployeeBotName,
+    },
+} = getConfig()
 
 export const useTourPageData = ({ isAllSecondStepsCompleted, isInnerStepsCompleted }) => {
     const intl = useIntl()
     const CompletedTourDescription = intl.formatMessage({ id: 'tour.pageData.default.completed.description' })
     const OpenGuideMessage = intl.formatMessage({ id: 'tour.openGuide' })
     const ChooseOtherTaskMessage = intl.formatMessage({ id: 'tour.chooseOtherTask' })
+    const AndMessage = intl.formatMessage({ id: 'And' }).toLowerCase()
+    const ChantBotMessage = intl.formatMessage({ id: 'ChatBot' }).toLowerCase()
 
     const router = useRouter()
 
@@ -41,15 +41,16 @@ export const useTourPageData = ({ isAllSecondStepsCompleted, isInnerStepsComplet
         return isInnerStepsCompleted ? TourStepStatusType.Completed : TourStepStatusType.Todo
     }, [isAllSecondStepsCompleted, isDefaultStep, isInnerStepsCompleted])
 
-
     const withLinkToEmployeeBot = activeStepType === 'ticket' && innerStepsStatus === 'todo'
     const andLinkToBot = useMemo(() => telegramEmployeeBotName ? (
-        <> и <Typography.Link
+        <> {AndMessage} <Typography.Link
             href={`https://t.me/${telegramEmployeeBotName}`}
             target='_blank'
             id='employee-telegram-bot'
-        >чат-бот</Typography.Link></>
-    ) : null, [])
+        >
+            {ChantBotMessage}
+        </Typography.Link></>
+    ) : null, [AndMessage, ChantBotMessage])
 
     const valuesToMessage = withLinkToEmployeeBot ? { andLinkToBot } : null
 
