@@ -1,12 +1,22 @@
 import { TourStepStatusType } from '@app/condo/schema'
+import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Typography } from '@open-condo/ui'
 
 import { useTourContext } from '@condo/domains/onboarding/contexts/TourContext'
 import { GUIDE_LINK } from '@condo/domains/onboarding/utils/clientSchema/constants'
 
+
+// const {
+//     publicRuntimeConfig: {
+//         telegramEmployeeBotName,
+//     },
+// } = getConfig()
+
+const telegramEmployeeBotName = 'Doma_ai_bot'
 
 export const useTourPageData = ({ isAllSecondStepsCompleted, isInnerStepsCompleted }) => {
     const intl = useIntl()
@@ -31,8 +41,20 @@ export const useTourPageData = ({ isAllSecondStepsCompleted, isInnerStepsComplet
         return isInnerStepsCompleted ? TourStepStatusType.Completed : TourStepStatusType.Todo
     }, [isAllSecondStepsCompleted, isDefaultStep, isInnerStepsCompleted])
 
+
+    const withLinkToEmployeeBot = activeStepType === 'ticket' && innerStepsStatus === 'todo'
+    const andLinkToBot = useMemo(() => telegramEmployeeBotName ? (
+        <> и <Typography.Link
+            href={`https://t.me/${telegramEmployeeBotName}`}
+            target='_blank'
+            id='employee-telegram-bot'
+        >чат-бот</Typography.Link></>
+    ) : null, [])
+
+    const valuesToMessage = withLinkToEmployeeBot ? { andLinkToBot } : null
+
     const title = intl.formatMessage({ id: `tour.pageData.${activeStepType}.${innerStepsStatus}.title` })
-    const subtitle = intl.formatMessage({ id: `tour.pageData.${activeStepType}.${innerStepsStatus}.subtitle` })
+    const subtitle = intl.formatMessage({ id: `tour.pageData.${activeStepType}.${innerStepsStatus}.subtitle` }, valuesToMessage)
     const buttonLabel = isDefaultStep ? OpenGuideMessage : ChooseOtherTaskMessage
     const onButtonClick = isDefaultStep ? handleOpenGuide : handleBackClick
     const description = isDefaultStep && CompletedTourDescription
