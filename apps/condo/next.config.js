@@ -134,7 +134,7 @@ if (sentryConfig['client']) {
         nextConfig,
         {
             dryRun: true,
-            silent: false,
+            silent: true,
             org: sentryConfig['client']['organization'],
             project: sentryConfig['client']['project'],
             validate: true,
