@@ -245,7 +245,10 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                     }
                 }
 
-                return resultRows.map((row) => row.id ? getById('MeterReading', row.id) : Promise.reject(row))
+                const metersReadings = await find('MeterReading', { id_in: resultRows.map((row) => get(row, 'id')).filter(Boolean) })
+                const metersReadingsIndex = Object.fromEntries(metersReadings.map(meterReading => ([meterReading.id, meterReading])))
+
+                return resultRows.map((row) => (!!row.id && !!metersReadingsIndex[row.id]) ? Promise.resolve(get(metersReadingsIndex, row.id)) : Promise.reject(row))
             },
         },
     ],
