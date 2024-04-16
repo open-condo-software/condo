@@ -981,17 +981,16 @@ describe('Meter', () => {
                 const metersBeforeResidentReconnects = await Meter.getAll(client, { id: meter.id })
                 expect(metersBeforeResidentReconnects).toHaveLength(0)
 
-                // NOTE: give worker some time
-                await sleep(1000)
-
                 // Test access after residents disconnected in worker
                 // NOTE: This place is unstable. Because of parallel sub-requests inside Meter.getAll
                 // we get different path in error payload, and get either organization or property error
                 // in random order from request to request. So we skip testing path/value here.
                 // Exception message and error type is enough.
-                const metersAfterResidentReconnects = await Meter.getAll(client, { id: meter.id })
+                await waitFor(async () => {
+                    const metersAfterResidentReconnects = await Meter.getAll(client, { id: meter.id })
 
-                expect(metersAfterResidentReconnects).toHaveLength(0)
+                    expect(metersAfterResidentReconnects).toHaveLength(0)
+                })
             })
 
             test('user: cannot read Meters', async () => {
