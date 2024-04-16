@@ -15,6 +15,7 @@ const {
 const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
 const {
     COLD_WATER_METER_RESOURCE_ID,
+    HOT_WATER_METER_RESOURCE_ID,
 } = require('@condo/domains/meter/constants/constants')
 const { registerMetersReadingsByTestClient, Meter, MeterReading } = require('@condo/domains/meter/utils/testSchema')
 const {
@@ -35,28 +36,28 @@ const {
 } = require('@condo/domains/user/utils/testSchema')
 
 /**
- * @param property
- * @return {RegisterMetersReadingsReadingInput[]}
+ * @param {Pick<Property, 'address'>} property
+ * @param {Partial<RegisterMetersReadingsReadingInput>} extraAttrs
+ * @return {RegisterMetersReadingsReadingInput}
  */
-const getReadingsForAccessTest = (property) => ([
-    {
-        address: property.address,
-        addressMeta: {
-            unitType: FLAT_UNIT_TYPE,
-            unitName: faker.random.alphaNumeric(4),
-            globalId: faker.datatype.uuid(),
-        },
-        accountNumber: faker.random.alphaNumeric(12),
-        meterNumber: faker.random.numeric(8),
-        meterResource: { id: COLD_WATER_METER_RESOURCE_ID },
-        date: dayjs().toISOString(),
-        value1: faker.random.numeric(3),
-        value2: faker.random.numeric(4),
-        meterMeta: {
-            numberOfTariffs: 1,
-        },
+const createTestReadingData = (property, extraAttrs = {}) => ({
+    address: property.address,
+    addressMeta: {
+        unitType: FLAT_UNIT_TYPE,
+        unitName: faker.random.alphaNumeric(4),
+        globalId: faker.datatype.uuid(),
     },
-])
+    accountNumber: faker.random.alphaNumeric(12),
+    meterNumber: faker.random.numeric(8),
+    meterResource: { id: COLD_WATER_METER_RESOURCE_ID },
+    date: dayjs().toISOString(),
+    value1: faker.random.numeric(3),
+    value2: faker.random.numeric(4),
+    meterMeta: {
+        numberOfTariffs: 1,
+    },
+    ...extraAttrs,
+})
 
 describe('RegisterMetersReadingsService', () => {
 
@@ -80,7 +81,7 @@ describe('RegisterMetersReadingsService', () => {
         test('admin can', async () => {
             const [o10n] = await createTestOrganization(adminClient)
             const [property] = await createTestProperty(adminClient, o10n)
-            const readings = getReadingsForAccessTest(property)
+            const readings = [createTestReadingData(property)]
             const [data] = await registerMetersReadingsByTestClient(adminClient, o10n, readings)
 
             expect(data).toEqual([expect.objectContaining({
@@ -122,7 +123,7 @@ describe('RegisterMetersReadingsService', () => {
         test('support can', async () => {
             const [o10n] = await createTestOrganization(adminClient)
             const [property] = await createTestProperty(adminClient, o10n)
-            const readings = getReadingsForAccessTest(property)
+            const readings = [createTestReadingData(property)]
             const [data] = await registerMetersReadingsByTestClient(supportClient, o10n, readings)
 
             expect(data).toEqual([expect.objectContaining({
@@ -168,7 +169,7 @@ describe('RegisterMetersReadingsService', () => {
                     canManageMeterReadings: true,
                 })
 
-                const readings = getReadingsForAccessTest(staffClient.property)
+                const readings = [createTestReadingData(staffClient.property)]
                 const [data] = await registerMetersReadingsByTestClient(staffClient, staffClient.organization, readings)
 
                 expect(data).toEqual([expect.objectContaining({
@@ -236,7 +237,7 @@ describe('RegisterMetersReadingsService', () => {
                 })
                 await createTestB2BAppAccessRight(adminClient, serviceClient.user, app, accessRightSet)
 
-                const readings = getReadingsForAccessTest(property)
+                const readings = [createTestReadingData(property)]
                 const [data] = await registerMetersReadingsByTestClient(serviceClient, o10n, readings)
 
                 expect(data).toEqual([expect.objectContaining({
@@ -304,7 +305,7 @@ describe('RegisterMetersReadingsService', () => {
             async () => await registerMetersReadingsByTestClient(
                 adminClient,
                 o10n,
-                flatten(Array(501).fill(getReadingsForAccessTest({ address: faker.address.streetAddress(true) }))),
+                flatten(Array(501).fill(createTestReadingData({ address: faker.address.streetAddress(true) }))),
             ),
             {
                 code: 'BAD_USER_INPUT',
@@ -324,12 +325,12 @@ describe('RegisterMetersReadingsService', () => {
 
         const accountNumber = faker.random.alphaNumeric(12)
 
-        const readings1 = getReadingsForAccessTest(property1)
+        const readings1 = [createTestReadingData(property1)]
         readings1[0].accountNumber = accountNumber
 
         await registerMetersReadingsByTestClient(adminClient, o10n, readings1)
 
-        const readings2 = getReadingsForAccessTest(property2)
+        const readings2 = [createTestReadingData(property2)]
         readings2[0].accountNumber = accountNumber
 
         await catchErrorFrom(
@@ -374,9 +375,9 @@ describe('RegisterMetersReadingsService', () => {
         const [property2] = await createTestProperty(adminClient, o10n)
 
         const readings = [
-            ...getReadingsForAccessTest(property1),
-            ...getReadingsForAccessTest({ address: faker.address.streetAddress(true) }),
-            ...getReadingsForAccessTest(property2),
+            createTestReadingData(property1),
+            createTestReadingData({ address: faker.address.streetAddress(true) }),
+            createTestReadingData(property2),
         ]
 
         await catchErrorFrom(
@@ -418,14 +419,14 @@ describe('RegisterMetersReadingsService', () => {
 
     test('error on invalid meter value', async () => {
         const [o10n] = await createTestOrganization(adminClient)
-        const [property1] = await createTestProperty(adminClient, o10n)
+        const [property] = await createTestProperty(adminClient, o10n)
 
-        const badReadings = getReadingsForAccessTest(property1)
-        badReadings[0].value1 = '-100500'
+        const badReading = createTestReadingData(property, { meterResource: { id: HOT_WATER_METER_RESOURCE_ID } })
+        badReading.value1 = '-100500'
 
         const readings = [
-            ...getReadingsForAccessTest(property1),
-            ...badReadings,
+            createTestReadingData(property),
+            badReading,
         ]
 
         await catchErrorFrom(
@@ -462,12 +463,12 @@ describe('RegisterMetersReadingsService', () => {
         const [o10n] = await createTestOrganization(adminClient)
         const [property1] = await createTestProperty(adminClient, o10n)
 
-        const badReadings = getReadingsForAccessTest(property1)
-        badReadings[0].meterResource = { id: faker.datatype.uuid() }
+        const badReading = createTestReadingData(property1)
+        badReading.meterResource = { id: faker.datatype.uuid() }
 
         const readings = [
-            ...getReadingsForAccessTest(property1),
-            ...badReadings,
+            createTestReadingData(property1),
+            badReading,
         ]
 
         await catchErrorFrom(
