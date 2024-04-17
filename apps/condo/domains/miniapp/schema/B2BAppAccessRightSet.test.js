@@ -9,9 +9,11 @@ const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects,
     expectToThrowUniqueConstraintViolationError, expectToThrowAccessDeniedErrorToCount,
+    expectToThrowAccessDeniedErrorToResult,
 } = require('@open-condo/keystone/test.utils')
 
 const { createTestContact, Contact, updateTestContact } = require('@condo/domains/contact/utils/testSchema')
+const { registerMetersReadingsByTestClient } = require('@condo/domains/meter/utils/testSchema')
 const {
     createTestB2BApp,
     createTestB2BAppContext,
@@ -40,7 +42,6 @@ const {
     registerNewServiceUserByTestClient,
     makeLoggedInClient,
 } = require('@condo/domains/user/utils/testSchema')
-
 
 describe('B2BAppAccessRightSet', () => {
     let admin
@@ -1027,5 +1028,36 @@ describe('B2BApp permissions for service user', () => {
             const countByUser3 = await TicketComment.count(user, { ticket: { organization: { id: organization.id } } })
             expect(countByUser3).toBe(1)
         }
+    })
+
+    test('RegisterMetersReadings', async () => {
+        const [organization] = await registerNewOrganization(user)
+
+        const [newServiceUser] = await registerNewServiceUserByTestClient(support)
+        const serviceUser = await makeLoggedInClient({ email: newServiceUser.email, password: newServiceUser.password })
+
+        const [app] = await createTestB2BApp(support)
+        await createTestB2BAppContext(support, app, organization, { status: 'Finished' })
+        const [right] = await createTestB2BAppAccessRight(support, serviceUser.user, app)
+
+        // B2BApp without permissions
+        await expectToThrowAccessDeniedErrorToResult(
+            async () => await registerMetersReadingsByTestClient(serviceUser, organization, [])
+        )
+
+        // add permissions for B2BApp
+        const [accessRightSet] = await createTestB2BAppAccessRightSet(support, app, {
+            canExecuteRegisterMetersReadings: true,
+            canReadMeters: true,
+            canReadMeterReadings: true,
+            canReadOrganizations: true,
+            canReadProperties: true,
+        })
+        await updateTestB2BAppAccessRight(support, right.id, { accessRightSet: { connect: { id: accessRightSet.id } } })
+
+        // B2BApp with permissions
+        const [result] = await registerMetersReadingsByTestClient(serviceUser, organization, [])
+
+        expect(result).toHaveLength(0)
     })
 })
