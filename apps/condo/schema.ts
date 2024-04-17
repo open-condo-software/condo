@@ -39249,6 +39249,9 @@ export type Mutation = {
    * 		"smsCode": {
    * 			"defaultValue": "",
    * 			"required": true
+   * 		},
+   * 		"appId": {
+   * 			"required": false
    * 		}
    * 	},
    * 	"DEVELOPER_IMPORTANT_NOTE_TYPE": {
