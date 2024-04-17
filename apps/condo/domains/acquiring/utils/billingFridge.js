@@ -2,22 +2,33 @@ const { omit } = require('lodash')
 
 const { getById } = require('@open-condo/keystone/schema')
 
+const {
+    BillingRecipient,
+} = require('@condo/domains/billing/utils/serverSchema')
+
+
 // TODO(savelevMatthew): Replace with single request from serverSchema after gql refactoring
 /**
  * Combine current state of multiple billing entities into single object
  * to make frozen copy of them if they change later
  * This will allow support to resolve some customers conflicts
  *
+ * @param {Object} context keystone context
  * @param {Object} flatReceipt BillingReceipt received by "find" from "@open-condo/keystone/schema"
  */
-async function freezeBillingReceipt (flatReceipt) {
+async function freezeBillingReceipt (context, flatReceipt) {
     const account = await getById('BillingAccount', flatReceipt.account)
     const property = await getById('BillingProperty', flatReceipt.property)
     // NOTE: NOT including context because it's not helpful for support, but contains sensitive data, such as state / settings
-    const context = await getById('BillingIntegrationOrganizationContext', flatReceipt.context)
-    const billingIntegration = await getById('BillingIntegration', context.integration)
-    const organization = await getById('Organization', context.organization)
-    const receiver = await getById('BillingRecipient', flatReceipt.receiver)
+    const billingIntegrationContext = await getById('BillingIntegrationOrganizationContext', flatReceipt.context)
+    const billingIntegration = await getById('BillingIntegration', billingIntegrationContext.integration)
+    const organization = await getById('Organization', billingIntegrationContext.organization)
+
+    // we have to use gql in order to resolve virtual field isApproved
+    const receiver = await BillingRecipient.getOne(context, {
+        id: flatReceipt.receiver,
+    })
+
     return {
         dv: 1,
         data: {

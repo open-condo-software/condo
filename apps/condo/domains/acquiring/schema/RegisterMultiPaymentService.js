@@ -519,7 +519,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     for (const receiptInfo of group['receipts']) {
                         const receipt = receiptsByIds[receiptInfo.id]
                         const billingCategoryId = get(receipt, 'category')
-                        const frozenReceipt = await freezeBillingReceipt(receipt)
+                        const frozenReceipt = await freezeBillingReceipt(context, receipt)
                         const billingAccountNumber = get(frozenReceipt, ['data', 'account', 'number'])
                         const feeCalculator = new FeeDistribution(formula, billingCategoryId)
                         const organizationId = get(frozenReceipt, ['data', 'organization', 'id'])
