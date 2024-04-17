@@ -156,17 +156,13 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                     },
                 }), {}))
 
-                const propertyOrConditions = []
-                for (const reading of readings) {
-                    const addressKey = get(resolvedAddresses, [reading.address, 'addressResolve', 'propertyAddress', 'addressKey'])
-                    propertyOrConditions.push({ ...addressKey ? { OR: [{ address_i: reading.address }, { addressKey }] } : { address_i: reading.address } })
-                }
+                const addressesKeys = readings.map((reading) => get(resolvedAddresses, [reading.address, 'addressResolve', 'propertyAddress', 'addressKey'])).filter(Boolean)
 
                 /** @type Property[] */
                 const properties = await find('Property', {
                     organization,
                     deletedAt: null,
-                    OR: propertyOrConditions,
+                    addressKey_in: addressesKeys,
                 })
 
                 const resultRows = []
@@ -174,9 +170,7 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                 for (const reading of readings) {
                     const addressKey = get(resolvedAddresses, [reading.address, 'addressResolve', 'propertyAddress', 'addressKey'])
 
-                    const property = properties.find((p) => {
-                        return p.address === reading.address || p.addressKey === addressKey
-                    })
+                    const property = properties.find((p) => p.addressKey === addressKey)
 
                     if (!property) {
                         resultRows.push(new GQLError(ERRORS.PROPERTY_NOT_FOUND, context))

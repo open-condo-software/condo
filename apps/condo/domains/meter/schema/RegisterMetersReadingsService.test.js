@@ -3,7 +3,7 @@
  */
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
-const { map, flatten } = require('lodash')
+const { get, map, flatten } = require('lodash')
 
 const {
     makeLoggedInAdminClient,
@@ -48,7 +48,7 @@ const createTestReadingData = (property, extraAttrs = {}) => ({
     addressMeta: {
         unitType: FLAT_UNIT_TYPE,
         unitName: faker.random.alphaNumeric(4),
-        globalId: faker.datatype.uuid(),
+        globalId: get(property, ['addressMeta', 'data', 'house_fias_id'], faker.datatype.uuid()),
     },
     accountNumber: faker.random.alphaNumeric(12),
     meterNumber: faker.random.numeric(8),
