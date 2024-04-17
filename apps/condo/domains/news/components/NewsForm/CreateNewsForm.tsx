@@ -162,7 +162,7 @@ export const CreateNewsForm: React.FC = () => {
         },
     })
 
-    const { count: organizationNewsCount } = NewsItem.useCount({
+    const { count: organizationNewsCount, loading: organizationNewsCountLoading } = NewsItem.useCount({
         where: {
             organization: { id: organizationId },
         },
@@ -192,7 +192,7 @@ export const CreateNewsForm: React.FC = () => {
     }, [intl, softDeleteNewsItem])
 
     const error = useMemo(() => newsItemTemplatesError || allNewsError || totalPropertiesError, [allNewsError, newsItemTemplatesError, totalPropertiesError])
-    const loading = isNewsFetching || isNewsItemTemplatesFetching || totalPropertiesLoading
+    const loading = isNewsFetching || isNewsItemTemplatesFetching || totalPropertiesLoading || organizationNewsCountLoading
 
     const initialValues = useMemo(() => organizationNewsCount === 0 && ({
         title: InitialOrganizationNewsItemTitle,
