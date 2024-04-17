@@ -21,3 +21,5 @@ if (EXTRA_LOGGING) {
     beforeEach(() => console.log('[BEGIN] TEST:', jasmine['currentTest'])) // eslint-disable-line
     afterEach(() => console.log('[END] TEST:', jasmine['currentTest'])) // eslint-disable-line
 }
+
+jest.mock('@open-condo/clients/address-service-client/AddressServiceClient')
