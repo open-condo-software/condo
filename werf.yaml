@@ -2,7 +2,7 @@ project: condo
 configVersion: 1
 ---
 image: base
-from: ubuntu:20.04
+from: ubuntu:22.04
 shell:
   beforeInstall:
   - "export DEBIAN_FRONTEND=noninteractive"
