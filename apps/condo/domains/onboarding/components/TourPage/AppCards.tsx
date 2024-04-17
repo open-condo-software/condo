@@ -189,6 +189,17 @@ export const TechnicAppCard = () => {
                 ]}
             >
                 <Space size={24} direction='vertical'>
+                    {
+                        telegramEmployeeBotName && (
+                            <Typography.Link
+                                href={`https://t.me/${telegramEmployeeBotName}`}
+                                target='_blank'
+                                id='employee-telegram-bot-from-onboarding-by-download-modal'
+                            >
+                                {OpenChatBotMessage}
+                            </Typography.Link>
+                        )
+                    }
                     <Space size={16} direction='horizontal'>
                         <Space size={8} direction='vertical' align='center'>
                             <img style={QR_CODE_IMAGE_STYLES} src='/onboarding/technic-app-card/qr-technic-app/GooglePlay.svg' alt='Google Play QR code'/>
@@ -209,17 +220,6 @@ export const TechnicAppCard = () => {
                             </Typography.Title>
                         </Space>
                     </Space>
-                    {
-                        telegramEmployeeBotName && (
-                            <Typography.Link
-                                href={`https://t.me/${telegramEmployeeBotName}`}
-                                target='_blank'
-                                id='employee-telegram-bot-from-onboarding-by-download-modal'
-                            >
-                                {OpenChatBotMessage}
-                            </Typography.Link>
-                        )
-                    }
                 </Space>
             </Modal>
         </>
