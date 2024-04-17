@@ -3,8 +3,8 @@
  */
 
 const index = require('@app/condo/index')
+const dayjs = require('dayjs')
 
-const { prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeystoneApp')
 const { getById } = require('@open-condo/keystone/schema')
 const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
@@ -20,8 +20,8 @@ const { createTestOrganization } = require('@condo/domains/organization/utils/te
 
 const { freezeBillingReceipt, freezeInvoice } = require('./billingFridge')
 const { createTestAcquiringIntegration, createTestAcquiringIntegrationContext } = require('./testSchema')
-const { createTestBillingReceipt } = require("../../billing/utils/testSchema");
-const dayjs = require("dayjs");
+
+const { createTestBillingReceipt } = require('../../billing/utils/testSchema')
 
 const { keystone } = index
 
