@@ -21585,6 +21585,672 @@ export type DiscoverServiceConsumersOutputStatistics = {
   billingAccountsFound: Scalars['Int'];
 };
 
+/**  Document with file attached to organization or property. It could be some kind of property documentation, inspection reports or other documents  */
+export type Document = {
+  __typename?: 'Document';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the Document List config, or
+   *  2. As an alias to the field set on 'labelField' in the Document List config, or
+   *  3. As an alias to a 'name' field on the Document List (if one exists), or
+   *  4. As an alias to the 'id' field on the Document List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Organization to which the document is attached  */
+  organization?: Maybe<Organization>;
+  /**  Property to which the document is attached  */
+  property?: Maybe<Property>;
+  /**  Document type  */
+  category?: Maybe<DocumentCategory>;
+  /**  File attached to document  */
+  file?: Maybe<File>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type DocumentCategoriesCreateInput = {
+  data?: Maybe<DocumentCategoryCreateInput>;
+};
+
+export type DocumentCategoriesUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<DocumentCategoryUpdateInput>;
+};
+
+/**  Document category, for example, cleaning acts, works performed, design or technical documentation and other categories  */
+export type DocumentCategory = {
+  __typename?: 'DocumentCategory';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the DocumentCategory List config, or
+   *  2. As an alias to the field set on 'labelField' in the DocumentCategory List config, or
+   *  3. As an alias to a 'name' field on the DocumentCategory List (if one exists), or
+   *  4. As an alias to the 'id' field on the DocumentCategory List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Name of the category  */
+  name?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type DocumentCategoryCreateInput = {
+  name?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type DocumentCategoryHistoryRecord = {
+  __typename?: 'DocumentCategoryHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the DocumentCategoryHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the DocumentCategoryHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the DocumentCategoryHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the DocumentCategoryHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<DocumentCategoryHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type DocumentCategoryHistoryRecordCreateInput = {
+  name?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<DocumentCategoryHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum DocumentCategoryHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type DocumentCategoryHistoryRecordUpdateInput = {
+  name?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<DocumentCategoryHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type DocumentCategoryHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<DocumentCategoryHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<DocumentCategoryHistoryRecordWhereInput>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<DocumentCategoryHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<DocumentCategoryHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<DocumentCategoryHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<DocumentCategoryHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type DocumentCategoryHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type DocumentCategoryHistoryRecordsCreateInput = {
+  data?: Maybe<DocumentCategoryHistoryRecordCreateInput>;
+};
+
+export type DocumentCategoryHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<DocumentCategoryHistoryRecordUpdateInput>;
+};
+
+export type DocumentCategoryRelateToOneInput = {
+  create?: Maybe<DocumentCategoryCreateInput>;
+  connect?: Maybe<DocumentCategoryWhereUniqueInput>;
+  disconnect?: Maybe<DocumentCategoryWhereUniqueInput>;
+  disconnectAll?: Maybe<Scalars['Boolean']>;
+};
+
+export type DocumentCategoryUpdateInput = {
+  name?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type DocumentCategoryWhereInput = {
+  AND?: Maybe<Array<Maybe<DocumentCategoryWhereInput>>>;
+  OR?: Maybe<Array<Maybe<DocumentCategoryWhereInput>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type DocumentCategoryWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type DocumentCreateInput = {
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  property?: Maybe<PropertyRelateToOneInput>;
+  category?: Maybe<DocumentCategoryRelateToOneInput>;
+  file?: Maybe<Scalars['Upload']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type DocumentHistoryRecord = {
+  __typename?: 'DocumentHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the DocumentHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the DocumentHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the DocumentHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the DocumentHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
+  property?: Maybe<Scalars['String']>;
+  category?: Maybe<Scalars['String']>;
+  file?: Maybe<Scalars['JSON']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<DocumentHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type DocumentHistoryRecordCreateInput = {
+  organization?: Maybe<Scalars['String']>;
+  property?: Maybe<Scalars['String']>;
+  category?: Maybe<Scalars['String']>;
+  file?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<DocumentHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum DocumentHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type DocumentHistoryRecordUpdateInput = {
+  organization?: Maybe<Scalars['String']>;
+  property?: Maybe<Scalars['String']>;
+  category?: Maybe<Scalars['String']>;
+  file?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<DocumentHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type DocumentHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<DocumentHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<DocumentHistoryRecordWhereInput>>>;
+  organization?: Maybe<Scalars['String']>;
+  organization_not?: Maybe<Scalars['String']>;
+  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  property?: Maybe<Scalars['String']>;
+  property_not?: Maybe<Scalars['String']>;
+  property_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  property_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  category?: Maybe<Scalars['String']>;
+  category_not?: Maybe<Scalars['String']>;
+  category_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  category_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  file?: Maybe<Scalars['JSON']>;
+  file_not?: Maybe<Scalars['JSON']>;
+  file_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  file_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<DocumentHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<DocumentHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<DocumentHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<DocumentHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type DocumentHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type DocumentHistoryRecordsCreateInput = {
+  data?: Maybe<DocumentHistoryRecordCreateInput>;
+};
+
+export type DocumentHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<DocumentHistoryRecordUpdateInput>;
+};
+
+export type DocumentUpdateInput = {
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  property?: Maybe<PropertyRelateToOneInput>;
+  category?: Maybe<DocumentCategoryRelateToOneInput>;
+  file?: Maybe<Scalars['Upload']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type DocumentWhereInput = {
+  AND?: Maybe<Array<Maybe<DocumentWhereInput>>>;
+  OR?: Maybe<Array<Maybe<DocumentWhereInput>>>;
+  organization?: Maybe<OrganizationWhereInput>;
+  organization_is_null?: Maybe<Scalars['Boolean']>;
+  property?: Maybe<PropertyWhereInput>;
+  property_is_null?: Maybe<Scalars['Boolean']>;
+  category?: Maybe<DocumentCategoryWhereInput>;
+  category_is_null?: Maybe<Scalars['Boolean']>;
+  file?: Maybe<Scalars['String']>;
+  file_not?: Maybe<Scalars['String']>;
+  file_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  file_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type DocumentWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type DocumentsCreateInput = {
+  data?: Maybe<DocumentCreateInput>;
+};
+
+export type DocumentsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<DocumentUpdateInput>;
+};
+
 export type ExportMeterReadingsInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
@@ -38103,6 +38769,54 @@ export type Mutation = {
   deleteMarketPriceScope?: Maybe<MarketPriceScope>;
   /**  Delete multiple MarketPriceScope items by ID.  */
   deleteMarketPriceScopes?: Maybe<Array<Maybe<MarketPriceScope>>>;
+  /**  Create a single DocumentCategoryHistoryRecord item.  */
+  createDocumentCategoryHistoryRecord?: Maybe<DocumentCategoryHistoryRecord>;
+  /**  Create multiple DocumentCategoryHistoryRecord items.  */
+  createDocumentCategoryHistoryRecords?: Maybe<Array<Maybe<DocumentCategoryHistoryRecord>>>;
+  /**  Update a single DocumentCategoryHistoryRecord item by ID.  */
+  updateDocumentCategoryHistoryRecord?: Maybe<DocumentCategoryHistoryRecord>;
+  /**  Update multiple DocumentCategoryHistoryRecord items by ID.  */
+  updateDocumentCategoryHistoryRecords?: Maybe<Array<Maybe<DocumentCategoryHistoryRecord>>>;
+  /**  Delete a single DocumentCategoryHistoryRecord item by ID.  */
+  deleteDocumentCategoryHistoryRecord?: Maybe<DocumentCategoryHistoryRecord>;
+  /**  Delete multiple DocumentCategoryHistoryRecord items by ID.  */
+  deleteDocumentCategoryHistoryRecords?: Maybe<Array<Maybe<DocumentCategoryHistoryRecord>>>;
+  /**  Create a single DocumentCategory item.  */
+  createDocumentCategory?: Maybe<DocumentCategory>;
+  /**  Create multiple DocumentCategory items.  */
+  createDocumentCategories?: Maybe<Array<Maybe<DocumentCategory>>>;
+  /**  Update a single DocumentCategory item by ID.  */
+  updateDocumentCategory?: Maybe<DocumentCategory>;
+  /**  Update multiple DocumentCategory items by ID.  */
+  updateDocumentCategories?: Maybe<Array<Maybe<DocumentCategory>>>;
+  /**  Delete a single DocumentCategory item by ID.  */
+  deleteDocumentCategory?: Maybe<DocumentCategory>;
+  /**  Delete multiple DocumentCategory items by ID.  */
+  deleteDocumentCategories?: Maybe<Array<Maybe<DocumentCategory>>>;
+  /**  Create a single DocumentHistoryRecord item.  */
+  createDocumentHistoryRecord?: Maybe<DocumentHistoryRecord>;
+  /**  Create multiple DocumentHistoryRecord items.  */
+  createDocumentHistoryRecords?: Maybe<Array<Maybe<DocumentHistoryRecord>>>;
+  /**  Update a single DocumentHistoryRecord item by ID.  */
+  updateDocumentHistoryRecord?: Maybe<DocumentHistoryRecord>;
+  /**  Update multiple DocumentHistoryRecord items by ID.  */
+  updateDocumentHistoryRecords?: Maybe<Array<Maybe<DocumentHistoryRecord>>>;
+  /**  Delete a single DocumentHistoryRecord item by ID.  */
+  deleteDocumentHistoryRecord?: Maybe<DocumentHistoryRecord>;
+  /**  Delete multiple DocumentHistoryRecord items by ID.  */
+  deleteDocumentHistoryRecords?: Maybe<Array<Maybe<DocumentHistoryRecord>>>;
+  /**  Create a single Document item.  */
+  createDocument?: Maybe<Document>;
+  /**  Create multiple Document items.  */
+  createDocuments?: Maybe<Array<Maybe<Document>>>;
+  /**  Update a single Document item by ID.  */
+  updateDocument?: Maybe<Document>;
+  /**  Update multiple Document items by ID.  */
+  updateDocuments?: Maybe<Array<Maybe<Document>>>;
+  /**  Delete a single Document item by ID.  */
+  deleteDocument?: Maybe<Document>;
+  /**  Delete multiple Document items by ID.  */
+  deleteDocuments?: Maybe<Array<Maybe<Document>>>;
   /**  Create a single WebhookHistoryRecord item.  */
   createWebhookHistoryRecord?: Maybe<WebhookHistoryRecord>;
   /**  Create multiple WebhookHistoryRecord items.  */
@@ -48894,6 +49608,130 @@ export type MutationDeleteMarketPriceScopesArgs = {
 };
 
 
+export type MutationCreateDocumentCategoryHistoryRecordArgs = {
+  data?: Maybe<DocumentCategoryHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateDocumentCategoryHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<DocumentCategoryHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateDocumentCategoryHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<DocumentCategoryHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateDocumentCategoryHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<DocumentCategoryHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteDocumentCategoryHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteDocumentCategoryHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateDocumentCategoryArgs = {
+  data?: Maybe<DocumentCategoryCreateInput>;
+};
+
+
+export type MutationCreateDocumentCategoriesArgs = {
+  data?: Maybe<Array<Maybe<DocumentCategoriesCreateInput>>>;
+};
+
+
+export type MutationUpdateDocumentCategoryArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<DocumentCategoryUpdateInput>;
+};
+
+
+export type MutationUpdateDocumentCategoriesArgs = {
+  data?: Maybe<Array<Maybe<DocumentCategoriesUpdateInput>>>;
+};
+
+
+export type MutationDeleteDocumentCategoryArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteDocumentCategoriesArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateDocumentHistoryRecordArgs = {
+  data?: Maybe<DocumentHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateDocumentHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<DocumentHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateDocumentHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<DocumentHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateDocumentHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<DocumentHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteDocumentHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteDocumentHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateDocumentArgs = {
+  data?: Maybe<DocumentCreateInput>;
+};
+
+
+export type MutationCreateDocumentsArgs = {
+  data?: Maybe<Array<Maybe<DocumentsCreateInput>>>;
+};
+
+
+export type MutationUpdateDocumentArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<DocumentUpdateInput>;
+};
+
+
+export type MutationUpdateDocumentsArgs = {
+  data?: Maybe<Array<Maybe<DocumentsUpdateInput>>>;
+};
+
+
+export type MutationDeleteDocumentArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteDocumentsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
 export type MutationCreateWebhookHistoryRecordArgs = {
   data?: Maybe<WebhookHistoryRecordCreateInput>;
 };
@@ -53632,8 +54470,8 @@ export type OrganizationEmployeeRole = {
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
   canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
-  canReadPropertyFiles?: Maybe<Scalars['Boolean']>;
-  canManagePropertyFiles?: Maybe<Scalars['Boolean']>;
+  canReadDocuments?: Maybe<Scalars['Boolean']>;
+  canManageDocuments?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageMeters?: Maybe<Scalars['Boolean']>;
@@ -53721,8 +54559,8 @@ export type OrganizationEmployeeRoleCreateInput = {
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
   canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
-  canReadPropertyFiles?: Maybe<Scalars['Boolean']>;
-  canManagePropertyFiles?: Maybe<Scalars['Boolean']>;
+  canReadDocuments?: Maybe<Scalars['Boolean']>;
+  canManageDocuments?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageMeters?: Maybe<Scalars['Boolean']>;
@@ -53806,8 +54644,8 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
   canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
-  canReadPropertyFiles?: Maybe<Scalars['Boolean']>;
-  canManagePropertyFiles?: Maybe<Scalars['Boolean']>;
+  canReadDocuments?: Maybe<Scalars['Boolean']>;
+  canManageDocuments?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageMeters?: Maybe<Scalars['Boolean']>;
@@ -53885,8 +54723,8 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
   canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
-  canReadPropertyFiles?: Maybe<Scalars['Boolean']>;
-  canManagePropertyFiles?: Maybe<Scalars['Boolean']>;
+  canReadDocuments?: Maybe<Scalars['Boolean']>;
+  canManageDocuments?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageMeters?: Maybe<Scalars['Boolean']>;
@@ -53969,8 +54807,8 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
   canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
-  canReadPropertyFiles?: Maybe<Scalars['Boolean']>;
-  canManagePropertyFiles?: Maybe<Scalars['Boolean']>;
+  canReadDocuments?: Maybe<Scalars['Boolean']>;
+  canManageDocuments?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageMeters?: Maybe<Scalars['Boolean']>;
@@ -54093,10 +54931,10 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canReadProperties_not?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties_not?: Maybe<Scalars['Boolean']>;
-  canReadPropertyFiles?: Maybe<Scalars['Boolean']>;
-  canReadPropertyFiles_not?: Maybe<Scalars['Boolean']>;
-  canManagePropertyFiles?: Maybe<Scalars['Boolean']>;
-  canManagePropertyFiles_not?: Maybe<Scalars['Boolean']>;
+  canReadDocuments?: Maybe<Scalars['Boolean']>;
+  canReadDocuments_not?: Maybe<Scalars['Boolean']>;
+  canManageDocuments?: Maybe<Scalars['Boolean']>;
+  canManageDocuments_not?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canReadTickets_not?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
@@ -54316,8 +55154,8 @@ export type OrganizationEmployeeRoleUpdateInput = {
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
   canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
-  canReadPropertyFiles?: Maybe<Scalars['Boolean']>;
-  canManagePropertyFiles?: Maybe<Scalars['Boolean']>;
+  canReadDocuments?: Maybe<Scalars['Boolean']>;
+  canManageDocuments?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageMeters?: Maybe<Scalars['Boolean']>;
@@ -54435,10 +55273,10 @@ export type OrganizationEmployeeRoleWhereInput = {
   canReadProperties_not?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties_not?: Maybe<Scalars['Boolean']>;
-  canReadPropertyFiles?: Maybe<Scalars['Boolean']>;
-  canReadPropertyFiles_not?: Maybe<Scalars['Boolean']>;
-  canManagePropertyFiles?: Maybe<Scalars['Boolean']>;
-  canManagePropertyFiles_not?: Maybe<Scalars['Boolean']>;
+  canReadDocuments?: Maybe<Scalars['Boolean']>;
+  canReadDocuments_not?: Maybe<Scalars['Boolean']>;
+  canManageDocuments?: Maybe<Scalars['Boolean']>;
+  canManageDocuments_not?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canReadTickets_not?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
@@ -62716,6 +63554,38 @@ export type Query = {
   _allMarketPriceScopesMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the MarketPriceScope list.  */
   _MarketPriceScopesMeta?: Maybe<_ListMeta>;
+  /**  Search for all DocumentCategoryHistoryRecord items which match the where clause.  */
+  allDocumentCategoryHistoryRecords?: Maybe<Array<Maybe<DocumentCategoryHistoryRecord>>>;
+  /**  Search for the DocumentCategoryHistoryRecord item with the matching ID.  */
+  DocumentCategoryHistoryRecord?: Maybe<DocumentCategoryHistoryRecord>;
+  /**  Perform a meta-query on all DocumentCategoryHistoryRecord items which match the where clause.  */
+  _allDocumentCategoryHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the DocumentCategoryHistoryRecord list.  */
+  _DocumentCategoryHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all DocumentCategory items which match the where clause.  */
+  allDocumentCategories?: Maybe<Array<Maybe<DocumentCategory>>>;
+  /**  Search for the DocumentCategory item with the matching ID.  */
+  DocumentCategory?: Maybe<DocumentCategory>;
+  /**  Perform a meta-query on all DocumentCategory items which match the where clause.  */
+  _allDocumentCategoriesMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the DocumentCategory list.  */
+  _DocumentCategoriesMeta?: Maybe<_ListMeta>;
+  /**  Search for all DocumentHistoryRecord items which match the where clause.  */
+  allDocumentHistoryRecords?: Maybe<Array<Maybe<DocumentHistoryRecord>>>;
+  /**  Search for the DocumentHistoryRecord item with the matching ID.  */
+  DocumentHistoryRecord?: Maybe<DocumentHistoryRecord>;
+  /**  Perform a meta-query on all DocumentHistoryRecord items which match the where clause.  */
+  _allDocumentHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the DocumentHistoryRecord list.  */
+  _DocumentHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all Document items which match the where clause.  */
+  allDocuments?: Maybe<Array<Maybe<Document>>>;
+  /**  Search for the Document item with the matching ID.  */
+  Document?: Maybe<Document>;
+  /**  Perform a meta-query on all Document items which match the where clause.  */
+  _allDocumentsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the Document list.  */
+  _DocumentsMeta?: Maybe<_ListMeta>;
   /**  Search for all WebhookHistoryRecord items which match the where clause.  */
   allWebhookHistoryRecords?: Maybe<Array<Maybe<WebhookHistoryRecord>>>;
   /**  Search for the WebhookHistoryRecord item with the matching ID.  */
@@ -69287,6 +70157,106 @@ export type Query_AllMarketPriceScopesMetaArgs = {
 };
 
 
+export type QueryAllDocumentCategoryHistoryRecordsArgs = {
+  where?: Maybe<DocumentCategoryHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortDocumentCategoryHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryDocumentCategoryHistoryRecordArgs = {
+  where: DocumentCategoryHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllDocumentCategoryHistoryRecordsMetaArgs = {
+  where?: Maybe<DocumentCategoryHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortDocumentCategoryHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllDocumentCategoriesArgs = {
+  where?: Maybe<DocumentCategoryWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortDocumentCategoriesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryDocumentCategoryArgs = {
+  where: DocumentCategoryWhereUniqueInput;
+};
+
+
+export type Query_AllDocumentCategoriesMetaArgs = {
+  where?: Maybe<DocumentCategoryWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortDocumentCategoriesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllDocumentHistoryRecordsArgs = {
+  where?: Maybe<DocumentHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortDocumentHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryDocumentHistoryRecordArgs = {
+  where: DocumentHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllDocumentHistoryRecordsMetaArgs = {
+  where?: Maybe<DocumentHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortDocumentHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllDocumentsArgs = {
+  where?: Maybe<DocumentWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortDocumentsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryDocumentArgs = {
+  where: DocumentWhereUniqueInput;
+};
+
+
+export type Query_AllDocumentsMetaArgs = {
+  where?: Maybe<DocumentWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortDocumentsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
 export type QueryAllWebhookHistoryRecordsArgs = {
   where?: Maybe<WebhookHistoryRecordWhereInput>;
   search?: Maybe<Scalars['String']>;
@@ -75692,6 +76662,92 @@ export enum SortContactsBy {
   DvDesc = 'dv_DESC'
 }
 
+export enum SortDocumentCategoriesBy {
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
+export enum SortDocumentCategoryHistoryRecordsBy {
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortDocumentHistoryRecordsBy {
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortDocumentsBy {
+  OrganizationAsc = 'organization_ASC',
+  OrganizationDesc = 'organization_DESC',
+  PropertyAsc = 'property_ASC',
+  PropertyDesc = 'property_DESC',
+  CategoryAsc = 'category_ASC',
+  CategoryDesc = 'category_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
 export enum SortExternalReportHistoryRecordsBy {
   TypeAsc = 'type_ASC',
   TypeDesc = 'type_DESC',
@@ -77899,10 +78955,10 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanReadPropertiesDesc = 'canReadProperties_DESC',
   CanManagePropertiesAsc = 'canManageProperties_ASC',
   CanManagePropertiesDesc = 'canManageProperties_DESC',
-  CanReadPropertyFilesAsc = 'canReadPropertyFiles_ASC',
-  CanReadPropertyFilesDesc = 'canReadPropertyFiles_DESC',
-  CanManagePropertyFilesAsc = 'canManagePropertyFiles_ASC',
-  CanManagePropertyFilesDesc = 'canManagePropertyFiles_DESC',
+  CanReadDocumentsAsc = 'canReadDocuments_ASC',
+  CanReadDocumentsDesc = 'canReadDocuments_DESC',
+  CanManageDocumentsAsc = 'canManageDocuments_ASC',
+  CanManageDocumentsDesc = 'canManageDocuments_DESC',
   CanReadTicketsAsc = 'canReadTickets_ASC',
   CanReadTicketsDesc = 'canReadTickets_DESC',
   CanManageTicketsAsc = 'canManageTickets_ASC',
@@ -78046,10 +79102,10 @@ export enum SortOrganizationEmployeeRolesBy {
   CanReadPropertiesDesc = 'canReadProperties_DESC',
   CanManagePropertiesAsc = 'canManageProperties_ASC',
   CanManagePropertiesDesc = 'canManageProperties_DESC',
-  CanReadPropertyFilesAsc = 'canReadPropertyFiles_ASC',
-  CanReadPropertyFilesDesc = 'canReadPropertyFiles_DESC',
-  CanManagePropertyFilesAsc = 'canManagePropertyFiles_ASC',
-  CanManagePropertyFilesDesc = 'canManagePropertyFiles_DESC',
+  CanReadDocumentsAsc = 'canReadDocuments_ASC',
+  CanReadDocumentsDesc = 'canReadDocuments_DESC',
+  CanManageDocumentsAsc = 'canManageDocuments_ASC',
+  CanManageDocumentsDesc = 'canManageDocuments_DESC',
   CanReadTicketsAsc = 'canReadTickets_ASC',
   CanReadTicketsDesc = 'canReadTickets_DESC',
   CanManageTicketsAsc = 'canManageTickets_ASC',
