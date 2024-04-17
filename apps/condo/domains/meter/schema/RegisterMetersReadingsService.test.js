@@ -326,17 +326,32 @@ describe('RegisterMetersReadingsService', () => {
             async () => await registerMetersReadingsByTestClient(
                 adminClient,
                 o10n,
-                flatten(Array(501).fill(createTestReadingData({ address: faker.address.streetAddress(true) }))),
+                flatten(Array(101).fill(createTestReadingData({ address: faker.address.streetAddress(true) }))),
             ),
             {
                 code: 'BAD_USER_INPUT',
                 type: 'TOO_MUCH_READINGS',
-                message: 'Too much readings. Maximum is 500.',
+                message: 'Too much readings. Maximum is 100.',
                 messageForUser: 'api.meter.registerMetersReadings.TOO_MUCH_READINGS',
-                messageInterpolation: { limit: 500, sentCount: 501 },
+                messageInterpolation: { limit: 100, sentCount: 101 },
             },
             'result',
         )
+    })
+
+    test('possible to process 100 meters readings', async () => {
+        const [o10n] = await createTestOrganization(adminClient)
+
+        const count = 100
+        const readings = []
+        for (let i = 0; i < count; i++) {
+            const [property] = await createTestProperty(adminClient, o10n)
+            readings.push(createTestReadingData(property))
+        }
+
+        const [result] = await registerMetersReadingsByTestClient(adminClient, o10n, readings)
+
+        expect(result).toHaveLength(count)
     })
 
     test('Check for Meter model error: cannot create Meter if Meter with same accountNumber exist in user organization in other unit', async () => {

@@ -21,7 +21,7 @@ const {
 } = require('@condo/domains/meter/constants/errors')
 const { Meter, MeterReading } = require('@condo/domains/meter/utils/serverSchema')
 
-const READINGS_LIMIT = 500
+const READINGS_LIMIT = 100
 
 const ERRORS = {
     TOO_MUCH_READINGS: (sentCount) => ({
