@@ -4,8 +4,11 @@
 const dayjs = require('dayjs')
 const { get, isUndefined, isEmpty, isNumber, isString } = require('lodash')
 
+const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, find, getByCondition, getById } = require('@open-condo/keystone/schema')
+const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
+const { i18n } = require('@open-condo/locales/loader')
 
 const { PropertyResolver } = require('@condo/domains/billing/schema/resolvers')
 const access = require('@condo/domains/meter/access/RegisterMetersReadingsService')
@@ -140,6 +143,8 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                     throw new GQLError(ERRORS.ORGANIZATION_NOT_FOUND, context)
                 }
 
+                const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
+
                 const propertyResolver = new PropertyResolver({ context })
                 propertyResolver.tin = organizationData.tin
 
@@ -199,7 +204,7 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                                 const normalizedValue = normalizeMeterValue(value)
 
                                 if (!validateMeterValue(normalizedValue)) {
-                                    throw new GQLError(ERRORS.INVALID_METER_VALUE(currentValue, value), context)
+                                    throw new GQLError(ERRORS.INVALID_METER_VALUE(i18n(`meter.import.column.${currentValue}`, { locale }), value), context)
                                 }
 
                                 return {
