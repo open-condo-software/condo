@@ -5,14 +5,10 @@
 
 const { ExportPropertiesToExcelService } = require('./ExportPropertiesToExcelService')
 const { Property } = require('./Property')
-const { PropertyFileCategory } = require('./PropertyFileCategory')
-const { PropertyFile } = require('./PropertyFile')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     Property,
     ExportPropertiesToExcelService,
-    PropertyFileCategory,
-    PropertyFile,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

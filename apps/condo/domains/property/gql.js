@@ -12,11 +12,11 @@ const { PARKING_UNIT_TYPE, FLAT_UNIT_TYPE, WAREHOUSE_UNIT_TYPE, COMMERCIAL_UNIT_
 
 const { ADDRESS_META_SUBFIELDS_QUERY_LIST, ADDRESS_META_SUBFIELDS_TABLE_LIST } = require('./schema/fields/AddressMetaField')
 
-const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
+const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt organization { id name} newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 const PROPERTY_MAP_SECTION_FIELDS = 'id type index name preview floors { id type index name units { id type unitType name label preview } }'
 const PROPERTY_MAP_JSON_FIELDS = `dv type sections { ${PROPERTY_MAP_SECTION_FIELDS} } parking { ${PROPERTY_MAP_SECTION_FIELDS} }`
-const PROPERTY_FIELDS = `{ name address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } type ticketsInWork yearOfConstruction area ticketsClosed ticketsDeferred unitsCount uninhabitedUnitsCount map { ${PROPERTY_MAP_JSON_FIELDS} } ${COMMON_FIELDS} organization { id name } isApproved addressKey }`
-const PROPERTY_TABLE_FIELDS = `{ ${COMMON_FIELDS} organization { id name } unitsCount uninhabitedUnitsCount addressMeta { ${ADDRESS_META_SUBFIELDS_TABLE_LIST} }  ticketsInWork }`
+const PROPERTY_FIELDS = `{ name address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } type ticketsInWork yearOfConstruction area ticketsClosed ticketsDeferred unitsCount uninhabitedUnitsCount map { ${PROPERTY_MAP_JSON_FIELDS} } ${COMMON_FIELDS} isApproved addressKey }`
+const PROPERTY_TABLE_FIELDS = `{ ${COMMON_FIELDS} unitsCount uninhabitedUnitsCount addressMeta { ${ADDRESS_META_SUBFIELDS_TABLE_LIST} }  ticketsInWork }`
 const Property = generateGqlQueries('Property', PROPERTY_FIELDS)
 const PropertyTable = generateGqlQueries('Property', PROPERTY_TABLE_FIELDS)
 
@@ -110,12 +110,6 @@ const EXPORT_PROPERTIES_TO_EXCEL =  gql`
     }
 `
 
-const PROPERTY_FILE_CATEGORY_FIELDS = `{ name order ${COMMON_FIELDS} }`
-const PropertyFileCategory = generateGqlQueries('PropertyFileCategory', PROPERTY_FILE_CATEGORY_FIELDS)
-
-const PROPERTY_FILE_FIELDS = `{ property { id } category { id } file { id originalFilename publicUrl mimetype } ${COMMON_FIELDS} }`
-const PropertyFile = generateGqlQueries('PropertyFile', PROPERTY_FILE_FIELDS)
-
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -124,7 +118,5 @@ module.exports = {
     PROPERTY_MAP_GRAPHQL_TYPES,
     EXPORT_PROPERTIES_TO_EXCEL,
     PROPERTY_MAP_JSON_FIELDS,
-    PropertyFileCategory,
-    PropertyFile,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
