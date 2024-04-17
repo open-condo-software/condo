@@ -217,7 +217,7 @@ const POSTFIX_PROPS: TextProps = { type: 'secondary' }
 const NEW_LINE_POSTFIX_STYLE: TextProps = { style: { whiteSpace: 'pre-line' } }
 const ONE_LINE_POSTFIX_STYLE: TextProps =  { style: { whiteSpace: 'nowrap' } }
 
-export const getAddressRender = (property: Property, DeletedMessage?: string, search?: FilterValue | string, oneLinePostfix?: boolean) => {
+export const getAddressRender = (property: Property | Omit<Property, 'id'>, DeletedMessage?: string, search?: FilterValue | string, oneLinePostfix?: boolean) => {
     const isDeleted = !!get(property, 'deletedAt')
     const { streetPart, renderPostfix } = getAddressDetails(property)
     const extraProps: Partial<TTextHighlighterProps> = isDeleted && { type: 'secondary' }
