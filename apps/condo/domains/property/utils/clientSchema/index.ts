@@ -5,4 +5,6 @@
 
 export * as Property from './Property'
 export * as PropertyTable from './PropertyTable'
+export * as PropertyFileCategory from './PropertyFileCategory'
+export * as PropertyFile from './PropertyFile'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
