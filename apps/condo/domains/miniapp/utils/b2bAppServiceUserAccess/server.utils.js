@@ -119,7 +119,7 @@ const canExecuteByServiceUser = async (params, serviceConfig) => {
     const pathToOrganizationId = get(serviceConfig, 'pathToOrganizationId', ['data', 'organization', 'id'])
     if (!isArray(pathToOrganizationId) || isEmpty(pathToOrganizationId)) return false
 
-    let organizationId = get(args, pathToOrganizationId)
+    const organizationId = get(args, pathToOrganizationId)
 
     if (!organizationId) return false
 

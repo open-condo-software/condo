@@ -212,13 +212,31 @@ describe('RegisterMetersReadingsService', () => {
             })
 
             test('without permissions can\'t', async () => {
-                const staffClient = await makeEmployeeUserClientWithAbilities({
+                const staffClient1 = await makeEmployeeUserClientWithAbilities({
                     canManageMeters: false,
                     canManageMeterReadings: false,
                 })
 
                 await expectToThrowAccessDeniedErrorToResult(async () => {
-                    await registerMetersReadingsByTestClient(staffClient, staffClient.organization, [])
+                    await registerMetersReadingsByTestClient(staffClient1, staffClient1.organization, [])
+                })
+
+                const staffClient2 = await makeEmployeeUserClientWithAbilities({
+                    canManageMeters: true,
+                    canManageMeterReadings: false,
+                })
+
+                await expectToThrowAccessDeniedErrorToResult(async () => {
+                    await registerMetersReadingsByTestClient(staffClient2, staffClient2.organization, [])
+                })
+
+                const staffClient3 = await makeEmployeeUserClientWithAbilities({
+                    canManageMeters: false,
+                    canManageMeterReadings: true,
+                })
+
+                await expectToThrowAccessDeniedErrorToResult(async () => {
+                    await registerMetersReadingsByTestClient(staffClient3, staffClient3.organization, [])
                 })
             })
         })
