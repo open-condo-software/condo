@@ -8,7 +8,6 @@ const { getItem, getItems } = require('@keystonejs/server-side-graphql-client')
 
 const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
 
-const { OnBoarding: OnBoardingApi } = require('@condo/domains/onboarding/utils/serverSchema')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { SBBOL_IDP_TYPE } = require('@condo/domains/user/constants/common')
 const {
@@ -45,18 +44,6 @@ describe('syncUser from SBBOL', () => {
             })
             expect(checkedIdentity).toBeDefined()
             expect(newUser.phone).toEqual(userData.phone)
-        })
-        it('should create onboarding', async () => {
-            const identityId = faker.datatype.uuid()
-            const { userData } = MockSbbolResponses.getUserAndOrganizationInfo()
-            const adminContext = await keystone.createContext({ skipAccessControl: true })
-            const context = {
-                keystone,
-                context: adminContext,
-            }
-            const newUser = await syncUser({ context, userInfo: userData, identityId })
-            const [ checkOnboarding ] = await OnBoardingApi.getAll(adminContext, { user: { id: newUser.id } })
-            expect(checkOnboarding).toBeDefined()
         })
     })
     describe('User with given phone already existed', () => {

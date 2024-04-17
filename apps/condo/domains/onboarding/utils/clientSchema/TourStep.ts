@@ -20,6 +20,7 @@ const {
     useCreate,
     useUpdate,
     useSoftDelete,
+    useCount,
 } = generateReactHooks<TourStep, TourStepCreateInput, TourStepUpdateInput, QueryAllTourStepsArgs>(TourStepGQL)
 
 export {
@@ -28,4 +29,5 @@ export {
     useCreate,
     useUpdate,
     useSoftDelete,
+    useCount,
 }

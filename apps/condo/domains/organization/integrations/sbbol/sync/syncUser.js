@@ -1,7 +1,6 @@
 const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { REGISTER_NEW_USER_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const { CREATE_ONBOARDING_MUTATION } = require('@condo/domains/onboarding/gql.js')
 const { SBBOL_IDP_TYPE, STAFF } = require('@condo/domains/user/constants/common')
 const { MULTIPLE_ACCOUNTS_MATCHES } = require('@condo/domains/user/constants/errors')
 const { User, UserExternalIdentity } = require('@condo/domains/user/utils/serverSchema')
@@ -9,26 +8,6 @@ const { UserAdmin } = require('@condo/domains/user/utils/serverSchema')
 
 const { dvSenderFields } = require('../constants')
 
-const createOnboarding = async ({ keystone, user }) => {
-    const userContext = await keystone.createContext({
-        authentication: {
-            item: user,
-            listKey: 'User',
-        },
-    })
-
-    await userContext.executeGraphQL({
-        context: userContext,
-        query: CREATE_ONBOARDING_MUTATION,
-        variables: {
-            data: {
-                ...dvSenderFields,
-                type: 'ADMINISTRATOR',
-                userId: user.id,
-            },
-        },
-    })
-}
 
 /**
  * If another user will be found with given email, it will get email to null to avoid unique email violation constraint
@@ -132,8 +111,6 @@ const syncUser = async ({ context: { context, keystone }, userInfo, identityId }
             },
             ...dvSenderFields,
         })
-
-        await createOnboarding({ keystone, user, dvSenderFields })
 
         return user
     }

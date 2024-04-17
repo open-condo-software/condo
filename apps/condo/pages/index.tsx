@@ -1,14 +1,16 @@
+import { TourStepStatusType } from '@app/condo/schema'
 import get from 'lodash/get'
 import pickBy from 'lodash/pickBy'
 import { useRouter } from 'next/router'
-import React, { useEffect } from 'react'
+import React, { useEffect, useMemo } from 'react'
 
-import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useOrganization } from '@open-condo/next/organization'
 
-import { ORGANIZATION_TOUR } from '@condo/domains/common/constants/featureflags'
+import { SECOND_LEVEL_STEPS } from '@condo/domains/onboarding/constants/steps'
+import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
+
 
 // Equality of read access name of OrganizationEmployeeRole and page url sorted by menu items order
 const ACCESS_REDIRECTS = {
@@ -26,8 +28,15 @@ const ACCESS_REDIRECTS = {
 const IndexPage = () => {
     const router = useRouter()
     const organization = useOrganization()
-    const { useFlag } = useFeatureFlags()
-    const isTourEnabled = useFlag(ORGANIZATION_TOUR)
+    const organizationId = useMemo(() => get(organization, 'organization.id', null), [])
+
+    const { count: completedTourStepsCount, loading : completedTourStepsCountLoading } = TourStep.useCount({
+        where: {
+            organization: { id: organizationId },
+            type_in: SECOND_LEVEL_STEPS,
+            status: TourStepStatusType.Completed,
+        },
+    }, { skip: !organizationId })
 
     useEffect(() => {
         const role = get(organization, 'link.role')
@@ -35,9 +44,11 @@ const IndexPage = () => {
             if (get(organization, ['organization', 'type'], MANAGING_COMPANY_TYPE) === SERVICE_PROVIDER_TYPE) {
                 router.push('/billing')
             } else {
+                if (completedTourStepsCountLoading) return
+
                 const userAccesses = Object.keys(pickBy(role, (value, key) => key.startsWith('canRead') && value === true))
 
-                if (isTourEnabled) {
+                if (completedTourStepsCount < SECOND_LEVEL_STEPS.length) {
                     router.push('/tour')
                     return
                 }
@@ -52,7 +63,8 @@ const IndexPage = () => {
                 }
             }
         }
-    }, [isTourEnabled, organization, router])
+    }, [organization, router, completedTourStepsCountLoading, completedTourStepsCount])
+
     return <></>
 }
 

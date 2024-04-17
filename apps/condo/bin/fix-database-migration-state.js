@@ -186,6 +186,14 @@ COMMIT;
 ALTER TABLE "BillingRecipient" DROP COLUMN "isApproved" CASCADE;
 COMMIT;
 
+--
+-- 20240417171855-0386_auto_20240417_1218.js – Remove OnBoarding, OnBoardingStep schemas
+--
+DROP TABLE "OnBoardingStep" CASCADE;
+DROP TABLE "OnBoarding" CASCADE;
+DROP TABLE "OnBoardingStepHistoryRecord" CASCADE;
+DROP TABLE "OnBoardingHistoryRecord" CASCADE;
+
     `))
 }
 

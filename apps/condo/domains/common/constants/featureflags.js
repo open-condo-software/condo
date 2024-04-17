@@ -21,7 +21,6 @@ const MARKETPLACE = 'marketplace'
 const SHOW_TELEGRAM_NOTIFICATIONS_BANNER = 'show-telegram-notifications-banner'
 const MAX_EMPLOYEE_SIZE_IN_ORGANIZATION_TO_TELEGRAM_NOTIFICATIONS = 'max-employee-size-in-organization-to-telegram-notifications'
 const SEND_TELEGRAM_NOTIFICATIONS = 'send-telegram-notifications'
-const ORGANIZATION_TOUR = 'organization-tour'
 const CAPTCHA_CHECK_ENABLED = 'captcha-check-enabled'
 // TODO(DOMA-8667): Remove flag after links to instructions will be ready
 const IMPORT_HELP_MODAL = 'import-help-modal'
@@ -50,7 +49,6 @@ module.exports = {
     SHOW_TELEGRAM_NOTIFICATIONS_BANNER,
     MAX_EMPLOYEE_SIZE_IN_ORGANIZATION_TO_TELEGRAM_NOTIFICATIONS,
     SEND_TELEGRAM_NOTIFICATIONS,
-    ORGANIZATION_TOUR,
     CAPTCHA_CHECK_ENABLED,
     IMPORT_HELP_MODAL,
 }

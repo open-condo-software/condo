@@ -3,8 +3,6 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
-export * as OnBoarding from './OnBoarding'
-export * as OnBoardingStep from './OnBoardingStep'
 export * as TourStep from './TourStep'
 export * as UserHelpRequest from './UserHelpRequest'
 export * as UserHelpRequestFile from './UserHelpRequestFile'
