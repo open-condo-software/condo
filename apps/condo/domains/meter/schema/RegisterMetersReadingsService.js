@@ -6,7 +6,7 @@ const { get, isUndefined, isEmpty, isNumber, isString } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { GQLCustomSchema, find, getByCondition, getById } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, find, getById } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { i18n } = require('@open-condo/locales/loader')
 
@@ -18,6 +18,7 @@ const {
     ORGANIZATION_NOT_FOUND,
     PROPERTY_NOT_FOUND,
     INVALID_METER_VALUE,
+    MULTIPLE_METERS_FOUND,
 } = require('@condo/domains/meter/constants/errors')
 const { Meter, MeterReading } = require('@condo/domains/meter/utils/serverSchema')
 
@@ -49,6 +50,13 @@ const ERRORS = {
         message: 'Invalid meter value',
         messageForUser: 'api.meter.registerMetersReadings.INVALID_METER_VALUE',
         messageInterpolation: { key, value },
+    }),
+    MULTIPLE_METERS_FOUND: (count) => ({
+        code: BAD_USER_INPUT,
+        type: MULTIPLE_METERS_FOUND,
+        message: 'Multiple meters found',
+        messageForUser: 'api.meter.registerMetersReadings.MULTIPLE_METERS_FOUND',
+        messageInterpolation: { count },
     }),
 }
 
@@ -178,15 +186,22 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                     }
 
                     let meterId
-                    const foundMeter = await getByCondition('Meter', {
+                    const foundMeters = await find('Meter', {
                         organization,
                         property: { id: property.id },
                         unitType: reading.addressMeta.unitType,
                         unitName: reading.addressMeta.unitName,
                         accountNumber: reading.accountNumber,
                         number: reading.meterNumber,
+                        deletedAt: null,
                     })
 
+                    if (foundMeters.length > 1) {
+                        resultRows.push(new GQLError(ERRORS.MULTIPLE_METERS_FOUND(foundMeters.length), context))
+                        continue
+                    }
+
+                    const foundMeter = foundMeters[0]
                     let values
 
                     if (foundMeter) {

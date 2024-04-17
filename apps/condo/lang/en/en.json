@@ -2473,6 +2473,7 @@
   "api.meter.registerMetersReadings.ORGANIZATION_NOT_FOUND": "Organization not found",
   "api.meter.registerMetersReadings.PROPERTY_NOT_FOUND": "Property not found",
   "api.meter.registerMetersReadings.INVALID_METER_VALUE": "{key}={value} is invalid",
+  "api.meter.registerMetersReadings.MULTIPLE_METERS_FOUND": "Multiple meters found ({count})",
   "api.marketplace.MarketCategory.MAXIMUM_DEPTH_REACHED": "The depth of category inheritance should be no more than 2",
   "api.marketplace.MarketCategory.CANNOT_CONNECT_TO_ITSELF": "Cannot connect to itself",
   "api.contact.exportContactsToExcel.NOTHING_TO_EXPORT": "No contacts found for export",
