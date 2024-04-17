@@ -12,10 +12,19 @@ const { buildFakeAddressAndMeta } = require('./factories')
 const { Property: PropertyGQL } = require('@condo/domains/property/gql')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { EXPORT_PROPERTIES_TO_EXCEL } = require('@condo/domains/property/gql')
+const { PropertyFileCategory: PropertyFileCategoryGQL } = require('@condo/domains/property/gql')
+const { PropertyFile: PropertyFileGQL } = require('@condo/domains/property/gql')
+const path = require('path')
+const conf = require('@open-condo/config')
+const { UploadingFile } = require('@open-condo/keystone/test.utils')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Property = generateGQLTestUtils(PropertyGQL)
+const PropertyFileCategory = generateGQLTestUtils(PropertyFileCategoryGQL)
+const PropertyFile = generateGQLTestUtils(PropertyFileGQL)
 /* AUTOGENERATE MARKER <CONST> */
+
+const TEST_FILE = path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/dino.png')
 
 async function createTestProperty (client, organization, extraAttrs = {}, withFlat = false, addressMetaExtraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -82,6 +91,99 @@ async function exportPropertiesToExcelByTestClient(client, extraAttrs = {}) {
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+async function createTestPropertyFileCategory (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    if (!extraAttrs.name) {
+        extraAttrs.name = faker.random.alphaNumeric(8)
+    }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await PropertyFileCategory.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestPropertyFileCategory (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await PropertyFileCategory.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function softDeleteTestPropertyFileCategory (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+        deletedAt: new Date().toISOString()
+    }
+    const obj = await PropertyFileCategory.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function createTestPropertyFile (client, property, category, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!property || !property.id) throw new Error('no property.id')
+    if (!category || !category.id) throw new Error('no category.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        property: { connect: { id: property.id } },
+        category: { connect: { id: category.id } },
+        file: new UploadingFile(TEST_FILE),
+        ...extraAttrs,
+    }
+    const obj = await PropertyFile.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestPropertyFile (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await PropertyFile.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function softDeleteTestPropertyFile (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+        deletedAt: new Date().toISOString()
+    }
+    const obj = await PropertyFile.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -91,5 +193,7 @@ module.exports = {
     makeClientWithProperty,
     makeClientWithResidentAccessAndProperty,
     exportPropertiesToExcelByTestClient,
+    PropertyFileCategory, createTestPropertyFileCategory, updateTestPropertyFileCategory, softDeleteTestPropertyFileCategory,
+    PropertyFile, createTestPropertyFile, updateTestPropertyFile, softDeleteTestPropertyFile,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
