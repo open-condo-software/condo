@@ -262,6 +262,7 @@ class SmsCRu {
             && Object.values(appsConfigs).every(config => validateConfig(config, SmsCRu.fieldsToCheck))
 
         this.defaultConfig = SmsCRu.parseConfig(defaultConfig)
+        // nosemgrep: javascript.lang.security.insecure-object-assign.insecure-object-assign
         this.appsConfigs = Object.assign({},
             ...Object.entries(appsConfigs)
                 .map(([app, config]) => ({ [app]: SmsCRu.parseConfig(config) }))
