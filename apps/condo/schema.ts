@@ -35355,6 +35355,54 @@ export type Mutation = {
   deleteProperty?: Maybe<Property>;
   /**  Delete multiple Property items by ID.  */
   deleteProperties?: Maybe<Array<Maybe<Property>>>;
+  /**  Create a single PropertyFileCategoryHistoryRecord item.  */
+  createPropertyFileCategoryHistoryRecord?: Maybe<PropertyFileCategoryHistoryRecord>;
+  /**  Create multiple PropertyFileCategoryHistoryRecord items.  */
+  createPropertyFileCategoryHistoryRecords?: Maybe<Array<Maybe<PropertyFileCategoryHistoryRecord>>>;
+  /**  Update a single PropertyFileCategoryHistoryRecord item by ID.  */
+  updatePropertyFileCategoryHistoryRecord?: Maybe<PropertyFileCategoryHistoryRecord>;
+  /**  Update multiple PropertyFileCategoryHistoryRecord items by ID.  */
+  updatePropertyFileCategoryHistoryRecords?: Maybe<Array<Maybe<PropertyFileCategoryHistoryRecord>>>;
+  /**  Delete a single PropertyFileCategoryHistoryRecord item by ID.  */
+  deletePropertyFileCategoryHistoryRecord?: Maybe<PropertyFileCategoryHistoryRecord>;
+  /**  Delete multiple PropertyFileCategoryHistoryRecord items by ID.  */
+  deletePropertyFileCategoryHistoryRecords?: Maybe<Array<Maybe<PropertyFileCategoryHistoryRecord>>>;
+  /**  Create a single PropertyFileCategory item.  */
+  createPropertyFileCategory?: Maybe<PropertyFileCategory>;
+  /**  Create multiple PropertyFileCategory items.  */
+  createPropertyFileCategories?: Maybe<Array<Maybe<PropertyFileCategory>>>;
+  /**  Update a single PropertyFileCategory item by ID.  */
+  updatePropertyFileCategory?: Maybe<PropertyFileCategory>;
+  /**  Update multiple PropertyFileCategory items by ID.  */
+  updatePropertyFileCategories?: Maybe<Array<Maybe<PropertyFileCategory>>>;
+  /**  Delete a single PropertyFileCategory item by ID.  */
+  deletePropertyFileCategory?: Maybe<PropertyFileCategory>;
+  /**  Delete multiple PropertyFileCategory items by ID.  */
+  deletePropertyFileCategories?: Maybe<Array<Maybe<PropertyFileCategory>>>;
+  /**  Create a single PropertyFileHistoryRecord item.  */
+  createPropertyFileHistoryRecord?: Maybe<PropertyFileHistoryRecord>;
+  /**  Create multiple PropertyFileHistoryRecord items.  */
+  createPropertyFileHistoryRecords?: Maybe<Array<Maybe<PropertyFileHistoryRecord>>>;
+  /**  Update a single PropertyFileHistoryRecord item by ID.  */
+  updatePropertyFileHistoryRecord?: Maybe<PropertyFileHistoryRecord>;
+  /**  Update multiple PropertyFileHistoryRecord items by ID.  */
+  updatePropertyFileHistoryRecords?: Maybe<Array<Maybe<PropertyFileHistoryRecord>>>;
+  /**  Delete a single PropertyFileHistoryRecord item by ID.  */
+  deletePropertyFileHistoryRecord?: Maybe<PropertyFileHistoryRecord>;
+  /**  Delete multiple PropertyFileHistoryRecord items by ID.  */
+  deletePropertyFileHistoryRecords?: Maybe<Array<Maybe<PropertyFileHistoryRecord>>>;
+  /**  Create a single PropertyFile item.  */
+  createPropertyFile?: Maybe<PropertyFile>;
+  /**  Create multiple PropertyFile items.  */
+  createPropertyFiles?: Maybe<Array<Maybe<PropertyFile>>>;
+  /**  Update a single PropertyFile item by ID.  */
+  updatePropertyFile?: Maybe<PropertyFile>;
+  /**  Update multiple PropertyFile items by ID.  */
+  updatePropertyFiles?: Maybe<Array<Maybe<PropertyFile>>>;
+  /**  Delete a single PropertyFile item by ID.  */
+  deletePropertyFile?: Maybe<PropertyFile>;
+  /**  Delete multiple PropertyFile items by ID.  */
+  deletePropertyFiles?: Maybe<Array<Maybe<PropertyFile>>>;
   /**  Create a single BillingIntegrationHistoryRecord item.  */
   createBillingIntegrationHistoryRecord?: Maybe<BillingIntegrationHistoryRecord>;
   /**  Create multiple BillingIntegrationHistoryRecord items.  */
@@ -41743,6 +41791,130 @@ export type MutationDeletePropertyArgs = {
 
 
 export type MutationDeletePropertiesArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreatePropertyFileCategoryHistoryRecordArgs = {
+  data?: Maybe<PropertyFileCategoryHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreatePropertyFileCategoryHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<PropertyFileCategoryHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdatePropertyFileCategoryHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<PropertyFileCategoryHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdatePropertyFileCategoryHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<PropertyFileCategoryHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeletePropertyFileCategoryHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeletePropertyFileCategoryHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreatePropertyFileCategoryArgs = {
+  data?: Maybe<PropertyFileCategoryCreateInput>;
+};
+
+
+export type MutationCreatePropertyFileCategoriesArgs = {
+  data?: Maybe<Array<Maybe<PropertyFileCategoriesCreateInput>>>;
+};
+
+
+export type MutationUpdatePropertyFileCategoryArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<PropertyFileCategoryUpdateInput>;
+};
+
+
+export type MutationUpdatePropertyFileCategoriesArgs = {
+  data?: Maybe<Array<Maybe<PropertyFileCategoriesUpdateInput>>>;
+};
+
+
+export type MutationDeletePropertyFileCategoryArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeletePropertyFileCategoriesArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreatePropertyFileHistoryRecordArgs = {
+  data?: Maybe<PropertyFileHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreatePropertyFileHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<PropertyFileHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdatePropertyFileHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<PropertyFileHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdatePropertyFileHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<PropertyFileHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeletePropertyFileHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeletePropertyFileHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreatePropertyFileArgs = {
+  data?: Maybe<PropertyFileCreateInput>;
+};
+
+
+export type MutationCreatePropertyFilesArgs = {
+  data?: Maybe<Array<Maybe<PropertyFilesCreateInput>>>;
+};
+
+
+export type MutationUpdatePropertyFileArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<PropertyFileUpdateInput>;
+};
+
+
+export type MutationUpdatePropertyFilesArgs = {
+  data?: Maybe<Array<Maybe<PropertyFilesUpdateInput>>>;
+};
+
+
+export type MutationDeletePropertyFileArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeletePropertyFilesArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -53460,6 +53632,8 @@ export type OrganizationEmployeeRole = {
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
   canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
+  canReadPropertyFiles?: Maybe<Scalars['Boolean']>;
+  canManagePropertyFiles?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageMeters?: Maybe<Scalars['Boolean']>;
@@ -53547,6 +53721,8 @@ export type OrganizationEmployeeRoleCreateInput = {
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
   canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
+  canReadPropertyFiles?: Maybe<Scalars['Boolean']>;
+  canManagePropertyFiles?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageMeters?: Maybe<Scalars['Boolean']>;
@@ -53630,6 +53806,8 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
   canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
+  canReadPropertyFiles?: Maybe<Scalars['Boolean']>;
+  canManagePropertyFiles?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageMeters?: Maybe<Scalars['Boolean']>;
@@ -53707,6 +53885,8 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
   canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
+  canReadPropertyFiles?: Maybe<Scalars['Boolean']>;
+  canManagePropertyFiles?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageMeters?: Maybe<Scalars['Boolean']>;
@@ -53789,6 +53969,8 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
   canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
+  canReadPropertyFiles?: Maybe<Scalars['Boolean']>;
+  canManagePropertyFiles?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageMeters?: Maybe<Scalars['Boolean']>;
@@ -53911,6 +54093,10 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canReadProperties_not?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties_not?: Maybe<Scalars['Boolean']>;
+  canReadPropertyFiles?: Maybe<Scalars['Boolean']>;
+  canReadPropertyFiles_not?: Maybe<Scalars['Boolean']>;
+  canManagePropertyFiles?: Maybe<Scalars['Boolean']>;
+  canManagePropertyFiles_not?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canReadTickets_not?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
@@ -54130,6 +54316,8 @@ export type OrganizationEmployeeRoleUpdateInput = {
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
   canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
+  canReadPropertyFiles?: Maybe<Scalars['Boolean']>;
+  canManagePropertyFiles?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageMeters?: Maybe<Scalars['Boolean']>;
@@ -54247,6 +54435,10 @@ export type OrganizationEmployeeRoleWhereInput = {
   canReadProperties_not?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties_not?: Maybe<Scalars['Boolean']>;
+  canReadPropertyFiles?: Maybe<Scalars['Boolean']>;
+  canReadPropertyFiles_not?: Maybe<Scalars['Boolean']>;
+  canManagePropertyFiles?: Maybe<Scalars['Boolean']>;
+  canManagePropertyFiles_not?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canReadTickets_not?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
@@ -57258,6 +57450,682 @@ export type PropertyCreateInput = {
   sender?: Maybe<SenderFieldInput>;
 };
 
+/**  File attached to property. It could be some kind of property documentation, inspection reports or other documents  */
+export type PropertyFile = {
+  __typename?: 'PropertyFile';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the PropertyFile List config, or
+   *  2. As an alias to the field set on 'labelField' in the PropertyFile List config, or
+   *  3. As an alias to a 'name' field on the PropertyFile List (if one exists), or
+   *  4. As an alias to the 'id' field on the PropertyFile List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Property to which the file is attached  */
+  property?: Maybe<Property>;
+  /**  Which file category for property is this file  */
+  category?: Maybe<PropertyFileCategory>;
+  /**  File attached to property  */
+  file?: Maybe<File>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type PropertyFileCategoriesCreateInput = {
+  data?: Maybe<PropertyFileCategoryCreateInput>;
+};
+
+export type PropertyFileCategoriesUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<PropertyFileCategoryUpdateInput>;
+};
+
+/**  Property file category, for example, cleaning acts, works performed, design or technical documentation and other categories  */
+export type PropertyFileCategory = {
+  __typename?: 'PropertyFileCategory';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the PropertyFileCategory List config, or
+   *  2. As an alias to the field set on 'labelField' in the PropertyFileCategory List config, or
+   *  3. As an alias to a 'name' field on the PropertyFileCategory List (if one exists), or
+   *  4. As an alias to the 'id' field on the PropertyFileCategory List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Name of the category  */
+  name?: Maybe<Scalars['String']>;
+  /**  The number used for sorting at the client. It's possible to sort categories any manner. For example, set some category to the bottom by setting order=100 and sorting asc.  */
+  order?: Maybe<Scalars['Int']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type PropertyFileCategoryCreateInput = {
+  name?: Maybe<Scalars['String']>;
+  order?: Maybe<Scalars['Int']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type PropertyFileCategoryHistoryRecord = {
+  __typename?: 'PropertyFileCategoryHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the PropertyFileCategoryHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the PropertyFileCategoryHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the PropertyFileCategoryHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the PropertyFileCategoryHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  order?: Maybe<Scalars['Int']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<PropertyFileCategoryHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type PropertyFileCategoryHistoryRecordCreateInput = {
+  name?: Maybe<Scalars['String']>;
+  order?: Maybe<Scalars['Int']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<PropertyFileCategoryHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum PropertyFileCategoryHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type PropertyFileCategoryHistoryRecordUpdateInput = {
+  name?: Maybe<Scalars['String']>;
+  order?: Maybe<Scalars['Int']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<PropertyFileCategoryHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type PropertyFileCategoryHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<PropertyFileCategoryHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<PropertyFileCategoryHistoryRecordWhereInput>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  order?: Maybe<Scalars['Int']>;
+  order_not?: Maybe<Scalars['Int']>;
+  order_lt?: Maybe<Scalars['Int']>;
+  order_lte?: Maybe<Scalars['Int']>;
+  order_gt?: Maybe<Scalars['Int']>;
+  order_gte?: Maybe<Scalars['Int']>;
+  order_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  order_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<PropertyFileCategoryHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<PropertyFileCategoryHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<PropertyFileCategoryHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<PropertyFileCategoryHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type PropertyFileCategoryHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type PropertyFileCategoryHistoryRecordsCreateInput = {
+  data?: Maybe<PropertyFileCategoryHistoryRecordCreateInput>;
+};
+
+export type PropertyFileCategoryHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<PropertyFileCategoryHistoryRecordUpdateInput>;
+};
+
+export type PropertyFileCategoryRelateToOneInput = {
+  create?: Maybe<PropertyFileCategoryCreateInput>;
+  connect?: Maybe<PropertyFileCategoryWhereUniqueInput>;
+  disconnect?: Maybe<PropertyFileCategoryWhereUniqueInput>;
+  disconnectAll?: Maybe<Scalars['Boolean']>;
+};
+
+export type PropertyFileCategoryUpdateInput = {
+  name?: Maybe<Scalars['String']>;
+  order?: Maybe<Scalars['Int']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type PropertyFileCategoryWhereInput = {
+  AND?: Maybe<Array<Maybe<PropertyFileCategoryWhereInput>>>;
+  OR?: Maybe<Array<Maybe<PropertyFileCategoryWhereInput>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  order?: Maybe<Scalars['Int']>;
+  order_not?: Maybe<Scalars['Int']>;
+  order_lt?: Maybe<Scalars['Int']>;
+  order_lte?: Maybe<Scalars['Int']>;
+  order_gt?: Maybe<Scalars['Int']>;
+  order_gte?: Maybe<Scalars['Int']>;
+  order_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  order_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type PropertyFileCategoryWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type PropertyFileCreateInput = {
+  property?: Maybe<PropertyRelateToOneInput>;
+  category?: Maybe<PropertyFileCategoryRelateToOneInput>;
+  file?: Maybe<Scalars['Upload']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type PropertyFileHistoryRecord = {
+  __typename?: 'PropertyFileHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the PropertyFileHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the PropertyFileHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the PropertyFileHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the PropertyFileHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  property?: Maybe<Scalars['String']>;
+  category?: Maybe<Scalars['String']>;
+  file?: Maybe<Scalars['JSON']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<PropertyFileHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type PropertyFileHistoryRecordCreateInput = {
+  property?: Maybe<Scalars['String']>;
+  category?: Maybe<Scalars['String']>;
+  file?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<PropertyFileHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum PropertyFileHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type PropertyFileHistoryRecordUpdateInput = {
+  property?: Maybe<Scalars['String']>;
+  category?: Maybe<Scalars['String']>;
+  file?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<PropertyFileHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type PropertyFileHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<PropertyFileHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<PropertyFileHistoryRecordWhereInput>>>;
+  property?: Maybe<Scalars['String']>;
+  property_not?: Maybe<Scalars['String']>;
+  property_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  property_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  category?: Maybe<Scalars['String']>;
+  category_not?: Maybe<Scalars['String']>;
+  category_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  category_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  file?: Maybe<Scalars['JSON']>;
+  file_not?: Maybe<Scalars['JSON']>;
+  file_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  file_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<PropertyFileHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<PropertyFileHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<PropertyFileHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<PropertyFileHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type PropertyFileHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type PropertyFileHistoryRecordsCreateInput = {
+  data?: Maybe<PropertyFileHistoryRecordCreateInput>;
+};
+
+export type PropertyFileHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<PropertyFileHistoryRecordUpdateInput>;
+};
+
+export type PropertyFileUpdateInput = {
+  property?: Maybe<PropertyRelateToOneInput>;
+  category?: Maybe<PropertyFileCategoryRelateToOneInput>;
+  file?: Maybe<Scalars['Upload']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type PropertyFileWhereInput = {
+  AND?: Maybe<Array<Maybe<PropertyFileWhereInput>>>;
+  OR?: Maybe<Array<Maybe<PropertyFileWhereInput>>>;
+  property?: Maybe<PropertyWhereInput>;
+  property_is_null?: Maybe<Scalars['Boolean']>;
+  category?: Maybe<PropertyFileCategoryWhereInput>;
+  category_is_null?: Maybe<Scalars['Boolean']>;
+  file?: Maybe<Scalars['String']>;
+  file_not?: Maybe<Scalars['String']>;
+  file_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  file_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type PropertyFileWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type PropertyFilesCreateInput = {
+  data?: Maybe<PropertyFileCreateInput>;
+};
+
+export type PropertyFilesUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<PropertyFileUpdateInput>;
+};
+
 /**  A keystone list  */
 export type PropertyHistoryRecord = {
   __typename?: 'PropertyHistoryRecord';
@@ -60016,6 +60884,38 @@ export type Query = {
   _allPropertiesMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the Property list.  */
   _PropertiesMeta?: Maybe<_ListMeta>;
+  /**  Search for all PropertyFileCategoryHistoryRecord items which match the where clause.  */
+  allPropertyFileCategoryHistoryRecords?: Maybe<Array<Maybe<PropertyFileCategoryHistoryRecord>>>;
+  /**  Search for the PropertyFileCategoryHistoryRecord item with the matching ID.  */
+  PropertyFileCategoryHistoryRecord?: Maybe<PropertyFileCategoryHistoryRecord>;
+  /**  Perform a meta-query on all PropertyFileCategoryHistoryRecord items which match the where clause.  */
+  _allPropertyFileCategoryHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the PropertyFileCategoryHistoryRecord list.  */
+  _PropertyFileCategoryHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all PropertyFileCategory items which match the where clause.  */
+  allPropertyFileCategories?: Maybe<Array<Maybe<PropertyFileCategory>>>;
+  /**  Search for the PropertyFileCategory item with the matching ID.  */
+  PropertyFileCategory?: Maybe<PropertyFileCategory>;
+  /**  Perform a meta-query on all PropertyFileCategory items which match the where clause.  */
+  _allPropertyFileCategoriesMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the PropertyFileCategory list.  */
+  _PropertyFileCategoriesMeta?: Maybe<_ListMeta>;
+  /**  Search for all PropertyFileHistoryRecord items which match the where clause.  */
+  allPropertyFileHistoryRecords?: Maybe<Array<Maybe<PropertyFileHistoryRecord>>>;
+  /**  Search for the PropertyFileHistoryRecord item with the matching ID.  */
+  PropertyFileHistoryRecord?: Maybe<PropertyFileHistoryRecord>;
+  /**  Perform a meta-query on all PropertyFileHistoryRecord items which match the where clause.  */
+  _allPropertyFileHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the PropertyFileHistoryRecord list.  */
+  _PropertyFileHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all PropertyFile items which match the where clause.  */
+  allPropertyFiles?: Maybe<Array<Maybe<PropertyFile>>>;
+  /**  Search for the PropertyFile item with the matching ID.  */
+  PropertyFile?: Maybe<PropertyFile>;
+  /**  Perform a meta-query on all PropertyFile items which match the where clause.  */
+  _allPropertyFilesMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the PropertyFile list.  */
+  _PropertyFilesMeta?: Maybe<_ListMeta>;
   /**  Search for all BillingIntegrationHistoryRecord items which match the where clause.  */
   allBillingIntegrationHistoryRecords?: Maybe<Array<Maybe<BillingIntegrationHistoryRecord>>>;
   /**  Search for the BillingIntegrationHistoryRecord item with the matching ID.  */
@@ -62656,6 +63556,106 @@ export type Query_AllPropertiesMetaArgs = {
   where?: Maybe<PropertyWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortPropertiesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllPropertyFileCategoryHistoryRecordsArgs = {
+  where?: Maybe<PropertyFileCategoryHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortPropertyFileCategoryHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryPropertyFileCategoryHistoryRecordArgs = {
+  where: PropertyFileCategoryHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllPropertyFileCategoryHistoryRecordsMetaArgs = {
+  where?: Maybe<PropertyFileCategoryHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortPropertyFileCategoryHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllPropertyFileCategoriesArgs = {
+  where?: Maybe<PropertyFileCategoryWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortPropertyFileCategoriesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryPropertyFileCategoryArgs = {
+  where: PropertyFileCategoryWhereUniqueInput;
+};
+
+
+export type Query_AllPropertyFileCategoriesMetaArgs = {
+  where?: Maybe<PropertyFileCategoryWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortPropertyFileCategoriesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllPropertyFileHistoryRecordsArgs = {
+  where?: Maybe<PropertyFileHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortPropertyFileHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryPropertyFileHistoryRecordArgs = {
+  where: PropertyFileHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllPropertyFileHistoryRecordsMetaArgs = {
+  where?: Maybe<PropertyFileHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortPropertyFileHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllPropertyFilesArgs = {
+  where?: Maybe<PropertyFileWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortPropertyFilesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryPropertyFileArgs = {
+  where: PropertyFileWhereUniqueInput;
+};
+
+
+export type Query_AllPropertyFilesMetaArgs = {
+  where?: Maybe<PropertyFileWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortPropertyFilesBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -76899,6 +77899,10 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanReadPropertiesDesc = 'canReadProperties_DESC',
   CanManagePropertiesAsc = 'canManageProperties_ASC',
   CanManagePropertiesDesc = 'canManageProperties_DESC',
+  CanReadPropertyFilesAsc = 'canReadPropertyFiles_ASC',
+  CanReadPropertyFilesDesc = 'canReadPropertyFiles_DESC',
+  CanManagePropertyFilesAsc = 'canManagePropertyFiles_ASC',
+  CanManagePropertyFilesDesc = 'canManagePropertyFiles_DESC',
   CanReadTicketsAsc = 'canReadTickets_ASC',
   CanReadTicketsDesc = 'canReadTickets_DESC',
   CanManageTicketsAsc = 'canManageTickets_ASC',
@@ -77042,6 +78046,10 @@ export enum SortOrganizationEmployeeRolesBy {
   CanReadPropertiesDesc = 'canReadProperties_DESC',
   CanManagePropertiesAsc = 'canManageProperties_ASC',
   CanManagePropertiesDesc = 'canManageProperties_DESC',
+  CanReadPropertyFilesAsc = 'canReadPropertyFiles_ASC',
+  CanReadPropertyFilesDesc = 'canReadPropertyFiles_DESC',
+  CanManagePropertyFilesAsc = 'canManagePropertyFiles_ASC',
+  CanManagePropertyFilesDesc = 'canManagePropertyFiles_DESC',
   CanReadTicketsAsc = 'canReadTickets_ASC',
   CanReadTicketsDesc = 'canReadTickets_DESC',
   CanManageTicketsAsc = 'canManageTickets_ASC',
@@ -77546,6 +78554,94 @@ export enum SortPropertiesBy {
   AddressDesc = 'address_DESC',
   AddressKeyAsc = 'addressKey_ASC',
   AddressKeyDesc = 'addressKey_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
+export enum SortPropertyFileCategoriesBy {
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  OrderAsc = 'order_ASC',
+  OrderDesc = 'order_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
+export enum SortPropertyFileCategoryHistoryRecordsBy {
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  OrderAsc = 'order_ASC',
+  OrderDesc = 'order_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortPropertyFileHistoryRecordsBy {
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortPropertyFilesBy {
+  PropertyAsc = 'property_ASC',
+  PropertyDesc = 'property_DESC',
+  CategoryAsc = 'category_ASC',
+  CategoryDesc = 'category_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
   VDesc = 'v_DESC',
   CreatedAtAsc = 'createdAt_ASC',
