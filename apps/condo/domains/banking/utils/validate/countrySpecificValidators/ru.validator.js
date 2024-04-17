@@ -52,7 +52,7 @@ const validateRuRoutingNumber = (routingNumber, errors) => {
 
     const countryCode = routingNumber.substr(0, 2)
 
-    if (countryCode !== '04' && countryCode !== '01') {
+    if (countryCode !== '04' && countryCode !== '01' && countryCode !== '00') {
         errors.push(WRONG_RU_COUNTRY_CODE + countryCode)
     }
 }
