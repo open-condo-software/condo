@@ -221,7 +221,7 @@ const RegisterMultiPaymentForOneReceiptService = new GQLCustomSchema('RegisterMu
                 // Stage 3 Generating payments
                 const formula = await getAcquiringIntegrationContextFormula(context, acquiringIntegrationContext.id)
                 const feeCalculator = new FeeDistribution(formula)
-                const frozenReceipt = await freezeBillingReceipt(billingReceipt)
+                const frozenReceipt = await freezeBillingReceipt(context, billingReceipt)
                 const billingAccountNumber = get(frozenReceipt, ['data', 'account', 'number'])
                 const {
                     type,

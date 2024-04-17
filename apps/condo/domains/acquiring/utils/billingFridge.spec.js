@@ -2,34 +2,62 @@
  * @jest-environment node
  */
 
-const { prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeystoneApp')
+const index = require('@app/condo/index')
+const dayjs = require('dayjs')
+
 const { getById } = require('@open-condo/keystone/schema')
 const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { makePayer } = require('@condo/domains/acquiring/utils/testSchema')
-const { createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
+const {
+    createTestBillingIntegration,
+    updateTestBillingReceipt,
+    createTestBillingRecipient,
+} = require('@condo/domains/billing/utils/testSchema')
 const { createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 
 const { freezeBillingReceipt, freezeInvoice } = require('./billingFridge')
 const { createTestAcquiringIntegration, createTestAcquiringIntegrationContext } = require('./testSchema')
 
-describe('billingFridge', () => {
+const { createTestBillingReceipt } = require('../../billing/utils/testSchema')
 
-    setFakeClientMode(require.resolve('../../../index'))
+const { keystone } = index
+
+describe('billingFridge', () => {
+    let context
+    setFakeClientMode(index)
 
     beforeAll(async () => {
-        await prepareKeystoneExpressApp(require.resolve('../../../index'))
+        context = await keystone.createContext({ skipAccessControl: true })
     })
 
     describe('freezeBillingReceipt', () => {
         let frozenReceipt
 
         beforeAll(async () => {
-            const { billingReceipts } = await makePayer()
-            const flatReceipt = await getById('BillingReceipt', billingReceipts[0].id)
-            frozenReceipt = await freezeBillingReceipt(flatReceipt)
+            const admin = await makeLoggedInAdminClient()
+            const {
+                billingContext,
+                billingProperty,
+                billingAccount,
+            } = await makePayer()
+
+            // create a real recipient
+            const [billingRecipient] = await createTestBillingRecipient(admin, billingContext)
+
+            const [receipt] = await createTestBillingReceipt(
+                admin,
+                billingContext,
+                billingProperty,
+                billingAccount,
+                { period: dayjs().format('YYYY-MM-01'), receiver: { connect: { id: billingRecipient.id } } },
+            )
+
+            // get receipt and make frozen receipt
+            const flatReceipt = await getById('BillingReceipt', receipt.id)
+            frozenReceipt = await freezeBillingReceipt(context, flatReceipt)
         })
 
         test('should contains correct dv (=== 1)', () => {
