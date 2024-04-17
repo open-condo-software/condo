@@ -7,7 +7,7 @@ const { AddressServiceClient } = require('./AddressServiceClient')
 let instance
 
 /**
- * @returns {MockedAddressServiceClient|AddressServiceClient}
+ * @returns {AddressServiceClient}
  */
 function createInstance () {
     const addressServiceUrl = get(conf, 'ADDRESS_SERVICE_DOMAIN')

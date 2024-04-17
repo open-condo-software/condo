@@ -23,3 +23,4 @@ if (EXTRA_LOGGING) {
 }
 
 jest.mock('@open-condo/clients/address-service-client/AddressServiceClient')
+jest.mock('@open-condo/clients/finance-info-client')
