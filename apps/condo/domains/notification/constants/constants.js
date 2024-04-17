@@ -202,6 +202,7 @@ const MESSAGE_META = {
     [SMS_VERIFY_CODE_MESSAGE_TYPE]: {
         dv: { defaultValue: '', required: true },
         smsCode: { defaultValue: '', required: true },
+        appId: { required: false },
     },
     [DEVELOPER_IMPORTANT_NOTE_TYPE]: {
         dv: { defaultValue: '', required: true },
