@@ -6,7 +6,7 @@ import {
     Ticket,
     TicketFile as TicketFileType,
     TicketStatusTypeType,
-    TicketSource as TicketSourceType, SortInvoicesBy,
+    SortInvoicesBy,
 } from '@app/condo/schema'
 import { Affix, Col, ColProps, Form, FormItemProps, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
@@ -44,7 +44,6 @@ import { PROPERTY_REQUIRED_ERROR } from '@condo/domains/common/constants/errors'
 import { MARKETPLACE } from '@condo/domains/common/constants/featureflags'
 import { colors } from '@condo/domains/common/constants/style'
 import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
-import { convertToOptions } from '@condo/domains/common/utils/filters.utils'
 import { normalizeText } from '@condo/domains/common/utils/text'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
 import { CreateInvoiceForm } from '@condo/domains/marketplace/components/Invoice/CreateInvoiceForm'
@@ -64,7 +63,7 @@ import {
 } from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
 import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
 import { MAX_DETAILS_LENGTH } from '@condo/domains/ticket/constants'
-import { VISIBLE_TICKET_SOURCE_TYPES_IN_TICKET_FORM } from '@condo/domains/ticket/constants/common'
+import { VISIBLE_TICKET_SOURCE_TYPES_IN_TICKET_FORM, TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/common'
 import { useActiveCall } from '@condo/domains/ticket/contexts/ActiveCallContext'
 import { TicketFile, TicketSource } from '@condo/domains/ticket/utils/clientSchema'
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
@@ -620,8 +619,10 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
 
 const TICKET_SOURCE_SELECT_STYLE: React.CSSProperties = { width: '100%' }
 const DEFAULT_TICKET_SOURCE_CALL_ID = '779d7bb6-b194-4d2c-a967-1f7321b2787f'
+const MOBILE_TICKET_SOURCE_TYPES = [TICKET_SOURCE_TYPES.MOBILE_APP, TICKET_SOURCE_TYPES.MOBILE_APP_RESIDENT, TICKET_SOURCE_TYPES.MOBILE_APP_STAFF]
+const HIDDEN_SOURCE_STYLE: React.CSSProperties = { display: 'none' }
 
-export const TicketSourceSelect: React.FC = () => {
+export const TicketSourceSelect: React.FC<{ initialValues?: ITicketFormState }> = ({ initialValues }) => {
     const intl = useIntl()
     const TicketSourceLabel = intl.formatMessage({ id: 'pages.condo.ticket.field.Source.label' })
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
@@ -629,7 +630,20 @@ export const TicketSourceSelect: React.FC = () => {
     const { objs: sources, loading } = TicketSource.useObjects({
         where: { type_in: VISIBLE_TICKET_SOURCE_TYPES_IN_TICKET_FORM },
     })
-    const sourceOptions = convertToOptions<TicketSourceType>(sources, 'name', 'id')
+
+    const initialSourceId = get(initialValues, 'source')
+    const initialSource = useMemo(() => sources.find((source) => initialSourceId && source.id === initialSourceId), [initialSourceId, sources])
+    const isMobileSource = useMemo(() => MOBILE_TICKET_SOURCE_TYPES.includes(get(initialSource, 'type')), [initialSource])
+    const sourceOptions = useMemo(() => sources.map((source) => {
+        const value = get(source, 'id')
+        const label = get(source, 'name')
+        const isMobileSource = MOBILE_TICKET_SOURCE_TYPES.includes(get(source, 'type'))
+        return (
+            <Select.Option key={value} value={value} style={isMobileSource ? HIDDEN_SOURCE_STYLE : null} disabled={isMobileSource}>
+                {label}
+            </Select.Option>
+        )
+    }), [sources])
 
     const LoadingSelect = useMemo(() => (
         <Form.Item
@@ -656,9 +670,9 @@ export const TicketSourceSelect: React.FC = () => {
         >
             <Select
                 style={TICKET_SOURCE_SELECT_STYLE}
-                options={sourceOptions}
+                children={sourceOptions}
                 defaultValue={DEFAULT_TICKET_SOURCE_CALL_ID}
-                disabled={loading}
+                disabled={loading || isMobileSource}
             />
         </Form.Item>
     )
@@ -930,7 +944,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                         <Col>
                                             <Row gutter={BIG_VERTICAL_GUTTER}>
                                                 <Col span={24} lg={7}>
-                                                    <TicketSourceSelect />
+                                                    <TicketSourceSelect initialValues={initialTicketValues} />
                                                 </Col>
                                                 <Col span={24}>
                                                     <Row gutter={BIG_HORIZONTAL_GUTTER} justify='space-between'>
