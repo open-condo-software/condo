@@ -15,7 +15,7 @@ const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } 
 
 
 describe('DocumentCategory', () => {
-    let admin, support, anonymous, userClient, propertyFileCategory
+    let admin, support, anonymous, userClient, documentFileCategory
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
@@ -24,7 +24,7 @@ describe('DocumentCategory', () => {
         userClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
         const [testDocumentCategory] = await createTestDocumentCategory(admin)
-        propertyFileCategory = testDocumentCategory
+        documentFileCategory = testDocumentCategory
     })
 
     describe('Access', () => {
@@ -58,30 +58,30 @@ describe('DocumentCategory', () => {
 
         describe('Read', () => {
             it('admin can', async () => {
-                const readDocumentCategory = await DocumentCategory.getOne(admin, { id: propertyFileCategory.id })
+                const readDocumentCategory = await DocumentCategory.getOne(admin, { id: documentFileCategory.id })
 
                 expect(readDocumentCategory).toBeDefined()
-                expect(readDocumentCategory.id).toEqual(propertyFileCategory.id)
+                expect(readDocumentCategory.id).toEqual(documentFileCategory.id)
             })
 
             it('support can', async () => {
-                const readDocumentCategory = await DocumentCategory.getOne(support, { id: propertyFileCategory.id })
+                const readDocumentCategory = await DocumentCategory.getOne(support, { id: documentFileCategory.id })
 
                 expect(readDocumentCategory).toBeDefined()
-                expect(readDocumentCategory.id).toEqual(propertyFileCategory.id)
+                expect(readDocumentCategory.id).toEqual(documentFileCategory.id)
             })
 
             it('anonymous can not', async () => {
                 await expectToThrowAuthenticationErrorToObjects(async () => {
-                    await DocumentCategory.getOne(anonymous, { id: propertyFileCategory.id })
+                    await DocumentCategory.getOne(anonymous, { id: documentFileCategory.id })
                 })
             })
 
             it('user can', async () => {
-                const readDocumentCategory = await DocumentCategory.getOne(userClient, { id: propertyFileCategory.id })
+                const readDocumentCategory = await DocumentCategory.getOne(userClient, { id: documentFileCategory.id })
 
                 expect(readDocumentCategory).toBeDefined()
-                expect(readDocumentCategory.id).toEqual(propertyFileCategory.id)
+                expect(readDocumentCategory.id).toEqual(documentFileCategory.id)
             })
         })
 
@@ -112,13 +112,13 @@ describe('DocumentCategory', () => {
 
             it('anonymous can not', async () => {
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await updateTestDocumentCategory(anonymous, propertyFileCategory.id, {})
+                    await updateTestDocumentCategory(anonymous, documentFileCategory.id, {})
                 })
             })
 
             it('user can not', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestDocumentCategory(userClient, propertyFileCategory.id, {})
+                    await updateTestDocumentCategory(userClient, documentFileCategory.id, {})
                 })
             })
         })
@@ -142,13 +142,13 @@ describe('DocumentCategory', () => {
 
             it('anonymous can not', async () => {
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await softDeleteTestDocumentCategory(anonymous, propertyFileCategory.id)
+                    await softDeleteTestDocumentCategory(anonymous, documentFileCategory.id)
                 })
             })
 
             it('user can not', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await softDeleteTestDocumentCategory(userClient, propertyFileCategory.id)
+                    await softDeleteTestDocumentCategory(userClient, documentFileCategory.id)
                 })
             })
         })
