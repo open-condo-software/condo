@@ -12,7 +12,11 @@ SET statement_timeout = '1500s';
 --
 -- Alter field type on message
 --
-ALTER TABLE "Message" ALTER COLUMN "type" TYPE varchar(128) USING "type"::varchar(128);
+-- ALTER TABLE "Message" ALTER COLUMN "type" TYPE varchar(128) USING "type"::varchar(128);
+-- [CUSTOM] Rewrite postgres internal constraints directly to avoid full-table scan
+-- NOTE: 4 bytes if reserved by PG, so we need to set it to 132 instead of 128
+--
+UPDATE pg_attribute SET atttypmod = 128+4 WHERE attrelid = '"Message"'::regclass AND attname = 'type';
 --
 -- Alter field type on messageappblacklist
 --
