@@ -2853,6 +2853,7 @@
   "incident.fields.properties.label": "Адреса",
   "incident.fields.properties.checkAll.label": "Выбрать все",
   "incident.fields.properties.allSelected": "Все дома",
+  "incident.fields.properties.wasDeleted": "Дом удален",
   "incident.fields.workDate.label": "Дата проведения работ",
   "incident.fields.workDate.from": "С",
   "incident.fields.workDate.to": "До",

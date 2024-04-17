@@ -238,9 +238,10 @@ const loadTicketCommentsForPdfExport = async ({ where = {}, sortBy = ['createdAt
 const loadIncidentPropertiesForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
     const incidentPropertiesLoader = new GqlWithKnexLoadList({
         listKey: 'IncidentProperty',
-        fields: 'id incident',
+        fields: 'id incident propertyAddress',
         singleRelations: [
             ['Property', 'property', 'address'],
+            ['Property', 'property', 'deletedAt', 'propertyDeletedAt'],
             ['Incident', 'incident', 'id'],
         ],
         sortBy,
