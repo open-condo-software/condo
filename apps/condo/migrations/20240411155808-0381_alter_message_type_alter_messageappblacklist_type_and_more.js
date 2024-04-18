@@ -5,39 +5,33 @@ exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
 --
--- [CUSTOM] Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
+-- NOTE: This migration does not make sense, since it will be reverted later in 387
 --
-SET statement_timeout = '1500s';  
 
 --
 -- Alter field type on message
 --
-ALTER TABLE "Message" ALTER COLUMN "type" TYPE varchar(128) USING "type"::varchar(128);
+-- ALTER TABLE "Message" ALTER COLUMN "type" TYPE varchar(128) USING "type"::varchar(128);
 --
 -- Alter field type on messageappblacklist
 --
-ALTER TABLE "MessageAppBlackList" ALTER COLUMN "type" TYPE varchar(128) USING "type"::varchar(128);
+-- ALTER TABLE "MessageAppBlackList" ALTER COLUMN "type" TYPE varchar(128) USING "type"::varchar(128);
 --
 -- Alter field type on messageorganizationblacklist
 --
-ALTER TABLE "MessageOrganizationBlackList" ALTER COLUMN "type" TYPE varchar(128) USING "type"::varchar(128);
+-- ALTER TABLE "MessageOrganizationBlackList" ALTER COLUMN "type" TYPE varchar(128) USING "type"::varchar(128);
 --
 -- Alter field type on messageuserblacklist
 --
-ALTER TABLE "MessageUserBlackList" ALTER COLUMN "type" TYPE varchar(128) USING "type"::varchar(128);
+-- ALTER TABLE "MessageUserBlackList" ALTER COLUMN "type" TYPE varchar(128) USING "type"::varchar(128);
 --
 -- Alter field messageType on notificationanonymoussetting
 --
-ALTER TABLE "NotificationAnonymousSetting" ALTER COLUMN "messageType" TYPE varchar(128);
+-- ALTER TABLE "NotificationAnonymousSetting" ALTER COLUMN "messageType" TYPE varchar(128);
 --
 -- Alter field messageType on notificationusersetting
 --
-ALTER TABLE "NotificationUserSetting" ALTER COLUMN "messageType" TYPE varchar(128);
-
---
--- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
---
-SET statement_timeout = '10s';
+-- ALTER TABLE "NotificationUserSetting" ALTER COLUMN "messageType" TYPE varchar(128);
 
 COMMIT;
 
@@ -50,27 +44,27 @@ exports.down = async (knex) => {
 --
 -- Alter field messageType on notificationusersetting
 --
-ALTER TABLE "NotificationUserSetting" ALTER COLUMN "messageType" TYPE varchar(100);
+-- ALTER TABLE "NotificationUserSetting" ALTER COLUMN "messageType" TYPE varchar(100);
 --
 -- Alter field messageType on notificationanonymoussetting
 --
-ALTER TABLE "NotificationAnonymousSetting" ALTER COLUMN "messageType" TYPE varchar(100);
+-- ALTER TABLE "NotificationAnonymousSetting" ALTER COLUMN "messageType" TYPE varchar(100);
 --
 -- Alter field type on messageuserblacklist
 --
-ALTER TABLE "MessageUserBlackList" ALTER COLUMN "type" TYPE text USING "type"::text;
+-- ALTER TABLE "MessageUserBlackList" ALTER COLUMN "type" TYPE text USING "type"::text;
 --
 -- Alter field type on messageorganizationblacklist
 --
-ALTER TABLE "MessageOrganizationBlackList" ALTER COLUMN "type" TYPE text USING "type"::text;
+-- ALTER TABLE "MessageOrganizationBlackList" ALTER COLUMN "type" TYPE text USING "type"::text;
 --
 -- Alter field type on messageappblacklist
 --
-ALTER TABLE "MessageAppBlackList" ALTER COLUMN "type" TYPE text USING "type"::text;
+-- ALTER TABLE "MessageAppBlackList" ALTER COLUMN "type" TYPE text USING "type"::text;
 --
 -- Alter field type on message
 --
-ALTER TABLE "Message" ALTER COLUMN "type" TYPE text USING "type"::text;
+-- ALTER TABLE "Message" ALTER COLUMN "type" TYPE text USING "type"::text;
 
 COMMIT;
 
