@@ -4,7 +4,7 @@ import { Form } from 'antd'
 import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
 import getConfig from 'next/config'
-import React, { useState, Dispatch, SetStateAction, useCallback } from 'react'
+import React, { useState, Dispatch, SetStateAction, useCallback, useMemo } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
@@ -152,7 +152,7 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
         setIsVisible(false)
     }, [setIsVisible])
 
-    const ModalForm: React.FC = () => (
+    const ModalForm: React.FC = useCallback(() => (
         <BaseModalForm
             mutation={REGISTER_NEW_ORGANIZATION_MUTATION}
             mutationExtraData={MUTATION_EXTRA_DATA}
@@ -182,12 +182,11 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
                 <Input />
             </Form.Item>
         </BaseModalForm>
-    )
+    ), [CreateOrganizationModalTitle, CreateOrganizationPlaceholder, ErrorToFormFieldMsgMapping, InnMessage, ManagingCompanyMessage, NameMsg, ServiceProviderMessage, handleCloseModal, handleMutationCompleted, isVisible, validators.name, validators.tin])
 
-    // TODO(DOMA-1588): Add memoization for hook members to prevent unnecessary rerenders
-    return {
+    return useMemo(() => ({
         isVisible,
         ModalForm,
         setIsVisible,
-    }
+    }), [ModalForm, isVisible])
 }

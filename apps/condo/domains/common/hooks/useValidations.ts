@@ -1,10 +1,12 @@
 import { Rule } from 'rc-field-form/lib/interface'
+import { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
 import { SPECIAL_CHAR_REGEXP, MULTIPLE_EMAILS_REGEX } from '@condo/domains/common/constants/regexps'
 import { normalizePhone } from '@condo/domains/common/utils/phone'
 import { isValidTin } from '@condo/domains/organization/utils/tin.utils'
+
 
 type ValidatorTypes = {
     changeMessage: (rule: Rule, message: string) => Rule
@@ -32,7 +34,6 @@ type ValidationSettings = {
 
 type UseValidations = (settings?: ValidationSettings) => ValidatorTypes
 
-// TODO(DOMA-1588): Add memoization for hook members to prevent unnecessary rerenders
 export const useValidations: UseValidations = (settings = {}) => {
     const intl = useIntl()
     const ThisFieldIsRequiredMessage = intl.formatMessage({ id: 'FieldIsRequired' })
@@ -47,33 +48,33 @@ export const useValidations: UseValidations = (settings = {}) => {
 
     const { allowLandLine } = settings
 
-    const requiredValidator: Rule = {
+    const requiredValidator: Rule = useMemo(() => ({
         required: true,
         message: ThisFieldIsRequiredMessage,
-    }
+    }), [ThisFieldIsRequiredMessage])
 
-    const phoneValidator: Rule = {
+    const phoneValidator: Rule = useMemo(() => ({
         validator: (_, value) => {
             if (!value) return Promise.resolve()
             const v = normalizePhone(value, allowLandLine)
             if (!v) return Promise.reject(allowLandLine ? PhoneIsNotValidMessage : MobilePhoneIsNotValidMessage)
             return Promise.resolve()
         },
-    }
+    }), [MobilePhoneIsNotValidMessage, PhoneIsNotValidMessage, allowLandLine])
 
-    const emailValidator: Rule = {
+    const emailValidator: Rule = useMemo(() => ({
         type: 'email',
         message: EmailErrorMessage,
-    }
+    }), [EmailErrorMessage])
 
-    const trimValidator: Rule = {
+    const trimValidator: Rule = useMemo(() => ({
         validator: (_, value) => {
             if (!value || value.trim().length === 0) return Promise.reject(ThisFieldIsRequiredMessage)
             return Promise.resolve()
         },
-    }
+    }), [ThisFieldIsRequiredMessage])
 
-    const specCharValidator: Rule = {
+    const specCharValidator: Rule = useMemo(() => ({
         validator: (_, value) => {
             if (value) {
                 if (SPECIAL_CHAR_REGEXP.test(value)) return Promise.reject()
@@ -82,26 +83,26 @@ export const useValidations: UseValidations = (settings = {}) => {
             }
             return Promise.resolve()
         },
-    }
+    }), [])
 
-    const minLengthValidator: (length: number) => Rule = (length) => {
+    const minLengthValidator: (length: number) => Rule = useCallback((length) => {
         return {
             min: length,
             message: FieldIsTooShortMessage,
         }
-    }
+    }, [FieldIsTooShortMessage])
 
-    const maxLengthValidator: (length: number, errorMessage?: string) => Rule = (length, errorMessage) => {
+    const maxLengthValidator: (length: number, errorMessage?: string) => Rule = useCallback((length, errorMessage) => {
         const message = errorMessage ? errorMessage : FieldIsTooLongMessage
 
         return {
             max: length,
             message,
         }
-    }
+    }, [FieldIsTooLongMessage])
 
     // TODO (DOMA-1725): Replace this with normal validations
-    const numberValidator: Rule = {
+    const numberValidator: Rule = useMemo(() => ({
         validator: (_, value: string) => {
             const normalizedValue = value?.replace(',', '.')
             if (normalizedValue && !normalizedValue.match(/^\d+(\.?\d+)?$/g))
@@ -109,10 +110,10 @@ export const useValidations: UseValidations = (settings = {}) => {
 
             return Promise.resolve()
         },
-    }
+    }), [NumberIsNotValidMessage])
 
     const lessThanValidator: (comparedValue: number, errorMessage: string) => Rule =
-        (comparedValue, errorMessage) => {
+        useCallback((comparedValue, errorMessage) => {
             return {
                 validator: (_, value: string | number) => {
                     let normalizedValue = value
@@ -125,10 +126,10 @@ export const useValidations: UseValidations = (settings = {}) => {
                     return Promise.resolve()
                 },
             }
-        }
+        }, [])
 
     const greaterThanValidator: (comparedValue: number, errorMessage: string, delta?: number) => Rule =
-        (comparedValue, errorMessage, delta = 0) => {
+        useCallback((comparedValue, errorMessage, delta = 0) => {
             return {
                 validator: (_, value: number | string) => {
                     let normalizedValue = value
@@ -141,10 +142,10 @@ export const useValidations: UseValidations = (settings = {}) => {
                     return Promise.resolve()
                 },
             }
-        }
+        }, [])
 
     const tinValidator: (country: string) => Rule =
-        (country) => {
+        useCallback((country) => {
             return {
                 validator: (_, value: string) => {
                     if (isValidTin(value, country)) return Promise.resolve()
@@ -152,10 +153,10 @@ export const useValidations: UseValidations = (settings = {}) => {
                     return Promise.reject(TinValueIsInvalidMessage)
                 },
             }
-        }
+        }, [TinValueIsInvalidMessage])
 
     const multipleEmailsValidator: (emails: string) => Rule =
-        (emails) => {
+        useCallback((emails) => {
             return {
                 validator: () => {
                     if (!MULTIPLE_EMAILS_REGEX.test(emails) && emails !== '') return Promise.reject(EmailsAreInvalidMessage)
@@ -163,10 +164,10 @@ export const useValidations: UseValidations = (settings = {}) => {
                     return Promise.resolve()
                 },
             }
-        }
+        }, [EmailsAreInvalidMessage])
 
 
-    return {
+    return useMemo(() => ({
         changeMessage,
         requiredValidator,
         phoneValidator,
@@ -180,5 +181,5 @@ export const useValidations: UseValidations = (settings = {}) => {
         numberValidator,
         tinValidator,
         multipleEmailsValidator,
-    }
+    }), [emailValidator, greaterThanValidator, lessThanValidator, maxLengthValidator, minLengthValidator, multipleEmailsValidator, numberValidator, phoneValidator, requiredValidator, specCharValidator, tinValidator, trimValidator])
 }
