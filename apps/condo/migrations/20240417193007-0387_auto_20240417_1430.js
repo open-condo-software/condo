@@ -85,7 +85,7 @@ WHERE "name" = 'employee.role.Administrator.name'
 ---
 
 UPDATE "OrganizationEmployeeRole"
-SET "canReadDocuments" = true
+SET "canManageDocuments" = true
 WHERE "name" = 'employee.role.Administrator.name'
     OR "name" = 'employee.role.Dispatcher.name'
     OR "name" = 'employee.role.Manager.name'
