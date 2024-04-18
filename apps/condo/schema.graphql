@@ -74156,7 +74156,7 @@ input RegisterMetersReadingsMeterMetaInput {
   controlReadingsDate: String
 }
 
-input RegisterMetersReadingsReadingAddressMetaInput {
+input RegisterMetersReadingsReadingAddressInfoInput {
   unitType: String!
   unitName: String!
   globalId: String
@@ -74164,7 +74164,7 @@ input RegisterMetersReadingsReadingAddressMetaInput {
 
 input RegisterMetersReadingsReadingInput {
   address: String!
-  addressMeta: RegisterMetersReadingsReadingAddressMetaInput!
+  addressInfo: RegisterMetersReadingsReadingAddressInfoInput!
   accountNumber: String!
   meterNumber: String!
   meterResource: MeterResourceWhereUniqueInput!
@@ -74181,6 +74181,26 @@ input RegisterMetersReadingsInput {
   sender: SenderFieldInput!
   organization: OrganizationWhereUniqueInput!
   readings: [RegisterMetersReadingsReadingInput!]!
+}
+
+type RegisterMetersReadingsMeterPropertyOutput {
+  id: ID!
+  address: String!
+  addressKey: String!
+}
+
+type RegisterMetersReadingsMeterOutput {
+  id: ID!
+  property: RegisterMetersReadingsMeterPropertyOutput!
+  unitType: String!
+  unitName: String!
+  accountNumber: String!
+  number: String!
+}
+
+type RegisterMetersReadingsOutput {
+  id: ID!
+  meter: RegisterMetersReadingsMeterOutput!
 }
 
 input RegisterMultiPaymentServiceConsumerInput {
@@ -86080,7 +86100,7 @@ type Mutation {
   }`
   """
   _internalDeleteMeterReadings(data: _internalDeleteMeterReadingsInput!): _internalDeleteMeterReadingsOutput
-  registerMetersReadings(data: RegisterMetersReadingsInput!): [MeterReading]
+  registerMetersReadings(data: RegisterMetersReadingsInput!): [RegisterMetersReadingsOutput]
   registerMultiPayment(data: RegisterMultiPaymentInput!): RegisterMultiPaymentOutput
   registerMultiPaymentForOneReceipt(data: RegisterMultiPaymentForOneReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
   registerMultiPaymentForVirtualReceipt(data: RegisterMultiPaymentForVirtualReceiptInput!): RegisterMultiPaymentForOneReceiptOutput

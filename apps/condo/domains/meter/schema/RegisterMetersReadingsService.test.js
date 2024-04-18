@@ -45,7 +45,7 @@ const {
  */
 const createTestReadingData = (property, extraAttrs = {}) => ({
     address: property.address,
-    addressMeta: {
+    addressInfo: {
         unitType: FLAT_UNIT_TYPE,
         unitName: faker.random.alphaNumeric(4),
         globalId: get(property, ['addressMeta', 'data', 'house_fias_id'], faker.datatype.uuid()),
@@ -89,25 +89,17 @@ describe('RegisterMetersReadingsService', () => {
 
             expect(data).toEqual([expect.objectContaining({
                 id: expect.stringMatching(UUID_REGEXP),
-                value1: Number(readings[0].value1).toFixed(4),
-                value2: Number(readings[0].value2).toFixed(4),
-                value3: null,
-                value4: null,
-                date: readings[0].date,
-                organization: expect.objectContaining({
-                    id: o10n.id,
-                }),
                 meter: expect.objectContaining({
-                    number: readings[0].meterNumber,
-                    organization: expect.objectContaining({
-                        id: o10n.id,
-                    }),
+                    id: expect.stringMatching(UUID_REGEXP),
                     property: expect.objectContaining({
                         id: property.id,
+                        address: property.address,
+                        addressKey: property.addressKey,
                     }),
-                    resource: expect.objectContaining({
-                        id: readings[0].meterResource.id,
-                    }),
+                    unitType: readings[0].addressInfo.unitType,
+                    unitName: readings[0].addressInfo.unitName,
+                    accountNumber: readings[0].accountNumber,
+                    number: readings[0].meterNumber,
                 }),
             })])
 
@@ -131,25 +123,17 @@ describe('RegisterMetersReadingsService', () => {
 
             expect(data).toEqual([expect.objectContaining({
                 id: expect.stringMatching(UUID_REGEXP),
-                value1: Number(readings[0].value1).toFixed(4),
-                value2: Number(readings[0].value2).toFixed(4),
-                value3: null,
-                value4: null,
-                date: readings[0].date,
-                organization: expect.objectContaining({
-                    id: o10n.id,
-                }),
                 meter: expect.objectContaining({
-                    number: readings[0].meterNumber,
-                    organization: expect.objectContaining({
-                        id: o10n.id,
-                    }),
+                    id: expect.stringMatching(UUID_REGEXP),
                     property: expect.objectContaining({
                         id: property.id,
+                        address: property.address,
+                        addressKey: property.addressKey,
                     }),
-                    resource: expect.objectContaining({
-                        id: readings[0].meterResource.id,
-                    }),
+                    unitType: readings[0].addressInfo.unitType,
+                    unitName: readings[0].addressInfo.unitName,
+                    accountNumber: readings[0].accountNumber,
+                    number: readings[0].meterNumber,
                 }),
             })])
 
@@ -177,25 +161,17 @@ describe('RegisterMetersReadingsService', () => {
 
                 expect(data).toEqual([expect.objectContaining({
                     id: expect.stringMatching(UUID_REGEXP),
-                    value1: Number(readings[0].value1).toFixed(4),
-                    value2: Number(readings[0].value2).toFixed(4),
-                    value3: null,
-                    value4: null,
-                    date: readings[0].date,
-                    organization: expect.objectContaining({
-                        id: staffClient.organization.id,
-                    }),
                     meter: expect.objectContaining({
-                        number: readings[0].meterNumber,
-                        organization: expect.objectContaining({
-                            id: staffClient.organization.id,
-                        }),
+                        id: expect.stringMatching(UUID_REGEXP),
                         property: expect.objectContaining({
                             id: staffClient.property.id,
+                            address: staffClient.property.address,
+                            addressKey: staffClient.property.addressKey,
                         }),
-                        resource: expect.objectContaining({
-                            id: readings[0].meterResource.id,
-                        }),
+                        unitType: readings[0].addressInfo.unitType,
+                        unitName: readings[0].addressInfo.unitName,
+                        accountNumber: readings[0].accountNumber,
+                        number: readings[0].meterNumber,
                     }),
                 })])
 
@@ -263,25 +239,17 @@ describe('RegisterMetersReadingsService', () => {
 
                 expect(data).toEqual([expect.objectContaining({
                     id: expect.stringMatching(UUID_REGEXP),
-                    value1: Number(readings[0].value1).toFixed(4),
-                    value2: Number(readings[0].value2).toFixed(4),
-                    value3: null,
-                    value4: null,
-                    date: readings[0].date,
-                    organization: expect.objectContaining({
-                        id: o10n.id,
-                    }),
                     meter: expect.objectContaining({
-                        number: readings[0].meterNumber,
-                        organization: expect.objectContaining({
-                            id: o10n.id,
-                        }),
+                        id: expect.stringMatching(UUID_REGEXP),
                         property: expect.objectContaining({
                             id: property.id,
+                            address: property.address,
+                            addressKey: property.addressKey,
                         }),
-                        resource: expect.objectContaining({
-                            id: readings[0].meterResource.id,
-                        }),
+                        unitType: readings[0].addressInfo.unitType,
+                        unitName: readings[0].addressInfo.unitName,
+                        accountNumber: readings[0].accountNumber,
+                        number: readings[0].meterNumber,
                     }),
                 })])
 
@@ -326,23 +294,23 @@ describe('RegisterMetersReadingsService', () => {
             async () => await registerMetersReadingsByTestClient(
                 adminClient,
                 o10n,
-                flatten(Array(101).fill(createTestReadingData({ address: faker.address.streetAddress(true) }))),
+                flatten(Array(501).fill(createTestReadingData({ address: faker.address.streetAddress(true) }))),
             ),
             {
                 code: 'BAD_USER_INPUT',
                 type: 'TOO_MUCH_READINGS',
-                message: 'Too much readings. Maximum is 100.',
+                message: 'Too much readings. Maximum is 500.',
                 messageForUser: 'api.meter.registerMetersReadings.TOO_MUCH_READINGS',
-                messageInterpolation: { limit: 100, sentCount: 101 },
+                messageInterpolation: { limit: 500, sentCount: 501 },
             },
             'result',
         )
     })
 
-    test('possible to process 100 meters readings', async () => {
+    test('possible to process 500 meters readings', async () => {
         const [o10n] = await createTestOrganization(adminClient)
 
-        const count = 100
+        const count = 500
         const readings = []
         for (let i = 0; i < count; i++) {
             const [property] = await createTestProperty(adminClient, o10n)
@@ -423,18 +391,34 @@ describe('RegisterMetersReadingsService', () => {
             ({ data: { result }, errors }) => {
                 expect(result).toEqual([
                     expect.objectContaining({
-                        value1: Number(readings[0].value1).toFixed(4),
-                        value2: Number(readings[0].value2).toFixed(4),
-                        organization: expect.objectContaining({
-                            id: o10n.id,
+                        id: expect.stringMatching(UUID_REGEXP),
+                        meter: expect.objectContaining({
+                            id: expect.stringMatching(UUID_REGEXP),
+                            property: expect.objectContaining({
+                                id: property1.id,
+                                address: property1.address,
+                                addressKey: property1.addressKey,
+                            }),
+                            unitType: readings[0].addressInfo.unitType,
+                            unitName: readings[0].addressInfo.unitName,
+                            accountNumber: readings[0].accountNumber,
+                            number: readings[0].meterNumber,
                         }),
                     }),
                     null,
                     expect.objectContaining({
-                        value1: Number(readings[2].value1).toFixed(4),
-                        value2: Number(readings[2].value2).toFixed(4),
-                        organization: expect.objectContaining({
-                            id: o10n.id,
+                        id: expect.stringMatching(UUID_REGEXP),
+                        meter: expect.objectContaining({
+                            id: expect.stringMatching(UUID_REGEXP),
+                            property: expect.objectContaining({
+                                id: property2.id,
+                                address: property2.address,
+                                addressKey: property2.addressKey,
+                            }),
+                            unitType: readings[2].addressInfo.unitType,
+                            unitName: readings[2].addressInfo.unitName,
+                            accountNumber: readings[2].accountNumber,
+                            number: readings[2].meterNumber,
                         }),
                     }),
                 ])
@@ -490,10 +474,18 @@ describe('RegisterMetersReadingsService', () => {
                 const { data: { result }, errors } = err
                 expect(result).toEqual([
                     expect.objectContaining({
-                        value1: Number(readings[0].value1).toFixed(4),
-                        value2: Number(readings[0].value2).toFixed(4),
-                        organization: expect.objectContaining({
-                            id: o10n.id,
+                        id: expect.stringMatching(UUID_REGEXP),
+                        meter: expect.objectContaining({
+                            id: expect.stringMatching(UUID_REGEXP),
+                            property: expect.objectContaining({
+                                id: property.id,
+                                address: property.address,
+                                addressKey: property.addressKey,
+                            }),
+                            unitType: readings[0].addressInfo.unitType,
+                            unitName: readings[0].addressInfo.unitName,
+                            accountNumber: readings[0].accountNumber,
+                            number: readings[0].meterNumber,
                         }),
                     }),
                     null,
@@ -552,10 +544,18 @@ describe('RegisterMetersReadingsService', () => {
             ({ data: { result }, errors }) => {
                 expect(result).toEqual([
                     expect.objectContaining({
-                        value1: Number(readings[0].value1).toFixed(4),
-                        value2: Number(readings[0].value2).toFixed(4),
-                        organization: expect.objectContaining({
-                            id: o10n.id,
+                        id: expect.stringMatching(UUID_REGEXP),
+                        meter: expect.objectContaining({
+                            id: expect.stringMatching(UUID_REGEXP),
+                            property: expect.objectContaining({
+                                id: property1.id,
+                                address: property1.address,
+                                addressKey: property1.addressKey,
+                            }),
+                            unitType: readings[0].addressInfo.unitType,
+                            unitName: readings[0].addressInfo.unitName,
+                            accountNumber: readings[0].accountNumber,
+                            number: readings[0].meterNumber,
                         }),
                     }),
                     null,
@@ -586,25 +586,17 @@ describe('RegisterMetersReadingsService', () => {
 
         expect(data).toEqual([expect.objectContaining({
             id: expect.stringMatching(UUID_REGEXP),
-            value1: Number(reading.value1).toFixed(4),
-            value2: Number(reading.value2).toFixed(4),
-            value3: Number(reading.value3).toFixed(4),
-            value4: null,
-            date: reading.date,
-            organization: expect.objectContaining({
-                id: o10n.id,
-            }),
             meter: expect.objectContaining({
-                number: reading.meterNumber,
-                organization: expect.objectContaining({
-                    id: o10n.id,
-                }),
+                id: expect.stringMatching(UUID_REGEXP),
                 property: expect.objectContaining({
                     id: property.id,
+                    address: property.address,
+                    addressKey: property.addressKey,
                 }),
-                resource: expect.objectContaining({
-                    id: reading.meterResource.id,
-                }),
+                unitType: reading.addressInfo.unitType,
+                unitName: reading.addressInfo.unitName,
+                accountNumber: reading.accountNumber,
+                number: reading.meterNumber,
             }),
         })])
 

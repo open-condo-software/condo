@@ -41696,7 +41696,7 @@ export type Mutation = {
    * }`
    */
   _internalDeleteMeterReadings?: Maybe<_InternalDeleteMeterReadingsOutput>;
-  registerMetersReadings?: Maybe<Array<Maybe<MeterReading>>>;
+  registerMetersReadings?: Maybe<Array<Maybe<RegisterMetersReadingsOutput>>>;
   registerMultiPayment?: Maybe<RegisterMultiPaymentOutput>;
   registerMultiPaymentForOneReceipt?: Maybe<RegisterMultiPaymentForOneReceiptOutput>;
   registerMultiPaymentForVirtualReceipt?: Maybe<RegisterMultiPaymentForOneReceiptOutput>;
@@ -70494,7 +70494,30 @@ export type RegisterMetersReadingsMeterMetaInput = {
   controlReadingsDate?: Maybe<Scalars['String']>;
 };
 
-export type RegisterMetersReadingsReadingAddressMetaInput = {
+export type RegisterMetersReadingsMeterOutput = {
+  __typename?: 'RegisterMetersReadingsMeterOutput';
+  id: Scalars['ID'];
+  property: RegisterMetersReadingsMeterPropertyOutput;
+  unitType: Scalars['String'];
+  unitName: Scalars['String'];
+  accountNumber: Scalars['String'];
+  number: Scalars['String'];
+};
+
+export type RegisterMetersReadingsMeterPropertyOutput = {
+  __typename?: 'RegisterMetersReadingsMeterPropertyOutput';
+  id: Scalars['ID'];
+  address: Scalars['String'];
+  addressKey: Scalars['String'];
+};
+
+export type RegisterMetersReadingsOutput = {
+  __typename?: 'RegisterMetersReadingsOutput';
+  id: Scalars['ID'];
+  meter: RegisterMetersReadingsMeterOutput;
+};
+
+export type RegisterMetersReadingsReadingAddressInfoInput = {
   unitType: Scalars['String'];
   unitName: Scalars['String'];
   globalId?: Maybe<Scalars['String']>;
@@ -70502,7 +70525,7 @@ export type RegisterMetersReadingsReadingAddressMetaInput = {
 
 export type RegisterMetersReadingsReadingInput = {
   address: Scalars['String'];
-  addressMeta: RegisterMetersReadingsReadingAddressMetaInput;
+  addressInfo: RegisterMetersReadingsReadingAddressInfoInput;
   accountNumber: Scalars['String'];
   meterNumber: Scalars['String'];
   meterResource: MeterResourceWhereUniqueInput;

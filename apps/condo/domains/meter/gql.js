@@ -66,7 +66,7 @@ const EXPORT_PROPERTY_METER_READINGS_QUERY = gql`
 
 const REGISTER_METERS_READINGS_MUTATION = gql`
     mutation registerMetersReadings ($data: RegisterMetersReadingsInput!) {
-        result: registerMetersReadings(data: $data) ${METER_READING_FIELDS}
+        result: registerMetersReadings(data: $data) { id meter { id property { id address addressKey } unitType unitName accountNumber number } }
     }
 `
 
