@@ -24,7 +24,7 @@ import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSear
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import { NEW_CONTACT_PHONE_FORM_ITEM_NAME } from '@condo/domains/contact/components/ContactsEditor/NewContactFields'
+import { NEW_CONTACT_PHONE_FORM_ITEM_NAME, NEW_CONTACT_NAME_FORM_ITEM_NAME } from '@condo/domains/contact/components/ContactsEditor/NewContactFields'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
 import {
     INVOICE_STATUS_DRAFT,
@@ -127,7 +127,6 @@ const SubTotalInfo = ({ label, total, large = false, totalTextType }) => {
     )
 }
 
-const NEW_CONTACT_NAME_FORM_ITEM_NAME = 'NEW_CONTACT_NAME'
 const emptyContactValues = {
     clientName: null,
     clientPhone: null,
