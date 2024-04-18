@@ -1,9 +1,10 @@
 import styled from '@emotion/styled'
-import { AutoComplete, Col, Form, FormItemProps, InputProps, Row, RowProps } from 'antd'
+import { AutoComplete, Col, Form, FormInstance, FormItemProps, InputProps, Row, RowProps } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
+import isString from 'lodash/isString'
 import { Rule } from 'rc-field-form/lib/interface'
-import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { MinusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
@@ -12,6 +13,7 @@ import { Radio, Space } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
+import { SPECIAL_CHAR_REGEXP } from '@condo/domains/common/constants/regexps'
 import { colors } from '@condo/domains/common/constants/style'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { normalizePhone } from '@condo/domains/common/utils/phone'
@@ -35,12 +37,13 @@ interface INewContactFieldsFieldsProps {
     newContactPhoneFormItemProps?: FormItemProps
     newContactNameFormItemProps?: FormItemProps
     disabled?: boolean
+    form: FormInstance,
 }
 
 const FIELD_WRAPPER_COL = { span: 24 }
 const FIELD_ROW_GUTTER: RowProps['gutter'] = [16, 0]
 const RADIO_COL_SMALL_SCREENS_STYLE: CSSProperties = { position: 'relative', top: '62px' }
-const RADIO_COL_LARGE_SCREENS_STYLE: CSSProperties = { height: '48px' }
+const RADIO_COL_LARGE_SCREENS_STYLE: CSSProperties = { height: '48px', marginTop: '52px' }
 const AUTO_COMPLETE_STYLE: CSSProperties = { width: '100%' }
 
 const StyledPhoneInput = styled(PhoneInput)<{ error: boolean }>`
@@ -50,6 +53,7 @@ const StyledPhoneInput = styled(PhoneInput)<{ error: boolean }>`
 `
 
 export const NEW_CONTACT_PHONE_FORM_ITEM_NAME = 'IGNORE_FIELD_NEW_CONTACT_PHONE'
+export const NEW_CONTACT_NAME_FORM_ITEM_NAME = 'IGNORE_FIELD_NEW_CONTACT_NAME'
 
 const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
     onChange,
@@ -65,12 +69,14 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
     newContactPhoneFormItemProps,
     newContactNameFormItemProps,
     disabled,
+    form,
 }) => {
     const intl = useIntl()
     const NamePlaceholder = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name.placeholder' })
     const ContactWithSamePhoneExistMessage = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Phone.contactWithSamePhoneExists' })
     const FullNameLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name' })
     const PhoneLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Phone' })
+    const FullNameInvalidCharMessage = intl.formatMessage({ id:'field.FullName.invalidChar' })
 
     const [value, setValue] = useState(initialValueWithoutContact)
     const [contactWithSamePhoneExistError, setContactWithSamePhoneExistError] = useState<boolean>(false)
@@ -84,7 +90,7 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
     const handleChangeContact = (field) => (fieldValue) => {
         const newValue = {
             ...value,
-            [field]: fieldValue,
+            [field]: isString(fieldValue) ? fieldValue.trim() : fieldValue,
         }
         setValueAndTriggerOnChange(newValue)
     }
@@ -103,6 +109,8 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
     }
 
     const isPhoneFieldFilled = useMemo(() => get(value, 'phone.length') === 12, [value])
+    const isPhoneDisabled = disabled || !unitName
+    const isNameDisabled = isPhoneDisabled || (!isEmpty(contacts) && (!isPhoneFieldFilled || contactWithSamePhoneExistError || !checked))
 
     const contactExistValidator: Rule = useMemo(() => ({
         validator: (_, value) => {
@@ -122,12 +130,25 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
         },
     }), [ContactWithSamePhoneExistMessage, checked, contacts])
 
+    const nameValidator: Rule = useMemo(() => ({
+        validator: async (_, name) => {
+            const phone = form.getFieldValue(NEW_CONTACT_PHONE_FORM_ITEM_NAME)
+            if (!phone || !name || isNameDisabled) return Promise.resolve()
+            if (SPECIAL_CHAR_REGEXP.test(name)) return Promise.reject(FullNameInvalidCharMessage)
+            return Promise.resolve()
+        },
+    }), [FullNameInvalidCharMessage, form, isNameDisabled])
+
     const validations = useMemo(() => ({
         phone: activeTab === CONTACT_TYPE.RESIDENT ? [phoneValidator, contactExistValidator] : [],
-    }), [activeTab, contactExistValidator, phoneValidator])
+        name: activeTab === CONTACT_TYPE.RESIDENT ? [nameValidator] : [],
+    }), [activeTab, contactExistValidator, nameValidator, phoneValidator])
 
-    const isPhoneDisabled = disabled || !unitName
-    const isNameDisabled = isPhoneDisabled || (!isEmpty(contacts) && (!isPhoneFieldFilled || contactWithSamePhoneExistError || !checked))
+    const nameValue = get(value, 'name')
+    useEffect(() => {
+        if (!nameValue) return
+        form.setFields([{ name: NEW_CONTACT_NAME_FORM_ITEM_NAME, validating: false, touched: false, errors: [], validated: false }])
+    }, [isNameDisabled])
 
     const inputProps: InputProps = useMemo(() => ({ disabled: isPhoneDisabled }), [isPhoneDisabled])
 
@@ -138,7 +159,7 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
     return (
         <Col span={24}>
             <Row
-                align={breakpoints.TABLET_LARGE ? 'bottom' : 'top'}
+                align='top'
                 justify={breakpoints.TABLET_LARGE ? 'start' : 'space-between'}
                 gutter={FIELD_ROW_GUTTER}
             >
@@ -172,6 +193,8 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
                             <Form.Item
                                 wrapperCol={FIELD_WRAPPER_COL}
                                 label={FullNameLabel}
+                                name={NEW_CONTACT_NAME_FORM_ITEM_NAME}
+                                rules={validations.name}
                                 {...newContactNameFormItemProps}
                             >
                                 <AutoComplete
