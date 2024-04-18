@@ -35,6 +35,7 @@ const buildTranslations = (locale) => ({
     AllProperties: i18n('incident.fields.properties.allSelected', { locale }),
     Actual: i18n('incident.status.actual', { locale }),
     NotActual: i18n('incident.status.notActual', { locale }),
+    PropertyWasDeleted: i18n('incident.fields.properties.wasDeleted', { locale }),
     WorkTypes: {
         [INCIDENT_WORK_TYPE_SCHEDULED]: i18n('incident.workType.scheduled', { locale }),
         [INCIDENT_WORK_TYPE_EMERGENCY]: i18n('incident.workType.emergency', { locale }),
@@ -82,7 +83,12 @@ const incidentToRow = async ({ task, incident, translations }) => {
         },
     })
 
-    const properties = incidentProperties.map(({ property }) => property)
+    const properties = incidentProperties.map(({ property, propertyAddress, propertyDeletedAt }) => {
+        if (!!propertyDeletedAt || !property) {
+            return propertyAddress + ' - ' + translations.PropertyWasDeleted
+        }
+        return property
+    })
 
     const isActual = incident.status === INCIDENT_STATUS_ACTUAL
 
