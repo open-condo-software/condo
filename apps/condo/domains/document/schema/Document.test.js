@@ -161,12 +161,19 @@ describe('Document', () => {
                 })
             })
 
-            it('employee with canManageDocuments can not', async () => {
+            it('employee with canManageDocuments can update only category', async () => {
+                const [createdDocument] = await createTestDocument(admin, organization, documentCategory)
+                const [otherProperty] = await createTestProperty(admin, organization)
                 const [otherCategory] = await createTestDocumentCategory(admin)
 
+                const [updatedDocument] = await updateTestDocument(employeeUserWithDocumentPermissions, createdDocument.id, {
+                    category: { connect: { id: otherCategory.id } },
+                })
+
+                expect(updatedDocument.category.id).toEqual(otherCategory.id)
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await updateTestDocument(employeeUserWithDocumentPermissions, document.id, {
-                        category: { connect: { id: otherCategory.id } },
+                        property: { connect: { id: otherProperty.id } },
                     })
                 })
             })
@@ -175,7 +182,7 @@ describe('Document', () => {
                 const [otherCategory] = await createTestDocumentCategory(admin)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestDocument(employeeUserWithDocumentPermissions, document.id, {
+                    await updateTestDocument(employeeUserWithoutDocumentPermissions, document.id, {
                         category: { connect: { id: otherCategory.id } },
                     })
                 })

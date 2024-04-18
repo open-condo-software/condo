@@ -15,7 +15,7 @@ const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/ut
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 
 
-const AVAILABLE_TO_UPDATE_DOCUMENT_FILE_FIELDS = ['dv', 'sender', 'deletedAt']
+const AVAILABLE_TO_UPDATE_DOCUMENT_FILE_FIELDS = ['dv', 'sender', 'deletedAt', 'category']
 
 async function canReadDocuments ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
