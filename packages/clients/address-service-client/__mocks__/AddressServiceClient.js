@@ -1,3 +1,3 @@
-const { MockedAddressServiceClient } = require('@open-condo/clients/address-service-client/MockedAddressServiceClient')
+const { MockedAddressServiceClient } = require('../MockedAddressServiceClient')
 
 module.exports = { AddressServiceClient: MockedAddressServiceClient }

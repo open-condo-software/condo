@@ -1,8 +1,9 @@
 const get = require('lodash/get')
 
-const { AddressServiceClient } = require('@open-condo/clients/address-service-client/AddressServiceClient')
-const { MockedAddressServiceClient } = require('@open-condo/clients/address-service-client/MockedAddressServiceClient')
 const conf = require('@open-condo/config')
+
+const { AddressServiceClient } = require('./AddressServiceClient')
+const { MockedAddressServiceClient } = require('./MockedAddressServiceClient')
 
 let instance
 
