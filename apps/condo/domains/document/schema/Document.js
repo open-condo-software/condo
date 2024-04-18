@@ -14,7 +14,7 @@ const { ERRORS } = require('@condo/domains/document/constants')
 
 
 const DOCUMENT_FOLDER_NAME = 'document'
-const Adapter = new FileAdapter(DOCUMENT_FOLDER_NAME)
+const Adapter = new FileAdapter(DOCUMENT_FOLDER_NAME, false, true)
 const fileMetaAfterChange = getFileMetaAfterChange(Adapter)
 
 const Document = new GQLListSchema('Document', {
@@ -42,6 +42,11 @@ const Document = new GQLListSchema('Document', {
             knexOptions: { isNotNullable: true },
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
+        name: {
+            schemaDoc: 'Name of the document. By default it\'s file name',
+            type: 'Text',
+            isRequired: true,
+        },
         file: {
             schemaDoc: 'File attached to document',
             type: 'File',
@@ -62,7 +67,13 @@ const Document = new GQLListSchema('Document', {
                 }
             }
         },
+        resolveInput: ({ resolvedData, operation }) => {
+            if (operation === 'create' && !resolvedData['name']) {
+                resolvedData['name'] = get(resolvedData, 'file.originalFilename')
+            }
 
+            return resolvedData
+        },
         afterChange: fileMetaAfterChange,
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],

@@ -12,7 +12,7 @@ const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId created
 const DOCUMENT_CATEGORY_FIELDS = `{ name ${COMMON_FIELDS} }`
 const DocumentCategory = generateGqlQueries('DocumentCategory', DOCUMENT_CATEGORY_FIELDS)
 
-const DOCUMENT_FIELDS = `{ organization { id } property { id } category { id } file { id originalFilename publicUrl mimetype } ${COMMON_FIELDS} }`
+const DOCUMENT_FIELDS = `{ organization { id } property { id } category { id name } name file { id originalFilename publicUrl mimetype } ${COMMON_FIELDS} }`
 const Document = generateGqlQueries('Document', DOCUMENT_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */

@@ -71532,6 +71532,7 @@ type DocumentHistoryRecord {
   organization: String
   property: String
   category: String
+  name: String
   file: JSON
   id: ID!
   v: Int
@@ -71563,6 +71564,24 @@ input DocumentHistoryRecordWhereInput {
   category_not: String
   category_in: [String]
   category_not_in: [String]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
   file: JSON
   file_not: JSON
   file_in: [JSON]
@@ -71650,6 +71669,8 @@ input DocumentHistoryRecordWhereUniqueInput {
 }
 
 enum SortDocumentHistoryRecordsBy {
+  name_ASC
+  name_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -71672,6 +71693,7 @@ input DocumentHistoryRecordUpdateInput {
   organization: String
   property: String
   category: String
+  name: String
   file: JSON
   v: Int
   createdAt: String
@@ -71696,6 +71718,7 @@ input DocumentHistoryRecordCreateInput {
   organization: String
   property: String
   category: String
+  name: String
   file: JSON
   v: Int
   createdAt: String
@@ -71743,6 +71766,9 @@ type Document {
   """ Document type """
   category: DocumentCategory
 
+  """ Name of the document. By default it's file name """
+  name: String
+
   """ File attached to document """
   file: File
   id: ID!
@@ -71777,6 +71803,24 @@ input DocumentWhereInput {
   property_is_null: Boolean
   category: DocumentCategoryWhereInput
   category_is_null: Boolean
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
   file: String
   file_not: String
   file_in: [String]
@@ -71850,6 +71894,8 @@ enum SortDocumentsBy {
   property_DESC
   category_ASC
   category_DESC
+  name_ASC
+  name_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -71872,6 +71918,7 @@ input DocumentUpdateInput {
   organization: OrganizationRelateToOneInput
   property: PropertyRelateToOneInput
   category: DocumentCategoryRelateToOneInput
+  name: String
   file: Upload
   v: Int
   createdAt: String
@@ -71893,6 +71940,7 @@ input DocumentCreateInput {
   organization: OrganizationRelateToOneInput
   property: PropertyRelateToOneInput
   category: DocumentCategoryRelateToOneInput
+  name: String
   file: Upload
   v: Int
   createdAt: String

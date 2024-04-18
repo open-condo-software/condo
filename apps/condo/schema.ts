@@ -21602,6 +21602,8 @@ export type Document = {
   property?: Maybe<Property>;
   /**  Document type  */
   category?: Maybe<DocumentCategory>;
+  /**  Name of the document. By default it's file name  */
+  name?: Maybe<Scalars['String']>;
   /**  File attached to document  */
   file?: Maybe<File>;
   id: Scalars['ID'];
@@ -21955,6 +21957,7 @@ export type DocumentCreateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
   property?: Maybe<PropertyRelateToOneInput>;
   category?: Maybe<DocumentCategoryRelateToOneInput>;
+  name?: Maybe<Scalars['String']>;
   file?: Maybe<Scalars['Upload']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -21981,6 +21984,7 @@ export type DocumentHistoryRecord = {
   organization?: Maybe<Scalars['String']>;
   property?: Maybe<Scalars['String']>;
   category?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
   file?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -22001,6 +22005,7 @@ export type DocumentHistoryRecordCreateInput = {
   organization?: Maybe<Scalars['String']>;
   property?: Maybe<Scalars['String']>;
   category?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
   file?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -22026,6 +22031,7 @@ export type DocumentHistoryRecordUpdateInput = {
   organization?: Maybe<Scalars['String']>;
   property?: Maybe<Scalars['String']>;
   category?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
   file?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -22056,6 +22062,24 @@ export type DocumentHistoryRecordWhereInput = {
   category_not?: Maybe<Scalars['String']>;
   category_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   category_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   file?: Maybe<Scalars['JSON']>;
   file_not?: Maybe<Scalars['JSON']>;
   file_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -22155,6 +22179,7 @@ export type DocumentUpdateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
   property?: Maybe<PropertyRelateToOneInput>;
   category?: Maybe<DocumentCategoryRelateToOneInput>;
+  name?: Maybe<Scalars['String']>;
   file?: Maybe<Scalars['Upload']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -22176,6 +22201,24 @@ export type DocumentWhereInput = {
   property_is_null?: Maybe<Scalars['Boolean']>;
   category?: Maybe<DocumentCategoryWhereInput>;
   category_is_null?: Maybe<Scalars['Boolean']>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   file?: Maybe<Scalars['String']>;
   file_not?: Maybe<Scalars['String']>;
   file_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -75725,6 +75768,8 @@ export enum SortDocumentCategoryHistoryRecordsBy {
 }
 
 export enum SortDocumentHistoryRecordsBy {
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -75750,6 +75795,8 @@ export enum SortDocumentsBy {
   PropertyDesc = 'property_DESC',
   CategoryAsc = 'category_ASC',
   CategoryDesc = 'category_DESC',
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

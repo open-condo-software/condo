@@ -18,14 +18,18 @@ const {
     useObject,
     useObjects,
     useCreate,
+    useCreateMany,
     useUpdate,
     useSoftDelete,
+    useCount,
 } = generateReactHooks<Document, DocumentCreateInput, DocumentUpdateInput, QueryAllDocumentsArgs>(DocumentGQL)
 
 export {
     useObject,
     useObjects,
     useCreate,
+    useCreateMany,
     useUpdate,
     useSoftDelete,
+    useCount,
 }

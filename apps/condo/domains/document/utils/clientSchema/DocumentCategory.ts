@@ -20,6 +20,7 @@ const {
     useCreate,
     useUpdate,
     useSoftDelete,
+    useAllObjects,
 } = generateReactHooks<DocumentCategory, DocumentCategoryCreateInput, DocumentCategoryUpdateInput, QueryAllDocumentCategoriesArgs>(DocumentCategoryGQL)
 
 export {
@@ -28,4 +29,5 @@ export {
     useCreate,
     useUpdate,
     useSoftDelete,
+    useAllObjects,
 }
