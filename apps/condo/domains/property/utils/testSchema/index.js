@@ -12,14 +12,11 @@ const { buildFakeAddressAndMeta } = require('./factories')
 const { Property: PropertyGQL } = require('@condo/domains/property/gql')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { EXPORT_PROPERTIES_TO_EXCEL } = require('@condo/domains/property/gql')
-const path = require('path')
-const conf = require('@open-condo/config')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Property = generateGQLTestUtils(PropertyGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
-const TEST_FILE = path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/dino.png')
 
 async function createTestProperty (client, organization, extraAttrs = {}, withFlat = false, addressMetaExtraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -42,7 +39,6 @@ async function createTestProperty (client, organization, extraAttrs = {}, withFl
 
     return [obj, attrs]
 }
-
 async function updateTestProperty (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
