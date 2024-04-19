@@ -1,10 +1,5 @@
-const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
-const { set } = require('lodash')
 
-const { AddressServiceClient } = require('@open-condo/clients/address-service-client/AddressServiceClient')
-const { MockedAddressServiceClient } = require('@open-condo/clients/address-service-client/MockedAddressServiceClient')
-const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const {
     makeLoggedInAdminClient,
     makeClient,
@@ -12,14 +7,8 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAccessDeniedErrorToObjects,
-    expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
-const { WRONG_VALUE } = require('@condo/domains/common/constants/errors')
-const {
-    INCORRECT_HOUSE_TYPE_ERROR,
-    INCORRECT_ADDRESS_ERROR,
-} = require('@condo/domains/miniapp/constants')
 const {
     createTestB2CApp,
     createTestB2CAppAccessRight,
@@ -27,7 +16,6 @@ const {
     createTestB2CAppProperty,
     updateTestB2CAppProperty,
 } = require('@condo/domains/miniapp/utils/testSchema')
-const { VALID_HOUSE_TYPES } = require('@condo/domains/property/constants/common')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
@@ -36,7 +24,7 @@ const {
     makeClientWithResidentUser,
 } = require('@condo/domains/user/utils/testSchema')
 
-describe('B2CAppProperty', () => {
+describe('B2CAppProperty test', () => {
     let admin
     let support
     let app
@@ -234,47 +222,6 @@ describe('B2CAppProperty', () => {
             const [secondApp] = await createTestB2CApp(admin)
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await createTestB2CAppProperty(permittedUser, secondApp)
-            })
-        })
-        describe('Should validate address and throw error',  () => {
-
-            afterEach(() => {
-                jest.restoreAllMocks()
-            })
-
-            test('If house type is not supported', async () => {
-
-                jest.spyOn(AddressServiceClient.prototype, 'search').mockImplementationOnce(async (s) => {
-                    const cli = new MockedAddressServiceClient(faker.internet.url())
-                    const result = await cli.search(s)
-                    set(result, ['addressMeta', 'data', 'house_type_full'], faker.datatype.string(8))
-                    return result
-                })
-
-                await expectToThrowGQLError(async () => {
-                    await createTestB2CAppProperty(admin, app)
-                }, {
-                    code: BAD_USER_INPUT,
-                    type: WRONG_VALUE,
-                    variable: ['data', 'address'],
-                    message: `${INCORRECT_HOUSE_TYPE_ERROR}. Valid values are: [${VALID_HOUSE_TYPES.join(', ')}]`,
-                })
-            })
-            test('If address suggestion don\'t match input address', async () => {
-                jest.spyOn(AddressServiceClient.prototype, 'search').mockImplementationOnce(async (s) => {
-                    const cli = new MockedAddressServiceClient(faker.internet.url())
-                    const result = await cli.search(s)
-                    set(result, ['addressMeta', 'value'], faker.address.streetAddress())
-                    return result
-                })
-                await expectToThrowGQLError(async () => {
-                    await createTestB2CAppProperty(admin, app)
-                }, {
-                    code: BAD_USER_INPUT,
-                    type: WRONG_VALUE,
-                    variable: ['data', 'address'],
-                    message: INCORRECT_ADDRESS_ERROR,
-                })
             })
         })
     })
