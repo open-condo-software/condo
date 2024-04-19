@@ -2551,7 +2551,7 @@
   "api.analytics.overviewDashboard.FEATURE_IS_DISABLED": "This feature is unavailable for your organization",
   "api.tourStep.update.updateCompletedStepType": "You can not update status of completed tour step",
   "api.onboarding.syncTourSteps.TOUR_STEPS_NOT_FOUND": "Tour steps not found for this organization",
-  "api.document.WRONG_PROPERTY_ORGANIZATION": "The organization field on the passed property does not match the organization field in the document",
+  "api.document.WRONG_PROPERTY_ORGANIZATION": "Property has different organization",
   "excelExport.header.contacts.forAllTime": "Contacts for all time",
   "excelExport.header.contacts.forPeriod": "Contacts for the period",
   "excelExport.header.newsRecipients": "News recipients",
