@@ -321,6 +321,7 @@
   "global.errors.serverError.title": "Ошибка",
   "global.errors.requestFailed.title": "Не удалось выполнить запрос",
   "global.errors.constraintError.default.description": "Такой объект уже существует",
+  "global.warns.createOrganization": "Сначала создайте организацию",
   "accrualsAndPayments.setup.title": "Настройка начислений и оплат",
   "accrualsAndPayments.setup.chooseBillingStep.title": "Выбор биллинга",
   "accrualsAndPayments.setup.setupBillingStep.title": "Настройка интеграции",
