@@ -1,5 +1,9 @@
+const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
+const { set } = require('lodash')
 
+const { AddressServiceClient } = require('@open-condo/clients/address-service-client/AddressServiceClient')
+const { MockedAddressServiceClient } = require('@open-condo/clients/address-service-client/MockedAddressServiceClient')
 const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const {
     makeLoggedInAdminClient,
@@ -22,9 +26,9 @@ const {
     B2CAppProperty,
     createTestB2CAppProperty,
     updateTestB2CAppProperty,
-    getFakeAddress,
 } = require('@condo/domains/miniapp/utils/testSchema')
 const { VALID_HOUSE_TYPES } = require('@condo/domains/property/constants/common')
+const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
@@ -98,7 +102,7 @@ describe('B2CAppProperty', () => {
                 [property] = await createTestB2CAppProperty(admin, app)
             })
             test('Admin can update and soft-delete', async () => {
-                const [address, addressMeta] = getFakeAddress()
+                const { address, addressMeta } = buildFakeAddressAndMeta(false)
                 const [updatedProperty] = await updateTestB2CAppProperty(admin, property.id, { address, addressMeta })
                 expect(updatedProperty).toHaveProperty('address', address)
                 const [deletedProperty] = await updateTestB2CAppProperty(admin, property.id, {
@@ -108,7 +112,7 @@ describe('B2CAppProperty', () => {
                 expect(deletedProperty.deletedAt).not.toBeNull()
             })
             test('Support can update and soft-delete', async () => {
-                const [address, addressMeta] = getFakeAddress()
+                const { address, addressMeta } = buildFakeAddressAndMeta(false)
                 const [updatedProperty] = await updateTestB2CAppProperty(support, property.id, { address, addressMeta })
                 expect(updatedProperty).toHaveProperty('address', address)
                 const [deletedProperty] = await updateTestB2CAppProperty(support, property.id, {
@@ -120,7 +124,7 @@ describe('B2CAppProperty', () => {
             describe('User', () => {
                 describe('With access right', () => {
                     test('Can update and soft-delete property linked to permitted app', async () => {
-                        const [address, addressMeta] = getFakeAddress()
+                        const { address, addressMeta } = buildFakeAddressAndMeta(false)
                         const [updatedProperty] = await updateTestB2CAppProperty(permittedUser, property.id, { address, addressMeta })
                         expect(updatedProperty).toHaveProperty('address', address)
                         const [deletedProperty] = await updateTestB2CAppProperty(permittedUser, property.id, {
@@ -233,9 +237,22 @@ describe('B2CAppProperty', () => {
             })
         })
         describe('Should validate address and throw error',  () => {
+
+            afterEach(() => {
+                jest.restoreAllMocks()
+            })
+
             test('If house type is not supported', async () => {
+
+                jest.spyOn(AddressServiceClient.prototype, 'search').mockImplementationOnce(async (s) => {
+                    const cli = new MockedAddressServiceClient(faker.internet.url())
+                    const result = await cli.search(s)
+                    set(result, ['addressMeta', 'data', 'house_type_full'], faker.datatype.string(8))
+                    return result
+                })
+
                 await expectToThrowGQLError(async () => {
-                    await createTestB2CAppProperty(admin, app, {}, true, false)
+                    await createTestB2CAppProperty(admin, app)
                 }, {
                     code: BAD_USER_INPUT,
                     type: WRONG_VALUE,
@@ -244,8 +261,14 @@ describe('B2CAppProperty', () => {
                 })
             })
             test('If address suggestion don\'t match input address', async () => {
+                jest.spyOn(AddressServiceClient.prototype, 'search').mockImplementationOnce(async (s) => {
+                    const cli = new MockedAddressServiceClient(faker.internet.url())
+                    const result = await cli.search(s)
+                    set(result, ['addressMeta', 'value'], faker.address.streetAddress())
+                    return result
+                })
                 await expectToThrowGQLError(async () => {
-                    await createTestB2CAppProperty(admin, app, {}, false, true)
+                    await createTestB2CAppProperty(admin, app)
                 }, {
                     code: BAD_USER_INPUT,
                     type: WRONG_VALUE,
