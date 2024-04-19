@@ -31,10 +31,13 @@ services:
       POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
     command: |
       postgres 
-        -c config_file=/etc/postgresql.conf
+        -c wal_level=replica
+        -c hot_standby=on
+        -c max_wal_senders=10
+        -c max_replication_slots=10
+        -c hot_standby_feedback=on
     volumes:
       - ./postgresql-init-replication.sql:/docker-entrypoint-initdb.d/postgresql-init-replication.sql
-      - ./postgresql.conf:/etc/postgresql.conf
     networks:
       - app-network
     healthcheck:
