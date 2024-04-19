@@ -32,9 +32,7 @@ const Document = new GQLListSchema('Document', {
             schemaDoc: 'Document type',
             type: 'Relationship',
             ref: 'DocumentCategory',
-            isRequired: true,
-            knexOptions: { isNotNullable: true },
-            kmigratorOptions: { null: false, on_delete: 'models.SET_NULL' },
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
         name: {
             schemaDoc: 'Name of the document. By default it\'s file name',
