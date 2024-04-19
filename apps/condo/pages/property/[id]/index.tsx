@@ -8,11 +8,12 @@ import isNull from 'lodash/isNull'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { useMemo, useCallback } from 'react'
+import React, { useMemo, useCallback, useState } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, ListProps } from '@open-condo/ui'
+import { ActionBar, ListProps, Tabs } from '@open-condo/ui'
 import { List, Typography, Button } from '@open-condo/ui'
 
 import { PageContent, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
@@ -20,9 +21,12 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import {
     DeleteButtonWithConfirmModal,
 } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
+import { PROPERTY_DOCUMENTS } from '@condo/domains/common/constants/featureflags'
+import { Document } from '@condo/domains/document/utils/clientSchema'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { PropertyPanels } from '@condo/domains/property/components/panels'
 import { CustomScrollbarCss } from '@condo/domains/property/components/panels/Builder/BuildingPanelCommon'
+import { PropertyDocuments } from '@condo/domains/property/components/PropertyDocuments/PropertyDocuments'
 import { PropertyReportCard } from '@condo/domains/property/components/PropertyReportCard'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
@@ -32,6 +36,7 @@ const PROPERTY_PAGE_CONTENT_ROW_INFO_BLOCK_GUTTER: RowProps['gutter'] = [52, 24]
 const PROPERTY_PAGE_CONTENT_ROW_INFO_BLOCK_STYLE: React.CSSProperties = { marginTop: '80px', marginRight: '-20px' }
 const PROPERTY_PAGE_CONTENT_ROW_STYLE: React.CSSProperties = { marginTop: '60px' }
 const PROPERTY_PAGE_SPACE_STYLE: React.CSSProperties = { width: '100%' }
+
 
 export const PropertyPageContent = ({ property, role = null, organizationId = null }) => {
     const intl = useIntl()
@@ -53,6 +58,11 @@ export const PropertyPageContent = ({ property, role = null, organizationId = nu
     const ParkingTitle = intl.formatMessage({ id: 'field.sectionType.parking' })
     const ParkingAvailableTitle = intl.formatMessage({ id: 'global.available' })
     const ParkingNotAvailableTitle = intl.formatMessage({ id: 'global.notAvailable' })
+    const MapTabTitle = intl.formatMessage({ id: 'pages.condo.property.form.BuildingTabTitle' })
+    const DocumentsTitle = intl.formatMessage({ id: 'documents.title' })
+
+    const { useFlag } = useFeatureFlags()
+    const hasPropertyDocumentsFeature = useFlag(PROPERTY_DOCUMENTS)
 
     const { push } = useRouter()
     const { breakpoints } = useLayoutContext()
@@ -125,6 +135,44 @@ export const PropertyPageContent = ({ property, role = null, organizationId = nu
         ticketDeferredClick, ticketInWorkClick, ticketClosedClick])
 
     const canManageProperties = get(role, 'canManageProperties', false)
+    const canReadPropertyDocuments = get(role, 'canReadDocuments', false)
+
+    const [currentTab, setCurrentTab] = useState<'map' | 'documents'>('map')
+
+    const propertyId = get(property, 'id')
+    const { count: propertyDocumentsCount, refetch: refetchDocumentsCount } = Document.useCount({
+        where: {
+            property: { id: propertyId },
+        },
+    }, { skip: !propertyId })
+
+    const tabItems = [
+        breakpoints.TABLET_LARGE && {
+            key: 'map',
+            label: MapTabTitle,
+            children: (
+                <PropertyPanels
+                    mode='view'
+                    map={property.map}
+                    address={property.address}
+                    canManageProperties={canManageProperties}
+                />
+            ),
+        },
+        hasPropertyDocumentsFeature && canReadPropertyDocuments && {
+            key: 'documents',
+            label: propertyDocumentsCount > 0 ? `${DocumentsTitle} (${propertyDocumentsCount})` : DocumentsTitle,
+            children: (
+                <PropertyDocuments
+                    organizationId={organizationId}
+                    propertyId={get(property, 'id')}
+                    role={role}
+                    refetchDocumentsCount={refetchDocumentsCount}
+                    propertyDocumentsCount={propertyDocumentsCount}
+                />
+            ),
+        },
+    ]
 
     return (
         <>
@@ -154,23 +202,18 @@ export const PropertyPageContent = ({ property, role = null, organizationId = nu
                     <PropertyReportCard property={property} organizationId={organizationId} role={role} />
                 </Col>
             </Row>
+            <Row gutter={[0, 24]} style={PROPERTY_PAGE_CONTENT_ROW_STYLE}>
+                <Col span={24} css={CustomScrollbarCss}>
+                    <Tabs
+                        activeKey={currentTab}
+                        onChange={(key: 'map' | 'documents') => setCurrentTab(key)}
+                        items={tabItems}
+                    />
+                </Col>
+            </Row>
             {
-                breakpoints.TABLET_LARGE && (
-                    <Row gutter={PROPERTY_PAGE_CONTENT_ROW_GUTTER} style={PROPERTY_PAGE_CONTENT_ROW_STYLE}>
-                        <Col span={24} css={CustomScrollbarCss}>
-                            <PropertyPanels
-                                mode='view'
-                                map={property.map}
-                                address={property.address}
-                                canManageProperties={canManageProperties}
-                            />
-                        </Col>
-                    </Row>
-                )
-            }
-            {
-                canManageProperties ? (
-                    <Col span={24} style={!breakpoints.TABLET_LARGE && PROPERTY_PAGE_CONTENT_ROW_STYLE}>
+                currentTab === 'map' && canManageProperties ? (
+                    <Col span={24} style={PROPERTY_PAGE_CONTENT_ROW_STYLE}>
                         <ActionBar
                             actions={[
                                 <Link key='editProperty' href={`/property/${property.id}/update`}>

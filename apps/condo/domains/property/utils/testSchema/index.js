@@ -17,6 +17,7 @@ const { EXPORT_PROPERTIES_TO_EXCEL } = require('@condo/domains/property/gql')
 const Property = generateGQLTestUtils(PropertyGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
+
 async function createTestProperty (client, organization, extraAttrs = {}, withFlat = false, addressMetaExtraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization) throw new Error('no organization')
@@ -38,7 +39,6 @@ async function createTestProperty (client, organization, extraAttrs = {}, withFl
 
     return [obj, attrs]
 }
-
 async function updateTestProperty (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
@@ -82,6 +82,7 @@ async function exportPropertiesToExcelByTestClient(client, extraAttrs = {}) {
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {

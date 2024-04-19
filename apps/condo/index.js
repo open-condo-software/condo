@@ -89,6 +89,7 @@ const schemas = () => [
     require('@condo/domains/miniapp/schema'),
     require('@condo/domains/settings/schema'),
     require('@condo/domains/marketplace/schema'),
+    require('@condo/domains/document/schema'),
     getWebhookModels('@app/condo/schema.graphql'),
 ]
 
