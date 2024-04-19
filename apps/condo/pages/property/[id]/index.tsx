@@ -10,6 +10,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { useMemo, useCallback, useState } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, ListProps, Tabs } from '@open-condo/ui'
@@ -20,6 +21,7 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import {
     DeleteButtonWithConfirmModal,
 } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
+import { PROPERTY_DOCUMENTS } from '@condo/domains/common/constants/featureflags'
 import { Document } from '@condo/domains/document/utils/clientSchema'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { PropertyPanels } from '@condo/domains/property/components/panels'
@@ -58,6 +60,9 @@ export const PropertyPageContent = ({ property, role = null, organizationId = nu
     const ParkingNotAvailableTitle = intl.formatMessage({ id: 'global.notAvailable' })
     const MapTabTitle = intl.formatMessage({ id: 'pages.condo.property.form.BuildingTabTitle' })
     const DocumentsTitle = intl.formatMessage({ id: 'documents.title' })
+
+    const { useFlag } = useFeatureFlags()
+    const hasPropertyDocumentsFeature = useFlag(PROPERTY_DOCUMENTS)
 
     const { push } = useRouter()
     const { breakpoints } = useLayoutContext()
@@ -154,7 +159,7 @@ export const PropertyPageContent = ({ property, role = null, organizationId = nu
                 />
             ),
         },
-        canReadPropertyDocuments && {
+        hasPropertyDocumentsFeature && canReadPropertyDocuments && {
             key: 'documents',
             label: propertyDocumentsCount > 0 ? `${DocumentsTitle} (${propertyDocumentsCount})` : DocumentsTitle,
             children: (

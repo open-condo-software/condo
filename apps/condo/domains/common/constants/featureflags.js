@@ -24,6 +24,7 @@ const SEND_TELEGRAM_NOTIFICATIONS = 'send-telegram-notifications'
 const CAPTCHA_CHECK_ENABLED = 'captcha-check-enabled'
 // TODO(DOMA-8667): Remove flag after links to instructions will be ready
 const IMPORT_HELP_MODAL = 'import-help-modal'
+const PROPERTY_DOCUMENTS = 'property-documents'
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
@@ -51,4 +52,5 @@ module.exports = {
     SEND_TELEGRAM_NOTIFICATIONS,
     CAPTCHA_CHECK_ENABLED,
     IMPORT_HELP_MODAL,
+    PROPERTY_DOCUMENTS,
 }
