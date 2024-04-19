@@ -321,6 +321,7 @@
   "global.errors.serverError.title": "Server error",
   "global.errors.requestFailed.title": "Request failed",
   "global.errors.constraintError.default.description": "This kind of object already exists",
+  "global.warns.createOrganization": "Create organization first",
   "accrualsAndPayments.setup.title": "Accruals and payments setup",
   "accrualsAndPayments.setup.chooseBillingStep.title": "Selecting a billing",
   "accrualsAndPayments.setup.setupBillingStep.title": "Integration setup",

@@ -1,9 +1,9 @@
-import { Ticket } from '@app/condo/schema'
+import { Ticket as ITicket, Property as IProperty } from '@app/condo/schema'
 import { ColumnsType } from 'antd/lib/table'
 import { ColumnType } from 'antd/lib/table/interface'
 import get from 'lodash/get'
+import identity from 'lodash/identity'
 import map from 'lodash/map'
-import { identity } from 'lodash/util'
 import { useRouter } from 'next/router'
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo } from 'react'
 
@@ -52,11 +52,11 @@ const COLUMNS_WIDTH = {
 
 export function useTableColumns<T> (
     filterMetas: Array<FiltersMeta<T>>,
-    tickets: Ticket[],
+    tickets: ITicket[],
     refetchTickets: () => Promise<undefined>,
     isRefetching: boolean,
     setIsRefetching: Dispatch<SetStateAction<boolean>>,
-): { columns: ColumnsType<Ticket>,  loading: boolean } {
+): { columns: ColumnsType<ITicket>,  loading: boolean } {
     const intl = useIntl()
     const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
     const DateMessage = intl.formatMessage({ id: 'Date' })
@@ -78,7 +78,7 @@ export function useTableColumns<T> (
 
     const { loading: statusesLoading, objs: ticketStatuses } = TicketStatus.useObjects({})
 
-    const renderStatusFilterDropdown: ColumnType<Ticket>['filterDropdown'] = useCallback((filterProps) => {
+    const renderStatusFilterDropdown: ColumnType<ITicket>['filterDropdown'] = useCallback((filterProps) => {
         const adaptedStatuses = ticketStatuses.map(status => ({ label: status.name, value: status.type })).filter(identity)
         return getOptionFilterDropdown({
             checkboxGroupProps: {
@@ -90,7 +90,10 @@ export function useTableColumns<T> (
     }, [statusesLoading, ticketStatuses])
 
     const renderAddress = useCallback(
-        (property) => getAddressRender(property, DeletedMessage, search),
+        (property: IProperty, ticket: ITicket) => {
+            const propertyData = property || { addressMeta: get(ticket, 'propertyAddressMeta'), address: get(ticket, 'propertyAddress'), deletedAt: 'true' }
+            return getAddressRender(propertyData, DeletedMessage, search)
+        },
         [DeletedMessage, search])
 
     const renderExecutor = useCallback(
@@ -303,7 +306,7 @@ export function useTableColumns<T> (
     }), [intl, ticketsCommentTimes, userTicketCommentReadTimes, breakpoints, NumberMessage, sorterMap, filters, filterMetas, search, DateMessage, StatusMessage, renderStatusFilterDropdown, AddressMessage, renderAddress, UnitMessage, DescriptionMessage, ClassifierTitle, ClientNameMessage, ExecutorMessage, renderExecutor, ResponsibleMessage, renderAssignee, userTicketCommentReadTimesLoading, ticketCommentTimesLoading])
 }
 
-export function useTicketQualityTableColumns (): { columns: ColumnsType<Ticket> } {
+export function useTicketQualityTableColumns (): { columns: ColumnsType<ITicket> } {
     const intl = useIntl()
     const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
     const DateMessage = intl.formatMessage({ id: 'Date' })
@@ -323,7 +326,7 @@ export function useTicketQualityTableColumns (): { columns: ColumnsType<Ticket> 
         [DeletedMessage, search])
 
     const renderFeedback = (intl) => {
-        return function render (feedback: string, ticket: Ticket) {
+        return function render (feedback: string, ticket: ITicket) {
             return intl.formatMessage({ id: `ticket.feedback.${ticket.feedbackValue || feedback}` })
         }
     }
