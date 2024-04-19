@@ -1,31 +1,30 @@
-import { Col, Form, Row, Space, Upload, UploadFile, UploadProps } from 'antd'
-import { RcFile } from 'antd/es/upload'
+import { Form, Space, UploadFile, UploadProps } from 'antd'
 import chunk from 'lodash/chunk'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isFunction from 'lodash/isFunction'
-import pick from 'lodash/pick'
-import { UploadRequestOption } from 'rc-upload/lib/interface'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 
-import { ArrowLeft, Paperclip } from '@open-condo/icons'
+import { Paperclip } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Alert, Button, Modal, Select, Typography } from '@open-condo/ui'
+import { Button, Modal, Typography } from '@open-condo/ui'
 
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
-import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
-import { useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
-import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
-import { Document, DocumentCategory } from '@condo/domains/document/utils/clientSchema'
-
-import { TrackingEventType } from '../../common/components/TrackingContext'
-import { MAX_UPLOAD_FILE_SIZE } from '../../common/constants/uploads'
-import { DocumentCategoryFormItem } from '../components/DocumentCategoryFormItem'
+import { StyledUpload } from '@condo/domains/common/components/MultipleFileUpload'
+import { MAX_UPLOAD_FILE_SIZE } from '@condo/domains/common/constants/uploads'
+import { DocumentCategoryFormItem } from '@condo/domains/document/components/DocumentCategoryFormItem'
+import { Document } from '@condo/domains/document/utils/clientSchema'
 
 
 const UploadDocumentsModal = ({ open, setOpen, onComplete, initialCreateDocumentValue = {} }) => {
     const intl = useIntl()
     const SaveMessage = intl.formatMessage({ id: 'Save' })
+    const ModalTitle = intl.formatMessage({ id: 'documents.uploadDocumentsModal.title' })
+    const CategoryMessage = intl.formatMessage({ id: 'documents.uploadDocumentsModal.category.message' })
+    const AttachFilesMessage = intl.formatMessage({ id: 'documents.uploadDocumentsModal.files.attachMessage' })
+    const MaxFileSizeMessage = intl.formatMessage({ id: 'documents.uploadDocumentsModal.files.maxSizeMessage' }, {
+        maxFileSizeInMb: MAX_UPLOAD_FILE_SIZE / (1024 * 1024),
+    })
 
     const [fileList, setFileList] = useState<UploadFile[]>([])
     const [formSubmitting, setFormSubmitting] = useState<boolean>(false)
@@ -33,19 +32,10 @@ const UploadDocumentsModal = ({ open, setOpen, onComplete, initialCreateDocument
 
     const createDocuments = Document.useCreateMany({})
 
-    const loading = formSubmitting
-
     const uploadFormAction = useCallback(async values => {
         setFormSubmitting(true)
 
         const category = get(values, 'category')
-        if (!category) {
-            setFormSubmitting(false)
-            setOpen(null)
-
-            return
-        }
-
         const filesChunks = chunk(fileList, 5)
 
         for (const filesChunk of filesChunks) {
@@ -93,21 +83,20 @@ const UploadDocumentsModal = ({ open, setOpen, onComplete, initialCreateDocument
             <Modal
                 open={open}
                 onCancel={() => setOpen(null)}
-                title='Добавление документов'
+                title={ModalTitle}
                 footer={(
                     <Space size={16} direction='horizontal'>
                         <Form.Item shouldUpdate>
                             {
-                                ({ getFieldsError }) => {
-                                    // const errors = getFieldsError(['file'])
-                                    //     .flatMap(obj => obj.errors)
+                                ({ getFieldValue }) => {
+                                    const category = getFieldValue('category')
 
                                     return (
                                         <Button
                                             type='primary'
                                             onClick={() => uploadForm.submit()}
-                                            // disabled={!isEmpty(errors) || isEmpty(fileList)}
-                                            loading={loading}
+                                            disabled={!category || isEmpty(fileList)}
+                                            loading={formSubmitting}
                                         >
                                             {SaveMessage}
                                         </Button>
@@ -120,14 +109,19 @@ const UploadDocumentsModal = ({ open, setOpen, onComplete, initialCreateDocument
             >
                 <Space size={24} direction='vertical'>
                     <Typography.Text size='large' type='secondary'>
-                        Выберите категорию файлов для загрузки, чтобы быстро находить документы в списке
+                        {CategoryMessage}
                     </Typography.Text>
                     <DocumentCategoryFormItem />
-                    <Upload {...uploadProps}>
-                        <Button type='secondary' icon={<Paperclip size='medium' />}>
-                            Прикрепить файл
-                        </Button>
-                    </Upload>
+                    <Space size={8} direction='vertical'>
+                        <Typography.Text type='secondary' size='medium'>
+                            {MaxFileSizeMessage}
+                        </Typography.Text>
+                        <StyledUpload reverseFileList {...uploadProps}>
+                            <Button type='secondary' icon={<Paperclip size='medium' />}>
+                                {AttachFilesMessage}
+                            </Button>
+                        </StyledUpload>
+                    </Space>
                 </Space>
             </Modal>
         </FormWithAction>

@@ -6,13 +6,13 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
 import { PlusCircle, Search } from '@open-condo/icons'
+import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button, Select } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
-import { Loader } from '@condo/domains/common/components/Loader'
-import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table'
+import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
@@ -26,15 +26,18 @@ import { usePropertyDocumentsTableColumns } from '@condo/domains/property/hooks/
 import { usePropertyDocumentsTableFilters } from '@condo/domains/property/hooks/usePropertyDocumentsTableFilters'
 
 
-const SORTABLE_PROPERTIES = ['name', 'category']
+const SORTABLE_PROPERTIES = ['name', 'category', 'createdAt']
 const DOCUMENTS_DEFAULT_SORT_BY = ['createdAt_DESC']
 
 const TableContent = ({ total, documentsLoading, propertyDocuments, openUploadModal, role, refetchDocuments }) => {
+    const intl = useIntl()
+    const AddDocumentMessage = intl.formatMessage({ id: 'documents.propertyDocuments.addDocument' })
+
     const tableColumns = usePropertyDocumentsTableColumns()
 
     const { UpdateDocumentModal, setSelectedDocument } = useUpdateDocumentModal()
 
-    const canManageDocuments = get(role, 'canManageDocuments')
+    const canManageDocuments = useMemo(() => get(role, 'canManageDocuments'), [role])
 
     const handleRowAction = useCallback((document) => {
         return {
@@ -65,7 +68,7 @@ const TableContent = ({ total, documentsLoading, propertyDocuments, openUploadMo
                                         icon={<PlusCircle size='medium' />}
                                         onClick={openUploadModal}
                                     >
-                                        Добавить документ
+                                        {AddDocumentMessage}
                                     </Button>,
                                 ]}
                             />
@@ -94,6 +97,13 @@ export const PropertyDocuments: React.FC<PropertyDocumentsProps> = ({
     refetchDocumentsCount,
     propertyDocumentsCount,
 }) => {
+    const intl = useIntl()
+    const AllCategoriesMessage = intl.formatMessage({ id: 'documents.propertyDocuments.filters.category.allCategories' })
+    const SearchPlaceholder = intl.formatMessage({ id: 'documents.propertyDocuments.filters.search.placeholder' })
+    const EmptyListLabel = intl.formatMessage({ id: 'documents.propertyDocuments.emptyList.label' })
+    const EmptyListMessage = intl.formatMessage({ id: 'documents.propertyDocuments.emptyList.message' })
+    const AddDocumentMessage = intl.formatMessage({ id: 'documents.propertyDocuments.addDocument' })
+
     const router = useRouter()
     const { sorters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
@@ -122,10 +132,10 @@ export const PropertyDocuments: React.FC<PropertyDocumentsProps> = ({
         const options = categories.map(category => ({ label: get(category, 'name'), value: get(category, 'id') }))
 
         return [
-            { label: 'Все категории', value: 'all' },
+            { label: AllCategoriesMessage, value: 'all' },
             ...options,
         ]
-    }, [categories])
+    }, [AllCategoriesMessage, categories])
     const categoryValueFromQuery = get(filters, 'category', 'all')
     const handleCategorySelectChange = useCallback(async (value) => {
         let newFilters = Object.assign({}, filters)
@@ -148,10 +158,10 @@ export const PropertyDocuments: React.FC<PropertyDocumentsProps> = ({
         organization: { connect: { id: organizationId } },
     }), [organizationId, propertyId])
 
-    const refetch = async () => {
+    const refetch = useCallback(async () => {
         await refetchDocuments()
         await refetchDocumentsCount()
-    }
+    }, [refetchDocuments, refetchDocumentsCount])
 
     const [search, handleSearchChange] = useSearch()
     const handleSearch = useCallback((e) => handleSearchChange(e.target.value), [handleSearchChange])
@@ -160,12 +170,12 @@ export const PropertyDocuments: React.FC<PropertyDocumentsProps> = ({
         return (
             <>
                 <EmptyListContent
-                    label='Нет загруженных документов'
-                    message='Вы пока не загрузили ни одного документа. Попробуем загрузить первый прямо сейчас?'
+                    label={EmptyListLabel}
+                    message={EmptyListMessage}
                     accessCheck={canManagePropertyDocuments}
                     button={(
                         <Button type='primary' onClick={openUploadModal}>
-                            Добавить документ
+                            {AddDocumentMessage}
                         </Button>
                     )}
                     image='/dino/searching@2x.png'
@@ -186,7 +196,7 @@ export const PropertyDocuments: React.FC<PropertyDocumentsProps> = ({
                         <Row gutter={[16, 16]}>
                             <Col span={18}>
                                 <Input
-                                    placeholder='Поиск по имени файла'
+                                    placeholder={SearchPlaceholder}
                                     onChange={handleSearch}
                                     value={search}
                                     allowClear

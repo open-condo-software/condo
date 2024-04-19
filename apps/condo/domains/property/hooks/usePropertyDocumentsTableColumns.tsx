@@ -1,21 +1,40 @@
-import { DocumentWhereInput } from '@app/condo/schema'
+import styled from '@emotion/styled'
 import get from 'lodash/get'
 import { useCallback } from 'react'
 
 import { Download } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
 
 import { getDateRender } from '@condo/domains/common/components/Table/Renders'
 import { useDownloadFileFromServer } from '@condo/domains/common/hooks/useDownloadFileFromServer'
-import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 
+
+const StyledButton = styled(Button)`
+  border: none;
+  padding: 8px;
+  min-width: auto;
+  height: auto;
+  
+  &::before, &:focus {
+    border: none;
+  }
+  
+  & > span {
+    color: ${colors.gray[7]};
+  }
+`
 
 export const usePropertyDocumentsTableColumns = () => {
     const intl = useIntl()
+    const NameTitle = intl.formatMessage({ id: 'documents.propertyDocuments.columns.name' })
+    const CategoryTitle = intl.formatMessage({ id: 'documents.propertyDocuments.columns.category' })
+    const DateTitle = intl.formatMessage({ id: 'documents.propertyDocuments.columns.date' })
+    const DownloadMessage = intl.formatMessage({ id: 'Download' })
 
     const { downloadFile } = useDownloadFileFromServer()
-    
+
     const handleDownload = useCallback(async (event, document) => {
         event.stopPropagation()
 
@@ -27,17 +46,18 @@ export const usePropertyDocumentsTableColumns = () => {
 
     const renderDownloadIcon = useCallback((document) => {
         return (
-            <Button
+            <StyledButton
+                title={DownloadMessage}
                 type='secondary'
-                icon={<Download size='medium' />}
+                icon={<Download size='medium' color='inherit' />}
                 onClick={(event) => handleDownload(event, document)}
             />
         )
-    }, [handleDownload])
+    }, [DownloadMessage, handleDownload])
 
     return [
         {
-            title: 'Имя файла',
+            title: NameTitle,
             ellipsis: true,
             dataIndex: 'name',
             key: 'name',
@@ -45,7 +65,7 @@ export const usePropertyDocumentsTableColumns = () => {
             width: '40%',
         },
         {
-            title: 'Категория',
+            title: CategoryTitle,
             ellipsis: true,
             dataIndex: ['category', 'name'],
             key: 'category',
@@ -53,18 +73,18 @@ export const usePropertyDocumentsTableColumns = () => {
             width: '30%',
         },
         {
-            title: 'Дата загрузки',
+            title: DateTitle,
             ellipsis: true,
             dataIndex: 'createdAt',
             key: 'createdAt',
             sorter: true,
             render: getDateRender(intl),
-            width: '20%',
+            width: '23%',
         },
         {
             key: 'downloadButton',
             render: renderDownloadIcon,
-            width: '10%',
+            width: '7%',
         },
     ]
 }

@@ -8,9 +8,8 @@ import isNull from 'lodash/isNull'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { useMemo, useCallback, useState, useRef } from 'react'
+import React, { useMemo, useCallback, useState } from 'react'
 
-import { Plus, PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, ListProps, Tabs } from '@open-condo/ui'
@@ -21,7 +20,6 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import {
     DeleteButtonWithConfirmModal,
 } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
-import { useUploadDocumentsModal } from '@condo/domains/document/hooks/useUploadDocumentsModal'
 import { Document } from '@condo/domains/document/utils/clientSchema'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { PropertyPanels } from '@condo/domains/property/components/panels'
@@ -58,6 +56,8 @@ export const PropertyPageContent = ({ property, role = null, organizationId = nu
     const ParkingTitle = intl.formatMessage({ id: 'field.sectionType.parking' })
     const ParkingAvailableTitle = intl.formatMessage({ id: 'global.available' })
     const ParkingNotAvailableTitle = intl.formatMessage({ id: 'global.notAvailable' })
+    const MapTabTitle = intl.formatMessage({ id: 'pages.condo.property.form.BuildingTabTitle' })
+    const DocumentsTitle = intl.formatMessage({ id: 'documents.title' })
 
     const { push } = useRouter()
     const { breakpoints } = useLayoutContext()
@@ -144,7 +144,7 @@ export const PropertyPageContent = ({ property, role = null, organizationId = nu
     const tabItems = [
         breakpoints.TABLET_LARGE && {
             key: 'map',
-            label: 'Шахматка',
+            label: MapTabTitle,
             children: (
                 <PropertyPanels
                     mode='view'
@@ -156,7 +156,7 @@ export const PropertyPageContent = ({ property, role = null, organizationId = nu
         },
         canReadPropertyDocuments && {
             key: 'documents',
-            label: propertyDocumentsCount > 0 ? `Документы (${propertyDocumentsCount})` : 'Документы',
+            label: propertyDocumentsCount > 0 ? `${DocumentsTitle} (${propertyDocumentsCount})` : DocumentsTitle,
             children: (
                 <PropertyDocuments
                     organizationId={organizationId}

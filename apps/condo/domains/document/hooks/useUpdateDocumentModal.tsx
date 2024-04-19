@@ -1,11 +1,11 @@
 import { Document as DocumentType } from '@app/condo/schema'
-import { Form, notification, Space, Upload } from 'antd'
+import { Form, notification, Space } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
-import isEmpty from 'lodash/isEmpty'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { Download, Paperclip } from '@open-condo/icons'
+import { useIntl } from '@open-condo/next/intl'
 import { Button, Modal, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
@@ -15,7 +15,18 @@ import { DocumentCategoryFormItem } from '@condo/domains/document/components/Doc
 import { Document } from '@condo/domains/document/utils/clientSchema'
 
 
+const FILE_WRAPPER_STYLE: CSSProperties = { width: '100%', backgroundColor: colors.gray[1], borderRadius: '8px', padding: '16px' }
+const FILE_NAME_WRAPPER_STYLE: CSSProperties = { display: 'flex', flexDirection: 'row', gap: '8px', alignItems: 'center' }
+
 const UpdateDocumentModal = ({ selectedDocument, setSelectedDocument, refetchDocuments }) => {
+    const intl = useIntl()
+    const DownloadFileMessage = intl.formatMessage({ id: 'documents.updateDocumentModal.downloadMessage' })
+    const DeleteMessage = intl.formatMessage({ id: 'Delete' })
+    const SaveMessage = intl.formatMessage({ id: 'Save' })
+    const CancelUpdateMessage = intl.formatMessage({ id: 'documents.updateDocumentModal.cancel' })
+    const CancelModalTitle = intl.formatMessage({ id: 'documents.updateDocumentModal.cancel.title' })
+    const CancelModalMessage = intl.formatMessage({ id: 'documents.updateDocumentModal.cancel.message' })
+
     const updateAction = Document.useUpdate({})
     const softDeleteAction = Document.useSoftDelete()
 
@@ -59,7 +70,7 @@ const UpdateDocumentModal = ({ selectedDocument, setSelectedDocument, refetchDoc
         setLoading(false)
     }, [closeModal, refetchDocuments, selectedDocument, updateAction])
 
-    const fileName = get(selectedDocument, 'name')
+    const fileName = useMemo(() => get(selectedDocument, 'name'), [selectedDocument])
 
     return (
         <>
@@ -77,29 +88,28 @@ const UpdateDocumentModal = ({ selectedDocument, setSelectedDocument, refetchDoc
                     footer={(
                         <Space size={16} direction='horizontal'>
                             <Button type='secondary' danger onClick={openConfirmDeleteModal}>
-                                Удалить
+                                {DeleteMessage}
                             </Button>
                             <Button
                                 type='secondary'
                                 icon={<Download size='medium' />}
                                 onClick={handleDownload}
                             >
-                                Скачать файл
+                                {DownloadFileMessage}
                             </Button>
                             <Form.Item shouldUpdate>
                                 {
-                                    ({ getFieldsError }) => {
-                                        // const errors = getFieldsError(['file'])
-                                        //     .flatMap(obj => obj.errors)
+                                    ({ getFieldValue }) => {
+                                        const categoryFromField = getFieldValue('category')
 
                                         return (
                                             <Button
                                                 type='primary'
                                                 onClick={() => updateForm.submit()}
-                                                // disabled={!isEmpty(errors) || isEmpty(fileList)}
+                                                disabled={get(selectedDocument, 'category.id') === categoryFromField}
                                                 loading={loading}
                                             >
-                                                Сохранить
+                                                {SaveMessage}
                                             </Button>
                                         )
                                     }
@@ -109,9 +119,9 @@ const UpdateDocumentModal = ({ selectedDocument, setSelectedDocument, refetchDoc
                     )}
                 >
                     <Space size={24} direction='vertical'>
-                        <div style={{ width: '100%', backgroundColor: colors.gray[1], borderRadius: '8px', padding: '16px' }}>
+                        <div style={FILE_WRAPPER_STYLE}>
                             <Space size={24} direction='horizontal' align='center'>
-                                <div style={{ display: 'flex', flexDirection: 'row', gap: '8px', alignItems: 'center' }}>
+                                <div style={FILE_NAME_WRAPPER_STYLE}>
                                     <Paperclip size='small' color={colors.gray[7]} />
                                     <Typography.Text size='medium'>{fileName}</Typography.Text>
                                 </div>
@@ -129,18 +139,18 @@ const UpdateDocumentModal = ({ selectedDocument, setSelectedDocument, refetchDoc
             <Modal
                 open={modalState === 'confirmDelete'}
                 onCancel={closeModal}
-                title='Удалить файл'
+                title={CancelModalTitle}
                 footer={[
                     <Button key='delete' type='secondary' danger onClick={softDeleteDocument}>
-                        Удалить
+                        {DeleteMessage}
                     </Button>,
                     <Button key='cancel' type='secondary' onClick={() => setModalState('update')}>
-                        Оставить
+                        {CancelUpdateMessage}
                     </Button>,
                 ]}
             >
                 <Typography.Text type='secondary' size='large'>
-                    Восстановить файл будет нельзя. Но можно загрузить его заново.
+                    {CancelModalMessage}
                 </Typography.Text>
             </Modal>
         </>

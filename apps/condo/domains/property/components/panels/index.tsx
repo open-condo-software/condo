@@ -1,10 +1,6 @@
 import { BuildingMap } from '@app/condo/schema'
 import React from 'react'
 
-
-import { useIntl } from '@open-condo/next/intl'
-import { Typography } from '@open-condo/ui'
-
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { IPropertyMapFormProps } from '@condo/domains/property/components/BasePropertyMapForm'
 

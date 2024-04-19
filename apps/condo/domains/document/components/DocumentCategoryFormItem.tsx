@@ -2,10 +2,10 @@ import { Form } from 'antd'
 import get from 'lodash/get'
 import React, { useMemo } from 'react'
 
+import { useIntl } from '@open-condo/next/intl'
 import { Select } from '@open-condo/ui'
 
-import { Loader } from '../../common/components/Loader'
-import { DocumentCategory } from '../utils/clientSchema'
+import { DocumentCategory } from '@condo/domains/document/utils/clientSchema'
 
 
 type DocumentCategoryFormItemProps = {
@@ -13,6 +13,10 @@ type DocumentCategoryFormItemProps = {
 }
 
 export const DocumentCategoryFormItem: React.FC<DocumentCategoryFormItemProps> = ({ initialValue }) => {
+    const intl = useIntl()
+    const CategoryTitle = intl.formatMessage({ id: 'documents.uploadDocumentsModal.category.title' })
+    const CategoryPlaceholder = intl.formatMessage({ id: 'documents.uploadDocumentsModal.category.placeholder' })
+
     const { objs: categories, allDataLoaded: allCategoriesLoaded } = DocumentCategory.useAllObjects({})
 
     const categoryOptions = useMemo(() => categories.map(category =>
@@ -23,7 +27,7 @@ export const DocumentCategoryFormItem: React.FC<DocumentCategoryFormItemProps> =
 
     return (
         <Form.Item
-            label='Категория'
+            label={CategoryTitle}
             name='category'
             required
             labelCol={{ span: 24 }}
@@ -31,7 +35,7 @@ export const DocumentCategoryFormItem: React.FC<DocumentCategoryFormItemProps> =
         >
             <Select
                 options={categoryOptions}
-                placeholder='Выбор категории'
+                placeholder={CategoryPlaceholder}
                 loading={loading}
             />
         </Form.Item>

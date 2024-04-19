@@ -172,9 +172,9 @@ export const useMultipleFileUploadHook = ({
     }
 }
 
-const StyledUpload = styled(Upload)`
+export const StyledUpload = styled(Upload)<{ reverseFileList?: boolean }>`
   display: flex;
-  flex-flow: column-reverse;
+  flex-flow: ${props => props.reverseFileList ? 'column' : 'column-reverse'};
 
   .ant-upload-list-item:hover .ant-upload-list-item-info {
     background-color: inherit;
@@ -198,10 +198,15 @@ const StyledUpload = styled(Upload)`
       flex-grow: 0;
     }
 
-    &:last-child {
+    ${props => props.reverseFileList ? `
+     &:first-child {
+      margin-top: 24px;
+      width: auto;
+     }` : `
+     &:last-child {
       margin-bottom: 24px;
       width: auto;
-    }
+     }`}
   }
   
   .ant-upload-list-item-card-actions {
