@@ -153,8 +153,8 @@ describe('MeterResourceOwner', () => {
             })
 
             test('support can update only organization field', async () => {
-                const [originalOrganization] = await createTestOrganization(support)
-                const [swappedOrganization] = await createTestOrganization(support)
+                const [originalOrganization] = await createTestOrganization(admin)
+                const [swappedOrganization] = await createTestOrganization(admin)
                 const [property] = await createTestProperty(support, originalOrganization, { map: buildingMapJson })
                 const [objCreated] = await createTestMeterResourceOwner(admin, originalOrganization, resource, {
                     address: property.address,
@@ -173,7 +173,7 @@ describe('MeterResourceOwner', () => {
             })
 
             test('support can\'t update meter related fields', async () => {
-                const [organization] = await createTestOrganization(support)
+                const [organization] = await createTestOrganization(admin)
                 const [property] = await createTestProperty(support, organization)
                 const [objCreated] = await createTestMeterResourceOwner(admin, organization, resource, {
                     address: property.address,

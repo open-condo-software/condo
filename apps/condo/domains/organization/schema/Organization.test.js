@@ -72,8 +72,13 @@ describe('Organization', () => {
                     await createTestOrganization(userClient)
                 })
             })
-            test('Support can create organization directly', async () => {
-                const [obj, attrs] = await createTestOrganization(support)
+            test('Support can not create organization directly', async () => {
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestOrganization(support)
+                })
+            })
+            test('Admin can create organization directly', async () => {
+                const [obj, attrs] = await createTestOrganization(admin)
 
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
@@ -81,8 +86,8 @@ describe('Organization', () => {
                 expect(obj.v).toEqual(1)
                 expect(obj.newId).toEqual(null)
                 expect(obj.deletedAt).toEqual(null)
-                expect(obj.createdBy).toEqual(expect.objectContaining({ id: support.user.id }))
-                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: support.user.id }))
+                expect(obj.createdBy).toEqual(expect.objectContaining({ id: admin.user.id }))
+                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
                 expect(obj.createdAt).toMatch(DATETIME_RE)
                 expect(obj.updatedAt).toMatch(DATETIME_RE)
                 expect(obj.isApproved).toBeTruthy()
@@ -233,11 +238,11 @@ describe('Organization', () => {
     })
     describe('Organization types', () => {
         test(`Organization should have "${MANAGING_COMPANY_TYPE}" type by default`, async () => {
-            const [org] = await createTestOrganization(support)
+            const [org] = await createTestOrganization(admin)
             expect(org).toHaveProperty('type', MANAGING_COMPANY_TYPE)
         })
         test('Support can change organization type', async () => {
-            const [org] = await createTestOrganization(support)
+            const [org] = await createTestOrganization(admin)
             const [updatedOrg] = await updateTestOrganization(support, org.id, {
                 type: SERVICE_PROVIDER_TYPE,
             })
@@ -419,8 +424,8 @@ describe('Organization', () => {
                 expect(updatedO18n.isApproved).toBeTruthy()
             })
 
-            test('Support: can create, read and update field "isApproved"', async () => {
-                const [createdO10n] = await createTestOrganization(support, { isApproved: false })
+            test('Support: can read and update field "isApproved"', async () => {
+                const [createdO10n] = await createTestOrganization(admin, { isApproved: false })
                 expect(createdO10n.isApproved).toBeFalsy()
 
                 const o10n = await Organization.getOne(support, { id: createdO10n.id })
