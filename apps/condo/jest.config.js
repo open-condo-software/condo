@@ -9,7 +9,8 @@ module.exports = {
                 `${__dirname}/schema/**/*.test.js`,
                 `${__dirname}/domains/**/schema/*.test.js`,
             ],
-            setupFilesAfterEnv: [`${__dirname}/jest.setupTest.js`],
+            setupFiles: [`${__dirname}/jest.setupTest.js`],
+            setupFilesAfterEnv: [`${__dirname}/jest.setupTestAfterEnv.js`],
             // NOTE: need to pass uuid export syntax through babel
             transformIgnorePatterns: ['/node_modules/(?!(uuid|msgpackr)/)'],
         },
