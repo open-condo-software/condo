@@ -43,7 +43,7 @@ jobs:
         run: |
           mkdir test_logs
           chmod -R a+rw ./test_logs
-          docker run -e SERVER_URL=$SERVER_URL -e COOKIE_SECRET=$COOKIE_SECRET -e REDIS_URL=$REDIS_URL -e DATABASE_URL=$DATABASE_URL -e NODE_ENV=$NODE_ENV -e DISABLE_LOGGING=$DISABLE_LOGGING -v ./test_logs:/app/test_logs --network="host" ${{ inputs.image }} bash -c "/app/run_condo_domain_tests.sh -d ${{ inputs.domain_name }}"
+          docker run -e SERVER_URL=$SERVER_URL -e COOKIE_SECRET=$COOKIE_SECRET -e REDIS_URL=$REDIS_URL -e DATABASE_URL=$DATABASE_URL -e NODE_ENV=$NODE_ENV -e DISABLE_LOGGING=$DISABLE_LOGGING -e ADDRESS_SERVICE_CLIENT_MODE=$ADDRESS_SERVICE_CLIENT_MODE -v ./test_logs:/app/test_logs --network="host" ${{ inputs.image }} bash -c "/app/run_condo_domain_tests.sh -d ${{ inputs.domain_name }}"
         env:
           DATABASE_URL: postgresql://postgres:postgres@127.0.0.1/main
           NODE_ENV: development
@@ -51,6 +51,7 @@ jobs:
           REDIS_URL: redis://127.0.0.1:6379
           COOKIE_SECRET: test
           SERVER_URL: http://localhost:3000
+          ADDRESS_SERVICE_CLIENT_MODE: fake
 
       - name: Collect docker logs on failure
         if: failure()
