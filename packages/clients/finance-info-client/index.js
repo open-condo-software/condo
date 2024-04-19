@@ -1,4 +1,9 @@
+const get = require('lodash/get')
+
+const conf = require('@open-condo/config')
+
 const { FinanceInfoClient } = require('./FinanceInfoClient')
+const { getBankInfo: mockedGetBankInfo, getOrganizationInfo: mockedGetOrganizationInfo } = require('./mocked')
 
 /**
  * @typedef {Object} BankInfoResult
@@ -44,7 +49,15 @@ async function getBankInfo (routingNumber) {
     }
 }
 
-module.exports = {
-    getOrganizationInfo,
-    getBankInfo,
+if (get(conf, 'JEST_MOCKS_ENABLED') === 'true') {
+    console.log('🥸 The mocked FinanceInfoClient is used')
+    module.exports = {
+        getOrganizationInfo: mockedGetOrganizationInfo,
+        getBankInfo: mockedGetBankInfo,
+    }
+} else {
+    module.exports = {
+        getOrganizationInfo,
+        getBankInfo,
+    }
 }

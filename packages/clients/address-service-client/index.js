@@ -14,7 +14,7 @@ function createInstance () {
     const addressServiceUrl = get(conf, 'ADDRESS_SERVICE_DOMAIN')
 
     if (!instance) {
-        if (get(conf, 'ADDRESS_SERVICE_CLIENT_MODE') === 'fake') {
+        if (get(conf, 'JEST_MOCKS_ENABLED') === 'true') {
             instance = new MockedAddressServiceClient(addressServiceUrl)
         } else {
             instance = new AddressServiceClient(addressServiceUrl)

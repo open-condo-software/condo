@@ -10,7 +10,7 @@ class MockedAddressServiceClient {
      * @param {string} url The address service url (root)
      */
     constructor (url) {
-        console.log(`🥸The mocked AddressServiceClient is used. All calls to ${url} will be mocked.`)
+        console.log(`🥸 The mocked AddressServiceClient is used. All calls to ${url} will be mocked.`)
     }
 
     async search (s, params = {}) {
