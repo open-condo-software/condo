@@ -97,6 +97,19 @@ WHERE "name" = 'employee.role.Administrator.name'
 --
 SET statement_timeout = '10s';
 
+INSERT INTO "DocumentCategory" (name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", dv, sender, "createdBy", "updatedBy") VALUES ('document.category.DefectActs.name', gen_random_uuid(), 1, now(), now(), null, null, 1, '{"dv": 1, "fingerprint": "migration-initial-create"}', null, null);
+INSERT INTO "DocumentCategory" (name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", dv, sender, "createdBy", "updatedBy") VALUES ('document.category.InspectionActs.name', gen_random_uuid(), 1, now(), now(), null, null, 1, '{"dv": 1, "fingerprint": "migration-initial-create"}', null, null);
+INSERT INTO "DocumentCategory" (name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", dv, sender, "createdBy", "updatedBy") VALUES ('document.category.AutumnInspections.name', gen_random_uuid(), 1, now(), now(), null, null, 1, '{"dv": 1, "fingerprint": "migration-initial-create"}', null, null);
+INSERT INTO "DocumentCategory" (name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", dv, sender, "createdBy", "updatedBy") VALUES ('document.category.SpringInspections.name', gen_random_uuid(), 1, now(), now(), null, null, 1, '{"dv": 1, "fingerprint": "migration-initial-create"}', null, null);
+INSERT INTO "DocumentCategory" (name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", dv, sender, "createdBy", "updatedBy") VALUES ('document.category.CleaningActs.name', gen_random_uuid(), 1, now(), now(), null, null, 1, '{"dv": 1, "fingerprint": "migration-initial-create"}', null, null);
+INSERT INTO "DocumentCategory" (name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", dv, sender, "createdBy", "updatedBy") VALUES ('document.category.CompletedWorksActs.name', gen_random_uuid(), 1, now(), now(), null, null, 1, '{"dv": 1, "fingerprint": "migration-initial-create"}', null, null);
+INSERT INTO "DocumentCategory" (name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", dv, sender, "createdBy", "updatedBy") VALUES ('document.category.FireSafetyInspection.name', gen_random_uuid(), 1, now(), now(), null, null, 1, '{"dv": 1, "fingerprint": "migration-initial-create"}', null, null);
+INSERT INTO "DocumentCategory" (name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", dv, sender, "createdBy", "updatedBy") VALUES ('document.category.Encumbrances.name', gen_random_uuid(), 1, now(), now(), null, null, 1, '{"dv": 1, "fingerprint": "migration-initial-create"}', null, null);
+INSERT INTO "DocumentCategory" (name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", dv, sender, "createdBy", "updatedBy") VALUES ('document.category.WorkPlans.name', gen_random_uuid(), 1, now(), now(), null, null, 1, '{"dv": 1, "fingerprint": "migration-initial-create"}', null, null);
+INSERT INTO "DocumentCategory" (name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", dv, sender, "createdBy", "updatedBy") VALUES ('document.category.ProjectDocumentation.name', gen_random_uuid(), 1, now(), now(), null, null, 1, '{"dv": 1, "fingerprint": "migration-initial-create"}', null, null);
+INSERT INTO "DocumentCategory" (name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", dv, sender, "createdBy", "updatedBy") VALUES ('document.category.TechnicalDocumentation.name', gen_random_uuid(), 1, now(), now(), null, null, 1, '{"dv": 1, "fingerprint": "migration-initial-create"}', null, null);
+INSERT INTO "DocumentCategory" (name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", dv, sender, "createdBy", "updatedBy") VALUES ('document.category.OtherDocuments.name', gen_random_uuid(), 1, now(), now(), null, null, 1, '{"dv": 1, "fingerprint": "migration-initial-create"}', null, null);
+
 COMMIT;
 
     `)
