@@ -3,7 +3,6 @@ import { AutoComplete, Col, Form, Row, RowProps } from 'antd'
 import { OptionProps } from 'antd/lib/mentions'
 import { get } from 'lodash'
 import debounce from 'lodash/debounce'
-import isString from 'lodash/isString'
 import { Rule } from 'rc-field-form/lib/interface'
 import React, { useCallback, useMemo, useState } from 'react'
 
@@ -102,7 +101,7 @@ const NotResidentFields: React.FC<INotResidentFieldsFieldsProps> = ({
     const handleChangeContact = (field) => (fieldValue) => {
         const newValue = {
             ...value,
-            [field]: isString(fieldValue) ? fieldValue.trim() : fieldValue,
+            [field]: typeof fieldValue === 'string' ? fieldValue.trim() : fieldValue,
         }
         setValueAndTriggerOnChange(newValue)
     }

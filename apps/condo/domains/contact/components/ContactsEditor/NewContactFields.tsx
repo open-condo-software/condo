@@ -2,7 +2,6 @@ import styled from '@emotion/styled'
 import { AutoComplete, Col, Form, FormInstance, FormItemProps, InputProps, Row, RowProps } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
-import isString from 'lodash/isString'
 import { Rule } from 'rc-field-form/lib/interface'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
@@ -90,7 +89,7 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
     const handleChangeContact = (field) => (fieldValue) => {
         const newValue = {
             ...value,
-            [field]: isString(fieldValue) ? fieldValue.trim() : fieldValue,
+            [field]: typeof fieldValue === 'string' ? fieldValue.trim() : fieldValue,
         }
         setValueAndTriggerOnChange(newValue)
     }
