@@ -76,6 +76,11 @@ const Document = new GQLListSchema('Document', {
             return resolvedData
         },
         afterChange: fileMetaAfterChange,
+        afterDelete: async ({ existingItem }) => {
+            if (existingItem.file) {
+                await Adapter.delete(existingItem.file)
+            }
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {

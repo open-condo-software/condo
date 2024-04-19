@@ -26,6 +26,7 @@ const UpdateDocumentModal = ({ selectedDocument, setSelectedDocument, refetchDoc
     const CancelUpdateMessage = intl.formatMessage({ id: 'documents.updateDocumentModal.cancel' })
     const CancelModalTitle = intl.formatMessage({ id: 'documents.updateDocumentModal.cancel.title' })
     const CancelModalMessage = intl.formatMessage({ id: 'documents.updateDocumentModal.cancel.message' })
+    const ReadyMessage = intl.formatMessage({ id: 'Ready' })
 
     const updateAction = Document.useUpdate({})
     const softDeleteAction = Document.useSoftDelete()
@@ -44,12 +45,16 @@ const UpdateDocumentModal = ({ selectedDocument, setSelectedDocument, refetchDoc
     }, [setSelectedDocument])
 
     const softDeleteDocument = useCallback(async () => {
+        setLoading(true)
+
         await softDeleteAction(selectedDocument)
         await refetchDocuments()
+
+        setLoading(false)
         closeModal()
 
-        notification.success({ message: 'Готово' })
-    }, [closeModal, refetchDocuments, selectedDocument, softDeleteAction])
+        notification.success({ message: ReadyMessage })
+    }, [ReadyMessage, closeModal, refetchDocuments, selectedDocument, softDeleteAction])
 
     const handleDownload = useCallback(async () => {
         const url = get(selectedDocument, 'file.publicUrl')

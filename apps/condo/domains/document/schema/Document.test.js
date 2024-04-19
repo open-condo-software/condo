@@ -211,7 +211,7 @@ describe('Document', () => {
                 })
             })
 
-            it('employee with canManageDocuments can update only category', async () => {
+            it('employee with canManageDocuments can not update property', async () => {
                 const [createdDocument] = await createTestDocument(admin, organization, documentCategory)
                 const [otherProperty] = await createTestProperty(admin, organization)
                 const [otherCategory] = await createTestDocumentCategory(admin)

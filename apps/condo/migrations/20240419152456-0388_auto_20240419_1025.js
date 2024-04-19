@@ -103,7 +103,9 @@ INSERT INTO "DocumentCategory" (name, id, v, "createdAt", "updatedAt", "deletedA
 INSERT INTO "DocumentCategory" (name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", dv, sender, "createdBy", "updatedBy") VALUES ('document.category.WorkPlans.name', '12828df1-5146-45e9-a0ae-c805f9a0df8b', 1, now(), now(), null, null, 1, '{"dv": 1, "fingerprint": "migration-initial-create"}', null, null);
 INSERT INTO "DocumentCategory" (name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", dv, sender, "createdBy", "updatedBy") VALUES ('document.category.ProjectDocumentation.name', '9f7fbea2-3aff-46ec-9881-53c6ae07b995', 1, now(), now(), null, null, 1, '{"dv": 1, "fingerprint": "migration-initial-create"}', null, null);
 INSERT INTO "DocumentCategory" (name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", dv, sender, "createdBy", "updatedBy") VALUES ('document.category.TechnicalDocumentation.name', 'd106c8f0-c5fd-4c18-8cd0-b2b5477e9799', 1, now(), now(), null, null, 1, '{"dv": 1, "fingerprint": "migration-initial-create"}', null, null);
+INSERT INTO "DocumentCategory" (name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", dv, sender, "createdBy", "updatedBy") VALUES ('document.category.ContainerSites.name', 'b1cdd059-5b71-4915-997c-d5fad0857627', 1, now(), now(), null, null, 1, '{"dv": 1, "fingerprint": "migration-initial-create"}', null, null);
 INSERT INTO "DocumentCategory" (name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", dv, sender, "createdBy", "updatedBy") VALUES ('document.category.OtherDocuments.name', 'b9a35f9d-370a-4c35-959d-83d6ec39b7e4', 1, now(), now(), null, null, 1, '{"dv": 1, "fingerprint": "migration-initial-create"}', null, null);
+
         
 --
 -- [CUSTOM] Revert Statement Timeout to default amount - 10 secs

@@ -8,9 +8,7 @@ const uniq = require('lodash/uniq')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
-const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
-const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
-const { checkUserPermissionsInOrganizations } = require('@condo/domains/organization/utils/accessSchema')
+const { queryOrganizationEmployeeFor, checkOrganizationPermission, checkUserPermissionsInOrganizations } = require('@condo/domains/organization/utils/accessSchema')
 
 
 async function canReadDocuments ({ authentication: { item: user } }) {
