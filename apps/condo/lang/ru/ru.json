@@ -2538,7 +2538,7 @@
   "api.analytics.overviewDashboard.FEATURE_IS_DISABLED": "Эта функция недоступна в вашей организации",
   "api.tourStep.update.updateCompletedStepType": "Нельзя обновить статус у выполненого шага",
   "api.onboarding.syncTourSteps.TOUR_STEPS_NOT_FOUND": "Для переданной организации не найдены шаги путеводителя",
-  "api.document.WRONG_PROPERTY_ORGANIZATION": "Поле organization у переданного property не совпадает с organization в document",
+  "api.document.WRONG_PROPERTY_ORGANIZATION": "The property is in another organization",
   "excelExport.header.contacts.forAllTime": "Контакты за всё время",
   "excelExport.header.contacts.forPeriod": "Контакты за период",
   "excelExport.header.newsRecipients": "Получатели новости",

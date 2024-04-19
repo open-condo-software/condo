@@ -3,10 +3,10 @@
  */
 
 
-const { uniq } = require('lodash')
 const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 const omit = require('lodash/omit')
+const uniq = require('lodash/uniq')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')

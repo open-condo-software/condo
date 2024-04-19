@@ -12,8 +12,9 @@ const DocumentCategory = new GQLListSchema('DocumentCategory', {
     fields: {
         name: {
             schemaDoc: 'Name of the category',
-            type: 'Text',
+            type: 'LocalizedText',
             isRequired: true,
+            template: 'document.category.*.name',
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],

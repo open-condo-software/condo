@@ -11,6 +11,7 @@ const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 const access = require('@condo/domains/document/access/Document')
 const { ERRORS } = require('@condo/domains/document/constants')
+const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 
 
 const DOCUMENT_FOLDER_NAME = 'document'
@@ -20,19 +21,12 @@ const fileMetaAfterChange = getFileMetaAfterChange(Adapter)
 const Document = new GQLListSchema('Document', {
     schemaDoc: 'Document with file attached to organization or property. It could be some kind of property documentation, inspection reports or other documents',
     fields: {
-        organization: {
-            schemaDoc: 'Organization to which the document is attached',
-            type: 'Relationship',
-            ref: 'Organization',
-            isRequired: true,
-            knexOptions: { isNotNullable: true },
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
-        },
+        organization: ORGANIZATION_OWNED_FIELD,
         property: {
             schemaDoc: 'Property to which the document is attached',
             type: 'Relationship',
             ref: 'Property',
-            kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
         category: {
             schemaDoc: 'Document type',
@@ -40,7 +34,7 @@ const Document = new GQLListSchema('Document', {
             ref: 'DocumentCategory',
             isRequired: true,
             knexOptions: { isNotNullable: true },
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+            kmigratorOptions: { null: false, on_delete: 'models.SET_NULL' },
         },
         name: {
             schemaDoc: 'Name of the document. By default it\'s file name',

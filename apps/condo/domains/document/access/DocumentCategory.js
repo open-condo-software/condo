@@ -8,8 +8,6 @@ async function canReadDocumentCategories ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
-    if (user.isAdmin) return {}
-
     return {}
 }
 
