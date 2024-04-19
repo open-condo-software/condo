@@ -40,12 +40,17 @@ async function canManageDocuments ({ authentication: { item: user }, originalInp
             organizationId = get(originalInput, ['organization', 'connect', 'id'])
         }
     } else if (operation === 'update') {
-        const document = await getById('Document', itemId)
-        if (!document || document.deletedAt) {
+        if (isBulkRequest) {
+            // TODO(DOMA-8879): make support bulk update
             return false
-        }
+        } else {
+            const document = await getById('Document', itemId)
+            if (!document || document.deletedAt) {
+                return false
+            }
 
-        organizationId = document.organization
+            organizationId = document.organization
+        }
     }
 
     if (!organizationId) {
