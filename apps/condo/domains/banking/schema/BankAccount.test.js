@@ -77,7 +77,7 @@ describe('BankAccount', () => {
             })
 
             test('support can', async () => {
-                const [organization] = await createTestOrganization(supportClient)
+                const [organization] = await createTestOrganization(adminClient)
                 const [obj, attrs] = await createTestBankAccount(supportClient, organization)
 
                 expectValuesOfCommonFields(obj, attrs, supportClient)
@@ -337,7 +337,7 @@ describe('BankAccount', () => {
             })
 
             test('support can', async () => {
-                const [organization] = await createTestOrganization(supportClient)
+                const [organization] = await createTestOrganization(adminClient)
 
                 const [ createdObj ] = await createTestBankAccount(supportClient, organization)
                 const [ updatedObj ] = await updateTestBankAccount(supportClient, createdObj.id, { bankName: 'NewBankName' })
@@ -418,7 +418,7 @@ describe('BankAccount', () => {
             })
 
             test('support can\'t', async () => {
-                const [organization] = await createTestOrganization(supportClient)
+                const [organization] = await createTestOrganization(adminClient)
 
                 const [createdObj] = await createTestBankAccount(supportClient, organization)
 

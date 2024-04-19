@@ -455,7 +455,7 @@ describe('UserRightsSet', () => {
         describe('canManage<Schema><Field>Field', () => {
             test('Must give access to update schema field', async () => {
                 const executor = await makeClientWithNewRegisteredAndLoggedInUser()
-                const [org] = await createTestOrganization(support)
+                const [org] = await createTestOrganization(admin)
                 expect(org).toHaveProperty('isApproved', true)
 
                 // No access by default
@@ -553,7 +553,7 @@ describe('UserRightsSet', () => {
         describe('Mix canManage<Schema> and canManage<Schema><Field>Field', () => {
             let org
             beforeEach(async () => {
-                const [organization] = await createTestOrganization(support)
+                const [organization] = await createTestOrganization(admin)
                 org = organization
             })
             describe('canManage<Schema>: true and canManage<Schema><Field>Field: true', () => {
