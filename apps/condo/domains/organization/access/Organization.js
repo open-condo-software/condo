@@ -89,10 +89,11 @@ async function canReadOrganizations (args) {
 async function canManageOrganizations ({ authentication: { item: user }, operation, listKey, originalInput }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin || user.isSupport) return true
+    if (user.isAdmin) return true
 
     // You should use "registerNewOrganization"
     if (operation === 'create') return false
+    if (user.isSupport) return true
 
     const hasDirectAccess = await canDirectlyManageSchemaObjects(user, listKey, originalInput, operation)
     if (hasDirectAccess) return true
