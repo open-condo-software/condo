@@ -180,12 +180,6 @@ SET CONSTRAINTS "ServiceConsumer_billingAccount_71105b51_fk_BillingAccount_id" I
 ALTER TABLE "ServiceConsumer" DROP COLUMN "billingAccount" CASCADE;
 ALTER TABLE "ServiceConsumerHistoryRecord" DROP COLUMN "billingAccount" CASCADE;
 
---
--- 20240412104246-0383_auto_20240412_0542.js Remove TicketCommentsTime schema
---
-DROP TABLE "TicketCommentsTime" CASCADE;
-DROP TABLE "TicketCommentsTimeHistoryRecord" CASCADE;
-
 COMMIT;
 
 --
@@ -201,6 +195,14 @@ DROP TABLE "OnBoardingStep" CASCADE;
 DROP TABLE "OnBoarding" CASCADE;
 DROP TABLE "OnBoardingStepHistoryRecord" CASCADE;
 DROP TABLE "OnBoardingHistoryRecord" CASCADE;
+COMMIT;
+
+--
+-- 20240419130855-0388_auto_20240419_0808.js Remove TicketCommentsTime schema
+--
+DROP TABLE "TicketCommentsTime" CASCADE;
+DROP TABLE "TicketCommentsTimeHistoryRecord" CASCADE;
+COMMIT;
 
     `))
 }
