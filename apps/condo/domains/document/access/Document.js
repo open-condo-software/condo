@@ -6,7 +6,7 @@ const get = require('lodash/get')
 const uniq = require('lodash/uniq')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { getById } = require('@open-condo/keystone/schema')
+const { getById, find } = require('@open-condo/keystone/schema')
 
 const { queryOrganizationEmployeeFor, checkOrganizationPermission, checkUserPermissionsInOrganizations } = require('@condo/domains/organization/utils/accessSchema')
 
@@ -20,7 +20,7 @@ async function canReadDocuments ({ authentication: { item: user } }) {
     return { organization: queryOrganizationEmployeeFor(user.id, 'canReadDocuments') }
 }
 
-async function canManageDocuments ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageDocuments ({ authentication: { item: user }, originalInput, operation, itemId, itemIds }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
@@ -41,8 +41,18 @@ async function canManageDocuments ({ authentication: { item: user }, originalInp
         }
     } else if (operation === 'update') {
         if (isBulkRequest) {
-            // TODO(DOMA-8879): make support bulk update
-            return false
+            if (!itemIds || !Array.isArray(itemIds)) return false
+            if (itemIds.length !== uniq(itemIds).length) return false
+            const documents = await find('Document', {
+                id_in: itemIds,
+                deletedAt: null,
+            })
+            if (documents.length !== itemIds.length) return false
+            const organizationIds = uniq(documents.map(document => get(document, 'organization')))
+
+            return await checkUserPermissionsInOrganizations({
+                userId: user.id, organizationIds, permission: 'canManageDocuments',
+            })
         } else {
             const document = await getById('Document', itemId)
             if (!document || document.deletedAt) {

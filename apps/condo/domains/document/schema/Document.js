@@ -33,7 +33,7 @@ const Document = new GQLListSchema('Document', {
             schemaDoc: 'Property to which the document is attached',
             type: 'Relationship',
             ref: 'Property',
-            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+            kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
             access: createAndReadOnlyFieldAccess,
         },
         category: {

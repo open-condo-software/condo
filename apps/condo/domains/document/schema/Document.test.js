@@ -230,6 +230,54 @@ describe('Document', () => {
                 })
             })
 
+            it('employee with canManageDocuments in several organizations can', async () => {
+                const [otherOrganization] = await createTestOrganization(admin)
+                const [otherRole] = await createTestOrganizationEmployeeRole(admin, otherOrganization, {
+                    canManageDocuments: true,
+                    canReadDocuments: true,
+                })
+                await createTestOrganizationEmployee(admin, otherOrganization, employeeUserWithDocumentPermissions.user, otherRole)
+                const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+                const [firstDocument] = await createTestDocument(employeeUserWithDocumentPermissions, organization, documentCategory)
+                const [secondDocument] = await createTestDocument(employeeUserWithDocumentPermissions, otherOrganization, documentCategory)
+
+                const [otherCategory] = await createTestDocumentCategory(admin)
+
+                const updatedDocuments = await Document.updateMany(employeeUserWithDocumentPermissions, [
+                    {
+                        id: firstDocument.id,
+                        data: {
+                            dv: 1,
+                            sender,
+                            category: { connect: { id: otherCategory.id } },
+                        },
+                    },
+                    {
+                        id: secondDocument.id,
+                        data: {
+                            dv: 1,
+                            sender,
+                            category: { connect: { id: otherCategory.id } },
+                        },
+                    },
+                ])
+
+                expect(updatedDocuments).toHaveLength(2)
+                expect(updatedDocuments).toEqual(
+                    expect.arrayContaining([
+                        expect.objectContaining({
+                            id: firstDocument.id,
+                            category: expect.objectContaining({ id: otherCategory.id }),
+                        }),
+                        expect.objectContaining({
+                            id: secondDocument.id,
+                            category: expect.objectContaining({ id: otherCategory.id }),
+                        }),
+                    ])
+                )
+            })
+
             it('employee without canManageDocuments can not', async () => {
                 const [otherCategory] = await createTestDocumentCategory(admin)
 
