@@ -1,4 +1,4 @@
-import { get } from 'lodash'
+import get from 'lodash/get'
 import { Rule } from 'rc-field-form/lib/interface'
 import { useCallback, useMemo } from 'react'
 
