@@ -2472,7 +2472,7 @@
   "api.meter.registerMetersReadings.TOO_MUCH_READINGS": "Слишком много показаний. Передано {sentCount}, допустимый максимум {limit}.",
   "api.meter.registerMetersReadings.ORGANIZATION_NOT_FOUND": "Организация не найдена",
   "api.meter.registerMetersReadings.PROPERTY_NOT_FOUND": "Дом не найден",
-  "api.meter.registerMetersReadings.INVALID_METER_VALUE": "Неверное значение {key}={value}",
+  "api.meter.registerMetersReadings.INVALID_METER_VALUES": "Неверные значения: {valuesList}",
   "api.meter.registerMetersReadings.MULTIPLE_METERS_FOUND": "Найдено несколько {count} счетчиков",
   "api.marketplace.MarketCategory.MAXIMUM_DEPTH_REACHED": "Глубина наследования категорий должна быть не больше 2",
   "api.marketplace.MarketCategory.CANNOT_CONNECT_TO_ITSELF": "Нельзя привязать категорию к самой себе",

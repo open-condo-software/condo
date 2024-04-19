@@ -494,30 +494,30 @@ describe('RegisterMetersReadingsService', () => {
                 ])
                 expect(errors).toEqual([
                     expect.objectContaining({
-                        message: 'Invalid meter value',
+                        message: 'Invalid meter values',
                         name: 'GQLError',
                         extensions: expect.objectContaining({
                             code: 'BAD_USER_INPUT',
-                            type: 'INVALID_METER_VALUE',
-                            message: 'Invalid meter value',
+                            type: 'INVALID_METER_VALUES',
+                            message: 'Invalid meter values',
                         }),
                     }),
                     expect.objectContaining({
-                        message: 'Invalid meter value',
+                        message: 'Invalid meter values',
                         name: 'GQLError',
                         extensions: expect.objectContaining({
                             code: 'BAD_USER_INPUT',
-                            type: 'INVALID_METER_VALUE',
-                            message: 'Invalid meter value',
+                            type: 'INVALID_METER_VALUES',
+                            message: 'Invalid meter values',
                         }),
                     }),
                     expect.objectContaining({
-                        message: 'Invalid meter value',
+                        message: 'Invalid meter values',
                         name: 'GQLError',
                         extensions: expect.objectContaining({
                             code: 'BAD_USER_INPUT',
-                            type: 'INVALID_METER_VALUE',
-                            message: 'Invalid meter value',
+                            type: 'INVALID_METER_VALUES',
+                            message: 'Invalid meter values',
                         }),
                     }),
                 ])
