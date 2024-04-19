@@ -36,11 +36,10 @@ describe('DocumentCategory', () => {
                 expect(testDocumentCategory.id).toMatch(UUID_RE)
             })
 
-            it('support can', async () => {
-                const [testDocumentCategory] = await createTestDocumentCategory(support)
-
-                expect(testDocumentCategory).toBeDefined()
-                expect(testDocumentCategory.id).toMatch(UUID_RE)
+            it('support can not', async () => {
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestDocumentCategory(support)
+                })
             })
 
             it('anonymous can not', async () => {
@@ -98,16 +97,10 @@ describe('DocumentCategory', () => {
                 expect(updatedDocumentCategory.name).toEqual(newName)
             })
 
-            it('support can', async () => {
-                const [testDocumentCategory] = await createTestDocumentCategory(support)
-                const newName = faker.random.alphaNumeric(8)
-
-                const [updatedDocumentCategory] = await updateTestDocumentCategory(support, testDocumentCategory.id, {
-                    name: newName,
+            it('support can not', async () => {
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestDocumentCategory(support, documentFileCategory.id, {})
                 })
-
-                expect(updatedDocumentCategory.id).toEqual(testDocumentCategory.id)
-                expect(updatedDocumentCategory.name).toEqual(newName)
             })
 
             it('anonymous can not', async () => {
@@ -132,12 +125,10 @@ describe('DocumentCategory', () => {
                 expect(deletedDocumentCategory.deletedAt).toBeDefined()
             })
 
-            it('support can', async () => {
-                const [testDocumentCategory] = await createTestDocumentCategory(support)
-                const [deletedDocumentCategory] = await softDeleteTestDocumentCategory(support, testDocumentCategory.id)
-
-                expect(deletedDocumentCategory.id).toEqual(testDocumentCategory.id)
-                expect(deletedDocumentCategory.deletedAt).toBeDefined()
+            it('support can not', async () => {
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await softDeleteTestDocumentCategory(support, documentFileCategory.id)
+                })
             })
 
             it('anonymous can not', async () => {
