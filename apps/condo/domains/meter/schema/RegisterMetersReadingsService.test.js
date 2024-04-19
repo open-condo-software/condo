@@ -307,7 +307,22 @@ describe('RegisterMetersReadingsService', () => {
         )
     })
 
-    test('possible to process 500 meters readings', async () => {
+    test('possible to process 500 meters readings for single address', async () => {
+        const [o10n] = await createTestOrganization(adminClient)
+        const [property] = await createTestProperty(adminClient, o10n)
+
+        const count = 500
+        const readings = []
+        for (let i = 0; i < count; i++) {
+            readings.push(createTestReadingData(property))
+        }
+
+        const [result] = await registerMetersReadingsByTestClient(adminClient, o10n, readings)
+
+        expect(result).toHaveLength(count)
+    })
+
+    test('possible to process 500 meters readings for different addresses', async () => {
         const [o10n] = await createTestOrganization(adminClient)
 
         const count = 500
