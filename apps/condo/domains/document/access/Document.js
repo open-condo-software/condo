@@ -4,8 +4,6 @@
 
 
 const get = require('lodash/get')
-const isEmpty = require('lodash/isEmpty')
-const omit = require('lodash/omit')
 const uniq = require('lodash/uniq')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
@@ -14,8 +12,6 @@ const { getById } = require('@open-condo/keystone/schema')
 const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 
-
-const AVAILABLE_TO_UPDATE_DOCUMENT_FILE_FIELDS = ['dv', 'sender', 'deletedAt', 'category']
 
 async function canReadDocuments ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
@@ -47,11 +43,6 @@ async function canManageDocuments ({ authentication: { item: user }, originalInp
             organizationId = get(originalInput, ['organization', 'connect', 'id'])
         }
     } else if (operation === 'update') {
-        const inaccessibleUpdatedFields = omit(originalInput, AVAILABLE_TO_UPDATE_DOCUMENT_FILE_FIELDS)
-        if (!isEmpty(inaccessibleUpdatedFields)) {
-            return false
-        }
-
         const document = await getById('Document', itemId)
         if (!document || document.deletedAt) {
             return false

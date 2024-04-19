@@ -18,6 +18,13 @@ const DOCUMENT_FOLDER_NAME = 'document'
 const Adapter = new FileAdapter(DOCUMENT_FOLDER_NAME, false, true)
 const fileMetaAfterChange = getFileMetaAfterChange(Adapter)
 
+const createAndReadOnlyFieldAccess = {
+    read: true,
+    create: true,
+    update: false,
+    delete: false,
+}
+
 const Document = new GQLListSchema('Document', {
     schemaDoc: 'Document with file attached to organization or property. It could be some kind of property documentation, inspection reports or other documents',
     fields: {
@@ -27,6 +34,7 @@ const Document = new GQLListSchema('Document', {
             type: 'Relationship',
             ref: 'Property',
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+            access: createAndReadOnlyFieldAccess,
         },
         category: {
             schemaDoc: 'Document type',
@@ -44,6 +52,7 @@ const Document = new GQLListSchema('Document', {
             type: 'File',
             adapter: Adapter,
             isRequired: true,
+            access: createAndReadOnlyFieldAccess,
         },
     },
     hooks: {

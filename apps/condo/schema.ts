@@ -21596,7 +21596,7 @@ export type Document = {
    *  4. As an alias to the 'id' field on the Document List.
    */
   _label_?: Maybe<Scalars['String']>;
-  /**  Organization to which the document is attached  */
+  /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
   /**  Property to which the document is attached  */
   property?: Maybe<Property>;
@@ -21644,6 +21644,7 @@ export type DocumentCategory = {
   _label_?: Maybe<Scalars['String']>;
   /**  Name of the category  */
   name?: Maybe<Scalars['String']>;
+  nameNonLocalized?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;

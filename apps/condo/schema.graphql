@@ -71351,6 +71351,7 @@ type DocumentCategory {
 
   """ Name of the category """
   name: String
+  nameNonLocalized: String
   id: ID!
   v: Int
   createdAt: String
@@ -71757,7 +71758,8 @@ type Document {
   """
   _label_: String
 
-  """ Organization to which the document is attached """
+  """ Ref to the organization. The object will be deleted if the organization ceases to exist 
+  """
   organization: Organization
 
   """ Property to which the document is attached """

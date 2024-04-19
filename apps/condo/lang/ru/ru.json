@@ -286,7 +286,7 @@
   "document.category.SpringInspections.name": "Акты весенних осмотров",
   "document.category.CleaningActs.name": "Акты уборки",
   "document.category.CompletedWorksActs.name": "Акты выполненных работ",
-  "document.category.FireSafetyInspection.name": "Протоколы ОСС помещений в МКД",
+  "document.category.GeneralMeetings.name": "Протоколы ОСС помещений в МКД",
   "document.category.OtherDocuments.name": "Прочие документы",
   "document.category.Encumbrances.name": "Сведения о сервитутах и иных обременениях",
   "document.category.ContainerSites.name": "Контейнерные площадки (адреса, совместные площадки)",
