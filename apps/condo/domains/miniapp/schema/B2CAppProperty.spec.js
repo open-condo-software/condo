@@ -6,6 +6,7 @@ const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
 const { set } = require('lodash')
 
+const { MockedAddressServiceClient } = require('@open-condo/clients/address-service-client/MockedAddressServiceClient')
 const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const {
     makeLoggedInAdminClient,
@@ -28,13 +29,6 @@ const {
 } = require('@condo/domains/user/utils/testSchema')
 
 jest.mock('@open-condo/clients/address-service-client/AddressServiceClient')
-//
-// Need to call jest.mock() before
-//
-// eslint-disable-next-line import/order
-const { AddressServiceClient } = require('@open-condo/clients/address-service-client/AddressServiceClient')
-// eslint-disable-next-line import/order
-const { MockedAddressServiceClient } = require('@open-condo/clients/address-service-client/MockedAddressServiceClient')
 
 describe('B2CAppProperty spec', () => {
     let admin
@@ -43,6 +37,12 @@ describe('B2CAppProperty spec', () => {
     let anotherPermittedUser
 
     setFakeClientMode(index, { excludeApps: ['OIDCMiddleware'] })
+
+    //
+    // Need require after calling jest.mock()
+    //
+    // eslint-disable-next-line import/order
+    const { AddressServiceClient } = require('@open-condo/clients/address-service-client/AddressServiceClient')
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
@@ -59,7 +59,7 @@ describe('B2CAppProperty spec', () => {
 
     describe('Validation tests', () => {
 
-        describe('Should validate address and throw error',  () => {
+        describe('Should validate address and throw error', () => {
 
             afterEach(() => {
                 jest.restoreAllMocks()
