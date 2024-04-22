@@ -3,7 +3,8 @@ import chunk from 'lodash/chunk'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isFunction from 'lodash/isFunction'
-import React, { useCallback, useState } from 'react'
+import set from 'lodash/set'
+import React, { useCallback, useMemo, useState } from 'react'
 
 import { Paperclip } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
@@ -16,27 +17,54 @@ import { DocumentCategoryFormItem } from '@condo/domains/document/components/Doc
 import { Document } from '@condo/domains/document/utils/clientSchema'
 
 
-const UploadDocumentsModal = ({ open, setOpen, onComplete, initialCreateDocumentValue = {} }) => {
+const MAX_FILE_SIZE_IN_MB = MAX_UPLOAD_FILE_SIZE / (1024 * 1024)
+
+const UploadDocumentsModal = ({ openUploadModal, setOpenUploadModal, onComplete, initialCreateDocumentValue = {} }) => {
     const intl = useIntl()
     const SaveMessage = intl.formatMessage({ id: 'Save' })
     const ModalTitle = intl.formatMessage({ id: 'documents.uploadDocumentsModal.title' })
     const CategoryMessage = intl.formatMessage({ id: 'documents.uploadDocumentsModal.category.message' })
     const AttachFilesMessage = intl.formatMessage({ id: 'documents.uploadDocumentsModal.files.attachMessage' })
     const MaxFileSizeMessage = intl.formatMessage({ id: 'documents.uploadDocumentsModal.files.maxSizeMessage' }, {
-        maxFileSizeInMb: MAX_UPLOAD_FILE_SIZE / (1024 * 1024),
+        maxFileSizeInMb: MAX_FILE_SIZE_IN_MB,
     })
+    const FileTooBigErrorMessage = intl.formatMessage({ id: 'component.uploadlist.error.FileTooBig' }, {
+        maxSizeInMb: MAX_FILE_SIZE_IN_MB,
+    })
+    const CancelButtonMessage = intl.formatMessage({ id: 'documents.uploadDocumentsModal.cancelButton' })
+    const CancelModalTitle = intl.formatMessage({ id: 'documents.uploadDocumentsModal.cancel.title' })
+    const CancelModalMessage = intl.formatMessage({ id: 'documents.uploadDocumentsModal.cancel.message' })
+    const DontSaveMessage = intl.formatMessage({ id: 'documents.uploadDocumentsModal.cancel.dontSave' })
 
     const [fileList, setFileList] = useState<UploadFile[]>([])
     const [formSubmitting, setFormSubmitting] = useState<boolean>(false)
     const [uploadForm] = Form.useForm()
 
+    const category = Form.useWatch('category', uploadForm)
+    const filesWithoutError = useMemo(() => fileList.filter(file => file.status !== 'error'), [fileList])
+
     const createDocuments = Document.useCreateMany({})
+
+    const [isCancelModalOpen, setIsCancelModalOpen] = useState<boolean>(false)
+    const closeCancelModal = useCallback(() => setIsCancelModalOpen(false), [])
+    const openCancelModal = useCallback(() => {
+        if (isEmpty(category) && isEmpty(fileList)) {
+            return setOpenUploadModal(false)
+        }
+
+        setIsCancelModalOpen(true)
+    }, [category, fileList, setOpenUploadModal])
+
+    const closeModal = useCallback(() => {
+        closeCancelModal()
+        setOpenUploadModal(null)
+    }, [closeCancelModal, setOpenUploadModal])
 
     const uploadFormAction = useCallback(async values => {
         setFormSubmitting(true)
 
         const category = get(values, 'category')
-        const filesChunks = chunk(fileList, 5)
+        const filesChunks = chunk(filesWithoutError, 5)
 
         for (const filesChunk of filesChunks) {
             await createDocuments(
@@ -51,12 +79,12 @@ const UploadDocumentsModal = ({ open, setOpen, onComplete, initialCreateDocument
         }
 
         setFormSubmitting(false)
-        setOpen(null)
+        closeModal()
 
         if (isFunction(onComplete)) {
             await onComplete()
         }
-    }, [createDocuments, fileList, initialCreateDocumentValue, onComplete, setOpen])
+    }, [createDocuments, filesWithoutError, initialCreateDocumentValue, onComplete, closeModal])
 
     const uploadProps: UploadProps = {
         onRemove: (file) => {
@@ -66,78 +94,107 @@ const UploadDocumentsModal = ({ open, setOpen, onComplete, initialCreateDocument
             setFileList(newFileList)
         },
         beforeUpload: (file) => {
+            if (file.size > MAX_UPLOAD_FILE_SIZE) {
+                set(file, 'status', 'error')
+                set(file, ['error', 'message'], FileTooBigErrorMessage)
+            }
+
             setFileList((prevState) => [...prevState, file])
-            return false
+            return
         },
         fileList,
         multiple: true,
     }
 
     return (
-        <FormWithAction
-            action={uploadFormAction}
-            layout='vertical'
-            validateTrigger={['onBlur', 'onSubmit']}
-            formInstance={uploadForm}
-        >
+        <>
+            <FormWithAction
+                action={uploadFormAction}
+                layout='vertical'
+                validateTrigger={['onBlur', 'onSubmit']}
+                formInstance={uploadForm}
+            >
+                <Modal
+                    open={openUploadModal}
+                    onCancel={openCancelModal}
+                    title={ModalTitle}
+                    footer={(
+                        <Space size={16} direction='horizontal'>
+                            <Button type='secondary' onClick={openCancelModal}>
+                                {CancelButtonMessage}
+                            </Button>
+                            <Form.Item shouldUpdate>
+                                {
+                                    ({ getFieldValue }) => {
+                                        const category = getFieldValue('category')
+
+                                        return (
+                                            <Button
+                                                type='primary'
+                                                onClick={() => uploadForm.submit()}
+                                                disabled={!category || isEmpty(filesWithoutError)}
+                                                loading={formSubmitting}
+                                            >
+                                                {SaveMessage}
+                                            </Button>
+                                        )
+                                    }
+                                }
+                            </Form.Item>
+                        </Space>
+                    )}
+                >
+                    <Space size={24} direction='vertical'>
+                        <Typography.Text size='large' type='secondary'>
+                            {CategoryMessage}
+                        </Typography.Text>
+                        <DocumentCategoryFormItem />
+                        <Space size={8} direction='vertical'>
+                            <Typography.Text type='secondary' size='medium'>
+                                {MaxFileSizeMessage}
+                            </Typography.Text>
+                            <StyledUpload reverseFileList {...uploadProps}>
+                                <Button type='secondary' icon={<Paperclip size='medium' />}>
+                                    {AttachFilesMessage}
+                                </Button>
+                            </StyledUpload>
+                        </Space>
+                    </Space>
+                </Modal>
+            </FormWithAction>
             <Modal
-                open={open}
-                onCancel={() => setOpen(null)}
-                title={ModalTitle}
+                open={isCancelModalOpen}
+                title={CancelModalTitle}
                 footer={(
                     <Space size={16} direction='horizontal'>
-                        <Form.Item shouldUpdate>
-                            {
-                                ({ getFieldValue }) => {
-                                    const category = getFieldValue('category')
-
-                                    return (
-                                        <Button
-                                            type='primary'
-                                            onClick={() => uploadForm.submit()}
-                                            disabled={!category || isEmpty(fileList)}
-                                            loading={formSubmitting}
-                                        >
-                                            {SaveMessage}
-                                        </Button>
-                                    )
-                                }
-                            }
-                        </Form.Item>
+                        <Button type='secondary' danger onClick={closeModal}>
+                            {DontSaveMessage}
+                        </Button>
+                        <Button type='secondary' onClick={closeCancelModal}>
+                            {SaveMessage}
+                        </Button>
                     </Space>
                 )}
+                onCancel={closeCancelModal}
             >
-                <Space size={24} direction='vertical'>
-                    <Typography.Text size='large' type='secondary'>
-                        {CategoryMessage}
-                    </Typography.Text>
-                    <DocumentCategoryFormItem />
-                    <Space size={8} direction='vertical'>
-                        <Typography.Text type='secondary' size='medium'>
-                            {MaxFileSizeMessage}
-                        </Typography.Text>
-                        <StyledUpload reverseFileList {...uploadProps}>
-                            <Button type='secondary' icon={<Paperclip size='medium' />}>
-                                {AttachFilesMessage}
-                            </Button>
-                        </StyledUpload>
-                    </Space>
-                </Space>
+                <Typography.Text type='secondary'>
+                    {CancelModalMessage}
+                </Typography.Text>
             </Modal>
-        </FormWithAction>
+        </>
     )
 }
 
 export const useUploadDocumentsModal = () => {
-    const [isUploadDocumentsOpen, setIsUploadDocumentsOpen] = useState<boolean>(false)
+    const [openUploadModal, setOpenUploadModal] = useState<boolean>(false)
 
     const UploadModal = (props) => (
         <UploadDocumentsModal
             {...props}
-            open={isUploadDocumentsOpen}
-            setOpen={setIsUploadDocumentsOpen}
+            openUploadModal={openUploadModal}
+            setOpenUploadModal={setOpenUploadModal}
         />
     )
 
-    return { setOpen: setIsUploadDocumentsOpen, UploadDocumentsModal: UploadModal }
+    return { setOpen: setOpenUploadModal, UploadDocumentsModal: UploadModal }
 }

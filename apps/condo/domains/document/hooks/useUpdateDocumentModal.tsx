@@ -1,5 +1,5 @@
 import { Document as DocumentType } from '@app/condo/schema'
-import { Form, notification, Space } from 'antd'
+import { Col, Form, notification, Row, Space } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
@@ -123,22 +123,26 @@ const UpdateDocumentModal = ({ selectedDocument, setSelectedDocument, refetchDoc
                         </Space>
                     )}
                 >
-                    <Space size={24} direction='vertical'>
-                        <div style={FILE_WRAPPER_STYLE}>
-                            <Space size={24} direction='horizontal' align='center'>
-                                <div style={FILE_NAME_WRAPPER_STYLE}>
-                                    <Paperclip size='small' color={colors.gray[7]} />
-                                    <Typography.Text size='medium'>{fileName}</Typography.Text>
-                                </div>
-                                <Typography.Text type='secondary'>
-                                    {dayjs(get(selectedDocument, 'createdAt')).format('YYYY.MM.DD')}
-                                </Typography.Text>
-                            </Space>
-                        </div>
-                        <DocumentCategoryFormItem
-                            initialValue={get(selectedDocument, 'category.id')}
-                        />
-                    </Space>
+                    <Row gutter={[0, 24]}>
+                        <Col span={24}>
+                            <div style={FILE_WRAPPER_STYLE}>
+                                <Space size={24} direction='horizontal' align='center'>
+                                    <div style={FILE_NAME_WRAPPER_STYLE}>
+                                        <Paperclip size='small' color={colors.gray[7]} />
+                                        <Typography.Text size='medium'>{fileName}</Typography.Text>
+                                    </div>
+                                    <Typography.Text type='secondary' size='small'>
+                                        {dayjs(get(selectedDocument, 'createdAt')).format('DD.MM.YYYY')}
+                                    </Typography.Text>
+                                </Space>
+                            </div>
+                        </Col>
+                        <Col span={24}>
+                            <DocumentCategoryFormItem
+                                initialValue={get(selectedDocument, 'category.id')}
+                            />
+                        </Col>
+                    </Row>
                 </Modal>
             </FormWithAction>
             <Modal
