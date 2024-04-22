@@ -44,12 +44,14 @@ const UploadDocumentsModal = ({ openUploadModal, setOpenUploadModal, onComplete,
 
     const createDocuments = Document.useCreateMany({})
 
-    const [openCancelModal, setOpenCancelModal] = useState<boolean>(false)
+    const [isCancelModalOpen, setIsCancelModalOpen] = useState<boolean>(false)
+    const closeCancelModal = useCallback(() => setIsCancelModalOpen(false), [])
+    const openCancelModal = useCallback(() => setIsCancelModalOpen(true), [])
 
     const closeModal = useCallback(() => {
-        setOpenCancelModal(null)
+        closeCancelModal()
         setOpenUploadModal(null)
-    }, [setOpenUploadModal])
+    }, [closeCancelModal, setOpenUploadModal])
 
     const uploadFormAction = useCallback(async values => {
         setFormSubmitting(true)
@@ -107,11 +109,11 @@ const UploadDocumentsModal = ({ openUploadModal, setOpenUploadModal, onComplete,
             >
                 <Modal
                     open={openUploadModal}
-                    onCancel={() => setOpenCancelModal(true)}
+                    onCancel={openCancelModal}
                     title={ModalTitle}
                     footer={(
                         <Space size={16} direction='horizontal'>
-                            <Button type='secondary' danger onClick={() => setOpenCancelModal(true)}>
+                            <Button type='secondary' danger onClick={openCancelModal}>
                                 {CancelButtonMessage}
                             </Button>
                             <Form.Item shouldUpdate>
@@ -154,19 +156,19 @@ const UploadDocumentsModal = ({ openUploadModal, setOpenUploadModal, onComplete,
                 </Modal>
             </FormWithAction>
             <Modal
-                open={openCancelModal}
+                open={isCancelModalOpen}
                 title={CancelModalTitle}
                 footer={(
                     <Space size={16} direction='horizontal'>
                         <Button type='secondary' danger onClick={closeModal}>
                             {DontSaveMessage}
                         </Button>
-                        <Button type='secondary' onClick={() => setOpenCancelModal(null)}>
+                        <Button type='secondary' onClick={closeCancelModal}>
                             {SaveMessage}
                         </Button>
                     </Space>
                 )}
-                onCancel={() => setOpenCancelModal(null)}
+                onCancel={closeCancelModal}
             >
                 <Typography.Text type='secondary'>
                     {CancelModalMessage}
