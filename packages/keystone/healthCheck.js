@@ -82,6 +82,12 @@ const PASS = 'pass'
 const WARN = 'warn'
 const FAIL = 'fail'
 const TIMEOUT = 'timeout'
+const STATUS_ENUM = Object.freeze({
+    [FAIL]: 0,
+    [PASS]: 1,
+    [WARN]: 2,
+    [TIMEOUT]: 3,
+})
 
 const BAD_REQUEST = 400
 const HEALTHCHECK_OK = 200
@@ -277,6 +283,7 @@ class HealthCheck {
         app.use(this.url, async (req, res) => {
 
             const customChecksConfigured = typeof req.query.checks === 'string'
+            const extendedFormatConfigured = req.query.format === 'array'
 
             let customChecks = null
 
@@ -294,18 +301,26 @@ class HealthCheck {
 
             const selectedChecks = customChecksConfigured ? customChecks : Object.keys(this.preparedChecks)
 
-            const result = {}
+            const result = extendedFormatConfigured ? [] : {}
 
             let status = HEALTHCHECK_OK
 
             await Promise.all(
                 selectedChecks.map(
                     async checkName => {
-                        result[checkName] = await this.runCheck(this.preparedChecks[checkName])
-
-                        if (status === HEALTHCHECK_OK && result[checkName] === WARN) {
+                        const checkResult = await this.runCheck(this.preparedChecks[checkName])
+                        if (extendedFormatConfigured) {
+                            result.push({
+                                name: checkName,
+                                status: STATUS_ENUM[checkResult],
+                                statusText: checkResult,
+                            })
+                        } else {
+                            result[checkName] = checkResult
+                        }
+                        if (status === HEALTHCHECK_OK && checkResult === WARN) {
                             status = HEALTHCHECK_WARNING
-                        } else if (result[checkName] === FAIL) {
+                        } else if (checkResult === FAIL) {
                             status = HEALTHCHECK_ERROR
                         }
                     }
@@ -326,4 +341,5 @@ module.exports = {
     getPfxCertificateHealthCheck,
     getCertificateHealthCheck,
     getIntegrationHealthCheck,
+    STATUS_ENUM,
 }
