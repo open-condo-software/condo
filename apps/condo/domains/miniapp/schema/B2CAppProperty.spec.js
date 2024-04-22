@@ -6,6 +6,7 @@ const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
 const { set } = require('lodash')
 
+const { AddressServiceClient } = require('@open-condo/clients/address-service-client/AddressServiceClient')
 const { MockedAddressServiceClient } = require('@open-condo/clients/address-service-client/MockedAddressServiceClient')
 const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const {
@@ -28,8 +29,6 @@ const {
     makeClientWithServiceUser,
 } = require('@condo/domains/user/utils/testSchema')
 
-jest.mock('@open-condo/clients/address-service-client/AddressServiceClient')
-
 describe('B2CAppProperty spec', () => {
     let admin
     let app
@@ -37,12 +36,6 @@ describe('B2CAppProperty spec', () => {
     let anotherPermittedUser
 
     setFakeClientMode(index, { excludeApps: ['OIDCMiddleware'] })
-
-    //
-    // Need require after calling jest.mock()
-    //
-    // eslint-disable-next-line import/order
-    const { AddressServiceClient } = require('@open-condo/clients/address-service-client/AddressServiceClient')
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
@@ -59,6 +52,7 @@ describe('B2CAppProperty spec', () => {
 
     describe('Validation tests', () => {
 
+        // TODO(DOMA-8887) Need to start condo in fake mode to have an ability to mock the `search` function.
         describe.skip('Should validate address and throw error', () => {
 
             afterEach(() => {
