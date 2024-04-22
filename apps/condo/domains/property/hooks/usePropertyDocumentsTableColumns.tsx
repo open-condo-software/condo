@@ -1,10 +1,11 @@
 import styled from '@emotion/styled'
+import dayjs from 'dayjs'
 import get from 'lodash/get'
 import { useCallback } from 'react'
 
 import { Download } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Tooltip } from '@open-condo/ui'
+import { Button, Tooltip, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { getDateRender } from '@condo/domains/common/components/Table/Renders'
@@ -57,6 +58,12 @@ export const usePropertyDocumentsTableColumns = () => {
         )
     }, [DownloadMessage, handleDownload])
 
+    const renderDate = useCallback((createdAt) => (
+        <Typography.Text type='secondary' size='medium'>
+            {dayjs(createdAt).format('DD.MM.YYYY')}
+        </Typography.Text>
+    ), [])
+
     return [
         {
             title: NameTitle,
@@ -80,7 +87,7 @@ export const usePropertyDocumentsTableColumns = () => {
             dataIndex: 'createdAt',
             key: 'createdAt',
             sorter: true,
-            render: getDateRender(intl),
+            render: renderDate,
             width: '23%',
         },
         {

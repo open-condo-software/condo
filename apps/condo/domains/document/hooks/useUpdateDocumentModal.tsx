@@ -132,7 +132,7 @@ const UpdateDocumentModal = ({ selectedDocument, setSelectedDocument, refetchDoc
                                         <Typography.Text size='medium'>{fileName}</Typography.Text>
                                     </div>
                                     <Typography.Text type='secondary' size='small'>
-                                        {dayjs(get(selectedDocument, 'createdAt')).format('YYYY.MM.DD')}
+                                        {dayjs(get(selectedDocument, 'createdAt')).format('DD.MM.YYYY')}
                                     </Typography.Text>
                                 </Space>
                             </div>

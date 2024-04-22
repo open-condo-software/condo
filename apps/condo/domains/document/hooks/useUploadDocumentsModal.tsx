@@ -113,7 +113,7 @@ const UploadDocumentsModal = ({ openUploadModal, setOpenUploadModal, onComplete,
                     title={ModalTitle}
                     footer={(
                         <Space size={16} direction='horizontal'>
-                            <Button type='secondary' danger onClick={openCancelModal}>
+                            <Button type='secondary' onClick={openCancelModal}>
                                 {CancelButtonMessage}
                             </Button>
                             <Form.Item shouldUpdate>
