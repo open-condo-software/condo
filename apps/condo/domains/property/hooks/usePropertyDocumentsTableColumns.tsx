@@ -4,7 +4,7 @@ import { useCallback } from 'react'
 
 import { Download } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Button } from '@open-condo/ui'
+import { Button, Tooltip } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { getDateRender } from '@condo/domains/common/components/Table/Renders'
@@ -47,12 +47,13 @@ export const usePropertyDocumentsTableColumns = () => {
 
     const renderDownloadIcon = useCallback((document) => {
         return (
-            <StyledButton
-                title={DownloadMessage}
-                type='secondary'
-                icon={<Download size='medium' color='inherit' />}
-                onClick={(event) => handleDownload(event, document)}
-            />
+            <Tooltip title={DownloadMessage}>
+                <StyledButton
+                    type='secondary'
+                    icon={<Download size='medium' color='inherit' />}
+                    onClick={(event) => handleDownload(event, document)}
+                />
+            </Tooltip>
         )
     }, [DownloadMessage, handleDownload])
 
