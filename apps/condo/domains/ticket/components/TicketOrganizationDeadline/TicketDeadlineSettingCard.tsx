@@ -34,6 +34,7 @@ export const TicketDeadlineSettingCard: React.FC<TicketDeadlineSettingCardProps>
         if (!ticketSetting) return null
 
         const humanizeDeadlines = TICKET_DEFAULT_DEADLINE_DURATION_FIELDS.map((fieldName) => {
+            const typeMessage = intl.formatMessage({ id: `pages.condo.settings.callCenter.card.ticketDeadlines.type.${fieldName}` as FormatjsIntl.Message['ids'] })
             const deadlineDuration = get(ticketSetting, fieldName, null)
             let deadlineText
             if (deadlineDuration === null) {
@@ -43,7 +44,7 @@ export const TicketDeadlineSettingCard: React.FC<TicketDeadlineSettingCardProps>
                 deadlineText = `+${intl.formatMessage({ id: 'DaysShort' }, { days: deadline })}`
             }
             return {
-                label: `${intl.formatMessage({ id: `pages.condo.settings.callCenter.card.ticketDeadlines.type.${fieldName}` })}: ${deadlineText}`,
+                label: `${typeMessage}: ${deadlineText}`,
                 type: fieldName,
                 deadlineDuration,
             }

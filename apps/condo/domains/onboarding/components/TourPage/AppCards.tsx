@@ -61,7 +61,7 @@ export const TechnicAppCard = () => {
             {ChantBotMessage}
         </Typography.Link>
     ) : null, [ChantBotMessage, radioValue])
-    const LinkToEmployeeBotMessage = intl.formatMessage({ id: `tour.technicAppCard.radio.text.${radioValue}.linkToEmployeeBot` }, { linkToEmployeeBot })
+    const LinkToEmployeeBotMessage = intl.formatMessage({ id: `tour.technicAppCard.radio.text.${radioValue}.linkToEmployeeBot` as FormatjsIntl.Message['ids'] }, { linkToEmployeeBot })
 
     const imageContainerStyles: CSSProperties = useMemo(() =>
         ({ ...BASE_IMAGE_CONTAINER_STYLES, backgroundColor: IMAGE_WRAPPER_BG_COLOR_BY_TYPE[radioValue] })

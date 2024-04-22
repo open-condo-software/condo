@@ -1,6 +1,7 @@
 import { Ticket } from '@app/condo/schema'
 import { Typography } from 'antd'
-import { get, isEmpty } from 'lodash'
+import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import Link from 'next/link'
 import { useCallback, useMemo } from 'react'
 
@@ -39,7 +40,7 @@ export const TicketPropertyField: React.FC<TicketPropertyFieldProps> = ({ ticket
     const intl = useIntl()
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
-    const UnitTypePrefix = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${ticket.unitType}` })
+    const UnitTypePrefix = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${ticket.unitType}` as FormatjsIntl.Message['ids'] })
 
     const propertyWasDeleted = !ticket.property
     const address = useMemo(() => get(ticket, ['property', 'address'], ticket.propertyAddress), [ticket])

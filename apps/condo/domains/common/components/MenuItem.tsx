@@ -139,7 +139,9 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
         return null
     }
 
-    const Message = labelRaw ? label : intl.formatMessage({ id: label })
+    const Message = labelRaw
+        ? label
+        : intl.formatMessage({ id: label as FormatjsIntl.Message['ids'] })
 
     const menuItemClassNames = classnames(wrapperClassName, {
         'side': breakpoints.TABLET_LARGE,

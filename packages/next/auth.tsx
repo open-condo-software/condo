@@ -1,25 +1,42 @@
+import { DocumentNode } from 'graphql'
 import { gql } from 'graphql-tag'
+import get from 'lodash/get'
+import { NextPage } from 'next'
 import React, { createContext, useContext, useEffect, useState } from 'react'
 
+import { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } from './_utils'
 import { useApolloClient, useMutation, useQuery } from './apollo'
 import { setCookieLinkId } from './organization'
 
-const { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
 
+interface IAuthContext {
+    isAuthenticated: boolean
+    isLoading: boolean
+    refetch: () => Promise<void>
+    signin: ReturnType<typeof useMutation>[0]
+    signout: ReturnType<typeof useMutation>[0]
+    user?: any | null
+}
 /**
  * AuthContext
  * -----------
  * This is the base react context instance. It should not be used
  * directly but is exported here to simplify testing.
  */
-const AuthContext = createContext({})
+const AuthContext = createContext<IAuthContext>({
+    isAuthenticated: false,
+    isLoading: false,
+    refetch: () => Promise.resolve(),
+    signin: () => Promise.resolve({}),
+    signout: () => Promise.resolve({}),
+})
 
 /**
  * useAuth
  * -------
  * A hook which provides access to the AuthContext
  */
-const useAuth = () => useContext(AuthContext)
+const useAuth = (): IAuthContext => useContext(AuthContext)
 
 const userFragment = `
   id
@@ -82,7 +99,10 @@ const AuthProvider = ({ children, initialUserValue }) => {
     }, [userLoading])
 
     const [signin, { loading: signinLoading }] = useMutation(SIGNIN_MUTATION, {
-        onCompleted: async ({ authenticateUserWithPassword: { item } = {}, error }) => {
+        onCompleted: async (data) => {
+            const error = get(data, 'error')
+            const item = get(data, 'authenticateUserWithPassword.item')
+
             if (error) { return onError(error) }
             if (DEBUG_RERENDERS) console.log('AuthProvider() signin()')
 
@@ -95,7 +115,10 @@ const AuthProvider = ({ children, initialUserValue }) => {
     })
 
     const [signout, { loading: signoutLoading }] = useMutation(SIGNOUT_MUTATION, {
-        onCompleted: async ({ unauthenticateUser: { success } = {}, error }) => {
+        onCompleted: async (data) => {
+            const error = get(data, 'error')
+            const success = get(data, 'unauthenticateUser.success')
+
             if (error) { return onError(error) }
             if (DEBUG_RERENDERS) console.log('AuthProvider() signout()')
             setCookieLinkId('')
@@ -167,7 +190,15 @@ const initOnRestore = async (ctx) => {
     return { user }
 }
 
-const withAuth = ({ ssr = false, ...opts } = {}) => PageComponent => {
+type WithAuthProps = {
+    ssr?: boolean
+    USER_QUERY?: DocumentNode
+    SIGNIN_MUTATION?: DocumentNode
+    SIGNOUT_MUTATION?: DocumentNode
+}
+type WithAuth = (props: WithAuthProps) => (PageComponent: NextPage<any>) => NextPage<any>
+
+const withAuth: WithAuth = ({ ssr = false, ...opts }: WithAuthProps = {}) => PageComponent => {
     // TODO(pahaz): refactor it. No need to patch globals here!
     USER_QUERY = opts.USER_QUERY ? opts.USER_QUERY : USER_QUERY
     SIGNIN_MUTATION = opts.SIGNIN_MUTATION ? opts.SIGNIN_MUTATION : SIGNIN_MUTATION

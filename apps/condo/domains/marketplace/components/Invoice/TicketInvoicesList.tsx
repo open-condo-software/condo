@@ -36,11 +36,11 @@ const TicketInvoiceCard: React.FC<TicketInvoiceCardPropsType> = ({ organizationI
     )
     const PaymentMessage = intl.formatMessage(
         { id: 'pages.condo.marketplace.invoice.ticketInvoice.payment' },
-        { type: intl.formatMessage({ id: `pages.condo.marketplace.invoice.ticketInvoice.payment.${get(invoice, 'paymentType')}` }) }
+        { type: intl.formatMessage({ id: `pages.condo.marketplace.invoice.ticketInvoice.payment.${get(invoice, 'paymentType')}` as FormatjsIntl.Message['ids'] }) }
     )
     const isNewInvoice = !invoiceNumber
     const invoiceStatus = get(invoice, 'status')
-    const StatusMessage = intl.formatMessage({ id: `pages.condo.marketplace.invoice.invoiceStatus.${invoiceStatus}` })
+    const StatusMessage = intl.formatMessage({ id: `pages.condo.marketplace.invoice.invoiceStatus.${invoiceStatus}` as FormatjsIntl.Message['ids'] })
     const NewInvoiceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.create.title' })
 
     const invoiceStatusColors = INVOICE_STATUS_COLORS[invoiceStatus]

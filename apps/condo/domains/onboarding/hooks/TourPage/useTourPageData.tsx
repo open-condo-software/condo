@@ -54,8 +54,8 @@ export const useTourPageData = ({ isAllSecondStepsCompleted, isInnerStepsComplet
 
     const valuesToMessage = withLinkToEmployeeBot ? { andLinkToEmployeeBot } : null
 
-    const title = intl.formatMessage({ id: `tour.pageData.${activeStepType}.${innerStepsStatus}.title` })
-    const subtitle = intl.formatMessage({ id: `tour.pageData.${activeStepType}.${innerStepsStatus}.subtitle` }, valuesToMessage)
+    const title = intl.formatMessage({ id: `tour.pageData.${activeStepType}.${innerStepsStatus}.title` as FormatjsIntl.Message['ids'] })
+    const subtitle = intl.formatMessage({ id: `tour.pageData.${activeStepType}.${innerStepsStatus}.subtitle` as FormatjsIntl.Message['ids'] }, valuesToMessage)
     const buttonLabel = isDefaultStep ? OpenGuideMessage : ChooseOtherTaskMessage
     const onButtonClick = isDefaultStep ? handleOpenGuide : handleBackClick
     const description = isDefaultStep && CompletedTourDescription

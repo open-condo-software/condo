@@ -121,7 +121,7 @@ export const EmptyBuildingBlock: React.FC<IEmptyBuildingBlock> = ({ mode = 'view
             ? intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingBlock.view.auto.EmptyBuildingDescription.services' })
             : ''
         const prefix = `${mode}.${generatorAppOrigin ? 'auto' : 'manual'}`
-        const MapViewEmptyBuildingDescription = intl.formatMessage({ id: `pages.condo.property.EmptyBuildingBlock.${prefix}.EmptyBuildingDescription` }, { services })
+        const MapViewEmptyBuildingDescription = intl.formatMessage({ id: `pages.condo.property.EmptyBuildingBlock.${prefix}.EmptyBuildingDescription` as FormatjsIntl.Message['ids'] }, { services })
 
         return mode === 'edit' ? MapEditEmptyBuildingDescription : MapViewEmptyBuildingDescription
     }, [

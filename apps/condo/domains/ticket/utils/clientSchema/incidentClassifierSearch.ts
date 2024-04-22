@@ -1,14 +1,16 @@
+import { ApolloClient } from '@apollo/client'
 import {
     IncidentClassifier,
     IncidentClassifierWhereInput,
     QueryAllIncidentClassifiersArgs,
 } from '@app/condo/schema'
-import { isEmpty, sortBy } from 'lodash'
-
-import { ApolloClient } from '@open-condo/next/apollo'
+import isEmpty from 'lodash/isEmpty'
+import sortBy from 'lodash/sortBy'
 
 import { IncidentClassifier as IncidentClassifierGQL } from '@condo/domains/ticket/gql'
 
+
+type ApolloClientType = ApolloClient<unknown>
 
 export type Option = {
     id: string
@@ -32,7 +34,7 @@ interface ILoadClassifierRulesVariables {
 
 const MAX_SEARCH_COUNT = 20
 
-async function loadClassifierRules (client: ApolloClient, variables: ILoadClassifierRulesVariables): Promise<IncidentClassifier[]> {
+async function loadClassifierRules (client: ApolloClientType, variables: ILoadClassifierRulesVariables): Promise<IncidentClassifier[]> {
     const data = await client.query({
         query: IncidentClassifierGQL.GET_ALL_OBJS_QUERY,
         variables,
@@ -42,7 +44,7 @@ async function loadClassifierRules (client: ApolloClient, variables: ILoadClassi
 
 export class IncidentClassifiersQueryLocal implements IClassifiersSearch {
 
-    constructor (private client: ApolloClient, private rules: IncidentClassifier[] = [], private category: Option[] = [], private problem: Option[] = []) {}
+    constructor (private client: ApolloClientType, private rules: IncidentClassifier[] = [], private category: Option[] = [], private problem: Option[] = []) {}
 
     public async init (): Promise<void> {
         if (this.rules && this.rules.length) {

@@ -392,7 +392,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                 <BuildingPanelTopModal
                     visible={!isNull(mode)}
                     title={!isNull(mode) ?
-                        intl.formatMessage({ id: `pages.condo.property.modal.title.${mode}` })
+                        intl.formatMessage({ id: `pages.condo.property.modal.title.${mode}` as FormatjsIntl.Message['ids'] })
                         : null
                     }
                     onClose={onModalCancel}

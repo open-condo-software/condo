@@ -989,7 +989,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
     const onlyStatusTransitionsActive = get(initialValues, 'status') !== INVOICE_STATUS_DRAFT
 
     const currencyCode = DEFAULT_INVOICE_CURRENCY_CODE
-    const parts = intl.formatNumberToParts('', { style: 'currency', currency: currencyCode })
+    const parts = intl.formatNumberToParts(0, { style: 'currency', currency: currencyCode })
     const currencySymbolObj = parts.find(part => part.type === 'currency')
     const currencySymbol = get(currencySymbolObj, 'value')
     const moneyRender = useMemo(() => getMoneyRender(intl, currencyCode), [currencyCode, intl])

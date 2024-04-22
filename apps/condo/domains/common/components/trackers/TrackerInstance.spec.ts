@@ -138,7 +138,7 @@ describe('TrackerInstance', () => {
                     eventName,
                     eventProperties: {
                         page: {
-                            path: `/${TRACKER_DOMAIN}/?arg=0&filter=[]`,
+                            path: `/${TRACKER_DOMAIN}?arg=0&filter=[]`,
                         },
                     },
                 }

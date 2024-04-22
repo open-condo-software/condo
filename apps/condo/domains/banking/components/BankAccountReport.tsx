@@ -198,7 +198,7 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
                 },
                 data: chartData.map(categoryInfo => ({
                     value: categoryInfo.sum,
-                    name: intl.formatMessage({ id: `banking.costItem.${categoryInfo.name}.name` }),
+                    name: intl.formatMessage({ id: `banking.costItem.${categoryInfo.name}.name` as FormatjsIntl.Message['ids'] }),
                     isOutcome: categoryInfo.isOutcome,
                 })),
             },
@@ -242,7 +242,10 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
     }), [])
 
     const tabsItems = useMemo(() => categoryGroups
-        .map(reportData => ({ label: intl.formatMessage({ id: `banking.category.${reportData.name}.name` }), key: reportData.id }))
+        .map(reportData => ({
+            label: intl.formatMessage({ id: `banking.category.${reportData.name}.name` as FormatjsIntl.Message['ids'] }),
+            key: reportData.id,
+        }))
     , [categoryGroups, intl])
     const reportOptionItems: SelectProps['options'] = useMemo(() => bankAccountReports
         .map((bankAccountReport) => ({
@@ -252,7 +255,7 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
         })), [bankAccountReports])
     const chartLegendItems = useMemo(() => {
         return chartData.map((item, index) => {
-            const itemName = intl.formatMessage({ id: `banking.costItem.${item.name}.name` })
+            const itemName = intl.formatMessage({ id: `banking.costItem.${item.name}.name` as FormatjsIntl.Message['ids'] })
             return (
                 <LegendContainer
                     key={'legend-item-' + index}

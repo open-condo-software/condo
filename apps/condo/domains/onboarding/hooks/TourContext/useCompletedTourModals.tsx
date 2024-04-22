@@ -148,7 +148,7 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
     }, [activeStep, logEvent])
 
     const computedCompletedFlowModalData: ComputedCompletedFlowModalDataType = useMemo(() => ({
-        title: completedTourFlow && intl.formatMessage({ id: `tour.completedFlowModal.${completedTourFlow}.title` }),
+        title: completedTourFlow && intl.formatMessage({ id: `tour.completedFlowModal.${completedTourFlow}.title` as FormatjsIntl.Message['ids'] }),
     }), [completedTourFlow, intl])
 
     const handleViewGuideClick = useCallback(async () => {
@@ -300,16 +300,16 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
         if (isEmpty(completedActionType)) return
 
         return {
-            title: intl.formatMessage({ id: `tour.completedStepModal.${completedStepModalData.type}.title` }),
-            subtitleText: intl.formatMessage({ id: `tour.completedStepModal.${completedStepModalData.type}.subtitle` }),
+            title: intl.formatMessage({ id: `tour.completedStepModal.${completedStepModalData.type}.title` as FormatjsIntl.Message['ids'] }),
+            subtitleText: intl.formatMessage({ id: `tour.completedStepModal.${completedStepModalData.type}.subtitle` as FormatjsIntl.Message['ids'] }),
             subtitleLink: get(completedStepModalData, 'subtitleLinkHref'),
-            subtitleLinkLabel: intl.formatMessage({ id: `tour.completedStepModal.${completedStepModalData.type}.subtitleLinkLabel` }),
+            subtitleLinkLabel: intl.formatMessage({ id: `tour.completedStepModal.${completedStepModalData.type}.subtitleLinkLabel` as FormatjsIntl.Message['ids'] }),
             subtitleLinkIcon: get(completedStepModalData, 'subtitleLinkIcon'),
             newEmployeeFeatures: get(completedStepModalData, 'newFeatures.employee'),
             newResidentFeatures: get(completedStepModalData, 'newFeatures.resident'),
-            buttonLabel: intl.formatMessage({ id: `tour.completedStepModal.${completedStepModalData.type}.buttonLabel.${currentActiveStep}` }),
+            buttonLabel: intl.formatMessage({ id: `tour.completedStepModal.${completedStepModalData.type}.buttonLabel.${currentActiveStep}` as FormatjsIntl.Message['ids'] }),
             buttonOnClick: get(completedStepModalData, ['onButtonClick', activeStep], get(completedStepModalData, ['onButtonClick', 'default'])),
-            bodyText: intl.formatMessage({ id: `tour.completedStepModal.${completedStepModalData.type}.bodyText.${currentActiveStep}` }),
+            bodyText: intl.formatMessage({ id: `tour.completedStepModal.${completedStepModalData.type}.bodyText.${currentActiveStep}` as FormatjsIntl.Message['ids'] }),
         }
     }, [activeStep, completedStepModalData, intl])
 

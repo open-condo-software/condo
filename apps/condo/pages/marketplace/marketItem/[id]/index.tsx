@@ -276,7 +276,7 @@ const MarketItemIdPage = () => {
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.id.deleteAlert.title' })
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.id.deleteAlert.message' })
 
-    const { loading: employeeLoading, organization, link } = useOrganization()
+    const { isLoading: employeeLoading, organization, link } = useOrganization()
     const canManageMarketItems = get(link, 'role.canManageMarketItems', false)
 
     const router = useRouter()

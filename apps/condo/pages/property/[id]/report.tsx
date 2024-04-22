@@ -59,13 +59,15 @@ import type {
     MakeOptional,
     OrganizationEmployeeRole as OrganizationEmployeeRoleType,
 } from '@app/condo/schema'
+import type { FormatDateOptions } from '@formatjs/intl/src/types'
 import type { RowProps } from 'antd'
+
 
 const PROPERTY_REPORT_PAGE_ROW_GUTTER: RowProps['gutter'] = [24, 20]
 const PROPERTY_REPORT_PAGE_ROW_TABLE_GUTTER: RowProps['gutter'] = [0, 40]
 const EMPTY_ROW_STYLE: React.CSSProperties = { height: 'calc(100% - 90px)' }
 const DATE_RANGE_PICKER_STYLE: React.CSSProperties = { width: '100%' }
-const DATE_DISPLAY_FORMAT = {
+const DATE_DISPLAY_FORMAT: FormatDateOptions = {
     day: 'numeric',
     month: 'numeric',
     year: 'numeric',

@@ -1,4 +1,4 @@
-import { BuildingMap, BuildingMapEntityType, BuildingSectionType, BuildingUnitSubType } from '@app/condo/schema'
+import { BuildingMap, BuildingSectionType, BuildingUnitSubType } from '@app/condo/schema'
 import { cloneDeep } from 'lodash'
 
 import {
@@ -185,7 +185,7 @@ describe('Map constructor', () => {
                 expect(info.section).toEqual(newJsonMap.sections[2].id)
             })
 
-            it('should not save map if section name is not unique', () => {
+            it('should not save map if unit label is not unique', () => {
                 const Building = createBuildingMap(10)
                 const jsonMap = Building.getMap()
                 const updatedUnit = jsonMap.sections[5].floors[5].units[5]
@@ -197,7 +197,7 @@ describe('Map constructor', () => {
                 const newJsonMap = Building.getMap()
                 const unitToCompare = newJsonMap.sections[5].floors[5].units[5]
 
-                expect(unitToCompare.name).toEqual(jsonMap.sections[0].floors[0].units[0].label)
+                expect(unitToCompare.name).not.toEqual(jsonMap.sections[0].floors[0].units[0].label)
                 expect(Building.validate()).not.toBeTruthy()
                 expect(Building.validationErrors).toHaveLength(1)
                 expect(Building.validationErrors[0]).toEqual('Name of unit label must be unique')
@@ -341,7 +341,7 @@ describe('Map constructor', () => {
                 const newJsonMap = Building.getMap()
                 const unitToCompare = newJsonMap.parking[5].floors[5].units[5]
 
-                expect(unitToCompare.name).toEqual(jsonMap.parking[0].floors[0].units[0].label)
+                expect(unitToCompare.name).not.toEqual(jsonMap.parking[0].floors[0].units[0].label)
                 expect(Building.validate()).not.toBeTruthy()
                 expect(Building.validationErrors).toHaveLength(1)
                 expect(Building.validationErrors[0]).toEqual('Name of unit label must be unique')
@@ -448,14 +448,14 @@ describe('Map constructor', () => {
             it('should update structure in json on section edit', () => {
                 const Building = createBuildingMap(10)
                 const jsonMap = Building.getMap()
-                const updatedSection = jsonMap.sections[1]
-                Building.updateSection({ ...updatedSection, name: 'Test Section Name' })
+                const updatedSection = jsonMap.sections[0]
+                Building.updateSection({ ...updatedSection, name: '2' })
                 Building.validate()
 
                 expect(Building.isMapValid).toBe(true)
                 const newJsonMap = Building.getMap()
-                expect(newJsonMap.sections[0].name).not.toEqual('Test Section Name')
-                expect(newJsonMap.sections[1].name).toEqual('Test Section Name')
+                expect(newJsonMap.sections[0].name).toEqual('2')
+                expect(newJsonMap.sections[1].name).toEqual('3')
             })
         })
         describe('Delete section', () => {

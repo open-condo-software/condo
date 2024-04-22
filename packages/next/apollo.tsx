@@ -7,11 +7,15 @@ import {
     useQuery,
     useSubscription,
     ApolloLink,
+    NormalizedCacheObject,
 } from '@apollo/client'
+import { InMemoryCacheConfig } from '@apollo/client/cache/inmemory/inMemoryCache'
+import { ApolloClientOptions } from '@apollo/client/core/ApolloClient'
 import { BatchHttpLink } from '@apollo/client/link/batch-http'
 import { createUploadLink } from 'apollo-upload-client'
 import fetch from 'isomorphic-unfetch'
 import get from 'lodash/get'
+import { NextPage, NextPageContext } from 'next'
 import getConfig from 'next/config'
 import Head from 'next/head'
 import React from 'react'
@@ -21,10 +25,23 @@ import {
     MutationEmitter,
     MUTATION_RESULT_EVENT,
 } from './_useEmitterMutation'
+import { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } from './_utils'
 
-const { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
 
-let getApolloClientConfig = () => {
+type GetApolloClientConfig = () => { serverUrl, apolloGraphQLUrl, apolloBatchingEnabled }
+type CreateApolloClient = (
+    initialState: NormalizedCacheObject,
+    ctx: NextPageContext,
+    apolloCacheConfig?: InMemoryCacheConfig,
+    apolloClientConfig?: Partial<ApolloClientOptions<NormalizedCacheObject>>
+) => ApolloClient<NormalizedCacheObject>
+type InitApolloClient = CreateApolloClient
+type InitOnRestore = (
+    ctx: NextPageContext | any,
+    apolloCacheConfig: InMemoryCacheConfig,
+) => Promise<{ apolloClient }>
+
+let getApolloClientConfig: GetApolloClientConfig = () => {
     const {
         publicRuntimeConfig: { serverUrl, apolloGraphQLUrl, apolloBatchingEnabled },
     } = getConfig()
@@ -32,7 +49,7 @@ let getApolloClientConfig = () => {
     return { serverUrl, apolloGraphQLUrl, apolloBatchingEnabled }
 }
 
-let createApolloClient = (initialState, ctx, apolloCacheConfig, apolloClientConfig) => {
+let createApolloClient: CreateApolloClient = (initialState, ctx, apolloCacheConfig, apolloClientConfig) => {
     const { serverUrl, apolloGraphQLUrl, apolloBatchingEnabled } = getApolloClientConfig()
     if (DEBUG_RERENDERS) console.log('WithApollo(): getApolloClientConfig()', { serverUrl, apolloGraphQLUrl })
 
@@ -109,11 +126,12 @@ let globalApolloClient = null
 /**
  * Always creates a new apollo client on the server
  * Creates or reuses apollo client in the browser.
- * @param  {NormalizedCacheObject} initialState
- * @param  {NextPageContext} ctx
- * @param  {InMemoryCacheConfig} apolloCacheConfig
+ * @param {NormalizedCacheObject} initialState
+ * @param {NextPageContext} ctx
+ * @param {InMemoryCacheConfig} apolloCacheConfig
+ * @param {ApolloClientOptions} apolloClientConfig
  */
-const initApolloClient = (initialState, ctx, apolloCacheConfig, apolloClientConfig) => {
+const initApolloClient: InitApolloClient = (initialState, ctx, apolloCacheConfig, apolloClientConfig) => {
     // Make sure to create a new client for every server-side request so that data
     // isn't shared between connections (which would be bad)
     // It's isOnServerSide === false for expo APP
@@ -137,7 +155,7 @@ const initApolloClient = (initialState, ctx, apolloCacheConfig, apolloClientConf
  * @param {NextPageContext | NextAppContext} ctx
  * @param {InMemoryCacheConfig} apolloCacheConfig
  */
-const initOnRestore = async (ctx, apolloCacheConfig) => {
+const initOnRestore: InitOnRestore = async (ctx, apolloCacheConfig) => {
     const inAppContext = Boolean(ctx.ctx)
 
     // Initialize ApolloClient if not already done
@@ -162,15 +180,21 @@ const initOnRestore = async (ctx, apolloCacheConfig) => {
     return { apolloClient }
 }
 
+export type WithApolloProps = {
+    ssr?: boolean
+    getApolloClientConfig?: GetApolloClientConfig
+    createApolloClient?: CreateApolloClient
+    apolloCacheConfig?: InMemoryCacheConfig
+    apolloClientConfig?: Partial<ApolloClientOptions<NormalizedCacheObject>>
+}
+export type WillApollo = (props: WithApolloProps) => (PageComponent: NextPage<any>) => NextPage<any>
+
 /**
  * Creates a withApollo HOC
  * that provides the apolloContext
  * to a next.js Page or AppTree.
- * @param  {Object} withApolloOptions
- * @param  {Boolean} [withApolloOptions.ssr=false]
- * @returns {(PageComponent: ReactNode) => ReactNode}
  */
-const withApollo = ({ ssr = false, ...opts } = {}) => PageComponent => {
+const withApollo: WillApollo = ({ ssr = false, ...opts } = {}) => PageComponent => {
     // TODO(pahaz): refactor it. No need to patch globals here!
     getApolloClientConfig = opts.getApolloClientConfig ? opts.getApolloClientConfig : getApolloClientConfig
     createApolloClient = opts.createApolloClient ? opts.createApolloClient : createApolloClient
@@ -272,7 +296,7 @@ const withApollo = ({ ssr = false, ...opts } = {}) => PageComponent => {
     return WithApollo
 }
 
-function useMutation (mutation, options) {
+const useMutation: typeof _useEmitterMutation = (mutation, options) =>  {
     return _useEmitterMutation(mutation, options)
 }
 

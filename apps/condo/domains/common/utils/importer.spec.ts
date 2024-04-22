@@ -33,12 +33,13 @@ const getFakeCreator: (storage: Array<ProcessedRow | null>) => ObjectCreator = (
 }
 
 const defaultErrors: ImporterErrorMessages = {
-    tooManyRows: 'too many rows',
-    invalidColumns: 'invalid columns',
-    invalidTypes: 'invalid types',
-    normalization: 'Normalization error',
-    validation: 'Validation error',
-    creation: 'Creation error',
+    tooManyRows: { message: 'too many rows' },
+    invalidColumns: { message: 'invalid columns' },
+    invalidTypes: { message: 'invalid types' },
+    normalization: { message: 'Normalization error' },
+    validation: { message: 'Validation error' },
+    creation: { message: 'Creation error' },
+    emptyRows: { message: 'Empty rows' },
 }
 
 const testColumns: Columns = [
@@ -70,12 +71,12 @@ describe('importer tests', () => {
     describe('importer should work', () => {
         it('with no validation and no processing', async () => {
             const result = []
-            let errors = false
+            let importerError
             let finished = false
             const fakeCreator = getFakeCreator(result)
             const importer = new Importer(testColumns, bypassNormalizer, bypassValidator, fakeCreator, defaultErrors, {}, TEST_SLEEP_TIME, 100)
-            importer.onError(() => {
-                errors = true
+            importer.onError((error) => {
+                importerError = error
             })
             importer.onFinish(() => {
                 finished = true
@@ -89,19 +90,19 @@ describe('importer tests', () => {
             }
             await importer.import(table)
 
-            expect(errors).toEqual(false)
+            expect(importerError).toBeUndefined()
             expect(finished).toEqual(true)
             expect(result).toHaveLength(tableLength)
             expect(result).toStrictEqual(expectedResult)
         })
         it('with additional row validation', async () => {
             const result = []
-            let errors = false
+            let importerError
             let finished = false
             const fakeCreator = getFakeCreator(result)
             const importer = new Importer(testColumns, bypassNormalizer, oddRowPassValidator, fakeCreator, defaultErrors, {}, TEST_SLEEP_TIME, 100)
-            importer.onError(() => {
-                errors = true
+            importer.onError((error) => {
+                importerError = error
             })
             importer.onFinish(() => {
                 finished = true
@@ -115,19 +116,19 @@ describe('importer tests', () => {
             }
             await importer.import(table)
 
-            expect(errors).toEqual(false)
+            expect(importerError).toBeUndefined()
             expect(finished).toEqual(true)
             expect(result).toHaveLength(tableLength / 2)
             expect(result).toStrictEqual(expectedResult)
         })
         it('with additional preprocessor', async () => {
             const result = []
-            let errors = false
+            let importerError
             let finished = false
             const fakeCreator = getFakeCreator(result)
             const importer = new Importer(testColumns, addonNormalizer, checkAddonValidator, fakeCreator, defaultErrors, {}, TEST_SLEEP_TIME, 100)
-            importer.onError(() => {
-                errors = true
+            importer.onError((error) => {
+                importerError = error
             })
             importer.onFinish(() => {
                 finished = true
@@ -141,19 +142,21 @@ describe('importer tests', () => {
             }
             await importer.import(table)
 
-            expect(errors).toEqual(false)
+            expect(importerError).toBeUndefined()
             expect(finished).toEqual(true)
             expect(result).toHaveLength(tableLength)
             expect(result).toStrictEqual(expectedResult)
         })
+    })
+    describe('should handle errors', () => {
         it('with empty data', async () => {
             const result = []
-            let errors = false
+            let importerError
             let finished = false
             const fakeCreator = getFakeCreator(result)
             const importer = new Importer(testColumns, bypassNormalizer, bypassValidator, fakeCreator, defaultErrors, {}, TEST_SLEEP_TIME, 100)
-            importer.onError(() => {
-                errors = true
+            importer.onError((error) => {
+                importerError = error
             })
             importer.onFinish(() => {
                 finished = true
@@ -161,26 +164,20 @@ describe('importer tests', () => {
 
             const tableLength = 0
             const table = generateTable(tableLength)
-            const expectedResult = []
             await importer.import(table)
 
-            expect(errors).toEqual(false)
-            expect(finished).toEqual(true)
-            expect(result).toHaveLength(tableLength)
-            expect(result).toStrictEqual(expectedResult)
+            expect(importerError).toEqual(defaultErrors.emptyRows)
+            expect(finished).toEqual(false)
+            expect(result).toStrictEqual([])
         })
-    })
-    describe('should handle errors', () => {
         it('when columns don\'t match', async () => {
             const result = []
-            let errors = false
+            let importerError
             let finished = false
             const fakeCreator = getFakeCreator(result)
-            let errorText = ''
             const importer = new Importer(testColumns, bypassNormalizer, bypassValidator, fakeCreator, defaultErrors, {}, TEST_SLEEP_TIME, 100)
             importer.onError((error) => {
-                errors = true
-                errorText = error.message
+                importerError = error
             })
             importer.onFinish(() => {
                 finished = true
@@ -191,21 +188,18 @@ describe('importer tests', () => {
             table[0][0].value = 'incorrect title'
             await importer.import(table)
 
-            expect(errors).toEqual(true)
-            expect(errorText).toEqual(defaultErrors.invalidColumns)
+            expect(importerError).toEqual(defaultErrors.invalidColumns)
             expect(finished).toEqual(false)
             expect(result).toStrictEqual([])
         })
         it('when no columns at all', async () => {
             const result = []
-            let errors = false
+            let importerError
             let finished = false
-            let errorText = ''
             const fakeCreator = getFakeCreator(result)
             const importer = new Importer(testColumns, bypassNormalizer, bypassValidator, fakeCreator, defaultErrors, {}, TEST_SLEEP_TIME, 100)
             importer.onError((error) => {
-                errorText = error.message
-                errors = true
+                importerError = error
             })
             importer.onFinish(() => {
                 finished = true
@@ -213,19 +207,18 @@ describe('importer tests', () => {
             const table = []
             await importer.import(table)
 
-            expect(errors).toEqual(true)
-            expect(errorText).toEqual(defaultErrors.invalidColumns)
+            expect(importerError).toEqual(defaultErrors.invalidColumns)
             expect(finished).toEqual(false)
             expect(result).toStrictEqual([])
         })
         it('skip invalid rows', async () => {
             const result = []
-            let errors = false
+            let importerError
             let finished = false
             const fakeCreator = getFakeCreator(result)
             const importer = new Importer(testColumns, bypassNormalizer, bypassValidator, fakeCreator, defaultErrors, {}, TEST_SLEEP_TIME, 100)
             importer.onError((error) => {
-                errors = true
+                importerError = error
             })
             importer.onFinish(() => {
                 finished = true
@@ -242,7 +235,7 @@ describe('importer tests', () => {
                 if (i + 1 !== brokenRow) expectedResult.push(i)
             }
 
-            expect(errors).toEqual(false)
+            expect(importerError).toBeUndefined()
             expect(finished).toEqual(true)
             expect(result).toHaveLength(tableLength - 1)
             expect(result).toStrictEqual(expectedResult)
@@ -250,12 +243,12 @@ describe('importer tests', () => {
     })
     it('should not import after break', async () => {
         const result = []
-        let errors = false
+        let importerError
         let finished = false
         const fakeCreator = getFakeCreator(result)
         const importer = new Importer(testColumns, bypassNormalizer, bypassValidator, fakeCreator, defaultErrors, {}, TEST_SLEEP_TIME, 100)
-        importer.onError(() => {
-            errors = true
+        importer.onError((error) => {
+            importerError = error
         })
         importer.onFinish(() => {
             finished = true
@@ -269,25 +262,27 @@ describe('importer tests', () => {
         }
         await importer.import(table)
 
-        expect(errors).toEqual(false)
+        expect(importerError).toBeUndefined()
+        expect(finished).toEqual(true)
         expect(result).toHaveLength(tableLength)
         expect(result).toStrictEqual(expectedResult)
         importer.break()
         await importer.import(table)
-        expect(errors).toEqual(false)
+        expect(importerError).toBeUndefined()
+        expect(finished).toEqual(true)
         expect(result).toHaveLength(tableLength)
         expect(result).toStrictEqual(expectedResult)
     })
     it('should display progress correctly', async () => {
         const result = []
-        let errors = false
+        let importerError
         let finished = false
         const fakeCreator = getFakeCreator(result)
         const progresses = []
         const expectedProgresses = [20, 40, 60, 80, 100, 100]
         const importer = new Importer(testColumns, bypassNormalizer, bypassValidator, fakeCreator, defaultErrors, {}, TEST_SLEEP_TIME, 100)
-        importer.onError(() => {
-            errors = true
+        importer.onError((error) => {
+            importerError = error
         })
         importer.onFinish(() => {
             finished = true
@@ -300,7 +295,7 @@ describe('importer tests', () => {
         const table = generateTable(tableLength)
         await importer.import(table)
 
-        expect(errors).toEqual(false)
+        expect(importerError).toBeUndefined()
         expect(finished).toEqual(true)
         expect(result).toHaveLength(tableLength)
         expect(progresses).toStrictEqual(expectedProgresses)

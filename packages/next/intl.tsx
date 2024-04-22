@@ -1,22 +1,40 @@
 import cookie from 'js-cookie'
 import get from 'lodash/get'
+import { NextPage } from 'next'
 import nextCookie from 'next-cookies'
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { IntlProvider, useIntl, FormattedMessage } from 'react-intl'
 
 import { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } from './_utils'
 import { useAuth } from './auth'
 
-const LocaleContext = React.createContext({})
+
+interface ILocaleContext {
+    locale
+    setLocale
+}
+
+type MessagesImporter = (locale: string) => Promise<any>
+type GetMessages = (locale: string) => Promise<Record<string, string>>
+type ExtractReqLocale = (req) => string | null
+type GetLocale = () => string | null
+
 
 let defaultLocale = 'en'
 
-let messagesImporter = (locale) => {
+const LocaleContext = React.createContext<ILocaleContext>({
+    locale: defaultLocale,
+    setLocale: () => ({}),
+})
+
+const useLocale = (): ILocaleContext => useContext(LocaleContext)
+
+let messagesImporter: MessagesImporter = (locale) => {
     throw new Error('You should define your own "messagesImporter(locale)" function. ' +
         'Like so: "withIntl({ ..., messagesImporter: (locale) => import(`../lang/${locale}/${locale}`) })(...)"')
 }
 
-let getMessages = async (locale) => {
+let getMessages: GetMessages = async (locale) => {
     try {
         const module = await messagesImporter(locale)
         return module.default || module
@@ -27,7 +45,7 @@ let getMessages = async (locale) => {
     }
 }
 
-let extractReqLocale = (req) => {
+let extractReqLocale: ExtractReqLocale = (req) => {
     try {
         const cookieLocale = nextCookie({ req }).locale
         const headersLocale = req.headers['accept-language'] && req.headers['accept-language'].slice(0, 2)
@@ -37,7 +55,7 @@ let extractReqLocale = (req) => {
     }
 }
 
-let getLocale = () => {
+let getLocale: GetLocale = () => {
     let locale = null
     if (typeof window !== 'undefined') {
         try {
@@ -93,9 +111,9 @@ const Intl = ({ children, initialLocale, initialMessages, onError }) => {
     if (DEBUG_RERENDERS) console.log('IntlProvider()', locale)
 
     return (
-        <IntlProvider key={ locale } locale={ locale } messages={ messages } onError={ onError }>
-            <LocaleContext.Provider value={ { locale, setLocale } }>
-                { children }
+        <IntlProvider key={locale} locale={locale} messages={messages} onError={onError}>
+            <LocaleContext.Provider value={{ locale, setLocale }}>
+                {children}
             </LocaleContext.Provider>
         </IntlProvider>
     )
@@ -103,7 +121,18 @@ const Intl = ({ children, initialLocale, initialMessages, onError }) => {
 
 if (DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER) Intl.whyDidYouRender = true
 
-const withIntl = ({ ssr = false, ...opts } = {}) => PageComponent => {
+type WithIntlProps = {
+    ssr?: boolean
+    defaultLocale?: string
+    extractReqLocale?: ExtractReqLocale
+    messagesImporter?: MessagesImporter
+    getMessages?: GetMessages
+    getLocale?: GetLocale
+    hideErrors?: boolean
+}
+export type WithIntl = (props: WithIntlProps) => (PageComponent: NextPage<any>) => NextPage<any>
+
+const withIntl: WithIntl = ({ ssr = false, ...opts }: WithIntlProps = {}) => PageComponent => {
     // TODO(pahaz): refactor it. No need to patch globals here!
     defaultLocale = opts.defaultLocale || defaultLocale
     extractReqLocale = opts.extractReqLocale || extractReqLocale
@@ -119,8 +148,8 @@ const withIntl = ({ ssr = false, ...opts } = {}) => PageComponent => {
         if (!messages) messages = {}
         if (DEBUG_RERENDERS) console.log('WithIntl()', locale)
         return (
-            <Intl initialLocale={ locale } initialMessages={ messages } onError={ onIntlError }>
-                <PageComponent { ...pageProps } />
+            <Intl initialLocale={locale} initialMessages={messages} onError={onIntlError}>
+                <PageComponent {...pageProps} />
             </Intl>
         )
     }
@@ -160,4 +189,5 @@ export {
     useIntl,
     FormattedMessage,
     LocaleContext,
+    useLocale,
 }

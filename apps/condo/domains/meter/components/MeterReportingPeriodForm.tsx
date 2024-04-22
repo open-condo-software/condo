@@ -320,13 +320,13 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                                                     if (!notifyStartDay) messageLabels.push(`"${StartLabel}"`)
                                                     if (!notifyEndDay) messageLabels.push(`"${FinishLabel}"`)
 
-                                                    const hasIncorrectPeriodError = incorrectPeriodError ? IncorrectPeriodLabel : undefined
+                                                    const incorrectPeriodErrorMessage = incorrectPeriodError ? IncorrectPeriodLabel : undefined
                                                     const requiredErrorMessage = !isEmpty(messageLabels) && ErrorsContainerTitle.concat(' ', messageLabels.join(', '))
-                                                    const errors = [hasIncorrectPeriodError, requiredErrorMessage]
+                                                    const errors = [incorrectPeriodErrorMessage, requiredErrorMessage]
                                                         .filter(Boolean)
                                                         .join(', ')
 
-                                                    const isDisabled = (!property && !isOrganizationPeriod) || !notifyStartDay || !notifyEndDay || hasIncorrectPeriodError
+                                                    const isDisabled = (!property && !isOrganizationPeriod) || !notifyStartDay || !notifyEndDay || !!incorrectPeriodErrorMessage
 
                                                     return (
                                                         <ActionBar
