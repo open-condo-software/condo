@@ -15,7 +15,7 @@ const { createTestResident } = require('@condo/domains/resident/utils/testSchema
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithResidentUser, createTestPhone } = require('@condo/domains/user/utils/testSchema')
 
- 
+
 describe('GetResidentExistenceByPhoneAndAddressService', () => {
     let adminClient
 
@@ -46,7 +46,7 @@ describe('GetResidentExistenceByPhoneAndAddressService', () => {
             const residentClient = await makeClientWithResidentUser()
             const [organization] = await createTestOrganization(adminClient)
             const [role] = await createTestOrganizationEmployeeRole(adminClient, organization)
-            await createTestOrganizationEmployee(adminClient, organization, employeeClient.user, role)
+            await createTestOrganizationEmployee(adminClient, organization, employeeClient.user, role, { isAccepted: true })
             const [property] = await createTestProperty(adminClient, organization)
             const unitName = faker.random.alphaNumeric(8)
             await createTestResident(adminClient, residentClient.user, property, {
@@ -74,7 +74,7 @@ describe('GetResidentExistenceByPhoneAndAddressService', () => {
             await createTestOrganizationLink(adminClient, fromOrganization, organization)
 
             const [role] = await createTestOrganizationEmployeeRole(adminClient, fromOrganization)
-            await createTestOrganizationEmployee(adminClient, fromOrganization, employeeClient.user, role)
+            await createTestOrganizationEmployee(adminClient, fromOrganization, employeeClient.user, role, { isAccepted: true })
 
             const [property] = await createTestProperty(adminClient, organization)
             const unitName = faker.random.alphaNumeric(8)

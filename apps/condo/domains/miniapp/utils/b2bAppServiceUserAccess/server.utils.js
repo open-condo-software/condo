@@ -1,4 +1,4 @@
-const { isObject, isEmpty, get, isArray, isString } = require('lodash')
+const { isObject, isEmpty, get, isArray, isString, upperFirst } = require('lodash')
 const pluralize = require('pluralize')
 
 const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
@@ -24,19 +24,7 @@ const canReadByServiceUser = async ({ authentication: { item: user }, args, list
 
     const B2BAppContexts = await find('B2BAppContext', {
         organization: { deletedAt: null },
-        app: {
-            accessRights_some: {
-                accessRightSet: {
-                    [`canRead${pluralize.plural(listKey)}`]: true,
-                    deletedAt: null,
-                },
-                user: { id: user.id, type: 'service', deletedAt: null },
-                deletedAt: null,
-            },
-            deletedAt: null,
-        },
-        status: 'Finished',
-        deletedAt: null,
+        ...buildB2BAppContextCommonConditions(user, { [`canRead${pluralize.plural(listKey)}`]: true }),
     })
 
     const organizationIds = B2BAppContexts.map(ctx => ctx.organization)
@@ -114,23 +102,55 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
 
     const B2BAppContexts = await find('B2BAppContext', {
         organization: { id: organizationId, deletedAt: null },
-        app: {
-            accessRights_some: {
-                accessRightSet: {
-                    [`canManage${pluralize.plural(listKey)}`]: true,
-                    deletedAt: null,
-                },
-                user: { id: user.id, type: 'service', deletedAt: null },
-                deletedAt: null,
-            },
-            deletedAt: null,
-        },
-        status: 'Finished',
-        deletedAt: null,
+        ...buildB2BAppContextCommonConditions(user, { [`canManage${pluralize.plural(listKey)}`]: true }),
     })
 
     return !isEmpty(B2BAppContexts)
 }
+
+const canExecuteByServiceUser = async (params, serviceConfig) => {
+    const { authentication: { item: user }, args, gqlName } = params
+
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+
+    if (!gqlName) return false
+
+    const pathToOrganizationId = get(serviceConfig, 'pathToOrganizationId', ['data', 'organization', 'id'])
+    if (!isArray(pathToOrganizationId) || isEmpty(pathToOrganizationId)) return false
+
+    const organizationId = get(args, pathToOrganizationId)
+
+    if (!organizationId) return false
+
+    const B2BAppContexts = await find('B2BAppContext', {
+        organization: { id: organizationId, deletedAt: null },
+        ...buildB2BAppContextCommonConditions(user, { [`canExecute${upperFirst(gqlName)}`]: true }),
+    })
+
+    return !isEmpty(B2BAppContexts)
+}
+
+/**
+ * @param {User} user
+ * @param {Partial<B2BAppAccessRightSet>} accessRightsSet - the only canRead*, canManage*, canExecute* fields
+ * @return {Object}
+ */
+const buildB2BAppContextCommonConditions = (user, accessRightsSet) => ({
+    app: {
+        accessRights_some: {
+            accessRightSet: {
+                ...accessRightsSet,
+                deletedAt: null,
+            },
+            user: { id: user.id, type: 'service', deletedAt: null },
+            deletedAt: null,
+        },
+        deletedAt: null,
+    },
+    status: 'Finished',
+    deletedAt: null,
+})
 
 const isServiceUser = ({ authentication: { item: user } }) => {
     return get(user, 'type') === SERVICE
@@ -163,7 +183,7 @@ const getRefSchemaName = (schemaConfig, listKey) => {
 const canReadObjectsAsB2BAppServiceUser = async (args) => {
     const { listKey } = args
     if (!isServiceUser(args)) return false
-    const schemaConfig = get(B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS, listKey)
+    const schemaConfig = get(B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS.lists, listKey)
     if (!isObject(schemaConfig)) return false
     const canBeRead = get(schemaConfig, 'canBeRead', true)
     if (!canBeRead) return false
@@ -179,7 +199,7 @@ const canReadObjectsAsB2BAppServiceUser = async (args) => {
 const canManageObjectsAsB2BAppServiceUser = async (args) => {
     const { listKey } = args
     if (!isServiceUser(args)) return false
-    const schemaConfig = get(B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS, listKey)
+    const schemaConfig = get(B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS.lists, listKey)
     if (!isObject(schemaConfig)) return false
     const canBeManaged = get(schemaConfig, 'canBeManaged', true)
     if (!canBeManaged) return false
@@ -187,7 +207,16 @@ const canManageObjectsAsB2BAppServiceUser = async (args) => {
     return await canManageByServiceUser(args, schemaConfig, refSchemaName)
 }
 
+const canExecuteServiceAsB2BAppServiceUser = async (args) => {
+    const { info: { fieldName: serviceName } } = args
+    if (!isServiceUser(args)) return false
+    const serviceConfig = get(B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS.services, serviceName)
+    if (!isObject(serviceConfig)) return false
+    return await canExecuteByServiceUser(args, serviceConfig)
+}
+
 module.exports = {
     canManageObjectsAsB2BAppServiceUser,
     canReadObjectsAsB2BAppServiceUser,
+    canExecuteServiceAsB2BAppServiceUser,
 }

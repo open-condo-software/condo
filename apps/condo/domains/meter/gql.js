@@ -64,6 +64,12 @@ const EXPORT_PROPERTY_METER_READINGS_QUERY = gql`
     }
 `
 
+const REGISTER_METERS_READINGS_MUTATION = gql`
+    mutation registerMetersReadings ($data: RegisterMetersReadingsInput!) {
+        result: registerMetersReadings(data: $data) { id meter { id property { id address addressKey } unitType unitName accountNumber number } }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -80,6 +86,7 @@ module.exports = {
     MeterResourceOwner,
     INTERNAL_DELETE_METER_READINGS_MUTATION,
     EXPORT_PROPERTY_METER_READINGS_QUERY,
+    REGISTER_METERS_READINGS_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 

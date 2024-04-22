@@ -54,6 +54,7 @@ const readMeterReadings = async ({ context, meters }) => {
     // load all pages for entity
     return await loadListByChunks({
         context,
+        chunkSize: 50,
         list: MeterReading,
         where: {
             date_gte: startWindowDate,

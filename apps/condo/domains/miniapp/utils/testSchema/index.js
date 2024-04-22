@@ -275,11 +275,11 @@ async function updateTestB2CAppBuild (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestB2CAppProperty (client, app, extraAttrs = {}, validAddress = true, validHouse = true) {
+async function createTestB2CAppProperty (client, app, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!app || !app.id) throw new Error('no app.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const [address, addressMeta] = getFakeAddress(validAddress, validHouse)
+    const { address, addressMeta } = buildFakeAddressAndMeta(false)
 
     const attrs = {
         dv: 1,
@@ -527,26 +527,6 @@ async function updateTestB2BAppNewsSharingConfig (client, id, extraAttrs = {}) {
 }
 
 /* AUTOGENERATE MARKER <FACTORY> */
-function getFakeAddress(validAddress = true, validHouse = true) {
-    const { address, addressMeta } = buildFakeAddressAndMeta(false)
-
-    if (validAddress && validHouse) {
-        return [address, addressMeta]
-    }
-
-    let invalidAddress
-
-    if (!validAddress) {
-        invalidAddress = address.replace(/д\s\d+\s/gm, '')
-    }
-
-    if (!validHouse) {
-        invalidAddress = address.replace('д', 'б')
-        addressMeta.data.house_type_full = 'бунгало'
-    }
-
-    return [invalidAddress, addressMeta]
-}
 
 module.exports = {
     allMiniAppsByTestClient,
@@ -565,5 +545,4 @@ module.exports = {
     B2BAppAccessRightSet, createTestB2BAppAccessRightSet, updateTestB2BAppAccessRightSet,
     B2BAppNewsSharingConfig, createTestB2BAppNewsSharingConfig, updateTestB2BAppNewsSharingConfig,
 /* AUTOGENERATE MARKER <EXPORTS> */
-    getFakeAddress,
 }

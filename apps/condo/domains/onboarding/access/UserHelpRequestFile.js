@@ -9,7 +9,7 @@ const omit = require('lodash/omit')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
-const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
+const { checkUserBelongsToOrganization } = require('@condo/domains/organization/utils/accessSchema')
 const { STAFF } = require('@condo/domains/user/constants/common')
 
 
@@ -39,7 +39,7 @@ async function canManageUserHelpRequestFiles ({ authentication: { item: user }, 
         const userHelpRequest = await getById('UserHelpRequest', userHelpRequestId)
         if (!userHelpRequest) return false
 
-        return await checkOrganizationPermission(user.id, userHelpRequest.organization)
+        return await checkUserBelongsToOrganization(user.id, userHelpRequest.organization)
     } else if (operation === 'update') {
         const inaccessibleUpdatedFields = omit(originalInput, AVAILABLE_TO_UPDATE_USER_HELP_REQUEST_FILE_FIELDS)
         if (!isEmpty(inaccessibleUpdatedFields)) return false

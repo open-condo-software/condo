@@ -32,7 +32,6 @@ const {
     createTestB2CAppAccessRight,
     createTestB2CAppProperty,
     updateTestB2CAppProperty,
-    getFakeAddress,
     createTestB2CAppBuild,
     B2BApp,
     B2BAppNewsSharingConfig,
@@ -55,6 +54,7 @@ const {
     registerNewOrganization,
     createTestOrganization,
 } = require('@condo/domains/organization/utils/testSchema')
+const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 const {
     UserRightsSet,
     createTestUserRightsSet,
@@ -704,12 +704,12 @@ describe('UserRightsSet', () => {
 
                     const [appProperty] = await createTestB2CAppProperty(portalClient, b2cApp)
                     expect(appProperty).toHaveProperty('id')
-                    const [newAddress, addressMeta] = getFakeAddress()
+                    const { address, addressMeta } = buildFakeAddressAndMeta(false)
                     const [updatedProperty] = await updateTestB2CAppProperty(portalClient, appProperty.id, {
-                        address: newAddress,
+                        address,
                         addressMeta,
                     })
-                    expect(updatedProperty).toHaveProperty('address', newAddress)
+                    expect(updatedProperty).toHaveProperty('address', address)
 
                     const [build] = await createTestB2CAppBuild(portalClient, b2cApp, {
                         importId: faker.datatype.uuid(),

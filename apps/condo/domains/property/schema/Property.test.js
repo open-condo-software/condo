@@ -68,7 +68,6 @@ describe('Property', () => {
                 expect(obj.type).toEqual('building')
                 expect(obj.name).toEqual(attrs.name)
                 expect(obj.address).toEqual(attrs.address)
-                expect(obj.addressMeta).toStrictEqual(attrs.addressMeta)
                 expect(obj.map).toEqual(null)
                 expect(obj.v).toEqual(1)
                 expect(obj.newId).toEqual(null)

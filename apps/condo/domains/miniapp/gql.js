@@ -5,6 +5,7 @@
  */
 
 const { gql } = require('graphql-tag')
+const { upperFirst } = require('lodash')
 const pluralize = require('pluralize')
 
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
@@ -15,7 +16,7 @@ const { B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS } = require('./utils/b2bAp
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
 const APP_FIELDS = '{ id name shortDescription connected accessible category logo label icon menuCategory }'
- 
+
 const ALL_MINI_APPS_QUERY = gql`
     query getAllMiniApps ($data: AllMiniAppsInput!) {
         objs: allMiniApps (data: $data) ${APP_FIELDS}
@@ -34,11 +35,15 @@ const B2BApp = generateGqlQueries('B2BApp', B2B_APP_FIELDS)
 const B2B_APP_CONTEXT_FIELDS = `{ app { id name appUrl icon menuCategory hasDynamicTitle } organization { id } status ${COMMON_FIELDS} }`
 const B2BAppContext = generateGqlQueries('B2BAppContext', B2B_APP_CONTEXT_FIELDS)
 
-const B2B_ACCESSES_FIELDS = Object.keys(B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS)
+const B2B_ACCESSES_LISTS_FIELDS = Object.keys(B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS.lists)
     .map(schemaName => `canManage${pluralize.plural(schemaName)} canRead${pluralize.plural(schemaName)}`)
     .join(' ')
 
-const B2B_APP_ACCESS_RIGHT_FIELDS = `{ app { id } user { id } accessRightSet { id deletedAt ${B2B_ACCESSES_FIELDS} } ${COMMON_FIELDS} }`
+const B2B_ACCESSES_SERVICES_FIELDS = Object.keys(B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS.services)
+    .map(schemaName => `canExecute${upperFirst(schemaName)}`)
+    .join(' ')
+
+const B2B_APP_ACCESS_RIGHT_FIELDS = `{ app { id } user { id } accessRightSet { id deletedAt ${B2B_ACCESSES_LISTS_FIELDS} ${B2B_ACCESSES_SERVICES_FIELDS} } ${COMMON_FIELDS} }`
 const B2BAppAccessRight = generateGqlQueries('B2BAppAccessRight', B2B_APP_ACCESS_RIGHT_FIELDS)
 
 const B2C_APP_FIELDS = `{ name isHidden colorSchema { main secondary } currentBuild { id } ${COMMON_FIELDS} }`
@@ -65,7 +70,7 @@ const B2BAppRole = generateGqlQueries('B2BAppRole', B2B_APP_ROLE_FIELDS)
 const MESSAGE_APP_BLACK_LIST_FIELDS = `{ app { id } description ${COMMON_FIELDS} }`
 const MessageAppBlackList = generateGqlQueries('MessageAppBlackList', MESSAGE_APP_BLACK_LIST_FIELDS)
 
-const B2B_APP_ACCESS_RIGHT_SET_FIELDS = `{ app { id } ${B2B_ACCESSES_FIELDS} ${COMMON_FIELDS} }`
+const B2B_APP_ACCESS_RIGHT_SET_FIELDS = `{ app { id } ${B2B_ACCESSES_LISTS_FIELDS} ${B2B_ACCESSES_SERVICES_FIELDS} ${COMMON_FIELDS} }`
 const B2BAppAccessRightSet = generateGqlQueries('B2BAppAccessRightSet', B2B_APP_ACCESS_RIGHT_SET_FIELDS)
 
 const B2B_APP_NEWS_SHARING_CONFIG_FIELDS = `{ publishUrl previewUrl getRecipientsUrl name ${COMMON_FIELDS} }`

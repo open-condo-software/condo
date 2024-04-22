@@ -2254,6 +2254,7 @@ export type B2BAppAccessRightSet = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterMetersReadings?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -2282,6 +2283,7 @@ export type B2BAppAccessRightSetCreateInput = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterMetersReadings?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -2315,6 +2317,7 @@ export type B2BAppAccessRightSetHistoryRecord = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterMetersReadings?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -2342,6 +2345,7 @@ export type B2BAppAccessRightSetHistoryRecordCreateInput = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterMetersReadings?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -2374,6 +2378,7 @@ export type B2BAppAccessRightSetHistoryRecordUpdateInput = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterMetersReadings?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -2415,6 +2420,8 @@ export type B2BAppAccessRightSetHistoryRecordWhereInput = {
   canReadProperties_not?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties_not?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterMetersReadings?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterMetersReadings_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -2525,6 +2532,7 @@ export type B2BAppAccessRightSetUpdateInput = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterMetersReadings?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -2561,6 +2569,8 @@ export type B2BAppAccessRightSetWhereInput = {
   canReadProperties_not?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties_not?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterMetersReadings?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterMetersReadings_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -41686,6 +41696,7 @@ export type Mutation = {
    * }`
    */
   _internalDeleteMeterReadings?: Maybe<_InternalDeleteMeterReadingsOutput>;
+  registerMetersReadings?: Maybe<Array<Maybe<RegisterMetersReadingsOutput>>>;
   registerMultiPayment?: Maybe<RegisterMultiPaymentOutput>;
   registerMultiPaymentForOneReceipt?: Maybe<RegisterMultiPaymentForOneReceiptOutput>;
   registerMultiPaymentForVirtualReceipt?: Maybe<RegisterMultiPaymentForOneReceiptOutput>;
@@ -49947,6 +49958,11 @@ export type Mutation_InternalDeleteMeterAndMeterReadingsArgs = {
 
 export type Mutation_InternalDeleteMeterReadingsArgs = {
   data: _InternalDeleteMeterReadingsInput;
+};
+
+
+export type MutationRegisterMetersReadingsArgs = {
+  data: RegisterMetersReadingsInput;
 };
 
 
@@ -70460,6 +70476,67 @@ export type RegisterBillingReceiptsInput = {
   receipts: Array<RegisterBillingReceiptInput>;
 };
 
+export type RegisterMetersReadingsInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  organization: OrganizationWhereUniqueInput;
+  readings: Array<RegisterMetersReadingsReadingInput>;
+};
+
+export type RegisterMetersReadingsMeterMetaInput = {
+  numberOfTariffs?: Maybe<Scalars['Int']>;
+  place?: Maybe<Scalars['String']>;
+  verificationDate?: Maybe<Scalars['String']>;
+  nextVerificationDate?: Maybe<Scalars['String']>;
+  installationDate?: Maybe<Scalars['String']>;
+  commissioningDate?: Maybe<Scalars['String']>;
+  sealingDate?: Maybe<Scalars['String']>;
+  controlReadingsDate?: Maybe<Scalars['String']>;
+};
+
+export type RegisterMetersReadingsMeterOutput = {
+  __typename?: 'RegisterMetersReadingsMeterOutput';
+  id: Scalars['ID'];
+  property: RegisterMetersReadingsMeterPropertyOutput;
+  unitType: Scalars['String'];
+  unitName: Scalars['String'];
+  accountNumber: Scalars['String'];
+  number: Scalars['String'];
+};
+
+export type RegisterMetersReadingsMeterPropertyOutput = {
+  __typename?: 'RegisterMetersReadingsMeterPropertyOutput';
+  id: Scalars['ID'];
+  address: Scalars['String'];
+  addressKey: Scalars['String'];
+};
+
+export type RegisterMetersReadingsOutput = {
+  __typename?: 'RegisterMetersReadingsOutput';
+  id: Scalars['ID'];
+  meter: RegisterMetersReadingsMeterOutput;
+};
+
+export type RegisterMetersReadingsReadingAddressInfoInput = {
+  unitType: Scalars['String'];
+  unitName: Scalars['String'];
+  globalId?: Maybe<Scalars['String']>;
+};
+
+export type RegisterMetersReadingsReadingInput = {
+  address: Scalars['String'];
+  addressInfo: RegisterMetersReadingsReadingAddressInfoInput;
+  accountNumber: Scalars['String'];
+  meterNumber: Scalars['String'];
+  meterResource: MeterResourceWhereUniqueInput;
+  date: Scalars['String'];
+  value1: Scalars['String'];
+  value2?: Maybe<Scalars['String']>;
+  value3?: Maybe<Scalars['String']>;
+  value4?: Maybe<Scalars['String']>;
+  meterMeta?: Maybe<RegisterMetersReadingsMeterMetaInput>;
+};
+
 export type RegisterMultiPaymentForInvoicesInput = {
   dv: Scalars['Int'];
   sender: Scalars['JSON'];
@@ -73367,6 +73444,8 @@ export enum SortB2BAppAccessRightSetHistoryRecordsBy {
   CanReadPropertiesDesc = 'canReadProperties_DESC',
   CanManagePropertiesAsc = 'canManageProperties_ASC',
   CanManagePropertiesDesc = 'canManageProperties_DESC',
+  CanExecuteRegisterMetersReadingsAsc = 'canExecuteRegisterMetersReadings_ASC',
+  CanExecuteRegisterMetersReadingsDesc = 'canExecuteRegisterMetersReadings_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -73408,6 +73487,8 @@ export enum SortB2BAppAccessRightSetsBy {
   CanReadPropertiesDesc = 'canReadProperties_DESC',
   CanManagePropertiesAsc = 'canManageProperties_ASC',
   CanManagePropertiesDesc = 'canManageProperties_DESC',
+  CanExecuteRegisterMetersReadingsAsc = 'canExecuteRegisterMetersReadings_ASC',
+  CanExecuteRegisterMetersReadingsDesc = 'canExecuteRegisterMetersReadings_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

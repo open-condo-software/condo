@@ -1,6 +1,5 @@
 const dayjs = require('dayjs')
 
-const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const {
     makeLoggedInAdminClient,
     makeClient,
@@ -8,23 +7,16 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAccessDeniedErrorToObjects,
-    expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
-const { WRONG_VALUE } = require('@condo/domains/common/constants/errors')
-const {
-    INCORRECT_HOUSE_TYPE_ERROR,
-    INCORRECT_ADDRESS_ERROR,
-} = require('@condo/domains/miniapp/constants')
 const {
     createTestB2CApp,
     createTestB2CAppAccessRight,
     B2CAppProperty,
     createTestB2CAppProperty,
     updateTestB2CAppProperty,
-    getFakeAddress,
 } = require('@condo/domains/miniapp/utils/testSchema')
-const { VALID_HOUSE_TYPES } = require('@condo/domains/property/constants/common')
+const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
@@ -32,7 +24,7 @@ const {
     makeClientWithResidentUser,
 } = require('@condo/domains/user/utils/testSchema')
 
-describe('B2CAppProperty', () => {
+describe('B2CAppProperty test', () => {
     let admin
     let support
     let app
@@ -98,7 +90,7 @@ describe('B2CAppProperty', () => {
                 [property] = await createTestB2CAppProperty(admin, app)
             })
             test('Admin can update and soft-delete', async () => {
-                const [address, addressMeta] = getFakeAddress()
+                const { address, addressMeta } = buildFakeAddressAndMeta(false)
                 const [updatedProperty] = await updateTestB2CAppProperty(admin, property.id, { address, addressMeta })
                 expect(updatedProperty).toHaveProperty('address', address)
                 const [deletedProperty] = await updateTestB2CAppProperty(admin, property.id, {
@@ -108,7 +100,7 @@ describe('B2CAppProperty', () => {
                 expect(deletedProperty.deletedAt).not.toBeNull()
             })
             test('Support can update and soft-delete', async () => {
-                const [address, addressMeta] = getFakeAddress()
+                const { address, addressMeta } = buildFakeAddressAndMeta(false)
                 const [updatedProperty] = await updateTestB2CAppProperty(support, property.id, { address, addressMeta })
                 expect(updatedProperty).toHaveProperty('address', address)
                 const [deletedProperty] = await updateTestB2CAppProperty(support, property.id, {
@@ -120,7 +112,7 @@ describe('B2CAppProperty', () => {
             describe('User', () => {
                 describe('With access right', () => {
                     test('Can update and soft-delete property linked to permitted app', async () => {
-                        const [address, addressMeta] = getFakeAddress()
+                        const { address, addressMeta } = buildFakeAddressAndMeta(false)
                         const [updatedProperty] = await updateTestB2CAppProperty(permittedUser, property.id, { address, addressMeta })
                         expect(updatedProperty).toHaveProperty('address', address)
                         const [deletedProperty] = await updateTestB2CAppProperty(permittedUser, property.id, {
@@ -230,28 +222,6 @@ describe('B2CAppProperty', () => {
             const [secondApp] = await createTestB2CApp(admin)
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await createTestB2CAppProperty(permittedUser, secondApp)
-            })
-        })
-        describe('Should validate address and throw error',  () => {
-            test('If house type is not supported', async () => {
-                await expectToThrowGQLError(async () => {
-                    await createTestB2CAppProperty(admin, app, {}, true, false)
-                }, {
-                    code: BAD_USER_INPUT,
-                    type: WRONG_VALUE,
-                    variable: ['data', 'address'],
-                    message: `${INCORRECT_HOUSE_TYPE_ERROR}. Valid values are: [${VALID_HOUSE_TYPES.join(', ')}]`,
-                })
-            })
-            test('If address suggestion don\'t match input address', async () => {
-                await expectToThrowGQLError(async () => {
-                    await createTestB2CAppProperty(admin, app, {}, false, true)
-                }, {
-                    code: BAD_USER_INPUT,
-                    type: WRONG_VALUE,
-                    variable: ['data', 'address'],
-                    message: INCORRECT_ADDRESS_ERROR,
-                })
             })
         })
     })

@@ -17,7 +17,7 @@ const {
     ERRORS,
 } = require('@condo/domains/billing/constants/registerBillingReceiptService')
 const { registerBillingReceiptsByTestClient } = require('@condo/domains/billing/utils/testSchema')
-const { generateServicesData, updateTestBillingRecipient } = require('@condo/domains/billing/utils/testSchema')
+const { generateServicesData } = require('@condo/domains/billing/utils/testSchema')
 const { createTestBillingCategory, BillingIntegrationOrganizationContext: BillingContext } = require('@condo/domains/billing/utils/testSchema')
 const { BillingTestUtils } = require('@condo/domains/billing/utils/testSchema/utils')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')

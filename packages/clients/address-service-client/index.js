@@ -8,33 +8,20 @@ const { MockedAddressServiceClient } = require('./MockedAddressServiceClient')
 let instance
 
 /**
- * Singleton. Returns the client instance
- * @param {string} url The URL of the address service
- * @returns {AddressServiceClient}
+ * @returns {AddressServiceClient|MockedAddressServiceClient}
  */
+function createInstance () {
+    const addressServiceUrl = get(conf, 'ADDRESS_SERVICE_DOMAIN')
 
-function createRealInstance (url) {
     if (!instance) {
-        instance = new AddressServiceClient(url)
+        if (get(conf, 'JEST_MOCKS_ENABLED') === 'true') {
+            instance = new MockedAddressServiceClient(addressServiceUrl)
+        } else {
+            instance = new AddressServiceClient(addressServiceUrl)
+        }
     }
 
     return instance
-}
-
-function createTestInstance (existingItem = null) {
-    // In the case of testing, we must return a new instance every time because all tests have a unique context.
-    return new MockedAddressServiceClient(existingItem)
-}
-
-/**
- * @param {Object} testItem
- * @returns {MockedAddressServiceClient|AddressServiceClient}
- */
-function createInstance (testItem) {
-    const addressServiceUrl = get(conf, 'ADDRESS_SERVICE_URL')
-    return addressServiceUrl && get(conf, 'ADDRESS_SERVICE_CLIENT_MODE') !== 'fake'
-        ? createRealInstance(addressServiceUrl)
-        : createTestInstance(testItem)
 }
 
 module.exports = { createInstance }
