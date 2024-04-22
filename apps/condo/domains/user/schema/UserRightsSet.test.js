@@ -704,12 +704,12 @@ describe('UserRightsSet', () => {
 
                     const [appProperty] = await createTestB2CAppProperty(portalClient, b2cApp)
                     expect(appProperty).toHaveProperty('id')
-                    const { newAddress, addressMeta } = buildFakeAddressAndMeta(false)
+                    const { address, addressMeta } = buildFakeAddressAndMeta(false)
                     const [updatedProperty] = await updateTestB2CAppProperty(portalClient, appProperty.id, {
-                        address: newAddress,
+                        address,
                         addressMeta,
                     })
-                    expect(updatedProperty).toHaveProperty('address', newAddress)
+                    expect(updatedProperty).toHaveProperty('address', address)
 
                     const [build] = await createTestB2CAppBuild(portalClient, b2cApp, {
                         importId: faker.datatype.uuid(),
