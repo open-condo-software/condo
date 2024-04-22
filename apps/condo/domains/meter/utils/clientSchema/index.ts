@@ -17,6 +17,7 @@ import {
 export * as MeterResource from './MeterResource'
 export * as MeterReadingSource from './MeterReadingSource'
 export * as MeterReading from './MeterReading'
+export * as MeterReadingForOrganization from './MeterReadingForOrganization'
 export * as Meter from './Meter'
 export * as MeterReadingFilterTemplate from './MeterReadingFilterTemplate'
 export * as PropertyMeter from './PropertyMeter'

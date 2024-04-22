@@ -18,11 +18,15 @@ const MeterResource = generateGqlQueries('MeterResource', METER_RESOURCE_FIELDS_
 const METER_READING_SOURCE_FIELDS = `{ type name nameNonLocalized ${COMMON_FIELDS} }`
 const MeterReadingSource = generateGqlQueries('MeterReadingSource', METER_READING_SOURCE_FIELDS)
 
-const METER_FIELDS = `{ number numberOfTariffs installationDate commissioningDate verificationDate nextVerificationDate controlReadingsDate sealingDate accountNumber organization { id } property { id address addressKey addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } unitName unitType place resource { ${METER_RESOURCE_FIELDS} } isAutomatic b2bApp { id name } b2cApp { id name } ${COMMON_FIELDS} }`
-const Meter = generateGqlQueries('Meter', METER_FIELDS)
+const METER_FIELDS = `id number numberOfTariffs installationDate commissioningDate verificationDate nextVerificationDate controlReadingsDate sealingDate accountNumber organization { id } property { id address addressKey addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } unitName unitType place resource { ${METER_RESOURCE_FIELDS} } isAutomatic b2bApp { id name } b2cApp { id name }`
+const METER_FIELDS_ALL = `{ ${METER_FIELDS} ${COMMON_FIELDS} }`
+const Meter = generateGqlQueries('Meter', METER_FIELDS_ALL)
 
-const METER_READING_FIELDS = `{ value1 value2 value3 value4 date meter ${METER_FIELDS} organization { id name } client { id } clientName clientEmail clientPhone contact { id name } source { id name type } ${COMMON_FIELDS} }`
+const METER_READING_FIELDS = `{ value1 value2 value3 value4 date meter ${METER_FIELDS_ALL} organization { id name } client { id } clientName clientEmail clientPhone contact { id name } source { id name type } ${COMMON_FIELDS} }`
 const MeterReading = generateGqlQueries('MeterReading', METER_READING_FIELDS)
+
+const METER_READING_FOR_ORGANIZATION_FIELDS = `{ value1 value2 value3 value4 date meter { ${METER_FIELDS} } organization { id name } client { id } clientName clientEmail clientPhone contact { id name } source { id name type } }`
+const MeterReadingForOrganization = generateGqlQueries('MeterReading', METER_READING_FOR_ORGANIZATION_FIELDS)
 
 const EXPORT_METER_READINGS_QUERY = gql`
     query exportMeterReadings ($data: ExportMeterReadingsInput!) {
@@ -71,6 +75,7 @@ module.exports = {
     MeterReadingSource,
     Meter,
     MeterReading,
+    MeterReadingForOrganization,
     EXPORT_METER_READINGS_QUERY,
     MeterReadingFilterTemplate,
     PropertyMeter,
