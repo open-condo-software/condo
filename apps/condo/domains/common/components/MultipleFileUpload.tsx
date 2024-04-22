@@ -282,6 +282,8 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
         }
     }, [listFiles.length, setFilesCount])
 
+    console.log('listFiles', listFiles)
+
     const options = {
         fileList: listFiles,
         multiple: true,

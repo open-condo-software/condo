@@ -3,7 +3,8 @@ import chunk from 'lodash/chunk'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isFunction from 'lodash/isFunction'
-import React, { useCallback, useState } from 'react'
+import set from 'lodash/set'
+import React, { useCallback, useMemo, useState } from 'react'
 
 import { Paperclip } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
@@ -25,10 +26,14 @@ const UploadDocumentsModal = ({ open, setOpen, onComplete, initialCreateDocument
     const MaxFileSizeMessage = intl.formatMessage({ id: 'documents.uploadDocumentsModal.files.maxSizeMessage' }, {
         maxFileSizeInMb: MAX_UPLOAD_FILE_SIZE / (1024 * 1024),
     })
+    const FileTooBigErrorMessage = intl.formatMessage({ id: 'component.uploadlist.error.FileTooBig' },
+        { maxSizeInMb: MAX_UPLOAD_FILE_SIZE / (1024 * 1024) })
 
     const [fileList, setFileList] = useState<UploadFile[]>([])
     const [formSubmitting, setFormSubmitting] = useState<boolean>(false)
     const [uploadForm] = Form.useForm()
+
+    const filesWithoutError = useMemo(() => fileList.filter(file => file.status !== 'error'), [fileList])
 
     const createDocuments = Document.useCreateMany({})
 
@@ -36,7 +41,7 @@ const UploadDocumentsModal = ({ open, setOpen, onComplete, initialCreateDocument
         setFormSubmitting(true)
 
         const category = get(values, 'category')
-        const filesChunks = chunk(fileList, 5)
+        const filesChunks = chunk(filesWithoutError, 5)
 
         for (const filesChunk of filesChunks) {
             await createDocuments(
@@ -56,7 +61,7 @@ const UploadDocumentsModal = ({ open, setOpen, onComplete, initialCreateDocument
         if (isFunction(onComplete)) {
             await onComplete()
         }
-    }, [createDocuments, fileList, initialCreateDocumentValue, onComplete, setOpen])
+    }, [createDocuments, filesWithoutError, initialCreateDocumentValue, onComplete, setOpen])
 
     const uploadProps: UploadProps = {
         onRemove: (file) => {
@@ -66,8 +71,13 @@ const UploadDocumentsModal = ({ open, setOpen, onComplete, initialCreateDocument
             setFileList(newFileList)
         },
         beforeUpload: (file) => {
+            if (file.size > MAX_UPLOAD_FILE_SIZE) {
+                set(file, 'status', 'error')
+                set(file, ['error', 'message'], FileTooBigErrorMessage)
+            }
+
             setFileList((prevState) => [...prevState, file])
-            return false
+            return
         },
         fileList,
         multiple: true,
@@ -95,7 +105,7 @@ const UploadDocumentsModal = ({ open, setOpen, onComplete, initialCreateDocument
                                         <Button
                                             type='primary'
                                             onClick={() => uploadForm.submit()}
-                                            disabled={!category || isEmpty(fileList)}
+                                            disabled={!category || isEmpty(filesWithoutError)}
                                             loading={formSubmitting}
                                         >
                                             {SaveMessage}
