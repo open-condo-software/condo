@@ -40,13 +40,20 @@ const UploadDocumentsModal = ({ openUploadModal, setOpenUploadModal, onComplete,
     const [formSubmitting, setFormSubmitting] = useState<boolean>(false)
     const [uploadForm] = Form.useForm()
 
+    const category = Form.useWatch('category', uploadForm)
     const filesWithoutError = useMemo(() => fileList.filter(file => file.status !== 'error'), [fileList])
 
     const createDocuments = Document.useCreateMany({})
 
     const [isCancelModalOpen, setIsCancelModalOpen] = useState<boolean>(false)
     const closeCancelModal = useCallback(() => setIsCancelModalOpen(false), [])
-    const openCancelModal = useCallback(() => setIsCancelModalOpen(true), [])
+    const openCancelModal = useCallback(() => {
+        if (isEmpty(category) && isEmpty(fileList)) {
+            return setOpenUploadModal(false)
+        }
+
+        setIsCancelModalOpen(true)
+    }, [category, fileList, setOpenUploadModal])
 
     const closeModal = useCallback(() => {
         closeCancelModal()
