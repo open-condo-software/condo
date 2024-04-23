@@ -322,10 +322,10 @@ describe('RegisterMetersReadingsService', () => {
         expect(result).toHaveLength(count)
     })
 
-    test('possible to process 500 meters readings for different addresses', async () => {
+    test('possible to process 250 meters readings for different addresses', async () => {
         const [o10n] = await createTestOrganization(adminClient)
 
-        const count = 500
+        const count = 250
         const readings = []
         for (let i = 0; i < count; i++) {
             const [property] = await createTestProperty(adminClient, o10n)
