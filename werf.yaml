@@ -27,7 +27,7 @@ docker:
 ---
 image: condo
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
 - add: /
   to: /app
@@ -368,7 +368,7 @@ image: postgresreview
 from: postgres:13.2
 ---
 image: redisreview
-from: redis:6.2
+from: redis:7.2
 ---
 image: preparepostgresreview
 from: postgres:13.2
