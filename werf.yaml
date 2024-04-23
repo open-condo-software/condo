@@ -27,7 +27,7 @@ docker:
 ---
 image: condo
 fromImage: base
-fromCacheVersion: "2"
+fromCacheVersion: "1"
 git:
 - add: /
   to: /app
@@ -447,7 +447,7 @@ docker:
 ---
 image: classifier
 fromImage: python-base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
