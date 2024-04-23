@@ -10,7 +10,6 @@ const {
     catchErrorFrom,
     expectToThrowAccessDeniedErrorToResult,
 } = require('@open-condo/keystone/test.utils')
-const { expectToThrowAuthenticationErrorToResult } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const {
@@ -215,22 +214,37 @@ describe('ValidateQRCodeService', () => {
         expect(qrCodeFields.paymPeriod).toBe(qrCodeObj.paymPeriod)
     })
 
-    test('anonymous: can\'t execute', async () => {
-        await expectToThrowAuthenticationErrorToResult(async () => {
-            await validateQRCodeByTestClient(anonymous, { qrCode: qrCodeString })
-        })
+    test('anonymous: can execute', async () => {
+        const [integration] = await createTestAcquiringIntegration(adminClient)
+        const qr = { ...qrCodeObj, PayeeINN: faker.random.numeric(8) }
+        const qrStr = stringifyQrCode(qr)
+        const [organization] = await createTestOrganization(adminClient, { tin: qr.PayeeINN })
+        await createTestAcquiringIntegrationContext(adminClient, organization, integration, { status: CONTEXT_FINISHED_STATUS })
+        const [result] = await validateQRCodeByTestClient(anonymous, { qrCode: qrStr })
+
+        expect(result).toMatchObject({ qrCodeFields: expect.objectContaining({ PayeeINN: qr.PayeeINN }) })
     })
 
-    test('support: can\'t execute', async () => {
-        await expectToThrowAccessDeniedErrorToResult(async () => {
-            await validateQRCodeByTestClient(supportClient, { qrCode: qrCodeString })
-        })
+    test('support: can execute', async () => {
+        const [integration] = await createTestAcquiringIntegration(adminClient)
+        const qr = { ...qrCodeObj, PayeeINN: faker.random.numeric(8) }
+        const qrStr = stringifyQrCode(qr)
+        const [organization] = await createTestOrganization(adminClient, { tin: qr.PayeeINN })
+        await createTestAcquiringIntegrationContext(adminClient, organization, integration, { status: CONTEXT_FINISHED_STATUS })
+        const [result] = await validateQRCodeByTestClient(supportClient, { qrCode: qrStr })
+
+        expect(result).toMatchObject({ qrCodeFields: expect.objectContaining({ PayeeINN: qr.PayeeINN }) })
     })
 
-    test('staff: can\'t execute', async () => {
-        await expectToThrowAccessDeniedErrorToResult(async () => {
-            await validateQRCodeByTestClient(staffClient, { qrCode: qrCodeString })
-        })
+    test('staff: can execute', async () => {
+        const [integration] = await createTestAcquiringIntegration(adminClient)
+        const qr = { ...qrCodeObj, PayeeINN: faker.random.numeric(8) }
+        const qrStr = stringifyQrCode(qr)
+        const [organization] = await createTestOrganization(adminClient, { tin: qr.PayeeINN })
+        await createTestAcquiringIntegrationContext(adminClient, organization, integration, { status: CONTEXT_FINISHED_STATUS })
+        const [result] = await validateQRCodeByTestClient(staffClient, { qrCode: qrStr })
+
+        expect(result).toMatchObject({ qrCodeFields: expect.objectContaining({ PayeeINN: qr.PayeeINN }) })
     })
 
     test('service: can\'t execute', async () => {
