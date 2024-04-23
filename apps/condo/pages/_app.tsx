@@ -51,6 +51,7 @@ import {
     MINIAPPS_CATEGORY,
     SETTINGS_CATEGORY,
 } from '@condo/domains/common/constants/menuCategories'
+import { BroadcastContextProvider } from '@condo/domains/common/contexts/BroadcastContext'
 import { useHotCodeReload } from '@condo/domains/common/hooks/useHotCodeReload'
 import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
 import { messagesImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
@@ -451,39 +452,41 @@ const MyApp = ({ Component, pageProps }) => {
                         <SetupTelegramNotificationsBanner />
                         <GlobalStyle/>
                         {shouldDisplayCookieAgreement && <CookieAgreement/>}
-                        <FocusContextProvider>
-                            <LayoutContextProvider>
-                                <TasksProvider>
-                                    <PostMessageProvider>
-                                        <TrackingProvider>
-                                            <TourProvider>
-                                                <SubscriptionProvider>
-                                                    <GlobalAppsFeaturesProvider>
-                                                        <GlobalAppsContainer/>
-                                                        <TicketVisibilityContextProvider>
-                                                            <ActiveCallContextProvider>
-                                                                <ConnectedAppsWithIconsContextProvider>
-                                                                    <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                                                                        <RequiredAccess>
-                                                                            <Component {...pageProps} />
-                                                                            {
-                                                                                isEndTrialSubscriptionReminderPopupVisible && (
-                                                                                    <EndTrialSubscriptionReminderPopup/>
-                                                                                )
-                                                                            }
-                                                                        </RequiredAccess>
-                                                                    </LayoutComponent>
-                                                                </ConnectedAppsWithIconsContextProvider>
-                                                            </ActiveCallContextProvider>
-                                                        </TicketVisibilityContextProvider>
-                                                    </GlobalAppsFeaturesProvider>
-                                                </SubscriptionProvider>
-                                            </TourProvider>
-                                        </TrackingProvider>
-                                    </PostMessageProvider>
-                                </TasksProvider>
-                            </LayoutContextProvider>
-                        </FocusContextProvider>
+                        <BroadcastContextProvider>
+                            <FocusContextProvider>
+                                <LayoutContextProvider>
+                                    <TasksProvider>
+                                        <PostMessageProvider>
+                                            <TrackingProvider>
+                                                <TourProvider>
+                                                    <SubscriptionProvider>
+                                                        <GlobalAppsFeaturesProvider>
+                                                            <GlobalAppsContainer/>
+                                                            <TicketVisibilityContextProvider>
+                                                                <ActiveCallContextProvider>
+                                                                    <ConnectedAppsWithIconsContextProvider>
+                                                                        <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                                                            <RequiredAccess>
+                                                                                <Component {...pageProps} />
+                                                                                {
+                                                                                    isEndTrialSubscriptionReminderPopupVisible && (
+                                                                                        <EndTrialSubscriptionReminderPopup/>
+                                                                                    )
+                                                                                }
+                                                                            </RequiredAccess>
+                                                                        </LayoutComponent>
+                                                                    </ConnectedAppsWithIconsContextProvider>
+                                                                </ActiveCallContextProvider>
+                                                            </TicketVisibilityContextProvider>
+                                                        </GlobalAppsFeaturesProvider>
+                                                    </SubscriptionProvider>
+                                                </TourProvider>
+                                            </TrackingProvider>
+                                        </PostMessageProvider>
+                                    </TasksProvider>
+                                </LayoutContextProvider>
+                            </FocusContextProvider>
+                        </BroadcastContextProvider>
                         <YandexMetrika/>
                         <PopupSmart />
                     </FeatureFlagsProvider>
