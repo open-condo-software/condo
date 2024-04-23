@@ -290,6 +290,56 @@ describe('TicketComment', () => {
                 expect(readTicket1.lastResidentCommentAt).toEqual(ticketComment.createdAt)
                 expect(readTicket1.lastCommentAt).toEqual(ticketComment1.createdAt)
             })
+
+            it('update lastCommentWithResidentTypeAt and lastCommentAt of related ticket after create TicketComment with resident type', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+                const [organization] = await createTestOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, organization)
+
+                const residentClient = await makeClientWithResidentUser()
+                const unitName = faker.random.alphaNumeric(5)
+                const unitType = FLAT_UNIT_TYPE
+                await createTestResident(adminClient, residentClient.user, property, {
+                    unitName,
+                    unitType,
+                })
+
+                const employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                    canManageTickets: true,
+                    canManageTicketComments: true,
+                })
+                await createTestOrganizationEmployee(adminClient, organization, employeeClient.user, role)
+
+                const [ticket] = await createTestTicket(residentClient, organization, property, {
+                    unitName,
+                    unitType,
+                })
+
+                const [residentCommentWithResidentType] = await createTestTicketComment(residentClient, ticket, residentClient.user, {
+                    type: RESIDENT_COMMENT_TYPE,
+                })
+
+                const readTicket = await Ticket.getOne(residentClient, {
+                    id: ticket.id,
+                })
+
+                expect(readTicket.lastCommentWithResidentTypeAt).toEqual(residentCommentWithResidentType.createdAt)
+                expect(readTicket.lastResidentCommentAt).toEqual(residentCommentWithResidentType.createdAt)
+                expect(readTicket.lastCommentAt).toEqual(residentCommentWithResidentType.createdAt)
+
+                const [staffCommentWithResidentType] = await createTestTicketComment(employeeClient, ticket, employeeClient.user, {
+                    type: RESIDENT_COMMENT_TYPE,
+                })
+
+                const readStaffCommentWithResidentType = await Ticket.getOne(residentClient, {
+                    id: ticket.id,
+                })
+
+                expect(readStaffCommentWithResidentType.lastCommentWithResidentTypeAt).toEqual(staffCommentWithResidentType.createdAt)
+                expect(readStaffCommentWithResidentType.lastResidentCommentAt).toEqual(residentCommentWithResidentType.createdAt)
+                expect(readStaffCommentWithResidentType.lastCommentAt).toEqual(staffCommentWithResidentType.createdAt)
+            })
         })
 
         describe('read', () => {

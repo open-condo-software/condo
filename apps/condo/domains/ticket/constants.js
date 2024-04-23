@@ -47,7 +47,7 @@ const COMMENT_TYPES = [ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE]
  */
 // TODO(AntonAL) add files to trackable - files are now in hidden relation
 const OMIT_COMMON_TRACKABLE_FIELDS = ['v', 'dv', 'sender', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy']
-const OMIT_TICKET_CHANGE_TRACKABLE_FIELDS = [...OMIT_COMMON_TRACKABLE_FIELDS, 'categoryClassifier', 'isAutoClassified', 'placeClassifier', 'problemClassifier', 'completedAt', 'isCompletedAfterDeadline', 'lastCommentAt', 'statusUpdatedAt', 'lastResidentCommentAt', 'number', 'order', 'qualityControlUpdatedAt', 'qualityControlUpdatedBy', 'feedbackUpdatedAt']
+const OMIT_TICKET_CHANGE_TRACKABLE_FIELDS = [...OMIT_COMMON_TRACKABLE_FIELDS, 'categoryClassifier', 'isAutoClassified', 'placeClassifier', 'problemClassifier', 'completedAt', 'isCompletedAfterDeadline', 'lastCommentAt', 'statusUpdatedAt', 'lastResidentCommentAt', 'lastCommentWithResidentTypeAt', 'number', 'order', 'qualityControlUpdatedAt', 'qualityControlUpdatedBy', 'feedbackUpdatedAt']
 const OMIT_INCIDENT_CHANGE_TRACKABLE_FIELDS = [...OMIT_COMMON_TRACKABLE_FIELDS, 'hasAllProperties', 'number']
 
 const MAX_DETAILS_LENGTH = 700

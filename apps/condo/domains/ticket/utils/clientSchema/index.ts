@@ -4,6 +4,7 @@
  */
 
 export * as Ticket from './Ticket'
+export * as TicketLastCommentsTime from './TicketLastCommentsTime'
 export * as TicketStatus from './TicketStatus'
 export * as TicketSource from './TicketSource'
 export * as TicketChange from './TicketChange'
@@ -15,7 +16,6 @@ export * as TicketClassifier from './TicketClassifier'
 export * as TicketComment from './TicketComment'
 export * as TicketFilterTemplate from './TicketFilterTemplate'
 export * as TicketCommentFile from './TicketCommentFile'
-export * as TicketCommentsTime from './TicketCommentsTime'
 export * as UserTicketCommentReadTime from './UserTicketCommentReadTime'
 export * as TicketPropertyHint from './TicketPropertyHint'
 export * as TicketPropertyHintProperty from './TicketPropertyHintProperty'

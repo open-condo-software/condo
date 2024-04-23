@@ -171,6 +171,8 @@ COMMIT;
 DROP TABLE IF EXISTS "AssigneeScope" CASCADE;
 DROP TABLE IF EXISTS "AssigneeScopeHistoryRecord" CASCADE;
 
+COMMIT;
+
 --
 -- 20240212204212-0365_remove_serviceconsumer_billingaccount_and_more.js Remove ServiceConsumer.billingAccount field
 --
@@ -193,6 +195,14 @@ DROP TABLE "OnBoardingStep" CASCADE;
 DROP TABLE "OnBoarding" CASCADE;
 DROP TABLE "OnBoardingStepHistoryRecord" CASCADE;
 DROP TABLE "OnBoardingHistoryRecord" CASCADE;
+COMMIT;
+
+--
+-- 20240423104932-0390_auto_20240423_0549.js Remove TicketCommentsTime schema
+--
+DROP TABLE "TicketCommentsTime" CASCADE;
+DROP TABLE "TicketCommentsTimeHistoryRecord" CASCADE;
+COMMIT;
 
     `))
 }

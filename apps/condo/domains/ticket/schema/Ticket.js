@@ -6,7 +6,8 @@ const dayjs = require('dayjs')
 const { isEmpty, get, isNull, compact, isArray, isString, uniq } = require('lodash')
 
 const conf = require('@open-condo/config')
-const { readOnlyFieldAccess } = require('@open-condo/keystone/access')
+const { canOnlyServerSideWithoutUserRequest } = require('@open-condo/keystone/access')
+const { readOnlyFieldAccess, writeOnlyServerSideFieldAccess } = require('@open-condo/keystone/access')
 const { GQLErrorCode: { BAD_USER_INPUT }, GQLError } = require('@open-condo/keystone/errors')
 const { Json, AutoIncrementInteger } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
@@ -365,10 +366,17 @@ const Ticket = new GQLListSchema('Ticket', {
         lastCommentAt: {
             schemaDoc: 'Last comment time in ticket',
             type: DateTimeUtc,
+            access: writeOnlyServerSideFieldAccess,
         },
         lastResidentCommentAt: {
-            schemaDoc: 'Last resident comment time in ticket',
+            schemaDoc: 'Time of the last comment with resident author in ticket',
             type: DateTimeUtc,
+            access: writeOnlyServerSideFieldAccess,
+        },
+        lastCommentWithResidentTypeAt: {
+            schemaDoc: 'Time of the last comment with resident type (from staff or resident user) in ticket',
+            type: DateTimeUtc,
+            access: writeOnlyServerSideFieldAccess,
         },
         statusReason: {
             schemaDoc: 'Text reason for status changes. Sometimes you should describe the reason why you change the `status`',

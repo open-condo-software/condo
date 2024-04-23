@@ -21,7 +21,6 @@ const { TicketChange } = require('./TicketChange')
 const { TicketClassifier } = require('./TicketClassifier')
 const { TicketComment } = require('./TicketComment')
 const { TicketCommentFile } = require('./TicketCommentFile')
-const { TicketCommentsTime } = require('./TicketCommentsTime')
 const { TicketExportTask } = require('./TicketExportTask')
 const { TicketFile } = require('./TicketFile')
 const { TicketFilterTemplate } = require('./TicketFilterTemplate')
@@ -52,7 +51,6 @@ module.exports = {
     TicketFilterTemplate,
     PredictTicketClassificationService,
     TicketCommentFile,
-    TicketCommentsTime,
     UserTicketCommentReadTime,
     TicketPropertyHint,
     TicketPropertyHintProperty,
