@@ -30,7 +30,7 @@ const {
     createTestBillingProperty,
     createTestBillingRecipient,
     createTestBillingReceipt, createTestBillingAccount,
-    validateQRCodeByTestClient, addBillingIntegrationAndContext, createTestRecipient,
+    addBillingIntegrationAndContext, createTestRecipient,
 } = require('@condo/domains/billing/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
@@ -368,19 +368,19 @@ describe('CreatePaymentByLinkService', () => {
 
     test('support: can\'t execute', async () => {
         await expectToThrowAccessDeniedErrorToResult(async () => {
-            await validateQRCodeByTestClient(support, { qrCode })
+            await createPaymentByLinkByTestClient(support, { qrCode })
         })
     })
 
     test('staff: can\'t execute', async () => {
         await expectToThrowAccessDeniedErrorToResult(async () => {
-            await validateQRCodeByTestClient(staff, { qrCode })
+            await createPaymentByLinkByTestClient(staff, { qrCode })
         })
     })
 
     test('service: can\'t execute', async () => {
         await expectToThrowAccessDeniedErrorToResult(async () => {
-            await validateQRCodeByTestClient(service, { qrCode })
+            await createPaymentByLinkByTestClient(service, { qrCode })
         })
     })
 
