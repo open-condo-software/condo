@@ -198,7 +198,7 @@ DROP TABLE "OnBoardingHistoryRecord" CASCADE;
 COMMIT;
 
 --
--- 20240419130855-0388_auto_20240419_0808.js Remove TicketCommentsTime schema
+-- 20240423104932-0390_auto_20240423_0549.js Remove TicketCommentsTime schema
 --
 DROP TABLE "TicketCommentsTime" CASCADE;
 DROP TABLE "TicketCommentsTimeHistoryRecord" CASCADE;
