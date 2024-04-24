@@ -11,6 +11,7 @@ const {
     expectToThrowAuthenticationError,
     expectToThrowAccessDeniedErrorToResult, expectToThrowGQLError, catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
+const { i18n } = require('@open-condo/locales/loader')
 
 const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
 const {
@@ -847,5 +848,79 @@ describe('RegisterMetersReadingsService', () => {
                 ])
             },
         )
+    })
+
+    describe('submission date', () => {
+        const cases = [
+            { input: '2042-06-17', output: '2042-06-17' },
+            { input: '17.06.2042', output: '2042-06-17' },
+            { input: '2042-06', output: '2042-06-01' },
+            { input: '06-2042', output: '2042-06-01' },
+            { input: '2042.06', output: '2042-06-01' },
+            { input: '06.2042', output: '2042-06-01' },
+            { input: '2042-06-17 18:44', output: '2042-06-17 18:44' },
+            { input: '17.06.2042 18:44', output: '2042-06-17 18:44' },
+            { input: '2042-06 18:44', output: '2042-06-01 18:44' },
+            { input: '06-2042 18:44', output: '2042-06-01 18:44' },
+            { input: '2042.06 18:44', output: '2042-06-01 18:44' },
+            { input: '06.2042 18:44', output: '2042-06-01 18:44' },
+        ]
+
+        test.each(cases)('$input should parsed as $output', async ({ input, output }) => {
+            const [o10n] = await createTestOrganization(adminClient)
+            const [property] = await createTestPropertyWithMap(adminClient, o10n)
+
+            const reading = createTestReadingData(property, { date: input })
+            const [data] = await registerMetersReadingsByTestClient(adminClient, o10n, [reading])
+
+            expect(data).toHaveLength(1)
+
+            const row = data[0]
+
+            const metersReading = await MeterReading.getOne(adminClient, { id: row.id })
+            expect(metersReading.date).toBe(dayjs(output).toISOString())
+        })
+
+        test('error on invalid submission date', async () => {
+            const locale = 'ru'
+            const [o10n] = await createTestOrganization(adminClient)
+            const [property] = await createTestPropertyWithMap(adminClient, o10n)
+
+            const reading = createTestReadingData(property, { date: '12_23' })
+
+            await catchErrorFrom(
+                async () => {
+                    await registerMetersReadingsByTestClient(adminClient, o10n, [reading])
+                },
+                ({ data: { result }, errors }) => {
+                    expect(result).toEqual([
+                        null,
+                    ])
+                    expect(errors).toEqual([
+                        expect.objectContaining({
+                            message: 'Invalid date',
+                            extensions: expect.objectContaining({
+                                type: 'INVALID_DATE',
+                                message: 'Invalid date',
+                                messageForUser: i18n('meter.import.error.WrongDateFormatMessage', {
+                                    locale,
+                                    meta: {
+                                        columnName: i18n('meter.import.column.meterReadingSubmissionDate', { locale }),
+                                        format: ['YYYY-MM-DD', 'DD.MM.YYYY'].join('", "'),
+                                    },
+                                }),
+                            }),
+                            originalError: expect.objectContaining({
+                                message: 'Invalid date',
+                                extensions: expect.objectContaining({
+                                    type: 'INVALID_DATE',
+                                    message: 'Invalid date',
+                                }),
+                            }),
+                        }),
+                    ])
+                },
+            )
+        })
     })
 })
