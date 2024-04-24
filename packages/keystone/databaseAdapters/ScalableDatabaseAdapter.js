@@ -36,7 +36,6 @@ function initListAdapter (rootAdapter, parentAdapter, key, adapterConfig) {
     return listAdapter
 }
 
-// TODO: add public api to get db adapter by provided table name
 class ScalableDatabaseAdapter extends BaseKeystoneAdapter {
     static PUBLIC_API = [
         'name', 'config', // base keystone adapter props
