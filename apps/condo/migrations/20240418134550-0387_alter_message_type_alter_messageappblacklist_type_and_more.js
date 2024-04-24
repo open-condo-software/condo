@@ -7,7 +7,10 @@ exports.up = async (knex) => {
 --
 -- Alter field type on message
 --
-ALTER TABLE "Message" ALTER COLUMN "type" TYPE text USING "type"::text;
+--
+-- NOTE: This is not needed because on prod it is already of type Text
+--
+-- ALTER TABLE "Message" ALTER COLUMN "type" TYPE text USING "type"::text;
 --
 -- Alter field type on messageappblacklist
 --
