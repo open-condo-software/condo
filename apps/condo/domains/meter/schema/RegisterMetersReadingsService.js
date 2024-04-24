@@ -206,6 +206,10 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                 const resultRows = []
 
                 for (const reading of readings) {
+                    const meterNumber = reading.meterNumber.trim()
+                    const accountNumber = reading.accountNumber.trim()
+                    const unitType = reading.addressInfo.unitType.trim()
+                    const unitName = reading.addressInfo.unitName.trim()
                     const addressKey = get(resolvedAddresses, [reading.address, 'addressResolve', 'propertyAddress', 'addressKey'])
 
                     const property = properties.find((p) => p.addressKey === addressKey)
@@ -221,8 +225,8 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                     const parkingUnitLabels = mapSectionsToUnitLabels(parking)
 
                     if (
-                        (reading.addressInfo.unitType === PARKING_UNIT_TYPE && !parkingUnitLabels.includes(reading.addressInfo.unitName))
-                        || (reading.addressInfo.unitType !== PARKING_UNIT_TYPE && !sectionsUnitLabels.includes(reading.addressInfo.unitName))
+                        (unitType === PARKING_UNIT_TYPE && !parkingUnitLabels.includes(unitName))
+                        || (unitType !== PARKING_UNIT_TYPE && !sectionsUnitLabels.includes(unitName))
                     ) {
                         resultRows.push(new GQLError(ERRORS.INVALID_UNIT_NAME, context))
                         continue
@@ -232,10 +236,10 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                     const foundMeters = await find('Meter', {
                         organization,
                         property: { id: property.id },
-                        unitType: reading.addressInfo.unitType,
-                        unitName: reading.addressInfo.unitName,
-                        accountNumber: reading.accountNumber,
-                        number: reading.meterNumber,
+                        unitType,
+                        unitName,
+                        accountNumber,
+                        number: meterNumber,
                         deletedAt: null,
                     })
 
@@ -283,10 +287,10 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                                 sender,
                                 organization: { connect: organization },
                                 property: { connect: { id: property.id } },
-                                unitType: reading.addressInfo.unitType,
-                                unitName: reading.addressInfo.unitName,
-                                accountNumber: reading.accountNumber,
-                                number: reading.meterNumber,
+                                unitType,
+                                unitName,
+                                accountNumber,
+                                number: meterNumber,
                                 resource: { connect: reading.meterResource },
                                 numberOfTariffs: get(reading, ['meterMeta', 'numberOfTariffs'], Object.values(values).filter(Boolean).length),
                                 place: get(reading, ['meterMeta', 'place']),

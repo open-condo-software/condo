@@ -704,4 +704,32 @@ describe('RegisterMetersReadingsService', () => {
             },
         )
     })
+
+    test('unitType, unitName, meterNumber and accountNumber are trimmed correctly', async () => {
+        const [o10n] = await createTestOrganization(adminClient)
+        const [property] = await createTestPropertyWithMap(adminClient, o10n)
+        const reading = createTestReadingData(property)
+        reading.accountNumber = `  ${reading.accountNumber}\n`
+        reading.meterNumber = `\t${reading.meterNumber}  `
+        reading.addressInfo.unitType = `${reading.addressInfo.unitType} \t `
+        reading.addressInfo.unitName = `\t ${reading.addressInfo.unitName} \n `
+
+        const [data] = await registerMetersReadingsByTestClient(adminClient, o10n, [reading])
+
+        expect(data).toEqual([expect.objectContaining({
+            id: expect.stringMatching(UUID_REGEXP),
+            meter: expect.objectContaining({
+                id: expect.stringMatching(UUID_REGEXP),
+                property: expect.objectContaining({
+                    id: property.id,
+                    address: property.address,
+                    addressKey: property.addressKey,
+                }),
+                unitType: reading.addressInfo.unitType.trim(),
+                unitName: reading.addressInfo.unitName.trim(),
+                accountNumber: reading.accountNumber.trim(),
+                number: reading.meterNumber.trim(),
+            }),
+        })])
+    })
 })
