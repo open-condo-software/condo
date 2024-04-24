@@ -48,7 +48,7 @@ jobs:
 
       - name: run postgresql replica
         run: |
-          docker run net=host --name postgre-replica --health-cmd="CMD-SHELL pg_isready -U postgres" --health-timeout=5s --health-retries=5 --health-interval=5s  -e PGUSER=$PGUSER -e PGPASSWORD=$PGPASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5433:5432" -d ${{ secrets.DOCKER_REGISTRY }}/doma/utils/postgres:13.2 bash -c "if [ ! -f /var/lib/postgresql/initialized ]; then pg_basebackup --pgdata=/var/lib/postgresql/data -R --slot=replication_slot --host=127.0.0.1 --port=5432; chmod -R 0700 /var/lib/postgresql/data; touch /var/lib/postgresql/initialized; fi; postgres -c max_connections=2000"
+          docker run --net=host --name postgre-replica --health-cmd="CMD-SHELL pg_isready -U postgres" --health-timeout=5s --health-retries=5 --health-interval=5s  -e PGUSER=$PGUSER -e PGPASSWORD=$PGPASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5433:5432" -d ${{ secrets.DOCKER_REGISTRY }}/doma/utils/postgres:13.2 bash -c "if [ ! -f /var/lib/postgresql/initialized ]; then pg_basebackup --pgdata=/var/lib/postgresql/data -R --slot=replication_slot --host=127.0.0.1 --port=5432; chmod -R 0700 /var/lib/postgresql/data; touch /var/lib/postgresql/initialized; fi; postgres -c max_connections=2000"
         env:
           PGUSER: replicator
           PGPASSWORD: replicator_password
