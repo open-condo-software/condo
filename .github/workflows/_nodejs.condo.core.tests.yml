@@ -26,13 +26,11 @@ jobs:
 
       - name: run postgresql master
         run: |
-          docker run -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -e POSTGRES_HOST_AUTH_METHOD=$POSTGRES_HOST_AUTH_METHOD -e POSTGRES_INITDB_ARGS=$POSTGRES_INITDB_ARGS -p="127.0.0.1:5432:5432" -v ./postgresql-init-replication.sql:/docker-entrypoint-initdb.d/postgresql-init-replication.sql -d swr.ru-moscow-1.hc.sbercloud.ru/doma/utils/postgres:13.2 postgres -c wal_level=replica -c hot_standby=on -c max_wal_senders=10 -c max_replication_slots=10 -c hot_standby_feedback=on
+          docker run -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -e POSTGRES_HOST_AUTH_METHOD="scram-sha-256\nhost replication all 0.0.0.0/0 scram-sha-256" -e POSTGRES_INITDB_ARGS="--auth-host=scram-sha-256" -p="127.0.0.1:5432:5432" -v ./postgresql-init-replication.sql:/docker-entrypoint-initdb.d/postgresql-init-replication.sql -d swr.ru-moscow-1.hc.sbercloud.ru/doma/utils/postgres:13.2 postgres -c wal_level=replica -c hot_standby=on -c max_wal_senders=10 -c max_replication_slots=10 -c hot_standby_feedback=on
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: main
-          POSTGRES_HOST_AUTH_METHOD: "scram-sha-256\nhost replication all 0.0.0.0/0 scram-sha-256"
-          POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
 
       - name: run postgresql replica
         run: |
