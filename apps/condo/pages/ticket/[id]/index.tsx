@@ -36,7 +36,7 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import { Loader } from '@condo/domains/common/components/Loader'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { MARKETPLACE } from '@condo/domains/common/constants/featureflags'
-import { useBroadcastContext } from '@condo/domains/common/contexts/BroadcastContext'
+import { useBroadcastChannel } from '@condo/domains/common/hooks/useBroadcastChannel'
 import { getObjectCreatedMessage } from '@condo/domains/common/utils/date.utils'
 import { CopyButton } from '@condo/domains/marketplace/components/Invoice/CopyButton'
 import { TicketInvoicesList } from '@condo/domains/marketplace/components/Invoice/TicketInvoicesList'
@@ -628,7 +628,11 @@ export const TicketPageContent = ({ ticket, refetchTicket, organization, employe
         await refetchUserTicketCommentReadTime()
     }, [refetchCommentFiles, refetchComments, refetchTicketCommentsTime, refetchUserTicketCommentReadTime])
 
-    const { broadcast, messageReceiver } = useBroadcastContext()
+    const { sendMessage } = useBroadcastChannel('ticketComments', async (ticketIdsWithUpdatedComments) => {
+        if (ticketIdsWithUpdatedComments.includes(ticket.id)) {
+            await refetchCommentsWithFiles()
+        }
+    })
 
     const handlerRef = useRef<ReturnType<typeof setInterval> | null>()
     const lockRef = useRef<(value?) => void>()
@@ -655,15 +659,7 @@ export const TicketPageContent = ({ ticket, refetchTicket, organization, employe
 
         const ticketIdsWithUpdatedComments = uniq(get(result, 'data.objs', []).map(ticketComment => get(ticketComment, 'ticket.id')))
 
-        broadcast.postMessage(ticketIdsWithUpdatedComments)
-    }, [])
-
-    const handleMessage = useCallback(async (event) => {
-        const ticketIdsWithUpdatedComments = event.data
-
-        if (ticketIdsWithUpdatedComments.includes(ticket.id)) {
-            await refetchCommentsWithFiles()
-        }
+        sendMessage(ticketIdsWithUpdatedComments)
     }, [])
 
     useEffect(() => {
@@ -677,14 +673,11 @@ export const TicketPageContent = ({ ticket, refetchTicket, organization, employe
             })
         })
 
-        messageReceiver.addEventListener('message', handleMessage)
-
         return () => {
             if (lockRef.current) {
                 lockRef.current()
             }
             clearInterval(handlerRef.current)
-            messageReceiver.removeEventListener('message', handleMessage)
         }
     }, [])
 
