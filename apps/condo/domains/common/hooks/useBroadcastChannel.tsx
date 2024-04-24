@@ -9,9 +9,9 @@ const DEFAULT_OPTIONS: UseBroadcastChannelOptions = {
     sendInCurrentTab: true,
 }
 
-export function useBroadcastChannel (
+export function useBroadcastChannel<T> (
     channelName: string,
-    onMessageReceived: (message: any) => void,
+    onMessageReceived: (message: T) => void,
     options: UseBroadcastChannelOptions = DEFAULT_OPTIONS
 ) {
     const { sendInCurrentTab } = options
@@ -28,15 +28,13 @@ export function useBroadcastChannel (
 
     useEffect(() => {
         return () => {
-            console.log('clear broadcast')
             messageSender.current = null
             messageReceiver.current = null
         }
     }, [])
 
-    const sendMessage = useCallback((message) => {
+    const sendMessage = useCallback((message: T) => {
         if (messageSender.current) {
-            console.log('send message 2', message)
             messageSender.current.postMessage(message)
         }
     }, [messageSender])

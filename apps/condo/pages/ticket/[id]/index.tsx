@@ -12,11 +12,10 @@ import compact from 'lodash/compact'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import map from 'lodash/map'
-import uniq from 'lodash/uniq'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { Edit, Link as LinkIcon } from '@open-condo/icons'
@@ -36,8 +35,6 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import { Loader } from '@condo/domains/common/components/Loader'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { MARKETPLACE } from '@condo/domains/common/constants/featureflags'
-import { useBroadcastChannel } from '@condo/domains/common/hooks/useBroadcastChannel'
-import { useExecuteWithLock } from '@condo/domains/common/hooks/useExecuteWithLock'
 import { getObjectCreatedMessage } from '@condo/domains/common/utils/date.utils'
 import { CopyButton } from '@condo/domains/marketplace/components/Invoice/CopyButton'
 import { TicketInvoicesList } from '@condo/domains/marketplace/components/Invoice/TicketInvoicesList'
@@ -79,6 +76,7 @@ import {
     useTicketQualityControl,
 } from '@condo/domains/ticket/contexts/TicketQualityControlContext'
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
+import { usePollTicketComments } from '@condo/domains/ticket/hooks/usePollTicketComments'
 import { useTicketChangedFieldMessagesOf } from '@condo/domains/ticket/hooks/useTicketChangedFieldMessagesOf'
 import { useTicketExportToPdfTask } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
 import {
@@ -97,7 +95,6 @@ import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { RESIDENT } from '@condo/domains/user/constants/common'
 
 
-const COMMENT_RE_FETCH_INTERVAL = 5 * 1000
 const TICKET_CONTENT_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 const BIG_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 const MEDIUM_VERTICAL_GUTTER: RowProps['gutter'] = [0, 24]
@@ -611,6 +608,18 @@ export const TicketPageContent = ({ ticket, refetchTicket, organization, employe
 
     const ticketVisibilityType = get(employee, 'role.ticketVisibilityType')
 
+    const refetchCommentsWithFiles = useCallback(async () => {
+        await refetchComments()
+        await refetchCommentFiles()
+        await refetchTicketCommentsTime()
+        await refetchUserTicketCommentReadTime()
+    }, [refetchCommentFiles, refetchComments, refetchTicketCommentsTime, refetchUserTicketCommentReadTime])
+
+    usePollTicketComments({
+        ticket,
+        refetchTicketComments: refetchCommentsWithFiles,
+    })
+
     const actionsFor = useCallback(comment => {
         const isAuthor = comment.user.id === auth.user.id
         const isAdmin = get(auth, ['user', 'isAdmin'])
@@ -619,71 +628,6 @@ export const TicketPageContent = ({ ticket, refetchTicket, organization, employe
             deleteAction: isAdmin || isAuthor ? deleteComment : null,
         }
     }, [auth, deleteComment, updateComment])
-
-    const { refetch: refetchSyncComments } = TicketComment.useObjects({}, { skip: true })
-
-    const refetchCommentsWithFiles = useCallback(async () => {
-        await refetchComments()
-        await refetchCommentFiles()
-        await refetchTicketCommentsTime()
-        await refetchUserTicketCommentReadTime()
-    }, [refetchCommentFiles, refetchComments, refetchTicketCommentsTime, refetchUserTicketCommentReadTime])
-
-    const { sendMessage } = useBroadcastChannel('ticketComments', async (ticketIdsWithUpdatedComments) => {
-        if (ticketIdsWithUpdatedComments.includes(ticket.id)) {
-            await refetchCommentsWithFiles()
-        }
-    })
-
-    const handlerRef = useRef<ReturnType<typeof setInterval> | null>()
-
-    const handleRefetchComments = useCallback(async () => {
-        const lastSyncAt = localStorage && localStorage.getItem('syncCommentsAt')
-        const updatedAtStatement = lastSyncAt ? {
-            updatedAt_gt: lastSyncAt,
-        } : {}
-
-        const result = await refetchSyncComments({
-            where: {
-                ticket: { organization: { id: get(organization, 'id', null) } },
-                ...updatedAtStatement,
-            },
-            sortBy: [SortTicketCommentsBy.UpdatedAtDesc],
-        })
-
-        const lastCommentUpdatedAt = get(result, 'data.objs.0.updatedAt', new Date().toISOString())
-
-        if (lastCommentUpdatedAt && localStorage) {
-            localStorage.setItem('syncCommentsAt', lastCommentUpdatedAt)
-        }
-
-        const ticketIdsWithUpdatedComments = uniq(get(result, 'data.objs', []).map(ticketComment => get(ticketComment, 'ticket.id')))
-
-        console.log('poll ticket comments', ticketIdsWithUpdatedComments)
-
-        sendMessage(ticketIdsWithUpdatedComments)
-    }, [])
-
-    const { releaseLock } = useExecuteWithLock('ticketComments', () => {
-        console.log('execute with lock')
-        handlerRef.current = setInterval(handleRefetchComments, COMMENT_RE_FETCH_INTERVAL)
-    })
-
-    useEffect(() => {
-        return () => {
-            if (releaseLock) {
-                console.log('release lock')
-                return releaseLock()
-            }
-        }
-    }, [releaseLock])
-
-    useEffect(() => {
-        return () => {
-            console.log('clear interval')
-            clearInterval(handlerRef.current)
-        }
-    }, [])
 
     const ticketPropertyId = get(ticket, ['property', 'id'], null)
     const isDeletedProperty = !ticket.property && ticket.propertyAddress
