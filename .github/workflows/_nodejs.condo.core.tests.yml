@@ -23,9 +23,15 @@ jobs:
           registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
           password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
+
+      - name: check docker version
+        run: |
+          docker version
+          docker compose version
+
       - name: run postgres & redis for tests
         run: |
-          docker-compose up -d redis postgresdb postgresdb-replica
+          docker compose up -d redis postgresdb postgresdb-replica
 #      - name: run postgresql for tests
 #        run: |
 #          docker run -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5432:5432" -d ${{ secrets.DOCKER_REGISTRY }}/doma/utils/postgres:13.2
