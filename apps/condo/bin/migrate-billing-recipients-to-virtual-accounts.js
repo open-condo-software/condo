@@ -1,6 +1,6 @@
 /**
  * Load all billing recipients with manually set up isApproved field (not exists in the model since was migrated to virtual)
- *      and creates corresponding approved billing accounts
+ *      and creates corresponding approved bank accounts
  *
  * Usage:
  *      yarn workspace @app/condo node bin/migrate-billing-recipients-to-virtual-accounts
@@ -64,6 +64,9 @@ async function main () {
         offset: 0,
         page: 0,
         hasMorePages: true,
+        created: 0,
+        updated: 0,
+        errors: 0,
     }
     const notCreatedAccountRecipientIds = []
 
@@ -76,8 +79,11 @@ async function main () {
         const brokenRecipients = (await Promise.all(recipients.map(async ({ id }) => {
             return await BillingRecipient.getOne(keystone, {
                 id,
+                context: {
+                    deletedAt: null,
+                },
             })
-        }))).filter(recipient => !recipient.isApproved)
+        }))).filter(recipient => recipient != null && !recipient.isApproved)
 
         // for each recipient with not wrongly not approved state -> let's create a bank account
         await Promise.all(brokenRecipients.map(async recipient => {
@@ -92,15 +98,37 @@ async function main () {
                     routingNumber: recipient.bic,
                 }
 
-                await BankAccount.create(keystone, {
-                    ...bankAccountDetails,
-                    ...DV_AND_SENDER,
-                    organization: { connect: { id: context.organization } },
-                    isApproved: true,
+                // next step is check if bank account actually exists, but not approved at the moment
+                const [existsOne] = await BankAccount.getAll(keystone, {
+                    tin: recipient.tin,
+                    country: RUSSIA_COUNTRY,
+                    number: recipient.bankAccount,
+                    currencyCode: 'RUB',
+                    routingNumber: recipient.bic,
+                    organization: { id: context.organization },
+                    isApproved: false,
                 })
+
+                if (existsOne != null) {
+                    await BankAccount.update(keystone, existsOne.id, {
+                        ...DV_AND_SENDER,
+                        isApproved: true,
+                        deletedAt: null,
+                    })
+                    state.updated++
+                } else {
+                    await BankAccount.create(keystone, {
+                        ...bankAccountDetails,
+                        ...DV_AND_SENDER,
+                        organization: { connect: { id: context.organization } },
+                        isApproved: true,
+                    })
+                    state.created++
+                }
             } catch (e) {
                 logCatch(e, { recipient: recipient.id })
                 notCreatedAccountRecipientIds.push(recipient.id)
+                state.errors++
             }
         }))
 
