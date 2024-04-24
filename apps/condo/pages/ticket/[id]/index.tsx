@@ -37,6 +37,7 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { MARKETPLACE } from '@condo/domains/common/constants/featureflags'
 import { useBroadcastChannel } from '@condo/domains/common/hooks/useBroadcastChannel'
+import { useExecuteWithLock } from '@condo/domains/common/hooks/useExecuteWithLock'
 import { getObjectCreatedMessage } from '@condo/domains/common/utils/date.utils'
 import { CopyButton } from '@condo/domains/marketplace/components/Invoice/CopyButton'
 import { TicketInvoicesList } from '@condo/domains/marketplace/components/Invoice/TicketInvoicesList'
@@ -635,7 +636,6 @@ export const TicketPageContent = ({ ticket, refetchTicket, organization, employe
     })
 
     const handlerRef = useRef<ReturnType<typeof setInterval> | null>()
-    const lockRef = useRef<(value?) => void>()
 
     const handleRefetchComments = useCallback(async () => {
         const lastSyncAt = localStorage && localStorage.getItem('syncCommentsAt')
@@ -651,7 +651,7 @@ export const TicketPageContent = ({ ticket, refetchTicket, organization, employe
             sortBy: [SortTicketCommentsBy.UpdatedAtDesc],
         })
 
-        const lastCommentUpdatedAt = get(result, 'data.objs.0.updatedAt', new Date().toISOString()) // now ?
+        const lastCommentUpdatedAt = get(result, 'data.objs.0.updatedAt', new Date().toISOString())
 
         if (lastCommentUpdatedAt && localStorage) {
             localStorage.setItem('syncCommentsAt', lastCommentUpdatedAt)
@@ -659,24 +659,28 @@ export const TicketPageContent = ({ ticket, refetchTicket, organization, employe
 
         const ticketIdsWithUpdatedComments = uniq(get(result, 'data.objs', []).map(ticketComment => get(ticketComment, 'ticket.id')))
 
+        console.log('poll ticket comments', ticketIdsWithUpdatedComments)
+
         sendMessage(ticketIdsWithUpdatedComments)
     }, [])
 
+    const { releaseLock } = useExecuteWithLock('ticketComments', () => {
+        console.log('execute with lock')
+        handlerRef.current = setInterval(handleRefetchComments, COMMENT_RE_FETCH_INTERVAL)
+    })
+
     useEffect(() => {
-        if (typeof window === 'undefined') return
-
-        navigator.locks.request('refetchTicketComments', () => {
-            handlerRef.current = setInterval(handleRefetchComments, COMMENT_RE_FETCH_INTERVAL)
-
-            return new Promise(resolve => {
-                lockRef.current = resolve
-            })
-        })
-
         return () => {
-            if (lockRef.current) {
-                lockRef.current()
+            if (releaseLock) {
+                console.log('release lock')
+                return releaseLock()
             }
+        }
+    }, [releaseLock])
+
+    useEffect(() => {
+        return () => {
+            console.log('clear interval')
             clearInterval(handlerRef.current)
         }
     }, [])

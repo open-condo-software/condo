@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 
 
 type UseBroadcastChannelOptions = {
@@ -24,19 +24,21 @@ export function useBroadcastChannel (
         messageReceiver.current = sendInCurrentTab ? new BroadcastChannel(channelName) : messageSender.current
 
         messageReceiver.current.onmessage = (event) => onMessageReceived(event.data)
-
-        return () => {
-            if (messageSender.current) {
-                messageSender.current.close()
-            }
-            if (messageReceiver.current) {
-                messageReceiver.current.close()
-            }
-        }
     }, [channelName, onMessageReceived, sendInCurrentTab])
 
+    useEffect(() => {
+        return () => {
+            console.log('clear broadcast')
+            messageSender.current = null
+            messageReceiver.current = null
+        }
+    }, [])
+
     const sendMessage = useCallback((message) => {
-        messageSender.current.postMessage(message)
+        if (messageSender.current) {
+            console.log('send message 2', message)
+            messageSender.current.postMessage(message)
+        }
     }, [messageSender])
 
     return {
