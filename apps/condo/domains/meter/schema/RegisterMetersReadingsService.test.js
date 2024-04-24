@@ -15,7 +15,6 @@ const {
 const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
 const {
     COLD_WATER_METER_RESOURCE_ID,
-    HOT_WATER_METER_RESOURCE_ID,
     ELECTRICITY_METER_RESOURCE_ID,
     HEAT_SUPPLY_METER_RESOURCE_ID,
     GAS_SUPPLY_METER_RESOURCE_ID,
@@ -30,13 +29,20 @@ const {
     createTestOrganization,
     makeEmployeeUserClientWithAbilities,
 } = require('@condo/domains/organization/utils/testSchema')
-const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { FLAT_UNIT_TYPE, PARKING_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { buildPropertyMap } = require('@condo/domains/property/utils/testSchema/factories')
 const {
     makeClientWithSupportUser,
     makeClientWithResidentUser,
     makeClientWithServiceUser,
 } = require('@condo/domains/user/utils/testSchema')
+
+async function createTestPropertyWithMap (client, organization) {
+    return createTestProperty(client, organization, {
+        map: buildPropertyMap(),
+    })
+}
 
 /**
  * @param {Pick<Property, 'address'>} property
@@ -47,7 +53,7 @@ const createTestReadingData = (property, extraAttrs = {}) => ({
     address: property.address,
     addressInfo: {
         unitType: FLAT_UNIT_TYPE,
-        unitName: faker.random.alphaNumeric(4),
+        unitName: get(property, ['map', 'sections', 0, 'floors', 0, 'units', 0, 'label'], faker.random.alphaNumeric(4)),
         globalId: get(property, ['addressMeta', 'data', 'house_fias_id'], faker.datatype.uuid()),
     },
     accountNumber: faker.random.alphaNumeric(12),
@@ -83,7 +89,7 @@ describe('RegisterMetersReadingsService', () => {
 
         test('admin can', async () => {
             const [o10n] = await createTestOrganization(adminClient)
-            const [property] = await createTestProperty(adminClient, o10n)
+            const [property] = await createTestPropertyWithMap(adminClient, o10n)
             const readings = [createTestReadingData(property)]
             const [data] = await registerMetersReadingsByTestClient(adminClient, o10n, readings)
 
@@ -117,7 +123,7 @@ describe('RegisterMetersReadingsService', () => {
 
         test('support can', async () => {
             const [o10n] = await createTestOrganization(adminClient)
-            const [property] = await createTestProperty(adminClient, o10n)
+            const [property] = await createTestPropertyWithMap(adminClient, o10n)
             const readings = [createTestReadingData(property)]
             const [data] = await registerMetersReadingsByTestClient(supportClient, o10n, readings)
 
@@ -221,7 +227,7 @@ describe('RegisterMetersReadingsService', () => {
             test('with access rights can', async () => {
                 const serviceClient = await makeClientWithServiceUser()
                 const [o10n] = await createTestOrganization(adminClient)
-                const [property] = await createTestProperty(adminClient, o10n)
+                const [property] = await createTestPropertyWithMap(adminClient, o10n)
 
                 const [app] = await createTestB2BApp(adminClient)
                 await createTestB2BAppContext(adminClient, app, o10n, { status: 'Finished' })
@@ -309,7 +315,7 @@ describe('RegisterMetersReadingsService', () => {
 
     test('possible to process 500 meters readings for single address', async () => {
         const [o10n] = await createTestOrganization(adminClient)
-        const [property] = await createTestProperty(adminClient, o10n)
+        const [property] = await createTestPropertyWithMap(adminClient, o10n)
 
         const count = 500
         const readings = []
@@ -328,7 +334,7 @@ describe('RegisterMetersReadingsService', () => {
         const count = 250
         const readings = []
         for (let i = 0; i < count; i++) {
-            const [property] = await createTestProperty(adminClient, o10n)
+            const [property] = await createTestPropertyWithMap(adminClient, o10n)
             readings.push(createTestReadingData(property))
         }
 
@@ -339,8 +345,8 @@ describe('RegisterMetersReadingsService', () => {
 
     test('Check for Meter model error: cannot create Meter if Meter with same accountNumber exist in user organization in other unit', async () => {
         const [o10n] = await createTestOrganization(adminClient)
-        const [property1] = await createTestProperty(adminClient, o10n)
-        const [property2] = await createTestProperty(adminClient, o10n)
+        const [property1] = await createTestPropertyWithMap(adminClient, o10n)
+        const [property2] = await createTestPropertyWithMap(adminClient, o10n)
 
         const accountNumber = faker.random.alphaNumeric(12)
 
@@ -390,8 +396,8 @@ describe('RegisterMetersReadingsService', () => {
 
     test('error for row if trying to add meter reading for property which not added to organization', async () => {
         const [o10n] = await createTestOrganization(adminClient)
-        const [property1] = await createTestProperty(adminClient, o10n)
-        const [property2] = await createTestProperty(adminClient, o10n)
+        const [property1] = await createTestPropertyWithMap(adminClient, o10n)
+        const [property2] = await createTestPropertyWithMap(adminClient, o10n)
 
         const readings = [
             createTestReadingData(property1),
@@ -454,7 +460,7 @@ describe('RegisterMetersReadingsService', () => {
 
     test('error on invalid meter value', async () => {
         const [o10n] = await createTestOrganization(adminClient)
-        const [property] = await createTestProperty(adminClient, o10n)
+        const [property] = await createTestPropertyWithMap(adminClient, o10n)
 
         const badReading1 = createTestReadingData(property, {
             meterResource: { id: GAS_SUPPLY_METER_RESOURCE_ID },
@@ -542,7 +548,7 @@ describe('RegisterMetersReadingsService', () => {
 
     test('error on invalid meter resource', async () => {
         const [o10n] = await createTestOrganization(adminClient)
-        const [property1] = await createTestProperty(adminClient, o10n)
+        const [property1] = await createTestPropertyWithMap(adminClient, o10n)
 
         const badReading = createTestReadingData(property1)
         badReading.meterResource = { id: faker.datatype.uuid() }
@@ -592,7 +598,7 @@ describe('RegisterMetersReadingsService', () => {
 
     test('number of tariffs calculated correctly', async () => {
         const [o10n] = await createTestOrganization(adminClient)
-        const [property] = await createTestProperty(adminClient, o10n)
+        const [property] = await createTestPropertyWithMap(adminClient, o10n)
         const reading = createTestReadingData(property)
         reading.value3 = faker.random.numeric(3)
         reading.meterMeta.numberOfTariffs = undefined
@@ -622,5 +628,80 @@ describe('RegisterMetersReadingsService', () => {
         expect(meters).toEqual([
             expect.objectContaining({ numberOfTariffs: 3 }),
         ])
+    })
+
+    test('error on unexisting unit', async () => {
+        const [o10n] = await createTestOrganization(adminClient)
+        const [property1] = await createTestPropertyWithMap(adminClient, o10n)
+
+        const readingWithBadFlat = createTestReadingData(property1)
+        readingWithBadFlat.addressInfo.unitName = faker.datatype.string(4)
+
+        const readingWithBadParking = createTestReadingData(property1)
+        readingWithBadParking.addressInfo.unitType = PARKING_UNIT_TYPE
+        readingWithBadParking.addressInfo.unitName = faker.datatype.string(4)
+
+        const readings = [
+            createTestReadingData(property1),
+            readingWithBadFlat,
+            readingWithBadParking,
+        ]
+
+        await catchErrorFrom(
+            async () => {
+                await registerMetersReadingsByTestClient(adminClient, o10n, readings)
+            },
+            ({ data: { result }, errors }) => {
+                expect(result).toEqual([
+                    expect.objectContaining({
+                        id: expect.stringMatching(UUID_REGEXP),
+                        meter: expect.objectContaining({
+                            id: expect.stringMatching(UUID_REGEXP),
+                            property: expect.objectContaining({
+                                id: property1.id,
+                                address: property1.address,
+                                addressKey: property1.addressKey,
+                            }),
+                            unitType: readings[0].addressInfo.unitType,
+                            unitName: readings[0].addressInfo.unitName,
+                            accountNumber: readings[0].accountNumber,
+                            number: readings[0].meterNumber,
+                        }),
+                    }),
+                    null,
+                    null,
+                ])
+                expect(errors).toEqual([
+                    expect.objectContaining({
+                        message: 'Invalid unit name',
+                        extensions: expect.objectContaining({
+                            type: 'INVALID_UNIT_NAME',
+                            message: 'Invalid unit name',
+                        }),
+                        originalError: expect.objectContaining({
+                            message: 'Invalid unit name',
+                            extensions: expect.objectContaining({
+                                type: 'INVALID_UNIT_NAME',
+                                message: 'Invalid unit name',
+                            }),
+                        }),
+                    }),
+                    expect.objectContaining({
+                        message: 'Invalid unit name',
+                        extensions: expect.objectContaining({
+                            type: 'INVALID_UNIT_NAME',
+                            message: 'Invalid unit name',
+                        }),
+                        originalError: expect.objectContaining({
+                            message: 'Invalid unit name',
+                            extensions: expect.objectContaining({
+                                type: 'INVALID_UNIT_NAME',
+                                message: 'Invalid unit name',
+                            }),
+                        }),
+                    }),
+                ])
+            },
+        )
     })
 })

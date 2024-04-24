@@ -19,8 +19,10 @@ const {
     PROPERTY_NOT_FOUND,
     INVALID_METER_VALUES,
     MULTIPLE_METERS_FOUND,
+    INVALID_UNIT_NAME,
 } = require('@condo/domains/meter/constants/errors')
 const { Meter, MeterReading } = require('@condo/domains/meter/utils/serverSchema')
+const { PARKING_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 
 const READINGS_LIMIT = 500
 
@@ -58,6 +60,12 @@ const ERRORS = {
         messageForUser: 'api.meter.registerMetersReadings.MULTIPLE_METERS_FOUND',
         messageInterpolation: { count },
     }),
+    INVALID_UNIT_NAME: {
+        code: BAD_USER_INPUT,
+        type: INVALID_UNIT_NAME,
+        message: 'Invalid unit name',
+        messageForUser: 'meter.import.error.UnitNameNotFound',
+    },
 }
 
 function toISO (str) {
@@ -90,6 +98,16 @@ function validateMeterValue (value) {
     if (isUndefined(value)) return true
 
     return !isEmpty(value) && !isNaN(Number(value)) && isFinite(Number(value)) && Number(value) >= 0
+}
+
+function mapSectionsToUnitLabels (sections) {
+    return sections.map(
+        section => section.floors.map(
+            floor => floor.units.map(
+                unit => unit.label,
+            ),
+        ),
+    ).flat(2)
 }
 
 const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReadingsService', {
@@ -194,6 +212,19 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
 
                     if (!property) {
                         resultRows.push(new GQLError(ERRORS.PROPERTY_NOT_FOUND, context))
+                        continue
+                    }
+
+                    const sections = get(property, ['map', 'sections'], [])
+                    const parking = get(property, ['map', 'parking'], [])
+                    const sectionsUnitLabels = mapSectionsToUnitLabels(sections)
+                    const parkingUnitLabels = mapSectionsToUnitLabels(parking)
+
+                    if (
+                        (reading.addressInfo.unitType === PARKING_UNIT_TYPE && !parkingUnitLabels.includes(reading.addressInfo.unitName))
+                        || (reading.addressInfo.unitType !== PARKING_UNIT_TYPE && !sectionsUnitLabels.includes(reading.addressInfo.unitName))
+                    ) {
+                        resultRows.push(new GQLError(ERRORS.INVALID_UNIT_NAME, context))
                         continue
                     }
 
