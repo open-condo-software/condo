@@ -47,3 +47,6 @@
 [submodule "apps/condo-restapi"]
 	path = apps/condo-restapi
 	url = git@github.com:open-condo-software/condo-restapi.git
+[submodule "apps/resident-app"]
+	path = apps/resident-app
+	url = git@github.com:open-condo-software/condo-resident-app.git
