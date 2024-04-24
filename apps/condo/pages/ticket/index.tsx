@@ -47,7 +47,6 @@ import { EMOJI } from '@condo/domains/common/constants/emoji'
 import { EXCEL } from '@condo/domains/common/constants/export'
 import { TICKET_IMPORT } from '@condo/domains/common/constants/featureflags'
 import { fontSizes } from '@condo/domains/common/constants/style'
-import { useBroadcastContext } from '@condo/domains/common/contexts/BroadcastContext'
 import { useAudio } from '@condo/domains/common/hooks/useAudio'
 import { useCheckboxSearch } from '@condo/domains/common/hooks/useCheckboxSearch'
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
@@ -1006,10 +1005,6 @@ const TicketsPage: ITicketIndexPage = () => {
         },
     })
 
-    const { channel } = useBroadcastContext()
-
-    const onclick = () => channel.postMessage('Test')
-
     return (
         <>
             <Head>
@@ -1034,9 +1029,6 @@ const TicketsPage: ITicketIndexPage = () => {
                                             }
                                         />
                                     </Col>
-                                    <Button type='primary' onClick={onclick}>
-                                        Test
-                                    </Button>
                                     <Col>
                                         <Space size={20} direction={breakpoints.TABLET_SMALL ? 'horizontal' : 'vertical'}>
                                             {

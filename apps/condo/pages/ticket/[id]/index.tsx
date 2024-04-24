@@ -8,11 +8,15 @@ import {
 import { jsx } from '@emotion/react'
 import { Affix, Col, ColProps, notification, Row, RowProps, Space, Typography } from 'antd'
 import dayjs from 'dayjs'
-import { compact, get, isEmpty, map } from 'lodash'
+import compact from 'lodash/compact'
+import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
+import map from 'lodash/map'
+import uniq from 'lodash/uniq'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { Edit, Link as LinkIcon } from '@open-condo/icons'
@@ -32,6 +36,7 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import { Loader } from '@condo/domains/common/components/Loader'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { MARKETPLACE } from '@condo/domains/common/constants/featureflags'
+import { useBroadcastContext } from '@condo/domains/common/contexts/BroadcastContext'
 import { getObjectCreatedMessage } from '@condo/domains/common/utils/date.utils'
 import { CopyButton } from '@condo/domains/marketplace/components/Invoice/CopyButton'
 import { TicketInvoicesList } from '@condo/domains/marketplace/components/Invoice/TicketInvoicesList'
@@ -605,13 +610,6 @@ export const TicketPageContent = ({ ticket, refetchTicket, organization, employe
 
     const ticketVisibilityType = get(employee, 'role.ticketVisibilityType')
 
-    const refetchCommentsWithFiles = useCallback(async () => {
-        await refetchComments()
-        await refetchCommentFiles()
-        await refetchTicketCommentsTime()
-        await refetchUserTicketCommentReadTime()
-    }, [refetchCommentFiles, refetchComments, refetchTicketCommentsTime, refetchUserTicketCommentReadTime])
-
     const actionsFor = useCallback(comment => {
         const isAuthor = comment.user.id === auth.user.id
         const isAdmin = get(auth, ['user', 'isAdmin'])
@@ -621,12 +619,74 @@ export const TicketPageContent = ({ ticket, refetchTicket, organization, employe
         }
     }, [auth, deleteComment, updateComment])
 
-    useEffect(() => {
-        const handler = setInterval(refetchCommentsWithFiles, COMMENT_RE_FETCH_INTERVAL)
-        return () => {
-            clearInterval(handler)
+    const { refetch: refetchSyncComments } = TicketComment.useObjects({}, { skip: true })
+
+    const refetchCommentsWithFiles = useCallback(async () => {
+        await refetchComments()
+        await refetchCommentFiles()
+        await refetchTicketCommentsTime()
+        await refetchUserTicketCommentReadTime()
+    }, [refetchCommentFiles, refetchComments, refetchTicketCommentsTime, refetchUserTicketCommentReadTime])
+
+    const { broadcast, messageReceiver } = useBroadcastContext()
+
+    const handlerRef = useRef<ReturnType<typeof setInterval> | null>()
+    const lockRef = useRef<(value?) => void>()
+
+    const handleRefetchComments = useCallback(async () => {
+        const lastSyncAt = localStorage && localStorage.getItem('syncCommentsAt')
+        const updatedAtStatement = lastSyncAt ? {
+            updatedAt_gt: lastSyncAt,
+        } : {}
+
+        const result = await refetchSyncComments({
+            where: {
+                ticket: { organization: { id: get(organization, 'id', null) } },
+                ...updatedAtStatement,
+            },
+            sortBy: [SortTicketCommentsBy.UpdatedAtDesc],
+        })
+
+        const lastCommentUpdatedAt = get(result, 'data.objs.0.updatedAt', new Date().toISOString()) // now ?
+
+        if (lastCommentUpdatedAt && localStorage) {
+            localStorage.setItem('syncCommentsAt', lastCommentUpdatedAt)
         }
-    })
+
+        const ticketIdsWithUpdatedComments = uniq(get(result, 'data.objs', []).map(ticketComment => get(ticketComment, 'ticket.id')))
+
+        broadcast.postMessage(ticketIdsWithUpdatedComments)
+    }, [])
+
+    const handleMessage = useCallback(async (event) => {
+        const ticketIdsWithUpdatedComments = event.data
+
+        if (ticketIdsWithUpdatedComments.includes(ticket.id)) {
+            await refetchCommentsWithFiles()
+        }
+    }, [])
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return
+
+        navigator.locks.request('refetchTicketComments', () => {
+            handlerRef.current = setInterval(handleRefetchComments, COMMENT_RE_FETCH_INTERVAL)
+
+            return new Promise(resolve => {
+                lockRef.current = resolve
+            })
+        })
+
+        messageReceiver.addEventListener('message', handleMessage)
+
+        return () => {
+            if (lockRef.current) {
+                lockRef.current()
+            }
+            clearInterval(handlerRef.current)
+            messageReceiver.removeEventListener('message', handleMessage)
+        }
+    }, [])
 
     const ticketPropertyId = get(ticket, ['property', 'id'], null)
     const isDeletedProperty = !ticket.property && ticket.propertyAddress
