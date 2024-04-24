@@ -20,6 +20,8 @@ const {
     INVALID_METER_VALUES,
     MULTIPLE_METERS_FOUND,
     INVALID_UNIT_NAME,
+    INVALID_ACCOUNT_NUMBER,
+    INVALID_METER_NUMBER,
 } = require('@condo/domains/meter/constants/errors')
 const { Meter, MeterReading } = require('@condo/domains/meter/utils/serverSchema')
 const { PARKING_UNIT_TYPE } = require('@condo/domains/property/constants/common')
@@ -65,6 +67,18 @@ const ERRORS = {
         type: INVALID_UNIT_NAME,
         message: 'Invalid unit name',
         messageForUser: 'meter.import.error.UnitNameNotFound',
+    },
+    INVALID_ACCOUNT_NUMBER: {
+        code: BAD_USER_INPUT,
+        type: INVALID_ACCOUNT_NUMBER,
+        message: 'Invalid account number',
+        messageForUser: 'meter.import.error.AccountNumberInvalidValue',
+    },
+    INVALID_METER_NUMBER: {
+        code: BAD_USER_INPUT,
+        type: INVALID_METER_NUMBER,
+        message: 'Invalid meter number',
+        messageForUser: 'meter.import.error.MeterNumberInvalidValue',
     },
 }
 
@@ -211,6 +225,16 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                     const unitType = reading.addressInfo.unitType.trim()
                     const unitName = reading.addressInfo.unitName.trim()
                     const addressKey = get(resolvedAddresses, [reading.address, 'addressResolve', 'propertyAddress', 'addressKey'])
+
+                    if (isEmpty(accountNumber)) {
+                        resultRows.push(new GQLError(ERRORS.INVALID_ACCOUNT_NUMBER, context))
+                        continue
+                    }
+
+                    if (isEmpty(meterNumber)) {
+                        resultRows.push(new GQLError(ERRORS.INVALID_METER_NUMBER, context))
+                        continue
+                    }
 
                     const property = properties.find((p) => p.addressKey === addressKey)
 

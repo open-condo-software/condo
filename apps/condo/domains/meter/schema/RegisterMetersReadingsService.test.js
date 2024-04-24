@@ -732,4 +732,120 @@ describe('RegisterMetersReadingsService', () => {
             }),
         })])
     })
+
+    test('error on empty account number', async () => {
+        const [o10n] = await createTestOrganization(adminClient)
+        const [property] = await createTestPropertyWithMap(adminClient, o10n)
+
+        const readingWithBadAccountNumber1 = createTestReadingData(property)
+        readingWithBadAccountNumber1.accountNumber = '\t  \n'
+
+        const readingWithBadAccountNumber2 = createTestReadingData(property)
+        readingWithBadAccountNumber2.accountNumber = ''
+
+        const readings = [
+            readingWithBadAccountNumber1,
+            readingWithBadAccountNumber2,
+        ]
+
+        await catchErrorFrom(
+            async () => {
+                await registerMetersReadingsByTestClient(adminClient, o10n, readings)
+            },
+            ({ data: { result }, errors }) => {
+                expect(result).toEqual([
+                    null,
+                    null,
+                ])
+                expect(errors).toEqual([
+                    expect.objectContaining({
+                        message: 'Invalid account number',
+                        extensions: expect.objectContaining({
+                            type: 'INVALID_ACCOUNT_NUMBER',
+                            message: 'Invalid account number',
+                        }),
+                        originalError: expect.objectContaining({
+                            message: 'Invalid account number',
+                            extensions: expect.objectContaining({
+                                type: 'INVALID_ACCOUNT_NUMBER',
+                                message: 'Invalid account number',
+                            }),
+                        }),
+                    }),
+                    expect.objectContaining({
+                        message: 'Invalid account number',
+                        extensions: expect.objectContaining({
+                            type: 'INVALID_ACCOUNT_NUMBER',
+                            message: 'Invalid account number',
+                        }),
+                        originalError: expect.objectContaining({
+                            message: 'Invalid account number',
+                            extensions: expect.objectContaining({
+                                type: 'INVALID_ACCOUNT_NUMBER',
+                                message: 'Invalid account number',
+                            }),
+                        }),
+                    }),
+                ])
+            },
+        )
+    })
+
+    test('error on empty meter number', async () => {
+        const [o10n] = await createTestOrganization(adminClient)
+        const [property] = await createTestPropertyWithMap(adminClient, o10n)
+
+        const readingWithBadMeterNumber1 = createTestReadingData(property)
+        readingWithBadMeterNumber1.meterNumber = '\t  \n'
+
+        const readingWithBadMeterNumber2 = createTestReadingData(property)
+        readingWithBadMeterNumber2.meterNumber = ''
+
+        const readings = [
+            readingWithBadMeterNumber1,
+            readingWithBadMeterNumber2,
+        ]
+
+        await catchErrorFrom(
+            async () => {
+                await registerMetersReadingsByTestClient(adminClient, o10n, readings)
+            },
+            ({ data: { result }, errors }) => {
+                expect(result).toEqual([
+                    null,
+                    null,
+                ])
+                expect(errors).toEqual([
+                    expect.objectContaining({
+                        message: 'Invalid meter number',
+                        extensions: expect.objectContaining({
+                            type: 'INVALID_METER_NUMBER',
+                            message: 'Invalid meter number',
+                        }),
+                        originalError: expect.objectContaining({
+                            message: 'Invalid meter number',
+                            extensions: expect.objectContaining({
+                                type: 'INVALID_METER_NUMBER',
+                                message: 'Invalid meter number',
+                            }),
+                        }),
+                    }),
+                    expect.objectContaining({
+                        message: 'Invalid meter number',
+                        extensions: expect.objectContaining({
+                            type: 'INVALID_METER_NUMBER',
+                            message: 'Invalid meter number',
+                        }),
+                        originalError: expect.objectContaining({
+                            message: 'Invalid meter number',
+                            extensions: expect.objectContaining({
+                                type: 'INVALID_METER_NUMBER',
+                                message: 'Invalid meter number',
+                            }),
+                        }),
+                    }),
+                ])
+            },
+        )
+    })
 })
