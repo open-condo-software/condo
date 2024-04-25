@@ -135,7 +135,6 @@ async function sendNewBillingReceiptFilesNotifications ({ organizationId, organi
 
         // send message
         await sendMessage(context, {
-            emailFrom: EMAIL_FROM,
             to: { email },
             type: BILLING_RECEIPT_FILE_ADDED_TYPE,
             uniqKey,
