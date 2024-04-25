@@ -66,7 +66,6 @@ describe('TicketChange', () => {
 
                 const payload = {
                     details: faker.lorem.sentence(),
-                    number: ticket.number + 1000, // NOTE: you need to avoid +1 because some parallel tests trying to create new Ticket
                     statusReason: faker.lorem.sentence(),
                     clientName: faker.name.firstName(),
                     clientEmail: faker.internet.email(),
