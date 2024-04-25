@@ -51,7 +51,7 @@ node -e 'console.log(v8.getHeapStatistics().heap_size_limit/(1024*1024))'
 # NOTE(pahaz): Keystone not in dev mode trying to check dist/admin folder
 mkdir -p ./apps/condo/dist/admin
 
-[[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/condo migrate
+[[ $DATABASE_URL == postgresql* || $DATABASE_URL == custom* ]] && yarn workspace @app/condo migrate
 
 yarn workspace @app/condo dev 2>&1 > /app/test_logs/condo.dev.log &
 
