@@ -33,6 +33,7 @@ fi
 cp .env.example .env
 # TODO: Remove all this evn below after migrating to new CI
 echo 'CALLCENTER_DOMAIN=http://localhost:3001' >> .env
+echo 'DATABASE_MAPPING=[{"match":"*","query":"default","command":"default"}]' >> .env
 
 export NODE_ENV=test
 export DISABLE_LOGGING=false
