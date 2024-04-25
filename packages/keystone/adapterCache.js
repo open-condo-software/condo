@@ -255,7 +255,7 @@ async function patchKeystoneWithAdapterCache (keystone, cacheAPI) {
 
     const cache = cacheAPI.cache
     const excludedLists = cacheAPI.excludedLists
-
+    // TODO: need to change access to listAdapters property due to ScalableDatabaseAdapter restrictions
     const listAdapters = Object.values(keystoneAdapter.listAdapters)
 
     // Step 1: Preprocess lists.
