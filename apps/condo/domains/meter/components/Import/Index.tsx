@@ -17,7 +17,7 @@ import {
     IMPORT_EVENT, ImportEmitter,
     StyledFocusContainer,
     SuccessModal,
-} from '@condo/domains/common/components/Import'
+} from '@condo/domains/common/components/Import/Index'
 import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
 import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
 import { IMPORT_HELP_MODAL } from '@condo/domains/common/constants/featureflags'
