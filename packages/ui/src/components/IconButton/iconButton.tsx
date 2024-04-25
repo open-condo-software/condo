@@ -6,6 +6,7 @@ import classNames from 'classnames'
 import React, { useCallback } from 'react'
 
 import { sendAnalyticsClickEvent, extractChildrenContent } from '../_utils/analytics'
+import { BUTTON_CLASS_PREFIX } from '../Button/button'
 
 const ICON_BUTTON_CLASS_PREFIX = 'condo-icon-btn'
 
@@ -24,7 +25,7 @@ const IconButton: React.ForwardRefExoticComponent<IconButtonProps & React.RefAtt
     const ariaLabel = rest['aria-label']
     const classes = classNames(
         {
-            ['condo-btn']: true,
+            [BUTTON_CLASS_PREFIX]: true,
             [`${ICON_BUTTON_CLASS_PREFIX}-pressed`]: pressed,
             [`${ICON_BUTTON_CLASS_PREFIX}-focus`]: focus,
             [`${ICON_BUTTON_CLASS_PREFIX}-${mergedSize}`]: mergedSize,
