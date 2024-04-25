@@ -14,7 +14,7 @@
     "types:watch": "yarn maketypes --watch"
   },
   "dependencies": {
-    "@ant-design/cssinjs": "1.5.6",
+    "@ant-design/cssinjs": "^1.18.5",
     "@apollo/client": "^3.8.4",
     "@babel/core": "7.20.12",
     "@babel/preset-env": "7.20.2",
@@ -26,7 +26,7 @@
     "@open-condo/next": "workspace:^",
     "@open-condo/tsconfig": "workspace:^",
     "@open-condo/ui": "workspace:^",
-    "antd": "5.1.7",
+    "antd": "5.16.4",
     "apollo-upload-client": "^17",
     "classnames": "^2.3.2",
     "cookies-next": "2.1.1",
