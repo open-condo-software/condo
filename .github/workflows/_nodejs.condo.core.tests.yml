@@ -41,7 +41,9 @@ jobs:
           
           docker network create db_network
           
-          docker run --name postgre-master --network=db_network --health-cmd="CMD-SHELL pg_isready -U postgres" --health-timeout=5s --health-retries=5 --health-interval=5s -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5432:5432" -v ./postgresql-init-replication.sql:/docker-entrypoint-initdb.d/postgresql-init-replication.sql -v ./pg_hba.conf:/etc/pg_hba.conf -d swr.ru-moscow-1.hc.sbercloud.ru/doma/utils/postgres:13.2 postgres -c hba_file=/etc/pg_hba.conf -c wal_level=replica -c hot_standby=on -c max_wal_senders=10 -c max_replication_slots=10 -c hot_standby_feedback=on
+          ls
+          
+          docker run --name postgre-master --user postgres --network=db_network --health-cmd="CMD-SHELL pg_isready -U postgres" --health-timeout=5s --health-retries=5 --health-interval=5s -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5432:5432" -v ./postgresql-init-replication.sql:/docker-entrypoint-initdb.d/postgresql-init-replication.sql -v ./pg_hba.conf:/etc/pg_hba.conf -d swr.ru-moscow-1.hc.sbercloud.ru/doma/utils/postgres:13.2 postgres -c hba_file=/etc/pg_hba.conf -c wal_level=replica -c hot_standby=on -c max_wal_senders=10 -c max_replication_slots=10 -c hot_standby_feedback=on
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -49,7 +51,7 @@ jobs:
 
       - name: run postgresql replica
         run: |
-          docker run --name postgre-replica --network=db_network --health-cmd="CMD-SHELL pg_isready -U postgres" --health-timeout=5s --health-retries=5 --health-interval=5s  -e PGUSER=$PGUSER -e PGPASSWORD=$PGPASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5433:5432" -d ${{ secrets.DOCKER_REGISTRY }}/doma/utils/postgres:13.2 bash -c "if [ ! -f /var/lib/postgresql/initialized ]; then pg_basebackup --pgdata=/var/lib/postgresql/data -R --slot=replication_slot --host=postgre-master --port=5432; chmod -R 0700 /var/lib/postgresql/data; touch /var/lib/postgresql/initialized; fi; postgres -c max_connections=2000"
+          docker run --name postgre-replica --user postgres --network=db_network --health-cmd="CMD-SHELL pg_isready -U postgres" --health-timeout=5s --health-retries=5 --health-interval=5s  -e PGUSER=$PGUSER -e PGPASSWORD=$PGPASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5433:5432" -d ${{ secrets.DOCKER_REGISTRY }}/doma/utils/postgres:13.2 bash -c "if [ ! -f /var/lib/postgresql/initialized ]; then pg_basebackup --pgdata=/var/lib/postgresql/data -R --slot=replication_slot --host=postgre-master --port=5432; chmod -R 0700 /var/lib/postgresql/data; touch /var/lib/postgresql/initialized; fi; postgres -c max_connections=2000"
         env:
           PGUSER: replicator
           PGPASSWORD: replicator_password
