@@ -8,7 +8,7 @@ import { useOrganization } from '@open-condo/next/organization'
 
 import { CardsContainer } from '@condo/domains/common/components/Card/CardsContainer'
 import { SettingCardSkeleton } from '@condo/domains/common/components/settings/SettingCard'
-import { MOBILE_FEATURE_CONFIGURATION, TICKET_SUBMITTING_FORM_RESIDENT_MOBILE_APP, SUBMIT_ONLY_PROGRESSION_METER_READINGS } from '@condo/domains/common/constants/featureflags'
+import { TICKET_SUBMITTING_FORM_RESIDENT_MOBILE_APP } from '@condo/domains/common/constants/featureflags'
 import {
     OnlyProgressionMeterReadingsSettingCard,
 } from '@condo/domains/settings/components/ticketSubmitting/OnlyProgressionMeterReadingsSettingCard'
@@ -26,23 +26,17 @@ export const MobileFeatureConfigContent: React.FC = () => {
         },
     })
     const { useFlag } = useFeatureFlags()
-    const hasMobileFeatureConfigurationFeature = useFlag(MOBILE_FEATURE_CONFIGURATION)
     const hasTicketSubmittingSettingFeature = useFlag(TICKET_SUBMITTING_FORM_RESIDENT_MOBILE_APP)
-    const hasOnlyProgressionMeterReadingsSettingFeature = useFlag(SUBMIT_ONLY_PROGRESSION_METER_READINGS)
 
     const content = useMemo(() => ([
         !hasTicketSubmittingSettingFeature ? undefined : (loading
             ? <SettingCardSkeleton/>
             : <TicketSubmittingSettingCard mobileConfig={mobileConfig}/>),
 
-        !hasOnlyProgressionMeterReadingsSettingFeature ? undefined : (loading
-            ? <SettingCardSkeleton/>
-            : <OnlyProgressionMeterReadingsSettingCard mobileConfig={mobileConfig}/>),
-    ]).filter(Boolean), [hasOnlyProgressionMeterReadingsSettingFeature, hasTicketSubmittingSettingFeature, mobileConfig, loading])
+        loading ? <SettingCardSkeleton/>
+            : <OnlyProgressionMeterReadingsSettingCard mobileConfig={mobileConfig}/>,
+    ]).filter(Boolean), [hasTicketSubmittingSettingFeature, mobileConfig, loading])
 
-    if (!hasMobileFeatureConfigurationFeature) {
-        return null
-    }
 
     return (
         <Row gutter={CONTENT_GUTTER}>
