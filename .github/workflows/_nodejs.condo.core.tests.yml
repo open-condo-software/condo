@@ -40,7 +40,7 @@ jobs:
           """ >> ./pg_hba.conf       
           cat ./pg_hba.conf
           
-          docker run --net=host --name postgre-master --health-cmd="CMD-SHELL pg_isready -U postgres" --health-timeout=5s --health-retries=5 --health-interval=5s -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -e POSTGRES_HOST_AUTH_METHOD="scram-sha-256" -e POSTGRES_INITDB_ARGS="--auth-host=scram-sha-256" -p="127.0.0.1:5432:5432" -v ./postgresql-init-replication.sql:/docker-entrypoint-initdb.d/postgresql-init-replication.sql -v ./pg_hba.conf:/etc/pg_hba.conf -d swr.ru-moscow-1.hc.sbercloud.ru/doma/utils/postgres:13.2 postgres -c hba_file=/etc/pg_hba.conf -c wal_level=replica -c hot_standby=on -c max_wal_senders=10 -c max_replication_slots=10 -c hot_standby_feedback=on
+          docker run --net=host --name postgre-master --health-cmd="CMD-SHELL pg_isready -U postgres" --health-timeout=5s --health-retries=5 --health-interval=5s -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5432:5432" -v ./postgresql-init-replication.sql:/docker-entrypoint-initdb.d/postgresql-init-replication.sql -v ./pg_hba.conf:/etc/pg_hba.conf -d swr.ru-moscow-1.hc.sbercloud.ru/doma/utils/postgres:13.2 postgres -c hba_file=/etc/pg_hba.conf -c wal_level=replica -c hot_standby=on -c max_wal_senders=10 -c max_replication_slots=10 -c hot_standby_feedback=on
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -64,13 +64,14 @@ jobs:
           chmod -R a+rw ./test_logs
           docker run -e SERVER_URL=$SERVER_URL -e COOKIE_SECRET=$COOKIE_SECRET -e REDIS_URL=$REDIS_URL -e DATABASE_URL=$DATABASE_URL -e NODE_ENV=$NODE_ENV -e DISABLE_LOGGING=$DISABLE_LOGGING -e JEST_MOCKS_ENABLED=$JEST_MOCKS_ENABLED -v ./test_logs:/app/test_logs --network="host" ${{ secrets.DOCKER_REGISTRY }}${{ inputs.image_postfix }} bash -c "/app/run_condo_domain_tests.sh -d ${{ inputs.domain_name }}"
         env:
-          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1/main
+          DATABASE_URL: custom:{"default:read":"postgresql://postgres:postgres@127.0.0.1:5433/main","default:write":"postgresql://postgres:postgres@127.0.0.1/main"}
           NODE_ENV: development
           DISABLE_LOGGING: true
           REDIS_URL: redis://127.0.0.1:6379
           COOKIE_SECRET: test
           SERVER_URL: http://localhost:3000
           JEST_MOCKS_ENABLED: true
+          DATABASE_MAPPING=[{"match":"*","query":"default","command":"default"}]
 
       - name: Collect docker logs on failure
         if: failure()
