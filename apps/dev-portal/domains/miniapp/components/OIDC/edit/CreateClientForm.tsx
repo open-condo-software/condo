@@ -135,7 +135,6 @@ export const CreateClientForm: React.FC<CreateClientFormProps> = ({ id, environm
                         <Form.Item
                             className={styles.lastFormItem}
                             name='redirectUri'
-                            requiredMark={false}
                             rules={[requiredFieldValidator, urlValidator]}
                             label={RedirectURILabel}
                             tooltip={RedirectURIHintText}
