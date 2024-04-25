@@ -64,7 +64,7 @@ jobs:
           chmod -R a+rw ./test_logs
           docker run -e SERVER_URL=$SERVER_URL -e COOKIE_SECRET=$COOKIE_SECRET -e REDIS_URL=$REDIS_URL -e DATABASE_URL=$DATABASE_URL -e NODE_ENV=$NODE_ENV -e DISABLE_LOGGING=$DISABLE_LOGGING -e JEST_MOCKS_ENABLED=$JEST_MOCKS_ENABLED -v ./test_logs:/app/test_logs --network="host" ${{ secrets.DOCKER_REGISTRY }}${{ inputs.image_postfix }} bash -c "/app/run_condo_domain_tests.sh -d ${{ inputs.domain_name }}"
         env:
-          DATABASE_URL: custom:{"default:read":"postgresql://postgres:postgres@127.0.0.1:5433/main","default:write":"postgresql://postgres:postgres@127.0.0.1/main"}
+          DATABASE_URL: custom:{"default":{"read":"postgresql://postgres:postgres@127.0.0.1:5433/main","write":"postgresql://postgres:postgres@127.0.0.1/main"}}
           NODE_ENV: development
           DISABLE_LOGGING: true
           REDIS_URL: redis://127.0.0.1:6379
