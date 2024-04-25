@@ -47,7 +47,7 @@ export interface IImportWrapperProps {
     }
 }
 
-const ImageContainer = styled.div`
+export const ImageContainer = styled.div`
   height: 150px;
   width: 100%;
   border-radius: 12px;
@@ -64,7 +64,7 @@ const ImageContainer = styled.div`
   }
 `
 
-const StyledFocusContainer = styled(FocusContainer)`
+export const StyledFocusContainer = styled(FocusContainer)`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -78,7 +78,7 @@ const StyledFocusContainer = styled(FocusContainer)`
   }
 `
 
-const SuccessModal = styled(Modal)`
+export const SuccessModal = styled(Modal)`
   &.condo-modal > .condo-modal-content {
     & > .condo-modal-body {
       padding-bottom: 20px;
@@ -90,7 +90,7 @@ const SuccessModal = styled(Modal)`
   }
 `
 
-function fitToColumn (arrayOfArray) {
+export function fitToColumn (arrayOfArray) {
     return arrayOfArray[0].map((_, index) => (
         { wch: Math.max(...arrayOfArray.map(row => row[index] ? row[index].toString().length : 0)) }
     ))
