@@ -38,13 +38,6 @@ jobs:
           submodules: recursive
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
 
-      - name: checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
-          ref: ${{ github.event.pull_request.head.sha || github.ref }}
-
       - name: run dbs
         env:
           REGISTRY: ${{ secrets.DOCKER_REGISTRY }}/doma/utils/
