@@ -23,12 +23,6 @@ jobs:
           registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
           password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
-      - name: checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          submodules: recursive
-          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
 
       - name: run postgresql master
         run: |
@@ -43,11 +37,14 @@ jobs:
           
           host all all all md5
           host replication all 0.0.0.0/0 md5
-          """ >> ./pg_hba.conf       
+          """ >> ./pg_hba.conf
+          touch ./postgresql-init-replication.sql
+          echo """
+          CREATE USER replicator WITH REPLICATION ENCRYPTED PASSWORD 'replicator_password';
+          SELECT pg_create_physical_replication_slot('replication_slot');
+          """ >> ./postgresql-init-replication.sql
           
           docker network create db_network
-          
-          ls
           
           docker run --name postgre-master --user postgres --network=db_network --health-cmd="CMD-SHELL pg_isready -U postgres" --health-timeout=5s --health-retries=5 --health-interval=5s -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5432:5432" -v ./postgresql-init-replication.sql:/docker-entrypoint-initdb.d/postgresql-init-replication.sql -v ./pg_hba.conf:/etc/pg_hba.conf -d swr.ru-moscow-1.hc.sbercloud.ru/doma/utils/postgres:13.2 postgres -c hba_file=/etc/pg_hba.conf -c wal_level=replica -c hot_standby=on -c max_wal_senders=10 -c max_replication_slots=10 -c hot_standby_feedback=on
         env:
