@@ -84,11 +84,11 @@ class ReplicaKnexAdapter extends KnexAdapter {
 
         if (masterConnectionResult.error || readConnectionResult.error) {
             if (masterConnectionResult.error) {
-                console.error(`Could not connect to database: '${process.env.DATABASE_MASTER.split('/').pop()}'`)
+                console.error('Could not connect to master database')
                 throw masterConnectionResult.error
             }
 
-            console.error(`Could not connect to database: '${process.env.DATABASE_READ.split('/').pop()}'`)
+            console.error('Could not connect to database')
             throw readConnectionResult.error
         }
 
