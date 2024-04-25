@@ -71,7 +71,7 @@ jobs:
           COOKIE_SECRET: test
           SERVER_URL: http://localhost:3000
           JEST_MOCKS_ENABLED: true
-          DATABASE_MAPPING: [{"match":"*","query":"default","command":"default"}]
+          DATABASE_MAPPING: '[{"match":"*","query":"default","command":"default"}]'
 
       - name: Collect docker logs on failure
         if: failure()
