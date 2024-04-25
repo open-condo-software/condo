@@ -59,9 +59,22 @@
     border-radius: @condo-icon-button-focus-outline-border-radius-medium;
   }
 
+  &.condo-icon-btn-pressed {
+    * {
+      color: @condo-global-color-green-7;
+    }
+  }
+
   &:disabled {
     background-color: transparent;
-    opacity: 0.5;
+
+    .condo-icon-btn-content {
+      opacity: 0.5;
+    }
+
+    &:hover {
+      background-color: transparent;
+    }
   }
 
   &:not(:disabled):hover {
