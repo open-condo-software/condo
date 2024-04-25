@@ -46,7 +46,7 @@ class ScalableDatabaseAdapter extends BaseKeystoneAdapter {
 
     constructor (opts = {}) {
         if (!opts.url || !opts.url.startsWith('custom:')) throw new Error('ScalableDatabaseAdapter({ url }) wrong url format!')
-        if (!opts.mapping || !opts.mapping.startsWith('[')) throw new Error('ScalableDatabaseAdapter({ mapping }) wrong url format!')
+        if (!opts.mapping || !opts.mapping.startsWith('[')) throw new Error(`ScalableDatabaseAdapter({ mapping }) wrong url format! ${opts.mapping}`)
 
         const databases = parseDatabaseUrl(opts.url)
         if (!databases) throw new Error('ScalableDatabaseAdapter({ url }) wrong url format!')
