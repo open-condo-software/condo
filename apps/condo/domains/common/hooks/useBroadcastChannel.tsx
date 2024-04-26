@@ -24,14 +24,17 @@ export function useBroadcastChannel<T> (
         messageReceiver.current = sendInCurrentTab ? new BroadcastChannel(channelName) : messageSender.current
 
         messageReceiver.current.onmessage = (event) => onMessageReceived(event.data)
-    }, [channelName, onMessageReceived, sendInCurrentTab])
 
-    useEffect(() => {
         return () => {
+            messageSender.current.close()
+            if (sendInCurrentTab) {
+                messageReceiver.current.close()
+            }
+
             messageSender.current = null
             messageReceiver.current = null
         }
-    }, [])
+    }, [channelName, onMessageReceived, sendInCurrentTab])
 
     const sendMessage = useCallback((message: T) => {
         if (messageSender.current) {
