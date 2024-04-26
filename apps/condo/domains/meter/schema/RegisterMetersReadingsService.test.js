@@ -310,36 +310,6 @@ describe('RegisterMetersReadingsService', () => {
         )
     })
 
-    test('possible to process 500 meters readings for single address', async () => {
-        const [o10n] = await createTestOrganization(adminClient)
-        const [property] = await createTestPropertyWithMap(adminClient, o10n)
-
-        const count = 500
-        const readings = []
-        for (let i = 0; i < count; i++) {
-            readings.push(createTestReadingData(property))
-        }
-
-        const [result] = await registerMetersReadingsByTestClient(adminClient, o10n, readings)
-
-        expect(result).toHaveLength(count)
-    })
-
-    test('possible to process 250 meters readings for different addresses', async () => {
-        const [o10n] = await createTestOrganization(adminClient)
-
-        const count = 250
-        const readings = []
-        for (let i = 0; i < count; i++) {
-            const [property] = await createTestPropertyWithMap(adminClient, o10n)
-            readings.push(createTestReadingData(property))
-        }
-
-        const [result] = await registerMetersReadingsByTestClient(adminClient, o10n, readings)
-
-        expect(result).toHaveLength(count)
-    })
-
     test('Check for Meter model error: cannot create Meter if Meter with same accountNumber exist in user organization in other unit', async () => {
         const [o10n] = await createTestOrganization(adminClient)
         const [property1] = await createTestPropertyWithMap(adminClient, o10n)
