@@ -102,16 +102,46 @@ const ERRORS = {
     }),
 }
 
-function toISO (str) {
-    if (isEmpty(str)) {
+const SYMBOLS_TO_CUT_FROM_DATES_REGEXP = /[^-_:.,( )/\d]/g
+
+/**
+ * @param {string} dateStr
+ * @return {undefined|string}
+ */
+function sanitizeDateStr (dateStr) {
+    if (isEmpty(dateStr) || !isString(dateStr)) {
         return undefined
     }
 
-    return dayjs(str, DATE_PARSING_FORMATS).toISOString()
+    const sanitizedDateStr = dateStr.replace(SYMBOLS_TO_CUT_FROM_DATES_REGEXP, '')
+    if (isEmpty(sanitizedDateStr)) {
+        return undefined
+    }
+
+    return sanitizedDateStr
 }
 
-function isDateValid (str) {
-    return dayjs(str, DATE_PARSING_FORMATS).isValid()
+/**
+ * @param {string} dateStr
+ * @return {undefined|string}
+ */
+function toISO (dateStr) {
+    const sanitizedDateStr = sanitizeDateStr(dateStr)
+
+    if (isEmpty(sanitizedDateStr)) {
+        return undefined
+    }
+
+    return dayjs(sanitizedDateStr, DATE_PARSING_FORMATS).toISOString()
+}
+
+/**
+ * @param {string} dateStr
+ * @return {boolean}
+ */
+function isDateValid (dateStr) {
+    const sanitizedStr = sanitizeDateStr(dateStr)
+    return dayjs(sanitizedStr, DATE_PARSING_FORMATS).isValid()
 }
 
 /**
