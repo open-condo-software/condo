@@ -8,8 +8,8 @@ class ImporterWrapper extends SbbolMetersImporter {
         super(null, null, null, null, {})
     }
 
-    public transformRowWrapper (rows) {
-        return this.transformRow(rows)
+    public transformRowWrapper (row: string[]) {
+        return this.transformRow(row)
     }
 }
 
