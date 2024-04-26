@@ -42,8 +42,8 @@ type IEmptyListWithImportProps = IBaseEmptyListProps & {
         manualCreateEmoji: string
         manualCreateDescription: string
         importCreateEmoji: string
-        importWrapper: TExternalImportWrapper & Pick<IImportWrapperProps, 'domainName'>
-        OverrideImportWrapperFC: React.FC<TExternalImportWrapper & Pick<IImportWrapperProps, 'accessCheck'>>
+        importWrapper: IImportWrapperProps | TExternalImportWrapper
+        OverrideImportWrapperFC?: React.FC<TExternalImportWrapper & Pick<IImportWrapperProps, 'accessCheck'>>
     }
 }
 
