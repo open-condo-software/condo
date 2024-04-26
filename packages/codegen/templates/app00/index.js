@@ -1,38 +1,30 @@
-const { Keystone } = require('@keystonejs/keystone')
-const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
-const { GraphQLApp } = require('@keystonejs/app-graphql')
-const { AdminUIApp } = require('@keystonejs/app-admin-ui')
-const { StaticApp } = require('@keystonejs/app-static')
 const { NextApp } = require('@keystonejs/app-next')
 
 const conf = require('@open-condo/config')
-const access = require('@open-condo/keystone/access')
-const { EmptyApp } = require('@open-condo/keystone/test.utils')
-const { prepareDefaultKeystoneConfig } = require('@open-condo/keystone/setup.utils')
-const { registerSchemas } = require('@open-condo/keystone/schema')
+const { HealthCheck, getPostgresHealthCheck, getRedisHealthCheck } = require('@open-condo/keystone/healthCheck')
+const { StitchSchemaMiddleware } = require('@open-condo/keystone/stitchSchema')
+const { CondoOIDCMiddleware } = require('@app/{{name}}/middlewares/oidc')
+const { FeaturesMiddleware } = require('@open-condo/featureflags/FeaturesMiddleware')
+const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
+const { prepareKeystone } = require('@open-condo/keystone/KSv5v6/v5/prepareKeystone')
 
-const keystone = new Keystone(prepareDefaultKeystoneConfig(conf))
 
-registerSchemas(keystone, [
-    require('@{{name}}/domains/User/schema'),
-    // require('@{{name}}/domains/Organization/schema'),
-])
+const lastApp = conf.NODE_ENV === 'test' ? undefined : new NextApp({ dir: '.' })
 
-const authStrategy = keystone.createAuthStrategy({
-    type: PasswordAuthStrategy,
-    list: 'User',
+const schemas = () => [
+    require('@{{name}}/domains/user/schema'),
+]
+
+const apps = () => [
+    new HealthCheck({ checks: [getPostgresHealthCheck(), getRedisHealthCheck()] }),
+    new StitchSchemaMiddleware({ apiUrl: '/graphql' }),
+    new CondoOIDCMiddleware(),
+    new FeaturesMiddleware(),
+    FileAdapter.makeFileAdapterMiddleware(),
+]
+
+const tasks = () => []
+
+module.exports = prepareKeystone({
+    lastApp, schemas, apps, tasks,
 })
-
-module.exports = {
-    keystone,
-    apps: [
-        new GraphQLApp({ apollo: { debug: conf.NODE_ENV === 'development' } }),
-        new StaticApp({ path: conf.MEDIA_URL, src: conf.MEDIA_ROOT }),
-        new AdminUIApp({
-            adminPath: '/admin',
-            isAccessAllowed: access.userIsAdmin,
-            authStrategy,
-        }),
-        conf.DISABLE_NEXT_APP ? new EmptyApp() : new NextApp({ dir: '.' }),
-    ],
-}
