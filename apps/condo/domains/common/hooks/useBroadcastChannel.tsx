@@ -20,6 +20,8 @@ export function useBroadcastChannel<T> (
     const messageReceiver = useRef<BroadcastChannel | null>(null)
 
     useEffect(() => {
+        if (typeof window === 'undefined') return
+
         messageSender.current = new BroadcastChannel(channelName)
         messageReceiver.current = sendInCurrentTab ? new BroadcastChannel(channelName) : messageSender.current
 

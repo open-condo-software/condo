@@ -534,7 +534,7 @@ const TicketInvoices = ({ invoices, invoicesLoading, refetchInvoices, ticket }) 
     )
 }
 
-export const TicketPageContent = ({ ticket, refetchTicket, organization, employee, TicketContent }) => {
+export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, organization, employee, TicketContent }) => {
     const intl = useIntl()
     const BlockedEditingTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.BlockedEditing.title' })
     const BlockedEditingDescriptionMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.BlockedEditing.description' })
@@ -618,6 +618,7 @@ export const TicketPageContent = ({ ticket, refetchTicket, organization, employe
     usePollTicketComments({
         ticket,
         refetchTicketComments: refetchCommentsWithFiles,
+        pollCommentsQuery,
     })
 
     const actionsFor = useCallback(comment => {
@@ -798,6 +799,9 @@ const TicketIdPage = () => {
 
     const { canEmployeeReadTicket, ticketFilterQueryLoading } = useTicketVisibility()
 
+    const pollCommentsQuery = useMemo(() => ({ ticket: { organization: { id: get(organization, 'id', null) } } }),
+        [organization])
+
     if (!ticket || ticketFilterQueryLoading) {
         return (
             <LoadingOrErrorPage
@@ -824,6 +828,7 @@ const TicketIdPage = () => {
                         extraTicketsQuery={{ id }}
                     >
                         <TicketPageContent
+                            pollCommentsQuery={pollCommentsQuery}
                             ticket={ticket}
                             refetchTicket={refetchTicket}
                             organization={organization}

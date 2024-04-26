@@ -16,6 +16,7 @@ const LOCAL_STORAGE_SYNC_KEY = 'syncTicketCommentsAt'
 export function usePollTicketComments ({
     ticket,
     refetchTicketComments,
+    pollCommentsQuery,
 }) {
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>()
 
@@ -30,25 +31,25 @@ export function usePollTicketComments ({
     const pollTicketComments = useCallback(async () => {
         if (!localStorage) return
 
+        const now = new Date().toISOString()
         const lastSyncAt = localStorage.getItem(LOCAL_STORAGE_SYNC_KEY)
-        const updatedAtStatement = lastSyncAt ? { updatedAt_gt: lastSyncAt } : {}
 
         const result = await refetchSyncComments({
             where: {
-                ticket: { organization: { id: get(ticket, 'organization.id', null) } },
-                ...updatedAtStatement,
+                ...pollCommentsQuery,
+                updatedAt_gt: lastSyncAt || now,
             },
             sortBy: [SortTicketCommentsBy.UpdatedAtDesc],
         })
         const ticketComments = get(result, 'data.objs', [])
 
-        const newSyncedAt = get(ticketComments, '0.updatedAt', new Date().toISOString())
+        const newSyncedAt = get(ticketComments, '0.updatedAt', now)
         localStorage.setItem(LOCAL_STORAGE_SYNC_KEY, newSyncedAt)
 
         const ticketsWithUpdatedComments: string[] = uniq(ticketComments.map(ticketComment => get(ticketComment, 'ticket.id')))
 
         sendMessage(ticketsWithUpdatedComments)
-    }, [refetchSyncComments, sendMessage, ticket])
+    }, [pollCommentsQuery, refetchSyncComments, sendMessage])
 
     const { releaseLock } = useExecuteWithLock(LOCK_NAME, () => {
         intervalRef.current = setInterval(pollTicketComments, COMMENT_RE_FETCH_INTERVAL_IN_MS)

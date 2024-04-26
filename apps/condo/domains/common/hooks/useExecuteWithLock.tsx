@@ -9,6 +9,8 @@ export function useExecuteWithLock (
     const fnRef = useRef(fn)
 
     useEffect(() => {
+        if (typeof window === 'undefined') return
+
         navigator.locks.request(lockName, () => {
             fnRef.current()
 
