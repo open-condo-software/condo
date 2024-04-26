@@ -164,7 +164,7 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
         },
         {
             access: true,
-            type: 'input RegisterMetersReadingsReadingAddressInfoInput { unitType: String!, unitName: String!, globalId: String }',
+            type: 'input RegisterMetersReadingsReadingAddressInfoInput { unitType: String, unitName: String, globalId: String }',
         },
         {
             access: true,
@@ -245,8 +245,8 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                 for (const reading of readings) {
                     const meterNumber = reading.meterNumber.trim()
                     const accountNumber = reading.accountNumber.trim()
-                    const unitType = reading.addressInfo.unitType.trim()
-                    const unitName = reading.addressInfo.unitName.trim()
+                    const unitType = get(reading, ['addressInfo', 'unitType'], get(resolvedAddresses, [reading.address, 'addressResolve', 'unitType'], '')).trim() || null
+                    const unitName = get(reading, ['addressInfo', 'unitName'], get(resolvedAddresses, [reading.address, 'addressResolve', 'unitName'], '')).trim() || null
                     const addressKey = get(resolvedAddresses, [reading.address, 'addressResolve', 'propertyAddress', 'addressKey'])
 
                     if (isEmpty(accountNumber)) {

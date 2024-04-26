@@ -73772,8 +73772,8 @@ input RegisterMetersReadingsMeterMetaInput {
 }
 
 input RegisterMetersReadingsReadingAddressInfoInput {
-  unitType: String!
-  unitName: String!
+  unitType: String
+  unitName: String
   globalId: String
 }
 
