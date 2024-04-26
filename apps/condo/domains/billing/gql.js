@@ -57,7 +57,7 @@ const BillingReceiptForOrganization = generateGqlQueries('BillingReceipt', `{
         toPayDetails { ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS} } 
         ${BILLING_RECEIPT_SERVICE_FIELDS}
         receiver { id tin iec bic bankAccount isApproved }
-        category { name nameNonLocalized } 
+        category { name } 
     }`
 )
 
