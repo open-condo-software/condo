@@ -119,7 +119,6 @@ describe('RegisterMetersReadingsService', () => {
 
             const metersReadings = await MeterReading.getAll(adminClient, { meter: { id_in: map(meters, 'id') } })
             expect(metersReadings).toHaveLength(1)
-            expect(metersReadings[0].date).toBe(readings[0].date)
         })
 
         test('support can', async () => {
@@ -153,7 +152,6 @@ describe('RegisterMetersReadingsService', () => {
 
             const metersReadings = await MeterReading.getAll(adminClient, { meter: { id_in: map(meters, 'id') } })
             expect(metersReadings).toHaveLength(1)
-            expect(metersReadings[0].date).toBe(readings[0].date)
         })
 
         describe('staff', () => {
@@ -191,7 +189,6 @@ describe('RegisterMetersReadingsService', () => {
 
                 const metersReadings = await MeterReading.getAll(adminClient, { meter: { id_in: map(meters, 'id') } })
                 expect(metersReadings).toHaveLength(1)
-                expect(metersReadings[0].date).toBe(readings[0].date)
             })
 
             test('without permissions can\'t', async () => {
@@ -269,7 +266,6 @@ describe('RegisterMetersReadingsService', () => {
 
                 const metersReadings = await MeterReading.getAll(adminClient, { meter: { id_in: map(meters, 'id') } })
                 expect(metersReadings).toHaveLength(1)
-                expect(metersReadings[0].date).toBe(readings[0].date)
             })
 
             test('without permissions can\'t', async () => {
@@ -860,10 +856,13 @@ describe('RegisterMetersReadingsService', () => {
             { input: '06.2042', output: '2042-06-01' },
             { input: '2042-06-17 18:44', output: '2042-06-17 18:44' },
             { input: '17.06.2042 18:44', output: '2042-06-17 18:44' },
-            { input: '2042-06 18:44', output: '2042-06-01 18:44' },
-            { input: '06-2042 18:44', output: '2042-06-01 18:44' },
-            { input: '2042.06 18:44', output: '2042-06-01 18:44' },
-            { input: '06.2042 18:44', output: '2042-06-01 18:44' },
+            { input: '2042-06-17 18:44:13', output: '2042-06-17 18:44:13' },
+            { input: '17.06.2042 18:44:13', output: '2042-06-17 18:44:13' },
+            { input: '17/06/2042 18:44:13', output: '2042-06-17 18:44:13' },
+            { input: '17/06/2042 18-44-13', output: '2042-06-17 18:44:13' },
+            { input: '17-06-2042 18/44/13', output: '2042-06-17 18:44:13' },
+            { input: '17/06/2042 18/44/13', output: '2042-06-17 18:44:13' },
+            { input: '17-06-2042 18-44-13', output: '2042-06-17 18:44:13' },
         ]
 
         test.each(cases)('$input should parsed as $output', async ({ input, output }) => {

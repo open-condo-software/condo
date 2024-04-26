@@ -33,10 +33,11 @@ dayjs.extend(customParseFormat)
 const ISO_DATE_FORMAT = 'YYYY-MM-DD'
 const EUROPEAN_DATE_FORMAT = 'DD.MM.YYYY'
 const DATE_PARSING_FORMATS = [
-    `${ISO_DATE_FORMAT} HH:mm`, `${EUROPEAN_DATE_FORMAT} HH:mm`,
-    'YYYY-MM HH:mm', 'MM-YYYY HH:mm', 'YYYY.MM HH:mm', 'MM.YYYY HH:mm',
-    ISO_DATE_FORMAT, EUROPEAN_DATE_FORMAT,
-    'YYYY-MM', 'MM-YYYY', 'YYYY.MM', 'MM.YYYY',
+    'YYYY-MM-DDTHH:mm:ss.SSS[Z]', // The result of dayjs().toISOString()
+    `${ISO_DATE_FORMAT} HH:mm:ss`, `${EUROPEAN_DATE_FORMAT} HH:mm:ss`, // Up to seconds
+    `${ISO_DATE_FORMAT} HH:mm`, `${EUROPEAN_DATE_FORMAT} HH:mm`, // Up to minutes
+    ISO_DATE_FORMAT, EUROPEAN_DATE_FORMAT, // No time
+    'YYYY-MM', 'MM-YYYY', 'YYYY.MM', 'MM.YYYY', // Some exotic cases
 ]
 const READINGS_LIMIT = 500
 
