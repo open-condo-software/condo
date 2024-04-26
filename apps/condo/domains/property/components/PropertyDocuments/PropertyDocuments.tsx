@@ -41,9 +41,13 @@ const TableContent = ({ total, documentsLoading, propertyDocuments, openUploadMo
 
     const handleRowAction = useCallback((document) => {
         return {
-            onClick: async () => setSelectedDocument(document),
+            onClick: async () => {
+                if (canManageDocuments) {
+                    setSelectedDocument(document)
+                }
+            },
         }
-    }, [setSelectedDocument])
+    }, [canManageDocuments, setSelectedDocument])
 
     return (
         <>

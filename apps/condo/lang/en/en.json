@@ -1065,6 +1065,8 @@
   "pages.condo.settings.employeeRoles.permission.canManageNewsItems": "Manage news",
   "pages.condo.settings.employeeRoles.permissionGroup.properties": "Properties",
   "pages.condo.settings.employeeRoles.permission.canManageProperties": "Manage properties",
+  "pages.condo.settings.employeeRoles.permission.canReadDocuments": "View documents",
+  "pages.condo.settings.employeeRoles.permission.canManageDocuments": "Manage documents",
   "pages.condo.settings.employeeRoles.permissionGroup.employees": "Employees",
   "pages.condo.settings.employeeRoles.permission.canReadEmployees": "View employees",
   "pages.condo.settings.employeeRoles.permission.canManageEmployees": "Manage employees",
