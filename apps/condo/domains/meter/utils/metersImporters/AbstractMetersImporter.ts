@@ -2,6 +2,7 @@ import { FetchResult } from '@apollo/client'
 import { RegisterMetersReadingsOutput, RegisterMetersReadingsReadingInput } from '@app/condo/schema'
 import chunk from 'lodash/chunk'
 import get from 'lodash/get'
+import isArray from 'lodash/isArray'
 
 import { MutationErrorsToMessagesType } from '@condo/domains/common/utils/importer'
 import {
@@ -33,11 +34,12 @@ export abstract class AbstractMetersImporter {
     constructor (
         protected readonly columnsHeaders: Columns,
         protected readonly mappers: TMeterImporterMappers,
-        private importRows: (rows: RegisterMetersReadingsReadingInput[]) => Promise<FetchResult<{ result: RegisterMetersReadingsOutput[] }>>,
+        private importRows: (rows: RegisterMetersReadingsReadingInput[]) => Promise<FetchResult<{
+            result: RegisterMetersReadingsOutput[]
+        }>>,
         protected errors: TImporterErrorMessages,
         private mutationErrorsToMessages: MutationErrorsToMessagesType,
     ) {
-
     }
 
     protected progress = {
@@ -64,7 +66,7 @@ export abstract class AbstractMetersImporter {
      * @param row array of cells values of particular row (from xls, csv, etc.)
      * @protected
      */
-    protected abstract transformRow (row: string[]): RegisterMetersReadingsReadingInput
+    protected abstract transformRow (row: string[]): RegisterMetersReadingsReadingInput | RegisterMetersReadingsReadingInput[]
 
     protected hasColumnsHeaders (): boolean {
         return false
@@ -96,12 +98,24 @@ export abstract class AbstractMetersImporter {
         }
 
         this.progress.absTotal = this.tableData.length
+        this.updateProgress(this.progress.min)
 
         const chunks = chunk(this.tableData, READINGS_CHUNK_SIZE)
 
         try {
             for (const chunk of chunks) {
-                const transformedChunk = chunk.map(this.transformRow, this)
+                const transformedChunk: RegisterMetersReadingsReadingInput[] = []
+                for (const row of chunk) {
+                    const transformedRow = this.transformRow(row)
+                    if (isArray(transformedRow)) {
+                        for (const rowPart of transformedRow) {
+                            transformedChunk.push(rowPart)
+                        }
+                    } else {
+                        transformedChunk.push(transformedRow)
+                    }
+                }
+
                 const chunkResult = await this.importRows(transformedChunk)
                 const { data: { result }, errors } = chunkResult
 
@@ -174,7 +188,7 @@ export abstract class AbstractMetersImporter {
         if (value) {
             this.progress.current = value
         } else {
-            this.progress.current = Math.min((this.progress.absProcessed / this.progress.absTotal) * 100, 100)
+            this.progress.current = Math.min((this.progress.absProcessed / this.progress.absTotal) * this.progress.max, this.progress.max)
         }
         if (this.progressUpdateHandler) {
             this.progressUpdateHandler(this.progress.current)
