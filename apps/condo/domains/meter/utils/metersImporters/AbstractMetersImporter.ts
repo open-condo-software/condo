@@ -100,57 +100,74 @@ export abstract class AbstractMetersImporter {
         this.progress.absTotal = this.tableData.length
         this.updateProgress(this.progress.min)
 
-        const chunks = chunk(this.tableData, READINGS_CHUNK_SIZE)
-
+        const sourceChunks = chunk(this.tableData, READINGS_CHUNK_SIZE)
         try {
-            for (const chunk of chunks) {
-                const transformedChunk: RegisterMetersReadingsReadingInput[] = []
-                for (const row of chunk) {
+            for (const sourceChunk of sourceChunks) {
+                const transformedData: RegisterMetersReadingsReadingInput[] = []
+                const transformedRowToSourceRowMap = new Map<string, string>()
+                const indexesOfFailedSourceRows = new Set<string>()
+                let transformedIndex = 0
+                for (const sourceIndex in sourceChunk) {
+                    const row = sourceChunk[sourceIndex]
                     const transformedRow = this.transformRow(row)
-                    if (isArray(transformedRow)) {
+                    if (isArray(transformedRow)) { // Sbbol registry contains several meters per one row
+                        if (transformedRow.length === 0) {
+                            this.failProcessingHandler({ originalRow: row, errors: [this.errors.invalidTypes.message] })
+                        }
                         for (const rowPart of transformedRow) {
-                            transformedChunk.push(rowPart)
+                            transformedData.push(rowPart)
+                            transformedRowToSourceRowMap.set(String(transformedIndex++), sourceIndex)
                         }
                     } else {
-                        transformedChunk.push(transformedRow)
+                        transformedData.push(transformedRow)
+                        transformedRowToSourceRowMap.set(sourceIndex, sourceIndex)
                     }
                 }
 
-                const chunkResult = await this.importRows(transformedChunk)
-                const { data: { result }, errors } = chunkResult
+                const transformedChunks = chunk(transformedData, READINGS_CHUNK_SIZE)
+                for (const transformedChunk of transformedChunks) {
+                    const transformedChunkResult = await this.importRows(transformedChunk)
+                    const { data: { result }, errors } = transformedChunkResult
 
-                let errorIndex = 0
-                for (const rowIndex in result) {
-                    const resultRow = result[rowIndex]
-                    if (resultRow) {
-                        this.successProcessingHandler(chunk[rowIndex])
-                    } else {
-                        const mutationError = errors[errorIndex++]
-
-                        const messageForUser = get(mutationError, ['extensions', 'messageForUser'])
-                        const rowErrors = []
-
-                        if (messageForUser) {
-                            rowErrors.push(messageForUser)
+                    let errorIndex = 0
+                    for (const transformedRowIndex in result) {
+                        const resultRow = result[transformedRowIndex]
+                        const sourceRowIndex = transformedRowToSourceRowMap.get(transformedRowIndex)
+                        if (resultRow) {
+                            this.successProcessingHandler(sourceChunk[sourceRowIndex])
                         } else {
-                            const mutationErrorMessages = get(mutationError, ['originalError', 'errors', 0, 'data', 'messages'], []) || []
-                            for (const message of mutationErrorMessages) {
-                                const errorCodes = Object.keys(this.mutationErrorsToMessages)
-                                for (const code of errorCodes) {
-                                    if (message.includes(code)) {
-                                        rowErrors.push(this.mutationErrorsToMessages[code])
+                            const mutationError = errors[errorIndex++]
+
+                            const messageForUser = get(mutationError, ['extensions', 'messageForUser'])
+                            const rowErrors = []
+
+                            if (messageForUser) {
+                                rowErrors.push(messageForUser)
+                            } else {
+                                const mutationErrorMessages = get(mutationError, ['originalError', 'errors', 0, 'data', 'messages'], []) || []
+                                for (const message of mutationErrorMessages) {
+                                    const errorCodes = Object.keys(this.mutationErrorsToMessages)
+                                    for (const code of errorCodes) {
+                                        if (message.includes(code)) {
+                                            rowErrors.push(this.mutationErrorsToMessages[code])
+                                        }
                                     }
                                 }
                             }
-                        }
 
-                        this.failProcessingHandler({ originalRow: chunk[rowIndex], errors: rowErrors })
+                            if (!indexesOfFailedSourceRows.has(sourceRowIndex)) {
+                                this.failProcessingHandler({
+                                    originalRow: sourceChunk[sourceRowIndex],
+                                    errors: rowErrors,
+                                })
+                                indexesOfFailedSourceRows.add(sourceRowIndex)
+                            }
+                        }
                     }
                 }
 
-                this.progress.absProcessed += chunk.length
+                this.progress.absProcessed += sourceChunk.length
                 this.updateProgress()
-
             }
 
             this.updateProgress(100)
