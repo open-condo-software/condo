@@ -135,7 +135,11 @@ const MetersImportWrapper: React.FC<IMetersImportWrapperProps> = (props) => {
         return new Promise<void>((resolve, reject) => {
             try {
                 const erroredRows = errors.current
-                const data = [columnsHeadersResolver(dataTypeRef.current).map(column => column.name).concat([ErrorsMessage])]
+                const columnsHeaders = columnsHeadersResolver(dataTypeRef.current)
+                const data = []
+                if (columnsHeaders) {
+                    data.push(columnsHeaders.map(column => column.name).concat([ErrorsMessage]))
+                }
 
                 for (let i = 0; i < erroredRows.length; i++) {
                     const line = erroredRows[i].originalRow.map((cell) => {
