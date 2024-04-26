@@ -28,6 +28,9 @@ export default class SbbolMetersImporter extends AbstractMetersImporter {
             if (meterType && meterNumber && meterValue && date) {
                 let values, meterResourceId, numberOfTariffs = 1
 
+                /**
+                 * @see https://vgkh.ru/faq-1s-zhkh/obmen-sberbank/obmen-s-sistemoj-sberbank-biznes-onlajn/#shablon-pokazaniya-schetchikov
+                 * */
                 switch (meterType) {
                     case '1': // Газ
                         meterResourceId = GAS_SUPPLY_METER_RESOURCE_ID
@@ -77,6 +80,10 @@ export default class SbbolMetersImporter extends AbstractMetersImporter {
                     case '11': // Водоотведение
                     case '12': // Вода для полива
                     case '13': // Вывоз мусора
+                    default:
+                        // Return empty data if meter type was not detected
+                        //
+                        return []
                 }
 
                 if (result[meterNumber]) {
