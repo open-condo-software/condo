@@ -115,6 +115,8 @@
     "msgpackr": "^1.10.1",
     "browserify-sign": "^4.2.3",
     "dd-trace@npm:1.5.1/import-in-the-middle": "^1.4.2",
-    "oidc-provider@npm:7.14.3/@koa/cors": "^5.0.0"
+    "oidc-provider@npm:7.14.3/@koa/cors": "^5.0.0",
+    "luxon@>=1.0.0": "^1.28.1",
+    "luxon@^3.0.1": "3.0.1"
   }
 }
