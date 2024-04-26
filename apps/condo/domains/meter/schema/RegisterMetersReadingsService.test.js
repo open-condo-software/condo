@@ -863,6 +863,7 @@ describe('RegisterMetersReadingsService', () => {
             { input: '17-06-2042 18/44/13', output: '2042-06-17 18:44:13' },
             { input: '17/06/2042 18/44/13', output: '2042-06-17 18:44:13' },
             { input: '17-06-2042 18-44-13', output: '2042-06-17 18:44:13' },
+            { input: '[]', output: '' },
         ]
 
         test.each(cases)('$input should parsed as $output', async ({ input, output }) => {
@@ -879,13 +880,17 @@ describe('RegisterMetersReadingsService', () => {
             const metersReading = await MeterReading.getOne(adminClient, { id: row.id })
             expect(metersReading.date).toBe(dayjs(output).toISOString())
         })
+    })
 
-        test('error on invalid submission date', async () => {
+    describe('error on invalid submission date', () => {
+        const cases = ['[]', '12_23', 'hello moto']
+
+        test.each(cases)('%p should cause an error', async (date) => {
             const locale = 'ru'
             const [o10n] = await createTestOrganization(adminClient)
             const [property] = await createTestPropertyWithMap(adminClient, o10n)
 
-            const reading = createTestReadingData(property, { date: '12_23' })
+            const reading = createTestReadingData(property, { date })
 
             await catchErrorFrom(
                 async () => {
@@ -920,6 +925,56 @@ describe('RegisterMetersReadingsService', () => {
                     ])
                 },
             )
+        })
+    })
+
+    describe('Meter info dates sanitizing', () => {
+        const cases = [
+            { input: '!2042-06-17', output: '2042-06-17' },
+            { input: '[]17.06.2042', output: '2042-06-17' },
+            { input: '(2042-06', output: '2042-06-01' },
+            { input: 'hello06-2042', output: '2042-06-01' },
+            { input: ']2042.06', output: '2042-06-01' },
+            { input: '06.2042', output: '2042-06-01' },
+            { input: '2042-06-17 18:44', output: '2042-06-17 18:44' },
+            { input: '17.06.2042 18:44', output: '2042-06-17 18:44' },
+            { input: '2042-06-17 18:44:13', output: '2042-06-17 18:44:13' },
+            { input: '17.06.2042 18:44:13', output: '2042-06-17 18:44:13' },
+            { input: '17/06/2042 18:44:13', output: '2042-06-17 18:44:13' },
+            { input: '17/06/2042 18-44-13', output: '2042-06-17 18:44:13' },
+            { input: '17-06-2042 18/44/13', output: '2042-06-17 18:44:13' },
+            { input: '17/06/2042 18/44/13', output: '2042-06-17 18:44:13' },
+            { input: '17-06-2042 18-44-13', output: '2042-06-17 18:44:13' },
+            { input: '[]', output: null },
+        ]
+
+        test.each(cases)('$input should parsed as $output', async ({ input, output }) => {
+            const [o10n] = await createTestOrganization(adminClient)
+            const [property] = await createTestPropertyWithMap(adminClient, o10n)
+
+            const reading = createTestReadingData(property)
+            reading.meterMeta = {
+                ...reading.meterMeta,
+                verificationDate: input,
+                nextVerificationDate: input,
+                installationDate: input,
+                commissioningDate: input,
+                sealingDate: input,
+                controlReadingsDate: input,
+            }
+            const [data] = await registerMetersReadingsByTestClient(adminClient, o10n, [reading])
+
+            expect(data).toHaveLength(1)
+
+            const row = data[0]
+
+            const meter = await Meter.getOne(adminClient, { id: row.meter.id })
+            expect(meter.verificationDate).toBe(output ? dayjs(output).toISOString() : output)
+            expect(meter.nextVerificationDate).toBe(output ? dayjs(output).toISOString() : output)
+            expect(meter.installationDate).toBe(output ? dayjs(output).toISOString() : output)
+            expect(meter.commissioningDate).toBe(output ? dayjs(output).toISOString() : output)
+            expect(meter.sealingDate).toBe(output ? dayjs(output).toISOString() : output)
+            expect(meter.controlReadingsDate).toBe(output ? dayjs(output).toISOString() : output)
         })
     })
 })
