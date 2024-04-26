@@ -1,9 +1,10 @@
-.condo-checkbox-inner-layer(@color, @checkbox-inner-border-radius) {
+.condo-checkbox-layer(@margin) {
   position: absolute;
-  box-sizing: border-box;
-  width: 100%;
-  height: 100%;
-  background: @color border-box;
-  border-radius: @checkbox-inner-border-radius;
+  top: @margin;
+  right: @margin;
+  bottom: @margin;
+  left: @margin;
+  display: block;
+  border-radius: inherit;
   content: "";
 }

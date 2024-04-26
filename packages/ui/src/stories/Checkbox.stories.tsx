@@ -12,6 +12,7 @@ export default {
         defaultChecked: false,
         disabled: false,
         autoFocus: false,
+        focus: false,
         label: 'Label',
     },
     argTypes: {
@@ -33,6 +34,7 @@ export default {
             control: 'boolean', 
             if: { arg: 'checked', truthy: false },
         },
+        focus: { control: 'boolean' },
         labelProps: {
             if: { arg: 'label' },
         },
