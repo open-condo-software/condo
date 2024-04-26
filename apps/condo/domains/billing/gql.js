@@ -50,6 +50,17 @@ const BillingReceiptAdmin = generateGqlQueries('BillingReceipt', BILLING_RECEIPT
 const RESIDENT_BILLING_RECEIPTS_FIELDS = `{ id ${BILLING_RECEIPT_RECIPIENT_FIELDS} period toPay paid toPayDetails { ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS} } ${BILLING_RECEIPT_SERVICE_FIELDS} printableNumber serviceConsumer { id paymentCategory } currencyCode category { id name } isPayable file { file { id originalFilename publicUrl mimetype } controlSum } }`
 const ResidentBillingReceipt = generateGqlQueries('ResidentBillingReceipt', RESIDENT_BILLING_RECEIPTS_FIELDS)
 
+const BillingReceiptForOrganization = generateGqlQueries('BillingReceipt', `{ 
+        id period toPay
+        property { id address addressKey }
+        account { id number unitType unitName fullName ownerType globalId isClosed }
+        toPayDetails { ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS} } 
+        ${BILLING_RECEIPT_SERVICE_FIELDS}
+        receiver { id tin iec bic bankAccount isApproved }
+        category { name } 
+    }`
+)
+
 const BILLING_RECEIPT_FILE_FIELDS = `{ file { id originalFilename publicUrl mimetype } context { id } receipt { id } controlSum ${COMMON_FIELDS} }`
 const BillingReceiptFile = generateGqlQueries('BillingReceiptFile', BILLING_RECEIPT_FILE_FIELDS)
 
@@ -101,6 +112,7 @@ module.exports = {
     BillingProperty,
     BillingAccount,
     BillingReceipt,
+    BillingReceiptForOrganization,
     BillingReceiptAdmin,
     ResidentBillingReceipt,
     RESIDENT_BILLING_RECEIPTS_FIELDS,

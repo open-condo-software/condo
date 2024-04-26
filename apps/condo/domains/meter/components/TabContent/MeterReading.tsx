@@ -40,7 +40,7 @@ import { EXPORT_METER_READINGS_QUERY } from '@condo/domains/meter/gql'
 import { useImporterFunctions } from '@condo/domains/meter/hooks/useImporterFunctions'
 import { useUpdateMeterModal } from '@condo/domains/meter/hooks/useUpdateMeterModal'
 import {
-    MeterReading,
+    MeterReadingForOrganization,
     MeterReadingFilterTemplate,
     METER_PAGE_TYPES,
 } from '@condo/domains/meter/utils/clientSchema'
@@ -96,7 +96,7 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
         count: total,
         objs: meterReadings,
         refetch,
-    } = MeterReading.useObjects({
+    } = MeterReadingForOrganization.useObjects({
         sortBy,
         where: searchMeterReadingsQuery,
         first: DEFAULT_PAGE_SIZE,
@@ -257,8 +257,8 @@ export const MetersPageContent: React.FC<MetersPageContentProps> = ({
     const MeterResourceOwnedByAnotherOrganizationMessage = intl.formatMessage({ id: 'api.meter.METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION' })
     const MeterNumberExistInOrganizationMessage = intl.formatMessage({ id: 'meter.import.error.MeterNumberExistInOrganization' })
 
-    const { refetch } = MeterReading.useCount({}, { skip: true })
-    const { count, loading: countLoading } = MeterReading.useCount({ where: baseSearchQuery })
+    const { refetch } = MeterReadingForOrganization.useCount({}, { skip: true })
+    const { count, loading: countLoading } = MeterReadingForOrganization.useCount({ where: baseSearchQuery })
 
     const [columns, meterReadingNormalizer, meterReadingValidator, meterReadingCreator] = useImporterFunctions()
 

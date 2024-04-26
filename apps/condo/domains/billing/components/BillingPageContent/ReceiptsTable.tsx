@@ -11,7 +11,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { ServicesModal } from '@condo/domains/billing/components/BillingPageContent/ServicesModal'
 import { useReceiptTableColumns } from '@condo/domains/billing/hooks/useReceiptTableColumns'
 import { useReceiptTableFilters } from '@condo/domains/billing/hooks/useReceiptTableFilters'
-import { BillingReceipt } from '@condo/domains/billing/utils/clientSchema'
+import { BillingReceiptForOrganization } from '@condo/domains/billing/utils/clientSchema'
 import Input from '@condo/domains/common/components/antd/Input'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
@@ -66,7 +66,7 @@ export const ReceiptsTable: React.FC = () => {
         count: total,
         objs: receipts,
         error,
-    } = BillingReceipt.useObjects({
+    } = BillingReceiptForOrganization.useObjects({
         where: { ...filtersToWhere(filters), context: { id: contextId } },
         sortBy: sortersToSortBy(sorters) as SortBillingReceiptsBy[],
         first: DEFAULT_PAGE_SIZE,
