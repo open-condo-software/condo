@@ -158,6 +158,7 @@ class OidcModelClientAdapter {
          * - iat {number} - timestamp of the replay object cache's creation
          */
         const expiresAt = expiresIn ? new Date(Date.now() + expiresIn * 1000) : undefined
+        const { isEnabled, ...clientPayload } = payload
         const dvAndSender = {
             dv: 1,
             sender: {
@@ -167,9 +168,9 @@ class OidcModelClientAdapter {
         }
         const item = await OidcClient.getOne(this.context, { clientId: id, deletedAt: null })
         if (!item) {
-            return await OidcClient.create(this.context, { ...dvAndSender, clientId: id, payload, expiresAt })
+            return await OidcClient.create(this.context, { ...dvAndSender, clientId: id, payload: clientPayload, isEnabled, expiresAt })
         } else {
-            return await OidcClient.update(this.context, item.id, { ...dvAndSender, clientId: id, payload, expiresAt })
+            return await OidcClient.update(this.context, item.id, { ...dvAndSender, clientId: id, payload: clientPayload, isEnabled, expiresAt })
         }
     }
 
