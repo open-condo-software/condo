@@ -10,7 +10,7 @@ export { Banner } from './components/Banner'
 export type { BannerProps } from './components/Banner'
 
 export { Button } from './components/Button'
-export type { ButtonProps } from './components/Button'
+export type { ButtonProps, IconButtonProps } from './components/Button'
 
 export { Card } from './components/Card'
 export type { CardProps, CardCheckboxProps, CardButtonProps, CardHeaderProps, CardBodyProps } from './components/Card'
@@ -23,9 +23,6 @@ export type { CheckboxProps } from './components/Checkbox'
 
 export { Dropdown } from './components/Dropdown'
 export type { DropdownProps } from './components/Dropdown'
-
-export { IconButton } from './components/IconButton'
-export type { IconButtonProps } from './components/IconButton'
 
 export { Input } from './components/Input'
 export type { InputType, BaseInputProps, InputProps, PasswordInputProps, PhoneInputProps } from './components/Input'

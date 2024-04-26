@@ -5,8 +5,8 @@ import {
 import classNames from 'classnames'
 import React, { useCallback } from 'react'
 
-import { sendAnalyticsClickEvent, extractChildrenContent } from '../_utils/analytics'
-import { BUTTON_CLASS_PREFIX } from '../Button/button'
+import { sendAnalyticsClickEvent, extractChildrenContent } from '../../_utils/analytics'
+import { BUTTON_CLASS_PREFIX } from '../button'
 
 const ICON_BUTTON_CLASS_PREFIX = 'condo-icon-btn'
 

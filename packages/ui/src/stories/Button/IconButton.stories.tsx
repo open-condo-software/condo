@@ -2,7 +2,7 @@ import { ComponentStory, ComponentMeta } from '@storybook/react'
 import React from 'react'
 
 import * as condoIcons from '@open-condo/icons'
-import { IconButton as Component } from '@open-condo/ui/src'
+import { Button as Component } from '@open-condo/ui/src'
 
 const { Trash } = condoIcons
 
@@ -13,8 +13,8 @@ const icons = Object.assign({}, ...Object.entries(condoIcons).map(([key, Icon]) 
 })))
 
 export default {
-    title: 'Components/IconButton',
-    component: Component,
+    title: 'Components/Button',
+    component: Component.Icon,
     args: {
         children: <Trash size='medium' />,
         disabled: false,
@@ -39,8 +39,8 @@ export default {
         target: { control: false },
         htmlType: { defaultValue: 'button' },
     },
-} as ComponentMeta<typeof Component>
+} as ComponentMeta<typeof Component.Icon>
 
-const Template: ComponentStory<typeof Component> = (props) => <Component {...props}/>
+const Template: ComponentStory<typeof Component.Icon> = (props) => <Component.Icon {...props}/>
 
 export const IconButton = Template.bind({})
