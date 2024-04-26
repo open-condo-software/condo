@@ -7,13 +7,14 @@ import { Button, Card, Modal, Radio, RadioGroup, Space, Typography } from '@open
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { EMOJI } from '@condo/domains/common/constants/emoji'
+import { GUIDE_LINK } from '@condo/domains/onboarding/utils/clientSchema/constants'
 
 
 const {
     publicRuntimeConfig,
 } = getConfig()
 
-const { residentAppLandingUrl, telegramEmployeeBotName } = publicRuntimeConfig
+const { telegramEmployeeBotName } = publicRuntimeConfig
 
 type ActiveModalType = 'info' | 'download' | null
 type RadioOptionType = 'admin' | 'technic' | 'security'
@@ -231,9 +232,6 @@ export const ResidentAppCard = () => {
     const ResidentAppCardTitle = intl.formatMessage({ id: 'tour.residentAppCard.title' })
 
     const locale = useMemo(() => get(intl, 'locale'), [intl])
-    const landingLink = useMemo(() => get(residentAppLandingUrl, locale), [locale])
-
-    if (!landingLink) return null
 
     return (
         <Card.CardButton
@@ -243,7 +241,7 @@ export const ResidentAppCard = () => {
             }}
             body={{ image: { src: `/onboarding/tour-resident-card/${locale}/card-image/tourResidentCard.webp`, style: APP_CARD_IMAGE_STYLES } }}
             onClick={() => {
-                window.open(landingLink, '_blank')
+                window.open(GUIDE_LINK, '_blank')
             }}
         />
     )
