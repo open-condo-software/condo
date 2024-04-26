@@ -255,7 +255,6 @@ export const useMetersImporter = (props: IUseMetersImporterProps) => {
 
     const importData = useCallback<TOnMetersUpload>(async (dataType, data) => {
         importer.current = null
-        // reset hook state
         setIsImported(false)
         setError(null)
         setProgress(0)
@@ -264,9 +263,11 @@ export const useMetersImporter = (props: IUseMetersImporterProps) => {
         const columns = columnsResolver(dataType)
         const mappers = mappersResolver(dataType)
 
-        errors.invalidColumns.message = intl.formatMessage({ id: 'TableHasInvalidHeaders.message' }, {
-            value: columns.map(column => `"${column.name}"`).join(', '),
-        })
+        if (columns) {
+            errors.invalidColumns.message = intl.formatMessage({ id: 'TableHasInvalidHeaders.message' }, {
+                value: columns.map(column => `"${column.name}"`).join(', '),
+            })
+        }
 
         importer.current = new MetersImporterClass(columns, mappers, importRows, errors, mutationErrorsToMessages)
 
@@ -274,23 +275,17 @@ export const useMetersImporter = (props: IUseMetersImporterProps) => {
 
         importer.current.onProgressUpdate(setProgress)
         importer.current.onError((e) => {
-            importer.current = null
             setError(e)
-
+            importer.current = null
             onError()
         })
         importer.current.onFinish(() => {
-            importer.current = null
             setIsImported(true)
-
+            importer.current = null
             onFinish()
         })
-        importer.current.onRowProcessed(() => {
-            setSuccessRows()
-        })
-        importer.current.onRowFailed((row) => {
-            handleRowError(row)
-        })
+        importer.current.onRowProcessed(setSuccessRows)
+        importer.current.onRowFailed(handleRowError)
 
         await importer.current.import(data)
     }, [columnsResolver, errors, handleRowError, importRows, intl, mappersResolver, mutationErrorsToMessages, onError, onFinish, setSuccessRows, setTotalRows])
