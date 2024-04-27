@@ -18,7 +18,7 @@
   background-color: transparent;
   border: none;
   border-radius: @condo-icon-button-border-radius-medium;
-  transition: background @condo-global-transition-duration-default;
+  transition: background @condo-global-transition-duration-default ease-in;
 
   span {
     position: relative;
@@ -36,13 +36,21 @@
     mask-composite: exclude;
   }
 
+  &::before {
+    .condo-btn-layer(0px);
+
+    background: @condo-global-color-brand-gradient-1;
+    opacity: 0;
+    transition: opacity @condo-global-transition-duration-default ease-in;
+  }
+
   .condo-icon-btn-content {
     display: inline-flex;
   }
 
   * {
     color: @condo-global-color-black;
-    transition: all @condo-global-transition-duration-default;
+    transition: all @condo-global-transition-duration-default ease-in;
   }
 
   &:focus::after {
@@ -61,7 +69,7 @@
     background-color: transparent;
 
     .condo-icon-btn-content {
-      opacity: 0.5;
+      opacity: @condo-global-opacity-disabled;
     }
 
     &:hover {
@@ -70,7 +78,9 @@
   }
 
   &:not(:disabled):hover {
-    background: @condo-global-color-brand-gradient-1;
+    &::before {
+      opacity: 1;
+    }
 
     * {
       color: @condo-global-color-green-5;
