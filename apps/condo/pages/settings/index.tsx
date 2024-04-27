@@ -14,7 +14,7 @@ import { hasFeature } from '@condo/domains/common/components/containers/FeatureF
 import { ControlRoomSettingsContent } from '@condo/domains/common/components/settings/ControlRoomSettingsContent'
 import { MobileFeatureConfigContent } from '@condo/domains/common/components/settings/MobileFeatureConfigContent'
 import { SettingsPageContent } from '@condo/domains/common/components/settings/SettingsPageContent'
-import { MOBILE_FEATURE_CONFIGURATION, SETTINGS_NEW_EMPLOYEE_ROLE_TABLE } from '@condo/domains/common/constants/featureflags'
+import { SETTINGS_NEW_EMPLOYEE_ROLE_TABLE } from '@condo/domains/common/constants/featureflags'
 import {
     SETTINGS_TAB_CONTACT_ROLES,
     SETTINGS_TAB_PAYMENT_DETAILS,
@@ -50,7 +50,6 @@ const SettingsPage = () => {
 
     const hasSubscriptionFeature = hasFeature('subscription')
     const { useFlag } = useFeatureFlags()
-    const hasMobileFeatureConfigurationFeature = useFlag(MOBILE_FEATURE_CONFIGURATION)
     const hasNewEmployeeRoleTableFeature = useFlag(SETTINGS_NEW_EMPLOYEE_ROLE_TABLE)
 
     const userOrganization = useOrganization()
@@ -98,13 +97,13 @@ const SettingsPage = () => {
                 label: ControlRoomTitle,
                 children: <ControlRoomSettingsContent/>,
             },
-            canManageMobileFeatureConfigsRoles && hasMobileFeatureConfigurationFeature && {
+            canManageMobileFeatureConfigsRoles && {
                 key: SETTINGS_TAB_MOBILE_FEATURE_CONFIG,
                 label: MobileFeatureConfigTitle,
                 children: <MobileFeatureConfigContent/>,
             },
         ].filter(Boolean),
-        [hasSubscriptionFeature, SubscriptionTitle, isEmployeeTabAvailable, EmployeeRolesTitle, DetailsTitle, canManageContactRoles, RolesTitle, ControlRoomTitle, canManageMobileFeatureConfigsRoles, hasMobileFeatureConfigurationFeature, MobileFeatureConfigTitle],
+        [hasSubscriptionFeature, SubscriptionTitle, isEmployeeTabAvailable, EmployeeRolesTitle, DetailsTitle, canManageContactRoles, RolesTitle, ControlRoomTitle, canManageMobileFeatureConfigsRoles, MobileFeatureConfigTitle],
     )
 
     const titleContent = useMemo(() => (
