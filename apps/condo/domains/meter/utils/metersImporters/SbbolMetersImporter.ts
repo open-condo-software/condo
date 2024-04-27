@@ -15,10 +15,6 @@ const METERS_BLOCK_LENGTH = 7
 export default class SbbolMetersImporter extends AbstractMetersImporter {
 
     protected transformRow (row: string[]): RegisterMetersReadingsReadingInput[] {
-        /**
-         * Each meter fields. Order is important.
-         * @see https://vgkh.ru/faq-1s-zhkh/obmen-sberbank/obmen-s-sistemoj-sberbank-biznes-onlajn/
-         */
         const [accountNumber, clientName, accountGlobalId, addressGlobalId, address, ...metersBlocks] = row
         const result = {}
         let nextBlock = metersBlocks.splice(0, METERS_BLOCK_LENGTH)
@@ -28,61 +24,57 @@ export default class SbbolMetersImporter extends AbstractMetersImporter {
             if (meterType && meterNumber && meterValue && date) {
                 let values, meterResourceId, numberOfTariffs = 1
 
-                /**
-                 * @see https://vgkh.ru/faq-1s-zhkh/obmen-sberbank/obmen-s-sistemoj-sberbank-biznes-onlajn/#shablon-pokazaniya-schetchikov
-                 * */
                 switch (meterType) {
-                    case '1': // Газ
+                    case '1': // Gas
                         meterResourceId = GAS_SUPPLY_METER_RESOURCE_ID
                         values = { value1: meterValue }
                         break
-                    case '2': // Электроэнергия
+                    case '2': // Electricity
                         meterResourceId = ELECTRICITY_METER_RESOURCE_ID
                         values = { value1: meterValue }
                         break
-                    case '3': // Электроэнергия (день) (для 2-тарифного счетчика)
+                    case '3': // Electricity (day) (for 2-tariff meter)
                         meterResourceId = ELECTRICITY_METER_RESOURCE_ID
                         values = { value1: meterValue }
                         numberOfTariffs = 2
                         break
-                    case '4': // Электроэнергия (ночь) (для 2-тарифного счетчика)
+                    case '4': // Electricity (night) (for 2-tariff meter)
                         meterResourceId = ELECTRICITY_METER_RESOURCE_ID
                         values = { value2: meterValue }
                         numberOfTariffs = 2
                         break
-                    case '5': // Электроэнергия (пик) (для 3-тарифного счетчика)
+                    case '5': // Electricity (peak) (for 3-tariff meter)
                         meterResourceId = ELECTRICITY_METER_RESOURCE_ID
                         values = { value3: meterValue }
                         numberOfTariffs = 3
                         break
-                    case '6': // Электроэнергия (день) (для 3-тарифного счетчика)
+                    case '6': // Electricity (day) (for 3-tariff meter)
                         meterResourceId = ELECTRICITY_METER_RESOURCE_ID
                         values = { value1: meterValue }
                         numberOfTariffs = 3
                         break
-                    case '7': // Электроэнергия (ночь) (для 3-тарифного счетчика)
+                    case '7': // Electricity (night) (for 3-tariff meter)
                         meterResourceId = ELECTRICITY_METER_RESOURCE_ID
                         values = { value2: meterValue }
                         numberOfTariffs = 3
                         break
-                    case '8': // Горячая вода
+                    case '8': // Hot water
                         meterResourceId = HOT_WATER_METER_RESOURCE_ID
                         values = { value1: meterValue }
                         break
-                    case '9': // Холодная вода
+                    case '9': // Cold water
                         meterResourceId = COLD_WATER_METER_RESOURCE_ID
                         values = { value1: meterValue }
                         break
-                    case '10': // Отопление
+                    case '10': // Heating
                         meterResourceId = HEAT_SUPPLY_METER_RESOURCE_ID
                         values = { value1: meterValue }
                         break
-                    case '11': // Водоотведение
-                    case '12': // Вода для полива
-                    case '13': // Вывоз мусора
+                    case '11': // Water disposal
+                    case '12': // Water for irrigation
+                    case '13': // Garbage
                     default:
                         // Return empty data if meter type was not detected
-                        //
                         return []
                 }
 

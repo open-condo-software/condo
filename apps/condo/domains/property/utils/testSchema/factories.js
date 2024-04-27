@@ -97,6 +97,9 @@ const buildFakeAddressAndMeta = (withFlat, addressMetaExtraAttrs = {}) => {
     return { address, addressMeta }
 }
 
+const TYPE_FOR_UNIT = 'unit'
+const TYPE_FOR_FLOOR = 'floor'
+
 const buildPropertyMap = ({ floors = 3, unitsOnFloor = 4, parkingFloors = 2, unitsOnParkingFloor = 8 } = {}) => ({
     dv: 1,
     type: 'building',
@@ -111,12 +114,12 @@ const buildPropertyMap = ({ floors = 3, unitsOnFloor = 4, parkingFloors = 2, uni
                 const floorPlus1 = floor + 1
                 return {
                     id: String(floorPlus1),
-                    type: 'floor',
+                    type: TYPE_FOR_FLOOR,
                     index: floorPlus1,
                     name: String(floorPlus1),
                     units: map(Array(unitsOnFloor), (...[, n]) => ({
                         id: String(floor * unitsOnFloor + n + 1),
-                        type: 'unit',
+                        type: TYPE_FOR_UNIT,
                         name: null,
                         label: String(floor * unitsOnFloor + n + 1),
                         preview: null,
@@ -137,12 +140,12 @@ const buildPropertyMap = ({ floors = 3, unitsOnFloor = 4, parkingFloors = 2, uni
                 const floorPlus1 = floor + 1
                 return {
                     id: String(floorPlus1),
-                    type: 'floor',
+                    type: TYPE_FOR_FLOOR,
                     index: floorPlus1,
                     name: String(floorPlus1),
                     units: map(Array(unitsOnParkingFloor), (...[, n]) => ({
                         id: String(floor * unitsOnParkingFloor + n + 1),
-                        type: 'unit',
+                        type: TYPE_FOR_UNIT,
                         name: null,
                         label: String(floor * unitsOnParkingFloor + n + 1),
                         preview: null,
