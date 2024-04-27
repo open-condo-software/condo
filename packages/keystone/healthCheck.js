@@ -8,19 +8,27 @@
  *
  * Example: if all checks pass:
  * 200
- * {
- *     postgres: pass
- *     redis: pass
- *     apollo: pass
- * }
+ * [{
+ *      name: 'postgres',
+ *      statusText: 'pass',
+ *      status: 1
+ * }, {
+ *      name: 'redis',
+ *      statusText: 'pass',
+ *      status: 1
+ * }]
  *
  * Example: if any check fails
  * 500
- * {
- *     postgres: pass
- *     redis: pass
- *     apollo: fail
- * }
+ * [{
+ *      name: 'postgres',
+ *      statusText: 'pass',
+ *      status: 1
+ * }, {
+ *      name: 'redis',
+ *      statusText: 'fail',
+ *      status: 0
+ * }]
  *
  *
  * ## Advanced usage:
@@ -33,16 +41,23 @@
  *
  * Request: <url>?checks=postgres
  * 200
- * {
- *      postgres: pass
- * }
+ * [{
+ *      name: 'postgres',
+ *      statusText: 'pass',
+ *      status: 1
+ * }]
  *
  * Request <url>?checks=postgres,redis
  * 500
- * {
- *      postgres: pass,
- *      redis: fail
- * }
+ * [{
+ *      name: 'postgres'
+ *      statusText: 'pass',
+ *      status: 1
+ * }, {
+ *      name: 'redis',
+ *      statusText: 'fail',
+ *      status: 0
+ * }]
  *
  * Note: if configured, non specified checks are ignored. That means, if redis and apollo fails, output will be 200OK, since only postgres was specified
  *
@@ -283,7 +298,6 @@ class HealthCheck {
         app.use(this.url, async (req, res) => {
 
             const customChecksConfigured = typeof req.query.checks === 'string'
-            const extendedFormatConfigured = req.query.format === 'array'
 
             let customChecks = null
 
@@ -301,7 +315,7 @@ class HealthCheck {
 
             const selectedChecks = customChecksConfigured ? customChecks : Object.keys(this.preparedChecks)
 
-            const result = extendedFormatConfigured ? [] : {}
+            const result = []
 
             let status = HEALTHCHECK_OK
 
@@ -309,15 +323,12 @@ class HealthCheck {
                 selectedChecks.map(
                     async checkName => {
                         const checkResult = await this.runCheck(this.preparedChecks[checkName])
-                        if (extendedFormatConfigured) {
-                            result.push({
-                                name: checkName,
-                                status: STATUS_ENUM[checkResult],
-                                statusText: checkResult,
-                            })
-                        } else {
-                            result[checkName] = checkResult
-                        }
+                        result.push({
+                            name: checkName,
+                            status: STATUS_ENUM[checkResult],
+                            statusText: checkResult,
+                        })
+
                         if (status === HEALTHCHECK_OK && checkResult === WARN) {
                             status = HEALTHCHECK_WARNING
                         } else if (checkResult === FAIL) {
