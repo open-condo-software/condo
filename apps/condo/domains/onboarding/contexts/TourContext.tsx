@@ -97,10 +97,6 @@ export const TourProvider = ({ children }) => {
         if (!tourStep) return
 
         if (tourStep.status === TourStepStatusType.Completed) {
-            if (currentImport.current) {
-                isFirstSuccessImport.current = true
-            }
-
             return
         }
 
