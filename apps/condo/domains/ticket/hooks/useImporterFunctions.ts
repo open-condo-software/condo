@@ -129,6 +129,8 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
 
         const phoneNumber = String(get(phone, 'value', '')).trim()
         const normalizedPhone = normalizePhone(phoneNumber, true)
+        const trimmedUnitName = String(unitName.value).trim()
+
         addons.phone = normalizedPhone || null
         addons.isValidPhone = Boolean(normalizedPhone)
         addons.createdAt = createdAt.value ? String(createdAt.value) : ''
@@ -136,7 +138,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         addons.details = String(get(details, 'value', '')).trim()
         addons.oldTicketNumber = String(get(oldTicketNumber, 'value', '')).trim()
         addons.isResidentTicket = normalizeIsResidentTicket(String(get(isResidentTicket, 'value', '')).trim(), IsResidentTicketValueYesMessage, IsResidentTicketValueNoMessage)
-        addons.unitName = unitName.value ? String(unitName.value).trim() : null
+        addons.unitName = trimmedUnitName || null
         addons.unitType = addons.unitName ? 'flat' : null
         addons.isEmptyDetails = Boolean(String(get(details, 'value', '')).trim())
 
