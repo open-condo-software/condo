@@ -132,11 +132,11 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
     const nameValidator: Rule = useMemo(() => ({
         validator: async (_, name) => {
             const phone = form.getFieldValue(NEW_CONTACT_PHONE_FORM_ITEM_NAME)
-            if (!phone || !name || isNameDisabled) return Promise.resolve()
+            if (!isEmpty(contacts) && (!phone || !name || isNameDisabled)) return Promise.resolve()
             if (SPECIAL_CHAR_REGEXP.test(name)) return Promise.reject(FullNameInvalidCharMessage)
             return Promise.resolve()
         },
-    }), [FullNameInvalidCharMessage, form, isNameDisabled])
+    }), [FullNameInvalidCharMessage, form, isNameDisabled, contacts])
 
     const validations = useMemo(() => ({
         phone: activeTab === CONTACT_TYPE.RESIDENT ? [phoneValidator, contactExistValidator] : [],
