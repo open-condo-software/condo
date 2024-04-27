@@ -1,5 +1,4 @@
 import { Checkbox as DefaultCheckbox, CheckboxProps as DefaultCheckboxProps } from 'antd'
-import classNames from 'classnames'
 import React, { useCallback } from 'react'
 
 import { extractChildrenContent, sendAnalyticsCheckEvent } from '../_utils/analytics'
@@ -12,7 +11,6 @@ const CHECKBOX_CLASS_PREFIX = 'condo-checkbox'
 type CondoCheckboxProps = {
     label?: string
     labelProps?: TypographyTextProps
-    focus?: boolean
 }
 
 export type CheckboxProps = Pick<DefaultCheckboxProps,
@@ -34,17 +32,8 @@ const Checkbox: React.FC<CheckboxProps> = (props) => {
         id,
         onChange,
         children,
-        focus,
-        className,
         ...rest
     } = props
-
-    const classes = classNames(
-        {
-            [`${CHECKBOX_CLASS_PREFIX}-focus`]: focus,
-        },
-        className,
-    )
 
     const handleChange = useCallback((event: CheckboxChangeEvent) => {
         const stringContent = label ? label : extractChildrenContent(children)
@@ -64,7 +53,6 @@ const Checkbox: React.FC<CheckboxProps> = (props) => {
             prefixCls={CHECKBOX_CLASS_PREFIX}
             disabled={disabled}
             onChange={handleChange}
-            className={classes}
         >
             {
                 label
