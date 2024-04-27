@@ -26,8 +26,7 @@
   }
 
   // After layer is used to show gradient outline on tab-focusing
-  &:focus-visible::after,
-  &-focus::after {
+  &:focus-visible::after {
     box-sizing: border-box;
     background: @condo-global-color-brand-gradient-5 border-box;
     border: @condo-icon-button-focus-visible-outline-width solid transparent;
@@ -46,8 +45,7 @@
     transition: all @condo-global-transition-duration-default;
   }
 
-  &:focus::after,
-  &.condo-icon-btn-focus::after {
+  &:focus::after {
     .condo-btn-layer(-@condo-icon-button-focus-outline-width);
 
     border-radius: @condo-icon-button-focus-outline-border-radius-medium;
@@ -90,8 +88,7 @@
     padding: @condo-icon-button-padding-small;
     border-radius: @condo-icon-button-border-radius-small;
 
-    &:focus::after,
-    &.condo-icon-btn-focus::after {
+    &:focus::after {
       border-radius: @condo-icon-button-focus-outline-border-radius-small;
     }
   }

@@ -11,7 +11,6 @@ import { BUTTON_CLASS_PREFIX } from '../button'
 const ICON_BUTTON_CLASS_PREFIX = 'condo-icon-btn'
 
 type CondoIconButtonProps = {
-    focus?: boolean
     size?: 'small' | 'medium'
     pressed?: boolean
 }
@@ -20,14 +19,13 @@ export type IconButtonProps = Omit<DefaultButtonProps, 'shape' | 'size' | 'style
 & CondoIconButtonProps
 
 const IconButton: React.ForwardRefExoticComponent<IconButtonProps & React.RefAttributes<HTMLButtonElement>> = React.forwardRef((props, ref) => {
-    const { className, children, onClick, id, focus, size, pressed, ...rest } = props
+    const { className, children, onClick, id, size, pressed, ...rest } = props
     const mergedSize = size || 'medium'
     const ariaLabel = rest['aria-label']
     const classes = classNames(
         {
             [BUTTON_CLASS_PREFIX]: true,
             [`${ICON_BUTTON_CLASS_PREFIX}-pressed`]: pressed,
-            [`${ICON_BUTTON_CLASS_PREFIX}-focus`]: focus,
             [`${ICON_BUTTON_CLASS_PREFIX}-${mergedSize}`]: mergedSize,
         },
         className,

@@ -18,7 +18,6 @@ export default {
     args: {
         children: <Trash size='medium' />,
         disabled: false,
-        focus: false,
         pressed: false,
         size: 'medium',
     },
@@ -31,7 +30,6 @@ export default {
                 type: 'select',
             },
         },
-        focus: { type: 'boolean', default: false },
         disabled: { control: 'boolean', default: false },
         pressed: { control: 'boolean', default: false },
         onClick: { control: false },
