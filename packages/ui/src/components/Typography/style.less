@@ -1,10 +1,12 @@
 @import "antd/lib/tooltip/style/index.less";
 @import (reference) "@open-condo/ui/src/tokens/variables.less";
 @import (reference) "@open-condo/ui/src/components/style/mixins/typography.less";
+@import (reference) "@open-condo/ui/src/components/style/mixins/transition";
 @import "@open-condo/ui/src/components/style/mixins/link.less";
 
 .condo-typography {
   @condo-typography-decoration-thickness: 1px;
+  .condo-transition(color, opacity, text-decoration-color);
 
   word-break: break-word;
 

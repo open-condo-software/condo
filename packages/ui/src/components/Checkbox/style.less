@@ -1,6 +1,7 @@
 @import "antd/lib/checkbox/style/index.less";
 @import (reference) "@open-condo/ui/src/tokens/variables.less";
 @import (reference) "@open-condo/ui/src/components/style/mixins/typography";
+@import (reference) "@open-condo/ui/src/components/style/mixins/transition";
 @import "./mixins";
 
 @checkbox-border-width: @condo-global-border-width-default;
@@ -19,22 +20,18 @@
 .condo-checkbox-wrapper {
   align-items: center;
 
-  * {
-    transition: all @condo-global-transition-duration-default;
-  }
-
   .condo-checkbox {
     top: 0;
     border-color: @condo-global-color-gray-5;
 
-    &-input {
-      margin: 0;
-    }
+    .condo-transition(border-color);
 
     &-inner {
       box-sizing: content-box;
-      border-color: @condo-global-color-gray-5 !important;
+      border-color: @condo-global-color-gray-5;
       outline: none;
+
+      .condo-transition(border-color, opacity);
 
       // Before layer is used to show gradient outline on tab-focusing
       &::before {
@@ -70,14 +67,22 @@
   }
 
   &-disabled .condo-checkbox-inner {
-    opacity: 0.5;
+    opacity: @condo-global-opacity-disabled;
+  }
+
+  .condo-checkbox-input {
+    margin: 0;
+
+    &:focus + .condo-checkbox-inner {
+      border-color: @condo-global-color-gray-5;
+    }
   }
 
   .condo-checkbox.condo-checkbox-indeterminate > .condo-checkbox-inner {
     background: @condo-global-color-brand-gradient-1;
 
     &::after {
-      width: 14px;
+      width: 12px;
       height: @condo-global-spacing-4;
       background: @condo-global-color-brand-gradient-5 border-box;
       border-radius: @condo-global-border-width-default;
@@ -112,6 +117,6 @@
   }
 
   &:hover:not(&-disabled) > .condo-checkbox > .condo-checkbox-inner {
-    border-color: @condo-global-color-gray-7 !important;
+    border-color: @condo-global-color-gray-7;
   }
 }
