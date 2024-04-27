@@ -14,13 +14,14 @@ import omit from 'lodash/omit'
 
 import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
 
+import { NEW_CONTACT_NAME_FORM_ITEM_NAME } from '@condo/domains/contact/components/ContactsEditor/NewContactFields'
 import { INVOICE_PAYMENT_TYPES, INVOICE_STATUSES } from '@condo/domains/marketplace/constants'
 import { Invoice as InvoiceGQL } from '@condo/domains/marketplace/gql'
 
 
 const RELATIONS = ['property', 'contact', 'ticket', 'organization', 'context']
 const DISCONNECT_ON_NULL = ['property', 'contact', 'ticket']
-const IGNORE_FORM_FIELDS = ['payerData', 'toPay', 'NEW_CONTACT_NAME']
+const IGNORE_FORM_FIELDS = ['payerData', 'toPay', NEW_CONTACT_NAME_FORM_ITEM_NAME]
 
 export type InvoiceRowType = {
     count: number

@@ -1,7 +1,9 @@
-import { get } from 'lodash'
+import get from 'lodash/get'
 import { Rule } from 'rc-field-form/lib/interface'
+import { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+
 
 type ValidatorTypes = {
     changeMessage: (rule: Rule, message: string) => Rule
@@ -13,27 +15,21 @@ const changeMessage = (rule: Rule, message: string) => {
     return { ...rule, message }
 }
 
-type ValidationSettings = {
-    allowLandLine?: boolean;
-}
-
-type UseValidations = (settings?: ValidationSettings) => ValidatorTypes
+type UseValidations = () => ValidatorTypes
 
 // TODO(DOMA-1588): Add memoization for hook members to prevent unnecessary rerenders
-export const usePropertyValidations: UseValidations = (settings = {}) => {
+export const usePropertyValidations: UseValidations = () => {
     const intl = useIntl()
     const PropertyFieldIsRequiredMessage = intl.formatMessage({ id: 'field.Property.requiredError' })
     const AddressNotSelected = intl.formatMessage({ id: 'field.Property.nonSelectedError' })
 
-    const { allowLandLine } = settings
-
-    const requiredValidator: Rule = {
+    const requiredValidator: Rule = useMemo(() => ({
         required: true,
         message: PropertyFieldIsRequiredMessage,
-    }
+    }), [PropertyFieldIsRequiredMessage])
 
     const addressValidator: (selectedPropertyId, isMatchSelectedProperty) => Rule =
-        (selectedPropertyId, isMatchSelectedProperty) => {
+        useCallback((selectedPropertyId, isMatchSelectedProperty) => {
             return {
                 validator: (_, value) => {
                     const searchValueLength = get(value, 'length', 0)
@@ -44,11 +40,11 @@ export const usePropertyValidations: UseValidations = (settings = {}) => {
                     return Promise.reject(AddressNotSelected)
                 },
             }
-        }
+        }, [AddressNotSelected])
 
-    return {
+    return useMemo(() => ({
         changeMessage,
         requiredValidator,
         addressValidator,
-    }
+    }), [addressValidator, requiredValidator])
 }

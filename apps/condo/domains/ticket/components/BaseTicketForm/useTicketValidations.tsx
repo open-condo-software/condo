@@ -1,94 +1,63 @@
 import { Rule } from 'rc-field-form/lib/interface'
+import { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
-import {
-    MAX_PHONE_LENGTH,
-    MIN_PHONE_LENGTH,
-    MIN_DESCRIPTION_LENGTH,
-} from '@condo/domains/ticket/constants/restrictions'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { MIN_DESCRIPTION_LENGTH } from '@condo/domains/ticket/constants/restrictions'
 
-export const NON_DIGITS_REGEXP = /\D/g
 
-type IFormFieldsRuleMap = {
-    [key: string]: Rule[]
+type TicketFieldsKeys = 'property'
+| 'unitName'
+| 'source'
+| 'clientName'
+| 'clientPhone'
+| 'clientEmail'
+| 'classifierRule'
+| 'placeClassifier'
+| 'categoryClassifier'
+| 'details'
+| 'executor'
+| 'assignee'
+type ITicketFieldsRuleMap = {
+    [Key in TicketFieldsKeys]: Rule[]
 }
 
-export function useTicketValidations (): IFormFieldsRuleMap {
+export function useTicketValidations (): ITicketFieldsRuleMap {
     const intl = useIntl()
 
-    return {
-        property: [
-            {
-                required: true,
-                message: intl.formatMessage({ id: 'field.Property.requiredError' }),
-            },
-        ],
+    const FullNameInvalidCharMessage = intl.formatMessage({ id:'field.FullName.invalidChar' })
+    const FullNameRequiredMessage = intl.formatMessage({ id: 'field.FullName.requiredError' })
+    const EmailErrorMessage = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
+    const ClassifierIsRequiredMessage = intl.formatMessage({ id: 'field.Classifier.requiredError' })
+    const SelectIsRequiredMessage = intl.formatMessage({ id: 'SelectIsRequired' })
+    const PropertyIsRequired = intl.formatMessage({ id: 'field.Property.requiredError' })
+    const DescriptionInvalidLengthMessage = intl.formatMessage({ id: 'field.Description.lengthError' })
+
+    const { changeMessage, phoneValidator, emailValidator, requiredValidator, specCharValidator, trimValidator } = useValidations({ allowLandLine: true })
+
+    return useMemo(() => ({
+        property: [changeMessage(requiredValidator, PropertyIsRequired)],
         unitName: [],
-        source: [
-            {
-                required: true,
-                message: intl.formatMessage({ id: 'SelectIsRequired' }),
-            },
-        ],
+        source: [changeMessage(requiredValidator, SelectIsRequiredMessage)],
         clientName: [
-            {
-                required: true,
-                min: 2,
-                type: 'string',
-                message: intl.formatMessage({ id: 'field.ClientName.minLengthError' }),
-            },
+            changeMessage(trimValidator, FullNameRequiredMessage),
+            changeMessage(specCharValidator, FullNameInvalidCharMessage),
         ],
-        clientPhone: [
-            {
-                required: true,
-                message: intl.formatMessage({ id: 'field.Phone.requiredError' }),
-            },
-            {
-                validator: (_, value) => {
-                    const phone = value.replace(NON_DIGITS_REGEXP, '')
-
-                    if (phone.length > MAX_PHONE_LENGTH || phone.length < MIN_PHONE_LENGTH) {
-                        return Promise.reject(new Error(intl.formatMessage({ id: 'field.Phone.lengthError' })))
-                    }
-
-                    return Promise.resolve()
-                },
-            },
-        ],
-        clientEmail: [
-            {
-                type: 'email',
-                message: intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' }),
-            },
-        ],
-        placeClassifier: [
-            {
-                required: true,
-                message: intl.formatMessage({ id: 'field.Classifier.requiredError' }),
-            },
-        ],
-        classifierRule: [
-            {
-                required: true,
-                message: intl.formatMessage({ id: 'field.Classifier.requiredError' }),
-            },
-        ],
-        categoryClassifier: [
-            {
-                required: true,
-                message: intl.formatMessage({ id: 'field.Classifier.requiredError' }),
-            },
-        ],
+        clientPhone: [requiredValidator, phoneValidator],
+        clientEmail: [changeMessage(emailValidator, EmailErrorMessage)],
+        classifierRule: [changeMessage(requiredValidator, ClassifierIsRequiredMessage)],
+        placeClassifier: [changeMessage(requiredValidator, ClassifierIsRequiredMessage)],
+        categoryClassifier: [changeMessage(requiredValidator, ClassifierIsRequiredMessage)],
         details: [
             {
                 whitespace: true,
                 required: true,
                 min: MIN_DESCRIPTION_LENGTH,
-                message: intl.formatMessage({ id: 'field.Description.lengthError' }),
+                message: DescriptionInvalidLengthMessage,
             },
         ],
         executor: [],
         assignee: [],
-    }
+    }), [ClassifierIsRequiredMessage, DescriptionInvalidLengthMessage, EmailErrorMessage, FullNameInvalidCharMessage, FullNameRequiredMessage, PropertyIsRequired, SelectIsRequiredMessage, changeMessage, emailValidator, phoneValidator, requiredValidator, specCharValidator, trimValidator])
 }

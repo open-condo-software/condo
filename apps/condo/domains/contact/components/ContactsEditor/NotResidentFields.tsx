@@ -3,11 +3,13 @@ import { AutoComplete, Col, Form, Row, RowProps } from 'antd'
 import { OptionProps } from 'antd/lib/mentions'
 import { get } from 'lodash'
 import debounce from 'lodash/debounce'
+import { Rule } from 'rc-field-form/lib/interface'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
+import { SPECIAL_CHAR_REGEXP } from '@condo/domains/common/constants/regexps'
 import { colors } from '@condo/domains/common/constants/style'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { OrganizationEmployee } from '@condo/domains/contact/schema'
@@ -38,6 +40,7 @@ const StyledAutoComplete = styled(AutoComplete)<{ disabled?: boolean }>`
 `
 
 export const NOT_RESIDENT_PHONE_FORM_ITEM_NAME = 'IGNORE_FIELD_NOT_RESIDENT_PHONE'
+export const NOT_RESIDENT_NAME_FORM_ITEM_NAME = 'IGNORE_FIELD_NOT_RESIDENT_NAME'
 
 const NotResidentFields: React.FC<INotResidentFieldsFieldsProps> = ({
     refetch,
@@ -51,6 +54,7 @@ const NotResidentFields: React.FC<INotResidentFieldsFieldsProps> = ({
     const NamePlaceholder = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name.placeholder' })
     const FullNameLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name' })
     const PhoneLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Phone' })
+    const FullNameInvalidCharMessage = intl.formatMessage({ id:'field.FullName.invalidChar' })
 
     const [value, setValue] = useState(initialValue)
 
@@ -97,7 +101,7 @@ const NotResidentFields: React.FC<INotResidentFieldsFieldsProps> = ({
     const handleChangeContact = (field) => (fieldValue) => {
         const newValue = {
             ...value,
-            [field]: fieldValue,
+            [field]: typeof fieldValue === 'string' ? fieldValue.trim() : fieldValue,
         }
         setValueAndTriggerOnChange(newValue)
     }
@@ -120,9 +124,18 @@ const NotResidentFields: React.FC<INotResidentFieldsFieldsProps> = ({
         }))
     , [employees])
 
+    const nameValidator: Rule = useMemo(() => ({
+        validator: (_, name) => {
+            if (!name) return Promise.resolve()
+            if (SPECIAL_CHAR_REGEXP.test(name)) return Promise.reject(FullNameInvalidCharMessage)
+            return Promise.resolve()
+        },
+    }), [FullNameInvalidCharMessage])
+
     const validations = useMemo(() => ({
         phone: activeTab === CONTACT_TYPE.NOT_RESIDENT ? [phoneValidator] : [],
-    }), [activeTab, phoneValidator])
+        name: activeTab === CONTACT_TYPE.NOT_RESIDENT ? [nameValidator] : [],
+    }), [activeTab, nameValidator, phoneValidator])
 
     const phoneOptions = useMemo(() => renderOptionsBy('phone'), [renderOptionsBy])
     const nameOptions = useMemo(() => renderOptionsBy('name'), [renderOptionsBy])
@@ -158,6 +171,8 @@ const NotResidentFields: React.FC<INotResidentFieldsFieldsProps> = ({
                     <Form.Item
                         wrapperCol={FIELD_WRAPPER_COL}
                         label={FullNameLabel}
+                        name={NOT_RESIDENT_NAME_FORM_ITEM_NAME}
+                        rules={validations.name}
                     >
                         <StyledAutoComplete
                             allowClear

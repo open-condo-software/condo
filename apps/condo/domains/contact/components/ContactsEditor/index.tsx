@@ -387,6 +387,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                             newContactPhoneFormItemProps={newContactPhoneFormItemProps}
                                             newContactNameFormItemProps={newContactNameFormItemProps}
                                             disabled={disabled}
+                                            form={form}
                                         />
                                     ) : (
                                         <>
@@ -412,6 +413,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                                                         newContactPhoneFormItemProps={newContactPhoneFormItemProps}
                                                                         newContactNameFormItemProps={newContactNameFormItemProps}
                                                                         disabled={disabled}
+                                                                        form={form}
                                                                     />
                                                                     {
                                                                         !breakpoints.TABLET_LARGE && (
