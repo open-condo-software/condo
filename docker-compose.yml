@@ -31,10 +31,8 @@ services:
       POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
       command: |
         postgres
-           -c archive_mode=on
            -c wal_level=replica
-           -c archive_command=test
-           -c synchronous_commit=remote_write
+           -c synchronous_commit=on
     volumes:
       - ./postgresql-init-replication.sql:/docker-entrypoint-initdb.d/postgresql-init-replication.sql
     networks:
