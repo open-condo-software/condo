@@ -42,11 +42,12 @@ jobs:
           echo """
           CREATE USER replicator WITH REPLICATION ENCRYPTED PASSWORD 'replicator_password';
           SELECT pg_create_physical_replication_slot('replication_slot');
+          ALTER SYSTEM SET synchronous_standby_names TO '*';
           """ >> ./postgresql-init-replication.sql
           
           docker network create db_network
           
-          docker run --name postgre-master --user postgres --network=db_network -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5432:5432" -v ./postgresql-init-replication.sql:/docker-entrypoint-initdb.d/postgresql-init-replication.sql -v ./pg_hba.conf:/etc/pg_hba.conf -d swr.ru-moscow-1.hc.sbercloud.ru/doma/utils/postgres:13.2 postgres -c hba_file=/etc/pg_hba.conf -c archive_mode=on -c wal_level=replica -c archive_command=test -c synchronous_commit=remote_write
+          docker run --name postgre-master --user postgres --network=db_network -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5432:5432" -v ./postgresql-init-replication.sql:/docker-entrypoint-initdb.d/postgresql-init-replication.sql -v ./pg_hba.conf:/etc/pg_hba.conf -d swr.ru-moscow-1.hc.sbercloud.ru/doma/utils/postgres:13.2 postgres -c hba_file=/etc/pg_hba.conf -c wal_level=replica -c synchronous_commit=on
           
           docker exec -d postgre-master psql -c "ALTER SYSTEM SET synchronous_standby_names TO  '*';"
         env:
