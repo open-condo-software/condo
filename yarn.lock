@@ -1849,6 +1849,23 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@app/resident-app@workspace:apps/resident-app":
+  version: 0.0.0-use.local
+  resolution: "@app/resident-app@workspace:apps/resident-app"
+  dependencies:
+    "@open-condo/tsconfig": "workspace:^"
+    "@serwist/next": ^9.0.1
+    "@types/react": 18.0.27
+    "@types/react-dom": 18.0.10
+    lodash: ^4.17.21
+    next: 13.3.0
+    react: 18.2.0
+    react-dom: 18.2.0
+    serwist: ^9.0.0
+    typescript: ^5
+  languageName: unknown
+  linkType: soft
+
 "@app/telegram-employee-bot@workspace:apps/telegram-employee-bot":
   version: 0.0.0-use.local
   resolution: "@app/telegram-employee-bot@workspace:apps/telegram-employee-bot"
@@ -44848,23 +44865,6 @@ __metadata:
   checksum: c7ce544bae92db2dc6e768bc2dcc1248f9a21ada22ab5906c5e3c472e1dbc5f080889e5a715b8a2535e652d74c599dd090f5a68bcbe7e6f88053b7599ef4e8d3
   languageName: node
   linkType: hard
-
-"resident-app@workspace:apps/resident-app":
-  version: 0.0.0-use.local
-  resolution: "resident-app@workspace:apps/resident-app"
-  dependencies:
-    "@open-condo/tsconfig": "workspace:^"
-    "@serwist/next": ^9.0.1
-    "@types/react": 18.0.27
-    "@types/react-dom": 18.0.10
-    lodash: ^4.17.21
-    next: 13.3.0
-    react: 18.2.0
-    react-dom: 18.2.0
-    serwist: ^9.0.0
-    typescript: ^5
-  languageName: unknown
-  linkType: soft
 
 "resize-observer-polyfill@npm:^1.5.1":
   version: 1.5.1
