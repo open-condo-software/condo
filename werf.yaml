@@ -856,7 +856,7 @@ shell:
     - "cd /app"
     - "yarn install --immutable"
 ---
-image: resident-app
+image: resident_app
 fromImage: base
 fromCacheVersion: "1"
 git:
