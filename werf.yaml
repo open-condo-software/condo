@@ -890,4 +890,3 @@ shell:
     - "yarn workspace @app/resident-app build:deps"
     - "yarn workspace @app/resident-app build"
     - "rm -rf /app/.config"
----
