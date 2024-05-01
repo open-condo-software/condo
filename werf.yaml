@@ -855,3 +855,38 @@ shell:
   install:
     - "cd /app"
     - "yarn install --immutable"
+---
+image: resident-app
+fromImage: base
+fromCacheVersion: "1"
+git:
+  - add: /
+    to: /app
+    stageDependencies:
+      install:
+        - "yarn.lock"
+        - "package.json"
+        - "**/yarn.lock"
+        - "**/package.json"
+      setup:
+        - "apps/**"
+        - "packages/**"
+        - "bin/**/*"
+    excludePaths:
+      - .github
+      - .helm
+      - werf.yaml
+      - werf-giterminism.yaml
+    owner: app
+    group: app
+
+shell:
+  install:
+    - "cd /app"
+    - "yarn install --immutable"
+  setup:
+    - "cd /app"
+    - "yarn workspace @app/resident-app next telemetry disable"
+    - "yarn workspace @app/resident-app build:deps"
+    - "yarn workspace @app/resident-app build"
+    - "rm -rf /app/.config"
