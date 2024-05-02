@@ -161,19 +161,19 @@ function useMappersResolver () {
                 return {
                     unitType: {},
                     resourceId: {
-                        '1': GAS_SUPPLY_METER_RESOURCE_ID, // Газ,
-                        '2': ELECTRICITY_METER_RESOURCE_ID, // Электроэнергия,
-                        '3': ELECTRICITY_METER_RESOURCE_ID, // Электроэнергия (день) (для 2-тарифного счетчика),
-                        '4': ELECTRICITY_METER_RESOURCE_ID, // Электроэнергия (ночь) (для 2-тарифного счетчика),
-                        '5': ELECTRICITY_METER_RESOURCE_ID, // Электроэнергия (пик) (для 3-тарифного счетчика),
-                        '6': ELECTRICITY_METER_RESOURCE_ID, // Электроэнергия (день) (для 3-тарифного счетчика),
-                        '7': ELECTRICITY_METER_RESOURCE_ID, // Электроэнергия (ночь) (для 3-тарифного счетчика),
-                        '8': HOT_WATER_METER_RESOURCE_ID, // Горячая вода,
-                        '9': COLD_WATER_METER_RESOURCE_ID, // Холодная вода,
-                        '10': HEAT_SUPPLY_METER_RESOURCE_ID, // Отопление,
-                        '11': '', // Водоотведение,
-                        '12': '', // Вода для полива,
-                        '13': '', // Вывоз мусора,
+                        '1': GAS_SUPPLY_METER_RESOURCE_ID, // Gas,
+                        '2': ELECTRICITY_METER_RESOURCE_ID, // Electricity
+                        '3': ELECTRICITY_METER_RESOURCE_ID, // Electricity (day) (for 2-tariff meter)
+                        '4': ELECTRICITY_METER_RESOURCE_ID, // Electricity (night) (for 2-tariff meter)
+                        '5': ELECTRICITY_METER_RESOURCE_ID, // Electricity (peak) (for 3-tariff meter)
+                        '6': ELECTRICITY_METER_RESOURCE_ID, // Electricity (day) (for 3-tariff meter)
+                        '7': ELECTRICITY_METER_RESOURCE_ID, // Electricity (night) (for 3-tariff meter)
+                        '8': HOT_WATER_METER_RESOURCE_ID, // Hot water
+                        '9': COLD_WATER_METER_RESOURCE_ID, // Cold water
+                        '10': HEAT_SUPPLY_METER_RESOURCE_ID, // Heating
+                        '11': '', // Water disposal
+                        '12': '', // Water for irrigation
+                        '13': '', // Garbage
                     },
                 }
             default:
