@@ -8,7 +8,10 @@ import {
 import { jsx } from '@emotion/react'
 import { Affix, Col, ColProps, notification, Row, RowProps, Space, Typography } from 'antd'
 import dayjs from 'dayjs'
-import { compact, get, isEmpty, map } from 'lodash'
+import compact from 'lodash/compact'
+import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
+import map from 'lodash/map'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -73,6 +76,7 @@ import {
     useTicketQualityControl,
 } from '@condo/domains/ticket/contexts/TicketQualityControlContext'
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
+import { usePollTicketComments } from '@condo/domains/ticket/hooks/usePollTicketComments'
 import { useTicketChangedFieldMessagesOf } from '@condo/domains/ticket/hooks/useTicketChangedFieldMessagesOf'
 import { useTicketExportToPdfTask } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
 import {
@@ -91,7 +95,6 @@ import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { RESIDENT } from '@condo/domains/user/constants/common'
 
 
-const COMMENT_RE_FETCH_INTERVAL = 5 * 1000
 const TICKET_CONTENT_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 const BIG_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 const MEDIUM_VERTICAL_GUTTER: RowProps['gutter'] = [0, 24]
@@ -531,7 +534,7 @@ const TicketInvoices = ({ invoices, invoicesLoading, refetchInvoices, ticket }) 
     )
 }
 
-export const TicketPageContent = ({ ticket, refetchTicket, organization, employee, TicketContent }) => {
+export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, organization, employee, TicketContent }) => {
     const intl = useIntl()
     const BlockedEditingTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.BlockedEditing.title' })
     const BlockedEditingDescriptionMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.BlockedEditing.description' })
@@ -612,6 +615,12 @@ export const TicketPageContent = ({ ticket, refetchTicket, organization, employe
         await refetchUserTicketCommentReadTime()
     }, [refetchCommentFiles, refetchComments, refetchTicketCommentsTime, refetchUserTicketCommentReadTime])
 
+    usePollTicketComments({
+        ticket,
+        refetchTicketComments: refetchCommentsWithFiles,
+        pollCommentsQuery,
+    })
+
     const actionsFor = useCallback(comment => {
         const isAuthor = comment.user.id === auth.user.id
         const isAdmin = get(auth, ['user', 'isAdmin'])
@@ -620,13 +629,6 @@ export const TicketPageContent = ({ ticket, refetchTicket, organization, employe
             deleteAction: isAdmin || isAuthor ? deleteComment : null,
         }
     }, [auth, deleteComment, updateComment])
-
-    useEffect(() => {
-        const handler = setInterval(refetchCommentsWithFiles, COMMENT_RE_FETCH_INTERVAL)
-        return () => {
-            clearInterval(handler)
-        }
-    })
 
     const ticketPropertyId = get(ticket, ['property', 'id'], null)
     const isDeletedProperty = !ticket.property && ticket.propertyAddress
@@ -797,6 +799,9 @@ const TicketIdPage = () => {
 
     const { canEmployeeReadTicket, ticketFilterQueryLoading } = useTicketVisibility()
 
+    const pollCommentsQuery = useMemo(() => ({ ticket: { organization: { id: get(organization, 'id', null) } } }),
+        [organization])
+
     if (!ticket || ticketFilterQueryLoading) {
         return (
             <LoadingOrErrorPage
@@ -823,6 +828,7 @@ const TicketIdPage = () => {
                         extraTicketsQuery={{ id }}
                     >
                         <TicketPageContent
+                            pollCommentsQuery={pollCommentsQuery}
                             ticket={ticket}
                             refetchTicket={refetchTicket}
                             organization={organization}
