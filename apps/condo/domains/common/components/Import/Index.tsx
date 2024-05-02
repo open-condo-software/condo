@@ -20,7 +20,7 @@ import {
     MutationErrorsToMessagesType,
 } from '@condo/domains/common/utils/importer'
 
-import { BaseImportWrapper } from './BaseImportWrapper'
+import { ActiveModalType, BaseImportWrapper } from './BaseImportWrapper'
 
 export interface IImportWrapperProps {
     accessCheck: boolean
@@ -51,8 +51,6 @@ export const ImportEmitter = {
     removeListener: (event, fn) => eventEmitter.removeListener(event, fn),
     emit: (event, payload) => eventEmitter.emit(event, payload),
 }
-
-type ActiveModalType = null | 'example' | 'progress' | 'partlyLoaded' | 'success' | 'error'
 
 const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
     const {

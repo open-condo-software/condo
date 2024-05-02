@@ -5,7 +5,7 @@ import XLSX from 'xlsx'
 import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@open-condo/ui'
 
-import { BaseImportWrapper } from '@condo/domains/common/components/Import/BaseImportWrapper'
+import { ActiveModalType, BaseImportWrapper } from '@condo/domains/common/components/Import/BaseImportWrapper'
 import {
     fitToColumn,
     IImportWrapperProps,
@@ -19,8 +19,6 @@ import { useMetersImporter } from '@condo/domains/meter/hooks/useMetersImporter'
 import { ProcessedRow } from '@condo/domains/meter/utils/metersImporters/AbstractMetersImporter'
 
 export type IMetersImportWrapperProps = Pick<IImportWrapperProps, 'accessCheck' | 'onFinish' | 'uploadButtonLabel' | 'importCardButton'>
-
-type ActiveModalType = null | 'example' | 'progress' | 'partlyLoaded' | 'success' | 'error'
 
 const MetersImportWrapper: React.FC<IMetersImportWrapperProps> = (props) => {
     const {

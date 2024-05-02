@@ -57,7 +57,7 @@ const SuccessModal = styled(Modal)`
   }
 `
 
-type ActiveModalType = null | 'example' | 'progress' | 'partlyLoaded' | 'success' | 'error'
+export type ActiveModalType = null | 'example' | 'progress' | 'partlyLoaded' | 'success' | 'error'
 
 type TBaseImportWrapperProps = {
     importCardButton?: {
