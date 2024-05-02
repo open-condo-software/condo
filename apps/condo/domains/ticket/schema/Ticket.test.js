@@ -15,7 +15,7 @@ const {
     expectToThrowValidationFailureError,
     expectToThrowGQLError,
     expectValuesOfCommonFields,
-    setAllFeatureFlags,
+    setAllFeatureFlags, catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
 
 const { WRONG_VALUE } = require('@app/condo/domains/common/constants/errors')
@@ -924,14 +924,16 @@ describe('Ticket', () => {
             expect(objUpdated.executor).toEqual(expect.objectContaining({ id: client.user.id }))
         })
 
-        test('user: set the same ticket number', async () => {
+        test('user: can not set ticket number', async () => {
             const client = await makeClientWithProperty()
             const [objCreated] = await createTestTicket(client, client.organization, client.property)
             const payload = { number: objCreated.number }
-            const [objUpdated] = await updateTestTicket(client, objCreated.id, payload)
 
-            expect(objUpdated.id).toEqual(objCreated.id)
-            expect(objUpdated.number).toEqual(objCreated.number)
+            await catchErrorFrom(async () => {
+                await updateTestTicket(client, objCreated.id, payload)
+            }, (e) => {
+                expect(e.errors[0].message).toContain('Field "number" is not defined by type "TicketUpdateInput"')
+            })
         })
 
         test('anonymous: update Ticket', async () => {
