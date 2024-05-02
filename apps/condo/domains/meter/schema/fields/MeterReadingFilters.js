@@ -21,7 +21,7 @@ const MeterReadingFilterFields = {
     installationDate: '[String]',
     commissioningDate: '[String]',
     sealingDate: '[String]',
-    controlReadingDate: '[String]',
+    controlReadingsDate: '[String]',
 }
 
 const METER_READING_FILTER_TYPE = `

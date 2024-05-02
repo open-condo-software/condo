@@ -36,7 +36,7 @@ const verificationDateRangeFilter = getDayRangeFilter(['meter', 'verificationDat
 const installationDateRangeFilter = getDayRangeFilter(['meter', 'installationDate'])
 const commissioningDateRangeFilter = getDayRangeFilter(['meter', 'commissioningDate'])
 const sealingDateRangeFilter = getDayRangeFilter(['meter', 'sealingDate'])
-const controlReadingDateRangeFilter = getDayRangeFilter(['meter', 'controlReadingDate'])
+const controlReadingsDateRangeFilter = getDayRangeFilter(['meter', 'controlReadingsDate'])
 const sourceFilter = getFilter(['source', 'id'], 'array', 'string', 'in')
 const resourceFilter = getFilter(['meter', 'resource', 'id'], 'array', 'string', 'in')
 
@@ -48,7 +48,6 @@ export function useFilters (meterPageType: MeterPageTypes): Array<FiltersMeta<Me
     const AccountNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.Account' })
     const FullNameMessage = intl.formatMessage({ id: 'field.FullName.short' })
     const ContactMessage = intl.formatMessage({ id: 'Contact' })
-    const PeriodMessage = intl.formatMessage({ id: 'pages.condo.meter.Period' })
     const ChooseServiceMessage = intl.formatMessage({ id: 'pages.condo.meter.ChooseService' })
     const ServiceMessage = intl.formatMessage({ id: 'pages.condo.meter.Resource' })
     const StartDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
@@ -311,8 +310,8 @@ export function useFilters (meterPageType: MeterPageTypes): Array<FiltersMeta<Me
                         },
                     },
                     {
-                        keyword: 'controlReadingDate',
-                        filters: [controlReadingDateRangeFilter],
+                        keyword: 'controlReadingsDate',
+                        filters: [controlReadingsDateRangeFilter],
                         component: {
                             type: ComponentType.DateRange,
                             props: {
