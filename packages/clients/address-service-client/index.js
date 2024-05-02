@@ -11,7 +11,8 @@ let instance
  * @returns {AddressServiceClient|MockedAddressServiceClient}
  */
 function createInstance () {
-    const addressServiceUrl = get(conf, 'ADDRESS_SERVICE_DOMAIN')
+    // TODO(INFRA-314): swap to ADDRESS_SERVICE_DOMAIN after review env ready to create own address-service instances
+    const addressServiceUrl = get(conf, 'ADDRESS_SERVICE_URL')
 
     if (!instance) {
         if (get(conf, 'JEST_MOCKS_ENABLED') === 'true') {
