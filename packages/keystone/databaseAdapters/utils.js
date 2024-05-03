@@ -82,10 +82,23 @@ function getDatabaseAdapter (keystone, list = '*') {
     }
 }
 
+function getListAdapters (keystone) {
+    const databaseUrl = get(conf, 'DATABASE_URL')
+
+    if (databaseUrl.startsWith('postgres')) {
+        return keystone.adapter.listAdapters
+    } else if (databaseUrl.startsWith('custom')) {
+        return keystone.adapter.__listMappingAdapters
+    } else {
+        throw new Error('Unsupported database adapter')
+    }
+}
+
 module.exports = {
     parseDatabaseUrl,
     parseDatabaseMapping,
     matchPattern,
     matchDatabase,
     getDatabaseAdapter,
+    getListAdapters,
 }
