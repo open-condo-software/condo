@@ -24,7 +24,7 @@ const TICKET_REPORT_STATUS_EXECUTOR = 'status_executor'
 const TICKET_REPORT_STATUS_PROPERTY = 'status_property'
 
 const EXCEL_TEMPLATES_HEADERS = {
-    [EXPORT_TYPE_PAYMENTS]: ['date', 'account', 'address', 'unitName', 'type', 'transaction', 'order', 'status', 'amount'],
+    [EXPORT_TYPE_PAYMENTS]: ['date', 'invoiceNumber', 'account', 'address', 'unitName', 'type', 'transaction', 'order', 'status', 'amount'],
     [EXPORT_TYPE_CONTACTS]: ['name', 'address', 'unitName', 'unitType', 'phone', 'email', 'role', 'isVerified'],
     [EXPORT_TYPE_METERS]: [
         'date', 'address', 'unitName', 'unitType', 'accountNumber', 'resource',
