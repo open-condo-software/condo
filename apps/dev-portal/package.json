@@ -45,7 +45,7 @@
     "phone": "^3.1.41",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-intl": "6.2.7",
+    "react-intl": "^6.6.5",
     "rehype-prism-plus": "1.5.1",
     "remark-custom-heading-id": "1.0.0",
     "remark-gfm": "3.0.1",
