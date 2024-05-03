@@ -8,19 +8,27 @@
  *
  * Example: if all checks pass:
  * 200
- * {
- *     postgres: pass
- *     redis: pass
- *     apollo: pass
- * }
+ * [{
+ *      name: 'postgres',
+ *      statusText: 'pass',
+ *      status: 1
+ * }, {
+ *      name: 'redis',
+ *      statusText: 'pass',
+ *      status: 1
+ * }]
  *
  * Example: if any check fails
  * 500
- * {
- *     postgres: pass
- *     redis: pass
- *     apollo: fail
- * }
+ * [{
+ *      name: 'postgres',
+ *      statusText: 'pass',
+ *      status: 1
+ * }, {
+ *      name: 'redis',
+ *      statusText: 'fail',
+ *      status: 0
+ * }]
  *
  *
  * ## Advanced usage:
@@ -33,16 +41,23 @@
  *
  * Request: <url>?checks=postgres
  * 200
- * {
- *      postgres: pass
- * }
+ * [{
+ *      name: 'postgres',
+ *      statusText: 'pass',
+ *      status: 1
+ * }]
  *
  * Request <url>?checks=postgres,redis
  * 500
- * {
- *      postgres: pass,
- *      redis: fail
- * }
+ * [{
+ *      name: 'postgres'
+ *      statusText: 'pass',
+ *      status: 1
+ * }, {
+ *      name: 'redis',
+ *      statusText: 'fail',
+ *      status: 0
+ * }]
  *
  * Note: if configured, non specified checks are ignored. That means, if redis and apollo fails, output will be 200OK, since only postgres was specified
  *
@@ -82,6 +97,12 @@ const PASS = 'pass'
 const WARN = 'warn'
 const FAIL = 'fail'
 const TIMEOUT = 'timeout'
+const STATUS_ENUM = Object.freeze({
+    [FAIL]: 0,
+    [PASS]: 1,
+    [WARN]: 2,
+    [TIMEOUT]: 3,
+})
 
 const BAD_REQUEST = 400
 const HEALTHCHECK_OK = 200
@@ -294,18 +315,23 @@ class HealthCheck {
 
             const selectedChecks = customChecksConfigured ? customChecks : Object.keys(this.preparedChecks)
 
-            const result = {}
+            const result = []
 
             let status = HEALTHCHECK_OK
 
             await Promise.all(
                 selectedChecks.map(
                     async checkName => {
-                        result[checkName] = await this.runCheck(this.preparedChecks[checkName])
+                        const checkResult = await this.runCheck(this.preparedChecks[checkName])
+                        result.push({
+                            name: checkName,
+                            status: STATUS_ENUM[checkResult],
+                            statusText: checkResult,
+                        })
 
-                        if (status === HEALTHCHECK_OK && result[checkName] === WARN) {
+                        if (status === HEALTHCHECK_OK && checkResult === WARN) {
                             status = HEALTHCHECK_WARNING
-                        } else if (result[checkName] === FAIL) {
+                        } else if (checkResult === FAIL) {
                             status = HEALTHCHECK_ERROR
                         }
                     }
@@ -326,4 +352,5 @@ module.exports = {
     getPfxCertificateHealthCheck,
     getCertificateHealthCheck,
     getIntegrationHealthCheck,
+    STATUS_ENUM,
 }
