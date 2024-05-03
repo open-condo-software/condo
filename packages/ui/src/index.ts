@@ -10,7 +10,7 @@ export { Banner } from './components/Banner'
 export type { BannerProps } from './components/Banner'
 
 export { Button } from './components/Button'
-export type { ButtonProps } from './components/Button'
+export type { ButtonProps, IconButtonProps } from './components/Button'
 
 export { Card } from './components/Card'
 export type { CardProps, CardCheckboxProps, CardButtonProps, CardHeaderProps, CardBodyProps } from './components/Card'

@@ -1,0 +1,111 @@
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+@import (reference) "@open-condo/ui/src/components/style/mixins/button";
+@import (reference) "@open-condo/ui/src/components/style/mixins/transition";
+
+@condo-icon-button-focus-outline-width: @condo-global-border-width-default * 4;
+@condo-icon-button-focus-visible-outline-width: @condo-global-border-width-default * 2;
+@condo-icon-button-focus-outline-border-radius-small: @condo-global-border-radius-medium;
+@condo-icon-button-focus-outline-border-radius-medium: @condo-global-border-radius-large;
+@condo-icon-button-border-radius-small: @condo-global-border-radius-small;
+@condo-icon-button-border-radius-medium: @condo-global-border-radius-medium;
+@condo-icon-button-padding-small: 2px;
+@condo-icon-button-padding-medium: 8px;
+
+.condo-icon-btn {
+  width: auto;
+  min-width: inherit;
+  height: auto;
+  padding: @condo-icon-button-padding-medium;
+  background-color: transparent;
+  border: none;
+  border-radius: @condo-icon-button-border-radius-medium;
+  .condo-transition(background);
+
+  span {
+    position: relative;
+    z-index: 1;
+  }
+
+  // After layer is used to show gradient outline on tab-focusing
+  &:focus-visible::after {
+    box-sizing: border-box;
+    background: @condo-global-color-brand-gradient-5 border-box;
+    border: @condo-icon-button-focus-visible-outline-width solid transparent;
+    opacity: 1;
+    mask: linear-gradient(#111 0 0) padding-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+
+  &::before {
+    .condo-btn-layer(0px);
+
+    background: @condo-global-color-brand-gradient-1;
+    opacity: 0;
+    .condo-transition(opacity);
+  }
+
+  .condo-icon-btn-content {
+    display: inline-flex;
+    color: @condo-global-color-black;
+    .condo-transition(color);
+
+    svg {
+      color: @condo-global-color-black;
+      fill: currentcolor;
+      .condo-transition(color);
+    }
+  }
+
+  &:focus::after {
+    .condo-btn-layer(-@condo-icon-button-focus-outline-width);
+
+    border-radius: @condo-icon-button-focus-outline-border-radius-medium;
+  }
+
+  &:disabled {
+    background-color: transparent;
+
+    .condo-icon-btn-content {
+      opacity: @condo-global-opacity-disabled;
+    }
+
+    &:hover {
+      background-color: transparent;
+    }
+  }
+
+  &:not(:disabled):hover {
+    &::before {
+      opacity: 1;
+    }
+
+    .condo-icon-btn-content {
+      color: @condo-global-color-green-5;
+
+      svg {
+        color: @condo-global-color-green-5;
+      }
+    }
+  }
+
+  &:not(:disabled):active,
+  &:not(:disabled):active:hover {
+    .condo-icon-btn-content {
+      color: @condo-global-color-green-7;
+
+      svg {
+        color: @condo-global-color-green-7;
+      }
+    }
+  }
+
+  &.condo-icon-btn-small {
+    padding: @condo-icon-button-padding-small;
+    border-radius: @condo-icon-button-border-radius-small;
+
+    &:focus::after {
+      border-radius: @condo-icon-button-focus-outline-border-radius-small;
+    }
+  }
+}
