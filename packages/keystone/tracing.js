@@ -1,15 +1,13 @@
 const otelApi = require('@opentelemetry/api')
-const { OTLPMetricExporter } = require('@opentelemetry/exporter-metrics-otlp-proto')
 const { OTLPTraceExporter } = require('@opentelemetry/exporter-trace-otlp-proto')
-const { HttpInstrumentation } = require('@opentelemetry/instrumentation-http')
 const { IORedisInstrumentation } = require('@opentelemetry/instrumentation-ioredis')
 const { PgInstrumentation } = require('@opentelemetry/instrumentation-pg')
-const { PeriodicExportingMetricReader } = require('@opentelemetry/sdk-metrics')
 const otelSdk = require('@opentelemetry/sdk-node')
 const express = require('express')
 const { get } = require('lodash')
 
 const conf = require('@open-condo/config')
+const { getListAdapters } = require('@open-condo/keystone/databaseAdapters/utils')
 
 const { getExecutionContext } = require('./executionContext')
 
@@ -107,7 +105,7 @@ class KeystoneTracingApp {
     }
 
     _patchKeystoneAdapter (tracer, keystone) {
-        for (const listAdapter of Object.values(get(keystone, ['adapter', 'listAdapters']))) {
+        for (const listAdapter of Object.values(getListAdapters(keystone))) {
             const originalListAdapter = listAdapter
             const listKey = listAdapter.key
 
@@ -162,12 +160,12 @@ class KeystoneTracingApp {
             const requestUrl = get(req, ['url'])
             const requestUserId = get(req, ['user', 'id'])
             const requestOpName = get(req, ['body', 'operationName']) || get(req, ['query', 'operationName'])
-            
+
             let operationName = 'op:unknown'
             if (requestOpName) {
                 operationName = 'op:' + requestOpName
             }
-            
+
             tracer.startActiveSpan(operationName, async (span) => {
 
                 _addExecutionContextAttributes(span)
