@@ -152,6 +152,13 @@ const Message = new GQLListSchema('Message', {
                 name: 'message_unique_type_uniqKey',
             },
         ],
+        indexes: [
+            {
+                type: 'BTreeIndex',
+                fields: ['uniqKey', 'type'],
+                name: 'message_uniqKey_type',
+            },
+        ],
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
