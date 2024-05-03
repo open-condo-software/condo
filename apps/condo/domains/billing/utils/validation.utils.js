@@ -13,6 +13,7 @@ const REPORT_SCHEMA = {
         period: { type: 'string', format: 'date' },
         finishTime: { type: 'string', format: 'date-time' },
         totalReceipts: { type: 'number' },
+        categories: { type: 'array', uniqueItems: true, items: { type: 'string' } },
     },
     required: ['period', 'finishTime', 'totalReceipts'],
     additionalProperties: false,

@@ -105,6 +105,18 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
             isRequired: false,
         },
 
+        checkAccountNumberUrl: {
+            schemaDoc: 'Online request for validation of the account number',
+            type: Url,
+            isRequired: false,
+        },
+
+        checkAddressUrl: {
+            schemaDoc: 'Online request to search organizations for the address',
+            type: Url,
+            isRequired: false,
+        },
+
         instruction: {
             adminDoc: 'Short instruction for connecting the service written in markdown. One of setupUrl and instruction fields must be filled',
             schemaDoc: 'Short instruction for connecting the service written in markdown. Used in cases where integration has no frontend',

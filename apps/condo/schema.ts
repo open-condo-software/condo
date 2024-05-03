@@ -13996,6 +13996,10 @@ export type BillingIntegration = {
   detailedDescription?: Maybe<Scalars['String']>;
   /**  Url to app page, which will be opened during app connection to setup the integration. One of setupUrl and instruction fields must be filled  */
   setupUrl?: Maybe<Scalars['String']>;
+  /**  Online request for validation of the account number  */
+  checkAccountNumberUrl?: Maybe<Scalars['String']>;
+  /**  Online request to search organizations for the address  */
+  checkAddressUrl?: Maybe<Scalars['String']>;
   /**  Short instruction for connecting the service written in markdown. Used in cases where integration has no frontend  */
   instruction?: Maybe<Scalars['String']>;
   /**  Used in cases when integration need to link external instruction or article.  */
@@ -14367,6 +14371,8 @@ export type BillingIntegrationCreateInput = {
   receiptsLoadingTime?: Maybe<Scalars['String']>;
   detailedDescription?: Maybe<Scalars['String']>;
   setupUrl?: Maybe<Scalars['String']>;
+  checkAccountNumberUrl?: Maybe<Scalars['String']>;
+  checkAddressUrl?: Maybe<Scalars['String']>;
   instruction?: Maybe<Scalars['String']>;
   instructionExtraLink?: Maybe<Scalars['String']>;
   appUrl?: Maybe<Scalars['String']>;
@@ -14428,6 +14434,8 @@ export type BillingIntegrationHistoryRecord = {
   receiptsLoadingTime?: Maybe<Scalars['String']>;
   detailedDescription?: Maybe<Scalars['JSON']>;
   setupUrl?: Maybe<Scalars['String']>;
+  checkAccountNumberUrl?: Maybe<Scalars['String']>;
+  checkAddressUrl?: Maybe<Scalars['String']>;
   instruction?: Maybe<Scalars['JSON']>;
   instructionExtraLink?: Maybe<Scalars['String']>;
   appUrl?: Maybe<Scalars['String']>;
@@ -14469,6 +14477,8 @@ export type BillingIntegrationHistoryRecordCreateInput = {
   receiptsLoadingTime?: Maybe<Scalars['String']>;
   detailedDescription?: Maybe<Scalars['JSON']>;
   setupUrl?: Maybe<Scalars['String']>;
+  checkAccountNumberUrl?: Maybe<Scalars['String']>;
+  checkAddressUrl?: Maybe<Scalars['String']>;
   instruction?: Maybe<Scalars['JSON']>;
   instructionExtraLink?: Maybe<Scalars['String']>;
   appUrl?: Maybe<Scalars['String']>;
@@ -14515,6 +14525,8 @@ export type BillingIntegrationHistoryRecordUpdateInput = {
   receiptsLoadingTime?: Maybe<Scalars['String']>;
   detailedDescription?: Maybe<Scalars['JSON']>;
   setupUrl?: Maybe<Scalars['String']>;
+  checkAccountNumberUrl?: Maybe<Scalars['String']>;
+  checkAddressUrl?: Maybe<Scalars['String']>;
   instruction?: Maybe<Scalars['JSON']>;
   instructionExtraLink?: Maybe<Scalars['String']>;
   appUrl?: Maybe<Scalars['String']>;
@@ -14685,6 +14697,42 @@ export type BillingIntegrationHistoryRecordWhereInput = {
   setupUrl_not_ends_with_i?: Maybe<Scalars['String']>;
   setupUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   setupUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  checkAccountNumberUrl?: Maybe<Scalars['String']>;
+  checkAccountNumberUrl_not?: Maybe<Scalars['String']>;
+  checkAccountNumberUrl_contains?: Maybe<Scalars['String']>;
+  checkAccountNumberUrl_not_contains?: Maybe<Scalars['String']>;
+  checkAccountNumberUrl_starts_with?: Maybe<Scalars['String']>;
+  checkAccountNumberUrl_not_starts_with?: Maybe<Scalars['String']>;
+  checkAccountNumberUrl_ends_with?: Maybe<Scalars['String']>;
+  checkAccountNumberUrl_not_ends_with?: Maybe<Scalars['String']>;
+  checkAccountNumberUrl_i?: Maybe<Scalars['String']>;
+  checkAccountNumberUrl_not_i?: Maybe<Scalars['String']>;
+  checkAccountNumberUrl_contains_i?: Maybe<Scalars['String']>;
+  checkAccountNumberUrl_not_contains_i?: Maybe<Scalars['String']>;
+  checkAccountNumberUrl_starts_with_i?: Maybe<Scalars['String']>;
+  checkAccountNumberUrl_not_starts_with_i?: Maybe<Scalars['String']>;
+  checkAccountNumberUrl_ends_with_i?: Maybe<Scalars['String']>;
+  checkAccountNumberUrl_not_ends_with_i?: Maybe<Scalars['String']>;
+  checkAccountNumberUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  checkAccountNumberUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  checkAddressUrl?: Maybe<Scalars['String']>;
+  checkAddressUrl_not?: Maybe<Scalars['String']>;
+  checkAddressUrl_contains?: Maybe<Scalars['String']>;
+  checkAddressUrl_not_contains?: Maybe<Scalars['String']>;
+  checkAddressUrl_starts_with?: Maybe<Scalars['String']>;
+  checkAddressUrl_not_starts_with?: Maybe<Scalars['String']>;
+  checkAddressUrl_ends_with?: Maybe<Scalars['String']>;
+  checkAddressUrl_not_ends_with?: Maybe<Scalars['String']>;
+  checkAddressUrl_i?: Maybe<Scalars['String']>;
+  checkAddressUrl_not_i?: Maybe<Scalars['String']>;
+  checkAddressUrl_contains_i?: Maybe<Scalars['String']>;
+  checkAddressUrl_not_contains_i?: Maybe<Scalars['String']>;
+  checkAddressUrl_starts_with_i?: Maybe<Scalars['String']>;
+  checkAddressUrl_not_starts_with_i?: Maybe<Scalars['String']>;
+  checkAddressUrl_ends_with_i?: Maybe<Scalars['String']>;
+  checkAddressUrl_not_ends_with_i?: Maybe<Scalars['String']>;
+  checkAddressUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  checkAddressUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   instruction?: Maybe<Scalars['JSON']>;
   instruction_not?: Maybe<Scalars['JSON']>;
   instruction_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -15563,6 +15611,8 @@ export type BillingIntegrationUpdateInput = {
   receiptsLoadingTime?: Maybe<Scalars['String']>;
   detailedDescription?: Maybe<Scalars['String']>;
   setupUrl?: Maybe<Scalars['String']>;
+  checkAccountNumberUrl?: Maybe<Scalars['String']>;
+  checkAddressUrl?: Maybe<Scalars['String']>;
   instruction?: Maybe<Scalars['String']>;
   instructionExtraLink?: Maybe<Scalars['String']>;
   appUrl?: Maybe<Scalars['String']>;
@@ -15731,6 +15781,42 @@ export type BillingIntegrationWhereInput = {
   setupUrl_not_ends_with_i?: Maybe<Scalars['String']>;
   setupUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   setupUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  checkAccountNumberUrl?: Maybe<Scalars['String']>;
+  checkAccountNumberUrl_not?: Maybe<Scalars['String']>;
+  checkAccountNumberUrl_contains?: Maybe<Scalars['String']>;
+  checkAccountNumberUrl_not_contains?: Maybe<Scalars['String']>;
+  checkAccountNumberUrl_starts_with?: Maybe<Scalars['String']>;
+  checkAccountNumberUrl_not_starts_with?: Maybe<Scalars['String']>;
+  checkAccountNumberUrl_ends_with?: Maybe<Scalars['String']>;
+  checkAccountNumberUrl_not_ends_with?: Maybe<Scalars['String']>;
+  checkAccountNumberUrl_i?: Maybe<Scalars['String']>;
+  checkAccountNumberUrl_not_i?: Maybe<Scalars['String']>;
+  checkAccountNumberUrl_contains_i?: Maybe<Scalars['String']>;
+  checkAccountNumberUrl_not_contains_i?: Maybe<Scalars['String']>;
+  checkAccountNumberUrl_starts_with_i?: Maybe<Scalars['String']>;
+  checkAccountNumberUrl_not_starts_with_i?: Maybe<Scalars['String']>;
+  checkAccountNumberUrl_ends_with_i?: Maybe<Scalars['String']>;
+  checkAccountNumberUrl_not_ends_with_i?: Maybe<Scalars['String']>;
+  checkAccountNumberUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  checkAccountNumberUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  checkAddressUrl?: Maybe<Scalars['String']>;
+  checkAddressUrl_not?: Maybe<Scalars['String']>;
+  checkAddressUrl_contains?: Maybe<Scalars['String']>;
+  checkAddressUrl_not_contains?: Maybe<Scalars['String']>;
+  checkAddressUrl_starts_with?: Maybe<Scalars['String']>;
+  checkAddressUrl_not_starts_with?: Maybe<Scalars['String']>;
+  checkAddressUrl_ends_with?: Maybe<Scalars['String']>;
+  checkAddressUrl_not_ends_with?: Maybe<Scalars['String']>;
+  checkAddressUrl_i?: Maybe<Scalars['String']>;
+  checkAddressUrl_not_i?: Maybe<Scalars['String']>;
+  checkAddressUrl_contains_i?: Maybe<Scalars['String']>;
+  checkAddressUrl_not_contains_i?: Maybe<Scalars['String']>;
+  checkAddressUrl_starts_with_i?: Maybe<Scalars['String']>;
+  checkAddressUrl_not_starts_with_i?: Maybe<Scalars['String']>;
+  checkAddressUrl_ends_with_i?: Maybe<Scalars['String']>;
+  checkAddressUrl_not_ends_with_i?: Maybe<Scalars['String']>;
+  checkAddressUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  checkAddressUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   instruction?: Maybe<Scalars['String']>;
   instruction_not?: Maybe<Scalars['String']>;
   instruction_contains?: Maybe<Scalars['String']>;
@@ -74835,6 +74921,10 @@ export enum SortBillingIntegrationHistoryRecordsBy {
   ReceiptsLoadingTimeDesc = 'receiptsLoadingTime_DESC',
   SetupUrlAsc = 'setupUrl_ASC',
   SetupUrlDesc = 'setupUrl_DESC',
+  CheckAccountNumberUrlAsc = 'checkAccountNumberUrl_ASC',
+  CheckAccountNumberUrlDesc = 'checkAccountNumberUrl_DESC',
+  CheckAddressUrlAsc = 'checkAddressUrl_ASC',
+  CheckAddressUrlDesc = 'checkAddressUrl_DESC',
   InstructionExtraLinkAsc = 'instructionExtraLink_ASC',
   InstructionExtraLinkDesc = 'instructionExtraLink_DESC',
   AppUrlAsc = 'appUrl_ASC',
@@ -74969,6 +75059,10 @@ export enum SortBillingIntegrationsBy {
   DetailedDescriptionDesc = 'detailedDescription_DESC',
   SetupUrlAsc = 'setupUrl_ASC',
   SetupUrlDesc = 'setupUrl_DESC',
+  CheckAccountNumberUrlAsc = 'checkAccountNumberUrl_ASC',
+  CheckAccountNumberUrlDesc = 'checkAccountNumberUrl_DESC',
+  CheckAddressUrlAsc = 'checkAddressUrl_ASC',
+  CheckAddressUrlDesc = 'checkAddressUrl_DESC',
   InstructionAsc = 'instruction_ASC',
   InstructionDesc = 'instruction_DESC',
   InstructionExtraLinkAsc = 'instructionExtraLink_ASC',

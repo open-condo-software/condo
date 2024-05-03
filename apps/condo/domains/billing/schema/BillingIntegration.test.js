@@ -109,6 +109,18 @@ describe('BillingIntegration', () => {
             })
         })
 
+        describe('Online interaction', () => {
+            test('can have checkAccountNumberUrl and checkAddressUrl', async () => {
+                const [billing, attrs ] = await createTestBillingIntegration(admin,  {
+                    checkAccountNumberUrl: faker.internet.url(),
+                    checkAddressUrl: faker.internet.url(),
+                })
+                expect(billing).toBeDefined()
+                expect(billing.checkAccountNumberUrl).toEqual(attrs.checkAccountNumberUrl)
+                expect(billing.checkAddressUrl).toEqual(attrs.checkAddressUrl)
+            })
+        })
+
         describe('extendsBillingPage', () => {
             test('must be followed by appUrl', async () => {
                 await expectToThrowValidationFailureError(async () => {
@@ -128,6 +140,7 @@ describe('BillingIntegration', () => {
                 }, BILLING_INTEGRATION_EXTENDS_NO_APP_URL_ERROR)
             })
         })
+
         describe('setupUrl and instruction', () => {
             test('only one of them must be specified', async () => {
                 await expectToThrowValidationFailureError(async () => {
