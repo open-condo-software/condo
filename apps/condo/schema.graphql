@@ -47829,7 +47829,7 @@ type MeterReadingFilters {
   installationDate: [String]
   commissioningDate: [String]
   sealingDate: [String]
-  controlReadingDate: [String]
+  controlReadingsDate: [String]
 }
 
 """ Employee specific meter reading filter template """

@@ -32245,7 +32245,7 @@ export type MeterReadingFilters = {
   installationDate?: Maybe<Array<Maybe<Scalars['String']>>>;
   commissioningDate?: Maybe<Array<Maybe<Scalars['String']>>>;
   sealingDate?: Maybe<Array<Maybe<Scalars['String']>>>;
-  controlReadingDate?: Maybe<Array<Maybe<Scalars['String']>>>;
+  controlReadingsDate?: Maybe<Array<Maybe<Scalars['String']>>>;
 };
 
 /**  A keystone list  */

@@ -27,7 +27,7 @@ const MeterReading = generateGqlQueries('MeterReading', METER_READING_FIELDS)
 
 const MeterReadingForOrganization = generateGqlQueries('MeterReading', `{
         value1 value2 value3 value4 date clientName clientEmail clientPhone
-        meter { id number numberOfTariffs installationDate commissioningDate verificationDate nextVerificationDate controlReadingsDate sealingDate accountNumber organization { id } property { id addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } unitName unitType place resource { ${METER_RESOURCE_FIELDS} } isAutomatic b2bApp { id name } b2cApp { id name } }
+        meter { id number numberOfTariffs installationDate commissioningDate verificationDate nextVerificationDate controlReadingsDate sealingDate accountNumber organization { id } property { id addressKey addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } unitName unitType place resource { ${METER_RESOURCE_FIELDS} } isAutomatic b2bApp { id name } b2cApp { id name } }
         organization { id name }
         client { id }
         contact { id name }
@@ -41,7 +41,7 @@ const EXPORT_METER_READINGS_QUERY = gql`
     }
 `
 
-const METER_READING_FILTERS_FIELDS = '{ organization address accountNumber place number unitName resource clientName createdAt date verificationDate installationDate commissioningDate sealingDate controlReadingDate }'
+const METER_READING_FILTERS_FIELDS = '{ organization address accountNumber place number unitName resource clientName createdAt date verificationDate installationDate commissioningDate sealingDate controlReadingsDate }'
 const METER_READING_FILTER_TEMPLATE_FIELDS = `{ name employee { id } fields ${METER_READING_FILTERS_FIELDS} ${COMMON_FIELDS} }`
 const MeterReadingFilterTemplate = generateGqlQueries('MeterReadingFilterTemplate', METER_READING_FILTER_TEMPLATE_FIELDS)
 
