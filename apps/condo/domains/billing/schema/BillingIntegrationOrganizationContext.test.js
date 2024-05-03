@@ -10,6 +10,7 @@ const {
     expectToThrowGraphQLRequestError,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowValidationFailureError,
+    catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
 const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
 
@@ -28,7 +29,6 @@ const { createTestOrganization, updateTestOrganization } = require('@condo/domai
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
-const {BILLING_INTEGRATION_WRONG_GROUP_FORMAT_ERROR} = require("../constants/errors");
 
 
 
