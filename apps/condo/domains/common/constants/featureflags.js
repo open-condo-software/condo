@@ -12,7 +12,6 @@ const PROPERTY_REPORT_DELETE_ENTITIES = 'property-report-delete-entities'
 const SERVICE_PROVIDER_PROFILE = 'service-provider-profile'
 const DISABLE_DISCOVER_SERVICE_CONSUMERS = 'disable-discover-service-consumers'
 const TICKET_SUBMITTING_FORM_RESIDENT_MOBILE_APP = 'ticket-submitting-from-resident-mobile-app'
-const SETTINGS_NEW_EMPLOYEE_ROLE_TABLE = 'settings-new-employee-role-table'
 const BIGGER_LIMIT_FOR_IMPORT = 'bigger-limit-for-import'
 const SEND_BILLING_RECEIPTS_ON_PAYDAY_REMAINDER_TASK = 'send-billing-receipts-on-payday-remainder-task'
 const MARKETPLACE = 'marketplace'
@@ -39,7 +38,6 @@ module.exports = {
     SERVICE_PROVIDER_PROFILE,
     DISABLE_DISCOVER_SERVICE_CONSUMERS,
     TICKET_SUBMITTING_FORM_RESIDENT_MOBILE_APP,
-    SETTINGS_NEW_EMPLOYEE_ROLE_TABLE,
     BIGGER_LIMIT_FOR_IMPORT,
     SEND_BILLING_RECEIPTS_ON_PAYDAY_REMAINDER_TASK,
     MARKETPLACE,

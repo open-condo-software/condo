@@ -16,6 +16,7 @@ const {
     waitFor,
 } = require('@open-condo/keystone/test.utils')
 
+const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const {
     B2BAppRole,
     createTestB2BAppRole,
@@ -29,6 +30,7 @@ const {
     generatePermissionKey,
 } = require('@condo/domains/miniapp/utils/testSchema')
 const {
+    OrganizationEmployeeRole,
     makeEmployeeUserClientWithAbilities,
     createTestOrganizationEmployeeRole,
     createTestOrganizationEmployee,
@@ -417,6 +419,21 @@ describe('B2BAppRole', () => {
         })
     })
     describe('Validations', () => {
+        test('Employee role from "role" field must be existed and not deleted', async () => {
+            const [deletedRole] = await createTestOrganizationEmployeeRole(admin, manager.organization)
+            await OrganizationEmployeeRole.softDelete(admin, deletedRole.id)
+            await catchErrorFrom(async () => {
+                await createTestB2BAppRole(admin, connectedApp, deletedRole)
+            }, ({ errors }) => {
+                expect(errors).toMatchObject([{
+                    message: 'Unable to connect a B2BAppRole.role<OrganizationEmployeeRole>',
+                    name: 'GraphQLError',
+                    extensions: {
+                        code: 'INTERNAL_SERVER_ERROR',
+                    },
+                }])
+            })
+        })
         test('Miniapp from "app" field must be connected organization from "role" field', async () => {
             const [anotherApp] = await createTestB2BApp(support)
             await expectToThrowGQLError(async () => {

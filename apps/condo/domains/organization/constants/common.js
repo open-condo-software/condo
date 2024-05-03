@@ -26,9 +26,16 @@ const ORGANIZATION_NAME_PREFIX_AND_QUOTES_REGEXP = /ООО|"|«|»|“|”|„|�
 
 const DELETED_ORGANIZATION_NAME = 'Deleted Organization'
 
+const MIN_ROLE_NAME_LENGTH = 1
+const MAX_ROLE_NAME_LENGTH = 128
+const MAX_ROLE_DESCRIPTION_LENGTH = 1024
+const MAX_ROLE_COUNT = 40
+
 const DEFAULT_ROLES = {
     // Administrator role is required for mutation logic
     'Administrator': {
+        'isDefault': true,
+        'isEditable': false,
         'name': 'employee.role.Administrator.name',
         'description': 'employee.role.Administrator.description',
         'canManageOrganization': true,
@@ -95,6 +102,8 @@ const DEFAULT_ROLES = {
         'canManageDocuments': true,
     },
     'Dispatcher': {
+        'isDefault': true,
+        'isEditable': true,
         'name': 'employee.role.Dispatcher.name',
         'description': 'employee.role.Dispatcher.description',
         'canManageOrganization': false,
@@ -155,6 +164,8 @@ const DEFAULT_ROLES = {
         'canManageDocuments': true,
     },
     'Manager': {
+        'isDefault': true,
+        'isEditable': true,
         'name': 'employee.role.Manager.name',
         'description': 'employee.role.Manager.description',
         'canManageOrganization': false,
@@ -218,6 +229,8 @@ const DEFAULT_ROLES = {
         'canManageDocuments': true,
     },
     'Foreman': {
+        'isDefault': true,
+        'isEditable': true,
         'name': 'employee.role.Foreman.name',
         'description': 'employee.role.Foreman.description',
         'canManageOrganization': false,
@@ -277,6 +290,8 @@ const DEFAULT_ROLES = {
         'canManageDocuments': true,
     },
     'Technician': {
+        'isDefault': true,
+        'isEditable': true,
         'name': 'employee.role.Technician.name',
         'description': 'employee.role.Technician.description',
         'canManageOrganization': false,
@@ -335,6 +350,8 @@ const DEFAULT_ROLES = {
         'canManageDocuments': true,
     },
     'Contractor': {
+        'isDefault': true,
+        'isEditable': true,
         'name': 'employee.role.Contractor.name',
         'description': 'employee.role.Contractor.description',
         'canReadProperties': true,
@@ -407,4 +424,8 @@ module.exports = {
     HOLDING_TYPE,
     SERVICE_PROVIDER_TYPE,
     ORGANIZATION_TYPES,
+    MIN_ROLE_NAME_LENGTH,
+    MAX_ROLE_NAME_LENGTH,
+    MAX_ROLE_DESCRIPTION_LENGTH,
+    MAX_ROLE_COUNT,
 }

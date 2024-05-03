@@ -87,9 +87,10 @@ const TicketChange = new GQLListSchema('TicketChange', {
 
                 if (orgEmployees.length) {
                     const roleID = orgEmployees[0].role
+                    // TODO(DOMA-8919): Think about deleted roles
                     const role = await getById('OrganizationEmployeeRole', roleID)
 
-                    return getTranslation(translations, role.name)
+                    return getTranslation(translations, role ? role.name : 'employee.role.unknownRole')
                 }
 
                 const links = await find('OrganizationLink', {
@@ -105,9 +106,10 @@ const TicketChange = new GQLListSchema('TicketChange', {
 
                 if (relatedOrgEmployees.length) {
                     const roleID = relatedOrgEmployees[0].role
+                    // TODO(DOMA-8919): Think about deleted roles
                     const role = await getById('OrganizationEmployeeRole', roleID)
 
-                    return getTranslation(translations, role.name)
+                    return getTranslation(translations, role ? role.name : 'employee.role.unknownRole')
                 }
 
                 return getTranslation(translations, 'DeletedEmployee')
