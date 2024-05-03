@@ -70366,8 +70366,8 @@ export type RegisterMetersReadingsOutput = {
 };
 
 export type RegisterMetersReadingsReadingAddressInfoInput = {
-  unitType: Scalars['String'];
-  unitName: Scalars['String'];
+  unitType?: Maybe<Scalars['String']>;
+  unitName?: Maybe<Scalars['String']>;
   globalId?: Maybe<Scalars['String']>;
 };
 

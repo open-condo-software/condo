@@ -1,7 +1,8 @@
 const { faker } = require('@faker-js/faker')
-const { sample } = require('lodash')
+const { sample, map } = require('lodash')
 
 const { AddressMetaDataFields } = require('../../schema/fields/AddressMetaField')
+const { FLAT_UNIT_TYPE, PARKING_UNIT_TYPE, PARKING_SECTION_TYPE, SECTION_SECTION_TYPE } = require('@condo/domains/property/constants/common')
 
 const FIAS_LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 35, 65, 75, 90, 91]
 const FIAS_ACTUALITY_STATE = [0, 1]
@@ -32,7 +33,7 @@ const buildFakeAddressMeta = (withFlat = false, extraAttrs = {}) => {
     emptyData.city_fias_id = faker.datatype.uuid()
     emptyData.city_kladr_id = String(faker.datatype.number())
 
-    emptyData.street = faker.address.street() 
+    emptyData.street = faker.address.street()
     emptyData.street_type = 'ул'
     emptyData.street_type_full = 'улица'
     emptyData.street_with_type = `${emptyData.street_type} ${emptyData.street}`
@@ -96,7 +97,68 @@ const buildFakeAddressAndMeta = (withFlat, addressMetaExtraAttrs = {}) => {
     return { address, addressMeta }
 }
 
+const TYPE_FOR_UNIT = 'unit'
+const TYPE_FOR_FLOOR = 'floor'
+
+const buildPropertyMap = ({ floors = 3, unitsOnFloor = 4, parkingFloors = 2, unitsOnParkingFloor = 8 } = {}) => ({
+    dv: 1,
+    type: 'building',
+    sections: [
+        {
+            id: '1',
+            type: SECTION_SECTION_TYPE,
+            index: 1,
+            name: '1',
+            preview: null,
+            floors: map(Array(floors), (...[, floor]) => {
+                const floorPlus1 = floor + 1
+                return {
+                    id: String(floorPlus1),
+                    type: TYPE_FOR_FLOOR,
+                    index: floorPlus1,
+                    name: String(floorPlus1),
+                    units: map(Array(unitsOnFloor), (...[, n]) => ({
+                        id: String(floor * unitsOnFloor + n + 1),
+                        type: TYPE_FOR_UNIT,
+                        name: null,
+                        label: String(floor * unitsOnFloor + n + 1),
+                        preview: null,
+                        unitType: FLAT_UNIT_TYPE,
+                    })),
+                }
+            }),
+        },
+    ],
+    parking: [
+        {
+            id: '1',
+            type: SECTION_SECTION_TYPE,
+            index: 1,
+            name: '1',
+            preview: null,
+            floors: map(Array(parkingFloors), (...[, floor]) => {
+                const floorPlus1 = floor + 1
+                return {
+                    id: String(floorPlus1),
+                    type: TYPE_FOR_FLOOR,
+                    index: floorPlus1,
+                    name: String(floorPlus1),
+                    units: map(Array(unitsOnParkingFloor), (...[, n]) => ({
+                        id: String(floor * unitsOnParkingFloor + n + 1),
+                        type: TYPE_FOR_UNIT,
+                        name: null,
+                        label: String(floor * unitsOnParkingFloor + n + 1),
+                        preview: null,
+                        unitType: PARKING_UNIT_TYPE,
+                    })),
+                }
+            }),
+        },
+    ],
+})
+
 module.exports = {
     buildFakeAddressMeta,
     buildFakeAddressAndMeta,
+    buildPropertyMap,
 }

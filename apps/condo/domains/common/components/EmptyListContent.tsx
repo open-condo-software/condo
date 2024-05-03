@@ -35,12 +35,15 @@ type IEmptyListWithoutImportProps = IBaseEmptyListProps & {
     createLabel?: string
 }
 
+type TExternalImportWrapper = Pick<IImportWrapperProps, 'onFinish' | 'uploadButtonLabel' | 'importCardButton'>
+
 type IEmptyListWithImportProps = IBaseEmptyListProps & {
     importLayoutProps?: {
         manualCreateEmoji: string
         manualCreateDescription: string
         importCreateEmoji: string
-        importWrapper: Omit<IImportWrapperProps, 'importCardButton' | 'accessCheck'>
+        importWrapper: IImportWrapperProps | TExternalImportWrapper
+        OverrideImportWrapperFC?: React.FC<TExternalImportWrapper & Pick<IImportWrapperProps, 'accessCheck'>>
     }
 }
 
@@ -105,12 +108,15 @@ export const EmptyListContent: React.FC<IEmptyListProps> = (props) => {
             manualCreateEmoji,
             manualCreateDescription,
             importCreateEmoji,
+            OverrideImportWrapperFC,
         } = importLayoutProps
 
         const CardWrapper = isLargeScreen ? DesktopEmptyListCardWrapper : MobileEmptyListCardWrapper
         const spaceStyles = !isLargeScreen ? { width: '100%' } : {}
         const domainName = get(importWrapper, 'domainName')
         const objsMessage = intl.formatMessage({ id: `import.${domainName}.plural` }).toLowerCase()
+
+        const ImportComponent = OverrideImportWrapperFC || ImportWrapper
 
         return (
             <div style={containerStyles}>
@@ -134,7 +140,7 @@ export const EmptyListContent: React.FC<IEmptyListProps> = (props) => {
                             />
                         </CardWrapper>
                         <CardWrapper>
-                            <ImportWrapper
+                            <ImportComponent
                                 {...importWrapper}
                                 accessCheck={accessCheck}
                                 importCardButton={{

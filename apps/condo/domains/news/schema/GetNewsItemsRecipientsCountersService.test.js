@@ -10,7 +10,7 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { LOAD_RESIDENTS_CHUNK_SIZE } = require('@condo/domains/news/constants/common')
-const { getNewsItemsRecipientsCountersByTestClient, getPropertyMap, propertyMap1x9x4 } = require('@condo/domains/news/utils/testSchema')
+const { getNewsItemsRecipientsCountersByTestClient, propertyMap1x9x4 } = require('@condo/domains/news/utils/testSchema')
 const {
     createTestOrganization,
     createTestOrganizationEmployeeRole,
@@ -18,6 +18,7 @@ const {
 const { createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { buildPropertyMap } = require('@condo/domains/property/utils/testSchema/factories')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, createTestUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -127,7 +128,13 @@ describe('GetNewsItemsRecipientsCountersService', () => {
         const floorsCount = 15
         const unitsOnFloorCount = 4
         const unitsCount = floorsCount * unitsOnFloorCount
-        const [property1] = await createTestProperty(adminClient, dummyO10n, { map: getPropertyMap(floorsCount, unitsOnFloorCount) })
+        const [property1] = await createTestProperty(adminClient, dummyO10n, {
+            map: buildPropertyMap({
+                floors: floorsCount,
+                unitsOnFloor: unitsOnFloorCount,
+                parkingFloors: 0,
+            }),
+        })
         const [user] = await createTestUser(adminClient)
 
         await Promise.all(

@@ -21,7 +21,6 @@ import Input from '@condo/domains/common/components/antd/Input'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
 import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
-import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
@@ -31,13 +30,8 @@ import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import {
-    EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT,
-    EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION,
-    METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION,
-} from '@condo/domains/meter/constants/errors'
+import { MetersImportWrapper } from '@condo/domains/meter/components/Import/Index'
 import { EXPORT_METER_READINGS_QUERY } from '@condo/domains/meter/gql'
-import { useImporterFunctions } from '@condo/domains/meter/hooks/useImporterFunctions'
 import { useUpdateMeterModal } from '@condo/domains/meter/hooks/useUpdateMeterModal'
 import {
     MeterReadingForOrganization,
@@ -114,8 +108,6 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
         extraQueryParameters: { tab },
     })
 
-    const [columns, meterReadingNormalizer, meterReadingValidator, meterReadingCreator] = useImporterFunctions()
-
     const [showOnlyLatestReadings, setShowOnlyLatestReadings] = useState(false)
     const switchShowOnlyLatestReadings = useCallback(
         () => setShowOnlyLatestReadings(!showOnlyLatestReadings),
@@ -137,7 +129,7 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
         }
     }, [setSelectedMeter])
     const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
-    const handleCreateMeterReadings = useCallback(() => router.push('/meter/create'), [])
+    const handleCreateMeterReadings = useCallback(() => router.push('/meter/create'), [router])
 
     return (
         <>
@@ -218,16 +210,10 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
                                 </Button>
                             ),
                             canManageMeterReadings && (
-                                <ImportWrapper
+                                <MetersImportWrapper
                                     key='import'
                                     accessCheck={canManageMeterReadings}
                                     onFinish={refetch}
-                                    columns={columns}
-                                    rowNormalizer={meterReadingNormalizer}
-                                    rowValidator={meterReadingValidator}
-                                    objectCreator={meterReadingCreator}
-                                    mutationErrorsToMessages={mutationErrorsToMessages}
-                                    domainName='meter'
                                 />
                             ),
                         ]}
@@ -252,21 +238,9 @@ export const MetersPageContent: React.FC<MetersPageContentProps> = ({
     const intl = useIntl()
     const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.header' })
     const EmptyListManualBodyDescription = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.manualCreateCard.body.description' })
-    const CreateMeter = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterButtonLabel' })
-    const MeterAccountNumberExistInOtherUnitMessage = intl.formatMessage({ id: 'meter.import.error.MeterAccountNumberExistInOtherUnit' })
-    const MeterResourceOwnedByAnotherOrganizationMessage = intl.formatMessage({ id: 'api.meter.METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION' })
-    const MeterNumberExistInOrganizationMessage = intl.formatMessage({ id: 'meter.import.error.MeterNumberExistInOrganization' })
 
     const { refetch } = MeterReadingForOrganization.useCount({}, { skip: true })
     const { count, loading: countLoading } = MeterReadingForOrganization.useCount({ where: baseSearchQuery })
-
-    const [columns, meterReadingNormalizer, meterReadingValidator, meterReadingCreator] = useImporterFunctions()
-
-    const mutationErrorsToMessages = useMemo(() => ({
-        [EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT]: MeterAccountNumberExistInOtherUnitMessage,
-        [EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION]: MeterNumberExistInOrganizationMessage,
-        [METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION]: MeterResourceOwnedByAnotherOrganizationMessage,
-    }), [MeterAccountNumberExistInOtherUnitMessage, MeterNumberExistInOrganizationMessage, MeterResourceOwnedByAnotherOrganizationMessage])
 
     const PageContent = useMemo(() => {
         if (countLoading || loading) return <Loader />
@@ -281,13 +255,9 @@ export const MetersPageContent: React.FC<MetersPageContentProps> = ({
                         importCreateEmoji: EMOJI.LIST,
                         importWrapper: {
                             onFinish: refetch,
-                            columns: columns,
-                            rowNormalizer: meterReadingNormalizer,
-                            rowValidator: meterReadingValidator,
-                            objectCreator: meterReadingCreator,
                             domainName: 'meter',
-                            mutationErrorsToMessages,
                         },
+                        OverrideImportWrapperFC: MetersImportWrapper,
                     }}
                     createRoute={`/meter/create?meterType=${METER_PAGE_TYPES.meter}`}
                     accessCheck={canManageMeterReadings}
@@ -301,15 +271,10 @@ export const MetersPageContent: React.FC<MetersPageContentProps> = ({
                 tableColumns={tableColumns}
                 baseSearchQuery={baseSearchQuery}
                 canManageMeterReadings={canManageMeterReadings}
-                mutationErrorsToMessages={mutationErrorsToMessages}
                 loading={countLoading}
             />
         )
-    }, [
-        CreateMeter, EmptyListLabel, EmptyListManualBodyDescription, baseSearchQuery, canManageMeterReadings,
-        columns, count, countLoading, filtersMeta, loading, meterReadingCreator, meterReadingNormalizer, meterReadingValidator,
-        mutationErrorsToMessages, refetch, tableColumns,
-    ])
+    }, [EmptyListLabel, EmptyListManualBodyDescription, baseSearchQuery, canManageMeterReadings, count, countLoading, filtersMeta, loading, refetch, tableColumns])
 
     return (
         <TablePageContent>

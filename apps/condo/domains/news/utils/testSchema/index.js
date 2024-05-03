@@ -21,6 +21,7 @@ const { NEWS_TYPE_COMMON } = require('@condo/domains/news/constants/newsTypes')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { NewsItemSharing: NewsItemSharingGQL } = require('@condo/domains/news/gql')
 const { GET_NEWS_SHARING_RECIPIENTS_MUTATION } = require('@condo/domains/news/gql')
+const { buildPropertyMap } = require('@condo/domains/property/utils/testSchema/factories')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const NewsItem = generateGQLTestUtils(NewsItemGQL)
@@ -32,37 +33,6 @@ const NewsItemRecipientsExportTask = generateGQLTestUtils(NewsItemRecipientsExpo
 const NewsItemSharing = generateGQLTestUtils(NewsItemSharingGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
-const getPropertyMap = (floors, unitsOnFloor) => ({
-    dv: 1,
-    type: 'building',
-    sections: [
-        {
-            id: '1',
-            type: 'section',
-            index: 1,
-            name: '1',
-            preview: null,
-            floors: map(Array(floors), (...[, floor]) => {
-                const floorPlus1 = floor + 1
-                return {
-                    id: String(floorPlus1),
-                    type: 'floor',
-                    index: floorPlus1,
-                    name: String(floorPlus1),
-                    units: map(Array(unitsOnFloor), (...[, n]) => ({
-                        id: String(floor * unitsOnFloor + n + 1),
-                        type: 'unit',
-                        name: null,
-                        label: String(floor * unitsOnFloor + n + 1),
-                        preview: null,
-                        unitType: FLAT_UNIT_TYPE,
-                    })),
-                }
-            }),
-        },
-    ],
-    'parking': [],
-})
 
 /*
       ___________________
@@ -85,7 +55,7 @@ const getPropertyMap = (floors, unitsOnFloor) => ({
      |  1 |  2 |  3 |  4 |
      |____|____|____|____|
  */
-const propertyMap1x9x4 = getPropertyMap(9, 4)
+const propertyMap1x9x4 = buildPropertyMap({ floors: 9, unitsOnFloor: 4, parkingFloors: 0 })
 
 async function createTestNewsItem (client, organization, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -346,7 +316,6 @@ async function getNewsSharingRecipientsByTestClient(client, b2bAppContext, extra
 
 module.exports = {
     propertyMap1x9x4,
-    getPropertyMap,
     NewsItem, createTestNewsItem, updateTestNewsItem, publishTestNewsItem,
     NewsItemScope, createTestNewsItemScope, updateTestNewsItemScope,
     NewsItemTemplate, createTestNewsItemTemplate, updateTestNewsItemTemplate,
