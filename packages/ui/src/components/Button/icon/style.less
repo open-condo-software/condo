@@ -1,5 +1,6 @@
 @import (reference) "@open-condo/ui/src/tokens/variables.less";
 @import (reference) "@open-condo/ui/src/components/style/mixins/button";
+@import (reference) "@open-condo/ui/src/components/style/mixins/transition";
 
 @condo-icon-button-focus-outline-width: @condo-global-border-width-default * 4;
 @condo-icon-button-focus-visible-outline-width: @condo-global-border-width-default * 2;
@@ -18,7 +19,7 @@
   background-color: transparent;
   border: none;
   border-radius: @condo-icon-button-border-radius-medium;
-  transition: background @condo-global-transition-duration-default ease-in;
+  .condo-transition(background);
 
   span {
     position: relative;
@@ -41,28 +42,25 @@
 
     background: @condo-global-color-brand-gradient-1;
     opacity: 0;
-    transition: opacity @condo-global-transition-duration-default ease-in;
+    .condo-transition(opacity);
   }
 
   .condo-icon-btn-content {
     display: inline-flex;
-  }
-
-  * {
     color: @condo-global-color-black;
-    transition: all @condo-global-transition-duration-default ease-in;
+    .condo-transition(color);
+
+    svg {
+      color: @condo-global-color-black;
+      fill: currentcolor;
+      .condo-transition(color);
+    }
   }
 
   &:focus::after {
     .condo-btn-layer(-@condo-icon-button-focus-outline-width);
 
     border-radius: @condo-icon-button-focus-outline-border-radius-medium;
-  }
-
-  &.condo-icon-btn-pressed {
-    * {
-      color: @condo-global-color-green-7;
-    }
   }
 
   &:disabled {
@@ -82,15 +80,23 @@
       opacity: 1;
     }
 
-    * {
+    .condo-icon-btn-content {
       color: @condo-global-color-green-5;
+
+      svg {
+        color: @condo-global-color-green-5;
+      }
     }
   }
 
   &:not(:disabled):active,
   &:not(:disabled):active:hover {
-    * {
+    .condo-icon-btn-content {
       color: @condo-global-color-green-7;
+
+      svg {
+        color: @condo-global-color-green-7;
+      }
     }
   }
 

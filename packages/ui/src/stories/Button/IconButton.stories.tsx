@@ -18,7 +18,6 @@ export default {
     args: {
         children: <Trash size='medium' />,
         disabled: false,
-        pressed: false,
         size: 'medium',
     },
     argTypes: {
@@ -31,7 +30,6 @@ export default {
             },
         },
         disabled: { control: 'boolean', default: false },
-        pressed: { control: 'boolean', default: false },
         onClick: { control: false },
         href: { control: false },
         target: { control: false },
