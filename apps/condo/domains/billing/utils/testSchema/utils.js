@@ -1,7 +1,8 @@
 const { faker  } = require('@faker-js/faker/locale/ru')
 const dayjs = require('dayjs')
 
-const { makeLoggedInAdminClient, makeClient} = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
+
 const { registerBillingReceiptsByTestClient } = require('@condo/domains/billing/utils/testSchema')
 const {
     createTestBillingIntegration,
@@ -10,16 +11,16 @@ const {
     createTestBillingIntegrationAccessRight,
 } = require('@condo/domains/billing/utils/testSchema')
 const {
+    createTestOrganization,
+    createTestOrganizationEmployeeRole,
+    createTestOrganizationEmployee,
+} = require('@condo/domains/organization/utils/testSchema')
+const {
     makeClientWithServiceUser,
     makeClientWithSupportUser,
     makeClientWithNewRegisteredAndLoggedInUser,
     makeLoggedInClient,
 } = require('@condo/domains/user/utils/testSchema')
-const {
-    createTestOrganization,
-    createTestOrganizationEmployeeRole,
-    createTestOrganizationEmployee,
-} = require('@condo/domains/organization/utils/testSchema')
 
 
 class BillingTestUtils {

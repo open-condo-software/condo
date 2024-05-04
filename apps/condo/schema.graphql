@@ -8721,6 +8721,8 @@ type BillingIntegrationHistoryRecord {
   receiptsLoadingTime: String
   detailedDescription: JSON
   setupUrl: String
+  checkAccountNumberUrl: String
+  checkAddressUrl: String
   instruction: JSON
   instructionExtraLink: String
   appUrl: String
@@ -8892,6 +8894,42 @@ input BillingIntegrationHistoryRecordWhereInput {
   setupUrl_not_ends_with_i: String
   setupUrl_in: [String]
   setupUrl_not_in: [String]
+  checkAccountNumberUrl: String
+  checkAccountNumberUrl_not: String
+  checkAccountNumberUrl_contains: String
+  checkAccountNumberUrl_not_contains: String
+  checkAccountNumberUrl_starts_with: String
+  checkAccountNumberUrl_not_starts_with: String
+  checkAccountNumberUrl_ends_with: String
+  checkAccountNumberUrl_not_ends_with: String
+  checkAccountNumberUrl_i: String
+  checkAccountNumberUrl_not_i: String
+  checkAccountNumberUrl_contains_i: String
+  checkAccountNumberUrl_not_contains_i: String
+  checkAccountNumberUrl_starts_with_i: String
+  checkAccountNumberUrl_not_starts_with_i: String
+  checkAccountNumberUrl_ends_with_i: String
+  checkAccountNumberUrl_not_ends_with_i: String
+  checkAccountNumberUrl_in: [String]
+  checkAccountNumberUrl_not_in: [String]
+  checkAddressUrl: String
+  checkAddressUrl_not: String
+  checkAddressUrl_contains: String
+  checkAddressUrl_not_contains: String
+  checkAddressUrl_starts_with: String
+  checkAddressUrl_not_starts_with: String
+  checkAddressUrl_ends_with: String
+  checkAddressUrl_not_ends_with: String
+  checkAddressUrl_i: String
+  checkAddressUrl_not_i: String
+  checkAddressUrl_contains_i: String
+  checkAddressUrl_not_contains_i: String
+  checkAddressUrl_starts_with_i: String
+  checkAddressUrl_not_starts_with_i: String
+  checkAddressUrl_ends_with_i: String
+  checkAddressUrl_not_ends_with_i: String
+  checkAddressUrl_in: [String]
+  checkAddressUrl_not_in: [String]
   instruction: JSON
   instruction_not: JSON
   instruction_in: [JSON]
@@ -9167,6 +9205,10 @@ enum SortBillingIntegrationHistoryRecordsBy {
   receiptsLoadingTime_DESC
   setupUrl_ASC
   setupUrl_DESC
+  checkAccountNumberUrl_ASC
+  checkAccountNumberUrl_DESC
+  checkAddressUrl_ASC
+  checkAddressUrl_DESC
   instructionExtraLink_ASC
   instructionExtraLink_DESC
   appUrl_ASC
@@ -9222,6 +9264,8 @@ input BillingIntegrationHistoryRecordUpdateInput {
   receiptsLoadingTime: String
   detailedDescription: JSON
   setupUrl: String
+  checkAccountNumberUrl: String
+  checkAddressUrl: String
   instruction: JSON
   instructionExtraLink: String
   appUrl: String
@@ -9267,6 +9311,8 @@ input BillingIntegrationHistoryRecordCreateInput {
   receiptsLoadingTime: String
   detailedDescription: JSON
   setupUrl: String
+  checkAccountNumberUrl: String
+  checkAddressUrl: String
   instruction: JSON
   instructionExtraLink: String
   appUrl: String
@@ -9371,6 +9417,12 @@ type BillingIntegration {
   """ Url to app page, which will be opened during app connection to setup the integration. One of setupUrl and instruction fields must be filled 
   """
   setupUrl: String
+
+  """ Online request for validation of the account number """
+  checkAccountNumberUrl: String
+
+  """ Online request to search organizations for the address """
+  checkAddressUrl: String
 
   """ Short instruction for connecting the service written in markdown. Used in cases where integration has no frontend 
   """
@@ -9594,6 +9646,42 @@ input BillingIntegrationWhereInput {
   setupUrl_not_ends_with_i: String
   setupUrl_in: [String]
   setupUrl_not_in: [String]
+  checkAccountNumberUrl: String
+  checkAccountNumberUrl_not: String
+  checkAccountNumberUrl_contains: String
+  checkAccountNumberUrl_not_contains: String
+  checkAccountNumberUrl_starts_with: String
+  checkAccountNumberUrl_not_starts_with: String
+  checkAccountNumberUrl_ends_with: String
+  checkAccountNumberUrl_not_ends_with: String
+  checkAccountNumberUrl_i: String
+  checkAccountNumberUrl_not_i: String
+  checkAccountNumberUrl_contains_i: String
+  checkAccountNumberUrl_not_contains_i: String
+  checkAccountNumberUrl_starts_with_i: String
+  checkAccountNumberUrl_not_starts_with_i: String
+  checkAccountNumberUrl_ends_with_i: String
+  checkAccountNumberUrl_not_ends_with_i: String
+  checkAccountNumberUrl_in: [String]
+  checkAccountNumberUrl_not_in: [String]
+  checkAddressUrl: String
+  checkAddressUrl_not: String
+  checkAddressUrl_contains: String
+  checkAddressUrl_not_contains: String
+  checkAddressUrl_starts_with: String
+  checkAddressUrl_not_starts_with: String
+  checkAddressUrl_ends_with: String
+  checkAddressUrl_not_ends_with: String
+  checkAddressUrl_i: String
+  checkAddressUrl_not_i: String
+  checkAddressUrl_contains_i: String
+  checkAddressUrl_not_contains_i: String
+  checkAddressUrl_starts_with_i: String
+  checkAddressUrl_not_starts_with_i: String
+  checkAddressUrl_ends_with_i: String
+  checkAddressUrl_not_ends_with_i: String
+  checkAddressUrl_in: [String]
+  checkAddressUrl_not_in: [String]
   instruction: String
   instruction_not: String
   instruction_contains: String
@@ -9846,6 +9934,10 @@ enum SortBillingIntegrationsBy {
   detailedDescription_DESC
   setupUrl_ASC
   setupUrl_DESC
+  checkAccountNumberUrl_ASC
+  checkAccountNumberUrl_DESC
+  checkAddressUrl_ASC
+  checkAddressUrl_DESC
   instruction_ASC
   instruction_DESC
   instructionExtraLink_ASC
@@ -9905,6 +9997,8 @@ input BillingIntegrationUpdateInput {
   receiptsLoadingTime: String
   detailedDescription: String
   setupUrl: String
+  checkAccountNumberUrl: String
+  checkAddressUrl: String
   instruction: String
   instructionExtraLink: String
   appUrl: String
@@ -9948,6 +10042,8 @@ input BillingIntegrationCreateInput {
   receiptsLoadingTime: String
   detailedDescription: String
   setupUrl: String
+  checkAccountNumberUrl: String
+  checkAddressUrl: String
   instruction: String
   instructionExtraLink: String
   appUrl: String

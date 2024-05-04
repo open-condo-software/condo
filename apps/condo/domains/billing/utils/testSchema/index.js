@@ -3,19 +3,18 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
+const fs = require('fs')
+const path = require('path')
+
 const { faker } = require('@faker-js/faker')
 const get = require('lodash/get')
-const fs = require('fs')
-const path = require("path");
-const conf = require("@open-condo/config");
-const { makeLoggedInAdminClient, UploadingFile} = require("@open-condo/keystone/test.utils");
+
 const { throwIfError } = require('@open-condo/codegen/generate.test.utils')
-const { createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require("@condo/domains/organization/utils/testSchema");
-const { makeClientWithNewRegisteredAndLoggedInUser } = require("@condo/domains/user/utils/testSchema");
-const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
-const { createTestOrganization } = require("@condo/domains/organization/utils/testSchema");
 const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
+const conf = require('@open-condo/config')
+const { makeLoggedInAdminClient, UploadingFile } = require('@open-condo/keystone/test.utils')
+
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { BillingIntegration: BillingIntegrationGQL } = require('@condo/domains/billing/gql')
 const { BillingIntegrationAccessRight: BillingIntegrationAccessRightGQL } = require('@condo/domains/billing/gql')
 const { BillingIntegrationOrganizationContext: BillingIntegrationOrganizationContextGQL } = require('@condo/domains/billing/gql')
@@ -28,10 +27,6 @@ const { ResidentBillingReceipt: ResidentBillingReceiptGQL } = require('@condo/do
 const { BillingRecipient: BillingRecipientGQL } = require('@condo/domains/billing/gql')
 const { BillingCategory: BillingCategoryGQL } = require('@condo/domains/billing/gql')
 const { BillingReceiptFile: BillingReceiptFileGQL } = require('@condo/domains/billing/gql')
-const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { registerServiceConsumerByTestClient } = require('@condo/domains/resident/utils/testSchema')
-const { registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
-const { makeClientWithResidentUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 const {
     REGISTER_BILLING_RECEIPTS_MUTATION,
     REGISTER_BILLING_RECEIPT_FILE_MUTATION,
@@ -40,7 +35,18 @@ const {
     VALIDATE_QRCODE_MUTATION,
     SUM_BILLING_RECEIPTS_QUERY,
 } = require('@condo/domains/billing/gql')
+const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
+const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 /* AUTOGENERATE MARKER <IMPORT> */
+const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
+const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
+const { registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
+const { registerServiceConsumerByTestClient } = require('@condo/domains/resident/utils/testSchema')
+const { makeClientWithResidentUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 const BillingIntegration = generateGQLTestUtils(BillingIntegrationGQL)
 const BillingIntegrationAccessRight = generateGQLTestUtils(BillingIntegrationAccessRightGQL)
@@ -56,17 +62,15 @@ const BillingCategory = generateGQLTestUtils(BillingCategoryGQL)
 const BillingReceiptFile = generateGQLTestUtils(BillingReceiptFileGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
-const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
-const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
-const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+
 
 const bannerVariants = [
-    { bannerColor: "#9b9dfa", bannerTextColor: "WHITE" },
-    { bannerColor: "linear-gradient(90deg, #4cd174 0%, #6db8f2 100%)", bannerTextColor: "BLACK" },
-    { bannerColor: "#d3e3ff", bannerTextColor: "BLACK" }
+    { bannerColor: '#9b9dfa', bannerTextColor: 'WHITE' },
+    { bannerColor: 'linear-gradient(90deg, #4cd174 0%, #6db8f2 100%)', bannerTextColor: 'BLACK' },
+    { bannerColor: '#d3e3ff', bannerTextColor: 'BLACK' },
 ]
 
-function randomChoice(choices) {
+function randomChoice (choices) {
     const index = Math.floor(Math.random() * choices.length)
     return choices[index]
 }
@@ -87,7 +91,7 @@ async function createTestBillingIntegration (client, extraAttrs = {}) {
         detailedDescription: faker.lorem.paragraphs(2),
         instruction: faker.lorem.paragraphs(5),
         targetDescription: faker.company.catchPhrase(),
-        receiptsLoadingTime: `${faker.datatype.number({min: 10, max: 100})} days`,
+        receiptsLoadingTime: `${faker.datatype.number({ min: 10, max: 100 })} days`,
         ...randomChoice(bannerVariants),
         ...extraAttrs,
     }
@@ -247,8 +251,8 @@ async function createTestBillingProperties (client, contexts, extraAttrsArray = 
                 meta: {
                     test: 123,
                 },
-                ...get(extraAttrsArray, `${i}`, {})
-            }
+                ...get(extraAttrsArray, `${i}`, {}),
+            },
         })
     }
     const objs = await BillingProperty.createMany(client, attrsArray)
@@ -281,7 +285,7 @@ async function updateTestBillingProperties (client, attrsArray) {
             dv: 1,
             sender,
             ...element.data,
-        }
+        },
     }))
 
     const obj = await BillingProperty.updateMany(client, extendedAttrsArray)
@@ -335,8 +339,8 @@ async function createTestBillingAccounts (client, contexts, properties, extraAtt
                     dv: 1,
                     test: 123,
                 },
-                ...get(extraAttrsArray, `${i}`, {})
-            }
+                ...get(extraAttrsArray, `${i}`, {}),
+            },
         })
     }
     const objs = await BillingAccount.createMany(client, attrsArray)
@@ -370,7 +374,7 @@ async function updateTestBillingAccounts (client, attrsArray) {
             dv: 1,
             sender,
             ...element.data,
-        }
+        },
     }))
 
     const obj = await BillingAccount.updateMany(client, extendedAttrsArray)
@@ -394,7 +398,7 @@ async function createTestBillingReceipt (client, context, property, account, ext
         recipient: createTestRecipient(),
         services: generateServicesData(1),
         toPayDetails: {
-            formula: "charge + penalty",
+            formula: 'charge + penalty',
             charge: faker.datatype.number().toString(),
             penalty: faker.datatype.number().toString(),
         },
@@ -430,12 +434,12 @@ async function createTestBillingReceipts (client, contexts, properties, accounts
                 recipient: createTestRecipient(),
                 services: generateServicesData(1),
                 toPayDetails: {
-                    formula: "charge + penalty",
+                    formula: 'charge + penalty',
                     charge: faker.datatype.number().toString(),
                     penalty: faker.datatype.number().toString(),
                 },
-                ...get(extraAttrsArray, `${i}`, {})
-            }
+                ...get(extraAttrsArray, `${i}`, {}),
+            },
         })
     }
     const objs = await BillingReceipt.createMany(client, attrsArray)
@@ -469,7 +473,7 @@ async function updateTestBillingReceipts (client, attrsArray) {
             dv: 1,
             sender,
             ...element.data,
-        }
+        },
     }))
 
     const obj = await BillingReceipt.updateMany(client, extendedAttrsArray)
@@ -541,7 +545,7 @@ async function updateTestBillingReceiptFile (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestBillingRecipient(client, context, extraAttrs = {}) {
+async function createTestBillingRecipient (client, context, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!context.id) throw new Error('no context')
 
@@ -560,7 +564,7 @@ async function createTestBillingRecipient(client, context, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function updateTestBillingRecipient(client, id, extraAttrs = {}) {
+async function updateTestBillingRecipient (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -588,7 +592,7 @@ async function makeClientWithIntegrationAccess () {
     return client
 }
 
-async function registerBillingReceiptsByTestClient(client, args, extraAttrs = {}) {
+async function registerBillingReceiptsByTestClient (client, args, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!args) throw new Error('no data')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -607,7 +611,7 @@ async function registerBillingReceiptsByTestClient(client, args, extraAttrs = {}
     return [data.result, errors, attrs]
 }
 
-async function registerBillingReceiptFileByTestClient(client, args = {}) {
+async function registerBillingReceiptFileByTestClient (client, args = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const attrs = {
@@ -623,7 +627,7 @@ async function registerBillingReceiptFileByTestClient(client, args = {}) {
     return [data.result, attrs]
 }
 
-function createRegisterBillingReceiptsPayload(extraAttrs = {}) {
+function createRegisterBillingReceiptsPayload (extraAttrs = {}) {
     const address = extraAttrs.address || faker.random.alphaNumeric(24)
     return {
         importId: faker.random.alphaNumeric(24),
@@ -650,7 +654,7 @@ function createRegisterBillingReceiptsPayload(extraAttrs = {}) {
             iec: faker.random.alphaNumeric(8),
         },
 
-        ...extraAttrs
+        ...extraAttrs,
     }
 }
 
@@ -658,7 +662,7 @@ function createRegisterBillingReceiptsPayload(extraAttrs = {}) {
  * Simplifies creating series of instances
  */
 
-async function addBillingIntegrationAndContext(client, organization, integrationExtraAttrs = {}, contextExtraAttrs = {}) {
+async function addBillingIntegrationAndContext (client, organization, integrationExtraAttrs = {}, contextExtraAttrs = {}) {
     if (!organization || !organization.id) {
         throw new Error('No organization')
     }
@@ -669,17 +673,17 @@ async function addBillingIntegrationAndContext(client, organization, integration
     return {
         billingIntegration,
         billingIntegrationContext,
-        client
+        client,
     }
 }
 
-async function makeContextWithOrganizationAndIntegrationAsAdmin( integrationAttrs={}, organizationAttrs = {}, contextAttrs= {}, processingBillingContext = false ) {
+async function makeContextWithOrganizationAndIntegrationAsAdmin ( integrationAttrs = {}, organizationAttrs = {}, contextAttrs = {}, processingBillingContext = false ) {
     let context
     const admin = await makeLoggedInAdminClient()
     const [integration] = await createTestBillingIntegration(admin, integrationAttrs)
     const [organization] = await registerNewOrganization(admin, organizationAttrs)
     ;[context] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration, contextAttrs)
-    if (!processingBillingContext) [context] = await updateTestBillingIntegrationOrganizationContext(admin, context.id, { status: CONTEXT_FINISHED_STATUS})
+    if (!processingBillingContext) [context] = await updateTestBillingIntegrationOrganizationContext(admin, context.id, { status: CONTEXT_FINISHED_STATUS })
 
     return {
         context,
@@ -689,7 +693,7 @@ async function makeContextWithOrganizationAndIntegrationAsAdmin( integrationAttr
     }
 }
 
-async function makeServiceUserForIntegration(integration) {
+async function makeServiceUserForIntegration (integration) {
     const admin = await makeLoggedInAdminClient()
     const client = await makeClientWithServiceUser()
     const [accessRight] = await createTestBillingIntegrationAccessRight(admin, integration, client.user)
@@ -698,7 +702,7 @@ async function makeServiceUserForIntegration(integration) {
     return client
 }
 
-async function makeOrganizationIntegrationManager({ context, employeeRoleArgs } = {}) {
+async function makeOrganizationIntegrationManager ({ context, employeeRoleArgs } = {}) {
     const admin = await makeLoggedInAdminClient()
     let organization
     let integration
@@ -722,7 +726,7 @@ async function makeOrganizationIntegrationManager({ context, employeeRoleArgs } 
     return { organization, integration, managerUserClient, managerEmployee }
 }
 
-async function createReceiptsReader(organization) {
+async function createReceiptsReader (organization) {
     const admin = await makeLoggedInAdminClient()
     const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
         canReadBillingReceipts: true,
@@ -732,7 +736,7 @@ async function createReceiptsReader(organization) {
     return client
 }
 
-async function makeClientWithPropertyAndBilling({ billingIntegrationContextArgs, billingPropertyArgs, billingAccountAttrs }) {
+async function makeClientWithPropertyAndBilling ({ billingIntegrationContextArgs, billingPropertyArgs, billingAccountAttrs }) {
     const integrationClient = await makeClientWithIntegrationAccess()
     const integration = integrationClient.integration
 
@@ -751,7 +755,7 @@ async function makeClientWithPropertyAndBilling({ billingIntegrationContextArgs,
 }
 
 function createTestRecipient (extra = {}) {
-    const range = (length) => ({ min: Math.pow(10,length - 1), max: Math.pow(10,length)-1 })
+    const range = (length) => ({ min: Math.pow(10, length - 1), max: Math.pow(10, length) - 1 })
     const validRecipient = {
         name: faker.company.name(),
         tin: faker.datatype.number(range(10)).toString(),
@@ -768,7 +772,7 @@ function createTestRecipient (extra = {}) {
     }
 }
 
-async function makeResidentClientWithOwnReceipt(existingResidentClient) {
+async function makeResidentClientWithOwnReceipt (existingResidentClient) {
 
     let residentClient = existingResidentClient
     if (!residentClient) {
@@ -820,7 +824,7 @@ async function makeResidentClientWithOwnReceipt(existingResidentClient) {
         billingProperty,
         billingAccount,
         serviceConsumer,
-        receipt
+        receipt,
     }
 }
 
@@ -830,7 +834,7 @@ async function makeResidentClientWithOwnReceipt(existingResidentClient) {
  * @param extraAttrs
  * @returns {Promise<(*|{dv: number, sender: {dv: number, fingerprint: *}})[]>}
  */
-async function sendNewReceiptMessagesToResidentScopesByTestClient(client, extraAttrs = {}) {
+async function sendNewReceiptMessagesToResidentScopesByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
 
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -842,7 +846,7 @@ async function sendNewReceiptMessagesToResidentScopesByTestClient(client, extraA
     return [data.result, attrs]
 }
 
-async function validateQRCodeByTestClient(client, extraAttrs = {}) {
+async function validateQRCodeByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -860,7 +864,7 @@ async function validateQRCodeByTestClient(client, extraAttrs = {}) {
 /** used to generate random services
  * @param {number} count the number of services to create
  * @param {string} toPay specific toPay amount. If not passed a random amount is used**/
-function generateServicesData(count=3, toPay=''){
+function generateServicesData (count = 3, toPay = ''){
     const services = []
 
     for (let i = 0; i < count; i++){
@@ -869,11 +873,11 @@ function generateServicesData(count=3, toPay=''){
             name: faker.random.alphaNumeric(),
             toPay: toPay !== '' ? toPay : faker.datatype.number().toString(),
             toPayDetails: {
-                formula: "charge + penalty",
+                formula: 'charge + penalty',
                 charge: faker.datatype.number().toString(),
                 penalty: faker.datatype.number().toString(),
-            }
-        },)
+            },
+        })
     }
     return services
 }
@@ -895,7 +899,7 @@ async function makeClientWithResidentAndServiceConsumer (property, billingAccoun
     return residentUser
 }
 
-async function sendNewBillingReceiptFilesNotificationsByTestClient(client, extraAttrs = {}) {
+async function sendNewBillingReceiptFilesNotificationsByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -910,7 +914,7 @@ async function sendNewBillingReceiptFilesNotificationsByTestClient(client, extra
 }
 
 
-async function sumBillingReceiptsByTestClient (client, where={}) {
+async function sumBillingReceiptsByTestClient (client, where = {}) {
     if (!client) throw new Error('no client')
 
     const { data, errors } = await client.query(SUM_BILLING_RECEIPTS_QUERY, { where })
