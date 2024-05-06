@@ -208,11 +208,10 @@ class PaymentLinkRouter {
                         this.createMultiPaymentByInvoices.bind(this),
                         true,
                     )
-                } catch (error) {
+                } catch (err) {
                     logger.error({
-                        msg: error.message,
-                        params: req.query,
-                        error,
+                        msg: 'handleRequest invoice error', 
+                        err, req,
                     })
 
                     const { failureUrl } = params
@@ -227,12 +226,12 @@ class PaymentLinkRouter {
                 logger.warn({ msg: 'No handler for payment link', reqId: get(req, 'id'), url: get(req, 'url') })
                 return res.redirect('/404-paymentLinkNoHandler.html')
             }
-        } catch (error) {
+        } catch (err) {
             // print error log
             logger.error({
-                msg: error.message,
-                params: req.query,
-                error,
+                msg: 'handleRequest error',
+                req,
+                err,
             })
 
             // in case if any exception appears, we have to redirect to some sort of error page
