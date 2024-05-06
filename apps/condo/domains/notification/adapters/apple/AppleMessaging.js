@@ -49,7 +49,7 @@ class AppleMessaging {
                     try {
                         data = JSON.parse(json)
                     } catch (error) {
-                        logger.error({ msg: 'response JSON parse error', error, headers, json })
+                        logger.error({ msg: 'response JSON parse error', err: error, headers, json })
                         data = { error }
                     }
                 }
