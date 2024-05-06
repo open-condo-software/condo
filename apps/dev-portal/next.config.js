@@ -25,9 +25,6 @@ const nextConfig = {
         locales: LOCALES,
         defaultLocale: DEFAULT_LOCALE,
     },
-    transpilePackages: [
-        'antd',
-    ],
     publicRuntimeConfig: {
         serverUrl: SERVER_URL,
         serviceUrl: SERVICE_URL,
