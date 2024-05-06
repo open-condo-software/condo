@@ -48,7 +48,7 @@ async function canReadBankAccounts ({ authentication: { item: user } }) {
             ],
         }
     } else if (user.type === RESIDENT) {
-        const residents = await find('Resident', { user: { id: user.id } })
+        const residents = await find('Resident', { user: { id: user.id }, deletedAt: null })
         if (residents.length > 0) {
             const propertyIds = uniq(map(residents, 'property'))
             return {
