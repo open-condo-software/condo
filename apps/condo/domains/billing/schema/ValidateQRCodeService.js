@@ -77,16 +77,12 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
                 const { data } = args
                 const { qrCode } = data
 
-                const checkLimits = async (ip) => {
-                    await redisGuard.checkCustomLimitCounters(
-                        `validate-QR-code-${ip}`,
-                        BILLING_VALIDATE_QR_CODE_WINDOW,
-                        MAX_CLIENT_VALIDATE_QR_CODE_BY_WINDOW,
-                    )
-                }
-
-                const ip = context.req.headers['x-forwarded-for'] || context.req.socket.remoteAddress
-                await checkLimits(ip)
+                const ip = context.req.ip
+                await redisGuard.checkCustomLimitCounters(
+                    `validate-QR-code-${ip}`,
+                    BILLING_VALIDATE_QR_CODE_WINDOW,
+                    MAX_CLIENT_VALIDATE_QR_CODE_BY_WINDOW,
+                )
 
                 const matches = /^ST(?<version>\d{4})(?<encodingTag>\d)\|(?<requisitesStr>.*)$/g.exec(qrCode)
                 const requisitesStr = get(matches, ['groups', 'requisitesStr'], '')
