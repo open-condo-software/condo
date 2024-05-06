@@ -54,8 +54,8 @@ export function healthcheck () {
 
     check(appHealthcheck, {
         'healthcheck should return 200': (res) => res.status === 200,
-        'posgres should pass': (res) => res.json('postgres') === 'pass',
-        'redis should pass': (res) => res.json('redis') === 'pass',
+        'postgres should pass': (res) => res.json('#(name="postgres").statusText') === 'pass',
+        'redis should pass': (res) => res.json('#(name="redis").statusText') === 'pass',
     })
 }
 
