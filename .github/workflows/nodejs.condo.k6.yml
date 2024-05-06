@@ -28,7 +28,7 @@ jobs:
 
     steps:
       - name: Checkout code with submodules
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           submodules: recursive
@@ -68,7 +68,7 @@ jobs:
           k6 -o experimental-prometheus-rw run --summary-trend-stats="avg,min,med,max,p(90),p(95),p(99)" apps/condo/k6/dist/news.test.js
 
       - name: Upload screenshots
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: screenshots

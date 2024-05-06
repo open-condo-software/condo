@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: Checkout code with submodules
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           submodules: recursive
@@ -93,7 +93,7 @@ jobs:
           DISABLE_LOGGING: true
 
       - name: Upload screenshots artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: screenshots

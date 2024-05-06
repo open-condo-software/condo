@@ -28,7 +28,7 @@ jobs:
               exit 1
           fi
       - name: Login to Sbercloud Container Registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           registry: swr.ru-moscow-1.hc.sbercloud.ru
           username: ${{ secrets.SBERCLOUD_CR_USERNAME }}

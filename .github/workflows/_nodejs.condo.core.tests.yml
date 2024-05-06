@@ -60,7 +60,7 @@ jobs:
          dest: './docker-logs'
 
       - name: Upload log artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
          name: logs

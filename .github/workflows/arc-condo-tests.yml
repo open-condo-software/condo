@@ -24,7 +24,7 @@ jobs:
         run: git --version
 
       - name: Checkout code with submodules
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           submodules: recursive
@@ -98,7 +98,7 @@ jobs:
           dest: './docker-logs'
 
       - name: Upload log artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: logs
@@ -123,7 +123,7 @@ jobs:
         run: git --version
 
       - name: Checkout code with submodules
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           submodules: recursive
@@ -197,7 +197,7 @@ jobs:
           dest: './docker-logs'
 
       - name: Upload log artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: logs
@@ -222,7 +222,7 @@ jobs:
         run: git --version
 
       - name: Checkout code with submodules
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           submodules: recursive
@@ -296,7 +296,7 @@ jobs:
           dest: './docker-logs'
 
       - name: Upload log artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: logs
@@ -321,7 +321,7 @@ jobs:
         run: git --version
 
       - name: Checkout code with submodules
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           submodules: recursive
@@ -398,7 +398,7 @@ jobs:
           dest: './docker-logs'
 
       - name: Upload log artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: logs

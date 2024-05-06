@@ -29,7 +29,7 @@ jobs:
           echo "DOCKER_CACHE_FROM=type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/condo/condo-image:$( echo "${{github.ref_name}}" | sed 's/[^a-zA-Z0-9]/-/g' ) >> $GITHUB_ENV"
           echo "DOCKER_CACHE_TO=type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/condo/condo-image:$( echo "${{github.ref_name}}" | sed 's/[^a-zA-Z0-9]/-/g' ),mode=min,image-manifest=true" >> $GITHUB_ENV
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           submodules: recursive
@@ -75,7 +75,7 @@ jobs:
         with:
           dest: './docker-logs'
       - name: Upload log artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: logs
@@ -92,13 +92,13 @@ jobs:
       dev-api: ${{ steps.detect-changes.outputs.dev-api }}
     steps:
       - name: Checkout code with submodules
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           submodules: recursive
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
       - name: Scan changed files
-        uses: dorny/paths-filter@v2
+        uses: dorny/paths-filter@v3
         id: detect-changes
         with:
           filters: |
@@ -113,7 +113,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code with submodules
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           submodules: recursive
@@ -148,7 +148,7 @@ jobs:
     if: (github.actor != 'dependabot[bot]')
     steps:
       # Fetch project source with GitHub Actions Checkout.
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: ./bin/run-semgrep.sh -a
 
   run-dev-api-tests:
