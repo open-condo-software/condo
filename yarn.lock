@@ -1449,6 +1449,77 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@app/meters@workspace:apps/meters":
+  version: 0.0.0-use.local
+  resolution: "@app/meters@workspace:apps/meters"
+  dependencies:
+    "@faker-js/faker": ^8.4.1
+    "@graphql-codegen/cli": ^5.0.2
+    "@keystonejs/adapter-knex": ^13.2.0
+    "@keystonejs/adapter-mongoose": ^11.2.0
+    "@keystonejs/adapter-prisma": ^3.2.0
+    "@keystonejs/app-admin-ui": ^7.5.0
+    "@keystonejs/app-graphql": ^6.3.0
+    "@keystonejs/app-graphql-playground": ^5.2.2
+    "@keystonejs/app-next": ^5.2.3
+    "@keystonejs/app-static": ^5.2.0
+    "@keystonejs/auth-password": ^6.1.0
+    "@keystonejs/fields": ^22.1.3
+    "@keystonejs/fields-color": ^1.1.0
+    "@keystonejs/fields-content": ^9.1.0
+    "@keystonejs/fields-location-google": ^3.4.0
+    "@keystonejs/fields-markdown": ^5.3.2
+    "@keystonejs/fields-wysiwyg-tinymce": ^5.4.0
+    "@keystonejs/file-adapters": ^7.1.0
+    "@keystonejs/keystone": ^19.3.1
+    "@keystonejs/list-plugins": ^8.1.0
+    "@keystonejs/server-side-graphql-client": ^2.1.0
+    "@keystonejs/utils": ^6.1.0
+    "@meters/domains": "link:./domains"
+    "@open-condo/codegen": "workspace:^"
+    "@testing-library/react": ^11.2.5
+    "@types/jest": ^29.4.0
+    "@types/node": ^16
+    "@types/react": ^17.0.1
+    "@welldone-software/why-did-you-render": ^5.0.0-alpha.1
+    "@zeit/next-css": ^1.0.1
+    "@zeit/next-less": ^1.0.1
+    antd: ^4.24.12
+    babel-jest: ^29.7.0
+    classnames: 2.2.6
+    dayjs: ^1.10.6
+    emotion: ^10.0.27
+    emotion-server: ^10.0.27
+    express: ^4.17.1
+    facepaint: ^1.2.1
+    get-contrast: ^2.0.0
+    identity-obj-proxy: ^3.0.0
+    immer: 9.0.13
+    jest: ^29.7.0
+    jest-environment-jsdom: ^29.7.0
+    jest-jasmine2: ^29.7.0
+    jest-watch-typeahead: ^0.6.1
+    less: ^3.12.2
+    lodash: ^4.17.21
+    mkdirp: ^3.0.1
+    next: ^9.5.5
+    next-transpile-modules: ^4.1.0
+    numeral: 2.0.6
+    qs: ^6.9.4
+    rc-queue-anim: ^1.8.5
+    react: ^16.13.1
+    react-dom: ^16.13.1
+    react-fittext: ^1.0.0
+    react-markdown: ^4.3.1
+    react-responsive: ^8.1.0
+    react-test-renderer: ^16.13.1
+    typescript: ^4.1.5
+    use-immer: ^0.4.1
+    uuid: ^8.3.0
+    validator: ^13.1.1
+  languageName: unknown
+  linkType: soft
+
 "@app/miniapp@workspace:apps/miniapp":
   version: 0.0.0-use.local
   resolution: "@app/miniapp@workspace:apps/miniapp"
@@ -7724,7 +7795,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@faker-js/faker@npm:^8.3.1":
+"@faker-js/faker@npm:^8.3.1, @faker-js/faker@npm:^8.4.1":
   version: 8.4.1
   resolution: "@faker-js/faker@npm:8.4.1"
   checksum: d802d531f8929562715adc279cfec763c9a4bc596ec67b0ce43fd0ae61b285d2b0eec6f1f4aa852452a63721a842fe7e81926dce7bd92acca94b01e2a1f55f5a
@@ -11683,6 +11754,12 @@ __metadata:
   checksum: 4b393907e39a1a75214f0314bf72a0adfa5e5adffd050dd5efe9c055b8549481a3cfc9f308c16dfb33311daf3ff63added7d5fd1fe52db614c004f886e0e559a
   languageName: node
   linkType: hard
+
+"@meters/domains@link:./domains::locator=%40app%2Fmeters%40workspace%3Aapps%2Fmeters":
+  version: 0.0.0-use.local
+  resolution: "@meters/domains@link:./domains::locator=%40app%2Fmeters%40workspace%3Aapps%2Fmeters"
+  languageName: node
+  linkType: soft
 
 "@microsoft/fetch-event-source@npm:2.0.1":
   version: 2.0.1
@@ -16806,6 +16883,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/react@npm:^17.0.1":
+  version: 17.0.80
+  resolution: "@types/react@npm:17.0.80"
+  dependencies:
+    "@types/prop-types": "*"
+    "@types/scheduler": ^0.16
+    csstype: ^3.0.2
+  checksum: 1c27bfc42305d77ef0da55f8f6d4c4a3471aa02b294fcf29ea0f2cfb0bf02892e5a0a3bc7559fa4a5ba50697b2e31076cb5aa5987f69cfc2e880f6426edb8bdf
+  languageName: node
+  linkType: hard
+
 "@types/resolve@npm:0.0.8":
   version: 0.0.8
   resolution: "@types/resolve@npm:0.0.8"
@@ -16835,6 +16923,13 @@ __metadata:
   version: 0.16.2
   resolution: "@types/scheduler@npm:0.16.2"
   checksum: b6b4dcfeae6deba2e06a70941860fb1435730576d3689225a421280b7742318d1548b3d22c1f66ab68e414f346a9542f29240bc955b6332c5b11e561077583bc
+  languageName: node
+  linkType: hard
+
+"@types/scheduler@npm:^0.16":
+  version: 0.16.8
+  resolution: "@types/scheduler@npm:0.16.8"
+  checksum: 6c091b096daa490093bf30dd7947cd28e5b2cd612ec93448432b33f724b162587fed9309a0acc104d97b69b1d49a0f3fc755a62282054d62975d53d7fd13472d
   languageName: node
   linkType: hard
 
@@ -36806,6 +36901,15 @@ __metadata:
   bin:
     mkdirp: bin/cmd.js
   checksum: a96865108c6c3b1b8e1d5e9f11843de1e077e57737602de1b82030815f311be11f96f09cce59bd5b903d0b29834733e5313f9301e3ed6d6f6fba2eae0df4298f
+  languageName: node
+  linkType: hard
+
+"mkdirp@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "mkdirp@npm:3.0.1"
+  bin:
+    mkdirp: dist/cjs/src/bin.js
+  checksum: 972deb188e8fb55547f1e58d66bd6b4a3623bf0c7137802582602d73e6480c1c2268dcbafbfb1be466e00cc7e56ac514d7fd9334b7cf33e3e2ab547c16f83a8d
   languageName: node
   linkType: hard
 
