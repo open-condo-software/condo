@@ -16,7 +16,7 @@ const IndexPage = () => {
 
     return (
         <>
-            Hello, {JSON.stringify(context)}
+            {JSON.stringify(context)}
         </>
     )
 }

@@ -232,6 +232,11 @@ function createapp (argv) {
                 describe: 'create if exists',
                 type: 'boolean',
             },
+            'type': {
+                default: 'default',
+                describe: 'type of app, may be "backend" for backend only app, or "default" for app with backend and frontend',
+                type: 'string',
+            },
         })
         .usage(
             '$0 <name> [--force]',
@@ -244,6 +249,7 @@ function createapp (argv) {
             },
             async (args) => {
                 const force = args.force
+                const type = args.type
                 const name = args.name
                 const greeting = chalk.white.bold(name)
                 const boxenOptions = {
@@ -254,7 +260,21 @@ function createapp (argv) {
                     backgroundColor: '#555555',
                 }
                 const msgBox = boxen(greeting, boxenOptions)
-                const template = conf.CODEGEN_APPLICATION_TEMPLATE || DEFAULT_APPLICATION_TEMPLATE
+
+                let template = conf.CODEGEN_APPLICATION_TEMPLATE
+                if (!template) {
+                    switch (type) {
+                        case 'backend': {
+                            template = 'app01'
+                            break
+                        }
+                        default: {
+                            template = DEFAULT_APPLICATION_TEMPLATE
+                            break
+                        }
+                    }
+                }
+
                 // no end user input expected
                 // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
                 const targetDirectory = path.resolve(process.cwd(), `./apps/${name}`)
