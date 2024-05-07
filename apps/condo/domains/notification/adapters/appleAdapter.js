@@ -219,13 +219,17 @@ class AppleAdapter {
             const notificationsSortedByAppId = {}
             for (const notification of notifications) {
                 const appId = notification.appId
-                if (!notificationsSortedByAppId[appId]) notificationsSortedByAppId[appId] = [notification]
-                else notificationsSortedByAppId[appId].push(notification)
+                if (!notificationsSortedByAppId[appId]) {
+                    notificationsSortedByAppId[appId] = [notification]
+                }
+                else {
+                    notificationsSortedByAppId[appId].push(notification)
+                }
             }
             for (const appId of Object.keys(notificationsSortedByAppId)) {
                 const currentConfig = this.#config[appId]
                 if (!currentConfig) {
-                    logger.info({ msg: 'Unknown appId. Config was not found', appId })
+                    logger.error({ msg: 'Unknown appId. Config was not found', appId })
                     continue
                 }
                 const currentNotificationsBatch = notificationsSortedByAppId[appId]
