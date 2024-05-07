@@ -11,7 +11,7 @@ module.exports = [
                     isSupport: false,
                     // this is development only data
                     // nosemgrep: generic.secrets.gitleaks.generic-api-key.generic-api-key
-                    password: '3a74b3f07978',
+                    password: '3a74b3f07978', // NOSONAR
                     dv: 1,
                     sender: {
                         dv: 1,
@@ -28,7 +28,7 @@ module.exports = [
                     isSupport: false,
                     // this is development only data
                     // nosemgrep: generic.secrets.gitleaks.generic-api-key.generic-api-key
-                    password: '1a92b3a07c78',
+                    password: '1a92b3a07c78', // NOSONAR
                     dv: 1,
                     sender: {
                         dv: 1,
