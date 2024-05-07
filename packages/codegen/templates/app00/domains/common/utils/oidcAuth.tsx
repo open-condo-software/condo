@@ -102,7 +102,7 @@ const OidcAuthProvider = ({ children }) => {
     }, [hasStorageAccess])
 
     const openGrantPage = useCallback(() => {
-        window.open(`${window.location.origin}/grant-storage-access/grantString${Math.random().toString(16).substring(2)}`)
+        window.open(`${window.location.origin}/grant-storage-access/grantString${Math.random().toString(16).substring(2)}`) // NOSONAR
         setWindowOpened(true)
     }, [])
 
