@@ -185,16 +185,25 @@ async function deliverMessage (messageId) {
             const isAllowedByUser = get(userTransportSettings, transport)
             if (isAllowedByUser === false) {
                 transportMeta.status = MESSAGE_DISABLED_BY_USER_STATUS
-                processingMeta.step = MESSAGE_SENT_STATUS
-                successCnt++
-            } else {
-                const [isOk, deliveryMetadata] = await _sendMessageByAdapter(transport, adapter, messageContext, isVoIP)
-                logger.info({ msg: 'sendMessageByAdapter', isOk, messageId, deliveryMetadata })
-                transportMeta.deliveryMetadata = deliveryMetadata
-                transportMeta.status = isOk ? MESSAGE_SENT_STATUS : MESSAGE_ERROR_STATUS
-                processingMeta.step = isOk ? MESSAGE_SENT_STATUS : MESSAGE_ERROR_STATUS
-                successCnt += isOk ? 1 : 0
+
+                processingMeta.step = MESSAGE_DISABLED_BY_USER_STATUS
+                processingMeta.transportsMeta.push(transportMeta)
+
+                await Message.update(context, message.id, {
+                    ...baseAttrs,
+                    status: MESSAGE_DISABLED_BY_USER_STATUS,
+                    processingMeta,
+                })
+
+                return MESSAGE_DISABLED_BY_USER_STATUS
             }
+
+            const [isOk, deliveryMetadata] = await _sendMessageByAdapter(transport, adapter, messageContext, isVoIP)
+            logger.info({ msg: 'sendMessageByAdapter', isOk, messageId, deliveryMetadata })
+            transportMeta.deliveryMetadata = deliveryMetadata
+            transportMeta.status = isOk ? MESSAGE_SENT_STATUS : MESSAGE_ERROR_STATUS
+            processingMeta.step = isOk ? MESSAGE_SENT_STATUS : MESSAGE_ERROR_STATUS
+            successCnt += isOk ? 1 : 0
         } catch (error) {
             transportMeta.status = MESSAGE_ERROR_STATUS
             transportMeta.exception = safeFormatError(error, false)
