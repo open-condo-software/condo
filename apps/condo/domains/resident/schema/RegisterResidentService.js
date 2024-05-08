@@ -144,17 +144,16 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                                 filters: { residentsIds: [id] },
                             })
                             logger.info({
-                                message: 'discoverServiceConsumers done',
+                                msg: 'discoverServiceConsumers done',
                                 result: discoveringResult,
-                                reqId,
-                                resident: { id },
+                                user: { id: context.authedItem.id }, resident: { id }, reqId,
                             })
                         }
                     } catch (err) {
-                        logger.error({ message: 'discoverServiceConsumers fail', err, reqId })
+                        logger.error({ msg: 'discoverServiceConsumers fail', user: { id: context.authedItem.id }, resident: { id }, err, reqId })
                     }
                 } catch (err) {
-                    logger.warn({ message: err.message, reqId, resident: { id } })
+                    logger.warn({ msg: 'discoverServiceConsumers limit error', user: { id: context.authedItem.id }, resident: { id }, err, reqId })
                 }
 
                 // Hack that helps to resolve all subfields in result of this mutation
