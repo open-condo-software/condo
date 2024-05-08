@@ -139,6 +139,8 @@ async function deliverMessage (messageId) {
             }
             await Message.update(context, message.id, messageErrorData)
 
+            logger.info({ msg: 'throttled', messageId, data: { throttlePeriodForUser, lastMessageTypeSentDate } })
+
             return MESSAGE_THROTTLED_STATUS
         }
     }
@@ -194,6 +196,8 @@ async function deliverMessage (messageId) {
                     status: MESSAGE_DISABLED_BY_USER_STATUS,
                     processingMeta,
                 })
+
+                logger.info({ msg: 'disabled by user', messageId, data: { transport, userTransportSettings } })
 
                 return MESSAGE_DISABLED_BY_USER_STATUS
             }
