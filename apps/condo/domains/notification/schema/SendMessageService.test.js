@@ -16,14 +16,20 @@ const {
     DEVICE_PLATFORM_IOS,
     PUSH_TRANSPORT_FIREBASE,
     PUSH_TRANSPORT_HUAWEI,
-    PUSH_TRANSPORT_APPLE, PUSH_TYPE_SILENT_DATA,
+    PUSH_TRANSPORT_APPLE,
+    PUSH_TYPE_SILENT_DATA,
+    NEWS_ITEM_COMMON_MESSAGE_TYPE, MESSAGE_DISABLED_BY_USER_STATUS,
 } = require('@condo/domains/notification/constants/constants')
-const { syncRemoteClientWithPushTokenByTestClient } = require('@condo/domains/notification/utils/testSchema')
+const {
+    syncRemoteClientWithPushTokenByTestClient, sendMessageByTestClient,
+    resendMessageByTestClient,
+    Message,
+    createTestMessage,
+    createTestNotificationUserSetting,
+} = require('@condo/domains/notification/utils/testSchema')
 const { getRandomFakeSuccessToken } = require('@condo/domains/notification/utils/testSchema/helpers')
 const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
-
-const { sendMessageByTestClient, resendMessageByTestClient, Message, createTestMessage } = require('../utils/testSchema')
-
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('SendMessageService', () => {
     let admin
@@ -354,6 +360,39 @@ describe('SendMessageService', () => {
                 expect(data.id).toMatch(UUID_RE)
                 expect(data.status).toEqual(MESSAGE_RESENDING_STATUS)
             })
+        })
+    })
+
+    test('Not send message if disabled by user', async () => {
+        const client = await makeClientWithNewRegisteredAndLoggedInUser()
+        await createTestNotificationUserSetting(client, {
+            messageType: NEWS_ITEM_COMMON_MESSAGE_TYPE,
+            messageTransport: null,
+            isEnabled: false,
+        })
+        const [data, attrs] = await sendMessageByTestClient(admin, {
+            to: { user: { id: client.user.id } },
+            type: NEWS_ITEM_COMMON_MESSAGE_TYPE,
+            meta: {
+                dv: 1,
+                title: faker.lorem.sentence(),
+                body: faker.lorem.paragraph(),
+                data: {
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: `test-${faker.random.alphaNumeric(8)}` },
+                    newsItemId: faker.datatype.uuid(),
+                    organizationId: faker.datatype.uuid(),
+                },
+            },
+        })
+
+        // give worker some time
+        await waitFor(async () => {
+            const message = await Message.getOne(admin, { id: data.id })
+            const transportMeta = message.processingMeta.transportsMeta[0]
+
+            expect(message.status).toEqual(MESSAGE_DISABLED_BY_USER_STATUS)
+            expect(transportMeta.status).toEqual(MESSAGE_DISABLED_BY_USER_STATUS)
         })
     })
 })
