@@ -309,7 +309,7 @@ const MenuItems: React.FC = () => {
                     path: 'settings',
                     icon: AllIcons['Settings'],
                     label: 'global.section.settings',
-                    access: hasAccessToSettings && isManagingCompany,
+                    access: hasAccessToSettings,
                 },
             ].filter(checkItemAccess),
         },
