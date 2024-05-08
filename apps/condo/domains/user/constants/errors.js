@@ -51,6 +51,7 @@ const SMS_FOR_IP_DAY_LIMIT_REACHED = 'SMS_FOR_IP_DAY_LIMIT_REACHED'
 const CAPTCHA_CHECK_FAILED = 'CAPTCHA_CHECK_FAILED'
 
 const UNABLE_TO_FIND_CONFIRM_PHONE_ACTION = 'UNABLE_TO_FIND_CONFIRM_PHONE_ACTION'
+const NO_CONFIRM_PHONE_ACTION_TOKEN = 'NO_CONFIRM_PHONE_ACTION_TOKEN'
 const CANNOT_RESET_ADMIN_USER = 'CANNOT_RESET_ADMIN_USER'
 
 const EMPTY_EXTERNAL_IDENTITY_ID_VALUE = 'EMPTY_EXTERNAL_IDENTITY_ID_VALUE'
@@ -151,6 +152,14 @@ const ERRORS = {
         message: 'Wrong format of provided phone number',
         messageForUser: 'api.common.WRONG_PHONE_FORMAT',
         correctExample: '+79991234567',
+    },
+    NO_CONFIRM_PHONE_ACTION_TOKEN: {
+        mutation: 'registerNewUser',
+        variable: ['data', 'confirmPhoneActionToken'],
+        code: 'BAD_USER_INPUT',
+        type: NO_CONFIRM_PHONE_ACTION_TOKEN,
+        message: '"confirmPhoneActionToken" cannot be empty',
+        messageForUser: 'api.user.registerNewUser.NO_CONFIRM_PHONE_ACTION_TOKEN',
     },
     ...pick(GQL_ERRORS, [
         'INVALID_PASSWORD_LENGTH',

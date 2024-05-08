@@ -40,6 +40,8 @@ const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithServiceUser, m
     createTestUserRightsSet, updateTestUser,
 } = require('@condo/domains/user/utils/testSchema')
 
+const { ERRORS } = require('./Organization')
+
 
 describe('Organization', () => {
     let admin
@@ -476,6 +478,40 @@ describe('Organization', () => {
                     async () => await createTestOrganization(admin, { phone: '42' }),
                     { ...COMMON_ERRORS.WRONG_PHONE_FORMAT, variable: ['data', 'phone'] }
                 )
+            })
+        })
+        describe('name', () => {
+            test('cannot be empty', async () => {
+                await expectToThrowGQLError(async () => {
+                    await createTestOrganization(admin, { name: '' })
+                }, ERRORS.NAME_IS_EMPTY)
+
+                const [org] = await createTestOrganization(admin)
+                await expectToThrowGQLError(async () => {
+                    await updateTestOrganization(admin, org.id, { name: '' })
+                }, ERRORS.NAME_IS_EMPTY)
+            })
+            test('cannot be includes emails or url', async () => {
+                await expectToThrowGQLError(async () => {
+                    await createTestOrganization(admin, { name:  `${faker.lorem.sentence(5)}. ${faker.internet.url()}` })
+                }, ERRORS.NAME_IS_INVALID)
+                await expectToThrowGQLError(async () => {
+                    await createTestOrganization(admin, { name:  `${faker.lorem.sentence(5)}. ${faker.internet.email()}` })
+                }, ERRORS.NAME_IS_INVALID)
+
+                const [org] = await createTestOrganization(admin)
+                await expectToThrowGQLError(async () => {
+                    await updateTestOrganization(admin, org.id, { name:  `${faker.lorem.sentence(5)}. ${faker.internet.url()}` })
+                }, ERRORS.NAME_IS_INVALID)
+                await expectToThrowGQLError(async () => {
+                    await updateTestOrganization(admin, org.id, { name:  `${faker.lorem.sentence(5)}. ${faker.internet.email()}` })
+                }, ERRORS.NAME_IS_INVALID)
+            })
+            test('can be simple name', async () => {
+                const [org, attrs1] = await createTestOrganization(admin, { name: '     ' + faker.company.name() + '     ' })
+                expect(org.name).toBe(attrs1.name.trim())
+                const [updatedOrg, attrs2] = await updateTestOrganization(admin, org.id, { name: '     ' + faker.company.name() + '     ' })
+                expect(updatedOrg.name).toBe(attrs2.name.trim())
             })
         })
     })
