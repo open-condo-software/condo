@@ -2501,6 +2501,7 @@
   "api.user.signinResidentUser.TOKEN_NOT_FOUND": "Something went wrong during authentication :( Try again or ask our support",
   "api.user.signinResidentUser.UNABLE_TO_CREATE_USER": "Something went wrong during registration :( Try again or ask our support",
   "api.user.registerNewUser.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION": "Something went wrong during phone confirmation :( Try again or ask our support",
+  "api.user.registerNewUser.NO_CONFIRM_PHONE_ACTION_TOKEN": "Something went wrong during phone confirmation :( Try again or ask our support",
   "api.user.registerNewUser.USER_WITH_SPECIFIED_PHONE_ALREADY_EXISTS": "User with specified phone number already exists. Try to login or reset password",
   "api.user.registerNewUser.USER_WITH_SPECIFIED_EMAIL_ALREADY_EXISTS": "User with specified email number already exists. Try to login or reset password",
   "api.user.registerNewUser.UNABLE_TO_CREATE_USER": "Something went wrong during registration :( Try again or ask our support",

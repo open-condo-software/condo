@@ -13,6 +13,8 @@ const OMIT_SEARCH_CHARACTERS_REGEXP = /[^\p{Alphabetic}\p{Decimal_Number}\s/]/ig
 const MULTIPLE_EMAILS_REGEX = /^[\w+.-]+@[a-z\d.-]+\.[a-z]{2,}(\s*,\s*[\w+.-]+@[a-z\d.-]+\.[a-z]{2,})*$/i
 const UUID_REGEXP = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 const ROLE_PERMISSION_REGEX = /^can(?:[A-Z][a-z]*)+$/
+const EMAIL_REGEX = new RegExp(/\S+@\S+\.\S+/, 'gm')
+const URL_REGEX = new RegExp('(https?:\\/\\/(?:www\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|www\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|https?:\\/\\/(?:www\\.|(?!www))[a-zA-Z0-9]+\\.[^\\s]{2,}|www\\.[a-zA-Z0-9]+\\.[^\\s]{2,})', 'gm')
 
 module.exports = {
     ALPHANUMERIC_REGEXP,
@@ -30,4 +32,6 @@ module.exports = {
     MULTIPLE_EMAILS_REGEX,
     UUID_REGEXP,
     ROLE_PERMISSION_REGEX,
+    EMAIL_REGEX,
+    URL_REGEX,
 }

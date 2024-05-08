@@ -38969,6 +38969,18 @@ export type Mutation = {
    * }`
    *
    * `{
+   *   "mutation": "registerNewUser",
+   *   "variable": [
+   *     "data",
+   *     "confirmPhoneActionToken"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NO_CONFIRM_PHONE_ACTION_TOKEN",
+   *   "message": "\"confirmPhoneActionToken\" cannot be empty",
+   *   "messageForUser": "api.user.registerNewUser.NO_CONFIRM_PHONE_ACTION_TOKEN"
+   * }`
+   *
+   * `{
    *   "variable": [
    *     "data",
    *     "password"
