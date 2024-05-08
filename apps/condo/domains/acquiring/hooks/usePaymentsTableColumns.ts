@@ -18,7 +18,8 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
     const router = useRouter()
 
     const AddressTitle = intl.formatMessage({ id: 'field.Address' })
-    const DateTitle = intl.formatMessage({ id: 'Date' })
+    const TransferDateTitle = intl.formatMessage({ id: 'TransferDate' })
+    const DepositedDateTitle = intl.formatMessage({ id: 'DepositedDate' })
     const AccountTitle = intl.formatMessage({ id: 'field.AccountNumberShort' })
     const UnitNameTitle = intl.formatMessage({ id: 'field.FlatNumber' })
     const TypeTitle = intl.formatMessage({ id: 'PaymentType' })
@@ -38,10 +39,18 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
         const stringSearch = getTextRender(String(search))
 
         const columns = {
-            date: {
-                title: DateTitle,
-                key: 'advancedAt',
-                dataIndex: ['advancedAt'],
+            depositedDate: {
+                title: DepositedDateTitle,
+                key: 'depositedDate',
+                dataIndex: ['depositedDate'],
+                sorter: true,
+                width: '112px',
+                render: getDateRender(intl, String(search)),
+            },
+            transferDate: {
+                title: TransferDateTitle,
+                key: 'transferDate',
+                dataIndex: ['transferDate'],
                 sorter: true,
                 width: '112px',
                 render: getDateRender(intl, String(search)),
@@ -109,8 +118,8 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
 
         return Object.values(columns)
     }, [
-        filters, DateTitle, intl,
-        AccountTitle, AddressTitle,
+        filters, DepositedDateTitle, TransferDateTitle,
+        intl, AccountTitle, AddressTitle,
         UnitNameTitle, TypeTitle,
         TransactionTitle, StatusTitle,
         openStatusDescModal,

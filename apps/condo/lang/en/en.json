@@ -84,6 +84,8 @@
   "Create": "Create",
   "Created": "Created",
   "CreatedDate": "Creation date",
+  "DepositedDate": "Payment date",
+  "TransferDate": "Transfer date",
   "CreateTicket": "Create ticket",
   "CreateAppeal": "Create new appeal",
   "CreateMeterReading": "Take meter readings",

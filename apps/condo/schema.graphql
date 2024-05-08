@@ -53661,6 +53661,8 @@ type PaymentHistoryRecord {
   serviceFee: String
   currencyCode: String
   advancedAt: String
+  depositedDate: String
+  transferDate: String
   accountNumber: String
   period: String
   purpose: String
@@ -53760,6 +53762,22 @@ input PaymentHistoryRecordWhereInput {
   advancedAt_gte: String
   advancedAt_in: [String]
   advancedAt_not_in: [String]
+  depositedDate: String
+  depositedDate_not: String
+  depositedDate_lt: String
+  depositedDate_lte: String
+  depositedDate_gt: String
+  depositedDate_gte: String
+  depositedDate_in: [String]
+  depositedDate_not_in: [String]
+  transferDate: String
+  transferDate_not: String
+  transferDate_lt: String
+  transferDate_lte: String
+  transferDate_gt: String
+  transferDate_gte: String
+  transferDate_in: [String]
+  transferDate_not_in: [String]
   accountNumber: String
   accountNumber_not: String
   accountNumber_contains: String
@@ -54019,6 +54037,10 @@ enum SortPaymentHistoryRecordsBy {
   currencyCode_DESC
   advancedAt_ASC
   advancedAt_DESC
+  depositedDate_ASC
+  depositedDate_DESC
+  transferDate_ASC
+  transferDate_DESC
   accountNumber_ASC
   accountNumber_DESC
   period_ASC
@@ -54061,6 +54083,8 @@ input PaymentHistoryRecordUpdateInput {
   serviceFee: String
   currencyCode: String
   advancedAt: String
+  depositedDate: String
+  transferDate: String
   accountNumber: String
   period: String
   purpose: String
@@ -54103,6 +54127,8 @@ input PaymentHistoryRecordCreateInput {
   serviceFee: String
   currencyCode: String
   advancedAt: String
+  depositedDate: String
+  transferDate: String
   accountNumber: String
   period: String
   purpose: String
@@ -54187,6 +54213,12 @@ type Payment {
 
   """ Time at which money was advanced to recipient's account """
   advancedAt: String
+
+  """ Time at which the payment was made by client """
+  depositedDate: String
+
+  """ Time at which money was transfered to recipient's account """
+  transferDate: String
 
   """ Payer's account number """
   accountNumber: String
@@ -54320,6 +54352,22 @@ input PaymentWhereInput {
   advancedAt_gte: String
   advancedAt_in: [String]
   advancedAt_not_in: [String]
+  depositedDate: String
+  depositedDate_not: String
+  depositedDate_lt: String
+  depositedDate_lte: String
+  depositedDate_gt: String
+  depositedDate_gte: String
+  depositedDate_in: [String]
+  depositedDate_not_in: [String]
+  transferDate: String
+  transferDate_not: String
+  transferDate_lt: String
+  transferDate_lte: String
+  transferDate_gt: String
+  transferDate_gte: String
+  transferDate_in: [String]
+  transferDate_not_in: [String]
   accountNumber: String
   accountNumber_not: String
   accountNumber_contains: String
@@ -54535,6 +54583,10 @@ enum SortPaymentsBy {
   currencyCode_DESC
   advancedAt_ASC
   advancedAt_DESC
+  depositedDate_ASC
+  depositedDate_DESC
+  transferDate_ASC
+  transferDate_DESC
   accountNumber_ASC
   accountNumber_DESC
   period_ASC
@@ -54587,6 +54639,8 @@ input PaymentUpdateInput {
   serviceFee: String
   currencyCode: String
   advancedAt: String
+  depositedDate: String
+  transferDate: String
   accountNumber: String
   period: String
   purpose: String
@@ -54626,6 +54680,8 @@ input PaymentCreateInput {
   serviceFee: String
   currencyCode: String
   advancedAt: String
+  depositedDate: String
+  transferDate: String
   accountNumber: String
   period: String
   purpose: String
@@ -54869,6 +54925,8 @@ input PaymentsFilterTemplateHistoryRecordsCreateInput {
 
 type PaymentsFilter {
   advancedAt: [String]
+  depositedDate: [String]
+  transferDate: [String]
   accountNumber: String
   address: [String]
   type: [String]
@@ -54878,6 +54936,8 @@ type PaymentsFilter {
 
 input PaymentsFilterInput {
   advancedAt: [String]
+  depositedDate: [String]
+  transferDate: [String]
   accountNumber: String
   address: [String]
   type: [String]

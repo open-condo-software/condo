@@ -56833,6 +56833,10 @@ export type Payment = {
   currencyCode?: Maybe<Scalars['String']>;
   /**  Time at which money was advanced to recipient's account  */
   advancedAt?: Maybe<Scalars['String']>;
+  /**  Time at which the payment was made by client  */
+  depositedDate?: Maybe<Scalars['String']>;
+  /**  Time at which money was transfered to recipient's account  */
+  transferDate?: Maybe<Scalars['String']>;
   /**  Payer's account number  */
   accountNumber?: Maybe<Scalars['String']>;
   /**  Period date: Generated on template <year>-<month>-01  */
@@ -56895,6 +56899,8 @@ export type PaymentCreateInput = {
   serviceFee?: Maybe<Scalars['String']>;
   currencyCode?: Maybe<Scalars['String']>;
   advancedAt?: Maybe<Scalars['String']>;
+  depositedDate?: Maybe<Scalars['String']>;
+  transferDate?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
   period?: Maybe<Scalars['String']>;
   purpose?: Maybe<Scalars['String']>;
@@ -56947,6 +56953,8 @@ export type PaymentHistoryRecord = {
   serviceFee?: Maybe<Scalars['String']>;
   currencyCode?: Maybe<Scalars['String']>;
   advancedAt?: Maybe<Scalars['String']>;
+  depositedDate?: Maybe<Scalars['String']>;
+  transferDate?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
   period?: Maybe<Scalars['String']>;
   purpose?: Maybe<Scalars['String']>;
@@ -56985,6 +56993,8 @@ export type PaymentHistoryRecordCreateInput = {
   serviceFee?: Maybe<Scalars['String']>;
   currencyCode?: Maybe<Scalars['String']>;
   advancedAt?: Maybe<Scalars['String']>;
+  depositedDate?: Maybe<Scalars['String']>;
+  transferDate?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
   period?: Maybe<Scalars['String']>;
   purpose?: Maybe<Scalars['String']>;
@@ -57028,6 +57038,8 @@ export type PaymentHistoryRecordUpdateInput = {
   serviceFee?: Maybe<Scalars['String']>;
   currencyCode?: Maybe<Scalars['String']>;
   advancedAt?: Maybe<Scalars['String']>;
+  depositedDate?: Maybe<Scalars['String']>;
+  transferDate?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
   period?: Maybe<Scalars['String']>;
   purpose?: Maybe<Scalars['String']>;
@@ -57126,6 +57138,22 @@ export type PaymentHistoryRecordWhereInput = {
   advancedAt_gte?: Maybe<Scalars['String']>;
   advancedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   advancedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  depositedDate?: Maybe<Scalars['String']>;
+  depositedDate_not?: Maybe<Scalars['String']>;
+  depositedDate_lt?: Maybe<Scalars['String']>;
+  depositedDate_lte?: Maybe<Scalars['String']>;
+  depositedDate_gt?: Maybe<Scalars['String']>;
+  depositedDate_gte?: Maybe<Scalars['String']>;
+  depositedDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  depositedDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  transferDate?: Maybe<Scalars['String']>;
+  transferDate_not?: Maybe<Scalars['String']>;
+  transferDate_lt?: Maybe<Scalars['String']>;
+  transferDate_lte?: Maybe<Scalars['String']>;
+  transferDate_gt?: Maybe<Scalars['String']>;
+  transferDate_gte?: Maybe<Scalars['String']>;
+  transferDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  transferDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   accountNumber?: Maybe<Scalars['String']>;
   accountNumber_not?: Maybe<Scalars['String']>;
   accountNumber_contains?: Maybe<Scalars['String']>;
@@ -57400,6 +57428,8 @@ export type PaymentUpdateInput = {
   serviceFee?: Maybe<Scalars['String']>;
   currencyCode?: Maybe<Scalars['String']>;
   advancedAt?: Maybe<Scalars['String']>;
+  depositedDate?: Maybe<Scalars['String']>;
+  transferDate?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
   period?: Maybe<Scalars['String']>;
   purpose?: Maybe<Scalars['String']>;
@@ -57481,6 +57511,22 @@ export type PaymentWhereInput = {
   advancedAt_gte?: Maybe<Scalars['String']>;
   advancedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   advancedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  depositedDate?: Maybe<Scalars['String']>;
+  depositedDate_not?: Maybe<Scalars['String']>;
+  depositedDate_lt?: Maybe<Scalars['String']>;
+  depositedDate_lte?: Maybe<Scalars['String']>;
+  depositedDate_gt?: Maybe<Scalars['String']>;
+  depositedDate_gte?: Maybe<Scalars['String']>;
+  depositedDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  depositedDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  transferDate?: Maybe<Scalars['String']>;
+  transferDate_not?: Maybe<Scalars['String']>;
+  transferDate_lt?: Maybe<Scalars['String']>;
+  transferDate_lte?: Maybe<Scalars['String']>;
+  transferDate_gt?: Maybe<Scalars['String']>;
+  transferDate_gte?: Maybe<Scalars['String']>;
+  transferDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  transferDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   accountNumber?: Maybe<Scalars['String']>;
   accountNumber_not?: Maybe<Scalars['String']>;
   accountNumber_contains?: Maybe<Scalars['String']>;
@@ -57688,6 +57734,8 @@ export type PaymentsCreateInput = {
 export type PaymentsFilter = {
   __typename?: 'PaymentsFilter';
   advancedAt?: Maybe<Array<Maybe<Scalars['String']>>>;
+  depositedDate?: Maybe<Array<Maybe<Scalars['String']>>>;
+  transferDate?: Maybe<Array<Maybe<Scalars['String']>>>;
   accountNumber?: Maybe<Scalars['String']>;
   address?: Maybe<Array<Maybe<Scalars['String']>>>;
   type?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -57697,6 +57745,8 @@ export type PaymentsFilter = {
 
 export type PaymentsFilterInput = {
   advancedAt?: Maybe<Array<Maybe<Scalars['String']>>>;
+  depositedDate?: Maybe<Array<Maybe<Scalars['String']>>>;
+  transferDate?: Maybe<Array<Maybe<Scalars['String']>>>;
   accountNumber?: Maybe<Scalars['String']>;
   address?: Maybe<Array<Maybe<Scalars['String']>>>;
   type?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -78541,6 +78591,10 @@ export enum SortPaymentHistoryRecordsBy {
   CurrencyCodeDesc = 'currencyCode_DESC',
   AdvancedAtAsc = 'advancedAt_ASC',
   AdvancedAtDesc = 'advancedAt_DESC',
+  DepositedDateAsc = 'depositedDate_ASC',
+  DepositedDateDesc = 'depositedDate_DESC',
+  TransferDateAsc = 'transferDate_ASC',
+  TransferDateDesc = 'transferDate_DESC',
   AccountNumberAsc = 'accountNumber_ASC',
   AccountNumberDesc = 'accountNumber_DESC',
   PeriodAsc = 'period_ASC',
@@ -78590,6 +78644,10 @@ export enum SortPaymentsBy {
   CurrencyCodeDesc = 'currencyCode_DESC',
   AdvancedAtAsc = 'advancedAt_ASC',
   AdvancedAtDesc = 'advancedAt_DESC',
+  DepositedDateAsc = 'depositedDate_ASC',
+  DepositedDateDesc = 'depositedDate_DESC',
+  TransferDateAsc = 'transferDate_ASC',
+  TransferDateDesc = 'transferDate_DESC',
   AccountNumberAsc = 'accountNumber_ASC',
   AccountNumberDesc = 'accountNumber_DESC',
   PeriodAsc = 'period_ASC',

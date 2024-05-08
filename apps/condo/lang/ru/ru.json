@@ -84,6 +84,8 @@
   "Create": "Создать",
   "Created": "Создано",
   "CreatedDate": "Дата создания",
+  "DepositedDate": "Дата оплаты",
+  "TransferDate": "Дата перевода",
   "CreateTicket": "Создать заявку",
   "CreateAppeal": "Создать обращение",
   "CreateMeterReading": "Сдать показания ПУ",

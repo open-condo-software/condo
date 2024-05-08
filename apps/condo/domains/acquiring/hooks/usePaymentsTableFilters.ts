@@ -18,7 +18,8 @@ const addressFilter = getStringContainsFilter(['receipt', 'property', 'address']
 const accountFilter = getStringContainsFilter(['accountNumber'])
 const typeFilter = getStringContainsFilter(['context', 'integration', 'name'])
 const transactionFilter = getStringContainsFilter(['multiPayment', 'transactionId'])
-const dateFilter = getDayRangeFilter('advancedAt')
+const depositedDateFilter = getDayRangeFilter('depositedDate')
+const transferDateFilter = getDayRangeFilter('transferDate')
 const propertyFilter = getFilter(['receipt', 'property', 'id'], 'array', 'string', 'in')
 const acquiringContextFilter = getFilter(['context', 'id'], 'array', 'string', 'in')
 const statusFilter = getFilter('status', 'array', 'string', 'in')
@@ -33,7 +34,8 @@ export function usePaymentsTableFilters (
     const intl = useIntl()
     const StartDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
     const EndDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
-    const DateMessage = intl.formatMessage({ id: 'CreatedDate' })
+    const DepositedDateMessage = intl.formatMessage({ id: 'DepositedDate' })
+    const TransferDateMessage = intl.formatMessage({ id: 'TransferDate' })
     const AccountTitle = intl.formatMessage({ id: 'field.AccountNumberShort' })
     const AddressMessage = intl.formatMessage({ id: 'pages.condo.payments.billingAddress' })
     const EnterAddressMessage = intl.formatMessage({ id: 'pages.condo.payments.enterBillingAddress' })
@@ -53,19 +55,33 @@ export function usePaymentsTableFilters (
         return [
             {
                 keyword: 'search',
-                filters: [addressFilter, accountFilter, typeFilter, transactionFilter, dateFilter],
+                filters: [addressFilter, accountFilter, typeFilter, transactionFilter, depositedDateFilter, transferDateFilter],
                 combineType: 'OR',
             },
             {
-                keyword: 'advancedAt',
-                filters: [dateFilter],
+                keyword: 'depositedDate',
+                filters: [depositedDateFilter],
                 component: {
                     type: ComponentType.DateRange,
                     props: {
                         placeholder: [StartDateMessage, EndDateMessage],
                     },
                     modalFilterComponentWrapper: {
-                        label: DateMessage,
+                        label: DepositedDateMessage,
+                        size: FilterComponentSize.Medium,
+                    },
+                },
+            },
+            {
+                keyword: 'transferDate',
+                filters: [transferDateFilter],
+                component: {
+                    type: ComponentType.DateRange,
+                    props: {
+                        placeholder: [StartDateMessage, EndDateMessage],
+                    },
+                    modalFilterComponentWrapper: {
+                        label: TransferDateMessage,
                         size: FilterComponentSize.Medium,
                     },
                 },
@@ -77,6 +93,24 @@ export function usePaymentsTableFilters (
                     type: ComponentType.Input,
                     modalFilterComponentWrapper: {
                         label: AccountTitle,
+                        size: FilterComponentSize.Medium,
+                    },
+                },
+            },
+            {
+                keyword: 'type',
+                filters: [acquiringContextFilter],
+                component: {
+                    type: ComponentType.GQLSelect,
+                    props: {
+                        search: searchAcquiringIntegration(organizationId),
+                        mode: 'multiple',
+                        showArrow: true,
+                        placeholder: EnterTypeMessage,
+                        infinityScroll: true,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: TypeMessage,
                         size: FilterComponentSize.Medium,
                     },
                 },
@@ -95,24 +129,6 @@ export function usePaymentsTableFilters (
                     },
                     modalFilterComponentWrapper: {
                         label: AddressMessage,
-                        size: FilterComponentSize.Large,
-                    },
-                },
-            },
-            {
-                keyword: 'type',
-                filters: [acquiringContextFilter],
-                component: {
-                    type: ComponentType.GQLSelect,
-                    props: {
-                        search: searchAcquiringIntegration(organizationId),
-                        mode: 'multiple',
-                        showArrow: true,
-                        placeholder: EnterTypeMessage,
-                        infinityScroll: true,
-                    },
-                    modalFilterComponentWrapper: {
-                        label: TypeMessage,
                         size: FilterComponentSize.Large,
                     },
                 },
@@ -148,7 +164,7 @@ export function usePaymentsTableFilters (
         ]
     }, [
         AccountTitle, AddressMessage,
-        DateMessage, EndDateMessage,
+        DepositedDateMessage, TransferDateMessage, EndDateMessage,
         EnterAddressMessage, EnterStatusMessage,
         EnterTypeMessage, PaymentOrderTitle,
         StartDateMessage, StatusTitle,
