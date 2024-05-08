@@ -57734,6 +57734,8 @@ export type PaymentsCreateInput = {
 export type PaymentsFilter = {
   __typename?: 'PaymentsFilter';
   advancedAt?: Maybe<Array<Maybe<Scalars['String']>>>;
+  depositedDate?: Maybe<Array<Maybe<Scalars['String']>>>;
+  transferDate?: Maybe<Array<Maybe<Scalars['String']>>>;
   accountNumber?: Maybe<Scalars['String']>;
   address?: Maybe<Array<Maybe<Scalars['String']>>>;
   type?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -57743,6 +57745,8 @@ export type PaymentsFilter = {
 
 export type PaymentsFilterInput = {
   advancedAt?: Maybe<Array<Maybe<Scalars['String']>>>;
+  depositedDate?: Maybe<Array<Maybe<Scalars['String']>>>;
+  transferDate?: Maybe<Array<Maybe<Scalars['String']>>>;
   accountNumber?: Maybe<Scalars['String']>;
   address?: Maybe<Array<Maybe<Scalars['String']>>>;
   type?: Maybe<Array<Maybe<Scalars['String']>>>;

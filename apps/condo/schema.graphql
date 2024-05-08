@@ -54925,6 +54925,8 @@ input PaymentsFilterTemplateHistoryRecordsCreateInput {
 
 type PaymentsFilter {
   advancedAt: [String]
+  depositedDate: [String]
+  transferDate: [String]
   accountNumber: String
   address: [String]
   type: [String]
@@ -54934,6 +54936,8 @@ type PaymentsFilter {
 
 input PaymentsFilterInput {
   advancedAt: [String]
+  depositedDate: [String]
+  transferDate: [String]
   accountNumber: String
   address: [String]
   type: [String]
