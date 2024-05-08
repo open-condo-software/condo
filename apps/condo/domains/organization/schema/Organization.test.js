@@ -507,6 +507,21 @@ describe('Organization', () => {
                     await updateTestOrganization(admin, org.id, { name:  `${faker.lorem.sentence(5)}. ${faker.internet.email()}` })
                 }, ERRORS.NAME_IS_INVALID)
             })
+            test('cannot be includes emails or url - repeated requests', async () => {
+                await expectToThrowGQLError(async () => {
+                    await createTestOrganization(admin, { name:  `${faker.lorem.sentence(5)}. ${faker.internet.url()}` })
+                }, ERRORS.NAME_IS_INVALID)
+                await expectToThrowGQLError(async () => {
+                    await createTestOrganization(admin, { name:  `${faker.lorem.sentence(5)}. ${faker.internet.url()}` })
+                }, ERRORS.NAME_IS_INVALID)
+
+                await expectToThrowGQLError(async () => {
+                    await createTestOrganization(admin, { name:  `${faker.lorem.sentence(5)}. ${faker.internet.email()}` })
+                }, ERRORS.NAME_IS_INVALID)
+                await expectToThrowGQLError(async () => {
+                    await createTestOrganization(admin, { name:  `${faker.lorem.sentence(5)}. ${faker.internet.email()}` })
+                }, ERRORS.NAME_IS_INVALID)
+            })
             test('can be simple name', async () => {
                 const [org, attrs1] = await createTestOrganization(admin, { name: '     ' + faker.company.name() + '     ' })
                 expect(org.name).toBe(attrs1.name.trim())

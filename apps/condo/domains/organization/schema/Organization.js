@@ -68,7 +68,7 @@ const Organization = new GQLListSchema('Organization', {
                             throw new GQLError(ERRORS.NAME_IS_EMPTY, context)
                         }
 
-                        if (EMAIL_REGEX.test(name) || URL_REGEX.test(name)) {
+                        if (name.match(EMAIL_REGEX) || name.match(URL_REGEX)) {
                             throw new GQLError(ERRORS.NAME_IS_INVALID, context)
                         }
                     }
