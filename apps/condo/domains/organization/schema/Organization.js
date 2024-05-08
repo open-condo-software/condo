@@ -7,12 +7,14 @@ const { Wysiwyg } = require('@keystonejs/fields-wysiwyg-tinymce')
 const get = require('lodash/get')
 
 const userAccess = require('@open-condo/keystone/access')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
+const { EMAIL_REGEX, URL_REGEX } = require('@condo/domains/common/constants/regexps')
 const { PHONE_FIELD } = require('@condo/domains/common/schema/fields')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const access = require('@condo/domains/organization/access/Organization')
@@ -20,6 +22,22 @@ const { ORGANIZATION_TYPES, MANAGING_COMPANY_TYPE, HOLDING_TYPE } = require('@co
 const { ORGANIZATION_FEATURES_FIELD } = require('@condo/domains/organization/schema/fields/features')
 const { isValidTin } = require('@condo/domains/organization/utils/tin.utils')
 const { COUNTRY_RELATED_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
+
+
+const ERRORS = {
+    NAME_IS_EMPTY: {
+        variable: ['data', 'name'],
+        code: BAD_USER_INPUT,
+        type: 'NAME_IS_EMPTY',
+        message: 'Name cannot be empty',
+    },
+    NAME_IS_INVALID: {
+        variable: ['data', 'name'],
+        code: BAD_USER_INPUT,
+        type: 'NAME_IS_INVALID',
+        message: 'Invalid name',
+    },
+}
 
 
 const AVATAR_FILE_ADAPTER = new FileAdapter('orgavatars')
@@ -38,6 +56,24 @@ const Organization = new GQLListSchema('Organization', {
             type: Text,
             isRequired: true,
             kmigratorOptions: { null: false },
+            hooks: {
+                resolveInput: async ({ resolvedData, fieldPath }) => {
+                    const value = resolvedData[fieldPath]
+                    return typeof value === 'string' ? value.trim() : value
+                },
+                validateInput: async ({ resolvedData, fieldPath, context })  => {
+                    const name = resolvedData[fieldPath]
+                    if (typeof name === 'string') {
+                        if (!name) {
+                            throw new GQLError(ERRORS.NAME_IS_EMPTY, context)
+                        }
+
+                        if (EMAIL_REGEX.test(name) || URL_REGEX.test(name)) {
+                            throw new GQLError(ERRORS.NAME_IS_INVALID, context)
+                        }
+                    }
+                },
+            },
         },
         type: {
             schemaDoc: 'Type of organization. Organizations with different types see slightly different interfaces. ' +
@@ -194,4 +230,5 @@ const Organization = new GQLListSchema('Organization', {
 
 module.exports = {
     Organization,
+    ERRORS,
 }
