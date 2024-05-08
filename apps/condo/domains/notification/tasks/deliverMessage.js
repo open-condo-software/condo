@@ -139,6 +139,8 @@ async function deliverMessage (messageId) {
             }
             await Message.update(context, message.id, messageErrorData)
 
+            logger.info({ msg: 'throttled', messageId, data: { throttlePeriodForUser, lastMessageTypeSentDate } })
+
             return MESSAGE_THROTTLED_STATUS
         }
     }
@@ -166,7 +168,8 @@ async function deliverMessage (messageId) {
 
     if (isVoIP) processingMeta.isVoIP = isVoIP
 
-    let successCnt = 0
+    let sentCount = 0
+    let disabledByUserCount = 0
 
     for (const transport of transports) {
         const transportMeta = { transport }
@@ -185,15 +188,15 @@ async function deliverMessage (messageId) {
             const isAllowedByUser = get(userTransportSettings, transport)
             if (isAllowedByUser === false) {
                 transportMeta.status = MESSAGE_DISABLED_BY_USER_STATUS
-                processingMeta.step = MESSAGE_SENT_STATUS
-                successCnt++
+                logger.info({ msg: 'disabled by user', messageId, data: { transport, userTransportSettings } })
+                disabledByUserCount++
             } else {
                 const [isOk, deliveryMetadata] = await _sendMessageByAdapter(transport, adapter, messageContext, isVoIP)
                 logger.info({ msg: 'sendMessageByAdapter', isOk, messageId, deliveryMetadata })
                 transportMeta.deliveryMetadata = deliveryMetadata
                 transportMeta.status = isOk ? MESSAGE_SENT_STATUS : MESSAGE_ERROR_STATUS
                 processingMeta.step = isOk ? MESSAGE_SENT_STATUS : MESSAGE_ERROR_STATUS
-                successCnt += isOk ? 1 : 0
+                sentCount += isOk ? 1 : 0
             }
         } catch (error) {
             transportMeta.status = MESSAGE_ERROR_STATUS
@@ -204,13 +207,21 @@ async function deliverMessage (messageId) {
 
         processingMeta.transportsMeta.push(transportMeta)
 
-        if (sendByOneTransport && successCnt > 0) break
+        if (sendByOneTransport && sentCount > 0) break
+    }
+
+    let status = MESSAGE_ERROR_STATUS
+
+    if (sentCount > 0) {
+        status = MESSAGE_SENT_STATUS
+    } else if (disabledByUserCount > 0) {
+        status = MESSAGE_DISABLED_BY_USER_STATUS
     }
 
     const messageFinalData = {
         ...baseAttrs,
-        status: (successCnt > 0) ? MESSAGE_SENT_STATUS : MESSAGE_ERROR_STATUS,
-        sentAt: (successCnt > 0) ? new Date().toISOString() : null,
+        status,
+        sentAt: (sentCount > 0) ? new Date().toISOString() : null,
         deliveredAt: null,
         readAt: null,
         processingMeta,
