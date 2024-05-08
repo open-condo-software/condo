@@ -9,6 +9,8 @@ const PAYMENTS_FILTER_INPUT_NAME = 'PaymentsFilterInput'
 
 const PaymentsFilterFields = {
     advancedAt: '[String]',
+    depositedDate: '[String]',
+    transferDate: '[String]',
     accountNumber: 'String',
     address: '[String]',
     type: '[String]',
