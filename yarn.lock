@@ -1477,6 +1477,7 @@ __metadata:
     "@keystonejs/utils": ^6.1.0
     "@meters/domains": "link:./domains"
     "@open-condo/codegen": "workspace:^"
+    "@open-condo/keystone": "workspace:^"
     "@testing-library/react": ^11.2.5
     "@types/jest": ^29.4.0
     "@types/node": ^16
