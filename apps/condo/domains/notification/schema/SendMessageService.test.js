@@ -1,4 +1,5 @@
 const { faker } = require('@faker-js/faker')
+const { get } = require('lodash')
 
 const { makeLoggedInAdminClient, UUID_RE, DATETIME_RE, waitFor } = require('@open-condo/keystone/test.utils')
 const { catchErrorFrom } = require('@open-condo/keystone/test.utils')
@@ -9,6 +10,7 @@ const {
     MESSAGE_SENT_STATUS,
     EMAIL_TRANSPORT,
     PUSH_TRANSPORT,
+    SMS_TRANSPORT,
     VOIP_INCOMING_CALL_MESSAGE_TYPE,
     DEVICE_PLATFORM_ANDROID,
     APP_RESIDENT_ID_ANDROID,
@@ -18,7 +20,9 @@ const {
     PUSH_TRANSPORT_HUAWEI,
     PUSH_TRANSPORT_APPLE,
     PUSH_TYPE_SILENT_DATA,
-    NEWS_ITEM_COMMON_MESSAGE_TYPE, MESSAGE_DISABLED_BY_USER_STATUS,
+    REGISTER_NEW_USER_MESSAGE_TYPE,
+    MESSAGE_DISABLED_BY_USER_STATUS,
+    MESSAGE_DELIVERY_OPTIONS,
 } = require('@condo/domains/notification/constants/constants')
 const {
     syncRemoteClientWithPushTokenByTestClient, sendMessageByTestClient,
@@ -363,36 +367,88 @@ describe('SendMessageService', () => {
         })
     })
 
-    test('Not send message if disabled by user', async () => {
+    test('Send message even if one of 2+ transports is disabled by user', async () => {
+        const messageType = REGISTER_NEW_USER_MESSAGE_TYPE
+        const transportToDisable = SMS_TRANSPORT
+        const allTransports = get(MESSAGE_DELIVERY_OPTIONS, [messageType, 'allowedTransports'])
+
+        // Need to test message type that have 2+ transports
+        expect(allTransports.length).toBeGreaterThanOrEqual(2)
+        expect(allTransports).toEqual(expect.arrayContaining([transportToDisable]))
+
+        const disabledTransports = allTransports.filter(t => t === transportToDisable)
+        const enabledTransports = allTransports.filter(t => t !== transportToDisable)
+
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
         await createTestNotificationUserSetting(client, {
-            messageType: NEWS_ITEM_COMMON_MESSAGE_TYPE,
-            messageTransport: null,
+            messageType,
+            messageTransport: transportToDisable,
             isEnabled: false,
         })
-        const [data, attrs] = await sendMessageByTestClient(admin, {
+        const [data] = await sendMessageByTestClient(admin, {
             to: { user: { id: client.user.id } },
-            type: NEWS_ITEM_COMMON_MESSAGE_TYPE,
-            meta: {
-                dv: 1,
-                title: faker.lorem.sentence(),
-                body: faker.lorem.paragraph(),
-                data: {
-                    dv: 1,
-                    sender: { dv: 1, fingerprint: `test-${faker.random.alphaNumeric(8)}` },
-                    newsItemId: faker.datatype.uuid(),
-                    organizationId: faker.datatype.uuid(),
-                },
-            },
+            type: messageType,
+            meta: { dv: 1 },
         })
 
         // give worker some time
         await waitFor(async () => {
             const message = await Message.getOne(admin, { id: data.id })
-            const transportMeta = message.processingMeta.transportsMeta[0]
 
-            expect(message.status).toEqual(MESSAGE_DISABLED_BY_USER_STATUS)
-            expect(transportMeta.status).toEqual(MESSAGE_DISABLED_BY_USER_STATUS)
+            expect(message.status).toBe(MESSAGE_SENT_STATUS)
+
+            const transportsMeta = get(message, ['processingMeta', 'transportsMeta'])
+
+            expect(transportsMeta).toBeTruthy()
+
+            expect(transportsMeta).toEqual(expect.arrayContaining([
+                ...disabledTransports.map((transport) => expect.objectContaining({
+                    status: MESSAGE_DISABLED_BY_USER_STATUS,
+                    transport,
+                })),
+                ...enabledTransports.map((transport) => expect.objectContaining({
+                    status: MESSAGE_SENT_STATUS,
+                    transport,
+                })),
+            ]))
+        })
+    })
+
+    test('Not send message if message type is disabled by user', async () => {
+        const messageType = REGISTER_NEW_USER_MESSAGE_TYPE
+        const allTransports = get(MESSAGE_DELIVERY_OPTIONS, [messageType, 'allowedTransports'])
+
+        // Need to test message type that have 2+ transports
+        expect(allTransports.length).toBeGreaterThanOrEqual(2)
+
+        const client = await makeClientWithNewRegisteredAndLoggedInUser()
+        await createTestNotificationUserSetting(client, {
+            messageType,
+            messageTransport: null,
+            isEnabled: false,
+        })
+        const [data] = await sendMessageByTestClient(admin, {
+            to: { user: { id: client.user.id } },
+            type: messageType,
+            meta: { dv: 1 },
+        })
+
+        // give worker some time
+        await waitFor(async () => {
+            const message = await Message.getOne(admin, { id: data.id })
+
+            expect(message.status).toBe(MESSAGE_DISABLED_BY_USER_STATUS)
+
+            const transportsMeta = get(message, ['processingMeta', 'transportsMeta'])
+
+            expect(transportsMeta).toBeTruthy()
+
+            expect(transportsMeta).toEqual(expect.arrayContaining(
+                allTransports.map((transport) => expect.objectContaining({
+                    status: MESSAGE_DISABLED_BY_USER_STATUS,
+                    transport,
+                })),
+            ))
         })
     })
 })
