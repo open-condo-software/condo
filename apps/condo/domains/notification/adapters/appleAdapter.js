@@ -32,7 +32,7 @@ const logger = getLogger('appleAdapter')
  * Attempts to send push notifications to devices, connected through different projects will fail.
  */
 class AppleAdapter {
-    #app = null
+    #config = null
 
     constructor (config = APPLE_CONFIG) {
 
@@ -40,11 +40,10 @@ class AppleAdapter {
             if (isEmpty(config)) throw new Error(EMPTY_APPLE_CONFIG_ERROR)
 
             // This will could throw on config validation
-            this.#app = new AppleMessaging(config)
+            this.#config = config
         } catch (error) {
             // For CI/local tests config is useless because of emulation via FAKE tokens
             logger.error({ msg: 'AppleAdapter error', error })
-
         }
     }
 
@@ -216,26 +215,45 @@ class AppleAdapter {
         }
 
         // NOTE: we try to fire Apple push request only if Apple push was initialized and we have some real notifications
-        if (!isNull(this.#app) && !isEmpty(notifications)) {
-            try {
-                const appleResult = await this.#app.sendAll(notifications, isVoIP)
-
-                if (!isEmpty(appleResult.responses)) {
-                    appleResult.responses = appleResult.responses.map(
-                        (response, idx) =>
-                            ({
-                                ...response,
-                                pushToken: notifications[idx].token,
-                                pushType: pushTypes[notifications[idx].token],
-                            })
-                    )
+        if (!isNull(this.#config) && !isEmpty(notifications)) {
+            const notificationsSortedByAppId = {}
+            for (const notification of notifications) {
+                const appId = notification.appId
+                if (!notificationsSortedByAppId[appId]) {
+                    notificationsSortedByAppId[appId] = [notification]
                 }
+                else {
+                    notificationsSortedByAppId[appId].push(notification)
+                }
+            }
+            for (const appId of Object.keys(notificationsSortedByAppId)) {
+                const currentConfig = this.#config[appId]
+                if (!currentConfig) {
+                    logger.error({ msg: 'Unknown appId. Config was not found', appId })
+                    continue
+                }
+                const currentNotificationsBatch = notificationsSortedByAppId[appId]
+                const app = new AppleMessaging(currentConfig)
 
-                result = AppleAdapter.injectFakeResults(appleResult, fakeNotifications)
-            } catch (err) {
-                logger.error({ msg: 'sendNotification error', err })
+                try {
+                    const appleResult = await app.sendAll(currentNotificationsBatch, isVoIP)
 
-                result = { state: 'error', error: err }
+                    if (!isEmpty(appleResult.responses)) {
+                        appleResult.responses = appleResult.responses.map(
+                            (response, idx) =>
+                                ({
+                                    ...response,
+                                    pushToken: currentNotificationsBatch[idx].token,
+                                    pushType: pushTypes[currentNotificationsBatch[idx].token],
+                                })
+                        )
+                    }
+
+                    result = AppleAdapter.injectFakeResults(appleResult, fakeNotifications)
+                } catch (err) {
+                    logger.error({ msg: 'sendNotification error', err })
+                    result = { state: 'error', error: err }
+                }
             }
         }
 
