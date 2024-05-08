@@ -15,6 +15,7 @@ const UUID_REGEXP = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3
 const ROLE_PERMISSION_REGEX = /^can(?:[A-Z][a-z]*)+$/
 const EMAIL_REGEX = new RegExp(/\S+@\S+\.\S+/, 'gm')
 const URL_REGEX = new RegExp('(https?:\\/\\/(?:www\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|www\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|https?:\\/\\/(?:www\\.|(?!www))[a-zA-Z0-9]+\\.[^\\s]{2,}|www\\.[a-zA-Z0-9]+\\.[^\\s]{2,})', 'gm')
+const URL_WITH_CYRILLIC_REGEX = new RegExp('(https?:\\/\\/(?:www\\.|(?!www))[a-zа-я0-9][a-zа-я0-9-]+[a-zа-я0-9]\\.[^\\s]{2,}|www\\.[a-zа-я0-9][a-zа-я0-9-]+[a-zа-я0-9]\\.[^\\s]{2,}|https?:\\/\\/(?:www\\.|(?!www))[a-zа-я0-9]+\\.[^\\s]{2,}|www\\.[a-zа-я0-9]+\\.[^\\s]{2,})', 'gmi')
 
 module.exports = {
     ALPHANUMERIC_REGEXP,
@@ -34,4 +35,5 @@ module.exports = {
     ROLE_PERMISSION_REGEX,
     EMAIL_REGEX,
     URL_REGEX,
+    URL_WITH_CYRILLIC_REGEX,
 }

@@ -14,7 +14,7 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
-const { EMAIL_REGEX, URL_REGEX } = require('@condo/domains/common/constants/regexps')
+const { EMAIL_REGEX, URL_WITH_CYRILLIC_REGEX } = require('@condo/domains/common/constants/regexps')
 const { PHONE_FIELD } = require('@condo/domains/common/schema/fields')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const access = require('@condo/domains/organization/access/Organization')
@@ -68,7 +68,7 @@ const Organization = new GQLListSchema('Organization', {
                             throw new GQLError(ERRORS.NAME_IS_EMPTY, context)
                         }
 
-                        if (EMAIL_REGEX.test(name) || URL_REGEX.test(name)) {
+                        if (name.match(EMAIL_REGEX) || name.match(URL_WITH_CYRILLIC_REGEX)) {
                             throw new GQLError(ERRORS.NAME_IS_INVALID, context)
                         }
                     }
