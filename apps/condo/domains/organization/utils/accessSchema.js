@@ -1,9 +1,112 @@
+const get = require('lodash/get')
 const isArray = require('lodash/isArray')
 const isEmpty = require('lodash/isEmpty')
+const pick = require('lodash/pick')
 const uniq = require('lodash/uniq')
 const { validate: isUUID } = require('uuid')
 
+const conf = require('@open-condo/config')
+const { getRedisClient } = require('@open-condo/keystone/redis')
 const { getByCondition, find } = require('@open-condo/keystone/schema')
+
+const _redisClient = getRedisClient('default', 'cache')
+// NOTE: larger = better, but it can affect "after migration" state, where roles are changed via SQL
+const CACHE_TTL_IN_MS = 60 * 60 * 1000  // 1 hour in ms
+const DISABLE_USER_ORGANIZATION_CACHING = get(conf, 'DISABLE_USER_ORGANIZATION_CACHING', 'false').toLowerCase() === 'true'
+
+/**
+ * Gets cache key for user
+ * Pattern cache:organizations:* can be used to select all cached keys to drop in some critical migration states
+ * @param {{ id: string }} user - user object
+ * @returns {string} - caching key
+ */
+function _getUserOrganizationsCacheKey (user) {
+    return `cache:organizations:user:${user.id}`
+}
+
+/**
+ * Extracts permissions (canRead*, canManage*) properties from OrganizationEmployeeRole record obtained by find
+ * @param {Record<string, unknown>} roleRecord
+ * @returns {Record<string, boolean>}
+ * @private
+ */
+function _extractRolePermissions (roleRecord) {
+    const permissionKeys = Object.keys(roleRecord).filter(key => key.startsWith('can'))
+
+    return pick(roleRecord, permissionKeys)
+}
+
+/**
+ * Information about single organization, in which user is employed, and its child organizations
+ * @typedef {Object} UserOgranizationInfo
+ * @property {Record<string, boolean>} permissions - user permissions in organization
+ * @property {Array<string>} childOrganizations - list of child organizations to which user share permissions via OrganizationLink
+ */
+
+/**
+ * Information about all organizations user has access to
+ * @typedef {Object} UserOgranizationsCache
+ * @property {number} dv - cache entry data version
+ * @property {Record<string, UserOgranizationInfo>} organizations - record where keys are organization ids and values are info it
+ */
+
+/**
+ * Obtains user organizations info via caching or sub-querying
+ * @param {{ id: string }} user - user object
+ * @returns {Promise<UserOgranizationsCache>}
+ * @private
+ */
+async function _getUserOrganizations (user) {
+    const cacheKey = _getUserOrganizationsCacheKey(user)
+
+    if (!DISABLE_USER_ORGANIZATION_CACHING) {
+        const cachedDataString = await _redisClient.get(cacheKey)
+
+        if (cachedDataString !== null) {
+            return JSON.parse(cachedDataString)
+        }
+    }
+
+    const newCacheEntry = { dv: 1, organizations: {} }
+
+    const userEmployees = await find('OrganizationEmployee', {
+        deletedAt: null,
+        organization: { deletedAt: null },
+        user: { id: user.id },
+        isAccepted: true,
+        isBlocked: false,
+        isRejected: false,
+    })
+
+    const userRoleIds = userEmployees.map(employee => employee.role)
+    const userRoles = await find('OrganizationEmployee', {
+        id_in: userRoleIds,
+        deletedAt: null,
+    })
+
+    for (const role of userRoles) {
+        newCacheEntry.organizations[role.organization] = {
+            permissions: _extractRolePermissions(role),
+            childOrganizations: [],
+        }
+    }
+
+    const organizationLinks = await find('OrganizationLink', {
+        from: { id_in: Object.keys(newCacheEntry.organizations) },
+        deletedAt: null,
+        to: { deletedAt: null },
+    })
+
+    for (const link of organizationLinks) {
+        newCacheEntry.organizations[link.from].childOrganizations.push(link.to)
+    }
+
+    if (!DISABLE_USER_ORGANIZATION_CACHING) {
+        await _redisClient.set(cacheKey, JSON.stringify(newCacheEntry), 'PX', CACHE_TTL_IN_MS)
+    }
+
+    return newCacheEntry
+}
 
 
 async function checkOrganizationPermission (userId, organizationId, permission) {
