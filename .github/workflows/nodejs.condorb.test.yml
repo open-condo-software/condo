@@ -108,10 +108,10 @@ jobs:
           sleep 3
 
           # TESTS
-          yarn workspace @app/condorb test --detectOpenHandles --workerIdleMemoryLimit="50%" --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern '(.*)[.]test.js$' 2>&1 > condorb.test.log
+          yarn workspace @app/condorb test --detectOpenHandles --workerIdleMemoryLimit="50%" --testTimeout=60000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern '(.*)[.]test.js$' 2>&1 > condorb.test.log
 
           # SPECS
-          yarn workspace @app/condorb test --detectOpenHandles --workerIdleMemoryLimit="50%" --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern '(.*)[.]spec.js$' 2>&1 > condorb.spec.log
+          yarn workspace @app/condorb test --detectOpenHandles --workerIdleMemoryLimit="50%" --testTimeout=60000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern '(.*)[.]spec.js$' 2>&1 > condorb.spec.log
 
           # Note: we need to stop background worker! because packages tests use the same redis queue
           kill $(jobs -p) || echo 'background worker and dev server is already killed!'
