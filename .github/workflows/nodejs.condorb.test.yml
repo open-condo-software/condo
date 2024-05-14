@@ -1,0 +1,138 @@
+# This workflow will do a clean installation of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: RUN CONDO RB SERVICE TESTS
+
+on:
+  workflow_dispatch:
+    branches:
+      - '*'
+  push:
+    branches: [ master ]
+    paths:
+      - 'apps/condorb/**'
+  pull_request:
+    branches: [ master ]
+    paths:
+      - 'apps/condorb/**'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [ 16.x ]
+        database: [ "postgresql://postgres:postgres@127.0.0.1/main" ]
+
+    steps:
+      - name: Checkout code with submodules
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
+          cache-dependency-path: yarn.lock
+
+      - name: Docker compose up databases
+        run: |
+          cp .env.example .env
+          docker-compose up -d postgresdb redis
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
+
+      - name: install packages
+        working-directory: ./apps/condorb
+        run: |
+          npm i -g turbo
+          yarn install --immutable
+          pip3 install django
+          pip3 install psycopg2-binary
+
+      - name: run tests for ${{ matrix.database }}
+        run: |
+          set -x
+          echo 'OIDC_CONDO_CLIENT_CONFIG={"serverUrl":"1", "clientId":"2", "clientSecret":"3"}' >> .env
+          echo 'COOKIE_SECRET=secret' >> .env
+          echo 'SERVER_URL=https://localhost:8004' >> .env
+          echo 'SPORT=8004' >> .env
+          echo 'REDIS_URL=redis://127.0.0.1:6379' >> .env
+          echo 'TZ=Europe/Moscow' >> .env
+          echo 'RB_INTEGRATION={"endpoint":"https://condo.d.doma.ai/admin/api","authRequisites":{"email":"xxxxxx","password":"xxxxx"}}' >> .env
+          echo 'RB_PAYMENT_GATEWAY={"merchant":"xxxxxx","userName": "xxxxxx","password": "xxxxxx","apiUrl": "https://ecomtest.sberbank.ru", "numPrefix":"T349706382949C", "isDirectPaymentGateway": true }' >> .env
+          echo 'RB_PAYMENT_GATEWAY_INVOICE={"merchant":"xxxxxx","userName": "xxxxxx","password": "xxxxxx","apiUrl": "https://ecomtest.sberbank.ru", "numPrefix":"T349706382949C", "isDirectPaymentGateway": true }' >> .env
+          echo 'RB_KKM_INTEGRATION={"endpoint": "https://fiscalization-test.evotor.ru/possystem/v4", "group": "01-xxxxxx", "username": "xxxxxx", "password": "xxxxxx","kkmTin": "xxxxxx"}' >> .env
+          echo 'EMAIL_API_CONFIG={"from": "test@gmail.com", "doNotSendEmails": true}' >> .env
+          echo 'DEBUG_EMAIL=test@gmail.com' >> .env
+          echo 'CONDO_URL=https://condo.app.localhost:8003' >> .env
+          echo 'INTEGRATION_CONFIG={"id":"XXXXXXXXXXX","name":"Реестры начислений"}' >> .env
+          echo 'FILE_FIELD_ADAPTER=local' >> .env
+          echo 'FAKE_ADDRESS_SUGGESTIONS=true' >> .env
+          echo 'NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE=true' >> .env
+          echo 'NOTIFICATION__DISABLE_LOGGING=true' >> .env
+          echo 'TESTS_LOG_REQUEST_RESPONSE=true' >> .env
+          echo 'DEFAULT_TEST_USER_IDENTITY=user@example.com' >> .env
+          echo 'DEFAULT_TEST_USER_SECRET=c3845118693a' >> .env
+          echo 'DEFAULT_TEST_ADMIN_IDENTITY=admin@example.com' >> .env
+          echo 'DEFAULT_TEST_ADMIN_SECRET=4cfaab1bbea4' >> .env
+          echo 'NODE_ENV=test' >> .env
+
+          export DISABLE_LOGGING=false
+          export WORKER_CONCURRENCY=50
+          export NODE_OPTIONS="--max_old_space_size=4096"
+          export METABASE_CONFIG='{"url": "https://metabase.example.com", "secret": "4879960c-a625-4096-9add-7a81d925774a"}'
+
+          node -e 'console.log(v8.getHeapStatistics().heap_size_limit/(1024*1024))'
+
+          [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/condorb migrate
+
+          yarn workspace @app/condorb dev 2>&1 > condorb.dev.log &
+
+          bash ../../.github/workflows/waitForLocalhostApiReady.sh
+
+          # check migrations
+          yarn workspace @app/condorb makemigrations --check &> /dev/null
+
+          # And check background processes!
+          [[ $(jobs | wc -l | tr -d ' ') != '1' ]] && exit 2
+
+          sleep 3
+
+          # TESTS
+          yarn workspace @app/condorb test --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --detectOpenHandles --testPathPattern '(.*)[.]test.js$' 2>&1 > condorb.test.log
+
+          # SPECS
+          yarn workspace @app/condorb test --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --detectOpenHandles --testPathPattern '(.*)[.]spec.js$' 2>&1 > condorb.spec.log
+
+          # Note: we need to stop background worker! because packages tests use the same redis queue
+          kill $(jobs -p) || echo 'background worker and dev server is already killed!'
+          killall node || echo 'no node processes'
+        env:
+          DATABASE_URL: ${{ matrix.database }}
+          NODE_ENV: development
+          DISABLE_LOGGING: true
+
+      - name: Collect docker logs on failure
+        if: failure()
+        uses: jwalton/gh-docker-logs@v1
+        with:
+          dest: './docker-logs'
+
+      - name: Upload log artifact
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: logs
+          path: |
+            *.log
+            ./docker-logs
+          retention-days: 2
