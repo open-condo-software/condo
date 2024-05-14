@@ -10,11 +10,11 @@ on:
   push:
     branches: [ master ]
     paths:
-      - 'apps/condorb/**'
+      - 'apps/condorb'
   pull_request:
     branches: [ master ]
     paths:
-      - 'apps/condorb/**'
+      - 'apps/condorb'
 
 jobs:
   build:
