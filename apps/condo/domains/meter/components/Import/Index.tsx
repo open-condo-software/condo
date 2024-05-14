@@ -36,7 +36,7 @@ const MetersImportWrapper: React.FC<IMetersImportWrapperProps> = (props) => {
 
     const { logEvent, getEventName } = useTracking()
 
-    const [activeModal, setActiveModal] = useState<ActiveModalType>(null)
+    const [activeModal, setActiveModal] = useState<ActiveModalType>()
 
     useEffect(() => {
         if (typeof activeModal !== 'undefined') {
@@ -74,6 +74,10 @@ const MetersImportWrapper: React.FC<IMetersImportWrapperProps> = (props) => {
             logEvent({ eventName })
             if (isFunction(handleFinish)) {
                 handleFinish()
+            }
+
+            if (successRowsRef.current > 0) {
+                ImportEmitter.emit(IMPORT_EVENT, { domain, status: 'complete-import' })
             }
         },
         onError: () => {
