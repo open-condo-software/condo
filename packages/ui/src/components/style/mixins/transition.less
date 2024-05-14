@@ -1,3 +1,5 @@
+// NOTE: The semicolon in the mixin call ".condo-transition(color, opacity;);" is very important.
+// If it is omitted, the comma between the two parameters will be deleted which ends up in an invalid css rule.
 .condo-transition(@transition-property...) {
   transition-timing-function: ease-in;
   transition-duration: @condo-global-transition-duration-default;
