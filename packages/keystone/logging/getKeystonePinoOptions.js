@@ -1,6 +1,7 @@
+const serializers = require('pino-std-serializers')
+
 const { getLogger } = require('./getLogger')
 const { getReqLoggerContext } = require('./getReqLoggerContext')
-
 const logger = getLogger('http')
 const IGNORE_PATH = new Set(['/api/features', '/api/version', '/favicon.ico'])
 
@@ -13,6 +14,12 @@ function getKeystonePinoOptions () {
         },
         customProps: (req, res) => {
             return getReqLoggerContext(req)
+        },
+        serializers: {
+            res: (res) => {
+                const errors = res.raw.req.errors
+                return { gqlErrors: errors, ...serializers.req(res) }
+            },
         },
     }
 }

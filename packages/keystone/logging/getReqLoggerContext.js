@@ -1,5 +1,6 @@
-const { get } = require('lodash')
+const { get, omitBy, isNil } = require('lodash')
 
+const { normalizeQuery, normalizeVariables } = require('./normalize')
 /**
  * Extracts useful data stored in request obtained by preprocessors and other plugins such as:
  * 1. req.ip - user ip address
@@ -25,6 +26,19 @@ function getReqLoggerContext (req) {
     const ip = get(req, 'ip')
     const fingerprint = get(req, 'headers.cookie.userId')
     const complexity = get(req, 'complexity')
+    const body = get(req, 'body')
+    let operationName
+    let variables
+    let query
+    let operationId
+
+    if (body) {
+        operationName = get(body, 'operationName')
+        variables = get(body, 'variables') ? normalizeVariables(body.variables) : undefined
+        query = get(body, 'query') ? normalizeQuery(body.query) : undefined
+        operationId = get(body, 'operationId')
+    }
+
     let user
     if (userId) {
         user = {
@@ -35,7 +49,7 @@ function getReqLoggerContext (req) {
         }
     }
 
-    return { reqId, sessionId, user, ip, fingerprint, complexity }
+    return omitBy({ reqId, sessionId, user, ip, fingerprint, complexity, operationName, variables, query, operationId }, isNil)
 }
 
 module.exports = {
