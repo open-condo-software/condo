@@ -1,3 +1,6 @@
+const { EMAIL_REGEX, URL_REGEX } = require('@condo/domains/common/constants/regexps')
+
+
 const PUNCTUATION_LETTERS = '.,:;!'
 // NOTE: we don't want to parse dates, time, decimals and list sub items:
 // 1. letter-spacesOrEmpty-punctuation-spacesOrEmpty-anything
@@ -5,8 +8,6 @@ const PUNCTUATION_LETTERS = '.,:;!'
 // This allows ass to pass anything like 22.02.2022, 5:30, 2.a, 2.b, 0.5
 const PUNCTUATION_SEARCH_REGEX = new RegExp(`([\\p{L}] *[${PUNCTUATION_LETTERS}]+ *)|([\\p{N}] *[.,:;!]+ +)`, 'gmu')
 const PUNCTUATION_PART_REGEX = new RegExp(` *[${PUNCTUATION_LETTERS}] *`, 'gm')
-const EMAIL_REGEX = new RegExp(/\S+@\S+\.\S+/, 'gm')
-const URL_REGEX = new RegExp('(https?:\\/\\/(?:www\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|www\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|https?:\\/\\/(?:www\\.|(?!www))[a-zA-Z0-9]+\\.[^\\s]{2,}|www\\.[a-zA-Z0-9]+\\.[^\\s]{2,})', 'gm')
 const IMMUTABLE_TOKENS = [EMAIL_REGEX, URL_REGEX]
 
 /**
