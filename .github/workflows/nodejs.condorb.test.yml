@@ -63,17 +63,17 @@ jobs:
           set -x
           echo 'OIDC_CONDO_CLIENT_CONFIG={"serverUrl":"1", "clientId":"2", "clientSecret":"3"}' >> .env
           echo 'COOKIE_SECRET=secret' >> .env
-          echo 'SERVER_URL=https://localhost:8004' >> .env
-          echo 'SPORT=8004' >> .env
+          echo 'SERVER_URL=http://localhost:3000' >> .env
+          echo 'PORT=3000' >> .env
           echo 'REDIS_URL=redis://127.0.0.1:6379' >> .env
           echo 'TZ=Europe/Moscow' >> .env
           echo 'RB_INTEGRATION={"endpoint":"https://condo.d.doma.ai/admin/api","authRequisites":{"email":"xxxxxx","password":"xxxxx"}}' >> .env
-          echo 'RB_PAYMENT_GATEWAY={"merchant":"xxxxxx","userName": "xxxxxx","password": "xxxxxx","apiUrl": "https://ecomtest.sberbank.ru", "numPrefix":"T349706382949C", "isDirectPaymentGateway": true }' >> .env
-          echo 'RB_PAYMENT_GATEWAY_INVOICE={"merchant":"xxxxxx","userName": "xxxxxx","password": "xxxxxx","apiUrl": "https://ecomtest.sberbank.ru", "numPrefix":"T349706382949C", "isDirectPaymentGateway": true }' >> .env
-          echo 'RB_KKM_INTEGRATION={"endpoint": "https://fiscalization-test.evotor.ru/possystem/v4", "group": "01-xxxxxx", "username": "xxxxxx", "password": "xxxxxx","kkmTin": "xxxxxx"}' >> .env
+          echo 'RB_PAYMENT_GATEWAY={"merchant":"xxxxxx","userName": "xxxxxx","password": "xxxxxx","apiUrl": "https://ecomtest.sberbank.ru", "numPrefix":"XXXXXXX", "isDirectPaymentGateway": true }' >> .env
+          echo 'RB_PAYMENT_GATEWAY_INVOICE={"merchant":"xxxxxx","userName": "xxxxxx","password": "xxxxxx","apiUrl": "https://ecomtest.sberbank.ru", "numPrefix":"XXXXXXX", "isDirectPaymentGateway": true }' >> .env
+          echo 'RB_KKM_INTEGRATION={"endpoint": "https://kkm.kkm.ru/possystem/v4", "group": "01-xxxxxx", "username": "xxxxxx", "password": "xxxxxx","kkmTin": "xxxxxx"}' >> .env
           echo 'EMAIL_API_CONFIG={"from": "test@gmail.com", "doNotSendEmails": true}' >> .env
           echo 'DEBUG_EMAIL=test@gmail.com' >> .env
-          echo 'CONDO_URL=https://condo.app.localhost:8003' >> .env
+          echo 'CONDO_URL=https://condo.d.doma.ai' >> .env
           echo 'INTEGRATION_CONFIG={"id":"XXXXXXXXXXX","name":"Реестры начислений"}' >> .env
           echo 'FILE_FIELD_ADAPTER=local' >> .env
           echo 'FAKE_ADDRESS_SUGGESTIONS=true' >> .env
