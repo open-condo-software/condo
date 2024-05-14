@@ -19,8 +19,8 @@ const logger = getLogger('sbbol/oauth2')
 class SbbolOauth2Api {
     constructor ({ clientSecret, useExtendedConfig }) {
         if (!clientSecret) throw new Error('SbbolOauth2Api: unknown clientSecret')
-        this.createClient(clientSecret)
         this.useExtendedConfig = useExtendedConfig
+        this.createClient(clientSecret)
     }
 
     createClient (clientSecret) {
