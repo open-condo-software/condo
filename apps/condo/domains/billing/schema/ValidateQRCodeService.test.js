@@ -170,32 +170,52 @@ describe('ValidateQRCodeService', () => {
         })
     })
 
-    test('should throw limit exceeded error on too many calls', async () => {
-        const ipLike = Array(4).fill(null).map(() => faker.random.numeric(3)).join('.')
-        const userClient2 = await makeClientWithResidentUser()
-        userClient2.setHeaders({ 'x-forwarded-for': ipLike })
-        const [integration] = await createTestAcquiringIntegration(adminClient)
-        const [acquiringContext] = await createTestAcquiringIntegrationContext(adminClient, organization, integration, { status: CONTEXT_FINISHED_STATUS })
+    describe('The error on requests limit reached', () => {
+        let integration, acquiringContext
 
-        for await (const i of Array.from(Array(MAX_CLIENT_VALIDATE_QR_CODE_BY_WINDOW + 1).keys())) {
-            if (i === MAX_CLIENT_VALIDATE_QR_CODE_BY_WINDOW) {
-                await catchErrorFrom(async () => {
-                    await validateQRCodeByTestClient(userClient2, { qrCode: qrCodeString })
-                }, ({ errors }) => {
-                    expect(errors).toMatchObject([{
-                        path: ['result'],
-                        extensions: {
-                            code: 'BAD_USER_INPUT',
-                            type: 'TOO_MANY_REQUESTS',
-                            message: 'You have to wait {secondsRemaining} seconds to be able to send request again',
-                        },
-                    }])
-                })
-            } else {
-                await validateQRCodeByTestClient(userClient2, { qrCode: qrCodeString })
+        beforeAll(async () => {
+            [integration] = await createTestAcquiringIntegration(adminClient)
+            ;[acquiringContext] = await createTestAcquiringIntegrationContext(adminClient, organization, integration, { status: CONTEXT_FINISHED_STATUS })
+        })
+
+        afterAll(async () => {
+            await updateTestAcquiringIntegrationContext(adminClient, acquiringContext.id, { deletedAt: faker.date.past() })
+        })
+
+        test('should be thrown for anonymous ', async () => {
+            const ipLike = Array(4).fill(null).map(() => faker.random.numeric(3)).join('.')
+            const anonymousClient = await makeClient()
+            anonymousClient.setHeaders({ 'x-forwarded-for': ipLike })
+
+            for await (const i of Array.from(Array(MAX_CLIENT_VALIDATE_QR_CODE_BY_WINDOW + 1).keys())) {
+                if (i === MAX_CLIENT_VALIDATE_QR_CODE_BY_WINDOW) {
+                    await catchErrorFrom(async () => {
+                        await validateQRCodeByTestClient(anonymousClient, { qrCode: qrCodeString })
+                    }, ({ errors }) => {
+                        expect(errors).toMatchObject([{
+                            path: ['result'],
+                            extensions: {
+                                code: 'BAD_USER_INPUT',
+                                type: 'TOO_MANY_REQUESTS',
+                                message: 'You have to wait {secondsRemaining} seconds to be able to send request again',
+                            },
+                        }])
+                    })
+                } else {
+                    await validateQRCodeByTestClient(anonymousClient, { qrCode: qrCodeString })
+                }
             }
-        }
-        await updateTestAcquiringIntegrationContext(adminClient, acquiringContext.id, { deletedAt: faker.date.past() })
+        })
+
+        test('shouldn\'t be throw for registered user', async () => {
+            const ipLike = Array(4).fill(null).map(() => faker.random.numeric(3)).join('.')
+            const userClient = await makeClientWithResidentUser()
+            userClient.setHeaders({ 'x-forwarded-for': ipLike })
+
+            for (let i = 0; i < MAX_CLIENT_VALIDATE_QR_CODE_BY_WINDOW + 1; i++) {
+                await validateQRCodeByTestClient(userClient, { qrCode: qrCodeString })
+            }
+        })
     })
 
 
