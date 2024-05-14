@@ -1,5 +1,9 @@
 const { get } = require('lodash')
 
+const { find } = require('@open-condo/keystone/schema')
+
+const { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } = require('@condo/domains/acquiring/constants/payment')
+
 const REQUIRED_QR_CODE_FIELDS = ['BIC', 'PayerAddress', 'PaymPeriod', 'Sum', 'PersAcc', 'PayeeINN', 'PersonalAcc']
 
 /**
@@ -39,8 +43,23 @@ function getQRCodeMissedFields (qrCodeFields) {
     return REQUIRED_QR_CODE_FIELDS.filter((requiredField) => !get(qrCodeFields, requiredField, null))
 }
 
-async function searchReceiptForQRCode (qr) {
+async function hasReceiptDuplicates (context, accountNumber, period, organizationIds, recipientBankAccount) {
+    // check if receipt already paid
+    // at this point no mater if receipt was paid as a virtual one or by billing receipt
+    // since all of them must have enough information about payment destination
 
+    // let's request payments that have specific statuses and receipt params
+    // and decide if we are going to make a duplicate
+    const payments = await find('Payment', {
+        accountNumber,
+        period,
+        organization: { id_in: organizationIds },
+        status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS],
+        recipientBankAccount,
+        deletedAt: null,
+    })
+
+    return payments.length > 0
 }
 
-module.exports = { parseReceiptQRCode, getQRCodeMissedFields, searchReceiptForQRCode }
+module.exports = { parseReceiptQRCode, getQRCodeMissedFields, hasReceiptDuplicates }
