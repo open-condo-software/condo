@@ -27,8 +27,6 @@ const { SEND_MESSAGE_TO_SUPPORT_MUTATION } = require('@condo/domains/user/gql')
 const { RESET_USER_MUTATION } = require('@condo/domains/user/gql')
 // nosemgrep: generic.secrets.gitleaks.generic-api-key.generic-api-key
 const { OidcClient: OidcClientGQL } = require('@condo/domains/user/gql')
-const { ExternalTokenAccessRight: ExternalTokenAccessRightGQL } = require('@condo/domains/user/gql')
-const { GET_ACCESS_TOKEN_BY_USER_ID_QUERY } = require('@condo/domains/user/gql')
 const { UserRightsSet: UserRightsSetGQL } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -38,7 +36,6 @@ const UserExternalIdentity = generateServerUtils(UserExternalIdentityGQL)
 const ConfirmPhoneAction = generateServerUtils(ConfirmPhoneActionGQL)
 const ForgotPasswordAction = generateServerUtils(ForgotPasswordActionGQL)
 const OidcClient = generateServerUtils(OidcClientGQL)
-const ExternalTokenAccessRight = generateServerUtils(ExternalTokenAccessRightGQL)
 
 async function signinAsUser (context, data) {
     if (!context) throw new Error('no context')
@@ -87,18 +84,6 @@ async function sendMessageToSupport (context, data) {
         query: SEND_MESSAGE_TO_SUPPORT_MUTATION,
         variables: { data: { dv: 1, ...data } },
         errorMessage: '[error] Unable to sendMessageToSupport',
-        dataPath: 'result',
-    })
-}
-
-async function getAccessTokenByUserId (context, data) {
-    if (!context) throw new Error('no context')
-    if (!data) throw new Error('no data')
-
-    return await execGqlWithoutAccess(context, {
-        query: GET_ACCESS_TOKEN_BY_USER_ID_QUERY,
-        variables: { data: { ...data } },
-        errorMessage: '[error] Unable to getAccessTokenByUserId',
         dataPath: 'result',
     })
 }
@@ -242,8 +227,6 @@ module.exports = {
     findTokenAndRelatedUser,
     markTokenAsUsed,
     OidcClient,
-    ExternalTokenAccessRight,
-    getAccessTokenByUserId,
     UserRightsSet,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

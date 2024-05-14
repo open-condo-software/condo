@@ -186,9 +186,6 @@ const SEND_MESSAGE_TO_SUPPORT_MUTATION = gql`
 const OIDC_CLIENT_FIELDS = `{ clientId payload name meta expiresAt ${COMMON_FIELDS} }`
 const OidcClient = generateGqlQueries('OidcClient', OIDC_CLIENT_FIELDS)
 
-const EXTERNAL_TOKEN_ACCESS_RIGHT_FIELDS = `{ type user { id } deletedAt ${COMMON_FIELDS} }`
-const ExternalTokenAccessRight = generateGqlQueries('ExternalTokenAccessRight', EXTERNAL_TOKEN_ACCESS_RIGHT_FIELDS)
-
 const GET_ACCESS_TOKEN_BY_USER_ID_QUERY = gql`
     query getAccessTokenByUserId ($data: GetAccessTokenByUserIdInput!) {
         result: getAccessTokenByUserId(data: $data) { accessToken, ttl }
@@ -228,7 +225,6 @@ module.exports = {
     OidcClient,
     USER_CUSTOM_ACCESS_GRAPHQL_TYPES,
     USER_CUSTOM_ACCESS_FIELDS,
-    ExternalTokenAccessRight,
     GET_ACCESS_TOKEN_BY_USER_ID_QUERY,
     UserRightsSet,
 /* AUTOGENERATE MARKER <EXPORTS> */

@@ -7,10 +7,8 @@ const { AuthenticateUserWithPhoneAndPasswordService } = require('./AuthenticateU
 const { ChangePhoneNumberResidentUserService } = require('./ChangePhoneNumberResidentUserService')
 const { ConfirmPhoneAction } = require('./ConfirmPhoneAction')
 const { ConfirmPhoneActionService } = require('./ConfirmPhoneActionService')
-const { ExternalTokenAccessRight } = require('./ExternalTokenAccessRight')
 const { ForgotPasswordAction  } = require('./ForgotPasswordAction')
 const { ForgotPasswordService } = require('./ForgotPasswordService')
-const { GetAccessTokenByUserIdService } = require('./GetAccessTokenByUserIdService')
 const { OidcClient } = require('./OidcClient')
 const { RegisterNewServiceUserService } = require('./RegisterNewServiceUserService')
 const { RegisterNewUserService } = require('./RegisterNewUserService')
@@ -39,8 +37,6 @@ module.exports = {
     ResetUserService,
     OidcClient,
     UserExternalIdentity,
-    ExternalTokenAccessRight,
-    GetAccessTokenByUserIdService,
     UserRightsSet,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
