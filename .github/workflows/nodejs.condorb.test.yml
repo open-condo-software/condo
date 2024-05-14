@@ -97,7 +97,7 @@ jobs:
 
           yarn workspace @app/condorb dev 2>&1 > condorb.dev.log &
 
-          bash ../../.github/workflows/waitForLocalhostApiReady.sh
+          bash ./.github/workflows/waitForLocalhostApiReady.sh
 
           # check migrations
           yarn workspace @app/condorb makemigrations --check &> /dev/null
