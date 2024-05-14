@@ -30,8 +30,8 @@ const {
 function stringifyQrCode (qrCodeObj) {
     return 'ST00012|'.concat(
         JSON.stringify(qrCodeObj).replace(/["{}]+/g, '')
-            .replace(/[:]+/g, '=')
-            .replace(/[,]+/g, '|'),
+            .replace(/:+/g, '=')
+            .replace(/,+/g, '|'),
     )
 }
 
