@@ -6,11 +6,7 @@ import { MUTATION_RESULT_EVENT, MutationEmitter } from '@open-condo/next/_useEmi
 import { useOrganization } from '@open-condo/next/organization'
 
 import { IMPORT_EVENT, ImportEmitter } from '@condo/domains/common/components/Import/Index'
-import {
-    ACTIVE_STEPS_STORAGE_KEY,
-    FIRST_LEVEL_STEPS,
-    STEP_TYPES,
-} from '@condo/domains/onboarding/constants/steps'
+import { ACTIVE_STEPS_STORAGE_KEY, FIRST_LEVEL_STEPS, STEP_TYPES } from '@condo/domains/onboarding/constants/steps'
 import { useCompletedTourModals } from '@condo/domains/onboarding/hooks/TourContext/useCompletedTourModals'
 import { useSyncSteps } from '@condo/domains/onboarding/hooks/TourContext/useSyncSteps'
 import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
@@ -102,7 +98,8 @@ export const TourProvider = ({ children }) => {
 
         await updateTourStep({ status: TourStepStatusType.Completed }, tourStep)
 
-        if (currentImport.current) {
+        // meter readings has back-end import, for this case we pass isFirstSuccessImport manually and here open complete step modal
+        if (currentImport.current && type !== TourStepTypeType.CreateMeterReadings) {
             isFirstSuccessImport.current = true
         } else {
             updateCompletedStepModalData(type, nextRoute)
@@ -153,8 +150,12 @@ export const TourProvider = ({ children }) => {
             }
         }
 
-        const importHandler = ({ domain, status }) => {
+        const importHandler = async ({ domain, status }) => {
             currentImport.current = { domain, status }
+
+            if (status === 'complete-import') {
+                isFirstSuccessImport.current = true
+            }
 
             if (status === null && isFirstSuccessImport.current) {
                 switch (domain) {
@@ -163,7 +164,7 @@ export const TourProvider = ({ children }) => {
                         break
                     }
                     case 'meter': {
-                        updateCompletedStepModalData(TourStepTypeType.CreateMeterReadings)
+                        await updateStepIfNotCompleted(TourStepTypeType.CreateMeterReadings)
                         break
                     }
                     case 'ticket': {
