@@ -120,6 +120,18 @@ const Payment = new GQLListSchema('Payment', {
             isRequired: false,
         },
 
+        depositedDate: {
+            schemaDoc: 'Time at which the payment was made by client',
+            type: 'DateTimeUtc',
+            isRequired: false,
+        },
+
+        transferDate: {
+            schemaDoc: 'Time at which money was transfered to recipient\'s account',
+            type: 'DateTimeUtc',
+            isRequired: false,
+        },
+
         accountNumber: {
             schemaDoc: 'Payer\'s account number',
             type: 'Text',

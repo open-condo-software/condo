@@ -8,6 +8,11 @@ const { GOOGLE_PROVIDER, DADATA_PROVIDER } = require('@address-service/domains/c
 
 const { AbstractSearchProvider } = require('./AbstractSearchProvider')
 
+// https://developers.google.com/maps/faq#languagesupport
+const SUPPORTED_LANGUAGES = ['af', 'ja', 'sq', 'kn', 'am', 'kk', 'ar', 'km', 'hy', 'ko', 'az', 'ky', 'eu', 'lo', 'be', 'lv', 'bn', 'lt', 'bs', 'mk', 'bg', 'ms', 'my', 'ml', 'ca', 'mr', 'zh', 'mn', 'zh-CN', 'ne', 'zh-HK', 'no', 'zh-TW', 'pl', 'hr', 'pt', 'cs', 'pt-BR', 'da', 'pt-PT', 'nl', 'pa', 'en', 'ro', 'en-AU', 'ru', 'en-GB', 'sr', 'et', 'si', 'fa', 'sk', 'fi', 'sl', 'fil', 'es', 'fr', 'es-419', 'fr-CA', 'sw', 'gl', 'sv', 'ka', 'ta', 'de', 'te', 'el', 'th', 'gu', 'tr', 'iw', 'uk', 'hi', 'ur', 'hu', 'uz', 'is', 'vi', 'id', 'zu', 'it']
+const DEFAULT_LOCALE = get(conf, 'DEFAULT_LOCALE', 'en')
+const LANGUAGE = SUPPORTED_LANGUAGES.includes(DEFAULT_LOCALE) ? DEFAULT_LOCALE : 'en'
+
 /**
  * @typedef {Object} GoogleAddressComponent
  * @property {string} long_name
@@ -117,7 +122,7 @@ class GoogleSearchProvider extends AbstractSearchProvider {
             'wheelchair_accessible_entrance',
         ].join(',')
 
-        const placeDetailsResult = await fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=${fields}&key=${this.apiKey}`)
+        const placeDetailsResult = await fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=${fields}&key=${this.apiKey}&language=${LANGUAGE}`)
 
         if (placeDetailsResult.status === 200) {
             /**

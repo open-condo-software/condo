@@ -62,6 +62,8 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     })
                     userData.phone = action.phone
                     userData.isPhoneVerified = action.isPhoneVerified
+                } else {
+                    throw new GQLError(ERRORS.NO_CONFIRM_PHONE_ACTION_TOKEN, context)
                 }
                 if (!normalizePhone(userData.phone)) {
                     throw new GQLError(ERRORS.WRONG_PHONE_FORMAT, context)

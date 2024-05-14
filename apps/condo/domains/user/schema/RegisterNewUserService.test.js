@@ -189,4 +189,14 @@ describe('RegisterNewUserService', () => {
             }])
         })
     })
+
+    test('register with empty token', async () => {
+        const client = await makeClient()
+
+        await expectToThrowGQLError(
+            async () => await registerNewUser(client, { confirmPhoneActionToken: '' }),
+            errors.NO_CONFIRM_PHONE_ACTION_TOKEN,
+            'user',
+        )
+    })
 })
