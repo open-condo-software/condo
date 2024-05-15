@@ -1,4 +1,4 @@
-const { get } = require('lodash')
+const { get, isNil } = require('lodash')
 
 const { find } = require('@open-condo/keystone/schema')
 
@@ -7,19 +7,19 @@ const { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } = require('@condo/domain
 const REQUIRED_QR_CODE_FIELDS = ['BIC', 'PayerAddress', 'PaymPeriod', 'Sum', 'PersAcc', 'PayeeINN', 'PersonalAcc']
 
 /**
- * @typedef {{ [p: string]: any }} TQRCode
+ * @typedef {Object} TQRCodeFields
  * @property {string} BIC
  * @property {string} PayerAddress
  * @property {string} PaymPeriod
  * @property {string} Sum
- * @property {string} PersAcc
+ * @property {string} PersAcc The resident's account
  * @property {string} PayeeINN
- * @property {string} PersonalAcc
+ * @property {string} PersonalAcc The bank account of the receiver
  */
 
 /**
  * @param {string} qrStr The QR code string got from the picture
- * @return {TQRCode}
+ * @return {TQRCodeFields}
  */
 function parseReceiptQRCode (qrStr) {
     const matches = /^ST(?<version>\d{4})(?<encodingTag>\d)\|(?<requisitesStr>.*)$/g.exec(qrStr)
@@ -36,7 +36,7 @@ function parseReceiptQRCode (qrStr) {
 }
 
 /**
- * @param {TQRCode} qrCode
+ * @param {TQRCodeFields} qrCode
  * @return {string[]}
  */
 function getQRCodeMissedFields (qrCode) {
@@ -62,4 +62,66 @@ async function hasReceiptDuplicates (context, accountNumber, period, organizatio
     return payments.length > 0
 }
 
-module.exports = { parseReceiptQRCode, getQRCodeMissedFields, hasReceiptDuplicates }
+/**
+ * @callback TOnNoReceipt
+ * @returns {Promise<void>}
+ */
+
+/**
+ * @callback TOnReceiptPeriodEqualsToQrCodePeriod
+ * @param {BillingReceipt} billingReceipt
+ * @returns {Promise<void>}
+ */
+
+/**
+ * @callback TOnReceiptPeriodNewerThanQrCodePeriod
+ * @param {BillingReceipt} billingReceipt
+ * @returns {Promise<void>}
+ */
+
+/**
+ * @callback TOnReceiptPeriodOlderThanQrCodePeriod
+ * @param {BillingReceipt} billingReceipt
+ * @returns {Promise<void>}
+ */
+
+/**
+ * @typedef {Object} TCompareQRResolvers
+ * @property {TOnNoReceipt} onNoReceipt Call if no receipt found
+ * @property {TOnReceiptPeriodEqualsToQrCodePeriod} onReceiptPeriodEqualsQrCodePeriod Call if receipt's period is equals to qr-code period
+ * @property {TOnReceiptPeriodNewerThanQrCodePeriod} onReceiptPeriodNewerThanQrCodePeriod Call if last found receipt is newer than scanned one
+ * @property {TOnReceiptPeriodOlderThanQrCodePeriod} onReceiptPeriodOlderThanQrCodePeriod Call if last found receipt is older than scanned one
+ */
+
+/**
+ * @param {TQRCodeFields} qrCodeFields
+ * @param {TCompareQRResolvers} resolvers
+ * @return {Promise<void>}
+ */
+async function compareQRCodeWithLastReceipt (qrCodeFields, resolvers) {
+    const period = `${qrCodeFields.PaymPeriod.split('.')[1]}-${qrCodeFields.PaymPeriod.split('.')[0]}-01`
+
+    const [lastBillingReceipt] = await find('BillingReceipt', {
+        account: { number: qrCodeFields.PersAcc, deletedAt: null },
+        receiver: { bankAccount: qrCodeFields.PersonalAcc, deletedAt: null },
+        deletedAt: null,
+    }, {
+        sortBy: ['period_DESC'],
+        first: 1,
+    })
+
+    if (isNil(lastBillingReceipt)) {
+        // No receipts found at our side
+        resolvers.onNoReceipt && await resolvers.onNoReceipt()
+    } else if (lastBillingReceipt.period === period) {
+        resolvers.onReceiptPeriodEqualsQrCodePeriod && await resolvers.onReceiptPeriodEqualsQrCodePeriod(lastBillingReceipt)
+    } else if (lastBillingReceipt.period > period) {
+        // we have a newer receipt at our side
+        resolvers.onReceiptPeriodNewerThanQrCodePeriod && await resolvers.onReceiptPeriodNewerThanQrCodePeriod(lastBillingReceipt)
+    } else {
+        // the last receipt is older than the scanned one
+        resolvers.onReceiptPeriodOlderThanQrCodePeriod && await resolvers.onReceiptPeriodOlderThanQrCodePeriod(lastBillingReceipt)
+    }
+}
+
+module.exports = { parseReceiptQRCode, getQRCodeMissedFields, hasReceiptDuplicates, compareQRCodeWithLastReceipt }
