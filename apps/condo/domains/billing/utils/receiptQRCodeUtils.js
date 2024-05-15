@@ -36,11 +36,11 @@ function parseReceiptQRCode (qrStr) {
 }
 
 /**
- * @param {TQRCode} qrCodeFields
+ * @param {TQRCode} qrCode
  * @return {string[]}
  */
-function getQRCodeMissedFields (qrCodeFields) {
-    return REQUIRED_QR_CODE_FIELDS.filter((requiredField) => !get(qrCodeFields, requiredField, null))
+function getQRCodeMissedFields (qrCode) {
+    return REQUIRED_QR_CODE_FIELDS.filter((requiredField) => !get(qrCode, requiredField, null))
 }
 
 async function hasReceiptDuplicates (context, accountNumber, period, organizationIds, recipientBankAccount) {
