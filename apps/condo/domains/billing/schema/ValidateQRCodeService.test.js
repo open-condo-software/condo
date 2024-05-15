@@ -168,6 +168,24 @@ describe('ValidateQRCodeService', () => {
                 }])
             })
         })
+
+        test('should throw an error if QR code is wrong', async () => {
+            const qrCode = 'ST0012|field1=Hello|Field2=world'
+            await catchErrorFrom(async () => {
+                await validateQRCodeByTestClient(adminClient, { qrCode })
+            }, ({ errors }) => {
+                expect(errors).toMatchObject([{
+                    message: 'Invalid QR code',
+                    path: ['result'],
+                    extensions: {
+                        mutation: 'validateQRCode',
+                        code: 'BAD_USER_INPUT',
+                        type: 'WRONG_FORMAT',
+                        message: 'Invalid QR code',
+                    },
+                }])
+            })
+        })
     })
 
     describe('Validate organization', () => {
