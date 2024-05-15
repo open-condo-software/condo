@@ -17,7 +17,7 @@ const {
     MultiPayment,
 } = require('@condo/domains/acquiring/utils/serverSchema')
 const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
-const { hasReceiptDuplicates, compareQRCodeWithLastReceipt } = require('@condo/domains/billing/utils/receiptQRCodeUtils')
+const { isReceiptPaid, compareQRCodeWithLastReceipt } = require('@condo/domains/billing/utils/receiptQRCodeUtils')
 const {
     validateQRCode,
     BillingIntegrationOrganizationContext,
@@ -146,7 +146,7 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                 let multiPaymentId
 
                 const payForLastBillingReceipt = async (lastBillingReceipt) => {
-                    if (await hasReceiptDuplicates(context, PersAcc, lastBillingReceipt.period, organizationsIds, PersonalAcc)) {
+                    if (await isReceiptPaid(context, PersAcc, lastBillingReceipt.period, organizationsIds, PersonalAcc)) {
                         throw new GQLError(ERRORS.RECEIPT_ALREADY_PAID, context)
                     }
                     const { multiPaymentId: id } = await registerMultiPaymentForOneReceipt(context, {
@@ -160,7 +160,7 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                 /** @type {TCompareQRResolvers} */
                 const resolvers = {
                     onNoReceipt: async () => {
-                        if (await hasReceiptDuplicates(context, PersAcc, period, organizationsIds, PersonalAcc)) {
+                        if (await isReceiptPaid(context, PersAcc, period, organizationsIds, PersonalAcc)) {
                             throw new GQLError(ERRORS.RECEIPT_ALREADY_PAID, context)
                         }
                         const { multiPaymentId: id } = await registerMultiPaymentForVirtualReceipt(context, {
@@ -185,7 +185,7 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                     onReceiptPeriodEqualsQrCodePeriod: payForLastBillingReceipt,
                     onReceiptPeriodNewerThanQrCodePeriod: payForLastBillingReceipt,
                     onReceiptPeriodOlderThanQrCodePeriod: async (lastBillingReceipt) => {
-                        if (await hasReceiptDuplicates(context, PersAcc, period, organizationsIds, PersonalAcc)) {
+                        if (await isReceiptPaid(context, PersAcc, period, organizationsIds, PersonalAcc)) {
                             throw new GQLError(ERRORS.RECEIPT_ALREADY_PAID, context)
                         }
 

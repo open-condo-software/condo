@@ -43,7 +43,15 @@ function getQRCodeMissedFields (qrCode) {
     return REQUIRED_QR_CODE_FIELDS.filter((requiredField) => !get(qrCode, requiredField, null))
 }
 
-async function hasReceiptDuplicates (context, accountNumber, period, organizationIds, recipientBankAccount) {
+/**
+ * @param context
+ * @param {string} accountNumber
+ * @param {string} period Formatted period YYYY-MM-01
+ * @param {string[]} organizationIds
+ * @param {string} recipientBankAccount
+ * @return {Promise<boolean>}
+ */
+async function isReceiptPaid (context, accountNumber, period, organizationIds, recipientBankAccount) {
     // check if receipt already paid
     // at this point no mater if receipt was paid as a virtual one or by billing receipt
     // since all of them must have enough information about payment destination
@@ -87,10 +95,10 @@ async function hasReceiptDuplicates (context, accountNumber, period, organizatio
 
 /**
  * @typedef {Object} TCompareQRResolvers
- * @property {TOnNoReceipt} onNoReceipt Call if no receipt found
- * @property {TOnReceiptPeriodEqualsToQrCodePeriod} onReceiptPeriodEqualsQrCodePeriod Call if receipt's period is equals to qr-code period
- * @property {TOnReceiptPeriodNewerThanQrCodePeriod} onReceiptPeriodNewerThanQrCodePeriod Call if last found receipt is newer than scanned one
- * @property {TOnReceiptPeriodOlderThanQrCodePeriod} onReceiptPeriodOlderThanQrCodePeriod Call if last found receipt is older than scanned one
+ * @property {TOnNoReceipt} [onNoReceipt] Call if no receipt found
+ * @property {TOnReceiptPeriodEqualsToQrCodePeriod} [onReceiptPeriodEqualsQrCodePeriod] Call if receipt's period is equals to qr-code period
+ * @property {TOnReceiptPeriodNewerThanQrCodePeriod} [onReceiptPeriodNewerThanQrCodePeriod] Call if last found receipt is newer than scanned one
+ * @property {TOnReceiptPeriodOlderThanQrCodePeriod} [onReceiptPeriodOlderThanQrCodePeriod] Call if last found receipt is older than scanned one
  */
 
 /**
@@ -124,4 +132,4 @@ async function compareQRCodeWithLastReceipt (qrCodeFields, resolvers) {
     }
 }
 
-module.exports = { parseReceiptQRCode, getQRCodeMissedFields, hasReceiptDuplicates, compareQRCodeWithLastReceipt }
+module.exports = { parseReceiptQRCode, getQRCodeMissedFields, isReceiptPaid, compareQRCodeWithLastReceipt }
