@@ -132,4 +132,16 @@ async function compareQRCodeWithLastReceipt (qrCodeFields, resolvers) {
     }
 }
 
-module.exports = { parseReceiptQRCode, getQRCodeMissedFields, isReceiptPaid, compareQRCodeWithLastReceipt }
+function formatPeriodFromQRCode (period) {
+    const parts = period.split('.')
+
+    return `${parts[1]}-${parts[0]}-01`
+}
+
+module.exports = {
+    parseReceiptQRCode,
+    getQRCodeMissedFields,
+    isReceiptPaid,
+    compareQRCodeWithLastReceipt,
+    formatPeriodFromQRCode,
+}
