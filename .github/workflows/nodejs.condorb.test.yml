@@ -68,8 +68,8 @@ jobs:
           echo 'REDIS_URL=redis://127.0.0.1:6379' >> .env
           echo 'TZ=Europe/Moscow' >> .env
           echo 'RB_INTEGRATION={"endpoint":"https://condo.d.doma.ai/admin/api","authRequisites":{"email":"xxxxxx","password":"xxxxx"}}' >> .env
-          echo 'RB_PAYMENT_GATEWAY={"merchant":"xxxxxx","userName": "xxxxxx","password": "xxxxxx","apiUrl": "https://ecomtest.sberbank.ru", "numPrefix":"XXXXXXX", "isDirectPaymentGateway": true }' >> .env
-          echo 'RB_PAYMENT_GATEWAY_INVOICE={"merchant":"xxxxxx","userName": "xxxxxx","password": "xxxxxx","apiUrl": "https://ecomtest.sberbank.ru", "numPrefix":"XXXXXXX", "isDirectPaymentGateway": true }' >> .env
+          echo 'RB_PAYMENT_GATEWAY={"merchant":"xxxxxx","userName": "xxxxxx","password": "xxxxxx","apiUrl": "https://xxxxxx", "numPrefix":"xxxxxx", "isDirectPaymentGateway": true }' >> .env
+          echo 'RB_PAYMENT_GATEWAY_INVOICE={"merchant":"xxxxxx_invoice","userName": "xxxxxx_invoice","password": "xxxxxx_invoice","apiUrl": "https://xxxxxx_invoice", "numPrefix":"xxxxxx_invoice", "isDirectPaymentGateway": true, "commission":"2.3" }' >> .env
           echo 'RB_KKM_INTEGRATION={"endpoint": "https://kkm.kkm.ru/possystem/v4", "group": "01-xxxxxx", "username": "xxxxxx", "password": "xxxxxx","kkmTin": "xxxxxx"}' >> .env
           echo 'EMAIL_API_CONFIG={"from": "test@gmail.com", "doNotSendEmails": true}' >> .env
           echo 'DEBUG_EMAIL=test@gmail.com' >> .env
