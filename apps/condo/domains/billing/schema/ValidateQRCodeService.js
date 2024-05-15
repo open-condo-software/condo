@@ -34,7 +34,7 @@ const redisGuard = new RedisGuard()
  * They will be rendered in documentation section in GraphiQL for this custom schema
  */
 const ERRORS = {
-    INVALID_QR_CODE: (missedFieldsArr) => ({
+    INVALID_QR_CODE_FIELDS: (missedFieldsArr) => ({
         mutation: 'validateQRCode',
         variable: ['data', 'qrCode'],
         code: BAD_USER_INPUT,
@@ -59,6 +59,13 @@ const ERRORS = {
         type: ALREADY_EXISTS_ERROR,
         message: 'Provided receipt already paid',
         messageForUser: 'api.billing.error.alreadyPaid',
+    },
+    INVALID_QR_CODE_STRING: {
+        mutation: 'validateQRCode',
+        variable: ['data', 'qrCode'],
+        code: BAD_USER_INPUT,
+        type: WRONG_FORMAT,
+        message: 'Invalid QR code',
     },
 }
 
@@ -110,12 +117,17 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
                     )
                 }
 
-                const qrCodeFields = parseReceiptQRCode(qrCode)
+                let qrCodeFields
+                try {
+                    qrCodeFields = parseReceiptQRCode(qrCode)
+                } catch (err) {
+                    throw new GQLError(ERRORS.INVALID_QR_CODE_STRING, context)
+                }
 
                 const missedFields = getQRCodeMissedFields(qrCodeFields)
 
                 if (missedFields.length > 0) {
-                    throw new GQLError(ERRORS.INVALID_QR_CODE(missedFields), context)
+                    throw new GQLError(ERRORS.INVALID_QR_CODE_FIELDS(missedFields), context)
                 }
 
                 const qrCodeAmount = String(Big(qrCodeFields.Sum).div(100))
