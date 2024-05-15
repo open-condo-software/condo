@@ -73473,8 +73473,21 @@ input ValidateQRCodeInput {
   qrCode: String!
 }
 
+type ValidateQRCodeLastReceiptDataOutput {
+  id: ID!
+  period: String!
+  toPay: String!
+}
+
+type ValidateQRCodeFeesOutput {
+  explicitServiceCharge: String
+  explicitFee: String
+}
+
 type ValidateQRCodeOutput {
   qrCodeFields: JSON!
+  lastReceiptData: ValidateQRCodeLastReceiptDataOutput
+  explicitFees: ValidateQRCodeFeesOutput
 }
 
 enum RegisterBillingReceiptFileResultStatus {
