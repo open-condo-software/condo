@@ -10,11 +10,18 @@ if (conf.NODE_ENV === 'test') {
 
 // Singleton instance
 let sbbolSecretStorage
+let sbbolSecretStorageExtended
 
 function getSbbolSecretStorage (useExtendedConfig = false) {
-    if (sbbolSecretStorage) return sbbolSecretStorage
-    sbbolSecretStorage = new SbbolSecretStorage('auth', useExtendedConfig ? SBBOL_AUTH_CONFIG_EXTENDED.client_id : SBBOL_AUTH_CONFIG.client_id)
-    return sbbolSecretStorage
+    if (useExtendedConfig) {
+        if (sbbolSecretStorageExtended) return sbbolSecretStorageExtended
+        sbbolSecretStorageExtended = new SbbolSecretStorage('auth', SBBOL_AUTH_CONFIG_EXTENDED.client_id)
+        return sbbolSecretStorageExtended
+    } else {
+        if (sbbolSecretStorage) return sbbolSecretStorage
+        sbbolSecretStorage = new SbbolSecretStorage('auth', SBBOL_AUTH_CONFIG.client_id)
+        return sbbolSecretStorage
+    }
 }
 
 module.exports = {
