@@ -132,6 +132,10 @@ async function compareQRCodeWithLastReceipt (qrCodeFields, resolvers) {
     }
 }
 
+/**
+ * @param {string} period
+ * @return {string}
+ */
 function formatPeriodFromQRCode (period) {
     const parts = period.split('.')
 
