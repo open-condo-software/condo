@@ -17,7 +17,7 @@ const {
     MultiPayment,
 } = require('@condo/domains/acquiring/utils/serverSchema')
 const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
-const { isReceiptPaid, compareQRCodeWithLastReceipt } = require('@condo/domains/billing/utils/receiptQRCodeUtils')
+const { isReceiptPaid, compareQRCodeWithLastReceipt, formatPeriodFromQRCode } = require('@condo/domains/billing/utils/receiptQRCodeUtils')
 const {
     validateQRCode,
     BillingIntegrationOrganizationContext,
@@ -85,7 +85,7 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                     PayeeINN,
                     PersAcc, // resident's account within organization
                 } = qrCodeFields
-                const period = `${PaymPeriod.split('.')[1]}-${PaymPeriod.split('.')[0]}-01`
+                const period = formatPeriodFromQRCode(PaymPeriod)
                 const amount = String(Big(Sum).div(100))
 
                 // Stage 1: normalize address

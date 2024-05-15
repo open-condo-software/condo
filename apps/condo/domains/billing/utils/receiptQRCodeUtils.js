@@ -107,7 +107,7 @@ async function isReceiptPaid (context, accountNumber, period, organizationIds, r
  * @return {Promise<void>}
  */
 async function compareQRCodeWithLastReceipt (qrCodeFields, resolvers) {
-    const period = `${qrCodeFields.PaymPeriod.split('.')[1]}-${qrCodeFields.PaymPeriod.split('.')[0]}-01`
+    const period = formatPeriodFromQRCode(qrCodeFields.PaymPeriod)
 
     const [lastBillingReceipt] = await find('BillingReceipt', {
         account: { number: qrCodeFields.PersAcc, deletedAt: null },
