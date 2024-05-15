@@ -88,7 +88,7 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
         },
         {
             access: true,
-            type: 'type ValidateQRCodeOutput { qrCodeFields: JSON!, lastReceiptData: ValidateQRCodeLastReceiptDataOutput, explicitFees: ValidateQRCodeFeesOutput }',
+            type: 'type ValidateQRCodeOutput { qrCodeFields: JSON!, lastReceiptData: ValidateQRCodeLastReceiptDataOutput, explicitFees: ValidateQRCodeFeesOutput!, amount: String! }',
         },
     ],
 
@@ -187,16 +187,12 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
                     explicitServiceCharge: '0',
                     explicitFee: String(explicitFee),
                 }
-                // const paymentCommissionFields = {
-                //     ...explicitFees,
-                //     implicitFee: String(implicitFee),
-                //     serviceFee: String(fromReceiptAmountFee),
-                // }
 
                 return {
                     qrCodeFields,
                     lastReceiptData: foundReceipt ? pick(foundReceipt, ['id', 'period', 'toPay']) : null,
                     explicitFees,
+                    amount,
                 }
             },
         },

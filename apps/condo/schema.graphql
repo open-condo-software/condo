@@ -73487,7 +73487,8 @@ type ValidateQRCodeFeesOutput {
 type ValidateQRCodeOutput {
   qrCodeFields: JSON!
   lastReceiptData: ValidateQRCodeLastReceiptDataOutput
-  explicitFees: ValidateQRCodeFeesOutput
+  explicitFees: ValidateQRCodeFeesOutput!
+  amount: String!
 }
 
 enum RegisterBillingReceiptFileResultStatus {

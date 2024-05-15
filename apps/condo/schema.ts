@@ -94190,7 +94190,8 @@ export type ValidateQrCodeOutput = {
   __typename?: 'ValidateQRCodeOutput';
   qrCodeFields: Scalars['JSON'];
   lastReceiptData?: Maybe<ValidateQrCodeLastReceiptDataOutput>;
-  explicitFees?: Maybe<ValidateQrCodeFeesOutput>;
+  explicitFees: ValidateQrCodeFeesOutput;
+  amount: Scalars['String'];
 };
 
 /** Technical map of the 'village' type Property object. We assume that there will be different maps for different property types.  */
