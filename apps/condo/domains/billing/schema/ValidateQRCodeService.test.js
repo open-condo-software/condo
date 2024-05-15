@@ -51,7 +51,7 @@ describe('ValidateQRCodeService', () => {
             PayerAddress: faker.address.streetAddress(true),
             Sum: faker.random.numeric(6),
             LastName: faker.random.alpha(10),
-            PaymPeriod: faker.random.numeric(6),
+            PaymPeriod: `${faker.datatype.number({ min: 1, max: 12 })}.${faker.datatype.number({ min: 2024, max: 2099 })}`,
             BIC: faker.random.numeric(8),
             PersAcc: faker.random.numeric(20),
         }
