@@ -636,7 +636,6 @@ const expectToThrowAccessDeniedErrorToCount = async (testFunc) => {
  */
 const expectToThrowAuthenticationError = async (testFunc, path) => {
     if (!path) throw new Error('path argument is not specified')
-    if (testFunc.constructor.name !== 'AsyncFunction') throw new Error('catchErrorFrom( testFunc ) testFunc is not an AsyncFunction!')
     await catchErrorFrom(testFunc, (caught) => {
         expect(caught).toMatchObject({
             name: 'TestClientResponseError',
@@ -654,7 +653,6 @@ const expectToThrowAuthenticationError = async (testFunc, path) => {
 }
 
 const expectToThrowAuthenticationErrorToObj = async (testFunc) => {
-    if (testFunc.constructor.name !== 'AsyncFunction') throw new Error('catchErrorFrom( testFunc ) testFunc is not an AsyncFunction!')
     await expectToThrowAuthenticationError(testFunc, 'obj')
 }
 
