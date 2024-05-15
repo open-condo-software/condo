@@ -23,6 +23,11 @@ const REQUIRED_QR_CODE_FIELDS = ['BIC', 'PayerAddress', 'PaymPeriod', 'Sum', 'Pe
  */
 function parseReceiptQRCode (qrStr) {
     const matches = /^ST(?<version>\d{4})(?<encodingTag>\d)\|(?<requisitesStr>.*)$/g.exec(qrStr)
+
+    if (!matches) {
+        throw new Error('Invalid QR code')
+    }
+
     const requisitesStr = get(matches, ['groups', 'requisitesStr'], '')
 
     // TODO(AleX83Xpert): maybe decode requisitesStr
