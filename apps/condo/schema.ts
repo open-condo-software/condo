@@ -22918,7 +22918,7 @@ export type ExternalReportsUpdateInput = {
 };
 
 /**
- *  The scheme allows service user access to the access tokens of all users of the selected integration stored in redis.
+ *  The scheme allows the service user to get read access to all user access tokens.
  * Used to check permissions in the getAccessTokenByUserId query
  */
 export type ExternalTokenAccessRight = {
