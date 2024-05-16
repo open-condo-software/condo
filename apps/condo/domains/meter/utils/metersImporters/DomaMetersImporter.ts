@@ -1,5 +1,6 @@
 import { RegisterMetersReadingsReadingInput } from '@app/condo/schema'
 import isEqual from 'lodash/isEqual'
+import isNil from 'lodash/isNil'
 
 import { AbstractMetersImporter } from './AbstractMetersImporter'
 
@@ -31,10 +32,10 @@ export default class DomaMetersImporter extends AbstractMetersImporter {
             meterNumber: String(row[5]),
             meterResource: { id: this.mappers.resourceId[String(row[4])] },
             date: row[11],
-            value1: row[7] && String(row[7]),
-            value2: row[8] && String(row[8]),
-            value3: row[9] && String(row[9]),
-            value4: row[10] && String(row[10]),
+            value1: isNil(row[7]) ? null : String(row[7]),
+            value2: isNil(row[8]) ? null : String(row[8]),
+            value3: isNil(row[9]) ? null : String(row[9]),
+            value4: isNil(row[10]) ? null : String(row[10]),
             meterMeta: {
                 numberOfTariffs: Number(row[6]),
                 place: String(row[18]),
