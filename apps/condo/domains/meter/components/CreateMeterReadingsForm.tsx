@@ -37,7 +37,7 @@ import {
     MeterReading,
     PropertyMeterReading,
     PropertyMeter,
-    METER_PAGE_TYPES,
+    METER_TAB_TYPES,
 } from '@condo/domains/meter/utils/clientSchema'
 import { usePropertyValidations } from '@condo/domains/property/components/BasePropertyForm/usePropertyValidations'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
@@ -143,7 +143,7 @@ export const MetersForm = ({
     const { CreateMeterModal, isCreateMeterModalVisible, setIsCreateMeterModalVisible } = useCreateMeterModal({
         organizationId,
         addressKey,
-        meterType: METER_PAGE_TYPES.meter,
+        meterType: METER_TAB_TYPES.meter,
         unitName: selectedUnitName,
         unitType: selectedUnitType,
         refetch,
@@ -224,7 +224,7 @@ export const MetersForm = ({
                     newMeterReadings={newMeterReadings}
                     handleAddMeterButtonClick={handleAddMeterButtonClick}
                     isLoading={loading}
-                    meterType={METER_PAGE_TYPES.meter}
+                    meterType={METER_TAB_TYPES.meter}
                 />
             </Col>
             <CreateMeterModal />
@@ -285,7 +285,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
         where: { id: selectedPropertyId },
     }, { skip: isNull(selectedPropertyId) })
 
-    const { newMeterReadings, setNewMeterReadings, tableColumns } = useMeterTableColumns(METER_PAGE_TYPES.meter)
+    const { newMeterReadings, setNewMeterReadings, tableColumns } = useMeterTableColumns(METER_TAB_TYPES.meter)
 
     const createMeterReadingAction = MeterReading.useCreate({
         source: { connect: { id: CALL_METER_READING_SOURCE_ID } },
@@ -466,7 +466,7 @@ export const PropertyMetersForm = ({
         addressKey: get(property, 'addressKey', null),
         unitType: null,
         unitName: null,
-        meterType: METER_PAGE_TYPES.propertyMeter,
+        meterType: METER_TAB_TYPES.propertyMeter,
     })
     const dataSource = useMemo(() => getTableData(meters, meterReadings), [meterReadings, meters])
 
@@ -475,7 +475,7 @@ export const PropertyMetersForm = ({
         setNewMeterReadings({})
     }, [selectedPropertyId])
 
-    const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch, METER_PAGE_TYPES.propertyMeter)
+    const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch, METER_TAB_TYPES.propertyMeter)
     const handleRowAction = useCallback((record) => {
         return {
             onClick: () => {
@@ -513,7 +513,7 @@ export const PropertyMetersForm = ({
                     newMeterReadings={newMeterReadings}
                     handleAddMeterButtonClick={handleAddMeterButtonClick}
                     isLoading={loading}
-                    meterType={METER_PAGE_TYPES.propertyMeter}
+                    meterType={METER_TAB_TYPES.propertyMeter}
                 />
             </Col>
             <CreateMeterModal />
@@ -537,7 +537,7 @@ export const CreatePropertyMeterReadingsForm = ({ organization, role }) => {
         newMeterReadings,
         setNewMeterReadings,
         tableColumns,
-    } = useMeterTableColumns(METER_PAGE_TYPES.propertyMeter)
+    } = useMeterTableColumns(METER_TAB_TYPES.propertyMeter)
 
     useEffect(() => {
         selectPropertyIdRef.current = selectedPropertyId
@@ -554,7 +554,7 @@ export const CreatePropertyMeterReadingsForm = ({ organization, role }) => {
     const createMeterReadingAction = PropertyMeterReading.useCreate({
         source: { connect: { id: CRM_METER_READING_SOURCE_ID } },
     }, async () => {
-        await router.push(`/meter?tab=${METER_PAGE_TYPES.propertyMeter}`)
+        await router.push(`/meter?tab=${METER_TAB_TYPES.propertyMeter}`)
     })
 
     const handleSubmit = useCallback(async (values) => {

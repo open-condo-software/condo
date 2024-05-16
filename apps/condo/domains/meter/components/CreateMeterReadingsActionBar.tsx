@@ -9,7 +9,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Tour } from '@open-condo/ui'
 
 import { ButtonWithDisabledTooltip } from '@condo/domains/common/components/ButtonWithDisabledTooltip'
-import { METER_PAGE_TYPES } from '@condo/domains/meter/utils/clientSchema'
+import { METER_TAB_TYPES } from '@condo/domains/meter/utils/clientSchema'
 
 
 const PROPERTY_DEPENDENCY = ['property']
@@ -45,7 +45,7 @@ export const CreateMeterReadingsActionBar = ({
             {
                 ({ getFieldsValue, getFieldValue, getFieldError }) => {
                     let isSubmitButtonDisabled, isCreateMeterButtonDisabled, errors, requiredErrorMessage
-                    if (meterType === METER_PAGE_TYPES.meter) {
+                    if (meterType === METER_TAB_TYPES.meter) {
                         const { property, unitName } = getFieldsValue(['property', 'unitName'])
                         isSubmitButtonDisabled = !property || !unitName || isEmpty(newMeterReadings)
                         isCreateMeterButtonDisabled = !property || !unitName
