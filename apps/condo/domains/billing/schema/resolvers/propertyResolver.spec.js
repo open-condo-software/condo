@@ -397,9 +397,11 @@ const SINGLE_HOUSE_TEST_CASES = [
     'ул.Революции 1905 года, уч.37',
     'ул.Революции 1905 года, уч 37',
 ]
+const SINGLE_HOUSE_WITH_MODIFIED_ADDRESS_TEST_CASES = [
+    'ул.Революции 1905 года, двлд 37,',
+]
 const NOT_SINGLE_HOUSE_TEST = [
     'ул.Революции 1905 года, д 37, 2',
-    'ул.Революции 1905 года, двлд 37,',
 ]
 
 describe('Single houses will add an empty unit', () => {
@@ -409,6 +411,14 @@ describe('Single houses will add an empty unit', () => {
         test(`"${input}" to be: "${input}" `, () => {
             const { address, unitType, unitName } = resolver.parser.parse(input)
             expect(address).toEqual(input)
+            expect(unitType).toEqual('flat')
+            expect(unitName).toEqual('1')
+        })
+    }
+    for (const input of SINGLE_HOUSE_WITH_MODIFIED_ADDRESS_TEST_CASES) {
+        test(`"${input}" to be: "${input}" `, () => {
+            const { address, unitType, unitName } = resolver.parser.parse(input)
+            expect(address).not.toEqual(input)
             expect(unitType).toEqual('flat')
             expect(unitName).toEqual('1')
         })
