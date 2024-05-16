@@ -35,7 +35,7 @@ class SbbolRoutes {
             // nonce: to prevent several callbacks from same request
             // state: to validate user browser on callback
             const checks = { nonce: generators.nonce(), state: generators.state() }
-            req.session[SBBOL_SESSION_KEY] = { checks, redirectUrl, features }
+            req.session[SBBOL_SESSION_KEY] = { checks, redirectUrl, features, useExtendedConfig }
             await req.session.save()
             const authUrl = sbbolAuthApi.authorizationUrlWithParams(checks)
             return res.redirect(authUrl)
@@ -50,13 +50,14 @@ class SbbolRoutes {
         try {
             if (!SBBOL_AUTH_CONFIG.client_id) throw new Error('SBBOL_AUTH_CONFIG.client_id is not configured')
             if (!SBBOL_AUTH_CONFIG_EXTENDED.client_id) throw new Error('SBBOL_AUTH_CONFIG_EXTENDED.client_id is not configured')
-            const useExtendedConfig = get(req, 'query.useExtendedConfig', false)
-            const sbbolAuthApi = await initializeSbbolAuthApi(useExtendedConfig)
             const checks = get(req, ['session', SBBOL_SESSION_KEY, 'checks'])
             if (!isObject(checks)) {
                 logger.info({ msg: 'SBBOL invalid nonce and state', reqId })
                 return res.status(400).send('ERROR: Invalid nonce and state')
             }
+
+            const useExtendedConfig = get(req, ['session', SBBOL_SESSION_KEY, 'useExtendedConfig'], false)
+            const sbbolAuthApi = await initializeSbbolAuthApi(useExtendedConfig)
 
             // This is NOT a `TokenSet` record from our schema
             let tokenSet, userInfo
