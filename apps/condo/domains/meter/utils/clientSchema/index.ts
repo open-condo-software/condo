@@ -51,14 +51,26 @@ export const resourceIdToCreateMeterTitleIdMap = {
     [HEAT_SUPPLY_METER_RESOURCE_ID]: 'pages.condo.meter.AddHeatSupplyMeterModalTitle',
 }
 
-export type MeterPageTypes = 'property-meter' | 'meter' | 'meter-reporting-period'
+export type MeterPageTypes = 'meter-reading' | 'meter' | 'meter-reporting-period' | 'property-meter'
 type MeterPageTypesSwitch = {
-    propertyMeter: MeterPageTypes
+    meterReading: MeterPageTypes
     meter: MeterPageTypes
     reportingPeriod: MeterPageTypes
+    propertyMeter: MeterPageTypes,
 }
-export const METER_PAGE_TYPES: MeterPageTypesSwitch = {
-    propertyMeter: 'property-meter',
+export const METER_TAB_TYPES: MeterPageTypesSwitch = {
+    meterReading: 'meter-reading',
     meter: 'meter',
     reportingPeriod: 'meter-reporting-period',
+    propertyMeter: 'property-meter',
+}
+
+export type MeterReadingsTypes = 'account-meter-readings' | 'property-meter-readings'
+type MeterReadingsTypeSwitch = {
+    accountMeterReadings: MeterReadingsTypes,
+    propertyMeterReadings: MeterReadingsTypes,
+}
+export const METER_READINGS_TYPES: MeterReadingsTypeSwitch = {
+    accountMeterReadings: 'account-meter-readings',
+    propertyMeterReadings: 'property-meter-readings',
 }
