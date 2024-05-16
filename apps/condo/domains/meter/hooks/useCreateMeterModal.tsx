@@ -5,7 +5,7 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 
 import { BaseMeterModalForm } from '@condo/domains/meter/components/BaseMeterModal/BaseMeterModalForm'
-import { PropertyMeter, Meter, MeterPageTypes, METER_PAGE_TYPES } from '@condo/domains/meter/utils/clientSchema'
+import { PropertyMeter, Meter, MeterPageTypes, METER_TAB_TYPES } from '@condo/domains/meter/utils/clientSchema'
 
 
 type CreateMeterModalProps = {
@@ -32,7 +32,7 @@ export function useCreateMeterModal (props: CreateMeterModalProps): CreateMeterM
 
     const { organizationId, propertyId, meterType, unitName, unitType, refetch, addressKey } = props
 
-    const isPropertyMeter = meterType === METER_PAGE_TYPES.propertyMeter
+    const isPropertyMeter = meterType === METER_TAB_TYPES.propertyMeter
     const MeterIdentity = isPropertyMeter ? PropertyMeter : Meter
     const createMeterAction = MeterIdentity.useCreate({}, refetch)
 

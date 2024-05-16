@@ -11,7 +11,7 @@ import {
 } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { AutoSourceAlert } from '@condo/domains/meter/components/BaseMeterModal/AutoSourceAlert'
 import { BaseMeterModalForm } from '@condo/domains/meter/components/BaseMeterModal/BaseMeterModalForm'
-import { Meter, PropertyMeter, METER_PAGE_TYPES, MeterPageTypes } from '@condo/domains/meter/utils/clientSchema'
+import { Meter, PropertyMeter, METER_TAB_TYPES, MeterPageTypes } from '@condo/domains/meter/utils/clientSchema'
 
 
 const INITIAL_METER_VALUES_KEYS = [
@@ -23,7 +23,7 @@ const INITIAL_PROPERTY_METER_VALUES_KEYS = [
     'commissioningDate', 'sealingDate', 'verificationDate', 'nextVerificationDate', 'controlReadingsDate',
 ]
 
-export const useUpdateMeterModal = (refetch, meterType: MeterPageTypes = METER_PAGE_TYPES.meter) => {
+export const useUpdateMeterModal = (refetch, meterType: MeterPageTypes = METER_TAB_TYPES.meter) => {
     const intl = useIntl()
     const MeterNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.NumberOfMeter' })
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'pages.condo.meter.form.ConfirmDeleteTitle' })
@@ -40,7 +40,7 @@ export const useUpdateMeterModal = (refetch, meterType: MeterPageTypes = METER_P
     const { link } = useOrganization()
     const canManageMeters = get(link, 'role.canManageMeters', false)
 
-    const isPropertyMeter = meterType === METER_PAGE_TYPES.propertyMeter
+    const isPropertyMeter = meterType === METER_TAB_TYPES.propertyMeter
     const MeterIdentity = !isPropertyMeter ? Meter : PropertyMeter
     const updateMeterAction = MeterIdentity.useUpdate({}, () => {
         setSelectedMeter(null)

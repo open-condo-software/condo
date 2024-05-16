@@ -1,35 +1,28 @@
 import {
+    MeterReadingWhereInput,
     SortMeterReadingsBy,
-    MeterReadingWhereInput, MeterReading as IMeterReading,
 } from '@app/condo/schema'
 import { Col, Row, RowProps } from 'antd'
-import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
 import { ColumnsType } from 'antd/lib/table'
-import { TableRowSelection } from 'antd/lib/table/interface'
 import dayjs, { Dayjs } from 'dayjs'
-import chunk from 'lodash/chunk'
 import get from 'lodash/get'
-import isString from 'lodash/isString'
 import uniqBy from 'lodash/uniqBy'
-import { NextRouter, useRouter } from 'next/router'
+import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { PlusCircle, Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { ActionBar, Button } from '@open-condo/ui'
+import { Button } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
-import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
-import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
 import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
 import { Loader } from '@condo/domains/common/components/Loader'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
-import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { EMOJI } from '@condo/domains/common/constants/emoji'
 import { useDateRangeSearch } from '@condo/domains/common/hooks/useDateRangeSearch'
 import { useMultipleFiltersModal } from '@condo/domains/common/hooks/useMultipleFiltersModal'
@@ -47,10 +40,11 @@ import {
 } from '@condo/domains/meter/utils/clientSchema'
 
 
+
 const METERS_PAGE_CONTENT_ROW_GUTTERS: RowProps['gutter'] = [0, 40]
 const FILTERS_CONTAINER_GUTTER: RowProps['gutter'] = [16, 16]
-const RESET_FILTERS_BUTTON_STYLE: CSSProperties = { paddingLeft: 0 }
 const QUICK_FILTERS_COL_STYLE: CSSProperties = { alignSelf: 'center' }
+const RESET_FILTERS_BUTTON_STYLE: CSSProperties = { paddingLeft: 0 }
 
 const SORTABLE_PROPERTIES = ['date', 'clientName', 'source']
 const DEFAULT_DATE_RANGE: [Dayjs, Dayjs] = [dayjs().subtract(1, 'week'), dayjs()]
@@ -65,19 +59,7 @@ type MetersTableContentProps = {
     loading?: boolean
 }
 
-const getInitialSelectedReadingKeys = (router: NextRouter) => {
-    if ('selectedReadingIds' in router.query && isString(router.query.selectedReadingIds)) {
-        try {
-            return JSON.parse(router.query.selectedReadingIds as string)
-        } catch (error) {
-            console.warn('Failed to parse property value "selectedReadingIds"', error)
-            return []
-        }
-    }
-    return []
-}
-
-const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
+const MetersTableContent: React.FC<MetersTableContentProps> = ({
     filtersMeta,
     tableColumns,
     baseSearchQuery,
@@ -91,12 +73,8 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const StartDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
     const EndDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
-    const CancelSelectedReadingsMessage = intl.formatMessage({ id: 'global.cancelSelection' })
-    const CountSelectedReadingsMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterReading.CountSelectedReadings' })
-    const DeleteMeterReadingsMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterReading.DeleteMeterReadings' })
-    const DeleteMeterReadingsMessageWarn = intl.formatMessage({ id: 'pages.condo.meter.MeterReading.DeleteMeterReadings.Warn' })
-    const DeleteMessage = intl.formatMessage({ id: 'Delete' })
-    const DontDeleteMessage = intl.formatMessage({ id: 'DontDelete' })
+    const IsActiveMessage = intl.formatMessage({ id: 'pages.condo.meter.Meter.isActive' })
+    const OutOfOrderMessage = intl.formatMessage({ id: 'pages.condo.meter.Meter.outOfOrder' })
 
     const router = useRouter()
     const { filters, offset, sorters, tab } = parseQuery(router.query)
@@ -105,9 +83,8 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filtersMeta, sortableProperties || SORTABLE_PROPERTIES)
 
     const sortBy = useMemo(() => sortersToSortBy(sorters) as SortMeterReadingsBy[], [sorters, sortersToSortBy])
-    const { getTrackingWrappedCallback } = useTracking()
 
-    const [dateRange, setDateRange] = useDateRangeSearch('date')
+    const [dateRange, setDateRange] = useDateRangeSearch('verificationDate')
     const [filtersAreReset, setFiltersAreReset] = useState(false)
     const dateFallback = filtersAreReset ? null : DEFAULT_DATE_RANGE
     const dateFilterValue = dateRange || dateFallback
@@ -120,13 +97,14 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
         setDateRange(value)
     }, [setDateRange])
 
+
     const searchMeterReadingsQuery = useMemo(() => ({
-        ...filtersToWhere({ date: dateFilter, ...filters }),
+        ...filtersToWhere({ verificationDate: dateFilter, ...filters }),
         ...baseSearchQuery,
     }), [baseSearchQuery, dateFilter, filters, filtersToWhere])
 
     const {
-        loading: metersLoading,
+        loading: meterReadingsLoading,
         count: total,
         objs: meterReadings,
         refetch,
@@ -140,7 +118,6 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
     })
 
     const [search, handleSearchChange, handleSearchReset] = useSearch()
-    const [selectedReadingKeys, setSelectedReadingKeys] = useState<string[]>(() => getInitialSelectedReadingKeys(router))
     const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch)
     const { MultipleFiltersModal, ResetFiltersModalButton, OpenFiltersButton, appliedFiltersCount } = useMultipleFiltersModal({
         filterMetas: filtersMeta,
@@ -149,78 +126,20 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
         extraQueryParameters: { tab },
     })
 
-    const updateSelectedReadingKeys = useCallback((selectedReadingKeys: string[]) => {
-        setSelectedReadingKeys(selectedReadingKeys)
-    }, [])
-
     const processedMeterReadings = useMemo(() => {
         const filteredMeterReading = meterReadings.map(a => a).sort((a, b) => (a.date < b.date ? 1 : -1))
         return uniqBy(filteredMeterReading, (reading => get(reading, 'meter.id')))
     }, [meterReadings])
 
-    const selectedRowKeysByPage = useMemo(() => {
-        return processedMeterReadings.filter(reading => selectedReadingKeys.includes(reading.id)).map(reading => reading.id)
-    }, [processedMeterReadings, selectedReadingKeys])
-
-    const isSelectedAllRowsByPage = !metersLoading && selectedRowKeysByPage.length > 0 && selectedRowKeysByPage.length === processedMeterReadings.length
-    const isSelectedSomeRowsByPage = !metersLoading && selectedRowKeysByPage.length > 0 && selectedRowKeysByPage.length < processedMeterReadings.length
-
-    const handleResetSelectedReadings = useCallback(() => {
-        setSelectedReadingKeys([])
-    }, [])
-
-    const softDeleteMeterReportingPeriods = MeterReadingForOrganization.useSoftDeleteMany(async () => {
-        setSelectedReadingKeys([])
-        refetch()
-    })
-
-    const handleDeleteButtonClick = useCallback(async () => {
-        if (selectedReadingKeys.length) {
-            const itemsToDeleteByChunks = chunk(selectedReadingKeys.map((key) => ({ id: key })), 30)
-            for (const itemsToDelete of itemsToDeleteByChunks) {
-                await softDeleteMeterReportingPeriods(itemsToDelete)
-            }
+    const handleRowAction = useCallback((record) => {
+        return {
+            onClick: () => {
+                const meter = get(record, 'meter')
+                setSelectedMeter(meter)
+            },
         }
-    }, [softDeleteMeterReportingPeriods, selectedReadingKeys])
+    }, [setSelectedMeter])
 
-    const handleSelectAllRowsByPage = useCallback((e: CheckboxChangeEvent) => {
-        const checked = e.target.checked
-        if (checked) {
-            const newSelectedReadingKeys = processedMeterReadings
-                .filter(reading => !selectedRowKeysByPage.includes(reading.id))
-                .map(reading => reading.id)
-            updateSelectedReadingKeys([...selectedReadingKeys, ...newSelectedReadingKeys])
-        } else {
-            updateSelectedReadingKeys(selectedReadingKeys.filter(key => !selectedRowKeysByPage.includes(key)))
-        }
-    }, [processedMeterReadings, updateSelectedReadingKeys, selectedReadingKeys, selectedRowKeysByPage])
-
-    const handleSelectRow: (record: IMeterReading, checked: boolean) => void = useCallback((record, checked) => {
-        const selectedKey = record.id
-        if (checked) {
-            updateSelectedReadingKeys([...selectedReadingKeys, selectedKey])
-        } else {
-            updateSelectedReadingKeys(selectedReadingKeys.filter(key => selectedKey !== key))
-        }
-    }, [selectedReadingKeys, updateSelectedReadingKeys])
-
-    const handleSelectRowWithTracking = useMemo(
-        () => getTrackingWrappedCallback('MeterReadingTableCheckboxSelectRow', null, handleSelectRow),
-        [getTrackingWrappedCallback, handleSelectRow])
-
-    const rowSelection: TableRowSelection<IMeterReading> = useMemo(() => ({
-        selectedRowKeys: selectedRowKeysByPage,
-        fixed: true,
-        onSelect: handleSelectRowWithTracking,
-        columnTitle: (
-            <Checkbox
-                checked={isSelectedAllRowsByPage}
-                indeterminate={isSelectedSomeRowsByPage}
-                onChange={handleSelectAllRowsByPage}
-                eventName='MeterReadingsTableCheckboxSelectAll'
-            />
-        ),
-    }), [handleSelectAllRowsByPage, handleSelectRowWithTracking, isSelectedAllRowsByPage, isSelectedSomeRowsByPage, selectedRowKeysByPage])
 
     const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
     const handleCreateMeterReadings = useCallback(() => router.push('/meter/create'), [router])
@@ -251,7 +170,32 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
                                             onChange={handleDateChange}
                                             placeholder={[StartDateMessage, EndDateMessage]}
                                         />
+                                        
                                     </Col>
+                                    {/* TODO: add active checkbox and isArchived checkbox (add these fields to Meter)*/}
+                                    {/* <Col style={QUICK_FILTERS_COL_STYLE}>
+                                        <Checkbox
+                                            onChange={handleIsActiveChange}
+                                            checked={isShowActiveMeters}
+                                            style={CHECKBOX_STYLE}
+                                            eventName='TicketFilterCheckboxRegular'
+                                            data-cy='ticket__filter-isRegular'
+                                        >
+                                            {IsActiveMessage}
+                                        </Checkbox>
+                                    </Col>
+                                    <Col style={QUICK_FILTERS_COL_STYLE}>
+                                        <Checkbox
+                                            onChange={handleOutOfOrderChange}
+                                            checked={isShowNonWorkingMeters}
+                                            style={CHECKBOX_STYLE}
+                                            eventName='TicketFilterCheckboxRegular'
+                                            data-cy='ticket__filter-isRegular'
+                                        >
+                                            {OutOfOrderMessage}
+                                        </Checkbox>
+                                    </Col>
+                                    */}
                                 </Row>
                             </Col>
                             <Col>
@@ -274,86 +218,48 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
                 <Col span={24}>
                     <Table
                         totalRows={total}
-                        loading={metersLoading || loading}
+                        loading={meterReadingsLoading || loading}
                         dataSource={processedMeterReadings}
                         columns={tableColumns}
-                        rowSelection={rowSelection}
-                        sticky
+                        onRow={handleRowAction}
                     />
                 </Col>
-                {
-                    !loading && total > 0 && (
-                        <Col span={24}>
-                            <ActionBar
-                                message={selectedReadingKeys.length > 0 && `${CountSelectedReadingsMessage}: ${selectedReadingKeys.length}`}
-                                actions={[
-                                    selectedReadingKeys.length > 0 && (
-                                        <>
-                                            <DeleteButtonWithConfirmModal
-                                                key='deleteSelectedReadings'
-                                                title={DeleteMeterReadingsMessage}
-                                                message={DeleteMeterReadingsMessageWarn}
-                                                okButtonLabel={DeleteMessage}
-                                                action={handleDeleteButtonClick}
-                                                buttonContent={DeleteMessage}
-                                                cancelMessage={DontDeleteMessage}
-                                                showCancelButton
-                                                cancelButtonType='primary'
-                                            />
-                                            <Button
-                                                key='cancelReadingSelection'
-                                                type='secondary'
-                                                children={CancelSelectedReadingsMessage}
-                                                onClick={handleResetSelectedReadings}
-                                            />
-                                        </>
-
-                                    ),
-                                ]}
-                            />
-                        </Col>
-                    )
-                }
-                { selectedReadingKeys.length < 1 && (
-                    <Col span={24}>
-                        <ExportToExcelActionBar
-                            searchObjectsQuery={searchMeterReadingsQuery}
-                            exportToExcelQuery={EXPORT_METER_READINGS_QUERY}
-                            sortBy={sortBy}
-                            actions={[
-                                canManageMeterReadings && (
-                                    <Button
-                                        key='create'
-                                        type='primary'
-                                        icon={<PlusCircle size='medium' />}
-                                        onClick={handleCreateMeterReadings}
-                                    >
-                                        {CreateMeterReadingsButtonLabel}
-                                    </Button>
-                                ),
-                                canManageMeterReadings && (
-                                    <MetersImportWrapper
-                                        key='import'
-                                        accessCheck={canManageMeterReadings}
-                                        onFinish={refetch}
-                                    />
-                                ),
-                            ]}
-                        />
-                    </Col>
-                )}
+                <Col span={24}>
+                    <ExportToExcelActionBar
+                        searchObjectsQuery={searchMeterReadingsQuery}
+                        exportToExcelQuery={EXPORT_METER_READINGS_QUERY}
+                        sortBy={sortBy}
+                        actions={[
+                            canManageMeterReadings && (
+                                <Button
+                                    key='create'
+                                    type='primary'
+                                    icon={<PlusCircle size='medium' />}
+                                    onClick={handleCreateMeterReadings}
+                                >
+                                    {CreateMeterReadingsButtonLabel}
+                                </Button>
+                            ),
+                            canManageMeterReadings && (
+                                <MetersImportWrapper
+                                    key='import'
+                                    accessCheck={canManageMeterReadings}
+                                    onFinish={refetch}
+                                />
+                            ),
+                        ]}
+                    />
+                </Col>
             </Row>
             <UpdateMeterModal />
             <MultipleFiltersModal />
-            {/*<DeleteMeterReadingModal />*/}
-
         </>
     )
 }
 
 type MeterReadingsPageContentProps = Omit<MetersTableContentProps, 'mutationErrorsToMessages'>
 
-export const MeterReadingsPageContent: React.FC<MeterReadingsPageContentProps> = ({
+export const MetersPageContent: React.FC<MeterReadingsPageContentProps> = ({
     filtersMeta,
     tableColumns,
     baseSearchQuery,
@@ -391,7 +297,7 @@ export const MeterReadingsPageContent: React.FC<MeterReadingsPageContentProps> =
         }
 
         return (
-            <MeterReadingsTableContent
+            <MetersTableContent
                 filtersMeta={filtersMeta}
                 tableColumns={tableColumns}
                 baseSearchQuery={baseSearchQuery}
