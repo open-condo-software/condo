@@ -30,7 +30,7 @@ import { EXPORT_PROPERTY_METER_READINGS_QUERY } from '@condo/domains/meter/gql'
 import { useUpdateMeterModal } from '@condo/domains/meter/hooks/useUpdateMeterModal'
 import {
     PropertyMeterReading,
-    METER_PAGE_TYPES,
+    METER_TAB_TYPES,
 } from '@condo/domains/meter/utils/clientSchema'
 
 
@@ -47,7 +47,7 @@ type PropertyMetersTableContentProps = {
     loading?: boolean
 }
 
-const PropertyMetersTableContent: React.FC<PropertyMetersTableContentProps> = (props) => {
+const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProps> = (props) => {
     const {
         canManageMeterReadings,
         baseSearchQuery,
@@ -89,7 +89,7 @@ const PropertyMetersTableContent: React.FC<PropertyMetersTableContentProps> = (p
     })
 
     const [search, handleSearchChange] = useSearch()
-    const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch, METER_PAGE_TYPES.propertyMeter)
+    const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch, METER_TAB_TYPES.propertyMeter)
 
     const handleRowAction = useCallback((record) => {
         return {
@@ -158,7 +158,7 @@ const PropertyMetersTableContent: React.FC<PropertyMetersTableContentProps> = (p
     )
 }
 
-export const PropertyMetersPageContent: React.FC<PropertyMetersTableContentProps> = (props) => {
+export const PropertyMeterReadingsPageContent: React.FC<PropertyMetersTableContentProps> = (props) => {
     const {
         baseSearchQuery,
         canManageMeterReadings,
@@ -176,13 +176,13 @@ export const PropertyMetersPageContent: React.FC<PropertyMetersTableContentProps
         if (count === 0) return (
             <EmptyListContent
                 label={EmptyListLabel}
-                createRoute={`/meter/create?meterType=${METER_PAGE_TYPES.propertyMeter}`}
+                createRoute={`/meter/create?meterType=${METER_TAB_TYPES.propertyMeter}`}
                 createLabel={CreateMeter}
                 accessCheck={canManageMeterReadings}
             />
         )
 
-        return <PropertyMetersTableContent {...props} />
+        return <PropertyMeterReadingsTableContent {...props} />
     }, [CreateMeter, EmptyListLabel, canManageMeterReadings, count, countLoading, props])
 
     return (

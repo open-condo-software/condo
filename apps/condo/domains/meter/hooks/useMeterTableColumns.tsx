@@ -13,7 +13,7 @@ import { Tour } from '@open-condo/ui'
 import { getDateRender, getTextRender } from '@condo/domains/common/components/Table/Renders'
 import { colors } from '@condo/domains/common/constants/style'
 import { fontSizes } from '@condo/domains/common/constants/style'
-import { METER_PAGE_TYPES, MeterPageTypes } from '@condo/domains/meter/utils/clientSchema'
+import { METER_TAB_TYPES, MeterPageTypes } from '@condo/domains/meter/utils/clientSchema'
 
 
 const inputNumberCSS = css`
@@ -132,7 +132,7 @@ export const useMeterTableColumns = (meterType: MeterPageTypes) => {
     const ThirdTariffMessage = intl.formatMessage({ id: 'pages.condo.meter.Tariff3Message' })
     const FourthTariffMessage = intl.formatMessage({ id: 'pages.condo.meter.Tariff4Message' })
 
-    const isPropertyMeter = meterType === METER_PAGE_TYPES.propertyMeter
+    const isPropertyMeter = meterType === METER_TAB_TYPES.propertyMeter
     const [newMeterReadings, setNewMeterReadings] = useState({})
     const tariffNumberMessages = useMemo(() =>
         [`(${FirstTariffMessage})`, `(${SecondTariffMessage})`, `(${ThirdTariffMessage})`, `(${FourthTariffMessage})`],

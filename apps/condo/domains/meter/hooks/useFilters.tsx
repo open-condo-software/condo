@@ -16,7 +16,7 @@ import {
     getDayRangeFilter, getFilter,
     getStringContainsFilter,
 } from '@condo/domains/common/utils/tables.utils'
-import { METER_PAGE_TYPES, MeterReadingSource, MeterResource, MeterPageTypes } from '@condo/domains/meter/utils/clientSchema'
+import { METER_TAB_TYPES, MeterReadingSource, MeterResource, MeterPageTypes } from '@condo/domains/meter/utils/clientSchema'
 import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
 
@@ -76,11 +76,11 @@ export function useFilters (meterPageType: MeterPageTypes): Array<FiltersMeta<Me
     const { objs: resources, loading: resourcesLoading } = MeterResource.useObjects({})
     const resourcesOptions = convertToOptions<MeterResourceType>(resources, 'name', 'id')
 
-    const isPropertyMeter = meterPageType === METER_PAGE_TYPES.propertyMeter
+    const isPropertyMeter = meterPageType === METER_TAB_TYPES.propertyMeter
 
     return useMemo(() => {
         switch (meterPageType) {
-            case METER_PAGE_TYPES.reportingPeriod: {
+            case METER_TAB_TYPES.reportingPeriod: {
                 return [
                     {
                         keyword: 'address',
