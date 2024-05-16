@@ -97,10 +97,7 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                 // Stage 2: find properties
                 const properties = await find('Property', {
                     organization: { tin: PayeeINN, deletedAt: null },
-                    OR: [
-                        { address: normalizedAddress.address },
-                        { addressKey: normalizedAddress.addressKey },
-                    ],
+                    addressKey: normalizedAddress.addressKey,
                     deletedAt: null,
                 })
 
