@@ -48,6 +48,7 @@ const useUploadConfig = (onUpload: TOnMetersUpload) => {
                     const wsName = wb.SheetNames[0]
                     const sheetData = XLSX.utils.sheet_to_json<string[]>(wb.Sheets[wsName], { header: 1 })
                         .filter((x) => x.length) // filter out empty rows
+                        .map((row) => row.map(String)) // Stringify all values
 
                     onUpload(ImportDataType.doma, sheetData)
                 }
