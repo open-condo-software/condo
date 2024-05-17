@@ -348,6 +348,7 @@ const makeApolloClient = (serverUrl, opts = {}) => {
             }
 
             if (TESTS_TLS_IGNORE_UNAUTHORIZED) options.agent = httpsAgentWithUnauthorizedTls
+
             return fetch(uri, options)
                 .then((response) => {
                     const setCookieHeader = response.headers.raw()['set-cookie']
