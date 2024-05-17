@@ -61249,7 +61249,7 @@ type B2BApp {
   """
   contextDefaultStatus: String
 
-  """ Category of app. Can be one of the following: ["DISPATCHING", "GIS", "SMART_HOME", "BUSINESS_DEVELOPMENT", "OTHER"] By default set to "OTHER" 
+  """ Category of app. Can be one of the following: ["DISPATCHING", "GIS", "SMART_HOME", "BUSINESS_DEVELOPMENT", "FINANCE", "OTHER"] By default set to "OTHER" 
   """
   category: String
 
@@ -74367,6 +74367,7 @@ enum AppCategory {
   GIS
   SMART_HOME
   BUSINESS_DEVELOPMENT
+  FINANCE
   OTHER
 }
 

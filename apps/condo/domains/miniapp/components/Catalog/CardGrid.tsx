@@ -4,7 +4,7 @@ import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback } from 'react'
 
-import { Star, List, House, SmartHome, Rocket, CircleEllipsis, CheckSquare } from '@open-condo/icons'
+import { Star, List, House, SmartHome, Rocket, CircleEllipsis, CheckSquare, Ruble } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
@@ -18,6 +18,7 @@ import {
     GIS_CATEGORY,
     SMART_HOME_CATEGORY,
     BUSINESS_DEVELOPMENT_CATEGORY,
+    FINANCE_CATEGORY,
     OTHER_CATEGORY,
 } from '@condo/domains/miniapp/constants'
 
@@ -38,6 +39,7 @@ const TAB_ICONS = {
     [GIS_CATEGORY]: <House/>,
     [SMART_HOME_CATEGORY]: <SmartHome/>,
     [BUSINESS_DEVELOPMENT_CATEGORY]: <Rocket/>,
+    [FINANCE_CATEGORY]: <Ruble/>,
     [OTHER_CATEGORY]: <CircleEllipsis/>,
 }
 const HIDE_SEARCH_CSS = css`

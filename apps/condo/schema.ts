@@ -1869,6 +1869,7 @@ export enum AppCategory {
   Gis = 'GIS',
   SmartHome = 'SMART_HOME',
   BusinessDevelopment = 'BUSINESS_DEVELOPMENT',
+  Finance = 'FINANCE',
   Other = 'OTHER'
 }
 
@@ -1933,7 +1934,7 @@ export type B2BApp = {
   menuCategory?: Maybe<Scalars['String']>;
   /**  Status, which context will have by default after creation if no overwriting option provided  */
   contextDefaultStatus?: Maybe<Scalars['String']>;
-  /**  Category of app. Can be one of the following: ["DISPATCHING", "GIS", "SMART_HOME", "BUSINESS_DEVELOPMENT", "OTHER"] By default set to "OTHER"  */
+  /**  Category of app. Can be one of the following: ["DISPATCHING", "GIS", "SMART_HOME", "BUSINESS_DEVELOPMENT", "FINANCE", "OTHER"] By default set to "OTHER"  */
   category?: Maybe<Scalars['String']>;
   /**  Specifies set of service users, who can access app's contexts related as well as perform actions on behalf of the application  */
   accessRights: Array<B2BAppAccessRight>;
