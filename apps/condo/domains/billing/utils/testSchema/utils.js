@@ -2,10 +2,11 @@ const { faker  } = require('@faker-js/faker/locale/ru')
 const dayjs = require('dayjs')
 
 const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
-
 const { registerBillingReceiptsByTestClient } = require('@condo/domains/billing/utils/testSchema')
 const {
     createTestBillingIntegration,
+    updateTestBillingIntegration,
+    updateTestBillingIntegrationOrganizationContext,
     createTestBillingIntegrationOrganizationContext,
     generateServicesData,
     createTestBillingIntegrationAccessRight,
@@ -21,9 +22,22 @@ const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeLoggedInClient,
 } = require('@condo/domains/user/utils/testSchema')
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 
 
 class BillingTestUtils {
+
+    constructor (mixins = []) {
+        this.clients = {}
+        this.mixins = mixins
+        if (mixins.length) {
+            Object.assign(this, ...mixins)
+        }
+    }
+
+    async initMixins() {
+        await Promise.all(this.mixins.map(async mixIn => mixIn.initMixin.call(this)))
+    }
 
     async init () {
         this.clients = {
@@ -36,7 +50,9 @@ class BillingTestUtils {
         }
         const [organization] = await createTestOrganization(this.clients.admin)
         const [billingIntegration] = await createTestBillingIntegration(this.clients.admin)
-        const [billingContext] = await createTestBillingIntegrationOrganizationContext(this.clients.admin, organization, billingIntegration)
+        const [billingContext] = await createTestBillingIntegrationOrganizationContext(this.clients.admin, organization, billingIntegration, {
+            status: CONTEXT_FINISHED_STATUS,
+        })
         const [role] = await createTestOrganizationEmployeeRole(this.clients.admin, organization, {
             canManageIntegrations: true,
             canReadBillingReceipts: true,
@@ -100,6 +116,14 @@ class BillingTestUtils {
             context: { id: this.billingContext.id },
             receipts: jsonReceipts,
         })
+    }
+
+    async updateBillingContext (updateInput) {
+        await updateTestBillingIntegrationOrganizationContext(this.clients.admin, this.billingContext.id, updateInput)
+    }
+
+    async updateBillingIntegration (updateInput) {
+        await updateTestBillingIntegration(this.clients.admin, this.billingIntegration.id, updateInput)
     }
 
 }

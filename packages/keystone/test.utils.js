@@ -14,7 +14,7 @@ const falsey = require('falsey')
 const FormData = require('form-data')
 const { gql } = require('graphql-tag')
 const { flattenDeep, fromPairs, toPairs, get, set, isFunction, isEmpty, template } = require('lodash')
-const fetch = require('node-fetch')
+const fetch = require('cross-fetch')
 const { CookieJar, Cookie } = require('tough-cookie')
 
 
@@ -348,7 +348,6 @@ const makeApolloClient = (serverUrl, opts = {}) => {
             }
 
             if (TESTS_TLS_IGNORE_UNAUTHORIZED) options.agent = httpsAgentWithUnauthorizedTls
-
             return fetch(uri, options)
                 .then((response) => {
                     const setCookieHeader = response.headers.raw()['set-cookie']
@@ -470,6 +469,7 @@ const makeLoggedInClient = async (credentials, serverUrl) => {
 }
 
 const makeLoggedInAdminClient = async () => {
+    console.log(DEFAULT_TEST_ADMIN_IDENTITY, DEFAULT_TEST_ADMIN_SECRET)
     return await makeLoggedInClient({ email: DEFAULT_TEST_ADMIN_IDENTITY, password: DEFAULT_TEST_ADMIN_SECRET })
 }
 
