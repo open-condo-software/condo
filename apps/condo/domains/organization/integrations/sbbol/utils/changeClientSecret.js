@@ -17,13 +17,13 @@ const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_F
 const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
 
-async function changeClientSecret ({ clientId, currentClientSecret, newClientSecret }) {
+async function changeClientSecret ({ clientId, currentClientSecret, newClientSecret, useExtendedConfig = false }) {
     if (!clientId) throw new Error('changeClientSecret: no clientId')
     if (!newClientSecret) throw new Error('changeClientSecret: no newClientSecret')
 
-    const sbbolSecretStorage = getSbbolSecretStorage()
+    const sbbolSecretStorage = getSbbolSecretStorage(useExtendedConfig)
 
-    const { keystone: context } = await getSchemaCtx('User')
+    const { keystone: context } = getSchemaCtx('User')
 
     const serviceUserId = get(SBBOL_AUTH_CONFIG, 'serviceUserId')
     if (!serviceUserId) throw new Error('changeClientSecret: no SBBOL_AUTH_CONFIG.serviceUserId')
