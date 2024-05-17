@@ -35,9 +35,6 @@ class BillingTestUtils {
         }
     }
 
-    async initMixins() {
-        await Promise.all(this.mixins.map(async mixIn => mixIn.initMixin.call(this)))
-    }
 
     async init () {
         this.clients = {
@@ -63,6 +60,9 @@ class BillingTestUtils {
         this.organization = organization
         this.billingIntegration = billingIntegration
         this.billingContext = billingContext
+        for (const mixin of this.mixins) {
+            await mixin.initMixin.call(this)
+        }
     }
 
     randomNumber (numDigits) {

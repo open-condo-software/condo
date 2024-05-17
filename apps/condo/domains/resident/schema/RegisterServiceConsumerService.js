@@ -279,4 +279,5 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
 
 module.exports = {
     RegisterServiceConsumerService,
+    ERRORS,
 }

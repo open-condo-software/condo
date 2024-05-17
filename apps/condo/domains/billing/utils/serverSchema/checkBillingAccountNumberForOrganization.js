@@ -55,8 +55,6 @@ const checkBillingAccountNumberForOrganization = async (organizationId, accountN
     if (!acquiringContext || !billingContext) {
         return result
     }
-    result.contexts.billing = billingContext
-    result.contexts.acquiring = acquiringContext
     const [billingAccount] = await BillingAccount.getAll(keystone, {
         number_i: accountNumber,
         context: { id: billingContext.id },
