@@ -469,7 +469,6 @@ const makeLoggedInClient = async (credentials, serverUrl) => {
 }
 
 const makeLoggedInAdminClient = async () => {
-    console.log(DEFAULT_TEST_ADMIN_IDENTITY, DEFAULT_TEST_ADMIN_SECRET)
     return await makeLoggedInClient({ email: DEFAULT_TEST_ADMIN_IDENTITY, password: DEFAULT_TEST_ADMIN_SECRET })
 }
 
