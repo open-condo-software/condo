@@ -135,13 +135,13 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
 
     const [filtersAreReset, setFiltersAreReset] = useState(false)
     const dateFallback = filtersAreReset ? null : DEFAULT_DATE_RANGE
-    const [dateRange, setDateRange] = useDateRangeSearch('transferDate')
+    const [dateRange, setDateRange] = useDateRangeSearch('depositedDate')
     const dateFilterValue = dateRange || dateFallback
     const dateFilter = dateFilterValue ? dateFilterValue.map(el => el.toISOString()) : null
 
 
     const searchPaymentsQuery: Record<string, unknown> = {
-        ...filtersToWhere({ transferDate: dateFilter, ...filters }),
+        ...filtersToWhere({ depositedDate: dateFilter, ...filters }),
         organization: { id: organizationId },
         status_in: [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS],
         invoice_is_null: true,
