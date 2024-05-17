@@ -49,7 +49,14 @@ const useUploadConfig = (onUpload: TOnMetersUpload) => {
                     const wsName = wb.SheetNames[0]
                     const sheetData = XLSX.utils.sheet_to_json<string[]>(wb.Sheets[wsName], { header: 1 })
                         .filter((x) => x.length) // filter out empty rows
-                        .map((row) => row.map((cell) => isNil(cell) ? '' : String(cell))) // Stringify all values
+
+                    // Normalize row length
+                    const rowLength = Math.max.apply(null, sheetData.map((x) => x.length))
+                    for (let i = 0; i < sheetData.length; i++) {
+                        for (let j = 0; j < rowLength; j++) {
+                            sheetData[i][j] = (isNil(sheetData[i][j]) || sheetData[i][j] === '') ? null : String(sheetData[i][j])
+                        }
+                    }
 
                     onUpload(ImportDataType.doma, sheetData)
                 }
