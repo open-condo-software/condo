@@ -14,7 +14,7 @@ const falsey = require('falsey')
 const FormData = require('form-data')
 const { gql } = require('graphql-tag')
 const { flattenDeep, fromPairs, toPairs, get, set, isFunction, isEmpty, template } = require('lodash')
-const fetch = require('cross-fetch')
+const fetch = require('node-fetch')
 const { CookieJar, Cookie } = require('tough-cookie')
 
 
