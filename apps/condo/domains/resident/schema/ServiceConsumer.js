@@ -20,7 +20,7 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
     schemaDoc: 'Service Consumer object. Existence of this object means that the resident is willing to pay for certain services',
     fields: {
         paymentCategory: {
-            schemaDoc: 'A payment category for this resident',
+            schemaDoc: '[DEPRECATED] A payment category for this resident',
             type: 'Text',
             isRequired: false,
         },
@@ -60,7 +60,7 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
         },
 
         acquiringIntegrationContext: {
-            schemaDoc: 'Acquiring integration context, that this serviceConsumer is connected to',
+            schemaDoc: '[DEPRECATED] Acquiring integration context, that this serviceConsumer is connected to',
             type: 'Relationship',
             ref: 'AcquiringIntegrationContext',
             isRequired: false,
@@ -72,7 +72,7 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
         // The reason for this field is to avoid adding check for resident user into global AcquiringIntegrationContext read access.
         // This field have specific use case for mobile client.
         residentAcquiringIntegrationContext: {
-            schemaDoc: 'AcquiringIntegration, that is returned for current serviceConsumer in mobile client',
+            schemaDoc: '[DEPRECATED] AcquiringIntegration, that is returned for current serviceConsumer in mobile client',
             type: 'Virtual',
             extendGraphQLTypes: ['type ResidentAcquiringIntegrationContext { id: ID!, integration: AcquiringIntegration }'],
             graphQLReturnType: 'ResidentAcquiringIntegrationContext',
@@ -100,6 +100,7 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
         // todo(@toplenboren) DOMA-1701 Make this deprecated and add mobile an ability to move away from these fields
         // The reason for this field is to avoid adding check for resident user into global Organization read access.
         // This field have specific use case for mobile client.
+        // [DEPRECATED]
         residentOrganization: {
             ...RESIDENT_ORGANIZATION_FIELD,
             schemaDoc: 'Organization data, that is returned for current resident in mobile client',
