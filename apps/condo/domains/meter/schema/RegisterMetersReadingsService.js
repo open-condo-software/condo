@@ -332,37 +332,36 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                     }
 
                     const foundMeter = foundMeters[0]
-                    let values
+
+                    const errorValues = {}
+                    const values = ['value1', 'value2', 'value3', 'value4'].reduce((result, currentValue) => {
+                        const value = reading[currentValue]
+                        const normalizedValue = normalizeMeterValue(value)
+
+                        if (!validateMeterValue(normalizedValue)) {
+                            set(errorValues, currentValue, value)
+                            return result
+                        }
+
+                        return {
+                            ...result,
+                            [currentValue]: normalizedValue,
+                        }
+                    }, {})
+
+                    if (Object.keys(errorValues).length > 0) {
+                        const errorValuesKeys = Object.keys(errorValues)
+                        resultRows.push(new GQLError(
+                            ERRORS.INVALID_METER_VALUES(errorValuesKeys.map((errKey) => `"${i18n(`meter.import.column.${errKey}`, { locale })}"="${errorValues[errKey]}"`)),
+                            context,
+                        ))
+                        continue
+                    }
 
                     if (foundMeter) {
                         meterId = foundMeter.id
                     } else {
                         try {
-                            const errorValues = {}
-                            values = ['value1', 'value2', 'value3', 'value4'].reduce((result, currentValue) => {
-                                const value = reading[currentValue]
-                                const normalizedValue = normalizeMeterValue(value)
-
-                                if (!validateMeterValue(normalizedValue)) {
-                                    set(errorValues, currentValue, value)
-                                    return result
-                                }
-
-                                return {
-                                    ...result,
-                                    [currentValue]: normalizedValue,
-                                }
-                            }, {})
-
-                            if (Object.keys(errorValues).length > 0) {
-                                const errorValuesKeys = Object.keys(errorValues)
-                                resultRows.push(new GQLError(
-                                    ERRORS.INVALID_METER_VALUES(errorValuesKeys.map((errKey) => `"${i18n(`meter.import.column.${errKey}`, { locale })}"="${errorValues[errKey]}"`)),
-                                    context,
-                                ))
-                                continue
-                            }
-
                             const rawControlReadingsDate = get(reading, ['meterMeta', 'controlReadingsDate'])
 
                             const createdMeter = await Meter.create(context, {
