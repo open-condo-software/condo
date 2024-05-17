@@ -86,12 +86,12 @@ class SbbolRoutes {
             const redirectUrl = get(req.session[SBBOL_SESSION_KEY], 'redirectUrl')
             const features = get(req.session[SBBOL_SESSION_KEY], 'features', [])
 
-            const { keystone } = await getSchemaCtx('User')
+            const { keystone } = getSchemaCtx('User')
             const {
                 user,
                 organization,
                 organizationEmployee,
-            } = await sync({ keystone, userInfo, tokenSet, reqId, features })
+            } = await sync({ keystone, userInfo, tokenSet, reqId, features, useExtendedConfig })
             await keystone._sessionManager.startAuthedSession(req, { item: { id: user.id }, list: keystone.lists['User'] })
 
             if (organizationEmployee) {

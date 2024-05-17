@@ -68,9 +68,10 @@ const SYNC_BANK_ACCOUNTS_FROM_SBBOL = 'sync-bank-accounts-from-sbbol'
  * @param {TokenSet} tokenSet
  * @param {string} reqId
  * @param {Array<string>} features list of features to sync
+ * @param {boolean?} useExtendedConfig
  * @return {Promise<void>}
  */
-const sync = async ({ keystone, userInfo, tokenSet, features  }) => {
+const sync = async ({ keystone, userInfo, tokenSet, features, useExtendedConfig = false  }) => {
     const adminContext = await keystone.createContext({ skipAccessControl: true })
     const context = {
         keystone,
@@ -107,9 +108,9 @@ const sync = async ({ keystone, userInfo, tokenSet, features  }) => {
 
     const user = await syncUser({ context, userInfo: userData, identityId: userInfo.userGuid })
     const { organization, employee } = await syncOrganization({ context, user, userData, organizationInfo, dvSenderFields })
-    const sbbolSecretStorage = getSbbolSecretStorage()
+    const sbbolSecretStorage = getSbbolSecretStorage(useExtendedConfig)
     await sbbolSecretStorage.setOrganization(organization.id)
-    await syncTokens(tokenSet, user.id)
+    await syncTokens(tokenSet, user.id, useExtendedConfig)
     await syncServiceSubscriptions(userInfo.inn)
     await syncFeatures({ context, organization, features })
 
