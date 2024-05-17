@@ -3,6 +3,7 @@ const {
     createTestAcquiringIntegrationAccessRight,
     createTestAcquiringIntegrationContext,
     updateTestAcquiringIntegrationContext,
+    updateTestAcquiringIntegration,
 } = require('./index')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
@@ -18,6 +19,9 @@ const AcquiringTestMixin = {
     async updateAcquiringContext (updateInput) {
         await updateTestAcquiringIntegrationContext(this.clients.admin, this.acquiringContext.id, updateInput)
     },
+    async updateTestAcquiringIntegration (updateInput) {
+        await updateTestAcquiringIntegration(this.clients.admin, this.acquiringIntegration.id, updateInput)
+    }
 }
 
 module.exports = {
