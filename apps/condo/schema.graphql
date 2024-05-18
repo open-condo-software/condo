@@ -43797,7 +43797,7 @@ type ServiceConsumer {
   """
   _label_: String
 
-  """ A payment category for this resident """
+  """ [DEPRECATED] A payment category for this resident """
   paymentCategory: String
 
   """ Resident object """
@@ -43811,11 +43811,11 @@ type ServiceConsumer {
   """
   billingIntegrationContext: BillingIntegrationOrganizationContext
 
-  """ Acquiring integration context, that this serviceConsumer is connected to 
+  """ [DEPRECATED] Acquiring integration context, that this serviceConsumer is connected to 
   """
   acquiringIntegrationContext: AcquiringIntegrationContext
 
-  """ AcquiringIntegration, that is returned for current serviceConsumer in mobile client 
+  """ [DEPRECATED] AcquiringIntegration, that is returned for current serviceConsumer in mobile client 
   """
   residentAcquiringIntegrationContext: ResidentAcquiringIntegrationContext
 
@@ -85835,9 +85835,9 @@ type Mutation {
   registerResidentServiceConsumers(data: RegisterResidentServiceConsumersInput!): [ServiceConsumer!]
 
   """
-  [DEPRECATED] Creates service consumer with default data, and automatically populates the optional data fields, such as `billingAccount
+  Creates service consumer with default data, and automatically populates the optional data fields, such as `billingContext
   
-  To be successfully created accountNumber and unitName should at least have billingAccount with same data or Meter with same data
+  To be successfully created accountNumber should at least have billingAccount with same number or Meter with same accountNumber
   
   **Errors**
   

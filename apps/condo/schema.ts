@@ -41670,9 +41670,9 @@ export type Mutation = {
    */
   registerResidentServiceConsumers?: Maybe<Array<ServiceConsumer>>;
   /**
-   * [DEPRECATED] Creates service consumer with default data, and automatically populates the optional data fields, such as `billingAccount
+   * Creates service consumer with default data, and automatically populates the optional data fields, such as `billingContext
    *
-   * To be successfully created accountNumber and unitName should at least have billingAccount with same data or Meter with same data
+   * To be successfully created accountNumber should at least have billingAccount with same number or Meter with same accountNumber
    *
    * **Errors**
    *
@@ -72414,7 +72414,7 @@ export type ServiceConsumer = {
    *  4. As an alias to the 'id' field on the ServiceConsumer List.
    */
   _label_?: Maybe<Scalars['String']>;
-  /**  A payment category for this resident  */
+  /**  [DEPRECATED] A payment category for this resident  */
   paymentCategory?: Maybe<Scalars['String']>;
   /**  Resident object  */
   resident?: Maybe<Resident>;
@@ -72422,9 +72422,9 @@ export type ServiceConsumer = {
   residentBillingAccount?: Maybe<ResidentBillingAccount>;
   /**  [DEPRECATED] Billing integration context, that this serviceConsumer is connected to  */
   billingIntegrationContext?: Maybe<BillingIntegrationOrganizationContext>;
-  /**  Acquiring integration context, that this serviceConsumer is connected to  */
+  /**  [DEPRECATED] Acquiring integration context, that this serviceConsumer is connected to  */
   acquiringIntegrationContext?: Maybe<AcquiringIntegrationContext>;
-  /**  AcquiringIntegration, that is returned for current serviceConsumer in mobile client  */
+  /**  [DEPRECATED] AcquiringIntegration, that is returned for current serviceConsumer in mobile client  */
   residentAcquiringIntegrationContext?: Maybe<ResidentAcquiringIntegrationContext>;
   /**  Account number taken from resident. This is what resident think his account number is  */
   accountNumber?: Maybe<Scalars['String']>;
