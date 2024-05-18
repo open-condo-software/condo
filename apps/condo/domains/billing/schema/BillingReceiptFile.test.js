@@ -32,6 +32,7 @@ const {
 } = require('@condo/domains/property/utils/testSchema')
 const {
     registerResidentByTestClient,
+    createTestServiceConsumer,
     registerServiceConsumerByTestClient,
     ServiceConsumer,
 } = require('@condo/domains/resident/utils/testSchema')
@@ -64,11 +65,7 @@ async function makeClientWithResidentVerificationAndReceiptFile ({
     })
     const [receipt] =  await createTestBillingReceipt(admin, billingContext, billingProperty, billingAccount)
     const [receiptFile, attrs] = await createTestBillingReceiptFile(admin, receipt, billingContext)
-    const [serviceConsumer] = await registerServiceConsumerByTestClient(client, {
-        accountNumber: billingAccount.number,
-        residentId: resident.id,
-        organizationId: organization.id,
-    })
+    const [serviceConsumer] = await createTestServiceConsumer(admin, resident, organization, { accountNumber: billingAccount.number })
     return {
         serviceConsumer,
         residentClient: client,

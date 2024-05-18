@@ -47,6 +47,7 @@ const { WRONG_TEXT_FORMAT, UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/com
 const {
     registerServiceConsumerByTestClient,
     updateTestServiceConsumer,
+    createTestServiceConsumer,
 } = require('@condo/domains/resident/utils/testSchema')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
@@ -455,11 +456,7 @@ describe('BillingReceipt', () => {
                                 unitName: residentWithReceipt.resident.unitName,
                                 unitType: residentWithReceipt.resident.unitType,
                             })
-                            await registerServiceConsumerByTestClient(residentWithReceipt.residentClient, {
-                                residentId: residentWithReceipt.resident.id,
-                                accountNumber: secondAccount.number,
-                                organizationId: residentWithReceipt.organization.id,
-                            })
+                            await createTestServiceConsumer(admin, residentWithReceipt.resident, residentWithReceipt.organization, { accountNumber: secondAccount.number })
                             const [anotherUnitReceipt] = await createTestBillingReceipt(admin, residentWithReceipt.context, residentWithReceipt.billingProperty, secondAccount)
                             await setPrimaryFile(anotherUnitReceipt, residentWithReceipt.context)
                             // Add third receipt in another property
