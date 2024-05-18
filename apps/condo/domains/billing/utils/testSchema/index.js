@@ -44,7 +44,7 @@ const { createTestProperty } = require('@condo/domains/property/utils/testSchema
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 const { registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
-const { registerServiceConsumerByTestClient } = require('@condo/domains/resident/utils/testSchema')
+const { createTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithResidentUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -805,11 +805,8 @@ async function makeResidentClientWithOwnReceipt (existingResidentClient) {
     })
     const accountNumber = billingAccount.number
 
-    const [serviceConsumer] = await registerServiceConsumerByTestClient(residentClient, {
-        residentId: resident.id,
-        accountNumber,
-        organizationId: organization.id,
-    })
+    const [serviceConsumer] = await createTestServiceConsumer(adminClient, resident, organization, { accountNumber })
+
 
     const [receipt] = await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount)
 
@@ -890,11 +887,10 @@ async function makeClientWithResidentAndServiceConsumer (property, billingAccoun
         unitName: billingAccount.unitName,
     })
     residentUser.resident = resident
-    const [serviceConsumer] = await registerServiceConsumerByTestClient(residentUser, {
-        residentId: resident.id,
-        accountNumber: billingAccount.number,
-        organizationId: organization.id,
-    })
+    const adminClient = await makeLoggedInAdminClient()
+
+    const [serviceConsumer] = await createTestServiceConsumer(adminClient, resident, organization, { accountNumber: billingAccount.number })
+
     residentUser.serviceConsumer = serviceConsumer
     return residentUser
 }
