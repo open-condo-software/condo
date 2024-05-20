@@ -21591,6 +21591,7 @@ export type CreatePaymentByLinkOutput = {
   amount: Scalars['String'];
   explicitFee: Scalars['String'];
   totalAmount: Scalars['String'];
+  integrationHostUrl: Scalars['String'];
   address: Scalars['String'];
   addressMeta: AddressMetaField;
   unitType: Scalars['String'];

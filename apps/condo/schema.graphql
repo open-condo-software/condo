@@ -74111,6 +74111,7 @@ type CreatePaymentByLinkOutput {
   amount: String!
   explicitFee: String!
   totalAmount: String!
+  integrationHostUrl: String!
   address: String!
   addressMeta: AddressMetaField!
   unitType: String!
