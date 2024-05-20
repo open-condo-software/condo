@@ -403,14 +403,13 @@ export const AcquiringReceipt: React.FC<IAcquiringReceiptProps> = (props) => {
     const intl = useIntl()
 
     let statusMessage = intl.formatMessage({ id: 'MultiPayment.status.DONE' })
-    if (status === MULTIPAYMENT_PROCESSING_STATUS || status === MULTIPAYMENT_WITHDRAWN_STATUS) {
-        // NOTE: LOGICAL "WITHDRAWN" = UI "PROCESSING"
+    if (status === MULTIPAYMENT_PROCESSING_STATUS) {
         statusMessage = intl.formatMessage({ id: 'MultiPayment.status.PROCESSING' })
     } else if (status === MULTIPAYMENT_ERROR_STATUS) {
         statusMessage = intl.formatMessage({ id: 'MultiPayment.status.ERROR' })
     }
     let statusColor = STATUS_SUCCESS_COLOR
-    if (status === MULTIPAYMENT_PROCESSING_STATUS || status === MULTIPAYMENT_WITHDRAWN_STATUS) {
+    if (status === MULTIPAYMENT_PROCESSING_STATUS) {
         statusColor = STATUS_PROCESSING_COLOR
     } else if (status === MULTIPAYMENT_ERROR_STATUS) {
         statusColor = STATUS_ERROR_COLOR
