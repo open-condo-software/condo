@@ -102,7 +102,7 @@ const MetersPage: IMeterIndexPage = () => {
     const employeeId = get(link, 'id')
     const router = useRouter()
     const { breakpoints } = useLayoutContext()
-    const [readingsType, setReadingsType] = useState<MeterReadingsTypes>(METER_READINGS_TYPES.accountMeterReadings)
+    const [chosenReadingsType, setChosenReadingsType] = useState<MeterReadingsTypes>(METER_READINGS_TYPES.accountMeterReadings)
 
     const { useFlag } = useFeatureFlags()
     const isMeterReportingPeriodEnabled = useFlag(METER_REPORTING_PERIOD_FRONTEND_FEATURE_FLAG)
@@ -137,13 +137,18 @@ const MetersPage: IMeterIndexPage = () => {
     }, [activeTab, changeRouteToActiveTab, tab])
 
     useEffect(() => {
-        if (readingsType === METER_READINGS_TYPES.propertyMeterReadings && activeTab === METER_TAB_TYPES.reportingPeriod) {
+        if (chosenReadingsType === METER_READINGS_TYPES.propertyMeterReadings && activeTab === METER_TAB_TYPES.reportingPeriod) {
             changeRouteToActiveTab(METER_TAB_TYPES.meterReading, 'replace')
         }
-    }, [activeTab, changeRouteToActiveTab, readingsType])
+    }, [activeTab, changeRouteToActiveTab, chosenReadingsType])
 
     const filtersMeta = useFilters(tabAsMeterPageType)
-    const tableColumns = useTableColumns(filtersMeta, tabAsMeterPageType, readingsType)
+    console.log('filtersMeta: ', filtersMeta)
+    const tableColumns = useTableColumns(filtersMeta, tabAsMeterPageType, chosenReadingsType)
+    const baseMetersQuery = useMemo(() => ({
+        deletedAt: null,
+        organization: { id: userOrganizationId },
+    }), [userOrganizationId])
     const baseMeterReadingsQuery = useMemo(() => ({
         meter: { deletedAt: null },
         deletedAt: null,
@@ -162,7 +167,7 @@ const MetersPage: IMeterIndexPage = () => {
             label: MeterReadingMessage,
             key: METER_TAB_TYPES.meterReading,
             children: (
-                readingsType === METER_READINGS_TYPES.accountMeterReadings ?
+                chosenReadingsType === METER_READINGS_TYPES.accountMeterReadings ?
                     <MeterReadingsPageContent
                         filtersMeta={filtersMeta}
                         tableColumns={tableColumns}
@@ -183,24 +188,24 @@ const MetersPage: IMeterIndexPage = () => {
             label: MeterMessage,
             key: METER_TAB_TYPES.meter,
             children: (
-                readingsType === METER_READINGS_TYPES.accountMeterReadings ?
+                chosenReadingsType === METER_READINGS_TYPES.accountMeterReadings ?
                     <MetersPageContent
                         filtersMeta={filtersMeta}
                         tableColumns={tableColumns}
                         loading={isLoading}
                         canManageMeterReadings={canManageMeterReadings}
-                        baseSearchQuery={baseMeterReadingsQuery}
+                        baseSearchQuery={baseMetersQuery}
                     /> : 
                     <PropertyMetersPageContent
                         filtersMeta={filtersMeta}
                         tableColumns={tableColumns}
                         canManageMeterReadings={canManageMeterReadings}
                         loading={isLoading}
-                        baseSearchQuery={baseMeterReadingsQuery}
+                        baseSearchQuery={baseMetersQuery}
                     />
             ),
         },
-        isMeterReportingPeriodEnabled && readingsType === METER_READINGS_TYPES.accountMeterReadings && {
+        isMeterReportingPeriodEnabled && chosenReadingsType === METER_READINGS_TYPES.accountMeterReadings && {
             label: ReportingPeriodMessage,
             key: METER_TAB_TYPES.reportingPeriod,
             children: (
@@ -213,7 +218,7 @@ const MetersPage: IMeterIndexPage = () => {
                 />
             ),
         },
-    ].filter(Boolean), [MeterMessage, filtersMeta, tableColumns, isLoading, canManageMeterReadings, baseMeterReadingsQuery, isMeterReportingPeriodEnabled, ReportingPeriodMessage, canManageMeters, userOrganizationId, PropertyMeterMessage])
+    ].filter(Boolean), [MeterReadingMessage, chosenReadingsType, filtersMeta, tableColumns, isLoading, canManageMeterReadings, baseMeterReadingsQuery, MeterMessage, baseMetersQuery, isMeterReportingPeriodEnabled, ReportingPeriodMessage, canManageMeters, userOrganizationId])
 
     return (
         <MultipleFilterContextProvider>
@@ -233,7 +238,7 @@ const MetersPage: IMeterIndexPage = () => {
                             <PageHeader title={<Typography.Title>{PageTitleMessage}</Typography.Title>} style={HEADER_STYLES}/>
                         </Col>
                         <Col>
-                            <MeterTypeSwitch value={readingsType} setValue={setReadingsType}/>
+                            <MeterTypeSwitch value={chosenReadingsType} setValue={setChosenReadingsType} />
                         </Col>
                     </Row>
                     <Tabs
