@@ -108,6 +108,140 @@ async function _getUserOrganizations (user) {
     return newCacheEntry
 }
 
+/**
+ * Checks if user have all specified permissions in organizations
+ * @param {Record<string, boolean>} organizationPermissions
+ * @param {Array<string>} permissionsToCheck
+ * @private
+ */
+function _checkPermissionsInOrganization (organizationPermissions, permissionsToCheck) {
+    return permissionsToCheck.every(permission => organizationPermissions.hasOwnProperty(permission) && organizationPermissions[permission])
+}
+
+/**
+ * Gets the IDs of organizations where user is employed and its employee has all permissions from the list
+ * @param {{ id: string }} user - user object
+ * @param {Array<string> | string} permissions - permissions to check,
+ * can be passed as array of strings for multiple permissions or a single string for a single permission
+ * @returns {Promise<Array<string>>}
+ */
+async function getEmployedOrganizationsByPermissions (user, permissions) {
+    const userOrganizationsInfo = await _getUserOrganizations(user)
+
+    const permissionsToCheck = Array.isArray(permissions) ? permissions : [permissions]
+    const organizationIds = []
+
+    for (const [id, info] of Object.entries(userOrganizationsInfo.organizations)) {
+        if (_checkPermissionsInOrganization(info.permissions, permissionsToCheck)) {
+            organizationIds.push(id)
+        }
+    }
+    return organizationIds
+}
+
+/**
+ * Gets the IDs of those child (related) organizations in whose parent organizations the user is employed and has all permissions from the list.
+ * Most likely you don't need to call this method directly, but use getEmployedOrganizationsByPermissions or getEmployedOrRelatedOrganizationsByPermissions
+ * @param {{ id: string }} user - user object
+ * @param {Array<string> | string} permissions - permissions to check,
+ * can be passed as array of strings for multiple permissions or a single string for a single permission
+ * @returns {Promise<Array<string>>}
+ */
+async function getRelatedOrganizationsByPermissions (user, permissions) {
+    const userOrganizationsInfo = await _getUserOrganizations(user)
+
+    const permissionsToCheck = Array.isArray(permissions) ? permissions : [permissions]
+    const organizationIds = []
+
+    for (const info of Object.values(userOrganizationsInfo.organizations)) {
+        if (_checkPermissionsInOrganization(info.permissions, permissionsToCheck)) {
+            organizationIds.push(...info.childOrganizations)
+        }
+    }
+    return uniq(organizationIds)
+}
+
+/**
+ * Gets the IDs of organizations and its child (related) organizations in whose parent organizations the user is employed and has all permissions from the list.
+ * @param {{ id: string }} user - user object
+ * @param {Array<string> | string} permissions - permissions to check,
+ * can be passed as array of strings for multiple permissions or a single string for a single permission
+ * @returns {Promise<Array<string>>}
+ */
+async function getEmployedOrRelatedOrganizationsByPermissions (user, permissions) {
+    const userOrganizationsInfo = await _getUserOrganizations(user)
+
+    const permissionsToCheck = Array.isArray(permissions) ? permissions : [permissions]
+    const organizationIds = []
+
+    for (const [id, info] of Object.entries(userOrganizationsInfo.organizations)) {
+        if (_checkPermissionsInOrganization(info.permissions, permissionsToCheck)) {
+            organizationIds.push(id, ...info.childOrganizations)
+        }
+    }
+    return uniq(organizationIds)
+}
+
+/**
+ * Checks if user is employed in all listed organizations and has all correct permissions in it.
+ * Both organizations and permissions can be single elements if passed as strings instead of arrays
+ * This utils is faster than filtering organization ids from corresponding get<> function,
+ * so use it when you don't need related organizations
+ * @param {{ id: string }} user - user object
+ * @param {Array<string> | string} organizationIds - organizations to checks (can be passed as array of IDs or a single ID)
+ * @param {Array<string> | string} permissions - permissions to check (can be passed as array or a single string)
+ * @returns {Promise<boolean>}
+ */
+async function checkPermissionsInEmployedOrganizations (user, organizationIds, permissions) {
+    const userOrganizationsInfo = await _getUserOrganizations(user)
+
+    const organizationsToCheck = Array.isArray(organizationIds) ? uniq(organizationIds) : [organizationIds]
+    const permissionsToCheck = Array.isArray(permissions) ? permissions : [permissions]
+
+    return organizationsToCheck.every(orgId =>
+        userOrganizationsInfo.organizations.hasOwnProperty(orgId) &&
+        _checkPermissionsInOrganization(
+            userOrganizationsInfo.organizations[orgId].permissions,
+            permissionsToCheck
+        )
+    )
+}
+
+/**
+ * Checks if user is employed in some parent organization for all listed organizations and has all correct permissions in it.
+ * Both organizations and permissions can be single elements if passed as strings instead of arrays
+ * Most likely you don't need to call this method directly, but use checkPermissionsInEmployedOrganizations or checkPermissionsInEmployedOrRelatedOrganizations
+ * @param {{ id: string }} user - user object
+ * @param {Array<string> | string} organizationIds - organizations to checks (can be passed as array of IDs or a single ID)
+ * @param {Array<string> | string} permissions - permissions to check (can be passed as array or a single string)
+ * @returns {Promise<boolean>}
+ */
+async function checkPermissionsInRelatedOrganizations (user, organizationIds, permissions) {
+    const organizationsToCheck = Array.isArray(organizationIds) ? uniq(organizationIds) : [organizationIds]
+
+    const permittedOrganizationsList = await getRelatedOrganizationsByPermissions(user, permissions)
+    const permittedOrganizationsSet = new Set(permittedOrganizationsList)
+
+    return organizationsToCheck.every(orgId => permittedOrganizationsSet.has(orgId))
+}
+
+/**
+ * Combination of checkPermissionsInEmployedOrganizations and checkPermissionsInRelatedOrganizations
+ * Both organizations and permissions can be single elements if passed as strings instead of arrays
+ * @param {{ id: string }} user - user object
+ * @param {Array<string> | string} organizationIds - organizations to checks (can be passed as array of IDs or a single ID)
+ * @param {Array<string> | string} permissions - permissions to check (can be passed as array or a single string)
+ * @returns {Promise<boolean>}
+ */
+async function checkPermissionsInEmployedOrRelatedOrganizations (user, organizationIds, permissions) {
+    const organizationsToCheck = Array.isArray(organizationIds) ? uniq(organizationIds) : [organizationIds]
+
+    const permittedOrganizationsList = await getEmployedOrRelatedOrganizationsByPermissions(user, permissions)
+    const permittedOrganizationsSet = new Set(permittedOrganizationsList)
+
+    return organizationsToCheck.every(ordId => permittedOrganizationsSet.has(ordId))
+}
+
 
 async function checkOrganizationPermission (userId, organizationId, permission) {
     return checkOrganizationPermissions(userId, organizationId, [permission])
@@ -184,52 +318,6 @@ async function checkPermissionsInUserOrganizationOrRelatedOrganization (userId, 
     const hasPermissionsInUserOrganization = await checkOrganizationPermissions(userId, organizationId, permissions)
     if (hasPermissionsInUserOrganization) return true
     return await checkRelatedOrganizationPermissions(userId, organizationId, permissions)
-}
-
-/**
- * Check that the user has access in each organization
- *
- * @param userId {string} User.id field
- * @param organizationIds {Array<string>} array of objects related organizations
- * @param permission {string} OrganizationEmployeeRole permission key to check for
- * @return {Promise<boolean>}
- */
-async function checkOrganizationsPermission (userId, organizationIds, permission) {
-    if (!userId || !isArray(organizationIds) || isEmpty(organizationIds)) return false
-
-    const uniqOrganizationIds = uniq(organizationIds)
-
-    if (!uniqOrganizationIds.every(isUUID)) return false
-
-    for (const id of organizationIds) {
-        const hasAccess = await checkOrganizationPermission(userId, id, permission)
-        if (!hasAccess) return false
-    }
-
-    return true
-}
-
-/**
- * Check that the user has access in each related organization
- *
- * @param userId {string} User.id field
- * @param organizationIds {Array<string>} array of objects related organizations
- * @param permission {string} OrganizationEmployeeRole permission key to check for
- * @return {Promise<boolean>}
- */
-async function checkRelatedOrganizationsPermission (userId, organizationIds, permission) {
-    if (!userId || !isArray(organizationIds) || isEmpty(organizationIds)) return false
-
-    const uniqOrganizationIds = uniq(organizationIds)
-
-    if (!uniqOrganizationIds.every(isUUID)) return false
-
-    for (const id of organizationIds) {
-        const hasAccess = await checkRelatedOrganizationPermission(userId, id, permission)
-        if (!hasAccess) return false
-    }
-
-    return true
 }
 
 /**
@@ -327,6 +415,14 @@ const checkUserPermissionsInOrganizations = async ({ userId, organizationIds, pe
 }
 
 module.exports = {
+    // New utils
+    getEmployedOrganizationsByPermissions,
+    getRelatedOrganizationsByPermissions,
+    getEmployedOrRelatedOrganizationsByPermissions,
+    checkPermissionsInEmployedOrganizations,
+    checkPermissionsInRelatedOrganizations,
+    checkPermissionsInEmployedOrRelatedOrganizations,
+    // Old utils
     checkUserPermissionsInOrganizations,
     checkPermissionInUserOrganizationOrRelatedOrganization,
     checkPermissionsInUserOrganizationOrRelatedOrganization,
@@ -336,7 +432,5 @@ module.exports = {
     checkRelatedOrganizationPermission,
     queryOrganizationEmployeeFromRelatedOrganizationFor,
     queryOrganizationEmployeeFor,
-    checkOrganizationsPermission,
-    checkRelatedOrganizationsPermission,
     checkPermissionsInUserOrganizationsOrRelatedOrganizations,
 }
