@@ -10984,7 +10984,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@keystonejs/app-admin-ui@npm:^7.5.0, @keystonejs/app-admin-ui@npm:^7.5.2":
+"@keystonejs/app-admin-ui@npm:7.5.2":
   version: 7.5.2
   resolution: "@keystonejs/app-admin-ui@npm:7.5.2"
   dependencies:
@@ -11061,6 +11061,86 @@ __metadata:
     webpack-dev-middleware: ^3.7.3
     webpack-hot-middleware: ^2.25.0
   checksum: df27784c0789607c4e419e2bfa0d9daa161f7249ac62f14b0062319fc5ab336702cadec454234507ebace07c6bb89a49576cd65e53bd03f2274150255af1af2d
+  languageName: node
+  linkType: hard
+
+"@keystonejs/app-admin-ui@patch:@keystonejs/app-admin-ui@npm:7.5.2#.yarn/patches/@keystonejs-app-admin-ui-npm-7.5.2-ada8bd01c3.patch::locator=root%40workspace%3A.":
+  version: 7.5.2
+  resolution: "@keystonejs/app-admin-ui@patch:@keystonejs/app-admin-ui@npm%3A7.5.2#.yarn/patches/@keystonejs-app-admin-ui-npm-7.5.2-ada8bd01c3.patch::version=7.5.2&hash=46db0f&locator=root%40workspace%3A."
+  dependencies:
+    "@apollo/client": ^3.3.19
+    "@arch-ui/alert": ^0.0.21
+    "@arch-ui/badge": ^0.0.20
+    "@arch-ui/button": ^0.0.25
+    "@arch-ui/card": ^0.0.18
+    "@arch-ui/color-utils": ^0.0.5
+    "@arch-ui/common": ^0.0.15
+    "@arch-ui/confirm": ^0.0.26
+    "@arch-ui/controls": ^0.1.12
+    "@arch-ui/dialog": ^0.0.28
+    "@arch-ui/drawer": ^0.0.28
+    "@arch-ui/dropdown": ^0.0.25
+    "@arch-ui/fields": ^3.0.8
+    "@arch-ui/hooks": ^0.0.14
+    "@arch-ui/input": ^0.1.14
+    "@arch-ui/layout": ^0.2.17
+    "@arch-ui/loading": ^0.0.21
+    "@arch-ui/lozenge": ^0.0.20
+    "@arch-ui/navbar": ^0.1.15
+    "@arch-ui/options": ^0.0.27
+    "@arch-ui/pagination": ^0.0.29
+    "@arch-ui/pill": ^0.1.21
+    "@arch-ui/popout": ^0.0.26
+    "@arch-ui/select": ^0.1.12
+    "@arch-ui/theme": ^0.0.14
+    "@arch-ui/tooltip": ^0.1.17
+    "@arch-ui/typography": ^0.0.21
+    "@babel/core": ^7.14.3
+    "@babel/runtime": ^7.14.0
+    "@emotion/core": ^10.1.1
+    "@keystonejs/field-views-loader": ^6.1.2
+    "@keystonejs/fields": ^22.1.3
+    "@keystonejs/session": ^8.3.2
+    "@keystonejs/utils": ^6.1.2
+    "@primer/octicons-react": ^11.3.0
+    "@types/react": ^17.0.6
+    apollo-upload-client: ^14.1.3
+    apply-ref: ^1.0.0
+    babel-loader: ^8.2.2
+    babel-plugin-emotion: ^10.2.2
+    babel-preset-react-app: ^10.0.0
+    clipboard-copy: ^4.0.1
+    compression: ^1.7.4
+    cross-fetch: ^3.1.4
+    css-loader: ^5.2.6
+    express: ^4.17.1
+    express-history-api-fallback: ^2.2.1
+    falsey: ^1.0.0
+    file-loader: ^6.2.0
+    graphql: ^15.5.0
+    html-webpack-plugin: ^4.5.2
+    lodash.debounce: ^4.0.8
+    lodash.set: ^4.3.2
+    lodash.throttle: ^4.1.1
+    memoize-one: ^5.2.1
+    prop-types: ^15.7.2
+    raf-schd: ^4.0.3
+    react: ^17.0.2
+    react-dom: ^17.0.2
+    react-prop-toggle: ^1.0.2
+    react-pseudo-state: ^2.2.2
+    react-router-dom: 5.2.0
+    react-select: ^3.2.0
+    react-toast-notifications: ^2.4.4
+    react-transition-group: ^4.4.1
+    react-uid: ^2.3.1
+    resize-observer-polyfill: ^1.5.1
+    style-loader: ^1.3.0
+    use-resize-observer: ^6.1.0
+    webpack: 4.46.0
+    webpack-dev-middleware: ^3.7.3
+    webpack-hot-middleware: ^2.25.0
+  checksum: f5b5a33ec85b5af6c1e9162d3a458820adc8849b9c4458657c1da235c202f0cc54a4ac1a91dc8afdd84712d7765020500ec24d0a02280b2433044416324106f2
   languageName: node
   linkType: hard
 

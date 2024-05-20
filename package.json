@@ -120,6 +120,7 @@
     "luxon@^3.0.1": "3.0.1",
     "decode-uri-component@^0.2.0": "^0.2.1",
     "node-fetch@2.6.0": "^2.6.7",
-    "node-fetch@2.6.1": "^2.6.7"
+    "node-fetch@2.6.1": "^2.6.7",
+    "@keystonejs/app-admin-ui": "patch:@keystonejs/app-admin-ui@npm:7.5.2#.yarn/patches/@keystonejs-app-admin-ui-npm-7.5.2-ada8bd01c3.patch"
   }
 }
