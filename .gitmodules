@@ -52,4 +52,4 @@
 	url = git@github.com:open-condo-software/condo-resident-app.git
 [submodule "apps/meters-billing-integration"]
 	path = apps/meters-billing-integration
-	url = git@github.com:open-condo-software/meters-billing-integration.git
+	url = git@github.com:open-condo-software/condo-meters-billing-integration.git
