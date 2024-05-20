@@ -22,6 +22,8 @@ const METER_FIELDS = `id number numberOfTariffs installationDate commissioningDa
 const METER_FIELDS_ALL = `{ ${METER_FIELDS} ${COMMON_FIELDS} }`
 const Meter = generateGqlQueries('Meter', METER_FIELDS_ALL)
 
+const MeterForOrganization = generateGqlQueries('Meter', `{ ${METER_FIELDS} }`)
+
 const METER_READING_FIELDS = `{ value1 value2 value3 value4 date meter ${METER_FIELDS_ALL} organization { id name } client { id } clientName clientEmail clientPhone contact { id name } source { id name type } ${COMMON_FIELDS} }`
 const MeterReading = generateGqlQueries('MeterReading', METER_READING_FIELDS)
 
@@ -87,6 +89,7 @@ module.exports = {
     MeterResource,
     MeterReadingSource,
     Meter,
+    MeterForOrganization,
     MeterReading,
     MeterReadingForOrganization,
     EXPORT_METER_READINGS_QUERY,

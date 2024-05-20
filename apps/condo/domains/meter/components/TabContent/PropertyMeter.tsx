@@ -1,11 +1,9 @@
 import {
     MeterReadingWhereInput,
-    SortPropertyMeterReadingsBy,
+    SortPropertyMetersBy,
 } from '@app/condo/schema'
 import { Col, Row, RowProps } from 'antd'
 import { ColumnsType } from 'antd/lib/table'
-import get from 'lodash/get'
-import uniqBy from 'lodash/uniqBy'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useMemo } from 'react'
 
@@ -31,7 +29,7 @@ import { MetersImportWrapper } from '@condo/domains/meter/components/Import/Inde
 import { EXPORT_METER_READINGS_QUERY } from '@condo/domains/meter/gql'
 import { useUpdateMeterModal } from '@condo/domains/meter/hooks/useUpdateMeterModal'
 import {
-    PropertyMeterReading,
+    PropertyMeter,
     METER_TAB_TYPES,
     MeterReadingFilterTemplate,
 } from '@condo/domains/meter/utils/clientSchema'
@@ -73,7 +71,7 @@ const PropertyMetersTableContent: React.FC<MetersTableContentProps> = ({
 
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filtersMeta, sortableProperties || SORTABLE_PROPERTIES)
 
-    const sortBy = useMemo(() => sortersToSortBy(sorters) as SortPropertyMeterReadingsBy[], [sorters, sortersToSortBy])
+    const sortBy = useMemo(() => sortersToSortBy(sorters) as SortPropertyMetersBy[], [sorters, sortersToSortBy])
 
     const searchMeterReadingsQuery = useMemo(() => ({
         ...filtersToWhere(filters),
@@ -81,11 +79,11 @@ const PropertyMetersTableContent: React.FC<MetersTableContentProps> = ({
     }), [baseSearchQuery, filters, filtersToWhere])
 
     const {
-        loading: meterReadingsLoading,
+        loading: propertyMetersLoading,
         count: total,
-        objs: meterReadings,
+        objs: propertyMeters,
         refetch,
-    } = PropertyMeterReading.useObjects({
+    } = PropertyMeter.useObjects({
         sortBy,
         where: searchMeterReadingsQuery,
         first: DEFAULT_PAGE_SIZE,
@@ -103,16 +101,11 @@ const PropertyMetersTableContent: React.FC<MetersTableContentProps> = ({
         extraQueryParameters: { tab },
     })
 
-    const processedMeterReadings = useMemo(() => {
-        const filteredMeterReading = meterReadings.map(a => a).sort((a, b) => (a.date < b.date ? 1 : -1))
-        return uniqBy(filteredMeterReading, (reading => get(reading, 'meter.id')))
-    }, [meterReadings])
 
     const handleRowAction = useCallback((record) => {
         return {
             onClick: () => {
-                const meter = get(record, 'meter')
-                setSelectedMeter(meter)
+                setSelectedMeter(record)
             },
         }
     }, [setSelectedMeter])
@@ -162,8 +155,8 @@ const PropertyMetersTableContent: React.FC<MetersTableContentProps> = ({
                 <Col span={24}>
                     <Table
                         totalRows={total}
-                        loading={meterReadingsLoading || loading}
-                        dataSource={processedMeterReadings}
+                        loading={propertyMetersLoading || loading}
+                        dataSource={propertyMeters}
                         columns={tableColumns}
                         onRow={handleRowAction}
                     />
@@ -214,8 +207,8 @@ export const PropertyMetersPageContent: React.FC<MeterReadingsPageContentProps> 
     const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.header' })
     const EmptyListManualBodyDescription = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.manualCreateCard.body.description' })
 
-    const { refetch } = PropertyMeterReading.useCount({}, { skip: true })
-    const { count, loading: countLoading } = PropertyMeterReading.useCount({ where: baseSearchQuery })
+    const { refetch } = PropertyMeter.useCount({}, { skip: true })
+    const { count, loading: countLoading } = PropertyMeter.useCount({ where: baseSearchQuery })
 
     const PageContent = useMemo(() => {
         if (countLoading || loading) return <Loader />

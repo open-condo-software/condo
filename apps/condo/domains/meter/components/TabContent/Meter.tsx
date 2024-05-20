@@ -1,12 +1,11 @@
 import {
     MeterReadingWhereInput,
-    SortMeterReadingsBy,
+    SortMetersBy,
 } from '@app/condo/schema'
 import { Col, Row, RowProps } from 'antd'
 import { ColumnsType } from 'antd/lib/table'
 import dayjs, { Dayjs } from 'dayjs'
 import get from 'lodash/get'
-import uniqBy from 'lodash/uniqBy'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
@@ -34,8 +33,8 @@ import { MetersImportWrapper } from '@condo/domains/meter/components/Import/Inde
 import { EXPORT_METER_READINGS_QUERY } from '@condo/domains/meter/gql'
 import { useUpdateMeterModal } from '@condo/domains/meter/hooks/useUpdateMeterModal'
 import {
-    MeterReadingForOrganization,
     MeterReadingFilterTemplate,
+    MeterForOrganization,
     METER_TAB_TYPES,
 } from '@condo/domains/meter/utils/clientSchema'
 
@@ -46,7 +45,7 @@ const FILTERS_CONTAINER_GUTTER: RowProps['gutter'] = [16, 16]
 const QUICK_FILTERS_COL_STYLE: CSSProperties = { alignSelf: 'center' }
 const RESET_FILTERS_BUTTON_STYLE: CSSProperties = { paddingLeft: 0 }
 
-const SORTABLE_PROPERTIES = ['date', 'clientName', 'source']
+const SORTABLE_PROPERTIES = ['verificationDate', 'source']
 const DEFAULT_DATE_RANGE: [Dayjs, Dayjs] = [dayjs().subtract(1, 'week'), dayjs()]
 
 type MetersTableContentProps = {
@@ -82,7 +81,7 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
 
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filtersMeta, sortableProperties || SORTABLE_PROPERTIES)
 
-    const sortBy = useMemo(() => sortersToSortBy(sorters) as SortMeterReadingsBy[], [sorters, sortersToSortBy])
+    const sortBy = useMemo(() => sortersToSortBy(sorters) as SortMetersBy[], [sorters, sortersToSortBy])
 
     const [dateRange, setDateRange] = useDateRangeSearch('verificationDate')
     const [filtersAreReset, setFiltersAreReset] = useState(false)
@@ -108,7 +107,7 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
         count: total,
         objs: meterReadings,
         refetch,
-    } = MeterReadingForOrganization.useObjects({
+    } = MeterForOrganization.useObjects({
         sortBy,
         where: searchMeterReadingsQuery,
         first: DEFAULT_PAGE_SIZE,
@@ -126,10 +125,6 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
         extraQueryParameters: { tab },
     })
 
-    const processedMeterReadings = useMemo(() => {
-        const filteredMeterReading = meterReadings.map(a => a).sort((a, b) => (a.date < b.date ? 1 : -1))
-        return uniqBy(filteredMeterReading, (reading => get(reading, 'meter.id')))
-    }, [meterReadings])
 
     const handleRowAction = useCallback((record) => {
         return {
@@ -219,7 +214,7 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
                     <Table
                         totalRows={total}
                         loading={meterReadingsLoading || loading}
-                        dataSource={processedMeterReadings}
+                        dataSource={meterReadings}
                         columns={tableColumns}
                         onRow={handleRowAction}
                     />
@@ -270,8 +265,8 @@ export const MetersPageContent: React.FC<MeterReadingsPageContentProps> = ({
     const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.header' })
     const EmptyListManualBodyDescription = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.manualCreateCard.body.description' })
 
-    const { refetch } = MeterReadingForOrganization.useCount({}, { skip: true })
-    const { count, loading: countLoading } = MeterReadingForOrganization.useCount({ where: baseSearchQuery })
+    const { refetch } = MeterForOrganization.useCount({}, { skip: true })
+    const { count, loading: countLoading } = MeterForOrganization.useCount({ where: baseSearchQuery })
 
     const PageContent = useMemo(() => {
         if (countLoading || loading) return <Loader />
