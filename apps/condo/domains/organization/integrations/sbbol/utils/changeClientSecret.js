@@ -72,7 +72,9 @@ async function changeClientSecret ({ clientId, currentClientSecret, newClientSec
                 throw new Error('clientSecretExpiration is missing in response, so, It\'s unknown, when new client secret will be expired')
             }
             await sbbolSecretStorage.setClientSecret(newClientSecret, { expiresAt: dayjs().add(clientSecretExpiration, 'days').unix() })
+            return { newClientSecret, clientSecretExpiration }
         }
+        throw new Error(`Something went wrong, SBBOL sent empty data (data: ${JSON.stringify(data)}, statusCode: ${statusCode})`)
     }
 }
 

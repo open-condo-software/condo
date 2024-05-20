@@ -1,3 +1,4 @@
+const dayjs = require('dayjs')
 const passwordGenerator = require('generate-password')
 
 const { createCronTask } = require('@open-condo/keystone/tasks')
@@ -12,7 +13,7 @@ const refreshSbbolClientSecret = createCronTask('refreshSbbolClientSecret', '0 1
     const sbbolSecretStorage = getSbbolSecretStorage()
     const sbbolSecretStorageExtended = getSbbolSecretStorage(true)
 
-    await changeClientSecret({
+    const { newClientSecret, clientSecretExpiration } = await changeClientSecret({
         clientId: sbbolSecretStorage.clientId,
         currentClientSecret: await sbbolSecretStorage.getClientSecret(),
         newClientSecret: passwordGenerator.generate({
@@ -23,6 +24,7 @@ const refreshSbbolClientSecret = createCronTask('refreshSbbolClientSecret', '0 1
     })
 
     if (sbbolSecretStorage.clientId === sbbolSecretStorageExtended.clientId) {
+        await sbbolSecretStorageExtended.setClientSecret(newClientSecret, { expiresAt: dayjs().add(clientSecretExpiration, 'days').unix() })
         return
     }
 
