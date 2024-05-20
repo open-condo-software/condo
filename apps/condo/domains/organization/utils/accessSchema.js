@@ -37,6 +37,37 @@ function _extractRolePermissions (roleRecord) {
 }
 
 /**
+ * Clear cache data for all users employed in organization
+ * @param {string} organizationId - id of target organization
+ * @param {string | undefined} roleId - filter employees by roles
+ * @returns {Promise<void>}
+ */
+async function resetOrganizationEmployeesCache (organizationId, roleId = undefined) {
+    const employeesFilter = {
+        deletedAt: null,
+        organization: { id: organizationId },
+    }
+    if (roleId) {
+        employeesFilter.role = { id: roleId }
+    }
+
+    const employees = await find('OrganizationEmployee', employeesFilter)
+
+    const cacheKeys = employees.map(employee => _getUserOrganizationsCacheKey({ id: employee.user }))
+    await _redisClient.del(cacheKeys)
+}
+
+/**
+ * Clear cache data for specified user
+ * @param {string} userId
+ * @returns {Promise<void>}
+ */
+async function resetUserEmployeesCache (userId) {
+    const cacheKey = _getUserOrganizationsCacheKey({ id: userId })
+    await _redisClient.del(cacheKey)
+}
+
+/**
  * Information about single organization, in which user is employed, and its child organizations
  * @typedef {Object} UserOgranizationInfo
  * @property {Record<string, boolean>} permissions - user permissions in organization
@@ -416,6 +447,8 @@ const checkUserPermissionsInOrganizations = async ({ userId, organizationIds, pe
 
 module.exports = {
     // New utils
+    resetUserEmployeesCache,
+    resetOrganizationEmployeesCache,
     getEmployedOrganizationsByPermissions,
     getRelatedOrganizationsByPermissions,
     getEmployedOrRelatedOrganizationsByPermissions,

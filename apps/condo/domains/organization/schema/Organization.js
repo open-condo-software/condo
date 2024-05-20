@@ -20,6 +20,7 @@ const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const access = require('@condo/domains/organization/access/Organization')
 const { ORGANIZATION_TYPES, MANAGING_COMPANY_TYPE, HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { ORGANIZATION_FEATURES_FIELD } = require('@condo/domains/organization/schema/fields/features')
+const { resetOrganizationEmployeesCache } = require('@condo/domains/organization/utils/accessSchema')
 const { isValidTin } = require('@condo/domains/organization/utils/tin.utils')
 const { COUNTRY_RELATED_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
 
@@ -204,6 +205,14 @@ const Organization = new GQLListSchema('Organization', {
                 '\nIf the organization is test or fraudulent, then you need to set value to false.',
             type: Checkbox,
             defaultValue: true,
+        },
+    },
+    hooks: {
+        async afterChange ({ originalInput, existingItem, operation }) {
+            // NOTE: Need to reset cache in soft-delete / restore operations, other fields does not affect employees
+            if (operation === 'update' && originalInput.hasOwnProperty('deletedAt')) {
+                await resetOrganizationEmployeesCache(existingItem.id)
+            }
         },
     },
     kmigratorOptions: {

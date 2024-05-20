@@ -12,6 +12,7 @@ const access = require('@condo/domains/organization/access/OrganizationLink')
 const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { PARENT_NOT_HOLDING } = require('@condo/domains/organization/constants/errors')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
+const { resetOrganizationEmployeesCache } = require('@condo/domains/organization/utils/accessSchema')
 
 const ERRORS = {
     PARENT_NOT_HOLDING: {
@@ -69,6 +70,9 @@ const OrganizationLink = new GQLListSchema('OrganizationLink', {
                     throw new GQLError(ERRORS.PARENT_NOT_HOLDING, context)
                 }
             }
+        },
+        afterChange: async ({ updatedItem }) => {
+            await resetOrganizationEmployeesCache(updatedItem.from)
         },
     },
 })

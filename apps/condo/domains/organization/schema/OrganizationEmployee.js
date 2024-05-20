@@ -19,6 +19,7 @@ const { hasDbFields, hasOneOfFields } = require('@condo/domains/common/utils/val
 const access = require('@condo/domains/organization/access/OrganizationEmployee')
 const { ALREADY_INVITED_EMAIL, ALREADY_INVITED_PHONE } = require('@condo/domains/organization/constants/errors')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
+const { resetUserEmployeesCache } = require('@condo/domains/organization/utils/accessSchema')
 const { softDeletePropertyScopeOrganizationEmployee } = require('@condo/domains/scope/utils/serverSchema')
 
 
@@ -235,6 +236,14 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
         },
         afterChange: async ({ context, operation, existingItem, updatedItem }) => {
             const isSoftDeleteOperation = operation === 'update' && !existingItem.deletedAt && Boolean(updatedItem.deletedAt)
+
+            // NOTE: Creating / updating employee must reset users cache
+            const updatedUserId = updatedItem.user
+            const existingUserId = get(existingItem, 'user')
+            await resetUserEmployeesCache(updatedUserId)
+            if (existingUserId && existingUserId !== updatedUserId) {
+                await resetUserEmployeesCache(existingUserId)
+            }
 
             // TODO(DOMA-4440): we need to make a tool for automatic cascading soft deletion of related objects
             if (isSoftDeleteOperation) {
