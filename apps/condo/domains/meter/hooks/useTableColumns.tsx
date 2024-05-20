@@ -21,7 +21,11 @@ import {
     MeterPageTypes,
     MeterReadingsTypes,
 } from '@condo/domains/meter/utils/clientSchema'
-import { getResourceRender, getUnitRender } from '@condo/domains/meter/utils/clientSchema/Renders'
+import {
+    getResourceRender,
+    getUnitRender,
+    getVerificationDateRender,
+} from '@condo/domains/meter/utils/clientSchema/Renders'
 import { getMeterReportingPeriodRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
 
 
@@ -188,7 +192,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, meterTa
                 key: 'verificationDate',
                 sorter: true,
                 width: '11%',
-                render: getDateRender(intl, search),
+                render: getVerificationDateRender(intl, search),
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'verificationDate'),
             },
             // TODO: add isActive field to Meter model

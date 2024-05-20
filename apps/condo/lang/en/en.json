@@ -1037,6 +1037,7 @@
   "pages.condo.meter.InstallationDate": "Date of installation",
   "pages.condo.meter.CommissioningDate": "Date of commissioning",
   "pages.condo.meter.VerificationDate": "Date of verification",
+  "pages.condo.meter.VerificationDate.Overdue": "Overdue by {days}",
   "pages.condo.meter.NextVerificationDate": "Date of next verification",
   "pages.condo.meter.SealingDate": "Date of sealing",
   "pages.condo.meter.ControlReadingsDate": "Date of control readings",
