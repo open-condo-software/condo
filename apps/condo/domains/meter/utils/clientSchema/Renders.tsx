@@ -31,12 +31,13 @@ export const getUnitRender = (intl, search: FilterValue) => {
     }
 }
 
-export const getResourceRender = (intl, search?: FilterValue | string) => {
-    return function render (text, meterReading): RenderReturnType {
+export const getResourceRender = (intl, isMeter: boolean, search?: FilterValue | string) => {
+    return function render (text, meterReadingOrMeter): RenderReturnType {
         const AutoMessage = intl.formatMessage({ id: 'pages.condo.meter.AutoPrefix' })
-        const value = get(meterReading, ['meter', 'resource', 'name'])
-        const isAutomatic = get(meterReading, ['meter', 'isAutomatic'], false)
-        const isExternalSource = Boolean(get(meterReading, ['source', 'type']) === METER_READING_SOURCE_EXTERNAL_IMPORT_TYPE)
+        const value = get(meterReadingOrMeter, isMeter ? ['resource', 'name'] : ['meter', 'resource', 'name'])
+        const isAutomatic = get(meterReadingOrMeter, isMeter ? 'isAutomatic' : ['meter', 'isAutomatic'], false)
+        // TODO @abshnko add field 'source' to Meter and PropertyMeter models to use in tables
+        const isExternalSource = Boolean(get(meterReadingOrMeter, ['source', 'type']) === METER_READING_SOURCE_EXTERNAL_IMPORT_TYPE)
 
         const postfix = isAutomatic && isExternalSource ? (
             <Typography.Text type='warning'>
@@ -48,7 +49,7 @@ export const getResourceRender = (intl, search?: FilterValue | string) => {
     }
 }
 
-export const getVerificationDateRender = (intl, search?: FilterValue | string, prefix = '\n') => {
+export const getVerificationDateRender = (intl, isMeter: boolean, search?: FilterValue | string, prefix = '\n') => {
     return function render (verificationDate: string, meterReading): RenderReturnType {
         const OverdueMessage = intl.formatMessage({ id: 'pages.condo.meter.VerificationDate.Overdue' })
         let extraHighlighterProps
@@ -60,7 +61,7 @@ export const getVerificationDateRender = (intl, search?: FilterValue | string, p
         const date = locale ? dayjs(verificationDate).locale(locale) : dayjs(verificationDate)
         const text = `${date.format(DATE_FORMAT)}`
 
-        const nextVerificationDate = dayjs(get(meterReading, ['meter', 'nextVerificationDate']))
+        const nextVerificationDate = dayjs(get(meterReading, isMeter ? 'nextVerificationDate' : ['meter', 'nextVerificationDate']))
 
         if (nextVerificationDate.isBefore(dayjs(), 'day')) {
             extraHighlighterProps = { type: 'danger' }

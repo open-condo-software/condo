@@ -63,9 +63,12 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, meterTa
     const search = getFilteredValue(filters, 'search')
 
     const isPropertyMeter = readingsType === METER_READINGS_TYPES.propertyMeterReadings
+    const isMeter = meterTabType === METER_TAB_TYPES.meter
+    const isReportingPeriod = meterTabType === METER_TAB_TYPES.reportingPeriod
 
     const renderAddress = useCallback((_, record) => {
-        const property = meterTabType === METER_TAB_TYPES.reportingPeriod ? get(record, ['property']) : get(record, ['meter', 'property'])
+        const property = isReportingPeriod || isMeter
+            ? get(record, ['property']) : get(record, ['meter', 'property'])
         if (property) {
             return getAddressRender(
                 property,
@@ -77,7 +80,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, meterTa
         if (record.organization) {
             return CustomPeriodMessage
         }
-    }, [meterTabType, DeletedMessage, search, CustomPeriodMessage])
+    }, [isReportingPeriod, isMeter, DeletedMessage, search, CustomPeriodMessage])
 
     const meterAndMeterReadingColumns = useMemo(() => [
         {
@@ -93,7 +96,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, meterTa
             title: UnitMessage,
             filteredValue: getFilteredValue(filters, 'unitName'),
             key: 'unitName',
-            dataIndex: ['meter', 'unitName'],
+            dataIndex: isMeter ? 'unitName' : ['meter', 'unitName'],
             width: '12%',
             render: getUnitRender(intl, search),
             filterDropdown: getFilterDropdownByKey(filterMetas, 'unitName'),
@@ -102,7 +105,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, meterTa
         isPropertyMeter ? undefined : {
             title: AccountNumberMessage,
             filteredValue: getFilteredValue(filters, 'accountNumber'),
-            dataIndex: ['meter', 'accountNumber'],
+            dataIndex: isMeter ? 'accountNumber' : ['meter', 'accountNumber'],
             key: 'accountNumber',
             width: '10%',
             filterDropdown: getFilterDropdownByKey(filterMetas, 'accountNumber'),
@@ -112,7 +115,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, meterTa
         {
             title: MeterNumberMessage,
             filteredValue: getFilteredValue(filters, 'number'),
-            dataIndex: ['meter', 'number'],
+            dataIndex: isMeter ? 'number' : ['meter', 'number'],
             key: 'number',
             width: isPropertyMeter ? '20%' : '10%',
             filterDropdown: getFilterDropdownByKey(filterMetas, 'number'),
@@ -126,20 +129,20 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, meterTa
             key: 'resource',
             width: isPropertyMeter ? '25%' : '12%',
             filterDropdown: getFilterDropdownByKey(filterMetas, 'resource'),
-            render: getResourceRender(intl, search),
+            render: getResourceRender(intl, isMeter, search),
             filterIcon: getFilterIcon,
         },
         {
             title: PlaceMessage,
             filteredValue: getFilteredValue(filters, 'place'),
-            dataIndex: ['meter', 'place'],
+            dataIndex: isMeter ? 'place' : ['meter', 'place'],
             key: 'place',
             width: isPropertyMeter ? '25%' : '8%',
             filterDropdown: getFilterDropdownByKey(filterMetas, 'place'),
             render: getTextRender(search),
             filterIcon: getFilterIcon,
         },
-    ], [AccountNumberMessage, AddressMessage, MeterNumberMessage, PlaceMessage, ServiceMessage, UnitMessage, filterMetas, filters, intl, isPropertyMeter, renderAddress, search])
+    ], [AccountNumberMessage, AddressMessage, MeterNumberMessage, PlaceMessage, ServiceMessage, UnitMessage, filterMetas, filters, intl, isMeter, isPropertyMeter, renderAddress, search])
 
 
     return useMemo(() => {
@@ -184,15 +187,15 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, meterTa
             },
         ]) : compact([
             ...meterAndMeterReadingColumns,
-            {
+            isPropertyMeter ? undefined : {
                 title: MeterVerificationDateMessage,
                 sortOrder: get(sorterMap, 'verificationDate'),
                 filteredValue: getFilteredValue(filters, 'verificationDate'),
-                dataIndex: ['meter', 'verificationDate'],
+                dataIndex: isMeter ? 'verificationDate' : ['meter', 'verificationDate'],
                 key: 'verificationDate',
                 sorter: true,
                 width: '11%',
-                render: getVerificationDateRender(intl, search),
+                render: getVerificationDateRender(intl, isMeter, search),
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'verificationDate'),
             },
             // TODO: add isActive field to Meter model
@@ -209,5 +212,5 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, meterTa
             //     filterIcon: getFilterIcon,
             // },
         ])
-    }, [meterTabType, AddressMessage, filters, renderAddress, filterMetas, PeriodMessage, sorterMap, search, intl, meterAndMeterReadingColumns, MeterReadingDateMessage, isPropertyMeter, MeterReadingMessage, MeterVerificationDateMessage])
+    }, [meterTabType, AddressMessage, filters, renderAddress, filterMetas, PeriodMessage, sorterMap, search, intl, meterAndMeterReadingColumns, MeterReadingDateMessage, isPropertyMeter, MeterReadingMessage, MeterVerificationDateMessage, isMeter])
 }
