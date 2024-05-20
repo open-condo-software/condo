@@ -11066,7 +11066,7 @@ __metadata:
 
 "@keystonejs/app-admin-ui@patch:@keystonejs/app-admin-ui@npm:7.5.2#.yarn/patches/@keystonejs-app-admin-ui-npm-7.5.2-ada8bd01c3.patch::locator=root%40workspace%3A.":
   version: 7.5.2
-  resolution: "@keystonejs/app-admin-ui@patch:@keystonejs/app-admin-ui@npm%3A7.5.2#.yarn/patches/@keystonejs-app-admin-ui-npm-7.5.2-ada8bd01c3.patch::version=7.5.2&hash=46db0f&locator=root%40workspace%3A."
+  resolution: "@keystonejs/app-admin-ui@patch:@keystonejs/app-admin-ui@npm%3A7.5.2#.yarn/patches/@keystonejs-app-admin-ui-npm-7.5.2-ada8bd01c3.patch::version=7.5.2&hash=e87992&locator=root%40workspace%3A."
   dependencies:
     "@apollo/client": ^3.3.19
     "@arch-ui/alert": ^0.0.21
@@ -11140,7 +11140,7 @@ __metadata:
     webpack: 4.46.0
     webpack-dev-middleware: ^3.7.3
     webpack-hot-middleware: ^2.25.0
-  checksum: f5b5a33ec85b5af6c1e9162d3a458820adc8849b9c4458657c1da235c202f0cc54a4ac1a91dc8afdd84712d7765020500ec24d0a02280b2433044416324106f2
+  checksum: 92719195c6cdcc70e206cd98775a2ae5ce8d1bc8922ff1f2f31f612d8db6fee3067e7290f2c1489749fc107337e97ac6433ffe8a48135d19a3473782390e21e5
   languageName: node
   linkType: hard
 

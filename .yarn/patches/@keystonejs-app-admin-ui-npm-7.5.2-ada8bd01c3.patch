@@ -1,70 +1,24 @@
 diff --git a/client/pages/Home/components.js b/client/pages/Home/components.js
-index 8984c0f442e08fdcc9e4413fcc386e60dcef7145..7d8ff16a3261b26544e84543b85f9c0cbe343c2b 100644
+index 8984c0f442e08fdcc9e4413fcc386e60dcef7145..7a9e954ea62b52c8872477cd8e079e1623d582b6 100644
 --- a/client/pages/Home/components.js
 +++ b/client/pages/Home/components.js
-@@ -1,35 +1,36 @@
- /** @jsx jsx */
--import { jsx } from '@emotion/core';
--import { Fragment } from 'react';
--import { Link } from 'react-router-dom';
--import { withPseudoState } from 'react-pseudo-state';
--import { useList } from '../../providers/List';
-+import { jsx } from "@emotion/core";
-+import { Fragment } from "react";
-+import { Link } from "react-router-dom";
-+import { withPseudoState } from "react-pseudo-state";
-+import { useList } from "../../providers/List";
-+import { useAdminMeta } from "../../providers/AdminMeta";
+@@ -4,6 +4,7 @@ import { Fragment } from 'react';
+ import { Link } from 'react-router-dom';
+ import { withPseudoState } from 'react-pseudo-state';
+ import { useList } from '../../providers/List';
++import { useAdminMeta } from '../../providers/AdminMeta';
  
--import CreateItemModal from '../../components/CreateItemModal';
-+import CreateItemModal from "../../components/CreateItemModal";
+ import CreateItemModal from '../../components/CreateItemModal';
  
--import { PlusIcon } from '@primer/octicons-react';
--import { Card } from '@arch-ui/card';
--import { colors, gridSize } from '@arch-ui/theme';
--import { LoadingIndicator } from '@arch-ui/loading';
--import { A11yText } from '@arch-ui/typography';
-+import { PlusIcon } from "@primer/octicons-react";
-+import { Card } from "@arch-ui/card";
-+import { colors, gridSize } from "@arch-ui/theme";
-+import { LoadingIndicator } from "@arch-ui/loading";
-+import { A11yText } from "@arch-ui/typography";
- 
--export const HeaderInset = props => (
-+export const HeaderInset = (props) => (
-   <div css={{ paddingLeft: gridSize * 2, paddingRight: gridSize * 2 }} {...props} />
- );
- 
- const BOX_GUTTER = `${gridSize * 2}px`;
- 
--const BoxElement = props => (
-+const BoxElement = (props) => (
-   <Card
-     css={{
-       color: colors.N40,
--      display: 'block',
-+      display: "block",
-       padding: BOX_GUTTER,
--      position: 'relative',
-+      position: "relative",
- 
--      '&:hover, &:focus': {
-+      "&:hover, &:focus": {
-         outline: 0,
--        textDecoration: 'none',
-+        textDecoration: "none",
-       },
-     }}
-     {...props}
 @@ -37,6 +38,7 @@ const BoxElement = props => (
  );
  
  const BoxComponent = ({ focusOrigin, isActive, isHover, isFocus, meta, ...props }) => {
-+  const { showDashboardCounts = true } = useAdminMeta();
++  const { showDashboardCounts } = useAdminMeta();
    const { list, openCreateItemModal } = useList();
    const { label, singular } = list;
  
-@@ -52,11 +54,11 @@ const BoxComponent = ({ focusOrigin, isActive, isHover, isFocus, meta, ...props
+@@ -52,7 +54,7 @@ const BoxComponent = ({ focusOrigin, isActive, isHover, isFocus, meta, ...props
          >
            {label}
          </Name>
@@ -73,175 +27,61 @@ index 8984c0f442e08fdcc9e4413fcc386e60dcef7145..7d8ff16a3261b26544e84543b85f9c0c
          <CreateButton
            title={`Create ${singular}`}
            isHover={isHover || isFocus}
--          onClick={e => {
-+          onClick={(e) => {
-             e.preventDefault();
-             openCreateItemModal();
-           }}
-@@ -75,18 +77,18 @@ export const Box = withPseudoState(BoxComponent);
- export const Name = ({ isHover, ...props }) => (
-   <span
-     css={{
--      borderBottom: `1px solid ${isHover ? colors.B.A50 : 'transparent'}`,
-+      borderBottom: `1px solid ${isHover ? colors.B.A50 : "transparent"}`,
-       color: colors.primary,
--      display: 'inline-block',
--      boxSizing: 'border-box',
--      fontSize: '1.1rem',
-+      display: "inline-block",
-+      boxSizing: "border-box",
-+      fontSize: "1.1rem",
-       fontWeight: 500,
--      maxWidth: '100%',
--      overflow: 'hidden',
--      textOverflow: 'ellipsis',
--      transition: 'border-color 80ms linear',
--      whiteSpace: 'nowrap',
--      marginRight: '2em',
-+      maxWidth: "100%",
-+      overflow: "hidden",
-+      textOverflow: "ellipsis",
-+      transition: "border-color 80ms linear",
-+      whiteSpace: "nowrap",
-+      marginRight: "2em",
-     }}
-     {...props}
-   />
-@@ -97,34 +99,34 @@ export const Count = ({ meta }) => {
-   const count = (meta && meta.count) || 0;
- 
-   return isLoading ? (
--    <div css={{ height: '0.85em' }}>
-+    <div css={{ height: "0.85em" }}>
-       <LoadingIndicator />
-     </div>
-   ) : (
--    <div css={{ fontSize: '0.85em' }}>{`${count} Item${count !== 1 ? 's' : ''}`}</div>
-+    <div css={{ fontSize: "0.85em" }}>{`${count} Item${count !== 1 ? "s" : ""}`}</div>
-   );
- };
- 
- export const CreateButton = ({ isHover, ...props }) => (
-   <button
-     css={{
--      alignItems: 'center',
-+      alignItems: "center",
-       backgroundColor: isHover ? colors.N20 : colors.N10,
--      borderRadius: '2px',
-+      borderRadius: "2px",
-       border: 0,
--      color: 'white',
--      cursor: 'pointer',
--      display: 'flex',
--      height: '24px',
--      justifyContent: 'center',
-+      color: "white",
-+      cursor: "pointer",
-+      display: "flex",
-+      height: "24px",
-+      justifyContent: "center",
-       outline: 0,
--      position: 'absolute',
-+      position: "absolute",
-       right: BOX_GUTTER,
-       top: BOX_GUTTER,
--      transition: 'background-color 80ms linear',
--      width: '24px',
-+      transition: "background-color 80ms linear",
-+      width: "24px",
- 
--      '&:hover, &:focus': {
-+      "&:hover, &:focus": {
-         backgroundColor: colors.create,
-       },
-     }}
 diff --git a/client/pages/Home/index.js b/client/pages/Home/index.js
-index 6e4f9ac3e08eb3aab3f5feba6187b360e7f2984d..da25b02ae7b439b6d0da9443b5b30347a76bb7e8 100644
+index 6e4f9ac3e08eb3aab3f5feba6187b360e7f2984d..12919b91ddab3634d6e015adf230d53c9ba67568 100644
 --- a/client/pages/Home/index.js
 +++ b/client/pages/Home/index.js
-@@ -1,38 +1,39 @@
--import React, { useState, useMemo } from 'react';
--import { gql, useQuery } from '@apollo/client';
-+import React, { useState, useMemo } from "react";
-+import { gql, useQuery } from "@apollo/client";
- 
--import { Container, Grid, Cell } from '@arch-ui/layout';
--import { PageTitle } from '@arch-ui/typography';
-+import { Container, Grid, Cell } from "@arch-ui/layout";
-+import { PageTitle } from "@arch-ui/typography";
- 
--import { ListProvider } from '../../providers/List';
--import DocTitle from '../../components/DocTitle';
--import PageError from '../../components/PageError';
--import { Box, HeaderInset } from './components';
-+import { ListProvider } from "../../providers/List";
-+import DocTitle from "../../components/DocTitle";
-+import PageError from "../../components/PageError";
-+import { Box, HeaderInset } from "./components";
- 
--import { useAdminMeta } from '../../providers/AdminMeta';
-+import { useAdminMeta } from "../../providers/AdminMeta";
- 
--import useResizeObserver from 'use-resize-observer';
--import throttle from 'lodash.throttle';
-+import useResizeObserver from "use-resize-observer";
-+import throttle from "lodash.throttle";
- 
--const getCountQuery = lists => {
-+const getCountQuery = (lists) => {
-   if (!lists) return null;
- 
-   return gql`
-     query getAllListCounts {
--      ${lists.map(({ gqlNames }) => `${gqlNames.listQueryMetaName} { count }`).join('\n')}
-+      ${lists.map(({ gqlNames }) => `${gqlNames.listQueryMetaName} { count }`).join("\n")}
-     }
-   `;
+@@ -25,7 +25,7 @@ const getCountQuery = lists => {
  };
  
  const Homepage = () => {
 -  const { getListByKey, listKeys, adminPath } = useAdminMeta();
-+  const { getListByKey, listKeys, adminPath, showDashboardCounts = true } = useAdminMeta();
++  const { getListByKey, listKeys, adminPath, showDashboardCounts } = useAdminMeta();
  
    // TODO: A permission query to limit which lists are visible
--  const lists = listKeys.map(key => getListByKey(key));
-+  const lists = listKeys.map((key) => getListByKey(key));
- 
+   const lists = listKeys.map(key => getListByKey(key));
+@@ -33,6 +33,7 @@ const Homepage = () => {
    const { data, error } = useQuery(getCountQuery(lists), {
--    fetchPolicy: 'cache-and-network',
--    errorPolicy: 'all',
-+    fetchPolicy: "cache-and-network",
-+    errorPolicy: "all",
+     fetchPolicy: 'cache-and-network',
+     errorPolicy: 'all',
 +    skip: !showDashboardCounts,
    });
  
    const [cellWidth, setCellWidth] = useState(3);
-@@ -62,7 +63,7 @@ const Homepage = () => {
-     }
- 
-     const deniedQueries = error.graphQLErrors
--      .filter(({ name }) => name === 'AccessDeniedError')
-+      .filter(({ name }) => name === "AccessDeniedError")
-       .map(({ path }) => path && path[0]);
- 
-     if (deniedQueries.length !== error.graphQLErrors.length) {
-@@ -75,9 +76,7 @@ const Homepage = () => {
-       );
-     }
- 
--    allowedLists = allowedLists.filter(
--      list => deniedQueries.indexOf(list.gqlNames.listQueryMetaName) === -1
--    );
-+    allowedLists = allowedLists.filter((list) => deniedQueries.indexOf(list.gqlNames.listQueryMetaName) === -1);
+diff --git a/index.js b/index.js
+index 8a2efda8eb3c33d2791466db161c503987fc4f91..43f9f4ece2394c71ba97577125efe2f73aaf78fd 100644
+--- a/index.js
++++ b/index.js
+@@ -24,6 +24,7 @@ class AdminUIApp {
+     adminMeta = {},
+     defaultPageSize = 50,
+     maximumPageSize = 1000,
++    showDashboardCounts = true,
+   } = {}) {
+     if (adminPath === '/') {
+       throw new Error("Admin path cannot be the root path. Try; '/admin'");
+@@ -56,6 +57,7 @@ class AdminUIApp {
+       signinPath: `${this.adminPath}/signin`,
+       signoutPath: `${this.adminPath}/signout`,
+     };
++    this.showDashboardCounts = showDashboardCounts;
    }
  
-   // NOTE: `loading` is intentionally omitted here
-@@ -92,7 +91,7 @@ const Homepage = () => {
-           <PageTitle>Dashboard</PageTitle>
-         </HeaderInset>
-         <Grid ref={measureElement} gap={16}>
--          {allowedLists.map(list => {
-+          {allowedLists.map((list) => {
-             const { key, path } = list;
-             const meta = data && data[list.gqlNames.listQueryMetaName];
-             return (
+   isAccessAllowed(req) {
+@@ -111,7 +113,7 @@ class AdminUIApp {
+ 
+   getAdminUIMeta(keystone) {
+     // This is exposed as the global `KEYSTONE_ADMIN_META` in the client.
+-    const { name, adminPath, apiPath, graphiqlPath, pages, hooks } = this;
++    const { name, adminPath, apiPath, graphiqlPath, pages, hooks, showDashboardCounts } = this;
+     const { signinPath, signoutPath } = this.routes;
+     const { lists } = keystone.getAdminMeta({ schemaName: this._schemaName });
+     const authStrategy = this.authStrategy ? this.authStrategy.getAdminMeta() : undefined;
+@@ -149,6 +151,7 @@ class AdminUIApp {
+       authStrategy,
+       lists,
+       name,
++      showDashboardCounts,
+       ...this._adminMeta,
+     };
+   }

@@ -179,7 +179,7 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
                 adminPath: '/admin',
                 isAccessAllowed: ({ authentication: { item: user } }) => Boolean(user && (user.isAdmin || user.isSupport || user.rightsSet)),
                 authStrategy,
-                adminMeta: { showDashboardCounts: false },
+                showDashboardCounts: false,
                 ...(ui || {}),
             }),
             lastApp,
