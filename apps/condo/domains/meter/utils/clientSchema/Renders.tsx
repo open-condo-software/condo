@@ -1,13 +1,18 @@
 import { Typography } from 'antd'
 import { FilterValue } from 'antd/es/table/interface'
 import { TextProps } from 'antd/es/typography/Text'
+import dayjs from 'dayjs'
 import get from 'lodash/get'
 import React from 'react'
 
 import { getTableCellRenderer, RenderReturnType } from '@condo/domains/common/components/Table/Renders'
+import { LOCALES } from '@condo/domains/common/constants/locale'
 import { METER_READING_SOURCE_EXTERNAL_IMPORT_TYPE } from '@condo/domains/meter/constants/constants'
+import { getHumanizedVerificationDateDifference } from '@condo/domains/meter/utils/helpers'
 
 const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
+
+const DATE_FORMAT = 'DD.MM.YYYY'
 
 export const getUnitRender = (intl, search: FilterValue) => {
     return function render (text, record) {
@@ -40,5 +45,29 @@ export const getResourceRender = (intl, search?: FilterValue | string) => {
         ) : null
 
         return getTableCellRenderer({ search, ellipsis: true, postfix, extraPostfixProps: POSTFIX_PROPS })(value)
+    }
+}
+
+export const getVerificationDateRender = (intl, search?: FilterValue | string, prefix = '\n') => {
+    return function render (verificationDate: string, meterReading): RenderReturnType {
+        const OverdueMessage = intl.formatMessage({ id: 'pages.condo.meter.VerificationDate.Overdue' })
+        let extraHighlighterProps
+        let extraTitle
+
+        if (!verificationDate) return '—'
+
+        const locale = get(LOCALES, intl.locale)
+        const date = locale ? dayjs(verificationDate).locale(locale) : dayjs(verificationDate)
+        const text = `${date.format(DATE_FORMAT)}`
+
+        const nextVerificationDate = dayjs(get(meterReading, ['meter', 'nextVerificationDate']))
+
+        if (nextVerificationDate.isBefore(dayjs(), 'day')) {
+            extraHighlighterProps = { type: 'danger' }
+            const overdueDiff = getHumanizedVerificationDateDifference(nextVerificationDate)
+            extraTitle = OverdueMessage.replace('{days}', overdueDiff)
+        }
+
+        return getTableCellRenderer({ search, ellipsis: true, extraPostfixProps: POSTFIX_PROPS,  extraHighlighterProps, extraTitle, underline: false })(text)
     }
 }
