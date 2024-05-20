@@ -8,7 +8,7 @@ import { PageContent, PageWrapper } from '@condo/domains/common/components/conta
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { MeterReportingPeriodForm } from '@condo/domains/meter/components/MeterReportingPeriodForm'
 import { MeterReadAndManagePermissionRequired } from '@condo/domains/meter/components/PageAccess'
-import { METER_PAGE_TYPES, MeterReportingPeriod } from '@condo/domains/meter/utils/clientSchema'
+import { METER_TAB_TYPES, MeterReportingPeriod } from '@condo/domains/meter/utils/clientSchema'
 
 
 const CREATE_REPORTING_PERIOD_PAGE_GUTTER: RowProps['gutter'] = [0, 40]
@@ -40,7 +40,7 @@ const MeterReportingPeriodUpdatePage = () => {
     const action = MeterReportingPeriod.useUpdate({})
     const submitAction = async (data) => {
         await action(data, reportingPeriod)
-        await push(`/meter?tab=${METER_PAGE_TYPES.reportingPeriod}`)
+        await push(`/meter?tab=${METER_TAB_TYPES.reportingPeriod}`)
     }
     
     const isNotFound = !reportingPeriodLoading && (!reportingPeriod)
