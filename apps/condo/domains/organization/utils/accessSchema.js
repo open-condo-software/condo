@@ -53,8 +53,10 @@ async function resetOrganizationEmployeesCache (organizationId, roleId = undefin
 
     const employees = await find('OrganizationEmployee', employeesFilter)
 
-    const cacheKeys = employees.map(employee => _getUserOrganizationsCacheKey({ id: employee.user }))
-    await _redisClient.del(cacheKeys)
+    if (employees.length) {
+        const cacheKeys = employees.map(employee => _getUserOrganizationsCacheKey({ id: employee.user }))
+        await _redisClient.del(cacheKeys)
+    }
 }
 
 /**
@@ -110,9 +112,10 @@ async function _getUserOrganizations (user) {
     })
 
     const userRoleIds = userEmployees.map(employee => employee.role)
-    const userRoles = await find('OrganizationEmployee', {
+    const userRoles = await find('OrganizationEmployeeRole', {
         id_in: userRoleIds,
-        deletedAt: null,
+        // TODO(SavelevMatthew): INFRA-317 Add this check
+        // deletedAt: null,
     })
 
     for (const role of userRoles) {
@@ -427,24 +430,6 @@ const queryOrganizationEmployeeFromRelatedOrganizationFor = (userId, permission)
     },
 })
 
-const checkUserPermissionsInOrganizations = async ({ userId, organizationIds, permission }) => {
-    const userEmployeeOrganizations = await find('Organization', {
-        AND: [
-            {
-                id_in: organizationIds,
-            },
-            {
-                OR: [
-                    queryOrganizationEmployeeFor(userId, permission),
-                    queryOrganizationEmployeeFromRelatedOrganizationFor(userId, permission),
-                ],
-            },
-        ],
-    })
-
-    return userEmployeeOrganizations.length === organizationIds.length
-}
-
 module.exports = {
     // New utils
     resetUserEmployeesCache,
@@ -456,7 +441,7 @@ module.exports = {
     checkPermissionsInRelatedOrganizations,
     checkPermissionsInEmployedOrRelatedOrganizations,
     // Old utils
-    checkUserPermissionsInOrganizations,
+    // TODO(INFRA-317): Remove this one-by-one
     checkPermissionInUserOrganizationOrRelatedOrganization,
     checkPermissionsInUserOrganizationOrRelatedOrganization,
     checkOrganizationPermission,
