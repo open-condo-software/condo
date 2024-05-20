@@ -1,4 +1,4 @@
-const { faker } = require('@faker-js/faker')
+const passwordGenerator = require('generate-password')
 
 const { createCronTask } = require('@open-condo/keystone/tasks')
 
@@ -10,10 +10,30 @@ const { getSbbolSecretStorage, changeClientSecret } = require('@condo/domains/or
  */
 const refreshSbbolClientSecret = createCronTask('refreshSbbolClientSecret', '0 1 * * *', async () => {
     const sbbolSecretStorage = getSbbolSecretStorage()
+    const sbbolSecretStorageExtended = getSbbolSecretStorage(true)
+
     await changeClientSecret({
         clientId: sbbolSecretStorage.clientId,
         currentClientSecret: await sbbolSecretStorage.getClientSecret(),
-        newClientSecret: faker.random.alphaNumeric(8),
+        newClientSecret: passwordGenerator.generate({
+            length: 8,
+            numbers: true,
+        }),
+        useExtendedConfig: false,
+    })
+
+    if (sbbolSecretStorage.clientId === sbbolSecretStorageExtended.clientId) {
+        return
+    }
+
+    await changeClientSecret({
+        clientId: sbbolSecretStorageExtended.clientId,
+        currentClientSecret: await sbbolSecretStorageExtended.getClientSecret(),
+        newClientSecret: passwordGenerator.generate({
+            length: 8,
+            numbers: true,
+        }),
+        useExtendedConfig: true,
     })
 })
 
