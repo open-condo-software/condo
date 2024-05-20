@@ -32,7 +32,7 @@ const {
 } = require('@condo/domains/miniapp/constants')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithProperty, createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { registerServiceConsumerByTestClient, updateTestServiceConsumer, registerResidentByTestClient, createTestResident, ServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
+const { createTestServiceConsumer, updateTestServiceConsumer, registerResidentByTestClient, createTestResident, ServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { addResidentAccess, makeClientWithResidentUser, makeClientWithSupportUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 
 
@@ -80,6 +80,7 @@ describe('AllResidentBillingReceiptsService', () => {
         it('returns all required fields', async () => {
             const userClient = await makeClientWithProperty()
             const support = await makeClientWithSupportUser()
+            const admin = await makeLoggedInAdminClient()
 
             const [integration] = await createTestBillingIntegration(support)
             const [billingContext] = await createTestBillingIntegrationOrganizationContext(userClient, userClient.organization, integration, { status: CONTEXT_FINISHED_STATUS })
@@ -97,11 +98,7 @@ describe('AllResidentBillingReceiptsService', () => {
                 addressMeta: userClient.property.addressMeta,
                 unitName: billingAccountAttrs.unitName,
             })
-            await registerServiceConsumerByTestClient(residentUser, {
-                residentId: resident.id,
-                accountNumber: billingAccountAttrs.number,
-                organizationId: userClient.organization.id,
-            })
+            await createTestServiceConsumer(admin, resident, userClient.organization, { accountNumber: billingAccountAttrs.number })
             await createTestBillingReceipt(integrationClient, billingContext, billingProperty, billingAccount)
             const residentBillingReceipts = await ResidentBillingReceipt.getAll(residentUser)
 
@@ -180,11 +177,7 @@ describe('AllResidentBillingReceiptsService', () => {
                 addressMeta: property.addressMeta,
                 unitName: billingAccount.unitName,
             })
-            const [serviceConsumer2] = await registerServiceConsumerByTestClient(residentClient, {
-                residentId: anotherResident.id,
-                accountNumber: billingAccount.number,
-                organizationId: organization.id,
-            })
+            const [serviceConsumer2] = await createTestServiceConsumer(data.admin, anotherResident, organization, { accountNumber: billingAccount.number })
             const receipts = await ResidentBillingReceipt.getAll(residentClient)
             expect(receipts.some(({ id, serviceConsumer }) => id === overhaulReceipt.id && serviceConsumer.id === serviceConsumer1.id )).toBeTruthy()
             expect(receipts.some(({ id, serviceConsumer }) => id === housingReceipt.id && serviceConsumer.id === serviceConsumer2.id)).toBeTruthy()
@@ -211,11 +204,7 @@ describe('AllResidentBillingReceiptsService', () => {
                 addressMeta: userClient.property.addressMeta,
                 unitName: billingAccountAttrs.unitName,
             })
-            await registerServiceConsumerByTestClient(residentUser, {
-                residentId: resident.id,
-                accountNumber: billingAccountAttrs.number,
-                organizationId: userClient.organization.id,
-            })
+            await createTestServiceConsumer(adminClient, resident, userClient.organization, { accountNumber: billingAccountAttrs.number })
             const [receipt] = await createTestBillingReceipt(integrationClient, billingContext, billingProperty, billingAccount)
 
             // create BillingReceiptFile
@@ -292,11 +281,8 @@ describe('AllResidentBillingReceiptsService', () => {
                 addressMeta: userClient.property.addressMeta,
                 unitName: billingAccountAttrs.unitName,
             })
-            await registerServiceConsumerByTestClient(residentUser, {
-                residentId: resident.id,
-                accountNumber: billingAccountAttrs.number,
-                organizationId: userClient.organization.id,
-            })
+            await createTestServiceConsumer(adminClient, resident, userClient.organization, { accountNumber: billingAccountAttrs.number })
+
             const [receipt] = await createTestBillingReceipt(integrationClient, billingContext, billingProperty, billingAccount)
 
             // create BillingReceiptFile
@@ -381,11 +367,8 @@ describe('AllResidentBillingReceiptsService', () => {
                 addressMeta: userClient.property.addressMeta,
                 unitName: billingAccountAttrs.unitName,
             })
-            await registerServiceConsumerByTestClient(residentUser, {
-                residentId: resident.id,
-                accountNumber: billingAccountAttrs.number,
-                organizationId: userClient.organization.id,
-            })
+            await createTestServiceConsumer(adminClient, resident, userClient.organization, { accountNumber: billingAccountAttrs.number })
+
             const [receipt] = await createTestBillingReceipt(integrationClient, billingContext, billingProperty, billingAccount)
 
             // create BillingReceiptFile
@@ -475,11 +458,8 @@ describe('AllResidentBillingReceiptsService', () => {
                 addressMeta: userClient.property.addressMeta,
                 unitName: billingAccountAttrs.unitName,
             })
-            await registerServiceConsumerByTestClient(residentUser, {
-                residentId: resident.id,
-                accountNumber: billingAccountAttrs.number,
-                organizationId: userClient.organization.id,
-            })
+            await createTestServiceConsumer(adminClient, resident, userClient.organization, { accountNumber: billingAccountAttrs.number })
+
             const [receipt] = await createTestBillingReceipt(integrationClient, billingContext, billingProperty, billingAccount)
             const [receipt1] = await createTestBillingReceipt(integrationClient, billingContext, billingProperty, billingAccount)
 
@@ -540,6 +520,7 @@ describe('AllResidentBillingReceiptsService', () => {
         it.skip('returns correct services field', async () => {
             const userClient = await makeClientWithProperty()
             const support = await makeClientWithSupportUser()
+            const adminClient = await makeLoggedInAdminClient()
 
             const [integration] = await createTestBillingIntegration(support)
             const [billingContext] = await createTestBillingIntegrationOrganizationContext(userClient, userClient.organization, integration, { status: CONTEXT_FINISHED_STATUS })
@@ -557,11 +538,7 @@ describe('AllResidentBillingReceiptsService', () => {
                 addressMeta: userClient.property.addressMeta,
                 unitName: billingAccountAttrs.unitName,
             })
-            await registerServiceConsumerByTestClient(residentUser, {
-                residentId: resident.id,
-                accountNumber: billingAccountAttrs.number,
-                organizationId: userClient.organization.id,
-            })
+            await createTestServiceConsumer(adminClient, resident, userClient.organization, { accountNumber: billingAccountAttrs.number })
 
             await createTestBillingReceipt(integrationClient, billingContext, billingProperty, billingAccount,
                 { services: generateServicesData(1, '1000'), toPay: '2000' })
@@ -596,13 +573,9 @@ describe('AllResidentBillingReceiptsService', () => {
             await addResidentAccess(userClient.user)
 
             const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, { unitName: billingAccountAttrs.unitName })
-            const payload = {
-                residentId: resident.id,
-                accountNumber: billingAccountAttrs.number,
-                organizationId: userClient.organization.id,
-            }
 
-            await registerServiceConsumerByTestClient(userClient, payload)
+            await createTestServiceConsumer(adminClient, resident, userClient.organization, { accountNumber: billingAccountAttrs.number })
+
             const [receipt] = await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount)
             await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount2)
 
@@ -640,11 +613,8 @@ describe('AllResidentBillingReceiptsService', () => {
                 addressMeta: property.addressMeta,
                 unitName: billingAccountAttrs.unitName,
             })
-            const [serviceConsumerHusband] = await registerServiceConsumerByTestClient(husbandClient, {
-                residentId: residentHusband.id,
-                accountNumber: billingAccountAttrs.number,
-                organizationId: organization.id,
-            })
+            const [serviceConsumerHusband] = await createTestServiceConsumer(adminClient, residentHusband, organization, { accountNumber: billingAccountAttrs.number })
+
             // you can't read billingAccount field as resident, so we should get true serviceConsumer here to further check
             const [serviceConsumerHusbandWithAccount] = await ServiceConsumer.getAll(adminClient, { id: serviceConsumerHusband.id })
 
@@ -653,11 +623,8 @@ describe('AllResidentBillingReceiptsService', () => {
                 addressMeta: property.addressMeta,
                 unitName: billingAccountAttrs.unitName,
             })
-            const [serviceConsumerWife] = await registerServiceConsumerByTestClient(wifeClient, {
-                residentId: residentWife.id,
-                accountNumber: billingAccountAttrs.number,
-                organizationId: organization.id,
-            })
+            const [serviceConsumerWife] = await createTestServiceConsumer(adminClient, residentWife, organization, { accountNumber: billingAccountAttrs.number })
+
             // you can't read billingAccount field as resident, so we should get true serviceConsumer here to further check
             const [serviceConsumerWifeWithAccount] = await ServiceConsumer.getAll(adminClient, { id: serviceConsumerWife.id })
 
@@ -695,23 +662,12 @@ describe('AllResidentBillingReceiptsService', () => {
                 unitName: billingAccountAttrsA.unitName,
             })
 
-            const serviceConsumerPayloadA = {
-                residentId: residentA.id,
-                accountNumber: billingAccountAttrsA.number,
-                organizationId: userClient.organization.id,
-            }
-            await registerServiceConsumerByTestClient(userClient, serviceConsumerPayloadA)
+            await createTestServiceConsumer(adminClient, residentA, userClient.organization, { accountNumber: billingAccountAttrsA.number })
 
             const [residentA2] = await createTestResident(adminClient, userClient.user, userClient.property, {
                 unitName: billingAccountAttrsA2.unitName,
             })
-
-            const serviceConsumerPayloadA2 = {
-                residentId: residentA2.id,
-                accountNumber: billingAccountAttrsA2.number,
-                organizationId: userClient.organization.id,
-            }
-            await registerServiceConsumerByTestClient(userClient, serviceConsumerPayloadA2)
+            await createTestServiceConsumer(adminClient, residentA2, userClient.organization, { accountNumber: billingAccountAttrsA2.number })
 
             await createTestBillingReceipt(adminClient, contextA, billingPropertyA, billingAccountA)
             await createTestBillingReceipt(adminClient, contextA, billingPropertyA, billingAccountA2)
@@ -728,12 +684,7 @@ describe('AllResidentBillingReceiptsService', () => {
                 unitName: billingAccountAttrsB.unitName,
             })
 
-            const payloadForServiceConsumerB = {
-                residentId: residentB.id,
-                accountNumber: billingAccountAttrsB.number,
-                organizationId: organizationB.id,
-            }
-            await registerServiceConsumerByTestClient(userClient, payloadForServiceConsumerB)
+            await createTestServiceConsumer(adminClient, residentB, organizationB, { accountNumber: billingAccountAttrsB.number })
 
             await createTestBillingReceipt(adminClient, contextB, billingPropertyB, billingAccountB)
 
@@ -774,22 +725,14 @@ describe('AllResidentBillingReceiptsService', () => {
                 const [resident] = await createTestResident(adminClient, client.user, property, {
                     unitName: billingAccountAttrs.unitName,
                 })
-                const [firstServiceConsumer] = await registerServiceConsumerByTestClient(client, {
-                    residentId: resident.id,
-                    accountNumber: billingAccountAttrs.number,
-                    organizationId: organization.id,
-                })
+                const [firstServiceConsumer] = await createTestServiceConsumer(adminClient, resident, organization, { accountNumber: billingAccountAttrs.number })
+
                 const [updatedServiceConsumer] = await updateTestServiceConsumer(client, firstServiceConsumer.id, { deletedAt: 'true' })
                 expect(updatedServiceConsumer.deletedAt).not.toBeNull()
 
                 const objsFirst = await ResidentBillingReceipt.getAll(client, { serviceConsumer: { resident: { id: resident.id } } })
                 expect(objsFirst).toHaveLength(0)
-
-                await registerServiceConsumerByTestClient(client, {
-                    residentId: resident.id,
-                    accountNumber: billingAccountAttrs.number,
-                    organizationId: organization.id,
-                })
+                await createTestServiceConsumer(adminClient, resident, organization, { accountNumber: billingAccountAttrs.number })
 
                 const objsSecond = await ResidentBillingReceipt.getAll(client, { serviceConsumer: { resident: { id: resident.id } } })
                 expect(objsSecond).toHaveLength(1)
@@ -822,12 +765,7 @@ describe('AllResidentBillingReceiptsService', () => {
                     unitName: billingAccountA.unitName,
                 })
 
-                const serviceConsumerPayloadA = {
-                    residentId: residentA.id,
-                    accountNumber: billingAccountA.number,
-                    organizationId: userClient.organization.id,
-                }
-                await registerServiceConsumerByTestClient(userClient, serviceConsumerPayloadA)
+                await createTestServiceConsumer(adminClient, residentA, userClient.organization, { accountNumber: billingAccountA.number })
 
                 await createTestBillingReceipt(adminClient, contextA, billingPropertyA, billingAccountA)
                 await createTestBillingReceipt(adminClient, contextA, billingPropertyA, billingAccountA2)
@@ -855,23 +793,16 @@ describe('AllResidentBillingReceiptsService', () => {
                     unitName: billingAccountAttrs.unitName,
                 })
 
-                const payload = {
-                    residentId: resident.id,
-                    accountNumber: billingAccountAttrs.number,
-                    organizationId: userClient.organization.id,
-                }
-                await registerServiceConsumerByTestClient(userClient, payload)
+
+                await createTestServiceConsumer(adminClient, resident, userClient.organization, { accountNumber: billingAccountAttrs.number })
+
 
                 const [resident2] = await createTestResident(adminClient, userClient.user, userClient.property, {
                     unitName: billingAccountAttrs2.unitName,
                 })
 
-                const payload2 = {
-                    residentId: resident2.id,
-                    accountNumber: billingAccountAttrs2.number,
-                    organizationId: userClient.organization.id,
-                }
-                await registerServiceConsumerByTestClient(userClient, payload2)
+                await createTestServiceConsumer(adminClient, resident2, userClient.organization, { accountNumber: billingAccountAttrs2.number })
+
 
                 await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount)
                 await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount2)
@@ -895,13 +826,8 @@ describe('AllResidentBillingReceiptsService', () => {
             const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, {
                 unitName: billingAccountAttrs.unitName,
             })
-            const payload = {
-                residentId: resident.id,
-                accountNumber: billingAccountAttrs.number,
-                organizationId: userClient.organization.id,
-            }
+            createTestServiceConsumer(adminClient, resident, userClient.organization, { accountNumber: billingAccountAttrs.number })
 
-            await registerServiceConsumerByTestClient(userClient, payload)
             await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount)
             const [receipt] = await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount)
 
@@ -939,13 +865,8 @@ describe('AllResidentBillingReceiptsService', () => {
                 const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, {
                     unitName: billingAccountAttrs.unitName,
                 })
-                const payload = {
-                    residentId: resident.id,
-                    accountNumber: billingAccountAttrs.number,
-                    organizationId: userClient.organization.id,
-                }
+                await createTestServiceConsumer(adminClient, resident, userClient.organization, { accountNumber: billingAccountAttrs.number })
 
-                await registerServiceConsumerByTestClient(userClient, payload)
 
                 const MARCH_PERIOD = '2022-03-01'
                 const APRIL_PERIOD = '2022-04-01'
@@ -1011,12 +932,7 @@ describe('AllResidentBillingReceiptsService', () => {
                 const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, {
                     unitName: billingAccountAttrs.unitName,
                 })
-                const payload = {
-                    residentId: resident.id,
-                    accountNumber: billingAccountAttrs.number,
-                    organizationId: userClient.organization.id,
-                }
-                await registerServiceConsumerByTestClient(userClient, payload)
+                await createTestServiceConsumer(adminClient, resident, userClient.organization, { accountNumber: billingAccountAttrs.number })
 
                 const MARCH_PERIOD = '2022-03-01'
                 const APRIL_PERIOD = '2022-04-01'
@@ -1108,13 +1024,7 @@ describe('AllResidentBillingReceiptsService', () => {
                 const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, {
                     unitName: billingAccountAttrs.unitName,
                 })
-                const payload = {
-                    residentId: resident.id,
-                    accountNumber: billingAccountAttrs.number,
-                    organizationId: userClient.organization.id,
-                }
-
-                await registerServiceConsumerByTestClient(userClient, payload)
+                await createTestServiceConsumer(adminClient, resident, userClient.organization, { accountNumber: billingAccountAttrs.number })
 
                 const MARCH_PERIOD = '2022-03-01'
 
@@ -1187,12 +1097,7 @@ describe('AllResidentBillingReceiptsService', () => {
             const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, {
                 unitName: billingAccountAttrs.unitName,
             })
-            const payload = {
-                residentId: resident.id,
-                accountNumber: billingAccountAttrs.number,
-                organizationId: userClient.organization.id,
-            }
-            await registerServiceConsumerByTestClient(userClient, payload)
+            await createTestServiceConsumer(adminClient, resident, userClient.organization, { accountNumber: billingAccountAttrs.number })
 
             const hackerClient = await makeClientWithProperty()
             const [context2] = await createTestBillingIntegrationOrganizationContext(adminClient, hackerClient.organization, integration, { status: CONTEXT_FINISHED_STATUS })
@@ -1203,14 +1108,9 @@ describe('AllResidentBillingReceiptsService', () => {
             const [hackerResident] = await createTestResident(adminClient, hackerClient.user, hackerClient.property, {
                 unitName: billingAccount2.unitName,
             })
-            const hackerPayload = {
-                residentId: hackerResident.id,
-                accountNumber: billingAccount2.number,
-                organizationId: userClient.organization.id,
-            }
+            await createTestServiceConsumer(adminClient, hackerResident, userClient.organization, { accountNumber: billingAccount2.number })
             // Hacker is connected to billingAccount2 and tries to get receipts for billingAccount
             await catchErrorFrom(async () => {
-                await registerServiceConsumerByTestClient(hackerClient, hackerPayload)
                 await ResidentBillingReceipt.getAll(hackerClient, { account: { id: billingAccountAttrs.id } })
             }, (err) => {
                 expect(err).toBeDefined()
@@ -1316,16 +1216,8 @@ describe('AllResidentBillingReceiptsService', () => {
                 unitName: UNIT_NAME,
             })
 
-            const [serviceConsumer] = await registerServiceConsumerByTestClient(residentClient, {
-                residentId: resident.id,
-                accountNumber: organizationClient.billingAccount.number,
-                organizationId: organizationClient.organization.id,
-            })
-            await registerServiceConsumerByTestClient(residentClient, {
-                residentId: resident.id,
-                accountNumber: billingAccount2.number,
-                organizationId: organizationClient.organization.id,
-            })
+            const [serviceConsumer] = await createTestServiceConsumer(admin, resident, organizationClient.organization, { accountNumber: organizationClient.billingAccount.number })
+            await createTestServiceConsumer(admin, resident, organizationClient.organization, { accountNumber: billingAccount2.number })
 
             // Mobile app gets the list of all resident receipts
             const beforePaymentResult = await ResidentBillingReceipt.getAll(residentClient, { serviceConsumer: { resident: { id: resident.id } } },
@@ -1405,12 +1297,9 @@ describe('AllResidentBillingReceiptsService', () => {
                 addressMeta: organizationClient.property.addressMeta,
                 unitName: UNIT_NAME,
             })
+            //throw new Error(`resident: ${resident.id}, organization: ${organizationClient.organization.id}, account: ${organizationClient.billingAccount.number}`)
+            const [serviceConsumer] = await createTestServiceConsumer(admin, resident, organizationClient.organization, { accountNumber: organizationClient.billingAccount.number })
 
-            const [serviceConsumer] = await registerServiceConsumerByTestClient(residentClient, {
-                residentId: resident.id,
-                accountNumber: organizationClient.billingAccount.number,
-                organizationId: organizationClient.organization.id,
-            })
 
             // Mobile app gets the list of all resident receipts
             const [ singlePaymentReceiptBeforePayment ] = await ResidentBillingReceipt.getAll(residentClient, { serviceConsumer: { resident: { id: resident.id } } }, { sortBy: ['toPay_ASC'] } )
@@ -1489,12 +1378,7 @@ describe('AllResidentBillingReceiptsService', () => {
                 addressMeta: organizationClient.property.addressMeta,
                 unitName: UNIT_NAME,
             })
-
-            const [serviceConsumer] = await registerServiceConsumerByTestClient(residentClient, {
-                residentId: resident.id,
-                accountNumber: organizationClient.billingAccount.number,
-                organizationId: organizationClient.organization.id,
-            })
+            const [serviceConsumer] = await createTestServiceConsumer(admin, resident, organizationClient.organization, { accountNumber: organizationClient.billingAccount.number })
 
             // Mobile app gets the list of all resident receipts
             const [ receiptForHousingBeforePayment, receiptForWaterBeforePayment ] = await ResidentBillingReceipt.getAll(residentClient, { serviceConsumer: { resident: { id: resident.id } } }, { sortBy: ['toPay_ASC'] } )
@@ -1535,23 +1419,9 @@ describe('AllResidentBillingReceiptsService', () => {
 
             await addResidentAccess(userClient.user)
 
-            const [resident] = await createTestResident(adminClient,
-                userClient.user, userClient.property,
-                { unitName: billingAccountAttrs.unitName })
-
-            const payload = {
-                residentId: resident.id,
-                accountNumber: billingAccountAttrs.number,
-                organizationId: userClient.organization.id,
-            }
-            await registerServiceConsumerByTestClient(userClient, payload)
-
-            const payload2 = {
-                residentId: resident.id,
-                accountNumber: billingAccountAttrs2.number,
-                organizationId: userClient.organization.id,
-            }
-            await registerServiceConsumerByTestClient(userClient, payload2)
+            const [resident] = await createTestResident(adminClient, userClient.user, userClient.property,{ unitName: billingAccountAttrs.unitName })
+            await createTestServiceConsumer(adminClient, resident, userClient.organization, { accountNumber: billingAccountAttrs.number })
+            await createTestServiceConsumer(adminClient, resident, userClient.organization, { accountNumber: billingAccountAttrs2.number })
 
             // Receipts for billing account 1
 
