@@ -1,9 +1,7 @@
-/** @jsx jsx */
 import {
     PropertyMeterReadingWhereInput,
     SortPropertyMeterReadingsBy,
 } from '@app/condo/schema'
-import { jsx } from '@emotion/react'
 import { Col, Row, RowProps } from 'antd'
 import { ColumnsType } from 'antd/lib/table'
 import get from 'lodash/get'
@@ -26,6 +24,7 @@ import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { MetersImportWrapper } from '@condo/domains/meter/components/Import/Index'
 import { EXPORT_PROPERTY_METER_READINGS_QUERY } from '@condo/domains/meter/gql'
 import { useUpdateMeterModal } from '@condo/domains/meter/hooks/useUpdateMeterModal'
 import {
@@ -168,6 +167,13 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
                                 >
                                     {CreateMeterReadingsButtonLabel}
                                 </Button>
+                            ),
+                            canManageMeterReadings && (
+                                <MetersImportWrapper
+                                    key='import'
+                                    accessCheck={canManageMeterReadings}
+                                    onFinish={refetch}
+                                />
                             ),
                         ]}
                     />
