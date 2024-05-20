@@ -1449,9 +1449,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@app/meters@workspace:apps/meters-billing-integration":
+"@app/meters-billing-integration@workspace:apps/meters-billing-integration":
   version: 0.0.0-use.local
-  resolution: "@app/meters@workspace:apps/meters-billing-integration"
+  resolution: "@app/meters-billing-integration@workspace:apps/meters-billing-integration"
   dependencies:
     "@faker-js/faker": ^8.4.1
     "@graphql-codegen/cli": ^5.0.2
@@ -11756,9 +11756,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@meters/domains@link:./domains::locator=%40app%2Fmeters%40workspace%3Aapps%2Fmeters-billing-integration":
+"@meters/domains@link:./domains::locator=%40app%2Fmeters-billing-integration%40workspace%3Aapps%2Fmeters-billing-integration":
   version: 0.0.0-use.local
-  resolution: "@meters/domains@link:./domains::locator=%40app%2Fmeters%40workspace%3Aapps%2Fmeters-billing-integration"
+  resolution: "@meters/domains@link:./domains::locator=%40app%2Fmeters-billing-integration%40workspace%3Aapps%2Fmeters-billing-integration"
   languageName: node
   linkType: soft
 
