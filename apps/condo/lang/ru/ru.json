@@ -1039,6 +1039,7 @@
   "pages.condo.meter.InstallationDate": "Дата установки",
   "pages.condo.meter.CommissioningDate": "Дата ввода в эксплуатацию",
   "pages.condo.meter.VerificationDate": "Дата поверки",
+  "pages.condo.meter.VerificationDate.Overdue": "Просрочена на {days}",
   "pages.condo.meter.NextVerificationDate": "Дата следующей поверки",
   "pages.condo.meter.SealingDate": "Дата опломбирования",
   "pages.condo.meter.ControlReadingsDate": "Дата контрольных показаний",

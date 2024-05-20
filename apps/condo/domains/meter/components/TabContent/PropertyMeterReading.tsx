@@ -8,7 +8,7 @@ import { Col, Row, RowProps } from 'antd'
 import { ColumnsType } from 'antd/lib/table'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import React, { useCallback, useMemo } from 'react'
+import React, { CSSProperties, useCallback, useMemo } from 'react'
 
 import { PlusCircle, Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
@@ -30,11 +30,15 @@ import { EXPORT_PROPERTY_METER_READINGS_QUERY } from '@condo/domains/meter/gql'
 import { useUpdateMeterModal } from '@condo/domains/meter/hooks/useUpdateMeterModal'
 import {
     PropertyMeterReading,
-    METER_TAB_TYPES,
+    METER_TAB_TYPES, MeterReadingFilterTemplate,
 } from '@condo/domains/meter/utils/clientSchema'
 
+import { useMultipleFiltersModal } from '../../../common/hooks/useMultipleFiltersModal'
 
-const METERS_PAGE_CONTENT_ROW_GUTTERS: RowProps['gutter'] = [0, 40]
+
+const METERS_PAGE_CONTENT_ROW_GUTTERS: RowProps['gutter'] = [16, 40]
+const RESET_FILTERS_BUTTON_STYLE: CSSProperties = { paddingLeft: 0 }
+const FILTERS_CONTAINER_GUTTER: RowProps['gutter'] = [16, 16]
 
 const SORTABLE_PROPERTIES = ['date', 'clientName', 'source']
 
@@ -62,7 +66,7 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
     const CreateMeterReadingsButtonLabel = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterReadingsButtonLabel' })
 
     const router = useRouter()
-    const { filters, offset, sorters } = parseQuery(router.query)
+    const { filters, offset, sorters, tab } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
 
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filtersMeta, sortableProperties || SORTABLE_PROPERTIES)
@@ -88,8 +92,14 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
         fetchPolicy: 'network-only',
     })
 
-    const [search, handleSearchChange] = useSearch()
+    const [search, handleSearchChange, handleSearchReset] = useSearch()
     const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch, METER_TAB_TYPES.propertyMeter)
+    const { MultipleFiltersModal, ResetFiltersModalButton, OpenFiltersButton, appliedFiltersCount } = useMultipleFiltersModal({
+        filterMetas: filtersMeta,
+        filtersSchemaGql: MeterReadingFilterTemplate,
+        onReset: handleSearchReset,
+        extraQueryParameters: { tab },
+    })
 
     const handleRowAction = useCallback((record) => {
         return {
@@ -111,8 +121,8 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
             >
                 <Col span={24}>
                     <TableFiltersContainer>
-                        <Row justify='space-between' gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}>
-                            <Col span={24}>
+                        <Row style={{ display: 'flex' }} gutter={FILTERS_CONTAINER_GUTTER} align='middle'>
+                            <Col style={{ flex: 1 }}>
                                 <Input
                                     placeholder={SearchPlaceholder}
                                     onChange={handleSearch}
@@ -120,6 +130,16 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
                                     allowClear
                                     suffix={<Search size='medium' color={colors.gray[7]}/>}
                                 />
+                            </Col>
+                            {
+                                appliedFiltersCount > 0 && (
+                                    <Col>
+                                        <ResetFiltersModalButton style={RESET_FILTERS_BUTTON_STYLE} />
+                                    </Col>
+                                )
+                            }
+                            <Col>
+                                <OpenFiltersButton />
                             </Col>
                         </Row>
                     </TableFiltersContainer>
@@ -154,6 +174,7 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
                 </Col>
             </Row>
             <UpdateMeterModal />
+            <MultipleFiltersModal />
         </>
     )
 }
