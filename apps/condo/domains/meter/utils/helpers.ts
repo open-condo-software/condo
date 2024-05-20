@@ -1,3 +1,4 @@
+import dayjs from 'dayjs'
 import { isUndefined } from 'lodash'
 import isEmpty from 'lodash/isEmpty'
 import isNumber from 'lodash/isNumber'
@@ -19,3 +20,11 @@ export const normalizeMeterValue = (value): string | null | undefined => {
     if (isEmpty(transformedValue)) return undefined
     return String(Number(transformedValue))
 }
+
+export function getHumanizedVerificationDateDifference (nextVerificationDate) {
+    const diff = dayjs(nextVerificationDate).diff(dayjs(), 'day')
+    const overdueDiff = dayjs.duration(diff, 'days').subtract(1, 'day').humanize()
+
+    return overdueDiff
+}
+

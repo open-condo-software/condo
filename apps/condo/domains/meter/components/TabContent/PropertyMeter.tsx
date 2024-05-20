@@ -139,7 +139,7 @@ const PropertyMetersTableContent: React.FC<MetersTableContentProps> = ({
                             </Col>
                             <Col>
                                 <Row justify='start' gutter={FILTERS_CONTAINER_GUTTER} style={{ flexWrap: 'nowrap' }}>
-
+                                    {/*add isActive and isArchived */}
                                 </Row>
                             </Col>
                             <Col>
