@@ -333,20 +333,6 @@ async function checkRelatedOrganizationPermissions (userId, organizationId, perm
     return checkOrganizationPermissions(userId, organizationLink.from, permissions)
 }
 
-/**
- * @param {string} userId
- * @param {string} organizationId
- * @param {string[]} permissions
- * @return {Promise<boolean>}
- */
-async function checkPermissionsInUserOrganizationOrRelatedOrganization (userId, organizationId, permissions) {
-    if (!userId || !organizationId) return false
-
-    const hasPermissionsInUserOrganization = await checkOrganizationPermissions(userId, organizationId, permissions)
-    if (hasPermissionsInUserOrganization) return true
-    return await checkRelatedOrganizationPermissions(userId, organizationId, permissions)
-}
-
 async function checkUserBelongsToOrganization (userId, organizationId) {
     if (!userId || !organizationId) return false
     const employee = await getByCondition('OrganizationEmployee', {
@@ -410,7 +396,6 @@ module.exports = {
     checkPermissionsInEmployedOrRelatedOrganizations,
     // Old utils
     // TODO(INFRA-317): Remove this one-by-one
-    checkPermissionsInUserOrganizationOrRelatedOrganization,
     checkOrganizationPermission,
     checkUserBelongsToOrganization,
     checkUserBelongsToRelatedOrganization,
