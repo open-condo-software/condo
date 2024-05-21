@@ -597,9 +597,11 @@ describe('RegisterMetersReadingsService', () => {
         ])
     })
 
-    test('error on unexisting unit', async () => {
+    test('possible import with un-existing unit', async () => {
         const [o10n] = await createTestOrganization(adminClient)
         const [property1] = await createTestPropertyWithMap(adminClient, o10n)
+
+        const normalReading = createTestReadingData(property1)
 
         const readingWithBadFlat = createTestReadingData(property1)
         readingWithBadFlat.addressInfo.unitName = faker.datatype.string(4)
@@ -609,67 +611,18 @@ describe('RegisterMetersReadingsService', () => {
         readingWithBadParking.addressInfo.unitName = faker.datatype.string(4)
 
         const readings = [
-            createTestReadingData(property1),
+            normalReading,
             readingWithBadFlat,
             readingWithBadParking,
         ]
 
-        await catchErrorFrom(
-            async () => {
-                await registerMetersReadingsByTestClient(adminClient, o10n, readings)
-            },
-            ({ data: { result }, errors }) => {
-                expect(result).toEqual([
-                    expect.objectContaining({
-                        id: expect.stringMatching(UUID_REGEXP),
-                        meter: expect.objectContaining({
-                            id: expect.stringMatching(UUID_REGEXP),
-                            property: expect.objectContaining({
-                                id: property1.id,
-                                address: property1.address,
-                                addressKey: property1.addressKey,
-                            }),
-                            unitType: readings[0].addressInfo.unitType,
-                            unitName: readings[0].addressInfo.unitName,
-                            accountNumber: readings[0].accountNumber,
-                            number: readings[0].meterNumber,
-                        }),
-                    }),
-                    null,
-                    null,
-                ])
-                expect(errors).toEqual([
-                    expect.objectContaining({
-                        message: 'Invalid unit name',
-                        extensions: expect.objectContaining({
-                            type: 'INVALID_UNIT_NAME',
-                            message: 'Invalid unit name',
-                        }),
-                        originalError: expect.objectContaining({
-                            message: 'Invalid unit name',
-                            extensions: expect.objectContaining({
-                                type: 'INVALID_UNIT_NAME',
-                                message: 'Invalid unit name',
-                            }),
-                        }),
-                    }),
-                    expect.objectContaining({
-                        message: 'Invalid unit name',
-                        extensions: expect.objectContaining({
-                            type: 'INVALID_UNIT_NAME',
-                            message: 'Invalid unit name',
-                        }),
-                        originalError: expect.objectContaining({
-                            message: 'Invalid unit name',
-                            extensions: expect.objectContaining({
-                                type: 'INVALID_UNIT_NAME',
-                                message: 'Invalid unit name',
-                            }),
-                        }),
-                    }),
-                ])
-            },
-        )
+        const [result] = await registerMetersReadingsByTestClient(adminClient, o10n, readings)
+
+        expect(result).toEqual([
+            expect.objectContaining({ meter: expect.objectContaining({ unitType: normalReading.addressInfo.unitType, unitName: normalReading.addressInfo.unitName }) }),
+            expect.objectContaining({ meter: expect.objectContaining({ unitType: readingWithBadFlat.addressInfo.unitType, unitName: readingWithBadFlat.addressInfo.unitName }) }),
+            expect.objectContaining({ meter: expect.objectContaining({ unitType: readingWithBadParking.addressInfo.unitType, unitName: readingWithBadParking.addressInfo.unitName }) }),
+        ])
     })
 
     test('unitType, unitName, meterNumber and accountNumber are trimmed correctly', async () => {

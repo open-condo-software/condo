@@ -75,12 +75,6 @@ const ERRORS = {
         messageForUser: 'api.meter.registerMetersReadings.MULTIPLE_METERS_FOUND',
         messageInterpolation: { count },
     }),
-    INVALID_UNIT_NAME: {
-        code: BAD_USER_INPUT,
-        type: INVALID_UNIT_NAME,
-        message: 'Invalid unit name',
-        messageForUser: 'meter.import.error.UnitNameNotFound',
-    },
     INVALID_ACCOUNT_NUMBER: {
         code: BAD_USER_INPUT,
         type: INVALID_ACCOUNT_NUMBER,
@@ -166,16 +160,6 @@ function validateMeterValue (value) {
     if (isUndefined(value)) return true
 
     return !isEmpty(value) && !isNaN(Number(value)) && isFinite(Number(value)) && Number(value) >= 0
-}
-
-function mapSectionsToUnitLabels (sections) {
-    return sections.map(
-        section => section.floors.map(
-            floor => floor.units.map(
-                unit => unit.label,
-            ),
-        ),
-    ).flat(2)
 }
 
 const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReadingsService', {
@@ -299,19 +283,6 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
 
                     if (!property) {
                         resultRows.push(new GQLError(ERRORS.PROPERTY_NOT_FOUND, context))
-                        continue
-                    }
-
-                    const sections = get(property, ['map', 'sections'], [])
-                    const parking = get(property, ['map', 'parking'], [])
-                    const sectionsUnitLabels = mapSectionsToUnitLabels(sections)
-                    const parkingUnitLabels = mapSectionsToUnitLabels(parking)
-
-                    if (
-                        (unitType === PARKING_UNIT_TYPE && !parkingUnitLabels.includes(unitName))
-                        || (unitType !== PARKING_UNIT_TYPE && !sectionsUnitLabels.includes(unitName))
-                    ) {
-                        resultRows.push(new GQLError(ERRORS.INVALID_UNIT_NAME, context))
                         continue
                     }
 
