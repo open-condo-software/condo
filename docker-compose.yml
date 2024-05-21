@@ -34,7 +34,7 @@ services:
            -c wal_level=replica
            -c synchronous_commit=on
     volumes:
-      - ./postgresql-init-replication.sql:/docker-entrypoint-initdb.d/postgresql-init-replication.sql
+      - ./docker-compose-postgresql-init-replication.sql:/docker-entrypoint-initdb.d/docker-compose-postgresql-init-replication.sql
     networks:
       - app-network
     healthcheck:
