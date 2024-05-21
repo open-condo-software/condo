@@ -10,9 +10,11 @@ const {
     canManageObjectsAsB2BAppServiceUser,
     canReadObjectsAsB2BAppServiceUser,
 } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
-const { queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
-const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
-const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    checkPermissionsInEmployedOrganizations,
+    queryOrganizationEmployeeFor,
+    queryOrganizationEmployeeFromRelatedOrganizationFor,
+} = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 
 
@@ -63,13 +65,15 @@ async function canManageProperties (args) {
         const organizationId = get(originalInput, ['organization', 'connect', 'id'])
         if (!organizationId) return false
 
-        return await checkOrganizationPermission(user.id, organizationId, 'canManageProperties')
+        return await checkPermissionsInEmployedOrganizations(user, organizationId, 'canManageProperties')
     } else if (operation === 'update' && itemId) {
         const property = await getById('Property', itemId)
         if (!property) return false
         const { organization: organizationId } = property
 
-        return await checkOrganizationPermission(user.id, organizationId, 'canManageProperties')
+        if (!organizationId) return false
+
+        return await checkPermissionsInEmployedOrganizations(user, organizationId, 'canManageProperties')
     }
 
     return false

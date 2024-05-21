@@ -7,7 +7,10 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { find, getById } = require('@open-condo/keystone/schema')
 
-const { queryOrganizationEmployeeFor, checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    queryOrganizationEmployeeFor,
+    checkPermissionsInEmployedOrganizations,
+} = require('@condo/domains/organization/utils/accessSchema')
 const { SERVICE, STAFF } = require('@condo/domains/user/constants/common')
 
 /**
@@ -72,9 +75,9 @@ async function canManageB2BAppRoles ({ authentication: { item: user }, originalI
 
         if (!organizationRoleId) return false
         const organizationRole = await getById('OrganizationEmployeeRole', organizationRoleId)
-        if (!organizationRole) return false
+        if (!organizationRole || !organizationRole.organization) return false
 
-        return await checkOrganizationPermission(user.id, organizationRole.organization, 'canManageRoles')
+        return await checkPermissionsInEmployedOrganizations(user, organizationRole.organization, 'canManageRoles')
     }
 
     return false

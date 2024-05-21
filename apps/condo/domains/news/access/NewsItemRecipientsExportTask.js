@@ -7,7 +7,7 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
-const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
+const { checkPermissionsInEmployedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
 
 
 async function canReadNewsItemRecipientsExportTasks ({ authentication: { item: user } }) {
@@ -33,13 +33,15 @@ async function canManageNewsItemRecipientsExportTasks ({
         const organizationId = get(originalInput, ['organization', 'connect', 'id'])
         if (!organizationId) return false
 
-        return await checkOrganizationPermission(user.id, organizationId, 'canReadNewsItems')
+        return await checkPermissionsInEmployedOrganizations(user, organizationId, 'canReadNewsItems')
     } else if (operation === 'update' && itemId) {
         const task = await getById('NewsItemRecipientsExportTask', itemId)
         if (!task) return false
         const { organization: organizationId } = task
 
-        return await checkOrganizationPermission(user.id, organizationId, 'canReadNewsItems')
+        if (!organizationId) return false
+
+        return await checkPermissionsInEmployedOrganizations(user, organizationId, 'canReadNewsItems')
     }
 
     return false

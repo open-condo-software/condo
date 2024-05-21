@@ -8,7 +8,10 @@ const { isSoftDelete } = require('@open-condo/keystone/access')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
-const { queryOrganizationEmployeeFor, checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    queryOrganizationEmployeeFor,
+    checkPermissionsInEmployedOrganizations,
+} = require('@condo/domains/organization/utils/accessSchema')
 
 async function canReadPropertyScopeOrganizationEmployees ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
@@ -38,9 +41,9 @@ async function canManagePropertyScopeOrganizationEmployees ({ authentication: { 
         const propertyScopeOrganizationId = get(propertyScope, 'organization')
         const employeeOrganizationId = get(employee, 'organization')
 
-        if (propertyScopeOrganizationId !== employeeOrganizationId) return false
+        if (!propertyScopeOrganizationId || propertyScopeOrganizationId !== employeeOrganizationId) return false
 
-        return await checkOrganizationPermission(user.id, propertyScopeOrganizationId, 'canManagePropertyScopes')
+        return await checkPermissionsInEmployedOrganizations(user, propertyScopeOrganizationId, 'canManagePropertyScopes')
     } else if (operation === 'update' && itemId) {
         if (!isSoftDelete(originalInput)) return false
 
@@ -51,7 +54,9 @@ async function canManagePropertyScopeOrganizationEmployees ({ authentication: { 
         const propertyScope = await getById('PropertyScope', propertyScopeId)
         const organizationId = get(propertyScope, 'organization')
 
-        return await checkOrganizationPermission(user.id, organizationId, 'canManagePropertyScopes')
+        if (!organizationId) return false
+
+        return await checkPermissionsInEmployedOrganizations(user, organizationId, 'canManagePropertyScopes')
     }
 
     return false

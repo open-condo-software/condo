@@ -7,7 +7,10 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
-const { queryOrganizationEmployeeFor, checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    queryOrganizationEmployeeFor,
+    checkPermissionsInEmployedOrganizations,
+} = require('@condo/domains/organization/utils/accessSchema')
 
 async function canReadTourSteps ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
@@ -35,7 +38,9 @@ async function canManageTourSteps ({ authentication: { item: user }, originalInp
 
         const organizationId = get(tourStep, 'organization')
 
-        return await checkOrganizationPermission(user.id, organizationId, 'canManageTour')
+        if (!organizationId) return false
+
+        return await checkPermissionsInEmployedOrganizations(user, organizationId, 'canManageTour')
     }
 
     return false

@@ -7,7 +7,10 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
-const { queryOrganizationEmployeeFor, checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    queryOrganizationEmployeeFor,
+    checkPermissionsInEmployedOrganizations,
+} = require('@condo/domains/organization/utils/accessSchema')
 
 async function canReadPropertyScopes ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
@@ -29,13 +32,15 @@ async function canManagePropertyScopes ({ authentication: { item: user }, origin
         const organizationId = get(originalInput, ['organization', 'connect', 'id'])
         if (!organizationId) return false
 
-        return await checkOrganizationPermission(user.id, organizationId, 'canManagePropertyScopes')
+        return await checkPermissionsInEmployedOrganizations(user, organizationId, 'canManagePropertyScopes')
     } else if (operation === 'update' && itemId) {
         const property = await getById('PropertyScope', itemId)
         if (!property) return false
         const { organization: organizationId } = property
 
-        return await checkOrganizationPermission(user.id, organizationId, 'canManagePropertyScopes')
+        if (!organizationId) return false
+
+        return await checkPermissionsInEmployedOrganizations(user, organizationId, 'canManagePropertyScopes')
     }
 
     return false

@@ -8,7 +8,11 @@ const { isSoftDelete } = require('@open-condo/keystone/access')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
-const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor, checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    queryOrganizationEmployeeFor,
+    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    checkPermissionsInEmployedOrganizations,
+} = require('@condo/domains/organization/utils/accessSchema')
 
 async function canReadOrganizationEmployeeSpecializations ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
@@ -40,7 +44,9 @@ async function canManageOrganizationEmployeeSpecializations ({ authentication: {
         const employee = await getById('OrganizationEmployee', employeeId)
         const organizationId = get(employee, 'organization')
 
-        return await checkOrganizationPermission(user.id, organizationId, 'canManageEmployees')
+        if (!organizationId) return false
+
+        return await checkPermissionsInEmployedOrganizations(user, organizationId, 'canManageEmployees')
     } else if (operation === 'update' && itemId) {
         if (!isSoftDelete(originalInput)) return false
 
@@ -51,7 +57,9 @@ async function canManageOrganizationEmployeeSpecializations ({ authentication: {
         const employee = await getById('OrganizationEmployee', employeeId)
         const organizationId = get(employee, 'organization')
 
-        return await checkOrganizationPermission(user.id, organizationId, 'canManageEmployees')
+        if (!organizationId) return false
+
+        return await checkPermissionsInEmployedOrganizations(user, organizationId, 'canManageEmployees')
     }
 
     return false

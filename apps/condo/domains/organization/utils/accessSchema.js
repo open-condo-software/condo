@@ -1,5 +1,4 @@
 const get = require('lodash/get')
-const isEmpty = require('lodash/isEmpty')
 const pick = require('lodash/pick')
 const uniq = require('lodash/uniq')
 
@@ -274,43 +273,6 @@ async function checkPermissionsInEmployedOrRelatedOrganizations (user, organizat
     return organizationsToCheck.every(ordId => permittedOrganizationsSet.has(ordId))
 }
 
-
-async function checkOrganizationPermission (userId, organizationId, permission) {
-    return checkOrganizationPermissions(userId, organizationId, [permission])
-}
-
-/**
- * @param {string} userId
- * @param {string} organizationId
- * @param {string[]} permissions
- * @return {Promise<boolean>}
- */
-async function checkOrganizationPermissions (userId, organizationId, permissions) {
-    if (!userId || !organizationId) return false
-    const [employee] = await find('OrganizationEmployee', {
-        organization: { id: organizationId },
-        user: { id: userId },
-        deletedAt: null,
-        isBlocked: false,
-    })
-
-    if (isEmpty(permissions) && employee) {
-        return true
-    }
-
-    if (!employee || !employee.role) {
-        return false
-    }
-
-    const [employeeRole] = await find('OrganizationEmployeeRole', {
-        id: employee.role,
-        organization: { id: organizationId },
-    })
-
-    if (!employeeRole) return false
-    return permissions.every((permission) => !!employeeRole[permission]) || false
-}
-
 async function checkUserBelongsToOrganization (userId, organizationId) {
     if (!userId || !organizationId) return false
     const employee = await getByCondition('OrganizationEmployee', {
@@ -374,7 +336,6 @@ module.exports = {
     checkPermissionsInEmployedOrRelatedOrganizations,
     // Old utils
     // TODO(INFRA-317): Remove this one-by-one
-    checkOrganizationPermission,
     checkUserBelongsToOrganization,
     checkUserBelongsToRelatedOrganization,
     queryOrganizationEmployeeFromRelatedOrganizationFor,
