@@ -9,7 +9,7 @@ const { getById } = require('@open-condo/keystone/schema')
 
 const {
     queryOrganizationEmployeeFor,
-    checkPermissionInUserOrganizationOrRelatedOrganization,
+    checkPermissionsInEmployedOrRelatedOrganizations,
     queryOrganizationEmployeeFromRelatedOrganizationFor,
 } = require('@condo/domains/organization/utils/accessSchema')
 
@@ -46,7 +46,9 @@ async function canManageContactRoles ({ authentication: { item: user }, original
         }
     }
 
-    return checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageContactRoles')
+    if (!organizationId) return false
+
+    return checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canManageContactRoles')
 }
 
 /*

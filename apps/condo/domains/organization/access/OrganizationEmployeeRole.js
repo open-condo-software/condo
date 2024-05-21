@@ -6,9 +6,11 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
-const { queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
-const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
-const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    queryOrganizationEmployeeFor,
+    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    checkPermissionsInEmployedOrRelatedOrganizations,
+} = require('@condo/domains/organization/utils/accessSchema')
 
 
 async function canReadOrganizationEmployeeRoles ({ authentication: { item: user } }) {
@@ -44,7 +46,7 @@ async function canManageOrganizationEmployeeRoles ({ authentication: { item: use
 
     if (!organizationId) return false
 
-    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageRoles')
+    return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canManageRoles')
 }
 
 /*

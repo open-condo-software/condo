@@ -6,8 +6,11 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
-const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
-const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    queryOrganizationEmployeeFor,
+    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    checkPermissionsInEmployedOrRelatedOrganizations,
+} = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 
 
@@ -56,7 +59,9 @@ async function canManageTicketFiles ({ authentication: { item: user }, originalI
                 const ticket = await getById('Ticket', ticketId)
                 const organizationId = get(ticket, 'organization', null)
 
-                return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageTickets')
+                if (!organizationId) return false
+
+                return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canManageTickets')
             }
 
             return true
@@ -68,7 +73,7 @@ async function canManageTicketFiles ({ authentication: { item: user }, originalI
         const { createdBy, organization } = ticketFile
         if (!organization) return createdBy === user.id
 
-        return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organization, 'canManageTickets')
+        return await checkPermissionsInEmployedOrRelatedOrganizations(user, organization, 'canManageTickets')
     }
 
     return false

@@ -11,9 +11,11 @@ const {
     canReadObjectsAsB2BAppServiceUser,
     canManageObjectsAsB2BAppServiceUser,
 } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
-const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
-const { queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
-const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    checkPermissionsInEmployedOrRelatedOrganizations,
+    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    queryOrganizationEmployeeFor,
+} = require('@condo/domains/organization/utils/accessSchema')
 const { SERVICE } = require('@condo/domains/user/constants/common')
 
 
@@ -54,7 +56,9 @@ async function canManageContacts (args) {
     if (operation === 'create') {
         const organizationId = get(originalInput, ['organization', 'connect', 'id'])
 
-        return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageContacts')
+        if (!organizationId) return false
+
+        return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canManageContacts')
     }
 
     if (operation === 'update' && itemId) {
@@ -62,7 +66,9 @@ async function canManageContacts (args) {
         if (!contact) return false
         const contactOrganization = contact.organization
 
-        return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, contactOrganization, 'canManageContacts')
+        if (!contactOrganization) return false
+
+        return await checkPermissionsInEmployedOrRelatedOrganizations(user, contactOrganization, 'canManageContacts')
     }
 
     return false

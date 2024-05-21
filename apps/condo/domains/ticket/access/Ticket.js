@@ -9,7 +9,11 @@ const omit = require('lodash/omit')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById, find } = require('@open-condo/keystone/schema')
 
-const { checkPermissionInUserOrganizationOrRelatedOrganization, queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    checkPermissionsInEmployedOrRelatedOrganizations,
+    queryOrganizationEmployeeFor,
+    queryOrganizationEmployeeFromRelatedOrganizationFor,
+} = require('@condo/domains/organization/utils/accessSchema')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 const { CANCELED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
 const {
@@ -111,7 +115,9 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
             organizationId = get(ticket, 'organization', null)
         }
 
-        const permission = await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageTickets')
+        if (!organizationId) return false
+
+        const permission = await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canManageTickets')
         if (!permission) return false
 
         const propertyId = get(originalInput, ['property', 'connect', 'id'], null)

@@ -1,9 +1,7 @@
 const get = require('lodash/get')
-const isArray = require('lodash/isArray')
 const isEmpty = require('lodash/isEmpty')
 const pick = require('lodash/pick')
 const uniq = require('lodash/uniq')
-const { validate: isUUID } = require('uuid')
 
 const conf = require('@open-condo/config')
 const { getRedisClient } = require('@open-condo/keystone/redis')
@@ -335,11 +333,6 @@ async function checkRelatedOrganizationPermissions (userId, organizationId, perm
     return checkOrganizationPermissions(userId, organizationLink.from, permissions)
 }
 
-// TODO(nomerdvadcatpyat): use this function where checkRelatedOrganizationPermission and checkOrganizationPermission used together
-async function checkPermissionInUserOrganizationOrRelatedOrganization (userId, organizationId, permission) {
-    return checkPermissionsInUserOrganizationOrRelatedOrganization(userId, organizationId, [permission])
-}
-
 /**
  * @param {string} userId
  * @param {string} organizationId
@@ -417,7 +410,6 @@ module.exports = {
     checkPermissionsInEmployedOrRelatedOrganizations,
     // Old utils
     // TODO(INFRA-317): Remove this one-by-one
-    checkPermissionInUserOrganizationOrRelatedOrganization,
     checkPermissionsInUserOrganizationOrRelatedOrganization,
     checkOrganizationPermission,
     checkUserBelongsToOrganization,

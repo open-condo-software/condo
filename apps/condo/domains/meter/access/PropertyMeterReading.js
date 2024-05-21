@@ -7,8 +7,11 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
-const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
-const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    queryOrganizationEmployeeFor,
+    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    checkPermissionsInEmployedOrRelatedOrganizations,
+} = require('@condo/domains/organization/utils/accessSchema')
 
 async function canReadPropertyMeterReadings ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
@@ -38,7 +41,9 @@ async function canManagePropertyMeterReadings ({ authentication: { item: user },
         const meter = await getById('PropertyMeter', meterId)
         const meterOrganization = get(meter, 'organization', null)
 
-        return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, meterOrganization, 'canManageMeterReadings')
+        if (!meterOrganization) return false
+
+        return await checkPermissionsInEmployedOrRelatedOrganizations(user, meterOrganization, 'canManageMeterReadings')
     }
 
     return false

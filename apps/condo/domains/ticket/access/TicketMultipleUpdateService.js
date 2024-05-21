@@ -6,7 +6,7 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
-const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
+const { checkPermissionsInEmployedOrRelatedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
 
 async function canTicketMultipleUpdate (data) {
     const { authentication: { item: user } } = data
@@ -20,7 +20,9 @@ async function canTicketMultipleUpdate (data) {
 
     const ticket = await getById('Ticket', ticketId)
 
-    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, ticket.organization, 'canManageTickets')
+    if (!ticket.organization) return false
+
+    return await checkPermissionsInEmployedOrRelatedOrganizations(user, ticket.organization, 'canManageTickets')
 }
 
 /*

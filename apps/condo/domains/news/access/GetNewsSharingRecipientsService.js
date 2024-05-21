@@ -6,7 +6,7 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
-const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
+const { checkPermissionsInEmployedOrRelatedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
 
 async function canGetNewsSharingRecipients ({ authentication: { item: user }, args: { data: { b2bAppContext: { id: b2bAppContextId } } } }) {
     if (!user) return throwAuthenticationError()
@@ -14,12 +14,12 @@ async function canGetNewsSharingRecipients ({ authentication: { item: user }, ar
     if (user.isAdmin || user.isSupport) return true
 
     const b2bContext = await getById('B2BAppContext', b2bAppContextId)
-    if (!b2bContext) { return false }
+    if (!b2bContext) return false
 
     const organizationId = get(b2bContext, 'organization', null)
-    if (!organizationId) { return false }
+    if (!organizationId) return false
 
-    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageNewsItems')
+    return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canManageNewsItems')
 }
 
 /*

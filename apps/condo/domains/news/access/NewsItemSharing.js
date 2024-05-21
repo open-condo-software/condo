@@ -10,9 +10,10 @@ const { getById } = require('@open-condo/keystone/schema')
 
 const {
     queryOrganizationEmployeeFor,
-    queryOrganizationEmployeeFromRelatedOrganizationFor, checkPermissionInUserOrganizationOrRelatedOrganization,
-} = require('../../organization/utils/accessSchema')
-const { RESIDENT } = require('../../user/constants/common')
+    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    checkPermissionsInEmployedOrRelatedOrganizations,
+} = require('@condo/domains/organization/utils/accessSchema')
+const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 async function canReadNewsItemSharings ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
@@ -54,7 +55,7 @@ async function canManageNewsItemSharings ({ authentication: { item: user }, orig
 
     if (!organizationId) return false
 
-    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageNewsItems')
+    return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canManageNewsItems')
 }
 
 /*

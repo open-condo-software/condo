@@ -7,8 +7,11 @@ const { compact, get, uniq } = require('lodash')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { find, getById } = require('@open-condo/keystone/schema')
 
-const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
-const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    queryOrganizationEmployeeFor,
+    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    checkPermissionsInEmployedOrRelatedOrganizations,
+} = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 async function canReadMarketItemPrices ({ authentication: { item: user } }) {
@@ -79,7 +82,7 @@ async function canManageMarketItemPrices ({ authentication: { item: user }, orig
 
     if (!organizationId) return false
 
-    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageMarketItemPrices')
+    return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canManageMarketItemPrices')
 }
 
 /*

@@ -6,7 +6,11 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
-const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor, checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    queryOrganizationEmployeeFor,
+    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    checkPermissionsInEmployedOrRelatedOrganizations,
+} = require('@condo/domains/organization/utils/accessSchema')
 
 async function canReadTicketPropertyHints ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
@@ -42,7 +46,9 @@ async function canManageTicketPropertyHints ({ authentication: { item: user }, o
         }
     }
 
-    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, hintOrganizationId, 'canManageTicketPropertyHints')
+    if (!hintOrganizationId) return false
+
+    return await checkPermissionsInEmployedOrRelatedOrganizations(user, hintOrganizationId, 'canManageTicketPropertyHints')
 }
 
 /*

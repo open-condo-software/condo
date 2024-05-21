@@ -7,7 +7,11 @@ const { get, uniq, compact } = require('lodash')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById, find } = require('@open-condo/keystone/schema')
 
-const { checkPermissionInUserOrganizationOrRelatedOrganization, queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    checkPermissionsInEmployedOrRelatedOrganizations,
+    queryOrganizationEmployeeFor,
+    queryOrganizationEmployeeFromRelatedOrganizationFor,
+} = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { STAFF } = require('@condo/domains/user/constants/common')
 
@@ -90,7 +94,7 @@ async function canManageMarketItemFiles ({ authentication: { item: user }, origi
         const organizationId = get(marketItem, 'organization', null)
         if (!organizationId) return false
 
-        return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageMarketItems')
+        return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canManageMarketItems')
     }
 
     return false

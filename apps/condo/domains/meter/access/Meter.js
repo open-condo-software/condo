@@ -13,7 +13,7 @@ const {
     canManageObjectsAsB2BAppServiceUser,
 } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
 const {
-    checkPermissionInUserOrganizationOrRelatedOrganization,
+    checkPermissionsInEmployedOrRelatedOrganizations,
     queryOrganizationEmployeeFromRelatedOrganizationFor,
     queryOrganizationEmployeeFor,
 } = require('@condo/domains/organization/utils/accessSchema')
@@ -74,7 +74,7 @@ async function canManageMeters (args) {
         if (!property) return false
         if (organizationId !== get(property, 'organization')) return false
 
-        return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageMeters')
+        return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canManageMeters')
     }
 
     if (operation === 'update' && itemId) {
@@ -85,6 +85,8 @@ async function canManageMeters (args) {
         if (!meter) return false
         // if we pass property then we need check that this Property is in the organization in which the Meter is located
         const meterOrganization = get(meter, 'organization')
+        if (!meterOrganization) return false
+
         const propertyId = get(originalInput, ['property', 'connect', 'id'])
         if (propertyId) {
             const property = await getByCondition('Property', {
@@ -95,7 +97,7 @@ async function canManageMeters (args) {
             if (meterOrganization !== get(property, 'organization')) return false
         }
 
-        return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, meterOrganization, 'canManageMeters')
+        return await checkPermissionsInEmployedOrRelatedOrganizations(user, meterOrganization, 'canManageMeters')
     }
 
     return false

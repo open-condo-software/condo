@@ -7,8 +7,11 @@ const { uniq, map, get } = require('lodash')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { find, getById } = require('@open-condo/keystone/schema')
 
-const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
-const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    queryOrganizationEmployeeFor,
+    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    checkPermissionsInEmployedOrRelatedOrganizations,
+} = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 async function canReadMobileFeatureConfigs ({ authentication: { item: user } }) {
@@ -63,7 +66,9 @@ async function canManageMobileFeatureConfigs (attrs) {
         organizationId = get(foundConfig, 'organization')
     }
 
-    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageMobileFeatureConfigs')
+    if (!organizationId) return false
+
+    return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canManageMobileFeatureConfigs')
 }
 
 /*

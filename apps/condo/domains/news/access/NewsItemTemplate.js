@@ -10,7 +10,7 @@ const { getById } = require('@open-condo/keystone/schema')
 const {
     queryOrganizationEmployeeFor,
     queryOrganizationEmployeeFromRelatedOrganizationFor,
-    checkPermissionInUserOrganizationOrRelatedOrganization,
+    checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
@@ -59,7 +59,7 @@ async function canManageNewsItemTemplates ({ authentication: { item: user }, ori
 
     if (!organizationId) return false
 
-    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageNewsItemTemplates')
+    return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canManageNewsItemTemplates')
 }
 
 /*

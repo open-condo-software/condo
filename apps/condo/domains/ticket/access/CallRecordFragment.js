@@ -7,7 +7,11 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getByCondition } = require('@open-condo/keystone/schema')
 
-const { checkPermissionInUserOrganizationOrRelatedOrganization, queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    checkPermissionsInEmployedOrRelatedOrganizations,
+    queryOrganizationEmployeeFor,
+    queryOrganizationEmployeeFromRelatedOrganizationFor,
+} = require('@condo/domains/organization/utils/accessSchema')
 
 async function canReadCallRecordFragments ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
@@ -48,7 +52,9 @@ async function canManageCallRecordFragments ({ authentication: { item: user }, o
         organizationId = get(callRecordFragment, 'organization', null)
     }
 
-    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageCallRecords')
+    if (!organizationId) return false
+
+    return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canManageCallRecords')
 }
 
 /*

@@ -14,7 +14,7 @@ const {
 const {
     queryOrganizationEmployeeFromRelatedOrganizationFor,
     queryOrganizationEmployeeFor,
-    checkPermissionInUserOrganizationOrRelatedOrganization,
+    checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 
@@ -73,8 +73,9 @@ async function canManageMeterReadings (args) {
 
         const meter = await getById('Meter', meterId)
         const meterOrganization = get(meter, 'organization', null)
+        if (!meterOrganization) return false
 
-        return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, meterOrganization, 'canManageMeterReadings')
+        return await checkPermissionsInEmployedOrRelatedOrganizations(user, meterOrganization, 'canManageMeterReadings')
     }
 
     return false

@@ -12,7 +12,7 @@ const { queryFindNewsItemsScopesByResidents } = require('@condo/domains/news/uti
 const {
     queryOrganizationEmployeeFor,
     queryOrganizationEmployeeFromRelatedOrganizationFor,
-    checkPermissionInUserOrganizationOrRelatedOrganization,
+    checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
@@ -67,7 +67,7 @@ async function canManageNewsItems ({ authentication: { item: user }, originalInp
 
     if (!organizationId) return false
 
-    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageNewsItems')
+    return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canManageNewsItems')
 }
 
 /*

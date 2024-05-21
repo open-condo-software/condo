@@ -10,7 +10,7 @@ const { getById } = require('@open-condo/keystone/schema')
 const {
     queryOrganizationEmployeeFor,
     queryOrganizationEmployeeFromRelatedOrganizationFor,
-    checkPermissionInUserOrganizationOrRelatedOrganization,
+    checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 
 
@@ -46,7 +46,9 @@ async function canManageIncidentClassifierIncidents ({ authentication: { item: u
         organizationId = get(incidentClassifierIncident, 'organization', null)
     }
 
-    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageIncidents')
+    if (!organizationId) return false
+
+    return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canManageIncidents')
 }
 
 /*

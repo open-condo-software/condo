@@ -10,7 +10,8 @@ const { getByCondition, getById } = require('@open-condo/keystone/schema')
 
 const {
     queryOrganizationEmployeeFor,
-    queryOrganizationEmployeeFromRelatedOrganizationFor, checkPermissionInUserOrganizationOrRelatedOrganization,
+    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
@@ -80,7 +81,9 @@ const checkManageCommentFileAccess = async ({ user, operation, originalInput, it
                 const ticket = await getById('Ticket', ticketId)
                 const organizationId = get(ticket, 'organization', null)
 
-                return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageTicketComments')
+                if (!organizationId) return false
+
+                return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canManageTicketComments')
             }
 
             return true
@@ -92,7 +95,7 @@ const checkManageCommentFileAccess = async ({ user, operation, originalInput, it
         const { createdBy, organization } = ticketCommentFile
         if (!organization) return createdBy === user.id
 
-        return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organization, 'canManageTicketComments')
+        return await checkPermissionsInEmployedOrRelatedOrganizations(user, organization, 'canManageTicketComments')
     }
 
     return false

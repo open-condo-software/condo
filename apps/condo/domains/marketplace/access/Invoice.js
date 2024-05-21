@@ -16,7 +16,7 @@ const {
 const {
     queryOrganizationEmployeeFor,
     queryOrganizationEmployeeFromRelatedOrganizationFor,
-    checkPermissionInUserOrganizationOrRelatedOrganization,
+    checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
@@ -72,7 +72,7 @@ async function canManageInvoices ({ authentication: { item: user }, originalInpu
     }
 
     if (!organizationId) return false
-    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageInvoices')
+    return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canManageInvoices')
 }
 
 /*
