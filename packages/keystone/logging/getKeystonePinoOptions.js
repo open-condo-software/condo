@@ -19,4 +19,5 @@ function getKeystonePinoOptions () {
 
 module.exports = {
     getKeystonePinoOptions,
+    IGNORE_PATH,
 }
