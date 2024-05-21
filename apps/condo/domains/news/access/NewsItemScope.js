@@ -6,12 +6,12 @@ const { uniq, get } = require('lodash')
 
 const { isSoftDelete } = require('@open-condo/keystone/access')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { find, getByCondition } = require('@open-condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
 
-const { checkPermissionsInUserOrganizationsOrRelatedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
 const {
     queryOrganizationEmployeeFor,
     queryOrganizationEmployeeFromRelatedOrganizationFor,
+    checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { STAFF, RESIDENT } = require('@condo/domains/user/constants/common')
 
@@ -55,51 +55,42 @@ async function canManageNewsItemScopes ({ authentication: { item: user }, origin
         let organizationIds
 
         if (operation === 'create') {
+            let newsItemIds = []
             if (isBulkRequest) {
-                const newsItemIds = uniq(originalInput.map(item => get(item, 'data.newsItem.connect.id')))
-                const newsItems = await find('NewsItem', {
-                    id_in: newsItemIds,
-                    deletedAt: null,
-                })
-                if (newsItemIds.length !== newsItems.length) return false
-                organizationIds = uniq(newsItems.map(item => get(item, 'organization')))
+                newsItemIds = originalInput.map(item => get(item, 'data.newsItem.connect.id')).filter(Boolean)
+                if (newsItemIds.length !== originalInput.length) return false
+                newsItemIds = uniq(newsItemIds)
             } else {
                 const newsItemId = get(originalInput, 'newsItem.connect.id')
-                const newsItem = await getByCondition('NewsItem', {
-                    id: newsItemId,
-                    deletedAt: null,
-                })
-                if (!newsItem) return false
-                organizationIds = [get(newsItem, 'organization')]
+                if (!newsItemId) return false
+                newsItemIds = [newsItemId]
             }
+
+            const newsItems = await find('NewsItem', {
+                id_in: newsItemIds,
+                deletedAt: null,
+                organization_is_null: false,
+            })
+            if (newsItemIds.length !== newsItems.length) return false
+            organizationIds = newsItems.map(item => item.organization)
+
         } else if (isSoftDeleteOperation) {
-            if (isBulkRequest) {
-                if (!itemIds || !Array.isArray(itemIds)) return false
-                if (itemIds.length !== uniq(itemIds).length) return false
+            const ids = itemIds || [itemId]
+            if (ids.length !== uniq(ids).length) return false
 
-                const newsItems = await find('NewsItem', {
-                    scopes_some: {
-                        id_in: itemIds,
-                        deletedAt: null,
-                    },
+            const newsItems = await find('NewsItem', {
+                scopes_some: {
+                    id_in: ids,
                     deletedAt: null,
-                })
-                organizationIds = uniq(newsItems.map(newsItem => newsItem.organization))
-            } else {
-                if (!itemId) return false
+                },
+                deletedAt: null,
+            })
 
-                const newsItem = await getByCondition('NewsItem', {
-                    scopes_some: {
-                        id: itemId,
-                        deletedAt: null,
-                    },
-                    deletedAt: null,
-                })
-                organizationIds = [newsItem.organization]
-            }
+            if (newsItems.some(item => !item.organization)) return false
+            organizationIds = uniq(newsItems.map(newsItem => newsItem.organization))
         }
 
-        return await checkPermissionsInUserOrganizationsOrRelatedOrganizations(user.id, organizationIds, 'canManageNewsItems')
+        return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationIds, 'canManageNewsItems')
     }
 
     return false

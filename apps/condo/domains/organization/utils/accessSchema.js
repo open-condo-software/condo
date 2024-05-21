@@ -354,31 +354,6 @@ async function checkPermissionsInUserOrganizationOrRelatedOrganization (userId, 
     return await checkRelatedOrganizationPermissions(userId, organizationId, permissions)
 }
 
-/**
- * Check permission for user to work with multiple objects in case of usage bulk request
- *
- * Check that the user has access in each organization (own or related)
- *
- * @param userId {string} User.id field
- * @param organizationIds {Array<string>} array of objects related organizations
- * @param permission {string} OrganizationEmployeeRole permission key to check for
- * @return {Promise<boolean>}
- */
-async function checkPermissionsInUserOrganizationsOrRelatedOrganizations (userId, organizationIds, permission) {
-    if (!userId || !isArray(organizationIds) || isEmpty(organizationIds)) return false
-
-    const uniqOrganizationIds = uniq(organizationIds)
-
-    if (!uniqOrganizationIds.every(isUUID)) return false
-
-    for (const id of organizationIds) {
-        const hasAccess = await checkPermissionInUserOrganizationOrRelatedOrganization(userId, id, permission)
-        if (!hasAccess) return false
-    }
-
-    return true
-}
-
 async function checkUserBelongsToOrganization (userId, organizationId) {
     if (!userId || !organizationId) return false
     const employee = await getByCondition('OrganizationEmployee', {
@@ -450,5 +425,4 @@ module.exports = {
     checkRelatedOrganizationPermission,
     queryOrganizationEmployeeFromRelatedOrganizationFor,
     queryOrganizationEmployeeFor,
-    checkPermissionsInUserOrganizationsOrRelatedOrganizations,
 }

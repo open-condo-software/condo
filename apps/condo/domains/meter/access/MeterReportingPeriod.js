@@ -14,7 +14,7 @@ const { getAvailableResidentMeterReportPeriods } = require('@condo/domains/meter
 const {
     queryOrganizationEmployeeFor,
     queryOrganizationEmployeeFromRelatedOrganizationFor,
-    checkPermissionsInUserOrganizationsOrRelatedOrganizations,
+    checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
@@ -75,35 +75,29 @@ async function canManageMeterReportingPeriods ({ authentication: { item: user },
                 organizationId = get(property, 'organization', null)
             }
 
+            if (!organizationId) return false
+
             organizationIds = [organizationId]
         }
     }
 
     if (operation === 'update') {
-        if (isBulkRequest) {
-            if (!itemIds || !Array.isArray(itemIds)) return false
-            if (itemIds.length !== uniq(itemIds).length) return false
+        const ids = itemIds || [itemId]
+        if (ids.length !== uniq(ids).length) return false
 
-            const items = await find('MeterReportingPeriod', {
-                id_in: itemIds,
-                deletedAt: null,
-            })
-            if (!Array.isArray(items) || items.length !== itemIds.length) return false
-            organizationIds = uniq(items.map(item => get(item, 'organization', null)))
-        } else {
-            const item = await getByCondition('MeterReportingPeriod', {
-                id: itemId,
-                deletedAt: null,
-            })
-            if (!item) return false
+        const items = await find('MeterReportingPeriod', {
+            id_in: ids,
+            deletedAt: null,
+        })
+        if (items.length !== ids.length) return false
+        if (items.some(item => !item.organization)) return false
 
-            organizationIds = [get(item, 'organization', null)]
-        }
+        organizationIds = uniq(items.map(item => item.organization))
     }
 
     if (isEmpty(organizationIds) || organizationIds.some(isNull)) return false
     
-    return await checkPermissionsInUserOrganizationsOrRelatedOrganizations(user.id, organizationIds, 'canManageMeters')
+    return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationIds, 'canManageMeters')
 }
 
 /*
