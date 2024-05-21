@@ -4,7 +4,7 @@ const uniq = require('lodash/uniq')
 
 const conf = require('@open-condo/config')
 const { getRedisClient } = require('@open-condo/keystone/redis')
-const { getByCondition, find } = require('@open-condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
 
 const _redisClient = getRedisClient('default', 'cache')
 // NOTE: larger = better, but it can affect "after migration" state, where roles are changed via SQL
@@ -273,38 +273,25 @@ async function checkPermissionsInEmployedOrRelatedOrganizations (user, organizat
     return organizationsToCheck.every(ordId => permittedOrganizationsSet.has(ordId))
 }
 
-async function checkUserBelongsToOrganization (userId, organizationId) {
-    if (!userId || !organizationId) return false
-    const employee = await getByCondition('OrganizationEmployee', {
-        organization: { id: organizationId },
-        user: { id: userId },
-        isAccepted: true,
-        isBlocked: false,
-        isRejected: false,
-        deletedAt: null,
-    })
-
-    if (!employee) {
-        return false
-    }
-
-    if (employee.isBlocked) {
-        return false
-    }
-
-    return employee.deletedAt === null
+/**
+ * Checks whether the user is an employee in ALL organizations
+ * @param {{ id: string }} user - user object
+ * @param {Array<string> | string} organizationIds - organizations to checks (can be passed as array of IDs or a single ID)
+ * @returns {Promise<boolean>}
+ */
+async function checkUserEmploymentInOrganizations (user, organizationIds) {
+    return await checkPermissionsInEmployedOrganizations(user, organizationIds, [])
 }
 
-async function checkUserBelongsToRelatedOrganization (userId, organizationId) {
-    if (!userId || !organizationId) return false
-    const [organizationLink] = await find('OrganizationLink', {
-        from: queryOrganizationEmployeeFor(userId),
-        to: { id: organizationId },
-        deletedAt: null,
-    })
-    if (!organizationLink) return false
-
-    return checkUserBelongsToOrganization(userId, organizationLink.from)
+/**
+ * Checks whether the user is directly employed in specified organization or in any parent organization of specified organization
+ * for ALL organizations in organizationIds
+ * @param {{ id: string }} user - user object
+ * @param {Array<string> | string} organizationIds - organizations to checks (can be passed as array of IDs or a single ID)
+ * @returns {Promise<boolean>}
+ */
+async function checkUserEmploymentOrRelationToOrganization (user, organizationIds) {
+    return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationIds, [])
 }
 
 const queryOrganizationEmployeeFor = (userId, permission) => {
@@ -334,10 +321,10 @@ module.exports = {
     checkPermissionsInEmployedOrganizations,
     checkPermissionsInRelatedOrganizations,
     checkPermissionsInEmployedOrRelatedOrganizations,
+    checkUserEmploymentInOrganizations,
+    checkUserEmploymentOrRelationToOrganization,
     // Old utils
     // TODO(INFRA-317): Remove this one-by-one
-    checkUserBelongsToOrganization,
-    checkUserBelongsToRelatedOrganization,
     queryOrganizationEmployeeFromRelatedOrganizationFor,
     queryOrganizationEmployeeFor,
 }

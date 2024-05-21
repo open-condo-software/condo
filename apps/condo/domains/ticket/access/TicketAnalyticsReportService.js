@@ -5,7 +5,7 @@ const get = require('lodash/get')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
-const { checkUserBelongsToOrganization } = require('@condo/domains/organization/utils/accessSchema')
+const { checkUserEmploymentInOrganizations } = require('@condo/domains/organization/utils/accessSchema')
 
 async function canReadTicketAnalyticsReport ({ authentication: { item: user }, args: { data: { where } } }) {
     if (!user) return throwAuthenticationError()
@@ -15,7 +15,7 @@ async function canReadTicketAnalyticsReport ({ authentication: { item: user }, a
     const organizationId = get(where, ['organization', 'id'], false)
     if (!organizationId) return false
 
-    return await checkUserBelongsToOrganization(user.id, organizationId)
+    return await checkUserEmploymentInOrganizations(user, organizationId)
 }
 
 async function canReadExportTicketAnalyticsToExcel ({ authentication: { item: user }, args: { data: { where } } }) {
@@ -26,7 +26,7 @@ async function canReadExportTicketAnalyticsToExcel ({ authentication: { item: us
     const organizationId = get(where, ['organization', 'id'], false)
     if (!organizationId) return false
 
-    return await checkUserBelongsToOrganization(user.id, organizationId)
+    return await checkUserEmploymentInOrganizations(user, organizationId)
 }
 
 /*
