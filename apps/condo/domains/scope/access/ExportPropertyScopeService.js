@@ -7,7 +7,10 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { find } = require('@open-condo/keystone/schema')
 
 
-const { checkOrganizationPermission, checkRelatedOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    checkPermissionsInEmployedOrganizations,
+    checkPermissionsInRelatedOrganizations,
+} = require('@condo/domains/organization/utils/accessSchema')
 
 async function canExportPropertyScope ({ args: { data: { where } }, authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
@@ -17,14 +20,14 @@ async function canExportPropertyScope ({ args: { data: { where } }, authenticati
     const organizationId = get(where, 'organization.id')
 
     if (organizationId) {
-        return await checkOrganizationPermission(user.id, organizationId, 'canManagePropertyScopes')
+        return await checkPermissionsInEmployedOrganizations(user, organizationId, 'canManagePropertyScopes')
     } else {
         const organizationWhere = get(where, 'organization')
         if (!organizationWhere) return false
         const [relatedFromOrganization] = await find('Organization', organizationWhere)
         if (!relatedFromOrganization) return false
 
-        return await checkRelatedOrganizationPermission(user.id, relatedFromOrganization.id, 'canManagePropertyScopes')
+        return await checkPermissionsInRelatedOrganizations(user, relatedFromOrganization.id, 'canManagePropertyScopes')
     }
 }
 

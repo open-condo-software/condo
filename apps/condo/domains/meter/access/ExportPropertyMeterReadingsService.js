@@ -7,8 +7,8 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { find } = require('@open-condo/keystone/schema')
 
 const {
-    checkOrganizationPermission,
-    checkRelatedOrganizationPermission,
+    checkPermissionsInRelatedOrganizations,
+    checkPermissionsInEmployedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 
 
@@ -20,14 +20,14 @@ async function canExportPropertyMeterReadings ({ args: { data: { where } }, auth
     const organizationId = get(where, ['organization', 'id'])
 
     if (organizationId) {
-        return await checkOrganizationPermission(user.id, organizationId, 'canReadMeters')
+        return await checkPermissionsInEmployedOrganizations(user, organizationId, 'canReadMeters')
     } else {
         const organizationWhere = get(where, 'organization')
         if (!organizationWhere) return false
         const [relatedFromOrganization] = await find('Organization', organizationWhere)
         if (!relatedFromOrganization) return false
 
-        return await checkRelatedOrganizationPermission(user.id, relatedFromOrganization.id, 'canReadMeters')
+        return await checkPermissionsInRelatedOrganizations(user, relatedFromOrganization.id, 'canReadMeters')
     }
 }
 

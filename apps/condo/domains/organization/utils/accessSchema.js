@@ -311,28 +311,6 @@ async function checkOrganizationPermissions (userId, organizationId, permissions
     return permissions.every((permission) => !!employeeRole[permission]) || false
 }
 
-async function checkRelatedOrganizationPermission (userId, organizationId, permission) {
-    return checkRelatedOrganizationPermissions(userId, organizationId, [permission])
-}
-
-/**
- * @param {string} userId
- * @param {string} organizationId
- * @param {string[]} permissions
- * @return {Promise<boolean>}
- */
-async function checkRelatedOrganizationPermissions (userId, organizationId, permissions) {
-    if (!userId || !organizationId) return false
-    const [organizationLink] = await find('OrganizationLink', {
-        from: queryOrganizationEmployeeFor(userId),
-        to: { id: organizationId },
-        deletedAt: null,
-    })
-    if (!organizationLink) return false
-
-    return checkOrganizationPermissions(userId, organizationLink.from, permissions)
-}
-
 async function checkUserBelongsToOrganization (userId, organizationId) {
     if (!userId || !organizationId) return false
     const employee = await getByCondition('OrganizationEmployee', {
@@ -399,7 +377,6 @@ module.exports = {
     checkOrganizationPermission,
     checkUserBelongsToOrganization,
     checkUserBelongsToRelatedOrganization,
-    checkRelatedOrganizationPermission,
     queryOrganizationEmployeeFromRelatedOrganizationFor,
     queryOrganizationEmployeeFor,
 }
