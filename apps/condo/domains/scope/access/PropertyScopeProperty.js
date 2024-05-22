@@ -10,7 +10,7 @@ const { getById } = require('@open-condo/keystone/schema')
 
 const {
     checkPermissionsInEmployedOrganizations,
-    queryOrganizationEmployeeFor,
+    getEmployedOrganizationsByPermissions,
 } = require('@condo/domains/organization/utils/accessSchema')
 
 async function canReadPropertyScopeProperties ({ authentication: { item: user } }) {
@@ -19,9 +19,12 @@ async function canReadPropertyScopeProperties ({ authentication: { item: user } 
 
     if (user.isAdmin || user.isSupport) return {}
 
+    const permittedOrganizations = await getEmployedOrganizationsByPermissions(user, [])
+
+
     return {
         propertyScope: {
-            organization: queryOrganizationEmployeeFor(user.id),
+            organization: { id_in: permittedOrganizations },
         },
     }
 }

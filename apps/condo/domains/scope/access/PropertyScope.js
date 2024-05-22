@@ -8,7 +8,7 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { getById } = require('@open-condo/keystone/schema')
 
 const {
-    queryOrganizationEmployeeFor,
+    getEmployedOrganizationsByPermissions,
     checkPermissionsInEmployedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 
@@ -18,8 +18,10 @@ async function canReadPropertyScopes ({ authentication: { item: user } }) {
 
     if (user.isAdmin || user.isSupport) return {}
 
+    const permittedOrganizations = await getEmployedOrganizationsByPermissions(user, [])
+
     return {
-        organization: queryOrganizationEmployeeFor(user.id),
+        organization: { id_in: permittedOrganizations },
     }
 }
 

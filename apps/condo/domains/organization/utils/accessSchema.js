@@ -294,18 +294,7 @@ async function checkUserEmploymentOrRelationToOrganization (user, organizationId
     return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationIds, [])
 }
 
-const queryOrganizationEmployeeFor = (userId, permission) => {
-    const baseEmployeeQuery = { user: { id: userId }, isBlocked: false, deletedAt: null }
-
-    if (permission) {
-        return { employees_some: { ...baseEmployeeQuery, role: { [permission]: true } } }
-    }
-
-    return { employees_some: baseEmployeeQuery }
-}
-
 module.exports = {
-    // New utils
     resetUserEmployeesCache,
     resetOrganizationEmployeesCache,
     getEmployedOrganizationsByPermissions,
@@ -316,7 +305,4 @@ module.exports = {
     checkPermissionsInEmployedOrRelatedOrganizations,
     checkUserEmploymentInOrganizations,
     checkUserEmploymentOrRelationToOrganization,
-    // Old utils
-    // TODO(INFRA-317): Remove this one-by-one
-    queryOrganizationEmployeeFor,
 }

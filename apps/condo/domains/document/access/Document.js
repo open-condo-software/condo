@@ -9,7 +9,7 @@ const { find } = require('@open-condo/keystone/schema')
 
 const {
     checkPermissionsInEmployedOrRelatedOrganizations,
-    queryOrganizationEmployeeFor,
+    getEmployedOrganizationsByPermissions,
 } = require('@condo/domains/organization/utils/accessSchema')
 
 
@@ -19,7 +19,9 @@ async function canReadDocuments ({ authentication: { item: user } }) {
 
     if (user.isAdmin) return {}
 
-    return { organization: queryOrganizationEmployeeFor(user.id, 'canReadDocuments') }
+    const permittedOrganizations = await getEmployedOrganizationsByPermissions(user, 'canReadDocuments')
+
+    return { organization: { id_in: permittedOrganizations } }
 }
 
 async function canManageDocuments ({ authentication: { item: user }, originalInput, operation, itemId, itemIds }) {

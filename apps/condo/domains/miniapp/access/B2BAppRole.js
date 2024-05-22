@@ -8,7 +8,7 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { find, getById } = require('@open-condo/keystone/schema')
 
 const {
-    queryOrganizationEmployeeFor,
+    getEmployedOrganizationsByPermissions,
     checkPermissionsInEmployedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { SERVICE, STAFF } = require('@condo/domains/user/constants/common')
@@ -32,9 +32,16 @@ async function canReadB2BAppRoles ({ authentication: { item: user } }) {
     }
 
     if (user.type === STAFF) {
-        const employeeCondition = queryOrganizationEmployeeFor(user.id).employees_some
-        const userEmployees = await find('OrganizationEmployee', employeeCondition)
-        const userEmployeesIds = userEmployees.map(employee => employee.id)
+        const permittedOrganizations = await getEmployedOrganizationsByPermissions(user, 'canManageRoles')
+
+        const userEmployees = await find('OrganizationEmployee', {
+            deletedAt: null,
+            organization: { deletedAt: null },
+            user: { id: user.id },
+            isAccepted: true,
+            isBlocked: false,
+            isRejected: false,
+        })
         const userRoleIds = userEmployees.map(employee => employee.role)
 
         return {
@@ -43,7 +50,7 @@ async function canReadB2BAppRoles ({ authentication: { item: user } }) {
                     { id_in: userRoleIds },
                     {
                         organization: {
-                            employees_some: { id_in: userEmployeesIds, role: { canManageRoles: true } },
+                            id_in: permittedOrganizations,
                         },
                     },
                 ],
