@@ -303,13 +303,6 @@ const queryOrganizationEmployeeFor = (userId, permission) => {
 
     return { employees_some: baseEmployeeQuery }
 }
-const queryOrganizationEmployeeFromRelatedOrganizationFor = (userId, permission) => ({
-    relatedOrganizations_some: {
-        AND: [
-            { from: queryOrganizationEmployeeFor(userId, permission), deletedAt: null },
-        ],
-    },
-})
 
 module.exports = {
     // New utils
@@ -325,6 +318,5 @@ module.exports = {
     checkUserEmploymentOrRelationToOrganization,
     // Old utils
     // TODO(INFRA-317): Remove this one-by-one
-    queryOrganizationEmployeeFromRelatedOrganizationFor,
     queryOrganizationEmployeeFor,
 }

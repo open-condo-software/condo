@@ -8,8 +8,7 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { find, getById } = require('@open-condo/keystone/schema')
 
 const {
-    queryOrganizationEmployeeFor,
-    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    getEmployedOrRelatedOrganizationsByPermissions,
     checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
@@ -39,13 +38,11 @@ async function canReadMarketItems ({ authentication: { item: user } }) {
         return false
     }
 
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadMarketItems')
+
     return {
         organization: {
-            OR: [
-                queryOrganizationEmployeeFor(user.id, 'canReadMarketItems'),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadMarketItems'),
-            ],
-            deletedAt: null,
+            id_in: permittedOrganizations,
         },
     }
 }

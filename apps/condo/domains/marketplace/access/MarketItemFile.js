@@ -9,8 +9,7 @@ const { getById, find } = require('@open-condo/keystone/schema')
 
 const {
     checkPermissionsInEmployedOrRelatedOrganizations,
-    queryOrganizationEmployeeFor,
-    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    getEmployedOrRelatedOrganizationsByPermissions,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { STAFF } = require('@condo/domains/user/constants/common')
@@ -41,6 +40,8 @@ async function canReadMarketItemFiles ({ authentication: { item: user }, origina
         return false
     }
 
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadMarketItems')
+
     return {
         OR: [
             {
@@ -48,11 +49,7 @@ async function canReadMarketItemFiles ({ authentication: { item: user }, origina
                     {
                         marketItem: {
                             organization: {
-                                OR: [
-                                    queryOrganizationEmployeeFor(user.id, 'canReadMarketItems'),
-                                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadMarketItems'),
-                                ],
-                                deletedAt: null,
+                                id_in: permittedOrganizations,
                             },
                         },
                     },

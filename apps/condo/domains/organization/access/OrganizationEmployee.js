@@ -6,8 +6,7 @@ const { getById } = require('@open-condo/keystone/schema')
 
 const {
     checkPermissionsInEmployedOrganizations,
-    queryOrganizationEmployeeFor,
-    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    getEmployedOrRelatedOrganizationsByPermissions,
 } = require('@condo/domains/organization/utils/accessSchema')
 
 
@@ -17,15 +16,14 @@ async function canReadOrganizationEmployees ({ authentication: { item: user } })
 
     if (user.isSupport || user.isAdmin) return {}
 
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadEmployees')
+
     return {
         OR: [
             { user: { id: user.id } },
             {
                 organization: {
-                    OR: [
-                        queryOrganizationEmployeeFor(user.id, 'canReadEmployees'),
-                        queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadEmployees'),
-                    ],
+                    id_in: permittedOrganizations,
                 },
             },
         ],

@@ -8,8 +8,7 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { getById } = require('@open-condo/keystone/schema')
 
 const {
-    queryOrganizationEmployeeFor,
-    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    getEmployedOrRelatedOrganizationsByPermissions,
     checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 
@@ -19,12 +18,11 @@ async function canReadPropertyMeterReadings ({ authentication: { item: user } })
 
     if (user.isSupport || user.isAdmin) return {}
 
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadMeters')
+
     return {
         organization: {
-            OR: [
-                queryOrganizationEmployeeFor(user.id, 'canReadMeters'),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadMeters'),
-            ],
+            id_in: permittedOrganizations,
         },
     }
 }

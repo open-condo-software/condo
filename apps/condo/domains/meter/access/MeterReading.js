@@ -12,8 +12,7 @@ const {
     canManageObjectsAsB2BAppServiceUser,
 } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
 const {
-    queryOrganizationEmployeeFromRelatedOrganizationFor,
-    queryOrganizationEmployeeFor,
+    getEmployedOrRelatedOrganizationsByPermissions,
     checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
@@ -41,12 +40,11 @@ async function canReadMeterReadings (args) {
         return await canReadObjectsAsB2BAppServiceUser(args)
     }
 
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadMeters')
+
     return {
         organization: {
-            OR: [
-                queryOrganizationEmployeeFor(user.id, 'canReadMeters'),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadMeters'),
-            ],
+            id_in: permittedOrganizations,
         },
     }
 }

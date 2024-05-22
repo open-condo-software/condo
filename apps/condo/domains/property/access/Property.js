@@ -12,8 +12,7 @@ const {
 } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
 const {
     checkPermissionsInEmployedOrganizations,
-    queryOrganizationEmployeeFor,
-    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    getEmployedOrRelatedOrganizationsByPermissions,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 
@@ -39,13 +38,12 @@ async function canReadProperties (args) {
     if (user.type === SERVICE) {
         return await canReadObjectsAsB2BAppServiceUser(args)
     }
-    
+
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadProperties')
+
     return {
         organization: {
-            OR: [
-                queryOrganizationEmployeeFor(user.id, 'canReadProperties'),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadProperties'),
-            ],
+            id_in: permittedOrganizations,
         },
     }
 }

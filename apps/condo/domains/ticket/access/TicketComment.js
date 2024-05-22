@@ -12,8 +12,7 @@ const { getByCondition, find, getById } = require('@open-condo/keystone/schema')
 
 const {
     checkPermissionsInEmployedOrRelatedOrganizations,
-    queryOrganizationEmployeeFor,
-    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    getEmployedOrRelatedOrganizationsByPermissions,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT_COMMENT_TYPE, COMPLETED_STATUS_TYPE, CANCELED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
 const {
@@ -48,13 +47,13 @@ async function canReadTicketComments ({ authentication: { item: user } }) {
         }
     }
 
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadTickets')
+
+
     return {
         ticket: {
             organization: {
-                OR: [
-                    queryOrganizationEmployeeFor(user.id, 'canReadTickets'),
-                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadTickets'),
-                ],
+                id_in: permittedOrganizations,
             },
         },
     }

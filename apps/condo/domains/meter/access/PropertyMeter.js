@@ -9,8 +9,7 @@ const { getByCondition } = require('@open-condo/keystone/schema')
 
 const {
     checkPermissionsInEmployedOrRelatedOrganizations,
-    queryOrganizationEmployeeFor,
-    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    getEmployedOrRelatedOrganizationsByPermissions,
 } = require('@condo/domains/organization/utils/accessSchema')
 
 async function canReadPropertyMeters ({ authentication: { item: user } }) {
@@ -19,12 +18,11 @@ async function canReadPropertyMeters ({ authentication: { item: user } }) {
 
     if (user.isSupport || user.isAdmin) return {}
 
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadMeters')
+
     return {
         organization: {
-            OR: [
-                queryOrganizationEmployeeFor(user.id, 'canReadMeters'),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadMeters'),
-            ],
+            id_in: permittedOrganizations,
         },
     }
 }

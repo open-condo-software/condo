@@ -10,8 +10,7 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { find, getById } = require('@open-condo/keystone/schema')
 
 const {
-    queryOrganizationEmployeeFor,
-    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    getEmployedOrRelatedOrganizationsByPermissions,
     checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
@@ -39,16 +38,13 @@ async function canReadMarketPriceScopes ({ authentication: { item: user } }) {
         }
     }
 
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadMarketPriceScopes')
 
     return {
         marketItemPrice: {
             marketItem: {
                 organization: {
-                    OR: [
-                        queryOrganizationEmployeeFor(user.id, 'canReadMarketPriceScopes'),
-                        queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadMarketPriceScopes'),
-                    ],
-                    deletedAt: null,
+                    id_in: permittedOrganizations,
                 },
             },
         },

@@ -6,8 +6,7 @@ const { get } = require('lodash')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
 const {
-    queryOrganizationEmployeeFromRelatedOrganizationFor,
-    queryOrganizationEmployeeFor,
+    getEmployedOrRelatedOrganizationsByPermissions,
     checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { STAFF } = require('@condo/domains/user/constants/common')
@@ -19,12 +18,11 @@ async function canReadMeterResourceOwners ({ authentication: { item: user } }) {
     if (user.isAdmin || user.isSupport) return {}
 
     if (user.type === STAFF) {
+        const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadMeters')
+
         return {
             organization: {
-                OR: [
-                    queryOrganizationEmployeeFor(user.id, 'canReadMeters'),
-                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadMeters'),
-                ],
+                id_in: permittedOrganizations,
             },
         }
     }

@@ -1,12 +1,8 @@
 const get = require('lodash/get')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-// TODO (DOMA-3868) Remove domain specific logic from here
-const { find } = require('@open-condo/keystone/schema')
 
 const RESIDENT_TYPE_USER = 'resident'
-const queryOrganizationEmployeeFor = userId => ({ employees_some: { user: { id: userId }, isBlocked: false, deletedAt: null } })
-const queryOrganizationEmployeeFromRelatedOrganizationFor = userId => ({ relatedOrganizations_some: { from: queryOrganizationEmployeeFor(userId) } })
 
 const userIsAuthenticated = (accessArgs) => {
     const { authentication: { item: user } } = accessArgs
@@ -74,31 +70,6 @@ const userIsNotResidentUser = (accessArgs) => {
     if (!userIsAuthenticated(accessArgs)) return false
 
     return user.type !== RESIDENT_TYPE_USER
-}
-
-const canReadOnlyIfUserIsActiveOrganizationEmployee = async (accessArgs) => {
-    const { existingItem, authentication: { item: user } } = accessArgs
-    if (!userIsAuthenticated(accessArgs)) return false
-
-    if (user.isAdmin || user.isSupport)
-        return true
-
-    if (!userIsNotResidentUser(accessArgs))
-        return false
-
-    const userId = get(user, 'id')
-    const existingItemId = get(existingItem, 'id', null)
-
-    const availableOrganizations = await find('Organization', {
-        id: existingItemId,
-        OR: [
-            queryOrganizationEmployeeFor(userId),
-            queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
-        ],
-        deletedAt: null,
-    })
-
-    return availableOrganizations.length > 0
 }
 
 const canReadOnlyIfInUsers = (accessArgs) => {
@@ -182,7 +153,6 @@ module.exports = {
     canReadOnlyIfInUsers,
     isSoftDelete,
     userIsNotResidentUser,
-    canReadOnlyIfUserIsActiveOrganizationEmployee,
     canOnlyServerSideWithoutUserRequest,
     isFilteringBy,
     readOnlyFieldAccess,

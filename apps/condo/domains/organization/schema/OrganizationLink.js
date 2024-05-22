@@ -27,12 +27,10 @@ const ERRORS = {
  *
  * @example filter for access check to read entities from all "child" Organizations when current user is an employee in only "parent" Organization
  * ```
+ * const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadContacts')
  * return {
  *     organization: {
- *         OR: [
- *             queryOrganizationEmployeeFor(user.id),
- *             queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
- *         ],
+ *         id_in: permittedOrganizations
  *     },
  * }
  *

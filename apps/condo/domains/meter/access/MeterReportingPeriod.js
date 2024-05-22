@@ -12,8 +12,7 @@ const { getByCondition, find } = require('@open-condo/keystone/schema')
 
 const { getAvailableResidentMeterReportPeriods } = require('@condo/domains/meter/utils/serverSchema')
 const {
-    queryOrganizationEmployeeFor,
-    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    getEmployedOrRelatedOrganizationsByPermissions,
     checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
@@ -35,17 +34,17 @@ async function canReadMeterReportingPeriods ({ authentication: { item: user } })
         }
     }
 
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, [])
+
     return {
-        OR: [{
-            organization: {
-                OR: [
-                    queryOrganizationEmployeeFor(user.id),
-                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
-                ],
+        OR: [
+            {
+                organization: {
+                    id_in: permittedOrganizations,
+                },
             },
-        }, {
-            organization_is_null: true,
-        }],
+            { organization_is_null: true },
+        ],
     }
 }
 

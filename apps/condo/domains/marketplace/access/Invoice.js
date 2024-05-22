@@ -14,8 +14,7 @@ const {
     INVOICE_STATUS_CANCELED,
 } = require('@condo/domains/marketplace/constants')
 const {
-    queryOrganizationEmployeeFor,
-    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    getEmployedOrRelatedOrganizationsByPermissions,
     checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
@@ -43,13 +42,12 @@ async function canReadInvoices ({ authentication: { item: user } }) {
         }
     }
 
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadInvoices')
+
+
     return {
         organization: {
-            OR: [
-                queryOrganizationEmployeeFor(user.id, 'canReadInvoices'),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadInvoices'),
-            ],
-            deletedAt: null,
+            id_in: permittedOrganizations,
         },
         deletedAt: null,
     }

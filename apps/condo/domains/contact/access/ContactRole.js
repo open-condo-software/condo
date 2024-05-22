@@ -8,9 +8,8 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { getById } = require('@open-condo/keystone/schema')
 
 const {
-    queryOrganizationEmployeeFor,
     checkPermissionsInEmployedOrRelatedOrganizations,
-    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    getEmployedOrRelatedOrganizationsByPermissions,
 } = require('@condo/domains/organization/utils/accessSchema')
 
 async function canReadContactRoles ({ authentication: { item: user } }) {
@@ -19,11 +18,16 @@ async function canReadContactRoles ({ authentication: { item: user } }) {
 
     if (user.isAdmin || user.isSupport) return {}
 
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadContacts')
+
     return {
         OR: [
             { organization_is_null: true },
-            { organization: queryOrganizationEmployeeFor(user.id, 'canReadContacts') },
-            { organization: queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadContacts') },
+            {
+                organization: {
+                    id_in: permittedOrganizations,
+                },
+            },
         ],
     }
 }

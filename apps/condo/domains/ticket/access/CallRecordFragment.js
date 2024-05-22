@@ -9,8 +9,7 @@ const { getByCondition } = require('@open-condo/keystone/schema')
 
 const {
     checkPermissionsInEmployedOrRelatedOrganizations,
-    queryOrganizationEmployeeFor,
-    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    getEmployedOrRelatedOrganizationsByPermissions,
 } = require('@condo/domains/organization/utils/accessSchema')
 
 async function canReadCallRecordFragments ({ authentication: { item: user } }) {
@@ -18,12 +17,11 @@ async function canReadCallRecordFragments ({ authentication: { item: user } }) {
     if (user.deletedAt) return false
     if (user.isAdmin) return {}
 
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadCallRecords')
+
     return {
         organization: {
-            OR: [
-                queryOrganizationEmployeeFor(user.id, 'canReadCallRecords'),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadCallRecords'),
-            ],
+            id_in: permittedOrganizations,
         },
     }
 }

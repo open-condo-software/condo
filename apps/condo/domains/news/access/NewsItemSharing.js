@@ -9,8 +9,7 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { getById } = require('@open-condo/keystone/schema')
 
 const {
-    queryOrganizationEmployeeFor,
-    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    getEmployedOrRelatedOrganizationsByPermissions,
     checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
@@ -21,14 +20,12 @@ async function canReadNewsItemSharings ({ authentication: { item: user } }) {
 
     if (user.isAdmin || user.isSupport) return {}
 
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadNewsItems')
+
     return {
         b2bAppContext: {
             organization: {
-                OR: [
-                    queryOrganizationEmployeeFor(user.id, 'canReadNewsItems'),
-                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadNewsItems'),
-                ],
-                deletedAt: null,
+                id_in: permittedOrganizations,
             },
             deletedAt: null,
         },

@@ -9,8 +9,7 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { find } = require('@open-condo/keystone/schema')
 
 const {
-    queryOrganizationEmployeeFor,
-    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    getEmployedOrRelatedOrganizationsByPermissions,
     checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { STAFF, RESIDENT } = require('@condo/domains/user/constants/common')
@@ -22,15 +21,13 @@ async function canReadNewsItemScopes (attrs) {
     if (user.isAdmin || user.isSupport) return {}
     if (user.type === RESIDENT) return false
 
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadNewsItems')
+
     // access for stuff
     return {
         newsItem: {
             organization: {
-                OR: [
-                    queryOrganizationEmployeeFor(user.id, 'canReadNewsItems'),
-                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadNewsItems'),
-                ],
-                deletedAt: null,
+                id_in: permittedOrganizations,
             },
         },
     }

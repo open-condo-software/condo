@@ -9,8 +9,7 @@ const { getById } = require('@open-condo/keystone/schema')
 
 const { checkBankIntegrationsAccessRights } = require('@condo/domains/banking/utils/accessSchema')
 const {
-    queryOrganizationEmployeeFor,
-    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    getEmployedOrRelatedOrganizationsByPermissions,
     checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { SERVICE } = require('@condo/domains/user/constants/common')
@@ -29,11 +28,12 @@ async function canReadBankIntegrationAccountContexts ({ authentication: { item: 
         }
     }
 
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, [])
+
     return {
-        OR: [
-            { organization: queryOrganizationEmployeeFor(user.id) },
-            { organization: queryOrganizationEmployeeFromRelatedOrganizationFor(user.id) },
-        ],
+        organization: {
+            id_in: permittedOrganizations,
+        },
     }
 }
 

@@ -10,8 +10,7 @@ const { find, getById } = require('@open-condo/keystone/schema')
 
 const { queryFindNewsItemsScopesByResidents } = require('@condo/domains/news/utils/accessSchema')
 const {
-    queryOrganizationEmployeeFor,
-    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    getEmployedOrRelatedOrganizationsByPermissions,
     checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
@@ -37,14 +36,12 @@ async function canReadNewsItems ({ authentication: { item: user } }) {
         }
     }
 
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadNewsItems')
+
     // access for staff
     return {
         organization: {
-            OR: [
-                queryOrganizationEmployeeFor(user.id, 'canReadNewsItems'),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadNewsItems'),
-            ],
-            deletedAt: null,
+            id_in: permittedOrganizations,
         },
     }
 }

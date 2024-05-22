@@ -11,8 +11,7 @@ const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
 const { checkBankIntegrationsAccessRights } = require('@condo/domains/banking/utils/accessSchema')
 const {
     checkPermissionsInEmployedOrRelatedOrganizations,
-    queryOrganizationEmployeeFor,
-    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    getEmployedOrRelatedOrganizationsByPermissions,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { SERVICE } = require('@condo/domains/user/constants/common')
 
@@ -28,11 +27,13 @@ async function canReadBankIntegrationOrganizationContexts (args) {
         }
     }
 
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, [])
+
+
     return {
-        OR: [
-            { organization: queryOrganizationEmployeeFor(user.id) },
-            { organization: queryOrganizationEmployeeFromRelatedOrganizationFor(user.id) },
-        ],
+        organization: {
+            id_in: permittedOrganizations,
+        },
     }
 }
 
