@@ -1,5 +1,5 @@
-const VALID_BUILDING_TYPES = ['дом', 'корпус', 'строение', 'домовладение', 'сооружение', 'владение', 'здание']
+const VALID_DADATA_BUILDING_TYPES = ['дом', 'корпус', 'строение', 'домовладение', 'сооружение', 'владение', 'здание']
 
 module.exports = {
-    VALID_BUILDING_TYPES,
+    VALID_DADATA_BUILDING_TYPES,
 }

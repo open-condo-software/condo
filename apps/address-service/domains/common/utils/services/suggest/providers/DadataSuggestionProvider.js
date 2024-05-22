@@ -5,7 +5,7 @@ const { fetch } = require('@open-condo/keystone/fetch')
 const { getRedisClient } = require('@open-condo/keystone/redis')
 
 const { BUILDING_ADDRESS_TYPE } = require('@address-service/domains/common/constants/addressTypes')
-const { VALID_BUILDING_TYPES } = require('@address-service/domains/common/constants/common')
+const { VALID_DADATA_BUILDING_TYPES } = require('@address-service/domains/common/constants/common')
 const { DADATA_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const { AbstractSuggestionProvider } = require('@address-service/domains/common/utils/services/suggest/providers/AbstractSuggestionProvider')
 
@@ -411,7 +411,7 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
                     name: DADATA_PROVIDER,
                     rawData: item,
                 },
-                type: VALID_BUILDING_TYPES.includes(get(item, ['data', 'house_type_full'])) ? BUILDING_ADDRESS_TYPE : null,
+                type: VALID_DADATA_BUILDING_TYPES.includes(get(item, ['data', 'house_type_full'])) ? BUILDING_ADDRESS_TYPE : null,
             }
         ))
     }
