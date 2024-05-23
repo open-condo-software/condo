@@ -21,6 +21,21 @@ export type TImporterErrorMessages = {
     validation: TImporterErrorMessage
     creation: TImporterErrorMessage
     emptyRows: TImporterErrorMessage
+    unknownResource: TImporterErrorMessage
+    unknownUnitType: TImporterErrorMessage
+}
+
+export class TransformRowError extends Error {
+    private readonly messages: string[]
+
+    constructor (messages: string[]) {
+        super(`Errors: ${messages.join(', ')}`)
+        this.messages = messages
+    }
+
+    getMessages (): string[] {
+        return this.messages
+    }
 }
 
 interface ColumnInfo {

@@ -65,6 +65,7 @@ export abstract class AbstractMetersImporter {
      * Transforms specific format to common format for mutation
      * @param row array of cells values of particular row (from xls, csv, etc.)
      * @protected
+     * @throws {TransformRowError}
      */
     protected abstract transformRow (row: string[]): RegisterMetersReadingsReadingInput | RegisterMetersReadingsReadingInput[]
 
@@ -109,18 +110,28 @@ export abstract class AbstractMetersImporter {
                 let transformedIndex = 0
                 for (const sourceIndex in sourceChunk) {
                     const row = sourceChunk[sourceIndex]
-                    const transformedRow = this.transformRow(row)
-                    if (isArray(transformedRow)) { // Sbbol registry contains several meters per one row
-                        if (transformedRow.length === 0) {
-                            this.failProcessingHandler({ originalRow: row, errors: [this.errors.invalidTypes.message] })
+                    try {
+                        const transformedRow = this.transformRow(row)
+                        if (isArray(transformedRow)) { // Sbbol registry contains several meters per one row
+                            if (transformedRow.length === 0) {
+                                this.failProcessingHandler({
+                                    originalRow: row,
+                                    errors: [this.errors.invalidTypes.message],
+                                })
+                            }
+                            for (const rowPart of transformedRow) {
+                                transformedData.push(rowPart)
+                                transformedRowToSourceRowMap.set(String(transformedIndex++), sourceIndex)
+                            }
+                        } else {
+                            transformedData.push(transformedRow)
+                            transformedRowToSourceRowMap.set(sourceIndex, sourceIndex)
                         }
-                        for (const rowPart of transformedRow) {
-                            transformedData.push(rowPart)
-                            transformedRowToSourceRowMap.set(String(transformedIndex++), sourceIndex)
-                        }
-                    } else {
-                        transformedData.push(transformedRow)
-                        transformedRowToSourceRowMap.set(sourceIndex, sourceIndex)
+                    } catch (err) {
+                        this.failProcessingHandler({
+                            originalRow: row,
+                            errors: err.getMessages(),
+                        })
                     }
                 }
 
