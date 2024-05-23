@@ -864,7 +864,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const newsItemForOneProperty = totalProperties === 1 && initialPropertyIds.length < 2
     const propertyIsAutoFilled = useRef(false)
     const handleAllPropertiesLoading = useCallback((form: FormInstance) => (data) => {
-        if (!isEmpty(initialValues)) return
+        if (!isEmpty(get(initialFormValues, 'property')) || !isEmpty(get(initialFormValues, 'properties')) || get(initialFormValues, 'hasAllProperties')) return
         if (!newsItemForOneProperty) return
         if (data.length !== 1) return
         if (propertyIsAutoFilled.current) return
@@ -879,7 +879,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                 hasAllProperties: true,
             })
         }
-    }, [initialValues, newsItemForOneProperty])
+    }, [initialFormValues, newsItemForOneProperty])
 
     return (
         <Row gutter={BIG_HORIZONTAL_GUTTER}>
