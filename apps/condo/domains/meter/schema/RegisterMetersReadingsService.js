@@ -294,6 +294,7 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                         unitName,
                         accountNumber,
                         number: meterNumber,
+                        resource: reading.meterResource,
                         deletedAt: null,
                     })
 
