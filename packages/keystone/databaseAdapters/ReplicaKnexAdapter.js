@@ -2,6 +2,10 @@ const { KnexAdapter } = require('@keystonejs/adapter-knex')
 const { knex } = require('knex')
 const { get, omit } = require('lodash')
 
+const { getLogger } = require('@open-condo/keystone/logging')
+
+
+const logger = getLogger('replicaKnexAdapter')
 
 class ReplicaKnexAdapter extends KnexAdapter {
     constructor (props) {
@@ -13,7 +17,7 @@ class ReplicaKnexAdapter extends KnexAdapter {
     async _connect () {
         this.knex = knex({
             client: 'postgres',
-            pool: { min: 0, max: 3 },
+            pool: { min: 0, max: 1 },
             connection: this.writeConnection,
         })
 
@@ -71,8 +75,11 @@ class ReplicaKnexAdapter extends KnexAdapter {
                     ? checkUseMasterMultiple(sql)
                     : checkUseMasterSingle(sql)
             } catch (error) {
+                logger.error({ err: error, msg: 'catch error at connection determination' })
                 // swallow this, it will be thrown properly in a second when Knex internally runs it
             }
+
+            logger.info({ msg: `Use master = ${useMaster}`, builder })
 
             return useMaster
                 ? this.knexMaster.client.runner(builder)
