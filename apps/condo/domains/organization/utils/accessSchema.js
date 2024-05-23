@@ -9,7 +9,9 @@ const { find } = require('@open-condo/keystone/schema')
 
 const _redisClient = getRedisClient('default', 'cache')
 // NOTE: larger = better, but it can affect "after migration" state, where roles are changed via SQL
-const CACHE_TTL_IN_MS = 60 * 60 * 1000  // 1 hour in ms
+const DEFAULT_CACHE_TTL_IN_MS = 60 * 60 * 1000  // 1 hour in ms
+const CACHE_TTL_FROM_ENV = parseInt(get(conf, 'USER_ORGANIZATION_CACHING_TTL_IN_MS'))
+const CACHE_TTL_IN_MS = isNaN(CACHE_TTL_FROM_ENV) ? DEFAULT_CACHE_TTL_IN_MS : CACHE_TTL_FROM_ENV
 const DISABLE_USER_ORGANIZATION_CACHING = get(conf, 'DISABLE_USER_ORGANIZATION_CACHING', 'false').toLowerCase() === 'true'
 
 /**
@@ -292,7 +294,7 @@ async function checkPermissionsInEmployedOrRelatedOrganizations (ctx, user, orga
 }
 
 /**
- * Checks whether the user is an employee in ALL organizations
+ * Checks whether the user is an employee in ALL listed organizations
  * @param {{ req: import('express').Request }} ctx - keystone context object
  * @param {{ id: string }} user - user object
  * @param {Array<string> | string} organizationIds - organizations to checks (can be passed as array of IDs or a single ID)
