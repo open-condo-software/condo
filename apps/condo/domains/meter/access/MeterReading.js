@@ -19,7 +19,7 @@ const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 
 
 async function canReadMeterReadings (args) {
-    const { authentication: { item: user } } = args
+    const { authentication: { item: user }, context } = args
 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -40,7 +40,7 @@ async function canReadMeterReadings (args) {
         return await canReadObjectsAsB2BAppServiceUser(args)
     }
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadMeters')
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadMeters')
 
     return {
         organization: {
@@ -50,7 +50,7 @@ async function canReadMeterReadings (args) {
 }
 
 async function canManageMeterReadings (args) {
-    const { authentication: { item: user }, originalInput, operation } = args
+    const { authentication: { item: user }, originalInput, operation, context } = args
 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -73,7 +73,7 @@ async function canManageMeterReadings (args) {
         const meterOrganization = get(meter, 'organization', null)
         if (!meterOrganization) return false
 
-        return await checkPermissionsInEmployedOrRelatedOrganizations(user, meterOrganization, 'canManageMeterReadings')
+        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, meterOrganization, 'canManageMeterReadings')
     }
 
     return false

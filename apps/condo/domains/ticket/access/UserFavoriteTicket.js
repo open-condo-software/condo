@@ -14,13 +14,13 @@ const {
     checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canReadUserFavoriteTickets ({ authentication: { item: user } }) {
+async function canReadUserFavoriteTickets ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isAdmin || user.isSupport) return {}
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadTickets')
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadTickets')
 
     return {
         user: { id: user.id },
@@ -30,7 +30,7 @@ async function canReadUserFavoriteTickets ({ authentication: { item: user } }) {
     }
 }
 
-async function canManageUserFavoriteTickets ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageUserFavoriteTickets ({ authentication: { item: user }, context, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -48,7 +48,7 @@ async function canManageUserFavoriteTickets ({ authentication: { item: user }, o
 
         const organizationId = ticket.organization
 
-        return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canReadTickets')
+        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canReadTickets')
     } else if (operation === 'update') {
         if (!isEmpty(omit(originalInput, ['deletedAt', 'dv', 'sender']))) {
             return false

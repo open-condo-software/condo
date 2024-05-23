@@ -7,7 +7,7 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 
 const { checkPermissionsInEmployedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canExportPaymentsToExcel ({ args: { data: { where } }, authentication: { item: user } }) {
+async function canExportPaymentsToExcel ({ args: { data: { where } }, authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
@@ -17,6 +17,7 @@ async function canExportPaymentsToExcel ({ args: { data: { where } }, authentica
     if (!organizationId) return false
 
     return await checkPermissionsInEmployedOrganizations(
+        context,
         user,
         organizationId,
         'canReadPayments',

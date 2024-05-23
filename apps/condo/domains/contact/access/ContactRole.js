@@ -12,13 +12,13 @@ const {
     getEmployedOrRelatedOrganizationsByPermissions,
 } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canReadContactRoles ({ authentication: { item: user } }) {
+async function canReadContactRoles ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isAdmin || user.isSupport) return {}
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadContacts')
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadContacts')
 
     return {
         OR: [
@@ -32,7 +32,7 @@ async function canReadContactRoles ({ authentication: { item: user } }) {
     }
 }
 
-async function canManageContactRoles ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageContactRoles ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -52,7 +52,7 @@ async function canManageContactRoles ({ authentication: { item: user }, original
 
     if (!organizationId) return false
 
-    return checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canManageContactRoles')
+    return checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageContactRoles')
 }
 
 /*

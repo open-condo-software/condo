@@ -13,7 +13,7 @@ const {
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
-async function canReadMarketItems ({ authentication: { item: user } }) {
+async function canReadMarketItems ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
@@ -38,7 +38,7 @@ async function canReadMarketItems ({ authentication: { item: user } }) {
         return false
     }
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadMarketItems')
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadMarketItems')
 
     return {
         organization: {
@@ -47,7 +47,7 @@ async function canReadMarketItems ({ authentication: { item: user } }) {
     }
 }
 
-async function canManageMarketItems ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageMarketItems ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -65,7 +65,7 @@ async function canManageMarketItems ({ authentication: { item: user }, originalI
 
     if (!organizationId) return false
 
-    return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canManageMarketItems')
+    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageMarketItems')
 }
 
 /*

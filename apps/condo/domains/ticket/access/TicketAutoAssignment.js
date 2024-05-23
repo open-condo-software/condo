@@ -18,7 +18,7 @@ const { canDirectlyReadSchemaObjects, canDirectlyManageSchemaObjects } = require
  * 3. Users with direct access
  * 4. Employee who can manage tickets
  */
-async function canReadTicketAutoAssignments ({ authentication: { item: user }, listKey }) {
+async function canReadTicketAutoAssignments ({ authentication: { item: user }, listKey, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -28,7 +28,7 @@ async function canReadTicketAutoAssignments ({ authentication: { item: user }, l
     if (hasDirectAccess) return {}
 
     if (user.type === STAFF) {
-        const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canManageTickets')
+        const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canManageTickets')
 
         return {
             organization: {

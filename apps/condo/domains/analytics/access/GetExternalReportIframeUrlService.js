@@ -9,15 +9,15 @@ const {
     getEmployedOrRelatedOrganizationsByPermissions,
 } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canGetExternalReportIframeUrl ({ authentication: { item: user }, args: { data: { id, organizationId } } }) {
+async function canGetExternalReportIframeUrl ({ authentication: { item: user }, context, args: { data: { id, organizationId } } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
 
-    const userBelongsToOrganization = await checkUserEmploymentInOrganizations(user, organizationId)
+    const userBelongsToOrganization = await checkUserEmploymentInOrganizations(context, user, organizationId)
     if (!userBelongsToOrganization) return false
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadExternalReports')
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadExternalReports')
 
     const externalReports = await find('ExternalReport', {
         id,

@@ -15,7 +15,7 @@ const {
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
-async function canReadMarketPriceScopes ({ authentication: { item: user } }) {
+async function canReadMarketPriceScopes ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
@@ -38,7 +38,7 @@ async function canReadMarketPriceScopes ({ authentication: { item: user } }) {
         }
     }
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadMarketPriceScopes')
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadMarketPriceScopes')
 
     return {
         marketItemPrice: {
@@ -51,7 +51,7 @@ async function canReadMarketPriceScopes ({ authentication: { item: user } }) {
     }
 }
 
-async function canManageMarketPriceScopes ({ authentication: { item: user }, originalInput, operation, itemId, itemIds }) {
+async function canManageMarketPriceScopes ({ authentication: { item: user }, originalInput, operation, itemId, itemIds, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -142,7 +142,7 @@ async function canManageMarketPriceScopes ({ authentication: { item: user }, ori
 
     if (!organizationId) return false
 
-    return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canManageMarketPriceScopes')
+    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageMarketPriceScopes')
 }
 
 /*

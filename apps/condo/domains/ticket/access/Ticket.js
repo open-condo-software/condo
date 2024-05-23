@@ -23,7 +23,7 @@ const {
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { canDirectlyManageSchemaObjects, canDirectlyReadSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
-async function canReadTickets ({ authentication: { item: user }, listKey }) {
+async function canReadTickets ({ authentication: { item: user }, listKey, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -43,7 +43,7 @@ async function canReadTickets ({ authentication: { item: user }, listKey }) {
         }
     }
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadTickets')
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadTickets')
 
     return {
         organization: {
@@ -114,7 +114,7 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
 
         if (!organizationId) return false
 
-        const permission = await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canManageTickets')
+        const permission = await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageTickets')
         if (!permission) return false
 
         const propertyId = get(originalInput, ['property', 'connect', 'id'], null)

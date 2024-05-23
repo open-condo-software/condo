@@ -28,7 +28,7 @@ async function canReadBankIntegrationAccountContexts ({ authentication: { item: 
         }
     }
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, [])
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, [])
 
     return {
         organization: {
@@ -57,7 +57,7 @@ async function canManageBankIntegrationAccountContexts ({ authentication: { item
 
     if (!organizationId) return false
 
-    return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canManageBankIntegrationAccountContexts')
+    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageBankIntegrationAccountContexts')
 }
 
 /*

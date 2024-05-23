@@ -12,20 +12,20 @@ const {
     checkPermissionsInEmployedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canReadPropertyScopes ({ authentication: { item: user } }) {
+async function canReadPropertyScopes ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isAdmin || user.isSupport) return {}
 
-    const permittedOrganizations = await getEmployedOrganizationsByPermissions(user, [])
+    const permittedOrganizations = await getEmployedOrganizationsByPermissions(context, user, [])
 
     return {
         organization: { id_in: permittedOrganizations },
     }
 }
 
-async function canManagePropertyScopes ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManagePropertyScopes ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -34,7 +34,7 @@ async function canManagePropertyScopes ({ authentication: { item: user }, origin
         const organizationId = get(originalInput, ['organization', 'connect', 'id'])
         if (!organizationId) return false
 
-        return await checkPermissionsInEmployedOrganizations(user, organizationId, 'canManagePropertyScopes')
+        return await checkPermissionsInEmployedOrganizations(context, user, organizationId, 'canManagePropertyScopes')
     } else if (operation === 'update' && itemId) {
         const property = await getById('PropertyScope', itemId)
         if (!property) return false
@@ -42,7 +42,7 @@ async function canManagePropertyScopes ({ authentication: { item: user }, origin
 
         if (!organizationId) return false
 
-        return await checkPermissionsInEmployedOrganizations(user, organizationId, 'canManagePropertyScopes')
+        return await checkPermissionsInEmployedOrganizations(context, user, organizationId, 'canManagePropertyScopes')
     }
 
     return false

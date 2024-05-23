@@ -13,13 +13,13 @@ const {
     checkPermissionsInEmployedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canReadPropertyScopeOrganizationEmployees ({ authentication: { item: user } }) {
+async function canReadPropertyScopeOrganizationEmployees ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isAdmin || user.isSupport) return {}
 
-    const permittedOrganizations = await getEmployedOrganizationsByPermissions(user, [])
+    const permittedOrganizations = await getEmployedOrganizationsByPermissions(context, user, [])
 
     return {
         propertyScope: {
@@ -28,7 +28,7 @@ async function canReadPropertyScopeOrganizationEmployees ({ authentication: { it
     }
 }
 
-async function canManagePropertyScopeOrganizationEmployees ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManagePropertyScopeOrganizationEmployees ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -45,7 +45,7 @@ async function canManagePropertyScopeOrganizationEmployees ({ authentication: { 
 
         if (!propertyScopeOrganizationId || propertyScopeOrganizationId !== employeeOrganizationId) return false
 
-        return await checkPermissionsInEmployedOrganizations(user, propertyScopeOrganizationId, 'canManagePropertyScopes')
+        return await checkPermissionsInEmployedOrganizations(context, user, propertyScopeOrganizationId, 'canManagePropertyScopes')
     } else if (operation === 'update' && itemId) {
         if (!isSoftDelete(originalInput)) return false
 
@@ -58,7 +58,7 @@ async function canManagePropertyScopeOrganizationEmployees ({ authentication: { 
 
         if (!organizationId) return false
 
-        return await checkPermissionsInEmployedOrganizations(user, organizationId, 'canManagePropertyScopes')
+        return await checkPermissionsInEmployedOrganizations(context, user, organizationId, 'canManagePropertyScopes')
     }
 
     return false

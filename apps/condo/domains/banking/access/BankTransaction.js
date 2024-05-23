@@ -24,7 +24,7 @@ async function canReadBankTransactions ({ authentication: { item: user }, contex
         }
     }
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, [])
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, [])
 
     return {
         organization: {

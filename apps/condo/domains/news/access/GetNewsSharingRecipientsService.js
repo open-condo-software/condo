@@ -8,7 +8,7 @@ const { getById } = require('@open-condo/keystone/schema')
 
 const { checkPermissionsInEmployedOrRelatedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canGetNewsSharingRecipients ({ authentication: { item: user }, args: { data: { b2bAppContext: { id: b2bAppContextId } } } }) {
+async function canGetNewsSharingRecipients ({ authentication: { item: user }, context, args: { data: { b2bAppContext: { id: b2bAppContextId } } } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -19,7 +19,7 @@ async function canGetNewsSharingRecipients ({ authentication: { item: user }, ar
     const organizationId = get(b2bContext, 'organization', null)
     if (!organizationId) return false
 
-    return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canManageNewsItems')
+    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageNewsItems')
 }
 
 /*

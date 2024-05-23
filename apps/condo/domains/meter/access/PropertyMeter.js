@@ -12,13 +12,13 @@ const {
     getEmployedOrRelatedOrganizationsByPermissions,
 } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canReadPropertyMeters ({ authentication: { item: user } }) {
+async function canReadPropertyMeters ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isSupport || user.isAdmin) return {}
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadMeters')
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadMeters')
 
     return {
         organization: {
@@ -27,7 +27,7 @@ async function canReadPropertyMeters ({ authentication: { item: user } }) {
     }
 }
 
-async function canManagePropertyMeters ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManagePropertyMeters ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
@@ -43,7 +43,7 @@ async function canManagePropertyMeters ({ authentication: { item: user }, origin
         if (!property) return false
         if (organizationId !== get(property, 'organization')) return false
 
-        return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canManageMeters')
+        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageMeters')
     }
 
     if (operation === 'update' && itemId) {
@@ -65,7 +65,7 @@ async function canManagePropertyMeters ({ authentication: { item: user }, origin
         }
         if (!meterOrganization) return false
 
-        return await checkPermissionsInEmployedOrRelatedOrganizations(user, meterOrganization, 'canManageMeters')
+        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, meterOrganization, 'canManageMeters')
     }
 
     return false

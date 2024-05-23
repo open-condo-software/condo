@@ -19,7 +19,7 @@ const { SERVICE } = require('@condo/domains/user/constants/common')
 
 
 async function canReadContacts (args) {
-    const { authentication: { item: user } } = args
+    const { authentication: { item: user }, context } = args
 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -30,7 +30,7 @@ async function canReadContacts (args) {
         return await canReadObjectsAsB2BAppServiceUser(args)
     }
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadContacts')
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadContacts')
 
     return {
         organization: {
@@ -40,7 +40,7 @@ async function canReadContacts (args) {
 }
 
 async function canManageContacts (args) {
-    const { authentication: { item: user }, originalInput, operation, itemId } = args
+    const { authentication: { item: user }, originalInput, operation, itemId, context } = args
 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -56,7 +56,7 @@ async function canManageContacts (args) {
 
         if (!organizationId) return false
 
-        return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canManageContacts')
+        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageContacts')
     }
 
     if (operation === 'update' && itemId) {
@@ -66,7 +66,7 @@ async function canManageContacts (args) {
 
         if (!contactOrganization) return false
 
-        return await checkPermissionsInEmployedOrRelatedOrganizations(user, contactOrganization, 'canManageContacts')
+        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, contactOrganization, 'canManageContacts')
     }
 
     return false

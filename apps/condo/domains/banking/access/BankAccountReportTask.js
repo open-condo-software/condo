@@ -44,7 +44,7 @@ async function canReadBankAccountReportTasks ({ authentication: { item: user } }
     return { user: { id: user.id } }
 }
 
-async function canManageBankAccountReportTasks ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageBankAccountReportTasks ({ authentication: { item: user }, context, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
@@ -56,7 +56,7 @@ async function canManageBankAccountReportTasks ({ authentication: { item: user }
 
         if (!organizationId) return false
 
-        return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canManageBankAccountReportTasks')
+        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageBankAccountReportTasks')
     }
     if (operation === 'update') {
         const syncTask = await getById('BankAccountReportTask', itemId)

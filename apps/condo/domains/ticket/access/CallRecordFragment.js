@@ -12,12 +12,12 @@ const {
     getEmployedOrRelatedOrganizationsByPermissions,
 } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canReadCallRecordFragments ({ authentication: { item: user } }) {
+async function canReadCallRecordFragments ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return {}
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadCallRecords')
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadCallRecords')
 
     return {
         organization: {
@@ -26,7 +26,7 @@ async function canReadCallRecordFragments ({ authentication: { item: user } }) {
     }
 }
 
-async function canManageCallRecordFragments ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageCallRecordFragments ({ authentication: { item: user }, context, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
@@ -52,7 +52,7 @@ async function canManageCallRecordFragments ({ authentication: { item: user }, o
 
     if (!organizationId) return false
 
-    return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canManageCallRecords')
+    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageCallRecords')
 }
 
 /*

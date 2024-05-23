@@ -60,7 +60,7 @@ async function canReadAcquiringIntegrationContexts ({ authentication: { item: us
  * 1. Admin
  * 2. Integration service user
  */
-async function canManageAcquiringIntegrationContexts ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageAcquiringIntegrationContexts ({ authentication: { item: user }, originalInput, operation, itemId, context: reqContext }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -85,7 +85,7 @@ async function canManageAcquiringIntegrationContexts ({ authentication: { item: 
 
     if (!organizationId) return false
 
-    const canManageIntegrations = await checkPermissionsInEmployedOrganizations(user, organizationId, 'canManageIntegrations')
+    const canManageIntegrations = await checkPermissionsInEmployedOrganizations(reqContext, user, organizationId, 'canManageIntegrations')
     if (canManageIntegrations && operation === 'create') return true
     if (canManageIntegrations && operation === 'update') {
         // Allow employee to complete context settings
@@ -94,7 +94,7 @@ async function canManageAcquiringIntegrationContexts ({ authentication: { item: 
         }
     }
 
-    const canManageMarketplace = await checkPermissionsInEmployedOrganizations(user, organizationId, 'canManageMarketplace')
+    const canManageMarketplace = await checkPermissionsInEmployedOrganizations(reqContext, user, organizationId, 'canManageMarketplace')
     if (canManageMarketplace && operation === 'create') return true
     if (canManageMarketplace && operation === 'update') {
         // Allow employee to complete context settings

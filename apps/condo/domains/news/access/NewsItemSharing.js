@@ -14,13 +14,13 @@ const {
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
-async function canReadNewsItemSharings ({ authentication: { item: user } }) {
+async function canReadNewsItemSharings ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isAdmin || user.isSupport) return {}
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadNewsItems')
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadNewsItems')
 
     return {
         b2bAppContext: {
@@ -32,7 +32,7 @@ async function canReadNewsItemSharings ({ authentication: { item: user } }) {
     }
 }
 
-async function canManageNewsItemSharings ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageNewsItemSharings ({ authentication: { item: user }, context, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -52,7 +52,7 @@ async function canManageNewsItemSharings ({ authentication: { item: user }, orig
 
     if (!organizationId) return false
 
-    return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canManageNewsItems')
+    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageNewsItems')
 }
 
 /*

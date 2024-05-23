@@ -8,12 +8,12 @@ const {
     getEmployedOrRelatedOrganizationsByPermissions,
 } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canReadTicketOrganizationSettings ({ authentication: { item: user } }) {
+async function canReadTicketOrganizationSettings ({ authentication: { item: user }, context }) {
     if (!user) throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, [])
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, [])
 
 
     return {
@@ -23,7 +23,7 @@ async function canReadTicketOrganizationSettings ({ authentication: { item: user
     }
 }
 
-async function canManageTicketOrganizationSettings ({ authentication: { item: user }, operation }) {
+async function canManageTicketOrganizationSettings ({ authentication: { item: user }, operation, context }) {
     if (!user) throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -31,7 +31,7 @@ async function canManageTicketOrganizationSettings ({ authentication: { item: us
     if (operation === 'create') return false
 
     if (operation === 'update') {
-        const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, [])
+        const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, [])
 
         return {
             organization: {

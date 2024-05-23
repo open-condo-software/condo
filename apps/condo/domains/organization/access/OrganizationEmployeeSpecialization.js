@@ -13,13 +13,13 @@ const {
     checkPermissionsInEmployedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canReadOrganizationEmployeeSpecializations ({ authentication: { item: user } }) {
+async function canReadOrganizationEmployeeSpecializations ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isAdmin || user.isSupport) return {}
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadEmployees')
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadEmployees')
 
     return {
         employee: {
@@ -30,7 +30,7 @@ async function canReadOrganizationEmployeeSpecializations ({ authentication: { i
     }
 }
 
-async function canManageOrganizationEmployeeSpecializations ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageOrganizationEmployeeSpecializations ({ authentication: { item: user }, context, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -44,7 +44,7 @@ async function canManageOrganizationEmployeeSpecializations ({ authentication: {
 
         if (!organizationId) return false
 
-        return await checkPermissionsInEmployedOrganizations(user, organizationId, 'canManageEmployees')
+        return await checkPermissionsInEmployedOrganizations(context, user, organizationId, 'canManageEmployees')
     } else if (operation === 'update' && itemId) {
         if (!isSoftDelete(originalInput)) return false
 
@@ -57,7 +57,7 @@ async function canManageOrganizationEmployeeSpecializations ({ authentication: {
 
         if (!organizationId) return false
 
-        return await checkPermissionsInEmployedOrganizations(user, organizationId, 'canManageEmployees')
+        return await checkPermissionsInEmployedOrganizations(context, user, organizationId, 'canManageEmployees')
     }
 
     return false

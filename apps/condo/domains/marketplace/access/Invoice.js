@@ -20,7 +20,7 @@ const {
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 
-async function canReadInvoices ({ authentication: { item: user } }) {
+async function canReadInvoices ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -42,7 +42,7 @@ async function canReadInvoices ({ authentication: { item: user } }) {
         }
     }
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadInvoices')
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadInvoices')
 
 
     return {
@@ -53,7 +53,7 @@ async function canReadInvoices ({ authentication: { item: user } }) {
     }
 }
 
-async function canManageInvoices ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageInvoices ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -70,7 +70,7 @@ async function canManageInvoices ({ authentication: { item: user }, originalInpu
     }
 
     if (!organizationId) return false
-    return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canManageInvoices')
+    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageInvoices')
 }
 
 /*

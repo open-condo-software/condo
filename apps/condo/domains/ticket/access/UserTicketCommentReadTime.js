@@ -22,7 +22,7 @@ async function canReadUserTicketCommentReadTimes ({ authentication: { item: user
     }
 }
 
-async function canManageUserTicketCommentReadTimes ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageUserTicketCommentReadTimes ({ authentication: { item: user }, context, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -38,7 +38,7 @@ async function canManageUserTicketCommentReadTimes ({ authentication: { item: us
                 return false
             }
 
-            return await checkUserEmploymentOrRelationToOrganization(user, organizationId)
+            return await checkUserEmploymentOrRelationToOrganization(context, user, organizationId)
         }
         if (operation === 'update' && itemId) {
             const userTicketCommentReadTime = await getById('UserTicketCommentReadTime', itemId)

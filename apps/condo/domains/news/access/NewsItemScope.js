@@ -15,13 +15,13 @@ const {
 const { STAFF, RESIDENT } = require('@condo/domains/user/constants/common')
 
 async function canReadNewsItemScopes (attrs) {
-    const { authentication: { item: user } } = attrs
+    const { authentication: { item: user }, context } = attrs
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
     if (user.type === RESIDENT) return false
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadNewsItems')
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadNewsItems')
 
     // access for stuff
     return {
@@ -33,7 +33,7 @@ async function canReadNewsItemScopes (attrs) {
     }
 }
 
-async function canManageNewsItemScopes ({ authentication: { item: user }, originalInput, operation, itemId, itemIds }) {
+async function canManageNewsItemScopes ({ authentication: { item: user }, context, originalInput, operation, itemId, itemIds }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -87,7 +87,7 @@ async function canManageNewsItemScopes ({ authentication: { item: user }, origin
             organizationIds = uniq(newsItems.map(newsItem => newsItem.organization))
         }
 
-        return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationIds, 'canManageNewsItems')
+        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationIds, 'canManageNewsItems')
     }
 
     return false

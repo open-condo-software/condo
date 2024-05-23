@@ -17,7 +17,7 @@ const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { RESIDENT_COMMENT_TYPE } = require('../constants')
 
 
-async function canReadTicketCommentFiles ({ authentication: { item: user } }) {
+async function canReadTicketCommentFiles ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -37,7 +37,7 @@ async function canReadTicketCommentFiles ({ authentication: { item: user } }) {
         }
     }
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadTickets')
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadTickets')
 
     return {
         OR: [
@@ -51,7 +51,7 @@ async function canReadTicketCommentFiles ({ authentication: { item: user } }) {
     }
 }
 
-const checkManageCommentFileAccess = async ({ user, operation, originalInput, itemId }) => {
+const checkManageCommentFileAccess = async ({ user, operation, originalInput, itemId, context }) => {
     if (user.type === RESIDENT) {
         if (operation === 'create') {
             const ticketId = get(originalInput, ['ticket', 'connect', 'id'])
@@ -81,7 +81,7 @@ const checkManageCommentFileAccess = async ({ user, operation, originalInput, it
 
                 if (!organizationId) return false
 
-                return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canManageTicketComments')
+                return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageTicketComments')
             }
 
             return true
@@ -93,7 +93,7 @@ const checkManageCommentFileAccess = async ({ user, operation, originalInput, it
         const { createdBy, organization } = ticketCommentFile
         if (!organization) return createdBy === user.id
 
-        return await checkPermissionsInEmployedOrRelatedOrganizations(user, organization, 'canManageTicketComments')
+        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organization, 'canManageTicketComments')
     }
 
     return false

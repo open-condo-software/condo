@@ -13,12 +13,12 @@ const {
 } = require('@condo/domains/organization/utils/accessSchema')
 
 
-async function canReadIncidentProperties ({ authentication: { item: user } }) {
+async function canReadIncidentProperties ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadIncidents')
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadIncidents')
 
     return {
         organization: {
@@ -27,7 +27,7 @@ async function canReadIncidentProperties ({ authentication: { item: user } }) {
     }
 }
 
-async function canManageIncidentProperties ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageIncidentProperties ({ authentication: { item: user }, context, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (operation === 'update' && !isSoftDelete(originalInput)) return false
@@ -46,7 +46,7 @@ async function canManageIncidentProperties ({ authentication: { item: user }, or
 
     if (!organizationId) return false
 
-    return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canManageIncidents')
+    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageIncidents')
 }
 
 /*

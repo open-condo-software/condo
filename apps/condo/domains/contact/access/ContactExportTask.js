@@ -20,7 +20,7 @@ async function canReadContactExportTasks ({ authentication: { item: user } }) {
     return { user: { id: user.id } }
 }
 
-async function canManageContactExportTasks ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageContactExportTasks ({ authentication: { item: user }, context, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
@@ -36,7 +36,7 @@ async function canManageContactExportTasks ({ authentication: { item: user }, or
 
         if (organizationIds.length === 0 || organizationIds.some(id => typeof id !== 'string')) return false
 
-        return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationIds, 'canReadContacts')
+        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationIds, 'canReadContacts')
     } else if (operation === 'update') {
         const task = await getById('ContactExportTask', itemId)
 

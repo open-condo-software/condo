@@ -7,7 +7,7 @@ const { getById } = require('@open-condo/keystone/schema')
 const { checkUserEmploymentOrRelationToOrganization } = require('@condo/domains/organization/utils/accessSchema')
 
 
-async function canGetResidentExistenceByPhoneAndAddress ({ authentication: { item: user }, args }) {
+async function canGetResidentExistenceByPhoneAndAddress ({ authentication: { item: user }, context, args }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
@@ -18,7 +18,7 @@ async function canGetResidentExistenceByPhoneAndAddress ({ authentication: { ite
 
     if (!propertyOrganization) return false
 
-    return await checkUserEmploymentOrRelationToOrganization(user, propertyOrganization)
+    return await checkUserEmploymentOrRelationToOrganization(context, user, propertyOrganization)
 }
 
 /*

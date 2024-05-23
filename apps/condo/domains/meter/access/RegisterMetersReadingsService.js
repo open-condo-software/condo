@@ -8,14 +8,14 @@ const { checkPermissionsInEmployedOrRelatedOrganizations } = require('@condo/dom
 const { STAFF, SERVICE } = require('@condo/domains/user/constants/common')
 
 async function canRegisterMetersReadings (args) {
-    const { authentication: { item: user }, args: { data: { organization: { id: organizationId } } } } = args
+    const { authentication: { item: user }, context, args: { data: { organization: { id: organizationId } } } } = args
 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
 
     if (user.type === STAFF) {
-        return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, ['canManageMeters', 'canManageMeterReadings'])
+        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, ['canManageMeters', 'canManageMeterReadings'])
     }
 
     if (user.type === SERVICE) {

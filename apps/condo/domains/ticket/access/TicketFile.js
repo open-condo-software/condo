@@ -13,7 +13,7 @@ const {
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 
 
-async function canReadTicketFiles ({ authentication: { item: user } }) {
+async function canReadTicketFiles ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -21,7 +21,7 @@ async function canReadTicketFiles ({ authentication: { item: user } }) {
 
     if (user.type === RESIDENT) return { createdBy: { id: user.id } }
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadTickets')
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadTickets')
 
     return {
         OR: [
@@ -36,7 +36,7 @@ async function canReadTicketFiles ({ authentication: { item: user } }) {
 }
 
 
-async function canManageTicketFiles ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageTicketFiles ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
@@ -59,7 +59,7 @@ async function canManageTicketFiles ({ authentication: { item: user }, originalI
 
                 if (!organizationId) return false
 
-                return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canManageTickets')
+                return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageTickets')
             }
 
             return true
@@ -71,7 +71,7 @@ async function canManageTicketFiles ({ authentication: { item: user }, originalI
         const { createdBy, organization } = ticketFile
         if (!organization) return createdBy === user.id
 
-        return await checkPermissionsInEmployedOrRelatedOrganizations(user, organization, 'canManageTickets')
+        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organization, 'canManageTickets')
     }
 
     return false

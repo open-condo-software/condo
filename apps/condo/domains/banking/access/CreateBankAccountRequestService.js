@@ -7,7 +7,7 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 
 const { checkPermissionsInEmployedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canCreateBankAccountRequest ({ authentication: { item: user }, args: { data } }) {
+async function canCreateBankAccountRequest ({ authentication: { item: user }, context, args: { data } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -15,7 +15,7 @@ async function canCreateBankAccountRequest ({ authentication: { item: user }, ar
     const organizationId = get(data, 'organizationId')
     if (!organizationId) return false
 
-    return await checkPermissionsInEmployedOrganizations(user, organizationId, 'canManageBankAccounts')
+    return await checkPermissionsInEmployedOrganizations(context, user, organizationId, 'canManageBankAccounts')
 }
 
 /*

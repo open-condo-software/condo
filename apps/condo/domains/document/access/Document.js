@@ -13,18 +13,18 @@ const {
 } = require('@condo/domains/organization/utils/accessSchema')
 
 
-async function canReadDocuments ({ authentication: { item: user } }) {
+async function canReadDocuments ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isAdmin) return {}
 
-    const permittedOrganizations = await getEmployedOrganizationsByPermissions(user, 'canReadDocuments')
+    const permittedOrganizations = await getEmployedOrganizationsByPermissions(context, user, 'canReadDocuments')
 
     return { organization: { id_in: permittedOrganizations } }
 }
 
-async function canManageDocuments ({ authentication: { item: user }, originalInput, operation, itemId, itemIds }) {
+async function canManageDocuments ({ authentication: { item: user }, originalInput, operation, itemId, itemIds, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
@@ -57,7 +57,7 @@ async function canManageDocuments ({ authentication: { item: user }, originalInp
         if (organizationIds.length !== ids.length) return false
     }
 
-    return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationIds, 'canManageDocuments')
+    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationIds, 'canManageDocuments')
 }
 
 /*

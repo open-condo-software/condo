@@ -13,7 +13,7 @@ const {
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
-async function canReadMobileFeatureConfigs ({ authentication: { item: user } }) {
+async function canReadMobileFeatureConfigs ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -35,7 +35,7 @@ async function canReadMobileFeatureConfigs ({ authentication: { item: user } }) 
         return false
     }
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, [])
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, [])
 
     return {
         organization: {
@@ -45,7 +45,7 @@ async function canReadMobileFeatureConfigs ({ authentication: { item: user } }) 
 }
 
 async function canManageMobileFeatureConfigs (attrs) {
-    const { authentication: { item: user }, originalInput, operation, itemId } = attrs
+    const { authentication: { item: user }, originalInput, operation, itemId, context } = attrs
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.type === RESIDENT) return false
@@ -66,7 +66,7 @@ async function canManageMobileFeatureConfigs (attrs) {
 
     if (!organizationId) return false
 
-    return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canManageMobileFeatureConfigs')
+    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageMobileFeatureConfigs')
 }
 
 /*

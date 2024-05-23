@@ -18,7 +18,7 @@ const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 
 
 async function canReadProperties (args) {
-    const { authentication: { item: user } } = args
+    const { authentication: { item: user }, context } = args
 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -39,7 +39,7 @@ async function canReadProperties (args) {
         return await canReadObjectsAsB2BAppServiceUser(args)
     }
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadProperties')
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadProperties')
 
     return {
         organization: {
@@ -49,7 +49,7 @@ async function canReadProperties (args) {
 }
 
 async function canManageProperties (args) {
-    const { authentication: { item: user }, originalInput, operation, itemId } = args
+    const { authentication: { item: user }, originalInput, operation, itemId, context } = args
 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -63,7 +63,7 @@ async function canManageProperties (args) {
         const organizationId = get(originalInput, ['organization', 'connect', 'id'])
         if (!organizationId) return false
 
-        return await checkPermissionsInEmployedOrganizations(user, organizationId, 'canManageProperties')
+        return await checkPermissionsInEmployedOrganizations(context, user, organizationId, 'canManageProperties')
     } else if (operation === 'update' && itemId) {
         const property = await getById('Property', itemId)
         if (!property) return false
@@ -71,7 +71,7 @@ async function canManageProperties (args) {
 
         if (!organizationId) return false
 
-        return await checkPermissionsInEmployedOrganizations(user, organizationId, 'canManageProperties')
+        return await checkPermissionsInEmployedOrganizations(context, user, organizationId, 'canManageProperties')
     }
 
     return false

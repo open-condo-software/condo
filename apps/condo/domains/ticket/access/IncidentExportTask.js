@@ -20,7 +20,7 @@ async function canReadIncidentExportTasks ({ authentication: { item: user } }) {
     return { user: { id: user.id } }
 }
 
-async function canManageIncidentExportTasks ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageIncidentExportTasks ({ authentication: { item: user }, context, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
@@ -34,7 +34,7 @@ async function canManageIncidentExportTasks ({ authentication: { item: user }, o
 
         if (isEmpty(organizationIds) || organizationIds.some(id => typeof id !== 'string')) return false
 
-        return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationIds, 'canReadIncidents')
+        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationIds, 'canReadIncidents')
     } else if (operation === 'update') {
         const task = await getById('IncidentExportTask', itemId)
 

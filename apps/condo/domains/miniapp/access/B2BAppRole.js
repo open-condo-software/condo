@@ -21,7 +21,7 @@ const { SERVICE, STAFF } = require('@condo/domains/user/constants/common')
  * 3.a If employee has 'canManageRoles' in role = return all roles from this organization
  * 3.b Otherwise = return only roles to user employees
  */
-async function canReadB2BAppRoles ({ authentication: { item: user } }) {
+async function canReadB2BAppRoles ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -32,7 +32,7 @@ async function canReadB2BAppRoles ({ authentication: { item: user } }) {
     }
 
     if (user.type === STAFF) {
-        const permittedOrganizations = await getEmployedOrganizationsByPermissions(user, 'canManageRoles')
+        const permittedOrganizations = await getEmployedOrganizationsByPermissions(context, user, 'canManageRoles')
 
         const userEmployees = await find('OrganizationEmployee', {
             deletedAt: null,
@@ -66,7 +66,7 @@ async function canReadB2BAppRoles ({ authentication: { item: user } }) {
  * 1. Admin / support
  * 2. Employee with "canManageRoles" permission
  */
-async function canManageB2BAppRoles ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageB2BAppRoles ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -84,7 +84,7 @@ async function canManageB2BAppRoles ({ authentication: { item: user }, originalI
         const organizationRole = await getById('OrganizationEmployeeRole', organizationRoleId)
         if (!organizationRole || !organizationRole.organization) return false
 
-        return await checkPermissionsInEmployedOrganizations(user, organizationRole.organization, 'canManageRoles')
+        return await checkPermissionsInEmployedOrganizations(context, user, organizationRole.organization, 'canManageRoles')
     }
 
     return false

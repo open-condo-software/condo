@@ -24,6 +24,7 @@ async function canManageNewsItemRecipientsExportTasks ({
     originalInput,
     operation,
     itemId,
+    context,
 }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -33,7 +34,7 @@ async function canManageNewsItemRecipientsExportTasks ({
         const organizationId = get(originalInput, ['organization', 'connect', 'id'])
         if (!organizationId) return false
 
-        return await checkPermissionsInEmployedOrganizations(user, organizationId, 'canReadNewsItems')
+        return await checkPermissionsInEmployedOrganizations(context, user, organizationId, 'canReadNewsItems')
     } else if (operation === 'update' && itemId) {
         const task = await getById('NewsItemRecipientsExportTask', itemId)
         if (!task) return false
@@ -41,7 +42,7 @@ async function canManageNewsItemRecipientsExportTasks ({
 
         if (!organizationId) return false
 
-        return await checkPermissionsInEmployedOrganizations(user, organizationId, 'canReadNewsItems')
+        return await checkPermissionsInEmployedOrganizations(context, user, organizationId, 'canReadNewsItems')
     }
 
     return false

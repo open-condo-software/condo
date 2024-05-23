@@ -14,7 +14,7 @@ const { canDirectlyReadSchemaObjects, canDirectlyManageSchemaObjects } = require
 
 
 async function canReadOrganizations (args) {
-    const { authentication: { item: user }, listKey } = args
+    const { authentication: { item: user }, listKey, context } = args
 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -42,7 +42,7 @@ async function canReadOrganizations (args) {
         return false
     }
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, [])
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, [])
 
     const accessConditions = [
         { id_in: permittedOrganizations },

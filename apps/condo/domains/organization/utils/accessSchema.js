@@ -1,5 +1,6 @@
 const get = require('lodash/get')
 const pick = require('lodash/pick')
+const set = require('lodash/set')
 const uniq = require('lodash/uniq')
 
 const conf = require('@open-condo/config')
@@ -82,18 +83,28 @@ async function resetUserEmployeesCache (userId) {
 
 /**
  * Obtains user organizations info via caching or sub-querying
+ * @param {{ req: import('express').Request }} ctx - keystone context object
  * @param {{ id: string }} user - user object
  * @returns {Promise<UserOgranizationsCache>}
  * @private
  */
-async function _getUserOrganizations (user) {
+async function _getUserOrganizations (ctx, user) {
     const cacheKey = _getUserOrganizationsCacheKey(user)
+    const ctxCachePath = ['req', 'context', 'cache', cacheKey]
 
     if (!DISABLE_USER_ORGANIZATION_CACHING) {
+        const existingRequestCache = get(ctx, ctxCachePath)
+
+        if (existingRequestCache) {
+            return existingRequestCache
+        }
+
         const cachedDataString = await _redisClient.get(cacheKey)
 
         if (cachedDataString !== null) {
-            return JSON.parse(cachedDataString)
+            const cachedOrganizations = JSON.parse(cachedDataString)
+            set(ctx, ctxCachePath, cachedOrganizations)
+            return cachedOrganizations
         }
     }
 
@@ -133,6 +144,7 @@ async function _getUserOrganizations (user) {
     }
 
     if (!DISABLE_USER_ORGANIZATION_CACHING) {
+        set(ctx, ctxCachePath, newCacheEntry)
         await _redisClient.set(cacheKey, JSON.stringify(newCacheEntry), 'PX', CACHE_TTL_IN_MS)
     }
 
@@ -151,13 +163,14 @@ function _checkPermissionsInOrganization (organizationPermissions, permissionsTo
 
 /**
  * Gets the IDs of organizations where user is employed and its employee has all permissions from the list
+ * @param {{ req: import('express').Request }} ctx - keystone context object
  * @param {{ id: string }} user - user object
  * @param {Array<string> | string} permissions - permissions to check,
  * can be passed as array of strings for multiple permissions or a single string for a single permission
  * @returns {Promise<Array<string>>}
  */
-async function getEmployedOrganizationsByPermissions (user, permissions) {
-    const userOrganizationsInfo = await _getUserOrganizations(user)
+async function getEmployedOrganizationsByPermissions (ctx, user, permissions) {
+    const userOrganizationsInfo = await _getUserOrganizations(ctx, user)
 
     const permissionsToCheck = Array.isArray(permissions) ? permissions : [permissions]
     const organizationIds = []
@@ -173,13 +186,14 @@ async function getEmployedOrganizationsByPermissions (user, permissions) {
 /**
  * Gets the IDs of those child (related) organizations in whose parent organizations the user is employed and has all permissions from the list.
  * Most likely you don't need to call this method directly, but use getEmployedOrganizationsByPermissions or getEmployedOrRelatedOrganizationsByPermissions
+ * @param {{ req: import('express').Request }} ctx - keystone context object
  * @param {{ id: string }} user - user object
  * @param {Array<string> | string} permissions - permissions to check,
  * can be passed as array of strings for multiple permissions or a single string for a single permission
  * @returns {Promise<Array<string>>}
  */
-async function getRelatedOrganizationsByPermissions (user, permissions) {
-    const userOrganizationsInfo = await _getUserOrganizations(user)
+async function getRelatedOrganizationsByPermissions (ctx, user, permissions) {
+    const userOrganizationsInfo = await _getUserOrganizations(ctx, user)
 
     const permissionsToCheck = Array.isArray(permissions) ? permissions : [permissions]
     const organizationIds = []
@@ -194,13 +208,14 @@ async function getRelatedOrganizationsByPermissions (user, permissions) {
 
 /**
  * Gets the IDs of organizations and its child (related) organizations in whose parent organizations the user is employed and has all permissions from the list.
+ * @param {{ req: import('express').Request }} ctx - keystone context object
  * @param {{ id: string }} user - user object
  * @param {Array<string> | string} permissions - permissions to check,
  * can be passed as array of strings for multiple permissions or a single string for a single permission
  * @returns {Promise<Array<string>>}
  */
-async function getEmployedOrRelatedOrganizationsByPermissions (user, permissions) {
-    const userOrganizationsInfo = await _getUserOrganizations(user)
+async function getEmployedOrRelatedOrganizationsByPermissions (ctx, user, permissions) {
+    const userOrganizationsInfo = await _getUserOrganizations(ctx, user)
 
     const permissionsToCheck = Array.isArray(permissions) ? permissions : [permissions]
     const organizationIds = []
@@ -218,13 +233,14 @@ async function getEmployedOrRelatedOrganizationsByPermissions (user, permissions
  * Both organizations and permissions can be single elements if passed as strings instead of arrays
  * This utils is faster than filtering organization ids from corresponding get<> function,
  * so use it when you don't need related organizations
+ * @param {{ req: import('express').Request }} ctx - keystone context object
  * @param {{ id: string }} user - user object
  * @param {Array<string> | string} organizationIds - organizations to checks (can be passed as array of IDs or a single ID)
  * @param {Array<string> | string} permissions - permissions to check (can be passed as array or a single string)
  * @returns {Promise<boolean>}
  */
-async function checkPermissionsInEmployedOrganizations (user, organizationIds, permissions) {
-    const userOrganizationsInfo = await _getUserOrganizations(user)
+async function checkPermissionsInEmployedOrganizations (ctx, user, organizationIds, permissions) {
+    const userOrganizationsInfo = await _getUserOrganizations(ctx, user)
 
     const organizationsToCheck = Array.isArray(organizationIds) ? uniq(organizationIds) : [organizationIds]
     const permissionsToCheck = Array.isArray(permissions) ? permissions : [permissions]
@@ -242,15 +258,16 @@ async function checkPermissionsInEmployedOrganizations (user, organizationIds, p
  * Checks if user is employed in some parent organization for all listed organizations and has all correct permissions in it.
  * Both organizations and permissions can be single elements if passed as strings instead of arrays
  * Most likely you don't need to call this method directly, but use checkPermissionsInEmployedOrganizations or checkPermissionsInEmployedOrRelatedOrganizations
+ * @param {{ req: import('express').Request }} ctx - keystone context object
  * @param {{ id: string }} user - user object
  * @param {Array<string> | string} organizationIds - organizations to checks (can be passed as array of IDs or a single ID)
  * @param {Array<string> | string} permissions - permissions to check (can be passed as array or a single string)
  * @returns {Promise<boolean>}
  */
-async function checkPermissionsInRelatedOrganizations (user, organizationIds, permissions) {
+async function checkPermissionsInRelatedOrganizations (ctx, user, organizationIds, permissions) {
     const organizationsToCheck = Array.isArray(organizationIds) ? uniq(organizationIds) : [organizationIds]
 
-    const permittedOrganizationsList = await getRelatedOrganizationsByPermissions(user, permissions)
+    const permittedOrganizationsList = await getRelatedOrganizationsByPermissions(ctx, user, permissions)
     const permittedOrganizationsSet = new Set(permittedOrganizationsList)
 
     return organizationsToCheck.every(orgId => permittedOrganizationsSet.has(orgId))
@@ -259,15 +276,16 @@ async function checkPermissionsInRelatedOrganizations (user, organizationIds, pe
 /**
  * Combination of checkPermissionsInEmployedOrganizations and checkPermissionsInRelatedOrganizations
  * Both organizations and permissions can be single elements if passed as strings instead of arrays
+ * @param {{ req: import('express').Request }} ctx - keystone context object
  * @param {{ id: string }} user - user object
  * @param {Array<string> | string} organizationIds - organizations to checks (can be passed as array of IDs or a single ID)
  * @param {Array<string> | string} permissions - permissions to check (can be passed as array or a single string)
  * @returns {Promise<boolean>}
  */
-async function checkPermissionsInEmployedOrRelatedOrganizations (user, organizationIds, permissions) {
+async function checkPermissionsInEmployedOrRelatedOrganizations (ctx, user, organizationIds, permissions) {
     const organizationsToCheck = Array.isArray(organizationIds) ? uniq(organizationIds) : [organizationIds]
 
-    const permittedOrganizationsList = await getEmployedOrRelatedOrganizationsByPermissions(user, permissions)
+    const permittedOrganizationsList = await getEmployedOrRelatedOrganizationsByPermissions(ctx, user, permissions)
     const permittedOrganizationsSet = new Set(permittedOrganizationsList)
 
     return organizationsToCheck.every(ordId => permittedOrganizationsSet.has(ordId))
@@ -275,23 +293,25 @@ async function checkPermissionsInEmployedOrRelatedOrganizations (user, organizat
 
 /**
  * Checks whether the user is an employee in ALL organizations
+ * @param {{ req: import('express').Request }} ctx - keystone context object
  * @param {{ id: string }} user - user object
  * @param {Array<string> | string} organizationIds - organizations to checks (can be passed as array of IDs or a single ID)
  * @returns {Promise<boolean>}
  */
-async function checkUserEmploymentInOrganizations (user, organizationIds) {
-    return await checkPermissionsInEmployedOrganizations(user, organizationIds, [])
+async function checkUserEmploymentInOrganizations (ctx, user, organizationIds) {
+    return await checkPermissionsInEmployedOrganizations(ctx, user, organizationIds, [])
 }
 
 /**
  * Checks whether the user is directly employed in specified organization or in any parent organization of specified organization
  * for ALL organizations in organizationIds
+ * @param {{ req: import('express').Request }} ctx - keystone context object
  * @param {{ id: string }} user - user object
  * @param {Array<string> | string} organizationIds - organizations to checks (can be passed as array of IDs or a single ID)
  * @returns {Promise<boolean>}
  */
-async function checkUserEmploymentOrRelationToOrganization (user, organizationIds) {
-    return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationIds, [])
+async function checkUserEmploymentOrRelationToOrganization (ctx, user, organizationIds) {
+    return await checkPermissionsInEmployedOrRelatedOrganizations(ctx, user, organizationIds, [])
 }
 
 module.exports = {

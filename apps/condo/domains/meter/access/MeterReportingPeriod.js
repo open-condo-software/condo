@@ -18,7 +18,7 @@ const {
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 
-async function canReadMeterReportingPeriods ({ authentication: { item: user } }) {
+async function canReadMeterReportingPeriods ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -34,7 +34,7 @@ async function canReadMeterReportingPeriods ({ authentication: { item: user } })
         }
     }
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, [])
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, [])
 
     return {
         OR: [
@@ -48,7 +48,7 @@ async function canReadMeterReportingPeriods ({ authentication: { item: user } })
     }
 }
 
-async function canManageMeterReportingPeriods ({ authentication: { item: user }, originalInput, operation, itemId, itemIds }) {
+async function canManageMeterReportingPeriods ({ authentication: { item: user }, originalInput, operation, itemId, itemIds, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isSupport || user.isAdmin) return true
@@ -96,7 +96,7 @@ async function canManageMeterReportingPeriods ({ authentication: { item: user },
 
     if (isEmpty(organizationIds) || organizationIds.some(isNull)) return false
     
-    return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationIds, 'canManageMeters')
+    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationIds, 'canManageMeters')
 }
 
 /*

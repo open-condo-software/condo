@@ -7,12 +7,12 @@ const { getByCondition, getById } = require('@open-condo/keystone/schema')
 
 const { getEmployedOrganizationsByPermissions } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canReadTicketFilterTemplates ({ authentication: { item: user } }) {
+async function canReadTicketFilterTemplates ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return {}
 
-    const permittedOrganizations = await getEmployedOrganizationsByPermissions(user, 'canReadTickets')
+    const permittedOrganizations = await getEmployedOrganizationsByPermissions(context, user, 'canReadTickets')
 
     return {
         employee: { organization: { id_in: permittedOrganizations }, user: { id: user.id }, deletedAt: null },

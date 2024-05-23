@@ -14,7 +14,7 @@ const {
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { STAFF } = require('@condo/domains/user/constants/common')
 
-async function canReadMarketItemFiles ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canReadMarketItemFiles ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
@@ -40,7 +40,7 @@ async function canReadMarketItemFiles ({ authentication: { item: user }, origina
         return false
     }
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadMarketItems')
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadMarketItems')
 
     return {
         OR: [
@@ -60,7 +60,7 @@ async function canReadMarketItemFiles ({ authentication: { item: user }, origina
     }
 }
 
-async function canManageMarketItemFiles ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageMarketItemFiles ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -91,7 +91,7 @@ async function canManageMarketItemFiles ({ authentication: { item: user }, origi
         const organizationId = get(marketItem, 'organization', null)
         if (!organizationId) return false
 
-        return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canManageMarketItems')
+        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageMarketItems')
     }
 
     return false

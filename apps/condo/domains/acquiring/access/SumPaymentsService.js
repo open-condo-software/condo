@@ -7,18 +7,18 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 
 const { checkPermissionsInEmployedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canSumPayments ({ args: { where }, authentication: { item: user } }) {
+async function canSumPayments ({ args: { where }, authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
 
     const organizationFromInvoice = get(where, ['invoice', 'context', 'organization', 'id'], null)
-    if (organizationFromInvoice) return await checkPermissionsInEmployedOrganizations(user, organizationFromInvoice, 'canReadPayments')
+    if (organizationFromInvoice) return await checkPermissionsInEmployedOrganizations(context, user, organizationFromInvoice, 'canReadPayments')
 
     const organizationId = get(where, ['organization', 'id'], null)
     if (!organizationId) return false
 
-    return await checkPermissionsInEmployedOrganizations(user, organizationId, 'canReadPayments')
+    return await checkPermissionsInEmployedOrganizations(context, user, organizationId, 'canReadPayments')
 }
 
 /*

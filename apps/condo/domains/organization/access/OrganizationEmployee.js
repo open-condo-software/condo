@@ -10,13 +10,13 @@ const {
 } = require('@condo/domains/organization/utils/accessSchema')
 
 
-async function canReadOrganizationEmployees ({ authentication: { item: user } }) {
+async function canReadOrganizationEmployees ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isSupport || user.isAdmin) return {}
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadEmployees')
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadEmployees')
 
     return {
         OR: [
@@ -30,7 +30,7 @@ async function canReadOrganizationEmployees ({ authentication: { item: user } })
     }
 }
 
-async function canManageOrganizationEmployees ({ authentication: { item: user }, operation, itemId }) {
+async function canManageOrganizationEmployees ({ authentication: { item: user }, context, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
@@ -44,7 +44,7 @@ async function canManageOrganizationEmployees ({ authentication: { item: user },
 
         if (!employeeToEdit || !employeeToEdit.organization) return false
 
-        return await checkPermissionsInEmployedOrganizations(user, employeeToEdit.organization, 'canManageEmployees')
+        return await checkPermissionsInEmployedOrganizations(context, user, employeeToEdit.organization, 'canManageEmployees')
     }
 
     return false

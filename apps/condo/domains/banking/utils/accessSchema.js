@@ -9,7 +9,7 @@ const {
 const { BankIntegrationAccessRight } = require('./serverSchema')
 
 
-async function canManageBankEntityWithOrganization ({ authentication: { item: user }, originalInput, operation, itemId, itemIds, listKey }, permission) {
+async function canManageBankEntityWithOrganization ({ authentication: { item: user }, context, originalInput, operation, itemId, itemIds, listKey }, permission) {
     const isBulkRequest = isArray(originalInput)
 
     let organizationIds
@@ -36,7 +36,7 @@ async function canManageBankEntityWithOrganization ({ authentication: { item: us
         organizationIds = uniq(items.map(item => item.organization))
     }
 
-    return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationIds, permission)
+    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationIds, permission)
 }
 
 async function checkBankIntegrationsAccessRights (context, userId, integrationIds) {

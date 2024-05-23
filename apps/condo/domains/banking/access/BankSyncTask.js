@@ -42,7 +42,7 @@ async function canReadBankSyncTasks ({ authentication: { item: user } }) {
     return { user: { id: user.id } }
 }
 
-async function canManageBankSyncTasks ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageBankSyncTasks ({ authentication: { item: user }, context, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
@@ -52,7 +52,7 @@ async function canManageBankSyncTasks ({ authentication: { item: user }, origina
     if (operation === 'create') {
         organizationId = get(originalInput, ['organization', 'connect', 'id'])
         if (!organizationId) return false
-        return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canManageBankAccounts')
+        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageBankAccounts')
     }
     if (operation === 'update') {
         const syncTask = await getById('BankSyncTask', itemId)

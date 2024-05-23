@@ -13,7 +13,7 @@ const { STAFF, RESIDENT, SERVICE } = require('@condo/domains/user/constants/comm
 const { canReadBillingReceipts } = require('./BillingReceipt')
 
 
-async function canReadBillingReceiptFiles ({ authentication }) {
+async function canReadBillingReceiptFiles ({ authentication, context }) {
     const user = authentication.item
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -21,7 +21,7 @@ async function canReadBillingReceiptFiles ({ authentication }) {
     if (user.isSupport || user.isAdmin) return {}
 
     if (user.type === STAFF) {
-        const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, [])
+        const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, [])
 
         return {
             context: {

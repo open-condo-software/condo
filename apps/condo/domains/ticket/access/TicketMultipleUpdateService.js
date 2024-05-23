@@ -9,7 +9,7 @@ const { getById } = require('@open-condo/keystone/schema')
 const { checkPermissionsInEmployedOrRelatedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
 
 async function canTicketMultipleUpdate (data) {
-    const { authentication: { item: user } } = data
+    const { authentication: { item: user }, context } = data
 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -22,7 +22,7 @@ async function canTicketMultipleUpdate (data) {
 
     if (!ticket.organization) return false
 
-    return await checkPermissionsInEmployedOrRelatedOrganizations(user, ticket.organization, 'canManageTickets')
+    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, ticket.organization, 'canManageTickets')
 }
 
 /*

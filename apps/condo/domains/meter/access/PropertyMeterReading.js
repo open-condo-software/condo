@@ -12,13 +12,13 @@ const {
     checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canReadPropertyMeterReadings ({ authentication: { item: user } }) {
+async function canReadPropertyMeterReadings ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isSupport || user.isAdmin) return {}
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadMeters')
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadMeters')
 
     return {
         organization: {
@@ -27,7 +27,7 @@ async function canReadPropertyMeterReadings ({ authentication: { item: user } })
     }
 }
 
-async function canManagePropertyMeterReadings ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManagePropertyMeterReadings ({ authentication: { item: user }, context, originalInput, operation }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isSupport || user.isAdmin) return true
@@ -41,7 +41,7 @@ async function canManagePropertyMeterReadings ({ authentication: { item: user },
 
         if (!meterOrganization) return false
 
-        return await checkPermissionsInEmployedOrRelatedOrganizations(user, meterOrganization, 'canManageMeterReadings')
+        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, meterOrganization, 'canManageMeterReadings')
     }
 
     return false

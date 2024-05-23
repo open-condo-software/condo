@@ -6,13 +6,13 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 
 const { getEmployedOrganizationsByPermissions } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canReadServiceSubscriptions ({ authentication: { item: user } }) {
+async function canReadServiceSubscriptions ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     
     if (user.isSupport || user.isAdmin) return {}
 
-    const permittedOrganizations = await getEmployedOrganizationsByPermissions(user, [])
+    const permittedOrganizations = await getEmployedOrganizationsByPermissions(context, user, [])
 
 
     return {

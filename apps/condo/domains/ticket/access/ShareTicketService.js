@@ -3,7 +3,7 @@ const { getByCondition } = require('@open-condo/keystone/schema')
 
 const { checkPermissionsInEmployedOrRelatedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canShareTicket ({ args: { data }, authentication: { item: user } }) {
+async function canShareTicket ({ args: { data }, authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
@@ -12,7 +12,7 @@ async function canShareTicket ({ args: { data }, authentication: { item: user } 
 
     if (!ticket || !ticket.organization) return false
 
-    return await checkPermissionsInEmployedOrRelatedOrganizations(user, ticket.organization, 'canShareTickets')
+    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, ticket.organization, 'canShareTickets')
 }
 
 module.exports = {

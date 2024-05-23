@@ -24,7 +24,7 @@ async function canReadUserHelpRequests ({ authentication: { item: user } }) {
     return { createdBy: { id: user.id } }
 }
 
-async function canManageUserHelpRequests ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageUserHelpRequests ({ authentication: { item: user }, context, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
@@ -36,7 +36,7 @@ async function canManageUserHelpRequests ({ authentication: { item: user }, orig
 
         if (!organizationIdInRequest) return false
 
-        return await checkUserEmploymentInOrganizations(user, organizationIdInRequest)
+        return await checkUserEmploymentInOrganizations(context, user, organizationIdInRequest)
     } else if (operation === 'update') {
         const helpRequest = await getById('UserHelpRequest', itemId)
         const inaccessibleUpdatedFields = omit(originalInput, AVAILABLE_TO_UPDATE_USER_HELP_REQUEST_FIELDS)

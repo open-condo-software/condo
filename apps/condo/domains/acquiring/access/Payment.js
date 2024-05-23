@@ -61,7 +61,7 @@ async function canManagePayments ({ authentication: { item: user }, operation, i
     return false
 }
 
-async function canReadPaymentsSensitiveData ({ authentication: { item: user }, existingItem }) {
+async function canReadPaymentsSensitiveData ({ authentication: { item: user }, existingItem, context }) {
     if (!user || user.deletedAt) return false
     if (user.isSupport || user.isAdmin) return true
 
@@ -76,12 +76,12 @@ async function canReadPaymentsSensitiveData ({ authentication: { item: user }, e
     }
 
     // Otherwise check if it's employee or not
-    const canReadPayments = !!(await checkPermissionsInEmployedOrganizations(user, existingItem.organization, 'canReadPayments'))
+    const canReadPayments = !!(await checkPermissionsInEmployedOrganizations(context, user, existingItem.organization, 'canReadPayments'))
     if (canReadPayments) {
         return true
     }
 
-    const canReadPaymentsWithInvoices = !!(await checkPermissionsInEmployedOrganizations(user, existingItem.organization, 'canReadPaymentsWithInvoices'))
+    const canReadPaymentsWithInvoices = !!(await checkPermissionsInEmployedOrganizations(context, user, existingItem.organization, 'canReadPaymentsWithInvoices'))
     if (canReadPaymentsWithInvoices) {
         return true
     }

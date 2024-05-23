@@ -13,13 +13,13 @@ const {
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
-async function canReadNewsItemTemplates ({ authentication: { item: user } }) {
+async function canReadNewsItemTemplates ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.type === RESIDENT) return false
     if (user.isAdmin || user.isSupport) return {}
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, 'canReadNewsItems')
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadNewsItems')
 
     return {
         OR: [
@@ -33,7 +33,7 @@ async function canReadNewsItemTemplates ({ authentication: { item: user } }) {
     }
 }
 
-async function canManageNewsItemTemplates ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageNewsItemTemplates ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -51,7 +51,7 @@ async function canManageNewsItemTemplates ({ authentication: { item: user }, ori
 
     if (!organizationId) return false
 
-    return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canManageNewsItemTemplates')
+    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageNewsItemTemplates')
 }
 
 /*

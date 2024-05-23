@@ -7,12 +7,12 @@ const {
     checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canGetOverviewDashboard ({ authentication: { item: user }, args: { data: { where: { organization } } } }) {
+async function canGetOverviewDashboard ({ authentication: { item: user }, context, args: { data: { where: { organization } } } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
 
-    return await checkPermissionsInEmployedOrRelatedOrganizations(user, organization, 'canReadAnalytics')
+    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organization, 'canReadAnalytics')
 }
 
 /*

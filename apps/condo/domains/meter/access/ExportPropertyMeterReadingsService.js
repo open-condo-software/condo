@@ -12,7 +12,7 @@ const {
 } = require('@condo/domains/organization/utils/accessSchema')
 
 
-async function canExportPropertyMeterReadings ({ args: { data: { where } }, authentication: { item: user } }) {
+async function canExportPropertyMeterReadings ({ args: { data: { where } }, authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
@@ -20,14 +20,14 @@ async function canExportPropertyMeterReadings ({ args: { data: { where } }, auth
     const organizationId = get(where, ['organization', 'id'])
 
     if (organizationId) {
-        return await checkPermissionsInEmployedOrganizations(user, organizationId, 'canReadMeters')
+        return await checkPermissionsInEmployedOrganizations(context, user, organizationId, 'canReadMeters')
     } else {
         const organizationWhere = get(where, 'organization')
         if (!organizationWhere) return false
         const [relatedFromOrganization] = await find('Organization', organizationWhere)
         if (!relatedFromOrganization) return false
 
-        return await checkPermissionsInRelatedOrganizations(user, relatedFromOrganization.id, 'canReadMeters')
+        return await checkPermissionsInRelatedOrganizations(context, user, relatedFromOrganization.id, 'canReadMeters')
     }
 }
 

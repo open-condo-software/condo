@@ -16,7 +16,7 @@ const {
 const { SERVICE } = require('@condo/domains/user/constants/common')
 
 async function canReadBankIntegrationOrganizationContexts (args) {
-    const { authentication: { item: user } } = args
+    const { authentication: { item: user }, context } = args
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -27,7 +27,7 @@ async function canReadBankIntegrationOrganizationContexts (args) {
         }
     }
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, [])
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, [])
 
 
     return {
@@ -60,7 +60,7 @@ async function canManageBankIntegrationOrganizationContexts (args) {
 
     if (!organizationId) return false
 
-    return await checkPermissionsInEmployedOrRelatedOrganizations(user, organizationId, 'canManageBankIntegrationOrganizationContexts')
+    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageBankIntegrationOrganizationContexts')
 }
 
 /*

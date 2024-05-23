@@ -24,7 +24,7 @@ async function canReadBankContractorAccounts ({ authentication: { item: user }, 
         return false
     }
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, [])
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, [])
 
     return {
         organization: {

@@ -16,13 +16,13 @@ const { SERVICE, RESIDENT, STAFF } = require('@condo/domains/user/constants/comm
 const { BANK_INTEGRATION_IDS } = require('../constants')
 
 
-async function canReadBankAccounts ({ authentication: { item: user } }) {
+async function canReadBankAccounts ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
 
     if (user.type === STAFF) {
-        const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(user, [])
+        const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, [])
 
         return {
             organization: {

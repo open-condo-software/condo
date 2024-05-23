@@ -49,7 +49,7 @@ async function canReadB2BAppContexts ({ authentication: { item: user }, listKey 
  * 2. Users with direct access
  * 3. App service user
  */
-async function canManageB2BAppContexts ({ authentication: { item: user }, originalInput, operation, itemId, listKey }) {
+async function canManageB2BAppContexts ({ authentication: { item: user }, originalInput, operation, itemId, listKey, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -62,7 +62,7 @@ async function canManageB2BAppContexts ({ authentication: { item: user }, origin
 
         if (!organizationId) return false
 
-        return await checkPermissionsInEmployedOrganizations(user, organizationId, 'canManageB2BApps')
+        return await checkPermissionsInEmployedOrganizations(context, user, organizationId, 'canManageB2BApps')
     } else if (operation === 'update') {
         if (!itemId) return false
         const context = await getById('B2BAppContext', itemId)
