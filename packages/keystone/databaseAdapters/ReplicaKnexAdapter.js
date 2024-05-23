@@ -13,19 +13,19 @@ class ReplicaKnexAdapter extends KnexAdapter {
     async _connect () {
         this.knex = knex({
             client: 'postgres',
-            pool: { min: 0, max: 1 },
+            pool: { min: 0, max: 3 },
             connection: this.writeConnection,
         })
 
         this.knexMaster = knex({
             client: 'postgres',
-            pool: { min: 0, max: 1 },
+            pool: { min: 0, max: 3 },
             connection: this.writeConnection,
         })
 
         this.knexRead = knex({
             client: 'postgres',
-            pool: { min: 0, max: 1 },
+            pool: { min: 0, max: 3 },
             connection: this.readConnection,
         })
 
