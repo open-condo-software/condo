@@ -90,6 +90,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       dev-api: ${{ steps.detect-changes.outputs.dev-api }}
+      condorb: ${{ steps.detect-changes.outputs.condorb }}
     steps:
       - name: Checkout code with submodules
         uses: actions/checkout@v4
