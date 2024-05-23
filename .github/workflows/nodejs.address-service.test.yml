@@ -42,7 +42,7 @@ jobs:
       - name: Docker compose up databases
         run: |
           cp .env.example .env
-          docker-compose up -d postgresdb redis
+          docker compose up -d postgresdb postgresdb-replica redis
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
