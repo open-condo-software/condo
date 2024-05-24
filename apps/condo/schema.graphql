@@ -5689,6 +5689,8 @@ type OrganizationEmployeeRoleHistoryRecord {
   """
   _label_: String
   organization: String
+  isDefault: Boolean
+  isEditable: Boolean
   name: String
   description: String
   canManageOrganization: Boolean
@@ -5773,6 +5775,10 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   organization_not: String
   organization_in: [String]
   organization_not_in: [String]
+  isDefault: Boolean
+  isDefault_not: Boolean
+  isEditable: Boolean
+  isEditable_not: Boolean
   name: String
   name_not: String
   name_contains: String
@@ -6020,6 +6026,10 @@ input OrganizationEmployeeRoleHistoryRecordWhereUniqueInput {
 }
 
 enum SortOrganizationEmployeeRoleHistoryRecordsBy {
+  isDefault_ASC
+  isDefault_DESC
+  isEditable_ASC
+  isEditable_DESC
   name_ASC
   name_DESC
   description_ASC
@@ -6166,6 +6176,8 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
 
 input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   organization: String
+  isDefault: Boolean
+  isEditable: Boolean
   name: String
   description: String
   canManageOrganization: Boolean
@@ -6249,6 +6261,8 @@ input OrganizationEmployeeRoleHistoryRecordsUpdateInput {
 
 input OrganizationEmployeeRoleHistoryRecordCreateInput {
   organization: String
+  isDefault: Boolean
+  isEditable: Boolean
   name: String
   description: String
   canManageOrganization: Boolean
@@ -6343,8 +6357,21 @@ type OrganizationEmployeeRole {
   """ Ref to the organization. The object will be deleted if the organization ceases to exist 
   """
   organization: Organization
+
+  """
+   (Read-only) Indicates whether the role was added by default when the organization was created.
+  Such roles cannot be deleted and their name, description and “ticketVisibilityType” cannot be changed. 
+  """
+  isDefault: Boolean
+
+  """ (Read-only) Indicates whether the role can be edited """
+  isEditable: Boolean
+
+  """ Role name. Cannot be changed for default roles """
   name: String
   nameNonLocalized: String
+
+  """ Role description. Cannot be changed for default roles """
   description: String
   descriptionNonLocalized: String
 
@@ -6445,6 +6472,8 @@ type OrganizationEmployeeRole {
   """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
   """
   sender: SenderField
+  deletedAt: String
+  newId: String
 }
 
 input OrganizationEmployeeRoleWhereInput {
@@ -6452,6 +6481,10 @@ input OrganizationEmployeeRoleWhereInput {
   OR: [OrganizationEmployeeRoleWhereInput]
   organization: OrganizationWhereInput
   organization_is_null: Boolean
+  isDefault: Boolean
+  isDefault_not: Boolean
+  isEditable: Boolean
+  isEditable_not: Boolean
   name: String
   name_not: String
   name_contains: String
@@ -6658,6 +6691,18 @@ input OrganizationEmployeeRoleWhereInput {
   sender_not: SenderFieldInput
   sender_in: [SenderFieldInput]
   sender_not_in: [SenderFieldInput]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
 }
 
 input OrganizationEmployeeRoleWhereUniqueInput {
@@ -6667,6 +6712,10 @@ input OrganizationEmployeeRoleWhereUniqueInput {
 enum SortOrganizationEmployeeRolesBy {
   organization_ASC
   organization_DESC
+  isDefault_ASC
+  isDefault_DESC
+  isEditable_ASC
+  isEditable_DESC
   name_ASC
   name_DESC
   description_ASC
@@ -6809,10 +6858,14 @@ enum SortOrganizationEmployeeRolesBy {
   updatedBy_DESC
   dv_ASC
   dv_DESC
+  deletedAt_ASC
+  deletedAt_DESC
 }
 
 input OrganizationEmployeeRoleUpdateInput {
   organization: OrganizationRelateToOneInput
+  isDefault: Boolean
+  isEditable: Boolean
   name: String
   description: String
   canManageOrganization: Boolean
@@ -6884,6 +6937,8 @@ input OrganizationEmployeeRoleUpdateInput {
   updatedBy: UserRelateToOneInput
   dv: Int
   sender: SenderFieldInput
+  deletedAt: String
+  newId: String
 }
 
 input OrganizationEmployeeRolesUpdateInput {
@@ -6893,6 +6948,8 @@ input OrganizationEmployeeRolesUpdateInput {
 
 input OrganizationEmployeeRoleCreateInput {
   organization: OrganizationRelateToOneInput
+  isDefault: Boolean
+  isEditable: Boolean
   name: String
   description: String
   canManageOrganization: Boolean
@@ -6964,6 +7021,8 @@ input OrganizationEmployeeRoleCreateInput {
   updatedBy: UserRelateToOneInput
   dv: Int
   sender: SenderFieldInput
+  deletedAt: String
+  newId: String
 }
 
 input OrganizationEmployeeRolesCreateInput {
@@ -73276,6 +73335,19 @@ type ResetOrganizationOutput {
   status: String!
 }
 
+input ReplaceOrganizationEmployeeRoleInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  organization: OrganizationWhereUniqueInput!
+  oldRole: OrganizationEmployeeRoleWhereUniqueInput!
+  newRole: OrganizationEmployeeRoleWhereUniqueInput!
+  withDeletionOldRole: Boolean!
+}
+
+type ReplaceOrganizationEmployeeRoleOutput {
+  status: String!
+}
+
 input ExportPropertiesToExcelInput {
   where: PropertyWhereInput!
   sortBy: [SortPropertiesBy!]
@@ -83742,6 +83814,109 @@ type Mutation {
   acceptOrRejectOrganizationInviteById(id: ID!, data: AcceptOrRejectOrganizationInviteInput!): OrganizationEmployee
   acceptOrRejectOrganizationInviteByCode(inviteCode: String!, data: AcceptOrRejectOrganizationInviteInput!): OrganizationEmployee
   resetOrganization(data: ResetOrganizationInput!): ResetOrganizationOutput
+
+  """
+  Replaces old role "A" with new role "B" for all employees with role "A"
+  
+  Replaces old role "A" with new role "B" for all employees with role "A". By default, old role is retained. If you pass the “withDeletionOldRole” flag, then old role will be deleted.
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "mutation": "replaceOrganizationEmployeeRole",
+    "variable": [
+      "data",
+      "dv"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "DV_VERSION_MISMATCH",
+    "message": "Wrong value for data version number"
+  }`
+  
+  `{
+    "mutation": "replaceOrganizationEmployeeRole",
+    "variable": [
+      "data",
+      "sender"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Invalid format of \"sender\" field value. {details}",
+    "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}"
+  }`
+  
+  `{
+    "mutation": "replaceOrganizationEmployeeRole",
+    "variable": [
+      "data",
+      "organization"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "ORGANIZATION_NOT_FOUND",
+    "message": "Organization not found",
+    "messageForUser": "api.organization.ReplaceOrganizationEmployeeRole.ORGANIZATION_NOT_FOUND"
+  }`
+  
+  `{
+    "mutation": "replaceOrganizationEmployeeRole",
+    "variable": [
+      "data",
+      "oldRole"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "OLD_ROLE_NOT_FOUND",
+    "message": "Old role not found in specified organization",
+    "messageForUser": "api.organization.ReplaceOrganizationEmployeeRole.OLD_ROLE_NOT_FOUND"
+  }`
+  
+  `{
+    "mutation": "replaceOrganizationEmployeeRole",
+    "variable": [
+      "data",
+      "newRole"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "NEW_ROLE_NOT_FOUND",
+    "message": "New role not found in specified organization",
+    "messageForUser": "api.organization.ReplaceOrganizationEmployeeRole.NEW_ROLE_NOT_FOUND"
+  }`
+  
+  `{
+    "mutation": "replaceOrganizationEmployeeRole",
+    "variable": [
+      "data"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "DEFAULT_ROLE_CANNOT_BE_DELETED",
+    "message": "The default role cannot be deleted",
+    "messageForUser": "api.organization.ReplaceOrganizationEmployeeRole.DEFAULT_ROLE_CANNOT_BE_DELETED"
+  }`
+  
+  `{
+    "mutation": "replaceOrganizationEmployeeRole",
+    "variable": [
+      "data"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "ROLES_MUST_BE_DIFFERENT",
+    "message": "The old role and new role must be different",
+    "messageForUser": "api.organization.ReplaceOrganizationEmployeeRole.ROLES_MUST_BE_DIFFERENT"
+  }`
+  
+  `{
+    "mutation": "replaceOrganizationEmployeeRole",
+    "variable": [
+      "data"
+    ],
+    "code": "TOO_MANY_REQUESTS",
+    "type": "ROLES_ARE_BEING_PROCESSED",
+    "message": "These roles are already being processed. Please try again a little later",
+    "messageForUser": "api.organization.ReplaceOrganizationEmployeeRole.ROLES_ARE_BEING_PROCESSED"
+  }`
+  """
+  replaceOrganizationEmployeeRole(data: ReplaceOrganizationEmployeeRoleInput!): ReplaceOrganizationEmployeeRoleOutput
   registerBillingReceipts(data: RegisterBillingReceiptsInput!): [BillingReceipt]
   sendNewBillingReceiptFilesNotifications(data: SendNewBillingReceiptFilesNotificationsInput!): SendNewBillingReceiptFilesNotificationsOutput
 

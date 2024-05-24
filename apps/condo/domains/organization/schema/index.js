@@ -11,6 +11,7 @@ const { OrganizationEmployeeRole } = require('./OrganizationEmployeeRole')
 const { OrganizationEmployeeSpecialization } = require('./OrganizationEmployeeSpecialization')
 const { OrganizationLink } = require('./OrganizationLink')
 const { RegisterNewOrganizationService } = require('./RegisterNewOrganizationService')
+const { ReplaceOrganizationEmployeeRoleService } = require('./ReplaceOrganizationEmployeeRoleService')
 const { ResetOrganizationService } = require('./ResetOrganizationService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
@@ -24,5 +25,6 @@ module.exports = {
     OrganizationLink,
     OrganizationEmployeeSpecialization,
     ResetOrganizationService,
+    ReplaceOrganizationEmployeeRoleService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

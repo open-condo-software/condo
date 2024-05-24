@@ -82,7 +82,7 @@ async function canManageB2BAppRoles ({ authentication: { item: user }, originalI
 
         if (!organizationRoleId) return false
         const organizationRole = await getById('OrganizationEmployeeRole', organizationRoleId)
-        if (!organizationRole || !organizationRole.organization) return false
+        if (!organizationRole || organizationRole.deletedAt || !organizationRole.organization) return false
 
         return await checkPermissionsInEmployedOrganizations(context, user, organizationRole.organization, 'canManageRoles')
     }

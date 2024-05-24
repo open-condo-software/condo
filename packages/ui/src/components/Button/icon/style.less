@@ -26,6 +26,11 @@
     z-index: 1;
   }
 
+  &::after {
+    // We reset style for ::after element to remove wave effect
+    all: unset;
+  }
+
   // After layer is used to show gradient outline on tab-focusing
   &:focus-visible::after {
     box-sizing: border-box;

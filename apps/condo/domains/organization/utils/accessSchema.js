@@ -124,8 +124,7 @@ async function _getUserOrganizations (ctx, user) {
     const userRoleIds = userEmployees.map(employee => employee.role)
     const userRoles = await find('OrganizationEmployeeRole', {
         id_in: userRoleIds,
-        // TODO(Alllex202): DOMA-8919 Add this check
-        // deletedAt: null,
+        deletedAt: null,
     })
 
     for (const role of userRoles) {

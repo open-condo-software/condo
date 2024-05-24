@@ -4,18 +4,98 @@
 const { Checkbox, Virtual, Select } = require('@keystonejs/fields')
 const get = require('lodash/get')
 
+const { writeOnlyServerSideFieldAccess } = require('@open-condo/keystone/access')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { LocalizedText } = require('@open-condo/keystone/fields')
-const { historical, versioned, uuided, tracked, dvAndSender } = require('@open-condo/keystone/plugins')
-const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { historical, versioned, uuided, tracked, dvAndSender, softDeleted } = require('@open-condo/keystone/plugins')
+const { GQLListSchema, itemsQuery } = require('@open-condo/keystone/schema')
+const { getLocalized } = require('@open-condo/locales/loader')
 
-
+const { LOCALES } = require('@condo/domains/common/constants/locale')
+const { normalizeText } = require('@condo/domains/common/utils/text')
 const access = require('@condo/domains/organization/access/OrganizationEmployeeRole')
-const { TICKET_VISIBILITY_OPTIONS, ORGANIZATION_TICKET_VISIBILITY } = require('@condo/domains/organization/constants/common')
+const { TICKET_VISIBILITY_OPTIONS, ORGANIZATION_TICKET_VISIBILITY, MIN_ROLE_NAME_LENGTH, MAX_ROLE_DESCRIPTION_LENGTH, MAX_ROLE_NAME_LENGTH } = require('@condo/domains/organization/constants/common')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const { resetOrganizationEmployeesCache } = require('@condo/domains/organization/utils/accessSchema')
+const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const { COUNTRY_RELATED_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
 
-const { Organization } = require('../utils/serverSchema')
+
+const ROLE_NAME_TRANSLATION_KEYS = [
+    'Administrator',
+    'Contractor',
+    'Dispatcher',
+    'Manager',
+    'Foreman',
+    'Technician',
+].map(roleName => `employee.role.${roleName}.name`)
+
+const ALL_ROLE_NAME_TRANSLATIONS = Object.keys(LOCALES).reduce((acc, locale) => {
+    acc.push(...ROLE_NAME_TRANSLATION_KEYS.map(key => getLocalized(locale, key)))
+    return acc
+}, [])
+const ALL_ROLE_NAME_TRANSLATIONS_REGEX = new RegExp(`^(${ALL_ROLE_NAME_TRANSLATIONS.join('|')})$`, 'i')
+
+const ERRORS = {
+    CANNOT_UPDATE_NOT_EDITABLE_ROLE: {
+        code: BAD_USER_INPUT,
+        type: 'CANNOT_UPDATE_NOT_EDITABLE_ROLE',
+        message: 'Not editable role cannot be updated',
+    },
+    CANNOT_DELETE_DEFAULT_ROLE: {
+        code: BAD_USER_INPUT,
+        type: 'CANNOT_DELETE_DEFAULT_ROLE',
+        message: 'Default role cannot be deleted',
+    },
+    CANNOT_UPDATE_FIELD_FOR_DEFAULT_ROLE: (fieldName) => ({
+        code: BAD_USER_INPUT,
+        variable: ['data', fieldName],
+        type: 'CANNOT_UPDATE_FIELD_FOR_DEFAULT_ROLE',
+        message: `"${fieldName}" field cannot be updated for default role`,
+    }),
+    ROLE_NAME_ALREADY_EXIST: {
+        code: BAD_USER_INPUT,
+        variable: ['data', 'name'],
+        type: 'ROLE_NAME_ALREADY_EXIST',
+        message: 'The role name is similar to the default role name',
+        messageForUser: 'api.organization.OrganizationEmployeeRole.ROLE_NAME_ALREADY_EXIST',
+    },
+    INVALID_ROLE_NAME_LENGTH: {
+        code: BAD_USER_INPUT,
+        variable: ['data', 'name'],
+        type: 'INVALID_ROLE_NAME_LENGTH',
+        message: `Role name length must be between ${MIN_ROLE_NAME_LENGTH} and ${MAX_ROLE_NAME_LENGTH} characters`,
+        messageForUser: 'api.organization.OrganizationEmployeeRole.INVALID_ROLE_NAME_LENGTH',
+        messageInterpolation: {
+            min: MIN_ROLE_NAME_LENGTH,
+            max: MAX_ROLE_NAME_LENGTH,
+        },
+    },
+    INVALID_ROLE_DESCRIPTION_LENGTH: {
+        code: BAD_USER_INPUT,
+        variable: ['data', 'description'],
+        type: 'INVALID_ROLE_DESCRIPTION_LENGTH',
+        message: `Role description length cannot be more than ${MAX_ROLE_NAME_LENGTH} characters`,
+        messageForUser: 'api.organization.OrganizationEmployeeRole.INVALID_ROLE_DESCRIPTION_LENGTH',
+        messageInterpolation: {
+            max: MAX_ROLE_NAME_LENGTH,
+        },
+    },
+    EMPLOYEES_WITH_THIS_ROLE_WERE_FOUND: (employeeCount) => ({
+        code: BAD_USER_INPUT,
+        variable: ['data', 'description'],
+        type: 'EMPLOYEES_WITH_THIS_ROLE_WERE_FOUND',
+        message: `${employeeCount} employees with this role were found. ` + 'This role must be revoked from all employees before it can be deleted. ' +
+            'You can use the "replaceOrganizationEmployeeRole" mutation to avoid having to do this manually.',
+    }),
+    B2B_APP_ROLES_WITH_THIS_ROLE_WERE_FOUND: (employeeCount) => ({
+        code: BAD_USER_INPUT,
+        variable: ['data', 'description'],
+        type: 'B2B_APP_ROLES_WITH_THIS_ROLE_WERE_FOUND',
+        message: `${employeeCount} B2BAppRoles with this role were found. ` + 'This role must be revoked from all B2BAppRoles before it can be deleted. ' +
+            'You can use the "replaceOrganizationEmployeeRole" mutation to avoid having to do this manually.',
+    }),
+}
 
 const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
     schemaDoc: 'Employee role name and access permissions',
@@ -25,15 +105,86 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
         // There is no `user` reference, because Organization will have a set of pre-defined roles
         // and each employee will be associated with one of the role, not role with user.
 
+        isDefault: {
+            schemaDoc: '(Read-only) Indicates whether the role was added by default when the organization was created.' +
+                '\nSuch roles cannot be deleted and their name, description and “ticketVisibilityType” cannot be changed.',
+            type: 'Checkbox',
+            defaultValue: false,
+            isRequired: true,
+            kmigratorOptions: { default: false },
+            access: writeOnlyServerSideFieldAccess,
+        },
+        isEditable: {
+            schemaDoc: '(Read-only) Indicates whether the role can be edited',
+            type: 'Checkbox',
+            defaultValue: true,
+            isRequired: true,
+            kmigratorOptions: { default: true },
+            access: writeOnlyServerSideFieldAccess,
+        },
+
         name: {
+            schemaDoc: 'Role name. Cannot be changed for default roles',
             type: LocalizedText,
             isRequired: true,
             template: 'employee.role.*.name',
+            hooks: {
+                resolveInput: async ({ resolvedData, fieldPath, existingItem }) => {
+                    const newItem = { ...existingItem, ...resolvedData }
+                    const isDefaultRole = get(newItem, 'isDefault', false)
+                    if (isDefaultRole) return resolvedData[fieldPath]
+                    if (resolvedData[fieldPath] === undefined) return resolvedData[fieldPath]
+                    return normalizeText(resolvedData[fieldPath]) || ''
+                },
+                validateInput: async ({ resolvedData, fieldPath, context, existingItem, operation }) => {
+                    const newItem = { ...existingItem, ...resolvedData }
+                    const isUpdateOperation = operation === 'update'
+                    const isDefaultRole = get(newItem, 'isDefault', false)
+                    const name = get(resolvedData, fieldPath) || ''
+
+                    if (isUpdateOperation && isDefaultRole) {
+                        throw new GQLError(ERRORS.CANNOT_UPDATE_FIELD_FOR_DEFAULT_ROLE(fieldPath), context)
+                    }
+
+                    if (name.length < MIN_ROLE_NAME_LENGTH || name.length > MAX_ROLE_NAME_LENGTH) {
+                        throw new GQLError(ERRORS.INVALID_ROLE_NAME_LENGTH, context)
+                    }
+
+                    // cannot be like translations
+                    if (name && ALL_ROLE_NAME_TRANSLATIONS_REGEX.test(name)) {
+                        throw new GQLError(ERRORS.ROLE_NAME_ALREADY_EXIST, context)
+                    }
+                },
+            },
         },
         description: {
+            schemaDoc: 'Role description. Cannot be changed for default roles',
             type: LocalizedText,
             isRequired: false,
             template: 'employee.role.*.description',
+            hooks: {
+                resolveInput: async ({ resolvedData, fieldPath, existingItem }) => {
+                    const newItem = { ...existingItem, ...resolvedData }
+                    const isDefaultRole = get(newItem, 'isDefault', false)
+                    if (isDefaultRole) return resolvedData[fieldPath]
+                    if (resolvedData[fieldPath] === undefined) return resolvedData[fieldPath]
+                    return normalizeText(resolvedData[fieldPath]) || ''
+                },
+                validateInput: async ({ resolvedData, fieldPath, context, existingItem, operation }) => {
+                    const newItem = { ...existingItem, ...resolvedData }
+                    const isUpdateOperation = operation === 'update'
+                    const isDefaultRole = get(newItem, 'isDefault', false)
+                    const description = get(resolvedData, fieldPath) || ''
+
+                    if (isUpdateOperation && isDefaultRole) {
+                        throw new GQLError(ERRORS.CANNOT_UPDATE_FIELD_FOR_DEFAULT_ROLE(fieldPath), context)
+                    }
+
+                    if (description.length > MAX_ROLE_DESCRIPTION_LENGTH) {
+                        throw new GQLError(ERRORS.INVALID_ROLE_DESCRIPTION_LENGTH, context)
+                    }
+                },
+            },
         },
         statusTransitions: {
             schemaDoc: 'Employee status transitions map',
@@ -100,6 +251,18 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
             isRequired: true,
             defaultOption: ORGANIZATION_TICKET_VISIBILITY,
             options: TICKET_VISIBILITY_OPTIONS,
+            hooks: {
+                validateInput: async ({ existingItem, resolvedData, operation, fieldPath, context }) => {
+                    const newItem = { ...existingItem, ...resolvedData }
+
+                    const isUpdateOperation = operation === 'update'
+                    const isDefaultRole = get(newItem, 'isDefault', false)
+
+                    if (isUpdateOperation && isDefaultRole) {
+                        throw new GQLError(ERRORS.CANNOT_UPDATE_FIELD_FOR_DEFAULT_ROLE(fieldPath), context)
+                    }
+                },
+            },
         },
         canManagePropertyScopes: { type: Checkbox, defaultValue: false },
         canManageBankAccounts: { type: Checkbox, defaultValue: false },
@@ -138,7 +301,67 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
         canReadTour: { type: Checkbox, defaultValue: true },
         canManageTour: { type: Checkbox, defaultValue: true },
     },
-    plugins: [uuided(), versioned(), tracked(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), dvAndSender(), historical(), softDeleted()],
+    hooks: {
+        validateInput: async ({ resolvedData, existingItem, context, operation }) => {
+            const newItem = { ...existingItem, ...resolvedData }
+            const roleId = get(newItem, 'id')
+
+            const isSoftDelete = Boolean(resolvedData['deletedAt'])
+            const isUpdateOperation = operation === 'update'
+
+            const isEditableRole = get(newItem, 'isEditable', false)
+            const isDefaultRole = get(newItem, 'isDefault', false)
+
+            if (isDefaultRole && isSoftDelete) {
+                throw new GQLError(ERRORS.CANNOT_DELETE_DEFAULT_ROLE, context)
+            }
+
+            if (!isEditableRole && isUpdateOperation) {
+                throw new GQLError(ERRORS.CANNOT_UPDATE_NOT_EDITABLE_ROLE, context)
+            }
+
+            if (isSoftDelete && isUpdateOperation && roleId) {
+                const { count: organizationEmployeeCount } = await itemsQuery('OrganizationEmployee', {
+                    where: {
+                        role: { id: roleId },
+                        deletedAt: null,
+                    },
+                }, { meta: true })
+
+                if (organizationEmployeeCount) {
+                    throw new GQLError(ERRORS.EMPLOYEES_WITH_THIS_ROLE_WERE_FOUND(organizationEmployeeCount), context)
+                }
+
+                const { count: b2bAppRoleCount } = await itemsQuery('B2BAppRole', {
+                    where: {
+                        role: { id: roleId },
+                        deletedAt: null,
+                    },
+                }, { meta: true })
+
+                if (b2bAppRoleCount) {
+                    throw new GQLError(ERRORS.B2B_APP_ROLES_WITH_THIS_ROLE_WERE_FOUND(b2bAppRoleCount), context)
+                }
+            }
+        },
+        afterChange: async ({ updatedItem, existingItem }) => {
+            const roleId = existingItem ? existingItem.id : updatedItem.id
+            // NOTE: orgId is not changed, so we can use updatedItem
+            const organizationId = updatedItem.organization
+            await resetOrganizationEmployeesCache(organizationId, roleId)
+        },
+    },
+    kmigratorOptions: {
+        constraints: [
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['organization', 'name'],
+                condition: 'Q(deletedAt__isnull=True)',
+                name: 'organization_employee_role_unique_organization_and_name',
+            },
+        ],
+    },
     access: {
         read: access.canReadOrganizationEmployeeRoles,
         create: access.canManageOrganizationEmployeeRoles,
@@ -146,17 +369,10 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
         delete: false,
         auth: true,
     },
-    hooks: {
-        async afterChange ({ updatedItem, existingItem }) {
-            const roleId = existingItem ? existingItem.id : updatedItem.id
-            // NOTE: orgId is not changed, so we can use updatedItem
-            const organizationId = updatedItem.organization
-            await resetOrganizationEmployeesCache(organizationId, roleId)
-        },
-    },
     escapeSearch: true,
 })
 
 module.exports = {
     OrganizationEmployeeRole,
+    ERRORS,
 }

@@ -31,6 +31,7 @@ const {
 const { ORGANIZATION_TICKET_VISIBILITY, HOLDING_TYPE} = require('@condo/domains/organization/constants/common')
 const { OrganizationEmployeeSpecialization: OrganizationEmployeeSpecializationGQL } = require('@condo/domains/organization/gql')
 const { RESET_ORGANIZATION_MUTATION } = require('@condo/domains/organization/gql')
+const { REPLACE_ORGANIZATION_EMPLOYEE_ROLE_MUTATION } = require('@condo/domains/organization/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const OrganizationEmployeeRole = generateGQLTestUtils(OrganizationEmployeeRoleGQL)
@@ -349,6 +350,28 @@ async function resetOrganizationByTestClient(client, extraAttrs = {}) {
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
+async function replaceOrganizationEmployeeRoleByTestClient(client, organization, oldRole, newRole, withDeletionOldRole = false, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    if (!oldRole || !oldRole.id) throw new Error('no oldRole.id')
+    if (!newRole || !newRole.id) throw new Error('no newRole.id')
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        organization: { id: organization.id },
+        oldRole: { id: oldRole.id },
+        newRole: { id: newRole.id },
+        withDeletionOldRole,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(REPLACE_ORGANIZATION_EMPLOYEE_ROLE_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -374,5 +397,6 @@ module.exports = {
     generateTin,
     OrganizationEmployeeSpecialization, createTestOrganizationEmployeeSpecialization, updateTestOrganizationEmployeeSpecialization,
     resetOrganizationByTestClient,
+    replaceOrganizationEmployeeRoleByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

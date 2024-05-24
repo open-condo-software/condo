@@ -12,10 +12,10 @@ import cloneDeep from 'lodash/cloneDeep'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
-import omit from 'lodash/omit'
 import pick from 'lodash/pick'
 import set from 'lodash/set'
 import uniqBy from 'lodash/uniqBy'
+import { useRouter } from 'next/router'
 import { TableComponents } from 'rc-table/lib/interface'
 import React, {
     Dispatch,
@@ -42,14 +42,15 @@ import {
     TableRecord,
 } from '@condo/domains/common/components/Table/Index'
 import { B2BAppContext, B2BAppPermission, B2BAppRole } from '@condo/domains/miniapp/utils/clientSchema'
+import { MAX_ROLE_COUNT } from '@condo/domains/organization/constants/common'
+import { PermissionRow, PermissionsGroup, UseEmployeeRolesPermissionsGroups } from '@condo/domains/organization/hooks/useEmployeeRolesPermissionsGroups'
 import {
     GROUP_NAME_COLUMN_WIDTH,
     useEmployeeRolesTableColumns,
     useEmployeeRoleTicketVisibilityInfoTableColumns,
 } from '@condo/domains/organization/hooks/useEmployeeRolesTableColumns'
-import { UseEmployeeRolesTableData } from '@condo/domains/organization/hooks/useEmployeeRolesTableData'
-import { PermissionRow, PermissionsGroup } from '@condo/domains/organization/hooks/useEmployeeRolesTableData'
 import { OrganizationEmployeeRole } from '@condo/domains/organization/utils/clientSchema'
+import { getRelatedPermissionsTranslations } from '@condo/domains/organization/utils/roles.utils'
 
 
 const MEDIUM_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
@@ -65,7 +66,7 @@ type EmployeeRolesTableProps = {
     updateB2BAppRoleAction: IUseUpdateActionType<B2BAppRoleType, B2BAppRoleUpdateInput>,
     updateOrganizationEmployeeRoleAction: IUseUpdateActionType<OrganizationEmployeeRoleType, OrganizationEmployeeRoleUpdateInput>
     refetchEmployeeRoles
-    useEmployeeRolesTableData: UseEmployeeRolesTableData
+    useEmployeeRolesTableData: UseEmployeeRolesPermissionsGroups
 }
 
 type PermissionsType = { [permissionKey: string]: boolean }
@@ -85,54 +86,11 @@ type PermissionsState = {
 }
 
 type TableCheckboxProps = {
-    employeeRoleId: string
+    employeeRole: OrganizationEmployeeRoleType
     permissionsGroup: PermissionsGroup
     permissionRow: PermissionRow
     permissionsState: PermissionsState
     setPermissionsState: Dispatch<SetStateAction<PermissionsState>>
-}
-
-/**
- * Checks that certain checked checkbox in table is disabled.
- * If there are no one of the other employee roles who have that permission, then checkbox will be disabled.
- * If it's "canRead" checkbox, then also checks such logic for "canManage" permissions of this group.
- */
-const isCheckboxDisabled = ({
-    checkboxValue,
-    employeeRoleId,
-    permissionKey,
-    permissionsState,
-    pathToPermissionsGroupInState,
-    relatedUncheckPermissions = [],
-}) => {
-    if (!checkboxValue) return false
-
-    const otherEmployeeRoleIds = Object.keys(omit(permissionsState, employeeRoleId))
-    const pathToPermissionsGroupInStateFromEmployeeRole = pathToPermissionsGroupInState.slice(1)
-
-    // Check that at least one of other roles has checkbox.
-    for (const permission of [permissionKey, ...relatedUncheckPermissions]) {
-        let atLeastOneEmployeeHasPermission = false
-
-        for (const roleId of otherEmployeeRoleIds) {
-            const isOtherEmployeeHasPermission = get(
-                permissionsState,
-                [roleId, ...pathToPermissionsGroupInStateFromEmployeeRole, permission],
-                false
-            )
-
-            if (isOtherEmployeeHasPermission) {
-                atLeastOneEmployeeHasPermission = true
-                break
-            }
-        }
-
-        if (!atLeastOneEmployeeHasPermission) {
-            return true
-        }
-    }
-
-    return false
 }
 
 /**
@@ -261,7 +219,7 @@ const createInitialB2BAppPermissionsState = ({ appId, b2BAppPermissions, b2bRole
 }
 
 const TableCheckbox: React.FC<TableCheckboxProps> = ({
-    employeeRoleId,
+    employeeRole,
     permissionRow,
     permissionsState,
     setPermissionsState,
@@ -270,29 +228,21 @@ const TableCheckbox: React.FC<TableCheckboxProps> = ({
     const intl = useIntl()
     const relatedCheckPermissions = useMemo(() => permissionRow.relatedCheckPermissions || [], [permissionRow.relatedCheckPermissions])
     const relatedUncheckPermissions = useMemo(() => permissionRow.relatedUncheckPermissions || [], [permissionRow.relatedUncheckPermissions])
-    const getRelatedPermissionsString = useCallback(
-        (relatedPermissions) => relatedPermissions
-            .map(key => {
-                const translationKey = `pages.condo.settings.employeeRoles.permission.${key}`
-                const translation = intl.formatMessage({ id: translationKey })
 
-                if (translation === translationKey) return
-
-                return `«${translation}»`
-            })
-            .filter(Boolean)
-            .join(', '),
-        [intl])
-
-    const DisabledTooltipTitle = intl.formatMessage({ id: 'pages.condo.settings.employeeRoles.disabledCheckboxTitle' })
-    const relatedCheckPermissionTranslations = useMemo(() => getRelatedPermissionsString(relatedCheckPermissions), [getRelatedPermissionsString, relatedCheckPermissions])
-    const relatedUncheckPermissionTranslations = useMemo(() => getRelatedPermissionsString(relatedUncheckPermissions), [getRelatedPermissionsString, relatedUncheckPermissions])
+    const NotEditableRoleTooltip = intl.formatMessage({ id: 'pages.condo.employeeRole.tooltip.notEditableRole' }, { role: get(employeeRole, 'name') })
+    const relatedCheckPermissionTranslations = useMemo(() => getRelatedPermissionsTranslations(intl, relatedCheckPermissions), [relatedCheckPermissions])
+    const relatedUncheckPermissionTranslations = useMemo(() => getRelatedPermissionsTranslations(intl, relatedUncheckPermissions), [relatedUncheckPermissions])
     const RelatedPermissionsOnCheckTitle = intl.formatMessage({ id: 'pages.condo.settings.employeeRoles.relatedCheckPermissionsTooltip' }, {
         permissions: relatedCheckPermissionTranslations,
     })
     const RelatedPermissionsOnUncheckTitle = intl.formatMessage({ id: 'pages.condo.settings.employeeRoles.relatedUncheckPermissionsTooltip' }, {
         permissions: relatedUncheckPermissionTranslations,
     })
+
+    const [showTooltip, setShowTooltip] = useState<boolean>(false)
+
+    const employeeRoleIsEditable = get(employeeRole, 'isEditable', false)
+    const employeeRoleId = get(employeeRole, 'id')
 
     let value
     let pathToPermissionsGroupInState
@@ -329,19 +279,12 @@ const TableCheckbox: React.FC<TableCheckboxProps> = ({
         setPermissionsState(newState)
     }, [pathToPermissionsGroupInState, permissionKey, permissionsState, relatedCheckPermissions, relatedUncheckPermissions, setPermissionsState])
 
-    const checkboxDisabled = isCheckboxDisabled({
-        checkboxValue: value,
-        employeeRoleId,
-        permissionKey,
-        permissionsState,
-        pathToPermissionsGroupInState,
-        relatedUncheckPermissions,
-    })
+    const checkboxDisabled = !employeeRoleIsEditable
 
     let tooltipTitle
 
     if (checkboxDisabled) {
-        tooltipTitle = DisabledTooltipTitle
+        tooltipTitle = NotEditableRoleTooltip
     } else if (value && !isEmpty(relatedUncheckPermissionTranslations)) {
         tooltipTitle = RelatedPermissionsOnUncheckTitle
     } else if (!value && !isEmpty(relatedCheckPermissionTranslations)) {
@@ -349,8 +292,21 @@ const TableCheckbox: React.FC<TableCheckboxProps> = ({
     }
 
     return (
-        <Tooltip title={tooltipTitle}>
-            <Checkbox checked={value} onChange={onChange} disabled={checkboxDisabled} />
+        <Tooltip
+            title={tooltipTitle}
+            open={showTooltip && !!tooltipTitle}
+
+            // @ts-ignore
+            overlayStyle={{ pointerEvents: 'none' }}
+        >
+            <Checkbox
+                checked={value}
+                onChange={onChange}
+                disabled={checkboxDisabled}
+
+                onMouseEnter={() => setShowTooltip(true)}
+                onMouseLeave={() => setShowTooltip(false)}
+            />
         </Tooltip>
     )
 }
@@ -366,7 +322,7 @@ const ExpandableRow = ({ permissionsGroup, employeeRoles, permissionsState, setP
         ...employeeRoles.map(employeeRole => ({
             render: (permissionRow: PermissionRow) => {
                 return <TableCheckbox
-                    employeeRoleId={employeeRole.id}
+                    employeeRole={employeeRole}
                     permissionsGroup={permissionsGroup}
                     permissionRow={permissionRow}
                     permissionsState={permissionsState}
@@ -396,17 +352,21 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Save' })
     const CancelSelectionLabel = intl.formatMessage({ id: 'global.cancelSelection' })
+    const CreateLabel = intl.formatMessage({ id: 'Create' })
+    const RoleCreationLimitReachedTooltip = intl.formatMessage({ id: 'pages.condo.employeeRole.tooltip.roleCreationLimitReached' }, { max: MAX_ROLE_COUNT })
 
     const tableData: PermissionsGroup[] = useEmployeeRolesTableData(connectedB2BApps, b2BAppPermissions)
     const tableColumns = useEmployeeRolesTableColumns(employeeRoles)
 
     const { selectLink, link } = useOrganization()
+    const router = useRouter()
 
     const [initialPermissionsState, setInitialPermissionsState] = useState<PermissionsState>()
     const [permissionsState, setPermissionsState] = useState<PermissionsState>()
     const [submitActionProcessing, setSubmitActionProcessing] = useState<boolean>(false)
     const hasChanges = useMemo(() => !isEqual(initialPermissionsState, permissionsState), [initialPermissionsState, permissionsState])
     const loadingState = loading || submitActionProcessing
+    const roleCreationLimitReached = !loading && (get(employeeRoles, 'length') || 0) >= MAX_ROLE_COUNT
 
     useEffect(() => {
         if (!loadingState) {
@@ -513,7 +473,7 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
     }), [getExpandedRowRender])
 
     const actionBarItems: ActionBarProps['actions'] = useMemo(() => [
-        <Button
+        hasChanges && (<Button
             key='submit'
             onClick={handleSave}
             type='primary'
@@ -521,7 +481,7 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
             disabled={!hasChanges}
         >
             {SaveLabel}
-        </Button>,
+        </Button>),
         hasChanges && (
             <Button
                 icon={<Close size='medium' />}
@@ -533,7 +493,21 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
                 {CancelSelectionLabel}
             </Button>
         ),
-    ], [CancelSelectionLabel, SaveLabel, handleCancel, handleSave, hasChanges, submitActionProcessing])
+        !hasChanges && (
+            <Tooltip title={roleCreationLimitReached && RoleCreationLimitReachedTooltip}>
+                <span>
+                    <Button
+                        key='create'
+                        type='primary'
+                        onClick={() => router.push('/settings/employeeRole/create')}
+                        disabled={roleCreationLimitReached}
+                    >
+                        {CreateLabel}
+                    </Button>
+                </span>
+            </Tooltip>
+        ),
+    ], [CancelSelectionLabel, CreateLabel, SaveLabel, handleCancel, handleSave, hasChanges, submitActionProcessing, roleCreationLimitReached, RoleCreationLimitReachedTooltip])
 
     return (
         <Row gutter={MEDIUM_VERTICAL_GUTTER}>
@@ -568,7 +542,7 @@ export const EmployeeRolesSettingsContent = ({ useEmployeeRolesTableData }) => {
         objs: employeeRoles,
     } = OrganizationEmployeeRole.useObjects({
         where: { organization: { id: userOrganizationId } },
-        sortBy: [SortOrganizationEmployeeRolesBy.NameAsc],
+        sortBy: [SortOrganizationEmployeeRolesBy.IsDefaultDesc, SortOrganizationEmployeeRolesBy.NameAsc],
     })
 
     const {

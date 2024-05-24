@@ -253,7 +253,7 @@ export const CreateEmployeeForm: React.FC = () => {
                                             {({ getFieldValue }) => {
                                                 const roleId = getFieldValue('role')
                                                 const role = employeeRoles.find(x => x.id === roleId)
-                                                if (!role) return null
+                                                if (!role || !role.description) return null
                                                 return (
                                                     <Alert
                                                         type='info'

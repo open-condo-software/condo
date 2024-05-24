@@ -29,7 +29,6 @@ const StyledAlert = styled(Alert)`
 
 export const RecipientSettingsContent = () => {
     const intl = useIntl()
-    const PaymentsDetailsTitle = intl.formatMessage({ id: 'PaymentDetails' })
     const AlertTitle = intl.formatMessage({ id: 'pages.condo.settings.recipient.alert.title' })
     const AlertContent = intl.formatMessage({ id: 'pages.condo.settings.recipient.alert.content' })
 

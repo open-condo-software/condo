@@ -31,8 +31,7 @@ async function createDefaultB2BAppRoles (appId, organizationId, sender, context)
 
     const employeeRoles = await find('OrganizationEmployeeRole', {
         organization: { id: organizationId },
-        // TODO(DOMA-6750): Include deletedAt at filtering when roles become soft-deletable
-        // deletedAt: null,
+        deletedAt: null,
         canManageB2BApps: true,
     })
     const organizationRolesIds = employeeRoles.map(role => role.id)
