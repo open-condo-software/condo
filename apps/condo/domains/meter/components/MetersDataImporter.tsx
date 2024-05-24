@@ -1,4 +1,6 @@
 import { message, Upload } from 'antd'
+import iconv from 'iconv-lite'
+import jschardet from 'jschardet'
 import isNil from 'lodash/isNil'
 import React from 'react'
 import XLSX from 'xlsx'
@@ -12,6 +14,11 @@ import {
     ImportDataType,
     TOnMetersUpload,
 } from './MetersDataImporterTypes'
+
+const FORCE_ENCODING_CHANGE = {
+    'X-MAC-CYRILLIC': 'WINDOWS-1251',
+    'KOI8-R': 'WINDOWS-1251',
+}
 
 /**
  * Mutates argument
@@ -46,14 +53,22 @@ const useUploadConfig = (onUpload: TOnMetersUpload) => {
 
             if (isCsv) {// For now csv|txt means sbbol
                 reader.onload = (event) => {
-                    const textDecoder = new TextDecoder()
                     const uint8 = new Uint8Array(event.target.result as ArrayBuffer)
-                    const csv = String(textDecoder.decode(uint8)).trim()
+                    let incomingString: string = uint8.reduce((str, byte) => str + String.fromCharCode(byte), '')
+
+                    const detectedEncodingResult = jschardet.detect(incomingString)
+                    incomingString = undefined // release some memory
+
+                    const detectedEncoding = detectedEncodingResult.encoding.toUpperCase()
+                    const encoding = FORCE_ENCODING_CHANGE[detectedEncoding] || detectedEncoding
+                    const encodedString = iconv.decode(uint8 as Buffer, encoding).toString()
+
+                    const csvData = encodedString.trim()
                         .split('\n')
                         .filter(row => !row.trim().startsWith('#'))
                         .map(row => row.split(';'))
 
-                    onUpload(ImportDataType.sbbol, csv)
+                    onUpload(ImportDataType.sbbol, csvData)
                 }
             } else {
                 reader.onload = (e) => {
