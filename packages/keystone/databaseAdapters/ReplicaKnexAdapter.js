@@ -77,6 +77,7 @@ class ReplicaKnexAdapter extends KnexAdapter {
                 logger.info({
                     msg: 'get raw sql from builder',
                     execTime: Number(process.hrtime.bigint() - startTime) / 1000000,
+
                 })
                 useMaster = Array.isArray(sql)
                     ? checkUseMasterMultiple(sql)
@@ -95,7 +96,7 @@ class ReplicaKnexAdapter extends KnexAdapter {
             }
 
             logger.info({
-                msg: `Use master = ${useMaster}`, builder,
+                msg: `Use master = ${useMaster}`, sql,
                 execTime: Number(process.hrtime.bigint() - startTime) / 1000000,
             })
 
