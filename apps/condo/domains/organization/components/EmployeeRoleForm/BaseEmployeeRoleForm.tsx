@@ -108,6 +108,7 @@ export const FORM_LAYOUT_PROPS: FormLayoutProps = {
 }
 export const FORM_VALIDATE_TRIGGER = ['onSubmit']
 export const SCROLL_TO_FIRST_ERROR_CONFIG: ScrollOptions = { behavior: 'smooth', block: 'center' }
+const CONSTRAINT_UNIQUE_KEY = 'organization_employee_role_unique_organization_and_name'
 
 
 export type EmployeeRoleFormValuesType = Partial<Pick<IEmployeeRole, 'name' | 'description' | 'ticketVisibilityType' | 'id'>> & {
@@ -204,6 +205,7 @@ export const BaseEmployeeRoleForm: React.FC<BaseEmployeeRoleFormPropsType> = ({
     const PermissionsSectionTitle = intl.formatMessage({ id: 'pages.condo.employeeRole.form.permissions.title' })
     const NotEditableRoleTooltip = intl.formatMessage({ id: 'pages.condo.employeeRole.tooltip.notEditableRole' }, { role: get(employeeRoleToUpdate, 'name') })
     const RoleCreationLimitReachedTooltip = intl.formatMessage({ id: 'pages.condo.settings.employeeRoles.roleCreationLimitReachedTooltip' }, { max: MAX_ROLE_COUNT })
+    const RoleNameAlreadyExistErrorMessage = intl.formatMessage({ id: 'api.organization.OrganizationEmployeeRole.ROLE_NAME_ALREADY_EXIST' })
     const CancelMessage = intl.formatMessage({ id: 'Cancel' })
     const SaveMessage = intl.formatMessage({ id: 'Save' })
 
@@ -317,6 +319,13 @@ export const BaseEmployeeRoleForm: React.FC<BaseEmployeeRoleFormPropsType> = ({
 
     const handleCancel = useCallback(async () => await router.push('/settings?tab=employeeRoles'), [])
 
+    const ErrorToFormFieldMsgMapping = useMemo(() => ({
+        [CONSTRAINT_UNIQUE_KEY]: {
+            name: 'name',
+            errors: [RoleNameAlreadyExistErrorMessage],
+        },
+    }), [RoleNameAlreadyExistErrorMessage])
+
     return (
         <Row gutter={[0, 60]}>
             <Col span={24}>
@@ -326,6 +335,7 @@ export const BaseEmployeeRoleForm: React.FC<BaseEmployeeRoleFormPropsType> = ({
                     colon={false}
                     scrollToFirst={SCROLL_TO_FIRST_ERROR_CONFIG}
                     validateTrigger={FORM_VALIDATE_TRIGGER}
+                    ErrorToFormFieldMsgMapping={ErrorToFormFieldMsgMapping}
                     {...FORM_LAYOUT_PROPS}
                     children={({ handleSave, isLoading, form }) => (
                         <>
