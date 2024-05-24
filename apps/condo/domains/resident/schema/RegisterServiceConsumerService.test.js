@@ -12,26 +12,30 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/acquiring/constants/context')
-const { AcquiringTestMixin } = require('@condo/domains/acquiring/utils/testSchema/acquiringTestMixin')
-const { 
+const {
     ONLINE_INTERACTION_CHECK_ACCOUNT_SUCCESS_STATUS,
     ONLINE_INTERACTION_CHECK_ACCOUNT_NOT_FOUND_STATUS, 
 } = require('@condo/domains/billing/utils/serverSchema/checkBillingAccountNumberForOrganization')
-const { BillingTestUtils } = require('@condo/domains/billing/utils/testSchema/utils')
-const { MeterTestMixin } = require('@condo/domains/meter/utils/testSchema/meterTestMixin')
-const { PropertyTestMixin } = require('@condo/domains/property/utils/testSchema/propertyTestMixin')
+const {
+    AcquiringTestMixin,
+    TestUtils,
+    OrganizationTestMixin,
+    PropertyTestMixin,
+    BillingTestMixin,
+    ResidentTestMixin,
+    MeterTestMixin,
+} = require('@condo/domains/billing/utils/testSchema/testUtils')
 const { ERRORS: { BILLING_ACCOUNT_NOT_FOUND, ACCOUNT_NUMBER_IS_NOT_SPECIFIED } } = require('@condo/domains/resident/schema/RegisterServiceConsumerService')
 const {
     registerServiceConsumerByTestClient,
 } = require('@condo/domains/resident/utils/testSchema')
-const { ResidentTestMixin } = require('@condo/domains/resident/utils/testSchema/residentTestMixin')
 
 describe('RegisterServiceConsumer', () => {
 
     let utils
 
     beforeAll(async () => {
-        utils = new BillingTestUtils([AcquiringTestMixin, PropertyTestMixin, ResidentTestMixin, MeterTestMixin])
+        utils = new TestUtils([OrganizationTestMixin, PropertyTestMixin, AcquiringTestMixin, BillingTestMixin, ResidentTestMixin, MeterTestMixin])
         await utils.init()
     })
 
@@ -39,7 +43,7 @@ describe('RegisterServiceConsumer', () => {
 
         test('allows to create service consumers with same resident and accountNumber for multiple organizations', async () => {
             const resident = await utils.createResident()
-            const anotherUtils = new BillingTestUtils([AcquiringTestMixin])
+            const anotherUtils = new TestUtils([OrganizationTestMixin, PropertyTestMixin, BillingTestMixin, AcquiringTestMixin])
             await anotherUtils.init()
             const accountNumber = faker.random.alphaNumeric(16)
             await utils.createReceipts([ utils.createJSONReceipt({ accountNumber }) ])
@@ -81,7 +85,7 @@ describe('RegisterServiceConsumer', () => {
         test('cannot be invoked by non-resident user', async () => {
             const payload = { residentId: 'test-id', accountNumber: 'test-number', organizationId: utils.organization.id }
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await registerServiceConsumerByTestClient(utils.clients.employee, payload)
+                await registerServiceConsumerByTestClient(utils.clients.employee.billing, payload)
             })
         })
 

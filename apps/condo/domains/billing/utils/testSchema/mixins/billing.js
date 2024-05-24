@@ -1,7 +1,6 @@
-const { faker  } = require('@faker-js/faker/locale/ru')
+const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
-const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
 const { registerBillingReceiptsByTestClient } = require('@condo/domains/billing/utils/testSchema')
 const {
     createTestBillingIntegration,
@@ -10,70 +9,56 @@ const {
     createTestBillingIntegrationOrganizationContext,
     generateServicesData,
     createTestBillingIntegrationAccessRight,
+    createTestBillingReceiptFile,
 } = require('@condo/domains/billing/utils/testSchema')
-const {
-    createTestOrganization,
-    createTestOrganizationEmployeeRole,
-    createTestOrganizationEmployee,
-} = require('@condo/domains/organization/utils/testSchema')
-const {
-    makeClientWithServiceUser,
-    makeClientWithSupportUser,
-    makeClientWithNewRegisteredAndLoggedInUser,
-    makeLoggedInClient,
-} = require('@condo/domains/user/utils/testSchema')
+
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 
+/**
+ * @typedef {Object} BillingTestMixinType
+ * @property {Object} billingIntegration - new billing integration
+ * @property {Object} billingContext - billing context
+ * @property {Object} clients
+ * @property {Function} createValidELS- Creates a valid globalId for billing account
+ * @property {Function} createRecipient- Creates a recipient structure
+ * @property {Function} createJSONReceipt- Creates a json structure for one receipt to use in unified mutation
+ * @property {async} initMixin - Initializes the mixin
+ * @property {async} createReceipts - Calls the unified mutation to register receipts
+ * @property {async} createBillingReceiptFile - Creates a  BillingReceiptFile
+ * @property {async} updateBillingContext - Updates billingContext
+ * @property {async} updateBillingIntegration - Updates billingIntegration
+ */
 
-class BillingTestUtils {
+/**
+ * This provides billing specific methods for cross-domains tests
+ * @mixin
+ */
+const BillingTestMixin = {
 
-    constructor (mixins = []) {
-        this.clients = {}
-        this.mixins = mixins
-        if (mixins.length) {
-            Object.assign(this, ...mixins)
-        }
-    }
-
-
-    async init () {
-        this.clients = {
-            anonymous: await makeClient(),
-            user: await makeLoggedInClient(),
-            employee: await makeClientWithNewRegisteredAndLoggedInUser(),
-            support: await makeClientWithSupportUser(),
-            service: await makeClientWithServiceUser(),
-            admin: await makeLoggedInAdminClient(),
-        }
-        const [organization] = await createTestOrganization(this.clients.admin)
-        const [billingIntegration] = await createTestBillingIntegration(this.clients.admin)
-        const [billingContext] = await createTestBillingIntegrationOrganizationContext(this.clients.admin, organization, billingIntegration, {
-            status: CONTEXT_FINISHED_STATUS,
-        })
-        const [role] = await createTestOrganizationEmployeeRole(this.clients.admin, organization, {
+    async initMixin () {
+        await this.createEmployee('billing', {
             canManageIntegrations: true,
             canReadBillingReceipts: true,
             canReadPayments: true,
         })
+        const [billingIntegration] = await createTestBillingIntegration(this.clients.admin)
+        const [billingContext] = await createTestBillingIntegrationOrganizationContext(this.clients.admin, this.organization, billingIntegration, {
+            status: CONTEXT_FINISHED_STATUS,
+        })
         await createTestBillingIntegrationAccessRight(this.clients.admin, billingIntegration, this.clients.service.user)
-        await createTestOrganizationEmployee(this.clients.admin, organization, this.clients.employee.user, role)
-        this.organization = organization
         this.billingIntegration = billingIntegration
         this.billingContext = billingContext
-        for (const mixin of this.mixins) {
-            await mixin.initMixin.call(this)
-        }
-    }
+    },
 
-    randomNumber (numDigits) {
-        const min = 10 ** (numDigits - 1)
-        const max = 10 ** numDigits - 1
-        return faker.datatype.number({ min, max })
-    }
+    createPeriod (monthsModifier = 0) {
+        const period = dayjs().add(monthsModifier, 'month').format('YYYY-MM-01')
+        const [year, month] = period.split('-').map(Number)
+        return { period, year, month }
+    },
 
     createValidELS () {
         return `${this.randomNumber(2)}БГ${this.randomNumber(6)}`
-    }
+    },
 
     createRecipient (extra = {}) {
         return {
@@ -82,15 +67,7 @@ class BillingTestUtils {
             bankAccount: faker.random.numeric(12),
             ...extra,
         }
-    }
-
-    createPropertyAddress () {
-        return `${faker.address.cityName()} ${faker.address.streetAddress(false)}`
-    }
-
-    createAddressWithUnit () {
-        return `${faker.address.cityName()} ${faker.address.streetAddress(true)}`
-    }
+    },
 
     createJSONReceipt (extra = {}) {
         const [month, year] = dayjs().add(-1, 'month').format('MM-YYYY').split('-').map(Number)
@@ -106,7 +83,7 @@ class BillingTestUtils {
             raw: extra,
             ...extra,
         }).filter(([, value]) => !!value))
-    }
+    },
 
     async createReceipts (jsonReceipts) {
         if (!jsonReceipts) {
@@ -116,18 +93,22 @@ class BillingTestUtils {
             context: { id: this.billingContext.id },
             receipts: jsonReceipts,
         })
-    }
+    },
+
+    async createBillingReceiptFile (receiptId, extra = {}) {
+        await createTestBillingReceiptFile(this.clients.admin, { id: receiptId }, this.billingContext, extra)
+    },
 
     async updateBillingContext (updateInput) {
         await updateTestBillingIntegrationOrganizationContext(this.clients.admin, this.billingContext.id, updateInput)
-    }
+    },
 
     async updateBillingIntegration (updateInput) {
         await updateTestBillingIntegration(this.clients.admin, this.billingIntegration.id, updateInput)
-    }
+    },
 
 }
 
 module.exports = {
-    BillingTestUtils,
+    BillingTestMixin,
 }

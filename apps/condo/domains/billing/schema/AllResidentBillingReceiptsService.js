@@ -92,6 +92,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                 const { where, first, skip, sortBy } = args
 
                 const serviceConsumerWhere = get(where, 'serviceConsumer', {})
+                // printableNumber and toPay - need to remove
                 const receiptsWhere = pick(where, ['id', 'period', 'toPay', 'printableNumber'])
 
                 const userId = get(context, ['authedItem', 'id'])
