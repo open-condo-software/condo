@@ -10,7 +10,7 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { getById, find } = require('@open-condo/keystone/schema')
 
 const { checkB2BAppAccessRight } = require('@condo/domains/miniapp/utils/accessSchema')
-const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
+const { getEmployedOrganizationsByPermissions } = require('@condo/domains/organization/utils/accessSchema')
 const { SERVICE, STAFF } = require('@condo/domains/user/constants/common')
 const { canDirectlyReadSchemaObjects, canDirectlyManageSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
@@ -22,7 +22,7 @@ const { canDirectlyReadSchemaObjects, canDirectlyManageSchemaObjects } = require
  * 3. Users with direct access
  * Employee cannot access permissions, since they interact only with their B2B app roles
  */
-async function canReadB2BAppPermissions ({ authentication: { item: user }, listKey }) {
+async function canReadB2BAppPermissions ({ authentication: { item: user }, listKey, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
@@ -35,17 +35,10 @@ async function canReadB2BAppPermissions ({ authentication: { item: user }, listK
     }
 
     if (user.type === STAFF) {
-        const employeeQuery = queryOrganizationEmployeeFor(user.id).employees_some
-        const userEmployeesWithCanManageRoles = await find('OrganizationEmployee',
-            {
-                ...employeeQuery,
-                isAccepted: true,
-                role: { canManageRoles: true },
-            }
-        )
-        const userOrganizationIds = uniq(compact(userEmployeesWithCanManageRoles.map(employee => employee.organization)))
+        const permittedOrganizations = await getEmployedOrganizationsByPermissions(context, user, 'canManageRoles')
+
         const b2bAppContexts =  await find('B2BAppContext', {
-            organization: { id_in: userOrganizationIds },
+            organization: { id_in: permittedOrganizations },
             deletedAt: null,
         })
         const b2bAppIds = uniq(compact(b2bAppContexts.map(context => get(context, 'app'))))

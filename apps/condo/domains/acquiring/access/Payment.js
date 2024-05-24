@@ -6,7 +6,7 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { find } = require('@open-condo/keystone/schema')
 
-const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
+const { checkPermissionsInEmployedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 const { checkAcquiringIntegrationAccessRight } = require('../utils/accessSchema')
@@ -61,7 +61,7 @@ async function canManagePayments ({ authentication: { item: user }, operation, i
     return false
 }
 
-async function canReadPaymentsSensitiveData ({ authentication: { item: user }, existingItem }) {
+async function canReadPaymentsSensitiveData ({ authentication: { item: user }, existingItem, context }) {
     if (!user || user.deletedAt) return false
     if (user.isSupport || user.isAdmin) return true
 
@@ -76,12 +76,12 @@ async function canReadPaymentsSensitiveData ({ authentication: { item: user }, e
     }
 
     // Otherwise check if it's employee or not
-    const canReadPayments = !!(await checkOrganizationPermission(user.id, existingItem.organization, 'canReadPayments'))
+    const canReadPayments = !!(await checkPermissionsInEmployedOrganizations(context, user, existingItem.organization, 'canReadPayments'))
     if (canReadPayments) {
         return true
     }
 
-    const canReadPaymentsWithInvoices = !!(await checkOrganizationPermission(user.id, existingItem.organization, 'canReadPaymentsWithInvoices'))
+    const canReadPaymentsWithInvoices = !!(await checkPermissionsInEmployedOrganizations(context, user, existingItem.organization, 'canReadPaymentsWithInvoices'))
     if (canReadPaymentsWithInvoices) {
         return true
     }

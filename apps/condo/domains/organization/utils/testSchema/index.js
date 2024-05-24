@@ -119,6 +119,9 @@ async function createTestOrganizationEmployee (client, organization, user, role,
         organization: { connect: { id: organization.id } },
         user: { connect: { id: user.id } },
         role: { connect: { id: role.id } },
+        isAccepted: true,
+        isBlocked: false,
+        isRejected: false,
         ...extraAttrs,
     }
     const obj = await OrganizationEmployee.create(client, attrs)

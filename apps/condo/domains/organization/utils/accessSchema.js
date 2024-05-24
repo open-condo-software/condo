@@ -1,239 +1,335 @@
-const isArray = require('lodash/isArray')
-const isEmpty = require('lodash/isEmpty')
+const get = require('lodash/get')
+const pick = require('lodash/pick')
+const set = require('lodash/set')
 const uniq = require('lodash/uniq')
-const { validate: isUUID } = require('uuid')
 
-const { getByCondition, find } = require('@open-condo/keystone/schema')
+const conf = require('@open-condo/config')
+const { getRedisClient } = require('@open-condo/keystone/redis')
+const { find } = require('@open-condo/keystone/schema')
 
+const _redisClient = getRedisClient('default', 'cache')
+// NOTE: larger = better, but it can affect "after migration" state, where roles are changed via SQL
+const DEFAULT_CACHE_TTL_IN_MS = 60 * 60 * 1000  // 1 hour in ms
+const CACHE_TTL_FROM_ENV = parseInt(get(conf, 'USER_ORGANIZATION_CACHING_TTL_IN_MS'))
+const CACHE_TTL_IN_MS = isNaN(CACHE_TTL_FROM_ENV) ? DEFAULT_CACHE_TTL_IN_MS : CACHE_TTL_FROM_ENV
+const DISABLE_USER_ORGANIZATION_CACHING = get(conf, 'DISABLE_USER_ORGANIZATION_CACHING', 'false').toLowerCase() === 'true'
 
-async function checkOrganizationPermission (userId, organizationId, permission) {
-    return checkOrganizationPermissions(userId, organizationId, [permission])
+/**
+ * Gets cache key for user
+ * Pattern cache:organizations:* can be used to select all cached keys to drop in some critical migration states
+ * @param {{ id: string }} user - user object
+ * @returns {string} - caching key
+ */
+function _getUserOrganizationsCacheKey (user) {
+    return `cache:organizations:user:${user.id}`
 }
 
 /**
- * @param {string} userId
- * @param {string} organizationId
- * @param {string[]} permissions
- * @return {Promise<boolean>}
+ * Extracts permissions (canRead*, canManage*) properties from OrganizationEmployeeRole record obtained by find
+ * @param {Record<string, unknown>} roleRecord
+ * @returns {Record<string, boolean>}
+ * @private
  */
-async function checkOrganizationPermissions (userId, organizationId, permissions) {
-    if (!userId || !organizationId) return false
-    const [employee] = await find('OrganizationEmployee', {
-        organization: { id: organizationId },
-        user: { id: userId },
+function _extractRolePermissions (roleRecord) {
+    const permissionKeys = Object.keys(roleRecord).filter(key => key.startsWith('can'))
+
+    return pick(roleRecord, permissionKeys)
+}
+
+/**
+ * Clear cache data for all users employed in organization
+ * @param {string} organizationId - id of target organization
+ * @param {string | undefined} roleId - filter employees by roles
+ * @returns {Promise<void>}
+ */
+async function resetOrganizationEmployeesCache (organizationId, roleId = undefined) {
+    const employeesFilter = {
         deletedAt: null,
-        isBlocked: false,
-    })
-
-    if (isEmpty(permissions) && employee) {
-        return true
-    }
-
-    if (!employee || !employee.role) {
-        return false
-    }
-
-    const [employeeRole] = await find('OrganizationEmployeeRole', {
-        id: employee.role,
         organization: { id: organizationId },
-    })
+    }
+    if (roleId) {
+        employeesFilter.role = { id: roleId }
+    }
 
-    if (!employeeRole) return false
-    return permissions.every((permission) => !!employeeRole[permission]) || false
-}
+    const employees = await find('OrganizationEmployee', employeesFilter)
 
-async function checkRelatedOrganizationPermission (userId, organizationId, permission) {
-    return checkRelatedOrganizationPermissions(userId, organizationId, [permission])
+    if (employees.length) {
+        const cacheKeys = employees.map(employee => _getUserOrganizationsCacheKey({ id: employee.user }))
+        await _redisClient.del(cacheKeys)
+    }
 }
 
 /**
+ * Clear cache data for specified user
  * @param {string} userId
- * @param {string} organizationId
- * @param {string[]} permissions
- * @return {Promise<boolean>}
+ * @returns {Promise<void>}
  */
-async function checkRelatedOrganizationPermissions (userId, organizationId, permissions) {
-    if (!userId || !organizationId) return false
-    const [organizationLink] = await find('OrganizationLink', {
-        from: queryOrganizationEmployeeFor(userId),
-        to: { id: organizationId },
+async function resetUserEmployeesCache (userId) {
+    const cacheKey = _getUserOrganizationsCacheKey({ id: userId })
+    await _redisClient.del(cacheKey)
+}
+
+/**
+ * Information about single organization, in which user is employed, and its child organizations
+ * @typedef {Object} UserOgranizationInfo
+ * @property {Record<string, boolean>} permissions - user permissions in organization
+ * @property {Array<string>} childOrganizations - list of child organizations to which user share permissions via OrganizationLink
+ */
+
+/**
+ * Information about all organizations user has access to
+ * @typedef {Object} UserOgranizationsCache
+ * @property {number} dv - cache entry data version
+ * @property {Record<string, UserOgranizationInfo>} organizations - record where keys are organization ids and values are info it
+ */
+
+/**
+ * Obtains user organizations info via caching or sub-querying
+ * @param {{ req: import('express').Request }} ctx - keystone context object
+ * @param {{ id: string }} user - user object
+ * @returns {Promise<UserOgranizationsCache>}
+ * @private
+ */
+async function _getUserOrganizations (ctx, user) {
+    const cacheKey = _getUserOrganizationsCacheKey(user)
+    const ctxCachePath = ['req', 'context', 'cache', cacheKey]
+
+    if (!DISABLE_USER_ORGANIZATION_CACHING) {
+        const existingRequestCache = get(ctx, ctxCachePath)
+
+        if (existingRequestCache) {
+            return existingRequestCache
+        }
+
+        const cachedDataString = await _redisClient.get(cacheKey)
+
+        if (cachedDataString !== null) {
+            const cachedOrganizations = JSON.parse(cachedDataString)
+            set(ctx, ctxCachePath, cachedOrganizations)
+            return cachedOrganizations
+        }
+    }
+
+    const newCacheEntry = { dv: 1, organizations: {} }
+
+    const userEmployees = await find('OrganizationEmployee', {
         deletedAt: null,
-    })
-    if (!organizationLink) return false
-
-    return checkOrganizationPermissions(userId, organizationLink.from, permissions)
-}
-
-// TODO(nomerdvadcatpyat): use this function where checkRelatedOrganizationPermission and checkOrganizationPermission used together
-async function checkPermissionInUserOrganizationOrRelatedOrganization (userId, organizationId, permission) {
-    return checkPermissionsInUserOrganizationOrRelatedOrganization(userId, organizationId, [permission])
-}
-
-/**
- * @param {string} userId
- * @param {string} organizationId
- * @param {string[]} permissions
- * @return {Promise<boolean>}
- */
-async function checkPermissionsInUserOrganizationOrRelatedOrganization (userId, organizationId, permissions) {
-    if (!userId || !organizationId) return false
-
-    const hasPermissionsInUserOrganization = await checkOrganizationPermissions(userId, organizationId, permissions)
-    if (hasPermissionsInUserOrganization) return true
-    return await checkRelatedOrganizationPermissions(userId, organizationId, permissions)
-}
-
-/**
- * Check that the user has access in each organization
- *
- * @param userId {string} User.id field
- * @param organizationIds {Array<string>} array of objects related organizations
- * @param permission {string} OrganizationEmployeeRole permission key to check for
- * @return {Promise<boolean>}
- */
-async function checkOrganizationsPermission (userId, organizationIds, permission) {
-    if (!userId || !isArray(organizationIds) || isEmpty(organizationIds)) return false
-
-    const uniqOrganizationIds = uniq(organizationIds)
-
-    if (!uniqOrganizationIds.every(isUUID)) return false
-
-    for (const id of organizationIds) {
-        const hasAccess = await checkOrganizationPermission(userId, id, permission)
-        if (!hasAccess) return false
-    }
-
-    return true
-}
-
-/**
- * Check that the user has access in each related organization
- *
- * @param userId {string} User.id field
- * @param organizationIds {Array<string>} array of objects related organizations
- * @param permission {string} OrganizationEmployeeRole permission key to check for
- * @return {Promise<boolean>}
- */
-async function checkRelatedOrganizationsPermission (userId, organizationIds, permission) {
-    if (!userId || !isArray(organizationIds) || isEmpty(organizationIds)) return false
-
-    const uniqOrganizationIds = uniq(organizationIds)
-
-    if (!uniqOrganizationIds.every(isUUID)) return false
-
-    for (const id of organizationIds) {
-        const hasAccess = await checkRelatedOrganizationPermission(userId, id, permission)
-        if (!hasAccess) return false
-    }
-
-    return true
-}
-
-/**
- * Check permission for user to work with multiple objects in case of usage bulk request
- *
- * Check that the user has access in each organization (own or related)
- *
- * @param userId {string} User.id field
- * @param organizationIds {Array<string>} array of objects related organizations
- * @param permission {string} OrganizationEmployeeRole permission key to check for
- * @return {Promise<boolean>}
- */
-async function checkPermissionsInUserOrganizationsOrRelatedOrganizations (userId, organizationIds, permission) {
-    if (!userId || !isArray(organizationIds) || isEmpty(organizationIds)) return false
-
-    const uniqOrganizationIds = uniq(organizationIds)
-
-    if (!uniqOrganizationIds.every(isUUID)) return false
-
-    for (const id of organizationIds) {
-        const hasAccess = await checkPermissionInUserOrganizationOrRelatedOrganization(userId, id, permission)
-        if (!hasAccess) return false
-    }
-
-    return true
-}
-
-async function checkUserBelongsToOrganization (userId, organizationId) {
-    if (!userId || !organizationId) return false
-    const employee = await getByCondition('OrganizationEmployee', {
-        organization: { id: organizationId },
-        user: { id: userId },
+        organization: { deletedAt: null },
+        user: { id: user.id },
         isAccepted: true,
         isBlocked: false,
         isRejected: false,
+    })
+
+    const userRoleIds = userEmployees.map(employee => employee.role)
+    const userRoles = await find('OrganizationEmployeeRole', {
+        id_in: userRoleIds,
+        // TODO(Alllex202): DOMA-8919 Add this check
+        // deletedAt: null,
+    })
+
+    for (const role of userRoles) {
+        newCacheEntry.organizations[role.organization] = {
+            permissions: _extractRolePermissions(role),
+            childOrganizations: [],
+        }
+    }
+
+    const organizationLinks = await find('OrganizationLink', {
+        from: { id_in: Object.keys(newCacheEntry.organizations) },
         deletedAt: null,
+        to: { deletedAt: null },
     })
 
-    if (!employee) {
-        return false
+    for (const link of organizationLinks) {
+        newCacheEntry.organizations[link.from].childOrganizations.push(link.to)
     }
 
-    if (employee.isBlocked) {
-        return false
+    if (!DISABLE_USER_ORGANIZATION_CACHING) {
+        set(ctx, ctxCachePath, newCacheEntry)
+        await _redisClient.set(cacheKey, JSON.stringify(newCacheEntry), 'PX', CACHE_TTL_IN_MS)
     }
 
-    return employee.deletedAt === null
+    return newCacheEntry
 }
 
-async function checkUserBelongsToRelatedOrganization (userId, organizationId) {
-    if (!userId || !organizationId) return false
-    const [organizationLink] = await find('OrganizationLink', {
-        from: queryOrganizationEmployeeFor(userId),
-        to: { id: organizationId },
-        deletedAt: null,
-    })
-    if (!organizationLink) return false
-
-    return checkUserBelongsToOrganization(userId, organizationLink.from)
+/**
+ * Checks if user have all specified permissions in organizations
+ * @param {Record<string, boolean>} organizationPermissions
+ * @param {Array<string>} permissionsToCheck
+ * @private
+ */
+function _checkPermissionsInOrganization (organizationPermissions, permissionsToCheck) {
+    return permissionsToCheck.every(permission => organizationPermissions.hasOwnProperty(permission) && organizationPermissions[permission])
 }
 
-const queryOrganizationEmployeeFor = (userId, permission) => {
-    const baseEmployeeQuery = { user: { id: userId }, isBlocked: false, deletedAt: null }
+/**
+ * Gets the IDs of organizations where user is employed and its employee has all permissions from the list
+ * @param {{ req: import('express').Request }} ctx - keystone context object
+ * @param {{ id: string }} user - user object
+ * @param {Array<string> | string} permissions - permissions to check,
+ * can be passed as array of strings for multiple permissions or a single string for a single permission
+ * @returns {Promise<Array<string>>}
+ */
+async function getEmployedOrganizationsByPermissions (ctx, user, permissions) {
+    const userOrganizationsInfo = await _getUserOrganizations(ctx, user)
 
-    if (permission) {
-        return { employees_some: { ...baseEmployeeQuery, role: { [permission]: true } } }
+    const permissionsToCheck = Array.isArray(permissions) ? permissions : [permissions]
+    const organizationIds = []
+
+    for (const [id, info] of Object.entries(userOrganizationsInfo.organizations)) {
+        if (_checkPermissionsInOrganization(info.permissions, permissionsToCheck)) {
+            organizationIds.push(id)
+        }
     }
-
-    return { employees_some: baseEmployeeQuery }
+    return organizationIds
 }
-const queryOrganizationEmployeeFromRelatedOrganizationFor = (userId, permission) => ({
-    relatedOrganizations_some: {
-        AND: [
-            { from: queryOrganizationEmployeeFor(userId, permission), deletedAt: null },
-        ],
-    },
-})
 
-const checkUserPermissionsInOrganizations = async ({ userId, organizationIds, permission }) => {
-    const userEmployeeOrganizations = await find('Organization', {
-        AND: [
-            {
-                id_in: organizationIds,
-            },
-            {
-                OR: [
-                    queryOrganizationEmployeeFor(userId, permission),
-                    queryOrganizationEmployeeFromRelatedOrganizationFor(userId, permission),
-                ],
-            },
-        ],
-    })
+/**
+ * Gets the IDs of those child (related) organizations in whose parent organizations the user is employed and has all permissions from the list.
+ * Most likely you don't need to call this method directly, but use getEmployedOrganizationsByPermissions or getEmployedOrRelatedOrganizationsByPermissions
+ * @param {{ req: import('express').Request }} ctx - keystone context object
+ * @param {{ id: string }} user - user object
+ * @param {Array<string> | string} permissions - permissions to check,
+ * can be passed as array of strings for multiple permissions or a single string for a single permission
+ * @returns {Promise<Array<string>>}
+ */
+async function getRelatedOrganizationsByPermissions (ctx, user, permissions) {
+    const userOrganizationsInfo = await _getUserOrganizations(ctx, user)
 
-    return userEmployeeOrganizations.length === organizationIds.length
+    const permissionsToCheck = Array.isArray(permissions) ? permissions : [permissions]
+    const organizationIds = []
+
+    for (const info of Object.values(userOrganizationsInfo.organizations)) {
+        if (_checkPermissionsInOrganization(info.permissions, permissionsToCheck)) {
+            organizationIds.push(...info.childOrganizations)
+        }
+    }
+    return uniq(organizationIds)
+}
+
+/**
+ * Gets the IDs of organizations and its child (related) organizations in whose parent organizations the user is employed and has all permissions from the list.
+ * @param {{ req: import('express').Request }} ctx - keystone context object
+ * @param {{ id: string }} user - user object
+ * @param {Array<string> | string} permissions - permissions to check,
+ * can be passed as array of strings for multiple permissions or a single string for a single permission
+ * @returns {Promise<Array<string>>}
+ */
+async function getEmployedOrRelatedOrganizationsByPermissions (ctx, user, permissions) {
+    const userOrganizationsInfo = await _getUserOrganizations(ctx, user)
+
+    const permissionsToCheck = Array.isArray(permissions) ? permissions : [permissions]
+    const organizationIds = []
+
+    for (const [id, info] of Object.entries(userOrganizationsInfo.organizations)) {
+        if (_checkPermissionsInOrganization(info.permissions, permissionsToCheck)) {
+            organizationIds.push(id, ...info.childOrganizations)
+        }
+    }
+    return uniq(organizationIds)
+}
+
+/**
+ * Checks if user is employed in all listed organizations and has all correct permissions in it.
+ * Both organizations and permissions can be single elements if passed as strings instead of arrays
+ * This utils is faster than filtering organization ids from corresponding get<> function,
+ * so use it when you don't need related organizations
+ * If organizations list is empty -> no organizations to check -> return true
+ * @param {{ req: import('express').Request }} ctx - keystone context object
+ * @param {{ id: string }} user - user object
+ * @param {Array<string> | string} organizationIds - organizations to checks (can be passed as array of IDs or a single ID)
+ * @param {Array<string> | string} permissions - permissions to check (can be passed as array or a single string)
+ * @returns {Promise<boolean>}
+ */
+async function checkPermissionsInEmployedOrganizations (ctx, user, organizationIds, permissions) {
+    const userOrganizationsInfo = await _getUserOrganizations(ctx, user)
+
+    const organizationsToCheck = Array.isArray(organizationIds) ? uniq(organizationIds) : [organizationIds]
+    const permissionsToCheck = Array.isArray(permissions) ? permissions : [permissions]
+
+    return organizationsToCheck.every(orgId =>
+        userOrganizationsInfo.organizations.hasOwnProperty(orgId) &&
+        _checkPermissionsInOrganization(
+            userOrganizationsInfo.organizations[orgId].permissions,
+            permissionsToCheck
+        )
+    )
+}
+
+/**
+ * Checks if user is employed in some parent organization for all listed organizations and has all correct permissions in it.
+ * Both organizations and permissions can be single elements if passed as strings instead of arrays
+ * Most likely you don't need to call this method directly, but use checkPermissionsInEmployedOrganizations or checkPermissionsInEmployedOrRelatedOrganizations
+ * If organizations list is empty -> no organizations to check -> return true
+ * @param {{ req: import('express').Request }} ctx - keystone context object
+ * @param {{ id: string }} user - user object
+ * @param {Array<string> | string} organizationIds - organizations to checks (can be passed as array of IDs or a single ID)
+ * @param {Array<string> | string} permissions - permissions to check (can be passed as array or a single string)
+ * @returns {Promise<boolean>}
+ */
+async function checkPermissionsInRelatedOrganizations (ctx, user, organizationIds, permissions) {
+    const organizationsToCheck = Array.isArray(organizationIds) ? uniq(organizationIds) : [organizationIds]
+
+    const permittedOrganizationsList = await getRelatedOrganizationsByPermissions(ctx, user, permissions)
+    const permittedOrganizationsSet = new Set(permittedOrganizationsList)
+
+    return organizationsToCheck.every(orgId => permittedOrganizationsSet.has(orgId))
+}
+
+/**
+ * Combination of checkPermissionsInEmployedOrganizations and checkPermissionsInRelatedOrganizations
+ * Both organizations and permissions can be single elements if passed as strings instead of arrays
+ * If organizations list is empty -> no organizations to check -> return true
+ * @param {{ req: import('express').Request }} ctx - keystone context object
+ * @param {{ id: string }} user - user object
+ * @param {Array<string> | string} organizationIds - organizations to checks (can be passed as array of IDs or a single ID)
+ * @param {Array<string> | string} permissions - permissions to check (can be passed as array or a single string)
+ * @returns {Promise<boolean>}
+ */
+async function checkPermissionsInEmployedOrRelatedOrganizations (ctx, user, organizationIds, permissions) {
+    const organizationsToCheck = Array.isArray(organizationIds) ? uniq(organizationIds) : [organizationIds]
+
+    const permittedOrganizationsList = await getEmployedOrRelatedOrganizationsByPermissions(ctx, user, permissions)
+    const permittedOrganizationsSet = new Set(permittedOrganizationsList)
+
+    return organizationsToCheck.every(ordId => permittedOrganizationsSet.has(ordId))
+}
+
+/**
+ * Checks whether the user is an employee in ALL listed organizations
+ * If organizations list is empty -> no organizations to check -> return true
+ * @param {{ req: import('express').Request }} ctx - keystone context object
+ * @param {{ id: string }} user - user object
+ * @param {Array<string> | string} organizationIds - organizations to checks (can be passed as array of IDs or a single ID)
+ * @returns {Promise<boolean>}
+ */
+async function checkUserEmploymentInOrganizations (ctx, user, organizationIds) {
+    return await checkPermissionsInEmployedOrganizations(ctx, user, organizationIds, [])
+}
+
+/**
+ * Checks whether the user is directly employed in specified organization or in any parent organization of specified organization
+ * for ALL organizations in organizationIds
+ * If organizations list is empty -> no organizations to check -> return true
+ * @param {{ req: import('express').Request }} ctx - keystone context object
+ * @param {{ id: string }} user - user object
+ * @param {Array<string> | string} organizationIds - organizations to checks (can be passed as array of IDs or a single ID)
+ * @returns {Promise<boolean>}
+ */
+async function checkUserEmploymentOrRelationToOrganization (ctx, user, organizationIds) {
+    return await checkPermissionsInEmployedOrRelatedOrganizations(ctx, user, organizationIds, [])
 }
 
 module.exports = {
-    checkUserPermissionsInOrganizations,
-    checkPermissionInUserOrganizationOrRelatedOrganization,
-    checkPermissionsInUserOrganizationOrRelatedOrganization,
-    checkOrganizationPermission,
-    checkUserBelongsToOrganization,
-    checkUserBelongsToRelatedOrganization,
-    checkRelatedOrganizationPermission,
-    queryOrganizationEmployeeFromRelatedOrganizationFor,
-    queryOrganizationEmployeeFor,
-    checkOrganizationsPermission,
-    checkRelatedOrganizationsPermission,
-    checkPermissionsInUserOrganizationsOrRelatedOrganizations,
+    resetUserEmployeesCache,
+    resetOrganizationEmployeesCache,
+    getEmployedOrganizationsByPermissions,
+    getRelatedOrganizationsByPermissions,
+    getEmployedOrRelatedOrganizationsByPermissions,
+    checkPermissionsInEmployedOrganizations,
+    checkPermissionsInRelatedOrganizations,
+    checkPermissionsInEmployedOrRelatedOrganizations,
+    checkUserEmploymentInOrganizations,
+    checkUserEmploymentOrRelationToOrganization,
 }

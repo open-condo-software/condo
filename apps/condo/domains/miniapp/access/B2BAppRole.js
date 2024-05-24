@@ -7,7 +7,10 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { find, getById } = require('@open-condo/keystone/schema')
 
-const { queryOrganizationEmployeeFor, checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    getEmployedOrganizationsByPermissions,
+    checkPermissionsInEmployedOrganizations,
+} = require('@condo/domains/organization/utils/accessSchema')
 const { SERVICE, STAFF } = require('@condo/domains/user/constants/common')
 
 /**
@@ -18,7 +21,7 @@ const { SERVICE, STAFF } = require('@condo/domains/user/constants/common')
  * 3.a If employee has 'canManageRoles' in role = return all roles from this organization
  * 3.b Otherwise = return only roles to user employees
  */
-async function canReadB2BAppRoles ({ authentication: { item: user } }) {
+async function canReadB2BAppRoles ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -29,9 +32,16 @@ async function canReadB2BAppRoles ({ authentication: { item: user } }) {
     }
 
     if (user.type === STAFF) {
-        const employeeCondition = queryOrganizationEmployeeFor(user.id).employees_some
-        const userEmployees = await find('OrganizationEmployee', employeeCondition)
-        const userEmployeesIds = userEmployees.map(employee => employee.id)
+        const permittedOrganizations = await getEmployedOrganizationsByPermissions(context, user, 'canManageRoles')
+
+        const userEmployees = await find('OrganizationEmployee', {
+            deletedAt: null,
+            organization: { deletedAt: null },
+            user: { id: user.id },
+            isAccepted: true,
+            isBlocked: false,
+            isRejected: false,
+        })
         const userRoleIds = userEmployees.map(employee => employee.role)
 
         return {
@@ -40,7 +50,7 @@ async function canReadB2BAppRoles ({ authentication: { item: user } }) {
                     { id_in: userRoleIds },
                     {
                         organization: {
-                            employees_some: { id_in: userEmployeesIds, role: { canManageRoles: true } },
+                            id_in: permittedOrganizations,
                         },
                     },
                 ],
@@ -56,7 +66,7 @@ async function canReadB2BAppRoles ({ authentication: { item: user } }) {
  * 1. Admin / support
  * 2. Employee with "canManageRoles" permission
  */
-async function canManageB2BAppRoles ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageB2BAppRoles ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -72,9 +82,9 @@ async function canManageB2BAppRoles ({ authentication: { item: user }, originalI
 
         if (!organizationRoleId) return false
         const organizationRole = await getById('OrganizationEmployeeRole', organizationRoleId)
-        if (!organizationRole) return false
+        if (!organizationRole || !organizationRole.organization) return false
 
-        return await checkOrganizationPermission(user.id, organizationRole.organization, 'canManageRoles')
+        return await checkPermissionsInEmployedOrganizations(context, user, organizationRole.organization, 'canManageRoles')
     }
 
     return false

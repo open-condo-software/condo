@@ -10,14 +10,17 @@ const uniq = require('lodash/uniq')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getByCondition, find, getById } = require('@open-condo/keystone/schema')
 
-const { checkPermissionInUserOrganizationOrRelatedOrganization, queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    checkPermissionsInEmployedOrRelatedOrganizations,
+    getEmployedOrRelatedOrganizationsByPermissions,
+} = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT_COMMENT_TYPE, COMPLETED_STATUS_TYPE, CANCELED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
 const {
     getTicketFieldsMatchesResidentFieldsQuery,
 } = require('@condo/domains/ticket/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
-async function canReadTicketComments ({ authentication: { item: user } }) {
+async function canReadTicketComments ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     
@@ -44,19 +47,19 @@ async function canReadTicketComments ({ authentication: { item: user } }) {
         }
     }
 
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadTickets')
+
+
     return {
         ticket: {
             organization: {
-                OR: [
-                    queryOrganizationEmployeeFor(user.id, 'canReadTickets'),
-                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadTickets'),
-                ],
+                id_in: permittedOrganizations,
             },
         },
     }
 }
 
-const checkManageCommentAccess = async ({ user, operation, originalInput, itemId }) => {
+const checkManageCommentAccess = async ({ user, operation, originalInput, itemId, context }) => {
     if (user.type === RESIDENT) {
         if (operation === 'create') {
             const ticketId = get(originalInput, ['ticket', 'connect', 'id'])
@@ -80,16 +83,18 @@ const checkManageCommentAccess = async ({ user, operation, originalInput, itemId
             const ticket = await getByCondition('Ticket', { id: ticketId, deletedAt: null })
             if (!ticket) return false
             const organizationId = get(ticket, 'organization')
+            if (!organizationId) return false
 
-            return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageTicketComments')
+            return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageTicketComments')
         } else if (operation === 'update' && itemId) {
             const comment = await getByCondition('TicketComment', { id: itemId, deletedAt: null })
             if (!comment || comment.user !== user.id) return false
             const ticket = await getByCondition('Ticket', { id: comment.ticket, deletedAt: null })
             if (!ticket) return false
             const organizationId = get(ticket, 'organization')
+            if (!organizationId) return false
 
-            return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageTicketComments')
+            return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageTicketComments')
         }
     }
 

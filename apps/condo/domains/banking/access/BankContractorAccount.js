@@ -6,8 +6,7 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { canManageBankEntityWithOrganization } = require('@condo/domains/banking/utils/accessSchema')
 const { checkBankIntegrationsAccessRights } = require('@condo/domains/banking/utils/accessSchema')
 const {
-    queryOrganizationEmployeeFor,
-    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    getEmployedOrRelatedOrganizationsByPermissions,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { SERVICE } = require('@condo/domains/user/constants/common')
 
@@ -24,11 +23,13 @@ async function canReadBankContractorAccounts ({ authentication: { item: user }, 
 
         return false
     }
+
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, [])
+
     return {
-        OR: [
-            { organization: queryOrganizationEmployeeFor(user.id) },
-            { organization: queryOrganizationEmployeeFromRelatedOrganizationFor(user.id) },
-        ],
+        organization: {
+            id_in: permittedOrganizations,
+        },
     }
 }
 

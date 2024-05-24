@@ -12,6 +12,7 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 const access = require('@condo/domains/organization/access/OrganizationEmployeeRole')
 const { TICKET_VISIBILITY_OPTIONS, ORGANIZATION_TICKET_VISIBILITY } = require('@condo/domains/organization/constants/common')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
+const { resetOrganizationEmployeesCache } = require('@condo/domains/organization/utils/accessSchema')
 const { COUNTRY_RELATED_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
 
 const { Organization } = require('../utils/serverSchema')
@@ -144,6 +145,14 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
         update: access.canManageOrganizationEmployeeRoles,
         delete: false,
         auth: true,
+    },
+    hooks: {
+        async afterChange ({ updatedItem, existingItem }) {
+            const roleId = existingItem ? existingItem.id : updatedItem.id
+            // NOTE: orgId is not changed, so we can use updatedItem
+            const organizationId = updatedItem.organization
+            await resetOrganizationEmployeesCache(organizationId, roleId)
+        },
     },
     escapeSearch: true,
 })

@@ -5,26 +5,25 @@
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
 const {
-    queryOrganizationEmployeeFor,
-    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    getEmployedOrRelatedOrganizationsByPermissions,
 } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canReadTicketOrganizationSettings ({ authentication: { item: user } }) {
+async function canReadTicketOrganizationSettings ({ authentication: { item: user }, context }) {
     if (!user) throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
 
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, [])
+
+
     return {
         organization: {
-            OR: [
-                queryOrganizationEmployeeFor(user.id),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
-            ],
+            id_in: permittedOrganizations,
         },
     }
 }
 
-async function canManageTicketOrganizationSettings ({ authentication: { item: user }, operation }) {
+async function canManageTicketOrganizationSettings ({ authentication: { item: user }, operation, context }) {
     if (!user) throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -32,12 +31,11 @@ async function canManageTicketOrganizationSettings ({ authentication: { item: us
     if (operation === 'create') return false
 
     if (operation === 'update') {
+        const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, [])
+
         return {
             organization: {
-                OR: [
-                    queryOrganizationEmployeeFor(user.id),
-                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
-                ],
+                id_in: permittedOrganizations,
             },
         }
     }
