@@ -10,12 +10,11 @@ import { BIGGER_LIMIT_FOR_IMPORT } from '@condo/domains/common/constants/feature
 import { DEFAULT_RECORDS_LIMIT_FOR_IMPORT } from '@condo/domains/common/constants/import'
 import {
     Columns,
-    ImporterErrorMessages,
     MutationErrorsToMessagesType,
 } from '@condo/domains/common/utils/importer'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import {
-    ImportDataType,
+    ImportDataType, TImporterErrorMessages,
     TMeterImporterMappers,
     TOnMetersUpload,
 } from '@condo/domains/meter/components/MetersDataImporterTypes'
@@ -186,12 +185,12 @@ function useMappersResolver () {
     ])
 }
 
-export const useMetersImporter = (props: IUseMetersImporterProps) => {
-    const { setTotalRows, setSuccessRows, handleRowError, onFinish, onError } = props
+function useErrorsResolver () {
+    const intl = useIntl()
     const { useFlagValue } = useFeatureFlags()
+
     const maxTableLength: number = useFlagValue(BIGGER_LIMIT_FOR_IMPORT) || DEFAULT_RECORDS_LIMIT_FOR_IMPORT
 
-    const intl = useIntl()
     const TooManyRowsErrorTitle = intl.formatMessage({ id: 'TooManyRowsInTable.title' })
     const TooManyRowsErrorMessage = intl.formatMessage({ id: 'TooManyRowsInTable.message' }, {
         value: maxTableLength,
@@ -203,6 +202,39 @@ export const useMetersImporter = (props: IUseMetersImporterProps) => {
     const NormalizationErrorMessage = intl.formatMessage({ id: 'errors.import.NormalizationError' })
     const ValidationErrorMessage = intl.formatMessage({ id: 'errors.import.ValidationError' })
     const CreationErrorMessage = intl.formatMessage({ id: 'errors.import.CreationError' })
+
+    return useCallback((type: ImportDataType, columns, mappers: TMeterImporterMappers): TImporterErrorMessages => {
+        const UnknownResource = intl.formatMessage({ id: 'meter.import.error.unknownResourceType' }, { knownList: Object.keys(mappers.resourceId).join(',') })
+        const UnknownUnitType = intl.formatMessage({ id: 'meter.import.error.unknownUnitType' }, { knownList: Object.keys(mappers.unitType).join(',') })
+
+        return {
+            tooManyRows: { title: TooManyRowsErrorTitle, message: TooManyRowsErrorMessage },
+            invalidColumns: {
+                title: InvalidHeadersErrorTitle,
+                message: columns ? intl.formatMessage({ id: 'TableHasInvalidHeaders.message' }, {
+                    value: columns.map(column => `"${column.name}"`).join(', '),
+                }) : '',
+            },
+            invalidTypes: { message: NotValidRowTypesMessage },
+            normalization: { message: NormalizationErrorMessage },
+            validation: { message: ValidationErrorMessage },
+            creation: { message: CreationErrorMessage },
+            emptyRows: { title: EmptyRowsErrorTitle, message: EmptyRowsErrorMessage },
+            unknownResource: { message: UnknownResource },
+            unknownUnitType: { message: UnknownUnitType },
+        }
+    }, [
+        CreationErrorMessage, EmptyRowsErrorMessage, EmptyRowsErrorTitle, InvalidHeadersErrorTitle,
+        NormalizationErrorMessage, NotValidRowTypesMessage, TooManyRowsErrorMessage, TooManyRowsErrorTitle,
+        ValidationErrorMessage, intl,
+    ])
+}
+
+export const useMetersImporter = (props: IUseMetersImporterProps) => {
+    const { setTotalRows, setSuccessRows, handleRowError, onFinish, onError } = props
+
+    const intl = useIntl()
+
     const MeterAccountNumberExistInOtherUnitMessage = intl.formatMessage({ id: 'meter.import.error.MeterAccountNumberExistInOtherUnit' })
     const MeterResourceOwnedByAnotherOrganizationMessage = intl.formatMessage({ id: 'api.meter.METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION' })
     const MeterNumberExistInOrganizationMessage = intl.formatMessage({ id: 'meter.import.error.MeterNumberExistInOrganization' })
@@ -213,15 +245,6 @@ export const useMetersImporter = (props: IUseMetersImporterProps) => {
     const importer = useRef(null)
     const { organization } = useOrganization()
     const client = useApolloClient()
-    const errors: ImporterErrorMessages = useMemo(() => ({
-        tooManyRows: { title: TooManyRowsErrorTitle, message: TooManyRowsErrorMessage },
-        invalidColumns: { title: InvalidHeadersErrorTitle, message: '' },
-        invalidTypes: { message: NotValidRowTypesMessage },
-        normalization: { message: NormalizationErrorMessage },
-        validation: { message: ValidationErrorMessage },
-        creation: { message: CreationErrorMessage },
-        emptyRows: { title: EmptyRowsErrorTitle, message: EmptyRowsErrorMessage },
-    }), [CreationErrorMessage, EmptyRowsErrorMessage, EmptyRowsErrorTitle, InvalidHeadersErrorTitle, NormalizationErrorMessage, NotValidRowTypesMessage, TooManyRowsErrorMessage, TooManyRowsErrorTitle, ValidationErrorMessage])
 
     const importRows = useCallback(async (rows: RegisterMetersReadingsReadingInput[]) => {
         const sender = getClientSideSenderInfo()
@@ -246,6 +269,7 @@ export const useMetersImporter = (props: IUseMetersImporterProps) => {
 
     const columnsResolver = useColumnsResolver()
     const mappersResolver = useMappersResolver()
+    const errorsResolver = useErrorsResolver()
 
     const mutationErrorsToMessages = useMemo<MutationErrorsToMessagesType>(() => ({
         [EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT]: MeterAccountNumberExistInOtherUnitMessage,
@@ -262,12 +286,7 @@ export const useMetersImporter = (props: IUseMetersImporterProps) => {
         const MetersImporterClass = getMetersImporterClass(dataType)
         const columns = columnsResolver(dataType)
         const mappers = mappersResolver(dataType)
-
-        if (columns) {
-            errors.invalidColumns.message = intl.formatMessage({ id: 'TableHasInvalidHeaders.message' }, {
-                value: columns.map(column => `"${column.name}"`).join(', '),
-            })
-        }
+        const errors = errorsResolver(dataType, columns, mappers)
 
         importer.current = new MetersImporterClass(columns, mappers, importRows, errors, mutationErrorsToMessages)
 
@@ -288,7 +307,7 @@ export const useMetersImporter = (props: IUseMetersImporterProps) => {
         importer.current.onRowFailed(handleRowError)
 
         await importer.current.import(data)
-    }, [columnsResolver, errors, handleRowError, importRows, intl, mappersResolver, mutationErrorsToMessages, onError, onFinish, setSuccessRows, setTotalRows])
+    }, [columnsResolver, errorsResolver, handleRowError, importRows, mappersResolver, mutationErrorsToMessages, onError, onFinish, setSuccessRows, setTotalRows])
 
     const breakImport = () => {
         if (importer) {

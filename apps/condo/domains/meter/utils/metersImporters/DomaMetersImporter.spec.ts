@@ -22,6 +22,18 @@ class ImporterWrapper extends DomaMetersImporter {
         },
     }
 
+    errors = {
+        invalidColumns: { message: 'invalidColumns' },
+        tooManyRows: { message: 'tooManyRows' },
+        invalidTypes: { message: 'invalidTypes' },
+        normalization: { message: 'normalization' },
+        validation: { message: 'validation' },
+        creation: { message: 'creation' },
+        emptyRows: { message: 'emptyRows' },
+        unknownResource: { message: 'unknownResource' },
+        unknownUnitType: { message: 'unknownUnitType' },
+    }
+
     constructor () {
         super(null, null, null, null, {})
     }
@@ -42,13 +54,20 @@ describe('DomaMetersImporter', () => {
             [fakeAddress, '1', 'Квартира', '001', 'ГВС', '0001', '1', '101.1', null, '', '', date, '', '', '', '', '', '', ''],
             [fakeAddress, '1', 'Квартира', '001', 'ХВС', '0002', '1', '102.1', '', '', '', date, '', '', '', '', sealingDate, '', ''],
             [fakeAddress, '2', 'Квартира', '003', 'ХВС', '0003', '2', '103.1', '', '', '', date, verificationDate, '', '', '', '', '', ''],
+            [fakeAddress, '3', 'Бунгало', '003', 'ХВС', '0004', '1', '104', '', '', '', date, '', '', '', '', '', '', ''],
+            [fakeAddress, '2', 'Квартира', '003', 'Костер', '0005', '1', '105', '', '', '', date, '', '', '', '', '', '', ''],
         ]
 
         const importer = new ImporterWrapper()
         const result = []
+        const errors = []
         for (const row of rows) {
-            const transformedRow = importer.transformRowWrapper(row)
-            result.push(transformedRow)
+            try {
+                const transformedRow = importer.transformRowWrapper(row)
+                result.push(transformedRow)
+            } catch (err) {
+                errors.push(err.getMessages())
+            }
         }
 
         expect(result).toEqual([
@@ -133,6 +152,11 @@ describe('DomaMetersImporter', () => {
                     controlReadingsDate: '',
                 },
             },
+        ])
+
+        expect(errors).toEqual([
+            ['unknownUnitType'],
+            ['unknownResource'],
         ])
     })
 })

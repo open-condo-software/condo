@@ -1,6 +1,9 @@
 import { RegisterMetersReadingsReadingInput } from '@app/condo/schema'
+import get from 'lodash/get'
 import isEqual from 'lodash/isEqual'
 import isNil from 'lodash/isNil'
+
+import { TransformRowError } from '@condo/domains/meter/components/MetersDataImporterTypes'
 
 import { AbstractMetersImporter } from './AbstractMetersImporter'
 
@@ -22,6 +25,19 @@ export default class DomaMetersImporter extends AbstractMetersImporter {
     }
 
     protected transformRow (row: string[]): RegisterMetersReadingsReadingInput {
+        const errors = []
+        if (!get(this, ['mappers', 'resourceId', row[4]])) {
+            errors.push(this.errors.unknownResource.message)
+        }
+
+        if (!get(this, ['mappers', 'unitType', row[2].toLowerCase()])) {
+            errors.push(this.errors.unknownUnitType.message)
+        }
+
+        if (errors.length > 0) {
+            throw new TransformRowError(errors)
+        }
+
         return {
             address: row[0],
             addressInfo: {
