@@ -5,7 +5,7 @@ const get = require('lodash/get')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
-const { checkOrganizationPermissions } = require('../utils/accessSchema')
+const { checkPermissionsInEmployedOrganizations } = require('../utils/accessSchema')
 
 
 /**
@@ -14,13 +14,14 @@ const { checkOrganizationPermissions } = require('../utils/accessSchema')
  * 2. Supports
  * 3. Employee with "canManageRoles" and "canManageEmployees" permissions
  */
-async function canReplaceOrganizationEmployeeRole ({ authentication: { item: user }, args: { data } }) {
+async function canReplaceOrganizationEmployeeRole ({ authentication: { item: user }, args: { data }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
 
     const organizationId = get(data, 'organization.id', null)
-    return checkOrganizationPermissions(user.id, organizationId, ['canManageRoles', 'canManageEmployees'])
+    if (!organizationId) return false
+    return checkPermissionsInEmployedOrganizations(context, user, organizationId, ['canManageRoles', 'canManageEmployees'])
 }
 
 /*
