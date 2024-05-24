@@ -83,6 +83,8 @@ async function canManageNewsItemScopes ({ authentication: { item: user }, contex
                 deletedAt: null,
             })
 
+            if (newsItems.length !== ids.length) return false
+
             if (newsItems.some(item => !item.organization)) return false
             organizationIds = uniq(newsItems.map(newsItem => newsItem.organization))
         }

@@ -124,7 +124,7 @@ async function _getUserOrganizations (ctx, user) {
     const userRoleIds = userEmployees.map(employee => employee.role)
     const userRoles = await find('OrganizationEmployeeRole', {
         id_in: userRoleIds,
-        // TODO(SavelevMatthew): INFRA-317 Add this check
+        // TODO(Alllex202): DOMA-8919 Add this check
         // deletedAt: null,
     })
 
@@ -235,6 +235,7 @@ async function getEmployedOrRelatedOrganizationsByPermissions (ctx, user, permis
  * Both organizations and permissions can be single elements if passed as strings instead of arrays
  * This utils is faster than filtering organization ids from corresponding get<> function,
  * so use it when you don't need related organizations
+ * If organizations list is empty -> no organizations to check -> return true
  * @param {{ req: import('express').Request }} ctx - keystone context object
  * @param {{ id: string }} user - user object
  * @param {Array<string> | string} organizationIds - organizations to checks (can be passed as array of IDs or a single ID)
@@ -260,6 +261,7 @@ async function checkPermissionsInEmployedOrganizations (ctx, user, organizationI
  * Checks if user is employed in some parent organization for all listed organizations and has all correct permissions in it.
  * Both organizations and permissions can be single elements if passed as strings instead of arrays
  * Most likely you don't need to call this method directly, but use checkPermissionsInEmployedOrganizations or checkPermissionsInEmployedOrRelatedOrganizations
+ * If organizations list is empty -> no organizations to check -> return true
  * @param {{ req: import('express').Request }} ctx - keystone context object
  * @param {{ id: string }} user - user object
  * @param {Array<string> | string} organizationIds - organizations to checks (can be passed as array of IDs or a single ID)
@@ -278,6 +280,7 @@ async function checkPermissionsInRelatedOrganizations (ctx, user, organizationId
 /**
  * Combination of checkPermissionsInEmployedOrganizations and checkPermissionsInRelatedOrganizations
  * Both organizations and permissions can be single elements if passed as strings instead of arrays
+ * If organizations list is empty -> no organizations to check -> return true
  * @param {{ req: import('express').Request }} ctx - keystone context object
  * @param {{ id: string }} user - user object
  * @param {Array<string> | string} organizationIds - organizations to checks (can be passed as array of IDs or a single ID)
@@ -295,6 +298,7 @@ async function checkPermissionsInEmployedOrRelatedOrganizations (ctx, user, orga
 
 /**
  * Checks whether the user is an employee in ALL listed organizations
+ * If organizations list is empty -> no organizations to check -> return true
  * @param {{ req: import('express').Request }} ctx - keystone context object
  * @param {{ id: string }} user - user object
  * @param {Array<string> | string} organizationIds - organizations to checks (can be passed as array of IDs or a single ID)
@@ -307,6 +311,7 @@ async function checkUserEmploymentInOrganizations (ctx, user, organizationIds) {
 /**
  * Checks whether the user is directly employed in specified organization or in any parent organization of specified organization
  * for ALL organizations in organizationIds
+ * If organizations list is empty -> no organizations to check -> return true
  * @param {{ req: import('express').Request }} ctx - keystone context object
  * @param {{ id: string }} user - user object
  * @param {Array<string> | string} organizationIds - organizations to checks (can be passed as array of IDs or a single ID)

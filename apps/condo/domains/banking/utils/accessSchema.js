@@ -33,6 +33,7 @@ async function canManageBankEntityWithOrganization ({ authentication: { item: us
             id_in: ids,
             deletedAt: null,
         })
+        if (items.length !== ids.length || items.some(item => !item.organization)) return false
         organizationIds = uniq(items.map(item => item.organization))
     }
 
