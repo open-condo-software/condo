@@ -58,12 +58,15 @@ class ReplicaKnexAdapter extends KnexAdapter {
 
         //override runner method
         this.knex.client.runner = (builder) => {
+            const startTime = process.hrtime.bigint()
             if (builder._queryContext && builder._queryContext.useMaster === true) {
+                logger.info({ msg: 'useMaster from queryContext', execTime: Number(process.hrtime.bigint() - startTime) / 1000000 })
                 return this.knexMaster.client.runner(builder)
             } else if (
                 builder._queryContext &&
                 builder._queryContext.useMaster === false
             ) {
+                logger.info({ msg: 'useReplica from queryContext', execTime: Number(process.hrtime.bigint() - startTime) / 1000000 })
                 return this.knexRead.client.runner(builder)
             }
 
@@ -71,15 +74,30 @@ class ReplicaKnexAdapter extends KnexAdapter {
             let useMaster = true
             try {
                 sql = builder.toSQL()
+                logger.info({
+                    msg: 'get raw sql from builder',
+                    execTime: Number(process.hrtime.bigint() - startTime) / 1000000,
+                })
                 useMaster = Array.isArray(sql)
                     ? checkUseMasterMultiple(sql)
                     : checkUseMasterSingle(sql)
+                logger.info({
+                    msg: `get calculation result of query destination. result = ${useMaster}`,
+                    execTime: Number(process.hrtime.bigint() - startTime) / 1000000,
+                })
             } catch (error) {
-                logger.error({ err: error, msg: 'catch error at connection determination' })
+                logger.error({
+                    err: error,
+                    msg: 'catch error at connection determination',
+                    execTime: Number(process.hrtime.bigint() - startTime) / 1000000,
+                })
                 // swallow this, it will be thrown properly in a second when Knex internally runs it
             }
 
-            logger.info({ msg: `Use master = ${useMaster}`, builder })
+            logger.info({
+                msg: `Use master = ${useMaster}`, builder,
+                execTime: Number(process.hrtime.bigint() - startTime) / 1000000,
+            })
 
             return useMaster
                 ? this.knexMaster.client.runner(builder)
