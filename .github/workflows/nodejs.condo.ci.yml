@@ -90,6 +90,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       dev-api: ${{ steps.detect-changes.outputs.dev-api }}
+      condorb: ${{ steps.detect-changes.outputs.condorb }}
     steps:
       - name: Checkout code with submodules
         uses: actions/checkout@v4
@@ -106,6 +107,8 @@ jobs:
               - 'apps/dev-api/**'
               - 'apps/condo/domains/miniapp/**'
               - 'apps/condo/domains/user/**'
+            condorb:
+              - 'apps/condorb'
 
 
   lint:
@@ -188,3 +191,41 @@ jobs:
           yarn workspace @app/dev-api start & \
           node bin/wait-apps-apis.js -f condo dev-api) && \
           yarn workspace @app/dev-api test"
+
+  run-condorb-tests:
+    name: CONDORB Tests
+    runs-on: ubuntu-latest
+    needs:
+      - detect-changes
+      - build-image
+    if: ${{ needs.detect-changes.outputs.condorb == 'true' }}
+    steps:
+      - name: Login to cloud registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
+          password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
+      - name: Setup PG db
+        run: |
+          docker run -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5432:5432" -d ${{ env.PG_IMAGE_FULL }}
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: main
+      - name: Setup Redis db
+        run: |
+          docker run -p="127.0.0.1:6379:6379" -d ${{ env.REDIS_IMAGE_FULL }}
+      - name: Run condo container with daemon
+        run: |
+          docker run --network="host" --name condo-container -dit ${{ env.DOCKER_IMAGE_FULL }} sh
+      - name: Prepare apps
+        run: |
+          docker exec condo-container node bin/prepare.js -f condo condorb
+      - name: Run apps and tests
+        run: |
+          docker exec condo-container sh -c "(\
+          yarn workspace @app/condo start & \
+          yarn workspace @app/condorb start & \
+          node bin/wait-apps-apis.js -f condo condorb) && \
+          yarn workspace @app/condorb test"
