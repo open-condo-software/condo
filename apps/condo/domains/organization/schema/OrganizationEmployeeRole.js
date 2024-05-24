@@ -16,8 +16,8 @@ const { normalizeText } = require('@condo/domains/common/utils/text')
 const access = require('@condo/domains/organization/access/OrganizationEmployeeRole')
 const { TICKET_VISIBILITY_OPTIONS, ORGANIZATION_TICKET_VISIBILITY, MIN_ROLE_NAME_LENGTH, MAX_ROLE_DESCRIPTION_LENGTH, MAX_ROLE_NAME_LENGTH } = require('@condo/domains/organization/constants/common')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
-const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const { resetOrganizationEmployeesCache } = require('@condo/domains/organization/utils/accessSchema')
+const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const { COUNTRY_RELATED_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
 
 
