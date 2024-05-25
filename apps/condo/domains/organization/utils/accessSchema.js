@@ -81,6 +81,7 @@ async function resetUserEmployeesCache (userId) {
  * @typedef {Object} UserOgranizationsCache
  * @property {number} dv - cache entry data version
  * @property {Record<string, UserOgranizationInfo>} organizations - record where keys are organization ids and values are info it
+ * @property {Array<string> | undefined} invitations - list of IDs of organizations to which the user has been invited, but has not yet accepted or rejected
  */
 
 /**
@@ -110,18 +111,30 @@ async function _getUserOrganizations (ctx, user) {
         }
     }
 
-    const newCacheEntry = { dv: 1, organizations: {} }
+    /** @type UserOgranizationsCache **/
+    const newCacheEntry = { dv: 1, organizations: {}, invitations: [] }
 
     const userEmployees = await find('OrganizationEmployee', {
         deletedAt: null,
         organization: { deletedAt: null },
+        role: { deletedAt: null },
         user: { id: user.id },
-        isAccepted: true,
         isBlocked: false,
         isRejected: false,
     })
 
-    const userRoleIds = userEmployees.map(employee => employee.role)
+    const userRoleIds = []
+    const invitations = []
+
+    for (const employee of userEmployees) {
+        if (employee.isAccepted) {
+            userRoleIds.push(employee.role)
+        } else {
+            invitations.push(employee.organization)
+        }
+    }
+    newCacheEntry.invitations = invitations
+
     const userRoles = await find('OrganizationEmployeeRole', {
         id_in: userRoleIds,
         deletedAt: null,
@@ -230,6 +243,18 @@ async function getEmployedOrRelatedOrganizationsByPermissions (ctx, user, permis
 }
 
 /**
+ * Gets the IDs of organizations to which the user is invited but not yet employed
+ * You should not use this feature anywhere other than accesses to the Organization model
+ * @param {{ req: import('express').Request }} ctx - keystone context object
+ * @param {{ id: string }} user - user object
+ * @returns {Promise<Array<string>>}
+ */
+async function getInvitedOrganizations (ctx, user) {
+    const userOrganizationsInfo = await _getUserOrganizations(ctx, user)
+    return userOrganizationsInfo.invitations || []
+}
+
+/**
  * Checks if user is employed in all listed organizations and has all correct permissions in it.
  * Both organizations and permissions can be single elements if passed as strings instead of arrays
  * This utils is faster than filtering organization ids from corresponding get<> function,
@@ -326,6 +351,7 @@ module.exports = {
     getEmployedOrganizationsByPermissions,
     getRelatedOrganizationsByPermissions,
     getEmployedOrRelatedOrganizationsByPermissions,
+    getInvitedOrganizations,
     checkPermissionsInEmployedOrganizations,
     checkPermissionsInRelatedOrganizations,
     checkPermissionsInEmployedOrRelatedOrganizations,
