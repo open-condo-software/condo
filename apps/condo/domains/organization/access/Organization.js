@@ -8,7 +8,10 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { find } = require('@open-condo/keystone/schema')
 
 const { canReadObjectsAsB2BAppServiceUser } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
-const { getEmployedOrRelatedOrganizationsByPermissions } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    getEmployedOrRelatedOrganizationsByPermissions,
+    getInvitedOrganizations,
+} = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 const { canDirectlyReadSchemaObjects, canDirectlyManageSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
@@ -43,9 +46,12 @@ async function canReadOrganizations (args) {
     }
 
     const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, [])
+    // NOTE: Must be fast because of request context
+    const invitedOrganizations = await getInvitedOrganizations(context, user)
 
     const accessConditions = [
         { id_in: permittedOrganizations },
+        { id_in: invitedOrganizations },
     ]
 
     if (user.type === SERVICE) {

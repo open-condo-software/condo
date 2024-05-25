@@ -600,6 +600,19 @@ describe('OrganizationEmployee', () => {
         })
     })
 
+    test('User can see organization information while invite is not accepted and not rejected', async () => {
+        const orgAdmin = await makeClientWithRegisteredOrganization()
+        const [role] = await createTestOrganizationEmployeeRole(orgAdmin, orgAdmin.organization)
+        const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+
+        await inviteNewOrganizationEmployee(orgAdmin, orgAdmin.organization, userClient.userAttrs, role)
+
+        const employees = await OrganizationEmployee.getAll(userClient, { user: { id: userClient.user.id } })
+        expect(employees).toHaveLength(1)
+        const employee = employees[0]
+        expect(employee).toHaveProperty(['organization', 'name'], orgAdmin.organization.name)
+    })
+
     describe('Validations', () => {
         test('cannot create employee with role from other organization', async () => {
             const admin = await makeLoggedInAdminClient()
