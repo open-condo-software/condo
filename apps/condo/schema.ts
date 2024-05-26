@@ -3594,10 +3594,14 @@ export type B2BAppNewsSharingConfig = {
   publishUrl?: Maybe<Scalars['String']>;
   /**  Icon of the app: Telegram Icon / WhatsApp Icon  */
   icon?: Maybe<File>;
+  /**  Preview picture: might be app screenshot  */
+  previewPicture?: Maybe<File>;
   /**  URL that returns HTML preview NewsItem  */
   previewUrl?: Maybe<Scalars['String']>;
   /**  URL that implements getRecipients function  */
   getRecipientsUrl?: Maybe<Scalars['String']>;
+  /**  URL that implements customForm. If not filled, then app will use standard news form  */
+  customFormUrl?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -3618,8 +3622,10 @@ export type B2BAppNewsSharingConfigCreateInput = {
   name?: Maybe<Scalars['String']>;
   publishUrl?: Maybe<Scalars['String']>;
   icon?: Maybe<Scalars['Upload']>;
+  previewPicture?: Maybe<Scalars['Upload']>;
   previewUrl?: Maybe<Scalars['String']>;
   getRecipientsUrl?: Maybe<Scalars['String']>;
+  customFormUrl?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -3645,8 +3651,10 @@ export type B2BAppNewsSharingConfigHistoryRecord = {
   name?: Maybe<Scalars['String']>;
   publishUrl?: Maybe<Scalars['String']>;
   icon?: Maybe<Scalars['JSON']>;
+  previewPicture?: Maybe<Scalars['JSON']>;
   previewUrl?: Maybe<Scalars['String']>;
   getRecipientsUrl?: Maybe<Scalars['String']>;
+  customFormUrl?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -3666,8 +3674,10 @@ export type B2BAppNewsSharingConfigHistoryRecordCreateInput = {
   name?: Maybe<Scalars['String']>;
   publishUrl?: Maybe<Scalars['String']>;
   icon?: Maybe<Scalars['JSON']>;
+  previewPicture?: Maybe<Scalars['JSON']>;
   previewUrl?: Maybe<Scalars['String']>;
   getRecipientsUrl?: Maybe<Scalars['String']>;
+  customFormUrl?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -3692,8 +3702,10 @@ export type B2BAppNewsSharingConfigHistoryRecordUpdateInput = {
   name?: Maybe<Scalars['String']>;
   publishUrl?: Maybe<Scalars['String']>;
   icon?: Maybe<Scalars['JSON']>;
+  previewPicture?: Maybe<Scalars['JSON']>;
   previewUrl?: Maybe<Scalars['String']>;
   getRecipientsUrl?: Maybe<Scalars['String']>;
+  customFormUrl?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -3751,6 +3763,10 @@ export type B2BAppNewsSharingConfigHistoryRecordWhereInput = {
   icon_not?: Maybe<Scalars['JSON']>;
   icon_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   icon_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  previewPicture?: Maybe<Scalars['JSON']>;
+  previewPicture_not?: Maybe<Scalars['JSON']>;
+  previewPicture_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  previewPicture_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   previewUrl?: Maybe<Scalars['String']>;
   previewUrl_not?: Maybe<Scalars['String']>;
   previewUrl_contains?: Maybe<Scalars['String']>;
@@ -3787,6 +3803,24 @@ export type B2BAppNewsSharingConfigHistoryRecordWhereInput = {
   getRecipientsUrl_not_ends_with_i?: Maybe<Scalars['String']>;
   getRecipientsUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   getRecipientsUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  customFormUrl?: Maybe<Scalars['String']>;
+  customFormUrl_not?: Maybe<Scalars['String']>;
+  customFormUrl_contains?: Maybe<Scalars['String']>;
+  customFormUrl_not_contains?: Maybe<Scalars['String']>;
+  customFormUrl_starts_with?: Maybe<Scalars['String']>;
+  customFormUrl_not_starts_with?: Maybe<Scalars['String']>;
+  customFormUrl_ends_with?: Maybe<Scalars['String']>;
+  customFormUrl_not_ends_with?: Maybe<Scalars['String']>;
+  customFormUrl_i?: Maybe<Scalars['String']>;
+  customFormUrl_not_i?: Maybe<Scalars['String']>;
+  customFormUrl_contains_i?: Maybe<Scalars['String']>;
+  customFormUrl_not_contains_i?: Maybe<Scalars['String']>;
+  customFormUrl_starts_with_i?: Maybe<Scalars['String']>;
+  customFormUrl_not_starts_with_i?: Maybe<Scalars['String']>;
+  customFormUrl_ends_with_i?: Maybe<Scalars['String']>;
+  customFormUrl_not_ends_with_i?: Maybe<Scalars['String']>;
+  customFormUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  customFormUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -3889,8 +3923,10 @@ export type B2BAppNewsSharingConfigUpdateInput = {
   name?: Maybe<Scalars['String']>;
   publishUrl?: Maybe<Scalars['String']>;
   icon?: Maybe<Scalars['Upload']>;
+  previewPicture?: Maybe<Scalars['Upload']>;
   previewUrl?: Maybe<Scalars['String']>;
   getRecipientsUrl?: Maybe<Scalars['String']>;
+  customFormUrl?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -3945,6 +3981,10 @@ export type B2BAppNewsSharingConfigWhereInput = {
   icon_not?: Maybe<Scalars['String']>;
   icon_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   icon_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  previewPicture?: Maybe<Scalars['String']>;
+  previewPicture_not?: Maybe<Scalars['String']>;
+  previewPicture_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  previewPicture_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   previewUrl?: Maybe<Scalars['String']>;
   previewUrl_not?: Maybe<Scalars['String']>;
   previewUrl_contains?: Maybe<Scalars['String']>;
@@ -3981,6 +4021,24 @@ export type B2BAppNewsSharingConfigWhereInput = {
   getRecipientsUrl_not_ends_with_i?: Maybe<Scalars['String']>;
   getRecipientsUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   getRecipientsUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  customFormUrl?: Maybe<Scalars['String']>;
+  customFormUrl_not?: Maybe<Scalars['String']>;
+  customFormUrl_contains?: Maybe<Scalars['String']>;
+  customFormUrl_not_contains?: Maybe<Scalars['String']>;
+  customFormUrl_starts_with?: Maybe<Scalars['String']>;
+  customFormUrl_not_starts_with?: Maybe<Scalars['String']>;
+  customFormUrl_ends_with?: Maybe<Scalars['String']>;
+  customFormUrl_not_ends_with?: Maybe<Scalars['String']>;
+  customFormUrl_i?: Maybe<Scalars['String']>;
+  customFormUrl_not_i?: Maybe<Scalars['String']>;
+  customFormUrl_contains_i?: Maybe<Scalars['String']>;
+  customFormUrl_not_contains_i?: Maybe<Scalars['String']>;
+  customFormUrl_starts_with_i?: Maybe<Scalars['String']>;
+  customFormUrl_not_starts_with_i?: Maybe<Scalars['String']>;
+  customFormUrl_ends_with_i?: Maybe<Scalars['String']>;
+  customFormUrl_not_ends_with_i?: Maybe<Scalars['String']>;
+  customFormUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  customFormUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -73691,6 +73749,8 @@ export enum SortB2BAppNewsSharingConfigHistoryRecordsBy {
   PreviewUrlDesc = 'previewUrl_DESC',
   GetRecipientsUrlAsc = 'getRecipientsUrl_ASC',
   GetRecipientsUrlDesc = 'getRecipientsUrl_DESC',
+  CustomFormUrlAsc = 'customFormUrl_ASC',
+  CustomFormUrlDesc = 'customFormUrl_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -73718,6 +73778,8 @@ export enum SortB2BAppNewsSharingConfigsBy {
   PreviewUrlDesc = 'previewUrl_DESC',
   GetRecipientsUrlAsc = 'getRecipientsUrl_ASC',
   GetRecipientsUrlDesc = 'getRecipientsUrl_DESC',
+  CustomFormUrlAsc = 'customFormUrl_ASC',
+  CustomFormUrlDesc = 'customFormUrl_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

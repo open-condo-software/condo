@@ -41,6 +41,8 @@ const B2BAppNewsSharingConfig = new GQLListSchema('B2BAppNewsSharingConfig', {
 
         icon: { ...LOGO_FIELD, schemaDoc: 'Icon of the app: Telegram Icon / WhatsApp Icon' },
 
+        previewPicture: { ...LOGO_FIELD, schemaDoc: 'Preview picture: might be app screenshot' },
+
         previewUrl: {
             schemaDoc: 'URL that returns HTML preview NewsItem',
             type: 'Url',
@@ -51,6 +53,12 @@ const B2BAppNewsSharingConfig = new GQLListSchema('B2BAppNewsSharingConfig', {
             schemaDoc: 'URL that implements getRecipients function',
             type: 'Url',
             isRequired: true,
+        },
+
+        customFormUrl: {
+            schemaDoc: 'URL that implements customForm. If not filled, then app will use standard news form',
+            type: 'Url',
+            isRequired: false,
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],

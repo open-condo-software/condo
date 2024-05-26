@@ -1,7 +1,7 @@
 const { find, getById } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
 
-const { publishSharedNewsItem } = require('./publishSharedNewsItem')
+const publishSharedNewsItem = require('./publishSharedNewsItem')
 
 /**
  * @param {string} newsItemId

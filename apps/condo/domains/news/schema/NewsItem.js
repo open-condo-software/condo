@@ -27,7 +27,7 @@ const {
     NO_NEWS_ITEM_SCOPES,
 } = require('@condo/domains/news/constants/errors')
 const { NEWS_TYPES, NEWS_TYPE_EMERGENCY, NEWS_TYPE_COMMON } = require('@condo/domains/news/constants/newsTypes')
-const { notifyResidentsAboutNewsItem } = require('@condo/domains/news/tasks')
+const { notifyResidentsAboutNewsItem, publishSharedNewsItemsByNewsItem } = require('@condo/domains/news/tasks')
 const { NewsItemScope } = require('@condo/domains/news/utils/serverSchema')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 

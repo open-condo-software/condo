@@ -311,6 +311,9 @@ const FormWithAction: React.FC<IFormWithAction> = (props) => {
     }), [DoneMsg])
 
     const _handleSubmit = useCallback((values) => {
+
+        console.log('values inside FormList.tsx', values)
+
         if (handleSubmit) {
             return handleSubmit(values)
         }

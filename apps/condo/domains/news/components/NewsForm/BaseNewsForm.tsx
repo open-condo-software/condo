@@ -68,6 +68,10 @@ import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSc
 import { SectionNameInput } from '@condo/domains/user/components/SectionNameInput'
 import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
 
+import { NewsItemSharingForm } from './NewsItemSharingForm'
+
+import { NewsItemCard } from '../NewsItemCard'
+
 const CardCheckbox = Card.CardCheckbox
 const CardButton = Card.CardButton
 
@@ -116,10 +120,11 @@ const BIG_MARGIN_BOTTOM_STYLE: React.CSSProperties = { marginBottom: '60px' }
 const MARGIN_BOTTOM_32_STYLE: React.CSSProperties = { marginBottom: '32px' }
 const MARGIN_BOTTOM_38_STYLE: React.CSSProperties = { marginBottom: '38px' }
 const MARGIN_BOTTOM_10_STYLE: React.CSSProperties = { marginBottom: '10px' }
+const MARGIN_BOTTOM_16_STYLE: React.CSSProperties = { marginBottom: '16px' }
 const MARGIN_BOTTOM_24_STYLE: React.CSSProperties = { marginBottom: '24px' }
 const MARGIN_TOP_8_STYLE: React.CSSProperties = { marginTop: '8px' }
+const MARGIN_RIGHT_8_STYLE: React.CSSProperties = { marginRight: '8px' }
 const MARGIN_TOP_44_STYLE: React.CSSProperties = { marginTop: '44px' }
-const CARD_CHECKBOX_CONTAINER_STYLE = { width: '246px', minHeight: '400px', marginRight: '40px' }
 const FORM_FILED_COL_PROPS = { style: { width: '100%', padding: 0, height: '44px' } }
 export const SCROLL_TO_FIRST_ERROR_CONFIG: ScrollOptions = { behavior: 'smooth', block: 'center' }
 export const SHOW_TIME_CONFIG = { defaultValue: dayjs('00:00:00:000', 'HH:mm:ss:SSS') }
@@ -129,6 +134,14 @@ const EXTRA_SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 10]
 const BIG_HORIZONTAL_GUTTER: [Gutter, Gutter] = [50, 0]
 const ALL_SQUARE_BRACKETS_OCCURRENCES_REGEX = /\[[^\]]*?\]/g
 const ADDITIONAL_DISABLED_MINUTES_COUNT = 5
+const ALIGN_ITEMS_BASELINE_STYLE: React.CSSProperties = { alignItems: 'baseline' }
+const CARD_CHECKBOX_CONTAINER_STYLE = { display: 'flex', width: '246px', height: '400px', marginRight: '40px' }
+
+const DOMA_APP_ICON_URL = '/homeWithSun.svg'
+const DOMA_APP_PREVIEW_ICON_URL = '/news/domaAppPreviewIcon.png'
+const SHARING_APP_FALLBACK_ICON = '/news/sharingAppIconPlaceholder.svg'
+const SHARING_APP_FALLBACK_PREVIEW_ICON = '/news/sharingAppPreviewIconPlaceholder.svg'
+const PROMO_APP_PREVIEW_ICON = '/news/promoAppPreviewIcon.png'
 
 const buildCounterStyle = (textLength: number, type: 'Body' | 'Title'): React.CSSProperties => {
     const style: React.CSSProperties = {
@@ -420,27 +433,38 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     }, [templates])
 
     const sharingAppContextsIndex = useMemo(() => keyBy(sharingAppContexts, 'id'), [sharingAppContexts])
-    const selectedSharingAppsOptions = useMemo(() => sharingAppContexts.map((x) => ({ label: get(x, ['app', 'newsSharingConfig', 'name']), value: x.id })), [sharingAppContexts])
+    //const selectedSharingAppsOptions = useMemo(() => sharingAppContexts.map((x) => ({ label: get(x, ['app', 'newsSharingConfig', 'name']), value: x.id })), [sharingAppContexts])
     const [selectedSharingApps, setSelectedSharingApps] = useState<Set<string>>(new Set())
 
     const isAnySharingAppSelected: boolean = selectedSharingApps.size > 0
 
     const [selectedSharingAppsRecipients, setSelectedSharingAppsRecipients] = useState<{ [key: string]: string[] }>({})
     // Todo @toplenboren what to do with re-renders ?
-    const [sharingAppRecipientsData, setSharingAppsRecipientsData] = useState<{ [key: string]: { name: string, recipients: number } }>({})
+    const [sharingAppsRecipientsData, setSharingAppsRecipientsData] = useState<{ [key: string]: { name: string, recipients: number } }>({})
+
 
     const [sendPeriod, setSendPeriod] = useState<string>(get(initialValues, 'sendPeriod', 'now'))
 
+    // 1 screen values:
     const [selectedType, setSelectedType] = useState<string>(get(initialValues, 'type', NEWS_TYPE_COMMON))
+    const [selectedValidBeforeText, setSelectedValidBeforeText] = useState<string>(initialValidBefore)
+
+    // Doma form values:
     const [selectedTitle, setSelectedTitle] = useState<string>(get(initialValues, 'title', ''))
     const [selectedBody, setSelectedBody] = useState<string>(get(initialValues, 'body', ''))
-    const [selectedValidBeforeText, setSelectedValidBeforeText] = useState<string>(initialValidBefore)
     const [isValidBeforeAfterSendAt, setIsValidBeforeAfterSendAt] = useState<boolean>(true)
     const [newsItemCountAtSameDay, setNewsItemCountAtSameDay] = useState(getNewsItemCountAtSameDay(null, allNews))
     const [selectedUnitNameKeys, setSelectedUnitNameKeys] = useState(initialUnitKeys)
     const [selectedPropertiesId, setSelectedPropertiesId] = useState(initialPropertyIds)
     const [isAllPropertiesChecked, setIsAllPropertiesChecked] = useState(initialHasAllProperties)
     const [selectedSectionKeys, setSelectedSectionKeys] = useState(initialSectionIds)
+
+    // TODO: NOTE: @toplenboren is a clown
+    const [newsItemFormValues, setNewsItemFormValues] = useState<Record<string, unknown>>({})
+
+    // Sharing apps values:
+    // TODO: @toplenboren use type from news sharing form here
+    const [sharingAppsFormValues, setSharingAppsFormValues] = useState<Record<string, unknown>>({})
 
     const countPropertiesAvaliableToSelect = useRef(null)
     const onlyPropertyThatCanBeSelected = useRef(null)
@@ -576,6 +600,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         setSelectedBody(body)
         Body.setTextLength(body.length)
     }, [Body, Title, templates])
+
     const propertyCheckboxChange = (form) => {
         return (value) => {
             if (value) setSelectedPropertiesId(selectedPropertiesId => {
@@ -596,6 +621,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             setSelectedSectionKeys([])
         }
     }
+
     const propertySelectProps = (form) => {
         return {
             showArrow: false,
@@ -614,6 +640,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             },
         }
     }
+
     const propertySelectFormItemProps: InputWithCheckAllProps['selectFormItemProps'] = useMemo(() => ({
         label: PropertiesLabel,
         labelCol: FORM_FILED_COL_PROPS,
@@ -653,7 +680,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             validBefore: initialValidBefore ? dayjs(initialValidBefore) : null,
             sendAt: initialSendAt ? dayjs(initialSendAt) : null,
         }
-    }, [initialValues])
+    }, [ initialValues ])
 
     const handleFormSubmit = useCallback(async (values) => {
         if (actionName === 'update') {
@@ -661,29 +688,66 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         }
 
         const {
+            sendPeriod,
+            sendAt,
+        } = values
+
+        let {
             properties,
             hasAllProperties,
-            sendPeriod,
+            //sendPeriod,
             template,
             type,
-            sendAt,
+            //sendAt,
             validBefore,
             unitNames,
             sectionIds,
             property,
-            ...newsItemValues
-        } = values
+            //...newsItemValues
+            body,
+            title,
+        } = newsItemFormValues
+
+        console.info('values', values)
+        console.info('newsItemFOrmValues', newsItemFormValues)
 
         const updatedNewsItemValues = {
             validBefore: type === NEWS_TYPE_EMERGENCY ? validBefore : null,
             sendAt: sendPeriod === 'later' ? sendAt : null,
-            type: type,
-            ...newsItemValues,
+            type,
+            body,
+            title,
+            //...newsItemValues,
         }
 
+        console.info('creating or updating news item', updatedNewsItemValues)
         const newsItem = await createOrUpdateNewsItem(updatedNewsItemValues)
         const newsItemId = get(newsItem, 'id')
 
+        console.info('creating NewsItemSharings')
+        if (actionName === 'create') {
+            for (const ctxId of selectedSharingApps) {
+                // Todo @toplenboren TYYYPES!
+
+                const newsItemSharing = {
+                    b2bAppContext: { connect: { id: ctxId } },
+                    newsItem: { connect: { id: newsItemId } },
+                    // TODO @toplenboren add supprot for telegram-like sharing apps!
+                    sharingParams: sharingAppsFormValues[ctxId],
+                }
+
+                console.log('NEWS ITEM SHARING:: LETS GO', newsItemSharing)
+                await createOrUpdateNewsSharingItem(newsItemSharing)
+            }
+        }
+
+        property = selectedProperties[0]
+
+        if (get(newsItemFormValues, 'hasAllProperties', null) && get(newsItemFormValues, 'property', null)) {
+            properties = has(property, 'id') ? [property.id] : []
+        }
+
+        // Handle news item scopes updates:
         if (actionName === 'update' && properties.length !== 0 && initialHasAllProperties) {
             await softDeleteNewsItemScope([initialNewsItemScopes[0]])
         }
@@ -828,6 +892,8 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             }
         }
 
+        console.log('BEFORE PUBLISHING', newsItem)
+
         await updateNewsItem({ isPublished: true }, newsItem)
         if (isFunction(OnCompletedMsg)) {
             const completedMsgData = OnCompletedMsg(newsItem)
@@ -838,7 +904,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         } else {
             await router.push('/news')
         }
-    }, [actionName, createOrUpdateNewsItem, initialHasAllProperties, initialPropertyIds, updateNewsItem, OnCompletedMsg, afterAction, initialSentAt, currentNewsItem, initialNewsItemScopes, softDeleteNewsItemScope, initialUnitKeys, createNewsItemScope, router])
+    }, [ actionName, createOrUpdateNewsItem, initialHasAllProperties, initialPropertyIds, updateNewsItem, OnCompletedMsg, afterAction, initialSentAt, currentNewsItem, initialNewsItemScopes, softDeleteNewsItemScope, initialUnitKeys, createNewsItemScope, router ])
 
     const newsItemScopesNoInstance = useMemo<TNewsItemScopeNoInstance[]>(() => {
         if (isAllPropertiesChecked && countPropertiesAvaliableToSelect.current !== 1) {
@@ -926,19 +992,69 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
 
     const [currentStep, setCurrentStep] = useState<number>(0)
 
-    const handleNextStep = () => {
+    const handleNextStep = ({ form }) => {
+
+        // 1. Trigger validations based on step
+        let fieldsToValidate = []
+
+        console.log('VALUES!!!', form.getFieldsValue(true))
+        setNewsItemFormValues({ ...newsItemFormValues, ...form.getFieldsValue(true) })
+
+        if (currentStep === 0) {
+            fieldsToValidate = ['type', 'validBefore']
+        }
+        
+        if (currentStep === 1) {
+            fieldsToValidate = ['title', 'body', 'hasAllProperties', 'templates', 'property', 'unitNames', 'sectionIds']
+        }
+
+        if (currentStep === getLastStep()) {
+            fieldsToValidate = ['title', 'body', 'templates', 'property', 'unitNames', 'sectionIds']
+        }
+
+        form.validateFields(fieldsToValidate).then((values) => {
+            console.log('DEBUG', values)
+            setCurrentStep((currentStep) => currentStep + 1 )
+        }).catch((err) => {
+            console.error('failed to validate the form', err)
+        })
+    }
+
+    const handleSharingAppFormSubmit = ({ values, ctxId }) => {
+        const newFormValues = { ...sharingAppsFormValues, [ctxId]: values }
+
+        setSharingAppsFormValues(newFormValues)
+        // @toplenboren TODO: NOTE:
         setCurrentStep((currentStep) => currentStep + 1 )
+        //alert(JSON.stringify(newFormValues))
     }
 
     const handleStepClick = (value: number) => {
         setCurrentStep(value)
     }
 
-    const getSteps = useCallback((): { title: string }[] => {
+    const getSteps = useCallback((): {
+        title: string,
+        id?: string
+        ctx?: unknown,
+        sharingAppId?: unknown,
+        newsSharingConfig?: unknown,
+        app?: unknown
+    }[] => {
         return [
+            // FIRST STEP: "SELECT APPS STEP":
             { title: 'Куда' },
+            // APPS:
             { title: 'Doma' },
-            ...Array.from(selectedSharingApps).map(app => ({ title: sharingAppContextsIndex[app].app.newsSharingConfig.name })),
+            ...Array.from(selectedSharingApps).map(appCtx => ({
+                title: sharingAppContextsIndex[appCtx].app.newsSharingConfig.name,
+                id: sharingAppContextsIndex[appCtx].id,
+                sharingAppId: sharingAppContextsIndex[appCtx].id,
+                ctx: sharingAppContextsIndex[appCtx],
+                app: sharingAppContextsIndex[appCtx].app,
+                newsSharingConfig: sharingAppContextsIndex[appCtx].app.newsSharingConfig,
+            })),
+            // FINAL STEP: "REVIEW AND SEND":
             { title: 'Превью и время' },
         ]
     }, [ selectedSharingApps ])
@@ -951,6 +1067,18 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     return (
         <Row gutter={BIG_HORIZONTAL_GUTTER}>
             <Col span={24} flex='auto'>
+
+                { /* STEPS */ }
+                <Row style={BIG_MARGIN_BOTTOM_STYLE}>
+                    <Col span={24}>
+                        <Steps
+                            current={currentStep}
+                            items={getSteps()}
+                            onChange={handleStepClick}
+                        />
+                    </Col>
+                </Row>
+
                 <FormWithAction
                     initialValues={initialFormValues}
                     colon={false}
@@ -967,18 +1095,9 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
 
                         return values
                     }}
+
                     children={({ handleSave, isLoading, form }) => (
                         <>
-                            <Row style={BIG_MARGIN_BOTTOM_STYLE}>
-                                <Col span={24}>
-                                    <Steps
-                                        current={currentStep}
-                                        items={getSteps()}
-                                        onChange={handleStepClick}
-                                    />
-                                </Col>
-                            </Row>
-
                             <Row style={BIG_MARGIN_BOTTOM_STYLE}>
                                 { currentStep === 0 && (
                                     <Col span={24}>
@@ -1046,19 +1165,20 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                     header={{
                                                         headingTitle: 'Doma',
                                                         image: {
-                                                            size: 'big',
-                                                            src: 'https://i.imgur.com/ambPuQF.png',
+                                                            size: 'small',
+                                                            src: DOMA_APP_ICON_URL,
                                                         },
                                                     }}
                                                     body={{
                                                         description: 'Новость появится в приложении Doma',
                                                         image: {
-                                                            src: 'https://i.imgur.com/ambPuQF.png',
+                                                            src: DOMA_APP_PREVIEW_ICON_URL,
                                                             style: {
-                                                                borderRadius: '10px',
                                                                 height: '150px',
                                                                 marginTop: '25px',
-                                                                width: '120px',
+                                                                width: '130px',
+                                                                objectFit: 'cover',
+                                                                objectPosition: 'top',
                                                             },
                                                         },
                                                     }}
@@ -1070,8 +1190,10 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                 />
                                             </div>
                                             { sharingAppContexts.map( ctx => {
-                                                const sharingAppName = ctx.app.newsSharingConfig.name
-                                                const sharingAppIcon = get(ctx, ['app', 'newsSharingConfig', 'icon', 'publicUrl'], null)
+                                                const sharingAppName = get(ctx, ['app', 'newsSharingConfig', 'name'], '').replaceAll(' ', ' ')
+
+                                                const sharingAppIcon = get(ctx, ['app', 'newsSharingConfig', 'icon', 'publicUrl'], SHARING_APP_FALLBACK_ICON)
+                                                const sharingAppPreviewIcon = get(ctx, ['app', 'newsSharingConfig', 'previewPicture', 'publicUrl'], SHARING_APP_FALLBACK_PREVIEW_ICON)
 
                                                 return (
                                                     <div key={ctx.id} style={CARD_CHECKBOX_CONTAINER_STYLE}>
@@ -1079,19 +1201,20 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                             header={{
                                                                 headingTitle: sharingAppName,
                                                                 image: {
-                                                                    size: 'big',
+                                                                    size: 'small',
                                                                     src: sharingAppIcon,
                                                                 },
                                                             }}
                                                             body={{
                                                                 description: `Новость появится в приложении ${sharingAppName}`,
                                                                 image: {
-                                                                    src: 'https://i.imgur.com/ambPuQF.png',
+                                                                    src: sharingAppPreviewIcon,
                                                                     style: {
-                                                                        borderRadius: '10px',
                                                                         height: '150px',
                                                                         marginTop: '25px',
-                                                                        width: '120px',
+                                                                        width: '130px',
+                                                                        objectFit: 'cover',
+                                                                        objectPosition: 'top',
                                                                     },
                                                                 },
                                                             }}
@@ -1106,20 +1229,49 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                     </div>
                                                 )
                                             })}
+
                                             { sharingAppContexts.length === 0 && (
                                                 <div style={CARD_CHECKBOX_CONTAINER_STYLE}>
-                                                    <Card style={{ height: '100%' }}>
-                                                        <Typography.Title level={3}>Другие каналы</Typography.Title>
-                                                        <Typography.Paragraph>Отправлять новости можно не только в приложение Doma, но и по другим каналам</Typography.Paragraph>
-                                                        <img style={{ padding: '30px' }}/>
+                                                    <Card style={{ flex: 1 }}>
+                                                        <div style={MARGIN_BOTTOM_10_STYLE}>
+                                                            <Typography.Title level={3}>Другие каналы</Typography.Title>
+                                                        </div>
+                                                        <div style={MARGIN_BOTTOM_10_STYLE}>
+                                                            <Typography.Paragraph>Настройте отправку новостей в другие приложения</Typography.Paragraph>
+                                                        </div>
+                                                        <div
+                                                            style={{
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                alignSelf: 'stretch',
+                                                                justifyContent: 'center',
+                                                                width: '100%',
+                                                                backgroundColor: colors.gray[1],
+                                                                borderRadius: '12px',
+                                                                marginBottom: '16px',
+                                                            }}
+                                                        >
+                                                            <img
+                                                                src={PROMO_APP_PREVIEW_ICON}
+                                                                style={{
+                                                                    height: '150px',
+                                                                    marginTop: '25px',
+                                                                    width: '130px',
+                                                                    padding: '30px',
+                                                                    objectFit: 'cover',
+                                                                    objectPosition: 'top',
+                                                                }}
+                                                            />
+                                                        </div>
                                                         {/*// @ts-ignore*/}
-                                                        <Button style={{ width: '100%' }} children='Подробнее' href='/news/settings' type='secondary'/>
+                                                        <Button style={{ width: '100%' }} children='Настроить' href='/news/settings' type='secondary'/>
                                                     </Card>
                                                 </div>
                                             ) }
                                         </Row>
                                     </Col>
                                 ) }
+
                                 { currentStep === 1 && (
                                     <>
                                         <Col span={24} style={BIG_MARGIN_BOTTOM_STYLE}>
@@ -1136,10 +1288,8 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                             </Row>
                                                         </Col>
 
-                                                        {/*Templates */}
                                                         {templates && (
-                                                            <Row gutter={SMALL_VERTICAL_GUTTER}
-                                                                style={MARGIN_BOTTOM_38_STYLE}>
+                                                            <Row gutter={SMALL_VERTICAL_GUTTER} style={MARGIN_BOTTOM_38_STYLE}>
                                                                 <Col span={24}>
                                                                     <Typography.Title level={4}>
                                                                         {TemlatesLabel}
@@ -1220,10 +1370,14 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                 <Col span={formInfoColSpan}>
                                                     {(!!selectedBody || !!selectedTitle) && (
                                                         <MemoizedNewsPreview
-                                                            body={selectedBody}
-                                                            title={selectedTitle}
-                                                            validBefore={selectedType === NEWS_TYPE_EMERGENCY ? selectedValidBeforeText : null}
-                                                            sharingApps={null}/>
+                                                            appType='Doma'
+                                                            push={{}}
+                                                            newsItemData={{
+                                                                body: selectedBody,
+                                                                title: selectedTitle,
+                                                                validBefore: selectedType === NEWS_TYPE_EMERGENCY ? selectedValidBeforeText : null,
+                                                            }}
+                                                        />
                                                     )}
                                                 </Col>
                                             </Row>
@@ -1234,8 +1388,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                 <Col span={formFieldsColSpan}>
                                                     <Row gutter={EXTRA_SMALL_VERTICAL_GUTTER}>
                                                         <Col span={24}>
-                                                            <Typography.Title
-                                                                level={2}>{SelectAddressLabel}</Typography.Title>
+                                                            <Typography.Title level={2}>{SelectAddressLabel}</Typography.Title>
                                                         </Col>
                                                         <Col span={24} data-cy='news__create-property-search'>
                                                             {newsItemForOneProperty && (
@@ -1311,71 +1464,139 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                     </>
                                 ) }
 
+                                {
+                                    (currentStep > 1 && currentStep !== getLastStep()) && (
+                                        <NewsItemSharingForm
+                                            onSkip={ (vals) => alert(`Decided to skip + ${JSON.stringify(vals)}`) }
+                                            onSubmit={ (values) => handleSharingAppFormSubmit({ values: values, ctxId: getSteps()[currentStep].id }) }
+                                            sharingApp={getSteps()[currentStep]}
+                                            initialValues={ sharingAppsFormValues[getSteps()[currentStep].id] }
+                                            newsItemData={{ type: 'type', selectedValidBeforeText: 'sele' }}
+                                        />
+                                    )
+                                }
+
                                 { currentStep === getLastStep() && (
                                     <Col span={24}>
                                         <Row gutter={BIG_HORIZONTAL_GUTTER}>
-                                            <Col span={formFieldsColSpan}>
+
+                                            <Col span={24} style={MARGIN_BOTTOM_24_STYLE}>
+                                                <Typography.Title level={2}>
+                                                    Ваша новость
+                                                </Typography.Title>
+                                            </Col>
+                                            
+                                            <Col span={24} style={MARGIN_BOTTOM_24_STYLE}>
                                                 <Row>
-                                                    <Col span={24} style={MARGIN_BOTTOM_24_STYLE}>
+                                                    <NewsItemCard
+                                                        title={selectedTitle}
+                                                        body={selectedBody}
+                                                        appName='Doma'
+                                                        icon={DOMA_APP_ICON_URL}
+                                                    />
+                                                    {
+                                                        Array.from(selectedSharingApps).map(ctxId => {
+
+                                                            const ctx = sharingAppContextsIndex[ctxId]
+
+                                                            const sharingAppName = get(ctx, ['app', 'newsSharingConfig', 'name'], '').replaceAll(' ', ' ')
+                                                            const sharingAppIcon = get(ctx, ['app', 'newsSharingConfig', 'icon', 'publicUrl'], SHARING_APP_FALLBACK_ICON)
+
+                                                            console.log('SHARING_APP_FORM_VALUES', sharingAppsFormValues)
+
+                                                            const title = get(sharingAppsFormValues, [ctxId, 'preview', 'renderedTitle'])
+                                                            const body = get(sharingAppsFormValues, [ctxId, 'preview', 'renderedBody'])
+
+                                                            return (
+                                                                <NewsItemCard
+                                                                    key={`news-card-${ctxId}`}
+                                                                    title={title}
+                                                                    body={body}
+                                                                    appName={sharingAppName}
+                                                                    icon={sharingAppIcon}
+                                                                />
+                                                            )
+                                                        })
+                                                    }
+                                                </Row>
+                                            </Col>
+
+                                            <Col span={formFieldsColSpan} style={MARGIN_TOP_8_STYLE}>
+                                                <Row gutter={EXTRA_SMALL_VERTICAL_GUTTER}>
+                                                    <Col span={24} style={MARGIN_BOTTOM_10_STYLE}>
                                                         <Typography.Title level={2}>
                                                             {SelectSendPeriodLabel} ({tzInfo})
                                                         </Typography.Title>
                                                     </Col>
                                                     <Col span={24}>
-                                                        <Form.Item
-                                                            name='sendPeriod'
-                                                            required
-                                                        >
-                                                            <RadioGroup onChange={handleSendPeriodChange(form)}>
-                                                                <Space size={20} wrap direction='vertical'>
-                                                                    <Radio value='now'>{SendPeriodNowLabel}</Radio>
-                                                                    <Radio value='later'>{SendPeriodLaterLabel}</Radio>
-                                                                </Space>
-                                                            </RadioGroup>
-                                                        </Form.Item>
+                                                        {
+                                                            !isValidBeforeAfterSendAt && (
+                                                                <div style={MARGIN_BOTTOM_10_STYLE}>
+                                                                    <Alert
+                                                                        type='error'
+                                                                        showIcon
+                                                                        description={ValidBeforeErrorMessage}
+                                                                    />
+                                                                </div>
+                                                            )
+                                                        }
+                                                        {
+                                                            newsItemCountAtSameDay >= 5 && (
+                                                                <div style={MARGIN_BOTTOM_10_STYLE}>
+                                                                    <Alert
+                                                                        type='warning'
+                                                                        showIcon
+                                                                        description={ToManyMessagesMessage}
+                                                                    />
+                                                                </div>
+                                                            )
+                                                        }
+                                                        <Row>
+                                                            <Col span={12} style={MARGIN_TOP_8_STYLE}>
+                                                                <Form.Item
+                                                                    name='sendPeriod'
+                                                                    required
+                                                                >
+                                                                    <RadioGroup onChange={handleSendPeriodChange(form)}>
+                                                                        <Space size={20} wrap direction='horizontal'>
+                                                                            <Radio value='now'>{SendPeriodNowLabel}</Radio>
+                                                                            <Radio value='later'>{SendPeriodLaterLabel}</Radio>
+                                                                        </Space>
+                                                                    </RadioGroup>
+                                                                </Form.Item>
+                                                            </Col>
+                                                            {sendPeriod === 'later' && (
+                                                                <Col span={12} style={MARGIN_TOP_8_STYLE}>
+                                                                    <Row style={ALIGN_ITEMS_BASELINE_STYLE} >
+                                                                        {/*<Col span={8}>*/}
+                                                                        {/*<div style={MARGIN_RIGHT_8_STYLE}>*/}
+                                                                        {/*    <Typography.Text type='secondary'>{SendAtLabel}</Typography.Text>*/}
+                                                                        {/*</div>*/}
+                                                                        {/*</Col>*/}
+                                                                        {/*<Col span={16}>*/}
+                                                                        <Form.Item
+                                                                            // label={SendAtLabel}
+                                                                            // labelCol={FORM_FILED_COL_PROPS}
+                                                                            name='sendAt'
+                                                                            required
+                                                                            rules={[commonRule, dateRule]}
+                                                                        >
+                                                                            <DatePicker
+                                                                                format='DD MMMM YYYY HH:mm'
+                                                                                showTime={SHOW_TIME_CONFIG}
+                                                                                onChange={handleSendAtChange(form, 'sendAt')}
+                                                                                placeholder='Дата и время'
+                                                                                disabledDate={isDateDisabled}
+                                                                                disabledTime={isTimeDisabled}
+                                                                                showNow={false}
+                                                                            />
+                                                                        </Form.Item>
+                                                                        {/*</Col>*/}
+                                                                    </Row>
+                                                                </Col>
+                                                            )}
+                                                        </Row>
                                                     </Col>
-                                                    {sendPeriod === 'later' && (
-                                                        <Col span={24} style={MARGIN_TOP_8_STYLE}>
-                                                            <Form.Item
-                                                                label={SendAtLabel}
-                                                                labelCol={FORM_FILED_COL_PROPS}
-                                                                name='sendAt'
-                                                                required
-                                                                rules={[commonRule, dateRule]}
-                                                            >
-                                                                <DatePicker
-                                                                    style={FULL_WIDTH_STYLE}
-                                                                    format='DD MMMM YYYY HH:mm'
-                                                                    showTime={SHOW_TIME_CONFIG}
-                                                                    onChange={handleSendAtChange(form, 'sendAt')}
-                                                                    placeholder={SelectPlaceholder}
-                                                                    disabledDate={isDateDisabled}
-                                                                    disabledTime={isTimeDisabled}
-                                                                    showNow={false}
-                                                                />
-                                                            </Form.Item>
-                                                        </Col>
-                                                    )}
-                                                    {
-                                                        !isValidBeforeAfterSendAt && (
-                                                            <Alert
-                                                                type='error'
-                                                                showIcon
-                                                                message={ValidBeforeErrorMessage}
-                                                                description=' '
-                                                            />
-                                                        )
-                                                    }
-                                                    {
-                                                        newsItemCountAtSameDay >= 5 && (
-                                                            <Alert
-                                                                type='warning'
-                                                                showIcon
-                                                                message={ToManyMessagesMessage}
-                                                                description=' '
-                                                            />
-                                                        )
-                                                    }
                                                 </Row>
                                             </Col>
                                         </Row>
@@ -1394,21 +1615,14 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                             />
                                         </Col>
                                     )}
-                                    { currentStep !== getLastStep() && (
+                                    { currentStep <= 1 && (
                                         <UIActionBar
                                             actions={[
                                                 <Button
                                                     key='submit'
                                                     type='primary'
                                                     children='Далее'
-                                                    onClick={handleNextStep}
-                                                    disabled={false}
-                                                />,
-                                                currentStep > 1 && <Button
-                                                    key='submit'
-                                                    type='secondary'
-                                                    children='Пропустить шаг'
-                                                    onClick={handleNextStep}
+                                                    onClick={() => handleNextStep({ form })}
                                                     disabled={false}
                                                 />,
                                             ]}
