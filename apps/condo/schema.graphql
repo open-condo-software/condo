@@ -69271,8 +69271,10 @@ type B2BAppNewsSharingConfigHistoryRecord {
   name: String
   publishUrl: String
   icon: JSON
+  previewPicture: JSON
   previewUrl: String
   getRecipientsUrl: String
+  customFormUrl: String
   id: ID!
   v: Int
   createdAt: String
@@ -69331,6 +69333,10 @@ input B2BAppNewsSharingConfigHistoryRecordWhereInput {
   icon_not: JSON
   icon_in: [JSON]
   icon_not_in: [JSON]
+  previewPicture: JSON
+  previewPicture_not: JSON
+  previewPicture_in: [JSON]
+  previewPicture_not_in: [JSON]
   previewUrl: String
   previewUrl_not: String
   previewUrl_contains: String
@@ -69367,6 +69373,24 @@ input B2BAppNewsSharingConfigHistoryRecordWhereInput {
   getRecipientsUrl_not_ends_with_i: String
   getRecipientsUrl_in: [String]
   getRecipientsUrl_not_in: [String]
+  customFormUrl: String
+  customFormUrl_not: String
+  customFormUrl_contains: String
+  customFormUrl_not_contains: String
+  customFormUrl_starts_with: String
+  customFormUrl_not_starts_with: String
+  customFormUrl_ends_with: String
+  customFormUrl_not_ends_with: String
+  customFormUrl_i: String
+  customFormUrl_not_i: String
+  customFormUrl_contains_i: String
+  customFormUrl_not_contains_i: String
+  customFormUrl_starts_with_i: String
+  customFormUrl_not_starts_with_i: String
+  customFormUrl_ends_with_i: String
+  customFormUrl_not_ends_with_i: String
+  customFormUrl_in: [String]
+  customFormUrl_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -69458,6 +69482,8 @@ enum SortB2BAppNewsSharingConfigHistoryRecordsBy {
   previewUrl_DESC
   getRecipientsUrl_ASC
   getRecipientsUrl_DESC
+  customFormUrl_ASC
+  customFormUrl_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -69480,8 +69506,10 @@ input B2BAppNewsSharingConfigHistoryRecordUpdateInput {
   name: String
   publishUrl: String
   icon: JSON
+  previewPicture: JSON
   previewUrl: String
   getRecipientsUrl: String
+  customFormUrl: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -69505,8 +69533,10 @@ input B2BAppNewsSharingConfigHistoryRecordCreateInput {
   name: String
   publishUrl: String
   icon: JSON
+  previewPicture: JSON
   previewUrl: String
   getRecipientsUrl: String
+  customFormUrl: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -69546,11 +69576,18 @@ type B2BAppNewsSharingConfig {
   """ Icon of the app: Telegram Icon / WhatsApp Icon """
   icon: File
 
+  """ Preview picture: might be app screenshot """
+  previewPicture: File
+
   """ URL that returns HTML preview NewsItem """
   previewUrl: String
 
   """ URL that implements getRecipients function """
   getRecipientsUrl: String
+
+  """ URL that implements customForm. If not filled, then app will use standard news form 
+  """
+  customFormUrl: String
   id: ID!
   v: Int
   createdAt: String
@@ -69617,6 +69654,10 @@ input B2BAppNewsSharingConfigWhereInput {
   icon_not: String
   icon_in: [String]
   icon_not_in: [String]
+  previewPicture: String
+  previewPicture_not: String
+  previewPicture_in: [String]
+  previewPicture_not_in: [String]
   previewUrl: String
   previewUrl_not: String
   previewUrl_contains: String
@@ -69653,6 +69694,24 @@ input B2BAppNewsSharingConfigWhereInput {
   getRecipientsUrl_not_ends_with_i: String
   getRecipientsUrl_in: [String]
   getRecipientsUrl_not_in: [String]
+  customFormUrl: String
+  customFormUrl_not: String
+  customFormUrl_contains: String
+  customFormUrl_not_contains: String
+  customFormUrl_starts_with: String
+  customFormUrl_not_starts_with: String
+  customFormUrl_ends_with: String
+  customFormUrl_not_ends_with: String
+  customFormUrl_i: String
+  customFormUrl_not_i: String
+  customFormUrl_contains_i: String
+  customFormUrl_not_contains_i: String
+  customFormUrl_starts_with_i: String
+  customFormUrl_not_starts_with_i: String
+  customFormUrl_ends_with_i: String
+  customFormUrl_not_ends_with_i: String
+  customFormUrl_in: [String]
+  customFormUrl_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -69724,6 +69783,8 @@ enum SortB2BAppNewsSharingConfigsBy {
   previewUrl_DESC
   getRecipientsUrl_ASC
   getRecipientsUrl_DESC
+  customFormUrl_ASC
+  customFormUrl_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -69746,8 +69807,10 @@ input B2BAppNewsSharingConfigUpdateInput {
   name: String
   publishUrl: String
   icon: Upload
+  previewPicture: Upload
   previewUrl: String
   getRecipientsUrl: String
+  customFormUrl: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -69768,8 +69831,10 @@ input B2BAppNewsSharingConfigCreateInput {
   name: String
   publishUrl: String
   icon: Upload
+  previewPicture: Upload
   previewUrl: String
   getRecipientsUrl: String
+  customFormUrl: String
   v: Int
   createdAt: String
   updatedAt: String
