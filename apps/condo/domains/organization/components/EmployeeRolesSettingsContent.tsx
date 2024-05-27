@@ -45,7 +45,7 @@ import { B2BAppContext, B2BAppPermission, B2BAppRole } from '@condo/domains/mini
 import { MAX_ROLE_COUNT } from '@condo/domains/organization/constants/common'
 import { PermissionRow, PermissionsGroup, UseEmployeeRolesPermissionsGroups } from '@condo/domains/organization/hooks/useEmployeeRolesPermissionsGroups'
 import {
-    GROUP_NAME_COLUMN_WIDTH,
+    GROUP_NAME_COLUMN_WIDTH, ROLE_NAME_COLUMN_WIDTH,
     useEmployeeRolesTableColumns,
     useEmployeeRoleTicketVisibilityInfoTableColumns,
 } from '@condo/domains/organization/hooks/useEmployeeRolesTableColumns'
@@ -329,6 +329,7 @@ const ExpandableRow = ({ permissionsGroup, employeeRoles, permissionsState, setP
                     setPermissionsState={setPermissionsState}
                 />
             },
+            width: ROLE_NAME_COLUMN_WIDTH,
         })),
         EXPANDABLE_COLUMN_STUB,
     ], [employeeRoles, permissionsGroup, permissionsState, setPermissionsState])
@@ -521,6 +522,7 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
                     data-cy='employeeRoles__table'
                     expandable={expandableConfig}
                     rowKey='key'
+                    scroll={{ x: tableColumns.length * ROLE_NAME_COLUMN_WIDTH + GROUP_NAME_COLUMN_WIDTH }}
                 />
             </Col>
             <Col span={24}>
