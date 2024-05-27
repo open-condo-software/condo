@@ -17,13 +17,17 @@ const StyledTextArea = styled(Input.TextArea)`
     padding: 2px 10px;
     font-weight: 600;
   }
+
+  textarea {
+    padding-bottom: 40px;
+  }
 `
 
 // TODO(DOMA-8953): move to UI kit
 export const TextArea: React.FC<TextAreaProps> = (props) => {
     return (
         <StyledTextArea
-            autoSize={{ minRows: 4 }}
+            autoSize={{ minRows: 3 }}
             maxLength={1000}
             {...props}
             showCount={{

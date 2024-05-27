@@ -19,6 +19,8 @@ import { getRelatedPermissionsTranslations } from '@condo/domains/organization/u
 
 import { EmployeeRoleFormValuesType } from './BaseEmployeeRoleForm'
 
+import { FormItem } from '../../../common/components/Form/FormItem'
+
 
 const StyledTree = styled(Tree)`
     .ant-tree-checkbox {
@@ -374,7 +376,7 @@ export const PermissionsGrid: React.FC<PermissionsGridPropsType> = ({
 
     return (
         <>
-            <Form.Item name='permissions' hidden />
+            <FormItem name='permissions' hidden />
             <Row gutter={[24, 24]}>
                 {roleGroups}
             </Row>
