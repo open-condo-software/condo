@@ -1270,7 +1270,7 @@
   "pages.condo.employeeRole.deleteRole.button.label": "Delete role",
   "pages.condo.employeeRole.deleteRole.notification.success.message": "Role deleted",
   "pages.condo.employeeRole.deleteRole.notification.success.description": "The role «{oldRole}» has been removed and changed to «{newRole}».",
-  "pages.condo.employeeRole.tooltip.notEditableRole": "You cannot change the role «{role}».",
+  "pages.condo.employeeRole.tooltip.notEditableRole": "You cannot change the permissions of a role «{role}».",
   "pages.condo.employeeRole.tooltip.defaultRole": "You cannot delete a base role",
   "pages.condo.employeeRole.tooltip.myRoleToDelete": "You cannot delete a role that is assigned to you",
   "pages.condo.employeeRole.tooltip.roleCreationLimitReached": "Maximum number of roles reached: {max}",

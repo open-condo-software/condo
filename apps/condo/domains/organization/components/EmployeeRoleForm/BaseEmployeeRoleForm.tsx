@@ -96,15 +96,12 @@ const FormSection: React.FC<FormSectionProps> = ({ title, subtitle, children, wr
 const COMMON_WRAPPER_COL = { span: 24 }
 export const FORM_LAYOUT_PROPS: FormLayoutProps = {
     labelCol: {
-        md: 6,
         span: 24,
     },
     wrapperCol: {
-        md: 18,
         span: 24,
     },
-    layout: 'horizontal',
-    labelAlign: 'left',
+    layout: 'vertical',
 }
 export const FORM_VALIDATE_TRIGGER = ['onSubmit']
 export const SCROLL_TO_FIRST_ERROR_CONFIG: ScrollOptions = { behavior: 'smooth', block: 'center' }
@@ -350,7 +347,7 @@ export const BaseEmployeeRoleForm: React.FC<BaseEmployeeRoleFormPropsType> = ({
                             </Prompt>
                             <Row gutter={[0, 60]}>
                                 <FormSection wrapperCol={COMMON_WRAPPER_COL}>
-                                    <Col span={24} xl={16} xxl={14}>
+                                    <Col span={24} lg={18} xl={13}>
                                         <Row gutter={[0, 24]}>
                                             <Col span={24}>
                                                 <Form.Item
