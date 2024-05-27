@@ -8,32 +8,40 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { getById } = require('@open-condo/keystone/schema')
 
 const {
-    getEmployedOrRelatedOrganizationsByPermissions,
-    checkPermissionsInEmployedOrRelatedOrganizations,
+    queryOrganizationEmployeeFor,
+    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    checkPermissionInUserOrganizationOrRelatedOrganization,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
-async function canReadNewsItemTemplates ({ authentication: { item: user }, context }) {
+async function canReadNewsItemTemplates ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.type === RESIDENT) return false
     if (user.isAdmin || user.isSupport) return {}
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadNewsItems')
-
     return {
         OR: [
             { organization_is_null: true },
             {
-                organization: {
-                    id_in: permittedOrganizations,
-                },
+                AND: [
+                    {
+                        organization: {
+                            OR: [
+                                queryOrganizationEmployeeFor(user.id, 'canReadNewsItems'),
+                                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadNewsItems'),
+                            ],
+                            deletedAt: null,
+                        },
+
+                    },
+                ],
             },
         ],
     }
 }
 
-async function canManageNewsItemTemplates ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
+async function canManageNewsItemTemplates ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -51,7 +59,7 @@ async function canManageNewsItemTemplates ({ authentication: { item: user }, ori
 
     if (!organizationId) return false
 
-    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageNewsItemTemplates')
+    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageNewsItemTemplates')
 }
 
 /*

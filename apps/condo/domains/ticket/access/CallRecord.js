@@ -7,27 +7,26 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getByCondition } = require('@open-condo/keystone/schema')
 
-const {
-    getEmployedOrRelatedOrganizationsByPermissions,
-    checkPermissionsInEmployedOrRelatedOrganizations,
-} = require('@condo/domains/organization/utils/accessSchema')
+const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
+const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canReadCallRecords ({ authentication: { item: user }, context }) {
+async function canReadCallRecords ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isAdmin) return {}
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadCallRecords')
-
     return {
         organization: {
-            id_in: permittedOrganizations,
+            OR: [
+                queryOrganizationEmployeeFor(user.id, 'canReadCallRecords'),
+                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadCallRecords'),
+            ],
         },
     }
 }
 
-async function canManageCallRecords ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
+async function canManageCallRecords ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
@@ -46,7 +45,7 @@ async function canManageCallRecords ({ authentication: { item: user }, originalI
     }
     if (!organizationId) return false
 
-    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageCallRecords')
+    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageCallRecords')
 }
 
 /*

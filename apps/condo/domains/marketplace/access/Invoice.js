@@ -14,13 +14,14 @@ const {
     INVOICE_STATUS_CANCELED,
 } = require('@condo/domains/marketplace/constants')
 const {
-    getEmployedOrRelatedOrganizationsByPermissions,
-    checkPermissionsInEmployedOrRelatedOrganizations,
+    queryOrganizationEmployeeFor,
+    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    checkPermissionInUserOrganizationOrRelatedOrganization,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 
-async function canReadInvoices ({ authentication: { item: user }, context }) {
+async function canReadInvoices ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -42,18 +43,19 @@ async function canReadInvoices ({ authentication: { item: user }, context }) {
         }
     }
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadInvoices')
-
-
     return {
         organization: {
-            id_in: permittedOrganizations,
+            OR: [
+                queryOrganizationEmployeeFor(user.id, 'canReadInvoices'),
+                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadInvoices'),
+            ],
+            deletedAt: null,
         },
         deletedAt: null,
     }
 }
 
-async function canManageInvoices ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
+async function canManageInvoices ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -70,7 +72,7 @@ async function canManageInvoices ({ authentication: { item: user }, originalInpu
     }
 
     if (!organizationId) return false
-    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageInvoices')
+    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageInvoices')
 }
 
 /*

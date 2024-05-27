@@ -8,26 +8,28 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { getById } = require('@open-condo/keystone/schema')
 
 const {
-    getEmployedOrRelatedOrganizationsByPermissions,
-    checkPermissionsInEmployedOrRelatedOrganizations,
+    queryOrganizationEmployeeFor,
+    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    checkPermissionInUserOrganizationOrRelatedOrganization,
 } = require('@condo/domains/organization/utils/accessSchema')
 
 
-async function canReadIncidentProperties ({ authentication: { item: user }, context }) {
+async function canReadIncidentProperties ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadIncidents')
-
     return {
         organization: {
-            id_in: permittedOrganizations,
+            OR: [
+                queryOrganizationEmployeeFor(user.id, 'canReadIncidents'),
+                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadIncidents'),
+            ],
         },
     }
 }
 
-async function canManageIncidentProperties ({ authentication: { item: user }, context, originalInput, operation, itemId }) {
+async function canManageIncidentProperties ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (operation === 'update' && !isSoftDelete(originalInput)) return false
@@ -44,9 +46,7 @@ async function canManageIncidentProperties ({ authentication: { item: user }, co
         organizationId = get(incidentProperty, 'organization', null)
     }
 
-    if (!organizationId) return false
-
-    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageIncidents')
+    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageIncidents')
 }
 
 /*

@@ -8,13 +8,13 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { find } = require('@open-condo/keystone/schema')
 
 const { canReadObjectsAsB2BAppServiceUser } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
-const { getEmployedOrRelatedOrganizationsByPermissions } = require('@condo/domains/organization/utils/accessSchema')
+const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 const { canDirectlyReadSchemaObjects, canDirectlyManageSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
 
 async function canReadOrganizations (args) {
-    const { authentication: { item: user }, listKey, context } = args
+    const { authentication: { item: user }, listKey } = args
 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -42,10 +42,9 @@ async function canReadOrganizations (args) {
         return false
     }
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, [])
-
     const accessConditions = [
-        { id_in: permittedOrganizations },
+        { ...queryOrganizationEmployeeFor(user.id) },
+        { ...queryOrganizationEmployeeFromRelatedOrganizationFor(user.id) },
     ]
 
     if (user.type === SERVICE) {

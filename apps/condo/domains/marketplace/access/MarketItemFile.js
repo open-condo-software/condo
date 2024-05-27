@@ -7,14 +7,11 @@ const { get, uniq, compact } = require('lodash')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById, find } = require('@open-condo/keystone/schema')
 
-const {
-    checkPermissionsInEmployedOrRelatedOrganizations,
-    getEmployedOrRelatedOrganizationsByPermissions,
-} = require('@condo/domains/organization/utils/accessSchema')
+const { checkPermissionInUserOrganizationOrRelatedOrganization, queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { STAFF } = require('@condo/domains/user/constants/common')
 
-async function canReadMarketItemFiles ({ authentication: { item: user }, context }) {
+async function canReadMarketItemFiles ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
@@ -40,8 +37,6 @@ async function canReadMarketItemFiles ({ authentication: { item: user }, context
         return false
     }
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadMarketItems')
-
     return {
         OR: [
             {
@@ -49,7 +44,11 @@ async function canReadMarketItemFiles ({ authentication: { item: user }, context
                     {
                         marketItem: {
                             organization: {
-                                id_in: permittedOrganizations,
+                                OR: [
+                                    queryOrganizationEmployeeFor(user.id, 'canReadMarketItems'),
+                                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadMarketItems'),
+                                ],
+                                deletedAt: null,
                             },
                         },
                     },
@@ -60,7 +59,7 @@ async function canReadMarketItemFiles ({ authentication: { item: user }, context
     }
 }
 
-async function canManageMarketItemFiles ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
+async function canManageMarketItemFiles ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -91,7 +90,7 @@ async function canManageMarketItemFiles ({ authentication: { item: user }, origi
         const organizationId = get(marketItem, 'organization', null)
         if (!organizationId) return false
 
-        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageMarketItems')
+        return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageMarketItems')
     }
 
     return false

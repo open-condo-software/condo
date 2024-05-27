@@ -3,14 +3,14 @@
  */
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
-const { checkUserEmploymentInOrganizations } = require('@condo/domains/organization/utils/accessSchema')
+const { checkUserBelongsToOrganization } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canExecuteAllMiniApps ({ args: { data: { organization: { id } } }, authentication: { item: user }, context }) {
+async function canExecuteAllMiniApps ({ args: { data: { organization: { id } } }, authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
 
-    return await checkUserEmploymentInOrganizations(context, user, id)
+    return await checkUserBelongsToOrganization(user.id, id)
 }
 
 /*

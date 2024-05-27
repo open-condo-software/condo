@@ -10,6 +10,7 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { getById, find } = require('@open-condo/keystone/schema')
 
 const { checkBillingIntegrationsAccessRights } = require('@condo/domains/billing/utils/accessSchema')
+const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const { SERVICE } = require('@condo/domains/user/constants/common')
 
 

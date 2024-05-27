@@ -8,31 +8,27 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { getById } = require('@open-condo/keystone/schema')
 
 const {
-    checkPermissionsInEmployedOrRelatedOrganizations,
-    getEmployedOrRelatedOrganizationsByPermissions,
+    queryOrganizationEmployeeFor,
+    checkPermissionInUserOrganizationOrRelatedOrganization,
+    queryOrganizationEmployeeFromRelatedOrganizationFor,
 } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canReadContactRoles ({ authentication: { item: user }, context }) {
+async function canReadContactRoles ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isAdmin || user.isSupport) return {}
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadContacts')
-
     return {
         OR: [
             { organization_is_null: true },
-            {
-                organization: {
-                    id_in: permittedOrganizations,
-                },
-            },
+            { organization: queryOrganizationEmployeeFor(user.id, 'canReadContacts') },
+            { organization: queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadContacts') },
         ],
     }
 }
 
-async function canManageContactRoles ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
+async function canManageContactRoles ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -50,9 +46,7 @@ async function canManageContactRoles ({ authentication: { item: user }, original
         }
     }
 
-    if (!organizationId) return false
-
-    return checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageContactRoles')
+    return checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageContactRoles')
 }
 
 /*

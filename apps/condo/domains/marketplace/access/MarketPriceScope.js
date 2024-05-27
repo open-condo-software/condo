@@ -9,13 +9,11 @@ const { isSoftDelete } = require('@open-condo/keystone/access')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { find, getById } = require('@open-condo/keystone/schema')
 
-const {
-    getEmployedOrRelatedOrganizationsByPermissions,
-    checkPermissionsInEmployedOrRelatedOrganizations,
-} = require('@condo/domains/organization/utils/accessSchema')
+const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
+const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
-async function canReadMarketPriceScopes ({ authentication: { item: user }, context }) {
+async function canReadMarketPriceScopes ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
@@ -38,20 +36,23 @@ async function canReadMarketPriceScopes ({ authentication: { item: user }, conte
         }
     }
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadMarketPriceScopes')
 
     return {
         marketItemPrice: {
             marketItem: {
                 organization: {
-                    id_in: permittedOrganizations,
+                    OR: [
+                        queryOrganizationEmployeeFor(user.id, 'canReadMarketPriceScopes'),
+                        queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadMarketPriceScopes'),
+                    ],
+                    deletedAt: null,
                 },
             },
         },
     }
 }
 
-async function canManageMarketPriceScopes ({ authentication: { item: user }, originalInput, operation, itemId, itemIds, context }) {
+async function canManageMarketPriceScopes ({ authentication: { item: user }, originalInput, operation, itemId, itemIds }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -142,7 +143,7 @@ async function canManageMarketPriceScopes ({ authentication: { item: user }, ori
 
     if (!organizationId) return false
 
-    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageMarketPriceScopes')
+    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageMarketPriceScopes')
 }
 
 /*

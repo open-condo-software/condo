@@ -4,21 +4,30 @@
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
-const { checkUserEmploymentOrRelationToOrganization } = require('@condo/domains/organization/utils/accessSchema')
+const { checkUserBelongsToOrganization, checkUserBelongsToRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
 
 
-async function canGetResidentExistenceByPhoneAndAddress ({ authentication: { item: user }, context, args }) {
+async function canGetResidentExistenceByPhoneAndAddress ({ authentication: { item: user }, args }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
 
     const { data: { propertyId } } = args
+    const userId = user.id
     const property = await getById('Property', propertyId)
     const propertyOrganization = property.organization
 
-    if (!propertyOrganization) return false
+    const organizationPermission = await checkUserBelongsToOrganization(userId, propertyOrganization)
+    if (organizationPermission) {
+        return true
+    }
 
-    return await checkUserEmploymentOrRelationToOrganization(context, user, propertyOrganization)
+    const relatedOrganizationPermission = await checkUserBelongsToRelatedOrganization(userId, propertyOrganization)
+    if (relatedOrganizationPermission) {
+        return true
+    }
+
+    return false
 }
 
 /*

@@ -7,13 +7,11 @@ const { compact, get, uniq } = require('lodash')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { find, getById } = require('@open-condo/keystone/schema')
 
-const {
-    getEmployedOrRelatedOrganizationsByPermissions,
-    checkPermissionsInEmployedOrRelatedOrganizations,
-} = require('@condo/domains/organization/utils/accessSchema')
+const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
+const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
-async function canReadMarketItems ({ authentication: { item: user }, context }) {
+async function canReadMarketItems ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
@@ -38,16 +36,18 @@ async function canReadMarketItems ({ authentication: { item: user }, context }) 
         return false
     }
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadMarketItems')
-
     return {
         organization: {
-            id_in: permittedOrganizations,
+            OR: [
+                queryOrganizationEmployeeFor(user.id, 'canReadMarketItems'),
+                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadMarketItems'),
+            ],
+            deletedAt: null,
         },
     }
 }
 
-async function canManageMarketItems ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
+async function canManageMarketItems ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -65,7 +65,7 @@ async function canManageMarketItems ({ authentication: { item: user }, originalI
 
     if (!organizationId) return false
 
-    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageMarketItems')
+    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageMarketItems')
 }
 
 /*

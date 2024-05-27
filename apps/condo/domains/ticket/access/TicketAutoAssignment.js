@@ -5,7 +5,8 @@
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
 const {
-    getEmployedOrRelatedOrganizationsByPermissions,
+    queryOrganizationEmployeeFor,
+    queryOrganizationEmployeeFromRelatedOrganizationFor,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { STAFF } = require('@condo/domains/user/constants/common')
 const { canDirectlyReadSchemaObjects, canDirectlyManageSchemaObjects } = require('@condo/domains/user/utils/directAccess')
@@ -18,7 +19,7 @@ const { canDirectlyReadSchemaObjects, canDirectlyManageSchemaObjects } = require
  * 3. Users with direct access
  * 4. Employee who can manage tickets
  */
-async function canReadTicketAutoAssignments ({ authentication: { item: user }, listKey, context }) {
+async function canReadTicketAutoAssignments ({ authentication: { item: user }, listKey }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -28,11 +29,13 @@ async function canReadTicketAutoAssignments ({ authentication: { item: user }, l
     if (hasDirectAccess) return {}
 
     if (user.type === STAFF) {
-        const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canManageTickets')
-
         return {
             organization: {
-                id_in: permittedOrganizations,
+                OR: [
+                    queryOrganizationEmployeeFor(user.id, 'canManageTickets'),
+                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canManageTickets'),
+                ],
+                deletedAt: null,
             },
         }
     }

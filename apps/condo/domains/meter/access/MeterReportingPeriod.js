@@ -12,13 +12,14 @@ const { getByCondition, find } = require('@open-condo/keystone/schema')
 
 const { getAvailableResidentMeterReportPeriods } = require('@condo/domains/meter/utils/serverSchema')
 const {
-    getEmployedOrRelatedOrganizationsByPermissions,
-    checkPermissionsInEmployedOrRelatedOrganizations,
+    queryOrganizationEmployeeFor,
+    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    checkPermissionsInUserOrganizationsOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 
-async function canReadMeterReportingPeriods ({ authentication: { item: user }, context }) {
+async function canReadMeterReportingPeriods ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -34,21 +35,21 @@ async function canReadMeterReportingPeriods ({ authentication: { item: user }, c
         }
     }
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, [])
-
     return {
-        OR: [
-            {
-                organization: {
-                    id_in: permittedOrganizations,
-                },
+        OR: [{
+            organization: {
+                OR: [
+                    queryOrganizationEmployeeFor(user.id),
+                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+                ],
             },
-            { organization_is_null: true },
-        ],
+        }, {
+            organization_is_null: true,
+        }],
     }
 }
 
-async function canManageMeterReportingPeriods ({ authentication: { item: user }, originalInput, operation, itemId, itemIds, context }) {
+async function canManageMeterReportingPeriods ({ authentication: { item: user }, originalInput, operation, itemId, itemIds }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isSupport || user.isAdmin) return true
@@ -74,29 +75,35 @@ async function canManageMeterReportingPeriods ({ authentication: { item: user },
                 organizationId = get(property, 'organization', null)
             }
 
-            if (!organizationId) return false
-
             organizationIds = [organizationId]
         }
     }
 
     if (operation === 'update') {
-        const ids = itemIds || [itemId]
-        if (ids.length !== uniq(ids).length) return false
+        if (isBulkRequest) {
+            if (!itemIds || !Array.isArray(itemIds)) return false
+            if (itemIds.length !== uniq(itemIds).length) return false
 
-        const items = await find('MeterReportingPeriod', {
-            id_in: ids,
-            deletedAt: null,
-        })
-        if (items.length !== ids.length) return false
-        if (items.some(item => !item.organization)) return false
+            const items = await find('MeterReportingPeriod', {
+                id_in: itemIds,
+                deletedAt: null,
+            })
+            if (!Array.isArray(items) || items.length !== itemIds.length) return false
+            organizationIds = uniq(items.map(item => get(item, 'organization', null)))
+        } else {
+            const item = await getByCondition('MeterReportingPeriod', {
+                id: itemId,
+                deletedAt: null,
+            })
+            if (!item) return false
 
-        organizationIds = uniq(items.map(item => item.organization))
+            organizationIds = [get(item, 'organization', null)]
+        }
     }
 
     if (isEmpty(organizationIds) || organizationIds.some(isNull)) return false
     
-    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationIds, 'canManageMeters')
+    return await checkPermissionsInUserOrganizationsOrRelatedOrganizations(user.id, organizationIds, 'canManageMeters')
 }
 
 /*

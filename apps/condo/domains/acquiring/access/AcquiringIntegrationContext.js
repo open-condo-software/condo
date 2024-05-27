@@ -9,7 +9,7 @@ const { getById } = require('@open-condo/keystone/schema')
 
 const { CONTEXT_IN_PROGRESS_STATUS, CONTEXT_VERIFICATION_STATUS, CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
-const { checkPermissionsInEmployedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
+const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 
 const { checkAcquiringIntegrationAccessRight } = require('../utils/accessSchema')
@@ -60,7 +60,7 @@ async function canReadAcquiringIntegrationContexts ({ authentication: { item: us
  * 1. Admin
  * 2. Integration service user
  */
-async function canManageAcquiringIntegrationContexts ({ authentication: { item: user }, originalInput, operation, itemId, context: reqContext }) {
+async function canManageAcquiringIntegrationContexts ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -83,9 +83,7 @@ async function canManageAcquiringIntegrationContexts ({ authentication: { item: 
         integrationId = integration
     }
 
-    if (!organizationId) return false
-
-    const canManageIntegrations = await checkPermissionsInEmployedOrganizations(reqContext, user, organizationId, 'canManageIntegrations')
+    const canManageIntegrations = await checkOrganizationPermission(user.id, organizationId, 'canManageIntegrations')
     if (canManageIntegrations && operation === 'create') return true
     if (canManageIntegrations && operation === 'update') {
         // Allow employee to complete context settings
@@ -94,7 +92,7 @@ async function canManageAcquiringIntegrationContexts ({ authentication: { item: 
         }
     }
 
-    const canManageMarketplace = await checkPermissionsInEmployedOrganizations(reqContext, user, organizationId, 'canManageMarketplace')
+    const canManageMarketplace = await checkOrganizationPermission(user.id, organizationId, 'canManageMarketplace')
     if (canManageMarketplace && operation === 'create') return true
     if (canManageMarketplace && operation === 'update') {
         // Allow employee to complete context settings

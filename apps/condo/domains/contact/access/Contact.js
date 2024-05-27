@@ -11,15 +11,14 @@ const {
     canReadObjectsAsB2BAppServiceUser,
     canManageObjectsAsB2BAppServiceUser,
 } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
-const {
-    checkPermissionsInEmployedOrRelatedOrganizations,
-    getEmployedOrRelatedOrganizationsByPermissions,
-} = require('@condo/domains/organization/utils/accessSchema')
+const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
+const { queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
+const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
 const { SERVICE } = require('@condo/domains/user/constants/common')
 
 
 async function canReadContacts (args) {
-    const { authentication: { item: user }, context } = args
+    const { authentication: { item: user } } = args
 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -30,17 +29,18 @@ async function canReadContacts (args) {
         return await canReadObjectsAsB2BAppServiceUser(args)
     }
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadContacts')
-
     return {
         organization: {
-            id_in: permittedOrganizations,
+            OR: [
+                queryOrganizationEmployeeFor(user.id, 'canReadContacts'),
+                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadContacts'),
+            ],
         },
     }
 }
 
 async function canManageContacts (args) {
-    const { authentication: { item: user }, originalInput, operation, itemId, context } = args
+    const { authentication: { item: user }, originalInput, operation, itemId } = args
 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -54,9 +54,7 @@ async function canManageContacts (args) {
     if (operation === 'create') {
         const organizationId = get(originalInput, ['organization', 'connect', 'id'])
 
-        if (!organizationId) return false
-
-        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageContacts')
+        return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageContacts')
     }
 
     if (operation === 'update' && itemId) {
@@ -64,9 +62,7 @@ async function canManageContacts (args) {
         if (!contact) return false
         const contactOrganization = contact.organization
 
-        if (!contactOrganization) return false
-
-        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, contactOrganization, 'canManageContacts')
+        return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, contactOrganization, 'canManageContacts')
     }
 
     return false

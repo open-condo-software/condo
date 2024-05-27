@@ -8,29 +8,27 @@ const { isSoftDelete } = require('@open-condo/keystone/access')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
-const {
-    getEmployedOrRelatedOrganizationsByPermissions,
-    checkPermissionsInEmployedOrganizations,
-} = require('@condo/domains/organization/utils/accessSchema')
+const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor, checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canReadOrganizationEmployeeSpecializations ({ authentication: { item: user }, context }) {
+async function canReadOrganizationEmployeeSpecializations ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isAdmin || user.isSupport) return {}
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadEmployees')
-
     return {
         employee: {
             organization: {
-                id_in: permittedOrganizations,
+                OR: [
+                    queryOrganizationEmployeeFor(user.id, 'canReadEmployees'),
+                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadEmployees'),
+                ],
             },
         },
     }
 }
 
-async function canManageOrganizationEmployeeSpecializations ({ authentication: { item: user }, context, originalInput, operation, itemId }) {
+async function canManageOrganizationEmployeeSpecializations ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -42,9 +40,7 @@ async function canManageOrganizationEmployeeSpecializations ({ authentication: {
         const employee = await getById('OrganizationEmployee', employeeId)
         const organizationId = get(employee, 'organization')
 
-        if (!organizationId) return false
-
-        return await checkPermissionsInEmployedOrganizations(context, user, organizationId, 'canManageEmployees')
+        return await checkOrganizationPermission(user.id, organizationId, 'canManageEmployees')
     } else if (operation === 'update' && itemId) {
         if (!isSoftDelete(originalInput)) return false
 
@@ -55,9 +51,7 @@ async function canManageOrganizationEmployeeSpecializations ({ authentication: {
         const employee = await getById('OrganizationEmployee', employeeId)
         const organizationId = get(employee, 'organization')
 
-        if (!organizationId) return false
-
-        return await checkPermissionsInEmployedOrganizations(context, user, organizationId, 'canManageEmployees')
+        return await checkOrganizationPermission(user.id, organizationId, 'canManageEmployees')
     }
 
     return false

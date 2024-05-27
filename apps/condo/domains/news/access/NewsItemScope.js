@@ -6,34 +6,37 @@ const { uniq, get } = require('lodash')
 
 const { isSoftDelete } = require('@open-condo/keystone/access')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { find } = require('@open-condo/keystone/schema')
+const { find, getByCondition } = require('@open-condo/keystone/schema')
 
+const { checkPermissionsInUserOrganizationsOrRelatedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
 const {
-    getEmployedOrRelatedOrganizationsByPermissions,
-    checkPermissionsInEmployedOrRelatedOrganizations,
+    queryOrganizationEmployeeFor,
+    queryOrganizationEmployeeFromRelatedOrganizationFor,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { STAFF, RESIDENT } = require('@condo/domains/user/constants/common')
 
 async function canReadNewsItemScopes (attrs) {
-    const { authentication: { item: user }, context } = attrs
+    const { authentication: { item: user } } = attrs
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
     if (user.type === RESIDENT) return false
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadNewsItems')
-
     // access for stuff
     return {
         newsItem: {
             organization: {
-                id_in: permittedOrganizations,
+                OR: [
+                    queryOrganizationEmployeeFor(user.id, 'canReadNewsItems'),
+                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadNewsItems'),
+                ],
+                deletedAt: null,
             },
         },
     }
 }
 
-async function canManageNewsItemScopes ({ authentication: { item: user }, context, originalInput, operation, itemId, itemIds }) {
+async function canManageNewsItemScopes ({ authentication: { item: user }, originalInput, operation, itemId, itemIds }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -52,44 +55,51 @@ async function canManageNewsItemScopes ({ authentication: { item: user }, contex
         let organizationIds
 
         if (operation === 'create') {
-            let newsItemIds = []
             if (isBulkRequest) {
-                newsItemIds = originalInput.map(item => get(item, 'data.newsItem.connect.id')).filter(Boolean)
-                if (newsItemIds.length !== originalInput.length) return false
-                newsItemIds = uniq(newsItemIds)
+                const newsItemIds = uniq(originalInput.map(item => get(item, 'data.newsItem.connect.id')))
+                const newsItems = await find('NewsItem', {
+                    id_in: newsItemIds,
+                    deletedAt: null,
+                })
+                if (newsItemIds.length !== newsItems.length) return false
+                organizationIds = uniq(newsItems.map(item => get(item, 'organization')))
             } else {
                 const newsItemId = get(originalInput, 'newsItem.connect.id')
-                if (!newsItemId) return false
-                newsItemIds = [newsItemId]
-            }
-
-            const newsItems = await find('NewsItem', {
-                id_in: newsItemIds,
-                deletedAt: null,
-                organization_is_null: false,
-            })
-            if (newsItemIds.length !== newsItems.length) return false
-            organizationIds = newsItems.map(item => item.organization)
-
-        } else if (isSoftDeleteOperation) {
-            const ids = itemIds || [itemId]
-            if (ids.length !== uniq(ids).length) return false
-
-            const newsItems = await find('NewsItem', {
-                scopes_some: {
-                    id_in: ids,
+                const newsItem = await getByCondition('NewsItem', {
+                    id: newsItemId,
                     deletedAt: null,
-                },
-                deletedAt: null,
-            })
+                })
+                if (!newsItem) return false
+                organizationIds = [get(newsItem, 'organization')]
+            }
+        } else if (isSoftDeleteOperation) {
+            if (isBulkRequest) {
+                if (!itemIds || !Array.isArray(itemIds)) return false
+                if (itemIds.length !== uniq(itemIds).length) return false
 
-            if (newsItems.length !== ids.length) return false
+                const newsItems = await find('NewsItem', {
+                    scopes_some: {
+                        id_in: itemIds,
+                        deletedAt: null,
+                    },
+                    deletedAt: null,
+                })
+                organizationIds = uniq(newsItems.map(newsItem => newsItem.organization))
+            } else {
+                if (!itemId) return false
 
-            if (newsItems.some(item => !item.organization)) return false
-            organizationIds = uniq(newsItems.map(newsItem => newsItem.organization))
+                const newsItem = await getByCondition('NewsItem', {
+                    scopes_some: {
+                        id: itemId,
+                        deletedAt: null,
+                    },
+                    deletedAt: null,
+                })
+                organizationIds = [newsItem.organization]
+            }
         }
 
-        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationIds, 'canManageNewsItems')
+        return await checkPermissionsInUserOrganizationsOrRelatedOrganizations(user.id, organizationIds, 'canManageNewsItems')
     }
 
     return false

@@ -3,61 +3,71 @@
  */
 
 const get = require('lodash/get')
+const uniq = require('lodash/uniq')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { find } = require('@open-condo/keystone/schema')
+const { getById, find } = require('@open-condo/keystone/schema')
 
-const {
-    checkPermissionsInEmployedOrRelatedOrganizations,
-    getEmployedOrganizationsByPermissions,
-} = require('@condo/domains/organization/utils/accessSchema')
+const { queryOrganizationEmployeeFor, checkOrganizationPermission, checkUserPermissionsInOrganizations } = require('@condo/domains/organization/utils/accessSchema')
 
 
-async function canReadDocuments ({ authentication: { item: user }, context }) {
+async function canReadDocuments ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isAdmin) return {}
 
-    const permittedOrganizations = await getEmployedOrganizationsByPermissions(context, user, 'canReadDocuments')
-
-    return { organization: { id_in: permittedOrganizations } }
+    return { organization: queryOrganizationEmployeeFor(user.id, 'canReadDocuments') }
 }
 
-async function canManageDocuments ({ authentication: { item: user }, originalInput, operation, itemId, itemIds, context }) {
+async function canManageDocuments ({ authentication: { item: user }, originalInput, operation, itemId, itemIds }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
 
     const isBulkRequest = Array.isArray(originalInput)
 
-    let organizationIds
+    let organizationId
 
     if (operation === 'create') {
         if (isBulkRequest) {
-            organizationIds = originalInput
-                .map(item => get(item, 'data.organization.connect.id'))
-            if (organizationIds.some(item => !item)) {
-                return false
-            }
+            const organizationIds = uniq(originalInput.map(item => get(item, 'data.organization.connect.id')))
+
+            return await checkUserPermissionsInOrganizations({
+                userId: user.id, organizationIds, permission: 'canManageDocuments',
+            })
         } else {
-            const organizationId = get(originalInput, ['organization', 'connect', 'id'])
-            if (!organizationId) {
-                return false
-            }
-            organizationIds = [organizationId]
+            organizationId = get(originalInput, ['organization', 'connect', 'id'])
         }
     } else if (operation === 'update') {
-        const ids = itemIds || [itemId]
-        const documents = await find('Document', {
-            id_in: ids,
-            deletedAt: null,
-        })
-        organizationIds = documents.map(document => get(document, 'organization')).filter(Boolean)
-        if (organizationIds.length !== ids.length) return false
+        if (isBulkRequest) {
+            if (!itemIds || !Array.isArray(itemIds)) return false
+            if (itemIds.length !== uniq(itemIds).length) return false
+            const documents = await find('Document', {
+                id_in: itemIds,
+                deletedAt: null,
+            })
+            if (documents.length !== itemIds.length) return false
+            const organizationIds = uniq(documents.map(document => get(document, 'organization')))
+
+            return await checkUserPermissionsInOrganizations({
+                userId: user.id, organizationIds, permission: 'canManageDocuments',
+            })
+        } else {
+            const document = await getById('Document', itemId)
+            if (!document || document.deletedAt) {
+                return false
+            }
+
+            organizationId = document.organization
+        }
     }
 
-    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationIds, 'canManageDocuments')
+    if (!organizationId) {
+        return false
+    }
+
+    return await checkOrganizationPermission(user.id, organizationId, 'canManageDocuments')
 }
 
 /*

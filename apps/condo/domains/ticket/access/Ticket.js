@@ -9,10 +9,7 @@ const omit = require('lodash/omit')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById, find } = require('@open-condo/keystone/schema')
 
-const {
-    checkPermissionsInEmployedOrRelatedOrganizations,
-    getEmployedOrRelatedOrganizationsByPermissions,
-} = require('@condo/domains/organization/utils/accessSchema')
+const { checkPermissionInUserOrganizationOrRelatedOrganization, queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 const { CANCELED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
 const {
@@ -23,7 +20,7 @@ const {
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { canDirectlyManageSchemaObjects, canDirectlyReadSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
-async function canReadTickets ({ authentication: { item: user }, listKey, context }) {
+async function canReadTickets ({ authentication: { item: user }, listKey }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -43,11 +40,13 @@ async function canReadTickets ({ authentication: { item: user }, listKey, contex
         }
     }
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadTickets')
-
     return {
         organization: {
-            id_in: permittedOrganizations,
+            OR: [
+                queryOrganizationEmployeeFor(user.id, 'canReadTickets'),
+                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadTickets'),
+            ],
+            deletedAt: null,
         },
     }
 }
@@ -112,9 +111,7 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
             organizationId = get(ticket, 'organization', null)
         }
 
-        if (!organizationId) return false
-
-        const permission = await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageTickets')
+        const permission = await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageTickets')
         if (!permission) return false
 
         const propertyId = get(originalInput, ['property', 'connect', 'id'], null)

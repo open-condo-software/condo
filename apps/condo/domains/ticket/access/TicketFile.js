@@ -6,14 +6,12 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
-const {
-    getEmployedOrRelatedOrganizationsByPermissions,
-    checkPermissionsInEmployedOrRelatedOrganizations,
-} = require('@condo/domains/organization/utils/accessSchema')
+const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
+const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 
 
-async function canReadTicketFiles ({ authentication: { item: user }, context }) {
+async function canReadTicketFiles ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -21,13 +19,14 @@ async function canReadTicketFiles ({ authentication: { item: user }, context }) 
 
     if (user.type === RESIDENT) return { createdBy: { id: user.id } }
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadTickets')
-
     return {
         OR: [
             {
                 organization: {
-                    id_in: permittedOrganizations,
+                    OR: [
+                        queryOrganizationEmployeeFor(user.id, 'canReadTickets'),
+                        queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadTickets'),
+                    ],
                 },
             },
             { createdBy: { id: user.id } },
@@ -36,7 +35,7 @@ async function canReadTicketFiles ({ authentication: { item: user }, context }) 
 }
 
 
-async function canManageTicketFiles ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
+async function canManageTicketFiles ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
@@ -57,9 +56,7 @@ async function canManageTicketFiles ({ authentication: { item: user }, originalI
                 const ticket = await getById('Ticket', ticketId)
                 const organizationId = get(ticket, 'organization', null)
 
-                if (!organizationId) return false
-
-                return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageTickets')
+                return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageTickets')
             }
 
             return true
@@ -71,7 +68,7 @@ async function canManageTicketFiles ({ authentication: { item: user }, originalI
         const { createdBy, organization } = ticketFile
         if (!organization) return createdBy === user.id
 
-        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organization, 'canManageTickets')
+        return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organization, 'canManageTickets')
     }
 
     return false

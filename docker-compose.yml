@@ -7,8 +7,6 @@ x-postgres-common:
 services:
   app:
     image: app
-    profiles:
-      - app
     build:
       context: .
       dockerfile: Dockerfile
@@ -25,8 +23,6 @@ services:
     <<: *postgres-common
     ports:
       - "127.0.0.1:5432:5432"
-    profiles:
-      - db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_DB: main
@@ -50,8 +46,6 @@ services:
     <<: *postgres-common
     ports:
       - "127.0.0.1:5433:5432"
-    profiles:
-      - db
     environment:
       PGUSER: replicator
       PGPASSWORD: replicator_password
@@ -73,8 +67,6 @@ services:
     image: redis:6.2
     ports:
       - "127.0.0.1:6379:6379"
-    profiles:
-      - db
     networks:
       - app-network
 networks:

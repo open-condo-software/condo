@@ -9,7 +9,7 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { getById } = require('@open-condo/keystone/schema')
 
 const { BANK_SYNC_TASK_STATUS } = require('@condo/domains/banking/constants')
-const { checkPermissionsInEmployedOrRelatedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
+const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
 
 // Only cancelling the task is allowed for user
 const ORIGINAL_INPUT_TO_CANCEL_TASK = {
@@ -42,7 +42,7 @@ async function canReadBankSyncTasks ({ authentication: { item: user } }) {
     return { user: { id: user.id } }
 }
 
-async function canManageBankSyncTasks ({ authentication: { item: user }, context, originalInput, operation, itemId }) {
+async function canManageBankSyncTasks ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
@@ -51,8 +51,7 @@ async function canManageBankSyncTasks ({ authentication: { item: user }, context
 
     if (operation === 'create') {
         organizationId = get(originalInput, ['organization', 'connect', 'id'])
-        if (!organizationId) return false
-        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageBankAccounts')
+        return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageBankAccounts')
     }
     if (operation === 'update') {
         const syncTask = await getById('BankSyncTask', itemId)

@@ -9,7 +9,7 @@ const omit = require('lodash/omit')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
-const { checkUserEmploymentInOrganizations } = require('@condo/domains/organization/utils/accessSchema')
+const { checkUserBelongsToOrganization } = require('@condo/domains/organization/utils/accessSchema')
 const { STAFF } = require('@condo/domains/user/constants/common')
 
 
@@ -24,7 +24,7 @@ async function canReadUserHelpRequests ({ authentication: { item: user } }) {
     return { createdBy: { id: user.id } }
 }
 
-async function canManageUserHelpRequests ({ authentication: { item: user }, context, originalInput, operation, itemId }) {
+async function canManageUserHelpRequests ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
@@ -34,9 +34,7 @@ async function canManageUserHelpRequests ({ authentication: { item: user }, cont
     if (operation === 'create') {
         const organizationIdInRequest = get(originalInput, 'organization.connect.id', null)
 
-        if (!organizationIdInRequest) return false
-
-        return await checkUserEmploymentInOrganizations(context, user, organizationIdInRequest)
+        return await checkUserBelongsToOrganization(user.id, organizationIdInRequest)
     } else if (operation === 'update') {
         const helpRequest = await getById('UserHelpRequest', itemId)
         const inaccessibleUpdatedFields = omit(originalInput, AVAILABLE_TO_UPDATE_USER_HELP_REQUEST_FIELDS)

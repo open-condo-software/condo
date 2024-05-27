@@ -6,14 +6,15 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 
 const { canReadBillingEntity, canManageBillingEntityWithContext } = require('@condo/domains/billing/utils/accessSchema')
 const {
-    getEmployedOrRelatedOrganizationsByPermissions,
+    queryOrganizationEmployeeFor,
+    queryOrganizationEmployeeFromRelatedOrganizationFor,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { STAFF, RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 
 const { canReadBillingReceipts } = require('./BillingReceipt')
 
 
-async function canReadBillingReceiptFiles ({ authentication, context }) {
+async function canReadBillingReceiptFiles ({ authentication }) {
     const user = authentication.item
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -21,12 +22,13 @@ async function canReadBillingReceiptFiles ({ authentication, context }) {
     if (user.isSupport || user.isAdmin) return {}
 
     if (user.type === STAFF) {
-        const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, [])
-
         return {
             context: {
                 organization: {
-                    id_in: permittedOrganizations,
+                    OR: [
+                        queryOrganizationEmployeeFor(user.id),
+                        queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+                    ],
                 },
             },
         }

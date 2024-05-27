@@ -4,20 +4,21 @@
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
-const { getEmployedOrRelatedOrganizationsByPermissions } = require('@condo/domains/organization/utils/accessSchema')
+const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 
 
-async function canReadIncidentChanges ({ authentication: { item: user }, context }) {
+async function canReadIncidentChanges ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadIncidents')
-
     return {
         incident: {
             organization: {
-                id_in: permittedOrganizations,
+                OR: [
+                    queryOrganizationEmployeeFor(user.id, 'canReadIncidents'),
+                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadIncidents'),
+                ],
             },
         },
     }

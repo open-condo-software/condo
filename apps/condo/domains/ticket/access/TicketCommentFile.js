@@ -9,15 +9,15 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { getByCondition, getById } = require('@open-condo/keystone/schema')
 
 const {
-    getEmployedOrRelatedOrganizationsByPermissions,
-    checkPermissionsInEmployedOrRelatedOrganizations,
+    queryOrganizationEmployeeFor,
+    queryOrganizationEmployeeFromRelatedOrganizationFor, checkPermissionInUserOrganizationOrRelatedOrganization,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 const { RESIDENT_COMMENT_TYPE } = require('../constants')
 
 
-async function canReadTicketCommentFiles ({ authentication: { item: user }, context }) {
+async function canReadTicketCommentFiles ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -37,13 +37,14 @@ async function canReadTicketCommentFiles ({ authentication: { item: user }, cont
         }
     }
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadTickets')
-
     return {
         OR: [
             {
                 organization: {
-                    id_in: permittedOrganizations,
+                    OR: [
+                        queryOrganizationEmployeeFor(user.id, 'canReadTickets'),
+                        queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadTickets'),
+                    ],
                 },
             },
             { createdBy: { id: user.id } },
@@ -51,7 +52,7 @@ async function canReadTicketCommentFiles ({ authentication: { item: user }, cont
     }
 }
 
-const checkManageCommentFileAccess = async ({ user, operation, originalInput, itemId, context }) => {
+const checkManageCommentFileAccess = async ({ user, operation, originalInput, itemId }) => {
     if (user.type === RESIDENT) {
         if (operation === 'create') {
             const ticketId = get(originalInput, ['ticket', 'connect', 'id'])
@@ -79,9 +80,7 @@ const checkManageCommentFileAccess = async ({ user, operation, originalInput, it
                 const ticket = await getById('Ticket', ticketId)
                 const organizationId = get(ticket, 'organization', null)
 
-                if (!organizationId) return false
-
-                return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageTicketComments')
+                return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageTicketComments')
             }
 
             return true
@@ -93,7 +92,7 @@ const checkManageCommentFileAccess = async ({ user, operation, originalInput, it
         const { createdBy, organization } = ticketCommentFile
         if (!organization) return createdBy === user.id
 
-        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organization, 'canManageTicketComments')
+        return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organization, 'canManageTicketComments')
     }
 
     return false

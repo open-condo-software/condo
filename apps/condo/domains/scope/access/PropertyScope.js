@@ -7,25 +7,20 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
-const {
-    getEmployedOrganizationsByPermissions,
-    checkPermissionsInEmployedOrganizations,
-} = require('@condo/domains/organization/utils/accessSchema')
+const { queryOrganizationEmployeeFor, checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canReadPropertyScopes ({ authentication: { item: user }, context }) {
+async function canReadPropertyScopes ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isAdmin || user.isSupport) return {}
 
-    const permittedOrganizations = await getEmployedOrganizationsByPermissions(context, user, [])
-
     return {
-        organization: { id_in: permittedOrganizations },
+        organization: queryOrganizationEmployeeFor(user.id),
     }
 }
 
-async function canManagePropertyScopes ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
+async function canManagePropertyScopes ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -34,15 +29,13 @@ async function canManagePropertyScopes ({ authentication: { item: user }, origin
         const organizationId = get(originalInput, ['organization', 'connect', 'id'])
         if (!organizationId) return false
 
-        return await checkPermissionsInEmployedOrganizations(context, user, organizationId, 'canManagePropertyScopes')
+        return await checkOrganizationPermission(user.id, organizationId, 'canManagePropertyScopes')
     } else if (operation === 'update' && itemId) {
         const property = await getById('PropertyScope', itemId)
         if (!property) return false
         const { organization: organizationId } = property
 
-        if (!organizationId) return false
-
-        return await checkPermissionsInEmployedOrganizations(context, user, organizationId, 'canManagePropertyScopes')
+        return await checkOrganizationPermission(user.id, organizationId, 'canManagePropertyScopes')
     }
 
     return false

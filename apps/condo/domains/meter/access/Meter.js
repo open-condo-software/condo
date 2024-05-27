@@ -13,14 +13,15 @@ const {
     canManageObjectsAsB2BAppServiceUser,
 } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
 const {
-    checkPermissionsInEmployedOrRelatedOrganizations,
-    getEmployedOrRelatedOrganizationsByPermissions,
+    checkPermissionInUserOrganizationOrRelatedOrganization,
+    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    queryOrganizationEmployeeFor,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 
 
 async function canReadMeters (args) {
-    const { authentication: { item: user }, context } = args
+    const { authentication: { item: user } } = args
 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -41,17 +42,18 @@ async function canReadMeters (args) {
         return await canReadObjectsAsB2BAppServiceUser(args)
     }
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadMeters')
-
     return {
         organization: {
-            id_in: permittedOrganizations,
+            OR: [
+                queryOrganizationEmployeeFor(user.id, 'canReadMeters'),
+                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadMeters'),
+            ],
         },
     }
 }
 
 async function canManageMeters (args) {
-    const { authentication: { item: user }, originalInput, operation, itemId, context } = args
+    const { authentication: { item: user }, originalInput, operation, itemId } = args
 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -72,7 +74,7 @@ async function canManageMeters (args) {
         if (!property) return false
         if (organizationId !== get(property, 'organization')) return false
 
-        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageMeters')
+        return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageMeters')
     }
 
     if (operation === 'update' && itemId) {
@@ -83,8 +85,6 @@ async function canManageMeters (args) {
         if (!meter) return false
         // if we pass property then we need check that this Property is in the organization in which the Meter is located
         const meterOrganization = get(meter, 'organization')
-        if (!meterOrganization) return false
-
         const propertyId = get(originalInput, ['property', 'connect', 'id'])
         if (propertyId) {
             const property = await getByCondition('Property', {
@@ -95,7 +95,7 @@ async function canManageMeters (args) {
             if (meterOrganization !== get(property, 'organization')) return false
         }
 
-        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, meterOrganization, 'canManageMeters')
+        return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, meterOrganization, 'canManageMeters')
     }
 
     return false

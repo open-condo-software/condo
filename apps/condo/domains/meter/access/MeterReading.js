@@ -12,14 +12,15 @@ const {
     canManageObjectsAsB2BAppServiceUser,
 } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
 const {
-    getEmployedOrRelatedOrganizationsByPermissions,
-    checkPermissionsInEmployedOrRelatedOrganizations,
+    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    queryOrganizationEmployeeFor,
+    checkPermissionInUserOrganizationOrRelatedOrganization,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 
 
 async function canReadMeterReadings (args) {
-    const { authentication: { item: user }, context } = args
+    const { authentication: { item: user } } = args
 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -40,17 +41,18 @@ async function canReadMeterReadings (args) {
         return await canReadObjectsAsB2BAppServiceUser(args)
     }
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadMeters')
-
     return {
         organization: {
-            id_in: permittedOrganizations,
+            OR: [
+                queryOrganizationEmployeeFor(user.id, 'canReadMeters'),
+                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadMeters'),
+            ],
         },
     }
 }
 
 async function canManageMeterReadings (args) {
-    const { authentication: { item: user }, originalInput, operation, context } = args
+    const { authentication: { item: user }, originalInput, operation } = args
 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -71,9 +73,8 @@ async function canManageMeterReadings (args) {
 
         const meter = await getById('Meter', meterId)
         const meterOrganization = get(meter, 'organization', null)
-        if (!meterOrganization) return false
 
-        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, meterOrganization, 'canManageMeterReadings')
+        return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, meterOrganization, 'canManageMeterReadings')
     }
 
     return false
