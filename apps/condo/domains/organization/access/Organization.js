@@ -50,8 +50,7 @@ async function canReadOrganizations (args) {
     const invitedOrganizations = await getInvitedOrganizations(context, user)
 
     const accessConditions = [
-        { id_in: permittedOrganizations },
-        { id_in: invitedOrganizations },
+        { id_in: [...permittedOrganizations, ...invitedOrganizations] },
     ]
 
     if (user.type === SERVICE) {
