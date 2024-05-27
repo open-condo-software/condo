@@ -39687,108 +39687,6 @@ export type Mutation = {
   acceptOrRejectOrganizationInviteById?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteByCode?: Maybe<OrganizationEmployee>;
   resetOrganization?: Maybe<ResetOrganizationOutput>;
-  /**
-   * Replaces old role "A" with new role "B" for all employees with role "A"
-   *
-   * Replaces old role "A" with new role "B" for all employees with role "A". By default, old role is retained. If you pass the “withDeletionOldRole” flag, then old role will be deleted.
-   *
-   * **Errors**
-   *
-   * Following objects will be presented in `extensions` property of thrown error
-   *
-   * `{
-   *   "mutation": "replaceOrganizationEmployeeRole",
-   *   "variable": [
-   *     "data",
-   *     "dv"
-   *   ],
-   *   "code": "BAD_USER_INPUT",
-   *   "type": "DV_VERSION_MISMATCH",
-   *   "message": "Wrong value for data version number"
-   * }`
-   *
-   * `{
-   *   "mutation": "replaceOrganizationEmployeeRole",
-   *   "variable": [
-   *     "data",
-   *     "sender"
-   *   ],
-   *   "code": "BAD_USER_INPUT",
-   *   "type": "WRONG_FORMAT",
-   *   "message": "Invalid format of \"sender\" field value. {details}",
-   *   "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}"
-   * }`
-   *
-   * `{
-   *   "mutation": "replaceOrganizationEmployeeRole",
-   *   "variable": [
-   *     "data",
-   *     "organization"
-   *   ],
-   *   "code": "BAD_USER_INPUT",
-   *   "type": "ORGANIZATION_NOT_FOUND",
-   *   "message": "Organization not found",
-   *   "messageForUser": "api.organization.ReplaceOrganizationEmployeeRole.ORGANIZATION_NOT_FOUND"
-   * }`
-   *
-   * `{
-   *   "mutation": "replaceOrganizationEmployeeRole",
-   *   "variable": [
-   *     "data",
-   *     "oldRole"
-   *   ],
-   *   "code": "BAD_USER_INPUT",
-   *   "type": "OLD_ROLE_NOT_FOUND",
-   *   "message": "Old role not found in specified organization",
-   *   "messageForUser": "api.organization.ReplaceOrganizationEmployeeRole.OLD_ROLE_NOT_FOUND"
-   * }`
-   *
-   * `{
-   *   "mutation": "replaceOrganizationEmployeeRole",
-   *   "variable": [
-   *     "data",
-   *     "newRole"
-   *   ],
-   *   "code": "BAD_USER_INPUT",
-   *   "type": "NEW_ROLE_NOT_FOUND",
-   *   "message": "New role not found in specified organization",
-   *   "messageForUser": "api.organization.ReplaceOrganizationEmployeeRole.NEW_ROLE_NOT_FOUND"
-   * }`
-   *
-   * `{
-   *   "mutation": "replaceOrganizationEmployeeRole",
-   *   "variable": [
-   *     "data"
-   *   ],
-   *   "code": "BAD_USER_INPUT",
-   *   "type": "DEFAULT_ROLE_CANNOT_BE_DELETED",
-   *   "message": "The default role cannot be deleted",
-   *   "messageForUser": "api.organization.ReplaceOrganizationEmployeeRole.DEFAULT_ROLE_CANNOT_BE_DELETED"
-   * }`
-   *
-   * `{
-   *   "mutation": "replaceOrganizationEmployeeRole",
-   *   "variable": [
-   *     "data"
-   *   ],
-   *   "code": "BAD_USER_INPUT",
-   *   "type": "ROLES_MUST_BE_DIFFERENT",
-   *   "message": "The old role and new role must be different",
-   *   "messageForUser": "api.organization.ReplaceOrganizationEmployeeRole.ROLES_MUST_BE_DIFFERENT"
-   * }`
-   *
-   * `{
-   *   "mutation": "replaceOrganizationEmployeeRole",
-   *   "variable": [
-   *     "data"
-   *   ],
-   *   "code": "TOO_MANY_REQUESTS",
-   *   "type": "ROLES_ARE_BEING_PROCESSED",
-   *   "message": "These roles are already being processed. Please try again a little later",
-   *   "messageForUser": "api.organization.ReplaceOrganizationEmployeeRole.ROLES_ARE_BEING_PROCESSED"
-   * }`
-   */
-  replaceOrganizationEmployeeRole?: Maybe<ReplaceOrganizationEmployeeRoleOutput>;
   registerBillingReceipts?: Maybe<Array<Maybe<BillingReceipt>>>;
   sendNewBillingReceiptFilesNotifications?: Maybe<SendNewBillingReceiptFilesNotificationsOutput>;
   /**
@@ -49957,11 +49855,6 @@ export type MutationResetOrganizationArgs = {
 };
 
 
-export type MutationReplaceOrganizationEmployeeRoleArgs = {
-  data: ReplaceOrganizationEmployeeRoleInput;
-};
-
-
 export type MutationRegisterBillingReceiptsArgs = {
   data: RegisterBillingReceiptsInput;
 };
@@ -54466,17 +54359,8 @@ export type OrganizationEmployeeRole = {
   _label_?: Maybe<Scalars['String']>;
   /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
-  /**
-   *  (Read-only) Indicates whether the role was added by default when the organization was created.
-   * Such roles cannot be deleted and their name, description and “ticketVisibilityType” cannot be changed.
-   */
-  isDefault?: Maybe<Scalars['Boolean']>;
-  /**  (Read-only) Indicates whether the role can be edited  */
-  isEditable?: Maybe<Scalars['Boolean']>;
-  /**  Role name. Cannot be changed for default roles  */
   name?: Maybe<Scalars['String']>;
   nameNonLocalized?: Maybe<Scalars['String']>;
-  /**  Role description. Cannot be changed for default roles  */
   description?: Maybe<Scalars['String']>;
   descriptionNonLocalized?: Maybe<Scalars['String']>;
   /**  Employee status transitions map  */
@@ -54564,14 +54448,10 @@ export type OrganizationEmployeeRole = {
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['String']>;
 };
 
 export type OrganizationEmployeeRoleCreateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
-  isDefault?: Maybe<Scalars['Boolean']>;
-  isEditable?: Maybe<Scalars['Boolean']>;
   name?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
   canManageOrganization?: Maybe<Scalars['Boolean']>;
@@ -54643,8 +54523,6 @@ export type OrganizationEmployeeRoleCreateInput = {
   updatedBy?: Maybe<UserRelateToOneInput>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['String']>;
 };
 
 /**  A keystone list  */
@@ -54659,8 +54537,6 @@ export type OrganizationEmployeeRoleHistoryRecord = {
    */
   _label_?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
-  isDefault?: Maybe<Scalars['Boolean']>;
-  isEditable?: Maybe<Scalars['Boolean']>;
   name?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
   canManageOrganization?: Maybe<Scalars['Boolean']>;
@@ -54740,8 +54616,6 @@ export type OrganizationEmployeeRoleHistoryRecord = {
 
 export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   organization?: Maybe<Scalars['String']>;
-  isDefault?: Maybe<Scalars['Boolean']>;
-  isEditable?: Maybe<Scalars['Boolean']>;
   name?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
   canManageOrganization?: Maybe<Scalars['Boolean']>;
@@ -54826,8 +54700,6 @@ export enum OrganizationEmployeeRoleHistoryRecordHistoryActionType {
 
 export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   organization?: Maybe<Scalars['String']>;
-  isDefault?: Maybe<Scalars['Boolean']>;
-  isEditable?: Maybe<Scalars['Boolean']>;
   name?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
   canManageOrganization?: Maybe<Scalars['Boolean']>;
@@ -54911,10 +54783,6 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   organization_not?: Maybe<Scalars['String']>;
   organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  isDefault?: Maybe<Scalars['Boolean']>;
-  isDefault_not?: Maybe<Scalars['Boolean']>;
-  isEditable?: Maybe<Scalars['Boolean']>;
-  isEditable_not?: Maybe<Scalars['Boolean']>;
   name?: Maybe<Scalars['String']>;
   name_not?: Maybe<Scalars['String']>;
   name_contains?: Maybe<Scalars['String']>;
@@ -55179,8 +55047,6 @@ export type OrganizationEmployeeRoleRelateToOneInput = {
 
 export type OrganizationEmployeeRoleUpdateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
-  isDefault?: Maybe<Scalars['Boolean']>;
-  isEditable?: Maybe<Scalars['Boolean']>;
   name?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
   canManageOrganization?: Maybe<Scalars['Boolean']>;
@@ -55252,8 +55118,6 @@ export type OrganizationEmployeeRoleUpdateInput = {
   updatedBy?: Maybe<UserRelateToOneInput>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['String']>;
 };
 
 export type OrganizationEmployeeRoleWhereInput = {
@@ -55261,10 +55125,6 @@ export type OrganizationEmployeeRoleWhereInput = {
   OR?: Maybe<Array<Maybe<OrganizationEmployeeRoleWhereInput>>>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
-  isDefault?: Maybe<Scalars['Boolean']>;
-  isDefault_not?: Maybe<Scalars['Boolean']>;
-  isEditable?: Maybe<Scalars['Boolean']>;
-  isEditable_not?: Maybe<Scalars['Boolean']>;
   name?: Maybe<Scalars['String']>;
   name_not?: Maybe<Scalars['String']>;
   name_contains?: Maybe<Scalars['String']>;
@@ -55471,18 +55331,6 @@ export type OrganizationEmployeeRoleWhereInput = {
   sender_not?: Maybe<SenderFieldInput>;
   sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
-  deletedAt?: Maybe<Scalars['String']>;
-  deletedAt_not?: Maybe<Scalars['String']>;
-  deletedAt_lt?: Maybe<Scalars['String']>;
-  deletedAt_lte?: Maybe<Scalars['String']>;
-  deletedAt_gt?: Maybe<Scalars['String']>;
-  deletedAt_gte?: Maybe<Scalars['String']>;
-  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  newId?: Maybe<Scalars['String']>;
-  newId_not?: Maybe<Scalars['String']>;
-  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
 };
 
 export type OrganizationEmployeeRoleWhereUniqueInput = {
@@ -71510,20 +71358,6 @@ export type RemoteClientsUpdateInput = {
   data?: Maybe<RemoteClientUpdateInput>;
 };
 
-export type ReplaceOrganizationEmployeeRoleInput = {
-  dv: Scalars['Int'];
-  sender: SenderFieldInput;
-  organization: OrganizationWhereUniqueInput;
-  oldRole: OrganizationEmployeeRoleWhereUniqueInput;
-  newRole: OrganizationEmployeeRoleWhereUniqueInput;
-  withDeletionOldRole: Scalars['Boolean'];
-};
-
-export type ReplaceOrganizationEmployeeRoleOutput = {
-  __typename?: 'ReplaceOrganizationEmployeeRoleOutput';
-  status: Scalars['String'];
-};
-
 export type ResendConfirmPhoneActionSmsInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
@@ -78258,10 +78092,6 @@ export enum SortOrganizationEmployeeHistoryRecordsBy {
 }
 
 export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
-  IsDefaultAsc = 'isDefault_ASC',
-  IsDefaultDesc = 'isDefault_DESC',
-  IsEditableAsc = 'isEditable_ASC',
-  IsEditableDesc = 'isEditable_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
   DescriptionAsc = 'description_ASC',
@@ -78409,10 +78239,6 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
 export enum SortOrganizationEmployeeRolesBy {
   OrganizationAsc = 'organization_ASC',
   OrganizationDesc = 'organization_DESC',
-  IsDefaultAsc = 'isDefault_ASC',
-  IsDefaultDesc = 'isDefault_DESC',
-  IsEditableAsc = 'isEditable_ASC',
-  IsEditableDesc = 'isEditable_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
   DescriptionAsc = 'description_ASC',
@@ -78554,9 +78380,7 @@ export enum SortOrganizationEmployeeRolesBy {
   UpdatedByAsc = 'updatedBy_ASC',
   UpdatedByDesc = 'updatedBy_DESC',
   DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC',
-  DeletedAtAsc = 'deletedAt_ASC',
-  DeletedAtDesc = 'deletedAt_DESC'
+  DvDesc = 'dv_DESC'
 }
 
 export enum SortOrganizationEmployeeSpecializationHistoryRecordsBy {

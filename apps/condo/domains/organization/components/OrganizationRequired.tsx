@@ -1,4 +1,3 @@
-import { OrganizationEmployeeRole as IEmployeeRole } from '@app/condo/schema'
 import { Typography } from 'antd'
 import get from 'lodash/get'
 import React, { useMemo } from 'react'
@@ -72,9 +71,9 @@ export const OrganizationRequired: React.FC<{ withEmployeeRestrictions?: boolean
         </AuthRequired>
     )
 }
-type PermissionKeys = keyof Omit<IEmployeeRole, '__typename' | '_label_' | 'createdAt' | 'createdBy' | 'description' | 'descriptionNonLocalized' | 'dv' | 'id' | 'name' | 'nameNonLocalized' | 'organization' | 'sender' | 'statusTransitions' | 'ticketVisibilityType' | 'updatedAt' | 'updatedBy' | 'v'>
+
 type PermissionRequiredPageProps = {
-    permissionKeys: PermissionKeys[]
+    permissionKeys: string[]
 }
 
 const PermissionsRequiredWrapper: React.FC<PermissionRequiredPageProps> = ({ children, permissionKeys }) => {

@@ -22,9 +22,7 @@ export type CheckboxProps = Pick<DefaultCheckboxProps,
 | 'checked'
 | 'children'
 | 'id'
-| 'className'
-| 'onMouseLeave'
-| 'onMouseEnter'> & CondoCheckboxProps
+| 'className'> & CondoCheckboxProps
 
 const Checkbox: React.FC<CheckboxProps> = (props) => {
     const {
