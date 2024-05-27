@@ -52,7 +52,6 @@ const getUsersAvailableToReadTicketByPropertyScope = async ({
     const roles = await find('OrganizationEmployeeRole', {
         organization: { id: ticketOrganizationId },
         canReadTickets: true,
-        deletedAt: null,
     })
     const organizationEmployees = await find('OrganizationEmployee', {
         organization: { id: ticketOrganizationId },

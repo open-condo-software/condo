@@ -87,7 +87,7 @@ async function canManageBillingIntegrationOrganizationContexts ({ authentication
         organization: { id: organizationId },
     })
 
-    if (!employeeRole || employeeRole.deletedAt) return false
+    if (!employeeRole) return false
 
     const canManageIntegrations = employeeRole['canManageIntegrations'] || false
     const canImportBillingReceipts = employeeRole['canImportBillingReceipts'] || false

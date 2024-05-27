@@ -168,7 +168,7 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
                             organization: { id: organizationId },
                         })
 
-                        if (!employeeRole || employeeRole.deletedAt) {
+                        if (!employeeRole) {
                             throw new GQLError(ERRORS.NOT_FOUND_ROLE, context)
                         }
                     }

@@ -4,8 +4,6 @@ import { useCallback } from 'react'
 import { useIntl } from 'react-intl'
 import { z } from 'zod'
 
-import { Typography } from '@open-condo/ui'
-
 import type { ApolloError } from '@apollo/client'
 import type { FormInstance } from 'antd'
 
@@ -86,10 +84,7 @@ export function useMutationErrorHandler<FormType> (opts: UseMutationErrorHandler
             }
         }
         if (!formAffected) {
-            notification.error({
-                message: <Typography.Title level={4}>{ServerErrorMessage}</Typography.Title>,
-                description: <Typography.Paragraph type='secondary'>{messageToShow}</Typography.Paragraph>,
-            })
+            notification.error({ message: ServerErrorMessage, description: messageToShow })
         }
     }, [ServerErrorMessage, DefaultConstraintErrorDescription, form, typeToFieldMapping, constraintToMessageMapping])
 }

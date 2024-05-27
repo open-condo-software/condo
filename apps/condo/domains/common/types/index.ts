@@ -1,6 +1,3 @@
-import type { FC } from 'react'
-
-
 /**
  *
  */
@@ -25,8 +22,3 @@ type Only<T, U> = {
 }
 
 export type Either<T, U> = Only<T, U> | Only<U, T>
-
-export interface IPage extends FC {
-    headerAction?: JSX.Element
-    requiredAccess?: FC
-}

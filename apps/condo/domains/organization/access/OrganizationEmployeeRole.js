@@ -30,8 +30,7 @@ async function canReadOrganizationEmployeeRoles ({ authentication: { item: user 
 async function canManageOrganizationEmployeeRoles ({ authentication: { item: user }, context, operation, originalInput, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-
-    if (user.isAdmin || user.isSupport) return true
+    if (user.isAdmin) return true
 
     let organizationId
 
@@ -40,7 +39,6 @@ async function canManageOrganizationEmployeeRoles ({ authentication: { item: use
     } else if (operation === 'update') {
         if (!itemId) return false
         const role = await getById('OrganizationEmployeeRole', itemId)
-        if (!role || role.deletedAt) return false
         organizationId = get(role, 'organization', null)
     }
 

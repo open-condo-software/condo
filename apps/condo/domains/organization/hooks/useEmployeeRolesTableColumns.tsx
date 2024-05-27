@@ -1,15 +1,10 @@
-import {
-    OrganizationEmployeeRole as IEmployeeRole,
-} from '@app/condo/schema'
+import { OrganizationEmployeeRole } from '@app/condo/schema'
 import { Table } from 'antd'
-import { ColumnsType } from 'antd/es/table/interface'
 import get from 'lodash/get'
-import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Tooltip, Typography } from '@open-condo/ui'
 
 import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
@@ -26,8 +21,7 @@ import {
 
 export const GROUP_NAME_COLUMN_WIDTH = '15%'
 
-export function useEmployeeRolesTableColumns (roles: IEmployeeRole[]): ColumnsType<IEmployeeRole> {
-    const intl = useIntl()
+export function useEmployeeRolesTableColumns (roles: OrganizationEmployeeRole[]): Array<Record<string, unknown>> {
     return [
         {
             dataIndex: 'groupName',
@@ -35,28 +29,7 @@ export function useEmployeeRolesTableColumns (roles: IEmployeeRole[]): ColumnsTy
             key: 'groupName',
         },
         ...roles.map(role => ({
-            title: () => {
-                if (!role.isEditable) {
-                    return (
-                        <Tooltip
-                            title={intl.formatMessage({ id: 'pages.condo.employeeRole.tooltip.notEditableRole' }, { role: get(role, 'name') })}
-                            placement='bottom'
-                        >
-                            <span style={{ cursor: 'not-allowed' }}>
-                                {role.name}
-                            </span>
-                        </Tooltip>
-                    )
-                }
-
-                return (
-                    <Link href={`/settings/employeeRole/${role.id}/update`}>
-                        <Typography.Link href={`/settings/employeeRole/${role.id}/update`} size='small'>
-                            {role.name}
-                        </Typography.Link>
-                    </Link>
-                )
-            },
+            title: role.name,
             key: role.id,
             ellipsis: { showTitle: true },
         })),

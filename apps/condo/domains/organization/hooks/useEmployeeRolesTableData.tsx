@@ -65,9 +65,9 @@ export const addNamesToPermissions = (intl) => (permissionGroup): PermissionsGro
     ),
 })
 
-export type UseEmployeeRolesPermissionsGroups = (connectedB2BApps: B2BApp[], b2BAppPermissions: B2BAppPermission[]) => PermissionsGroup[]
+export type UseEmployeeRolesTableData = (connectedB2BApps: B2BApp[], b2BAppPermissions: B2BAppPermission[]) => PermissionsGroup[]
 
-export const useEmployeeRolesPermissionsGroups: UseEmployeeRolesPermissionsGroups = (connectedB2BApps, b2BAppPermissions) => {
+export const useEmployeeRolesTableData: UseEmployeeRolesTableData = (connectedB2BApps, b2BAppPermissions) => {
     const intl = useIntl()
 
     const { useFlag } = useFeatureFlags()
@@ -264,10 +264,8 @@ export const useEmployeeRolesPermissionsGroups: UseEmployeeRolesPermissionsGroup
         .map(addNamesToPermissions(intl))
     , [intl])
 
-    const b2bRolePermissionGroups = useMemo(() => getB2BRolePermissionGroups(intl, connectedB2BApps, b2BAppPermissions), [intl, connectedB2BApps, b2BAppPermissions])
-
-    return useMemo(() => [
+    return [
         ...employeeRolePermissionGroups,
-        ...b2bRolePermissionGroups,
-    ], [b2bRolePermissionGroups, employeeRolePermissionGroups])
+        ...getB2BRolePermissionGroups(intl, connectedB2BApps, b2BAppPermissions),
+    ]
 }
