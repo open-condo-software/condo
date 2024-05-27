@@ -7,7 +7,7 @@ import {
     OrganizationEmployeeRoleUpdateInput as IEmployeeRoleUpdateInput,
     QueryAllOrganizationEmployeeRolesArgs as IQueryAllEmployeeRolesArgs,
 } from '@app/condo/schema'
-import { Col, ColProps, Form, Row } from 'antd'
+import { Col, ColProps, Row } from 'antd'
 import { FormProps } from 'antd/lib/form/Form'
 import get from 'lodash/get'
 import isEqual from 'lodash/isEqual'
@@ -30,6 +30,7 @@ import {
 
 import Input from '@condo/domains/common/components/antd/Input'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
+import { FormItem } from '@condo/domains/common/components/Form/FormItem'
 import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { TextArea } from '@condo/domains/common/components/TextArea'
@@ -350,7 +351,7 @@ export const BaseEmployeeRoleForm: React.FC<BaseEmployeeRoleFormPropsType> = ({
                                     <Col span={24} lg={18} xl={13}>
                                         <Row gutter={[0, 24]}>
                                             <Col span={24}>
-                                                <Form.Item
+                                                <FormItem
                                                     label={NameLabel}
                                                     name='name'
                                                     rules={validators.name}
@@ -362,11 +363,11 @@ export const BaseEmployeeRoleForm: React.FC<BaseEmployeeRoleFormPropsType> = ({
                                                         placeholder={NamePlaceholder}
                                                         disabled={isDefaultRole || !isEditableRole}
                                                     />
-                                                </Form.Item>
+                                                </FormItem>
                                             </Col>
 
                                             <Col span={24}>
-                                                <Form.Item
+                                                <FormItem
                                                     label={<LabelWithInfo title={DescriptionHelpMessage} message={DescriptionLabel} />}
                                                     name='description'
                                                     rules={validators.description}
@@ -378,7 +379,7 @@ export const BaseEmployeeRoleForm: React.FC<BaseEmployeeRoleFormPropsType> = ({
                                                         placeholder={DescriptionPlaceholder}
                                                         disabled={isDefaultRole || !isEditableRole}
                                                     />
-                                                </Form.Item>
+                                                </FormItem>
                                             </Col>
                                         </Row>
                                     </Col>
@@ -389,7 +390,7 @@ export const BaseEmployeeRoleForm: React.FC<BaseEmployeeRoleFormPropsType> = ({
                                     wrapperCol={COMMON_WRAPPER_COL}
                                 >
                                     <Col span={24}>
-                                        <Form.Item
+                                        <FormItem
                                             name='ticketVisibilityType'
                                         >
                                             <RadioGroup disabled={isDefaultRole || !isEditableRole}>
@@ -400,7 +401,7 @@ export const BaseEmployeeRoleForm: React.FC<BaseEmployeeRoleFormPropsType> = ({
                                                     <Radio value={ASSIGNED_TICKET_VISIBILITY} label={AssignedTicketVisibilityLabel} disabled={isDefaultRole || !isEditableRole} />
                                                 </Space>
                                             </RadioGroup>
-                                        </Form.Item>
+                                        </FormItem>
                                     </Col>
                                 </FormSection>
                                 <FormSection wrapperCol={COMMON_WRAPPER_COL} title={PermissionsSectionTitle}>

@@ -9,7 +9,7 @@ import { colors } from '@open-condo/ui/dist/colors'
 const StyledTextArea = styled(Input.TextArea)`
   &.ant-input-textarea-show-count::after {
     position: relative;
-    bottom: 36px;
+    bottom: 38px;
     right: 10px;
     background-color: ${colors.gray[7]};
     color: ${colors.white};
@@ -17,13 +17,17 @@ const StyledTextArea = styled(Input.TextArea)`
     padding: 2px 10px;
     font-weight: 600;
   }
+
+  textarea {
+    padding-bottom: 44px;
+  }
 `
 
 // TODO(DOMA-8953): move to UI kit
 export const TextArea: React.FC<TextAreaProps> = (props) => {
     return (
         <StyledTextArea
-            autoSize={{ minRows: 4 }}
+            autoSize={{ minRows: 3 }}
             maxLength={1000}
             {...props}
             showCount={{
