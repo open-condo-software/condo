@@ -96,10 +96,10 @@ const BaseImportWrapper: React.FC<TBaseImportWrapperProps> = (props) => {
     } = props
 
     const intl = useIntl()
-    const ImportPluralMessage = intl.formatMessage({ id: `import.${domainName}.plural` })
-    const ImportGenitiveMessage = intl.formatMessage({ id: `import.${domainName}.genitive` })
-    const ImportPrepositionalMessage = intl.formatMessage({ id: `import.${domainName}.prepositional` })
-    const ImportRequiredFieldsMessage = intl.formatMessage({ id: `import.${domainName}.requiredFields` })
+    const ImportPluralMessage = intl.formatMessage({ id: `import.${domainName}.plural` as FormatjsIntl.Message['ids'] })
+    const ImportGenitiveMessage = intl.formatMessage({ id: `import.${domainName}.genitive` as FormatjsIntl.Message['ids'] })
+    const ImportPrepositionalMessage = intl.formatMessage({ id: `import.${domainName}.prepositional` as FormatjsIntl.Message['ids'] })
+    const ImportRequiredFieldsMessage = intl.formatMessage({ id: `import.${domainName}.requiredFields` as FormatjsIntl.Message['ids'] })
     const ImportSuccessMessage = intl.formatMessage({ id: 'import.successModal.title' })
     const ImportDefaultErrorMessage = intl.formatMessage({ id: 'ImportError' })
     const GetFailedDataMessage = intl.formatMessage({ id: 'GetFailedData' })
@@ -233,8 +233,8 @@ const BaseImportWrapper: React.FC<TBaseImportWrapperProps> = (props) => {
                     showIcon
                     message={
                         PartlyDataLoadedModalAlertMessage
-                            .replace('{success}', successRowsRef.current)
-                            .replace('{total}', totalRowsRef.current)
+                            .replace('{success}', String(successRowsRef.current))
+                            .replace('{total}', String(totalRowsRef.current))
                             .replace('{genitive}', ImportGenitiveMessage.toLowerCase())
                     }
                     description={PartlyDataLoadedModalAlertDescription}
