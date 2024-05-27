@@ -24,7 +24,8 @@ import {
 } from '@condo/domains/organization/constants/common'
 
 
-export const GROUP_NAME_COLUMN_WIDTH = '15%'
+export const GROUP_NAME_COLUMN_WIDTH = 200
+export const ROLE_NAME_COLUMN_WIDTH = 100
 
 export function useEmployeeRolesTableColumns (roles: IEmployeeRole[]): ColumnsType<IEmployeeRole> {
     const intl = useIntl()
@@ -61,6 +62,7 @@ export function useEmployeeRolesTableColumns (roles: IEmployeeRole[]): ColumnsTy
             key: role.id,
             ellipsis: { showTitle: true },
             onCell: () => ({ colSpan: 0 }),
+            width: ROLE_NAME_COLUMN_WIDTH,
         })),
         Table.EXPAND_COLUMN,
     ]
