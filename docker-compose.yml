@@ -27,7 +27,6 @@ services:
     depends_on:
       - postgresdb-master
       - postgresdb-replica
-      - redis
     networks:
       - app-network
 
