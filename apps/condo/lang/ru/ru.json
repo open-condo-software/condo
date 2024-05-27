@@ -1270,7 +1270,7 @@
   "pages.condo.employeeRole.deleteRole.button.label": "Удалить роль",
   "pages.condo.employeeRole.deleteRole.notification.success.message": "Роль удалена",
   "pages.condo.employeeRole.deleteRole.notification.success.description": "Роль «{oldRole}» удалена и изменена на «{newRole}».",
-  "pages.condo.employeeRole.tooltip.notEditableRole": "Вы не можете изменить роль «{role}».",
+  "pages.condo.employeeRole.tooltip.notEditableRole": "Вы не можете изменить права у роли «{role}».",
   "pages.condo.employeeRole.tooltip.defaultRole": "Вы не можете удалить базовую роль.",
   "pages.condo.employeeRole.tooltip.myRoleToDelete": "Вы не можете удалить роль, которая вам назначена",
   "pages.condo.employeeRole.tooltip.roleCreationLimitReached": "Достигнуто максимальное количество ролей: {max}",
