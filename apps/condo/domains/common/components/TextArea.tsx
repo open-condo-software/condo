@@ -9,7 +9,7 @@ import { colors } from '@open-condo/ui/dist/colors'
 const StyledTextArea = styled(Input.TextArea)`
   &.ant-input-textarea-show-count::after {
     position: relative;
-    bottom: 36px;
+    bottom: 38px;
     right: 10px;
     background-color: ${colors.gray[7]};
     color: ${colors.white};
@@ -19,7 +19,7 @@ const StyledTextArea = styled(Input.TextArea)`
   }
 
   textarea {
-    padding-bottom: 40px;
+    padding-bottom: 44px;
   }
 `
 
