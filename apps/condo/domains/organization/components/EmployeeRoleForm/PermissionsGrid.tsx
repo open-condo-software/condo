@@ -1,5 +1,5 @@
 import styled from '@emotion/styled'
-import { Col, Form, FormInstance, Row, Tree, TreeProps } from 'antd'
+import { Col, FormInstance, Row, Tree, TreeProps } from 'antd'
 import cloneDeep from 'lodash/cloneDeep'
 import difference from 'lodash/difference'
 import get from 'lodash/get'
@@ -14,12 +14,11 @@ import { useIntl } from '@open-condo/next/intl'
 import { Button, Checkbox, Tooltip } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
+import { FormItem } from '@condo/domains/common/components/Form/FormItem'
 import { PermissionRow, PermissionsGroup } from '@condo/domains/organization/hooks/useEmployeeRolesPermissionsGroups'
 import { getRelatedPermissionsTranslations } from '@condo/domains/organization/utils/roles.utils'
 
 import { EmployeeRoleFormValuesType } from './BaseEmployeeRoleForm'
-
-import { FormItem } from '../../../common/components/Form/FormItem'
 
 
 const StyledTree = styled(Tree)`

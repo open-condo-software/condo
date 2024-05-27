@@ -30,6 +30,7 @@ import {
 
 import Input from '@condo/domains/common/components/antd/Input'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
+import { FormItem } from '@condo/domains/common/components/Form/FormItem'
 import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { TextArea } from '@condo/domains/common/components/TextArea'
@@ -49,8 +50,6 @@ import {
 } from '@condo/domains/organization/hooks/useEmployeeRolesPermissionsGroups'
 
 import { PermissionsGrid } from './PermissionsGrid'
-
-import { FormItem } from '../../../common/components/Form/FormItem'
 
 
 type FormLayoutProps = Pick<FormProps, 'labelCol' | 'wrapperCol' | 'layout' | 'labelAlign'>
