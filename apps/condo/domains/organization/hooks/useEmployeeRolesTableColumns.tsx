@@ -6,7 +6,7 @@ import { ColumnsType } from 'antd/es/table/interface'
 import get from 'lodash/get'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Tooltip, Typography } from '@open-condo/ui'
@@ -33,6 +33,7 @@ export function useEmployeeRolesTableColumns (roles: IEmployeeRole[]): ColumnsTy
             dataIndex: 'groupName',
             width: GROUP_NAME_COLUMN_WIDTH,
             key: 'groupName',
+            onCell: () => ({ colSpan: 1 + roles.length }),
         },
         ...roles.map(role => ({
             title: () => {
@@ -59,6 +60,7 @@ export function useEmployeeRolesTableColumns (roles: IEmployeeRole[]): ColumnsTy
             },
             key: role.id,
             ellipsis: { showTitle: true },
+            onCell: () => ({ colSpan: 0 }),
         })),
         Table.EXPAND_COLUMN,
     ]
