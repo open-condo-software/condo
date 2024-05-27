@@ -69,11 +69,9 @@ import { SectionNameInput } from '@condo/domains/user/components/SectionNameInpu
 import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
 
 import { NewsItemSharingForm } from './NewsItemSharingForm'
+import SelectSharingAppControl from './SelectSharingAppControl'
 
 import { NewsItemCard } from '../NewsItemCard'
-
-const CardCheckbox = Card.CardCheckbox
-const CardButton = Card.CardButton
 
 type FormWithActionChildrenProps = ComponentProps<ComponentProps<typeof FormWithAction>['children']>
 
@@ -138,7 +136,6 @@ const BIG_HORIZONTAL_GUTTER: [Gutter, Gutter] = [50, 0]
 const ALL_SQUARE_BRACKETS_OCCURRENCES_REGEX = /\[[^\]]*?\]/g
 const ADDITIONAL_DISABLED_MINUTES_COUNT = 5
 const ALIGN_ITEMS_BASELINE_STYLE: React.CSSProperties = { alignItems: 'baseline' }
-const CARD_CHECKBOX_CONTAINER_STYLE = { display: 'flex', width: '246px', height: '400px', marginRight: '40px' }
 
 const DOMA_APP_ICON_URL = '/homeWithSun.svg'
 const DOMA_APP_PREVIEW_ICON_URL = '/news/domaAppPreviewIcon.png'
@@ -361,7 +358,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const TimezoneMskTitle = intl.formatMessage({ id: 'timezone.msk' })
     const ProfanityInTitle = intl.formatMessage({ id: 'news.fields.profanityInTitle.error' })
     const ProfanityInBody = intl.formatMessage({ id: 'news.fields.profanityInBody.error' })
-    const SelectSharingAppLabel = intl.formatMessage({ id: 'news.fields.selectSharingApp' })
+    const SelectSharingAppLabel = intl.formatMessage({ id: 'pages.news.create.selectSharingApp' })
 
     const { logEvent, getEventName } = useTracking()
 
@@ -1103,6 +1100,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                     children={({ handleSave, isLoading, form }) => (
                         <>
                             <Row style={BIG_MARGIN_BOTTOM_STYLE}>
+
                                 { currentStep === 0 && (
                                     <Col span={24}>
                                         <Row style={BIG_MARGIN_BOTTOM_STYLE}>
@@ -1158,120 +1156,15 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                         </Row>
 
                                         <Row style={MARGIN_BOTTOM_24_STYLE}>
-                                            <Typography.Title level={2}>Выберите, куда отправить новость</Typography.Title>
+                                            <Typography.Title level={2}>{SelectSharingAppLabel}</Typography.Title>
                                         </Row>
 
                                         <Row>
-                                            <div style={CARD_CHECKBOX_CONTAINER_STYLE}>
-                                                <CardCheckbox
-                                                    disabled
-                                                    checked
-                                                    header={{
-                                                        headingTitle: 'Doma',
-                                                        image: {
-                                                            size: 'small',
-                                                            src: DOMA_APP_ICON_URL,
-                                                        },
-                                                    }}
-                                                    body={{
-                                                        description: 'Новость появится в приложении Doma',
-                                                        image: {
-                                                            src: DOMA_APP_PREVIEW_ICON_URL,
-                                                            style: {
-                                                                height: '150px',
-                                                                marginTop: '25px',
-                                                                width: '130px',
-                                                                objectFit: 'cover',
-                                                                objectPosition: 'top',
-                                                            },
-                                                        },
-                                                    }}
-                                                    // @ts-ignore
-                                                    bodyDescription
-                                                    bodyImage
-                                                    headerImage
-                                                    headerTitle
-                                                />
-                                            </div>
-                                            { sharingAppContexts.map( ctx => {
-                                                const sharingAppName = get(ctx, ['app', 'newsSharingConfig', 'name'], '').replaceAll(' ', ' ')
-
-                                                const sharingAppIcon = get(ctx, ['app', 'newsSharingConfig', 'icon', 'publicUrl'], SHARING_APP_FALLBACK_ICON)
-                                                const sharingAppPreviewIcon = get(ctx, ['app', 'newsSharingConfig', 'previewPicture', 'publicUrl'], SHARING_APP_FALLBACK_PREVIEW_ICON)
-
-                                                return (
-                                                    <div key={ctx.id} style={CARD_CHECKBOX_CONTAINER_STYLE}>
-                                                        <CardCheckbox
-                                                            header={{
-                                                                headingTitle: sharingAppName,
-                                                                image: {
-                                                                    size: 'small',
-                                                                    src: sharingAppIcon,
-                                                                },
-                                                            }}
-                                                            body={{
-                                                                description: `Новость появится в приложении ${sharingAppName}`,
-                                                                image: {
-                                                                    src: sharingAppPreviewIcon,
-                                                                    style: {
-                                                                        height: '150px',
-                                                                        marginTop: '25px',
-                                                                        width: '130px',
-                                                                        objectFit: 'cover',
-                                                                        objectPosition: 'top',
-                                                                    },
-                                                                },
-                                                            }}
-                                                            // @ts-ignore
-                                                            bodyDescription
-                                                            bodyImage
-                                                            headerImage
-                                                            headerTitle
-                                                            checked={selectedSharingApps.has(ctx.id)}
-                                                            onChange={(checked) => handleSelectSharingApp({ value: ctx.id, checked })}
-                                                        />
-                                                    </div>
-                                                )
-                                            })}
-
-                                            { sharingAppContexts.length === 0 && (
-                                                <div style={CARD_CHECKBOX_CONTAINER_STYLE}>
-                                                    <Card style={{ flex: 1 }}>
-                                                        <div style={MARGIN_BOTTOM_10_STYLE}>
-                                                            <Typography.Title level={3}>Другие каналы</Typography.Title>
-                                                        </div>
-                                                        <div style={MARGIN_BOTTOM_10_STYLE}>
-                                                            <Typography.Paragraph>Настройте отправку новостей в другие приложения</Typography.Paragraph>
-                                                        </div>
-                                                        <div
-                                                            style={{
-                                                                display: 'flex',
-                                                                alignItems: 'center',
-                                                                alignSelf: 'stretch',
-                                                                justifyContent: 'center',
-                                                                width: '100%',
-                                                                backgroundColor: colors.gray[1],
-                                                                borderRadius: '12px',
-                                                                marginBottom: '16px',
-                                                            }}
-                                                        >
-                                                            <img
-                                                                src={PROMO_APP_PREVIEW_ICON}
-                                                                style={{
-                                                                    height: '150px',
-                                                                    marginTop: '25px',
-                                                                    width: '130px',
-                                                                    padding: '30px',
-                                                                    objectFit: 'cover',
-                                                                    objectPosition: 'top',
-                                                                }}
-                                                            />
-                                                        </div>
-                                                        {/*// @ts-ignore*/}
-                                                        <Button style={{ width: '100%' }} children='Настроить' href='/news/settings' type='secondary'/>
-                                                    </Card>
-                                                </div>
-                                            ) }
+                                            <SelectSharingAppControl
+                                                selectedSharingApps={selectedSharingApps}
+                                                handleSelectSharingApp={handleSelectSharingApp}
+                                                sharingAppContexts={sharingAppContexts}
+                                            />
                                         </Row>
                                     </Col>
                                 ) }
@@ -1374,18 +1267,18 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                 </Col>
                                                 {
                                                     !!formInfoColSpan && (!!selectedBody || !!selectedTitle) && (
-                                                <Col span={formInfoColSpan}>
-                                                        <MemoizedNewsPreview
-                                                            appType='Doma'
-                                                            push={{}}
-                                                            newsItemData={{
-                                                                body: selectedBody,
-                                                                title: selectedTitle,
-                                                                validBefore: selectedType === NEWS_TYPE_EMERGENCY ? selectedValidBeforeText : null,
-                                                            }}
-                                                        />
+                                                        <Col span={formInfoColSpan}>
+                                                            <MemoizedNewsPreview
+                                                                appType='Doma'
+                                                                push={{}}
+                                                                newsItemData={{
+                                                                    body: selectedBody,
+                                                                    title: selectedTitle,
+                                                                    validBefore: selectedType === NEWS_TYPE_EMERGENCY ? selectedValidBeforeText : null,
+                                                                }}
+                                                            />
                                                     )
-                                                </Col>
+                                                        </Col>
                                                     )
                                                 }
                                             </Row>
@@ -1468,10 +1361,10 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                 {
                                                     !!formInfoColSpan && newsItemScopesNoInstance.length > 0 && (
                                                         <Col span={formInfoColSpan}>
-                                                    <RecipientCounter newsItemScopes={newsItemScopesNoInstance}/>
-                                                    </Col>
-                                                )
-                                        }
+                                                            <RecipientCounter newsItemScopes={newsItemScopesNoInstance}/>
+                                                        </Col>
+                                                    )
+                                                }
                                             </Row>
                                         </Col>
                                     </>

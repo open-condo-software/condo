@@ -75,7 +75,6 @@ export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemDa
     const isCustomForm = !!newsSharingConfig.customFormUrl
     const [ sharingAppFormValues, setSharingAppFormValues ] = useState<SharingAppValues>(processedInitialValues)
 
-    // TODO: @toplenboren ask @matthew about this :-)
     const handleSharingAppIFrameFormMessage = (event) => {
         const { handler, ctxId: eventCtxId, formValues, preview, isValid } = event.data
         if (handler === 'handleSharingAppIFrameFormMessage' && id === eventCtxId) {
@@ -84,7 +83,6 @@ export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemDa
         }
     }
 
-    // Todo @toplenboren what if more then 1?
     useEffect(() => {
         if (typeof window !== 'undefined' && isCustomForm) {
             window.addEventListener('message', handleSharingAppIFrameFormMessage)
@@ -101,9 +99,6 @@ export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemDa
                         <Row gutter={BIG_HORIZONTAL_GUTTER} style={BIG_MARGIN_BOTTOM_STYLE}>
                             <Col style={{ marginLeft: '-5px', minHeight: '300px' }} span={formFieldsColSpan}>
                                 <IFrame
-                                    // src={
-                                    //     `${getSteps()[currentStep].newsSharingConfig.customFormUrl}?ctxId=${getSteps()[currentStep].id}&formValues=${JSON.stringify(get(sharingAppsFormValues, [getSteps()[currentStep].id, 'formValues']))}`
-                                    // }
                                     src={
                                         `${newsSharingConfig.customFormUrl}?ctxId=${id}`
                                     }
@@ -117,10 +112,6 @@ export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemDa
                                 {(!!get(sharingAppFormValues, ['preview', 'renderedTitle']) || !!get(sharingAppFormValues, ['preview', 'renderedBody'])) && (
                                     <MemoizedNewsPreview
                                         appType='sharing'
-                                        // push={{
-                                        //     appName: newsSharingConfig.name,
-                                        //     appIcon: get(newsSharingConfig, ['icon', 'publicUrl']),
-                                        // }}
                                         app={{
                                             containerStyle: { 'color': 'red' },
                                         }}
