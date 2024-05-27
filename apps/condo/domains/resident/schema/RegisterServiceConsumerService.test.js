@@ -132,6 +132,7 @@ describe('RegisterServiceConsumer', () => {
 
     describe('BillingIntegration with online interaction', () => {
 
+        // Проверить в раздельном потоке
         const TEST_INTERACTION_URL = 'https://external-integration.com/api/check?token=some_securitey_token'
 
         beforeAll(async () => {

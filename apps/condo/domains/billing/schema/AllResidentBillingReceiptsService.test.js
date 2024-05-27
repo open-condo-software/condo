@@ -293,6 +293,7 @@ describe('AllResidentBillingReceiptsService', () => {
     })
 
     describe('Paid logics', () => {
+
         // Частичная оплата
         // Частичная оплата с перезатиранием квитанции
         // Частичная оплата с обновлением поля paid
