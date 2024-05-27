@@ -6,8 +6,10 @@
 @condo-card-focus-outline-indent: -(@condo-global-border-width-default + @condo-card-focus-outline-border-width + 1);
 
 .condo-card {
-  border: none;
+  border: @condo-global-border-width-default solid @condo-global-color-gray-3;
   border-radius: @condo-global-border-radius-large;
+
+  height: inherit;
 
   &-disabled {
     opacity: 0.5;
@@ -24,8 +26,6 @@
 
   &-body {
     overflow: hidden;
-    border: @condo-global-border-width-default solid @condo-global-color-gray-3;
-    border-radius: @condo-global-border-radius-large;
 
     &:not(:first-child) {
       border-top: 0;
