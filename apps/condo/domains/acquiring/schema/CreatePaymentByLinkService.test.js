@@ -184,7 +184,7 @@ describe('CreatePaymentByLinkService', () => {
         expect(data.unitName).toBeDefined()
         expect(data.accountNumber).toEqual(qrCodeAttrs.PersAcc)
         expect(data.address).toBeDefined()
-        expect(data.integrationHostUrl).toBe(acquiringIntegration.hostUrl)
+        expect(data.acquiringIntegrationHostUrl).toBe(acquiringIntegration.hostUrl)
 
         const multiPayment = await MultiPayment.getOne(admin, { id: data.multiPaymentId })
         expect(multiPayment).toBeDefined()

@@ -95,7 +95,7 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
         },
         {
             access: true,
-            type: 'type ValidateQRCodeOutput { qrCodeFields: JSON!, lastReceiptData: ValidateQRCodeLastReceiptDataOutput, explicitFees: ValidateQRCodeFeesOutput!, amount: String! }',
+            type: 'type ValidateQRCodeOutput { qrCodeFields: JSON!, lastReceiptData: ValidateQRCodeLastReceiptDataOutput, explicitFees: ValidateQRCodeFeesOutput!, amount: String!, acquiringIntegrationHostUrl: String! }',
         },
     ],
 
@@ -133,7 +133,7 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
                 const qrCodeAmount = String(Big(qrCodeFields.Sum).div(100))
                 const { PayeeINN } = qrCodeFields
 
-                const organizations = await Organization.getAll(context, {
+                const organizations = await find('Organization', {
                     tin: PayeeINN,
                     deletedAt: null,
                 })
@@ -146,7 +146,7 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
                 }
 
                 const acquiringContexts = await find('AcquiringIntegrationContext', {
-                    organization: { id_in: organizations.map((org) => org.id), deletedAt: null },
+                    organization: { id_in: map(organizations, 'id'), deletedAt: null },
                     status: CONTEXT_FINISHED_STATUS,
                     deletedAt: null,
                 })
@@ -205,6 +205,7 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
                     lastReceiptData: foundReceipt ? pick(foundReceipt, ['id', 'period', 'toPay']) : null,
                     explicitFees,
                     amount,
+                    acquiringIntegrationHostUrl: get(acquiringIntegration, 'hostUrl'),
                 }
             },
         },

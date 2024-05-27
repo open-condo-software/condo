@@ -373,7 +373,7 @@ describe('ValidateQRCodeService', () => {
             const qrStr = stringifyQrCode(qrObj)
 
             // create the receipt
-            const { billingReceipt } = await createBillingReceiptAndAllDependencies(adminClient, organization, qrObj, period, sum, '0.5', '1')
+            const { billingReceipt, acquiringIntegrationContext } = await createBillingReceiptAndAllDependencies(adminClient, organization, qrObj, period, sum, '0.5', '1')
 
             const [result] = await validateQRCodeByTestClient(adminClient, { qrCode: qrStr })
 
@@ -389,6 +389,7 @@ describe('ValidateQRCodeService', () => {
                     explicitFee: '0',
                 },
                 amount: '1000.00000000',
+                acquiringIntegrationHostUrl: acquiringIntegrationContext.integration.hostUrl,
             })
         })
 
@@ -403,7 +404,7 @@ describe('ValidateQRCodeService', () => {
             const qrStr = stringifyQrCode(qrObj)
 
             // create the receipt
-            const { billingReceipt } = await createBillingReceiptAndAllDependencies(adminClient, organization, qrObj, period, sum, '1', '1.5')
+            const { billingReceipt, acquiringIntegrationContext } = await createBillingReceiptAndAllDependencies(adminClient, organization, qrObj, period, sum, '1', '1.5')
 
             const [result] = await validateQRCodeByTestClient(adminClient, { qrCode: qrStr })
 
@@ -419,6 +420,7 @@ describe('ValidateQRCodeService', () => {
                     explicitFee: '0',
                 },
                 amount: '1000.00000000',
+                acquiringIntegrationHostUrl: acquiringIntegrationContext.integration.hostUrl,
             })
         })
 
@@ -434,7 +436,7 @@ describe('ValidateQRCodeService', () => {
             const qrStr = stringifyQrCode(qrObj)
 
             // create the receipt
-            const { billingReceipt } = await createBillingReceiptAndAllDependencies(adminClient, organization, qrObj, period, olderReceiptSum, '1.5', '1')
+            const { billingReceipt, acquiringIntegrationContext } = await createBillingReceiptAndAllDependencies(adminClient, organization, qrObj, period, olderReceiptSum, '1.5', '1')
 
             const [result] = await validateQRCodeByTestClient(adminClient, { qrCode: qrStr })
 
@@ -450,6 +452,7 @@ describe('ValidateQRCodeService', () => {
                     explicitFee: '0',
                 },
                 amount: '1000',
+                acquiringIntegrationHostUrl: acquiringIntegrationContext.integration.hostUrl,
             })
         })
 
@@ -463,7 +466,7 @@ describe('ValidateQRCodeService', () => {
             const qrStr = stringifyQrCode(qrObj)
 
             await addBillingIntegrationAndContext(adminClient, organization, {}, { status: CONTEXT_FINISHED_STATUS })
-            await addAcquiringIntegrationAndContext(adminClient, organization, {
+            const { acquiringIntegration } = await addAcquiringIntegrationAndContext(adminClient, organization, {
                 explicitFeeDistributionSchema: [{
                     recipient: 'acquiring',
                     percent: '1',
@@ -483,6 +486,7 @@ describe('ValidateQRCodeService', () => {
                     explicitFee: '0',
                 },
                 amount: '2000',
+                acquiringIntegrationHostUrl: acquiringIntegration.hostUrl,
             })
         })
     })

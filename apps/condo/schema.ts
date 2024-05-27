@@ -21591,7 +21591,7 @@ export type CreatePaymentByLinkOutput = {
   amount: Scalars['String'];
   explicitFee: Scalars['String'];
   totalAmount: Scalars['String'];
-  integrationHostUrl: Scalars['String'];
+  acquiringIntegrationHostUrl: Scalars['String'];
   address: Scalars['String'];
   addressMeta: AddressMetaField;
   unitType: Scalars['String'];
@@ -94405,6 +94405,7 @@ export type ValidateQrCodeOutput = {
   lastReceiptData?: Maybe<ValidateQrCodeLastReceiptDataOutput>;
   explicitFees: ValidateQrCodeFeesOutput;
   amount: Scalars['String'];
+  acquiringIntegrationHostUrl: Scalars['String'];
 };
 
 /** Technical map of the 'village' type Property object. We assume that there will be different maps for different property types.  */
