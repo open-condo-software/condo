@@ -74,9 +74,15 @@ class AccountResolver extends Resolver {
                 const sameNumberAccount = await this.getBillingAccount( { number: accountNumber })
                 if (sameNumberAccount) {
                     const oldBillingProperty = await getById('BillingProperty', sameNumberAccount.property)
-                    const [organizationProperty] = await find('Property', { addressKey: oldBillingProperty.addressKey, deletedAt: null, organization: { id: get(this.billingContext, 'organization.id') } })
+                    const [oldOrganizationProperty] = await find('Property', { addressKey: oldBillingProperty.addressKey, deletedAt: null, organization: { id: get(this.billingContext, 'organization.id') } })
                     const newAccountResolvePropertyProblem = get(receipt, 'addressResolve.propertyAddress.problem')
-                    if (organizationProperty && newAccountResolvePropertyProblem === NO_PROPERTY_IN_ORGANIZATION) {
+                    const hasNewOrganizationProperty = newAccountResolvePropertyProblem !== NO_PROPERTY_IN_ORGANIZATION
+                    if (!oldOrganizationProperty && hasNewOrganizationProperty) {
+                        // Old account will be corrected
+                        existingAccount = sameNumberAccount
+                    }
+                    if (oldOrganizationProperty && !hasNewOrganizationProperty) {
+                        // Do not spoil correctly resolved account
                         existingAccount = sameNumberAccount
                         receipt.property = sameNumberAccount.property
                         receipt.unitName = sameNumberAccount.unitName

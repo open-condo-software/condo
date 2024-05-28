@@ -182,17 +182,20 @@ class PropertyResolver extends Resolver {
         if (properties.length === 0) {
             return { error: ERRORS.ADDRESS_NOT_RECOGNIZED_VALUE }
         }
-        const organizationProperties = new Set()
+        const organizationProperties = []
         for (const { addressKey } of properties) {
             const organizationProperty = await this.getOrganizationProperty(addressKey)
             if (organizationProperty) {
-                organizationProperties.add(addressKey)
+                organizationProperties.push(addressKey)
             }
         }
-        const matchingToOrganizationProperty = properties.find(({ addressKey }) => organizationProperties.has(addressKey))
+        const matchingToOrganizationProperty = properties.find(({ addressKey }) => organizationProperties.includes(addressKey))
         if (matchingToOrganizationProperty) {
+            console.error('RESULT PROPERTY matchingToOrganizationProperty', matchingToOrganizationProperty)
+
             return matchingToOrganizationProperty
         }
+        console.error('RESULT PROPERTY', { ...get(properties, '[0]'), problem: NO_PROPERTY_IN_ORGANIZATION })
         return { ...get(properties, '[0]'), problem: NO_PROPERTY_IN_ORGANIZATION }
     }
 
