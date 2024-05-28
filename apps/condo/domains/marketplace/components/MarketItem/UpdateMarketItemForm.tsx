@@ -68,7 +68,7 @@ export const UpdateMarketItemForm = ({ marketItem }) => {
 
     const router = useRouter()
     const [submitLoading, setSubmitLoading] = useState<boolean>(false)
-    const { organization, loading: organizationLoading } = useOrganization()
+    const { organization, isLoading: organizationLoading } = useOrganization()
     const organizationId = get(organization, 'id', null)
 
     const updateMarketItem = MarketItem.useUpdate({})

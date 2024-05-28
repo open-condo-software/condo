@@ -8,6 +8,7 @@ import {
     searchToQuery,
 } from './helpers'
 
+
 describe('Helpers', () => {
     describe('queryUtils', () => {
         describe('filtersToQuery', () => {
@@ -45,14 +46,15 @@ describe('Helpers', () => {
                                     { name_contains_i: search },
                                     { phone_contains_i: search },
                                     { email_contains_i: search },
+                                    { position_contains_i: search },
                                     {
                                         role: {
-                                            AND: [{
-                                                name_contains_i: search,
-                                            }],
+                                            OR: [
+                                                { name_in: [] },
+                                                { name_contains_i: search },
+                                            ],
                                         },
                                     },
-                                    { position_contains_i: search },
                                 ],
                             },
                         ],
@@ -116,14 +118,15 @@ describe('Helpers', () => {
                                         { name_contains_i: search },
                                         { phone_contains_i: search },
                                         { email_contains_i: search },
+                                        { position_contains_i: search },
                                         {
                                             role: {
-                                                AND: [{
-                                                    name_contains_i: search,
-                                                }],
+                                                OR: [
+                                                    { name_in: [] },
+                                                    { name_contains_i: search },
+                                                ],
                                             },
                                         },
-                                        { position_contains_i: search },
                                     ],
                                 },
                             ],
@@ -278,14 +281,15 @@ describe('Helpers', () => {
                         { name_contains_i: search },
                         { phone_contains_i: search },
                         { email_contains_i: search },
+                        { position_contains_i: search },
                         {
                             role: {
-                                AND: [{
-                                    name_contains_i: search,
-                                }],
+                                OR: [
+                                    { name_in: [] },
+                                    { name_contains_i: search },
+                                ],
                             },
                         },
-                        { position_contains_i: search },
                     ])
                 })
 
@@ -297,14 +301,15 @@ describe('Helpers', () => {
                         { name_contains_i: search },
                         { phone_contains_i: search },
                         { email_contains_i: search },
+                        { position_contains_i: search },
                         {
                             role: {
-                                AND: [{
-                                    name_contains_i: search,
-                                }],
+                                OR: [
+                                    { name_in: [] },
+                                    { name_contains_i: search },
+                                ],
                             },
                         },
-                        { position_contains_i: search },
                     ])
                 })
 

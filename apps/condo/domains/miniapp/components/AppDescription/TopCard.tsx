@@ -118,7 +118,7 @@ const TopCard = React.memo<TopCardProps>(({
     connectAction,
 }) => {
     const intl = useIntl()
-    const CategoryMessage = intl.formatMessage({ id: `miniapps.categories.${category}.name` })
+    const CategoryMessage = intl.formatMessage({ id: `miniapps.categories.${category}.name` as FormatjsIntl.Message['ids'] })
     const userOrganization = useOrganization()
     const canManageB2BApps = get(userOrganization, ['link', 'role', 'canManageB2BApps'], false)
 

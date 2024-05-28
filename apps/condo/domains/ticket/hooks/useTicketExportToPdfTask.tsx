@@ -198,7 +198,7 @@ type UseTicketExportToPdfTaskInputType = {
     ticketId?: string
     where: TicketWhereInput
     sortBy: SortTicketsBy[]
-    locale: Pick<ResolvedIntlConfig, 'locale'>
+    locale: ResolvedIntlConfig['locale']
     timeZone: string
     eventNamePrefix?: string
 }

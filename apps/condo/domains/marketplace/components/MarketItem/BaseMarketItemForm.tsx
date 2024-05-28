@@ -566,7 +566,7 @@ const MarketPriceForm = ({ priceFormDescription, removeOperation, organizationPr
 
     const { requiredValidator, numberValidator, lessThanValidator } = useValidations()
     const { form, currencyCode, getUpdatedPricesField } = useMarketItemFormContext()
-    const parts = intl.formatNumberToParts('', { style: 'currency', currency: currencyCode })
+    const parts = intl.formatNumberToParts(0, { style: 'currency', currency: currencyCode })
     const currencySymbolObj = parts.find(part => part.type === 'currency')
     const currencySymbol = get(currencySymbolObj, 'value')
     const priceFormName = useMemo(() => get(priceFormDescription, 'name'), [priceFormDescription])
@@ -687,13 +687,13 @@ const MarketPricesList = ({ initialPrices }) => {
     const PriceScopeGroupLabel = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.section.priceScope' })
     const AddPriceScopeLabel = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.addPriceScope' })
 
-    const { organization, loading } = useOrganization()
+    const { organization, isLoading } = useOrganization()
     const { form } = useMarketItemFormContext()
     const prices = Form.useWatch('prices', form) || initialPrices
 
     const { count: organizationPropertiesCount } = Property.useCount({
         where: { organization: { id: get(organization, 'id') } },
-    }, { skip: loading })
+    }, { skip: isLoading })
 
     const propertiesInForm = useMemo(() => prices.flatMap(price => get(price, 'properties')), [prices])
     const isAddButtonHidden = useMemo(

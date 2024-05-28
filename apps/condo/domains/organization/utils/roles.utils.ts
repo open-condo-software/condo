@@ -5,7 +5,7 @@ type GetRelatedPermissionsTranslations = (intl: IntlShape, relatedPermissions: A
 
 export const getRelatedPermissionsTranslations: GetRelatedPermissionsTranslations = (intl, relatedPermissions) => (relatedPermissions || [])
     .map(key => {
-        const translationKey = `pages.condo.settings.employeeRoles.permission.${key}`
+        const translationKey = `pages.condo.settings.employeeRoles.permission.${key}` as FormatjsIntl.Message['ids']
         const translation = intl.formatMessage({ id: translationKey })
 
         if (translation === translationKey) return

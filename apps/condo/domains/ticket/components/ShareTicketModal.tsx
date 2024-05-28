@@ -216,7 +216,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
     async function handleClick () {
         setLoading(true)
         const sender = getClientSideSenderInfo()
-        const { data, error } = await shareTicket({
+        const { data, errors } = await shareTicket({
             variables: {
                 data: {
                     sender,
@@ -231,11 +231,11 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
             setOkVisible(true)
             setUsersWithoutEmail([])
         }
-        if (error) {
-            console.error(error)
+        if (errors) {
+            console.error({ msg: 'Failed to share ticket', errors })
             notification.error({
                 message: ServerErrorMessage,
-                description: error.message,
+                description: get(errors, '0.message', null),
             })
         }
         setLoading(false)

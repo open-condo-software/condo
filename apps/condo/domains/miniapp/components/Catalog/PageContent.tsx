@@ -52,7 +52,7 @@ export const CatalogPageContent: React.FC = () => {
     const PageTitle = intl.formatMessage({ id: 'global.section.miniapps' })
     const BannerMoreMessage = intl.formatMessage({ id:'miniapps.catalog.banner.more' })
     const CategoriesTitles = Object.assign({}, ...ALL_SECTIONS.map(category => ({
-        [category]: intl.formatMessage({ id: `miniapps.categories.${category}.name` }),
+        [category]: intl.formatMessage({ id: `miniapps.categories.${category}.name` as FormatjsIntl.Message['ids'] }),
     })))
     const SearchPlaceHolder = intl.formatMessage({ id: 'miniapps.catalog.search.placeholder' })
     const SearchResultsTitle = intl.formatMessage({ id: 'miniapps.catalog.search.results.title' })

@@ -14,7 +14,7 @@ import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEf
 import { FeatureFlagsProvider, useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import * as AllIcons from '@open-condo/icons'
 import { extractReqLocale } from '@open-condo/locales/extractReqLocale'
-import { withApollo } from '@open-condo/next/apollo'
+import { withApollo, WithApolloProps } from '@open-condo/next/apollo'
 import { useAuth, withAuth } from '@open-condo/next/auth'
 import { useIntl, withIntl } from '@open-condo/next/intl'
 import { useOrganization, withOrganization } from '@open-condo/next/organization'
@@ -27,7 +27,6 @@ import BaseLayout, { useLayoutContext } from '@condo/domains/common/components/c
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
 import YandexMetrika from '@condo/domains/common/components/containers/YandexMetrika'
-import { FocusContextProvider } from '@condo/domains/common/components/Focus/FocusContextProvider'
 import { LayoutContextProvider } from '@condo/domains/common/components/LayoutContext'
 import { MenuItem } from '@condo/domains/common/components/MenuItem'
 import PopupSmart from '@condo/domains/common/components/PopupSmart'
@@ -451,39 +450,37 @@ const MyApp = ({ Component, pageProps }) => {
                         <SetupTelegramNotificationsBanner />
                         <GlobalStyle/>
                         {shouldDisplayCookieAgreement && <CookieAgreement/>}
-                        <FocusContextProvider>
-                            <LayoutContextProvider>
-                                <TasksProvider>
-                                    <PostMessageProvider>
-                                        <TrackingProvider>
-                                            <TourProvider>
-                                                <SubscriptionProvider>
-                                                    <GlobalAppsFeaturesProvider>
-                                                        <GlobalAppsContainer/>
-                                                        <TicketVisibilityContextProvider>
-                                                            <ActiveCallContextProvider>
-                                                                <ConnectedAppsWithIconsContextProvider>
-                                                                    <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                                                                        <RequiredAccess>
-                                                                            <Component {...pageProps} />
-                                                                            {
-                                                                                isEndTrialSubscriptionReminderPopupVisible && (
-                                                                                    <EndTrialSubscriptionReminderPopup/>
-                                                                                )
-                                                                            }
-                                                                        </RequiredAccess>
-                                                                    </LayoutComponent>
-                                                                </ConnectedAppsWithIconsContextProvider>
-                                                            </ActiveCallContextProvider>
-                                                        </TicketVisibilityContextProvider>
-                                                    </GlobalAppsFeaturesProvider>
-                                                </SubscriptionProvider>
-                                            </TourProvider>
-                                        </TrackingProvider>
-                                    </PostMessageProvider>
-                                </TasksProvider>
-                            </LayoutContextProvider>
-                        </FocusContextProvider>
+                        <LayoutContextProvider>
+                            <TasksProvider>
+                                <PostMessageProvider>
+                                    <TrackingProvider>
+                                        <TourProvider>
+                                            <SubscriptionProvider>
+                                                <GlobalAppsFeaturesProvider>
+                                                    <GlobalAppsContainer/>
+                                                    <TicketVisibilityContextProvider>
+                                                        <ActiveCallContextProvider>
+                                                            <ConnectedAppsWithIconsContextProvider>
+                                                                <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                                                    <RequiredAccess>
+                                                                        <Component {...pageProps} />
+                                                                        {
+                                                                            isEndTrialSubscriptionReminderPopupVisible && (
+                                                                                <EndTrialSubscriptionReminderPopup/>
+                                                                            )
+                                                                        }
+                                                                    </RequiredAccess>
+                                                                </LayoutComponent>
+                                                            </ConnectedAppsWithIconsContextProvider>
+                                                        </ActiveCallContextProvider>
+                                                    </TicketVisibilityContextProvider>
+                                                </GlobalAppsFeaturesProvider>
+                                            </SubscriptionProvider>
+                                        </TourProvider>
+                                    </TrackingProvider>
+                                </PostMessageProvider>
+                            </TasksProvider>
+                        </LayoutContextProvider>
                         <YandexMetrika/>
                         <PopupSmart />
                     </FeatureFlagsProvider>
@@ -504,7 +501,7 @@ const MyApp = ({ Component, pageProps }) => {
     For those items, we need to set `concatPagination` strategy.
     https://www.apollographql.com/docs/react/pagination/core-api/
  */
-const apolloCacheConfig = {
+const apolloCacheConfig: WithApolloProps['apolloCacheConfig'] = {
     typePolicies: {
         [BILLING_RECEIPT_SERVICE_FIELD_NAME]: {
             // avoiding of building cache from ID on client, since Service ID is not UUID and will be repeated
@@ -522,7 +519,7 @@ const apolloCacheConfig = {
     },
 }
 
-const apolloClientConfig = {
+const apolloClientConfig: WithApolloProps['apolloClientConfig'] = {
     defaultOptions: {
         watchQuery: {
             fetchPolicy: 'no-cache',

@@ -43,22 +43,24 @@ export function useMarketplaceInvoicesFilters (): Array<FiltersMeta<InvoiceWhere
     const SelectMessage = intl.formatMessage({ id: 'Select' })
 
     const paymentTypeOptions = useMemo(() => INVOICE_PAYMENT_TYPES.map(type => ({
-        label: intl.formatMessage({ id: `pages.condo.marketplace.invoice.invoiceList.payment.${type}` }),
+        label: intl.formatMessage({ id: `pages.condo.marketplace.invoice.invoiceList.payment.${type}` as FormatjsIntl.Message['ids'] }),
         value: type,
     })), [intl])
 
     const statusOptions = useMemo(() => INVOICE_STATUSES.map(status => ({
-        label: intl.formatMessage({ id: `pages.condo.marketplace.invoice.invoiceList.${status}` }),
+        label: intl.formatMessage({ id: `pages.condo.marketplace.invoice.invoiceList.${status}` as FormatjsIntl.Message['ids'] }),
         value: status,
     })), [intl])
 
     const paymentTypeTranslationsToValue = useMemo(() => INVOICE_PAYMENT_TYPES.reduce((acc, type) => {
-        acc[intl.formatMessage({ id: `pages.condo.marketplace.invoice.invoiceList.payment.${type}` })] = type
+        const message = intl.formatMessage({ id: `pages.condo.marketplace.invoice.invoiceList.payment.${type}` as FormatjsIntl.Message['ids'] })
+        acc[message] = type
         return acc
     }, {}), [intl])
     const paymentTypeSearchFilter = getTranslationToValueFilter('paymentType', paymentTypeTranslationsToValue)
     const statusTranslationsToValue = useMemo(() => INVOICE_STATUSES.reduce((acc, status) => {
-        acc[intl.formatMessage({ id: `pages.condo.marketplace.invoice.invoiceList.${status}` })] = status
+        const message = intl.formatMessage({ id: `pages.condo.marketplace.invoice.invoiceList.${status}` as FormatjsIntl.Message['ids'] })
+        acc[message] = status
         return acc
     }, {}), [intl])
     const statusSearchFilter = getTranslationToValueFilter('status', statusTranslationsToValue)

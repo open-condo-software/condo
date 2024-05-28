@@ -1,6 +1,7 @@
 /** @jsx jsx */
 import { jsx, css } from '@emotion/react'
 import styled from '@emotion/styled'
+import { FormatDateOptions } from '@formatjs/intl/src/types'
 import { Image, notification, Space } from 'antd'
 import cookie from 'js-cookie'
 import get from 'lodash/get'
@@ -23,7 +24,7 @@ import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 import type { Property, BankAccount as BankAccountType } from '@app/condo/schema'
 
 const PROPERTY_CARD_WIDTH_THRESHOLD = 400
-const INTL_DATE_FORMAT = {
+const INTL_DATE_FORMAT: FormatDateOptions = {
     day: 'numeric',
     month: 'numeric',
     year: 'numeric',
@@ -148,7 +149,7 @@ const PropertyCardInfoContent: IPropertyCardInfoContent = (props) => {
         if (alreadySent) {
             notification.error({ message: AlreadySentTitle })
         } else {
-            const { error } = await createBankAccountRequest({
+            const result = await createBankAccountRequest({
                 variables: {
                     data: {
                         dv: 1,
@@ -159,7 +160,10 @@ const PropertyCardInfoContent: IPropertyCardInfoContent = (props) => {
                 },
             })
 
-            if (error) {
+            const errors = get(result, 'errors')
+
+            if (errors) {
+                console.error({ msg: 'Failed to create bunk account request', errors })
                 notification.error({
                     message: LoadingError,
                 })

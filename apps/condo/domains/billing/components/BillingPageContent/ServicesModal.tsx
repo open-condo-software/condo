@@ -107,9 +107,11 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
     const services = get(receipt, 'services', [])
 
     const UnitTypePrefix = unitType
-        ? intl.formatMessage({ id: `field.UnitType.prefix.${unitType.toLowerCase()}` }).toLocaleLowerCase()
+        ? intl.formatMessage({ id: `field.UnitType.prefix.${unitType.toLowerCase()}` as FormatjsIntl.Message['ids'] }).toLocaleLowerCase()
         : ''
-    const CategoryName = category ? intl.formatMessage({ id: category }) : ''
+    const CategoryName = category
+        ? intl.formatMessage({ id: category as FormatjsIntl.Message['ids'] })
+        : ''
 
     const modalTitleMessage = `${AccountMessage} ${accountNumber}`
 

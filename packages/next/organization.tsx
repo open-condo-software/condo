@@ -1,17 +1,29 @@
+import { ApolloQueryResult } from '@apollo/client'
+import { DocumentNode } from 'graphql'
 import { gql } from 'graphql-tag'
 import cookie from 'js-cookie'
+import { NextPage } from 'next'
 import nextCookie from 'next-cookies'
 import React, { createContext, useContext, useEffect, useState } from 'react'
 
+import { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } from './_utils'
 import { useQuery } from './apollo'
 import { useAuth } from './auth'
 
 
-const { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
+interface IOrganizationContext {
+    selectLink: (linkItem) => Promise<ApolloQueryResult<any>> | Promise<void>
+    isLoading: boolean
+    link?: any | null
+    organization?: any | null
+}
 
-const OrganizationContext = createContext({})
+const OrganizationContext = createContext<IOrganizationContext>({
+    isLoading: false,
+    selectLink: () => Promise.resolve(),
+})
 
-const useOrganization = () => useContext(OrganizationContext)
+const useOrganization = (): IOrganizationContext => useContext(OrganizationContext)
 
 const organizationToUserFragment = `
     id
@@ -38,13 +50,13 @@ let GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY = gql`
     }
 `
 
-let setCookieLinkId = (value) => {
+const setCookieLinkId = (value) => {
     if (typeof window !== 'undefined') {
         cookie.set('organizationLinkId', value, { expires: 365 })
     }
 }
 
-let getLinkId = () => {
+const getLinkId = () => {
     let state = null
     if (typeof window !== 'undefined') {
         try {
@@ -56,7 +68,7 @@ let getLinkId = () => {
     return state
 }
 
-let extractReqLinkId = (req) => {
+const extractReqLinkId = (req) => {
     try {
         return nextCookie({ req }).organizationLinkId || null
     } catch (e) {
@@ -183,7 +195,13 @@ const initOnRestore = async (ctx) => {
     return { link }
 }
 
-const withOrganization = ({ ssr = false, ...opts } = {}) => PageComponent => {
+type WithOrganizationProps = {
+    ssr?: boolean
+    GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY?: DocumentNode
+}
+export type WithOrganization = (props: WithOrganizationProps) => (PageComponent: NextPage<any>) => NextPage<any>
+
+const withOrganization: WithOrganization = ({ ssr = false, ...opts } = {}) => PageComponent => {
     // TODO(pahaz): refactor it. No need to patch globals here!
     GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY = opts.GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY ? opts.GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY : GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY
 

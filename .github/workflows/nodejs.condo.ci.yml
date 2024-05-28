@@ -132,8 +132,6 @@ jobs:
       - name: Check code-style rules
         run: |
           yarn lint:code
-        # TODO(DOMA-7753): Think about migrating this check to Typescript, like in dev-portal and documents.
-        # Reason: TS check is no cost + you can fix it before you commit it + lint out the box in build-time + have keys autocompletion!!
       - name: Check translations rules
         run: |
           yarn lint:translations

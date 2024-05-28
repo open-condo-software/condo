@@ -21,7 +21,7 @@ type AppLabelTagProps = {
 
 export const AppLabelTag: React.FC<AppLabelTagProps> = ({ type }) => {
     const intl = useIntl()
-    const AppLabel = intl.formatMessage({ id: `miniapps.labels.${type}.name` })
+    const AppLabel = intl.formatMessage({ id: `miniapps.labels.${type}.name` as FormatjsIntl.Message['ids'] })
 
     const tagProps = get(LABEL_TO_TAG_PROPS, type, {})
 

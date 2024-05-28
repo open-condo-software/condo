@@ -1,6 +1,6 @@
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import { useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Tag } from '@open-condo/ui'
@@ -100,7 +100,7 @@ export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
             dataIndex: 'paymentType',
             width: '15%',
             render: (paymentType) => {
-                const label = intl.formatMessage({ id: `pages.condo.marketplace.invoice.invoiceList.payment.${paymentType}` })
+                const label = intl.formatMessage({ id: `pages.condo.marketplace.invoice.invoiceList.payment.${paymentType}` as FormatjsIntl.Message['ids'] })
 
                 return render(label)
             },
@@ -114,7 +114,7 @@ export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
             dataIndex: 'status',
             width: '20%',
             render: (status) => {
-                const label = intl.formatMessage({ id: `pages.condo.marketplace.invoice.invoiceList.${status}` })
+                const label = intl.formatMessage({ id: `pages.condo.marketplace.invoice.invoiceList.${status}` as FormatjsIntl.Message['ids'] })
 
                 return (
                     <Tag

@@ -198,7 +198,7 @@ const AboutAppBlock = () => {
                                             )}
                                             >
                                                 <Card.CardBody
-                                                    description={intl.formatMessage({ id: `tour.guide.aboutApp.${type}.modal.card.body` })}
+                                                    description={intl.formatMessage({ id: `tour.guide.aboutApp.${type}.modal.card.body` as FormatjsIntl.Message['ids'] })}
                                                     mainLink={{
                                                         href: get(guideModalCardLink, [locale, type]),
                                                         PreIcon: ExternalLink,
