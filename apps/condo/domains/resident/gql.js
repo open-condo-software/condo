@@ -58,6 +58,14 @@ const REGISTER_RESIDENT_INVOICE_MUTATION = gql`
     }
 `
 
+// TODO(codegen): write return type result!
+
+const FIND_ORGANIZATIONS_FOR_ADDRESS_MUTATION = gql`
+    mutation findOrganizationsForAddress ($data: FindOrganizationsForAddressInput!) {
+        result: findOrganizationsForAddress(data: $data) { id }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 const REGISTER_RESIDENT_SERVICE_CONSUMERS_MUTATION = gql`
@@ -80,5 +88,6 @@ module.exports = {
     GET_RESIDENT_EXISTENCE_BY_PHONE_AND_ADDRESS_QUERY,
     REGISTER_RESIDENT_SERVICE_CONSUMERS_MUTATION,
     REGISTER_RESIDENT_INVOICE_MUTATION,
+FIND_ORGANIZATIONS_FOR_ADDRESS_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

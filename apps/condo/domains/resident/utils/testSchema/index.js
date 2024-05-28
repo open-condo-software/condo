@@ -18,6 +18,7 @@ const { REGISTER_SERVICE_CONSUMER_MUTATION } = require('@condo/domains/resident/
 const { SEND_MESSAGE_TO_RESIDENT_SCOPES_MUTATION } = require('@condo/domains/resident/gql')
 const { DISCOVER_SERVICE_CONSUMERS_MUTATION } = require('@condo/domains/resident/gql')
 const { GET_RESIDENT_EXISTENCE_BY_PHONE_AND_ADDRESS_QUERY } = require('@condo/domains/resident/gql')
+const { FIND_ORGANIZATIONS_FOR_ADDRESS_MUTATION } = require('@condo/domains/resident/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const { REGISTER_RESIDENT_SERVICE_CONSUMERS_MUTATION } = require('@condo/domains/resident/gql')
@@ -186,6 +187,20 @@ async function getResidentExistenceByPhoneAndAddressByTestClient(client, extraAt
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
+async function findOrganizationsForAddressByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(FIND_ORGANIZATIONS_FOR_ADDRESS_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 async function makeClientWithServiceConsumer () {
@@ -254,5 +269,6 @@ module.exports = {
     getResidentExistenceByPhoneAndAddressByTestClient,
     registerResidentServiceConsumersByTestClient,
     registerResidentInvoiceByTestClient,
+    findOrganizationsForAddressByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
