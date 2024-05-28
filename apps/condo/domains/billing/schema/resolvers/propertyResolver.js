@@ -4,7 +4,6 @@ const { createInstance } = require('@open-condo/clients/address-service-client')
 const { AddressFromStringParser } = require('@open-condo/clients/address-service-client/utils/parseAddressesFromString')
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
-const conf = require('@open-condo/config')
 const { find } = require('@open-condo/keystone/schema')
 
 const {
@@ -27,7 +26,6 @@ class PropertyResolver extends Resolver {
     constructor ({ billingContext, context }) {
         super(billingContext, context, { name: 'property' })
         this.organizationProperties = []
-        this.properties = []
         this.transform = new AddressTransform()
         this.propertyFinder = new PropertyFinder()
         this.parser = new AddressFromStringParser()
@@ -37,11 +35,30 @@ class PropertyResolver extends Resolver {
         this.addressService = createInstance()
     }
 
+    async getBillingProperty (where = {}) {
+        const [property] = await find('BillingProperty', { ...where, context: { id: this.billingContext.id }, deletedAt: null })
+        return property
+    }
+
+    async getOrganizationProperty (addressKey) {
+        const loaded = this.organizationProperties.find(({ addressKey: propertyAddressKey }) => propertyAddressKey === addressKey)
+        if (loaded) {
+            return loaded
+        }
+        const [property] = await find('Property', { addressKey, organization: { id: get(this.billingContext, 'organization.id') }, deletedAt: null })
+        if (property) {
+            this.organizationProperties.push(property)
+        }
+        return property
+    }
+
     async init () {
-        const organizationProperties = await find('Property', { organization: { id: get(this.billingContext, 'organization.id') }, deletedAt: null })
-        this.organizationProperties = Object.fromEntries(organizationProperties.map(({ addressKey, address }) => ([addressKey, address])))
-        this.properties = await find('BillingProperty', { context: { id: this.billingContext.id }, deletedAt: null })
-        this.propertyFinder.init(organizationProperties)
+        if (this.isCottageVillage) {
+            // We still need to load all properties in case we do not use addressService for address normalize
+            const organizationProperties = await find('Property', { organization: { id: get(this.billingContext, 'organization.id') }, deletedAt: null })
+            this.organizationProperties = Object.fromEntries(organizationProperties.map(({ addressKey, address }) => ([addressKey, address])))
+            this.propertyFinder.init(organizationProperties)
+        }
     }
 
     getAddressFromReceipt (receipt) {
@@ -155,17 +172,24 @@ class PropertyResolver extends Resolver {
                     receiptIndex[index].addressResolve.properties[addressKey] = normalizedAddress
                 }
             }
-            receiptIndex[index].addressResolve.propertyAddress = this.choosePropertyAddress(receipt.addressResolve.properties)
+            receiptIndex[index].addressResolve.propertyAddress = await this.choosePropertyAddress(receipt.addressResolve.properties)
         }
         return receiptIndex
     }
 
-    choosePropertyAddress (propertiesIndex) {
+    async choosePropertyAddress (propertiesIndex) {
         const properties = Object.entries(propertiesIndex).map(([addressKey, address]) => ({ addressKey, address }))
         if (properties.length === 0) {
             return { error: ERRORS.ADDRESS_NOT_RECOGNIZED_VALUE }
         }
-        const matchingToOrganizationProperty = properties.find(({ addressKey }) => Reflect.has(this.organizationProperties, addressKey ))
+        const organizationProperties = new Set()
+        for (const { addressKey } of properties) {
+            const organizationProperty = await this.getOrganizationProperty(addressKey)
+            if (organizationProperty) {
+                organizationProperties.add(addressKey)
+            }
+        }
+        const matchingToOrganizationProperty = properties.find(({ addressKey }) => organizationProperties.has(addressKey))
         if (matchingToOrganizationProperty) {
             return matchingToOrganizationProperty
         }
@@ -207,10 +231,10 @@ class PropertyResolver extends Resolver {
             const propertyGlobalId = normalizePropertyGlobalId(globalId)
             let existingProperty
             if (importIdInput) {
-                existingProperty = this.properties.find(({ importId }) => importId === importIdInput)
+                existingProperty = await this.getBillingProperty({ importId: importIdInput })
             }
             if (!existingProperty) {
-                existingProperty = this.properties.find(({ addressKey }) => resultAddressKey === addressKey)
+                existingProperty = await this.getBillingProperty( { addressKey: resultAddressKey })
             }
             if (existingProperty) {
                 receiptIndex[index].property = existingProperty.id
@@ -222,9 +246,7 @@ class PropertyResolver extends Resolver {
                     }, existingProperty)
                     if (!isEmpty(updateInput)) {
                         try {
-                            const updatedBillingProperty = await BillingPropertyApi.update(this.context, existingProperty.id, updateInput)
-                            const indexToUpdate = this.properties.findIndex(({ id }) => id === existingProperty.id)
-                            this.properties.splice(indexToUpdate, 1, updatedBillingProperty)
+                            await BillingPropertyApi.update(this.context, existingProperty.id, updateInput)
                         } catch (error) {
                             receiptIndex[index].error = this.error(ERRORS.PROPERTY_SAVE_FAILED, index, error)
                         }
@@ -239,7 +261,6 @@ class PropertyResolver extends Resolver {
                         importId: importIdInput,
                         globalId: propertyGlobalId,
                     }, ['context']))
-                    this.properties.push(newProperty)
                     receiptIndex[index].property = newProperty.id
                     updated.add(newProperty.id)
                 } catch (error) {
