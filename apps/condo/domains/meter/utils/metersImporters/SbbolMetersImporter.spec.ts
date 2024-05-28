@@ -112,7 +112,7 @@ describe('SbbolMetersImporter', () => {
                 meterResource: {
                     id: '1c267e92-0631-11ec-9a03-0242ac130003',
                 },
-                date: '26.04.2024',
+                date,
                 value1: '101.1',
                 meterMeta: {
                     numberOfTariffs: 1,
@@ -135,7 +135,7 @@ describe('SbbolMetersImporter', () => {
                 meterResource: {
                     id: '139a0d98-0631-11ec-9a03-0242ac130003',
                 },
-                date: '26.04.2024',
+                date,
                 value1: '102,1',
                 meterMeta: {
                     numberOfTariffs: 1,
@@ -158,7 +158,7 @@ describe('SbbolMetersImporter', () => {
                 meterResource: {
                     id: '139a0d98-0631-11ec-9a03-0242ac130003',
                 },
-                date: '26.04.2024',
+                date,
                 value1: '103.1',
                 meterMeta: {
                     numberOfTariffs: 2,
@@ -181,7 +181,7 @@ describe('SbbolMetersImporter', () => {
                 meterResource: {
                     id: '139a0d98-0631-11ec-9a03-0242ac130003',
                 },
-                date: '26.04.2024',
+                date,
                 value2: '104.1',
                 meterMeta: {
                     numberOfTariffs: 2,
@@ -204,7 +204,7 @@ describe('SbbolMetersImporter', () => {
                 meterResource: {
                     id: '139a0d98-0631-11ec-9a03-0242ac130003',
                 },
-                date: '26.04.2024',
+                date,
                 value1: '103.1',
                 meterMeta: {
                     numberOfTariffs: 2,
@@ -228,7 +228,7 @@ describe('SbbolMetersImporter', () => {
                 meterResource: {
                     id: '139a0d98-0631-11ec-9a03-0242ac130003',
                 },
-                date: '26.04.2024',
+                date,
                 value3: '105.1',
                 meterMeta: {
                     numberOfTariffs: 3,
@@ -251,7 +251,7 @@ describe('SbbolMetersImporter', () => {
                 meterResource: {
                     id: '139a0d98-0631-11ec-9a03-0242ac130003',
                 },
-                date: '26.04.2024',
+                date,
                 value1: '106.1',
                 meterMeta: {
                     numberOfTariffs: 3,
@@ -274,7 +274,7 @@ describe('SbbolMetersImporter', () => {
                 meterResource: {
                     id: '139a0d98-0631-11ec-9a03-0242ac130003',
                 },
-                date: '26.04.2024',
+                date,
                 value2: '107.1',
                 meterMeta: {
                     numberOfTariffs: 3,
@@ -297,7 +297,7 @@ describe('SbbolMetersImporter', () => {
                 meterResource: {
                     id: '139a0d98-0631-11ec-9a03-0242ac130003',
                 },
-                date: '26.04.2024',
+                date,
                 value3: '105,1',
                 meterMeta: {
                     numberOfTariffs: 3,
@@ -321,7 +321,7 @@ describe('SbbolMetersImporter', () => {
                 meterResource: {
                     id: '0f54223c-0631-11ec-9a03-0242ac130003',
                 },
-                date: '26.04.2024',
+                date,
                 value1: '108.1',
                 meterMeta: {
                     numberOfTariffs: 1,
@@ -344,7 +344,7 @@ describe('SbbolMetersImporter', () => {
                 meterResource: {
                     id: 'e2bd70ac-0630-11ec-9a03-0242ac130003',
                 },
-                date: '26.04.2024',
+                date,
                 value1: '109.1',
                 meterMeta: {
                     numberOfTariffs: 1,
@@ -367,7 +367,7 @@ describe('SbbolMetersImporter', () => {
                 meterResource: {
                     id: 'e2bd70ac-0630-11ec-9a03-0242ac130003',
                 },
-                date: '26.04.2024',
+                date,
                 value1: '110.1',
                 meterMeta: {
                     numberOfTariffs: 1,
@@ -390,7 +390,7 @@ describe('SbbolMetersImporter', () => {
                 meterResource: {
                     id: '139a0d98-0631-11ec-9a03-0242ac130003',
                 },
-                date: '26.04.2024',
+                date,
                 value1: '111,1',
                 meterMeta: {
                     numberOfTariffs: 2,
