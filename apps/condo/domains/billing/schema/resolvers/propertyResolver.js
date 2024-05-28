@@ -191,11 +191,8 @@ class PropertyResolver extends Resolver {
         }
         const matchingToOrganizationProperty = properties.find(({ addressKey }) => organizationProperties.includes(addressKey))
         if (matchingToOrganizationProperty) {
-            console.error('RESULT PROPERTY matchingToOrganizationProperty', matchingToOrganizationProperty)
-
             return matchingToOrganizationProperty
         }
-        console.error('RESULT PROPERTY', { ...get(properties, '[0]'), problem: NO_PROPERTY_IN_ORGANIZATION })
         return { ...get(properties, '[0]'), problem: NO_PROPERTY_IN_ORGANIZATION }
     }
 

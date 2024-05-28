@@ -78,11 +78,9 @@ class AccountResolver extends Resolver {
                     const newAccountResolvePropertyProblem = get(receipt, 'addressResolve.propertyAddress.problem')
                     const hasNewOrganizationProperty = newAccountResolvePropertyProblem !== NO_PROPERTY_IN_ORGANIZATION
                     if (!oldOrganizationProperty && hasNewOrganizationProperty) {
-                        // Old account will be corrected
                         existingAccount = sameNumberAccount
                     }
                     if (oldOrganizationProperty && !hasNewOrganizationProperty) {
-                        // Do not spoil correctly resolved account
                         existingAccount = sameNumberAccount
                         receipt.property = sameNumberAccount.property
                         receipt.unitName = sameNumberAccount.unitName
