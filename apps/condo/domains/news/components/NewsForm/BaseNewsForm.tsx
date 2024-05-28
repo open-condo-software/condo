@@ -1104,9 +1104,9 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                 { currentStep === 0 && (
                                     <Col span={24}>
                                         <Row style={BIG_MARGIN_BOTTOM_STYLE}>
-                                            <Col span={18}>
+                                            <Col span={formFieldsColSpan}>
                                                 <Row>
-                                                    <Col span={10}>
+                                                    <Col span={isMediumWindow ? 24 : 12}>
                                                         <Form.Item
                                                             label={TypeLabel}
                                                             name='type'
@@ -1126,7 +1126,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                         </Form.Item>
                                                     </Col>
                                                     { selectedType === NEWS_TYPE_EMERGENCY && (
-                                                        <Col span={12}>
+                                                        <Col span={isMediumWindow ? 24 : 12}>
                                                             <Form.Item
                                                                 label={(
                                                                     <LabelWithInfo
