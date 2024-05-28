@@ -44,7 +44,7 @@
     "@open-condo/locales": "workspace:^",
     "ajv": "8.11.0",
     "dayjs": "^1.11.10",
-    "express": "^4.17.1",
+    "express": "^4.19.2",
     "got": "^11.8.6",
     "graphql-tag": "^2.12.6",
     "lodash": "^4.17.21",
