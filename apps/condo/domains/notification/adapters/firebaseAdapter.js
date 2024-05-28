@@ -18,6 +18,9 @@ const FIREBASE_CONFIG = conf[FIREBASE_CONFIG_ENV] ? JSON.parse(conf[FIREBASE_CON
 const DEFAULT_PUSH_SETTINGS = {
     apns: { payload: { aps: { 'mutable-content': 1, sound: 'default' } } },
 }
+const SILENT_PUSH_SETTINGS = {
+    apns: { payload: { aps: { 'content-available': 1, sound: 'none' } } },
+}
 const HIGH_PRIORITY_SETTINGS = { android: { priority: 'high' } }
 
 const logger = getLogger('firebaseAdapter')
@@ -167,7 +170,7 @@ class FirebaseAdapter {
                         '_title': notification.title,
                         '_body': notification.body,
                     },
-                    ...DEFAULT_PUSH_SETTINGS,
+                    ...SILENT_PUSH_SETTINGS,
                     ...extraPayload,
                 }
                 : {
