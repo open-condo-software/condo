@@ -8,6 +8,7 @@ const {
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
+const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const { createTestOrganization, createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { MobileFeatureConfig, createTestMobileFeatureConfig, updateTestMobileFeatureConfig } = require('@condo/domains/settings/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
@@ -263,6 +264,27 @@ describe('MobileFeatureConfig', () => {
                         type: 'WRONG_PHONE_FORMAT',
                         message: 'Wrong phone number format',
                     })
+            })
+
+            test('ONLY_SERVICE_PROVIDER_ORGANIZATION_TYPE_IS_ALLOWED', async () => {
+                const [organization] = await createTestOrganization(admin)
+
+                await expectToThrowGQLError(
+                    async () => await createTestMobileFeatureConfig(admin, organization, {
+                        ticketSubmittingWithoutPhoneIsDisabled: true,
+                    }),
+                    {
+                        code: 'BAD_USER_INPUT',
+                        type: 'ONLY_SERVICE_PROVIDER_ORGANIZATION_TYPE_IS_ALLOWED',
+                        message: 'Only organizations with the service provider type are allowed',
+                    })
+            })
+
+            test('Use ticketSubmittingWithoutPhoneIsDisabled for organization with service_provider type', async () => {
+                const [organization] = await createTestOrganization(admin, { type: SERVICE_PROVIDER_TYPE })
+                await createTestMobileFeatureConfig(admin, organization, {
+                    ticketSubmittingWithoutPhoneIsDisabled: true,
+                })
             })
         })
     })

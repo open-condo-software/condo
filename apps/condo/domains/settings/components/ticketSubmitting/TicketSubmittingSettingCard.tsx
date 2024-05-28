@@ -25,20 +25,23 @@ export const TicketSubmittingSettingCard: React.FC<TicketSubmittingSettingCardPr
     const router = useRouter()
 
     const handleClickCard = useCallback(() => {
-        router.push(TICKET_DISABLING_SETTINGS_URL)
+        router.push(`${TICKET_DISABLING_SETTINGS_URL}`)
     }, [router])
 
     const commonPhone = get(mobileConfig, 'commonPhone')
-    const isDisabled = get(mobileConfig, 'ticketSubmittingIsDisabled')
+    const isDisabled = get(mobileConfig, 'ticketSubmittingIsDisabled') || get(mobileConfig, 'ticketSubmittingForServiceProviderOrgIsDisabled')
 
     return (
         <SettingCard title={TicketSubmittingTitle} onClick={handleClickCard}>
             <Typography.Paragraph type='secondary' >
                 {isDisabled ? TicketSubmittingIsDisabledLabel : TicketSubmittingIsEnabledLabel}
             </Typography.Paragraph>
-            <Typography.Paragraph type='secondary' ellipsis={TEXT_ELLIPSIS_CONFIG} >
-                {isDisabled ? `${TicketSubmittingCommonPhoneLabel}: ${commonPhone ? commonPhone : '-'}` : ''}
-            </Typography.Paragraph>
+            {
+                isDisabled && commonPhone ?
+                    <Typography.Paragraph type='secondary' ellipsis={TEXT_ELLIPSIS_CONFIG} >
+                        {`${TicketSubmittingCommonPhoneLabel}: ${commonPhone ? commonPhone : '-'}`}
+                    </Typography.Paragraph> : undefined
+            }
         </SettingCard>
     )
 }

@@ -4,7 +4,7 @@ import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
-import React, { useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Checkbox, Typography } from '@open-condo/ui'
@@ -13,6 +13,7 @@ import { ButtonWithDisabledTooltip } from '@condo/domains/common/components/Butt
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { normalizePhone } from '@condo/domains/common/utils/phone'
+import { MANAGING_COMPANY_TYPE } from '@condo/domains/organization/constants/common'
 import { MobileFeatureConfig } from '@condo/domains/settings/utils/clientSchema'
 
 const INPUT_LAYOUT_PROPS = {
@@ -32,13 +33,15 @@ const INPUT_LAYOUT_PROPS = {
 const BIG_ROW_GUTTERS: [Gutter, Gutter] = [0, 60]
 const MIDDLE_ROW_GUTTERS: [Gutter, Gutter] = [0, 40]
 const SMALL_ROW_GUTTERS: [Gutter, Gutter] = [0, 20]
+const redirectUrl = '/settings?tab=mobileFeatureConfig'
 
 interface ITicketSubmittingSettingsForm {
     mobileConfig?: MobileFeatureConfigType,
     userOrganizationId: string,
+    userOrganizationType: string,
 }
 
-export const TicketSubmittingSettingsForm: React.FC<ITicketSubmittingSettingsForm> = ({ mobileConfig, userOrganizationId }) => {
+export const TicketSubmittingSettingsForm: React.FC<ITicketSubmittingSettingsForm> = ({ mobileConfig, userOrganizationId, userOrganizationType }) => {
     const intl = useIntl()
     const SaveMessage = intl.formatMessage({ id: 'Save' })
     const ExamplePhoneMessage = intl.formatMessage({ id: 'example.Phone' })
@@ -50,17 +53,19 @@ export const TicketSubmittingSettingsForm: React.FC<ITicketSubmittingSettingsFor
     const MessageAboutFeat = intl.formatMessage({ id: 'pages.condo.settings.mobileFeatureConfig.submittingPeriod.messageAboutFeat' })
 
     const router = useRouter()
+    const isManagingOrgType = useMemo(() => (userOrganizationType === MANAGING_COMPANY_TYPE), [userOrganizationType])
 
     const initialValues = {
         commonPhone: get(mobileConfig, 'commonPhone'),
         ticketSubmittingIsDisabled: get(mobileConfig, 'ticketSubmittingIsDisabled'),
+        ticketSubmittingForServiceProviderOrgIsDisabled: get(mobileConfig, 'ticketSubmittingForServiceProviderOrgIsDisabled'),
     }
 
-    const updateHook = MobileFeatureConfig.useUpdate({}, () => router.push('/settings?tab=mobileFeatureConfig'))
+    const updateHook = MobileFeatureConfig.useUpdate({}, () => router.push(redirectUrl))
     const updateAction = async (data) => {
         await updateHook(data, mobileConfig)
     }
-    const createAction = MobileFeatureConfig.useCreate({}, () => router.push('/settings?tab=mobileFeatureConfig'))
+    const createAction = MobileFeatureConfig.useCreate({}, () => router.push(redirectUrl))
     const action = mobileConfig ? updateAction : createAction
 
     return useMemo(() => (
@@ -99,15 +104,25 @@ export const TicketSubmittingSettingsForm: React.FC<ITicketSubmittingSettingsFor
                                         </Form.Item>
                                     </Col>
                                     <Col span={24}>
-                                        <Form.Item
-                                            name='ticketSubmittingIsDisabled'
-                                            label={IsEnabledMessage}
-                                            labelAlign='left'
-                                            {...INPUT_LAYOUT_PROPS}
-                                            valuePropName='checked'
-                                        >
-                                            <Checkbox/>
-                                        </Form.Item>
+                                        { isManagingOrgType ?
+                                            <Form.Item
+                                                name='ticketSubmittingIsDisabled'
+                                                label={IsEnabledMessage}
+                                                labelAlign='left'
+                                                {...INPUT_LAYOUT_PROPS}
+                                                valuePropName='checked'
+                                            >
+                                                <Checkbox/>
+                                            </Form.Item> : <Form.Item
+                                                name='ticketSubmittingForServiceProviderOrgIsDisabled'
+                                                label={IsEnabledMessage}
+                                                labelAlign='left'
+                                                {...INPUT_LAYOUT_PROPS}
+                                                valuePropName='checked'
+                                            >
+                                                <Checkbox/>
+                                            </Form.Item>
+                                        }
                                     </Col>
 
                                 </Row>
@@ -119,8 +134,7 @@ export const TicketSubmittingSettingsForm: React.FC<ITicketSubmittingSettingsFor
                         <Col span={24}>
                             <Form.Item
                                 noStyle
-                                dependencies={['ticketSubmittingIsDisabled', 'commonPhone']}
-                                shouldUpdate>
+                                dependencies={['ticketSubmittingIsDisabled', 'commonPhone']}>
                                 {
                                     ({ getFieldsValue, getFieldError }) => {
                                         const {
@@ -129,7 +143,7 @@ export const TicketSubmittingSettingsForm: React.FC<ITicketSubmittingSettingsFor
                                         } = getFieldsValue(['ticketSubmittingIsDisabled', 'commonPhone'])
 
                                         const messageLabels = []
-                                        if (ticketSubmittingIsDisabled && !commonPhone) messageLabels.push(RequiredCommonPhoneMessage)
+                                        if (ticketSubmittingIsDisabled && isManagingOrgType && !commonPhone) messageLabels.push(RequiredCommonPhoneMessage)
 
                                         const requiredErrorMessage = !isEmpty(messageLabels) && ErrorsContainerTitle.concat(' ', messageLabels.join(', '))
                                         const hasInvalidPhoneError = commonPhone && (normalizePhone(commonPhone, true) !== commonPhone) ? InvalidPhoneMessage : undefined
@@ -163,5 +177,5 @@ export const TicketSubmittingSettingsForm: React.FC<ITicketSubmittingSettingsFor
                 </Row>
             )}
         </FormWithAction>
-    ), [action, mobileConfig])
+    ), [action, mobileConfig, isManagingOrgType])
 }

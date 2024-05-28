@@ -20,9 +20,10 @@ const ROW_GUTTER: [Gutter, Gutter] = [0, 60]
 const TicketSubmittingContent: React.FC = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'pages.condo.settings.mobileFeatureConfig.submittingPeriod.pageTitle' })
-    
+
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'], null)
+    const userOrganizationType = get(userOrganization, ['organization', 'type'], null)
 
     const { obj: mobileConfig, loading } = MobileFeatureConfig.useObject({
         where: {
@@ -34,7 +35,7 @@ const TicketSubmittingContent: React.FC = () => {
             <PageHeader title={<Typography.Title>{PageTitle}</Typography.Title>} />
             <Row gutter={ROW_GUTTER}>
                 <Col span={24}>
-                    <TicketSubmittingSettingsForm mobileConfig={mobileConfig} userOrganizationId={userOrganizationId}/>
+                    <TicketSubmittingSettingsForm mobileConfig={mobileConfig} userOrganizationId={userOrganizationId} userOrganizationType={userOrganizationType}/>
                 </Col>
             </Row>
         </>

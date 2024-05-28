@@ -8,7 +8,7 @@ import { useOrganization } from '@open-condo/next/organization'
 
 import { CardsContainer } from '@condo/domains/common/components/Card/CardsContainer'
 import { SettingCardSkeleton } from '@condo/domains/common/components/settings/SettingCard'
-import { TICKET_SUBMITTING_FORM_RESIDENT_MOBILE_APP } from '@condo/domains/common/constants/featureflags'
+import { TICKET_SUBMITTING_FORM_RESIDENT_MOBILE_APP, TICKET_SUBMITTING_FORM_RESIDENT_MOBILE_APP_FOR_ORG_WITH_SP_TYPE } from '@condo/domains/common/constants/featureflags'
 import {
     OnlyProgressionMeterReadingsSettingCard,
 } from '@condo/domains/settings/components/ticketSubmitting/OnlyProgressionMeterReadingsSettingCard'
@@ -27,15 +27,20 @@ export const MobileFeatureConfigContent: React.FC = () => {
     })
     const { useFlag } = useFeatureFlags()
     const hasTicketSubmittingSettingFeature = useFlag(TICKET_SUBMITTING_FORM_RESIDENT_MOBILE_APP)
+    const hasTicketSubmittingForOrgWithSPTypeSettingFeature = useFlag(TICKET_SUBMITTING_FORM_RESIDENT_MOBILE_APP_FOR_ORG_WITH_SP_TYPE)
 
     const content = useMemo(() => ([
         !hasTicketSubmittingSettingFeature ? undefined : (loading
             ? <SettingCardSkeleton/>
             : <TicketSubmittingSettingCard mobileConfig={mobileConfig}/>),
 
+        !hasTicketSubmittingForOrgWithSPTypeSettingFeature ? undefined : (loading
+            ? <SettingCardSkeleton/>
+            : <TicketSubmittingSettingCard mobileConfig={mobileConfig}/>),
+
         loading ? <SettingCardSkeleton/>
             : <OnlyProgressionMeterReadingsSettingCard mobileConfig={mobileConfig}/>,
-    ]).filter(Boolean), [hasTicketSubmittingSettingFeature, mobileConfig, loading])
+    ]).filter(Boolean), [hasTicketSubmittingSettingFeature, hasTicketSubmittingForOrgWithSPTypeSettingFeature, mobileConfig, loading])
 
 
     return (

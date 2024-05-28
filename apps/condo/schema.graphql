@@ -67547,6 +67547,7 @@ type MobileFeatureConfigHistoryRecord {
   organization: String
   commonPhone: String
   ticketSubmittingIsDisabled: Boolean
+  ticketSubmittingForServiceProviderOrgIsDisabled: Boolean
   onlyGreaterThanPreviousMeterReadingIsEnabled: Boolean
   meta: JSON
   id: ID!
@@ -67591,6 +67592,8 @@ input MobileFeatureConfigHistoryRecordWhereInput {
   commonPhone_not_in: [String]
   ticketSubmittingIsDisabled: Boolean
   ticketSubmittingIsDisabled_not: Boolean
+  ticketSubmittingForServiceProviderOrgIsDisabled: Boolean
+  ticketSubmittingForServiceProviderOrgIsDisabled_not: Boolean
   onlyGreaterThanPreviousMeterReadingIsEnabled: Boolean
   onlyGreaterThanPreviousMeterReadingIsEnabled_not: Boolean
   meta: JSON
@@ -67684,6 +67687,8 @@ enum SortMobileFeatureConfigHistoryRecordsBy {
   commonPhone_DESC
   ticketSubmittingIsDisabled_ASC
   ticketSubmittingIsDisabled_DESC
+  ticketSubmittingForServiceProviderOrgIsDisabled_ASC
+  ticketSubmittingForServiceProviderOrgIsDisabled_DESC
   onlyGreaterThanPreviousMeterReadingIsEnabled_ASC
   onlyGreaterThanPreviousMeterReadingIsEnabled_DESC
   id_ASC
@@ -67708,6 +67713,7 @@ input MobileFeatureConfigHistoryRecordUpdateInput {
   organization: String
   commonPhone: String
   ticketSubmittingIsDisabled: Boolean
+  ticketSubmittingForServiceProviderOrgIsDisabled: Boolean
   onlyGreaterThanPreviousMeterReadingIsEnabled: Boolean
   meta: JSON
   v: Int
@@ -67733,6 +67739,7 @@ input MobileFeatureConfigHistoryRecordCreateInput {
   organization: String
   commonPhone: String
   ticketSubmittingIsDisabled: Boolean
+  ticketSubmittingForServiceProviderOrgIsDisabled: Boolean
   onlyGreaterThanPreviousMeterReadingIsEnabled: Boolean
   meta: JSON
   v: Int
@@ -67775,6 +67782,10 @@ type MobileFeatureConfig {
   """ Disabling the ability to send tickets by the user of the resident's mobile application. Instead, he will be shown a screen with phones where he can contact to send a request 
   """
   ticketSubmittingIsDisabled: Boolean
+
+  """ Disabling the ability to send tickets by the user of the resident's mobile application. the same as ticketSubmittingIsDisabled but there will be no phone number on the screen for communication, as this is needed for SERVICE_PROVIDER organizations 
+  """
+  ticketSubmittingForServiceProviderOrgIsDisabled: Boolean
 
   """ Restricts residents to submit only meter readings, that are greater than previous. Restrictions apply to mobile phones only. 
   """
@@ -67830,6 +67841,8 @@ input MobileFeatureConfigWhereInput {
   commonPhone_not_in: [String]
   ticketSubmittingIsDisabled: Boolean
   ticketSubmittingIsDisabled_not: Boolean
+  ticketSubmittingForServiceProviderOrgIsDisabled: Boolean
+  ticketSubmittingForServiceProviderOrgIsDisabled_not: Boolean
   onlyGreaterThanPreviousMeterReadingIsEnabled: Boolean
   onlyGreaterThanPreviousMeterReadingIsEnabled_not: Boolean
   meta: JSON
@@ -67905,6 +67918,8 @@ enum SortMobileFeatureConfigsBy {
   commonPhone_DESC
   ticketSubmittingIsDisabled_ASC
   ticketSubmittingIsDisabled_DESC
+  ticketSubmittingForServiceProviderOrgIsDisabled_ASC
+  ticketSubmittingForServiceProviderOrgIsDisabled_DESC
   onlyGreaterThanPreviousMeterReadingIsEnabled_ASC
   onlyGreaterThanPreviousMeterReadingIsEnabled_DESC
   id_ASC
@@ -67929,6 +67944,7 @@ input MobileFeatureConfigUpdateInput {
   organization: OrganizationRelateToOneInput
   commonPhone: String
   ticketSubmittingIsDisabled: Boolean
+  ticketSubmittingForServiceProviderOrgIsDisabled: Boolean
   onlyGreaterThanPreviousMeterReadingIsEnabled: Boolean
   meta: JSON
   v: Int
@@ -67951,6 +67967,7 @@ input MobileFeatureConfigCreateInput {
   organization: OrganizationRelateToOneInput
   commonPhone: String
   ticketSubmittingIsDisabled: Boolean
+  ticketSubmittingForServiceProviderOrgIsDisabled: Boolean
   onlyGreaterThanPreviousMeterReadingIsEnabled: Boolean
   meta: JSON
   v: Int

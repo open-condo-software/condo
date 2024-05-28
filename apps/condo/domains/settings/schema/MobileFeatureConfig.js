@@ -38,6 +38,13 @@ const ERRORS = {
         message: 'The organization is required to create',
         messageForUser: 'api.organization.MobileFeatureConfig.ORGANIZATION_IS_REQUIRED',
     },
+    ONLY_SERVICE_PROVIDER_ORGANIZATION_TYPE_IS_ALLOWED: {
+        code: BAD_USER_INPUT,
+        variable: ['data', 'organization'],
+        type: 'ONLY_SERVICE_PROVIDER_ORGANIZATION_TYPE_IS_ALLOWED',
+        message: 'Only organizations with the service provider type are allowed',
+        messageForUser: 'api.organization.MobileFeatureConfig.ONLY_SERVICE_PROVIDER_ORGANIZATION_TYPE_IS_ALLOWED',
+    },
 }
 
 const MobileFeatureConfig = new GQLListSchema('MobileFeatureConfig', {
@@ -54,6 +61,13 @@ const MobileFeatureConfig = new GQLListSchema('MobileFeatureConfig', {
         ticketSubmittingIsDisabled: {
             schemaDoc: 'Disabling the ability to send tickets by the user of the resident\'s mobile application. ' +
                 'Instead, he will be shown a screen with phones where he can contact to send a request',
+            type: Checkbox,
+        },
+
+        ticketSubmittingForServiceProviderOrgIsDisabled: {
+            schemaDoc: 'Disabling the ability to send tickets by the user of the resident\'s mobile application. ' +
+                'the same as ticketSubmittingIsDisabled but there will be no phone number on the screen for communication, ' +
+                'as this is needed for SERVICE_PROVIDER organizations',
             type: Checkbox,
         },
 
