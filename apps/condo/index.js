@@ -140,8 +140,8 @@ const checks = [
     getPfxCertificateHealthCheck({
         certificateName: 'sbbol_client_extended',
         getPfxParams: () => {
-            const SBBOL_PFX = conf['SBBOL_PFX_EXTENDED'] && JSON.parse(conf['SBBOL_PFX_EXTENDED']) || {}
-            return { pfx: SBBOL_PFX.certificate, passphrase: SBBOL_PFX.passphrase }
+            const SBBOL_PFX_EXTENDED = conf['SBBOL_PFX_EXTENDED'] && JSON.parse(conf['SBBOL_PFX_EXTENDED']) || {}
+            return { pfx: SBBOL_PFX_EXTENDED.certificate, passphrase: SBBOL_PFX_EXTENDED.passphrase }
         },
     }),
 ]
