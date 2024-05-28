@@ -74505,6 +74505,8 @@ input SendB2CAppPushMessageData {
   voipLogin: String
   voipPassword: String
   voipDtfmCommand: String
+  stun: String
+  codec: String
 }
 
 input SendB2CAppPushMessageInput {
