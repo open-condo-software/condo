@@ -72235,6 +72235,8 @@ export type SendB2CAppPushMessageData = {
   voipLogin?: Maybe<Scalars['String']>;
   voipPassword?: Maybe<Scalars['String']>;
   voipDtfmCommand?: Maybe<Scalars['String']>;
+  stun?: Maybe<Scalars['String']>;
+  codec?: Maybe<Scalars['String']>;
 };
 
 export type SendB2CAppPushMessageInput = {

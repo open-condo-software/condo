@@ -88,7 +88,7 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
         },
         {
             access: true,
-            type: 'input SendB2CAppPushMessageData { body: String!, title: String, B2CAppContext: String, callId: String, voipType: String, voipAddress: String, voipLogin: String, voipPassword: String, voipDtfmCommand: String }',
+            type: 'input SendB2CAppPushMessageData { body: String!, title: String, B2CAppContext: String, callId: String, voipType: String, voipAddress: String, voipLogin: String, voipPassword: String, voipDtfmCommand: String, stun: String, codec: String }',
         },
         {
             access: true,
@@ -115,7 +115,7 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
             resolver: async (parent, args, context) => {
                 const { data: argsData } = args
                 const { dv, sender, app, user, resident, type, uniqKey,
-                    data: { B2CAppContext, title, body, callId, voipType, voipAddress, voipLogin, voipPassword, voipDtfmCommand },
+                    data: { B2CAppContext, title, body, callId, voipType, voipAddress, voipLogin, voipPassword, voipDtfmCommand, stun, codec },
                 } = argsData
 
                 checkDvAndSender(argsData, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
@@ -179,6 +179,8 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
                     messageAttrs.meta.data.voipLogin = voipLogin
                     messageAttrs.meta.data.voipPassword = voipPassword
                     messageAttrs.meta.data.voipDtfmCommand = voipDtfmCommand
+                    messageAttrs.meta.data.stun = stun
+                    messageAttrs.meta.data.codec = codec
                 }
 
                 const sendingResult = await sendMessage(context, messageAttrs)
