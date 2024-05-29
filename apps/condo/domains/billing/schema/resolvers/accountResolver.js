@@ -28,7 +28,12 @@ class AccountResolver extends Resolver {
     }
 
     async init () {
-        this.accounts = await find('BillingAccount', { context: { id: this.billingContext.id }, deletedAt: null })
+        //this.accounts = await find('BillingAccount', { context: { id: this.billingContext.id }, deletedAt: null })
+    }
+
+    async getBillingAccount (where = {}) {
+        const [account] = await find('BillingAccount', { ...where, deletedAt: null, context: { id: this.billingContext.id } })
+        return account
     }
 
     // If receipt input has importId from integration - then connected account will not be created, only updated
@@ -60,26 +65,26 @@ class AccountResolver extends Resolver {
             }
             let existingAccount
             if (receipt.importId && this.accountsByReceiptByImportId[receipt.importId]) {
-                existingAccount = this.accounts.find(({ id }) => this.accountsByReceiptByImportId[receipt.importId] === id)
+                existingAccount = await this.getBillingAccount({ id: this.accountsByReceiptByImportId[receipt.importId] })
             }
             if (!existingAccount) {
-                existingAccount = this.accounts.find(({ number, property }) => number === accountNumber && receipt.property === property)
+                existingAccount = await this.getBillingAccount( { number: accountNumber, property: { id: receipt.property } })
             }
             if (!existingAccount) {
-                const sameNumberAccount = this.accounts.find(({ number }) => number === accountNumber)
+                const sameNumberAccount = await this.getBillingAccount( { number: accountNumber })
                 if (sameNumberAccount) {
                     const oldBillingProperty = await getById('BillingProperty', sameNumberAccount.property)
-                    const [organizationProperty] = await find('Property', { addressKey: oldBillingProperty.addressKey, deletedAt: null, organization: { id: get(this.billingContext, 'organization.id') } })
-                    if (!organizationProperty) {
+                    const [oldOrganizationProperty] = await find('Property', { addressKey: oldBillingProperty.addressKey, deletedAt: null, organization: { id: get(this.billingContext, 'organization.id') } })
+                    const newAccountResolvePropertyProblem = get(receipt, 'addressResolve.propertyAddress.problem')
+                    const hasNewOrganizationProperty = newAccountResolvePropertyProblem !== NO_PROPERTY_IN_ORGANIZATION
+                    if (!oldOrganizationProperty && hasNewOrganizationProperty) {
                         existingAccount = sameNumberAccount
-                    } else {
-                        const newAccountResolvePropertyProblem = get(receipt, 'addressResolve.propertyAddress.problem')
-                        if (newAccountResolvePropertyProblem === NO_PROPERTY_IN_ORGANIZATION) {
-                            existingAccount = sameNumberAccount
-                            receipt.property = sameNumberAccount.property
-                            receipt.unitName = sameNumberAccount.unitName
-                            receipt.unitType = sameNumberAccount.unitType
-                        }
+                    }
+                    if (oldOrganizationProperty && !hasNewOrganizationProperty) {
+                        existingAccount = sameNumberAccount
+                        receipt.property = sameNumberAccount.property
+                        receipt.unitName = sameNumberAccount.unitName
+                        receipt.unitType = sameNumberAccount.unitType
                     }
                 }
             }

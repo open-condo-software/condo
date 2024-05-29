@@ -237,6 +237,7 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
 
                 const propertyResolver = new PropertyResolver({ context })
                 propertyResolver.tin = organizationData.tin
+                propertyResolver.organizationId = organization.id
 
                 const resolvedAddresses = await propertyResolver.normalizeAddresses(readings.reduce((res, reading, index) => ({
                     ...res,
