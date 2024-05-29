@@ -137,6 +137,13 @@ const checks = [
             return { pfx: SBBOL_PFX.certificate, passphrase: SBBOL_PFX.passphrase }
         },
     }),
+    getPfxCertificateHealthCheck({
+        certificateName: 'sbbol_client_extended',
+        getPfxParams: () => {
+            const SBBOL_PFX_EXTENDED = conf['SBBOL_PFX_EXTENDED'] && JSON.parse(conf['SBBOL_PFX_EXTENDED']) || {}
+            return { pfx: SBBOL_PFX_EXTENDED.certificate, passphrase: SBBOL_PFX_EXTENDED.passphrase }
+        },
+    }),
 ]
 
 const lastApp = conf.NODE_ENV === 'test' ? undefined : new NextApp({ dir: '.' })

@@ -45,7 +45,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
     accessTokens = await getAllAccessTokensByOrganization(context, organizationId)
 
     if (!sbbolFintechClient) {
-        sbbolFintechClient = initSbbolClientWithToken(accessTokens[accessTokenIndex])
+        sbbolFintechClient = initSbbolClientWithToken(accessTokens[accessTokenIndex], true)
     }
 
     const transactions = []
@@ -188,7 +188,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                 reqErrored = false
                 accessTokenIndex++
                 if (accessTokenIndex < accessTokens.length) {
-                    sbbolFintechClient = initSbbolClientWithToken(accessTokens[accessTokenIndex])
+                    sbbolFintechClient = initSbbolClientWithToken(accessTokens[accessTokenIndex], true)
                 } else {
                     reqErrored = true
                     transactionException = SBBOL_ERRORS.UNAUTHORIZED

@@ -11,6 +11,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}
 const SBBOL_AUTH_CONFIG_EXTENDED = conf.SBBOL_AUTH_CONFIG_EXTENDED ? JSON.parse(conf.SBBOL_AUTH_CONFIG_EXTENDED) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
+const SBBOL_PFX_EXTENDED = conf.SBBOL_PFX_EXTENDED ? JSON.parse(conf.SBBOL_PFX_EXTENDED) : {}
 const SERVER_URL = conf.SERVER_URL
 const JWT_ALG = 'gost34.10-2012'
 
@@ -38,13 +39,14 @@ class SbbolOauth2Api {
             tls_client_certificate_bound_access_tokens: true,
         })
         client[custom.http_options] = (options) => {
-            if (SBBOL_PFX.certificate) {
+            const sbbolPfx = this.useExtendedConfig ? SBBOL_PFX_EXTENDED : SBBOL_PFX
+            if (sbbolPfx.certificate) {
                 return {
                     ...options,
                     https: {
-                        pfx: Buffer.from(SBBOL_PFX.certificate, 'base64'),
-                        passphrase: SBBOL_PFX.passphrase,
-                        ...(SBBOL_PFX.https || {}),
+                        pfx: Buffer.from(sbbolPfx.certificate, 'base64'),
+                        passphrase: sbbolPfx.passphrase,
+                        ...(sbbolPfx.https || {}),
                     },
                 }
             }
