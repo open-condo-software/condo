@@ -30,6 +30,7 @@ class PropertyResolver extends Resolver {
         this.propertyFinder = new PropertyFinder()
         this.parser = new AddressFromStringParser()
         this.tin = get(billingContext, 'organization.tin')
+        this.organizationId = get(billingContext, 'organization.id')
         this.transform.init(get(billingContext, 'settings.addressTransform', {}))
         this.isCottageVillage = !!(get(billingContext, 'settings.isCottageVillage'))
         this.addressService = createInstance()
@@ -41,11 +42,14 @@ class PropertyResolver extends Resolver {
     }
 
     async getOrganizationProperty (addressKey) {
+        if (!this.organizationId) {
+            return null
+        }
         const loaded = this.organizationProperties.find(({ addressKey: propertyAddressKey }) => propertyAddressKey === addressKey)
         if (loaded) {
             return loaded
         }
-        const [property] = await find('Property', { addressKey, organization: { id: get(this.billingContext, 'organization.id') }, deletedAt: null })
+        const [property] = await find('Property', { addressKey, organization: { id: this.organizationId }, deletedAt: null })
         if (property) {
             this.organizationProperties.push(property)
         }
@@ -55,7 +59,7 @@ class PropertyResolver extends Resolver {
     async init () {
         if (this.isCottageVillage) {
             // We still need to load all properties in case we do not use addressService for address normalize
-            const organizationProperties = await find('Property', { organization: { id: get(this.billingContext, 'organization.id') }, deletedAt: null })
+            const organizationProperties = await find('Property', { organization: { id: this.organizationId }, deletedAt: null })
             this.organizationProperties = Object.fromEntries(organizationProperties.map(({ addressKey, address }) => ([addressKey, address])))
             this.propertyFinder.init(organizationProperties)
         }
