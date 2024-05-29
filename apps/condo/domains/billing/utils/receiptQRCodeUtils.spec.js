@@ -23,6 +23,7 @@ const {
     parseReceiptQRCode,
     formatPeriodFromQRCode,
     compareQRCodeWithLastReceipt,
+    findAuxiliaryData,
 } = require('./receiptQRCodeUtils')
 const {
     addBillingIntegrationAndContext,
@@ -192,6 +193,53 @@ describe('receiptQRCodeUtils', () => {
 
                 expect(resolvers.onReceiptPeriodOlderThanQrCodePeriod).toHaveBeenCalledWith(billingReceiptForComparison)
             })
+        })
+    })
+
+    test('Auxiliary data has correct format', async () => {
+        const [o10n] = await createTestOrganization(adminClient)
+        const [property] = await createTestProperty(adminClient, o10n)
+
+        const bic = createValidRuRoutingNumber()
+        const qrCodeObj = {
+            BIC: bic,
+            PayerAddress: `${property.address}, кв 1`,
+            PaymPeriod: '06.2024',
+            Sum: '10000',
+            PersAcc: faker.random.numeric(8),
+            PayeeINN: o10n.tin,
+            PersonalAcc: createValidRuNumber(bic),
+        }
+
+        const {
+            billingIntegration,
+            billingIntegrationContext,
+        } = await addBillingIntegrationAndContext(adminClient, o10n, {}, { status: CONTEXT_FINISHED_STATUS })
+        const {
+            acquiringIntegration,
+            acquiringIntegrationContext,
+        } = await addAcquiringIntegrationAndContext(adminClient, o10n, {}, { status: CONTEXT_FINISHED_STATUS })
+
+        const auxiliaryData = await findAuxiliaryData(qrCodeObj, { address: undefined })
+
+        expect(auxiliaryData).toMatchObject({
+            normalizedAddress: expect.objectContaining({
+                addressKey: property.addressKey,
+                unitType: 'flat',
+                unitName: '1',
+            }),
+            contexts: {
+                [o10n.id]: {
+                    billingContext: expect.objectContaining({
+                        id: billingIntegrationContext.id,
+                        integration: billingIntegration.id,
+                    }),
+                    acquiringContext: expect.objectContaining({
+                        id: acquiringIntegrationContext.id,
+                        integration: acquiringIntegration.id,
+                    }),
+                },
+            },
         })
     })
 })
