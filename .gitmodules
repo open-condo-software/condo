@@ -53,3 +53,6 @@
 [submodule "apps/meters-billing-integration"]
 	path = apps/meters-billing-integration
 	url = git@github.com:open-condo-software/condo-meters-billing-integration.git
+[submodule "apps/announcement-generator"]
+	path = apps/announcement-generator
+	url = git@github.com:open-condo-software/condo-announcement-generator.git
