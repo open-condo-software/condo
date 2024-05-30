@@ -7,7 +7,7 @@ import React, { CSSProperties, FunctionComponent } from 'react'
 
 import { colors } from '@open-condo/ui/dist/colors'
 
-import { MAX_CONTENT_WIDTH } from '@condo/domains/common/constants/style'
+import { MAX_CONTENT_WIDTH } from '@{{name}}/domains/common/constants/style'
 
 import 'antd/dist/antd.less'
 

@@ -12,17 +12,16 @@ import React, { useContext, useEffect } from 'react'
 
 import { withApollo } from '@open-condo/next/apollo'
 import { withAuth } from '@open-condo/next/auth'
-import { withIntl, useIntl, LocaleContext } from '@open-condo/next/intl'
+import { LocaleContext, useIntl, withIntl } from '@open-condo/next/intl'
 
 import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
-import { messagesImporter as condoMessageImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
-import { AppFrameWrapper } from '@condo/domains/miniapp/components/AppFrameWrapper'
-import { useLaunchParams } from '@condo/domains/miniapp/hooks/useLaunchParams'
-import { BaseLayout, LayoutContextProvider } from '@{{name}}/domains/common/components/containers/BaseLayout'
-import { withOidcAuth } from '@{{name}}/domains/common/utils/oidcAuth'
 
-import '@condo/domains/common/components/wdyr'
 import '@open-condo/ui/dist/styles.min.css'
+
+import { AppFrameWrapper } from '@{{name}}/domains/common/components/AppFrameWrapper'
+import { BaseLayout } from '@{{name}}/domains/common/components/containers/BaseLayout'
+import { useLaunchParams } from '@{{name}}/domains/common/hooks/useLaunchParams'
+import { withOidcAuth } from '@{{name}}/domains/common/utils/oidcAuth'
 
 
 const {
@@ -75,26 +74,22 @@ const MyApp = ({ Component, pageProps }) => {
             </Head>
             <GlobalStyle/>
             <AppFrameWrapper>
-                <LayoutContextProvider>
-                    <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize='large'>
-                        <CacheProvider value={cache}>
-                            <LayoutComponent>
-                                <RequiredAccess>
-                                    <Component {...pageProps} />
-                                </RequiredAccess>
-                            </LayoutComponent>
-                        </CacheProvider>
-                    </ConfigProvider>
-                </LayoutContextProvider>
+                <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize='large'>
+                    <CacheProvider value={cache}>
+                        <LayoutComponent>
+                            <RequiredAccess>
+                                <Component {...pageProps} />
+                            </RequiredAccess>
+                        </LayoutComponent>
+                    </CacheProvider>
+                </ConfigProvider>
             </AppFrameWrapper>
         </>
     )
 }
 
 async function messagesImporter (locale) {
-    const base = await condoMessageImporter(locale)
-    const override = await import(`@app/{{name}}/lang/${locale}/${locale}`)
-    return { ...base, ...override.default }
+    return await import(`@app/{{name}}/lang/${locale}/${locale}`)
 }
 
 
