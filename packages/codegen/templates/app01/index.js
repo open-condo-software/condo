@@ -2,7 +2,6 @@ const { HealthCheck, getPostgresHealthCheck, getRedisHealthCheck } = require('@o
 const { StitchSchemaMiddleware } = require('@open-condo/keystone/stitchSchema')
 const { CondoOIDCMiddleware } = require('@app/{{name}}/middlewares/oidc')
 const { FeaturesMiddleware } = require('@open-condo/featureflags/FeaturesMiddleware')
-const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { prepareKeystone } = require('@open-condo/keystone/KSv5v6/v5/prepareKeystone')
 
 
@@ -15,7 +14,6 @@ const apps = () => [
     new StitchSchemaMiddleware({ apiUrl: '/graphql' }),
     new CondoOIDCMiddleware(),
     new FeaturesMiddleware(),
-    FileAdapter.makeFileAdapterMiddleware(),
 ]
 
 const tasks = () => []

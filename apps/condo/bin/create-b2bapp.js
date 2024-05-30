@@ -16,18 +16,18 @@ function getJson (data) {
 }
 
 async function main (args) {
-    const [name, options, appName] = args
+    const [b2bAppName, options, appName] = args
     let optionsJson = getJson(options)
-    if (!name) throw new Error('use: create-b2bapp <name> [<options>]')
+    if (!b2bAppName) throw new Error('use: create-b2bapp <name> [<options>]')
     if (options && !optionsJson) throw new Error('<options> argument should be a valid json')
     if (options && !optionsJson.appUrl) throw new Error('<options> argument should have appUrl key')
     const json = optionsJson || {}
 
     const { keystone: context } = await prepareKeystoneExpressApp(path.resolve('./index.js'), { excludeApps: ['NextApp', 'AdminUIApp'] })
 
-    console.info(`NAME: ${name}`)
+    console.info(`B2BApp name: ${b2bAppName}`)
     let b2bAppId
-    const [b2bApp] = await B2BApp.getAll(context, { name }, { first: 1, sortBy: ['createdAt_DESC'] })
+    const [b2bApp] = await B2BApp.getAll(context, { b2bAppName }, { first: 1, sortBy: ['createdAt_DESC'] })
     if (!json.dv) json.dv = 1
     if (!json.sender) json.sender = { 'dv': 1, 'fingerprint': 'create-b2bapp-script' }
     if (!b2bApp) {
@@ -38,7 +38,7 @@ async function main (args) {
         if (!json.detailedDescription) json.detailedDescription = faker.lorem.paragraphs(5)
 
         const b2bApp = await B2BApp.create(context, {
-            name, ...json,
+            b2bAppName, ...json,
         })
         b2bAppId = b2bApp.id
         console.info('B2BApp created!')

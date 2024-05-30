@@ -18,6 +18,7 @@ const DEFAULT_APPLICATION_TEMPLATE = 'app00'
 const DEFAULT_SCHEMA_TEMPLATE = 'schema00'
 const DEFAULT_SERVICE_TEMPLATE = 'service00'
 
+const APP_TYPES = ['keystone-next', 'keystone']
 const SERVICE_TYPES = ['mutations', 'queries']
 
 const access = promisify(fs.access)
@@ -233,9 +234,9 @@ function createapp (argv) {
                 type: 'boolean',
             },
             'type': {
-                default: 'default',
-                describe: 'type of app, may be "backend" for backend only app, or "default" for app with backend and frontend',
-                type: 'string',
+                default: 'keystone-next',
+                describe: 'type of app',
+                choices: APP_TYPES,
             },
         })
         .usage(
@@ -264,13 +265,16 @@ function createapp (argv) {
                 let template = conf.CODEGEN_APPLICATION_TEMPLATE
                 if (!template) {
                     switch (type) {
-                        case 'backend': {
+                        case 'keystone': {
                             template = 'app01'
                             break
                         }
-                        default: {
+                        case 'keystone-next': {
                             template = DEFAULT_APPLICATION_TEMPLATE
                             break
+                        }
+                        default: {
+                            throw new Error(`There is no such template type. Available types: ${APP_TYPES.join(', ')}`)
                         }
                     }
                 }
