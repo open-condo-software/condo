@@ -7,6 +7,8 @@ const conf = require('@open-condo/config')
 
 const { antGlobalVariables } = require('@condo/domains/common/constants/style')
 
+const { DEFAULT_LOCALE } = require('@{{name}}/domains/common/constants')
+
 // Tell webpack to compile the "@open-condo/next" package, necessary
 // https://www.npmjs.com/package/next-transpile-modules
 // NOTE: FormTable require rc-table module
@@ -29,7 +31,7 @@ const serverUrl = conf['SERVER_URL']
 const apolloGraphQLUrl = `${serverUrl}/graphql`
 const condoUrl = conf['CONDO_DOMAIN']
 const b2bAppId = conf['CONDO_B2B_APP_ID'] || null
-const defaultLocale = conf['DEFAULT_LOCALE'] || 'ru'
+const defaultLocale = DEFAULT_LOCALE
 
 module.exports = withTM(withLess(withCSS({
     publicRuntimeConfig: {

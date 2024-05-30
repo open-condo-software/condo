@@ -56,7 +56,6 @@ const StyledPageWrapper = styled(Layout.Content)`
 interface IBaseLayoutProps {
     style?: CSSProperties
     className?: string
-    // menuData?: React.ElementType
 }
 
 const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
