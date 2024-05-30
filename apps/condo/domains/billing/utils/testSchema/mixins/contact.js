@@ -8,11 +8,11 @@ const ContactTestMixin = {
     async initMixin () { },
 
     async createContact (createInput = {}) {
-        return await createTestContact(this.clients.support, this.organization, this.property, createInput)
+        return await createTestContact(this.clients.admin, this.organization, this.property, createInput)
     },
 
     async updateContact (id, updateInput = {}) {
-        return await updateTestContact(this.clients.support, id, updateInput)
+        return await updateTestContact(this.clients.admin, id, updateInput)
     }
 
 }
