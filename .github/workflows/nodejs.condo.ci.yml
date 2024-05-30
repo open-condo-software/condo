@@ -45,6 +45,9 @@ jobs:
         id: buildx
         uses: docker/setup-buildx-action@v3
         with:
+          config-inline: |
+            [registry."docker.io"]
+              mirrors = ["mirror.gcr.io"]
           endpoint: builders
           driver-opts: env.BUILDKIT_STEP_LOG_MAX_SIZE=10485760
       - name: Login to cloud registry
