@@ -18,7 +18,9 @@ const DEFAULT_APPLICATION_TEMPLATE = 'app00'
 const DEFAULT_SCHEMA_TEMPLATE = 'schema00'
 const DEFAULT_SERVICE_TEMPLATE = 'service00'
 
-const APP_TYPES = ['keystone-next', 'keystone']
+const LEGACY_KEYSTONE_NEXT_APP_TYPE = 'legacy-keystone-next'
+const KEYSTONE_APP_TYPE = 'keystone'
+const APP_TYPES = [LEGACY_KEYSTONE_NEXT_APP_TYPE, KEYSTONE_APP_TYPE]
 const SERVICE_TYPES = ['mutations', 'queries']
 
 const access = promisify(fs.access)
@@ -234,7 +236,7 @@ function createapp (argv) {
                 type: 'boolean',
             },
             'type': {
-                default: 'keystone-next',
+                default: 'keystone',
                 describe: 'type of app',
                 choices: APP_TYPES,
             },
@@ -265,11 +267,11 @@ function createapp (argv) {
                 let template = conf.CODEGEN_APPLICATION_TEMPLATE
                 if (!template) {
                     switch (type) {
-                        case 'keystone': {
+                        case KEYSTONE_APP_TYPE: {
                             template = 'app01'
                             break
                         }
-                        case 'keystone-next': {
+                        case LEGACY_KEYSTONE_NEXT_APP_TYPE: {
                             template = DEFAULT_APPLICATION_TEMPLATE
                             break
                         }
