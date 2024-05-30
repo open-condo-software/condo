@@ -13,7 +13,8 @@ const { IDENTITY_TYPES, SBBOL_IDENTITY_TYPE } = require('@condo/domains/user/con
 
 
 const ExternalTokenAccessRight = new GQLListSchema('ExternalTokenAccessRight', {
-    schemaDoc: 'The scheme regulates the access of the service user to the access tokens stored in the redis',
+    schemaDoc: 'The scheme allows the service user to get read access to all user access tokens.\n' +
+        'Used to check permissions in the getAccessTokenByUserId query',
     fields: {
 
         type: {

@@ -22917,7 +22917,10 @@ export type ExternalReportsUpdateInput = {
   data?: Maybe<ExternalReportUpdateInput>;
 };
 
-/**  The scheme regulates the access of the service user to the access tokens stored in the redis  */
+/**
+ *  The scheme allows the service user to get read access to all user access tokens.
+ * Used to check permissions in the getAccessTokenByUserId query
+ */
 export type ExternalTokenAccessRight = {
   __typename?: 'ExternalTokenAccessRight';
   /**
@@ -63054,6 +63057,37 @@ export type Query = {
    * }`
    */
   getPhoneByConfirmPhoneActionToken?: Maybe<GetPhoneByConfirmPhoneActionTokenOutput>;
+  /**
+   * To get a token for a specific user, you need to call this query, specifying the required integration type and userId in the parameters. To pass the rights check, you need to request on behalf of the service user, and also have an entry in the ExternalTokenAccessRight table that regulates access to tokens of different integrations
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "query": "GetAccessTokenByUserIdService",
+   *   "code": "INTERNAL_ERROR",
+   *   "type": "REFRESH_TOKEN_EXPIRED",
+   *   "message": "SBBOL user refreshToken expired",
+   *   "messageForUser": "api.user.getAccessTokenByUserIdService.REFRESH_TOKEN_EXPIRED"
+   * }`
+   *
+   * `{
+   *   "query": "GetAccessTokenByUserIdService",
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "INVALID_USER_ID",
+   *   "message": "Received userId must be uuid",
+   *   "messageForUser": "api.user.getAccessTokenByUserIdService.INVALID_USER_ID"
+   * }`
+   *
+   * `{
+   *   "query": "GetAccessTokenByUserIdService",
+   *   "code": "INTERNAL_ERROR",
+   *   "type": "ERROR_GETTING_ACCESS_TOKEN",
+   *   "message": "Unresolved error in getAccessTokenForUser",
+   *   "messageForUser": "api.user.getAccessTokenByUserIdService.ERROR_GETTING_ACCESS_TOKEN"
+   * }`
+   */
   getAccessTokenByUserId?: Maybe<GetAccessTokenByUserIdOutput>;
   exportPropertiesToExcel?: Maybe<ExportPropertiesToExcelOutput>;
   allResidentBillingReceipts?: Maybe<Array<Maybe<ResidentBillingReceiptOutput>>>;

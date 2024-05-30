@@ -11,7 +11,7 @@ const access = require('@condo/domains/user/access/GetAccessTokenByUserIdService
  * List of possible errors, that this custom schema can throw
  * They will be rendered in documentation section in GraphiQL for this custom schema
  */
-const errors = {
+const ERRORS = {
     REFRESH_TOKEN_EXPIRED: {
         query: 'GetAccessTokenByUserIdService',
         code: INTERNAL_ERROR,
@@ -50,10 +50,16 @@ const GetAccessTokenByUserIdService = new GQLCustomSchema('GetAccessTokenByUserI
     queries: [
         {
             access: access.canGetAccessTokenByUserId,
+            doc: {
+                description: 'To get a token for a specific user, you need to call this query, specifying the required integration type and userId in the parameters. ' +
+                    'To pass the rights check, you need to request on behalf of the service user, ' +
+                    'and also have an entry in the ExternalTokenAccessRight table that regulates access to tokens of different integrations',
+                errors: ERRORS,
+            },
             schema: 'getAccessTokenByUserId (data: GetAccessTokenByUserIdInput!): GetAccessTokenByUserIdOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data } = args
-                if (!uuidValidate(data.userId)) throw new GQLError(errors.INVALID_USER_ID, context)
+                if (!uuidValidate(data.userId)) throw new GQLError(ERRORS.INVALID_USER_ID, context)
 
                 let accessToken, ttl
 
@@ -61,9 +67,9 @@ const GetAccessTokenByUserIdService = new GQLCustomSchema('GetAccessTokenByUserI
                     ({ accessToken, ttl } = await getAccessTokenForUser(data.userId))
                 } catch (e) {
                     if (e.message.includes('refreshToken')) {
-                        throw new GQLError(errors.REFRESH_TOKEN_EXPIRED, context)
+                        throw new GQLError(ERRORS.REFRESH_TOKEN_EXPIRED, context)
                     }
-                    throw new GQLError(errors.ERROR_GETTING_ACCESS_TOKEN, context)
+                    throw new GQLError(ERRORS.ERROR_GETTING_ACCESS_TOKEN, context)
                 }
 
                 return { accessToken, ttl }
