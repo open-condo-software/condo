@@ -20,7 +20,7 @@ async function main (args) {
     if (options && !optionsJson) throw new Error('<options> argument should be a valid json')
     const json = optionsJson || {}
 
-    const { keystone: context } = await prepareKeystoneExpressApp(path.resolve('./index.js'), { excludeApps: ['NextApp', 'AdminUIApp', 'StitchSchemaMiddleware'] })
+    const { keystone: context } = await prepareKeystoneExpressApp(path.resolve('./index.js'), { excludeApps: ['HealthCheck', 'CondoOIDCMiddleware', 'FeaturesMiddleware', 'NextApp', 'AdminUIApp', 'StitchSchemaMiddleware'] })
 
     console.info(`EMAIL: ${email}`)
     const user = await User.getOne(context, { email })
