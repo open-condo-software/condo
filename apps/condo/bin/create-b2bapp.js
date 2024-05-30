@@ -25,9 +25,9 @@ async function main (args) {
 
     const { keystone: context } = await prepareKeystoneExpressApp(path.resolve('./index.js'), { excludeApps: ['NextApp', 'AdminUIApp'] })
 
-    console.info(`B2BApp name: ${b2bAppName}`)
+    console.info(`NAME: ${b2bAppName}`)
     let b2bAppId
-    const [b2bApp] = await B2BApp.getAll(context, { b2bAppName }, { first: 1, sortBy: ['createdAt_DESC'] })
+    const [b2bApp] = await B2BApp.getAll(context, { name: b2bAppName }, { first: 1, sortBy: ['createdAt_DESC'] })
     if (!json.dv) json.dv = 1
     if (!json.sender) json.sender = { 'dv': 1, 'fingerprint': 'create-b2bapp-script' }
     if (!b2bApp) {
@@ -38,7 +38,7 @@ async function main (args) {
         if (!json.detailedDescription) json.detailedDescription = faker.lorem.paragraphs(5)
 
         const b2bApp = await B2BApp.create(context, {
-            b2bAppName, ...json,
+            name: b2bAppName, ...json,
         })
         b2bAppId = b2bApp.id
         console.info('B2BApp created!')
