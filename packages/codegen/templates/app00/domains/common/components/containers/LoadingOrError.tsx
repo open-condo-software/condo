@@ -3,7 +3,7 @@ import React from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
-import { Loader } from '@condo/domains/common/components/Loader'
+import { Loader } from '@{{name}}/domains/common/components/Loader'
 
 
 type LoadingOrErrorProps = {

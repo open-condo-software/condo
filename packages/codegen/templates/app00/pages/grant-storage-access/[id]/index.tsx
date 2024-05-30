@@ -28,10 +28,11 @@ const CONTENT_STYLES: CSSProperties = {
 
 const GrantStorageAccessPage = () => {
     const intl = useIntl()
-    const [pressed, setPressed] = useState<boolean>(false)
     const AskForAccessButtonMessage = intl.formatMessage({ id: 'AskForAccessButton' })
     const GrantButtonPressedMessage = intl.formatMessage({ id: 'GrantButtonPressed' })
     const BeAbleToAskForStorageAccessMessage = intl.formatMessage({ id: 'BeAbleToAskForStorageAccess' })
+
+    const [pressed, setPressed] = useState<boolean>(false)
 
     const clickHandler = useCallback(() => {
         setPressed(true)
