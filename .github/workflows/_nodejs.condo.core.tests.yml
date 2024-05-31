@@ -4,10 +4,7 @@ on:
       domain_name:
         required: true
         type: string
-      image:
-        required: true
-        type: string
-      registry:
+      image_postfix:
         required: true
         type: string
       runs-on:

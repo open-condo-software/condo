@@ -103,7 +103,6 @@ jobs:
     uses: ./.github/workflows/_nodejs.condo.core.tests.yml
     with:
       domain_name: ${{ matrix.domain }}
-      image: ${{ needs.build-image.outputs.DOCKER_IMAGE_FULL }}
       image_postfix: ${{ needs.build-image.outputs.DOCKER_IMAGE_POSTFIX }}
       runs-on: runners-dind-set-cpu5-ram10
     secrets: inherit
