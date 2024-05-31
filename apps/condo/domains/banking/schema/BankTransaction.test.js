@@ -608,10 +608,10 @@ describe('BankTransaction', () => {
                     importId: attrs.importId,
                     importRemoteSystem: attrs.importRemoteSystem,
                 })
-            }, 'Bank_transaction_unique_organization_importRemoteSystem_importId')
+            }, 'Bank_transaction_unique_organization_account_importRemoteSystem_importId')
         })
 
-        it('cannot be created with same importId, importRemoteSystem, organization', async () => {
+        it('cannot be created with same importId, importRemoteSystem, organization, account', async () => {
             const [organization] = await createTestOrganization(admin)
             const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, organization)
             const [account] = await createTestBankAccount(admin, organization, {
@@ -622,19 +622,29 @@ describe('BankTransaction', () => {
             const importId = faker.datatype.uuid()
             const importRemoteSystem = faker.lorem.word()
 
-            const [obj1] = await createTestBankTransaction(admin, account, contractorAccount, integrationContext, organization, {
+            const [transaction1] = await createTestBankTransaction(admin, account, contractorAccount, integrationContext, organization, {
                 importId,
                 importRemoteSystem,
             })
 
-            expect(obj1).toBeDefined()
+            expect(transaction1).toBeDefined()
 
             await expectToThrowUniqueConstraintViolationError(async () => {
                 await createTestBankTransaction(admin, account, contractorAccount, integrationContext, organization, {
                     importId,
                     importRemoteSystem,
                 })
-            }, 'Bank_transaction_unique_organization_importRemoteSystem_importId')
+            }, 'Bank_transaction_unique_organization_account_importRemoteSystem_importId')
+
+            const [integrationContext2] = await createTestBankIntegrationAccountContext(admin, bankIntegration, organization)
+            const [account2] = await createTestBankAccount(admin, organization, {
+                integrationContext: { connect: { id: integrationContext2.id } },
+            })
+            const [transaction2] = await createTestBankTransaction(admin, account2, null, integrationContext2, organization, {
+                importId,
+                importRemoteSystem,
+            })
+            expect(transaction2).toBeDefined()
         })
     })
 })

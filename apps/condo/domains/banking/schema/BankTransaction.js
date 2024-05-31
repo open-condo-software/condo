@@ -133,9 +133,9 @@ const BankTransaction = new GQLListSchema('BankTransaction', {
         constraints: [
             {
                 type: 'models.UniqueConstraint',
-                fields: ['organization', 'importRemoteSystem', 'importId'],
+                fields: ['organization', 'account', 'importRemoteSystem', 'importId'],
                 condition: 'Q(deletedAt__isnull=True)',
-                name: 'Bank_transaction_unique_organization_importRemoteSystem_importId',
+                name: 'Bank_transaction_unique_organization_account_importRemoteSystem_importId',
             },
         ],
     },
