@@ -23,7 +23,7 @@ jobs:
       - name: login to sbercloud registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ inputs.registry }}
+          registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
           password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
 
