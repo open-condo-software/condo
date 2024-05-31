@@ -1,6 +1,5 @@
 const path = require('path')
 
-
 const get = require('lodash/get')
 const set = require('lodash/set')
 
@@ -12,10 +11,12 @@ const { LOCALES, DEFAULT_LOCALE } = requireTs(localesPath)
 
 const DOCS_ENTRY_ENDPOINT = conf['DOCS_ENTRY_ENDPOINT'] || '/docs/index'
 // NOTE: Url of API server
-const SERVER_URL = conf['SERVER_URL'] || 'http://localhost:4006'
+const SERVER_URL = conf['DEV_API_DOMAIN'] || 'http://localhost:4006'
 // NOTE: Url of current service
 const SERVICE_URL = conf['DEV_PORTAL_DOMAIN'] || 'http://localhost:3000'
 const ADDRESS_SERVICE_URL = conf['ADDRESS_SERVICE_DOMAIN'] || 'http://localhost:4001'
+// NOTE: Value to override via headers
+const GRAPHQL_PROXY_NAME = conf['GRAPHQL_PROXY_NAME'] || 'Next'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -29,6 +30,9 @@ const nextConfig = {
         serverUrl: SERVER_URL,
         serviceUrl: SERVICE_URL,
         addressServiceUrl: ADDRESS_SERVICE_URL,
+    },
+    serverRuntimeConfig: {
+        proxyName: GRAPHQL_PROXY_NAME,
     },
     images: {
         remotePatterns: [

@@ -3,9 +3,15 @@ import getConfig from 'next/config'
 
 import type { NextApiRequest, NextApiResponse } from 'next'
 
-const proxy = httpProxy.createProxy()
+const {
+    publicRuntimeConfig: { serverUrl },
+    serverRuntimeConfig: { proxyName },
+} = getConfig()
 
-const { publicRuntimeConfig: { serverUrl } } = getConfig()
+const proxy = httpProxy.createProxy()
+proxy.on('proxyReq',  (proxyReq, req, res, options) => {
+    proxyReq.setHeader('via', proxyName)
+})
 
 export const config = {
     api: {
