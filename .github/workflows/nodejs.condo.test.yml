@@ -13,12 +13,14 @@ concurrency:
 
 env:
   DOCKER_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/condo/condo-tests-image:${{ github.sha }}
+  DOCKER_IMAGE_POSTFIX: /condo/condo-tests-image:${{ github.sha }}
 
 jobs:
   build-image:
     runs-on: runners-dind-set-cpu5-ram10
     outputs:
       DOCKER_IMAGE_FULL: ${{ env.DOCKER_IMAGE_FULL }}
+      DOCKER_IMAGE_POSTFIX: ${{ env.DOCKER_IMAGE_POSTFIX }}
       DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
     steps:
       - name: install deps
@@ -102,6 +104,6 @@ jobs:
     with:
       domain_name: ${{ matrix.domain }}
       image: ${{ needs.build-image.outputs.DOCKER_IMAGE_FULL }}
-      registry: ${{ needs.build-image.outputs.DOCKER_REGISTRY }}
+      image_postfix: ${{ needs.build-image.outputs.DOCKER_IMAGE_POSTFIX }}
       runs-on: runners-dind-set-cpu5-ram10
     secrets: inherit
