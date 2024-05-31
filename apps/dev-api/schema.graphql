@@ -3316,6 +3316,11 @@ input B2CAppPublishRequestHistoryRecordsCreateInput {
   data: B2CAppPublishRequestHistoryRecordCreateInput
 }
 
+enum B2CAppPublishRequestStatusType {
+  pending
+  approved
+}
+
 """ A model that determines the ability to publish a mini-application to the production stand, as well as the status of passing the pre-release checkout 
 """
 type B2CAppPublishRequest {
@@ -3332,7 +3337,7 @@ type B2CAppPublishRequest {
   app: B2CApp
 
   """ Status of consideration of the current request """
-  status: String
+  status: B2CAppPublishRequestStatusType
 
   """ Whether the application has been tested before release. Required prerequisite for obtaining permission to publish 
   """
@@ -3373,10 +3378,10 @@ input B2CAppPublishRequestWhereInput {
   OR: [B2CAppPublishRequestWhereInput]
   app: B2CAppWhereInput
   app_is_null: Boolean
-  status: String
-  status_not: String
-  status_in: [String]
-  status_not_in: [String]
+  status: B2CAppPublishRequestStatusType
+  status_not: B2CAppPublishRequestStatusType
+  status_in: [B2CAppPublishRequestStatusType]
+  status_not_in: [B2CAppPublishRequestStatusType]
   isAppTested: Boolean
   isAppTested_not: Boolean
   isContractSigned: Boolean
@@ -3476,7 +3481,7 @@ enum SortB2CAppPublishRequestsBy {
 
 input B2CAppPublishRequestUpdateInput {
   app: B2CAppRelateToOneInput
-  status: String
+  status: B2CAppPublishRequestStatusType
   isAppTested: Boolean
   isContractSigned: Boolean
   isInfoApproved: Boolean
@@ -3498,7 +3503,7 @@ input B2CAppPublishRequestsUpdateInput {
 
 input B2CAppPublishRequestCreateInput {
   app: B2CAppRelateToOneInput
-  status: String
+  status: B2CAppPublishRequestStatusType
   isAppTested: Boolean
   isContractSigned: Boolean
   isInfoApproved: Boolean
@@ -4320,6 +4325,10 @@ input WebhookRelateToOneInput {
   disconnectAll: Boolean
 }
 
+enum WebhookSubscriptionModelType {
+  B2CAppPublishRequest
+}
+
 """ Determines which models the WebHook will be subscribed to. When model changes subscription task will be triggered to resolve changed data and send a webhook 
 """
 type WebhookSubscription {
@@ -4352,7 +4361,7 @@ type WebhookSubscription {
   failuresCount: Int
 
   """ The data model (schema) that the webhook is subscribed to """
-  model: String
+  model: WebhookSubscriptionModelType
 
   """ String representing list of model fields in graphql-query format. Exactly the fields specified here will be sent by the webhook. Correct examples: "field1 field2 { subfield }", "{ field1 relation { subfield } }" 
   """
@@ -4435,10 +4444,10 @@ input WebhookSubscriptionWhereInput {
   failuresCount_gte: Int
   failuresCount_in: [Int]
   failuresCount_not_in: [Int]
-  model: String
-  model_not: String
-  model_in: [String]
-  model_not_in: [String]
+  model: WebhookSubscriptionModelType
+  model_not: WebhookSubscriptionModelType
+  model_in: [WebhookSubscriptionModelType]
+  model_not_in: [WebhookSubscriptionModelType]
   fields: String
   fields_not: String
   fields_contains: String
@@ -4572,7 +4581,7 @@ input WebhookSubscriptionUpdateInput {
   syncedAt: String
   syncedAmount: Int
   failuresCount: Int
-  model: String
+  model: WebhookSubscriptionModelType
   fields: String
   filters: JSON
   maxPackSize: Int
@@ -4598,7 +4607,7 @@ input WebhookSubscriptionCreateInput {
   syncedAt: String
   syncedAmount: Int
   failuresCount: Int
-  model: String
+  model: WebhookSubscriptionModelType
   fields: String
   filters: JSON
   maxPackSize: Int
