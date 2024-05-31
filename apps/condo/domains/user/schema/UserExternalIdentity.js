@@ -28,7 +28,6 @@ const UserExternalIdentity = new GQLListSchema('UserExternalIdentity', {
         identityType: {
             schemaDoc: 'The type of external identity that was a source for this link',
             type: 'Select',
-            dataType: 'enum',
             options: IDP_TYPES,
             isRequired: true,
         },

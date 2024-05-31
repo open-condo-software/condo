@@ -73,7 +73,6 @@ const User = new GQLListSchema('User', {
         type: {
             schemaDoc: 'Field that allows you to distinguish CRM users from mobile app users',
             type: 'Select',
-            dataType: 'enum',
             options: USER_TYPES,
             defaultValue: STAFF,
             isRequired: true,

@@ -18,7 +18,6 @@ const ExternalTokenAccessRight = new GQLListSchema('ExternalTokenAccessRight', {
         type: {
             schemaDoc: 'Which service token the user has access to',
             type: 'Select',
-            dataType: 'enum',
             options: IDENTITY_TYPES,
             defaultValue: SBBOL_IDENTITY_TYPE,
             isRequired: true,

@@ -19,7 +19,6 @@ const RecurrentPayment = new GQLListSchema('RecurrentPayment', {
         status: {
             schemaDoc: 'Payment proceeding status',
             type: 'Select',
-            dataType: 'enum',
             options: RECURRENT_PAYMENT_STATUSES,
             defaultValue: RECURRENT_PAYMENT_INIT_STATUS,
         },
