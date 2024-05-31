@@ -204,13 +204,13 @@ describe('ValidateQRCodeService', () => {
             }, ({ errors }) => {
 
                 expect(errors).toMatchObject([{
-                    message: 'Organization with provided TIN and having provided address is not registered with Doma.ai',
+                    message: 'Organization with provided TIN and having provided address is not registered',
                     path: ['result'],
                     extensions: {
                         mutation: 'validateQRCode',
                         code: 'INTERNAL_ERROR',
                         type: 'NOT_FOUND',
-                        message: 'Organization with provided TIN and having provided address is not registered with Doma.ai',
+                        message: 'Organization with provided TIN and having provided address is not registered',
                     },
                 }])
             })
