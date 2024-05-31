@@ -39,7 +39,6 @@ const User = new GQLListSchema('User', {
         type: {
             schemaDoc: 'condo.User.type',
             type: 'Select',
-            dataType: 'enum',
             options: USER_TYPES,
             defaultValue: SERVICE_USER_TYPE,
             isRequired: true,
