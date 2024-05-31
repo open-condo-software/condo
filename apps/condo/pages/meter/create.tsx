@@ -1,19 +1,22 @@
-import { Typography, Row, Col, Tabs } from 'antd'
+import { Typography, Row, Col } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
+import { get } from 'lodash'
 import Head from 'next/head'
-import React, { useCallback, useState } from 'react'
+import { useRouter } from 'next/router'
+import React, { useCallback, useEffect, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Tour } from '@open-condo/ui'
 
-
-
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { updateQuery } from '@condo/domains/common/utils/helpers'
+import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import {
     CreateMeterReadingsForm,
     CreatePropertyMeterReadingsForm,
 } from '@condo/domains/meter/components/CreateMeterReadingsForm'
+import { CreateMeterForm } from '@condo/domains/meter/components/Meters/CreateMeterForm'
 import {
     MeterReadAndManagePermissionRequired,
 } from '@condo/domains/meter/components/PageAccess'
@@ -28,45 +31,78 @@ const CREATE_METER_PAGE_GUTTER: [Gutter, Gutter] = [12, 40]
 
 const CreateMeterPage: ICreateMeterPage = () => {
     const intl = useIntl()
-    const PageTitle = intl.formatMessage({ id: 'meter.AddMeterReadings' })
-    const MeterMessage = intl.formatMessage({ id: 'pages.condo.meter.index.meterTab' })
-    const PropertyMeterMessage = intl.formatMessage({ id: 'pages.condo.meter.index.propertyMeterTab' })
+    const PageTitleAddMeterReadings = intl.formatMessage({ id: 'meter.AddMeterReadings' })
+    const PageTitleAddPropertyMeterReadings = intl.formatMessage({ id: 'meter.AddPropertyMeterReadings' })
+    const PageTitleAddMeters = intl.formatMessage({ id: 'meter.AddMeters' })
+    const PageTitleAddPropertyMeters = intl.formatMessage({ id: 'meter.AddPropertyMeters' })
 
+    const router = useRouter()
+    const { tab } = parseQuery(router.query)
     const { link: { role = {} }, organization } = useOrganization()
+    const canManageMeters = get(role, 'canManageMeters', false)
 
-    const [tab, setTab] = useState<MeterPageTypes>(METER_TAB_TYPES.meter)
+    const changeRouteToDefaultTab = useCallback(async () => {
+        await updateQuery(router, {
+            newParameters: {
+                tab: METER_TAB_TYPES.meter,
+            },
+        }, { routerAction: 'push', resetOldParameters: true })
+    }, [router])
 
-    const handleTabChange = useCallback((tab: MeterPageTypes) => {
-        setTab(tab)
-    }, [])
+    useEffect(() => {
+        console.log('tab in useeffect: ', tab)
+        
+        if (!Object.values(METER_TAB_TYPES).includes(tab as MeterPageTypes)) changeRouteToDefaultTab()
+    }, [changeRouteToDefaultTab, tab])
+
+    const getPageTitle = useMemo(() => {
+        if (tab === METER_TAB_TYPES.meterReading) return PageTitleAddMeterReadings
+        if (tab === METER_TAB_TYPES.propertyMeterReading) return PageTitleAddPropertyMeterReadings
+        if (tab === METER_TAB_TYPES.meter) return PageTitleAddMeters
+
+        return PageTitleAddPropertyMeters
+    }, [PageTitleAddMeterReadings, PageTitleAddMeters, PageTitleAddPropertyMeterReadings, PageTitleAddPropertyMeters, tab])
+
+
 
     return (
         <>
             <Head>
-                <title>{PageTitle}</title>
+                <title>{getPageTitle}</title>
             </Head>
             <PageWrapper>
                 <PageContent>
                     <Row gutter={CREATE_METER_PAGE_GUTTER}>
                         <Col span={24}>
-                            <Typography.Title level={1}>{PageTitle}</Typography.Title>
+                            <Typography.Title level={1}>{getPageTitle}</Typography.Title>
                         </Col>
-                        <Tabs activeKey={tab} onChange={handleTabChange}>
-                            <Tabs.TabPane tab={MeterMessage} key={METER_TAB_TYPES.meter} />
-                            <Tabs.TabPane tab={PropertyMeterMessage} key={METER_TAB_TYPES.propertyMeter} />
-                        </Tabs>
                         <Col span={24}>
                             {
-                                tab === METER_TAB_TYPES.propertyMeter ? (
+                                tab === METER_TAB_TYPES.propertyMeterReading ? (
                                     <CreatePropertyMeterReadingsForm
                                         organization={organization}
-                                        role={role}
                                     />
-                                ) : (
+                                ) : tab === METER_TAB_TYPES.meterReading ? (
                                     <Tour.Provider>
                                         <CreateMeterReadingsForm
                                             organization={organization}
                                             role={role}
+                                        />
+                                    </Tour.Provider>
+                                ) : tab === METER_TAB_TYPES.meter ? (
+                                    <Tour.Provider>
+                                        <CreateMeterForm 
+                                            organizationId={get(organization, 'id')}
+                                            meterType={METER_TAB_TYPES.meter}
+                                            canManageMeters={canManageMeters}
+                                        />
+                                    </Tour.Provider>
+                                ) : (
+                                    <Tour.Provider>
+                                        <CreateMeterForm 
+                                            organizationId={get(organization, 'id')}
+                                            meterType={METER_TAB_TYPES.propertyMeter}
+                                            canManageMeters={canManageMeters}
                                         />
                                     </Tour.Provider>
                                 )

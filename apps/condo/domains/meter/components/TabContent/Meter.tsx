@@ -137,7 +137,7 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
 
 
     const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
-    const handleCreateMeterReadings = useCallback(() => router.push('/meter/create'), [router])
+    const handleCreateMeterReadings = useCallback(() => router.push(`/meter/create?tab=${METER_TAB_TYPES.meter}`), [router])
 
     return (
         <>
@@ -285,7 +285,7 @@ export const MetersPageContent: React.FC<MeterReadingsPageContentProps> = ({
                         },
                         OverrideImportWrapperFC: MetersImportWrapper,
                     }}
-                    createRoute={`/meter/create?meterType=${METER_TAB_TYPES.meter}`}
+                    createRoute={`/meter/create?tab=${METER_TAB_TYPES.meter}`}
                     accessCheck={canManageMeterReadings}
                 />
             )

@@ -223,7 +223,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
     }), [handleSelectAllRowsByPage, handleSelectRowWithTracking, isSelectedAllRowsByPage, isSelectedSomeRowsByPage, selectedRowKeysByPage])
 
     const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
-    const handleCreateMeterReadings = useCallback(() => router.push('/meter/create'), [router])
+    const handleCreateMeterReadings = useCallback(() => router.push(`/meter/create?tab=${METER_TAB_TYPES.meterReading}`), [router])
 
     return (
         <>
@@ -380,11 +380,11 @@ export const MeterReadingsPageContent: React.FC<MeterReadingsPageContentProps> =
                         importCreateEmoji: EMOJI.LIST,
                         importWrapper: {
                             onFinish: refetch,
-                            domainName: 'meter',
+                            domainName: 'meterReading',
                         },
                         OverrideImportWrapperFC: MetersImportWrapper,
                     }}
-                    createRoute={`/meter/create?meterType=${METER_TAB_TYPES.meter}`}
+                    createRoute={`/meter/create?tab=${METER_TAB_TYPES.meterReading}`}
                     accessCheck={canManageMeterReadings}
                 />
             )
