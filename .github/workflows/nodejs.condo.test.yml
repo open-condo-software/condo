@@ -12,13 +12,16 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  DOCKER_IMAGE_FULL: swr.ru-moscow-1.hc.sbercloud.ru/condo/condo-tests-image:${{ github.sha }}
+  DOCKER_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/condo/condo-tests-image:${{ github.sha }}
+  DOCKER_IMAGE_POSTFIX: /condo/condo-tests-image:${{ github.sha }}
 
 jobs:
   build-image:
     runs-on: runners-dind-set-cpu5-ram10
     outputs:
       DOCKER_IMAGE_FULL: ${{ env.DOCKER_IMAGE_FULL }}
+      DOCKER_IMAGE_POSTFIX: ${{ env.DOCKER_IMAGE_POSTFIX }}
+      DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
     steps:
       - name: install deps
         run: |
@@ -27,7 +30,7 @@ jobs:
       - name: login to sbercloud registry
         uses: docker/login-action@v3
         with:
-          registry: swr.ru-moscow-1.hc.sbercloud.ru
+          registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
           password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
 
@@ -50,7 +53,7 @@ jobs:
           endpoint: builders
           driver-opts: |
             env.BUILDKIT_STEP_LOG_MAX_SIZE=10485760
-            image=swr.ru-moscow-1.hc.sbercloud.ru/doma/utils/buildkit:buildx-stable-1
+            image=${{ secrets.DOCKER_REGISTRY }}/doma/utils/buildkit:buildx-stable-1
 
       # - name: cache yarn packages
       #   uses: actions/cache@v3
@@ -74,8 +77,8 @@ jobs:
           push: true
           tags: ${{ env.DOCKER_IMAGE_FULL }}
           provenance: false
-          cache-from: type=registry,ref=swr.ru-moscow-1.hc.sbercloud.ru/condo/condo-tests-image:buildcache
-          cache-to: type=registry,ref=swr.ru-moscow-1.hc.sbercloud.ru/condo/condo-tests-image:buildcache,mode=max,image-manifest=true
+          cache-from: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/condo/condo-tests-image:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/condo/condo-tests-image:buildcache,mode=max,image-manifest=true
 
   domains-tests-job:
     needs: build-image
@@ -100,7 +103,6 @@ jobs:
     uses: ./.github/workflows/_nodejs.condo.core.tests.yml
     with:
       domain_name: ${{ matrix.domain }}
-      image: ${{ needs.build-image.outputs.DOCKER_IMAGE_FULL }}
-      registry: swr.ru-moscow-1.hc.sbercloud.ru
+      image_postfix: ${{ needs.build-image.outputs.DOCKER_IMAGE_POSTFIX }}
       runs-on: runners-dind-set-cpu5-ram10
     secrets: inherit
