@@ -1270,7 +1270,7 @@ export type B2CAppPublishRequest = {
     /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
     sender?: Maybe<SenderField>;
     /**  Status of consideration of the current request  */
-    status?: Maybe<Scalars['String']['output']>;
+    status?: Maybe<B2CAppPublishRequestStatusType>;
     updatedAt?: Maybe<Scalars['String']['output']>;
     /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
     updatedBy?: Maybe<User>;
@@ -1288,7 +1288,7 @@ export type B2CAppPublishRequestCreateInput = {
     isInfoApproved?: InputMaybe<Scalars['Boolean']['input']>;
     newId?: InputMaybe<Scalars['String']['input']>;
     sender?: InputMaybe<SenderFieldInput>;
-    status?: InputMaybe<Scalars['String']['input']>;
+    status?: InputMaybe<B2CAppPublishRequestStatusType>;
     updatedAt?: InputMaybe<Scalars['String']['input']>;
     updatedBy?: InputMaybe<UserRelateToOneInput>;
     v?: InputMaybe<Scalars['Int']['input']>;
@@ -1493,6 +1493,11 @@ export type B2CAppPublishRequestHistoryRecordsUpdateInput = {
     id: Scalars['ID']['input'];
 }
 
+export enum B2CAppPublishRequestStatusType {
+    Approved = 'approved',
+    Pending = 'pending',
+}
+
 export type B2CAppPublishRequestUpdateInput = {
     app?: InputMaybe<B2CAppRelateToOneInput>;
     createdAt?: InputMaybe<Scalars['String']['input']>;
@@ -1504,7 +1509,7 @@ export type B2CAppPublishRequestUpdateInput = {
     isInfoApproved?: InputMaybe<Scalars['Boolean']['input']>;
     newId?: InputMaybe<Scalars['String']['input']>;
     sender?: InputMaybe<SenderFieldInput>;
-    status?: InputMaybe<Scalars['String']['input']>;
+    status?: InputMaybe<B2CAppPublishRequestStatusType>;
     updatedAt?: InputMaybe<Scalars['String']['input']>;
     updatedBy?: InputMaybe<UserRelateToOneInput>;
     v?: InputMaybe<Scalars['Int']['input']>;
@@ -1559,10 +1564,10 @@ export type B2CAppPublishRequestWhereInput = {
     sender_in?: InputMaybe<Array<InputMaybe<SenderFieldInput>>>;
     sender_not?: InputMaybe<SenderFieldInput>;
     sender_not_in?: InputMaybe<Array<InputMaybe<SenderFieldInput>>>;
-    status?: InputMaybe<Scalars['String']['input']>;
-    status_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    status_not?: InputMaybe<Scalars['String']['input']>;
-    status_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    status?: InputMaybe<B2CAppPublishRequestStatusType>;
+    status_in?: InputMaybe<Array<InputMaybe<B2CAppPublishRequestStatusType>>>;
+    status_not?: InputMaybe<B2CAppPublishRequestStatusType>;
+    status_not_in?: InputMaybe<Array<InputMaybe<B2CAppPublishRequestStatusType>>>;
     updatedAt?: InputMaybe<Scalars['String']['input']>;
     updatedAt_gt?: InputMaybe<Scalars['String']['input']>;
     updatedAt_gte?: InputMaybe<Scalars['String']['input']>;
@@ -5614,7 +5619,7 @@ export type WebhookSubscription = {
     /**  The maximum number of objects that the server can send in one request. The default is 100, and maxPackSize cannot be set beyond this value. In most cases, you do not need to override this field, but it is recommended to lower this value for requests with a large number of related fields or in case of external restrictions of the server accepting webhooks.  */
     maxPackSize?: Maybe<Scalars['Int']['output']>;
     /**  The data model (schema) that the webhook is subscribed to  */
-    model?: Maybe<Scalars['String']['output']>;
+    model?: Maybe<WebhookSubscriptionModelType>;
     newId?: Maybe<Scalars['String']['output']>;
     /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
     sender?: Maybe<SenderField>;
@@ -5641,7 +5646,7 @@ export type WebhookSubscriptionCreateInput = {
     fields?: InputMaybe<Scalars['String']['input']>;
     filters?: InputMaybe<Scalars['JSON']['input']>;
     maxPackSize?: InputMaybe<Scalars['Int']['input']>;
-    model?: InputMaybe<Scalars['String']['input']>;
+    model?: InputMaybe<WebhookSubscriptionModelType>;
     newId?: InputMaybe<Scalars['String']['input']>;
     sender?: InputMaybe<SenderFieldInput>;
     syncedAmount?: InputMaybe<Scalars['Int']['input']>;
@@ -5930,6 +5935,10 @@ export type WebhookSubscriptionHistoryRecordsUpdateInput = {
     id: Scalars['ID']['input'];
 }
 
+export enum WebhookSubscriptionModelType {
+    B2CAppPublishRequest = 'B2CAppPublishRequest',
+}
+
 export type WebhookSubscriptionUpdateInput = {
     createdAt?: InputMaybe<Scalars['String']['input']>;
     createdBy?: InputMaybe<UserRelateToOneInput>;
@@ -5939,7 +5948,7 @@ export type WebhookSubscriptionUpdateInput = {
     fields?: InputMaybe<Scalars['String']['input']>;
     filters?: InputMaybe<Scalars['JSON']['input']>;
     maxPackSize?: InputMaybe<Scalars['Int']['input']>;
-    model?: InputMaybe<Scalars['String']['input']>;
+    model?: InputMaybe<WebhookSubscriptionModelType>;
     newId?: InputMaybe<Scalars['String']['input']>;
     sender?: InputMaybe<SenderFieldInput>;
     syncedAmount?: InputMaybe<Scalars['Int']['input']>;
@@ -6022,10 +6031,10 @@ export type WebhookSubscriptionWhereInput = {
     maxPackSize_lte?: InputMaybe<Scalars['Int']['input']>;
     maxPackSize_not?: InputMaybe<Scalars['Int']['input']>;
     maxPackSize_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-    model?: InputMaybe<Scalars['String']['input']>;
-    model_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    model_not?: InputMaybe<Scalars['String']['input']>;
-    model_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    model?: InputMaybe<WebhookSubscriptionModelType>;
+    model_in?: InputMaybe<Array<InputMaybe<WebhookSubscriptionModelType>>>;
+    model_not?: InputMaybe<WebhookSubscriptionModelType>;
+    model_not_in?: InputMaybe<Array<InputMaybe<WebhookSubscriptionModelType>>>;
     newId?: InputMaybe<Scalars['String']['input']>;
     newId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
     newId_not?: InputMaybe<Scalars['String']['input']>;
@@ -6457,7 +6466,7 @@ export type AllB2CAppPublishRequestsQueryVariables = Exact<{
 }>
 
 
-export type AllB2CAppPublishRequestsQuery = { __typename?: 'Query', requests?: Array<{ __typename?: 'B2CAppPublishRequest', isAppTested?: boolean | null, isInfoApproved?: boolean | null, isContractSigned?: boolean | null, status?: string | null } | null> | null }
+export type AllB2CAppPublishRequestsQuery = { __typename?: 'Query', requests?: Array<{ __typename?: 'B2CAppPublishRequest', isAppTested?: boolean | null, isInfoApproved?: boolean | null, isContractSigned?: boolean | null, status?: B2CAppPublishRequestStatusType | null } | null> | null }
 
 export type CreateB2CAppMutationVariables = Exact<{
     data: B2CAppCreateInput;
