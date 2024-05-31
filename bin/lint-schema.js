@@ -1,5 +1,6 @@
 const path = require('path')
 
+// eslint-disable-next-line no-restricted-modules
 const { File } = require('@keystonejs/fields')
 const { LocalFileAdapter } = require('@keystonejs/file-adapters')
 
