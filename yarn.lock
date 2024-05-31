@@ -657,6 +657,31 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@app/announcement-generator@workspace:apps/announcement-generator":
+  version: 0.0.0-use.local
+  resolution: "@app/announcement-generator@workspace:apps/announcement-generator"
+  dependencies:
+    "@babel/core": ^7.23.0
+    "@babel/preset-env": ^7.22.20
+    "@babel/preset-typescript": ^7.23.0
+    "@open-condo/bridge": "workspace:^"
+    "@open-condo/config": "workspace:^"
+    "@open-condo/icons": "workspace:^"
+    "@open-condo/ui": "workspace:^"
+    "@types/node": ^16
+    "@types/react": 18.0.27
+    "@types/react-dom": 18.0.10
+    antd: ^4.24.12
+    next: 13.3.0
+    next-i18n-router: ^4.1.0
+    pdfmake: ^0.2.10
+    react: 18.2.0
+    react-dom: 18.2.0
+    react-intl: ^6.6.5
+    typescript: 4.9.4
+  languageName: unknown
+  linkType: soft
+
 "@app/asterix_bot@workspace:apps/asterix_bot":
   version: 0.0.0-use.local
   resolution: "@app/asterix_bot@workspace:apps/asterix_bot"
