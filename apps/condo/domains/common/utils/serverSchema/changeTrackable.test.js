@@ -1,8 +1,5 @@
 import { catchErrorFrom } from '@open-condo/keystone/test.utils'
 
-const { Text, Relationship, Uuid } = require('@keystonejs/fields')
-
-const { Json, LocalizedText } = require('@open-condo/keystone/fields')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const { generateChangeTrackableFieldsFrom, ResolversValidationError } = require('./changeTrackable')
@@ -12,11 +9,11 @@ const House = new GQLListSchema('House', {
     fields: {
         name: {
             schemaDoc: 'Name of a house',
-            type: Text,
+            type: 'Text',
         },
         address: {
             schemaDoc: 'Where this house is located',
-            type: Text,
+            type: 'Text',
             isRequired: true,
         },
     },
@@ -34,7 +31,7 @@ const Person = new GQLListSchema('Person', {
     fields: {
         name: {
             schemaDoc: 'Name of a person',
-            type: Text,
+            type: 'Text',
             isRequired: true,
             defaultValue: 0,
             access: {
@@ -45,13 +42,13 @@ const Person = new GQLListSchema('Person', {
         },
         currentHome: {
             schemaDoc: 'Where a person currently located',
-            type: Relationship,
+            type: 'Relationship',
             ref: 'House',
             many: false,
         },
         homes: {
             schemaDoc: 'Where a person lives',
-            type: Relationship,
+            type: 'Relationship',
             ref: 'House',
             many: true,
         },
@@ -86,19 +83,19 @@ describe('changeTrackable', () => {
                 expect(fields).toMatchObject({
                     nameFrom: {
                         schemaDoc: 'Name of a house',
-                        type: Text,
+                        type: 'Text',
                     },
                     nameTo: {
                         schemaDoc: 'Name of a house',
-                        type: Text,
+                        type: 'Text',
                     },
                     addressFrom: {
                         schemaDoc: 'Where this house is located',
-                        type: Text,
+                        type: 'Text',
                     },
                     addressTo: {
                         schemaDoc: 'Where this house is located',
-                        type: Text,
+                        type: 'Text',
                     },
                 })
             })
@@ -116,48 +113,48 @@ describe('changeTrackable', () => {
                 expect(fields).toMatchObject({
                     nameFrom: {
                         schemaDoc: 'Name of a person',
-                        type: Text,
+                        type: 'Text',
                     },
                     nameTo: {
                         schemaDoc: 'Name of a person',
-                        type: Text,
+                        type: 'Text',
                     },
                     currentHomeIdFrom: {
                         schemaDoc: 'Old id of related entity. Where a person currently located',
-                        type: Uuid,
+                        type: 'Uuid',
                     },
                     currentHomeIdTo: {
                         schemaDoc: 'New id of related entity. Where a person currently located',
-                        type: Uuid,
+                        type: 'Uuid',
                     },
                     currentHomeDisplayNameFrom: {
                         schemaDoc: 'Old display name of related entity. Where a person currently located',
-                        type: LocalizedText,
+                        type: 'LocalizedText',
                         template: 'house.name',
                     },
                     currentHomeDisplayNameTo: {
                         schemaDoc: 'New display name of related entity. Where a person currently located',
-                        type: LocalizedText,
+                        type: 'LocalizedText',
                         template: 'house.name',
                     },
                     homesIdsFrom: {
                         schemaDoc: 'Old list of ids of related entities. Where a person lives',
-                        type: Json,
+                        type: 'Json',
                         defaultValue: [],
                     },
                     homesIdsTo: {
                         schemaDoc: 'New list of ids of related entities. Where a person lives',
-                        type: Json,
+                        type: 'Json',
                         defaultValue: [],
                     },
                     homesDisplayNamesFrom: {
                         schemaDoc: 'Old version of display names of related entities. Where a person lives',
-                        type: Json,
+                        type: 'Json',
                         defaultValue: [],
                     },
                     homesDisplayNamesTo: {
                         schemaDoc: 'New version of display names of related entities. Where a person lives',
-                        type: Json,
+                        type: 'Json',
                         defaultValue: [],
                     },
                 })

@@ -1,8 +1,6 @@
-const { Relationship } = require('@keystonejs/fields')
-
 const ORGANIZATION_OWNED_FIELD = {
     schemaDoc: 'Ref to the organization. The object will be deleted if the organization ceases to exist',
-    type: Relationship,
+    type: 'Relationship',
     ref: 'Organization',
     isRequired: true,
     knexOptions: { isNotNullable: true }, // Relationship only!
@@ -17,7 +15,7 @@ const ORGANIZATION_OWNED_FIELD = {
 
 const COMMON_AND_ORGANIZATION_OWNED_FIELD = {
     schemaDoc: 'Ref to the organization. If this ref is null the object is common for all organizations',
-    type: Relationship,
+    type: 'Relationship',
     ref: 'Organization',
     isRequired: true,
     kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },

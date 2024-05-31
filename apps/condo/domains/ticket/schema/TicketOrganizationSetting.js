@@ -6,7 +6,6 @@ const dayjs = require('dayjs')
 const duration = require('dayjs/plugin/duration')
 const { get, isNull } = require('lodash')
 
-const { DateInterval } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
@@ -27,7 +26,7 @@ const TicketOrganizationSetting = new GQLListSchema('TicketOrganizationSetting',
         organization: ORGANIZATION_OWNED_FIELD,
         defaultDeadlineDuration: {
             schemaDoc: 'Default deadline duration for default tickets (ISO 8601 format)',
-            type: DateInterval,
+            type: 'DateInterval',
             defaultValue: DEFAULT_TICKET_DEADLINE_DURATION,
             kmigratorOptions: { null: true },
             hooks: {
@@ -46,7 +45,7 @@ const TicketOrganizationSetting = new GQLListSchema('TicketOrganizationSetting',
         },
         paidDeadlineDuration: {
             schemaDoc: 'Default deadline duration for payable tickets (ISO 8601 format)',
-            type: DateInterval,
+            type: 'DateInterval',
             defaultValue: DEFAULT_TICKET_DEADLINE_DURATION,
             kmigratorOptions: { null: true },
             hooks: {
@@ -65,7 +64,7 @@ const TicketOrganizationSetting = new GQLListSchema('TicketOrganizationSetting',
         },
         emergencyDeadlineDuration: {
             schemaDoc: 'Default deadline duration for emergency tickets (ISO 8601 format)',
-            type: DateInterval,
+            type: 'DateInterval',
             defaultValue: DEFAULT_TICKET_DEADLINE_DURATION,
             kmigratorOptions: { null: true },
             hooks: {
@@ -84,7 +83,7 @@ const TicketOrganizationSetting = new GQLListSchema('TicketOrganizationSetting',
         },
         warrantyDeadlineDuration: {
             schemaDoc: 'Default deadline duration for warranty tickets (ISO 8601 format)',
-            type: DateInterval,
+            type: 'DateInterval',
             defaultValue: DEFAULT_TICKET_DEADLINE_DURATION,
             kmigratorOptions: { null: true },
             hooks: {

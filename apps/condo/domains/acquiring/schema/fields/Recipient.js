@@ -1,7 +1,5 @@
 const Ajv = require('ajv')
 
-const { Json } = require('@open-condo/keystone/fields')
-
 const { render, getValidator } = require('@condo/domains/common/schema/json.utils')
 
 const RECIPIENT_FIELDS_DEFINITION = {
@@ -42,7 +40,7 @@ const RECIPIENT_GRAPHQL_TYPES = `
 
 const RECIPIENT_FIELD = {
     schemaDoc: 'Recipient. Should contain all meta information to identify the organization',
-    type: Json,
+    type: 'Json',
     isRequired: true,
     graphQLAdminFragment: `{ ${Object.keys(RECIPIENT_FIELDS_DEFINITION).join(' ')} }`,
     extendGraphQLTypes: [RECIPIENT_GRAPHQL_TYPES],

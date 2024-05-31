@@ -1,7 +1,5 @@
 const Ajv = require('ajv')
 
-const { Json } = require('@open-condo/keystone/fields')
-
 const { getValidator } = require('@condo/domains/common/schema/json.utils')
 const { SUPPORTED_GLOBAL_FEATURES, GLOBAL_FEATURE_GRAPHQL_TYPE } = require('@condo/domains/miniapp/constants')
 
@@ -24,7 +22,7 @@ const GLOBAL_FEATURES_GRAPHQL_TYPES = `
 
 const GLOBAL_FEATURES_FIELD = {
     schemaDoc: `List of features that this global mini-app implements. Can be one or more of the following: [${SUPPORTED_GLOBAL_FEATURES.join(', ')}]`,
-    type: Json,
+    type: 'Json',
     isRequired: false,
     extendGraphQLTypes: GLOBAL_FEATURES_GRAPHQL_TYPES,
     graphQLInputType: `[${GLOBAL_FEATURE_GRAPHQL_TYPE}!]`,

@@ -1,7 +1,5 @@
 const Ajv = require('ajv')
 
-const { Json } = require('@open-condo/keystone/fields')
-
 const { render, getValidator } = require('@condo/domains/common/schema/json.utils')
 
 const PAYMENTS_FILTER_TYPE_NAME = 'PaymentsFilter'
@@ -47,7 +45,7 @@ const validatePaymentsFilter = getValidator(PaymentsFilterValidator)
 
 const PAYMENTS_FILTER_FIELD = {
     schemaDoc: 'Filter that match the given template',
-    type: Json,
+    type: 'Json',
     extendGraphQLTypes: [PAYMENTS_FILTER_TYPE],
     graphQLReturnType: PAYMENTS_FILTER_TYPE_NAME,
     graphQLInputType: PAYMENTS_FILTER_INPUT_NAME,

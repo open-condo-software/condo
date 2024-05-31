@@ -1,7 +1,4 @@
-const { Text, Uuid, Relationship } = require('@keystonejs/fields')
 const { keys, transform, pick, pickBy, omit, difference, isEqual } = require('lodash')
-
-const { Json, LocalizedText } = require('@open-condo/keystone/fields')
 
 /**
  * Utilities to make a GQLListSchema item trackable for changes.
@@ -119,7 +116,7 @@ class ResolversValidationError extends Error {
  *          // Something custom, e.g. reference to source schema,
  *          // whose changes we will track in this schema
  *          ticket: {
- *              type: Relationship,
+ *              type: 'Relationship',
  *              ref: 'Ticket',
  *              isRequired: true,
  *          },
@@ -381,15 +378,15 @@ const buildRelatedFields = async (args) => {
 }
 
 const isScalar = (field) => (
-    field.type !== Relationship
+    field.type !== 'Relationship'
 )
 
 const isRelationSingle = (field) => (
-    field.type === Relationship && !field.many
+    field.type === 'Relationship' && !field.many
 )
 
 const isRelationMany = (field) => (
-    field.type === Relationship && field.many
+    field.type === 'Relationship' && field.many
 )
 
 const mapScalars = (acc, value, key) => {
@@ -419,20 +416,20 @@ const mapRelationSingle = (acc, value, key, keysOfLocalizedDisplayNameTextFields
     if (!keysOfLocalizedDisplayNameTextFields) keysOfLocalizedDisplayNameTextFields = new Map()
     acc[`${key}IdFrom`] = {
         schemaDoc: `Old id of related entity. ${value.schemaDoc}`,
-        type: Uuid,
+        type: 'Uuid',
     }
     acc[`${key}IdTo`] = {
         schemaDoc: `New id of related entity. ${value.schemaDoc}`,
-        type: Uuid,
+        type: 'Uuid',
     }
     acc[`${key}DisplayNameFrom`] = {
         schemaDoc: `Old display name of related entity. ${value.schemaDoc}`,
-        type: keysOfLocalizedDisplayNameTextFields.has(key) ? LocalizedText : Text,
+        type: keysOfLocalizedDisplayNameTextFields.has(key) ? 'LocalizedText' : 'Text',
         ...(keysOfLocalizedDisplayNameTextFields.has(key) ? { template: keysOfLocalizedDisplayNameTextFields.get(key) } : {}),
     }
     acc[`${key}DisplayNameTo`] = {
         schemaDoc: `New display name of related entity. ${value.schemaDoc}`,
-        type: keysOfLocalizedDisplayNameTextFields.has(key) ? LocalizedText : Text,
+        type: keysOfLocalizedDisplayNameTextFields.has(key) ? 'LocalizedText' : 'Text',
         ...(keysOfLocalizedDisplayNameTextFields.has(key) ? { template: keysOfLocalizedDisplayNameTextFields.get(key) } : {}),
     }
 }
@@ -447,22 +444,22 @@ const mapRelationSingle = (acc, value, key, keysOfLocalizedDisplayNameTextFields
 const mapRelationMany = (acc, value, key) => {
     acc[`${key}IdsFrom`] = {
         schemaDoc: `Old list of ids of related entities. ${value.schemaDoc}`,
-        type: Json,
+        type: 'Json',
         defaultValue: [],
     }
     acc[`${key}IdsTo`] = {
         schemaDoc: `New list of ids of related entities. ${value.schemaDoc}`,
-        type: Json,
+        type: 'Json',
         defaultValue: [],
     }
     acc[`${key}DisplayNamesFrom`] = {
         schemaDoc: `Old version of display names of related entities. ${value.schemaDoc}`,
-        type: Json,
+        type: 'Json',
         defaultValue: [],
     }
     acc[`${key}DisplayNamesTo`] = {
         schemaDoc: `New version of display names of related entities. ${value.schemaDoc}`,
-        type: Json,
+        type: 'Json',
         defaultValue: [],
     }
 }

@@ -1,7 +1,6 @@
 const Ajv = require('ajv')
 
 const access = require('@open-condo/keystone/access')
-const { Json } = require('@open-condo/keystone/fields')
 
 const { getValidator } = require('@condo/domains/common/schema/json.utils')
 const { ALL_FEATURES, ORGANIZATION_FEATURE_ENUM_NAME } = require('@condo/domains/organization/constants/features')
@@ -24,7 +23,7 @@ const validateFeatures = getValidator(OrganizationFeaturesJSONValidator)
 
 const ORGANIZATION_FEATURES_FIELD = {
     schemaDoc: 'List of the organization\'s features connected by a particular integration',
-    type: Json,
+    type: 'Json',
     isRequired: true,
     extendGraphQLTypes: [ORGANIZATION_FEATURES_GRAPHQL_TYPES],
     graphQLInputType: `[${ORGANIZATION_FEATURE_ENUM_NAME}!]`,

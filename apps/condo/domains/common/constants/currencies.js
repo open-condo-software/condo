@@ -16,7 +16,6 @@ const ISO_CODES = [
     'BHD',
     'BIF',
     'BMD',
-    'BMD',
     'BND',
     'BOB',
     'BOV',
