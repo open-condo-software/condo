@@ -19,6 +19,7 @@ jobs:
     runs-on: runners-dind-set-cpu5-ram10
     outputs:
       DOCKER_IMAGE_FULL: ${{ env.DOCKER_IMAGE_FULL }}
+      DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
     steps:
       - name: install deps
         run: |
@@ -101,6 +102,6 @@ jobs:
     with:
       domain_name: ${{ matrix.domain }}
       image: ${{ needs.build-image.outputs.DOCKER_IMAGE_FULL }}
-      registry: ${{ secrets.DOCKER_REGISTRY }}
+      registry: ${{ needs.build-image.outputs.DOCKER_REGISTRY }}
       runs-on: runners-dind-set-cpu5-ram10
     secrets: inherit
