@@ -4,7 +4,7 @@ const dayjs = require('dayjs')
 const jwtDecode = require('jwt-decode')
 const { Issuer, generators } = require('openid-client')
 
-const { fetch } = require('@open-condo/keystone/fetch')
+const { fetch } = jest.requireActual('@open-condo/keystone/fetch')
 const {
     createAxiosClientWithCookie, getRandomString, makeLoggedInAdminClient, catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
