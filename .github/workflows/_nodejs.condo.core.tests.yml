@@ -47,7 +47,7 @@ jobs:
           
           docker network create db_network
           
-          docker run --name postgre-master --user postgres --network=db_network -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5432:5432" -v ./postgresql-init-replication.sql:/docker-entrypoint-initdb.d/postgresql-init-replication.sql -v ./pg_hba.conf:/etc/pg_hba.conf -d swr.ru-moscow-1.hc.sbercloud.ru/doma/utils/postgres:13.2 postgres -c hba_file=/etc/pg_hba.conf -c wal_level=replica -c synchronous_commit=on
+          docker run --name postgre-master --user postgres --network=db_network -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5432:5432" -v ./postgresql-init-replication.sql:/docker-entrypoint-initdb.d/postgresql-init-replication.sql -v ./pg_hba.conf:/etc/pg_hba.conf -d ${{ secrets.DOCKER_REGISTRY }}/doma/utils/postgres:13.2 postgres -c hba_file=/etc/pg_hba.conf -c wal_level=replica -c synchronous_commit=on
           
           docker exec -d postgre-master psql -c "ALTER SYSTEM SET synchronous_standby_names TO  '*';"
         env:
@@ -57,7 +57,7 @@ jobs:
 
       - name: run redis
         run: |
-          docker run -p="127.0.0.1:6379:6379" -d swr.ru-moscow-1.hc.sbercloud.ru/doma/utils/redis:6.2
+          docker run -p="127.0.0.1:6379:6379" -d ${{ secrets.DOCKER_REGISTRY }}/doma/utils/redis:6.2
 
       - name: run postgresql replica
         run: |
