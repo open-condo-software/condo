@@ -242,4 +242,30 @@ describe('receiptQRCodeUtils', () => {
             },
         })
     })
+
+    test('Auxiliary data: throw an error if address not found', async () => {
+        const [o10n] = await createTestOrganization(adminClient)
+        const [property] = await createTestProperty(adminClient, o10n)
+
+        const bic = createValidRuRoutingNumber()
+        const qrCodeObj = {
+            BIC: bic,
+            PayerAddress: `${property.address}, кв 1`,
+            PaymPeriod: '06.2024',
+            Sum: '10000',
+            PersAcc: faker.random.numeric(8),
+            PayeeINN: o10n.tin,
+            PersonalAcc: createValidRuNumber(bic),
+        }
+
+        await addBillingIntegrationAndContext(adminClient, o10n, {}, { status: CONTEXT_FINISHED_STATUS })
+        await addAcquiringIntegrationAndContext(adminClient, o10n, {}, { status: CONTEXT_FINISHED_STATUS })
+
+        await catchErrorFrom(
+            async () => await findAuxiliaryData({ ...qrCodeObj, PayerAddress: `${property.address}, кв` }, { address: new Error('error about address') }),
+            (err) => {
+                expect(err.message).toMatch('error about address')
+            }
+        )
+    })
 })
