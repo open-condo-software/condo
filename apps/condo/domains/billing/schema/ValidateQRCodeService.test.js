@@ -199,21 +199,47 @@ describe('ValidateQRCodeService', () => {
     describe('Validate organization', () => {
         test('should throw if no organization with provided TIN exists', async () => {
             const qrCode = qrCodeString.replace(qrCodeObj.PayeeINN, '000000000')
-            await catchErrorFrom(async () => {
-                await validateQRCodeByTestClient(adminClient, { qrCode })
-            }, ({ errors }) => {
-
-                expect(errors).toMatchObject([{
+            await expectToThrowGQLError(
+                async () => {
+                    await validateQRCodeByTestClient(adminClient, { qrCode })
+                },
+                {
+                    mutation: 'validateQRCode',
+                    code: 'INTERNAL_ERROR',
+                    type: 'NOT_FOUND',
                     message: 'Organization with provided TIN and having provided address is not registered',
-                    path: ['result'],
-                    extensions: {
-                        mutation: 'validateQRCode',
-                        code: 'INTERNAL_ERROR',
-                        type: 'NOT_FOUND',
-                        message: 'Organization with provided TIN and having provided address is not registered',
-                    },
-                }])
+                },
+                'result',
+            )
+        })
+
+        test('should throw if 2+ organization with provided TIN and address exists', async () => {
+            const [anotherOrganization] = await createTestOrganization(adminClient)
+            const [anotherProperty] = await createTestProperty(adminClient, anotherOrganization)
+            await addBillingIntegrationAndContext(adminClient, anotherOrganization, {}, { status: CONTEXT_FINISHED_STATUS })
+            await addAcquiringIntegrationAndContext(adminClient, anotherOrganization, {}, { status: CONTEXT_FINISHED_STATUS })
+
+            const [anotherOrganization2] = await createTestOrganization(adminClient, { tin: anotherOrganization.tin })
+            await createTestProperty(adminClient, anotherOrganization2, { address: anotherProperty.address })
+            await addBillingIntegrationAndContext(adminClient, anotherOrganization2, {}, { status: CONTEXT_FINISHED_STATUS })
+            await addAcquiringIntegrationAndContext(adminClient, anotherOrganization2, {}, { status: CONTEXT_FINISHED_STATUS })
+
+            const anotherQrCodeObj = generateQrCodeObj({
+                PayeeINN: anotherOrganization.tin,
+                PayerAddress: `${anotherProperty.address}, кв. 1`,
             })
+            await expectToThrowGQLError(
+                async () => {
+                    await validateQRCodeByTestClient(adminClient, { qrCode: stringifyQrCode(anotherQrCodeObj) })
+                },
+                {
+                    mutation: 'validateQRCode',
+                    code: 'INTERNAL_ERROR',
+                    type: 'SEVERAL_ORGANIZATIONS',
+                    message: 'Found 2 organizations with provided TIN and having provided address',
+                },
+                'result',
+            )
         })
 
         test('should throw if no billing context was found', async () => {
@@ -224,21 +250,18 @@ describe('ValidateQRCodeService', () => {
                 PayeeINN: anotherOrganization.tin,
                 PayerAddress: `${anotherProperty.address}, кв. 1`,
             })
-            await catchErrorFrom(async () => {
-                await validateQRCodeByTestClient(adminClient, { qrCode: stringifyQrCode(anotherQrCodeObj) })
-            }, ({ errors }) => {
-
-                expect(errors).toMatchObject([{
+            await expectToThrowGQLError(
+                async () => {
+                    await validateQRCodeByTestClient(adminClient, { qrCode: stringifyQrCode(anotherQrCodeObj) })
+                },
+                {
+                    mutation: 'validateQRCode',
+                    code: 'INTERNAL_ERROR',
+                    type: 'NOT_FOUND',
                     message: 'Organization with provided TIN does not have an active billing integration',
-                    path: ['result'],
-                    extensions: {
-                        mutation: 'validateQRCode',
-                        code: 'INTERNAL_ERROR',
-                        type: 'NOT_FOUND',
-                        message: 'Organization with provided TIN does not have an active billing integration',
-                    },
-                }])
-            })
+                },
+                'result',
+            )
         })
 
         test('should throw if no AcquiringIntegrationContext was found', async () => {
@@ -249,21 +272,18 @@ describe('ValidateQRCodeService', () => {
                 PayeeINN: anotherOrganization.tin,
                 PayerAddress: `${anotherProperty.address}, кв. 1`,
             })
-            await catchErrorFrom(async () => {
-                await validateQRCodeByTestClient(adminClient, { qrCode: stringifyQrCode(anotherQrCodeObj) })
-            }, ({ errors }) => {
-
-                expect(errors).toMatchObject([{
+            await expectToThrowGQLError(
+                async () => {
+                    await validateQRCodeByTestClient(adminClient, { qrCode: stringifyQrCode(anotherQrCodeObj) })
+                },
+                {
+                    mutation: 'validateQRCode',
+                    code: 'INTERNAL_ERROR',
+                    type: 'NOT_FOUND',
                     message: 'Organization with provided TIN does not have an active acquiring integration',
-                    path: ['result'],
-                    extensions: {
-                        mutation: 'validateQRCode',
-                        code: 'INTERNAL_ERROR',
-                        type: 'NOT_FOUND',
-                        message: 'Organization with provided TIN does not have an active acquiring integration',
-                    },
-                }])
-            })
+                },
+                'result',
+            )
         })
 
         test('should throw if found billing integration context is not active (status !== Finished)', async () => {
@@ -275,21 +295,18 @@ describe('ValidateQRCodeService', () => {
                 PayeeINN: anotherOrganization.tin,
                 PayerAddress: `${anotherProperty.address}, кв. 1`,
             })
-            await catchErrorFrom(async () => {
-                await validateQRCodeByTestClient(adminClient, { qrCode: stringifyQrCode(anotherQrCodeObj) })
-            }, ({ errors }) => {
-
-                expect(errors).toMatchObject([{
+            await expectToThrowGQLError(
+                async () => {
+                    await validateQRCodeByTestClient(adminClient, { qrCode: stringifyQrCode(anotherQrCodeObj) })
+                },
+                {
+                    mutation: 'validateQRCode',
+                    code: 'INTERNAL_ERROR',
+                    type: 'NOT_FOUND',
                     message: 'Organization with provided TIN does not have an active billing integration',
-                    path: ['result'],
-                    extensions: {
-                        mutation: 'validateQRCode',
-                        code: 'INTERNAL_ERROR',
-                        type: 'NOT_FOUND',
-                        message: 'Organization with provided TIN does not have an active billing integration',
-                    },
-                }])
-            })
+                },
+                'result',
+            )
         })
 
         test('should throw if found acquiring context is not active (status !== Finished)', async () => {
@@ -301,21 +318,18 @@ describe('ValidateQRCodeService', () => {
                 PayeeINN: anotherOrganization.tin,
                 PayerAddress: `${anotherProperty.address}, кв. 1`,
             })
-            await catchErrorFrom(async () => {
-                await validateQRCodeByTestClient(adminClient, { qrCode: stringifyQrCode(anotherQrCodeObj) })
-            }, ({ errors }) => {
-
-                expect(errors).toMatchObject([{
+            await expectToThrowGQLError(
+                async () => {
+                    await validateQRCodeByTestClient(adminClient, { qrCode: stringifyQrCode(anotherQrCodeObj) })
+                },
+                {
+                    mutation: 'validateQRCode',
+                    code: 'INTERNAL_ERROR',
+                    type: 'NOT_FOUND',
                     message: 'Organization with provided TIN does not have an active acquiring integration',
-                    path: ['result'],
-                    extensions: {
-                        mutation: 'validateQRCode',
-                        code: 'INTERNAL_ERROR',
-                        type: 'NOT_FOUND',
-                        message: 'Organization with provided TIN does not have an active acquiring integration',
-                    },
-                }])
-            })
+                },
+                'result',
+            )
         })
     })
 
@@ -422,7 +436,14 @@ describe('ValidateQRCodeService', () => {
             const PaymPeriod = '05.2024' // for QR code
             const period = '2024-05-01' // for receipt
             const sum = 1000
-            const qrObj = { ...qrCodeObj, PayeeINN: o10n.tin, PayerAddress: `${property.address}, кв 1`, PaymPeriod, Sum: String(sum * 100), PersAcc: faker.random.numeric(20) }
+            const qrObj = {
+                ...qrCodeObj,
+                PayeeINN: o10n.tin,
+                PayerAddress: `${property.address}, кв 1`,
+                PaymPeriod,
+                Sum: String(sum * 100),
+                PersAcc: faker.random.numeric(20),
+            }
             const qrStr = stringifyQrCode(qrObj)
 
             // create the receipt
@@ -458,7 +479,14 @@ describe('ValidateQRCodeService', () => {
             const PaymPeriod = '04.2024' // for QR code
             const period = '2024-05-01' // for receipt
             const sum = 1000
-            const qrObj = { ...qrCodeObj, PayeeINN: o10n.tin, PayerAddress: `${property.address}, кв 1`, PaymPeriod, Sum: String(sum * 100), PersAcc: faker.random.numeric(20) }
+            const qrObj = {
+                ...qrCodeObj,
+                PayeeINN: o10n.tin,
+                PayerAddress: `${property.address}, кв 1`,
+                PaymPeriod,
+                Sum: String(sum * 100),
+                PersAcc: faker.random.numeric(20),
+            }
             const qrStr = stringifyQrCode(qrObj)
 
             // create the receipt
@@ -495,7 +523,14 @@ describe('ValidateQRCodeService', () => {
             const period = '2024-04-01' // for receipt
             const sum = 1000
             const olderReceiptSum = 2000
-            const qrObj = { ...qrCodeObj, PayeeINN: o10n.tin, PayerAddress: `${property.address}, кв 1`, PaymPeriod, Sum: String(sum * 100), PersAcc: faker.random.numeric(20) }
+            const qrObj = {
+                ...qrCodeObj,
+                PayeeINN: o10n.tin,
+                PayerAddress: `${property.address}, кв 1`,
+                PaymPeriod,
+                Sum: String(sum * 100),
+                PersAcc: faker.random.numeric(20),
+            }
             const qrStr = stringifyQrCode(qrObj)
 
             // create the receipt
@@ -530,7 +565,14 @@ describe('ValidateQRCodeService', () => {
 
             const PaymPeriod = '05.2024' // for QR code
             const sum = 2000
-            const qrObj = { ...qrCodeObj, PayeeINN: o10n.tin, PayerAddress: `${property.address}, кв 1`, PaymPeriod, Sum: String(sum * 100), PersAcc: faker.random.numeric(20) }
+            const qrObj = {
+                ...qrCodeObj,
+                PayeeINN: o10n.tin,
+                PayerAddress: `${property.address}, кв 1`,
+                PaymPeriod,
+                Sum: String(sum * 100),
+                PersAcc: faker.random.numeric(20),
+            }
             const qrStr = stringifyQrCode(qrObj)
 
             const { billingIntegrationContext } = await addBillingIntegrationAndContext(adminClient, o10n, {}, { status: CONTEXT_FINISHED_STATUS })
@@ -567,7 +609,13 @@ describe('ValidateQRCodeService', () => {
         const PaymPeriod = '04.2024' // for QR code
         const period = '2024-04-01' // for receipt
         const sum = 1000
-        const qrObj = { ...qrCodeObj, PayeeINN: organization.tin, PayerAddress: `${property.address}, кв 1`, PaymPeriod, Sum: String(sum * 100) }
+        const qrObj = {
+            ...qrCodeObj,
+            PayeeINN: organization.tin,
+            PayerAddress: `${property.address}, кв 1`,
+            PaymPeriod,
+            Sum: String(sum * 100),
+        }
         const qrStr = stringifyQrCode(qrObj)
 
         // create the receipt

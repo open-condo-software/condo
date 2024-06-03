@@ -16,6 +16,7 @@ const {
     BILLING_VALIDATE_QR_CODE_WINDOW,
     MAX_CLIENT_VALIDATE_QR_CODE_BY_WINDOW,
 } = require('@condo/domains/billing/constants')
+const { SEVERAL_ORGANIZATIONS } = require('@condo/domains/billing/constants/errors')
 const {
     parseReceiptQRCode,
     getQRCodeMissedFields,
@@ -80,8 +81,8 @@ const ERRORS = {
     SEVERAL_ORGANIZATIONS: (count) => ({
         mutation: 'validateQRCode',
         code: INTERNAL_ERROR,
-        type: NOT_FOUND,
-        message: `Found ${count} with provided TIN and having provided address`,
+        type: SEVERAL_ORGANIZATIONS,
+        message: `Found ${count} organizations with provided TIN and having provided address`,
     }),
 }
 
