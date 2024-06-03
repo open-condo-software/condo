@@ -45,6 +45,12 @@ const ERRORS = {
         type: NOT_FOUND,
         message: 'Organization with provided TIN and having provided address is not registered',
     },
+    NO_BILLING_CONTEXT: {
+        mutation: 'validateQRCode',
+        code: INTERNAL_ERROR,
+        type: NOT_FOUND,
+        message: 'Organization with provided TIN does not have an active billing integration',
+    },
     NO_ACQUIRING_CONTEXT: {
         mutation: 'validateQRCode',
         code: INTERNAL_ERROR,
@@ -156,6 +162,7 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
                 const billingContext = get(auxiliaryData, ['contexts', organizationId, 'billingContext'])
                 const acquiringContext = get(auxiliaryData, ['contexts', organizationId, 'acquiringContext'])
 
+                if (!billingContext) throw new GQLError(ERRORS.NO_BILLING_CONTEXT, context)
                 if (!acquiringContext) throw new GQLError(ERRORS.NO_ACQUIRING_CONTEXT, context)
 
                 const billingIntegration = await getById('BillingIntegration', billingContext.integration)

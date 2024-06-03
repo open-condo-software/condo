@@ -216,6 +216,31 @@ describe('ValidateQRCodeService', () => {
             })
         })
 
+        test('should throw if no billing context was found', async () => {
+            const [anotherOrganization] = await createTestOrganization(adminClient)
+            const [anotherProperty] = await createTestProperty(adminClient, anotherOrganization)
+            await addAcquiringIntegrationAndContext(adminClient, anotherOrganization, {}, { status: CONTEXT_FINISHED_STATUS })
+            const anotherQrCodeObj = generateQrCodeObj({
+                PayeeINN: anotherOrganization.tin,
+                PayerAddress: `${anotherProperty.address}, кв. 1`,
+            })
+            await catchErrorFrom(async () => {
+                await validateQRCodeByTestClient(adminClient, { qrCode: stringifyQrCode(anotherQrCodeObj) })
+            }, ({ errors }) => {
+
+                expect(errors).toMatchObject([{
+                    message: 'Organization with provided TIN does not have an active billing integration',
+                    path: ['result'],
+                    extensions: {
+                        mutation: 'validateQRCode',
+                        code: 'INTERNAL_ERROR',
+                        type: 'NOT_FOUND',
+                        message: 'Organization with provided TIN does not have an active billing integration',
+                    },
+                }])
+            })
+        })
+
         test('should throw if no AcquiringIntegrationContext was found', async () => {
             const [anotherOrganization] = await createTestOrganization(adminClient)
             const [anotherProperty] = await createTestProperty(adminClient, anotherOrganization)
