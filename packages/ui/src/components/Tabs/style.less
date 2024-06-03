@@ -1,6 +1,7 @@
 @import "antd/lib/tabs/style/index.less";
 @import (reference) "@open-condo/ui/src/tokens/variables.less";
 @import (reference) "@open-condo/ui/src/components/style/mixins/typography";
+@import (reference) "@open-condo/ui/src/components/style/core/breakpoints.less";
 
 @tabs-horizontal-gutter: @condo-global-spacing-40;
 @tabs-card-active-color: @condo-global-color-black;
@@ -8,10 +9,17 @@
 @tabs-ink-bar-color: @condo-global-color-black;
 @tabs-active-color: @condo-global-color-black;
 @tabs-hover-color: @condo-global-color-black;
-@tabs-horizontal-padding: @condo-global-spacing-4 0 @condo-global-spacing-12;
 @tabs-bar-margin: 0 0 @condo-global-spacing-40 0;
 
 .condo-tabs {
+  &-tab {
+    padding: @condo-global-spacing-4 0 @condo-global-spacing-12;
+
+    @media @to-tablet-small {
+      padding-bottom: @condo-global-spacing-12 + @condo-global-line-height-h4 - @condo-global-line-height-h4-sm;
+    }
+  }
+
   &-tab-btn {
     .condo-typography-h4();
 
