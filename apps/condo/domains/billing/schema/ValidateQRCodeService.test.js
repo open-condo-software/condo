@@ -266,9 +266,36 @@ describe('ValidateQRCodeService', () => {
             })
         })
 
-        test('should throw if found AcquiringIntegrationContext is not active (status !== Finished)', async () => {
+        test('should throw if found billing integration context is not active (status !== Finished)', async () => {
             const [anotherOrganization] = await createTestOrganization(adminClient)
             const [anotherProperty] = await createTestProperty(adminClient, anotherOrganization)
+            await addAcquiringIntegrationAndContext(adminClient, anotherOrganization, {}, { status: CONTEXT_FINISHED_STATUS })
+            await addBillingIntegrationAndContext(adminClient, anotherOrganization)
+            const anotherQrCodeObj = generateQrCodeObj({
+                PayeeINN: anotherOrganization.tin,
+                PayerAddress: `${anotherProperty.address}, кв. 1`,
+            })
+            await catchErrorFrom(async () => {
+                await validateQRCodeByTestClient(adminClient, { qrCode: stringifyQrCode(anotherQrCodeObj) })
+            }, ({ errors }) => {
+
+                expect(errors).toMatchObject([{
+                    message: 'Organization with provided TIN does not have an active billing integration',
+                    path: ['result'],
+                    extensions: {
+                        mutation: 'validateQRCode',
+                        code: 'INTERNAL_ERROR',
+                        type: 'NOT_FOUND',
+                        message: 'Organization with provided TIN does not have an active billing integration',
+                    },
+                }])
+            })
+        })
+
+        test('should throw if found acquiring context is not active (status !== Finished)', async () => {
+            const [anotherOrganization] = await createTestOrganization(adminClient)
+            const [anotherProperty] = await createTestProperty(adminClient, anotherOrganization)
+            await addAcquiringIntegrationAndContext(adminClient, anotherOrganization)
             await addBillingIntegrationAndContext(adminClient, anotherOrganization, {}, { status: CONTEXT_FINISHED_STATUS })
             const anotherQrCodeObj = generateQrCodeObj({
                 PayeeINN: anotherOrganization.tin,
