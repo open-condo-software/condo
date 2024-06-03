@@ -1,4 +1,4 @@
-const { keys, transform, pick, pickBy, omit, difference, isEqual } = require('lodash')
+const { keys, transform, pick, pickBy, omit, difference, isEqual, get } = require('lodash')
 
 /**
  * Utilities to make a GQLListSchema item trackable for changes.
@@ -378,15 +378,15 @@ const buildRelatedFields = async (args) => {
 }
 
 const isScalar = (field) => (
-    field.type !== 'Relationship'
+    get(field, 'type') !== 'Relationship' && get(field, 'type.type') !== 'Relationship' && get(field, 'type.isRelationship') !== true
 )
 
 const isRelationSingle = (field) => (
-    field.type === 'Relationship' && !field.many
+    (get(field, 'type') === 'Relationship' || get(field, 'type.type') === 'Relationship' || get(field, 'type.isRelationship') === true) && !field.many
 )
 
 const isRelationMany = (field) => (
-    field.type === 'Relationship' && field.many
+    (get(field, 'type') === 'Relationship' || get(field, 'type.type') === 'Relationship' || get(field, 'type.isRelationship') === true) && field.many
 )
 
 const mapScalars = (acc, value, key) => {
