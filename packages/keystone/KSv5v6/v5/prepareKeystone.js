@@ -17,7 +17,7 @@ const { parseCorsSettings } = require('@open-condo/keystone/cors.utils')
 const { _internalGetExecutionContextAsyncLocalStorage } = require('@open-condo/keystone/executionContext')
 const { IpBlackListMiddleware } = require('@open-condo/keystone/ipBlackList')
 const { registerSchemas } = require('@open-condo/keystone/KSv5v6/v5/registerSchema')
-const { getKeystonePinoOptions, GraphQLLoggerPlugin, getLogger, IGNORE_PATH } = require('@open-condo/keystone/logging')
+const { getKeystonePinoOptions, GraphQLLoggerPlugin, getLogger } = require('@open-condo/keystone/logging')
 const { expressErrorHandler } = require('@open-condo/keystone/logging/expressErrorHandler')
 const metrics = require('@open-condo/keystone/metrics')
 const { schemaDocPreprocessor, adminDocPreprocessor, escapeSearchPreprocessor, customAccessPostProcessor } = require('@open-condo/keystone/preprocessors')
@@ -42,7 +42,6 @@ const INFINITY_MAX_AGE_COOKIE = 1707195600
 const SERVICE_USER_SESSION_TTL_IN_SEC = 7 * 24 * 60 * 60 // 7 days in sec
 
 const logger = getLogger('uncaughtError')
-const httpLogger = getLogger('http')
 
 const sendAppMetrics = () => {
     const v8Stats = v8.getHeapStatistics()
@@ -204,9 +203,6 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
                     // nosemgrep: javascript.express.security.audit.remote-property-injection.remote-property-injection
                     req['id'] = req.headers[requestIdHeaderName.toLowerCase()] = reqId
                     res.setHeader(requestIdHeaderName, reqId)
-                    if (!IGNORE_PATH.has(req.url)) {
-                        httpLogger.info({ msg: 'request received', req, res, reqId })
-                    }
                     next()
                 })
             })
