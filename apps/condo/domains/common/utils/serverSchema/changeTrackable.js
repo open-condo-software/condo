@@ -377,17 +377,15 @@ const buildRelatedFields = async (args) => {
     return dataWithRelatedFields
 }
 
-const isScalar = (field) => (
-    get(field, 'type') !== 'Relationship' && get(field, 'type.type') !== 'Relationship' && get(field, 'type.isRelationship') !== true
-)
+const isRelationField = (field) => get(field, 'type') === 'Relationship'
+    || get(field, 'type.type') === 'Relationship'
+    || get(field, 'type.isRelationship') === true
 
-const isRelationSingle = (field) => (
-    (get(field, 'type') === 'Relationship' || get(field, 'type.type') === 'Relationship' || get(field, 'type.isRelationship') === true) && !field.many
-)
+const isScalar = (field) => !isRelationField(field)
 
-const isRelationMany = (field) => (
-    (get(field, 'type') === 'Relationship' || get(field, 'type.type') === 'Relationship' || get(field, 'type.isRelationship') === true) && field.many
-)
+const isRelationSingle = (field) => isRelationField(field) && !field.many
+
+const isRelationMany = (field) => isRelationField(field) && field.many
 
 const mapScalars = (acc, value, key) => {
     acc[`${key}From`] = mapScalar(value)
