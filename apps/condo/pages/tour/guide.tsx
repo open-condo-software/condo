@@ -29,7 +29,7 @@ const { guideModalCardLink, guideIntroduceAppMaterials } = publicRuntimeConfig
 const MEDIUM_GUTTER: RowProps['gutter'] = [0, 40]
 const LARGE_GUTTER: RowProps['gutter'] = [0, 60]
 
-const ABOUT_APP_CARD_TYPES = ['payments', 'costs', 'quality', 'communication'] as const
+const ABOUT_APP_CARD_TYPES = ['payments', 'costs', 'quality', 'extraIncome'] as const
 type AboutAppCardType = typeof ABOUT_APP_CARD_TYPES[number] | null
 
 const getNextCardType = (cardType: AboutAppCardType) => {
@@ -107,7 +107,7 @@ const AboutAppBlock = () => {
         payments: colors.cyan[5],
         costs: colors.orange[5],
         quality: colors.blue[5],
-        communication: colors.pink[5],
+        extraIncome: colors.pink[5],
     }), [])
 
 
