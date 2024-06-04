@@ -47714,6 +47714,7 @@ type MeterHistoryRecord {
   nextVerificationDate: String
   controlReadingsDate: String
   sealingDate: String
+  archiveDate: String
   isAutomatic: Boolean
   resource: String
   b2bApp: String
@@ -47803,6 +47804,14 @@ input MeterHistoryRecordWhereInput {
   sealingDate_gte: String
   sealingDate_in: [String]
   sealingDate_not_in: [String]
+  archiveDate: String
+  archiveDate_not: String
+  archiveDate_lt: String
+  archiveDate_lte: String
+  archiveDate_gt: String
+  archiveDate_gte: String
+  archiveDate_in: [String]
+  archiveDate_not_in: [String]
   isAutomatic: Boolean
   isAutomatic_not: Boolean
   resource: String
@@ -48012,6 +48021,8 @@ enum SortMeterHistoryRecordsBy {
   controlReadingsDate_DESC
   sealingDate_ASC
   sealingDate_DESC
+  archiveDate_ASC
+  archiveDate_DESC
   isAutomatic_ASC
   isAutomatic_DESC
   number_ASC
@@ -48051,6 +48062,7 @@ input MeterHistoryRecordUpdateInput {
   nextVerificationDate: String
   controlReadingsDate: String
   sealingDate: String
+  archiveDate: String
   isAutomatic: Boolean
   resource: String
   b2bApp: String
@@ -48090,6 +48102,7 @@ input MeterHistoryRecordCreateInput {
   nextVerificationDate: String
   controlReadingsDate: String
   sealingDate: String
+  archiveDate: String
   isAutomatic: Boolean
   resource: String
   b2bApp: String
@@ -48185,6 +48198,9 @@ type Meter {
   """ The date when meter was sealed.Sealing is the installation of a unique single-use device (directly a seal and a sealing rope)on the metering device, which is designed to control unauthorized access to the equipment. 
   """
   sealingDate: String
+
+  """ The date when the meter was disabled and no longer in use """
+  archiveDate: String
 
   """ Determines, if Meter is automatic or not. False by default. If set to True - prevents user with type "resident" from creating MeterReading.So MeterReadings only be acquired through external integration or adjusted by organization employee 
   """
@@ -48306,6 +48322,14 @@ input MeterWhereInput {
   sealingDate_gte: String
   sealingDate_in: [String]
   sealingDate_not_in: [String]
+  archiveDate: String
+  archiveDate_not: String
+  archiveDate_lt: String
+  archiveDate_lte: String
+  archiveDate_gt: String
+  archiveDate_gte: String
+  archiveDate_in: [String]
+  archiveDate_not_in: [String]
   isAutomatic: Boolean
   isAutomatic_not: Boolean
   resource: MeterResourceWhereInput
@@ -48475,6 +48499,8 @@ enum SortMetersBy {
   controlReadingsDate_DESC
   sealingDate_ASC
   sealingDate_DESC
+  archiveDate_ASC
+  archiveDate_DESC
   isAutomatic_ASC
   isAutomatic_DESC
   resource_ASC
@@ -48522,6 +48548,7 @@ input MeterUpdateInput {
   nextVerificationDate: String
   controlReadingsDate: String
   sealingDate: String
+  archiveDate: String
   isAutomatic: Boolean
   resource: MeterResourceRelateToOneInput
   b2bApp: B2BAppRelateToOneInput
@@ -48558,6 +48585,7 @@ input MeterCreateInput {
   nextVerificationDate: String
   controlReadingsDate: String
   sealingDate: String
+  archiveDate: String
   isAutomatic: Boolean
   resource: MeterResourceRelateToOneInput
   b2bApp: B2BAppRelateToOneInput
@@ -49030,6 +49058,7 @@ type PropertyMeterHistoryRecord {
   nextVerificationDate: String
   controlReadingsDate: String
   sealingDate: String
+  archiveDate: String
   isAutomatic: Boolean
   resource: String
   b2bApp: String
@@ -49114,6 +49143,14 @@ input PropertyMeterHistoryRecordWhereInput {
   sealingDate_gte: String
   sealingDate_in: [String]
   sealingDate_not_in: [String]
+  archiveDate: String
+  archiveDate_not: String
+  archiveDate_lt: String
+  archiveDate_lte: String
+  archiveDate_gt: String
+  archiveDate_gte: String
+  archiveDate_in: [String]
+  archiveDate_not_in: [String]
   isAutomatic: Boolean
   isAutomatic_not: Boolean
   resource: String
@@ -49247,6 +49284,8 @@ enum SortPropertyMeterHistoryRecordsBy {
   controlReadingsDate_DESC
   sealingDate_ASC
   sealingDate_DESC
+  archiveDate_ASC
+  archiveDate_DESC
   isAutomatic_ASC
   isAutomatic_DESC
   number_ASC
@@ -49278,6 +49317,7 @@ input PropertyMeterHistoryRecordUpdateInput {
   nextVerificationDate: String
   controlReadingsDate: String
   sealingDate: String
+  archiveDate: String
   isAutomatic: Boolean
   resource: String
   b2bApp: String
@@ -49312,6 +49352,7 @@ input PropertyMeterHistoryRecordCreateInput {
   nextVerificationDate: String
   controlReadingsDate: String
   sealingDate: String
+  archiveDate: String
   isAutomatic: Boolean
   resource: String
   b2bApp: String
@@ -49373,6 +49414,9 @@ type PropertyMeter {
   """ The date when meter was sealed.Sealing is the installation of a unique single-use device (directly a seal and a sealing rope)on the metering device, which is designed to control unauthorized access to the equipment. 
   """
   sealingDate: String
+
+  """ The date when the meter was disabled and no longer in use """
+  archiveDate: String
 
   """ Determines, if Meter is automatic or not. False by default. If set to True - prevents user with type "resident" from creating MeterReading.So MeterReadings only be acquired through external integration or adjusted by organization employee 
   """
@@ -49478,6 +49522,14 @@ input PropertyMeterWhereInput {
   sealingDate_gte: String
   sealingDate_in: [String]
   sealingDate_not_in: [String]
+  archiveDate: String
+  archiveDate_not: String
+  archiveDate_lt: String
+  archiveDate_lte: String
+  archiveDate_gt: String
+  archiveDate_gte: String
+  archiveDate_in: [String]
+  archiveDate_not_in: [String]
   isAutomatic: Boolean
   isAutomatic_not: Boolean
   resource: MeterResourceWhereInput
@@ -49587,6 +49639,8 @@ enum SortPropertyMetersBy {
   controlReadingsDate_DESC
   sealingDate_ASC
   sealingDate_DESC
+  archiveDate_ASC
+  archiveDate_DESC
   isAutomatic_ASC
   isAutomatic_DESC
   resource_ASC
@@ -49624,6 +49678,7 @@ input PropertyMeterUpdateInput {
   nextVerificationDate: String
   controlReadingsDate: String
   sealingDate: String
+  archiveDate: String
   isAutomatic: Boolean
   resource: MeterResourceRelateToOneInput
   b2bApp: B2BAppRelateToOneInput
@@ -49655,6 +49710,7 @@ input PropertyMeterCreateInput {
   nextVerificationDate: String
   controlReadingsDate: String
   sealingDate: String
+  archiveDate: String
   isAutomatic: Boolean
   resource: MeterResourceRelateToOneInput
   b2bApp: B2BAppRelateToOneInput
