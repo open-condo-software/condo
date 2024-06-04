@@ -68,7 +68,7 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
     loading,
 }) => {
     const intl = useIntl()
-    const CreateMeterReadingsButtonLabel = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterReadingsButtonLabel' })
+    const CreateMeterButtonLabel = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterButtonLabel' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const StartDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
     const EndDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
@@ -129,15 +129,14 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
     const handleRowAction = useCallback((record) => {
         return {
             onClick: () => {
-                const meter = get(record, 'meter')
-                setSelectedMeter(meter)
+                router.push(`/meter/device/${get(record, 'id')}`)
             },
         }
-    }, [setSelectedMeter])
+    }, [router])
 
 
     const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
-    const handleCreateMeterReadings = useCallback(() => router.push('/meter/create'), [router])
+    const handleCreateMeterReadings = useCallback(() => router.push(`/meter/create?tab=${METER_TAB_TYPES.meter}`), [router])
 
     return (
         <>
@@ -232,7 +231,7 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
                                     icon={<PlusCircle size='medium' />}
                                     onClick={handleCreateMeterReadings}
                                 >
-                                    {CreateMeterReadingsButtonLabel}
+                                    {CreateMeterButtonLabel}
                                 </Button>
                             ),
                             canManageMeterReadings && (
@@ -285,7 +284,7 @@ export const MetersPageContent: React.FC<MeterReadingsPageContentProps> = ({
                         },
                         OverrideImportWrapperFC: MetersImportWrapper,
                     }}
-                    createRoute={`/meter/create?meterType=${METER_TAB_TYPES.meter}`}
+                    createRoute={`/meter/create?tab=${METER_TAB_TYPES.meter}`}
                     accessCheck={canManageMeterReadings}
                 />
             )

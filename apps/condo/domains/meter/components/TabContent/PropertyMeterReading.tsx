@@ -20,11 +20,13 @@ import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportT
 import { Loader } from '@condo/domains/common/components/Loader'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
+import { useMultipleFiltersModal } from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { MetersImportWrapper } from '@condo/domains/meter/components/Import/Index'
+import ActionBarForSingleMeter from '@condo/domains/meter/components/Meters/ActionBarForSingleMeter'
 import { EXPORT_PROPERTY_METER_READINGS_QUERY } from '@condo/domains/meter/gql'
 import { useUpdateMeterModal } from '@condo/domains/meter/hooks/useUpdateMeterModal'
 import {
@@ -32,7 +34,6 @@ import {
     METER_TAB_TYPES, MeterReadingFilterTemplate,
 } from '@condo/domains/meter/utils/clientSchema'
 
-import { useMultipleFiltersModal } from '../../../common/hooks/useMultipleFiltersModal'
 
 
 const METERS_PAGE_CONTENT_ROW_GUTTERS: RowProps['gutter'] = [16, 40]
@@ -48,6 +49,7 @@ type PropertyMetersTableContentProps = {
     canManageMeterReadings: boolean
     sortableProperties?: string[]
     loading?: boolean
+    meterId?: string
 }
 
 const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProps> = (props) => {
@@ -109,7 +111,7 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
         }
     }, [setSelectedMeter])
     const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
-    const handleCreateMeterReadings = useCallback(() => router.push('/meter/create'), [])
+    const handleCreateMeterReadings = useCallback(() => router.push(`/meter/create?tab=${METER_TAB_TYPES.propertyMeterReading}`), [])
 
     return (
         <>
@@ -179,7 +181,6 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
                     />
                 </Col>
             </Row>
-            <UpdateMeterModal />
             <MultipleFiltersModal />
         </>
     )
@@ -190,27 +191,39 @@ export const PropertyMeterReadingsPageContent: React.FC<PropertyMetersTableConte
         baseSearchQuery,
         canManageMeterReadings,
         loading,
+        meterId,
     } = props
 
     const intl = useIntl()
     const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.propertyMeter.index.EmptyList.header' })
-    const CreateMeter = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterButtonLabel' })
+    const CreateMeterReading = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterReadingButtonLabel' })
 
     const { count, loading: countLoading } = PropertyMeterReading.useCount({ where: baseSearchQuery })
 
     const pageContent = useMemo(() => {
         if (countLoading || loading) return <Loader />
-        if (count === 0) return (
-            <EmptyListContent
-                label={EmptyListLabel}
-                createRoute={`/meter/create?meterType=${METER_TAB_TYPES.propertyMeter}`}
-                createLabel={CreateMeter}
-                accessCheck={canManageMeterReadings}
-            />
-        )
+        if (count === 0) 
+            if (!meterId) {
+                return (
+                    <EmptyListContent
+                        label={EmptyListLabel}
+                        createRoute={`/meter/create?tab=${METER_TAB_TYPES.propertyMeterReading}`}
+                        createLabel={CreateMeterReading}
+                        accessCheck={canManageMeterReadings}
+                    />
+                )
+            } else {
+                return (
+                    <ActionBarForSingleMeter
+                        canManageMeterReadings={canManageMeterReadings}
+                        meterId={meterId}
+                        meterType={METER_TAB_TYPES.propertyMeter}
+                    />
+                )
+            }
 
         return <PropertyMeterReadingsTableContent {...props} />
-    }, [CreateMeter, EmptyListLabel, canManageMeterReadings, count, countLoading, props])
+    }, [CreateMeterReading, EmptyListLabel, canManageMeterReadings, count, countLoading, loading, meterId, props])
 
     return (
         <TablePageContent>

@@ -36,7 +36,6 @@ export const getResourceRender = (intl, isMeter: boolean, search?: FilterValue |
         const AutoMessage = intl.formatMessage({ id: 'pages.condo.meter.AutoPrefix' })
         const value = get(meterReadingOrMeter, isMeter ? ['resource', 'name'] : ['meter', 'resource', 'name'])
         const isAutomatic = get(meterReadingOrMeter, isMeter ? 'isAutomatic' : ['meter', 'isAutomatic'], false)
-        // TODO @abshnko add field 'source' to Meter and PropertyMeter models to use in tables
         const isExternalSource = Boolean(get(meterReadingOrMeter, ['source', 'type']) === METER_READING_SOURCE_EXTERNAL_IMPORT_TYPE)
 
         const postfix = isAutomatic && isExternalSource ? (
@@ -70,5 +69,13 @@ export const getVerificationDateRender = (intl, isMeter: boolean, search?: Filte
         }
 
         return getTableCellRenderer({ search, ellipsis: true, extraPostfixProps: POSTFIX_PROPS,  extraHighlighterProps, extraTitle, underline: false })(text)
+    }
+}
+
+export const getSourceRender = (intl, search?: FilterValue | string) => {
+    return function render (text, meterReading): RenderReturnType {
+        const SourceMessage = intl.formatMessage({ id: get(meterReading, ['source', 'name'] ) })
+
+        return getTableCellRenderer({ search, ellipsis: true })(SourceMessage)
     }
 }

@@ -38,12 +38,14 @@ import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { MetersImportWrapper } from '@condo/domains/meter/components/Import/Index'
+import ActionBarForSingleMeter from '@condo/domains/meter/components/Meters/ActionBarForSingleMeter'
 import { EXPORT_METER_READINGS_QUERY } from '@condo/domains/meter/gql'
 import { useUpdateMeterModal } from '@condo/domains/meter/hooks/useUpdateMeterModal'
 import {
     MeterReadingForOrganization,
     MeterReadingFilterTemplate,
     METER_TAB_TYPES,
+    Meter,
 } from '@condo/domains/meter/utils/clientSchema'
 
 
@@ -63,6 +65,7 @@ type MetersTableContentProps = {
     sortableProperties?: string[]
     mutationErrorsToMessages?: Record<string, string>
     loading?: boolean
+    meterId?: string
 }
 
 const getInitialSelectedReadingKeys = (router: NextRouter) => {
@@ -85,6 +88,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
     mutationErrorsToMessages,
     sortableProperties,
     loading,
+    meterId,
 }) => {
     const intl = useIntl()
     const CreateMeterReadingsButtonLabel = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterReadingsButtonLabel' })
@@ -121,9 +125,9 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
     }, [setDateRange])
 
     const searchMeterReadingsQuery = useMemo(() => ({
-        ...filtersToWhere({ date: dateFilter, ...filters }),
+        ...filtersToWhere({ ... !meterId ? { date: dateFilter } : {}, ...filters }),
         ...baseSearchQuery,
-    }), [baseSearchQuery, dateFilter, filters, filtersToWhere])
+    }), [baseSearchQuery, dateFilter, filters, filtersToWhere, meterId])
 
     const {
         loading: metersLoading,
@@ -158,18 +162,20 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
         return uniqBy(filteredMeterReading, (reading => get(reading, 'meter.id')))
     }, [meterReadings])
 
-    const selectedRowKeysByPage = useMemo(() => {
-        return processedMeterReadings.filter(reading => selectedReadingKeys.includes(reading.id)).map(reading => reading.id)
-    }, [processedMeterReadings, selectedReadingKeys])
+    const readingsToFilter = meterId ? meterReadings : processedMeterReadings
 
-    const isSelectedAllRowsByPage = !metersLoading && selectedRowKeysByPage.length > 0 && selectedRowKeysByPage.length === processedMeterReadings.length
-    const isSelectedSomeRowsByPage = !metersLoading && selectedRowKeysByPage.length > 0 && selectedRowKeysByPage.length < processedMeterReadings.length
+    const selectedRowKeysByPage = useMemo(() => {
+        return readingsToFilter.filter(reading => selectedReadingKeys.includes(reading.id)).map(reading => reading.id)
+    }, [readingsToFilter, selectedReadingKeys])
+
+    const isSelectedAllRowsByPage = !metersLoading && selectedRowKeysByPage.length > 0 && selectedRowKeysByPage.length === readingsToFilter.length
+    const isSelectedSomeRowsByPage = !metersLoading && selectedRowKeysByPage.length > 0 && selectedRowKeysByPage.length < readingsToFilter.length
 
     const handleResetSelectedReadings = useCallback(() => {
         setSelectedReadingKeys([])
     }, [])
 
-    const softDeleteMeterReportingPeriods = MeterReadingForOrganization.useSoftDeleteMany(async () => {
+    const softDeleteMeterReadings = MeterReadingForOrganization.useSoftDeleteMany(async () => {
         setSelectedReadingKeys([])
         refetch()
     })
@@ -178,22 +184,22 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
         if (selectedReadingKeys.length) {
             const itemsToDeleteByChunks = chunk(selectedReadingKeys.map((key) => ({ id: key })), 30)
             for (const itemsToDelete of itemsToDeleteByChunks) {
-                await softDeleteMeterReportingPeriods(itemsToDelete)
+                await softDeleteMeterReadings(itemsToDelete)
             }
         }
-    }, [softDeleteMeterReportingPeriods, selectedReadingKeys])
+    }, [softDeleteMeterReadings, selectedReadingKeys])
 
     const handleSelectAllRowsByPage = useCallback((e: CheckboxChangeEvent) => {
         const checked = e.target.checked
         if (checked) {
-            const newSelectedReadingKeys = processedMeterReadings
+            const newSelectedReadingKeys = readingsToFilter
                 .filter(reading => !selectedRowKeysByPage.includes(reading.id))
                 .map(reading => reading.id)
             updateSelectedReadingKeys([...selectedReadingKeys, ...newSelectedReadingKeys])
         } else {
             updateSelectedReadingKeys(selectedReadingKeys.filter(key => !selectedRowKeysByPage.includes(key)))
         }
-    }, [processedMeterReadings, updateSelectedReadingKeys, selectedReadingKeys, selectedRowKeysByPage])
+    }, [readingsToFilter, updateSelectedReadingKeys, selectedReadingKeys, selectedRowKeysByPage])
 
     const handleSelectRow: (record: IMeterReading, checked: boolean) => void = useCallback((record, checked) => {
         const selectedKey = record.id
@@ -223,7 +229,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
     }), [handleSelectAllRowsByPage, handleSelectRowWithTracking, isSelectedAllRowsByPage, isSelectedSomeRowsByPage, selectedRowKeysByPage])
 
     const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
-    const handleCreateMeterReadings = useCallback(() => router.push('/meter/create'), [router])
+    const handleCreateMeterReadings = useCallback(() => router.push(`/meter/create?tab=${METER_TAB_TYPES.meterReading}`), [router])
 
     return (
         <>
@@ -232,50 +238,52 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
                 align='middle'
             >
                 <Col span={24}>
-                    <TableFiltersContainer>
-                        <Row gutter={FILTERS_CONTAINER_GUTTER} align='middle' justify='space-between'>
-                            <Col span={24}>
-                                <Input
-                                    placeholder={SearchPlaceholder}
-                                    onChange={handleSearch}
-                                    value={search}
-                                    allowClear
-                                    suffix={<Search size='medium' color={colors.gray[7]}/>}
-                                />
-                            </Col>
-                            <Col>
-                                <Row justify='start' gutter={FILTERS_CONTAINER_GUTTER} style={{ flexWrap: 'nowrap' }}>
-                                    <Col style={QUICK_FILTERS_COL_STYLE}>
-                                        <DateRangePicker
-                                            value={dateRange || dateFallback}
-                                            onChange={handleDateChange}
-                                            placeholder={[StartDateMessage, EndDateMessage]}
-                                        />
-                                    </Col>
-                                </Row>
-                            </Col>
-                            <Col>
-                                <Row gutter={[16, 10]} align='middle' style={{ flexWrap: 'nowrap' }}>
-                                    {
-                                        appliedFiltersCount > 0 && (
-                                            <Col>
-                                                <ResetFiltersModalButton style={RESET_FILTERS_BUTTON_STYLE} />
-                                            </Col>
-                                        )
-                                    }
-                                    <Col>
-                                        <OpenFiltersButton />
-                                    </Col>
-                                </Row>
-                            </Col>
-                        </Row>
-                    </TableFiltersContainer>
+                    {!meterId && (
+                        <TableFiltersContainer>
+                            <Row gutter={FILTERS_CONTAINER_GUTTER} align='middle' justify='space-between'>
+                                <Col span={24}>
+                                    <Input
+                                        placeholder={SearchPlaceholder}
+                                        onChange={handleSearch}
+                                        value={search}
+                                        allowClear
+                                        suffix={<Search size='medium' color={colors.gray[7]}/>}
+                                    />
+                                </Col>
+                                <Col>
+                                    <Row justify='start' gutter={FILTERS_CONTAINER_GUTTER} style={{ flexWrap: 'nowrap' }}>
+                                        <Col style={QUICK_FILTERS_COL_STYLE}>
+                                            <DateRangePicker
+                                                value={dateRange || dateFallback}
+                                                onChange={handleDateChange}
+                                                placeholder={[StartDateMessage, EndDateMessage]}
+                                            />
+                                        </Col>
+                                    </Row>
+                                </Col>
+                                <Col>
+                                    <Row gutter={[16, 10]} align='middle' style={{ flexWrap: 'nowrap' }}>
+                                        {
+                                            appliedFiltersCount > 0 && (
+                                                <Col>
+                                                    <ResetFiltersModalButton style={RESET_FILTERS_BUTTON_STYLE} />
+                                                </Col>
+                                            )
+                                        }
+                                        <Col>
+                                            <OpenFiltersButton />
+                                        </Col>
+                                    </Row>
+                                </Col>
+                            </Row>
+                        </TableFiltersContainer>
+                    )}
                 </Col>
                 <Col span={24}>
                     <Table
                         totalRows={total}
                         loading={metersLoading || loading}
-                        dataSource={processedMeterReadings}
+                        dataSource={meterId ? meterReadings : processedMeterReadings}
                         columns={tableColumns}
                         rowSelection={rowSelection}
                         sticky
@@ -314,7 +322,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
                         </Col>
                     )
                 }
-                { selectedReadingKeys.length < 1 && (
+                { selectedReadingKeys.length < 1 && !meterId && (
                     <Col span={24}>
                         <ExportToExcelActionBar
                             searchObjectsQuery={searchMeterReadingsQuery}
@@ -331,7 +339,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
                                         {CreateMeterReadingsButtonLabel}
                                     </Button>
                                 ),
-                                canManageMeterReadings && (
+                                canManageMeterReadings && !meterId && (
                                     <MetersImportWrapper
                                         key='import'
                                         accessCheck={canManageMeterReadings}
@@ -342,11 +350,18 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
                         />
                     </Col>
                 )}
+                {meterId && (
+                    <Col span={24}>
+                        <ActionBarForSingleMeter
+                            canManageMeterReadings={canManageMeterReadings}
+                            meterId={meterId}
+                            meterType={METER_TAB_TYPES.meter}
+                        />
+                    </Col>)
+                }
             </Row>
             <UpdateMeterModal />
             <MultipleFiltersModal />
-            {/*<DeleteMeterReadingModal />*/}
-
         </>
     )
 }
@@ -359,6 +374,7 @@ export const MeterReadingsPageContent: React.FC<MeterReadingsPageContentProps> =
     baseSearchQuery,
     canManageMeterReadings,
     loading,
+    meterId,
 }) => {
     const intl = useIntl()
     const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.header' })
@@ -372,21 +388,33 @@ export const MeterReadingsPageContent: React.FC<MeterReadingsPageContentProps> =
 
         if (count === 0) {
             return (
-                <EmptyListContent
-                    label={EmptyListLabel}
-                    importLayoutProps={{
-                        manualCreateEmoji: EMOJI.CLOCK,
-                        manualCreateDescription: EmptyListManualBodyDescription,
-                        importCreateEmoji: EMOJI.LIST,
-                        importWrapper: {
-                            onFinish: refetch,
-                            domainName: 'meter',
-                        },
-                        OverrideImportWrapperFC: MetersImportWrapper,
-                    }}
-                    createRoute={`/meter/create?meterType=${METER_TAB_TYPES.meter}`}
-                    accessCheck={canManageMeterReadings}
-                />
+                <>
+                    {!meterId && (<EmptyListContent
+                        label={EmptyListLabel}
+                        importLayoutProps={{
+                            manualCreateEmoji: EMOJI.CLOCK,
+                            manualCreateDescription: EmptyListManualBodyDescription,
+                            importCreateEmoji: EMOJI.LIST,
+                            importWrapper: {
+                                onFinish: refetch,
+                                domainName: 'meterReading',
+                            },
+                            OverrideImportWrapperFC: MetersImportWrapper,
+                        }}
+                        createRoute={`/meter/create?tab=${METER_TAB_TYPES.meterReading}`}
+                        accessCheck={canManageMeterReadings}
+                    />)}
+                    {meterId && (
+                        <Col span={24}>
+                            <ActionBarForSingleMeter
+                                canManageMeterReadings={canManageMeterReadings}
+                                meterId={meterId}
+                                meterType={METER_TAB_TYPES.meter}
+                            />
+                        </Col>)
+                    }
+                </>
+
             )
         }
 
@@ -397,9 +425,10 @@ export const MeterReadingsPageContent: React.FC<MeterReadingsPageContentProps> =
                 baseSearchQuery={baseSearchQuery}
                 canManageMeterReadings={canManageMeterReadings}
                 loading={countLoading}
+                meterId={meterId}
             />
         )
-    }, [EmptyListLabel, EmptyListManualBodyDescription, baseSearchQuery, canManageMeterReadings, count, countLoading, filtersMeta, loading, refetch, tableColumns])
+    }, [EmptyListLabel, EmptyListManualBodyDescription, baseSearchQuery, canManageMeterReadings, count, countLoading, filtersMeta, loading, meterId, refetch, tableColumns])
 
     return (
         <TablePageContent>

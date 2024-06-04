@@ -75,8 +75,8 @@ export const MeterTypeSwitch = ({ value, setValue }) => {
     return (
         <RadioGroup optionType='button' value={value} onChange={handleRadioChange}>
             <Radio
-                key={METER_READINGS_TYPES.accountMeterReadings}
-                value={METER_READINGS_TYPES.accountMeterReadings}
+                key={METER_READINGS_TYPES.meterReadings}
+                value={METER_READINGS_TYPES.meterReadings}
                 label={MeterReadingMessage}
             />
             <Radio
@@ -93,7 +93,6 @@ const MetersPage: IMeterIndexPage = () => {
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.meter.index.PageTitle' })
     const MeterMessage = intl.formatMessage({ id: 'pages.condo.meter.index.meterTab' })
     const MeterReadingMessage = intl.formatMessage({ id: 'pages.condo.meter.index.meterReadingTab' })
-    const PropertyMeterMessage = intl.formatMessage({ id: 'pages.condo.meter.index.propertyMeterTab' })
     const ReportingPeriodMessage = intl.formatMessage({ id: 'pages.condo.meter.index.reportingPeriodTab' })
 
     const { organization, link, isLoading } = useOrganization()
@@ -102,7 +101,7 @@ const MetersPage: IMeterIndexPage = () => {
     const employeeId = get(link, 'id')
     const router = useRouter()
     const { breakpoints } = useLayoutContext()
-    const [chosenReadingsType, setChosenReadingsType] = useState<MeterReadingsTypes>(METER_READINGS_TYPES.accountMeterReadings)
+    const [chosenReadingsType, setChosenReadingsType] = useState<MeterReadingsTypes>(METER_READINGS_TYPES.meterReadings)
 
     const { useFlag } = useFeatureFlags()
     const isMeterReportingPeriodEnabled = useFlag(METER_REPORTING_PERIOD_FRONTEND_FEATURE_FLAG)
@@ -143,7 +142,6 @@ const MetersPage: IMeterIndexPage = () => {
     }, [activeTab, changeRouteToActiveTab, chosenReadingsType])
 
     const filtersMeta = useFilters(tabAsMeterPageType)
-    console.log('filtersMeta: ', filtersMeta)
     const tableColumns = useTableColumns(filtersMeta, tabAsMeterPageType, chosenReadingsType)
     const baseMetersQuery = useMemo(() => ({
         deletedAt: null,
@@ -167,7 +165,7 @@ const MetersPage: IMeterIndexPage = () => {
             label: MeterReadingMessage,
             key: METER_TAB_TYPES.meterReading,
             children: (
-                chosenReadingsType === METER_READINGS_TYPES.accountMeterReadings ?
+                chosenReadingsType === METER_READINGS_TYPES.meterReadings ?
                     <MeterReadingsPageContent
                         filtersMeta={filtersMeta}
                         tableColumns={tableColumns}
@@ -188,7 +186,7 @@ const MetersPage: IMeterIndexPage = () => {
             label: MeterMessage,
             key: METER_TAB_TYPES.meter,
             children: (
-                chosenReadingsType === METER_READINGS_TYPES.accountMeterReadings ?
+                chosenReadingsType === METER_READINGS_TYPES.meterReadings ?
                     <MetersPageContent
                         filtersMeta={filtersMeta}
                         tableColumns={tableColumns}
@@ -205,7 +203,7 @@ const MetersPage: IMeterIndexPage = () => {
                     />
             ),
         },
-        isMeterReportingPeriodEnabled && chosenReadingsType === METER_READINGS_TYPES.accountMeterReadings && {
+        isMeterReportingPeriodEnabled && chosenReadingsType === METER_READINGS_TYPES.meterReadings && {
             label: ReportingPeriodMessage,
             key: METER_TAB_TYPES.reportingPeriod,
             children: (
