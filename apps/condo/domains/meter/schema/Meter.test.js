@@ -847,7 +847,7 @@ describe('Meter', () => {
                 expect(meters).toHaveLength(0)
             })
 
-            test('resident: cannot read Meters in other unit in same property', async () => {
+            test('resident: can read Meters in other unit in same property if accountNumber is correct', async () => {
                 const adminClient = await makeLoggedInAdminClient()
                 const client1 = await makeClientWithResidentUser()
                 const client2 = await makeClientWithResidentUser()
@@ -860,24 +860,67 @@ describe('Meter', () => {
                 const [resident1] = await createTestResident(adminClient, client1.user, property, {
                     unitName: unitName1,
                 })
+                const [resident2] = await createTestResident(adminClient, client2.user, property, {
+                    unitName: unitName2,
+                })
                 await createTestServiceConsumer(adminClient, resident1, organization, {
                     accountNumber: billingAccount1.number,
                 })
-                const [billingAccount2] = await createTestBillingAccount(adminClient, context, billingProperty)
-                const [resident2] = await createTestResident(adminClient, client2.user, property, {
+                await createTestServiceConsumer(adminClient, resident2, organization, {
+                    accountNumber: billingAccount1.number,
+                })
+
+                const [resource] = await MeterResource.getAll(client1, { id: COLD_WATER_METER_RESOURCE_ID })
+                const [meter] = await createTestMeter(adminClient, organization, property, resource, {
+                    accountNumber: billingAccount1.number,
                     unitName: unitName2,
+                })
+                const meters1 = await Meter.getAll(client1, { id: meter.id })
+                const meters2 = await Meter.getAll(client2, { id: meter.id })
+                expect(meters1).toEqual([
+                    expect.objectContaining({ id: meter.id }),
+                ])
+                expect(meters2).toEqual([
+                    expect.objectContaining({ id: meter.id }),
+                ])
+            })
+
+            test('resident: can not read Meters with same unit and different accountNumber', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+                const client1 = await makeClientWithResidentUser()
+                const client2 = await makeClientWithResidentUser()
+                const unitName = faker.random.alphaNumeric(8)
+                const { context, organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+                const [property] = await createTestProperty(adminClient, organization)
+                const [billingProperty] = await createTestBillingProperty(adminClient, context)
+                const [billingAccount1] = await createTestBillingAccount(adminClient, context, billingProperty)
+                const [billingAccount2] = await createTestBillingAccount(adminClient, context, billingProperty)
+                const [resident1] = await createTestResident(adminClient, client1.user, property, {
+                    unitName,
+                })
+                const [resident2] = await createTestResident(adminClient, client2.user, property, {
+                    unitName,
+                })
+                await createTestServiceConsumer(adminClient, resident1, organization, {
+                    accountNumber: billingAccount1.number,
                 })
                 await createTestServiceConsumer(adminClient, resident2, organization, {
                     accountNumber: billingAccount2.number,
                 })
+
                 const [resource] = await MeterResource.getAll(client1, { id: COLD_WATER_METER_RESOURCE_ID })
                 const [meter] = await createTestMeter(adminClient, organization, property, resource, {
-                    accountNumber: billingAccount2.number,
-                    unitName: unitName2,
+                    accountNumber: billingAccount1.number,
+                    unitName: unitName,
                 })
-                const meters = await Meter.getAll(client1, { id: meter.id })
-
-                expect(meters).toHaveLength(0)
+                const meters1 = await Meter.getAll(client1, { id: meter.id })
+                const meters2 = await Meter.getAll(client2, { id: meter.id })
+                expect(meters1).toEqual([
+                    expect.objectContaining({ id: meter.id }),
+                ])
+                expect(meters2).not.toEqual([
+                    expect.objectContaining({ id: meter.id }),
+                ])
             })
 
             test('resident: cannot read Meters with accountNumber, which doesnt present in serviceConsumers', async () => {
