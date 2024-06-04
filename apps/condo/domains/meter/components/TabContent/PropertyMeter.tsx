@@ -38,7 +38,6 @@ import {
 const METERS_PAGE_CONTENT_ROW_GUTTERS: RowProps['gutter'] = [0, 40]
 const FILTERS_CONTAINER_GUTTER: RowProps['gutter'] = [16, 16]
 const RESET_FILTERS_BUTTON_STYLE: CSSProperties = { paddingLeft: 0 }
-const QUICK_FILTERS_COL_STYLE: CSSProperties = { alignSelf: 'center' }
 
 const SORTABLE_PROPERTIES = ['date', 'clientName', 'source']
 
@@ -62,7 +61,7 @@ const PropertyMetersTableContent: React.FC<MetersTableContentProps> = ({
     loading,
 }) => {
     const intl = useIntl()
-    const CreateMeterReadingsButtonLabel = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterReadingsButtonLabel' })
+    const CreateMeterButtonLabel = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterButtonLabel' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
 
     const router = useRouter()
@@ -101,16 +100,16 @@ const PropertyMetersTableContent: React.FC<MetersTableContentProps> = ({
         extraQueryParameters: { tab },
     })
 
-
     const handleRowAction = useCallback((record) => {
         return {
             onClick: () => {
-                setSelectedMeter(record)
+                router.push(`/meter/propertyDevice/${record.id}`)
             },
         }
-    }, [setSelectedMeter])
+    }, [router])
+
     const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
-    const handleCreateMeterReadings = useCallback(() => router.push('/meter/create'), [router])
+    const handleCreateMeterReadings = useCallback(() => router.push(`/meter/create?tab=${METER_TAB_TYPES.propertyMeter}`), [router])
 
     return (
         <>
@@ -132,7 +131,7 @@ const PropertyMetersTableContent: React.FC<MetersTableContentProps> = ({
                             </Col>
                             <Col>
                                 <Row justify='start' gutter={FILTERS_CONTAINER_GUTTER} style={{ flexWrap: 'nowrap' }}>
-                                    {/*add isActive and isArchived */}
+                                    {/*add isActive and isArchived filters*/}
                                 </Row>
                             </Col>
                             <Col>
@@ -174,7 +173,7 @@ const PropertyMetersTableContent: React.FC<MetersTableContentProps> = ({
                                     icon={<PlusCircle size='medium' />}
                                     onClick={handleCreateMeterReadings}
                                 >
-                                    {CreateMeterReadingsButtonLabel}
+                                    {CreateMeterButtonLabel}
                                 </Button>
                             ),
                             canManageMeterReadings && (
@@ -188,7 +187,6 @@ const PropertyMetersTableContent: React.FC<MetersTableContentProps> = ({
                     />
                 </Col>
             </Row>
-            <UpdateMeterModal />
             <MultipleFiltersModal />
         </>
     )
@@ -227,7 +225,7 @@ export const PropertyMetersPageContent: React.FC<MeterReadingsPageContentProps> 
                         },
                         OverrideImportWrapperFC: MetersImportWrapper,
                     }}
-                    createRoute={`/meter/create?meterType=${METER_TAB_TYPES.meter}`}
+                    createRoute={`/meter/create?tab=${METER_TAB_TYPES.propertyMeter}`}
                     accessCheck={canManageMeterReadings}
                 />
             )

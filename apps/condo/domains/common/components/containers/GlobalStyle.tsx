@@ -213,6 +213,15 @@ export default function GlobalStyle () {
                 }
               }
 
+              .no-content-found-tooltip {
+                .condo-tooltip > .condo-tooltip-content {
+
+                  .condo-tooltip-inner {
+                    width: 600px;
+                  }
+                }
+              }
+
               .ant-table.ant-table-bordered > .ant-table-container > .ant-table-content > table > thead > tr > th,
               .ant-table.ant-table-bordered > .ant-table-container > .ant-table-header > table > thead > tr > th,
               .ant-table.ant-table-bordered > .ant-table-container > .ant-table-body > table > thead > tr > th,

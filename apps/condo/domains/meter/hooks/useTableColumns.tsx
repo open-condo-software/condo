@@ -23,6 +23,7 @@ import {
 } from '@condo/domains/meter/utils/clientSchema'
 import {
     getResourceRender,
+    getSourceRender,
     getUnitRender,
     getVerificationDateRender,
 } from '@condo/domains/meter/utils/clientSchema/Renders'
@@ -40,12 +41,20 @@ const renderMeterRecord = (record) => {
     return renderMeterReading([value1, value2, value3, value4], resourceId, measure)
 }
 
-export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, meterTabType: MeterPageTypes = METER_TAB_TYPES.meterReading, readingsType: MeterReadingsTypes) {
+export function useTableColumns <T> (
+    filterMetas: Array<FiltersMeta<T>>,
+    meterTabType: MeterPageTypes = METER_TAB_TYPES.meterReading,
+    readingsType: MeterReadingsTypes,
+    isReadingsForSingleMeter?: boolean
+)
+{
     const intl = useIntl()
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
     const MeterReadingDateMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterReadingDate' })
     const MeterVerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterVerificationDate' })
     const ServiceMessage = intl.formatMessage({ id: 'pages.condo.meter.Resource' })
+    const SourceMessage = intl.formatMessage({ id: 'field.Source' })
+    const ContactMessage = intl.formatMessage({ id: 'Contact' })
     const MeterNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterNumber' })
     const PlaceMessage = intl.formatMessage({ id: 'pages.condo.meter.Place' })
     const MeterReadingMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterReading' })
@@ -81,6 +90,49 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, meterTa
             return CustomPeriodMessage
         }
     }, [isReportingPeriod, isMeter, DeletedMessage, search, CustomPeriodMessage])
+
+    const readingsForSingleMeterColumns = useMemo(() => [
+        {
+            title: SourceMessage,
+            ellipsis: false,
+            key: 'source',
+            width: isPropertyMeter ? '25%' : '20%',
+            render: getSourceRender(intl, search),
+        },
+        {
+            title: ContactMessage,
+            ellipsis: false,
+            dataIndex: 'clientName',
+            key: 'clientName',
+            width: isPropertyMeter ? '25%' : '20%',
+            render: getTextRender(search),
+        },
+        {
+            title: MeterReadingDateMessage,
+            sortOrder: get(sorterMap, 'date'),
+            filteredValue: getFilteredValue(filters, 'date'),
+            dataIndex: 'date',
+            key: 'date',
+            sorter: true,
+            width: isPropertyMeter ? '25%' : '20%',
+            render: getDateRender(intl, search),
+            filterDropdown: getFilterDropdownByKey(filterMetas, 'date'),
+        },
+        {
+            title: MeterReadingMessage,
+            ellipsis: false,
+            key: 'value',
+            width: isPropertyMeter ? '25%' : '20%',
+            render: renderMeterRecord,
+        },
+        {
+            title: MeterReadingMessage,
+            ellipsis: false,
+            key: 'value',
+            width: isPropertyMeter ? '25%' : '20%',
+            render: renderMeterRecord,
+        },
+    ], [ContactMessage, MeterReadingDateMessage, MeterReadingMessage, SourceMessage, filterMetas, filters, intl, isPropertyMeter, search, sorterMap])
 
     const meterAndMeterReadingColumns = useMemo(() => [
         {
@@ -146,6 +198,8 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, meterTa
 
 
     return useMemo(() => {
+        if (isReadingsForSingleMeter) return readingsForSingleMeterColumns
+
         return meterTabType === METER_TAB_TYPES.reportingPeriod ? [
             {
                 title: AddressMessage,
