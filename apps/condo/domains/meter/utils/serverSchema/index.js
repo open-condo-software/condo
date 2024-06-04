@@ -82,13 +82,14 @@ const getAvailableResidentMeters = async (userId) => {
                 && addressResidents.find(resident => resident.id === consumer.resident) !== undefined)
 
         if (userConsumers.length > 0) {
+            // In case organization loads meters with temporary account numbers we need to support unitName + unitType
             userConsumers.forEach(consumer => {
                 orStatements.push({
                     AND: [
                         { organization: { id: resourceOwner.organization, deletedAt: null } },
                         { resource: { id: resourceOwner.resource } },
-                        { accountNumber: consumer.accountNumber },
                         { property: { addressKey: resourceOwner.addressKey, deletedAt: null } },
+                        { accountNumber: consumer.accountNumber },
                     ],
                 })
             })
