@@ -80,7 +80,7 @@ const SEND_NEW_RECEIPT_MESSAGES_TO_RESIDENT_SCOPES_MUTATION = gql`
 
 const VALIDATE_QRCODE_MUTATION = gql`
     mutation validateQRCode ($data: ValidateQRCodeInput!) {
-        result: validateQRCode(data: $data) { qrCodeFields lastReceiptData { id period toPay } explicitFees { explicitServiceCharge explicitFee } amount }
+        result: validateQRCode(data: $data) { qrCodeFields lastReceiptData { id period toPay } explicitFees { explicitServiceCharge explicitFee } amount acquiringIntegrationHostUrl currencyCode }
     }
 `
 
