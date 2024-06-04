@@ -43,8 +43,9 @@ export const MeterAccountField: React.FC<MeterBaseFieldProps> = ({ meter }) => {
 export const MeterResourceField: React.FC<MeterResourceFieldProps> = ({ resource }) => {
     const intl = useIntl()
     const MeterResourceMessage = intl.formatMessage({ id: 'pages.condo.meter.Resource' })
+    const resourceName = get(resource, 'name')
 
-    const ResourceMessageName = intl.formatMessage({ id: get(resource, 'name') })
+    const ResourceMessageName = intl.formatMessage({ id: resourceName as any }) 
  
     return (
         <PageFieldRow title={MeterResourceMessage} ellipsis={ELLIPSIS_CONFIG}>
