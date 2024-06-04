@@ -73563,6 +73563,8 @@ type ValidateQRCodeOutput {
   lastReceiptData: ValidateQRCodeLastReceiptDataOutput
   explicitFees: ValidateQRCodeFeesOutput!
   amount: String!
+  acquiringIntegrationHostUrl: String!
+  currencyCode: String!
 }
 
 enum RegisterBillingReceiptFileResultStatus {
@@ -74185,7 +74187,8 @@ type CreatePaymentByLinkOutput {
   amount: String!
   explicitFee: String!
   totalAmount: String!
-  integrationHostUrl: String!
+  acquiringIntegrationHostUrl: String!
+  currencyCode: String!
   address: String!
   addressMeta: AddressMetaField!
   unitType: String!

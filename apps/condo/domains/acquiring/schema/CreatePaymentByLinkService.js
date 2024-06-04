@@ -5,7 +5,6 @@
 const Big = require('big.js')
 const { get } = require('lodash')
 
-const { createInstance } = require('@open-condo/clients/address-service-client')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { find, GQLCustomSchema, getById } = require('@open-condo/keystone/schema')
 
@@ -17,13 +16,11 @@ const {
     MultiPayment,
 } = require('@condo/domains/acquiring/utils/serverSchema')
 const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
-const { isReceiptPaid, compareQRCodeWithLastReceipt, formatPeriodFromQRCode } = require('@condo/domains/billing/utils/receiptQRCodeUtils')
+const { isReceiptPaid, compareQRCodeWithLastReceipt, formatPeriodFromQRCode, findAuxiliaryData } = require('@condo/domains/billing/utils/receiptQRCodeUtils')
 const {
     validateQRCode,
-    BillingIntegrationOrganizationContext,
 } = require('@condo/domains/billing/utils/serverSchema')
 const { ALREADY_EXISTS_ERROR, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
-const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -59,7 +56,7 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
         },
         {
             access: true,
-            type: 'type CreatePaymentByLinkOutput { multiPaymentId: ID!, amount: String!, explicitFee: String!, totalAmount: String!, integrationHostUrl: String!, address: String!, addressMeta: AddressMetaField!, unitType: String!, unitName: String!, accountNumber: String!, period: String! }',
+            type: 'type CreatePaymentByLinkOutput { multiPaymentId: ID!, amount: String!, explicitFee: String!, totalAmount: String!, acquiringIntegrationHostUrl: String!, currencyCode: String!, address: String!, addressMeta: AddressMetaField!, unitType: String!, unitName: String!, accountNumber: String!, period: String! }',
         },
     ],
 
@@ -68,72 +65,31 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
             access: access.canCreatePaymentByLink,
             schema: 'createPaymentByLink(data: CreatePaymentByLinkInput!): CreatePaymentByLinkOutput',
             resolver: async (parent, args, context) => {
-                // TODO(DOMA-7078) Must be modified within 7078
-
                 const { data: { dv, sender, qrCode } } = args
 
-                // Stage 0: validate QR code
                 const validationResult = await validateQRCode(context, { dv, sender, qrCode })
 
-                const { qrCodeFields } = validationResult
+                const { qrCodeFields, acquiringIntegrationHostUrl, currencyCode } = validationResult
                 const {
                     PersonalAcc, // organization's bank account
                     BIC,
-                    PayerAddress,
                     PaymPeriod, // mm.yyyy
                     Sum,
-                    PayeeINN,
                     PersAcc, // resident's account within organization
                 } = qrCodeFields
                 const period = formatPeriodFromQRCode(PaymPeriod)
                 const amount = String(Big(Sum).div(100))
 
-                // Stage 1: normalize address
-                const addressServiceClient = createInstance()
-                const normalizedAddress = await addressServiceClient.search(PayerAddress, { extractUnit: true })
+                const auxiliaryData = await findAuxiliaryData(qrCodeFields, { address: ERRORS.ADDRESS_IS_INVALID })
+                const { normalizedAddress } = auxiliaryData
 
-                if (!normalizedAddress.addressKey) throw new GQLError(ERRORS.ADDRESS_IS_INVALID, context)
+                const [organizationId] = Object.keys(auxiliaryData.contexts)
+                const { billingContext, acquiringContext } = auxiliaryData.contexts[organizationId]
 
-                // Stage 2: find properties
-                const properties = await find('Property', {
-                    organization: { tin: PayeeINN, deletedAt: null },
-                    addressKey: normalizedAddress.addressKey,
-                    deletedAt: null,
-                })
-
-                const organizationsIds = properties.map((item) => item.organization)
-
-                // Stage 3: find organizations with valid contexts and make contexts map
-                const billingContexts = await BillingIntegrationOrganizationContext.getAll(context, {
-                    organization: { id_in: organizationsIds, deletedAt: null },
-                    status: CONTEXT_FINISHED_STATUS,
-                    deletedAt: null,
-                })
-
-                const acquiringContexts = await AcquiringIntegrationContext.getAll(context, {
-                    organization: { id_in: organizationsIds, deletedAt: null },
-                    status: ACQUIRING_CONTEXT_FINISHED_STATUS,
-                    deletedAt: null,
-                })
-
-                /**
-                 * Map billingContextId to acquiringContextId
-                 * @type {Object<string, string>}
-                 * */
-                const contextsMap = {}
-                for (const billingContext of billingContexts) {
-                    const orgId = get(billingContext, ['organization', 'id'])
-                    for (const acquiringContext of acquiringContexts) {
-                        if (orgId === get(acquiringContext, ['organization', 'id'])) {
-                            contextsMap[billingContext.id] = acquiringContext.id
-                        }
-                    }
-                }
-
-                // Stage 4: make sure PersonalAccount is in our system
+                // make sure PersonalAccount is in our system
                 /** @type {BillingRecipient[]} */
                 const billingRecipients = await find('BillingRecipient', {
-                    context: { id_in: billingContexts.map((context) => context.id), deletedAt: null },
+                    context: { id: billingContext.id, deletedAt: null },
                     bankAccount: PersonalAcc,
                     deletedAt: null,
                 })
@@ -143,13 +99,13 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                 let multiPaymentId
 
                 const payForLastBillingReceipt = async (lastBillingReceipt) => {
-                    if (await isReceiptPaid(context, PersAcc, lastBillingReceipt.period, organizationsIds, PersonalAcc)) {
+                    if (await isReceiptPaid(context, PersAcc, lastBillingReceipt.period, [organizationId], PersonalAcc)) {
                         throw new GQLError(ERRORS.RECEIPT_ALREADY_PAID, context)
                     }
                     const { multiPaymentId: id } = await registerMultiPaymentForOneReceipt(context, {
                         dv, sender,
                         receipt: { id: lastBillingReceipt.id },
-                        acquiringIntegrationContext: { id: contextsMap[get(lastBillingReceipt, ['context'])] },
+                        acquiringIntegrationContext: { id: acquiringContext.id },
                     })
                     multiPaymentId = id
                 }
@@ -157,13 +113,13 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                 /** @type {TCompareQRResolvers} */
                 const resolvers = {
                     onNoReceipt: async () => {
-                        if (await isReceiptPaid(context, PersAcc, period, organizationsIds, PersonalAcc)) {
+                        if (await isReceiptPaid(context, PersAcc, period, [organizationId], PersonalAcc)) {
                             throw new GQLError(ERRORS.RECEIPT_ALREADY_PAID, context)
                         }
                         const { multiPaymentId: id } = await registerMultiPaymentForVirtualReceipt(context, {
                             dv, sender,
                             receipt: {
-                                currencyCode: get(billingContexts, [0, 'integration', 'currencyCode']),
+                                currencyCode,
                                 amount,
                                 period,
                                 recipient: {
@@ -173,7 +129,7 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                                 },
                             },
                             acquiringIntegrationContext: {
-                                id: acquiringContexts[0].id,
+                                id: acquiringContext.id,
                             },
                         })
 
@@ -182,7 +138,7 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                     onReceiptPeriodEqualsQrCodePeriod: payForLastBillingReceipt,
                     onReceiptPeriodNewerThanQrCodePeriod: payForLastBillingReceipt,
                     onReceiptPeriodOlderThanQrCodePeriod: async (lastBillingReceipt) => {
-                        if (await isReceiptPaid(context, PersAcc, period, organizationsIds, PersonalAcc)) {
+                        if (await isReceiptPaid(context, PersAcc, period, [organizationId], PersonalAcc)) {
                             throw new GQLError(ERRORS.RECEIPT_ALREADY_PAID, context)
                         }
 
@@ -198,7 +154,7 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                         const { multiPaymentId: id } = await registerMultiPaymentForVirtualReceipt(context, {
                             dv, sender,
                             receipt: {
-                                currencyCode: get(billingContexts, [0, 'integration', 'currencyCode']),
+                                currencyCode,
                                 amount,
                                 period,
                                 recipient: {
@@ -225,7 +181,8 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                     amount: multiPayment.amountWithoutExplicitFee,
                     explicitFee: multiPayment.explicitServiceCharge,
                     totalAmount: multiPayment.amount,
-                    integrationHostUrl: get(acquiringContexts, [0, 'integration', 'hostUrl']),
+                    acquiringIntegrationHostUrl,
+                    currencyCode: multiPayment.currencyCode,
                     address: normalizedAddress.address,
                     addressMeta: {
                         dv: 1,

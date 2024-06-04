@@ -184,7 +184,8 @@ describe('CreatePaymentByLinkService', () => {
         expect(data.unitName).toBeDefined()
         expect(data.accountNumber).toEqual(qrCodeAttrs.PersAcc)
         expect(data.address).toBeDefined()
-        expect(data.integrationHostUrl).toBe(acquiringIntegration.hostUrl)
+        expect(data.acquiringIntegrationHostUrl).toBe(acquiringIntegration.hostUrl)
+        expect(data.currencyCode).toBe(billingIntegrationContext.integration.currencyCode)
 
         const multiPayment = await MultiPayment.getOne(admin, { id: data.multiPaymentId })
         expect(multiPayment).toBeDefined()
@@ -210,7 +211,7 @@ describe('CreatePaymentByLinkService', () => {
         } = await createOrganizationAndPropertyAndQrCode(admin, 15, 3, '06.2023')
 
         const { billingIntegrationContext } = await addBillingIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
-        await addAcquiringIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
+        const { acquiringIntegrationContext } = await addAcquiringIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
 
         const [bankAccount] = await createTestBankAccount(admin, organization, {
             number: qrCodeAttrs.PersonalAcc,
@@ -236,6 +237,8 @@ describe('CreatePaymentByLinkService', () => {
         expect(data.address).toBeDefined()
         expect(data.accountNumber).toEqual(qrCodeAttrs.PersAcc)
         expect(data.unitName).toBeDefined()
+        expect(data.acquiringIntegrationHostUrl).toBe(acquiringIntegrationContext.integration.hostUrl)
+        expect(data.currencyCode).toBe(billingIntegrationContext.integration.currencyCode)
 
         const multiPayment = await MultiPayment.getOne(admin, { id: data.multiPaymentId })
         expect(multiPayment).toBeDefined()
@@ -263,7 +266,7 @@ describe('CreatePaymentByLinkService', () => {
         })
 
         const { billingIntegrationContext } = await addBillingIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
-        await addAcquiringIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
+        const { acquiringIntegration } = await addAcquiringIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
 
         const [billingProperty] = await createTestBillingProperty(admin, billingIntegrationContext)
         const [billingAccount] = await createTestBillingAccount(admin, billingIntegrationContext, billingProperty, { number: qrCodeAttrs.PersAcc })
@@ -282,6 +285,8 @@ describe('CreatePaymentByLinkService', () => {
         expect(data.multiPaymentId).toBeDefined()
         expect(data.unitName).toBeDefined()
         expect(data.accountNumber).toEqual(qrCodeAttrs.PersAcc)
+        expect(data.acquiringIntegrationHostUrl).toBe(acquiringIntegration.hostUrl)
+        expect(data.currencyCode).toBe(billingIntegrationContext.integration.currencyCode)
 
         const multiPayment = await MultiPayment.getOne(admin, { id: data.multiPaymentId })
         expect(multiPayment).toBeDefined()
@@ -304,7 +309,7 @@ describe('CreatePaymentByLinkService', () => {
         } = await createOrganizationAndPropertyAndQrCode(admin, 14, 4, '07.2023')
 
         const { billingIntegrationContext } = await addBillingIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
-        await addAcquiringIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
+        const { acquiringIntegration } = await addAcquiringIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
 
         const [billingProperty] = await createTestBillingProperty(admin, billingIntegrationContext)
         await createTestBillingAccount(admin, billingIntegrationContext, billingProperty, { number: qrCodeAttrs.PersAcc })
@@ -321,6 +326,8 @@ describe('CreatePaymentByLinkService', () => {
         expect(data.accountNumber).toEqual(qrCodeAttrs.PersAcc)
         expect(data.multiPaymentId).toBeDefined()
         expect(data.unitName).toBeDefined()
+        expect(data.acquiringIntegrationHostUrl).toBe(acquiringIntegration.hostUrl)
+        expect(data.currencyCode).toBe(billingIntegrationContext.integration.currencyCode)
 
         const multiPayment = await MultiPayment.getOne(admin, { id: data.multiPaymentId })
         expect(multiPayment).toBeDefined()
@@ -335,8 +342,9 @@ describe('CreatePaymentByLinkService', () => {
     })
 
     test('should throw if no Bank Account or Billing Recipient found', async () => {
-        const [qrCode, qrCodeAttrs] = generateQRCode()
-        const [organization] = await createTestOrganization(admin, { tin: qrCodeAttrs.PayeeINN })
+        const [organization] = await createTestOrganization(admin)
+        const [property] = await createTestProperty(admin, organization)
+        const [qrCode] = generateQRCode({ PayeeINN: organization.tin, PayerAddress: `${property.address}, кв. 1` })
 
         await addBillingIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
         await addAcquiringIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
@@ -549,7 +557,7 @@ describe('CreatePaymentByLinkService', () => {
             })
             const [billingProperty] = await createTestBillingProperty(admin, billingIntegrationContext)
             const [billingAccount] = await createTestBillingAccount(admin, billingIntegrationContext, billingProperty, { number: qrCodeAttrs.PersAcc })
-            const [billingRecipient] = await createTestBillingRecipient(admin, billingIntegrationContext, {
+            await createTestBillingRecipient(admin, billingIntegrationContext, {
                 bankAccount: qrCodeAttrs.PersonalAcc,
                 bic: qrCodeAttrs.BIC,
             })

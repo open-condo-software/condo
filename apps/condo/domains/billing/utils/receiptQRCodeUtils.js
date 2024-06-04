@@ -1,8 +1,11 @@
-const { get, isNil } = require('lodash')
+const { get, isNil, map, set } = require('lodash')
 
+const { createInstance } = require('@open-condo/clients/address-service-client')
 const { find } = require('@open-condo/keystone/schema')
 
+const { CONTEXT_FINISHED_STATUS: ACQUIRING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } = require('@condo/domains/acquiring/constants/payment')
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 
 const REQUIRED_QR_CODE_FIELDS = ['BIC', 'PayerAddress', 'PaymPeriod', 'Sum', 'PersAcc', 'PayeeINN', 'PersonalAcc']
 
@@ -147,10 +150,69 @@ function formatPeriodFromQRCode (period) {
     return `${parts[1]}-${parts[0]}-01`
 }
 
+/**
+ * @typedef {Object} TQRAuxiliaryDataContexts
+ * @property {BillingIntegrationOrganizationContext} billingContext
+ * @property {AcquiringIntegrationContext} acquiringContext
+ */
+
+/**
+ * @typedef {Object} TQRAuxiliaryData
+ * @property normalizedAddress
+ * @property {Record<organizationId: string, TQRAuxiliaryDataContexts>} contexts
+ */
+
+/**
+ * Returns contexts nested by organization id
+ * @param {TQRCodeFields} qrCodeFields
+ * @param {{address: GQLError}} errors
+ * @return {Promise<TQRAuxiliaryData>}
+ */
+async function findAuxiliaryData (qrCodeFields, errors) {
+    const addressServiceClient = createInstance()
+    const normalizedAddress = await addressServiceClient.search(qrCodeFields.PayerAddress, { extractUnit: true })
+
+    if (!normalizedAddress.addressKey || !normalizedAddress.unitType || !normalizedAddress.unitName) throw errors.address
+
+    const properties = await find('Property', {
+        organization: { tin: qrCodeFields.PayeeINN, deletedAt: null },
+        addressKey: normalizedAddress.addressKey,
+        deletedAt: null,
+    })
+
+    const organizationsIds = map(properties, 'organization')
+
+    const billingContexts = await find('BillingIntegrationOrganizationContext', {
+        organization: { id_in: organizationsIds, deletedAt: null },
+        status: CONTEXT_FINISHED_STATUS,
+        deletedAt: null,
+    })
+
+    const acquiringContexts = await find('AcquiringIntegrationContext', {
+        organization: { id_in: organizationsIds, deletedAt: null },
+        status: ACQUIRING_CONTEXT_FINISHED_STATUS,
+        deletedAt: null,
+    })
+
+    /** @type {Record<string, TQRAuxiliaryDataContexts>} */
+    const contexts = {}
+
+    for (const billingContext of billingContexts) {
+        set(contexts, [get(billingContext, 'organization'), 'billingContext'], billingContext)
+    }
+
+    for (const acquiringContext of acquiringContexts) {
+        set(contexts, [get(acquiringContext, 'organization'), 'acquiringContext'], acquiringContext)
+    }
+
+    return { normalizedAddress, contexts }
+}
+
 module.exports = {
     parseReceiptQRCode,
     getQRCodeMissedFields,
     isReceiptPaid,
     compareQRCodeWithLastReceipt,
     formatPeriodFromQRCode,
+    findAuxiliaryData,
 }
