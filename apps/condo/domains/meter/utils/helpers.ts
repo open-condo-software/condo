@@ -28,3 +28,11 @@ export function getHumanizedVerificationDateDifference (nextVerificationDate) {
     return overdueDiff
 }
 
+export const getMeterTitleMessage = (intl, meter) => {
+    if (!meter) {
+        return
+    }
+
+    return `${intl.formatMessage({ id: 'pages.condo.meter.id.PageTitle' })} № ${meter.number}`
+}
+

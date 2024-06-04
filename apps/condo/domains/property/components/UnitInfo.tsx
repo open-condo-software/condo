@@ -66,6 +66,8 @@ export enum UnitInfoMode {
 type InitialUnitInfoType = {
     sectionName?: string
     floorName?: string
+    unitName?: string
+    unitType?: string
 }
 
 interface IUnitInfo {
@@ -221,6 +223,7 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
                         name='unitName'
                         label={FlatNumberLabel}
                         required={required}
+                        initialValue={get(initialValues, 'unitName')}
                     >
                         <UnitNameInput
                             property={property}
