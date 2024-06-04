@@ -89,8 +89,6 @@ const getAvailableResidentMeters = async (userId) => {
                         { resource: { id: resourceOwner.resource } },
                         { accountNumber: consumer.accountNumber },
                         { property: { addressKey: resourceOwner.addressKey, deletedAt: null } },
-                        { unitName: get(residentsByIds, [consumer.resident, 'unitName']) },
-                        { unitType: get(residentsByIds, [consumer.resident, 'unitType']) },
                     ],
                 })
             })
