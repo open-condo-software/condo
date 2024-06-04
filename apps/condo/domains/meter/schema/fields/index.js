@@ -41,6 +41,11 @@ const sealingDate = {
     type: DateTimeUtc,
 }
 
+const archiveDate = {
+    schemaDoc: 'The date when the meter was disabled and no longer in use',
+    type: DateTimeUtc,
+}
+
 const isAutomatic = {
     schemaDoc: 'Determines, if Meter is automatic or not. False by default. ' +
         `If set to True - prevents user with type "${RESIDENT}" from creating MeterReading.` +
@@ -79,4 +84,5 @@ module.exports = {
     verificationDate,
     commissioningDate,
     installationDate,
+    archiveDate,
 }

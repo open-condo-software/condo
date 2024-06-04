@@ -31437,6 +31437,8 @@ export type Meter = {
   controlReadingsDate?: Maybe<Scalars['String']>;
   /**  The date when meter was sealed.Sealing is the installation of a unique single-use device (directly a seal and a sealing rope)on the metering device, which is designed to control unauthorized access to the equipment.  */
   sealingDate?: Maybe<Scalars['String']>;
+  /**  The date when the meter was disabled and no longer in use  */
+  archiveDate?: Maybe<Scalars['String']>;
   /**  Determines, if Meter is automatic or not. False by default. If set to True - prevents user with type "resident" from creating MeterReading.So MeterReadings only be acquired through external integration or adjusted by organization employee  */
   isAutomatic?: Maybe<Scalars['Boolean']>;
   /**  Meter resource, such as hot water or electricity  */
@@ -31484,6 +31486,7 @@ export type MeterCreateInput = {
   nextVerificationDate?: Maybe<Scalars['String']>;
   controlReadingsDate?: Maybe<Scalars['String']>;
   sealingDate?: Maybe<Scalars['String']>;
+  archiveDate?: Maybe<Scalars['String']>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
   resource?: Maybe<MeterResourceRelateToOneInput>;
   b2bApp?: Maybe<B2BAppRelateToOneInput>;
@@ -31525,6 +31528,7 @@ export type MeterHistoryRecord = {
   nextVerificationDate?: Maybe<Scalars['String']>;
   controlReadingsDate?: Maybe<Scalars['String']>;
   sealingDate?: Maybe<Scalars['String']>;
+  archiveDate?: Maybe<Scalars['String']>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
   resource?: Maybe<Scalars['String']>;
   b2bApp?: Maybe<Scalars['String']>;
@@ -31560,6 +31564,7 @@ export type MeterHistoryRecordCreateInput = {
   nextVerificationDate?: Maybe<Scalars['String']>;
   controlReadingsDate?: Maybe<Scalars['String']>;
   sealingDate?: Maybe<Scalars['String']>;
+  archiveDate?: Maybe<Scalars['String']>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
   resource?: Maybe<Scalars['String']>;
   b2bApp?: Maybe<Scalars['String']>;
@@ -31600,6 +31605,7 @@ export type MeterHistoryRecordUpdateInput = {
   nextVerificationDate?: Maybe<Scalars['String']>;
   controlReadingsDate?: Maybe<Scalars['String']>;
   sealingDate?: Maybe<Scalars['String']>;
+  archiveDate?: Maybe<Scalars['String']>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
   resource?: Maybe<Scalars['String']>;
   b2bApp?: Maybe<Scalars['String']>;
@@ -31688,6 +31694,14 @@ export type MeterHistoryRecordWhereInput = {
   sealingDate_gte?: Maybe<Scalars['String']>;
   sealingDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   sealingDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  archiveDate?: Maybe<Scalars['String']>;
+  archiveDate_not?: Maybe<Scalars['String']>;
+  archiveDate_lt?: Maybe<Scalars['String']>;
+  archiveDate_lte?: Maybe<Scalars['String']>;
+  archiveDate_gt?: Maybe<Scalars['String']>;
+  archiveDate_gte?: Maybe<Scalars['String']>;
+  archiveDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  archiveDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
   isAutomatic_not?: Maybe<Scalars['Boolean']>;
   resource?: Maybe<Scalars['String']>;
@@ -34394,6 +34408,7 @@ export type MeterUpdateInput = {
   nextVerificationDate?: Maybe<Scalars['String']>;
   controlReadingsDate?: Maybe<Scalars['String']>;
   sealingDate?: Maybe<Scalars['String']>;
+  archiveDate?: Maybe<Scalars['String']>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
   resource?: Maybe<MeterResourceRelateToOneInput>;
   b2bApp?: Maybe<B2BAppRelateToOneInput>;
@@ -34477,6 +34492,14 @@ export type MeterWhereInput = {
   sealingDate_gte?: Maybe<Scalars['String']>;
   sealingDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   sealingDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  archiveDate?: Maybe<Scalars['String']>;
+  archiveDate_not?: Maybe<Scalars['String']>;
+  archiveDate_lt?: Maybe<Scalars['String']>;
+  archiveDate_lte?: Maybe<Scalars['String']>;
+  archiveDate_gt?: Maybe<Scalars['String']>;
+  archiveDate_gte?: Maybe<Scalars['String']>;
+  archiveDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  archiveDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
   isAutomatic_not?: Maybe<Scalars['Boolean']>;
   resource?: Maybe<MeterResourceWhereInput>;
@@ -58741,6 +58764,8 @@ export type PropertyMeter = {
   controlReadingsDate?: Maybe<Scalars['String']>;
   /**  The date when meter was sealed.Sealing is the installation of a unique single-use device (directly a seal and a sealing rope)on the metering device, which is designed to control unauthorized access to the equipment.  */
   sealingDate?: Maybe<Scalars['String']>;
+  /**  The date when the meter was disabled and no longer in use  */
+  archiveDate?: Maybe<Scalars['String']>;
   /**  Determines, if Meter is automatic or not. False by default. If set to True - prevents user with type "resident" from creating MeterReading.So MeterReadings only be acquired through external integration or adjusted by organization employee  */
   isAutomatic?: Maybe<Scalars['Boolean']>;
   /**  Meter resource, such as hot water or electricity  */
@@ -58778,6 +58803,7 @@ export type PropertyMeterCreateInput = {
   nextVerificationDate?: Maybe<Scalars['String']>;
   controlReadingsDate?: Maybe<Scalars['String']>;
   sealingDate?: Maybe<Scalars['String']>;
+  archiveDate?: Maybe<Scalars['String']>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
   resource?: Maybe<MeterResourceRelateToOneInput>;
   b2bApp?: Maybe<B2BAppRelateToOneInput>;
@@ -58814,6 +58840,7 @@ export type PropertyMeterHistoryRecord = {
   nextVerificationDate?: Maybe<Scalars['String']>;
   controlReadingsDate?: Maybe<Scalars['String']>;
   sealingDate?: Maybe<Scalars['String']>;
+  archiveDate?: Maybe<Scalars['String']>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
   resource?: Maybe<Scalars['String']>;
   b2bApp?: Maybe<Scalars['String']>;
@@ -58844,6 +58871,7 @@ export type PropertyMeterHistoryRecordCreateInput = {
   nextVerificationDate?: Maybe<Scalars['String']>;
   controlReadingsDate?: Maybe<Scalars['String']>;
   sealingDate?: Maybe<Scalars['String']>;
+  archiveDate?: Maybe<Scalars['String']>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
   resource?: Maybe<Scalars['String']>;
   b2bApp?: Maybe<Scalars['String']>;
@@ -58879,6 +58907,7 @@ export type PropertyMeterHistoryRecordUpdateInput = {
   nextVerificationDate?: Maybe<Scalars['String']>;
   controlReadingsDate?: Maybe<Scalars['String']>;
   sealingDate?: Maybe<Scalars['String']>;
+  archiveDate?: Maybe<Scalars['String']>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
   resource?: Maybe<Scalars['String']>;
   b2bApp?: Maybe<Scalars['String']>;
@@ -58962,6 +58991,14 @@ export type PropertyMeterHistoryRecordWhereInput = {
   sealingDate_gte?: Maybe<Scalars['String']>;
   sealingDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   sealingDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  archiveDate?: Maybe<Scalars['String']>;
+  archiveDate_not?: Maybe<Scalars['String']>;
+  archiveDate_lt?: Maybe<Scalars['String']>;
+  archiveDate_lte?: Maybe<Scalars['String']>;
+  archiveDate_gt?: Maybe<Scalars['String']>;
+  archiveDate_gte?: Maybe<Scalars['String']>;
+  archiveDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  archiveDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
   isAutomatic_not?: Maybe<Scalars['Boolean']>;
   resource?: Maybe<Scalars['String']>;
@@ -59540,6 +59577,7 @@ export type PropertyMeterUpdateInput = {
   nextVerificationDate?: Maybe<Scalars['String']>;
   controlReadingsDate?: Maybe<Scalars['String']>;
   sealingDate?: Maybe<Scalars['String']>;
+  archiveDate?: Maybe<Scalars['String']>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
   resource?: Maybe<MeterResourceRelateToOneInput>;
   b2bApp?: Maybe<B2BAppRelateToOneInput>;
@@ -59618,6 +59656,14 @@ export type PropertyMeterWhereInput = {
   sealingDate_gte?: Maybe<Scalars['String']>;
   sealingDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   sealingDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  archiveDate?: Maybe<Scalars['String']>;
+  archiveDate_not?: Maybe<Scalars['String']>;
+  archiveDate_lt?: Maybe<Scalars['String']>;
+  archiveDate_lte?: Maybe<Scalars['String']>;
+  archiveDate_gt?: Maybe<Scalars['String']>;
+  archiveDate_gte?: Maybe<Scalars['String']>;
+  archiveDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  archiveDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
   isAutomatic_not?: Maybe<Scalars['Boolean']>;
   resource?: Maybe<MeterResourceWhereInput>;
@@ -77214,6 +77260,8 @@ export enum SortMeterHistoryRecordsBy {
   ControlReadingsDateDesc = 'controlReadingsDate_DESC',
   SealingDateAsc = 'sealingDate_ASC',
   SealingDateDesc = 'sealingDate_DESC',
+  ArchiveDateAsc = 'archiveDate_ASC',
+  ArchiveDateDesc = 'archiveDate_DESC',
   IsAutomaticAsc = 'isAutomatic_ASC',
   IsAutomaticDesc = 'isAutomatic_DESC',
   NumberAsc = 'number_ASC',
@@ -77577,6 +77625,8 @@ export enum SortMetersBy {
   ControlReadingsDateDesc = 'controlReadingsDate_DESC',
   SealingDateAsc = 'sealingDate_ASC',
   SealingDateDesc = 'sealingDate_DESC',
+  ArchiveDateAsc = 'archiveDate_ASC',
+  ArchiveDateDesc = 'archiveDate_DESC',
   IsAutomaticAsc = 'isAutomatic_ASC',
   IsAutomaticDesc = 'isAutomatic_DESC',
   ResourceAsc = 'resource_ASC',
@@ -79054,6 +79104,8 @@ export enum SortPropertyMeterHistoryRecordsBy {
   ControlReadingsDateDesc = 'controlReadingsDate_DESC',
   SealingDateAsc = 'sealingDate_ASC',
   SealingDateDesc = 'sealingDate_DESC',
+  ArchiveDateAsc = 'archiveDate_ASC',
+  ArchiveDateDesc = 'archiveDate_DESC',
   IsAutomaticAsc = 'isAutomatic_ASC',
   IsAutomaticDesc = 'isAutomatic_DESC',
   NumberAsc = 'number_ASC',
@@ -79157,6 +79209,8 @@ export enum SortPropertyMetersBy {
   ControlReadingsDateDesc = 'controlReadingsDate_DESC',
   SealingDateAsc = 'sealingDate_ASC',
   SealingDateDesc = 'sealingDate_DESC',
+  ArchiveDateAsc = 'archiveDate_ASC',
+  ArchiveDateDesc = 'archiveDate_DESC',
   IsAutomaticAsc = 'isAutomatic_ASC',
   IsAutomaticDesc = 'isAutomatic_DESC',
   ResourceAsc = 'resource_ASC',
