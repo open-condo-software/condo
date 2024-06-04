@@ -60,7 +60,6 @@ const getAvailableResidentMeters = async (userId) => {
         deletedAt: null,
     })
     const residentIds = userResidents.map(resident => resident.id)
-    const residentsByIds = Object.assign({}, ...userResidents.map(obj => ({ [obj.id]: obj })))
 
     const resourceOwners = await find('MeterResourceOwner', {
         deletedAt: null,
