@@ -44,6 +44,7 @@ export function useFilters (meterPageType: MeterPageTypes): Array<FiltersMeta<Me
     const CommissioningDateMessage = intl.formatMessage({ id: 'pages.condo.meter.CommissioningDate' })
     const SealingDateMessage = intl.formatMessage({ id: 'pages.condo.meter.SealingDate' })
     const ControlReadingsDate = intl.formatMessage({ id: 'pages.condo.meter.ControlReadingsDate' })
+    const ArchiveDate = intl.formatMessage({ id: 'pages.condo.meter.ArchiveDate' })
     const EnterUnitNameLabel = intl.formatMessage({ id: 'pages.condo.ticket.filters.EnterUnitName' })
     const UnitMessage = intl.formatMessage({ id: 'field.FlatNumber' })
 
@@ -71,6 +72,7 @@ export function useFilters (meterPageType: MeterPageTypes): Array<FiltersMeta<Me
     const readingDateRangeFilter = getDayRangeFilter('date')
     const verificationDateRangeFilter = getDayRangeFilter(isMeterTab ? 'verificationDate' : ['meter', 'verificationDate'])
     const installationDateRangeFilter = getDayRangeFilter(isMeterTab ? 'installationDate' : ['meter', 'installationDate'])
+    const archiveDateRangeFilter = getDayRangeFilter(isMeterTab ? 'archiveDate' : ['meter', 'archiveDate'])
     const commissioningDateRangeFilter = getDayRangeFilter(isMeterTab ? 'commissioningDate' : ['meter', 'commissioningDate'])
     const sealingDateRangeFilter = getDayRangeFilter(isMeterTab ? 'sealingDate' : ['meter', 'sealingDate'])
     const controlReadingsDateRangeFilter = getDayRangeFilter(isMeterTab ? 'controlReadingsDate' : ['meter', 'controlReadingsDate'])
@@ -292,6 +294,20 @@ export function useFilters (meterPageType: MeterPageTypes): Array<FiltersMeta<Me
                 },
             },
             {
+                keyword: 'archiveDate',
+                filters: [archiveDateRangeFilter],
+                component: {
+                    type: ComponentType.DateRange,
+                    props: {
+                        placeholder: [StartDateMessage, EndDateMessage],
+                    },
+                    modalFilterComponentWrapper: {
+                        label: ArchiveDate,
+                        size: FilterComponentSize.Medium,
+                    },
+                },
+            },
+            {
                 keyword: 'search',
                 filters: compact([
                     addressStringContainsFilter,
@@ -306,5 +322,5 @@ export function useFilters (meterPageType: MeterPageTypes): Array<FiltersMeta<Me
         ])
         
 
-    }, [addressFilter, userOrganizationId, EnterAddressMessage, AddressMessage, isPropertyMeter, unitNameFilter, EnterUnitNameLabel, UnitMessage, accountNumberFilter, EnterAccountNumberMessage, AccountNumberMessage, isMeterTab, clientNameFilter, FullNameMessage, ContactMessage, resourceFilter, resourcesOptions, resourcesLoading, ChooseServiceMessage, ServiceMessage, sourceFilter, sourcesOptions, SelectMessage, SourceMessage, numberFilter, EnterMeterNumberMessage, MeterNumberMessage, readingDateRangeFilter, StartDateMessage, EndDateMessage, MeterReadingDateMessage, placeFilter, EnterPlaceMessage, PlaceMessage, verificationDateRangeFilter, VerificationDateMessage, installationDateRangeFilter, InstallationDateMessage, commissioningDateRangeFilter, CommissioningDateMessage, sealingDateRangeFilter, SealingDateMessage, controlReadingsDateRangeFilter, ControlReadingsDate, addressStringContainsFilter, resourceStringContainsFilter, unitNameStringContainsFilter])
+    }, [addressFilter, userOrganizationId, EnterAddressMessage, AddressMessage, isPropertyMeter, unitNameFilter, EnterUnitNameLabel, UnitMessage, accountNumberFilter, EnterAccountNumberMessage, AccountNumberMessage, isMeterTab, clientNameFilter, FullNameMessage, ContactMessage, resourceFilter, resourcesOptions, resourcesLoading, ChooseServiceMessage, ServiceMessage, sourceFilter, sourcesOptions, SelectMessage, SourceMessage, numberFilter, EnterMeterNumberMessage, MeterNumberMessage, readingDateRangeFilter, StartDateMessage, EndDateMessage, MeterReadingDateMessage, placeFilter, EnterPlaceMessage, PlaceMessage, verificationDateRangeFilter, VerificationDateMessage, installationDateRangeFilter, InstallationDateMessage, commissioningDateRangeFilter, CommissioningDateMessage, sealingDateRangeFilter, SealingDateMessage, controlReadingsDateRangeFilter, ControlReadingsDate, archiveDateRangeFilter, ArchiveDate, addressStringContainsFilter, resourceStringContainsFilter, unitNameStringContainsFilter])
 }

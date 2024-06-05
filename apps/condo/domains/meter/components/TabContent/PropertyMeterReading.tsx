@@ -4,7 +4,6 @@ import {
 } from '@app/condo/schema'
 import { Col, Row, RowProps } from 'antd'
 import { ColumnsType } from 'antd/lib/table'
-import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useMemo } from 'react'
 
@@ -28,7 +27,6 @@ import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/
 import { MetersImportWrapper } from '@condo/domains/meter/components/Import/Index'
 import ActionBarForSingleMeter from '@condo/domains/meter/components/Meters/ActionBarForSingleMeter'
 import { EXPORT_PROPERTY_METER_READINGS_QUERY } from '@condo/domains/meter/gql'
-import { useUpdateMeterModal } from '@condo/domains/meter/hooks/useUpdateMeterModal'
 import {
     PropertyMeterReading,
     METER_TAB_TYPES, MeterReadingFilterTemplate,
@@ -50,6 +48,7 @@ type PropertyMetersTableContentProps = {
     sortableProperties?: string[]
     loading?: boolean
     meterId?: string
+    archiveDate?: string
 }
 
 const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProps> = (props) => {
@@ -60,6 +59,8 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
         sortableProperties,
         tableColumns,
         loading,
+        meterId,
+        archiveDate,
     } = props
 
     const intl = useIntl()
@@ -94,7 +95,6 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
     })
 
     const [search, handleSearchChange, handleSearchReset] = useSearch()
-    const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch, METER_TAB_TYPES.propertyMeter)
     const { MultipleFiltersModal, ResetFiltersModalButton, OpenFiltersButton, appliedFiltersCount } = useMultipleFiltersModal({
         filterMetas: filtersMeta,
         filtersSchemaGql: MeterReadingFilterTemplate,
@@ -102,14 +102,6 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
         extraQueryParameters: { tab },
     })
 
-    const handleRowAction = useCallback((record) => {
-        return {
-            onClick: () => {
-                const meter = get(record, 'meter')
-                setSelectedMeter(meter)
-            },
-        }
-    }, [setSelectedMeter])
     const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
     const handleCreateMeterReadings = useCallback(() => router.push(`/meter/create?tab=${METER_TAB_TYPES.propertyMeterReading}`), [])
 
@@ -121,29 +113,31 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
                 justify='center'
             >
                 <Col span={24}>
-                    <TableFiltersContainer>
-                        <Row style={{ display: 'flex' }} gutter={FILTERS_CONTAINER_GUTTER} align='middle'>
-                            <Col style={{ flex: 1 }}>
-                                <Input
-                                    placeholder={SearchPlaceholder}
-                                    onChange={handleSearch}
-                                    value={search}
-                                    allowClear
-                                    suffix={<Search size='medium' color={colors.gray[7]}/>}
-                                />
-                            </Col>
-                            {
-                                appliedFiltersCount > 0 && (
-                                    <Col>
-                                        <ResetFiltersModalButton style={RESET_FILTERS_BUTTON_STYLE} />
-                                    </Col>
-                                )
-                            }
-                            <Col>
-                                <OpenFiltersButton />
-                            </Col>
-                        </Row>
-                    </TableFiltersContainer>
+                    {!meterId && (
+                        <TableFiltersContainer>
+                            <Row style={{ display: 'flex' }} gutter={FILTERS_CONTAINER_GUTTER} align='middle'>
+                                <Col style={{ flex: 1 }}>
+                                    <Input
+                                        placeholder={SearchPlaceholder}
+                                        onChange={handleSearch}
+                                        value={search}
+                                        allowClear
+                                        suffix={<Search size='medium' color={colors.gray[7]}/>}
+                                    />
+                                </Col>
+                                {
+                                    appliedFiltersCount > 0 && (
+                                        <Col>
+                                            <ResetFiltersModalButton style={RESET_FILTERS_BUTTON_STYLE} />
+                                        </Col>
+                                    )
+                                }
+                                <Col>
+                                    <OpenFiltersButton />
+                                </Col>
+                            </Row>
+                        </TableFiltersContainer>
+                    )}
                 </Col>
                 <Col span={24}>
                     <Table
@@ -151,34 +145,42 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
                         loading={metersLoading || loading}
                         dataSource={PropertyMeterReadings}
                         columns={tableColumns}
-                        onRow={handleRowAction}
                     />
                 </Col>
                 <Col span={24}>
-                    <ExportToExcelActionBar
-                        searchObjectsQuery={searchMeterReadingsQuery}
-                        exportToExcelQuery={EXPORT_PROPERTY_METER_READINGS_QUERY}
-                        sortBy={sortBy}
-                        actions={[
-                            canManageMeterReadings && (
-                                <Button
-                                    key='create'
-                                    type='primary'
-                                    icon={<PlusCircle size='medium' />}
-                                    onClick={handleCreateMeterReadings}
-                                >
-                                    {CreateMeterReadingsButtonLabel}
-                                </Button>
-                            ),
-                            canManageMeterReadings && (
-                                <MetersImportWrapper
-                                    key='import'
-                                    accessCheck={canManageMeterReadings}
-                                    onFinish={refetch}
-                                />
-                            ),
-                        ]}
-                    />
+                    {!meterId && (
+                        <ExportToExcelActionBar
+                            searchObjectsQuery={searchMeterReadingsQuery}
+                            exportToExcelQuery={EXPORT_PROPERTY_METER_READINGS_QUERY}
+                            sortBy={sortBy}
+                            actions={[
+                                canManageMeterReadings && (
+                                    <Button
+                                        key='create'
+                                        type='primary'
+                                        icon={<PlusCircle size='medium' />}
+                                        onClick={handleCreateMeterReadings}
+                                    >
+                                        {CreateMeterReadingsButtonLabel}
+                                    </Button>
+                                ),
+                                canManageMeterReadings && (
+                                    <MetersImportWrapper
+                                        key='import'
+                                        accessCheck={canManageMeterReadings}
+                                        onFinish={refetch}
+                                    />
+                                ),
+                            ]}
+                        />
+                    )}
+                    {meterId && <ActionBarForSingleMeter 
+                        canManageMeterReadings={canManageMeterReadings}
+                        meterId={meterId}
+                        meterType={METER_TAB_TYPES.propertyMeter}
+                        archiveDate={archiveDate}
+                    />}
+                    
                 </Col>
             </Row>
             <MultipleFiltersModal />
@@ -192,6 +194,7 @@ export const PropertyMeterReadingsPageContent: React.FC<PropertyMetersTableConte
         canManageMeterReadings,
         loading,
         meterId,
+        archiveDate,
     } = props
 
     const intl = useIntl()
@@ -218,12 +221,14 @@ export const PropertyMeterReadingsPageContent: React.FC<PropertyMetersTableConte
                         canManageMeterReadings={canManageMeterReadings}
                         meterId={meterId}
                         meterType={METER_TAB_TYPES.propertyMeter}
+                        archiveDate={archiveDate}
                     />
                 )
             }
 
         return <PropertyMeterReadingsTableContent {...props} />
-    }, [CreateMeterReading, EmptyListLabel, canManageMeterReadings, count, countLoading, loading, meterId, props])
+
+    }, [CreateMeterReading, EmptyListLabel, archiveDate, canManageMeterReadings, count, countLoading, loading, meterId, props])
 
     return (
         <TablePageContent>

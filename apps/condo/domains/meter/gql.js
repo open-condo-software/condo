@@ -18,7 +18,7 @@ const MeterResource = generateGqlQueries('MeterResource', METER_RESOURCE_FIELDS_
 const METER_READING_SOURCE_FIELDS = `{ type name nameNonLocalized ${COMMON_FIELDS} }`
 const MeterReadingSource = generateGqlQueries('MeterReadingSource', METER_READING_SOURCE_FIELDS)
 
-const METER_FIELDS = `id number numberOfTariffs installationDate commissioningDate verificationDate nextVerificationDate controlReadingsDate sealingDate accountNumber organization { id } property { id address addressKey addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } unitName unitType place resource { ${METER_RESOURCE_FIELDS} } isAutomatic b2bApp { id name } b2cApp { id name }`
+const METER_FIELDS = `id number numberOfTariffs installationDate commissioningDate verificationDate nextVerificationDate controlReadingsDate sealingDate archiveDate accountNumber organization { id } property { id address addressKey addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } unitName unitType place resource { ${METER_RESOURCE_FIELDS} } isAutomatic b2bApp { id name } b2cApp { id name }`
 const METER_FIELDS_ALL = `{ ${METER_FIELDS} ${COMMON_FIELDS} }`
 const Meter = generateGqlQueries('Meter', METER_FIELDS_ALL)
 
@@ -29,7 +29,7 @@ const MeterReading = generateGqlQueries('MeterReading', METER_READING_FIELDS)
 
 const MeterReadingForOrganization = generateGqlQueries('MeterReading', `{
         id value1 value2 value3 value4 date clientName clientEmail clientPhone
-        meter { id number numberOfTariffs installationDate commissioningDate verificationDate nextVerificationDate controlReadingsDate sealingDate accountNumber organization { id } property { id addressKey addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } unitName unitType place resource { ${METER_RESOURCE_FIELDS} } isAutomatic b2bApp { id name } b2cApp { id name } }
+        meter { id number numberOfTariffs installationDate commissioningDate verificationDate nextVerificationDate controlReadingsDate sealingDate archiveDate accountNumber organization { id } property { id addressKey addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } unitName unitType place resource { ${METER_RESOURCE_FIELDS} } isAutomatic b2bApp { id name } b2cApp { id name } }
         organization { id name }
         client { id }
         contact { id name }
@@ -47,7 +47,7 @@ const METER_READING_FILTERS_FIELDS = '{ organization address accountNumber place
 const METER_READING_FILTER_TEMPLATE_FIELDS = `{ name employee { id } fields ${METER_READING_FILTERS_FIELDS} ${COMMON_FIELDS} }`
 const MeterReadingFilterTemplate = generateGqlQueries('MeterReadingFilterTemplate', METER_READING_FILTER_TEMPLATE_FIELDS)
 
-const PROPERTY_METER_FIELDS = `{ number numberOfTariffs installationDate commissioningDate verificationDate nextVerificationDate controlReadingsDate sealingDate isAutomatic organization { id name } property { id address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } resource { ${METER_RESOURCE_FIELDS} } b2bApp { id } meta ${COMMON_FIELDS} }`
+const PROPERTY_METER_FIELDS = `{ number numberOfTariffs installationDate commissioningDate verificationDate nextVerificationDate controlReadingsDate sealingDate archiveDate isAutomatic organization { id name } property { id address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } resource { ${METER_RESOURCE_FIELDS} } b2bApp { id } meta ${COMMON_FIELDS} }`
 const PropertyMeter = generateGqlQueries('PropertyMeter', PROPERTY_METER_FIELDS)
 
 const PROPERTY_METER_READING_FIELDS = `{ organization { id name } date meter ${PROPERTY_METER_FIELDS} value1 value2 value3 value4 source { id name type } ${COMMON_FIELDS} }`

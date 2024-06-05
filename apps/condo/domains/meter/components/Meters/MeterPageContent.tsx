@@ -18,9 +18,11 @@ import { Meter, METER_READINGS_TYPES, METER_TAB_TYPES, PropertyMeter } from '@co
 import { getMeterTitleMessage } from '@condo/domains/meter/utils/helpers'
 import { TicketPropertyField } from '@condo/domains/ticket/components/TicketId/TicketPropertyField'
 
+import ChangeMeterStatusModal from './ChangeMeterStatusModal'
+
 const METER_INFO_TEXT_STYLE: CSSProperties = { margin: 0, fontSize: '12px' }
 
-const METER_STATUSES = { active: 'active', archived: 'archived' } // TODO(@abshnko): get archivedDate from schema
+const METER_STATUSES = { active: 'active', archived: 'archived' }
 
 
 const MeterHeader = ({ meter, meterReportingPeriod, refetchMeter, meterType }) => {
@@ -32,13 +34,15 @@ const MeterHeader = ({ meter, meterReportingPeriod, refetchMeter, meterType }) =
     const VerificationDateTipMessage = intl.formatMessage({ id: 'pages.condo.meter.nextVerificationTip' })
     const ArchivedMeterNotShowingMessage = intl.formatMessage({ id: 'pages.condo.meter.archivedMeterTip.NotShowing' })
     const MeterIsActiveMessage = intl.formatMessage({ id: 'pages.condo.meter.Meter.isActive' })
-    const MeterIsOutOfOrderMessage = intl.formatMessage({ id: 'pages.condo.meter.Meter.outOfOrder' })    
-   
+    const MeterIsOutOfOrderMessage = intl.formatMessage({ id: 'pages.condo.meter.Meter.outOfOrder' })
+    
     const MeterTitleMessage = useMemo(() => getMeterTitleMessage(intl, meter), [meter])
     const nextVerificationDate = get(meter, 'nextVerificationDate')
 
-    // const archivedDate = get(meter, 'archivedDate')
-    const [meterStatus, setMeterStatus] = useState(METER_STATUSES.active)
+    const archiveDate = get(meter, 'archiveDate')
+    
+    const [meterStatus, setMeterStatus] = useState(archiveDate ? METER_STATUSES.archived : METER_STATUSES.active)
+    const [selectedArchiveDate, setSelectedArchiveDate] = useState(archiveDate || null)
     const [isShowStatusChangeModal, setIsShowStatusChangeModal] = useState(false)
 
     const ArchivedMeterTipMessage = intl.formatMessage(
@@ -54,24 +58,33 @@ const MeterHeader = ({ meter, meterReportingPeriod, refetchMeter, meterType }) =
     const isPropertyMeter = meterType === METER_TAB_TYPES.propertyMeter
     const MeterIdentity = isPropertyMeter ? PropertyMeter : Meter
 
-    // const updateArchivedDateAction = MeterIdentity.useUpdate({ archivedDate: <date>}, {
-    //    refetchMeter()
-    //}) // TODO(@abshnko): get archivedDate to Meter
+    const updateArchivedDateAction = MeterIdentity.useUpdate({}, ()=> {
+        setIsShowStatusChangeModal(false)
+        refetchMeter()
+    })
 
-    const changeMeterStatus = useCallback(
-        () => {
-            if (meterStatus === METER_STATUSES.active){
-                setMeterStatus(METER_STATUSES.archived) // TODO(@abshnko): remove
-                //updateMeterStatusAction()
-            } else {
-                return 
-            }
-        }, [meterStatus])    
+    const changeMeterStatusToArchived = useCallback(() => {
+        if (meterStatus === METER_STATUSES.active){
+            updateArchivedDateAction({ archiveDate: selectedArchiveDate }, { id: meter.id })
+        }
+    }, [meter, meterStatus, selectedArchiveDate, updateArchivedDateAction])  
+    
+    const handleChangeStatusButtonClick = useCallback(() => {
+        setIsShowStatusChangeModal(true)
+    }, []) 
+
+    const handleChangeSelectedArchiveDate = useCallback((date) => {
+        setSelectedArchiveDate(dayjs(date).toISOString())
+    }, []) 
+
+    const handleCloseStatusChangeModal = useCallback(() => {
+        setIsShowStatusChangeModal(false)
+    }, []) 
     
 
     const meterStatusTag = useMemo(() => (
         <Select
-            onChange={changeMeterStatus}
+            onChange={handleChangeStatusButtonClick}
             options={[
                 {
                     label: MeterIsActiveMessage,
@@ -85,11 +98,11 @@ const MeterHeader = ({ meter, meterReportingPeriod, refetchMeter, meterType }) =
 
             key='statusTag'
             type={meterStatus === METER_STATUSES.active ? 'success' : 'warning'}
-            value={meterStatus} // TODO(@abshnko): add statuses from schema and take from there
+            value={meterStatus}
             disabled={meterStatus === METER_STATUSES.archived}
         />
 
-    ), [MeterIsActiveMessage, MeterIsOutOfOrderMessage, changeMeterStatus, meterStatus])
+    ), [MeterIsActiveMessage, MeterIsOutOfOrderMessage, handleChangeStatusButtonClick, meterStatus])
 
 
     return (
@@ -131,6 +144,13 @@ const MeterHeader = ({ meter, meterReportingPeriod, refetchMeter, meterType }) =
                 <Typography.Text type='secondary' style={METER_INFO_TEXT_STYLE}>
                 </Typography.Text>
             </Col>
+            <ChangeMeterStatusModal 
+                changeMeterStatusToArchived={changeMeterStatusToArchived}
+                handleChangeSelectedArchiveDate={handleChangeSelectedArchiveDate}
+                handleCloseStatusChangeModal={handleCloseStatusChangeModal}
+                isShowStatusChangeModal={isShowStatusChangeModal}
+                selectedArchiveDate={selectedArchiveDate}
+            />
         </>
     )
 }
@@ -242,6 +262,7 @@ export const MeterPageContent = ({ meter, meterReportingPeriod, resource, refetc
                         canManageMeterReadings={canManageMeterReadings}
                         baseSearchQuery={baseMeterReadingsQuery}
                         meterId={get(meter, 'id')}
+                        archiveDate={get(meter, 'archiveDate')}
                     />
                 ) : (
                     <MeterReadingsPageContent
@@ -251,9 +272,9 @@ export const MeterPageContent = ({ meter, meterReportingPeriod, resource, refetc
                         canManageMeterReadings={canManageMeterReadings}
                         baseSearchQuery={baseMeterReadingsQuery}
                         meterId={get(meter, 'id')}
+                        archiveDate={get(meter, 'archiveDate')}
                     /> 
                 )}
-                
             </Col>
         </Row>
     )

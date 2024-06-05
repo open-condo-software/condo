@@ -26,6 +26,7 @@ import {
     getSourceRender,
     getUnitRender,
     getVerificationDateRender,
+    getMeterStatusRender,
 } from '@condo/domains/meter/utils/clientSchema/Renders'
 import { getMeterReportingPeriodRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
 
@@ -252,19 +253,15 @@ export function useTableColumns <T> (
                 render: getVerificationDateRender(intl, isMeter, search),
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'verificationDate'),
             },
-            // TODO: add isActive field to Meter model
-            //* {
-            //     title: StatusMessage,
-            //     sortOrder: get(sorterMap, 'status'),
-            //     filteredValue: getFilteredValue<IFilters>(filters, 'status'),
-            //     render: getStatusRender(intl, search),
-            //     dataIndex: 'isActive',
-            //     key: 'status',
-            //     sorter: true,
-            //     width: '11%',
-            //     filterDropdown: getFilterDropdownByKey(filterMetas, 'isActive'),
-            //     filterIcon: getFilterIcon,
-            // },
+            {
+                title: StatusMessage,
+                sortOrder: get(sorterMap, 'status'),
+                render: getMeterStatusRender(intl, search),
+                dataIndex: 'archiveDate',
+                key: 'archiveDate',
+                width: isPropertyMeter ? '17%' : '14%',
+            },
+            
         ])
-    }, [meterTabType, AddressMessage, filters, renderAddress, filterMetas, PeriodMessage, sorterMap, search, intl, meterAndMeterReadingColumns, MeterReadingDateMessage, isPropertyMeter, MeterReadingMessage, MeterVerificationDateMessage, isMeter])
+    }, [isReadingsForSingleMeter, readingsForSingleMeterColumns, meterTabType, AddressMessage, filters, renderAddress, filterMetas, PeriodMessage, sorterMap, search, intl, meterAndMeterReadingColumns, MeterReadingDateMessage, isPropertyMeter, MeterReadingMessage, MeterVerificationDateMessage, isMeter, StatusMessage])
 }

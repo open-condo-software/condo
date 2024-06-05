@@ -11,7 +11,7 @@ import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { PlusCircle, Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Button } from '@open-condo/ui'
+import { Button, Checkbox } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
@@ -63,7 +63,6 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
     tableColumns,
     baseSearchQuery,
     canManageMeterReadings,
-    mutationErrorsToMessages,
     sortableProperties,
     loading,
 }) => {
@@ -85,6 +84,9 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
 
     const [dateRange, setDateRange] = useDateRangeSearch('verificationDate')
     const [filtersAreReset, setFiltersAreReset] = useState(false)
+    const [isShowActiveMeters, setIsShowActiveMeters] = useState(true)
+    const [isShowArchivedMeters, setIsShowArchivedMeters] = useState(false)
+
     const dateFallback = filtersAreReset ? null : DEFAULT_DATE_RANGE
     const dateFilterValue = dateRange || dateFallback
     const dateFilter = dateFilterValue ? dateFilterValue.map(el => el.toISOString()) : null
@@ -97,10 +99,15 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
     }, [setDateRange])
 
 
-    const searchMeterReadingsQuery = useMemo(() => ({
-        ...filtersToWhere({ verificationDate: dateFilter, ...filters }),
+    const searchMetersQuery = useMemo(() => ({
+        ...filtersToWhere({
+            verificationDate: dateFilter,
+            ...filters,
+        }),
+        ...(isShowActiveMeters && !isShowArchivedMeters)  ? { archiveDate: null } : {},
+        ...(isShowArchivedMeters && !isShowActiveMeters) ? { archiveDate_not: null } : {},
         ...baseSearchQuery,
-    }), [baseSearchQuery, dateFilter, filters, filtersToWhere])
+    }), [baseSearchQuery, dateFilter, filters, filtersToWhere, isShowActiveMeters, isShowArchivedMeters])
 
     const {
         loading: meterReadingsLoading,
@@ -109,7 +116,7 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
         refetch,
     } = MeterForOrganization.useObjects({
         sortBy,
-        where: searchMeterReadingsQuery,
+        where: searchMetersQuery,
         first: DEFAULT_PAGE_SIZE,
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
     }, {
@@ -136,6 +143,12 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
 
 
     const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
+    const handleCheckShowActiveMeters = useCallback(() => {
+        setIsShowActiveMeters(prev => !prev)
+    }, [])
+    const handleCheckShowArchiveMeters = useCallback(() => {
+        setIsShowArchivedMeters(prev => !prev)
+    }, [])
     const handleCreateMeterReadings = useCallback(() => router.push(`/meter/create?tab=${METER_TAB_TYPES.meter}`), [router])
 
     return (
@@ -166,30 +179,22 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
                                         />
                                         
                                     </Col>
-                                    {/* TODO: add active checkbox and isArchived checkbox (add these fields to Meter)*/}
-                                    {/* <Col style={QUICK_FILTERS_COL_STYLE}>
+                                    <Col style={QUICK_FILTERS_COL_STYLE}>
                                         <Checkbox
-                                            onChange={handleIsActiveChange}
+                                            onChange={handleCheckShowActiveMeters}
                                             checked={isShowActiveMeters}
-                                            style={CHECKBOX_STYLE}
-                                            eventName='TicketFilterCheckboxRegular'
-                                            data-cy='ticket__filter-isRegular'
-                                        >
-                                            {IsActiveMessage}
-                                        </Checkbox>
+                                            data-cy='meter__filter-hasNullArchiveDate'
+                                            children={IsActiveMessage}
+                                        />
                                     </Col>
                                     <Col style={QUICK_FILTERS_COL_STYLE}>
                                         <Checkbox
-                                            onChange={handleOutOfOrderChange}
-                                            checked={isShowNonWorkingMeters}
-                                            style={CHECKBOX_STYLE}
-                                            eventName='TicketFilterCheckboxRegular'
-                                            data-cy='ticket__filter-isRegular'
-                                        >
-                                            {OutOfOrderMessage}
-                                        </Checkbox>
+                                            onChange={handleCheckShowArchiveMeters}
+                                            checked={isShowArchivedMeters}
+                                            data-cy='meter__filter-hasArchiveDate'
+                                            children={OutOfOrderMessage}
+                                        />
                                     </Col>
-                                    */}
                                 </Row>
                             </Col>
                             <Col>
@@ -220,7 +225,7 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
                 </Col>
                 <Col span={24}>
                     <ExportToExcelActionBar
-                        searchObjectsQuery={searchMeterReadingsQuery}
+                        searchObjectsQuery={searchMetersQuery}
                         exportToExcelQuery={EXPORT_METER_READINGS_QUERY}
                         sortBy={sortBy}
                         actions={[
