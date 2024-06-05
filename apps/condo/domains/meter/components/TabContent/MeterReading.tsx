@@ -45,7 +45,6 @@ import {
     MeterReadingForOrganization,
     MeterReadingFilterTemplate,
     METER_TAB_TYPES,
-    Meter,
 } from '@condo/domains/meter/utils/clientSchema'
 
 
@@ -66,6 +65,7 @@ type MetersTableContentProps = {
     mutationErrorsToMessages?: Record<string, string>
     loading?: boolean
     meterId?: string
+    archiveDate?: string
 }
 
 const getInitialSelectedReadingKeys = (router: NextRouter) => {
@@ -85,10 +85,10 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
     tableColumns,
     baseSearchQuery,
     canManageMeterReadings,
-    mutationErrorsToMessages,
     sortableProperties,
     loading,
     meterId,
+    archiveDate,
 }) => {
     const intl = useIntl()
     const CreateMeterReadingsButtonLabel = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterReadingsButtonLabel' })
@@ -356,6 +356,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
                             canManageMeterReadings={canManageMeterReadings}
                             meterId={meterId}
                             meterType={METER_TAB_TYPES.meter}
+                            archiveDate={archiveDate}
                         />
                     </Col>)
                 }
@@ -375,6 +376,7 @@ export const MeterReadingsPageContent: React.FC<MeterReadingsPageContentProps> =
     canManageMeterReadings,
     loading,
     meterId,
+    archiveDate,
 }) => {
     const intl = useIntl()
     const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.header' })
@@ -426,9 +428,10 @@ export const MeterReadingsPageContent: React.FC<MeterReadingsPageContentProps> =
                 canManageMeterReadings={canManageMeterReadings}
                 loading={countLoading}
                 meterId={meterId}
+                archiveDate={archiveDate}
             />
         )
-    }, [EmptyListLabel, EmptyListManualBodyDescription, baseSearchQuery, canManageMeterReadings, count, countLoading, filtersMeta, loading, meterId, refetch, tableColumns])
+    }, [EmptyListLabel, EmptyListManualBodyDescription, archiveDate, baseSearchQuery, canManageMeterReadings, count, countLoading, filtersMeta, loading, meterId, refetch, tableColumns])
 
     return (
         <TablePageContent>

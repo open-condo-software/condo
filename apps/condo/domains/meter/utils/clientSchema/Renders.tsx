@@ -5,6 +5,9 @@ import dayjs from 'dayjs'
 import get from 'lodash/get'
 import React from 'react'
 
+import { Tag } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
+
 import { getTableCellRenderer, RenderReturnType } from '@condo/domains/common/components/Table/Renders'
 import { LOCALES } from '@condo/domains/common/constants/locale'
 import { METER_READING_SOURCE_EXTERNAL_IMPORT_TYPE } from '@condo/domains/meter/constants/constants'
@@ -77,5 +80,21 @@ export const getSourceRender = (intl, search?: FilterValue | string) => {
         const SourceMessage = intl.formatMessage({ id: get(meterReading, ['source', 'name'] ) })
 
         return getTableCellRenderer({ search, ellipsis: true })(SourceMessage)
+    }
+}
+
+export const getMeterStatusRender = (intl, search?) => {
+    return function render (archiveDate: string): RenderReturnType {
+        const activeStatus = intl.formatMessage({ id: 'pages.condo.meter.Meter.isActive' })
+        const archivedStatus = intl.formatMessage({ id: 'pages.condo.meter.Meter.outOfOrder' })
+        
+        return (
+            <Tag
+                bgColor={ archiveDate ? colors.brown[5] : colors.green[5] }
+                textColor={colors.white}
+            >
+                {archiveDate ? archivedStatus : activeStatus}
+            </Tag>
+        )
     }
 }

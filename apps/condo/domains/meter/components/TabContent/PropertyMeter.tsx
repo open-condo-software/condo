@@ -5,11 +5,11 @@ import {
 import { Col, Row, RowProps } from 'antd'
 import { ColumnsType } from 'antd/lib/table'
 import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useMemo } from 'react'
+import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { PlusCircle, Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Button } from '@open-condo/ui'
+import { Button, Checkbox } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
@@ -27,7 +27,6 @@ import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { MetersImportWrapper } from '@condo/domains/meter/components/Import/Index'
 import { EXPORT_METER_READINGS_QUERY } from '@condo/domains/meter/gql'
-import { useUpdateMeterModal } from '@condo/domains/meter/hooks/useUpdateMeterModal'
 import {
     PropertyMeter,
     METER_TAB_TYPES,
@@ -38,6 +37,7 @@ import {
 const METERS_PAGE_CONTENT_ROW_GUTTERS: RowProps['gutter'] = [0, 40]
 const FILTERS_CONTAINER_GUTTER: RowProps['gutter'] = [16, 16]
 const RESET_FILTERS_BUTTON_STYLE: CSSProperties = { paddingLeft: 0 }
+const QUICK_FILTERS_COL_STYLE: CSSProperties = { alignSelf: 'center' }
 
 const SORTABLE_PROPERTIES = ['date', 'clientName', 'source']
 
@@ -56,26 +56,32 @@ const PropertyMetersTableContent: React.FC<MetersTableContentProps> = ({
     tableColumns,
     baseSearchQuery,
     canManageMeterReadings,
-    mutationErrorsToMessages,
     sortableProperties,
     loading,
 }) => {
     const intl = useIntl()
     const CreateMeterButtonLabel = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterButtonLabel' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
+    const IsActiveMessage = intl.formatMessage({ id: 'pages.condo.meter.Meter.isActive' })
+    const OutOfOrderMessage = intl.formatMessage({ id: 'pages.condo.meter.Meter.outOfOrder' })
 
     const router = useRouter()
     const { filters, offset, sorters, tab } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
 
+    const [isShowActiveMeters, setIsShowActiveMeters] = useState(true)
+    const [isShowArchivedMeters, setIsShowArchivedMeters] = useState(false)
+
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filtersMeta, sortableProperties || SORTABLE_PROPERTIES)
 
     const sortBy = useMemo(() => sortersToSortBy(sorters) as SortPropertyMetersBy[], [sorters, sortersToSortBy])
 
-    const searchMeterReadingsQuery = useMemo(() => ({
+    const searchPropertyMetersQuery = useMemo(() => ({
         ...filtersToWhere(filters),
+        ...(isShowActiveMeters && !isShowArchivedMeters)  ? { archiveDate: null } : {},
+        ...(isShowArchivedMeters && !isShowActiveMeters) ? { archiveDate_not: null } : {},
         ...baseSearchQuery,
-    }), [baseSearchQuery, filters, filtersToWhere])
+    }), [baseSearchQuery, filters, filtersToWhere, isShowActiveMeters, isShowArchivedMeters])
 
     const {
         loading: propertyMetersLoading,
@@ -84,7 +90,7 @@ const PropertyMetersTableContent: React.FC<MetersTableContentProps> = ({
         refetch,
     } = PropertyMeter.useObjects({
         sortBy,
-        where: searchMeterReadingsQuery,
+        where: searchPropertyMetersQuery,
         first: DEFAULT_PAGE_SIZE,
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
     }, {
@@ -92,7 +98,6 @@ const PropertyMetersTableContent: React.FC<MetersTableContentProps> = ({
     })
 
     const [search, handleSearchChange, handleSearchReset] = useSearch()
-    const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch)
     const { MultipleFiltersModal, ResetFiltersModalButton, OpenFiltersButton, appliedFiltersCount } = useMultipleFiltersModal({
         filterMetas: filtersMeta,
         filtersSchemaGql: MeterReadingFilterTemplate,
@@ -110,6 +115,12 @@ const PropertyMetersTableContent: React.FC<MetersTableContentProps> = ({
 
     const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
     const handleCreateMeterReadings = useCallback(() => router.push(`/meter/create?tab=${METER_TAB_TYPES.propertyMeter}`), [router])
+    const handleCheckShowActiveMeters = useCallback(() => {
+        setIsShowActiveMeters(prev => !prev)
+    }, [])
+    const handleCheckShowArchiveMeters = useCallback(() => {
+        setIsShowArchivedMeters(prev => !prev)
+    }, [])
 
     return (
         <>
@@ -131,7 +142,22 @@ const PropertyMetersTableContent: React.FC<MetersTableContentProps> = ({
                             </Col>
                             <Col>
                                 <Row justify='start' gutter={FILTERS_CONTAINER_GUTTER} style={{ flexWrap: 'nowrap' }}>
-                                    {/*add isActive and isArchived filters*/}
+                                    <Col style={QUICK_FILTERS_COL_STYLE}>
+                                        <Checkbox
+                                            onChange={handleCheckShowActiveMeters}
+                                            checked={isShowActiveMeters}
+                                            data-cy='meter__filter-hasNullArchiveDate'
+                                            children={IsActiveMessage}
+                                        />
+                                    </Col>
+                                    <Col style={QUICK_FILTERS_COL_STYLE}>
+                                        <Checkbox
+                                            onChange={handleCheckShowArchiveMeters}
+                                            checked={isShowArchivedMeters}
+                                            data-cy='meter__filter-hasArchiveDate'
+                                            children={OutOfOrderMessage}
+                                        />
+                                    </Col>
                                 </Row>
                             </Col>
                             <Col>
@@ -162,7 +188,7 @@ const PropertyMetersTableContent: React.FC<MetersTableContentProps> = ({
                 </Col>
                 <Col span={24}>
                     <ExportToExcelActionBar
-                        searchObjectsQuery={searchMeterReadingsQuery}
+                        searchObjectsQuery={searchPropertyMetersQuery   }
                         exportToExcelQuery={EXPORT_METER_READINGS_QUERY}
                         sortBy={sortBy}
                         actions={[

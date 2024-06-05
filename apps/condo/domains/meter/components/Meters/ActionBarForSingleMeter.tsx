@@ -12,12 +12,14 @@ type ACTION_BAR_FOR_SINGLE_METER_PROPS = {
     meterId: string
     canManageMeterReadings: boolean
     meterType: MeterPageTypes
+    archiveDate?: string
 }
 
 const ActionBarForSingleMeter = ({
     meterId,
     canManageMeterReadings,
     meterType,
+    archiveDate,
 }: ACTION_BAR_FOR_SINGLE_METER_PROPS): JSX.Element => {
     const intl = useIntl()
     const DeleteMeterMessage = intl.formatMessage({ id: 'pages.condo.meter.Meter.DeleteMeter' })
@@ -51,7 +53,7 @@ const ActionBarForSingleMeter = ({
     return (
         <ActionBar
             actions={[
-                canManageMeterReadings && (
+                canManageMeterReadings && !archiveDate && (
                     <Button
                         key='create'
                         type='primary'
@@ -61,7 +63,7 @@ const ActionBarForSingleMeter = ({
                         {CreateMeterReadingsButtonLabel}
                     </Button>
                 ),
-                <Button
+                !archiveDate && <Button
                     key='update'
                     type='secondary'
                     onClick={handleUpdateMeterButtonClick}
