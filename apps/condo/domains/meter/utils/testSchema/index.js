@@ -41,6 +41,9 @@ const MeterImportTask = generateGQLTestUtils(MeterImportTaskGQL)
 const { makeClientWithServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 const { IMPORT_FORMAT_VALUES, IMPORT_STATUS_VALUES, PROCESSING, COMPLETED, ERROR } = require('@condo/domains/common/constants/import')
+const { get } = require("lodash");
+const { COLD_WATER_METER_RESOURCE_ID } = require("../../constants/constants");
+const dayjs = require("dayjs");
 
 
 async function createTestMeterResource (client, extraAttrs = {}) {
@@ -409,6 +412,30 @@ async function exportPropertyMeterReadingsByTestClient(client, extraAttrs = {}) 
     return [data.result, attrs]
 }
 
+/**
+ * @param {Pick<Property, 'address'>} property
+ * @param {Partial<RegisterMetersReadingsReadingInput>} extraAttrs
+ * @return {RegisterMetersReadingsReadingInput}
+ */
+const createTestReadingData = (property, extraAttrs = {}) => ({
+    address: property.address,
+    addressInfo: {
+        unitType: FLAT_UNIT_TYPE,
+        unitName: get(property, ['map', 'sections', 0, 'floors', 0, 'units', 0, 'label'], faker.random.alphaNumeric(4)),
+        globalId: get(property, ['addressMeta', 'data', 'house_fias_id'], faker.datatype.uuid()),
+    },
+    accountNumber: faker.random.alphaNumeric(12),
+    meterNumber: faker.random.numeric(8),
+    meterResource: { id: COLD_WATER_METER_RESOURCE_ID },
+    date: dayjs().toISOString(),
+    value1: faker.random.numeric(3),
+    value2: faker.random.numeric(4),
+    meterMeta: {
+        numberOfTariffs: 2,
+    },
+    ...extraAttrs,
+})
+
 async function registerMetersReadingsByTestClient(client, organization, readings, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization.id')
@@ -475,7 +502,7 @@ module.exports = {
     MeterResourceOwner, createTestMeterResourceOwner, updateTestMeterResourceOwner,
     _internalDeleteMeterReadingsByTestClient,
     exportPropertyMeterReadingsByTestClient,
-    registerMetersReadingsByTestClient,
+    createTestReadingData, registerMetersReadingsByTestClient,
     MeterImportTask, createTestMeterImportTask, updateTestMeterImportTask,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

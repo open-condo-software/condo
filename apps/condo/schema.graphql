@@ -51184,7 +51184,8 @@ type MeterImportTaskHistoryRecord {
   totalRecordsCount: Int
   file: JSON
   errorFile: JSON
-  user: String
+  errorMessage: String
+  organization: String
   meta: JSON
   id: ID!
   v: Int
@@ -51264,10 +51265,28 @@ input MeterImportTaskHistoryRecordWhereInput {
   errorFile_not: JSON
   errorFile_in: [JSON]
   errorFile_not_in: [JSON]
-  user: String
-  user_not: String
-  user_in: [String]
-  user_not_in: [String]
+  errorMessage: String
+  errorMessage_not: String
+  errorMessage_contains: String
+  errorMessage_not_contains: String
+  errorMessage_starts_with: String
+  errorMessage_not_starts_with: String
+  errorMessage_ends_with: String
+  errorMessage_not_ends_with: String
+  errorMessage_i: String
+  errorMessage_not_i: String
+  errorMessage_contains_i: String
+  errorMessage_not_contains_i: String
+  errorMessage_starts_with_i: String
+  errorMessage_not_starts_with_i: String
+  errorMessage_ends_with_i: String
+  errorMessage_not_ends_with_i: String
+  errorMessage_in: [String]
+  errorMessage_not_in: [String]
+  organization: String
+  organization_not: String
+  organization_in: [String]
+  organization_not_in: [String]
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -51363,6 +51382,8 @@ enum SortMeterImportTaskHistoryRecordsBy {
   importedRecordsCount_DESC
   totalRecordsCount_ASC
   totalRecordsCount_DESC
+  errorMessage_ASC
+  errorMessage_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -51388,7 +51409,8 @@ input MeterImportTaskHistoryRecordUpdateInput {
   totalRecordsCount: Int
   file: JSON
   errorFile: JSON
-  user: String
+  errorMessage: String
+  organization: String
   meta: JSON
   v: Int
   createdAt: String
@@ -51416,7 +51438,8 @@ input MeterImportTaskHistoryRecordCreateInput {
   totalRecordsCount: Int
   file: JSON
   errorFile: JSON
-  user: String
+  errorMessage: String
+  organization: String
   meta: JSON
   v: Int
   createdAt: String
@@ -51481,9 +51504,12 @@ type MeterImportTask {
   """
   errorFile: File
 
-  """ User that requested this exporting operation. Will be used for read access checks to display all exported tasks somewhere and to display progress indicator of ongoing exporting task for current user 
+  """ Proceeding error information message """
+  errorMessage: String
+
+  """ Direct link to organization, since meters import requires to specify target organization 
   """
-  user: User
+  organization: Organization
 
   """ Stores information about query and ids of exported and failed records 
   """
@@ -51546,8 +51572,26 @@ input MeterImportTaskWhereInput {
   errorFile_not: String
   errorFile_in: [String]
   errorFile_not_in: [String]
-  user: UserWhereInput
-  user_is_null: Boolean
+  errorMessage: String
+  errorMessage_not: String
+  errorMessage_contains: String
+  errorMessage_not_contains: String
+  errorMessage_starts_with: String
+  errorMessage_not_starts_with: String
+  errorMessage_ends_with: String
+  errorMessage_not_ends_with: String
+  errorMessage_i: String
+  errorMessage_not_i: String
+  errorMessage_contains_i: String
+  errorMessage_not_contains_i: String
+  errorMessage_starts_with_i: String
+  errorMessage_not_starts_with_i: String
+  errorMessage_ends_with_i: String
+  errorMessage_not_ends_with_i: String
+  errorMessage_in: [String]
+  errorMessage_not_in: [String]
+  organization: OrganizationWhereInput
+  organization_is_null: Boolean
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -51623,8 +51667,10 @@ enum SortMeterImportTasksBy {
   importedRecordsCount_DESC
   totalRecordsCount_ASC
   totalRecordsCount_DESC
-  user_ASC
-  user_DESC
+  errorMessage_ASC
+  errorMessage_DESC
+  organization_ASC
+  organization_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -51650,7 +51696,8 @@ input MeterImportTaskUpdateInput {
   totalRecordsCount: Int
   file: Upload
   errorFile: Upload
-  user: UserRelateToOneInput
+  errorMessage: String
+  organization: OrganizationRelateToOneInput
   meta: JSON
   v: Int
   createdAt: String
@@ -51675,7 +51722,8 @@ input MeterImportTaskCreateInput {
   totalRecordsCount: Int
   file: Upload
   errorFile: Upload
-  user: UserRelateToOneInput
+  errorMessage: String
+  organization: OrganizationRelateToOneInput
   meta: JSON
   v: Int
   createdAt: String

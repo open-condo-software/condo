@@ -1,7 +1,7 @@
 const { createTask } = require('@open-condo/keystone/tasks')
 
 const deleteReadingsOfDeletedMeter = require('./deleteReadingsOfDeletedMeter')
-const { importMeters } = require('./MeterImportTask')
+const { importMeters } = require('./importMeters')
 const sendSubmitMeterReadingsPushNotificationsTask = require('./sendSubmitMeterReadingsPushNotificationsTask')
 const sendVerificationDateReminderTask = require('./sendVerificationDateReminderTask')
 

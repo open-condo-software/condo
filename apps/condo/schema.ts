@@ -32856,8 +32856,10 @@ export type MeterImportTask = {
   file?: Maybe<File>;
   /**  Meta information about error file. Shape of meta information JSON object is specific to file adapter, used by saving a file.  */
   errorFile?: Maybe<File>;
-  /**  User that requested this exporting operation. Will be used for read access checks to display all exported tasks somewhere and to display progress indicator of ongoing exporting task for current user  */
-  user?: Maybe<User>;
+  /**  Proceeding error information message  */
+  errorMessage?: Maybe<Scalars['String']>;
+  /**  Direct link to organization, since meters import requires to specify target organization  */
+  organization?: Maybe<Organization>;
   /**  Stores information about query and ids of exported and failed records  */
   meta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
@@ -32883,7 +32885,8 @@ export type MeterImportTaskCreateInput = {
   totalRecordsCount?: Maybe<Scalars['Int']>;
   file?: Maybe<Scalars['Upload']>;
   errorFile?: Maybe<Scalars['Upload']>;
-  user?: Maybe<UserRelateToOneInput>;
+  errorMessage?: Maybe<Scalars['String']>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -32918,7 +32921,8 @@ export type MeterImportTaskHistoryRecord = {
   totalRecordsCount?: Maybe<Scalars['Int']>;
   file?: Maybe<Scalars['JSON']>;
   errorFile?: Maybe<Scalars['JSON']>;
-  user?: Maybe<Scalars['String']>;
+  errorMessage?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -32942,7 +32946,8 @@ export type MeterImportTaskHistoryRecordCreateInput = {
   totalRecordsCount?: Maybe<Scalars['Int']>;
   file?: Maybe<Scalars['JSON']>;
   errorFile?: Maybe<Scalars['JSON']>;
-  user?: Maybe<Scalars['String']>;
+  errorMessage?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -32971,7 +32976,8 @@ export type MeterImportTaskHistoryRecordUpdateInput = {
   totalRecordsCount?: Maybe<Scalars['Int']>;
   file?: Maybe<Scalars['JSON']>;
   errorFile?: Maybe<Scalars['JSON']>;
-  user?: Maybe<Scalars['String']>;
+  errorMessage?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -33050,10 +33056,28 @@ export type MeterImportTaskHistoryRecordWhereInput = {
   errorFile_not?: Maybe<Scalars['JSON']>;
   errorFile_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   errorFile_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  user?: Maybe<Scalars['String']>;
-  user_not?: Maybe<Scalars['String']>;
-  user_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  user_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorMessage_not?: Maybe<Scalars['String']>;
+  errorMessage_contains?: Maybe<Scalars['String']>;
+  errorMessage_not_contains?: Maybe<Scalars['String']>;
+  errorMessage_starts_with?: Maybe<Scalars['String']>;
+  errorMessage_not_starts_with?: Maybe<Scalars['String']>;
+  errorMessage_ends_with?: Maybe<Scalars['String']>;
+  errorMessage_not_ends_with?: Maybe<Scalars['String']>;
+  errorMessage_i?: Maybe<Scalars['String']>;
+  errorMessage_not_i?: Maybe<Scalars['String']>;
+  errorMessage_contains_i?: Maybe<Scalars['String']>;
+  errorMessage_not_contains_i?: Maybe<Scalars['String']>;
+  errorMessage_starts_with_i?: Maybe<Scalars['String']>;
+  errorMessage_not_starts_with_i?: Maybe<Scalars['String']>;
+  errorMessage_ends_with_i?: Maybe<Scalars['String']>;
+  errorMessage_not_ends_with_i?: Maybe<Scalars['String']>;
+  errorMessage_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  errorMessage_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization?: Maybe<Scalars['String']>;
+  organization_not?: Maybe<Scalars['String']>;
+  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   meta?: Maybe<Scalars['JSON']>;
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -33163,7 +33187,8 @@ export type MeterImportTaskUpdateInput = {
   totalRecordsCount?: Maybe<Scalars['Int']>;
   file?: Maybe<Scalars['Upload']>;
   errorFile?: Maybe<Scalars['Upload']>;
-  user?: Maybe<UserRelateToOneInput>;
+  errorMessage?: Maybe<Scalars['String']>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -33211,8 +33236,26 @@ export type MeterImportTaskWhereInput = {
   errorFile_not?: Maybe<Scalars['String']>;
   errorFile_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   errorFile_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  user?: Maybe<UserWhereInput>;
-  user_is_null?: Maybe<Scalars['Boolean']>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorMessage_not?: Maybe<Scalars['String']>;
+  errorMessage_contains?: Maybe<Scalars['String']>;
+  errorMessage_not_contains?: Maybe<Scalars['String']>;
+  errorMessage_starts_with?: Maybe<Scalars['String']>;
+  errorMessage_not_starts_with?: Maybe<Scalars['String']>;
+  errorMessage_ends_with?: Maybe<Scalars['String']>;
+  errorMessage_not_ends_with?: Maybe<Scalars['String']>;
+  errorMessage_i?: Maybe<Scalars['String']>;
+  errorMessage_not_i?: Maybe<Scalars['String']>;
+  errorMessage_contains_i?: Maybe<Scalars['String']>;
+  errorMessage_not_contains_i?: Maybe<Scalars['String']>;
+  errorMessage_starts_with_i?: Maybe<Scalars['String']>;
+  errorMessage_not_starts_with_i?: Maybe<Scalars['String']>;
+  errorMessage_ends_with_i?: Maybe<Scalars['String']>;
+  errorMessage_not_ends_with_i?: Maybe<Scalars['String']>;
+  errorMessage_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  errorMessage_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization?: Maybe<OrganizationWhereInput>;
+  organization_is_null?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -79271,6 +79314,8 @@ export enum SortMeterImportTaskHistoryRecordsBy {
   ImportedRecordsCountDesc = 'importedRecordsCount_DESC',
   TotalRecordsCountAsc = 'totalRecordsCount_ASC',
   TotalRecordsCountDesc = 'totalRecordsCount_DESC',
+  ErrorMessageAsc = 'errorMessage_ASC',
+  ErrorMessageDesc = 'errorMessage_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -79298,8 +79343,10 @@ export enum SortMeterImportTasksBy {
   ImportedRecordsCountDesc = 'importedRecordsCount_DESC',
   TotalRecordsCountAsc = 'totalRecordsCount_ASC',
   TotalRecordsCountDesc = 'totalRecordsCount_DESC',
-  UserAsc = 'user_ASC',
-  UserDesc = 'user_DESC',
+  ErrorMessageAsc = 'errorMessage_ASC',
+  ErrorMessageDesc = 'errorMessage_DESC',
+  OrganizationAsc = 'organization_ASC',
+  OrganizationDesc = 'organization_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

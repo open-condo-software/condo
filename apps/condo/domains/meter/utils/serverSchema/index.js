@@ -41,7 +41,7 @@ async function registerMetersReadings (context, data) {
         query: REGISTER_METERS_READINGS_MUTATION,
         variables: { data: { dv: 1, ...data } },
         errorMessage: '[error] Unable to registerMetersReadings',
-        dataPath: 'obj',
+        dataPath: 'result',
     })
 }
 
