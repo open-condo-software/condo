@@ -76095,6 +76095,15 @@ type _internalSendNotificationNewMobileAppVersionOutput {
   messageBatchId: ID!
 }
 
+input _internalSendResidentPhonesInput {
+  dv: Int!
+  sender: SenderFieldInput!
+}
+
+type _internalSendResidentPhonesOutput {
+  ok: Boolean!
+}
+
 input _internalSyncContactsWithResidentsForOrganizationInput {
   dv: Int!
   sender: SenderFieldInput!
@@ -88090,6 +88099,7 @@ type Mutation {
   disconnectUserFromRemoteClient(data: DisconnectUserFromRemoteClientInput!): DisconnectUserFromRemoteClientOutput
   setMessageStatus(data: SetMessageStatusInput!): SetMessageStatusOutput
   _internalSendNotificationNewMobileAppVersion(data: _internalSendNotificationNewMobileAppVersionInput!): _internalSendNotificationNewMobileAppVersionOutput
+  _internalSendResidentPhones(data: _internalSendResidentPhonesInput!): _internalSendResidentPhonesOutput
   _internalSyncContactsWithResidentsForOrganization(data: _internalSyncContactsWithResidentsForOrganizationInput!): [Contact]
   registerResident(data: RegisterResidentInput!): Resident
 

@@ -43451,6 +43451,7 @@ export type Mutation = {
   disconnectUserFromRemoteClient?: Maybe<DisconnectUserFromRemoteClientOutput>;
   setMessageStatus?: Maybe<SetMessageStatusOutput>;
   _internalSendNotificationNewMobileAppVersion?: Maybe<_InternalSendNotificationNewMobileAppVersionOutput>;
+  _internalSendResidentPhones?: Maybe<_InternalSendResidentPhonesOutput>;
   _internalSyncContactsWithResidentsForOrganization?: Maybe<Array<Maybe<Contact>>>;
   registerResident?: Maybe<Resident>;
   /**
@@ -51957,6 +51958,11 @@ export type MutationSetMessageStatusArgs = {
 
 export type Mutation_InternalSendNotificationNewMobileAppVersionArgs = {
   data: _InternalSendNotificationNewMobileAppVersionInput;
+};
+
+
+export type Mutation_InternalSendResidentPhonesArgs = {
+  data: _InternalSendResidentPhonesInput;
 };
 
 
@@ -97975,6 +97981,16 @@ export type _InternalSendNotificationNewMobileAppVersionInput = {
 export type _InternalSendNotificationNewMobileAppVersionOutput = {
   __typename?: '_internalSendNotificationNewMobileAppVersionOutput';
   messageBatchId: Scalars['ID'];
+};
+
+export type _InternalSendResidentPhonesInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+};
+
+export type _InternalSendResidentPhonesOutput = {
+  __typename?: '_internalSendResidentPhonesOutput';
+  ok: Scalars['Boolean'];
 };
 
 export type _InternalSyncContactsWithResidentsForOrganizationInput = {
