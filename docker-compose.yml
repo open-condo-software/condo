@@ -21,12 +21,19 @@ services:
       - ./.env:/app/.env
     networks:
       - app-network
+
   postgresdb:
+    image: alpine
+    depends_on:
+      - postgresdb-master
+      - postgresdb-replica
+    networks:
+      - app-network
+
+  postgresdb-master:
     <<: *postgres-common
     ports:
       - "127.0.0.1:5432:5432"
-    profiles:
-      - db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_DB: main
@@ -46,19 +53,18 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
   postgresdb-replica:
     <<: *postgres-common
     ports:
       - "127.0.0.1:5433:5432"
-    profiles:
-      - db
     environment:
       PGUSER: replicator
       PGPASSWORD: replicator_password
     command: |
       bash -c "
       if [ ! -f /var/lib/postgresql/initialized ]; then
-        pg_basebackup --pgdata=/var/lib/postgresql/data -R --slot=replication_slot --host=postgresdb --port=5432
+        pg_basebackup --pgdata=/var/lib/postgresql/data -R --slot=replication_slot --host=postgresdb-master --port=5432
         chmod -R 0700 /var/lib/postgresql/data
         touch /var/lib/postgresql/initialized
       fi
@@ -67,14 +73,13 @@ services:
     networks:
       - app-network
     depends_on:
-      postgresdb:
+      postgresdb-master:
         condition: service_healthy
+
   redis:
     image: redis:6.2
     ports:
       - "127.0.0.1:6379:6379"
-    profiles:
-      - db
     networks:
       - app-network
 networks:
