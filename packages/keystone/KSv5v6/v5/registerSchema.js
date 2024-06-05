@@ -85,24 +85,23 @@ function convertStringToTypes (schema) {
         SignedDecimal,
         Text,
     }
+    const allTypesForPrint = Object.keys(mapping).map(item => `"${item}"`).join(', ')
 
     if (!schema.fields) throw new Error('convertStringToTypes(): wrong schema type! no fields!')
-    Object.keys(schema.fields).forEach((field) => {
+    schema.fields = Object.keys(schema.fields).reduce((acc, field) => {
         const fieldObj = schema.fields[field]
         if (fieldObj && !isObject(fieldObj)) throw new Error(`convertStringToTypes(): field "${field}" is not an object like!`)
         const type = fieldObj.type
         if (!type) throw new Error(`convertStringToTypes(): field "${field}" no "type" attr`)
-        let ks5type
-        if (isString(type)) {
-            // convert to object!
-            ks5type = get(mapping, type)
-            if (!ks5type) throw new Error(`convertStringToTypes(): field "${field}" unknown "type" == ${type}`)
-        } else if (isObject(type)) {
-            ks5type = get(mapping, get(type, 'type'), type)
-        }
+        if (!isString(type)) throw new Error(`convertStringToTypes(): field "${field}" unknown "type" == ${type}. Type can be one of the listed values: ${allTypesForPrint}`)
 
-        fieldObj['type'] = ks5type
-    })
+        // convert to object!
+        const ks5type = get(mapping, type)
+        if (!ks5type) throw new Error(`convertStringToTypes(): field "${field}" unknown "type" == ${type}. Type can be one of the listed values: ${allTypesForPrint}`)
+
+        acc[field] = { ...fieldObj, type: ks5type }
+        return acc
+    }, {})
     return schema
 }
 
