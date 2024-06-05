@@ -4567,6 +4567,12 @@ enum OrganizationCountryType {
   ru
 }
 
+enum OrganizationTypeType {
+  MANAGING_COMPANY
+  HOLDING
+  SERVICE_PROVIDER
+}
+
 input OrganizationEmployeeRelateToManyInput {
   create: [OrganizationEmployeeCreateInput]
   connect: [OrganizationEmployeeWhereUniqueInput]
@@ -4605,7 +4611,7 @@ type Organization {
 
   """ Type of organization. Organizations with different types see slightly different interfaces. In addition, some of the logic depends on this field: 1. Residents can be connected to only "MANAGING_COMPANY" organization2. OrganizationLink cannot be created if parent organization is not "HOLDING" 
   """
-  type: String
+  type: OrganizationTypeType
 
   """ Taxpayer identification number. Every country has its own identification. Examples: INN for Russia, IIN for Kazakhstan and so on 
   """
@@ -4708,10 +4714,10 @@ input OrganizationWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
-  type: String
-  type_not: String
-  type_in: [String]
-  type_not_in: [String]
+  type: OrganizationTypeType
+  type_not: OrganizationTypeType
+  type_in: [OrganizationTypeType]
+  type_not_in: [OrganizationTypeType]
   tin: String
   tin_not: String
   tin_contains: String
@@ -4960,7 +4966,7 @@ enum SortOrganizationsBy {
 input OrganizationUpdateInput {
   country: OrganizationCountryType
   name: String
-  type: String
+  type: OrganizationTypeType
   tin: String
   description: String
   avatar: Upload
@@ -4992,7 +4998,7 @@ input OrganizationsUpdateInput {
 input OrganizationCreateInput {
   country: OrganizationCountryType
   name: String
-  type: String
+  type: OrganizationTypeType
   tin: String
   description: String
   avatar: Upload
@@ -6345,6 +6351,13 @@ input OrganizationEmployeeRoleHistoryRecordsCreateInput {
   data: OrganizationEmployeeRoleHistoryRecordCreateInput
 }
 
+enum OrganizationEmployeeRoleTicketVisibilityTypeType {
+  organization
+  property
+  propertyAndSpecialization
+  assigned
+}
+
 """ Employee role name and access permissions """
 type OrganizationEmployeeRole {
   """
@@ -6418,7 +6431,7 @@ type OrganizationEmployeeRole {
   3) propertyAndSpecialization - Sees tickets by employee specialization + PropertyScope
   4) assigned - sees only those tickets in which he is the executor or responsible
   """
-  ticketVisibilityType: String
+  ticketVisibilityType: OrganizationEmployeeRoleTicketVisibilityTypeType
   canManagePropertyScopes: Boolean
   canManageBankAccounts: Boolean
   canManageBankAccountReportTasks: Boolean
@@ -6573,10 +6586,10 @@ input OrganizationEmployeeRoleWhereInput {
   canBeAssignedAsExecutor_not: Boolean
   canManageTicketPropertyHints: Boolean
   canManageTicketPropertyHints_not: Boolean
-  ticketVisibilityType: String
-  ticketVisibilityType_not: String
-  ticketVisibilityType_in: [String]
-  ticketVisibilityType_not_in: [String]
+  ticketVisibilityType: OrganizationEmployeeRoleTicketVisibilityTypeType
+  ticketVisibilityType_not: OrganizationEmployeeRoleTicketVisibilityTypeType
+  ticketVisibilityType_in: [OrganizationEmployeeRoleTicketVisibilityTypeType]
+  ticketVisibilityType_not_in: [OrganizationEmployeeRoleTicketVisibilityTypeType]
   canManagePropertyScopes: Boolean
   canManagePropertyScopes_not: Boolean
   canManageBankAccounts: Boolean
@@ -6895,7 +6908,7 @@ input OrganizationEmployeeRoleUpdateInput {
   canBeAssignedAsResponsible: Boolean
   canBeAssignedAsExecutor: Boolean
   canManageTicketPropertyHints: Boolean
-  ticketVisibilityType: String
+  ticketVisibilityType: OrganizationEmployeeRoleTicketVisibilityTypeType
   canManagePropertyScopes: Boolean
   canManageBankAccounts: Boolean
   canManageBankAccountReportTasks: Boolean
@@ -6979,7 +6992,7 @@ input OrganizationEmployeeRoleCreateInput {
   canBeAssignedAsResponsible: Boolean
   canBeAssignedAsExecutor: Boolean
   canManageTicketPropertyHints: Boolean
-  ticketVisibilityType: String
+  ticketVisibilityType: OrganizationEmployeeRoleTicketVisibilityTypeType
   canManagePropertyScopes: Boolean
   canManageBankAccounts: Boolean
   canManageBankAccountReportTasks: Boolean
@@ -9412,6 +9425,12 @@ enum BillingIntegrationBannerTextColorType {
   WHITE
 }
 
+enum BillingIntegrationContextDefaultStatusType {
+  InProgress
+  Error
+  Finished
+}
+
 type BillingIntegrationDataFormatField {
   hasToPayDetails: Boolean!
   hasServices: Boolean!
@@ -9422,6 +9441,187 @@ input BillingIntegrationDataFormatFieldInput {
   hasToPayDetails: Boolean!
   hasServices: Boolean!
   hasServicesDetails: Boolean!
+}
+
+enum BillingIntegrationCurrencyCodeType {
+  AED
+  AFN
+  ALL
+  AMD
+  ANG
+  AOA
+  ARS
+  AUD
+  AWG
+  AZN
+  BAM
+  BBD
+  BDT
+  BGN
+  BHD
+  BIF
+  BMD
+  BND
+  BOB
+  BOV
+  BRL
+  BSD
+  BTN
+  BWP
+  BYN
+  BZD
+  CAD
+  CDF
+  CHE
+  CHF
+  CHW
+  CLF
+  CLP
+  CNY
+  COP
+  COU
+  CRC
+  CUC
+  CUP
+  CVE
+  CZK
+  DJF
+  DKK
+  DOP
+  DZD
+  EGP
+  ERN
+  ETB
+  EUR
+  FJD
+  FKP
+  GBP
+  GEL
+  GHS
+  GIP
+  GMD
+  GNF
+  GTQ
+  GYD
+  HKD
+  HNL
+  HRK
+  HTG
+  HUF
+  IDR
+  ILS
+  INR
+  IQD
+  IRR
+  ISK
+  JMD
+  JOD
+  JPY
+  KES
+  KGS
+  KHR
+  KMF
+  KPW
+  KRW
+  KWD
+  KYD
+  KZT
+  LAK
+  LBP
+  LKR
+  LRD
+  LSL
+  LYD
+  MAD
+  MDL
+  MGA
+  MKD
+  MMK
+  MNT
+  MOP
+  MRU
+  MUR
+  MVR
+  MWK
+  MXN
+  MXV
+  MYR
+  MZN
+  NAD
+  NGN
+  NIO
+  NOK
+  NPR
+  NZD
+  OMR
+  PAB
+  PEN
+  PGK
+  PHP
+  PKR
+  PLN
+  PYG
+  QAR
+  RON
+  RSD
+  RUB
+  RWF
+  SAR
+  SBD
+  SCR
+  SDG
+  SEK
+  SGD
+  SHP
+  SLL
+  SOS
+  SRD
+  SSP
+  STN
+  SVC
+  SYP
+  SZL
+  THB
+  TJS
+  TMT
+  TND
+  TOP
+  TRY
+  TTD
+  TWD
+  TZS
+  UAH
+  UGX
+  USD
+  USN
+  UYI
+  UYU
+  UYW
+  UZS
+  VES
+  VND
+  VUV
+  WST
+  XAF
+  XAG
+  XAU
+  XBA
+  XBB
+  XBC
+  XBD
+  XCD
+  XDR
+  XOF
+  XPD
+  XPF
+  XPT
+  XSU
+  XTS
+  XUA
+  YER
+  ZAR
+  ZMW
+  ZWL
 }
 
 input BillingIntegrationAccessRightRelateToManyInput {
@@ -9521,14 +9721,14 @@ type BillingIntegration {
 
   """ Status, which context will have by default after creation if no overwriting option provided 
   """
-  contextDefaultStatus: String
+  contextDefaultStatus: BillingIntegrationContextDefaultStatusType
 
   """ Format of the data, that is output of this integration. This field specifies the detail and size of columns. If not specified we can only show first level of detail (address, account, toPay) 
   """
   dataFormat: BillingIntegrationDataFormatField
 
   """ Currency which this billing uses """
-  currencyCode: String
+  currencyCode: BillingIntegrationCurrencyCodeType
   accessRights(where: BillingIntegrationAccessRightWhereInput, search: String, sortBy: [SortBillingIntegrationAccessRightsBy!], orderBy: String, first: Int, skip: Int): [BillingIntegrationAccessRight!]!
   _accessRightsMeta(where: BillingIntegrationAccessRightWhereInput, search: String, sortBy: [SortBillingIntegrationAccessRightsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
@@ -9889,18 +10089,18 @@ input BillingIntegrationWhereInput {
   uploadMessage_not_ends_with_i: String
   uploadMessage_in: [String]
   uploadMessage_not_in: [String]
-  contextDefaultStatus: String
-  contextDefaultStatus_not: String
-  contextDefaultStatus_in: [String]
-  contextDefaultStatus_not_in: [String]
+  contextDefaultStatus: BillingIntegrationContextDefaultStatusType
+  contextDefaultStatus_not: BillingIntegrationContextDefaultStatusType
+  contextDefaultStatus_in: [BillingIntegrationContextDefaultStatusType]
+  contextDefaultStatus_not_in: [BillingIntegrationContextDefaultStatusType]
   dataFormat: BillingIntegrationDataFormatFieldInput
   dataFormat_not: BillingIntegrationDataFormatFieldInput
   dataFormat_in: [BillingIntegrationDataFormatFieldInput]
   dataFormat_not_in: [BillingIntegrationDataFormatFieldInput]
-  currencyCode: String
-  currencyCode_not: String
-  currencyCode_in: [String]
-  currencyCode_not_in: [String]
+  currencyCode: BillingIntegrationCurrencyCodeType
+  currencyCode_not: BillingIntegrationCurrencyCodeType
+  currencyCode_in: [BillingIntegrationCurrencyCodeType]
+  currencyCode_not_in: [BillingIntegrationCurrencyCodeType]
 
   """ condition must be true for all nodes """
   accessRights_every: BillingIntegrationAccessRightWhereInput
@@ -10069,9 +10269,9 @@ input BillingIntegrationUpdateInput {
   connectedMessage: String
   uploadUrl: String
   uploadMessage: String
-  contextDefaultStatus: String
+  contextDefaultStatus: BillingIntegrationContextDefaultStatusType
   dataFormat: BillingIntegrationDataFormatFieldInput
-  currencyCode: String
+  currencyCode: BillingIntegrationCurrencyCodeType
   accessRights: BillingIntegrationAccessRightRelateToManyInput
   isTrustedBankAccountSource: Boolean
   isHidden: Boolean
@@ -10114,9 +10314,9 @@ input BillingIntegrationCreateInput {
   connectedMessage: String
   uploadUrl: String
   uploadMessage: String
-  contextDefaultStatus: String
+  contextDefaultStatus: BillingIntegrationContextDefaultStatusType
   dataFormat: BillingIntegrationDataFormatFieldInput
-  currencyCode: String
+  currencyCode: BillingIntegrationCurrencyCodeType
   accessRights: BillingIntegrationAccessRightRelateToManyInput
   isTrustedBankAccountSource: Boolean
   isHidden: Boolean
@@ -10706,6 +10906,12 @@ input BillingIntegrationOrganizationContextHistoryRecordsCreateInput {
   data: BillingIntegrationOrganizationContextHistoryRecordCreateInput
 }
 
+enum BillingIntegrationOrganizationContextStatusType {
+  InProgress
+  Error
+  Finished
+}
+
 input BillingIntegrationProblemRelateToOneInput {
   create: BillingIntegrationProblemCreateInput
   connect: BillingIntegrationProblemWhereUniqueInput
@@ -10739,7 +10945,7 @@ type BillingIntegrationOrganizationContext {
 
   """ Status of BillingIntegration connection, Can be one of the following: ["InProgress", "Error", "Finished"]. If not specified explicitly on creation, uses default value from related BillingIntegration model 
   """
-  status: String
+  status: BillingIntegrationOrganizationContextStatusType
 
   """ The current state of the integration process. Some integration need to store past state or data related to cache files/folders for past state. The data structure depends on the integration and defined there 
   """
@@ -10786,10 +10992,10 @@ input BillingIntegrationOrganizationContextWhereInput {
   settings_not: JSON
   settings_in: [JSON]
   settings_not_in: [JSON]
-  status: String
-  status_not: String
-  status_in: [String]
-  status_not_in: [String]
+  status: BillingIntegrationOrganizationContextStatusType
+  status_not: BillingIntegrationOrganizationContextStatusType
+  status_in: [BillingIntegrationOrganizationContextStatusType]
+  status_not_in: [BillingIntegrationOrganizationContextStatusType]
   state: JSON
   state_not: JSON
   state_in: [JSON]
@@ -10893,7 +11099,7 @@ input BillingIntegrationOrganizationContextUpdateInput {
   integration: BillingIntegrationRelateToOneInput
   organization: OrganizationRelateToOneInput
   settings: JSON
-  status: String
+  status: BillingIntegrationOrganizationContextStatusType
   state: JSON
   lastReport: JSON
   currentProblem: BillingIntegrationProblemRelateToOneInput
@@ -10917,7 +11123,7 @@ input BillingIntegrationOrganizationContextCreateInput {
   integration: BillingIntegrationRelateToOneInput
   organization: OrganizationRelateToOneInput
   settings: JSON
-  status: String
+  status: BillingIntegrationOrganizationContextStatusType
   state: JSON
   lastReport: JSON
   currentProblem: BillingIntegrationProblemRelateToOneInput
@@ -12194,6 +12400,14 @@ input BillingPropertyRelateToOneInput {
   disconnectAll: Boolean
 }
 
+enum BillingAccountUnitTypeType {
+  parking
+  flat
+  apartment
+  commercial
+  warehouse
+}
+
 enum BillingAccountOwnerTypeType {
   person
   company
@@ -12236,7 +12450,7 @@ type BillingAccount {
   unitName: String
 
   """ Type of unit, such as parking lot or flat. Default value: "flat" """
-  unitType: String
+  unitType: BillingAccountUnitTypeType
 
   """ Full name of the account holder """
   fullName: String
@@ -12357,10 +12571,10 @@ input BillingAccountWhereInput {
   unitName_not_ends_with_i: String
   unitName_in: [String]
   unitName_not_in: [String]
-  unitType: String
-  unitType_not: String
-  unitType_in: [String]
-  unitType_not_in: [String]
+  unitType: BillingAccountUnitTypeType
+  unitType_not: BillingAccountUnitTypeType
+  unitType_in: [BillingAccountUnitTypeType]
+  unitType_not_in: [BillingAccountUnitTypeType]
   fullName: String
   fullName_not: String
   fullName_contains: String
@@ -12498,7 +12712,7 @@ input BillingAccountUpdateInput {
   globalId: String
   number: String
   unitName: String
-  unitType: String
+  unitType: BillingAccountUnitTypeType
   fullName: String
   isClosed: Boolean
   ownerType: BillingAccountOwnerTypeType
@@ -12527,7 +12741,7 @@ input BillingAccountCreateInput {
   globalId: String
   number: String
   unitName: String
-  unitType: String
+  unitType: BillingAccountUnitTypeType
   fullName: String
   isClosed: Boolean
   ownerType: BillingAccountOwnerTypeType
@@ -15788,6 +16002,187 @@ enum BankAccountCountryType {
   ru
 }
 
+enum BankAccountCurrencyCodeType {
+  AED
+  AFN
+  ALL
+  AMD
+  ANG
+  AOA
+  ARS
+  AUD
+  AWG
+  AZN
+  BAM
+  BBD
+  BDT
+  BGN
+  BHD
+  BIF
+  BMD
+  BND
+  BOB
+  BOV
+  BRL
+  BSD
+  BTN
+  BWP
+  BYN
+  BZD
+  CAD
+  CDF
+  CHE
+  CHF
+  CHW
+  CLF
+  CLP
+  CNY
+  COP
+  COU
+  CRC
+  CUC
+  CUP
+  CVE
+  CZK
+  DJF
+  DKK
+  DOP
+  DZD
+  EGP
+  ERN
+  ETB
+  EUR
+  FJD
+  FKP
+  GBP
+  GEL
+  GHS
+  GIP
+  GMD
+  GNF
+  GTQ
+  GYD
+  HKD
+  HNL
+  HRK
+  HTG
+  HUF
+  IDR
+  ILS
+  INR
+  IQD
+  IRR
+  ISK
+  JMD
+  JOD
+  JPY
+  KES
+  KGS
+  KHR
+  KMF
+  KPW
+  KRW
+  KWD
+  KYD
+  KZT
+  LAK
+  LBP
+  LKR
+  LRD
+  LSL
+  LYD
+  MAD
+  MDL
+  MGA
+  MKD
+  MMK
+  MNT
+  MOP
+  MRU
+  MUR
+  MVR
+  MWK
+  MXN
+  MXV
+  MYR
+  MZN
+  NAD
+  NGN
+  NIO
+  NOK
+  NPR
+  NZD
+  OMR
+  PAB
+  PEN
+  PGK
+  PHP
+  PKR
+  PLN
+  PYG
+  QAR
+  RON
+  RSD
+  RUB
+  RWF
+  SAR
+  SBD
+  SCR
+  SDG
+  SEK
+  SGD
+  SHP
+  SLL
+  SOS
+  SRD
+  SSP
+  STN
+  SVC
+  SYP
+  SZL
+  THB
+  TJS
+  TMT
+  TND
+  TOP
+  TRY
+  TTD
+  TWD
+  TZS
+  UAH
+  UGX
+  USD
+  USN
+  UYI
+  UYU
+  UYW
+  UZS
+  VES
+  VND
+  VUV
+  WST
+  XAF
+  XAG
+  XAU
+  XBA
+  XBB
+  XBC
+  XBD
+  XCD
+  XDR
+  XOF
+  XPD
+  XPF
+  XPT
+  XSU
+  XTS
+  XUA
+  YER
+  ZAR
+  ZMW
+  ZWL
+}
+
 """ Bank account, that will have transactions, pulled from various integrated data sources 
 """
 type BankAccount {
@@ -15829,7 +16224,7 @@ type BankAccount {
   number: String
 
   """ Code of currency in ISO-4217 format """
-  currencyCode: String
+  currencyCode: BankAccountCurrencyCodeType
 
   """ Shows whether the bank account approved or not """
   isApproved: Boolean
@@ -15955,10 +16350,10 @@ input BankAccountWhereInput {
   number_not_ends_with_i: String
   number_in: [String]
   number_not_in: [String]
-  currencyCode: String
-  currencyCode_not: String
-  currencyCode_in: [String]
-  currencyCode_not_in: [String]
+  currencyCode: BankAccountCurrencyCodeType
+  currencyCode_not: BankAccountCurrencyCodeType
+  currencyCode_in: [BankAccountCurrencyCodeType]
+  currencyCode_not_in: [BankAccountCurrencyCodeType]
   isApproved: Boolean
   isApproved_not: Boolean
   approvedAt: String
@@ -16168,7 +16563,7 @@ input BankAccountUpdateInput {
   routingNumber: String
   routingNumberMeta: JSON
   number: String
-  currencyCode: String
+  currencyCode: BankAccountCurrencyCodeType
   isApproved: Boolean
   approvedAt: String
   approvedBy: UserRelateToOneInput
@@ -16203,7 +16598,7 @@ input BankAccountCreateInput {
   routingNumber: String
   routingNumberMeta: JSON
   number: String
-  currencyCode: String
+  currencyCode: BankAccountCurrencyCodeType
   isApproved: Boolean
   approvedAt: String
   approvedBy: UserRelateToOneInput
@@ -17425,6 +17820,187 @@ input BankCostItemRelateToOneInput {
   disconnectAll: Boolean
 }
 
+enum BankContractorAccountCurrencyCodeType {
+  AED
+  AFN
+  ALL
+  AMD
+  ANG
+  AOA
+  ARS
+  AUD
+  AWG
+  AZN
+  BAM
+  BBD
+  BDT
+  BGN
+  BHD
+  BIF
+  BMD
+  BND
+  BOB
+  BOV
+  BRL
+  BSD
+  BTN
+  BWP
+  BYN
+  BZD
+  CAD
+  CDF
+  CHE
+  CHF
+  CHW
+  CLF
+  CLP
+  CNY
+  COP
+  COU
+  CRC
+  CUC
+  CUP
+  CVE
+  CZK
+  DJF
+  DKK
+  DOP
+  DZD
+  EGP
+  ERN
+  ETB
+  EUR
+  FJD
+  FKP
+  GBP
+  GEL
+  GHS
+  GIP
+  GMD
+  GNF
+  GTQ
+  GYD
+  HKD
+  HNL
+  HRK
+  HTG
+  HUF
+  IDR
+  ILS
+  INR
+  IQD
+  IRR
+  ISK
+  JMD
+  JOD
+  JPY
+  KES
+  KGS
+  KHR
+  KMF
+  KPW
+  KRW
+  KWD
+  KYD
+  KZT
+  LAK
+  LBP
+  LKR
+  LRD
+  LSL
+  LYD
+  MAD
+  MDL
+  MGA
+  MKD
+  MMK
+  MNT
+  MOP
+  MRU
+  MUR
+  MVR
+  MWK
+  MXN
+  MXV
+  MYR
+  MZN
+  NAD
+  NGN
+  NIO
+  NOK
+  NPR
+  NZD
+  OMR
+  PAB
+  PEN
+  PGK
+  PHP
+  PKR
+  PLN
+  PYG
+  QAR
+  RON
+  RSD
+  RUB
+  RWF
+  SAR
+  SBD
+  SCR
+  SDG
+  SEK
+  SGD
+  SHP
+  SLL
+  SOS
+  SRD
+  SSP
+  STN
+  SVC
+  SYP
+  SZL
+  THB
+  TJS
+  TMT
+  TND
+  TOP
+  TRY
+  TTD
+  TWD
+  TZS
+  UAH
+  UGX
+  USD
+  USN
+  UYI
+  UYU
+  UYW
+  UZS
+  VES
+  VND
+  VUV
+  WST
+  XAF
+  XAG
+  XAU
+  XBA
+  XBB
+  XBC
+  XBD
+  XCD
+  XDR
+  XOF
+  XPD
+  XPF
+  XPT
+  XSU
+  XTS
+  XUA
+  YER
+  ZAR
+  ZMW
+  ZWL
+}
+
 """ Account for external contractor, which organization is not stored in condo. Contractor is related to expenses transactions of an Organization. Will be obtained from export files with bank transactions or from banking API 
 """
 type BankContractorAccount {
@@ -17461,7 +18037,7 @@ type BankContractorAccount {
   number: String
 
   """ Code of currency in ISO-4217 format """
-  currencyCode: String
+  currencyCode: BankContractorAccountCurrencyCodeType
 
   """ Id of object in external service which represents current item. Mostly used for internal needs of integration services for matching our objects with theirs 
   """
@@ -17601,10 +18177,10 @@ input BankContractorAccountWhereInput {
   number_not_ends_with_i: String
   number_in: [String]
   number_not_in: [String]
-  currencyCode: String
-  currencyCode_not: String
-  currencyCode_in: [String]
-  currencyCode_not_in: [String]
+  currencyCode: BankContractorAccountCurrencyCodeType
+  currencyCode_not: BankContractorAccountCurrencyCodeType
+  currencyCode_in: [BankContractorAccountCurrencyCodeType]
+  currencyCode_not_in: [BankContractorAccountCurrencyCodeType]
   importId: String
   importId_not: String
   importId_contains: String
@@ -17774,7 +18350,7 @@ input BankContractorAccountUpdateInput {
   country: String
   routingNumber: String
   number: String
-  currencyCode: String
+  currencyCode: BankContractorAccountCurrencyCodeType
   importId: String
   territoryCode: String
   bankName: String
@@ -17803,7 +18379,7 @@ input BankContractorAccountCreateInput {
   country: String
   routingNumber: String
   number: String
-  currencyCode: String
+  currencyCode: BankContractorAccountCurrencyCodeType
   importId: String
   territoryCode: String
   bankName: String
@@ -19353,6 +19929,187 @@ input BankContractorAccountRelateToOneInput {
   disconnectAll: Boolean
 }
 
+enum BankTransactionCurrencyCodeType {
+  AED
+  AFN
+  ALL
+  AMD
+  ANG
+  AOA
+  ARS
+  AUD
+  AWG
+  AZN
+  BAM
+  BBD
+  BDT
+  BGN
+  BHD
+  BIF
+  BMD
+  BND
+  BOB
+  BOV
+  BRL
+  BSD
+  BTN
+  BWP
+  BYN
+  BZD
+  CAD
+  CDF
+  CHE
+  CHF
+  CHW
+  CLF
+  CLP
+  CNY
+  COP
+  COU
+  CRC
+  CUC
+  CUP
+  CVE
+  CZK
+  DJF
+  DKK
+  DOP
+  DZD
+  EGP
+  ERN
+  ETB
+  EUR
+  FJD
+  FKP
+  GBP
+  GEL
+  GHS
+  GIP
+  GMD
+  GNF
+  GTQ
+  GYD
+  HKD
+  HNL
+  HRK
+  HTG
+  HUF
+  IDR
+  ILS
+  INR
+  IQD
+  IRR
+  ISK
+  JMD
+  JOD
+  JPY
+  KES
+  KGS
+  KHR
+  KMF
+  KPW
+  KRW
+  KWD
+  KYD
+  KZT
+  LAK
+  LBP
+  LKR
+  LRD
+  LSL
+  LYD
+  MAD
+  MDL
+  MGA
+  MKD
+  MMK
+  MNT
+  MOP
+  MRU
+  MUR
+  MVR
+  MWK
+  MXN
+  MXV
+  MYR
+  MZN
+  NAD
+  NGN
+  NIO
+  NOK
+  NPR
+  NZD
+  OMR
+  PAB
+  PEN
+  PGK
+  PHP
+  PKR
+  PLN
+  PYG
+  QAR
+  RON
+  RSD
+  RUB
+  RWF
+  SAR
+  SBD
+  SCR
+  SDG
+  SEK
+  SGD
+  SHP
+  SLL
+  SOS
+  SRD
+  SSP
+  STN
+  SVC
+  SYP
+  SZL
+  THB
+  TJS
+  TMT
+  TND
+  TOP
+  TRY
+  TTD
+  TWD
+  TZS
+  UAH
+  UGX
+  USD
+  USN
+  UYI
+  UYU
+  UYW
+  UZS
+  VES
+  VND
+  VUV
+  WST
+  XAF
+  XAG
+  XAU
+  XBA
+  XBB
+  XBC
+  XBD
+  XCD
+  XDR
+  XOF
+  XPD
+  XPF
+  XPT
+  XSU
+  XTS
+  XUA
+  YER
+  ZAR
+  ZMW
+  ZWL
+}
+
 """ Transaction related to costs of Organization with BankAccount. Full fields set from data import will be stored in "meta" 
 """
 type BankTransaction {
@@ -19397,7 +20154,7 @@ type BankTransaction {
   isOutcome: Boolean
 
   """ Code of currency in ISO-4217 format """
-  currencyCode: String
+  currencyCode: BankTransactionCurrencyCodeType
 
   """ Textual description of payment purpose in free form """
   purpose: String
@@ -19483,10 +20240,10 @@ input BankTransactionWhereInput {
   amount_not_in: [String]
   isOutcome: Boolean
   isOutcome_not: Boolean
-  currencyCode: String
-  currencyCode_not: String
-  currencyCode_in: [String]
-  currencyCode_not_in: [String]
+  currencyCode: BankTransactionCurrencyCodeType
+  currencyCode_not: BankTransactionCurrencyCodeType
+  currencyCode_in: [BankTransactionCurrencyCodeType]
+  currencyCode_not_in: [BankTransactionCurrencyCodeType]
   purpose: String
   purpose_not: String
   purpose_contains: String
@@ -19648,7 +20405,7 @@ input BankTransactionUpdateInput {
   date: String
   amount: String
   isOutcome: Boolean
-  currencyCode: String
+  currencyCode: BankTransactionCurrencyCodeType
   purpose: String
   meta: JSON
   importId: String
@@ -19679,7 +20436,7 @@ input BankTransactionCreateInput {
   date: String
   amount: String
   isOutcome: Boolean
-  currencyCode: String
+  currencyCode: BankTransactionCurrencyCodeType
   purpose: String
   meta: JSON
   importId: String
@@ -22727,6 +23484,19 @@ input TicketRelateToOneInput {
   disconnectAll: Boolean
 }
 
+enum TicketSectionTypeType {
+  parking
+  section
+}
+
+enum TicketUnitTypeType {
+  parking
+  flat
+  apartment
+  commercial
+  warehouse
+}
+
 input TicketSourceRelateToOneInput {
   create: TicketSourceCreateInput
   connect: TicketSourceWhereUniqueInput
@@ -22918,7 +23688,7 @@ type Ticket {
 
   """ Type of section, such as parking or section. Default value: "section" 
   """
-  sectionType: String
+  sectionType: TicketSectionTypeType
 
   """ Floor of an apartment building (property). You need to take from Property.map 
   """
@@ -22929,7 +23699,7 @@ type Ticket {
   unitName: String
 
   """ Type of unit, such as parking lot or flat. Default value: "flat" """
-  unitType: String
+  unitType: TicketUnitTypeType
 
   """ Ticket source channel/system. Examples: call, email, visit, ... """
   source: TicketSource
@@ -23306,10 +24076,10 @@ input TicketWhereInput {
   sectionName_not_ends_with_i: String
   sectionName_in: [String]
   sectionName_not_in: [String]
-  sectionType: String
-  sectionType_not: String
-  sectionType_in: [String]
-  sectionType_not_in: [String]
+  sectionType: TicketSectionTypeType
+  sectionType_not: TicketSectionTypeType
+  sectionType_in: [TicketSectionTypeType]
+  sectionType_not_in: [TicketSectionTypeType]
   floorName: String
   floorName_not: String
   floorName_contains: String
@@ -23346,10 +24116,10 @@ input TicketWhereInput {
   unitName_not_ends_with_i: String
   unitName_in: [String]
   unitName_not_in: [String]
-  unitType: String
-  unitType_not: String
-  unitType_in: [String]
-  unitType_not_in: [String]
+  unitType: TicketUnitTypeType
+  unitType_not: TicketUnitTypeType
+  unitType_in: [TicketUnitTypeType]
+  unitType_not_in: [TicketUnitTypeType]
   source: TicketSourceWhereInput
   source_is_null: Boolean
   sourceMeta: JSON
@@ -23598,10 +24368,10 @@ input TicketUpdateInput {
   propertyAddress: String
   propertyAddressMeta: JSON
   sectionName: String
-  sectionType: String
+  sectionType: TicketSectionTypeType
   floorName: String
   unitName: String
-  unitType: String
+  unitType: TicketUnitTypeType
   source: TicketSourceRelateToOneInput
   sourceMeta: JSON
   deferredUntil: String
@@ -23671,10 +24441,10 @@ input TicketCreateInput {
   propertyAddress: String
   propertyAddressMeta: JSON
   sectionName: String
-  sectionType: String
+  sectionType: TicketSectionTypeType
   floorName: String
   unitName: String
-  unitType: String
+  unitType: TicketUnitTypeType
   source: TicketSourceRelateToOneInput
   sourceMeta: JSON
   deferredUntil: String
@@ -24983,6 +25753,32 @@ enum TicketChangeQualityControlValueToType {
   good
 }
 
+enum TicketChangeSectionTypeFromType {
+  parking
+  section
+}
+
+enum TicketChangeSectionTypeToType {
+  parking
+  section
+}
+
+enum TicketChangeUnitTypeFromType {
+  parking
+  flat
+  apartment
+  commercial
+  warehouse
+}
+
+enum TicketChangeUnitTypeToType {
+  parking
+  flat
+  apartment
+  commercial
+  warehouse
+}
+
 """ Incremental changes of Ticket """
 type TicketChange {
   """
@@ -25185,11 +25981,11 @@ type TicketChange {
 
   """ Type of section, such as parking or section. Default value: "section" 
   """
-  sectionTypeFrom: String
+  sectionTypeFrom: TicketChangeSectionTypeFromType
 
   """ Type of section, such as parking or section. Default value: "section" 
   """
-  sectionTypeTo: String
+  sectionTypeTo: TicketChangeSectionTypeToType
 
   """ Floor of an apartment building (property). You need to take from Property.map 
   """
@@ -25208,10 +26004,10 @@ type TicketChange {
   unitNameTo: String
 
   """ Type of unit, such as parking lot or flat. Default value: "flat" """
-  unitTypeFrom: String
+  unitTypeFrom: TicketChangeUnitTypeFromType
 
   """ Type of unit, such as parking lot or flat. Default value: "flat" """
-  unitTypeTo: String
+  unitTypeTo: TicketChangeUnitTypeToType
 
   """ In the case of remote system sync, you can store some extra analytics. Examples: email, name, phone, ... 
   """
@@ -25890,14 +26686,14 @@ input TicketChangeWhereInput {
   sectionNameTo_not_ends_with_i: String
   sectionNameTo_in: [String]
   sectionNameTo_not_in: [String]
-  sectionTypeFrom: String
-  sectionTypeFrom_not: String
-  sectionTypeFrom_in: [String]
-  sectionTypeFrom_not_in: [String]
-  sectionTypeTo: String
-  sectionTypeTo_not: String
-  sectionTypeTo_in: [String]
-  sectionTypeTo_not_in: [String]
+  sectionTypeFrom: TicketChangeSectionTypeFromType
+  sectionTypeFrom_not: TicketChangeSectionTypeFromType
+  sectionTypeFrom_in: [TicketChangeSectionTypeFromType]
+  sectionTypeFrom_not_in: [TicketChangeSectionTypeFromType]
+  sectionTypeTo: TicketChangeSectionTypeToType
+  sectionTypeTo_not: TicketChangeSectionTypeToType
+  sectionTypeTo_in: [TicketChangeSectionTypeToType]
+  sectionTypeTo_not_in: [TicketChangeSectionTypeToType]
   floorNameFrom: String
   floorNameFrom_not: String
   floorNameFrom_contains: String
@@ -25970,14 +26766,14 @@ input TicketChangeWhereInput {
   unitNameTo_not_ends_with_i: String
   unitNameTo_in: [String]
   unitNameTo_not_in: [String]
-  unitTypeFrom: String
-  unitTypeFrom_not: String
-  unitTypeFrom_in: [String]
-  unitTypeFrom_not_in: [String]
-  unitTypeTo: String
-  unitTypeTo_not: String
-  unitTypeTo_in: [String]
-  unitTypeTo_not_in: [String]
+  unitTypeFrom: TicketChangeUnitTypeFromType
+  unitTypeFrom_not: TicketChangeUnitTypeFromType
+  unitTypeFrom_in: [TicketChangeUnitTypeFromType]
+  unitTypeFrom_not_in: [TicketChangeUnitTypeFromType]
+  unitTypeTo: TicketChangeUnitTypeToType
+  unitTypeTo_not: TicketChangeUnitTypeToType
+  unitTypeTo_in: [TicketChangeUnitTypeToType]
+  unitTypeTo_not_in: [TicketChangeUnitTypeToType]
   sourceMetaFrom: JSON
   sourceMetaFrom_not: JSON
   sourceMetaFrom_in: [JSON]
@@ -26757,14 +27553,14 @@ input TicketChangeUpdateInput {
   propertyAddressMetaTo: JSON
   sectionNameFrom: String
   sectionNameTo: String
-  sectionTypeFrom: String
-  sectionTypeTo: String
+  sectionTypeFrom: TicketChangeSectionTypeFromType
+  sectionTypeTo: TicketChangeSectionTypeToType
   floorNameFrom: String
   floorNameTo: String
   unitNameFrom: String
   unitNameTo: String
-  unitTypeFrom: String
-  unitTypeTo: String
+  unitTypeFrom: TicketChangeUnitTypeFromType
+  unitTypeTo: TicketChangeUnitTypeToType
   sourceMetaFrom: JSON
   sourceMetaTo: JSON
   deferredUntilFrom: String
@@ -26876,14 +27672,14 @@ input TicketChangeCreateInput {
   propertyAddressMetaTo: JSON
   sectionNameFrom: String
   sectionNameTo: String
-  sectionTypeFrom: String
-  sectionTypeTo: String
+  sectionTypeFrom: TicketChangeSectionTypeFromType
+  sectionTypeTo: TicketChangeSectionTypeToType
   floorNameFrom: String
   floorNameTo: String
   unitNameFrom: String
   unitNameTo: String
-  unitTypeFrom: String
-  unitTypeTo: String
+  unitTypeFrom: TicketChangeUnitTypeFromType
+  unitTypeTo: TicketChangeUnitTypeToType
   sourceMetaFrom: JSON
   sourceMetaTo: JSON
   deferredUntilFrom: String
@@ -27176,6 +27972,11 @@ input TicketCommentHistoryRecordsCreateInput {
   data: TicketCommentHistoryRecordCreateInput
 }
 
+enum TicketCommentTypeType {
+  organization
+  resident
+}
+
 """ Textual comment for tickets """
 type TicketComment {
   """
@@ -27188,7 +27989,7 @@ type TicketComment {
   _label_: String
 
   """ Comment type (internal for an organization or with a resident) """
-  type: String
+  type: TicketCommentTypeType
 
   """ Related ticket of the comment """
   ticket: Ticket
@@ -27224,10 +28025,10 @@ type TicketComment {
 input TicketCommentWhereInput {
   AND: [TicketCommentWhereInput]
   OR: [TicketCommentWhereInput]
-  type: String
-  type_not: String
-  type_in: [String]
-  type_not_in: [String]
+  type: TicketCommentTypeType
+  type_not: TicketCommentTypeType
+  type_in: [TicketCommentTypeType]
+  type_not_in: [TicketCommentTypeType]
   ticket: TicketWhereInput
   ticket_is_null: Boolean
   user: UserWhereInput
@@ -27340,7 +28141,7 @@ enum SortTicketCommentsBy {
 }
 
 input TicketCommentUpdateInput {
-  type: String
+  type: TicketCommentTypeType
   ticket: TicketRelateToOneInput
   user: UserRelateToOneInput
   content: String
@@ -27361,7 +28162,7 @@ input TicketCommentsUpdateInput {
 }
 
 input TicketCommentCreateInput {
-  type: String
+  type: TicketCommentTypeType
   ticket: TicketRelateToOneInput
   user: UserRelateToOneInput
   content: String
@@ -41533,6 +42334,14 @@ input ContactHistoryRecordsCreateInput {
   data: ContactHistoryRecordCreateInput
 }
 
+enum ContactUnitTypeType {
+  parking
+  flat
+  apartment
+  commercial
+  warehouse
+}
+
 input ContactRoleRelateToOneInput {
   create: ContactRoleCreateInput
   connect: ContactRoleWhereUniqueInput
@@ -41565,7 +42374,7 @@ type Contact {
   unitName: String
 
   """ Type of unit, such as parking lot or flat. Default value: "flat" """
-  unitType: String
+  unitType: ContactUnitTypeType
 
   """ Normalized contact email of this person """
   email: String
@@ -41630,10 +42439,10 @@ input ContactWhereInput {
   unitName_not_ends_with_i: String
   unitName_in: [String]
   unitName_not_in: [String]
-  unitType: String
-  unitType_not: String
-  unitType_in: [String]
-  unitType_not_in: [String]
+  unitType: ContactUnitTypeType
+  unitType_not: ContactUnitTypeType
+  unitType_in: [ContactUnitTypeType]
+  unitType_not_in: [ContactUnitTypeType]
   email: String
   email_not: String
   email_contains: String
@@ -41795,7 +42604,7 @@ input ContactUpdateInput {
   organization: OrganizationRelateToOneInput
   property: PropertyRelateToOneInput
   unitName: String
-  unitType: String
+  unitType: ContactUnitTypeType
   email: String
   phone: String
   name: String
@@ -41821,7 +42630,7 @@ input ContactCreateInput {
   organization: OrganizationRelateToOneInput
   property: PropertyRelateToOneInput
   unitName: String
-  unitType: String
+  unitType: ContactUnitTypeType
   email: String
   phone: String
   name: String
@@ -43200,6 +44009,14 @@ type PaymentCategory {
   acquiringName: String!
 }
 
+enum ResidentUnitTypeType {
+  parking
+  flat
+  apartment
+  commercial
+  warehouse
+}
+
 type ResidentContactRole {
   id: ID!
   name: String!
@@ -43243,7 +44060,7 @@ type Resident {
   unitName: String
 
   """ Type of unit, such as parking lot or flat. Default value: "flat" """
-  unitType: String
+  unitType: ResidentUnitTypeType
   isVerifiedByManagingCompany: Boolean
   managingCompanyContactRole: ResidentContactRole
 
@@ -43311,10 +44128,10 @@ input ResidentWhereInput {
   unitName_not_ends_with_i: String
   unitName_in: [String]
   unitName_not_in: [String]
-  unitType: String
-  unitType_not: String
-  unitType_in: [String]
-  unitType_not_in: [String]
+  unitType: ResidentUnitTypeType
+  unitType_not: ResidentUnitTypeType
+  unitType_in: [ResidentUnitTypeType]
+  unitType_not_in: [ResidentUnitTypeType]
   organization: OrganizationWhereInput
   organization_is_null: Boolean
   id: ID
@@ -43460,7 +44277,7 @@ input ResidentUpdateInput {
   user: UserRelateToOneInput
   property: PropertyRelateToOneInput
   unitName: String
-  unitType: String
+  unitType: ResidentUnitTypeType
   organization: OrganizationRelateToOneInput
   address: String
   addressKey: String
@@ -43486,7 +44303,7 @@ input ResidentCreateInput {
   user: UserRelateToOneInput
   property: PropertyRelateToOneInput
   unitName: String
-  unitType: String
+  unitType: ResidentUnitTypeType
   organization: OrganizationRelateToOneInput
   address: String
   addressKey: String
@@ -44748,6 +45565,11 @@ input UserHelpRequestHistoryRecordsCreateInput {
   data: UserHelpRequestHistoryRecordCreateInput
 }
 
+enum UserHelpRequestTypeType {
+  callback
+  importFile
+}
+
 """ Request from the user to help him with some functionality """
 type UserHelpRequest {
   """
@@ -44761,7 +45583,7 @@ type UserHelpRequest {
 
   """ Type of request. It's can be, for example, request for callback or request to help with import 
   """
-  type: String
+  type: UserHelpRequestTypeType
 
   """ Ref to the organization. The object will be deleted if the organization ceases to exist 
   """
@@ -44803,10 +45625,10 @@ type UserHelpRequest {
 input UserHelpRequestWhereInput {
   AND: [UserHelpRequestWhereInput]
   OR: [UserHelpRequestWhereInput]
-  type: String
-  type_not: String
-  type_in: [String]
-  type_not_in: [String]
+  type: UserHelpRequestTypeType
+  type_not: UserHelpRequestTypeType
+  type_in: [UserHelpRequestTypeType]
+  type_not_in: [UserHelpRequestTypeType]
   organization: OrganizationWhereInput
   organization_is_null: Boolean
   phone: String
@@ -44923,7 +45745,7 @@ enum SortUserHelpRequestsBy {
 }
 
 input UserHelpRequestUpdateInput {
-  type: String
+  type: UserHelpRequestTypeType
   organization: OrganizationRelateToOneInput
   phone: String
   isReadyToSend: Boolean
@@ -44945,7 +45767,7 @@ input UserHelpRequestsUpdateInput {
 }
 
 input UserHelpRequestCreateInput {
-  type: String
+  type: UserHelpRequestTypeType
   organization: OrganizationRelateToOneInput
   phone: String
   isReadyToSend: Boolean
@@ -47317,6 +48139,14 @@ input B2BAppRelateToOneInput {
   disconnectAll: Boolean
 }
 
+enum MeterUnitTypeType {
+  parking
+  flat
+  apartment
+  commercial
+  warehouse
+}
+
 input B2CAppRelateToOneInput {
   create: B2CAppCreateInput
   connect: B2CAppWhereUniqueInput
@@ -47386,7 +48216,7 @@ type Meter {
   unitName: String
 
   """ Type of unit, such as parking lot or flat. Default value: "flat" """
-  unitType: String
+  unitType: MeterUnitTypeType
 
   """ Certain place in unit where meter is, such as kitchen """
   place: String
@@ -47544,10 +48374,10 @@ input MeterWhereInput {
   unitName_not_ends_with_i: String
   unitName_in: [String]
   unitName_not_in: [String]
-  unitType: String
-  unitType_not: String
-  unitType_in: [String]
-  unitType_not_in: [String]
+  unitType: MeterUnitTypeType
+  unitType_not: MeterUnitTypeType
+  unitType_in: [MeterUnitTypeType]
+  unitType_not_in: [MeterUnitTypeType]
   place: String
   place_not: String
   place_contains: String
@@ -47705,7 +48535,7 @@ input MeterUpdateInput {
   number: String
   accountNumber: String
   unitName: String
-  unitType: String
+  unitType: MeterUnitTypeType
   place: String
   meta: JSON
   b2cApp: B2CAppRelateToOneInput
@@ -47741,7 +48571,7 @@ input MeterCreateInput {
   number: String
   accountNumber: String
   unitName: String
-  unitType: String
+  unitType: MeterUnitTypeType
   place: String
   meta: JSON
   b2cApp: B2CAppRelateToOneInput
@@ -51223,6 +52053,13 @@ input FeeDistributionFieldInput {
   category: String
 }
 
+enum AcquiringIntegrationContextDefaultStatusType {
+  InProgress
+  Verification
+  Error
+  Finished
+}
+
 """ Information about `acquiring component` which will generate `billing receipts` and `payments` 
 """
 type AcquiringIntegration {
@@ -51264,7 +52101,7 @@ type AcquiringIntegration {
 
   """ Status, which context will have by default after creation if no overwriting option provided 
   """
-  contextDefaultStatus: String
+  contextDefaultStatus: AcquiringIntegrationContextDefaultStatusType
 
   """ Comma separated values of VAT. Set by system administrators. """
   vatPercentOptions: String
@@ -51383,10 +52220,10 @@ input AcquiringIntegrationWhereInput {
   explicitFeeDistributionSchema_not: [FeeDistributionFieldInput!]
   explicitFeeDistributionSchema_in: [[FeeDistributionFieldInput!]]
   explicitFeeDistributionSchema_not_in: [[FeeDistributionFieldInput!]]
-  contextDefaultStatus: String
-  contextDefaultStatus_not: String
-  contextDefaultStatus_in: [String]
-  contextDefaultStatus_not_in: [String]
+  contextDefaultStatus: AcquiringIntegrationContextDefaultStatusType
+  contextDefaultStatus_not: AcquiringIntegrationContextDefaultStatusType
+  contextDefaultStatus_in: [AcquiringIntegrationContextDefaultStatusType]
+  contextDefaultStatus_not_in: [AcquiringIntegrationContextDefaultStatusType]
   vatPercentOptions: String
   vatPercentOptions_not: String
   vatPercentOptions_contains: String
@@ -51513,7 +52350,7 @@ input AcquiringIntegrationUpdateInput {
   hostUrl: String
   supportedBillingIntegrationsGroup: String
   explicitFeeDistributionSchema: [FeeDistributionFieldInput!]
-  contextDefaultStatus: String
+  contextDefaultStatus: AcquiringIntegrationContextDefaultStatusType
   vatPercentOptions: String
   v: Int
   createdAt: String
@@ -51540,7 +52377,7 @@ input AcquiringIntegrationCreateInput {
   hostUrl: String
   supportedBillingIntegrationsGroup: String
   explicitFeeDistributionSchema: [FeeDistributionFieldInput!]
-  contextDefaultStatus: String
+  contextDefaultStatus: AcquiringIntegrationContextDefaultStatusType
   vatPercentOptions: String
   v: Int
   createdAt: String
@@ -52362,6 +53199,25 @@ input RecipientFieldInput {
   classificationCode: String
 }
 
+enum AcquiringIntegrationContextStatusType {
+  InProgress
+  Verification
+  Error
+  Finished
+}
+
+enum AcquiringIntegrationContextInvoiceStatusType {
+  InProgress
+  Verification
+  Error
+  Finished
+}
+
+enum AcquiringIntegrationContextInvoiceTaxRegimeType {
+  general
+  simple
+}
+
 """ Object, which links `acquiring integration` with `service provider`, and stores additional data for it's proper work 
 """
 type AcquiringIntegrationContext {
@@ -52418,14 +53274,14 @@ type AcquiringIntegrationContext {
 
   """ Status of AcquiringIntegration connection, Can be one of the following: ["InProgress", "Error", "Finished"]. If not specified explicitly on creation, uses default value from related AcquiringIntegration model 
   """
-  status: String
+  status: AcquiringIntegrationContextStatusType
 
   """ Status of AcquiringIntegration connection, Can be one of the following: ["InProgress", "Error", "Finished"]. If not specified explicitly on creation, uses default value from related AcquiringIntegration model 
   """
-  invoiceStatus: String
+  invoiceStatus: AcquiringIntegrationContextInvoiceStatusType
 
   """ The regime of counting taxes for company """
-  invoiceTaxRegime: String
+  invoiceTaxRegime: AcquiringIntegrationContextInvoiceTaxRegimeType
 
   """ The percentage of VAT. Depends of integrations settings (see AcquiringIntegration.vatPercentOptions) 
   """
@@ -52559,18 +53415,18 @@ input AcquiringIntegrationContextWhereInput {
   invoiceImplicitFeeDistributionSchema_not: [FeeDistributionFieldInput!]
   invoiceImplicitFeeDistributionSchema_in: [[FeeDistributionFieldInput!]]
   invoiceImplicitFeeDistributionSchema_not_in: [[FeeDistributionFieldInput!]]
-  status: String
-  status_not: String
-  status_in: [String]
-  status_not_in: [String]
-  invoiceStatus: String
-  invoiceStatus_not: String
-  invoiceStatus_in: [String]
-  invoiceStatus_not_in: [String]
-  invoiceTaxRegime: String
-  invoiceTaxRegime_not: String
-  invoiceTaxRegime_in: [String]
-  invoiceTaxRegime_not_in: [String]
+  status: AcquiringIntegrationContextStatusType
+  status_not: AcquiringIntegrationContextStatusType
+  status_in: [AcquiringIntegrationContextStatusType]
+  status_not_in: [AcquiringIntegrationContextStatusType]
+  invoiceStatus: AcquiringIntegrationContextInvoiceStatusType
+  invoiceStatus_not: AcquiringIntegrationContextInvoiceStatusType
+  invoiceStatus_in: [AcquiringIntegrationContextInvoiceStatusType]
+  invoiceStatus_not_in: [AcquiringIntegrationContextInvoiceStatusType]
+  invoiceTaxRegime: AcquiringIntegrationContextInvoiceTaxRegimeType
+  invoiceTaxRegime_not: AcquiringIntegrationContextInvoiceTaxRegimeType
+  invoiceTaxRegime_in: [AcquiringIntegrationContextInvoiceTaxRegimeType]
+  invoiceTaxRegime_not_in: [AcquiringIntegrationContextInvoiceTaxRegimeType]
   invoiceVatPercent: String
   invoiceVatPercent_not: String
   invoiceVatPercent_lt: String
@@ -52703,9 +53559,9 @@ input AcquiringIntegrationContextUpdateInput {
   invoiceRecipient: RecipientFieldInput
   implicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   invoiceImplicitFeeDistributionSchema: [FeeDistributionFieldInput!]
-  status: String
-  invoiceStatus: String
-  invoiceTaxRegime: String
+  status: AcquiringIntegrationContextStatusType
+  invoiceStatus: AcquiringIntegrationContextInvoiceStatusType
+  invoiceTaxRegime: AcquiringIntegrationContextInvoiceTaxRegimeType
   invoiceVatPercent: String
   invoiceSalesTaxPercent: String
   v: Int
@@ -52737,9 +53593,9 @@ input AcquiringIntegrationContextCreateInput {
   invoiceRecipient: RecipientFieldInput
   implicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   invoiceImplicitFeeDistributionSchema: [FeeDistributionFieldInput!]
-  status: String
-  invoiceStatus: String
-  invoiceTaxRegime: String
+  status: AcquiringIntegrationContextStatusType
+  invoiceStatus: AcquiringIntegrationContextInvoiceStatusType
+  invoiceTaxRegime: AcquiringIntegrationContextInvoiceTaxRegimeType
   invoiceVatPercent: String
   invoiceSalesTaxPercent: String
   v: Int
@@ -53221,6 +54077,223 @@ input MultiPaymentHistoryRecordsCreateInput {
   data: MultiPaymentHistoryRecordCreateInput
 }
 
+enum MultiPaymentCurrencyCodeType {
+  AED
+  AFN
+  ALL
+  AMD
+  ANG
+  AOA
+  ARS
+  AUD
+  AWG
+  AZN
+  BAM
+  BBD
+  BDT
+  BGN
+  BHD
+  BIF
+  BMD
+  BND
+  BOB
+  BOV
+  BRL
+  BSD
+  BTN
+  BWP
+  BYN
+  BZD
+  CAD
+  CDF
+  CHE
+  CHF
+  CHW
+  CLF
+  CLP
+  CNY
+  COP
+  COU
+  CRC
+  CUC
+  CUP
+  CVE
+  CZK
+  DJF
+  DKK
+  DOP
+  DZD
+  EGP
+  ERN
+  ETB
+  EUR
+  FJD
+  FKP
+  GBP
+  GEL
+  GHS
+  GIP
+  GMD
+  GNF
+  GTQ
+  GYD
+  HKD
+  HNL
+  HRK
+  HTG
+  HUF
+  IDR
+  ILS
+  INR
+  IQD
+  IRR
+  ISK
+  JMD
+  JOD
+  JPY
+  KES
+  KGS
+  KHR
+  KMF
+  KPW
+  KRW
+  KWD
+  KYD
+  KZT
+  LAK
+  LBP
+  LKR
+  LRD
+  LSL
+  LYD
+  MAD
+  MDL
+  MGA
+  MKD
+  MMK
+  MNT
+  MOP
+  MRU
+  MUR
+  MVR
+  MWK
+  MXN
+  MXV
+  MYR
+  MZN
+  NAD
+  NGN
+  NIO
+  NOK
+  NPR
+  NZD
+  OMR
+  PAB
+  PEN
+  PGK
+  PHP
+  PKR
+  PLN
+  PYG
+  QAR
+  RON
+  RSD
+  RUB
+  RWF
+  SAR
+  SBD
+  SCR
+  SDG
+  SEK
+  SGD
+  SHP
+  SLL
+  SOS
+  SRD
+  SSP
+  STN
+  SVC
+  SYP
+  SZL
+  THB
+  TJS
+  TMT
+  TND
+  TOP
+  TRY
+  TTD
+  TWD
+  TZS
+  UAH
+  UGX
+  USD
+  USN
+  UYI
+  UYU
+  UYW
+  UZS
+  VES
+  VND
+  VUV
+  WST
+  XAF
+  XAG
+  XAU
+  XBA
+  XBB
+  XBC
+  XBD
+  XCD
+  XDR
+  XOF
+  XPD
+  XPF
+  XPT
+  XSU
+  XTS
+  XUA
+  YER
+  ZAR
+  ZMW
+  ZWL
+}
+
+enum MultiPaymentPaymentWayType {
+  CARD
+  CARD_BINDING
+  CARD_MOTO
+  CARD_PRESENT
+  SBRF_SBOL
+  UPOP
+  FILE_BINDING
+  SMS_BINDING
+  P2P
+  P2P_BINDING
+  PAYPAL
+  MTS
+  APPLE_PAY
+  APPLE_PAY_BINDING
+  ANDROID_PAY
+  ANDROID_PAY_BINDING
+  GOOGLE_PAY_CARD
+  GOOGLE_PAY_CARD_BINDING
+  GOOGLE_PAY_TOKENIZED
+  GOOGLE_PAY_TOKENIZED_BINDING
+  SAMSUNG_PAY
+  SAMSUNG_PAY_BINDING
+  IPOS
+  SBERPAY
+  SBERID
+}
+
+enum MultiPaymentStatusType {
+  CREATED
+  DONE
+  PROCESSING
+  ERROR
+  WITHDRAWN
+}
+
 input PaymentRelateToManyInput {
   create: [PaymentCreateInput]
   connect: [PaymentWhereUniqueInput]
@@ -53271,7 +54344,7 @@ type MultiPayment {
   amountWithoutExplicitFee: String
 
   """ Code of currency in ISO-4217 format """
-  currencyCode: String
+  currencyCode: MultiPaymentCurrencyCodeType
 
   """ Time of money withdraw (UTC) """
   withdrawnAt: String
@@ -53281,7 +54354,7 @@ type MultiPayment {
   cardNumber: String
 
   """ Payment way, such as `CARD` or `APPLE_PAY` """
-  paymentWay: String
+  paymentWay: MultiPaymentPaymentWayType
 
   """ Payer email address (optional). Can be used by support to find MultiPayment faster or to send digital receipt 
   """
@@ -53302,7 +54375,7 @@ type MultiPayment {
 
   """ Status of multipayment. Can be: "CREATED", "DONE", "PROCESSING", "ERROR", "WITHDRAWN" 
   """
-  status: String
+  status: MultiPaymentStatusType
 
   """ Link to user """
   user: User
@@ -53382,10 +54455,10 @@ input MultiPaymentWhereInput {
   amountWithoutExplicitFee_gte: String
   amountWithoutExplicitFee_in: [String]
   amountWithoutExplicitFee_not_in: [String]
-  currencyCode: String
-  currencyCode_not: String
-  currencyCode_in: [String]
-  currencyCode_not_in: [String]
+  currencyCode: MultiPaymentCurrencyCodeType
+  currencyCode_not: MultiPaymentCurrencyCodeType
+  currencyCode_in: [MultiPaymentCurrencyCodeType]
+  currencyCode_not_in: [MultiPaymentCurrencyCodeType]
   withdrawnAt: String
   withdrawnAt_not: String
   withdrawnAt_lt: String
@@ -53412,10 +54485,10 @@ input MultiPaymentWhereInput {
   cardNumber_not_ends_with_i: String
   cardNumber_in: [String]
   cardNumber_not_in: [String]
-  paymentWay: String
-  paymentWay_not: String
-  paymentWay_in: [String]
-  paymentWay_not_in: [String]
+  paymentWay: MultiPaymentPaymentWayType
+  paymentWay_not: MultiPaymentPaymentWayType
+  paymentWay_in: [MultiPaymentPaymentWayType]
+  paymentWay_not_in: [MultiPaymentPaymentWayType]
   payerEmail: String
   payerEmail_not: String
   payerEmail_contains: String
@@ -53492,10 +54565,10 @@ input MultiPaymentWhereInput {
   meta_not: JSON
   meta_in: [JSON]
   meta_not_in: [JSON]
-  status: String
-  status_not: String
-  status_in: [String]
-  status_not_in: [String]
+  status: MultiPaymentStatusType
+  status_not: MultiPaymentStatusType
+  status_in: [MultiPaymentStatusType]
+  status_not_in: [MultiPaymentStatusType]
   user: UserWhereInput
   user_is_null: Boolean
 
@@ -53634,16 +54707,16 @@ input MultiPaymentUpdateInput {
   serviceFee: String
   implicitFee: String
   amountWithoutExplicitFee: String
-  currencyCode: String
+  currencyCode: MultiPaymentCurrencyCodeType
   withdrawnAt: String
   cardNumber: String
-  paymentWay: String
+  paymentWay: MultiPaymentPaymentWayType
   payerEmail: String
   serviceCategory: String
   transactionId: String
   importId: String
   meta: JSON
-  status: String
+  status: MultiPaymentStatusType
   user: UserRelateToOneInput
   payments: PaymentRelateToManyInput
   integration: AcquiringIntegrationRelateToOneInput
@@ -53670,16 +54743,16 @@ input MultiPaymentCreateInput {
   serviceFee: String
   implicitFee: String
   amountWithoutExplicitFee: String
-  currencyCode: String
+  currencyCode: MultiPaymentCurrencyCodeType
   withdrawnAt: String
   cardNumber: String
-  paymentWay: String
+  paymentWay: MultiPaymentPaymentWayType
   payerEmail: String
   serviceCategory: String
   transactionId: String
   importId: String
   meta: JSON
-  status: String
+  status: MultiPaymentStatusType
   user: UserRelateToOneInput
   payments: PaymentRelateToManyInput
   integration: AcquiringIntegrationRelateToOneInput
@@ -54223,6 +55296,187 @@ input PaymentHistoryRecordsCreateInput {
   data: PaymentHistoryRecordCreateInput
 }
 
+enum PaymentCurrencyCodeType {
+  AED
+  AFN
+  ALL
+  AMD
+  ANG
+  AOA
+  ARS
+  AUD
+  AWG
+  AZN
+  BAM
+  BBD
+  BDT
+  BGN
+  BHD
+  BIF
+  BMD
+  BND
+  BOB
+  BOV
+  BRL
+  BSD
+  BTN
+  BWP
+  BYN
+  BZD
+  CAD
+  CDF
+  CHE
+  CHF
+  CHW
+  CLF
+  CLP
+  CNY
+  COP
+  COU
+  CRC
+  CUC
+  CUP
+  CVE
+  CZK
+  DJF
+  DKK
+  DOP
+  DZD
+  EGP
+  ERN
+  ETB
+  EUR
+  FJD
+  FKP
+  GBP
+  GEL
+  GHS
+  GIP
+  GMD
+  GNF
+  GTQ
+  GYD
+  HKD
+  HNL
+  HRK
+  HTG
+  HUF
+  IDR
+  ILS
+  INR
+  IQD
+  IRR
+  ISK
+  JMD
+  JOD
+  JPY
+  KES
+  KGS
+  KHR
+  KMF
+  KPW
+  KRW
+  KWD
+  KYD
+  KZT
+  LAK
+  LBP
+  LKR
+  LRD
+  LSL
+  LYD
+  MAD
+  MDL
+  MGA
+  MKD
+  MMK
+  MNT
+  MOP
+  MRU
+  MUR
+  MVR
+  MWK
+  MXN
+  MXV
+  MYR
+  MZN
+  NAD
+  NGN
+  NIO
+  NOK
+  NPR
+  NZD
+  OMR
+  PAB
+  PEN
+  PGK
+  PHP
+  PKR
+  PLN
+  PYG
+  QAR
+  RON
+  RSD
+  RUB
+  RWF
+  SAR
+  SBD
+  SCR
+  SDG
+  SEK
+  SGD
+  SHP
+  SLL
+  SOS
+  SRD
+  SSP
+  STN
+  SVC
+  SYP
+  SZL
+  THB
+  TJS
+  TMT
+  TND
+  TOP
+  TRY
+  TTD
+  TWD
+  TZS
+  UAH
+  UGX
+  USD
+  USN
+  UYI
+  UYU
+  UYW
+  UZS
+  VES
+  VND
+  VUV
+  WST
+  XAF
+  XAG
+  XAU
+  XBA
+  XBB
+  XBC
+  XBD
+  XCD
+  XDR
+  XOF
+  XPD
+  XPF
+  XPT
+  XSU
+  XTS
+  XUA
+  YER
+  ZAR
+  ZMW
+  ZWL
+}
+
 input InvoiceRelateToOneInput {
   create: InvoiceCreateInput
   connect: InvoiceWhereUniqueInput
@@ -54235,6 +55489,14 @@ input MultiPaymentRelateToOneInput {
   connect: MultiPaymentWhereUniqueInput
   disconnect: MultiPaymentWhereUniqueInput
   disconnectAll: Boolean
+}
+
+enum PaymentStatusType {
+  CREATED
+  PROCESSING
+  DONE
+  ERROR
+  WITHDRAWN
 }
 
 """ Information about completed transaction from user to a specific organization 
@@ -54270,7 +55532,7 @@ type Payment {
   serviceFee: String
 
   """ Code of currency in ISO-4217 format """
-  currencyCode: String
+  currencyCode: PaymentCurrencyCodeType
 
   """ Time at which money was advanced to recipient's account """
   advancedAt: String
@@ -54318,7 +55580,7 @@ type Payment {
 
   """ Status of payment. Can be: "CREATED", "PROCESSING", "DONE", "ERROR", "WITHDRAWN" 
   """
-  status: String
+  status: PaymentStatusType
 
   """ Payment order. A directive to a bank from a bank account holder instructing the bank to make a payment or series of payments to a third party 
   """
@@ -54401,10 +55663,10 @@ input PaymentWhereInput {
   serviceFee_gte: String
   serviceFee_in: [String]
   serviceFee_not_in: [String]
-  currencyCode: String
-  currencyCode_not: String
-  currencyCode_in: [String]
-  currencyCode_not_in: [String]
+  currencyCode: PaymentCurrencyCodeType
+  currencyCode_not: PaymentCurrencyCodeType
+  currencyCode_in: [PaymentCurrencyCodeType]
+  currencyCode_not_in: [PaymentCurrencyCodeType]
   advancedAt: String
   advancedAt_not: String
   advancedAt_lt: String
@@ -54491,10 +55753,10 @@ input PaymentWhereInput {
   context_is_null: Boolean
   organization: OrganizationWhereInput
   organization_is_null: Boolean
-  status: String
-  status_not: String
-  status_in: [String]
-  status_not_in: [String]
+  status: PaymentStatusType
+  status_not: PaymentStatusType
+  status_in: [PaymentStatusType]
+  status_not_in: [PaymentStatusType]
   order: String
   order_not: String
   order_contains: String
@@ -54698,7 +55960,7 @@ input PaymentUpdateInput {
   explicitServiceCharge: String
   implicitFee: String
   serviceFee: String
-  currencyCode: String
+  currencyCode: PaymentCurrencyCodeType
   advancedAt: String
   depositedDate: String
   transferDate: String
@@ -54712,7 +55974,7 @@ input PaymentUpdateInput {
   multiPayment: MultiPaymentRelateToOneInput
   context: AcquiringIntegrationContextRelateToOneInput
   organization: OrganizationRelateToOneInput
-  status: String
+  status: PaymentStatusType
   order: String
   recipientBic: String
   recipientBankAccount: String
@@ -54739,7 +56001,7 @@ input PaymentCreateInput {
   explicitServiceCharge: String
   implicitFee: String
   serviceFee: String
-  currencyCode: String
+  currencyCode: PaymentCurrencyCodeType
   advancedAt: String
   depositedDate: String
   transferDate: String
@@ -54753,7 +56015,7 @@ input PaymentCreateInput {
   multiPayment: MultiPaymentRelateToOneInput
   context: AcquiringIntegrationContextRelateToOneInput
   organization: OrganizationRelateToOneInput
-  status: String
+  status: PaymentStatusType
   order: String
   recipientBic: String
   recipientBankAccount: String
@@ -61227,6 +62489,143 @@ input B2BAppHistoryRecordsCreateInput {
   data: B2BAppHistoryRecordCreateInput
 }
 
+enum B2BAppIconType {
+  AlertCircle
+  ArrowLeft
+  ArrowRight
+  BarChartHorizontal
+  BarChartVertical
+  Bill
+  Briefcase
+  Building
+  CalendarDays
+  Car
+  Check
+  CheckCircle
+  CheckSquare
+  ChevronDown
+  ChevronLeft
+  ChevronRight
+  ChevronUp
+  CircleEllipsis
+  Clock
+  Close
+  Contacts
+  Copy
+  CreditCard
+  DoorOpen
+  Doors
+  Download
+  Edit
+  Employee
+  ExternalLink
+  Eye
+  EyeOff
+  FileCheck
+  FileDown
+  FileEdit
+  FileText
+  FileUp
+  Filter
+  Flat
+  Floor
+  Frown
+  Globe
+  Guide
+  History
+  Home
+  House
+  Inbox
+  Info
+  Interfloor
+  Key
+  Layers
+  LayoutList
+  Link
+  List
+  Lock
+  LogOut
+  Mail
+  Market
+  Menu
+  Meters
+  MinusCircle
+  MoreHorizontal
+  MoreVertical
+  NewAppeal
+  Newspaper
+  OnOff
+  Paperclip
+  Parking
+  Pause
+  PauseFilled
+  Phone
+  PhoneIncoming
+  PhoneOutgoing
+  PieChart
+  Play
+  PlayFilled
+  Plus
+  PlusCircle
+  Print
+  QuestionCircle
+  Readings
+  RefreshCw
+  Rocket
+  Ruble
+  Sber
+  Search
+  Send
+  Services
+  Settings
+  Share
+  Sheet
+  Slash
+  SmartHome
+  Smartphone
+  Smile
+  SortAsc
+  SortDesc
+  Star
+  StarFilled
+  Subtitles
+  Trash
+  Unlock
+  User
+  UserSquare
+  Wallet
+  XCircle
+}
+
+enum B2BAppMenuCategoryType {
+  TOUR
+  DASHBOARD
+  COMMUNICATION
+  PROPERTIES
+  RESIDENTS
+  EMPLOYEES
+  MARKET
+  BILLING
+  METERS
+  MINIAPPS
+  SETTINGS
+}
+
+enum B2BAppContextDefaultStatusType {
+  InProgress
+  Error
+  Finished
+}
+
+enum B2BAppCategoryType {
+  DISPATCHING
+  GIS
+  SMART_HOME
+  BUSINESS_DEVELOPMENT
+  FINANCE
+  OTHER
+}
+
 input B2BAppAccessRightRelateToManyInput {
   create: [B2BAppAccessRightCreateInput]
   connect: [B2BAppAccessRightWhereUniqueInput]
@@ -61237,6 +62636,13 @@ input B2BAppAccessRightRelateToManyInput {
 enum B2BAppGlobalFeature {
   PropertyMapGeneration
   AttachCallRecordToTicket
+}
+
+enum B2BAppLabelType {
+  FREE
+  DISCOUNT
+  POPULAR
+  NEW
 }
 
 input B2BAppNewsSharingConfigRelateToOneInput {
@@ -61300,19 +62706,19 @@ type B2BApp {
 
   """ App icon. The presence of this field means that this app will be pinned to the CRM menu after the connection. 
   """
-  icon: String
+  icon: B2BAppIconType
 
   """ This field is responsible for which category of the CRM menu the application icon will fall into when connected. If not specified - then connected with the icon will be displayed in category "MINIAPPS" by default. 
   """
-  menuCategory: String
+  menuCategory: B2BAppMenuCategoryType
 
   """ Status, which context will have by default after creation if no overwriting option provided 
   """
-  contextDefaultStatus: String
+  contextDefaultStatus: B2BAppContextDefaultStatusType
 
   """ Category of app. Can be one of the following: ["DISPATCHING", "GIS", "SMART_HOME", "BUSINESS_DEVELOPMENT", "FINANCE", "OTHER"] By default set to "OTHER" 
   """
-  category: String
+  category: B2BAppCategoryType
 
   """ Specifies set of service users, who can access app's contexts related as well as perform actions on behalf of the application 
   """
@@ -61329,7 +62735,7 @@ type B2BApp {
 
   """ App can be marked with one of the following labels in order to visually stand out from other applications: [FREE, DISCOUNT, POPULAR, NEW] 
   """
-  label: String
+  label: B2BAppLabelType
 
   """ Array containing links to promotional images, which will be shown to user on app's page 
   """
@@ -61488,22 +62894,22 @@ input B2BAppWhereInput {
   isPublic_not: Boolean
   hasDynamicTitle: Boolean
   hasDynamicTitle_not: Boolean
-  icon: String
-  icon_not: String
-  icon_in: [String]
-  icon_not_in: [String]
-  menuCategory: String
-  menuCategory_not: String
-  menuCategory_in: [String]
-  menuCategory_not_in: [String]
-  contextDefaultStatus: String
-  contextDefaultStatus_not: String
-  contextDefaultStatus_in: [String]
-  contextDefaultStatus_not_in: [String]
-  category: String
-  category_not: String
-  category_in: [String]
-  category_not_in: [String]
+  icon: B2BAppIconType
+  icon_not: B2BAppIconType
+  icon_in: [B2BAppIconType]
+  icon_not_in: [B2BAppIconType]
+  menuCategory: B2BAppMenuCategoryType
+  menuCategory_not: B2BAppMenuCategoryType
+  menuCategory_in: [B2BAppMenuCategoryType]
+  menuCategory_not_in: [B2BAppMenuCategoryType]
+  contextDefaultStatus: B2BAppContextDefaultStatusType
+  contextDefaultStatus_not: B2BAppContextDefaultStatusType
+  contextDefaultStatus_in: [B2BAppContextDefaultStatusType]
+  contextDefaultStatus_not_in: [B2BAppContextDefaultStatusType]
+  category: B2BAppCategoryType
+  category_not: B2BAppCategoryType
+  category_in: [B2BAppCategoryType]
+  category_not_in: [B2BAppCategoryType]
 
   """ condition must be true for all nodes """
   accessRights_every: B2BAppAccessRightWhereInput
@@ -61525,10 +62931,10 @@ input B2BAppWhereInput {
   displayPriority_gte: Int
   displayPriority_in: [Int]
   displayPriority_not_in: [Int]
-  label: String
-  label_not: String
-  label_in: [String]
-  label_not_in: [String]
+  label: B2BAppLabelType
+  label_not: B2BAppLabelType
+  label_in: [B2BAppLabelType]
+  label_not_in: [B2BAppLabelType]
   gallery: [String!]
   gallery_not: [String!]
   gallery_in: [[String!]]
@@ -61684,14 +63090,14 @@ input B2BAppUpdateInput {
   isGlobal: Boolean
   isPublic: Boolean
   hasDynamicTitle: Boolean
-  icon: String
-  menuCategory: String
-  contextDefaultStatus: String
-  category: String
+  icon: B2BAppIconType
+  menuCategory: B2BAppMenuCategoryType
+  contextDefaultStatus: B2BAppContextDefaultStatusType
+  category: B2BAppCategoryType
   accessRights: B2BAppAccessRightRelateToManyInput
   features: [B2BAppGlobalFeature!]
   displayPriority: Int
-  label: String
+  label: B2BAppLabelType
   gallery: [String!]
   price: String
   newsSharingConfig: B2BAppNewsSharingConfigRelateToOneInput
@@ -61723,14 +63129,14 @@ input B2BAppCreateInput {
   isGlobal: Boolean
   isPublic: Boolean
   hasDynamicTitle: Boolean
-  icon: String
-  menuCategory: String
-  contextDefaultStatus: String
-  category: String
+  icon: B2BAppIconType
+  menuCategory: B2BAppMenuCategoryType
+  contextDefaultStatus: B2BAppContextDefaultStatusType
+  category: B2BAppCategoryType
   accessRights: B2BAppAccessRightRelateToManyInput
   features: [B2BAppGlobalFeature!]
   displayPriority: Int
-  label: String
+  label: B2BAppLabelType
   gallery: [String!]
   price: String
   newsSharingConfig: B2BAppNewsSharingConfigRelateToOneInput
@@ -61967,6 +63373,12 @@ input B2BAppContextHistoryRecordsCreateInput {
   data: B2BAppContextHistoryRecordCreateInput
 }
 
+enum B2BAppContextStatusType {
+  InProgress
+  Error
+  Finished
+}
+
 """ Object which connects B2B App and Organization. Used to determine if app is connected or not, and store settings / state of app for specific organization 
 """
 type B2BAppContext {
@@ -61991,7 +63403,7 @@ type B2BAppContext {
 
   """ Status of B2BApp connection, Can be one of the following: ["InProgress", "Error", "Finished"]. If not specified explicitly on creation, uses default value from related B2BApp model 
   """
-  status: String
+  status: B2BAppContextStatusType
   id: ID!
   v: Int
   createdAt: String
@@ -62026,10 +63438,10 @@ input B2BAppContextWhereInput {
   meta_not: JSON
   meta_in: [JSON]
   meta_not_in: [JSON]
-  status: String
-  status_not: String
-  status_in: [String]
-  status_not_in: [String]
+  status: B2BAppContextStatusType
+  status_not: B2BAppContextStatusType
+  status_in: [B2BAppContextStatusType]
+  status_not_in: [B2BAppContextStatusType]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -62121,7 +63533,7 @@ input B2BAppContextUpdateInput {
   app: B2BAppRelateToOneInput
   organization: OrganizationRelateToOneInput
   meta: JSON
-  status: String
+  status: B2BAppContextStatusType
   v: Int
   createdAt: String
   updatedAt: String
@@ -62142,7 +63554,7 @@ input B2BAppContextCreateInput {
   app: B2BAppRelateToOneInput
   organization: OrganizationRelateToOneInput
   meta: JSON
-  status: String
+  status: B2BAppContextStatusType
   v: Int
   createdAt: String
   updatedAt: String
@@ -69374,6 +70786,14 @@ input InvoiceHistoryRecordsCreateInput {
   data: InvoiceHistoryRecordCreateInput
 }
 
+enum InvoiceUnitTypeType {
+  parking
+  flat
+  apartment
+  commercial
+  warehouse
+}
+
 type InvoiceRowSchemaField {
   name: String!
   toPay: String!
@@ -69408,6 +70828,18 @@ input InvoiceRowMetaSchemaFieldInput {
   categoryBgColor: String
 }
 
+enum InvoiceStatusType {
+  draft
+  published
+  paid
+  canceled
+}
+
+enum InvoicePaymentTypeType {
+  online
+  cash
+}
+
 """ Invoice model contains information about paid items and payer """
 type Invoice {
   """
@@ -69430,7 +70862,7 @@ type Invoice {
   property: Property
 
   """ Type of unit, such as parking lot or flat. Default value: "flat" """
-  unitType: String
+  unitType: InvoiceUnitTypeType
 
   """ The payer's unitName """
   unitName: String
@@ -69464,10 +70896,10 @@ type Invoice {
 
   """ Invoice status affects which invoices can be read by residents and which invoices can be managed. The newly created invoice has status "draft"; the "published" invoice may be paid by resident; "paid" means that invoice already paid; "canceled" means no modifications allowed. Each status, except draft, has related timestamp. 
   """
-  status: String
+  status: InvoiceStatusType
 
   """ Shows which payment type chosen: online or cash or something else """
-  paymentType: String
+  paymentType: InvoicePaymentTypeType
 
   """ When status of the invoice was changed to published (ready to pay) """
   publishedAt: String
@@ -69531,10 +70963,10 @@ input InvoiceWhereInput {
   number_not_in: [Int]
   property: PropertyWhereInput
   property_is_null: Boolean
-  unitType: String
-  unitType_not: String
-  unitType_in: [String]
-  unitType_not_in: [String]
+  unitType: InvoiceUnitTypeType
+  unitType_not: InvoiceUnitTypeType
+  unitType_in: [InvoiceUnitTypeType]
+  unitType_not_in: [InvoiceUnitTypeType]
   unitName: String
   unitName_not: String
   unitName_contains: String
@@ -69625,14 +71057,14 @@ input InvoiceWhereInput {
   clientPhone_not_ends_with_i: String
   clientPhone_in: [String]
   clientPhone_not_in: [String]
-  status: String
-  status_not: String
-  status_in: [String]
-  status_not_in: [String]
-  paymentType: String
-  paymentType_not: String
-  paymentType_in: [String]
-  paymentType_not_in: [String]
+  status: InvoiceStatusType
+  status_not: InvoiceStatusType
+  status_in: [InvoiceStatusType]
+  status_not_in: [InvoiceStatusType]
+  paymentType: InvoicePaymentTypeType
+  paymentType_not: InvoicePaymentTypeType
+  paymentType_in: [InvoicePaymentTypeType]
+  paymentType_not_in: [InvoicePaymentTypeType]
   publishedAt: String
   publishedAt_not: String
   publishedAt_lt: String
@@ -69776,7 +71208,7 @@ input InvoiceUpdateInput {
   organization: OrganizationRelateToOneInput
   number: Int
   property: PropertyRelateToOneInput
-  unitType: String
+  unitType: InvoiceUnitTypeType
   unitName: String
   accountNumber: String
   toPay: String
@@ -69786,8 +71218,8 @@ input InvoiceUpdateInput {
   client: UserRelateToOneInput
   clientName: String
   clientPhone: String
-  status: String
-  paymentType: String
+  status: InvoiceStatusType
+  paymentType: InvoicePaymentTypeType
   publishedAt: String
   paidAt: String
   canceledAt: String
@@ -69811,7 +71243,7 @@ input InvoiceCreateInput {
   organization: OrganizationRelateToOneInput
   number: Int
   property: PropertyRelateToOneInput
-  unitType: String
+  unitType: InvoiceUnitTypeType
   unitName: String
   accountNumber: String
   toPay: String
@@ -69821,8 +71253,8 @@ input InvoiceCreateInput {
   client: UserRelateToOneInput
   clientName: String
   clientPhone: String
-  status: String
-  paymentType: String
+  status: InvoiceStatusType
+  paymentType: InvoicePaymentTypeType
   publishedAt: String
   paidAt: String
   canceledAt: String
@@ -72608,6 +74040,18 @@ input WebhookRelateToOneInput {
   disconnectAll: Boolean
 }
 
+enum WebhookSubscriptionModelType {
+  User
+  Organization
+  Ticket
+  TicketComment
+  Contact
+  UserHelpRequest
+  AcquiringIntegrationContext
+  B2BApp
+  B2BAppContext
+}
+
 """ Determines which models the WebHook will be subscribed to. When model changes subscription task will be triggered to resolve changed data and send a webhook 
 """
 type WebhookSubscription {
@@ -72640,7 +74084,7 @@ type WebhookSubscription {
   failuresCount: Int
 
   """ The data model (schema) that the webhook is subscribed to """
-  model: String
+  model: WebhookSubscriptionModelType
 
   """ String representing list of model fields in graphql-query format. Exactly the fields specified here will be sent by the webhook. Correct examples: "field1 field2 { subfield }", "{ field1 relation { subfield } }" 
   """
@@ -72723,10 +74167,10 @@ input WebhookSubscriptionWhereInput {
   failuresCount_gte: Int
   failuresCount_in: [Int]
   failuresCount_not_in: [Int]
-  model: String
-  model_not: String
-  model_in: [String]
-  model_not_in: [String]
+  model: WebhookSubscriptionModelType
+  model_not: WebhookSubscriptionModelType
+  model_in: [WebhookSubscriptionModelType]
+  model_not_in: [WebhookSubscriptionModelType]
   fields: String
   fields_not: String
   fields_contains: String
@@ -72860,7 +74304,7 @@ input WebhookSubscriptionUpdateInput {
   syncedAt: String
   syncedAmount: Int
   failuresCount: Int
-  model: String
+  model: WebhookSubscriptionModelType
   fields: String
   filters: JSON
   maxPackSize: Int
@@ -72886,7 +74330,7 @@ input WebhookSubscriptionCreateInput {
   syncedAt: String
   syncedAmount: Int
   failuresCount: Int
-  model: String
+  model: WebhookSubscriptionModelType
   fields: String
   filters: JSON
   maxPackSize: Int

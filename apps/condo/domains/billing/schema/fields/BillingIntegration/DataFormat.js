@@ -1,7 +1,5 @@
 const Ajv = require('ajv')
 
-const { Json } = require('@open-condo/keystone/fields')
-
 const {
     BILLING_INTEGRATION_DATA_FORMAT_FIELD_NAME,
     BILLING_INTEGRATION_DATA_FORMAT_INPUT_NAME,
@@ -42,7 +40,7 @@ const validateDataFormat = getValidator(DataFormatSchemaValidator)
 const DATA_FORMAT_QUERY_LIST = Object.keys(DataFormatFields).join(' ')
 const DATA_FORMAT_FIELD = {
     schemaDoc: 'Format of the data, that is output of this integration. This field specifies the detail and size of columns. If not specified we can only show first level of detail (address, account, toPay)',
-    type: Json,
+    type: 'Json',
     isRequired: false,
     extendGraphQLTypes: [DATA_FORMAT_GQL_TYPES],
     graphQLInputType: BILLING_INTEGRATION_DATA_FORMAT_INPUT_NAME,

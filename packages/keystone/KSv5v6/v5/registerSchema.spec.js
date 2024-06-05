@@ -39,7 +39,7 @@ const TestMessage = new GQLListSchema('TestMessage', {
 
         type2: {
             schemaDoc: 'Message type 2',
-            type: Text,
+            type: 'Text',
             isRequired: true,
         },
 

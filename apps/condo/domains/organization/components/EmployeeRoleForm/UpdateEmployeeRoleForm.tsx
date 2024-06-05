@@ -1,4 +1,4 @@
-import { SortOrganizationEmployeeRolesBy } from '@app/condo/schema'
+import { B2BAppContextStatusType, SortOrganizationEmployeeRolesBy } from '@app/condo/schema'
 import { Typography } from 'antd'
 import get from 'lodash/get'
 import uniqBy from 'lodash/uniqBy'
@@ -50,7 +50,7 @@ export const UpdateEmployeeRoleForm: React.FC<UpdateEmployeeRoleFormProps> = ({
         loading: b2bAppContextsLoading,
         error: b2bAppContextsError,
     } = B2BAppContext.useObjects({
-        where: { organization: { id: organizationId },  status: 'Finished' },
+        where: { organization: { id: organizationId },  status: B2BAppContextStatusType.Finished },
     }, {
         skip: withoutB2BApps,
     })

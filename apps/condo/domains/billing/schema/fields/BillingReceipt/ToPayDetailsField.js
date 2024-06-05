@@ -1,7 +1,5 @@
 const Ajv = require('ajv')
 
-const { Json } = require('@open-condo/keystone/fields')
-
 const { BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME, BILLING_RECEIPT_TO_PAY_DETAILS_INPUT_NAME } = require('@condo/domains/billing/constants/constants')
 const { render, getValidator } = require('@condo/domains/common/schema/json.utils')
 
@@ -51,7 +49,7 @@ const TO_PAY_DETAILS_FIELD = {
         'This field will be removed in the future. ' +
         'All data is saved in the corresponding fields of the BillingReceipt (charge formula balance recalculation privilege penalty paid). ' +
         'After toPayDetails field removal you should update it content explicitly',
-    type: Json,
+    type: 'Json',
     extendGraphQLTypes: [TO_PAY_DETAILS_GRAPHQL_TYPES],
     graphQLInputType: BILLING_RECEIPT_TO_PAY_DETAILS_INPUT_NAME,
     graphQLReturnType: BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME,

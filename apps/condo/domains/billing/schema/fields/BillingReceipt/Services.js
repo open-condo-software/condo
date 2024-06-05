@@ -1,7 +1,5 @@
 const Ajv = require('ajv')
 
-const { Json } = require('@open-condo/keystone/fields')
-
 const {
     BILLING_RECEIPT_SERVICE_TO_PAY_DETAILS_FIELD_NAME,
     BILLING_RECEIPT_SERVICE_TO_PAY_DETAILS_INPUT_NAME,
@@ -84,7 +82,7 @@ const SERVICES_QUERY_LIST = `${Object.keys(ServiceFields).join(' ')} { ${SERVICE
 
 const SERVICES_FIELD = {
     schemaDoc: 'Services to pay for. Every service has id, name and toPay. Service may or may not have toPay detail. Detail level 3 and 4',
-    type: Json,
+    type: 'Json',
     isRequired: false,
     extendGraphQLTypes: [SERVICES_GRAPHQL_TYPES],
     graphQLInputType: BILLING_RECEIPT_SERVICES_INPUT,

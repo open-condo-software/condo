@@ -5,7 +5,6 @@
 const { get, isEmpty, isUndefined, isNull } = require('lodash')
 
 const { GQLError } = require('@open-condo/keystone/errors')
-const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
@@ -59,7 +58,7 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
 
         settings: {
             schemaDoc: 'Settings that are required for acquiring to work properly. The data structure depends on the integration and defined here',
-            type: Json,
+            type: 'Json',
             isRequired: true,
             hooks: {
                 validateInput: (args) => {
@@ -70,7 +69,7 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
 
         state: {
             schemaDoc: 'The current state of the integration process. Some integration need to store past state here, additional data and etc.',
-            type: Json,
+            type: 'Json',
             isRequired: true,
             hooks: {
                 validateInput: (args) => {

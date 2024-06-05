@@ -1,11 +1,9 @@
-const { Integer } = require('@keystonejs/fields')
 const isEmpty = require('lodash/isEmpty')
 const nextCookies = require('next-cookies')
 const pluralize = require('pluralize')
 const validate = require('validate.js')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { Json } = require('@open-condo/keystone/fields')
 const { composeNonResolveInputHook, composeResolveInputHook } = require('@open-condo/keystone/plugins/utils')
 const { plugin } = require('@open-condo/keystone/plugins/utils/typing')
 
@@ -66,13 +64,13 @@ const dvAndSender = () => plugin(({ fields = {}, hooks = {}, ...rest }) => {
     const senderField = 'sender'
 
     fields[dvField] = {
-        type: Integer,
+        type: 'Integer',
         schemaDoc: 'Data structure Version',
         isRequired: true,
         kmigratorOptions: { null: false },
     }
     fields[senderField] = {
-        type: Json,
+        type: 'Json',
         schemaDoc: 'Client-side device identification used for the anti-fraud detection. ' +
             'Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. ' +
             'Where the `fingerprint` should be the same for the same devices and it\'s not linked to the user ID. ' +

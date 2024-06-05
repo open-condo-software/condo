@@ -5,7 +5,7 @@ import {
     SortOrganizationEmployeeRolesBy,
     OrganizationEmployeeRole as OrganizationEmployeeRoleType,
     B2BAppPermission as B2BAppPermissionType,
-    B2BAppRole as B2BAppRoleType, OrganizationEmployeeRoleUpdateInput,
+    B2BAppRole as B2BAppRoleType, OrganizationEmployeeRoleUpdateInput, B2BAppContextStatusType,
 } from '@app/condo/schema'
 import { Col, notification, Row, RowProps } from 'antd'
 import cloneDeep from 'lodash/cloneDeep'
@@ -551,7 +551,7 @@ export const EmployeeRolesSettingsContent = ({ useEmployeeRolesTableData }) => {
         objs: b2bAppContexts,
         loading: b2bAppContextsLoading,
     } = B2BAppContext.useObjects({
-        where: { organization: { id: userOrganizationId },  status: 'Finished' },
+        where: { organization: { id: userOrganizationId },  status: B2BAppContextStatusType.Finished },
     })
 
     const connectedB2BApps = useMemo(() =>

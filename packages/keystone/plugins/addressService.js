@@ -1,10 +1,8 @@
-const { Text } = require('@keystonejs/fields')
 const get = require('lodash/get')
 
 const {
     createInstance: createAddressServiceClientInstance,
 } = require('@open-condo/clients/address-service-client')
-const { Json } = require('@open-condo/keystone/fields')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { composeResolveInputHook } = require('@open-condo/keystone/plugins/utils')
 const { ADDRESS_META_FIELD } = require('@open-condo/keystone/plugins/utils/addressMetaDefinition')
@@ -22,14 +20,14 @@ const readOnlyAccess = {
 const getFieldsToAdd = (fieldsHooks) => ({
     address: {
         schemaDoc: 'Normalized address',
-        type: Text,
+        type: 'Text',
         isRequired: true,
         hooks: {
             ...(fieldsHooks['address'] || {}),
         },
     },
     addressKey: {
-        type: Text,
+        type: 'Text',
         schemaDoc: 'The unique key of the address',
         access: readOnlyAccess,
         hooks: {
@@ -38,7 +36,7 @@ const getFieldsToAdd = (fieldsHooks) => ({
     },
     addressMeta: ADDRESS_META_FIELD,
     addressSources: {
-        type: Json,
+        type: 'Json',
         schemaDoc: 'The origins of the address (some strings which may looks like real address or some id)',
         access: readOnlyAccess,
         hooks: {

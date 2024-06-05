@@ -1,4 +1,3 @@
-const { Relationship } = require('@keystonejs/fields')
 const get = require('lodash/get')
 
 const { plugin } = require('@open-condo/keystone/plugins/utils/typing')
@@ -11,7 +10,7 @@ const addOrganizationFieldPlugin = ({ fromField, isRequired }) => plugin(({ fiel
 
     fields['organization'] = {
         schemaDoc: 'Ref to the organization. It is filled in on the server and is read-only',
-        type: Relationship,
+        type: 'Relationship',
         ref: 'Organization',
         ...requiredConfig,
         access: {

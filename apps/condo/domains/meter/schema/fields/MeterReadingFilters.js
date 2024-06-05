@@ -1,7 +1,5 @@
 const Ajv = require('ajv')
 
-const { Json } = require('@open-condo/keystone/fields')
-
 const { render, getValidator } = require('@condo/domains/common/schema/json.utils')
 
 const METER_READING_FILTER_TYPE_NAME = 'MeterReadingFilters'
@@ -47,7 +45,7 @@ const validateMeterReadingFilter = getValidator(MeterReadingFilterValidator)
 
 const METER_READING_FILTER_FIELD = {
     schemaDoc: 'Filter that match the given template',
-    type: Json,
+    type: 'Json',
     extendGraphQLTypes: [METER_READING_FILTER_TYPE],
     graphQLReturnType: METER_READING_FILTER_TYPE_NAME,
     isRequired: true,

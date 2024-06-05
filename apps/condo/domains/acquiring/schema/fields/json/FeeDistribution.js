@@ -1,7 +1,5 @@
 const Ajv = require('ajv')
 
-const { Json } = require('@open-condo/keystone/fields')
-
 const {
     FEE_DISTRIBUTION_FIELD_NAME,
     FEE_DISTRIBUTION_INPUT_NAME,
@@ -53,7 +51,7 @@ const FEE_DISTRIBUTION_QUERY_LIST = Object.keys(FeeDistributionFields).join(' ')
 
 const FEE_DISTRIBUTION_SCHEMA_FIELD = {
     schemaDoc: 'Contains information about the distribution of a certain type of fee',
-    type: Json,
+    type: 'Json',
     isRequired: true,
     extendGraphQLTypes: [FEE_DISTRIBUTION_GRAPHQL_TYPES],
     graphQLInputType: FEE_DISTRIBUTION_SCHEMA_INPUT_NAME,

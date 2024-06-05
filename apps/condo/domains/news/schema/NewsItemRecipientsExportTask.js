@@ -6,7 +6,6 @@ const addFormats = require('ajv-formats')
 
 const { canOnlyServerSideWithoutUserRequest } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
@@ -89,7 +88,7 @@ const NewsItemRecipientsExportTask = new GQLListSchema('NewsItemRecipientsExport
 
         scopes: {
             schemaDoc: 'The array of recipients\' scopes',
-            type: Json,
+            type: 'Json',
             isRequired: true,
             access: {
                 read: true,
