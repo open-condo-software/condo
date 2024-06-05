@@ -196,16 +196,7 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
 
             const requestIdHeaderName = 'X-Request-Id'
             app.use(function reqId (req, res, next) {
-
-                console.log('request headers', JSON.stringify(req.headers))
-                if (req.headers[requestIdHeaderName.toLowerCase()] !== undefined) {
-                    console.log('found external X-Request-Id', req.headers[requestIdHeaderName.toLowerCase()])
-                } else {
-                    console.log('used to generate own X-Request-Id')
-                }
-
                 const reqId = req.headers[requestIdHeaderName.toLowerCase()] || v4()
-                console.log('reqId ', reqId, '; Checking equality with original ', req.headers['x-request-id'] === reqId)
                 _internalGetExecutionContextAsyncLocalStorage().run({ reqId }, () => {
                     // we are expecting to receive reqId from client in order to have fully traced logs end to end
                     // also, property name are constant name, not a dynamic user input
