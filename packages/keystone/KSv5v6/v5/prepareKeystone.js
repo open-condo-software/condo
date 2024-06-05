@@ -201,7 +201,7 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
                     // we are expecting to receive reqId from client in order to have fully traced logs end to end
                     // also, property name are constant name, not a dynamic user input
                     // nosemgrep: javascript.express.security.audit.remote-property-injection.remote-property-injection
-                    req['id'] = req.headers[requestIdHeaderName] = reqId
+                    req['id'] = req.headers[requestIdHeaderName.toLowerCase()] = reqId
                     res.setHeader(requestIdHeaderName, reqId)
                     next()
                 })
