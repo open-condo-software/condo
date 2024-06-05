@@ -45,7 +45,7 @@ const buildUploadInputFrom = ({ stream, filename, mimetype, encoding, meta }) =>
 const queryAllItemsByChunks = async ({
     schemaName,
     where = {},
-    chunkSize = 100,
+    chunkSize = 1000,
     chunkProcessor = (chunk) => chunk,
 }) => {
     let skip = 0
@@ -96,45 +96,43 @@ const _internalSendResidentPhonesService = new GQLCustomSchema('_internalSendRes
                 const stringifier = stringify({ header: true, columns: ['phone'] })
                 stringifier.pipe(writeStream)
 
-                for (let i = 0; i < 7000; i++) {
-                    await queryAllItemsByChunks({
-                        schemaName: 'Contact',
-                        where: { phone_not: null, deletedAt: null },
-                        chunkSize: CHUNK_SIZE,
-                        chunkProcessor: async (chunk) => {
-                            const phones = map(chunk, 'phone')
+                await queryAllItemsByChunks({
+                    schemaName: 'Contact',
+                    where: { phone_not: null, deletedAt: null },
+                    chunkSize: CHUNK_SIZE,
+                    chunkProcessor: async (chunk) => {
+                        const phones = map(chunk, 'phone')
 
-                            for (const phone of phones) {
-                                const formattedPhone = phone.slice(1)
+                        for (const phone of phones) {
+                            const formattedPhone = phone.slice(1)
 
-                                if (/^7\d{10}$/.test(formattedPhone)) {
-                                    stringifier.write([md5(formattedPhone)])
-                                }
+                            if (/^7\d{10}$/.test(formattedPhone)) {
+                                stringifier.write([md5(formattedPhone)])
                             }
+                        }
 
-                            return []
-                        },
-                    })
+                        return []
+                    },
+                })
 
-                    await queryAllItemsByChunks({
-                        schemaName: 'User',
-                        where: { type: RESIDENT, phone_not: null, deletedAt: null },
-                        chunkSize: CHUNK_SIZE,
-                        chunkProcessor: async (chunk) => {
-                            const phones = map(chunk, 'phone')
+                await queryAllItemsByChunks({
+                    schemaName: 'User',
+                    where: { type: RESIDENT, phone_not: null, deletedAt: null },
+                    chunkSize: CHUNK_SIZE,
+                    chunkProcessor: async (chunk) => {
+                        const phones = map(chunk, 'phone')
 
-                            for (const phone of phones) {
-                                const formattedPhone = phone.slice(1)
+                        for (const phone of phones) {
+                            const formattedPhone = phone.slice(1)
 
-                                if (/^7\d{10}$/.test(formattedPhone)) {
-                                    stringifier.write([md5(formattedPhone)])
-                                }
+                            if (/^7\d{10}$/.test(formattedPhone)) {
+                                stringifier.write([md5(formattedPhone)])
                             }
+                        }
 
-                            return []
-                        },
-                    })
-                }
+                        return []
+                    },
+                })
 
                 stringifier.end()
 
