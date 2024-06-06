@@ -41,7 +41,7 @@ const sealingDate = {
 
 const archiveDate = {
     schemaDoc: 'The date when the meter was disabled and no longer in use',
-    type: DateTimeUtc,
+    type: 'DateTimeUtc',
 }
 
 const isAutomatic = {
