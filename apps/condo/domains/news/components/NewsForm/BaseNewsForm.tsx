@@ -17,7 +17,7 @@ import {
     B2BAppNewsSharingConfig as IB2BAppNewsSharingConfig,
 } from '@app/condo/schema'
 import styled from '@emotion/styled'
-import { Col, Form, FormInstance, notification, Row, Checkbox } from 'antd'
+import { Col, Form, FormInstance, notification, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { ArgsProps } from 'antd/lib/notification'
 import dayjs from 'dayjs'
@@ -344,7 +344,6 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const PropertiesLabel = intl.formatMessage({ id: 'field.Address' })
     const SelectPlaceholder = intl.formatMessage({ id: 'Select' })
     const SelectAddressPlaceholder = intl.formatMessage({ id: 'global.select.address' })
-    const SendAtLabel = intl.formatMessage({ id: 'news.fields.sendAt.label' })
     const SendPeriodNowLabel = intl.formatMessage({ id: 'global.now' })
     const SendPeriodLaterLabel = intl.formatMessage({ id: 'global.later' })
     const ValidBeforeLabel = intl.formatMessage({ id: 'global.actualUntil' })
@@ -442,19 +441,13 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     //const selectedSharingAppsOptions = useMemo(() => sharingAppContexts.map((x) => ({ label: get(x, ['app', 'newsSharingConfig', 'name']), value: x.id })), [sharingAppContexts])
     const [selectedSharingAppsContexts, setSelectedSharingAppsContexts] = useState<Set<string>>(new Set())
 
-    const isAnySharingAppSelected: boolean = selectedSharingAppsContexts.size > 0
-
-    const [selectedSharingAppsRecipients, setSelectedSharingAppsRecipients] = useState<{ [key: string]: string[] }>({})
-    // Todo @toplenboren what to do with re-renders ?
-    const [sharingAppsRecipientsData, setSharingAppsRecipientsData] = useState<{ [key: string]: { name: string, recipients: number } }>({})
-
     const [sendPeriod, setSendPeriod] = useState<string>(get(initialValues, 'sendPeriod', 'now'))
 
     // 1 screen values:
     const [selectedType, setSelectedType] = useState<string>(get(initialValues, 'type', NEWS_TYPE_COMMON))
     const [selectedValidBeforeText, setSelectedValidBeforeText] = useState<string>(initialValidBefore)
 
-    // Doma form values:
+    // Condo app form values:
     const [selectedTitle, setSelectedTitle] = useState<string>(get(initialValues, 'title', ''))
     const [selectedBody, setSelectedBody] = useState<string>(get(initialValues, 'body', ''))
     const [isValidBeforeAfterSendAt, setIsValidBeforeAfterSendAt] = useState<boolean>(true)
@@ -463,15 +456,12 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const [selectedPropertiesId, setSelectedPropertiesId] = useState(initialPropertyIds)
     const [isAllPropertiesChecked, setIsAllPropertiesChecked] = useState(initialHasAllProperties)
     const [selectedSectionKeys, setSelectedSectionKeys] = useState(initialSectionIds)
+    // TODO: NOTE: @toplenboren is a clown
+    const [newsItemFormValues, setNewsItemFormValues] = useState<Record<string, unknown>>({})
 
     // Sharing app form values:
     // TODO: @toplenboren use type from news sharing form here
     const [sharingAppsFormValues, setSharingAppsFormValues] = useState<Record<string, unknown>>({})
-
-
-    // TODO: NOTE: @toplenboren is a clown
-    const [newsItemFormValues, setNewsItemFormValues] = useState<Record<string, unknown>>({})
-
 
     const countPropertiesAvaliableToSelect = useRef(null)
     const onlyPropertyThatCanBeSelected = useRef(null)

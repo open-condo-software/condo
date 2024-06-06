@@ -13,15 +13,6 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 
 import { NewsCardGrid } from './NewsCardGrid'
 
-const MARGIN_BOTTOM_10_STYLE: React.CSSProperties = { marginBottom: '10px' }
-const CARD_CONTAINER_STYLE = {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(246px, 1fr))',
-    columnGap: '40px',
-    rowGap: '20px',
-    width: '100%',
-    justifyContent: 'start',
-}
 const CARD_CHECKBOX_CONTAINER_STYLE = { maxWidth: '246px', height: '100%' }
 const CARD_RESPONSIVE_CHECKBOX_CONTAINER_STYLE = { width: '100%', height: '100%' }
 const CARD_ICON_STYLE: CSSProperties = {

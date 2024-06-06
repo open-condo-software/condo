@@ -1,7 +1,4 @@
-import {
-    NewsItem,
-    B2BApp,
-} from '@app/condo/schema'
+import { B2BApp } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
@@ -51,15 +48,12 @@ interface INewsItemSharingForm {
     }
 }
 
-export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemData, initialValues, onSkip, onSubmit, sharingApp: { id, newsSharingConfig }, children }) => {
+export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemData, initialValues, onSkip, onSubmit, sharingApp: { id, newsSharingConfig } }) => {
 
     const { breakpoints } = useLayoutContext()
     const isMediumWindow = !breakpoints.DESKTOP_SMALL
     const formFieldsColSpan = isMediumWindow ? 24 : 14
     const formInfoColSpan = 24 - formFieldsColSpan
-
-    const intl = useIntl()
-    const SelectAddressLabel = intl.formatMessage({ id: 'news.fields.address.label' })
 
     const processedInitialValues = (initialValues && initialValues.formValues && initialValues.preview) ? initialValues : { formValues: {}, preview: { renderedTitle: '', renderedBody: '' }, isValid: false }
 
@@ -80,7 +74,7 @@ export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemDa
 
             return () => window.removeEventListener('message', handleSharingAppIFrameFormMessage)
         }
-    }, [handleSharingAppIFrameFormMessage])
+    }, [handleSharingAppIFrameFormMessage, isCustomForm])
 
     return (
         <>

@@ -1,4 +1,4 @@
-import {Col, Row } from 'antd'
+import { Col, Row } from 'antd'
 import React, { useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'

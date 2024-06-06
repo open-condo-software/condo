@@ -1,11 +1,10 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/react'
 import styled from '@emotion/styled'
-import { Row, Col, Image, Divider } from 'antd'
+import { Row, Col, Divider } from 'antd'
 import keyBy from 'lodash/keyBy'
 import truncate from 'lodash/truncate'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
-import { boolean } from 'zod'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Typography, Card, Space, RadioGroup, Radio } from '@open-condo/ui'

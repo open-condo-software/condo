@@ -27,7 +27,7 @@ function getColsAmount (
     maxCols: number = MAX_COLS,
 ): number {
     const fitCols = Math.floor((width + gap) / (minColWidth + gap))
-    return Math.min(MAX_COLS, Math.max(MIN_COLS, fitCols))
+    return Math.min(maxCols, Math.max(minCols, fitCols))
 }
 
 export const NewsCardGrid: React.FC<NewsCardGridProps> = ({ 
