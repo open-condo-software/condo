@@ -18,6 +18,8 @@ exports.up = async (knex) => {
 exports.down = async (knex) => {
     await knex.raw(`
     BEGIN;
+    
+    DELETE FROM "BillingCategory" where id = '800a4216-b27f-4466-b359-5964b347371f';
 
     COMMIT;
 
