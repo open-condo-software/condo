@@ -549,6 +549,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     }, [])
 
     const handleSelectSharingApp = useCallback(({ value, checked }: { value: string, checked: boolean }) => {
+        setSkippedSteps(new Set())
         setSelectedSharingAppsContexts(prevSelected => {
             const newSelected = new Set(prevSelected)
             if (checked) {
