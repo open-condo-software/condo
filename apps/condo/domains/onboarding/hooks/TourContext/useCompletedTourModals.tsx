@@ -198,7 +198,7 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
             onButtonClick: {
                 default: () => { router.push('/tour') },
                 [TourStepTypeType.Ticket]: () => { router.push('/ticket') },
-                [TourStepTypeType.Meter]: () => { router.push('/meter') },
+                [TourStepTypeType.Meter]: () => { router.push('/meter?tab=meter') },
                 [TourStepTypeType.Resident]: handleViewGuideClick,
             },
         },
@@ -213,7 +213,7 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
             onButtonClick: {
                 default: () => { router.push('/tour') },
                 [TourStepTypeType.Ticket]: () => { router.push('/ticket') },
-                [TourStepTypeType.Meter]: () => { router.push('/meter') },
+                [TourStepTypeType.Meter]: () => { router.push('/meter?tab=meter') },
                 [TourStepTypeType.Resident]: handleViewGuideClick,
             },
         },
@@ -230,9 +230,21 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
                 [TourStepTypeType.Ticket]: handleViewGuideClick,
             },
         },
+        createMeter: {
+            availableTourFlow: [TourStepTypeType.Meter],
+            subtitleLinkHref: '/meter?tab=meter',
+            subtitleLinkIcon: Meters,
+            newFeatures: {
+                resident: [CreateMeterReadingsResidentFeatureMessage],
+            },
+            onButtonClick: {
+                default: () => { router.push('/tour') },
+                [TourStepTypeType.Meter]: () => { router.push('/meter?tab=meter-reading') },
+            },
+        },
         createMeterReadings: {
             availableTourFlow: [TourStepTypeType.Meter],
-            subtitleLinkHref: '/meter',
+            subtitleLinkHref: '/meter?tab=meter-reading',
             subtitleLinkIcon: Meters,
             newFeatures: {
                 resident: [CreateMeterReadingsResidentFeatureMessage],
@@ -358,47 +370,51 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
                     </Button>,
                 ]}
             >
-                <Space size={40} direction='vertical'>
-                    <NewAbilitiesWrapper>
-                        <Row>
-                            {
-                                !isEmpty(get(computedCompletedStepModalData, 'newEmployeeFeatures')) && (
-                                    <Col span={12}>
-                                        <Space size={20} direction='vertical'>
-                                            <Typography.Title level={4}>{NowYouCanMessage}</Typography.Title>
-                                            <Space size={16} direction='vertical'>
-                                                {
-                                                    computedCompletedStepModalData.newEmployeeFeatures.map(label => (
-                                                        <UnlockedFeature key={label} label={label} />
-                                                    ))
-                                                }
+                <Row gutter={[0, 40]}>
+                    <Col span={24}>
+                        <NewAbilitiesWrapper>
+                            <Row>
+                                {
+                                    !isEmpty(get(computedCompletedStepModalData, 'newEmployeeFeatures')) && (
+                                        <Col span={12}>
+                                            <Space size={20} direction='vertical'>
+                                                <Typography.Title level={4}>{NowYouCanMessage}</Typography.Title>
+                                                <Space size={16} direction='vertical'>
+                                                    {
+                                                        computedCompletedStepModalData.newEmployeeFeatures.map(label => (
+                                                            <UnlockedFeature key={label} label={label} />
+                                                        ))
+                                                    }
+                                                </Space>
                                             </Space>
-                                        </Space>
-                                    </Col>
-                                )
-                            }
-                            {
-                                !isEmpty(get(computedCompletedStepModalData, 'newResidentFeatures')) && (
-                                    <Col span={12}>
-                                        <Space size={20} direction='vertical'>
-                                            <Typography.Title level={4}>{NowResidentCanMessage}</Typography.Title>
-                                            <Space size={16} direction='vertical'>
-                                                {
-                                                    computedCompletedStepModalData.newResidentFeatures.map(label => (
-                                                        <UnlockedFeature key={label} label={label} />
-                                                    ))
-                                                }
+                                        </Col>
+                                    )
+                                }
+                                {
+                                    !isEmpty(get(computedCompletedStepModalData, 'newResidentFeatures')) && (
+                                        <Col span={12}>
+                                            <Space size={20} direction='vertical'>
+                                                <Typography.Title level={4}>{NowResidentCanMessage}</Typography.Title>
+                                                <Space size={16} direction='vertical'>
+                                                    {
+                                                        computedCompletedStepModalData.newResidentFeatures.map(label => (
+                                                            <UnlockedFeature key={label} label={label} />
+                                                        ))
+                                                    }
+                                                </Space>
                                             </Space>
-                                        </Space>
-                                    </Col>
-                                )
-                            }
-                        </Row>
-                    </NewAbilitiesWrapper>
-                    <Typography.Text>
-                        {get(computedCompletedStepModalData, 'bodyText')}
-                    </Typography.Text>
-                </Space>
+                                        </Col>
+                                    )
+                                }
+                            </Row>
+                        </NewAbilitiesWrapper>
+                    </Col>
+                    <Col span={24}>
+                        <Typography.Text>
+                            {get(computedCompletedStepModalData, 'bodyText')}
+                        </Typography.Text>
+                    </Col>
+                </Row>
             </Modal>
         ),
         CompletedFlowModal: (

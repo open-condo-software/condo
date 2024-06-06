@@ -91187,6 +91187,7 @@ export enum TourStepTypeType {
   CreatePropertyMap = 'createPropertyMap',
   CreateTicket = 'createTicket',
   UploadReceipts = 'uploadReceipts',
+  CreateMeter = 'createMeter',
   CreateMeterReadings = 'createMeterReadings',
   ViewResidentsAppGuide = 'viewResidentsAppGuide',
   CreateNews = 'createNews'

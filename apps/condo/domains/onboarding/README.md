@@ -11,10 +11,10 @@ When a user performs an action on the platform (web client) related to a specifi
 
 ## To add a new step to the tour, follow these steps:
 1. Update `constants/steps.js`
-2. Add a new step for existing organizations using migration, for example `20240318130011-0375_alter_tourstep_type`
+2. Add a new step for existing organizations using migration, for example `20240318173552-0376_alter_tourstep_type`
 3. Add logic to synchronize the step status in `schema/SyncTourStepsService.js`
 4. Add handling for the event associated with completing the step in `contexts/TourContext.tsx`
-5. Add constants on the client side in `utils/clientSchema/constants.js`:
+5. Add constants on the client side in `utils/clientSchema/constants.ts`:
 6. Add logic for the modal when completing the step in `hooks/useCompletedTourModals` in the `completedStepModalDataDescription` constant
 7. Add translations:
    - For the card in the tour page: tour.step.`stepType`.`stepStatus`.title, etc.

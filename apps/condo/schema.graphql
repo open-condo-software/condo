@@ -44297,6 +44297,7 @@ enum TourStepTypeType {
   createPropertyMap
   createTicket
   uploadReceipts
+  createMeter
   createMeterReadings
   viewResidentsAppGuide
   createNews
