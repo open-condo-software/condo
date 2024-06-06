@@ -40,20 +40,44 @@ function renderExecutableDefinitionNode (node) {
 }
 
 /**
+ * Get current time in nanoseconds and return diff between
+ * @param time {bigint} start time of the operation
+ * @returns {number} Operation elapsed time in milliseconds
+ */
+function endTimer (time) {
+    function roundTo (decimalPlaces, numberToRound) {
+        const factorOfTen = Math.pow(10, decimalPlaces)
+        return +(Math.round(numberToRound * factorOfTen)  / factorOfTen)
+    }
+    const diff = process.hrtime.bigint() - time
+    const elapsed = Number(diff) / 1000000
+
+    return roundTo(4, elapsed)
+}
+
+/**
  * @type {import('apollo-server-plugin-base').ApolloServerPlugin}
  */
 class GraphQLLoggerPlugin {
     requestDidStart () {
-        const startTime = process.hrtime.bigint()
+        let timeUntilExecution = null
+        const requestStartTime = process.hrtime.bigint()
 
         return {
-            async willSendResponse (requestContext) {
+            async responseForOperation (requestContext) {
                 const operationId = get(requestContext, 'operationId') || cuid()
                 // NOTE(pahaz): log correlation id for cases where not reqId
                 requestContext.operationId = operationId
-
-                const logData = getGraphQLReqLoggerContext(requestContext)
-                graphqlLogger.info({ ...logData, responseTime: Number(process.hrtime.bigint() - startTime) / 1000000 })
+            },
+            async executionDidStart () {
+                timeUntilExecution = endTimer(requestStartTime)
+            },
+            async willSendResponse (requestContext) {
+                graphqlLogger.info({
+                    ...getGraphQLReqLoggerContext(requestContext),
+                    responseTime: endTimer(requestStartTime),
+                    timeUntilExecution,
+                })
             },
 
             /**
@@ -63,17 +87,16 @@ class GraphQLLoggerPlugin {
             async didEncounterErrors (requestContext) {
                 const logData = getGraphQLReqLoggerContext(requestContext)
                 const errors = get(requestContext, 'errors', [])
-                const responseTime = Number(process.hrtime.bigint() - startTime) / 1000000
 
                 try {
                     for (const error of errors) {
                         error.uid = get(error, 'uid') || get(error, 'originalError.uid') || cuid()
-                        graphqlErrorLogger.info({ apolloFormatError: safeFormatError(error), ...logData, responseTime })
+                        graphqlErrorLogger.info({ apolloFormatError: safeFormatError(error), ...logData })
                     }
                 } catch (formatErrorError) {
                     // NOTE(pahaz): Something went wrong with formatting above, so we log the errors
-                    graphqlErrorLogger.error({ formatErrorError: serializeError(ensureError(formatErrorError)), ...logData, responseTime })
-                    graphqlErrorLogger.error({ serializedErrors: errors.map(error => serializeError(ensureError(error))), ...logData, responseTime })
+                    graphqlErrorLogger.error({ formatErrorError: serializeError(ensureError(formatErrorError)), ...logData })
+                    graphqlErrorLogger.error({ serializedErrors: errors.map(error => serializeError(ensureError(error))), ...logData })
                 }
             },
         }
