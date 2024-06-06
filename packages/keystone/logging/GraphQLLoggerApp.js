@@ -59,9 +59,13 @@ function endTimer (time) {
  * @type {import('apollo-server-plugin-base').ApolloServerPlugin}
  */
 class GraphQLLoggerPlugin {
-    requestDidStart () {
+    requestDidStart (requestContext) {
         let timeUntilExecution = null
         const requestStartTime = process.hrtime.bigint()
+        graphqlLogger.info({
+            state: 'requestDidStart',
+            ...getGraphQLReqLoggerContext(requestContext),
+        })
 
         return {
             async responseForOperation (requestContext) {
@@ -77,6 +81,7 @@ class GraphQLLoggerPlugin {
                     ...getGraphQLReqLoggerContext(requestContext),
                     responseTime: endTimer(requestStartTime),
                     timeUntilExecution,
+                    state: 'willSendResponse',
                 })
             },
 
