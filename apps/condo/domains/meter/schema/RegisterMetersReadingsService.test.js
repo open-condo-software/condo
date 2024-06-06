@@ -334,11 +334,17 @@ describe('RegisterMetersReadingsService', () => {
                 expect(errors).toEqual([
                     expect.objectContaining({
                         message: '[error] Create Meter internal error',
+                        name: 'GraphQLError',
                         originalError: expect.objectContaining({
                             message: '[error] Create Meter internal error',
                             errors: [expect.objectContaining({
-                                data: expect.objectContaining({
-                                    messages: ['[unique:alreadyExists:accountNumber] Meter with same account number exist in current organization in other unit'],
+                                message: 'Meter with same account number exist in current organization in other unit',
+                                name: 'GQLError',
+                                extensions: expect.objectContaining({
+                                    code: 'BAD_USER_INPUT',
+                                    type: 'SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT',
+                                    message: 'Meter with same account number exist in current organization in other unit',
+                                    messageInterpolation: { unitsCsv: `${readings1[0].addressInfo.unitType} ${readings1[0].addressInfo.unitName}` },
                                 }),
                             })],
                         }),

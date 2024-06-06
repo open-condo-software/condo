@@ -129,21 +129,18 @@ describe('Meter', () => {
                 const unitName1 = faker.lorem.word()
                 const unitName2 = faker.lorem.word()
 
-                await createTestMeter(client, client.organization, client.property, resource, {
+                const [firstMeter] = await createTestMeter(client, client.organization, client.property, resource, {
                     accountNumber,
                     unitName: unitName1,
                 })
 
-                await catchErrorFrom(async () => {
-                    await createTestMeter(client, client.organization, client.property, resource, {
+                await expectToThrowGQLError(
+                    async () => await createTestMeter(client, client.organization, client.property, resource, {
                         accountNumber,
                         unitName: unitName2,
-                    })
-                }, ({ errors, data }) => {
-                    expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                    expect(errors[0].data.messages[0]).toContain('Meter with same account number exist in current organization')
-                    expect(data).toEqual({ 'obj': null })
-                })
+                    }),
+                    METER_ERRORS.SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT(`${firstMeter.unitType} ${firstMeter.unitName}`),
+                )
             })
 
             test('employee with "canManageMeters" role: cannot create Meter if Meter with same accountNumber exist in user organization in other unit type', async () => {
@@ -154,23 +151,20 @@ describe('Meter', () => {
                 const accountNumber = faker.lorem.word()
                 const unitName = faker.lorem.word()
 
-                await createTestMeter(client, client.organization, client.property, resource, {
+                const [firstMeter] = await createTestMeter(client, client.organization, client.property, resource, {
                     accountNumber,
                     unitName,
                     unitType: FLAT_UNIT_TYPE,
                 })
 
-                await catchErrorFrom(async () => {
-                    await createTestMeter(client, client.organization, client.property, resource, {
+                await expectToThrowGQLError(
+                    async () => await createTestMeter(client, client.organization, client.property, resource, {
                         accountNumber,
                         unitName,
                         unitType: PARKING_UNIT_TYPE,
-                    })
-                }, ({ errors, data }) => {
-                    expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                    expect(errors[0].data.messages[0]).toContain('Meter with same account number exist in current organization')
-                    expect(data).toEqual({ 'obj': null })
-                })
+                    }),
+                    METER_ERRORS.SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT(`${firstMeter.unitType} ${firstMeter.unitName}`),
+                )
             })
 
             test('employee with "canManageMeters" role: can create Meter if Meter with same accountNumber exist in user organization in same unit', async () => {
@@ -296,15 +290,12 @@ describe('Meter', () => {
                 const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
                 const number = faker.random.alphaNumeric(5)
 
-                await createTestMeter(client, client.organization, client.property, resource, { number })
+                const [firstMeter] = await createTestMeter(client, client.organization, client.property, resource, { number })
 
-                await catchErrorFrom(async () => {
-                    await createTestMeter(client, client.organization, client.property, resource, { number })
-                }, ({ errors, data }) => {
-                    expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                    expect(errors[0].data.messages[0]).toContain('Meter with same number and resource exist in current organization')
-                    expect(data).toEqual({ 'obj': null })
-                })
+                await expectToThrowGQLError(
+                    async () => await createTestMeter(client, client.organization, client.property, resource, { number }),
+                    METER_ERRORS.SAME_NUMBER_AND_RESOURCE_EXISTS_IN_ORGANIZATION(firstMeter.accountNumber),
+                )
             })
 
             test('resident: cannot create Meter', async () => {
@@ -415,21 +406,18 @@ describe('Meter', () => {
                 const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
                 const accountNumber = faker.lorem.word()
 
-                await createTestMeter(client, client.organization, client.property, resource, {
+                const [firstMeter] = await createTestMeter(client, client.organization, client.property, resource, {
                     accountNumber,
                 })
 
                 const [meter] = await createTestMeter(client, client.organization, client.property, resource)
 
-                await catchErrorFrom(async () => {
-                    await updateTestMeter(client, meter.id, {
+                await expectToThrowGQLError(
+                    async () => await updateTestMeter(client, meter.id, {
                         accountNumber,
-                    })
-                }, ({ errors, data }) => {
-                    expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                    expect(errors[0].data.messages[0]).toContain('Meter with same account number exist in current organization')
-                    expect(data).toEqual({ 'obj': null })
-                })
+                    }),
+                    METER_ERRORS.SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT(`${firstMeter.unitType} ${firstMeter.unitName}`),
+                )
             })
 
             test('employee with "canManageMeters" role: cannot update Meter if Meter with same accountNumber exist in organization in other unit type', async () => {
@@ -440,7 +428,7 @@ describe('Meter', () => {
                 const accountNumber = faker.lorem.word()
                 const unitName = faker.lorem.word()
 
-                await createTestMeter(client, client.organization, client.property, resource, {
+                const [firstMeter] = await createTestMeter(client, client.organization, client.property, resource, {
                     accountNumber,
                     unitName,
                     unitType: FLAT_UNIT_TYPE,
@@ -448,17 +436,14 @@ describe('Meter', () => {
 
                 const [meter] = await createTestMeter(client, client.organization, client.property, resource)
 
-                await catchErrorFrom(async () => {
-                    await updateTestMeter(client, meter.id, {
+                await expectToThrowGQLError(
+                    async () => await updateTestMeter(client, meter.id, {
                         accountNumber,
                         unitName,
                         unitType: PARKING_UNIT_TYPE,
-                    })
-                }, ({ errors, data }) => {
-                    expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                    expect(errors[0].data.messages[0]).toContain('Meter with same account number exist in current organization')
-                    expect(data).toEqual({ 'obj': null })
-                })
+                    }),
+                    METER_ERRORS.SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT(`${firstMeter.unitType} ${firstMeter.unitName}`),
+                )
             })
 
             test('employee without "canManageMeters" role: cannot update Meter', async () => {
