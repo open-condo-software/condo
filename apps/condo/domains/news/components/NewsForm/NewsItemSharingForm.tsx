@@ -1,24 +1,23 @@
+import {
+    NewsItem,
+    B2BApp,
+} from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
-import dayjs from 'dayjs'
 import get from 'lodash/get'
 import React, { useEffect, useState } from 'react'
 import { Options as ScrollOptions } from 'scroll-into-view-if-needed'
 
+
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar as UIActionBar, Alert, Button, Typography } from '@open-condo/ui'
 
-import { GraphQlSearchInput } from '../../../common/components/GraphQlSearchInput'
-import { GraphQlSearchInputWithCheckAll } from '../../../common/components/GraphQlSearchInputWithCheckAll'
-import { LabelWithInfo } from '../../../common/components/LabelWithInfo'
-import { useLayoutContext } from '../../../common/components/LayoutContext'
-import { IFrame } from '../../../miniapp/components/IFrame'
-import { SectionNameInput } from '../../../user/components/SectionNameInput'
-import { UnitNameInput } from '../../../user/components/UnitNameInput'
-import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '../../constants/newsTypes'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { IFrame } from '@condo/domains/miniapp/components/IFrame'
+
+import { NEWS_TYPE_EMERGENCY } from '../../constants/newsTypes'
 import MemoizedNewsPreview from '../NewsPreview'
-import { RecipientCounter } from '../RecipientCounter'
-import { TemplatesTabs } from '../TemplatesTabs'
+
 
 const BIG_MARGIN_BOTTOM_STYLE: React.CSSProperties = { marginBottom: '60px' }
 export const SCROLL_TO_FIRST_ERROR_CONFIG: ScrollOptions = { behavior: 'smooth', block: 'center' }
@@ -37,26 +36,18 @@ export type SharingAppValues = {
 
 // Todo @toplenboren Infer types!
 interface INewsItemSharingForm {
-    sharingApp: {
-        id: string,
-        newsSharingConfig: {
-            customFormUrl?: string
-            name: string
-            icon?: {
-                publicUrl: string,
-            }
-        }
-    }
+    sharingApp: B2BApp
 
     onSubmit: (SharingAppValues) => void
     onSkip: (SharingAppValues) => void
 
-    initialValues?: SharingAppValues
+    initialValues: SharingAppValues | undefined
 
-    // todo @toplenboren ADD TYPE HERE!
     newsItemData: {
         type: string,
-        selectedValidBeforeText: string,
+        validBefore: string,
+        title: string,
+        body: string,
     }
 }
 
@@ -70,7 +61,7 @@ export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemDa
     const intl = useIntl()
     const SelectAddressLabel = intl.formatMessage({ id: 'news.fields.address.label' })
 
-    const processedInitialValues = (initialValues && initialValues.formValues && initialValues.preview) ? initialValues : { formValues: {}, preview: { renderedTitle: '', renderedBody: '' } }
+    const processedInitialValues = (initialValues && initialValues.formValues && initialValues.preview) ? initialValues : { formValues: {}, preview: { renderedTitle: '', renderedBody: '' }, isValid: false }
 
     const isCustomForm = !!newsSharingConfig.customFormUrl
     const [ sharingAppFormValues, setSharingAppFormValues ] = useState<SharingAppValues>(processedInitialValues)
@@ -97,10 +88,11 @@ export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemDa
                 isCustomForm && (
                     <Col span={24} style={BIG_MARGIN_BOTTOM_STYLE}>
                         <Row gutter={BIG_HORIZONTAL_GUTTER} style={BIG_MARGIN_BOTTOM_STYLE}>
-                            <Col style={{ marginLeft: '-5px', minHeight: '300px' }} span={formFieldsColSpan}>
+                            {/* marginLeft -10 is to allow component shadows from iFrame to render normally */}
+                            <Col style={{ marginLeft: '-10px', minHeight: '500px' }} span={formFieldsColSpan}>
                                 <IFrame
                                     src={
-                                        `${newsSharingConfig.customFormUrl}?ctxId=${id}`
+                                        `${newsSharingConfig.customFormUrl}?ctxId=${id}&title=${newsItemData.title}&body=${newsItemData.body}&type=${newsItemData.type}&initialValues=${JSON.stringify(processedInitialValues)}`
                                     }
                                     reloadScope='organization'
                                     withLoader
@@ -108,7 +100,8 @@ export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemDa
                                     withResize
                                 />
                             </Col>
-                            <Col span={formInfoColSpan}>
+                            {/* marginLeft 10 is to compensate for marginLeft -10 */}
+                            <Col style={{ marginLeft: '10px' }}  span={formInfoColSpan}>
                                 {(!!get(sharingAppFormValues, ['preview', 'renderedTitle']) || !!get(sharingAppFormValues, ['preview', 'renderedBody'])) && (
                                     <MemoizedNewsPreview
                                         appType='sharing'
@@ -118,13 +111,13 @@ export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemDa
                                         newsItemData={{
                                             body: get(sharingAppFormValues, ['preview', 'renderedBody']),
                                             title: get(sharingAppFormValues, ['preview', 'renderedTitle']),
-                                            validBefore: newsItemData.type === NEWS_TYPE_EMERGENCY ? newsItemData.selectedValidBeforeText : null,
+                                            validBefore: newsItemData.type === NEWS_TYPE_EMERGENCY ? newsItemData.validBefore : null,
                                         }}
                                     />
                                 )}
                             </Col>
         
-                            {/* We do not support editing news item scopes for custom news sharing integrations */}
+                            {/* Condo does not support editing news item scopes for custom news sharing integrations */}
                             <Col span={24}>
                                 <Row gutter={BIG_HORIZONTAL_GUTTER}>
                                     <Col span={formFieldsColSpan}>
@@ -133,7 +126,7 @@ export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemDa
                                                 <Typography.Title level={2}>Адресаты</Typography.Title>
                                             </Col>
 
-                                            <Col span={24} style={{ maxWidth: '600px' }}>
+                                            <Col span={24}>
                                                 <Alert
                                                     type='info'
                                                     showIcon

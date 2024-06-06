@@ -226,7 +226,7 @@ const NewsPushPreview: INewsItemPushPreview = ({ push, newsItemData: { title, bo
 
 const DomaNewsPushPreview: IDomaNewsItemPushPreview = ({ title, body }) => {
     const intl = useIntl()
-    const DomaAppNameTitle = intl.formatMessage({ id: 'pages.condo.news.preview.domaAppName' })
+    const DomaAppNameTitle = intl.formatMessage({ id: 'pages.condo.news.preview.condoAppName' })
 
     return <NewsPushPreview push={{ appName: DomaAppNameTitle, appIcon: '/logoDomaApp.png' }} newsItemData={{ title, body }}/>
 }
@@ -368,7 +368,7 @@ const NewsPreview: INewsPreview = ({ appType, push, app, newsItemData }) => {
 
     const intl = useIntl()
     const PushNotificationTitle = intl.formatMessage({ id: 'pages.condo.news.preview.push' })
-    const DomaMobileAppTitle = intl.formatMessage({ id: 'pages.condo.news.preview.domaAppName' })
+    const DomaMobileAppTitle = intl.formatMessage({ id: 'pages.condo.news.preview.condoAppName' })
 
     const [activeKey, setActiveKey] = useState<NewsPreviewTabTypes>(push ? NewsPreviewTabTypes.Push : NewsPreviewTabTypes.App)
 

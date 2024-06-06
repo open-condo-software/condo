@@ -1,14 +1,17 @@
 import {
     B2BAppContext as IB2BAppContext,
 } from '@app/condo/schema'
+import { Row } from 'antd'
 import get from 'lodash/get'
-import React, {CSSProperties} from 'react'
+import React, { CSSProperties } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Card, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+
+import { NewsCardGrid } from './NewsCardGrid'
 
 const MARGIN_BOTTOM_10_STYLE: React.CSSProperties = { marginBottom: '10px' }
 const CARD_CONTAINER_STYLE = {
@@ -19,8 +22,7 @@ const CARD_CONTAINER_STYLE = {
     width: '100%',
     justifyContent: 'start',
 }
-//const CARD_CHECKBOX_CONTAINER_STYLE = { width: '246px', height: '400px', marginRight: '40px' }
-const CARD_CHECKBOX_CONTAINER_STYLE = { width: '246px', height: '400px' }
+const CARD_CHECKBOX_CONTAINER_STYLE = { maxWidth: '246px', height: '100%' }
 const CARD_RESPONSIVE_CHECKBOX_CONTAINER_STYLE = { width: '100%', height: '100%' }
 const CARD_ICON_STYLE: CSSProperties = {
     height: '150px',
@@ -60,7 +62,9 @@ const SelectSharingAppControl: React.FC<ISelectSharingAppControl> = ({ sharingAp
     const cardStyle = isMobile ? CARD_RESPONSIVE_CHECKBOX_CONTAINER_STYLE : CARD_CHECKBOX_CONTAINER_STYLE
 
     return (
-        <div style={CARD_CONTAINER_STYLE}>
+        <NewsCardGrid
+            minColWidth={246}
+        >
             <div style={cardStyle}>
                 <CardCheckbox
                     disabled
@@ -79,17 +83,13 @@ const SelectSharingAppControl: React.FC<ISelectSharingAppControl> = ({ sharingAp
                             style: CARD_ICON_STYLE,
                         },
                     }}
-                    // @ts-ignore
-                    bodyDescription
-                    bodyImage
-                    headerImage
-                    headerTitle
                 />
             </div>
+
             { sharingAppContexts.map( ctx => {
-                // Replace all ' ' with non breaking space (\u00A0)
+                // Replace all ' ' with non-breaking space (\u00A0)
                 const sharingAppName = get(ctx, ['app', 'newsSharingConfig', 'name'], '').replaceAll(' ', '\u00A0')
-        
+
                 const sharingAppIcon = get(ctx, ['app', 'newsSharingConfig', 'icon', 'publicUrl'], SHARING_APP_FALLBACK_ICON)
                 const sharingAppPreviewIcon = get(ctx, ['app', 'newsSharingConfig', 'previewPicture', 'publicUrl'], SHARING_APP_FALLBACK_PREVIEW_ICON)
 
@@ -110,57 +110,48 @@ const SelectSharingAppControl: React.FC<ISelectSharingAppControl> = ({ sharingAp
                                     style: CARD_ICON_STYLE,
                                 },
                             }}
-                            // @ts-ignore
-                            bodyDescription
-                            bodyImage
-                            headerImage
-                            headerTitle
                             checked={selectedSharingApps.has(ctx.id)}
                             onChange={(checked) => handleSelectSharingApp({ value: ctx.id, checked })}
                         />
                     </div>
                 )
             })}
-        
+
             { sharingAppContexts.length === 0 && (
-                <div style={CARD_CHECKBOX_CONTAINER_STYLE}>
-                    <Card style={{ flex: 1 }}>
-                        <div style={MARGIN_BOTTOM_10_STYLE}>
+                <div style={cardStyle}>
+                    <Card>
+                        <Row gutter={[0, 10]}>
                             <Typography.Title level={3}>{OtherAppsLabel}</Typography.Title>
-                        </div>
-                        <div style={MARGIN_BOTTOM_10_STYLE}>
                             <Typography.Paragraph>{OtherAppsDescriptionLabel}</Typography.Paragraph>
-                        </div>
-                        <div
-                            style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                alignSelf: 'stretch',
-                                justifyContent: 'center',
-                                width: '100%',
-                                backgroundColor: colors.gray[1],
-                                borderRadius: '12px',
-                                marginBottom: '16px',
-                            }}
-                        >
-                            <img
-                                src={PROMO_APP_PREVIEW_ICON}
+                            <div
                                 style={{
-                                    height: '150px',
-                                    marginTop: '25px',
-                                    width: '130px',
-                                    padding: '30px',
-                                    objectFit: 'cover',
-                                    objectPosition: 'top',
+                                    alignItems: 'center',
+                                    alignSelf: 'stretch',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    width: '100%',
+                                    backgroundColor: colors.gray[1],
+                                    borderRadius: '12px',
                                 }}
-                            />
-                        </div>
-                        {/*// @ts-ignore*/}
-                        <Button style={{ width: '100%' }} children={OtherAppsActionLabel} href='/news/settings' type='secondary'/>
+                            >
+                                <img
+                                    src={PROMO_APP_PREVIEW_ICON}
+                                    style={{
+                                        height: '150px',
+                                        marginTop: '25px',
+                                        width: '130px',
+                                        objectFit: 'cover',
+                                        objectPosition: 'top',
+                                    }}
+                                    alt='Sharing app preview picture'
+                                />
+                            </div>
+                            <Button block children={OtherAppsActionLabel} href='/news/settings' type='secondary'/>
+                        </Row>
                     </Card>
                 </div>
             ) }
-        </div>
+        </NewsCardGrid>
     )
 }
 
