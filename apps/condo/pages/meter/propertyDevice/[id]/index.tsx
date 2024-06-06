@@ -26,15 +26,22 @@ const PropertyMeterInfoPage = (): JSX.Element => {
 
     const propertyId = get(propertyMeter, 'property.id', null)
     const resourceId = get(propertyMeter, 'resource.id', null)
+    const organizationId = get(propertyMeter, 'organization.id', null)
 
     const MeterTitleMessage = useMemo(() => getMeterTitleMessage(intl, propertyMeter), [propertyMeter])
 
 
     const {
-        obj: meterReportingPeriod,
-        loading: isMeterReportingPeriodLoading,
-    } = MeterReportingPeriod.useObject({ where: { property: { id: propertyId } } })
-
+        objs: possibleReportingPeriods,
+        loading: isPeriodsLoading,
+    } = MeterReportingPeriod.useObjects({ where: {
+        OR: [
+            { AND: [ { organization: { id: organizationId } }, { property: { id: propertyId } }, { deletedAt: null } ] },
+            { AND: [ { organization: { id: organizationId } }, { property_is_null: true }, { deletedAt: null } ] },
+        ],
+    },
+    })
+    
     const {
         obj: meterResource,
         loading: isMeterResourceLoading,
@@ -42,10 +49,10 @@ const PropertyMeterInfoPage = (): JSX.Element => {
     
 
 
-    if (!propertyMeter || isPropertyMeterLoading || isMeterReportingPeriodLoading || isMeterResourceLoading) {
+    if (!propertyMeter || isPropertyMeterLoading || isPeriodsLoading || isMeterResourceLoading) {
         return (
             <LoadingOrErrorPage
-                loading={isPropertyMeterLoading || isMeterReportingPeriodLoading || isMeterResourceLoading}
+                loading={isPropertyMeterLoading || isPeriodsLoading || isMeterResourceLoading}
                 error={propertyMeterError && ServerErrorMessage}
             />
         )
@@ -60,7 +67,7 @@ const PropertyMeterInfoPage = (): JSX.Element => {
                 <PageContent>
                     <MeterPageContent
                         meter={propertyMeter}
-                        meterReportingPeriod={meterReportingPeriod}
+                        possibleReportingPeriods={possibleReportingPeriods}
                         resource={meterResource}
                         refetchMeter={refetch}
                         meterType={METER_TAB_TYPES.propertyMeter}

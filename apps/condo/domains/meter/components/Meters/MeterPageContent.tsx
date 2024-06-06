@@ -1,3 +1,4 @@
+import { MeterReportingPeriod } from '@app/condo/schema'
 import { Col, Row, Typography } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
@@ -203,7 +204,7 @@ const MeterContent = ({ meter, resource, meterType }) => {
     )
 }
 
-export const MeterPageContent = ({ meter, meterReportingPeriod, resource, refetchMeter, meterType }) => {
+export const MeterPageContent = ({ meter, possibleReportingPeriods, resource, refetchMeter, meterType }) => {
     const intl = useIntl()
     const BlockedEditingTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.BlockedEditing.title' })
     const BlockedEditingDescriptionMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.BlockedEditing.description' })
@@ -223,6 +224,9 @@ export const MeterPageContent = ({ meter, meterReportingPeriod, resource, refetc
     }),
     [userOrganizationId])
 
+    const reportingPeriodByProperty = possibleReportingPeriods.find((period: MeterReportingPeriod) => period.property)
+    const reportingPeriodByOrg = possibleReportingPeriods.find((period: MeterReportingPeriod) => !period.property)
+
 
     const isDeletedProperty = !meter.property
     return (
@@ -230,7 +234,7 @@ export const MeterPageContent = ({ meter, meterReportingPeriod, resource, refetc
             <Col span={24}>
                 <MeterHeader
                     meter={meter}
-                    meterReportingPeriod={meterReportingPeriod}
+                    meterReportingPeriod={reportingPeriodByProperty || reportingPeriodByOrg}
                     refetchMeter={refetchMeter}
                     meterType={meterType}
                 />

@@ -26,14 +26,20 @@ const MeterInfoPage = (): JSX.Element => {
         refetch,
     } = Meter.useObject({ where: { id: String(meterId) } })
 
+    const organizationId = get(meter, 'organization.id', null)
     const propertyId = get(meter, 'property.id', null)
     const resourceId = get(meter, 'resource.id', null)
 
-
     const {
-        obj: meterReportingPeriod,
-        loading: isMeterReportingPeriodLoading,
-    } = MeterReportingPeriod.useObject({ where: { property: { id: propertyId } } })
+        objs: possibleReportingPeriods,
+        loading: isPeriodsLoading,
+    } = MeterReportingPeriod.useObjects({ where: {
+        OR: [
+            { AND: [ { organization: { id: organizationId } }, { property: { id: propertyId } }, { deletedAt: null } ] },
+            { AND: [ { organization: { id: organizationId } }, { property_is_null: true }, { deletedAt: null } ] },
+        ],
+    },
+    })
 
     const {
         obj: meterResource,
@@ -43,10 +49,10 @@ const MeterInfoPage = (): JSX.Element => {
     const MeterTitleMessage = useMemo(() => getMeterTitleMessage(intl, meter), [meter])
 
 
-    if (!meter || isMeterLoading || isMeterReportingPeriodLoading || isMeterResourceLoading) {
+    if (!meter || isMeterLoading || isPeriodsLoading || isMeterResourceLoading) {
         return (
             <LoadingOrErrorPage
-                loading={isMeterLoading || isMeterReportingPeriodLoading || isMeterResourceLoading}
+                loading={isMeterLoading || isPeriodsLoading || isMeterResourceLoading}
                 error={meterError && ServerErrorMessage}
             />
         )
@@ -61,7 +67,7 @@ const MeterInfoPage = (): JSX.Element => {
                 <PageContent>
                     <MeterPageContent
                         meter={meter}
-                        meterReportingPeriod={meterReportingPeriod}
+                        possibleReportingPeriods={possibleReportingPeriods}
                         resource={meterResource}
                         refetchMeter={refetch}
                         meterType={METER_TAB_TYPES.meter}
