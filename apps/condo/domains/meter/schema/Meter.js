@@ -10,7 +10,6 @@ const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, find, getByCondition, getById } = require('@open-condo/keystone/schema')
 
-const { UNIQUE_ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
 const { UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/meter/access/Meter')
 const {
@@ -20,6 +19,8 @@ const {
     METER_NUMBER_HAVE_INVALID_VALUE,
     METER_ACCOUNT_NUMBER_HAVE_INVALID_VALUE,
     METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION,
+    SAME_NUMBER_AND_RESOURCE_EXISTS_IN_ORGANIZATION,
+    SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT,
 } = require('@condo/domains/meter/constants/errors')
 const { deleteReadingsOfDeletedMeter } = require('@condo/domains/meter/tasks')
 const { Meter: MeterApi, MeterResourceOwner } = require('@condo/domains/meter/utils/serverSchema')
@@ -29,7 +30,6 @@ const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { numberOfTariffs, installationDate, commissioningDate, verificationDate, nextVerificationDate, controlReadingsDate, sealingDate, isAutomatic, resource, b2bApp } = require('./fields')
 
 const ADDRESS_SERVICE_ENABLED = get(conf, 'ADDRESS_SERVICE_URL', false)
-
 
 const ERRORS = {
     NUMBER_HAVE_INVALID_VALUE: {
@@ -53,6 +53,20 @@ const ERRORS = {
         messageForUser: 'api.meter.METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION',
         variable: ['data', 'resource'],
     },
+    SAME_NUMBER_AND_RESOURCE_EXISTS_IN_ORGANIZATION: (accountNumbersCsv) => ({
+        code: BAD_USER_INPUT,
+        type: SAME_NUMBER_AND_RESOURCE_EXISTS_IN_ORGANIZATION,
+        message: 'Meter with same number and resource exist in current organization and linked with other account number',
+        messageForUser: 'api.meter.SAME_NUMBER_AND_RESOURCE_EXISTS_IN_ORGANIZATION',
+        messageInterpolation: { accountNumbersCsv },
+    }),
+    SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT: (unitsCsv) => ({
+        code: BAD_USER_INPUT,
+        type: SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT,
+        message: 'Meter with same account number exist in current organization in other unit',
+        messageForUser: 'api.meter.SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT',
+        messageInterpolation: { unitsCsv },
+    }),
 }
 
 // TODO(DOMA-6195): replace 'addFieldValidationError' and 'addValidationError' to 'GQLError'
@@ -88,7 +102,7 @@ const Meter = new GQLListSchema('Meter', {
                     const value = resolvedData[fieldPath]
                     return isString(value) ? value.trim() : value
                 },
-                validateInput: async ({ context, operation, existingItem, resolvedData, fieldPath, addFieldValidationError }) => {
+                validateInput: async ({ context, operation, existingItem, resolvedData, fieldPath }) => {
                     const value = resolvedData[fieldPath]
 
                     if (!isString(value) || value.length < 1) {
@@ -117,7 +131,12 @@ const Meter = new GQLListSchema('Meter', {
                     }
 
                     if (metersWithSameResourceAndNumberInOrganization && metersWithSameResourceAndNumberInOrganization.length > 0) {
-                        addFieldValidationError(`${UNIQUE_ALREADY_EXISTS_ERROR}${fieldPath}] Meter with same number and resource exist in current organization`)
+                        throw new GQLError(
+                            ERRORS.SAME_NUMBER_AND_RESOURCE_EXISTS_IN_ORGANIZATION(
+                                metersWithSameResourceAndNumberInOrganization.map(({ accountNumber }) => accountNumber).join(', '),
+                            ),
+                            context,
+                        )
                     }
                 },
             },
@@ -132,7 +151,7 @@ const Meter = new GQLListSchema('Meter', {
                     const value = resolvedData[fieldPath]
                     return isString(value) ? value.trim() : value
                 },
-                validateInput: async ({ context, operation, existingItem, resolvedData, fieldPath, addFieldValidationError }) => {
+                validateInput: async ({ context, operation, existingItem, resolvedData, fieldPath }) => {
                     const value = resolvedData[fieldPath]
 
                     if (!isString(value) || value.length < 1) {
@@ -154,7 +173,12 @@ const Meter = new GQLListSchema('Meter', {
                         })
 
                         if (metersWithSameAccountNumberInOtherUnit && metersWithSameAccountNumberInOtherUnit.length > 0) {
-                            addFieldValidationError(`${UNIQUE_ALREADY_EXISTS_ERROR}${fieldPath}] Meter with same account number exist in current organization in other unit`)
+                            throw new GQLError(
+                                ERRORS.SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT(
+                                    metersWithSameAccountNumberInOtherUnit.map((meter) => `${meter.unitType} ${meter.unitName}`).join(', ')
+                                ),
+                                context,
+                            )
                         }
                     }
                 },
