@@ -271,7 +271,7 @@ describe('MobileFeatureConfig', () => {
 
                 await expectToThrowGQLError(
                     async () => await createTestMobileFeatureConfig(admin, organization, {
-                        ticketSubmittingWithoutPhoneIsDisabled: true,
+                        ticketSubmittingForServiceProviderOrgIsDisabled: true,
                     }),
                     {
                         code: 'BAD_USER_INPUT',
@@ -280,10 +280,10 @@ describe('MobileFeatureConfig', () => {
                     })
             })
 
-            test('Use ticketSubmittingWithoutPhoneIsDisabled for organization with service_provider type', async () => {
+            test('Use ticketSubmittingForServiceProviderOrgIsDisabled for organization with service_provider type', async () => {
                 const [organization] = await createTestOrganization(admin, { type: SERVICE_PROVIDER_TYPE })
                 await createTestMobileFeatureConfig(admin, organization, {
-                    ticketSubmittingWithoutPhoneIsDisabled: true,
+                    ticketSubmittingForServiceProviderOrgIsDisabled: true,
                 })
             })
         })

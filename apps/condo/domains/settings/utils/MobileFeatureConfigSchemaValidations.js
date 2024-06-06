@@ -14,7 +14,7 @@ const ticketSubmittingValidations = async (resolvedData, context, existingItem, 
             throw new GQLError(ERRORS.COMMON_PHONE_INVALID, context)
         }
     }
-    if (newItem.ticketSubmittingWithoutPhoneIsDisabled) {
+    if (newItem.ticketSubmittingForServiceProviderOrgIsDisabled) {
         const [organization] = await Organization.getAll(context, {
             id: newItem.organization,
         })
