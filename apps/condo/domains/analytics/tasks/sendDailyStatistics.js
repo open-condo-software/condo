@@ -176,7 +176,6 @@ const sendDailyStatistics = async () => {
 
     const { keystone: context } = getSchemaCtx('User')
 
-
     // 1) Получить юзера
     // 2) В каких организациях состоит
     // 3) Достать аналитику из каждой организации
@@ -317,7 +316,6 @@ const sendDailyStatistics = async () => {
 
                 combinedStatistics.incidents.water.text = combinedStatistics.incidents.water.list.map(item => `${item.date} - ${item.addresses}`).join('\n')
 
-
                 const uniqKey = `send_daily_statistics_${user.id}`
                 await sendMessage(context, {
                     ...DV_SENDER,
@@ -327,6 +325,7 @@ const sendDailyStatistics = async () => {
                     uniqKey,
                     meta: {
                         dv: 1,
+                        tags: [`orgId: ${organizationIds.join('; ')}`.slice(0, 128)],
                         data: {
                             date: combinedStatistics.date,
                             tickets: combinedStatistics.tickets,
