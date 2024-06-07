@@ -40,31 +40,44 @@ function renderExecutableDefinitionNode (node) {
 }
 
 /**
+ * Get current time in nanoseconds and return diff between
+ * @param time {bigint} start time of the operation
+ * @returns {number} Operation elapsed time in milliseconds
+ */
+function timeFrom (time) {
+    const diff = process.hrtime.bigint() - time
+
+    return +(Number(diff) / 1000000).toFixed(4)
+}
+
+/**
  * @type {import('apollo-server-plugin-base').ApolloServerPlugin}
  */
 class GraphQLLoggerPlugin {
-    /**
-     * @param { import('apollo-server-types').GraphQLRequestContext } requestContext
-     * @returns {Promise<void>}
-     */
     requestDidStart (requestContext) {
-        const startTime = process.hrtime.bigint()
+        let timeUntilExecution = null
+        const requestStartTime = process.hrtime.bigint()
+        graphqlLogger.info({
+            state: 'requestDidStart',
+            ...getGraphQLReqLoggerContext(requestContext),
+        })
 
         return {
-            /**
-             * The responseForOperation event is fired immediately before GraphQL execution would take place.
-             * If its return value resolves to a non-null GraphQLResponse, that result is used instead of executing the query.
-             * Hooks from different plugins are invoked in series, and the first non-null response is used.
-             * @param {import('apollo-server-types').WithRequired<import('apollo-server-types').GraphQLRequestContext<TContext>, 'metrics' | 'source' | 'document' | 'operationName' | 'operation' | 'logger'>} requestContext
-             * @returns {Promise<import('apollo-server-types').GraphQLResponse | null>}
-             */
             async responseForOperation (requestContext) {
                 const operationId = get(requestContext, 'operationId') || cuid()
                 // NOTE(pahaz): log correlation id for cases where not reqId
                 requestContext.operationId = operationId
-
-                const logData = getGraphQLReqLoggerContext(requestContext)
-                graphqlLogger.info({ ...logData, responseTime: Number(process.hrtime.bigint() - startTime) / 1000000 })
+            },
+            async executionDidStart () {
+                timeUntilExecution = timeFrom(requestStartTime)
+            },
+            async willSendResponse (requestContext) {
+                graphqlLogger.info({
+                    ...getGraphQLReqLoggerContext(requestContext),
+                    responseTime: timeFrom(requestStartTime),
+                    timeUntilExecution,
+                    state: 'willSendResponse',
+                })
             },
 
             /**
@@ -74,17 +87,16 @@ class GraphQLLoggerPlugin {
             async didEncounterErrors (requestContext) {
                 const logData = getGraphQLReqLoggerContext(requestContext)
                 const errors = get(requestContext, 'errors', [])
-                const responseTime = Number(process.hrtime.bigint() - startTime) / 1000000
 
                 try {
                     for (const error of errors) {
                         error.uid = get(error, 'uid') || get(error, 'originalError.uid') || cuid()
-                        graphqlErrorLogger.info({ apolloFormatError: safeFormatError(error), ...logData, responseTime })
+                        graphqlErrorLogger.info({ apolloFormatError: safeFormatError(error), ...logData })
                     }
                 } catch (formatErrorError) {
                     // NOTE(pahaz): Something went wrong with formatting above, so we log the errors
-                    graphqlErrorLogger.error({ formatErrorError: serializeError(ensureError(formatErrorError)), ...logData, responseTime })
-                    graphqlErrorLogger.error({ serializedErrors: errors.map(error => serializeError(ensureError(error))), ...logData, responseTime })
+                    graphqlErrorLogger.error({ formatErrorError: serializeError(ensureError(formatErrorError)), ...logData })
+                    graphqlErrorLogger.error({ serializedErrors: errors.map(error => serializeError(ensureError(error))), ...logData })
                 }
             },
         }
