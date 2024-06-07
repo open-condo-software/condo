@@ -114,13 +114,13 @@ module.exports = {
         app.use(bodyParser.json({ limit: '100mb', extended: true }))
         app.use(bodyParser.urlencoded({ limit: '100mb', extended: true }))
 
-        const requestIdHeaderName = 'X-Request-Id'
+        const requestIdHeaderName = 'x-request-id'
         app.use(function reqId (req, res, next) {
-            const reqId = req.headers[requestIdHeaderName.toLowerCase()] || v4()
+            const reqId = req.get(requestIdHeaderName) || v4()
             // we are expecting to receive reqId from client in order to have fully traced logs end to end
             // also, property name are constant name, not a dynamic user input
             // nosemgrep: javascript.express.security.audit.remote-property-injection.remote-property-injection
-            req['id'] = req.headers[requestIdHeaderName.toLowerCase()] = reqId
+            req['id'] = req.headers[requestIdHeaderName] = reqId
             res.setHeader(requestIdHeaderName, reqId)
             next()
         })
