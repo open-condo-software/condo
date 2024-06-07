@@ -44,15 +44,10 @@ function renderExecutableDefinitionNode (node) {
  * @param time {bigint} start time of the operation
  * @returns {number} Operation elapsed time in milliseconds
  */
-function endTimer (time) {
-    function roundTo (decimalPlaces, numberToRound) {
-        const factorOfTen = Math.pow(10, decimalPlaces)
-        return +(Math.round(numberToRound * factorOfTen)  / factorOfTen)
-    }
+function timeFrom (time) {
     const diff = process.hrtime.bigint() - time
-    const elapsed = Number(diff) / 1000000
 
-    return roundTo(4, elapsed)
+    return +(Number(diff) / 1000000).toFixed(4)
 }
 
 /**
@@ -74,12 +69,12 @@ class GraphQLLoggerPlugin {
                 requestContext.operationId = operationId
             },
             async executionDidStart () {
-                timeUntilExecution = endTimer(requestStartTime)
+                timeUntilExecution = timeFrom(requestStartTime)
             },
             async willSendResponse (requestContext) {
                 graphqlLogger.info({
                     ...getGraphQLReqLoggerContext(requestContext),
-                    responseTime: endTimer(requestStartTime),
+                    responseTime: timeFrom(requestStartTime),
                     timeUntilExecution,
                     state: 'willSendResponse',
                 })
