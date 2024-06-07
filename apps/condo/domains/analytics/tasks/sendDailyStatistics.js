@@ -21,11 +21,15 @@ const EMPTY_LINE = '—'
 
 
 class UserDailyStatistics {
+    /** @type {string} */
     #currentDate = dayjs().toISOString()
+    /** @type {string[]} */
     #organizationIds = []
+    /** @type {CommonStatistics|null} */
     #statistics = null
-    #context = null
+    /** @type {string|null} */
     #userId = null
+    #context = null
 
     /**
      *
@@ -44,7 +48,7 @@ class UserDailyStatistics {
 
     /**
      *
-     * @return {{date: string, tickets: {isEmergency: string, isReturned: string, inProgress: string, isExpired: string, withoutEmployee: string}, incidents: {water: string}}}
+     * @return {MessageData}
      */
     getMessageData () {
         return {
@@ -141,7 +145,7 @@ class UserDailyStatistics {
     /**
      *
      * @param organizationId
-     * @return {Promise<{tickets: {isEmergency: number, isReturned: number, inProgress: number, isExpired: number, withoutEmployee: number}, organization: { id: string, name: string, inn: string }, incidents: {workStart: string, workFinish: string, hasAllProperties: boolean, addresses: string[], count: number}[]}>}
+     * @return {Promise<OrganizationStatistics>}
      */
     async #getOrganizationData (organizationId) {
         // TODO(DOMA-9177): add cache
@@ -291,7 +295,7 @@ class UserDailyStatistics {
     /**
      *
      * @param currentDate
-     * @return {{date, tickets: {isEmergency: {byOrganizations: [], common: number}, isReturned: {byOrganizations: *[], common: number}, inProgress: {byOrganizations: *[], common: number}, isExpired: {byOrganizations: *[], common: number}, withoutEmployee: {byOrganizations: *[], common: number}}, incidents: {water: {list: *[]}}}}
+     * @return {CommonStatistics}
      */
     #getStatisticsTemplate (currentDate) {
         return {
@@ -319,12 +323,72 @@ class UserDailyStatistics {
                 },
             },
             incidents: {
-                water: {
-                    list: [],
-                },
+                water: [],
             },
         }
     }
+
+    /**
+     * @typedef {object} CommonStatistics
+     * @property {string} date
+     * @property {object} tickets
+     * @property {TicketStatistic} tickets.isEmergency
+     * @property {TicketStatistic} tickets.isReturned
+     * @property {TicketStatistic} tickets.inProgress
+     * @property {TicketStatistic} tickets.isExpired
+     * @property {TicketStatistic} tickets.withoutEmployee
+     * @property {object} incidents
+     * @property {IncidentData[]} incidents.water
+     */
+
+    /**
+     * @typedef {object} TicketStatistic
+     * @property {object} byOrganizations
+     * @property {number} byOrganizations.count
+     * @property {name} byOrganizations.name
+     * @property {number} common
+     */
+
+    /**
+     * @typedef {object} IncidentData
+     * @property {string} workStart
+     * @property {string} [workFinish]
+     * @property {boolean} [hasAllProperties]
+     * @property {string[]} [addresses]
+     * @property {number} [count]
+     */
+
+    /**
+     * @typedef {object} OrganizationStatistics
+     * @property {string} date
+     * @property {object} tickets
+     * @property {number} tickets.isEmergency
+     * @property {number} tickets.isReturned
+     * @property {number} tickets.inProgress
+     * @property {number} tickets.isExpired
+     * @property {number} tickets.withoutEmployee
+     *
+     * @property {object} organization
+     * @property {string} organization.id
+     * @property {string} organization.name
+     * @property {string} organization.inn
+     *
+     * @property {object} incidents
+     * @property {IncidentData[]} incidents.water
+     */
+
+    /**
+     * @typedef {object} MessageData
+     * @property {string} date
+     * @property {object} tickets
+     * @property {string} tickets.isEmergency
+     * @property {string} tickets.isReturned
+     * @property {string} tickets.inProgress
+     * @property {string} tickets.isExpired
+     * @property {string} tickets.withoutEmployee
+     * @property {object} incidents
+     * @property {string} incidents.water
+     */
 }
 
 const sendDailyStatistics = async () => {
