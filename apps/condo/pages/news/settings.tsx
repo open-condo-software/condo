@@ -1,20 +1,20 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/react'
-import { Col, Row, RowProps } from 'antd'
+import { Col, Row } from 'antd'
 import get from 'lodash/get'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { useCallback } from 'react'
+import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Card, Typography } from '@open-condo/ui'
+import { Typography } from '@open-condo/ui'
 
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
-import { AppCard, MIN_CARD_WIDTH } from '@condo/domains/miniapp/components/AppCard'
+import { AppCard } from '@condo/domains/miniapp/components/AppCard'
 import { B2BAppContext, B2BApp } from '@condo/domains/miniapp/utils/clientSchema'
+import { NewsCardGrid } from '@condo/domains/news/components/NewsForm/NewsCardGrid'
 import {
     NewsReadAndManagePermissionRequired,
 } from '@condo/domains/news/components/PageAccess'
@@ -25,24 +25,18 @@ interface INewsIndexPage extends React.FC {
     requiredAccess?: React.FC
 }
 
-const CARD_GAP = 40
-const CONTENT_SPACING: RowProps['gutter'] = [CARD_GAP, CARD_GAP]
-const MARGIN_BOTTOM_32_STYLE: React.CSSProperties = { marginBottom: '32px' }
 const SHARING_APP_FALLBACK_ICON = '/news/sharingAppIconPlaceholder.svg'
-const getCardsAmount = (width: number) => {
-    return Math.max(1, Math.floor(width / (MIN_CARD_WIDTH + CARD_GAP)))
-}
 
 const NewsSettingsPage: INewsIndexPage = () => {
     const intl = useIntl()
-    const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.news.settings.pageTitle' })
+    const PageTitleLabel = intl.formatMessage({ id: 'pages.condo.news.settings.pageTitle' })
+    const SharingAppSettingsTitleLabel = intl.formatMessage({ id: 'pages.condo.news.settings.sharingAppSettingsTitle' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
 
     const router = useRouter()
     
     const { organization } = useOrganization()
     const { isLoading: isAccessLoading } = useNewsItemsAccess()
-    const [{ width }, refCallback] = useContainerSize<HTMLDivElement>()
 
     const {
         loading: isSharingAppsFetching,
@@ -79,43 +73,44 @@ const NewsSettingsPage: INewsIndexPage = () => {
             />
         )
     }
-
-    const cardsPerRow = getCardsAmount(width)
     
     return (
         <>
             <Head>
-                <title>{PageTitleMessage}</title>
+                <title>{PageTitleLabel}</title>
             </Head>
             <PageWrapper>
-                <PageHeader title={<Typography.Title>Настройки</Typography.Title>} spaced/>
+                <PageHeader title={<Typography.Title>{PageTitleLabel}</Typography.Title>} spaced/>
 
                 <PageContent>
-                    <div style={MARGIN_BOTTOM_32_STYLE}>
-                        <Typography.Title level={2}>Выберите каналы отправки</Typography.Title>
-                    </div>
+                    <Row gutter={[0, 32]}>
+                        <Col span={24}>
+                            <Typography.Title level={2}>{SharingAppSettingsTitleLabel}</Typography.Title>
+                        </Col>
 
-                    <Row gutter={CONTENT_SPACING} ref={refCallback}>
-                        { sharingApps.map( app => {
-                            const sharingAppName = get(app, ['newsSharingConfig', 'name'], '').replaceAll(' ', ' ')
-                            const sharingAppId = get(app, ['id'])
-                            const sharingAppIcon = get(app, ['newsSharingConfig', 'icon', 'publicUrl'], SHARING_APP_FALLBACK_ICON)
+                        <Col span={24}>
+                            <NewsCardGrid>
+                                { sharingApps.map( app => {
+                                    const sharingAppName = get(app, ['newsSharingConfig', 'name'], '').replaceAll(' ', '\xa0')
+                                    const sharingAppId = get(app, ['id'])
+                                    const sharingAppIcon = get(app, ['newsSharingConfig', 'icon', 'publicUrl'], SHARING_APP_FALLBACK_ICON)
 
-                            return (
-                                <Col span={Math.ceil(24 / cardsPerRow)} key={`${cardsPerRow}:${app.id}`}>
-                                    <AppCard
-                                        logoUrl={sharingAppIcon}
-                                        connected={sharingAppContexts.filter(x => get(x, ['app', 'id']) === sharingAppId).length > 0}
-                                        name={sharingAppName}
-                                        description={`Отправка новостей в приложение ${sharingAppName}`}
-                                        onClick={() => {
-                                            const url = `/miniapps/${sharingAppId}/about`
-                                            router.push(url, url)
-                                        }}
-                                    />
-                                </Col>
-                            )
-                        })}
+                                    return (
+                                        <AppCard
+                                            key={sharingAppId}
+                                            logoUrl={sharingAppIcon}
+                                            connected={sharingAppContexts.filter(x => get(x, ['app', 'id']) === sharingAppId).length > 0}
+                                            name={sharingAppName}
+                                            description={intl.formatMessage({ id: 'pages.condo.news.settings.appCard.description' }, { sharingAppName })}
+                                            onClick={() => {
+                                                const url = `/miniapps/${sharingAppId}/about`
+                                                router.push(url, url)
+                                            }}
+                                        />
+                                    )
+                                })}
+                            </NewsCardGrid>
+                        </Col>
                     </Row>
                 </PageContent>
             </PageWrapper>

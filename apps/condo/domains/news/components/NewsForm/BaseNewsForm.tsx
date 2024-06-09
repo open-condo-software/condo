@@ -1272,7 +1272,6 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                             </Row>
                                                         )}
 
-                                                        {/*Make text*/}
                                                         <Col span={24}>
                                                             <Col span={24} style={MARGIN_BOTTOM_10_STYLE}>
                                                                 <Typography.Title level={4}>{SelectTextLabel}</Typography.Title>
@@ -1435,7 +1434,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                             newsItemData={{ type: selectedType, validBefore: selectedValidBeforeText, title: selectedTitle, body: selectedBody }}
                                         />
                                     )
-                                }f
+                                }
 
                                 { getStepTypeByStep(currentStep) === 'review' && (
                                     <Col span={24}>
