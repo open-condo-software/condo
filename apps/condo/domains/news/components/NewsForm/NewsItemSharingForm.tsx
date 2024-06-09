@@ -1,10 +1,9 @@
-import { B2BApp } from '@app/condo/schema'
+import { B2BApp, NewsItem } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Options as ScrollOptions } from 'scroll-into-view-if-needed'
-
 
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar as UIActionBar, Alert, Button, Typography } from '@open-condo/ui'
@@ -13,7 +12,7 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 
 import { NEWS_TYPE_EMERGENCY } from '../../constants/newsTypes'
-import MemoizedNewsPreview from '../NewsPreview'
+import { MemoizedSharingNewsPreview } from '../NewsPreview'
 
 
 const BIG_MARGIN_BOTTOM_STYLE: React.CSSProperties = { marginBottom: '60px' }
@@ -42,7 +41,7 @@ interface INewsItemSharingForm {
 
     newsItemData: {
         type: string,
-        validBefore: string,
+        validBefore?: Pick<NewsItem, 'validBefore'>,
         title: string,
         body: string,
     }
@@ -55,6 +54,12 @@ export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemDa
     const formFieldsColSpan = isMediumWindow ? 24 : 14
     const formInfoColSpan = 24 - formFieldsColSpan
 
+    const appName = newsSharingConfig.name
+    const appIcon = newsSharingConfig.icon.publicUrl
+    const appPreviewUrl = newsSharingConfig.previewUrl
+
+    const iFramePreviewRef = useRef(null)
+
     const processedInitialValues = (initialValues && initialValues.formValues && initialValues.preview) ? initialValues : { formValues: {}, preview: { renderedTitle: '', renderedBody: '' }, isValid: false }
 
     const isCustomForm = !!newsSharingConfig.customFormUrl
@@ -63,10 +68,22 @@ export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemDa
     const handleSharingAppIFrameFormMessage = (event) => {
         const { handler, ctxId: eventCtxId, formValues, preview, isValid } = event.data
         if (handler === 'handleSharingAppIFrameFormMessage' && id === eventCtxId) {
-            console.info('Incoming message from miniapp form', preview)
+            console.info('Incoming message from miniapp form', { formValues, preview, isValid })
             setSharingAppFormValues({ formValues, preview, isValid })
         }
     }
+
+    useEffect(() => {
+
+        const title = get(sharingAppFormValues, ['preview', 'renderedTitle'])
+        const body = get(sharingAppFormValues, ['preview', 'renderedBody'])
+
+        // Todo: @toplenboren, ask @matthew about postmessages
+        if (iFramePreviewRef.current) {
+            iFramePreviewRef.current.contentWindow.postMessage({ handler: 'handleUpdateFromCondo', title, body }, '*')
+            console.info('Sent message to miniapp preview', { title, body })
+        }
+    }, [sharingAppFormValues, iFramePreviewRef])
 
     useEffect(() => {
         if (typeof window !== 'undefined' && isCustomForm) {
@@ -95,18 +112,19 @@ export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemDa
                                 />
                             </Col>
                             {/* marginLeft 10 is to compensate for marginLeft -10 */}
-                            <Col style={{ marginLeft: '10px' }}  span={formInfoColSpan}>
+                            <Col style={{ marginLeft: '10px' }} span={formInfoColSpan}>
                                 {(!!get(sharingAppFormValues, ['preview', 'renderedTitle']) || !!get(sharingAppFormValues, ['preview', 'renderedBody'])) && (
-                                    <MemoizedNewsPreview
-                                        appType='sharing'
-                                        app={{
-                                            containerStyle: { 'color': 'red' },
-                                        }}
-                                        newsItemData={{
-                                            body: get(sharingAppFormValues, ['preview', 'renderedBody']),
-                                            title: get(sharingAppFormValues, ['preview', 'renderedTitle']),
-                                            validBefore: newsItemData.type === NEWS_TYPE_EMERGENCY ? newsItemData.validBefore : null,
-                                        }}
+                                    <MemoizedSharingNewsPreview
+                                        hasPush={false}
+
+                                        appName={appName}
+                                        appIcon={appIcon}
+                                        iFrameUrl={appPreviewUrl}
+                                        iFrameRef={iFramePreviewRef}
+
+                                        body={get(sharingAppFormValues, ['preview', 'renderedBody'])}
+                                        title={get(sharingAppFormValues, ['preview', 'renderedTitle'])}
+                                        validBefore={newsItemData.type === NEWS_TYPE_EMERGENCY ? newsItemData.validBefore : null}
                                     />
                                 )}
                             </Col>
@@ -201,7 +219,7 @@ export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemDa
                             <Button
                                 key='submit'
                                 type='secondary'
-                                children={ isMediumWindow ? 'Пропустить' : `Не отправлять новость в ${newsSharingConfig.name}` }
+                                children={ isMediumWindow ? 'Пропустить' : `Не отправлять новость в ${appName}` }
                                 onClick={() => onSkip(sharingAppFormValues)}
                                 disabled={false}
                             />,

@@ -57,7 +57,7 @@ import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
 import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import MemoizedNewsPreview from '@condo/domains/news/components/NewsPreview'
+import { MemoizedCondoNewsPreview } from '@condo/domains/news/components/NewsPreview'
 import { detectTargetedSections, RecipientCounter } from '@condo/domains/news/components/RecipientCounter'
 import { TemplatesTabs } from '@condo/domains/news/components/TemplatesTabs'
 import { TNewsItemScopeNoInstance } from '@condo/domains/news/components/types'
@@ -445,7 +445,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
 
     // 1 screen values:
     const [selectedType, setSelectedType] = useState<string>(get(initialValues, 'type', NEWS_TYPE_COMMON))
-    const [selectedValidBeforeText, setSelectedValidBeforeText] = useState<string>(initialValidBefore)
+    const [selectedValidBeforeText, setSelectedValidBeforeText] = useState<Pick<INewsItem, 'validBefore'>>(initialValidBefore)
 
     // Condo app form values:
     const [selectedTitle, setSelectedTitle] = useState<string>(get(initialValues, 'title', ''))
@@ -1322,16 +1322,11 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                 {
                                                     !!formInfoColSpan && (!!selectedBody || !!selectedTitle) && (
                                                         <Col span={formInfoColSpan}>
-                                                            <MemoizedNewsPreview
-                                                                appType='Doma'
-                                                                push={{}}
-                                                                newsItemData={{
-                                                                    body: selectedBody,
-                                                                    title: selectedTitle,
-                                                                    validBefore: selectedType === NEWS_TYPE_EMERGENCY ? selectedValidBeforeText : null,
-                                                                }}
+                                                            <MemoizedCondoNewsPreview
+                                                                body={selectedBody}
+                                                                title={selectedTitle}
+                                                                validBefore={selectedType === NEWS_TYPE_EMERGENCY ? selectedValidBeforeText : null}
                                                             />
-                                                    )
                                                         </Col>
                                                     )
                                                 }
