@@ -42,7 +42,7 @@ const AppDescriptionLabelId = 'pages.news.create.selectSharingApp.appDescription
 const SelectSharingAppControl: React.FC<ISelectSharingAppControl> = ({ sharingAppContexts, selectedSharingApps, handleSelectSharingApp }) => {
 
     const intl = useIntl()
-    const DomaAppDescriptionLabel = intl.formatMessage({ id: AppDescriptionLabelId }, { appName: 'Doma' })
+    const CondoAppDescriptionLabel = intl.formatMessage({ id: AppDescriptionLabelId }, { appName: 'Doma' })
     const OtherAppsLabel = intl.formatMessage({ id: 'pages.news.create.selectSharingApp.otherApps' })
     const OtherAppsDescriptionLabel = intl.formatMessage({ id: 'pages.news.create.selectSharingApp.otherApps.description' })
     const OtherAppsActionLabel = intl.formatMessage({ id: 'pages.news.create.selectSharingApp.otherApps.actionButtonText' })
@@ -68,7 +68,7 @@ const SelectSharingAppControl: React.FC<ISelectSharingAppControl> = ({ sharingAp
                         },
                     }}
                     body={{
-                        description: DomaAppDescriptionLabel,
+                        description: CondoAppDescriptionLabel,
                         image: {
                             src: DOMA_APP_PREVIEW_ICON_URL,
                             style: CARD_ICON_STYLE,

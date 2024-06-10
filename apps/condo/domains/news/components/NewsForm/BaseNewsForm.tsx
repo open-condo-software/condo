@@ -358,7 +358,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const TemplateBodyErrorMessage = intl.formatMessage({ id: 'news.fields.templateBody.error' })
     const ValidBeforeErrorMessage = intl.formatMessage({ id: 'news.fields.validBefore.error' })
     const ToManyMessagesMessage = intl.formatMessage({ id: 'news.fields.toManyMessages.error' })
-    const TemlatesLabel = intl.formatMessage({ id: 'news.fields.templates' })
+    const TemplatesLabel = intl.formatMessage({ id: 'news.fields.templates' })
     const PastTimeErrorMessage = intl.formatMessage({ id: 'global.input.error.pastTime' })
     const TimezoneMskTitle = intl.formatMessage({ id: 'timezone.msk' })
     const ProfanityInTitle = intl.formatMessage({ id: 'news.fields.profanityInTitle.error' })
@@ -1297,7 +1297,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                             <Row gutter={SMALL_VERTICAL_GUTTER} style={MARGIN_BOTTOM_38_STYLE}>
                                                                 <Col span={24}>
                                                                     <Typography.Title level={4}>
-                                                                        {TemlatesLabel}
+                                                                        {TemplatesLabel}
                                                                     </Typography.Title>
                                                                 </Col>
                                                                 <Col span={24}>
