@@ -155,7 +155,6 @@ export const ResendNewsForm: React.FC<IResendNewsForm> = ({ id }) => {
     }
 
     return (
-        // @ts-ignore
         <BaseNewsForm
             organizationId={organizationId}
             newsItemAction={action}

@@ -5,7 +5,6 @@ import get from 'lodash/get'
 import React, { useEffect, useRef, useState } from 'react'
 import { Options as ScrollOptions } from 'scroll-into-view-if-needed'
 
-import { useIntl } from '@open-condo/next/intl'
 import { ActionBar as UIActionBar, Alert, Button, Typography } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
@@ -30,7 +29,6 @@ export type SharingAppValues = {
     isValid: boolean
 }
 
-// Todo @toplenboren Infer types!
 interface INewsItemSharingForm {
     sharingApp: B2BApp
 

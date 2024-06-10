@@ -15,6 +15,7 @@ import {
     B2BApp as IB2BApp,
     B2BAppContext as IB2BAppContext,
     B2BAppNewsSharingConfig as IB2BAppNewsSharingConfig,
+    NewsItemTypeType as INewsItemTypeType,
 } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Form, FormInstance, notification, Row } from 'antd'
@@ -71,7 +72,7 @@ import { SectionNameInput } from '@condo/domains/user/components/SectionNameInpu
 import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
 
 import { NewsCardGrid } from './NewsCardGrid'
-import { NewsItemSharingForm } from './NewsItemSharingForm'
+import { NewsItemSharingForm, SharingAppValues } from './NewsItemSharingForm'
 import SelectSharingAppControl from './SelectSharingAppControl'
 
 import { NewsItemCard } from '../NewsItemCard'
@@ -94,7 +95,7 @@ export type BaseNewsFormProps = {
     organizationId: string
     ActionBar: React.FC<ActionBarProps>
     newsItemAction: (values: INewsItemCreateInput | INewsItemUpdateInput) => ReturnType<ReturnType<NewsItemClientUtilsType['useCreate' | 'useUpdate']>>
-    newsItemSharingAction: (values: INewsItemCreateInput | INewsItemUpdateInput) => ReturnType<ReturnType<NewsItemSharingClientUtilsType['useCreate']>>
+    newsItemSharingAction: (values: INewsItemSharingCreateInput | INewsItemSharingUpdateInput) => ReturnType<ReturnType<NewsItemSharingClientUtilsType['useCreate']>>
     initialValues?: Partial<INewsItem>
     & Partial<{
         newsItemScopes: INewsItemScope[],
@@ -438,16 +439,13 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     }, [templates])
 
     const sharingAppContextsIndex = useMemo(() => keyBy(sharingAppContexts, 'id'), [sharingAppContexts])
-    //const selectedSharingAppsOptions = useMemo(() => sharingAppContexts.map((x) => ({ label: get(x, ['app', 'newsSharingConfig', 'name']), value: x.id })), [sharingAppContexts])
     const [selectedSharingAppsContexts, setSelectedSharingAppsContexts] = useState<Set<string>>(new Set())
 
     const [sendPeriod, setSendPeriod] = useState<string>(get(initialValues, 'sendPeriod', 'now'))
 
-    // 1 screen values:
     const [selectedType, setSelectedType] = useState<string>(get(initialValues, 'type', NEWS_TYPE_COMMON))
     const [selectedValidBeforeText, setSelectedValidBeforeText] = useState<Pick<INewsItem, 'validBefore'>>(initialValidBefore)
-
-    // Condo app form values:
+    
     const [selectedTitle, setSelectedTitle] = useState<string>(get(initialValues, 'title', ''))
     const [selectedBody, setSelectedBody] = useState<string>(get(initialValues, 'body', ''))
     const [isValidBeforeAfterSendAt, setIsValidBeforeAfterSendAt] = useState<boolean>(true)
@@ -456,14 +454,31 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const [selectedPropertiesId, setSelectedPropertiesId] = useState(initialPropertyIds)
     const [isAllPropertiesChecked, setIsAllPropertiesChecked] = useState(initialHasAllProperties)
     const [selectedSectionKeys, setSelectedSectionKeys] = useState(initialSectionIds)
-    // TODO: NOTE: @toplenboren is a clown
-    const [newsItemFormValues, setNewsItemFormValues] = useState<Record<string, unknown>>({})
 
-    // Sharing app form values:
-    // TODO: @toplenboren use type from news sharing form here
-    const [sharingAppsFormValues, setSharingAppsFormValues] = useState<Record<string, unknown>>({})
+    // Select apps form values
+    type SelectAppsFormValues = {
+        type: INewsItemTypeType
+        validBefore: string
+    }
+    const [selectAppsFormValues, setSelectAppsFormValues] = useState<SelectAppsFormValues | null>(null)
 
-    const countPropertiesAvaliableToSelect = useRef(null)
+    // 'templates', 'title', 'body', 'property', 'properties', 'hasAllProperties', 'unitNames', 'sectionIds'
+    // Condo form values
+    type CondoFormValues = {
+        title: string,
+        body: string,
+        properties: any
+        property: any
+        hasAllProperties: boolean,
+        unitNames: Array<string>
+        sectionIds: Array<string>
+    }
+    const [condoFormValues, setCondoFormValues] = useState<CondoFormValues | null>(null)
+
+    // SharingApp form values:
+    const [sharingAppsFormValues, setSharingAppsFormValues] = useState<Record<string, SharingAppValues>>({})
+
+    const countPropertiesAvailableToSelect = useRef(null)
     const onlyPropertyThatCanBeSelected = useRef(null)
 
     const { loading: selectedPropertiesLoading, objs: selectedProperties } = Property.useAllObjects({
@@ -542,7 +557,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     }, [])
 
     const handleAllPropertiesDataLoading = useCallback((data) => {
-        countPropertiesAvaliableToSelect.current = data.length
+        countPropertiesAvailableToSelect.current = data.length
         if (data.length === 1) {
             onlyPropertyThatCanBeSelected.current = data[0]
         }
@@ -594,14 +609,14 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const propertyCheckboxChange = (form) => {
         return (value) => {
             if (value) setSelectedPropertiesId(selectedPropertiesId => {
-                if (countPropertiesAvaliableToSelect.current === 1 && selectedPropertiesId.length === 1)
+                if (countPropertiesAvailableToSelect.current === 1 && selectedPropertiesId.length === 1)
                     return selectedPropertiesId
-                if (countPropertiesAvaliableToSelect.current === 1 && selectedPropertiesId.length === 0 && has(onlyPropertyThatCanBeSelected, 'current.value')) {
+                if (countPropertiesAvailableToSelect.current === 1 && selectedPropertiesId.length === 0 && has(onlyPropertyThatCanBeSelected, 'current.value')) {
                     return [onlyPropertyThatCanBeSelected.current.value]
                 }
                 return []
             })
-            if (countPropertiesAvaliableToSelect.current === 1 && !value) {
+            if (countPropertiesAvailableToSelect.current === 1 && !value) {
                 setSelectedPropertiesId([])
             }
             setIsAllPropertiesChecked(value)
@@ -673,6 +688,11 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     }, [ initialValues ])
 
     const handleFormSubmit = useCallback(async (values) => {
+        if (!values || !selectAppsFormValues || !condoFormValues) {
+            console.error('Cannot submit form: not all fields are filled')
+            return
+        }
+
         if (actionName === 'update') {
             await updateNewsItem({ isPublished: false }, currentNewsItem)
         }
@@ -682,24 +702,57 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             sendAt,
         } = values
 
-        let {
-            properties,
-            hasAllProperties,
-            //sendPeriod,
-            template,
+        // const hasAllProperties = isAllPropertiesChecked
+        // const title = selectedTitle
+        // const body = selectedBody
+        // const type = selectedType
+        // const validBefore = condoFormValues.validBefore
+        // const unitNames = selectedUnitNameKeys
+        // const sectionIds = selectedSectionKeys
+            
+        const {
             type,
-            //sendAt,
+            validBefore,
+        } = selectAppsFormValues
+
+        const {
+            title,
+            body,
+            unitNames,
+            sectionIds,
+            hasAllProperties,
+            property,
+            properties,
+        } = condoFormValues
+
+        //const properties = condoFormValues.properties
+        //let {
+        // properties,
+        // //hasAllProperties,
+        // //sendPeriod,
+        // //template,
+        // //type,
+        // //sendAt,
+        // //validBefore,
+        // //unitNames,
+        // //sectionIds,
+        // //property,
+        // //...newsItemValues
+        // //body,
+        // //title,
+        //} = condoFormValues
+
+        //console.info('values', values)
+        console.info('Values from state', {
+            hasAllProperties,
+            title,
+            body,
+            type,
             validBefore,
             unitNames,
             sectionIds,
-            property,
-            //...newsItemValues
-            body,
-            title,
-        } = newsItemFormValues
-
-        console.info('values', values)
-        console.info('newsItemFOrmValues', newsItemFormValues)
+        })
+        console.info('newsItemFormValues', condoFormValues)
 
         const updatedNewsItemValues = {
             validBefore: type === NEWS_TYPE_EMERGENCY ? validBefore : null,
@@ -722,7 +775,6 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                 const newsItemSharing = {
                     b2bAppContext: { connect: { id: ctxId } },
                     newsItem: { connect: { id: newsItemId } },
-                    // TODO @toplenboren add supprot for telegram-like sharing apps!
                     sharingParams: sharingAppsFormValues[ctxId],
                 }
 
@@ -731,11 +783,11 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             }
         }
 
-        property = selectedProperties[0]
-
-        if (get(newsItemFormValues, 'hasAllProperties', null) && get(newsItemFormValues, 'property', null)) {
-            properties = has(property, 'id') ? [property.id] : []
-        }
+        // const property = selectedProperties[0]
+        //
+        // if (get(condoFormValues, 'hasAllProperties', null) && get(condoFormValues, 'property', null)) {
+        //     properties = has(property, 'id') ? [property.id] : []
+        // }
 
         // Handle news item scopes updates:
         if (actionName === 'update' && properties.length !== 0 && initialHasAllProperties) {
@@ -897,7 +949,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     }, [ actionName, createOrUpdateNewsItem, initialHasAllProperties, initialPropertyIds, updateNewsItem, OnCompletedMsg, afterAction, initialSentAt, currentNewsItem, initialNewsItemScopes, softDeleteNewsItemScope, initialUnitKeys, createNewsItemScope, router ])
 
     const newsItemScopesNoInstance = useMemo<TNewsItemScopeNoInstance[]>(() => {
-        if (isAllPropertiesChecked && countPropertiesAvaliableToSelect.current !== 1) {
+        if (isAllPropertiesChecked && countPropertiesAvailableToSelect.current !== 1) {
             return [{ property: null, unitType: null, unitName: null }]
         }
 
@@ -989,18 +1041,19 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         let fieldsToValidate = []
 
         console.log('VALUES!!!', form.getFieldsValue(true))
-        setNewsItemFormValues({ ...newsItemFormValues, ...form.getFieldsValue(true) })
 
         if (currentStep === 0) {
             fieldsToValidate = ['type', 'validBefore']
+            setSelectAppsFormValues({ ...form.getFieldsValue(true) })
         }
 
         if (currentStep === 1) {
-            fieldsToValidate = ['title', 'body', 'hasAllProperties', 'templates', 'property', 'unitNames', 'sectionIds']
+            fieldsToValidate = ['templates', 'title', 'body', 'property', 'properties', 'hasAllProperties', 'unitNames', 'sectionIds']
+            setCondoFormValues({ ...form.getFieldsValue(true) })
         }
 
         if (currentStep === getLastStep()) {
-            fieldsToValidate = ['title', 'body', 'templates', 'property', 'unitNames', 'sectionIds']
+            fieldsToValidate = ['sendAt']
         }
 
         form.validateFields(fieldsToValidate).then((values) => {
@@ -1097,7 +1150,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                 title: ReviewStepLabel,
             },
         ]
-    }, [ selectedSharingAppsContexts ])
+    }, [CondoAppStepLabel, ReviewStepLabel, SelectAppsStepLabel, selectedSharingAppsContexts, sharingAppContextsIndex])
 
     const getSteps = useCallback(() => {
         return getStepsData().map((step, i) => {
@@ -1107,7 +1160,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             
             return { title: step.title }
         })
-    }, [getStepsData, skippedSteps])
+    }, [StepSkippedPrefixLabel, getStepsData, skippedSteps])
 
     const getStepTypeByStep = (currentStep: number): NewsFormStepType => {
         return getStepsData()[currentStep].type

@@ -227,7 +227,6 @@ export const CreateNewsForm: React.FC = () => {
         <BaseNewsForm
             autoFocusBody={organizationNewsCount === 0}
             initialValues={initialValues}
-            action={action}
             organizationId={organizationId}
             newsItemAction={action}
             ActionBar={CreateNewsActionBar}
