@@ -19,6 +19,7 @@ const { getTmpFile } = require('@condo/domains/common/utils/testSchema/file')
 const access = require('@condo/domains/notification/access/_internalSendResidentPhonesService')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
+const { sleep } = require('../../common/utils/sleep')
 const { Contact } = require('../../contact/utils/serverSchema')
 const { User } = require('../../user/utils/serverSchema')
 
@@ -45,7 +46,7 @@ const buildUploadInputFrom = ({ stream, filename, mimetype, encoding, meta }) =>
 const queryAllItemsByChunks = async ({
     schemaName,
     where = {},
-    chunkSize = 1000,
+    chunkSize = 100,
     chunkProcessor = (chunk) => chunk,
 }) => {
     let skip = 0
@@ -54,6 +55,7 @@ const queryAllItemsByChunks = async ({
     let newChunkLength
 
     do {
+        await sleep(200)
         newChunk = await itemsQuery(schemaName, { where, first: chunkSize, skip, sortBy: ['id_ASC'] })
         newChunkLength = newChunk.length
 
