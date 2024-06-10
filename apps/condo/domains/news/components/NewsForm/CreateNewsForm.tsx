@@ -205,7 +205,7 @@ export const CreateNewsForm: React.FC = () => {
         )
     }, [intl, softDeleteNewsItem])
 
-    const error = useMemo(() => newsItemTemplatesError || allNewsError || totalPropertiesError, [allNewsError, newsItemTemplatesError, totalPropertiesError, sharingAppContextsError])
+    const error = useMemo(() => newsItemTemplatesError || allNewsError || totalPropertiesError || sharingAppContextsError, [allNewsError, newsItemTemplatesError, totalPropertiesError, sharingAppContextsError])
     const loading = isNewsFetching || isNewsItemTemplatesFetching || totalPropertiesLoading || organizationNewsCountLoading || isSharingAppContextsFetching
 
     const initialValues = useMemo(() => organizationNewsCount === 0 && ({

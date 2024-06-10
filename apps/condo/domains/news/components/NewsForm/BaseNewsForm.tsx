@@ -1120,7 +1120,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             if (id) { skippedSharingAppIds.add(id) }
         })
         return Array.from(selectedSharingAppsContexts).filter(ctxId => !skippedSharingAppIds.has(ctxId))
-    }, [skippedSteps, selectedSharingAppsContexts])
+    }, [skippedSteps, selectedSharingAppsContexts, getStepDataByStep])
 
     const getStepsData = useCallback((): StepData[] => {
         const sharingApps: StepData[] = Array.from(selectedSharingAppsContexts).map(appCtx => ({
@@ -1162,13 +1162,13 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         })
     }, [StepSkippedPrefixLabel, getStepsData, skippedSteps])
 
-    const getStepTypeByStep = (currentStep: number): NewsFormStepType => {
-        return getStepsData()[currentStep].type
-    }
+    const getStepTypeByStep = useCallback((step: number): NewsFormStepType => {
+        return getStepsData()[step].type
+    }, [getStepsData])
 
-    const getStepDataByStep = (currentStep: number) => {
-        return getStepsData()[currentStep]
-    }
+    const getStepDataByStep = useCallback((step: number) => {
+        return getStepsData()[step]
+    }, [getStepsData])
 
     const getLastStep = useCallback(() => {
         return getSteps().length - 1

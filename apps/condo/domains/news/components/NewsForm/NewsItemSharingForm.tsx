@@ -2,7 +2,7 @@ import { B2BApp, NewsItem } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
-import React, { useEffect, useRef, useState } from 'react'
+import React, {useCallback, useEffect, useRef, useState} from 'react'
 import { Options as ScrollOptions } from 'scroll-into-view-if-needed'
 
 import { ActionBar as UIActionBar, Alert, Button, Typography } from '@open-condo/ui'
@@ -63,13 +63,13 @@ export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemDa
     const isCustomForm = !!newsSharingConfig.customFormUrl
     const [ sharingAppFormValues, setSharingAppFormValues ] = useState<SharingAppValues>(processedInitialValues)
 
-    const handleSharingAppIFrameFormMessage = (event) => {
+    const handleSharingAppIFrameFormMessage = useCallback((event) => {
         const { handler, ctxId: eventCtxId, formValues, preview, isValid } = event.data
         if (handler === 'handleSharingAppIFrameFormMessage' && id === eventCtxId) {
             console.info('Incoming message from miniapp form', { formValues, preview, isValid })
             setSharingAppFormValues({ formValues, preview, isValid })
         }
-    }
+    }, [id])
 
     useEffect(() => {
 
