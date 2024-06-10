@@ -2,7 +2,7 @@ import { B2BApp, NewsItem } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
-import React, {useCallback, useEffect, useRef, useState} from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Options as ScrollOptions } from 'scroll-into-view-if-needed'
 
 import { ActionBar as UIActionBar, Alert, Button, Typography } from '@open-condo/ui'
