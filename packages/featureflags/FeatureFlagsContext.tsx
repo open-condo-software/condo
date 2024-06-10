@@ -2,7 +2,7 @@ import { GrowthBook, GrowthBookProvider, useGrowthBook } from '@growthbook/growt
 import get from 'lodash/get'
 import isEqual from 'lodash/isEqual'
 import getConfig from 'next/config'
-import { createContext, useCallback, useContext, useEffect } from 'react'
+import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
@@ -28,12 +28,20 @@ const useFeatureFlags = (): IFeatureFlagsContext => useContext(FeatureFlagsConte
 
 const FeatureFlagsProviderWrapper = ({ children }) => {
     const growthbook = useGrowthBook()
-    const { user } = useAuth()
-    const { organization } = useOrganization()
+    const { user, isLoading: userIsLoading } = useAuth()
+    const { organization, isLoading: organizationIsLoading } = useOrganization()
+
+    const [fetchIsLoading, setFetchIsLoading] = useState<boolean>(true)
 
     const isSupport = get(user, 'isSupport', false)
     const isAdmin = get(user, 'isAdmin', false)
     const userId = get(user, 'id', null)
+
+    console.log('FeatureFlagsProviderWrapper:::', {
+        firstFetchIsLoading: fetchIsLoading,
+        user, userIsLoading,
+        organization, organizationIsLoading,
+    })
 
     const {
         publicRuntimeConfig: {
@@ -61,6 +69,9 @@ const FeatureFlagsProviderWrapper = ({ children }) => {
                         }
                     })
                     .catch(e => console.error(e))
+                    .finally(() => {
+                        setFetchIsLoading(false)
+                    })
             }
         }
 

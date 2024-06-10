@@ -579,14 +579,18 @@ const PropertyReportPage = (): React.ReactElement => {
     const { useFlag } = useFeatureFlags()
     const reportPageEnabled = useFlag(PROPERTY_BANK_ACCOUNT)
 
+    console.log('PropertyReportPage:::', { reportPageEnabled, organization })
+
     const { loading, obj: property, error } = Property.useObject(
         { where: { id: id as string, organization: { id: organization.id } } },
         { fetchPolicy: 'cache-first' }
     )
 
     useEffect(() => {
+        console.log('PropertyReportPage:useEffect::', { reportPageEnabled, organization })
         if (typeof window !== 'undefined') {
             if (!reportPageEnabled) {
+                console.log('PropertyReportPage:useEffect:do it:', { reportPageEnabled, organization })
                 push(asPath.split('/report')[0])
             }
         }
