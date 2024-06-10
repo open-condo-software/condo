@@ -20,6 +20,7 @@ import {
     METER_TAB_TYPES,
     MeterPageTypes,
     MeterReadingsTypes,
+    MeterReading,
 } from '@condo/domains/meter/utils/clientSchema'
 import {
     getResourceRender,
@@ -52,8 +53,9 @@ export function useTableColumns <T> (
     const intl = useIntl()
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
     const MeterReadingDateMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterReadingDate' })
-    const MeterVerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterVerificationDate' })
+    const MeterNextVerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.NextVerificationDate' })
     const ServiceMessage = intl.formatMessage({ id: 'pages.condo.meter.Resource' })
+    const ConsumptionMessage = intl.formatMessage({ id: 'pages.condo.meter.Consumption' })
     const SourceMessage = intl.formatMessage({ id: 'field.Source' })
     const ContactMessage = intl.formatMessage({ id: 'Contact' })
     const MeterNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterNumber' })
@@ -127,9 +129,9 @@ export function useTableColumns <T> (
             render: renderMeterRecord,
         },
         {
-            title: MeterReadingMessage,
+            title: ConsumptionMessage,
             ellipsis: false,
-            key: 'value',
+            key: 'consumption',
             width: isPropertyMeter ? '25%' : '20%',
             render: renderMeterRecord,
         },
@@ -243,15 +245,15 @@ export function useTableColumns <T> (
         ]) : compact([
             ...meterAndMeterReadingColumns,
             isPropertyMeter ? undefined : {
-                title: MeterVerificationDateMessage,
+                title: MeterNextVerificationDateMessage,
                 sortOrder: get(sorterMap, 'verificationDate'),
-                filteredValue: getFilteredValue(filters, 'verificationDate'),
-                dataIndex: isMeter ? 'verificationDate' : ['meter', 'verificationDate'],
-                key: 'verificationDate',
+                filteredValue: getFilteredValue(filters, 'nextVerificationDate'),
+                dataIndex: isMeter ? 'nextVerificationDate' : ['meter', 'nextVerificationDate'],
+                key: 'nextVerificationDate',
                 sorter: true,
                 width: '11%',
                 render: getVerificationDateRender(intl, isMeter, search),
-                filterDropdown: getFilterDropdownByKey(filterMetas, 'verificationDate'),
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'nextVerificationDate'),
             },
             {
                 title: StatusMessage,
@@ -263,5 +265,5 @@ export function useTableColumns <T> (
             },
             
         ])
-    }, [isReadingsForSingleMeter, readingsForSingleMeterColumns, meterTabType, AddressMessage, filters, renderAddress, filterMetas, PeriodMessage, sorterMap, search, intl, meterAndMeterReadingColumns, MeterReadingDateMessage, isPropertyMeter, MeterReadingMessage, MeterVerificationDateMessage, isMeter, StatusMessage])
+    }, [isReadingsForSingleMeter, readingsForSingleMeterColumns, meterTabType, AddressMessage, filters, renderAddress, filterMetas, PeriodMessage, sorterMap, search, intl, meterAndMeterReadingColumns, MeterReadingDateMessage, isPropertyMeter, MeterReadingMessage, MeterNextVerificationDateMessage, isMeter, StatusMessage])
 }

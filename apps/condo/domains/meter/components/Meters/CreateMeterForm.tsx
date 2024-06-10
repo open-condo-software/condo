@@ -49,7 +49,9 @@ export const CreateMeterForm = (props: CreateMeterProps): JSX.Element => {
     const [selectedUnitName, setSelectedUnitName] = useState<string>(get(initialRecord, 'unitName'))
     const [isMatchSelectedProperty, setIsMatchSelectedProperty] = useState(true)
 
-    const { obj: property, loading: propertyLoading } = Property.useObject({ where: { id: selectedPropertyId } })
+    const { obj: property, loading: propertyLoading } = Property.useObject({ where: { id: selectedPropertyId } },
+        { skip: !selectedPropertyId }
+    )
 
     const isPropertyMeter = meterType === METER_TAB_TYPES.propertyMeter
     const MeterIdentity = isPropertyMeter ? PropertyMeter : Meter

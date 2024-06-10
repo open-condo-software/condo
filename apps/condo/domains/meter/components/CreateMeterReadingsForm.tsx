@@ -119,6 +119,7 @@ export const MetersTable = ({
             property: { id: selectedPropertyId },
             unitName: selectedUnitName,
             unitType: selectedUnitType,
+            archiveDate: null,
         },
         orderBy: SortMetersBy.CreatedAtDesc,
     })
@@ -252,13 +253,17 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     }, { skip: isNull(selectedPropertyId) })
 
     const { count: meterCountForAddress, loading: meterCountForAddressLoading } = Meter.useCount({
-        where: { property: { id: selectedPropertyId } },
+        where: { 
+            property: { id: selectedPropertyId },
+            archiveDate: null,
+        },
     }, { skip: isNull(selectedPropertyId) })
 
     const { count: meterCountForUnitName, loading: meterCountForUnitNameLoading } = Meter.useCount({
         where: { 
             property: { id: selectedPropertyId },
             unitName: selectedUnitName,
+            archiveDate: null,
         },
     }, { skip: isNull(selectedPropertyId || selectedUnitName) })
 
@@ -437,6 +442,7 @@ export const PropertyMetersTable = ({
     const { objs: meters, refetch: refetchMeters, loading: metersLoading, count: total } = PropertyMeter.useObjects({
         where: {
             property: { id: selectedPropertyId },
+            archiveDate: null,
         },
         orderBy: SortMetersBy.CreatedAtDesc,
     })
@@ -531,7 +537,10 @@ export const CreatePropertyMeterReadingsForm = ({ organization }) => {
     })
 
     const { count: proeprtyMeterCount, loading: propertyMeterCountLoading } = PropertyMeter.useCount({
-        where: { property: { id: selectedPropertyId } },
+        where: {
+            property: { id: selectedPropertyId },
+            archiveDate: null,
+        },
     }, { skip: isNull(selectedPropertyId) })
 
     useEffect(() => {        

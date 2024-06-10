@@ -70,7 +70,7 @@ export function useFilters (meterPageType: MeterPageTypes): Array<FiltersMeta<Me
     const resourceStringContainsFilter = getStringContainsFilter(isMeterTab ? ['resource', 'name'] : ['meter', 'resource', 'name'])
     const clientNameFilter = getStringContainsFilter('clientName')
     const readingDateRangeFilter = getDayRangeFilter('date')
-    const verificationDateRangeFilter = getDayRangeFilter(isMeterTab ? 'verificationDate' : ['meter', 'verificationDate'])
+    const nextVerificationDateRangeFilter = getDayRangeFilter(isMeterTab ? 'nextVerificationDate' : ['meter', 'nextVerificationDate'])
     const installationDateRangeFilter = getDayRangeFilter(isMeterTab ? 'installationDate' : ['meter', 'installationDate'])
     const archiveDateRangeFilter = getDayRangeFilter(isMeterTab ? 'archiveDate' : ['meter', 'archiveDate'])
     const commissioningDateRangeFilter = getDayRangeFilter(isMeterTab ? 'commissioningDate' : ['meter', 'commissioningDate'])
@@ -224,8 +224,8 @@ export function useFilters (meterPageType: MeterPageTypes): Array<FiltersMeta<Me
                 },
             },
             {
-                keyword: 'verificationDate',
-                filters: [verificationDateRangeFilter],
+                keyword: 'nextVerificationDate',
+                filters: [nextVerificationDateRangeFilter],
                 component: {
                     type: ComponentType.DateRange,
                     props: {
@@ -322,5 +322,5 @@ export function useFilters (meterPageType: MeterPageTypes): Array<FiltersMeta<Me
         ])
         
 
-    }, [addressFilter, userOrganizationId, EnterAddressMessage, AddressMessage, isPropertyMeter, unitNameFilter, EnterUnitNameLabel, UnitMessage, accountNumberFilter, EnterAccountNumberMessage, AccountNumberMessage, isMeterTab, clientNameFilter, FullNameMessage, ContactMessage, resourceFilter, resourcesOptions, resourcesLoading, ChooseServiceMessage, ServiceMessage, sourceFilter, sourcesOptions, SelectMessage, SourceMessage, numberFilter, EnterMeterNumberMessage, MeterNumberMessage, readingDateRangeFilter, StartDateMessage, EndDateMessage, MeterReadingDateMessage, placeFilter, EnterPlaceMessage, PlaceMessage, verificationDateRangeFilter, VerificationDateMessage, installationDateRangeFilter, InstallationDateMessage, commissioningDateRangeFilter, CommissioningDateMessage, sealingDateRangeFilter, SealingDateMessage, controlReadingsDateRangeFilter, ControlReadingsDate, archiveDateRangeFilter, ArchiveDate, addressStringContainsFilter, resourceStringContainsFilter, unitNameStringContainsFilter])
+    }, [addressFilter, userOrganizationId, EnterAddressMessage, AddressMessage, isPropertyMeter, unitNameFilter, EnterUnitNameLabel, UnitMessage, accountNumberFilter, EnterAccountNumberMessage, AccountNumberMessage, isMeterTab, clientNameFilter, FullNameMessage, ContactMessage, resourceFilter, resourcesOptions, resourcesLoading, ChooseServiceMessage, ServiceMessage, sourceFilter, sourcesOptions, SelectMessage, SourceMessage, numberFilter, EnterMeterNumberMessage, MeterNumberMessage, readingDateRangeFilter, StartDateMessage, EndDateMessage, MeterReadingDateMessage, placeFilter, EnterPlaceMessage, PlaceMessage, nextVerificationDateRangeFilter, VerificationDateMessage, installationDateRangeFilter, InstallationDateMessage, commissioningDateRangeFilter, CommissioningDateMessage, sealingDateRangeFilter, SealingDateMessage, controlReadingsDateRangeFilter, ControlReadingsDate, archiveDateRangeFilter, ArchiveDate, addressStringContainsFilter, resourceStringContainsFilter, unitNameStringContainsFilter])
 }

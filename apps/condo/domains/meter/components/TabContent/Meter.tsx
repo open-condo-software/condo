@@ -11,7 +11,7 @@ import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { PlusCircle, Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Checkbox } from '@open-condo/ui'
+import { Button, Checkbox  } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
@@ -46,7 +46,7 @@ const QUICK_FILTERS_COL_STYLE: CSSProperties = { alignSelf: 'center' }
 const RESET_FILTERS_BUTTON_STYLE: CSSProperties = { paddingLeft: 0 }
 
 const SORTABLE_PROPERTIES = ['verificationDate', 'source']
-const DEFAULT_DATE_RANGE: [Dayjs, Dayjs] = [dayjs().subtract(1, 'week'), dayjs()]
+const DEFAULT_DATE_RANGE: [Dayjs, Dayjs] = [dayjs(), dayjs().add(2, 'month')]
 
 type MetersTableContentProps = {
     filtersMeta: FiltersMeta<MeterReadingWhereInput>[]
@@ -69,10 +69,10 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
     const intl = useIntl()
     const CreateMeterButtonLabel = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterButtonLabel' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
-    const StartDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
-    const EndDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
     const IsActiveMessage = intl.formatMessage({ id: 'pages.condo.meter.Meter.isActive' })
     const OutOfOrderMessage = intl.formatMessage({ id: 'pages.condo.meter.Meter.outOfOrder' })
+    const VerificationStartMessage = intl.formatMessage({ id: 'pages.condo.meter.Verification.StartDate' })
+    const VerificationEndMessage = intl.formatMessage({ id: 'pages.condo.meter.Verification.EndDate' })
 
     const router = useRouter()
     const { filters, offset, sorters, tab } = parseQuery(router.query)
@@ -82,26 +82,31 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
 
     const sortBy = useMemo(() => sortersToSortBy(sorters) as SortMetersBy[], [sorters, sortersToSortBy])
 
-    const [dateRange, setDateRange] = useDateRangeSearch('verificationDate')
+    const [dateRange, setDateRange] = useDateRangeSearch('nextVerificationDate')
     const [filtersAreReset, setFiltersAreReset] = useState(false)
     const [isShowActiveMeters, setIsShowActiveMeters] = useState(true)
     const [isShowArchivedMeters, setIsShowArchivedMeters] = useState(false)
 
     const dateFallback = filtersAreReset ? null : DEFAULT_DATE_RANGE
-    const dateFilterValue = dateRange || dateFallback
+    const dateFilterValue = dateRange
     const dateFilter = dateFilterValue ? dateFilterValue.map(el => el.toISOString()) : null
 
     const handleDateChange = useCallback((value) => {
         if (!value) {
             setFiltersAreReset(true)
+            setDateRange(null)
+        } else {
+            setDateRange(value)
         }
-        setDateRange(value)
     }, [setDateRange])
 
+    const handleOnClickVerificationDate = useCallback(() => {
+        if (!dateRange) setDateRange(dateFallback)
+    }, [dateFallback, dateRange, setDateRange])
 
     const searchMetersQuery = useMemo(() => ({
         ...filtersToWhere({
-            verificationDate: dateFilter,
+            nextVerificationDate: dateFilter,
             ...filters,
         }),
         ...(isShowActiveMeters && !isShowArchivedMeters)  ? { archiveDate: null } : {},
@@ -173,11 +178,13 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
                                 <Row justify='start' gutter={FILTERS_CONTAINER_GUTTER} style={{ flexWrap: 'nowrap' }}>
                                     <Col style={QUICK_FILTERS_COL_STYLE}>
                                         <DateRangePicker
-                                            value={dateRange || dateFallback}
+                                            value={dateRange}
                                             onChange={handleDateChange}
-                                            placeholder={[StartDateMessage, EndDateMessage]}
+                                            placeholder={[VerificationStartMessage, VerificationEndMessage]}
+                                            onClick={handleOnClickVerificationDate}
+                                            size='large'
+                                            disabledDate={_ => false}
                                         />
-                                        
                                     </Col>
                                     <Col style={QUICK_FILTERS_COL_STYLE}>
                                         <Checkbox
