@@ -3,6 +3,7 @@ import { Paragraph } from './paragraph'
 import { Text } from './text'
 import { Title } from './title'
 import './style.less'
+import './rtl.less'
 
 export type { TypographyTitleProps } from './title'
 export type { TypographyTextProps } from './text'

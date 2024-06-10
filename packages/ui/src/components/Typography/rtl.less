@@ -1,0 +1,52 @@
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+
+.condo-typography {
+  &-rtl {
+    direction: rtl;
+  }
+
+  &-expand {
+    .condo-typography-rtl & {
+      float: left;
+      margin-right: 4px;
+      margin-left: 0;
+    }
+  }
+
+  // Operation
+  &-edit,
+  &-copy {
+    .condo-typography-rtl & {
+      margin-right: 4px;
+      margin-left: 0;
+    }
+  }
+
+  // Text input area
+  &-edit-content {
+    div& {
+      &.condo-typography-rtl {
+        right: -@condo-global-spacing-4 - 1px;
+        left: auto;
+      }
+    }
+
+    &-confirm {
+      .condo-typography-rtl & {
+        right: auto;
+        left: 10px;
+      }
+    }
+  }
+
+  // list
+  ul,
+  ol {
+    li {
+      .condo-typography-rtl& {
+        margin: 0 20px 0 0;
+        padding: 0 4px 0 0;
+      }
+    }
+  }
+}

@@ -215,8 +215,8 @@ __metadata:
   linkType: hard
 
 "@ant-design/icons@npm:^5.3.6":
-  version: 5.3.6
-  resolution: "@ant-design/icons@npm:5.3.6"
+  version: 5.3.7
+  resolution: "@ant-design/icons@npm:5.3.7"
   dependencies:
     "@ant-design/colors": ^7.0.0
     "@ant-design/icons-svg": ^4.4.0
@@ -226,7 +226,7 @@ __metadata:
   peerDependencies:
     react: ">=16.0.0"
     react-dom: ">=16.0.0"
-  checksum: bdb57adcdc0c687002e99d91413ac1c9ffd70c8368a54648ef6c3427c074b24376d8dced57542be695f5fdfe81be14a62b58a41cba7f5efdadc77c4161c58cae
+  checksum: 96a0f7e3315926f438467812df9b23fd202172eaa01adc75e2afa052c090e2c2d5d54283e08318e54cb25ea21c63ff1857d5f0eb7051b3e09decedbac62513d7
   languageName: node
   linkType: hard
 
@@ -1909,6 +1909,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@app/resident-app@workspace:apps/resident-app"
   dependencies:
+    "@ant-design/cssinjs": ^1.18.5
     "@apollo/client": ^3.10.1
     "@babel/core": 7.20.12
     "@babel/preset-env": 7.20.2
@@ -1919,12 +1920,16 @@ __metadata:
     "@graphql-codegen/typescript-operations": ^4.0.1
     "@graphql-codegen/typescript-react-apollo": ^4.0.0
     "@open-condo/config": "workspace:^"
+    "@open-condo/icons": "workspace:^"
     "@open-condo/tsconfig": "workspace:^"
+    "@open-condo/ui": "workspace:^"
     "@parcel/watcher": ^2.3.0
     "@serwist/next": ^9.0.1
     "@types/react": 18.0.27
     "@types/react-dom": 18.0.10
+    antd: 5.16.4
     apollo-upload-client: ^17
+    classnames: ^2.3.2
     deepmerge: ^4.3.1
     graphql: ^16.8.1
     http-proxy: ^1.18.1
@@ -42511,8 +42516,8 @@ __metadata:
   linkType: hard
 
 "rc-select@npm:~14.13.0, rc-select@npm:~14.13.1":
-  version: 14.13.1
-  resolution: "rc-select@npm:14.13.1"
+  version: 14.13.4
+  resolution: "rc-select@npm:14.13.4"
   dependencies:
     "@babel/runtime": ^7.10.1
     "@rc-component/trigger": ^2.1.1
@@ -42524,7 +42529,7 @@ __metadata:
   peerDependencies:
     react: "*"
     react-dom: "*"
-  checksum: b446cd2934e44c9f4ad68bb349696274544eb3e03ea1de798f2a8343b33a4934270c4271ff1f20ac7dd689e87f2e01aa0d0259ce81a8ed3fba270aa70cdd6c81
+  checksum: 9738474c242a4de35ebed003ca52f9d80cf58917c143f90d329d421a50b8575d46e1a28b53577ed8fc71f3a9e26c07baa02ead9cab81464f46c8cdc536b26f89
   languageName: node
   linkType: hard
 
@@ -42646,19 +42651,19 @@ __metadata:
   linkType: hard
 
 "rc-table@npm:~7.45.4":
-  version: 7.45.4
-  resolution: "rc-table@npm:7.45.4"
+  version: 7.45.7
+  resolution: "rc-table@npm:7.45.7"
   dependencies:
     "@babel/runtime": ^7.10.1
     "@rc-component/context": ^1.4.0
     classnames: ^2.2.5
     rc-resize-observer: ^1.1.0
     rc-util: ^5.37.0
-    rc-virtual-list: ^3.11.1
+    rc-virtual-list: ^3.14.2
   peerDependencies:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
-  checksum: 89a6b6dbe5c733b5eedbbcdbd6489c97dace75020f318b60c8659bcca0fa1984372faf85145eb57906396bef6b8e4c1a60faa876182aea48baac01a475a17b00
+  checksum: c9e3cc14dbb45593e33e2179a92a00e46de5af74d8596c8a11433a4e3420746ec597fa92b25e4d98faa10fd6a603e947f69d123bc07a21a9441b1ffc863701ab
   languageName: node
   linkType: hard
 
@@ -42806,7 +42811,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rc-tree@npm:~5.8.1, rc-tree@npm:~5.8.5":
+"rc-tree@npm:~5.8.1":
   version: 5.8.5
   resolution: "rc-tree@npm:5.8.5"
   dependencies:
@@ -42819,6 +42824,22 @@ __metadata:
     react: "*"
     react-dom: "*"
   checksum: 9f5d652b4a6a5c93e8b6ddb6ecbd11560d845661dcb1d7d03b97c31181592bfb54ef350fae90eff461a027639c2b1a74ec5b709920125efb7b66959377359e2f
+  languageName: node
+  linkType: hard
+
+"rc-tree@npm:~5.8.5":
+  version: 5.8.7
+  resolution: "rc-tree@npm:5.8.7"
+  dependencies:
+    "@babel/runtime": ^7.10.1
+    classnames: 2.x
+    rc-motion: ^2.0.1
+    rc-util: ^5.16.1
+    rc-virtual-list: ^3.5.1
+  peerDependencies:
+    react: "*"
+    react-dom: "*"
+  checksum: 9d96967885814e85358d6a03bdf06f6f50bbe0356c61cf0fdb0515f60ef5c21fe3e0b4a7fb476fba83297bb37cbc730937dbeec746510ce4ef87db7995d29d36
   languageName: node
   linkType: hard
 
@@ -42934,20 +42955,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rc-util@npm:^5.28.0, rc-util@npm:^5.31.1, rc-util@npm:^5.35.0, rc-util@npm:^5.36.0":
-  version: 5.38.0
-  resolution: "rc-util@npm:5.38.0"
+"rc-util@npm:^5.28.0, rc-util@npm:^5.39.1":
+  version: 5.41.0
+  resolution: "rc-util@npm:5.41.0"
   dependencies:
     "@babel/runtime": ^7.18.3
     react-is: ^18.2.0
   peerDependencies:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
-  checksum: 97a3e1dd94e199c12e69eed1f69e9a9be39b383f2b0d9e1d52d6fcdf676e91e6499fa7be4c48f37b08b6500747f2dc41014f9be54351a39f23b3b5087360690c
+  checksum: 656eaf77964dc46f4e2ad9e68a1cd068ac8a939061c65a3b318416fb84f4e95af81225d73758d0604252627c46c511bc6e6f87bc577d605c665847ee998d68bd
   languageName: node
   linkType: hard
 
-"rc-util@npm:^5.30.0, rc-util@npm:^5.34.1, rc-util@npm:^5.39.1":
+"rc-util@npm:^5.30.0, rc-util@npm:^5.34.1":
   version: 5.39.1
   resolution: "rc-util@npm:5.39.1"
   dependencies:
@@ -42957,6 +42978,19 @@ __metadata:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
   checksum: 67c53eea11fcdbca2b4a31853f1cedf6923ec7014eca90254ead5f4ef3317eb9b9df3434a5469c3cab3c45c3e5f4f2209cb3e9f4e8aa0413f4681475b7be6151
+  languageName: node
+  linkType: hard
+
+"rc-util@npm:^5.31.1, rc-util@npm:^5.35.0, rc-util@npm:^5.36.0":
+  version: 5.38.0
+  resolution: "rc-util@npm:5.38.0"
+  dependencies:
+    "@babel/runtime": ^7.18.3
+    react-is: ^18.2.0
+  peerDependencies:
+    react: ">=16.9.0"
+    react-dom: ">=16.9.0"
+  checksum: 97a3e1dd94e199c12e69eed1f69e9a9be39b383f2b0d9e1d52d6fcdf676e91e6499fa7be4c48f37b08b6500747f2dc41014f9be54351a39f23b3b5087360690c
   languageName: node
   linkType: hard
 
@@ -42973,9 +43007,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rc-virtual-list@npm:^3.11.1, rc-virtual-list@npm:^3.5.1, rc-virtual-list@npm:^3.5.2":
-  version: 3.11.5
-  resolution: "rc-virtual-list@npm:3.11.5"
+"rc-virtual-list@npm:^3.14.2":
+  version: 3.14.2
+  resolution: "rc-virtual-list@npm:3.14.2"
   dependencies:
     "@babel/runtime": ^7.20.0
     classnames: ^2.2.6
@@ -42984,7 +43018,7 @@ __metadata:
   peerDependencies:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
-  checksum: eca0694e057b3d139fff2c35a2eea7578b2af5ffbf1d3ae2a10929ff2edf810f502e348dac71154ed25df33fde21066b9443004461d75fda3ee112f73191cb90
+  checksum: 509753eff7c2850174cd5a1530c383739c4fa5878b24f238e42d93f88f12ffd0833c66a727cf74d1f0d08cd1de1db446c85e6785efc67330329a6a33dcaef0cd
   languageName: node
   linkType: hard
 
@@ -42999,6 +43033,21 @@ __metadata:
     react: "*"
     react-dom: "*"
   checksum: 946fcd43daeadd41429475d9945747f5b60bbed6d7b94ae042242504c5caa27a3a3512c96139a65571d9163d9f0f2a3105220e6289bc1191306536c7b5444216
+  languageName: node
+  linkType: hard
+
+"rc-virtual-list@npm:^3.5.1, rc-virtual-list@npm:^3.5.2":
+  version: 3.11.5
+  resolution: "rc-virtual-list@npm:3.11.5"
+  dependencies:
+    "@babel/runtime": ^7.20.0
+    classnames: ^2.2.6
+    rc-resize-observer: ^1.0.0
+    rc-util: ^5.36.0
+  peerDependencies:
+    react: ">=16.9.0"
+    react-dom: ">=16.9.0"
+  checksum: eca0694e057b3d139fff2c35a2eea7578b2af5ffbf1d3ae2a10929ff2edf810f502e348dac71154ed25df33fde21066b9443004461d75fda3ee112f73191cb90
   languageName: node
   linkType: hard
 

@@ -50,6 +50,12 @@ export default {
             mapping: ['undefined', 'large', 'medium', 'small'],
             control: 'select',
         },
+        direction: {
+            defaultValue: 'undefined',
+            options: [undefined, 'ltr', 'rtl'],
+            mapping: ['undefined', 'ltr', 'rtl'],
+            control: 'select',
+        },
     },
 } as ComponentMeta<typeof Typography.Text>
 
