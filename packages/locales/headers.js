@@ -5,7 +5,7 @@ const ACCEPT_LANGUAGE_REGEXP = /((([a-zA-Z]+(-[a-zA-Z0-9]+){0,2})|\*)(;q=[0-1](\
  * SRC: https://github.com/opentable/accept-language-parser
  * Reason for fork: MIT + last release = 6 years ago
  * @param {string | null} headerValue
- * @returns {Array<{ code: string, script: string | null, region: string, quality: number }>}
+ * @returns {Array<{ code: string, script: string | null, region: string | undefined, quality: number }>}
  */
 function parseAcceptLanguageHeader (headerValue) {
     const matches = (headerValue || '*').match(ACCEPT_LANGUAGE_REGEXP)
