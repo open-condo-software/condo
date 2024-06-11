@@ -56,3 +56,6 @@
 [submodule "apps/announcement-generator"]
 	path = apps/announcement-generator
 	url = git@github.com:open-condo-software/condo-announcement-generator.git
+[submodule "apps/condo-news-sharing-greendom"]
+	path = apps/condo-news-sharing-greendom
+	url = git@github.com:open-condo-software/condo-news-sharing-greendom.git
