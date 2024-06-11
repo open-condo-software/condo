@@ -11,7 +11,7 @@ const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { SEND_DAILY_STATISTICS_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { PROCESSING_STATUS_TYPE, NEW_OR_REOPENED_STATUS_TYPE, DEFERRED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
-const { INCIDENT_WORK_TYPE_SCHEDULED, INCIDENT_STATUS_ACTUAL } = require('@condo/domains/ticket/constants/incident')
+const { INCIDENT_STATUS_ACTUAL } = require('@condo/domains/ticket/constants/incident')
 const { STAFF } = require('@condo/domains/user/constants/common')
 const { User } = require('@condo/domains/user/utils/serverSchema')
 
@@ -34,7 +34,6 @@ class UserDailyStatistics {
 
     /**
      *
-     * @param context
      * @param userId
      * @param currentDate
      */
@@ -107,7 +106,7 @@ class UserDailyStatistics {
 
     /**
      *
-     * @return {Promise<{CommonStatistics>}
+     * @return {Promise<CommonStatistics>}
      */
     async loadStatistics () {
         this.#statistics = this.#getStatisticsTemplate(this.#currentDate)
