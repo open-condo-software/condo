@@ -149,12 +149,19 @@ export abstract class AbstractMetersImporter {
                         } else {
                             const mutationError = errors[errorIndex++]
 
-                            const messageForUser = get(mutationError, ['extensions', 'messageForUser'])
+                            const messageForUser = get(
+                                mutationError,
+                                ['extensions', 'messageForUser'], // Error thrown from the mutation itself
+                                get( // Error thrown by models created within the mutation
+                                    mutationError,
+                                    ['originalError', 'errors', 0, 'extensions', 'messageForUser'],
+                                )
+                            )
                             const rowErrors = []
 
-                            if (messageForUser) {
+                            if (messageForUser) { // field from GQLError
                                 rowErrors.push(messageForUser)
-                            } else {
+                            } else { // data from keystone's fieldValidationError
                                 const mutationErrorMessages = get(mutationError, ['originalError', 'errors', 0, 'data', 'messages'], []) || []
                                 for (const message of mutationErrorMessages) {
                                     const errorCodes = Object.keys(this.mutationErrorsToMessages)
