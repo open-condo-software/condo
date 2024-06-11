@@ -6,7 +6,7 @@
 const get = require('lodash/get')
 const uniq = require('lodash/uniq')
 
-const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
+const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
 const { find } = require('@open-condo/keystone/schema')
 
 const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
@@ -37,11 +37,13 @@ async function registerMetersReadings (context, data) {
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
 
-    return await execGqlWithoutAccess(context, {
+    return await context.executeGraphQL({
         query: REGISTER_METERS_READINGS_MUTATION,
+        context: {
+            req: context.req,
+            ...context.createContext({ skipAccessControl: true }),
+        },
         variables: { data: { dv: 1, ...data } },
-        errorMessage: '[error] Unable to registerMetersReadings',
-        dataPath: 'result',
     })
 }
 

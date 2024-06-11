@@ -1,3 +1,5 @@
+const { isNil, isEmpty } = require('lodash')
+
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { i18n } = require('@open-condo/locales/loader')
 
@@ -26,7 +28,6 @@ const {
     METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION,
 } = require('@condo/domains/meter/constants/errors')
 const { MeterImportTask, registerMetersReadings } = require('@condo/domains/meter/utils/serverSchema')
-const { User } = require('@condo/domains/user/utils/serverSchema')
 const {
     FLAT_UNIT_TYPE,
     PARKING_UNIT_TYPE,
@@ -34,6 +35,7 @@ const {
     WAREHOUSE_UNIT_TYPE,
     COMMERCIAL_UNIT_TYPE,
 } = require('@condo/domains/property/constants/common')
+const { User } = require('@condo/domains/user/utils/serverSchema')
 
 const { DomaMetersImporter } = require('./DomaMetersImporter')
 const { SbbolMetersImporter } = require('./SbbolMetersImporter')
@@ -196,16 +198,18 @@ async function importRows (keystone, userId, organizationId, rows) {
     })
 
     // call it with user context - require for MeterReadings hooks
-    try {
-        const result = await registerMetersReadings(userContext, {
-            ...dvAndSender,
-            organization: { id: organizationId },
-            readings: rows,
-        })
-        return { result }
-    } catch (error) {
-        return error
+    const { errors, data: { result } } = await registerMetersReadings(userContext, {
+        ...dvAndSender,
+        organization: { id: organizationId },
+        readings: rows,
+    })
+    
+    // fatal error proceeding case - throw error in order to fail proceeding job - since this is not recoverable state
+    if (isNil(result) && !isEmpty(errors)) {
+        throw errors[0]
     }
+    
+    return { errors, result }
 }
 
 async function breakProcessChecker (keystone, id) {
@@ -231,7 +235,14 @@ async function setTotalRows (keystone, id, total) {
 async function setProcessedRows (keystone, id, processed) {
     await MeterImportTask.update(keystone, id, {
         ...dvAndSender,
-        importedRecordsCount: processed,
+        processedRecordsCount: processed,
+    })
+}
+
+async function setImportedRows (keystone, id, imported) {
+    await MeterImportTask.update(keystone, id, {
+        ...dvAndSender,
+        importedRecordsCount: imported,
     })
 }
 
@@ -245,6 +256,7 @@ async function getImporter (keystone, taskId, organizationId, userId, format) {
     const breakProcessCheckerQuery = async () => await breakProcessChecker(keystone, taskId)
     const setTotalRowsMutation = async (total) => await setTotalRows(keystone, taskId, total)
     const setProcessedRowsMutation = async (processed) => await setProcessedRows(keystone, taskId, processed)
+    const setImportedRowsMutation = async (imported) => await setImportedRows(keystone, taskId, imported)
     const errorHandlerMutation = async (error) => await errorHandler(keystone, taskId, error)
 
     return new MetersImporterClass(
@@ -256,6 +268,7 @@ async function getImporter (keystone, taskId, organizationId, userId, format) {
         breakProcessCheckerQuery,
         setTotalRowsMutation,
         setProcessedRowsMutation,
+        setImportedRowsMutation,
         errorHandlerMutation,
     )
 }

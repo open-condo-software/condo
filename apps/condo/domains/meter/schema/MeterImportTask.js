@@ -48,6 +48,18 @@ const MeterImportTask = new GQLListSchema('MeterImportTask', {
         },
 
         importedRecordsCount: {
+            schemaDoc: 'How many records at the moment are successfully imported',
+            type: Integer,
+            isRequired: true,
+            defaultValue: 0,
+            access: {
+                read: true,
+                create: canOnlyServerSideWithoutUserRequest,
+                update: canOnlyServerSideWithoutUserRequest,
+            },
+        },
+
+        processedRecordsCount: {
             schemaDoc: 'How many records at the moment are imported',
             type: Integer,
             isRequired: true,
@@ -97,6 +109,11 @@ const MeterImportTask = new GQLListSchema('MeterImportTask', {
             schemaDoc: 'Proceeding error information message',
             type: Text,
             isRequired: false,
+            access: {
+                read: true,
+                create: canOnlyServerSideWithoutUserRequest,
+                update: canOnlyServerSideWithoutUserRequest,
+            },
         },
 
         user: {

@@ -15,6 +15,7 @@ class AbstractMetersImporter {
         breakProcessChecker,
         setTotalRows,
         setProcessedRows,
+        setImportedRows,
         errorHandler,
     ) {
         this.columnsHeaders = columnsHeaders
@@ -25,6 +26,7 @@ class AbstractMetersImporter {
         this.breakProcessChecker = breakProcessChecker
         this.setTotalRows = setTotalRows
         this.setProcessedRows = setProcessedRows
+        this.setImportedRows = setImportedRows
         this.errorHandler = errorHandler
 
         this.progress = {
@@ -32,6 +34,7 @@ class AbstractMetersImporter {
             max: 100,
             current: 0,
             absProcessed: 0,
+            absImported: 0,
             absTotal: 0,
         }
 
@@ -78,11 +81,6 @@ class AbstractMetersImporter {
             // proceeding by chunks - since big amount of data can overload register mutation
             const sourceChunks = chunk(this.tableData, READINGS_CHUNK_SIZE)
             for (const sourceChunk of sourceChunks) {
-                // firstly check if process is not cancelled
-                if (await this.breakProcessChecker()) {
-                    return
-                }
-
                 // prepare rows proceeding vars
                 const transformedData = []
                 const transformedRowToSourceRowMap = new Map()
@@ -126,6 +124,11 @@ class AbstractMetersImporter {
                 // iterate over transformed meter records, chunk by chunk
                 const transformedChunks = chunk(transformedData, READINGS_CHUNK_SIZE)
                 for (const transformedChunk of transformedChunks) {
+                    // firstly check if process is not cancelled
+                    if (await this.breakProcessChecker()) {
+                        return
+                    }
+
                     // call register mutation
                     const transformedChunkResult = await this.importRows(transformedChunk)
                     const {
@@ -133,6 +136,9 @@ class AbstractMetersImporter {
                         errors,
                     } = transformedChunkResult
 
+                    // there are two cases:
+                    // - result rows exists - so we can iterate over them to check if particular row is imported
+                    // - result is null and errors array present - fatal proceeding error
                     let errorIndex = 0
                     for (const transformedRowIndex in result) {
                         const resultRow = result[transformedRowIndex]
@@ -168,13 +174,18 @@ class AbstractMetersImporter {
                                     errors: rowErrors,
                                 })
                                 indexesOfFailedSourceRows.add(sourceRowIndex)
+                            } else {
+                                this.progress.absImported += 1
                             }
+                        } else {
+                            this.progress.absImported += 1
                         }
                     }
                 }
 
                 this.progress.absProcessed += sourceChunk.length
                 await this.setProcessedRows(this.progress.absProcessed)
+                await this.setImportedRows(this.progress.absImported)
             }
 
             // set 100% percent of proceeded lines

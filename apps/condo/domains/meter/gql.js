@@ -83,7 +83,7 @@ const REGISTER_METERS_READINGS_MUTATION = gql`
     }
 `
 
-const METER_IMPORT_TASK_FIELDS = `{ status format importedRecordsCount totalRecordsCount file { id filename originalFilename publicUrl mimetype } errorFile { id filename originalFilename publicUrl mimetype } errorMessage user { id } organization { id } meta ${COMMON_FIELDS} }`
+const METER_IMPORT_TASK_FIELDS = `{ status format processedRecordsCount importedRecordsCount totalRecordsCount file { id filename originalFilename publicUrl mimetype } errorFile { id filename originalFilename publicUrl mimetype } errorMessage user { id } organization { id } meta ${COMMON_FIELDS} }`
 const MeterImportTask = generateGqlQueries('MeterImportTask', METER_IMPORT_TASK_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */

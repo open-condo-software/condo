@@ -456,7 +456,7 @@ async function registerMetersReadingsByTestClient(client, organization, readings
     return [data.result, attrs]
 }
 
-async function createTestMeterImportTask (client, user, extraAttrs = {}) {
+async function createTestMeterImportTask (client, user, organization, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!user || !user.id) throw new Error('no user.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -465,6 +465,7 @@ async function createTestMeterImportTask (client, user, extraAttrs = {}) {
         dv: 1,
         sender,
         user: { connect: { id: user.id } },
+        organization: { connect: { id: organization.id } },
         ...extraAttrs,
     }
     const obj = await MeterImportTask.create(client, attrs)

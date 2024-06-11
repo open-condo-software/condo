@@ -128,6 +128,22 @@ class SbbolMetersImporter extends AbstractMetersImporter {
 
         return Object.values(result)
     }
+
+    async generateErrorFile () {
+        const erroredRows =  this.failedRows
+        const data = []
+
+        for (let i = 0; i < erroredRows.length; i++) {
+            const line = erroredRows[i].originalRow.map((cell) => {
+                if (!cell) return null
+                return String(cell)
+            })
+            line.push(erroredRows[i].errors ? erroredRows[i].errors.join(', ') : null)
+            data.push(line.join(';'))
+        }
+
+        return data.join('\n')
+    }
 }
 
 module.exports = {

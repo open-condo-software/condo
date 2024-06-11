@@ -23,7 +23,6 @@ const {
 } = require('@condo/domains/common/constants/import')
 const { EXCEL_FILE_META } = require('@condo/domains/common/utils/createExportFile')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
-const { SberCloudFileAdapter } = require('@condo/domains/common/utils/sberCloudFileAdapter')
 const { MeterImportTask } = require('@condo/domains/meter/utils/serverSchema')
 const { getImporter } = require('@condo/domains/meter/utils/taskSchema')
 
@@ -50,7 +49,7 @@ function createUpload (content, filename, mimetype) {
     return upload
 }
 
-async function failWithErrorFail (context, taskId, content, format) {
+async function failWithErrorFile (context, taskId, content, format) {
     const filename = format === EXCEL ? 'meters_failed_data.xlsx' : 'meters_failed_data.csv'
     const mimetype = format === EXCEL ? EXCEL_FILE_META.mimetype : 'text/csv' 
 
@@ -121,7 +120,7 @@ async function importMeters (taskId) {
         })
     } else if (currentStatus === PROCESSING && failedRows.length > 0) {
         const errorFileContent = await importer.generateErrorFile()
-        await failWithErrorFail(context, taskId, errorFileContent, format)
+        await failWithErrorFile(context, taskId, errorFileContent, format)
     }
 }
 
