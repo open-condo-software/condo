@@ -26,6 +26,8 @@ import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { Table, TABLE_SCROlL_CONFIG } from '@condo/domains/common/components/Table/Index'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
+import { AddressAndUnitInfo } from '@condo/domains/meter/components/AddressAndUnitInfo'
+import { CreateMeterReadingsActionBar } from '@condo/domains/meter/components/CreateMeterReadingsActionBar'
 import {
     CALL_METER_READING_SOURCE_ID,
     CRM_METER_READING_SOURCE_ID,
@@ -40,9 +42,6 @@ import {
 } from '@condo/domains/meter/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { ContactsInfo } from '@condo/domains/ticket/components/BaseTicketForm'
-
-import { AddressAndUnitInfo } from './AddressAndUnitInfo'
-import { CreateMeterReadingsActionBar } from './CreateMeterReadingsActionBar'
 
 
 export const LAYOUT = {

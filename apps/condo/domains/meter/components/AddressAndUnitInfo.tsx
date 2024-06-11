@@ -27,7 +27,7 @@ type PROPERTY_UNIT_INITIAL_VALUES = {
 }
 
 type AddressAndUnitInfoProps = {
-    form: FormInstance,
+    form?: FormInstance,
     organizationId: string,
     meterType: MeterPageTypes,
     getHandleSelectPropertyAddress: (form: FormInstance) => (_: any, option: DefaultOptionType) => void,

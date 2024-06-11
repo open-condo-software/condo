@@ -49,7 +49,7 @@ type PropertyMetersTableContentProps = {
     tableColumns: ColumnsType
     baseSearchQuery: PropertyMeterReadingWhereInput
     canManageMeterReadings: boolean
-    isAutomatic: boolean,
+    isAutomatic?: boolean,
     sortableProperties?: string[]
     loading?: boolean
     meter?: Meter

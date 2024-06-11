@@ -63,7 +63,7 @@ type MetersTableContentProps = {
     tableColumns: ColumnsType
     baseSearchQuery: MeterReadingWhereInput
     canManageMeterReadings: boolean
-    isAutomatic: boolean,
+    isAutomatic?: boolean,
     meter?: MeterType,
     resource?: MeterResourceType,
     sortableProperties?: string[]

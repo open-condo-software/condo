@@ -31,7 +31,6 @@ import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { MetersImportWrapper } from '@condo/domains/meter/components/Import/Index'
 import { EXPORT_METER_READINGS_QUERY } from '@condo/domains/meter/gql'
-import { useUpdateMeterModal } from '@condo/domains/meter/hooks/useUpdateMeterModal'
 import {
     MeterReadingFilterTemplate,
     MeterForOrganization,
@@ -52,7 +51,7 @@ type MetersTableContentProps = {
     filtersMeta: FiltersMeta<MeterReadingWhereInput>[]
     tableColumns: ColumnsType
     baseSearchQuery: MeterReadingWhereInput
-    canManageMeterReadings: boolean
+    canManageMeters: boolean
     sortableProperties?: string[]
     mutationErrorsToMessages?: Record<string, string>
     loading?: boolean
@@ -62,7 +61,7 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
     filtersMeta,
     tableColumns,
     baseSearchQuery,
-    canManageMeterReadings,
+    canManageMeters,
     sortableProperties,
     loading,
 }) => {
@@ -129,7 +128,6 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
     })
 
     const [search, handleSearchChange, handleSearchReset] = useSearch()
-    const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch)
     const { MultipleFiltersModal, ResetFiltersModalButton, OpenFiltersButton, appliedFiltersCount } = useMultipleFiltersModal({
         filterMetas: filtersMeta,
         filtersSchemaGql: MeterReadingFilterTemplate,
@@ -236,7 +234,7 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
                         exportToExcelQuery={EXPORT_METER_READINGS_QUERY}
                         sortBy={sortBy}
                         actions={[
-                            canManageMeterReadings && (
+                            canManageMeters && (
                                 <Button
                                     key='create'
                                     type='primary'
@@ -246,10 +244,10 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
                                     {CreateMeterButtonLabel}
                                 </Button>
                             ),
-                            canManageMeterReadings && (
+                            canManageMeters && (
                                 <MetersImportWrapper
                                     key='import'
-                                    accessCheck={canManageMeterReadings}
+                                    accessCheck={canManageMeters}
                                     onFinish={refetch}
                                 />
                             ),
@@ -257,7 +255,6 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
                     />
                 </Col>
             </Row>
-            <UpdateMeterModal />
             <MultipleFiltersModal />
         </>
     )
@@ -269,7 +266,7 @@ export const MetersPageContent: React.FC<MeterReadingsPageContentProps> = ({
     filtersMeta,
     tableColumns,
     baseSearchQuery,
-    canManageMeterReadings,
+    canManageMeters,
     loading,
 }) => {
     const intl = useIntl()
@@ -297,7 +294,7 @@ export const MetersPageContent: React.FC<MeterReadingsPageContentProps> = ({
                         OverrideImportWrapperFC: MetersImportWrapper,
                     }}
                     createRoute={`/meter/create?tab=${METER_TAB_TYPES.meter}`}
-                    accessCheck={canManageMeterReadings}
+                    accessCheck={canManageMeters}
                 />
             )
         }
@@ -307,11 +304,11 @@ export const MetersPageContent: React.FC<MeterReadingsPageContentProps> = ({
                 filtersMeta={filtersMeta}
                 tableColumns={tableColumns}
                 baseSearchQuery={baseSearchQuery}
-                canManageMeterReadings={canManageMeterReadings}
+                canManageMeters={canManageMeters}
                 loading={countLoading}
             />
         )
-    }, [EmptyListLabel, EmptyListManualBodyDescription, baseSearchQuery, canManageMeterReadings, count, countLoading, filtersMeta, loading, refetch, tableColumns])
+    }, [EmptyListLabel, EmptyListManualBodyDescription, baseSearchQuery, canManageMeters, count, countLoading, filtersMeta, loading, refetch, tableColumns])
 
     return (
         <TablePageContent>

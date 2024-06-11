@@ -1,10 +1,10 @@
 import { Meter, MeterResource } from '@app/condo/schema'
-import { Typography } from 'antd'
 import dayjs, { Dayjs } from 'dayjs'
 import { get } from 'lodash'
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Typography } from '@open-condo/ui'
 
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 
@@ -25,7 +25,7 @@ type MeterDateFieldProps = {
 
 const ELLIPSIS_CONFIG = { rows: 2 }
 
-const NoDataField = <Typography.Text>&mdash;</Typography.Text>
+const NoDataField = <Typography.Text>—</Typography.Text>
 
 export const MeterAccountField: React.FC<MeterBaseFieldProps> = ({ meter }) => {
     const intl = useIntl()
@@ -45,7 +45,7 @@ export const MeterResourceField: React.FC<MeterResourceFieldProps> = ({ resource
     const MeterResourceMessage = intl.formatMessage({ id: 'pages.condo.meter.Resource' })
     const resourceName = get(resource, 'name')
 
-    const ResourceMessageName = intl.formatMessage({ id: resourceName as any }) 
+    const ResourceMessageName = intl.formatMessage({ id: resourceName as FormatjsIntl.Message['ids'] }) 
  
     return (
         <PageFieldRow title={MeterResourceMessage} ellipsis={ELLIPSIS_CONFIG}>

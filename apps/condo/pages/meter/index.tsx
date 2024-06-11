@@ -88,6 +88,8 @@ export const MeterTypeSwitch = ({ value, setValue }) => {
     )
 }
 
+const PAGE_DIV_STYLE: CSSProperties = { display: 'flex', flexDirection: 'column',  height: '100%' }
+
 const MetersPage: IMeterIndexPage = () => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.meter.index.PageTitle' })
@@ -191,13 +193,13 @@ const MetersPage: IMeterIndexPage = () => {
                         filtersMeta={filtersMeta}
                         tableColumns={tableColumns}
                         loading={isLoading}
-                        canManageMeterReadings={canManageMeterReadings}
+                        canManageMeters={canManageMeters}
                         baseSearchQuery={baseMetersQuery}
                     /> : 
                     <PropertyMetersPageContent
                         filtersMeta={filtersMeta}
                         tableColumns={tableColumns}
-                        canManageMeterReadings={canManageMeterReadings}
+                        canManageMeters={canManageMeters}
                         loading={isLoading}
                         baseSearchQuery={baseMetersQuery}
                     />
@@ -225,12 +227,7 @@ const MetersPage: IMeterIndexPage = () => {
             </Head>
             <StyledPageWrapper>
                 {GlobalHints}
-                <div style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: '100%',
-                    gap: breakpoints.TABLET_LARGE ? '40px' : '24px',
-                }}>
+                <div style={{ ...PAGE_DIV_STYLE, gap: breakpoints.TABLET_LARGE ? '40px' : '24px' }}>
                     <Row justify='space-between' align='middle' gutter={MEDIUM_VERTICAL_ROW_GUTTER}>
                         <Col>
                             <PageHeader title={<Typography.Title>{PageTitleMessage}</Typography.Title>} style={HEADER_STYLES}/>

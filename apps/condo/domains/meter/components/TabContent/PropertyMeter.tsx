@@ -41,21 +41,21 @@ const QUICK_FILTERS_COL_STYLE: CSSProperties = { alignSelf: 'center' }
 
 const SORTABLE_PROPERTIES = ['date', 'clientName', 'source']
 
-type MetersTableContentProps = {
+type PropertyMetersTableContentProps = {
     filtersMeta: FiltersMeta<MeterReadingWhereInput>[]
     tableColumns: ColumnsType
     baseSearchQuery: MeterReadingWhereInput
-    canManageMeterReadings: boolean
+    canManageMeters: boolean
     sortableProperties?: string[]
     mutationErrorsToMessages?: Record<string, string>
     loading?: boolean
 }
 
-const PropertyMetersTableContent: React.FC<MetersTableContentProps> = ({
+const PropertyMetersTableContent: React.FC<PropertyMetersTableContentProps> = ({
     filtersMeta,
     tableColumns,
     baseSearchQuery,
-    canManageMeterReadings,
+    canManageMeters,
     sortableProperties,
     loading,
 }) => {
@@ -192,7 +192,7 @@ const PropertyMetersTableContent: React.FC<MetersTableContentProps> = ({
                         exportToExcelQuery={EXPORT_METER_READINGS_QUERY}
                         sortBy={sortBy}
                         actions={[
-                            canManageMeterReadings && (
+                            canManageMeters && (
                                 <Button
                                     key='create'
                                     type='primary'
@@ -202,10 +202,10 @@ const PropertyMetersTableContent: React.FC<MetersTableContentProps> = ({
                                     {CreateMeterButtonLabel}
                                 </Button>
                             ),
-                            canManageMeterReadings && (
+                            canManageMeters && (
                                 <MetersImportWrapper
                                     key='import'
-                                    accessCheck={canManageMeterReadings}
+                                    accessCheck={canManageMeters}
                                     onFinish={refetch}
                                 />
                             ),
@@ -218,13 +218,13 @@ const PropertyMetersTableContent: React.FC<MetersTableContentProps> = ({
     )
 }
 
-type MeterReadingsPageContentProps = Omit<MetersTableContentProps, 'mutationErrorsToMessages'>
+type PropertyMeterReadingsPageContentProps = Omit<PropertyMetersTableContentProps, 'mutationErrorsToMessages'>
 
-export const PropertyMetersPageContent: React.FC<MeterReadingsPageContentProps> = ({
+export const PropertyMetersPageContent: React.FC<PropertyMeterReadingsPageContentProps> = ({
     filtersMeta,
     tableColumns,
     baseSearchQuery,
-    canManageMeterReadings,
+    canManageMeters,
     loading,
 }) => {
     const intl = useIntl()
@@ -252,7 +252,7 @@ export const PropertyMetersPageContent: React.FC<MeterReadingsPageContentProps> 
                         OverrideImportWrapperFC: MetersImportWrapper,
                     }}
                     createRoute={`/meter/create?tab=${METER_TAB_TYPES.propertyMeter}`}
-                    accessCheck={canManageMeterReadings}
+                    accessCheck={canManageMeters}
                 />
             )
         }
@@ -262,11 +262,11 @@ export const PropertyMetersPageContent: React.FC<MeterReadingsPageContentProps> 
                 filtersMeta={filtersMeta}
                 tableColumns={tableColumns}
                 baseSearchQuery={baseSearchQuery}
-                canManageMeterReadings={canManageMeterReadings}
+                canManageMeters={canManageMeters}
                 loading={countLoading}
             />
         )
-    }, [EmptyListLabel, EmptyListManualBodyDescription, baseSearchQuery, canManageMeterReadings, count, countLoading, filtersMeta, loading, refetch, tableColumns])
+    }, [EmptyListLabel, EmptyListManualBodyDescription, baseSearchQuery, canManageMeters, count, countLoading, filtersMeta, loading, refetch, tableColumns])
 
     return (
         <TablePageContent>
