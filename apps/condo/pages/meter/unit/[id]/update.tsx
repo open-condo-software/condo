@@ -1,4 +1,3 @@
-import { Typography } from 'antd'
 import get from 'lodash/get'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -6,10 +5,11 @@ import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { Typography } from '@open-condo/ui'
 
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { CreateMeterForm } from '@condo/domains/meter/components/Meters/CreateMeterForm'
+import { UpdateMeterForm } from '@condo/domains/meter/components/Meters/UpdateMeterForm'
 import { Meter, METER_TAB_TYPES } from '@condo/domains/meter/utils/clientSchema'
 
 const UpdateMeterPage = (): JSX.Element => {
@@ -46,7 +46,7 @@ const UpdateMeterPage = (): JSX.Element => {
             <PageWrapper>
                 <PageHeader title={<Typography.Title>{UpdateMeterPageTitle}</Typography.Title>}/>
                 <PageContent>
-                    <CreateMeterForm
+                    <UpdateMeterForm
                         canManageMeters={canManageMeters}
                         meterType={METER_TAB_TYPES.meter}
                         organizationId={organizationId}

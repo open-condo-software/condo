@@ -41,7 +41,7 @@ const ActionBarForSingleMeter = ({
     })
 
     const handleUpdateMeterButtonClick = useCallback(() => 
-        router.push(`/meter/${isPropertyMeter ? 'propertyDevice' : 'device'}/${meterId}/update`),
+        router.push(`/meter/${isPropertyMeter ? 'property' : 'unit'}/${meterId}/update`),
     [isPropertyMeter, meterId, router])
     
     const handleCreateMeterReadings = useCallback(() => 

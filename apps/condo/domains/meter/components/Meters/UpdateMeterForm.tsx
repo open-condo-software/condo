@@ -11,6 +11,7 @@ import { ActionBar, Button } from '@open-condo/ui'
 import { PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { AddressAndUnitInfo } from '@condo/domains/meter/components/AddressAndUnitInfo'
+import { BaseMetersForm } from '@condo/domains/meter/components/Meters/BaseMetersForm'
 import {
     EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT,
     EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION,
@@ -18,24 +19,22 @@ import {
 import { PropertyMeter, Meter, MeterPageTypes, METER_TAB_TYPES } from '@condo/domains/meter/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
-import { BaseMetersForm } from './BaseMetersForm'
 
-
-type CreateMeterProps = {
+type UpdateMeterProps = {
     organizationId: string
     meterType: MeterPageTypes
     canManageMeters: boolean
-    initialRecord?: MeterType | PropertyMeterType
+    initialRecord: MeterType | PropertyMeterType
 }
 
 const METER_MODAL_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
 const WRAPPER_STYLE = { maxWidth: '850px', padding: 0 }
 const FORM_GUUTER: [Gutter, Gutter] = [0, 60]
 
-export const CreateMeterForm = (props: CreateMeterProps): JSX.Element => {
+export const UpdateMeterForm = (props: UpdateMeterProps): JSX.Element => {
     const intl = useIntl()
-    const AddMeterMessageButton = intl.formatMessage({ id: 'pages.condo.meter.AddMeter.Button' })
-    const AddPropertyMeterMessageButton = intl.formatMessage({ id: 'pages.condo.meter.AddPropertyMeter.Button' })
+    const CancelMessageButton = intl.formatMessage({ id: 'Cancel' })
+    const SaveMessageButton = intl.formatMessage({ id: 'Save' })
     const MeterWithSameNumberIsExistMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterWithSameNumberIsExist' })
     const AccountNumberIsExistInOtherUnitMessage = intl.formatMessage({ id: 'pages.condo.meter.AccountNumberIsExistInOtherUnit' })
 
@@ -53,8 +52,9 @@ export const CreateMeterForm = (props: CreateMeterProps): JSX.Element => {
 
     const isPropertyMeter = meterType === METER_TAB_TYPES.propertyMeter
     const MeterIdentity = isPropertyMeter ? PropertyMeter : Meter
-    const createMeterAction = MeterIdentity.useCreate({}, async (meter) => {
-        await router.push(`/meter/${meterType === METER_TAB_TYPES.propertyMeter ? 'property' : 'unit'}/${meter.id}`)
+
+    const updateMeterAction = MeterIdentity.useUpdate({}, async (meter) => {
+        await router.push(`/meter/${meterType === METER_TAB_TYPES.propertyMeter ? 'property' : 'unit'}/${meter.id}?propertyId=${selectedPropertyId}`)
     })
 
     const getCommonMeterFields = useCallback((values) => ({
@@ -65,20 +65,22 @@ export const CreateMeterForm = (props: CreateMeterProps): JSX.Element => {
     }), [isPropertyMeter, selectedPropertyId, selectedUnitName])
 
     
-    const handleCreateMeter = useCallback(values => {
-        const numberOfTariffs = values.numberOfTariffs || 1
-
-        createMeterAction({
+    const handleUpdateMeter = useCallback(values => {
+        updateMeterAction({
             ...values,
-            numberOfTariffs,
-            organization: { connect: { id: organizationId } },
             ...getCommonMeterFields(values),
-        })
-
+        }, { id: initialRecord.id })
         
         //TODO: notification about saving meter and reset form
     },
-    [createMeterAction, getCommonMeterFields, organizationId])
+    [updateMeterAction, getCommonMeterFields, initialRecord])
+
+    const connectedPropertyIitialValues = useMemo(() => !initialRecord ? ({}) : ({
+        propertyId: get(initialRecord, 'property.id'),
+        unitName: isPropertyMeter ? undefined : get(initialRecord, 'unitName'),
+        unitType: isPropertyMeter ? undefined : get(initialRecord, 'unitType'),
+    }), [initialRecord, isPropertyMeter])
+
 
     const ErrorToFormFieldMsgMapping = {
         [EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION]: {
@@ -99,6 +101,10 @@ export const CreateMeterForm = (props: CreateMeterProps): JSX.Element => {
         setSelectedPropertyId(null)
     }, [])
 
+    const handleCancelEditing = useCallback(() =>  {
+        router.push(`/meter/${meterType === METER_TAB_TYPES.propertyMeter ? 'property' : 'unit'}/${initialRecord.id}`)
+    }, [initialRecord, meterType, router])
+
 
     return (
         <PageWrapper style={WRAPPER_STYLE}>
@@ -116,6 +122,7 @@ export const CreateMeterForm = (props: CreateMeterProps): JSX.Element => {
                             property={property}
                             propertyLoading={propertyLoading}
                             setSelectedUnitName={setSelectedUnitName}
+                            initialValues={connectedPropertyIitialValues}
                         />
                     )
                 }
@@ -123,7 +130,7 @@ export const CreateMeterForm = (props: CreateMeterProps): JSX.Element => {
             <FormWithAction
                 showCancelButton={false}
                 validateTrigger={METER_MODAL_VALIDATE_TRIGGER}
-                action={handleCreateMeter}
+                action={handleUpdateMeter}
                 submitButtonProps={{
                     disabled: disabledFields,
                 }}
@@ -138,6 +145,7 @@ export const CreateMeterForm = (props: CreateMeterProps): JSX.Element => {
                                     propertyId={selectedPropertyId}
                                     addressKey={get(property, 'addressKey')}
                                     unitName={null}
+                                    initialValues={initialRecord || {}}
                                     handleSubmit={handleSave}
                                     organizationId={organizationId}
                                     meterType={meterType}
@@ -147,8 +155,11 @@ export const CreateMeterForm = (props: CreateMeterProps): JSX.Element => {
                             <Col span={24}>
                                 <ActionBar
                                     actions={[  
-                                        <Button key='submit' type='primary' onClick={handleSave} >
-                                            {isPropertyMeter ? AddPropertyMeterMessageButton : AddMeterMessageButton}
+                                        <Button key='save' type='primary' onClick={handleSave} >
+                                            {SaveMessageButton}
+                                        </Button>,
+                                        <Button key='cancel' type='secondary' onClick={handleCancelEditing} >
+                                            {CancelMessageButton}
                                         </Button>,
                                     ]}>
                                 </ActionBar>

@@ -1,5 +1,5 @@
 import { MeterReportingPeriod } from '@app/condo/schema'
-import { Col, Image, Row } from 'antd'
+import { Col, Row } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import React, { useCallback, useMemo, useState } from 'react'
@@ -11,6 +11,7 @@ import { Alert, Select } from '@open-condo/ui'
 
 import { PageHeader } from '@condo/domains/common/components/containers/BaseLayout'
 import { ShowMoreFieldsButton } from '@condo/domains/common/components/ShowMoreFieldsButton'
+import B2bAppLogo from '@condo/domains/meter/components/Meters/B2bAppLogo'
 import ChangeMeterStatusModal from '@condo/domains/meter/components/Meters/ChangeMeterStatusModal'
 import { MeterAccountField, MeterCommonDateField, MeterNumberField, MeterPlaceField, MeterResourceField } from '@condo/domains/meter/components/Meters/MeterInfoFields'
 import { MeterReadingsPageContent } from '@condo/domains/meter/components/TabContent/MeterReading'
@@ -19,7 +20,6 @@ import { useFilters } from '@condo/domains/meter/hooks/useFilters'
 import { useTableColumns } from '@condo/domains/meter/hooks/useTableColumns'
 import { Meter, METER_READINGS_TYPES, METER_TAB_TYPES, PropertyMeter } from '@condo/domains/meter/utils/clientSchema'
 import { getMeterTitleMessage } from '@condo/domains/meter/utils/helpers'
-import { B2BApp } from '@condo/domains/miniapp/utils/clientSchema'
 import { TicketPropertyField } from '@condo/domains/ticket/components/TicketId/TicketPropertyField'
 
 
@@ -43,13 +43,6 @@ const MeterHeader = ({ meter, meterReportingPeriod, refetchMeter, meterType }) =
     const archiveDate = get(meter, 'archiveDate')
     const isAutomatic = get(meter, 'isAutomatic')
     const b2bAppId = get(meter, 'b2bApp.id')
-
-    const {
-        obj: b2bApp,
-        loading: isB2bAppLoading,
-    } = B2BApp.useObject(
-        { where: { id: b2bAppId } }
-    )
 
     const [meterStatus, setMeterStatus] = useState(archiveDate ? METER_STATUSES.archived : METER_STATUSES.active)
     const [selectedArchiveDate, setSelectedArchiveDate] = useState(archiveDate || null)
@@ -153,14 +146,8 @@ const MeterHeader = ({ meter, meterReportingPeriod, refetchMeter, meterType }) =
                         </Col>
                     )}
                 </Col>
-                {isAutomatic && !isB2bAppLoading && b2bApp && (
-                    <Col span={4}>
-                        <Image
-                            src={get(b2bApp, ['logo', 'publicUrl'])}
-                            alt='miniapp-image'
-                            preview={false}
-                        />
-                    </Col>
+                {isAutomatic && b2bAppId && (
+                    <B2bAppLogo b2bAppId={b2bAppId} isAutomatic={isAutomatic}/>
                 )}
             </Row>
             
@@ -240,7 +227,7 @@ export const MeterPageContent = ({ meter, possibleReportingPeriods, resource, re
         deletedAt: null,
         organization: { id: userOrganizationId },
     }),
-    [userOrganizationId])
+    [meter, userOrganizationId])
 
     const reportingPeriodByProperty = possibleReportingPeriods.find((period: MeterReportingPeriod) => period.property)
     const reportingPeriodByOrg = possibleReportingPeriods.find((period: MeterReportingPeriod) => !period.property)

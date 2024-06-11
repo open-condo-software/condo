@@ -148,7 +148,7 @@ export const MetersTable = ({
         return {
             onClick: () => {
                 const meter = get(record, 'meter')
-                router.push(`/meter/property-meter/${meter.id}`)
+                router.push(`/meter/property/${meter.id}`)
             },
         }
     }, [])
@@ -471,7 +471,7 @@ export const PropertyMetersTable = ({
         return {
             onClick: () => {
                 const meter = get(record, 'meter')
-                router.push(`/meter/propertyDevice/${meter.id}`)
+                router.push(`/meter/property/${meter.id}`)
             },
         }
     }, [])

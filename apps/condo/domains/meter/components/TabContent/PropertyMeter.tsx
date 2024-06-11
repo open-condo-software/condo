@@ -108,7 +108,7 @@ const PropertyMetersTableContent: React.FC<MetersTableContentProps> = ({
     const handleRowAction = useCallback((record) => {
         return {
             onClick: () => {
-                router.push(`/meter/propertyDevice/${record.id}`)
+                router.push(`/meter/property/${record.id}`)
             },
         }
     }, [router])

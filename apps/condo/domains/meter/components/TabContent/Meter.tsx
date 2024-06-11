@@ -141,7 +141,7 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
     const handleRowAction = useCallback((record) => {
         return {
             onClick: () => {
-                router.push(`/meter/device/${get(record, 'id')}`)
+                router.push(`/meter/unit/${get(record, 'id')}`)
             },
         }
     }, [router])
