@@ -1,6 +1,7 @@
 import { CacheProvider } from '@emotion/core'
 import { ConfigProvider } from 'antd'
 import enUS from 'antd/lib/locale/en_US'
+import esES from 'antd/lib/locale/es_ES'
 import ruRU from 'antd/lib/locale/ru_RU'
 import dayjs from 'dayjs'
 import { cache } from 'emotion'
@@ -87,6 +88,7 @@ import '@condo/domains/common/components/containers/global-styles.css'
 const ANT_LOCALES = {
     ru: ruRU,
     en: enUS,
+    es: esES,
 }
 
 interface IMenuItemData {

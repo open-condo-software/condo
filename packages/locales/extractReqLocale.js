@@ -4,7 +4,7 @@ const nextCookie = require('next-cookies')
 
 const ACCEPT_LANGUAGE_REGEXP = /((([a-zA-Z]+(-[a-zA-Z0-9]+){0,2})|\*)(;q=[0-1](\.[0-9]+)?)?)*/g
 // TODO: Take it from @open-condo/config (right now it's not working and all apps implements only 2 locales, so maybe it's overhead)
-const ACCEPT_LOCALES = ['ru', 'en']
+const ACCEPT_LOCALES = ['ru', 'en', 'es']
 
 // SRC: https://github.com/opentable/accept-language-parser
 // Reason for fork: MIT + last release = 6 years ago
