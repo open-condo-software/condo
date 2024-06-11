@@ -1,7 +1,6 @@
 const http = require('http')
 const https = require('https')
 
-const item = require('@keystonejs/app-admin-ui/client/pages/Item')
 const FormData = require('form-data')
 const { get, compact } = require('lodash')
 
