@@ -1,11 +1,12 @@
 import { MeterReportingPeriod } from '@app/condo/schema'
-import { Col, Row, Typography } from 'antd'
+import { Col, Row } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
-import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { Typography } from '@open-condo/ui'
 import { Alert, Select } from '@open-condo/ui'
 
 import { PageHeader } from '@condo/domains/common/components/containers/BaseLayout'
@@ -20,8 +21,6 @@ import { getMeterTitleMessage } from '@condo/domains/meter/utils/helpers'
 import { TicketPropertyField } from '@condo/domains/ticket/components/TicketId/TicketPropertyField'
 
 import ChangeMeterStatusModal from './ChangeMeterStatusModal'
-
-const METER_INFO_TEXT_STYLE: CSSProperties = { margin: 0, fontSize: '12px' }
 
 const METER_STATUSES = { active: 'active', archived: 'archived' }
 
@@ -116,9 +115,9 @@ const MeterHeader = ({ meter, meterReportingPeriod, refetchMeter, meterType }) =
             </Col>
             {meterReportingPeriod && (
                 <Col span={24}>
-                    <Typography.Text type='secondary' style={METER_INFO_TEXT_STYLE}>
+                    <Typography.Text type='secondary' size='small'>
                         {MeterReportingPeriodTitle}:&nbsp;
-                        <Typography.Text style={METER_INFO_TEXT_STYLE}>
+                        <Typography.Text size='small'>
                             {MeterReportingPeriodText}
                         </Typography.Text>
                     </Typography.Text>
@@ -126,25 +125,21 @@ const MeterHeader = ({ meter, meterReportingPeriod, refetchMeter, meterType }) =
             )}
             {dayjs(nextVerificationDate).diff(dayjs(), 'month') <= 3 && (
                 <Col span={24}>
-                    <Typography.Text type='secondary' style={METER_INFO_TEXT_STYLE}>
+                    <Typography.Text type='secondary' size='small'>
                         {VerificationDateTipMessage} &mdash;&nbsp;
-                        <Typography.Text type='danger'>
+                        <Typography.Text type='danger' size='small'>
                             {dayjs(nextVerificationDate).format('DD.MM.YYYY')}
                         </Typography.Text>
                     </Typography.Text>
                 </Col>
             )}
-            {meterStatus === METER_STATUSES.archived && (
+            {meterStatus === METER_STATUSES.archived && !isPropertyMeter && (
                 <Col span={24}>
-                    <Typography.Text type='secondary' style={METER_INFO_TEXT_STYLE}>
+                    <Typography.Text type='secondary' size='small'>
                         {ArchivedMeterTipMessage}
                     </Typography.Text>
                 </Col>
             )}
-            <Col span={24}>
-                <Typography.Text type='secondary' style={METER_INFO_TEXT_STYLE}>
-                </Typography.Text>
-            </Col>
             <ChangeMeterStatusModal 
                 changeMeterStatusToArchived={changeMeterStatusToArchived}
                 handleChangeSelectedArchiveDate={handleChangeSelectedArchiveDate}
@@ -209,7 +204,6 @@ export const MeterPageContent = ({ meter, possibleReportingPeriods, resource, re
     const BlockedEditingTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.BlockedEditing.title' })
     const BlockedEditingDescriptionMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.BlockedEditing.description' })
     const MeterReadingsMessage = intl.formatMessage({ id: 'import.meterReading.plural' })
-    
 
     const { organization, link: { role },  isLoading } = useOrganization()
     const canManageMeterReadings = useMemo(() => get(role, 'canManageMeterReadings', false), [role])
@@ -265,8 +259,9 @@ export const MeterPageContent = ({ meter, possibleReportingPeriods, resource, re
                         loading={isLoading}
                         canManageMeterReadings={canManageMeterReadings}
                         baseSearchQuery={baseMeterReadingsQuery}
-                        meterId={get(meter, 'id')}
-                        archiveDate={get(meter, 'archiveDate')}
+                        isAutomatic={get(meter, 'isAutomatic')}
+                        meter={meter}
+                        resource={resource}
                     />
                 ) : (
                     <MeterReadingsPageContent
@@ -275,8 +270,9 @@ export const MeterPageContent = ({ meter, possibleReportingPeriods, resource, re
                         loading={isLoading}
                         canManageMeterReadings={canManageMeterReadings}
                         baseSearchQuery={baseMeterReadingsQuery}
-                        meterId={get(meter, 'id')}
-                        archiveDate={get(meter, 'archiveDate')}
+                        isAutomatic={get(meter, 'isAutomatic')}
+                        meter={meter}
+                        resource={resource}
                     /> 
                 )}
             </Col>

@@ -1050,6 +1050,8 @@
   "pages.condo.meter.Meter.PutToArchive.Modal.Text": "Укажите дату вывода, после которой счетчик не будет отображаться в мобильном приложении жителя и по нему нельзя будет предать показания",
   "pages.condo.meter.MeterReportingPeriod.Title": "Периоды подачи показаний",
   "pages.condo.meter.MeterReportingPeriod.Text": "c {startDate} по {endDate} числа включительно",
+  "pages.condo.meter.UpdateMeterReading.Modal.Title": "Редактировать показания",
+  "pages.condo.meter.UpdateMeterReading.Modal.Text": "Внесите новые показания по счетчику №{number}",
   "pages.condo.meter.nextVerificationTip": "Скоро нужно провести поверку, ее дата",
   "pages.condo.meter.archivedMeterTip.Message": "Прибор учета {notShowing} в мобильном приложении жителя",
   "pages.condo.meter.archivedMeterTip.NotShowing": "не отображается",

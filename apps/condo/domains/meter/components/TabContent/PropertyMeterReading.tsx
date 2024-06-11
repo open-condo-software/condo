@@ -1,11 +1,14 @@
 import {
+    Meter,
+    MeterResource,
     PropertyMeterReadingWhereInput,
     SortPropertyMeterReadingsBy,
 } from '@app/condo/schema'
 import { Col, Row, RowProps } from 'antd'
 import { ColumnsType } from 'antd/lib/table'
+import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useMemo } from 'react'
+import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { PlusCircle, Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
@@ -26,6 +29,7 @@ import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { MetersImportWrapper } from '@condo/domains/meter/components/Import/Index'
 import ActionBarForSingleMeter from '@condo/domains/meter/components/Meters/ActionBarForSingleMeter'
+import UpdateMeterReadingModal from '@condo/domains/meter/components/Meters/UpdateMeterReadingModal'
 import { EXPORT_PROPERTY_METER_READINGS_QUERY } from '@condo/domains/meter/gql'
 import {
     PropertyMeterReading,
@@ -45,10 +49,11 @@ type PropertyMetersTableContentProps = {
     tableColumns: ColumnsType
     baseSearchQuery: PropertyMeterReadingWhereInput
     canManageMeterReadings: boolean
+    isAutomatic: boolean,
     sortableProperties?: string[]
     loading?: boolean
-    meterId?: string
-    archiveDate?: string
+    meter?: Meter
+    resource?: MeterResource,
 }
 
 const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProps> = (props) => {
@@ -59,8 +64,9 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
         sortableProperties,
         tableColumns,
         loading,
-        meterId,
-        archiveDate,
+        meter,
+        isAutomatic,
+        resource,
     } = props
 
     const intl = useIntl()
@@ -74,6 +80,9 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filtersMeta, sortableProperties || SORTABLE_PROPERTIES)
 
     const sortBy = useMemo(() => sortersToSortBy(sorters) as SortPropertyMeterReadingsBy[], [sorters, sortersToSortBy])
+
+    const [isShowUpdateReadingModal, setIsShowUpdateReadingModal] = useState(false)
+    const [chosenMeterReadingId, setChosenMeterReadingId] = useState<string>(null)
 
     const searchMeterReadingsQuery = useMemo(() => ({
         ...filtersToWhere(filters),
@@ -102,8 +111,17 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
         extraQueryParameters: { tab },
     })
 
+    const handleUpdateMeterReading = useCallback((record) => { 
+        return {
+            onClick: () => {
+                setIsShowUpdateReadingModal(true)
+                setChosenMeterReadingId(get(record, 'id'))
+            },
+        }
+    }, [])
     const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
-    const handleCreateMeterReadings = useCallback(() => router.push(`/meter/create?tab=${METER_TAB_TYPES.propertyMeterReading}`), [])
+    const handleCreateMeterReadings = useCallback(() => router.push(`/meter/create?tab=${METER_TAB_TYPES.propertyMeterReading}`), [router])
+    const handleCloseUpdateReadingModal = useCallback(() => setIsShowUpdateReadingModal(false), [])
 
     return (
         <>
@@ -113,7 +131,7 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
                 justify='center'
             >
                 <Col span={24}>
-                    {!meterId && (
+                    {!meter && (
                         <TableFiltersContainer>
                             <Row style={{ display: 'flex' }} gutter={FILTERS_CONTAINER_GUTTER} align='middle'>
                                 <Col style={{ flex: 1 }}>
@@ -145,10 +163,11 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
                         loading={metersLoading || loading}
                         dataSource={PropertyMeterReadings}
                         columns={tableColumns}
+                        onRow={meter && handleUpdateMeterReading}
                     />
                 </Col>
                 <Col span={24}>
-                    {!meterId && (
+                    {!meter && (
                         <ExportToExcelActionBar
                             searchObjectsQuery={searchMeterReadingsQuery}
                             exportToExcelQuery={EXPORT_PROPERTY_METER_READINGS_QUERY}
@@ -174,16 +193,26 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
                             ]}
                         />
                     )}
-                    {meterId && <ActionBarForSingleMeter 
+                    {meter && <ActionBarForSingleMeter 
                         canManageMeterReadings={canManageMeterReadings}
-                        meterId={meterId}
+                        meterId={get(meter, 'id')}
                         meterType={METER_TAB_TYPES.propertyMeter}
-                        archiveDate={archiveDate}
+                        archiveDate={get(meter, 'archiveDate')}
+                        isAutomatic={isAutomatic}
                     />}
                     
                 </Col>
             </Row>
             <MultipleFiltersModal />
+            <UpdateMeterReadingModal 
+                chosenMeterReadingId={chosenMeterReadingId}
+                handleCloseUpdateReadingModal={handleCloseUpdateReadingModal}
+                isShowUpdateReadingModal={isShowUpdateReadingModal}
+                meter={meter}
+                refetch={refetch}
+                resource={resource}
+                meterType={METER_TAB_TYPES.propertyMeter}
+            />
         </>
     )
 }
@@ -193,8 +222,8 @@ export const PropertyMeterReadingsPageContent: React.FC<PropertyMetersTableConte
         baseSearchQuery,
         canManageMeterReadings,
         loading,
-        meterId,
-        archiveDate,
+        meter,
+        isAutomatic,
     } = props
 
     const intl = useIntl()
@@ -206,7 +235,7 @@ export const PropertyMeterReadingsPageContent: React.FC<PropertyMetersTableConte
     const pageContent = useMemo(() => {
         if (countLoading || loading) return <Loader />
         if (count === 0) 
-            if (!meterId) {
+            if (!meter) {
                 return (
                     <EmptyListContent
                         label={EmptyListLabel}
@@ -219,16 +248,17 @@ export const PropertyMeterReadingsPageContent: React.FC<PropertyMetersTableConte
                 return (
                     <ActionBarForSingleMeter
                         canManageMeterReadings={canManageMeterReadings}
-                        meterId={meterId}
+                        meterId={get(meter, 'id')}
                         meterType={METER_TAB_TYPES.propertyMeter}
-                        archiveDate={archiveDate}
+                        archiveDate={get(meter, 'archiveDate')}
+                        isAutomatic={isAutomatic}
                     />
                 )
             }
 
         return <PropertyMeterReadingsTableContent {...props} />
 
-    }, [CreateMeterReading, EmptyListLabel, archiveDate, canManageMeterReadings, count, countLoading, loading, meterId, props])
+    }, [CreateMeterReading, EmptyListLabel, canManageMeterReadings, count, countLoading, isAutomatic, loading, meter, props])
 
     return (
         <TablePageContent>
