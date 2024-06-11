@@ -22,6 +22,7 @@ const CAPTCHA_CHECK_ENABLED = 'captcha-check-enabled'
 // TODO(DOMA-8667): Remove flag after links to instructions will be ready
 const IMPORT_HELP_MODAL = 'import-help-modal'
 const PROPERTY_DOCUMENTS = 'property-documents'
+const SEND_DAILY_STATISTICS_TASK = 'send-daily-statistics-task'
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
@@ -47,4 +48,5 @@ module.exports = {
     CAPTCHA_CHECK_ENABLED,
     IMPORT_HELP_MODAL,
     PROPERTY_DOCUMENTS,
+    SEND_DAILY_STATISTICS_TASK,
 }

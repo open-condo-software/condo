@@ -2,17 +2,18 @@ const dayjs = require('dayjs')
 const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
+const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { getSchemaCtx, find, itemsQuery, getByCondition } = require('@open-condo/keystone/schema')
 const { createCronTask } = require('@open-condo/keystone/tasks')
 
+const { SEND_DAILY_STATISTICS_TASK } = require('@condo/domains/common/constants/featureflags')
+const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
+const { SEND_DAILY_STATISTICS_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-
-const { loadListByChunks } = require('../../common/utils/serverSchema')
-const { SEND_DAILY_STATISTICS_MESSAGE_TYPE } = require('../../notification/constants/constants')
-const { PROCESSING_STATUS_TYPE, NEW_OR_REOPENED_STATUS_TYPE, DEFERRED_STATUS_TYPE } = require('../../ticket/constants')
-const { INCIDENT_WORK_TYPE_SCHEDULED, INCIDENT_STATUS_ACTUAL } = require('../../ticket/constants/incident')
-const { STAFF } = require('../../user/constants/common')
-const { User } = require('../../user/utils/serverSchema')
+const { PROCESSING_STATUS_TYPE, NEW_OR_REOPENED_STATUS_TYPE, DEFERRED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
+const { INCIDENT_WORK_TYPE_SCHEDULED, INCIDENT_STATUS_ACTUAL } = require('@condo/domains/ticket/constants/incident')
+const { STAFF } = require('@condo/domains/user/constants/common')
+const { User } = require('@condo/domains/user/utils/serverSchema')
 
 
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'sendDailyStatisticsTask' } }
@@ -37,15 +38,17 @@ class UserDailyStatistics {
      * @param userId
      * @param currentDate
      */
-    constructor (context, userId, currentDate) {
-        if (!context) throw new Error('No context!')
+    constructor (userId, currentDate) {
         if (!userId) throw new Error('No userId!')
 
-        this.#context = context
         this.#userId = userId
         this.#currentDate = currentDate || dayjs().toISOString()
+
+        const { keystone: context } = getSchemaCtx('User')
+        this.#context = context
     }
 
+    // todo(doma-9177): вынести из класса, это не логика получения аналитики, а просто преобразование для рендера письма
     /**
      *
      * @return {MessageData}
@@ -71,7 +74,29 @@ class UserDailyStatistics {
                 })`,
             },
             incidents: {
-                water: this.#statistics.incidents.water.list.map(item => `${item.date} - ${item.addresses}`).join('\n'),
+                water: this.#statistics.incidents.water.map((incident) => {
+                    let date, addresses
+
+                    if (dayjs(incident.workFinish).diff(dayjs(incident.workStart), 'hours') < 24) {
+                        date = dayjs(incident.workStart).format('DD-MM-YYYY')
+                    } else {
+                        date = [
+                            dayjs(incident.workStart).format('DD-MM-YYYY'),
+                            dayjs(incident.workFinish).format('DD-MM-YYYY'),
+                        ].filter(Boolean).join(` ${EMPTY_LINE} `)
+                    }
+
+                    if (incident.hasAllProperties) {
+                        addresses = 'All properties'
+                    } else {
+                        const more = incident.count - COMPACT_SCOPES_SIZE
+                        addresses = [...incident.addresses.slice(0, COMPACT_SCOPES_SIZE)]
+                            .filter(Boolean)
+                            .join(', ') + more > 0 ? ` and more ${more} properties` : ''
+                    }
+
+                    return `${date} - ${addresses}`
+                }).join('\n'),
             },
         }
     }
@@ -80,6 +105,10 @@ class UserDailyStatistics {
         return this.#organizationIds
     }
 
+    /**
+     *
+     * @return {Promise<{CommonStatistics>}
+     */
     async loadStatistics () {
         this.#statistics = this.#getStatisticsTemplate(this.#currentDate)
 
@@ -100,52 +129,43 @@ class UserDailyStatistics {
         this.#organizationIds = organizationIds
 
         for (const organizationId of organizationIds) {
+
+            const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(this.#context, SEND_DAILY_STATISTICS_TASK, { organization: organizationId })
+            if (!isFeatureEnabled) continue
+
             const organizationData = await this.#getOrganizationData(organizationId)
 
             this.#statistics.tickets.inProgress.common += organizationData.tickets.inProgress
-            this.#statistics.tickets.inProgress.byOrganizations.push({ name: organizationData.organization.name, count: organizationData.tickets.inProgress })
+            if (organizationData.tickets.inProgress > 0) {
+                this.#statistics.tickets.inProgress.byOrganizations.push({ name: organizationData.organization.name, count: organizationData.tickets.inProgress })
+            }
             this.#statistics.tickets.isEmergency.common += organizationData.tickets.isEmergency
-            this.#statistics.tickets.isEmergency.byOrganizations.push({ name: organizationData.organization.name, count: organizationData.tickets.isEmergency })
+            if (organizationData.tickets.isEmergency > 0) {
+                this.#statistics.tickets.isEmergency.byOrganizations.push({ name: organizationData.organization.name, count: organizationData.tickets.isEmergency })
+            }
             this.#statistics.tickets.isReturned.common += organizationData.tickets.isReturned
-            this.#statistics.tickets.isReturned.byOrganizations.push({ name: organizationData.organization.name, count: organizationData.tickets.isReturned })
+            if (organizationData.tickets.isReturned > 0) {
+                this.#statistics.tickets.isReturned.byOrganizations.push({ name: organizationData.organization.name, count: organizationData.tickets.isReturned })
+            }
             this.#statistics.tickets.isExpired.common += organizationData.tickets.isExpired
-            this.#statistics.tickets.isExpired.byOrganizations.push({ name: organizationData.organization.name, count: organizationData.tickets.isExpired })
+            if (organizationData.tickets.isExpired > 0) {
+                this.#statistics.tickets.isExpired.byOrganizations.push({ name: organizationData.organization.name, count: organizationData.tickets.isExpired })
+            }
             this.#statistics.tickets.withoutEmployee.common += organizationData.tickets.withoutEmployee
-            this.#statistics.tickets.withoutEmployee.byOrganizations.push({ name: organizationData.organization.name, count: organizationData.tickets.withoutEmployee })
+            if (organizationData.tickets.withoutEmployee > 0) {
+                this.#statistics.tickets.withoutEmployee.byOrganizations.push({ name: organizationData.organization.name, count: organizationData.tickets.withoutEmployee })
+            }
 
-            this.#statistics.incidents.water.list.push(organizationData.incidents.map((incident) => {
-                let date, addresses
-
-                if (dayjs(incident.workFinish).diff(dayjs(incident.workStart), 'hours') < 24) {
-                    date = dayjs(incident.workStart).format('DD-MM-YYYY')
-                } else {
-                    date = [
-                        dayjs(incident.workStart).format('DD-MM-YYYY'),
-                        dayjs(incident.workFinish).format('DD-MM-YYYY'),
-                    ].filter(Boolean).join(` ${EMPTY_LINE} `)
-                }
-
-                if (incident.hasAllProperties) {
-                    addresses = 'All properties'
-                } else {
-                    const more = incident.count - COMPACT_SCOPES_SIZE
-                    addresses = [...incident.addresses.slice(0, COMPACT_SCOPES_SIZE)]
-                        .filter(Boolean)
-                        .join(', ') + more > 0 ? ` and more ${more} properties` : ''
-                }
-
-                return {
-                    date,
-                    addresses,
-                }
-            }))
+            this.#statistics.incidents.water.push(...organizationData.incidents.water)
         }
+
+        return this.#statistics
     }
 
     /**
      *
      * @param organizationId
-     * @return {Promise<OrganizationStatistics>}
+     * @return {Promise<OrganizationData>}
      */
     async #getOrganizationData (organizationId) {
         // TODO(DOMA-9177): add cache
@@ -196,7 +216,7 @@ class UserDailyStatistics {
             where: {
                 deletedAt: null,
                 organization: { id: organizationId, deletedAt: null },
-                status: { type_in: [NEW_OR_REOPENED_STATUS_TYPE, PROCESSING_STATUS_TYPE] },
+                status: { type_in: [NEW_OR_REOPENED_STATUS_TYPE] },
                 // removed employees? users? blocked?
                 OR: [
                     { assignee_is_null: true },
@@ -212,37 +232,37 @@ class UserDailyStatistics {
             deletedAt: null,
             organization: { id: organizationId, deletedAt: null },
             status: INCIDENT_STATUS_ACTUAL,
-            workType: INCIDENT_WORK_TYPE_SCHEDULED,
+            // workType: INCIDENT_WORK_TYPE_SCHEDULED,
             AND: [
                 { workStart_gte: this.#currentDate },
-                { workFinish_lte: dayjs(this.#currentDate).add(1, 'day').toISOString() },
+                { workStart_lte: dayjs(this.#currentDate).add(1, 'day').toISOString() },
             ],
         })
 
-        const incidentsData = []
+        const waterIncidents = []
         for (const incident of incidents) {
 
             const { count: countIncidentClassifierIncident } = await itemsQuery('IncidentClassifierIncident', {
-                incident: { id: incident.id, deletedAt: null },
-                deletedAt: null,
-                classifier: {
-                    category: {
-                        // water
-                        id: '4509f01b-3f9b-4a07-83ea-3b548c492146',
-                    },
-                    problem: {
-                        // нет воды/горячей/холодной
-                        id_in: [
-                            '79af87cc-9b17-4f0e-a527-2f61beffd5e1',
-                            '5289e8aa-e5f9-4dc5-8540-49f6e0b2a004',
-                            '96f91218-1e03-4258-9883-64cf0753ac45',
-                        ],
+                where: {
+                    incident: { id: incident.id, deletedAt: null },
+                    deletedAt: null,
+                    classifier: {
+                        category: {
+                            id: '4509f01b-3f9b-4a07-83ea-3b548c492146', // Water
+                        },
+                        problem: {
+                            id_in: [
+                                '79af87cc-9b17-4f0e-a527-2f61beffd5e1', // No hot and cold water
+                                '5289e8aa-e5f9-4dc5-8540-49f6e0b2a004', // No hot water
+                                '96f91218-1e03-4258-9883-64cf0753ac45', // No cold water
+                            ],
+                        },
                     },
                 },
-            })
+            }, { meta: true })
 
-            const isWaterIncident = !countIncidentClassifierIncident
-            if (isWaterIncident) continue
+            const isWaterIncident = countIncidentClassifierIncident > 0
+            if (!isWaterIncident) continue
 
             const incidentData = {
                 workStart: get(incident, 'workStart'),
@@ -276,7 +296,7 @@ class UserDailyStatistics {
                 incidentData.count = count
             }
 
-            incidentsData.push(incidentData)
+            waterIncidents.push(incidentData)
         }
 
         return {
@@ -288,7 +308,9 @@ class UserDailyStatistics {
                 isExpired,
                 withoutEmployee,
             },
-            incidents: incidentsData,
+            incidents: {
+                water: waterIncidents,
+            },
         }
     }
 
@@ -343,9 +365,7 @@ class UserDailyStatistics {
 
     /**
      * @typedef {object} TicketStatistic
-     * @property {object} byOrganizations
-     * @property {number} byOrganizations.count
-     * @property {name} byOrganizations.name
+     * @property {{ count: number, name: string }[]} byOrganizations
      * @property {number} common
      */
 
@@ -359,8 +379,7 @@ class UserDailyStatistics {
      */
 
     /**
-     * @typedef {object} OrganizationStatistics
-     * @property {string} date
+     * @typedef {object} OrganizationData
      * @property {object} tickets
      * @property {number} tickets.isEmergency
      * @property {number} tickets.isReturned
@@ -397,11 +416,6 @@ const sendDailyStatistics = async () => {
 
     const { keystone: context } = getSchemaCtx('User')
 
-    // 1) Получить юзера
-    // 2) В каких организациях состоит
-    // 3) Достать аналитику из каждой организации
-    // 4) Отправить письмо
-
     await loadListByChunks({
         context,
         list: User,
@@ -425,7 +439,7 @@ const sendDailyStatistics = async () => {
         chunkProcessor: async (chunk) => {
             for (const user of chunk) {
 
-                const userStatistics = new UserDailyStatistics(context, now)
+                const userStatistics = new UserDailyStatistics(user.id, now)
                 await userStatistics.loadStatistics()
                 const messageData = userStatistics.getMessageData()
                 const organizationIds = userStatistics.getOrganizationIds()
@@ -452,5 +466,7 @@ const sendDailyStatistics = async () => {
 }
 
 module.exports = {
-    sendDailyStatisticsTask: createCronTask('sendDailyStatistics', '0 1 * * *', sendDailyStatistics),
+    UserDailyStatistics,
+    // At 06:00
+    sendDailyStatisticsTask: createCronTask('sendDailyStatistics', '0 6 * * *', sendDailyStatistics),
 }
