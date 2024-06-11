@@ -37,8 +37,8 @@ async function sendFileByEmail ({ stream, filename }) {
 
     form.append('from', from)
     form.append('to', MARKETING_EMAIL)
-    form.append('subject', 'Выгрузка номеров')
-    form.append('text', 'Выгрузка номеров')
+    form.append('subject', 'Phone numbers export')
+    form.append('text', 'Phone numbers export')
     form.append(
         'attachment',
         stream,
@@ -172,8 +172,8 @@ async function sendHashedResidentPhones () {
     }
 }
 
-// cron: every 5th day of month
-const sendHashedResidentPhonesTask = createCronTask('sendHashedResidentPhones', '0 0 5 * *', sendHashedResidentPhones)
+// cron: At 00:00 on day-of-month 5 in every 3rd month
+const sendHashedResidentPhonesTask = createCronTask('sendHashedResidentPhones', '0 0 5 */3 *', sendHashedResidentPhones)
 
 module.exports = {
     sendHashedResidentPhones,

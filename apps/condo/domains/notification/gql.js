@@ -70,14 +70,6 @@ const _INTERNAL_SEND_NOTIFICATION_NEW_MOBILE_APP_VERSION_MUTATION = gql`
     }
 `
 
-// TODO(codegen): write return type result!
-
-const _INTERNAL_SEND_RESIDENT_PHONES_MUTATION = gql`
-    mutation _internalSendResidentPhones ($data: _internalSendResidentPhonesInput!) {
-        result: _internalSendResidentPhones(data: $data) { id }
-    }
-`
-
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -95,6 +87,5 @@ module.exports = {
     TelegramUserChat,
     NotificationAnonymousSetting,
     _INTERNAL_SEND_NOTIFICATION_NEW_MOBILE_APP_VERSION_MUTATION,
-_INTERNAL_SEND_RESIDENT_PHONES_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
