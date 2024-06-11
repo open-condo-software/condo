@@ -1120,7 +1120,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             if (id) { skippedSharingAppIds.add(id) }
         })
         return Array.from(selectedSharingAppsContexts).filter(ctxId => !skippedSharingAppIds.has(ctxId))
-    }, [skippedSteps, selectedSharingAppsContexts, getStepDataByStep])
+    }, [ skippedSteps, selectedSharingAppsContexts ])
 
     const getStepsData = useCallback((): StepData[] => {
         const sharingApps: StepData[] = Array.from(selectedSharingAppsContexts).map(appCtx => ({
