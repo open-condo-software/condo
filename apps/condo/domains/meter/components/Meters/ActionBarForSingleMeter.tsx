@@ -8,7 +8,7 @@ import { ActionBar, Button } from '@open-condo/ui'
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { Meter, MeterPageTypes, METER_TAB_TYPES, PropertyMeter } from '@condo/domains/meter/utils/clientSchema'
 
-type ACTION_BAR_FOR_SINGLE_METER_PROPS = {
+type ActionBarForSingleMeterProps = {
     meterId: string
     canManageMeterReadings: boolean
     meterType: MeterPageTypes
@@ -22,7 +22,7 @@ const ActionBarForSingleMeter = ({
     meterType,
     archiveDate,
     isAutomatic,
-}: ACTION_BAR_FOR_SINGLE_METER_PROPS): JSX.Element => {
+}: ActionBarForSingleMeterProps): JSX.Element => {
     const intl = useIntl()
     const DeleteMeterMessage = intl.formatMessage({ id: 'pages.condo.meter.Meter.DeleteMeter' })
     const DeleteMeterMessageWarn = intl.formatMessage({ id: 'pages.condo.meter.Meter.DeleteMeter.Warn' })

@@ -2,10 +2,11 @@ import { Property as PropertyType } from '@app/condo/schema'
 import { Col, ColProps, Form, FormInstance, Row } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
 import { DefaultOptionType } from 'antd/lib/select'
+import get from 'lodash/get'
 import React, { Dispatch, SetStateAction } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Tooltip, Typography } from '@open-condo/ui'
+import { Typography } from '@open-condo/ui'
 
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { MeterPageTypes, METER_TAB_TYPES } from '@condo/domains/meter/utils/clientSchema'
@@ -16,6 +17,7 @@ import { PropertyFormItemTooltip } from '@condo/domains/property/PropertyFormIte
 
 
 const FORM_ROW_MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 20]
+const FORM_ROW_SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 4]
 const FORM_ITEM_WRAPPER_COLUMN_STYLE: ColProps = { style: { width: '100%', padding: 0 } }
 
 type PROPERTY_UNIT_INITIAL_VALUES = {
@@ -24,7 +26,7 @@ type PROPERTY_UNIT_INITIAL_VALUES = {
     unitType?: string
 }
 
-type ADDRESS_AND_UNIT_INFO_PROPS = {
+type AddressAndUnitInfoProps = {
     form: FormInstance,
     organizationId: string,
     meterType: MeterPageTypes,
@@ -43,7 +45,7 @@ type ADDRESS_AND_UNIT_INFO_PROPS = {
 }
 
 
-export const AddressAndUnitInfo = (props: ADDRESS_AND_UNIT_INFO_PROPS): JSX.Element => {
+export const AddressAndUnitInfo = (props: AddressAndUnitInfoProps): JSX.Element => {
     const intl = useIntl()
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
     const AddressPlaceholder = intl.formatMessage({ id: 'placeholder.Address' })
@@ -73,7 +75,6 @@ export const AddressAndUnitInfo = (props: ADDRESS_AND_UNIT_INFO_PROPS): JSX.Elem
     }
 
     return (
-       
         <Row justify='space-between' gutter={FORM_ROW_MEDIUM_VERTICAL_GUTTER}>
             <Col span={24}>
                 {meterType !== METER_TAB_TYPES.propertyMeter && (
@@ -83,76 +84,55 @@ export const AddressAndUnitInfo = (props: ADDRESS_AND_UNIT_INFO_PROPS): JSX.Elem
                 )}
             </Col>
             <Col span={24}>
-                {notFoundMetersForAddressTooltip ? <Tooltip
-                    className='no-content-found-tooltip'
-                    open={isNoMeterForAddress}
-                    title={notFoundMetersForAddressTooltip}
-                    placement='bottomLeft'
-                >
-                    <Form.Item
-                        name='property'
-                        label={AddressLabel}
-                        rules={validations.property}
-                        wrapperCol={FORM_ITEM_WRAPPER_COLUMN_STYLE}
-                        shouldUpdate
-                        tooltip={<PropertyFormItemTooltip />}
-                        initialValue={initialValues && initialValues.propertyId}
-                    >
-                        <PropertyAddressSearchInput
-                            organizationId={organizationId}
-                            autoFocus={true}
-                            onSelect={getHandleSelectPropertyAddress(form)}
-                            placeholder={AddressPlaceholder}
-                            onClear={handleDeselectPropertyAddress}
-                        />
-                    </Form.Item>
-                </Tooltip> : 
-                    <Form.Item
-                        name='property'
-                        label={AddressLabel}
-                        rules={validations.property}
-                        wrapperCol={FORM_ITEM_WRAPPER_COLUMN_STYLE}
-                        shouldUpdate
-                        tooltip={<PropertyFormItemTooltip />}
-                        initialValue={initialValues && initialValues.propertyId}
-                    >
-                        <PropertyAddressSearchInput
-                            organizationId={organizationId}
-                            autoFocus={true}
-                            onSelect={getHandleSelectPropertyAddress(form)}
-                            placeholder={AddressPlaceholder}
-                            onClear={handleDeselectPropertyAddress}
-                        />
-                    </Form.Item>}
+                <Row gutter={FORM_ROW_SMALL_VERTICAL_GUTTER}>
+                    <Col span={24}>
+                        <Form.Item
+                            name='property'
+                            label={AddressLabel}
+                            rules={validations.property}
+                            wrapperCol={FORM_ITEM_WRAPPER_COLUMN_STYLE}
+                            shouldUpdate
+                            tooltip={<PropertyFormItemTooltip />}
+                            initialValue={initialValues && initialValues.propertyId}
+                        >
+                            <PropertyAddressSearchInput
+                                organizationId={organizationId}
+                                autoFocus={true}
+                                onSelect={getHandleSelectPropertyAddress(form)}
+                                placeholder={AddressPlaceholder}
+                                onClear={handleDeselectPropertyAddress}
+                            />
+                        </Form.Item>
+                    </Col>
+                    {notFoundMetersForAddressTooltip && isNoMeterForAddress && (
+                        <Col span={24}>
+                            <Typography.Text size='small' type='secondary'>{notFoundMetersForAddressTooltip}</Typography.Text>
+                        </Col>
+                    )}
+                </Row>
             </Col>
+           
             {
                 (selectedPropertyId || initialValues) && meterType === METER_TAB_TYPES.meter && (property || initialValues) && (
                     <Col span={24}>
-                        {notFoundMetersForAddressTooltip ? <Tooltip
-                            className='no-content-found-tooltip'
-                            open={isNoMeterForUnitName}
-                            title={notFoundMetersForAddressTooltip}
-                            placement='bottomLeft'
-                        >
-                            <UnitInfo
-                                property={property}
-                                loading={propertyLoading}
-                                setSelectedUnitName={setSelectedUnitName}
-                                setSelectedUnitType={setSelectedUnitType}
-                                form={form}
-                                required
-                            />
-                        </Tooltip> :
-                            <UnitInfo
-                                property={property}
-                                loading={propertyLoading}
-                                setSelectedUnitName={setSelectedUnitName}
-                                setSelectedUnitType={setSelectedUnitType}
-                                form={form}
-                                required
-                                initialValues={{ unitName: initialValues?.unitName, unitType: initialValues?.unitType }}
-                            />
-                        }
+                        <Row gutter={FORM_ROW_SMALL_VERTICAL_GUTTER}>
+                            <Col span={24}>
+                                <UnitInfo
+                                    property={property}
+                                    loading={propertyLoading}
+                                    setSelectedUnitName={setSelectedUnitName}
+                                    setSelectedUnitType={setSelectedUnitType}
+                                    form={form}
+                                    required
+                                    initialValues={{ unitName: get(initialValues, 'unitName'), unitType: get(initialValues, 'unitType') }}
+                                />
+                            </Col>
+                            {notFoundMetersForAddressTooltip && isNoMeterForUnitName && (
+                                <Col span={24}>
+                                    <Typography.Text size='small' type='secondary'>{notFoundMetersForAddressTooltip}</Typography.Text>
+                                </Col>
+                            )}
+                        </Row>
                     </Col>
                 )
             }

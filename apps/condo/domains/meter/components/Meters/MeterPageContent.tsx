@@ -1,5 +1,5 @@
 import { MeterReportingPeriod } from '@app/condo/schema'
-import { Col, Row } from 'antd'
+import { Col, Image, Row } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import React, { useCallback, useMemo, useState } from 'react'
@@ -11,6 +11,7 @@ import { Alert, Select } from '@open-condo/ui'
 
 import { PageHeader } from '@condo/domains/common/components/containers/BaseLayout'
 import { ShowMoreFieldsButton } from '@condo/domains/common/components/ShowMoreFieldsButton'
+import ChangeMeterStatusModal from '@condo/domains/meter/components/Meters/ChangeMeterStatusModal'
 import { MeterAccountField, MeterCommonDateField, MeterNumberField, MeterPlaceField, MeterResourceField } from '@condo/domains/meter/components/Meters/MeterInfoFields'
 import { MeterReadingsPageContent } from '@condo/domains/meter/components/TabContent/MeterReading'
 import { PropertyMeterReadingsPageContent } from '@condo/domains/meter/components/TabContent/PropertyMeterReading'
@@ -18,9 +19,9 @@ import { useFilters } from '@condo/domains/meter/hooks/useFilters'
 import { useTableColumns } from '@condo/domains/meter/hooks/useTableColumns'
 import { Meter, METER_READINGS_TYPES, METER_TAB_TYPES, PropertyMeter } from '@condo/domains/meter/utils/clientSchema'
 import { getMeterTitleMessage } from '@condo/domains/meter/utils/helpers'
+import { B2BApp } from '@condo/domains/miniapp/utils/clientSchema'
 import { TicketPropertyField } from '@condo/domains/ticket/components/TicketId/TicketPropertyField'
 
-import ChangeMeterStatusModal from './ChangeMeterStatusModal'
 
 const METER_STATUSES = { active: 'active', archived: 'archived' }
 
@@ -40,7 +41,16 @@ const MeterHeader = ({ meter, meterReportingPeriod, refetchMeter, meterType }) =
     const nextVerificationDate = get(meter, 'nextVerificationDate')
 
     const archiveDate = get(meter, 'archiveDate')
-    
+    const isAutomatic = get(meter, 'isAutomatic')
+    const b2bAppId = get(meter, 'b2bApp.id')
+
+    const {
+        obj: b2bApp,
+        loading: isB2bAppLoading,
+    } = B2BApp.useObject(
+        { where: { id: b2bAppId } }
+    )
+
     const [meterStatus, setMeterStatus] = useState(archiveDate ? METER_STATUSES.archived : METER_STATUSES.active)
     const [selectedArchiveDate, setSelectedArchiveDate] = useState(archiveDate || null)
     const [isShowStatusChangeModal, setIsShowStatusChangeModal] = useState(false)
@@ -113,33 +123,47 @@ const MeterHeader = ({ meter, meterReportingPeriod, refetchMeter, meterType }) =
                     extra={meterStatusTag} style={{ paddingBottom: 20 }}
                 />
             </Col>
-            {meterReportingPeriod && (
-                <Col span={24}>
-                    <Typography.Text type='secondary' size='small'>
-                        {MeterReportingPeriodTitle}:&nbsp;
-                        <Typography.Text size='small'>
-                            {MeterReportingPeriodText}
-                        </Typography.Text>
-                    </Typography.Text>
+            <Row gutter={[30, 0]}>
+                <Col span={20} style={{ padding: 0 }}>
+                    {meterReportingPeriod && (
+                        <Col span={24}>
+                            <Typography.Text type='secondary' size='small'>
+                                {MeterReportingPeriodTitle}:&nbsp;
+                                <Typography.Text size='small'>
+                                    {MeterReportingPeriodText}
+                                </Typography.Text>
+                            </Typography.Text>
+                        </Col>
+                    )}
+                    {dayjs(nextVerificationDate).diff(dayjs(), 'month') <= 3 && (
+                        <Col span={24}>
+                            <Typography.Text type='secondary' size='small'>
+                                {VerificationDateTipMessage} &mdash;&nbsp;
+                                <Typography.Text type='danger' size='small'>
+                                    {dayjs(nextVerificationDate).format('DD.MM.YYYY')}
+                                </Typography.Text>
+                            </Typography.Text>
+                        </Col>
+                    )}
+                    {meterStatus === METER_STATUSES.archived && !isPropertyMeter && (
+                        <Col span={24}>
+                            <Typography.Text type='secondary' size='small'>
+                                {ArchivedMeterTipMessage}
+                            </Typography.Text>
+                        </Col>
+                    )}
                 </Col>
-            )}
-            {dayjs(nextVerificationDate).diff(dayjs(), 'month') <= 3 && (
-                <Col span={24}>
-                    <Typography.Text type='secondary' size='small'>
-                        {VerificationDateTipMessage} &mdash;&nbsp;
-                        <Typography.Text type='danger' size='small'>
-                            {dayjs(nextVerificationDate).format('DD.MM.YYYY')}
-                        </Typography.Text>
-                    </Typography.Text>
-                </Col>
-            )}
-            {meterStatus === METER_STATUSES.archived && !isPropertyMeter && (
-                <Col span={24}>
-                    <Typography.Text type='secondary' size='small'>
-                        {ArchivedMeterTipMessage}
-                    </Typography.Text>
-                </Col>
-            )}
+                {isAutomatic && !isB2bAppLoading && b2bApp && (
+                    <Col span={4}>
+                        <Image
+                            src={get(b2bApp, ['logo', 'publicUrl'])}
+                            alt='miniapp-image'
+                            preview={false}
+                        />
+                    </Col>
+                )}
+            </Row>
+            
             <ChangeMeterStatusModal 
                 changeMeterStatusToArchived={changeMeterStatusToArchived}
                 handleChangeSelectedArchiveDate={handleChangeSelectedArchiveDate}

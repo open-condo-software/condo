@@ -412,6 +412,7 @@ export const MeterReadingsPageContent: React.FC<MeterReadingsPageContentProps> =
     const { refetch } = MeterReadingForOrganization.useCount({}, { skip: true })
     const { count, loading: countLoading } = MeterReadingForOrganization.useCount({ where: baseSearchQuery })
 
+
     const PageContent = useMemo(() => {
         if (countLoading || loading) return <Loader />
 
@@ -440,6 +441,7 @@ export const MeterReadingsPageContent: React.FC<MeterReadingsPageContentProps> =
                                 meterId={get(meter, 'id')}
                                 meterType={METER_TAB_TYPES.meter}
                                 isAutomatic={isAutomatic}
+                                archiveDate={get(meter, 'archiveDate')}
                             />
                         </Col>)
                     }
