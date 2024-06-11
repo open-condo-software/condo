@@ -6,14 +6,14 @@ const { featureToggleManager } = require('@open-condo/featureflags/featureToggle
 const { getSchemaCtx, find, itemsQuery, getByCondition } = require('@open-condo/keystone/schema')
 const { createCronTask } = require('@open-condo/keystone/tasks')
 
-const { SEND_DAILY_STATISTICS_TASK } = require('@condo/domains/common/constants/featureflags')
+const { SEND_DAILY_STATISTICS_TASK, SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED } = require('@condo/domains/common/constants/featureflags')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { SEND_DAILY_STATISTICS_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { PROCESSING_STATUS_TYPE, NEW_OR_REOPENED_STATUS_TYPE, DEFERRED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
 const { INCIDENT_STATUS_ACTUAL } = require('@condo/domains/ticket/constants/incident')
 const { STAFF } = require('@condo/domains/user/constants/common')
-const { User } = require('@condo/domains/user/utils/serverSchema')
+const { UserAdmin } = require('@condo/domains/user/utils/serverSchema')
 
 
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'sendDailyStatisticsTask' } }
@@ -47,59 +47,10 @@ class UserDailyStatistics {
         this.#context = context
     }
 
-    // todo(doma-9177): вынести из класса, это не логика получения аналитики, а просто преобразование для рендера письма
     /**
      *
-     * @return {MessageData}
+     * @return {string[]}
      */
-    getMessageData () {
-        return {
-            date: dayjs(this.#currentDate).format('DD-MM-YYYY'),
-            tickets: {
-                inProgress: `${this.#statistics.tickets.inProgress.common} (${
-                    this.#statistics.tickets.inProgress.byOrganizations.map(item => `${item.name} - ${item.count}`).join('; ')
-                })`,
-                isEmergency: `${this.#statistics.tickets.isEmergency.common} (${
-                    this.#statistics.tickets.isEmergency.byOrganizations.map(item => `${item.name} - ${item.count}`).join('; ')
-                })`,
-                isReturned: `${this.#statistics.tickets.isReturned.common} (${
-                    this.#statistics.tickets.isReturned.byOrganizations.map(item => `${item.name} - ${item.count}`).join('; ')
-                })`,
-                isExpired: `${this.#statistics.tickets.isExpired.common} (${
-                    this.#statistics.tickets.isExpired.byOrganizations.map(item => `${item.name} - ${item.count}`).join('; ')
-                })`,
-                withoutEmployee: `${this.#statistics.tickets.withoutEmployee.common} (${
-                    this.#statistics.tickets.withoutEmployee.byOrganizations.map(item => `${item.name} - ${item.count}`).join('; ')
-                })`,
-            },
-            incidents: {
-                water: this.#statistics.incidents.water.map((incident) => {
-                    let date, addresses
-
-                    if (dayjs(incident.workFinish).diff(dayjs(incident.workStart), 'hours') < 24) {
-                        date = dayjs(incident.workStart).format('DD-MM-YYYY')
-                    } else {
-                        date = [
-                            dayjs(incident.workStart).format('DD-MM-YYYY'),
-                            dayjs(incident.workFinish).format('DD-MM-YYYY'),
-                        ].filter(Boolean).join(` ${EMPTY_LINE} `)
-                    }
-
-                    if (incident.hasAllProperties) {
-                        addresses = 'All properties'
-                    } else {
-                        const more = incident.count - COMPACT_SCOPES_SIZE
-                        addresses = [...incident.addresses.slice(0, COMPACT_SCOPES_SIZE)]
-                            .filter(Boolean)
-                            .join(', ') + more > 0 ? ` and more ${more} properties` : ''
-                    }
-
-                    return `${date} - ${addresses}`
-                }).join('\n'),
-            },
-        }
-    }
-
     getOrganizationIds () {
         return this.#organizationIds
     }
@@ -129,28 +80,31 @@ class UserDailyStatistics {
 
         for (const organizationId of organizationIds) {
 
-            const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(this.#context, SEND_DAILY_STATISTICS_TASK, { organization: organizationId })
-            if (!isFeatureEnabled) continue
+            const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(this.#context, SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, { organization: organizationId })
+            if (!isFeatureEnabled) {
+                // todo(doma-9177): add logger
+                continue
+            }
 
             const organizationData = await this.#getOrganizationData(organizationId)
 
-            this.#statistics.tickets.inProgress.common += organizationData.tickets.inProgress
+            this.#statistics.tickets.inProgress.total += organizationData.tickets.inProgress
             if (organizationData.tickets.inProgress > 0) {
                 this.#statistics.tickets.inProgress.byOrganizations.push({ name: organizationData.organization.name, count: organizationData.tickets.inProgress })
             }
-            this.#statistics.tickets.isEmergency.common += organizationData.tickets.isEmergency
+            this.#statistics.tickets.isEmergency.total += organizationData.tickets.isEmergency
             if (organizationData.tickets.isEmergency > 0) {
                 this.#statistics.tickets.isEmergency.byOrganizations.push({ name: organizationData.organization.name, count: organizationData.tickets.isEmergency })
             }
-            this.#statistics.tickets.isReturned.common += organizationData.tickets.isReturned
+            this.#statistics.tickets.isReturned.total += organizationData.tickets.isReturned
             if (organizationData.tickets.isReturned > 0) {
                 this.#statistics.tickets.isReturned.byOrganizations.push({ name: organizationData.organization.name, count: organizationData.tickets.isReturned })
             }
-            this.#statistics.tickets.isExpired.common += organizationData.tickets.isExpired
+            this.#statistics.tickets.isExpired.total += organizationData.tickets.isExpired
             if (organizationData.tickets.isExpired > 0) {
                 this.#statistics.tickets.isExpired.byOrganizations.push({ name: organizationData.organization.name, count: organizationData.tickets.isExpired })
             }
-            this.#statistics.tickets.withoutEmployee.common += organizationData.tickets.withoutEmployee
+            this.#statistics.tickets.withoutEmployee.total += organizationData.tickets.withoutEmployee
             if (organizationData.tickets.withoutEmployee > 0) {
                 this.#statistics.tickets.withoutEmployee.byOrganizations.push({ name: organizationData.organization.name, count: organizationData.tickets.withoutEmployee })
             }
@@ -178,8 +132,36 @@ class UserDailyStatistics {
             throw new Error(`cannot find organization by id: "${organizationId}"`)
         }
 
-        // ----------- Tickets -----------
+        const {
+            withoutEmployee,
+            isExpired,
+            isReturned,
+            isEmergency,
+            inProgress,
+        } = await this.#getTicketsData(organizationId)
+        const { water } = await this.#getIncidentsData(organizationId)
 
+        return {
+            organization,
+            tickets: {
+                inProgress,
+                isEmergency,
+                isReturned,
+                isExpired,
+                withoutEmployee,
+            },
+            incidents: {
+                water,
+            },
+        }
+    }
+
+    /**
+     *
+     * @param organizationId
+     * @return {Promise<OrganizationTicketsData>}
+     */
+    async #getTicketsData (organizationId) {
         const { count: inProgress } = await itemsQuery('Ticket', {
             where: {
                 deletedAt: null,
@@ -224,9 +206,21 @@ class UserDailyStatistics {
             },
         }, { meta: true })
 
+        return {
+            inProgress,
+            isEmergency,
+            isReturned,
+            isExpired,
+            withoutEmployee,
+        }
+    }
 
-        // ----------- Incidents -----------
-
+    /**
+     *
+     * @param organizationId
+     * @return {Promise<{water: IncidentData[]}>}
+     */
+    async #getIncidentsData (organizationId) {
         const incidents = await find('Incident', {
             deletedAt: null,
             organization: { id: organizationId, deletedAt: null },
@@ -299,17 +293,7 @@ class UserDailyStatistics {
         }
 
         return {
-            organization,
-            tickets: {
-                inProgress,
-                isEmergency,
-                isReturned,
-                isExpired,
-                withoutEmployee,
-            },
-            incidents: {
-                water: waterIncidents,
-            },
+            water: waterIncidents,
         }
     }
 
@@ -323,23 +307,23 @@ class UserDailyStatistics {
             date: currentDate,
             tickets: {
                 inProgress: {
-                    common: 0,
+                    total: 0,
                     byOrganizations: [],
                 },
                 isEmergency: {
-                    common: 0,
+                    total: 0,
                     byOrganizations: [],
                 },
                 isReturned: {
-                    common: 0,
+                    total: 0,
                     byOrganizations: [],
                 },
                 isExpired: {
-                    common: 0,
+                    total: 0,
                     byOrganizations: [],
                 },
                 withoutEmployee: {
-                    common: 0,
+                    total: 0,
                     byOrganizations: [],
                 },
             },
@@ -365,7 +349,7 @@ class UserDailyStatistics {
     /**
      * @typedef {object} TicketStatistic
      * @property {{ count: number, name: string }[]} byOrganizations
-     * @property {number} common
+     * @property {number} total
      */
 
     /**
@@ -379,12 +363,7 @@ class UserDailyStatistics {
 
     /**
      * @typedef {object} OrganizationData
-     * @property {object} tickets
-     * @property {number} tickets.isEmergency
-     * @property {number} tickets.isReturned
-     * @property {number} tickets.inProgress
-     * @property {number} tickets.isExpired
-     * @property {number} tickets.withoutEmployee
+     * @property {OrganizationTicketsData} tickets
      *
      * @property {object} organization
      * @property {string} organization.id
@@ -396,71 +375,173 @@ class UserDailyStatistics {
      */
 
     /**
-     * @typedef {object} MessageData
-     * @property {string} date
-     * @property {object} tickets
-     * @property {string} tickets.isEmergency
-     * @property {string} tickets.isReturned
-     * @property {string} tickets.inProgress
-     * @property {string} tickets.isExpired
-     * @property {string} tickets.withoutEmployee
-     * @property {object} incidents
-     * @property {string} incidents.water
+     * @typedef {object} OrganizationTicketsData
+     * @property {number} isEmergency
+     * @property {number} isReturned
+     * @property {number} inProgress
+     * @property {number} isExpired
+     * @property {number} withoutEmployee
      */
 }
 
-const sendDailyStatistics = async () => {
+
+
+/**
+ * @typedef {object} MessageData
+ * @property {string} date
+ * @property {object} tickets
+ * @property {string} tickets.isEmergency
+ * @property {string} tickets.isReturned
+ * @property {string} tickets.inProgress
+ * @property {string} tickets.isExpired
+ * @property {string} tickets.withoutEmployee
+ * @property {object} incidents
+ * @property {string} incidents.water
+ */
+
+/**
+ *
+ * @param {TicketStatistic} ticketsStats
+ * @return {string}
+ */
+const formatTicketsStats = ({ total, byOrganizations }) => {
+    return `${total} (${
+        byOrganizations.map(item => `${item.name} - ${item.count}`).join('; ')
+    })`
+}
+
+/**
+ *
+ * @param {CommonStatistics} userStatisticsData
+ * @param {string} currentDate
+ * @return {MessageData}
+ */
+const formatMessageData = (userStatisticsData, currentDate) => {
+    return {
+        date: dayjs(currentDate).format('DD-MM-YYYY'),
+        tickets: {
+            inProgress: formatTicketsStats(userStatisticsData.tickets.inProgress),
+            isEmergency: formatTicketsStats(userStatisticsData.tickets.isEmergency),
+            isReturned: formatTicketsStats(userStatisticsData.tickets.isReturned),
+            isExpired: formatTicketsStats(userStatisticsData.tickets.isExpired),
+            withoutEmployee: formatTicketsStats(userStatisticsData.tickets.withoutEmployee),
+        },
+        incidents: {
+            water: userStatisticsData.incidents.water.map((incident) => {
+                let date, addresses
+
+                if (dayjs(incident.workFinish).diff(dayjs(incident.workStart), 'hours') < 24) {
+                    date = dayjs(incident.workStart).format('DD-MM-YYYY')
+                } else {
+                    date = [
+                        dayjs(incident.workStart).format('DD-MM-YYYY'),
+                        dayjs(incident.workFinish).format('DD-MM-YYYY'),
+                    ].filter(Boolean).join(` ${EMPTY_LINE} `)
+                }
+
+                if (incident.hasAllProperties) {
+                    addresses = 'All properties'
+                } else {
+                    const more = incident.count - COMPACT_SCOPES_SIZE
+                    addresses = [...incident.addresses.slice(0, COMPACT_SCOPES_SIZE)]
+                        .filter(Boolean)
+                        .join(', ') + more > 0 ? ` and more ${more} properties` : ''
+                }
+
+                return `${date} - ${addresses}`
+            }).join('\n'),
+        },
+    }
+}
+
+const sendDailyMessageToUserSafely = async (context, user, now) => {
+    try {
+        const userStatistics = new UserDailyStatistics(user.id, now)
+        const statisticsData = await userStatistics.loadStatistics()
+
+        const isEmptyStatistics = statisticsData.tickets.inProgress.total < 1
+            || statisticsData.tickets.isEmergency.total < 1
+            || statisticsData.tickets.isReturned.total < 1
+            || statisticsData.tickets.isExpired.total < 1
+            || statisticsData.tickets.withoutEmployee.total < 1
+            || statisticsData.incidents.water.length < 1
+        if (isEmptyStatistics) {
+            // todo(doma-9177): add logger
+
+            console.info({ msg: 'empty stats', userId: user.id })
+            return
+        }
+
+        const messageData = formatMessageData(statisticsData, now)
+
+        const uniqKey = `send_daily_statistics_${user.id}_${dayjs(now).format('DD-MM-YYYY')}`
+        await sendMessage(context, {
+            ...DV_SENDER,
+            to: { email: user.email },
+            lang: conf.DEFAULT_LOCALE, // or user.lang, org.lang?
+            type: SEND_DAILY_STATISTICS_MESSAGE_TYPE,
+            uniqKey,
+            meta: {
+                dv: 1,
+                data: messageData,
+
+                // TODO(Alllex202): tags should be removed after testing!
+                tags: [`orgId: ${userStatistics.getOrganizationIds().join('; ')}`.slice(0, 128)],
+            },
+        })
+        console.info({ msg: 'send message', uniqKey })
+        // todo(doma-9177): add logger
+    } catch (error) {
+        console.error({ msg: 'not send message', error })
+        // todo(doma-9177): add logger
+    }
+}
+
+const sendDailyStatistics = async (userId) => {
 
     const now = dayjs().toISOString()
 
-    const { keystone: context } = getSchemaCtx('User')
+    try {
+        const { keystone: context } = getSchemaCtx('User')
 
-    await loadListByChunks({
-        context,
-        list: User,
-        chunkSize: 50,
-        where: {
-            deletedAt: null,
-            isSupport: false,
-            isAdmin: false,
-            rightsSet: null,
-            type: STAFF,
-            AND: [
-                { email_not_contains: '@doma.ai' },
-                { email_not: null },
-            ],
-            // isEmailVerified: true,
-        },
-        /**
-         * @param {User[]} chunk
-         * @returns {User[]}
-         */
-        chunkProcessor: async (chunk) => {
-            for (const user of chunk) {
+        const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(context, SEND_DAILY_STATISTICS_TASK)
+        if (!isFeatureEnabled) {
+            // todo(doma-9177): add logger
+            return 'disabled'
+        }
 
-                const userStatistics = new UserDailyStatistics(user.id, now)
-                await userStatistics.loadStatistics()
-                const messageData = userStatistics.getMessageData()
-                const organizationIds = userStatistics.getOrganizationIds()
+        await loadListByChunks({
+            context,
+            list: UserAdmin,
+            chunkSize: 50,
+            where: {
+                deletedAt: null,
+                isSupport: false,
+                isAdmin: false,
+                rightsSet_is_null: true,
+                type: STAFF,
+                AND: [
+                    { email_not_contains: '@doma.ai' },
+                    { email_not: null },
+                ],
+                // isEmailVerified: true,
+            },
+            /**
+             * @param {User[]} chunk
+             * @returns {User[]}
+             */
+            chunkProcessor: async (chunk) => {
+                for (const user of chunk) {
+                    await sendDailyMessageToUserSafely(context, user, now)
+                }
 
-                const uniqKey = `send_daily_statistics_${user.id}`
-                await sendMessage(context, {
-                    ...DV_SENDER,
-                    to: { email: user.email },
-                    lang: conf.DEFAULT_LOCALE, // or user.lang, org.lang?
-                    type: SEND_DAILY_STATISTICS_MESSAGE_TYPE,
-                    uniqKey,
-                    meta: {
-                        dv: 1,
-                        tags: [`orgId: ${organizationIds.join('; ')}`.slice(0, 128)],
-                        data: messageData,
-                    },
-                })
-            }
-
-            return []
-        },
-    })
+                return []
+            },
+        })
+    } catch (error) {
+        // todo(doma-9177): add logger
+        throw error
+    }
 
 }
 
@@ -468,4 +549,5 @@ module.exports = {
     UserDailyStatistics,
     // At 06:00
     sendDailyStatisticsTask: createCronTask('sendDailyStatistics', '0 6 * * *', sendDailyStatistics),
+    sendDailyMessageToUserSafely,
 }

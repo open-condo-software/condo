@@ -5,9 +5,11 @@ const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
-const { setFakeClientMode, setFeatureFlag, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { setFakeClientMode, setFeatureFlag, makeLoggedInAdminClient, waitFor } = require('@open-condo/keystone/test.utils')
 
-const { SEND_DAILY_STATISTICS_TASK } = require('@condo/domains/common/constants/featureflags')
+const { SEND_DAILY_STATISTICS_TASK, SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED } = require('@condo/domains/common/constants/featureflags')
+const { Message } = require('@condo/domains/notification/utils/testSchema')
 const { makeEmployeeUserClientWithAbilities, createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { INCIDENT_STATUS_NOT_ACTUAL } = require('@condo/domains/ticket/constants/incident')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
@@ -17,38 +19,41 @@ const {
 } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
-const { UserDailyStatistics } = require('./sendDailyStatistics')
+const { UserDailyStatistics, sendDailyStatisticsTask, sendDailyMessageToUserSafely } = require('./sendDailyStatistics')
 
 
 describe('sendDailyStatistics', () => {
+    let admin, statuses,
+        allowedIncidentClassifiers, notAllowedIncidentClassifiers
+
     setFakeClientMode(index)
     jest.setTimeout(10000)
 
-    describe('class UserDailyStatistics', () => {
-        let admin, statuses,
-            allowedIncidentClassifiers, notAllowedIncidentClassifiers
 
-        beforeAll(async () => {
-            admin = await makeLoggedInAdminClient()
-            statuses = await TicketStatus.getAll(admin, {})
+    beforeAll(async () => {
+        setFeatureFlag(SEND_DAILY_STATISTICS_TASK, true)
 
-            allowedIncidentClassifiers = await IncidentClassifier.getAll(admin, {
-                category: {
-                    id: '4509f01b-3f9b-4a07-83ea-3b548c492146', // Water
-                },
-                problem: {
-                    id_in: [
-                        '79af87cc-9b17-4f0e-a527-2f61beffd5e1', // No hot and cold water
-                        '5289e8aa-e5f9-4dc5-8540-49f6e0b2a004', // No hot water
-                        '96f91218-1e03-4258-9883-64cf0753ac45', // No cold water
-                    ],
-                },
-            })
-            notAllowedIncidentClassifiers = await IncidentClassifier.getAll(admin, {
-                id_not_in: allowedIncidentClassifiers.map(item => item.id),
-            })
+        admin = await makeLoggedInAdminClient()
+        statuses = await TicketStatus.getAll(admin, {})
+
+        allowedIncidentClassifiers = await IncidentClassifier.getAll(admin, {
+            category: {
+                id: '4509f01b-3f9b-4a07-83ea-3b548c492146', // Water
+            },
+            problem: {
+                id_in: [
+                    '79af87cc-9b17-4f0e-a527-2f61beffd5e1', // No hot and cold water
+                    '5289e8aa-e5f9-4dc5-8540-49f6e0b2a004', // No hot water
+                    '96f91218-1e03-4258-9883-64cf0753ac45', // No cold water
+                ],
+            },
         })
+        notAllowedIncidentClassifiers = await IncidentClassifier.getAll(admin, {
+            id_not_in: allowedIncidentClassifiers.map(item => item.id),
+        })
+    })
 
+    describe('class UserDailyStatistics', () => {
         describe('should return correct statistic data for user', () => {
             let userData = {
                 client: null,
@@ -68,7 +73,7 @@ describe('sendDailyStatistics', () => {
             let justEmployeeClient
 
             beforeEach(async () => {
-                setFeatureFlag(SEND_DAILY_STATISTICS_TASK, false)
+                setFeatureFlag(SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, false)
 
                 const administratorClient = await makeEmployeeUserClientWithAbilities({
                     canManageOrganization: true,
@@ -124,13 +129,13 @@ describe('sendDailyStatistics', () => {
                         await generateTicketsForEveryStatus(userData.organizationWithAccess2.data, userData.organizationWithAccess2.property)
                         await generateTicketsForEveryStatus(userData.organizationWithoutAccess.data, userData.organizationWithoutAccess.property)
 
-                        setFeatureFlag(SEND_DAILY_STATISTICS_TASK, true)
+                        setFeatureFlag(SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, true)
                         // user can get stats only for organizations which have canManageOrganization
                         const administratorStatistics = new UserDailyStatistics(userData.client.user.id)
                         await administratorStatistics.loadStatistics()
                         const administratorResult =  await administratorStatistics.loadStatistics()
 
-                        expect(administratorResult.tickets.inProgress.common).toBe(2)
+                        expect(administratorResult.tickets.inProgress.total).toBe(2)
                         expect(administratorResult.tickets.inProgress.byOrganizations).toHaveLength(2)
                         expect(administratorResult.tickets.inProgress.byOrganizations).toEqual(expect.arrayContaining([
                             expect.objectContaining({
@@ -148,17 +153,17 @@ describe('sendDailyStatistics', () => {
                         await justEmployeeStatistics.loadStatistics()
                         const justEmployeeResult =  await justEmployeeStatistics.loadStatistics()
 
-                        expect(justEmployeeResult.tickets.inProgress.common).toBe(0)
+                        expect(justEmployeeResult.tickets.inProgress.total).toBe(0)
                         expect(justEmployeeResult.tickets.inProgress.byOrganizations).toHaveLength(0)
 
 
-                        setFeatureFlag(SEND_DAILY_STATISTICS_TASK, false)
+                        setFeatureFlag(SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, false)
                         // user can not get stats if feature flag enabled
                         const administratorStatistics2 = new UserDailyStatistics(userData.client.user.id)
                         await administratorStatistics2.loadStatistics()
                         const administratorResult2 =  await administratorStatistics2.loadStatistics()
 
-                        expect(administratorResult2.tickets.inProgress.common).toBe(0)
+                        expect(administratorResult2.tickets.inProgress.total).toBe(0)
                         expect(administratorResult2.tickets.inProgress.byOrganizations).toHaveLength(0)
                     })
 
@@ -183,13 +188,13 @@ describe('sendDailyStatistics', () => {
                         await generateTicketsForEveryStatus(userData.organizationWithoutAccess.data, userData.organizationWithoutAccess.property)
 
 
-                        setFeatureFlag(SEND_DAILY_STATISTICS_TASK, true)
+                        setFeatureFlag(SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, true)
                         // user can get stats only for organizations which have canManageOrganization
                         const administratorStatistics = new UserDailyStatistics(userData.client.user.id)
                         await administratorStatistics.loadStatistics()
                         const administratorResult =  await administratorStatistics.loadStatistics()
 
-                        expect(administratorResult.tickets.isEmergency.common).toBe(2)
+                        expect(administratorResult.tickets.isEmergency.total).toBe(2)
                         expect(administratorResult.tickets.isEmergency.byOrganizations).toHaveLength(2)
                         expect(administratorResult.tickets.isEmergency.byOrganizations).toEqual(expect.arrayContaining([
                             expect.objectContaining({
@@ -207,17 +212,17 @@ describe('sendDailyStatistics', () => {
                         await justEmployeeStatistics.loadStatistics()
                         const justEmployeeResult =  await justEmployeeStatistics.loadStatistics()
 
-                        expect(justEmployeeResult.tickets.isEmergency.common).toBe(0)
+                        expect(justEmployeeResult.tickets.isEmergency.total).toBe(0)
                         expect(justEmployeeResult.tickets.isEmergency.byOrganizations).toHaveLength(0)
 
 
-                        setFeatureFlag(SEND_DAILY_STATISTICS_TASK, false)
+                        setFeatureFlag(SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, false)
                         // user can not get stats if feature flag enabled
                         const administratorStatistics2 = new UserDailyStatistics(userData.client.user.id)
                         await administratorStatistics2.loadStatistics()
                         const administratorResult2 =  await administratorStatistics2.loadStatistics()
 
-                        expect(administratorResult2.tickets.isEmergency.common).toBe(0)
+                        expect(administratorResult2.tickets.isEmergency.total).toBe(0)
                         expect(administratorResult2.tickets.isEmergency.byOrganizations).toHaveLength(0)
                     })
 
@@ -245,13 +250,13 @@ describe('sendDailyStatistics', () => {
                         await generateTicketsForEveryStatus(userData.organizationWithoutAccess.data, userData.organizationWithoutAccess.property)
 
 
-                        setFeatureFlag(SEND_DAILY_STATISTICS_TASK, true)
+                        setFeatureFlag(SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, true)
                         // user can get stats only for organizations which have canManageOrganization
                         const administratorStatistics = new UserDailyStatistics(userData.client.user.id)
                         await administratorStatistics.loadStatistics()
                         const administratorResult =  await administratorStatistics.loadStatistics()
 
-                        expect(administratorResult.tickets.isReturned.common).toBe(2)
+                        expect(administratorResult.tickets.isReturned.total).toBe(2)
                         expect(administratorResult.tickets.isReturned.byOrganizations).toHaveLength(2)
                         expect(administratorResult.tickets.isReturned.byOrganizations).toEqual(expect.arrayContaining([
                             expect.objectContaining({
@@ -269,17 +274,17 @@ describe('sendDailyStatistics', () => {
                         await justEmployeeStatistics.loadStatistics()
                         const justEmployeeResult =  await justEmployeeStatistics.loadStatistics()
 
-                        expect(justEmployeeResult.tickets.isReturned.common).toBe(0)
+                        expect(justEmployeeResult.tickets.isReturned.total).toBe(0)
                         expect(justEmployeeResult.tickets.isReturned.byOrganizations).toHaveLength(0)
 
 
-                        setFeatureFlag(SEND_DAILY_STATISTICS_TASK, false)
+                        setFeatureFlag(SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, false)
                         // user can not get stats if feature flag enabled
                         const administratorStatistics2 = new UserDailyStatistics(userData.client.user.id)
                         await administratorStatistics2.loadStatistics()
                         const administratorResult2 =  await administratorStatistics2.loadStatistics()
 
-                        expect(administratorResult2.tickets.isReturned.common).toBe(0)
+                        expect(administratorResult2.tickets.isReturned.total).toBe(0)
                         expect(administratorResult2.tickets.isReturned.byOrganizations).toHaveLength(0)
                     })
 
@@ -304,13 +309,13 @@ describe('sendDailyStatistics', () => {
                         await generateTicketsForEveryStatus(userData.organizationWithoutAccess.data, userData.organizationWithoutAccess.property)
 
 
-                        setFeatureFlag(SEND_DAILY_STATISTICS_TASK, true)
+                        setFeatureFlag(SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, true)
                         // user can get stats only for organizations which have canManageOrganization
                         const administratorStatistics = new UserDailyStatistics(userData.client.user.id)
                         await administratorStatistics.loadStatistics()
                         const administratorResult =  await administratorStatistics.loadStatistics()
 
-                        expect(administratorResult.tickets.isExpired.common).toBe(6)
+                        expect(administratorResult.tickets.isExpired.total).toBe(6)
                         expect(administratorResult.tickets.isExpired.byOrganizations).toHaveLength(2)
                         expect(administratorResult.tickets.isExpired.byOrganizations).toEqual(expect.arrayContaining([
                             expect.objectContaining({
@@ -328,21 +333,21 @@ describe('sendDailyStatistics', () => {
                         await justEmployeeStatistics.loadStatistics()
                         const justEmployeeResult =  await justEmployeeStatistics.loadStatistics()
 
-                        expect(justEmployeeResult.tickets.isExpired.common).toBe(0)
+                        expect(justEmployeeResult.tickets.isExpired.total).toBe(0)
                         expect(justEmployeeResult.tickets.isExpired.byOrganizations).toHaveLength(0)
 
 
-                        setFeatureFlag(SEND_DAILY_STATISTICS_TASK, false)
+                        setFeatureFlag(SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, false)
                         // user can not get stats if feature flag enabled
                         const administratorStatistics2 = new UserDailyStatistics(userData.client.user.id)
                         await administratorStatistics2.loadStatistics()
                         const administratorResult2 =  await administratorStatistics2.loadStatistics()
 
-                        expect(administratorResult2.tickets.isExpired.common).toBe(0)
+                        expect(administratorResult2.tickets.isExpired.total).toBe(0)
                         expect(administratorResult2.tickets.isExpired.byOrganizations).toHaveLength(0)
                     })
 
-                    test('must count the number of tickets without an executor or responsible person in the status "open", "in process" and "postponed"', async () => {
+                    test('must count the number of tickets without an executor or responsible person in the status "open"', async () => {
                         const generateTicketsForEveryStatus = async (organization, property) => {
                             for (const status of statuses) {
                                 const [noExecutorAndAssignee] = await createTestTicket(userData.client, organization, property, {
@@ -373,13 +378,13 @@ describe('sendDailyStatistics', () => {
                         await generateTicketsForEveryStatus(userData.organizationWithoutAccess.data, userData.organizationWithoutAccess.property)
 
 
-                        setFeatureFlag(SEND_DAILY_STATISTICS_TASK, true)
+                        setFeatureFlag(SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, true)
                         // user can get stats only for organizations which have canManageOrganization
                         const administratorStatistics = new UserDailyStatistics(userData.client.user.id)
                         await administratorStatistics.loadStatistics()
                         const administratorResult =  await administratorStatistics.loadStatistics()
 
-                        expect(administratorResult.tickets.withoutEmployee.common).toBe(6)
+                        expect(administratorResult.tickets.withoutEmployee.total).toBe(6)
                         expect(administratorResult.tickets.withoutEmployee.byOrganizations).toHaveLength(2)
                         expect(administratorResult.tickets.withoutEmployee.byOrganizations).toEqual(expect.arrayContaining([
                             expect.objectContaining({
@@ -397,17 +402,17 @@ describe('sendDailyStatistics', () => {
                         await justEmployeeStatistics.loadStatistics()
                         const justEmployeeResult =  await justEmployeeStatistics.loadStatistics()
 
-                        expect(justEmployeeResult.tickets.withoutEmployee.common).toBe(0)
+                        expect(justEmployeeResult.tickets.withoutEmployee.total).toBe(0)
                         expect(justEmployeeResult.tickets.withoutEmployee.byOrganizations).toHaveLength(0)
 
 
-                        setFeatureFlag(SEND_DAILY_STATISTICS_TASK, false)
+                        setFeatureFlag(SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, false)
                         // user can not get stats if feature flag enabled
                         const administratorStatistics2 = new UserDailyStatistics(userData.client.user.id)
                         await administratorStatistics2.loadStatistics()
                         const administratorResult2 =  await administratorStatistics2.loadStatistics()
 
-                        expect(administratorResult2.tickets.withoutEmployee.common).toBe(0)
+                        expect(administratorResult2.tickets.withoutEmployee.total).toBe(0)
                         expect(administratorResult2.tickets.withoutEmployee.byOrganizations).toHaveLength(0)
                     })
                 })
@@ -478,7 +483,7 @@ describe('sendDailyStatistics', () => {
                     await generateTicketsForOrganization(userData.organizationWithAccess2.data, userData.organizationWithAccess2.property)
                     await generateTicketsForOrganization(userData.organizationWithoutAccess.data, userData.organizationWithoutAccess.property)
 
-                    setFeatureFlag(SEND_DAILY_STATISTICS_TASK, true)
+                    setFeatureFlag(SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, true)
                     // user can get stats only for organizations which have canManageOrganization
                     const administratorStatistics = new UserDailyStatistics(userData.client.user.id)
                     await administratorStatistics.loadStatistics()
@@ -513,7 +518,7 @@ describe('sendDailyStatistics', () => {
                     expect(justEmployeeResult.incidents.water).toHaveLength(0)
 
 
-                    setFeatureFlag(SEND_DAILY_STATISTICS_TASK, false)
+                    setFeatureFlag(SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, false)
                     // user can not get stats if feature flag enabled
                     const administratorStatistics2 = new UserDailyStatistics(userData.client.user.id)
                     await administratorStatistics2.loadStatistics()
@@ -522,6 +527,67 @@ describe('sendDailyStatistics', () => {
                     expect(administratorResult2.incidents.water).toHaveLength(0)
                 })
             })
+        })
+    })
+
+    describe('task should correct work', () => {
+        test('should send message to user and message should have meta with statistics data', async () => {
+            const administratorClient = await makeEmployeeUserClientWithAbilities({
+                canManageOrganization: true,
+                canManageTickets: true,
+                canReadTickets: true,
+                canManageIncidents: true,
+                canReadIncidents: true,
+            })
+
+            const [inProgress] = await createTestTicket(administratorClient, administratorClient.organization, administratorClient.property, {
+                status: { connect: { id: STATUS_IDS.IN_PROGRESS } },
+            })
+            const [isEmergency] = await createTestTicket(administratorClient, administratorClient.organization, administratorClient.property, {
+                status: { connect: { id: STATUS_IDS.OPEN } },
+                isEmergency: true,
+            })
+            let [isReturned] = await createTestTicket(administratorClient, administratorClient.organization, administratorClient.property, {
+                status: { connect: { id: STATUS_IDS.COMPLETED } },
+            });
+            [isReturned] = await updateTestTicket(administratorClient, isReturned.id, {
+                status: { connect: { id: STATUS_IDS.OPEN } },
+            })
+            const [isExpired] = await createTestTicket(administratorClient, administratorClient.organization, administratorClient.property, {
+                status: { connect: { id: STATUS_IDS.OPEN } },
+                deadline: dayjs().subtract(10, 'minutes'),
+            })
+            const [withoutAssignee] = await createTestTicket(administratorClient, administratorClient.organization, administratorClient.property, {
+                status: { connect: { id: STATUS_IDS.OPEN } },
+                executor: { connect: { id: administratorClient.user.id } },
+            })
+
+            const [actualWaterIncidentSoonForAllProperties] = await createTestIncident(administratorClient, administratorClient.organization, {
+                details: 'actualWaterIncidentSoonForAllProperties',
+                workStart: dayjs().add(24, 'hours'),
+                hasAllProperties: true,
+            })
+            await createTestIncidentClassifierIncident(administratorClient, actualWaterIncidentSoonForAllProperties, faker.helpers.arrayElement(allowedIncidentClassifiers))
+
+            setFeatureFlag(SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, true)
+
+
+            const now = dayjs().toISOString()
+            const { keystone: context } = getSchemaCtx('User')
+            await sendDailyMessageToUserSafely(context, { ...administratorClient.user, email: administratorClient.userAttrs.email }, now)
+
+            await waitFor(async () => {
+                const message = await Message.getOne(admin, {
+                    uniqKey: `send_daily_statistics_${administratorClient.user.id}_${dayjs(now).format('DD-MM-YYYY')}`,
+                })
+
+                expect(message).toBeDefined()
+            })
+        })
+
+        test('should return "disabled" if feature flag is disabled', async () => {
+            setFeatureFlag(SEND_DAILY_STATISTICS_TASK, false)
+            expect(await sendDailyStatisticsTask.delay.fn()).toBeDefined()
         })
     })
 })
