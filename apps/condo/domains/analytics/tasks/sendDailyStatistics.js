@@ -1,8 +1,10 @@
 const dayjs = require('dayjs')
 const get = require('lodash/get')
+const { v4: uuid } = require('uuid')
 
 const conf = require('@open-condo/config')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
+const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx, find, itemsQuery, getByCondition } = require('@open-condo/keystone/schema')
 const { createCronTask } = require('@open-condo/keystone/tasks')
 
@@ -14,6 +16,10 @@ const { PROCESSING_STATUS_TYPE, NEW_OR_REOPENED_STATUS_TYPE, DEFERRED_STATUS_TYP
 const { INCIDENT_STATUS_ACTUAL } = require('@condo/domains/ticket/constants/incident')
 const { STAFF } = require('@condo/domains/user/constants/common')
 const { UserAdmin } = require('@condo/domains/user/utils/serverSchema')
+
+
+const appLogger = getLogger('condo')
+const logger = appLogger.child({ module: 'task/sendDailyStatistics' })
 
 
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'sendDailyStatisticsTask' } }
@@ -31,13 +37,17 @@ class UserDailyStatistics {
     /** @type {string|null} */
     #userId = null
     #context = null
+    #logger = null
+    #taskId = null
 
     /**
      *
      * @param userId
      * @param currentDate
+     * @param logger
+     * @param taskId
      */
-    constructor (userId, currentDate) {
+    constructor (userId, currentDate, logger, taskId) {
         if (!userId) throw new Error('No userId!')
 
         this.#userId = userId
@@ -45,6 +55,8 @@ class UserDailyStatistics {
 
         const { keystone: context } = getSchemaCtx('User')
         this.#context = context
+        this.#logger = logger
+        this.#taskId = taskId
     }
 
     /**
@@ -61,6 +73,7 @@ class UserDailyStatistics {
      */
     async loadStatistics () {
         this.#statistics = this.#getStatisticsTemplate(this.#currentDate)
+        this.#organizationIds = []
 
         const employees = await find('OrganizationEmployee', {
             deletedAt: null,
@@ -76,15 +89,19 @@ class UserDailyStatistics {
         })
 
         const organizationIds = employees.map((employee) => employee.organization)
-        this.#organizationIds = organizationIds
 
         for (const organizationId of organizationIds) {
 
             const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(this.#context, SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, { organization: organizationId })
             if (!isFeatureEnabled) {
-                // todo(doma-9177): add logger
+                logger.info({
+                    msg: `sendDailyStatistics disabled for organization ${organizationId}`,
+                    taskId: this.#taskId,
+                    data: { organizationId, userId: this.#userId, currentDate: this.#currentDate },
+                })
                 continue
             }
+            this.#organizationIds.push(organizationId)
 
             const organizationData = await this.#getOrganizationData(organizationId)
 
@@ -430,22 +447,20 @@ const formatMessageData = (userStatisticsData, currentDate) => {
             water: userStatisticsData.incidents.water.map((incident) => {
                 let date, addresses
 
-                if (dayjs(incident.workFinish).diff(dayjs(incident.workStart), 'hours') < 24) {
-                    date = dayjs(incident.workStart).format('DD-MM-YYYY')
+                const dateStart = dayjs(incident.workStart).format('DD-MM-YYYY')
+                const dateFinish = incident.workFinish ? dayjs(incident.workFinish).format('DD-MM-YYYY') : null
+                if (dateStart === dateFinish) {
+                    date = dateStart
                 } else {
-                    date = [
-                        dayjs(incident.workStart).format('DD-MM-YYYY'),
-                        dayjs(incident.workFinish).format('DD-MM-YYYY'),
-                    ].filter(Boolean).join(` ${EMPTY_LINE} `)
+                    date = [dateStart, dateFinish].filter(Boolean).join(` ${EMPTY_LINE} `)
                 }
 
+                // TODO(DOMA-9177): add translations
                 if (incident.hasAllProperties) {
                     addresses = 'All properties'
                 } else {
                     const more = incident.count - COMPACT_SCOPES_SIZE
-                    addresses = [...incident.addresses.slice(0, COMPACT_SCOPES_SIZE)]
-                        .filter(Boolean)
-                        .join(', ') + more > 0 ? ` and more ${more} properties` : ''
+                    addresses = incident.addresses.filter(Boolean).join(', ') + (more > 0 ? ` and more ${more} properties` : '')
                 }
 
                 return `${date} - ${addresses}`
@@ -454,9 +469,9 @@ const formatMessageData = (userStatisticsData, currentDate) => {
     }
 }
 
-const sendDailyMessageToUserSafely = async (context, user, now) => {
+const sendDailyMessageToUserSafely = async (context, user, currentDate, taskId) => {
     try {
-        const userStatistics = new UserDailyStatistics(user.id, now)
+        const userStatistics = new UserDailyStatistics(user.id, currentDate, logger, taskId)
         const statisticsData = await userStatistics.loadStatistics()
 
         const isEmptyStatistics = statisticsData.tickets.inProgress.total < 1
@@ -466,15 +481,13 @@ const sendDailyMessageToUserSafely = async (context, user, now) => {
             || statisticsData.tickets.withoutEmployee.total < 1
             || statisticsData.incidents.water.length < 1
         if (isEmptyStatistics) {
-            // todo(doma-9177): add logger
-
-            console.info({ msg: 'empty stats', userId: user.id })
+            logger.info({ msg: 'The email was not sent because the statistics are empty.', taskId, data: { currentDate, userId: user.id } })
             return
         }
 
-        const messageData = formatMessageData(statisticsData, now)
+        const messageData = formatMessageData(statisticsData, currentDate)
 
-        const uniqKey = `send_daily_statistics_${user.id}_${dayjs(now).format('DD-MM-YYYY')}`
+        const uniqKey = `send_daily_statistics_${user.id}_${dayjs(currentDate).format('DD-MM-YYYY')}`
         await sendMessage(context, {
             ...DV_SENDER,
             to: { email: user.email },
@@ -489,24 +502,24 @@ const sendDailyMessageToUserSafely = async (context, user, now) => {
                 tags: [`orgId: ${userStatistics.getOrganizationIds().join('; ')}`.slice(0, 128)],
             },
         })
-        console.info({ msg: 'send message', uniqKey })
-        // todo(doma-9177): add logger
+
+        logger.info({ msg: 'The email has been sent.', taskId, data: { currentDate, userId: user.id } })
     } catch (error) {
-        console.error({ msg: 'not send message', error })
-        // todo(doma-9177): add logger
+        logger.error({ msg: 'Failed to send email', error, taskId, data: { currentDate, userId: user.id } })
     }
 }
 
-const sendDailyStatistics = async (userId) => {
-
-    const now = dayjs().toISOString()
+const sendDailyStatistics = async () => {
+    const taskId = this.id || uuid()
+    const currentDate = dayjs().toISOString()
 
     try {
+        logger.info({ msg: 'Start sendDailyStatistics', taskId, data: { currentDate } })
         const { keystone: context } = getSchemaCtx('User')
 
         const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(context, SEND_DAILY_STATISTICS_TASK)
         if (!isFeatureEnabled) {
-            // todo(doma-9177): add logger
+            logger.info({ msg: 'sendDailyStatistics is disabled', taskId, data: { currentDate } })
             return 'disabled'
         }
 
@@ -532,17 +545,15 @@ const sendDailyStatistics = async (userId) => {
              */
             chunkProcessor: async (chunk) => {
                 for (const user of chunk) {
-                    await sendDailyMessageToUserSafely(context, user, now)
+                    await sendDailyMessageToUserSafely(context, user, currentDate, taskId)
                 }
-
                 return []
             },
         })
     } catch (error) {
-        // todo(doma-9177): add logger
+        logger.error({ msg: 'Sending emails ended with an error', taskId, data: { currentDate } })
         throw error
     }
-
 }
 
 module.exports = {

@@ -9,8 +9,10 @@ const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { setFakeClientMode, setFeatureFlag, makeLoggedInAdminClient, waitFor } = require('@open-condo/keystone/test.utils')
 
 const { SEND_DAILY_STATISTICS_TASK, SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED } = require('@condo/domains/common/constants/featureflags')
+const { SEND_DAILY_STATISTICS_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { Message } = require('@condo/domains/notification/utils/testSchema')
 const { makeEmployeeUserClientWithAbilities, createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
+const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { INCIDENT_STATUS_NOT_ACTUAL } = require('@condo/domains/ticket/constants/incident')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { updateTestTicket, createTestIncidentProperty } = require('@condo/domains/ticket/utils/testSchema')
@@ -532,23 +534,23 @@ describe('sendDailyStatistics', () => {
 
     describe('task should correct work', () => {
         test('should send message to user and message should have meta with statistics data', async () => {
-            const administratorClient = await makeEmployeeUserClientWithAbilities({
-                canManageOrganization: true,
-                canManageTickets: true,
-                canReadTickets: true,
-                canManageIncidents: true,
-                canReadIncidents: true,
-            })
+            const administratorClient = await makeClientWithProperty()
 
             const [inProgress] = await createTestTicket(administratorClient, administratorClient.organization, administratorClient.property, {
                 status: { connect: { id: STATUS_IDS.IN_PROGRESS } },
+                assignee: { connect: { id: administratorClient.user.id } },
+                executor: { connect: { id: administratorClient.user.id } },
             })
             const [isEmergency] = await createTestTicket(administratorClient, administratorClient.organization, administratorClient.property, {
                 status: { connect: { id: STATUS_IDS.OPEN } },
                 isEmergency: true,
+                assignee: { connect: { id: administratorClient.user.id } },
+                executor: { connect: { id: administratorClient.user.id } },
             })
             let [isReturned] = await createTestTicket(administratorClient, administratorClient.organization, administratorClient.property, {
                 status: { connect: { id: STATUS_IDS.COMPLETED } },
+                assignee: { connect: { id: administratorClient.user.id } },
+                executor: { connect: { id: administratorClient.user.id } },
             });
             [isReturned] = await updateTestTicket(administratorClient, isReturned.id, {
                 status: { connect: { id: STATUS_IDS.OPEN } },
@@ -556,6 +558,8 @@ describe('sendDailyStatistics', () => {
             const [isExpired] = await createTestTicket(administratorClient, administratorClient.organization, administratorClient.property, {
                 status: { connect: { id: STATUS_IDS.OPEN } },
                 deadline: dayjs().subtract(10, 'minutes'),
+                assignee: { connect: { id: administratorClient.user.id } },
+                executor: { connect: { id: administratorClient.user.id } },
             })
             const [withoutAssignee] = await createTestTicket(administratorClient, administratorClient.organization, administratorClient.property, {
                 status: { connect: { id: STATUS_IDS.OPEN } },
@@ -564,25 +568,63 @@ describe('sendDailyStatistics', () => {
 
             const [actualWaterIncidentSoonForAllProperties] = await createTestIncident(administratorClient, administratorClient.organization, {
                 details: 'actualWaterIncidentSoonForAllProperties',
-                workStart: dayjs().add(24, 'hours'),
+                workStart: dayjs().add(12, 'hours'),
+                workFinish: dayjs().add(13, 'hours'),
                 hasAllProperties: true,
             })
             await createTestIncidentClassifierIncident(administratorClient, actualWaterIncidentSoonForAllProperties, faker.helpers.arrayElement(allowedIncidentClassifiers))
 
-            setFeatureFlag(SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, true)
-
-
-            const now = dayjs().toISOString()
-            const { keystone: context } = getSchemaCtx('User')
-            await sendDailyMessageToUserSafely(context, { ...administratorClient.user, email: administratorClient.userAttrs.email }, now)
-
-            await waitFor(async () => {
-                const message = await Message.getOne(admin, {
-                    uniqKey: `send_daily_statistics_${administratorClient.user.id}_${dayjs(now).format('DD-MM-YYYY')}`,
-                })
-
-                expect(message).toBeDefined()
+            const [actualWaterIncidentSoonForOneProperty] = await createTestIncident(administratorClient, administratorClient.organization, {
+                details: 'actualWaterIncidentSoonForOneProperty',
+                workStart: dayjs().add(2, 'minute'),
+                workFinish: dayjs().add(2, 'days'),
             })
+            await createTestIncidentClassifierIncident(administratorClient, actualWaterIncidentSoonForOneProperty, faker.helpers.arrayElement(allowedIncidentClassifiers))
+            await createTestIncidentProperty(administratorClient, actualWaterIncidentSoonForOneProperty, administratorClient.property)
+
+            setFeatureFlag(SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, true)
+            const currentDate = dayjs().toISOString()
+            const { keystone: context } = getSchemaCtx('User')
+            await sendDailyMessageToUserSafely(context, { ...administratorClient.user, email: administratorClient.userAttrs.email }, currentDate)
+
+            const message = await Message.getOne(admin, {
+                uniqKey: `send_daily_statistics_${administratorClient.user.id}_${dayjs(currentDate).format('DD-MM-YYYY')}`,
+            })
+
+
+            console.log('123123123123', administratorClient.property.address)
+            const getDate = (incident) => {
+                const EMPTY_LINE = '—'
+                const dateStart = dayjs(incident.workStart).format('DD-MM-YYYY')
+                const dateFinish = incident.workFinish ? dayjs(incident.workFinish).format('DD-MM-YYYY') : null
+                if (dateStart === dateFinish) {
+                    return dateStart
+                } else {
+                    return [dateStart, dateFinish].filter(Boolean).join(` ${EMPTY_LINE} `)
+                }
+            }
+            expect(message).toBeDefined()
+            expect(message).toEqual(expect.objectContaining({
+                email: administratorClient.userAttrs.email,
+                type: SEND_DAILY_STATISTICS_MESSAGE_TYPE,
+                meta: expect.objectContaining({
+                    dv: 1,
+                    data: {
+                        date: dayjs(currentDate).format('DD-MM-YYYY'),
+                        tickets: {
+                            inProgress: `1 (${administratorClient.organization.name} - 1)`,
+                            isEmergency: `1 (${administratorClient.organization.name} - 1)`,
+                            isReturned: `1 (${administratorClient.organization.name} - 1)`,
+                            isExpired: `1 (${administratorClient.organization.name} - 1)`,
+                            withoutEmployee: `1 (${administratorClient.organization.name} - 1)`,
+                        },
+                        incidents: {
+                            water: `${getDate(actualWaterIncidentSoonForAllProperties)} - All properties\n${getDate(actualWaterIncidentSoonForOneProperty)} - ${administratorClient.property.address}`,
+                        },
+                    },
+                    tags: [`orgId: ${administratorClient.organization.id}`.slice(0, 128)],
+                }),
+            }))
         })
 
         test('should return "disabled" if feature flag is disabled', async () => {
