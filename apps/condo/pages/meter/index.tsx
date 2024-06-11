@@ -26,7 +26,8 @@ import { MeterReportingPeriodPageContent } from '@condo/domains/meter/components
 import { PropertyMetersPageContent } from '@condo/domains/meter/components/TabContent/PropertyMeter'
 import { PropertyMeterReadingsPageContent } from '@condo/domains/meter/components/TabContent/PropertyMeterReading'
 import { METER_REPORTING_PERIOD_FRONTEND_FEATURE_FLAG } from '@condo/domains/meter/constants/constants'
-import { useFilters } from '@condo/domains/meter/hooks/useFilters'
+import { useMeterFilters } from '@condo/domains/meter/hooks/useMeterFilters'
+import { useMeterReadingFilters } from '@condo/domains/meter/hooks/useMeterReadingFilters'
 import { useTableColumns } from '@condo/domains/meter/hooks/useTableColumns'
 import { METER_TAB_TYPES, METER_READINGS_TYPES, MeterReadingsTypes } from '@condo/domains/meter/utils/clientSchema'
 
@@ -143,8 +144,12 @@ const MetersPage: IMeterIndexPage = () => {
         }
     }, [activeTab, changeRouteToActiveTab, chosenReadingsType])
 
-    const filtersMeta = useFilters(tabAsMeterPageType)
-    const tableColumns = useTableColumns(filtersMeta, tabAsMeterPageType, chosenReadingsType)
+    const filtersForMetersMeta = useMeterFilters(tabAsMeterPageType)
+    const tableColumnsForMeters = useTableColumns(filtersForMetersMeta, tabAsMeterPageType, chosenReadingsType)
+
+    const filtersForMeterReadingsMeta = useMeterReadingFilters()
+    const tableColumnsForMeterReadings = useTableColumns(filtersForMeterReadingsMeta, tabAsMeterPageType, chosenReadingsType)
+
     const baseMetersQuery = useMemo(() => ({
         deletedAt: null,
         organization: { id: userOrganizationId },
@@ -169,15 +174,15 @@ const MetersPage: IMeterIndexPage = () => {
             children: (
                 chosenReadingsType === METER_READINGS_TYPES.meterReadings ?
                     <MeterReadingsPageContent
-                        filtersMeta={filtersMeta}
-                        tableColumns={tableColumns}
+                        filtersMeta={filtersForMeterReadingsMeta}
+                        tableColumns={tableColumnsForMeterReadings}
                         loading={isLoading}
                         canManageMeterReadings={canManageMeterReadings}
                         baseSearchQuery={baseMeterReadingsQuery}
                     /> :
                     <PropertyMeterReadingsPageContent
-                        filtersMeta={filtersMeta}
-                        tableColumns={tableColumns}
+                        filtersMeta={filtersForMeterReadingsMeta}
+                        tableColumns={tableColumnsForMeterReadings}
                         loading={isLoading}
                         canManageMeterReadings={canManageMeterReadings}
                         baseSearchQuery={baseMeterReadingsQuery}
@@ -190,15 +195,15 @@ const MetersPage: IMeterIndexPage = () => {
             children: (
                 chosenReadingsType === METER_READINGS_TYPES.meterReadings ?
                     <MetersPageContent
-                        filtersMeta={filtersMeta}
-                        tableColumns={tableColumns}
+                        filtersMeta={filtersForMetersMeta}
+                        tableColumns={tableColumnsForMeters}
                         loading={isLoading}
                         canManageMeters={canManageMeters}
                         baseSearchQuery={baseMetersQuery}
                     /> : 
                     <PropertyMetersPageContent
-                        filtersMeta={filtersMeta}
-                        tableColumns={tableColumns}
+                        filtersMeta={filtersForMetersMeta}
+                        tableColumns={tableColumnsForMeters}
                         canManageMeters={canManageMeters}
                         loading={isLoading}
                         baseSearchQuery={baseMetersQuery}
@@ -210,15 +215,15 @@ const MetersPage: IMeterIndexPage = () => {
             key: METER_TAB_TYPES.reportingPeriod,
             children: (
                 <MeterReportingPeriodPageContent
-                    filtersMeta={filtersMeta}
-                    tableColumns={tableColumns}
+                    filtersMeta={filtersForMeterReadingsMeta}
+                    tableColumns={tableColumnsForMeterReadings}
                     loading={isLoading}
                     canManageMeters={canManageMeters}
                     userOrganizationId={userOrganizationId}
                 />
             ),
         },
-    ].filter(Boolean), [MeterReadingMessage, chosenReadingsType, filtersMeta, tableColumns, isLoading, canManageMeterReadings, baseMeterReadingsQuery, MeterMessage, baseMetersQuery, isMeterReportingPeriodEnabled, ReportingPeriodMessage, canManageMeters, userOrganizationId])
+    ].filter(Boolean), [MeterReadingMessage, chosenReadingsType, filtersForMeterReadingsMeta, tableColumnsForMeterReadings, isLoading, canManageMeterReadings, baseMeterReadingsQuery, MeterMessage, filtersForMetersMeta, tableColumnsForMeters, canManageMeters, baseMetersQuery, isMeterReportingPeriodEnabled, ReportingPeriodMessage, userOrganizationId])
 
     return (
         <MultipleFilterContextProvider>

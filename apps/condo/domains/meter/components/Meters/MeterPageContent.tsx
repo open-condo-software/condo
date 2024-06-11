@@ -16,7 +16,7 @@ import ChangeMeterStatusModal from '@condo/domains/meter/components/Meters/Chang
 import { MeterAccountField, MeterCommonDateField, MeterNumberField, MeterPlaceField, MeterResourceField } from '@condo/domains/meter/components/Meters/MeterInfoFields'
 import { MeterReadingsPageContent } from '@condo/domains/meter/components/TabContent/MeterReading'
 import { PropertyMeterReadingsPageContent } from '@condo/domains/meter/components/TabContent/PropertyMeterReading'
-import { useFilters } from '@condo/domains/meter/hooks/useFilters'
+import { useMeterReadingFilters } from '@condo/domains/meter/hooks/useMeterReadingFilters'
 import { useTableColumns } from '@condo/domains/meter/hooks/useTableColumns'
 import { Meter, METER_READINGS_TYPES, METER_TAB_TYPES, PropertyMeter } from '@condo/domains/meter/utils/clientSchema'
 import { getMeterTitleMessage } from '@condo/domains/meter/utils/helpers'
@@ -219,7 +219,7 @@ export const MeterPageContent = ({ meter, possibleReportingPeriods, resource, re
     const { organization, link: { role },  isLoading } = useOrganization()
     const canManageMeterReadings = useMemo(() => get(role, 'canManageMeterReadings', false), [role])
     const userOrganizationId = useMemo(() => get(organization, 'id'), [organization])
-    const filtersMeta = useFilters(METER_TAB_TYPES.meterReading)
+    const filtersMeta = useMeterReadingFilters()
     const tableColumns = useTableColumns(filtersMeta, METER_TAB_TYPES.meterReading, METER_READINGS_TYPES.meterReadings, true)
     
     const baseMeterReadingsQuery = useMemo(() => ({

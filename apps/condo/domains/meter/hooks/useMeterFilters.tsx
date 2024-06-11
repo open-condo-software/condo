@@ -1,4 +1,4 @@
-import { MeterReadingWhereInput, MeterReadingSource as MeterReadingSourceType, MeterResource as MeterResourceType } from '@app/condo/schema'
+import { MeterReadingWhereInput, MeterResource as MeterResourceType } from '@app/condo/schema'
 import compact from 'lodash/compact'
 import get from 'lodash/get'
 import { useMemo } from 'react'
@@ -16,18 +16,16 @@ import {
     getDayRangeFilter, getFilter,
     getStringContainsFilter,
 } from '@condo/domains/common/utils/tables.utils'
-import { METER_TAB_TYPES, MeterReadingSource, MeterResource, MeterPageTypes } from '@condo/domains/meter/utils/clientSchema'
+import { METER_TAB_TYPES, MeterResource, MeterPageTypes } from '@condo/domains/meter/utils/clientSchema'
 import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
 
-export function useFilters (meterPageType: MeterPageTypes): Array<FiltersMeta<MeterReadingWhereInput>>  {
+export function useMeterFilters (meterPageType: MeterPageTypes): Array<FiltersMeta<MeterReadingWhereInput>>  {
     const intl = useIntl()
     const EnterAddressMessage = intl.formatMessage({ id: 'pages.condo.meter.EnterAddress' })
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
     const EnterAccountNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.EnterAccountNumber' })
     const AccountNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.Account' })
-    const FullNameMessage = intl.formatMessage({ id: 'field.FullName.short' })
-    const ContactMessage = intl.formatMessage({ id: 'Contact' })
     const ChooseServiceMessage = intl.formatMessage({ id: 'pages.condo.meter.ChooseService' })
     const ServiceMessage = intl.formatMessage({ id: 'pages.condo.meter.Resource' })
     const StartDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
@@ -37,8 +35,6 @@ export function useFilters (meterPageType: MeterPageTypes): Array<FiltersMeta<Me
     const MeterNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterNumber' })
     const EnterPlaceMessage = intl.formatMessage({ id: 'pages.condo.meter.EnterPlace' })
     const PlaceMessage = intl.formatMessage({ id: 'pages.condo.meter.Place' })
-    const SelectMessage = intl.formatMessage({ id: 'Select' })
-    const SourceMessage = intl.formatMessage({ id: 'field.Source' })
     const VerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.VerificationDate' })
     const InstallationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.InstallationDate' })
     const CommissioningDateMessage = intl.formatMessage({ id: 'pages.condo.meter.CommissioningDate' })
@@ -51,33 +47,27 @@ export function useFilters (meterPageType: MeterPageTypes): Array<FiltersMeta<Me
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
-    const { objs: sources } = MeterReadingSource.useObjects({})
-    const sourcesOptions = convertToOptions<MeterReadingSourceType>(sources, 'name', 'id')
-
     const { objs: resources, loading: resourcesLoading } = MeterResource.useObjects({})
     const resourcesOptions = convertToOptions<MeterResourceType>(resources, 'name', 'id')
 
     const isPropertyMeter = meterPageType === METER_TAB_TYPES.propertyMeter
-    const isMeterTab = meterPageType === METER_TAB_TYPES.meter
 
-    const addressFilter = getFilter(isMeterTab ? ['property', 'id'] : ['meter', 'property', 'id'], 'array', 'string', 'in')
-    const addressStringContainsFilter = getStringContainsFilter(isMeterTab ? ['property', 'address'] : ['meter', 'property', 'address'])
-    const accountNumberFilter = getStringContainsFilter(isMeterTab ? 'accountNumber' : ['meter', 'accountNumber'])
-    const placeFilter = getStringContainsFilter(isMeterTab ? 'place' : ['meter', 'place'])
-    const numberFilter = getStringContainsFilter(isMeterTab ? 'number' : ['meter', 'number'])
-    const unitNameFilter = getFilter(isMeterTab ? 'unitName' : ['meter', 'unitName'], 'array', 'string', 'in')
-    const unitNameStringContainsFilter = getStringContainsFilter(isMeterTab ? 'unitName' : ['meter', 'unitName'])
-    const resourceStringContainsFilter = getStringContainsFilter(isMeterTab ? ['resource', 'name'] : ['meter', 'resource', 'name'])
-    const clientNameFilter = getStringContainsFilter('clientName')
+    const addressFilter = getFilter(['property', 'id'], 'array', 'string', 'in')
+    const addressStringContainsFilter = getStringContainsFilter(['property', 'address'])
+    const accountNumberFilter = getStringContainsFilter('accountNumber')
+    const placeFilter = getStringContainsFilter('place')
+    const numberFilter = getStringContainsFilter('number')
+    const unitNameFilter = getFilter('unitName', 'array', 'string', 'in')
+    const unitNameStringContainsFilter = getStringContainsFilter('unitName')
+    const resourceStringContainsFilter = getStringContainsFilter(['resource', 'name'])
     const readingDateRangeFilter = getDayRangeFilter('date')
-    const nextVerificationDateRangeFilter = getDayRangeFilter(isMeterTab ? 'nextVerificationDate' : ['meter', 'nextVerificationDate'])
-    const installationDateRangeFilter = getDayRangeFilter(isMeterTab ? 'installationDate' : ['meter', 'installationDate'])
-    const archiveDateRangeFilter = getDayRangeFilter(isMeterTab ? 'archiveDate' : ['meter', 'archiveDate'])
-    const commissioningDateRangeFilter = getDayRangeFilter(isMeterTab ? 'commissioningDate' : ['meter', 'commissioningDate'])
-    const sealingDateRangeFilter = getDayRangeFilter(isMeterTab ? 'sealingDate' : ['meter', 'sealingDate'])
-    const controlReadingsDateRangeFilter = getDayRangeFilter(isMeterTab ? 'controlReadingsDate' : ['meter', 'controlReadingsDate'])
-    const sourceFilter = getFilter(['source', 'id'], 'array', 'string', 'in')
-    const resourceFilter = getFilter(isMeterTab ? ['resource', 'id'] : ['meter', 'resource', 'id'], 'array', 'string', 'in')
+    const nextVerificationDateRangeFilter = getDayRangeFilter('nextVerificationDate')
+    const installationDateRangeFilter = getDayRangeFilter('installationDate')
+    const archiveDateRangeFilter = getDayRangeFilter('archiveDate')
+    const commissioningDateRangeFilter = getDayRangeFilter('commissioningDate')
+    const sealingDateRangeFilter = getDayRangeFilter('sealingDate')
+    const controlReadingsDateRangeFilter = getDayRangeFilter('controlReadingsDate')
+    const resourceFilter = getFilter(['resource', 'id'], 'array', 'string', 'in')
 
     return useMemo(() => {
 
@@ -132,20 +122,6 @@ export function useFilters (meterPageType: MeterPageTypes): Array<FiltersMeta<Me
                     },
                 },
             },
-            isMeterTab ? undefined : {
-                keyword: 'clientName',
-                filters: [clientNameFilter],
-                component: {
-                    type: ComponentType.Input,
-                    props: {
-                        placeholder: FullNameMessage,
-                    },
-                    modalFilterComponentWrapper: {
-                        label: ContactMessage,
-                        size: FilterComponentSize.Medium,
-                    },
-                },
-            },
             {
                 keyword: 'resource',
                 filters: [resourceFilter],
@@ -160,23 +136,6 @@ export function useFilters (meterPageType: MeterPageTypes): Array<FiltersMeta<Me
                     },
                     modalFilterComponentWrapper: {
                         label: ServiceMessage,
-                        size: FilterComponentSize.Medium,
-                    },
-                },
-            },
-            isMeterTab ? undefined : {
-                keyword: 'source',
-                filters: [sourceFilter],
-                component: {
-                    type: ComponentType.Select,
-                    options: sourcesOptions,
-                    props: {
-                        mode: 'multiple',
-                        placeholder: SelectMessage,
-                        showArrow: true,
-                    },
-                    modalFilterComponentWrapper: {
-                        label: SourceMessage,
                         size: FilterComponentSize.Medium,
                     },
                 },
@@ -322,5 +281,5 @@ export function useFilters (meterPageType: MeterPageTypes): Array<FiltersMeta<Me
         ])
         
 
-    }, [addressFilter, userOrganizationId, EnterAddressMessage, AddressMessage, isPropertyMeter, unitNameFilter, EnterUnitNameLabel, UnitMessage, accountNumberFilter, EnterAccountNumberMessage, AccountNumberMessage, isMeterTab, clientNameFilter, FullNameMessage, ContactMessage, resourceFilter, resourcesOptions, resourcesLoading, ChooseServiceMessage, ServiceMessage, sourceFilter, sourcesOptions, SelectMessage, SourceMessage, numberFilter, EnterMeterNumberMessage, MeterNumberMessage, readingDateRangeFilter, StartDateMessage, EndDateMessage, MeterReadingDateMessage, placeFilter, EnterPlaceMessage, PlaceMessage, nextVerificationDateRangeFilter, VerificationDateMessage, installationDateRangeFilter, InstallationDateMessage, commissioningDateRangeFilter, CommissioningDateMessage, sealingDateRangeFilter, SealingDateMessage, controlReadingsDateRangeFilter, ControlReadingsDate, archiveDateRangeFilter, ArchiveDate, addressStringContainsFilter, resourceStringContainsFilter, unitNameStringContainsFilter])
+    }, [addressFilter, userOrganizationId, EnterAddressMessage, AddressMessage, isPropertyMeter, unitNameFilter, EnterUnitNameLabel, UnitMessage, accountNumberFilter, EnterAccountNumberMessage, AccountNumberMessage, resourceFilter, resourcesOptions, resourcesLoading, ChooseServiceMessage, ServiceMessage, numberFilter, EnterMeterNumberMessage, MeterNumberMessage, readingDateRangeFilter, StartDateMessage, EndDateMessage, MeterReadingDateMessage, placeFilter, EnterPlaceMessage, PlaceMessage, nextVerificationDateRangeFilter, VerificationDateMessage, installationDateRangeFilter, InstallationDateMessage, commissioningDateRangeFilter, CommissioningDateMessage, sealingDateRangeFilter, SealingDateMessage, controlReadingsDateRangeFilter, ControlReadingsDate, archiveDateRangeFilter, ArchiveDate, addressStringContainsFilter, resourceStringContainsFilter, unitNameStringContainsFilter])
 }
