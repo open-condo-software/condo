@@ -92,7 +92,7 @@ const GET_ALL_TICKETS_QUERY = gql`
 `
 
 const GET_ALL_CONTACTS_QUERY = gql`
-    query selectContact ($organizationId: ID, $propertyId: ID, $unitName: String, $unitType: String) {
+    query selectContact ($organizationId: ID, $propertyId: ID, $unitName: String, $unitType: ContactUnitTypeType) {
         objs: allContacts(where: {organization: { id: $organizationId }, property: { id: $propertyId }, unitName: $unitName, unitType: $unitType}) {
             id
             name
