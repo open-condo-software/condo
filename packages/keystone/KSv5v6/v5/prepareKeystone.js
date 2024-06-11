@@ -196,7 +196,6 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
 
             const requestIdHeaderName = 'x-request-id'
             app.use(function reqId (req, res, next) {
-                console.log('headers: ', JSON.stringify(req.headers), '; getted header from req ', req.get(requestIdHeaderName))
                 const reqId = req.get(requestIdHeaderName) || v4()
                 _internalGetExecutionContextAsyncLocalStorage().run({ reqId }, () => {
                     // we are expecting to receive reqId from client in order to have fully traced logs end to end
