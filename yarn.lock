@@ -1921,6 +1921,7 @@ __metadata:
     "@graphql-codegen/typescript-react-apollo": ^4.0.0
     "@open-condo/config": "workspace:^"
     "@open-condo/icons": "workspace:^"
+    "@open-condo/locales": "workspace:^"
     "@open-condo/tsconfig": "workspace:^"
     "@open-condo/ui": "workspace:^"
     "@parcel/watcher": ^2.3.0
