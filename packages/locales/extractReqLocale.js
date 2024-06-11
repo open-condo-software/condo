@@ -8,6 +8,14 @@ const ACCEPT_LOCALES = ['ru', 'en']
 
 // SRC: https://github.com/opentable/accept-language-parser
 // Reason for fork: MIT + last release = 6 years ago
+
+/**
+ * Extract locales from accept-language header
+ * SRC: https://github.com/opentable/accept-language-parser
+ * Reason for fork: MIT + last release = 6 years ago
+ * @param {string | undefined} headerValue
+ * @returns {Array<{ code: string, script: string | null, region: string, quality: number }>}
+ */
 function parseAcceptLanguage (headerValue) {
     const matches = (headerValue || '*').match(ACCEPT_LANGUAGE_REGEXP)
 
@@ -76,5 +84,6 @@ const extractReqLocale = (req) => {
 
 
 module.exports = {
+    parseAcceptLanguage,
     extractReqLocale,
 }
