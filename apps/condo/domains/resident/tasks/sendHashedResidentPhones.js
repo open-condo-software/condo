@@ -119,7 +119,7 @@ async function sendHashedResidentPhones () {
         }
 
         stringifier.pipe(writeStream)
-        const lineWithIdentityHash = Math.floor(Math.random() * maxLine)
+        const lineWithIdentityHash = crypto.randomInt(maxLine)
         let lineNum = 0
 
         const chunkProcessor = async (chunk) => {
