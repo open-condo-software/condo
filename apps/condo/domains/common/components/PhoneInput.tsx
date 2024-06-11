@@ -20,7 +20,10 @@ import ru from 'react-phone-input-2/lang/ru.json'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { colors } from '@condo/domains/common/constants/style'
+
 import 'react-phone-input-2/lib/style.css'
+import { RU_LOCALE, ES_LOCALE } from '../constants/locale'
+
 
 interface IPhoneInputProps extends Omit<PhoneInputProps, 'onChange'> {
     block?: boolean
@@ -67,10 +70,10 @@ const getPhoneInputStyles = (style, size: SizeType, block?: boolean) => {
 const BUTTON_INPUT_PHONE_STYLE: React.CSSProperties = { margin: 5, backgroundColor: colors.backgroundWhiteSecondary, border: 0, borderRadius: 8 }
 
 const getPhoneLocalization = (locale: string) => {
-    if (locale === 'es') {
+    if (locale === ES_LOCALE) {
         return es
     }
-    if (locale === 'ru') {
+    if (locale === RU_LOCALE) {
         return ru
     }
     return {}
