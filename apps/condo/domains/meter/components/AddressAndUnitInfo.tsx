@@ -20,7 +20,7 @@ const FORM_ROW_MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 20]
 const FORM_ROW_SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 4]
 const FORM_ITEM_WRAPPER_COLUMN_STYLE: ColProps = { style: { width: '100%', padding: 0 } }
 
-type PROPERTY_UNIT_INITIAL_VALUES = {
+type PropertyUnitInitialValues = {
     propertyId?: string
     unitName?: string
     unitType?: string
@@ -30,7 +30,7 @@ type AddressAndUnitInfoProps = {
     form?: FormInstance,
     organizationId: string,
     meterType: MeterPageTypes,
-    getHandleSelectPropertyAddress: (form: FormInstance) => (_: any, option: DefaultOptionType) => void,
+    getHandleSelectPropertyAddress: (form: FormInstance) => (_: unknown, option: DefaultOptionType) => void,
     handleDeselectPropertyAddress: () => void
     selectedPropertyId: string,
     isMatchSelectedProperty: boolean
@@ -41,7 +41,7 @@ type AddressAndUnitInfoProps = {
     propertyLoading?: boolean
     setSelectedUnitName?: Dispatch<SetStateAction<string>>,
     setSelectedUnitType?: Dispatch<SetStateAction<string>>,
-    initialValues?: PROPERTY_UNIT_INITIAL_VALUES
+    initialValues?: PropertyUnitInitialValues,
 }
 
 

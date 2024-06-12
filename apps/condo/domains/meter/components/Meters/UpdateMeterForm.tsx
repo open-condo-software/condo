@@ -30,7 +30,7 @@ type UpdateMeterProps = {
 
 const METER_MODAL_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
 const WRAPPER_STYLE = { maxWidth: '850px', padding: 0 }
-const FORM_GUUTER: [Gutter, Gutter] = [0, 60]
+const FORM_GUTTER: [Gutter, Gutter] = [0, 60]
 
 export const UpdateMeterForm = (props: UpdateMeterProps): JSX.Element => {
     const intl = useIntl()
@@ -43,7 +43,7 @@ export const UpdateMeterForm = (props: UpdateMeterProps): JSX.Element => {
     const router = useRouter()
 
     const disabledFields = useMemo(() => !canManageMeters, [canManageMeters])
-    const [selectedPropertyId, setSelectedPropertyId] = useState<string>(initialRecord?.property?.id)
+    const [selectedPropertyId, setSelectedPropertyId] = useState<string>(get(initialRecord, ['property', 'id']))
     const [selectedUnitName, setSelectedUnitName] = useState<string>(get(initialRecord, 'unitName'))
     const [isMatchSelectedProperty] = useState(true)
 
@@ -120,47 +120,51 @@ export const UpdateMeterForm = (props: UpdateMeterProps): JSX.Element => {
             >
                 {
                     ({ form, handleSave }) => (
-                        <>
-                            <AddressAndUnitInfo 
-                                form={form}
-                                getHandleSelectPropertyAddress={getHandleSelectPropertyAddress}
-                                handleDeselectPropertyAddress={handleDeselectPropertyAddress}
-                                isMatchSelectedProperty={isMatchSelectedProperty}
-                                meterType={meterType}
-                                organizationId={organizationId}
-                                selectedPropertyId={selectedPropertyId}
-                                property={property}
-                                propertyLoading={propertyLoading}
-                                setSelectedUnitName={setSelectedUnitName}
-                                initialValues={connectedPropertyIitialValues}
-                            />
-                            <Row gutter={FORM_GUUTER}>
-                                <Col span={24}>
-                                    <BaseMetersFormFields
-                                        form={form}
-                                        propertyId={selectedPropertyId}
-                                        addressKey={get(property, 'addressKey')}
-                                        initialValues={initialRecord || {}}
-                                        handleSubmit={handleSave}
-                                        organizationId={organizationId}
-                                        meterType={meterType}
-                                        disabledFields={disabledFields}
-                                    />
-                                </Col>
-                                <Col span={24}>
-                                    <ActionBar
-                                        actions={[  
-                                            <Button key='save' type='primary' onClick={handleSave} >
-                                                {SaveMessageButton}
-                                            </Button>,
-                                            <Button key='cancel' type='secondary' onClick={handleCancelEditing} >
-                                                {CancelMessageButton}
-                                            </Button>,
-                                        ]}>
-                                    </ActionBar>
-                                </Col>
-                            </Row>
-                        </>
+                        <Row gutter={FORM_GUTTER}>
+                            <Col span={24}>
+                                <AddressAndUnitInfo 
+                                    form={form}
+                                    getHandleSelectPropertyAddress={getHandleSelectPropertyAddress}
+                                    handleDeselectPropertyAddress={handleDeselectPropertyAddress}
+                                    isMatchSelectedProperty={isMatchSelectedProperty}
+                                    meterType={meterType}
+                                    organizationId={organizationId}
+                                    selectedPropertyId={selectedPropertyId}
+                                    property={property}
+                                    propertyLoading={propertyLoading}
+                                    setSelectedUnitName={setSelectedUnitName}
+                                    initialValues={connectedPropertyIitialValues}
+                                />
+                            </Col>
+                            <Col span={24}>
+                                <Row gutter={FORM_GUTTER}>
+                                    <Col span={24}>
+                                        <BaseMetersFormFields
+                                            form={form}
+                                            propertyId={selectedPropertyId}
+                                            addressKey={get(property, 'addressKey')}
+                                            initialValues={initialRecord || {}}
+                                            handleSubmit={handleSave}
+                                            organizationId={organizationId}
+                                            meterType={meterType}
+                                            disabledFields={disabledFields}
+                                        />
+                                    </Col>
+                                    <Col span={24}>
+                                        <ActionBar
+                                            actions={[  
+                                                <Button key='save' type='primary' onClick={handleSave} >
+                                                    {SaveMessageButton}
+                                                </Button>,
+                                                <Button key='cancel' type='secondary' onClick={handleCancelEditing} >
+                                                    {CancelMessageButton}
+                                                </Button>,
+                                            ]}>
+                                        </ActionBar>
+                                    </Col>
+                                </Row>
+                            </Col>
+                        </Row>
                     )
                 }
             </FormWithAction>

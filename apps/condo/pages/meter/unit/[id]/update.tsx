@@ -41,7 +41,7 @@ const UpdateMeterPage = (): JSX.Element => {
     return (
         <>
             <Head>
-                <title>{meterId}</title>
+                <title>{UpdateMeterPageTitle}</title>
             </Head>
             <PageWrapper>
                 <PageHeader title={<Typography.Title>{UpdateMeterPageTitle}</Typography.Title>}/>

@@ -1,6 +1,7 @@
 import {
     Meter,
     MeterResource,
+    PropertyMeter,
     PropertyMeterReadingWhereInput,
     SortPropertyMeterReadingsBy,
 } from '@app/condo/schema'
@@ -52,7 +53,7 @@ type PropertyMetersTableContentProps = {
     isAutomatic?: boolean,
     sortableProperties?: string[]
     loading?: boolean
-    meter?: Meter
+    meter?: Meter | PropertyMeter,
     resource?: MeterResource,
 }
 

@@ -5,7 +5,7 @@ import get from 'lodash/get'
 import { ComponentProps, useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Input } from '@open-condo/ui'
+import { Button, Input, Typography } from '@open-condo/ui'
 
 import Select from '@condo/domains/common/components/antd/Select'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
@@ -98,7 +98,7 @@ export const BaseMetersFormFields: React.FC<BaseMetersFormFieldsProps> = ({
     const NextVerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.NextVerificationDate' })
     const ControlReadingsDateMessage = intl.formatMessage({ id: 'pages.condo.meter.ControlReadingsDate' })
     const ResourceMessage = intl.formatMessage({ id: 'pages.condo.meter.Resource' })
-
+    const DeviceInfoMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterInfo' })
 
     const isPropertyMeter = meterType === METER_TAB_TYPES.propertyMeter
     const meterResourceId = get(initialValues, ['resource', 'id'])
@@ -156,8 +156,13 @@ export const BaseMetersFormFields: React.FC<BaseMetersFormFieldsProps> = ({
         <Row gutter={METER_MODAL_ROW_GUTTERS}>
             <Col span={24}>
                 <Row justify='space-between' gutter={METER_MODAL_ROW_GUTTERS}>
+                    <Col span={24}>
+                        <Typography.Title level={3}>
+                            {DeviceInfoMessage}
+                        </Typography.Title>
+                    </Col>
                     {!isPropertyMeter && (
-                        <Col span={24}>
+                        <Col span={METER_MODAL_FORM_ITEM_SPAN}>
                             <BaseMeterModalAccountNumberField
                                 initialValues={initialValues}
                                 rules={validations.accountNumber}
@@ -166,7 +171,7 @@ export const BaseMetersFormFields: React.FC<BaseMetersFormFieldsProps> = ({
                             />
                         </Col>
                     )}
-                    <Col span={24}>
+                    <Col span={METER_MODAL_FORM_ITEM_SPAN}>
                         <BaseMeterModalFormItem
                             label={ResourceMessage}
                             name='resource'
@@ -202,7 +207,7 @@ export const BaseMetersFormFields: React.FC<BaseMetersFormFieldsProps> = ({
                         </BaseMeterModalFormItem>
                     </Col>}
                     {
-                        !isTariffsCountHidden ? (
+                        !isTariffsCountHidden && (
                             <Col span={24}>
                                 <BaseMeterModalFormItem
                                     rules={validations.numberOfTariffs}
@@ -216,10 +221,10 @@ export const BaseMetersFormFields: React.FC<BaseMetersFormFieldsProps> = ({
                                     </Select>
                                 </BaseMeterModalFormItem>
                             </Col>
-                        ) : null
+                        ) 
                     }
                     {
-                        !isAdditionalFieldsCollapsed ? (
+                        !isAdditionalFieldsCollapsed && (
                             <>
                                 <MeterModalDatePicker
                                     label={InstallationDateMessage}
@@ -272,7 +277,7 @@ export const BaseMetersFormFields: React.FC<BaseMetersFormFieldsProps> = ({
                                     validateFirst
                                 />
                             </>
-                        ) : null
+                        )
                     }
                 </Row>
             </Col>

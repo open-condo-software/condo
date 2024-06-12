@@ -11,7 +11,7 @@ const ARCHIVE_MODAL_DATE_PICKER_STYLE: CSSProperties = { width: '100%' }
 const ARCHIVE_MODAL_DATE_PICKER_DATE_FORMAT = 'DD.MM.YYYY'
 const ARCHIVE_MODAL_ROW_GUTTER: [Gutter, Gutter] = [0, 16]
 
-type CHANGE_METER_STATUS_MODAL_PROPS = {
+type ChangeMeterStatusModalProps = {
     isShowStatusChangeModal: boolean,
     handleCloseStatusChangeModal: () => void
     selectedArchiveDate: string,
@@ -25,7 +25,7 @@ const ChangeMeterStatusModal = ({
     selectedArchiveDate,
     handleChangeSelectedArchiveDate,
     changeMeterStatusToArchived,
-}: CHANGE_METER_STATUS_MODAL_PROPS): JSX.Element => {
+}: ChangeMeterStatusModalProps): JSX.Element => {
     const intl = useIntl()
     const ArchiveMeterModalTitleMessage = intl.formatMessage({ id: 'pages.condo.meter.Meter.PutToArchive.Modal.Title' })
     const ArchiveMeterButtonTextMessage = intl.formatMessage({ id: 'pages.condo.meter.Meter.PutToArchive.Modal.Text' })

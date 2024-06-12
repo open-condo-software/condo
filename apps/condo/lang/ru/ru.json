@@ -1046,6 +1046,7 @@
   "pages.condo.meter.Meter.isActive": "Активен",
   "pages.condo.meter.Meter.outOfOrder": "Выведен из работы",
   "pages.condo.meter.Meter.putOutOfOrder": "Вывести",
+  "pages.condo.meter.MeterInfo": "Информация о приборе",
   "pages.condo.meter.Meter.PutToArchive.Modal.Title": "Вы хотите вывести счетчик из работы?",
   "pages.condo.meter.Meter.PutToArchive.Modal.Text": "Укажите дату вывода, после которой счетчик не будет отображаться в мобильном приложении жителя и по нему нельзя будет предать показания",
   "pages.condo.meter.MeterReportingPeriod.Title": "Периоды подачи показаний",

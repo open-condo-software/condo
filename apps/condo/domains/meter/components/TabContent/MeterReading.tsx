@@ -1,6 +1,6 @@
 import {
     SortMeterReadingsBy,
-    MeterReadingWhereInput, MeterReading as IMeterReading,
+    MeterReadingWhereInput, MeterReading as IMeterReading, PropertyMeter,
 } from '@app/condo/schema'
 import { Meter as MeterType, MeterResource as MeterResourceType } from '@app/condo/schema'
 import { Col, Row, RowProps } from 'antd'
@@ -17,10 +17,9 @@ import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { PlusCircle, Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { ActionBar, Button } from '@open-condo/ui'
+import { ActionBar, Button, Checkbox } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
-import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
@@ -64,7 +63,7 @@ type MetersTableContentProps = {
     baseSearchQuery: MeterReadingWhereInput
     canManageMeterReadings: boolean
     isAutomatic?: boolean,
-    meter?: MeterType,
+    meter?: MeterType | PropertyMeter,
     resource?: MeterResourceType,
     sortableProperties?: string[]
     mutationErrorsToMessages?: Record<string, string>
@@ -229,7 +228,6 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
                 checked={isSelectedAllRowsByPage}
                 indeterminate={isSelectedSomeRowsByPage}
                 onChange={handleSelectAllRowsByPage}
-                eventName='MeterReadingsTableCheckboxSelectAll'
             />
         ),
     }), [handleSelectAllRowsByPage, handleSelectRowWithTracking, isSelectedAllRowsByPage, isSelectedSomeRowsByPage, selectedRowKeysByPage])

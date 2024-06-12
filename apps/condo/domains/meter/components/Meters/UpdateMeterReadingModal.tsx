@@ -1,4 +1,4 @@
-import { Meter, MeterResource as MeterResourceType } from '@app/condo/schema'
+import { Meter, MeterResource as MeterResourceType, PropertyMeter } from '@app/condo/schema'
 import { Col, ColProps, Form, Row } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
 import get from 'lodash/get'
@@ -16,7 +16,7 @@ const UPDATE_READINGS_MODAL_ROW_GUTTER: [Gutter, Gutter] = [0, 16]
 const FORM_ITEM_WRAPPER_COLUMN_STYLE: ColProps = { style: { width: '100%', padding: 0 } }
 
 type UpdateMeterReadingModalProps = {
-    meter: Meter,
+    meter: Meter | PropertyMeter,
     isShowUpdateReadingModal: boolean,
     handleCloseUpdateReadingModal: () => void
     resource: MeterResourceType,

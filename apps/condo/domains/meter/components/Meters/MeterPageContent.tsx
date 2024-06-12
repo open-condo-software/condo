@@ -1,4 +1,5 @@
-import { MeterReportingPeriod } from '@app/condo/schema'
+import { MeterReportingPeriod, MeterResource, PropertyMeter as PropertyMeterType } from '@app/condo/schema'
+import { Meter as MeterType } from '@app/condo/schema' 
 import { Col, Row } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
@@ -6,8 +7,7 @@ import React, { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Typography } from '@open-condo/ui'
-import { Alert, Select } from '@open-condo/ui'
+import { Typography, Alert, Select  } from '@open-condo/ui'
 
 import { PageHeader } from '@condo/domains/common/components/containers/BaseLayout'
 import { ShowMoreFieldsButton } from '@condo/domains/common/components/ShowMoreFieldsButton'
@@ -18,7 +18,7 @@ import { MeterReadingsPageContent } from '@condo/domains/meter/components/TabCon
 import { PropertyMeterReadingsPageContent } from '@condo/domains/meter/components/TabContent/PropertyMeterReading'
 import { useMeterReadingFilters } from '@condo/domains/meter/hooks/useMeterReadingFilters'
 import { useTableColumns } from '@condo/domains/meter/hooks/useTableColumns'
-import { Meter, METER_READINGS_TYPES, METER_TAB_TYPES, PropertyMeter } from '@condo/domains/meter/utils/clientSchema'
+import { Meter, MeterPageTypes, METER_READINGS_TYPES, METER_TAB_TYPES, PropertyMeter } from '@condo/domains/meter/utils/clientSchema'
 import { getMeterTitleMessage } from '@condo/domains/meter/utils/helpers'
 import { TicketPropertyField } from '@condo/domains/ticket/components/TicketId/TicketPropertyField'
 
@@ -210,7 +210,15 @@ const MeterContent = ({ meter, resource, meterType }) => {
     )
 }
 
-export const MeterPageContent = ({ meter, possibleReportingPeriods, resource, refetchMeter, meterType }) => {
+type MeterPageContentProps = {
+    meter: MeterType | PropertyMeterType,
+    possibleReportingPeriods: Array<MeterReportingPeriod>,
+    resource: MeterResource,
+    refetchMeter: () => void,
+    meterType: MeterPageTypes,
+}
+
+export const MeterPageContent = ({ meter, possibleReportingPeriods, resource, refetchMeter, meterType }: MeterPageContentProps): JSX.Element => {
     const intl = useIntl()
     const BlockedEditingTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.BlockedEditing.title' })
     const BlockedEditingDescriptionMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.BlockedEditing.description' })

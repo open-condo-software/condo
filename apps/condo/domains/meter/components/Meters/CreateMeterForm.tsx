@@ -1,4 +1,3 @@
-import { Meter as MeterType, PropertyMeter as PropertyMeterType } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
 import get from 'lodash/get'
@@ -26,12 +25,11 @@ type CreateMeterProps = {
     organizationId: string
     meterType: MeterPageTypes
     canManageMeters: boolean
-    initialRecord?: MeterType | PropertyMeterType
 }
 
 const METER_MODAL_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
 const WRAPPER_STYLE = { maxWidth: '850px', padding: 0 }
-const FORM_GUUTER: [Gutter, Gutter] = [0, 60]
+const FORM_GUTTER: [Gutter, Gutter] = [0, 60]
 
 export const CreateMeterForm = (props: CreateMeterProps): JSX.Element => {
     const intl = useIntl()
@@ -40,12 +38,12 @@ export const CreateMeterForm = (props: CreateMeterProps): JSX.Element => {
     const MeterWithSameNumberIsExistMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterWithSameNumberIsExist' })
     const AccountNumberIsExistInOtherUnitMessage = intl.formatMessage({ id: 'pages.condo.meter.AccountNumberIsExistInOtherUnit' })
 
-    const { organizationId, meterType, canManageMeters, initialRecord } = props
+    const { organizationId, meterType, canManageMeters } = props
     const router = useRouter()
 
     const disabledFields = useMemo(() => !canManageMeters, [canManageMeters])
-    const [selectedPropertyId, setSelectedPropertyId] = useState<string>(initialRecord?.property?.id)
-    const [selectedUnitName, setSelectedUnitName] = useState<string>(get(initialRecord, 'unitName'))
+    const [selectedPropertyId, setSelectedPropertyId] = useState<string>(null)
+    const [selectedUnitName, setSelectedUnitName] = useState<string>(null)
     const [isMatchSelectedProperty] = useState(true)
 
     const { obj: property, loading: propertyLoading } = Property.useObject({ where: { id: selectedPropertyId } },
@@ -112,7 +110,7 @@ export const CreateMeterForm = (props: CreateMeterProps): JSX.Element => {
             >
                 {
                     ({ form, handleSave }) => (
-                        <>
+                        <Row gutter={FORM_GUTTER}>
                             <AddressAndUnitInfo 
                                 form={form}
                                 getHandleSelectPropertyAddress={getHandleSelectPropertyAddress}
@@ -125,7 +123,7 @@ export const CreateMeterForm = (props: CreateMeterProps): JSX.Element => {
                                 propertyLoading={propertyLoading}
                                 setSelectedUnitName={setSelectedUnitName}
                             />
-                            <Row gutter={FORM_GUUTER}>
+                            <Row gutter={FORM_GUTTER}>
                                 <Col span={24}>
                                     <BaseMetersFormFields
                                         form={form}
@@ -147,7 +145,7 @@ export const CreateMeterForm = (props: CreateMeterProps): JSX.Element => {
                                     </ActionBar>
                                 </Col>
                             </Row>
-                        </>
+                        </Row>
                     )
                 }
             </FormWithAction>

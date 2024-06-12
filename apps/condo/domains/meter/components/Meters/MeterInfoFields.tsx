@@ -1,6 +1,6 @@
 import { Meter, MeterResource } from '@app/condo/schema'
 import dayjs, { Dayjs } from 'dayjs'
-import { get } from 'lodash'
+import get from 'lodash/get'
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'

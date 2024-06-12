@@ -1,16 +1,15 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/react'
 import styled from '@emotion/styled'
-import { Col, Row, RowProps, Typography } from 'antd'
+import { Col, Row, RowProps } from 'antd'
 import get from 'lodash/get'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
-import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Radio, RadioGroup, Tabs } from '@open-condo/ui'
+import { Radio, RadioGroup, Tabs, Typography } from '@open-condo/ui'
 
 import { PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
@@ -25,7 +24,6 @@ import { MeterReadingsPageContent } from '@condo/domains/meter/components/TabCon
 import { MeterReportingPeriodPageContent } from '@condo/domains/meter/components/TabContent/MeterReportingPeriod'
 import { PropertyMetersPageContent } from '@condo/domains/meter/components/TabContent/PropertyMeter'
 import { PropertyMeterReadingsPageContent } from '@condo/domains/meter/components/TabContent/PropertyMeterReading'
-import { METER_REPORTING_PERIOD_FRONTEND_FEATURE_FLAG } from '@condo/domains/meter/constants/constants'
 import { useMeterFilters } from '@condo/domains/meter/hooks/useMeterFilters'
 import { useMeterReadingFilters } from '@condo/domains/meter/hooks/useMeterReadingFilters'
 import { useTableColumns } from '@condo/domains/meter/hooks/useTableColumns'
@@ -59,7 +57,13 @@ const AVAILABLE_TABS = [METER_TAB_TYPES.meterReading, METER_TAB_TYPES.meter, MET
 const MEDIUM_VERTICAL_ROW_GUTTER: RowProps['gutter'] = [0, 24]
 const HEADER_STYLES: CSSProperties = { padding: 0 }
 
-export const MeterTypeSwitch = ({ value, setValue }) => {
+
+type MeterTypeSwitchProps = {
+    value: MeterReadingsTypes
+    setValue: React.Dispatch<React.SetStateAction<MeterReadingsTypes>>
+}
+
+export const MeterTypeSwitch = ({ value, setValue }: MeterTypeSwitchProps): JSX.Element => {
     const intl = useIntl()
     const MeterReadingMessage = intl.formatMessage({ id: 'pages.condo.meter.index.MeterType.meterReading' })
     const HouseMeterReadingMessage = intl.formatMessage({ id: 'pages.condo.meter.index.MeterType.houseMeterReading' })
@@ -106,22 +110,12 @@ const MetersPage: IMeterIndexPage = () => {
     const { breakpoints } = useLayoutContext()
     const [chosenReadingsType, setChosenReadingsType] = useState<MeterReadingsTypes>(METER_READINGS_TYPES.meterReadings)
 
-    const { useFlag } = useFeatureFlags()
-    const isMeterReportingPeriodEnabled = useFlag(METER_REPORTING_PERIOD_FRONTEND_FEATURE_FLAG)
-
     const { GlobalHints } = useGlobalHints()
     usePreviousSortAndFilters({ paramNamesForPageChange: ['tab'], employeeSpecificKey: employeeId })
 
-    const availableTabs = useMemo(() => {
-        return AVAILABLE_TABS.filter((tab) => {
-            if (tab === METER_TAB_TYPES.reportingPeriod) return isMeterReportingPeriodEnabled
-            return true
-        })
-    }, [isMeterReportingPeriodEnabled])
-
     const { tab } = parseQuery(router.query)
     const tabAsMeterPageType = tab ? MeterPageTypeFromQuery(tab) : null
-    const activeTab = useMemo(() => availableTabs.includes(tabAsMeterPageType) ? tabAsMeterPageType : get(availableTabs, [0], ''),  [tabAsMeterPageType, availableTabs])
+    const activeTab = useMemo(() => AVAILABLE_TABS.includes(tabAsMeterPageType) ? tabAsMeterPageType : get(AVAILABLE_TABS, [0], ''),  [tabAsMeterPageType, AVAILABLE_TABS])
 
     const changeRouteToActiveTab = useCallback(async (activeTab: string, routerAction: 'replace' | 'push' = 'push') => {
         await updateQuery(router, {
@@ -210,7 +204,7 @@ const MetersPage: IMeterIndexPage = () => {
                     />
             ),
         },
-        isMeterReportingPeriodEnabled && chosenReadingsType === METER_READINGS_TYPES.meterReadings && {
+        chosenReadingsType === METER_READINGS_TYPES.meterReadings && {
             label: ReportingPeriodMessage,
             key: METER_TAB_TYPES.reportingPeriod,
             children: (
@@ -223,7 +217,7 @@ const MetersPage: IMeterIndexPage = () => {
                 />
             ),
         },
-    ].filter(Boolean), [MeterReadingMessage, chosenReadingsType, filtersForMeterReadingsMeta, tableColumnsForMeterReadings, isLoading, canManageMeterReadings, baseMeterReadingsQuery, MeterMessage, filtersForMetersMeta, tableColumnsForMeters, canManageMeters, baseMetersQuery, isMeterReportingPeriodEnabled, ReportingPeriodMessage, userOrganizationId])
+    ].filter(Boolean), [MeterReadingMessage, chosenReadingsType, filtersForMeterReadingsMeta, tableColumnsForMeterReadings, isLoading, canManageMeterReadings, baseMeterReadingsQuery, MeterMessage, filtersForMetersMeta, tableColumnsForMeters, canManageMeters, baseMetersQuery, ReportingPeriodMessage, userOrganizationId])
 
     return (
         <MultipleFilterContextProvider>

@@ -1,13 +1,13 @@
-import { Typography, Row, Col } from 'antd'
+import { Row, Col } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
-import { get } from 'lodash'
+import get from 'lodash/get'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Tour } from '@open-condo/ui'
+import { Tour, Typography } from '@open-condo/ui'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
@@ -40,13 +40,14 @@ const CreateMeterPage: ICreateMeterPage = () => {
     const { tab } = parseQuery(router.query)
     const { link: { role = {} }, organization } = useOrganization()
     const canManageMeters = get(role, 'canManageMeters', false)
+    const canManageMeterReadings = get(role, 'canManageMeterReadings', false)
 
     const changeRouteToDefaultTab = useCallback(async () => {
         await updateQuery(router, {
             newParameters: {
                 tab: METER_TAB_TYPES.meter,
             },
-        }, { routerAction: 'push', resetOldParameters: true })
+        }, { routerAction: 'replace', resetOldParameters: true })
     }, [router])
 
     useEffect(() => {        
@@ -79,12 +80,14 @@ const CreateMeterPage: ICreateMeterPage = () => {
                                 tab === METER_TAB_TYPES.propertyMeterReading ? (
                                     <CreatePropertyMeterReadingsForm
                                         organization={organization}
+                                        canManageMeterReadings={canManageMeterReadings}
                                     />
                                 ) : tab === METER_TAB_TYPES.meterReading ? (
                                     <Tour.Provider>
                                         <CreateMeterReadingsForm
                                             organization={organization}
                                             role={role}
+                                            canManageMeterReadings={canManageMeterReadings}
                                         />
                                     </Tour.Provider>
                                 ) : tab === METER_TAB_TYPES.meter ? (

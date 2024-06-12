@@ -1,13 +1,16 @@
 import {
-    BuildingUnitSubType,
     SortMeterReadingsBy,
     SortMetersBy,
     Meter as MeterType,
     PropertyMeter as PropertyMeterType,
     SortPropertyMeterReadingsBy,
+    MeterUnitTypeType,
+    Organization,
+    OrganizationEmployeeRole,
 } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
+import { ColumnsType } from 'antd/lib/table'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isNull from 'lodash/isNull'
@@ -95,17 +98,25 @@ function getTableData (meters: MeterType[] | PropertyMeterType[], meterReadings)
     return dataSource
 }
 
+type MetersTableProps = {
+    handleSave: () => void,
+    selectedPropertyId: string,
+    tableColumns: Record<string, unknown>[] | ColumnsType<any>,
+    newMeterReadings: Array<unknown> | unknown,
+    setNewMeterReadings: (readings) => void
+    selectedUnitName: string
+    selectedUnitType: MeterUnitTypeType
+}
+
 export const MetersTable = ({
     handleSave,
     selectedPropertyId,
-    addressKey,
     selectedUnitName,
     selectedUnitType,
-    organizationId,
     tableColumns,
     newMeterReadings,
     setNewMeterReadings,
-}): JSX.Element => {
+}: MetersTableProps): JSX.Element => {
     const intl = useIntl()
     const MetersAndReadingsMessage = intl.formatMessage({ id: 'pages.condo.meter.create.MetersAndReadings' })
 
@@ -218,7 +229,13 @@ const VALIDATE_FORM_TRIGGER = ['onBlur', 'onSubmit']
 const FORM_ROW_LARGE_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
 const FORM_ROW_MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 20]
 
-export const CreateMeterReadingsForm = ({ organization, role }) => {
+type CreateMeterReadingsFormProps = {
+    organization: Organization
+    canManageMeterReadings: boolean
+    role: OrganizationEmployeeRole,
+}
+
+export const CreateMeterReadingsForm = ({ organization, role, canManageMeterReadings }: CreateMeterReadingsFormProps): JSX.Element => {
     const intl = useIntl()
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.HelpMessage' })
@@ -230,13 +247,15 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
 
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>(null)
     const [selectedUnitName, setSelectedUnitName] = useState<string>(null)
-    const [selectedUnitType, setSelectedUnitType] = useState<BuildingUnitSubType>(BuildingUnitSubType.Flat)
+    const [selectedUnitType, setSelectedUnitType] = useState<MeterUnitTypeType>(MeterUnitTypeType.Flat)
     const [isMatchSelectedProperty, setIsMatchSelectedProperty] = useState(true)
     const [isNoMeterForAddress, setIsNoMeterForAddress] = useState(false)
     const [isNoMeterForUnitName, setIsNoMeterForUnitName] = useState(false)
     const selectPropertyIdRef = useRef(selectedPropertyId)
     const selectedUnitNameRef = useRef(selectedUnitName)
     const selectedUnitTypeRef = useRef(selectedUnitType)
+
+    const disabledFields = useMemo(() => !canManageMeterReadings, [canManageMeterReadings])
 
     useEffect(() => {
         selectedUnitTypeRef.current = selectedUnitType
@@ -357,6 +376,9 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                 values.unitType = selectedUnitTypeRef.current
                 return values
             }}
+            submitButtonProps={{
+                disabled: disabledFields,
+            }}
         >
             {({ handleSave, form }) => (
                 <>
@@ -408,11 +430,9 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                             </Col>
                             <MetersTable
                                 selectedPropertyId={selectedPropertyId}
-                                addressKey={get(property, 'addressKey', null)}
                                 selectedUnitName={selectedUnitName}
                                 selectedUnitType={selectedUnitType}
                                 handleSave={handleSave}
-                                organizationId={organization.id}
                                 tableColumns={tableColumns}
                                 setNewMeterReadings={setNewMeterReadings}
                                 newMeterReadings={newMeterReadings}
@@ -424,14 +444,22 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
         </FormWithAction>
     )
 }
+
+type PropertyMetersTableProps = {
+    handleSave: () => void,
+    selectedPropertyId: string,
+    tableColumns: Record<string, unknown>[] | ColumnsType<any>,
+    newMeterReadings: Array<unknown> | unknown,
+    setNewMeterReadings: (readings) => void
+}
+
 export const PropertyMetersTable = ({
     handleSave,
     selectedPropertyId,
-    organizationId,
     tableColumns,
     newMeterReadings,
     setNewMeterReadings,
-}): JSX.Element => {
+}: PropertyMetersTableProps): JSX.Element => {
     const intl = useIntl()
     const MetersAndReadingsMessage = intl.formatMessage({ id: 'pages.condo.meter.create.MetersAndReadings' })
 
@@ -508,7 +536,12 @@ export const PropertyMetersTable = ({
 }
 
 
-export const CreatePropertyMeterReadingsForm = ({ organization }) => {
+type CreatePropertyMeterReadingsFormProps = {
+    organization: Organization
+    canManageMeterReadings: boolean
+}
+
+export const CreatePropertyMeterReadingsForm = ({ organization, canManageMeterReadings }: CreatePropertyMeterReadingsFormProps): JSX.Element => {
     const intl = useIntl()
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.HelpMessage' })
@@ -520,6 +553,8 @@ export const CreatePropertyMeterReadingsForm = ({ organization }) => {
     const [isNoMeterForAddress, setIsNoMeterForAddress] = useState(false)
     const selectPropertyIdRef = useRef(selectedPropertyId)
     const organizationId = get(organization, 'id')
+
+    const disabledFields = useMemo(() => !canManageMeterReadings, [canManageMeterReadings])
 
     const {
         newMeterReadings,
@@ -601,6 +636,9 @@ export const CreatePropertyMeterReadingsForm = ({ organization }) => {
             {...LAYOUT}
             validateTrigger={VALIDATE_FORM_TRIGGER}
             action={handleSubmit}
+            submitButtonProps={{
+                disabled: disabledFields,
+            }}
         >
             {({ handleSave, form }) => (
                 <>
@@ -631,7 +669,6 @@ export const CreatePropertyMeterReadingsForm = ({ organization }) => {
                             <PropertyMetersTable
                                 selectedPropertyId={selectedPropertyId}
                                 handleSave={handleSave}
-                                organizationId={organizationId}
                                 tableColumns={tableColumns}
                                 setNewMeterReadings={setNewMeterReadings}
                                 newMeterReadings={newMeterReadings}

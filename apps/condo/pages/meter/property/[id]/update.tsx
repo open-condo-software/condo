@@ -14,7 +14,7 @@ import { METER_TAB_TYPES, PropertyMeter } from '@condo/domains/meter/utils/clien
 
 const UpdatePropertyMeterPage = (): JSX.Element => {
     const intl = useIntl()
-    const UpdateMeterPageTitle = intl.formatMessage({ id: 'pages.condo.meter.meterId.update.PageTitle' })
+    const UpdateMeterPageTitle = intl.formatMessage({ id: 'pages.condo.meter.propertyMeterId.update.PageTitle' })
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
     
     const { query: { id: meterId } } = useRouter()
@@ -40,7 +40,7 @@ const UpdatePropertyMeterPage = (): JSX.Element => {
     return (
         <>
             <Head>
-                <title>{meterId}</title>
+                <title>{UpdateMeterPageTitle}</title>
             </Head>
             <PageWrapper>
                 <PageHeader title={<Typography.Title>{UpdateMeterPageTitle}</Typography.Title>}/>

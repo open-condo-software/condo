@@ -1,8 +1,10 @@
-import { Col, Row, RowProps, Typography } from 'antd'
+import { Col, Row, RowProps } from 'antd'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React from 'react'
 import { useIntl } from 'react-intl'
+
+import { Typography } from '@open-condo/ui'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -11,10 +13,9 @@ import { MeterReadAndManagePermissionRequired } from '@condo/domains/meter/compo
 import { METER_TAB_TYPES, MeterReportingPeriod } from '@condo/domains/meter/utils/clientSchema'
 
 
-const CREATE_REPORTING_PERIOD_PAGE_GUTTER: RowProps['gutter'] = [0, 40]
-const TITLE_MARGIN = { marginBottom: '20px' }
+const CREATE_REPORTING_PERIOD_PAGE_GUTTER: RowProps['gutter'] = [0, 16]
 
-const MeterReportingPeriodUpdatePage = () => {
+const MeterReportingPeriodUpdatePage = (): JSX.Element => {
     const intl = useIntl()
     const { query: { id: reportingPeriodId }, push } = useRouter()
 
@@ -26,7 +27,6 @@ const MeterReportingPeriodUpdatePage = () => {
         obj: reportingPeriod,
         error: reportingPeriodError,
         loading: reportingPeriodLoading,
-        refetch,
     } = MeterReportingPeriod.useObject(
         {
             where: {
@@ -55,17 +55,15 @@ const MeterReportingPeriodUpdatePage = () => {
         <PageWrapper>
             <PageContent>
                 <Row gutter={CREATE_REPORTING_PERIOD_PAGE_GUTTER}>
+                    <Typography.Title level={1}>{PageTitle}</Typography.Title>
                     <Col span={24}>
-                        <Typography.Title style={TITLE_MARGIN} level={1}>{PageTitle}</Typography.Title>
-                        <Col span={24}>
-                            <Row gutter={CREATE_REPORTING_PERIOD_PAGE_GUTTER}>
-                                <MeterReportingPeriodForm
-                                    mode='update'
-                                    action={submitAction}
-                                    reportingPeriodRecord={reportingPeriod}
-                                />
-                            </Row>
-                        </Col>
+                        <Row gutter={CREATE_REPORTING_PERIOD_PAGE_GUTTER}>
+                            <MeterReportingPeriodForm
+                                mode='update'
+                                action={submitAction}
+                                reportingPeriodRecord={reportingPeriod}
+                            />
+                        </Row>
                     </Col>
                 </Row>
             </PageContent>

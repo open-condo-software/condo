@@ -11,10 +11,10 @@ import { MeterPageTypes, METER_TAB_TYPES } from '@condo/domains/meter/utils/clie
 
 const PROPERTY_DEPENDENCY = ['property']
 const handleShouldUpdate = (prev, next) => prev.unitName !== next.unitName
-type CREATE_METER_READINGS_ACTION_BAR_PROPS = {
+type CreateMeterReadingsActionBarProps = {
     handleSave: () => void
     isLoading: boolean,
-    newMeterReadings: Array<any>
+    newMeterReadings: Array<unknown> | unknown
     meterType: MeterPageTypes,
 }
 
@@ -23,7 +23,7 @@ export const CreateMeterReadingsActionBar = ({
     isLoading,
     newMeterReadings,
     meterType,
-}: CREATE_METER_READINGS_ACTION_BAR_PROPS): JSX.Element => {
+}: CreateMeterReadingsActionBarProps): JSX.Element => {
     const intl = useIntl()
     const SendMetersReadingMessage = intl.formatMessage({ id: 'pages.condo.meter.SendMetersReading' })
     const FieldIsRequiredMessage = intl.formatMessage({ id: 'FieldIsRequired' })
