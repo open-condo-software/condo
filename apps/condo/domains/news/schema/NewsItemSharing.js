@@ -99,7 +99,7 @@ const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
 
         /**
          * It is not guaranteed that NewsItemSharing will be created before NewsItem is published,
-         * We mitigate it by explicitly checking whether the related NewsItem had been published and publishing NewsItemSharing if it true
+         * Condo explicitly checks whether the related NewsItem had been published and publishes NewsItemSharing if it true
          */
         afterChange: async ({ updatedItem }) => {
             if (updatedItem.status === STATUSES.SCHEDULED) {
