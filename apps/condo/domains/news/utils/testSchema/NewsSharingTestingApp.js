@@ -101,39 +101,39 @@ class NewsSharingTestingApp {
         // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
 
-        app.get(SUCCESS_GET_RECIPIENTS_URL, async (req, res, next) => {
+        app.get(SUCCESS_GET_RECIPIENTS_URL, async (req, res) => {
             res.json(SUCCESS_GET_RECIPIENTS_RESULT)
         })
 
-        app.post(SUCCESS_PUBLISH_URL, async (req, res, next) => {
+        app.post(SUCCESS_PUBLISH_URL, async (req, res) => {
             res.status(200).send('OK')
         })
 
-        app.post(SUCCESS_PREVIEW_URL, async (req, res, next) => {
+        app.post(SUCCESS_PREVIEW_URL, async (req, res) => {
             res.status(200).send('OK')
         })
 
-        app.get(INCORRECT_GET_RECIPIENTS_URL_BAD_ID, async (req, res, next) => {
+        app.get(INCORRECT_GET_RECIPIENTS_URL_BAD_ID, async (req, res) => {
             res.status(200).send(INCORRECT_GET_RECIPIENTS_RESULT_BAD_ID)
         })
 
-        app.get(INCORRECT_GET_RECIPIENTS_URL_BAD_NAME, async (req, res, next) => {
+        app.get(INCORRECT_GET_RECIPIENTS_URL_BAD_NAME, async (req, res) => {
             res.status(200).send(INCORRECT_GET_RECIPIENTS_RESULT_BAD_NAME)
         })
 
-        app.get(INCORRECT_GET_RECIPIENTS_URL_OTHER_FIELDS, async (req, res, next) => {
+        app.get(INCORRECT_GET_RECIPIENTS_URL_OTHER_FIELDS, async (req, res) => {
             res.status(200).send(INCORRECT_GET_RECIPIENTS_RESULT_OTHER_FIELDS)
         })
 
-        app.get(INCORRECT_GET_RECIPIENTS_RESULT_URL_WRONG_RETURN_TYPE, async (req, res, next) => {
+        app.get(INCORRECT_GET_RECIPIENTS_RESULT_URL_WRONG_RETURN_TYPE, async (req, res) => {
             res.status(200).send(INCORRECT_GET_RECIPIENTS_RESULT_WRONG_RETURN_TYPE)
         })
 
-        app.get(FAULTY_GET_RECIPIENTS_URL_500, async (req, res, next) => {
+        app.get(FAULTY_GET_RECIPIENTS_URL_500, async (req, res) => {
             res.status(500).send({})
         })
 
-        app.get(FAULTY_GET_RECIPIENTS_URL_404, async (req, res, next) => {
+        app.get(FAULTY_GET_RECIPIENTS_URL_404, async (req, res) => {
             res.status(404).send({})
         })
 

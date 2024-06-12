@@ -171,7 +171,7 @@ const NewsItem = new GQLListSchema('NewsItem', {
                     orderBy: 'createdAt_ASC',
                 })
 
-                let count = 0
+                let count
                 if (firstOnesScopes.length > COMPACT_SCOPES_SIZE) {
                     const { count: countObjs } = await itemsQuery('NewsItemScope', {
                         where: {
