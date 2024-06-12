@@ -1,3 +1,4 @@
+const dayjs = require('dayjs')
 const get = require('lodash/get')
 
 const { fetch } = require('@open-condo/keystone/fetch')
@@ -5,10 +6,9 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx, getById, find } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
 
+const { STATUSES } = require('@condo/domains/news/constants/newsItemSharingStatuses')
 const { NewsItemSharing } = require('@condo/domains/news/utils/serverSchema')
 
-const { STATUSES } = require('../constants/newsItemSharingStatuses')
-const dayjs = require("dayjs");
 
 const logger = getLogger('publishNewsItemSharing')
 
@@ -44,7 +44,7 @@ async function _publishNewsItemSharing (newsItem, newsItemSharing){
         status: STATUSES.PROCESSING,
     })
 
-    const { title, body, type, validBefore, createdAt, publishedAt } = newsItem
+    const { title, body, type, validBefore } = newsItem
     const sharingParams = get(newsItemSharing, 'sharingParams')
 
     const scopes = await find('NewsItemScope', { newsItem: { id: newsItem.id } })
@@ -52,7 +52,6 @@ async function _publishNewsItemSharing (newsItem, newsItemSharing){
     const b2bAppContextId = get( newsItemSharing, 'b2bAppContext')
     const b2bAppContext = await getById('B2BAppContext', b2bAppContextId)
 
-    // Todo @toplenboren! should we use schema stiching?
     const organizationId = get( b2bAppContext, 'organization')
     const organization = await getById('Organization', organizationId)
     const properties = await find('Property', { organization: { id: organizationId } })

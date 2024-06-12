@@ -1387,6 +1387,8 @@
   "pages.news.newsItemCard.author": "author {createdBy}{isOwner, plural, other {} one { (you)}}",
   "pages.news.newsItemCard.status.notSent": "Not sent yet",
   "pages.news.newsItemCard.status.sending": "Sending",
+  "pages.news.newsItemCard.status.error": "Error",
+  "pages.news.newsItemCard.status.success": "Delivered",
   "pages.news.create.preview.app.notificationFromOrganization": "Notification from organization",
   "pages.news.create.preview.app.receivedAt": "Today, 9:00",
   "pages.news.create.preview.app.validUntil": "valid until {validBefore}",

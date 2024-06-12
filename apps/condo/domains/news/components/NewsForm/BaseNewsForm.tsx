@@ -586,7 +586,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         Body.setTextLength(initialBody.length)
     }, [])
 
-    const handleTemplateChange = useCallback((form, fieldName) => (value) => {
+    const handleTemplateChange = useCallback((form) => (value) => {
         const templateId = value
         const title = templateId !== 'emptyTemplate' ? templates[templateId].title : ''
         const body = templateId !== 'emptyTemplate' ? templates[templateId].body : ''
@@ -1306,7 +1306,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                     >
                                                                         {selectedType === NEWS_TYPE_COMMON && (
                                                                             <TemplatesTabs
-                                                                                onChange={handleTemplateChange(form, 'template')}
+                                                                                onChange={handleTemplateChange(form)}
                                                                                 items={Object.keys(commonTemplates).map(id => ({
                                                                                     key: id,
                                                                                     label: commonTemplates[id].title,
@@ -1314,7 +1314,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                         )}
                                                                         {selectedType === NEWS_TYPE_EMERGENCY && (
                                                                             <TemplatesTabs
-                                                                                onChange={handleTemplateChange(form, 'template')}
+                                                                                onChange={handleTemplateChange(form)}
                                                                                 items={Object.keys(emergencyTemplates).map(id => ({
                                                                                     key: id,
                                                                                     label: emergencyTemplates[id].title,
