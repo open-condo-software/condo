@@ -1,4 +1,4 @@
-import { BuildingFloor, BuildingSection, Property, BuildingUnitSubType } from '@app/condo/schema'
+import { BuildingFloor, BuildingSection, Property, BuildingUnitSubType, MeterUnitTypeType } from '@app/condo/schema'
 import { Col, FormInstance, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { isEmpty } from 'lodash'
@@ -75,7 +75,7 @@ interface IUnitInfo {
     form: FormInstance
     loading: boolean
     setSelectedUnitName: React.Dispatch<React.SetStateAction<string>>
-    setSelectedUnitType?: React.Dispatch<React.SetStateAction<BuildingUnitSubType>>
+    setSelectedUnitType?: React.Dispatch<React.SetStateAction<BuildingUnitSubType | MeterUnitTypeType>>
     selectedUnitName?: string
     mode?: UnitInfoMode
     initialValues?: InitialUnitInfoType
