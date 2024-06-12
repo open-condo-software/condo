@@ -10,7 +10,7 @@ const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/news/access/NewsItemSharing')
 const { STATUSES, ALLOWED_TRANSITIONS } = require('@condo/domains/news/constants/newsItemSharingStatuses')
-const publishSharedNewsItem = require('@condo/domains/news/tasks/publishSharedNewsItem')
+const publishNewsItemSharing = require('@condo/domains/news/tasks/publishNewsItemSharing')
 
 const {
     BAD_STATUS_TRANSTION,
@@ -137,7 +137,7 @@ const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
                 }
 
                 if (newsItem.isPublished && !newsItem.deletedAt && newsItemWasSent) {
-                    await publishSharedNewsItem.delay(updatedItem.id)
+                    await publishNewsItemSharing.delay(updatedItem.id)
                 }
             }
         },

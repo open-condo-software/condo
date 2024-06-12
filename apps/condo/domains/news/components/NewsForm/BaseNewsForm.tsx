@@ -1475,6 +1475,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                 {
                                     ( getStepTypeByStep(currentStep) === 'sharingApp' ) && (
                                         <NewsItemSharingForm
+                                            onIsValidChange = { (isValid) => { console.log(`Form is valid: ${isValid}`) } }
                                             onSkip={ () => handleStepSkip({ skip: true, step: currentStep }) }
                                             onSubmit={ (values) => handleSharingAppFormSubmit({ values: values, ctxId: getStepsData()[currentStep].sharingAppData.id }) }
                                             sharingApp={getStepDataByStep(currentStep).sharingAppData.app}

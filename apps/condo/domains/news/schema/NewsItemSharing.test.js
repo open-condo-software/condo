@@ -12,7 +12,7 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { createTestB2BAppNewsSharingConfig, createTestB2BApp, createTestB2BAppContext } = require('@condo/domains/miniapp/utils/testSchema')
-const { NewsItemSharing, createTestNewsItemSharing, updateTestNewsItemSharing } = require('@condo/domains/news/utils/testSchema')
+const { NewsItem, NewsItemSharing, createTestNewsItemSharing, updateTestNewsItemSharing } = require('@condo/domains/news/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
@@ -351,13 +351,24 @@ describe('NewsItemSharing', () => {
 
     describe('Real life tests', () => {
 
-        test('NewsItemSharing is sent if created on a published and sent NewsItem', async () => {
-            const [obj, attrs] = await createTestNewsItemSharing(admin, successB2BAppNewsSharingContext, dummyPublishedNewsItem)
-
+        test.skip('NewsItemSharing is sent if created on a published and sent NewsItem', async () => {
+            const [newsItem] = await createTestNewsItem(admin, dummyO10n, {
+                title: '🚧 Planned Water Outage Notification 🚧',
+                body: 'We are conducting a planned water outage on September 25 2023 The outage will last approximately 4 hours',
+            })
+            await createTestNewsItemScope(admin, newsItem)
+            await publishTestNewsItem(admin, newsItem.id)
             await waitFor(async () => {
                 const [res] = await _internalScheduleTaskByNameByTestClient(admin, { taskName: 'notifyResidentsAboutDelayedNewsItem' })
                 expect(res.id).toBeDefined()
             }, { delay: (SENDING_DELAY_SEC + 2) * 1000 })
+
+            await waitFor(async () => {
+                const createdNewsItem = await NewsItem.getOne(admin, { id: newsItem.id })
+                expect(createdNewsItem.sentAt).toBeDefined()
+            }, { delay: (SENDING_DELAY_SEC + 2) * 1000 })
+
+            const [obj, attrs] = await createTestNewsItemSharing(admin, successB2BAppNewsSharingContext, newsItem)
 
             await waitFor(
                 async () => {

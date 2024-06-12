@@ -34,6 +34,7 @@ interface INewsItemSharingForm {
 
     onSubmit: (SharingAppValues) => void
     onSkip: (SharingAppValues) => void
+    onIsValidChange: (boolean) => void
 
     initialValues: SharingAppValues | undefined
 
@@ -45,7 +46,7 @@ interface INewsItemSharingForm {
     }
 }
 
-export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemData, initialValues, onSkip, onSubmit, sharingApp: { id, newsSharingConfig } }) => {
+export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemData, initialValues, onSkip, onSubmit, onIsValidChange, sharingApp: { id, newsSharingConfig } }) => {
 
     const { breakpoints } = useLayoutContext()
     const isMediumWindow = !breakpoints.DESKTOP_SMALL
@@ -53,7 +54,7 @@ export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemDa
     const formInfoColSpan = 24 - formFieldsColSpan
 
     const appName = newsSharingConfig.name
-    const appIcon = newsSharingConfig.icon.publicUrl
+    const appIcon = get(newsSharingConfig, ['icon', 'publicUrl'])
     const appPreviewUrl = newsSharingConfig.previewUrl
 
     const iFramePreviewRef = useRef(null)
@@ -72,16 +73,18 @@ export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemDa
     }, [id])
 
     useEffect(() => {
-
         const title = get(sharingAppFormValues, ['preview', 'renderedTitle'])
         const body = get(sharingAppFormValues, ['preview', 'renderedBody'])
 
-        // Todo: @toplenboren, ask @matthew about postmessages
+        // Todo: @toplenboren, ask @matthew about usage of custom IFrame component here
         if (iFramePreviewRef.current) {
             iFramePreviewRef.current.contentWindow.postMessage({ handler: 'handleUpdateFromCondo', title, body }, '*')
             console.info('Sent message to miniapp preview', { title, body })
         }
-    }, [sharingAppFormValues, iFramePreviewRef])
+
+        const isValid = get(sharingAppFormValues, 'isValid', false)
+        onIsValidChange(isValid)
+    }, [sharingAppFormValues, iFramePreviewRef, onIsValidChange])
 
     useEffect(() => {
         if (typeof window !== 'undefined' && isCustomForm) {

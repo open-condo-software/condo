@@ -8,10 +8,11 @@ const { createTask } = require('@open-condo/keystone/tasks')
 const { NewsItemSharing } = require('@condo/domains/news/utils/serverSchema')
 
 const { STATUSES } = require('../constants/newsItemSharingStatuses')
+const dayjs = require("dayjs");
 
-const logger = getLogger('publishSharedNewsItem')
+const logger = getLogger('publishNewsItemSharing')
 
-const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'publishSharedNewsItem' } }
+const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'publishNewsItemSharing' } }
 
 const DEFAULT_TIMEOUT = 20 * 1000
 
@@ -29,7 +30,7 @@ async function fetchWithTimeout (url, options = {}, timeout = 5000) {
     }
 }
 
-async function _publishSharedNewsItem (newsItem, newsItemSharing){
+async function _publishNewsItemSharing (newsItem, newsItemSharing){
     const { keystone: contextNewsItemSharing } = getSchemaCtx('NewsItemSharing')
 
     if (!newsItem) {
@@ -43,7 +44,7 @@ async function _publishSharedNewsItem (newsItem, newsItemSharing){
         status: STATUSES.PROCESSING,
     })
 
-    const { title, body, type, validBefore, createdAt, publishedAt, isEmergency } = newsItem
+    const { title, body, type, validBefore, createdAt, publishedAt } = newsItem
     const sharingParams = get(newsItemSharing, 'sharingParams')
 
     const scopes = await find('NewsItemScope', { newsItem: { id: newsItem.id } })
@@ -51,7 +52,7 @@ async function _publishSharedNewsItem (newsItem, newsItemSharing){
     const b2bAppContextId = get( newsItemSharing, 'b2bAppContext')
     const b2bAppContext = await getById('B2BAppContext', b2bAppContextId)
 
-    // Todo @toplenboren! use schema stiching next time!
+    // Todo @toplenboren! should we use schema stiching?
     const organizationId = get( b2bAppContext, 'organization')
     const organization = await getById('Organization', organizationId)
     const properties = await find('Property', { organization: { id: organizationId } })
@@ -71,26 +72,27 @@ async function _publishSharedNewsItem (newsItem, newsItemSharing){
     logger.info({ msg: 'newsSharing sending shared news item', newsItemId: newsItem.id, newsItemSharingId: newsItemSharing.id, publishUrl })
 
     const publishData = {
-        orgId: organizationId,
         newsItem: {
             id: newsItem.id,
             title,
             body,
             type,
             scopes,
-            validBefore,
-            createdAt,
-            publishedAt,
-            isEmergency,
+            validBefore: validBefore ? validBefore : undefined,
         },
+
         newsItemSharing: {
             id: newsItemSharing.id,
             sharingParams,
         },
         contextSettings,
 
-        // todo @toplenboren these will be void!
-        properties: properties,
+        properties: properties.map(property => ({
+            id: property.id,
+            address: property.address,
+            addressMeta: property.addressMeta,
+        })),
+
         organization: {
             tin: organization.tin,
             id: organizationId,
@@ -139,11 +141,11 @@ async function _publishSharedNewsItem (newsItem, newsItemSharing){
  * @param {string} newsItemSharingId
  * @returns {Promise<void>}
  */
-async function publishSharedNewsItem (newsItemSharingId) {
+async function publishNewsItemSharing (newsItemSharingId) {
     const newsItemSharing = await getById('NewsItemSharing', newsItemSharingId)
     const newsItem = await getById('NewsItem', newsItemSharing.newsItem)
 
-    return await _publishSharedNewsItem(newsItem, newsItemSharing)
+    return await _publishNewsItemSharing(newsItem, newsItemSharing)
 }
 
-module.exports = createTask('publishSharedNewsItem', publishSharedNewsItem, 'low')
+module.exports = createTask('publishNewsItemSharing', publishNewsItemSharing, 'low')

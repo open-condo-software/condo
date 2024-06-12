@@ -13,7 +13,6 @@ async function publishDelayedSharedNewsItems () {
         {
             isPublished: true,
             deletedAt: null,
-            sentAt: null,
             sendAt_lte: now,
         },
     )

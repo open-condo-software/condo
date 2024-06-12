@@ -1,7 +1,7 @@
 const { find } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
 
-const publishSharedNewsItem = require('./publishSharedNewsItem')
+const publishNewsItemSharing = require('./publishNewsItemSharing')
 
 /**
  * @param {string} newsItemId
@@ -15,7 +15,7 @@ async function publishSharedNewsItemsByNewsItem (newsItemId) {
     const sharedNewsItems = await find('NewsItemSharing', { newsItem: { id: newsItemId } })
 
     for (const newsItemSharing of sharedNewsItems) {
-        await publishSharedNewsItem.delay(newsItemSharing.id)
+        await publishNewsItemSharing.delay(newsItemSharing.id)
     }
 }
 
