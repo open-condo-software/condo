@@ -42,6 +42,7 @@ import {
     PropertyMeterReading,
     PropertyMeter,
     METER_TAB_TYPES,
+    METER_TYPES,
 } from '@condo/domains/meter/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { ContactsInfo } from '@condo/domains/ticket/components/BaseTicketForm'
@@ -290,7 +291,7 @@ export const CreateMeterReadingsForm = ({ organization, role, canManageMeterRead
     const createMeterReadingAction = MeterReading.useCreate({
         source: { connect: { id: CALL_METER_READING_SOURCE_ID } },
     }, async () => {
-        await router.push(`/meter?tab=${METER_TAB_TYPES.meterReading}`)
+        await router.push(`/meter?tab=${METER_TAB_TYPES.meterReading}&type=${METER_TYPES.unit}`)
     })
 
     const handleSubmit = useCallback(async (values) => {
@@ -567,7 +568,7 @@ export const CreatePropertyMeterReadingsForm = ({ organization, canManageMeterRe
     const createMeterReadingAction = PropertyMeterReading.useCreate({
         source: { connect: { id: CRM_METER_READING_SOURCE_ID } },
     }, async () => {
-        await router.push(`/meter?tab=${METER_TAB_TYPES.meterReading}`)
+        await router.push(`/meter?tab=${METER_TAB_TYPES.meterReading}&type=${METER_TYPES.property}`)
     })
 
     const { count: proeprtyMeterCount, loading: propertyMeterCountLoading } = PropertyMeter.useCount({

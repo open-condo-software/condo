@@ -11,7 +11,7 @@ import { CSSProperties, useCallback, useMemo, useState } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { Tour } from '@open-condo/ui'
 
-import { getDateRender, getTextRender } from '@condo/domains/common/components/Table/Renders'
+import { getTextRender } from '@condo/domains/common/components/Table/Renders'
 import { colors } from '@condo/domains/common/constants/style'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { METER_TAB_TYPES, MeterPageTypes } from '@condo/domains/meter/utils/clientSchema'
@@ -166,7 +166,7 @@ export const useMeterTableColumns = (meterType: MeterPageTypes) => {
             setNewMeterReadings={setNewMeterReadings}
         />
     ), [newMeterReadings])
-    
+
     const textRenderer = useMemo(() => getTextRender(), [])
     const nextVerificationDateRenderer = useMemo(() => getNextVerificationDateRender(intl), [intl])
 

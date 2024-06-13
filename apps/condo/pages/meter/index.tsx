@@ -86,7 +86,7 @@ export const MeterTypeSwitch = ({ defaultValue }: MeterTypeSwitchProps): JSX.Ele
     const handleRadioChange = useCallback(async (event) => {
         const value = event.target.value
         setValue(value)
-        logEvent({ eventName: 'MeterTypeFilterTabChange', denyDuplicates: true, eventProperties: { type: value } })
+        logEvent({ eventName: 'MeterTypeChange', denyDuplicates: true, eventProperties: { type: value } })
         router.replace({ query: { ...router.query, type: value } })
     }, [logEvent])
 
@@ -194,14 +194,12 @@ const MetersPage: IMeterIndexPage = () => {
                 activeType === METER_TYPES.unit ?
                     <MeterReadingsPageContent
                         filtersMeta={filtersForMeterReadingsMeta}
-                        tableColumns={tableColumnsForMeterReadings}
                         loading={isLoading}
                         canManageMeterReadings={canManageMeterReadings}
                         baseSearchQuery={baseMeterReadingsQuery}
                     /> :
                     <PropertyMeterReadingsPageContent
                         filtersMeta={filtersForMeterReadingsMeta}
-                        tableColumns={tableColumnsForMeterReadings}
                         loading={isLoading}
                         canManageMeterReadings={canManageMeterReadings}
                         baseSearchQuery={baseMeterReadingsQuery}
@@ -242,7 +240,7 @@ const MetersPage: IMeterIndexPage = () => {
                 />
             ),
         },
-    ].filter(Boolean), [MeterReadingMessage, type, filtersForMeterReadingsMeta, tableColumnsForMeterReadings, isLoading, canManageMeterReadings, baseMeterReadingsQuery, MeterMessage, filtersForMetersMeta, tableColumnsForMeters, canManageMeters, baseMetersQuery, ReportingPeriodMessage, userOrganizationId])
+    ].filter(Boolean), [MeterReadingMessage, activeType, filtersForMeterReadingsMeta, isLoading, canManageMeterReadings, baseMeterReadingsQuery, MeterMessage, filtersForMetersMeta, tableColumnsForMeters, canManageMeters, baseMetersQuery, ReportingPeriodMessage, tableColumnsForMeterReadings, userOrganizationId])
 
     return (
         <MultipleFilterContextProvider>

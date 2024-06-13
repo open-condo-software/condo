@@ -1,3 +1,4 @@
+import { MeterReading, PropertyMeterReading } from '@app/condo/schema'
 import compact from 'lodash/compact'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
@@ -27,6 +28,7 @@ import {
     getUnitRender,
     getNextVerificationDateRender,
     getMeterStatusRender,
+    getConsumptionRender,
 } from '@condo/domains/meter/utils/clientSchema/Renders'
 import { getMeterReportingPeriodRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
 
@@ -46,7 +48,8 @@ export function useTableColumns <T> (
     filterMetas: Array<FiltersMeta<T>>,
     meterTabType: MeterPageTypes = METER_TAB_TYPES.meterReading,
     readingsType: MeterTypes,
-    isReadingsForSingleMeter?: boolean
+    isReadingsForSingleMeter?: boolean,
+    records?: Array<MeterReading | PropertyMeterReading>
 )
 {
     const intl = useIntl()
@@ -132,9 +135,9 @@ export function useTableColumns <T> (
             ellipsis: false,
             key: 'consumption',
             width: isPropertyMeter ? '25%' : '20%',
-            render: renderMeterRecord,
+            render: getConsumptionRender(intl, records),
         },
-    ], [ConsumptionMessage, ContactMessage, MeterReadingDateMessage, MeterReadingMessage, SourceMessage, filterMetas, filters, intl, isPropertyMeter, search, sorterMap])
+    ], [ConsumptionMessage, ContactMessage, MeterReadingDateMessage, MeterReadingMessage, SourceMessage, filterMetas, filters, intl, isPropertyMeter, records, search, sorterMap])
 
     const meterAndMeterReadingColumns = useMemo(() => [
         {

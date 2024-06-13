@@ -6,7 +6,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button } from '@open-condo/ui'
 
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
-import { Meter, MeterPageTypes, METER_TAB_TYPES, PropertyMeter } from '@condo/domains/meter/utils/clientSchema'
+import { Meter, MeterPageTypes, METER_TAB_TYPES, METER_TYPES, PropertyMeter } from '@condo/domains/meter/utils/clientSchema'
 
 type ActionBarForSingleMeterProps = {
     meterId: string
@@ -37,7 +37,7 @@ const ActionBarForSingleMeter = ({
     const MeterIdentity = isPropertyMeter ?  PropertyMeter : Meter
 
     const softDeleteMeter = MeterIdentity.useSoftDelete(async () => {
-        router.push('/meter?tab=meter')
+        router.push(`/meter?tab=meter&type=${isPropertyMeter ? METER_TYPES.property : METER_TYPES.unit}`)
     })
 
     const handleUpdateMeterButtonClick = useCallback(() => 

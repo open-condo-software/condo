@@ -17,8 +17,7 @@ import { MeterAccountField, MeterCommonDateField, MeterNumberField, MeterPlaceFi
 import { MeterReadingsPageContent } from '@condo/domains/meter/components/TabContent/MeterReading'
 import { PropertyMeterReadingsPageContent } from '@condo/domains/meter/components/TabContent/PropertyMeterReading'
 import { useMeterReadingFilters } from '@condo/domains/meter/hooks/useMeterReadingFilters'
-import { useTableColumns } from '@condo/domains/meter/hooks/useTableColumns'
-import { Meter, MeterPageTypes, METER_TYPES, METER_TAB_TYPES, PropertyMeter } from '@condo/domains/meter/utils/clientSchema'
+import { Meter, MeterPageTypes, METER_TAB_TYPES, PropertyMeter } from '@condo/domains/meter/utils/clientSchema'
 import { getMeterTitleMessage } from '@condo/domains/meter/utils/helpers'
 import { TicketPropertyField } from '@condo/domains/ticket/components/TicketId/TicketPropertyField'
 
@@ -228,7 +227,7 @@ export const MeterPageContent = ({ meter, possibleReportingPeriods, resource, re
     const canManageMeterReadings = useMemo(() => get(role, 'canManageMeterReadings', false), [role])
     const userOrganizationId = useMemo(() => get(organization, 'id'), [organization])
     const filtersMeta = useMeterReadingFilters()
-    const tableColumns = useTableColumns(filtersMeta, METER_TAB_TYPES.meterReading, METER_TYPES.unit, true)
+    
     
     const baseMeterReadingsQuery = useMemo(() => ({
         meter: { deletedAt: null, id: get(meter, 'id') },
@@ -274,7 +273,6 @@ export const MeterPageContent = ({ meter, possibleReportingPeriods, resource, re
                 {meterType === METER_TAB_TYPES.propertyMeter ? (
                     <PropertyMeterReadingsPageContent 
                         filtersMeta={filtersMeta}
-                        tableColumns={tableColumns}
                         loading={isLoading}
                         canManageMeterReadings={canManageMeterReadings}
                         baseSearchQuery={baseMeterReadingsQuery}
@@ -285,7 +283,6 @@ export const MeterPageContent = ({ meter, possibleReportingPeriods, resource, re
                 ) : (
                     <MeterReadingsPageContent
                         filtersMeta={filtersMeta}
-                        tableColumns={tableColumns}
                         loading={isLoading}
                         canManageMeterReadings={canManageMeterReadings}
                         baseSearchQuery={baseMeterReadingsQuery}

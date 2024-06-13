@@ -8,7 +8,6 @@ import {
 } from '@app/condo/schema'
 import { Col, Row, RowProps } from 'antd'
 import { CheckboxChangeEvent } from 'antd/lib/checkbox'
-import { ColumnsType } from 'antd/lib/table'
 import { TableRowSelection } from 'antd/lib/table/interface'
 import chunk from 'lodash/chunk'
 import get from 'lodash/get'
@@ -39,9 +38,10 @@ import { MetersImportWrapper } from '@condo/domains/meter/components/Import/Inde
 import ActionBarForSingleMeter from '@condo/domains/meter/components/Meters/ActionBarForSingleMeter'
 import UpdateMeterReadingModal from '@condo/domains/meter/components/Meters/UpdateMeterReadingModal'
 import { EXPORT_PROPERTY_METER_READINGS_QUERY } from '@condo/domains/meter/gql'
+import { useTableColumns } from '@condo/domains/meter/hooks/useTableColumns'
 import {
     PropertyMeterReading,
-    METER_TAB_TYPES, MeterReadingFilterTemplate,
+    METER_TAB_TYPES, MeterReadingFilterTemplate, METER_TYPES, MeterTypes,
 } from '@condo/domains/meter/utils/clientSchema'
 import { getInitialSelectedReadingKeys } from '@condo/domains/meter/utils/helpers'
 
@@ -55,7 +55,6 @@ const SORTABLE_PROPERTIES = ['date', 'clientName', 'source']
 
 type PropertyMetersTableContentProps = {
     filtersMeta: FiltersMeta<PropertyMeterReadingWhereInput>[]
-    tableColumns: ColumnsType
     baseSearchQuery: PropertyMeterReadingWhereInput
     canManageMeterReadings: boolean
     isAutomatic?: boolean,
@@ -71,7 +70,6 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
         baseSearchQuery,
         filtersMeta,
         sortableProperties,
-        tableColumns,
         loading,
         meter,
         isAutomatic,
@@ -115,9 +113,10 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
         where: searchMeterReadingsQuery,
         first: DEFAULT_PAGE_SIZE,
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
-    }, {
-        fetchPolicy: 'network-only',
     })
+
+    const tableColumnsForSingleMeter = useTableColumns(filtersMeta, METER_TAB_TYPES.meterReading, METER_TYPES.property, true, propertyMeterReadings)
+    const tableColumnsForMeterReadings = useTableColumns(filtersMeta, METER_TAB_TYPES.meterReading, METER_TYPES.property as MeterTypes)
 
     const [search, handleSearchChange, handleSearchReset] = useSearch()
     const [selectedReadingKeys, setSelectedReadingKeys] = useState<string[]>(() => getInitialSelectedReadingKeys(router))
@@ -253,7 +252,7 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
                         loading={metersLoading || loading}
                         dataSource={meter ? propertyMeterReadings : processedMeterReadings}
                         rowSelection={rowSelection}
-                        columns={tableColumns}
+                        columns={meter ? tableColumnsForSingleMeter : tableColumnsForMeterReadings}
                         onRow={meter && handleUpdateMeterReading}
                     />
                 </Col>
@@ -317,7 +316,7 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
                             ]}
                         />
                     )}
-                    {meter && <ActionBarForSingleMeter 
+                    {meter && selectedReadingKeys.length < 1 && <ActionBarForSingleMeter 
                         canManageMeterReadings={canManageMeterReadings}
                         meterId={get(meter, 'id')}
                         meterType={METER_TAB_TYPES.propertyMeter}

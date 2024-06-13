@@ -1,3 +1,4 @@
+import { MeterReading, PropertyMeterReading } from '@app/condo/schema'
 import { Typography } from 'antd'
 import { FilterValue } from 'antd/es/table/interface'
 import { TextProps } from 'antd/es/typography/Text'
@@ -8,9 +9,9 @@ import React from 'react'
 import { Tag } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
-import { getTableCellRenderer, RenderReturnType } from '@condo/domains/common/components/Table/Renders'
+import { getTableCellRenderer, renderMeterReading, RenderReturnType } from '@condo/domains/common/components/Table/Renders'
 import { LOCALES } from '@condo/domains/common/constants/locale'
-import { METER_READING_SOURCE_EXTERNAL_IMPORT_TYPE } from '@condo/domains/meter/constants/constants'
+import { ELECTRICITY_METER_RESOURCE_ID, METER_READING_SOURCE_EXTERNAL_IMPORT_TYPE } from '@condo/domains/meter/constants/constants'
 import { getHumanizedVerificationDateDifference } from '@condo/domains/meter/utils/helpers'
 
 const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
@@ -94,5 +95,44 @@ export const getMeterStatusRender = (intl, search?) => {
                 {archiveDate ? archivedStatus : activeStatus}
             </Tag>
         )
+    }
+}
+
+export const getConsumptionRender = (intl, records: Array<MeterReading | PropertyMeterReading>, search?: FilterValue | string) => {
+    return function render (text, meterReading, index): RenderReturnType {
+        const currentValue1 = get(meterReading, 'value1')
+        const currentValue2 = get(meterReading, 'value2')
+        const currentValue3 = get(meterReading, 'value3')
+        const currentValue4 = get(meterReading, 'value4')
+        const measure = get(meterReading, ['meter', 'resource', 'measure'], '')
+        const resourceId = get(meterReading, ['meter', 'resource', 'id'])
+
+        const allCurrentValues = [currentValue1, currentValue2, currentValue3, currentValue4]
+
+        if (index === records.length - 1) {
+            return renderMeterReading(allCurrentValues, resourceId, measure)
+        } 
+        
+        const previousMeterReading = records[index + 1]
+        const prevValues = [
+            get(previousMeterReading, 'value1'),
+            get(previousMeterReading, 'value2'),
+            get(previousMeterReading, 'value3'),
+            get(previousMeterReading, 'value4'),
+        ]
+        const consumptionValues = allCurrentValues.map((value, index) => Number(value) - Number(prevValues[index]))
+
+        // ELECTRICITY multi-tariff meter
+        if (resourceId === ELECTRICITY_METER_RESOURCE_ID) {
+            const formatMeter = (value, index) => !value ? null : <>{`T${index + 1} - ${Number(value)} ${measure}`}<br /></>
+            return consumptionValues.map(formatMeter)
+        }
+
+        // other resource 1-tariff meter
+        if (get(consumptionValues, '0')){
+            return `${Number(consumptionValues[0])} ${measure}`
+        }
+
+        return null
     }
 }
