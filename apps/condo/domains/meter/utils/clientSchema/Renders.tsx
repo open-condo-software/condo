@@ -51,21 +51,19 @@ export const getResourceRender = (intl, isMeter: boolean, search?: FilterValue |
     }
 }
 
-export const getVerificationDateRender = (intl, isMeter: boolean, search?: FilterValue | string, prefix = '\n') => {
-    return function render (verificationDate: string, meterReading): RenderReturnType {
+export const getNextVerificationDateRender = (intl, search?: FilterValue | string, prefix = '\n') => {
+    return function render (nextVerificationDate: string): RenderReturnType {
         const OverdueMessage = intl.formatMessage({ id: 'pages.condo.meter.VerificationDate.Overdue' })
         let extraHighlighterProps
         let extraTitle
 
-        if (!verificationDate) return '—'
+        if (!nextVerificationDate) return '—'
 
         const locale = get(LOCALES, intl.locale)
-        const date = locale ? dayjs(verificationDate).locale(locale) : dayjs(verificationDate)
+        const date = locale ? dayjs(nextVerificationDate).locale(locale) : dayjs(nextVerificationDate)
         const text = `${date.format(DATE_FORMAT)}`
 
-        const nextVerificationDate = dayjs(get(meterReading, isMeter ? 'nextVerificationDate' : ['meter', 'nextVerificationDate']))
-
-        if (nextVerificationDate.isBefore(dayjs(), 'day')) {
+        if (date.isBefore(dayjs(), 'day')) {
             extraHighlighterProps = { type: 'danger' }
             const overdueDiff = getHumanizedVerificationDateDifference(nextVerificationDate)
             extraTitle = OverdueMessage.replace('{days}', overdueDiff)

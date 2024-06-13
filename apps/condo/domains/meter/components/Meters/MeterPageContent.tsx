@@ -18,7 +18,7 @@ import { MeterReadingsPageContent } from '@condo/domains/meter/components/TabCon
 import { PropertyMeterReadingsPageContent } from '@condo/domains/meter/components/TabContent/PropertyMeterReading'
 import { useMeterReadingFilters } from '@condo/domains/meter/hooks/useMeterReadingFilters'
 import { useTableColumns } from '@condo/domains/meter/hooks/useTableColumns'
-import { Meter, MeterPageTypes, METER_READINGS_TYPES, METER_TAB_TYPES, PropertyMeter } from '@condo/domains/meter/utils/clientSchema'
+import { Meter, MeterPageTypes, METER_TYPES, METER_TAB_TYPES, PropertyMeter } from '@condo/domains/meter/utils/clientSchema'
 import { getMeterTitleMessage } from '@condo/domains/meter/utils/helpers'
 import { TicketPropertyField } from '@condo/domains/ticket/components/TicketId/TicketPropertyField'
 
@@ -228,7 +228,7 @@ export const MeterPageContent = ({ meter, possibleReportingPeriods, resource, re
     const canManageMeterReadings = useMemo(() => get(role, 'canManageMeterReadings', false), [role])
     const userOrganizationId = useMemo(() => get(organization, 'id'), [organization])
     const filtersMeta = useMeterReadingFilters()
-    const tableColumns = useTableColumns(filtersMeta, METER_TAB_TYPES.meterReading, METER_READINGS_TYPES.meterReadings, true)
+    const tableColumns = useTableColumns(filtersMeta, METER_TAB_TYPES.meterReading, METER_TYPES.unit, true)
     
     const baseMeterReadingsQuery = useMemo(() => ({
         meter: { deletedAt: null, id: get(meter, 'id') },

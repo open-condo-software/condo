@@ -16,17 +16,16 @@ import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import {
-    METER_READINGS_TYPES,
+    METER_TYPES,
     METER_TAB_TYPES,
     MeterPageTypes,
-    MeterReadingsTypes,
-    MeterReading,
+    MeterTypes,
 } from '@condo/domains/meter/utils/clientSchema'
 import {
     getResourceRender,
     getSourceRender,
     getUnitRender,
-    getVerificationDateRender,
+    getNextVerificationDateRender,
     getMeterStatusRender,
 } from '@condo/domains/meter/utils/clientSchema/Renders'
 import { getMeterReportingPeriodRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
@@ -46,7 +45,7 @@ const renderMeterRecord = (record) => {
 export function useTableColumns <T> (
     filterMetas: Array<FiltersMeta<T>>,
     meterTabType: MeterPageTypes = METER_TAB_TYPES.meterReading,
-    readingsType: MeterReadingsTypes,
+    readingsType: MeterTypes,
     isReadingsForSingleMeter?: boolean
 )
 {
@@ -74,7 +73,7 @@ export function useTableColumns <T> (
 
     const search = getFilteredValue(filters, 'search')
 
-    const isPropertyMeter = readingsType === METER_READINGS_TYPES.propertyMeterReadings
+    const isPropertyMeter = readingsType === METER_TYPES.property
     const isMeter = meterTabType === METER_TAB_TYPES.meter
     const isReportingPeriod = meterTabType === METER_TAB_TYPES.reportingPeriod
 
@@ -135,7 +134,7 @@ export function useTableColumns <T> (
             width: isPropertyMeter ? '25%' : '20%',
             render: renderMeterRecord,
         },
-    ], [ContactMessage, MeterReadingDateMessage, MeterReadingMessage, SourceMessage, filterMetas, filters, intl, isPropertyMeter, search, sorterMap])
+    ], [ConsumptionMessage, ContactMessage, MeterReadingDateMessage, MeterReadingMessage, SourceMessage, filterMetas, filters, intl, isPropertyMeter, search, sorterMap])
 
     const meterAndMeterReadingColumns = useMemo(() => [
         {
@@ -252,7 +251,7 @@ export function useTableColumns <T> (
                 key: 'nextVerificationDate',
                 sorter: true,
                 width: '11%',
-                render: getVerificationDateRender(intl, isMeter, search),
+                render: getNextVerificationDateRender(intl, search),
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'nextVerificationDate'),
             },
             {

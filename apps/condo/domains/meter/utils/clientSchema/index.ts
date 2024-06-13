@@ -68,12 +68,12 @@ export const METER_TAB_TYPES: MeterPageTypesSwitch = {
     propertyMeterReading: 'property-meter-reading',
 }
 
-export type MeterReadingsTypes = 'meter-readings' | 'property-meter-readings'
-type MeterReadingsTypeSwitch = {
-    meterReadings: MeterReadingsTypes,
-    propertyMeterReadings: MeterReadingsTypes,
+export type MeterTypes = 'unit' | 'property'
+type MeterTypeSwitch = {
+    unit: MeterTypes,
+    property: MeterTypes,
 }
-export const METER_READINGS_TYPES: MeterReadingsTypeSwitch = {
-    meterReadings: 'meter-readings',
-    propertyMeterReadings: 'property-meter-readings',
+export const METER_TYPES: MeterTypeSwitch = {
+    unit: 'unit',
+    property: 'property',
 }

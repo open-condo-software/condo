@@ -111,18 +111,20 @@ export const CreateMeterForm = (props: CreateMeterProps): JSX.Element => {
                 {
                     ({ form, handleSave }) => (
                         <Row gutter={FORM_GUTTER}>
-                            <AddressAndUnitInfo 
-                                form={form}
-                                getHandleSelectPropertyAddress={getHandleSelectPropertyAddress}
-                                handleDeselectPropertyAddress={handleDeselectPropertyAddress}
-                                isMatchSelectedProperty={isMatchSelectedProperty}
-                                meterType={meterType}
-                                organizationId={organizationId}
-                                selectedPropertyId={selectedPropertyId}
-                                property={property}
-                                propertyLoading={propertyLoading}
-                                setSelectedUnitName={setSelectedUnitName}
-                            />
+                            <Col span={24}>
+                                <AddressAndUnitInfo 
+                                    form={form}
+                                    getHandleSelectPropertyAddress={getHandleSelectPropertyAddress}
+                                    handleDeselectPropertyAddress={handleDeselectPropertyAddress}
+                                    isMatchSelectedProperty={isMatchSelectedProperty}
+                                    meterType={meterType}
+                                    organizationId={organizationId}
+                                    selectedPropertyId={selectedPropertyId}
+                                    property={property}
+                                    propertyLoading={propertyLoading}
+                                    setSelectedUnitName={setSelectedUnitName}
+                                />
+                            </Col>
                             <Row gutter={FORM_GUTTER}>
                                 <Col span={24}>
                                     <BaseMetersFormFields

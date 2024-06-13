@@ -16,7 +16,6 @@ import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import { MultipleFilterContextProvider } from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
-import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { MeterReadPermissionRequired } from '@condo/domains/meter/components/PageAccess'
 import { MetersPageContent } from '@condo/domains/meter/components/TabContent/Meter'
@@ -27,7 +26,7 @@ import { PropertyMeterReadingsPageContent } from '@condo/domains/meter/component
 import { useMeterFilters } from '@condo/domains/meter/hooks/useMeterFilters'
 import { useMeterReadingFilters } from '@condo/domains/meter/hooks/useMeterReadingFilters'
 import { useTableColumns } from '@condo/domains/meter/hooks/useTableColumns'
-import { METER_TAB_TYPES, METER_READINGS_TYPES, MeterReadingsTypes } from '@condo/domains/meter/utils/clientSchema'
+import { METER_TAB_TYPES, METER_TYPES, MeterTypes } from '@condo/domains/meter/utils/clientSchema'
 
 
 interface IMeterIndexPage extends React.FC {
@@ -59,34 +58,48 @@ const HEADER_STYLES: CSSProperties = { padding: 0 }
 
 
 type MeterTypeSwitchProps = {
-    value: MeterReadingsTypes
-    setValue: React.Dispatch<React.SetStateAction<MeterReadingsTypes>>
+    defaultValue: MeterTypes
 }
 
-export const MeterTypeSwitch = ({ value, setValue }: MeterTypeSwitchProps): JSX.Element => {
+export const MeterTypeSwitch = ({ defaultValue }: MeterTypeSwitchProps): JSX.Element => {
     const intl = useIntl()
     const MeterReadingMessage = intl.formatMessage({ id: 'pages.condo.meter.index.MeterType.meterReading' })
     const HouseMeterReadingMessage = intl.formatMessage({ id: 'pages.condo.meter.index.MeterType.houseMeterReading' })
     const { logEvent } = useTracking()
 
+    const router = useRouter()
+    const type  = get(router.query, 'type', METER_TYPES.unit) as string
+
+    const isMetersSelected = type === METER_TYPES.unit
+    const isPropertyMetersSelected = !isMetersSelected && type === METER_TYPES.property
+
+    const [value, setValue] = useState<MeterTypes>(METER_TYPES.unit)
+    useEffect(() => {
+        if (isMetersSelected) {
+            setValue(METER_TYPES.unit)
+        } else if (isPropertyMetersSelected) {
+            setValue(METER_TYPES.property)
+        }
+    }, [isMetersSelected, isPropertyMetersSelected, setValue])
+
+
     const handleRadioChange = useCallback(async (event) => {
         const value = event.target.value
-
         setValue(value)
-        logEvent({ eventName: 'MeterTypeFilterTabChange', denyDuplicates: true, eventProperties: { tab: value } })
-
+        logEvent({ eventName: 'MeterTypeFilterTabChange', denyDuplicates: true, eventProperties: { type: value } })
+        router.replace({ query: { ...router.query, type: value } })
     }, [logEvent])
 
     return (
-        <RadioGroup optionType='button' value={value} onChange={handleRadioChange}>
+        <RadioGroup optionType='button' value={value} onChange={handleRadioChange} defaultValue={defaultValue}>
             <Radio
-                key={METER_READINGS_TYPES.meterReadings}
-                value={METER_READINGS_TYPES.meterReadings}
+                key={METER_TYPES.unit}
+                value={METER_TYPES.unit}
                 label={MeterReadingMessage}
             />
             <Radio
-                key={METER_READINGS_TYPES.propertyMeterReadings}
-                value={METER_READINGS_TYPES.propertyMeterReadings}
+                key={METER_TYPES.property}
+                value={METER_TYPES.property}
                 label={HouseMeterReadingMessage}
             />
         </RadioGroup>
@@ -108,41 +121,52 @@ const MetersPage: IMeterIndexPage = () => {
     const employeeId = get(link, 'id')
     const router = useRouter()
     const { breakpoints } = useLayoutContext()
-    const [chosenReadingsType, setChosenReadingsType] = useState<MeterReadingsTypes>(METER_READINGS_TYPES.meterReadings)
 
     const { GlobalHints } = useGlobalHints()
     usePreviousSortAndFilters({ paramNamesForPageChange: ['tab'], employeeSpecificKey: employeeId })
 
     const { tab } = parseQuery(router.query)
-    const tabAsMeterPageType = tab ? MeterPageTypeFromQuery(tab) : null
-    const activeTab = useMemo(() => AVAILABLE_TABS.includes(tabAsMeterPageType) ? tabAsMeterPageType : get(AVAILABLE_TABS, [0], ''),  [tabAsMeterPageType, AVAILABLE_TABS])
+    const type = get(router.query, 'type', METER_TYPES.unit) as string
 
-    const changeRouteToActiveTab = useCallback(async (activeTab: string, routerAction: 'replace' | 'push' = 'push') => {
-        await updateQuery(router, {
-            newParameters: {
-                tab: activeTab,
-            },
-        }, { routerAction, resetOldParameters: true })
+    const tabAsMeterPageType = tab ? MeterPageTypeFromQuery(tab) : null
+    
+    const activeTab = useMemo(() => AVAILABLE_TABS.includes(tabAsMeterPageType) ? tabAsMeterPageType : get(AVAILABLE_TABS, [0], ''),  [tabAsMeterPageType])
+    const activeType = useMemo(() => type ? type : METER_TYPES.unit,  [type])
+
+    const changeRouteToActiveTab = useCallback(async (activeTab: string) => {
+        router.replace({ query: { ...router.query, tab: activeTab } })
     }, [router])
+
+    const changeRouteToActiveType = useCallback(async (activeType: string) => {
+        router.replace({ query: { ...router.query, type: activeType } })
+    }, [router])
+
 
     useEffect(() => {
         if (!activeTab) return
         if (!tab || tab !== activeTab) {
-            changeRouteToActiveTab(activeTab, 'replace')
+            changeRouteToActiveTab(activeTab)
         }
     }, [activeTab, changeRouteToActiveTab, tab])
 
     useEffect(() => {
-        if (chosenReadingsType === METER_READINGS_TYPES.propertyMeterReadings && activeTab === METER_TAB_TYPES.reportingPeriod) {
-            changeRouteToActiveTab(METER_TAB_TYPES.meterReading, 'replace')
+        if (!activeType) return
+        if (!type || type !== activeType) {
+            changeRouteToActiveType(activeType)
         }
-    }, [activeTab, changeRouteToActiveTab, chosenReadingsType])
+    }, [activeType, changeRouteToActiveType, type])
+
+    useEffect(() => {
+        if (activeType === METER_TYPES.property && activeTab === METER_TAB_TYPES.reportingPeriod) {
+            changeRouteToActiveTab(METER_TAB_TYPES.meterReading)
+        }
+    }, [activeTab, activeType, changeRouteToActiveTab])
 
     const filtersForMetersMeta = useMeterFilters(tabAsMeterPageType)
-    const tableColumnsForMeters = useTableColumns(filtersForMetersMeta, tabAsMeterPageType, chosenReadingsType)
+    const tableColumnsForMeters = useTableColumns(filtersForMetersMeta, tabAsMeterPageType, type as MeterTypes)
 
     const filtersForMeterReadingsMeta = useMeterReadingFilters()
-    const tableColumnsForMeterReadings = useTableColumns(filtersForMeterReadingsMeta, tabAsMeterPageType, chosenReadingsType)
+    const tableColumnsForMeterReadings = useTableColumns(filtersForMeterReadingsMeta, tabAsMeterPageType, type as MeterTypes)
 
     const baseMetersQuery = useMemo(() => ({
         deletedAt: null,
@@ -154,6 +178,7 @@ const MetersPage: IMeterIndexPage = () => {
         organization: { id: userOrganizationId },
     }),
     [userOrganizationId])
+
     const handleTabChange = useCallback(async (activeTab) => {
         await changeRouteToActiveTab(activeTab)
     }, [changeRouteToActiveTab])
@@ -166,7 +191,7 @@ const MetersPage: IMeterIndexPage = () => {
             label: MeterReadingMessage,
             key: METER_TAB_TYPES.meterReading,
             children: (
-                chosenReadingsType === METER_READINGS_TYPES.meterReadings ?
+                type === METER_TYPES.unit ?
                     <MeterReadingsPageContent
                         filtersMeta={filtersForMeterReadingsMeta}
                         tableColumns={tableColumnsForMeterReadings}
@@ -187,7 +212,7 @@ const MetersPage: IMeterIndexPage = () => {
             label: MeterMessage,
             key: METER_TAB_TYPES.meter,
             children: (
-                chosenReadingsType === METER_READINGS_TYPES.meterReadings ?
+                type === METER_TYPES.unit ?
                     <MetersPageContent
                         filtersMeta={filtersForMetersMeta}
                         tableColumns={tableColumnsForMeters}
@@ -204,7 +229,7 @@ const MetersPage: IMeterIndexPage = () => {
                     />
             ),
         },
-        chosenReadingsType === METER_READINGS_TYPES.meterReadings && {
+        type === METER_TYPES.unit && {
             label: ReportingPeriodMessage,
             key: METER_TAB_TYPES.reportingPeriod,
             children: (
@@ -217,7 +242,7 @@ const MetersPage: IMeterIndexPage = () => {
                 />
             ),
         },
-    ].filter(Boolean), [MeterReadingMessage, chosenReadingsType, filtersForMeterReadingsMeta, tableColumnsForMeterReadings, isLoading, canManageMeterReadings, baseMeterReadingsQuery, MeterMessage, filtersForMetersMeta, tableColumnsForMeters, canManageMeters, baseMetersQuery, ReportingPeriodMessage, userOrganizationId])
+    ].filter(Boolean), [MeterReadingMessage, type, filtersForMeterReadingsMeta, tableColumnsForMeterReadings, isLoading, canManageMeterReadings, baseMeterReadingsQuery, MeterMessage, filtersForMetersMeta, tableColumnsForMeters, canManageMeters, baseMetersQuery, ReportingPeriodMessage, userOrganizationId])
 
     return (
         <MultipleFilterContextProvider>
@@ -232,7 +257,7 @@ const MetersPage: IMeterIndexPage = () => {
                             <PageHeader title={<Typography.Title>{PageTitleMessage}</Typography.Title>} style={HEADER_STYLES}/>
                         </Col>
                         <Col>
-                            <MeterTypeSwitch value={chosenReadingsType} setValue={setChosenReadingsType} />
+                            <MeterTypeSwitch defaultValue={METER_TYPES.unit}/>
                         </Col>
                     </Row>
                     <Tabs
