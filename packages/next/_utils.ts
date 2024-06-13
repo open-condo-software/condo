@@ -1,7 +1,7 @@
 import App from 'next/app'
 
 const errors = {}
-const DEBUG_RERENDERS = false
+const DEBUG_RERENDERS = true
 const DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER = false
 
 function preventInfinityLoop (ctx) {

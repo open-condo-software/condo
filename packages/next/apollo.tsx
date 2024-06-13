@@ -108,6 +108,10 @@ let createApolloClient: CreateApolloClient = (initialState, ctx, apolloCacheConf
         ? ApolloLink.split(operation => hasFiles(get(operation, 'variables', {})), uploadLink, batchLink)
         : uploadLink
 
+    console.log('createApolloClient:::', {
+        initialState,
+    })
+
     // The `ctx` (NextPageContext) will only be present on the server.
     // use it to extract auth headers (ctx.req) or similar.
     return new ApolloClient({
@@ -205,6 +209,11 @@ const withApollo: WillApollo = ({ ssr = false, ...opts } = {}) => PageComponent 
     const WithApollo = ({ apolloClient, apolloState, ...pageProps }) => {
         if (DEBUG_RERENDERS) console.log('WithApollo()', apolloState)
         let client
+        console.log('WithApollo:::', {
+            apolloClient,
+            opts,
+            apolloState,
+        })
         if (apolloClient) {
             // Happens on: getDataFromTree && next.js ssr
             client = apolloClient

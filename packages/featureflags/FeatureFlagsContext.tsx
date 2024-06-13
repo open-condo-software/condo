@@ -39,8 +39,12 @@ const FeatureFlagsProviderWrapper = ({ children }) => {
 
     console.log('FeatureFlagsProviderWrapper:::', {
         firstFetchIsLoading: fetchIsLoading,
-        user, userIsLoading,
-        organization, organizationIsLoading,
+        user,
+        userIsLoading,
+        organization,
+        organizationIsLoading,
+        features: growthbook.getFeatures(),
+        isReady: growthbook.ready,
     })
 
     const {
