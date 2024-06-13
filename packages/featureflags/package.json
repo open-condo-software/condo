@@ -2,8 +2,8 @@
   "name": "@open-condo/featureflags",
   "version": "1.0.0",
   "dependencies": {
-    "@growthbook/growthbook": "^0.18.1",
-    "@growthbook/growthbook-react": "^0.9.1",
+    "@growthbook/growthbook": "^1.0.1",
+    "@growthbook/growthbook-react": "^1.0.1",
     "@open-condo/config": "workspace:^",
     "@open-condo/keystone": "workspace:^",
     "express": "^4.17.1"

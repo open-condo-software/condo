@@ -1,4 +1,4 @@
-import { GrowthBook, GrowthBookProvider, useGrowthBook } from '@growthbook/growthbook-react'
+import { GrowthBook, GrowthBookProvider, useGrowthBook, FeaturesReady } from '@growthbook/growthbook-react'
 import get from 'lodash/get'
 import isEqual from 'lodash/isEqual'
 import getConfig from 'next/config'
@@ -13,8 +13,8 @@ const FEATURES_RE_FETCH_INTERVAL = 10 * 1000
 type UseFlagValueType = <T>(name: string) => T | null
 
 interface IFeatureFlagsContext {
-    useFlag: (name: string) => boolean,
-    useFlagValue: UseFlagValueType,
+    useFlag: (name: string) => boolean
+    useFlagValue: UseFlagValueType
     updateContext: (context) => void
 }
 
@@ -65,11 +65,16 @@ const FeatureFlagsProviderWrapper = ({ children }) => {
                     .then((features) => {
                         const prev = growthbook.getFeatures()
                         if (!isEqual(prev, features)) {
-                            growthbook.setFeatures(features)
+                            growthbook.setPayload({ features })
                         }
                     })
                     .catch(e => console.error(e))
                     .finally(() => {
+                        if (!growthbook.ready) {
+                            // NOTE: we need to update features so that growthbook is ready to work
+                            const prev = growthbook.getFeatures()
+                            growthbook.setPayload({ features: prev })
+                        }
                         setFetchIsLoading(false)
                     })
             }
@@ -108,4 +113,4 @@ const FeatureFlagsProvider: React.FC = ({ children }) => {
     )
 }
 
-export { useFeatureFlags, FeatureFlagsProvider }
+export { useFeatureFlags, FeatureFlagsProvider, FeaturesReady }
