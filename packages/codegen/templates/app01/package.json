@@ -5,10 +5,8 @@
   "scripts": {
     "test": "jest",
     "prepare": "node ./bin/prepare.js",
-    "dev": "yarn build:deps && yarn dev:start",
-    "dev:start": "node --trace-warnings ./../../bin/run-keystone-app.js",
+    "dev": "node --trace-warnings ./../../bin/run-keystone-app.js",
     "debug": "node inspect node_modules/.bin/keystone dev",
-    "build:deps": "turbo build --filter={{name}}^... --filter=!condo",
     "build": "keystone build",
     "start": "NODE_ENV=production node ./../../bin/run-keystone-app.js",
     "worker": "cross-env PHASE=worker node worker.js",
@@ -17,8 +15,8 @@
     "migrate": "./../../bin/kmigrator.py migrate",
     "migrate:down": "./../../bin/kmigrator.py down",
     "migrate:unlock": "./../../bin/kmigrator.py unlock",
-    "maketypes:{{name}}": "mkdir -p dist/admin && NODE_ENV=test node ./../../bin/create-graphql-schema.js StitchSchemaMiddleware && graphql-codegen -c codegen.yaml",
-    "maketypes:condo": "node ./bin/generate-condo-schema.js && graphql-codegen -c condoCodegen.yaml",
+    "maketypes:{{name}}": "mkdir -p dist/admin && NODE_ENV=test node ./../../bin/create-graphql-schema.js --no-codegen StitchSchemaMiddleware",
+    "maketypes:condo": "node ./bin/generate-condo-schema.js --no-codegen",
     "maketypes": "yarn maketypes:{{name}} && yarn maketypes:condo",
     "createschema": "./../../bin/createschema",
     "createservice": "node ./../../bin/createservice"

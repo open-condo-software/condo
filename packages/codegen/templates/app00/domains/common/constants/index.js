@@ -10,12 +10,9 @@ const LOCALES = [
     RU_LOCALE,
 ]
 
-const MAX_CONTENT_WIDTH = 1600
-
 module.exports = {
     DEFAULT_LOCALE,
     LOCALES,
     EN_LOCALE,
     RU_LOCALE,
-    MAX_CONTENT_WIDTH
 }

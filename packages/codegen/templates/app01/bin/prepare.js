@@ -6,6 +6,11 @@ const main = async ([B2BAppName = '{{name}}']) => {
     const appName = '{{name}}'
     const oidcConf = await prepareCondoAppOidcConfig(appName)
     await updateAppEnvFile(appName, 'OIDC_CONDO_CLIENT_CONFIG', JSON.stringify(oidcConf))
+    await updateAppEnvFile(appName, 'APP_TOKEN_KEY', 'appToken')
+    await updateAppEnvFile(appName, 'CONDO_ACCESS_TOKEN_KEY', 'condoAccessToken')
+    await updateAppEnvFile(appName, 'CONDO_REFRESH_TOKEN_KEY', 'condoRefreshToken')
+    await updateAppEnvFile(appName, 'CONDO_ORGANIZATION_ID_KEY', 'condoOrganizationId')
+    await updateAppEnvFile(appName, 'ACCEPT_LANGUAGE', 'accept-language')
     // 2) prepare B2BApp in condo
     await prepareCondoAppB2BAppConfig(appName, B2BAppName)
     // 3) migrate initial data and maketypes

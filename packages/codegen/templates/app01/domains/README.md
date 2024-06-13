@@ -12,9 +12,8 @@ a site with one domain model.
 
 The same domain structure have:
  - `./<domain>/access` -- each domain have own file (server)
- - `./<domain>/constants` -- each domain have own file (client/server)
+ - `./<domain>/constants` -- each domain have own file (server)
  - `./<domain>/components` -- each domain have own folder (client)
- - `./<domain>/gql` -- each domain have own file (client/server)
- - `./<domain>/utils/clientSchema` -- each domain have own folder (client)
+ - `./<domain>/gql` -- each domain have own file (server)
  - `./<domain>/utils/serverSchema` -- each domain have own file or if its complex a folder (server)
  - `./<domain>/utils/testSchema` -- each domain have own file (server schema tests)

@@ -5,13 +5,14 @@ const { GQLError } = require('@open-condo/keystone/errors')
 const { makeRemoteExecutor } = require('@open-condo/keystone/stitchSchema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 
-const { DEFAULT_LOCALE } = require('@{{name}}/domains/common/constants')
-const { CONDO_ACCESS_TOKEN_KEY, ACCEPT_LANGUAGE, CONDO_REFRESH_TOKEN_KEY } = require('@{{name}}/domains/condo/constants')
-
 
 const IS_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
 
 const CONDO_API_URL = `${conf.CONDO_DOMAIN}/admin/api`
+const DEFAULT_LOCALE = conf.DEFAULT_LOCALE
+const CONDO_ACCESS_TOKEN_KEY = conf.CONDO_ACCESS_TOKEN_KEY
+const ACCEPT_LANGUAGE = conf.ACCEPT_LANGUAGE
+const CONDO_REFRESH_TOKEN_KEY = conf.CONDO_REFRESH_TOKEN_KEY
 
 const client = makeRemoteExecutor(CONDO_API_URL, CONDO_ACCESS_TOKEN_KEY)
 
