@@ -2,7 +2,7 @@ const { GrowthBook } = require('@growthbook/growthbook')
 const { get } = require('lodash')
 
 const conf = require('@open-condo/config')
-const fetch = require('@open-condo/keystone/fetch')
+const { fetch } = require('@open-condo/keystone/fetch')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getRedisClient } = require('@open-condo/keystone/redis')
 const { getFeatureFlag } = require('@open-condo/keystone/test.utils')
