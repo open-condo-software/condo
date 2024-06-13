@@ -249,7 +249,19 @@ const withApollo: WillApollo = ({ ssr = false, ...opts } = {}) => PageComponent 
                 const { AppTree } = ctx
                 // When redirecting, the response is finished.
                 // No point in continuing to render
+                console.log('WithApollo.getInitialProps:isOnServerSide::', {
+                    isOnServerSide,
+                    'ctx.res': ctx.res,
+                    'ctx.res.finished': ctx.res.finished,
+                    pageProps,
+                })
                 if (ctx.res && ctx.res.finished) {
+                    console.log('WithApollo.getInitialProps:isOnServerSide:early-return:', {
+                        isOnServerSide,
+                        'ctx.res': ctx.res,
+                        'ctx.res.finished': ctx.res.finished,
+                        pageProps,
+                    })
                     return pageProps
                 }
 
@@ -290,6 +302,12 @@ const withApollo: WillApollo = ({ ssr = false, ...opts } = {}) => PageComponent 
 
                 preventInfinityLoop(ctx)
             }
+            
+            console.log('WithApollo.getInitialProps:end::', {
+                ...pageProps,
+                isOnServerSide,
+                apolloState: apolloClient.cache.extract(),
+            })
 
             return {
                 ...pageProps,
