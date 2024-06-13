@@ -10288,21 +10288,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@growthbook/growthbook-react@npm:^0.9.1":
-  version: 0.9.1
-  resolution: "@growthbook/growthbook-react@npm:0.9.1"
+"@growthbook/growthbook-react@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "@growthbook/growthbook-react@npm:1.0.1"
   dependencies:
-    "@growthbook/growthbook": ^0.18.1
+    "@growthbook/growthbook": ^1.0.1
   peerDependencies:
     react: ^16.8.0-0 || ^17.0.0-0 || ^18.0.0-0
-  checksum: 587b0536d9f0f9180798ff7221a4fed61696e77a3d3e5a782afd46cf0ac01f5519145985fe7bf62ab602eea9f899c1165af885ddabb0f7a8a3e48ac3d4abd6b3
+  checksum: d13182390f1561e0f464f25205d08ab4e872a29c070bf5541fdab0383e294dd1f62996fa414356cdf0317e4a72415817b203d805b7ea1ef4c2ba7d880ff0edba
   languageName: node
   linkType: hard
 
-"@growthbook/growthbook@npm:^0.18.1":
-  version: 0.18.1
-  resolution: "@growthbook/growthbook@npm:0.18.1"
-  checksum: 202347550562487b47044f406415f26976ec1fabd0504658f84c6520d834ec8addf57be1ba5e73e4715d02da4c11f41649edbb6ad49b5d2b24ec46a497c5617f
+"@growthbook/growthbook@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "@growthbook/growthbook@npm:1.0.1"
+  dependencies:
+    dom-mutator: ^0.6.0
+  checksum: 385a6c0a480e1a217cc8000147637eacde1ec04c20b424fb6ac59b1102b28ee5be89e86b2bff4227cfc46993b1870a654cd1216fc4833954135be14f8e6fd1a4
   languageName: node
   linkType: hard
 
@@ -12410,12 +12412,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@open-condo/featureflags@workspace:packages/featureflags"
   dependencies:
-    "@growthbook/growthbook": ^0.18.1
-    "@growthbook/growthbook-react": ^0.9.1
+    "@growthbook/growthbook": ^1.0.1
+    "@growthbook/growthbook-react": ^1.0.1
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     express: ^4.17.1
-    node-fetch: ^2.6.7
   peerDependencies:
     next: ">=9.5.5"
     react: ">=16.13.1"
@@ -25250,6 +25251,13 @@ __metadata:
     "@babel/runtime": ^7.8.7
     csstype: ^3.0.2
   checksum: 863ba9e086f7093df3376b43e74ce4422571d404fc9828bf2c56140963d5edf0e56160f9b2f3bb61b282c07f8fc8134f023c98fd684bddcb12daf7b0f14d951c
+  languageName: node
+  linkType: hard
+
+"dom-mutator@npm:^0.6.0":
+  version: 0.6.0
+  resolution: "dom-mutator@npm:0.6.0"
+  checksum: f6b32500d9d71f379940022057434db38fd404036968fdbf0d547b31a819c0ad2160edbf67f72e00b8ec7787b5ca04f19d5082fbf33f3644642b16f21e04cbf1
   languageName: node
   linkType: hard
 
