@@ -252,7 +252,7 @@ const withApollo: WillApollo = ({ ssr = false, ...opts } = {}) => PageComponent 
                 console.log('WithApollo.getInitialProps:isOnServerSide::', {
                     isOnServerSide,
                     'ctx.res': ctx.res,
-                    'ctx.res.finished': ctx.res.finished,
+                    'ctx.res.finished': ctx.res?.finished,
                     pageProps,
                 })
                 if (ctx.res && ctx.res.finished) {
