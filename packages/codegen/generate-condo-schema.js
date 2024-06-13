@@ -1,3 +1,5 @@
+//TODO(DOMA-9259): use this generateCondoSchema in all existed miniapps
+
 const fs = require('fs')
 
 const { GraphQLFileLoader } = require('@graphql-tools/graphql-file-loader')

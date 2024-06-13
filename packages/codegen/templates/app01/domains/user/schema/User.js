@@ -6,7 +6,6 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@{{name}}/domains/user/access/User')
-const { Select } = require('@keystonejs/fields')
 const { USER_TYPES, SERVICE_USER_TYPE } = require('@{{name}}/domains/user/constants')
 const { userIsAdmin, userIsAdminOrIsThisItem } = require('@open-condo/keystone/access')
 
@@ -16,8 +15,7 @@ const User = new GQLListSchema('User', {
     fields: {
         type: {
             schemaDoc: 'condo.User.type',
-            type: Select,
-            dataType: 'enum',
+            type: 'Select',
             options: USER_TYPES,
             defaultValue: SERVICE_USER_TYPE,
             isRequired: true,
