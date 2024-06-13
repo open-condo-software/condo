@@ -186,7 +186,7 @@ export function useTableColumns <T> (
             render: getResourceRender(intl, isMeter, search),
             filterIcon: getFilterIcon,
         },
-        {
+        isPropertyMeter && !isMeter ? undefined : {
             title: PlaceMessage,
             filteredValue: getFilteredValue(filters, 'place'),
             dataIndex: isMeter ? 'place' : ['meter', 'place'],

@@ -163,10 +163,10 @@ const MetersPage: IMeterIndexPage = () => {
     }, [activeTab, activeType, changeRouteToActiveTab])
 
     const filtersForMetersMeta = useMeterFilters(tabAsMeterPageType)
-    const tableColumnsForMeters = useTableColumns(filtersForMetersMeta, tabAsMeterPageType, type as MeterTypes)
+    const tableColumnsForMeters = useTableColumns(filtersForMetersMeta, tabAsMeterPageType, activeType as MeterTypes)
 
     const filtersForMeterReadingsMeta = useMeterReadingFilters()
-    const tableColumnsForMeterReadings = useTableColumns(filtersForMeterReadingsMeta, tabAsMeterPageType, type as MeterTypes)
+    const tableColumnsForMeterReadings = useTableColumns(filtersForMeterReadingsMeta, tabAsMeterPageType, activeType as MeterTypes)
 
     const baseMetersQuery = useMemo(() => ({
         deletedAt: null,
@@ -191,7 +191,7 @@ const MetersPage: IMeterIndexPage = () => {
             label: MeterReadingMessage,
             key: METER_TAB_TYPES.meterReading,
             children: (
-                type === METER_TYPES.unit ?
+                activeType === METER_TYPES.unit ?
                     <MeterReadingsPageContent
                         filtersMeta={filtersForMeterReadingsMeta}
                         tableColumns={tableColumnsForMeterReadings}
@@ -212,7 +212,7 @@ const MetersPage: IMeterIndexPage = () => {
             label: MeterMessage,
             key: METER_TAB_TYPES.meter,
             children: (
-                type === METER_TYPES.unit ?
+                activeType === METER_TYPES.unit ?
                     <MetersPageContent
                         filtersMeta={filtersForMetersMeta}
                         tableColumns={tableColumnsForMeters}
@@ -229,7 +229,7 @@ const MetersPage: IMeterIndexPage = () => {
                     />
             ),
         },
-        type === METER_TYPES.unit && {
+        activeType === METER_TYPES.unit && {
             label: ReportingPeriodMessage,
             key: METER_TAB_TYPES.reportingPeriod,
             children: (

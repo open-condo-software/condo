@@ -10,9 +10,8 @@ import { TableRowSelection } from 'antd/lib/table/interface'
 import dayjs, { Dayjs } from 'dayjs'
 import chunk from 'lodash/chunk'
 import get from 'lodash/get'
-import isString from 'lodash/isString'
 import uniqBy from 'lodash/uniqBy'
-import { NextRouter, useRouter } from 'next/router'
+import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { PlusCircle, Search } from '@open-condo/icons'
@@ -46,6 +45,7 @@ import {
     MeterReadingFilterTemplate,
     METER_TAB_TYPES,
 } from '@condo/domains/meter/utils/clientSchema'
+import { getInitialSelectedReadingKeys } from '@condo/domains/meter/utils/helpers'
 
 
 
@@ -70,17 +70,6 @@ type MetersTableContentProps = {
     loading?: boolean
 }
 
-const getInitialSelectedReadingKeys = (router: NextRouter) => {
-    if ('selectedReadingIds' in router.query && isString(router.query.selectedReadingIds)) {
-        try {
-            return JSON.parse(router.query.selectedReadingIds as string)
-        } catch (error) {
-            console.warn('Failed to parse property value "selectedReadingIds"', error)
-            return []
-        }
-    }
-    return []
-}
 
 const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
     filtersMeta,
@@ -337,7 +326,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
                         </Col>
                     )
                 }
-                { selectedReadingKeys.length < 1 && !meter && (
+                {selectedReadingKeys.length < 1 && !meter && (
                     <Col span={24}>
                         <ExportToExcelActionBar
                             searchObjectsQuery={searchMeterReadingsQuery}

@@ -3,6 +3,7 @@ import { isUndefined } from 'lodash'
 import isEmpty from 'lodash/isEmpty'
 import isNumber from 'lodash/isNumber'
 import isString from 'lodash/isString'
+import { NextRouter } from 'next/router'
 
 
 export const validateMeterValue = (value: string | null | undefined): boolean => {
@@ -36,3 +37,14 @@ export const getMeterTitleMessage = (intl, meter) => {
     return `${intl.formatMessage({ id: 'pages.condo.meter.id.PageTitle' })} № ${meter.number}`
 }
 
+export const getInitialSelectedReadingKeys = (router: NextRouter) => {
+    if ('selectedReadingIds' in router.query && isString(router.query.selectedReadingIds)) {
+        try {
+            return JSON.parse(router.query.selectedReadingIds as string)
+        } catch (error) {
+            console.warn('Failed to parse property value "selectedReadingIds"', error)
+            return []
+        }
+    }
+    return []
+}

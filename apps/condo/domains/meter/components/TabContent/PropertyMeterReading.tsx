@@ -4,25 +4,32 @@ import {
     PropertyMeter,
     PropertyMeterReadingWhereInput,
     SortPropertyMeterReadingsBy,
+    PropertyMeterReading as PropertyMeterReadingType,
 } from '@app/condo/schema'
 import { Col, Row, RowProps } from 'antd'
+import { CheckboxChangeEvent } from 'antd/lib/checkbox'
 import { ColumnsType } from 'antd/lib/table'
+import { TableRowSelection } from 'antd/lib/table/interface'
+import chunk from 'lodash/chunk'
 import get from 'lodash/get'
+import uniqBy from 'lodash/uniqBy'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { PlusCircle, Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Button } from '@open-condo/ui'
+import { ActionBar, Button, Checkbox } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
+import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
 import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
+import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { useMultipleFiltersModal } from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
@@ -36,6 +43,7 @@ import {
     PropertyMeterReading,
     METER_TAB_TYPES, MeterReadingFilterTemplate,
 } from '@condo/domains/meter/utils/clientSchema'
+import { getInitialSelectedReadingKeys } from '@condo/domains/meter/utils/helpers'
 
 
 
@@ -73,12 +81,19 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
     const intl = useIntl()
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const CreateMeterReadingsButtonLabel = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterReadingsButtonLabel' })
+    const CancelSelectedReadingsMessage = intl.formatMessage({ id: 'global.cancelSelection' })
+    const CountSelectedReadingsMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterReading.CountSelectedReadings' })
+    const DeleteMeterReadingsMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterReading.DeleteMeterReadings' })
+    const DeleteMeterReadingsMessageWarn = intl.formatMessage({ id: 'pages.condo.meter.MeterReading.DeleteMeterReadings.Warn' })
+    const DeleteMessage = intl.formatMessage({ id: 'Delete' })
+    const DontDeleteMessage = intl.formatMessage({ id: 'DontDelete' })
 
     const router = useRouter()
     const { filters, offset, sorters, tab } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
 
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filtersMeta, sortableProperties || SORTABLE_PROPERTIES)
+    const { getTrackingWrappedCallback } = useTracking()
 
     const sortBy = useMemo(() => sortersToSortBy(sorters) as SortPropertyMeterReadingsBy[], [sorters, sortersToSortBy])
 
@@ -93,7 +108,7 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
     const {
         loading: metersLoading,
         count: total,
-        objs: PropertyMeterReadings,
+        objs: propertyMeterReadings,
         refetch,
     } = PropertyMeterReading.useObjects({
         sortBy,
@@ -105,12 +120,86 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
     })
 
     const [search, handleSearchChange, handleSearchReset] = useSearch()
+    const [selectedReadingKeys, setSelectedReadingKeys] = useState<string[]>(() => getInitialSelectedReadingKeys(router))
     const { MultipleFiltersModal, ResetFiltersModalButton, OpenFiltersButton, appliedFiltersCount } = useMultipleFiltersModal({
         filterMetas: filtersMeta,
         filtersSchemaGql: MeterReadingFilterTemplate,
         onReset: handleSearchReset,
         extraQueryParameters: { tab },
     })
+    const updateSelectedReadingKeys = useCallback((selectedReadingKeys: string[]) => {
+        setSelectedReadingKeys(selectedReadingKeys)
+    }, [])
+
+    const processedMeterReadings = useMemo(() => {
+        const filteredMeterReading = propertyMeterReadings.map(a => a).sort((a, b) => (a.date < b.date ? 1 : -1))
+        return uniqBy(filteredMeterReading, (reading => get(reading, 'meter.id')))
+    }, [propertyMeterReadings])
+
+    const readingsToFilter = meter ? propertyMeterReadings : processedMeterReadings
+
+    const selectedRowKeysByPage = useMemo(() => {
+        return readingsToFilter.filter(reading => selectedReadingKeys.includes(reading.id)).map(reading => reading.id)
+    }, [readingsToFilter, selectedReadingKeys])
+
+    const isSelectedAllRowsByPage = !metersLoading && selectedRowKeysByPage.length > 0 && selectedRowKeysByPage.length === readingsToFilter.length
+    const isSelectedSomeRowsByPage = !metersLoading && selectedRowKeysByPage.length > 0 && selectedRowKeysByPage.length < readingsToFilter.length
+
+    const handleResetSelectedReadings = useCallback(() => {
+        setSelectedReadingKeys([])
+    }, [])
+
+    const softDeleteMeterReadings = PropertyMeterReading.useSoftDeleteMany(async () => {
+        setSelectedReadingKeys([])
+        refetch()
+    })
+
+    const handleDeleteButtonClick = useCallback(async () => {
+        if (selectedReadingKeys.length) {
+            const itemsToDeleteByChunks = chunk(selectedReadingKeys.map((key) => ({ id: key })), 30)
+            for (const itemsToDelete of itemsToDeleteByChunks) {
+                await softDeleteMeterReadings(itemsToDelete)
+            }
+        }
+    }, [softDeleteMeterReadings, selectedReadingKeys])
+
+    const handleSelectAllRowsByPage = useCallback((e: CheckboxChangeEvent) => {
+        const checked = e.target.checked
+        if (checked) {
+            const newSelectedReadingKeys = readingsToFilter
+                .filter(reading => !selectedRowKeysByPage.includes(reading.id))
+                .map(reading => reading.id)
+            updateSelectedReadingKeys([...selectedReadingKeys, ...newSelectedReadingKeys])
+        } else {
+            updateSelectedReadingKeys(selectedReadingKeys.filter(key => !selectedRowKeysByPage.includes(key)))
+        }
+    }, [readingsToFilter, updateSelectedReadingKeys, selectedReadingKeys, selectedRowKeysByPage])
+
+    const handleSelectRow: (record: PropertyMeterReadingType, checked: boolean) => void = useCallback((record, checked) => {
+        const selectedKey = record.id
+        if (checked) {
+            updateSelectedReadingKeys([...selectedReadingKeys, selectedKey])
+        } else {
+            updateSelectedReadingKeys(selectedReadingKeys.filter(key => selectedKey !== key))
+        }
+    }, [selectedReadingKeys, updateSelectedReadingKeys])
+
+    const handleSelectRowWithTracking = useMemo(
+        () => getTrackingWrappedCallback('MeterReadingTableCheckboxSelectRow', null, handleSelectRow),
+        [getTrackingWrappedCallback, handleSelectRow])
+
+    const rowSelection: TableRowSelection<PropertyMeterReadingType> = useMemo(() => ({
+        selectedRowKeys: selectedRowKeysByPage,
+        fixed: true,
+        onSelect: handleSelectRowWithTracking,
+        columnTitle: (
+            <Checkbox
+                checked={isSelectedAllRowsByPage}
+                indeterminate={isSelectedSomeRowsByPage}
+                onChange={handleSelectAllRowsByPage}
+            />
+        ),
+    }), [handleSelectAllRowsByPage, handleSelectRowWithTracking, isSelectedAllRowsByPage, isSelectedSomeRowsByPage, selectedRowKeysByPage])
 
     const handleUpdateMeterReading = useCallback((record) => { 
         return {
@@ -162,13 +251,47 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
                     <Table
                         totalRows={total}
                         loading={metersLoading || loading}
-                        dataSource={PropertyMeterReadings}
+                        dataSource={meter ? propertyMeterReadings : processedMeterReadings}
+                        rowSelection={rowSelection}
                         columns={tableColumns}
                         onRow={meter && handleUpdateMeterReading}
                     />
                 </Col>
+                {
+                    !loading && total > 0 && (
+                        <Col span={24}>
+                            <ActionBar
+                                message={selectedReadingKeys.length > 0 && `${CountSelectedReadingsMessage}: ${selectedReadingKeys.length}`}
+                                actions={[
+                                    selectedReadingKeys.length > 0 && (
+                                        <>
+                                            <DeleteButtonWithConfirmModal
+                                                key='deleteSelectedReadings'
+                                                title={DeleteMeterReadingsMessage}
+                                                message={DeleteMeterReadingsMessageWarn}
+                                                okButtonLabel={DeleteMessage}
+                                                action={handleDeleteButtonClick}
+                                                buttonContent={DeleteMessage}
+                                                cancelMessage={DontDeleteMessage}
+                                                showCancelButton
+                                                cancelButtonType='primary'
+                                            />
+                                            <Button
+                                                key='cancelReadingSelection'
+                                                type='secondary'
+                                                children={CancelSelectedReadingsMessage}
+                                                onClick={handleResetSelectedReadings}
+                                            />
+                                        </>
+
+                                    ),
+                                ]}
+                            />
+                        </Col>
+                    )
+                }
                 <Col span={24}>
-                    {!meter && (
+                    {!meter && selectedReadingKeys.length < 1  && (
                         <ExportToExcelActionBar
                             searchObjectsQuery={searchMeterReadingsQuery}
                             exportToExcelQuery={EXPORT_PROPERTY_METER_READINGS_QUERY}
