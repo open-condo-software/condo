@@ -1,5 +1,6 @@
 const dayjs = require('dayjs')
 const get = require('lodash/get')
+const LRUCache = require('lru-cache')
 const { v4: uuid } = require('uuid')
 
 const conf = require('@open-condo/config')
@@ -26,6 +27,11 @@ const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'sendDailyStatisticsTas
 const COMPACT_SCOPES_SIZE = 2
 const EMPTY_LINE = '—'
 
+
+const CACHE = new LRUCache({
+    max: 100,
+    maxAge: 1000 * 60 * 30, // 30 minutes is ms
+})
 
 class UserDailyStatistics {
     /** @type {string} */
@@ -94,7 +100,7 @@ class UserDailyStatistics {
 
             const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(this.#context, SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, { organization: organizationId })
             if (!isFeatureEnabled) {
-                logger.info({
+                this.#logger && this.#logger.info({
                     msg: `sendDailyStatistics disabled for organization ${organizationId}`,
                     taskId: this.#taskId,
                     data: { organizationId, userId: this.#userId, currentDate: this.#currentDate },
@@ -138,7 +144,14 @@ class UserDailyStatistics {
      * @return {Promise<OrganizationData>}
      */
     async #getOrganizationData (organizationId) {
-        // TODO(DOMA-9177): add cache
+        if (CACHE.has(organizationId)) {
+            this.#logger && this.#logger.info({
+                msg: `Data for organization "${organizationId}" was taken from the cache`,
+                taskId: this.#taskId,
+                data: { organizationId, userId: this.#userId, currentDate: this.#currentDate },
+            })
+            return CACHE.peek(organizationId)
+        }
 
         const organization = await getByCondition('Organization', {
             id: organizationId,
@@ -158,7 +171,7 @@ class UserDailyStatistics {
         } = await this.#getTicketsData(organizationId)
         const { water } = await this.#getIncidentsData(organizationId)
 
-        return {
+        const result = {
             organization,
             tickets: {
                 inProgress,
@@ -171,6 +184,10 @@ class UserDailyStatistics {
                 water,
             },
         }
+
+        CACHE.set(organizationId, result)
+
+        return result
     }
 
     /**

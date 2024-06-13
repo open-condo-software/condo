@@ -533,7 +533,7 @@ describe('sendDailyStatistics', () => {
     })
 
     describe('task should correct work', () => {
-        test('should send message to user and message should have meta with statistics data', async () => {
+        test('should send only one message to user and message should have meta with statistics data', async () => {
             const administratorClient = await makeClientWithProperty()
 
             const [inProgress] = await createTestTicket(administratorClient, administratorClient.organization, administratorClient.property, {
@@ -586,13 +586,12 @@ describe('sendDailyStatistics', () => {
             const currentDate = dayjs().toISOString()
             const { keystone: context } = getSchemaCtx('User')
             await sendDailyMessageToUserSafely(context, { ...administratorClient.user, email: administratorClient.userAttrs.email }, currentDate)
+            await sendDailyMessageToUserSafely(context, { ...administratorClient.user, email: administratorClient.userAttrs.email }, currentDate)
 
             const message = await Message.getOne(admin, {
                 uniqKey: `send_daily_statistics_${administratorClient.user.id}_${dayjs(currentDate).format('DD-MM-YYYY')}`,
             })
 
-
-            console.log('123123123123', administratorClient.property.address)
             const getDate = (incident) => {
                 const EMPTY_LINE = '—'
                 const dateStart = dayjs(incident.workStart).format('DD-MM-YYYY')
