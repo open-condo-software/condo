@@ -11,7 +11,7 @@ import { useRouter } from 'next/router'
 import React, { useMemo } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
-import { FeatureFlagsProvider, useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
+import { FeatureFlagsProvider, useFeatureFlags, FeaturesReady } from '@open-condo/featureflags/FeatureFlagsContext'
 import * as AllIcons from '@open-condo/icons'
 import { extractReqLocale } from '@open-condo/locales/extractReqLocale'
 import { withApollo, WithApolloProps } from '@open-condo/next/apollo'
@@ -28,6 +28,7 @@ import { hasFeature } from '@condo/domains/common/components/containers/FeatureF
 import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
 import YandexMetrika from '@condo/domains/common/components/containers/YandexMetrika'
 import { LayoutContextProvider } from '@condo/domains/common/components/LayoutContext'
+import { Loader } from '@condo/domains/common/components/Loader'
 import { MenuItem } from '@condo/domains/common/components/MenuItem'
 import PopupSmart from '@condo/domains/common/components/PopupSmart'
 import { PostMessageProvider } from '@condo/domains/common/components/PostMessageProvider'
@@ -463,12 +464,14 @@ const MyApp = ({ Component, pageProps }) => {
                                                             <ConnectedAppsWithIconsContextProvider>
                                                                 <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
                                                                     <RequiredAccess>
-                                                                        <Component {...pageProps} />
-                                                                        {
-                                                                            isEndTrialSubscriptionReminderPopupVisible && (
-                                                                                <EndTrialSubscriptionReminderPopup/>
-                                                                            )
-                                                                        }
+                                                                        <FeaturesReady fallback={<Loader fill size='large'/>}>
+                                                                            <Component {...pageProps} />
+                                                                            {
+                                                                                isEndTrialSubscriptionReminderPopupVisible && (
+                                                                                    <EndTrialSubscriptionReminderPopup/>
+                                                                                )
+                                                                            }
+                                                                        </FeaturesReady>
                                                                     </RequiredAccess>
                                                                 </LayoutComponent>
                                                             </ConnectedAppsWithIconsContextProvider>
