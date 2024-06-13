@@ -7,6 +7,7 @@ const dayjs = require('dayjs')
 
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { setFakeClientMode, setFeatureFlag, makeLoggedInAdminClient, waitFor } = require('@open-condo/keystone/test.utils')
+const { i18n } = require('@open-condo/locales/loader')
 
 const { SEND_DAILY_STATISTICS_TASK, SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED } = require('@condo/domains/common/constants/featureflags')
 const { SEND_DAILY_STATISTICS_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
@@ -618,7 +619,7 @@ describe('sendDailyStatistics', () => {
                             withoutEmployee: `1 (${administratorClient.organization.name} - 1)`,
                         },
                         incidents: {
-                            water: `${getDate(actualWaterIncidentSoonForAllProperties)} - All properties\n${getDate(actualWaterIncidentSoonForOneProperty)} - ${administratorClient.property.address}`,
+                            water: `${getDate(actualWaterIncidentSoonForAllProperties)} - ${i18n('notification.messages.SEND_DAILY_STATISTICS_MESSAGE_TYPE.email.allProperties', { locale: administratorClient.user.locale })}\n${getDate(actualWaterIncidentSoonForOneProperty)} - ${administratorClient.property.address}`,
                         },
                     },
                     tags: [`orgId: ${administratorClient.organization.id}`.slice(0, 128)],

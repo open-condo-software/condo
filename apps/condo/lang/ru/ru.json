@@ -1939,6 +1939,8 @@
   "notification.messages.BILLING_RECEIPT_FILE_ADDED.email.subject": "{data.organization}. Квитанции за услуги ЖКХ",
   "notification.messages.SERVICE_USER_CREATED.email.subject": "Сервисная учетная запись успешно зарегистрирована",
   "notification.messages.DEV_PORTAL_MESSAGE.email.subject": "{subject}",
+  "notification.messages.SEND_DAILY_STATISTICS_MESSAGE_TYPE.email.allProperties": "Все дома",
+  "notification.messages.SEND_DAILY_STATISTICS_MESSAGE_TYPE.email.moreProperties": "и еще {more} домов",
   "news.ConfirmDeleteTitle": "Удалить новость?",
   "news.ConfirmDeleteMessage": "Восстановить ее будет нельзя. Но можно создать заново.",
   "news.CancelMessage": "Оставить",

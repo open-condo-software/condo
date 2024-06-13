@@ -1939,6 +1939,8 @@
   "notification.messages.BILLING_RECEIPT_FILE_ADDED.email.subject": "{data.organization}. New billing receipt",
   "notification.messages.SERVICE_USER_CREATED.email.subject": "Service account successfully registered",
   "notification.messages.DEV_PORTAL_MESSAGE.email.subject": "{subject}",
+  "notification.messages.SEND_DAILY_STATISTICS_MESSAGE_TYPE.email.allProperties": "All properties",
+  "notification.messages.SEND_DAILY_STATISTICS_MESSAGE_TYPE.email.moreProperties": "and more {more} properties",
   "news.ConfirmDeleteTitle": "Delete news?",
   "news.ConfirmDeleteMessage": "It cannot be restored. But you can recreate it.",
   "news.CancelMessage": "Keep",

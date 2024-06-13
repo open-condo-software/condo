@@ -8,6 +8,7 @@ const { featureToggleManager } = require('@open-condo/featureflags/featureToggle
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx, find, itemsQuery, getByCondition } = require('@open-condo/keystone/schema')
 const { createCronTask } = require('@open-condo/keystone/tasks')
+const { i18n } = require('@open-condo/locales/loader')
 
 const { SEND_DAILY_STATISTICS_TASK, SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED } = require('@condo/domains/common/constants/featureflags')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
@@ -448,9 +449,10 @@ const formatTicketsStats = ({ total, byOrganizations }) => {
  *
  * @param {CommonStatistics} userStatisticsData
  * @param {string} currentDate
+ * @param {string} locale
  * @return {MessageData}
  */
-const formatMessageData = (userStatisticsData, currentDate) => {
+const formatMessageData = (userStatisticsData, currentDate, locale = conf.DEFAULT_LOCALE) => {
     return {
         date: dayjs(currentDate).format('DD-MM-YYYY'),
         tickets: {
@@ -472,12 +474,14 @@ const formatMessageData = (userStatisticsData, currentDate) => {
                     date = [dateStart, dateFinish].filter(Boolean).join(` ${EMPTY_LINE} `)
                 }
 
-                // TODO(DOMA-9177): add translations
                 if (incident.hasAllProperties) {
-                    addresses = 'All properties'
+                    addresses = i18n('notification.messages.SEND_DAILY_STATISTICS_MESSAGE_TYPE.email.allProperties', { locale })
                 } else {
                     const more = incident.count - COMPACT_SCOPES_SIZE
-                    addresses = incident.addresses.filter(Boolean).join(', ') + (more > 0 ? ` and more ${more} properties` : '')
+                    const moreProperties = more > 0
+                        ? ` ${i18n('notification.messages.SEND_DAILY_STATISTICS_MESSAGE_TYPE.email.moreProperties', { locale, meta: { more } })}`
+                        : ''
+                    addresses = incident.addresses.filter(Boolean).join(', ') + moreProperties
                 }
 
                 return `${date} - ${addresses}`
@@ -502,13 +506,13 @@ const sendDailyMessageToUserSafely = async (context, user, currentDate, taskId) 
             return
         }
 
-        const messageData = formatMessageData(statisticsData, currentDate)
+        const messageData = formatMessageData(statisticsData, currentDate, user.locale)
 
         const uniqKey = `send_daily_statistics_${user.id}_${dayjs(currentDate).format('DD-MM-YYYY')}`
         await sendMessage(context, {
             ...DV_SENDER,
             to: { email: user.email },
-            lang: conf.DEFAULT_LOCALE, // or user.lang, org.lang?
+            lang: user.locale || conf.DEFAULT_LOCALE,
             type: SEND_DAILY_STATISTICS_MESSAGE_TYPE,
             uniqKey,
             meta: {
