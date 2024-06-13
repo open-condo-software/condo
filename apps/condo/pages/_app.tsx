@@ -11,7 +11,7 @@ import { useRouter } from 'next/router'
 import React, { useMemo } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
-import { FeatureFlagsProvider, useFeatureFlags, FeaturesReady } from '@open-condo/featureflags/FeatureFlagsContext'
+import { FeatureFlagsProvider, useFeatureFlags, FeaturesReady, withFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import * as AllIcons from '@open-condo/icons'
 import { extractReqLocale } from '@open-condo/locales/extractReqLocale'
 import { withApollo, WithApolloProps } from '@open-condo/next/apollo'
@@ -447,46 +447,46 @@ const MyApp = ({ Component, pageProps }) => {
             </Head>
             <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize='large'>
                 <CacheProvider value={cache}>
-                    <FeatureFlagsProvider>
-                        <SetupTelegramNotificationsBanner />
-                        <GlobalStyle/>
-                        {shouldDisplayCookieAgreement && <CookieAgreement/>}
-                        <LayoutContextProvider>
-                            <TasksProvider>
-                                <PostMessageProvider>
-                                    <TrackingProvider>
-                                        <TourProvider>
-                                            <SubscriptionProvider>
-                                                <GlobalAppsFeaturesProvider>
-                                                    <GlobalAppsContainer/>
-                                                    <TicketVisibilityContextProvider>
-                                                        <ActiveCallContextProvider>
-                                                            <ConnectedAppsWithIconsContextProvider>
-                                                                <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                                                                    <RequiredAccess>
-                                                                        <FeaturesReady fallback={<Loader fill size='large'/>}>
-                                                                            <Component {...pageProps} />
-                                                                            {
-                                                                                isEndTrialSubscriptionReminderPopupVisible && (
-                                                                                    <EndTrialSubscriptionReminderPopup/>
-                                                                                )
-                                                                            }
-                                                                        </FeaturesReady>
-                                                                    </RequiredAccess>
-                                                                </LayoutComponent>
-                                                            </ConnectedAppsWithIconsContextProvider>
-                                                        </ActiveCallContextProvider>
-                                                    </TicketVisibilityContextProvider>
-                                                </GlobalAppsFeaturesProvider>
-                                            </SubscriptionProvider>
-                                        </TourProvider>
-                                    </TrackingProvider>
-                                </PostMessageProvider>
-                            </TasksProvider>
-                        </LayoutContextProvider>
-                        <YandexMetrika/>
-                        <PopupSmart />
-                    </FeatureFlagsProvider>
+                    {/*<FeatureFlagsProvider>*/}
+                    <SetupTelegramNotificationsBanner />
+                    <GlobalStyle/>
+                    {shouldDisplayCookieAgreement && <CookieAgreement/>}
+                    <LayoutContextProvider>
+                        <TasksProvider>
+                            <PostMessageProvider>
+                                <TrackingProvider>
+                                    <TourProvider>
+                                        <SubscriptionProvider>
+                                            <GlobalAppsFeaturesProvider>
+                                                <GlobalAppsContainer/>
+                                                <TicketVisibilityContextProvider>
+                                                    <ActiveCallContextProvider>
+                                                        <ConnectedAppsWithIconsContextProvider>
+                                                            <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                                                <RequiredAccess>
+                                                                    <FeaturesReady fallback={<Loader fill size='large'/>}>
+                                                                        <Component {...pageProps} />
+                                                                        {
+                                                                            isEndTrialSubscriptionReminderPopupVisible && (
+                                                                                <EndTrialSubscriptionReminderPopup/>
+                                                                            )
+                                                                        }
+                                                                    </FeaturesReady>
+                                                                </RequiredAccess>
+                                                            </LayoutComponent>
+                                                        </ConnectedAppsWithIconsContextProvider>
+                                                    </ActiveCallContextProvider>
+                                                </TicketVisibilityContextProvider>
+                                            </GlobalAppsFeaturesProvider>
+                                        </SubscriptionProvider>
+                                    </TourProvider>
+                                </TrackingProvider>
+                            </PostMessageProvider>
+                        </TasksProvider>
+                    </LayoutContextProvider>
+                    <YandexMetrika/>
+                    <PopupSmart />
+                    {/*</FeatureFlagsProvider>*/}
                 </CacheProvider>
             </ConfigProvider>
             <UseDeskWidget/>
@@ -538,7 +538,9 @@ export default (
                     ssr: true,
                     GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY: GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY,
                 })(
-                    MyApp
+                    withFeatureFlags({ ssr: true })(
+                        MyApp
+                    )
                 )
             )
         )

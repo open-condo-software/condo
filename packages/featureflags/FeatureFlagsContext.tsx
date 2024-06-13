@@ -1,11 +1,25 @@
 import { GrowthBook, GrowthBookProvider, useGrowthBook, FeaturesReady } from '@growthbook/growthbook-react'
 import get from 'lodash/get'
 import isEqual from 'lodash/isEqual'
+import { NextPage } from 'next'
 import getConfig from 'next/config'
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 
+import {
+    DEBUG_RERENDERS,
+    DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER,
+    getContextIndependentWrappedInitialProps,
+    preventInfinityLoop,
+} from '@open-condo/next/_utils'
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
+
+
+const {
+    publicRuntimeConfig: {
+        serverUrl,
+    },
+} = getConfig()
 
 const growthbook = new GrowthBook()
 const FEATURES_RE_FETCH_INTERVAL = 10 * 1000
@@ -26,32 +40,30 @@ const FeatureFlagsContext = createContext<IFeatureFlagsContext>({
 
 const useFeatureFlags = (): IFeatureFlagsContext => useContext(FeatureFlagsContext)
 
-const FeatureFlagsProviderWrapper = ({ children }) => {
+const FeatureFlagsProviderWrapper = ({ children, initFeatures = null }) => {
     const growthbook = useGrowthBook()
     const { user, isLoading: userIsLoading } = useAuth()
     const { organization, isLoading: organizationIsLoading } = useOrganization()
-
-    const [fetchIsLoading, setFetchIsLoading] = useState<boolean>(true)
 
     const isSupport = get(user, 'isSupport', false)
     const isAdmin = get(user, 'isAdmin', false)
     const userId = get(user, 'id', null)
 
+    useEffect(() => {
+        if (!initFeatures) return
+
+        growthbook.setPayload({ features: initFeatures })
+    }, [])
+
     console.log('FeatureFlagsProviderWrapper:::', {
-        firstFetchIsLoading: fetchIsLoading,
         user,
         userIsLoading,
         organization,
         organizationIsLoading,
         features: growthbook.getFeatures(),
         isReady: growthbook.ready,
+        initFeatures,
     })
-
-    const {
-        publicRuntimeConfig: {
-            serverUrl,
-        },
-    } = getConfig()
 
     const updateContext = useCallback((context) => {
         const previousContext = growthbook.getAttributes()
@@ -79,7 +91,6 @@ const FeatureFlagsProviderWrapper = ({ children }) => {
                             const prev = growthbook.getFeatures()
                             growthbook.setPayload({ features: prev })
                         }
-                        setFetchIsLoading(false)
                     })
             }
         }
@@ -107,14 +118,79 @@ const FeatureFlagsProviderWrapper = ({ children }) => {
     )
 }
 
-const FeatureFlagsProvider: React.FC = ({ children }) => {
+const FeatureFlagsProvider: React.FC<{ initFeatures? }> = ({ children, initFeatures = null }) => {
     return (
         <GrowthBookProvider growthbook={growthbook}>
-            <FeatureFlagsProviderWrapper>
+            <FeatureFlagsProviderWrapper initFeatures={initFeatures}>
                 {children}
             </FeatureFlagsProviderWrapper>
         </GrowthBookProvider>
     )
 }
 
-export { useFeatureFlags, FeatureFlagsProvider, FeaturesReady }
+// @ts-ignore
+if (DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER) FeatureFlagsProvider.whyDidYouRender = true
+
+const initOnRestore = async (ctx) => {
+    let features = null
+    const isOnServerSide = typeof window === 'undefined'
+
+    if (isOnServerSide) {
+        try {
+            const response = await fetch(`${serverUrl}/api/features`)
+            features = await response.json()
+        } catch (error) {
+            console.error('Error while running `withFeatureFlags`', error)
+            features = null
+        }
+    }
+
+    return { features }
+}
+
+type WithFeatureFlagsProps = {
+    ssr?: boolean
+}
+export type WithFeatureFlags = (props: WithFeatureFlagsProps) => (PageComponent: NextPage<any>) => NextPage<any>
+
+const withFeatureFlags: WithFeatureFlags = ({ ssr = false }) => PageComponent => {
+    const WithFeatureFlags = ({ features, ...pageProps }) => {
+        if (DEBUG_RERENDERS) console.log('WithFeatureFlags()', features)
+
+        return (
+            <FeatureFlagsProvider initFeatures={features}>
+                <PageComponent {...pageProps} />
+            </FeatureFlagsProvider>
+        )
+    }
+
+    if (DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER) WithFeatureFlags.whyDidYouRender = true
+
+    // Set the correct displayName in development
+    if (process.env.NODE_ENV !== 'production') {
+        const displayName = PageComponent.displayName || PageComponent.name || 'Component'
+        WithFeatureFlags.displayName = `withFeatureFlags(${displayName})`
+    }
+
+    if (ssr || PageComponent.getInitialProps) {
+        WithFeatureFlags.getInitialProps = async (ctx) => {
+            if (DEBUG_RERENDERS) console.log('WithIntl.getInitialProps()', ctx)
+            const isOnServerSide = typeof window === 'undefined'
+            const { features } = await initOnRestore(ctx)
+            const pageProps = await getContextIndependentWrappedInitialProps(PageComponent, ctx)
+
+            if (isOnServerSide) {
+                preventInfinityLoop(ctx)
+            }
+
+            return {
+                ...pageProps,
+                features,
+            }
+        }
+    }
+
+    return WithFeatureFlags
+}
+
+export { useFeatureFlags, FeatureFlagsProvider, FeaturesReady, withFeatureFlags }

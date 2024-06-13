@@ -6,6 +6,7 @@
     "@growthbook/growthbook-react": "^1.0.1",
     "@open-condo/config": "workspace:^",
     "@open-condo/keystone": "workspace:^",
+    "@open-condo/next": "workspace:^",
     "express": "^4.17.1"
   },
   "peerDependencies": {
