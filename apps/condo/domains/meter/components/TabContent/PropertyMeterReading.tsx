@@ -89,6 +89,7 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
     const router = useRouter()
     const { filters, offset, sorters, tab } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
+    const nextVerificationDate = get(meter, 'nextVerificationDate')
 
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filtersMeta, sortableProperties || SORTABLE_PROPERTIES)
     const { getTrackingWrappedCallback } = useTracking()
@@ -316,13 +317,16 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
                             ]}
                         />
                     )}
-                    {meter && selectedReadingKeys.length < 1 && <ActionBarForSingleMeter 
-                        canManageMeterReadings={canManageMeterReadings}
-                        meterId={get(meter, 'id')}
-                        meterType={METER_TAB_TYPES.propertyMeter}
-                        archiveDate={get(meter, 'archiveDate')}
-                        isAutomatic={isAutomatic}
-                    />}
+                    {meter && selectedReadingKeys.length < 1 && (
+                        <ActionBarForSingleMeter 
+                            canManageMeterReadings={canManageMeterReadings}
+                            meterId={get(meter, 'id')}
+                            meterType={METER_TAB_TYPES.propertyMeter}
+                            archiveDate={get(meter, 'archiveDate')}
+                            isAutomatic={isAutomatic}
+                            nextVerificationDate={nextVerificationDate}
+                        />)
+                    }
                     
                 </Col>
             </Row>
@@ -354,6 +358,7 @@ export const PropertyMeterReadingsPageContent: React.FC<PropertyMetersTableConte
     const CreateMeterReading = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterReadingButtonLabel' })
 
     const { count, loading: countLoading } = PropertyMeterReading.useCount({ where: baseSearchQuery })
+    const nextVerificationDate = get(meter, 'nextVerificationDate')
 
     const pageContent = useMemo(() => {
         if (countLoading || loading) return <Loader />
@@ -375,13 +380,14 @@ export const PropertyMeterReadingsPageContent: React.FC<PropertyMetersTableConte
                         meterType={METER_TAB_TYPES.propertyMeter}
                         archiveDate={get(meter, 'archiveDate')}
                         isAutomatic={isAutomatic}
+                        nextVerificationDate={nextVerificationDate}
                     />
                 )
             }
 
         return <PropertyMeterReadingsTableContent {...props} />
 
-    }, [CreateMeterReading, EmptyListLabel, canManageMeterReadings, count, countLoading, isAutomatic, loading, meter, props])
+    }, [CreateMeterReading, EmptyListLabel, canManageMeterReadings, count, countLoading, isAutomatic, loading, meter, nextVerificationDate, props])
 
     return (
         <TablePageContent>

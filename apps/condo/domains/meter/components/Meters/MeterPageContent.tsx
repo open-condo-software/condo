@@ -51,7 +51,7 @@ const MeterHeader = ({ meter, meterReportingPeriod, refetchMeter, meterType }) =
         { id: 'pages.condo.meter.archivedMeterTip.Message' },
         {
             notShowing: (
-                <Typography.Text type='danger'>
+                <Typography.Text type='danger' size='small'>
                     {ArchivedMeterNotShowingMessage}
                 </Typography.Text>
             ),

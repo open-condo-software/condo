@@ -108,6 +108,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
     const dateFallback = filtersAreReset ? null : DEFAULT_DATE_RANGE
     const dateFilterValue = dateRange || dateFallback
     const dateFilter = dateFilterValue ? dateFilterValue.map(el => el.toISOString()) : null
+    const nextVerificationDate = get(meter, 'nextVerificationDate')
 
     const [isShowUpdateReadingModal, setIsShowUpdateReadingModal] = useState(false)
     const [chosenMeterReadingId, setChosenMeterReadingId] = useState<string>(null)
@@ -363,6 +364,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
                             meterType={METER_TAB_TYPES.meter}
                             archiveDate={get(meter, 'archiveDate')}
                             isAutomatic={isAutomatic}
+                            nextVerificationDate={nextVerificationDate}
                         />
                     </Col>)
                 }
@@ -399,6 +401,7 @@ export const MeterReadingsPageContent: React.FC<MeterReadingsPageContentProps> =
     const { refetch } = MeterReadingForOrganization.useCount({}, { skip: true })
     const { count, loading: countLoading } = MeterReadingForOrganization.useCount({ where: baseSearchQuery })
 
+    const nextVerificationDate = get(meter, 'nextVerificationDate')
 
     const PageContent = useMemo(() => {
         if (countLoading || loading) return <Loader />
@@ -429,6 +432,7 @@ export const MeterReadingsPageContent: React.FC<MeterReadingsPageContentProps> =
                                 meterType={METER_TAB_TYPES.meter}
                                 isAutomatic={isAutomatic}
                                 archiveDate={get(meter, 'archiveDate')}
+                                nextVerificationDate={nextVerificationDate}
                             />
                         </Col>)
                     }
@@ -448,7 +452,7 @@ export const MeterReadingsPageContent: React.FC<MeterReadingsPageContentProps> =
                 resource={resource}
             />
         )
-    }, [EmptyListLabel, EmptyListManualBodyDescription, baseSearchQuery, canManageMeterReadings, count, countLoading, filtersMeta, isAutomatic, loading, meter, refetch, resource])
+    }, [EmptyListLabel, EmptyListManualBodyDescription, baseSearchQuery, canManageMeterReadings, count, countLoading, filtersMeta, isAutomatic, loading, meter, nextVerificationDate, refetch, resource])
 
     return (
         <TablePageContent>

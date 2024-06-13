@@ -1,3 +1,4 @@
+import dayjs from 'dayjs'
 import { useRouter } from 'next/router'
 import { useCallback } from 'react'
 
@@ -13,6 +14,7 @@ type ActionBarForSingleMeterProps = {
     canManageMeterReadings: boolean
     meterType: MeterPageTypes
     isAutomatic: boolean
+    nextVerificationDate: string
     archiveDate?: string
 }
 
@@ -22,6 +24,7 @@ const ActionBarForSingleMeter = ({
     meterType,
     archiveDate,
     isAutomatic,
+    nextVerificationDate,
 }: ActionBarForSingleMeterProps): JSX.Element => {
     const intl = useIntl()
     const DeleteMeterMessage = intl.formatMessage({ id: 'pages.condo.meter.Meter.DeleteMeter' })
@@ -33,6 +36,7 @@ const ActionBarForSingleMeter = ({
 
     const router = useRouter()
     const isPropertyMeter =  meterType === METER_TAB_TYPES.propertyMeter
+    const isVerificationMissed = dayjs(nextVerificationDate).isBefore(dayjs(), 'day')
 
     const MeterIdentity = isPropertyMeter ?  PropertyMeter : Meter
 
@@ -55,7 +59,7 @@ const ActionBarForSingleMeter = ({
     return (
         <ActionBar
             actions={[
-                canManageMeterReadings && !archiveDate && (
+                canManageMeterReadings && !archiveDate && !isVerificationMissed && (
                     <Button
                         key='create'
                         type='primary'
@@ -65,7 +69,7 @@ const ActionBarForSingleMeter = ({
                         {CreateMeterReadingsButtonLabel}
                     </Button>
                 ),
-                !archiveDate && !isAutomatic && <Button
+                !archiveDate && !isAutomatic && !isVerificationMissed &&  <Button
                     key='update'
                     type='secondary'
                     onClick={handleUpdateMeterButtonClick}
