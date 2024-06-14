@@ -94,13 +94,6 @@ const OrganizationProvider = ({ children, initialLinkValue }) => {
         onError,
     })
 
-    console.log('OrganizationProvider:::', {
-        link,
-        initialLinkValue,
-        data,
-        linkLoading,
-    })
-
     useEffect(() => {
         if (!data) return
 

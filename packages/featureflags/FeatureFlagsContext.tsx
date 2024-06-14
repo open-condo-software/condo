@@ -51,17 +51,6 @@ const FeatureFlagsProviderWrapper = ({ children, initFeatures = null }) => {
     const isAdmin = get(user, 'isAdmin', false)
     const userId = get(user, 'id', null)
 
-    console.log('FeatureFlagsProviderWrapper:::', {
-        user,
-        userIsLoading,
-        organization,
-        organizationIsLoading,
-        'growthbook.features': growthbook.getFeatures(),
-        isReady: growthbook.ready,
-        initFeatures,
-        featuresRef,
-    })
-
     const updateContext = useCallback((context) => {
         const previousContext = growthbook.getAttributes()
 
@@ -104,18 +93,8 @@ const FeatureFlagsProviderWrapper = ({ children, initFeatures = null }) => {
     }, [growthbook, serverUrl])
 
     useEffect(() => {
-        console.log('growthbook.setPayload', {
-            'featuresRef.current': featuresRef.current,
-            userIsLoading,
-            organizationIsLoading,
-        })
         if (!featuresRef.current || userIsLoading || organizationIsLoading) return
 
-        console.log('growthbook.setPayload:done', {
-            'featuresRef.current': featuresRef.current,
-            userIsLoading,
-            organizationIsLoading,
-        })
         growthbook.setPayload({ features: featuresRef.current })
     }, [featuresRef.current, userIsLoading, organizationIsLoading])
 
