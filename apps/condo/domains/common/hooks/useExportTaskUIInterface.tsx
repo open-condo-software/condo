@@ -3,6 +3,7 @@ import {
     IncidentExportTask as IncidentExportTaskType,
     NewsItemRecipientsExportTask as NewsItemRecipientsExportTaskType,
     TicketExportTask as TicketExportTaskType,
+    MeterImportTask as MeterImportTaskType,
 } from '@app/condo/schema'
 import get from 'lodash/get'
 import { useCallback, useMemo } from 'react'
@@ -15,6 +16,7 @@ import { TasksCondoStorage } from '@condo/domains/common/components/tasks/storag
 import { TASK_COMPLETED_STATUS } from '@condo/domains/common/constants/tasks'
 import { useDownloadFileFromServer } from '@condo/domains/common/hooks/useDownloadFileFromServer'
 import { ContactExportTask } from '@condo/domains/contact/utils/clientSchema'
+import { MeterImportTask } from '@condo/domains/meter/utils/clientSchema'
 import { NewsItemRecipientsExportTask } from '@condo/domains/news/utils/clientSchema'
 import { IncidentExportTask, TicketExportTask } from '@condo/domains/ticket/utils/clientSchema'
 
@@ -24,18 +26,21 @@ type ExportTaskTypes =
     | TicketExportTaskType
     | ContactExportTaskType
     | (NewsItemRecipientsExportTaskType & { exportedRecordsCount: number, totalRecordsCount: number })
+    | (MeterImportTaskType & { exportedRecordsCount: number, totalRecordsCount: number })
 
 type ExportTaskClientSchemas =
     typeof IncidentExportTask
     | typeof TicketExportTask
     | typeof ContactExportTask
     | typeof NewsItemRecipientsExportTask
+    | typeof MeterImportTask
 
 type ExportTaskSchemaNames =
     'IncidentExportTask'
     | 'TicketExportTask'
     | 'ContactExportTask'
     | 'NewsItemRecipientsExportTask'
+    | 'MeterImportTask'
 
 type UseExportTaskUIInterfaceProps = {
     clientSchema: ExportTaskClientSchemas
