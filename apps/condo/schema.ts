@@ -444,7 +444,7 @@ export type AcquiringIntegrationContext = {
   /**  Status of AcquiringIntegration connection, Can be one of the following: ["InProgress", "Error", "Finished"]. If not specified explicitly on creation, uses default value from related AcquiringIntegration model  */
   status?: Maybe<Scalars['String']>;
   /**  Status of AcquiringIntegration connection, Can be one of the following: ["InProgress", "Error", "Finished"]. If not specified explicitly on creation, uses default value from related AcquiringIntegration model  */
-  invoiceStatus?: Maybe<AcquiringIntegrationContextInvoiceStatusType>;
+  invoiceStatus?: Maybe<Scalars['String']>;
   /**  The regime of counting taxes for company  */
   invoiceTaxRegime?: Maybe<AcquiringIntegrationContextInvoiceTaxRegimeType>;
   /**  The percentage of VAT. Depends of integrations settings (see AcquiringIntegration.vatPercentOptions)  */
@@ -481,7 +481,7 @@ export type AcquiringIntegrationContextCreateInput = {
   implicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
   invoiceImplicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
   status?: Maybe<Scalars['String']>;
-  invoiceStatus?: Maybe<AcquiringIntegrationContextInvoiceStatusType>;
+  invoiceStatus?: Maybe<Scalars['String']>;
   invoiceTaxRegime?: Maybe<AcquiringIntegrationContextInvoiceTaxRegimeType>;
   invoiceVatPercent?: Maybe<Scalars['String']>;
   invoiceSalesTaxPercent?: Maybe<Scalars['String']>;
@@ -884,13 +884,6 @@ export type AcquiringIntegrationContextHistoryRecordsUpdateInput = {
   data?: Maybe<AcquiringIntegrationContextHistoryRecordUpdateInput>;
 };
 
-export enum AcquiringIntegrationContextInvoiceStatusType {
-  InProgress = 'InProgress',
-  Verification = 'Verification',
-  Error = 'Error',
-  Finished = 'Finished'
-}
-
 export enum AcquiringIntegrationContextInvoiceTaxRegimeType {
   General = 'general',
   Simple = 'simple'
@@ -917,7 +910,7 @@ export type AcquiringIntegrationContextUpdateInput = {
   implicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
   invoiceImplicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
   status?: Maybe<Scalars['String']>;
-  invoiceStatus?: Maybe<AcquiringIntegrationContextInvoiceStatusType>;
+  invoiceStatus?: Maybe<Scalars['String']>;
   invoiceTaxRegime?: Maybe<AcquiringIntegrationContextInvoiceTaxRegimeType>;
   invoiceVatPercent?: Maybe<Scalars['String']>;
   invoiceSalesTaxPercent?: Maybe<Scalars['String']>;
@@ -1039,10 +1032,10 @@ export type AcquiringIntegrationContextWhereInput = {
   status_not?: Maybe<Scalars['String']>;
   status_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   status_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  invoiceStatus?: Maybe<AcquiringIntegrationContextInvoiceStatusType>;
-  invoiceStatus_not?: Maybe<AcquiringIntegrationContextInvoiceStatusType>;
-  invoiceStatus_in?: Maybe<Array<Maybe<AcquiringIntegrationContextInvoiceStatusType>>>;
-  invoiceStatus_not_in?: Maybe<Array<Maybe<AcquiringIntegrationContextInvoiceStatusType>>>;
+  invoiceStatus?: Maybe<Scalars['String']>;
+  invoiceStatus_not?: Maybe<Scalars['String']>;
+  invoiceStatus_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  invoiceStatus_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   invoiceTaxRegime?: Maybe<AcquiringIntegrationContextInvoiceTaxRegimeType>;
   invoiceTaxRegime_not?: Maybe<AcquiringIntegrationContextInvoiceTaxRegimeType>;
   invoiceTaxRegime_in?: Maybe<Array<Maybe<AcquiringIntegrationContextInvoiceTaxRegimeType>>>;

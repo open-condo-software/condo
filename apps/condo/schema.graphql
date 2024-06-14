@@ -53193,13 +53193,6 @@ input RecipientFieldInput {
   classificationCode: String
 }
 
-enum AcquiringIntegrationContextInvoiceStatusType {
-  InProgress
-  Verification
-  Error
-  Finished
-}
-
 enum AcquiringIntegrationContextInvoiceTaxRegimeType {
   general
   simple
@@ -53265,7 +53258,7 @@ type AcquiringIntegrationContext {
 
   """ Status of AcquiringIntegration connection, Can be one of the following: ["InProgress", "Error", "Finished"]. If not specified explicitly on creation, uses default value from related AcquiringIntegration model 
   """
-  invoiceStatus: AcquiringIntegrationContextInvoiceStatusType
+  invoiceStatus: String
 
   """ The regime of counting taxes for company """
   invoiceTaxRegime: AcquiringIntegrationContextInvoiceTaxRegimeType
@@ -53406,10 +53399,10 @@ input AcquiringIntegrationContextWhereInput {
   status_not: String
   status_in: [String]
   status_not_in: [String]
-  invoiceStatus: AcquiringIntegrationContextInvoiceStatusType
-  invoiceStatus_not: AcquiringIntegrationContextInvoiceStatusType
-  invoiceStatus_in: [AcquiringIntegrationContextInvoiceStatusType]
-  invoiceStatus_not_in: [AcquiringIntegrationContextInvoiceStatusType]
+  invoiceStatus: String
+  invoiceStatus_not: String
+  invoiceStatus_in: [String]
+  invoiceStatus_not_in: [String]
   invoiceTaxRegime: AcquiringIntegrationContextInvoiceTaxRegimeType
   invoiceTaxRegime_not: AcquiringIntegrationContextInvoiceTaxRegimeType
   invoiceTaxRegime_in: [AcquiringIntegrationContextInvoiceTaxRegimeType]
@@ -53547,7 +53540,7 @@ input AcquiringIntegrationContextUpdateInput {
   implicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   invoiceImplicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   status: String
-  invoiceStatus: AcquiringIntegrationContextInvoiceStatusType
+  invoiceStatus: String
   invoiceTaxRegime: AcquiringIntegrationContextInvoiceTaxRegimeType
   invoiceVatPercent: String
   invoiceSalesTaxPercent: String
@@ -53581,7 +53574,7 @@ input AcquiringIntegrationContextCreateInput {
   implicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   invoiceImplicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   status: String
-  invoiceStatus: AcquiringIntegrationContextInvoiceStatusType
+  invoiceStatus: String
   invoiceTaxRegime: AcquiringIntegrationContextInvoiceTaxRegimeType
   invoiceVatPercent: String
   invoiceSalesTaxPercent: String
