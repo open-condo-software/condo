@@ -442,9 +442,9 @@ export type AcquiringIntegrationContext = {
   /**  Contains information about the default distribution of implicit fee. Each part is paid by the recipient organization on deducted from payment amount. If part exists then explicit part with the same name from AcquiringIntegration.explicitFeeDistributionSchema is ignored  */
   invoiceImplicitFeeDistributionSchema?: Maybe<Array<FeeDistributionField>>;
   /**  Status of AcquiringIntegration connection, Can be one of the following: ["InProgress", "Error", "Finished"]. If not specified explicitly on creation, uses default value from related AcquiringIntegration model  */
-  status?: Maybe<AcquiringIntegrationContextStatusType>;
+  status?: Maybe<Scalars['String']>;
   /**  Status of AcquiringIntegration connection, Can be one of the following: ["InProgress", "Error", "Finished"]. If not specified explicitly on creation, uses default value from related AcquiringIntegration model  */
-  invoiceStatus?: Maybe<AcquiringIntegrationContextInvoiceStatusType>;
+  invoiceStatus?: Maybe<Scalars['String']>;
   /**  The regime of counting taxes for company  */
   invoiceTaxRegime?: Maybe<AcquiringIntegrationContextInvoiceTaxRegimeType>;
   /**  The percentage of VAT. Depends of integrations settings (see AcquiringIntegration.vatPercentOptions)  */
@@ -480,8 +480,8 @@ export type AcquiringIntegrationContextCreateInput = {
   invoiceRecipient?: Maybe<RecipientFieldInput>;
   implicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
   invoiceImplicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
-  status?: Maybe<AcquiringIntegrationContextStatusType>;
-  invoiceStatus?: Maybe<AcquiringIntegrationContextInvoiceStatusType>;
+  status?: Maybe<Scalars['String']>;
+  invoiceStatus?: Maybe<Scalars['String']>;
   invoiceTaxRegime?: Maybe<AcquiringIntegrationContextInvoiceTaxRegimeType>;
   invoiceVatPercent?: Maybe<Scalars['String']>;
   invoiceSalesTaxPercent?: Maybe<Scalars['String']>;
@@ -884,13 +884,6 @@ export type AcquiringIntegrationContextHistoryRecordsUpdateInput = {
   data?: Maybe<AcquiringIntegrationContextHistoryRecordUpdateInput>;
 };
 
-export enum AcquiringIntegrationContextInvoiceStatusType {
-  InProgress = 'InProgress',
-  Verification = 'Verification',
-  Error = 'Error',
-  Finished = 'Finished'
-}
-
 export enum AcquiringIntegrationContextInvoiceTaxRegimeType {
   General = 'general',
   Simple = 'simple'
@@ -902,13 +895,6 @@ export type AcquiringIntegrationContextRelateToOneInput = {
   disconnect?: Maybe<AcquiringIntegrationContextWhereUniqueInput>;
   disconnectAll?: Maybe<Scalars['Boolean']>;
 };
-
-export enum AcquiringIntegrationContextStatusType {
-  InProgress = 'InProgress',
-  Verification = 'Verification',
-  Error = 'Error',
-  Finished = 'Finished'
-}
 
 export type AcquiringIntegrationContextUpdateInput = {
   integration?: Maybe<AcquiringIntegrationRelateToOneInput>;
@@ -923,8 +909,8 @@ export type AcquiringIntegrationContextUpdateInput = {
   invoiceRecipient?: Maybe<RecipientFieldInput>;
   implicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
   invoiceImplicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
-  status?: Maybe<AcquiringIntegrationContextStatusType>;
-  invoiceStatus?: Maybe<AcquiringIntegrationContextInvoiceStatusType>;
+  status?: Maybe<Scalars['String']>;
+  invoiceStatus?: Maybe<Scalars['String']>;
   invoiceTaxRegime?: Maybe<AcquiringIntegrationContextInvoiceTaxRegimeType>;
   invoiceVatPercent?: Maybe<Scalars['String']>;
   invoiceSalesTaxPercent?: Maybe<Scalars['String']>;
@@ -1042,14 +1028,14 @@ export type AcquiringIntegrationContextWhereInput = {
   invoiceImplicitFeeDistributionSchema_not?: Maybe<Array<FeeDistributionFieldInput>>;
   invoiceImplicitFeeDistributionSchema_in?: Maybe<Array<Maybe<Array<FeeDistributionFieldInput>>>>;
   invoiceImplicitFeeDistributionSchema_not_in?: Maybe<Array<Maybe<Array<FeeDistributionFieldInput>>>>;
-  status?: Maybe<AcquiringIntegrationContextStatusType>;
-  status_not?: Maybe<AcquiringIntegrationContextStatusType>;
-  status_in?: Maybe<Array<Maybe<AcquiringIntegrationContextStatusType>>>;
-  status_not_in?: Maybe<Array<Maybe<AcquiringIntegrationContextStatusType>>>;
-  invoiceStatus?: Maybe<AcquiringIntegrationContextInvoiceStatusType>;
-  invoiceStatus_not?: Maybe<AcquiringIntegrationContextInvoiceStatusType>;
-  invoiceStatus_in?: Maybe<Array<Maybe<AcquiringIntegrationContextInvoiceStatusType>>>;
-  invoiceStatus_not_in?: Maybe<Array<Maybe<AcquiringIntegrationContextInvoiceStatusType>>>;
+  status?: Maybe<Scalars['String']>;
+  status_not?: Maybe<Scalars['String']>;
+  status_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  status_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  invoiceStatus?: Maybe<Scalars['String']>;
+  invoiceStatus_not?: Maybe<Scalars['String']>;
+  invoiceStatus_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  invoiceStatus_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   invoiceTaxRegime?: Maybe<AcquiringIntegrationContextInvoiceTaxRegimeType>;
   invoiceTaxRegime_not?: Maybe<AcquiringIntegrationContextInvoiceTaxRegimeType>;
   invoiceTaxRegime_in?: Maybe<Array<Maybe<AcquiringIntegrationContextInvoiceTaxRegimeType>>>;
@@ -15935,7 +15921,7 @@ export type BillingIntegrationOrganizationContext = {
   /**  Settings that are required to get data from the `billing data source`. It can also contain fine-tuning optional integration settings. The data structure depends on the integration and defined there  */
   settings?: Maybe<Scalars['JSON']>;
   /**  Status of BillingIntegration connection, Can be one of the following: ["InProgress", "Error", "Finished"]. If not specified explicitly on creation, uses default value from related BillingIntegration model  */
-  status?: Maybe<BillingIntegrationOrganizationContextStatusType>;
+  status?: Maybe<Scalars['String']>;
   /**  The current state of the integration process. Some integration need to store past state or data related to cache files/folders for past state. The data structure depends on the integration and defined there  */
   state?: Maybe<Scalars['JSON']>;
   /**  Information about last report, such as time of report, period of report, amount of loaded data and etc  */
@@ -15962,7 +15948,7 @@ export type BillingIntegrationOrganizationContextCreateInput = {
   integration?: Maybe<BillingIntegrationRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   settings?: Maybe<Scalars['JSON']>;
-  status?: Maybe<BillingIntegrationOrganizationContextStatusType>;
+  status?: Maybe<Scalars['String']>;
   state?: Maybe<Scalars['JSON']>;
   lastReport?: Maybe<Scalars['JSON']>;
   currentProblem?: Maybe<BillingIntegrationProblemRelateToOneInput>;
@@ -16203,17 +16189,11 @@ export type BillingIntegrationOrganizationContextRelateToOneInput = {
   disconnectAll?: Maybe<Scalars['Boolean']>;
 };
 
-export enum BillingIntegrationOrganizationContextStatusType {
-  InProgress = 'InProgress',
-  Error = 'Error',
-  Finished = 'Finished'
-}
-
 export type BillingIntegrationOrganizationContextUpdateInput = {
   integration?: Maybe<BillingIntegrationRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   settings?: Maybe<Scalars['JSON']>;
-  status?: Maybe<BillingIntegrationOrganizationContextStatusType>;
+  status?: Maybe<Scalars['String']>;
   state?: Maybe<Scalars['JSON']>;
   lastReport?: Maybe<Scalars['JSON']>;
   currentProblem?: Maybe<BillingIntegrationProblemRelateToOneInput>;
@@ -16239,10 +16219,10 @@ export type BillingIntegrationOrganizationContextWhereInput = {
   settings_not?: Maybe<Scalars['JSON']>;
   settings_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   settings_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  status?: Maybe<BillingIntegrationOrganizationContextStatusType>;
-  status_not?: Maybe<BillingIntegrationOrganizationContextStatusType>;
-  status_in?: Maybe<Array<Maybe<BillingIntegrationOrganizationContextStatusType>>>;
-  status_not_in?: Maybe<Array<Maybe<BillingIntegrationOrganizationContextStatusType>>>;
+  status?: Maybe<Scalars['String']>;
+  status_not?: Maybe<Scalars['String']>;
+  status_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  status_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   state?: Maybe<Scalars['JSON']>;
   state_not?: Maybe<Scalars['JSON']>;
   state_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;

@@ -10906,12 +10906,6 @@ input BillingIntegrationOrganizationContextHistoryRecordsCreateInput {
   data: BillingIntegrationOrganizationContextHistoryRecordCreateInput
 }
 
-enum BillingIntegrationOrganizationContextStatusType {
-  InProgress
-  Error
-  Finished
-}
-
 input BillingIntegrationProblemRelateToOneInput {
   create: BillingIntegrationProblemCreateInput
   connect: BillingIntegrationProblemWhereUniqueInput
@@ -10945,7 +10939,7 @@ type BillingIntegrationOrganizationContext {
 
   """ Status of BillingIntegration connection, Can be one of the following: ["InProgress", "Error", "Finished"]. If not specified explicitly on creation, uses default value from related BillingIntegration model 
   """
-  status: BillingIntegrationOrganizationContextStatusType
+  status: String
 
   """ The current state of the integration process. Some integration need to store past state or data related to cache files/folders for past state. The data structure depends on the integration and defined there 
   """
@@ -10992,10 +10986,10 @@ input BillingIntegrationOrganizationContextWhereInput {
   settings_not: JSON
   settings_in: [JSON]
   settings_not_in: [JSON]
-  status: BillingIntegrationOrganizationContextStatusType
-  status_not: BillingIntegrationOrganizationContextStatusType
-  status_in: [BillingIntegrationOrganizationContextStatusType]
-  status_not_in: [BillingIntegrationOrganizationContextStatusType]
+  status: String
+  status_not: String
+  status_in: [String]
+  status_not_in: [String]
   state: JSON
   state_not: JSON
   state_in: [JSON]
@@ -11099,7 +11093,7 @@ input BillingIntegrationOrganizationContextUpdateInput {
   integration: BillingIntegrationRelateToOneInput
   organization: OrganizationRelateToOneInput
   settings: JSON
-  status: BillingIntegrationOrganizationContextStatusType
+  status: String
   state: JSON
   lastReport: JSON
   currentProblem: BillingIntegrationProblemRelateToOneInput
@@ -11123,7 +11117,7 @@ input BillingIntegrationOrganizationContextCreateInput {
   integration: BillingIntegrationRelateToOneInput
   organization: OrganizationRelateToOneInput
   settings: JSON
-  status: BillingIntegrationOrganizationContextStatusType
+  status: String
   state: JSON
   lastReport: JSON
   currentProblem: BillingIntegrationProblemRelateToOneInput
@@ -53199,20 +53193,6 @@ input RecipientFieldInput {
   classificationCode: String
 }
 
-enum AcquiringIntegrationContextStatusType {
-  InProgress
-  Verification
-  Error
-  Finished
-}
-
-enum AcquiringIntegrationContextInvoiceStatusType {
-  InProgress
-  Verification
-  Error
-  Finished
-}
-
 enum AcquiringIntegrationContextInvoiceTaxRegimeType {
   general
   simple
@@ -53274,11 +53254,11 @@ type AcquiringIntegrationContext {
 
   """ Status of AcquiringIntegration connection, Can be one of the following: ["InProgress", "Error", "Finished"]. If not specified explicitly on creation, uses default value from related AcquiringIntegration model 
   """
-  status: AcquiringIntegrationContextStatusType
+  status: String
 
   """ Status of AcquiringIntegration connection, Can be one of the following: ["InProgress", "Error", "Finished"]. If not specified explicitly on creation, uses default value from related AcquiringIntegration model 
   """
-  invoiceStatus: AcquiringIntegrationContextInvoiceStatusType
+  invoiceStatus: String
 
   """ The regime of counting taxes for company """
   invoiceTaxRegime: AcquiringIntegrationContextInvoiceTaxRegimeType
@@ -53415,14 +53395,14 @@ input AcquiringIntegrationContextWhereInput {
   invoiceImplicitFeeDistributionSchema_not: [FeeDistributionFieldInput!]
   invoiceImplicitFeeDistributionSchema_in: [[FeeDistributionFieldInput!]]
   invoiceImplicitFeeDistributionSchema_not_in: [[FeeDistributionFieldInput!]]
-  status: AcquiringIntegrationContextStatusType
-  status_not: AcquiringIntegrationContextStatusType
-  status_in: [AcquiringIntegrationContextStatusType]
-  status_not_in: [AcquiringIntegrationContextStatusType]
-  invoiceStatus: AcquiringIntegrationContextInvoiceStatusType
-  invoiceStatus_not: AcquiringIntegrationContextInvoiceStatusType
-  invoiceStatus_in: [AcquiringIntegrationContextInvoiceStatusType]
-  invoiceStatus_not_in: [AcquiringIntegrationContextInvoiceStatusType]
+  status: String
+  status_not: String
+  status_in: [String]
+  status_not_in: [String]
+  invoiceStatus: String
+  invoiceStatus_not: String
+  invoiceStatus_in: [String]
+  invoiceStatus_not_in: [String]
   invoiceTaxRegime: AcquiringIntegrationContextInvoiceTaxRegimeType
   invoiceTaxRegime_not: AcquiringIntegrationContextInvoiceTaxRegimeType
   invoiceTaxRegime_in: [AcquiringIntegrationContextInvoiceTaxRegimeType]
@@ -53559,8 +53539,8 @@ input AcquiringIntegrationContextUpdateInput {
   invoiceRecipient: RecipientFieldInput
   implicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   invoiceImplicitFeeDistributionSchema: [FeeDistributionFieldInput!]
-  status: AcquiringIntegrationContextStatusType
-  invoiceStatus: AcquiringIntegrationContextInvoiceStatusType
+  status: String
+  invoiceStatus: String
   invoiceTaxRegime: AcquiringIntegrationContextInvoiceTaxRegimeType
   invoiceVatPercent: String
   invoiceSalesTaxPercent: String
@@ -53593,8 +53573,8 @@ input AcquiringIntegrationContextCreateInput {
   invoiceRecipient: RecipientFieldInput
   implicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   invoiceImplicitFeeDistributionSchema: [FeeDistributionFieldInput!]
-  status: AcquiringIntegrationContextStatusType
-  invoiceStatus: AcquiringIntegrationContextInvoiceStatusType
+  status: String
+  invoiceStatus: String
   invoiceTaxRegime: AcquiringIntegrationContextInvoiceTaxRegimeType
   invoiceVatPercent: String
   invoiceSalesTaxPercent: String

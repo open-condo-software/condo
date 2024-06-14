@@ -173,6 +173,7 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
                 create: access.canManageStatusField,
                 update: access.canManageStatusField,
             },
+            graphQLReturnType: 'String',
         },
 
         invoiceStatus: {
@@ -187,6 +188,7 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
                 create: access.canManageStatusField,
                 update: access.canManageStatusField,
             },
+            graphQLReturnType: 'String',
         },
 
         invoiceTaxRegime: {
