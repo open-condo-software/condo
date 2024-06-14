@@ -4,7 +4,7 @@ import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
 import { NextPage } from 'next'
 import getConfig from 'next/config'
-import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useRef } from 'react'
 
 import {
     DEBUG_RERENDERS,
