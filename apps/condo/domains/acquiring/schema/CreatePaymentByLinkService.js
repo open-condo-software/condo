@@ -66,7 +66,6 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                 const { qrCodeFields, acquiringIntegrationHostUrl, currencyCode } = validationResult
                 const {
                     PersonalAcc, // organization's bank account
-                    BIC,
                     PaymPeriod, // mm.yyyy
                     Sum,
                     PersAcc, // resident's account within organization
