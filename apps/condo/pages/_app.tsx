@@ -447,7 +447,6 @@ const MyApp = ({ Component, pageProps }) => {
             </Head>
             <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize='large'>
                 <CacheProvider value={cache}>
-                    {/*<FeatureFlagsProvider>*/}
                     <SetupTelegramNotificationsBanner />
                     <GlobalStyle/>
                     {shouldDisplayCookieAgreement && <CookieAgreement/>}
@@ -486,7 +485,6 @@ const MyApp = ({ Component, pageProps }) => {
                     </LayoutContextProvider>
                     <YandexMetrika/>
                     <PopupSmart />
-                    {/*</FeatureFlagsProvider>*/}
                 </CacheProvider>
             </ConfigProvider>
             <UseDeskWidget/>

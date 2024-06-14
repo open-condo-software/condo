@@ -1,9 +1,10 @@
 import { GrowthBook, GrowthBookProvider, useGrowthBook, FeaturesReady } from '@growthbook/growthbook-react'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
 import { NextPage } from 'next'
 import getConfig from 'next/config'
-import { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 
 import {
     DEBUG_RERENDERS,
@@ -42,27 +43,23 @@ const useFeatureFlags = (): IFeatureFlagsContext => useContext(FeatureFlagsConte
 
 const FeatureFlagsProviderWrapper = ({ children, initFeatures = null }) => {
     const growthbook = useGrowthBook()
-    const { user, isLoading: userIsLoading } = useAuth()
+    const { user, isLoading: userIsLoading  } = useAuth()
     const { organization, isLoading: organizationIsLoading } = useOrganization()
+    const featuresRef = useRef(initFeatures)
 
     const isSupport = get(user, 'isSupport', false)
     const isAdmin = get(user, 'isAdmin', false)
     const userId = get(user, 'id', null)
-
-    useEffect(() => {
-        if (!initFeatures) return
-
-        growthbook.setPayload({ features: initFeatures })
-    }, [])
 
     console.log('FeatureFlagsProviderWrapper:::', {
         user,
         userIsLoading,
         organization,
         organizationIsLoading,
-        features: growthbook.getFeatures(),
+        'growthbook.features': growthbook.getFeatures(),
         isReady: growthbook.ready,
         initFeatures,
+        featuresRef,
     })
 
     const updateContext = useCallback((context) => {
@@ -75,24 +72,27 @@ const FeatureFlagsProviderWrapper = ({ children, initFeatures = null }) => {
 
     useEffect(() => {
         const fetchFeatures = () => {
-            if (serverUrl) {
-                fetch(`${serverUrl}/api/features`)
-                    .then((res) => res.json())
-                    .then((features) => {
-                        const prev = growthbook.getFeatures()
-                        if (!isEqual(prev, features)) {
-                            growthbook.setPayload({ features })
-                        }
-                    })
-                    .catch(e => console.error(e))
-                    .finally(() => {
-                        if (!growthbook.ready) {
-                            // NOTE: we need to update features so that growthbook is ready to work
-                            const prev = growthbook.getFeatures()
-                            growthbook.setPayload({ features: prev })
-                        }
-                    })
-            }
+            if (!serverUrl) return
+
+            const prev = growthbook.getFeatures()
+            let next = prev
+            fetch(`${serverUrl}/api/features`)
+                .then((res) => res.json())
+                .then((features) => {
+                    next = features
+                })
+                .catch(e => {
+                    if (!growthbook.ready && isEmpty(prev)) {
+                        // NOTE: we need to update features so that growthbook is ready to work
+                        next = prev
+                    }
+                    console.error(e)
+                })
+                .finally(() => {
+                    if (!growthbook.ready || !isEqual(prev, next)) {
+                        featuresRef.current = next
+                    }
+                })
         }
 
         fetchFeatures()
@@ -102,6 +102,22 @@ const FeatureFlagsProviderWrapper = ({ children, initFeatures = null }) => {
             clearInterval(handler)
         }
     }, [growthbook, serverUrl])
+
+    useEffect(() => {
+        console.log('growthbook.setPayload', {
+            'featuresRef.current': featuresRef.current,
+            userIsLoading,
+            organizationIsLoading,
+        })
+        if (!featuresRef.current || userIsLoading || organizationIsLoading) return
+
+        console.log('growthbook.setPayload:done', {
+            'featuresRef.current': featuresRef.current,
+            userIsLoading,
+            organizationIsLoading,
+        })
+        growthbook.setPayload({ features: featuresRef.current })
+    }, [featuresRef.current, userIsLoading, organizationIsLoading])
 
     useEffect(() => {
         updateContext({ isSupport: isSupport || isAdmin, organization: get(organization, 'id'), userId })
