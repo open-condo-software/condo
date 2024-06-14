@@ -1,7 +1,7 @@
 const { createReadStream } = require('fs')
 const { Duplex } = require('stream')
 
-const TRIM_DOTS_AND_COMMAS = /^([,.\s]+)|([,.\s]+)$/g
+const TRIM_DOTS_AND_COMMAS = /^([,.\s]+)|([,.\s]+)$/g // NOSONAR two groups usage required for proper work of regexp
 const INVISIBLE_CHARS_REGEXP = new RegExp('[\u200B-\u200D\uFEFF]', 'g')
 
 const clearString = (cell) => {

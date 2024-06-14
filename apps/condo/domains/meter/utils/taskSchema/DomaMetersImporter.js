@@ -1,8 +1,8 @@
 const { get, isEqual, isNil } = require('lodash')
 
+const { AbstractMetersImporter } = require('./AbstractMetersImporter')
 const { TransformRowError } = require('./MetersDataImporterTypes')
 
-const { AbstractMetersImporter } = require('./AbstractMetersImporter')
 
 class DomaMetersImporter extends AbstractMetersImporter {
     hasColumnsHeaders () {
