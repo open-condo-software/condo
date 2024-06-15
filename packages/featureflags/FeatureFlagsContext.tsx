@@ -4,7 +4,7 @@ import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
 import { NextPage } from 'next'
 import getConfig from 'next/config'
-import { createContext, useCallback, useContext, useEffect, useRef } from 'react'
+import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 
 import {
     DEBUG_RERENDERS,
@@ -45,7 +45,7 @@ const FeatureFlagsProviderWrapper = ({ children, initFeatures = null }) => {
     const growthbook = useGrowthBook()
     const { user, isLoading: userIsLoading  } = useAuth()
     const { organization, isLoading: organizationIsLoading } = useOrganization()
-    const featuresRef = useRef(initFeatures)
+    const [features, setFeature] = useState(initFeatures)
 
     const isSupport = get(user, 'isSupport', false)
     const isAdmin = get(user, 'isAdmin', false)
@@ -67,8 +67,8 @@ const FeatureFlagsProviderWrapper = ({ children, initFeatures = null }) => {
             let next = prev
             fetch(`${serverUrl}/api/features`)
                 .then((res) => res.json())
-                .then((features) => {
-                    next = features
+                .then((newFeatures) => {
+                    next = newFeatures
                 })
                 .catch(e => {
                     if (!growthbook.ready && isEmpty(prev)) {
@@ -79,7 +79,7 @@ const FeatureFlagsProviderWrapper = ({ children, initFeatures = null }) => {
                 })
                 .finally(() => {
                     if (!growthbook.ready || !isEqual(prev, next)) {
-                        featuresRef.current = next
+                        setFeature(next)
                     }
                 })
         }
@@ -90,13 +90,13 @@ const FeatureFlagsProviderWrapper = ({ children, initFeatures = null }) => {
         return () => {
             clearInterval(handler)
         }
-    }, [growthbook, serverUrl])
+    }, [growthbook])
 
     useEffect(() => {
-        if (!featuresRef.current || userIsLoading || organizationIsLoading) return
+        if (!features || userIsLoading || organizationIsLoading) return
 
-        growthbook.setPayload({ features: featuresRef.current })
-    }, [featuresRef.current, userIsLoading, organizationIsLoading])
+        growthbook.setPayload({ features: features })
+    }, [features, userIsLoading, organizationIsLoading])
 
     useEffect(() => {
         updateContext({ isSupport: isSupport || isAdmin, organization: get(organization, 'id'), userId })
