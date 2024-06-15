@@ -11,7 +11,7 @@ import { useRouter } from 'next/router'
 import React, { useMemo } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
-import { FeatureFlagsProvider, useFeatureFlags, FeaturesReady, withFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
+import { useFeatureFlags, FeaturesReady, withFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import * as AllIcons from '@open-condo/icons'
 import { extractReqLocale } from '@open-condo/locales/extractReqLocale'
 import { withApollo, WithApolloProps } from '@open-condo/next/apollo'
