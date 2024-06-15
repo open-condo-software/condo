@@ -36,8 +36,8 @@ const PropertyMeterInfoPage = (): JSX.Element => {
         loading: isPeriodsLoading,
     } = MeterReportingPeriod.useObjects({ where: {
         OR: [
-            { AND: [ { organization: { id: organizationId } }, { property: { id: propertyId } }, { deletedAt: null } ] },
-            { AND: [ { organization: { id: organizationId } }, { property_is_null: true }, { deletedAt: null } ] },
+            { AND: [ { organization: { id: organizationId } }, { property: { id: propertyId } } ] },
+            { AND: [ { organization: { id: organizationId } }, { property_is_null: true } ] },
         ],
     },
     })

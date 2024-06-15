@@ -112,29 +112,28 @@ export const AddressAndUnitInfo = (props: AddressAndUnitInfoProps): JSX.Element 
                 </Row>
             </Col>
            
-            {
-                (selectedPropertyId || initialValues) && meterType === METER_TAB_TYPES.meter && (property || initialValues) && (
-                    <Col span={24}>
-                        <Row gutter={FORM_ROW_SMALL_VERTICAL_GUTTER}>
+            {!isNoMeterForAddress && (
+                selectedPropertyId || initialValues) && meterType === METER_TAB_TYPES.meter && (property || initialValues) && (
+                <Col span={24}>
+                    <Row gutter={FORM_ROW_SMALL_VERTICAL_GUTTER}>
+                        <Col span={24}>
+                            <UnitInfo
+                                property={property}
+                                loading={propertyLoading}
+                                setSelectedUnitName={setSelectedUnitName}
+                                setSelectedUnitType={setSelectedUnitType}
+                                form={form}
+                                required
+                                initialValues={{ unitName: get(initialValues, 'unitName'), unitType: get(initialValues, 'unitType') }}
+                            />
+                        </Col>
+                        {notFoundMetersForAddressTooltip && isNoMeterForUnitName && (
                             <Col span={24}>
-                                <UnitInfo
-                                    property={property}
-                                    loading={propertyLoading}
-                                    setSelectedUnitName={setSelectedUnitName}
-                                    setSelectedUnitType={setSelectedUnitType}
-                                    form={form}
-                                    required
-                                    initialValues={{ unitName: get(initialValues, 'unitName'), unitType: get(initialValues, 'unitType') }}
-                                />
+                                <Typography.Text size='small' type='secondary'>{notFoundMetersForAddressTooltip}</Typography.Text>
                             </Col>
-                            {notFoundMetersForAddressTooltip && isNoMeterForUnitName && (
-                                <Col span={24}>
-                                    <Typography.Text size='small' type='secondary'>{notFoundMetersForAddressTooltip}</Typography.Text>
-                                </Col>
-                            )}
-                        </Row>
-                    </Col>
-                )
+                        )}
+                    </Row>
+                </Col>)
             }
         </Row>
     )

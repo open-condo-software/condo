@@ -325,6 +325,7 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
                             archiveDate={get(meter, 'archiveDate')}
                             isAutomatic={isAutomatic}
                             nextVerificationDate={nextVerificationDate}
+                            propertyId={get(meter, 'property.id')}
                         />)
                     }
                     
@@ -381,6 +382,7 @@ export const PropertyMeterReadingsPageContent: React.FC<PropertyMetersTableConte
                         archiveDate={get(meter, 'archiveDate')}
                         isAutomatic={isAutomatic}
                         nextVerificationDate={nextVerificationDate}
+                        propertyId={get(meter, 'property.id')}
                     />
                 )
             }

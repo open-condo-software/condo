@@ -15,7 +15,7 @@ import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isNull from 'lodash/isNull'
 import uniqWith from 'lodash/uniqWith'
-import router, { useRouter } from 'next/router'
+import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { Meters } from '@open-condo/icons'
@@ -124,6 +124,7 @@ export const MetersTable = ({
     const { user } = useAuth()
     const { breakpoints } = useLayoutContext()
     const tableScrollConfig = useMemo(() => !breakpoints.TABLET_LARGE ? TABLE_SCROlL_CONFIG : null, [breakpoints.TABLET_LARGE])
+    const router = useRouter()
 
     const { objs: meters, refetch: refetchMeters, loading: metersLoading, count: total } = Meter.useObjects({
         where: {
@@ -246,12 +247,14 @@ export const CreateMeterReadingsForm = ({ organization, role, canManageMeterRead
 
     const router = useRouter()
 
-    const [selectedPropertyId, setSelectedPropertyId] = useState<string>(null)
-    const [selectedUnitName, setSelectedUnitName] = useState<string>(null)
-    const [selectedUnitType, setSelectedUnitType] = useState<MeterUnitTypeType>(MeterUnitTypeType.Flat)
+    const propertyIdFromQuery = get(router.query, 'propertyId')
+    const unitNameFromQuery = get(router.query, 'unitName')
+    const unitTypeFromQuery = get(router.query, 'unitType')
+    
+    const [selectedPropertyId, setSelectedPropertyId] = useState<string>(propertyIdFromQuery as string || null)
+    const [selectedUnitName, setSelectedUnitName] = useState<string>(unitNameFromQuery as string || null)
+    const [selectedUnitType, setSelectedUnitType] = useState<MeterUnitTypeType>(unitTypeFromQuery as MeterUnitTypeType || MeterUnitTypeType.Flat)
     const [isMatchSelectedProperty, setIsMatchSelectedProperty] = useState(true)
-    const [isNoMeterForAddress, setIsNoMeterForAddress] = useState(false)
-    const [isNoMeterForUnitName, setIsNoMeterForUnitName] = useState(false)
     const selectPropertyIdRef = useRef(selectedPropertyId)
     const selectedUnitNameRef = useRef(selectedUnitName)
     const selectedUnitTypeRef = useRef(selectedUnitType)
@@ -284,9 +287,17 @@ export const CreateMeterReadingsForm = ({ organization, role, canManageMeterRead
             unitName: selectedUnitName,
             archiveDate: null,
         },
-    }, { skip: isNull(selectedPropertyId || selectedUnitName) })
+    }, { skip: isNull(selectedPropertyId) || isNull(selectedUnitName) })
 
     const { newMeterReadings, setNewMeterReadings, tableColumns } = useMeterTableColumns(METER_TAB_TYPES.meter)
+    const isNoMeterForAddress = useMemo(() => !isEmpty(selectedPropertyId) && !meterCountForAddressLoading && meterCountForAddress === 0, [meterCountForAddress, meterCountForAddressLoading, selectedPropertyId])
+    const isNoMeterForUnitName = useMemo(() => isEmpty(selectedUnitName) ? false : !meterCountForUnitNameLoading && meterCountForUnitName < 1, [meterCountForUnitName, meterCountForUnitNameLoading, selectedUnitName])
+
+    const [propertyUnitInitialValues, setPropertyUnitInitialValues] = useState(()=> !propertyIdFromQuery ? ({}) : ({
+        propertyId: propertyIdFromQuery as string,
+        unitName: unitNameFromQuery as string,
+        unitType: unitTypeFromQuery as string,
+    }))
 
     const createMeterReadingAction = MeterReading.useCreate({
         source: { connect: { id: CALL_METER_READING_SOURCE_ID } },
@@ -330,22 +341,16 @@ export const CreateMeterReadingsForm = ({ organization, role, canManageMeterRead
 
     useEffect(() => {        
         selectPropertyIdRef.current = selectedPropertyId
-        setSelectedUnitName(null)
-        if (selectedPropertyId && !meterCountForAddressLoading && meterCountForAddress < 1) {
-            setIsNoMeterForAddress(true)
-        } else {
-            setIsNoMeterForAddress(false)
+        if (!propertyUnitInitialValues || !selectedPropertyId) {
+            setSelectedUnitName(null)
+            setSelectedUnitType(MeterUnitTypeType.Flat)
         }
+        if (!selectedPropertyId) setPropertyUnitInitialValues({})
 
     }, [selectedPropertyId, meterCountForAddressLoading, meterCountForAddress])
 
     useEffect(() => {
         selectedUnitNameRef.current = selectedUnitName
-        if (!selectedUnitName) {
-            setIsNoMeterForUnitName(false)
-        } else {
-            if (!meterCountForUnitNameLoading && meterCountForUnitName < 1) setIsNoMeterForUnitName(true)
-        }
     }, [selectedUnitName, meterCountForUnitName, meterCountForUnitNameLoading])
 
     const notFoundMetersForAddressTooltip = useMemo(() => {
@@ -414,6 +419,7 @@ export const CreateMeterReadingsForm = ({ organization, role, canManageMeterRead
                                                     propertyLoading={propertyLoading}
                                                     setSelectedUnitName={setSelectedUnitName}
                                                     setSelectedUnitType={setSelectedUnitType}
+                                                    initialValues={propertyUnitInitialValues}
                                                 />
                                             </Col>
                                             <Col span={24}>
@@ -466,6 +472,7 @@ export const PropertyMetersTable = ({
 
     const { breakpoints } = useLayoutContext()
     const tableScrollConfig = useMemo(() => !breakpoints.TABLET_LARGE ? TABLE_SCROlL_CONFIG : null, [breakpoints.TABLET_LARGE])
+    const router = useRouter()
 
     const { objs: meters, refetch: refetchMeters, loading: metersLoading, count: total } = PropertyMeter.useObjects({
         where: {
@@ -549,9 +556,11 @@ export const CreatePropertyMeterReadingsForm = ({ organization, canManageMeterRe
     const NotFoundMeters = intl.formatMessage({ id: 'pages.condo.meter.noMetersOnAddress' })
     const NotFoundMetersLink = intl.formatMessage({ id: 'pages.condo.meter.noMetersOnAddress.link' })
 
-    const [selectedPropertyId, setSelectedPropertyId] = useState<string>(null)
+    const router = useRouter()
+    const propertyIdFromQuery = get(router.query, 'propertyId')
+
+    const [selectedPropertyId, setSelectedPropertyId] = useState<string>(propertyIdFromQuery as string || null)
     const [isMatchSelectedProperty, setIsMatchSelectedProperty] = useState(true)
-    const [isNoMeterForAddress, setIsNoMeterForAddress] = useState(false)
     const selectPropertyIdRef = useRef(selectedPropertyId)
     const organizationId = get(organization, 'id')
 
@@ -563,7 +572,6 @@ export const CreatePropertyMeterReadingsForm = ({ organization, canManageMeterRe
         tableColumns,
     } = useMeterTableColumns(METER_TAB_TYPES.propertyMeter)
 
-    const router = useRouter()
 
     const createMeterReadingAction = PropertyMeterReading.useCreate({
         source: { connect: { id: CRM_METER_READING_SOURCE_ID } },
@@ -571,22 +579,23 @@ export const CreatePropertyMeterReadingsForm = ({ organization, canManageMeterRe
         await router.push(`/meter?tab=${METER_TAB_TYPES.meterReading}&type=${METER_TYPES.property}`)
     })
 
-    const { count: proeprtyMeterCount, loading: propertyMeterCountLoading } = PropertyMeter.useCount({
+    const { count: propertyMetersCount, loading: propertyMetersCountLoading } = PropertyMeter.useCount({
         where: {
             property: { id: selectedPropertyId },
             archiveDate: null,
         },
     }, { skip: isNull(selectedPropertyId) })
 
+    const propertyUnitInitialValues = useMemo(()=> ({
+        propertyId: propertyIdFromQuery as string,
+    }), [propertyIdFromQuery])
+
+    const isNoMeterForAddress = useMemo(() => !isEmpty(selectedPropertyId) && !propertyMetersCountLoading && propertyMetersCount === 0, [propertyMetersCount, propertyMetersCountLoading, selectedPropertyId])
+
     useEffect(() => {        
         selectPropertyIdRef.current = selectedPropertyId
-        if (selectedPropertyId && !propertyMeterCountLoading && proeprtyMeterCount < 1) {
-            setIsNoMeterForAddress(true)
-        } else {
-            setIsNoMeterForAddress(false)
-        }
 
-    }, [selectedPropertyId, propertyMeterCountLoading, proeprtyMeterCount])
+    }, [selectedPropertyId, propertyMetersCountLoading, propertyMetersCount])
 
     const handleSubmit = useCallback(async (values) => {
         for (const [meterId, newMeterReading] of Object.entries(newMeterReadings)) {
@@ -665,6 +674,7 @@ export const CreatePropertyMeterReadingsForm = ({ organization, canManageMeterRe
                                     selectedPropertyId={selectedPropertyId}
                                     notFoundMetersForAddressTooltip={notFoundMetersForAddressTooltip}
                                     isNoMeterForAddress={isNoMeterForAddress}
+                                    initialValues={propertyUnitInitialValues}
                                 />
                             </Col>
                             <PropertyMetersTable

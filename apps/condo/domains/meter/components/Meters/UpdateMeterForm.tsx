@@ -55,7 +55,7 @@ export const UpdateMeterForm = (props: UpdateMeterProps): JSX.Element => {
     const MeterIdentity = isPropertyMeter ? PropertyMeter : Meter
 
     const updateMeterAction = MeterIdentity.useUpdate({}, async (meter) => {
-        await router.push(`/meter/${meterType === METER_TAB_TYPES.propertyMeter ? 'property' : 'unit'}/${meter.id}?propertyId=${selectedPropertyId}`)
+        await router.push(`/meter/${meterType === METER_TAB_TYPES.propertyMeter ? 'property' : 'unit'}/${meter.id}`)
     })
 
     const getCommonMeterFields = useCallback((values) => ({
@@ -153,7 +153,7 @@ export const UpdateMeterForm = (props: UpdateMeterProps): JSX.Element => {
                                     <Col span={24}>
                                         <ActionBar
                                             actions={[  
-                                                <Button key='save' type='primary' onClick={handleSave} >
+                                                <Button key='save' type='primary' onClick={handleSave} disabled={!canManageMeters}>
                                                     {SaveMessageButton}
                                                 </Button>,
                                                 <Button key='cancel' type='secondary' onClick={handleCancelEditing} >

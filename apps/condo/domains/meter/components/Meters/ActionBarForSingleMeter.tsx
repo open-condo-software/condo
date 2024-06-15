@@ -15,6 +15,9 @@ type ActionBarForSingleMeterProps = {
     meterType: MeterPageTypes
     isAutomatic: boolean
     nextVerificationDate: string
+    propertyId: string
+    unitName?: string
+    unitType?: string
     archiveDate?: string
 }
 
@@ -25,6 +28,9 @@ const ActionBarForSingleMeter = ({
     archiveDate,
     isAutomatic,
     nextVerificationDate,
+    propertyId,
+    unitName,
+    unitType,
 }: ActionBarForSingleMeterProps): JSX.Element => {
     const intl = useIntl()
     const DeleteMeterMessage = intl.formatMessage({ id: 'pages.condo.meter.Meter.DeleteMeter' })
@@ -44,13 +50,15 @@ const ActionBarForSingleMeter = ({
         router.push(`/meter?tab=meter&type=${isPropertyMeter ? METER_TYPES.property : METER_TYPES.unit}`)
     })
 
+    const isUsableMeter = !archiveDate && !isVerificationMissed 
+
     const handleUpdateMeterButtonClick = useCallback(() => 
         router.push(`/meter/${isPropertyMeter ? 'property' : 'unit'}/${meterId}/update`),
     [isPropertyMeter, meterId, router])
     
     const handleCreateMeterReadings = useCallback(() => 
-        router.push(`/meter/create?tab=${isPropertyMeter ? METER_TAB_TYPES.propertyMeterReading : METER_TAB_TYPES.meterReading}`),
-    [isPropertyMeter, router])
+        router.push(`/meter/create?tab=${isPropertyMeter ? METER_TAB_TYPES.propertyMeterReading : METER_TAB_TYPES.meterReading}&propertyId=${propertyId}${unitName ? `&unitName=${unitName}` : ''}${unitType ? `&unitType=${unitType}` : ''}`),
+    [isPropertyMeter, propertyId, router, unitName, unitType])
     
     const handleDeleteMeterButtonClick = useCallback(async () => {
         await softDeleteMeter({ id: meterId })
@@ -59,7 +67,7 @@ const ActionBarForSingleMeter = ({
     return (
         <ActionBar
             actions={[
-                canManageMeterReadings && !archiveDate && !isVerificationMissed && (
+                canManageMeterReadings && isUsableMeter && (
                     <Button
                         key='create'
                         type='primary'
@@ -69,7 +77,7 @@ const ActionBarForSingleMeter = ({
                         {CreateMeterReadingsButtonLabel}
                     </Button>
                 ),
-                !archiveDate && !isAutomatic && !isVerificationMissed &&  <Button
+                !isAutomatic && isUsableMeter && <Button
                     key='update'
                     type='secondary'
                     onClick={handleUpdateMeterButtonClick}

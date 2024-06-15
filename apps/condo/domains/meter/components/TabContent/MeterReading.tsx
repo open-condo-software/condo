@@ -365,6 +365,9 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
                             archiveDate={get(meter, 'archiveDate')}
                             isAutomatic={isAutomatic}
                             nextVerificationDate={nextVerificationDate}
+                            propertyId={get(meter, 'property.id')}
+                            unitName={get(meter, 'unitName')}
+                            unitType={get(meter, 'unitType')}
                         />
                     </Col>)
                 }
@@ -433,6 +436,9 @@ export const MeterReadingsPageContent: React.FC<MeterReadingsPageContentProps> =
                                 isAutomatic={isAutomatic}
                                 archiveDate={get(meter, 'archiveDate')}
                                 nextVerificationDate={nextVerificationDate}
+                                propertyId={get(meter, 'property.id')}
+                                unitName={get(meter, 'unitName')}
+                                unitType={get(meter, 'unitType')}
                             />
                         </Col>)
                     }
