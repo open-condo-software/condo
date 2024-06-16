@@ -910,7 +910,7 @@ const MESSAGE_DELIVERY_OPTIONS = {
         // NOTE: Used for mass distribution by MessageBatch
         priority: MESSAGE_DELIVERY_SLOW_PRIORITY,
     },
-    [NEWS_ITEM_EMERGENCY_MESSAGE_TYPE]: {
+    [SEND_DAILY_STATISTICS_MESSAGE_TYPE]: {
         allowedTransports: [EMAIL_TRANSPORT],
         defaultTransports: [EMAIL_TRANSPORT],
         isAllowedToChangeDefaultTransport: false,
