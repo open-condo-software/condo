@@ -4,6 +4,12 @@
 exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
+
+--
+-- [CUSTOM] Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
+--
+SET statement_timeout = '1500s';
+
 --
 -- Add field archiveDate to meter
 --
@@ -20,6 +26,28 @@ ALTER TABLE "PropertyMeter" ADD COLUMN "archiveDate" timestamp with time zone NU
 -- Add field archiveDate to propertymeterhistoryrecord
 --
 ALTER TABLE "PropertyMeterHistoryRecord" ADD COLUMN "archiveDate" timestamp with time zone NULL;
+
+--
+-- [CUSTOM] Added tour steps to existing organizations
+--
+DO
+$$
+    DECLARE
+        orgId uuid;
+    BEGIN
+        FOR orgId IN SELECT id FROM "Organization"
+            LOOP
+                INSERT INTO "TourStep" (id, organization, type, status, "order", v, "createdAt", "updatedAt", dv, sender)
+                VALUES (uuid_generate_v4(), orgId, 'createMeter', 'todo', 250, 1, now(), now(), 1, '{"dv": 1,"fingerprint": "migration"}'::json)
+                ;
+            END LOOP;
+    END
+$$;
+--
+-- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
+--
+SET statement_timeout = '10s';
+
 COMMIT;
 
     `)
