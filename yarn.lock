@@ -1930,6 +1930,7 @@ __metadata:
     "@types/react-dom": 18.0.10
     antd: 5.16.4
     apollo-upload-client: ^17
+    apollo3-cache-persist: ^0.15.0
     classnames: ^2.3.2
     deepmerge: ^4.3.1
     graphql: ^16.8.1
@@ -19015,6 +19016,15 @@ __metadata:
   peerDependencies:
     graphql: ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
   checksum: 6e0192a3420782909c930f5230808d7fbbdbcdfccddd960120e19bab251b77a16e590b05dbb4a7da2c27c59077fbfd53e56819a9fae694debe7f898e8b0ec1e9
+  languageName: node
+  linkType: hard
+
+"apollo3-cache-persist@npm:^0.15.0":
+  version: 0.15.0
+  resolution: "apollo3-cache-persist@npm:0.15.0"
+  peerDependencies:
+    "@apollo/client": ^3.7.17
+  checksum: 99d69566154f1a806db22e26c5ed12834c466fd75b05048041b49e8e61483720569f63c68ffdc00314f8a248e13aa3d3014768c90a7993f47f862cd1df94fe4b
   languageName: node
   linkType: hard
 
