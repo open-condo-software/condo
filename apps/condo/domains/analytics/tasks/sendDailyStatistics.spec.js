@@ -589,7 +589,7 @@ describe('sendDailyStatistics', () => {
             await sendDailyMessageToUserSafely(context, { ...administratorClient.user, email: administratorClient.userAttrs.email }, currentDate)
             await sendDailyMessageToUserSafely(context, { ...administratorClient.user, email: administratorClient.userAttrs.email }, currentDate)
 
-            const message = await Message.getOne(admin, {
+            let message = await Message.getOne(admin, {
                 uniqKey: `send_daily_statistics_${administratorClient.user.id}_${dayjs(currentDate).format('DD-MM-YYYY')}`,
             })
 
@@ -625,6 +625,13 @@ describe('sendDailyStatistics', () => {
                     tags: [`orgId: ${administratorClient.organization.id}`.slice(0, 128)],
                 }),
             }))
+
+            await waitFor(async () => {
+                message = await Message.getOne(admin, {
+                    uniqKey: `send_daily_statistics_${administratorClient.user.id}_${dayjs(currentDate).format('DD-MM-YYYY')}`,
+                })
+                expect(message.status).toEqual('sent')
+            })
         })
 
         test('should return "disabled" if feature flag is disabled', async () => {
