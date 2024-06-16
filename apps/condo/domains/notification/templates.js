@@ -3,6 +3,7 @@ const path = require('path')
 
 const dayjs = require('dayjs')
 const { get, unescape, isObject, isArray } = require('lodash')
+const mjml2html = require('mjml')
 const Nunjucks = require('nunjucks')
 
 const conf = require('@open-condo/config')
@@ -62,7 +63,7 @@ function getTemplate (locale, messageType, transportType) {
  * @param {string} locale
  * @param {string} messageType
  *
- * @returns {{templatePathText: ?string, templatePathHtml: ?string}}
+ * @returns {{templatePathText: ?string, templatePathHtml: ?string, templatePathMjml: ?string}}
  */
 function getEmailTemplate (locale, messageType) {
     // this is template reading method and files are distributed as part of source codes
@@ -72,9 +73,12 @@ function getEmailTemplate (locale, messageType) {
     const emailTextTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${EMAIL_TRANSPORT}.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
     // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     const emailHtmlTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${EMAIL_TRANSPORT}.html.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+    const emailMjmlTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${EMAIL_TRANSPORT}.mjml.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
 
     let templatePathText = null
     let templatePathHtml = null
+    let templatePathMjml = null
 
     if (fs.existsSync(emailTextTemplatePath)) {
         templatePathText = emailTextTemplatePath
@@ -84,11 +88,15 @@ function getEmailTemplate (locale, messageType) {
         templatePathHtml = emailHtmlTemplatePath
     }
 
-    if (!templatePathText && !templatePathHtml && fs.existsSync(defaultTemplatePath)) {
+    if (fs.existsSync(emailMjmlTemplatePath)) {
+        templatePathMjml = emailMjmlTemplatePath
+    }
+
+    if (!templatePathText && !templatePathHtml && !templatePathMjml && fs.existsSync(defaultTemplatePath)) {
         templatePathText = defaultTemplatePath
     }
 
-    if (templatePathText || templatePathHtml) return { templatePathText, templatePathHtml }
+    if (templatePathText || templatePathHtml || templatePathMjml) return { templatePathText, templatePathHtml, templatePathMjml }
 
     throw new Error(`There is no "${locale}" template for "${messageType}" to send by "${EMAIL_TRANSPORT}"`)
 }
@@ -222,7 +230,7 @@ function smsRenderer ({ message, env }) {
  */
 function emailRenderer ({ message, env }) {
     const { lang: locale, type } = message
-    const { templatePathText, templatePathHtml } = getEmailTemplate(locale, type)
+    const { templatePathText, templatePathHtml, templatePathMjml } = getEmailTemplate(locale, type)
     const messageTranslated = substituteTranslations(message, locale)
     const ret = {
         subject: i18n(translationStringKeyForEmailSubject(type), { locale, meta: messageTranslated.meta }),
@@ -237,6 +245,10 @@ function emailRenderer ({ message, env }) {
 
     if (templatePathHtml) {
         ret.html = nunjucks.render(templatePathHtml, { message: messageTranslated, env })
+    }
+
+    if (templatePathMjml) {
+        ret.html = mjml2html(nunjucks.render(templatePathMjml, { message: messageTranslated, env })).html
     }
 
     return ret
