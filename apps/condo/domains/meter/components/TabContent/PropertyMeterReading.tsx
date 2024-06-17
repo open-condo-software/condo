@@ -202,6 +202,9 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
     }), [handleSelectAllRowsByPage, handleSelectRowWithTracking, isSelectedAllRowsByPage, isSelectedSomeRowsByPage, selectedRowKeysByPage])
 
     const handleUpdateMeterReading = useCallback((record) => { 
+        if (get(meter, 'archiveDate')) {
+            return {}
+        }
         return {
             onClick: () => {
                 setIsShowUpdateReadingModal(true)

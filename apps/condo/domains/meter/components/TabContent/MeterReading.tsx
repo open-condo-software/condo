@@ -225,6 +225,9 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
 
     const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
     const handleUpdateMeterReading = useCallback((record) => { 
+        if (get(meter, 'archiveDate')) {
+            return {}
+        }
         return {
             onClick: () => {
                 setIsShowUpdateReadingModal(true)
