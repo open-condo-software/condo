@@ -173,6 +173,7 @@ export const UpdateNewsForm: React.FC<IUpdateNewsForm> = ({ id }) => {
     }
 
     return (
+        // @ts-ignore
         <BaseNewsForm
             organizationId={organizationId}
             newsItemAction={action}
@@ -186,8 +187,6 @@ export const UpdateNewsForm: React.FC<IUpdateNewsForm> = ({ id }) => {
             allNews={allNews}
             actionName='update'
             totalProperties={totalProperties}
-            // @ts-ignore
-            newsItemSharingAction={() => {}}
         />
     )
 }
