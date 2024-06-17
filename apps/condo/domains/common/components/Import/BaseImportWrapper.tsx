@@ -76,6 +76,7 @@ type TBaseImportWrapperProps = {
     totalRowsRef: React.MutableRefObject<number>,
     error: any,
     dataImporter: JSX.Element,
+    exampleModalAdditionalContent?: JSX.Element,
 }
 
 const BaseImportWrapper: React.FC<TBaseImportWrapperProps> = (props) => {
@@ -93,6 +94,7 @@ const BaseImportWrapper: React.FC<TBaseImportWrapperProps> = (props) => {
         totalRowsRef,
         error,
         dataImporter,
+        exampleModalAdditionalContent,
     } = props
 
     const intl = useIntl()
@@ -179,6 +181,7 @@ const BaseImportWrapper: React.FC<TBaseImportWrapperProps> = (props) => {
                         message={RequiredFieldsTitle}
                         description={ImportRequiredFieldsMessage}
                     />
+                    {exampleModalAdditionalContent}
                     <LinkWithIcon
                         title={ExampleLinkMessage}
                         size='medium'

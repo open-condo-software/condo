@@ -37,6 +37,8 @@ export interface IImportWrapperProps {
         header: Pick<CardHeaderProps, 'emoji' | 'headingTitle'>,
         body: Pick<CardBodyProps, 'description'>
     }
+    exampleModalAdditionalContent?: JSX.Element
+    handleClose?: () => void
 }
 
 export function fitToColumn (arrayOfArray) {
@@ -65,6 +67,8 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
         uploadButtonLabel,
         domainName,
         importCardButton,
+        exampleModalAdditionalContent,
+        handleClose,
     } = props
 
     const intl = useIntl()
@@ -163,7 +167,13 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
         })
     }, [ErrorsMessage, columns, domainName])
 
-    const closeModal = useCallback(() => setActiveModal(null), [])
+    const closeModal = useCallback(() => {
+        if (isFunction(handleClose)) {
+            handleClose()
+        }
+
+        setActiveModal(null)
+    }, [handleClose])
 
     const handleBreakImport = useCallback(() => {
         closeModal()
@@ -200,6 +210,7 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
                     totalRowsRef,
                     error,
                     dataImporter,
+                    exampleModalAdditionalContent,
                 }}
             />
         )
