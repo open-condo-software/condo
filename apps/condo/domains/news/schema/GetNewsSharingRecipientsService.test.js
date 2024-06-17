@@ -32,7 +32,7 @@ const {
     SUCCESS_PUBLISH_URL,
     SUCCESS_GET_RECIPIENTS_RESULT,
     NewsSharingTestingApp,
-} = require('../utils/testSchema/NewsSharingTestingApp')
+} = require('@condo/domains/news/utils/testSchema/NewsSharingTestingApp')
 
 let adminClient, dummyO10n, staffClientWithPermissions, dummyB2BContextWithNewsSharingConfig, testExpressAppBaseUrl
 

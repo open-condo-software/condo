@@ -13,9 +13,9 @@ const { STATUSES, ALLOWED_TRANSITIONS } = require('@condo/domains/news/constants
 const publishNewsItemSharing = require('@condo/domains/news/tasks/publishNewsItemSharing')
 
 const {
-    BAD_STATUS_TRANSTION,
+    BAD_STATUS_TRANSITION,
     NOT_NEWS_SHARING_CONTEXT,
-} = require('../constants/errors')
+} = require('@condo/domains/news/constants/errors')
 
 
 
@@ -29,7 +29,7 @@ const ERRORS = {
     },
     BAD_STATUS_TRANSITION: {
         code: BAD_USER_INPUT,
-        type: BAD_STATUS_TRANSTION,
+        type: BAD_STATUS_TRANSITION,
         message: 'Cannot do this status transition',
         mutation: 'updateNewsItemSharing',
     },
