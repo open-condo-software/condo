@@ -26,7 +26,7 @@ const { MeterResourceOwner: MeterResourceOwnerGQL } = require('@condo/domains/me
 const { EXPORT_PROPERTY_METER_READINGS_QUERY } = require('@condo/domains/meter/gql')
 const { INTERNAL_DELETE_METER_READINGS_MUTATION } = require('@condo/domains/meter/gql')
 const { REGISTER_METERS_READINGS_MUTATION } = require('@condo/domains/meter/gql')
-const { MeterImportTask: MeterImportTaskGQL } = require('@condo/domains/meter/gql')
+const { MeterReadingsImportTask: MeterReadingsImportTaskGQL } = require('@condo/domains/meter/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateGQLTestUtils(MeterResourceGQL)
@@ -38,7 +38,7 @@ const PropertyMeter = generateGQLTestUtils(PropertyMeterGQL)
 const PropertyMeterReading = generateGQLTestUtils(PropertyMeterReadingGQL)
 const MeterReportingPeriod = generateGQLTestUtils(MeterReportingPeriodGQL)
 const MeterResourceOwner = generateGQLTestUtils(MeterResourceOwnerGQL)
-const MeterImportTask = generateGQLTestUtils(MeterImportTaskGQL)
+const MeterReadingsImportTask = generateGQLTestUtils(MeterReadingsImportTaskGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const { COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
@@ -454,7 +454,7 @@ async function registerMetersReadingsByTestClient(client, organization, readings
     return [data.result, attrs]
 }
 
-async function createTestMeterImportTask (client, user, organization, extraAttrs = {}) {
+async function createTestMeterReadingsImportTask (client, user, organization, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!user || !user.id) throw new Error('no user.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -466,11 +466,11 @@ async function createTestMeterImportTask (client, user, organization, extraAttrs
         organization: { connect: { id: organization.id } },
         ...extraAttrs,
     }
-    const obj = await MeterImportTask.create(client, attrs)
+    const obj = await MeterReadingsImportTask.create(client, attrs)
     return [obj, attrs]
 }
 
-async function updateTestMeterImportTask (client, id, extraAttrs = {}) {
+async function updateTestMeterReadingsImportTask (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -480,7 +480,7 @@ async function updateTestMeterImportTask (client, id, extraAttrs = {}) {
         sender,
         ...extraAttrs,
     }
-    const obj = await MeterImportTask.update(client, id, attrs)
+    const obj = await MeterReadingsImportTask.update(client, id, attrs)
     return [obj, attrs]
 }
 
@@ -502,6 +502,6 @@ module.exports = {
     _internalDeleteMeterReadingsByTestClient,
     exportPropertyMeterReadingsByTestClient,
     createTestReadingData, registerMetersReadingsByTestClient,
-    MeterImportTask, createTestMeterImportTask, updateTestMeterImportTask,
+    MeterReadingsImportTask, createTestMeterReadingsImportTask, updateTestMeterReadingsImportTask,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

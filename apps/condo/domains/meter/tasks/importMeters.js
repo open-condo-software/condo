@@ -17,15 +17,15 @@ const {
     ERROR,
     CANCELLED,
     COMPLETED,
-    METER_IMPORT_TASK_FOLDER_NAME,
+    METER_READINGS_IMPORT_TASK_FOLDER_NAME,
 } = require('@condo/domains/common/constants/import')
 const { EXCEL_FILE_META } = require('@condo/domains/common/utils/createExportFile')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
-const { MeterImportTask } = require('@condo/domains/meter/utils/serverSchema')
+const { MeterReadingsImportTask } = require('@condo/domains/meter/utils/serverSchema')
 const { getImporter } = require('@condo/domains/meter/utils/taskSchema')
 
 const dvAndSender = { dv: 1, sender: { dv: 1, fingerprint: 'import-meter-job' } }
-const fileAdapter = new FileAdapter(METER_IMPORT_TASK_FOLDER_NAME)
+const fileAdapter = new FileAdapter(METER_READINGS_IMPORT_TASK_FOLDER_NAME)
 
 function createUpload (content, filename, mimetype) {
     // handle file upload
@@ -51,7 +51,7 @@ async function failWithErrorFile (context, taskId, content, format) {
     const filename = format === DOMA_EXCEL ? 'meters_failed_data.xlsx' : 'meters_failed_data.csv'
     const mimetype = format === DOMA_EXCEL ? EXCEL_FILE_META.mimetype : 'text/csv'
 
-    await MeterImportTask.update(context, taskId, {
+    await MeterReadingsImportTask.update(context, taskId, {
         ...dvAndSender,
         status: ERROR,
         errorFile: await createUpload(content, filename, mimetype),
@@ -65,15 +65,15 @@ async function failWithErrorFile (context, taskId, content, format) {
  * If this operation takes more than a timeout in Bull (30 seconds), a 'stalled' event
  * will be emitted and the job will be translated to 'failed' state
  *
- * @param taskId - id of `MeterImportTask` record, obtained from job `data` arguments
+ * @param taskId - id of `MeterReadingsImportTask` record, obtained from job `data` arguments
  * @returns {Promise<void>}
  */
 async function importMeters (taskId) {
     if (!taskId) throw new Error('taskId is undefined')
-    const { keystone: context } = await getSchemaCtx('MeterImportTask')
+    const { keystone: context } = await getSchemaCtx('MeterReadingsImportTask')
 
     // get task definition
-    const { file, user, organization } = await MeterImportTask.getOne(context, { id: taskId })
+    const { file, user, organization } = await MeterReadingsImportTask.getOne(context, { id: taskId })
 
     // download file
     const content = await getObjectStream(file, fileAdapter, false)
@@ -86,7 +86,7 @@ async function importMeters (taskId) {
 
     // For now we support only two formats: doma-excel and 1S (txt/csv)
     const format = await converter.isExcelFile() ? DOMA_EXCEL : CSV
-    await MeterImportTask.update(context, taskId, {
+    await MeterReadingsImportTask.update(context, taskId, {
         ...dvAndSender,
         format,
     })
@@ -101,7 +101,7 @@ async function importMeters (taskId) {
     await importer.import(data)
     
     // get failed rows
-    const { status: currentStatus } = await MeterImportTask.getOne(context, { id: taskId })
+    const { status: currentStatus } = await MeterReadingsImportTask.getOne(context, { id: taskId })
     const { failedRows } = importer
     
     // postprocessing results:
@@ -112,7 +112,7 @@ async function importMeters (taskId) {
     if (currentStatus === ERROR || currentStatus === CANCELLED) {
         return
     } else if (currentStatus === PROCESSING && failedRows.length === 0) {
-        await MeterImportTask.update(context, taskId, {
+        await MeterReadingsImportTask.update(context, taskId, {
             ...dvAndSender,
             status: COMPLETED,
         })

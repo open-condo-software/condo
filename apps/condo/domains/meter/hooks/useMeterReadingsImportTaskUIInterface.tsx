@@ -1,4 +1,4 @@
-import { MeterImportTask } from '@app/condo/schema'
+import { MeterReadingsImportTask } from '@app/condo/schema'
 import get from 'lodash/get'
 import React from 'react'
 
@@ -9,16 +9,16 @@ import { useTaskLauncher } from '@condo/domains/common/components/tasks/TaskLaun
 import { TASK_COMPLETED_STATUS, TASK_ERROR_STATUS } from '@condo/domains/common/constants/tasks'
 import { useExportTaskUIInterface } from '@condo/domains/common/hooks/useExportTaskUIInterface'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import { MeterImportTask as MeterImportTaskApi } from '@condo/domains/meter/utils/clientSchema'
+import { MeterReadingsImportTask as MeterReadingsImportTaskApi } from '@condo/domains/meter/utils/clientSchema'
 
 
-export const useMetersImportTaskUIInterface = () => {
-    const schemaName = 'MeterImportTask'
+export const useMeterReadingsImportTaskUIInterface = () => {
+    const schemaName = 'MeterReadingsImportTask'
 
     // @ts-ignore
-    const { TaskUIInterface } = useExportTaskUIInterface<MeterImportTask>({
+    const { TaskUIInterface } = useExportTaskUIInterface<MeterReadingsImportTask>({
         schemaName,
-        clientSchema: MeterImportTaskApi,
+        clientSchema: MeterReadingsImportTaskApi,
     })
 
     const intl = useIntl()
@@ -92,14 +92,14 @@ export const useMetersImportTaskUIInterface = () => {
     }
 
     return {
-        MeterImportTask: TaskUIInterface,
+        MeterReadingsImportTask: TaskUIInterface,
     }
 }
 
 export const useMetersImportTask = ({ file, userId, organizationId }) => {
-    const { MeterImportTask: TaskUIInterface } = useMetersImportTaskUIInterface()
+    const { MeterReadingsImportTask: TaskUIInterface } = useMeterReadingsImportTaskUIInterface()
 
-    // there must be all args to create MeterImportTask job
+    // there must be all args to create MeterReadingsImportTask job
     const { handleRunTask } = useTaskLauncher(TaskUIInterface, {
         dv: 1,
         sender: getClientSideSenderInfo(),

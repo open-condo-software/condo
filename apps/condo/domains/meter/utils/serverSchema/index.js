@@ -20,7 +20,7 @@ const { PropertyMeterReading: PropertyMeterReadingGQL } = require('@condo/domain
 const { MeterReportingPeriod: MeterReportingPeriodGQL } = require('@condo/domains/meter/gql')
 const { MeterResourceOwner: MeterResourceOwnerGQL } = require('@condo/domains/meter/gql')
 const { REGISTER_METERS_READINGS_MUTATION } = require('@condo/domains/meter/gql')
-const { MeterImportTask: MeterImportTaskGQL } = require('@condo/domains/meter/gql')
+const { MeterReadingsImportTask: MeterReadingsImportTaskGQL } = require('@condo/domains/meter/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateServerUtils(MeterResourceGQL)
@@ -47,7 +47,7 @@ async function registerMetersReadings (context, data) {
     })
 }
 
-const MeterImportTask = generateServerUtils(MeterImportTaskGQL)
+const MeterReadingsImportTask = generateServerUtils(MeterReadingsImportTaskGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 /**
@@ -238,6 +238,6 @@ module.exports = {
     MeterReportingPeriod,
     MeterResourceOwner,
     registerMetersReadings,
-    MeterImportTask,
+    MeterReadingsImportTask,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

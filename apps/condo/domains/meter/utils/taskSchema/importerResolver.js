@@ -22,7 +22,7 @@ const {
     EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION,
     METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION,
 } = require('@condo/domains/meter/constants/errors')
-const { MeterImportTask, registerMetersReadings } = require('@condo/domains/meter/utils/serverSchema')
+const { MeterReadingsImportTask, registerMetersReadings } = require('@condo/domains/meter/utils/serverSchema')
 const {
     FLAT_UNIT_TYPE,
     PARKING_UNIT_TYPE,
@@ -208,12 +208,12 @@ async function importRows (keystone, userId, organizationId, rows) {
 }
 
 async function breakProcessChecker (keystone, id) {
-    const task = await MeterImportTask.getOne(keystone, { id })
+    const task = await MeterReadingsImportTask.getOne(keystone, { id })
     return task.status === CANCELLED
 }
 
 async function errorHandler (keystone, id, error) {
-    await MeterImportTask.update(keystone, id, {
+    await MeterReadingsImportTask.update(keystone, id, {
         ...dvAndSender,
         status: ERROR,
         errorMessage: error,
@@ -221,21 +221,21 @@ async function errorHandler (keystone, id, error) {
 }
 
 async function setTotalRows (keystone, id, total) {
-    await MeterImportTask.update(keystone, id, {
+    await MeterReadingsImportTask.update(keystone, id, {
         ...dvAndSender,
         totalRecordsCount: total,
     })
 }
 
 async function setProcessedRows (keystone, id, processed) {
-    await MeterImportTask.update(keystone, id, {
+    await MeterReadingsImportTask.update(keystone, id, {
         ...dvAndSender,
         processedRecordsCount: processed,
     })
 }
 
 async function setImportedRows (keystone, id, imported) {
-    await MeterImportTask.update(keystone, id, {
+    await MeterReadingsImportTask.update(keystone, id, {
         ...dvAndSender,
         importedRecordsCount: imported,
     })

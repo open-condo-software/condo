@@ -15,7 +15,7 @@ const {
     ERROR,
 } = require('@condo/domains/common/constants/import')
 const { importMeters, createUpload } = require('@condo/domains/meter/tasks/importMeters')
-const { MeterImportTask, MeterReading } = require('@condo/domains/meter/utils/serverSchema')
+const { MeterReadingsImportTask, MeterReading } = require('@condo/domains/meter/utils/serverSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestPropertyWithMap } = require('@condo/domains/property/utils/testSchema')
 
@@ -78,7 +78,7 @@ describe('importMeters', () => {
         const validLines = 5
         const invalidLines = 0
         const fatalLines = 0
-        const meterImportTask = await MeterImportTask.create(context, {
+        const meterReadingsImportTask = await MeterReadingsImportTask.create(context, {
             ...dvAndSender,
             file: generateCsvFile(validLines, invalidLines, fatalLines, property),
             user: { connect: { id: adminClient.user.id } },
@@ -86,10 +86,10 @@ describe('importMeters', () => {
         })
 
         // run import
-        await importMeters(meterImportTask.id)
+        await importMeters(meterReadingsImportTask.id)
 
         // assert
-        const task = await MeterImportTask.getOne(context, { id: meterImportTask.id })
+        const task = await MeterReadingsImportTask.getOne(context, { id: meterReadingsImportTask.id })
         expect(task).toMatchObject({
             status: COMPLETED,
             format: CSV,
@@ -114,7 +114,7 @@ describe('importMeters', () => {
         const validLines = 5
         const invalidLines = 5
         const fatalLines = 0
-        const meterImportTask = await MeterImportTask.create(context, {
+        const meterReadingsImportTask = await MeterReadingsImportTask.create(context, {
             ...dvAndSender,
             file: generateCsvFile(validLines, invalidLines, fatalLines, property),
             user: { connect: { id: adminClient.user.id } },
@@ -122,10 +122,10 @@ describe('importMeters', () => {
         })
 
         // run import
-        await importMeters(meterImportTask.id)
+        await importMeters(meterReadingsImportTask.id)
 
         // assert
-        const task = await MeterImportTask.getOne(context, { id: meterImportTask.id })
+        const task = await MeterReadingsImportTask.getOne(context, { id: meterReadingsImportTask.id })
         expect(task).toMatchObject({
             status: ERROR,
             format: CSV,
@@ -150,7 +150,7 @@ describe('importMeters', () => {
         const validLines = 5
         const invalidLines = 5
         const fatalLines = 1
-        const meterImportTask = await MeterImportTask.create(context, {
+        const meterReadingsImportTask = await MeterReadingsImportTask.create(context, {
             ...dvAndSender,
             file: generateCsvFile(validLines, invalidLines, fatalLines, property),
             user: { connect: { id: adminClient.user.id } },
@@ -158,10 +158,10 @@ describe('importMeters', () => {
         })
 
         // run import
-        await importMeters(meterImportTask.id)
+        await importMeters(meterReadingsImportTask.id)
 
         // assert
-        const task = await MeterImportTask.getOne(context, { id: meterImportTask.id })
+        const task = await MeterReadingsImportTask.getOne(context, { id: meterReadingsImportTask.id })
         expect(task).toMatchObject({
             status: ERROR,
             format: CSV,
@@ -182,7 +182,7 @@ describe('importMeters', () => {
         const validLines = 5
         const invalidLines = 5
         const fatalLines = 0
-        const meterImportTask = await MeterImportTask.create(context, {
+        const meterReadingsImportTask = await MeterReadingsImportTask.create(context, {
             ...dvAndSender,
             status: CANCELLED,
             file: generateCsvFile(validLines, invalidLines, fatalLines, property),
@@ -191,10 +191,10 @@ describe('importMeters', () => {
         })
 
         // run import
-        await importMeters(meterImportTask.id)
+        await importMeters(meterReadingsImportTask.id)
 
         // assert
-        const task = await MeterImportTask.getOne(context, { id: meterImportTask.id })
+        const task = await MeterReadingsImportTask.getOne(context, { id: meterReadingsImportTask.id })
         expect(task).toMatchObject({
             status: CANCELLED,
             format: CSV,

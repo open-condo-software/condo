@@ -83,8 +83,8 @@ const REGISTER_METERS_READINGS_MUTATION = gql`
     }
 `
 
-const METER_IMPORT_TASK_FIELDS = `{ status format processedRecordsCount importedRecordsCount totalRecordsCount file { id filename originalFilename publicUrl mimetype } errorFile { id filename originalFilename publicUrl mimetype } errorMessage user { id } organization { id } meta ${COMMON_FIELDS} }`
-const MeterImportTask = generateGqlQueries('MeterImportTask', METER_IMPORT_TASK_FIELDS)
+const METER_READINGS_IMPORT_TASK_FIELDS = `{ status format processedRecordsCount importedRecordsCount totalRecordsCount file { id filename originalFilename publicUrl mimetype } errorFile { id filename originalFilename publicUrl mimetype } errorMessage user { id } organization { id } meta ${COMMON_FIELDS} }`
+const MeterReadingsImportTask = generateGqlQueries('MeterReadingsImportTask', METER_READINGS_IMPORT_TASK_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -105,7 +105,7 @@ module.exports = {
     INTERNAL_DELETE_METER_READINGS_MUTATION,
     EXPORT_PROPERTY_METER_READINGS_QUERY,
     REGISTER_METERS_READINGS_MUTATION,
-    MeterImportTask,
+    MeterReadingsImportTask,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 
