@@ -11,6 +11,8 @@ import { colors } from '@open-condo/ui/dist/colors'
 import { CrossIcon } from '@condo/domains/common/components/icons/CrossIcon'
 import { DEFAULT_BORDER_RADIUS } from '@condo/domains/common/constants/style'
 
+import { IFrame } from '../../miniapp/components/IFrame'
+
 import type { NewsItem } from '@app/condo/schema'
 import type { RowProps } from 'antd'
 
@@ -41,11 +43,15 @@ const RADIO_GROUP_CONTAINER_STYLE: React.CSSProperties = { maxWidth: '360px' }
 const PUSH_PARAGRAPH_ELLIPSIS_CONFIG = { rows: 2 }
 const PREVIEW_CONTENT_WIDTH = 360
 const FULL_WIDTH_STYLE: React.CSSProperties = { width: '100%' }
+const CONDO_APP_BACKGROUND_PICTURE_URL = '/phoneNewsPreview.png'
+const SHARING_APP_BACKGROUND_PICTURE_URL = '/phoneSharingNewsPreview.png'
+const PREVIEW_CONTENT_HEIGHT = 500
 
 const NewsPreviewContainer = styled.div`
   width: 100%;
-  max-width: 500px;
-  max-height: 500px;
+  // Not a typo, done intentionally
+  max-width: ${PREVIEW_CONTENT_HEIGHT}px;
+  max-height: ${PREVIEW_CONTENT_HEIGHT}px;
   background-color: ${colors.gray['1']};
   border-radius: ${DEFAULT_BORDER_RADIUS};
   padding: 40px 12px;
@@ -62,7 +68,7 @@ const CondoAppPreviewContainer = styled.div`
   width: 100%;
   display: flex;
   align-items: start;
-  background-image: url("/phoneNewsPreview.png");
+  background-image: url(${CONDO_APP_BACKGROUND_PICTURE_URL});
   justify-content: center;
   background-size: cover;
   background-repeat: no-repeat;
@@ -70,7 +76,7 @@ const CondoAppPreviewContainer = styled.div`
   padding-top: 60px;
   padding-left: 22px;
   padding-right: 22px;
-  min-height: 500px;
+  min-height: ${PREVIEW_CONTENT_HEIGHT}px;
   max-width: ${PREVIEW_CONTENT_WIDTH}px;
   
   & .ant-divider {
@@ -92,7 +98,7 @@ const SharingAppPreviewContainer = styled.div`
   
   padding-left: 20px;
   padding-right: 20px;
-  min-height: 500px;
+  min-height: ${PREVIEW_CONTENT_HEIGHT}px;
   min-width: ${PREVIEW_CONTENT_WIDTH}px;
   
   & .ant-divider {
@@ -108,7 +114,7 @@ const SharingAppOverflowContainer = styled.div`
   width: 100%;
   display: flex;
   align-items: start;
-  background-image: url("/phoneSharingNewsPreviewUpd.png");
+  background-image: url(${SHARING_APP_BACKGROUND_PICTURE_URL});
   justify-content: center;
   background-size: cover;
   background-repeat: no-repeat;
@@ -116,7 +122,7 @@ const SharingAppOverflowContainer = styled.div`
   
   padding-left: 20px;
   padding-right: 20px;
-  min-height: 500px;  
+  min-height: ${PREVIEW_CONTENT_HEIGHT}px;  
   max-width: ${PREVIEW_CONTENT_WIDTH}px;
 `
 
@@ -302,26 +308,20 @@ const SharingNewsPreview: React.FC<ISharingAppNewsPreview> = ({ hasPush = true, 
     const PushNotificationTitle = intl.formatMessage({ id: 'pages.condo.news.preview.push' })
 
     const appPreview = useMemo(() => {
+
         return (
             <SharingAppPreviewContainer>
-                <iframe
-                    style={{
-                        border: 0,
-                        width: '100%',
-                        height: '100%',
-                        minHeight: '500px',
-                        overflow: 'hidden',
-                    }}
-                    ref={iFrameRef}
-                    src={
-                        `${iFrameUrl}?title=${title}&body=${body}`
-                    }
-                    // NOTE: Deprecated, but overflow: hidden still not works in Chrome :)
-                    scrolling='no'
+                <IFrame
+                    // el => iFrameRef.current = el is used here to support IFrame API
+                    // @ts-ignore
+                    ref={el => iFrameRef.current = el}
+                    src={`${iFrameUrl}?title=${title}&body=${body}`}
+                    reloadScope='organization'
                 />
                 <SharingAppOverflowContainer/>
             </SharingAppPreviewContainer>
         )
+    // title and body not included here by design as they are used only as initial values
     }, [ iFrameUrl, iFrameRef ])
 
     return (

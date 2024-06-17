@@ -5,13 +5,14 @@ import get from 'lodash/get'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Options as ScrollOptions } from 'scroll-into-view-if-needed'
 
+import { useIntl } from '@open-condo/next/intl'
 import { ActionBar as UIActionBar, Alert, Button, Typography } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
+import { MemoizedSharingNewsPreview } from '@condo/domains/news/components/NewsPreview'
+import { NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 
-import { NEWS_TYPE_EMERGENCY } from '../../constants/newsTypes'
-import { MemoizedSharingNewsPreview } from '../NewsPreview'
 
 
 const BIG_MARGIN_BOTTOM_STYLE: React.CSSProperties = { marginBottom: '60px' }
@@ -48,6 +49,13 @@ interface INewsItemSharingForm {
 
 export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemData, initialValues, onSkip, onSubmit, onIsValidChange, sharingApp: { id, newsSharingConfig } }) => {
 
+    const intl = useIntl()
+    const NextStepShortMessage = intl.formatMessage({ id: 'pages.condo.news.steps.skipLabelShort' })
+    const RecipientsLabelMessage = intl.formatMessage({ id: 'pages.condo.news.steps.sharingApp.recipientsLabel' })
+    const RecipientsAlertTextMessage = intl.formatMessage({ id: 'pages.condo.news.steps.sharingApp.recipientsAlert' })
+    const NotSupportedMessage = intl.formatMessage({ id: 'pages.condo.news.steps.sharingApp.notSupported' })
+    const NextStepMessage = intl.formatMessage({ id: 'pages.condo.news.steps.nextStep' })
+
     const { breakpoints } = useLayoutContext()
     const isMediumWindow = !breakpoints.DESKTOP_SMALL
     const formFieldsColSpan = isMediumWindow ? 24 : 14
@@ -67,7 +75,6 @@ export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemDa
     const handleSharingAppIFrameFormMessage = useCallback((event) => {
         const { handler, ctxId: eventCtxId, formValues, preview, isValid } = event.data
         if (handler === 'handleSharingAppIFrameFormMessage' && id === eventCtxId) {
-            console.info('Incoming message from miniapp form', { formValues, preview, isValid })
             setSharingAppFormValues({ formValues, preview, isValid })
         }
     }, [id])
@@ -76,20 +83,17 @@ export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemDa
         const title = get(sharingAppFormValues, ['preview', 'renderedTitle'])
         const body = get(sharingAppFormValues, ['preview', 'renderedBody'])
 
-        // Todo: @toplenboren, ask @matthew about usage of custom IFrame component here
         if (iFramePreviewRef.current) {
-            iFramePreviewRef.current.contentWindow.postMessage({ handler: 'handleUpdateFromCondo', title, body }, '*')
-            console.info('Sent message to miniapp preview', { title, body })
+            iFramePreviewRef.current.contentWindow.postMessage({ handler: 'handleUpdateFromCondo', title, body }, appPreviewUrl)
         }
 
         const isValid = get(sharingAppFormValues, 'isValid', false)
         onIsValidChange(isValid)
-    }, [sharingAppFormValues, iFramePreviewRef, onIsValidChange])
+    }, [sharingAppFormValues, iFramePreviewRef, onIsValidChange, appPreviewUrl])
 
     useEffect(() => {
         if (typeof window !== 'undefined' && isCustomForm) {
             window.addEventListener('message', handleSharingAppIFrameFormMessage)
-
             return () => window.removeEventListener('message', handleSharingAppIFrameFormMessage)
         }
     }, [handleSharingAppIFrameFormMessage, isCustomForm])
@@ -136,62 +140,17 @@ export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemDa
                                     <Col span={formFieldsColSpan}>
                                         <Row gutter={EXTRA_SMALL_VERTICAL_GUTTER}>
                                             <Col span={24} style={MARGIN_BOTTOM_24_STYLE}>
-                                                <Typography.Title level={2}>Адресаты</Typography.Title>
+                                                <Typography.Title level={2}>{RecipientsLabelMessage}</Typography.Title>
                                             </Col>
 
                                             <Col span={24}>
                                                 <Alert
                                                     type='info'
                                                     showIcon
-                                                    description='Новости будут отправлены на дома, подъезды и квартиры выбранные на прошлом шаге'
-                                                    // description={(
-                                                    //     <Row>
-                                                    //         <Col span={24}>
-                                                    //             <Typography.Text>Для редактирования адресатов перейдите на прошлый шаг –
-                                                    //                 нажмите на Doma в верхнем меню</Typography.Text>
-                                                    //         </Col>
-                                                    //     </Row>
-                                                    // )}
+                                                    description={RecipientsAlertTextMessage}
                                                 />
                                             </Col>
-
-                                            <Col span={24}>
-
-                                            </Col>
-        
-                                            {/*<Col span={24}>*/}
-                                            {/*    {newsItemForOneProperty && (*/}
-                                            {/*        <Form.Item*/}
-                                            {/*            {...propertySelectFormItemProps}*/}
-                                            {/*            name='property'*/}
-                                            {/*        >*/}
-                                            {/*            <GraphQlSearchInput*/}
-                                            {/*                {...propertySelectProps(form)}*/}
-                                            {/*                onAllDataLoading={handleAllPropertiesLoading(form)}*/}
-                                            {/*                disabled={true}*/}
-                                            {/*            />*/}
-                                            {/*        </Form.Item>*/}
-                                            {/*    )}*/}
-                                            {/*    <HiddenBlock hide={newsItemForOneProperty}>*/}
-                                            {/*        <GraphQlSearchInputWithCheckAll*/}
-                                            {/*            checkAllFieldName='hasAllProperties'*/}
-                                            {/*            checkAllInitialValue={get(initialValues, 'hasAllProperties', false)}*/}
-                                            {/*            selectFormItemProps={propertySelectFormItemProps}*/}
-                                            {/*            selectProps={propertySelectProps(form)}*/}
-                                            {/*            onCheckBoxChange={propertyCheckboxChange(form)}*/}
-                                            {/*            CheckAllMessage={CheckAllLabel}*/}
-                                            {/*            onDataLoaded={handleAllPropertiesDataLoading}*/}
-                                            {/*            form={form}*/}
-                                            {/*            disabled={true}*/}
-                                            {/*        />*/}
-                                            {/*    </HiddenBlock>*/}
-                                            {/*</Col>*/}
                                         </Row>
-                                    </Col>
-                                    <Col span={formInfoColSpan}>
-                                        {/*{(newsItemScopesNoInstance.length > 0) && (*/}
-                                        {/*    <RecipientCounter newsItemScopes={newsItemScopesNoInstance}/>*/}
-                                        {/*)}*/}
                                     </Col>
                                 </Row>
                             </Col>
@@ -202,7 +161,7 @@ export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemDa
 
             {
                 !isCustomForm && (
-                    <>We do not support this right now...</>
+                    <>{NotSupportedMessage}</>
                 )
             }
 
@@ -213,14 +172,14 @@ export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemDa
                             <Button
                                 key='submit'
                                 type='primary'
-                                children='Далее'
+                                children={NextStepMessage}
                                 onClick={() => onSubmit(sharingAppFormValues)}
                                 disabled={!sharingAppFormValues.isValid}
                             />,
                             <Button
                                 key='submit'
                                 type='secondary'
-                                children={ isMediumWindow ? 'Пропустить' : `Не отправлять новость в ${appName}` }
+                                children={ isMediumWindow ? NextStepShortMessage : intl.formatMessage({ id: 'pages.condo.news.steps.skipLabelLong' }, { appName }) }
                                 onClick={() => onSkip(sharingAppFormValues)}
                                 disabled={false}
                             />,

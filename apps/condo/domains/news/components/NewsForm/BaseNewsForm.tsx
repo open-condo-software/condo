@@ -58,6 +58,10 @@ import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
 import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { NewsCardGrid } from '@condo/domains/news/components/NewsForm/NewsCardGrid'
+import { NewsItemSharingForm, SharingAppValues } from '@condo/domains/news/components/NewsForm/NewsItemSharingForm'
+import SelectSharingAppControl from '@condo/domains/news/components/NewsForm/SelectSharingAppControl'
+import { NewsItemCard } from '@condo/domains/news/components/NewsItemCard'
 import { MemoizedCondoNewsPreview } from '@condo/domains/news/components/NewsPreview'
 import { detectTargetedSections, RecipientCounter } from '@condo/domains/news/components/RecipientCounter'
 import { TemplatesTabs } from '@condo/domains/news/components/TemplatesTabs'
@@ -71,11 +75,7 @@ import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSc
 import { SectionNameInput } from '@condo/domains/user/components/SectionNameInput'
 import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
 
-import { NewsCardGrid } from './NewsCardGrid'
-import { NewsItemSharingForm, SharingAppValues } from './NewsItemSharingForm'
-import SelectSharingAppControl from './SelectSharingAppControl'
 
-import { NewsItemCard } from '../NewsItemCard'
 
 type FormWithActionChildrenProps = ComponentProps<ComponentProps<typeof FormWithAction>['children']>
 
@@ -702,14 +702,6 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             sendAt,
         } = values
 
-        // const hasAllProperties = isAllPropertiesChecked
-        // const title = selectedTitle
-        // const body = selectedBody
-        // const type = selectedType
-        // const validBefore = condoFormValues.validBefore
-        // const unitNames = selectedUnitNameKeys
-        // const sectionIds = selectedSectionKeys
-            
         const {
             type,
             validBefore,
@@ -725,35 +717,6 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             properties,
         } = condoFormValues
 
-        //const properties = condoFormValues.properties
-        //let {
-        // properties,
-        // //hasAllProperties,
-        // //sendPeriod,
-        // //template,
-        // //type,
-        // //sendAt,
-        // //validBefore,
-        // //unitNames,
-        // //sectionIds,
-        // //property,
-        // //...newsItemValues
-        // //body,
-        // //title,
-        //} = condoFormValues
-
-        //console.info('values', values)
-        console.info('Values from state', {
-            hasAllProperties,
-            title,
-            body,
-            type,
-            validBefore,
-            unitNames,
-            sectionIds,
-        })
-        console.info('newsItemFormValues', condoFormValues)
-
         const updatedNewsItemValues = {
             validBefore: type === NEWS_TYPE_EMERGENCY ? validBefore : null,
             sendAt: sendPeriod === 'later' ? sendAt : null,
@@ -763,31 +726,20 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             //...newsItemValues,
         }
 
-        console.info('creating or updating news item', updatedNewsItemValues)
         const newsItem = await createOrUpdateNewsItem(updatedNewsItemValues)
         const newsItemId = get(newsItem, 'id')
 
-        console.info('creating NewsItemSharings')
         if (actionName === 'create') {
             for (const ctxId of selectedSharingAppsContexts) {
-                // Todo @toplenboren TYYYPES!
-
                 const newsItemSharing = {
                     b2bAppContext: { connect: { id: ctxId } },
                     newsItem: { connect: { id: newsItemId } },
                     sharingParams: sharingAppsFormValues[ctxId],
                 }
 
-                console.log('NEWS ITEM SHARING:: LETS GO', newsItemSharing)
                 await createOrUpdateNewsSharingItem(newsItemSharing)
             }
         }
-
-        // const property = selectedProperties[0]
-        //
-        // if (get(condoFormValues, 'hasAllProperties', null) && get(condoFormValues, 'property', null)) {
-        //     properties = has(property, 'id') ? [property.id] : []
-        // }
 
         // Handle news item scopes updates:
         if (actionName === 'update' && properties.length !== 0 && initialHasAllProperties) {
@@ -934,8 +886,6 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             }
         }
 
-        console.log('BEFORE PUBLISHING', newsItem)
-
         await updateNewsItem({ isPublished: true }, newsItem)
         if (isFunction(OnCompletedMsg)) {
             const completedMsgData = OnCompletedMsg(newsItem)
@@ -1040,8 +990,6 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         // 1. Trigger validations based on step
         let fieldsToValidate = []
 
-        console.log('VALUES!!!', form.getFieldsValue(true))
-
         if (currentStep === 0) {
             fieldsToValidate = ['type', 'validBefore']
             setSelectAppsFormValues({ ...form.getFieldsValue(true) })
@@ -1057,7 +1005,6 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         }
 
         form.validateFields(fieldsToValidate).then((values) => {
-            console.log('DEBUG', values)
             if (skippedSteps.has(currentStep + 1)) {
                 handleStepSkip({ step: currentStep + 1, skip: false })
             }

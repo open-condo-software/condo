@@ -1,4 +1,3 @@
-const dayjs = require('dayjs')
 const get = require('lodash/get')
 
 const { fetch } = require('@open-condo/keystone/fetch')
@@ -37,7 +36,6 @@ async function _publishNewsItemSharing (newsItem, newsItemSharing){
         throw new Error('no news item')
     }
 
-    // If current news item was processed (not scheduled)
     if (newsItemSharing.status !== STATUSES.SCHEDULED) return
     await NewsItemSharing.update(contextNewsItemSharing, newsItemSharing.id, {
         ...DV_SENDER,

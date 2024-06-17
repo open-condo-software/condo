@@ -10,8 +10,7 @@ import { Button, Card, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-
-import { NewsCardGrid } from './NewsCardGrid'
+import { NewsCardGrid } from '@condo/domains/news/components/NewsForm/NewsCardGrid'
 
 const CARD_CHECKBOX_CONTAINER_STYLE = { maxWidth: '246px', height: '100%' }
 const CARD_RESPONSIVE_CHECKBOX_CONTAINER_STYLE = { width: '100%', height: '100%' }
