@@ -82,6 +82,15 @@ const REGISTER_MULTI_PAYMENT_FOR_INVOICES_MUTATION = gql`
     }
 `
 
+const PAYMENT_RULE_MARKET_PLACE_SCOPE_FIELDS = `{ property { id } ${COMMON_FIELDS} }`
+const PaymentRuleMarketPlaceScope = generateGqlQueries('PaymentRuleMarketPlaceScope', PAYMENT_RULE_MARKET_PLACE_SCOPE_FIELDS)
+
+const PAYMENT_RULE_BILLING_SCOPE_FIELDS = `{ property { id } category { id } bankAccountNumber serviceId ${COMMON_FIELDS} }`
+const PaymentRuleBillingScope = generateGqlQueries('PaymentRuleBillingScope', PAYMENT_RULE_BILLING_SCOPE_FIELDS)
+
+const PAYMENT_RULE_FIELDS = `{ context { id } explicitFee implicitFee bankAccount { id } merchant marketPlaceScope { id } billingScope { id } ${COMMON_FIELDS} }`
+const PaymentRule = generateGqlQueries('PaymentRule', PAYMENT_RULE_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 const EXPORT_PAYMENTS_TO_EXCEL =  gql`
@@ -107,5 +116,8 @@ module.exports = {
     RecurrentPayment,
     PAYMENT_BY_LINK_MUTATION,
     REGISTER_MULTI_PAYMENT_FOR_INVOICES_MUTATION,
+    PaymentRuleMarketPlaceScope,
+    PaymentRuleBillingScope,
+    PaymentRule,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

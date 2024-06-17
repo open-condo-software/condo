@@ -156,6 +156,7 @@ export const useImporterFunctions = ({ isVerifiedRef }): [Columns, RowNormalizer
     }
 
     const contactValidator: RowValidator = async (row) => {
+        console.log('row', row)
         if (!row) return false
         const errors = []
         if (!row.addons) errors.push(IncorrectRowFormatMessage)
