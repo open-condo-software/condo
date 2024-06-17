@@ -151,8 +151,8 @@ async function getErrors (keystone, format, locale, columns, mappers) {
     const ValidationErrorMessage = i18n('errors.import.ValidationError', { locale })
     const CreationErrorMessage = i18n('errors.import.CreationError', { locale })
 
-    const UnknownResource =  i18n('meter.import.error.unknownResourceType', { locale, knownList: Object.keys(mappers.resourceId).join(',') })
-    const UnknownUnitType =  i18n('meter.import.error.unknownUnitType', { locale, knownList: Object.keys(mappers.unitType).join(',') })
+    const UnknownResource =  i18n('meter.import.error.unknownResourceType', { locale, meta: { knownList: Object.keys(mappers.resourceId).join(',') } })
+    const UnknownUnitType =  i18n('meter.import.error.unknownUnitType', { locale, meta: { knownList: Object.keys(mappers.unitType).join(',') } })
 
     return {
         tooManyRows: { title: TooManyRowsErrorTitle, message: TooManyRowsErrorMessage },
