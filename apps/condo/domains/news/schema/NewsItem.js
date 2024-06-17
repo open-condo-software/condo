@@ -326,12 +326,6 @@ const NewsItem = new GQLListSchema('NewsItem', {
                 await publishSharedNewsItemsByNewsItem.delay(updatedItem.id)
                 await notifyResidentsAboutNewsItem.delay(updatedItem.id)
             }
-            // if (
-            //     updatedItem.isPublished
-            // ) {
-            //     // Publish connected NewsItemSharing items
-            //     await publishSharedNewsItemsByNewsItem.delay(updatedItem.id)
-            // }
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
