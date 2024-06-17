@@ -12,7 +12,6 @@ const {
     TestUtils,
     ResidentTestMixin,
     ContactTestMixin,
-    AcquiringTestMixin,
 } = require('@condo/domains/billing/utils/testSchema/testUtils')
 
 
@@ -23,7 +22,7 @@ describe('AllResidentBillingReceiptsService', () => {
     let utils
 
     beforeAll(async () => {
-        utils = new TestUtils([ResidentTestMixin, ContactTestMixin, AcquiringTestMixin])
+        utils = new TestUtils([ResidentTestMixin, ContactTestMixin])
         await utils.init()
     })
 
@@ -32,7 +31,7 @@ describe('AllResidentBillingReceiptsService', () => {
         let anotherUtils
 
         beforeAll(async () => {
-            anotherUtils = new TestUtils([ResidentTestMixin, ContactTestMixin])
+            anotherUtils = new TestUtils([ResidentTestMixin])
             await anotherUtils.init()
         })
 
