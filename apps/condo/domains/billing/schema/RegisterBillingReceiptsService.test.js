@@ -77,7 +77,7 @@ describe('RegisterBillingReceiptsService', () => {
             expect(receipt).toHaveProperty('id')
         })
         test('admin: can execute', async () => {
-            const [[receipt]] = await registerBillingReceiptsByTestClient(utils.clients.service, {
+            const [[receipt]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
                 context: { id: utils.billingContext.id },
                 receipts: [utils.createJSONReceipt()],
             })
