@@ -1,10 +1,11 @@
+const { faker } = require('@faker-js/faker')
+
 const {
     COLD_WATER_METER_RESOURCE_ID,
 } = require('@condo/domains/meter/constants/constants')
-const { faker} = require("@faker-js/faker");
-
 const { createTestMeter } = require('@condo/domains/meter/utils/testSchema')
-const { OrganizationTestMixin} = require('./organization')
+
+const { OrganizationTestMixin } = require('./organization')
 const { PropertyTestMixin } = require('./property')
 
 const MeterTestMixin = {

@@ -1,6 +1,8 @@
 const { faker  } = require('@faker-js/faker/locale/ru')
-const { OrganizationTestMixin } = require('./organization')
+
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
+
+const { OrganizationTestMixin } = require('./organization')
 
 const PropertyTestMixin = {
 

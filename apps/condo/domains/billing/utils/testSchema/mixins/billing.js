@@ -11,9 +11,9 @@ const {
     createTestBillingIntegrationAccessRight,
     createTestBillingReceiptFile,
 } = require('@condo/domains/billing/utils/testSchema')
-
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
-const { OrganizationTestMixin} = require('./organization')
+
+const { OrganizationTestMixin } = require('./organization')
 const { PropertyTestMixin } = require('./property')
 
 

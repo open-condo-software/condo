@@ -1,10 +1,12 @@
+const { faker } = require('@faker-js/faker')
+
 const { createTestResident, createTestServiceConsumer, updateTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
-const { faker} = require('@faker-js/faker')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
-const { OrganizationTestMixin} = require('./organization')
-const { PropertyTestMixin } = require('./property')
-const { BillingTestMixin } = require('./billing')
+
 const { AcquiringTestMixin } = require('./acquiring')
+const { BillingTestMixin } = require('./billing')
+const { OrganizationTestMixin } = require('./organization')
+const { PropertyTestMixin } = require('./property')
 
 
 const ResidentTestMixin = {
@@ -33,7 +35,7 @@ const ResidentTestMixin = {
 
     async updateServiceConsumer (id, updateInput) {
         return await updateTestServiceConsumer(this.clients.admin, id, updateInput)
-    }
+    },
 
 }
 

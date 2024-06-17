@@ -2,19 +2,19 @@ const { faker  } = require('@faker-js/faker/locale/ru')
 
 const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
 
+
+const { AcquiringTestMixin } = require('@condo/domains/billing/utils/testSchema/mixins/acquiring')
+const { BillingTestMixin } = require('@condo/domains/billing/utils/testSchema/mixins/billing')
+const { ContactTestMixin } = require('@condo/domains/billing/utils/testSchema/mixins/contact')
+const { MeterTestMixin } = require('@condo/domains/billing/utils/testSchema/mixins/meter')
+const { OrganizationTestMixin } = require('@condo/domains/billing/utils/testSchema/mixins/organization')
+const { PropertyTestMixin } = require('@condo/domains/billing/utils/testSchema/mixins/property')
+const { ResidentTestMixin } = require('@condo/domains/billing/utils/testSchema/mixins/resident')
 const {
     makeClientWithServiceUser,
     makeClientWithSupportUser,
     makeLoggedInClient,
 } = require('@condo/domains/user/utils/testSchema')
-
-const { AcquiringTestMixin } = require('@condo/domains/billing/utils/testSchema/mixins/acquiring')
-const { BillingTestMixin } = require('@condo/domains/billing/utils/testSchema/mixins/billing')
-const { MeterTestMixin } = require('@condo/domains/billing/utils/testSchema/mixins/meter')
-const { OrganizationTestMixin } = require('@condo/domains/billing/utils/testSchema/mixins/organization')
-const { PropertyTestMixin } = require('@condo/domains/billing/utils/testSchema/mixins/property')
-const { ResidentTestMixin } = require('@condo/domains/billing/utils/testSchema/mixins/resident')
-const { ContactTestMixin } = require('@condo/domains/billing/utils/testSchema/mixins/contact')
 
 /**
  * @mixes BillingTestMixinType
@@ -37,7 +37,7 @@ class TestUtils {
         this.mixins = resolvedMixins
     }
 
-    resolveMixins(mixins) {
+    resolveMixins (mixins) {
         const resolvedMixins = new Map()
         const dependencyGraph = new Map()
         const addMixinToGraph = (mixin) => {
@@ -54,29 +54,29 @@ class TestUtils {
         return sortedMixins.map(mixin => resolvedMixins.get(mixin))
     }
 
-    topologicalSort(dependencyGraph) {
+    topologicalSort (dependencyGraph) {
         const inDegree = new Map()
         const zeroInDegreeQueue = []
         const sortedMixins = []
 
         dependencyGraph.forEach((dependencies, mixin) => {
             if (!inDegree.has(mixin)) {
-                inDegree.set(mixin, 0);
+                inDegree.set(mixin, 0)
             }
             dependencies.forEach(dependency => {
                 inDegree.set(dependency, (inDegree.get(dependency) || 0) + 1)
             })
-        });
+        })
 
         inDegree.forEach((degree, mixin) => {
             if (degree === 0) {
-                zeroInDegreeQueue.push(mixin);
+                zeroInDegreeQueue.push(mixin)
             }
-        });
+        })
 
         while (zeroInDegreeQueue.length > 0) {
-            const mixin = zeroInDegreeQueue.shift();
-            sortedMixins.push(mixin);
+            const mixin = zeroInDegreeQueue.shift()
+            sortedMixins.push(mixin)
             dependencyGraph.get(mixin).forEach(dependency => {
                 inDegree.set(dependency, inDegree.get(dependency) - 1)
                 if (inDegree.get(dependency) === 0) {

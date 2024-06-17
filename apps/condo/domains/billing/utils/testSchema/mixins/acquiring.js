@@ -1,3 +1,11 @@
+const { faker } = require('@faker-js/faker')
+const dayjs = require('dayjs')
+
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const {
+    PAYMENT_DONE_STATUS,
+    MULTIPAYMENT_DONE_STATUS,
+} = require('@condo/domains/acquiring/constants/payment')
 const {
     createTestAcquiringIntegration,
     createTestAcquiringIntegrationAccessRight,
@@ -10,14 +18,9 @@ const {
     updateTestMultiPayment,
     MultiPayment,
 } = require('@condo/domains/acquiring/utils/testSchema')
-const { faker } = require('@faker-js/faker')
-const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
-const dayjs = require('dayjs')
-const {
-    PAYMENT_DONE_STATUS,
-    MULTIPAYMENT_DONE_STATUS,
-} = require("@condo/domains/acquiring/constants/payment");
-const { OrganizationTestMixin} = require("./organization");
+const { DEFAULT_CURRENCY_CODE } = require('@condo/domains/common/constants/currencies')
+
+const { OrganizationTestMixin } = require('./organization')
 
 const AcquiringTestMixin = {
 
@@ -32,11 +35,11 @@ const AcquiringTestMixin = {
     },
 
     async updateAcquiringContext (updateInput) {
-        await updateTestAcquiringIntegrationContext(this.clients.admin, this.acquiringContext.id, updateInput)
+        return await updateTestAcquiringIntegrationContext(this.clients.admin, this.acquiringContext.id, updateInput)
     },
 
     async updateAcquiringIntegration (updateInput) {
-        await updateTestAcquiringIntegration(this.clients.admin, this.acquiringIntegration.id, updateInput)
+        return await updateTestAcquiringIntegration(this.clients.admin, this.acquiringIntegration.id, updateInput)
     },
 
     async payForReceipt (receiptId, consumerId) {
@@ -49,7 +52,7 @@ const AcquiringTestMixin = {
 
     async partialPayForReceipt (jsonReceipt, amount) {
         const partialReceipt = {
-            currencyCode: this.billingIntegration.currencyCode,
+            currencyCode: this.billingIntegration.currencyCode || DEFAULT_CURRENCY_CODE,
             amount: amount,
             period: `${jsonReceipt.year}-${String(jsonReceipt.month).padStart(2, '0')}-01`,
             recipient: {
@@ -58,11 +61,13 @@ const AcquiringTestMixin = {
                 accountNumber: jsonReceipt.accountNumber,
             },
         }
+        console.error(partialReceipt)
+        console.error(this.acquiringContext)
         const [ { multiPaymentId }] = await registerMultiPaymentForVirtualReceiptByTestClient(this.clients.admin, partialReceipt, { id: this.acquiringContext.id })
         await this.completeMultiPayment(multiPaymentId)
     },
 
-    async completeMultiPayment(multiPaymentId) {
+    async completeMultiPayment (multiPaymentId) {
         const multiPayment = await MultiPayment.getOne(this.clients.service, { id: multiPaymentId })
         await updateTestPayment(this.clients.admin, multiPayment.payments[0].id, {
             explicitFee: '0.0',

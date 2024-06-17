@@ -3,7 +3,7 @@ const {
     updateTestContact,
 } = require('@condo/domains/contact/utils/testSchema')
 
-const { OrganizationTestMixin} = require('./organization')
+const { OrganizationTestMixin } = require('./organization')
 const { PropertyTestMixin } = require('./property')
 
 const ContactTestMixin = {
