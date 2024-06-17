@@ -22,8 +22,8 @@ const CARD_ICON_STYLE: CSSProperties = {
     objectPosition: 'top',
 }
 
-const DOMA_APP_ICON_URL = '/homeWithSun.svg'
-const DOMA_APP_PREVIEW_ICON_URL = '/news/domaAppPreviewIcon.png'
+const CONDO_APP_ICON_URL = '/homeWithSun.svg'
+const CONDO_APP_PREVIEW_ICON_URL = '/news/condoAppPreviewIcon.png'
 const SHARING_APP_FALLBACK_ICON = '/news/sharingAppIconPlaceholder.svg'
 const SHARING_APP_FALLBACK_PREVIEW_ICON = '/news/sharingAppPreviewIconPlaceholder.svg'
 const PROMO_APP_PREVIEW_ICON = '/news/promoAppPreviewIcon.png'
@@ -63,13 +63,13 @@ const SelectSharingAppControl: React.FC<ISelectSharingAppControl> = ({ sharingAp
                         headingTitle: 'Doma',
                         image: {
                             size: 'small',
-                            src: DOMA_APP_ICON_URL,
+                            src: CONDO_APP_ICON_URL,
                         },
                     }}
                     body={{
                         description: CondoAppDescriptionLabel,
                         image: {
-                            src: DOMA_APP_PREVIEW_ICON_URL,
+                            src: CONDO_APP_PREVIEW_ICON_URL,
                             style: CARD_ICON_STYLE,
                         },
                     }}
