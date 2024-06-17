@@ -51188,6 +51188,7 @@ type MeterReadingsImportTaskHistoryRecord {
   errorMessage: String
   user: String
   organization: String
+  locale: String
   meta: JSON
   id: ID!
   v: Int
@@ -51301,6 +51302,24 @@ input MeterReadingsImportTaskHistoryRecordWhereInput {
   organization_not: String
   organization_in: [String]
   organization_not_in: [String]
+  locale: String
+  locale_not: String
+  locale_contains: String
+  locale_not_contains: String
+  locale_starts_with: String
+  locale_not_starts_with: String
+  locale_ends_with: String
+  locale_not_ends_with: String
+  locale_i: String
+  locale_not_i: String
+  locale_contains_i: String
+  locale_not_contains_i: String
+  locale_starts_with_i: String
+  locale_not_starts_with_i: String
+  locale_ends_with_i: String
+  locale_not_ends_with_i: String
+  locale_in: [String]
+  locale_not_in: [String]
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -51400,6 +51419,8 @@ enum SortMeterReadingsImportTaskHistoryRecordsBy {
   totalRecordsCount_DESC
   errorMessage_ASC
   errorMessage_DESC
+  locale_ASC
+  locale_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -51429,6 +51450,7 @@ input MeterReadingsImportTaskHistoryRecordUpdateInput {
   errorMessage: String
   user: String
   organization: String
+  locale: String
   meta: JSON
   v: Int
   createdAt: String
@@ -51460,6 +51482,7 @@ input MeterReadingsImportTaskHistoryRecordCreateInput {
   errorMessage: String
   user: String
   organization: String
+  locale: String
   meta: JSON
   v: Int
   createdAt: String
@@ -51537,6 +51560,9 @@ type MeterReadingsImportTask {
   """ Direct link to organization, since meters import requires to specify target organization 
   """
   organization: Organization
+
+  """ Requested import locale """
+  locale: String
 
   """ Stores information about query and ids of exported and failed records 
   """
@@ -51629,6 +51655,24 @@ input MeterReadingsImportTaskWhereInput {
   user_is_null: Boolean
   organization: OrganizationWhereInput
   organization_is_null: Boolean
+  locale: String
+  locale_not: String
+  locale_contains: String
+  locale_not_contains: String
+  locale_starts_with: String
+  locale_not_starts_with: String
+  locale_ends_with: String
+  locale_not_ends_with: String
+  locale_i: String
+  locale_not_i: String
+  locale_contains_i: String
+  locale_not_contains_i: String
+  locale_starts_with_i: String
+  locale_not_starts_with_i: String
+  locale_ends_with_i: String
+  locale_not_ends_with_i: String
+  locale_in: [String]
+  locale_not_in: [String]
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -51712,6 +51756,8 @@ enum SortMeterReadingsImportTasksBy {
   user_DESC
   organization_ASC
   organization_DESC
+  locale_ASC
+  locale_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -51741,6 +51787,7 @@ input MeterReadingsImportTaskUpdateInput {
   errorMessage: String
   user: UserRelateToOneInput
   organization: OrganizationRelateToOneInput
+  locale: String
   meta: JSON
   v: Int
   createdAt: String
@@ -51769,6 +51816,7 @@ input MeterReadingsImportTaskCreateInput {
   errorMessage: String
   user: UserRelateToOneInput
   organization: OrganizationRelateToOneInput
+  locale: String
   meta: JSON
   v: Int
   createdAt: String

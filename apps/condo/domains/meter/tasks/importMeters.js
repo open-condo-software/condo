@@ -73,7 +73,7 @@ async function importMeters (taskId) {
     const { keystone: context } = await getSchemaCtx('MeterReadingsImportTask')
 
     // get task definition
-    const { file, user, organization } = await MeterReadingsImportTask.getOne(context, { id: taskId })
+    const { file, user, organization, locale } = await MeterReadingsImportTask.getOne(context, { id: taskId })
 
     // download file
     const content = await getObjectStream(file, fileAdapter, false)
@@ -95,7 +95,7 @@ async function importMeters (taskId) {
     const data = await converter.getData()
     
     // create importer
-    const importer = await getImporter(context, taskId, organization.id, user.id, format)
+    const importer = await getImporter(context, taskId, organization.id, user.id, format, locale)
     
     // do import
     await importer.import(data)

@@ -34196,6 +34196,8 @@ export type MeterReadingsImportTask = {
   user?: Maybe<User>;
   /**  Direct link to organization, since meters import requires to specify target organization  */
   organization?: Maybe<Organization>;
+  /**  Requested import locale  */
+  locale?: Maybe<Scalars['String']>;
   /**  Stores information about query and ids of exported and failed records  */
   meta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
@@ -34225,6 +34227,7 @@ export type MeterReadingsImportTaskCreateInput = {
   errorMessage?: Maybe<Scalars['String']>;
   user?: Maybe<UserRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
+  locale?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -34263,6 +34266,7 @@ export type MeterReadingsImportTaskHistoryRecord = {
   errorMessage?: Maybe<Scalars['String']>;
   user?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
+  locale?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -34290,6 +34294,7 @@ export type MeterReadingsImportTaskHistoryRecordCreateInput = {
   errorMessage?: Maybe<Scalars['String']>;
   user?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
+  locale?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -34322,6 +34327,7 @@ export type MeterReadingsImportTaskHistoryRecordUpdateInput = {
   errorMessage?: Maybe<Scalars['String']>;
   user?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
+  locale?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -34434,6 +34440,24 @@ export type MeterReadingsImportTaskHistoryRecordWhereInput = {
   organization_not?: Maybe<Scalars['String']>;
   organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  locale?: Maybe<Scalars['String']>;
+  locale_not?: Maybe<Scalars['String']>;
+  locale_contains?: Maybe<Scalars['String']>;
+  locale_not_contains?: Maybe<Scalars['String']>;
+  locale_starts_with?: Maybe<Scalars['String']>;
+  locale_not_starts_with?: Maybe<Scalars['String']>;
+  locale_ends_with?: Maybe<Scalars['String']>;
+  locale_not_ends_with?: Maybe<Scalars['String']>;
+  locale_i?: Maybe<Scalars['String']>;
+  locale_not_i?: Maybe<Scalars['String']>;
+  locale_contains_i?: Maybe<Scalars['String']>;
+  locale_not_contains_i?: Maybe<Scalars['String']>;
+  locale_starts_with_i?: Maybe<Scalars['String']>;
+  locale_not_starts_with_i?: Maybe<Scalars['String']>;
+  locale_ends_with_i?: Maybe<Scalars['String']>;
+  locale_not_ends_with_i?: Maybe<Scalars['String']>;
+  locale_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  locale_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   meta?: Maybe<Scalars['JSON']>;
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -34547,6 +34571,7 @@ export type MeterReadingsImportTaskUpdateInput = {
   errorMessage?: Maybe<Scalars['String']>;
   user?: Maybe<UserRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
+  locale?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -34624,6 +34649,24 @@ export type MeterReadingsImportTaskWhereInput = {
   user_is_null?: Maybe<Scalars['Boolean']>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
+  locale?: Maybe<Scalars['String']>;
+  locale_not?: Maybe<Scalars['String']>;
+  locale_contains?: Maybe<Scalars['String']>;
+  locale_not_contains?: Maybe<Scalars['String']>;
+  locale_starts_with?: Maybe<Scalars['String']>;
+  locale_not_starts_with?: Maybe<Scalars['String']>;
+  locale_ends_with?: Maybe<Scalars['String']>;
+  locale_not_ends_with?: Maybe<Scalars['String']>;
+  locale_i?: Maybe<Scalars['String']>;
+  locale_not_i?: Maybe<Scalars['String']>;
+  locale_contains_i?: Maybe<Scalars['String']>;
+  locale_not_contains_i?: Maybe<Scalars['String']>;
+  locale_starts_with_i?: Maybe<Scalars['String']>;
+  locale_not_starts_with_i?: Maybe<Scalars['String']>;
+  locale_ends_with_i?: Maybe<Scalars['String']>;
+  locale_not_ends_with_i?: Maybe<Scalars['String']>;
+  locale_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  locale_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   meta?: Maybe<Scalars['JSON']>;
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -79524,6 +79567,8 @@ export enum SortMeterReadingsImportTaskHistoryRecordsBy {
   TotalRecordsCountDesc = 'totalRecordsCount_DESC',
   ErrorMessageAsc = 'errorMessage_ASC',
   ErrorMessageDesc = 'errorMessage_DESC',
+  LocaleAsc = 'locale_ASC',
+  LocaleDesc = 'locale_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -79559,6 +79604,8 @@ export enum SortMeterReadingsImportTasksBy {
   UserDesc = 'user_DESC',
   OrganizationAsc = 'organization_ASC',
   OrganizationDesc = 'organization_DESC',
+  LocaleAsc = 'locale_ASC',
+  LocaleDesc = 'locale_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

@@ -37,28 +37,28 @@ const { SbbolMetersImporter } = require('./SbbolMetersImporter')
 
 const dvAndSender = { dv: 1, sender: { dv: 1, fingerprint: 'import-meter-job' } }
 
-function getColumnNames (format) {
+function getColumnNames (format, locale) {
     // A separate translation namespace is used to make import feature independent on other
     // to avoid sudden regressed changes of column names when many clients will already use provided spreadsheet
-    const AddressColumnMessage = i18n('meter.import.column.address')
-    const UnitNameColumnMessage = i18n('meter.import.column.unitName')
-    const UnitTypeColumnMessage = i18n('meter.import.column.unitType')
-    const AccountNumberColumnMessage = i18n('meter.import.column.accountNumber')
-    const MeterTypeColumnMessage = i18n('meter.import.column.meterType')
-    const MeterNumberColumnMessage = i18n('meter.import.column.meterNumber')
-    const MeterTariffsNumberColumnMessage = i18n('meter.import.column.meterTariffsNumber')
-    const Value1ColumnMessage = i18n('meter.import.column.value1')
-    const Value2ColumnMessage = i18n('meter.import.column.value2')
-    const Value3ColumnMessage = i18n('meter.import.column.value3')
-    const Value4ColumnMessage = i18n('meter.import.column.value4')
-    const ReadingSubmissionDateMessage = i18n('meter.import.column.meterReadingSubmissionDate')
-    const VerificationDateMessage = i18n('meter.import.column.VerificationDate')
-    const NextVerificationDateMessage = i18n('meter.import.column.NextVerificationDate')
-    const InstallationDateMessage = i18n('meter.import.column.InstallationDate')
-    const CommissioningDateMessage = i18n('meter.import.column.CommissioningDate')
-    const SealingDateMessage = i18n('meter.import.column.SealingDate')
-    const ControlReadingsDate = i18n('meter.import.column.ControlReadingsDate')
-    const PlaceColumnMessage = i18n('meter.import.column.MeterPlace')
+    const AddressColumnMessage = i18n('meter.import.column.address', { locale })
+    const UnitNameColumnMessage = i18n('meter.import.column.unitName', { locale })
+    const UnitTypeColumnMessage = i18n('meter.import.column.unitType', { locale })
+    const AccountNumberColumnMessage = i18n('meter.import.column.accountNumber', { locale })
+    const MeterTypeColumnMessage = i18n('meter.import.column.meterType', { locale })
+    const MeterNumberColumnMessage = i18n('meter.import.column.meterNumber', { locale })
+    const MeterTariffsNumberColumnMessage = i18n('meter.import.column.meterTariffsNumber', { locale })
+    const Value1ColumnMessage = i18n('meter.import.column.value1', { locale })
+    const Value2ColumnMessage = i18n('meter.import.column.value2', { locale })
+    const Value3ColumnMessage = i18n('meter.import.column.value3', { locale })
+    const Value4ColumnMessage = i18n('meter.import.column.value4', { locale })
+    const ReadingSubmissionDateMessage = i18n('meter.import.column.meterReadingSubmissionDate', { locale })
+    const VerificationDateMessage = i18n('meter.import.column.VerificationDate', { locale })
+    const NextVerificationDateMessage = i18n('meter.import.column.NextVerificationDate', { locale })
+    const InstallationDateMessage = i18n('meter.import.column.InstallationDate', { locale })
+    const CommissioningDateMessage = i18n('meter.import.column.CommissioningDate', { locale })
+    const SealingDateMessage = i18n('meter.import.column.SealingDate', { locale })
+    const ControlReadingsDate = i18n('meter.import.column.ControlReadingsDate', { locale })
+    const PlaceColumnMessage = i18n('meter.import.column.MeterPlace', { locale })
 
     return format === DOMA_EXCEL ? [
         { name: AddressColumnMessage, type: 'string', required: true },
@@ -83,18 +83,18 @@ function getColumnNames (format) {
     ] : null
 }
 
-function getMappers (format) {
-    const FlatUnitTypeValue = i18n('pages.condo.ticket.field.unitType.flat')
-    const ParkingUnitTypeValue = i18n('pages.condo.ticket.field.unitType.parking')
-    const ApartmentUnitTypeValue = i18n('pages.condo.ticket.field.unitType.apartment')
-    const WarehouseUnitTypeValue = i18n('pages.condo.ticket.field.unitType.warehouse')
-    const CommercialUnitTypeValue = i18n('pages.condo.ticket.field.unitType.commercial')
+function getMappers (format, locale) {
+    const FlatUnitTypeValue = i18n('pages.condo.ticket.field.unitType.flat', { locale })
+    const ParkingUnitTypeValue = i18n('pages.condo.ticket.field.unitType.parking', { locale })
+    const ApartmentUnitTypeValue = i18n('pages.condo.ticket.field.unitType.apartment', { locale })
+    const WarehouseUnitTypeValue = i18n('pages.condo.ticket.field.unitType.warehouse', { locale })
+    const CommercialUnitTypeValue = i18n('pages.condo.ticket.field.unitType.commercial', { locale })
 
-    const HotWaterResourceTypeValue = i18n('meter.import.value.meterResourceType.hotWater')
-    const ColdWaterResourceTypeValue = i18n('meter.import.value.meterResourceType.coldWater')
-    const ElectricityResourceTypeValue = i18n('meter.import.value.meterResourceType.electricity')
-    const HeatSupplyResourceTypeValue = i18n('meter.import.value.meterResourceType.heatSupply')
-    const GasSupplyResourceTypeValue = i18n('meter.import.value.meterResourceType.gasSupply')
+    const HotWaterResourceTypeValue = i18n('meter.import.value.meterResourceType.hotWater', { locale })
+    const ColdWaterResourceTypeValue = i18n('meter.import.value.meterResourceType.coldWater', { locale })
+    const ElectricityResourceTypeValue = i18n('meter.import.value.meterResourceType.electricity', { locale })
+    const HeatSupplyResourceTypeValue = i18n('meter.import.value.meterResourceType.heatSupply', { locale })
+    const GasSupplyResourceTypeValue = i18n('meter.import.value.meterResourceType.gasSupply', { locale })
 
     return format === DOMA_EXCEL ? {
         unitType: {
@@ -131,33 +131,34 @@ function getMappers (format) {
     }
 }
 
-async function getErrors (keystone, format, columns, mappers) {
+async function getErrors (keystone, format, locale, columns, mappers) {
     const maxTableLength = await featureToggleManager.getFeatureValue(
         keystone,
         BIGGER_LIMIT_FOR_IMPORT,
         DEFAULT_RECORDS_LIMIT_FOR_IMPORT,
     )
 
-    const TooManyRowsErrorTitle = i18n('TooManyRowsInTable.title')
+    const TooManyRowsErrorTitle = i18n('TooManyRowsInTable.title', { locale })
     const TooManyRowsErrorMessage = i18n('TooManyRowsInTable.message', {
+        locale,
         meta: { value: maxTableLength },
     })
-    const InvalidHeadersErrorTitle = i18n('TableHasInvalidHeaders.title')
-    const EmptyRowsErrorTitle = i18n('EmptyRows.title')
-    const EmptyRowsErrorMessage = i18n('EmptyRows.message')
-    const NotValidRowTypesMessage = i18n('errors.import.InvalidColumnTypes')
-    const NormalizationErrorMessage = i18n('errors.import.NormalizationError')
-    const ValidationErrorMessage = i18n('errors.import.ValidationError')
-    const CreationErrorMessage = i18n('errors.import.CreationError')
+    const InvalidHeadersErrorTitle = i18n('TableHasInvalidHeaders.title', { locale })
+    const EmptyRowsErrorTitle = i18n('EmptyRows.title', { locale })
+    const EmptyRowsErrorMessage = i18n('EmptyRows.message', { locale })
+    const NotValidRowTypesMessage = i18n('errors.import.InvalidColumnTypes', { locale })
+    const NormalizationErrorMessage = i18n('errors.import.NormalizationError', { locale })
+    const ValidationErrorMessage = i18n('errors.import.ValidationError', { locale })
+    const CreationErrorMessage = i18n('errors.import.CreationError', { locale })
 
-    const UnknownResource =  i18n('meter.import.error.unknownResourceType', { knownList: Object.keys(mappers.resourceId).join(',') })
-    const UnknownUnitType =  i18n('meter.import.error.unknownUnitType', { knownList: Object.keys(mappers.unitType).join(',') })
+    const UnknownResource =  i18n('meter.import.error.unknownResourceType', { locale, knownList: Object.keys(mappers.resourceId).join(',') })
+    const UnknownUnitType =  i18n('meter.import.error.unknownUnitType', { locale, knownList: Object.keys(mappers.unitType).join(',') })
 
     return {
         tooManyRows: { title: TooManyRowsErrorTitle, message: TooManyRowsErrorMessage },
         invalidColumns: {
             title: InvalidHeadersErrorTitle,
-            message: columns ? i18n('TableHasInvalidHeaders.message', { meta: {
+            message: columns ? i18n('TableHasInvalidHeaders.message', { locale, meta: {
                 value: columns.map(column => `"${column.name}"`).join(', '),
             } }) : '',
         },
@@ -171,10 +172,10 @@ async function getErrors (keystone, format, columns, mappers) {
     }
 }
 
-function getMutationError () {
-    const MeterAccountNumberExistInOtherUnitMessage = i18n('meter.import.error.MeterAccountNumberExistInOtherUnit')
-    const MeterResourceOwnedByAnotherOrganizationMessage = i18n('api.meter.METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION')
-    const MeterNumberExistInOrganizationMessage = i18n('meter.import.error.MeterNumberExistInOrganization')
+function getMutationError (locale) {
+    const MeterAccountNumberExistInOtherUnitMessage = i18n('meter.import.error.MeterAccountNumberExistInOtherUnit', locale)
+    const MeterResourceOwnedByAnotherOrganizationMessage = i18n('api.meter.METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION', locale)
+    const MeterNumberExistInOrganizationMessage = i18n('meter.import.error.MeterNumberExistInOrganization', locale)
     
     return {
         [EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT]: MeterAccountNumberExistInOtherUnitMessage,
@@ -241,12 +242,12 @@ async function setImportedRows (keystone, id, imported) {
     })
 }
 
-async function getImporter (keystone, taskId, organizationId, userId, format) {
+async function getImporter (keystone, taskId, organizationId, userId, format, locale) {
     const MetersImporterClass = format === DOMA_EXCEL ? DomaMetersImporter : SbbolMetersImporter
-    const columns = getColumnNames(format)
-    const mappers = getMappers(format)
-    const errors = await getErrors(keystone, format, columns, mappers)
-    const mutationErrorsToMessages = getMutationError()
+    const columns = getColumnNames(format, locale)
+    const mappers = getMappers(format, locale)
+    const errors = await getErrors(keystone, format, locale, columns, mappers)
+    const mutationErrorsToMessages = getMutationError(locale)
     const importRowsMutation = async (rows) => await importRows(keystone, userId, organizationId, rows)
     const breakProcessCheckerQuery = async () => await breakProcessChecker(keystone, taskId)
     const setTotalRowsMutation = async (total) => await setTotalRows(keystone, taskId, total)
