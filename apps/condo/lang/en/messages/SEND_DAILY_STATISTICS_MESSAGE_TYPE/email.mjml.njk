@@ -122,7 +122,7 @@
 
       <mj-section>
         <mj-column>
-          <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">This letter is a list of important events in the life of your properties for <b class="black">{{ message.meta.date }}</b> based on Doma.ai platform data. We tell you what happened to make it easier for you to keep the situation under control and respond to events in a timely manner.</mj-text>
+          <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">This letter is a list of important events in the life of your properties for <b class="black">{{ message.meta.data.date }}</b> based on Doma.ai platform data. We tell you what happened to make it easier for you to keep the situation under control and respond to events in a timely manner.</mj-text>
         </mj-column>
       </mj-section>
 
@@ -130,7 +130,7 @@
         <mj-column>
           <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
             <b class="black">Total number of tickets in progress: </b>
-            <b class="black">{{ message.meta.tickets.inProgress }}</b>
+            <b class="black">{{ message.meta.data.tickets.inProgress }}</b>
           </mj-text>
         </mj-column>
       </mj-section>
@@ -139,7 +139,7 @@
         <mj-column>
           <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
             <b class="black">Open emergency tickets</b> that were created more than 24 hours ago:
-            <b class="black">{{ message.meta.tickets.isEmergency }}</b>
+            <b class="black">{{ message.meta.data.tickets.isEmergency }}</b>
           </mj-text>
         </mj-column>
       </mj-section>
@@ -148,7 +148,7 @@
         <mj-column>
           <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
             <b class="black">Returned tickets: </b>
-            <b class="black">{{ message.meta.tickets.isReturned }}</b>
+            <b class="black">{{ message.meta.data.tickets.isReturned }}</b>
           </mj-text>
         </mj-column>
       </mj-section>
@@ -157,7 +157,7 @@
         <mj-column>
           <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
             <b class="black">Expired tickets: </b>
-            <b class="black">{{ message.meta.tickets.isExpired }}</b>
+            <b class="black">{{ message.meta.data.tickets.isExpired }}</b>
           </mj-text>
         </mj-column>
       </mj-section>
@@ -166,7 +166,7 @@
         <mj-column>
           <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
             <b class="black">Tickets requiring the appointment of executors and assignees persons: </b>
-            <b class="black">{{ message.meta.tickets.withoutEmployee }}</b>
+            <b class="black">{{ message.meta.data.tickets.withoutEmployee }}</b>
           </mj-text>
         </mj-column>
       </mj-section>
@@ -181,7 +181,7 @@
         <mj-column>
           <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
             <b class="black">Scheduled water incidents dates: </b>
-            <b class="black">{{ message.meta.incidents.water }}</b>
+            <b class="black">{{ message.meta.data.incidents.water }}</b>
           </mj-text>
         </mj-column>
       </mj-section>

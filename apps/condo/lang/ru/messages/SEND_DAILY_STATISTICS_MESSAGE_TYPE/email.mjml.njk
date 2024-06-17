@@ -122,7 +122,7 @@
 
       <mj-section>
         <mj-column>
-          <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">Это письмо — перечень важных событий в жизни ваших домов за <b class="black">{{ message.meta.date }}</b> на основе данных платформы Doma.ai. Рассказываем, что произошло, чтобы вам было проще держать ситуацию под контролем и реагировать на события своевременно.</mj-text>
+          <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">Это письмо — перечень важных событий в жизни ваших домов за <b class="black">{{ message.meta.data.date }}</b> на основе данных платформы Doma.ai. Рассказываем, что произошло, чтобы вам было проще держать ситуацию под контролем и реагировать на события своевременно.</mj-text>
         </mj-column>
       </mj-section>
 
@@ -130,7 +130,7 @@
         <mj-column>
           <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
             <b class="black">Общее количество заявок в работе: </b>
-            <b class="black">{{ message.meta.tickets.inProgress }}</b>
+            <b class="black">{{ message.meta.data.tickets.inProgress }}</b>
           </mj-text>
         </mj-column>
       </mj-section>
@@ -139,7 +139,7 @@
         <mj-column>
           <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
             <b class="black">Открытые аварийные заявки</b>, с момента создания которых прошло более 24 часов:
-            <b class="black">{{ message.meta.tickets.isEmergency }}</b>
+            <b class="black">{{ message.meta.data.tickets.isEmergency }}</b>
           </mj-text>
         </mj-column>
       </mj-section>
@@ -148,7 +148,7 @@
         <mj-column>
           <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
             <b class="black">Возвращенные заявки: </b>
-            <b class="black">{{ message.meta.tickets.isReturned }}</b>
+            <b class="black">{{ message.meta.data.tickets.isReturned }}</b>
           </mj-text>
         </mj-column>
       </mj-section>
@@ -157,7 +157,7 @@
         <mj-column>
           <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
             <b class="black">Просроченные заявки: </b>
-            <b class="black">{{ message.meta.tickets.isExpired }}</b>
+            <b class="black">{{ message.meta.data.tickets.isExpired }}</b>
           </mj-text>
         </mj-column>
       </mj-section>
@@ -166,7 +166,7 @@
         <mj-column>
           <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
             <b class="black">Заявки, требующие назначения исполнителей и ответственных: </b>
-            <b class="black">{{ message.meta.tickets.withoutEmployee }}</b>
+            <b class="black">{{ message.meta.data.tickets.withoutEmployee }}</b>
           </mj-text>
         </mj-column>
       </mj-section>
@@ -181,7 +181,7 @@
         <mj-column>
           <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
             <b class="black">Даты плановых отключений воды: </b>
-            <b class="black">{{ message.meta.incidents.water }}</b>
+            <b class="black">{{ message.meta.data.incidents.water }}</b>
           </mj-text>
         </mj-column>
       </mj-section>
