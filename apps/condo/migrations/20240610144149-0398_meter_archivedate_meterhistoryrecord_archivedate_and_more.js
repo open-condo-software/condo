@@ -72,6 +72,12 @@ ALTER TABLE "MeterHistoryRecord" DROP COLUMN "archiveDate" CASCADE;
 -- Add field archiveDate to meter
 --
 ALTER TABLE "Meter" DROP COLUMN "archiveDate" CASCADE;
+
+--
+-- Delete Create Meter Tour steps for all organizations
+--
+DELETE FROM "TourStep" WHERE "type" = "createMeter";
+
 COMMIT;
 
     `)
