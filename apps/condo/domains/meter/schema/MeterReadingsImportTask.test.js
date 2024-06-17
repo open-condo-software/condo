@@ -275,20 +275,20 @@ describe('MeterReadingsImportTask', () => {
 
             test('admin can\'t', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await meterReadingsImportTask.delete(admin, meterReadingsImportTask.id)
+                    await MeterReadingsImportTask.delete(admin, meterReadingsImportTask.id)
                 })
             })
 
             test('user can\'t', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await meterReadingsImportTask.delete(client, meterReadingsImportTask.id)
+                    await MeterReadingsImportTask.delete(client, meterReadingsImportTask.id)
                 })
             })
 
             test('anonymous can\'t', async () => {
                 const client = await makeClient()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await meterReadingsImportTask.delete(client, meterReadingsImportTask.id)
+                    await MeterReadingsImportTask.delete(client, meterReadingsImportTask.id)
                 })
             })
         })
