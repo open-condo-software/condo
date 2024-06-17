@@ -5,14 +5,9 @@ const { i18n } = require('@open-condo/locales/loader')
 
 const { BIGGER_LIMIT_FOR_IMPORT } = require('@condo/domains/common/constants/featureflags')
 const {
-    IMPORT_FORMAT_VALUES,
-    IMPORT_STATUS_VALUES,
-    EXCEL,
-    CSV,
-    PROCESSING,
+    DOMA_EXCEL,
     CANCELLED,
     ERROR,
-    METER_IMPORT_TASK_FOLDER_NAME,
 } = require('@condo/domains/common/constants/import')
 const { DEFAULT_RECORDS_LIMIT_FOR_IMPORT } = require('@condo/domains/common/constants/import')
 const {
@@ -65,7 +60,7 @@ function getColumnNames (format) {
     const ControlReadingsDate = i18n('meter.import.column.ControlReadingsDate')
     const PlaceColumnMessage = i18n('meter.import.column.MeterPlace')
 
-    return format === EXCEL ? [
+    return format === DOMA_EXCEL ? [
         { name: AddressColumnMessage, type: 'string', required: true },
         { name: UnitNameColumnMessage, type: 'string', required: true },
         { name: UnitTypeColumnMessage, type: 'string', required: true },
@@ -101,7 +96,7 @@ function getMappers (format) {
     const HeatSupplyResourceTypeValue = i18n('meter.import.value.meterResourceType.heatSupply')
     const GasSupplyResourceTypeValue = i18n('meter.import.value.meterResourceType.gasSupply')
 
-    return format === EXCEL ? {
+    return format === DOMA_EXCEL ? {
         unitType: {
             [FlatUnitTypeValue.toLowerCase()]: FLAT_UNIT_TYPE,
             [ParkingUnitTypeValue.toLowerCase()]: PARKING_UNIT_TYPE,
@@ -247,7 +242,7 @@ async function setImportedRows (keystone, id, imported) {
 }
 
 async function getImporter (keystone, taskId, organizationId, userId, format) {
-    const MetersImporterClass = format === EXCEL ? DomaMetersImporter : SbbolMetersImporter
+    const MetersImporterClass = format === DOMA_EXCEL ? DomaMetersImporter : SbbolMetersImporter
     const columns = getColumnNames(format)
     const mappers = getMappers(format)
     const errors = await getErrors(keystone, format, columns, mappers)

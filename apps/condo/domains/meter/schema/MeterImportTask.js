@@ -57,7 +57,7 @@ const MeterImportTask = new GQLListSchema('MeterImportTask', {
         },
 
         processedRecordsCount: {
-            schemaDoc: 'How many records at the moment are imported',
+            schemaDoc: 'How many records were processed at the moment',
             type: 'Integer',
             isRequired: true,
             defaultValue: 0,

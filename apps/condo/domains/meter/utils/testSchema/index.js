@@ -4,7 +4,10 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
+const dayjs = require('dayjs')
 const { faker } = require('@faker-js/faker')
+const { get } = require('lodash')
+
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
 const { MeterResource: MeterResourceGQL } = require('@condo/domains/meter/gql')
@@ -38,13 +41,9 @@ const MeterResourceOwner = generateGQLTestUtils(MeterResourceOwnerGQL)
 const MeterImportTask = generateGQLTestUtils(MeterImportTaskGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
+const { COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const { makeClientWithServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
-const { IMPORT_FORMAT_VALUES, IMPORT_STATUS_VALUES, PROCESSING, COMPLETED, ERROR } = require('@condo/domains/common/constants/import')
-const { get } = require("lodash");
-const { COLD_WATER_METER_RESOURCE_ID } = require("../../constants/constants");
-const dayjs = require("dayjs");
-
 
 async function createTestMeterResource (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -53,7 +52,6 @@ async function createTestMeterResource (client, extraAttrs = {}) {
     const attrs = {
         dv: 1,
         sender,
-        status: PROCESSING,
         ...extraAttrs,
     }
     const obj = await MeterResource.create(client, attrs)

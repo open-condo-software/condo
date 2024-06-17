@@ -11,9 +11,7 @@ const { ConvertFileToTable, getObjectStream } = require('@open-condo/keystone/fi
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { 
-    IMPORT_FORMAT_VALUES,
-    IMPORT_STATUS_VALUES,
-    EXCEL,
+    DOMA_EXCEL,
     CSV,
     PROCESSING,
     ERROR,
@@ -50,8 +48,8 @@ function createUpload (content, filename, mimetype) {
 }
 
 async function failWithErrorFile (context, taskId, content, format) {
-    const filename = format === EXCEL ? 'meters_failed_data.xlsx' : 'meters_failed_data.csv'
-    const mimetype = format === EXCEL ? EXCEL_FILE_META.mimetype : 'text/csv' 
+    const filename = format === DOMA_EXCEL ? 'meters_failed_data.xlsx' : 'meters_failed_data.csv'
+    const mimetype = format === DOMA_EXCEL ? EXCEL_FILE_META.mimetype : 'text/csv'
 
     await MeterImportTask.update(context, taskId, {
         ...dvAndSender,
@@ -86,8 +84,8 @@ async function importMeters (taskId) {
     // create file converter
     const converter = new ConvertFileToTable(content)
 
-    // detect && fill format
-    const format = await converter.isExcelFile() ? EXCEL : CSV
+    // For now we support only two formats: doma-excel and 1S (txt/csv)
+    const format = await converter.isExcelFile() ? DOMA_EXCEL : CSV
     await MeterImportTask.update(context, taskId, {
         ...dvAndSender,
         format,
