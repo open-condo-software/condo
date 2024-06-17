@@ -454,7 +454,7 @@ const formatTicketsStats = ({ total, byOrganizations }) => {
  */
 const formatMessageData = (userStatisticsData, currentDate, locale = conf.DEFAULT_LOCALE) => {
     return {
-        date: dayjs(currentDate).format('DD-MM-YYYY'),
+        date: dayjs(currentDate).format('DD.MM.YY'),
         tickets: {
             inProgress: formatTicketsStats(userStatisticsData.tickets.inProgress),
             isEmergency: formatTicketsStats(userStatisticsData.tickets.isEmergency),

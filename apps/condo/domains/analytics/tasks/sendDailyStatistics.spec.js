@@ -610,7 +610,7 @@ describe('sendDailyStatistics', () => {
                 meta: expect.objectContaining({
                     dv: 1,
                     data: {
-                        date: dayjs(currentDate).format('DD-MM-YYYY'),
+                        date: dayjs(currentDate).format('DD.MM.YY'),
                         tickets: {
                             inProgress: `1 (${administratorClient.organization.name} - 1)`,
                             isEmergency: `1 (${administratorClient.organization.name} - 1)`,

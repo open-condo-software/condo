@@ -86,11 +86,11 @@
       <mj-section>
         <mj-group>
           <mj-column vertical-align="middle">
-            <mj-image width="100px" align="left" src="/assets/img/logo-small.png" href="https://google.com" alt="Company site" css-class="header-logo"></mj-image>
+            <mj-image width="100px" align="left" src="{{ env.serverUrl }}/messages/logo.png" href="{{ env.serverUrl }}" alt="Logo" css-class="header-logo"></mj-image>
           </mj-column>
           <mj-column vertical-align="middle">
-            <mj-button background-color="transparent" color="#000" font-size="20px" border="1px solid" border-radius="8px" align="right" href="https://google.com" css-class="header-btn">
-              На сайт
+            <mj-button background-color="transparent" color="#000000" font-size="20px" border="1px solid" border-radius="8px" align="right" href="{{ env.serverUrl }}" css-class="header-btn">
+              Go to Doma
             </mj-button>
           </mj-column>
         </mj-group>
@@ -104,7 +104,7 @@
     <mj-wrapper mj-class="bg-white" padding-top="20px">
       <mj-section>
         <mj-column>
-          <mj-image src="https://ci3.googleusercontent.com/meips/ADKq_Na64oZNskrKxIbQXDrBzpe2dpT_IaOgB_jzj7enIH8jY23pRlQnbreOgE1414kKxgYgZRUCPKBaxPV0FsRiKjSICvyfZAP2FByuHU1tkW1eggpygt0yI9iQxyPY0FxZ7aIx6_6RSxWqPs8k-fXlcdV3Vyy8zodl5bV-m64C8cc8=s0-d-e1-ft#https://image.sendsay.ru/image/x_1690889949280663/%D0%9E%D0%B1%D0%BB%D0%BE%D0%B6%D0%BA%D0%B0%20%287%29.png" alt="cover"></mj-image>
+          <mj-image src="{{ env.serverUrl }}/messages/SEND_DAILY_STATISTICS_MESSAGES_TYPE/cover.png" alt="cover"></mj-image>
         </mj-column>
       </mj-section>
     </mj-wrapper>
@@ -116,21 +116,21 @@
     <mj-wrapper mj-class="bg-white" padding-top="5px">
       <mj-section>
         <mj-column>
-          <mj-text mj-class="title black" font-size="24px" css-class="title" padding-top="20px">Здравствуйте!</mj-text>
+          <mj-text mj-class="title black" font-size="24px" css-class="title" padding-top="20px">Hello!</mj-text>
         </mj-column>
       </mj-section>
 
       <mj-section>
         <mj-column>
-          <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">Это письмо — перечень важных событий в жизни ваших домов за <b class="black">{DATE:дд.мм.гг}</b> на основе данных платформы Doma.ai. Рассказываем, что произошло, чтобы вам было проще держать ситуацию под контролем и реагировать на события своевременно.</mj-text>
+          <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">This letter is a list of important events in the life of your properties for <b class="black">{{ message.meta.date }}</b> based on Doma.ai platform data. We tell you what happened to make it easier for you to keep the situation under control and respond to events in a timely manner.</mj-text>
         </mj-column>
       </mj-section>
 
       <mj-section>
         <mj-column>
           <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
-            <b class="black">Общее количество заявок в работе: </b>
-            <b class="black">{COUNT}</b>
+            <b class="black">Total number of tickets in progress: </b>
+            <b class="black">{{ message.meta.tickets.inProgress }}</b>
           </mj-text>
         </mj-column>
       </mj-section>
@@ -138,8 +138,8 @@
       <mj-section>
         <mj-column>
           <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
-            <b class="black">Открытые аварийные заявки</b>, с момента создания которых прошло более 24 часов:
-            <b class="black">{COUNT}</b>
+            <b class="black">Open emergency tickets</b> that were created more than 24 hours ago:
+            <b class="black">{{ message.meta.tickets.isEmergency }}</b>
           </mj-text>
         </mj-column>
       </mj-section>
@@ -147,8 +147,8 @@
       <mj-section>
         <mj-column>
           <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
-            <b class="black">Возвращенные заявки: </b>
-            <b class="black">{COUNT}</b>
+            <b class="black">Returned tickets: </b>
+            <b class="black">{{ message.meta.tickets.isReturned }}</b>
           </mj-text>
         </mj-column>
       </mj-section>
@@ -156,8 +156,8 @@
       <mj-section>
         <mj-column>
           <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
-            <b class="black">Просроченные заявки: </b>
-            <b class="black">{COUNT}</b>
+            <b class="black">Expired tickets: </b>
+            <b class="black">{{ message.meta.tickets.isExpired }}</b>
           </mj-text>
         </mj-column>
       </mj-section>
@@ -165,48 +165,39 @@
       <mj-section>
         <mj-column>
           <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
-            <b class="black">Заявки, требующие назначения исполнителей и ответственных: </b>
-            <b class="black">{COUNT}</b>
+            <b class="black">Tickets requiring the appointment of executors and assignees persons: </b>
+            <b class="black">{{ message.meta.tickets.withoutEmployee }}</b>
           </mj-text>
         </mj-column>
       </mj-section>
 
       <mj-section>
         <mj-column>
-          <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">Перейдите <a href="https://google.com" class="link">на платформу Company.com</a>, чтобы узнать детали по заявкам и воспользоваться другими сервисами.</mj-text>
+          <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">Go to <a href="{{ env.serverUrl }}" class="link">the Doma.ai platform</a>,to find out details on tickets and use other services.</mj-text>
         </mj-column>
       </mj-section>
 
       <mj-section>
         <mj-column>
           <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
-            <b class="black">Даты плановых отключений: </b>
-            <b class="black">{DATE}</b>
+            <b class="black">Scheduled water incidents dates: </b>
+            <b class="black">{{ message.meta.incidents.water }}</b>
           </mj-text>
         </mj-column>
       </mj-section>
 
       <mj-section>
         <mj-column>
-          <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
-            <b class="black">Даты аварийных отключений: </b>
-            <b class="black">{DATE}</b>
-          </mj-text>
-        </mj-column>
-      </mj-section>
-
-      <mj-section>
-        <mj-column>
-          <mj-button background-color="#49d48a" border-radius="8px" font-size="16px" line-height="22px" href="https://google.com" padding-top="20px" padding-bottom="32px" css-class="letter-btn">
-            Перейти в диспетчерскую
+          <mj-button background-color="#49d48a" border-radius="8px" font-size="16px" line-height="22px" href="{{ env.serverUrl }}/ticket" padding-top="20px" padding-bottom="32px" css-class="letter-btn">
+            Go to the control room
           </mj-button>
         </mj-column>
       </mj-section>
 
       <mj-section>
         <mj-column>
-          <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">С заботой о вашем бизнесе, </mj-text>
-          <mj-text mj-class="paragraph company-name" css-class="paragraph company-name" padding-top="4px"><a href="https://google.com" class="link">Company</a></mj-text>
+          <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">With care for your business, </mj-text>
+          <mj-text mj-class="paragraph company-name" css-class="paragraph company-name" padding-top="4px"><a href="{{ env.landingUrl }}" class="link">Domá</a></mj-text>
         </mj-column>
       </mj-section>
 
@@ -220,20 +211,20 @@
     <mj-wrapper background-color="transparent" css-class="footer" padding-top="20px">
       <mj-section>
         <mj-column>
-          <mj-text align="center" font-weight="500" line-height="19px">Следите за новостями в социальных сетях Company</mj-text>
+          <mj-text align="center" font-weight="500" line-height="19px">Follow the news on social networks of the Doma</mj-text>
         </mj-column>
       </mj-section>
 
       <mj-section>
         <mj-column>
           <mj-social align="center" mode="horizontal" padding-top="8px">
-            <mj-social-element href="https://google.com" src="https://ci3.googleusercontent.com/meips/ADKq_NZC2ZZIKy0ndG2IrXv0gJyLpBLlmLV0Tepjz1M0r99GnRzBKA-Ww2nZpSQ76WwIEkQahL_bRov-V8LUjhpWSgMIy-p-7psIZA=s0-d-e1-ft#https://app.sendsay.ru/img/icons/link/vk_color.png" icon-size="32px" padding="4px">
+            <mj-social-element href="{{ env.socialMediaLinks.vk }}" src="{{ env.serverUrl }}/socials/vk.png" icon-size="32px" padding="4px">
             </mj-social-element>
 
-            <mj-social-element href="https://google.com" src="https://ci3.googleusercontent.com/meips/ADKq_NYOSLm-EXCnwcqmapc48oGohJDuZjK1Guo0TnDPZuWpBtMoDdigqwgXWu00spmt0qMtkPO2yBUuK9yY5zstJW_rga05ckkNMim9GARR=s0-d-e1-ft#https://app.sendsay.ru/img/icons/link/youtube_color.png" icon-size="32px" padding="4px">
+            <mj-social-element href="{{ env.socialMediaLinks.youtube }}" src="{{ env.serverUrl }}/socials/youtube.png" icon-size="32px" padding="4px">
             </mj-social-element>
 
-            <mj-social-element href="https://google.com" src="https://ci3.googleusercontent.com/meips/ADKq_NZowp2vrf-lHvhf5Ak9d2rWKw4Hp9fiwLrXua4394OuIn-pQRb1pMoNPiOME7AVSz959IUbgNtgs5WlXPEEh1EZdQmvPYGXYr88AKNZ8g=s0-d-e1-ft#https://app.sendsay.ru/img/icons/link/telegram_color.png" icon-size="32px" padding="4px">
+            <mj-social-element href="{{ env.socialMediaLinks.telegram }}" src="{{ env.serverUrl }}/socials/telegram.png" icon-size="32px" padding="4px">
             </mj-social-element>
           </mj-social>
         </mj-column>
@@ -242,25 +233,25 @@
 
       <mj-section>
         <mj-column>
-          <mj-text align="center" font-weight="500" padding-top="8px" line-height="19px">Остались вопросы? На них ответит <a href="https://google.com" class="link">поддержка</a>.</mj-text>
+          <mj-text align="center" font-weight="500" padding-top="8px" line-height="19px">Any questions left? <a href="mailto:{{ env.supportEmail }}" class="link">Support</a> will answer them.</mj-text>
         </mj-column>
       </mj-section>
 
       <mj-section>
         <mj-column>
-          <mj-text align="center" padding-top="12px" line-height="19px">Вы получили это письмо, потому что выразили свое согласие получать сообщения от Company.</mj-text>
+          <mj-text align="center" padding-top="12px" line-height="19px">You are receiving this email because you have consented to receive communications from the Doma.</mj-text>
         </mj-column>
       </mj-section>
 
       <mj-section>
         <mj-column>
-          <mj-text align="center" padding-top="12px" line-height="19px">Хотите отписаться от рассылки? Нажмите <a href="https://google.com" class="link">сюда</a>.</mj-text>
+          <mj-text align="center" padding-top="12px" line-height="19px">Do you want to unsubscribe from the newsletter? Click <a href="{{ env.serverUrl }}/api/unsubscribe?id={{ message.id }}" class="link">here</a>.</mj-text>
         </mj-column>
       </mj-section>
 
       <mj-section>
         <mj-column>
-          <mj-text align="center" padding-top="20px" line-height="19px">© Company 2024</mj-text>
+          <mj-text align="center" padding-top="20px" line-height="19px">© Дома 2024</mj-text>
         </mj-column>
       </mj-section>
 

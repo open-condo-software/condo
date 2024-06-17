@@ -25,6 +25,9 @@ const {
 const LANG_DIR_RELATED = '../../lang'
 const TEMPLATE_ENGINE_DEFAULT_DATE_FORMAT = 'D MMMM YYYY'
 const SERVER_URL = conf.SERVER_URL
+const SOCIAL_MEDIA_LINKS = conf.SOCIAL_MEDIA_LINKS ? JSON.parse(conf.SOCIAL_MEDIA_LINKS) : {}
+const SUPPORT_EMAIL = conf.SUPPORT_EMAIL
+const LANDING_URL = conf.LANDING_URL
 
 // config based path
 // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
@@ -306,7 +309,12 @@ async function renderTemplate (transport, message) {
     /**
      * @type {MessageTemplateEnvironment}
      */
-    const env = { serverUrl: SERVER_URL }
+    const env = {
+        serverUrl: SERVER_URL,
+        socialMediaLinks: SOCIAL_MEDIA_LINKS,
+        supportEmail: SUPPORT_EMAIL,
+        landingUrl: LANDING_URL,
+    }
     const renderMessage = MESSAGE_TRANSPORTS_RENDERERS[transport]
 
     return renderMessage({ message, env })
