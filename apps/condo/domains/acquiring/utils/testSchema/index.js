@@ -54,6 +54,9 @@ const { PAYMENT_BY_LINK_MUTATION } = require('@condo/domains/acquiring/gql')
 const { REGISTER_MULTI_PAYMENT_FOR_INVOICES_MUTATION } = require('@condo/domains/acquiring/gql')
 const { EXPORT_PAYMENTS_TO_EXCEL } = require('@condo/domains/acquiring/gql')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
+const { PaymentRuleMarketPlaceScope: PaymentRuleMarketPlaceScopeGQL } = require('@condo/domains/acquiring/gql')
+const { PaymentRuleBillingScope: PaymentRuleBillingScopeGQL } = require('@condo/domains/acquiring/gql')
+const { PaymentRule: PaymentRuleGQL } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateGQLTestUtils(AcquiringIntegrationGQL)
@@ -64,6 +67,9 @@ const Payment = generateGQLTestUtils(PaymentGQL)
 const PaymentsFilterTemplate = generateGQLTestUtils(PaymentsFilterTemplateGQL)
 const RecurrentPaymentContext = generateGQLTestUtils(RecurrentPaymentContextGQL)
 const RecurrentPayment = generateGQLTestUtils(RecurrentPaymentGQL)
+const PaymentRuleMarketPlaceScope = generateGQLTestUtils(PaymentRuleMarketPlaceScopeGQL)
+const PaymentRuleBillingScope = generateGQLTestUtils(PaymentRuleBillingScopeGQL)
+const PaymentRule = generateGQLTestUtils(PaymentRuleGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const RecurrentPaymentContextLiteGQL = generateGqlQueries('RecurrentPaymentContext', '{ id }')
@@ -526,6 +532,101 @@ async function registerMultiPaymentForInvoicesByTestClient(client, extraAttrs = 
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+async function createTestPaymentRuleMarketPlaceScope (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestPaymentRuleMarketPlaceScope logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await PaymentRuleMarketPlaceScope.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestPaymentRuleMarketPlaceScope (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestPaymentRuleMarketPlaceScope logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await PaymentRuleMarketPlaceScope.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function createTestPaymentRuleBillingScope (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestPaymentRuleBillingScope logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await PaymentRuleBillingScope.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestPaymentRuleBillingScope (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestPaymentRuleBillingScope logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await PaymentRuleBillingScope.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function createTestPaymentRule (client, context, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!context || !context.id) throw new Error('no context.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestPaymentRule logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        context: { connect: { id: context.id } },
+        ...extraAttrs,
+    }
+    const obj = await PaymentRule.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestPaymentRule (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestPaymentRule logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await PaymentRule.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 // Utils used to generate a bunch of entities for working with MultiPayments
@@ -795,5 +896,8 @@ module.exports = {
     exportPaymentsServiceByTestClient,
     formatDateWithDefaultTimeZone,
     generateVirtualReceipt,
+    PaymentRuleMarketPlaceScope, createTestPaymentRuleMarketPlaceScope, updateTestPaymentRuleMarketPlaceScope,
+    PaymentRuleBillingScope, createTestPaymentRuleBillingScope, updateTestPaymentRuleBillingScope,
+    PaymentRule, createTestPaymentRule, updateTestPaymentRule,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

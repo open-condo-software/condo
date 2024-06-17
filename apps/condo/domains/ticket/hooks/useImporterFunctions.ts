@@ -128,7 +128,10 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         }
 
         const phoneNumber = String(get(phone, 'value', '')).trim()
+        console.log('phoneNumber', phoneNumber)
         const normalizedPhone = normalizePhone(phoneNumber, true)
+        console.log('normalizedPhone', normalizedPhone)
+
         const trimmedUnitName = String(unitName.value).trim()
 
         addons.phone = normalizedPhone || null
@@ -141,7 +144,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         addons.unitName = trimmedUnitName || null
         addons.unitType = addons.unitName ? 'flat' : null
         addons.isEmptyDetails = Boolean(String(get(details, 'value', '')).trim())
-
+        console.log(addons)
         return { row, addons }
     }
 
