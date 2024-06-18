@@ -1,14 +1,14 @@
-import { faker } from '@faker-js/faker'
-import dayjs from 'dayjs'
+const { faker } = require('@faker-js/faker')
+const dayjs = require('dayjs')
 
-import SbbolMetersImporter from './SbbolMetersImporter'
+const { SbbolMetersImporter } = require('./SbbolMetersImporter')
 
 class ImporterWrapper extends SbbolMetersImporter {
     constructor () {
         super(null, null, null, null, {})
     }
 
-    public transformRowWrapper (row: string[]) {
+    transformRowWrapper (row) {
         return this.transformRow(row)
     }
 }
@@ -21,61 +21,183 @@ describe('SbbolMetersImporter', () => {
             // Gas
             [
                 // First 5 cells is account data
-                '0001', 'resident1', 'account1', 'fias1', fakeAddress,
+                '0001',
+                'resident1',
+                'account1',
+                'fias1',
+                fakeAddress,
                 // Each of next 12 blocks is containing 7 cells
-                '1', '001', 'MeterName1', '[]', '101.1', date, '',
+                '1',
+                '001',
+                'MeterName1',
+                '[]',
+                '101.1',
+                date,
+                '',
             ],
 
             // 1-tariff electricity
             [
-                '0002', 'resident2', 'account2', 'fias1', fakeAddress,
-                '2', '002', 'MeterName2', '[]', '102,1', date, '',
+                '0002',
+                'resident2',
+                'account2',
+                'fias1',
+                fakeAddress,
+                '2',
+                '002',
+                'MeterName2',
+                '[]',
+                '102,1',
+                date,
+                '',
             ],
 
             // 2-tariff electricity
             [
-                '0003', 'resident3', 'account3', 'fias1', fakeAddress,
-                '3', '003', 'MeterName3', '[]', '103.1', date, '',
+                '0003',
+                'resident3',
+                'account3',
+                'fias1',
+                fakeAddress,
+                '3',
+                '003',
+                'MeterName3',
+                '[]',
+                '103.1',
+                date,
+                '',
             ],
             [
-                '0004', 'resident4', 'account4', 'fias1', fakeAddress,
-                '4', '004', 'MeterName4', '[]', '104.1', date, '',
+                '0004',
+                'resident4',
+                'account4',
+                'fias1',
+                fakeAddress,
+                '4',
+                '004',
+                'MeterName4',
+                '[]',
+                '104.1',
+                date,
+                '',
             ],
             [
-                '0034', 'resident34', 'account34', 'fias1', fakeAddress,
-                '3', '034', 'MeterName34', '', '103.1', date, '',
-                '4', '034', 'MeterName34', '', '104.1', date, '',
+                '0034',
+                'resident34',
+                'account34',
+                'fias1',
+                fakeAddress,
+                '3',
+                '034',
+                'MeterName34',
+                '',
+                '103.1',
+                date,
+                '',
+                '4',
+                '034',
+                'MeterName34',
+                '',
+                '104.1',
+                date,
+                '',
             ],
 
             // 3-tariff electricity
             [
-                '0005', 'resident5', 'account5', 'fias1', fakeAddress,
-                '5', '005', 'MeterName5', '[]', '105.1', date, '',
+                '0005',
+                'resident5',
+                'account5',
+                'fias1',
+                fakeAddress,
+                '5',
+                '005',
+                'MeterName5',
+                '[]',
+                '105.1',
+                date,
+                '',
             ],
             [
-                '0006', 'resident6', 'account6', 'fias1', fakeAddress,
-                '6', '006', 'MeterName6', '[]', '106.1', date, '',
+                '0006',
+                'resident6',
+                'account6',
+                'fias1',
+                fakeAddress,
+                '6',
+                '006',
+                'MeterName6',
+                '[]',
+                '106.1',
+                date,
+                '',
             ],
             [
-                '0007', 'resident7', 'account7', 'fias1', fakeAddress,
-                '7', '007', 'MeterName7', '[]', '107.1', date, '',
+                '0007',
+                'resident7',
+                'account7',
+                'fias1',
+                fakeAddress,
+                '7',
+                '007',
+                'MeterName7',
+                '[]',
+                '107.1',
+                date,
+                '',
             ],
             [
-                '0057', 'resident57', 'account57', 'fias1', fakeAddress,
-                '5', '057', 'MeterName57', '[]', '105,1', date, '',
-                '7', '057', 'MeterName57', '[]', '107,1', date, '',
+                '0057',
+                'resident57',
+                'account57',
+                'fias1',
+                fakeAddress,
+                '5',
+                '057',
+                'MeterName57',
+                '[]',
+                '105,1',
+                date,
+                '',
+                '7',
+                '057',
+                'MeterName57',
+                '[]',
+                '107,1',
+                date,
+                '',
             ],
 
             // Hot water
             [
-                '0008', 'resident8', 'account8', 'fias1', fakeAddress,
-                '8', '008', 'MeterName8', '[]', '108.1', date, '',
+                '0008',
+                'resident8',
+                'account8',
+                'fias1',
+                fakeAddress,
+                '8',
+                '008',
+                'MeterName8',
+                '[]',
+                '108.1',
+                date,
+                '',
             ],
 
             // Cold water
             [
-                '0009', 'resident9', 'account9', 'fias1', fakeAddress,
-                '9', '009', 'MeterName9', '[]', '109.1', date, '',
+                '0009',
+                'resident9',
+                'account9',
+                'fias1',
+                fakeAddress,
+                '9',
+                '009',
+                'MeterName9',
+                '[]',
+                '109.1',
+                date,
+                '',
             ],
 
             //
@@ -84,12 +206,33 @@ describe('SbbolMetersImporter', () => {
 
             // three readings for two meters per single line
             [
-                '0010-11', 'resident1', 'account1', 'fias1', fakeAddress,
-                '9', '010', 'MeterName10', '', '110.1', date, '',
-                '3', '011', 'MeterName11', '', '111,1', date, '',
-                '4', '011', 'MeterName11', '', '111.2', date, '',
+                '0010-11',
+                'resident1',
+                'account1',
+                'fias1',
+                fakeAddress,
+                '9',
+                '010',
+                'MeterName10',
+                '',
+                '110.1',
+                date,
+                '',
+                '3',
+                '011',
+                'MeterName11',
+                '',
+                '111,1',
+                date,
+                '',
+                '4',
+                '011',
+                'MeterName11',
+                '',
+                '111.2',
+                date,
+                '',
             ],
-
         ]
 
         const importer = new ImporterWrapper()

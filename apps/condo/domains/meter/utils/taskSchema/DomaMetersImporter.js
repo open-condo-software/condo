@@ -1,30 +1,28 @@
-import { RegisterMetersReadingsReadingInput } from '@app/condo/schema'
-import get from 'lodash/get'
-import isEqual from 'lodash/isEqual'
-import isNil from 'lodash/isNil'
+const { get, isEqual, isNil } = require('lodash')
 
-import { TransformRowError } from '@condo/domains/meter/components/MetersDataImporterTypes'
+const { AbstractMetersImporter } = require('./AbstractMetersImporter')
+const { TransformRowError } = require('./MetersDataImporterTypes')
 
-import { AbstractMetersImporter } from './AbstractMetersImporter'
 
-export default class DomaMetersImporter extends AbstractMetersImporter {
-
-    protected hasColumnsHeaders (): boolean {
+class DomaMetersImporter extends AbstractMetersImporter {
+    hasColumnsHeaders () {
         return true
     }
 
-    protected areColumnsHeadersValid (headersRow: string[]): boolean {
-        const normalizedColumns = headersRow.map((value) => {
+    areColumnsHeadersValid (headersRow) {
+        const normalizedColumns = headersRow.map(value => {
             if (typeof value === 'string') {
                 return value.trim().toLowerCase()
             }
             return value
         })
-        const columnsNames = this.columnsHeaders.map(column => column.name.trim().toLowerCase())
+        const columnsNames = this.columnsHeaders.map(column =>
+            column.name.trim().toLowerCase()
+        )
         return isEqual(columnsNames, normalizedColumns)
     }
 
-    protected transformRow (row: string[]): RegisterMetersReadingsReadingInput {
+    transformRow (row) {
         const errors = []
         if (!get(this, ['mappers', 'resourceId', row[4]])) {
             errors.push(this.errors.unknownResource.message)
@@ -64,4 +62,8 @@ export default class DomaMetersImporter extends AbstractMetersImporter {
             },
         }
     }
+}
+
+module.exports = {
+    DomaMetersImporter,
 }

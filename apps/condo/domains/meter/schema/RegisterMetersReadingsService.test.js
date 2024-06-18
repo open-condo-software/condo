@@ -3,7 +3,7 @@
  */
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
-const { get, map, flatten } = require('lodash')
+const { map, flatten } = require('lodash')
 
 const {
     makeLoggedInAdminClient,
@@ -15,12 +15,16 @@ const { i18n } = require('@open-condo/locales/loader')
 
 const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
 const {
-    COLD_WATER_METER_RESOURCE_ID,
     ELECTRICITY_METER_RESOURCE_ID,
     HEAT_SUPPLY_METER_RESOURCE_ID,
     GAS_SUPPLY_METER_RESOURCE_ID,
 } = require('@condo/domains/meter/constants/constants')
-const { registerMetersReadingsByTestClient, Meter, MeterReading } = require('@condo/domains/meter/utils/testSchema')
+const {
+    registerMetersReadingsByTestClient,
+    Meter,
+    MeterReading,
+    createTestReadingData,
+} = require('@condo/domains/meter/utils/testSchema')
 const {
     createTestB2BApp,
     createTestB2BAppContext,
@@ -30,44 +34,13 @@ const {
     createTestOrganization,
     makeEmployeeUserClientWithAbilities,
 } = require('@condo/domains/organization/utils/testSchema')
-const { FLAT_UNIT_TYPE, PARKING_UNIT_TYPE } = require('@condo/domains/property/constants/common')
-const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { buildPropertyMap } = require('@condo/domains/property/utils/testSchema/factories')
+const { PARKING_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { createTestPropertyWithMap } = require('@condo/domains/property/utils/testSchema')
 const {
     makeClientWithSupportUser,
     makeClientWithResidentUser,
     makeClientWithServiceUser,
 } = require('@condo/domains/user/utils/testSchema')
-
-async function createTestPropertyWithMap (client, organization) {
-    return createTestProperty(client, organization, {
-        map: buildPropertyMap(),
-    })
-}
-
-/**
- * @param {Pick<Property, 'address'>} property
- * @param {Partial<RegisterMetersReadingsReadingInput>} extraAttrs
- * @return {RegisterMetersReadingsReadingInput}
- */
-const createTestReadingData = (property, extraAttrs = {}) => ({
-    address: property.address,
-    addressInfo: {
-        unitType: FLAT_UNIT_TYPE,
-        unitName: get(property, ['map', 'sections', 0, 'floors', 0, 'units', 0, 'label'], faker.random.alphaNumeric(4)),
-        globalId: get(property, ['addressMeta', 'data', 'house_fias_id'], faker.datatype.uuid()),
-    },
-    accountNumber: faker.random.alphaNumeric(12),
-    meterNumber: faker.random.numeric(8),
-    meterResource: { id: COLD_WATER_METER_RESOURCE_ID },
-    date: dayjs().toISOString(),
-    value1: faker.random.numeric(3),
-    value2: faker.random.numeric(4),
-    meterMeta: {
-        numberOfTariffs: 2,
-    },
-    ...extraAttrs,
-})
 
 describe('RegisterMetersReadingsService', () => {
 

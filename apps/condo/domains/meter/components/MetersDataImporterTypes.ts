@@ -1,6 +1,6 @@
-export enum ImportDataType {doma = 'doma', sbbol = 'sbbol'}
+import { File } from '@app/condo/schema'
 
-export type TOnMetersUpload = (dataType: ImportDataType, cols: string[][]) => void
+export type TOnMetersUpload = (blob: File) => void
 
 export interface IMeterDataImporterProps {
     onUpload: TOnMetersUpload,

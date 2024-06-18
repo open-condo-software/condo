@@ -1,24 +1,23 @@
-import { faker } from '@faker-js/faker'
-import dayjs from 'dayjs'
+const { faker } = require('@faker-js/faker')
+const dayjs = require('dayjs')
 
-import DomaMetersImporter from './DomaMetersImporter'
+const { DomaMetersImporter } = require('./DomaMetersImporter')
 
 class ImporterWrapper extends DomaMetersImporter {
-
     mappers = {
         unitType: {
-            'квартира': 'flat',
-            'машиноместо': 'parking',
-            'апартаменты': 'apartment',
-            'кладовая': 'warehouse',
+            квартира: 'flat',
+            машиноместо: 'parking',
+            апартаменты: 'apartment',
+            кладовая: 'warehouse',
             'коммерческое помещение': 'commercial',
         },
         resourceId: {
-            'ГВС': '0f54223c-0631-11ec-9a03-0242ac130003',
-            'ХВС': 'e2bd70ac-0630-11ec-9a03-0242ac130003',
-            'ЭЛ': '139a0d98-0631-11ec-9a03-0242ac130003',
-            'ТЕПЛО': '18555734-0631-11ec-9a03-0242ac130003',
-            'ГАЗ': '1c267e92-0631-11ec-9a03-0242ac130003',
+            ГВС: '0f54223c-0631-11ec-9a03-0242ac130003',
+            ХВС: 'e2bd70ac-0630-11ec-9a03-0242ac130003',
+            ЭЛ: '139a0d98-0631-11ec-9a03-0242ac130003',
+            ТЕПЛО: '18555734-0631-11ec-9a03-0242ac130003',
+            ГАЗ: '1c267e92-0631-11ec-9a03-0242ac130003',
         },
     }
 
@@ -38,7 +37,7 @@ class ImporterWrapper extends DomaMetersImporter {
         super(null, null, null, null, {})
     }
 
-    public transformRowWrapper (row: string[]) {
+    transformRowWrapper (row) {
         return this.transformRow(row)
     }
 }
@@ -51,11 +50,111 @@ describe('DomaMetersImporter', () => {
         const sealingDate = dayjs().format('DD.MM.YYYY')
         const rows = [
             // address, unitName, unitType, accountNumber, meterType, meterNumber, tariffs, v1, v2, v3, v4, date, verificationDate, nextVerificationDate, installationDate, commissioningDate, sealingDate, controlReadingsDate, place
-            [fakeAddress, '1', 'Квартира', '001', 'ГВС', '0001', '1', '101.1', null, '', '', date, '', '', '', '', '', '', ''],
-            [fakeAddress, '1', 'Квартира', '001', 'ХВС', '0002', '1', '102.1', '', '', '', date, '', '', '', '', sealingDate, '', ''],
-            [fakeAddress, '2', 'Квартира', '003', 'ХВС', '0003', '2', '103.1', '', '', '', date, verificationDate, '', '', '', '', '', ''],
-            [fakeAddress, '3', 'Бунгало', '003', 'ХВС', '0004', '1', '104', '', '', '', date, '', '', '', '', '', '', ''],
-            [fakeAddress, '2', 'Квартира', '003', 'Костер', '0005', '1', '105', '', '', '', date, '', '', '', '', '', '', ''],
+            [
+                fakeAddress,
+                '1',
+                'Квартира',
+                '001',
+                'ГВС',
+                '0001',
+                '1',
+                '101.1',
+                null,
+                '',
+                '',
+                date,
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+            ],
+            [
+                fakeAddress,
+                '1',
+                'Квартира',
+                '001',
+                'ХВС',
+                '0002',
+                '1',
+                '102.1',
+                '',
+                '',
+                '',
+                date,
+                '',
+                '',
+                '',
+                '',
+                sealingDate,
+                '',
+                '',
+            ],
+            [
+                fakeAddress,
+                '2',
+                'Квартира',
+                '003',
+                'ХВС',
+                '0003',
+                '2',
+                '103.1',
+                '',
+                '',
+                '',
+                date,
+                verificationDate,
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+            ],
+            [
+                fakeAddress,
+                '3',
+                'Бунгало',
+                '003',
+                'ХВС',
+                '0004',
+                '1',
+                '104',
+                '',
+                '',
+                '',
+                date,
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+            ],
+            [
+                fakeAddress,
+                '2',
+                'Квартира',
+                '003',
+                'Костер',
+                '0005',
+                '1',
+                '105',
+                '',
+                '',
+                '',
+                date,
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+            ],
         ]
 
         const importer = new ImporterWrapper()
@@ -154,9 +253,6 @@ describe('DomaMetersImporter', () => {
             },
         ])
 
-        expect(errors).toEqual([
-            ['unknownUnitType'],
-            ['unknownResource'],
-        ])
+        expect(errors).toEqual([['unknownUnitType'], ['unknownResource']])
     })
 })
