@@ -66,16 +66,17 @@ class UserDailyStatistics {
 
     /**
      *
+     * @param organizationWhere
      * @return {Promise<CommonStatistics>}
      */
-    async loadStatistics () {
+    async loadStatistics (organizationWhere = {}) {
         this.#statistics = this.#getStatisticsTemplate(this.#currentDate)
         this.#organizationIds = []
 
         const employees = await find('OrganizationEmployee', {
             deletedAt: null,
             user: { id: this.#userId, deletedAt: null },
-            organization: { deletedAt: null },
+            organization: { deletedAt: null, ...organizationWhere },
             isAccepted: true,
             isRejected: false,
             isBlocked: false,
@@ -88,42 +89,59 @@ class UserDailyStatistics {
         const organizationIds = employees.map((employee) => employee.organization)
 
         for (const organizationId of organizationIds) {
+            const loggerInfo = {
+                taskId: this.#taskId,
+                data: { organizationId, userId: this.#userId, currentDate: this.#currentDate },
+            }
 
             const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(this.#context, SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, { organization: organizationId })
             if (!isFeatureEnabled) {
                 this.#logger && this.#logger.info({
+                    ...loggerInfo,
                     msg: `sendDailyStatistics disabled for organization ${organizationId}`,
-                    taskId: this.#taskId,
-                    data: { organizationId, userId: this.#userId, currentDate: this.#currentDate },
                 })
                 continue
             }
+
+            const organization = await getByCondition('Organization', {
+                id: organizationId,
+                deletedAt: null,
+                ...organizationWhere,
+            })
+
+            if (!organization) {
+                this.#logger && this.#logger.info({
+                    ...loggerInfo,
+                    msg: `cannot find organization by id: "${organizationId}"`,
+                })
+                continue
+            }
+
+            const organizationStatisticsData = await this.#getOrganizationStatisticsData(organizationId)
             this.#organizationIds.push(organizationId)
 
-            const organizationData = await this.#getOrganizationData(organizationId)
-
-            this.#statistics.tickets.inProgress.total += organizationData.tickets.inProgress
-            if (organizationData.tickets.inProgress > 0) {
-                this.#statistics.tickets.inProgress.byOrganizations.push({ name: organizationData.organization.name, count: organizationData.tickets.inProgress })
+            this.#statistics.tickets.inProgress.total += organizationStatisticsData.tickets.inProgress
+            if (organizationStatisticsData.tickets.inProgress > 0) {
+                this.#statistics.tickets.inProgress.byOrganizations.push({ name: organization.name, count: organizationStatisticsData.tickets.inProgress })
             }
-            this.#statistics.tickets.isEmergency.total += organizationData.tickets.isEmergency
-            if (organizationData.tickets.isEmergency > 0) {
-                this.#statistics.tickets.isEmergency.byOrganizations.push({ name: organizationData.organization.name, count: organizationData.tickets.isEmergency })
+            this.#statistics.tickets.isEmergency.total += organizationStatisticsData.tickets.isEmergency
+            if (organizationStatisticsData.tickets.isEmergency > 0) {
+                this.#statistics.tickets.isEmergency.byOrganizations.push({ name: organization.name, count: organizationStatisticsData.tickets.isEmergency })
             }
-            this.#statistics.tickets.isReturned.total += organizationData.tickets.isReturned
-            if (organizationData.tickets.isReturned > 0) {
-                this.#statistics.tickets.isReturned.byOrganizations.push({ name: organizationData.organization.name, count: organizationData.tickets.isReturned })
+            this.#statistics.tickets.isReturned.total += organizationStatisticsData.tickets.isReturned
+            if (organizationStatisticsData.tickets.isReturned > 0) {
+                this.#statistics.tickets.isReturned.byOrganizations.push({ name: organization.name, count: organizationStatisticsData.tickets.isReturned })
             }
-            this.#statistics.tickets.isExpired.total += organizationData.tickets.isExpired
-            if (organizationData.tickets.isExpired > 0) {
-                this.#statistics.tickets.isExpired.byOrganizations.push({ name: organizationData.organization.name, count: organizationData.tickets.isExpired })
+            this.#statistics.tickets.isExpired.total += organizationStatisticsData.tickets.isExpired
+            if (organizationStatisticsData.tickets.isExpired > 0) {
+                this.#statistics.tickets.isExpired.byOrganizations.push({ name: organization.name, count: organizationStatisticsData.tickets.isExpired })
             }
-            this.#statistics.tickets.withoutEmployee.total += organizationData.tickets.withoutEmployee
-            if (organizationData.tickets.withoutEmployee > 0) {
-                this.#statistics.tickets.withoutEmployee.byOrganizations.push({ name: organizationData.organization.name, count: organizationData.tickets.withoutEmployee })
+            this.#statistics.tickets.withoutEmployee.total += organizationStatisticsData.tickets.withoutEmployee
+            if (organizationStatisticsData.tickets.withoutEmployee > 0) {
+                this.#statistics.tickets.withoutEmployee.byOrganizations.push({ name: organization.name, count: organizationStatisticsData.tickets.withoutEmployee })
             }
 
-            this.#statistics.incidents.water.push(...organizationData.incidents.water)
+            this.#statistics.incidents.water.push(...organizationStatisticsData.incidents.water)
         }
 
         return this.#statistics
@@ -132,9 +150,9 @@ class UserDailyStatistics {
     /**
      *
      * @param organizationId
-     * @return {Promise<OrganizationData>}
+     * @return {Promise<OrganizationStatisticsData>}
      */
-    async #getOrganizationData (organizationId) {
+    async #getOrganizationStatisticsData (organizationId) {
         if (CACHE.has(organizationId)) {
             this.#logger && this.#logger.info({
                 msg: `Data for organization "${organizationId}" was taken from the cache`,
@@ -142,15 +160,6 @@ class UserDailyStatistics {
                 data: { organizationId, userId: this.#userId, currentDate: this.#currentDate },
             })
             return CACHE.peek(organizationId)
-        }
-
-        const organization = await getByCondition('Organization', {
-            id: organizationId,
-            deletedAt: null,
-        })
-
-        if (!organization) {
-            throw new Error(`cannot find organization by id: "${organizationId}"`)
         }
 
         const {
@@ -163,7 +172,6 @@ class UserDailyStatistics {
         const { water } = await this.#getIncidentsData(organizationId)
 
         const result = {
-            organization,
             tickets: {
                 inProgress,
                 isEmergency,
@@ -184,7 +192,7 @@ class UserDailyStatistics {
     /**
      *
      * @param organizationId
-     * @return {Promise<OrganizationTicketsData>}
+     * @return {Promise<TicketsData>}
      */
     async #getTicketsData (organizationId) {
         const { count: inProgress } = await itemsQuery('Ticket', {
@@ -391,20 +399,15 @@ class UserDailyStatistics {
      */
 
     /**
-     * @typedef {object} OrganizationData
-     * @property {OrganizationTicketsData} tickets
-     *
-     * @property {object} organization
-     * @property {string} organization.id
-     * @property {string} organization.name
-     * @property {string} organization.inn
+     * @typedef {object} OrganizationStatisticsData
+     * @property {TicketsData} tickets
      *
      * @property {object} incidents
      * @property {IncidentData[]} incidents.water
      */
 
     /**
-     * @typedef {object} OrganizationTicketsData
+     * @typedef {object} TicketsData
      * @property {number} isEmergency
      * @property {number} isReturned
      * @property {number} inProgress
@@ -482,17 +485,17 @@ const formatMessageData = (userStatisticsData, currentDate, locale = conf.DEFAUL
     }
 }
 
-const sendDailyMessageToUserSafely = async (context, logger, user, currentDate, taskId) => {
+const sendDailyMessageToUserSafely = async (context, logger, user, currentDate, taskId, organizationWhere = {}) => {
     try {
         const userStatistics = new UserDailyStatistics(user.id, currentDate, logger, taskId)
-        const statisticsData = await userStatistics.loadStatistics()
+        const statisticsData = await userStatistics.loadStatistics(organizationWhere)
 
         const isEmptyStatistics = statisticsData.tickets.inProgress.total < 1
-            || statisticsData.tickets.isEmergency.total < 1
-            || statisticsData.tickets.isReturned.total < 1
-            || statisticsData.tickets.isExpired.total < 1
-            || statisticsData.tickets.withoutEmployee.total < 1
-            || statisticsData.incidents.water.length < 1
+            && statisticsData.tickets.isEmergency.total < 1
+            && statisticsData.tickets.isReturned.total < 1
+            && statisticsData.tickets.isExpired.total < 1
+            && statisticsData.tickets.withoutEmployee.total < 1
+
         if (isEmptyStatistics) {
             logger && logger.info({ msg: 'The email was not sent because the statistics are empty.', taskId, data: { currentDate, userId: user.id } })
             return
