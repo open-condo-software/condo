@@ -84,7 +84,7 @@ const fetchWithRetriesAndLogger = async (url, options = {}) => {
             if (response && response.ok) {
                 return response
             }
-            throw new Error(`${response.status}: Failed to fetch`)
+            lastError = `${response.status}: Failed to fetch`
         } catch (error) {
             lastError = error
         }
