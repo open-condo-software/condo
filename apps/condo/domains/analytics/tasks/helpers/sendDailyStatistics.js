@@ -16,6 +16,7 @@ const { INCIDENT_STATUS_ACTUAL } = require('@condo/domains/ticket/constants/inci
 
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'sendDailyStatisticsTask' } }
 const COMPACT_SCOPES_SIZE = 2
+const MAX_COUNT_INCIDENTS_TO_DISPLAY = 5
 const EMPTY_LINE = '—'
 
 
@@ -448,6 +449,34 @@ const formatTicketsStats = ({ total, byOrganizations }) => {
  * @return {MessageData}
  */
 const formatMessageData = (userStatisticsData, currentDate, locale = conf.DEFAULT_LOCALE) => {
+    const moreWaterIncidentCount = userStatisticsData.incidents.water - MAX_COUNT_INCIDENTS_TO_DISPLAY
+    const moreWaterIncidents = moreWaterIncidentCount > 0
+        ? i18n('notification.messages.SEND_DAILY_STATISTICS_MESSAGE_TYPE.email.moreIncidents', { locale, meta: { more: moreWaterIncidentCount } })
+        : ''
+    const waterIncidents = userStatisticsData.incidents.water.slice(0, MAX_COUNT_INCIDENTS_TO_DISPLAY).map((incident) => {
+        let date, addresses
+
+        const dateStart = dayjs(incident.workStart).format('DD-MM-YYYY')
+        const dateFinish = incident.workFinish ? dayjs(incident.workFinish).format('DD-MM-YYYY') : null
+        if (dateStart === dateFinish) {
+            date = dateStart
+        } else {
+            date = [dateStart, dateFinish].filter(Boolean).join(` ${EMPTY_LINE} `)
+        }
+
+        if (incident.hasAllProperties) {
+            addresses = i18n('notification.messages.SEND_DAILY_STATISTICS_MESSAGE_TYPE.email.allProperties', { locale })
+        } else {
+            const more = incident.count - COMPACT_SCOPES_SIZE
+            const moreProperties = more > 0
+                ? ` ${i18n('notification.messages.SEND_DAILY_STATISTICS_MESSAGE_TYPE.email.moreProperties', { locale, meta: { more } })}`
+                : ''
+            addresses = incident.addresses.filter(Boolean).join(', ') + moreProperties
+        }
+
+        return `${date} - ${addresses}`
+    }).join(';') + moreWaterIncidents
+
     return {
         date: dayjs(currentDate).format('DD.MM.YY'),
         tickets: {
@@ -458,29 +487,7 @@ const formatMessageData = (userStatisticsData, currentDate, locale = conf.DEFAUL
             withoutEmployee: formatTicketsStats(userStatisticsData.tickets.withoutEmployee),
         },
         incidents: {
-            water: userStatisticsData.incidents.water.map((incident) => {
-                let date, addresses
-
-                const dateStart = dayjs(incident.workStart).format('DD-MM-YYYY')
-                const dateFinish = incident.workFinish ? dayjs(incident.workFinish).format('DD-MM-YYYY') : null
-                if (dateStart === dateFinish) {
-                    date = dateStart
-                } else {
-                    date = [dateStart, dateFinish].filter(Boolean).join(` ${EMPTY_LINE} `)
-                }
-
-                if (incident.hasAllProperties) {
-                    addresses = i18n('notification.messages.SEND_DAILY_STATISTICS_MESSAGE_TYPE.email.allProperties', { locale })
-                } else {
-                    const more = incident.count - COMPACT_SCOPES_SIZE
-                    const moreProperties = more > 0
-                        ? ` ${i18n('notification.messages.SEND_DAILY_STATISTICS_MESSAGE_TYPE.email.moreProperties', { locale, meta: { more } })}`
-                        : ''
-                    addresses = incident.addresses.filter(Boolean).join(', ') + moreProperties
-                }
-
-                return `${date} - ${addresses}`
-            }).join('\n'),
+            water: waterIncidents,
         },
     }
 }

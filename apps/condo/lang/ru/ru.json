@@ -1941,6 +1941,7 @@
   "notification.messages.DEV_PORTAL_MESSAGE.email.subject": "{subject}",
   "notification.messages.SEND_DAILY_STATISTICS_MESSAGE_TYPE.email.allProperties": "Все дома",
   "notification.messages.SEND_DAILY_STATISTICS_MESSAGE_TYPE.email.moreProperties": "и еще {more} домов",
+  "notification.messages.SEND_DAILY_STATISTICS_MESSAGE_TYPE.email.moreIncidents": "и еще {more} отключений",
   "news.ConfirmDeleteTitle": "Удалить новость?",
   "news.ConfirmDeleteMessage": "Восстановить ее будет нельзя. Но можно создать заново.",
   "news.CancelMessage": "Оставить",
