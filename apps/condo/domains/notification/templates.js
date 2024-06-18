@@ -26,7 +26,8 @@ const LANG_DIR_RELATED = '../../lang'
 const TEMPLATE_ENGINE_DEFAULT_DATE_FORMAT = 'D MMMM YYYY'
 const SERVER_URL = conf.SERVER_URL
 const SOCIAL_MEDIA_LINKS = conf.SOCIAL_MEDIA_LINKS ? JSON.parse(conf.SOCIAL_MEDIA_LINKS) : {}
-const SUPPORT_EMAIL = conf.SUPPORT_EMAIL
+const HELP_REQUISITES = conf.HELP_REQUISITES ? JSON.parse(conf.HELP_REQUISITES) : {}
+const SUPPORT_EMAIL = get(HELP_REQUISITES, 'support_email') || ''
 const LANDING_URL = conf.LANDING_URL
 
 // config based path
