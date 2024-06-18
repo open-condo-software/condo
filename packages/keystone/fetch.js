@@ -67,6 +67,7 @@ const fetchWithRetriesAndLogger = async (url, options = {}) => {
     } = options
     let retries = 0
     let lastError
+    let lastResponse
     // At least one request on maxRetries = 0
     do {
         try {
@@ -84,7 +85,7 @@ const fetchWithRetriesAndLogger = async (url, options = {}) => {
             if (response && response.ok) {
                 return response
             }
-            lastError = `${response.status}: Failed to fetch`
+            lastResponse = response
         } catch (error) {
             lastError = error
         }
@@ -93,7 +94,10 @@ const fetchWithRetriesAndLogger = async (url, options = {}) => {
             await sleep(retries * timeoutBetweenRequests)
         }
     }  while (retries < maxRetries)
-    throw new Error(lastError)
+    if (lastError) {
+        throw new Error(lastError)
+    }
+    return lastResponse
 }
 
 module.exports = {

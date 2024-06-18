@@ -68,7 +68,7 @@ describe('Fetch with retries', () => {
         expect(fetch).toHaveBeenCalledTimes(2)
     })
 
-    it('should throw error when no success response is received in the end', async () => {
+    it('should return response if no success response is received in the end', async () => {
         const failResponse = {
             ok: false,
             status: 404,
@@ -76,9 +76,9 @@ describe('Fetch with retries', () => {
         }
         fetch.mockResolvedValue(failResponse)
         const options = getOptions()
-        await expect(fetchWithRetries(URL, options))
-            .rejects
-            .toThrowError('404')
+        const response = await fetchWithRetries(URL, options)
+        expect(response.ok).toBeFalsy()
+        expect(response.status).toEqual(404)
         expect(fetch).toHaveBeenCalledTimes(2)
     })
 
