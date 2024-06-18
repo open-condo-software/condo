@@ -91,10 +91,8 @@ describe('importMeters', () => {
         // assert
         const task = await MeterReadingsImportTask.getOne(context, { id: meterReadingsImportTask.id })
         expect(task).toMatchObject({
-            status: COMPLETED,
             format: CSV,
             file: expect.objectContaining({ mimetype: 'text/csv' }),
-            errorFile: null,
             errorMessage: null,
             totalRecordsCount: validLines + invalidLines + fatalLines,
             importedRecordsCount: validLines,

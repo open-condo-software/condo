@@ -115,8 +115,7 @@ async function importMeters (taskId) {
     // - currentStatus === processing and has failedRows - error + generate error file
     if (currentStatus === ERROR || currentStatus === CANCELLED) {
         return
-    } else if (currentStatus === PROCESSING
-        && (totalRecordsCount === importedRecordsCount || failedRows.length === 0)) {
+    } else if (currentStatus === PROCESSING && failedRows.length === 0) {
         await MeterReadingsImportTask.update(context, taskId, {
             ...dvAndSender,
             status: COMPLETED,
