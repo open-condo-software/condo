@@ -1,4 +1,5 @@
-const { createReadStream } = require('fs')
+const { createReadStream, readFileSync } = require('fs')
+const path = require('path')
 const { Duplex } = require('stream')
 
 const DOTS_AND_COMMAS_REGEXP = /^([,.\s]+)|([,.\s]+)$/g // NOSONAR two groups usage required for proper work of regexp
@@ -26,10 +27,12 @@ const readFileFromStream = async (stream) => new Promise((resolve, reject) => {
 })
 
 const getObjectStream = async (file, adapter, streaming = true) => new Promise((resolve, reject) => {
-    const { filename, path = '' } = file
-    if (path) {
-        return createReadStream(path)
+    const { filename } = file
+    if (!adapter.s3 && adapter.src) {
+        const fullPath = `${adapter.src}${path.sep}${filename}`
+        return resolve(streaming ? createReadStream(fullPath) : readFileSync(fullPath))
     }
+
     adapter.s3.getObject({
         Bucket: adapter.bucket,
         Key: `${adapter.folder}/${filename}`,
