@@ -260,7 +260,6 @@ class UserDailyStatistics {
                 deletedAt: null,
                 organization: { id: organizationId, deletedAt: null },
                 status: INCIDENT_STATUS_ACTUAL,
-                // workType: INCIDENT_WORK_TYPE_SCHEDULED,
                 AND: [
                     { workStart_gte: this.#currentDate },
                     { workStart_lte: dayjs(this.#currentDate).add(1, 'day').toISOString() },
