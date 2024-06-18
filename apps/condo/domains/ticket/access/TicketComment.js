@@ -10,6 +10,7 @@ const uniq = require('lodash/uniq')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getByCondition, find, getById } = require('@open-condo/keystone/schema')
 
+const { canReadObjectsAsB2BAppServiceUser, canManageObjectsAsB2BAppServiceUser } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
 const {
     checkPermissionsInEmployedOrRelatedOrganizations,
     getEmployedOrRelatedOrganizationsByPermissions,
@@ -18,13 +19,20 @@ const { RESIDENT_COMMENT_TYPE, COMPLETED_STATUS_TYPE, CANCELED_STATUS_TYPE } = r
 const {
     getTicketFieldsMatchesResidentFieldsQuery,
 } = require('@condo/domains/ticket/utils/accessSchema')
-const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 
-async function canReadTicketComments ({ authentication: { item: user }, context }) {
+
+async function canReadTicketComments (args) {
+    const { authentication: { item: user }, context } = args
+
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     
     if (user.isSupport || user.isAdmin) return {}
+
+    if (user.type === SERVICE) {
+        return await canReadObjectsAsB2BAppServiceUser(args)
+    }
 
     if (user.type === RESIDENT) {
         const residents = await find('Resident', { user: { id: user.id }, deletedAt: null })
@@ -59,7 +67,13 @@ async function canReadTicketComments ({ authentication: { item: user }, context 
     }
 }
 
-const checkManageCommentAccess = async ({ user, operation, originalInput, itemId, context }) => {
+const checkManageCommentAccess = async (args) => {
+    const { authentication: { item: user }, originalInput, operation, itemId, context } = args
+
+    if (user.type === SERVICE) {
+        return await canManageObjectsAsB2BAppServiceUser(args)
+    }
+
     if (user.type === RESIDENT) {
         if (operation === 'create') {
             const ticketId = get(originalInput, ['ticket', 'connect', 'id'])
@@ -101,7 +115,9 @@ const checkManageCommentAccess = async ({ user, operation, originalInput, itemId
     return false
 }
 
-async function canManageTicketComments ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageTicketComments (args) {
+    const { authentication: { item: user }, originalInput, operation } = args
+
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
@@ -109,7 +125,7 @@ async function canManageTicketComments ({ authentication: { item: user }, origin
     if (operation === 'create' && isArray(originalInput)) {
         for (const ticketCommentInputData of originalInput) {
             const ticketCommentInput = get(ticketCommentInputData, 'data')
-            const accessToCreateComment = await checkManageCommentAccess({ user, operation, originalInput: ticketCommentInput, itemId })
+            const accessToCreateComment = await checkManageCommentAccess({ ...args, originalInput: ticketCommentInput })
 
             if (!accessToCreateComment) {
                 return false
@@ -119,7 +135,7 @@ async function canManageTicketComments ({ authentication: { item: user }, origin
         return true
     }
 
-    return await checkManageCommentAccess({ user, operation, originalInput, itemId })
+    return await checkManageCommentAccess(args)
 }
 
 async function canSetUserField ({ authentication: { item: user }, originalInput }) {

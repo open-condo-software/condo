@@ -9,6 +9,7 @@ const omit = require('lodash/omit')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById, find } = require('@open-condo/keystone/schema')
 
+const { canReadObjectsAsB2BAppServiceUser, canManageObjectsAsB2BAppServiceUser } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
 const {
     checkPermissionsInEmployedOrRelatedOrganizations,
     getEmployedOrRelatedOrganizationsByPermissions,
@@ -20,10 +21,13 @@ const {
     INACCESSIBLE_TICKET_FIELDS_FOR_MANAGE_BY_RESIDENT,
     INACCESSIBLE_TICKET_FIELDS_FOR_MANAGE_BY_STAFF,
 } = require('@condo/domains/ticket/constants/common')
-const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 const { canDirectlyManageSchemaObjects, canDirectlyReadSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
-async function canReadTickets ({ authentication: { item: user }, listKey, context }) {
+
+async function canReadTickets (args) {
+    const { authentication: { item: user }, listKey, context } = args
+
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -31,6 +35,10 @@ async function canReadTickets ({ authentication: { item: user }, listKey, contex
 
     const hasDirectAccess = await canDirectlyReadSchemaObjects(user, listKey)
     if (hasDirectAccess) return {}
+
+    if (user.type === SERVICE) {
+        return await canReadObjectsAsB2BAppServiceUser(args)
+    }
 
     if (user.type === RESIDENT) {
         const residents = await find('Resident', { user: { id: user.id }, deletedAt: null })
@@ -52,13 +60,19 @@ async function canReadTickets ({ authentication: { item: user }, listKey, contex
     }
 }
 
-async function canManageTickets ({ authentication: { item: user }, operation, itemId, originalInput, context, listKey }) {
+async function canManageTickets (args) {
+    const { authentication: { item: user }, operation, itemId, originalInput, context, listKey } = args
+
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
 
     const hasDirectAccess = await canDirectlyManageSchemaObjects(user, listKey, originalInput, operation)
     if (hasDirectAccess) return true
+
+    if (user.type === SERVICE) {
+        return await canManageObjectsAsB2BAppServiceUser(args)
+    }
 
     if (user.type === RESIDENT) {
         const changedInaccessibleFields = Object.keys(originalInput).some(field => INACCESSIBLE_TICKET_FIELDS_FOR_MANAGE_BY_RESIDENT.includes(field))
