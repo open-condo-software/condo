@@ -3,22 +3,28 @@ const dayjs = require('dayjs')
 const { find } = require('@open-condo/keystone/schema')
 const { createCronTask } = require('@open-condo/keystone/tasks')
 
-const publishSharedNewsItemsByNewsItem = require('./publishSharedNewsItemsByNewsItem')
+const publishNewsItemSharing = require('./publishNewsItemSharing')
+
+const { STATUSES } = require('../constants/newsItemSharingStatuses')
 
 async function publishDelayedSharedNewsItems () {
     const now = dayjs().toISOString()
-    /** @type {NewsItem[]} */
-    const newsItems = await find(
-        'NewsItem',
+    /** @type {NewsItemSharing[]} */
+    const newsItemSharings = await find(
+        'NewsItemSharing',
         {
-            isPublished: true,
+            status: STATUSES.SCHEDULED,
+            newsItem: {
+                isPublished: true,
+                deletedAt: null,
+                sendAt_lte: now,
+            },
             deletedAt: null,
-            sendAt_lte: now,
         },
     )
 
-    for (const newsItem of newsItems) {
-        await publishSharedNewsItemsByNewsItem.delay(newsItem.id)
+    for (const newsItemSharing of newsItemSharings) {
+        await publishNewsItemSharing.delay(newsItemSharing.id)
     }
 }
 

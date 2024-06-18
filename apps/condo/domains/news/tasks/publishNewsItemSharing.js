@@ -42,7 +42,7 @@ async function _publishNewsItemSharing (newsItem, newsItemSharing){
         status: STATUSES.PROCESSING,
     })
 
-    const { title, body, type, validBefore } = newsItem
+    const { title, body, type, validBefore, createdAt, publishedAt } = newsItem
     const sharingParams = get(newsItemSharing, 'sharingParams')
 
     const scopes = await find('NewsItemScope', { newsItem: { id: newsItem.id } })
@@ -75,6 +75,8 @@ async function _publishNewsItemSharing (newsItem, newsItemSharing){
             type,
             scopes,
             validBefore: validBefore ? validBefore : undefined,
+            createdAt,
+            publishedAt,
         },
 
         newsItemSharing: {
