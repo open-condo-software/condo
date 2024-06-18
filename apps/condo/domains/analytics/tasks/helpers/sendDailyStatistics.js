@@ -498,7 +498,7 @@ const sendDailyMessageToUserSafely = async (context, logger, user, currentDate, 
 
         if (isEmptyStatistics) {
             logger && logger.info({ msg: 'The email was not sent because the statistics are empty.', taskId, data: { currentDate, userId: user.id } })
-            return
+            return 'statistics-is-empty'
         }
 
         const messageData = formatMessageData(statisticsData, currentDate, user.locale)

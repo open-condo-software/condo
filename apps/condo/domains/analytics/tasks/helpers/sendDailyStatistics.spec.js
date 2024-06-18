@@ -633,5 +633,20 @@ describe('sendDailyStatistics', () => {
                 expect(message.status).toEqual('sent')
             })
         })
+
+        test('should not send message if statistics is empty', async () => {
+            const administratorClient = await makeClientWithProperty()
+
+            setFeatureFlag(SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, true)
+            const currentDate = dayjs().toISOString()
+            const { keystone: context } = getSchemaCtx('User')
+            const res = await sendDailyMessageToUserSafely(context, null, { ...administratorClient.user, email: administratorClient.userAttrs.email }, currentDate, null)
+            expect(res).toBe('statistics-is-empty')
+
+            const message = await Message.getOne(admin, {
+                uniqKey: `send_daily_statistics_${administratorClient.user.id}_${dayjs(currentDate).format('DD-MM-YYYY')}`,
+            })
+            expect(message).toBeUndefined()
+        })
     })
 })
