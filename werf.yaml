@@ -370,6 +370,9 @@ from: postgres:13.2
 image: pgbouncerreview
 from: bitnami/pgbouncer:1.22.1
 ---
+image: haproxyreview
+from: haproxy:3.0.2
+---
 image: redisreview
 from: redis:6.2
 ---
