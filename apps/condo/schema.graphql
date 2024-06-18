@@ -51510,8 +51510,8 @@ enum MeterReadingsImportTaskStatusType {
 }
 
 enum MeterReadingsImportTaskFormatType {
-  excel
-  csv
+  excel_doma
+  csv_1s
 }
 
 """ Stores requested import job parameters, link to error file (if exists) and information about progress of import job 

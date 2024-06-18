@@ -34241,8 +34241,8 @@ export type MeterReadingsImportTaskCreateInput = {
 };
 
 export enum MeterReadingsImportTaskFormatType {
-  Excel = 'excel',
-  Csv = 'csv'
+  ExcelDoma = 'excel_doma',
+  Csv_1s = 'csv_1s'
 }
 
 /**  A keystone list  */

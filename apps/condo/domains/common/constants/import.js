@@ -5,8 +5,8 @@ const CANCELLED = 'cancelled'
 
 const IMPORT_STATUS_VALUES = [PROCESSING, COMPLETED, ERROR, CANCELLED]
 
-const DOMA_EXCEL = 'excel'
-const CSV = 'csv'
+const DOMA_EXCEL = 'excel_doma'
+const CSV = 'csv_1s'
 const IMPORT_FORMAT_VALUES = [DOMA_EXCEL, CSV]
 
 const DEFAULT_RECORDS_LIMIT_FOR_IMPORT = 500
