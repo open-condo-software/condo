@@ -4,6 +4,7 @@ const LRUCache = require('lru-cache')
 
 const conf = require('@open-condo/config')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
+const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx, find, itemsQuery, getByCondition } = require('@open-condo/keystone/schema')
 const { i18n } = require('@open-condo/locales/loader')
 
@@ -13,6 +14,9 @@ const { sendMessage } = require('@condo/domains/notification/utils/serverSchema'
 const { PROCESSING_STATUS_TYPE, NEW_OR_REOPENED_STATUS_TYPE, DEFERRED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
 const { INCIDENT_STATUS_ACTUAL, INCIDENT_CATEGORY_IDS, INCIDENT_PROBLEM_IDS } = require('@condo/domains/ticket/constants/incident')
 
+
+const appLogger = getLogger('condo')
+const logger = appLogger.child({ module: 'task/sendDailyStatistics' })
 
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'sendDailyStatisticsTask' } }
 const COMPACT_SCOPES_SIZE = 2
@@ -35,17 +39,15 @@ class UserDailyStatistics {
     /** @type {string|null} */
     #userId = null
     #context = null
-    #logger = null
     #taskId = null
 
     /**
      *
      * @param userId
      * @param currentDate
-     * @param logger
      * @param taskId
      */
-    constructor (userId, currentDate, logger, taskId) {
+    constructor (userId, currentDate, taskId) {
         if (!userId) throw new Error('No userId!')
 
         this.#userId = userId
@@ -53,7 +55,6 @@ class UserDailyStatistics {
 
         const { keystone: context } = getSchemaCtx('User')
         this.#context = context
-        this.#logger = logger
         this.#taskId = taskId
     }
 
@@ -97,7 +98,7 @@ class UserDailyStatistics {
 
             const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(this.#context, SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, { organization: organizationId })
             if (!isFeatureEnabled) {
-                this.#logger && this.#logger.info({
+                logger.info({
                     ...loggerInfo,
                     msg: `sendDailyStatistics disabled for organization ${organizationId}`,
                 })
@@ -111,7 +112,7 @@ class UserDailyStatistics {
             })
 
             if (!organization) {
-                this.#logger && this.#logger.info({
+                logger.info({
                     ...loggerInfo,
                     msg: `cannot find organization by id: "${organizationId}"`,
                 })
@@ -155,7 +156,7 @@ class UserDailyStatistics {
      */
     async #getOrganizationStatisticsData (organizationId) {
         if (CACHE.has(organizationId)) {
-            this.#logger && this.#logger.info({
+            logger.info({
                 msg: `Data for organization "${organizationId}" was taken from the cache`,
                 taskId: this.#taskId,
                 data: { organizationId, userId: this.#userId, currentDate: this.#currentDate },
@@ -493,9 +494,9 @@ const formatMessageData = (userStatisticsData, currentDate, locale = conf.DEFAUL
     }
 }
 
-const sendDailyMessageToUserSafely = async (context, logger, user, currentDate, taskId, organizationWhere = {}) => {
+const sendDailyMessageToUserSafely = async (context, user, currentDate, taskId, organizationWhere = {}) => {
     try {
-        const userStatistics = new UserDailyStatistics(user.id, currentDate, logger, taskId)
+        const userStatistics = new UserDailyStatistics(user.id, currentDate, taskId)
         const statisticsData = await userStatistics.loadStatistics(organizationWhere)
 
         const isEmptyStatistics = statisticsData.tickets.inProgress.total < 1
@@ -505,7 +506,7 @@ const sendDailyMessageToUserSafely = async (context, logger, user, currentDate, 
             && statisticsData.tickets.withoutEmployee.total < 1
 
         if (isEmptyStatistics) {
-            logger && logger.info({ msg: 'The email was not sent because the statistics are empty.', taskId, data: { currentDate, userId: user.id } })
+            logger.info({ msg: 'The email was not sent because the statistics are empty.', taskId, data: { currentDate, userId: user.id } })
             return 'statistics-is-empty'
         }
 
@@ -527,9 +528,9 @@ const sendDailyMessageToUserSafely = async (context, logger, user, currentDate, 
             },
         })
 
-        logger && logger.info({ msg: 'The email has been sent.', taskId, data: { currentDate, userId: user.id } })
+        logger.info({ msg: 'The email has been sent.', taskId, data: { currentDate, userId: user.id } })
     } catch (error) {
-        logger && logger.error({ msg: 'Failed to send email', error, taskId, data: { currentDate, userId: user.id } })
+        logger.error({ msg: 'Failed to send email', error, taskId, data: { currentDate, userId: user.id } })
     }
 }
 

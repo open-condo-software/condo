@@ -55,7 +55,7 @@ const sendDailyStatistics = async () => {
              */
             chunkProcessor: async (chunk) => {
                 for (const user of chunk) {
-                    await sendDailyMessageToUserSafely(context, logger, user, currentDate, taskId, {
+                    await sendDailyMessageToUserSafely(context, user, currentDate, taskId, {
                         // We collect statistics only for organizations that were created more than a month ago.
                         createdAt_lte: dayjs(currentDate).subtract(1, 'month').toISOString(),
                     })
