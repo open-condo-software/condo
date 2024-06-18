@@ -9,13 +9,13 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/news/access/NewsItemSharing')
-const { STATUSES, ALLOWED_TRANSITIONS } = require('@condo/domains/news/constants/newsItemSharingStatuses')
-const publishNewsItemSharing = require('@condo/domains/news/tasks/publishNewsItemSharing')
-
 const {
     BAD_STATUS_TRANSITION,
     NOT_NEWS_SHARING_CONTEXT,
 } = require('@condo/domains/news/constants/errors')
+const { STATUSES, ALLOWED_TRANSITIONS } = require('@condo/domains/news/constants/newsItemSharingStatuses')
+const publishNewsItemSharing = require('@condo/domains/news/tasks/publishNewsItemSharing')
+
 
 
 

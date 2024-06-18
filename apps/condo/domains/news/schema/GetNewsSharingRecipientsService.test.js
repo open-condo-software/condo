@@ -18,7 +18,7 @@ const {
 } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
-const { 
+const {
     SUCCESS_GET_RECIPIENTS_URL,
     FAULTY_GET_RECIPIENTS_URL_404,
     FAULTY_GET_RECIPIENTS_URL_500,
@@ -32,7 +32,7 @@ const {
     SUCCESS_PUBLISH_URL,
     SUCCESS_GET_RECIPIENTS_RESULT,
     NewsSharingTestingApp,
-} = require('@condo/domains/news/utils/testSchema/NewsSharingTestingApp')
+} = require('../utils/testSchema/NewsSharingTestingApp')
 
 let adminClient, dummyO10n, staffClientWithPermissions, dummyB2BContextWithNewsSharingConfig, testExpressAppBaseUrl
 

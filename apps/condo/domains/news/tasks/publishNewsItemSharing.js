@@ -82,7 +82,6 @@ async function _publishNewsItemSharing (newsItem, newsItemSharing){
             id: newsItemSharing.id,
             sharingParams,
         },
-        contextSettings,
 
         properties: properties.map(property => ({
             id: property.id,

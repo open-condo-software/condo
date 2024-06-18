@@ -11,19 +11,19 @@ const {
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
+const { _internalScheduleTaskByNameByTestClient } = require('@condo/domains/common/utils/testSchema')
 const { createTestB2BAppNewsSharingConfig, createTestB2BApp, createTestB2BAppContext } = require('@condo/domains/miniapp/utils/testSchema')
+const { SENDING_DELAY_SEC } = require('@condo/domains/news/constants/common')
+const { ALLOWED_TRANSITIONS, STATUSES } = require('@condo/domains/news/constants/newsItemSharingStatuses')
 const { NewsItem, NewsItemSharing, createTestNewsItemSharing, updateTestNewsItemSharing } = require('@condo/domains/news/utils/testSchema')
+const { createTestNewsItem, createTestNewsItemScope, publishTestNewsItem } = require('@condo/domains/news/utils/testSchema')
+const { NewsSharingTestingApp, FAULTY_PUBLISH_URL_500, SUCCESS_PUBLISH_URL } = require('@condo/domains/news/utils/testSchema/NewsSharingTestingApp')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 const { ERRORS } = require('./NewsItemSharing')
 
-const { _internalScheduleTaskByNameByTestClient } = require('@condo/domains/common/utils/testSchema')
-const { SENDING_DELAY_SEC } = require('@condo/domains/news/constants/common')
-const { ALLOWED_TRANSITIONS, STATUSES } = require('@condo/domains/news/constants/newsItemSharingStatuses')
-const { createTestNewsItem, createTestNewsItemScope, publishTestNewsItem } = require('@condo/domains/news/utils/testSchema')
-const { NewsSharingTestingApp, FAULTY_PUBLISH_URL_500, SUCCESS_PUBLISH_URL } = require('@condo/domains/news/utils/testSchema/NewsSharingTestingApp')
 
 
 describe('NewsItemSharing', () => {

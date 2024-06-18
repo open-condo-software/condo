@@ -10,7 +10,6 @@ import { colors } from '@open-condo/ui/dist/colors'
 
 import { CrossIcon } from '@condo/domains/common/components/icons/CrossIcon'
 import { DEFAULT_BORDER_RADIUS } from '@condo/domains/common/constants/style'
-
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 
 import type { NewsItem } from '@app/condo/schema'
