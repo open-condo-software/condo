@@ -58,16 +58,15 @@ async function sendHashedResidentPhones () {
     if (lastSyncDate) {
         where.createdAt_gt = dayjs(lastSyncDate).toISOString()
     }
-
     const contactsWhere = { ...where }
     const residentUsersWhere = { ...where, type: RESIDENT }
+    const filename = `${os.tmpdir()}/${crypto.randomBytes(6).hexSlice()}.csv`
 
     try {
         const writeStream = fs.createWriteStream(filename, { encoding: 'utf8' })
         const stringifier = stringify({ header: true, columns: ['phone'] })
         stringifier.pipe(writeStream)
 
-        const filename = `${os.tmpdir()}/${crypto.randomBytes(6).hexSlice()}.csv`
         await getHashedResidentsAndContactsPhones({
             toEmail: MARKETING_EMAIL,
             contactsWhere,
@@ -83,16 +82,17 @@ async function sendHashedResidentPhones () {
         const status = await sendFileByEmail({ stream, filename, config: EMAIL_API_CONFIG, toEmail: MARKETING_EMAIL })
 
         await redisClient.set(REDIS_KEY, dayjs().toISOString())
-        await rmfile(filename)
 
         taskLogger.info({ msg: 'File sent to email', taskId, status, toEmail: MARKETING_EMAIL })
     } catch (error) {
         taskLogger.error({ msg: 'Error in sendHashedResidentPhones', error, taskId })
+    } finally {
+        await rmfile(filename)
     }
 }
 
-// cron: At 00:00 on day-of-month 5 in every 3rd month
-const sendHashedResidentPhonesTask = createCronTask('sendHashedResidentPhones', '0 0 5 */3 *', sendHashedResidentPhones)
+// cron: At 02:30 on day-of-month 5 in every 3rd month
+const sendHashedResidentPhonesTask = createCronTask('sendHashedResidentPhones', '30 2 5 */3 *', sendHashedResidentPhones)
 
 module.exports = {
     sendHashedResidentPhones,
