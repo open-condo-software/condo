@@ -1,9 +1,11 @@
 const { chunk, get, isArray } = require('lodash')
 const XLSX = require('xlsx')
 
+const { getLogger } = require('@open-condo/keystone/logging')
 const { i18n } = require('@open-condo/locales/loader')
 
 const READINGS_CHUNK_SIZE = 100
+const logger = getLogger('AbstractMetersImporter')
 
 class AbstractMetersImporter {
     constructor (
@@ -59,10 +61,12 @@ class AbstractMetersImporter {
                 const columns = this.tableData.shift()
 
                 if (!columns) {
+                    logger.error({ msg: this.errors.invalidColumns })
                     await this.errorHandler(this.errors.invalidColumns)
                     return
                 }
                 if (!this.areColumnsHeadersValid(columns)) {
+                    logger.error({ msg: this.errors.invalidColumns })
                     await this.errorHandler(this.errors.invalidColumns)
                     return
                 }
@@ -71,6 +75,7 @@ class AbstractMetersImporter {
             // empty data
             if (this.tableData.length === 0) {
                 await this.errorHandler(this.errors.emptyRows)
+                logger.error({ msg: this.errors.emptyRows })
                 return
             }
 
@@ -97,6 +102,7 @@ class AbstractMetersImporter {
                         // sbbol row can hold multiply register meter records
                         if (isArray(transformedRow)) {
                             if (transformedRow.length === 0) {
+                                logger.error({ msg: this.errors.invalidTypes.message })
                                 this.failProcessingHandler({
                                     originalRow: row,
                                     errors: [this.errors.invalidTypes.message],
@@ -114,6 +120,7 @@ class AbstractMetersImporter {
                             transformedRowToSourceRowMap.set(sourceIndex, sourceIndex)
                         }
                     } catch (err) {
+                        logger.error({ msg: this.errors.invalidTypes.message, err })
                         this.failProcessingHandler({
                             originalRow: row,
                             errors: err.getMessages(),
@@ -169,6 +176,7 @@ class AbstractMetersImporter {
                             }
 
                             if (!indexesOfFailedSourceRows.has(sourceRowIndex)) {
+                                logger.error({ msg: 'Failed to import rows', errors: rowErrors })
                                 await this.failProcessingHandler({
                                     originalRow: sourceChunk[sourceRowIndex],
                                     errors: rowErrors,
@@ -190,9 +198,10 @@ class AbstractMetersImporter {
 
             // set 100% percent of proceeded lines
             await this.setProcessedRows(this.progress.absTotal)
-        } catch (error) {
+        } catch (err) {
+            logger.error({ msg: 'Failed to proceed import file', err })
             await this.errorHandler(
-                get(error, 'errors[0].extensions.messageForUser', get(error, 'message')) || 'not recognized error'
+                get(err, 'errors[0].extensions.messageForUser', get(err, 'message')) || 'not recognized error'
             )
         }
     }
