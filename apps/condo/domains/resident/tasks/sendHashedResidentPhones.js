@@ -12,6 +12,8 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { getRedisClient } = require('@open-condo/keystone/redis')
 const { createCronTask } = require('@open-condo/keystone/tasks')
 
+const { RESIDENT } = require('@condo/domains/user/constants/common')
+
 const { getHashedResidentsAndContactsPhones, sendFileByEmail } = require('./helpers/sendHashedResidentPhones')
 
 
@@ -49,6 +51,17 @@ async function sendHashedResidentPhones () {
         throw new Error(msg)
     }
 
+    const where = {
+        phone_starts_with_i: '+7',
+        deletedAt: null,
+    }
+    if (lastSyncDate) {
+        where.createdAt_gt = dayjs(lastSyncDate).toISOString()
+    }
+
+    const contactsWhere = { ...where }
+    const residentUsersWhere = { ...where, type: RESIDENT }
+
     try {
         const writeStream = fs.createWriteStream(filename, { encoding: 'utf8' })
         const stringifier = stringify({ header: true, columns: ['phone'] })
@@ -57,7 +70,8 @@ async function sendHashedResidentPhones () {
         const filename = `${os.tmpdir()}/${crypto.randomBytes(6).hexSlice()}.csv`
         await getHashedResidentsAndContactsPhones({
             toEmail: MARKETING_EMAIL,
-            lastSyncDate,
+            contactsWhere,
+            residentUsersWhere,
             writePhoneCb: (hashedPhone) => stringifier.write([hashedPhone]),
         })
 

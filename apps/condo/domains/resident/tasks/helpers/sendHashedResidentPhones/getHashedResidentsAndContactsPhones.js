@@ -6,26 +6,17 @@ const { map } = require('lodash')
 const { allItemsQueryByChunks, itemsQuery } = require('@open-condo/keystone/schema')
 
 const { md5 } = require('@condo/domains/common/utils/crypto')
-const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 
 const CHUNK_SIZE = 1000
 const PHONE_REGEXP = /^\+7\d{10}$/
 
-async function getHashedResidentsAndContactsPhones ({ lastSyncDate, toEmail, writePhoneCb }) {
-    const where = {
-        phone_starts_with_i: '+7',
-        deletedAt: null,
-    }
-    if (lastSyncDate) {
-        where.createdAt_gt = dayjs(lastSyncDate).toISOString()
-    }
-
+async function getHashedResidentsAndContactsPhones ({ contactsWhere, residentUsersWhere, toEmail, writePhoneCb }) {
     const { count: contactsCount } = await itemsQuery('Contact', {
-        where,
+        where: contactsWhere,
     }, { meta: true })
     const { count: residentUsersCount } = await itemsQuery('User', {
-        where: { ...where, type: RESIDENT },
+        where: residentUsersWhere,
     }, { meta: true })
 
     const maxLine = contactsCount + residentUsersCount
@@ -60,14 +51,14 @@ async function getHashedResidentsAndContactsPhones ({ lastSyncDate, toEmail, wri
 
     await allItemsQueryByChunks({
         schemaName: 'Contact',
-        where,
+        where: contactsWhere,
         chunkSize: CHUNK_SIZE,
         chunkProcessor,
     })
 
     await allItemsQueryByChunks({
         schemaName: 'User',
-        where: { ...where, type: RESIDENT },
+        where: residentUsersWhere,
         chunkSize: CHUNK_SIZE,
         chunkProcessor,
     })
