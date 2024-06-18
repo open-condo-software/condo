@@ -906,6 +906,7 @@ __metadata:
     less: ^3.12.2
     less-loader: ^4.0.0
     lodash: ^4.17.21
+    lru-cache: ^7.18.3
     minimatch: ^5.1.1
     mjml: ^4.15.3
     mkdirp: ^1.0.4
