@@ -12,7 +12,7 @@ const { AUTOMATIC_METER_NO_MASTER_APP, B2B_APP_NOT_CONNECTED, B2C_APP_NOT_AVAILA
 const { deleteReadingsOfDeletedMeter } = require('@condo/domains/meter/tasks')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 
-const { resource, numberOfTariffs, installationDate, commissioningDate, verificationDate, nextVerificationDate, controlReadingsDate, sealingDate, isAutomatic, b2bApp } = require('./fields')
+const { resource, numberOfTariffs, installationDate, commissioningDate, verificationDate, nextVerificationDate, controlReadingsDate, sealingDate, isAutomatic, b2bApp, archiveDate } = require('./fields')
 
 
 const PropertyMeter = new GQLListSchema('PropertyMeter', {
@@ -26,6 +26,7 @@ const PropertyMeter = new GQLListSchema('PropertyMeter', {
         nextVerificationDate,
         controlReadingsDate,
         sealingDate,
+        archiveDate,
         isAutomatic,
         resource,
         b2bApp,

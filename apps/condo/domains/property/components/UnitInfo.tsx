@@ -1,4 +1,4 @@
-import { BuildingFloor, BuildingSection, Property, BuildingUnitSubType } from '@app/condo/schema'
+import { BuildingFloor, BuildingSection, Property, BuildingUnitSubType, MeterUnitTypeType } from '@app/condo/schema'
 import { Col, FormInstance, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { isEmpty } from 'lodash'
@@ -66,6 +66,8 @@ export enum UnitInfoMode {
 type InitialUnitInfoType = {
     sectionName?: string
     floorName?: string
+    unitName?: string
+    unitType?: string
 }
 
 interface IUnitInfo {
@@ -73,7 +75,7 @@ interface IUnitInfo {
     form: FormInstance
     loading: boolean
     setSelectedUnitName: React.Dispatch<React.SetStateAction<string>>
-    setSelectedUnitType?: React.Dispatch<React.SetStateAction<BuildingUnitSubType>>
+    setSelectedUnitType?: React.Dispatch<React.SetStateAction<BuildingUnitSubType | MeterUnitTypeType>>
     selectedUnitName?: string
     mode?: UnitInfoMode
     initialValues?: InitialUnitInfoType
@@ -221,6 +223,7 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
                         name='unitName'
                         label={FlatNumberLabel}
                         required={required}
+                        initialValue={get(initialValues, 'unitName')}
                     >
                         <UnitNameInput
                             property={property}

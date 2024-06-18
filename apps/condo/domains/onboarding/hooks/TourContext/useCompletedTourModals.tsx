@@ -198,7 +198,7 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
             onButtonClick: {
                 default: () => { router.push('/tour') },
                 [TourStepTypeType.Ticket]: () => { router.push('/ticket') },
-                [TourStepTypeType.Meter]: () => { router.push('/meter') },
+                [TourStepTypeType.Meter]: () => { router.push('/meter?tab=meter') },
                 [TourStepTypeType.Resident]: handleViewGuideClick,
             },
         },
@@ -213,7 +213,7 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
             onButtonClick: {
                 default: () => { router.push('/tour') },
                 [TourStepTypeType.Ticket]: () => { router.push('/ticket') },
-                [TourStepTypeType.Meter]: () => { router.push('/meter') },
+                [TourStepTypeType.Meter]: () => { router.push('/meter?tab=meter') },
                 [TourStepTypeType.Resident]: handleViewGuideClick,
             },
         },

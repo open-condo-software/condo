@@ -55,6 +55,14 @@ const METER_READING_SOURCE_TYPES = [
 const DAY_SELECT_OPTIONS = Array(31).fill(0).map((num, index) => ({ label: String(index + 1), value: index + 1 }))
 const METER_REPORTING_PERIOD_FRONTEND_FEATURE_FLAG = 'meter-reporting-period-frontend'
 
+const METER_ACTIVE_STATUS = 'active'
+const METER_ARCHIVED_STATUS = 'archived'
+
+const METER_STATUSES = [
+    METER_ACTIVE_STATUS,
+    METER_ARCHIVED_STATUS,
+]
+
 module.exports = {
     COLD_WATER_METER_RESOURCE_ID,
     HOT_WATER_METER_RESOURCE_ID,
@@ -82,4 +90,7 @@ module.exports = {
     DAY_SELECT_OPTIONS,
     METER_REPORTING_PERIOD_FRONTEND_FEATURE_FLAG,
     METER_READING_SOURCE_MOBILE_RESIDENT_APP_TYPE,
+    METER_ACTIVE_STATUS,
+    METER_ARCHIVED_STATUS,
+    METER_STATUSES,
 }

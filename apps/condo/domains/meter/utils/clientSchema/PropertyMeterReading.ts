@@ -21,6 +21,7 @@ const {
     useUpdate,
     useSoftDelete,
     useCount,
+    useSoftDeleteMany,
 } = generateReactHooks<PropertyMeterReading, PropertyMeterReadingCreateInput, PropertyMeterReadingUpdateInput, QueryAllPropertyMeterReadingsArgs>(PropertyMeterReadingGQL)
 
 export {
@@ -30,4 +31,5 @@ export {
     useUpdate,
     useSoftDelete,
     useCount,
+    useSoftDeleteMany,
 }
