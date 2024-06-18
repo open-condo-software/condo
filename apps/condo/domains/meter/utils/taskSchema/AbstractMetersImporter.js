@@ -61,12 +61,12 @@ class AbstractMetersImporter {
                 const columns = this.tableData.shift()
 
                 if (!columns) {
-                    console.log({ msg: this.errors.invalidColumns })
+                    logger.error({ msg: this.errors.invalidColumns })
                     await this.errorHandler(this.errors.invalidColumns)
                     return
                 }
                 if (!this.areColumnsHeadersValid(columns)) {
-                    console.log({ msg: this.errors.invalidColumns })
+                    logger.error({ msg: this.errors.invalidColumns })
                     await this.errorHandler(this.errors.invalidColumns)
                     return
                 }
@@ -75,7 +75,7 @@ class AbstractMetersImporter {
             // empty data
             if (this.tableData.length === 0) {
                 await this.errorHandler(this.errors.emptyRows)
-                console.log({ msg: this.errors.emptyRows })
+                logger.error({ msg: this.errors.emptyRows })
                 return
             }
 
@@ -102,7 +102,7 @@ class AbstractMetersImporter {
                         // sbbol row can hold multiply register meter records
                         if (isArray(transformedRow)) {
                             if (transformedRow.length === 0) {
-                                console.log({ msg: this.errors.invalidTypes.message })
+                                logger.error({ msg: this.errors.invalidTypes.message })
                                 this.failProcessingHandler({
                                     originalRow: row,
                                     errors: [this.errors.invalidTypes.message],
@@ -120,7 +120,7 @@ class AbstractMetersImporter {
                             transformedRowToSourceRowMap.set(sourceIndex, sourceIndex)
                         }
                     } catch (err) {
-                        console.log({ msg: this.errors.invalidTypes.message, err })
+                        logger.error({ msg: this.errors.invalidTypes.message, err })
                         this.failProcessingHandler({
                             originalRow: row,
                             errors: err.getMessages(),
@@ -176,7 +176,7 @@ class AbstractMetersImporter {
                             }
 
                             if (!indexesOfFailedSourceRows.has(sourceRowIndex)) {
-                                console.log({ msg: 'Failed to import rows', errors: rowErrors })
+                                logger.error({ msg: 'Failed to import rows', errors: rowErrors })
                                 await this.failProcessingHandler({
                                     originalRow: sourceChunk[sourceRowIndex],
                                     errors: rowErrors,
@@ -199,7 +199,7 @@ class AbstractMetersImporter {
             // set 100% percent of proceeded lines
             await this.setProcessedRows(this.progress.absTotal)
         } catch (err) {
-            console.log({ msg: 'Failed to proceed import file', err })
+            logger.error({ msg: 'Failed to proceed import file', err })
             await this.errorHandler(
                 get(err, 'errors[0].extensions.messageForUser', get(err, 'message')) || 'not recognized error'
             )

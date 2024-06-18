@@ -101,7 +101,11 @@ async function importMeters (taskId) {
     await importer.import(data)
     
     // get failed rows
-    const { status: currentStatus } = await MeterReadingsImportTask.getOne(context, { id: taskId })
+    const {
+        status: currentStatus,
+        totalRecordsCount,
+        importedRecordsCount,
+    } = await MeterReadingsImportTask.getOne(context, { id: taskId })
     const { failedRows } = importer
     
     // postprocessing results:
@@ -111,12 +115,13 @@ async function importMeters (taskId) {
     // - currentStatus === processing and has failedRows - error + generate error file
     if (currentStatus === ERROR || currentStatus === CANCELLED) {
         return
-    } else if (currentStatus === PROCESSING && failedRows.length === 0) {
+    } else if (currentStatus === PROCESSING
+        && (totalRecordsCount === importedRecordsCount || failedRows.length === 0)) {
         await MeterReadingsImportTask.update(context, taskId, {
             ...dvAndSender,
             status: COMPLETED,
         })
-    } else if (currentStatus === PROCESSING && failedRows.length > 0) {
+    } else {
         const errorFileContent = await importer.generateErrorFile()
         await failWithErrorFile(context, taskId, errorFileContent, format)
     }
