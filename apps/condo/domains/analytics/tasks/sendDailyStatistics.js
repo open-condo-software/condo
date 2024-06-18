@@ -46,6 +46,7 @@ const sendDailyStatistics = async () => {
                     { email_not_contains: '@doma.ai' },
                     { email_not: null },
                 ],
+                // NOTE: We don't have a process for email verification, so it's not used yet.
                 // isEmailVerified: true,
             },
             /**
