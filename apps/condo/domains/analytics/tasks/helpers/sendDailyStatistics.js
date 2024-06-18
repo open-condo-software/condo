@@ -305,6 +305,7 @@ class UserDailyStatistics {
                 const firstOnesIncidentProperties = await itemsQuery('IncidentProperty', {
                     where: {
                         incident: { id: incident.id }, deletedAt: null,
+                        property: { deletedAt: null },
                     },
                     first: COMPACT_SCOPES_SIZE + 1,
                     orderBy: 'createdAt_ASC',
@@ -312,12 +313,13 @@ class UserDailyStatistics {
 
                 let count = 0
                 if (firstOnesIncidentProperties.length > COMPACT_SCOPES_SIZE) {
-                    const { count: countObjs } = await itemsQuery('NewsItemScope', {
+                    const { count: countIncidentProperties } = await itemsQuery('IncidentProperty', {
                         where: {
                             incident: { id: incident.id }, deletedAt: null,
+                            property: { deletedAt: null },
                         },
                     }, { meta: true })
-                    count = countObjs
+                    count = countIncidentProperties
                 } else {
                     count = firstOnesIncidentProperties.length
                 }
