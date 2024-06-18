@@ -28,22 +28,6 @@ ALTER TABLE "PropertyMeter" ADD COLUMN "archiveDate" timestamp with time zone NU
 ALTER TABLE "PropertyMeterHistoryRecord" ADD COLUMN "archiveDate" timestamp with time zone NULL;
 
 --
--- [CUSTOM] Added tour steps to existing organizations
---
-DO
-$$
-    DECLARE
-        orgId uuid;
-    BEGIN
-        FOR orgId IN SELECT id FROM "Organization"
-            LOOP
-                INSERT INTO "TourStep" (id, organization, type, status, "order", v, "createdAt", "updatedAt", dv, sender)
-                VALUES (uuid_generate_v4(), orgId, 'createMeter', 'todo', 250, 1, now(), now(), 1, '{"dv": 1,"fingerprint": "migration"}'::json)
-                ;
-            END LOOP;
-    END
-$$;
---
 -- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
 --
 SET statement_timeout = '10s';
@@ -72,11 +56,6 @@ ALTER TABLE "MeterHistoryRecord" DROP COLUMN "archiveDate" CASCADE;
 -- Add field archiveDate to meter
 --
 ALTER TABLE "Meter" DROP COLUMN "archiveDate" CASCADE;
-
---
--- Delete Create Meter Tour steps for all organizations
---
-DELETE FROM "TourStep" WHERE "type" = "createMeter";
 
 COMMIT;
 
