@@ -368,6 +368,10 @@ describe('B2BApp permissions for service user', () => {
         expect(foundRight).toHaveProperty('accessRightSet.canManageOrganizations', false)
         expect(foundRight).toHaveProperty('accessRightSet.canReadProperties', false)
         expect(foundRight).toHaveProperty('accessRightSet.canManageProperties', false)
+        expect(foundRight).toHaveProperty('accessRightSet.canManageTickets', false)
+        expect(foundRight).toHaveProperty('accessRightSet.canReadTickets', false)
+        expect(foundRight).toHaveProperty('accessRightSet.canManageTicketComments', false)
+        expect(foundRight).toHaveProperty('accessRightSet.canReadTicketComments', false)
     })
 
     describe('Bulk-operations', () => {
@@ -925,7 +929,7 @@ describe('B2BApp permissions for service user', () => {
 
     // NOTE: Currently these schemes are not added to read/manage the service user.
     //       It is used to local test the preprocessor
-    test.skip('Ticket and TicketComment', async () => {
+    test('Ticket and TicketComment', async () => {
         const [organization] = await registerNewOrganization(user)
 
         const [app] = await createTestB2BApp(support)
@@ -938,12 +942,29 @@ describe('B2BApp permissions for service user', () => {
         const [ticketComment] = await createTestTicketComment(user, ticket, user.user)
 
         // B2BApp without permissions
-        const countWithoutPermissions = await TicketComment.count(serviceUser, {})
-        expect(countWithoutPermissions).toBe(0)
-        const contactWithoutPermissions = await TicketComment.getOne(serviceUser, {
-            ticket: { id: ticket.id },
+        await expectToThrowAccessDeniedErrorToCount(async () => {
+            await Ticket.count(serviceUser, {})
         })
-        expect(contactWithoutPermissions).toBeUndefined()
+        await expectToThrowAccessDeniedErrorToObjects(async () => {
+            await Ticket.getOne(serviceUser, {
+                id: ticket.id,
+            })
+        })
+        await expectToThrowAccessDeniedErrorToObjects(async () => {
+            await Ticket.getAll(serviceUser, {})
+        })
+
+        await expectToThrowAccessDeniedErrorToCount(async () => {
+            await TicketComment.count(serviceUser, {})
+        })
+        await expectToThrowAccessDeniedErrorToObjects(async () => {
+            await TicketComment.getOne(serviceUser, {
+                ticket: { id: ticket.id },
+            })
+        })
+        await expectToThrowAccessDeniedErrorToObjects(async () => {
+            await TicketComment.getAll(serviceUser, {})
+        })
 
         await expectToThrowAccessDeniedErrorToObj(async () => {
             await createTestTicket(serviceUser, organization, property)
@@ -978,37 +999,28 @@ describe('B2BApp permissions for service user', () => {
         })
         await updateTestB2BAppAccessRight(support, right.id, { accessRightSet: { connect: { id: accessRightSet.id } } })
 
-        // you can update 'canReadTickets', 'canManageTickets', 'canReadTicketComments' and 'canManageTicketComments'
-        await updateTestB2BAppAccessRightSet(support, accessRightSet.id, {
-            canReadTickets: true,
-            canManageTickets: true,
-            canReadTicketComments: true,
-            canManageTicketComments: true,
-        })
-
         await createTestTicket(serviceUser, organization, property)
 
         {
-            const countByUser2 = await Ticket.count(user, { organization: { id: organization.id } })
-            expect(countByUser2).toBe(2)
-
             const countWithPermissions = await Ticket.count(serviceUser, {})
             expect(countWithPermissions).toBe(2)
-            const contactWithPermissions = await Ticket.getOne(serviceUser, { id: ticket.id })
-            expect(contactWithPermissions.id).toBe(ticket.id)
+
+            const ticketWithPermissions = await Ticket.getOne(serviceUser, { id: ticket.id })
+            expect(ticketWithPermissions.id).toBe(ticket.id)
+            // check other fields
         }
 
-        await updateTestTicket(serviceUser, ticket.id, {})
+        const [updatedTicket] = await updateTestTicket(serviceUser, ticket.id, {}) // check update status
 
         // NOTE: problem with field accesses - the field "user" can only be read/submitted by the user who created the comment
+
+        // check with fields
         const [tcByServiceUser] = await createTestTicketComment(serviceUser, ticket, serviceUser.user)
 
         {
-            const countByUser2 = await TicketComment.count(user, { ticket: { organization: { id: organization.id } } })
-            expect(countByUser2).toBe(2)
-
             const countWithPermissions = await TicketComment.count(serviceUser, {})
             expect(countWithPermissions).toBe(2)
+
             const contactWithPermissions = await TicketComment.getOne(serviceUser, { id: ticketComment.id })
             expect(contactWithPermissions.id).toBe(ticketComment.id)
         }
@@ -1018,16 +1030,6 @@ describe('B2BApp permissions for service user', () => {
 
         // await Ticket.softDelete(serviceUser, ticketByServiceUser.id)
         await TicketComment.softDelete(serviceUser, tcByServiceUser.id)
-
-        {
-            const countByUser3 = await Ticket.count(user, { organization: { id: organization.id } })
-            expect(countByUser3).toBe(2)
-        }
-
-        {
-            const countByUser3 = await TicketComment.count(user, { ticket: { organization: { id: organization.id } } })
-            expect(countByUser3).toBe(1)
-        }
     })
 
     test('RegisterMetersReadings', async () => {
