@@ -64,7 +64,6 @@ async function _publishNewsItemSharing (newsItem, newsItemSharing){
     const newsSharingConfig = await getById('B2BAppNewsSharingConfig', newsSharingConfigId)
 
     const publishUrl = get(newsSharingConfig, 'publishUrl')
-    const contextSettings = get(b2bAppContext, ['settings'])
 
     logger.info({ msg: 'newsSharing sending shared news item', newsItemId: newsItem.id, newsItemSharingId: newsItemSharing.id, publishUrl })
 
