@@ -20,7 +20,7 @@ import {
     MutationErrorsToMessagesType,
 } from '@condo/domains/common/utils/importer'
 
-import { ActiveModalType, BaseImportWrapper } from './BaseImportWrapper'
+import { ActiveModalType, BaseImportWrapper, ExtraModalContentType } from './BaseImportWrapper'
 
 
 export interface IImportWrapperProps {
@@ -37,7 +37,7 @@ export interface IImportWrapperProps {
         header: Pick<CardHeaderProps, 'emoji' | 'headingTitle'>,
         body: Pick<CardBodyProps, 'description'>
     }
-    exampleModalAdditionalContent?: JSX.Element
+    extraModalContent?: ExtraModalContentType
     handleClose?: () => void
 }
 
@@ -67,7 +67,7 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
         uploadButtonLabel,
         domainName,
         importCardButton,
-        exampleModalAdditionalContent,
+        extraModalContent,
         handleClose,
     } = props
 
@@ -210,7 +210,7 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
                     totalRowsRef,
                     error,
                     dataImporter,
-                    exampleModalAdditionalContent,
+                    extraModalContent,
                 }}
             />
         )

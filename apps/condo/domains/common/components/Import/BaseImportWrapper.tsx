@@ -58,6 +58,7 @@ const SuccessModal = styled(Modal)`
 `
 
 export type ActiveModalType = null | 'example' | 'progress' | 'partlyLoaded' | 'success' | 'error'
+export type ExtraModalContentType = Record<Extract<ActiveModalType, 'example'>, JSX.Element>
 
 type TBaseImportWrapperProps = {
     importCardButton?: {
@@ -75,8 +76,8 @@ type TBaseImportWrapperProps = {
     successRowsRef: React.MutableRefObject<number>,
     totalRowsRef: React.MutableRefObject<number>,
     error: any,
-    dataImporter: JSX.Element,
-    exampleModalAdditionalContent?: JSX.Element,
+    dataImporter: JSX.Element
+    extraModalContent?: ExtraModalContentType
 }
 
 const BaseImportWrapper: React.FC<TBaseImportWrapperProps> = (props) => {
@@ -94,7 +95,7 @@ const BaseImportWrapper: React.FC<TBaseImportWrapperProps> = (props) => {
         totalRowsRef,
         error,
         dataImporter,
-        exampleModalAdditionalContent,
+        extraModalContent = {},
     } = props
 
     const intl = useIntl()
@@ -181,7 +182,7 @@ const BaseImportWrapper: React.FC<TBaseImportWrapperProps> = (props) => {
                         message={RequiredFieldsTitle}
                         description={ImportRequiredFieldsMessage}
                     />
-                    {exampleModalAdditionalContent}
+                    {get(extraModalContent, 'example')}
                     <LinkWithIcon
                         title={ExampleLinkMessage}
                         size='medium'

@@ -204,7 +204,9 @@ const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
                                             rowValidator={contactValidator}
                                             objectCreator={contactCreator}
                                             domainName='contact'
-                                            exampleModalAdditionalContent={IsVerifiedCheckbox}
+                                            extraModalContent={{
+                                                'example': IsVerifiedCheckbox,
+                                            }}
                                             handleClose={handleImportModalClose}
                                         />
                                     </>
@@ -251,7 +253,9 @@ const ContactsPageContent: React.FC<ContactPageContentProps> = (props) => {
                         rowValidator: contactValidator,
                         objectCreator: contactCreator,
                         domainName: 'contact',
-                        exampleModalAdditionalContent: IsVerifiedCheckbox,
+                        extraModalContent: {
+                            'example': IsVerifiedCheckbox,
+                        },
                         handleClose: handleImportModalClose,
                     },
                 }}
