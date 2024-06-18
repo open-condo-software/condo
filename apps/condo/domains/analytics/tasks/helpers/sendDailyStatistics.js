@@ -11,7 +11,7 @@ const { SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED } = require('@condo/domains/
 const { SEND_DAILY_STATISTICS_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { PROCESSING_STATUS_TYPE, NEW_OR_REOPENED_STATUS_TYPE, DEFERRED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
-const { INCIDENT_STATUS_ACTUAL } = require('@condo/domains/ticket/constants/incident')
+const { INCIDENT_STATUS_ACTUAL, INCIDENT_CATEGORY_IDS, INCIDENT_PROBLEM_IDS } = require('@condo/domains/ticket/constants/incident')
 
 
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'sendDailyStatisticsTask' } }
@@ -278,13 +278,13 @@ class UserDailyStatistics {
                     deletedAt: null,
                     classifier: {
                         category: {
-                            id: '4509f01b-3f9b-4a07-83ea-3b548c492146', // Water
+                            id: INCIDENT_CATEGORY_IDS.WATER,
                         },
                         problem: {
                             id_in: [
-                                '79af87cc-9b17-4f0e-a527-2f61beffd5e1', // No hot and cold water
-                                '5289e8aa-e5f9-4dc5-8540-49f6e0b2a004', // No hot water
-                                '96f91218-1e03-4258-9883-64cf0753ac45', // No cold water
+                                INCIDENT_PROBLEM_IDS.NO_HOT_AND_COLD_WATER,
+                                INCIDENT_PROBLEM_IDS.NOT_HOT_WATER,
+                                INCIDENT_PROBLEM_IDS.NO_COLD_WATER,
                             ],
                         },
                     },

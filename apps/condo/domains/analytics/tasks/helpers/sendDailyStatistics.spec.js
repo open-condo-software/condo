@@ -14,7 +14,7 @@ const { SEND_DAILY_STATISTICS_MESSAGE_TYPE } = require('@condo/domains/notificat
 const { Message } = require('@condo/domains/notification/utils/testSchema')
 const { makeEmployeeUserClientWithAbilities, createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { INCIDENT_STATUS_NOT_ACTUAL } = require('@condo/domains/ticket/constants/incident')
+const { INCIDENT_STATUS_NOT_ACTUAL, INCIDENT_CATEGORY_IDS, INCIDENT_PROBLEM_IDS } = require('@condo/domains/ticket/constants/incident')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { updateTestTicket, createTestIncidentProperty } = require('@condo/domains/ticket/utils/testSchema')
 const {
@@ -41,13 +41,13 @@ describe('sendDailyStatistics', () => {
 
         allowedIncidentClassifiers = await IncidentClassifier.getAll(admin, {
             category: {
-                id: '4509f01b-3f9b-4a07-83ea-3b548c492146', // Water
+                id: INCIDENT_CATEGORY_IDS.WATER,
             },
             problem: {
                 id_in: [
-                    '79af87cc-9b17-4f0e-a527-2f61beffd5e1', // No hot and cold water
-                    '5289e8aa-e5f9-4dc5-8540-49f6e0b2a004', // No hot water
-                    '96f91218-1e03-4258-9883-64cf0753ac45', // No cold water
+                    INCIDENT_PROBLEM_IDS.NO_HOT_AND_COLD_WATER,
+                    INCIDENT_PROBLEM_IDS.NOT_HOT_WATER,
+                    INCIDENT_PROBLEM_IDS.NO_COLD_WATER,
                 ],
             },
         })
