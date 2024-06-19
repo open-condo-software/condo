@@ -13717,7 +13717,7 @@ export type BillingAccount = {
   /**  Flat number / door number of an apartment building (property)  */
   unitName?: Maybe<Scalars['String']>;
   /**  Type of unit, such as parking lot or flat. Default value: "flat"  */
-  unitType?: Maybe<BillingAccountUnitTypeType>;
+  unitType?: Maybe<Scalars['String']>;
   /**  Full name of the account holder  */
   fullName?: Maybe<Scalars['String']>;
   /**  Shows whether the billing account closed or not. When one resident leaves unit and another one went in we need to close hte old billing account.  */
@@ -13750,7 +13750,7 @@ export type BillingAccountCreateInput = {
   globalId?: Maybe<Scalars['String']>;
   number?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
-  unitType?: Maybe<BillingAccountUnitTypeType>;
+  unitType?: Maybe<Scalars['String']>;
   fullName?: Maybe<Scalars['String']>;
   isClosed?: Maybe<Scalars['Boolean']>;
   ownerType?: Maybe<BillingAccountOwnerTypeType>;
@@ -14114,14 +14114,6 @@ export type BillingAccountRelateToOneInput = {
   disconnectAll?: Maybe<Scalars['Boolean']>;
 };
 
-export enum BillingAccountUnitTypeType {
-  Parking = 'parking',
-  Flat = 'flat',
-  Apartment = 'apartment',
-  Commercial = 'commercial',
-  Warehouse = 'warehouse'
-}
-
 export type BillingAccountUpdateInput = {
   context?: Maybe<BillingIntegrationOrganizationContextRelateToOneInput>;
   importId?: Maybe<Scalars['String']>;
@@ -14130,7 +14122,7 @@ export type BillingAccountUpdateInput = {
   globalId?: Maybe<Scalars['String']>;
   number?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
-  unitType?: Maybe<BillingAccountUnitTypeType>;
+  unitType?: Maybe<Scalars['String']>;
   fullName?: Maybe<Scalars['String']>;
   isClosed?: Maybe<Scalars['Boolean']>;
   ownerType?: Maybe<BillingAccountOwnerTypeType>;
@@ -14229,10 +14221,10 @@ export type BillingAccountWhereInput = {
   unitName_not_ends_with_i?: Maybe<Scalars['String']>;
   unitName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   unitName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  unitType?: Maybe<BillingAccountUnitTypeType>;
-  unitType_not?: Maybe<BillingAccountUnitTypeType>;
-  unitType_in?: Maybe<Array<Maybe<BillingAccountUnitTypeType>>>;
-  unitType_not_in?: Maybe<Array<Maybe<BillingAccountUnitTypeType>>>;
+  unitType?: Maybe<Scalars['String']>;
+  unitType_not?: Maybe<Scalars['String']>;
+  unitType_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  unitType_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   fullName?: Maybe<Scalars['String']>;
   fullName_not?: Maybe<Scalars['String']>;
   fullName_contains?: Maybe<Scalars['String']>;

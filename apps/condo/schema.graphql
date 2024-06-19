@@ -12394,14 +12394,6 @@ input BillingPropertyRelateToOneInput {
   disconnectAll: Boolean
 }
 
-enum BillingAccountUnitTypeType {
-  parking
-  flat
-  apartment
-  commercial
-  warehouse
-}
-
 enum BillingAccountOwnerTypeType {
   person
   company
@@ -12444,7 +12436,7 @@ type BillingAccount {
   unitName: String
 
   """ Type of unit, such as parking lot or flat. Default value: "flat" """
-  unitType: BillingAccountUnitTypeType
+  unitType: String
 
   """ Full name of the account holder """
   fullName: String
@@ -12565,10 +12557,10 @@ input BillingAccountWhereInput {
   unitName_not_ends_with_i: String
   unitName_in: [String]
   unitName_not_in: [String]
-  unitType: BillingAccountUnitTypeType
-  unitType_not: BillingAccountUnitTypeType
-  unitType_in: [BillingAccountUnitTypeType]
-  unitType_not_in: [BillingAccountUnitTypeType]
+  unitType: String
+  unitType_not: String
+  unitType_in: [String]
+  unitType_not_in: [String]
   fullName: String
   fullName_not: String
   fullName_contains: String
@@ -12706,7 +12698,7 @@ input BillingAccountUpdateInput {
   globalId: String
   number: String
   unitName: String
-  unitType: BillingAccountUnitTypeType
+  unitType: String
   fullName: String
   isClosed: Boolean
   ownerType: BillingAccountOwnerTypeType
@@ -12735,7 +12727,7 @@ input BillingAccountCreateInput {
   globalId: String
   number: String
   unitName: String
-  unitType: BillingAccountUnitTypeType
+  unitType: String
   fullName: String
   isClosed: Boolean
   ownerType: BillingAccountOwnerTypeType

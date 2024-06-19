@@ -52,8 +52,10 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
             isRequired: true,
         },
 
+        // TODO (DOMA-9319) should fix unexpected values ("Flat", "stopWords")
         unitType: {
             ...UNIT_TYPE_FIELD,
+            graphQLReturnType: 'String',
             isRequired: true,
         },
 
