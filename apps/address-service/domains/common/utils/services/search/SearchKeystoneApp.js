@@ -75,7 +75,7 @@ class SearchKeystoneApp {
                  */
                 const s = get(req, ['query', 's'])
 
-                if (!s) {
+                if (!s || typeof s !== 'string') {
                     res.status(400).send('No address to search for')
                     return
                 }
@@ -125,6 +125,7 @@ class SearchKeystoneApp {
                     this.logger.error({
                         err,
                         msg: 'Search error',
+                        address: s,
                         data: {
                             strategy: strategy.constructor.name,
                             plugins: this.plugins.map((plugin) => plugin.constructor.name),
