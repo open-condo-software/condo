@@ -99,8 +99,9 @@ describe('Templates', () => {
                         // So, at least one of them must exist.
                         const templateFileText = path.resolve(__dirname, folder, `${transport}.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
                         const templateFileHtml = path.resolve(__dirname, folder, `${transport}.html.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
-                        if (!fs.existsSync(templateFileText) && !fs.existsSync(templateFileHtml)) {
-                            console.error(`No template file(s) for ${transport}: ${templateFileText} or ${templateFileHtml}, or single ${DEFAULT_TEMPLATE_FILE_NAME}`)
+                        const templateFileMjml = path.resolve(__dirname, folder, `${transport}.mjml.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
+                        if (!fs.existsSync(templateFileText) && !fs.existsSync(templateFileHtml) && !fs.existsSync(templateFileMjml)) {
+                            console.error(`No template file(s) for ${transport}: ${templateFileText} or ${templateFileHtml}, or ${templateFileMjml}, or single ${DEFAULT_TEMPLATE_FILE_NAME}`)
                             result = false
                         }
                     } else {

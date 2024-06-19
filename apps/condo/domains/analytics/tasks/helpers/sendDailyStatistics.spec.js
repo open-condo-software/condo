@@ -619,7 +619,7 @@ describe('sendDailyStatistics', () => {
                             withoutEmployee: `1 (${administratorClient.organization.name} - 1)`,
                         },
                         incidents: {
-                            water: `${getDate(actualWaterIncidentSoonForOneProperty)} - ${administratorClient.property.address};${getDate(actualWaterIncidentSoonForAllProperties)} - ${i18n('notification.messages.SEND_DAILY_STATISTICS_MESSAGE_TYPE.email.allProperties', { locale: administratorClient.user.locale })}`,
+                            water: `${getDate(actualWaterIncidentSoonForOneProperty)} - ${administratorClient.property.address};${getDate(actualWaterIncidentSoonForAllProperties)} - ${i18n('notification.messages.SEND_DAILY_STATISTICS_MESSAGE.email.allProperties', { locale: administratorClient.user.locale })}`,
                         },
                     },
                     tags: [`orgId: ${administratorClient.organization.id}`.slice(0, 128)],

@@ -453,7 +453,7 @@ const formatTicketsStats = ({ total, byOrganizations }) => {
 const formatMessageData = (userStatisticsData, currentDate, locale = conf.DEFAULT_LOCALE) => {
     const moreWaterIncidentCount = userStatisticsData.incidents.water - MAX_COUNT_INCIDENTS_TO_DISPLAY
     const moreWaterIncidents = moreWaterIncidentCount > 0
-        ? i18n('notification.messages.SEND_DAILY_STATISTICS_MESSAGE_TYPE.email.moreIncidents', { locale, meta: { more: moreWaterIncidentCount } })
+        ? i18n('notification.messages.SEND_DAILY_STATISTICS_MESSAGE.email.moreIncidents', { locale, meta: { more: moreWaterIncidentCount } })
         : ''
     const waterIncidents = userStatisticsData.incidents.water.slice(0, MAX_COUNT_INCIDENTS_TO_DISPLAY).map((incident) => {
         let date, addresses
@@ -467,11 +467,11 @@ const formatMessageData = (userStatisticsData, currentDate, locale = conf.DEFAUL
         }
 
         if (incident.hasAllProperties) {
-            addresses = i18n('notification.messages.SEND_DAILY_STATISTICS_MESSAGE_TYPE.email.allProperties', { locale })
+            addresses = i18n('notification.messages.SEND_DAILY_STATISTICS_MESSAGE.email.allProperties', { locale })
         } else {
             const more = incident.count - COMPACT_SCOPES_SIZE
             const moreProperties = more > 0
-                ? ` ${i18n('notification.messages.SEND_DAILY_STATISTICS_MESSAGE_TYPE.email.moreProperties', { locale, meta: { more } })}`
+                ? ` ${i18n('notification.messages.SEND_DAILY_STATISTICS_MESSAGE.email.moreProperties', { locale, meta: { more } })}`
                 : ''
             addresses = incident.addresses.filter(Boolean).join(', ') + moreProperties
         }
