@@ -17,10 +17,12 @@ import { PaymentsTab } from './PaymentsTab'
 
 type MainContentProps = {
     uploadComponent?: React.ReactElement
+    emptyUploadComponent?: React.ReactElement
 }
 
 export const MainContent: React.FC<MainContentProps> = ({
     uploadComponent,
+    emptyUploadComponent,
 }) => {
     const intl = useIntl()
     const AccrualsTabTitle = intl.formatMessage({ id: 'Accruals' })

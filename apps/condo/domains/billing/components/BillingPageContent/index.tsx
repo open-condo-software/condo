@@ -15,6 +15,8 @@ import { PageWrapper, PageHeader, TablePageContent } from '@condo/domains/common
 import { useBillingAndAcquiringContexts } from './ContextProvider'
 import { MainContent } from './MainContent'
 
+import { IFrame } from '../../../miniapp/components/IFrame'
+
 
 export const BillingPageContent: React.FC = () => {
     const { billingContext, refetchBilling } = useBillingAndAcquiringContexts()
@@ -52,21 +54,23 @@ export const BillingPageContent: React.FC = () => {
     }, [uploadUrl])
 
     useEffect(() => {
-        if (uploadModalId) {
-            const handleClose: CondoBridgeSubscriptionListener = (event) => {
-                if (event.type !== 'CondoWebAppCloseModalWindowResult' ||
-                    event.data.requestId ||
-                    !('modalId' in event.data) ||
-                    event.data.modalId !== uploadModalId) {
-                    return
-                }
-                setUploadModalId(null)
-                refetchBilling()
-            }
-            bridge.subscribe(handleClose)
+        // if (uploadModalId) {
+        //     const handleClose: CondoBridgeSubscriptionListener = (event) => {
+        //         if (event.type !== 'CondoWebAppCloseModalWindowResult' ||
+        //             event.data.requestId ||
+        // //            !('modalId' in event.data) ||
+        //             event.data.modalId !== uploadModalId) {
+        //             return
+        //         }
+        //         setUploadModalId(null)
+        //         refetchBilling()
+        //     }
+        //     bridge.subscribe(handleClose)
 
-            return () => bridge.unsubscribe(handleClose)
-        }
+        //     return () => bridge.unsubscribe(handleClose)
+        // }
+
+        //
     }, [uploadModalId, refetchBilling])
 
     const UploadAction = useMemo(() => {
@@ -75,9 +79,7 @@ export const BillingPageContent: React.FC = () => {
         }
 
         return (
-            <Button type='primary' onClick={handleUploadClick}>
-                {uploadMessage || DefaultUploadMessage}
-            </Button>
+            <IFrame src={uploadUrl} reloadScope='organization' withPrefetch withLoader withResize/>
         )
     }, [uploadUrl, canImportBillingReceipts, handleUploadClick, uploadMessage, DefaultUploadMessage])
 
@@ -93,7 +95,7 @@ export const BillingPageContent: React.FC = () => {
             <PageWrapper>
                 <PageHeader title={<Typography.Title>{PageTitle}</Typography.Title>} extra={<Tag bgColor={tagBg} textColor={colors.white}>{tagMessage}</Tag>}/>
                 <TablePageContent>
-                    <MainContent uploadComponent={UploadAction}/>
+                    <MainContent uploadComponent={UploadAction} />
                 </TablePageContent>
             </PageWrapper>
         </>
