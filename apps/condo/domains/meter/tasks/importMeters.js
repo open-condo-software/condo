@@ -47,11 +47,22 @@ async function failWithErrorFile (context, taskId, content, format) {
     const filename = format === DOMA_EXCEL ? 'meters_failed_data.xlsx' : 'meters_failed_data.csv'
     const mimetype = format === DOMA_EXCEL ? EXCEL_FILE_META.mimetype : 'text/csv'
 
-    await MeterReadingsImportTask.update(context, taskId, {
+    // update status and save error file
+    const updated = await MeterReadingsImportTask.update(context, taskId, {
         ...dvAndSender,
         status: ERROR,
         errorFile: await createUpload(content, filename, mimetype),
     })
+
+    // update file meta in order to make file accessible for user download request
+    if (fileAdapter.acl && fileAdapter.acl.setMeta) {
+        const filename = get(updated, 'errorFile.filename')
+
+        await fileAdapter.acl.setMeta(
+            `${METER_READINGS_IMPORT_TASK_FOLDER_NAME}/${filename}`,
+            { listkey: 'MeterReadingsImportTask', id: taskId },
+        )
+    }
 }
 
 /**
