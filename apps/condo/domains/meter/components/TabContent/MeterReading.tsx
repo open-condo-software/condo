@@ -14,7 +14,7 @@ import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { PlusCircle, Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { ActionBar, Button, Checkbox } from '@open-condo/ui'
+import { ActionBar, Button, Checkbox, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
@@ -89,6 +89,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
     const CountSelectedReadingsMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterReading.CountSelectedReadings' })
     const DeleteMeterReadingsMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterReading.DeleteMeterReadings' })
     const DeleteMeterReadingsMessageWarn = intl.formatMessage({ id: 'pages.condo.meter.MeterReading.DeleteMeterReadings.Warn' })
+    const MeterReadingsMessage = intl.formatMessage({ id: 'import.meterReading.plural' })
     const DeleteMessage = intl.formatMessage({ id: 'Delete' })
     const DontDeleteMessage = intl.formatMessage({ id: 'DontDelete' })
 
@@ -281,15 +282,23 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
                     )}
                 </Col>
                 <Col span={24}>
-                    <Table
-                        totalRows={total}
-                        loading={metersLoading || loading}
-                        dataSource={meter ? meterReadings : processedMeterReadings}
-                        columns={meter ? tableColumnsForSingleMeter : tableColumnsForMeterReadings}
-                        rowSelection={rowSelection}
-                        sticky
-                        onRow={meter && handleUpdateMeterReading}
-                    />
+                    <Row gutter={[0, 40]}>
+                        {meter && meterReadings.length > 0 && (
+                            <Col span={24}>
+                                <Typography.Title level={3} >{MeterReadingsMessage}</Typography.Title>
+                            </Col>
+                        )}
+                        <Table
+                            totalRows={total}
+                            loading={metersLoading || loading}
+                            dataSource={meter ? meterReadings : processedMeterReadings}
+                            columns={meter ? tableColumnsForSingleMeter : tableColumnsForMeterReadings}
+                            rowSelection={rowSelection}
+                            sticky
+                            onRow={meter && handleUpdateMeterReading}
+                        />
+
+                    </Row>
                 </Col>
                 {
                     !loading && total > 0 && (
