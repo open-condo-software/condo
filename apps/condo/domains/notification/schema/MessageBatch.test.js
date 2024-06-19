@@ -18,7 +18,9 @@ const {
     JSON_EXPECT_ARRAY_ERROR,
     JSON_EXPECT_OBJECT_ERROR,
 } = require('@condo/domains/common/constants/errors')
-const { PUSH_TRANSPORT_FIREBASE, DEVICE_PLATFORM_ANDROID, APP_RESIDENT_ID_ANDROID } = require('@condo/domains/notification/constants/constants')
+const { PUSH_TRANSPORT_FIREBASE, DEVICE_PLATFORM_ANDROID, APP_RESIDENT_ID_ANDROID, EMAIL_TRANSPORT, SMS_TRANSPORT,
+    PUSH_TRANSPORT, PUSH_VIA_REMOTE_CLIENT,
+} = require('@condo/domains/notification/constants/constants')
 const {
     Message,
     MessageBatch,
@@ -308,8 +310,8 @@ describe('MessageBatch', () => {
             }
             const [remoteClientObj] = await createTestRemoteClient(admin, payload)
             const remoteClientId = remoteClientObj.id
-            const remoteClient = `rc:${remoteClientId}`
-            const [customMessage] = await createTestMessageBatch(admin, { messageType: CUSTOM_CONTENT_MESSAGE_TYPE, targets: [remoteClient] })
+            const remoteClient = `${remoteClientId}`
+            const [customMessage] = await createTestMessageBatch(admin, { messageType: CUSTOM_CONTENT_MESSAGE_TYPE, targets: [remoteClient], sendVia: PUSH_VIA_REMOTE_CLIENT })
             const date = dayjs().format(DATE_FORMAT)
             const messagesWhere = {
                 type: CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
@@ -336,7 +338,7 @@ describe('MessageBatch', () => {
 
         it('handles messageBatch and creates sms notification of CUSTOM_CONTENT_MESSAGE_SMS_TYPE for phone', async () => {
             const phone = faker.phone.number('+79#########')
-            const [customMessage] = await createTestMessageBatch(admin, { messageType: CUSTOM_CONTENT_MESSAGE_TYPE, targets: [phone] })
+            const [customMessage] = await createTestMessageBatch(admin, { messageType: CUSTOM_CONTENT_MESSAGE_TYPE, targets: [phone], sendVia: SMS_TRANSPORT })
             const date = dayjs().format(DATE_FORMAT)
             const messagesWhere = {
                 type: CUSTOM_CONTENT_MESSAGE_SMS_TYPE,
@@ -362,7 +364,7 @@ describe('MessageBatch', () => {
 
         it('handles messageBatch and creates email notification of CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE for email', async () => {
             const email = `${faker.random.alphaNumeric(8)}@${faker.random.alphaNumeric(8)}.com`
-            const [customMessage] = await createTestMessageBatch(admin, { messageType: CUSTOM_CONTENT_MESSAGE_TYPE, targets: [email] })
+            const [customMessage] = await createTestMessageBatch(admin, { messageType: CUSTOM_CONTENT_MESSAGE_TYPE, targets: [email], sendVia: EMAIL_TRANSPORT })
             const date = dayjs().format(DATE_FORMAT)
             const messagesWhere = {
                 type: CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE,
@@ -424,15 +426,25 @@ describe('MessageBatch', () => {
         it('handles messageBatch, creates notifications of CUSTOM_CONTENT_MESSAGE_TYPE, skips duplicate targets', async () => {
             const email = `${faker.random.alphaNumeric(8)}@${faker.random.alphaNumeric(8)}.com`
             const phone = faker.phone.number('+79#########')
-            const targets = [email, email, email, phone, phone, phone, admin.user.id, admin.user.id, admin.user.id]
-            const [customMessage] = await createTestMessageBatch(admin, { messageType: CUSTOM_CONTENT_MESSAGE_TYPE, targets })
+            const emailTargets = [email, email, email]
+            const phoneTargets = [phone, phone, phone]
+            const pushTargets = [admin.user.id, admin.user.id, admin.user.id]
+            const [customMessageViaEmail] = await createTestMessageBatch(admin, { messageType: CUSTOM_CONTENT_MESSAGE_TYPE, targets: emailTargets, sendVia: EMAIL_TRANSPORT })
+            const [customMessageViaPhone] = await createTestMessageBatch(admin, { messageType: CUSTOM_CONTENT_MESSAGE_TYPE, targets: phoneTargets, sendVia: SMS_TRANSPORT })
+            const [customMessageViaPush] = await createTestMessageBatch(admin, { messageType: CUSTOM_CONTENT_MESSAGE_TYPE, targets: pushTargets, sendVia: PUSH_TRANSPORT })
 
             await waitFor(async () => {
-                const customMessage1 = await MessageBatch.getOne(admin, { id: customMessage.id })
+                const customMessages = await MessageBatch.getAll(admin, { id_in: [customMessageViaPhone.id, customMessageViaEmail.id, customMessageViaPush.id] })
 
-                expect(customMessage1.status).toEqual(MESSAGE_BATCH_DONE_STATUS)
-                expect(customMessage1.processingMeta.successCnt).toEqual(3)
-                expect(customMessage1.processingMeta.duplicates).toEqual(6)
+                expect(customMessages[0].status).toEqual(MESSAGE_BATCH_DONE_STATUS)
+                expect(customMessages[1].status).toEqual(MESSAGE_BATCH_DONE_STATUS)
+                expect(customMessages[2].status).toEqual(MESSAGE_BATCH_DONE_STATUS)
+                expect(customMessages[0].processingMeta.successCnt).toEqual(1)
+                expect(customMessages[1].processingMeta.successCnt).toEqual(1)
+                expect(customMessages[2].processingMeta.successCnt).toEqual(1)
+                expect(customMessages[0].processingMeta.duplicates).toEqual(2)
+                expect(customMessages[1].processingMeta.duplicates).toEqual(2)
+                expect(customMessages[2].processingMeta.duplicates).toEqual(2)
             })
         })
     })

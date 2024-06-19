@@ -40139,6 +40139,7 @@ type MessageBatchHistoryRecord {
   message: String
   deepLink: String
   targets: JSON
+  sendVia: String
   status: String
   processingMeta: JSON
   id: ID!
@@ -40235,6 +40236,24 @@ input MessageBatchHistoryRecordWhereInput {
   targets_not: JSON
   targets_in: [JSON]
   targets_not_in: [JSON]
+  sendVia: String
+  sendVia_not: String
+  sendVia_contains: String
+  sendVia_not_contains: String
+  sendVia_starts_with: String
+  sendVia_not_starts_with: String
+  sendVia_ends_with: String
+  sendVia_not_ends_with: String
+  sendVia_i: String
+  sendVia_not_i: String
+  sendVia_contains_i: String
+  sendVia_not_contains_i: String
+  sendVia_starts_with_i: String
+  sendVia_not_starts_with_i: String
+  sendVia_ends_with_i: String
+  sendVia_not_ends_with_i: String
+  sendVia_in: [String]
+  sendVia_not_in: [String]
   status: String
   status_not: String
   status_contains: String
@@ -40348,6 +40367,8 @@ enum SortMessageBatchHistoryRecordsBy {
   message_DESC
   deepLink_ASC
   deepLink_DESC
+  sendVia_ASC
+  sendVia_DESC
   status_ASC
   status_DESC
   id_ASC
@@ -40374,6 +40395,7 @@ input MessageBatchHistoryRecordUpdateInput {
   message: String
   deepLink: String
   targets: JSON
+  sendVia: String
   status: String
   processingMeta: JSON
   v: Int
@@ -40401,6 +40423,7 @@ input MessageBatchHistoryRecordCreateInput {
   message: String
   deepLink: String
   targets: JSON
+  sendVia: String
   status: String
   processingMeta: JSON
   v: Int
@@ -40424,6 +40447,15 @@ input MessageBatchHistoryRecordsCreateInput {
 enum MessageBatchMessageTypeType {
   CUSTOM_CONTENT_MESSAGE
   MOBILE_APP_UPDATE_AVAILABLE_MESSAGE_PUSH
+}
+
+enum MessageBatchSendViumType {
+  sms
+  email
+  telegram
+  push
+  phone_by_user_id
+  rc
 }
 
 enum MessageBatchStatusType {
@@ -40463,6 +40495,9 @@ type MessageBatch {
   """ List of ids for "push", "email", "sms" message types; list of emails for "email" message types; list of phone numbers for "sms" message types. Can be mixed. For each entry an appropriate message type will be used. 
   """
   targets: JSON
+
+  """ Which flow will be used for send notification """
+  sendVia: MessageBatchSendViumType
 
   """ Batch processing status """
   status: MessageBatchStatusType
@@ -40557,6 +40592,10 @@ input MessageBatchWhereInput {
   targets_not: JSON
   targets_in: [JSON]
   targets_not_in: [JSON]
+  sendVia: MessageBatchSendViumType
+  sendVia_not: MessageBatchSendViumType
+  sendVia_in: [MessageBatchSendViumType]
+  sendVia_not_in: [MessageBatchSendViumType]
   status: MessageBatchStatusType
   status_not: MessageBatchStatusType
   status_in: [MessageBatchStatusType]
@@ -40636,6 +40675,8 @@ enum SortMessageBatchesBy {
   message_DESC
   deepLink_ASC
   deepLink_DESC
+  sendVia_ASC
+  sendVia_DESC
   status_ASC
   status_DESC
   id_ASC
@@ -40662,6 +40703,7 @@ input MessageBatchUpdateInput {
   message: String
   deepLink: String
   targets: JSON
+  sendVia: MessageBatchSendViumType
   status: MessageBatchStatusType
   processingMeta: JSON
   v: Int
@@ -40686,6 +40728,7 @@ input MessageBatchCreateInput {
   message: String
   deepLink: String
   targets: JSON
+  sendVia: MessageBatchSendViumType
   status: MessageBatchStatusType
   processingMeta: JSON
   v: Int

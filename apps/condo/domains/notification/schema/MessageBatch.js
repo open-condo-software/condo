@@ -18,6 +18,7 @@ const {
     MESSAGE_BATCH_TYPE_OPTIONS,
     BODY_IS_REQUIRED_FOR_CUSTOM_CONTENT_MESSAGE_TYPE,
     TITLE_IS_REQUIRED_FOR_CUSTOM_CONTENT_MESSAGE_TYPE,
+    MESSAGE_BATCH_SENDING_FLOW, PUSH_TRANSPORT,
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessageBatch } = require('@condo/domains/notification/tasks/sendMessageBatch')
 
@@ -92,6 +93,14 @@ const MessageBatch = new GQLListSchema('MessageBatch', {
                     operationForbiddenValidator(args)
                 },
             },
+        },
+
+        sendVia: {
+            schemaDoc: 'Which flow will be used for send notification',
+            type: 'Select',
+            options: MESSAGE_BATCH_SENDING_FLOW,
+            defaultValue: PUSH_TRANSPORT,
+            isRequired: true,
         },
 
         status: {

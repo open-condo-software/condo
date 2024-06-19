@@ -30466,6 +30466,8 @@ export type MessageBatch = {
   deepLink?: Maybe<Scalars['String']>;
   /**  List of ids for "push", "email", "sms" message types; list of emails for "email" message types; list of phone numbers for "sms" message types. Can be mixed. For each entry an appropriate message type will be used.  */
   targets?: Maybe<Scalars['JSON']>;
+  /**  Which flow will be used for send notification  */
+  sendVia?: Maybe<MessageBatchSendViumType>;
   /**  Batch processing status  */
   status?: Maybe<MessageBatchStatusType>;
   /**  Batch processing results will be stored here  */
@@ -30492,6 +30494,7 @@ export type MessageBatchCreateInput = {
   message?: Maybe<Scalars['String']>;
   deepLink?: Maybe<Scalars['String']>;
   targets?: Maybe<Scalars['JSON']>;
+  sendVia?: Maybe<MessageBatchSendViumType>;
   status?: Maybe<MessageBatchStatusType>;
   processingMeta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
@@ -30521,6 +30524,7 @@ export type MessageBatchHistoryRecord = {
   message?: Maybe<Scalars['String']>;
   deepLink?: Maybe<Scalars['String']>;
   targets?: Maybe<Scalars['JSON']>;
+  sendVia?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
   processingMeta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
@@ -30544,6 +30548,7 @@ export type MessageBatchHistoryRecordCreateInput = {
   message?: Maybe<Scalars['String']>;
   deepLink?: Maybe<Scalars['String']>;
   targets?: Maybe<Scalars['JSON']>;
+  sendVia?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
   processingMeta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
@@ -30572,6 +30577,7 @@ export type MessageBatchHistoryRecordUpdateInput = {
   message?: Maybe<Scalars['String']>;
   deepLink?: Maybe<Scalars['String']>;
   targets?: Maybe<Scalars['JSON']>;
+  sendVia?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
   processingMeta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
@@ -30667,6 +30673,24 @@ export type MessageBatchHistoryRecordWhereInput = {
   targets_not?: Maybe<Scalars['JSON']>;
   targets_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   targets_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sendVia?: Maybe<Scalars['String']>;
+  sendVia_not?: Maybe<Scalars['String']>;
+  sendVia_contains?: Maybe<Scalars['String']>;
+  sendVia_not_contains?: Maybe<Scalars['String']>;
+  sendVia_starts_with?: Maybe<Scalars['String']>;
+  sendVia_not_starts_with?: Maybe<Scalars['String']>;
+  sendVia_ends_with?: Maybe<Scalars['String']>;
+  sendVia_not_ends_with?: Maybe<Scalars['String']>;
+  sendVia_i?: Maybe<Scalars['String']>;
+  sendVia_not_i?: Maybe<Scalars['String']>;
+  sendVia_contains_i?: Maybe<Scalars['String']>;
+  sendVia_not_contains_i?: Maybe<Scalars['String']>;
+  sendVia_starts_with_i?: Maybe<Scalars['String']>;
+  sendVia_not_starts_with_i?: Maybe<Scalars['String']>;
+  sendVia_ends_with_i?: Maybe<Scalars['String']>;
+  sendVia_not_ends_with_i?: Maybe<Scalars['String']>;
+  sendVia_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  sendVia_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   status?: Maybe<Scalars['String']>;
   status_not?: Maybe<Scalars['String']>;
   status_contains?: Maybe<Scalars['String']>;
@@ -30785,6 +30809,15 @@ export enum MessageBatchMessageTypeType {
   MobileAppUpdateAvailableMessagePush = 'MOBILE_APP_UPDATE_AVAILABLE_MESSAGE_PUSH'
 }
 
+export enum MessageBatchSendViumType {
+  Sms = 'sms',
+  Email = 'email',
+  Telegram = 'telegram',
+  Push = 'push',
+  PhoneByUserId = 'phone_by_user_id',
+  Rc = 'rc'
+}
+
 export enum MessageBatchStatusType {
   Created = 'created',
   Processing = 'processing',
@@ -30798,6 +30831,7 @@ export type MessageBatchUpdateInput = {
   message?: Maybe<Scalars['String']>;
   deepLink?: Maybe<Scalars['String']>;
   targets?: Maybe<Scalars['JSON']>;
+  sendVia?: Maybe<MessageBatchSendViumType>;
   status?: Maybe<MessageBatchStatusType>;
   processingMeta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
@@ -30876,6 +30910,10 @@ export type MessageBatchWhereInput = {
   targets_not?: Maybe<Scalars['JSON']>;
   targets_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   targets_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sendVia?: Maybe<MessageBatchSendViumType>;
+  sendVia_not?: Maybe<MessageBatchSendViumType>;
+  sendVia_in?: Maybe<Array<Maybe<MessageBatchSendViumType>>>;
+  sendVia_not_in?: Maybe<Array<Maybe<MessageBatchSendViumType>>>;
   status?: Maybe<MessageBatchStatusType>;
   status_not?: Maybe<MessageBatchStatusType>;
   status_in?: Maybe<Array<Maybe<MessageBatchStatusType>>>;
@@ -79306,6 +79344,8 @@ export enum SortMessageBatchHistoryRecordsBy {
   MessageDesc = 'message_DESC',
   DeepLinkAsc = 'deepLink_ASC',
   DeepLinkDesc = 'deepLink_DESC',
+  SendViaAsc = 'sendVia_ASC',
+  SendViaDesc = 'sendVia_DESC',
   StatusAsc = 'status_ASC',
   StatusDesc = 'status_DESC',
   IdAsc = 'id_ASC',
@@ -79335,6 +79375,8 @@ export enum SortMessageBatchesBy {
   MessageDesc = 'message_DESC',
   DeepLinkAsc = 'deepLink_ASC',
   DeepLinkDesc = 'deepLink_DESC',
+  SendViaAsc = 'sendVia_ASC',
+  SendViaDesc = 'sendVia_DESC',
   StatusAsc = 'status_ASC',
   StatusDesc = 'status_DESC',
   IdAsc = 'id_ASC',

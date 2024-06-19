@@ -10,7 +10,7 @@ const {
     CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
     CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE,
     CUSTOM_CONTENT_MESSAGE_SMS_TYPE,
-    MOBILE_APP_UPDATE_AVAILABLE_MESSAGE_PUSH_TYPE, 
+    MOBILE_APP_UPDATE_AVAILABLE_MESSAGE_PUSH_TYPE, PHONE_BY_USER_ID, PUSH_VIA_REMOTE_CLIENT,
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 
@@ -18,8 +18,7 @@ const EMAIL_FROM = 'noreply@doma.ai'
 const DATE_FORMAT = 'YYYY-MM-DD'
 const IS_EMAIL_REGEXP = /^\S+@\S+\.\S+$/
 const IS_PHONE_REGEXP = /^\+79\d{9}$/
-const IS_USER_UUID_REGEXP = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i
-const IS_REMOTE_CLIENT_UUID_REGEXP = /^rc:[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+const IS_UUID_REGEXP = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 const MESSAGE_TYPES_BY_TRANSPORTS = {
     [CUSTOM_CONTENT_MESSAGE_TYPE]: {
         [PUSH_TRANSPORT]: CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
@@ -43,8 +42,7 @@ const detectTransportType = (target) => {
     if (!isString(target)) return null
     if (IS_EMAIL_REGEXP.test(target)) return EMAIL_TRANSPORT
     if (IS_PHONE_REGEXP.test(target)) return SMS_TRANSPORT
-    if (IS_USER_UUID_REGEXP.test(target)) return PUSH_TRANSPORT
-    if (IS_REMOTE_CLIENT_UUID_REGEXP.test(target)) return PUSH_TRANSPORT
+    if (IS_UUID_REGEXP.test(target)) return PUSH_TRANSPORT
 
     return null
 }
@@ -53,16 +51,18 @@ const detectTransportType = (target) => {
  * Prepares target for message based on initial target (contact)
  * Supported targets - phone, email, User id, RemoteClient id
  * @param target
+ * @param sendVia
  * @returns {{to: {remoteClient: {id}}}|{emailFrom: string, to: {email}}|null|{to: {user: {id}}}|{to: {phone}}}
  */
-const selectTarget = (target) => {
+const selectTarget = (target, sendVia) => {
     const transportType = detectTransportType(target)
 
     if (!transportType) return null
-    if (transportType === SMS_TRANSPORT) return { to: { phone: target } }
-    if (transportType === EMAIL_TRANSPORT) return { to: { email: target }, emailFrom: EMAIL_FROM }
-    if (IS_REMOTE_CLIENT_UUID_REGEXP.test(target)) return { to: { remoteClient: { id: target.replace('rc:', '') } } }
-    if (IS_USER_UUID_REGEXP.test(target)) return { to: { user: { id: target } } }
+    if (sendVia === SMS_TRANSPORT) return { to: { phone: target } }
+    if (sendVia === EMAIL_TRANSPORT) return { to: { email: target }, emailFrom: EMAIL_FROM }
+    if (sendVia === PUSH_VIA_REMOTE_CLIENT) return { to: { remoteClient: { id: target } } }
+    if (sendVia === PHONE_BY_USER_ID) return { to: { phone: { id: target } } }
+    if (sendVia === PUSH_TRANSPORT) return { to: { user: { id: target } } }
 
     return null
 }
@@ -103,7 +103,7 @@ const getUniqKey = (date, title, target) => `${date}:${title}:${normalizeTarget(
 const prepareMessageData = (target, batch, today) => {
     const notificationKey = getUniqKey(today, batch.title, target)
     const transportType = detectTransportType(target)
-    const to = selectTarget(target)
+    const to = selectTarget(target, batch.sendVia)
     const type = get(MESSAGE_TYPES_BY_TRANSPORTS, [batch.messageType, transportType])
 
     if (isEmpty(to) || !transportType || !type) return 0

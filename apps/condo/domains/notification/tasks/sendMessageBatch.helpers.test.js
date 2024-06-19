@@ -10,12 +10,11 @@ const {
     CUSTOM_CONTENT_MESSAGE_TYPE,
     CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
     CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE,
-    CUSTOM_CONTENT_MESSAGE_SMS_TYPE,
+    CUSTOM_CONTENT_MESSAGE_SMS_TYPE, PUSH_VIA_REMOTE_CLIENT,
 } = require('@condo/domains/notification/constants/constants')
 
 const {
     selectTarget,
-    detectTransportType,
     getUniqKey,
     normalizeTarget,
     prepareMessageData,
@@ -29,7 +28,7 @@ describe('sendMessageBatch', () => {
             it('selects proper target type', async () => {
                 const user = {
                     id: faker.datatype.uuid(),
-                    remoteClient: `rc:${faker.datatype.uuid()}`,
+                    remoteClient: `${faker.datatype.uuid()}`,
                     phone: faker.phone.number('+79#########'),
                     email: `${faker.random.alphaNumeric(8)}@${faker.random.alphaNumeric(8)}.com`,
                 }
@@ -38,18 +37,18 @@ describe('sendMessageBatch', () => {
                 const landLinePhone = faker.phone.number('+7343#######')
                 const brokenLandLinePhone = faker.phone.number('+7343######')
 
-                expect(selectTarget(user.phone)).toEqual({ to: { phone: user.phone } })
-                expect(selectTarget(user.email)).toEqual({ to: { email: user.email }, emailFrom: EMAIL_FROM })
-                expect(selectTarget(user.id)).toEqual({ to: { user: { id: user.id } } })
-                expect(selectTarget(user.remoteClient)).toEqual({ to: { remoteClient: { id: user.remoteClient.replace('rc:', '') } } })
-                expect(selectTarget(brokenEmail)).toBeNull()
-                expect(selectTarget(brokenPhone)).toBeNull()
-                expect(selectTarget(landLinePhone)).toBeNull()
-                expect(selectTarget(brokenLandLinePhone)).toBeNull()
-                expect(selectTarget(faker.random.alphaNumeric(8))).toBeNull()
-                expect(selectTarget(new Date())).toBeNull()
-                expect(selectTarget(17)).toBeNull()
-                expect(selectTarget(null)).toBeNull()
+                expect(selectTarget(user.phone, SMS_TRANSPORT)).toEqual({ to: { phone: user.phone } })
+                expect(selectTarget(user.email, EMAIL_TRANSPORT)).toEqual({ to: { email: user.email }, emailFrom: EMAIL_FROM })
+                expect(selectTarget(user.id, PUSH_TRANSPORT)).toEqual({ to: { user: { id: user.id } } })
+                expect(selectTarget(user.remoteClient, PUSH_VIA_REMOTE_CLIENT)).toEqual({ to: { remoteClient: { id: user.remoteClient } } })
+                expect(selectTarget(brokenEmail, EMAIL_TRANSPORT)).toBeNull()
+                expect(selectTarget(brokenPhone, SMS_TRANSPORT)).toBeNull()
+                expect(selectTarget(landLinePhone, SMS_TRANSPORT)).toBeNull()
+                expect(selectTarget(brokenLandLinePhone, SMS_TRANSPORT)).toBeNull()
+                expect(selectTarget(faker.random.alphaNumeric(8), PUSH_TRANSPORT)).toBeNull()
+                expect(selectTarget(new Date(), PUSH_TRANSPORT)).toBeNull()
+                expect(selectTarget(17, PUSH_TRANSPORT)).toBeNull()
+                expect(selectTarget(null, PUSH_TRANSPORT)).toBeNull()
                 expect(selectTarget()).toBeNull()
             })
         })
@@ -58,7 +57,7 @@ describe('sendMessageBatch', () => {
             it('properly detects transport type', async () => {
                 const user = {
                     id: faker.datatype.uuid(),
-                    remoteClient: `rc:${faker.datatype.uuid()}`,
+                    remoteClient: `${faker.datatype.uuid()}`,
                     phone: faker.phone.number('+79#########'),
                     email: `${faker.random.alphaNumeric(8)}@${faker.random.alphaNumeric(8)}.com`,
                 }
@@ -67,19 +66,19 @@ describe('sendMessageBatch', () => {
                 const landLinePhone = faker.phone.number('+7343#######')
                 const brokenLandLinePhone = faker.phone.number('+7343######')
 
-                expect(detectTransportType(user.phone)).toEqual(SMS_TRANSPORT)
-                expect(detectTransportType(user.email)).toEqual(EMAIL_TRANSPORT)
-                expect(detectTransportType(user.id)).toEqual(PUSH_TRANSPORT)
-                expect(detectTransportType(user.remoteClient)).toEqual(PUSH_TRANSPORT)
-                expect(detectTransportType(brokenEmail)).toBeNull()
-                expect(detectTransportType(brokenPhone)).toBeNull()
-                expect(detectTransportType(landLinePhone)).toBeNull()
-                expect(detectTransportType(brokenLandLinePhone)).toBeNull()
-                expect(detectTransportType(faker.random.alphaNumeric(8))).toBeNull()
-                expect(detectTransportType(new Date())).toBeNull()
-                expect(detectTransportType(17)).toBeNull()
-                expect(detectTransportType(null)).toBeNull()
-                expect(detectTransportType()).toBeNull()
+                expect(selectTarget(user.phone, SMS_TRANSPORT)).toEqual({ to: { phone: user.phone } })
+                expect(selectTarget(user.email, EMAIL_TRANSPORT)).toEqual({ to: { email: user.email }, emailFrom: EMAIL_FROM })
+                expect(selectTarget(user.id, PUSH_TRANSPORT)).toEqual({ to: { user: { id: user.id } } })
+                expect(selectTarget(user.remoteClient, PUSH_VIA_REMOTE_CLIENT)).toEqual({ to: { remoteClient: { id: user.remoteClient } } })
+                expect(selectTarget(brokenEmail, EMAIL_TRANSPORT)).toBeNull()
+                expect(selectTarget(brokenPhone, SMS_TRANSPORT)).toBeNull()
+                expect(selectTarget(landLinePhone, SMS_TRANSPORT)).toBeNull()
+                expect(selectTarget(brokenLandLinePhone, SMS_TRANSPORT)).toBeNull()
+                expect(selectTarget(faker.random.alphaNumeric(8), PUSH_TRANSPORT)).toBeNull()
+                expect(selectTarget(new Date(), PUSH_TRANSPORT)).toBeNull()
+                expect(selectTarget(17, PUSH_TRANSPORT)).toBeNull()
+                expect(selectTarget(null, PUSH_TRANSPORT)).toBeNull()
+                expect(selectTarget()).toBeNull()
             })
 
         })
@@ -129,6 +128,7 @@ describe('sendMessageBatch', () => {
                     message: faker.random.alphaNumeric(50),
                     deepLink: faker.random.alphaNumeric(30),
                     messageType: CUSTOM_CONTENT_MESSAGE_TYPE,
+                    sendVia: PUSH_TRANSPORT,
                 }
                 const today = dayjs().format(DATE_FORMAT)
                 const messageData = prepareMessageData(target, batch, today)
@@ -155,6 +155,7 @@ describe('sendMessageBatch', () => {
                     message: faker.random.alphaNumeric(50),
                     deepLink: faker.random.alphaNumeric(30),
                     messageType: CUSTOM_CONTENT_MESSAGE_TYPE,
+                    sendVia: EMAIL_TRANSPORT,
                 }
                 const today = dayjs().format(DATE_FORMAT)
                 const messageData = prepareMessageData(target, batch, today)
@@ -181,6 +182,7 @@ describe('sendMessageBatch', () => {
                     message: faker.random.alphaNumeric(50),
                     deepLink: faker.random.alphaNumeric(30),
                     messageType: CUSTOM_CONTENT_MESSAGE_TYPE,
+                    sendVia: SMS_TRANSPORT,
                 }
                 const today = dayjs().format(DATE_FORMAT)
                 const messageData = prepareMessageData(target, batch, today)

@@ -52,7 +52,7 @@ const MessageUserBlackList = generateGqlQueries('MessageUserBlackList', MESSAGE_
 const MESSAGE_ORGANIZATION_BLACK_LIST_FIELDS = `{ organization { id } description ${COMMON_FIELDS} }`
 const MessageOrganizationBlackList = generateGqlQueries('MessageOrganizationBlackList', MESSAGE_ORGANIZATION_BLACK_LIST_FIELDS)
 
-const MESSAGE_BATCH_FIELDS = `{ messageType title message deepLink targets status processingMeta ${COMMON_FIELDS} }`
+const MESSAGE_BATCH_FIELDS = `{ messageType title message deepLink targets sendVia status processingMeta ${COMMON_FIELDS} }`
 const MessageBatch = generateGqlQueries('MessageBatch', MESSAGE_BATCH_FIELDS)
 
 const NOTIFICATION_USER_SETTING_FIELDS = `{ user { id } messageType messageTransport isEnabled ${COMMON_FIELDS} }`
