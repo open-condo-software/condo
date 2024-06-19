@@ -68644,6 +68644,10 @@ type B2BAppAccessRightSetHistoryRecord {
   canManageTickets: Boolean
   canReadTicketComments: Boolean
   canManageTicketComments: Boolean
+  canReadTicketFiles: Boolean
+  canManageTicketFiles: Boolean
+  canReadTicketCommentFiles: Boolean
+  canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
   id: ID!
   v: Int
@@ -68695,6 +68699,14 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canReadTicketComments_not: Boolean
   canManageTicketComments: Boolean
   canManageTicketComments_not: Boolean
+  canReadTicketFiles: Boolean
+  canReadTicketFiles_not: Boolean
+  canManageTicketFiles: Boolean
+  canManageTicketFiles_not: Boolean
+  canReadTicketCommentFiles: Boolean
+  canReadTicketCommentFiles_not: Boolean
+  canManageTicketCommentFiles: Boolean
+  canManageTicketCommentFiles_not: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteRegisterMetersReadings_not: Boolean
   id: ID
@@ -68808,6 +68820,14 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canReadTicketComments_DESC
   canManageTicketComments_ASC
   canManageTicketComments_DESC
+  canReadTicketFiles_ASC
+  canReadTicketFiles_DESC
+  canManageTicketFiles_ASC
+  canManageTicketFiles_DESC
+  canReadTicketCommentFiles_ASC
+  canReadTicketCommentFiles_DESC
+  canManageTicketCommentFiles_ASC
+  canManageTicketCommentFiles_DESC
   canExecuteRegisterMetersReadings_ASC
   canExecuteRegisterMetersReadings_DESC
   id_ASC
@@ -68844,6 +68864,10 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   canManageTickets: Boolean
   canReadTicketComments: Boolean
   canManageTicketComments: Boolean
+  canReadTicketFiles: Boolean
+  canManageTicketFiles: Boolean
+  canReadTicketCommentFiles: Boolean
+  canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
   v: Int
   createdAt: String
@@ -68880,6 +68904,10 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   canManageTickets: Boolean
   canReadTicketComments: Boolean
   canManageTicketComments: Boolean
+  canReadTicketFiles: Boolean
+  canManageTicketFiles: Boolean
+  canReadTicketCommentFiles: Boolean
+  canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
   v: Int
   createdAt: String
@@ -68936,6 +68964,10 @@ type B2BAppAccessRightSet {
   canManageTickets: Boolean
   canReadTicketComments: Boolean
   canManageTicketComments: Boolean
+  canReadTicketFiles: Boolean
+  canManageTicketFiles: Boolean
+  canReadTicketCommentFiles: Boolean
+  canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
   id: ID!
   v: Int
@@ -68993,6 +69025,14 @@ input B2BAppAccessRightSetWhereInput {
   canReadTicketComments_not: Boolean
   canManageTicketComments: Boolean
   canManageTicketComments_not: Boolean
+  canReadTicketFiles: Boolean
+  canReadTicketFiles_not: Boolean
+  canManageTicketFiles: Boolean
+  canManageTicketFiles_not: Boolean
+  canReadTicketCommentFiles: Boolean
+  canReadTicketCommentFiles_not: Boolean
+  canManageTicketCommentFiles: Boolean
+  canManageTicketCommentFiles_not: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteRegisterMetersReadings_not: Boolean
   id: ID
@@ -69088,6 +69128,14 @@ enum SortB2BAppAccessRightSetsBy {
   canReadTicketComments_DESC
   canManageTicketComments_ASC
   canManageTicketComments_DESC
+  canReadTicketFiles_ASC
+  canReadTicketFiles_DESC
+  canManageTicketFiles_ASC
+  canManageTicketFiles_DESC
+  canReadTicketCommentFiles_ASC
+  canReadTicketCommentFiles_DESC
+  canManageTicketCommentFiles_ASC
+  canManageTicketCommentFiles_DESC
   canExecuteRegisterMetersReadings_ASC
   canExecuteRegisterMetersReadings_DESC
   id_ASC
@@ -69124,6 +69172,10 @@ input B2BAppAccessRightSetUpdateInput {
   canManageTickets: Boolean
   canReadTicketComments: Boolean
   canManageTicketComments: Boolean
+  canReadTicketFiles: Boolean
+  canManageTicketFiles: Boolean
+  canReadTicketCommentFiles: Boolean
+  canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
   v: Int
   createdAt: String
@@ -69157,6 +69209,10 @@ input B2BAppAccessRightSetCreateInput {
   canManageTickets: Boolean
   canReadTicketComments: Boolean
   canManageTicketComments: Boolean
+  canReadTicketFiles: Boolean
+  canManageTicketFiles: Boolean
+  canReadTicketCommentFiles: Boolean
+  canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
   v: Int
   createdAt: String

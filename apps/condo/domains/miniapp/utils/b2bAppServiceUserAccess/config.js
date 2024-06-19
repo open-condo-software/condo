@@ -65,14 +65,14 @@ const B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS = {
         Property: {},
 
         // Ticket domain
-
-        // Source // read – могут читать все
-        // Classifier // read – могут читать все
-        // Status // read – могут читать все
-        // User // read – могут читать по id и name
-
         Ticket: {},
         TicketComment: {
+            pathToOrganizationId: ['ticket', 'organization', 'id'],
+        },
+        TicketFile: {
+            pathToOrganizationId: ['ticket', 'organization', 'id'],
+        },
+        TicketCommentFile: {
             pathToOrganizationId: ['ticket', 'organization', 'id'],
         },
     },

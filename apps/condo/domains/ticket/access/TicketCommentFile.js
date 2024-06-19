@@ -8,20 +8,28 @@ const isArray = require('lodash/isArray')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getByCondition, getById } = require('@open-condo/keystone/schema')
 
+const { canReadObjectsAsB2BAppServiceUser, canManageObjectsAsB2BAppServiceUser } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
 const {
     getEmployedOrRelatedOrganizationsByPermissions,
     checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { SERVICE } = require('@condo/domains/user/constants/common')
 
 const { RESIDENT_COMMENT_TYPE } = require('../constants')
 
 
-async function canReadTicketCommentFiles ({ authentication: { item: user }, context }) {
+async function canReadTicketCommentFiles (args) {
+    const { authentication: { item: user }, context } = args
+
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isSupport || user.isAdmin) return {}
+
+    if (user.type === SERVICE) {
+        return await canReadObjectsAsB2BAppServiceUser(args)
+    }
 
     if (user.type === RESIDENT) {
         return {
@@ -51,7 +59,12 @@ async function canReadTicketCommentFiles ({ authentication: { item: user }, cont
     }
 }
 
-const checkManageCommentFileAccess = async ({ user, operation, originalInput, itemId, context }) => {
+const checkManageCommentFileAccess = async (args) => {
+    const { authentication: { item: user }, operation, originalInput, itemId, context } = args
+
+    if (user.type === SERVICE) {
+        return await canManageObjectsAsB2BAppServiceUser(args)
+    }
     if (user.type === RESIDENT) {
         if (operation === 'create') {
             const ticketId = get(originalInput, ['ticket', 'connect', 'id'])
@@ -99,7 +112,9 @@ const checkManageCommentFileAccess = async ({ user, operation, originalInput, it
     return false
 }
 
-async function canManageTicketCommentFiles ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageTicketCommentFiles (args) {
+    const { authentication: { item: user }, originalInput, operation } = args
+
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
@@ -107,7 +122,7 @@ async function canManageTicketCommentFiles ({ authentication: { item: user }, or
     if (operation === 'create' && isArray(originalInput)) {
         for (const ticketCommentFileInputData of originalInput) {
             const ticketCommentFileInput = get(ticketCommentFileInputData, 'data')
-            const accessToCreateCommentFile = await checkManageCommentFileAccess({ user, operation, originalInput: ticketCommentFileInput, itemId })
+            const accessToCreateCommentFile = await checkManageCommentFileAccess({ ...args, originalInput: ticketCommentFileInput })
 
             if (!accessToCreateCommentFile) {
                 return false
@@ -117,7 +132,7 @@ async function canManageTicketCommentFiles ({ authentication: { item: user }, or
         return true
     }
 
-    return await checkManageCommentFileAccess({ user, operation, originalInput, itemId })
+    return await checkManageCommentFileAccess(args)
 }
 
 /*
