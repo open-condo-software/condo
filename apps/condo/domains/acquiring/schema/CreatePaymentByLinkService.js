@@ -33,12 +33,6 @@ const ERRORS = {
         type: WRONG_FORMAT,
         message: 'The provided address is invalid',
     },
-    BANK_ACCOUNT_IS_INVALID: {
-        mutation: 'createPaymentByLink',
-        code: BAD_USER_INPUT,
-        type: WRONG_FORMAT,
-        message: 'Provided bank account is not in the system',
-    },
     RECEIPT_ALREADY_PAID: {
         mutation: 'createPaymentByLink',
         code: BAD_USER_INPUT,
@@ -72,7 +66,6 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                 const { qrCodeFields, acquiringIntegrationHostUrl, currencyCode } = validationResult
                 const {
                     PersonalAcc, // organization's bank account
-                    BIC,
                     PaymPeriod, // mm.yyyy
                     Sum,
                     PersAcc, // resident's account within organization
@@ -84,17 +77,8 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                 const { normalizedAddress } = auxiliaryData
 
                 const [organizationId] = Object.keys(auxiliaryData.contexts)
-                const { billingContext, acquiringContext } = auxiliaryData.contexts[organizationId]
-
-                // make sure PersonalAccount is in our system
-                /** @type {BillingRecipient[]} */
-                const billingRecipients = await find('BillingRecipient', {
-                    context: { id: billingContext.id, deletedAt: null },
-                    bankAccount: PersonalAcc,
-                    deletedAt: null,
-                })
-
-                if (billingRecipients.length === 0) throw new GQLError(ERRORS.BANK_ACCOUNT_IS_INVALID, context)
+                const { acquiringContext } = auxiliaryData.contexts[organizationId]
+                const acquiringContextRecipient = get(acquiringContext, 'recipient')
 
                 let multiPaymentId
 
@@ -110,66 +94,36 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                     multiPaymentId = id
                 }
 
+                const payForQR = async (lastBillingReceipt) => {
+                    if (await isReceiptPaid(context, PersAcc, period, [organizationId], PersonalAcc)) {
+                        throw new GQLError(ERRORS.RECEIPT_ALREADY_PAID, context)
+                    }
+                    const { multiPaymentId: id } = await registerMultiPaymentForVirtualReceipt(context, {
+                        dv, sender,
+                        receipt: {
+                            currencyCode,
+                            amount,
+                            period,
+                            recipient: {
+                                routingNumber: acquiringContextRecipient.bic, // get bank account from acquiring context
+                                bankAccount: acquiringContextRecipient.bankAccount,
+                                accountNumber: PersAcc, // resident's account number
+                            },
+                        },
+                        acquiringIntegrationContext: {
+                            id: acquiringContext.id,
+                        },
+                    })
+
+                    multiPaymentId = id
+                }
+
                 /** @type {TCompareQRResolvers} */
                 const resolvers = {
-                    onNoReceipt: async () => {
-                        if (await isReceiptPaid(context, PersAcc, period, [organizationId], PersonalAcc)) {
-                            throw new GQLError(ERRORS.RECEIPT_ALREADY_PAID, context)
-                        }
-                        const { multiPaymentId: id } = await registerMultiPaymentForVirtualReceipt(context, {
-                            dv, sender,
-                            receipt: {
-                                currencyCode,
-                                amount,
-                                period,
-                                recipient: {
-                                    routingNumber: BIC,
-                                    bankAccount: PersonalAcc,
-                                    accountNumber: PersAcc,
-                                },
-                            },
-                            acquiringIntegrationContext: {
-                                id: acquiringContext.id,
-                            },
-                        })
-
-                        multiPaymentId = id
-                    },
+                    onNoReceipt: payForQR,
                     onReceiptPeriodEqualsQrCodePeriod: payForLastBillingReceipt,
                     onReceiptPeriodNewerThanQrCodePeriod: payForLastBillingReceipt,
-                    onReceiptPeriodOlderThanQrCodePeriod: async (lastBillingReceipt) => {
-                        if (await isReceiptPaid(context, PersAcc, period, [organizationId], PersonalAcc)) {
-                            throw new GQLError(ERRORS.RECEIPT_ALREADY_PAID, context)
-                        }
-
-                        // find acquiring context and routing number from older receipt
-                        const billingIntegrationContext = await getById('BillingIntegrationOrganizationContext', lastBillingReceipt.context)
-                        /** @type {AcquiringIntegrationContext[]} */
-                        const acquiringContexts = await AcquiringIntegrationContext.getAll(context, {
-                            organization: { id: billingIntegrationContext.organization, deletedAt: null },
-                            status: ACQUIRING_CONTEXT_FINISHED_STATUS,
-                            deletedAt: null,
-                        })
-
-                        const { multiPaymentId: id } = await registerMultiPaymentForVirtualReceipt(context, {
-                            dv, sender,
-                            receipt: {
-                                currencyCode,
-                                amount,
-                                period,
-                                recipient: {
-                                    routingNumber: billingRecipients[0].bic,
-                                    bankAccount: PersonalAcc,
-                                    accountNumber: PersAcc,
-                                },
-                            },
-                            acquiringIntegrationContext: {
-                                id: acquiringContexts[0].id,
-                            },
-                        })
-
-                        multiPaymentId = id
-                    },
+                    onReceiptPeriodOlderThanQrCodePeriod: payForQR,
                 }
 
                 await compareQRCodeWithLastReceipt(qrCodeFields, resolvers)
