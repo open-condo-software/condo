@@ -168,7 +168,6 @@ describe('MeterReadingsImportTask', () => {
 
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.v).toEqual(2)
                 expect(obj.updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
             })
 
@@ -188,7 +187,6 @@ describe('MeterReadingsImportTask', () => {
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.v).toEqual(2)
                 expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
             })
 

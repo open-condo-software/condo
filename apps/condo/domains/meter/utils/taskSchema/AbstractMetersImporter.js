@@ -173,6 +173,13 @@ class AbstractMetersImporter {
                                         }
                                     }
                                 }
+
+                                // fallback for not recognized errors
+                                if (rowErrors.length === 0) {
+                                    const error = get(mutationError, ['originalError', 'errors', 0, 'message'])
+                                        || get(mutationError, ['message'], 'Unknown error')
+                                    rowErrors.push(error)
+                                }
                             }
 
                             if (!indexesOfFailedSourceRows.has(sourceRowIndex)) {
@@ -238,7 +245,7 @@ class AbstractMetersImporter {
         const ws = XLSX.utils.aoa_to_sheet(data)
         ws['!cols'] = this.fitToColumn(data)
         XLSX.utils.book_append_sheet(wb, ws, 'table')
-        return XLSX.write(wb, { bookType: 'xlsx', type: 'binary' })
+        return XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' })
     }
 }
 

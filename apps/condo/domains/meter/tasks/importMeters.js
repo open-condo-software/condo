@@ -1,13 +1,9 @@
-const { createReadStream } = require('fs')
 const { Readable } = require('stream')
 
-const { faker } = require('@faker-js/faker')
 const Upload = require('graphql-upload/Upload.js')
-const { get, isNil, isEmpty } = require('lodash')
-const fetch = require('node-fetch')
+const { get, isEmpty } = require('lodash')
 
-const { SBERCLOUD_OBS_CONFIG } = require('@open-condo/config')
-const { ConvertFileToTable, getObjectStream } = require('@open-condo/keystone/file')
+const { ConvertFileToTable, getObjectStream, readFileFromStream } = require('@open-condo/keystone/file')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { 
@@ -51,11 +47,22 @@ async function failWithErrorFile (context, taskId, content, format) {
     const filename = format === DOMA_EXCEL ? 'meters_failed_data.xlsx' : 'meters_failed_data.csv'
     const mimetype = format === DOMA_EXCEL ? EXCEL_FILE_META.mimetype : 'text/csv'
 
-    await MeterReadingsImportTask.update(context, taskId, {
+    // update status and save error file
+    const updated = await MeterReadingsImportTask.update(context, taskId, {
         ...dvAndSender,
         status: ERROR,
         errorFile: await createUpload(content, filename, mimetype),
     })
+
+    // update file meta in order to make file accessible for user download request
+    if (fileAdapter.acl && fileAdapter.acl.setMeta) {
+        const filename = get(updated, 'errorFile.filename')
+
+        await fileAdapter.acl.setMeta(
+            `${METER_READINGS_IMPORT_TASK_FOLDER_NAME}/${filename}`,
+            { listkey: 'MeterReadingsImportTask', id: taskId },
+        )
+    }
 }
 
 /**
@@ -75,54 +82,69 @@ async function importMeters (taskId) {
     // get task definition
     const { file, user, organization, locale } = await MeterReadingsImportTask.getOne(context, { id: taskId })
 
-    // download file
-    const content = await getObjectStream(file, fileAdapter, false)
-    if (isEmpty(content)) {
-        return
-    }
+    // since we would like to catch all errors and immediately tell to user about them
+    // let's wrap whole proceeding code body into try catch
+    try {
+        // download file
+        const contentStream = await getObjectStream(file, fileAdapter)
+        if (isEmpty(contentStream)) {
+            return
+        }
 
-    // create file converter
-    const converter = new ConvertFileToTable(content)
+        // read stream
+        const content = await readFileFromStream(contentStream)
 
-    // For now we support only two formats: doma-excel and 1S (txt/csv)
-    const format = await converter.isExcelFile() ? DOMA_EXCEL : CSV
-    await MeterReadingsImportTask.update(context, taskId, {
-        ...dvAndSender,
-        format,
-    })
+        // create file converter
+        const converter = new ConvertFileToTable(content)
 
-    // read table && fill total
-    const data = await converter.getData()
-    
-    // create importer
-    const importer = await getImporter(context, taskId, organization.id, user.id, format, locale)
-    
-    // do import
-    await importer.import(data)
-    
-    // get failed rows
-    const {
-        status: currentStatus,
-        totalRecordsCount,
-        importedRecordsCount,
-    } = await MeterReadingsImportTask.getOne(context, { id: taskId })
-    const { failedRows } = importer
-    
-    // postprocessing results:
-    // - currentStatus === error - nothing to do
-    // - currentStatus === cancelled - nothing to do
-    // - currentStatus === processing and no failedRows - completed
-    // - currentStatus === processing and has failedRows - error + generate error file
-    if (currentStatus === ERROR || currentStatus === CANCELLED) {
-        return
-    } else if (currentStatus === PROCESSING && failedRows.length === 0) {
+        // For now we support only two formats: doma-excel and 1S (txt/csv)
+        const isExcelFile = await converter.isExcelFile()
+        const format = isExcelFile ? DOMA_EXCEL : CSV
         await MeterReadingsImportTask.update(context, taskId, {
             ...dvAndSender,
-            status: COMPLETED,
+            format,
         })
-    } else {
-        const errorFileContent = await importer.generateErrorFile()
-        await failWithErrorFile(context, taskId, errorFileContent, format)
+
+        // read table && fill total
+        const data = await converter.getData()
+
+        // create importer
+        const importer = await getImporter(context, taskId, organization.id, user.id, format, locale)
+
+        // do import
+        await importer.import(data)
+
+        // get failed rows
+        const {
+            status: currentStatus,
+        } = await MeterReadingsImportTask.getOne(context, { id: taskId })
+        const { failedRows } = importer
+
+        // postprocessing results:
+        // - currentStatus === error - nothing to do
+        // - currentStatus === cancelled - nothing to do
+        // - currentStatus === processing and no failedRows - completed
+        // - currentStatus === processing and has failedRows - error + generate error file
+        if (currentStatus === ERROR || currentStatus === CANCELLED) {
+            return
+        } else if (currentStatus === PROCESSING && failedRows.length === 0) {
+            await MeterReadingsImportTask.update(context, taskId, {
+                ...dvAndSender,
+                status: COMPLETED,
+            })
+        } else {
+            const errorFileContent = await importer.generateErrorFile()
+            await failWithErrorFile(context, taskId, errorFileContent, format)
+        }
+    } catch (err) {
+        const errorMessage = get(err, 'errors[0].extensions.messageForUser', get(err, 'message'))
+            || 'not recognized error'
+
+        await MeterReadingsImportTask.update(context, taskId, {
+            ...dvAndSender,
+            status: ERROR,
+            errorMessage,
+        })
     }
 }
 
