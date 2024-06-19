@@ -15,7 +15,7 @@ const {
     checkPermissionsInEmployedOrRelatedOrganizations,
     getEmployedOrRelatedOrganizationsByPermissions,
 } = require('@condo/domains/organization/utils/accessSchema')
-const { RESIDENT_COMMENT_TYPE, COMPLETED_STATUS_TYPE, CANCELED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
+const { RESIDENT_COMMENT_TYPE, ORGANIZATION_COMMENT_TYPE, COMPLETED_STATUS_TYPE, CANCELED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
 const {
     getTicketFieldsMatchesResidentFieldsQuery,
 } = require('@condo/domains/ticket/utils/accessSchema')
@@ -31,7 +31,14 @@ async function canReadTicketComments (args) {
     if (user.isSupport || user.isAdmin) return {}
 
     if (user.type === SERVICE) {
-        return await canReadObjectsAsB2BAppServiceUser(args)
+        const accessFilter = await canReadObjectsAsB2BAppServiceUser(args)
+
+        if (!accessFilter) return false
+
+        return {
+            ...accessFilter,
+            type: ORGANIZATION_COMMENT_TYPE,
+        }
     }
 
     if (user.type === RESIDENT) {
@@ -71,7 +78,23 @@ const checkManageCommentAccess = async (args) => {
     const { authentication: { item: user }, originalInput, operation, itemId, context } = args
 
     if (user.type === SERVICE) {
-        return await canManageObjectsAsB2BAppServiceUser(args)
+        const hasAccess = await canManageObjectsAsB2BAppServiceUser(args)
+        if (!hasAccess) return false
+
+        // service user can't create ticket comment with resident type or update type to resident
+        const resolvedCommentType = get(originalInput, 'type')
+        if (resolvedCommentType === RESIDENT_COMMENT_TYPE) {
+            return false
+        }
+
+        // service user can't update not his own ticket comment
+        if (operation === 'update') {
+            const comment = await getByCondition('TicketComment', { id: itemId, deletedAt: null })
+
+            if (!comment || comment.user !== user.id) return false
+        }
+
+        return true
     }
 
     if (user.type === RESIDENT) {

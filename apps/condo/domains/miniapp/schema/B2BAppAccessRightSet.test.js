@@ -29,6 +29,7 @@ const { registerNewOrganization } = require('@condo/domains/organization/utils/t
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { createTestProperty, Property, updateTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
+const { RESIDENT_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const {
     createTestTicket,
@@ -1081,18 +1082,44 @@ describe('B2BApp permissions for service user', () => {
         })
         expect(updatedTicket.status.id).toEqual(STATUS_IDS.IN_PROGRESS)
 
-        const [tcByServiceUser] = await createTestTicketComment(serviceUser, ticket, serviceUser.user)
+        const [ticketCommentByServiceUser] = await createTestTicketComment(serviceUser, ticket, serviceUser.user)
+        const [ticketCommentWithResidentType] = await createTestTicketComment(user, ticket, user.user, {
+            type: RESIDENT_COMMENT_TYPE,
+        })
 
         {
             const countWithPermissions = await TicketComment.count(serviceUser, {})
             expect(countWithPermissions).toEqual(2)
 
-            const contactWithPermissions = await TicketComment.getOne(serviceUser, { id: ticketComment.id })
-            expect(contactWithPermissions.id).toEqual(ticketComment.id)
+            const ticketCommentWithPermissions = await TicketComment.getOne(serviceUser, { id: ticketComment.id })
+            expect(ticketCommentWithPermissions.id).toEqual(ticketComment.id)
+
+            // can't read ticket comment type with resident type
+            const readTicketCommentWithResidentType = await TicketComment.getOne(serviceUser, { id: ticketCommentWithResidentType.id })
+            expect(readTicketCommentWithResidentType).toBeUndefined()
         }
 
-        await updateTestTicketComment(serviceUser, tcByServiceUser.id)
-        await TicketComment.softDelete(serviceUser, tcByServiceUser.id)
+        // can't create ticket comment with resident type
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await createTestTicketComment(serviceUser, ticket, serviceUser.user, {
+                type: RESIDENT_COMMENT_TYPE,
+            })
+        })
+
+        // can't update ticket comment type to resident
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await updateTestTicketComment(serviceUser, ticketCommentByServiceUser.id, {
+                type: RESIDENT_COMMENT_TYPE,
+            })
+        })
+
+        // can't update not his own ticket comment
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await updateTestTicketComment(serviceUser, ticketComment.id, {})
+        })
+
+        await updateTestTicketComment(serviceUser, ticketCommentByServiceUser.id)
+        await TicketComment.softDelete(serviceUser, ticketCommentByServiceUser.id)
 
         const readTicketFile = await TicketFile.getOne(serviceUser, { id: ticketFile.id })
         expect(readTicketFile.ticket.id).toEqual(ticketFile.ticket.id)
@@ -1103,6 +1130,10 @@ describe('B2BApp permissions for service user', () => {
 
         const readTicketCommentFile = await TicketCommentFile.getOne(serviceUser, { id: ticketCommentFile.id })
         expect(readTicketCommentFile.ticket.id).toEqual(ticketCommentFile.ticket.id)
+
+        const [ticketCommentFileWithResidentUserComment] = await createTestTicketCommentFile(user, ticket, ticketCommentWithResidentType)
+        const readTicketCommentFileWithResidentUserComment = await TicketCommentFile.getOne(serviceUser, { id: ticketCommentFileWithResidentUserComment.id })
+        expect(readTicketCommentFileWithResidentUserComment).toBeUndefined()
 
         const [ticketCommentFileByServiceUser] = await createTestTicketCommentFile(serviceUser, ticket, ticketComment)
         await updateTestTicketCommentFile(serviceUser, ticketCommentFileByServiceUser.id, {})

@@ -16,7 +16,7 @@ const {
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { SERVICE } = require('@condo/domains/user/constants/common')
 
-const { RESIDENT_COMMENT_TYPE } = require('../constants')
+const { RESIDENT_COMMENT_TYPE, ORGANIZATION_COMMENT_TYPE } = require('../constants')
 
 
 async function canReadTicketCommentFiles (args) {
@@ -28,7 +28,14 @@ async function canReadTicketCommentFiles (args) {
     if (user.isSupport || user.isAdmin) return {}
 
     if (user.type === SERVICE) {
-        return await canReadObjectsAsB2BAppServiceUser(args)
+        const accessFilter = await canReadObjectsAsB2BAppServiceUser(args)
+
+        if (!accessFilter) return false
+
+        return {
+            ...accessFilter,
+            ticketComment: { type: ORGANIZATION_COMMENT_TYPE },
+        }
     }
 
     if (user.type === RESIDENT) {
