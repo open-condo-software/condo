@@ -1935,6 +1935,7 @@ __metadata:
     deepmerge: ^4.3.1
     graphql: ^16.8.1
     http-proxy: ^1.18.1
+    js-cookie: ^2.2.1
     lodash: ^4.17.21
     next: 13.3.0
     phone: ^3.1.40
@@ -1944,6 +1945,7 @@ __metadata:
     serwist: ^9.0.0
     ts-node: ^10.9.1
     typescript: 4.9.4
+    usehooks-ts: ^3.1.0
     zod: ^3.22.4
   languageName: unknown
   linkType: soft
@@ -50903,6 +50905,17 @@ __metadata:
     react: ^16.8.0  || ^17.0.0 || ^18.0.0
     react-dom: ^16.8.0  || ^17.0.0 || ^18.0.0
   checksum: 36f1e4142ce23bc019b81d2e93aefd7f2c350abcf255598c21627114a69a2f2f116b35dc3a353375f09c6e4c9b704a04f104e3d10e98280545c097feca66c30a
+  languageName: node
+  linkType: hard
+
+"usehooks-ts@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "usehooks-ts@npm:3.1.0"
+  dependencies:
+    lodash.debounce: ^4.0.8
+  peerDependencies:
+    react: ^16.8.0  || ^17 || ^18
+  checksum: 4f850c0c5ab408afa52fa2ea2c93c488cd7065c82679eb1fb62cba12ca4c57ff62d52375acc6738823421fe6579ce3adcea1e2dc345ce4f549c593d2e51455b3
   languageName: node
   linkType: hard
 
