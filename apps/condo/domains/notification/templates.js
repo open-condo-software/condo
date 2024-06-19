@@ -28,7 +28,7 @@ const SERVER_URL = conf.SERVER_URL
 const SOCIAL_MEDIA_LINKS = conf.SOCIAL_MEDIA_LINKS ? JSON.parse(conf.SOCIAL_MEDIA_LINKS) : {}
 const HELP_REQUISITES = conf.HELP_REQUISITES ? JSON.parse(conf.HELP_REQUISITES) : {}
 const SUPPORT_EMAIL = get(HELP_REQUISITES, 'support_email') || ''
-const LANDING_URL = conf.LANDING_URL
+const LANDING_URL = conf.LANDING_URL ? JSON.parse(conf.LANDING_URL) : {}
 
 // config based path
 // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal

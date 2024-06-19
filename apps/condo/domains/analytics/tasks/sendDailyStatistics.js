@@ -63,6 +63,7 @@ const sendDailyStatistics = async () => {
                 return []
             },
         })
+        logger.info({ msg: 'Successful finished sendDailyStatistics', taskId, data: { currentDate } })
     } catch (error) {
         logger.error({ msg: 'Sending emails ended with an error', taskId, data: { currentDate } })
         throw error

@@ -197,7 +197,11 @@
       <mj-section>
         <mj-column>
           <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">With care for your business, </mj-text>
-          <mj-text mj-class="paragraph company-name" css-class="paragraph company-name" padding-top="4px"><a href="{{ env.landingUrl }}" class="link">Domá</a></mj-text>
+          {% if env.landingUrl.en %}
+            <mj-text mj-class="paragraph company-name" css-class="paragraph company-name" padding-top="4px"><a href="{{ env.landingUrl.en }}" class="link">Domá</a></mj-text>
+          {% else %}
+            <mj-text mj-class="paragraph company-name" css-class="paragraph company-name" padding-top="4px">Domá</mj-text>
+          {% endif %}
         </mj-column>
       </mj-section>
 
@@ -209,27 +213,25 @@
       <!-- Footer -->
     </mj-raw>
     <mj-wrapper background-color="transparent" css-class="footer" padding-top="20px">
-      <mj-section>
-        <mj-column>
-          <mj-text align="center" font-weight="500" line-height="19px">Follow the news on social networks of the Doma</mj-text>
-        </mj-column>
-      </mj-section>
 
-      <mj-section>
-        <mj-column>
-          <mj-social align="center" mode="horizontal" padding-top="8px">
-            <mj-social-element href="{{ env.socialMediaLinks.vk }}" src="{{ env.serverUrl }}/socials/vk.png" icon-size="32px" padding="4px">
-            </mj-social-element>
+      {% if env.socialMediaLinks.en %}
+        <mj-section>
+          <mj-column>
+            <mj-text align="center" font-weight="500" line-height="19px">Follow the news on social networks of the Doma</mj-text>
+          </mj-column>
+        </mj-section>
 
-            <mj-social-element href="{{ env.socialMediaLinks.youtube }}" src="{{ env.serverUrl }}/socials/youtube.png" icon-size="32px" padding="4px">
-            </mj-social-element>
-
-            <mj-social-element href="{{ env.socialMediaLinks.telegram }}" src="{{ env.serverUrl }}/socials/telegram.png" icon-size="32px" padding="4px">
-            </mj-social-element>
-          </mj-social>
-        </mj-column>
-
-      </mj-section>
+        <mj-section>
+          <mj-column>
+            <mj-social align="center" mode="horizontal" padding-top="8px">
+              {% for name, link in env.socialMediaLinks.en %}
+                <mj-social-element href="{{ link }}" src="{{ env.serverUrl }}/socials/{{ name }}.png" icon-size="32px" padding="4px">
+                </mj-social-element>
+              {% endfor %}
+            </mj-social>
+          </mj-column>
+        </mj-section>
+      {% endif %}
 
       <mj-section>
         <mj-column>

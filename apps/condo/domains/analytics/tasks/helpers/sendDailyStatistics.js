@@ -496,6 +496,7 @@ const formatMessageData = (userStatisticsData, currentDate, locale = conf.DEFAUL
 
 const sendDailyMessageToUserSafely = async (context, user, currentDate, taskId, organizationWhere = {}) => {
     try {
+        logger.info({ msg: 'start sendDailyMessageToUser.', taskId, data: { currentDate, userId: user.id } })
         const userStatistics = new UserDailyStatistics(user.id, currentDate, taskId)
         const statisticsData = await userStatistics.loadStatistics(organizationWhere)
 
@@ -513,7 +514,7 @@ const sendDailyMessageToUserSafely = async (context, user, currentDate, taskId, 
         const messageData = formatMessageData(statisticsData, currentDate, user.locale)
 
         const uniqKey = `send_daily_statistics_${user.id}_${dayjs(currentDate).format('DD-MM-YYYY')}`
-        await sendMessage(context, {
+        const sendingResult = await sendMessage(context, {
             ...DV_SENDER,
             to: { email: user.email },
             lang: user.locale || conf.DEFAULT_LOCALE,
@@ -528,7 +529,7 @@ const sendDailyMessageToUserSafely = async (context, user, currentDate, taskId, 
             },
         })
 
-        logger.info({ msg: 'The email has been sent.', taskId, data: { currentDate, userId: user.id } })
+        logger.info({ msg: 'The email has been sent.', taskId, data: { currentDate, userId: user.id, sendingResult } })
     } catch (error) {
         logger.error({ msg: 'Failed to send email', error, taskId, data: { currentDate, userId: user.id } })
     }
