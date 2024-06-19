@@ -71,7 +71,7 @@ class AddressFromStringParser {
             unitInput = this.trim(unitInput.replace(unitTypeRegex, '').replace(/\s+/g, ' '))
         }
         return {
-            unitName: unitInput ? trimStart(unitInput, '0') : unitInput,
+            unitName: unitInput ? trimStart(unitInput, '0') || '0' : unitInput,
             unitType: detectedType || 'flat',
         }
     }
