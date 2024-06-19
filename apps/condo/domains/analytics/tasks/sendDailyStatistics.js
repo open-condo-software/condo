@@ -1,6 +1,7 @@
 const dayjs = require('dayjs')
 const { v4: uuid } = require('uuid')
 
+const conf = require('@open-condo/config')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
@@ -16,6 +17,11 @@ const { sendDailyMessageToUserSafely } = require('./helpers/sendDailyStatistics'
 
 const appLogger = getLogger('condo')
 const logger = appLogger.child({ module: 'task/sendDailyStatistics' })
+
+
+const IGNORED_EMAIL_MASKS_FOR_DAILY_STATISTICS = conf.IGNORED_EMAIL_MASKS_FOR_DAILY_STATISTICS
+    ? JSON.parse(conf.IGNORED_EMAIL_MASKS_FOR_DAILY_STATISTICS)
+    : []
 
 
 const sendDailyStatistics = async () => {
@@ -43,7 +49,7 @@ const sendDailyStatistics = async () => {
                 rightsSet_is_null: true,
                 type: STAFF,
                 AND: [
-                    { email_not_contains: '@doma.ai' },
+                    ...IGNORED_EMAIL_MASKS_FOR_DAILY_STATISTICS.map(mask => ({ email_not_contains: mask })),
                     { email_not: null },
                 ],
                 // NOTE: We don't have a process for email verification, so it's not used yet.
