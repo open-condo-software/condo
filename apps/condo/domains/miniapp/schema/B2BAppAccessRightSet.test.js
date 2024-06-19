@@ -1118,9 +1118,6 @@ describe('B2BApp permissions for service user', () => {
             await updateTestTicketComment(serviceUser, ticketComment.id, {})
         })
 
-        await updateTestTicketComment(serviceUser, ticketCommentByServiceUser.id)
-        await TicketComment.softDelete(serviceUser, ticketCommentByServiceUser.id)
-
         const readTicketFile = await TicketFile.getOne(serviceUser, { id: ticketFile.id })
         expect(readTicketFile.ticket.id).toEqual(ticketFile.ticket.id)
 
@@ -1131,11 +1128,26 @@ describe('B2BApp permissions for service user', () => {
         const readTicketCommentFile = await TicketCommentFile.getOne(serviceUser, { id: ticketCommentFile.id })
         expect(readTicketCommentFile.ticket.id).toEqual(ticketCommentFile.ticket.id)
 
+        // can't read ticket comment file in comment with resident type
         const [ticketCommentFileWithResidentUserComment] = await createTestTicketCommentFile(user, ticket, ticketCommentWithResidentType)
         const readTicketCommentFileWithResidentUserComment = await TicketCommentFile.getOne(serviceUser, { id: ticketCommentFileWithResidentUserComment.id })
         expect(readTicketCommentFileWithResidentUserComment).toBeUndefined()
 
-        const [ticketCommentFileByServiceUser] = await createTestTicketCommentFile(serviceUser, ticket, ticketComment)
+        // can't create file in not own comment
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await createTestTicketCommentFile(serviceUser, ticket, ticketComment)
+        })
+
+        // can't update not own file
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await updateTestTicketComment(serviceUser, ticketCommentFile.id, {})
+        })
+
+        const [ticketCommentFileByServiceUser] = await createTestTicketCommentFile(serviceUser, ticket, ticketCommentByServiceUser)
+
+        await updateTestTicketComment(serviceUser, ticketCommentByServiceUser.id, {})
+        await TicketComment.softDelete(serviceUser, ticketCommentByServiceUser.id)
+
         await updateTestTicketCommentFile(serviceUser, ticketCommentFileByServiceUser.id, {})
         await TicketCommentFile.softDelete(serviceUser, ticketCommentFileByServiceUser.id)
     })

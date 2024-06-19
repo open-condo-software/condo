@@ -70,8 +70,34 @@ const checkManageCommentFileAccess = async (args) => {
     const { authentication: { item: user }, operation, originalInput, itemId, context } = args
 
     if (user.type === SERVICE) {
-        return await canManageObjectsAsB2BAppServiceUser(args)
+        const hasAccess = await canManageObjectsAsB2BAppServiceUser(args)
+        if (!hasAccess) return false
+
+        if (operation === 'create') {
+            const ticketCommentFromOriginalInput = get(originalInput, ['ticketComment', 'connect', 'id'])
+            if (!ticketCommentFromOriginalInput) return false
+
+            const ticketComment = await getByCondition('TicketComment', {
+                id: ticketCommentFromOriginalInput,
+                deletedAt: null,
+            })
+            if (!ticketComment) return false
+
+            return ticketComment.createdBy === user.id
+        } else if (operation === 'update') {
+            const ticketCommentFile = await getByCondition('TicketCommentFile', {
+                id: itemId,
+                deletedAt: null,
+            })
+
+            if (!ticketCommentFile) return false
+
+            return ticketCommentFile.createdBy === user.id
+        }
+
+        return false
     }
+
     if (user.type === RESIDENT) {
         if (operation === 'create') {
             const ticketId = get(originalInput, ['ticket', 'connect', 'id'])
