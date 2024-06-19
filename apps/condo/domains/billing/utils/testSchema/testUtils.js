@@ -30,14 +30,14 @@ class TestUtils {
      */
     constructor (mixins = []) {
         this.clients = {}
-        const resolvedMixins = this.resolveMixins(mixins)
+        const resolvedMixins = this.#resolveMixins(mixins)
         if (resolvedMixins.length) {
             Object.assign(this, ...resolvedMixins)
         }
         this.mixins = resolvedMixins
     }
 
-    resolveMixins (mixins) {
+    #resolveMixins (mixins) {
         const resolvedMixins = new Map()
         const dependencyGraph = new Map()
         const addMixinToGraph = (mixin) => {
@@ -50,11 +50,11 @@ class TestUtils {
             }
         }
         mixins.forEach(addMixinToGraph)
-        const sortedMixins = this.topologicalSort(dependencyGraph)
+        const sortedMixins = this.#topologicalSort(dependencyGraph)
         return sortedMixins.map(mixin => resolvedMixins.get(mixin))
     }
 
-    topologicalSort (dependencyGraph) {
+    #topologicalSort (dependencyGraph) {
         const inDegree = new Map()
         const zeroInDegreeQueue = []
         const sortedMixins = []
@@ -106,11 +106,6 @@ class TestUtils {
         }
     }
 
-    randomNumber (numDigits) {
-        const min = 10 ** (numDigits - 1)
-        const max = 10 ** numDigits - 1
-        return faker.datatype.number({ min, max })
-    }
 
 }
 

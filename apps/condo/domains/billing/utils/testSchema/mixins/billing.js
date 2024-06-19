@@ -61,6 +61,12 @@ const BillingTestMixin = {
         return { period, year, month }
     },
 
+    randomNumber (numDigits) {
+        const min = 10 ** (numDigits - 1)
+        const max = 10 ** numDigits - 1
+        return faker.datatype.number({ min, max })
+    },
+
     createValidELS () {
         return `${this.randomNumber(2)}БГ${this.randomNumber(6)}`
     },
