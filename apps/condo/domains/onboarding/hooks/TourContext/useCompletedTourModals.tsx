@@ -127,6 +127,8 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
     const ChatWithOrganizationResidentFeature = intl.formatMessage({ id: 'tour.newFeatures.resident.chatWithOrganization' })
     const PayBillsResidentFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.resident.payBills' })
     const CreateMeterReadingsResidentFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.resident.createMeterReadings' })
+    const TakeReadingsFromResidentsFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.resident.takeReadingsFromResidents' })
+    const ArchvieMetersResidentFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.resident.archiveMeters' })
     const DownloadAppResidentFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.resident.downloadApp' })
 
     const router = useRouter()
@@ -236,6 +238,18 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
             subtitleLinkIcon: Meters,
             newFeatures: {
                 resident: [CreateMeterReadingsResidentFeatureMessage],
+            },
+            onButtonClick: {
+                default: () => { router.push('/tour') },
+                [TourStepTypeType.Meter]: handleViewGuideClick,
+            },
+        },
+        createMeter: {
+            availableTourFlow: [TourStepTypeType.Meter],
+            subtitleLinkHref: '/meter',
+            subtitleLinkIcon: Meters,
+            newFeatures: {
+                resident: [TakeReadingsFromResidentsFeatureMessage, ArchvieMetersResidentFeatureMessage],
             },
             onButtonClick: {
                 default: () => { router.push('/tour') },

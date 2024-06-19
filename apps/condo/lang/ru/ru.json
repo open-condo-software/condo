@@ -2231,6 +2231,8 @@
   "tour.newFeatures.resident.chatWithOrganization": "Оставлять комментарии по заявке в чате",
   "tour.newFeatures.resident.payBills": "Оплачивать квитанции в приложении Doma",
   "tour.newFeatures.resident.createMeterReadings": "Передавать показания счетчиков в мобильном приложении",
+  "tour.newFeatures.resident.takeReadingsFromResidents": "Принимать показания ИПУ от жителей",
+  "tour.newFeatures.resident.archiveMeters": "Выводить счетчики из работы",
   "tour.newFeatures.resident.downloadApp": "Скачать приложение и зарегистрироваться",
   "tour.guide.title": "Doma — мобильное приложение жителя",
   "tour.guide.aboutApp.title": "Как приложение для Жителя помогает УК",
