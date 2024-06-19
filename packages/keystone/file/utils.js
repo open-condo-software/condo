@@ -26,17 +26,17 @@ const readFileFromStream = async (stream) => new Promise((resolve, reject) => {
     stream.on('error', (error) => reject(error))
 })
 
-const getObjectStream = async (file, adapter, streaming = true) => new Promise((resolve, reject) => {
+const getObjectStream = async (file, adapter) => new Promise((resolve, reject) => {
     const { filename } = file
     if (!adapter.s3 && adapter.src) {
         const fullPath = `${adapter.src}${path.sep}${filename}`
-        return resolve(streaming ? createReadStream(fullPath) : readFileSync(fullPath))
+        return resolve(createReadStream(fullPath))
     }
 
     adapter.s3.getObject({
         Bucket: adapter.bucket,
         Key: `${adapter.folder}/${filename}`,
-        SaveAsStream: streaming,
+        SaveAsStream: true,
     }, (err, result) => {
         if (err) {
             return reject(err)
