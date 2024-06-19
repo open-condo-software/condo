@@ -25,7 +25,7 @@ const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/u
 const { UserDailyStatistics, sendDailyMessageToUserSafely } = require('./sendDailyStatistics')
 
 
-describe('sendDailyStatistics', () => {
+describe('sendDailyStatistics helpers', () => {
     let admin, statuses,
         allowedIncidentClassifiers, notAllowedIncidentClassifiers
 
@@ -612,14 +612,14 @@ describe('sendDailyStatistics', () => {
                     data: {
                         date: dayjs(currentDate).format('DD.MM.YY'),
                         tickets: {
-                            inProgress: `1 (${administratorClient.organization.name} - 1)`,
-                            isEmergency: `1 (${administratorClient.organization.name} - 1)`,
-                            isReturned: `1 (${administratorClient.organization.name} - 1)`,
-                            isExpired: `1 (${administratorClient.organization.name} - 1)`,
-                            withoutEmployee: `1 (${administratorClient.organization.name} - 1)`,
+                            inProgress: { total: 1, details: `${administratorClient.organization.name} - 1` },
+                            isEmergency: { total: 1, details: `${administratorClient.organization.name} - 1` },
+                            isReturned: { total: 1, details: `${administratorClient.organization.name} - 1` },
+                            isExpired: { total: 1, details: `${administratorClient.organization.name} - 1` },
+                            withoutEmployee: { total: 1, details: `${administratorClient.organization.name} - 1` },
                         },
                         incidents: {
-                            water: `${getDate(actualWaterIncidentSoonForOneProperty)} - ${administratorClient.property.address};${getDate(actualWaterIncidentSoonForAllProperties)} - ${i18n('notification.messages.SEND_DAILY_STATISTICS_MESSAGE.email.allProperties', { locale: administratorClient.user.locale })}`,
+                            water: `${getDate(actualWaterIncidentSoonForOneProperty)} - ${administratorClient.property.address}; ${getDate(actualWaterIncidentSoonForAllProperties)} - ${i18n('notification.messages.SEND_DAILY_STATISTICS.email.allProperties', { locale: administratorClient.user.locale, meta: { organization: administratorClient.organization.name } })}`,
                         },
                     },
                     tags: [`orgId: ${administratorClient.organization.id}`.slice(0, 128)],

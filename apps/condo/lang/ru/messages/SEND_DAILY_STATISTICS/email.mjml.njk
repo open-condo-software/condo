@@ -104,7 +104,7 @@
     <mj-wrapper mj-class="bg-white" padding-top="20px">
       <mj-section>
         <mj-column>
-          <mj-image src="{{ env.serverUrl }}/messages/SEND_DAILY_STATISTICS_MESSAGES_TYPE/cover.png" alt="cover"></mj-image>
+          <mj-image src="{{ env.serverUrl }}/messages/SEND_DAILY_STATISTICS/cover.png" alt="cover"></mj-image>
         </mj-column>
       </mj-section>
     </mj-wrapper>
@@ -130,7 +130,10 @@
         <mj-column>
           <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
             <b class="black">Общее количество заявок в работе: </b>
-            <b class="black">{{ message.meta.data.tickets.inProgress }}</b>
+            <b class="black">{{ message.meta.data.tickets.inProgress.total }}</b>
+            {% if message.meta.data.tickets.inProgress.details %}
+              <span>({{ message.meta.data.tickets.inProgress.details }})</span>
+            {% endif %}
           </mj-text>
         </mj-column>
       </mj-section>
@@ -139,7 +142,10 @@
         <mj-column>
           <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
             <b class="black">Открытые аварийные заявки</b>, с момента создания которых прошло более 24 часов:
-            <b class="black">{{ message.meta.data.tickets.isEmergency }}</b>
+            <b class="black">{{ message.meta.data.tickets.isEmergency.total }}</b>
+            {% if message.meta.data.tickets.isEmergency.details %}
+              <span>({{ message.meta.data.tickets.isEmergency.details }})</span>
+            {% endif %}
           </mj-text>
         </mj-column>
       </mj-section>
@@ -148,7 +154,10 @@
         <mj-column>
           <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
             <b class="black">Возвращенные заявки: </b>
-            <b class="black">{{ message.meta.data.tickets.isReturned }}</b>
+            <b class="black">{{ message.meta.data.tickets.isReturned.total }}</b>
+            {% if message.meta.data.tickets.isReturned.details %}
+              <span>({{ message.meta.data.tickets.isReturned.details }})</span>
+            {% endif %}
           </mj-text>
         </mj-column>
       </mj-section>
@@ -157,7 +166,10 @@
         <mj-column>
           <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
             <b class="black">Просроченные заявки: </b>
-            <b class="black">{{ message.meta.data.tickets.isExpired }}</b>
+            <b class="black">{{ message.meta.data.tickets.isExpired.total }}</b>
+            {% if message.meta.data.tickets.isExpired.details %}
+              <span>({{ message.meta.data.tickets.isExpired.details }})</span>
+            {% endif %}
           </mj-text>
         </mj-column>
       </mj-section>
@@ -166,7 +178,10 @@
         <mj-column>
           <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
             <b class="black">Заявки, требующие назначения исполнителей и ответственных: </b>
-            <b class="black">{{ message.meta.data.tickets.withoutEmployee }}</b>
+            <b class="black">{{ message.meta.data.tickets.withoutEmployee.total }}</b>
+            {% if message.meta.data.tickets.withoutEmployee.details %}
+              <span>({{ message.meta.data.tickets.withoutEmployee.details }})</span>
+            {% endif %}
           </mj-text>
         </mj-column>
       </mj-section>
@@ -181,7 +196,7 @@
         <mj-column>
           <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
             <b class="black">Даты плановых отключений воды: </b>
-            <b class="black">{{ message.meta.data.incidents.water }}</b>
+            <span>{{ message.meta.data.incidents.water }}</span>
           </mj-text>
         </mj-column>
       </mj-section>
@@ -225,7 +240,7 @@
           <mj-column>
             <mj-social align="center" mode="horizontal" padding-top="8px">
               {% for name, link in env.socialMediaLinks.ru %}
-                <mj-social-element href="{{ link }}" src="{{ env.serverUrl }}/socials/{{ name }}.png" icon-size="32px" padding="4px">
+                <mj-social-element href="{{ link }}" src="{{ env.serverUrl }}/socials/{{ name }}.png" icon-size="32px" padding="4px" alt="{{ name }}">
                 </mj-social-element>
               {% endfor %}
             </mj-social>

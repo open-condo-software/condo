@@ -90,6 +90,12 @@ class UserDailyStatistics {
 
         const organizationIds = employees.map((employee) => employee.organization)
 
+        logger.info({
+            taskId: this.#taskId,
+            data: { organizationIds, userId: this.#userId, currentDate: this.#currentDate },
+            msg: 'load statistics for organizations',
+        })
+
         for (const organizationId of organizationIds) {
             const loggerInfo = {
                 taskId: this.#taskId,
@@ -143,7 +149,10 @@ class UserDailyStatistics {
                 this.#statistics.tickets.withoutEmployee.byOrganizations.push({ name: organization.name, count: organizationStatisticsData.tickets.withoutEmployee })
             }
 
-            this.#statistics.incidents.water.push(...organizationStatisticsData.incidents.water)
+            this.#statistics.incidents.water.push(...organizationStatisticsData.incidents.water.map(incident => ({
+                ...incident,
+                organization: organization.name,
+            })))
         }
 
         return this.#statistics
@@ -394,6 +403,7 @@ class UserDailyStatistics {
 
     /**
      * @typedef {object} IncidentData
+     * @property {string} [organization]
      * @property {string} workStart
      * @property {string} [workFinish]
      * @property {boolean} [hasAllProperties]
@@ -423,11 +433,11 @@ class UserDailyStatistics {
  * @typedef {object} MessageData
  * @property {string} date
  * @property {object} tickets
- * @property {string} tickets.isEmergency
- * @property {string} tickets.isReturned
- * @property {string} tickets.inProgress
- * @property {string} tickets.isExpired
- * @property {string} tickets.withoutEmployee
+ * @property {{ total: number, details: string }} tickets.isEmergency
+ * @property {{ total: number, details: string }} tickets.isReturned
+ * @property {{ total: number, details: string }} tickets.inProgress
+ * @property {{ total: number, details: string }} tickets.isExpired
+ * @property {{ total: number, details: string }} tickets.withoutEmployee
  * @property {object} incidents
  * @property {string} incidents.water
  */
@@ -435,27 +445,30 @@ class UserDailyStatistics {
 /**
  *
  * @param {TicketStatistic} ticketsStats
- * @return {string}
+ * @return {{ total: number, details: string }}
  */
 const formatTicketsStats = ({ total, byOrganizations }) => {
-    return `${total} (${
-        byOrganizations.map(item => `${item.name} - ${item.count}`).join('; ')
-    })`
+    return {
+        total,
+        details: total
+            ? byOrganizations.map(item => `${item.name} - ${item.count}`).join('; ')
+            : '',
+    }
 }
 
 /**
  *
- * @param {CommonStatistics} userStatisticsData
- * @param {string} currentDate
+ * @param {IncidentData[]} incidents
  * @param {string} locale
- * @return {MessageData}
+ * @return {*}
  */
-const formatMessageData = (userStatisticsData, currentDate, locale = conf.DEFAULT_LOCALE) => {
-    const moreWaterIncidentCount = userStatisticsData.incidents.water - MAX_COUNT_INCIDENTS_TO_DISPLAY
+const formatIncidentsStats = (incidents, locale) => {
+    const moreWaterIncidentCount = incidents.length - MAX_COUNT_INCIDENTS_TO_DISPLAY
     const moreWaterIncidents = moreWaterIncidentCount > 0
-        ? i18n('notification.messages.SEND_DAILY_STATISTICS_MESSAGE.email.moreIncidents', { locale, meta: { more: moreWaterIncidentCount } })
+        ? i18n('notification.messages.SEND_DAILY_STATISTICS.email.moreIncidents', { locale, meta: { more: moreWaterIncidentCount } })
         : ''
-    const waterIncidents = userStatisticsData.incidents.water.slice(0, MAX_COUNT_INCIDENTS_TO_DISPLAY).map((incident) => {
+
+    const firstIncidents = incidents.slice(0, MAX_COUNT_INCIDENTS_TO_DISPLAY).map((incident) => {
         let date, addresses
 
         const dateStart = dayjs(incident.workStart).format('DD-MM-YYYY')
@@ -467,18 +480,29 @@ const formatMessageData = (userStatisticsData, currentDate, locale = conf.DEFAUL
         }
 
         if (incident.hasAllProperties) {
-            addresses = i18n('notification.messages.SEND_DAILY_STATISTICS_MESSAGE.email.allProperties', { locale })
+            addresses = i18n('notification.messages.SEND_DAILY_STATISTICS.email.allProperties', { locale, meta: { organization: incident.organization } })
         } else {
             const more = incident.count - COMPACT_SCOPES_SIZE
             const moreProperties = more > 0
-                ? ` ${i18n('notification.messages.SEND_DAILY_STATISTICS_MESSAGE.email.moreProperties', { locale, meta: { more } })}`
+                ? ` ${i18n('notification.messages.SEND_DAILY_STATISTICS.email.moreProperties', { locale, meta: { more } })}`
                 : ''
             addresses = incident.addresses.filter(Boolean).join(', ') + moreProperties
         }
 
         return `${date} - ${addresses}`
-    }).join(';') + moreWaterIncidents
+    }).join('; ')
 
+    return firstIncidents + moreWaterIncidents
+}
+
+/**
+ *
+ * @param {CommonStatistics} userStatisticsData
+ * @param {string} currentDate
+ * @param {string} locale
+ * @return {MessageData}
+ */
+const formatMessageData = (userStatisticsData, currentDate, locale = conf.DEFAULT_LOCALE) => {
     return {
         date: dayjs(currentDate).format('DD.MM.YY'),
         tickets: {
@@ -489,7 +513,7 @@ const formatMessageData = (userStatisticsData, currentDate, locale = conf.DEFAUL
             withoutEmployee: formatTicketsStats(userStatisticsData.tickets.withoutEmployee),
         },
         incidents: {
-            water: waterIncidents,
+            water: formatIncidentsStats(userStatisticsData.incidents.water, locale),
         },
     }
 }

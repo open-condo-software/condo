@@ -31746,7 +31746,7 @@ export enum MessageType {
   MarketplaceInvoiceCashPublishedMessage = 'MARKETPLACE_INVOICE_CASH_PUBLISHED_MESSAGE',
   MarketplaceInvoiceCashWithTicketPublishedMessage = 'MARKETPLACE_INVOICE_CASH_WITH_TICKET_PUBLISHED_MESSAGE',
   ServiceUserCreated = 'SERVICE_USER_CREATED',
-  SendDailyStatisticsMessage = 'SEND_DAILY_STATISTICS_MESSAGE'
+  SendDailyStatistics = 'SEND_DAILY_STATISTICS'
 }
 
 export type MessageUpdateInput = {
@@ -43373,7 +43373,7 @@ export type Mutation = {
    * 			}
    * 		}
    * 	},
-   * 	"SEND_DAILY_STATISTICS_MESSAGE": {
+   * 	"SEND_DAILY_STATISTICS": {
    * 		"dv": {
    * 			"required": true
    * 		},
