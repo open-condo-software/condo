@@ -89,6 +89,18 @@ type NewsItemSharingClientUtilsType = IGenerateHooksResult<INewsItemSharing, INe
 
 type NewsFormStepType = 'selectApps' | 'condoApp' | 'sharingApp' | 'review'
 
+type StepData = {
+    type: NewsFormStepType,
+    title: string,
+
+    sharingAppData?: {
+        id: string,
+        app: IB2BApp,
+        ctx: IB2BAppContext
+        newsSharingConfig: IB2BAppNewsSharingConfig
+    }
+}
+
 export type SendPeriodType = 'now' | 'later'
 
 export type BaseNewsFormProps = {
@@ -113,6 +125,21 @@ export type BaseNewsFormProps = {
     autoFocusBody?: boolean,
     sharingAppContexts: IB2BAppContext[],
     createNewsItemSharingAction?: (values: INewsItemSharingCreateInput) => ReturnType<ReturnType<NewsItemSharingClientUtilsType['useCreate']>>
+}
+
+type CondoFormValues = {
+    title: string,
+    body: string,
+    properties: any
+    property: any
+    hasAllProperties: boolean,
+    unitNames: Array<string>
+    sectionIds: Array<string>
+}
+
+type SelectAppsFormValues = {
+    type: INewsItemTypeType
+    validBefore: string
 }
 
 const HiddenBlock = styled.div<{ hide?: boolean }>`
@@ -360,10 +387,12 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const ToManyMessagesMessage = intl.formatMessage({ id: 'news.fields.toManyMessages.error' })
     const TemplatesLabel = intl.formatMessage({ id: 'news.fields.templates' })
     const PastTimeErrorMessage = intl.formatMessage({ id: 'global.input.error.pastTime' })
+    const NextStepMessage = intl.formatMessage({ id: 'pages.condo.news.steps.nextStep' })
     const TimezoneMskTitle = intl.formatMessage({ id: 'timezone.msk' })
     const ProfanityInTitle = intl.formatMessage({ id: 'news.fields.profanityInTitle.error' })
     const ProfanityInBody = intl.formatMessage({ id: 'news.fields.profanityInBody.error' })
     const SelectSharingAppLabel = intl.formatMessage({ id: 'pages.news.create.selectSharingApp' })
+    const DateAndTimePlaceholderLabel = intl.formatMessage({ id: 'pages.condo.news.dateAndTimePlaceholder' })
 
     const { logEvent, getEventName } = useTracking()
 
@@ -456,23 +485,9 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const [selectedSectionKeys, setSelectedSectionKeys] = useState(initialSectionIds)
 
     // Select apps form values
-    type SelectAppsFormValues = {
-        type: INewsItemTypeType
-        validBefore: string
-    }
     const [selectAppsFormValues, setSelectAppsFormValues] = useState<SelectAppsFormValues | null>(null)
 
-    // 'templates', 'title', 'body', 'property', 'properties', 'hasAllProperties', 'unitNames', 'sectionIds'
     // Condo form values
-    type CondoFormValues = {
-        title: string,
-        body: string,
-        properties: any
-        property: any
-        hasAllProperties: boolean,
-        unitNames: Array<string>
-        sectionIds: Array<string>
-    }
     const [condoFormValues, setCondoFormValues] = useState<CondoFormValues | null>(null)
 
     // SharingApp form values:
@@ -606,6 +621,16 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         Body.setTextLength(body.length)
     }, [Body, Title, templates])
 
+    const emergencyTemplatesTabsProps = useMemo(() => Object.keys(emergencyTemplates).map(id => ({
+        key: id,
+        label: emergencyTemplates[id].title,
+    })), [emergencyTemplates])
+
+    const commonTemplatesTabsProps = useMemo(() => Object.keys(commonTemplates).map(id => ({
+        key: id,
+        label: commonTemplates[id].title,
+    })), [commonTemplates])
+
     const propertyCheckboxChange = (form) => {
         return (value) => {
             if (value) setSelectedPropertiesId(selectedPropertiesId => {
@@ -723,7 +748,6 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             type,
             body,
             title,
-            //...newsItemValues,
         }
 
         const newsItem = await createOrUpdateNewsItem(updatedNewsItemValues)
@@ -1048,18 +1072,6 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         setCurrentStep(value)
     }
 
-    type StepData = {
-        type: NewsFormStepType,
-        title: string,
-
-        sharingAppData?: {
-            id: string,
-            app: IB2BApp,
-            ctx: IB2BAppContext
-            newsSharingConfig: IB2BAppNewsSharingConfig
-        }
-    }
-
     const getSelectedAndNotSkippedSharingApps = useCallback(() => {
         const skippedSharingAppIds = new Set()
         skippedSteps.forEach(step => {
@@ -1251,21 +1263,17 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                     <Form.Item
                                                                         name='template'
                                                                     >
+                                                                        {/* TODO: (DOMA-9327) Move to select component here */}
                                                                         {selectedType === NEWS_TYPE_COMMON && (
                                                                             <TemplatesTabs
                                                                                 onChange={handleTemplateChange(form)}
-                                                                                items={Object.keys(commonTemplates).map(id => ({
-                                                                                    key: id,
-                                                                                    label: commonTemplates[id].title,
-                                                                                }))}/>
+                                                                                items={commonTemplatesTabsProps}/>
                                                                         )}
+                                                                        {/* TODO: (DOMA-9327) Move to select component here */}
                                                                         {selectedType === NEWS_TYPE_EMERGENCY && (
                                                                             <TemplatesTabs
                                                                                 onChange={handleTemplateChange(form)}
-                                                                                items={Object.keys(emergencyTemplates).map(id => ({
-                                                                                    key: id,
-                                                                                    label: emergencyTemplates[id].title,
-                                                                                }))}/>
+                                                                                items={emergencyTemplatesTabsProps}/>
                                                                         )}
                                                                     </Form.Item>
                                                                 </Col>
@@ -1421,10 +1429,10 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
 
                                 {
                                     ( getStepTypeByStep(currentStep) === 'sharingApp' ) && (
+                                        // TODO (DOMA-9328) Move onSkip to BaseNewsForm component, since steps are handled here!
                                         <NewsItemSharingForm
-                                            onIsValidChange = { (isValid) => { console.log(`Form is valid: ${isValid}`) } }
                                             onSkip={ () => handleStepSkip({ skip: true, step: currentStep }) }
-                                            onSubmit={ (values) => handleSharingAppFormSubmit({ values: values, ctxId: getStepsData()[currentStep].sharingAppData.id }) }
+                                            onSubmit={ (values) => handleSharingAppFormSubmit({ values: values, ctxId: getStepDataByStep(currentStep).sharingAppData.id }) }
                                             sharingApp={getStepDataByStep(currentStep).sharingAppData.app}
                                             initialValues={ get(sharingAppsFormValues, [getStepDataByStep(currentStep).sharingAppData.id], undefined) }
                                             newsItemData={{ type: selectedType, validBefore: selectedValidBeforeText, title: selectedTitle, body: selectedBody }}
@@ -1524,7 +1532,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                             format='DD MMMM YYYY HH:mm'
                                                                             showTime={SHOW_TIME_CONFIG}
                                                                             onChange={handleSendAtChange(form, 'sendAt')}
-                                                                            placeholder='Дата и время'
+                                                                            placeholder={DateAndTimePlaceholderLabel}
                                                                             disabledDate={isDateDisabled}
                                                                             disabledTime={isTimeDisabled}
                                                                             showNow={false}
@@ -1558,9 +1566,8 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                 <Button
                                                     key='submit'
                                                     type='primary'
-                                                    children='Далее'
+                                                    children={NextStepMessage}
                                                     onClick={() => handleNextStep({ form })}
-                                                    disabled={false}
                                                 />,
                                             ]}
                                         />

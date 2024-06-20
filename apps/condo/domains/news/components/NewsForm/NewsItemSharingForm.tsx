@@ -14,12 +14,9 @@ import { MemoizedSharingNewsPreview } from '@condo/domains/news/components/NewsP
 import { NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 
 
-
 const BIG_MARGIN_BOTTOM_STYLE: React.CSSProperties = { marginBottom: '60px' }
 export const SCROLL_TO_FIRST_ERROR_CONFIG: ScrollOptions = { behavior: 'smooth', block: 'center' }
-const EXTRA_SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 10]
 const BIG_HORIZONTAL_GUTTER: [Gutter, Gutter] = [50, 0]
-const MARGIN_BOTTOM_24_STYLE = { marginBottom: '24px' }
 
 export type SharingAppValues = {
     formValues: Record<string, unknown>,
@@ -35,7 +32,6 @@ interface INewsItemSharingForm {
 
     onSubmit: (SharingAppValues) => void
     onSkip: (SharingAppValues) => void
-    onIsValidChange: (boolean) => void
 
     initialValues: SharingAppValues | undefined
 
@@ -47,7 +43,7 @@ interface INewsItemSharingForm {
     }
 }
 
-export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemData, initialValues, onSkip, onSubmit, onIsValidChange, sharingApp: { id, newsSharingConfig } }) => {
+export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemData, initialValues, onSkip, onSubmit, sharingApp: { id, newsSharingConfig } }) => {
 
     const intl = useIntl()
     const NextStepShortMessage = intl.formatMessage({ id: 'pages.condo.news.steps.skipLabelShort' })
@@ -86,10 +82,7 @@ export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemDa
         if (iFramePreviewRef.current) {
             iFramePreviewRef.current.contentWindow.postMessage({ handler: 'handleUpdateFromCondo', title, body }, appPreviewUrl)
         }
-
-        const isValid = get(sharingAppFormValues, 'isValid', false)
-        onIsValidChange(isValid)
-    }, [sharingAppFormValues, iFramePreviewRef, onIsValidChange, appPreviewUrl])
+    }, [sharingAppFormValues, iFramePreviewRef, appPreviewUrl])
 
     useEffect(() => {
         if (typeof window !== 'undefined' && isCustomForm) {
@@ -138,8 +131,8 @@ export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemDa
                             <Col span={24}>
                                 <Row gutter={BIG_HORIZONTAL_GUTTER}>
                                     <Col span={formFieldsColSpan}>
-                                        <Row gutter={EXTRA_SMALL_VERTICAL_GUTTER}>
-                                            <Col span={24} style={MARGIN_BOTTOM_24_STYLE}>
+                                        <Row gutter={[24, 10]}>
+                                            <Col span={24}>
                                                 <Typography.Title level={2}>{RecipientsLabelMessage}</Typography.Title>
                                             </Col>
 
@@ -181,7 +174,6 @@ export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemDa
                                 type='secondary'
                                 children={ isMediumWindow ? NextStepShortMessage : intl.formatMessage({ id: 'pages.condo.news.steps.skipLabelLong' }, { appName }) }
                                 onClick={() => onSkip(sharingAppFormValues)}
-                                disabled={false}
                             />,
                         ]}
                     />

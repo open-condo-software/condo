@@ -12,6 +12,7 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { _internalScheduleTaskByNameByTestClient } = require('@condo/domains/common/utils/testSchema')
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { createTestB2BAppNewsSharingConfig, createTestB2BApp, createTestB2BAppContext } = require('@condo/domains/miniapp/utils/testSchema')
 const { SENDING_DELAY_SEC } = require('@condo/domains/news/constants/common')
 const { ALLOWED_TRANSITIONS, STATUSES } = require('@condo/domains/news/constants/newsItemSharingStatuses')
@@ -73,14 +74,14 @@ describe('NewsItemSharing', () => {
         const [B2BAppNewsSharingConfig] = await createTestB2BAppNewsSharingConfig(admin, {
             publishUrl: `${testExpressAppBaseUrl}${SUCCESS_PUBLISH_URL}`,
         })
-        const [B2BApp] = await createTestB2BApp(admin, { newsSharingConfig: { connect: { id: B2BAppNewsSharingConfig.id } } })
+        const [B2BApp] = await createTestB2BApp(admin, { contextDefaultStatus: CONTEXT_FINISHED_STATUS, newsSharingConfig: { connect: { id: B2BAppNewsSharingConfig.id } } })
         const [B2BContext] = await createTestB2BAppContext(admin, B2BApp, o10n)
 
         // This config returns 500 on every /publish request
         const [failingB2BAppNewsSharingConfig] = await createTestB2BAppNewsSharingConfig(admin, {
             publishUrl: `${testExpressAppBaseUrl}${FAULTY_PUBLISH_URL_500}`,
         })
-        const [failingNewsSharingConfigB2BApp] = await createTestB2BApp(admin, { newsSharingConfig: { connect: { id: failingB2BAppNewsSharingConfig.id } } })
+        const [failingNewsSharingConfigB2BApp] = await createTestB2BApp(admin, { contextDefaultStatus: CONTEXT_FINISHED_STATUS, newsSharingConfig: { connect: { id: failingB2BAppNewsSharingConfig.id } } })
         const [failingNewsSharingConfigB2BContext] = await createTestB2BAppContext(admin, failingNewsSharingConfigB2BApp, o10n)
 
         const [newsItem] = await createTestNewsItem(admin, o10n, {

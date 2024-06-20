@@ -1428,6 +1428,7 @@
   "pages.condo.news.steps.sharingApp.recipientsLabel": "Получатели",
   "pages.condo.news.steps.sharingApp.recipientsAlert": "Новость будет отправлена на дома, квартиры и подъезды из прошлого шага – вернитесь на шаг назад, чтобы поменять эти данные",
   "pages.condo.news.steps.sharingApp.notSupported": "Ошибка в настройке мини-приложения. Мы уже разбираемся с этой проблемой..",
+  "pages.condo.news.dateAndTimePlaceholder": "Дата и время",
   "pages.reports.paymentTooltip": "Для отображения статистики необходимо использовать одну из следующих биллинговых интеграций: ГИС-ЖКХ или Квартплата24",
   "pages.reports.paymentsTotal": "Оплата квитанций (из МП жителя)",
   "pages.reports.residentsTitle": "Внедрение моб. приложения жителя",

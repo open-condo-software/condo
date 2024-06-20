@@ -21,6 +21,15 @@ const CARD_ICON_STYLE: CSSProperties = {
     objectFit: 'cover',
     objectPosition: 'top',
 }
+const CARD_ICON_CONTAINER_STYLE: CSSProperties = {
+    alignItems: 'center',
+    alignSelf: 'stretch',
+    display: 'flex',
+    justifyContent: 'center',
+    width: '100%',
+    backgroundColor: colors.gray[1],
+    borderRadius: '12px',
+}
 
 const CONDO_APP_ICON_URL = '/homeWithSun.svg'
 const CONDO_APP_PREVIEW_ICON_URL = '/news/condoAppPreviewIcon.png'
@@ -41,10 +50,11 @@ const AppDescriptionLabelId = 'pages.news.create.selectSharingApp.appDescription
 const SelectSharingAppControl: React.FC<ISelectSharingAppControl> = ({ sharingAppContexts, selectedSharingApps, handleSelectSharingApp }) => {
 
     const intl = useIntl()
-    const CondoAppDescriptionLabel = intl.formatMessage({ id: AppDescriptionLabelId }, { appName: 'Doma' })
+    const CondoMobileAppDescriptionLabel = intl.formatMessage({ id: AppDescriptionLabelId }, { appName: 'Doma' })
     const OtherAppsLabel = intl.formatMessage({ id: 'pages.news.create.selectSharingApp.otherApps' })
     const OtherAppsDescriptionLabel = intl.formatMessage({ id: 'pages.news.create.selectSharingApp.otherApps.description' })
     const OtherAppsActionLabel = intl.formatMessage({ id: 'pages.news.create.selectSharingApp.otherApps.actionButtonText' })
+    const CondoMobileAppLabel = intl.formatMessage({ id: 'pages.condo.news.preview.condoAppName' })
 
     const { breakpoints } = useLayoutContext()
     const isMobile = !breakpoints.DESKTOP_SMALL
@@ -60,14 +70,14 @@ const SelectSharingAppControl: React.FC<ISelectSharingAppControl> = ({ sharingAp
                     disabled
                     checked
                     header={{
-                        headingTitle: 'Doma',
+                        headingTitle: CondoMobileAppLabel,
                         image: {
                             size: 'small',
                             src: CONDO_APP_ICON_URL,
                         },
                     }}
                     body={{
-                        description: CondoAppDescriptionLabel,
+                        description: CondoMobileAppDescriptionLabel,
                         image: {
                             src: CONDO_APP_PREVIEW_ICON_URL,
                             style: CARD_ICON_STYLE,
@@ -113,26 +123,10 @@ const SelectSharingAppControl: React.FC<ISelectSharingAppControl> = ({ sharingAp
                         <Row gutter={[0, 10]}>
                             <Typography.Title level={3}>{OtherAppsLabel}</Typography.Title>
                             <Typography.Paragraph>{OtherAppsDescriptionLabel}</Typography.Paragraph>
-                            <div
-                                style={{
-                                    alignItems: 'center',
-                                    alignSelf: 'stretch',
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    width: '100%',
-                                    backgroundColor: colors.gray[1],
-                                    borderRadius: '12px',
-                                }}
-                            >
+                            <div style={CARD_ICON_CONTAINER_STYLE}>
                                 <img
                                     src={PROMO_APP_PREVIEW_ICON}
-                                    style={{
-                                        height: '150px',
-                                        marginTop: '25px',
-                                        width: '130px',
-                                        objectFit: 'cover',
-                                        objectPosition: 'top',
-                                    }}
+                                    style={CARD_ICON_STYLE}
                                     alt='Sharing app preview picture'
                                 />
                             </div>

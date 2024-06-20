@@ -1428,6 +1428,7 @@
   "pages.condo.news.steps.sharingApp.recipientsLabel": "Recipients",
   "pages.condo.news.steps.sharingApp.recipientsAlert": "News will be sent to houses, flats and sections selected on a previous step. Please go back if you need to change them",
   "pages.condo.news.steps.sharingApp.notSupported": "Condo does not support this miniapp",
+  "pages.condo.news.dateAndTimePlaceholder": "Date",
   "pages.reports.paymentTooltip": "To display statistics, you must use one of the following billing integrations: ГИС-ЖКХ or Квартплата24",
   "pages.reports.paymentsTotal": "Payment of receipts (from resident mobile app)",
   "pages.reports.residentsTitle": "implementation of the mobile app",

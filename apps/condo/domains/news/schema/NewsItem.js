@@ -30,7 +30,6 @@ const {
 } = require('@condo/domains/news/constants/errors')
 const { NEWS_TYPES, NEWS_TYPE_EMERGENCY, NEWS_TYPE_COMMON } = require('@condo/domains/news/constants/newsTypes')
 const { NEWS_ITEM_SCOPE_FIELDS } = require('@condo/domains/news/gql')
-const { notifyResidentsAboutNewsItem, publishSharedNewsItemsByNewsItem } = require('@condo/domains/news/tasks')
 const { NewsItemScope } = require('@condo/domains/news/utils/serverSchema')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 
@@ -314,17 +313,6 @@ const NewsItem = new GQLListSchema('NewsItem', {
                     ...ERRORS.PROFANITY_BODY_DETECTED_MOT_ERF_KER,
                     badWords: [...bodyBadWords].join(','),
                 }, context)
-            }
-        },
-
-        afterChange: async ({ updatedItem }) => {
-            if (
-                updatedItem.isPublished
-                && !updatedItem.sendAt // There is a cron task to send delayed news items
-                && !updatedItem.sentAt
-            ) {
-                await publishSharedNewsItemsByNewsItem.delay(updatedItem.id)
-                await notifyResidentsAboutNewsItem.delay(updatedItem.id)
             }
         },
     },
