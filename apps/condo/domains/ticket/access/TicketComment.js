@@ -145,7 +145,13 @@ async function canManageTicketComments (args) {
     if (user.deletedAt) return false
     if (user.isAdmin) return true
 
-    if (operation === 'create' && isArray(originalInput)) {
+    const isBulkRequest = isArray(originalInput)
+
+    if (operation === 'update' && isBulkRequest) {
+        return false
+    }
+
+    if (operation === 'create' && isBulkRequest) {
         for (const ticketCommentInputData of originalInput) {
             const ticketCommentInput = get(ticketCommentInputData, 'data')
             const accessToCreateComment = await checkManageCommentAccess({ ...args, originalInput: ticketCommentInput })

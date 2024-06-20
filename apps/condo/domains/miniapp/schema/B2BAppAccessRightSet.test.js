@@ -1074,7 +1074,11 @@ describe('B2BApp permissions for service user', () => {
             expect(ticketWithPermissions.classifier.category.id).toEqual(ticket.classifier.category.id)
             expect(ticketWithPermissions.classifier.problem.id).toEqual(ticket.classifier.problem.id)
             expect(ticketWithPermissions.property.id).toEqual(ticket.property.id)
+            expect(ticketWithPermissions.property.address).toEqual(ticket.property.address)
             expect(ticketWithPermissions.contact.id).toEqual(ticket.contact.id)
+            expect(ticketWithPermissions.contact.phone).toEqual(ticket.contact.phone)
+            expect(ticketWithPermissions.contact.email).toEqual(ticket.contact.email)
+            expect(ticketWithPermissions.contact.name).toEqual(ticket.contact.name)
         }
 
         const [updatedTicket] = await updateTestTicket(serviceUser, ticket.id, {
@@ -1093,6 +1097,10 @@ describe('B2BApp permissions for service user', () => {
 
             const ticketCommentWithPermissions = await TicketComment.getOne(serviceUser, { id: ticketComment.id })
             expect(ticketCommentWithPermissions.id).toEqual(ticketComment.id)
+            expect(ticketCommentWithPermissions.user.id).toEqual(ticketComment.user.id)
+            expect(ticketCommentWithPermissions.user.name).toEqual(ticketComment.user.name)
+            expect(ticketCommentWithPermissions.ticket.id).toEqual(ticketComment.ticket.id)
+            expect(ticketCommentWithPermissions.type).toEqual(ticketComment.type)
 
             // can't read ticket comment type with resident type
             const readTicketCommentWithResidentType = await TicketComment.getOne(serviceUser, { id: ticketCommentWithResidentType.id })

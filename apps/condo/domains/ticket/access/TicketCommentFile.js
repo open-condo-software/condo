@@ -152,7 +152,13 @@ async function canManageTicketCommentFiles (args) {
     if (user.deletedAt) return false
     if (user.isAdmin) return true
 
-    if (operation === 'create' && isArray(originalInput)) {
+    const isBulkRequest = isArray(originalInput)
+
+    if (operation === 'update' && isArray(originalInput)) {
+        return false
+    }
+
+    if (operation === 'create' && isBulkRequest) {
         for (const ticketCommentFileInputData of originalInput) {
             const ticketCommentFileInput = get(ticketCommentFileInputData, 'data')
             const accessToCreateCommentFile = await checkManageCommentFileAccess({ ...args, originalInput: ticketCommentFileInput })
