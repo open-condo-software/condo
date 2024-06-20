@@ -42,6 +42,7 @@ describe('RegisterServiceConsumer', () => {
 
     describe('Online interaction', () => {
 
+        // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
         const apiHandler = jest.fn()
         const CHECK_URL_PATH = '/check-account-number'
