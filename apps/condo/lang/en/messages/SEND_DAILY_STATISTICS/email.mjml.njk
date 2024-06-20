@@ -192,14 +192,16 @@
         </mj-column>
       </mj-section>
 
-      <mj-section>
-        <mj-column>
-          <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
-            <b class="black">Scheduled water incidents dates: </b>
-            <span>{{ message.meta.data.incidents.water }}</span>
-          </mj-text>
-        </mj-column>
-      </mj-section>
+      {% if message.meta.data.incidents.water %}
+        <mj-section>
+          <mj-column>
+            <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
+              <b class="black">Scheduled water incidents dates: </b>
+              <span>{{ message.meta.data.incidents.water }}</span>
+            </mj-text>
+          </mj-column>
+        </mj-section>
+      {% endif %}
 
       <mj-section>
         <mj-column>
