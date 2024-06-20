@@ -1,5 +1,4 @@
 import { TicketStatusTypeType } from '@app/condo/schema'
-import styled from '@emotion/styled'
 import { Dayjs } from 'dayjs'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
@@ -9,7 +8,7 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 
 import Select from '@condo/domains/common/components/antd/Select'
-import { transitions, colors } from '@condo/domains/common/constants/style'
+import { StatusSelect } from '@condo/domains/common/components/StatusSelect'
 import { useNotificationMessages } from '@condo/domains/common/hooks/useNotificationMessages'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { useTicketCancelModal } from '@condo/domains/ticket/hooks/useTicketCancelModal'
@@ -19,40 +18,6 @@ import { getTicketLabel, sortStatusesByType } from '@condo/domains/ticket/utils/
 
 import { useStatusTransitions } from '../hooks/useStatusTransitions'
 
-
-interface IStatusSelect {
-    color: string
-    backgroundColor: string
-    minWidth?: number
-}
-
-export const StatusSelect = styled(Select)<IStatusSelect>`
-  min-width: ${({ minWidth }) => minWidth ? `${minWidth}px` : '175px'};
-  font-weight: 700;
-  border-radius: 8px;
-  color: ${({ color }) => color};
-  background-color: ${({ backgroundColor }) => backgroundColor};
-  transition: ${transitions.easeInOut};
-
-  &.ant-select-disabled .ant-select-selector .ant-select-selection-item {
-    color: ${({ color }) => color};
-  }
-
-  &.ant-select-open .ant-select-selector .ant-select-selection-item {
-    color: ${({ color }) => color};
-  }
-
-  .ant-select-selector .ant-select-selection-item {
-    font-weight: 600;
-    color: ${colors.white};
-    transition: ${transitions.easeInOut};
-  }
-  
-  .ant-select-arrow svg {
-    fill: ${({ color }) => color};
-    transition: ${transitions.easeInOut};
-  }
-`
 
 export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, ...props }) => {
     const intl = useIntl()

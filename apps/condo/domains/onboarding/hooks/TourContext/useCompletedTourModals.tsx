@@ -127,6 +127,8 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
     const ChatWithOrganizationResidentFeature = intl.formatMessage({ id: 'tour.newFeatures.resident.chatWithOrganization' })
     const PayBillsResidentFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.resident.payBills' })
     const CreateMeterReadingsResidentFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.resident.createMeterReadings' })
+    const TakeReadingsFromResidentsFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.resident.takeReadingsFromResidents' })
+    const ArchvieMetersResidentFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.resident.archiveMeters' })
     const DownloadAppResidentFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.resident.downloadApp' })
 
     const router = useRouter()
@@ -235,6 +237,19 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
             subtitleLinkHref: '/meter',
             subtitleLinkIcon: Meters,
             newFeatures: {
+                resident: [CreateMeterReadingsResidentFeatureMessage],
+            },
+            onButtonClick: {
+                default: () => { router.push('/tour') },
+                [TourStepTypeType.Meter]: handleViewGuideClick,
+            },
+        },
+        createMeter: {
+            availableTourFlow: [TourStepTypeType.Meter],
+            subtitleLinkHref: '/meter',
+            subtitleLinkIcon: Meters,
+            newFeatures: {
+                employee: [TakeReadingsFromResidentsFeatureMessage, ArchvieMetersResidentFeatureMessage],
                 resident: [CreateMeterReadingsResidentFeatureMessage],
             },
             onButtonClick: {
@@ -358,47 +373,51 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
                     </Button>,
                 ]}
             >
-                <Space size={40} direction='vertical'>
-                    <NewAbilitiesWrapper>
-                        <Row>
-                            {
-                                !isEmpty(get(computedCompletedStepModalData, 'newEmployeeFeatures')) && (
-                                    <Col span={12}>
-                                        <Space size={20} direction='vertical'>
-                                            <Typography.Title level={4}>{NowYouCanMessage}</Typography.Title>
-                                            <Space size={16} direction='vertical'>
-                                                {
-                                                    computedCompletedStepModalData.newEmployeeFeatures.map(label => (
-                                                        <UnlockedFeature key={label} label={label} />
-                                                    ))
-                                                }
+                <Row gutter={[0, 40]}>
+                    <Col span={24}>
+                        <NewAbilitiesWrapper>
+                            <Row>
+                                {
+                                    !isEmpty(get(computedCompletedStepModalData, 'newEmployeeFeatures')) && (
+                                        <Col span={12}>
+                                            <Space size={20} direction='vertical'>
+                                                <Typography.Title level={4}>{NowYouCanMessage}</Typography.Title>
+                                                <Space size={16} direction='vertical'>
+                                                    {
+                                                        computedCompletedStepModalData.newEmployeeFeatures.map(label => (
+                                                            <UnlockedFeature key={label} label={label} />
+                                                        ))
+                                                    }
+                                                </Space>
                                             </Space>
-                                        </Space>
-                                    </Col>
-                                )
-                            }
-                            {
-                                !isEmpty(get(computedCompletedStepModalData, 'newResidentFeatures')) && (
-                                    <Col span={12}>
-                                        <Space size={20} direction='vertical'>
-                                            <Typography.Title level={4}>{NowResidentCanMessage}</Typography.Title>
-                                            <Space size={16} direction='vertical'>
-                                                {
-                                                    computedCompletedStepModalData.newResidentFeatures.map(label => (
-                                                        <UnlockedFeature key={label} label={label} />
-                                                    ))
-                                                }
+                                        </Col>
+                                    )
+                                }
+                                {
+                                    !isEmpty(get(computedCompletedStepModalData, 'newResidentFeatures')) && (
+                                        <Col span={12}>
+                                            <Space size={20} direction='vertical'>
+                                                <Typography.Title level={4}>{NowResidentCanMessage}</Typography.Title>
+                                                <Space size={16} direction='vertical'>
+                                                    {
+                                                        computedCompletedStepModalData.newResidentFeatures.map(label => (
+                                                            <UnlockedFeature key={label} label={label} />
+                                                        ))
+                                                    }
+                                                </Space>
                                             </Space>
-                                        </Space>
-                                    </Col>
-                                )
-                            }
-                        </Row>
-                    </NewAbilitiesWrapper>
-                    <Typography.Text>
-                        {get(computedCompletedStepModalData, 'bodyText')}
-                    </Typography.Text>
-                </Space>
+                                        </Col>
+                                    )
+                                }
+                            </Row>
+                        </NewAbilitiesWrapper>
+                    </Col>
+                    <Col span={24}>
+                        <Typography.Text>
+                            {get(computedCompletedStepModalData, 'bodyText')}
+                        </Typography.Text>
+                    </Col>
+                </Row>
             </Modal>
         ),
         CompletedFlowModal: (
@@ -421,8 +440,5 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
                 </StyledFocusContainer>
             </SuccessModal>
         ),
-    }), [
-        activeStep, computedCompletedFlowModalData, computedCompletedStepModalData,
-        router, setActiveTourStep, updateCompletedFlowModalData, updateCompletedStepModalData,
-    ])
+    }), [GoToTourMessage, NowResidentCanMessage, NowYouCanMessage, activeStep, completedStepModalData, computedCompletedFlowModalData, computedCompletedStepModalData, logEvent, router, setActiveTourStep, updateCompletedFlowModalData, updateCompletedStepModalData])
 }

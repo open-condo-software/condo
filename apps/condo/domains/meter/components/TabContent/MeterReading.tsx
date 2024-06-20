@@ -6,7 +6,6 @@ import { Meter as MeterType, MeterResource as MeterResourceType } from '@app/con
 import { Col, Row, RowProps } from 'antd'
 import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
 import { TableRowSelection } from 'antd/lib/table/interface'
-import dayjs, { Dayjs } from 'dayjs'
 import chunk from 'lodash/chunk'
 import get from 'lodash/get'
 import uniqBy from 'lodash/uniqBy'
@@ -15,7 +14,7 @@ import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { PlusCircle, Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { ActionBar, Button, Checkbox } from '@open-condo/ui'
+import { ActionBar, Button, Checkbox, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
@@ -57,7 +56,6 @@ const RESET_FILTERS_BUTTON_STYLE: CSSProperties = { paddingLeft: 0 }
 const QUICK_FILTERS_COL_STYLE: CSSProperties = { alignSelf: 'center' }
 
 const SORTABLE_PROPERTIES = ['date', 'clientName', 'source']
-const DEFAULT_DATE_RANGE: [Dayjs, Dayjs] = [dayjs().subtract(1, 'week'), dayjs()]
 
 type MetersTableContentProps = {
     filtersMeta: FiltersMeta<MeterReadingWhereInput>[]
@@ -91,6 +89,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
     const CountSelectedReadingsMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterReading.CountSelectedReadings' })
     const DeleteMeterReadingsMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterReading.DeleteMeterReadings' })
     const DeleteMeterReadingsMessageWarn = intl.formatMessage({ id: 'pages.condo.meter.MeterReading.DeleteMeterReadings.Warn' })
+    const MeterReadingsMessage = intl.formatMessage({ id: 'import.meterReading.plural' })
     const DeleteMessage = intl.formatMessage({ id: 'Delete' })
     const DontDeleteMessage = intl.formatMessage({ id: 'DontDelete' })
 
@@ -104,9 +103,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
     const { getTrackingWrappedCallback } = useTracking()
 
     const [dateRange, setDateRange] = useDateRangeSearch('date')
-    const [filtersAreReset, setFiltersAreReset] = useState(false)
-    const dateFallback = filtersAreReset ? null : DEFAULT_DATE_RANGE
-    const dateFilterValue = dateRange || dateFallback
+    const dateFilterValue = dateRange || null
     const dateFilter = dateFilterValue ? dateFilterValue.map(el => el.toISOString()) : null
     const nextVerificationDate = get(meter, 'nextVerificationDate')
 
@@ -114,9 +111,6 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
     const [chosenMeterReadingId, setChosenMeterReadingId] = useState<string>(null)
 
     const handleDateChange = useCallback((value) => {
-        if (!value) {
-            setFiltersAreReset(true)
-        }
         setDateRange(value)
     }, [setDateRange])
 
@@ -262,7 +256,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
                                     <Row justify='start' gutter={FILTERS_CONTAINER_GUTTER} style={{ flexWrap: 'nowrap' }}>
                                         <Col style={QUICK_FILTERS_COL_STYLE}>
                                             <DateRangePicker
-                                                value={dateRange || dateFallback}
+                                                value={dateRange}
                                                 onChange={handleDateChange}
                                                 placeholder={[StartDateMessage, EndDateMessage]}
                                             />
@@ -288,15 +282,23 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
                     )}
                 </Col>
                 <Col span={24}>
-                    <Table
-                        totalRows={total}
-                        loading={metersLoading || loading}
-                        dataSource={meter ? meterReadings : processedMeterReadings}
-                        columns={meter ? tableColumnsForSingleMeter : tableColumnsForMeterReadings}
-                        rowSelection={rowSelection}
-                        sticky
-                        onRow={meter && handleUpdateMeterReading}
-                    />
+                    <Row gutter={[0, 40]}>
+                        {meter && meterReadings.length > 0 && (
+                            <Col span={24}>
+                                <Typography.Title level={3} >{MeterReadingsMessage}</Typography.Title>
+                            </Col>
+                        )}
+                        <Table
+                            totalRows={total}
+                            loading={metersLoading || loading}
+                            dataSource={meter ? meterReadings : processedMeterReadings}
+                            columns={meter ? tableColumnsForSingleMeter : tableColumnsForMeterReadings}
+                            rowSelection={rowSelection}
+                            sticky
+                            onRow={meter && handleUpdateMeterReading}
+                        />
+
+                    </Row>
                 </Col>
                 {
                     !loading && total > 0 && (

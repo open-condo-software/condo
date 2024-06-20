@@ -123,7 +123,7 @@ const MetersPage: IMeterIndexPage = () => {
     const { breakpoints } = useLayoutContext()
 
     const { GlobalHints } = useGlobalHints()
-    usePreviousSortAndFilters({ paramNamesForPageChange: ['tab'], employeeSpecificKey: employeeId })
+    usePreviousSortAndFilters({ paramNamesForPageChange: ['tab', 'type'], employeeSpecificKey: employeeId })
 
     const { tab } = parseQuery(router.query)
     const type = get(router.query, 'type', METER_TYPES.unit) as string

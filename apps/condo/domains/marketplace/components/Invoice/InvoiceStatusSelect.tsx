@@ -5,10 +5,10 @@ import React, { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
+import { StatusSelect } from '@condo/domains/common/components/StatusSelect'
 import { INVOICE_STATUS_CANCELED, INVOICE_STATUS_COLORS, INVOICE_STATUS_TRANSITIONS, INVOICE_PAYMENT_TYPE_ONLINE, INVOICE_STATUS_PAID } from '@condo/domains/marketplace/constants'
 import { useCancelStatusModal } from '@condo/domains/marketplace/hooks/useCancelStatusModal'
 import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
-import { StatusSelect } from '@condo/domains/ticket/components/TicketStatusSelect'
 
 
 type InvoiceStatusOptionType = {

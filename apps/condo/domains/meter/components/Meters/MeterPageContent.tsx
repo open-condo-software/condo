@@ -7,10 +7,13 @@ import React, { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Typography, Alert, Select  } from '@open-condo/ui'
+import { Typography, Alert } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
 
+import Select from '@condo/domains/common/components/antd/Select'
 import { PageHeader } from '@condo/domains/common/components/containers/BaseLayout'
 import { ShowMoreFieldsButton } from '@condo/domains/common/components/ShowMoreFieldsButton'
+import { StatusSelect } from '@condo/domains/common/components/StatusSelect'
 import B2bAppLogo from '@condo/domains/meter/components/Meters/B2bAppLogo'
 import ChangeMeterStatusModal from '@condo/domains/meter/components/Meters/ChangeMeterStatusModal'
 import { MeterAccountField, MeterCommonDateField, MeterNumberField, MeterPlaceField, MeterResourceField } from '@condo/domains/meter/components/Meters/MeterInfoFields'
@@ -43,7 +46,7 @@ const MeterHeader = ({ meter, meterReportingPeriod, refetchMeter, meterType }) =
     const isAutomatic = get(meter, 'isAutomatic')
     const b2bAppId = get(meter, 'b2bApp.id')
 
-    const [meterStatus, setMeterStatus] = useState(archiveDate ? METER_STATUSES.archived : METER_STATUSES.active)
+    const meterStatus = useMemo(() => archiveDate ? METER_STATUSES.archived : METER_STATUSES.active, [archiveDate])
     const [selectedArchiveDate, setSelectedArchiveDate] = useState(archiveDate || null)
     const [isShowStatusChangeModal, setIsShowStatusChangeModal] = useState(false)
 
@@ -82,29 +85,42 @@ const MeterHeader = ({ meter, meterReportingPeriod, refetchMeter, meterType }) =
     const handleCloseStatusChangeModal = useCallback(() => {
         setIsShowStatusChangeModal(false)
     }, []) 
+
+    const options = useMemo(() => ([
+        <Select.Option
+            key={METER_STATUSES.active}
+            value={METER_STATUSES.active}
+            title={MeterIsActiveMessage}
+            data-cy='meter__status-select-option'
+        >
+            {MeterIsActiveMessage}
+        </Select.Option>,
+        <Select.Option
+            key={METER_STATUSES.archived}
+            value={METER_STATUSES.archived}
+            title={MeterIsOutOfOrderMessage}
+            data-cy='meter__status-select-option'
+        >
+            {MeterIsOutOfOrderMessage}
+        </Select.Option>,
+    ]), [MeterIsActiveMessage, MeterIsOutOfOrderMessage])
     
 
     const meterStatusTag = useMemo(() => (
-        <Select
-            onChange={handleChangeStatusButtonClick}
-            options={[
-                {
-                    label: MeterIsActiveMessage,
-                    value: METER_STATUSES.active,
-                },
-                {
-                    label: MeterIsOutOfOrderMessage,
-                    value: METER_STATUSES.archived,
-                },
-            ]}
-
-            key='statusTag'
-            type={meterStatus === METER_STATUSES.active ? 'success' : 'warning'}
-            value={meterStatus}
+        <StatusSelect
+            color={colors.white}
+            backgroundColor={meterStatus === METER_STATUSES.archived ? colors.brown[5] : colors.green[5]}
             disabled={meterStatus === METER_STATUSES.archived}
-        />
+            onChange={handleChangeStatusButtonClick}
+            value={meterStatus}
+            bordered={false}
+            labelInValue
+            eventName='MeterStatusSelect'
+        >
+            {options}
+        </StatusSelect>
 
-    ), [MeterIsActiveMessage, MeterIsOutOfOrderMessage, handleChangeStatusButtonClick, meterStatus])
+    ), [handleChangeStatusButtonClick, meterStatus, options])
 
 
     return (
@@ -127,7 +143,7 @@ const MeterHeader = ({ meter, meterReportingPeriod, refetchMeter, meterType }) =
                             </Typography.Text>
                         </Col>
                     )}
-                    {dayjs(nextVerificationDate).diff(dayjs(), 'month') <= 3 && (
+                    {!archiveDate && dayjs(nextVerificationDate).diff(dayjs(), 'month') <= 3 && (
                         <Col span={24}>
                             <Typography.Text type='secondary' size='small'>
                                 {VerificationDateTipMessage} &mdash;&nbsp;
@@ -170,6 +186,7 @@ const MeterContent = ({ meter, resource, meterType }) => {
     const MeterCommissioningDateMessage = intl.formatMessage({ id: 'pages.condo.meter.CommissioningDate' })
     const MeterSealingDateMessage = intl.formatMessage({ id: 'pages.condo.meter.SealingDate' })
     const MeterControlReadingsDateMessage = intl.formatMessage({ id: 'pages.condo.meter.ControlReadingsDate' })
+    const MeterArchiveDateMessage = intl.formatMessage({ id: 'pages.condo.meter.ArchiveDate' })
 
     const [isAdditionalFieldsCollapsed, setIsAdditionalFieldsCollapsed] = useState(true)
 
@@ -179,6 +196,7 @@ const MeterContent = ({ meter, resource, meterType }) => {
     const meterCommissioningDate = get(meter, 'commissioningDate')
     const meterSealingDate = get(meter, 'sealingDate')
     const meterControlReadingsDate = get(meter, 'controlReadingsDate')
+    const meterArchiveDate = get(meter, 'archiveDate')
 
     return (
         <Col span={24}>
@@ -197,6 +215,7 @@ const MeterContent = ({ meter, resource, meterType }) => {
                         <MeterCommonDateField title={MeterCommissioningDateMessage} date={meterCommissioningDate}/>
                         <MeterCommonDateField title={MeterSealingDateMessage} date={meterSealingDate}/>
                         <MeterCommonDateField title={MeterControlReadingsDateMessage} date={meterControlReadingsDate}/>
+                        <MeterCommonDateField title={MeterArchiveDateMessage} date={meterArchiveDate}/>
                     </>
                 )}
 
@@ -221,7 +240,6 @@ export const MeterPageContent = ({ meter, possibleReportingPeriods, resource, re
     const intl = useIntl()
     const BlockedEditingTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.BlockedEditing.title' })
     const BlockedEditingDescriptionMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.BlockedEditing.description' })
-    const MeterReadingsMessage = intl.formatMessage({ id: 'import.meterReading.plural' })
 
     const { organization, link: { role },  isLoading } = useOrganization()
     const canManageMeterReadings = useMemo(() => get(role, 'canManageMeterReadings', false), [role])
@@ -269,7 +287,6 @@ export const MeterPageContent = ({ meter, possibleReportingPeriods, resource, re
                 meterType={meterType}
             />
             <Col span={24}>
-                <Typography.Title level={3} >{MeterReadingsMessage}</Typography.Title>
                 {meterType === METER_TAB_TYPES.propertyMeter ? (
                     <PropertyMeterReadingsPageContent 
                         filtersMeta={filtersMeta}

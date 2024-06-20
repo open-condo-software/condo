@@ -2233,6 +2233,8 @@
   "tour.newFeatures.resident.chatWithOrganization": "Leave comments on tickets in the chat",
   "tour.newFeatures.resident.payBills": "Pay bills in the Doma app",
   "tour.newFeatures.resident.createMeterReadings": "Submit meter readings in the mobile app",
+  "tour.newFeatures.resident.takeReadingsFromResidents": "Collect meter readings from residents",
+  "tour.newFeatures.resident.archiveMeters": "Archive metering devices",
   "tour.newFeatures.resident.downloadApp": "Download the app and register",
   "tour.guide.title": "Doma - Resident Mobile App",
   "tour.guide.aboutApp.title": "How the Resident App helps Management Companies",
