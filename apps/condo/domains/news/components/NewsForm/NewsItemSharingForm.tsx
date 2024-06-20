@@ -37,7 +37,7 @@ interface INewsItemSharingForm {
 
     newsItemData: {
         type: string,
-        validBefore?: Pick<NewsItem, 'validBefore'>,
+        validBefore?: string,
         title: string,
         body: string,
     }
