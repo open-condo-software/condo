@@ -138,6 +138,7 @@ const checkManageCommentAccess = async (args) => {
     return false
 }
 
+//TODO(DOMA-9337): Get rid of loop with request in bulk requests
 async function canManageTicketComments (args) {
     const { authentication: { item: user }, originalInput, operation } = args
 
