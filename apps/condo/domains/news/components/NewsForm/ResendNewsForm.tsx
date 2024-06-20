@@ -14,7 +14,7 @@ import { NewsItem, NewsItemScope, NewsItemSharing, NewsItemTemplate } from '@con
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
 import { BaseNewsForm, BaseNewsFormProps, SendPeriodType } from './BaseNewsForm'
-import {BaseNewsFormByFeatureFlag} from "./BaseNewsFormByFeatureFlag";
+import { BaseNewsFormByFeatureFlag } from './BaseNewsFormByFeatureFlag'
 
 export interface IResendNewsForm {
     id: string
