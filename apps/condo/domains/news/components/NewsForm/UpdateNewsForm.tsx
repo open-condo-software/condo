@@ -14,6 +14,7 @@ import { NewsItem, NewsItemScope, NewsItemTemplate } from '@condo/domains/news/u
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
 import { BaseNewsForm, SendPeriodType, BaseNewsFormProps } from './BaseNewsForm'
+import {BaseNewsFormByFeatureFlag} from "./BaseNewsFormByFeatureFlag";
 export interface IUpdateNewsForm {
     id: string
 }
@@ -173,11 +174,12 @@ export const UpdateNewsForm: React.FC<IUpdateNewsForm> = ({ id }) => {
     }
 
     return (
-        // @ts-ignore
-        <BaseNewsForm
+        <BaseNewsFormByFeatureFlag
             organizationId={organizationId}
             newsItemAction={action}
             ActionBar={UpdateNewsActionBar}
+            // Condo does not support updating news item sharings!
+            newsItemSharingAction={null}
             afterAction={afterAction}
             initialValues={initialValues}
             newsItem={newsItem}

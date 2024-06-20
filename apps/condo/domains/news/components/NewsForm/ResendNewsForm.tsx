@@ -14,6 +14,7 @@ import { NewsItem, NewsItemScope, NewsItemSharing, NewsItemTemplate } from '@con
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
 import { BaseNewsForm, BaseNewsFormProps, SendPeriodType } from './BaseNewsForm'
+import {BaseNewsFormByFeatureFlag} from "./BaseNewsFormByFeatureFlag";
 
 export interface IResendNewsForm {
     id: string
@@ -155,7 +156,7 @@ export const ResendNewsForm: React.FC<IResendNewsForm> = ({ id }) => {
     }
 
     return (
-        <BaseNewsForm
+        <BaseNewsFormByFeatureFlag
             organizationId={organizationId}
             newsItemAction={action}
             ActionBar={CreateNewsActionBar}

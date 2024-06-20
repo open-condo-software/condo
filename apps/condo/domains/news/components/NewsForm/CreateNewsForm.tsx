@@ -17,6 +17,7 @@ import { NewsItem, NewsItemTemplate, NewsItemSharing } from '@condo/domains/news
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
 import { BaseNewsForm, BaseNewsFormProps } from './BaseNewsForm'
+import {BaseNewsFormByFeatureFlag} from "./BaseNewsFormByFeatureFlag";
 
 
 const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 28]
@@ -223,7 +224,7 @@ export const CreateNewsForm: React.FC = () => {
     }
 
     return (
-        <BaseNewsForm
+        <BaseNewsFormByFeatureFlag
             autoFocusBody={organizationNewsCount === 0}
             initialValues={initialValues}
             organizationId={organizationId}

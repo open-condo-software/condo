@@ -299,7 +299,7 @@ interface ISharingAppNewsPreview {
 
     title: string,
     body: string,
-    validBefore?: Pick<NewsItem, 'validBefore'>
+    validBefore?: string
 }
 
 const SharingNewsPreview: React.FC<ISharingAppNewsPreview> = ({ hasPush = true, appName, appIcon, iFrameUrl, iFrameRef, title, body, validBefore }) => {
