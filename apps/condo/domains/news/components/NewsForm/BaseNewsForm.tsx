@@ -473,7 +473,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const [sendPeriod, setSendPeriod] = useState<string>(get(initialValues, 'sendPeriod', 'now'))
 
     const [selectedType, setSelectedType] = useState<string>(get(initialValues, 'type', NEWS_TYPE_COMMON))
-    const [selectedValidBeforeText, setSelectedValidBeforeText] = useState<Pick<INewsItem, 'validBefore'>>(initialValidBefore)
+    const [selectedValidBeforeText, setSelectedValidBeforeText] = useState<string>(initialValidBefore)
     
     const [selectedTitle, setSelectedTitle] = useState<string>(get(initialValues, 'title', ''))
     const [selectedBody, setSelectedBody] = useState<string>(get(initialValues, 'body', ''))

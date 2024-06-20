@@ -23,7 +23,7 @@ enum NewsPreviewTabTypes {
 type NewsItemData = ({
     title: string,
     body: string,
-    validBefore?: Pick<NewsItem, 'validBefore'>,
+    validBefore?: string,
 })
 
 interface INewsItemPushPreview {
