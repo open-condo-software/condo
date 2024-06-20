@@ -16,7 +16,7 @@ import { B2BAppContext } from '@condo/domains/miniapp/utils/clientSchema'
 import { NewsItem, NewsItemTemplate, NewsItemSharing } from '@condo/domains/news/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
-import { BaseNewsForm, BaseNewsFormProps } from './BaseNewsForm'
+import { BaseNewsFormProps } from './BaseNewsForm'
 import { BaseNewsFormByFeatureFlag } from './BaseNewsFormByFeatureFlag'
 
 

@@ -13,7 +13,7 @@ import { B2BAppContext } from '@condo/domains/miniapp/utils/clientSchema'
 import { NewsItem, NewsItemScope, NewsItemTemplate } from '@condo/domains/news/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
-import { BaseNewsForm, SendPeriodType, BaseNewsFormProps } from './BaseNewsForm'
+import { SendPeriodType, BaseNewsFormProps } from './BaseNewsForm'
 import { BaseNewsFormByFeatureFlag } from './BaseNewsFormByFeatureFlag'
 export interface IUpdateNewsForm {
     id: string

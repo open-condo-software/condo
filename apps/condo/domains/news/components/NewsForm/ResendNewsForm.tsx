@@ -13,7 +13,7 @@ import { CreateNewsActionBar, getCompletedNotification } from '@condo/domains/ne
 import { NewsItem, NewsItemScope, NewsItemSharing, NewsItemTemplate } from '@condo/domains/news/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
-import { BaseNewsForm, BaseNewsFormProps, SendPeriodType } from './BaseNewsForm'
+import { BaseNewsFormProps, SendPeriodType } from './BaseNewsForm'
 import { BaseNewsFormByFeatureFlag } from './BaseNewsFormByFeatureFlag'
 
 export interface IResendNewsForm {

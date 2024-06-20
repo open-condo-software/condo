@@ -1,19 +1,14 @@
 import {
     BuildingUnit as IBuildingUnit,
     NewsItem as INewsItem,
-    NewsItemCreateInput as INewsItemCreateInput,
     NewsItemScope as INewsItemScope,
     NewsItemScopeCreateInput as INewsItemScopeCreateInput,
     NewsItemScopeUnitTypeType,
-    NewsItemTemplate as INewsItemTemplate,
-    NewsItemUpdateInput as INewsItemUpdateInput,
     Property as IProperty,
-    QueryAllNewsItemsArgs as IQueryAllNewsItemsArgs,
 } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Form, FormInstance, notification, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
-import { ArgsProps } from 'antd/lib/notification'
 import dayjs from 'dayjs'
 import chunk from 'lodash/chunk'
 import difference from 'lodash/difference'
@@ -32,7 +27,6 @@ import { Rule } from 'rc-field-form/lib/interface'
 import React, { ComponentProps, useCallback, useEffect, useMemo, useState, useRef } from 'react'
 import { Options as ScrollOptions } from 'scroll-into-view-if-needed'
 
-import { IGenerateHooksResult } from '@open-condo/codegen/generate.hooks'
 import { useIntl } from '@open-condo/next/intl'
 import { Alert, Radio, RadioGroup, Space, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
