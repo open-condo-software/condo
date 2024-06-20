@@ -234,7 +234,6 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                     organization: { id: organization.id },
                     deletedAt: null,
                 })
-                console.error('billingContext', billingContext)
                 let isBillingAccountFound = false
                 let isMetersFound = false
                 if (billingContext) {
@@ -279,6 +278,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                     resident: { id: residentId },
                     accountNumber_i: accountNumber,
                     organization: { id: organizationId },
+                    deletedAt: null,
                 })
                 let serviceConsumerId = existingServiceConsumer ? existingServiceConsumer.id : null
                 if (existingServiceConsumer) {
@@ -311,6 +311,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                     })
                     serviceConsumerId = consumer.id
                 }
+                // Hack that helps to resolve all subfields in result of this mutation
                 return await getById('ServiceConsumer', serviceConsumerId)
             },
         },
