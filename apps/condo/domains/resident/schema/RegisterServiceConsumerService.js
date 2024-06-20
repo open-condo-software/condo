@@ -13,7 +13,7 @@ const {
     BillingIntegrationOrganizationContext,
     BillingAccount,
 } = require('@condo/domains/billing/utils/serverSchema')
-const { checkAccountNumberWithOnlineInteractionUrl } = require('@condo/domains/billing/utils/serverSchema/checkBillingAccountNumberForOrganization')
+const { checkAccountNumberWithOnlineInteractionUrl } = require('@condo/domains/billing/utils/serverSchema/checkAccountNumberWithOnlineInteractionUrl')
 const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const { WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
