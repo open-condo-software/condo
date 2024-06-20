@@ -13,6 +13,7 @@ import { colors } from '@open-condo/ui/dist/colors'
 import Select from '@condo/domains/common/components/antd/Select'
 import { PageHeader } from '@condo/domains/common/components/containers/BaseLayout'
 import { ShowMoreFieldsButton } from '@condo/domains/common/components/ShowMoreFieldsButton'
+import { StatusSelect } from '@condo/domains/common/components/StatusSelect'
 import B2bAppLogo from '@condo/domains/meter/components/Meters/B2bAppLogo'
 import ChangeMeterStatusModal from '@condo/domains/meter/components/Meters/ChangeMeterStatusModal'
 import { MeterAccountField, MeterCommonDateField, MeterNumberField, MeterPlaceField, MeterResourceField } from '@condo/domains/meter/components/Meters/MeterInfoFields'
@@ -22,7 +23,6 @@ import { useMeterReadingFilters } from '@condo/domains/meter/hooks/useMeterReadi
 import { Meter, MeterPageTypes, METER_TAB_TYPES, PropertyMeter } from '@condo/domains/meter/utils/clientSchema'
 import { getMeterTitleMessage } from '@condo/domains/meter/utils/helpers'
 import { TicketPropertyField } from '@condo/domains/ticket/components/TicketId/TicketPropertyField'
-import { StatusSelect } from '@condo/domains/ticket/components/TicketStatusSelect'
 
 
 const METER_STATUSES = { active: 'active', archived: 'archived' }

@@ -250,6 +250,7 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
             subtitleLinkIcon: Meters,
             newFeatures: {
                 employee: [TakeReadingsFromResidentsFeatureMessage, ArchvieMetersResidentFeatureMessage],
+                resident: [CreateMeterReadingsResidentFeatureMessage],
             },
             onButtonClick: {
                 default: () => { router.push('/tour') },
