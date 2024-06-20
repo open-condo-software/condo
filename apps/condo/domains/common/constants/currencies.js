@@ -120,6 +120,7 @@ const ISO_CODES = [
     'RON',
     'RSD',
     'RUB',
+    'RUR',
     'RWF',
     'SAR',
     'SBD',
@@ -180,7 +181,8 @@ const ISO_CODES = [
 ]
 
 const ISO_CODES_FOR_SBBOL = {
-    '810': 'RUB',
+    '643': 'RUB',
+    '810': 'RUR',
     '840': 'USD',
     '978': 'EUR',
 }

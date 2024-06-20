@@ -9565,6 +9565,7 @@ enum BillingIntegrationCurrencyCodeType {
   RON
   RSD
   RUB
+  RUR
   RWF
   SAR
   SBD
@@ -16118,6 +16119,7 @@ enum BankAccountCurrencyCodeType {
   RON
   RSD
   RUB
+  RUR
   RWF
   SAR
   SBD
@@ -17936,6 +17938,7 @@ enum BankContractorAccountCurrencyCodeType {
   RON
   RSD
   RUB
+  RUR
   RWF
   SAR
   SBD
@@ -20045,6 +20048,7 @@ enum BankTransactionCurrencyCodeType {
   RON
   RSD
   RUB
+  RUR
   RWF
   SAR
   SBD
@@ -54907,6 +54911,7 @@ enum MultiPaymentCurrencyCodeType {
   RON
   RSD
   RUB
+  RUR
   RWF
   SAR
   SBD
@@ -56126,6 +56131,7 @@ enum PaymentCurrencyCodeType {
   RON
   RSD
   RUB
+  RUR
   RWF
   SAR
   SBD
