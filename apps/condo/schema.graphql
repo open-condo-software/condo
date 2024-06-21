@@ -3218,6 +3218,7 @@ type UserRightsSetHistoryRecord {
   canManageUserRightsSets: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
+  canExecute_internalSendHashedResidentPhones: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canReadUserEmailField: Boolean
   id: ID!
@@ -3326,6 +3327,8 @@ input UserRightsSetHistoryRecordWhereInput {
   canExecuteRegisterNewServiceUser_not: Boolean
   canExecuteSendMessage: Boolean
   canExecuteSendMessage_not: Boolean
+  canExecute_internalSendHashedResidentPhones: Boolean
+  canExecute_internalSendHashedResidentPhones_not: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageOrganizationIsApprovedField_not: Boolean
   canReadUserEmailField: Boolean
@@ -3485,6 +3488,8 @@ enum SortUserRightsSetHistoryRecordsBy {
   canExecuteRegisterNewServiceUser_DESC
   canExecuteSendMessage_ASC
   canExecuteSendMessage_DESC
+  canExecute_internalSendHashedResidentPhones_ASC
+  canExecute_internalSendHashedResidentPhones_DESC
   canManageOrganizationIsApprovedField_ASC
   canManageOrganizationIsApprovedField_DESC
   canReadUserEmailField_ASC
@@ -3544,6 +3549,7 @@ input UserRightsSetHistoryRecordUpdateInput {
   canManageUserRightsSets: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
+  canExecute_internalSendHashedResidentPhones: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canReadUserEmailField: Boolean
   v: Int
@@ -3602,6 +3608,7 @@ input UserRightsSetHistoryRecordCreateInput {
   canManageUserRightsSets: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
+  canExecute_internalSendHashedResidentPhones: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canReadUserEmailField: Boolean
   v: Int
@@ -3778,6 +3785,10 @@ type UserRightsSet {
   """
   canExecuteSendMessage: Boolean
 
+  """ Enables a user with the given UserRightsSet to execute "_internalSendHashedResidentPhones" query/mutation 
+  """
+  canExecute_internalSendHashedResidentPhones: Boolean
+
   """ Enables a user with the given UserRightsSet to update "isApproved" field of model "Organization" 
   """
   canManageOrganizationIsApprovedField: Boolean
@@ -3899,6 +3910,8 @@ input UserRightsSetWhereInput {
   canExecuteRegisterNewServiceUser_not: Boolean
   canExecuteSendMessage: Boolean
   canExecuteSendMessage_not: Boolean
+  canExecute_internalSendHashedResidentPhones: Boolean
+  canExecute_internalSendHashedResidentPhones_not: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageOrganizationIsApprovedField_not: Boolean
   canReadUserEmailField: Boolean
@@ -4038,6 +4051,8 @@ enum SortUserRightsSetsBy {
   canExecuteRegisterNewServiceUser_DESC
   canExecuteSendMessage_ASC
   canExecuteSendMessage_DESC
+  canExecute_internalSendHashedResidentPhones_ASC
+  canExecute_internalSendHashedResidentPhones_DESC
   canManageOrganizationIsApprovedField_ASC
   canManageOrganizationIsApprovedField_DESC
   canReadUserEmailField_ASC
@@ -4097,6 +4112,7 @@ input UserRightsSetUpdateInput {
   canManageUserRightsSets: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
+  canExecute_internalSendHashedResidentPhones: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canReadUserEmailField: Boolean
   v: Int
@@ -4152,6 +4168,7 @@ input UserRightsSetCreateInput {
   canManageUserRightsSets: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
+  canExecute_internalSendHashedResidentPhones: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canReadUserEmailField: Boolean
   v: Int
@@ -76095,6 +76112,15 @@ type _internalSendNotificationNewMobileAppVersionOutput {
   messageBatchId: ID!
 }
 
+input _internalSendHashedResidentPhonesInput {
+  dv: Int!
+  sender: SenderFieldInput!
+}
+
+type _internalSendHashedResidentPhonesOutput {
+  taskId: ID!
+}
+
 input _internalSyncContactsWithResidentsForOrganizationInput {
   dv: Int!
   sender: SenderFieldInput!
@@ -88090,6 +88116,7 @@ type Mutation {
   disconnectUserFromRemoteClient(data: DisconnectUserFromRemoteClientInput!): DisconnectUserFromRemoteClientOutput
   setMessageStatus(data: SetMessageStatusInput!): SetMessageStatusOutput
   _internalSendNotificationNewMobileAppVersion(data: _internalSendNotificationNewMobileAppVersionInput!): _internalSendNotificationNewMobileAppVersionOutput
+  _internalSendHashedResidentPhones(data: _internalSendHashedResidentPhonesInput!): _internalSendHashedResidentPhonesOutput
   _internalSyncContactsWithResidentsForOrganization(data: _internalSyncContactsWithResidentsForOrganizationInput!): [Contact]
   registerResident(data: RegisterResidentInput!): Resident
 

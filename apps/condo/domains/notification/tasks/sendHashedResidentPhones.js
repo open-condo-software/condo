@@ -28,23 +28,23 @@ const redisClient = getRedisClient('sendHashedResidentPhones')
 
 
 async function sendHashedResidentPhones (userId, taskId) {
-    taskLogger.info({ msg: 'Start of sendHashedResidentPhones task execution', taskId })
+    taskLogger.info({ msg: 'Start of sendHashedResidentPhones task execution', taskId, userId })
 
     if (!EMAIL_API_CONFIG) {
         const msg = 'no EMAIL_API_CONFIG'
-        taskLogger.error({ msg: 'no EMAIL_API_CONFIG', taskId })
+        taskLogger.error({ msg: 'no EMAIL_API_CONFIG', taskId, userId })
         throw new Error(msg)
     }
     if (!MARKETING_EMAIL) {
         const msg = 'no MARKETING_EMAIL'
-        taskLogger.error({ msg, taskId })
+        taskLogger.error({ msg, taskId, userId })
         throw new Error(msg)
     }
 
     const lastSyncDate = await redisClient.get(REDIS_KEY)
     if (!lastSyncDate) {
         const msg = `No last date in redis. Please set the ${REDIS_KEY} key with date (for example, "set ${REDIS_KEY} ${dayjs().toISOString()}")`
-        taskLogger.error({ msg, taskId })
+        taskLogger.error({ msg, taskId, userId })
         throw new Error(msg)
     }
 
@@ -73,16 +73,16 @@ async function sendHashedResidentPhones (userId, taskId) {
 
         stringifier.end()
 
-        taskLogger.info({ msg: 'Success load residents data', taskId })
+        taskLogger.info({ msg: 'Success load residents data', taskId, userId })
 
         const stream = fs.createReadStream(filename, { encoding: 'utf8' })
         const status = await sendFileByEmail({ stream, filename, config: EMAIL_API_CONFIG, toEmail: MARKETING_EMAIL })
 
         await redisClient.set(REDIS_KEY, dayjs().toISOString())
 
-        taskLogger.info({ msg: 'File sent to email', taskId, status, toEmail: MARKETING_EMAIL })
+        taskLogger.info({ msg: 'File sent to email', taskId, status, toEmail: MARKETING_EMAIL, userId })
     } catch (error) {
-        taskLogger.error({ msg: 'Error in sendHashedResidentPhones', error, taskId })
+        taskLogger.error({ msg: 'Error in sendHashedResidentPhones', error, taskId, userId })
     } finally {
         await rmfile(filename)
     }

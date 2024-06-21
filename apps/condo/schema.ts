@@ -43451,6 +43451,7 @@ export type Mutation = {
   disconnectUserFromRemoteClient?: Maybe<DisconnectUserFromRemoteClientOutput>;
   setMessageStatus?: Maybe<SetMessageStatusOutput>;
   _internalSendNotificationNewMobileAppVersion?: Maybe<_InternalSendNotificationNewMobileAppVersionOutput>;
+  _internalSendHashedResidentPhones?: Maybe<_InternalSendHashedResidentPhonesOutput>;
   _internalSyncContactsWithResidentsForOrganization?: Maybe<Array<Maybe<Contact>>>;
   registerResident?: Maybe<Resident>;
   /**
@@ -51957,6 +51958,11 @@ export type MutationSetMessageStatusArgs = {
 
 export type Mutation_InternalSendNotificationNewMobileAppVersionArgs = {
   data: _InternalSendNotificationNewMobileAppVersionInput;
+};
+
+
+export type Mutation_InternalSendHashedResidentPhonesArgs = {
+  data: _InternalSendHashedResidentPhonesInput;
 };
 
 
@@ -83559,6 +83565,8 @@ export enum SortUserRightsSetHistoryRecordsBy {
   CanExecuteRegisterNewServiceUserDesc = 'canExecuteRegisterNewServiceUser_DESC',
   CanExecuteSendMessageAsc = 'canExecuteSendMessage_ASC',
   CanExecuteSendMessageDesc = 'canExecuteSendMessage_DESC',
+  CanExecuteInternalSendHashedResidentPhonesAsc = 'canExecute_internalSendHashedResidentPhones_ASC',
+  CanExecuteInternalSendHashedResidentPhonesDesc = 'canExecute_internalSendHashedResidentPhones_DESC',
   CanManageOrganizationIsApprovedFieldAsc = 'canManageOrganizationIsApprovedField_ASC',
   CanManageOrganizationIsApprovedFieldDesc = 'canManageOrganizationIsApprovedField_DESC',
   CanReadUserEmailFieldAsc = 'canReadUserEmailField_ASC',
@@ -83654,6 +83662,8 @@ export enum SortUserRightsSetsBy {
   CanExecuteRegisterNewServiceUserDesc = 'canExecuteRegisterNewServiceUser_DESC',
   CanExecuteSendMessageAsc = 'canExecuteSendMessage_ASC',
   CanExecuteSendMessageDesc = 'canExecuteSendMessage_DESC',
+  CanExecuteInternalSendHashedResidentPhonesAsc = 'canExecute_internalSendHashedResidentPhones_ASC',
+  CanExecuteInternalSendHashedResidentPhonesDesc = 'canExecute_internalSendHashedResidentPhones_DESC',
   CanManageOrganizationIsApprovedFieldAsc = 'canManageOrganizationIsApprovedField_ASC',
   CanManageOrganizationIsApprovedFieldDesc = 'canManageOrganizationIsApprovedField_DESC',
   CanReadUserEmailFieldAsc = 'canReadUserEmailField_ASC',
@@ -95563,6 +95573,8 @@ export type UserRightsSet = {
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to execute "sendMessage" query/mutation  */
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to execute "_internalSendHashedResidentPhones" query/mutation  */
+  canExecute_internalSendHashedResidentPhones?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to update "isApproved" field of model "Organization"  */
   canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to read "email" field of model "User"  */
@@ -95620,6 +95632,7 @@ export type UserRightsSetCreateInput = {
   canManageUserRightsSets?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
+  canExecute_internalSendHashedResidentPhones?: Maybe<Scalars['Boolean']>;
   canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']>;
   canReadUserEmailField?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
@@ -95680,6 +95693,7 @@ export type UserRightsSetHistoryRecord = {
   canManageUserRightsSets?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
+  canExecute_internalSendHashedResidentPhones?: Maybe<Scalars['Boolean']>;
   canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']>;
   canReadUserEmailField?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
@@ -95734,6 +95748,7 @@ export type UserRightsSetHistoryRecordCreateInput = {
   canManageUserRightsSets?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
+  canExecute_internalSendHashedResidentPhones?: Maybe<Scalars['Boolean']>;
   canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']>;
   canReadUserEmailField?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
@@ -95793,6 +95808,7 @@ export type UserRightsSetHistoryRecordUpdateInput = {
   canManageUserRightsSets?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
+  canExecute_internalSendHashedResidentPhones?: Maybe<Scalars['Boolean']>;
   canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']>;
   canReadUserEmailField?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
@@ -95900,6 +95916,8 @@ export type UserRightsSetHistoryRecordWhereInput = {
   canExecuteRegisterNewServiceUser_not?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage_not?: Maybe<Scalars['Boolean']>;
+  canExecute_internalSendHashedResidentPhones?: Maybe<Scalars['Boolean']>;
+  canExecute_internalSendHashedResidentPhones_not?: Maybe<Scalars['Boolean']>;
   canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']>;
   canManageOrganizationIsApprovedField_not?: Maybe<Scalars['Boolean']>;
   canReadUserEmailField?: Maybe<Scalars['Boolean']>;
@@ -96039,6 +96057,7 @@ export type UserRightsSetUpdateInput = {
   canManageUserRightsSets?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
+  canExecute_internalSendHashedResidentPhones?: Maybe<Scalars['Boolean']>;
   canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']>;
   canReadUserEmailField?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
@@ -96143,6 +96162,8 @@ export type UserRightsSetWhereInput = {
   canExecuteRegisterNewServiceUser_not?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage_not?: Maybe<Scalars['Boolean']>;
+  canExecute_internalSendHashedResidentPhones?: Maybe<Scalars['Boolean']>;
+  canExecute_internalSendHashedResidentPhones_not?: Maybe<Scalars['Boolean']>;
   canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']>;
   canManageOrganizationIsApprovedField_not?: Maybe<Scalars['Boolean']>;
   canReadUserEmailField?: Maybe<Scalars['Boolean']>;
@@ -97959,6 +97980,16 @@ export type _InternalScheduleTaskByNameInput = {
 export type _InternalScheduleTaskByNameOutput = {
   __typename?: '_internalScheduleTaskByNameOutput';
   id: Scalars['String'];
+};
+
+export type _InternalSendHashedResidentPhonesInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+};
+
+export type _InternalSendHashedResidentPhonesOutput = {
+  __typename?: '_internalSendHashedResidentPhonesOutput';
+  taskId: Scalars['ID'];
 };
 
 export type _InternalSendNotificationNewMobileAppVersionInput = {
