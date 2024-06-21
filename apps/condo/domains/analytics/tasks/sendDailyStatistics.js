@@ -7,7 +7,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { createCronTask } = require('@open-condo/keystone/tasks')
 
-const { SEND_DAILY_STATISTICS_TASK } = require('@condo/domains/common/constants/featureflags')
+const { RETENTION_LOOPS_ENABLED } = require('@condo/domains/common/constants/featureflags')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { STAFF } = require('@condo/domains/user/constants/common')
 const { UserAdmin } = require('@condo/domains/user/utils/serverSchema')
@@ -23,7 +23,17 @@ const IGNORED_EMAIL_MASKS_FOR_DAILY_STATISTICS = conf.IGNORED_EMAIL_MASKS_FOR_DA
     ? JSON.parse(conf.IGNORED_EMAIL_MASKS_FOR_DAILY_STATISTICS)
     : []
 
-
+/**
+ * Mailing of letters occurs for each user with the type "staff".
+ *
+ * Only one letter is sent every day.
+ *
+ * Mailing logic:
+ * For each "staff" user who has an email:
+ *  1) We find out which organizations he is a member of and has right "canManageOrganization"
+ *  2) And for each such organization we get statistics
+ *  3) After that we form a letter (data for all user organizations at once) and send it to user email
+ */
 const sendDailyStatistics = async () => {
     const taskId = this.id || uuid()
     const currentDate = dayjs().toISOString()
@@ -32,7 +42,7 @@ const sendDailyStatistics = async () => {
         logger.info({ msg: 'Start sendDailyStatistics', taskId, data: { currentDate } })
         const { keystone: context } = getSchemaCtx('User')
 
-        const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(context, SEND_DAILY_STATISTICS_TASK)
+        const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(context, RETENTION_LOOPS_ENABLED)
         if (!isFeatureEnabled) {
             logger.info({ msg: 'sendDailyStatistics is disabled', taskId, data: { currentDate } })
             return 'disabled'
@@ -69,7 +79,7 @@ const sendDailyStatistics = async () => {
                 return []
             },
         })
-        logger.info({ msg: 'Successful finished sendDailyStatistics', taskId, data: { currentDate } })
+        logger.info({ msg: 'Successfully finished sendDailyStatistics', taskId, data: { currentDate } })
     } catch (error) {
         logger.error({ msg: 'Sending emails ended with an error', taskId, data: { currentDate } })
         throw error

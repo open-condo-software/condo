@@ -5,7 +5,7 @@ const index = require('@app/condo/index')
 
 const { setFakeClientMode, setFeatureFlag } = require('@open-condo/keystone/test.utils')
 
-const { SEND_DAILY_STATISTICS_TASK } = require('@condo/domains/common/constants/featureflags')
+const { RETENTION_LOOPS_ENABLED } = require('@condo/domains/common/constants/featureflags')
 
 const { sendDailyStatisticsTask } = require('./sendDailyStatistics')
 
@@ -15,7 +15,7 @@ describe('sendDailyStatistics', () => {
 
     describe('task should correct work', () => {
         test('should return "disabled" if feature flag is disabled', async () => {
-            setFeatureFlag(SEND_DAILY_STATISTICS_TASK, false)
+            setFeatureFlag(RETENTION_LOOPS_ENABLED, false)
             expect(await sendDailyStatisticsTask.delay.fn()).toBeDefined()
         })
     })

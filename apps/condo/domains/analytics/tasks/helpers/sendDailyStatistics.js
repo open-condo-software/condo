@@ -8,7 +8,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx, find, itemsQuery, getByCondition } = require('@open-condo/keystone/schema')
 const { i18n } = require('@open-condo/locales/loader')
 
-const { SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED } = require('@condo/domains/common/constants/featureflags')
+const { SEND_DAILY_STATISTICS_TASK } = require('@condo/domains/common/constants/featureflags')
 const { SEND_DAILY_STATISTICS_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { PROCESSING_STATUS_TYPE, NEW_OR_REOPENED_STATUS_TYPE, DEFERRED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
@@ -42,7 +42,6 @@ class UserDailyStatistics {
     #taskId = null
 
     /**
-     *
      * @param userId
      * @param currentDate
      * @param taskId
@@ -59,7 +58,6 @@ class UserDailyStatistics {
     }
 
     /**
-     *
      * @return {string[]}
      */
     getOrganizationIds () {
@@ -67,7 +65,6 @@ class UserDailyStatistics {
     }
 
     /**
-     *
      * @param organizationWhere
      * @return {Promise<CommonStatistics>}
      */
@@ -102,7 +99,7 @@ class UserDailyStatistics {
                 data: { organizationId, userId: this.#userId, currentDate: this.#currentDate },
             }
 
-            const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(this.#context, SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, { organization: organizationId })
+            const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(this.#context, SEND_DAILY_STATISTICS_TASK, { organization: organizationId })
             if (!isFeatureEnabled) {
                 logger.info({
                     ...loggerInfo,
@@ -159,7 +156,6 @@ class UserDailyStatistics {
     }
 
     /**
-     *
      * @param organizationId
      * @return {Promise<OrganizationStatisticsData>}
      */
@@ -201,7 +197,6 @@ class UserDailyStatistics {
     }
 
     /**
-     *
      * @param organizationId
      * @return {Promise<TicketsData>}
      */
@@ -260,7 +255,6 @@ class UserDailyStatistics {
     }
 
     /**
-     *
      * @param organizationId
      * @return {Promise<{water: IncidentData[]}>}
      */
@@ -347,7 +341,6 @@ class UserDailyStatistics {
     }
 
     /**
-     *
      * @param currentDate
      * @return {CommonStatistics}
      */
@@ -443,7 +436,6 @@ class UserDailyStatistics {
  */
 
 /**
- *
  * @param {TicketStatistic} ticketsStats
  * @return {{ total: number, details: string }}
  */
@@ -457,7 +449,6 @@ const formatTicketsStats = ({ total, byOrganizations }) => {
 }
 
 /**
- *
  * @param {IncidentData[]} incidents
  * @param {string} locale
  * @return {*}
@@ -496,7 +487,6 @@ const formatIncidentsStats = (incidents, locale) => {
 }
 
 /**
- *
  * @param {CommonStatistics} userStatisticsData
  * @param {string} currentDate
  * @param {string} locale

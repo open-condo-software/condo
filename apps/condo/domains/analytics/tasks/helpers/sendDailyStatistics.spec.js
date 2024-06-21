@@ -9,7 +9,7 @@ const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { setFakeClientMode, setFeatureFlag, makeLoggedInAdminClient, waitFor } = require('@open-condo/keystone/test.utils')
 const { i18n } = require('@open-condo/locales/loader')
 
-const { SEND_DAILY_STATISTICS_TASK, SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED } = require('@condo/domains/common/constants/featureflags')
+const { RETENTION_LOOPS_ENABLED, SEND_DAILY_STATISTICS_TASK } = require('@condo/domains/common/constants/featureflags')
 const { SEND_DAILY_STATISTICS_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { Message } = require('@condo/domains/notification/utils/testSchema')
 const { makeEmployeeUserClientWithAbilities, createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
@@ -34,7 +34,7 @@ describe('sendDailyStatistics helpers', () => {
 
 
     beforeAll(async () => {
-        setFeatureFlag(SEND_DAILY_STATISTICS_TASK, true)
+        setFeatureFlag(RETENTION_LOOPS_ENABLED, true)
 
         admin = await makeLoggedInAdminClient()
         statuses = await TicketStatus.getAll(admin, {})
@@ -76,7 +76,7 @@ describe('sendDailyStatistics helpers', () => {
             let justEmployeeClient
 
             beforeEach(async () => {
-                setFeatureFlag(SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, false)
+                setFeatureFlag(SEND_DAILY_STATISTICS_TASK, false)
 
                 const administratorClient = await makeEmployeeUserClientWithAbilities({
                     canManageOrganization: true,
@@ -132,7 +132,7 @@ describe('sendDailyStatistics helpers', () => {
                         await generateTicketsForEveryStatus(userData.organizationWithAccess2.data, userData.organizationWithAccess2.property)
                         await generateTicketsForEveryStatus(userData.organizationWithoutAccess.data, userData.organizationWithoutAccess.property)
 
-                        setFeatureFlag(SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, true)
+                        setFeatureFlag(SEND_DAILY_STATISTICS_TASK, true)
                         // user can get stats only for organizations which have canManageOrganization
                         const administratorStatistics = new UserDailyStatistics(userData.client.user.id)
                         await administratorStatistics.loadStatistics()
@@ -160,7 +160,7 @@ describe('sendDailyStatistics helpers', () => {
                         expect(justEmployeeResult.tickets.inProgress.byOrganizations).toHaveLength(0)
 
 
-                        setFeatureFlag(SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, false)
+                        setFeatureFlag(SEND_DAILY_STATISTICS_TASK, false)
                         // user can not get stats if feature flag enabled
                         const administratorStatistics2 = new UserDailyStatistics(userData.client.user.id)
                         await administratorStatistics2.loadStatistics()
@@ -191,7 +191,7 @@ describe('sendDailyStatistics helpers', () => {
                         await generateTicketsForEveryStatus(userData.organizationWithoutAccess.data, userData.organizationWithoutAccess.property)
 
 
-                        setFeatureFlag(SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, true)
+                        setFeatureFlag(SEND_DAILY_STATISTICS_TASK, true)
                         // user can get stats only for organizations which have canManageOrganization
                         const administratorStatistics = new UserDailyStatistics(userData.client.user.id)
                         await administratorStatistics.loadStatistics()
@@ -219,7 +219,7 @@ describe('sendDailyStatistics helpers', () => {
                         expect(justEmployeeResult.tickets.isEmergency.byOrganizations).toHaveLength(0)
 
 
-                        setFeatureFlag(SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, false)
+                        setFeatureFlag(SEND_DAILY_STATISTICS_TASK, false)
                         // user can not get stats if feature flag enabled
                         const administratorStatistics2 = new UserDailyStatistics(userData.client.user.id)
                         await administratorStatistics2.loadStatistics()
@@ -253,7 +253,7 @@ describe('sendDailyStatistics helpers', () => {
                         await generateTicketsForEveryStatus(userData.organizationWithoutAccess.data, userData.organizationWithoutAccess.property)
 
 
-                        setFeatureFlag(SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, true)
+                        setFeatureFlag(SEND_DAILY_STATISTICS_TASK, true)
                         // user can get stats only for organizations which have canManageOrganization
                         const administratorStatistics = new UserDailyStatistics(userData.client.user.id)
                         await administratorStatistics.loadStatistics()
@@ -281,7 +281,7 @@ describe('sendDailyStatistics helpers', () => {
                         expect(justEmployeeResult.tickets.isReturned.byOrganizations).toHaveLength(0)
 
 
-                        setFeatureFlag(SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, false)
+                        setFeatureFlag(SEND_DAILY_STATISTICS_TASK, false)
                         // user can not get stats if feature flag enabled
                         const administratorStatistics2 = new UserDailyStatistics(userData.client.user.id)
                         await administratorStatistics2.loadStatistics()
@@ -312,7 +312,7 @@ describe('sendDailyStatistics helpers', () => {
                         await generateTicketsForEveryStatus(userData.organizationWithoutAccess.data, userData.organizationWithoutAccess.property)
 
 
-                        setFeatureFlag(SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, true)
+                        setFeatureFlag(SEND_DAILY_STATISTICS_TASK, true)
                         // user can get stats only for organizations which have canManageOrganization
                         const administratorStatistics = new UserDailyStatistics(userData.client.user.id)
                         await administratorStatistics.loadStatistics()
@@ -340,7 +340,7 @@ describe('sendDailyStatistics helpers', () => {
                         expect(justEmployeeResult.tickets.isExpired.byOrganizations).toHaveLength(0)
 
 
-                        setFeatureFlag(SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, false)
+                        setFeatureFlag(SEND_DAILY_STATISTICS_TASK, false)
                         // user can not get stats if feature flag enabled
                         const administratorStatistics2 = new UserDailyStatistics(userData.client.user.id)
                         await administratorStatistics2.loadStatistics()
@@ -381,7 +381,7 @@ describe('sendDailyStatistics helpers', () => {
                         await generateTicketsForEveryStatus(userData.organizationWithoutAccess.data, userData.organizationWithoutAccess.property)
 
 
-                        setFeatureFlag(SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, true)
+                        setFeatureFlag(SEND_DAILY_STATISTICS_TASK, true)
                         // user can get stats only for organizations which have canManageOrganization
                         const administratorStatistics = new UserDailyStatistics(userData.client.user.id)
                         await administratorStatistics.loadStatistics()
@@ -409,7 +409,7 @@ describe('sendDailyStatistics helpers', () => {
                         expect(justEmployeeResult.tickets.withoutEmployee.byOrganizations).toHaveLength(0)
 
 
-                        setFeatureFlag(SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, false)
+                        setFeatureFlag(SEND_DAILY_STATISTICS_TASK, false)
                         // user can not get stats if feature flag enabled
                         const administratorStatistics2 = new UserDailyStatistics(userData.client.user.id)
                         await administratorStatistics2.loadStatistics()
@@ -486,7 +486,7 @@ describe('sendDailyStatistics helpers', () => {
                     await generateTicketsForOrganization(userData.organizationWithAccess2.data, userData.organizationWithAccess2.property)
                     await generateTicketsForOrganization(userData.organizationWithoutAccess.data, userData.organizationWithoutAccess.property)
 
-                    setFeatureFlag(SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, true)
+                    setFeatureFlag(SEND_DAILY_STATISTICS_TASK, true)
                     // user can get stats only for organizations which have canManageOrganization
                     const administratorStatistics = new UserDailyStatistics(userData.client.user.id)
                     await administratorStatistics.loadStatistics()
@@ -521,7 +521,7 @@ describe('sendDailyStatistics helpers', () => {
                     expect(justEmployeeResult.incidents.water).toHaveLength(0)
 
 
-                    setFeatureFlag(SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, false)
+                    setFeatureFlag(SEND_DAILY_STATISTICS_TASK, false)
                     // user can not get stats if feature flag enabled
                     const administratorStatistics2 = new UserDailyStatistics(userData.client.user.id)
                     await administratorStatistics2.loadStatistics()
@@ -583,7 +583,7 @@ describe('sendDailyStatistics helpers', () => {
             await createTestIncidentClassifierIncident(administratorClient, actualWaterIncidentSoonForOneProperty, faker.helpers.arrayElement(allowedIncidentClassifiers))
             await createTestIncidentProperty(administratorClient, actualWaterIncidentSoonForOneProperty, administratorClient.property)
 
-            setFeatureFlag(SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, true)
+            setFeatureFlag(SEND_DAILY_STATISTICS_TASK, true)
             const currentDate = dayjs().toISOString()
             const { keystone: context } = getSchemaCtx('User')
             await sendDailyMessageToUserSafely(context, { ...administratorClient.user, email: administratorClient.userAttrs.email }, currentDate, null)
@@ -637,7 +637,7 @@ describe('sendDailyStatistics helpers', () => {
         test('should not send message if statistics is empty', async () => {
             const administratorClient = await makeClientWithProperty()
 
-            setFeatureFlag(SEND_DAILY_STATISTICS_ORGANIZATIONS_ENABLED, true)
+            setFeatureFlag(SEND_DAILY_STATISTICS_TASK, true)
             const currentDate = dayjs().toISOString()
             const { keystone: context } = getSchemaCtx('User')
             const res = await sendDailyMessageToUserSafely(context, { ...administratorClient.user, email: administratorClient.userAttrs.email }, currentDate, null)
