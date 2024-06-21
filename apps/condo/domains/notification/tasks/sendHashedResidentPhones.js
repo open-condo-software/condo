@@ -27,6 +27,7 @@ const taskLogger = getLogger('sendHashedResidentPhones')
 const redisClient = getRedisClient('sendHashedResidentPhones')
 
 
+// TODO(DOMA-9341): extract staff users phones
 async function sendHashedResidentPhones (userId, taskId) {
     taskLogger.info({ msg: 'Start of sendHashedResidentPhones task execution', taskId, userId })
 
