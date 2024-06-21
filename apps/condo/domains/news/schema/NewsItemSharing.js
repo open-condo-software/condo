@@ -25,7 +25,6 @@ const ERRORS = {
         type: NOT_NEWS_SHARING_CONTEXT,
         message: 'Provided b2bAppContext does not support news sharing',
         mutation: 'createNewsItemSharing',
-        variable: ['data', 'validBefore'],
     },
     BAD_STATUS_TRANSITION: {
         code: BAD_USER_INPUT,
