@@ -9,7 +9,7 @@ const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.util
 
 const { User: UserGQL } = require('@{{name}}/domains/user/gql')
 const { makeLoggedInAdminClient, makeLoggedInClient } = require('@open-condo/keystone/test.utils')
-const { STAFF_USER_TYPE, RESIDENT_USER_TYPE } = require('@{{name}}/domains/condo/constants/user')
+const { STAFF_USER_TYPE, RESIDENT_USER_TYPE } = require('@{{name}}/domains/user/constants')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateGQLTestUtils(UserGQL)
@@ -41,7 +41,7 @@ async function createTestUser (client, extraAttrs = {}) {
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const name = faker.name.firstName()
     const email = faker.internet.email()
-    const type = 'stuff'
+    const type = STAFF_USER_TYPE
     const password = faker.internet.password()
 
     const attrs = {
