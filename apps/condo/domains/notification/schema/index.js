@@ -16,6 +16,7 @@ const { SendMessageService } = require('./SendMessageService')
 const { SetMessageStatusService } = require('./SetMessageStatusService')
 const { SyncRemoteClientService } = require('./SyncRemoteClientService')
 const { TelegramUserChat } = require('./TelegramUserChat')
+const { _internalSendHashedResidentPhonesService } = require('./_internalSendHashedResidentPhonesService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -32,5 +33,6 @@ module.exports = {
     TelegramUserChat,
     NotificationAnonymousSetting,
     _internalSendNotificationNewMobileAppVersionService,
+    _internalSendHashedResidentPhonesService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

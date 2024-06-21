@@ -5,12 +5,11 @@ const { promisify } = require('util')
 
 const { stringify } = require('csv-stringify')
 const dayjs = require('dayjs')
-const { v4: uuid } = require('uuid')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getRedisClient } = require('@open-condo/keystone/redis')
-const { createCronTask } = require('@open-condo/keystone/tasks')
+const { createTask } = require('@open-condo/keystone/tasks')
 
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
@@ -28,9 +27,7 @@ const taskLogger = getLogger('sendHashedResidentPhones')
 const redisClient = getRedisClient('sendHashedResidentPhones')
 
 
-async function sendHashedResidentPhones () {
-    const taskId = uuid()
-
+async function sendHashedResidentPhones (userId, taskId) {
     taskLogger.info({ msg: 'Start of sendHashedResidentPhones task execution', taskId })
 
     if (!EMAIL_API_CONFIG) {
@@ -91,8 +88,7 @@ async function sendHashedResidentPhones () {
     }
 }
 
-// cron: At 02:30 on day-of-month 5 in every 3rd month
-const sendHashedResidentPhonesTask = createCronTask('sendHashedResidentPhones', '30 2 5 */3 *', sendHashedResidentPhones)
+const sendHashedResidentPhonesTask = createTask('sendHashedResidentPhones', sendHashedResidentPhones)
 
 module.exports = {
     sendHashedResidentPhones,
