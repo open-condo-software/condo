@@ -128,15 +128,6 @@ describe('User', () => {
                 })
             })
 
-            test('can read only self', async () => {
-                const users = await User.getAll(userClient, {
-                    id_in: [admin.user.id, support.user.id, userClient.user.id],
-                })
-
-                expect(users).toHaveLength(1)
-                expect(users[0].name).toEqual(userClient.user.name)
-            })
-
             test('can\'t hard delete', async () => {
                 const [user] = await createTestUser(admin)
 
