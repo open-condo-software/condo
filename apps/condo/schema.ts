@@ -36294,6 +36294,8 @@ export type MobileFeatureConfig = {
   commonPhone?: Maybe<Scalars['String']>;
   /**  Disabling the ability to send tickets by the user of the resident's mobile application. Instead, he will be shown a screen with phones where he can contact to send a request  */
   ticketSubmittingIsDisabled?: Maybe<Scalars['Boolean']>;
+  /**  Disabling the ability to send tickets by the user of the resident's mobile application. the same as ticketSubmittingIsDisabled but there will be no phone number on the screen for communication, as this is needed for SERVICE_PROVIDER organizations  */
+  ticketSubmittingForServiceProviderOrgIsDisabled?: Maybe<Scalars['Boolean']>;
   /**  Restricts residents to submit only meter readings, that are greater than previous. Restrictions apply to mobile phones only.  */
   onlyGreaterThanPreviousMeterReadingIsEnabled?: Maybe<Scalars['Boolean']>;
   /**  Can be used to store some meta information for mobile applications.  */
@@ -36318,6 +36320,7 @@ export type MobileFeatureConfigCreateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
   commonPhone?: Maybe<Scalars['String']>;
   ticketSubmittingIsDisabled?: Maybe<Scalars['Boolean']>;
+  ticketSubmittingForServiceProviderOrgIsDisabled?: Maybe<Scalars['Boolean']>;
   onlyGreaterThanPreviousMeterReadingIsEnabled?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
@@ -36345,6 +36348,7 @@ export type MobileFeatureConfigHistoryRecord = {
   organization?: Maybe<Scalars['String']>;
   commonPhone?: Maybe<Scalars['String']>;
   ticketSubmittingIsDisabled?: Maybe<Scalars['Boolean']>;
+  ticketSubmittingForServiceProviderOrgIsDisabled?: Maybe<Scalars['Boolean']>;
   onlyGreaterThanPreviousMeterReadingIsEnabled?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
@@ -36366,6 +36370,7 @@ export type MobileFeatureConfigHistoryRecordCreateInput = {
   organization?: Maybe<Scalars['String']>;
   commonPhone?: Maybe<Scalars['String']>;
   ticketSubmittingIsDisabled?: Maybe<Scalars['Boolean']>;
+  ticketSubmittingForServiceProviderOrgIsDisabled?: Maybe<Scalars['Boolean']>;
   onlyGreaterThanPreviousMeterReadingIsEnabled?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
@@ -36392,6 +36397,7 @@ export type MobileFeatureConfigHistoryRecordUpdateInput = {
   organization?: Maybe<Scalars['String']>;
   commonPhone?: Maybe<Scalars['String']>;
   ticketSubmittingIsDisabled?: Maybe<Scalars['Boolean']>;
+  ticketSubmittingForServiceProviderOrgIsDisabled?: Maybe<Scalars['Boolean']>;
   onlyGreaterThanPreviousMeterReadingIsEnabled?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
@@ -36435,6 +36441,8 @@ export type MobileFeatureConfigHistoryRecordWhereInput = {
   commonPhone_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   ticketSubmittingIsDisabled?: Maybe<Scalars['Boolean']>;
   ticketSubmittingIsDisabled_not?: Maybe<Scalars['Boolean']>;
+  ticketSubmittingForServiceProviderOrgIsDisabled?: Maybe<Scalars['Boolean']>;
+  ticketSubmittingForServiceProviderOrgIsDisabled_not?: Maybe<Scalars['Boolean']>;
   onlyGreaterThanPreviousMeterReadingIsEnabled?: Maybe<Scalars['Boolean']>;
   onlyGreaterThanPreviousMeterReadingIsEnabled_not?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
@@ -36536,6 +36544,7 @@ export type MobileFeatureConfigUpdateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
   commonPhone?: Maybe<Scalars['String']>;
   ticketSubmittingIsDisabled?: Maybe<Scalars['Boolean']>;
+  ticketSubmittingForServiceProviderOrgIsDisabled?: Maybe<Scalars['Boolean']>;
   onlyGreaterThanPreviousMeterReadingIsEnabled?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
@@ -36574,6 +36583,8 @@ export type MobileFeatureConfigWhereInput = {
   commonPhone_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   ticketSubmittingIsDisabled?: Maybe<Scalars['Boolean']>;
   ticketSubmittingIsDisabled_not?: Maybe<Scalars['Boolean']>;
+  ticketSubmittingForServiceProviderOrgIsDisabled?: Maybe<Scalars['Boolean']>;
+  ticketSubmittingForServiceProviderOrgIsDisabled_not?: Maybe<Scalars['Boolean']>;
   onlyGreaterThanPreviousMeterReadingIsEnabled?: Maybe<Scalars['Boolean']>;
   onlyGreaterThanPreviousMeterReadingIsEnabled_not?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
@@ -79956,6 +79967,8 @@ export enum SortMobileFeatureConfigHistoryRecordsBy {
   CommonPhoneDesc = 'commonPhone_DESC',
   TicketSubmittingIsDisabledAsc = 'ticketSubmittingIsDisabled_ASC',
   TicketSubmittingIsDisabledDesc = 'ticketSubmittingIsDisabled_DESC',
+  TicketSubmittingForServiceProviderOrgIsDisabledAsc = 'ticketSubmittingForServiceProviderOrgIsDisabled_ASC',
+  TicketSubmittingForServiceProviderOrgIsDisabledDesc = 'ticketSubmittingForServiceProviderOrgIsDisabled_DESC',
   OnlyGreaterThanPreviousMeterReadingIsEnabledAsc = 'onlyGreaterThanPreviousMeterReadingIsEnabled_ASC',
   OnlyGreaterThanPreviousMeterReadingIsEnabledDesc = 'onlyGreaterThanPreviousMeterReadingIsEnabled_DESC',
   IdAsc = 'id_ASC',
@@ -79983,6 +79996,8 @@ export enum SortMobileFeatureConfigsBy {
   CommonPhoneDesc = 'commonPhone_DESC',
   TicketSubmittingIsDisabledAsc = 'ticketSubmittingIsDisabled_ASC',
   TicketSubmittingIsDisabledDesc = 'ticketSubmittingIsDisabled_DESC',
+  TicketSubmittingForServiceProviderOrgIsDisabledAsc = 'ticketSubmittingForServiceProviderOrgIsDisabled_ASC',
+  TicketSubmittingForServiceProviderOrgIsDisabledDesc = 'ticketSubmittingForServiceProviderOrgIsDisabled_DESC',
   OnlyGreaterThanPreviousMeterReadingIsEnabledAsc = 'onlyGreaterThanPreviousMeterReadingIsEnabled_ASC',
   OnlyGreaterThanPreviousMeterReadingIsEnabledDesc = 'onlyGreaterThanPreviousMeterReadingIsEnabled_DESC',
   IdAsc = 'id_ASC',
