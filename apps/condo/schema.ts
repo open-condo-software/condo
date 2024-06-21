@@ -2267,6 +2267,14 @@ export type B2BAppAccessRightSet = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
+  canReadTickets?: Maybe<Scalars['Boolean']>;
+  canManageTickets?: Maybe<Scalars['Boolean']>;
+  canReadTicketComments?: Maybe<Scalars['Boolean']>;
+  canManageTicketComments?: Maybe<Scalars['Boolean']>;
+  canReadTicketFiles?: Maybe<Scalars['Boolean']>;
+  canManageTicketFiles?: Maybe<Scalars['Boolean']>;
+  canReadTicketCommentFiles?: Maybe<Scalars['Boolean']>;
+  canManageTicketCommentFiles?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterMetersReadings?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -2296,6 +2304,14 @@ export type B2BAppAccessRightSetCreateInput = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
+  canReadTickets?: Maybe<Scalars['Boolean']>;
+  canManageTickets?: Maybe<Scalars['Boolean']>;
+  canReadTicketComments?: Maybe<Scalars['Boolean']>;
+  canManageTicketComments?: Maybe<Scalars['Boolean']>;
+  canReadTicketFiles?: Maybe<Scalars['Boolean']>;
+  canManageTicketFiles?: Maybe<Scalars['Boolean']>;
+  canReadTicketCommentFiles?: Maybe<Scalars['Boolean']>;
+  canManageTicketCommentFiles?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterMetersReadings?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -2330,6 +2346,14 @@ export type B2BAppAccessRightSetHistoryRecord = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
+  canReadTickets?: Maybe<Scalars['Boolean']>;
+  canManageTickets?: Maybe<Scalars['Boolean']>;
+  canReadTicketComments?: Maybe<Scalars['Boolean']>;
+  canManageTicketComments?: Maybe<Scalars['Boolean']>;
+  canReadTicketFiles?: Maybe<Scalars['Boolean']>;
+  canManageTicketFiles?: Maybe<Scalars['Boolean']>;
+  canReadTicketCommentFiles?: Maybe<Scalars['Boolean']>;
+  canManageTicketCommentFiles?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterMetersReadings?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -2358,6 +2382,14 @@ export type B2BAppAccessRightSetHistoryRecordCreateInput = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
+  canReadTickets?: Maybe<Scalars['Boolean']>;
+  canManageTickets?: Maybe<Scalars['Boolean']>;
+  canReadTicketComments?: Maybe<Scalars['Boolean']>;
+  canManageTicketComments?: Maybe<Scalars['Boolean']>;
+  canReadTicketFiles?: Maybe<Scalars['Boolean']>;
+  canManageTicketFiles?: Maybe<Scalars['Boolean']>;
+  canReadTicketCommentFiles?: Maybe<Scalars['Boolean']>;
+  canManageTicketCommentFiles?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterMetersReadings?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -2391,6 +2423,14 @@ export type B2BAppAccessRightSetHistoryRecordUpdateInput = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
+  canReadTickets?: Maybe<Scalars['Boolean']>;
+  canManageTickets?: Maybe<Scalars['Boolean']>;
+  canReadTicketComments?: Maybe<Scalars['Boolean']>;
+  canManageTicketComments?: Maybe<Scalars['Boolean']>;
+  canReadTicketFiles?: Maybe<Scalars['Boolean']>;
+  canManageTicketFiles?: Maybe<Scalars['Boolean']>;
+  canReadTicketCommentFiles?: Maybe<Scalars['Boolean']>;
+  canManageTicketCommentFiles?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterMetersReadings?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -2433,6 +2473,22 @@ export type B2BAppAccessRightSetHistoryRecordWhereInput = {
   canReadProperties_not?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties_not?: Maybe<Scalars['Boolean']>;
+  canReadTickets?: Maybe<Scalars['Boolean']>;
+  canReadTickets_not?: Maybe<Scalars['Boolean']>;
+  canManageTickets?: Maybe<Scalars['Boolean']>;
+  canManageTickets_not?: Maybe<Scalars['Boolean']>;
+  canReadTicketComments?: Maybe<Scalars['Boolean']>;
+  canReadTicketComments_not?: Maybe<Scalars['Boolean']>;
+  canManageTicketComments?: Maybe<Scalars['Boolean']>;
+  canManageTicketComments_not?: Maybe<Scalars['Boolean']>;
+  canReadTicketFiles?: Maybe<Scalars['Boolean']>;
+  canReadTicketFiles_not?: Maybe<Scalars['Boolean']>;
+  canManageTicketFiles?: Maybe<Scalars['Boolean']>;
+  canManageTicketFiles_not?: Maybe<Scalars['Boolean']>;
+  canReadTicketCommentFiles?: Maybe<Scalars['Boolean']>;
+  canReadTicketCommentFiles_not?: Maybe<Scalars['Boolean']>;
+  canManageTicketCommentFiles?: Maybe<Scalars['Boolean']>;
+  canManageTicketCommentFiles_not?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterMetersReadings?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterMetersReadings_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
@@ -2545,6 +2601,14 @@ export type B2BAppAccessRightSetUpdateInput = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
+  canReadTickets?: Maybe<Scalars['Boolean']>;
+  canManageTickets?: Maybe<Scalars['Boolean']>;
+  canReadTicketComments?: Maybe<Scalars['Boolean']>;
+  canManageTicketComments?: Maybe<Scalars['Boolean']>;
+  canReadTicketFiles?: Maybe<Scalars['Boolean']>;
+  canManageTicketFiles?: Maybe<Scalars['Boolean']>;
+  canReadTicketCommentFiles?: Maybe<Scalars['Boolean']>;
+  canManageTicketCommentFiles?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterMetersReadings?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -2582,6 +2646,22 @@ export type B2BAppAccessRightSetWhereInput = {
   canReadProperties_not?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties_not?: Maybe<Scalars['Boolean']>;
+  canReadTickets?: Maybe<Scalars['Boolean']>;
+  canReadTickets_not?: Maybe<Scalars['Boolean']>;
+  canManageTickets?: Maybe<Scalars['Boolean']>;
+  canManageTickets_not?: Maybe<Scalars['Boolean']>;
+  canReadTicketComments?: Maybe<Scalars['Boolean']>;
+  canReadTicketComments_not?: Maybe<Scalars['Boolean']>;
+  canManageTicketComments?: Maybe<Scalars['Boolean']>;
+  canManageTicketComments_not?: Maybe<Scalars['Boolean']>;
+  canReadTicketFiles?: Maybe<Scalars['Boolean']>;
+  canReadTicketFiles_not?: Maybe<Scalars['Boolean']>;
+  canManageTicketFiles?: Maybe<Scalars['Boolean']>;
+  canManageTicketFiles_not?: Maybe<Scalars['Boolean']>;
+  canReadTicketCommentFiles?: Maybe<Scalars['Boolean']>;
+  canReadTicketCommentFiles_not?: Maybe<Scalars['Boolean']>;
+  canManageTicketCommentFiles?: Maybe<Scalars['Boolean']>;
+  canManageTicketCommentFiles_not?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterMetersReadings?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterMetersReadings_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
@@ -75789,6 +75869,22 @@ export enum SortB2BAppAccessRightSetHistoryRecordsBy {
   CanReadPropertiesDesc = 'canReadProperties_DESC',
   CanManagePropertiesAsc = 'canManageProperties_ASC',
   CanManagePropertiesDesc = 'canManageProperties_DESC',
+  CanReadTicketsAsc = 'canReadTickets_ASC',
+  CanReadTicketsDesc = 'canReadTickets_DESC',
+  CanManageTicketsAsc = 'canManageTickets_ASC',
+  CanManageTicketsDesc = 'canManageTickets_DESC',
+  CanReadTicketCommentsAsc = 'canReadTicketComments_ASC',
+  CanReadTicketCommentsDesc = 'canReadTicketComments_DESC',
+  CanManageTicketCommentsAsc = 'canManageTicketComments_ASC',
+  CanManageTicketCommentsDesc = 'canManageTicketComments_DESC',
+  CanReadTicketFilesAsc = 'canReadTicketFiles_ASC',
+  CanReadTicketFilesDesc = 'canReadTicketFiles_DESC',
+  CanManageTicketFilesAsc = 'canManageTicketFiles_ASC',
+  CanManageTicketFilesDesc = 'canManageTicketFiles_DESC',
+  CanReadTicketCommentFilesAsc = 'canReadTicketCommentFiles_ASC',
+  CanReadTicketCommentFilesDesc = 'canReadTicketCommentFiles_DESC',
+  CanManageTicketCommentFilesAsc = 'canManageTicketCommentFiles_ASC',
+  CanManageTicketCommentFilesDesc = 'canManageTicketCommentFiles_DESC',
   CanExecuteRegisterMetersReadingsAsc = 'canExecuteRegisterMetersReadings_ASC',
   CanExecuteRegisterMetersReadingsDesc = 'canExecuteRegisterMetersReadings_DESC',
   IdAsc = 'id_ASC',
@@ -75832,6 +75928,22 @@ export enum SortB2BAppAccessRightSetsBy {
   CanReadPropertiesDesc = 'canReadProperties_DESC',
   CanManagePropertiesAsc = 'canManageProperties_ASC',
   CanManagePropertiesDesc = 'canManageProperties_DESC',
+  CanReadTicketsAsc = 'canReadTickets_ASC',
+  CanReadTicketsDesc = 'canReadTickets_DESC',
+  CanManageTicketsAsc = 'canManageTickets_ASC',
+  CanManageTicketsDesc = 'canManageTickets_DESC',
+  CanReadTicketCommentsAsc = 'canReadTicketComments_ASC',
+  CanReadTicketCommentsDesc = 'canReadTicketComments_DESC',
+  CanManageTicketCommentsAsc = 'canManageTicketComments_ASC',
+  CanManageTicketCommentsDesc = 'canManageTicketComments_DESC',
+  CanReadTicketFilesAsc = 'canReadTicketFiles_ASC',
+  CanReadTicketFilesDesc = 'canReadTicketFiles_DESC',
+  CanManageTicketFilesAsc = 'canManageTicketFiles_ASC',
+  CanManageTicketFilesDesc = 'canManageTicketFiles_DESC',
+  CanReadTicketCommentFilesAsc = 'canReadTicketCommentFiles_ASC',
+  CanReadTicketCommentFilesDesc = 'canReadTicketCommentFiles_DESC',
+  CanManageTicketCommentFilesAsc = 'canManageTicketCommentFiles_ASC',
+  CanManageTicketCommentFilesDesc = 'canManageTicketCommentFiles_DESC',
   CanExecuteRegisterMetersReadingsAsc = 'canExecuteRegisterMetersReadings_ASC',
   CanExecuteRegisterMetersReadingsDesc = 'canExecuteRegisterMetersReadings_DESC',
   IdAsc = 'id_ASC',

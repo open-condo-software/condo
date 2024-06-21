@@ -10,21 +10,36 @@ const uniq = require('lodash/uniq')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getByCondition, find, getById } = require('@open-condo/keystone/schema')
 
+const { canReadObjectsAsB2BAppServiceUser, canManageObjectsAsB2BAppServiceUser } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
 const {
     checkPermissionsInEmployedOrRelatedOrganizations,
     getEmployedOrRelatedOrganizationsByPermissions,
 } = require('@condo/domains/organization/utils/accessSchema')
-const { RESIDENT_COMMENT_TYPE, COMPLETED_STATUS_TYPE, CANCELED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
+const { RESIDENT_COMMENT_TYPE, ORGANIZATION_COMMENT_TYPE, COMPLETED_STATUS_TYPE, CANCELED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
 const {
     getTicketFieldsMatchesResidentFieldsQuery,
 } = require('@condo/domains/ticket/utils/accessSchema')
-const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 
-async function canReadTicketComments ({ authentication: { item: user }, context }) {
+
+async function canReadTicketComments (args) {
+    const { authentication: { item: user }, context } = args
+
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     
     if (user.isSupport || user.isAdmin) return {}
+
+    if (user.type === SERVICE) {
+        const accessFilter = await canReadObjectsAsB2BAppServiceUser(args)
+
+        if (!accessFilter) return false
+
+        return {
+            ...accessFilter,
+            type: ORGANIZATION_COMMENT_TYPE,
+        }
+    }
 
     if (user.type === RESIDENT) {
         const residents = await find('Resident', { user: { id: user.id }, deletedAt: null })
@@ -59,7 +74,29 @@ async function canReadTicketComments ({ authentication: { item: user }, context 
     }
 }
 
-const checkManageCommentAccess = async ({ user, operation, originalInput, itemId, context }) => {
+const checkManageCommentAccess = async (args) => {
+    const { authentication: { item: user }, originalInput, operation, itemId, context } = args
+
+    if (user.type === SERVICE) {
+        const hasAccess = await canManageObjectsAsB2BAppServiceUser(args)
+        if (!hasAccess) return false
+
+        // service user can't create ticket comment with resident type or update type to resident
+        const resolvedCommentType = get(originalInput, 'type')
+        if (resolvedCommentType === RESIDENT_COMMENT_TYPE) {
+            return false
+        }
+
+        // service user can't update not his own ticket comment
+        if (operation === 'update') {
+            const comment = await getByCondition('TicketComment', { id: itemId, deletedAt: null })
+
+            if (!comment || comment.user !== user.id) return false
+        }
+
+        return true
+    }
+
     if (user.type === RESIDENT) {
         if (operation === 'create') {
             const ticketId = get(originalInput, ['ticket', 'connect', 'id'])
@@ -101,15 +138,24 @@ const checkManageCommentAccess = async ({ user, operation, originalInput, itemId
     return false
 }
 
-async function canManageTicketComments ({ authentication: { item: user }, originalInput, operation, itemId }) {
+//TODO(DOMA-9337): Get rid of loop with request in bulk requests
+async function canManageTicketComments (args) {
+    const { authentication: { item: user }, originalInput, operation } = args
+
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
 
-    if (operation === 'create' && isArray(originalInput)) {
+    const isBulkRequest = isArray(originalInput)
+
+    if (operation === 'update' && isBulkRequest) {
+        return false
+    }
+
+    if (operation === 'create' && isBulkRequest) {
         for (const ticketCommentInputData of originalInput) {
             const ticketCommentInput = get(ticketCommentInputData, 'data')
-            const accessToCreateComment = await checkManageCommentAccess({ user, operation, originalInput: ticketCommentInput, itemId })
+            const accessToCreateComment = await checkManageCommentAccess({ ...args, originalInput: ticketCommentInput })
 
             if (!accessToCreateComment) {
                 return false
@@ -119,7 +165,7 @@ async function canManageTicketComments ({ authentication: { item: user }, origin
         return true
     }
 
-    return await checkManageCommentAccess({ user, operation, originalInput, itemId })
+    return await checkManageCommentAccess(args)
 }
 
 async function canSetUserField ({ authentication: { item: user }, originalInput }) {
