@@ -1,6 +1,5 @@
 import {
     BuildingUnit as IBuildingUnit,
-    NewsItem as INewsItem,
     NewsItemScope as INewsItemScope,
     NewsItemScopeCreateInput as INewsItemScopeCreateInput,
     NewsItemScopeUnitTypeType,
