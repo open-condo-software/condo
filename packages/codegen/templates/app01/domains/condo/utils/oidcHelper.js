@@ -5,6 +5,7 @@ const conf = require('@open-condo/config')
 
 let OIDC_HELPER_INSTANCE
 
+// TODO(DOMA-9342): move oidc logic to separate package
 class OIDCHelper {
     constructor () {
         const oidcClientConfig = conf.OIDC_CONDO_CLIENT_CONFIG
