@@ -6,7 +6,8 @@
 @condo-card-focus-outline-indent: -(@condo-global-border-width-default + @condo-card-focus-outline-border-width + 1);
 
 .condo-card {
-  border: none;
+  height: inherit;
+  border: @condo-global-border-width-default solid @condo-global-color-gray-3;
   border-radius: @condo-global-border-radius-large;
 
   &-disabled {
@@ -18,14 +19,12 @@
   &-head {
     min-height: 0;
     overflow: hidden;
-    border: @condo-global-border-width-default solid @condo-global-color-gray-3;
+    border-bottom: @condo-global-border-width-default solid @condo-global-color-gray-3;
     border-radius: @condo-global-border-radius-large @condo-global-border-radius-large 0 0;
   }
 
   &-body {
     overflow: hidden;
-    border: @condo-global-border-width-default solid @condo-global-color-gray-3;
-    border-radius: @condo-global-border-radius-large;
 
     &:not(:first-child) {
       border-top: 0;
