@@ -76000,6 +76000,7 @@ enum MessageType {
   MARKETPLACE_INVOICE_CASH_PUBLISHED_MESSAGE
   MARKETPLACE_INVOICE_CASH_WITH_TICKET_PUBLISHED_MESSAGE
   SERVICE_USER_CREATED
+  SEND_DAILY_STATISTICS
 }
 
 input SendMessageInput {
@@ -88033,6 +88034,25 @@ type Mutation {
   				"required": true
   			},
   			"password": {
+  				"required": true
+  			}
+  		}
+  	},
+  	"SEND_DAILY_STATISTICS": {
+  		"dv": {
+  			"required": true
+  		},
+  		"tags": {
+  			"required": false
+  		},
+  		"data": {
+  			"date": {
+  				"required": true
+  			},
+  			"tickets": {
+  				"required": true
+  			},
+  			"incidents": {
   				"required": true
   			}
   		}

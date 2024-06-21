@@ -86,6 +86,7 @@ const MARKETPLACE_INVOICE_CASH_WITH_TICKET_PUBLISHED_MESSAGE_TYPE = 'MARKETPLACE
 const SERVICE_USER_CREATED_MESSAGE_TYPE = 'SERVICE_USER_CREATED'
 const TITLE_IS_REQUIRED_FOR_CUSTOM_CONTENT_MESSAGE_TYPE = 'TITLE_IS_REQUIRED_FOR_CUSTOM_CONTENT_MESSAGE_TYPE'
 const BODY_IS_REQUIRED_FOR_CUSTOM_CONTENT_MESSAGE_TYPE = 'BODY_IS_REQUIRED_FOR_CUSTOM_CONTENT_MESSAGE_TYPE'
+const SEND_DAILY_STATISTICS_MESSAGE_TYPE = 'SEND_DAILY_STATISTICS'
 
 const SMS_FORBIDDEN_SYMBOLS_REGEXP = /[&#|«»]+/gim
 
@@ -653,6 +654,15 @@ const MESSAGE_META = {
             password: { required: true },
         },
     },
+    [SEND_DAILY_STATISTICS_MESSAGE_TYPE]: {
+        dv: { required: true },
+        tags: { required: false },
+        data: {
+            date: { required: true },
+            tickets: { required: true },
+            incidents: { required: true },
+        },
+    },
 }
 
 /** Used to validate type field for sendMessage mutation payload */
@@ -900,6 +910,11 @@ const MESSAGE_DELIVERY_OPTIONS = {
         // NOTE: Used for mass distribution by MessageBatch
         priority: MESSAGE_DELIVERY_SLOW_PRIORITY,
     },
+    [SEND_DAILY_STATISTICS_MESSAGE_TYPE]: {
+        allowedTransports: [EMAIL_TRANSPORT],
+        defaultTransports: [EMAIL_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
+    },
 }
 
 const MESSAGE_SENDING_STATUS = 'sending'
@@ -1124,5 +1139,6 @@ module.exports = {
     MOBILE_APP_UPDATE_AVAILABLE_MESSAGE_PUSH_TYPE,
     BODY_IS_REQUIRED_FOR_CUSTOM_CONTENT_MESSAGE_TYPE,
     TITLE_IS_REQUIRED_FOR_CUSTOM_CONTENT_MESSAGE_TYPE,
+    SEND_DAILY_STATISTICS_MESSAGE_TYPE,
 }
 
