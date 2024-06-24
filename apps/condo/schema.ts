@@ -43612,7 +43612,7 @@ export type Mutation = {
    */
   registerResidentServiceConsumers?: Maybe<Array<ServiceConsumer>>;
   /**
-   * [DEPRECATED] Creates service consumer with default data, and automatically populates the optional data fields, such as `billingAccount
+   * Creates service consumer with default data, and automatically populates the optional data fields, such as `billingAccount
    *
    * To be successfully created accountNumber and unitName should at least have billingAccount with same data or Meter with same data
    *
