@@ -20,7 +20,9 @@ import { Button } from '../Button'
 
 import { CommentWithFiles } from './index'
 
-const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
+const { RESIDENT, STAFF, SERVICE } = require('@condo/domains/user/constants/common')
+
+
 interface ICommentProps {
     comment: CommentWithFiles,
     setEditableComment: React.Dispatch<React.SetStateAction<CommentWithFiles>>
@@ -266,6 +268,7 @@ const CommentFileList: React.FC<CommentFileListProps> = ({ comment }) => {
 
 const getCommentAuthorRoleMessage = (author: User, intl) => {
     const ResidentMessage = intl.formatMessage({ id: 'Contact' }).toLowerCase()
+    const ServiceMessage = intl.formatMessage({ id: 'Service' }).toLowerCase()
     const EmployeeMessage = intl.formatMessage({ id: 'Employee' }).toLowerCase()
 
     switch (get(author, 'type')) {
@@ -274,6 +277,9 @@ const getCommentAuthorRoleMessage = (author: User, intl) => {
         }
         case STAFF: {
             return EmployeeMessage
+        }
+        case SERVICE: {
+            return ServiceMessage
         }
     }
 }

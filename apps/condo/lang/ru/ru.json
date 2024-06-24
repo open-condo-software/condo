@@ -126,6 +126,7 @@
   "SearchByPhoneNumber.modal.select.notFoundContent": "Такой контакт не найден",
   "SearchByPhoneNumber.modal.select.notFoundContent.createContact": "Добавить адрес жителя",
   "SearchByPhoneNumber.modal.select.notFoundContent.createTicket": "Создать заявку",
+  "Service": "Сервис",
   "EnterPhoneNumber": "Введите номер телефона",
   "EnterDate": "Введите дату",
   "EnterVerificationCode": "Введите код подтверждения",
