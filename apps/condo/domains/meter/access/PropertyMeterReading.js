@@ -5,7 +5,7 @@
 const get = require('lodash/get')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { getById } = require('@open-condo/keystone/schema')
+const { getById, getByCondition } = require('@open-condo/keystone/schema')
 
 const {
     getEmployedOrRelatedOrganizationsByPermissions,
@@ -27,7 +27,7 @@ async function canReadPropertyMeterReadings ({ authentication: { item: user }, c
     }
 }
 
-async function canManagePropertyMeterReadings ({ authentication: { item: user }, context, originalInput, operation }) {
+async function canManagePropertyMeterReadings ({ authentication: { item: user }, context, itemId, originalInput, operation }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isSupport || user.isAdmin) return true
@@ -42,6 +42,20 @@ async function canManagePropertyMeterReadings ({ authentication: { item: user },
         if (!meterOrganization) return false
 
         return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, meterOrganization, 'canManageMeterReadings')
+    }
+
+
+    if (operation === 'update' && itemId) {
+        const meterReading = await getByCondition('PropertyMeterReading', {
+            id: itemId,
+            deletedAt: null,
+        })
+        if (!meterReading) return false
+
+        const meterReadingOrganization = get(meterReading, 'organization')
+        if (!meterReadingOrganization) return false
+
+        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, meterReadingOrganization, 'canManageMeterReadings')
     }
 
     return false
