@@ -23,6 +23,10 @@ const BillingPropertyApi = generateServerUtils(BillingPropertyGQL)
 
 class PropertyResolver extends Resolver {
 
+    /**
+     * @param {BillingIntegrationOrganizationContext} billingContext
+     * @param context
+     */
     constructor ({ billingContext, context }) {
         super(billingContext, context, { name: 'property' })
         this.organizationProperties = []

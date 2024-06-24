@@ -1,3 +1,4 @@
+const { addressService } = require('./addressService')
 const { dvAndSender } = require('./dvAndSender')
 const { historical } = require('./historical')
 const { importable } = require('./importable')
@@ -17,4 +18,5 @@ module.exports = {
     plugin,
     importable,
     GQL_SCHEMA_PLUGIN,
+    addressService,
 }
