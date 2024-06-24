@@ -123,7 +123,7 @@ const MetersPage: IMeterIndexPage = () => {
     const { breakpoints } = useLayoutContext()
 
     const { GlobalHints } = useGlobalHints()
-    usePreviousSortAndFilters({ paramNamesForPageChange: ['tab', 'type'], employeeSpecificKey: employeeId })
+    usePreviousSortAndFilters({ paramNamesForPageChange: ['tab'], employeeSpecificKey: employeeId })
 
     const { tab } = parseQuery(router.query)
     const type = get(router.query, 'type', METER_TYPES.unit) as string
@@ -134,7 +134,7 @@ const MetersPage: IMeterIndexPage = () => {
     const activeType = useMemo(() => type ? type : METER_TYPES.unit,  [type])
 
     const changeRouteToActiveTab = useCallback(async (activeTab: string) => {
-        router.replace({ query: { ...router.query, tab: activeTab } })
+        router.replace({ query: { tab: activeTab, type: get(router, 'query.type') } })
     }, [router])
 
     const changeRouteToActiveType = useCallback(async (activeType: string) => {
@@ -162,10 +162,10 @@ const MetersPage: IMeterIndexPage = () => {
         }
     }, [activeTab, activeType, changeRouteToActiveTab])
 
-    const filtersForMetersMeta = useMeterFilters(tabAsMeterPageType)
+    const filtersForMetersMeta = useMeterFilters(activeType as MeterTypes)
     const tableColumnsForMeters = useTableColumns(filtersForMetersMeta, tabAsMeterPageType, activeType as MeterTypes)
 
-    const filtersForMeterReadingsMeta = useMeterReadingFilters()
+    const filtersForMeterReadingsMeta = useMeterReadingFilters(activeType as MeterTypes)
     const tableColumnsForMeterReadings = useTableColumns(filtersForMeterReadingsMeta, tabAsMeterPageType, activeType as MeterTypes)
 
     const baseMetersQuery = useMemo(() => ({

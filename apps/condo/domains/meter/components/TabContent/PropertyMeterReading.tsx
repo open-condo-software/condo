@@ -51,7 +51,7 @@ const METERS_PAGE_CONTENT_ROW_GUTTERS: RowProps['gutter'] = [16, 40]
 const RESET_FILTERS_BUTTON_STYLE: CSSProperties = { paddingLeft: 0 }
 const FILTERS_CONTAINER_GUTTER: RowProps['gutter'] = [16, 16]
 
-const SORTABLE_PROPERTIES = ['date', 'clientName', 'source']
+const SORTABLE_PROPERTIES = ['date']
 
 type PropertyMetersTableContentProps = {
     filtersMeta: FiltersMeta<PropertyMeterReadingWhereInput>[]

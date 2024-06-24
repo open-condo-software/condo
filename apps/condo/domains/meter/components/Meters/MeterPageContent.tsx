@@ -20,7 +20,7 @@ import { MeterAccountField, MeterCommonDateField, MeterNumberField, MeterPlaceFi
 import { MeterReadingsPageContent } from '@condo/domains/meter/components/TabContent/MeterReading'
 import { PropertyMeterReadingsPageContent } from '@condo/domains/meter/components/TabContent/PropertyMeterReading'
 import { useMeterReadingFilters } from '@condo/domains/meter/hooks/useMeterReadingFilters'
-import { Meter, MeterPageTypes, METER_TAB_TYPES, PropertyMeter } from '@condo/domains/meter/utils/clientSchema'
+import { Meter, MeterTypes, METER_TAB_TYPES, METER_TYPES, PropertyMeter } from '@condo/domains/meter/utils/clientSchema'
 import { getMeterTitleMessage } from '@condo/domains/meter/utils/helpers'
 import { TicketPropertyField } from '@condo/domains/ticket/components/TicketId/TicketPropertyField'
 
@@ -233,7 +233,7 @@ type MeterPageContentProps = {
     possibleReportingPeriods: Array<MeterReportingPeriod>,
     resource: MeterResource,
     refetchMeter: () => void,
-    meterType: MeterPageTypes,
+    meterType: MeterTypes,
 }
 
 export const MeterPageContent = ({ meter, possibleReportingPeriods, resource, refetchMeter, meterType }: MeterPageContentProps): JSX.Element => {
@@ -244,7 +244,7 @@ export const MeterPageContent = ({ meter, possibleReportingPeriods, resource, re
     const { organization, link: { role },  isLoading } = useOrganization()
     const canManageMeterReadings = useMemo(() => get(role, 'canManageMeterReadings', false), [role])
     const userOrganizationId = useMemo(() => get(organization, 'id'), [organization])
-    const filtersMeta = useMeterReadingFilters()
+    const filtersMeta = useMeterReadingFilters(meterType)
     
     
     const baseMeterReadingsQuery = useMemo(() => ({
@@ -287,7 +287,7 @@ export const MeterPageContent = ({ meter, possibleReportingPeriods, resource, re
                 meterType={meterType}
             />
             <Col span={24}>
-                {meterType === METER_TAB_TYPES.propertyMeter ? (
+                {meterType === METER_TYPES.property ? (
                     <PropertyMeterReadingsPageContent 
                         filtersMeta={filtersMeta}
                         loading={isLoading}

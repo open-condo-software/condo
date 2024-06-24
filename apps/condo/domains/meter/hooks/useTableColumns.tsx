@@ -96,7 +96,7 @@ export function useTableColumns <T> (
         }
     }, [isReportingPeriod, isMeter, DeletedMessage, search, CustomPeriodMessage])
 
-    const readingsForSingleMeterColumns = useMemo(() => [
+    const readingsForSingleMeterColumns = useMemo(() => compact([
         {
             title: SourceMessage,
             ellipsis: false,
@@ -104,7 +104,7 @@ export function useTableColumns <T> (
             width: isPropertyMeter ? '25%' : '20%',
             render: getSourceRender(intl, search),
         },
-        {
+        isPropertyMeter ? undefined : {
             title: ContactMessage,
             ellipsis: false,
             dataIndex: 'clientName',
@@ -137,7 +137,7 @@ export function useTableColumns <T> (
             width: isPropertyMeter ? '25%' : '20%',
             render: getConsumptionRender(intl, records),
         },
-    ], [ConsumptionMessage, ContactMessage, MeterReadingDateMessage, MeterReadingMessage, SourceMessage, filterMetas, filters, intl, isPropertyMeter, records, search, sorterMap])
+    ]), [ConsumptionMessage, ContactMessage, MeterReadingDateMessage, MeterReadingMessage, SourceMessage, filterMetas, filters, intl, isPropertyMeter, records, search, sorterMap])
 
     const meterAndMeterReadingColumns = useMemo(() => [
         {
