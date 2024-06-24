@@ -94,9 +94,12 @@ class ReplicaKnexAdapter extends KnexAdapter {
             if (masterConnectionResult.error) {
                 console.error('Could not connect to master database')
                 throw masterConnectionResult.error
+            } else if (readConnectionResult.error) {
+                console.error('Could not connect to replica database')
+                throw readConnectionResult.error
             }
 
-            console.error('Could not connect to database')
+            console.error('Unknown connection error occurred!')
             throw readConnectionResult.error
         }
 
