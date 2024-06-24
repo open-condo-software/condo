@@ -26,7 +26,8 @@ jobs:
 
       - name: run dbs
         run: |
-          docker-compose version
+          docker version
+          docker compose version
           docker-compose up -d redis postgresdb-master postgresdb-replica
 #      - name: run postgresql for tests
 #        run: |
