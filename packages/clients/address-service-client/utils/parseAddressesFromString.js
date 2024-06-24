@@ -1,5 +1,3 @@
-const { trimStart } = require('lodash')
-
 const KEYWORDS = {
     parking: ['автоместо', 'парковка', 'паркинг', 'машиноместо', 'гараж', 'м/м', 'мм', 'место', 'м/место', 'а/м', 'бокс', 'парк'],
     apartment: ['аппарт', 'апарт', 'ап', 'к/п'],
@@ -71,7 +69,7 @@ class AddressFromStringParser {
             unitInput = this.trim(unitInput.replace(unitTypeRegex, '').replace(/\s+/g, ' '))
         }
         return {
-            unitName: unitInput ? trimStart(unitInput, '0') || '0' : unitInput,
+            unitName: unitInput,
             unitType: detectedType || 'flat',
         }
     }
