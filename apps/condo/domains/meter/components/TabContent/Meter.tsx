@@ -11,13 +11,12 @@ import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { PlusCircle, Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Checkbox  } from '@open-condo/ui'
+import { ActionBar, Button, Checkbox  } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
-import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
 import { Loader } from '@condo/domains/common/components/Loader'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
@@ -30,7 +29,6 @@ import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { MetersImportWrapper } from '@condo/domains/meter/components/Import/Index'
-import { EXPORT_METER_READINGS_QUERY } from '@condo/domains/meter/gql'
 import {
     MeterReadingFilterTemplate,
     MeterForOrganization,
@@ -229,30 +227,25 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
                     />
                 </Col>
                 <Col span={24}>
-                    <ExportToExcelActionBar
-                        searchObjectsQuery={searchMetersQuery}
-                        exportToExcelQuery={EXPORT_METER_READINGS_QUERY}
-                        sortBy={sortBy}
-                        actions={[
-                            canManageMeters && (
-                                <Button
-                                    key='create'
-                                    type='primary'
-                                    icon={<PlusCircle size='medium' />}
-                                    onClick={handleCreateMeterReadings}
-                                >
-                                    {CreateMeterButtonLabel}
-                                </Button>
-                            ),
-                            canManageMeters && (
-                                <MetersImportWrapper
-                                    key='import'
-                                    accessCheck={canManageMeters}
-                                    onFinish={refetch}
-                                />
-                            ),
-                        ]}
-                    />
+                    <ActionBar actions={[
+                        canManageMeters && (
+                            <Button
+                                key='create'
+                                type='primary'
+                                icon={<PlusCircle size='medium' />}
+                                onClick={handleCreateMeterReadings}
+                            >
+                                {CreateMeterButtonLabel}
+                            </Button>
+                        ),
+                        canManageMeters && (
+                            <MetersImportWrapper
+                                key='import'
+                                accessCheck={canManageMeters}
+                                onFinish={refetch}
+                            />
+                        ),
+                    ]}/>
                 </Col>
             </Row>
             <MultipleFiltersModal />
