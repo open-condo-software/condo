@@ -45,7 +45,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
     accessTokens = await getAllAccessTokensByOrganization(context, organizationId)
 
     if (!sbbolFintechClient) {
-        sbbolFintechClient = initSbbolClientWithToken(accessTokens[accessTokenIndex], true)
+        sbbolFintechClient = initSbbolClientWithToken(get(accessTokens, [accessTokenIndex, 'accessToken']), true)
     }
 
     const transactions = []
@@ -116,7 +116,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                     summary,
                 } })
             } else {
-                receivedTransactions.map( transaction => transactions.push(transaction))
+                transactions.push(...receivedTransactions)
             }
 
             page++
@@ -126,7 +126,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                 allDataReceived = true
             }
 
-            switch (get(transactions, 'error.cause')) {
+            switch (get(response, 'error.cause')) {
                 // WORKFLOW_FAULT means invalid request parameters, that can occur in cases:
                 // when report is requested for date in future
                 // when report page does not exist, for example, number is out of range of available pages
@@ -153,7 +153,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                 }
                 default: {
                     reqErrored = true
-                    transactionException = get(transactions, 'error.cause')
+                    transactionException = get(response, 'error.cause')
                     break
                 }
             }
@@ -183,12 +183,12 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                 }
             }
 
-            if (get(transactions, 'error.cause') === SBBOL_ERRORS.UNAUTHORIZED) {
+            if (get(response, 'error.cause') === SBBOL_ERRORS.UNAUTHORIZED || get(summary, 'error.cause') === SBBOL_ERRORS.UNAUTHORIZED) {
                 allDataReceived = false
                 reqErrored = false
                 accessTokenIndex++
                 if (accessTokenIndex < accessTokens.length) {
-                    sbbolFintechClient = initSbbolClientWithToken(accessTokens[accessTokenIndex], true)
+                    sbbolFintechClient = initSbbolClientWithToken(get(accessTokens, [accessTokenIndex, 'accessToken']), true)
                 } else {
                     reqErrored = true
                     transactionException = SBBOL_ERRORS.UNAUTHORIZED
