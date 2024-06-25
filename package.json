@@ -15,8 +15,10 @@
     "build:apps": "turbo run build --filter='./apps/*' --concurrency=100%",
     "build": "turbo run build",
     "lint:code": "yarn run eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint:styles": "yarn run stylelint \"**/*.{less,css}\"",
     "lint:code:fix": "yarn run eslint --fix . --ext .js,.jsx,.ts,.tsx",
     "lint:translations": "turbo run lint-translations",
+    "lint": "yarn lint:code && yarn lint:styles && yarn lint:translations",
     "createapp": "node ./bin/createapp",
     "prepare": "husky install"
   },
@@ -51,6 +53,7 @@
     "jest-jasmine2": "^29.7.0",
     "mono-pub": "^1.0.1",
     "node-fetch": "^2.6.7",
+    "postcss": "^8.3.5",
     "postcss-less": "^6.0.0",
     "stylelint": "^14.11.0",
     "stylelint-config-rational-order": "^0.1.2",

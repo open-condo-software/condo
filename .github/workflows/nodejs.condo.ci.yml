@@ -113,6 +113,7 @@ jobs:
               - 'apps/condorb'
 
 
+
   lint:
     name: Lint source code
     runs-on: ubuntu-latest
@@ -131,9 +132,12 @@ jobs:
       - name: Install root dependencies
         run: |
           yarn workspaces focus root
-      - name: Check code-style rules
+      - name: Check JS code-style rules
         run: |
           yarn lint:code
+      - name: Check styling rules
+        run: |
+          yarn lint:styles
       - name: Check translations rules
         run: |
           yarn lint:translations
