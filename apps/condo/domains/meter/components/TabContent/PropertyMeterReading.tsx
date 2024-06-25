@@ -89,8 +89,11 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
 
     const router = useRouter()
     const { filters, offset, sorters, tab } = parseQuery(router.query)
+    const type = get(router.query, 'type')
+
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
     const nextVerificationDate = get(meter, 'nextVerificationDate')
+    const isDeletedProperty = !get(meter, 'property')
 
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filtersMeta, sortableProperties || SORTABLE_PROPERTIES)
     const { getTrackingWrappedCallback } = useTracking()
@@ -126,7 +129,7 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
         filterMetas: filtersMeta,
         filtersSchemaGql: MeterReadingFilterTemplate,
         onReset: handleSearchReset,
-        extraQueryParameters: { tab },
+        extraQueryParameters: { tab, type },
     })
     const updateSelectedReadingKeys = useCallback((selectedReadingKeys: string[]) => {
         setSelectedReadingKeys(selectedReadingKeys)
@@ -337,6 +340,7 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
                             isAutomatic={isAutomatic}
                             nextVerificationDate={nextVerificationDate}
                             propertyId={get(meter, 'property.id')}
+                            isDeletedProperty={isDeletedProperty}
                         />)
                     }
                     
@@ -371,6 +375,7 @@ export const PropertyMeterReadingsPageContent: React.FC<PropertyMetersTableConte
 
     const { count, loading: countLoading } = PropertyMeterReading.useCount({ where: baseSearchQuery })
     const nextVerificationDate = get(meter, 'nextVerificationDate')
+    const isDeletedProperty = !get(meter, 'property')
 
     const pageContent = useMemo(() => {
         if (countLoading || loading) return <Loader />
@@ -394,13 +399,14 @@ export const PropertyMeterReadingsPageContent: React.FC<PropertyMetersTableConte
                         isAutomatic={isAutomatic}
                         nextVerificationDate={nextVerificationDate}
                         propertyId={get(meter, 'property.id')}
+                        isDeletedProperty={isDeletedProperty}
                     />
                 )
             }
 
         return <PropertyMeterReadingsTableContent {...props} />
 
-    }, [CreateMeterReading, EmptyListLabel, canManageMeterReadings, count, countLoading, isAutomatic, loading, meter, nextVerificationDate, props])
+    }, [CreateMeterReading, EmptyListLabel, canManageMeterReadings, count, countLoading, isAutomatic, isDeletedProperty, loading, meter, nextVerificationDate, props])
 
     return (
         <TablePageContent>

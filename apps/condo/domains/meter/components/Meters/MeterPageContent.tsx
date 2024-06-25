@@ -238,8 +238,8 @@ type MeterPageContentProps = {
 
 export const MeterPageContent = ({ meter, possibleReportingPeriods, resource, refetchMeter, meterType }: MeterPageContentProps): JSX.Element => {
     const intl = useIntl()
-    const BlockedEditingTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.BlockedEditing.title' })
-    const BlockedEditingDescriptionMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.BlockedEditing.description' })
+    const BlockedEditingTitleMessage = intl.formatMessage({ id: 'pages.condo.meter.alert.BlockedEditing.title' })
+    const BlockedEditingDescriptionMessage = intl.formatMessage({ id: 'pages.condo.meter.alert.BlockedEditing.description' })
 
     const { organization, link: { role },  isLoading } = useOrganization()
     const canManageMeterReadings = useMemo(() => get(role, 'canManageMeterReadings', false), [role])

@@ -1092,6 +1092,8 @@
   "pages.condo.meter.reportingPeriod.create.addressPlaceholderIfDefaultPeriod": "Applies to all properties without a special period",
   "pages.condo.meter.reportingPeriod.create.addressPlaceholder": "Select property",
   "pages.condo.meter.reportingPeriod.EmptyList.header": "Submission period not yet added",
+  "pages.condo.meter.alert.BlockedEditing.title": "Editing of the metering device is not available",
+  "pages.condo.meter.alert.BlockedEditing.description": "You cannot change the device because the specified address is no longer in service",
   "pages.condo.settings.employeeRoles.permissionGroup.tickets": "Control room",
   "pages.condo.settings.employeeRoles.permission.canReadTickets": "View tickets",
   "pages.condo.settings.employeeRoles.permission.canManageTickets": "Manage tickets",

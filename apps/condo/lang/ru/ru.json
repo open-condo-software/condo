@@ -1092,6 +1092,8 @@
   "pages.condo.meter.reportingPeriod.create.addressPlaceholderIfDefaultPeriod": "Распрастраняется на все дома без специального периода",
   "pages.condo.meter.reportingPeriod.create.addressPlaceholder": "Выберите дом",
   "pages.condo.meter.reportingPeriod.EmptyList.header": "Период подачи показаний пока не добавлен",
+  "pages.condo.meter.alert.BlockedEditing.title": "Редактирование прибора учета недоступно",
+  "pages.condo.meter.alert.BlockedEditing.description": "Вы не можете изменить счетчик, потому что указанный адрес больше не обслуживается",
   "pages.condo.settings.employeeRoles.permissionGroup.tickets": "Диспетчерская",
   "pages.condo.settings.employeeRoles.permission.canReadTickets": "Просмотр заявок",
   "pages.condo.settings.employeeRoles.permission.canManageTickets": "Управление заявками",

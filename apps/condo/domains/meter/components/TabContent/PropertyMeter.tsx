@@ -4,6 +4,7 @@ import {
 } from '@app/condo/schema'
 import { Col, Row, RowProps } from 'antd'
 import { ColumnsType } from 'antd/lib/table'
+import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
@@ -18,13 +19,11 @@ import { EmptyListContent } from '@condo/domains/common/components/EmptyListCont
 import { Loader } from '@condo/domains/common/components/Loader'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
-import { EMOJI } from '@condo/domains/common/constants/emoji'
 import { useMultipleFiltersModal } from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { MetersImportWrapper } from '@condo/domains/meter/components/Import/Index'
 import {
     PropertyMeter,
     METER_TAB_TYPES,
@@ -65,6 +64,8 @@ const PropertyMetersTableContent: React.FC<PropertyMetersTableContentProps> = ({
 
     const router = useRouter()
     const { filters, offset, sorters, tab } = parseQuery(router.query)
+    const type = get(router.query, 'type')
+    
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
 
     const [isShowActiveMeters, setIsShowActiveMeters] = useState(true)
@@ -100,7 +101,7 @@ const PropertyMetersTableContent: React.FC<PropertyMetersTableContentProps> = ({
         filterMetas: filtersMeta,
         filtersSchemaGql: MeterReadingFilterTemplate,
         onReset: handleSearchReset,
-        extraQueryParameters: { tab },
+        extraQueryParameters: { tab, type },
     })
 
     const handleRowAction = useCallback((record) => {
@@ -196,13 +197,6 @@ const PropertyMetersTableContent: React.FC<PropertyMetersTableContentProps> = ({
                                 {CreateMeterButtonLabel}
                             </Button>
                         ),
-                        canManageMeters && (
-                            <MetersImportWrapper
-                                key='import'
-                                accessCheck={canManageMeters}
-                                onFinish={refetch}
-                            />
-                        ),
                     ]}/>
                 </Col>
             </Row>
@@ -221,10 +215,9 @@ export const PropertyMetersPageContent: React.FC<PropertyMeterReadingsPageConten
     loading,
 }) => {
     const intl = useIntl()
-    const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.header' })
-    const EmptyListManualBodyDescription = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.manualCreateCard.body.description' })
+    const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.propertyMeter.index.EmptyList.header' })
+    const CreateMeter = intl.formatMessage({ id: 'pages.condo.meter.AddMeter' })
 
-    const { refetch } = PropertyMeter.useCount({}, { skip: true })
     const { count, loading: countLoading } = PropertyMeter.useCount({ where: baseSearchQuery })
 
     const PageContent = useMemo(() => {
@@ -234,17 +227,8 @@ export const PropertyMetersPageContent: React.FC<PropertyMeterReadingsPageConten
             return (
                 <EmptyListContent
                     label={EmptyListLabel}
-                    importLayoutProps={{
-                        manualCreateEmoji: EMOJI.CLOCK,
-                        manualCreateDescription: EmptyListManualBodyDescription,
-                        importCreateEmoji: EMOJI.LIST,
-                        importWrapper: {
-                            onFinish: refetch,
-                            domainName: 'meter',
-                        },
-                        OverrideImportWrapperFC: MetersImportWrapper,
-                    }}
                     createRoute={`/meter/create?tab=${METER_TAB_TYPES.propertyMeter}`}
+                    createLabel={CreateMeter}
                     accessCheck={canManageMeters}
                 />
             )
@@ -259,7 +243,7 @@ export const PropertyMetersPageContent: React.FC<PropertyMeterReadingsPageConten
                 loading={countLoading}
             />
         )
-    }, [EmptyListLabel, EmptyListManualBodyDescription, baseSearchQuery, canManageMeters, count, countLoading, filtersMeta, loading, refetch, tableColumns])
+    }, [CreateMeter, EmptyListLabel, baseSearchQuery, canManageMeters, count, countLoading, filtersMeta, loading, tableColumns])
 
     return (
         <TablePageContent>

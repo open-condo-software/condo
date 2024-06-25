@@ -73,6 +73,7 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
 
     const router = useRouter()
     const { filters, offset, sorters, tab } = parseQuery(router.query)
+    const type = get(router.query, 'type')
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
 
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filtersMeta, sortableProperties || SORTABLE_PROPERTIES)
@@ -130,7 +131,7 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
         filterMetas: filtersMeta,
         filtersSchemaGql: MeterReadingFilterTemplate,
         onReset: handleSearchReset,
-        extraQueryParameters: { tab },
+        extraQueryParameters: { tab, type },
     })
 
 
@@ -171,8 +172,8 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
                                 />
                             </Col>
                             <Col>
-                                <Row justify='start' gutter={FILTERS_CONTAINER_GUTTER} style={{ flexWrap: 'nowrap' }}>
-                                    <Col style={QUICK_FILTERS_COL_STYLE}>
+                                <Row justify='start' gutter={FILTERS_CONTAINER_GUTTER} >
+                                    <Col style={QUICK_FILTERS_COL_STYLE} xs={24} sm={11}>
                                         <DateRangePicker
                                             value={dateRange}
                                             onChange={handleDateChange}

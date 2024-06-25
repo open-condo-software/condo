@@ -138,7 +138,7 @@ const MetersPage: IMeterIndexPage = () => {
     }, [router])
 
     const changeRouteToActiveType = useCallback(async (activeType: string) => {
-        router.replace({ query: { ...router.query, type: activeType } })
+        router.replace({ query: { tab: get(router, 'query.tab'), type: activeType } })
     }, [router])
 
 

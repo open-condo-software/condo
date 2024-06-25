@@ -33,7 +33,7 @@ import {
 import { getMeterReportingPeriodRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
 
 
-const renderMeterRecord = (record) => {
+export const renderMeterRecord = (record) => {
     const value1 = get(record, 'value1')
     const value2 = get(record, 'value2')
     const value3 = get(record, 'value3')
@@ -98,6 +98,17 @@ export function useTableColumns <T> (
 
     const readingsForSingleMeterColumns = useMemo(() => compact([
         {
+            title: MeterReadingDateMessage,
+            sortOrder: get(sorterMap, 'date'),
+            filteredValue: getFilteredValue(filters, 'date'),
+            dataIndex: 'date',
+            key: 'date',
+            sorter: true,
+            width: isPropertyMeter ? '25%' : '20%',
+            render: getDateRender(intl, search),
+            filterDropdown: getFilterDropdownByKey(filterMetas, 'date'),
+        },
+        {
             title: SourceMessage,
             ellipsis: false,
             key: 'source',
@@ -111,17 +122,6 @@ export function useTableColumns <T> (
             key: 'clientName',
             width: isPropertyMeter ? '25%' : '20%',
             render: getTextRender(search),
-        },
-        {
-            title: MeterReadingDateMessage,
-            sortOrder: get(sorterMap, 'date'),
-            filteredValue: getFilteredValue(filters, 'date'),
-            dataIndex: 'date',
-            key: 'date',
-            sorter: true,
-            width: isPropertyMeter ? '25%' : '20%',
-            render: getDateRender(intl, search),
-            filterDropdown: getFilterDropdownByKey(filterMetas, 'date'),
         },
         {
             title: MeterReadingMessage,
