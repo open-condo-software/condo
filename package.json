@@ -53,6 +53,7 @@
     "jest-jasmine2": "^29.7.0",
     "mono-pub": "^1.0.1",
     "node-fetch": "^2.6.7",
+    "postcss": "^8.3.5",
     "postcss-less": "^6.0.0",
     "stylelint": "^14.11.0",
     "stylelint-config-rational-order": "^0.1.2",
