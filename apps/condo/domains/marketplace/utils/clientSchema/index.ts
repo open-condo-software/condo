@@ -9,6 +9,7 @@ export * as Invoice from './Invoice'
 export * as MarketItemFile from './MarketItemFile'
 export * as MarketItemPrice from './MarketItemPrice'
 export * as MarketPriceScope from './MarketPriceScope'
+export * as MarketSetting from './MarketSetting'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
 
 export type MarketplacePageTypes = 'bills' | 'payments' | 'services'
