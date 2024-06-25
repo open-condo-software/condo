@@ -4,9 +4,13 @@ const { get, omit } = require('lodash')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 
-
 const logger = getLogger('replicaKnexAdapter')
 
+const MUTABLE_OPERATIONS = ['create', 'update', 'insert', 'delete', 'alter']
+
+/**
+ *
+ */
 class ReplicaKnexAdapter extends KnexAdapter {
     constructor (props) {
         super(omit(props, ['connection']))
@@ -21,7 +25,7 @@ class ReplicaKnexAdapter extends KnexAdapter {
             connection: this.writeConnection,
         })
 
-        this.knexMaster = knex({
+        this.knexWrite = knex({
             client: 'postgres',
             pool: { min: 0, max: 3 },
             connection: this.writeConnection,
@@ -34,32 +38,25 @@ class ReplicaKnexAdapter extends KnexAdapter {
         })
 
         this.knex.context.transaction = (...props) => {
-            return this.knexMaster.context.transaction(...props)
+            return this.knexWrite.context.transaction(...props)
         }
 
         const checkUseMasterSingle = (object) => {
-            // if object.method equals "insert", "del" or "update" then use master endpoint
+            // if object.method equals "insert", "delete" or "update" then use master endpoint
             if (object.method !== undefined) {
-                return ['insert', 'del', 'update'].includes(object.method)
+                return MUTABLE_OPERATIONS.includes(object.method)
             }
 
             // try to parse sql
-            return ['create'].some(sub => object.sql.includes(sub))
+            return MUTABLE_OPERATIONS.some(sub => object.sql.includes(sub))
         }
 
-        const checkUseMasterMultiple = (array) => {
-            for (let i = 0 ; i < array.length ; i++) {
-                if (checkUseMasterSingle(array[i])) {
-                    return true
-                }
-            }
-            return false
-        }
+        const checkUseMasterMultiple = (array) => array.some(checkUseMasterSingle)
 
         //override runner method
         this.knex.client.runner = (builder) => {
             if (builder._queryContext && builder._queryContext.useMaster === true) {
-                return this.knexMaster.client.runner(builder)
+                return this.knexWrite.client.runner(builder)
             } else if (
                 builder._queryContext &&
                 builder._queryContext.useMaster === false
@@ -83,23 +80,26 @@ class ReplicaKnexAdapter extends KnexAdapter {
             }
 
             return useMaster
-                ? this.knexMaster.client.runner(builder)
+                ? this.knexWrite.client.runner(builder)
                 : this.knexRead.client.runner(builder)
         }
 
-        const masterConnectionResult = await this.knexMaster.raw('select 1+1 as result').catch(result => ({ error: result.error || result }))
+        const masterConnectionResult = await this.knexWrite.raw('select 1+1 as result').catch(result => ({ error: result.error || result }))
         const readConnectionResult = await this.knexRead.raw('select 1+1 as result').catch(result => ({ error: result.error || result }))
 
         if (masterConnectionResult.error || readConnectionResult.error) {
             if (masterConnectionResult.error) {
-                console.error('Could not connect to master database')
+                logger.error({
+                    err: masterConnectionResult.error,
+                    msg: 'Could not connect to master database',
+                })
                 throw masterConnectionResult.error
-            } else if (readConnectionResult.error) {
-                console.error('Could not connect to replica database')
-                throw readConnectionResult.error
             }
 
-            console.error('Unknown connection error occurred!')
+            logger.error({
+                err: readConnectionResult.error,
+                msg: 'Could not connect to replica database',
+            })
             throw readConnectionResult.error
         }
 
@@ -107,7 +107,7 @@ class ReplicaKnexAdapter extends KnexAdapter {
     }
 
     disconnect () {
-        this.knexMaster.destroy()
+        this.knexWrite.destroy()
         this.knexRead.destroy()
         this.knex.destroy()
     }

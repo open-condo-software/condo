@@ -67,6 +67,12 @@ function matchDatabase (mapping, str) {
     return undefined
 }
 
+/**
+ * Returns active database adapter. Might be helpful when you need to build custom query
+ * @param keystone {import('@keystonejs/keystone').Keystone} keystone instance
+ * @param list {string} list selector of the database. Default list selection is wildcard (*)
+ * @returns {import('@keystonejs/keystone').BaseKeystoneAdapter}
+ */
 function getDatabaseAdapter (keystone, list = '*') {
     const databaseUrl = get(conf, 'DATABASE_URL')
 
