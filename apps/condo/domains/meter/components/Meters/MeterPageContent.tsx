@@ -202,7 +202,7 @@ const MeterContent = ({ meter, resource, meterType }) => {
         <Col span={24}>
             <Row gutter={[0, 16]}>
                 <TicketPropertyField ticket={meter}/>
-                {meterType === METER_TAB_TYPES.meter && (<MeterAccountField meter={meter}/>)}
+                {meterType === METER_TYPES.unit && (<MeterAccountField meter={meter}/>)}
                 <MeterResourceField resource={resource}/>
                 <MeterNumberField meter={meter}/>
                 <MeterPlaceField meter={meter}/>
