@@ -222,7 +222,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
 
     const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
     const handleUpdateMeterReading = useCallback((record) => { 
-        if (get(meter, 'archiveDate')) {
+        if (get(meter, 'archiveDate') || !get(meter, 'property')) {
             return {}
         }
         return {

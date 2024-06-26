@@ -129,10 +129,11 @@ export const BaseMetersFormFields: React.FC<BaseMetersFormFieldsProps> = ({
         requiredValidator,
         trimValidator,
         meterWithSameNumberValidator,
+        maxLengthValidator(150),
     ], [requiredValidator, trimValidator, meterWithSameNumberValidator])
 
     const validations = useMemo(() => ({
-        accountNumber: isPropertyMeter ? undefined : [requiredValidator, trimValidator, !initialAccountNumber && meterWithSameAccountNumberInOtherUnitValidation],
+        accountNumber: isPropertyMeter ? undefined : [requiredValidator, trimValidator, !initialAccountNumber && meterWithSameAccountNumberInOtherUnitValidation, maxLengthValidator(150)],
         number: meterNumberValidations,
         resource: [requiredValidator, meterResourceOwnerValidation],
         numberOfTariffs: [requiredValidator],

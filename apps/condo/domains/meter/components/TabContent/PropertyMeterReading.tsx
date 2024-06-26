@@ -206,7 +206,7 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
     }), [handleSelectAllRowsByPage, handleSelectRowWithTracking, isSelectedAllRowsByPage, isSelectedSomeRowsByPage, selectedRowKeysByPage])
 
     const handleUpdateMeterReading = useCallback((record) => { 
-        if (get(meter, 'archiveDate')) {
+        if (get(meter, 'archiveDate') || !get(meter, 'property')) {
             return {}
         }
         return {
