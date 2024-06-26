@@ -28,7 +28,7 @@ import { TicketPropertyField } from '@condo/domains/ticket/components/TicketId/T
 const METER_STATUSES = { active: 'active', archived: 'archived' }
 
 
-const MeterHeader = ({ meter, meterReportingPeriod, refetchMeter, meterType }) => {
+export const MeterHeader = ({ meter, meterReportingPeriod, refetchMeter, meterType }) => {
     const intl = useIntl()
     const MeterReportingPeriodTitle = intl.formatMessage({ id: 'pages.condo.meter.MeterReportingPeriod.Title' })
     const MeterReportingPeriodText = intl.formatMessage({ id: 'pages.condo.meter.MeterReportingPeriod.Text' },
@@ -178,7 +178,7 @@ const MeterHeader = ({ meter, meterReportingPeriod, refetchMeter, meterType }) =
 }
 
 
-const MeterContent = ({ meter, resource, meterType }) => {
+export const MeterContent = ({ meter, resource, meterType }) => {
     const intl = useIntl()
     const MeterVerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.VerificationDate' })
     const MeterNextVerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.NextVerificationDate' })
