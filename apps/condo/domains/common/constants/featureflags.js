@@ -24,6 +24,7 @@ const IMPORT_HELP_MODAL = 'import-help-modal'
 const PROPERTY_DOCUMENTS = 'property-documents'
 const SEND_DAILY_STATISTICS_TASK = 'send-daily-statistics-task'
 const RETENTION_LOOPS_ENABLED = 'retention-loops-enabled'
+const NEWS_SHARING = 'news-sharing'
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
@@ -51,4 +52,5 @@ module.exports = {
     PROPERTY_DOCUMENTS,
     RETENTION_LOOPS_ENABLED,
     SEND_DAILY_STATISTICS_TASK,
+    NEWS_SHARING,
 }
