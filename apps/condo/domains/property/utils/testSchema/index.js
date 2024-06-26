@@ -8,7 +8,7 @@ const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSc
 const { throwIfError } = require('@open-condo/codegen/generate.test.utils')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
-const { buildFakeAddressAndMeta } = require('./factories')
+const { buildFakeAddressAndMeta, buildPropertyMap } = require('./factories')
 const { Property: PropertyGQL } = require('@condo/domains/property/gql')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { EXPORT_PROPERTIES_TO_EXCEL } = require('@condo/domains/property/gql')
@@ -39,6 +39,13 @@ async function createTestProperty (client, organization, extraAttrs = {}, withFl
 
     return [obj, attrs]
 }
+
+async function createTestPropertyWithMap (client, organization) {
+    return createTestProperty(client, organization, {
+        map: buildPropertyMap(),
+    })
+}
+
 async function updateTestProperty (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
@@ -88,6 +95,7 @@ async function exportPropertiesToExcelByTestClient(client, extraAttrs = {}) {
 module.exports = {
     Property,
     createTestProperty,
+    createTestPropertyWithMap,
     updateTestProperty,
     makeClientWithProperty,
     makeClientWithResidentAccessAndProperty,

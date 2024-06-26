@@ -14,7 +14,7 @@ const { generateChangeTrackableFieldsFrom, buildSetOfFieldsToTrackFrom } = requi
 const access = require('@condo/domains/ticket/access/TicketChange')
 const { TicketSource } = require('@condo/domains/ticket/schema/TicketSource')
 const { TicketStatus } = require('@condo/domains/ticket/schema/TicketStatus')
-const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 
 const { Ticket } = require('./Ticket')
 
@@ -72,6 +72,7 @@ const TicketChange = new GQLListSchema('TicketChange', {
                 const user = await getById('User', userId)
                 if (!user) return getTranslation(translations, 'pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.title')
                 if (user.type === RESIDENT) return getTranslation(translations, 'Contact')
+                if (user.type === SERVICE) return getTranslation(translations, 'Service')
 
                 const orgId = get(ticket, 'organization', null)
                 if (!orgId) return getTranslation(translations, 'DeletedEmployee')

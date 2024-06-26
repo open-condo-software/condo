@@ -1,13 +1,16 @@
 import {
-    BuildingUnitSubType,
     SortMeterReadingsBy,
     SortMetersBy,
     Meter as MeterType,
     PropertyMeter as PropertyMeterType,
     SortPropertyMeterReadingsBy,
+    MeterUnitTypeType,
+    Organization,
+    OrganizationEmployeeRole,
 } from '@app/condo/schema'
-import { Col, ColProps, Form, Row } from 'antd'
+import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
+import { ColumnsType } from 'antd/lib/table'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isNull from 'lodash/isNull'
@@ -15,38 +18,34 @@ import uniqWith from 'lodash/uniqWith'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { Meters } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { Tour, Typography } from '@open-condo/ui'
 
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { Table, TABLE_SCROlL_CONFIG } from '@condo/domains/common/components/Table/Index'
-import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
+import { AddressAndUnitInfo } from '@condo/domains/meter/components/AddressAndUnitInfo'
+import { CreateMeterReadingsActionBar } from '@condo/domains/meter/components/CreateMeterReadingsActionBar'
 import {
     CALL_METER_READING_SOURCE_ID,
     CRM_METER_READING_SOURCE_ID,
 } from '@condo/domains/meter/constants/constants'
-import { useCreateMeterModal } from '@condo/domains/meter/hooks/useCreateMeterModal'
 import { useMeterTableColumns } from '@condo/domains/meter/hooks/useMeterTableColumns'
-import { useUpdateMeterModal } from '@condo/domains/meter/hooks/useUpdateMeterModal'
 import {
     Meter,
     MeterReading,
     PropertyMeterReading,
     PropertyMeter,
-    METER_PAGE_TYPES,
+    METER_TAB_TYPES,
+    METER_TYPES,
 } from '@condo/domains/meter/utils/clientSchema'
-import { usePropertyValidations } from '@condo/domains/property/components/BasePropertyForm/usePropertyValidations'
-import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
-import { UnitInfo } from '@condo/domains/property/components/UnitInfo'
-import { PropertyFormItemTooltip } from '@condo/domains/property/PropertyFormItemTooltip'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { ContactsInfo } from '@condo/domains/ticket/components/BaseTicketForm'
-
-import { CreateMeterReadingsActionBar } from './CreateMeterReadingsActionBar'
 
 
 export const LAYOUT = {
@@ -64,7 +63,7 @@ type MetersTableRecord = {
 function getTableData (meters: MeterType[] | PropertyMeterType[], meterReadings): MetersTableRecord[] {
     const dataSource: MetersTableRecord[] = []
 
-    const lastMeterReadings = uniqWith(meterReadings.filter((meterReading) => meterReading.meter !== null ),
+    const lastMeterReadings = uniqWith(meterReadings.filter((meterReading) => meterReading.meter !== null),
         (meterReading1: any, meterReading2: any) =>
             meterReading1.meter.id === meterReading2.meter.id
     )
@@ -100,29 +99,39 @@ function getTableData (meters: MeterType[] | PropertyMeterType[], meterReadings)
     return dataSource
 }
 
-export const MetersForm = ({
+type MetersTableProps = {
+    handleSave: () => void,
+    selectedPropertyId: string,
+    tableColumns: Record<string, unknown>[] | ColumnsType<any>,
+    newMeterReadings: Array<unknown> | unknown,
+    setNewMeterReadings: (readings) => void
+    selectedUnitName: string
+    selectedUnitType: MeterUnitTypeType
+}
+
+export const MetersTable = ({
     handleSave,
     selectedPropertyId,
-    addressKey,
     selectedUnitName,
     selectedUnitType,
-    organizationId,
     tableColumns,
     newMeterReadings,
     setNewMeterReadings,
-}) => {
+}: MetersTableProps): JSX.Element => {
     const intl = useIntl()
     const MetersAndReadingsMessage = intl.formatMessage({ id: 'pages.condo.meter.create.MetersAndReadings' })
 
     const { user } = useAuth()
     const { breakpoints } = useLayoutContext()
-    const tableScrollConfig = useMemo(() => !breakpoints.TABLET_LARGE ? TABLE_SCROlL_CONFIG : null,  [breakpoints.TABLET_LARGE])
+    const tableScrollConfig = useMemo(() => !breakpoints.TABLET_LARGE ? TABLE_SCROlL_CONFIG : null, [breakpoints.TABLET_LARGE])
+    const router = useRouter()
 
     const { objs: meters, refetch: refetchMeters, loading: metersLoading, count: total } = Meter.useObjects({
         where: {
             property: { id: selectedPropertyId },
             unitName: selectedUnitName,
             unitType: selectedUnitType,
+            archiveDate: null,
         },
         orderBy: SortMetersBy.CreatedAtDesc,
     })
@@ -140,15 +149,6 @@ export const MetersForm = ({
     }, [refetchMeterReadings, refetchMeters])
 
     const loading = metersLoading || meterReadingsLoading
-    const { CreateMeterModal, isCreateMeterModalVisible, setIsCreateMeterModalVisible } = useCreateMeterModal({
-        organizationId,
-        addressKey,
-        meterType: METER_PAGE_TYPES.meter,
-        unitName: selectedUnitName,
-        unitType: selectedUnitType,
-        refetch,
-        propertyId: selectedPropertyId,
-    })
     const dataSource = useMemo(() => getTableData(meters, meterReadings), [meterReadings, meters])
 
     useEffect(() => {
@@ -156,17 +156,14 @@ export const MetersForm = ({
         setNewMeterReadings({})
     }, [selectedPropertyId, selectedUnitName, selectedUnitType])
 
-    const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch)
     const handleRowAction = useCallback((record) => {
         return {
             onClick: () => {
                 const meter = get(record, 'meter')
-                setSelectedMeter(meter)
+                router.push(`/meter/property/${meter.id}`)
             },
         }
-    }, [setSelectedMeter])
-    const handleAddMeterButtonClick = useCallback(() => setIsCreateMeterModalVisible(true),
-        [setIsCreateMeterModalVisible])
+    }, [])
 
     const { count, loading: countLoading } = Meter.useCount({
         where: {
@@ -176,7 +173,7 @@ export const MetersForm = ({
     const { setCurrentStep } = Tour.useTourContext()
 
     useEffect(() => {
-        if (!user || countLoading || count > 0 || loading || isCreateMeterModalVisible) return setCurrentStep(0)
+        if (!user || countLoading || count > 0 || loading) return setCurrentStep(0)
 
         // 0 - no hint
         // 1 - create meter button
@@ -194,7 +191,7 @@ export const MetersForm = ({
 
         return setCurrentStep(3)
     }, [
-        count, countLoading, isCreateMeterModalVisible, loading, meters.length,
+        count, countLoading, loading, meters.length,
         newMeterReadings, selectedUnitName, setCurrentStep, user,
     ])
 
@@ -222,13 +219,10 @@ export const MetersForm = ({
                 <CreateMeterReadingsActionBar
                     handleSave={handleSave}
                     newMeterReadings={newMeterReadings}
-                    handleAddMeterButtonClick={handleAddMeterButtonClick}
                     isLoading={loading}
-                    meterType={METER_PAGE_TYPES.meter}
+                    meterType={METER_TAB_TYPES.meter}
                 />
             </Col>
-            <CreateMeterModal />
-            <UpdateMeterModal />
         </>
     )
 }
@@ -236,45 +230,40 @@ export const MetersForm = ({
 const VALIDATE_FORM_TRIGGER = ['onBlur', 'onSubmit']
 const FORM_ROW_LARGE_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
 const FORM_ROW_MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 20]
-const FORM_ITEM_WRAPPER_COLUMN_STYLE: ColProps = { style: { width: '100%', padding: 0 } }
 
-export const CreateMeterReadingsForm = ({ organization, role }) => {
+type CreateMeterReadingsFormProps = {
+    organization: Organization
+    canManageMeterReadings: boolean
+    role: OrganizationEmployeeRole,
+}
+
+export const CreateMeterReadingsForm = ({ organization, role, canManageMeterReadings }: CreateMeterReadingsFormProps): JSX.Element => {
     const intl = useIntl()
-    const AddressLabel = intl.formatMessage({ id: 'field.Address' })
-    const AddressPlaceholder = intl.formatMessage({ id: 'placeholder.Address' })
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.HelpMessage' })
-    const ClientInfoMessage = intl.formatMessage({ id: 'ClientInfo' })
     const MeterReadingsFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.MeterReadingsFromResident' })
+    const NotFoundMetersForAddress = intl.formatMessage({ id: 'pages.condo.meter.noMetersOnAddress' })
+    const NotFoundMetersLink = intl.formatMessage({ id: 'pages.condo.meter.noMetersOnAddress.link' })
 
     const router = useRouter()
 
-    const [selectedPropertyId, setSelectedPropertyId] = useState<string>(null)
-    const [selectedUnitName, setSelectedUnitName] = useState<string>(null)
-    const [selectedUnitType, setSelectedUnitType] = useState<BuildingUnitSubType>(BuildingUnitSubType.Flat)
+    const propertyIdFromQuery = get(router.query, 'propertyId')
+    const unitNameFromQuery = get(router.query, 'unitName')
+    const unitTypeFromQuery = get(router.query, 'unitType')
+    
+    const [selectedPropertyId, setSelectedPropertyId] = useState<string>(propertyIdFromQuery as string || null)
+    const [selectedUnitName, setSelectedUnitName] = useState<string>(unitNameFromQuery as string || null)
+    const [selectedUnitType, setSelectedUnitType] = useState<MeterUnitTypeType>(unitTypeFromQuery as MeterUnitTypeType || MeterUnitTypeType.Flat)
     const [isMatchSelectedProperty, setIsMatchSelectedProperty] = useState(true)
     const selectPropertyIdRef = useRef(selectedPropertyId)
-
-    useEffect(() => {
-        selectPropertyIdRef.current = selectedPropertyId
-        setSelectedUnitName(null)
-    }, [selectedPropertyId])
-
     const selectedUnitNameRef = useRef(selectedUnitName)
-    useEffect(() => {
-        selectedUnitNameRef.current = selectedUnitName
-    }, [selectedUnitName])
-
     const selectedUnitTypeRef = useRef(selectedUnitType)
+
+    const disabledFields = useMemo(() => !canManageMeterReadings, [canManageMeterReadings])
+
     useEffect(() => {
         selectedUnitTypeRef.current = selectedUnitType
     }, [selectedUnitType])
-
-    const { requiredValidator } = useValidations()
-    const { addressValidator } = usePropertyValidations()
-    const validations = {
-        property: [requiredValidator, addressValidator(selectedPropertyId, isMatchSelectedProperty)],
-    }
 
     const { ContactsEditorComponent } = useContactsEditorHook({
         role,
@@ -285,12 +274,35 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
         where: { id: selectedPropertyId },
     }, { skip: isNull(selectedPropertyId) })
 
-    const { newMeterReadings, setNewMeterReadings, tableColumns } = useMeterTableColumns(METER_PAGE_TYPES.meter)
+    const { count: meterCountForAddress, loading: meterCountForAddressLoading } = Meter.useCount({
+        where: { 
+            property: { id: selectedPropertyId },
+            archiveDate: null,
+        },
+    }, { skip: isNull(selectedPropertyId) })
+
+    const { count: meterCountForUnitName, loading: meterCountForUnitNameLoading } = Meter.useCount({
+        where: { 
+            property: { id: selectedPropertyId },
+            unitName: selectedUnitName,
+            archiveDate: null,
+        },
+    }, { skip: isNull(selectedPropertyId) || isNull(selectedUnitName) })
+
+    const { newMeterReadings, setNewMeterReadings, tableColumns } = useMeterTableColumns(METER_TAB_TYPES.meter)
+    const isNoMeterForAddress = useMemo(() => !isEmpty(selectedPropertyId) && !meterCountForAddressLoading && meterCountForAddress === 0, [meterCountForAddress, meterCountForAddressLoading, selectedPropertyId])
+    const isNoMeterForUnitName = useMemo(() => isEmpty(selectedUnitName) ? false : !meterCountForUnitNameLoading && meterCountForUnitName < 1, [meterCountForUnitName, meterCountForUnitNameLoading, selectedUnitName])
+
+    const [propertyUnitInitialValues, setPropertyUnitInitialValues] = useState(()=> !propertyIdFromQuery ? ({}) : ({
+        propertyId: propertyIdFromQuery as string,
+        unitName: unitNameFromQuery as string,
+        unitType: unitTypeFromQuery as string,
+    }))
 
     const createMeterReadingAction = MeterReading.useCreate({
         source: { connect: { id: CALL_METER_READING_SOURCE_ID } },
     }, async () => {
-        await router.push('/meter')
+        await router.push(`/meter?tab=${METER_TAB_TYPES.meterReading}&type=${METER_TYPES.unit}`)
     })
 
     const handleSubmit = useCallback(async (values) => {
@@ -323,6 +335,42 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
         setSelectedPropertyId(String(option.key))
     }, [])
 
+    const handleDeselectPropertyAddress = useCallback(() =>  {
+        setSelectedPropertyId(null)
+    }, [])
+
+    useEffect(() => {        
+        selectPropertyIdRef.current = selectedPropertyId
+        if (!propertyUnitInitialValues || !selectedPropertyId) {
+            setSelectedUnitName(null)
+            setSelectedUnitType(MeterUnitTypeType.Flat)
+        }
+        if (!selectedPropertyId) setPropertyUnitInitialValues({})
+
+    }, [selectedPropertyId, meterCountForAddressLoading, meterCountForAddress])
+
+    useEffect(() => {
+        selectedUnitNameRef.current = selectedUnitName
+    }, [selectedUnitName, meterCountForUnitName, meterCountForUnitNameLoading])
+
+    const notFoundMetersForAddressTooltip = useMemo(() => {
+        return (
+            <div>
+                <Typography.Text type='secondary' size='medium'>
+                    {NotFoundMetersForAddress}
+                </Typography.Text>
+                &nbsp;
+                <LinkWithIcon
+                    title={NotFoundMetersLink}
+                    size='medium'
+                    PostfixIcon={Meters}
+                    href='/meter/create?tab=meter'
+                    target='_blank'
+                />
+            </div>
+        )
+    }, [NotFoundMetersForAddress, NotFoundMetersLink])
+
     return (
         <FormWithAction
             {...LAYOUT}
@@ -333,6 +381,9 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                 values.unitName = selectedUnitNameRef.current
                 values.unitType = selectedUnitTypeRef.current
                 return values
+            }}
+            submitButtonProps={{
+                disabled: disabledFields,
             }}
         >
             {({ handleSave, form }) => (
@@ -353,44 +404,23 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                     <Col lg={17} md={24}>
                                         <Row gutter={FORM_ROW_LARGE_VERTICAL_GUTTER}>
                                             <Col span={24}>
-                                                <Row justify='space-between' gutter={FORM_ROW_MEDIUM_VERTICAL_GUTTER}>
-                                                    <Col span={24}>
-                                                        <Typography.Title level={5}>
-                                                            {ClientInfoMessage}
-                                                        </Typography.Title>
-                                                    </Col>
-                                                    <Col span={24}>
-                                                        <Form.Item
-                                                            name='property'
-                                                            label={AddressLabel}
-                                                            rules={validations.property}
-                                                            wrapperCol={FORM_ITEM_WRAPPER_COLUMN_STYLE}
-                                                            shouldUpdate
-                                                            tooltip={<PropertyFormItemTooltip />}
-                                                        >
-                                                            <PropertyAddressSearchInput
-                                                                organizationId={get(organization, 'id')}
-                                                                autoFocus={true}
-                                                                onSelect={getHandleSelectPropertyAddress(form)}
-                                                                placeholder={AddressPlaceholder}
-                                                            />
-                                                        </Form.Item>
-                                                    </Col>
-                                                    {
-                                                        selectedPropertyId && (
-                                                            <Col span={24}>
-                                                                <UnitInfo
-                                                                    property={property}
-                                                                    loading={propertyLoading}
-                                                                    setSelectedUnitName={setSelectedUnitName}
-                                                                    setSelectedUnitType={setSelectedUnitType}
-                                                                    form={form}
-                                                                    required
-                                                                />
-                                                            </Col>
-                                                        )
-                                                    }
-                                                </Row>
+                                                <AddressAndUnitInfo 
+                                                    organizationId={get(organization, 'id')}
+                                                    form={form}
+                                                    getHandleSelectPropertyAddress={getHandleSelectPropertyAddress}
+                                                    handleDeselectPropertyAddress={handleDeselectPropertyAddress}
+                                                    isMatchSelectedProperty={isMatchSelectedProperty}
+                                                    meterType={METER_TAB_TYPES.meter}
+                                                    selectedPropertyId={selectedPropertyId}
+                                                    isNoMeterForAddress={isNoMeterForAddress}
+                                                    isNoMeterForUnitName={isNoMeterForUnitName}
+                                                    notFoundMetersForAddressTooltip={notFoundMetersForAddressTooltip}
+                                                    property={property}
+                                                    propertyLoading={propertyLoading}
+                                                    setSelectedUnitName={setSelectedUnitName}
+                                                    setSelectedUnitType={setSelectedUnitType}
+                                                    initialValues={propertyUnitInitialValues}
+                                                />
                                             </Col>
                                             <Col span={24}>
                                                 <ContactsInfo
@@ -405,13 +435,11 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                     </Col>
                                 </Row>
                             </Col>
-                            <MetersForm
+                            <MetersTable
                                 selectedPropertyId={selectedPropertyId}
-                                addressKey={get(property, 'addressKey', null)}
                                 selectedUnitName={selectedUnitName}
                                 selectedUnitType={selectedUnitType}
                                 handleSave={handleSave}
-                                organizationId={organization.id}
                                 tableColumns={tableColumns}
                                 setNewMeterReadings={setNewMeterReadings}
                                 newMeterReadings={newMeterReadings}
@@ -423,25 +451,33 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
         </FormWithAction>
     )
 }
-export const PropertyMetersForm = ({
+
+type PropertyMetersTableProps = {
+    handleSave: () => void,
+    selectedPropertyId: string,
+    tableColumns: Record<string, unknown>[] | ColumnsType<any>,
+    newMeterReadings: Array<unknown> | unknown,
+    setNewMeterReadings: (readings) => void
+}
+
+export const PropertyMetersTable = ({
     handleSave,
     selectedPropertyId,
-    organizationId,
     tableColumns,
     newMeterReadings,
     setNewMeterReadings,
-}) => {
+}: PropertyMetersTableProps): JSX.Element => {
     const intl = useIntl()
     const MetersAndReadingsMessage = intl.formatMessage({ id: 'pages.condo.meter.create.MetersAndReadings' })
 
     const { breakpoints } = useLayoutContext()
-    const tableScrollConfig = useMemo(() => !breakpoints.TABLET_LARGE ? TABLE_SCROlL_CONFIG : null,  [breakpoints.TABLET_LARGE])
-
-    const { obj: property, loading: propertyLoading } = Property.useObject({ where: { id: selectedPropertyId } })
+    const tableScrollConfig = useMemo(() => !breakpoints.TABLET_LARGE ? TABLE_SCROlL_CONFIG : null, [breakpoints.TABLET_LARGE])
+    const router = useRouter()
 
     const { objs: meters, refetch: refetchMeters, loading: metersLoading, count: total } = PropertyMeter.useObjects({
         where: {
             property: { id: selectedPropertyId },
+            archiveDate: null,
         },
         orderBy: SortMetersBy.CreatedAtDesc,
     })
@@ -458,16 +494,7 @@ export const PropertyMetersForm = ({
         refetchMeterReadings()
     }, [refetchMeterReadings, refetchMeters])
 
-    const loading = metersLoading || meterReadingsLoading || propertyLoading
-    const { CreateMeterModal, setIsCreateMeterModalVisible } = useCreateMeterModal({
-        organizationId,
-        propertyId: selectedPropertyId,
-        refetch,
-        addressKey: get(property, 'addressKey', null),
-        unitType: null,
-        unitName: null,
-        meterType: METER_PAGE_TYPES.propertyMeter,
-    })
+    const loading = metersLoading || meterReadingsLoading 
     const dataSource = useMemo(() => getTableData(meters, meterReadings), [meterReadings, meters])
 
     useEffect(() => {
@@ -475,17 +502,14 @@ export const PropertyMetersForm = ({
         setNewMeterReadings({})
     }, [selectedPropertyId])
 
-    const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch, METER_PAGE_TYPES.propertyMeter)
     const handleRowAction = useCallback((record) => {
         return {
             onClick: () => {
                 const meter = get(record, 'meter')
-                setSelectedMeter(meter)
+                router.push(`/meter/property/${meter.id}`)
             },
         }
-    }, [setSelectedMeter])
-    const handleAddMeterButtonClick = useCallback(() => setIsCreateMeterModalVisible(true),
-        [setIsCreateMeterModalVisible])
+    }, [])
 
     return (
         <>
@@ -511,51 +535,67 @@ export const PropertyMetersForm = ({
                 <CreateMeterReadingsActionBar
                     handleSave={handleSave}
                     newMeterReadings={newMeterReadings}
-                    handleAddMeterButtonClick={handleAddMeterButtonClick}
                     isLoading={loading}
-                    meterType={METER_PAGE_TYPES.propertyMeter}
+                    meterType={METER_TAB_TYPES.propertyMeter}
                 />
             </Col>
-            <CreateMeterModal />
-            <UpdateMeterModal />
         </>
     )
 }
 
-export const CreatePropertyMeterReadingsForm = ({ organization, role }) => {
+
+type CreatePropertyMeterReadingsFormProps = {
+    organization: Organization
+    canManageMeterReadings: boolean
+}
+
+export const CreatePropertyMeterReadingsForm = ({ organization, canManageMeterReadings }: CreatePropertyMeterReadingsFormProps): JSX.Element => {
     const intl = useIntl()
-    const AddressLabel = intl.formatMessage({ id: 'field.Address' })
-    const AddressPlaceholder = intl.formatMessage({ id: 'placeholder.Address' })
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.HelpMessage' })
+    const NotFoundMeters = intl.formatMessage({ id: 'pages.condo.meter.noMetersOnAddress' })
+    const NotFoundMetersLink = intl.formatMessage({ id: 'pages.condo.meter.noMetersOnAddress.link' })
 
-    const [selectedPropertyId, setSelectedPropertyId] = useState<string>(null)
+    const router = useRouter()
+    const propertyIdFromQuery = get(router.query, 'propertyId')
+
+    const [selectedPropertyId, setSelectedPropertyId] = useState<string>(propertyIdFromQuery as string || null)
     const [isMatchSelectedProperty, setIsMatchSelectedProperty] = useState(true)
     const selectPropertyIdRef = useRef(selectedPropertyId)
+    const organizationId = get(organization, 'id')
+
+    const disabledFields = useMemo(() => !canManageMeterReadings, [canManageMeterReadings])
 
     const {
         newMeterReadings,
         setNewMeterReadings,
         tableColumns,
-    } = useMeterTableColumns(METER_PAGE_TYPES.propertyMeter)
+    } = useMeterTableColumns(METER_TAB_TYPES.propertyMeter)
 
-    useEffect(() => {
-        selectPropertyIdRef.current = selectedPropertyId
-    }, [selectedPropertyId])
-
-    const { requiredValidator } = useValidations()
-    const { addressValidator } = usePropertyValidations()
-    const validations = {
-        property: [requiredValidator, addressValidator(selectedPropertyId, isMatchSelectedProperty)],
-    }
-
-    const router = useRouter()
 
     const createMeterReadingAction = PropertyMeterReading.useCreate({
         source: { connect: { id: CRM_METER_READING_SOURCE_ID } },
     }, async () => {
-        await router.push(`/meter?tab=${METER_PAGE_TYPES.propertyMeter}`)
+        await router.push(`/meter?tab=${METER_TAB_TYPES.meterReading}&type=${METER_TYPES.property}`)
     })
+
+    const { count: propertyMetersCount, loading: propertyMetersCountLoading } = PropertyMeter.useCount({
+        where: {
+            property: { id: selectedPropertyId },
+            archiveDate: null,
+        },
+    }, { skip: isNull(selectedPropertyId) })
+
+    const propertyUnitInitialValues = useMemo(()=> ({
+        propertyId: propertyIdFromQuery as string,
+    }), [propertyIdFromQuery])
+
+    const isNoMeterForAddress = useMemo(() => !isEmpty(selectedPropertyId) && !propertyMetersCountLoading && propertyMetersCount === 0, [propertyMetersCount, propertyMetersCountLoading, selectedPropertyId])
+
+    useEffect(() => {        
+        selectPropertyIdRef.current = selectedPropertyId
+
+    }, [selectedPropertyId, propertyMetersCountLoading, propertyMetersCount])
 
     const handleSubmit = useCallback(async (values) => {
         for (const [meterId, newMeterReading] of Object.entries(newMeterReadings)) {
@@ -579,11 +619,36 @@ export const CreatePropertyMeterReadingsForm = ({ organization, role }) => {
         setSelectedPropertyId(String(option.key))
     }, [])
 
+    const handleDeselectPropertyAddress = useCallback(() =>  {
+        setSelectedPropertyId(null)
+    }, [])
+
+    const notFoundMetersForAddressTooltip = useMemo(() => {
+        return (
+            <div>
+                <Typography.Text type='secondary' size='medium'>
+                    {NotFoundMeters}
+                </Typography.Text>
+                &nbsp;
+                <LinkWithIcon
+                    title={NotFoundMetersLink}
+                    size='medium'
+                    PostfixIcon={Meters}
+                    href='/meter/create?tab=property-meter'
+                    target='_blank'
+                />
+            </div>
+        )
+    }, [NotFoundMeters, NotFoundMetersLink])
+
     return (
         <FormWithAction
             {...LAYOUT}
             validateTrigger={VALIDATE_FORM_TRIGGER}
             action={handleSubmit}
+            submitButtonProps={{
+                disabled: disabledFields,
+            }}
         >
             {({ handleSave, form }) => (
                 <>
@@ -599,37 +664,22 @@ export const CreatePropertyMeterReadingsForm = ({ organization, role }) => {
                     <Col span={24}>
                         <Row gutter={FORM_ROW_LARGE_VERTICAL_GUTTER}>
                             <Col span={24}>
-                                <Row gutter={FORM_ROW_LARGE_VERTICAL_GUTTER} justify='space-between'>
-                                    <Col span={24}>
-                                        <Row gutter={FORM_ROW_LARGE_VERTICAL_GUTTER} style={{ width: '100%' }}>
-                                            <Col span={24}>
-                                                <Row justify='space-between' gutter={FORM_ROW_MEDIUM_VERTICAL_GUTTER}>
-                                                    <Col span={24}>
-                                                        <Form.Item
-                                                            name='property'
-                                                            label={AddressLabel}
-                                                            rules={validations.property}
-                                                            wrapperCol={FORM_ITEM_WRAPPER_COLUMN_STYLE}
-                                                            shouldUpdate
-                                                        >
-                                                            <PropertyAddressSearchInput
-                                                                organizationId={get(organization, 'id')}
-                                                                autoFocus={true}
-                                                                onSelect={getHandleSelectPropertyAddress(form)}
-                                                                placeholder={AddressPlaceholder}
-                                                            />
-                                                        </Form.Item>
-                                                    </Col>
-                                                </Row>
-                                            </Col>
-                                        </Row>
-                                    </Col>
-                                </Row>
+                                <AddressAndUnitInfo 
+                                    form={form}
+                                    getHandleSelectPropertyAddress={getHandleSelectPropertyAddress}
+                                    handleDeselectPropertyAddress={handleDeselectPropertyAddress}
+                                    isMatchSelectedProperty={isMatchSelectedProperty}
+                                    meterType={METER_TAB_TYPES.propertyMeter}
+                                    organizationId={organizationId}
+                                    selectedPropertyId={selectedPropertyId}
+                                    notFoundMetersForAddressTooltip={notFoundMetersForAddressTooltip}
+                                    isNoMeterForAddress={isNoMeterForAddress}
+                                    initialValues={propertyUnitInitialValues}
+                                />
                             </Col>
-                            <PropertyMetersForm
+                            <PropertyMetersTable
                                 selectedPropertyId={selectedPropertyId}
                                 handleSave={handleSave}
-                                organizationId={organization.id}
                                 tableColumns={tableColumns}
                                 setNewMeterReadings={setNewMeterReadings}
                                 newMeterReadings={newMeterReadings}

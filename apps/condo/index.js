@@ -105,6 +105,7 @@ const tasks = () => [
     require('@condo/domains/miniapp/tasks'),
     getWebhookTasks('low'),
     require('@condo/domains/marketplace/tasks'),
+    require('@condo/domains/analytics/tasks'),
 ]
 
 if (!IS_BUILD_PHASE && SENTRY_CONFIG['server']) {

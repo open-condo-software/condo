@@ -2,7 +2,7 @@ const http = require('http')
 const https = require('https')
 
 const FormData = require('form-data')
-const { get } = require('lodash')
+const { get, compact } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { fetch } = require('@open-condo/keystone/fetch')
@@ -14,6 +14,7 @@ const { renderTemplate } = require('../templates')
 const EMAIL_API_CONFIG = (conf.EMAIL_API_CONFIG) ? JSON.parse(conf.EMAIL_API_CONFIG) : null
 
 const HTTPX_REGEXP = /^http:/
+const MAX_TAG_LENGTH = 128
 
 async function prepareMessageToSend (message) {
     const email = get(message, 'email') || get(message, ['user', 'email']) || null
@@ -22,7 +23,13 @@ async function prepareMessageToSend (message) {
 
     const { subject, text, html } = await renderTemplate(EMAIL_TRANSPORT, message)
 
-    return { to: email, emailFrom: message.emailFrom, subject, text, html, meta: message.meta }
+    const tags = get(message.meta, 'tags')
+    const messageType = message.type.slice(0, MAX_TAG_LENGTH)
+    const preparedTags = Array.isArray(tags)
+        ? compact([messageType, ...tags].filter(tag => typeof tag === 'string').map(tag => tag.slice(0, MAX_TAG_LENGTH)))
+        : [messageType]
+
+    return { to: email, emailFrom: message.emailFrom, subject, text, html, meta: message.meta, tags: preparedTags }
 }
 
 /**
@@ -40,14 +47,19 @@ async function prepareMessageToSend (message) {
  * @typedef {[boolean, Object]} StatusAndMetadata
  * @return {StatusAndMetadata} Status and delivery Metadata (debug only)
  */
-async function send ({ to, emailFrom = null, cc, bcc, subject, text, html, meta } = {}) {
+async function send ({ to, emailFrom = null, cc, bcc, subject, text, html, meta, tags } = {}) {
     if (!EMAIL_API_CONFIG) throw new Error('no EMAIL_API_CONFIG')
     if (!to || !to.includes('@')) throw new Error('unsupported to argument format')
     if (!subject) throw new Error('no subject argument')
     if (!text && !html) throw new Error('no text or html argument')
-    const { api_url, token, from } = EMAIL_API_CONFIG
+    const { api_url, token, from, useTags, maxTags = 1 } = EMAIL_API_CONFIG
     const form = new FormData()
     form.append('from', from)
+    if (useTags && (typeof maxTags === 'number' && maxTags > 0) && Array.isArray(tags)) {
+        for (const tag of tags.slice(0, maxTags)) {
+            form.append('o:tag', tag)
+        }
+    }
     if (emailFrom) {
         form.append('h:Reply-To', emailFrom)
     }

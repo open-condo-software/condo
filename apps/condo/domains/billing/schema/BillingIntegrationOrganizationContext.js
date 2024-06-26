@@ -50,6 +50,7 @@ const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrat
             hooks: {
                 resolveInput: getStatusResolver('BillingIntegration', 'integration'),
             },
+            graphQLReturnType: 'String',
         },
 
         state: {

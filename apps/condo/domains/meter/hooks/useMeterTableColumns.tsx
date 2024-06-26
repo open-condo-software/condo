@@ -1,19 +1,21 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react'
 import { InputNumber } from 'antd'
+import dayjs from 'dayjs'
 import compact from 'lodash/compact'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import pickBy from 'lodash/pickBy'
-import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
+import { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Tour } from '@open-condo/ui'
 
-import { getDateRender, getTextRender } from '@condo/domains/common/components/Table/Renders'
+import { getTextRender } from '@condo/domains/common/components/Table/Renders'
 import { colors } from '@condo/domains/common/constants/style'
 import { fontSizes } from '@condo/domains/common/constants/style'
-import { METER_PAGE_TYPES, MeterPageTypes } from '@condo/domains/meter/utils/clientSchema'
+import { METER_TAB_TYPES, MeterPageTypes } from '@condo/domains/meter/utils/clientSchema'
+import { getNextVerificationDateRender } from '@condo/domains/meter/utils/clientSchema/Renders'
 
 
 const inputNumberCSS = css`
@@ -57,7 +59,10 @@ const MeterReadingInput = ({ index, record, newMeterReadings, setNewMeterReading
     const meterId = get(record, ['meter', 'id'])
     const tariffNumber = get(record, 'tariffNumber')
     const meterResourceMeasure = get(record, ['meter', 'resource', 'measure'])
+    const nextVerificationDate = get(record, ['meter', 'nextVerificationDate'], '')
     const inputValue = get(newMeterReadings, [meterId, tariffNumber], '')
+
+    const isInputDisabled =  dayjs(nextVerificationDate).isBefore(dayjs(), 'day') && true
 
     const updateMeterReadingsValue = useCallback((oldMeterReadings, newTariffValue) => {
         const newReadingsFromOtherTariffs = get(oldMeterReadings, [meterId], {})
@@ -96,6 +101,7 @@ const MeterReadingInput = ({ index, record, newMeterReadings, setNewMeterReading
                     <InputNumber
                         {...inputProps}
                         autoFocus
+                        disabled={isInputDisabled}
                     />
                     <div style={METER_READING_INPUT_ADDON_STYLE}>
                         {meterResourceMeasure}
@@ -109,6 +115,7 @@ const MeterReadingInput = ({ index, record, newMeterReadings, setNewMeterReading
         <div {...wrapperProps}>
             <InputNumber
                 {...inputProps}
+                disabled={isInputDisabled}
             />
             <div style={METER_READING_INPUT_ADDON_STYLE}>
                 {meterResourceMeasure}
@@ -124,7 +131,7 @@ export const useMeterTableColumns = (meterType: MeterPageTypes) => {
     const MeterNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterNumber' })
     const PlaceMessage = intl.formatMessage({ id: 'pages.condo.meter.Place' })
     const SourceMessage = intl.formatMessage({ id: 'field.Source' })
-    const VerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.VerificationDate' })
+    const NextVerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.VerificationDate' })
     const MeterReadingsMessage = intl.formatMessage({ id: 'pages.condo.meter.create.MeterReadings' })
     const LastReadingMessage = intl.formatMessage({ id: 'pages.condo.meter.create.LastReading' })
     const FirstTariffMessage = intl.formatMessage({ id: 'pages.condo.meter.Tariff1Message' })
@@ -132,7 +139,7 @@ export const useMeterTableColumns = (meterType: MeterPageTypes) => {
     const ThirdTariffMessage = intl.formatMessage({ id: 'pages.condo.meter.Tariff3Message' })
     const FourthTariffMessage = intl.formatMessage({ id: 'pages.condo.meter.Tariff4Message' })
 
-    const isPropertyMeter = meterType === METER_PAGE_TYPES.propertyMeter
+    const isPropertyMeter = meterType === METER_TAB_TYPES.propertyMeter
     const [newMeterReadings, setNewMeterReadings] = useState({})
     const tariffNumberMessages = useMemo(() =>
         [`(${FirstTariffMessage})`, `(${SecondTariffMessage})`, `(${ThirdTariffMessage})`, `(${FourthTariffMessage})`],
@@ -159,8 +166,9 @@ export const useMeterTableColumns = (meterType: MeterPageTypes) => {
             setNewMeterReadings={setNewMeterReadings}
         />
     ), [newMeterReadings])
-    const textRenderer = useMemo(() => getTextRender(), [getTextRender])
-    const dateRenderer = useMemo(() => getDateRender(intl), [intl, getDateRender])
+
+    const textRenderer = useMemo(() => getTextRender(), [])
+    const nextVerificationDateRenderer = useMemo(() => getNextVerificationDateRender(intl), [intl])
 
     const tableColumns = useMemo(() => compact([
         !isPropertyMeter ? {
@@ -199,10 +207,10 @@ export const useMeterTableColumns = (meterType: MeterPageTypes) => {
             render: textRenderer,
         },
         {
-            title: VerificationDateMessage,
-            dataIndex: ['meter', 'verificationDate'],
+            title: NextVerificationDateMessage,
+            dataIndex: ['meter', 'nextVerificationDate'],
             width: '10%',
-            render: dateRenderer,
+            render: nextVerificationDateRenderer,
         },
         {
             title: MeterReadingsMessage,
@@ -210,10 +218,7 @@ export const useMeterTableColumns = (meterType: MeterPageTypes) => {
             render: meterReadingRenderer,
         },
     ]),
-    [
-        AccountMessage, LastReadingMessage, MeterNumberMessage, MeterReadingsMessage, PlaceMessage, isPropertyMeter,
-        ResourceMessage, SourceMessage, VerificationDateMessage, dateRenderer, meterReadingRenderer, meterResourceRenderer, textRenderer,
-    ])
+    [isPropertyMeter, AccountMessage, textRenderer, ResourceMessage, meterResourceRenderer, MeterNumberMessage, PlaceMessage, LastReadingMessage, SourceMessage, NextVerificationDateMessage, nextVerificationDateRenderer, MeterReadingsMessage, meterReadingRenderer])
 
     return useMemo(() => ({ tableColumns, newMeterReadings, setNewMeterReadings }),
         [newMeterReadings, tableColumns])

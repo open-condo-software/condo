@@ -19,64 +19,67 @@ const {
 const { registerBillingReceiptsByTestClient } = require('@condo/domains/billing/utils/testSchema')
 const { generateServicesData } = require('@condo/domains/billing/utils/testSchema')
 const { createTestBillingCategory, BillingIntegrationOrganizationContext: BillingContext } = require('@condo/domains/billing/utils/testSchema')
-const { BillingTestUtils } = require('@condo/domains/billing/utils/testSchema/utils')
+const {
+    TestUtils,
+    BillingTestMixin,
+} = require('@condo/domains/billing/utils/testSchema/testUtils')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const HOUSING_CATEGORY_ID = '928c97ef-5289-4daa-b80e-4b9fed50c629'
 const REPAIR_CATEGORY_ID = 'c0b9db6a-c351-4bf4-aa35-8e5a500d0195'
 
 describe('RegisterBillingReceiptsService', () => {
 
-    const billingTestUtils = new BillingTestUtils()
+    const utils = new TestUtils([BillingTestMixin])
 
     beforeAll(async () => {
-        await billingTestUtils.init()
+        await utils.init()
     })
 
     describe('Permission check', () => {
 
         test('anonymous: can not execute', async () => {
             await expectToThrowAuthenticationErrorToResult(async () => {
-                await registerBillingReceiptsByTestClient(billingTestUtils.clients.anonymous, {
-                    context: { id: billingTestUtils.billingContext.id },
-                    receipts: [billingTestUtils.createJSONReceipt()],
+                await registerBillingReceiptsByTestClient(utils.clients.anonymous, {
+                    context: { id: utils.billingContext.id },
+                    receipts: [utils.createJSONReceipt()],
                 })
             })
         })
         test('user: can not execute', async () => {
             await expectToThrowAccessDeniedErrorToResult(async () => {
-                await registerBillingReceiptsByTestClient(billingTestUtils.clients.user, {
-                    context: { id: billingTestUtils.billingContext.id },
-                    receipts: [billingTestUtils.createJSONReceipt()],
+                await registerBillingReceiptsByTestClient(utils.clients.user, {
+                    context: { id: utils.billingContext.id },
+                    receipts: [utils.createJSONReceipt()],
                 })
             })
         })
         test('employee: can not execute', async () => {
             await expectToThrowAccessDeniedErrorToResult(async () => {
-                await registerBillingReceiptsByTestClient(billingTestUtils.clients.employee, {
-                    context: { id: billingTestUtils.billingContext.id },
-                    receipts: [billingTestUtils.createJSONReceipt()],
+                await registerBillingReceiptsByTestClient(utils.clients.employee.billing, {
+                    context: { id: utils.billingContext.id },
+                    receipts: [utils.createJSONReceipt()],
                 })
             })
         })
         test('support: can not execute', async () => {
             await expectToThrowAccessDeniedErrorToResult(async () => {
-                await registerBillingReceiptsByTestClient(billingTestUtils.clients.support, {
-                    context: { id: billingTestUtils.billingContext.id },
-                    receipts: [billingTestUtils.createJSONReceipt()],
+                await registerBillingReceiptsByTestClient(utils.clients.support, {
+                    context: { id: utils.billingContext.id },
+                    receipts: [utils.createJSONReceipt()],
                 })
             })
         })
         test('service user: can execute', async () => {
-            const [[receipt]] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.service, {
-                context: { id: billingTestUtils.billingContext.id },
-                receipts: [billingTestUtils.createJSONReceipt()],
+            const [[receipt]] = await registerBillingReceiptsByTestClient(utils.clients.service, {
+                context: { id: utils.billingContext.id },
+                receipts: [utils.createJSONReceipt()],
             })
             expect(receipt).toHaveProperty('id')
         })
         test('admin: can execute', async () => {
-            const [[receipt]] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.service, {
-                context: { id: billingTestUtils.billingContext.id },
-                receipts: [billingTestUtils.createJSONReceipt()],
+            const [[receipt]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [utils.createJSONReceipt()],
             })
             expect(receipt).toHaveProperty('id')
         })
@@ -86,12 +89,12 @@ describe('RegisterBillingReceiptsService', () => {
     describe('Mixed output check', () => {
         test('should return errors together with good receipts', async () => {
             await catchErrorFrom(async () => {
-                await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                    context: { id: billingTestUtils.billingContext.id },
+                await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                    context: { id: utils.billingContext.id },
                     receipts: [
-                        billingTestUtils.createJSONReceipt(),
-                        billingTestUtils.createJSONReceipt({ month: -1 }),
-                        billingTestUtils.createJSONReceipt(),
+                        utils.createJSONReceipt(),
+                        utils.createJSONReceipt({ month: -1 }),
+                        utils.createJSONReceipt(),
                     ],
                 })
             }, ({ data: { result }, errors }) => {
@@ -111,18 +114,18 @@ describe('RegisterBillingReceiptsService', () => {
             const currentMonthPeriod = dayjs().add(5, 'year').format('YYYY-MM-01')
             const nextMonthPeriod = dayjs().add(5, 'year').add(1, 'month').format('YYYY-MM-01')
             const [currentYear, currentMonth] = currentMonthPeriod.split('-').map(Number)
-            await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                context: { id: billingTestUtils.billingContext.id },
-                receipts: [billingTestUtils.createJSONReceipt({ month: currentMonth, year: currentYear })],
+            await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [utils.createJSONReceipt({ month: currentMonth, year: currentYear })],
             })
-            const contextBefore = await BillingContext.getOne(billingTestUtils.clients.admin, { id: billingTestUtils.billingContext.id })
+            const contextBefore = await BillingContext.getOne(utils.clients.admin, { id: utils.billingContext.id })
             expect(contextBefore.lastReport.period).toEqual(currentMonthPeriod)
             const [nextYear, nextMonth] = nextMonthPeriod.split('-').map(Number)
-            await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                context: { id: billingTestUtils.billingContext.id },
-                receipts: [billingTestUtils.createJSONReceipt({ month: nextMonth, year: nextYear })],
+            await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [utils.createJSONReceipt({ month: nextMonth, year: nextYear })],
             })
-            const contextAfter = await BillingContext.getOne(billingTestUtils.clients.admin, { id: billingTestUtils.billingContext.id })
+            const contextAfter = await BillingContext.getOne(utils.clients.admin, { id: utils.billingContext.id })
             expect(contextAfter.lastReport.period).toEqual(nextMonthPeriod)
         })
 
@@ -130,18 +133,18 @@ describe('RegisterBillingReceiptsService', () => {
             const currentMonthPeriod = dayjs().add(6, 'year').format('YYYY-MM-01')
             const nextMonthPeriod = dayjs().add(6, 'year').add(1, 'month').format('YYYY-MM-01')
             const [nextYear, nextMonth] = nextMonthPeriod.split('-').map(Number)
-            await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                context: { id: billingTestUtils.billingContext.id },
-                receipts: [billingTestUtils.createJSONReceipt({ month: nextMonth, year: nextYear })],
+            await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [utils.createJSONReceipt({ month: nextMonth, year: nextYear })],
             })
-            const contextBefore = await BillingContext.getOne(billingTestUtils.clients.admin, { id: billingTestUtils.billingContext.id })
+            const contextBefore = await BillingContext.getOne(utils.clients.admin, { id: utils.billingContext.id })
             expect(contextBefore.lastReport.period).toEqual(nextMonthPeriod)
             const [currentYear, currentMonth] = currentMonthPeriod.split('-').map(Number)
-            await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                context: { id: billingTestUtils.billingContext.id },
-                receipts: [billingTestUtils.createJSONReceipt({ month: currentMonth, year: currentYear })],
+            await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [utils.createJSONReceipt({ month: currentMonth, year: currentYear })],
             })
-            const contextAfter = await BillingContext.getOne(billingTestUtils.clients.admin, { id: billingTestUtils.billingContext.id })
+            const contextAfter = await BillingContext.getOne(utils.clients.admin, { id: utils.billingContext.id })
             expect(contextAfter.lastReport.period).toEqual(nextMonthPeriod)
         })
 
@@ -150,9 +153,9 @@ describe('RegisterBillingReceiptsService', () => {
     describe('PeriodResolver',  () => {
         test('should return an error on a wrong year format', async () => {
             await catchErrorFrom(async () => {
-                await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                    context: { id: billingTestUtils.billingContext.id },
-                    receipts: [billingTestUtils.createJSONReceipt({ year: 23 })],
+                await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                    context: { id: utils.billingContext.id },
+                    receipts: [utils.createJSONReceipt({ year: 23 })],
                 })
             }, (e) => {
                 expect(e.errors[0].extensions.code).toEqual(ERRORS.WRONG_YEAR.code)
@@ -161,9 +164,9 @@ describe('RegisterBillingReceiptsService', () => {
         })
         test('should return an error on a wrong month', async () => {
             await catchErrorFrom(async () => {
-                await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                    context: { id: billingTestUtils.billingContext.id },
-                    receipts: [billingTestUtils.createJSONReceipt({ month: 13 })],
+                await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                    context: { id: utils.billingContext.id },
+                    receipts: [utils.createJSONReceipt({ month: 13 })],
                 })
             }, (e) => {
                 expect(e.errors[0].extensions.code).toEqual(ERRORS.WRONG_MONTH.code)
@@ -174,26 +177,26 @@ describe('RegisterBillingReceiptsService', () => {
 
     describe('RecipientResolver', () => {
         test('Should create approved recipient on TIN matched', async () => {
-            const recipientInput = billingTestUtils.createRecipient({ tin: billingTestUtils.organization.tin })
-            const [[{ receiver }]] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                context: { id: billingTestUtils.billingContext.id },
-                receipts: [billingTestUtils.createJSONReceipt(recipientInput)],
+            const recipientInput = utils.createRecipient({ tin: utils.organization.tin })
+            const [[{ receiver }]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [utils.createJSONReceipt(recipientInput)],
             })
             expect(receiver.isApproved).toEqual(true)
         })
         test('Should create not approved recipient on TIN  mismatch', async () => {
-            const recipientInput = billingTestUtils.createRecipient({ tin: billingTestUtils.organization.tin + '0' })
-            const [[{ receiver }]] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                context: { id: billingTestUtils.billingContext.id },
-                receipts: [billingTestUtils.createJSONReceipt(recipientInput)],
+            const recipientInput = utils.createRecipient({ tin: utils.organization.tin + '0' })
+            const [[{ receiver }]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [utils.createJSONReceipt(recipientInput)],
             })
             expect(receiver.isApproved).toEqual(false)
         })
         test('Should fill deprecated recipient field as we do not remove it still', async () => {
-            const recipientInput = billingTestUtils.createRecipient({ })
-            const [receipts] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                context: { id: billingTestUtils.billingContext.id },
-                receipts: [billingTestUtils.createJSONReceipt(recipientInput)],
+            const recipientInput = utils.createRecipient({ })
+            const [receipts] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [utils.createJSONReceipt(recipientInput)],
             })
             const { recipient } = receipts[0]
             expect(recipient).toHaveProperty('name')
@@ -205,23 +208,23 @@ describe('RegisterBillingReceiptsService', () => {
 
     describe('Address fix', () => {
         test('[REGISTRY] Address can be corrected for account if it starts to match organization property', async () => {
-            const organizationPropertyAddress = billingTestUtils.createPropertyAddress()
-            await createTestProperty(billingTestUtils.clients.admin, billingTestUtils.organization, {
+            const organizationPropertyAddress = utils.createPropertyAddress()
+            await createTestProperty(utils.clients.admin, utils.organization, {
                 address: organizationPropertyAddress,
             })
-            const accountNumber = billingTestUtils.randomNumber(10).toString()
-            const [[{ account: wrongAddressAccount }]] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                context: { id: billingTestUtils.billingContext.id },
-                receipts: [billingTestUtils.createJSONReceipt(
+            const accountNumber = utils.randomNumber(10).toString()
+            const [[{ account: wrongAddressAccount }]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [utils.createJSONReceipt(
                     {
                         importId: null,
                         accountNumber: accountNumber,
                     }
                 )],
             })
-            const [[{ account: fixedAddressAccount }]] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                context: { id: billingTestUtils.billingContext.id },
-                receipts: [billingTestUtils.createJSONReceipt(
+            const [[{ account: fixedAddressAccount }]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [utils.createJSONReceipt(
                     {
                         importId: null,
                         accountNumber: accountNumber,
@@ -232,14 +235,14 @@ describe('RegisterBillingReceiptsService', () => {
             expect(wrongAddressAccount.id).toEqual(fixedAddressAccount.id)
         })
         test('[REGISTRY] Old address will be used if it stops to match organization property', async () => {
-            const organizationPropertyAddress = billingTestUtils.createPropertyAddress()
-            await createTestProperty(billingTestUtils.clients.admin, billingTestUtils.organization, {
+            const organizationPropertyAddress = utils.createPropertyAddress()
+            await createTestProperty(utils.clients.admin, utils.organization, {
                 address: organizationPropertyAddress,
             })
-            const accountNumber = billingTestUtils.randomNumber(10).toString()
-            const [[{ account: correctAddressAccount }]] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                context: { id: billingTestUtils.billingContext.id },
-                receipts: [billingTestUtils.createJSONReceipt(
+            const accountNumber = utils.randomNumber(10).toString()
+            const [[{ account: correctAddressAccount }]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [utils.createJSONReceipt(
                     {
                         importId: null,
                         accountNumber: accountNumber,
@@ -247,9 +250,9 @@ describe('RegisterBillingReceiptsService', () => {
                     }
                 )],
             })
-            const [[{ account: spoiledAddressAccount }]] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                context: { id: billingTestUtils.billingContext.id },
-                receipts: [billingTestUtils.createJSONReceipt(
+            const [[{ account: spoiledAddressAccount }]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [utils.createJSONReceipt(
                     {
                         importId: null,
                         accountNumber: accountNumber,
@@ -259,18 +262,18 @@ describe('RegisterBillingReceiptsService', () => {
             expect(correctAddressAccount.id).toEqual(spoiledAddressAccount.id)
         })
         test('[REGISTRY] two accounts will be created if they both matches organization properties', async () => {
-            const organizationProperty1Address = billingTestUtils.createPropertyAddress()
-            const organizationProperty2Address = billingTestUtils.createPropertyAddress()
-            await createTestProperty(billingTestUtils.clients.admin, billingTestUtils.organization, {
+            const organizationProperty1Address = utils.createPropertyAddress()
+            const organizationProperty2Address = utils.createPropertyAddress()
+            await createTestProperty(utils.clients.admin, utils.organization, {
                 address: organizationProperty1Address,
             })
-            await createTestProperty(billingTestUtils.clients.admin, billingTestUtils.organization, {
+            await createTestProperty(utils.clients.admin, utils.organization, {
                 address: organizationProperty2Address,
             })
-            const accountNumber = billingTestUtils.randomNumber(10).toString()
-            const [[{ id: receipt1Id, account: account1 }]] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                context: { id: billingTestUtils.billingContext.id },
-                receipts: [billingTestUtils.createJSONReceipt(
+            const accountNumber = utils.randomNumber(10).toString()
+            const [[{ id: receipt1Id, account: account1 }]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [utils.createJSONReceipt(
                     {
                         importId: null,
                         accountNumber: accountNumber,
@@ -278,9 +281,9 @@ describe('RegisterBillingReceiptsService', () => {
                     }
                 )],
             })
-            const [[{ id: receipt2Id, account: account2 }]] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                context: { id: billingTestUtils.billingContext.id },
-                receipts: [billingTestUtils.createJSONReceipt(
+            const [[{ id: receipt2Id, account: account2 }]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [utils.createJSONReceipt(
                     {
                         importId: null,
                         accountNumber: accountNumber,
@@ -295,49 +298,49 @@ describe('RegisterBillingReceiptsService', () => {
 
     describe('AccountResolver', () => {
         test('Can exist 2 accounts with same number if now matching organization properties for both of them', async () => {
-            const accountNumber = billingTestUtils.randomNumber(10).toString()
-            const [[receipt1, receipt2]] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                context: { id: billingTestUtils.billingContext.id },
+            const accountNumber = utils.randomNumber(10).toString()
+            const [[receipt1, receipt2]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
                 receipts: [
-                    billingTestUtils.createJSONReceipt({ accountNumber }),
-                    billingTestUtils.createJSONReceipt({ accountNumber }),
+                    utils.createJSONReceipt({ accountNumber }),
+                    utils.createJSONReceipt({ accountNumber }),
                 ],
             })
             expect(receipt1.account.id).not.toEqual(receipt2.account.id)
         })
         test('[IMPORT_ID] Can exist 2 accounts with same number but different houses if different importIds are passed', async () => {
-            const accountNumber = billingTestUtils.randomNumber(10).toString()
-            const [[receipt1, receipt2]] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                context: { id: billingTestUtils.billingContext.id },
+            const accountNumber = utils.randomNumber(10).toString()
+            const [[receipt1, receipt2]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
                 receipts: [
-                    billingTestUtils.createJSONReceipt({ importId: billingTestUtils.randomNumber(50).toString(), accountNumber }),
-                    billingTestUtils.createJSONReceipt({ importId: billingTestUtils.randomNumber(50).toString(), accountNumber }),
+                    utils.createJSONReceipt({ importId: utils.randomNumber(50).toString(), accountNumber }),
+                    utils.createJSONReceipt({ importId: utils.randomNumber(50).toString(), accountNumber }),
                 ],
             })
             expect(receipt1.account.id).not.toEqual(receipt2.account.id)
         })
         test('Will set information from accountMeta to BillingAccount', async () => {
             const accountMeta = {
-                globalId: billingTestUtils.createValidELS(),
+                globalId: utils.createValidELS(),
                 fullName: faker.name.fullName(),
                 isClosed: true,
             }
-            const [[{ account: personAccount }]] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                context: { id: billingTestUtils.billingContext.id },
-                receipts: [billingTestUtils.createJSONReceipt({ accountMeta })],
+            const [[{ account: personAccount }]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [utils.createJSONReceipt({ accountMeta })],
             })
             expect(personAccount.fullName).toEqual(accountMeta.fullName)
             expect(personAccount.globalId).toEqual(accountMeta.globalId)
             expect(personAccount.isClosed).toEqual(accountMeta.isClosed)
             expect(personAccount.ownerType).toEqual(BILLING_ACCOUNT_OWNER_TYPE_PERSON)
             const companyAccountMeta = {
-                globalId: billingTestUtils.createValidELS() + '0',
+                globalId: utils.createValidELS() + '0',
                 fullName: faker.lorem.sentence(),
                 isClosed: false,
             }
-            const [[{ account: companyAccount }]] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                context: { id: billingTestUtils.billingContext.id },
-                receipts: [billingTestUtils.createJSONReceipt({ accountMeta: companyAccountMeta })],
+            const [[{ account: companyAccount }]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [utils.createJSONReceipt({ accountMeta: companyAccountMeta })],
             })
             expect(companyAccount.fullName).toEqual(companyAccountMeta.fullName)
             expect(companyAccount.globalId).toBeNull()
@@ -345,28 +348,28 @@ describe('RegisterBillingReceiptsService', () => {
             expect(companyAccount.ownerType).toEqual(BILLING_ACCOUNT_OWNER_TYPE_COMPANY)
         })
         test('[IMPORT_ID] It will not create another account on address change', async () => {
-            const importId = billingTestUtils.randomNumber(50).toString()
-            const [[{ account: accountBeforeFix }]] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                context: { id: billingTestUtils.billingContext.id },
-                receipts: [billingTestUtils.createJSONReceipt({ importId } )],
+            const importId = utils.randomNumber(50).toString()
+            const [[{ account: accountBeforeFix }]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [utils.createJSONReceipt({ importId } )],
             })
-            const [[{ account: accountAfterFix }]] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                context: { id: billingTestUtils.billingContext.id },
-                receipts: [billingTestUtils.createJSONReceipt({ importId } )],
+            const [[{ account: accountAfterFix }]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [utils.createJSONReceipt({ importId } )],
             })
             expect(accountBeforeFix.id).toEqual(accountAfterFix.id)
         })
         test('isPerson validation "company" ownerType test', async () => {
-            const [[{ account: { ownerType } }]] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                context: { id: billingTestUtils.billingContext.id },
-                receipts: [billingTestUtils.createJSONReceipt({ accountMeta: { fullName: 'ИП Фамилия' } })],
+            const [[{ account: { ownerType } }]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [utils.createJSONReceipt({ accountMeta: { fullName: 'ИП Фамилия' } })],
             })
             expect(ownerType).toEqual(BILLING_ACCOUNT_OWNER_TYPE_COMPANY)
         })
         test('isPerson validation "person" ownerType test', async () => {
-            const [[{ account: { ownerType } }]] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                context: { id: billingTestUtils.billingContext.id },
-                receipts: [billingTestUtils.createJSONReceipt({ accountMeta: { fullName: 'Фамилияоао Имя' } })],
+            const [[{ account: { ownerType } }]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [utils.createJSONReceipt({ accountMeta: { fullName: 'Фамилияоао Имя' } })],
             })
             expect(ownerType).toEqual(BILLING_ACCOUNT_OWNER_TYPE_PERSON)
         })
@@ -376,42 +379,42 @@ describe('RegisterBillingReceiptsService', () => {
         describe('[registry] Create new receipt if category and bank account are both different', () => {
             test('Overhaul and Housing are on different bank accounts in one request', async () => {
                 const tin = faker.random.numeric(8)
-                const receipt1 = billingTestUtils.createJSONReceipt({
+                const receipt1 = utils.createJSONReceipt({
                     category: { id: HOUSING_CATEGORY_ID },
-                    ...billingTestUtils.createRecipient({ tin }),
+                    ...utils.createRecipient({ tin }),
                     importId: null,
                 })
-                const receipt2 = billingTestUtils.createJSONReceipt({
+                const receipt2 = utils.createJSONReceipt({
                     ...receipt1,
                     category: { id: REPAIR_CATEGORY_ID },
-                    ...billingTestUtils.createRecipient({ tin }),
+                    ...utils.createRecipient({ tin }),
                     importId: null,
                 })
-                const [createdReceipts] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                    context: { id: billingTestUtils.billingContext.id },
+                const [createdReceipts] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                    context: { id: utils.billingContext.id },
                     receipts: [receipt1, receipt2],
                 })
                 expect(createdReceipts).toHaveLength(2)
             })
             test('Overhaul and Housing are on different bank accounts in different requests', async () => {
                 const tin = faker.random.numeric(8)
-                const receipt1 = billingTestUtils.createJSONReceipt({
+                const receipt1 = utils.createJSONReceipt({
                     category: { id: HOUSING_CATEGORY_ID },
                     importId: null,
-                    ...billingTestUtils.createRecipient({ tin }),
+                    ...utils.createRecipient({ tin }),
                 })
-                const receipt2 = billingTestUtils.createJSONReceipt({
+                const receipt2 = utils.createJSONReceipt({
                     ...receipt1,
                     category: { id: REPAIR_CATEGORY_ID },
                     importId: null,
-                    ...billingTestUtils.createRecipient({ tin }),
+                    ...utils.createRecipient({ tin }),
                 })
-                const [[housingReceipt]] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                    context: { id: billingTestUtils.billingContext.id },
+                const [[housingReceipt]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                    context: { id: utils.billingContext.id },
                     receipts: [receipt1],
                 })
-                const [[repairReceipt]] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                    context: { id: billingTestUtils.billingContext.id },
+                const [[repairReceipt]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                    context: { id: utils.billingContext.id },
                     receipts: [receipt2],
                 })
                 expect(housingReceipt.id).not.toEqual(repairReceipt.id)
@@ -419,17 +422,17 @@ describe('RegisterBillingReceiptsService', () => {
         })
         describe('Do not create new receipt on: ', () => {
             test('[IMPORT_ID] Address change (was resolved wrong and then fixed)', async () => {
-                const wrongAddress = billingTestUtils.createAddressWithUnit()
-                const receiptWithWrongAddress = billingTestUtils.createJSONReceipt({ address: wrongAddress })
-                const [[createdReceipt]] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                    context: { id: billingTestUtils.billingContext.id },
+                const wrongAddress = utils.createAddressWithUnit()
+                const receiptWithWrongAddress = utils.createJSONReceipt({ address: wrongAddress })
+                const [[createdReceipt]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                    context: { id: utils.billingContext.id },
                     receipts: [receiptWithWrongAddress],
                 })
                 const wrongHouseAddress = createdReceipt.property.address
-                const correctAddress = billingTestUtils.createAddressWithUnit()
+                const correctAddress = utils.createAddressWithUnit()
                 const receiptWithCorrectAddress = { ...receiptWithWrongAddress, address: correctAddress }
-                const [[updatedReceipt]] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                    context: { id: billingTestUtils.billingContext.id },
+                const [[updatedReceipt]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                    context: { id: utils.billingContext.id },
                     receipts: [receiptWithCorrectAddress],
                 })
                 const correctHouseAddress = updatedReceipt.property.address
@@ -441,29 +444,29 @@ describe('RegisterBillingReceiptsService', () => {
             test('[ALL] Category change (first load without services, then added services)', async () => {
                 const name = faker.lorem.sentence(3)
                 const serviceName = faker.lorem.sentence(2)
-                await createTestBillingCategory(billingTestUtils.clients.admin, { name, serviceNames: [serviceName] })
-                const createInput = billingTestUtils.createJSONReceipt({ importId: null, services: null })
-                const [[createdReceipt]] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                    context: { id: billingTestUtils.billingContext.id },
+                await createTestBillingCategory(utils.clients.admin, { name, serviceNames: [serviceName] })
+                const createInput = utils.createJSONReceipt({ importId: null, services: null })
+                const [[createdReceipt]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                    context: { id: utils.billingContext.id },
                     receipts: [createInput],
                 })
-                const [[updatedReceipt]] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                    context: { id: billingTestUtils.billingContext.id },
+                const [[updatedReceipt]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                    context: { id: utils.billingContext.id },
                     receipts: [{ ...createInput, services: [{ name: serviceName, toPay: '0' }] }],
                 })
                 expect(createdReceipt.category.id).not.toEqual(updatedReceipt.category.id)
                 expect(createdReceipt.id).toEqual(updatedReceipt.id)
             })
             test('[ALL] Recipient change do not creates new receipt', async () => {
-                const wrongRecipient = billingTestUtils.createRecipient()
-                const correctRecipient = billingTestUtils.createRecipient()
-                const createInput = billingTestUtils.createJSONReceipt({ importId: null, ...wrongRecipient })
-                const [[createdReceipt]] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                    context: { id: billingTestUtils.billingContext.id },
+                const wrongRecipient = utils.createRecipient()
+                const correctRecipient = utils.createRecipient()
+                const createInput = utils.createJSONReceipt({ importId: null, ...wrongRecipient })
+                const [[createdReceipt]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                    context: { id: utils.billingContext.id },
                     receipts: [createInput],
                 })
-                const [[updatedReceipt]] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                    context: { id: billingTestUtils.billingContext.id },
+                const [[updatedReceipt]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                    context: { id: utils.billingContext.id },
                     receipts: [{ ...createInput, ...correctRecipient }],
                 })
                 expect(createdReceipt.receiver.id).not.toEqual(updatedReceipt.receiver.id)
@@ -471,15 +474,15 @@ describe('RegisterBillingReceiptsService', () => {
             })
             test('[ALL] Services change updates services in receipt', async () => {
                 const createServices = generateServicesData(3, '1000')
-                const createInput = billingTestUtils.createJSONReceipt({ services: createServices })
-                const [[createdReceipt]] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                    context: { id: billingTestUtils.billingContext.id },
+                const createInput = utils.createJSONReceipt({ services: createServices })
+                const [[createdReceipt]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                    context: { id: utils.billingContext.id },
                     receipts: [createInput],
                 })
                 const updateServices = generateServicesData(4, '1000')
-                const updateInput = billingTestUtils.createJSONReceipt({ ...createInput, services: updateServices })
-                const [[updatedReceipt]] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                    context: { id: billingTestUtils.billingContext.id },
+                const updateInput = utils.createJSONReceipt({ ...createInput, services: updateServices })
+                const [[updatedReceipt]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                    context: { id: utils.billingContext.id },
                     receipts: [updateInput],
                 })
                 expect(createdReceipt.id).toEqual(updatedReceipt.id)
@@ -490,23 +493,23 @@ describe('RegisterBillingReceiptsService', () => {
         })
         describe('Common behaviour', () => {
             test('Works on several receipts', async () => {
-                const receipt1 = billingTestUtils.createJSONReceipt()
-                const receipt2 = billingTestUtils.createJSONReceipt({
+                const receipt1 = utils.createJSONReceipt()
+                const receipt2 = utils.createJSONReceipt({
                     ...receipt1,
                     importId: null,
-                    address: billingTestUtils.createAddressWithUnit(),
-                    accountNumber: billingTestUtils.randomNumber(10).toString(),
+                    address: utils.createAddressWithUnit(),
+                    accountNumber: utils.randomNumber(10).toString(),
                 })
-                const [createdReceipts] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                    context: { id: billingTestUtils.billingContext.id },
+                const [createdReceipts] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                    context: { id: utils.billingContext.id },
                     receipts: [receipt1, receipt2],
                 })
                 expect(createdReceipts[0].id).not.toEqual(createdReceipts[1].id)
             })
             test('Fields with relations  are created', async () => {
-                const createInput = billingTestUtils.createJSONReceipt()
-                const [[createdReceipt]] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                    context: { id: billingTestUtils.billingContext.id },
+                const createInput = utils.createJSONReceipt()
+                const [[createdReceipt]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                    context: { id: utils.billingContext.id },
                     receipts: [createInput],
                 })
                 expect(createdReceipt.property.id).toBeDefined()
@@ -515,13 +518,13 @@ describe('RegisterBillingReceiptsService', () => {
                 expect(createdReceipt.context.id).toBeDefined()
             })
             test('Will not invoke update on nothing changed', async () => {
-                const createInput = billingTestUtils.createJSONReceipt()
-                const [[createdReceipt]] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                    context: { id: billingTestUtils.billingContext.id },
+                const createInput = utils.createJSONReceipt()
+                const [[createdReceipt]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                    context: { id: utils.billingContext.id },
                     receipts: [createInput],
                 })
-                const [[updatedReceipt]] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                    context: { id: billingTestUtils.billingContext.id },
+                const [[updatedReceipt]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                    context: { id: utils.billingContext.id },
                     receipts: [createInput],
                 })
                 expect(createdReceipt.id).toEqual(updatedReceipt.id)
@@ -533,14 +536,14 @@ describe('RegisterBillingReceiptsService', () => {
                 test('Update Receipt toPay field', async () => {
                     const originalToPayValue = Big(faker.finance.amount(-100, 5000)).toFixed(2)
                     const updatedToPayValue = Big(originalToPayValue).add(1000).toFixed(2)
-                    const createInput = billingTestUtils.createJSONReceipt({ toPay: originalToPayValue })
+                    const createInput = utils.createJSONReceipt({ toPay: originalToPayValue })
                     const updateInput = { ...createInput, toPay: updatedToPayValue }
-                    const [[createdReceipt]] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                        context: { id: billingTestUtils.billingContext.id },
+                    const [[createdReceipt]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                        context: { id: utils.billingContext.id },
                         receipts: [createInput],
                     })
-                    const [[updatedReceipt]] = await registerBillingReceiptsByTestClient(billingTestUtils.clients.admin, {
-                        context: { id: billingTestUtils.billingContext.id },
+                    const [[updatedReceipt]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                        context: { id: utils.billingContext.id },
                         receipts: [updateInput],
                     })
                     expect(createdReceipt.id).toEqual(updatedReceipt.id)

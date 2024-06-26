@@ -26,7 +26,7 @@ const { Meter: MeterApi, MeterResourceOwner } = require('@condo/domains/meter/ut
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 
-const { numberOfTariffs, installationDate, commissioningDate, verificationDate, nextVerificationDate, controlReadingsDate, sealingDate, isAutomatic, resource, b2bApp } = require('./fields')
+const { numberOfTariffs, installationDate, commissioningDate, verificationDate, nextVerificationDate, controlReadingsDate, sealingDate, isAutomatic, resource, b2bApp, archiveDate } = require('./fields')
 
 const ADDRESS_SERVICE_ENABLED = get(conf, 'ADDRESS_SERVICE_URL', false)
 
@@ -80,6 +80,7 @@ const Meter = new GQLListSchema('Meter', {
         nextVerificationDate,
         controlReadingsDate,
         sealingDate,
+        archiveDate,
         isAutomatic,
         resource,
         b2bApp,

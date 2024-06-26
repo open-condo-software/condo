@@ -4,6 +4,7 @@ const { get, set } = require('lodash')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { getSearchProvider } = require('@address-service/domains/common/utils/services/providerDetectors')
+const { SEARCH_ERROR_NOT_FOUND } = require('@address-service/domains/common/utils/services/search/strategies/constants')
 
 const { createBulkSearchStrategy } = require('./strategies')
 const { BULK_SEARCH_STRATEGIES } = require('./strategies/constants')
@@ -24,6 +25,19 @@ class SearchKeystoneApp {
     constructor (plugins) {
         this.plugins = plugins
         this.logger = getLogger(this.constructor.name)
+    }
+
+    send404 ({ res, s, strategy, strategyResult }) {
+        this.logger.warn({
+            msg: 'Address not found',
+            data: {
+                s,
+                strategy: strategy.constructor.name,
+                strategyResult,
+                plugins: this.plugins.map((plugin) => plugin.constructor.name),
+            },
+        })
+        res.sendStatus(404)
     }
 
     /**
@@ -97,20 +111,15 @@ class SearchKeystoneApp {
                     const strategyResult = await strategy.search(req)
                     const addressResult = get(strategyResult, ['map', s])
                     if (!addressResult) {
-                        this.logger.warn({
-                            msg: 'Address not found',
-                            data: {
-                                s,
-                                strategy: strategy.constructor.name,
-                                strategyResult,
-                                plugins: this.plugins.map((plugin) => plugin.constructor.name),
-                            },
-                        })
-                        res.sendStatus(404)
+                        this.send404({ res, s, strategy, strategyResult })
                         return
                     }
 
                     if (addressResult.err) {
+                        if (addressResult.err === SEARCH_ERROR_NOT_FOUND) {
+                            this.send404({ res, s, strategy, strategyResult })
+                            return
+                        }
                         throw new Error(addressResult.err)
                     }
 
@@ -126,6 +135,7 @@ class SearchKeystoneApp {
                         err,
                         msg: 'Search error',
                         data: {
+                            s,
                             strategy: strategy.constructor.name,
                             plugins: this.plugins.map((plugin) => plugin.constructor.name),
                         },

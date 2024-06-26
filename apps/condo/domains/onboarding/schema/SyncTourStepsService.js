@@ -60,6 +60,10 @@ const SyncTourStepsService = new GQLCustomSchema('SyncTourStepsService', {
                     },
                     first: 1,
                 }, { meta: true })
+                const { count: hasMeters } = await itemsQuery('Meter', {
+                    where: defaultOrganizationQuery,
+                    first: 1,
+                }, { meta: true })
                 const { count: hasMeterReadings } = await itemsQuery('MeterReading', {
                     where: defaultOrganizationQuery,
                     first: 1,
@@ -74,6 +78,7 @@ const SyncTourStepsService = new GQLCustomSchema('SyncTourStepsService', {
                     createPropertyMap: hasPropertiesWithMap,
                     createTicket: hasTickets,
                     uploadReceipts: hasBillingReceipts,
+                    createMeter: hasMeters,
                     createMeterReadings: hasMeterReadings,
                     createNews: hasNews,
                 }

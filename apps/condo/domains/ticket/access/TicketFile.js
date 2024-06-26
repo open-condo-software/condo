@@ -6,18 +6,26 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
+const { canReadObjectsAsB2BAppServiceUser, canManageObjectsAsB2BAppServiceUser } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
 const {
     getEmployedOrRelatedOrganizationsByPermissions,
     checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
+const { SERVICE } = require('@condo/domains/user/constants/common')
 
 
-async function canReadTicketFiles ({ authentication: { item: user }, context }) {
+async function canReadTicketFiles (args) {
+    const { authentication: { item: user }, context } = args
+
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isSupport || user.isAdmin) return {}
+
+    if (user.type === SERVICE) {
+        return await canReadObjectsAsB2BAppServiceUser(args)
+    }
 
     if (user.type === RESIDENT) return { createdBy: { id: user.id } }
 
@@ -36,10 +44,16 @@ async function canReadTicketFiles ({ authentication: { item: user }, context }) 
 }
 
 
-async function canManageTicketFiles ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
+async function canManageTicketFiles (args) {
+    const { authentication: { item: user }, originalInput, operation, itemId, context } = args
+
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
+
+    if (user.type === SERVICE) {
+        return await canManageObjectsAsB2BAppServiceUser(args)
+    }
 
     if (user.type === RESIDENT) {
         if (operation === 'create') return true

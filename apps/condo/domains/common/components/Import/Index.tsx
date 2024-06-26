@@ -20,7 +20,7 @@ import {
     MutationErrorsToMessagesType,
 } from '@condo/domains/common/utils/importer'
 
-import { ActiveModalType, BaseImportWrapper } from './BaseImportWrapper'
+import { ActiveModalType, BaseImportWrapper, ExtraModalContentType } from './BaseImportWrapper'
 
 
 export interface IImportWrapperProps {
@@ -37,6 +37,8 @@ export interface IImportWrapperProps {
         header: Pick<CardHeaderProps, 'emoji' | 'headingTitle'>,
         body: Pick<CardBodyProps, 'description'>
     }
+    extraModalContent?: ExtraModalContentType
+    handleClose?: () => void
 }
 
 export function fitToColumn (arrayOfArray) {
@@ -65,6 +67,8 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
         uploadButtonLabel,
         domainName,
         importCardButton,
+        extraModalContent,
+        handleClose,
     } = props
 
     const intl = useIntl()
@@ -163,7 +167,13 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
         })
     }, [ErrorsMessage, columns, domainName])
 
-    const closeModal = useCallback(() => setActiveModal(null), [])
+    const closeModal = useCallback(() => {
+        if (isFunction(handleClose)) {
+            handleClose()
+        }
+
+        setActiveModal(null)
+    }, [handleClose])
 
     const handleBreakImport = useCallback(() => {
         closeModal()
@@ -200,6 +210,7 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
                     totalRowsRef,
                     error,
                     dataImporter,
+                    extraModalContent,
                 }}
             />
         )
