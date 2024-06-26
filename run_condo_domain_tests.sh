@@ -41,6 +41,7 @@ export NOTIFICATION__DISABLE_LOGGING=true
 export TESTS_LOG_REQUEST_RESPONSE=true
 export DISABLE_CAPTCHA=true
 export SERVER_URL="http://localhost:4004/admin/api"
+export DATABASE_URL="postgresql://postgres:postgres@127.0.0.1/local-condo"
 export WORKER_CONCURRENCY=50
 export NODE_OPTIONS="--max_old_space_size=4192"
 export METABASE_CONFIG='{"url": "https://metabase.example.com", "secret": "4879960c-a625-4096-9add-7a81d925774a"}'
