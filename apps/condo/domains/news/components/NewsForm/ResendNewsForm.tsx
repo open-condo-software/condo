@@ -108,7 +108,9 @@ export const ResendNewsForm: React.FC<IResendNewsForm> = ({ id }) => {
         error: sharingAppContextsError,
     } = B2BAppContext.useObjects({
         where: {
-            app: { newsSharingConfig_is_null: false },
+            organization: { id: organizationId },
+            app: { newsSharingConfig_is_null: false, deletedAt: null },
+            deletedAt: null,
         },
     })
 
