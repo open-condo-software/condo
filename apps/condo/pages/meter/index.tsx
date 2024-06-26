@@ -170,10 +170,11 @@ const MetersPage: IMeterIndexPage = () => {
 
     const baseMetersQuery = useMemo(() => ({
         deletedAt: null,
+        property: { deletedAt: null },
         organization: { id: userOrganizationId },
     }), [userOrganizationId])
     const baseMeterReadingsQuery = useMemo(() => ({
-        meter: { deletedAt: null },
+        meter: { deletedAt: null, property: { deletedAt: null } },
         deletedAt: null,
         organization: { id: userOrganizationId },
     }),
