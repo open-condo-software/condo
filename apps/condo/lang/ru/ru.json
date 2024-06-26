@@ -793,6 +793,7 @@
   "pages.condo.meter.index.MeterType.meterReading": "ИПУ",
   "pages.condo.meter.index.MeterType.houseMeterReading": "ОДПУ",
   "pages.condo.meter.index.propertyMeterTab": "Показания ОДПУ",
+  "pages.condo.meter.index.meterReadingTabCC": "Показания ИПУ",
   "pages.condo.meter.index.reportingPeriodTab": "Период подачи показаний ИПУ",
   "pages.condo.meter.index.reportingPeriod.EmptyList.create": "Добавить период",
   "pages.condo.meter.index.reportingPeriod.defaultPeriod": "По-умолчанию период подачи показаний начинается {startAt} и заканчивается {finishAt} числа каждого месяца",
