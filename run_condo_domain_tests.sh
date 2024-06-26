@@ -40,7 +40,7 @@ export NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE=true
 export NOTIFICATION__DISABLE_LOGGING=true
 export TESTS_LOG_REQUEST_RESPONSE=true
 export DISABLE_CAPTCHA=true
-export SERVER_URL="http://localhost:4004/admin/api"
+export SERVER_URL="http://localhost:4004"
 export DATABASE_URL="postgresql://postgres:postgres@127.0.0.1/local-condo"
 export WORKER_CONCURRENCY=50
 export NODE_OPTIONS="--max_old_space_size=4192"
