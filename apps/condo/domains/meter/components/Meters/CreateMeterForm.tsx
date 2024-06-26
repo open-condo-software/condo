@@ -138,6 +138,7 @@ export const CreateMeterForm = (props: CreateMeterProps): JSX.Element => {
                                         organizationId={organizationId}
                                         meterType={meterType}
                                         disabledFields={disabledFields}
+                                        initialValues={{ unitName: selectedUnitName }}
                                     />
                                 </Col>
                                 <Col span={24}>
