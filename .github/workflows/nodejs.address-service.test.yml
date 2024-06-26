@@ -3,18 +3,12 @@
 
 name: RUN ADDRESS SERVICE TESTS
 
+# @deprecated will be migrated to prepare + condo CI
 on:
   workflow_dispatch:
     branches:
       - '*'
-  push:
-    branches: [ master ]
-    paths:
-      - 'apps/address-service/**'
-  pull_request:
-    branches: [ master ]
-    paths:
-      - 'apps/address-service/**'
+
 
 jobs:
   build:
