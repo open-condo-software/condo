@@ -542,6 +542,56 @@ describe('RegisterMetersReadingsService', () => {
         )
     })
 
+    test('error on invalid number of tariffs passed', async () => {
+        const [o10n] = await createTestOrganization(adminClient)
+        const [property1] = await createTestPropertyWithMap(adminClient, o10n)
+
+        const badReading = createTestReadingData(property1)
+        badReading.meterMeta.numberOfTariffs = 5
+
+        const readings = [
+            createTestReadingData(property1),
+            badReading,
+        ]
+
+        await catchErrorFrom(
+            async () => {
+                await registerMetersReadingsByTestClient(adminClient, o10n, readings)
+            },
+            ({ data: { result }, errors }) => {
+                expect(result).toEqual([
+                    expect.objectContaining({
+                        id: expect.stringMatching(UUID_REGEXP),
+                        meter: expect.objectContaining({
+                            id: expect.stringMatching(UUID_REGEXP),
+                            property: expect.objectContaining({
+                                id: property1.id,
+                                address: property1.address,
+                                addressKey: property1.addressKey,
+                            }),
+                            unitType: readings[0].addressInfo.unitType,
+                            unitName: readings[0].addressInfo.unitName,
+                            accountNumber: readings[0].accountNumber,
+                            number: readings[0].meterNumber,
+                        }),
+                    }),
+                    null,
+                ])
+                expect(errors).toEqual([
+                    expect.objectContaining({
+                        message: '[error] Create Meter internal error',
+                        originalError: expect.objectContaining({
+                            message: '[error] Create Meter internal error',
+                            errors: [expect.objectContaining({
+                                message: 'Provided number of tariffs is not valid. Must be an integer from 1 to 4.',
+                            })],
+                        }),
+                    }),
+                ])
+            },
+        )
+    })
+
     test('number of tariffs calculated correctly', async () => {
         const [o10n] = await createTestOrganization(adminClient)
         const [property] = await createTestPropertyWithMap(adminClient, o10n)

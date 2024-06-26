@@ -2595,6 +2595,7 @@
   "api.meter.METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION": "Данным ресурсом по текущему адресу владеет другая УК. Пожалуйста, обратитесь в поддержку для решения этого вопроса",
   "api.meter.SAME_NUMBER_AND_RESOURCE_EXISTS_IN_ORGANIZATION": "ИПУ с таким номером и ресурсом уже есть в организации на лицевом счете {accountNumbersCsv}",
   "api.meter.SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT": "ИПУ с таким лицевым счетом уже есть в организации в помещении {unitsCsv}",
+  "api.meter.NUMBER_OF_TARIFFS_NOT_VALID": "Количество тарифов должно быть целым числом от 1 до 4, передано {value}",
   "api.meter.MeterReportingPeriod.INVALID_FINISH": "Конец периода может принимать значение только от 1 до 31",
   "api.meter.MeterReportingPeriod.INVALID_START": "Начало периода может принимать значение только от 1 до 31",
   "api.meter.MeterReportingPeriod.ORGANIZATION_IS_REQUIRED": "Необходима организация для создания периода сдачи показаний",

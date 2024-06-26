@@ -2595,6 +2595,7 @@
   "api.meter.METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION": "This resource is owned by another organization. Please contact tech support if you want to resolve this problem",
   "api.meter.SAME_NUMBER_AND_RESOURCE_EXISTS_IN_ORGANIZATION": "Meter with same number and resource exist in current organization and linked with account number {accountNumbersCsv}",
   "api.meter.SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT": "Meter with same account number exist in current organization in unit {unitsCsv}",
+  "api.meter.NUMBER_OF_TARIFFS_NOT_VALID": "Number of tariffs should be an integer from 1 to 4, but {value} passed",
   "api.meter.MeterReportingPeriod.INVALID_FINISH": "The \"finish\" field can take values in the range from 1 to 31",
   "api.meter.MeterReportingPeriod.INVALID_START": "The \"start\" field can take values in the range from 1 to 31",
   "api.meter.MeterReportingPeriod.ORGANIZATION_IS_REQUIRED": "Organization is required for create meter reading reporting period",
