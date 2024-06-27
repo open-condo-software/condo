@@ -186,8 +186,8 @@ const PropertyMetersTableContent: React.FC<PropertyMetersTableContentProps> = ({
                     />
                 </Col>
                 <Col span={24}>
-                    <ActionBar actions={[
-                        canManageMeters && (
+                    {canManageMeters && (
+                        <ActionBar actions={[
                             <Button
                                 key='create'
                                 type='primary'
@@ -195,9 +195,9 @@ const PropertyMetersTableContent: React.FC<PropertyMetersTableContentProps> = ({
                                 onClick={handleCreateMeterReadings}
                             >
                                 {CreateMeterButtonLabel}
-                            </Button>
-                        ),
-                    ]}/>
+                            </Button>,
+                        ]}/>
+                    )}
                 </Col>
             </Row>
             <MultipleFiltersModal />
