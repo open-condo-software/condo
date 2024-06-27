@@ -928,4 +928,48 @@ describe('RegisterMetersReadingsService', () => {
             expect(meter.controlReadingsDate).toBe(output ? dayjs(output).toISOString() : output)
         })
     })
+
+    test('prevent to create readings duplicates', async () => {
+        const [o10n] = await createTestOrganization(adminClient)
+        const [property] = await createTestPropertyWithMap(adminClient, o10n)
+        const readings = [createTestReadingData(property)]
+        const [data] = await registerMetersReadingsByTestClient(adminClient, o10n, readings)
+
+        expect(data).toEqual([expect.objectContaining({
+            id: expect.stringMatching(UUID_REGEXP),
+            meter: expect.objectContaining({
+                id: expect.stringMatching(UUID_REGEXP),
+                property: expect.objectContaining({
+                    id: property.id,
+                    address: property.address,
+                    addressKey: property.addressKey,
+                }),
+                unitType: readings[0].addressInfo.unitType,
+                unitName: readings[0].addressInfo.unitName,
+                accountNumber: readings[0].accountNumber,
+                number: readings[0].meterNumber,
+            }),
+        })])
+
+        const meters = await Meter.getAll(adminClient, {
+            organization: { id: o10n.id },
+            property: { id: property.id },
+        })
+        expect(meters).toHaveLength(1)
+        expect(meters[0].number).toBe(readings[0].meterNumber)
+
+        const metersReadings = await MeterReading.getAll(adminClient, { meter: { id_in: map(meters, 'id') } })
+        expect(metersReadings).toHaveLength(1)
+
+        // send same data
+        const [data2] = await registerMetersReadingsByTestClient(adminClient, o10n, readings)
+
+        // be sure that we have the same result
+        expect(data2).toEqual(data)
+
+        const metersReadings2 = await MeterReading.getAll(adminClient, { meter: { id_in: map(meters, 'id') } })
+        expect(metersReadings2).toHaveLength(1)
+        expect(metersReadings[0].id).toBe(metersReadings2[0].id)
+        expect(data2[0].id).toBe(metersReadings[0].id)
+    })
 })
