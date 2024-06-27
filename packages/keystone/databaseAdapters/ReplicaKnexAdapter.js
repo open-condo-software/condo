@@ -6,7 +6,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 
 const logger = getLogger('replicaKnexAdapter')
 
-const MUTABLE_OPERATIONS = ['create', 'update', 'insert', 'delete', 'alter']
+const MUTABLE_OPERATIONS = ['create', 'update', 'insert', 'delete', 'alter', 'drop', 'truncate', 'rollback']
 
 /**
  *
