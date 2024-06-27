@@ -6,9 +6,9 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
+const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 const access = require('@condo/domains/miniapp/access/B2BAppNewsSharingConfig')
 
-const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 
 const NEWS_SHARING_FILE_ADAPTER = new FileAdapter('news-sharing')
 
