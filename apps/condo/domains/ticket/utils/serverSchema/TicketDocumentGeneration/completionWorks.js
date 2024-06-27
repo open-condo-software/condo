@@ -64,8 +64,8 @@ const generateTicketDocumentOfCompletionWorks = async ({ task, baseAttrs, contex
 
     const employee = organization.id && ticket.executor
         ? await getByCondition('OrganizationEmployee', {
-            organization: organization.id,
-            user: ticket.executor,
+            organization: { id: organization.id },
+            user: { id: ticket.executor },
         })
         : null
 
