@@ -30782,7 +30782,10 @@ export type MessageBatchHistoryRecordsUpdateInput = {
 
 export enum MessageBatchMessageTypeType {
   CustomContentMessage = 'CUSTOM_CONTENT_MESSAGE',
-  MobileAppUpdateAvailableMessagePush = 'MOBILE_APP_UPDATE_AVAILABLE_MESSAGE_PUSH'
+  MobileAppUpdateAvailableMessagePush = 'MOBILE_APP_UPDATE_AVAILABLE_MESSAGE_PUSH',
+  CustomContentMessagePush = 'CUSTOM_CONTENT_MESSAGE_PUSH',
+  CustomContentMessageEmail = 'CUSTOM_CONTENT_MESSAGE_EMAIL',
+  CustomContentMessageSms = 'CUSTOM_CONTENT_MESSAGE_SMS'
 }
 
 export enum MessageBatchStatusType {
