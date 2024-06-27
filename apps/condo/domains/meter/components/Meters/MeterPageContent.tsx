@@ -20,7 +20,7 @@ import { MeterAccountField, MeterCommonDateField, MeterNumberField, MeterPlaceFi
 import { MeterReadingsPageContent } from '@condo/domains/meter/components/TabContent/MeterReading'
 import { PropertyMeterReadingsPageContent } from '@condo/domains/meter/components/TabContent/PropertyMeterReading'
 import { useMeterReadingFilters } from '@condo/domains/meter/hooks/useMeterReadingFilters'
-import { Meter, MeterPageTypes, METER_TAB_TYPES, PropertyMeter } from '@condo/domains/meter/utils/clientSchema'
+import { Meter, MeterTypes, METER_TAB_TYPES, METER_TYPES, PropertyMeter } from '@condo/domains/meter/utils/clientSchema'
 import { getMeterTitleMessage } from '@condo/domains/meter/utils/helpers'
 import { TicketPropertyField } from '@condo/domains/ticket/components/TicketId/TicketPropertyField'
 
@@ -28,7 +28,7 @@ import { TicketPropertyField } from '@condo/domains/ticket/components/TicketId/T
 const METER_STATUSES = { active: 'active', archived: 'archived' }
 
 
-const MeterHeader = ({ meter, meterReportingPeriod, refetchMeter, meterType }) => {
+export const MeterHeader = ({ meter, meterReportingPeriod, refetchMeter, meterType }) => {
     const intl = useIntl()
     const MeterReportingPeriodTitle = intl.formatMessage({ id: 'pages.condo.meter.MeterReportingPeriod.Title' })
     const MeterReportingPeriodText = intl.formatMessage({ id: 'pages.condo.meter.MeterReportingPeriod.Text' },
@@ -60,7 +60,7 @@ const MeterHeader = ({ meter, meterReportingPeriod, refetchMeter, meterType }) =
             ),
         })
 
-    const isPropertyMeter = meterType === METER_TAB_TYPES.propertyMeter
+    const isPropertyMeter = meterType === METER_TYPES.property
     const MeterIdentity = isPropertyMeter ? PropertyMeter : Meter
 
     const updateArchivedDateAction = MeterIdentity.useUpdate({}, ()=> {
@@ -178,7 +178,7 @@ const MeterHeader = ({ meter, meterReportingPeriod, refetchMeter, meterType }) =
 }
 
 
-const MeterContent = ({ meter, resource, meterType }) => {
+export const MeterContent = ({ meter, resource, meterType }) => {
     const intl = useIntl()
     const MeterVerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.VerificationDate' })
     const MeterNextVerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.NextVerificationDate' })
@@ -202,7 +202,7 @@ const MeterContent = ({ meter, resource, meterType }) => {
         <Col span={24}>
             <Row gutter={[0, 16]}>
                 <TicketPropertyField ticket={meter}/>
-                {meterType === METER_TAB_TYPES.meter && (<MeterAccountField meter={meter}/>)}
+                {meterType === METER_TYPES.unit && (<MeterAccountField meter={meter}/>)}
                 <MeterResourceField resource={resource}/>
                 <MeterNumberField meter={meter}/>
                 <MeterPlaceField meter={meter}/>
@@ -233,18 +233,18 @@ type MeterPageContentProps = {
     possibleReportingPeriods: Array<MeterReportingPeriod>,
     resource: MeterResource,
     refetchMeter: () => void,
-    meterType: MeterPageTypes,
+    meterType: MeterTypes,
 }
 
 export const MeterPageContent = ({ meter, possibleReportingPeriods, resource, refetchMeter, meterType }: MeterPageContentProps): JSX.Element => {
     const intl = useIntl()
-    const BlockedEditingTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.BlockedEditing.title' })
-    const BlockedEditingDescriptionMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.BlockedEditing.description' })
+    const BlockedEditingTitleMessage = intl.formatMessage({ id: 'pages.condo.meter.alert.BlockedEditing.title' })
+    const BlockedEditingDescriptionMessage = intl.formatMessage({ id: 'pages.condo.meter.alert.BlockedEditing.description' })
 
     const { organization, link: { role },  isLoading } = useOrganization()
     const canManageMeterReadings = useMemo(() => get(role, 'canManageMeterReadings', false), [role])
     const userOrganizationId = useMemo(() => get(organization, 'id'), [organization])
-    const filtersMeta = useMeterReadingFilters()
+    const filtersMeta = useMeterReadingFilters(meterType)
     
     
     const baseMeterReadingsQuery = useMemo(() => ({
@@ -287,7 +287,7 @@ export const MeterPageContent = ({ meter, possibleReportingPeriods, resource, re
                 meterType={meterType}
             />
             <Col span={24}>
-                {meterType === METER_TAB_TYPES.propertyMeter ? (
+                {meterType === METER_TYPES.property ? (
                     <PropertyMeterReadingsPageContent 
                         filtersMeta={filtersMeta}
                         loading={isLoading}

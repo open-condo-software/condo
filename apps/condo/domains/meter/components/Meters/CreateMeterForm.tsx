@@ -1,3 +1,4 @@
+import { MeterUnitTypeType } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
 import get from 'lodash/get'
@@ -44,6 +45,7 @@ export const CreateMeterForm = (props: CreateMeterProps): JSX.Element => {
     const disabledFields = useMemo(() => !canManageMeters, [canManageMeters])
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>(null)
     const [selectedUnitName, setSelectedUnitName] = useState<string>(null)
+    const [selectedUnitType, setSelectedUnitType] = useState<MeterUnitTypeType>(null)
     const [isMatchSelectedProperty] = useState(true)
 
     const { obj: property, loading: propertyLoading } = Property.useObject({ where: { id: selectedPropertyId } },
@@ -60,7 +62,7 @@ export const CreateMeterForm = (props: CreateMeterProps): JSX.Element => {
         resource: { connect: { id: values.resource } },
         property: { connect: { id: selectedPropertyId } },
         unitName: isPropertyMeter ? undefined : selectedUnitName,
-        unitType: isPropertyMeter ? undefined : values.unitType,
+        unitType: isPropertyMeter ? undefined : selectedUnitType,
     }), [isPropertyMeter, selectedPropertyId, selectedUnitName])
 
     
@@ -123,6 +125,7 @@ export const CreateMeterForm = (props: CreateMeterProps): JSX.Element => {
                                     property={property}
                                     propertyLoading={propertyLoading}
                                     setSelectedUnitName={setSelectedUnitName}
+                                    setSelectedUnitType={setSelectedUnitType}
                                 />
                             </Col>
                             <Row gutter={FORM_GUTTER}>
@@ -135,6 +138,7 @@ export const CreateMeterForm = (props: CreateMeterProps): JSX.Element => {
                                         organizationId={organizationId}
                                         meterType={meterType}
                                         disabledFields={disabledFields}
+                                        initialValues={{ unitName: selectedUnitName }}
                                     />
                                 </Col>
                                 <Col span={24}>

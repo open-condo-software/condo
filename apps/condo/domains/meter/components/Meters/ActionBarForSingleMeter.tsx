@@ -19,6 +19,7 @@ type ActionBarForSingleMeterProps = {
     unitName?: string
     unitType?: string
     archiveDate?: string
+    isDeletedProperty?: boolean
 }
 
 const ActionBarForSingleMeter = ({
@@ -31,6 +32,7 @@ const ActionBarForSingleMeter = ({
     propertyId,
     unitName,
     unitType,
+    isDeletedProperty,
 }: ActionBarForSingleMeterProps): JSX.Element => {
     const intl = useIntl()
     const DeleteMeterMessage = intl.formatMessage({ id: 'pages.condo.meter.Meter.DeleteMeter' })
@@ -50,7 +52,7 @@ const ActionBarForSingleMeter = ({
         router.push(`/meter?tab=meter&type=${isPropertyMeter ? METER_TYPES.property : METER_TYPES.unit}`)
     })
 
-    const isUsableMeter = !archiveDate && !isVerificationMissed 
+    const isUsableMeter = !archiveDate && !isVerificationMissed && !isDeletedProperty
 
     const handleUpdateMeterButtonClick = useCallback(() => 
         router.push(`/meter/${isPropertyMeter ? 'property' : 'unit'}/${meterId}/update`),
