@@ -342,13 +342,24 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                         ))
                         continue
                     }
-
-                    if (foundMeter) {
-                        meterId = foundMeter.id
-                    } else {
-                        try {
-                            const rawControlReadingsDate = get(reading, ['meterMeta', 'controlReadingsDate'])
-
+                    try {
+                        const rawControlReadingsDate = get(reading, ['meterMeta', 'controlReadingsDate'])
+                        if (foundMeter) {
+                            meterId = foundMeter.id
+                            await Meter.update(context, foundMeter.id, {
+                                dv,
+                                sender,
+                                accountNumber,
+                                numberOfTariffs: get(reading, ['meterMeta', 'numberOfTariffs'], Object.values(values).filter(Boolean).length),
+                                place: get(reading, ['meterMeta', 'place']),
+                                verificationDate: toISO(get(reading, ['meterMeta', 'verificationDate'])),
+                                nextVerificationDate: toISO(get(reading, ['meterMeta', 'nextVerificationDate'])),
+                                installationDate: toISO(get(reading, ['meterMeta', 'installationDate'])),
+                                commissioningDate: toISO(get(reading, ['meterMeta', 'commissioningDate'])),
+                                sealingDate: toISO(get(reading, ['meterMeta', 'sealingDate'])),
+                                controlReadingsDate: rawControlReadingsDate ? toISO(rawControlReadingsDate) : dayjs().toISOString(),
+                            })
+                        } else {
                             const createdMeter = await Meter.create(context, {
                                 dv,
                                 sender,
@@ -369,10 +380,10 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                                 controlReadingsDate: rawControlReadingsDate ? toISO(rawControlReadingsDate) : dayjs().toISOString(),
                             })
                             meterId = createdMeter.id
-                        } catch (e) {
-                            resultRows.push(e)
-                            continue
                         }
+                    } catch (e) {
+                        resultRows.push(e)
+                        continue
                     }
 
                     try {
