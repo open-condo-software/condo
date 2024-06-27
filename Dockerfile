@@ -11,6 +11,7 @@ COPY --from=node /opt/ /opt/
 
 # Add app user/group! Clean packages and fix links! Check version! And install some extra packages!
 RUN set -ex \
+    && apt-get update \
     && apt-get -y install xvfb \
 	&& groupadd -r app --gid=999 \
 	&& useradd --system --create-home --home /app --gid 999 --uid=999 --shell /bin/bash app \
