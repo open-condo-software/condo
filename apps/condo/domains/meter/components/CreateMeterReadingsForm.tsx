@@ -285,6 +285,7 @@ export const CreateMeterReadingsForm = ({ organization, role, canManageMeterRead
         where: { 
             property: { id: selectedPropertyId },
             unitName: selectedUnitName,
+            unitType: selectedUnitType,
             archiveDate: null,
         },
     }, { skip: isNull(selectedPropertyId) || isNull(selectedUnitName) })
