@@ -26,6 +26,7 @@ jobs:
 
       - name: run dbs
         run: |
+          sudo apt-get install docker-compose-plugin
           docker version
           docker compose version
           docker-compose up -d redis postgresdb-master postgresdb-replica
