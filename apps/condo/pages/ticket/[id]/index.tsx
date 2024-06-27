@@ -78,6 +78,7 @@ import {
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 import { usePollTicketComments } from '@condo/domains/ticket/hooks/usePollTicketComments'
 import { useTicketChangedFieldMessagesOf } from '@condo/domains/ticket/hooks/useTicketChangedFieldMessagesOf'
+import { useTicketDocumentGenerationTask } from '@condo/domains/ticket/hooks/useTicketDocumentGenerationTask'
 import { useTicketExportToPdfTask } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
 import {
     Ticket,
@@ -397,6 +398,12 @@ const TicketActionBar = ({
         eventNamePrefix: 'TicketDetail',
     })
 
+    const { TicketDocumentGenerationButton } = useTicketDocumentGenerationTask({
+        ticket,
+        timeZone,
+        user,
+    })
+
     const { EditButton: EditQualityControlButton } = useTicketQualityControl()
 
     const handleAttachCallRecordClick = useCallback(() => {
@@ -435,6 +442,7 @@ const TicketActionBar = ({
                         </Button>
                     </Link>
                 ),
+                <TicketDocumentGenerationButton key='generateDocument' />,
                 breakpoints.TABLET_LARGE && <>
                     <TicketBlanksExportToPdfButton/>
                     {TicketBlanksExportToPdfModal}
