@@ -16,11 +16,11 @@ import {
     getDayRangeFilter, getFilter,
     getStringContainsFilter,
 } from '@condo/domains/common/utils/tables.utils'
-import { MeterReadingSource, MeterResource } from '@condo/domains/meter/utils/clientSchema'
+import { MeterReadingSource, MeterResource, MeterTypes, METER_TYPES } from '@condo/domains/meter/utils/clientSchema'
 import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
 
-export function useMeterReadingFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
+export function useMeterReadingFilters (meterType: MeterTypes): Array<FiltersMeta<MeterReadingWhereInput>>  {
     const intl = useIntl()
     const EnterAddressMessage = intl.formatMessage({ id: 'pages.condo.meter.EnterAddress' })
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
@@ -56,6 +56,8 @@ export function useMeterReadingFilters (): Array<FiltersMeta<MeterReadingWhereIn
 
     const { objs: resources, loading: resourcesLoading } = MeterResource.useObjects({})
     const resourcesOptions = convertToOptions<MeterResourceType>(resources, 'name', 'id')
+
+    const isPropertyMeter = meterType === METER_TYPES.property
 
     const addressFilter = getFilter(['meter', 'property', 'id'], 'array', 'string', 'in')
     const addressStringContainsFilter = getStringContainsFilter(['meter', 'property', 'address'])
@@ -100,7 +102,7 @@ export function useMeterReadingFilters (): Array<FiltersMeta<MeterReadingWhereIn
                     },
                 },
             },
-            {
+            isPropertyMeter ? null : {
                 keyword: 'unitName',
                 filters: [unitNameFilter],
                 component: {
@@ -115,7 +117,7 @@ export function useMeterReadingFilters (): Array<FiltersMeta<MeterReadingWhereIn
                     },
                 },
             },
-            {
+            isPropertyMeter ? null : {
                 keyword: 'accountNumber',
                 filters: [accountNumberFilter],
                 component: {
@@ -129,7 +131,7 @@ export function useMeterReadingFilters (): Array<FiltersMeta<MeterReadingWhereIn
                     },
                 },
             },
-            {
+            isPropertyMeter ? null : {
                 keyword: 'clientName',
                 filters: [clientNameFilter],
                 component: {
@@ -161,7 +163,7 @@ export function useMeterReadingFilters (): Array<FiltersMeta<MeterReadingWhereIn
                     },
                 },
             },
-            {
+            isPropertyMeter ? null : {
                 keyword: 'source',
                 filters: [sourceFilter],
                 component: {
@@ -206,7 +208,7 @@ export function useMeterReadingFilters (): Array<FiltersMeta<MeterReadingWhereIn
                     },
                 },
             },
-            {
+            isPropertyMeter ? null : {
                 keyword: 'place',
                 filters: [placeFilter],
                 component: {
@@ -310,14 +312,14 @@ export function useMeterReadingFilters (): Array<FiltersMeta<MeterReadingWhereIn
                     addressStringContainsFilter,
                     resourceStringContainsFilter,
                     numberFilter,
-                    placeFilter,
-                    unitNameStringContainsFilter,
-                    accountNumberFilter,
+                    !isPropertyMeter && placeFilter,
+                    !isPropertyMeter && unitNameStringContainsFilter,
+                    !isPropertyMeter && accountNumberFilter,
                 ]),
                 combineType: 'OR',
             },
         ])
         
 
-    }, [addressFilter, userOrganizationId, EnterAddressMessage, AddressMessage, unitNameFilter, EnterUnitNameLabel, UnitMessage, accountNumberFilter, EnterAccountNumberMessage, AccountNumberMessage, clientNameFilter, FullNameMessage, ContactMessage, resourceFilter, resourcesOptions, resourcesLoading, ChooseServiceMessage, ServiceMessage, sourceFilter, sourcesOptions, SelectMessage, SourceMessage, numberFilter, EnterMeterNumberMessage, MeterNumberMessage, readingDateRangeFilter, StartDateMessage, EndDateMessage, MeterReadingDateMessage, placeFilter, EnterPlaceMessage, PlaceMessage, nextVerificationDateRangeFilter, VerificationDateMessage, installationDateRangeFilter, InstallationDateMessage, commissioningDateRangeFilter, CommissioningDateMessage, sealingDateRangeFilter, SealingDateMessage, controlReadingsDateRangeFilter, ControlReadingsDate, archiveDateRangeFilter, ArchiveDate, addressStringContainsFilter, resourceStringContainsFilter, unitNameStringContainsFilter])
+    }, [addressFilter, userOrganizationId, EnterAddressMessage, AddressMessage, isPropertyMeter, unitNameFilter, EnterUnitNameLabel, UnitMessage, accountNumberFilter, EnterAccountNumberMessage, AccountNumberMessage, clientNameFilter, FullNameMessage, ContactMessage, resourceFilter, resourcesOptions, resourcesLoading, ChooseServiceMessage, ServiceMessage, sourceFilter, sourcesOptions, SelectMessage, SourceMessage, numberFilter, EnterMeterNumberMessage, MeterNumberMessage, readingDateRangeFilter, StartDateMessage, EndDateMessage, MeterReadingDateMessage, placeFilter, EnterPlaceMessage, PlaceMessage, nextVerificationDateRangeFilter, VerificationDateMessage, installationDateRangeFilter, InstallationDateMessage, commissioningDateRangeFilter, CommissioningDateMessage, sealingDateRangeFilter, SealingDateMessage, controlReadingsDateRangeFilter, ControlReadingsDate, archiveDateRangeFilter, ArchiveDate, addressStringContainsFilter, resourceStringContainsFilter, unitNameStringContainsFilter])
 }

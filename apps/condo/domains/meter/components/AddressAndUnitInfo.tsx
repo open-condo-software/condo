@@ -3,6 +3,7 @@ import { Col, ColProps, Form, FormInstance, Row } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
 import { DefaultOptionType } from 'antd/lib/select'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import React, { Dispatch, SetStateAction } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -93,7 +94,7 @@ export const AddressAndUnitInfo = (props: AddressAndUnitInfoProps): JSX.Element 
                             wrapperCol={FORM_ITEM_WRAPPER_COLUMN_STYLE}
                             shouldUpdate
                             tooltip={<PropertyFormItemTooltip />}
-                            initialValue={initialValues && initialValues.propertyId}
+                            initialValue={!isEmpty(initialValues) && get(initialValues, 'propertyId')}
                         >
                             <PropertyAddressSearchInput
                                 organizationId={organizationId}
@@ -113,7 +114,7 @@ export const AddressAndUnitInfo = (props: AddressAndUnitInfoProps): JSX.Element 
             </Col>
            
             {!isNoMeterForAddress && (
-                selectedPropertyId || initialValues) && meterType === METER_TAB_TYPES.meter && (property || initialValues) && (
+                selectedPropertyId || !isEmpty(initialValues)) && meterType === METER_TAB_TYPES.meter && (property || !isEmpty(initialValues)) && (
                 <Col span={24}>
                     <Row gutter={FORM_ROW_SMALL_VERTICAL_GUTTER}>
                         <Col span={24}>

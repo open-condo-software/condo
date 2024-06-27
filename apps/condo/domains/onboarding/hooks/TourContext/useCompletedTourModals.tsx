@@ -254,7 +254,7 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
             },
             onButtonClick: {
                 default: () => { router.push('/tour') },
-                [TourStepTypeType.Meter]: handleViewGuideClick,
+                [TourStepTypeType.Meter]: () => { router.push('/meter/create?tab=meter-reading') },
             },
         },
         uploadReceipts: {

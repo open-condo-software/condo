@@ -1,16 +1,19 @@
 import get from 'lodash/get'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { MultipleFilterContextProvider } from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { MeterPageContent } from '@condo/domains/meter/components/Meters/MeterPageContent'
-import { Meter, MeterReportingPeriod, MeterResource, METER_TAB_TYPES } from '@condo/domains/meter/utils/clientSchema'
+import { Meter, MeterReportingPeriod, MeterResource, METER_TYPES } from '@condo/domains/meter/utils/clientSchema'
 import { getMeterTitleMessage } from '@condo/domains/meter/utils/helpers'
+import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
 
 const MeterInfoPage = (): JSX.Element => {
@@ -19,6 +22,8 @@ const MeterInfoPage = (): JSX.Element => {
 
     
     const { query: { id: meterId } } = useRouter()
+    const { user } = useAuth()
+    const { organization, selectLink } = useOrganization()
     const {
         obj: meter,
         error: meterError,
@@ -48,6 +53,30 @@ const MeterInfoPage = (): JSX.Element => {
     
     const MeterTitleMessage = useMemo(() => getMeterTitleMessage(intl, meter), [meter])
 
+    const userId = get(user, 'id', null)
+    const meterOrganizationId = get(meter, 'organization.id', null)
+
+    const {
+        obj: meterOrganizationEmployee,
+    } = OrganizationEmployee.useObject({
+        where: {
+            user: { id: userId },
+            organization: { id: meterOrganizationId },
+        },
+    })
+
+    const meterOrganizationEmployeeOrganizationId = get(meterOrganizationEmployee, 'organization.id')
+    const currentEmployeeOrganization = get(organization, 'id')
+
+    useEffect(() => {
+        if (
+            meterOrganizationEmployeeOrganizationId &&
+            meterOrganizationEmployeeOrganizationId !== currentEmployeeOrganization
+        ) {
+            selectLink(meterOrganizationEmployee)
+        }
+    }, [meterOrganizationEmployeeOrganizationId, currentEmployeeOrganization])
+
 
     if (!meter || isMeterLoading || isPeriodsLoading || isMeterResourceLoading) {
         return (
@@ -70,7 +99,7 @@ const MeterInfoPage = (): JSX.Element => {
                         possibleReportingPeriods={possibleReportingPeriods}
                         resource={meterResource}
                         refetchMeter={refetch}
-                        meterType={METER_TAB_TYPES.meter}
+                        meterType={METER_TYPES.unit}
                     />
                 </PageContent>
             </PageWrapper>
