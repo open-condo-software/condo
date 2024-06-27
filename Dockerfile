@@ -13,6 +13,7 @@ COPY --from=node /opt/ /opt/
 RUN set -ex \
     && apt-get update \
     && apt-get -y install xvfb \
+    && apt-get -y install libnss3 \
 	&& groupadd -r app --gid=999 \
 	&& useradd --system --create-home --home /app --gid 999 --uid=999 --shell /bin/bash app \
 	&& rm -f /usr/local/bin/docker-entrypoint.sh \
