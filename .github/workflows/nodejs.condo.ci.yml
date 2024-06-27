@@ -18,8 +18,6 @@ jobs:
   build-image:
     name: Build Docker Image
     runs-on: test-pool-runners
-    outputs:
-      DOCKER_IMAGE_FULL: ${{ env.DOCKER_IMAGE_FULL }}
     steps:
       - name: Prepare runner
         run: |
@@ -230,7 +228,7 @@ jobs:
     with:
       domain_name: ${{ matrix.domain }}
       runs-on: runners-dind-set-cpu5-ram10
-      image_name: ${{ needs.build-image.outputs.DOCKER_IMAGE_FULL }}
+      image_name: ${{ env.DOCKER_IMAGE_FULL }}
     secrets: inherit
 
   run-condorb-tests:

@@ -14,7 +14,6 @@ on:
 
 jobs:
   tests:
-    name: ${{ inputs.domain_name }}
     runs-on: ${{ inputs.runs-on }}
 
     steps:
