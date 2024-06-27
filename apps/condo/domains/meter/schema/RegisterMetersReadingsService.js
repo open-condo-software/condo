@@ -20,13 +20,11 @@ const {
     PROPERTY_NOT_FOUND,
     INVALID_METER_VALUES,
     MULTIPLE_METERS_FOUND,
-    INVALID_UNIT_NAME,
     INVALID_ACCOUNT_NUMBER,
     INVALID_METER_NUMBER,
     INVALID_DATE,
 } = require('@condo/domains/meter/constants/errors')
 const { Meter, MeterReading } = require('@condo/domains/meter/utils/serverSchema')
-const { PARKING_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 
 dayjs.extend(customParseFormat)
 
@@ -160,6 +158,20 @@ function validateMeterValue (value) {
     if (isUndefined(value)) return true
 
     return !isEmpty(value) && !isNaN(Number(value)) && isFinite(Number(value)) && Number(value) >= 0
+}
+
+/**
+ * @param {MeterReading} meterReading
+ * @return {Object}
+ */
+function meterReadingAsResult (meterReading) {
+    return {
+        id: meterReading.id,
+        meter: {
+            ...pick(meterReading.meter, ['id', 'unitType', 'unitName', 'accountNumber', 'number']),
+            property: pick(meterReading.meter.property, ['id', 'address', 'addressKey']),
+        },
+    }
 }
 
 const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReadingsService', {
@@ -364,22 +376,26 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                     }
 
                     try {
-                        const createdMeterReading = await MeterReading.create(context, {
-                            dv,
-                            sender,
-                            meter: { connect: { id: meterId } },
-                            source: { connect: { id: IMPORT_CONDO_METER_READING_SOURCE_ID } },
+                        const duplicates = await MeterReading.getAll(context, {
+                            meter: { id: meterId },
                             date: toISO(reading.date),
                             ...values,
                         })
 
-                        resultRows.push({
-                            id: createdMeterReading.id,
-                            meter: {
-                                ...pick(createdMeterReading.meter, ['id', 'unitType', 'unitName', 'accountNumber', 'number']),
-                                property: pick(createdMeterReading.meter.property, ['id', 'address', 'addressKey']),
-                            },
-                        })
+                        if (duplicates.length === 0) {
+                            const createdMeterReading = await MeterReading.create(context, {
+                                dv,
+                                sender,
+                                meter: { connect: { id: meterId } },
+                                source: { connect: { id: IMPORT_CONDO_METER_READING_SOURCE_ID } },
+                                date: toISO(reading.date),
+                                ...values,
+                            })
+
+                            resultRows.push(meterReadingAsResult(createdMeterReading))
+                        } else {
+                            resultRows.push(meterReadingAsResult(duplicates[0]))
+                        }
                     } catch (e) {
                         resultRows.push(e)
                     }
