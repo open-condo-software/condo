@@ -11,17 +11,21 @@ const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testS
 
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
-const { Resident: ResidentGQL, REGISTER_RESIDENT_INVOICE_MUTATION } = require('@condo/domains/resident/gql')
-const { REGISTER_RESIDENT_MUTATION } = require('@condo/domains/resident/gql')
-const { ServiceConsumer: ServiceConsumerGQL } = require('@condo/domains/resident/gql')
-const { REGISTER_SERVICE_CONSUMER_MUTATION } = require('@condo/domains/resident/gql')
-const { SEND_MESSAGE_TO_RESIDENT_SCOPES_MUTATION } = require('@condo/domains/resident/gql')
-const { DISCOVER_SERVICE_CONSUMERS_MUTATION } = require('@condo/domains/resident/gql')
-const { GET_RESIDENT_EXISTENCE_BY_PHONE_AND_ADDRESS_QUERY } = require('@condo/domains/resident/gql')
-const { FIND_ORGANIZATIONS_FOR_ADDRESS_MUTATION } = require('@condo/domains/resident/gql')
+const {
+    Resident: ResidentGQL,
+    ServiceConsumer: ServiceConsumerGQL,
+    REGISTER_RESIDENT_MUTATION,
+    REGISTER_RESIDENT_INVOICE_MUTATION,
+    REGISTER_RESIDENT_SERVICE_CONSUMERS_MUTATION,
+    FIND_ORGANIZATIONS_FOR_ADDRESS_QUERY,
+    GET_RESIDENT_EXISTENCE_BY_PHONE_AND_ADDRESS_QUERY,
+    DISCOVER_SERVICE_CONSUMERS_MUTATION,
+    SEND_MESSAGE_TO_RESIDENT_SCOPES_MUTATION,
+    REGISTER_SERVICE_CONSUMER_MUTATION,
+} = require('@condo/domains/resident/gql')
+
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const { REGISTER_RESIDENT_SERVICE_CONSUMERS_MUTATION } = require('@condo/domains/resident/gql')
 
 const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
@@ -188,16 +192,9 @@ async function getResidentExistenceByPhoneAndAddressByTestClient(client, extraAt
     return [data.result, attrs]
 }
 
-async function findOrganizationsForAddressByTestClient(client, extraAttrs = {}) {
+async function findOrganizationsForAddressByTestClient(client, attrs = {}) {
     if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const { data, errors } = await client.mutate(FIND_ORGANIZATIONS_FOR_ADDRESS_MUTATION, { data: attrs })
+    const { data, errors } = await client.query(FIND_ORGANIZATIONS_FOR_ADDRESS_QUERY, { data: attrs })
     throwIfError(data, errors)
     return [data.result, attrs]
 }

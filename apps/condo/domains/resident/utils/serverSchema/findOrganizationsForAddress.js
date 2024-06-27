@@ -48,7 +48,7 @@ async function findBillingReceiptsForOrganizations (organizations, billingInform
                 }
             }
         }
-        if (!receipts && checkAccountNumberUrl && accountNumber) {
+        if (!receipts.length && checkAccountNumberUrl && accountNumber) {
             const { status, services } = await getAccountsWithOnlineInteractionUrl(checkAccountNumberUrl, tin, accountNumber)
             if (status === ONLINE_INTERACTION_CHECK_ACCOUNT_SUCCESS_STATUS) {
                 receipts = services.map(service => {
@@ -61,6 +61,7 @@ async function findBillingReceiptsForOrganizations (organizations, billingInform
                         bankAccountNumber,
                     }
                 })
+                console.log(receipts)
             }
         }
         return receipts

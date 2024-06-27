@@ -59,8 +59,8 @@ const REGISTER_RESIDENT_INVOICE_MUTATION = gql`
 `
 
 const FIND_ORGANIZATIONS_FOR_ADDRESS_QUERY = gql`
-    query getFindOrganizationsForAddressById ($data: FindOrganizationsForAddressInput!) {
-        result: FindOrganizationsForAddress(data: $data) { organization { id name tin type } account { number category balance routingNumber bankAccountNumber } hasMeters hasBillingData }
+    query findOrganizationsForAddress ($data: FindOrganizationsForAddressInput!) {
+        result: findOrganizationsForAddress(data: $data) { organization { id name tin type } account { number category balance routingNumber bankAccountNumber } hasMeters hasBillingData }
     }
 `
 

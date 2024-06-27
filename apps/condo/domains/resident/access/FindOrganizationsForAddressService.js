@@ -3,13 +3,12 @@
  */
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
+const { RESIDENT } = require('@condo/domains/user/constants/common')
+
 async function canFindOrganizationsForAddress ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin) return true
-
-    // TODO(codegen): write mutation access logic!
-    return false
+    return user.isAdmin || user.isSupport || user.type === RESIDENT
 }
 
 /*
