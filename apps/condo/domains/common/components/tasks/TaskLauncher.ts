@@ -6,7 +6,7 @@ import { ITask, TaskRecord } from './index'
 
 type UseTaskLauncherOutputType = {
     loading: boolean
-    handleRunTask: (launchAttrs: Record<string, any>) => void
+    handleRunTask: (launchAttrs?: Record<string, any>) => void
 }
 type UseTaskLauncherType = (taskUIInterface: ITask, attrs: Record<string, any>) => UseTaskLauncherOutputType
 
