@@ -434,8 +434,7 @@ const TicketActionBar = ({
                     <Link key='update' href={`/ticket/${ticket.id}/update`}>
                         <Button
                             disabled={disabledEditTicketButton}
-                            type='secondary'
-                            icon={<Edit size='medium'/>}
+                            type='primary'
                             data-cy='ticket__update-link'
                         >
                             {UpdateMessage}
