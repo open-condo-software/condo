@@ -343,23 +343,23 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                         continue
                     }
                     try {
-                        const rawControlReadingsDate = get(reading, ['meterMeta', 'controlReadingsDate'])
                         if (foundMeter) {
                             meterId = foundMeter.id
                             await Meter.update(context, foundMeter.id, {
                                 dv,
                                 sender,
                                 accountNumber,
-                                numberOfTariffs: get(reading, ['meterMeta', 'numberOfTariffs'], Object.values(values).filter(Boolean).length),
+                                numberOfTariffs: get(reading, ['meterMeta', 'numberOfTariffs']),
                                 place: get(reading, ['meterMeta', 'place']),
                                 verificationDate: toISO(get(reading, ['meterMeta', 'verificationDate'])),
                                 nextVerificationDate: toISO(get(reading, ['meterMeta', 'nextVerificationDate'])),
                                 installationDate: toISO(get(reading, ['meterMeta', 'installationDate'])),
                                 commissioningDate: toISO(get(reading, ['meterMeta', 'commissioningDate'])),
                                 sealingDate: toISO(get(reading, ['meterMeta', 'sealingDate'])),
-                                controlReadingsDate: rawControlReadingsDate ? toISO(rawControlReadingsDate) : dayjs().toISOString(),
+                                controlReadingsDate: toISO(get(reading, ['meterMeta', 'controlReadingsDate'])),
                             })
                         } else {
+                            const rawControlReadingsDate = get(reading, ['meterMeta', 'controlReadingsDate'])
                             const createdMeter = await Meter.create(context, {
                                 dv,
                                 sender,
