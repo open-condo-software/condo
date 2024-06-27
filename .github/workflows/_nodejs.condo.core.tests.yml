@@ -47,6 +47,9 @@ jobs:
 
       - name: run dbs
         run: |
+          touch .env
+          echo "${{ secrets.DOCKER_REGISTRY }}/doma/utils/postgres:13.2" >> .env
+          echo "${{ secrets.DOCKER_REGISTRY }}/doma/utils/redis:6.2" >> .env
           docker compose up -d redis postgresdb-master postgresdb-replica
 
       - name: run tests
