@@ -77,6 +77,9 @@ import {
 import { ActiveCallContextProvider } from '@condo/domains/ticket/contexts/ActiveCallContext'
 import { TicketVisibilityContextProvider } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 import { useIncidentExportTaskUIInterface } from '@condo/domains/ticket/hooks/useIncidentExportTaskUIInterface'
+import {
+    useTicketDocumentGenerationTaskUIInterface,
+} from '@condo/domains/ticket/hooks/useTicketDocumentGenerationTaskUIInterface'
 import { useTicketExportTaskUIInterface } from '@condo/domains/ticket/hooks/useTicketExportTaskUIInterface'
 import { CookieAgreement } from '@condo/domains/user/components/CookieAgreement'
 import { USER_QUERY } from '@condo/domains/user/gql'
@@ -84,9 +87,6 @@ import '@condo/domains/common/components/wdyr'
 import '@open-condo/ui/dist/styles.min.css'
 import '@open-condo/ui/dist/style-vars/variables.css'
 import '@condo/domains/common/components/containers/global-styles.css'
-import {
-    useTicketDocumentGenerationTaskUIInterface,
-} from '@condo/domains/ticket/hooks/useTicketDocumentGenerationTaskUIInterface'
 
 
 const ANT_LOCALES = {
