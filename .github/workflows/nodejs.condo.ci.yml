@@ -235,7 +235,6 @@ jobs:
           docker exec condo-container sh -c "(\
           yarn workspace @app/condo start & \
           node bin/wait-apps-apis.js -f condo) && \
-          apt-get -y install xvfb && \
           yarn workspace @app/condo cypress install && \
           yarn workspace @app/condo cypress run --record --key ${{ secrets.CYPRESS_RECORD_KEY }} -b chrome -C ./cypress/cypress.config.ts"
 
