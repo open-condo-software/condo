@@ -448,12 +448,12 @@ describe('MessageBatch', () => {
         })
 
         it('handles messageBatch and creates push notification for MessageBatch with type CUSTOM_CONTENT_MESSAGE_SMS_TYPE', async () => {
-            const phone = faker.phone.number('+79#########')
-            const [customMessage] = await createTestMessageBatch(admin, { messageType: CUSTOM_CONTENT_MESSAGE_SMS_TYPE, targets: [phone] })
+            const userClient = await makeClientWithResidentAccessAndProperty()
+            const [customMessage] = await createTestMessageBatch(admin, { messageType: CUSTOM_CONTENT_MESSAGE_SMS_TYPE, targets: [userClient.user.id] })
             const date = dayjs().format(DATE_FORMAT)
             const messagesWhere = {
                 type: CUSTOM_CONTENT_MESSAGE_SMS_TYPE,
-                uniqKey: getUniqKey(date, customMessage.title, phone),
+                uniqKey: getUniqKey(date, customMessage.title, userClient.user.id),
             }
             const messagesSort = { sortBy: ['createdAt_DESC'] }
 
@@ -469,7 +469,7 @@ describe('MessageBatch', () => {
 
                 expect(message).not.toBeUndefined()
                 expect(message.type).toEqual(CUSTOM_CONTENT_MESSAGE_SMS_TYPE)
-                expect(message.phone).toEqual(phone)
+                expect(message.user.id).toEqual(userClient.user.id)
             })
         })
 
