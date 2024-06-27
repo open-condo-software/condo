@@ -224,6 +224,9 @@ jobs:
           - common
           - others
     uses: ./.github/workflows/_nodejs.condo.core.tests.yml
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
     with:
       domain_name: ${{ matrix.domain }}
       runs-on: runners-dind-set-cpu5-ram10
