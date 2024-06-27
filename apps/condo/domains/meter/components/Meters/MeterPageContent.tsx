@@ -60,7 +60,7 @@ export const MeterHeader = ({ meter, meterReportingPeriod, refetchMeter, meterTy
             ),
         })
 
-    const isPropertyMeter = meterType === METER_TAB_TYPES.propertyMeter
+    const isPropertyMeter = meterType === METER_TYPES.property
     const MeterIdentity = isPropertyMeter ? PropertyMeter : Meter
 
     const updateArchivedDateAction = MeterIdentity.useUpdate({}, ()=> {
