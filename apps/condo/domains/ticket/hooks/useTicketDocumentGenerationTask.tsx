@@ -56,6 +56,8 @@ export const useTicketDocumentGenerationTask = ({ ticket, user, timeZone }) => {
     }, [CompletionWorksLabel, getHandleClick, locale])
 
     const TicketDocumentGenerationButton = useCallback(() => {
+        if (buttonItems.length < 1) return null
+
         return (
             <Dropdown.Button
                 key='generate-ticket-document'
