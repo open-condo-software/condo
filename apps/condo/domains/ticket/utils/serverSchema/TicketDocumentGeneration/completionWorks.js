@@ -1,12 +1,12 @@
 const dayjs = require('dayjs')
-const { get, isEmpty } = require('lodash')
+const { get } = require('lodash')
 
 const { getById, getByCondition } = require('@open-condo/keystone/schema')
 
 const { buildExportFile: buildExportExcelFile, DOCX_FILE_META } = require('@condo/domains/common/utils/createExportFile')
 const { buildUploadInputFrom } = require('@condo/domains/common/utils/serverSchema/export')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
-const { DEFAULT_INVOICE_CURRENCY_CODE } = require('@condo/domains/marketplace/constants')
+const { DEFAULT_INVOICE_CURRENCY_CODE, INVOICE_STATUS_CANCELED } = require('@condo/domains/marketplace/constants')
 const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { getAddressDetails } = require('@condo/domains/property/utils/serverSchema/helpers')
@@ -70,6 +70,7 @@ const generateTicketDocumentOfCompletionWorks = async ({ task, baseAttrs, contex
     const invoices = await Invoice.getAll(context, {
         ticket: { id: ticket.id },
         deletedAt: null,
+        status_not: INVOICE_STATUS_CANCELED,
     }, {
         sortBy: ['createdAt_ASC'],
     })
@@ -79,7 +80,7 @@ const generateTicketDocumentOfCompletionWorks = async ({ task, baseAttrs, contex
     const listOfWorks = invoices.reduce((acc, invoice) => {
         const rows = Array.isArray(invoice.rows) ? invoice.rows : []
         acc.push(...rows.map(row => {
-            const price = parseFloat(row.toPay)
+            const price = parseFloat(!row.isMin ? row.toPay : null)
 
             return {
                 name: row.name || '',

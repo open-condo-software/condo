@@ -1,6 +1,7 @@
 const { get } = require('lodash')
 
 const conf = require('@open-condo/config')
+const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx, getById } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
 
@@ -16,6 +17,9 @@ const { TicketDocumentGenerationTask } = require('@condo/domains/ticket/utils/se
 const { generateTicketDocumentOfCompletionWorks } = require('@condo/domains/ticket/utils/serverSchema/TicketDocumentGeneration')
 
 
+const appLogger = getLogger('condo')
+const taskLogger = appLogger.child({ module: 'tasks/generateTicketDocument' })
+
 const BASE_ATTRS = {
     dv: 1,
     sender: {
@@ -27,6 +31,8 @@ const BASE_ATTRS = {
 const generateTicketDocument = async (taskId) => {
     let task, context
     try {
+        taskLogger.info({ msg: 'Start of generating ticket document', taskId })
+
         if (!taskId) throw new Error('no taskId!')
 
         const { keystone: _context } = getSchemaCtx('TicketDocumentGenerationTask')
@@ -77,7 +83,11 @@ const generateTicketDocument = async (taskId) => {
             status: TICKET_DOCUMENT_GENERATION_TASK_STATUS.COMPLETED,
             file: fileUploadInput,
         })
+
+        taskLogger.info({ msg: 'Successful generation of ticket document', taskId })
     } catch (error) {
+        taskLogger.error({ msg: 'Fail of generating ticket document', taskId, error })
+
         if (task && context) {
             await TicketDocumentGenerationTask.update(context, task.id, {
                 ...BASE_ATTRS,

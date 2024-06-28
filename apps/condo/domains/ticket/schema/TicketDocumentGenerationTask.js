@@ -22,8 +22,8 @@ const { generateTicketDocument } = require('@condo/domains/ticket/tasks')
 const { getFileMetaAfterChange } = FileAdapter
 
 
-const TICKET_CERTIFICATE_GENERATION_TASK_FOLDER_NAME = 'TicketDocumentGenerationTask'
-const TicketDocumentGenerationTaskFileAdapter = new FileAdapter(TICKET_CERTIFICATE_GENERATION_TASK_FOLDER_NAME)
+const TICKET_DOCUMENT_GENERATION_TASK_FOLDER_NAME = 'TicketDocumentGenerationTask'
+const TicketDocumentGenerationTaskFileAdapter = new FileAdapter(TICKET_DOCUMENT_GENERATION_TASK_FOLDER_NAME)
 const setFileMetaAfterChange = getFileMetaAfterChange(TicketDocumentGenerationTaskFileAdapter, 'file')
 
 const ERRORS = {
@@ -180,7 +180,7 @@ const TicketDocumentGenerationTask = new GQLListSchema('TicketDocumentGeneration
         afterChange: async (args) => {
             const { updatedItem, operation } = args
 
-            setFileMetaAfterChange(args)
+            await setFileMetaAfterChange(args)
 
             if (operation === 'create') {
                 await generateTicketDocument.delay(updatedItem.id)
