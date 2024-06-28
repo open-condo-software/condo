@@ -22,13 +22,18 @@ class DomaMetersImporter extends AbstractMetersImporter {
         return isEqual(columnsNames, normalizedColumns)
     }
 
+    /**
+     * @inheritDoc
+     * @return {RegisterMetersReadingsReadingInput}
+     */
     transformRow (row) {
+        /** @type {string[]} */
         const errors = []
         if (!get(this, ['mappers', 'resourceId', row[4]])) {
             errors.push(this.errors.unknownResource.message)
         }
 
-        if (!get(this, ['mappers', 'unitType', row[2].toLowerCase()])) {
+        if (!get(this, ['mappers', 'unitType', String(row[2]).toLowerCase()])) {
             errors.push(this.errors.unknownUnitType.message)
         }
 
@@ -39,7 +44,7 @@ class DomaMetersImporter extends AbstractMetersImporter {
         return {
             address: row[0],
             addressInfo: {
-                unitType: this.mappers.unitType[row[2].toLowerCase()],
+                unitType: this.mappers.unitType[String(row[2]).toLowerCase()],
                 unitName: row[1],
             },
             accountNumber: row[3],
