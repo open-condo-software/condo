@@ -174,6 +174,32 @@ function meterReadingAsResult (meterReading) {
     }
 }
 
+/**
+ * @param {Meter} meter
+ * @param {RegisterMetersReadingsMeterMetaInput} changedFields
+ * @return {boolean}
+ */
+function shouldUpdateMeter (meter, changedFields) {
+    const fieldsToUpdate = [
+        'accountNumber',
+        'numberOfTariffs',
+        'place',
+        'verificationDate',
+        'nextVerificationDate',
+        'installationDate',
+        'commissioningDate',
+        'sealingDate',
+        'controlReadingsDate',
+    ]
+
+    return fieldsToUpdate.reduce((result, field) => {
+        if (result) {
+            return result
+        }
+        return !!get(changedFields, field) && get(changedFields, field) !== get(meter, field)
+    }, false)
+}
+
 const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReadingsService', {
     types: [
         {
@@ -345,9 +371,7 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                     try {
                         if (foundMeter) {
                             meterId = foundMeter.id
-                            await Meter.update(context, foundMeter.id, {
-                                dv,
-                                sender,
+                            const fieldsToUpdate = {
                                 accountNumber,
                                 numberOfTariffs: get(reading, ['meterMeta', 'numberOfTariffs']),
                                 place: get(reading, ['meterMeta', 'place']),
@@ -357,7 +381,10 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                                 commissioningDate: toISO(get(reading, ['meterMeta', 'commissioningDate'])),
                                 sealingDate: toISO(get(reading, ['meterMeta', 'sealingDate'])),
                                 controlReadingsDate: toISO(get(reading, ['meterMeta', 'controlReadingsDate'])),
-                            })
+                            }
+                            if (shouldUpdateMeter(foundMeter, fieldsToUpdate)) {
+                                await Meter.update(context, foundMeter.id, { dv, sender, ...fieldsToUpdate })
+                            }
                         } else {
                             const rawControlReadingsDate = get(reading, ['meterMeta', 'controlReadingsDate'])
                             const createdMeter = await Meter.create(context, {

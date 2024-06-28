@@ -1020,6 +1020,7 @@ describe('RegisterMetersReadingsService', () => {
         })
         expect(updatedMeters).toHaveLength(1)
         expect(updatedMeters[0].id).toBe(meters[0].id)
+        expect(updatedMeters[0].v).toBe(meters[0].v + 1)
         expect(updatedMeters[0].number).toBe(readings[0].meterNumber)
         expect(updatedMeters[0].place).toBe('place2')
         expect(updatedMeters[0].nextVerificationDate).toBeTruthy()
@@ -1048,5 +1049,42 @@ describe('RegisterMetersReadingsService', () => {
 
         // be sure that keep same value from creation
         expect(meters[0].controlReadingsDate).toBe(updatedMeters2[0].controlReadingsDate)
+    })
+
+    test('meter not updated if no fields changed', async () => {
+        const [o10n] = await createTestOrganization(adminClient)
+        const [property] = await createTestPropertyWithMap(adminClient, o10n)
+        const readings = [createTestReadingData(property, {
+            meterMeta: {
+                numberOfTariffs: 2,
+                place: 'place1',
+            },
+        })]
+        await registerMetersReadingsByTestClient(adminClient, o10n, readings)
+        const meters = await Meter.getAll(adminClient, {
+            organization: { id: o10n.id },
+            property: { id: property.id },
+        })
+
+        // create another reading for same meter (keep all meter fields as is)
+        const anotherReadings = [{
+            ...readings[0],
+            value1: faker.random.numeric(3),
+            value2: faker.random.numeric(4),
+            meterMeta: {
+                place: 'place1', // keep same place
+            },
+        }]
+        await registerMetersReadingsByTestClient(adminClient, o10n, anotherReadings)
+
+        // be sure that meter has changed place and nextVerificationDate
+        const notUpdatedMeters = await Meter.getAll(adminClient, {
+            organization: { id: o10n.id },
+            property: { id: property.id },
+        })
+        expect(notUpdatedMeters).toHaveLength(1)
+        expect(notUpdatedMeters[0].id).toBe(meters[0].id)
+        expect(notUpdatedMeters[0].v).toBe(meters[0].v)
+        expect(notUpdatedMeters[0].place).toBe('place1')
     })
 })
