@@ -39,6 +39,7 @@ jobs:
         with:
           fetch-depth: 0
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+          ref: ${{ github.event.pull_request.head.sha || github.ref }}
 
       - name: run dbs
         run: |
