@@ -5,7 +5,7 @@
 const {
     makeLoggedInAdminClient, makeClient, DATETIME_RE,
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
-    expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects, waitFor,
+    expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects, waitFor, expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
@@ -20,6 +20,9 @@ const {
     createTestTicket,
 } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithResidentUser, makeClientWithServiceUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
+
+const { ERRORS } = require('./TicketDocumentGenerationTask')
+
 
 describe('TicketDocumentGenerationTask', () => {
     let admin, support, staff, secondStaff, resident, serviceUser, anonymous,
@@ -91,10 +94,18 @@ describe('TicketDocumentGenerationTask', () => {
                     documentType: TICKET_DOCUMENT_TYPE.COMPLETION_WORKS,
                 })
 
-                const [updatedTask] = await updateTestTicketDocumentGenerationTask(admin, task.id, {
-                    status: TICKET_DOCUMENT_GENERATION_TASK_STATUS.CANCELLED,
+                // NOTE: we cannot guarantee that the task has been cancelled
+                // because the task completion may happen very quickly before we send the task cancellation request
+                await waitFor(async () => {
+                    const foundedTask = await TicketDocumentGenerationTask.getOne(admin, { id: task.id })
+                    expect(foundedTask).toHaveProperty('status', TICKET_DOCUMENT_GENERATION_TASK_STATUS.COMPLETED)
                 })
-                expect(updatedTask).toHaveProperty('status', TICKET_DOCUMENT_GENERATION_TASK_STATUS.CANCELLED)
+
+                await expectToThrowGQLError(async () => {
+                    await updateTestTicketDocumentGenerationTask(admin, task.id, {
+                        status: TICKET_DOCUMENT_GENERATION_TASK_STATUS.CANCELLED,
+                    })
+                }, ERRORS.STATUS_IS_ALREADY_COMPLETED)
             })
 
             test('cannot delete', async () => {
@@ -229,10 +240,19 @@ describe('TicketDocumentGenerationTask', () => {
                     format: TICKET_DOCUMENT_GENERATION_TASK_FORMAT.DOCX,
                     documentType: TICKET_DOCUMENT_TYPE.COMPLETION_WORKS,
                 })
-                const [updatedTask] = await updateTestTicketDocumentGenerationTask(staff, task.id, {
-                    status: TICKET_DOCUMENT_GENERATION_TASK_STATUS.CANCELLED,
+
+                // NOTE: we cannot guarantee that the task has been cancelled
+                // because the task completion may happen very quickly before we send the task cancellation request
+                await waitFor(async () => {
+                    const foundedTask = await TicketDocumentGenerationTask.getOne(staff, { id: task.id })
+                    expect(foundedTask).toHaveProperty('status', TICKET_DOCUMENT_GENERATION_TASK_STATUS.COMPLETED)
                 })
-                expect(updatedTask).toHaveProperty('status', TICKET_DOCUMENT_GENERATION_TASK_STATUS.CANCELLED)
+
+                await expectToThrowGQLError(async () => {
+                    await updateTestTicketDocumentGenerationTask(staff, task.id, {
+                        status: TICKET_DOCUMENT_GENERATION_TASK_STATUS.CANCELLED,
+                    })
+                }, ERRORS.STATUS_IS_ALREADY_COMPLETED)
             })
             test('cannot update other user\'s task', async () => {
                 const [task] = await createTestTicketDocumentGenerationTask(secondStaff, secondStaff.user, {

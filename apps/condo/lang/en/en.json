@@ -2596,6 +2596,8 @@
   "api.ticket.FEEDBACK_VALUE_MUST_BE_SPECIFIED": "When specifying a comment or additional evaluation parameters, you must specify the evaluation itself",
   "api.ticket.TicketAutoAssignment.error.ASSIGNEE_NOT_FOUND": "There is no such employee (assignee) in the organization",
   "api.ticket.TicketAutoAssignment.error.EXECUTOR_NOT_FOUND": "There is no such employee (executor) in the organization",
+  "api.ticket.TicketDocumentGenerationTask.STATUS_IS_ALREADY_COMPLETED": "Task already completed successfully",
+  "api.ticket.TicketDocumentGenerationTask.STATUS_IS_ALREADY_ERROR": "The task has already completed with an error",
   "api.property.exportPropertiesToExcel.NOTHING_TO_EXPORT": "No properties are found to export for current organization",
   "api.property.create.sameAddressError": "Property with the same address already exists in selected organization",
   "api.meter.exportMeterReadings.NOTHING_TO_EXPORT": "No meter readings to export for specified organization",
