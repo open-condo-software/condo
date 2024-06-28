@@ -18,7 +18,9 @@ const {
     JSON_EXPECT_ARRAY_ERROR,
     JSON_EXPECT_OBJECT_ERROR,
 } = require('@condo/domains/common/constants/errors')
-const { PUSH_TRANSPORT_FIREBASE, DEVICE_PLATFORM_ANDROID, APP_RESIDENT_ID_ANDROID } = require('@condo/domains/notification/constants/constants')
+const { PUSH_TRANSPORT_FIREBASE, DEVICE_PLATFORM_ANDROID, APP_RESIDENT_ID_ANDROID, SMS_TRANSPORT, PUSH_TRANSPORT,
+    EMAIL_TRANSPORT,
+} = require('@condo/domains/notification/constants/constants')
 const {
     Message,
     MessageBatch,
@@ -329,6 +331,8 @@ describe('MessageBatch', () => {
                 const message = await Message.getOne(admin, messagesWhere, messagesSort)
 
                 expect(message).not.toBeUndefined()
+                expect(message.processingMeta.transports).toHaveLength(1)
+                expect(message.processingMeta.transports[0]).toEqual(PUSH_TRANSPORT)
                 expect(message.type).toEqual(CUSTOM_CONTENT_MESSAGE_PUSH_TYPE)
                 expect(message.remoteClient.id).toEqual(remoteClientId)
             })
@@ -355,6 +359,8 @@ describe('MessageBatch', () => {
                 const message = await Message.getOne(admin, messagesWhere, messagesSort)
 
                 expect(message).not.toBeUndefined()
+                expect(message.processingMeta.transports).toHaveLength(1)
+                expect(message.processingMeta.transports[0]).toEqual(SMS_TRANSPORT)
                 expect(message.type).toEqual(CUSTOM_CONTENT_MESSAGE_SMS_TYPE)
                 expect(message.phone).toEqual(phone)
             })
@@ -381,6 +387,8 @@ describe('MessageBatch', () => {
                 const message = await Message.getOne(admin, messagesWhere, messagesSort)
 
                 expect(message).not.toBeUndefined()
+                expect(message.processingMeta.transports).toHaveLength(1)
+                expect(message.processingMeta.transports[0]).toEqual(EMAIL_TRANSPORT)
                 expect(message.type).toEqual(CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE)
                 expect(message.email).toEqual(email)
             })
@@ -416,6 +424,8 @@ describe('MessageBatch', () => {
                 const message = await Message.getOne(admin, messageWhere, messagesSort)
 
                 expect(message).not.toBeUndefined()
+                expect(message.processingMeta.transports).toHaveLength(1)
+                expect(message.processingMeta.transports[0]).toEqual(PUSH_TRANSPORT)
                 expect(message.type).toEqual(CUSTOM_CONTENT_MESSAGE_PUSH_TYPE)
                 expect(message.user.id).toEqual(userClient.user.id)
             })
