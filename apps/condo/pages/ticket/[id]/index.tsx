@@ -34,7 +34,7 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
-import { MARKETPLACE } from '@condo/domains/common/constants/featureflags'
+import { MARKETPLACE, TICKET_DOCUMENT_GENERATION } from '@condo/domains/common/constants/featureflags'
 import { getObjectCreatedMessage } from '@condo/domains/common/utils/date.utils'
 import { CopyButton } from '@condo/domains/marketplace/components/Invoice/CopyButton'
 import { TicketInvoicesList } from '@condo/domains/marketplace/components/Invoice/TicketInvoicesList'
@@ -373,6 +373,9 @@ const TicketActionBar = ({
     const { requestFeature } = useGlobalAppsFeaturesContext()
     const { isCallActive, connectedTickets } = useActiveCall()
 
+    const { useFlag } = useFeatureFlags()
+    const isTicketDocumentGenerationEnabled = useFlag(TICKET_DOCUMENT_GENERATION)
+
     const id = get(ticket, 'id')
     const ticketOrganizationId = useMemo(() => get(ticket, 'organization.id'), [ticket])
     const canShareTickets = useMemo(() => get(employee, 'role.canShareTickets'), [employee])
@@ -441,7 +444,7 @@ const TicketActionBar = ({
                         </Button>
                     </Link>
                 ),
-                <TicketDocumentGenerationButton key='generateDocument' />,
+                isTicketDocumentGenerationEnabled && <TicketDocumentGenerationButton key='generateDocument' />,
                 breakpoints.TABLET_LARGE && <>
                     <TicketBlanksExportToPdfButton/>
                     {TicketBlanksExportToPdfModal}
