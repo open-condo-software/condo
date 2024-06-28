@@ -88220,7 +88220,7 @@ export type TicketDocumentGenerationTask = {
   progress?: Maybe<Scalars['Int']>;
   /**  User that requested this generation operation. Will be used for read access checks to display all generating tasks somewhere and to display progress indicator of ongoing generating task for current user  */
   user?: Maybe<User>;
-  /**  To requested timeZone all datetime fields will be converted  */
+  /**  All datetime fields in export template will be converted to specified tz  */
   timeZone?: Maybe<Scalars['String']>;
   /**  Meta information about file, saved outside of database somewhere. Shape of meta information JSON object is specific to file adapter, used by saving a file.  */
   file?: Maybe<File>;

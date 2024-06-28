@@ -37956,7 +37956,8 @@ type TicketDocumentGenerationTask {
   """
   user: User
 
-  """ To requested timeZone all datetime fields will be converted """
+  """ All datetime fields in export template will be converted to specified tz 
+  """
   timeZone: String
 
   """ Meta information about file, saved outside of database somewhere. Shape of meta information JSON object is specific to file adapter, used by saving a file. 
