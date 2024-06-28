@@ -84,7 +84,7 @@ const getAddressDetails = (propertyAddressMeta) => {
     const settlementLine = settlementPart ? `, ${settlementPart}` : ''
     const renderData = regionLine + areaLine + settlementLine + cityLine
 
-    return { streetPart, areaPart, settlementPart, regionPart, cityPart, renderData, settlement, housePart, cityType, cityName }
+    return { streetPart, areaPart, settlementPart, regionPart, cityPart, renderData, settlement, housePart, cityType, cityName, houseName, block }
 }
 
 module.exports = {

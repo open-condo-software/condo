@@ -52,7 +52,7 @@ const generateTicketDocumentOfCompletionWorks = async ({ task, baseAttrs, contex
     const printDate = dayjs().tz(timeZone).locale(locale)
 
     const property = await getById('Property', ticket.property)
-    const { renderData, streetPart, settlement, housePart, cityType, cityName } = getAddressDetails(get(property, 'addressMeta', ticket.propertyAddressMeta))
+    const { renderData, streetPart, settlement, cityType, cityName, houseName, block } = getAddressDetails(get(property, 'addressMeta', ticket.propertyAddressMeta))
 
     const contact = ticket.contact
         ? await getById('Contact', ticket.contact)
@@ -102,9 +102,9 @@ const generateTicketDocumentOfCompletionWorks = async ({ task, baseAttrs, contex
             year: printDate.format('YYYY'),
         },
         property: {
-            fullAddress: `${renderData} ${streetPart}`,
-            address: `${renderData} ${settlement}`,
-            number: housePart,
+            fullAddress: [renderData, streetPart].filter(Boolean).join(' '),
+            address: [renderData, settlement].filter(Boolean).join(' '),
+            number: [houseName, block].filter(Boolean).join(''),
         },
         client: {
             name: get(contact, 'name') || '',
