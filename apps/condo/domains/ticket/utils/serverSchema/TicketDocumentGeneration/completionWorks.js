@@ -39,12 +39,10 @@ const buildExportWordFile = async ({ task, documentData, locale, timeZone }) => 
 }
 
 const renderMoney = (amount, currencyCode, locale) => {
-    const options = { style: 'currency', currency: currencyCode }
+    const options = { currency: currencyCode }
     const numberFormat = new Intl.NumberFormat(locale, options)
     const parts = numberFormat.formatToParts(amount)
-    return parts.map((part) => part.value)
-        .slice(0, -2) // remove currency symbol
-        .join('')
+    return parts.map((part) => part.value).join('')
 }
 
 const generateTicketDocumentOfCompletionWorks = async ({ task, baseAttrs, context, locale, ticket, organization }) => {
