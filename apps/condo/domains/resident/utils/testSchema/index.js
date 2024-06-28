@@ -4,13 +4,21 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const { faker } = require('@faker-js/faker')
-const { makeClientWithResidentUser } = require(
-    '@condo/domains/user/utils/testSchema')
 const { get } = require('lodash')
-const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
+
 
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
+
+/* AUTOGENERATE MARKER <IMPORT> */
+
+
+const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
+
+const { INVOICE_PAYMENT_TYPE_ONLINE } = require('@condo/domains/marketplace/constants')
+const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
+const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 const {
     Resident: ResidentGQL,
     ServiceConsumer: ServiceConsumerGQL,
@@ -23,14 +31,8 @@ const {
     SEND_MESSAGE_TO_RESIDENT_SCOPES_MUTATION,
     REGISTER_SERVICE_CONSUMER_MUTATION,
 } = require('@condo/domains/resident/gql')
-
-/* AUTOGENERATE MARKER <IMPORT> */
-
-
-const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
-const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
-const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
-const { INVOICE_PAYMENT_TYPE_ONLINE } = require('@condo/domains/marketplace/constants')
+const { makeClientWithResidentUser } = require(
+    '@condo/domains/user/utils/testSchema')
 
 const Resident = generateGQLTestUtils(ResidentGQL)
 const ServiceConsumer = generateGQLTestUtils(ServiceConsumerGQL)
@@ -145,7 +147,7 @@ async function registerServiceConsumerByTestClient (client, extraAttrs = {}) {
 }
 
 
-async function sendMessageToResidentScopesByTestClient(client, extraAttrs = {}) {
+async function sendMessageToResidentScopesByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -159,7 +161,7 @@ async function sendMessageToResidentScopesByTestClient(client, extraAttrs = {}) 
     return [data.result, attrs]
 }
 
-async function discoverServiceConsumersByTestClient(client, args, extraAttrs = {}) {
+async function discoverServiceConsumersByTestClient (client, args, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!args) throw new Error('no data')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -178,7 +180,7 @@ async function discoverServiceConsumersByTestClient(client, args, extraAttrs = {
     return [data.result, errors, attrs]
 }
 
-async function getResidentExistenceByPhoneAndAddressByTestClient(client, extraAttrs = {}) {
+async function getResidentExistenceByPhoneAndAddressByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -192,7 +194,7 @@ async function getResidentExistenceByPhoneAndAddressByTestClient(client, extraAt
     return [data.result, attrs]
 }
 
-async function findOrganizationsForAddressByTestClient(client, attrs = {}) {
+async function findOrganizationsForAddressByTestClient (client, attrs = {}) {
     if (!client) throw new Error('no client')
     const { data, errors } = await client.query(FIND_ORGANIZATIONS_FOR_ADDRESS_QUERY, { data: attrs })
     throwIfError(data, errors)
@@ -229,10 +231,10 @@ async function makeClientWithResident () {
 
 async function registerResidentServiceConsumersByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    const sender = {dv: 1, fingerprint: faker.random.alphaNumeric(8)}
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    const attrs = { dv: 1, sender, ...extraAttrs}
-    const {data, errors} = await client.mutate(REGISTER_RESIDENT_SERVICE_CONSUMERS_MUTATION, {data: attrs})
+    const attrs = { dv: 1, sender, ...extraAttrs }
+    const { data, errors } = await client.mutate(REGISTER_RESIDENT_SERVICE_CONSUMERS_MUTATION, { data: attrs })
     throwIfError(data, errors)
     return [data.objs, attrs]
 }

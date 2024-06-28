@@ -16,17 +16,18 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { HOUSING_CATEGORY_ID, REPAIR_CATEGORY_ID } = require('@condo/domains/billing/constants/constants')
 const {
     ONLINE_INTERACTION_CHECK_ACCOUNT_NOT_FOUND_STATUS,
     ONLINE_INTERACTION_CHECK_ACCOUNT_SUCCESS_STATUS,
 } = require('@condo/domains/billing/constants/onlineInteraction')
 const {
     TestUtils,
-    BillingTestMixin,
     ResidentTestMixin,
     MeterTestMixin,
 } = require('@condo/domains/billing/utils/testSchema/testUtils')
 const { findOrganizationsForAddressByTestClient } = require('@condo/domains/resident/utils/testSchema')
+
 describe('FindOrganizationsForAddress', () => {
 
     let utils
@@ -62,15 +63,44 @@ describe('FindOrganizationsForAddress', () => {
             jest.clearAllMocks()
         })
 
-        test('', async () => {
+        test('do not returns organization if account not found', async () => {
+            const notExistingAccountNumber = faker.random.alphaNumeric(16)
+            apiHandler.mockResolvedValue({ status: ONLINE_INTERACTION_CHECK_ACCOUNT_NOT_FOUND_STATUS })
+            const [foundOrganizations] = await findOrganizationsForAddressByTestClient(utils.clients.resident, {
+                addressKey: utils.property.addressKey,
+                accountNumber: notExistingAccountNumber,
+                tin: utils.organization.tin,
+            })
+            expect(apiHandler).toHaveBeenCalledTimes(1)
+            expect(foundOrganizations).toHaveLength(0)
+        })
 
+        test('returns organization and receipt if account found', async () => {
+            const existingAccountNumber = faker.random.alphaNumeric(16)
+            apiHandler.mockResolvedValue({ status: ONLINE_INTERACTION_CHECK_ACCOUNT_SUCCESS_STATUS, services: [{
+                category: HOUSING_CATEGORY_ID,
+                account: { number: existingAccountNumber },
+                bankAccount: {
+                    number: faker.random.alphaNumeric(16),
+                    routingNumber: faker.random.alphaNumeric(16),
+                },
+            }] })
+            const [foundOrganizations] = await findOrganizationsForAddressByTestClient(utils.clients.resident, {
+                addressKey: utils.property.addressKey,
+                accountNumber: existingAccountNumber,
+                tin: utils.organization.tin,
+            })
+            const foundResult = foundOrganizations.find(({ organization: { id } }) => id === utils.organization.id)
+            expect(foundResult.account).not.toBeNull()
+            expect(foundResult.account.balance).toBeNull()
+            expect(apiHandler).toHaveBeenCalledTimes(1)
         })
 
     })
 
     describe('Common cases', () => {
 
-        test('Find organization if only addressKey is specified', async () => {
+        test('finds organization if only addressKey is specified', async () => {
             const [foundOrganizations] = await findOrganizationsForAddressByTestClient(utils.clients.resident, {
                 addressKey: utils.property.addressKey,
             })
@@ -86,7 +116,7 @@ describe('FindOrganizationsForAddress', () => {
             })
         })
 
-        test('Find account and receipt if unitName and unitType matches', async () => {
+        test('find account and receipt if unitName and unitType matches', async () => {
             const unitName = utils.randomNumber(10).toString()
             const unitType = 'flat'
             const accountNumber = utils.randomNumber(10).toString()
@@ -114,6 +144,29 @@ describe('FindOrganizationsForAddress', () => {
             })
         })
 
+        test('returns multiple records if several receipts matches for one organization', async () => {
+            const unitName = utils.randomNumber(10).toString()
+            const unitType = 'flat'
+            const accountNumber = utils.randomNumber(10).toString()
+            const sameInput = { address: utils.property.address, accountNumber, addressMeta: { unitName, unitType } }
+            await utils.createReceipts([
+                utils.createJSONReceipt({
+                    category: { id: HOUSING_CATEGORY_ID },
+                    ...sameInput,
+                }),
+                utils.createJSONReceipt({
+                    category: { id: REPAIR_CATEGORY_ID },
+                    ...sameInput,
+                }),
+            ])
+            const [foundOrganizations] = await findOrganizationsForAddressByTestClient(utils.clients.resident, {
+                addressKey: utils.property.addressKey,
+                unitName,
+                unitType,
+            })
+            const found = foundOrganizations.filter(({ account: { number } }) => number === accountNumber)
+            expect(found).toHaveLength(2)
+        })
     })
 
 
@@ -121,16 +174,86 @@ describe('FindOrganizationsForAddress', () => {
 
         afterEach(async () => {
             await utils.updateBillingContext({ status: CONTEXT_FINISHED_STATUS })
+            await utils.updateAcquiringContext({ status: CONTEXT_FINISHED_STATUS })
         })
 
-        test('should throw an error if billingContext is not in Finished status', async () => {
+        test('should not return organization if billing context is not in finished status', async () => {
+            const [foundOrganizationsOnFinishedContext] = await findOrganizationsForAddressByTestClient(utils.clients.resident, {
+                addressKey: utils.property.addressKey,
+            })
+            const foundForFinishedContext = foundOrganizationsOnFinishedContext.find(({ organization: { id } }) => id === utils.organization.id)
+            expect(foundForFinishedContext).not.toBeUndefined()
+            await utils.updateBillingContext({ status: CONTEXT_IN_PROGRESS_STATUS })
+            const [foundOrganizationsOnInProgressContext] = await findOrganizationsForAddressByTestClient(utils.clients.resident, {
+                addressKey: utils.property.addressKey,
+            })
+            const foundForInProgressContext = foundOrganizationsOnInProgressContext.find(({ organization: { id } }) => id === utils.organization.id)
+            expect(foundForInProgressContext).toBeUndefined()
+        })
 
+        test('should not return organization if acquiring context is not in finished status', async () => {
+            const [foundOrganizationsOnFinishedContext] = await findOrganizationsForAddressByTestClient(utils.clients.resident, {
+                addressKey: utils.property.addressKey,
+            })
+            const foundForFinishedContext = foundOrganizationsOnFinishedContext.find(({ organization: { id } }) => id === utils.organization.id)
+            expect(foundForFinishedContext).not.toBeUndefined()
+            await utils.updateAcquiringContext({ status: CONTEXT_IN_PROGRESS_STATUS })
+            const [foundOrganizationsOnInProgressContext] = await findOrganizationsForAddressByTestClient(utils.clients.resident, {
+                addressKey: utils.property.addressKey,
+            })
+            const foundForInProgressContext = foundOrganizationsOnInProgressContext.find(({ organization: { id } }) => id === utils.organization.id)
+            expect(foundForInProgressContext).toBeUndefined()
         })
 
     })
 
-    describe('access checks', () => {
-
+    describe('Permission check', () => {
+        test('anonymous: can not execute', async () => {
+            await expectToThrowAuthenticationErrorToResult(async () => {
+                await findOrganizationsForAddressByTestClient(utils.clients.anonymous, {
+                    addressKey: utils.property.addressKey,
+                })
+            })
+        })
+        test('user: can not execute', async () => {
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await findOrganizationsForAddressByTestClient(utils.clients.user, {
+                    addressKey: utils.property.addressKey,
+                })
+            })
+        })
+        test('employee: can not execute', async () => {
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await findOrganizationsForAddressByTestClient(utils.clients.employee.billing, {
+                    addressKey: utils.property.addressKey,
+                })
+            })
+        })
+        test('service user: can not execute', async () => {
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await findOrganizationsForAddressByTestClient(utils.clients.service, {
+                    addressKey: utils.property.addressKey,
+                })
+            })
+        })
+        test('admin: can execute', async () => {
+            const [organizations] = await findOrganizationsForAddressByTestClient(utils.clients.admin, {
+                addressKey: utils.property.addressKey,
+            })
+            expect(organizations).not.toHaveLength(0)
+        })
+        test('support: can not execute', async () => {
+            const [organizations] = await findOrganizationsForAddressByTestClient(utils.clients.support, {
+                addressKey: utils.property.addressKey,
+            })
+            expect(organizations).not.toHaveLength(0)
+        })
+        test('resident: can execute', async () => {
+            const [organizations] = await findOrganizationsForAddressByTestClient(utils.clients.resident, {
+                addressKey: utils.property.addressKey,
+            })
+            expect(organizations).not.toHaveLength(0)
+        })
     })
 
 })
