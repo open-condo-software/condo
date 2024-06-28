@@ -96,8 +96,8 @@ async function getBillingInformationForOrganizations (organizations) {
     }))
 }
 
-async function getMetersPresenceForOrganizations (organizations) {
-    const organizationsWithMeters = await Promise.all(organizations.map(async ({ id }) => {
+async function getOrganizationsWithMeters (organizationIds) {
+    const organizationsWithMeters = await Promise.all(organizationIds.map(async id => {
         const [meter] = await itemsQuery('Meter', {
             where: { organization: { id }, deletedAt: null },
             first: 1,
@@ -107,18 +107,18 @@ async function getMetersPresenceForOrganizations (organizations) {
     return new Set(organizationsWithMeters.filter(Boolean))
 }
 
-async function getAcquiringPresenceForOrganizations (organizations) {
+async function getOrganizationsWithAcquiring (organizationIds) {
     const acquiringContexts = await find('AcquiringIntegrationContext', {
         status: ACQUIRING_CONTEXT_FINISHED_STATUS,
         deletedAt: null,
-        organization: { id_in: organizations.map(({ id }) => id) },
+        organization: { id_in: organizationIds },
     })
     return new Set(acquiringContexts.map(({ organization }) => organization))
 }
 
 module.exports = {
-    getMetersPresenceForOrganizations,
-    getAcquiringPresenceForOrganizations,
+    getOrganizationsWithMeters,
+    getOrganizationsWithAcquiring,
     getBillingInformationForOrganizations,
     findBillingReceiptsForOrganizations,
 }

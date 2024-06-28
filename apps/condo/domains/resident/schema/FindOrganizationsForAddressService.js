@@ -7,8 +7,8 @@ const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 const access = require('@condo/domains/resident/access/FindOrganizationsForAddressService')
 const {
     findBillingReceiptsForOrganizations,
-    getAcquiringPresenceForOrganizations,
-    getMetersPresenceForOrganizations,
+    getOrganizationsWithAcquiring,
+    getOrganizationsWithMeters,
     getBillingInformationForOrganizations,
 } = require('@condo/domains/resident/utils/serverSchema/findOrganizationsForAddress')
 
@@ -48,9 +48,10 @@ const FindOrganizationsForAddressService = new GQLCustomSchema('FindOrganization
                     ...tin ? { tin } : {},
                     deletedAt: null,
                 })
-                const withAcquiring = await getAcquiringPresenceForOrganizations(organizations)
+                const organizationIds = organizations.map(({ id }) => id)
+                const withAcquiring = await getOrganizationsWithAcquiring(organizationIds)
                 organizations = organizations.filter(({ id }) => withAcquiring.has(id))
-                const withMeters = await getMetersPresenceForOrganizations(organizations)
+                const withMeters = await getOrganizationsWithMeters(organizationIds)
                 const billingInformation = await getBillingInformationForOrganizations(organizations)
                 organizations = organizations.filter(organization => organization.hasMeters || billingInformation[organization.id])
                 if (!organizations) {
@@ -66,11 +67,12 @@ const FindOrganizationsForAddressService = new GQLCustomSchema('FindOrganization
                         addressKey, unitName, unitType,
                         accountNumber,
                     })
-                    const unknownOrganizations = Object.values(organizationIndex).filter(({ organization: { id } }) => !receipts.find(({ organizationId }) => organizationId === id))
+                    const organizationsWithReceipts = new Set(receipts.map(({ organizationId }) => organizationId))
+                    const organizationsWithoutReceipts = Object.values(organizationIndex).filter(({ organization: { id } }) => !organizationsWithReceipts.has(id))
                     return receipts.map(({ organizationId, ...account }) => ({
                         ...organizationIndex[organizationId],
                         account,
-                    })).concat(accountNumber ? [] : unknownOrganizations)
+                    })).concat(accountNumber ? [] : organizationsWithoutReceipts)
                 }
                 return Object.values(organizationIndex)
             },
