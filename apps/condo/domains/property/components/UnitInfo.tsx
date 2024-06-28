@@ -10,7 +10,6 @@ import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
 import { FormItemTooltipWrapper } from '@condo/domains/common/components/Form/FormItemTooltipWrapper'
-import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { PARKING_SECTION_TYPE, SECTION_SECTION_TYPE } from '@condo/domains/property/constants/common'
 import { TicketFormItem } from '@condo/domains/ticket/components/BaseTicketForm'
 import { FloorNameInput } from '@condo/domains/user/components/FloorNameInput'
@@ -124,7 +123,6 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
     const floors = useMemo(() =>
         getFloorsBySection(selectedSectionName, selectedSections)
     , [selectedSectionName, selectedSections])
-    const { requiredValidator } = useValidations()
 
     const updateSectionAndFloor = useCallback((form, unitName: string, unitType = BuildingUnitSubType.Flat) => {
         if (unitName) {
@@ -226,7 +224,6 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
                         label={FlatNumberLabel}
                         required={required}
                         initialValue={get(initialValues, 'unitName')}
-                        rules={[requiredValidator]}
                     >
                         <UnitNameInput
                             property={property}
