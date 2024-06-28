@@ -25,6 +25,7 @@ const PROPERTY_DOCUMENTS = 'property-documents'
 const SEND_DAILY_STATISTICS_TASK = 'send-daily-statistics-task'
 const RETENTION_LOOPS_ENABLED = 'retention-loops-enabled'
 const NEWS_SHARING = 'news-sharing'
+const TICKET_DOCUMENT_GENERATION = 'ticket-document-generation'
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
@@ -53,4 +54,5 @@ module.exports = {
     RETENTION_LOOPS_ENABLED,
     SEND_DAILY_STATISTICS_TASK,
     NEWS_SHARING,
+    TICKET_DOCUMENT_GENERATION,
 }

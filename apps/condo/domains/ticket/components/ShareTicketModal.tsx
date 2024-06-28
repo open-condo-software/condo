@@ -266,7 +266,6 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
         <>
             <Button
                 type='secondary'
-                icon={<Send size='medium' />}
                 onClick={handleShow}
                 css={sendButton}
             >

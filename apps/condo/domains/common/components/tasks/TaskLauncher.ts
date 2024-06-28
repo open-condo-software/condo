@@ -6,7 +6,7 @@ import { ITask, TaskRecord } from './index'
 
 type UseTaskLauncherOutputType = {
     loading: boolean
-    handleRunTask: () => void
+    handleRunTask: (launchAttrs?: Record<string, any>) => void
 }
 type UseTaskLauncherType = (taskUIInterface: ITask, attrs: Record<string, any>) => UseTaskLauncherOutputType
 
@@ -38,8 +38,8 @@ export const useTaskLauncher: UseTaskLauncherType = (taskUIInterface, attrs) => 
         })
     })
 
-    const handleRunTask = useCallback(() => {
-        launchTask(attrs)
+    const handleRunTask = useCallback((launchAttrs) => {
+        launchTask({ ...attrs, ...launchAttrs })
     }, [launchTask, attrs])
 
     return { loading, handleRunTask }
