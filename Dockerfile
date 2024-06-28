@@ -57,7 +57,9 @@ RUN echo "# Build time .env config!" >> /app/.env && \
 	echo "REDIS_URL=undefined" >> /app/.env && \
 	echo "FILE_FIELD_ADAPTER=local" >> /app/.env && \
 	echo "NEXT_TELEMETRY_DISABLED=1" >> /app/.env && \
-	echo "NODE_ENV=production" >> /app/.env
+	echo "NODE_ENV=production" >> /app/.env \
+
+RUN chmod +x /app/run_condo_domain_tests.sh
 
 RUN set -ex \
     && yarn build \
