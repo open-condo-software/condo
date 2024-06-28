@@ -49,7 +49,7 @@ const generateTicketDocumentOfCompletionWorks = async ({ task, baseAttrs, contex
     const { format, timeZone: timeZoneFromUser } = task
 
     const timeZone = normalizeTimeZone(timeZoneFromUser) || DEFAULT_ORGANIZATION_TIMEZONE
-    const printDate = dayjs().tz(timeZone)
+    const printDate = dayjs().tz(timeZone).locale(locale)
 
     const property = await getById('Property', ticket.property)
     const { renderData, streetPart, settlement, housePart, cityType, cityName } = getAddressDetails(get(property, 'addressMeta', ticket.propertyAddressMeta))
