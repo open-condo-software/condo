@@ -68,6 +68,7 @@ export const useTicketDocumentGenerationTask = ({ ticket, user, timeZone }) => {
                 disabled={loading}
                 dropdownProps={{
                     trigger: isMobile ? MOBILE_DROPDOWN_TRIGGER : DROPDOWN_TRIGGER,
+                    placement: 'top',
                 }}
                 buttonProps={{ disabled: loading }}
             />
