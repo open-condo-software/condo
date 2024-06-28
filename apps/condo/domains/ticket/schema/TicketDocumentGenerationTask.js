@@ -115,7 +115,7 @@ const TicketDocumentGenerationTask = new GQLListSchema('TicketDocumentGeneration
         },
 
         timeZone: {
-            schemaDoc: 'To requested timeZone all datetime fields will be converted',
+            schemaDoc: 'All datetime fields in export template will be converted to specified tz',
             type: 'Text',
             isRequired: true,
             access: {

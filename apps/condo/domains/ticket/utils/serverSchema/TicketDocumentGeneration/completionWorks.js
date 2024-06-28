@@ -3,7 +3,7 @@ const { get } = require('lodash')
 
 const { getById, getByCondition } = require('@open-condo/keystone/schema')
 
-const { buildExportFile: buildExportExcelFile, DOCX_FILE_META } = require('@condo/domains/common/utils/createExportFile')
+const { buildExportFile, DOCX_FILE_META } = require('@condo/domains/common/utils/createExportFile')
 const { buildUploadInputFrom } = require('@condo/domains/common/utils/serverSchema/export')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const { DEFAULT_INVOICE_CURRENCY_CODE, INVOICE_STATUS_CANCELED } = require('@condo/domains/marketplace/constants')
@@ -21,7 +21,7 @@ const formatDate = (date, timeZone, format = DATE_FORMAT) => {
 const buildExportWordFile = async ({ task, documentData, locale, timeZone }) => {
     const { id, ticket } = task
 
-    const { stream } = await buildExportExcelFile({
+    const { stream } = await buildExportFile({
         templatePath: `./domains/ticket/templates/ticketDocumentGenerationTemplates/completionWorks/${locale}.docx`,
         replaces: documentData,
     })
@@ -131,7 +131,7 @@ const generateTicketDocumentOfCompletionWorks = async ({ task, baseAttrs, contex
         }
 
         default: {
-            throw new Error(`unexpected format "${format}" for a document generations`)
+            throw new Error(`unexpected format "${format}" for a document generation`)
         }
     }
 

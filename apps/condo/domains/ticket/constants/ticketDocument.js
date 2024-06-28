@@ -1,5 +1,5 @@
 const { DOCX } = require('@condo/domains/common/constants/export')
-const { RU_LOCALE } = require('@condo/domains/common/constants/locale')
+const { RU_LOCALE, EN_LOCALE } = require('@condo/domains/common/constants/locale')
 
 
 const TICKET_DOCUMENT_GENERATION_TASK_STATUS = {
@@ -19,10 +19,9 @@ const TICKET_DOCUMENT_GENERATION_TASK_FORMAT = {
 
 const INVALID_OPTIONS_ERROR = 'INVALID_OPTIONS_ERROR'
 
-const AVAILABILITY_TICKET_DOCUMENT = {
-    [TICKET_DOCUMENT_TYPE.COMPLETION_WORKS]: {
-        supportedLocales: [RU_LOCALE],
-    },
+const SUPPORTED_DOCUMENT_TYPES_BY_LOCALE = {
+    [RU_LOCALE]: [TICKET_DOCUMENT_TYPE.COMPLETION_WORKS],
+    [EN_LOCALE]: [],
 }
 
 module.exports = {
@@ -30,5 +29,5 @@ module.exports = {
     TICKET_DOCUMENT_TYPE,
     TICKET_DOCUMENT_GENERATION_TASK_FORMAT,
     INVALID_OPTIONS_ERROR,
-    AVAILABILITY_TICKET_DOCUMENT,
+    SUPPORTED_DOCUMENT_TYPES_BY_LOCALE,
 }

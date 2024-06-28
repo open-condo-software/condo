@@ -11,7 +11,7 @@ const { setLocaleForKeystoneContext } = require('@condo/domains/common/utils/ser
 const {
     TICKET_DOCUMENT_TYPE,
     TICKET_DOCUMENT_GENERATION_TASK_STATUS,
-    AVAILABILITY_TICKET_DOCUMENT,
+    SUPPORTED_DOCUMENT_TYPES_BY_LOCALE,
 } = require('@condo/domains/ticket/constants/ticketDocument')
 const { TicketDocumentGenerationTask } = require('@condo/domains/ticket/utils/serverSchema')
 const { generateTicketDocumentOfCompletionWorks } = require('@condo/domains/ticket/utils/serverSchema/TicketDocumentGeneration')
@@ -56,7 +56,7 @@ const generateTicketDocument = async (taskId) => {
         const locale = get(COUNTRIES, country).locale
         const documentType = get(task, 'documentType')
 
-        if (!(get(AVAILABILITY_TICKET_DOCUMENT, [documentType, 'supportedLocales']) || []).includes(locale)) {
+        if (!(get(SUPPORTED_DOCUMENT_TYPES_BY_LOCALE, [locale]) || []).includes(documentType)) {
             throw new Error(`unsupported locale "${locale}" for documentType "${documentType}"`)
         }
 
@@ -71,11 +71,11 @@ const generateTicketDocument = async (taskId) => {
             }
 
             default: {
-                throw new Error(`unexpected document type "${documentType}" for a document generations`)
+                throw new Error(`unexpected document type "${documentType}" for a document generation`)
             }
         }
 
-        if (!fileUploadInput) throw new Error('not generated document for uploading!')
+        if (!fileUploadInput) throw new Error('failed to generate document for uploading!')
 
         await TicketDocumentGenerationTask.update(context, task.id, {
             ...BASE_ATTRS,
@@ -98,7 +98,6 @@ const generateTicketDocument = async (taskId) => {
 
         throw error
     }
-
 }
 
 

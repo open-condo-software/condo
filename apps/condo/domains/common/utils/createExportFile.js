@@ -38,6 +38,7 @@ const render = (pathToTemplate, replaces, options = {}) => new Promise((resolve,
 
 // This function uses file saving apart from internal working of `File` field in Keystone schema
 // It makes unable to save data to `File` field server-side
+// The default format is "excel"
 // @deprecated use `buildExportFile` like in `apps/condo/domains/ticket/tasks/exportTicketsTask.js`
 async function createExportFile ({ fileName, templatePath, replaces, meta, format = EXCEL }) {
     if (!SUPPORTED_FILE_FORMATS.includes(format)) throw new Error('Unexpected file format')

@@ -7,14 +7,14 @@ import { Dropdown, DropdownProps } from '@open-condo/ui'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { useTaskLauncher } from '@condo/domains/common/components/tasks/TaskLauncher'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import { AVAILABILITY_TICKET_DOCUMENT, TICKET_DOCUMENT_TYPE, TICKET_DOCUMENT_GENERATION_TASK_FORMAT } from '@condo/domains/ticket/constants/ticketDocument'
+import { SUPPORTED_DOCUMENT_TYPES_BY_LOCALE, TICKET_DOCUMENT_TYPE, TICKET_DOCUMENT_GENERATION_TASK_FORMAT } from '@condo/domains/ticket/constants/ticketDocument'
 
 import { useTicketDocumentGenerationTaskUIInterface } from './useTicketDocumentGenerationTaskUIInterface'
 
 
 const isSupportedDocumentTypeByLocale = (documentType, locale) => {
-    const supportedLocales = get(AVAILABILITY_TICKET_DOCUMENT, [documentType, 'supportedLocales']) || []
-    return supportedLocales.includes(locale)
+    const supportedTypes = get(SUPPORTED_DOCUMENT_TYPES_BY_LOCALE, [locale]) || []
+    return supportedTypes.includes(documentType)
 }
 
 const DROPDOWN_TRIGGER: DropdownProps['trigger'] = ['hover']
