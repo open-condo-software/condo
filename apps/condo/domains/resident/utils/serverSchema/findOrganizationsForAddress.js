@@ -61,7 +61,6 @@ async function findBillingReceiptsForOrganizations (organizations, billingInform
                         bankAccountNumber,
                     }
                 })
-                console.log(receipts)
             }
         }
         return receipts
