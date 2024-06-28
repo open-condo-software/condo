@@ -11,6 +11,11 @@ const { AbstractMetersImporter } = require('./AbstractMetersImporter')
 const METERS_BLOCK_LENGTH = 7
 
 class SbbolMetersImporter extends AbstractMetersImporter {
+
+    /**
+     * @inheritDoc
+     * @return {RegisterMetersReadingsReadingInput[]}
+     */
     transformRow (row) {
         const [
             accountNumber,
