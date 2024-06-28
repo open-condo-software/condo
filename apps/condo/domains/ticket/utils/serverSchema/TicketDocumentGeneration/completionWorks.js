@@ -22,7 +22,7 @@ const buildExportWordFile = async ({ task, documentData, locale, timeZone }) => 
     const { id, ticket } = task
 
     const { stream } = await buildExportExcelFile({
-        templatePath: `./domains/ticket/templates/TicketDocumentGenerationTemplates/completionWorks/${locale}.docx`,
+        templatePath: `./domains/ticket/templates/ticketDocumentGenerationTemplates/completionWorks/${locale}.docx`,
         replaces: documentData,
     })
 
