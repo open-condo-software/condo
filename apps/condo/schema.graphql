@@ -76524,6 +76524,78 @@ type BillingReceiptsSumOutput {
   sum: String!
 }
 
+input ResidentBillingVirtualReceiptWhereInput {
+  AND: [ResidentBillingVirtualReceiptWhereInput]
+  OR: [ResidentBillingVirtualReceiptWhereInput]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  period: String
+  period_not: String
+  period_contains: String
+  period_not_contains: String
+  period_starts_with: String
+  period_not_starts_with: String
+  period_ends_with: String
+  period_not_ends_with: String
+  period_i: String
+  period_not_i: String
+  period_contains_i: String
+  period_not_contains_i: String
+  period_starts_with_i: String
+  period_not_starts_with_i: String
+  period_ends_with_i: String
+  period_not_ends_with_i: String
+  toPay: String
+  toPay_not: String
+  toPay_contains: String
+  toPay_not_contains: String
+  toPay_starts_with: String
+  toPay_not_starts_with: String
+  toPay_ends_with: String
+  toPay_not_ends_with: String
+  toPay_i: String
+  toPay_not_i: String
+  toPay_contains_i: String
+  toPay_not_contains_i: String
+  toPay_starts_with_i: String
+  toPay_not_starts_with_i: String
+  toPay_ends_with_i: String
+  toPay_not_ends_with_i: String
+  printableNumber: String
+  printableNumber_not: String
+  printableNumber_contains: String
+  printableNumber_not_contains: String
+  printableNumber_starts_with: String
+  printableNumber_not_starts_with: String
+  printableNumber_ends_with: String
+  printableNumber_not_ends_with: String
+  printableNumber_i: String
+  printableNumber_not_i: String
+  printableNumber_contains_i: String
+  printableNumber_not_contains_i: String
+  printableNumber_starts_with_i: String
+  printableNumber_not_starts_with_i: String
+  printableNumber_ends_with_i: String
+  printableNumber_not_ends_with_i: String
+  serviceConsumer: ServiceConsumerWhereInput
+  serviceConsumer_is_null: Boolean
+}
+
+enum SortResidentBillingVirtualReceiptsBy {
+  id_ASC
+  id_DESC
+  period_ASC
+  period_DESC
+  toPay_ASC
+  toPay_DESC
+  printableNumber_ASC
+  printableNumber_DESC
+  serviceConsumer_ASC
+  serviceConsumer_DESC
+}
+
 input CreateBankAccountRequestInput {
   dv: Int!
   sender: JSON!
@@ -81312,6 +81384,7 @@ type Query {
   exportPropertiesToExcel(data: ExportPropertiesToExcelInput!): ExportPropertiesToExcelOutput
   allResidentBillingReceipts(where: ResidentBillingReceiptWhereInput, first: Int, skip: Int, sortBy: [SortResidentBillingReceiptsBy!]): [ResidentBillingReceiptOutput]
   _allBillingReceiptsSum(where: BillingReceiptWhereInput!): BillingReceiptsSumOutput
+  allResidentBillingVirtualReceipts(where: ResidentBillingVirtualReceiptWhereInput, first: Int, skip: Int, sortBy: [SortResidentBillingVirtualReceiptsBy!]): [ResidentBillingReceiptOutput]
 
   """
   Returns id of BankCostItem corresponding to specified payment purpose string

@@ -353,4 +353,5 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
 
 module.exports = {
     BillingReceipt,
+    DEFAULT_CATEGORY,
 }

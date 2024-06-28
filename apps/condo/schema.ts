@@ -65442,6 +65442,7 @@ export type Query = {
   exportPropertiesToExcel?: Maybe<ExportPropertiesToExcelOutput>;
   allResidentBillingReceipts?: Maybe<Array<Maybe<ResidentBillingReceiptOutput>>>;
   _allBillingReceiptsSum?: Maybe<BillingReceiptsSumOutput>;
+  allResidentBillingVirtualReceipts?: Maybe<Array<Maybe<ResidentBillingReceiptOutput>>>;
   /**
    * Returns id of BankCostItem corresponding to specified payment purpose string
    *
@@ -72109,6 +72110,14 @@ export type Query_AllBillingReceiptsSumArgs = {
 };
 
 
+export type QueryAllResidentBillingVirtualReceiptsArgs = {
+  where?: Maybe<ResidentBillingVirtualReceiptWhereInput>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+  sortBy?: Maybe<Array<SortResidentBillingVirtualReceiptsBy>>;
+};
+
+
 export type QueryPredictTransactionClassificationArgs = {
   data: PredictTransactionClassificationInput;
 };
@@ -74149,6 +74158,65 @@ export type ResidentBillingReceiptOutput = {
 export type ResidentBillingReceiptWhereInput = {
   AND?: Maybe<Array<Maybe<ResidentBillingReceiptWhereInput>>>;
   OR?: Maybe<Array<Maybe<ResidentBillingReceiptWhereInput>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  period?: Maybe<Scalars['String']>;
+  period_not?: Maybe<Scalars['String']>;
+  period_contains?: Maybe<Scalars['String']>;
+  period_not_contains?: Maybe<Scalars['String']>;
+  period_starts_with?: Maybe<Scalars['String']>;
+  period_not_starts_with?: Maybe<Scalars['String']>;
+  period_ends_with?: Maybe<Scalars['String']>;
+  period_not_ends_with?: Maybe<Scalars['String']>;
+  period_i?: Maybe<Scalars['String']>;
+  period_not_i?: Maybe<Scalars['String']>;
+  period_contains_i?: Maybe<Scalars['String']>;
+  period_not_contains_i?: Maybe<Scalars['String']>;
+  period_starts_with_i?: Maybe<Scalars['String']>;
+  period_not_starts_with_i?: Maybe<Scalars['String']>;
+  period_ends_with_i?: Maybe<Scalars['String']>;
+  period_not_ends_with_i?: Maybe<Scalars['String']>;
+  toPay?: Maybe<Scalars['String']>;
+  toPay_not?: Maybe<Scalars['String']>;
+  toPay_contains?: Maybe<Scalars['String']>;
+  toPay_not_contains?: Maybe<Scalars['String']>;
+  toPay_starts_with?: Maybe<Scalars['String']>;
+  toPay_not_starts_with?: Maybe<Scalars['String']>;
+  toPay_ends_with?: Maybe<Scalars['String']>;
+  toPay_not_ends_with?: Maybe<Scalars['String']>;
+  toPay_i?: Maybe<Scalars['String']>;
+  toPay_not_i?: Maybe<Scalars['String']>;
+  toPay_contains_i?: Maybe<Scalars['String']>;
+  toPay_not_contains_i?: Maybe<Scalars['String']>;
+  toPay_starts_with_i?: Maybe<Scalars['String']>;
+  toPay_not_starts_with_i?: Maybe<Scalars['String']>;
+  toPay_ends_with_i?: Maybe<Scalars['String']>;
+  toPay_not_ends_with_i?: Maybe<Scalars['String']>;
+  printableNumber?: Maybe<Scalars['String']>;
+  printableNumber_not?: Maybe<Scalars['String']>;
+  printableNumber_contains?: Maybe<Scalars['String']>;
+  printableNumber_not_contains?: Maybe<Scalars['String']>;
+  printableNumber_starts_with?: Maybe<Scalars['String']>;
+  printableNumber_not_starts_with?: Maybe<Scalars['String']>;
+  printableNumber_ends_with?: Maybe<Scalars['String']>;
+  printableNumber_not_ends_with?: Maybe<Scalars['String']>;
+  printableNumber_i?: Maybe<Scalars['String']>;
+  printableNumber_not_i?: Maybe<Scalars['String']>;
+  printableNumber_contains_i?: Maybe<Scalars['String']>;
+  printableNumber_not_contains_i?: Maybe<Scalars['String']>;
+  printableNumber_starts_with_i?: Maybe<Scalars['String']>;
+  printableNumber_not_starts_with_i?: Maybe<Scalars['String']>;
+  printableNumber_ends_with_i?: Maybe<Scalars['String']>;
+  printableNumber_not_ends_with_i?: Maybe<Scalars['String']>;
+  serviceConsumer?: Maybe<ServiceConsumerWhereInput>;
+  serviceConsumer_is_null?: Maybe<Scalars['Boolean']>;
+};
+
+export type ResidentBillingVirtualReceiptWhereInput = {
+  AND?: Maybe<Array<Maybe<ResidentBillingVirtualReceiptWhereInput>>>;
+  OR?: Maybe<Array<Maybe<ResidentBillingVirtualReceiptWhereInput>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -82079,6 +82147,19 @@ export enum SortRemoteClientsBy {
 }
 
 export enum SortResidentBillingReceiptsBy {
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  PeriodAsc = 'period_ASC',
+  PeriodDesc = 'period_DESC',
+  ToPayAsc = 'toPay_ASC',
+  ToPayDesc = 'toPay_DESC',
+  PrintableNumberAsc = 'printableNumber_ASC',
+  PrintableNumberDesc = 'printableNumber_DESC',
+  ServiceConsumerAsc = 'serviceConsumer_ASC',
+  ServiceConsumerDesc = 'serviceConsumer_DESC'
+}
+
+export enum SortResidentBillingVirtualReceiptsBy {
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   PeriodAsc = 'period_ASC',
