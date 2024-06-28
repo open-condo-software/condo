@@ -6,6 +6,7 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/marketplace/access/MarketSetting')
+const { INVOICE_PAYMENT_TYPES } = require('@condo/domains/marketplace/constants')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 
 
@@ -18,11 +19,22 @@ const MarketSetting = new GQLListSchema('MarketSetting', {
         residentAllowedPaymentTypes: {
             schemaDoc: 'Types of payments are allowed for selection on the resident’s side',
             type: 'Json',
-            graphQLInputType: '[InvoicePaymentTypeType]',
-            graphQLReturnType: '[InvoicePaymentTypeType]',
+            graphQLInputType: '[InvoicePaymentTypeType!]',
+            graphQLReturnType: '[InvoicePaymentTypeType!]',
+            defaultValue: INVOICE_PAYMENT_TYPES,
             isRequired: true,
         },
 
+    },
+    kmigratorOptions: {
+        constraints: [
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['organization'],
+                condition: 'Q(deletedAt__isnull=True)',
+                name: 'MarketSetting_unique_organization',
+            },
+        ],
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {

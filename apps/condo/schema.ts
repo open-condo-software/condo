@@ -30088,7 +30088,7 @@ export type MarketSetting = {
   /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
   /**  Types of payments are allowed for selection on the resident’s side  */
-  residentAllowedPaymentTypes?: Maybe<Array<Maybe<InvoicePaymentTypeType>>>;
+  residentAllowedPaymentTypes?: Maybe<Array<InvoicePaymentTypeType>>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -30107,7 +30107,7 @@ export type MarketSetting = {
 
 export type MarketSettingCreateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
-  residentAllowedPaymentTypes?: Maybe<Array<Maybe<InvoicePaymentTypeType>>>;
+  residentAllowedPaymentTypes?: Maybe<Array<InvoicePaymentTypeType>>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -30291,7 +30291,7 @@ export type MarketSettingHistoryRecordsUpdateInput = {
 
 export type MarketSettingUpdateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
-  residentAllowedPaymentTypes?: Maybe<Array<Maybe<InvoicePaymentTypeType>>>;
+  residentAllowedPaymentTypes?: Maybe<Array<InvoicePaymentTypeType>>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -30308,10 +30308,10 @@ export type MarketSettingWhereInput = {
   OR?: Maybe<Array<Maybe<MarketSettingWhereInput>>>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
-  residentAllowedPaymentTypes?: Maybe<Array<Maybe<InvoicePaymentTypeType>>>;
-  residentAllowedPaymentTypes_not?: Maybe<Array<Maybe<InvoicePaymentTypeType>>>;
-  residentAllowedPaymentTypes_in?: Maybe<Array<Maybe<Array<Maybe<InvoicePaymentTypeType>>>>>;
-  residentAllowedPaymentTypes_not_in?: Maybe<Array<Maybe<Array<Maybe<InvoicePaymentTypeType>>>>>;
+  residentAllowedPaymentTypes?: Maybe<Array<InvoicePaymentTypeType>>;
+  residentAllowedPaymentTypes_not?: Maybe<Array<InvoicePaymentTypeType>>;
+  residentAllowedPaymentTypes_in?: Maybe<Array<Maybe<Array<InvoicePaymentTypeType>>>>;
+  residentAllowedPaymentTypes_not_in?: Maybe<Array<Maybe<Array<InvoicePaymentTypeType>>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -57100,6 +57100,8 @@ export type OrganizationEmployeeRole = {
   canManageMarketplace?: Maybe<Scalars['Boolean']>;
   canReadTour?: Maybe<Scalars['Boolean']>;
   canManageTour?: Maybe<Scalars['Boolean']>;
+  canReadMarketSetting?: Maybe<Scalars['Boolean']>;
+  canManageMarketSetting?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -57184,6 +57186,8 @@ export type OrganizationEmployeeRoleCreateInput = {
   canManageMarketplace?: Maybe<Scalars['Boolean']>;
   canReadTour?: Maybe<Scalars['Boolean']>;
   canManageTour?: Maybe<Scalars['Boolean']>;
+  canReadMarketSetting?: Maybe<Scalars['Boolean']>;
+  canManageMarketSetting?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -57273,6 +57277,8 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canManageMarketplace?: Maybe<Scalars['Boolean']>;
   canReadTour?: Maybe<Scalars['Boolean']>;
   canManageTour?: Maybe<Scalars['Boolean']>;
+  canReadMarketSetting?: Maybe<Scalars['Boolean']>;
+  canManageMarketSetting?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -57354,6 +57360,8 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   canManageMarketplace?: Maybe<Scalars['Boolean']>;
   canReadTour?: Maybe<Scalars['Boolean']>;
   canManageTour?: Maybe<Scalars['Boolean']>;
+  canReadMarketSetting?: Maybe<Scalars['Boolean']>;
+  canManageMarketSetting?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -57440,6 +57448,8 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   canManageMarketplace?: Maybe<Scalars['Boolean']>;
   canReadTour?: Maybe<Scalars['Boolean']>;
   canManageTour?: Maybe<Scalars['Boolean']>;
+  canReadMarketSetting?: Maybe<Scalars['Boolean']>;
+  canManageMarketSetting?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -57639,6 +57649,10 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canReadTour_not?: Maybe<Scalars['Boolean']>;
   canManageTour?: Maybe<Scalars['Boolean']>;
   canManageTour_not?: Maybe<Scalars['Boolean']>;
+  canReadMarketSetting?: Maybe<Scalars['Boolean']>;
+  canReadMarketSetting_not?: Maybe<Scalars['Boolean']>;
+  canManageMarketSetting?: Maybe<Scalars['Boolean']>;
+  canManageMarketSetting_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -57800,6 +57814,8 @@ export type OrganizationEmployeeRoleUpdateInput = {
   canManageMarketplace?: Maybe<Scalars['Boolean']>;
   canReadTour?: Maybe<Scalars['Boolean']>;
   canManageTour?: Maybe<Scalars['Boolean']>;
+  canReadMarketSetting?: Maybe<Scalars['Boolean']>;
+  canManageMarketSetting?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -57982,6 +57998,10 @@ export type OrganizationEmployeeRoleWhereInput = {
   canReadTour_not?: Maybe<Scalars['Boolean']>;
   canManageTour?: Maybe<Scalars['Boolean']>;
   canManageTour_not?: Maybe<Scalars['Boolean']>;
+  canReadMarketSetting?: Maybe<Scalars['Boolean']>;
+  canReadMarketSetting_not?: Maybe<Scalars['Boolean']>;
+  canManageMarketSetting?: Maybe<Scalars['Boolean']>;
+  canManageMarketSetting_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -81637,6 +81657,10 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanReadTourDesc = 'canReadTour_DESC',
   CanManageTourAsc = 'canManageTour_ASC',
   CanManageTourDesc = 'canManageTour_DESC',
+  CanReadMarketSettingAsc = 'canReadMarketSetting_ASC',
+  CanReadMarketSettingDesc = 'canReadMarketSetting_DESC',
+  CanManageMarketSettingAsc = 'canManageMarketSetting_ASC',
+  CanManageMarketSettingDesc = 'canManageMarketSetting_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -81788,6 +81812,10 @@ export enum SortOrganizationEmployeeRolesBy {
   CanReadTourDesc = 'canReadTour_DESC',
   CanManageTourAsc = 'canManageTour_ASC',
   CanManageTourDesc = 'canManageTour_DESC',
+  CanReadMarketSettingAsc = 'canReadMarketSetting_ASC',
+  CanReadMarketSettingDesc = 'canReadMarketSetting_DESC',
+  CanManageMarketSettingAsc = 'canManageMarketSetting_ASC',
+  CanManageMarketSettingDesc = 'canManageMarketSetting_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

@@ -17,6 +17,7 @@ const { MarketItemFile: MarketItemFileGQL } = require('@condo/domains/marketplac
 const { MarketItemPrice: MarketItemPriceGQL } = require('@condo/domains/marketplace/gql')
 const { MarketPriceScope: MarketPriceScopeGQL } = require('@condo/domains/marketplace/gql')
 const { MarketSetting: MarketSettingGQL } = require('@condo/domains/marketplace/gql')
+const { INVOICE_PAYMENT_TYPES } = require('@condo/domains/marketplace/constants')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MarketCategory = generateGQLTestUtils(MarketCategoryGQL)
@@ -302,6 +303,7 @@ async function createTestMarketSetting (client, organization, extraAttrs = {}) {
         dv: 1,
         sender,
         organization: { connect: { id: organization.id } },
+        residentAllowedPaymentTypes: INVOICE_PAYMENT_TYPES,
         ...extraAttrs,
     }
     const obj = await MarketSetting.create(client, attrs)
@@ -312,8 +314,6 @@ async function updateTestMarketSetting (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestMarketSetting logic for generate fields
 
     const attrs = {
         dv: 1,

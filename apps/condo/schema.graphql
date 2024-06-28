@@ -5899,6 +5899,8 @@ type OrganizationEmployeeRoleHistoryRecord {
   canManageMarketplace: Boolean
   canReadTour: Boolean
   canManageTour: Boolean
+  canReadMarketSetting: Boolean
+  canManageMarketSetting: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -6099,6 +6101,10 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canReadTour_not: Boolean
   canManageTour: Boolean
   canManageTour_not: Boolean
+  canReadMarketSetting: Boolean
+  canReadMarketSetting_not: Boolean
+  canManageMarketSetting: Boolean
+  canManageMarketSetting_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -6302,6 +6308,10 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canReadTour_DESC
   canManageTour_ASC
   canManageTour_DESC
+  canReadMarketSetting_ASC
+  canReadMarketSetting_DESC
+  canManageMarketSetting_ASC
+  canManageMarketSetting_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -6386,6 +6396,8 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   canManageMarketplace: Boolean
   canReadTour: Boolean
   canManageTour: Boolean
+  canReadMarketSetting: Boolean
+  canManageMarketSetting: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -6471,6 +6483,8 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   canManageMarketplace: Boolean
   canReadTour: Boolean
   canManageTour: Boolean
+  canReadMarketSetting: Boolean
+  canManageMarketSetting: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -6604,6 +6618,8 @@ type OrganizationEmployeeRole {
   canManageMarketplace: Boolean
   canReadTour: Boolean
   canManageTour: Boolean
+  canReadMarketSetting: Boolean
+  canManageMarketSetting: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -6798,6 +6814,10 @@ input OrganizationEmployeeRoleWhereInput {
   canReadTour_not: Boolean
   canManageTour: Boolean
   canManageTour_not: Boolean
+  canReadMarketSetting: Boolean
+  canReadMarketSetting_not: Boolean
+  canManageMarketSetting: Boolean
+  canManageMarketSetting_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -6995,6 +7015,10 @@ enum SortOrganizationEmployeeRolesBy {
   canReadTour_DESC
   canManageTour_ASC
   canManageTour_DESC
+  canReadMarketSetting_ASC
+  canReadMarketSetting_DESC
+  canManageMarketSetting_ASC
+  canManageMarketSetting_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -7081,6 +7105,8 @@ input OrganizationEmployeeRoleUpdateInput {
   canManageMarketplace: Boolean
   canReadTour: Boolean
   canManageTour: Boolean
+  canReadMarketSetting: Boolean
+  canManageMarketSetting: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -7165,6 +7191,8 @@ input OrganizationEmployeeRoleCreateInput {
   canManageMarketplace: Boolean
   canReadTour: Boolean
   canManageTour: Boolean
+  canReadMarketSetting: Boolean
+  canManageMarketSetting: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -74260,7 +74288,7 @@ type MarketSetting {
   organization: Organization
 
   """ Types of payments are allowed for selection on the resident’s side """
-  residentAllowedPaymentTypes: [InvoicePaymentTypeType]
+  residentAllowedPaymentTypes: [InvoicePaymentTypeType!]
   id: ID!
   v: Int
   createdAt: String
@@ -74289,10 +74317,10 @@ input MarketSettingWhereInput {
   OR: [MarketSettingWhereInput]
   organization: OrganizationWhereInput
   organization_is_null: Boolean
-  residentAllowedPaymentTypes: [InvoicePaymentTypeType]
-  residentAllowedPaymentTypes_not: [InvoicePaymentTypeType]
-  residentAllowedPaymentTypes_in: [[InvoicePaymentTypeType]]
-  residentAllowedPaymentTypes_not_in: [[InvoicePaymentTypeType]]
+  residentAllowedPaymentTypes: [InvoicePaymentTypeType!]
+  residentAllowedPaymentTypes_not: [InvoicePaymentTypeType!]
+  residentAllowedPaymentTypes_in: [[InvoicePaymentTypeType!]]
+  residentAllowedPaymentTypes_not_in: [[InvoicePaymentTypeType!]]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -74378,7 +74406,7 @@ enum SortMarketSettingsBy {
 
 input MarketSettingUpdateInput {
   organization: OrganizationRelateToOneInput
-  residentAllowedPaymentTypes: [InvoicePaymentTypeType]
+  residentAllowedPaymentTypes: [InvoicePaymentTypeType!]
   v: Int
   createdAt: String
   updatedAt: String
@@ -74397,7 +74425,7 @@ input MarketSettingsUpdateInput {
 
 input MarketSettingCreateInput {
   organization: OrganizationRelateToOneInput
-  residentAllowedPaymentTypes: [InvoicePaymentTypeType]
+  residentAllowedPaymentTypes: [InvoicePaymentTypeType!]
   v: Int
   createdAt: String
   updatedAt: String
