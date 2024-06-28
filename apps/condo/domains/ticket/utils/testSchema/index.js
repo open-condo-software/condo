@@ -597,7 +597,7 @@ async function createTestTicketExportTask (client, user, extraAttrs = {}) {
         sender,
         format: EXCEL,
         where: {},
-        sortBy: {},
+        sortBy: [],
         locale: 'ru',
         timeZone: 'Europe/Moscow',
         user: { connect: { id: user.id } },
