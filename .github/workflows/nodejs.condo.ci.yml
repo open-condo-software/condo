@@ -10,6 +10,7 @@ on:
   workflow_dispatch:
 
 env:
+  DOCKER_IMAGE: condo/condo-image:${{ github.sha }}
   DOCKER_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/condo/condo-image:${{ github.sha }}
   PG_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/doma/utils/postgres:13.2
   REDIS_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/doma/utils/redis:6.2
@@ -228,7 +229,7 @@ jobs:
     with:
       domain_name: ${{ matrix.domain }}
       runs-on: runners-dind-set-cpu5-ram10
-      image_name: ${{ env.DOCKER_IMAGE_FULL }}
+      image_name: ${{ env.DOCKER_IMAGE }}
     secrets: inherit
 
   run-condorb-tests:
