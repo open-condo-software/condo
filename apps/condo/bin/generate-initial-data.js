@@ -1,9 +1,8 @@
-const path = require('path')
-
-const { prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeystoneApp')
+const { prepareAppEnvLocalAdminUsers } = require('@open-condo/cli')
 
 async function main () {
-    await prepareKeystoneExpressApp(path.resolve('./index.js'), { excludeApps: ['NextApp'] })
+    const appName = 'condo'
+    await prepareAppEnvLocalAdminUsers(appName)
 }
 
 if (process.env.NODE_ENV === 'production') {

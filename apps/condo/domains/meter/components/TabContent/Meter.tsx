@@ -11,13 +11,12 @@ import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { PlusCircle, Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Checkbox  } from '@open-condo/ui'
+import { ActionBar, Button, Checkbox  } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
-import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
 import { Loader } from '@condo/domains/common/components/Loader'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
@@ -30,7 +29,6 @@ import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { MetersImportWrapper } from '@condo/domains/meter/components/Import/Index'
-import { EXPORT_METER_READINGS_QUERY } from '@condo/domains/meter/gql'
 import {
     MeterReadingFilterTemplate,
     MeterForOrganization,
@@ -75,6 +73,7 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
 
     const router = useRouter()
     const { filters, offset, sorters, tab } = parseQuery(router.query)
+    const type = get(router.query, 'type')
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
 
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filtersMeta, sortableProperties || SORTABLE_PROPERTIES)
@@ -132,7 +131,7 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
         filterMetas: filtersMeta,
         filtersSchemaGql: MeterReadingFilterTemplate,
         onReset: handleSearchReset,
-        extraQueryParameters: { tab },
+        extraQueryParameters: { tab, type },
     })
 
 
@@ -173,8 +172,8 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
                                 />
                             </Col>
                             <Col>
-                                <Row justify='start' gutter={FILTERS_CONTAINER_GUTTER} style={{ flexWrap: 'nowrap' }}>
-                                    <Col style={QUICK_FILTERS_COL_STYLE}>
+                                <Row justify='start' gutter={FILTERS_CONTAINER_GUTTER} >
+                                    <Col style={QUICK_FILTERS_COL_STYLE} xs={24} sm={11}>
                                         <DateRangePicker
                                             value={dateRange}
                                             onChange={handleDateChange}
@@ -229,30 +228,25 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
                     />
                 </Col>
                 <Col span={24}>
-                    <ExportToExcelActionBar
-                        searchObjectsQuery={searchMetersQuery}
-                        exportToExcelQuery={EXPORT_METER_READINGS_QUERY}
-                        sortBy={sortBy}
-                        actions={[
-                            canManageMeters && (
-                                <Button
-                                    key='create'
-                                    type='primary'
-                                    icon={<PlusCircle size='medium' />}
-                                    onClick={handleCreateMeterReadings}
-                                >
-                                    {CreateMeterButtonLabel}
-                                </Button>
-                            ),
-                            canManageMeters && (
-                                <MetersImportWrapper
-                                    key='import'
-                                    accessCheck={canManageMeters}
-                                    onFinish={refetch}
-                                />
-                            ),
-                        ]}
-                    />
+                    <ActionBar actions={[
+                        canManageMeters && (
+                            <Button
+                                key='create'
+                                type='primary'
+                                icon={<PlusCircle size='medium' />}
+                                onClick={handleCreateMeterReadings}
+                            >
+                                {CreateMeterButtonLabel}
+                            </Button>
+                        ),
+                        canManageMeters && (
+                            <MetersImportWrapper
+                                key='import'
+                                accessCheck={canManageMeters}
+                                onFinish={refetch}
+                            />
+                        ),
+                    ]}/>
                 </Col>
             </Row>
             <MultipleFiltersModal />
