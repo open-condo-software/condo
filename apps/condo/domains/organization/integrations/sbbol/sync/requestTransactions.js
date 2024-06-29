@@ -8,7 +8,7 @@ const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { BANK_INTEGRATION_IDS, BANK_SYNC_TASK_STATUS } = require('@condo/domains/banking/constants')
 const { BankAccount, BankTransaction, BankContractorAccount, predictTransactionClassification, BankSyncTask, BankIntegrationAccountContext } = require('@condo/domains/banking/utils/serverSchema')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
-const { ISO_CODES, ISO_ALTERNATIVE_CODES_FROM_SBBOL } = require('@condo/domains/common/constants/currencies')
+const { ISO_CODES, ALTERNATIVE_CURRENCY_NAMES_FROM_SBBOL } = require('@condo/domains/common/constants/currencies')
 const { dvSenderFields, INVALID_DATE_RECEIVED_MESSAGE } = require('@condo/domains/organization/integrations/sbbol/constants')
 const { SBBOL_IMPORT_NAME } = require('@condo/domains/organization/integrations/sbbol/constants')
 const { ERROR_PASSED_DATE_IN_THE_FUTURE } = require('@condo/domains/organization/integrations/sbbol/constants')
@@ -227,8 +227,8 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
         }
 
         for (const transaction of transactions) {
-            const currencyName = transaction.amount.currencyName in ISO_ALTERNATIVE_CODES_FROM_SBBOL
-                ? ISO_ALTERNATIVE_CODES_FROM_SBBOL[transaction.amount.currencyName]
+            const currencyName = transaction.amount.currencyName in ALTERNATIVE_CURRENCY_NAMES_FROM_SBBOL
+                ? ALTERNATIVE_CURRENCY_NAMES_FROM_SBBOL[transaction.amount.currencyName]
                 : transaction.amount.currencyName
 
             // If SBBOL returned a transaction with an unsupported currency, do not process
