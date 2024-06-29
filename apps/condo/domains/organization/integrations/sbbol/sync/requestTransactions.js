@@ -8,7 +8,7 @@ const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { BANK_INTEGRATION_IDS, BANK_SYNC_TASK_STATUS } = require('@condo/domains/banking/constants')
 const { BankAccount, BankTransaction, BankContractorAccount, predictTransactionClassification, BankSyncTask, BankIntegrationAccountContext } = require('@condo/domains/banking/utils/serverSchema')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
-const { ISO_CODES, ALTERNATIVE_CURRENCY_NAMES_FROM_SBBOL } = require('@condo/domains/common/constants/currencies')
+const { ISO_CODES, ALTERNATIVE_CURRENCY_CODES_FROM_SBBOL } = require('@condo/domains/common/constants/currencies')
 const { dvSenderFields, INVALID_DATE_RECEIVED_MESSAGE } = require('@condo/domains/organization/integrations/sbbol/constants')
 const { SBBOL_IMPORT_NAME } = require('@condo/domains/organization/integrations/sbbol/constants')
 const { ERROR_PASSED_DATE_IN_THE_FUTURE } = require('@condo/domains/organization/integrations/sbbol/constants')
@@ -227,18 +227,18 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
         }
 
         for (const transaction of transactions) {
-            const currencyName = transaction.amount.currencyName in ALTERNATIVE_CURRENCY_NAMES_FROM_SBBOL
-                ? ALTERNATIVE_CURRENCY_NAMES_FROM_SBBOL[transaction.amount.currencyName]
+            const currencyCode = transaction.amount.currencyName in ALTERNATIVE_CURRENCY_CODES_FROM_SBBOL
+                ? ALTERNATIVE_CURRENCY_CODES_FROM_SBBOL[transaction.amount.currencyName]
                 : transaction.amount.currencyName
 
             // If SBBOL returned a transaction with an unsupported currency, do not process
-            if (ISO_CODES.includes(currencyName)) {
+            if (ISO_CODES.includes(currencyCode)) {
                 const formatedOperationDate = dayjs(transaction.operationDate).format('YYYY-MM-DD')
                 const transactionAttrs = {
                     number: transaction.number,
                     date:  formatedOperationDate,
                     amount: transaction.amount.amount,
-                    currencyCode: currencyName,
+                    currencyCode,
                     purpose: transaction.paymentPurpose,
                     // A debit transaction is an expense, since the direction of the transaction looks relative to the bank from which the data was received
                     isOutcome: transaction.direction === 'DEBIT',
@@ -273,7 +273,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                             country: RUSSIA_COUNTRY,
                             routingNumber: transaction.rurTransfer.payeeBankBic,
                             number: transaction.rurTransfer.payeeAccount,
-                            currencyCode: currencyName,
+                            currencyCode,
                             ...dvSenderFields,
                         })
                         logger.info({ msg: `BankContractorAccount instance created with id: ${bankContractorAccount.id}` })
