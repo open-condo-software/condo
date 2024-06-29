@@ -120,7 +120,6 @@ const ISO_CODES = [
     'RON',
     'RSD',
     'RUB',
-    'RUR',
     'RWF',
     'SAR',
     'SBD',
@@ -181,11 +180,15 @@ const ISO_CODES = [
 ]
 
 const ISO_CODES_FOR_SBBOL = {
-    '643': 'RUB',
-    '810': 'RUR',
+    '810': 'RUB',
     '840': 'USD',
     '978': 'EUR',
 }
+
+const ISO_ALTERNATIVE_CODES_FROM_SBBOL = {
+    'RUR': 'RUB',
+}
+
 /**
  * TODO(DOMA-3344): replace with intl ?
  */
@@ -203,6 +206,7 @@ const DEFAULT_CURRENCY_CODE = 'RUB'
 module.exports = {
     ISO_CODES,
     ISO_CODES_FOR_SBBOL,
+    ISO_ALTERNATIVE_CODES_FROM_SBBOL,
     CURRENCY_SYMBOLS,
     DEFAULT_CURRENCY_CODE,
 }
