@@ -42,7 +42,7 @@ export const useTicketDocumentGenerationTask = ({ ticket, user, timeZone }) => {
     const getHandleClick = useCallback((documentType) => () => {
         if (loading) return
 
-        handleRunTask({ documentType })
+        handleRunTask({ taskAttrs: { documentType } })
     }, [handleRunTask, loading])
 
     const buttonItems = useMemo(() => {
