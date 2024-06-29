@@ -3,6 +3,7 @@
  */
 
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { addressService } = require('@open-condo/keystone/plugins/addressService')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/PaymentRuleMarketPlaceScope')
@@ -10,17 +11,8 @@ const access = require('@condo/domains/acquiring/access/PaymentRuleMarketPlaceSc
 
 const PaymentRuleMarketPlaceScope = new GQLListSchema('PaymentRuleMarketPlaceScope', {
     schemaDoc: 'Conditions to match paymentRule with the marketplace invoices',
-    fields: {
-
-        property: {
-            schemaDoc: 'Make payment rule to work only for the specific property',
-            type: 'Relationship',
-            ref: 'Property',
-            kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
-        },
-
-    },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    fields: {},
+    plugins: [uuided(), addressService(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadPaymentRuleMarketPlaceScopes,
         create: access.canManagePaymentRuleMarketPlaceScopes,

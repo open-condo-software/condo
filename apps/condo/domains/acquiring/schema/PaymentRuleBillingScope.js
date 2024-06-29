@@ -3,6 +3,7 @@
  */
 
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { addressService } = require('@open-condo/keystone/plugins/addressService')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/PaymentRuleBillingScope')
@@ -11,13 +12,6 @@ const access = require('@condo/domains/acquiring/access/PaymentRuleBillingScope'
 const PaymentRuleBillingScope = new GQLListSchema('PaymentRuleBillingScope', {
     schemaDoc: 'Conditions to match paymentRule with billing receipts',
     fields: {
-
-        property: {
-            schemaDoc: 'Make payment rule to work only for the specific property',
-            type: 'Relationship',
-            ref: 'Property',
-            kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
-        },
 
         category: {
             schemaDoc: 'Determinate if payment rule is working on the specific billing category',
@@ -29,15 +23,17 @@ const PaymentRuleBillingScope = new GQLListSchema('PaymentRuleBillingScope', {
         bankAccountNumber: {
             schemaDoc: 'Defines that the payment rule works only for the specific bank account from the billing receipt',
             type: 'Text',
+            isRequired: false,
         },
 
-        serviceId: {
+        serviceIds: {
             schemaDoc: 'Additional payment split according to the services in the billing receipt',
-            type: 'Text',
+            type: 'Json',
+            isRequired: false,
         },
 
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), addressService(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadPaymentRuleBillingScopes,
         create: access.canManagePaymentRuleBillingScopes,

@@ -866,6 +866,13 @@ const generateVirtualReceipt = ({ period, bankAccount, accountNumber }, extraAtt
     }
 }
 
+const addPaymentRuleSettings = async (client, contextId, createInputWithBankAccount, scopes) => {
+    const { marketPlace, billing } = scopes
+    const { bankAccount, ...createInput } = createInputWithBankAccount
+
+
+}
+
 module.exports = {
     AcquiringIntegration, createTestAcquiringIntegration, updateTestAcquiringIntegration,
     AcquiringIntegrationAccessRight, createTestAcquiringIntegrationAccessRight, updateTestAcquiringIntegrationAccessRight,

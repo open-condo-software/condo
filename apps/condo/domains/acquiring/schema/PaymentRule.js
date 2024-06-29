@@ -6,7 +6,9 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/PaymentRule')
-
+const {
+    NON_NEGATIVE_MONEY_FIELD,
+} = require('@condo/domains/common/schema/fields')
 
 const PaymentRule = new GQLListSchema('PaymentRule', {
     schemaDoc: 'Defines the bank account and the fee settings where the money will be transferred',
@@ -22,13 +24,21 @@ const PaymentRule = new GQLListSchema('PaymentRule', {
         },
 
         explicitFee: {
-            schemaDoc: 'The amount of fee that will be taken from the payer',
-            type: 'Decimal',
+            ...NON_NEGATIVE_MONEY_FIELD,
+            schemaDoc: 'Amount of money which payer pays on top of initial "amount", which counts as fee for every service which is not housing and communal services',
+            isRequired: false,
+        },
+
+        explicitServiceCharge: {
+            ...NON_NEGATIVE_MONEY_FIELD,
+            schemaDoc: 'Amount of money which payer pays on top of initial "amount", which counts as internal service charge for all payments from housing and communal services category',
+            isRequired: false,
         },
 
         implicitFee: {
-            schemaDoc: 'The amount of fee that will be taken from the payee',
-            type: 'Decimal',
+            ...NON_NEGATIVE_MONEY_FIELD,
+            schemaDoc: 'Amount of money which recipient pays from initial amount for transaction',
+            isRequired: false,
         },
 
         bankAccount: {

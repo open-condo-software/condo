@@ -88,7 +88,7 @@ const PaymentRuleMarketPlaceScope = generateGqlQueries('PaymentRuleMarketPlaceSc
 const PAYMENT_RULE_BILLING_SCOPE_FIELDS = `{ property { id } category { id } bankAccountNumber serviceId ${COMMON_FIELDS} }`
 const PaymentRuleBillingScope = generateGqlQueries('PaymentRuleBillingScope', PAYMENT_RULE_BILLING_SCOPE_FIELDS)
 
-const PAYMENT_RULE_FIELDS = `{ context { id } explicitFee implicitFee bankAccount { id } merchant marketPlaceScope { id } billingScope { id } ${COMMON_FIELDS} }`
+const PAYMENT_RULE_FIELDS = `{ context { id } explicitFee explicitServiceCharge implicitFee bankAccount { id name tin routingNumber number organization { name } } merchant marketPlaceScope { id address addressKey } billingScope { id address addressKey bankAccountNumber serviceIds category { id name } } ${COMMON_FIELDS} }`
 const PaymentRule = generateGqlQueries('PaymentRule', PAYMENT_RULE_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
