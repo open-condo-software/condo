@@ -34,17 +34,16 @@ jobs:
         run: |
           docker compose up -d postgresdb postgresdb-replica redis
 
-      - name: Run build
-        run: |
-          set -x
-          yarn workspace @app/condo build:deps
-          yarn workspace @app/condo build
+      - name: Build deps
+        run: yarn workspace @app/condo build:deps
 
       - name: Prepare condo app
-        run: |
-          node bin/prepare.js -f condo
+        run: node bin/prepare.js -f condo
 
-      - name: start server in production mode
+      - name: Build condo app
+        run: yarn workspace @app/condo build
+
+      - name: Start server in production mode
         run: |
           set -x
           export NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE=true
