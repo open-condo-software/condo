@@ -59,20 +59,37 @@ const FindOrganizationsForAddressService = new GQLCustomSchema('FindOrganization
                 }
                 const organizationIndex = Object.fromEntries(organizations.map(({ id, name, tin, type }) => ([id, {
                     organization: { id, name, tin, type },
+                    account: null,
                     hasMeters: withMeters.has(id),
                     hasBillingData: !!billingInformation[id],
                 }])))
-                if (accountNumber || unitName && unitType) {
+                if (accountNumber) {
                     const receipts = await findBillingReceiptsForOrganizations(organizations, billingInformation, {
-                        addressKey, unitName, unitType,
+                        number: accountNumber,
+                        property: { addressKey, deletedAt: null },
+                    })
+                    const organizationsWithReceipts = new Set(receipts.map(({ organizationId }) => organizationId))
+                    const checkMetersOrganizationIds = Object.values(organizationIndex).filter(({ organization: { id }, hasMeters }) => !organizationsWithReceipts.has(id) && hasMeters).map(({ organization: { id } }) => id)
+                    const withMatchingMeters = checkMetersOrganizationIds.length ? await getOrganizationsWithMeters(checkMetersOrganizationIds, {
+                        property: { addressKey, deletedAt: null },
                         accountNumber,
+                    }) : new Set()
+                    const organizationsWithMeters = Object.values(organizationIndex).filter(({ organization: { id } }) => withMatchingMeters.has(id))
+                    return receipts.map(({ organizationId, ...account }) => ({
+                        ...organizationIndex[organizationId],
+                        account,
+                    })).concat(organizationsWithMeters)
+                } else if (unitName && unitType) {
+                    const receipts = await findBillingReceiptsForOrganizations(organizations, billingInformation, {
+                        property: { addressKey, deletedAt: null },
+                        unitName, unitType,
                     })
                     const organizationsWithReceipts = new Set(receipts.map(({ organizationId }) => organizationId))
                     const organizationsWithoutReceipts = Object.values(organizationIndex).filter(({ organization: { id } }) => !organizationsWithReceipts.has(id))
                     return receipts.map(({ organizationId, ...account }) => ({
                         ...organizationIndex[organizationId],
                         account,
-                    })).concat(accountNumber ? [] : organizationsWithoutReceipts)
+                    })).concat(organizationsWithoutReceipts)
                 }
                 return Object.values(organizationIndex)
             },

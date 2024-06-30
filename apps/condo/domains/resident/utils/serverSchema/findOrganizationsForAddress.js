@@ -13,8 +13,7 @@ const {
 const { getAccountsWithOnlineInteractionUrl } = require('@condo/domains/billing/utils/serverSchema/checkAccountNumberWithOnlineInteractionUrl')
 const { CONTEXT_FINISHED_STATUS: BILLING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 
-
-async function findBillingReceiptsForOrganizations (organizations, billingInformation, { addressKey, unitName, unitType, accountNumber }) {
+async function findBillingReceiptsForOrganizations (organizations, billingInformation, accountQuery = {}) {
     const receipts = await Promise.all(organizations.map(async ({ id, tin }) => {
         const contextId = get(billingInformation[id], 'id')
         if (!contextId) {
@@ -24,10 +23,9 @@ async function findBillingReceiptsForOrganizations (organizations, billingInform
         const checkAccountNumberUrl = get(billingInformation[id], 'checkAccountNumberUrl')
         let receipts = []
         if (period) {
-            const accountQuery = accountNumber ? { number: accountNumber } : {
-                unitName, unitType, property: { addressKey, deletedAt: null },
-            }
             const billingAccounts = await find('BillingAccount', { context: { id: contextId }, deletedAt: null, ...accountQuery })
+            console.error({ context: { id: contextId }, deletedAt: null, ...accountQuery })
+            console.error(billingAccounts)
             if (billingAccounts.length) {
                 const billingAccountsNumbersIndex = Object.fromEntries(billingAccounts.map(account => ([account.id, account.number])))
                 const billingReceipts = await find('BillingReceipt', {
@@ -48,6 +46,7 @@ async function findBillingReceiptsForOrganizations (organizations, billingInform
                 }
             }
         }
+        const accountNumber = accountQuery.number
         if (!receipts.length && checkAccountNumberUrl && accountNumber) {
             const { status, services } = await getAccountsWithOnlineInteractionUrl(checkAccountNumberUrl, tin, accountNumber)
             if (status === ONLINE_INTERACTION_CHECK_ACCOUNT_SUCCESS_STATUS) {
@@ -95,10 +94,10 @@ async function getBillingInformationForOrganizations (organizations) {
     }))
 }
 
-async function getOrganizationsWithMeters (organizationIds) {
+async function getOrganizationsWithMeters (organizationIds, query = {}) {
     const organizationsWithMeters = await Promise.all(organizationIds.map(async id => {
         const [meter] = await itemsQuery('Meter', {
-            where: { organization: { id }, deletedAt: null },
+            where: { organization: { id }, deletedAt: null, ...query },
             first: 1,
         })
         return meter ? id : null

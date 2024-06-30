@@ -98,7 +98,7 @@ describe('FindOrganizationsForAddress', () => {
 
     })
 
-    describe('Common cases', () => {
+    describe('Billing receipts cases', () => {
 
         test('finds organization if only addressKey is specified', async () => {
             const [foundOrganizations] = await findOrganizationsForAddressByTestClient(utils.clients.resident, {
@@ -167,8 +167,50 @@ describe('FindOrganizationsForAddress', () => {
             const found = foundOrganizations.filter(({ account: { number } }) => number === accountNumber)
             expect(found).toHaveLength(2)
         })
-    })
 
+        test('returns organization with not matching unitName + unitType', async () => {
+            const unitName = utils.randomNumber(10).toString()
+            const unitType = 'flat'
+            await utils.createReceipts([
+                utils.createJSONReceipt({ address: utils.property.address, addressMeta: { unitName, unitType } }),
+            ])
+            const [foundOrganizations] = await findOrganizationsForAddressByTestClient(utils.clients.resident, {
+                addressKey: utils.property.addressKey,
+                unitName,
+                unitType: 'warehouse',
+            })
+            const found = foundOrganizations.find(({ organization: { id } }) => id === utils.organization.id)
+            expect(found.account).toBeNull()
+            expect(found.organization).toMatchObject({
+                id: expect.any(String),
+                name: expect.any(String),
+                tin: expect.any(String),
+                type: expect.any(String),
+            })
+        })
+
+        test('do not returns organization with not matching account number', async () => {
+            const accountNumber = utils.randomNumber(10).toString()
+            const wrongAccountNumber = utils.randomNumber(10).toString()
+            const unitName = utils.randomNumber(10).toString()
+            const unitType = 'flat'
+            await utils.createReceipts([
+                utils.createJSONReceipt({ address: utils.property.address, accountNumber, addressMeta: { unitName, unitType } }),
+            ])
+            const [correctAccountNumberOrganizations] = await findOrganizationsForAddressByTestClient(utils.clients.resident, {
+                addressKey: utils.property.addressKey,
+                accountNumber: accountNumber,
+            })
+            const correctAccountNumberFound = correctAccountNumberOrganizations.find(({ organization: { id } }) => id === utils.organization.id)
+            expect(correctAccountNumberFound.organization).toBeDefined()
+            const [wrongAccountNumberOrganizations] = await findOrganizationsForAddressByTestClient(utils.clients.resident, {
+                addressKey: utils.property.addressKey,
+                accountNumber: wrongAccountNumber,
+            })
+            const wrongAccountNumberFound = wrongAccountNumberOrganizations.find(({ organization: { id } }) => id === utils.organization.id)
+            expect(wrongAccountNumberFound).toBeUndefined()
+        })
+    })
 
     describe('contexts statuses', () => {
 
