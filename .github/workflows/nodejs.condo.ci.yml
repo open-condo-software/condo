@@ -9,6 +9,10 @@ on:
       - master
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 env:
   DOCKER_IMAGE: condo/condo-image:${{ github.sha }}
   DOCKER_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/condo/condo-image:${{ github.sha }}
@@ -225,9 +229,6 @@ jobs:
           - common
           - others
     uses: ./.github/workflows/_nodejs.condo.core.tests.yml
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-      cancel-in-progress: true
     with:
       domain_name: ${{ matrix.domain }}
       runs-on: runners-dind-set-cpu5-ram10
