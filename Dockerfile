@@ -63,6 +63,7 @@ RUN chmod +x /app/run_condo_domain_tests.sh
 
 RUN set -ex \
     && yarn build \
+    && rm -rf /app/out \
     && rm -rf /app/.env  \
     && rm -rf /app/.config /app/.cache /app/.docker  \
     && ls -lah /app/
