@@ -48,7 +48,7 @@ node -e 'console.log(v8.getHeapStatistics().heap_size_limit/(1024*1024))'
 # NOTE(pahaz): Keystone not in dev mode trying to check dist/admin folder
 mkdir -p ./apps/condo/dist/admin
 
-yarn workspace @app/condo dev 2>&1 > /app/test_logs/condo.dev.log &
+yarn workspace @app/condo node --trace-warnings ./../../bin/run-keystone-app.js 2>&1 > /app/test_logs/condo.dev.log &
 
 node bin/wait-apps-apis.js -f condo
 
