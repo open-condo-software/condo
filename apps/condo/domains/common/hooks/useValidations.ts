@@ -4,7 +4,6 @@ import { useCallback, useMemo } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 
 import { SPECIAL_CHAR_REGEXP, MULTIPLE_EMAILS_REGEX } from '@condo/domains/common/constants/regexps'
-import { normalizePhone } from '@condo/domains/common/utils/phone'
 import { isValidTin } from '@condo/domains/organization/utils/tin.utils'
 
 
@@ -38,7 +37,6 @@ export const useValidations: UseValidations = (settings = {}) => {
     const intl = useIntl()
     const ThisFieldIsRequiredMessage = intl.formatMessage({ id: 'FieldIsRequired' })
     const MobilePhoneIsNotValidMessage = intl.formatMessage({ id: 'global.input.error.wrongMobilePhone' })
-    const PhoneIsNotValidMessage = intl.formatMessage({ id: 'global.input.error.wrongPhone' })
     const EmailErrorMessage = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
     const FieldIsTooShortMessage = intl.formatMessage({ id: 'ValueIsTooShort' })
     const FieldIsTooLongMessage = intl.formatMessage({ id: 'ValueIsTooLong' })
@@ -46,21 +44,17 @@ export const useValidations: UseValidations = (settings = {}) => {
     const TinValueIsInvalidMessage = intl.formatMessage({ id: 'pages.organizations.tin.InvalidValue' })
     const EmailsAreInvalidMessage = intl.formatMessage({ id: 'global.input.error.wrongEmails' })
 
-    const { allowLandLine } = settings
-
     const requiredValidator: Rule = useMemo(() => ({
         required: true,
         message: ThisFieldIsRequiredMessage,
     }), [ThisFieldIsRequiredMessage])
 
     const phoneValidator: Rule = useMemo(() => ({
-        validator: (_, value) => {
-            if (!value) return Promise.resolve()
-            const v = normalizePhone(value, allowLandLine)
-            if (!v) return Promise.reject(allowLandLine ? PhoneIsNotValidMessage : MobilePhoneIsNotValidMessage)
-            return Promise.resolve()
+        validator: (_, { valid }) => {
+            if (valid()) return Promise.resolve()
+            return Promise.reject(MobilePhoneIsNotValidMessage)
         },
-    }), [MobilePhoneIsNotValidMessage, PhoneIsNotValidMessage, allowLandLine])
+    }), [MobilePhoneIsNotValidMessage])
 
     const emailValidator: Rule = useMemo(() => ({
         type: 'email',
