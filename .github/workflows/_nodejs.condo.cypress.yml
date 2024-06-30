@@ -23,7 +23,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'yarn'
 
-      - name: install packages
+      - name: Install packages
         run: |
           npm i -g turbo
           yarn install --immutable
@@ -34,7 +34,7 @@ jobs:
         run: |
           docker compose up -d postgresdb postgresdb-replica redis
 
-      - name: run build
+      - name: Run build
         run: |
           set -x
           yarn workspace @app/condo build:deps
@@ -58,7 +58,7 @@ jobs:
           yarn workspace @app/condo start &
           node bin/wait-apps-apis.js -f condo
 
-      - name: run cypress tests
+      - name: Run cypress tests
         run: |
           yarn workspace @app/condo cypress run --record --key ${{ secrets.CYPRESS_RECORD_KEY }} -b chrome -C ./cypress/cypress.config.ts
 
