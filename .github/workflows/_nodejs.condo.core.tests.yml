@@ -17,6 +17,10 @@ jobs:
     runs-on: ${{ inputs.runs-on }}
 
     steps:
+      - name: install deps
+        run: |
+          sudo apt update && sudo apt install -y git
+
       - name: setup docker compose
         uses: KengoTODA/actions-setup-docker-compose@v1
         with:
