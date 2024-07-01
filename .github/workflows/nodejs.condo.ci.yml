@@ -18,10 +18,11 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  DOCKER_IMAGE: condo/condo-image:${{ github.sha }}
-  DOCKER_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/condo/condo-image:${{ github.sha }}
+  DOCKER_IMAGE: condo/condo-image:${{ github.event.pull_request.head.sha || github.sha }}
+  DOCKER_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/condo/condo-image:${{ github.event.pull_request.head.sha || github.sha }}
   PG_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/doma/utils/postgres:13.2
   REDIS_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/doma/utils/redis:6.2
+  REF: ${{ github.event.pull_request.head.sha || github.ref }}
 
 jobs:
   authorize:
@@ -31,6 +32,8 @@ jobs:
       ${{ github.event_name == 'pull_request_target' &&
       github.event.pull_request.head.repo.full_name != github.repository && 
       'external' || 'internal' }}
+    outputs:
+      ref: ${{ env.REF }}
     steps:
       - run: echo "PR is authorized to run CI jobs"
 
@@ -60,6 +63,7 @@ jobs:
           fetch-depth: 0
           submodules: recursive
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+          ref: ${{ env.REF }}
       - name: Prune repo to filter out yarn.lock and package.json
         run: |
           bash bin/prune.sh
@@ -123,6 +127,7 @@ jobs:
           fetch-depth: 0
           submodules: recursive
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+          ref: ${{ env.REF }}
       - name: Scan changed files
         uses: dorny/paths-filter@v3
         id: detect-changes
@@ -150,6 +155,7 @@ jobs:
           fetch-depth: 0
           submodules: recursive
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+          ref: ${{ env.REF }}
       - name: Prepare Node environment
         uses: actions/setup-node@v3
         with:
@@ -182,7 +188,13 @@ jobs:
     if: (github.actor != 'dependabot[bot]')
     steps:
       # Fetch project source with GitHub Actions Checkout.
-      - uses: actions/checkout@v4
+      - name: Checkout code with submodules
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+          ref: ${{ env.REF }}
       - run: ./bin/run-semgrep.sh -a
 
   run-address-service-tests:
@@ -260,6 +272,8 @@ jobs:
     name: Condo E2E Tests
     needs: authorize
     uses: ./.github/workflows/_nodejs.condo.cypress.yml
+    with:
+      ref: ${{ needs.authorize.outputs.ref }}
     secrets: inherit
 
   run-condorb-tests:
@@ -360,6 +374,7 @@ jobs:
           fetch-depth: 0
           submodules: recursive
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+          ref: ${{ env.REF }}
       - name: Install packages
         run: |
           npm i -g turbo
