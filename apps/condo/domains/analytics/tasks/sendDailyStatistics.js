@@ -5,7 +5,7 @@ const conf = require('@open-condo/config')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
-const { createCronTask } = require('@open-condo/keystone/tasks')
+const { createCronTask, removeCronTask } = require('@open-condo/keystone/tasks')
 
 const { RETENTION_LOOPS_ENABLED } = require('@condo/domains/common/constants/featureflags')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
@@ -86,7 +86,10 @@ const sendDailyStatistics = async () => {
     }
 }
 
+
+removeCronTask('sendDailyStatistics', '0 6 * * *')
+
 module.exports = {
-    // At 06:00
-    sendDailyStatisticsTask: createCronTask('sendDailyStatistics', '0 6 * * *', sendDailyStatistics),
+    // At 06:00 on every day-of-week from Monday through Friday.
+    sendDailyStatisticsTask: createCronTask('sendDailyStatistics', '0 6 * * 1-5', sendDailyStatistics),
 }
