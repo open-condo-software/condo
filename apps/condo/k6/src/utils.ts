@@ -18,6 +18,9 @@ const setupCondoAuth = (useEnv = false) => {
     const response = http.post(BASE_API_URL, JSON.stringify(payload), { headers: { 'Content-Type': 'application/json' } })
     const token = response.json('data.authenticateUserWithPassword.token')
 
+
+    console.log('RESPONSE ', response)
+
     if (useEnv) {
         return {
             token,
@@ -87,6 +90,23 @@ const getOrganizationEmployeeId = (data) => sendAuthorizedRequest(data, {
     operationName: 'getList',
     query: 'query getList($where:OrganizationEmployeeWhereInput){allOrganizationEmployees(where:$where){id}}',
     variables: { where: { organization: { id: data.organizationId } } },
+})
+
+const getOrganizationEmployees = (token, where) => sendAuthorizedRequest({ token }, {
+    operationName: 'getList',
+    query: 'query getList($where:OrganizationEmployeeWhereInput){allOrganizationEmployees(where:$where){ id user { id } }}',
+    variables: { where },
+})
+
+const signInAsUser = (token, userId) => sendAuthorizedRequest({ token }, {
+    operationName: 'signinAsUser',
+    query: 'mutation signinAsUser($data:SigninAsUserInput!){signinAsUser(data:$data){ token user { id } }}',
+    variables: {
+        data: {
+            id: userId,
+            ...DV_SENDER,
+        },
+    },
 })
 
 const createProperty = (data) => {
@@ -197,5 +217,7 @@ export {
     createBillingIntegrationOrganizationContext,
     sendAuthorizedRequest,
     getOrganizationEmployeeId,
+    getOrganizationEmployees,
+    signInAsUser,
     BASE_API_URL,
 }
