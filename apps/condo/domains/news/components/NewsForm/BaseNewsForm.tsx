@@ -1196,32 +1196,30 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                 </RadioGroup>
                                                             </Form.Item>
                                                         </Col>
-                                                        { selectedType === NEWS_TYPE_EMERGENCY && (
-                                                            <Col span={isMediumWindow ? 24 : 12}>
-                                                                <Form.Item
-                                                                    label={(
-                                                                        <LabelWithInfo
-                                                                            title={ValidBeforeTitle}
-                                                                            message={ValidBeforeLabel}/>
-                                                                    )}
-                                                                    labelCol={FORM_FILED_COL_PROPS}
-                                                                    name='validBefore'
-                                                                    required
-                                                                    rules={[finishWorkRule, commonRule, dateRule]}
-                                                                    validateFirst={true}
-                                                                >
-                                                                    <DatePicker
-                                                                        style={FULL_WIDTH_STYLE}
-                                                                        format='DD MMMM YYYY HH:mm'
-                                                                        showTime={SHOW_TIME_CONFIG}
-                                                                        onChange={handleValidBeforeChange(form, 'validBefore')}
-                                                                        placeholder={SelectPlaceholder}
-                                                                        disabledDate={isDateDisabled}
-                                                                        disabledTime={isTimeDisabled}
-                                                                        showNow={false}/>
-                                                                </Form.Item>
-                                                            </Col>
-                                                        )}
+                                                        <Col span={isMediumWindow ? 24 : 12}>
+                                                            <Form.Item
+                                                                label={(
+                                                                    <LabelWithInfo
+                                                                        title={ValidBeforeTitle}
+                                                                        message={ValidBeforeLabel}/>
+                                                                )}
+                                                                labelCol={FORM_FILED_COL_PROPS}
+                                                                name='validBefore'
+                                                                required={selectedType === NEWS_TYPE_EMERGENCY}
+                                                                rules={[finishWorkRule, commonRule, dateRule]}
+                                                                validateFirst={true}
+                                                            >
+                                                                <DatePicker
+                                                                    style={FULL_WIDTH_STYLE}
+                                                                    format='DD MMMM YYYY HH:mm'
+                                                                    showTime={SHOW_TIME_CONFIG}
+                                                                    onChange={handleValidBeforeChange(form, 'validBefore')}
+                                                                    placeholder={SelectPlaceholder}
+                                                                    disabledDate={isDateDisabled}
+                                                                    disabledTime={isTimeDisabled}
+                                                                    showNow={false}/>
+                                                            </Form.Item>
+                                                        </Col>
                                                     </Row>
                                                 </Col>
                                             </Row>
