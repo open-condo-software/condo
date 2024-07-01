@@ -1230,7 +1230,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                     )}
                                                                     labelCol={FORM_FILED_COL_PROPS}
                                                                     name='validBefore'
-                                                                    required
+                                                                    required={selectedType === NEWS_TYPE_EMERGENCY}
                                                                     rules={[finishWorkRule, commonRule, dateRule]}
                                                                     validateFirst={true}
                                                                 >
