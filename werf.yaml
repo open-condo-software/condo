@@ -221,53 +221,53 @@ docker:
   ENV:
     LANG: C.UTF-8
 ---
-image: insurance
-fromImage: base
-fromCacheVersion: "1"
-git:
-  - add: /
-    to: /app
-    stageDependencies:
-      install:
-        - "yarn.lock"
-        - "package.json"
-        - "**/yarn.lock"
-        - "**/package.json"
-      setup:
-        - "apps/**"
-        - "packages/**"
-        - "bin/**/*"
-    excludePaths:
-      - .github
-      - .helm
-      - werf.yaml
-      - werf-giterminism.yaml
-    owner: app
-    group: app
-
-shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
-  setup:
-  - "cd /app"
-  - "echo '# Build time .env config!' >> /app/.env"
-  - "echo 'COOKIE_SECRET=undefined' >> /app/.env"
-  - "echo 'DATABASE_URL=undefined' >> /app/.env"
-  - "echo 'REDIS_URL=undefined' >> /app/.env"
-  - "echo 'NODE_ENV=production' >> /app/.env"
-  - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
-  - "yarn workspace @app/insurance next telemetry disable"
-  - "yarn workspace @app/insurance build:deps"
-  - "yarn workspace @app/insurance build"
-  - "rm -rf /app/.env"
-  - "rm -rf /app/.config"
-
-docker:
-  ENV:
-    LANG: C.UTF-8
----
+#image: insurance
+#fromImage: base
+#fromCacheVersion: "1"
+#git:
+#  - add: /
+#    to: /app
+#    stageDependencies:
+#      install:
+#        - "yarn.lock"
+#        - "package.json"
+#        - "**/yarn.lock"
+#        - "**/package.json"
+#      setup:
+#        - "apps/**"
+#        - "packages/**"
+#        - "bin/**/*"
+#    excludePaths:
+#      - .github
+#      - .helm
+#      - werf.yaml
+#      - werf-giterminism.yaml
+#    owner: app
+#    group: app
+#
+#shell:
+#  install:
+#    - "cd /app"
+#    - "npm i -g turbo"
+#    - "yarn install --immutable"
+#  setup:
+#  - "cd /app"
+#  - "echo '# Build time .env config!' >> /app/.env"
+#  - "echo 'COOKIE_SECRET=undefined' >> /app/.env"
+#  - "echo 'DATABASE_URL=undefined' >> /app/.env"
+#  - "echo 'REDIS_URL=undefined' >> /app/.env"
+#  - "echo 'NODE_ENV=production' >> /app/.env"
+#  - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
+#  - "yarn workspace @app/insurance next telemetry disable"
+#  - "yarn workspace @app/insurance build:deps"
+#  - "yarn workspace @app/insurance build"
+#  - "rm -rf /app/.env"
+#  - "rm -rf /app/.config"
+#
+#docker:
+#  ENV:
+#    LANG: C.UTF-8
+#---
 image: registryma
 fromImage: base
 fromCacheVersion: "1"
@@ -317,52 +317,52 @@ docker:
   ENV:
     LANG: C.UTF-8
 ---
-image: miniapp
-fromImage: base
-fromCacheVersion: "1"
-git:
-  - add: /
-    to: /app
-    stageDependencies:
-      install:
-        - "yarn.lock"
-        - "package.json"
-        - "**/yarn.lock"
-        - "**/package.json"
-      setup:
-        - "apps/**"
-        - "packages/**"
-        - "bin/**/*"
-    excludePaths:
-      - .github
-      - .helm
-      - werf.yaml
-      - werf-giterminism.yaml
-    owner: app
-    group: app
-
-shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
-  setup:
-  - "cd /app"
-  - "echo '# Build time .env config!' >> /app/.env"
-  - "echo 'COOKIE_SECRET=undefined' >> /app/.env"
-  - "echo 'DATABASE_URL=undefined' >> /app/.env"
-  - "echo 'REDIS_URL=undefined' >> /app/.env"
-  - "echo 'NODE_ENV=production' >> /app/.env"
-  - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
-  - "yarn workspace @app/miniapp next telemetry disable"
-  - "yarn workspace @app/miniapp build:deps"
-  - "yarn workspace @app/miniapp build"
-  - "rm -rf /app/.env"
-  - "rm -rf /app/.config"
-
-docker:
-  ENV:
-    LANG: C.UTF-8
+#image: miniapp
+#fromImage: base
+#fromCacheVersion: "1"
+#git:
+#  - add: /
+#    to: /app
+#    stageDependencies:
+#      install:
+#        - "yarn.lock"
+#        - "package.json"
+#        - "**/yarn.lock"
+#        - "**/package.json"
+#      setup:
+#        - "apps/**"
+#        - "packages/**"
+#        - "bin/**/*"
+#    excludePaths:
+#      - .github
+#      - .helm
+#      - werf.yaml
+#      - werf-giterminism.yaml
+#    owner: app
+#    group: app
+#
+#shell:
+#  install:
+#    - "cd /app"
+#    - "npm i -g turbo"
+#    - "yarn install --immutable"
+#  setup:
+#  - "cd /app"
+#  - "echo '# Build time .env config!' >> /app/.env"
+#  - "echo 'COOKIE_SECRET=undefined' >> /app/.env"
+#  - "echo 'DATABASE_URL=undefined' >> /app/.env"
+#  - "echo 'REDIS_URL=undefined' >> /app/.env"
+#  - "echo 'NODE_ENV=production' >> /app/.env"
+#  - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
+#  - "yarn workspace @app/miniapp next telemetry disable"
+#  - "yarn workspace @app/miniapp build:deps"
+#  - "yarn workspace @app/miniapp build"
+#  - "rm -rf /app/.env"
+#  - "rm -rf /app/.config"
+#
+#docker:
+#  ENV:
+#    LANG: C.UTF-8
 ---
 image: postgresreview
 from: postgres:13.2
@@ -391,48 +391,48 @@ docker:
   ENV:
     LANG: C.UTF-8
 ---
-image: property_importer
-fromImage: base
-fromCacheVersion: "1"
-git:
-  - add: /
-    to: /app
-    stageDependencies:
-      install:
-        - "yarn.lock"
-        - "package.json"
-        - "**/yarn.lock"
-        - "**/package.json"
-      setup:
-        - "apps/**"
-        - "packages/**"
-        - "bin/**/*"
-    excludePaths:
-      - .github
-      - .helm
-      - werf.yaml
-      - werf-giterminism.yaml
-    owner: app
-    group: app
-
-shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
-  setup:
-  - "cd /app"
-  - "echo '# Build time .env config!' >> /app/.env"
-  - "echo 'COOKIE_SECRET=undefined' >> /app/.env"
-  - "echo 'DATABASE_URL=undefined' >> /app/.env"
-  - "echo 'REDIS_URL=undefined' >> /app/.env"
-  - "echo 'NODE_ENV=production' >> /app/.env"
-  - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
-  - "yarn workspace @app/property-importer next telemetry disable"
-  - "yarn workspace @app/property-importer build:deps"
-  - "yarn workspace @app/property-importer build"
-  - "rm -rf /app/.env"
-  - "rm -rf /app/.config"
+#image: property_importer
+#fromImage: base
+#fromCacheVersion: "1"
+#git:
+#  - add: /
+#    to: /app
+#    stageDependencies:
+#      install:
+#        - "yarn.lock"
+#        - "package.json"
+#        - "**/yarn.lock"
+#        - "**/package.json"
+#      setup:
+#        - "apps/**"
+#        - "packages/**"
+#        - "bin/**/*"
+#    excludePaths:
+#      - .github
+#      - .helm
+#      - werf.yaml
+#      - werf-giterminism.yaml
+#    owner: app
+#    group: app
+#
+#shell:
+#  install:
+#    - "cd /app"
+#    - "npm i -g turbo"
+#    - "yarn install --immutable"
+#  setup:
+#  - "cd /app"
+#  - "echo '# Build time .env config!' >> /app/.env"
+#  - "echo 'COOKIE_SECRET=undefined' >> /app/.env"
+#  - "echo 'DATABASE_URL=undefined' >> /app/.env"
+#  - "echo 'REDIS_URL=undefined' >> /app/.env"
+#  - "echo 'NODE_ENV=production' >> /app/.env"
+#  - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
+#  - "yarn workspace @app/property-importer next telemetry disable"
+#  - "yarn workspace @app/property-importer build:deps"
+#  - "yarn workspace @app/property-importer build"
+#  - "rm -rf /app/.env"
+#  - "rm -rf /app/.config"
 
 ---
 image: python-base
@@ -451,167 +451,167 @@ docker:
   ENV:
     LANG: C.UTF-8
 ---
-image: classifier
-fromImage: python-base
-fromCacheVersion: "1"
-git:
-  - add: /
-    to: /app
-    excludePaths:
-      - .github
-      - .helm
-      - werf.yaml
-      - werf-giterminism.yaml
-    owner: app
-    group: app
-
-shell:
-  install:
-  - "cd /app/apps/classifiers-api"
-  - "pip install -r requirements.txt"
-
-docker:
-  ENV:
-    LANG: C.UTF-8
----
-image: addressservice
-fromImage: base
-fromCacheVersion: "1"
-git:
-  - add: /
-    to: /app
-    stageDependencies:
-      install:
-        - "yarn.lock"
-        - "package.json"
-        - "**/yarn.lock"
-        - "**/package.json"
-      setup:
-        - "apps/**"
-        - "packages/**"
-        - "bin/**/*"
-    excludePaths:
-      - .github
-      - .helm
-      - werf.yaml
-      - werf-giterminism.yaml
-    owner: app
-    group: app
-
-shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
-  setup:
-  - "cd /app"
-  - "echo '# Build time .env config!' >> /app/.env"
-  - "echo 'COOKIE_SECRET=undefined' >> /app/.env"
-  - "echo 'DATABASE_URL=undefined' >> /app/.env"
-  - "echo 'REDIS_URL=undefined' >> /app/.env"
-  - "echo 'NODE_ENV=production' >> /app/.env"
-  - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
-  - "yarn workspace @app/address-service next telemetry disable"
-  - "yarn workspace @app/address-service build"
-  - "rm -rf /app/.env"
-  - "rm -rf /app/.config"
-
-
-docker:
-  ENV:
-    LANG: C.UTF-8
----
-image: telephony
-fromImage: base
-fromCacheVersion: "1"
-git:
-  - add: /
-    to: /app
-    stageDependencies:
-      install:
-        - "yarn.lock"
-        - "package.json"
-        - "**/yarn.lock"
-        - "**/package.json"
-      setup:
-        - "apps/**"
-        - "packages/**"
-        - "bin/**/*"
-    excludePaths:
-      - .github
-      - .helm
-      - werf.yaml
-      - werf-giterminism.yaml
-    owner: app
-    group: app
-
-shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
-  setup:
-  - "cd /app"
-  - "echo '# Build time .env config!' >> /app/.env"
-  - "echo 'COOKIE_SECRET=undefined' >> /app/.env"
-  - "echo 'DATABASE_URL=undefined' >> /app/.env"
-  - "echo 'REDIS_URL=undefined' >> /app/.env"
-  - "echo 'NODE_ENV=production' >> /app/.env"
-  - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
-  - "yarn workspace @app/telephony next telemetry disable"
-  - "yarn workspace @app/telephony build:deps"
-  - "yarn workspace @app/telephony build"
-  - "rm -rf /app/.env"
-  - "rm -rf /app/.config"
-
-docker:
-  ENV:
-    LANG: C.UTF-8
----
-image: devportal
-fromImage: base
-fromCacheVersion: "1"
-git:
-  - add: /
-    to: /app
-    stageDependencies:
-      install:
-        - "yarn.lock"
-        - "package.json"
-        - "**/yarn.lock"
-        - "**/package.json"
-      setup:
-        - "apps/**"
-        - "packages/**"
-        - "bin/**/*"
-    excludePaths:
-      - .github
-      - .helm
-      - werf.yaml
-      - werf-giterminism.yaml
-    owner: app
-    group: app
-
-shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
-  setup:
-    - "cd /app"
-    #NOTE: Next.js is picking .env only from package-level envs during build time
-    - "echo '# Build time .env config!' >> /app/apps/dev-portal/.env"
-    - "echo 'NODE_ENV=production' >> /app/apps/dev-portal/.env"
-    - "yarn workspace @app/dev-portal next telemetry disable"
-    - "yarn workspace @app/dev-portal build:deps"
-    - "yarn workspace @app/dev-portal build"
-    - "rm -rf /app/apps/dev-portal/.env"
-    - "rm -rf /app/.config"
-
-
-docker:
-  ENV:
-    LANG: C.UTF-8
+#image: classifier
+#fromImage: python-base
+#fromCacheVersion: "1"
+#git:
+#  - add: /
+#    to: /app
+#    excludePaths:
+#      - .github
+#      - .helm
+#      - werf.yaml
+#      - werf-giterminism.yaml
+#    owner: app
+#    group: app
+#
+#shell:
+#  install:
+#  - "cd /app/apps/classifiers-api"
+#  - "pip install -r requirements.txt"
+#
+#docker:
+#  ENV:
+#    LANG: C.UTF-8
+#---
+#image: addressservice
+#fromImage: base
+#fromCacheVersion: "1"
+#git:
+#  - add: /
+#    to: /app
+#    stageDependencies:
+#      install:
+#        - "yarn.lock"
+#        - "package.json"
+#        - "**/yarn.lock"
+#        - "**/package.json"
+#      setup:
+#        - "apps/**"
+#        - "packages/**"
+#        - "bin/**/*"
+#    excludePaths:
+#      - .github
+#      - .helm
+#      - werf.yaml
+#      - werf-giterminism.yaml
+#    owner: app
+#    group: app
+#
+#shell:
+#  install:
+#    - "cd /app"
+#    - "npm i -g turbo"
+#    - "yarn install --immutable"
+#  setup:
+#  - "cd /app"
+#  - "echo '# Build time .env config!' >> /app/.env"
+#  - "echo 'COOKIE_SECRET=undefined' >> /app/.env"
+#  - "echo 'DATABASE_URL=undefined' >> /app/.env"
+#  - "echo 'REDIS_URL=undefined' >> /app/.env"
+#  - "echo 'NODE_ENV=production' >> /app/.env"
+#  - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
+#  - "yarn workspace @app/address-service next telemetry disable"
+#  - "yarn workspace @app/address-service build"
+#  - "rm -rf /app/.env"
+#  - "rm -rf /app/.config"
+#
+#
+#docker:
+#  ENV:
+#    LANG: C.UTF-8
+#---
+#image: telephony
+#fromImage: base
+#fromCacheVersion: "1"
+#git:
+#  - add: /
+#    to: /app
+#    stageDependencies:
+#      install:
+#        - "yarn.lock"
+#        - "package.json"
+#        - "**/yarn.lock"
+#        - "**/package.json"
+#      setup:
+#        - "apps/**"
+#        - "packages/**"
+#        - "bin/**/*"
+#    excludePaths:
+#      - .github
+#      - .helm
+#      - werf.yaml
+#      - werf-giterminism.yaml
+#    owner: app
+#    group: app
+#
+#shell:
+#  install:
+#    - "cd /app"
+#    - "npm i -g turbo"
+#    - "yarn install --immutable"
+#  setup:
+#  - "cd /app"
+#  - "echo '# Build time .env config!' >> /app/.env"
+#  - "echo 'COOKIE_SECRET=undefined' >> /app/.env"
+#  - "echo 'DATABASE_URL=undefined' >> /app/.env"
+#  - "echo 'REDIS_URL=undefined' >> /app/.env"
+#  - "echo 'NODE_ENV=production' >> /app/.env"
+#  - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
+#  - "yarn workspace @app/telephony next telemetry disable"
+#  - "yarn workspace @app/telephony build:deps"
+#  - "yarn workspace @app/telephony build"
+#  - "rm -rf /app/.env"
+#  - "rm -rf /app/.config"
+#
+#docker:
+#  ENV:
+#    LANG: C.UTF-8
+#---
+#image: devportal
+#fromImage: base
+#fromCacheVersion: "1"
+#git:
+#  - add: /
+#    to: /app
+#    stageDependencies:
+#      install:
+#        - "yarn.lock"
+#        - "package.json"
+#        - "**/yarn.lock"
+#        - "**/package.json"
+#      setup:
+#        - "apps/**"
+#        - "packages/**"
+#        - "bin/**/*"
+#    excludePaths:
+#      - .github
+#      - .helm
+#      - werf.yaml
+#      - werf-giterminism.yaml
+#    owner: app
+#    group: app
+#
+#shell:
+#  install:
+#    - "cd /app"
+#    - "npm i -g turbo"
+#    - "yarn install --immutable"
+#  setup:
+#    - "cd /app"
+#    #NOTE: Next.js is picking .env only from package-level envs during build time
+#    - "echo '# Build time .env config!' >> /app/apps/dev-portal/.env"
+#    - "echo 'NODE_ENV=production' >> /app/apps/dev-portal/.env"
+#    - "yarn workspace @app/dev-portal next telemetry disable"
+#    - "yarn workspace @app/dev-portal build:deps"
+#    - "yarn workspace @app/dev-portal build"
+#    - "rm -rf /app/apps/dev-portal/.env"
+#    - "rm -rf /app/.config"
+#
+#
+#docker:
+#  ENV:
+#    LANG: C.UTF-8
 ---
 image: passapp
 fromImage: base
@@ -660,288 +660,289 @@ docker:
   ENV:
     LANG: C.UTF-8
 ---
-image: documents
-fromImage: base
-fromCacheVersion: "1"
-git:
-  - add: /
-    to: /app
-    stageDependencies:
-      install:
-        - "yarn.lock"
-        - "package.json"
-        - "**/yarn.lock"
-        - "**/package.json"
-      setup:
-        - "apps/**"
-        - "packages/**"
-        - "bin/**/*"
-    excludePaths:
-      - .github
-      - .helm
-      - werf.yaml
-      - werf-giterminism.yaml
-    owner: app
-    group: app
-
-shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
-  setup:
-  - "cd /app"
-  - "echo '# Build time .env config!' >> /app/.env"
-  - "echo 'COOKIE_SECRET=undefined' >> /app/.env"
-  - "echo 'DATABASE_URL=undefined' >> /app/.env"
-  - "echo 'REDIS_URL=undefined' >> /app/.env"
-  - "echo 'NODE_ENV=production' >> /app/.env"
-  - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
-  - "yarn workspace @app/documents-next next telemetry disable"
-  - "yarn workspace @app/documents-next build:deps"
-  - "yarn workspace @app/documents-next build"
-  - "rm -rf /app/.env"
-  - "rm -rf /app/.config"
-
-docker:
-  ENV:
-    LANG: C.UTF-8
----
-image: devportalapi
-fromImage: base
-fromCacheVersion: "1"
-git:
-  - add: /
-    to: /app
-    stageDependencies:
-      install:
-        - "yarn.lock"
-        - "package.json"
-        - "**/yarn.lock"
-        - "**/package.json"
-      setup:
-        - "apps/**"
-        - "packages/**"
-        - "bin/**/*"
-    excludePaths:
-      - .github
-      - .helm
-      - werf.yaml
-      - werf-giterminism.yaml
-    owner: app
-    group: app
-
-shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
-  setup:
-  - "cd /app"
-  - "echo '# Build time .env config!' >> /app/.env"
-  - "echo 'COOKIE_SECRET=undefined' >> /app/.env"
-  - "echo 'DATABASE_URL=undefined' >> /app/.env"
-  - "echo 'REDIS_URL=undefined' >> /app/.env"
-  - "echo 'NODE_ENV=production' >> /app/.env"
-  - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
-  - "yarn workspace @app/dev-api build:deps"
-  - "yarn workspace @app/dev-api build"
-  - "rm -rf /app/.env"
-  - "rm -rf /app/.config"
-
-docker:
-  ENV:
-    LANG: C.UTF-8
----
-image: telegramemployeebot
-fromImage: base
-fromCacheVersion: "1"
-git:
-  - add: /
-    to: /app
-    stageDependencies:
-      install:
-        - "yarn.lock"
-        - "package.json"
-        - "**/yarn.lock"
-        - "**/package.json"
-      setup:
-        - "apps/**"
-        - "packages/**"
-        - "bin/**/*"
-    excludePaths:
-      - .github
-      - .helm
-      - werf.yaml
-      - werf-giterminism.yaml
-    owner: app
-    group: app
-
-shell:
-  install:
-    - "cd /app"
-    - "yarn install --immutable"
-  setup:
-    - "cd /app"
-    - "echo '# Build time .env config!' >> /app/.env"
-    - "echo 'COOKIE_SECRET=undefined' >> /app/.env"
-    - "echo 'DATABASE_URL=undefined' >> /app/.env"
-    - "echo 'REDIS_URL=undefined' >> /app/.env"
-    - "echo 'NODE_ENV=production' >> /app/.env"
-    - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
-    - "yarn workspace @app/telegram-employee-bot build"
-    - "rm -rf /app/.env"
-    - "rm -rf /app/.config"
-
-docker:
-  ENV:
-    LANG: C.UTF-8
----
-image: edsintegration
-fromImage: base
-fromCacheVersion: "1"
-git:
-  - add: /
-    to: /app
-    stageDependencies:
-      install:
-        - "yarn.lock"
-        - "package.json"
-        - "**/yarn.lock"
-        - "**/package.json"
-      setup:
-        - "apps/**"
-        - "packages/**"
-        - "bin/**/*"
-    excludePaths:
-      - .github
-      - .helm
-      - werf.yaml
-      - werf-giterminism.yaml
-    owner: app
-    group: app
-
-shell:
-  install:
-    - "cd /app"
-    - "yarn install --immutable"
-  setup:
-    - "cd /app"
-    - "echo '# Build time .env config!' >> /app/.env"
-    - "echo 'COOKIE_SECRET=undefined' >> /app/.env"
-    - "echo 'DATABASE_URL=undefined' >> /app/.env"
-    - "echo 'REDIS_URL=undefined' >> /app/.env"
-    - "echo 'NODE_ENV=production' >> /app/.env"
-    - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
-    - "yarn workspace @app/eds-mosreg-integration build"
-    - "rm -rf /app/.env"
-    - "rm -rf /app/.config"
----
-image: condorestapi
-fromImage: base
-fromCacheVersion: "1"
-git:
-  - add: /
-    to: /app
-    stageDependencies:
-      install:
-        - "yarn.lock"
-        - "package.json"
-        - "**/yarn.lock"
-        - "**/package.json"
-    excludePaths:
-      - .github
-      - .helm
-      - werf.yaml
-      - werf-giterminism.yaml
-    owner: app
-    group: app
-
-shell:
-  install:
-    - "cd /app"
-    - "yarn install --immutable"
----
-image: resident_app
-fromImage: base
-fromCacheVersion: "1"
-git:
-  - add: /
-    to: /app
-    stageDependencies:
-      install:
-        - "yarn.lock"
-        - "package.json"
-        - "**/yarn.lock"
-        - "**/package.json"
-      setup:
-        - "apps/**"
-        - "packages/**"
-        - "bin/**/*"
-    excludePaths:
-      - .github
-      - .helm
-      - werf.yaml
-      - werf-giterminism.yaml
-    owner: app
-    group: app
-
-shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
-  setup:
-    - "cd /app"
-    - "yarn workspace @app/resident-app next telemetry disable"
-    - "yarn workspace @app/resident-app build:deps"
-    - "yarn workspace @app/resident-app build"
-    - "rm -rf /app/.config"
----
-image: announcement
-fromImage: base
-fromCacheVersion: "1"
-git:
-  - add: /
-    to: /app
-    stageDependencies:
-      install:
-        - "yarn.lock"
-        - "package.json"
-        - "**/yarn.lock"
-        - "**/package.json"
-      setup:
-        - "apps/**"
-        - "packages/**"
-        - "bin/**/*"
-    excludePaths:
-      - .github
-      - .helm
-      - werf.yaml
-      - werf-giterminism.yaml
-    owner: app
-    group: app
-
-shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
-  setup:
-    - "cd /app"
-    - "echo '# Build time .env config!' >> /app/.env"
-    - "echo 'COOKIE_SECRET=undefined' >> /app/.env"
-    - "echo 'DATABASE_URL=undefined' >> /app/.env"
-    - "echo 'REDIS_URL=undefined' >> /app/.env"
-    - "echo 'NODE_ENV=production' >> /app/.env"
-    - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
-    - "yarn workspace @app/announcement-generator next telemetry disable"
-    - "yarn workspace @app/announcement-generator build:deps"
-    - "yarn workspace @app/announcement-generator build"
-    - "rm -rf /app/.env"
-    - "rm -rf /app/.config"
-
-docker:
-  ENV:
-    LANG: C.UTF-8
-
+#image: documents
+#fromImage: base
+#fromCacheVersion: "1"
+#git:
+#  - add: /
+#    to: /app
+#    stageDependencies:
+#      install:
+#        - "yarn.lock"
+#        - "package.json"
+#        - "**/yarn.lock"
+#        - "**/package.json"
+#      setup:
+#        - "apps/**"
+#        - "packages/**"
+#        - "bin/**/*"
+#    excludePaths:
+#      - .github
+#      - .helm
+#      - werf.yaml
+#      - werf-giterminism.yaml
+#    owner: app
+#    group: app
+#
+#shell:
+#  install:
+#    - "cd /app"
+#    - "npm i -g turbo"
+#    - "yarn install --immutable"
+#  setup:
+#  - "cd /app"
+#  - "echo '# Build time .env config!' >> /app/.env"
+#  - "echo 'COOKIE_SECRET=undefined' >> /app/.env"
+#  - "echo 'DATABASE_URL=undefined' >> /app/.env"
+#  - "echo 'REDIS_URL=undefined' >> /app/.env"
+#  - "echo 'NODE_ENV=production' >> /app/.env"
+#  - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
+#  - "yarn workspace @app/documents-next next telemetry disable"
+#  - "yarn workspace @app/documents-next build:deps"
+#  - "yarn workspace @app/documents-next build"
+#  - "rm -rf /app/.env"
+#  - "rm -rf /app/.config"
+#
+#docker:
+#  ENV:
+#    LANG: C.UTF-8
+#---
+#image: devportalapi
+#fromImage: base
+#fromCacheVersion: "1"
+#git:
+#  - add: /
+#    to: /app
+#    stageDependencies:
+#      install:
+#        - "yarn.lock"
+#        - "package.json"
+#        - "**/yarn.lock"
+#        - "**/package.json"
+#      setup:
+#        - "apps/**"
+#        - "packages/**"
+#        - "bin/**/*"
+#    excludePaths:
+#      - .github
+#      - .helm
+#      - werf.yaml
+#      - werf-giterminism.yaml
+#    owner: app
+#    group: app
+#
+#shell:
+#  install:
+#    - "cd /app"
+#    - "npm i -g turbo"
+#    - "yarn install --immutable"
+#  setup:
+#  - "cd /app"
+#  - "echo '# Build time .env config!' >> /app/.env"
+#  - "echo 'COOKIE_SECRET=undefined' >> /app/.env"
+#  - "echo 'DATABASE_URL=undefined' >> /app/.env"
+#  - "echo 'REDIS_URL=undefined' >> /app/.env"
+#  - "echo 'NODE_ENV=production' >> /app/.env"
+#  - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
+#  - "yarn workspace @app/dev-api build:deps"
+#  - "yarn workspace @app/dev-api build"
+#  - "rm -rf /app/.env"
+#  - "rm -rf /app/.config"
+#
+#docker:
+#  ENV:
+#    LANG: C.UTF-8
+#---
+#image: telegramemployeebot
+#fromImage: base
+#fromCacheVersion: "1"
+#git:
+#  - add: /
+#    to: /app
+#    stageDependencies:
+#      install:
+#        - "yarn.lock"
+#        - "package.json"
+#        - "**/yarn.lock"
+#        - "**/package.json"
+#      setup:
+#        - "apps/**"
+#        - "packages/**"
+#        - "bin/**/*"
+#    excludePaths:
+#      - .github
+#      - .helm
+#      - werf.yaml
+#      - werf-giterminism.yaml
+#    owner: app
+#    group: app
+#
+#shell:
+#  install:
+#    - "cd /app"
+#    - "yarn install --immutable"
+#  setup:
+#    - "cd /app"
+#    - "echo '# Build time .env config!' >> /app/.env"
+#    - "echo 'COOKIE_SECRET=undefined' >> /app/.env"
+#    - "echo 'DATABASE_URL=undefined' >> /app/.env"
+#    - "echo 'REDIS_URL=undefined' >> /app/.env"
+#    - "echo 'NODE_ENV=production' >> /app/.env"
+#    - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
+#    - "yarn workspace @app/telegram-employee-bot build"
+#    - "rm -rf /app/.env"
+#    - "rm -rf /app/.config"
+#
+#docker:
+#  ENV:
+#    LANG: C.UTF-8
+#---
+#image: edsintegration
+#fromImage: base
+#fromCacheVersion: "1"
+#git:
+#  - add: /
+#    to: /app
+#    stageDependencies:
+#      install:
+#        - "yarn.lock"
+#        - "package.json"
+#        - "**/yarn.lock"
+#        - "**/package.json"
+#      setup:
+#        - "apps/**"
+#        - "packages/**"
+#        - "bin/**/*"
+#    excludePaths:
+#      - .github
+#      - .helm
+#      - werf.yaml
+#      - werf-giterminism.yaml
+#    owner: app
+#    group: app
+#
+#shell:
+#  install:
+#    - "cd /app"
+#    - "yarn install --immutable"
+#  setup:
+#    - "cd /app"
+#    - "echo '# Build time .env config!' >> /app/.env"
+#    - "echo 'COOKIE_SECRET=undefined' >> /app/.env"
+#    - "echo 'DATABASE_URL=undefined' >> /app/.env"
+#    - "echo 'REDIS_URL=undefined' >> /app/.env"
+#    - "echo 'NODE_ENV=production' >> /app/.env"
+#    - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
+#    - "yarn workspace @app/eds-mosreg-integration build"
+#    - "rm -rf /app/.env"
+#    - "rm -rf /app/.config"
+#---
+#image: condorestapi
+#fromImage: base
+#fromCacheVersion: "1"
+#git:
+#  - add: /
+#    to: /app
+#    stageDependencies:
+#      install:
+#        - "yarn.lock"
+#        - "package.json"
+#        - "**/yarn.lock"
+#        - "**/package.json"
+#    excludePaths:
+#      - .github
+#      - .helm
+#      - werf.yaml
+#      - werf-giterminism.yaml
+#    owner: app
+#    group: app
+#
+#shell:
+#  install:
+#    - "cd /app"
+#    - "yarn install --immutable"
+#---
+#image: resident_app
+#fromImage: base
+#fromCacheVersion: "1"
+#git:
+#  - add: /
+#    to: /app
+#    stageDependencies:
+#      install:
+#        - "yarn.lock"
+#        - "package.json"
+#        - "**/yarn.lock"
+#        - "**/package.json"
+#      setup:
+#        - "apps/**"
+#        - "packages/**"
+#        - "bin/**/*"
+#    excludePaths:
+#      - .github
+#      - .helm
+#      - werf.yaml
+#      - werf-giterminism.yaml
+#    owner: app
+#    group: app
+#
+#shell:
+#  install:
+#    - "cd /app"
+#    - "npm i -g turbo"
+#    - "yarn install --immutable"
+#  setup:
+#    - "cd /app"
+#    - "yarn workspace @app/resident-app next telemetry disable"
+#    - "yarn workspace @app/resident-app build:deps"
+#    - "yarn workspace @app/resident-app build"
+#    - "rm -rf /app/.config"
+#---
+#image: announcement
+#fromImage: base
+#fromCacheVersion: "1"
+#git:
+#  - add: /
+#    to: /app
+#    stageDependencies:
+#      install:
+#        - "yarn.lock"
+#        - "package.json"
+#        - "**/yarn.lock"
+#        - "**/package.json"
+#      setup:
+#        - "apps/**"
+#        - "packages/**"
+#        - "bin/**/*"
+#    excludePaths:
+#      - .github
+#      - .helm
+#      - werf.yaml
+#      - werf-giterminism.yaml
+#    owner: app
+#    group: app
+#
+#shell:
+#  install:
+#    - "cd /app"
+#    - "npm i -g turbo"
+#    - "yarn install --immutable"
+#  setup:
+#    - "cd /app"
+#    - "echo '# Build time .env config!' >> /app/.env"
+#    - "echo 'COOKIE_SECRET=undefined' >> /app/.env"
+#    - "echo 'DATABASE_URL=undefined' >> /app/.env"
+#    - "echo 'REDIS_URL=undefined' >> /app/.env"
+#    - "echo 'NODE_ENV=production' >> /app/.env"
+#    - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
+#    - "yarn workspace @app/announcement-generator next telemetry disable"
+#    - "yarn workspace @app/announcement-generator build:deps"
+#    - "yarn workspace @app/announcement-generator build"
+#    - "rm -rf /app/.env"
+#    - "rm -rf /app/.config"
+#
+#docker:
+#  ENV:
+#    LANG: C.UTF-8
+#
+#
