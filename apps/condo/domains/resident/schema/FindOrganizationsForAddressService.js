@@ -6,11 +6,27 @@ const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/resident/access/FindOrganizationsForAddressService')
 const {
+    MAX_RESIDENT_FIND_ORGANIZATIONS_BY_WINDOW_SEC,
+    RESIDENT_FIND_ORGANIZATIONS_WINDOW_SEC,
+} = require('@condo/domains/resident/constants/constants')
+const { RESIDENT } = require('@condo/domains/user/constants/common')
+const {
     findBillingReceiptsForOrganizations,
     getOrganizationsWithAcquiring,
     getOrganizationsWithMeters,
     getBillingInformationForOrganizations,
 } = require('@condo/domains/resident/utils/serverSchema/findOrganizationsForAddress')
+const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
+
+const redisGuard = new RedisGuard()
+
+const checkLimits = async (uniqueField) => {
+    await redisGuard.checkCustomLimitCounters(
+        `find-organizations-by-address-${uniqueField}`,
+        RESIDENT_FIND_ORGANIZATIONS_WINDOW_SEC,
+        MAX_RESIDENT_FIND_ORGANIZATIONS_BY_WINDOW_SEC,
+    )
+}
 
 const FindOrganizationsForAddressService = new GQLCustomSchema('FindOrganizationsForAddressService', {
     types: [
@@ -36,9 +52,12 @@ const FindOrganizationsForAddressService = new GQLCustomSchema('FindOrganization
         {
             access: access.canFindOrganizationsForAddress,
             schema: 'findOrganizationsForAddress (data: FindOrganizationsForAddressInput!): [FindOrganizationForAddressOutput]',
-            resolver: async (parent, args, context, info, extra = {}) => {
+            resolver: async (parent, args, context) => {
                 const { data } = args
                 const { addressKey, unitName, unitType, tin, accountNumber } = data
+                if (context.authedItem.type === RESIDENT) {
+                    await checkLimits(context.authedItem.id)
+                }
                 const properties = await find('Property', { addressKey, deletedAt: null })
                 if (!properties) {
                     return []
