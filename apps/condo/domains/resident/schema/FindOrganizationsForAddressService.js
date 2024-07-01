@@ -9,13 +9,13 @@ const {
     MAX_RESIDENT_FIND_ORGANIZATIONS_BY_WINDOW_SEC,
     RESIDENT_FIND_ORGANIZATIONS_WINDOW_SEC,
 } = require('@condo/domains/resident/constants/constants')
-const { RESIDENT } = require('@condo/domains/user/constants/common')
 const {
     findBillingReceiptsForOrganizations,
     getOrganizationsWithAcquiring,
     getOrganizationsWithMeters,
     getBillingInformationForOrganizations,
 } = require('@condo/domains/resident/utils/serverSchema/findOrganizationsForAddress')
+const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 const redisGuard = new RedisGuard()
