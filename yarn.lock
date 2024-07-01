@@ -1866,6 +1866,7 @@ __metadata:
     graphql: ^15.6.1
     graphql-tag: ^2.12.6
     graphql-upload: ^15.0.1
+    he: ^1.2.0
     iconv: ^3.0.1
     identity-obj-proxy: ^3.0.0
     ignore-loader: 0.1.2
