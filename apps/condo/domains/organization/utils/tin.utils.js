@@ -1,7 +1,7 @@
 const isNumber = require('lodash/isNumber')
 const isString = require('lodash/isString')
 
-const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
+const { RUSSIA_COUNTRY, SPAIN_COUNTRY } = require('@condo/domains/common/constants/countries')
 
 // Digits for Ru tin checksum calculation
 const RU_TIN_DIGITS = [3, 7, 2, 4, 10, 3, 5, 9, 4, 6, 8, 0]
@@ -29,10 +29,15 @@ const validateTinRU = tinValue => {
     return false
 }
 
+const validateTinES = tinValue => {
+    const nifRegex = /^[A-Za-z]\d{7}[A-Za-z0-9]$/
+    return nifRegex.test(tinValue)
+}
+
 const isValidTin = (tinValue = null, country = RUSSIA_COUNTRY) => {
     if (country === RUSSIA_COUNTRY) return validateTinRU(tinValue)
-
     // TODO: DOMA-663 add tin validations for countries other than Russian Federation
+    if (country === SPAIN_COUNTRY) return validateTinES(tinValue)
     return true
 }
 
