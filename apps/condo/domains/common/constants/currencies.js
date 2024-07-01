@@ -179,16 +179,6 @@ const ISO_CODES = [
     'ZWL',
 ]
 
-const ISO_CODES_FOR_SBBOL = {
-    '810': 'RUB',
-    '840': 'USD',
-    '978': 'EUR',
-}
-
-const ALTERNATIVE_CURRENCY_CODES_FROM_SBBOL = {
-    'RUR': 'RUB',
-}
-
 /**
  * TODO(DOMA-3344): replace with intl ?
  */
@@ -205,8 +195,6 @@ const DEFAULT_CURRENCY_CODE = 'RUB'
 
 module.exports = {
     ISO_CODES,
-    ISO_CODES_FOR_SBBOL,
-    ALTERNATIVE_CURRENCY_CODES_FROM_SBBOL,
     CURRENCY_SYMBOLS,
     DEFAULT_CURRENCY_CODE,
 }
