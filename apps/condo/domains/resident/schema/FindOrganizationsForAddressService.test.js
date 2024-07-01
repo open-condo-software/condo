@@ -212,6 +212,50 @@ describe('FindOrganizationsForAddress', () => {
         })
     })
 
+    describe('Meters cases', () => {
+        test('returns organization with not matching unitName + unitType', async () => {
+            const wrongUnitName = utils.randomNumber(10).toString()
+            await utils.createMeter()
+            const [foundOrganizations] = await findOrganizationsForAddressByTestClient(utils.clients.resident, {
+                addressKey: utils.property.addressKey,
+                unitName: wrongUnitName,
+                unitType: 'flat',
+            })
+            const found = foundOrganizations.find(({ organization: { id } }) => id === utils.organization.id)
+            expect(found.hasMeters).toBeTruthy()
+            expect(found.organization).toBeDefined()
+        })
+        test('returns organization with matching account number', async () => {
+            const accountNumber = utils.randomNumber(10).toString()
+            await utils.createMeter({ accountNumber })
+            const [correctAccountNumberOrganizations] = await findOrganizationsForAddressByTestClient(utils.clients.resident, {
+                addressKey: utils.property.addressKey,
+                accountNumber: accountNumber,
+            })
+            const correctAccountNumberFound = correctAccountNumberOrganizations.find(({ organization: { id } }) => id === utils.organization.id)
+            expect(correctAccountNumberFound.organization).toBeDefined()
+            expect(correctAccountNumberFound.hasMeters).toBeTruthy()
+        })
+        test('do not returns organization with not matching account number', async () => {
+            const accountNumber = utils.randomNumber(10).toString()
+            const wrongAccountNumber = utils.randomNumber(10).toString()
+            await utils.createMeter({ accountNumber })
+            const [correctAccountNumberOrganizations] = await findOrganizationsForAddressByTestClient(utils.clients.resident, {
+                addressKey: utils.property.addressKey,
+                accountNumber: accountNumber,
+            })
+            const correctAccountNumberFound = correctAccountNumberOrganizations.find(({ organization: { id } }) => id === utils.organization.id)
+            expect(correctAccountNumberFound.organization).toBeDefined()
+            expect(correctAccountNumberFound.hasMeters).toBeTruthy()
+            const [wrongAccountNumberOrganizations] = await findOrganizationsForAddressByTestClient(utils.clients.resident, {
+                addressKey: utils.property.addressKey,
+                accountNumber: wrongAccountNumber,
+            })
+            const wrongAccountNumberFound = wrongAccountNumberOrganizations.find(({ organization: { id } }) => id === utils.organization.id)
+            expect(wrongAccountNumberFound).toBeUndefined()
+        })
+    })
+
     describe('contexts statuses', () => {
 
         afterEach(async () => {
