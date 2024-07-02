@@ -808,6 +808,7 @@
   "pages.condo.meter.AutoPrefix": "авто",
   "pages.condo.meter.AutoSourceAlert.title": "Данные получены автоматически",
   "pages.condo.meter.AutoSourceAlert.message": "из сервиса {app}",
+  "pages.condo.meter.MissedVerification.tip": "Дата поверки пропущена, по этому счетчику не получится сдать показания",
   "pages.condo.warning.modal.SaveLabel": "Сохранить",
   "pages.condo.warning.modal.LeaveLabel": "Не сохранять",
   "pages.condo.residents.PageTitle": "Жители",

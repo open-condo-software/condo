@@ -53,6 +53,7 @@ const ActionBarForSingleMeter = ({
     })
 
     const isUsableMeter = !archiveDate && !isVerificationMissed && !isDeletedProperty
+    const isEditable = !archiveDate && !isDeletedProperty
 
     const handleUpdateMeterButtonClick = useCallback(() => 
         router.push(`/meter/${isPropertyMeter ? 'property' : 'unit'}/${meterId}/update`),
@@ -79,7 +80,7 @@ const ActionBarForSingleMeter = ({
                         {CreateMeterReadingsButtonLabel}
                     </Button>
                 ),
-                !isAutomatic && isUsableMeter && <Button
+                !isAutomatic && isEditable && <Button
                     key='update'
                     type='secondary'
                     onClick={handleUpdateMeterButtonClick}

@@ -808,6 +808,7 @@
   "pages.condo.meter.AutoPrefix": "auto",
   "pages.condo.meter.AutoSourceAlert.title": "Data obtained automatically",
   "pages.condo.meter.AutoSourceAlert.message": "from the {app} service",
+  "pages.condo.meter.MissedVerification.tip": "The verification date has been missed, it will not be possible to take readings for this meter",
   "pages.condo.warning.modal.SaveLabel": "Save",
   "pages.condo.warning.modal.LeaveLabel": "Leave",
   "pages.condo.residents.PageTitle": "Residents",
