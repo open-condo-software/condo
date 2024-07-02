@@ -9,7 +9,7 @@ import pickBy from 'lodash/pickBy'
 import { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Tour } from '@open-condo/ui'
+import { Tooltip, Tour } from '@open-condo/ui'
 
 import { getTextRender } from '@condo/domains/common/components/Table/Renders'
 import { colors } from '@condo/domains/common/constants/style'
@@ -55,6 +55,7 @@ const MeterReadingInput = ({ index, record, newMeterReadings, setNewMeterReading
     const intl = useIntl()
     const AddMeterReadingPlaceholderMessage = intl.formatMessage({ id: 'pages.condo.meter.create.AddMeterReadingPlaceholder' })
     const MeterReadingTourStepTitle = intl.formatMessage({ id: 'pages.condo.meter.create.meterReadingTourStepTitle' })
+    const MissedVerificationTooltip = intl.formatMessage({ id: 'pages.condo.meter.MissedVerification.tip' })
 
     const meterId = get(record, ['meter', 'id'])
     const tariffNumber = get(record, 'tariffNumber')
@@ -98,11 +99,23 @@ const MeterReadingInput = ({ index, record, newMeterReadings, setNewMeterReading
         return (
             <Tour.TourStep step={2} title={MeterReadingTourStepTitle}>
                 <div {...wrapperProps}>
-                    <InputNumber
-                        {...inputProps}
-                        autoFocus
-                        disabled={isInputDisabled}
-                    />
+                    {isInputDisabled ? (
+                        <Tooltip title={MissedVerificationTooltip}>
+                            <span>
+                                <InputNumber
+                                    {...inputProps}
+                                    autoFocus
+                                    disabled={isInputDisabled}
+                                />
+                            </span>
+                        </Tooltip>
+                    ) : (
+                        <InputNumber
+                            {...inputProps}
+                            autoFocus
+                            disabled={isInputDisabled}
+                        />
+                    )}
                     <div style={METER_READING_INPUT_ADDON_STYLE}>
                         {meterResourceMeasure}
                     </div>
@@ -113,10 +126,21 @@ const MeterReadingInput = ({ index, record, newMeterReadings, setNewMeterReading
 
     return (
         <div {...wrapperProps}>
-            <InputNumber
-                {...inputProps}
-                disabled={isInputDisabled}
-            />
+            {isInputDisabled ? (
+                <Tooltip title={MissedVerificationTooltip}>
+                    <span>
+                        <InputNumber
+                            {...inputProps}
+                            disabled={isInputDisabled}
+                        />
+                    </span>
+                </Tooltip>
+            ) : (
+                <InputNumber
+                    {...inputProps}
+                    disabled={isInputDisabled}
+                />
+            )}
             <div style={METER_READING_INPUT_ADDON_STYLE}>
                 {meterResourceMeasure}
             </div>
