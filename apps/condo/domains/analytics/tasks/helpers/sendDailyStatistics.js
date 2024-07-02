@@ -5,7 +5,7 @@ const LRUCache = require('lru-cache')
 const conf = require('@open-condo/config')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { getLogger } = require('@open-condo/keystone/logging')
-const { getSchemaCtx, find, itemsQuery, getByCondition } = require('@open-condo/keystone/schema')
+const { find, itemsQuery, getByCondition } = require('@open-condo/keystone/schema')
 const { i18n } = require('@open-condo/locales/loader')
 
 const { SEND_DAILY_STATISTICS_TASK } = require('@condo/domains/common/constants/featureflags')
