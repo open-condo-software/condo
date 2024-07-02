@@ -18,9 +18,6 @@ const setupCondoAuth = (useEnv = false) => {
     const response = http.post(BASE_API_URL, JSON.stringify(payload), { headers: { 'Content-Type': 'application/json' } })
     const token = response.json('data.authenticateUserWithPassword.token')
 
-
-    console.log('RESPONSE ', response)
-
     if (useEnv) {
         return {
             token,
