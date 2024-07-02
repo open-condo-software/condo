@@ -65,7 +65,6 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
             address: {
                 title: AddressTitle,
                 key: 'address',
-                sorter: true,
                 render: (obj) => stringSearch(get(
                     obj,
                     ['receipt', 'property', 'address'],
