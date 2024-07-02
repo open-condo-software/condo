@@ -89,6 +89,23 @@ const getOrganizationEmployeeId = (data) => sendAuthorizedRequest(data, {
     variables: { where: { organization: { id: data.organizationId } } },
 })
 
+const getOrganizationEmployees = (token, where) => sendAuthorizedRequest({ token }, {
+    operationName: 'getList',
+    query: 'query getList($where:OrganizationEmployeeWhereInput){allOrganizationEmployees(where:$where){ id user { id } }}',
+    variables: { where },
+})
+
+const signInAsUser = (token, userId) => sendAuthorizedRequest({ token }, {
+    operationName: 'signinAsUser',
+    query: 'mutation signinAsUser($data:SigninAsUserInput!){signinAsUser(data:$data){ token user { id } }}',
+    variables: {
+        data: {
+            id: userId,
+            ...DV_SENDER,
+        },
+    },
+})
+
 const createProperty = (data) => {
     const { address: fakeAddress } = buildFakeAddressAndMeta()
 
@@ -197,5 +214,7 @@ export {
     createBillingIntegrationOrganizationContext,
     sendAuthorizedRequest,
     getOrganizationEmployeeId,
+    getOrganizationEmployees,
+    signInAsUser,
     BASE_API_URL,
 }
