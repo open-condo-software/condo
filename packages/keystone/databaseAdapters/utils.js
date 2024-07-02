@@ -1,4 +1,6 @@
-const { escapeRegExp, isLength } = require('lodash')
+const { escapeRegExp, isLength, get } = require('lodash')
+
+const conf = require('@open-condo/config')
 
 function parseDatabaseUrl (url) {
     try {
@@ -8,7 +10,9 @@ function parseDatabaseUrl (url) {
         const data = JSON.parse(url.substring('custom:'.length))
         Object.keys(data).forEach((key) => {
             if (!key || !data[key]) throw new Error('wrong database url format: empty key')
-            if (typeof key !== 'string' || typeof data[key] !== 'string') throw new Error('wrong database url format: should contains only strings')
+            if (typeof key !== 'string' || !['string', 'object'].includes(typeof data[key])) {
+                throw new Error('wrong database url format: should contains only strings')
+            }
         })
         return data
     } catch (e) {
@@ -26,8 +30,8 @@ function parseDatabaseMapping (mapping, databases) {
         list.forEach((item) => {
             if (!item.match || !item.query || !item.command) throw new Error('invalid database mapping item: no match, query or command key')
             if (typeof item.match !== 'string' || typeof item.query !== 'string' || typeof item.command !== 'string') throw new Error('invalid database mapping item type')
-            if (typeof databases[item.query] !== 'string') throw new Error('invalid database mapping database `query` name')
-            if (typeof databases[item.command] !== 'string') throw new Error('invalid database mapping database `command` name')
+            if (!['string', 'object'].includes(typeof databases[item.query])) throw new Error('invalid database mapping database `query` name')
+            if (!['string', 'object'].includes(typeof databases[item.command])) throw new Error('invalid database mapping database `command` name')
             if (item.match === '*') {
                 hasDefaultMatch++
             }
@@ -63,9 +67,44 @@ function matchDatabase (mapping, str) {
     return undefined
 }
 
+/**
+ * Returns active database adapter. Might be helpful when you need to build custom query
+ * @param keystone {import('@keystonejs/keystone').Keystone} keystone instance
+ * @param list {string} list selector of the database. Default list selection is wildcard (*)
+ * @returns {import('@keystonejs/keystone').BaseKeystoneAdapter}
+ */
+function getDatabaseAdapter (keystone, list = '*') {
+    const databaseUrl = get(conf, 'DATABASE_URL')
+
+    if (databaseUrl.startsWith('postgres')) {
+        return keystone.adapter
+    } else if (databaseUrl.startsWith('custom')) {
+        if (list === '*') {
+            return keystone.adapter.__databaseAdapters.default
+        }
+        throw new Error('Multiple list adapters support is not implemented!')
+    } else {
+        throw new Error('invalid database adapter')
+    }
+}
+
+function getListAdapters (keystone) {
+    const databaseUrl = get(conf, 'DATABASE_URL')
+
+    if (databaseUrl.startsWith('postgres')) {
+        return keystone.adapter.listAdapters
+    } else if (databaseUrl.startsWith('custom')) {
+        return keystone.adapter.__listMappingAdapters
+    } else {
+        throw new Error('Unsupported database adapter')
+    }
+}
+
 module.exports = {
     parseDatabaseUrl,
     parseDatabaseMapping,
     matchPattern,
     matchDatabase,
+    getDatabaseAdapter,
+    getListAdapters,
 }

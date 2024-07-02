@@ -3,6 +3,7 @@ const isoWeek = require('dayjs/plugin/isoWeek')
 const get = require('lodash/get')
 const groupBy = require('lodash/groupBy')
 
+const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { GqlToKnexBaseAdapter } = require('@condo/domains/common/utils/serverSchema/GqlToKnexBaseAdapter')
@@ -47,7 +48,7 @@ class TicketGqlToKnexAdapter extends GqlToKnexBaseAdapter {
     async loadData () {
         this.result = null
         const { keystone } = await getSchemaCtx(this.domainName)
-        const knex = keystone.adapter.knex
+        const { knex } = getDatabaseAdapter(keystone)
 
         this.whereIn = Object.fromEntries(this.whereIn)
         // create whereIn structure [['property_id', 'user_id'], [['some_property_id', 'some_user_id'], ...]]

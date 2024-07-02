@@ -52,6 +52,8 @@
 const { get, cloneDeep, floor, isEqual } = require('lodash')
 const LRUCache = require('lru-cache')
 
+const { getListAdapters } = require('@open-condo/keystone/databaseAdapters/utils')
+
 const { getExecutionContext } = require('./executionContext')
 const { getLogger } = require('./logging')
 const Metrics = require('./metrics')
@@ -251,12 +253,9 @@ class AdapterCache {
  * @returns {Promise<void>}
  */
 async function patchKeystoneWithAdapterCache (keystone, cacheAPI) {
-    const keystoneAdapter = keystone.adapter
-
     const cache = cacheAPI.cache
     const excludedLists = cacheAPI.excludedLists
-
-    const listAdapters = Object.values(keystoneAdapter.listAdapters)
+    const listAdapters = Object.values(getListAdapters(keystone))
 
     // Step 1: Preprocess lists.
     const relations = {}               // list -> [{list, path, many}]

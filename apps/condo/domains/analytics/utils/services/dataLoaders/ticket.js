@@ -2,6 +2,7 @@ const dayjs = require('dayjs')
 const { get, isEmpty, find } = require('lodash')
 
 const conf = require('@open-condo/config')
+const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { i18n } = require('@open-condo/locales/loader')
@@ -236,7 +237,7 @@ class TicketQualityControlGqlLoader extends GqlToKnexBaseAdapter {
         this.result = null
 
         const { keystone } = await getSchemaCtx(this.domainName)
-        const knex = keystone.adapter.knex
+        const { knex } = getDatabaseAdapter(keystone)
 
         this.extendAggregationWithFilter(this.aggregateBy)
 

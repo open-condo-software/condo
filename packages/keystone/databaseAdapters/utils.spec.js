@@ -6,11 +6,17 @@ function getBillingCaseDatabaseMapping () {
     return { mapping, databases }
 }
 
+
 describe('parseDatabaseUrl', () => {
     test('real case 1', () => {
         const data = 'custom:{"default":"postgresql://postgres@127.0.0.1/main","billing":"postgresql://postgres@127.0.0.1/main"}'
         const result = parseDatabaseUrl(data)
         expect(result).toMatchSnapshot()
+    })
+    test('real case 2', () => {
+        const data = 'custom:{"default":{"read":"postgresql://postgres:postgres@127.0.0.1:5433/main","write":"postgresql://postgres:postgres@127.0.0.1/main"}}'
+        const result = parseDatabaseUrl(data)
+        expect(result).toBeDefined()
     })
 
     test('no custom prefix', () => {
@@ -44,6 +50,16 @@ describe('parseDatabaseMapping', () => {
         const mapping = '[{"match":"Billing*","query":"billing","command":"default"},{"match":"*","query":"default","command":"default"}]'
         const result = parseDatabaseMapping(mapping, databases)
         expect(result).toMatchSnapshot()
+    })
+
+    test('real case 2', () => {
+        const data = 'custom:{"default":{"read":"postgresql://postgres:postgres@127.0.0.1:5433/main","write":"postgresql://postgres:postgres@127.0.0.1/main"}}'
+        const mapping = '[{"match":"*","query":"default","command":"default"}]'
+        const databases = parseDatabaseUrl(data)
+        const result = parseDatabaseMapping(mapping, databases)
+
+        expect(databases).toBeDefined()
+        expect(result).toBeDefined()
     })
 
     test('wrong json type', () => {

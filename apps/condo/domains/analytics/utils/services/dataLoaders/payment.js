@@ -1,6 +1,7 @@
 const Big = require('big.js')
 const { get, pick, isEmpty } = require('lodash')
 
+const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } = require('@condo/domains/acquiring/constants/payment')
@@ -16,7 +17,7 @@ class BillingResidentKnexLoader extends GqlToKnexBaseAdapter {
 
     async loadData () {
         const { keystone } = await getSchemaCtx(this.domainName)
-        const knex = keystone.adapter.knex
+        const { knex } = getDatabaseAdapter(keystone)
 
         const propertyIds = get(this.where, 'property.id_in', [])
 
@@ -55,7 +56,7 @@ class PaymentGqlKnexLoader extends GqlToKnexBaseAdapter {
     async loadData () {
         this.result = null
         const { keystone } = await getSchemaCtx(this.domainName)
-        const knex = keystone.adapter.knex
+        const { knex } = getDatabaseAdapter(keystone)
 
         this.extendAggregationWithFilter(this.aggregateBy)
 
