@@ -40,6 +40,8 @@ const BILLING_ACCOUNT_OWNER_TYPES = [BILLING_ACCOUNT_OWNER_TYPE_PERSON, BILLING_
 
 // Billing categories are constants within DB and added via migration 0121, so it's safe to use this value
 const DEFAULT_BILLING_CATEGORY_ID = '928c97ef-5289-4daa-b80e-4b9fed50c629'
+const HOUSING_CATEGORY_ID = '928c97ef-5289-4daa-b80e-4b9fed50c629'
+const REPAIR_CATEGORY_ID = 'c0b9db6a-c351-4bf4-aa35-8e5a500d0195'
 
 module.exports = {
     BILLING_RECEIPT_SERVICE_FIELD_NAME,
@@ -72,4 +74,6 @@ module.exports = {
     BILLING_ACCOUNT_OWNER_TYPE_COMPANY,
     BILLING_ACCOUNT_OWNER_TYPES,
     DEFAULT_BILLING_CATEGORY_ID,
+    HOUSING_CATEGORY_ID,
+    REPAIR_CATEGORY_ID,
 }

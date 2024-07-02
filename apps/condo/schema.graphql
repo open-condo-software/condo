@@ -76953,6 +76953,36 @@ input RegisterResidentInvoiceInput {
   paymentType: InvoicePaymentType!
 }
 
+input FindOrganizationsForAddressInput {
+  addressKey: String!
+  unitName: String
+  unitType: String
+  tin: String
+  accountNumber: String
+}
+
+type FindOrganizationForAddressOrganizationType {
+  id: ID!
+  name: String!
+  tin: String!
+  type: OrganizationTypeType!
+}
+
+type FindOrganizationForAddressAccountType {
+  number: String!
+  category: ID!
+  balance: String
+  routingNumber: String!
+  bankAccountNumber: String!
+}
+
+type FindOrganizationForAddressOutput {
+  organization: FindOrganizationForAddressOrganizationType!
+  account: FindOrganizationForAddressAccountType
+  hasMeters: Boolean!
+  hasBillingData: Boolean!
+}
+
 input SyncTourStepsInput {
   dv: Int!
   sender: SenderFieldInput!
@@ -81430,6 +81460,7 @@ type Query {
   predictTransactionClassification(data: PredictTransactionClassificationInput!): PredictTransactionClassificationOutput
   predictTicketClassification(data: PredictTicketClassificationInput!): TicketClassifier
   getResidentExistenceByPhoneAndAddress(data: GetResidentExistenceByPhoneAndAddressInput!): GetResidentExistenceByPhoneAndAddressOutput
+  findOrganizationsForAddress(data: FindOrganizationsForAddressInput!): [FindOrganizationForAddressOutput]
   exportMeterReadings(data: ExportMeterReadingsInput!): ExportMeterReadingsOutput
 
   """

@@ -4,6 +4,7 @@
  */
 
 const { DiscoverServiceConsumersService } = require('./DiscoverServiceConsumersService')
+const { FindOrganizationsForAddressService } = require('./FindOrganizationsForAddressService')
 const { GetResidentExistenceByPhoneAndAddressService } = require('./GetResidentExistenceByPhoneAndAddressService')
 const { RegisterResidentInvoiceService } = require('./RegisterResidentInvoiceService')
 const { RegisterResidentService } = require('./RegisterResidentService')
@@ -22,5 +23,6 @@ module.exports = {
     DiscoverServiceConsumersService,
     GetResidentExistenceByPhoneAndAddressService,
     RegisterResidentInvoiceService,
+    FindOrganizationsForAddressService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

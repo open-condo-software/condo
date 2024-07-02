@@ -24329,6 +24329,39 @@ export type File = {
   publicUrl?: Maybe<Scalars['String']>;
 };
 
+export type FindOrganizationForAddressAccountType = {
+  __typename?: 'FindOrganizationForAddressAccountType';
+  number: Scalars['String'];
+  category: Scalars['ID'];
+  balance?: Maybe<Scalars['String']>;
+  routingNumber: Scalars['String'];
+  bankAccountNumber: Scalars['String'];
+};
+
+export type FindOrganizationForAddressOrganizationType = {
+  __typename?: 'FindOrganizationForAddressOrganizationType';
+  id: Scalars['ID'];
+  name: Scalars['String'];
+  tin: Scalars['String'];
+  type: OrganizationTypeType;
+};
+
+export type FindOrganizationForAddressOutput = {
+  __typename?: 'FindOrganizationForAddressOutput';
+  organization: FindOrganizationForAddressOrganizationType;
+  account?: Maybe<FindOrganizationForAddressAccountType>;
+  hasMeters: Scalars['Boolean'];
+  hasBillingData: Scalars['Boolean'];
+};
+
+export type FindOrganizationsForAddressInput = {
+  addressKey: Scalars['String'];
+  unitName?: Maybe<Scalars['String']>;
+  unitType?: Maybe<Scalars['String']>;
+  tin?: Maybe<Scalars['String']>;
+  accountNumber?: Maybe<Scalars['String']>;
+};
+
 /**  Forgot password actions is used for anonymous user password recovery procedure  */
 export type ForgotPasswordAction = {
   __typename?: 'ForgotPasswordAction';
@@ -65487,6 +65520,7 @@ export type Query = {
   predictTransactionClassification?: Maybe<PredictTransactionClassificationOutput>;
   predictTicketClassification?: Maybe<TicketClassifier>;
   getResidentExistenceByPhoneAndAddress?: Maybe<GetResidentExistenceByPhoneAndAddressOutput>;
+  findOrganizationsForAddress?: Maybe<Array<Maybe<FindOrganizationForAddressOutput>>>;
   exportMeterReadings?: Maybe<ExportMeterReadingsOutput>;
   /**
    * Export of property meters readings. A link to the file is returned
@@ -72130,6 +72164,11 @@ export type QueryPredictTicketClassificationArgs = {
 
 export type QueryGetResidentExistenceByPhoneAndAddressArgs = {
   data: GetResidentExistenceByPhoneAndAddressInput;
+};
+
+
+export type QueryFindOrganizationsForAddressArgs = {
+  data: FindOrganizationsForAddressInput;
 };
 
 
