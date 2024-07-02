@@ -13,7 +13,7 @@ const {
     Payment,
 } = require('@condo/domains/acquiring/utils/serverSchema')
 const access = require('@condo/domains/billing/access/AllResidentBillingVirtualReceiptsService')
-const { DEFAULT_CATEGORY } = require('@condo/domains/billing/schema/BillingReceipt')
+const { DEFAULT_BILLING_CATEGORY_ID } = require('@condo/domains/billing/constants/constants')
 const { 
     BillingCategory,
 } = require('@condo/domains/billing/utils/serverSchema')
@@ -115,7 +115,7 @@ const AllResidentBillingVirtualReceiptsService = new GQLCustomSchema('AllResiden
                 }
 
                 // map payment to ResidentBillingReceiptOutput model
-                const category = await BillingCategory.getOne(context, { id: DEFAULT_CATEGORY })
+                const category = await BillingCategory.getOne(context, { id: DEFAULT_BILLING_CATEGORY_ID })
                 return payments.map(payment => ({
                     dv: 1,
                     recipient: get(payment, ['acquiringContext', 'recipient']),

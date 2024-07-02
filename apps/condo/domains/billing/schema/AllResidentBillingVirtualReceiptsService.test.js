@@ -15,7 +15,7 @@ const {
     updateTestAcquiringIntegrationContext,
     AcquiringIntegrationContext,
 } = require('@condo/domains/acquiring/utils/testSchema')
-const { DEFAULT_CATEGORY } = require('@condo/domains/billing/schema/BillingReceipt')
+const { DEFAULT_BILLING_CATEGORY_ID } = require('@condo/domains/billing/constants/constants')
 const { ResidentBillingVirtualReceipt,
     createTestRecipient,
     createTestBillingAccount,
@@ -182,7 +182,7 @@ describe('AllResidentBillingVirtualReceiptsService', () => {
                     id: data.serviceConsumer.id,
                 },
                 currencyCode: data.payment.currencyCode,
-                category: { id: DEFAULT_CATEGORY },
+                category: { id: DEFAULT_BILLING_CATEGORY_ID },
                 isPayable: false,
             })
         })
