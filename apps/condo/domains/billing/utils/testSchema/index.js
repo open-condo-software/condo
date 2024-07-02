@@ -24,6 +24,7 @@ const { BillingAccount: BillingAccountGQL } = require('@condo/domains/billing/gq
 const { BillingReceipt: BillingReceiptGQL } = require('@condo/domains/billing/gql')
 const { BillingOrganization: BillingOrganizationGQL } = require('@condo/domains/billing/gql')
 const { ResidentBillingReceipt: ResidentBillingReceiptGQL } = require('@condo/domains/billing/gql')
+const { ResidentBillingVirtualReceipt: ResidentBillingVirtualReceiptGQL } = require('@condo/domains/billing/gql')
 const { BillingRecipient: BillingRecipientGQL } = require('@condo/domains/billing/gql')
 const { BillingCategory: BillingCategoryGQL } = require('@condo/domains/billing/gql')
 const { BillingReceiptFile: BillingReceiptFileGQL } = require('@condo/domains/billing/gql')
@@ -57,6 +58,7 @@ const BillingAccount = generateGQLTestUtils(BillingAccountGQL)
 const BillingReceipt = generateGQLTestUtils(BillingReceiptGQL)
 const BillingOrganization = generateGQLTestUtils(BillingOrganizationGQL)
 const ResidentBillingReceipt = generateGQLTestUtils(ResidentBillingReceiptGQL)
+const ResidentBillingVirtualReceipt = generateGQLTestUtils(ResidentBillingVirtualReceiptGQL)
 const BillingRecipient = generateGQLTestUtils(BillingRecipientGQL)
 const BillingCategory = generateGQLTestUtils(BillingCategoryGQL)
 const BillingReceiptFile = generateGQLTestUtils(BillingReceiptFileGQL)
@@ -936,6 +938,7 @@ module.exports = {
     makeOrganizationIntegrationManager, addBillingIntegrationAndContext,
     BillingOrganization,
     ResidentBillingReceipt,
+    ResidentBillingVirtualReceipt,
     createReceiptsReader,
     makeClientWithPropertyAndBilling,
     BillingRecipient, createTestBillingRecipient, updateTestBillingRecipient,
