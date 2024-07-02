@@ -40,14 +40,14 @@ const sendDailyStatistics = async () => {
 
     try {
         logger.info({ msg: 'Start sendDailyStatistics', taskId, data: { currentDate } })
-        const { keystone: context } = getSchemaCtx('User')
 
-        const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(context, RETENTION_LOOPS_ENABLED)
+        const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(null, RETENTION_LOOPS_ENABLED)
         if (!isFeatureEnabled) {
             logger.info({ msg: 'sendDailyStatistics is disabled', taskId, data: { currentDate } })
             return 'disabled'
         }
 
+        const { keystone: context } = getSchemaCtx('User')
         await loadListByChunks({
             context,
             list: UserAdmin,
