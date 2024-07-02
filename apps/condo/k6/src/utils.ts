@@ -26,7 +26,7 @@ const setupCondoAuth = (useEnv = false) => {
     }
 
     // Create separate account for tests
-    const email = `${faker.random.alphaNumeric(8)}-k6-load-test@example.com`
+    const email = `${new Date().getTime()}-k6-load-test@example.com`
     const password = faker.internet.password(MIN_PASSWORD_LENGTH)
     const createUserResponse = sendAuthorizedRequest({ token }, {
         operationName: null,
@@ -152,11 +152,11 @@ const createProperty = (data) => {
 
     return sendAuthorizedRequest(data, {
         operationName: 'createProperty',
-        query: 'mutation createProperty($data:PropertyCreateInput!){obj:createProperty(data:$data){id address}}',
+        query: 'mutation createProperty($data:PropertyCreateInput!){obj:createProperty(data:$data){id}}',
         variables: {
             data: {
                 ...DV_SENDER,
-                address: data.address || address,
+                address: address,
                 organization: { connect: { id: data.organizationId } },
                 type: 'building',
                 map: propertyMap,

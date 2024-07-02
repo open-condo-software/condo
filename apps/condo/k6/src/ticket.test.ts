@@ -248,8 +248,6 @@ export async function checkFrontend (data) {
             page.waitForNavigation(),
         ])
 
-        console.log('ON TICKET ID PAGE ', ticketId)
-
         check(page, {
             'ticket detail url': () => page.url() === BASE_APP_URL + '/' + ticketId,
             'ticket detail header': () => page.locator('h1').textContent().includes('Ticket №'),
