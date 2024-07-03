@@ -42,13 +42,10 @@ class ReplicaKnexAdapter extends KnexAdapter {
         }
 
         const checkUseMasterSingle = (object) => {
-            console.log('Object -> ', JSON.stringify(object))
             // if object.method equals "insert", "delete" or "update" then use master endpoint
             if (object.method !== undefined) {
-                console.log('checkUseMasterSingle: method -> ', object.method)
                 return MUTABLE_OPERATIONS.includes(object.method)
             }
-            console.log('parse sql: ', object.sql)
             // try to parse sql
             return MUTABLE_OPERATIONS.some(sub => object.sql.includes(sub))
         }
@@ -70,7 +67,6 @@ class ReplicaKnexAdapter extends KnexAdapter {
             let useMaster = true
             try {
                 sql = builder.toSQL()
-                console.log('sql to execute = ', JSON.stringify(sql))
                 useMaster = Array.isArray(sql)
                     ? checkUseMasterMultiple(sql)
                     : checkUseMasterSingle(sql)
@@ -88,9 +84,7 @@ class ReplicaKnexAdapter extends KnexAdapter {
         }
 
         const masterConnectionResult = await this.knexWrite.raw('select 1+1 as result').catch(result => ({ error: result.error || result }))
-        console.log('master connection result ', masterConnectionResult)
         const readConnectionResult = await this.knexRead.raw('select 1+1 as result').catch(result => ({ error: result.error || result }))
-        console.log('read connection result ', readConnectionResult)
 
         if (masterConnectionResult.error || readConnectionResult.error) {
             if (masterConnectionResult.error) {
