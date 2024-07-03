@@ -934,8 +934,43 @@ shell:
     - "yarn workspace @app/announcement-generator build"
     - "rm -rf /app/.env"
     - "rm -rf /app/.config"
+---
+image: news-sharing-greendom
+fromImage: base
+fromCacheVersion: "1"
+git:
+  - add: /
+    to: /app
+    stageDependencies:
+      install:
+        - "yarn.lock"
+        - "package.json"
+        - "**/yarn.lock"
+        - "**/package.json"
+      setup:
+        - "apps/**"
+        - "packages/**"
+        - "bin/**/*"
+    excludePaths:
+      - .github
+      - .helm
+      - werf.yaml
+      - werf-giterminism.yaml
+    owner: app
+    group: app
+
+shell:
+  install:
+    - "cd /app"
+    - "npm i -g turbo"
+    - "yarn install --immutable"
+  setup:
+    - "cd /app"
+    - "yarn workspace @app/resident-app next telemetry disable"
+    - "yarn workspace @app/resident-app build:deps"
+    - "yarn workspace @app/resident-app build"
+    - "rm -rf /app/.config"
 
 docker:
   ENV:
     LANG: C.UTF-8
-
