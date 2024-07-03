@@ -23,13 +23,13 @@ async function fetchWithLogger (url, options) {
     // Client --reqId-> Condo --reqId-> AddressService
     //                    ^                   ^
     //                    |                   |
-    //               log reqId           log reqId
+    //               log reqId            log reqId
     //
     if (!options.headers) {
         options.headers = {}
     }
 
-    options.headers['X-Request-Id'] = parentReqId || parentTaskId
+    options.headers['X-Request-Id'] = parentReqId || parentTaskId || null
     options.headers['reqId'] = parentReqId ? parentReqId : null
     options.headers['taskId'] = parentTaskId ? parentTaskId : null
 
