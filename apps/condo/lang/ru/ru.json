@@ -3103,6 +3103,7 @@
   "api.marketplace.invoice.error.clientDataDoesNotMatchTicket": "Адрес и данные контакта должны совпадать с данными из заявки, к которой привязан счет",
   "api.marketplace.invoice.error.forbidUpdateTicket": "Нельзя обновить заявку у счета, который уже прикреплен к другой заявке",
   "api.marketplace.invoice.error.PublishingWithoutDefinedPricesForbidden": "Счет без определенных цен не может быть готов к оплате",
+  "acquiringReceipt.title": "Оплата за ЖКУ",
   "acquiringReceipt.total": "Итого",
   "acquiringReceipt.invoice.title": "Счет №{number} от {date}",
   "acquiringReceipt.taxRegime": "Режим налогообложения",
