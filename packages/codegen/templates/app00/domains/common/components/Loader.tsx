@@ -10,12 +10,12 @@ import { colors } from '@open-condo/ui/dist/colors'
 const DEFAULT_DELAY = 200 // milliseconds
 
 const FilledLoaderContainer = styled.section`
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-            width: 100%;
-        `
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+`
 
 interface ILoaderProps extends SpinProps {
     fill?: boolean
