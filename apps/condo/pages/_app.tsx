@@ -466,7 +466,7 @@ const MyApp = ({ Component, pageProps }) => {
                     <SetupTelegramNotificationsBanner />
                     <GlobalStyle/>
                     {shouldDisplayCookieAgreement && <CookieAgreement/>}
-                    <LayoutContextProvider>
+                    <LayoutContextProvider withNotWorkingNotification>
                         <TasksProvider>
                             <PostMessageProvider>
                                 <TrackingProvider>
