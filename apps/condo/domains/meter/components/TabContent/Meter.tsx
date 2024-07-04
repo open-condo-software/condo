@@ -53,6 +53,7 @@ type MetersTableContentProps = {
     sortableProperties?: string[]
     mutationErrorsToMessages?: Record<string, string>
     loading?: boolean
+    showImportButton?: boolean
 }
 
 const MetersTableContent: React.FC<MetersTableContentProps> = ({
@@ -62,6 +63,7 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
     canManageMeters,
     sortableProperties,
     loading,
+    showImportButton = true,
 }) => {
     const intl = useIntl()
     const CreateMeterButtonLabel = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterButtonLabel' })
@@ -239,7 +241,7 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
                                 {CreateMeterButtonLabel}
                             </Button>
                         ),
-                        canManageMeters && (
+                        canManageMeters && showImportButton && (
                             <MetersImportWrapper
                                 key='import'
                                 accessCheck={canManageMeters}
@@ -262,10 +264,12 @@ export const MetersPageContent: React.FC<MeterReadingsPageContentProps> = ({
     baseSearchQuery,
     canManageMeters,
     loading,
+    showImportButton = true,
 }) => {
     const intl = useIntl()
     const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.header' })
     const EmptyListManualBodyDescription = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.manualCreateCard.body.description' })
+    const CreateMeter = intl.formatMessage({ id: 'pages.condo.meter.AddMeter' })
 
     const { refetch } = MeterForOrganization.useCount({}, { skip: true })
     const { count, loading: countLoading } = MeterForOrganization.useCount({ where: baseSearchQuery })
@@ -275,7 +279,7 @@ export const MetersPageContent: React.FC<MeterReadingsPageContentProps> = ({
 
         if (count === 0) {
             return (
-                <EmptyListContent
+                showImportButton ? (<EmptyListContent
                     label={EmptyListLabel}
                     importLayoutProps={{
                         manualCreateEmoji: EMOJI.CLOCK,
@@ -289,7 +293,13 @@ export const MetersPageContent: React.FC<MeterReadingsPageContentProps> = ({
                     }}
                     createRoute={`/meter/create?tab=${METER_TAB_TYPES.meter}`}
                     accessCheck={canManageMeters}
-                />
+                />) : (<EmptyListContent
+                    label={EmptyListLabel}
+                    createRoute={`/meter/create?tab=${METER_TAB_TYPES.propertyMeterReading}`}
+                    createLabel={CreateMeter}
+                    accessCheck={canManageMeters}
+                />)
+                
             )
         }
 
@@ -300,9 +310,10 @@ export const MetersPageContent: React.FC<MeterReadingsPageContentProps> = ({
                 baseSearchQuery={baseSearchQuery}
                 canManageMeters={canManageMeters}
                 loading={countLoading}
+                showImportButton={showImportButton}
             />
         )
-    }, [EmptyListLabel, EmptyListManualBodyDescription, baseSearchQuery, canManageMeters, count, countLoading, filtersMeta, loading, refetch, tableColumns])
+    }, [CreateMeter, EmptyListLabel, EmptyListManualBodyDescription, baseSearchQuery, canManageMeters, count, countLoading, filtersMeta, loading, refetch, showImportButton, tableColumns])
 
     return (
         <TablePageContent>

@@ -67,6 +67,7 @@ type MetersTableContentProps = {
     sortableProperties?: string[]
     mutationErrorsToMessages?: Record<string, string>
     loading?: boolean
+    showImportButton?: boolean
 }
 
 
@@ -79,6 +80,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
     isAutomatic,
     meter,
     resource,
+    showImportButton = true,
 }) => {
     const intl = useIntl()
     const CreateMeterReadingsButtonLabel = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterReadingsButtonLabel' })
@@ -151,7 +153,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
     }, [])
 
     const processedMeterReadings = useMemo(() => {
-        const filteredMeterReading = meterReadings.map(a => a).sort((a, b) => (a.date < b.date ? 1 : -1))
+        const filteredMeterReading = meterReadings.sort((a, b) => (a.date < b.date ? 1 : -1))
         return uniqBy(filteredMeterReading, (reading => get(reading, 'meter.id')))
     }, [meterReadings])
 
@@ -353,7 +355,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
                                         {CreateMeterReadingsButtonLabel}
                                     </Button>
                                 ),
-                                canManageMeterReadings && !meter && (
+                                canManageMeterReadings && !meter && showImportButton && (
                                     <MetersImportWrapper
                                         key='import'
                                         accessCheck={canManageMeterReadings}
@@ -405,10 +407,12 @@ export const MeterReadingsPageContent: React.FC<MeterReadingsPageContentProps> =
     meter,
     isAutomatic,
     resource,
+    showImportButton = true,
 }) => {
     const intl = useIntl()
     const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.header' })
     const EmptyListManualBodyDescription = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.manualCreateCard.body.description' })
+    const CreateMeterReading = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterReadingButtonLabel' })
 
     const { refetch } = MeterReadingForOrganization.useCount({}, { skip: true })
     const { count, loading: countLoading } = MeterReadingForOrganization.useCount({ where: baseSearchQuery })
@@ -422,21 +426,27 @@ export const MeterReadingsPageContent: React.FC<MeterReadingsPageContentProps> =
         if (count === 0) {
             return (
                 <>
-                    {!meter && (<EmptyListContent
-                        label={EmptyListLabel}
-                        importLayoutProps={{
-                            manualCreateEmoji: EMOJI.CLOCK,
-                            manualCreateDescription: EmptyListManualBodyDescription,
-                            importCreateEmoji: EMOJI.LIST,
-                            importWrapper: {
-                                onFinish: refetch,
-                                domainName: 'meterReading',
-                            },
-                            OverrideImportWrapperFC: MetersImportWrapper,
-                        }}
-                        createRoute={`/meter/create?tab=${METER_TAB_TYPES.meterReading}`}
-                        accessCheck={canManageMeterReadings}
-                    />)}
+                    {!meter && (
+                        showImportButton ? (<EmptyListContent
+                            label={EmptyListLabel}
+                            importLayoutProps={{
+                                manualCreateEmoji: EMOJI.CLOCK,
+                                manualCreateDescription: EmptyListManualBodyDescription,
+                                importCreateEmoji: EMOJI.LIST,
+                                importWrapper: {
+                                    onFinish: refetch,
+                                    domainName: 'meterReading',
+                                },
+                                OverrideImportWrapperFC: MetersImportWrapper,
+                            }}
+                            createRoute={`/meter/create?tab=${METER_TAB_TYPES.meterReading}`}
+                            accessCheck={canManageMeterReadings}
+                        />) : (<EmptyListContent
+                            label={EmptyListLabel}
+                            createRoute={`/meter/create?tab=${METER_TAB_TYPES.propertyMeterReading}`}
+                            createLabel={CreateMeterReading}
+                            accessCheck={canManageMeterReadings}
+                        />) )}
                     {meter && (
                         <Col span={24}>
                             <ActionBarForSingleMeter
@@ -467,9 +477,10 @@ export const MeterReadingsPageContent: React.FC<MeterReadingsPageContentProps> =
                 meter={meter}
                 isAutomatic={isAutomatic}
                 resource={resource}
+                showImportButton={showImportButton}
             />
         )
-    }, [EmptyListLabel, EmptyListManualBodyDescription, baseSearchQuery, canManageMeterReadings, count, countLoading, filtersMeta, isAutomatic, isDeletedProperty, loading, meter, nextVerificationDate, refetch, resource])
+    }, [CreateMeterReading, EmptyListLabel, EmptyListManualBodyDescription, baseSearchQuery, canManageMeterReadings, count, countLoading, filtersMeta, isAutomatic, isDeletedProperty, loading, meter, nextVerificationDate, refetch, resource, showImportButton])
 
     return (
         <TablePageContent>
