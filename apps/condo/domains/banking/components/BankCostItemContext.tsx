@@ -51,9 +51,9 @@ export const BankCostItemProvider: React.FC = ({ children }) => {
 
             Object.values(categoryObject).forEach(costItems => {
                 bankCostItemGroups.current.push({
-                    name: intl.formatMessage({ id: `banking.category.${get(costItems, ['0', 'category', 'name'])}.name` }),
+                    name: intl.formatMessage({ id: `banking.category.${get(costItems, ['0', 'category', 'name'])}.name` as FormatjsIntl.Message['ids'] }),
                     options: costItems.map(costItem => ({
-                        label: intl.formatMessage({ id: `banking.costItem.${costItem.name}.name` }),
+                        label: intl.formatMessage({ id: `banking.costItem.${costItem.name}.name` as FormatjsIntl.Message['ids'] }),
                         value: costItem.id,
                     })),
                 })
@@ -61,7 +61,10 @@ export const BankCostItemProvider: React.FC = ({ children }) => {
 
             incomeCostItems.current = bankCostItems
                 .filter(costItem => !costItem.isOutcome)
-                .map(costItem => ({ ...costItem, name: intl.formatMessage({ id: `banking.costItem.${costItem.name}.name` }) }))
+                .map(costItem => ({
+                    ...costItem,
+                    name: intl.formatMessage({ id: `banking.costItem.${costItem.name}.name` as FormatjsIntl.Message['ids'] }),
+                }))
         }
     }, [bankCostItems, loading, intl])
 

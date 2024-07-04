@@ -63,6 +63,18 @@ const B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS = {
 
         // Property domain
         Property: {},
+
+        // Ticket domain
+        Ticket: {},
+        TicketComment: {
+            pathToOrganizationId: ['ticket', 'organization', 'id'],
+        },
+        TicketFile: {
+            pathToOrganizationId: ['ticket', 'organization', 'id'],
+        },
+        TicketCommentFile: {
+            pathToOrganizationId: ['ticket', 'organization', 'id'],
+        },
     },
 
     services: {

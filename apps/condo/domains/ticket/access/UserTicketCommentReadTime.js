@@ -8,7 +8,7 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById, find } = require('@open-condo/keystone/schema')
 
-const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
+const { checkUserEmploymentOrRelationToOrganization } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 async function canReadUserTicketCommentReadTimes ({ authentication: { item: user } }) {
@@ -22,7 +22,7 @@ async function canReadUserTicketCommentReadTimes ({ authentication: { item: user
     }
 }
 
-async function canManageUserTicketCommentReadTimes ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageUserTicketCommentReadTimes ({ authentication: { item: user }, context, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -33,25 +33,12 @@ async function canManageUserTicketCommentReadTimes ({ authentication: { item: us
             if (!ticket) return false
 
             const organizationId = get(ticket, 'organization')
-            const organizationEmployees = await find('OrganizationEmployee', {
-                organization: {
-                    id: organizationId,
-                },
-                user: { id: user.id },
-                deletedAt: null,
-            })
 
-            if (!isEmpty(organizationEmployees)) {
-                return true
+            if (!organizationId) {
+                return false
             }
 
-            const organizationLinks = await find('OrganizationLink', {
-                from: queryOrganizationEmployeeFor(user.id),
-                to: { id: organizationId },
-                deletedAt: null,
-            })
-
-            return !isEmpty(organizationLinks)
+            return await checkUserEmploymentOrRelationToOrganization(context, user, organizationId)
         }
         if (operation === 'update' && itemId) {
             const userTicketCommentReadTime = await getById('UserTicketCommentReadTime', itemId)

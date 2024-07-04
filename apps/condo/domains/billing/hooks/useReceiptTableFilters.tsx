@@ -24,7 +24,7 @@ export function useReceiptTableFilters (defaultPeriod: string, search: string): 
     const categorySearchFilter = categoryToSearchQuery(search, intl.messages)
     const { objs: categories } = BillingCategory.useObjects({})
     const categoryOptions = useMemo(() => convertToOptions<BillingCategoryType>(categories, 'name', 'id'), [categories])
-    return useMemo(()=>{
+    return useMemo(() => {
         return [
             { keyword: 'period', filters: [periodFilter], defaultValue: defaultPeriod },
             { keyword: 'search', filters: [addressFilter, unitNameFilter, accountFilter, fullNameFilter, categorySearchFilter], combineType: 'OR' },

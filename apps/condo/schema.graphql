@@ -2993,7 +2993,9 @@ enum ExternalTokenAccessRightTypeType {
   sbbol
 }
 
-""" The scheme regulates the access of the service user to the access tokens stored in the redis 
+"""
+ The scheme allows the service user to get read access to all user access tokens.
+Used to check permissions in the getAccessTokenByUserId query 
 """
 type ExternalTokenAccessRight {
   """
@@ -3216,6 +3218,7 @@ type UserRightsSetHistoryRecord {
   canManageUserRightsSets: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
+  canExecute_internalSendHashedResidentPhones: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canReadUserEmailField: Boolean
   id: ID!
@@ -3324,6 +3327,8 @@ input UserRightsSetHistoryRecordWhereInput {
   canExecuteRegisterNewServiceUser_not: Boolean
   canExecuteSendMessage: Boolean
   canExecuteSendMessage_not: Boolean
+  canExecute_internalSendHashedResidentPhones: Boolean
+  canExecute_internalSendHashedResidentPhones_not: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageOrganizationIsApprovedField_not: Boolean
   canReadUserEmailField: Boolean
@@ -3483,6 +3488,8 @@ enum SortUserRightsSetHistoryRecordsBy {
   canExecuteRegisterNewServiceUser_DESC
   canExecuteSendMessage_ASC
   canExecuteSendMessage_DESC
+  canExecute_internalSendHashedResidentPhones_ASC
+  canExecute_internalSendHashedResidentPhones_DESC
   canManageOrganizationIsApprovedField_ASC
   canManageOrganizationIsApprovedField_DESC
   canReadUserEmailField_ASC
@@ -3542,6 +3549,7 @@ input UserRightsSetHistoryRecordUpdateInput {
   canManageUserRightsSets: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
+  canExecute_internalSendHashedResidentPhones: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canReadUserEmailField: Boolean
   v: Int
@@ -3600,6 +3608,7 @@ input UserRightsSetHistoryRecordCreateInput {
   canManageUserRightsSets: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
+  canExecute_internalSendHashedResidentPhones: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canReadUserEmailField: Boolean
   v: Int
@@ -3776,6 +3785,10 @@ type UserRightsSet {
   """
   canExecuteSendMessage: Boolean
 
+  """ Enables a user with the given UserRightsSet to execute "_internalSendHashedResidentPhones" query/mutation 
+  """
+  canExecute_internalSendHashedResidentPhones: Boolean
+
   """ Enables a user with the given UserRightsSet to update "isApproved" field of model "Organization" 
   """
   canManageOrganizationIsApprovedField: Boolean
@@ -3897,6 +3910,8 @@ input UserRightsSetWhereInput {
   canExecuteRegisterNewServiceUser_not: Boolean
   canExecuteSendMessage: Boolean
   canExecuteSendMessage_not: Boolean
+  canExecute_internalSendHashedResidentPhones: Boolean
+  canExecute_internalSendHashedResidentPhones_not: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageOrganizationIsApprovedField_not: Boolean
   canReadUserEmailField: Boolean
@@ -4036,6 +4051,8 @@ enum SortUserRightsSetsBy {
   canExecuteRegisterNewServiceUser_DESC
   canExecuteSendMessage_ASC
   canExecuteSendMessage_DESC
+  canExecute_internalSendHashedResidentPhones_ASC
+  canExecute_internalSendHashedResidentPhones_DESC
   canManageOrganizationIsApprovedField_ASC
   canManageOrganizationIsApprovedField_DESC
   canReadUserEmailField_ASC
@@ -4095,6 +4112,7 @@ input UserRightsSetUpdateInput {
   canManageUserRightsSets: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
+  canExecute_internalSendHashedResidentPhones: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canReadUserEmailField: Boolean
   v: Int
@@ -4150,6 +4168,7 @@ input UserRightsSetCreateInput {
   canManageUserRightsSets: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
+  canExecute_internalSendHashedResidentPhones: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canReadUserEmailField: Boolean
   v: Int
@@ -4565,6 +4584,12 @@ enum OrganizationCountryType {
   ru
 }
 
+enum OrganizationTypeType {
+  MANAGING_COMPANY
+  HOLDING
+  SERVICE_PROVIDER
+}
+
 input OrganizationEmployeeRelateToManyInput {
   create: [OrganizationEmployeeCreateInput]
   connect: [OrganizationEmployeeWhereUniqueInput]
@@ -4603,7 +4628,7 @@ type Organization {
 
   """ Type of organization. Organizations with different types see slightly different interfaces. In addition, some of the logic depends on this field: 1. Residents can be connected to only "MANAGING_COMPANY" organization2. OrganizationLink cannot be created if parent organization is not "HOLDING" 
   """
-  type: String
+  type: OrganizationTypeType
 
   """ Taxpayer identification number. Every country has its own identification. Examples: INN for Russia, IIN for Kazakhstan and so on 
   """
@@ -4706,10 +4731,10 @@ input OrganizationWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
-  type: String
-  type_not: String
-  type_in: [String]
-  type_not_in: [String]
+  type: OrganizationTypeType
+  type_not: OrganizationTypeType
+  type_in: [OrganizationTypeType]
+  type_not_in: [OrganizationTypeType]
   tin: String
   tin_not: String
   tin_contains: String
@@ -4958,7 +4983,7 @@ enum SortOrganizationsBy {
 input OrganizationUpdateInput {
   country: OrganizationCountryType
   name: String
-  type: String
+  type: OrganizationTypeType
   tin: String
   description: String
   avatar: Upload
@@ -4990,7 +5015,7 @@ input OrganizationsUpdateInput {
 input OrganizationCreateInput {
   country: OrganizationCountryType
   name: String
-  type: String
+  type: OrganizationTypeType
   tin: String
   description: String
   avatar: Upload
@@ -5689,6 +5714,8 @@ type OrganizationEmployeeRoleHistoryRecord {
   """
   _label_: String
   organization: String
+  isDefault: Boolean
+  isEditable: Boolean
   name: String
   description: String
   canManageOrganization: Boolean
@@ -5773,6 +5800,10 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   organization_not: String
   organization_in: [String]
   organization_not_in: [String]
+  isDefault: Boolean
+  isDefault_not: Boolean
+  isEditable: Boolean
+  isEditable_not: Boolean
   name: String
   name_not: String
   name_contains: String
@@ -6020,6 +6051,10 @@ input OrganizationEmployeeRoleHistoryRecordWhereUniqueInput {
 }
 
 enum SortOrganizationEmployeeRoleHistoryRecordsBy {
+  isDefault_ASC
+  isDefault_DESC
+  isEditable_ASC
+  isEditable_DESC
   name_ASC
   name_DESC
   description_ASC
@@ -6166,6 +6201,8 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
 
 input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   organization: String
+  isDefault: Boolean
+  isEditable: Boolean
   name: String
   description: String
   canManageOrganization: Boolean
@@ -6249,6 +6286,8 @@ input OrganizationEmployeeRoleHistoryRecordsUpdateInput {
 
 input OrganizationEmployeeRoleHistoryRecordCreateInput {
   organization: String
+  isDefault: Boolean
+  isEditable: Boolean
   name: String
   description: String
   canManageOrganization: Boolean
@@ -6329,6 +6368,13 @@ input OrganizationEmployeeRoleHistoryRecordsCreateInput {
   data: OrganizationEmployeeRoleHistoryRecordCreateInput
 }
 
+enum OrganizationEmployeeRoleTicketVisibilityTypeType {
+  organization
+  property
+  propertyAndSpecialization
+  assigned
+}
+
 """ Employee role name and access permissions """
 type OrganizationEmployeeRole {
   """
@@ -6343,8 +6389,21 @@ type OrganizationEmployeeRole {
   """ Ref to the organization. The object will be deleted if the organization ceases to exist 
   """
   organization: Organization
+
+  """
+   (Read-only) Indicates whether the role was added by default when the organization was created.
+  Such roles cannot be deleted and their name, description and “ticketVisibilityType” cannot be changed. 
+  """
+  isDefault: Boolean
+
+  """ (Read-only) Indicates whether the role can be edited """
+  isEditable: Boolean
+
+  """ Role name. Cannot be changed for default roles """
   name: String
   nameNonLocalized: String
+
+  """ Role description. Cannot be changed for default roles """
   description: String
   descriptionNonLocalized: String
 
@@ -6389,7 +6448,7 @@ type OrganizationEmployeeRole {
   3) propertyAndSpecialization - Sees tickets by employee specialization + PropertyScope
   4) assigned - sees only those tickets in which he is the executor or responsible
   """
-  ticketVisibilityType: String
+  ticketVisibilityType: OrganizationEmployeeRoleTicketVisibilityTypeType
   canManagePropertyScopes: Boolean
   canManageBankAccounts: Boolean
   canManageBankAccountReportTasks: Boolean
@@ -6445,6 +6504,8 @@ type OrganizationEmployeeRole {
   """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
   """
   sender: SenderField
+  deletedAt: String
+  newId: String
 }
 
 input OrganizationEmployeeRoleWhereInput {
@@ -6452,6 +6513,10 @@ input OrganizationEmployeeRoleWhereInput {
   OR: [OrganizationEmployeeRoleWhereInput]
   organization: OrganizationWhereInput
   organization_is_null: Boolean
+  isDefault: Boolean
+  isDefault_not: Boolean
+  isEditable: Boolean
+  isEditable_not: Boolean
   name: String
   name_not: String
   name_contains: String
@@ -6538,10 +6603,10 @@ input OrganizationEmployeeRoleWhereInput {
   canBeAssignedAsExecutor_not: Boolean
   canManageTicketPropertyHints: Boolean
   canManageTicketPropertyHints_not: Boolean
-  ticketVisibilityType: String
-  ticketVisibilityType_not: String
-  ticketVisibilityType_in: [String]
-  ticketVisibilityType_not_in: [String]
+  ticketVisibilityType: OrganizationEmployeeRoleTicketVisibilityTypeType
+  ticketVisibilityType_not: OrganizationEmployeeRoleTicketVisibilityTypeType
+  ticketVisibilityType_in: [OrganizationEmployeeRoleTicketVisibilityTypeType]
+  ticketVisibilityType_not_in: [OrganizationEmployeeRoleTicketVisibilityTypeType]
   canManagePropertyScopes: Boolean
   canManagePropertyScopes_not: Boolean
   canManageBankAccounts: Boolean
@@ -6658,6 +6723,18 @@ input OrganizationEmployeeRoleWhereInput {
   sender_not: SenderFieldInput
   sender_in: [SenderFieldInput]
   sender_not_in: [SenderFieldInput]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
 }
 
 input OrganizationEmployeeRoleWhereUniqueInput {
@@ -6667,6 +6744,10 @@ input OrganizationEmployeeRoleWhereUniqueInput {
 enum SortOrganizationEmployeeRolesBy {
   organization_ASC
   organization_DESC
+  isDefault_ASC
+  isDefault_DESC
+  isEditable_ASC
+  isEditable_DESC
   name_ASC
   name_DESC
   description_ASC
@@ -6809,10 +6890,14 @@ enum SortOrganizationEmployeeRolesBy {
   updatedBy_DESC
   dv_ASC
   dv_DESC
+  deletedAt_ASC
+  deletedAt_DESC
 }
 
 input OrganizationEmployeeRoleUpdateInput {
   organization: OrganizationRelateToOneInput
+  isDefault: Boolean
+  isEditable: Boolean
   name: String
   description: String
   canManageOrganization: Boolean
@@ -6840,7 +6925,7 @@ input OrganizationEmployeeRoleUpdateInput {
   canBeAssignedAsResponsible: Boolean
   canBeAssignedAsExecutor: Boolean
   canManageTicketPropertyHints: Boolean
-  ticketVisibilityType: String
+  ticketVisibilityType: OrganizationEmployeeRoleTicketVisibilityTypeType
   canManagePropertyScopes: Boolean
   canManageBankAccounts: Boolean
   canManageBankAccountReportTasks: Boolean
@@ -6884,6 +6969,8 @@ input OrganizationEmployeeRoleUpdateInput {
   updatedBy: UserRelateToOneInput
   dv: Int
   sender: SenderFieldInput
+  deletedAt: String
+  newId: String
 }
 
 input OrganizationEmployeeRolesUpdateInput {
@@ -6893,6 +6980,8 @@ input OrganizationEmployeeRolesUpdateInput {
 
 input OrganizationEmployeeRoleCreateInput {
   organization: OrganizationRelateToOneInput
+  isDefault: Boolean
+  isEditable: Boolean
   name: String
   description: String
   canManageOrganization: Boolean
@@ -6920,7 +7009,7 @@ input OrganizationEmployeeRoleCreateInput {
   canBeAssignedAsResponsible: Boolean
   canBeAssignedAsExecutor: Boolean
   canManageTicketPropertyHints: Boolean
-  ticketVisibilityType: String
+  ticketVisibilityType: OrganizationEmployeeRoleTicketVisibilityTypeType
   canManagePropertyScopes: Boolean
   canManageBankAccounts: Boolean
   canManageBankAccountReportTasks: Boolean
@@ -6964,6 +7053,8 @@ input OrganizationEmployeeRoleCreateInput {
   updatedBy: UserRelateToOneInput
   dv: Int
   sender: SenderFieldInput
+  deletedAt: String
+  newId: String
 }
 
 input OrganizationEmployeeRolesCreateInput {
@@ -9351,6 +9442,12 @@ enum BillingIntegrationBannerTextColorType {
   WHITE
 }
 
+enum BillingIntegrationContextDefaultStatusType {
+  InProgress
+  Error
+  Finished
+}
+
 type BillingIntegrationDataFormatField {
   hasToPayDetails: Boolean!
   hasServices: Boolean!
@@ -9361,6 +9458,187 @@ input BillingIntegrationDataFormatFieldInput {
   hasToPayDetails: Boolean!
   hasServices: Boolean!
   hasServicesDetails: Boolean!
+}
+
+enum BillingIntegrationCurrencyCodeType {
+  AED
+  AFN
+  ALL
+  AMD
+  ANG
+  AOA
+  ARS
+  AUD
+  AWG
+  AZN
+  BAM
+  BBD
+  BDT
+  BGN
+  BHD
+  BIF
+  BMD
+  BND
+  BOB
+  BOV
+  BRL
+  BSD
+  BTN
+  BWP
+  BYN
+  BZD
+  CAD
+  CDF
+  CHE
+  CHF
+  CHW
+  CLF
+  CLP
+  CNY
+  COP
+  COU
+  CRC
+  CUC
+  CUP
+  CVE
+  CZK
+  DJF
+  DKK
+  DOP
+  DZD
+  EGP
+  ERN
+  ETB
+  EUR
+  FJD
+  FKP
+  GBP
+  GEL
+  GHS
+  GIP
+  GMD
+  GNF
+  GTQ
+  GYD
+  HKD
+  HNL
+  HRK
+  HTG
+  HUF
+  IDR
+  ILS
+  INR
+  IQD
+  IRR
+  ISK
+  JMD
+  JOD
+  JPY
+  KES
+  KGS
+  KHR
+  KMF
+  KPW
+  KRW
+  KWD
+  KYD
+  KZT
+  LAK
+  LBP
+  LKR
+  LRD
+  LSL
+  LYD
+  MAD
+  MDL
+  MGA
+  MKD
+  MMK
+  MNT
+  MOP
+  MRU
+  MUR
+  MVR
+  MWK
+  MXN
+  MXV
+  MYR
+  MZN
+  NAD
+  NGN
+  NIO
+  NOK
+  NPR
+  NZD
+  OMR
+  PAB
+  PEN
+  PGK
+  PHP
+  PKR
+  PLN
+  PYG
+  QAR
+  RON
+  RSD
+  RUB
+  RWF
+  SAR
+  SBD
+  SCR
+  SDG
+  SEK
+  SGD
+  SHP
+  SLL
+  SOS
+  SRD
+  SSP
+  STN
+  SVC
+  SYP
+  SZL
+  THB
+  TJS
+  TMT
+  TND
+  TOP
+  TRY
+  TTD
+  TWD
+  TZS
+  UAH
+  UGX
+  USD
+  USN
+  UYI
+  UYU
+  UYW
+  UZS
+  VES
+  VND
+  VUV
+  WST
+  XAF
+  XAG
+  XAU
+  XBA
+  XBB
+  XBC
+  XBD
+  XCD
+  XDR
+  XOF
+  XPD
+  XPF
+  XPT
+  XSU
+  XTS
+  XUA
+  YER
+  ZAR
+  ZMW
+  ZWL
 }
 
 input BillingIntegrationAccessRightRelateToManyInput {
@@ -9460,14 +9738,14 @@ type BillingIntegration {
 
   """ Status, which context will have by default after creation if no overwriting option provided 
   """
-  contextDefaultStatus: String
+  contextDefaultStatus: BillingIntegrationContextDefaultStatusType
 
   """ Format of the data, that is output of this integration. This field specifies the detail and size of columns. If not specified we can only show first level of detail (address, account, toPay) 
   """
   dataFormat: BillingIntegrationDataFormatField
 
   """ Currency which this billing uses """
-  currencyCode: String
+  currencyCode: BillingIntegrationCurrencyCodeType
   accessRights(where: BillingIntegrationAccessRightWhereInput, search: String, sortBy: [SortBillingIntegrationAccessRightsBy!], orderBy: String, first: Int, skip: Int): [BillingIntegrationAccessRight!]!
   _accessRightsMeta(where: BillingIntegrationAccessRightWhereInput, search: String, sortBy: [SortBillingIntegrationAccessRightsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
@@ -9828,18 +10106,18 @@ input BillingIntegrationWhereInput {
   uploadMessage_not_ends_with_i: String
   uploadMessage_in: [String]
   uploadMessage_not_in: [String]
-  contextDefaultStatus: String
-  contextDefaultStatus_not: String
-  contextDefaultStatus_in: [String]
-  contextDefaultStatus_not_in: [String]
+  contextDefaultStatus: BillingIntegrationContextDefaultStatusType
+  contextDefaultStatus_not: BillingIntegrationContextDefaultStatusType
+  contextDefaultStatus_in: [BillingIntegrationContextDefaultStatusType]
+  contextDefaultStatus_not_in: [BillingIntegrationContextDefaultStatusType]
   dataFormat: BillingIntegrationDataFormatFieldInput
   dataFormat_not: BillingIntegrationDataFormatFieldInput
   dataFormat_in: [BillingIntegrationDataFormatFieldInput]
   dataFormat_not_in: [BillingIntegrationDataFormatFieldInput]
-  currencyCode: String
-  currencyCode_not: String
-  currencyCode_in: [String]
-  currencyCode_not_in: [String]
+  currencyCode: BillingIntegrationCurrencyCodeType
+  currencyCode_not: BillingIntegrationCurrencyCodeType
+  currencyCode_in: [BillingIntegrationCurrencyCodeType]
+  currencyCode_not_in: [BillingIntegrationCurrencyCodeType]
 
   """ condition must be true for all nodes """
   accessRights_every: BillingIntegrationAccessRightWhereInput
@@ -10008,9 +10286,9 @@ input BillingIntegrationUpdateInput {
   connectedMessage: String
   uploadUrl: String
   uploadMessage: String
-  contextDefaultStatus: String
+  contextDefaultStatus: BillingIntegrationContextDefaultStatusType
   dataFormat: BillingIntegrationDataFormatFieldInput
-  currencyCode: String
+  currencyCode: BillingIntegrationCurrencyCodeType
   accessRights: BillingIntegrationAccessRightRelateToManyInput
   isTrustedBankAccountSource: Boolean
   isHidden: Boolean
@@ -10053,9 +10331,9 @@ input BillingIntegrationCreateInput {
   connectedMessage: String
   uploadUrl: String
   uploadMessage: String
-  contextDefaultStatus: String
+  contextDefaultStatus: BillingIntegrationContextDefaultStatusType
   dataFormat: BillingIntegrationDataFormatFieldInput
-  currencyCode: String
+  currencyCode: BillingIntegrationCurrencyCodeType
   accessRights: BillingIntegrationAccessRightRelateToManyInput
   isTrustedBankAccountSource: Boolean
   isHidden: Boolean
@@ -12133,6 +12411,14 @@ input BillingPropertyRelateToOneInput {
   disconnectAll: Boolean
 }
 
+enum BillingAccountUnitTypeType {
+  parking
+  flat
+  apartment
+  commercial
+  warehouse
+}
+
 enum BillingAccountOwnerTypeType {
   person
   company
@@ -12175,7 +12461,7 @@ type BillingAccount {
   unitName: String
 
   """ Type of unit, such as parking lot or flat. Default value: "flat" """
-  unitType: String
+  unitType: BillingAccountUnitTypeType
 
   """ Full name of the account holder """
   fullName: String
@@ -12296,10 +12582,10 @@ input BillingAccountWhereInput {
   unitName_not_ends_with_i: String
   unitName_in: [String]
   unitName_not_in: [String]
-  unitType: String
-  unitType_not: String
-  unitType_in: [String]
-  unitType_not_in: [String]
+  unitType: BillingAccountUnitTypeType
+  unitType_not: BillingAccountUnitTypeType
+  unitType_in: [BillingAccountUnitTypeType]
+  unitType_not_in: [BillingAccountUnitTypeType]
   fullName: String
   fullName_not: String
   fullName_contains: String
@@ -12437,7 +12723,7 @@ input BillingAccountUpdateInput {
   globalId: String
   number: String
   unitName: String
-  unitType: String
+  unitType: BillingAccountUnitTypeType
   fullName: String
   isClosed: Boolean
   ownerType: BillingAccountOwnerTypeType
@@ -12466,7 +12752,7 @@ input BillingAccountCreateInput {
   globalId: String
   number: String
   unitName: String
-  unitType: String
+  unitType: BillingAccountUnitTypeType
   fullName: String
   isClosed: Boolean
   ownerType: BillingAccountOwnerTypeType
@@ -15727,6 +16013,187 @@ enum BankAccountCountryType {
   ru
 }
 
+enum BankAccountCurrencyCodeType {
+  AED
+  AFN
+  ALL
+  AMD
+  ANG
+  AOA
+  ARS
+  AUD
+  AWG
+  AZN
+  BAM
+  BBD
+  BDT
+  BGN
+  BHD
+  BIF
+  BMD
+  BND
+  BOB
+  BOV
+  BRL
+  BSD
+  BTN
+  BWP
+  BYN
+  BZD
+  CAD
+  CDF
+  CHE
+  CHF
+  CHW
+  CLF
+  CLP
+  CNY
+  COP
+  COU
+  CRC
+  CUC
+  CUP
+  CVE
+  CZK
+  DJF
+  DKK
+  DOP
+  DZD
+  EGP
+  ERN
+  ETB
+  EUR
+  FJD
+  FKP
+  GBP
+  GEL
+  GHS
+  GIP
+  GMD
+  GNF
+  GTQ
+  GYD
+  HKD
+  HNL
+  HRK
+  HTG
+  HUF
+  IDR
+  ILS
+  INR
+  IQD
+  IRR
+  ISK
+  JMD
+  JOD
+  JPY
+  KES
+  KGS
+  KHR
+  KMF
+  KPW
+  KRW
+  KWD
+  KYD
+  KZT
+  LAK
+  LBP
+  LKR
+  LRD
+  LSL
+  LYD
+  MAD
+  MDL
+  MGA
+  MKD
+  MMK
+  MNT
+  MOP
+  MRU
+  MUR
+  MVR
+  MWK
+  MXN
+  MXV
+  MYR
+  MZN
+  NAD
+  NGN
+  NIO
+  NOK
+  NPR
+  NZD
+  OMR
+  PAB
+  PEN
+  PGK
+  PHP
+  PKR
+  PLN
+  PYG
+  QAR
+  RON
+  RSD
+  RUB
+  RWF
+  SAR
+  SBD
+  SCR
+  SDG
+  SEK
+  SGD
+  SHP
+  SLL
+  SOS
+  SRD
+  SSP
+  STN
+  SVC
+  SYP
+  SZL
+  THB
+  TJS
+  TMT
+  TND
+  TOP
+  TRY
+  TTD
+  TWD
+  TZS
+  UAH
+  UGX
+  USD
+  USN
+  UYI
+  UYU
+  UYW
+  UZS
+  VES
+  VND
+  VUV
+  WST
+  XAF
+  XAG
+  XAU
+  XBA
+  XBB
+  XBC
+  XBD
+  XCD
+  XDR
+  XOF
+  XPD
+  XPF
+  XPT
+  XSU
+  XTS
+  XUA
+  YER
+  ZAR
+  ZMW
+  ZWL
+}
+
 """ Bank account, that will have transactions, pulled from various integrated data sources 
 """
 type BankAccount {
@@ -15768,7 +16235,7 @@ type BankAccount {
   number: String
 
   """ Code of currency in ISO-4217 format """
-  currencyCode: String
+  currencyCode: BankAccountCurrencyCodeType
 
   """ Shows whether the bank account approved or not """
   isApproved: Boolean
@@ -15894,10 +16361,10 @@ input BankAccountWhereInput {
   number_not_ends_with_i: String
   number_in: [String]
   number_not_in: [String]
-  currencyCode: String
-  currencyCode_not: String
-  currencyCode_in: [String]
-  currencyCode_not_in: [String]
+  currencyCode: BankAccountCurrencyCodeType
+  currencyCode_not: BankAccountCurrencyCodeType
+  currencyCode_in: [BankAccountCurrencyCodeType]
+  currencyCode_not_in: [BankAccountCurrencyCodeType]
   isApproved: Boolean
   isApproved_not: Boolean
   approvedAt: String
@@ -16107,7 +16574,7 @@ input BankAccountUpdateInput {
   routingNumber: String
   routingNumberMeta: JSON
   number: String
-  currencyCode: String
+  currencyCode: BankAccountCurrencyCodeType
   isApproved: Boolean
   approvedAt: String
   approvedBy: UserRelateToOneInput
@@ -16142,7 +16609,7 @@ input BankAccountCreateInput {
   routingNumber: String
   routingNumberMeta: JSON
   number: String
-  currencyCode: String
+  currencyCode: BankAccountCurrencyCodeType
   isApproved: Boolean
   approvedAt: String
   approvedBy: UserRelateToOneInput
@@ -17364,6 +17831,187 @@ input BankCostItemRelateToOneInput {
   disconnectAll: Boolean
 }
 
+enum BankContractorAccountCurrencyCodeType {
+  AED
+  AFN
+  ALL
+  AMD
+  ANG
+  AOA
+  ARS
+  AUD
+  AWG
+  AZN
+  BAM
+  BBD
+  BDT
+  BGN
+  BHD
+  BIF
+  BMD
+  BND
+  BOB
+  BOV
+  BRL
+  BSD
+  BTN
+  BWP
+  BYN
+  BZD
+  CAD
+  CDF
+  CHE
+  CHF
+  CHW
+  CLF
+  CLP
+  CNY
+  COP
+  COU
+  CRC
+  CUC
+  CUP
+  CVE
+  CZK
+  DJF
+  DKK
+  DOP
+  DZD
+  EGP
+  ERN
+  ETB
+  EUR
+  FJD
+  FKP
+  GBP
+  GEL
+  GHS
+  GIP
+  GMD
+  GNF
+  GTQ
+  GYD
+  HKD
+  HNL
+  HRK
+  HTG
+  HUF
+  IDR
+  ILS
+  INR
+  IQD
+  IRR
+  ISK
+  JMD
+  JOD
+  JPY
+  KES
+  KGS
+  KHR
+  KMF
+  KPW
+  KRW
+  KWD
+  KYD
+  KZT
+  LAK
+  LBP
+  LKR
+  LRD
+  LSL
+  LYD
+  MAD
+  MDL
+  MGA
+  MKD
+  MMK
+  MNT
+  MOP
+  MRU
+  MUR
+  MVR
+  MWK
+  MXN
+  MXV
+  MYR
+  MZN
+  NAD
+  NGN
+  NIO
+  NOK
+  NPR
+  NZD
+  OMR
+  PAB
+  PEN
+  PGK
+  PHP
+  PKR
+  PLN
+  PYG
+  QAR
+  RON
+  RSD
+  RUB
+  RWF
+  SAR
+  SBD
+  SCR
+  SDG
+  SEK
+  SGD
+  SHP
+  SLL
+  SOS
+  SRD
+  SSP
+  STN
+  SVC
+  SYP
+  SZL
+  THB
+  TJS
+  TMT
+  TND
+  TOP
+  TRY
+  TTD
+  TWD
+  TZS
+  UAH
+  UGX
+  USD
+  USN
+  UYI
+  UYU
+  UYW
+  UZS
+  VES
+  VND
+  VUV
+  WST
+  XAF
+  XAG
+  XAU
+  XBA
+  XBB
+  XBC
+  XBD
+  XCD
+  XDR
+  XOF
+  XPD
+  XPF
+  XPT
+  XSU
+  XTS
+  XUA
+  YER
+  ZAR
+  ZMW
+  ZWL
+}
+
 """ Account for external contractor, which organization is not stored in condo. Contractor is related to expenses transactions of an Organization. Will be obtained from export files with bank transactions or from banking API 
 """
 type BankContractorAccount {
@@ -17400,7 +18048,7 @@ type BankContractorAccount {
   number: String
 
   """ Code of currency in ISO-4217 format """
-  currencyCode: String
+  currencyCode: BankContractorAccountCurrencyCodeType
 
   """ Id of object in external service which represents current item. Mostly used for internal needs of integration services for matching our objects with theirs 
   """
@@ -17540,10 +18188,10 @@ input BankContractorAccountWhereInput {
   number_not_ends_with_i: String
   number_in: [String]
   number_not_in: [String]
-  currencyCode: String
-  currencyCode_not: String
-  currencyCode_in: [String]
-  currencyCode_not_in: [String]
+  currencyCode: BankContractorAccountCurrencyCodeType
+  currencyCode_not: BankContractorAccountCurrencyCodeType
+  currencyCode_in: [BankContractorAccountCurrencyCodeType]
+  currencyCode_not_in: [BankContractorAccountCurrencyCodeType]
   importId: String
   importId_not: String
   importId_contains: String
@@ -17713,7 +18361,7 @@ input BankContractorAccountUpdateInput {
   country: String
   routingNumber: String
   number: String
-  currencyCode: String
+  currencyCode: BankContractorAccountCurrencyCodeType
   importId: String
   territoryCode: String
   bankName: String
@@ -17742,7 +18390,7 @@ input BankContractorAccountCreateInput {
   country: String
   routingNumber: String
   number: String
-  currencyCode: String
+  currencyCode: BankContractorAccountCurrencyCodeType
   importId: String
   territoryCode: String
   bankName: String
@@ -19292,6 +19940,187 @@ input BankContractorAccountRelateToOneInput {
   disconnectAll: Boolean
 }
 
+enum BankTransactionCurrencyCodeType {
+  AED
+  AFN
+  ALL
+  AMD
+  ANG
+  AOA
+  ARS
+  AUD
+  AWG
+  AZN
+  BAM
+  BBD
+  BDT
+  BGN
+  BHD
+  BIF
+  BMD
+  BND
+  BOB
+  BOV
+  BRL
+  BSD
+  BTN
+  BWP
+  BYN
+  BZD
+  CAD
+  CDF
+  CHE
+  CHF
+  CHW
+  CLF
+  CLP
+  CNY
+  COP
+  COU
+  CRC
+  CUC
+  CUP
+  CVE
+  CZK
+  DJF
+  DKK
+  DOP
+  DZD
+  EGP
+  ERN
+  ETB
+  EUR
+  FJD
+  FKP
+  GBP
+  GEL
+  GHS
+  GIP
+  GMD
+  GNF
+  GTQ
+  GYD
+  HKD
+  HNL
+  HRK
+  HTG
+  HUF
+  IDR
+  ILS
+  INR
+  IQD
+  IRR
+  ISK
+  JMD
+  JOD
+  JPY
+  KES
+  KGS
+  KHR
+  KMF
+  KPW
+  KRW
+  KWD
+  KYD
+  KZT
+  LAK
+  LBP
+  LKR
+  LRD
+  LSL
+  LYD
+  MAD
+  MDL
+  MGA
+  MKD
+  MMK
+  MNT
+  MOP
+  MRU
+  MUR
+  MVR
+  MWK
+  MXN
+  MXV
+  MYR
+  MZN
+  NAD
+  NGN
+  NIO
+  NOK
+  NPR
+  NZD
+  OMR
+  PAB
+  PEN
+  PGK
+  PHP
+  PKR
+  PLN
+  PYG
+  QAR
+  RON
+  RSD
+  RUB
+  RWF
+  SAR
+  SBD
+  SCR
+  SDG
+  SEK
+  SGD
+  SHP
+  SLL
+  SOS
+  SRD
+  SSP
+  STN
+  SVC
+  SYP
+  SZL
+  THB
+  TJS
+  TMT
+  TND
+  TOP
+  TRY
+  TTD
+  TWD
+  TZS
+  UAH
+  UGX
+  USD
+  USN
+  UYI
+  UYU
+  UYW
+  UZS
+  VES
+  VND
+  VUV
+  WST
+  XAF
+  XAG
+  XAU
+  XBA
+  XBB
+  XBC
+  XBD
+  XCD
+  XDR
+  XOF
+  XPD
+  XPF
+  XPT
+  XSU
+  XTS
+  XUA
+  YER
+  ZAR
+  ZMW
+  ZWL
+}
+
 """ Transaction related to costs of Organization with BankAccount. Full fields set from data import will be stored in "meta" 
 """
 type BankTransaction {
@@ -19336,7 +20165,7 @@ type BankTransaction {
   isOutcome: Boolean
 
   """ Code of currency in ISO-4217 format """
-  currencyCode: String
+  currencyCode: BankTransactionCurrencyCodeType
 
   """ Textual description of payment purpose in free form """
   purpose: String
@@ -19422,10 +20251,10 @@ input BankTransactionWhereInput {
   amount_not_in: [String]
   isOutcome: Boolean
   isOutcome_not: Boolean
-  currencyCode: String
-  currencyCode_not: String
-  currencyCode_in: [String]
-  currencyCode_not_in: [String]
+  currencyCode: BankTransactionCurrencyCodeType
+  currencyCode_not: BankTransactionCurrencyCodeType
+  currencyCode_in: [BankTransactionCurrencyCodeType]
+  currencyCode_not_in: [BankTransactionCurrencyCodeType]
   purpose: String
   purpose_not: String
   purpose_contains: String
@@ -19587,7 +20416,7 @@ input BankTransactionUpdateInput {
   date: String
   amount: String
   isOutcome: Boolean
-  currencyCode: String
+  currencyCode: BankTransactionCurrencyCodeType
   purpose: String
   meta: JSON
   importId: String
@@ -19618,7 +20447,7 @@ input BankTransactionCreateInput {
   date: String
   amount: String
   isOutcome: Boolean
-  currencyCode: String
+  currencyCode: BankTransactionCurrencyCodeType
   purpose: String
   meta: JSON
   importId: String
@@ -22666,6 +23495,19 @@ input TicketRelateToOneInput {
   disconnectAll: Boolean
 }
 
+enum TicketSectionTypeType {
+  parking
+  section
+}
+
+enum TicketUnitTypeType {
+  parking
+  flat
+  apartment
+  commercial
+  warehouse
+}
+
 input TicketSourceRelateToOneInput {
   create: TicketSourceCreateInput
   connect: TicketSourceWhereUniqueInput
@@ -22857,7 +23699,7 @@ type Ticket {
 
   """ Type of section, such as parking or section. Default value: "section" 
   """
-  sectionType: String
+  sectionType: TicketSectionTypeType
 
   """ Floor of an apartment building (property). You need to take from Property.map 
   """
@@ -22868,7 +23710,7 @@ type Ticket {
   unitName: String
 
   """ Type of unit, such as parking lot or flat. Default value: "flat" """
-  unitType: String
+  unitType: TicketUnitTypeType
 
   """ Ticket source channel/system. Examples: call, email, visit, ... """
   source: TicketSource
@@ -23245,10 +24087,10 @@ input TicketWhereInput {
   sectionName_not_ends_with_i: String
   sectionName_in: [String]
   sectionName_not_in: [String]
-  sectionType: String
-  sectionType_not: String
-  sectionType_in: [String]
-  sectionType_not_in: [String]
+  sectionType: TicketSectionTypeType
+  sectionType_not: TicketSectionTypeType
+  sectionType_in: [TicketSectionTypeType]
+  sectionType_not_in: [TicketSectionTypeType]
   floorName: String
   floorName_not: String
   floorName_contains: String
@@ -23285,10 +24127,10 @@ input TicketWhereInput {
   unitName_not_ends_with_i: String
   unitName_in: [String]
   unitName_not_in: [String]
-  unitType: String
-  unitType_not: String
-  unitType_in: [String]
-  unitType_not_in: [String]
+  unitType: TicketUnitTypeType
+  unitType_not: TicketUnitTypeType
+  unitType_in: [TicketUnitTypeType]
+  unitType_not_in: [TicketUnitTypeType]
   source: TicketSourceWhereInput
   source_is_null: Boolean
   sourceMeta: JSON
@@ -23537,10 +24379,10 @@ input TicketUpdateInput {
   propertyAddress: String
   propertyAddressMeta: JSON
   sectionName: String
-  sectionType: String
+  sectionType: TicketSectionTypeType
   floorName: String
   unitName: String
-  unitType: String
+  unitType: TicketUnitTypeType
   source: TicketSourceRelateToOneInput
   sourceMeta: JSON
   deferredUntil: String
@@ -23610,10 +24452,10 @@ input TicketCreateInput {
   propertyAddress: String
   propertyAddressMeta: JSON
   sectionName: String
-  sectionType: String
+  sectionType: TicketSectionTypeType
   floorName: String
   unitName: String
-  unitType: String
+  unitType: TicketUnitTypeType
   source: TicketSourceRelateToOneInput
   sourceMeta: JSON
   deferredUntil: String
@@ -24922,6 +25764,32 @@ enum TicketChangeQualityControlValueToType {
   good
 }
 
+enum TicketChangeSectionTypeFromType {
+  parking
+  section
+}
+
+enum TicketChangeSectionTypeToType {
+  parking
+  section
+}
+
+enum TicketChangeUnitTypeFromType {
+  parking
+  flat
+  apartment
+  commercial
+  warehouse
+}
+
+enum TicketChangeUnitTypeToType {
+  parking
+  flat
+  apartment
+  commercial
+  warehouse
+}
+
 """ Incremental changes of Ticket """
 type TicketChange {
   """
@@ -25124,11 +25992,11 @@ type TicketChange {
 
   """ Type of section, such as parking or section. Default value: "section" 
   """
-  sectionTypeFrom: String
+  sectionTypeFrom: TicketChangeSectionTypeFromType
 
   """ Type of section, such as parking or section. Default value: "section" 
   """
-  sectionTypeTo: String
+  sectionTypeTo: TicketChangeSectionTypeToType
 
   """ Floor of an apartment building (property). You need to take from Property.map 
   """
@@ -25147,10 +26015,10 @@ type TicketChange {
   unitNameTo: String
 
   """ Type of unit, such as parking lot or flat. Default value: "flat" """
-  unitTypeFrom: String
+  unitTypeFrom: TicketChangeUnitTypeFromType
 
   """ Type of unit, such as parking lot or flat. Default value: "flat" """
-  unitTypeTo: String
+  unitTypeTo: TicketChangeUnitTypeToType
 
   """ In the case of remote system sync, you can store some extra analytics. Examples: email, name, phone, ... 
   """
@@ -25829,14 +26697,14 @@ input TicketChangeWhereInput {
   sectionNameTo_not_ends_with_i: String
   sectionNameTo_in: [String]
   sectionNameTo_not_in: [String]
-  sectionTypeFrom: String
-  sectionTypeFrom_not: String
-  sectionTypeFrom_in: [String]
-  sectionTypeFrom_not_in: [String]
-  sectionTypeTo: String
-  sectionTypeTo_not: String
-  sectionTypeTo_in: [String]
-  sectionTypeTo_not_in: [String]
+  sectionTypeFrom: TicketChangeSectionTypeFromType
+  sectionTypeFrom_not: TicketChangeSectionTypeFromType
+  sectionTypeFrom_in: [TicketChangeSectionTypeFromType]
+  sectionTypeFrom_not_in: [TicketChangeSectionTypeFromType]
+  sectionTypeTo: TicketChangeSectionTypeToType
+  sectionTypeTo_not: TicketChangeSectionTypeToType
+  sectionTypeTo_in: [TicketChangeSectionTypeToType]
+  sectionTypeTo_not_in: [TicketChangeSectionTypeToType]
   floorNameFrom: String
   floorNameFrom_not: String
   floorNameFrom_contains: String
@@ -25909,14 +26777,14 @@ input TicketChangeWhereInput {
   unitNameTo_not_ends_with_i: String
   unitNameTo_in: [String]
   unitNameTo_not_in: [String]
-  unitTypeFrom: String
-  unitTypeFrom_not: String
-  unitTypeFrom_in: [String]
-  unitTypeFrom_not_in: [String]
-  unitTypeTo: String
-  unitTypeTo_not: String
-  unitTypeTo_in: [String]
-  unitTypeTo_not_in: [String]
+  unitTypeFrom: TicketChangeUnitTypeFromType
+  unitTypeFrom_not: TicketChangeUnitTypeFromType
+  unitTypeFrom_in: [TicketChangeUnitTypeFromType]
+  unitTypeFrom_not_in: [TicketChangeUnitTypeFromType]
+  unitTypeTo: TicketChangeUnitTypeToType
+  unitTypeTo_not: TicketChangeUnitTypeToType
+  unitTypeTo_in: [TicketChangeUnitTypeToType]
+  unitTypeTo_not_in: [TicketChangeUnitTypeToType]
   sourceMetaFrom: JSON
   sourceMetaFrom_not: JSON
   sourceMetaFrom_in: [JSON]
@@ -26696,14 +27564,14 @@ input TicketChangeUpdateInput {
   propertyAddressMetaTo: JSON
   sectionNameFrom: String
   sectionNameTo: String
-  sectionTypeFrom: String
-  sectionTypeTo: String
+  sectionTypeFrom: TicketChangeSectionTypeFromType
+  sectionTypeTo: TicketChangeSectionTypeToType
   floorNameFrom: String
   floorNameTo: String
   unitNameFrom: String
   unitNameTo: String
-  unitTypeFrom: String
-  unitTypeTo: String
+  unitTypeFrom: TicketChangeUnitTypeFromType
+  unitTypeTo: TicketChangeUnitTypeToType
   sourceMetaFrom: JSON
   sourceMetaTo: JSON
   deferredUntilFrom: String
@@ -26815,14 +27683,14 @@ input TicketChangeCreateInput {
   propertyAddressMetaTo: JSON
   sectionNameFrom: String
   sectionNameTo: String
-  sectionTypeFrom: String
-  sectionTypeTo: String
+  sectionTypeFrom: TicketChangeSectionTypeFromType
+  sectionTypeTo: TicketChangeSectionTypeToType
   floorNameFrom: String
   floorNameTo: String
   unitNameFrom: String
   unitNameTo: String
-  unitTypeFrom: String
-  unitTypeTo: String
+  unitTypeFrom: TicketChangeUnitTypeFromType
+  unitTypeTo: TicketChangeUnitTypeToType
   sourceMetaFrom: JSON
   sourceMetaTo: JSON
   deferredUntilFrom: String
@@ -27115,6 +27983,11 @@ input TicketCommentHistoryRecordsCreateInput {
   data: TicketCommentHistoryRecordCreateInput
 }
 
+enum TicketCommentTypeType {
+  organization
+  resident
+}
+
 """ Textual comment for tickets """
 type TicketComment {
   """
@@ -27127,7 +28000,7 @@ type TicketComment {
   _label_: String
 
   """ Comment type (internal for an organization or with a resident) """
-  type: String
+  type: TicketCommentTypeType
 
   """ Related ticket of the comment """
   ticket: Ticket
@@ -27163,10 +28036,10 @@ type TicketComment {
 input TicketCommentWhereInput {
   AND: [TicketCommentWhereInput]
   OR: [TicketCommentWhereInput]
-  type: String
-  type_not: String
-  type_in: [String]
-  type_not_in: [String]
+  type: TicketCommentTypeType
+  type_not: TicketCommentTypeType
+  type_in: [TicketCommentTypeType]
+  type_not_in: [TicketCommentTypeType]
   ticket: TicketWhereInput
   ticket_is_null: Boolean
   user: UserWhereInput
@@ -27279,7 +28152,7 @@ enum SortTicketCommentsBy {
 }
 
 input TicketCommentUpdateInput {
-  type: String
+  type: TicketCommentTypeType
   ticket: TicketRelateToOneInput
   user: UserRelateToOneInput
   content: String
@@ -27300,7 +28173,7 @@ input TicketCommentsUpdateInput {
 }
 
 input TicketCommentCreateInput {
-  type: String
+  type: TicketCommentTypeType
   ticket: TicketRelateToOneInput
   user: UserRelateToOneInput
   content: String
@@ -36730,6 +37603,591 @@ input TicketAutoAssignmentsCreateInput {
   data: TicketAutoAssignmentCreateInput
 }
 
+enum TicketDocumentGenerationTaskHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type TicketDocumentGenerationTaskHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the TicketDocumentGenerationTaskHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the TicketDocumentGenerationTaskHistoryRecord List config, or
+   3. As an alias to a 'name' field on the TicketDocumentGenerationTaskHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the TicketDocumentGenerationTaskHistoryRecord List.
+  """
+  _label_: String
+  ticket: String
+  status: String
+  format: String
+  progress: Int
+  user: String
+  timeZone: String
+  file: JSON
+  documentType: String
+  meta: JSON
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: TicketDocumentGenerationTaskHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input TicketDocumentGenerationTaskHistoryRecordWhereInput {
+  AND: [TicketDocumentGenerationTaskHistoryRecordWhereInput]
+  OR: [TicketDocumentGenerationTaskHistoryRecordWhereInput]
+  ticket: String
+  ticket_not: String
+  ticket_in: [String]
+  ticket_not_in: [String]
+  status: String
+  status_not: String
+  status_contains: String
+  status_not_contains: String
+  status_starts_with: String
+  status_not_starts_with: String
+  status_ends_with: String
+  status_not_ends_with: String
+  status_i: String
+  status_not_i: String
+  status_contains_i: String
+  status_not_contains_i: String
+  status_starts_with_i: String
+  status_not_starts_with_i: String
+  status_ends_with_i: String
+  status_not_ends_with_i: String
+  status_in: [String]
+  status_not_in: [String]
+  format: String
+  format_not: String
+  format_contains: String
+  format_not_contains: String
+  format_starts_with: String
+  format_not_starts_with: String
+  format_ends_with: String
+  format_not_ends_with: String
+  format_i: String
+  format_not_i: String
+  format_contains_i: String
+  format_not_contains_i: String
+  format_starts_with_i: String
+  format_not_starts_with_i: String
+  format_ends_with_i: String
+  format_not_ends_with_i: String
+  format_in: [String]
+  format_not_in: [String]
+  progress: Int
+  progress_not: Int
+  progress_lt: Int
+  progress_lte: Int
+  progress_gt: Int
+  progress_gte: Int
+  progress_in: [Int]
+  progress_not_in: [Int]
+  user: String
+  user_not: String
+  user_in: [String]
+  user_not_in: [String]
+  timeZone: String
+  timeZone_not: String
+  timeZone_contains: String
+  timeZone_not_contains: String
+  timeZone_starts_with: String
+  timeZone_not_starts_with: String
+  timeZone_ends_with: String
+  timeZone_not_ends_with: String
+  timeZone_i: String
+  timeZone_not_i: String
+  timeZone_contains_i: String
+  timeZone_not_contains_i: String
+  timeZone_starts_with_i: String
+  timeZone_not_starts_with_i: String
+  timeZone_ends_with_i: String
+  timeZone_not_ends_with_i: String
+  timeZone_in: [String]
+  timeZone_not_in: [String]
+  file: JSON
+  file_not: JSON
+  file_in: [JSON]
+  file_not_in: [JSON]
+  documentType: String
+  documentType_not: String
+  documentType_contains: String
+  documentType_not_contains: String
+  documentType_starts_with: String
+  documentType_not_starts_with: String
+  documentType_ends_with: String
+  documentType_not_ends_with: String
+  documentType_i: String
+  documentType_not_i: String
+  documentType_contains_i: String
+  documentType_not_contains_i: String
+  documentType_starts_with_i: String
+  documentType_not_starts_with_i: String
+  documentType_ends_with_i: String
+  documentType_not_ends_with_i: String
+  documentType_in: [String]
+  documentType_not_in: [String]
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: TicketDocumentGenerationTaskHistoryRecordHistoryActionType
+  history_action_not: TicketDocumentGenerationTaskHistoryRecordHistoryActionType
+  history_action_in: [TicketDocumentGenerationTaskHistoryRecordHistoryActionType]
+  history_action_not_in: [TicketDocumentGenerationTaskHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input TicketDocumentGenerationTaskHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortTicketDocumentGenerationTaskHistoryRecordsBy {
+  status_ASC
+  status_DESC
+  format_ASC
+  format_DESC
+  progress_ASC
+  progress_DESC
+  timeZone_ASC
+  timeZone_DESC
+  documentType_ASC
+  documentType_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input TicketDocumentGenerationTaskHistoryRecordUpdateInput {
+  ticket: String
+  status: String
+  format: String
+  progress: Int
+  user: String
+  timeZone: String
+  file: JSON
+  documentType: String
+  meta: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: TicketDocumentGenerationTaskHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input TicketDocumentGenerationTaskHistoryRecordsUpdateInput {
+  id: ID!
+  data: TicketDocumentGenerationTaskHistoryRecordUpdateInput
+}
+
+input TicketDocumentGenerationTaskHistoryRecordCreateInput {
+  ticket: String
+  status: String
+  format: String
+  progress: Int
+  user: String
+  timeZone: String
+  file: JSON
+  documentType: String
+  meta: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: TicketDocumentGenerationTaskHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input TicketDocumentGenerationTaskHistoryRecordsCreateInput {
+  data: TicketDocumentGenerationTaskHistoryRecordCreateInput
+}
+
+enum TicketDocumentGenerationTaskStatusType {
+  processing
+  completed
+  error
+  cancelled
+}
+
+enum TicketDocumentGenerationTaskFormatType {
+  docx
+}
+
+enum TicketDocumentGenerationTaskDocumentTypeType {
+  completionWorks
+}
+
+""" Information about generation process of ticket document """
+type TicketDocumentGenerationTask {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the TicketDocumentGenerationTask List config, or
+   2. As an alias to the field set on 'labelField' in the TicketDocumentGenerationTask List config, or
+   3. As an alias to a 'name' field on the TicketDocumentGenerationTask List (if one exists), or
+   4. As an alias to the 'id' field on the TicketDocumentGenerationTask List.
+  """
+  _label_: String
+
+  """ The application for which the document is generated """
+  ticket: Ticket
+
+  """ Status of current generation operation """
+  status: TicketDocumentGenerationTaskStatusType
+
+  """ Output file format """
+  format: TicketDocumentGenerationTaskFormatType
+
+  """ Progress of current generation operation """
+  progress: Int
+
+  """ User that requested this generation operation. Will be used for read access checks to display all generating tasks somewhere and to display progress indicator of ongoing generating task for current user 
+  """
+  user: User
+
+  """ All datetime fields in export template will be converted to specified tz 
+  """
+  timeZone: String
+
+  """ Meta information about file, saved outside of database somewhere. Shape of meta information JSON object is specific to file adapter, used by saving a file. 
+  """
+  file: File
+
+  """ Type of document """
+  documentType: TicketDocumentGenerationTaskDocumentTypeType
+
+  """ Structured untyped metadata, can be used to store errors or anything else 
+  """
+  meta: JSON
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input TicketDocumentGenerationTaskWhereInput {
+  AND: [TicketDocumentGenerationTaskWhereInput]
+  OR: [TicketDocumentGenerationTaskWhereInput]
+  ticket: TicketWhereInput
+  ticket_is_null: Boolean
+  status: TicketDocumentGenerationTaskStatusType
+  status_not: TicketDocumentGenerationTaskStatusType
+  status_in: [TicketDocumentGenerationTaskStatusType]
+  status_not_in: [TicketDocumentGenerationTaskStatusType]
+  format: TicketDocumentGenerationTaskFormatType
+  format_not: TicketDocumentGenerationTaskFormatType
+  format_in: [TicketDocumentGenerationTaskFormatType]
+  format_not_in: [TicketDocumentGenerationTaskFormatType]
+  progress: Int
+  progress_not: Int
+  progress_lt: Int
+  progress_lte: Int
+  progress_gt: Int
+  progress_gte: Int
+  progress_in: [Int]
+  progress_not_in: [Int]
+  user: UserWhereInput
+  user_is_null: Boolean
+  timeZone: String
+  timeZone_not: String
+  timeZone_contains: String
+  timeZone_not_contains: String
+  timeZone_starts_with: String
+  timeZone_not_starts_with: String
+  timeZone_ends_with: String
+  timeZone_not_ends_with: String
+  timeZone_i: String
+  timeZone_not_i: String
+  timeZone_contains_i: String
+  timeZone_not_contains_i: String
+  timeZone_starts_with_i: String
+  timeZone_not_starts_with_i: String
+  timeZone_ends_with_i: String
+  timeZone_not_ends_with_i: String
+  timeZone_in: [String]
+  timeZone_not_in: [String]
+  file: String
+  file_not: String
+  file_in: [String]
+  file_not_in: [String]
+  documentType: TicketDocumentGenerationTaskDocumentTypeType
+  documentType_not: TicketDocumentGenerationTaskDocumentTypeType
+  documentType_in: [TicketDocumentGenerationTaskDocumentTypeType]
+  documentType_not_in: [TicketDocumentGenerationTaskDocumentTypeType]
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input TicketDocumentGenerationTaskWhereUniqueInput {
+  id: ID!
+}
+
+enum SortTicketDocumentGenerationTasksBy {
+  ticket_ASC
+  ticket_DESC
+  status_ASC
+  status_DESC
+  format_ASC
+  format_DESC
+  progress_ASC
+  progress_DESC
+  user_ASC
+  user_DESC
+  timeZone_ASC
+  timeZone_DESC
+  documentType_ASC
+  documentType_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input TicketDocumentGenerationTaskUpdateInput {
+  ticket: TicketRelateToOneInput
+  status: TicketDocumentGenerationTaskStatusType
+  format: TicketDocumentGenerationTaskFormatType
+  progress: Int
+  user: UserRelateToOneInput
+  timeZone: String
+  file: Upload
+  documentType: TicketDocumentGenerationTaskDocumentTypeType
+  meta: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input TicketDocumentGenerationTasksUpdateInput {
+  id: ID!
+  data: TicketDocumentGenerationTaskUpdateInput
+}
+
+input TicketDocumentGenerationTaskCreateInput {
+  ticket: TicketRelateToOneInput
+  status: TicketDocumentGenerationTaskStatusType
+  format: TicketDocumentGenerationTaskFormatType
+  progress: Int
+  user: UserRelateToOneInput
+  timeZone: String
+  file: Upload
+  documentType: TicketDocumentGenerationTaskDocumentTypeType
+  meta: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input TicketDocumentGenerationTasksCreateInput {
+  data: TicketDocumentGenerationTaskCreateInput
+}
+
 enum MessageHistoryRecordHistoryActionType {
   c
   u
@@ -39547,6 +41005,9 @@ input MessageBatchHistoryRecordsCreateInput {
 enum MessageBatchMessageTypeType {
   CUSTOM_CONTENT_MESSAGE
   MOBILE_APP_UPDATE_AVAILABLE_MESSAGE_PUSH
+  CUSTOM_CONTENT_MESSAGE_PUSH
+  CUSTOM_CONTENT_MESSAGE_EMAIL
+  CUSTOM_CONTENT_MESSAGE_SMS
 }
 
 enum MessageBatchStatusType {
@@ -41472,6 +42933,14 @@ input ContactHistoryRecordsCreateInput {
   data: ContactHistoryRecordCreateInput
 }
 
+enum ContactUnitTypeType {
+  parking
+  flat
+  apartment
+  commercial
+  warehouse
+}
+
 input ContactRoleRelateToOneInput {
   create: ContactRoleCreateInput
   connect: ContactRoleWhereUniqueInput
@@ -41504,7 +42973,7 @@ type Contact {
   unitName: String
 
   """ Type of unit, such as parking lot or flat. Default value: "flat" """
-  unitType: String
+  unitType: ContactUnitTypeType
 
   """ Normalized contact email of this person """
   email: String
@@ -41569,10 +43038,10 @@ input ContactWhereInput {
   unitName_not_ends_with_i: String
   unitName_in: [String]
   unitName_not_in: [String]
-  unitType: String
-  unitType_not: String
-  unitType_in: [String]
-  unitType_not_in: [String]
+  unitType: ContactUnitTypeType
+  unitType_not: ContactUnitTypeType
+  unitType_in: [ContactUnitTypeType]
+  unitType_not_in: [ContactUnitTypeType]
   email: String
   email_not: String
   email_contains: String
@@ -41734,7 +43203,7 @@ input ContactUpdateInput {
   organization: OrganizationRelateToOneInput
   property: PropertyRelateToOneInput
   unitName: String
-  unitType: String
+  unitType: ContactUnitTypeType
   email: String
   phone: String
   name: String
@@ -41760,7 +43229,7 @@ input ContactCreateInput {
   organization: OrganizationRelateToOneInput
   property: PropertyRelateToOneInput
   unitName: String
-  unitType: String
+  unitType: ContactUnitTypeType
   email: String
   phone: String
   name: String
@@ -43139,6 +44608,14 @@ type PaymentCategory {
   acquiringName: String!
 }
 
+enum ResidentUnitTypeType {
+  parking
+  flat
+  apartment
+  commercial
+  warehouse
+}
+
 type ResidentContactRole {
   id: ID!
   name: String!
@@ -43182,7 +44659,7 @@ type Resident {
   unitName: String
 
   """ Type of unit, such as parking lot or flat. Default value: "flat" """
-  unitType: String
+  unitType: ResidentUnitTypeType
   isVerifiedByManagingCompany: Boolean
   managingCompanyContactRole: ResidentContactRole
 
@@ -43250,10 +44727,10 @@ input ResidentWhereInput {
   unitName_not_ends_with_i: String
   unitName_in: [String]
   unitName_not_in: [String]
-  unitType: String
-  unitType_not: String
-  unitType_in: [String]
-  unitType_not_in: [String]
+  unitType: ResidentUnitTypeType
+  unitType_not: ResidentUnitTypeType
+  unitType_in: [ResidentUnitTypeType]
+  unitType_not_in: [ResidentUnitTypeType]
   organization: OrganizationWhereInput
   organization_is_null: Boolean
   id: ID
@@ -43399,7 +44876,7 @@ input ResidentUpdateInput {
   user: UserRelateToOneInput
   property: PropertyRelateToOneInput
   unitName: String
-  unitType: String
+  unitType: ResidentUnitTypeType
   organization: OrganizationRelateToOneInput
   address: String
   addressKey: String
@@ -43425,7 +44902,7 @@ input ResidentCreateInput {
   user: UserRelateToOneInput
   property: PropertyRelateToOneInput
   unitName: String
-  unitType: String
+  unitType: ResidentUnitTypeType
   organization: OrganizationRelateToOneInput
   address: String
   addressKey: String
@@ -44236,6 +45713,7 @@ enum TourStepTypeType {
   createPropertyMap
   createTicket
   uploadReceipts
+  createMeter
   createMeterReadings
   viewResidentsAppGuide
   createNews
@@ -44687,6 +46165,11 @@ input UserHelpRequestHistoryRecordsCreateInput {
   data: UserHelpRequestHistoryRecordCreateInput
 }
 
+enum UserHelpRequestTypeType {
+  callback
+  importFile
+}
+
 """ Request from the user to help him with some functionality """
 type UserHelpRequest {
   """
@@ -44700,7 +46183,7 @@ type UserHelpRequest {
 
   """ Type of request. It's can be, for example, request for callback or request to help with import 
   """
-  type: String
+  type: UserHelpRequestTypeType
 
   """ Ref to the organization. The object will be deleted if the organization ceases to exist 
   """
@@ -44742,10 +46225,10 @@ type UserHelpRequest {
 input UserHelpRequestWhereInput {
   AND: [UserHelpRequestWhereInput]
   OR: [UserHelpRequestWhereInput]
-  type: String
-  type_not: String
-  type_in: [String]
-  type_not_in: [String]
+  type: UserHelpRequestTypeType
+  type_not: UserHelpRequestTypeType
+  type_in: [UserHelpRequestTypeType]
+  type_not_in: [UserHelpRequestTypeType]
   organization: OrganizationWhereInput
   organization_is_null: Boolean
   phone: String
@@ -44862,7 +46345,7 @@ enum SortUserHelpRequestsBy {
 }
 
 input UserHelpRequestUpdateInput {
-  type: String
+  type: UserHelpRequestTypeType
   organization: OrganizationRelateToOneInput
   phone: String
   isReadyToSend: Boolean
@@ -44884,7 +46367,7 @@ input UserHelpRequestsUpdateInput {
 }
 
 input UserHelpRequestCreateInput {
-  type: String
+  type: UserHelpRequestTypeType
   organization: OrganizationRelateToOneInput
   phone: String
   isReadyToSend: Boolean
@@ -46837,6 +48320,7 @@ type MeterHistoryRecord {
   nextVerificationDate: String
   controlReadingsDate: String
   sealingDate: String
+  archiveDate: String
   isAutomatic: Boolean
   resource: String
   b2bApp: String
@@ -46926,6 +48410,14 @@ input MeterHistoryRecordWhereInput {
   sealingDate_gte: String
   sealingDate_in: [String]
   sealingDate_not_in: [String]
+  archiveDate: String
+  archiveDate_not: String
+  archiveDate_lt: String
+  archiveDate_lte: String
+  archiveDate_gt: String
+  archiveDate_gte: String
+  archiveDate_in: [String]
+  archiveDate_not_in: [String]
   isAutomatic: Boolean
   isAutomatic_not: Boolean
   resource: String
@@ -47135,6 +48627,8 @@ enum SortMeterHistoryRecordsBy {
   controlReadingsDate_DESC
   sealingDate_ASC
   sealingDate_DESC
+  archiveDate_ASC
+  archiveDate_DESC
   isAutomatic_ASC
   isAutomatic_DESC
   number_ASC
@@ -47174,6 +48668,7 @@ input MeterHistoryRecordUpdateInput {
   nextVerificationDate: String
   controlReadingsDate: String
   sealingDate: String
+  archiveDate: String
   isAutomatic: Boolean
   resource: String
   b2bApp: String
@@ -47213,6 +48708,7 @@ input MeterHistoryRecordCreateInput {
   nextVerificationDate: String
   controlReadingsDate: String
   sealingDate: String
+  archiveDate: String
   isAutomatic: Boolean
   resource: String
   b2bApp: String
@@ -47254,6 +48750,14 @@ input B2BAppRelateToOneInput {
   connect: B2BAppWhereUniqueInput
   disconnect: B2BAppWhereUniqueInput
   disconnectAll: Boolean
+}
+
+enum MeterUnitTypeType {
+  parking
+  flat
+  apartment
+  commercial
+  warehouse
 }
 
 input B2CAppRelateToOneInput {
@@ -47301,6 +48805,9 @@ type Meter {
   """
   sealingDate: String
 
+  """ The date when the meter was disabled and no longer in use """
+  archiveDate: String
+
   """ Determines, if Meter is automatic or not. False by default. If set to True - prevents user with type "resident" from creating MeterReading.So MeterReadings only be acquired through external integration or adjusted by organization employee 
   """
   isAutomatic: Boolean
@@ -47325,7 +48832,7 @@ type Meter {
   unitName: String
 
   """ Type of unit, such as parking lot or flat. Default value: "flat" """
-  unitType: String
+  unitType: MeterUnitTypeType
 
   """ Certain place in unit where meter is, such as kitchen """
   place: String
@@ -47421,6 +48928,14 @@ input MeterWhereInput {
   sealingDate_gte: String
   sealingDate_in: [String]
   sealingDate_not_in: [String]
+  archiveDate: String
+  archiveDate_not: String
+  archiveDate_lt: String
+  archiveDate_lte: String
+  archiveDate_gt: String
+  archiveDate_gte: String
+  archiveDate_in: [String]
+  archiveDate_not_in: [String]
   isAutomatic: Boolean
   isAutomatic_not: Boolean
   resource: MeterResourceWhereInput
@@ -47483,10 +48998,10 @@ input MeterWhereInput {
   unitName_not_ends_with_i: String
   unitName_in: [String]
   unitName_not_in: [String]
-  unitType: String
-  unitType_not: String
-  unitType_in: [String]
-  unitType_not_in: [String]
+  unitType: MeterUnitTypeType
+  unitType_not: MeterUnitTypeType
+  unitType_in: [MeterUnitTypeType]
+  unitType_not_in: [MeterUnitTypeType]
   place: String
   place_not: String
   place_contains: String
@@ -47590,6 +49105,8 @@ enum SortMetersBy {
   controlReadingsDate_DESC
   sealingDate_ASC
   sealingDate_DESC
+  archiveDate_ASC
+  archiveDate_DESC
   isAutomatic_ASC
   isAutomatic_DESC
   resource_ASC
@@ -47637,6 +49154,7 @@ input MeterUpdateInput {
   nextVerificationDate: String
   controlReadingsDate: String
   sealingDate: String
+  archiveDate: String
   isAutomatic: Boolean
   resource: MeterResourceRelateToOneInput
   b2bApp: B2BAppRelateToOneInput
@@ -47644,7 +49162,7 @@ input MeterUpdateInput {
   number: String
   accountNumber: String
   unitName: String
-  unitType: String
+  unitType: MeterUnitTypeType
   place: String
   meta: JSON
   b2cApp: B2CAppRelateToOneInput
@@ -47673,6 +49191,7 @@ input MeterCreateInput {
   nextVerificationDate: String
   controlReadingsDate: String
   sealingDate: String
+  archiveDate: String
   isAutomatic: Boolean
   resource: MeterResourceRelateToOneInput
   b2bApp: B2BAppRelateToOneInput
@@ -47680,7 +49199,7 @@ input MeterCreateInput {
   number: String
   accountNumber: String
   unitName: String
-  unitType: String
+  unitType: MeterUnitTypeType
   place: String
   meta: JSON
   b2cApp: B2CAppRelateToOneInput
@@ -48145,6 +49664,7 @@ type PropertyMeterHistoryRecord {
   nextVerificationDate: String
   controlReadingsDate: String
   sealingDate: String
+  archiveDate: String
   isAutomatic: Boolean
   resource: String
   b2bApp: String
@@ -48229,6 +49749,14 @@ input PropertyMeterHistoryRecordWhereInput {
   sealingDate_gte: String
   sealingDate_in: [String]
   sealingDate_not_in: [String]
+  archiveDate: String
+  archiveDate_not: String
+  archiveDate_lt: String
+  archiveDate_lte: String
+  archiveDate_gt: String
+  archiveDate_gte: String
+  archiveDate_in: [String]
+  archiveDate_not_in: [String]
   isAutomatic: Boolean
   isAutomatic_not: Boolean
   resource: String
@@ -48362,6 +49890,8 @@ enum SortPropertyMeterHistoryRecordsBy {
   controlReadingsDate_DESC
   sealingDate_ASC
   sealingDate_DESC
+  archiveDate_ASC
+  archiveDate_DESC
   isAutomatic_ASC
   isAutomatic_DESC
   number_ASC
@@ -48393,6 +49923,7 @@ input PropertyMeterHistoryRecordUpdateInput {
   nextVerificationDate: String
   controlReadingsDate: String
   sealingDate: String
+  archiveDate: String
   isAutomatic: Boolean
   resource: String
   b2bApp: String
@@ -48427,6 +49958,7 @@ input PropertyMeterHistoryRecordCreateInput {
   nextVerificationDate: String
   controlReadingsDate: String
   sealingDate: String
+  archiveDate: String
   isAutomatic: Boolean
   resource: String
   b2bApp: String
@@ -48488,6 +50020,9 @@ type PropertyMeter {
   """ The date when meter was sealed.Sealing is the installation of a unique single-use device (directly a seal and a sealing rope)on the metering device, which is designed to control unauthorized access to the equipment. 
   """
   sealingDate: String
+
+  """ The date when the meter was disabled and no longer in use """
+  archiveDate: String
 
   """ Determines, if Meter is automatic or not. False by default. If set to True - prevents user with type "resident" from creating MeterReading.So MeterReadings only be acquired through external integration or adjusted by organization employee 
   """
@@ -48593,6 +50128,14 @@ input PropertyMeterWhereInput {
   sealingDate_gte: String
   sealingDate_in: [String]
   sealingDate_not_in: [String]
+  archiveDate: String
+  archiveDate_not: String
+  archiveDate_lt: String
+  archiveDate_lte: String
+  archiveDate_gt: String
+  archiveDate_gte: String
+  archiveDate_in: [String]
+  archiveDate_not_in: [String]
   isAutomatic: Boolean
   isAutomatic_not: Boolean
   resource: MeterResourceWhereInput
@@ -48702,6 +50245,8 @@ enum SortPropertyMetersBy {
   controlReadingsDate_DESC
   sealingDate_ASC
   sealingDate_DESC
+  archiveDate_ASC
+  archiveDate_DESC
   isAutomatic_ASC
   isAutomatic_DESC
   resource_ASC
@@ -48739,6 +50284,7 @@ input PropertyMeterUpdateInput {
   nextVerificationDate: String
   controlReadingsDate: String
   sealingDate: String
+  archiveDate: String
   isAutomatic: Boolean
   resource: MeterResourceRelateToOneInput
   b2bApp: B2BAppRelateToOneInput
@@ -48770,6 +50316,7 @@ input PropertyMeterCreateInput {
   nextVerificationDate: String
   controlReadingsDate: String
   sealingDate: String
+  archiveDate: String
   isAutomatic: Boolean
   resource: MeterResourceRelateToOneInput
   b2bApp: B2BAppRelateToOneInput
@@ -50220,6 +51767,677 @@ input MeterResourceOwnersCreateInput {
   data: MeterResourceOwnerCreateInput
 }
 
+enum MeterReadingsImportTaskHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type MeterReadingsImportTaskHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the MeterReadingsImportTaskHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the MeterReadingsImportTaskHistoryRecord List config, or
+   3. As an alias to a 'name' field on the MeterReadingsImportTaskHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the MeterReadingsImportTaskHistoryRecord List.
+  """
+  _label_: String
+  status: String
+  format: String
+  importedRecordsCount: Int
+  processedRecordsCount: Int
+  totalRecordsCount: Int
+  file: JSON
+  errorFile: JSON
+  errorMessage: String
+  user: String
+  organization: String
+  locale: String
+  meta: JSON
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: MeterReadingsImportTaskHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input MeterReadingsImportTaskHistoryRecordWhereInput {
+  AND: [MeterReadingsImportTaskHistoryRecordWhereInput]
+  OR: [MeterReadingsImportTaskHistoryRecordWhereInput]
+  status: String
+  status_not: String
+  status_contains: String
+  status_not_contains: String
+  status_starts_with: String
+  status_not_starts_with: String
+  status_ends_with: String
+  status_not_ends_with: String
+  status_i: String
+  status_not_i: String
+  status_contains_i: String
+  status_not_contains_i: String
+  status_starts_with_i: String
+  status_not_starts_with_i: String
+  status_ends_with_i: String
+  status_not_ends_with_i: String
+  status_in: [String]
+  status_not_in: [String]
+  format: String
+  format_not: String
+  format_contains: String
+  format_not_contains: String
+  format_starts_with: String
+  format_not_starts_with: String
+  format_ends_with: String
+  format_not_ends_with: String
+  format_i: String
+  format_not_i: String
+  format_contains_i: String
+  format_not_contains_i: String
+  format_starts_with_i: String
+  format_not_starts_with_i: String
+  format_ends_with_i: String
+  format_not_ends_with_i: String
+  format_in: [String]
+  format_not_in: [String]
+  importedRecordsCount: Int
+  importedRecordsCount_not: Int
+  importedRecordsCount_lt: Int
+  importedRecordsCount_lte: Int
+  importedRecordsCount_gt: Int
+  importedRecordsCount_gte: Int
+  importedRecordsCount_in: [Int]
+  importedRecordsCount_not_in: [Int]
+  processedRecordsCount: Int
+  processedRecordsCount_not: Int
+  processedRecordsCount_lt: Int
+  processedRecordsCount_lte: Int
+  processedRecordsCount_gt: Int
+  processedRecordsCount_gte: Int
+  processedRecordsCount_in: [Int]
+  processedRecordsCount_not_in: [Int]
+  totalRecordsCount: Int
+  totalRecordsCount_not: Int
+  totalRecordsCount_lt: Int
+  totalRecordsCount_lte: Int
+  totalRecordsCount_gt: Int
+  totalRecordsCount_gte: Int
+  totalRecordsCount_in: [Int]
+  totalRecordsCount_not_in: [Int]
+  file: JSON
+  file_not: JSON
+  file_in: [JSON]
+  file_not_in: [JSON]
+  errorFile: JSON
+  errorFile_not: JSON
+  errorFile_in: [JSON]
+  errorFile_not_in: [JSON]
+  errorMessage: String
+  errorMessage_not: String
+  errorMessage_contains: String
+  errorMessage_not_contains: String
+  errorMessage_starts_with: String
+  errorMessage_not_starts_with: String
+  errorMessage_ends_with: String
+  errorMessage_not_ends_with: String
+  errorMessage_i: String
+  errorMessage_not_i: String
+  errorMessage_contains_i: String
+  errorMessage_not_contains_i: String
+  errorMessage_starts_with_i: String
+  errorMessage_not_starts_with_i: String
+  errorMessage_ends_with_i: String
+  errorMessage_not_ends_with_i: String
+  errorMessage_in: [String]
+  errorMessage_not_in: [String]
+  user: String
+  user_not: String
+  user_in: [String]
+  user_not_in: [String]
+  organization: String
+  organization_not: String
+  organization_in: [String]
+  organization_not_in: [String]
+  locale: String
+  locale_not: String
+  locale_contains: String
+  locale_not_contains: String
+  locale_starts_with: String
+  locale_not_starts_with: String
+  locale_ends_with: String
+  locale_not_ends_with: String
+  locale_i: String
+  locale_not_i: String
+  locale_contains_i: String
+  locale_not_contains_i: String
+  locale_starts_with_i: String
+  locale_not_starts_with_i: String
+  locale_ends_with_i: String
+  locale_not_ends_with_i: String
+  locale_in: [String]
+  locale_not_in: [String]
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: MeterReadingsImportTaskHistoryRecordHistoryActionType
+  history_action_not: MeterReadingsImportTaskHistoryRecordHistoryActionType
+  history_action_in: [MeterReadingsImportTaskHistoryRecordHistoryActionType]
+  history_action_not_in: [MeterReadingsImportTaskHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input MeterReadingsImportTaskHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortMeterReadingsImportTaskHistoryRecordsBy {
+  status_ASC
+  status_DESC
+  format_ASC
+  format_DESC
+  importedRecordsCount_ASC
+  importedRecordsCount_DESC
+  processedRecordsCount_ASC
+  processedRecordsCount_DESC
+  totalRecordsCount_ASC
+  totalRecordsCount_DESC
+  errorMessage_ASC
+  errorMessage_DESC
+  locale_ASC
+  locale_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input MeterReadingsImportTaskHistoryRecordUpdateInput {
+  status: String
+  format: String
+  importedRecordsCount: Int
+  processedRecordsCount: Int
+  totalRecordsCount: Int
+  file: JSON
+  errorFile: JSON
+  errorMessage: String
+  user: String
+  organization: String
+  locale: String
+  meta: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: MeterReadingsImportTaskHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input MeterReadingsImportTaskHistoryRecordsUpdateInput {
+  id: ID!
+  data: MeterReadingsImportTaskHistoryRecordUpdateInput
+}
+
+input MeterReadingsImportTaskHistoryRecordCreateInput {
+  status: String
+  format: String
+  importedRecordsCount: Int
+  processedRecordsCount: Int
+  totalRecordsCount: Int
+  file: JSON
+  errorFile: JSON
+  errorMessage: String
+  user: String
+  organization: String
+  locale: String
+  meta: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: MeterReadingsImportTaskHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input MeterReadingsImportTaskHistoryRecordsCreateInput {
+  data: MeterReadingsImportTaskHistoryRecordCreateInput
+}
+
+enum MeterReadingsImportTaskStatusType {
+  processing
+  completed
+  error
+  cancelled
+}
+
+enum MeterReadingsImportTaskFormatType {
+  excel_doma
+  csv_1s
+}
+
+""" Stores requested import job parameters, link to error file (if exists) and information about progress of import job 
+"""
+type MeterReadingsImportTask {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the MeterReadingsImportTask List config, or
+   2. As an alias to the field set on 'labelField' in the MeterReadingsImportTask List config, or
+   3. As an alias to a 'name' field on the MeterReadingsImportTask List (if one exists), or
+   4. As an alias to the 'id' field on the MeterReadingsImportTask List.
+  """
+  _label_: String
+
+  """ Status of import job """
+  status: MeterReadingsImportTaskStatusType
+
+  """ Requested import file format """
+  format: MeterReadingsImportTaskFormatType
+
+  """ How many records at the moment are successfully imported """
+  importedRecordsCount: Int
+
+  """ How many records were processed at the moment """
+  processedRecordsCount: Int
+
+  """ Total records to import that will be determined at server side in import operation 
+  """
+  totalRecordsCount: Int
+
+  """ Meta information about file, saved outside of database somewhere. Shape of meta information JSON object is specific to file adapter, used by saving a file. 
+  """
+  file: File
+
+  """ Meta information about error file. Shape of meta information JSON object is specific to file adapter, used by saving a file. 
+  """
+  errorFile: File
+
+  """ Proceeding error information message """
+  errorMessage: String
+
+  """ User that requested this exporting operation. Will be used for read access checks to display all exported tasks somewhere and to display progress indicator of ongoing exporting task for current user 
+  """
+  user: User
+
+  """ Direct link to organization, since meters import requires to specify target organization 
+  """
+  organization: Organization
+
+  """ Requested import locale """
+  locale: String
+
+  """ Stores information about query and ids of exported and failed records 
+  """
+  meta: JSON
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input MeterReadingsImportTaskWhereInput {
+  AND: [MeterReadingsImportTaskWhereInput]
+  OR: [MeterReadingsImportTaskWhereInput]
+  status: MeterReadingsImportTaskStatusType
+  status_not: MeterReadingsImportTaskStatusType
+  status_in: [MeterReadingsImportTaskStatusType]
+  status_not_in: [MeterReadingsImportTaskStatusType]
+  format: MeterReadingsImportTaskFormatType
+  format_not: MeterReadingsImportTaskFormatType
+  format_in: [MeterReadingsImportTaskFormatType]
+  format_not_in: [MeterReadingsImportTaskFormatType]
+  importedRecordsCount: Int
+  importedRecordsCount_not: Int
+  importedRecordsCount_lt: Int
+  importedRecordsCount_lte: Int
+  importedRecordsCount_gt: Int
+  importedRecordsCount_gte: Int
+  importedRecordsCount_in: [Int]
+  importedRecordsCount_not_in: [Int]
+  processedRecordsCount: Int
+  processedRecordsCount_not: Int
+  processedRecordsCount_lt: Int
+  processedRecordsCount_lte: Int
+  processedRecordsCount_gt: Int
+  processedRecordsCount_gte: Int
+  processedRecordsCount_in: [Int]
+  processedRecordsCount_not_in: [Int]
+  totalRecordsCount: Int
+  totalRecordsCount_not: Int
+  totalRecordsCount_lt: Int
+  totalRecordsCount_lte: Int
+  totalRecordsCount_gt: Int
+  totalRecordsCount_gte: Int
+  totalRecordsCount_in: [Int]
+  totalRecordsCount_not_in: [Int]
+  file: String
+  file_not: String
+  file_in: [String]
+  file_not_in: [String]
+  errorFile: String
+  errorFile_not: String
+  errorFile_in: [String]
+  errorFile_not_in: [String]
+  errorMessage: String
+  errorMessage_not: String
+  errorMessage_contains: String
+  errorMessage_not_contains: String
+  errorMessage_starts_with: String
+  errorMessage_not_starts_with: String
+  errorMessage_ends_with: String
+  errorMessage_not_ends_with: String
+  errorMessage_i: String
+  errorMessage_not_i: String
+  errorMessage_contains_i: String
+  errorMessage_not_contains_i: String
+  errorMessage_starts_with_i: String
+  errorMessage_not_starts_with_i: String
+  errorMessage_ends_with_i: String
+  errorMessage_not_ends_with_i: String
+  errorMessage_in: [String]
+  errorMessage_not_in: [String]
+  user: UserWhereInput
+  user_is_null: Boolean
+  organization: OrganizationWhereInput
+  organization_is_null: Boolean
+  locale: String
+  locale_not: String
+  locale_contains: String
+  locale_not_contains: String
+  locale_starts_with: String
+  locale_not_starts_with: String
+  locale_ends_with: String
+  locale_not_ends_with: String
+  locale_i: String
+  locale_not_i: String
+  locale_contains_i: String
+  locale_not_contains_i: String
+  locale_starts_with_i: String
+  locale_not_starts_with_i: String
+  locale_ends_with_i: String
+  locale_not_ends_with_i: String
+  locale_in: [String]
+  locale_not_in: [String]
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input MeterReadingsImportTaskWhereUniqueInput {
+  id: ID!
+}
+
+enum SortMeterReadingsImportTasksBy {
+  status_ASC
+  status_DESC
+  format_ASC
+  format_DESC
+  importedRecordsCount_ASC
+  importedRecordsCount_DESC
+  processedRecordsCount_ASC
+  processedRecordsCount_DESC
+  totalRecordsCount_ASC
+  totalRecordsCount_DESC
+  errorMessage_ASC
+  errorMessage_DESC
+  user_ASC
+  user_DESC
+  organization_ASC
+  organization_DESC
+  locale_ASC
+  locale_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input MeterReadingsImportTaskUpdateInput {
+  status: MeterReadingsImportTaskStatusType
+  format: MeterReadingsImportTaskFormatType
+  importedRecordsCount: Int
+  processedRecordsCount: Int
+  totalRecordsCount: Int
+  file: Upload
+  errorFile: Upload
+  errorMessage: String
+  user: UserRelateToOneInput
+  organization: OrganizationRelateToOneInput
+  locale: String
+  meta: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input MeterReadingsImportTasksUpdateInput {
+  id: ID!
+  data: MeterReadingsImportTaskUpdateInput
+}
+
+input MeterReadingsImportTaskCreateInput {
+  status: MeterReadingsImportTaskStatusType
+  format: MeterReadingsImportTaskFormatType
+  importedRecordsCount: Int
+  processedRecordsCount: Int
+  totalRecordsCount: Int
+  file: Upload
+  errorFile: Upload
+  errorMessage: String
+  user: UserRelateToOneInput
+  organization: OrganizationRelateToOneInput
+  locale: String
+  meta: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input MeterReadingsImportTasksCreateInput {
+  data: MeterReadingsImportTaskCreateInput
+}
+
 enum ServiceSubscriptionHistoryRecordHistoryActionType {
   c
   u
@@ -51162,6 +53380,13 @@ input FeeDistributionFieldInput {
   category: String
 }
 
+enum AcquiringIntegrationContextDefaultStatusType {
+  InProgress
+  Verification
+  Error
+  Finished
+}
+
 """ Information about `acquiring component` which will generate `billing receipts` and `payments` 
 """
 type AcquiringIntegration {
@@ -51203,7 +53428,7 @@ type AcquiringIntegration {
 
   """ Status, which context will have by default after creation if no overwriting option provided 
   """
-  contextDefaultStatus: String
+  contextDefaultStatus: AcquiringIntegrationContextDefaultStatusType
 
   """ Comma separated values of VAT. Set by system administrators. """
   vatPercentOptions: String
@@ -51322,10 +53547,10 @@ input AcquiringIntegrationWhereInput {
   explicitFeeDistributionSchema_not: [FeeDistributionFieldInput!]
   explicitFeeDistributionSchema_in: [[FeeDistributionFieldInput!]]
   explicitFeeDistributionSchema_not_in: [[FeeDistributionFieldInput!]]
-  contextDefaultStatus: String
-  contextDefaultStatus_not: String
-  contextDefaultStatus_in: [String]
-  contextDefaultStatus_not_in: [String]
+  contextDefaultStatus: AcquiringIntegrationContextDefaultStatusType
+  contextDefaultStatus_not: AcquiringIntegrationContextDefaultStatusType
+  contextDefaultStatus_in: [AcquiringIntegrationContextDefaultStatusType]
+  contextDefaultStatus_not_in: [AcquiringIntegrationContextDefaultStatusType]
   vatPercentOptions: String
   vatPercentOptions_not: String
   vatPercentOptions_contains: String
@@ -51452,7 +53677,7 @@ input AcquiringIntegrationUpdateInput {
   hostUrl: String
   supportedBillingIntegrationsGroup: String
   explicitFeeDistributionSchema: [FeeDistributionFieldInput!]
-  contextDefaultStatus: String
+  contextDefaultStatus: AcquiringIntegrationContextDefaultStatusType
   vatPercentOptions: String
   v: Int
   createdAt: String
@@ -51479,7 +53704,7 @@ input AcquiringIntegrationCreateInput {
   hostUrl: String
   supportedBillingIntegrationsGroup: String
   explicitFeeDistributionSchema: [FeeDistributionFieldInput!]
-  contextDefaultStatus: String
+  contextDefaultStatus: AcquiringIntegrationContextDefaultStatusType
   vatPercentOptions: String
   v: Int
   createdAt: String
@@ -52301,6 +54526,11 @@ input RecipientFieldInput {
   classificationCode: String
 }
 
+enum AcquiringIntegrationContextInvoiceTaxRegimeType {
+  general
+  simple
+}
+
 """ Object, which links `acquiring integration` with `service provider`, and stores additional data for it's proper work 
 """
 type AcquiringIntegrationContext {
@@ -52364,7 +54594,7 @@ type AcquiringIntegrationContext {
   invoiceStatus: String
 
   """ The regime of counting taxes for company """
-  invoiceTaxRegime: String
+  invoiceTaxRegime: AcquiringIntegrationContextInvoiceTaxRegimeType
 
   """ The percentage of VAT. Depends of integrations settings (see AcquiringIntegration.vatPercentOptions) 
   """
@@ -52506,10 +54736,10 @@ input AcquiringIntegrationContextWhereInput {
   invoiceStatus_not: String
   invoiceStatus_in: [String]
   invoiceStatus_not_in: [String]
-  invoiceTaxRegime: String
-  invoiceTaxRegime_not: String
-  invoiceTaxRegime_in: [String]
-  invoiceTaxRegime_not_in: [String]
+  invoiceTaxRegime: AcquiringIntegrationContextInvoiceTaxRegimeType
+  invoiceTaxRegime_not: AcquiringIntegrationContextInvoiceTaxRegimeType
+  invoiceTaxRegime_in: [AcquiringIntegrationContextInvoiceTaxRegimeType]
+  invoiceTaxRegime_not_in: [AcquiringIntegrationContextInvoiceTaxRegimeType]
   invoiceVatPercent: String
   invoiceVatPercent_not: String
   invoiceVatPercent_lt: String
@@ -52644,7 +54874,7 @@ input AcquiringIntegrationContextUpdateInput {
   invoiceImplicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   status: String
   invoiceStatus: String
-  invoiceTaxRegime: String
+  invoiceTaxRegime: AcquiringIntegrationContextInvoiceTaxRegimeType
   invoiceVatPercent: String
   invoiceSalesTaxPercent: String
   v: Int
@@ -52678,7 +54908,7 @@ input AcquiringIntegrationContextCreateInput {
   invoiceImplicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   status: String
   invoiceStatus: String
-  invoiceTaxRegime: String
+  invoiceTaxRegime: AcquiringIntegrationContextInvoiceTaxRegimeType
   invoiceVatPercent: String
   invoiceSalesTaxPercent: String
   v: Int
@@ -53160,6 +55390,223 @@ input MultiPaymentHistoryRecordsCreateInput {
   data: MultiPaymentHistoryRecordCreateInput
 }
 
+enum MultiPaymentCurrencyCodeType {
+  AED
+  AFN
+  ALL
+  AMD
+  ANG
+  AOA
+  ARS
+  AUD
+  AWG
+  AZN
+  BAM
+  BBD
+  BDT
+  BGN
+  BHD
+  BIF
+  BMD
+  BND
+  BOB
+  BOV
+  BRL
+  BSD
+  BTN
+  BWP
+  BYN
+  BZD
+  CAD
+  CDF
+  CHE
+  CHF
+  CHW
+  CLF
+  CLP
+  CNY
+  COP
+  COU
+  CRC
+  CUC
+  CUP
+  CVE
+  CZK
+  DJF
+  DKK
+  DOP
+  DZD
+  EGP
+  ERN
+  ETB
+  EUR
+  FJD
+  FKP
+  GBP
+  GEL
+  GHS
+  GIP
+  GMD
+  GNF
+  GTQ
+  GYD
+  HKD
+  HNL
+  HRK
+  HTG
+  HUF
+  IDR
+  ILS
+  INR
+  IQD
+  IRR
+  ISK
+  JMD
+  JOD
+  JPY
+  KES
+  KGS
+  KHR
+  KMF
+  KPW
+  KRW
+  KWD
+  KYD
+  KZT
+  LAK
+  LBP
+  LKR
+  LRD
+  LSL
+  LYD
+  MAD
+  MDL
+  MGA
+  MKD
+  MMK
+  MNT
+  MOP
+  MRU
+  MUR
+  MVR
+  MWK
+  MXN
+  MXV
+  MYR
+  MZN
+  NAD
+  NGN
+  NIO
+  NOK
+  NPR
+  NZD
+  OMR
+  PAB
+  PEN
+  PGK
+  PHP
+  PKR
+  PLN
+  PYG
+  QAR
+  RON
+  RSD
+  RUB
+  RWF
+  SAR
+  SBD
+  SCR
+  SDG
+  SEK
+  SGD
+  SHP
+  SLL
+  SOS
+  SRD
+  SSP
+  STN
+  SVC
+  SYP
+  SZL
+  THB
+  TJS
+  TMT
+  TND
+  TOP
+  TRY
+  TTD
+  TWD
+  TZS
+  UAH
+  UGX
+  USD
+  USN
+  UYI
+  UYU
+  UYW
+  UZS
+  VES
+  VND
+  VUV
+  WST
+  XAF
+  XAG
+  XAU
+  XBA
+  XBB
+  XBC
+  XBD
+  XCD
+  XDR
+  XOF
+  XPD
+  XPF
+  XPT
+  XSU
+  XTS
+  XUA
+  YER
+  ZAR
+  ZMW
+  ZWL
+}
+
+enum MultiPaymentPaymentWayType {
+  CARD
+  CARD_BINDING
+  CARD_MOTO
+  CARD_PRESENT
+  SBRF_SBOL
+  UPOP
+  FILE_BINDING
+  SMS_BINDING
+  P2P
+  P2P_BINDING
+  PAYPAL
+  MTS
+  APPLE_PAY
+  APPLE_PAY_BINDING
+  ANDROID_PAY
+  ANDROID_PAY_BINDING
+  GOOGLE_PAY_CARD
+  GOOGLE_PAY_CARD_BINDING
+  GOOGLE_PAY_TOKENIZED
+  GOOGLE_PAY_TOKENIZED_BINDING
+  SAMSUNG_PAY
+  SAMSUNG_PAY_BINDING
+  IPOS
+  SBERPAY
+  SBERID
+}
+
+enum MultiPaymentStatusType {
+  CREATED
+  DONE
+  PROCESSING
+  ERROR
+  WITHDRAWN
+}
+
 input PaymentRelateToManyInput {
   create: [PaymentCreateInput]
   connect: [PaymentWhereUniqueInput]
@@ -53210,7 +55657,7 @@ type MultiPayment {
   amountWithoutExplicitFee: String
 
   """ Code of currency in ISO-4217 format """
-  currencyCode: String
+  currencyCode: MultiPaymentCurrencyCodeType
 
   """ Time of money withdraw (UTC) """
   withdrawnAt: String
@@ -53220,7 +55667,7 @@ type MultiPayment {
   cardNumber: String
 
   """ Payment way, such as `CARD` or `APPLE_PAY` """
-  paymentWay: String
+  paymentWay: MultiPaymentPaymentWayType
 
   """ Payer email address (optional). Can be used by support to find MultiPayment faster or to send digital receipt 
   """
@@ -53241,7 +55688,7 @@ type MultiPayment {
 
   """ Status of multipayment. Can be: "CREATED", "DONE", "PROCESSING", "ERROR", "WITHDRAWN" 
   """
-  status: String
+  status: MultiPaymentStatusType
 
   """ Link to user """
   user: User
@@ -53321,10 +55768,10 @@ input MultiPaymentWhereInput {
   amountWithoutExplicitFee_gte: String
   amountWithoutExplicitFee_in: [String]
   amountWithoutExplicitFee_not_in: [String]
-  currencyCode: String
-  currencyCode_not: String
-  currencyCode_in: [String]
-  currencyCode_not_in: [String]
+  currencyCode: MultiPaymentCurrencyCodeType
+  currencyCode_not: MultiPaymentCurrencyCodeType
+  currencyCode_in: [MultiPaymentCurrencyCodeType]
+  currencyCode_not_in: [MultiPaymentCurrencyCodeType]
   withdrawnAt: String
   withdrawnAt_not: String
   withdrawnAt_lt: String
@@ -53351,10 +55798,10 @@ input MultiPaymentWhereInput {
   cardNumber_not_ends_with_i: String
   cardNumber_in: [String]
   cardNumber_not_in: [String]
-  paymentWay: String
-  paymentWay_not: String
-  paymentWay_in: [String]
-  paymentWay_not_in: [String]
+  paymentWay: MultiPaymentPaymentWayType
+  paymentWay_not: MultiPaymentPaymentWayType
+  paymentWay_in: [MultiPaymentPaymentWayType]
+  paymentWay_not_in: [MultiPaymentPaymentWayType]
   payerEmail: String
   payerEmail_not: String
   payerEmail_contains: String
@@ -53431,10 +55878,10 @@ input MultiPaymentWhereInput {
   meta_not: JSON
   meta_in: [JSON]
   meta_not_in: [JSON]
-  status: String
-  status_not: String
-  status_in: [String]
-  status_not_in: [String]
+  status: MultiPaymentStatusType
+  status_not: MultiPaymentStatusType
+  status_in: [MultiPaymentStatusType]
+  status_not_in: [MultiPaymentStatusType]
   user: UserWhereInput
   user_is_null: Boolean
 
@@ -53573,16 +56020,16 @@ input MultiPaymentUpdateInput {
   serviceFee: String
   implicitFee: String
   amountWithoutExplicitFee: String
-  currencyCode: String
+  currencyCode: MultiPaymentCurrencyCodeType
   withdrawnAt: String
   cardNumber: String
-  paymentWay: String
+  paymentWay: MultiPaymentPaymentWayType
   payerEmail: String
   serviceCategory: String
   transactionId: String
   importId: String
   meta: JSON
-  status: String
+  status: MultiPaymentStatusType
   user: UserRelateToOneInput
   payments: PaymentRelateToManyInput
   integration: AcquiringIntegrationRelateToOneInput
@@ -53609,16 +56056,16 @@ input MultiPaymentCreateInput {
   serviceFee: String
   implicitFee: String
   amountWithoutExplicitFee: String
-  currencyCode: String
+  currencyCode: MultiPaymentCurrencyCodeType
   withdrawnAt: String
   cardNumber: String
-  paymentWay: String
+  paymentWay: MultiPaymentPaymentWayType
   payerEmail: String
   serviceCategory: String
   transactionId: String
   importId: String
   meta: JSON
-  status: String
+  status: MultiPaymentStatusType
   user: UserRelateToOneInput
   payments: PaymentRelateToManyInput
   integration: AcquiringIntegrationRelateToOneInput
@@ -53661,6 +56108,8 @@ type PaymentHistoryRecord {
   serviceFee: String
   currencyCode: String
   advancedAt: String
+  depositedDate: String
+  transferDate: String
   accountNumber: String
   period: String
   purpose: String
@@ -53760,6 +56209,22 @@ input PaymentHistoryRecordWhereInput {
   advancedAt_gte: String
   advancedAt_in: [String]
   advancedAt_not_in: [String]
+  depositedDate: String
+  depositedDate_not: String
+  depositedDate_lt: String
+  depositedDate_lte: String
+  depositedDate_gt: String
+  depositedDate_gte: String
+  depositedDate_in: [String]
+  depositedDate_not_in: [String]
+  transferDate: String
+  transferDate_not: String
+  transferDate_lt: String
+  transferDate_lte: String
+  transferDate_gt: String
+  transferDate_gte: String
+  transferDate_in: [String]
+  transferDate_not_in: [String]
   accountNumber: String
   accountNumber_not: String
   accountNumber_contains: String
@@ -54019,6 +56484,10 @@ enum SortPaymentHistoryRecordsBy {
   currencyCode_DESC
   advancedAt_ASC
   advancedAt_DESC
+  depositedDate_ASC
+  depositedDate_DESC
+  transferDate_ASC
+  transferDate_DESC
   accountNumber_ASC
   accountNumber_DESC
   period_ASC
@@ -54061,6 +56530,8 @@ input PaymentHistoryRecordUpdateInput {
   serviceFee: String
   currencyCode: String
   advancedAt: String
+  depositedDate: String
+  transferDate: String
   accountNumber: String
   period: String
   purpose: String
@@ -54103,6 +56574,8 @@ input PaymentHistoryRecordCreateInput {
   serviceFee: String
   currencyCode: String
   advancedAt: String
+  depositedDate: String
+  transferDate: String
   accountNumber: String
   period: String
   purpose: String
@@ -54136,6 +56609,187 @@ input PaymentHistoryRecordsCreateInput {
   data: PaymentHistoryRecordCreateInput
 }
 
+enum PaymentCurrencyCodeType {
+  AED
+  AFN
+  ALL
+  AMD
+  ANG
+  AOA
+  ARS
+  AUD
+  AWG
+  AZN
+  BAM
+  BBD
+  BDT
+  BGN
+  BHD
+  BIF
+  BMD
+  BND
+  BOB
+  BOV
+  BRL
+  BSD
+  BTN
+  BWP
+  BYN
+  BZD
+  CAD
+  CDF
+  CHE
+  CHF
+  CHW
+  CLF
+  CLP
+  CNY
+  COP
+  COU
+  CRC
+  CUC
+  CUP
+  CVE
+  CZK
+  DJF
+  DKK
+  DOP
+  DZD
+  EGP
+  ERN
+  ETB
+  EUR
+  FJD
+  FKP
+  GBP
+  GEL
+  GHS
+  GIP
+  GMD
+  GNF
+  GTQ
+  GYD
+  HKD
+  HNL
+  HRK
+  HTG
+  HUF
+  IDR
+  ILS
+  INR
+  IQD
+  IRR
+  ISK
+  JMD
+  JOD
+  JPY
+  KES
+  KGS
+  KHR
+  KMF
+  KPW
+  KRW
+  KWD
+  KYD
+  KZT
+  LAK
+  LBP
+  LKR
+  LRD
+  LSL
+  LYD
+  MAD
+  MDL
+  MGA
+  MKD
+  MMK
+  MNT
+  MOP
+  MRU
+  MUR
+  MVR
+  MWK
+  MXN
+  MXV
+  MYR
+  MZN
+  NAD
+  NGN
+  NIO
+  NOK
+  NPR
+  NZD
+  OMR
+  PAB
+  PEN
+  PGK
+  PHP
+  PKR
+  PLN
+  PYG
+  QAR
+  RON
+  RSD
+  RUB
+  RWF
+  SAR
+  SBD
+  SCR
+  SDG
+  SEK
+  SGD
+  SHP
+  SLL
+  SOS
+  SRD
+  SSP
+  STN
+  SVC
+  SYP
+  SZL
+  THB
+  TJS
+  TMT
+  TND
+  TOP
+  TRY
+  TTD
+  TWD
+  TZS
+  UAH
+  UGX
+  USD
+  USN
+  UYI
+  UYU
+  UYW
+  UZS
+  VES
+  VND
+  VUV
+  WST
+  XAF
+  XAG
+  XAU
+  XBA
+  XBB
+  XBC
+  XBD
+  XCD
+  XDR
+  XOF
+  XPD
+  XPF
+  XPT
+  XSU
+  XTS
+  XUA
+  YER
+  ZAR
+  ZMW
+  ZWL
+}
+
 input InvoiceRelateToOneInput {
   create: InvoiceCreateInput
   connect: InvoiceWhereUniqueInput
@@ -54148,6 +56802,14 @@ input MultiPaymentRelateToOneInput {
   connect: MultiPaymentWhereUniqueInput
   disconnect: MultiPaymentWhereUniqueInput
   disconnectAll: Boolean
+}
+
+enum PaymentStatusType {
+  CREATED
+  PROCESSING
+  DONE
+  ERROR
+  WITHDRAWN
 }
 
 """ Information about completed transaction from user to a specific organization 
@@ -54183,10 +56845,16 @@ type Payment {
   serviceFee: String
 
   """ Code of currency in ISO-4217 format """
-  currencyCode: String
+  currencyCode: PaymentCurrencyCodeType
 
   """ Time at which money was advanced to recipient's account """
   advancedAt: String
+
+  """ Time at which the payment was made by client """
+  depositedDate: String
+
+  """ Time at which money was transfered to recipient's account """
+  transferDate: String
 
   """ Payer's account number """
   accountNumber: String
@@ -54225,7 +56893,7 @@ type Payment {
 
   """ Status of payment. Can be: "CREATED", "PROCESSING", "DONE", "ERROR", "WITHDRAWN" 
   """
-  status: String
+  status: PaymentStatusType
 
   """ Payment order. A directive to a bank from a bank account holder instructing the bank to make a payment or series of payments to a third party 
   """
@@ -54308,10 +56976,10 @@ input PaymentWhereInput {
   serviceFee_gte: String
   serviceFee_in: [String]
   serviceFee_not_in: [String]
-  currencyCode: String
-  currencyCode_not: String
-  currencyCode_in: [String]
-  currencyCode_not_in: [String]
+  currencyCode: PaymentCurrencyCodeType
+  currencyCode_not: PaymentCurrencyCodeType
+  currencyCode_in: [PaymentCurrencyCodeType]
+  currencyCode_not_in: [PaymentCurrencyCodeType]
   advancedAt: String
   advancedAt_not: String
   advancedAt_lt: String
@@ -54320,6 +56988,22 @@ input PaymentWhereInput {
   advancedAt_gte: String
   advancedAt_in: [String]
   advancedAt_not_in: [String]
+  depositedDate: String
+  depositedDate_not: String
+  depositedDate_lt: String
+  depositedDate_lte: String
+  depositedDate_gt: String
+  depositedDate_gte: String
+  depositedDate_in: [String]
+  depositedDate_not_in: [String]
+  transferDate: String
+  transferDate_not: String
+  transferDate_lt: String
+  transferDate_lte: String
+  transferDate_gt: String
+  transferDate_gte: String
+  transferDate_in: [String]
+  transferDate_not_in: [String]
   accountNumber: String
   accountNumber_not: String
   accountNumber_contains: String
@@ -54382,10 +57066,10 @@ input PaymentWhereInput {
   context_is_null: Boolean
   organization: OrganizationWhereInput
   organization_is_null: Boolean
-  status: String
-  status_not: String
-  status_in: [String]
-  status_not_in: [String]
+  status: PaymentStatusType
+  status_not: PaymentStatusType
+  status_in: [PaymentStatusType]
+  status_not_in: [PaymentStatusType]
   order: String
   order_not: String
   order_contains: String
@@ -54535,6 +57219,10 @@ enum SortPaymentsBy {
   currencyCode_DESC
   advancedAt_ASC
   advancedAt_DESC
+  depositedDate_ASC
+  depositedDate_DESC
+  transferDate_ASC
+  transferDate_DESC
   accountNumber_ASC
   accountNumber_DESC
   period_ASC
@@ -54585,8 +57273,10 @@ input PaymentUpdateInput {
   explicitServiceCharge: String
   implicitFee: String
   serviceFee: String
-  currencyCode: String
+  currencyCode: PaymentCurrencyCodeType
   advancedAt: String
+  depositedDate: String
+  transferDate: String
   accountNumber: String
   period: String
   purpose: String
@@ -54597,7 +57287,7 @@ input PaymentUpdateInput {
   multiPayment: MultiPaymentRelateToOneInput
   context: AcquiringIntegrationContextRelateToOneInput
   organization: OrganizationRelateToOneInput
-  status: String
+  status: PaymentStatusType
   order: String
   recipientBic: String
   recipientBankAccount: String
@@ -54624,8 +57314,10 @@ input PaymentCreateInput {
   explicitServiceCharge: String
   implicitFee: String
   serviceFee: String
-  currencyCode: String
+  currencyCode: PaymentCurrencyCodeType
   advancedAt: String
+  depositedDate: String
+  transferDate: String
   accountNumber: String
   period: String
   purpose: String
@@ -54636,7 +57328,7 @@ input PaymentCreateInput {
   multiPayment: MultiPaymentRelateToOneInput
   context: AcquiringIntegrationContextRelateToOneInput
   organization: OrganizationRelateToOneInput
-  status: String
+  status: PaymentStatusType
   order: String
   recipientBic: String
   recipientBankAccount: String
@@ -54869,6 +57561,8 @@ input PaymentsFilterTemplateHistoryRecordsCreateInput {
 
 type PaymentsFilter {
   advancedAt: [String]
+  depositedDate: [String]
+  transferDate: [String]
   accountNumber: String
   address: [String]
   type: [String]
@@ -54878,6 +57572,8 @@ type PaymentsFilter {
 
 input PaymentsFilterInput {
   advancedAt: [String]
+  depositedDate: [String]
+  transferDate: [String]
   accountNumber: String
   address: [String]
   type: [String]
@@ -61106,6 +63802,143 @@ input B2BAppHistoryRecordsCreateInput {
   data: B2BAppHistoryRecordCreateInput
 }
 
+enum B2BAppIconType {
+  AlertCircle
+  ArrowLeft
+  ArrowRight
+  BarChartHorizontal
+  BarChartVertical
+  Bill
+  Briefcase
+  Building
+  CalendarDays
+  Car
+  Check
+  CheckCircle
+  CheckSquare
+  ChevronDown
+  ChevronLeft
+  ChevronRight
+  ChevronUp
+  CircleEllipsis
+  Clock
+  Close
+  Contacts
+  Copy
+  CreditCard
+  DoorOpen
+  Doors
+  Download
+  Edit
+  Employee
+  ExternalLink
+  Eye
+  EyeOff
+  FileCheck
+  FileDown
+  FileEdit
+  FileText
+  FileUp
+  Filter
+  Flat
+  Floor
+  Frown
+  Globe
+  Guide
+  History
+  Home
+  House
+  Inbox
+  Info
+  Interfloor
+  Key
+  Layers
+  LayoutList
+  Link
+  List
+  Lock
+  LogOut
+  Mail
+  Market
+  Menu
+  Meters
+  MinusCircle
+  MoreHorizontal
+  MoreVertical
+  NewAppeal
+  Newspaper
+  OnOff
+  Paperclip
+  Parking
+  Pause
+  PauseFilled
+  Phone
+  PhoneIncoming
+  PhoneOutgoing
+  PieChart
+  Play
+  PlayFilled
+  Plus
+  PlusCircle
+  Print
+  QuestionCircle
+  Readings
+  RefreshCw
+  Rocket
+  Ruble
+  Sber
+  Search
+  Send
+  Services
+  Settings
+  Share
+  Sheet
+  Slash
+  SmartHome
+  Smartphone
+  Smile
+  SortAsc
+  SortDesc
+  Star
+  StarFilled
+  Subtitles
+  Trash
+  Unlock
+  User
+  UserSquare
+  Wallet
+  XCircle
+}
+
+enum B2BAppMenuCategoryType {
+  TOUR
+  DASHBOARD
+  COMMUNICATION
+  PROPERTIES
+  RESIDENTS
+  EMPLOYEES
+  MARKET
+  BILLING
+  METERS
+  MINIAPPS
+  SETTINGS
+}
+
+enum B2BAppContextDefaultStatusType {
+  InProgress
+  Error
+  Finished
+}
+
+enum B2BAppCategoryType {
+  DISPATCHING
+  GIS
+  SMART_HOME
+  BUSINESS_DEVELOPMENT
+  FINANCE
+  OTHER
+}
+
 input B2BAppAccessRightRelateToManyInput {
   create: [B2BAppAccessRightCreateInput]
   connect: [B2BAppAccessRightWhereUniqueInput]
@@ -61116,6 +63949,13 @@ input B2BAppAccessRightRelateToManyInput {
 enum B2BAppGlobalFeature {
   PropertyMapGeneration
   AttachCallRecordToTicket
+}
+
+enum B2BAppLabelType {
+  FREE
+  DISCOUNT
+  POPULAR
+  NEW
 }
 
 input B2BAppNewsSharingConfigRelateToOneInput {
@@ -61179,19 +64019,19 @@ type B2BApp {
 
   """ App icon. The presence of this field means that this app will be pinned to the CRM menu after the connection. 
   """
-  icon: String
+  icon: B2BAppIconType
 
   """ This field is responsible for which category of the CRM menu the application icon will fall into when connected. If not specified - then connected with the icon will be displayed in category "MINIAPPS" by default. 
   """
-  menuCategory: String
+  menuCategory: B2BAppMenuCategoryType
 
   """ Status, which context will have by default after creation if no overwriting option provided 
   """
-  contextDefaultStatus: String
+  contextDefaultStatus: B2BAppContextDefaultStatusType
 
-  """ Category of app. Can be one of the following: ["DISPATCHING", "GIS", "SMART_HOME", "BUSINESS_DEVELOPMENT", "OTHER"] By default set to "OTHER" 
+  """ Category of app. Can be one of the following: ["DISPATCHING", "GIS", "SMART_HOME", "BUSINESS_DEVELOPMENT", "FINANCE", "OTHER"] By default set to "OTHER" 
   """
-  category: String
+  category: B2BAppCategoryType
 
   """ Specifies set of service users, who can access app's contexts related as well as perform actions on behalf of the application 
   """
@@ -61208,7 +64048,7 @@ type B2BApp {
 
   """ App can be marked with one of the following labels in order to visually stand out from other applications: [FREE, DISCOUNT, POPULAR, NEW] 
   """
-  label: String
+  label: B2BAppLabelType
 
   """ Array containing links to promotional images, which will be shown to user on app's page 
   """
@@ -61367,22 +64207,22 @@ input B2BAppWhereInput {
   isPublic_not: Boolean
   hasDynamicTitle: Boolean
   hasDynamicTitle_not: Boolean
-  icon: String
-  icon_not: String
-  icon_in: [String]
-  icon_not_in: [String]
-  menuCategory: String
-  menuCategory_not: String
-  menuCategory_in: [String]
-  menuCategory_not_in: [String]
-  contextDefaultStatus: String
-  contextDefaultStatus_not: String
-  contextDefaultStatus_in: [String]
-  contextDefaultStatus_not_in: [String]
-  category: String
-  category_not: String
-  category_in: [String]
-  category_not_in: [String]
+  icon: B2BAppIconType
+  icon_not: B2BAppIconType
+  icon_in: [B2BAppIconType]
+  icon_not_in: [B2BAppIconType]
+  menuCategory: B2BAppMenuCategoryType
+  menuCategory_not: B2BAppMenuCategoryType
+  menuCategory_in: [B2BAppMenuCategoryType]
+  menuCategory_not_in: [B2BAppMenuCategoryType]
+  contextDefaultStatus: B2BAppContextDefaultStatusType
+  contextDefaultStatus_not: B2BAppContextDefaultStatusType
+  contextDefaultStatus_in: [B2BAppContextDefaultStatusType]
+  contextDefaultStatus_not_in: [B2BAppContextDefaultStatusType]
+  category: B2BAppCategoryType
+  category_not: B2BAppCategoryType
+  category_in: [B2BAppCategoryType]
+  category_not_in: [B2BAppCategoryType]
 
   """ condition must be true for all nodes """
   accessRights_every: B2BAppAccessRightWhereInput
@@ -61404,10 +64244,10 @@ input B2BAppWhereInput {
   displayPriority_gte: Int
   displayPriority_in: [Int]
   displayPriority_not_in: [Int]
-  label: String
-  label_not: String
-  label_in: [String]
-  label_not_in: [String]
+  label: B2BAppLabelType
+  label_not: B2BAppLabelType
+  label_in: [B2BAppLabelType]
+  label_not_in: [B2BAppLabelType]
   gallery: [String!]
   gallery_not: [String!]
   gallery_in: [[String!]]
@@ -61563,14 +64403,14 @@ input B2BAppUpdateInput {
   isGlobal: Boolean
   isPublic: Boolean
   hasDynamicTitle: Boolean
-  icon: String
-  menuCategory: String
-  contextDefaultStatus: String
-  category: String
+  icon: B2BAppIconType
+  menuCategory: B2BAppMenuCategoryType
+  contextDefaultStatus: B2BAppContextDefaultStatusType
+  category: B2BAppCategoryType
   accessRights: B2BAppAccessRightRelateToManyInput
   features: [B2BAppGlobalFeature!]
   displayPriority: Int
-  label: String
+  label: B2BAppLabelType
   gallery: [String!]
   price: String
   newsSharingConfig: B2BAppNewsSharingConfigRelateToOneInput
@@ -61602,14 +64442,14 @@ input B2BAppCreateInput {
   isGlobal: Boolean
   isPublic: Boolean
   hasDynamicTitle: Boolean
-  icon: String
-  menuCategory: String
-  contextDefaultStatus: String
-  category: String
+  icon: B2BAppIconType
+  menuCategory: B2BAppMenuCategoryType
+  contextDefaultStatus: B2BAppContextDefaultStatusType
+  category: B2BAppCategoryType
   accessRights: B2BAppAccessRightRelateToManyInput
   features: [B2BAppGlobalFeature!]
   displayPriority: Int
-  label: String
+  label: B2BAppLabelType
   gallery: [String!]
   price: String
   newsSharingConfig: B2BAppNewsSharingConfigRelateToOneInput
@@ -61846,6 +64686,12 @@ input B2BAppContextHistoryRecordsCreateInput {
   data: B2BAppContextHistoryRecordCreateInput
 }
 
+enum B2BAppContextStatusType {
+  InProgress
+  Error
+  Finished
+}
+
 """ Object which connects B2B App and Organization. Used to determine if app is connected or not, and store settings / state of app for specific organization 
 """
 type B2BAppContext {
@@ -61870,7 +64716,7 @@ type B2BAppContext {
 
   """ Status of B2BApp connection, Can be one of the following: ["InProgress", "Error", "Finished"]. If not specified explicitly on creation, uses default value from related B2BApp model 
   """
-  status: String
+  status: B2BAppContextStatusType
   id: ID!
   v: Int
   createdAt: String
@@ -61905,10 +64751,10 @@ input B2BAppContextWhereInput {
   meta_not: JSON
   meta_in: [JSON]
   meta_not_in: [JSON]
-  status: String
-  status_not: String
-  status_in: [String]
-  status_not_in: [String]
+  status: B2BAppContextStatusType
+  status_not: B2BAppContextStatusType
+  status_in: [B2BAppContextStatusType]
+  status_not_in: [B2BAppContextStatusType]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -62000,7 +64846,7 @@ input B2BAppContextUpdateInput {
   app: B2BAppRelateToOneInput
   organization: OrganizationRelateToOneInput
   meta: JSON
-  status: String
+  status: B2BAppContextStatusType
   v: Int
   createdAt: String
   updatedAt: String
@@ -62021,7 +64867,7 @@ input B2BAppContextCreateInput {
   app: B2BAppRelateToOneInput
   organization: OrganizationRelateToOneInput
   meta: JSON
-  status: String
+  status: B2BAppContextStatusType
   v: Int
   createdAt: String
   updatedAt: String
@@ -66399,6 +69245,14 @@ type B2BAppAccessRightSetHistoryRecord {
   canManageOrganizations: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
+  canReadTickets: Boolean
+  canManageTickets: Boolean
+  canReadTicketComments: Boolean
+  canManageTicketComments: Boolean
+  canReadTicketFiles: Boolean
+  canManageTicketFiles: Boolean
+  canReadTicketCommentFiles: Boolean
+  canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
   id: ID!
   v: Int
@@ -66442,6 +69296,22 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canReadProperties_not: Boolean
   canManageProperties: Boolean
   canManageProperties_not: Boolean
+  canReadTickets: Boolean
+  canReadTickets_not: Boolean
+  canManageTickets: Boolean
+  canManageTickets_not: Boolean
+  canReadTicketComments: Boolean
+  canReadTicketComments_not: Boolean
+  canManageTicketComments: Boolean
+  canManageTicketComments_not: Boolean
+  canReadTicketFiles: Boolean
+  canReadTicketFiles_not: Boolean
+  canManageTicketFiles: Boolean
+  canManageTicketFiles_not: Boolean
+  canReadTicketCommentFiles: Boolean
+  canReadTicketCommentFiles_not: Boolean
+  canManageTicketCommentFiles: Boolean
+  canManageTicketCommentFiles_not: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteRegisterMetersReadings_not: Boolean
   id: ID
@@ -66547,6 +69417,22 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canReadProperties_DESC
   canManageProperties_ASC
   canManageProperties_DESC
+  canReadTickets_ASC
+  canReadTickets_DESC
+  canManageTickets_ASC
+  canManageTickets_DESC
+  canReadTicketComments_ASC
+  canReadTicketComments_DESC
+  canManageTicketComments_ASC
+  canManageTicketComments_DESC
+  canReadTicketFiles_ASC
+  canReadTicketFiles_DESC
+  canManageTicketFiles_ASC
+  canManageTicketFiles_DESC
+  canReadTicketCommentFiles_ASC
+  canReadTicketCommentFiles_DESC
+  canManageTicketCommentFiles_ASC
+  canManageTicketCommentFiles_DESC
   canExecuteRegisterMetersReadings_ASC
   canExecuteRegisterMetersReadings_DESC
   id_ASC
@@ -66579,6 +69465,14 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   canManageOrganizations: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
+  canReadTickets: Boolean
+  canManageTickets: Boolean
+  canReadTicketComments: Boolean
+  canManageTicketComments: Boolean
+  canReadTicketFiles: Boolean
+  canManageTicketFiles: Boolean
+  canReadTicketCommentFiles: Boolean
+  canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
   v: Int
   createdAt: String
@@ -66611,6 +69505,14 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   canManageOrganizations: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
+  canReadTickets: Boolean
+  canManageTickets: Boolean
+  canReadTicketComments: Boolean
+  canManageTicketComments: Boolean
+  canReadTicketFiles: Boolean
+  canManageTicketFiles: Boolean
+  canReadTicketCommentFiles: Boolean
+  canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
   v: Int
   createdAt: String
@@ -66663,6 +69565,14 @@ type B2BAppAccessRightSet {
   canManageOrganizations: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
+  canReadTickets: Boolean
+  canManageTickets: Boolean
+  canReadTicketComments: Boolean
+  canManageTicketComments: Boolean
+  canReadTicketFiles: Boolean
+  canManageTicketFiles: Boolean
+  canReadTicketCommentFiles: Boolean
+  canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
   id: ID!
   v: Int
@@ -66712,6 +69622,22 @@ input B2BAppAccessRightSetWhereInput {
   canReadProperties_not: Boolean
   canManageProperties: Boolean
   canManageProperties_not: Boolean
+  canReadTickets: Boolean
+  canReadTickets_not: Boolean
+  canManageTickets: Boolean
+  canManageTickets_not: Boolean
+  canReadTicketComments: Boolean
+  canReadTicketComments_not: Boolean
+  canManageTicketComments: Boolean
+  canManageTicketComments_not: Boolean
+  canReadTicketFiles: Boolean
+  canReadTicketFiles_not: Boolean
+  canManageTicketFiles: Boolean
+  canManageTicketFiles_not: Boolean
+  canReadTicketCommentFiles: Boolean
+  canReadTicketCommentFiles_not: Boolean
+  canManageTicketCommentFiles: Boolean
+  canManageTicketCommentFiles_not: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteRegisterMetersReadings_not: Boolean
   id: ID
@@ -66799,6 +69725,22 @@ enum SortB2BAppAccessRightSetsBy {
   canReadProperties_DESC
   canManageProperties_ASC
   canManageProperties_DESC
+  canReadTickets_ASC
+  canReadTickets_DESC
+  canManageTickets_ASC
+  canManageTickets_DESC
+  canReadTicketComments_ASC
+  canReadTicketComments_DESC
+  canManageTicketComments_ASC
+  canManageTicketComments_DESC
+  canReadTicketFiles_ASC
+  canReadTicketFiles_DESC
+  canManageTicketFiles_ASC
+  canManageTicketFiles_DESC
+  canReadTicketCommentFiles_ASC
+  canReadTicketCommentFiles_DESC
+  canManageTicketCommentFiles_ASC
+  canManageTicketCommentFiles_DESC
   canExecuteRegisterMetersReadings_ASC
   canExecuteRegisterMetersReadings_DESC
   id_ASC
@@ -66831,6 +69773,14 @@ input B2BAppAccessRightSetUpdateInput {
   canManageOrganizations: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
+  canReadTickets: Boolean
+  canManageTickets: Boolean
+  canReadTicketComments: Boolean
+  canManageTicketComments: Boolean
+  canReadTicketFiles: Boolean
+  canManageTicketFiles: Boolean
+  canReadTicketCommentFiles: Boolean
+  canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
   v: Int
   createdAt: String
@@ -66860,6 +69810,14 @@ input B2BAppAccessRightSetCreateInput {
   canManageOrganizations: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
+  canReadTickets: Boolean
+  canManageTickets: Boolean
+  canReadTicketComments: Boolean
+  canManageTicketComments: Boolean
+  canReadTicketFiles: Boolean
+  canManageTicketFiles: Boolean
+  canReadTicketCommentFiles: Boolean
+  canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
   v: Int
   createdAt: String
@@ -66895,8 +69853,10 @@ type B2BAppNewsSharingConfigHistoryRecord {
   name: String
   publishUrl: String
   icon: JSON
+  previewPicture: JSON
   previewUrl: String
   getRecipientsUrl: String
+  customFormUrl: String
   id: ID!
   v: Int
   createdAt: String
@@ -66955,6 +69915,10 @@ input B2BAppNewsSharingConfigHistoryRecordWhereInput {
   icon_not: JSON
   icon_in: [JSON]
   icon_not_in: [JSON]
+  previewPicture: JSON
+  previewPicture_not: JSON
+  previewPicture_in: [JSON]
+  previewPicture_not_in: [JSON]
   previewUrl: String
   previewUrl_not: String
   previewUrl_contains: String
@@ -66991,6 +69955,24 @@ input B2BAppNewsSharingConfigHistoryRecordWhereInput {
   getRecipientsUrl_not_ends_with_i: String
   getRecipientsUrl_in: [String]
   getRecipientsUrl_not_in: [String]
+  customFormUrl: String
+  customFormUrl_not: String
+  customFormUrl_contains: String
+  customFormUrl_not_contains: String
+  customFormUrl_starts_with: String
+  customFormUrl_not_starts_with: String
+  customFormUrl_ends_with: String
+  customFormUrl_not_ends_with: String
+  customFormUrl_i: String
+  customFormUrl_not_i: String
+  customFormUrl_contains_i: String
+  customFormUrl_not_contains_i: String
+  customFormUrl_starts_with_i: String
+  customFormUrl_not_starts_with_i: String
+  customFormUrl_ends_with_i: String
+  customFormUrl_not_ends_with_i: String
+  customFormUrl_in: [String]
+  customFormUrl_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -67082,6 +70064,8 @@ enum SortB2BAppNewsSharingConfigHistoryRecordsBy {
   previewUrl_DESC
   getRecipientsUrl_ASC
   getRecipientsUrl_DESC
+  customFormUrl_ASC
+  customFormUrl_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -67104,8 +70088,10 @@ input B2BAppNewsSharingConfigHistoryRecordUpdateInput {
   name: String
   publishUrl: String
   icon: JSON
+  previewPicture: JSON
   previewUrl: String
   getRecipientsUrl: String
+  customFormUrl: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -67129,8 +70115,10 @@ input B2BAppNewsSharingConfigHistoryRecordCreateInput {
   name: String
   publishUrl: String
   icon: JSON
+  previewPicture: JSON
   previewUrl: String
   getRecipientsUrl: String
+  customFormUrl: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -67170,11 +70158,18 @@ type B2BAppNewsSharingConfig {
   """ Icon of the app: Telegram Icon / WhatsApp Icon """
   icon: File
 
+  """ Preview picture: might be app screenshot """
+  previewPicture: File
+
   """ URL that returns HTML preview NewsItem """
   previewUrl: String
 
   """ URL that implements getRecipients function """
   getRecipientsUrl: String
+
+  """ URL that implements customForm. If not filled, then app will use standard news form 
+  """
+  customFormUrl: String
   id: ID!
   v: Int
   createdAt: String
@@ -67241,6 +70236,10 @@ input B2BAppNewsSharingConfigWhereInput {
   icon_not: String
   icon_in: [String]
   icon_not_in: [String]
+  previewPicture: String
+  previewPicture_not: String
+  previewPicture_in: [String]
+  previewPicture_not_in: [String]
   previewUrl: String
   previewUrl_not: String
   previewUrl_contains: String
@@ -67277,6 +70276,24 @@ input B2BAppNewsSharingConfigWhereInput {
   getRecipientsUrl_not_ends_with_i: String
   getRecipientsUrl_in: [String]
   getRecipientsUrl_not_in: [String]
+  customFormUrl: String
+  customFormUrl_not: String
+  customFormUrl_contains: String
+  customFormUrl_not_contains: String
+  customFormUrl_starts_with: String
+  customFormUrl_not_starts_with: String
+  customFormUrl_ends_with: String
+  customFormUrl_not_ends_with: String
+  customFormUrl_i: String
+  customFormUrl_not_i: String
+  customFormUrl_contains_i: String
+  customFormUrl_not_contains_i: String
+  customFormUrl_starts_with_i: String
+  customFormUrl_not_starts_with_i: String
+  customFormUrl_ends_with_i: String
+  customFormUrl_not_ends_with_i: String
+  customFormUrl_in: [String]
+  customFormUrl_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -67348,6 +70365,8 @@ enum SortB2BAppNewsSharingConfigsBy {
   previewUrl_DESC
   getRecipientsUrl_ASC
   getRecipientsUrl_DESC
+  customFormUrl_ASC
+  customFormUrl_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -67370,8 +70389,10 @@ input B2BAppNewsSharingConfigUpdateInput {
   name: String
   publishUrl: String
   icon: Upload
+  previewPicture: Upload
   previewUrl: String
   getRecipientsUrl: String
+  customFormUrl: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -67392,8 +70413,10 @@ input B2BAppNewsSharingConfigCreateInput {
   name: String
   publishUrl: String
   icon: Upload
+  previewPicture: Upload
   previewUrl: String
   getRecipientsUrl: String
+  customFormUrl: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -69253,6 +72276,14 @@ input InvoiceHistoryRecordsCreateInput {
   data: InvoiceHistoryRecordCreateInput
 }
 
+enum InvoiceUnitTypeType {
+  parking
+  flat
+  apartment
+  commercial
+  warehouse
+}
+
 type InvoiceRowSchemaField {
   name: String!
   toPay: String!
@@ -69287,6 +72318,18 @@ input InvoiceRowMetaSchemaFieldInput {
   categoryBgColor: String
 }
 
+enum InvoiceStatusType {
+  draft
+  published
+  paid
+  canceled
+}
+
+enum InvoicePaymentTypeType {
+  online
+  cash
+}
+
 """ Invoice model contains information about paid items and payer """
 type Invoice {
   """
@@ -69309,7 +72352,7 @@ type Invoice {
   property: Property
 
   """ Type of unit, such as parking lot or flat. Default value: "flat" """
-  unitType: String
+  unitType: InvoiceUnitTypeType
 
   """ The payer's unitName """
   unitName: String
@@ -69343,10 +72386,10 @@ type Invoice {
 
   """ Invoice status affects which invoices can be read by residents and which invoices can be managed. The newly created invoice has status "draft"; the "published" invoice may be paid by resident; "paid" means that invoice already paid; "canceled" means no modifications allowed. Each status, except draft, has related timestamp. 
   """
-  status: String
+  status: InvoiceStatusType
 
   """ Shows which payment type chosen: online or cash or something else """
-  paymentType: String
+  paymentType: InvoicePaymentTypeType
 
   """ When status of the invoice was changed to published (ready to pay) """
   publishedAt: String
@@ -69410,10 +72453,10 @@ input InvoiceWhereInput {
   number_not_in: [Int]
   property: PropertyWhereInput
   property_is_null: Boolean
-  unitType: String
-  unitType_not: String
-  unitType_in: [String]
-  unitType_not_in: [String]
+  unitType: InvoiceUnitTypeType
+  unitType_not: InvoiceUnitTypeType
+  unitType_in: [InvoiceUnitTypeType]
+  unitType_not_in: [InvoiceUnitTypeType]
   unitName: String
   unitName_not: String
   unitName_contains: String
@@ -69504,14 +72547,14 @@ input InvoiceWhereInput {
   clientPhone_not_ends_with_i: String
   clientPhone_in: [String]
   clientPhone_not_in: [String]
-  status: String
-  status_not: String
-  status_in: [String]
-  status_not_in: [String]
-  paymentType: String
-  paymentType_not: String
-  paymentType_in: [String]
-  paymentType_not_in: [String]
+  status: InvoiceStatusType
+  status_not: InvoiceStatusType
+  status_in: [InvoiceStatusType]
+  status_not_in: [InvoiceStatusType]
+  paymentType: InvoicePaymentTypeType
+  paymentType_not: InvoicePaymentTypeType
+  paymentType_in: [InvoicePaymentTypeType]
+  paymentType_not_in: [InvoicePaymentTypeType]
   publishedAt: String
   publishedAt_not: String
   publishedAt_lt: String
@@ -69655,7 +72698,7 @@ input InvoiceUpdateInput {
   organization: OrganizationRelateToOneInput
   number: Int
   property: PropertyRelateToOneInput
-  unitType: String
+  unitType: InvoiceUnitTypeType
   unitName: String
   accountNumber: String
   toPay: String
@@ -69665,8 +72708,8 @@ input InvoiceUpdateInput {
   client: UserRelateToOneInput
   clientName: String
   clientPhone: String
-  status: String
-  paymentType: String
+  status: InvoiceStatusType
+  paymentType: InvoicePaymentTypeType
   publishedAt: String
   paidAt: String
   canceledAt: String
@@ -69690,7 +72733,7 @@ input InvoiceCreateInput {
   organization: OrganizationRelateToOneInput
   number: Int
   property: PropertyRelateToOneInput
-  unitType: String
+  unitType: InvoiceUnitTypeType
   unitName: String
   accountNumber: String
   toPay: String
@@ -69700,8 +72743,8 @@ input InvoiceCreateInput {
   client: UserRelateToOneInput
   clientName: String
   clientPhone: String
-  status: String
-  paymentType: String
+  status: InvoiceStatusType
+  paymentType: InvoicePaymentTypeType
   publishedAt: String
   paidAt: String
   canceledAt: String
@@ -72487,6 +75530,18 @@ input WebhookRelateToOneInput {
   disconnectAll: Boolean
 }
 
+enum WebhookSubscriptionModelType {
+  User
+  Organization
+  Ticket
+  TicketComment
+  Contact
+  UserHelpRequest
+  AcquiringIntegrationContext
+  B2BApp
+  B2BAppContext
+}
+
 """ Determines which models the WebHook will be subscribed to. When model changes subscription task will be triggered to resolve changed data and send a webhook 
 """
 type WebhookSubscription {
@@ -72519,7 +75574,7 @@ type WebhookSubscription {
   failuresCount: Int
 
   """ The data model (schema) that the webhook is subscribed to """
-  model: String
+  model: WebhookSubscriptionModelType
 
   """ String representing list of model fields in graphql-query format. Exactly the fields specified here will be sent by the webhook. Correct examples: "field1 field2 { subfield }", "{ field1 relation { subfield } }" 
   """
@@ -72602,10 +75657,10 @@ input WebhookSubscriptionWhereInput {
   failuresCount_gte: Int
   failuresCount_in: [Int]
   failuresCount_not_in: [Int]
-  model: String
-  model_not: String
-  model_in: [String]
-  model_not_in: [String]
+  model: WebhookSubscriptionModelType
+  model_not: WebhookSubscriptionModelType
+  model_in: [WebhookSubscriptionModelType]
+  model_not_in: [WebhookSubscriptionModelType]
   fields: String
   fields_not: String
   fields_contains: String
@@ -72739,7 +75794,7 @@ input WebhookSubscriptionUpdateInput {
   syncedAt: String
   syncedAmount: Int
   failuresCount: Int
-  model: String
+  model: WebhookSubscriptionModelType
   fields: String
   filters: JSON
   maxPackSize: Int
@@ -72765,7 +75820,7 @@ input WebhookSubscriptionCreateInput {
   syncedAt: String
   syncedAmount: Int
   failuresCount: Int
-  model: String
+  model: WebhookSubscriptionModelType
   fields: String
   filters: JSON
   maxPackSize: Int
@@ -73216,6 +76271,19 @@ type ResetOrganizationOutput {
   status: String!
 }
 
+input ReplaceOrganizationEmployeeRoleInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  organization: OrganizationWhereUniqueInput!
+  oldRole: OrganizationEmployeeRoleWhereUniqueInput!
+  newRole: OrganizationEmployeeRoleWhereUniqueInput!
+  withDeletionOldRole: Boolean!
+}
+
+type ReplaceOrganizationEmployeeRoleOutput {
+  status: String!
+}
+
 input ExportPropertiesToExcelInput {
   where: PropertyWhereInput!
   sortBy: [SortPropertiesBy!]
@@ -73413,8 +76481,24 @@ input ValidateQRCodeInput {
   qrCode: String!
 }
 
+type ValidateQRCodeLastReceiptDataOutput {
+  id: ID!
+  period: String!
+  toPay: String!
+}
+
+type ValidateQRCodeFeesOutput {
+  explicitServiceCharge: String
+  explicitFee: String
+}
+
 type ValidateQRCodeOutput {
   qrCodeFields: JSON!
+  lastReceiptData: ValidateQRCodeLastReceiptDataOutput
+  explicitFees: ValidateQRCodeFeesOutput!
+  amount: String!
+  acquiringIntegrationHostUrl: String!
+  currencyCode: String!
 }
 
 enum RegisterBillingReceiptFileResultStatus {
@@ -73438,6 +76522,78 @@ type RegisterBillingReceiptFileOutput {
 
 type BillingReceiptsSumOutput {
   sum: String!
+}
+
+input ResidentBillingVirtualReceiptWhereInput {
+  AND: [ResidentBillingVirtualReceiptWhereInput]
+  OR: [ResidentBillingVirtualReceiptWhereInput]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  period: String
+  period_not: String
+  period_contains: String
+  period_not_contains: String
+  period_starts_with: String
+  period_not_starts_with: String
+  period_ends_with: String
+  period_not_ends_with: String
+  period_i: String
+  period_not_i: String
+  period_contains_i: String
+  period_not_contains_i: String
+  period_starts_with_i: String
+  period_not_starts_with_i: String
+  period_ends_with_i: String
+  period_not_ends_with_i: String
+  toPay: String
+  toPay_not: String
+  toPay_contains: String
+  toPay_not_contains: String
+  toPay_starts_with: String
+  toPay_not_starts_with: String
+  toPay_ends_with: String
+  toPay_not_ends_with: String
+  toPay_i: String
+  toPay_not_i: String
+  toPay_contains_i: String
+  toPay_not_contains_i: String
+  toPay_starts_with_i: String
+  toPay_not_starts_with_i: String
+  toPay_ends_with_i: String
+  toPay_not_ends_with_i: String
+  printableNumber: String
+  printableNumber_not: String
+  printableNumber_contains: String
+  printableNumber_not_contains: String
+  printableNumber_starts_with: String
+  printableNumber_not_starts_with: String
+  printableNumber_ends_with: String
+  printableNumber_not_ends_with: String
+  printableNumber_i: String
+  printableNumber_not_i: String
+  printableNumber_contains_i: String
+  printableNumber_not_contains_i: String
+  printableNumber_starts_with_i: String
+  printableNumber_not_starts_with_i: String
+  printableNumber_ends_with_i: String
+  printableNumber_not_ends_with_i: String
+  serviceConsumer: ServiceConsumerWhereInput
+  serviceConsumer_is_null: Boolean
+}
+
+enum SortResidentBillingVirtualReceiptsBy {
+  id_ASC
+  id_DESC
+  period_ASC
+  period_DESC
+  toPay_ASC
+  toPay_DESC
+  printableNumber_ASC
+  printableNumber_DESC
+  serviceConsumer_ASC
+  serviceConsumer_DESC
 }
 
 input CreateBankAccountRequestInput {
@@ -73563,6 +76719,7 @@ enum MessageType {
   MARKETPLACE_INVOICE_CASH_PUBLISHED_MESSAGE
   MARKETPLACE_INVOICE_CASH_WITH_TICKET_PUBLISHED_MESSAGE
   SERVICE_USER_CREATED
+  SEND_DAILY_STATISTICS
 }
 
 input SendMessageInput {
@@ -73675,6 +76832,15 @@ type _internalSendNotificationNewMobileAppVersionOutput {
   messageBatchId: ID!
 }
 
+input _internalSendHashedResidentPhonesInput {
+  dv: Int!
+  sender: SenderFieldInput!
+}
+
+type _internalSendHashedResidentPhonesOutput {
+  taskId: ID!
+}
+
 input _internalSyncContactsWithResidentsForOrganizationInput {
   dv: Int!
   sender: SenderFieldInput!
@@ -73785,6 +76951,36 @@ input RegisterResidentInvoiceInput {
   resident: ResidentWhereUniqueInput!
   invoiceRows: [InvoiceRowsInput!]!
   paymentType: InvoicePaymentType!
+}
+
+input FindOrganizationsForAddressInput {
+  addressKey: String!
+  unitName: String
+  unitType: String
+  tin: String
+  accountNumber: String
+}
+
+type FindOrganizationForAddressOrganizationType {
+  id: ID!
+  name: String!
+  tin: String!
+  type: OrganizationTypeType!
+}
+
+type FindOrganizationForAddressAccountType {
+  number: String!
+  category: ID!
+  balance: String
+  routingNumber: String!
+  bankAccountNumber: String!
+}
+
+type FindOrganizationForAddressOutput {
+  organization: FindOrganizationForAddressOrganizationType!
+  account: FindOrganizationForAddressAccountType
+  hasMeters: Boolean!
+  hasBillingData: Boolean!
 }
 
 input SyncTourStepsInput {
@@ -74037,6 +77233,8 @@ type CreatePaymentByLinkOutput {
   amount: String!
   explicitFee: String!
   totalAmount: String!
+  acquiringIntegrationHostUrl: String!
+  currencyCode: String!
   address: String!
   addressMeta: AddressMetaField!
   unitType: String!
@@ -74307,6 +77505,7 @@ enum AppCategory {
   GIS
   SMART_HOME
   BUSINESS_DEVELOPMENT
+  FINANCE
   OTHER
 }
 
@@ -74357,6 +77556,8 @@ input SendB2CAppPushMessageData {
   voipLogin: String
   voipPassword: String
   voipDtfmCommand: String
+  stun: String
+  codec: String
 }
 
 input SendB2CAppPushMessageInput {
@@ -76126,6 +79327,37 @@ type Query {
   """ Retrieve the meta-data for the TicketAutoAssignment list. """
   _TicketAutoAssignmentsMeta: _ListMeta
 
+  """ Search for all TicketDocumentGenerationTaskHistoryRecord items which match the where clause. 
+  """
+  allTicketDocumentGenerationTaskHistoryRecords(where: TicketDocumentGenerationTaskHistoryRecordWhereInput, search: String, sortBy: [SortTicketDocumentGenerationTaskHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [TicketDocumentGenerationTaskHistoryRecord]
+
+  """ Search for the TicketDocumentGenerationTaskHistoryRecord item with the matching ID. 
+  """
+  TicketDocumentGenerationTaskHistoryRecord(where: TicketDocumentGenerationTaskHistoryRecordWhereUniqueInput!): TicketDocumentGenerationTaskHistoryRecord
+
+  """ Perform a meta-query on all TicketDocumentGenerationTaskHistoryRecord items which match the where clause. 
+  """
+  _allTicketDocumentGenerationTaskHistoryRecordsMeta(where: TicketDocumentGenerationTaskHistoryRecordWhereInput, search: String, sortBy: [SortTicketDocumentGenerationTaskHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the TicketDocumentGenerationTaskHistoryRecord list. 
+  """
+  _TicketDocumentGenerationTaskHistoryRecordsMeta: _ListMeta
+
+  """ Search for all TicketDocumentGenerationTask items which match the where clause. 
+  """
+  allTicketDocumentGenerationTasks(where: TicketDocumentGenerationTaskWhereInput, search: String, sortBy: [SortTicketDocumentGenerationTasksBy!], orderBy: String, first: Int, skip: Int): [TicketDocumentGenerationTask]
+
+  """ Search for the TicketDocumentGenerationTask item with the matching ID. 
+  """
+  TicketDocumentGenerationTask(where: TicketDocumentGenerationTaskWhereUniqueInput!): TicketDocumentGenerationTask
+
+  """ Perform a meta-query on all TicketDocumentGenerationTask items which match the where clause. 
+  """
+  _allTicketDocumentGenerationTasksMeta(where: TicketDocumentGenerationTaskWhereInput, search: String, sortBy: [SortTicketDocumentGenerationTasksBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the TicketDocumentGenerationTask list. """
+  _TicketDocumentGenerationTasksMeta: _ListMeta
+
   """ Search for all MessageHistoryRecord items which match the where clause. 
   """
   allMessageHistoryRecords(where: MessageHistoryRecordWhereInput, search: String, sortBy: [SortMessageHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [MessageHistoryRecord]
@@ -76834,6 +80066,36 @@ type Query {
 
   """ Retrieve the meta-data for the MeterResourceOwner list. """
   _MeterResourceOwnersMeta: _ListMeta
+
+  """ Search for all MeterReadingsImportTaskHistoryRecord items which match the where clause. 
+  """
+  allMeterReadingsImportTaskHistoryRecords(where: MeterReadingsImportTaskHistoryRecordWhereInput, search: String, sortBy: [SortMeterReadingsImportTaskHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [MeterReadingsImportTaskHistoryRecord]
+
+  """ Search for the MeterReadingsImportTaskHistoryRecord item with the matching ID. 
+  """
+  MeterReadingsImportTaskHistoryRecord(where: MeterReadingsImportTaskHistoryRecordWhereUniqueInput!): MeterReadingsImportTaskHistoryRecord
+
+  """ Perform a meta-query on all MeterReadingsImportTaskHistoryRecord items which match the where clause. 
+  """
+  _allMeterReadingsImportTaskHistoryRecordsMeta(where: MeterReadingsImportTaskHistoryRecordWhereInput, search: String, sortBy: [SortMeterReadingsImportTaskHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the MeterReadingsImportTaskHistoryRecord list. 
+  """
+  _MeterReadingsImportTaskHistoryRecordsMeta: _ListMeta
+
+  """ Search for all MeterReadingsImportTask items which match the where clause. 
+  """
+  allMeterReadingsImportTasks(where: MeterReadingsImportTaskWhereInput, search: String, sortBy: [SortMeterReadingsImportTasksBy!], orderBy: String, first: Int, skip: Int): [MeterReadingsImportTask]
+
+  """ Search for the MeterReadingsImportTask item with the matching ID. """
+  MeterReadingsImportTask(where: MeterReadingsImportTaskWhereUniqueInput!): MeterReadingsImportTask
+
+  """ Perform a meta-query on all MeterReadingsImportTask items which match the where clause. 
+  """
+  _allMeterReadingsImportTasksMeta(where: MeterReadingsImportTaskWhereInput, search: String, sortBy: [SortMeterReadingsImportTasksBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the MeterReadingsImportTask list. """
+  _MeterReadingsImportTasksMeta: _ListMeta
 
   """ Search for all ServiceSubscriptionHistoryRecord items which match the where clause. 
   """
@@ -78116,10 +81378,43 @@ type Query {
   }`
   """
   getPhoneByConfirmPhoneActionToken(data: GetPhoneByConfirmPhoneActionTokenInput!): GetPhoneByConfirmPhoneActionTokenOutput
+
+  """
+  To get a token for a specific user, you need to call this query, specifying the required integration type and userId in the parameters. To pass the rights check, you need to request on behalf of the service user, and also have an entry in the ExternalTokenAccessRight table that regulates access to tokens of different integrations
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "query": "GetAccessTokenByUserIdService",
+    "code": "INTERNAL_ERROR",
+    "type": "REFRESH_TOKEN_EXPIRED",
+    "message": "SBBOL user refreshToken expired",
+    "messageForUser": "api.user.getAccessTokenByUserIdService.REFRESH_TOKEN_EXPIRED"
+  }`
+  
+  `{
+    "query": "GetAccessTokenByUserIdService",
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_USER_ID",
+    "message": "Received userId must be uuid",
+    "messageForUser": "api.user.getAccessTokenByUserIdService.INVALID_USER_ID"
+  }`
+  
+  `{
+    "query": "GetAccessTokenByUserIdService",
+    "code": "INTERNAL_ERROR",
+    "type": "ERROR_GETTING_ACCESS_TOKEN",
+    "message": "Unresolved error in getAccessTokenForUser",
+    "messageForUser": "api.user.getAccessTokenByUserIdService.ERROR_GETTING_ACCESS_TOKEN"
+  }`
+  """
   getAccessTokenByUserId(data: GetAccessTokenByUserIdInput!): GetAccessTokenByUserIdOutput
   exportPropertiesToExcel(data: ExportPropertiesToExcelInput!): ExportPropertiesToExcelOutput
   allResidentBillingReceipts(where: ResidentBillingReceiptWhereInput, first: Int, skip: Int, sortBy: [SortResidentBillingReceiptsBy!]): [ResidentBillingReceiptOutput]
   _allBillingReceiptsSum(where: BillingReceiptWhereInput!): BillingReceiptsSumOutput
+  allResidentBillingVirtualReceipts(where: ResidentBillingVirtualReceiptWhereInput, first: Int, skip: Int, sortBy: [SortResidentBillingVirtualReceiptsBy!]): [ResidentBillingReceiptOutput]
 
   """
   Returns id of BankCostItem corresponding to specified payment purpose string
@@ -78165,6 +81460,7 @@ type Query {
   predictTransactionClassification(data: PredictTransactionClassificationInput!): PredictTransactionClassificationOutput
   predictTicketClassification(data: PredictTicketClassificationInput!): TicketClassifier
   getResidentExistenceByPhoneAndAddress(data: GetResidentExistenceByPhoneAndAddressInput!): GetResidentExistenceByPhoneAndAddressOutput
+  findOrganizationsForAddress(data: FindOrganizationsForAddressInput!): [FindOrganizationForAddressOutput]
   exportMeterReadings(data: ExportMeterReadingsInput!): ExportMeterReadingsOutput
 
   """
@@ -80431,6 +83727,46 @@ type Mutation {
   """ Delete multiple TicketAutoAssignment items by ID. """
   deleteTicketAutoAssignments(ids: [ID!]): [TicketAutoAssignment]
 
+  """ Create a single TicketDocumentGenerationTaskHistoryRecord item. """
+  createTicketDocumentGenerationTaskHistoryRecord(data: TicketDocumentGenerationTaskHistoryRecordCreateInput): TicketDocumentGenerationTaskHistoryRecord
+
+  """ Create multiple TicketDocumentGenerationTaskHistoryRecord items. """
+  createTicketDocumentGenerationTaskHistoryRecords(data: [TicketDocumentGenerationTaskHistoryRecordsCreateInput]): [TicketDocumentGenerationTaskHistoryRecord]
+
+  """ Update a single TicketDocumentGenerationTaskHistoryRecord item by ID. 
+  """
+  updateTicketDocumentGenerationTaskHistoryRecord(id: ID!, data: TicketDocumentGenerationTaskHistoryRecordUpdateInput): TicketDocumentGenerationTaskHistoryRecord
+
+  """ Update multiple TicketDocumentGenerationTaskHistoryRecord items by ID. 
+  """
+  updateTicketDocumentGenerationTaskHistoryRecords(data: [TicketDocumentGenerationTaskHistoryRecordsUpdateInput]): [TicketDocumentGenerationTaskHistoryRecord]
+
+  """ Delete a single TicketDocumentGenerationTaskHistoryRecord item by ID. 
+  """
+  deleteTicketDocumentGenerationTaskHistoryRecord(id: ID!): TicketDocumentGenerationTaskHistoryRecord
+
+  """ Delete multiple TicketDocumentGenerationTaskHistoryRecord items by ID. 
+  """
+  deleteTicketDocumentGenerationTaskHistoryRecords(ids: [ID!]): [TicketDocumentGenerationTaskHistoryRecord]
+
+  """ Create a single TicketDocumentGenerationTask item. """
+  createTicketDocumentGenerationTask(data: TicketDocumentGenerationTaskCreateInput): TicketDocumentGenerationTask
+
+  """ Create multiple TicketDocumentGenerationTask items. """
+  createTicketDocumentGenerationTasks(data: [TicketDocumentGenerationTasksCreateInput]): [TicketDocumentGenerationTask]
+
+  """ Update a single TicketDocumentGenerationTask item by ID. """
+  updateTicketDocumentGenerationTask(id: ID!, data: TicketDocumentGenerationTaskUpdateInput): TicketDocumentGenerationTask
+
+  """ Update multiple TicketDocumentGenerationTask items by ID. """
+  updateTicketDocumentGenerationTasks(data: [TicketDocumentGenerationTasksUpdateInput]): [TicketDocumentGenerationTask]
+
+  """ Delete a single TicketDocumentGenerationTask item by ID. """
+  deleteTicketDocumentGenerationTask(id: ID!): TicketDocumentGenerationTask
+
+  """ Delete multiple TicketDocumentGenerationTask items by ID. """
+  deleteTicketDocumentGenerationTasks(ids: [ID!]): [TicketDocumentGenerationTask]
+
   """ Create a single MessageHistoryRecord item. """
   createMessageHistoryRecord(data: MessageHistoryRecordCreateInput): MessageHistoryRecord
 
@@ -81338,6 +84674,42 @@ type Mutation {
 
   """ Delete multiple MeterResourceOwner items by ID. """
   deleteMeterResourceOwners(ids: [ID!]): [MeterResourceOwner]
+
+  """ Create a single MeterReadingsImportTaskHistoryRecord item. """
+  createMeterReadingsImportTaskHistoryRecord(data: MeterReadingsImportTaskHistoryRecordCreateInput): MeterReadingsImportTaskHistoryRecord
+
+  """ Create multiple MeterReadingsImportTaskHistoryRecord items. """
+  createMeterReadingsImportTaskHistoryRecords(data: [MeterReadingsImportTaskHistoryRecordsCreateInput]): [MeterReadingsImportTaskHistoryRecord]
+
+  """ Update a single MeterReadingsImportTaskHistoryRecord item by ID. """
+  updateMeterReadingsImportTaskHistoryRecord(id: ID!, data: MeterReadingsImportTaskHistoryRecordUpdateInput): MeterReadingsImportTaskHistoryRecord
+
+  """ Update multiple MeterReadingsImportTaskHistoryRecord items by ID. """
+  updateMeterReadingsImportTaskHistoryRecords(data: [MeterReadingsImportTaskHistoryRecordsUpdateInput]): [MeterReadingsImportTaskHistoryRecord]
+
+  """ Delete a single MeterReadingsImportTaskHistoryRecord item by ID. """
+  deleteMeterReadingsImportTaskHistoryRecord(id: ID!): MeterReadingsImportTaskHistoryRecord
+
+  """ Delete multiple MeterReadingsImportTaskHistoryRecord items by ID. """
+  deleteMeterReadingsImportTaskHistoryRecords(ids: [ID!]): [MeterReadingsImportTaskHistoryRecord]
+
+  """ Create a single MeterReadingsImportTask item. """
+  createMeterReadingsImportTask(data: MeterReadingsImportTaskCreateInput): MeterReadingsImportTask
+
+  """ Create multiple MeterReadingsImportTask items. """
+  createMeterReadingsImportTasks(data: [MeterReadingsImportTasksCreateInput]): [MeterReadingsImportTask]
+
+  """ Update a single MeterReadingsImportTask item by ID. """
+  updateMeterReadingsImportTask(id: ID!, data: MeterReadingsImportTaskUpdateInput): MeterReadingsImportTask
+
+  """ Update multiple MeterReadingsImportTask items by ID. """
+  updateMeterReadingsImportTasks(data: [MeterReadingsImportTasksUpdateInput]): [MeterReadingsImportTask]
+
+  """ Delete a single MeterReadingsImportTask item by ID. """
+  deleteMeterReadingsImportTask(id: ID!): MeterReadingsImportTask
+
+  """ Delete multiple MeterReadingsImportTask items by ID. """
+  deleteMeterReadingsImportTasks(ids: [ID!]): [MeterReadingsImportTask]
 
   """ Create a single ServiceSubscriptionHistoryRecord item. """
   createServiceSubscriptionHistoryRecord(data: ServiceSubscriptionHistoryRecordCreateInput): ServiceSubscriptionHistoryRecord
@@ -82938,6 +86310,18 @@ type Mutation {
   }`
   
   `{
+    "mutation": "registerNewUser",
+    "variable": [
+      "data",
+      "confirmPhoneActionToken"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "NO_CONFIRM_PHONE_ACTION_TOKEN",
+    "message": "\"confirmPhoneActionToken\" cannot be empty",
+    "messageForUser": "api.user.registerNewUser.NO_CONFIRM_PHONE_ACTION_TOKEN"
+  }`
+  
+  `{
     "variable": [
       "data",
       "password"
@@ -83654,6 +87038,109 @@ type Mutation {
   acceptOrRejectOrganizationInviteById(id: ID!, data: AcceptOrRejectOrganizationInviteInput!): OrganizationEmployee
   acceptOrRejectOrganizationInviteByCode(inviteCode: String!, data: AcceptOrRejectOrganizationInviteInput!): OrganizationEmployee
   resetOrganization(data: ResetOrganizationInput!): ResetOrganizationOutput
+
+  """
+  Replaces old role "A" with new role "B" for all employees with role "A"
+  
+  Replaces old role "A" with new role "B" for all employees with role "A". By default, old role is retained. If you pass the “withDeletionOldRole” flag, then old role will be deleted.
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "mutation": "replaceOrganizationEmployeeRole",
+    "variable": [
+      "data",
+      "dv"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "DV_VERSION_MISMATCH",
+    "message": "Wrong value for data version number"
+  }`
+  
+  `{
+    "mutation": "replaceOrganizationEmployeeRole",
+    "variable": [
+      "data",
+      "sender"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Invalid format of \"sender\" field value. {details}",
+    "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}"
+  }`
+  
+  `{
+    "mutation": "replaceOrganizationEmployeeRole",
+    "variable": [
+      "data",
+      "organization"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "ORGANIZATION_NOT_FOUND",
+    "message": "Organization not found",
+    "messageForUser": "api.organization.ReplaceOrganizationEmployeeRole.ORGANIZATION_NOT_FOUND"
+  }`
+  
+  `{
+    "mutation": "replaceOrganizationEmployeeRole",
+    "variable": [
+      "data",
+      "oldRole"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "OLD_ROLE_NOT_FOUND",
+    "message": "Old role not found in specified organization",
+    "messageForUser": "api.organization.ReplaceOrganizationEmployeeRole.OLD_ROLE_NOT_FOUND"
+  }`
+  
+  `{
+    "mutation": "replaceOrganizationEmployeeRole",
+    "variable": [
+      "data",
+      "newRole"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "NEW_ROLE_NOT_FOUND",
+    "message": "New role not found in specified organization",
+    "messageForUser": "api.organization.ReplaceOrganizationEmployeeRole.NEW_ROLE_NOT_FOUND"
+  }`
+  
+  `{
+    "mutation": "replaceOrganizationEmployeeRole",
+    "variable": [
+      "data"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "DEFAULT_ROLE_CANNOT_BE_DELETED",
+    "message": "The default role cannot be deleted",
+    "messageForUser": "api.organization.ReplaceOrganizationEmployeeRole.DEFAULT_ROLE_CANNOT_BE_DELETED"
+  }`
+  
+  `{
+    "mutation": "replaceOrganizationEmployeeRole",
+    "variable": [
+      "data"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "ROLES_MUST_BE_DIFFERENT",
+    "message": "The old role and new role must be different",
+    "messageForUser": "api.organization.ReplaceOrganizationEmployeeRole.ROLES_MUST_BE_DIFFERENT"
+  }`
+  
+  `{
+    "mutation": "replaceOrganizationEmployeeRole",
+    "variable": [
+      "data"
+    ],
+    "code": "TOO_MANY_REQUESTS",
+    "type": "ROLES_ARE_BEING_PROCESSED",
+    "message": "These roles are already being processed. Please try again a little later",
+    "messageForUser": "api.organization.ReplaceOrganizationEmployeeRole.ROLES_ARE_BEING_PROCESSED"
+  }`
+  """
+  replaceOrganizationEmployeeRole(data: ReplaceOrganizationEmployeeRoleInput!): ReplaceOrganizationEmployeeRoleOutput
   registerBillingReceipts(data: RegisterBillingReceiptsInput!): [BillingReceipt]
   sendNewBillingReceiptFilesNotifications(data: SendNewBillingReceiptFilesNotificationsInput!): SendNewBillingReceiptFilesNotificationsOutput
 
@@ -85372,6 +88859,25 @@ type Mutation {
   				"required": true
   			}
   		}
+  	},
+  	"SEND_DAILY_STATISTICS": {
+  		"dv": {
+  			"required": true
+  		},
+  		"tags": {
+  			"required": false
+  		},
+  		"data": {
+  			"date": {
+  				"required": true
+  			},
+  			"tickets": {
+  				"required": true
+  			},
+  			"incidents": {
+  				"required": true
+  			}
+  		}
   	}
   }`
   
@@ -85452,6 +88958,7 @@ type Mutation {
   disconnectUserFromRemoteClient(data: DisconnectUserFromRemoteClientInput!): DisconnectUserFromRemoteClientOutput
   setMessageStatus(data: SetMessageStatusInput!): SetMessageStatusOutput
   _internalSendNotificationNewMobileAppVersion(data: _internalSendNotificationNewMobileAppVersionInput!): _internalSendNotificationNewMobileAppVersionOutput
+  _internalSendHashedResidentPhones(data: _internalSendHashedResidentPhonesInput!): _internalSendHashedResidentPhonesOutput
   _internalSyncContactsWithResidentsForOrganization(data: _internalSyncContactsWithResidentsForOrganizationInput!): [Contact]
   registerResident(data: RegisterResidentInput!): Resident
 
@@ -85536,7 +89043,7 @@ type Mutation {
   registerResidentServiceConsumers(data: RegisterResidentServiceConsumersInput!): [ServiceConsumer!]
 
   """
-  [DEPRECATED] Creates service consumer with default data, and automatically populates the optional data fields, such as `billingAccount
+  Creates service consumer with default data, and automatically populates the optional data fields, such as `billingAccount
   
   To be successfully created accountNumber and unitName should at least have billingAccount with same data or Meter with same data
   

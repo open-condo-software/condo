@@ -1,5 +1,6 @@
 import { ParsedUrlQuery } from 'querystring'
 
+import { ResolvedIntlConfig } from '@formatjs/intl/src/types'
 import { FilterDropdownProps } from 'antd/es/table/interface'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
@@ -408,15 +409,15 @@ export const getSorterMap: SorterMapType = (sorters) => {
     return Object.assign({}, ...sorters.map((sorter) => ({ [sorter.columnKey]: sorter.order })))
 }
 
-export const categoryToSearchQuery: (search: string, translations: Record<string, string>) => FilterType = (search, translations) => {
+export const categoryToSearchQuery: (search: string, translations: ResolvedIntlConfig['messages']) => FilterType = (search, translations) => {
     if (!search) return () => null
 
     const searchLowerCase = search.toLowerCase()
     const whereIn = translations ? Object.keys(translations).filter(
-        key => (
+        (key) => (
             key.includes('billing.category')
             && !key.includes('description')
-            && translations[key].toLowerCase().includes(searchLowerCase)
+            && (translations[key] as string).toLowerCase().includes(searchLowerCase)
         )
     ) : []
 

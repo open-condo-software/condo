@@ -8,7 +8,7 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { getById } = require('@open-condo/keystone/schema')
 
 const { CANCELLED } = require('@condo/domains/common/constants/export')
-const { checkUserPermissionsInOrganizations } = require('@condo/domains/organization/utils/accessSchema')
+const { checkPermissionsInEmployedOrRelatedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
 
 
 async function canReadIncidentExportTasks ({ authentication: { item: user } }) {
@@ -20,7 +20,7 @@ async function canReadIncidentExportTasks ({ authentication: { item: user } }) {
     return { user: { id: user.id } }
 }
 
-async function canManageIncidentExportTasks ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageIncidentExportTasks ({ authentication: { item: user }, context, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
@@ -32,13 +32,9 @@ async function canManageIncidentExportTasks ({ authentication: { item: user }, o
         const organizationIdIn = get(originalInput, ['where', 'organization', 'id_in'], [])
         const organizationIds = uniq(compact([organizationId, ...organizationIdIn]))
 
-        if (isEmpty(organizationIds)) return false
+        if (isEmpty(organizationIds) || organizationIds.some(id => typeof id !== 'string')) return false
 
-        return await checkUserPermissionsInOrganizations({
-            userId: user.id,
-            organizationIds,
-            permission: 'canReadIncidents',
-        })
+        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationIds, 'canReadIncidents')
     } else if (operation === 'update') {
         const task = await getById('IncidentExportTask', itemId)
 

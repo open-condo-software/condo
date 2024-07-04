@@ -8,7 +8,11 @@ import {
 import { Typography } from 'antd'
 import { BaseType } from 'antd/lib/typography/Base'
 import dayjs from 'dayjs'
-import { get, has, isEmpty, isNil, isNull } from 'lodash'
+import get from 'lodash/get'
+import has from 'lodash/has'
+import isEmpty from 'lodash/isEmpty'
+import isNil from 'lodash/isNil'
+import isNull from 'lodash/isNull'
 import Link from 'next/link'
 import React, { ComponentProps, useMemo } from 'react'
 
@@ -27,9 +31,9 @@ import { RESIDENT } from '@condo/domains/user/constants/common'
 
 
 interface ITicketChangeFieldMessages {
-    add?: string,
-    change?: string,
-    remove?: string,
+    add?: FormatjsIntl.Message['ids'],
+    change?: FormatjsIntl.Message['ids'],
+    remove?: FormatjsIntl.Message['ids'],
 }
 
 enum TicketChangeFieldMessageType {
@@ -167,7 +171,7 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
 
     const { objs: ticketStatuses } = TicketStatus.useObjects({})
 
-    const fields = [
+    const fields: Array<[string, string, ITicketChangeFieldMessages] | [string,  string]> = [
         ['canReadByResident', CanReadByResidentMessage, { change: 'pages.condo.ticket.TicketChanges.canReadByResident.change' }],
         ['clientPhone', ClientPhoneMessage],
         ['details', DetailsMessage],

@@ -14,7 +14,6 @@ import { hasFeature } from '@condo/domains/common/components/containers/FeatureF
 import { ControlRoomSettingsContent } from '@condo/domains/common/components/settings/ControlRoomSettingsContent'
 import { MobileFeatureConfigContent } from '@condo/domains/common/components/settings/MobileFeatureConfigContent'
 import { SettingsPageContent } from '@condo/domains/common/components/settings/SettingsPageContent'
-import { SETTINGS_NEW_EMPLOYEE_ROLE_TABLE } from '@condo/domains/common/constants/featureflags'
 import {
     SETTINGS_TAB_CONTACT_ROLES,
     SETTINGS_TAB_PAYMENT_DETAILS,
@@ -29,14 +28,15 @@ import {
 } from '@condo/domains/organization/components/EmployeeRolesSettingsContent'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { RecipientSettingsContent } from '@condo/domains/organization/components/Recipient/SettingsContent'
-import { useEmployeeRolesTableData } from '@condo/domains/organization/hooks/useEmployeeRolesTableData'
+import { MANAGING_COMPANY_TYPE } from '@condo/domains/organization/constants/common'
+import { useEmployeeRolesPermissionsGroups } from '@condo/domains/organization/hooks/useEmployeeRolesPermissionsGroups'
 import { SettingsReadPermissionRequired } from '@condo/domains/settings/components/PageAccess'
 import { SubscriptionPane } from '@condo/domains/subscription/components/SubscriptionPane'
 
 
 const TITLE_STYLES: CSSProperties = { margin: 0 }
 
-const ALWAYS_AVAILABLE_TABS = [SETTINGS_TAB_PAYMENT_DETAILS, SETTINGS_TAB_CONTROL_ROOM]
+const ALWAYS_AVAILABLE_TABS = []
 
 const SettingsPage = () => {
     const intl = useIntl()
@@ -49,50 +49,49 @@ const SettingsPage = () => {
     const MobileFeatureConfigTitle = intl.formatMessage({ id: 'pages.condo.settings.barItem.MobileFeatureConfig' })
 
     const hasSubscriptionFeature = hasFeature('subscription')
-    const { useFlag } = useFeatureFlags()
-    const hasNewEmployeeRoleTableFeature = useFlag(SETTINGS_NEW_EMPLOYEE_ROLE_TABLE)
 
     const userOrganization = useOrganization()
+    const isManagingCompany = get(userOrganization, 'organization.type', MANAGING_COMPANY_TYPE) === MANAGING_COMPANY_TYPE
     const canManageContactRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageContactRoles']), [userOrganization])
     const canManageEmployeeRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageRoles'], false), [userOrganization])
     const canManageMobileFeatureConfigsRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageMobileFeatureConfigs']), [userOrganization])
 
-    const isEmployeeTabAvailable = hasNewEmployeeRoleTableFeature && canManageEmployeeRoles
+    const availableTabs = useMemo(() => {
+        const availableTabs = [...ALWAYS_AVAILABLE_TABS]
 
-    const tabKeysToDisplay = useMemo(() => {
-        const availableTabs = ALWAYS_AVAILABLE_TABS
-
-        if (hasSubscriptionFeature) availableTabs.push(SETTINGS_TAB_SUBSCRIPTION)
-        if (canManageContactRoles) availableTabs.push(SETTINGS_TAB_CONTACT_ROLES)
+        if (hasSubscriptionFeature && isManagingCompany) availableTabs.push(SETTINGS_TAB_SUBSCRIPTION)
+        if (canManageEmployeeRoles && isManagingCompany) availableTabs.push(SETTINGS_TAB_EMPLOYEE_ROLES)
+        if (isManagingCompany) availableTabs.push(SETTINGS_TAB_PAYMENT_DETAILS)
+        if (canManageContactRoles && isManagingCompany) availableTabs.push(SETTINGS_TAB_CONTACT_ROLES)
+        if (isManagingCompany) availableTabs.push(SETTINGS_TAB_CONTROL_ROOM)
         if (canManageMobileFeatureConfigsRoles) availableTabs.push(SETTINGS_TAB_MOBILE_FEATURE_CONFIG)
-        if (isEmployeeTabAvailable) availableTabs.push(SETTINGS_TAB_EMPLOYEE_ROLES)
 
         return availableTabs
-    }, [hasSubscriptionFeature, canManageContactRoles, canManageMobileFeatureConfigsRoles, isEmployeeTabAvailable])
+    }, [hasSubscriptionFeature, isManagingCompany, canManageContactRoles, canManageMobileFeatureConfigsRoles, canManageEmployeeRoles])
 
     const settingsTabs: TabItem[] = useMemo(
         () => [
-            hasSubscriptionFeature && {
+            hasSubscriptionFeature && isManagingCompany && {
                 key: SETTINGS_TAB_SUBSCRIPTION,
                 label: SubscriptionTitle,
                 children: <SubscriptionPane/>,
             },
-            isEmployeeTabAvailable && {
+            canManageEmployeeRoles && isManagingCompany && {
                 key: SETTINGS_TAB_EMPLOYEE_ROLES,
                 label: EmployeeRolesTitle,
-                children: <EmployeeRolesSettingsContent useEmployeeRolesTableData={useEmployeeRolesTableData} />,
+                children: <EmployeeRolesSettingsContent useEmployeeRolesTableData={useEmployeeRolesPermissionsGroups} />,
             },
-            {
+            isManagingCompany && {
                 key: SETTINGS_TAB_PAYMENT_DETAILS,
                 label: DetailsTitle,
                 children: <RecipientSettingsContent/>,
             },
-            canManageContactRoles && {
+            canManageContactRoles && isManagingCompany && {
                 key: SETTINGS_TAB_CONTACT_ROLES,
                 label: RolesTitle,
                 children: <ContactRolesSettingsContent/>,
             },
-            {
+            isManagingCompany && {
                 key: SETTINGS_TAB_CONTROL_ROOM,
                 label: ControlRoomTitle,
                 children: <ControlRoomSettingsContent/>,
@@ -103,7 +102,7 @@ const SettingsPage = () => {
                 children: <MobileFeatureConfigContent/>,
             },
         ].filter(Boolean),
-        [hasSubscriptionFeature, SubscriptionTitle, isEmployeeTabAvailable, EmployeeRolesTitle, DetailsTitle, canManageContactRoles, RolesTitle, ControlRoomTitle, canManageMobileFeatureConfigsRoles, MobileFeatureConfigTitle],
+        [isManagingCompany, hasSubscriptionFeature, SubscriptionTitle, canManageEmployeeRoles, EmployeeRolesTitle, DetailsTitle, canManageContactRoles, RolesTitle, ControlRoomTitle, canManageMobileFeatureConfigsRoles, MobileFeatureConfigTitle],
     )
 
     const titleContent = useMemo(() => (
@@ -121,7 +120,7 @@ const SettingsPage = () => {
                 <OrganizationRequired>
                     <PageHeader title={titleContent}/>
                     <TablePageContent>
-                        <SettingsPageContent settingsTabs={settingsTabs} availableTabs={tabKeysToDisplay}/>
+                        <SettingsPageContent settingsTabs={settingsTabs} availableTabs={availableTabs}/>
                     </TablePageContent>
                 </OrganizationRequired>
             </PageWrapper>

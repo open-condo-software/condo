@@ -4,7 +4,7 @@ import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
-import React, { useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Checkbox, Typography } from '@open-condo/ui'
@@ -122,7 +122,7 @@ export const TicketSubmittingSettingsForm: React.FC<ITicketSubmittingSettingsFor
                                 dependencies={['ticketSubmittingIsDisabled', 'commonPhone']}
                                 shouldUpdate>
                                 {
-                                    ({ getFieldsValue, getFieldError }) => {
+                                    ({ getFieldsValue }) => {
                                         const {
                                             ticketSubmittingIsDisabled,
                                             commonPhone,
@@ -132,12 +132,12 @@ export const TicketSubmittingSettingsForm: React.FC<ITicketSubmittingSettingsFor
                                         if (ticketSubmittingIsDisabled && !commonPhone) messageLabels.push(RequiredCommonPhoneMessage)
 
                                         const requiredErrorMessage = !isEmpty(messageLabels) && ErrorsContainerTitle.concat(' ', messageLabels.join(', '))
-                                        const hasInvalidPhoneError = commonPhone && (normalizePhone(commonPhone, true) !== commonPhone) ? InvalidPhoneMessage : undefined
-                                        const errors = [requiredErrorMessage, hasInvalidPhoneError]
+                                        const invalidPhoneErrorMessage = commonPhone && (normalizePhone(commonPhone, true) !== commonPhone) ? InvalidPhoneMessage : undefined
+                                        const errors = [requiredErrorMessage, invalidPhoneErrorMessage]
                                             .filter(Boolean)
                                             .join(', ')
 
-                                        const isDisabled = hasInvalidPhoneError || requiredErrorMessage
+                                        const isDisabled = !!invalidPhoneErrorMessage || !!requiredErrorMessage
 
                                         return (
                                             <ActionBar

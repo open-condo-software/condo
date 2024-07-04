@@ -7,24 +7,26 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getByCondition } = require('@open-condo/keystone/schema')
 
-const { checkPermissionInUserOrganizationOrRelatedOrganization, queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    checkPermissionsInEmployedOrRelatedOrganizations,
+    getEmployedOrRelatedOrganizationsByPermissions,
+} = require('@condo/domains/organization/utils/accessSchema')
 
-async function canReadCallRecordFragments ({ authentication: { item: user } }) {
+async function canReadCallRecordFragments ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return {}
 
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadCallRecords')
+
     return {
         organization: {
-            OR: [
-                queryOrganizationEmployeeFor(user.id, 'canReadCallRecords'),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadCallRecords'),
-            ],
+            id_in: permittedOrganizations,
         },
     }
 }
 
-async function canManageCallRecordFragments ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageCallRecordFragments ({ authentication: { item: user }, context, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
@@ -48,7 +50,9 @@ async function canManageCallRecordFragments ({ authentication: { item: user }, o
         organizationId = get(callRecordFragment, 'organization', null)
     }
 
-    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageCallRecords')
+    if (!organizationId) return false
+
+    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageCallRecords')
 }
 
 /*

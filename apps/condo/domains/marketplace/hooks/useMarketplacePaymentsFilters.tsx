@@ -30,7 +30,7 @@ export function useMarketplacePaymentsFilters (): Array<FiltersMeta<PaymentWhere
     const EndDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
 
     const statusOptions = useMemo(() => STATUS_TYPES.map(status => ({
-        label: intl.formatMessage({ id: `payment.status.${status}` }),
+        label: intl.formatMessage({ id: `payment.status.${status}` as FormatjsIntl.Message['ids'] }),
         value: status,
     })), [intl])
 

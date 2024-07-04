@@ -30,7 +30,7 @@ export const CreateMarketItemForm = () => {
     const CreateMessage = intl.formatMessage({ id: 'Create' })
 
     const router = useRouter()
-    const { organization, loading: organizationLoading } = useOrganization()
+    const { organization, isLoading: organizationLoading } = useOrganization()
     const organizationId = get(organization, 'id', null)
     const [submitLoading, setSubmitLoading] = useState<boolean>(false)
     const createMarketItem = MarketItem.useCreate({

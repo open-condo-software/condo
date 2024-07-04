@@ -17,6 +17,7 @@ export interface IDeleteActionButtonWithConfirmModal {
     showButtonIcon?: boolean
     cancelMessage?: string
     messageType?: TypographyTextProps['type']
+    cancelButtonType?: ButtonProps['type']
     disabled?: boolean
 }
 
@@ -35,6 +36,7 @@ export const DeleteButtonWithConfirmModal: React.FC<IDeleteActionButtonWithConfi
     showButtonIcon = false,
     cancelMessage,
     messageType = 'primary',
+    cancelButtonType = 'secondary',
     disabled,
 }) => {
     const intl = useIntl()
@@ -92,7 +94,7 @@ export const DeleteButtonWithConfirmModal: React.FC<IDeleteActionButtonWithConfi
                         {okButtonLabel}
                     </Button>,
                     showCancelButton && (
-                        <Button key='cancel' type='secondary' onClick={handleCancel}>
+                        <Button key='cancel' type={cancelButtonType} onClick={handleCancel}>
                             {CancelMessage}
                         </Button>
                     ),

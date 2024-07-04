@@ -1,8 +1,6 @@
 const Ajv = require('ajv')
 const { get, isUndefined } = require('lodash')
 
-const { Json } = require('@open-condo/keystone/fields')
-
 const { render, getValidator } = require('@condo/domains/common/schema/json.utils')
 
 const TICKET_FILTER_TYPE_NAME = 'TicketFilter'
@@ -67,7 +65,7 @@ const validateTicketFilter = getValidator(TicketFilterValidator)
 
 const TICKET_FILTER_FIELD = {
     schemaDoc: 'Filter that match the given template',
-    type: Json,
+    type: 'Json',
     extendGraphQLTypes: [TICKET_FILTER_TYPE],
     graphQLReturnType: TICKET_FILTER_TYPE_NAME,
     isRequired: true,

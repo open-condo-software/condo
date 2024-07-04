@@ -8,8 +8,10 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { getById } = require('@open-condo/keystone/schema')
 
 const { checkBankIntegrationsAccessRights } = require('@condo/domains/banking/utils/accessSchema')
-const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
-const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    getEmployedOrRelatedOrganizationsByPermissions,
+    checkPermissionsInEmployedOrRelatedOrganizations,
+} = require('@condo/domains/organization/utils/accessSchema')
 const { SERVICE } = require('@condo/domains/user/constants/common')
 
 const { BANK_INTEGRATION_IDS } = require('../constants')
@@ -26,11 +28,12 @@ async function canReadBankIntegrationAccountContexts ({ authentication: { item: 
         }
     }
 
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, [])
+
     return {
-        OR: [
-            { organization: queryOrganizationEmployeeFor(user.id) },
-            { organization: queryOrganizationEmployeeFromRelatedOrganizationFor(user.id) },
-        ],
+        organization: {
+            id_in: permittedOrganizations,
+        },
     }
 }
 
@@ -40,9 +43,7 @@ async function canManageBankIntegrationAccountContexts ({ authentication: { item
     if (user.isAdmin || user.isSupport) return true
 
     if (user.type === SERVICE) {
-        if (await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])) return true
-
-        return false
+        return await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])
     }
 
     let organizationId
@@ -54,7 +55,9 @@ async function canManageBankIntegrationAccountContexts ({ authentication: { item
         organizationId = get(item, 'organization')
     }
 
-    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageBankIntegrationAccountContexts')
+    if (!organizationId) return false
+
+    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageBankIntegrationAccountContexts')
 }
 
 /*

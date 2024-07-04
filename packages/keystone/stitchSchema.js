@@ -4,7 +4,6 @@ const { loadSchema } = require('@graphql-tools/load')
 const { stitchSchemas } = require('@graphql-tools/stitch')
 const { RenameTypes, RenameRootFields } = require('@graphql-tools/wrap')
 const bodyParser = require('body-parser')
-const { fetch } = require('cross-fetch')
 const express = require('express')
 const { graphqlHTTP } = require('express-graphql')
 const FormData = require('form-data')
@@ -15,6 +14,7 @@ const { isObject, get } = require('lodash')
 const nextCookie = require('next-cookies')
 
 const conf = require('@open-condo/config')
+const { fetch } = require('@open-condo/keystone/fetch')
 
 
 const CONDO_ACCESS_TOKEN_KEY = 'condoAccessToken'

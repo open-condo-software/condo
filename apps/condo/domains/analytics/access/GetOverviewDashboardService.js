@@ -3,19 +3,16 @@
  */
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
-const { checkUserBelongsToOrganization, checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    checkPermissionsInEmployedOrRelatedOrganizations,
+} = require('@condo/domains/organization/utils/accessSchema')
 
-async function canGetOverviewDashboard ({ authentication: { item: user }, args: { data: { where: { organization } } } }) {
+async function canGetOverviewDashboard ({ authentication: { item: user }, context, args: { data: { where: { organization } } } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin || user.isSupport) return {}
+    if (user.isAdmin || user.isSupport) return true
 
-    const userBelongsToOrganization = checkUserBelongsToOrganization(user.id, organization)
-    if (!userBelongsToOrganization) return false
-
-    const canReadAnalytics = await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organization, 'canReadAnalytics')
-
-    return !!canReadAnalytics
+    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organization, 'canReadAnalytics')
 }
 
 /*

@@ -181,12 +181,15 @@ const InfoRow: React.FC<IInfoRowProps> = ({ row }) => !!row.value && (
 
 const Money: React.FC<{ amount: string, currencyCode: string }> = ({ amount, currencyCode }) => {
     const intl = useIntl()
-
-    return intl.formatNumber(amount || '', {
+    const money = intl.formatNumber(parseFloat(amount || '0'), {
         style: 'currency',
         currency: currencyCode,
         currencyDisplay: 'narrowSymbol',
     })
+
+    return (
+        <>{money}</>
+    )
 }
 
 const ReceiptRowsTable: React.FC<IReceiptSectionProps> = ({ section, currencyCode }) => {
@@ -357,7 +360,7 @@ const InvoiceSection: React.FC<IInvoiceSectionProps> = ({ section, currencyCode 
     const intl = useIntl()
     const InvoiceTitle = intl.formatMessage({ id: 'acquiringReceipt.invoice.title' }, pick(section, ['number', 'date']))
     const TaxRegimeTitle = intl.formatMessage({ id: 'acquiringReceipt.taxRegime' })
-    const TaxRegimeModeTitle = intl.formatMessage({ id: `acquiringReceipt.taxRegime.${section.taxRegime}` })
+    const TaxRegimeModeTitle = intl.formatMessage({ id: `acquiringReceipt.taxRegime.${section.taxRegime}` as FormatjsIntl.Message['ids'] })
 
     return (
         <Col span={24}>
@@ -403,14 +406,13 @@ export const AcquiringReceipt: React.FC<IAcquiringReceiptProps> = (props) => {
     const intl = useIntl()
 
     let statusMessage = intl.formatMessage({ id: 'MultiPayment.status.DONE' })
-    if (status === MULTIPAYMENT_PROCESSING_STATUS || status === MULTIPAYMENT_WITHDRAWN_STATUS) {
-        // NOTE: LOGICAL "WITHDRAWN" = UI "PROCESSING"
+    if (status === MULTIPAYMENT_PROCESSING_STATUS) {
         statusMessage = intl.formatMessage({ id: 'MultiPayment.status.PROCESSING' })
     } else if (status === MULTIPAYMENT_ERROR_STATUS) {
         statusMessage = intl.formatMessage({ id: 'MultiPayment.status.ERROR' })
     }
     let statusColor = STATUS_SUCCESS_COLOR
-    if (status === MULTIPAYMENT_PROCESSING_STATUS || status === MULTIPAYMENT_WITHDRAWN_STATUS) {
+    if (status === MULTIPAYMENT_PROCESSING_STATUS) {
         statusColor = STATUS_PROCESSING_COLOR
     } else if (status === MULTIPAYMENT_ERROR_STATUS) {
         statusColor = STATUS_ERROR_COLOR

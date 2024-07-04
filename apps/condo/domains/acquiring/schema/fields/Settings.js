@@ -1,7 +1,5 @@
 const Ajv = require('ajv')
 
-const { Json } = require('@open-condo/keystone/fields')
-
 const {
     SETTINGS_FIELD_NAME,
     SETTINGS_INPUT_NAME,
@@ -35,7 +33,7 @@ const ajv = new Ajv()
 
 const SETTINGS_FIELD = {
     schemaDoc: 'Settings. Should contain recurrent payment context configuration.',
-    type: Json,
+    type: 'Json',
     isRequired: true,
     graphQLAdminFragment: `{ ${Object.keys(SettingsFields).join(' ')} }`,
     extendGraphQLTypes: [SETTINGS_GRAPHQL_TYPES],

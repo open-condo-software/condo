@@ -9,25 +9,25 @@ const { getById, find } = require('@open-condo/keystone/schema')
 const { canManageBankEntityWithOrganization } = require('@condo/domains/banking/utils/accessSchema')
 const { checkBankIntegrationsAccessRights } = require('@condo/domains/banking/utils/accessSchema')
 const {
-    queryOrganizationEmployeeFor,
-    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    getEmployedOrRelatedOrganizationsByPermissions,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { SERVICE, RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 
 const { BANK_INTEGRATION_IDS } = require('../constants')
 
 
-async function canReadBankAccounts ({ authentication: { item: user } }) {
+async function canReadBankAccounts ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
 
     if (user.type === STAFF) {
+        const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, [])
+
         return {
-            OR: [
-                { organization: queryOrganizationEmployeeFor(user.id) },
-                { organization: queryOrganizationEmployeeFromRelatedOrganizationFor(user.id) },
-            ],
+            organization: {
+                id_in: permittedOrganizations,
+            },
         }
     } else if (user.type === SERVICE) {
         return {

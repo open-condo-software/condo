@@ -1,4 +1,4 @@
-import { Col, Form, Row } from 'antd'
+import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import dayjs, { Dayjs } from 'dayjs'
 import get from 'lodash/get'
@@ -20,7 +20,7 @@ import {
     EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION,
 } from '@condo/domains/meter/constants/errors'
 import { useMeterValidations } from '@condo/domains/meter/hooks/useMeterValidations'
-import { METER_PAGE_TYPES, MeterPageTypes } from '@condo/domains/meter/utils/clientSchema'
+import { METER_TAB_TYPES, MeterPageTypes } from '@condo/domains/meter/utils/clientSchema'
 import { searchMeterResources } from '@condo/domains/meter/utils/clientSchema/search'
 
 import { BaseMeterModalAccountNumberField } from './BaseMeterModalAccountNumberField'
@@ -107,7 +107,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
     const ControlReadingsDateMessage = intl.formatMessage({ id: 'pages.condo.meter.ControlReadingsDate' })
     const ResourceMessage = intl.formatMessage({ id: 'pages.condo.meter.Resource' })
 
-    const isPropertyMeter = meterType === METER_PAGE_TYPES.propertyMeter
+    const isPropertyMeter = meterType === METER_TAB_TYPES.propertyMeter
     const meterResourceId = get(initialValues, ['resource', 'id'])
     const initialInstallationDate = useCallback(() => getInitialDateValue(initialValues, ['installationDate']),
         [initialValues])

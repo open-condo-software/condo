@@ -2,6 +2,8 @@ const get = require('lodash/get')
 
 const { KEYWORDS_SPECIAL_SYMBOLS_REGEX } = require('@address-service/domains/address/constants')
 const { AddressInjection } = require('@address-service/domains/address/utils/serverSchema')
+const { BUILDING_ADDRESS_TYPE } = require('@address-service/domains/common/constants/addressTypes')
+const { VALID_DADATA_BUILDING_TYPES } = require('@address-service/domains/common/constants/common')
 const { INJECTIONS_PROVIDER } = require('@address-service/domains/common/constants/providers')
 
 /**
@@ -180,6 +182,7 @@ class InjectionsSeeker {
                     name: INJECTIONS_PROVIDER,
                     rawData: injection,
                 },
+                type: VALID_DADATA_BUILDING_TYPES.includes(get(injection, ['house', 'typeFull'], '')) ? BUILDING_ADDRESS_TYPE : null,
             }
         })
     }

@@ -70,8 +70,8 @@ export const CircularProgress = ({ progress }: ICircularProgressProps) => (
     />
 )
 
-const TaskIconsWrapper = styled.div`
-    cursor: pointer;
+const TaskIconsWrapper = styled.div<{ cursor?: 'pointer' | 'default' }>`
+    cursor: ${({ cursor }) => cursor || 'pointer'};
     align-self: flex-start;
     position: absolute;
     top: 12px;
@@ -111,12 +111,13 @@ interface ITaskProgressProps {
     progress: TaskRecordProgress
     removeTask: () => void
     isDesktop: boolean
+    isAllTasksFinished: boolean
 }
 
 /**
  * Displays task as an item in tasks list on panel
  */
-export const TaskProgress = ({ task, translations, progress, removeTask, isDesktop }: ITaskProgressProps) => {
+export const TaskProgress = ({ task, translations, progress, removeTask, isDesktop, isAllTasksFinished }: ITaskProgressProps) => {
     const intl = useIntl()
     const DeleteTitle = intl.formatMessage({ id: 'Delete' })
     const CancelTitle = intl.formatMessage({ id: 'Cancel' })
@@ -140,17 +141,24 @@ export const TaskProgress = ({ task, translations, progress, removeTask, isDeskt
                     </Typography.Text>
                 )}
             </Space>
-            <TaskIconsHoverSwitcher
-                progress={progress}
-                taskStatus={task.status}
-                removeTask={removeTask}
-            />
+            {
+                !isAllTasksFinished
+                    ? (<TaskIconsHoverSwitcher
+                        progress={progress}
+                        taskStatus={task.status}
+                        removeTask={removeTask}
+                    />)
+                    : (<TaskIconsWrapper cursor='default'>
+                        <Check size='medium' color={colors.green['5']} />
+                    </TaskIconsWrapper>)
+            }
         </List.Item>
     )
 }
 interface ITaskProgressTrackerProps {
     task: ITaskTrackableItem
     isDesktop: boolean
+    isAllTasksFinished: boolean
 }
 
 // Prevents calling handle function multiple times when tracking component will be remounted.
@@ -161,7 +169,7 @@ const handledTerminalStatesOfTasksIds = []
 /**
  * Polls tasks record for updates and handles its transition to completed status.
  */
-export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task, isDesktop }) => {
+export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task, isDesktop, isAllTasksFinished }) => {
     const { storage, removeStrategy, calculateProgress, onComplete, onCancel, onError, translations } = task
     const { record, stopPolling } = storage.useTask(task.record.id)
 
@@ -224,6 +232,7 @@ export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task,
             translations={translations}
             removeTask={handleRemoveTask}
             isDesktop={isDesktop}
+            isAllTasksFinished={isAllTasksFinished}
         />
     )
 }
@@ -312,6 +321,7 @@ export const TasksProgress = ({ tasks }: ITasksProgressProps) => {
                                 key={task.record.id}
                                 task={task}
                                 isDesktop={isDesktop}
+                                isAllTasksFinished={isAllTasksFinished}
                             />
                         )}
                     />

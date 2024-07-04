@@ -88,7 +88,7 @@ async function notifyBeforeRecurrentPaymentDate () {
         hasMorePages = page.length > 0
         offset += pageSize
     }
-    logger.info({ msg: 'End processing recurrent payment notifications' })
+    logger.info({ msg: 'End processing recurrent payment notifications', taskId })
 }
 
 module.exports = {

@@ -19,11 +19,16 @@
   background-color: transparent;
   border: none;
   border-radius: @condo-icon-button-border-radius-medium;
-  .condo-transition(background);
+  .condo-transition(background;);
 
   span {
     position: relative;
     z-index: 1;
+  }
+
+  &::after {
+    // We reset style for ::after element to remove wave effect
+    all: unset;
   }
 
   // After layer is used to show gradient outline on tab-focusing
@@ -42,18 +47,18 @@
 
     background: @condo-global-color-brand-gradient-1;
     opacity: 0;
-    .condo-transition(opacity);
+    .condo-transition(opacity;);
   }
 
   .condo-icon-btn-content {
     display: inline-flex;
     color: @condo-global-color-black;
-    .condo-transition(color);
+    .condo-transition(color;);
 
     svg {
       color: @condo-global-color-black;
       fill: currentcolor;
-      .condo-transition(color);
+      .condo-transition(color;);
     }
   }
 
@@ -107,5 +112,14 @@
     &:focus::after {
       border-radius: @condo-icon-button-focus-outline-border-radius-small;
     }
+  }
+}
+
+// Overriding antd styles for buttons with href prop
+a.condo-icon-btn {
+  padding-top: @condo-icon-button-padding-medium !important;
+
+  &.condo-icon-btn-small {
+    padding-top: @condo-icon-button-padding-small !important;
   }
 }

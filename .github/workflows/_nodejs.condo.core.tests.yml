@@ -4,10 +4,7 @@ on:
       domain_name:
         required: true
         type: string
-      image:
-        required: true
-        type: string
-      registry:
+      image_name:
         required: true
         type: string
       runs-on:
@@ -23,13 +20,13 @@ jobs:
       - name: login to sbercloud registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ inputs.registry }}
+          registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
           password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
 
       - name: run postgresql for tests
         run: |
-          docker run -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5432:5432" -d swr.ru-moscow-1.hc.sbercloud.ru/doma/utils/postgres:13.2
+          docker run -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5432:5432" -d ${{ secrets.DOCKER_REGISTRY }}/doma/utils/postgres:13.2
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -37,21 +34,13 @@ jobs:
 
       - name: run redis for tests
         run: |
-          docker run -p="127.0.0.1:6379:6379" -d swr.ru-moscow-1.hc.sbercloud.ru/doma/utils/redis:6.2
+          docker run -p="127.0.0.1:6379:6379" -d ${{ secrets.DOCKER_REGISTRY }}/doma/utils/redis:6.2
 
       - name: run tests
         run: |
           mkdir test_logs
           chmod -R a+rw ./test_logs
-          docker run -e SERVER_URL=$SERVER_URL -e COOKIE_SECRET=$COOKIE_SECRET -e REDIS_URL=$REDIS_URL -e DATABASE_URL=$DATABASE_URL -e NODE_ENV=$NODE_ENV -e DISABLE_LOGGING=$DISABLE_LOGGING -e JEST_MOCKS_ENABLED=$JEST_MOCKS_ENABLED -v ./test_logs:/app/test_logs --network="host" ${{ inputs.image }} bash -c "/app/run_condo_domain_tests.sh -d ${{ inputs.domain_name }}"
-        env:
-          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1/main
-          NODE_ENV: development
-          DISABLE_LOGGING: true
-          REDIS_URL: redis://127.0.0.1:6379
-          COOKIE_SECRET: test
-          SERVER_URL: http://localhost:3000
-          JEST_MOCKS_ENABLED: true
+          docker run -v ./test_logs:/app/test_logs --network="host" ${{ secrets.DOCKER_REGISTRY }}/${{ inputs.image_name }} bash -c "/app/run_condo_domain_tests.sh -d ${{ inputs.domain_name }}"
 
       - name: Collect docker logs on failure
         if: failure()
@@ -60,7 +49,7 @@ jobs:
          dest: './docker-logs'
 
       - name: Upload log artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
          name: logs

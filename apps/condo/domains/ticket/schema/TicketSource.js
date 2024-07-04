@@ -1,6 +1,3 @@
-const { Select } = require('@keystonejs/fields')
-
-const { LocalizedText } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
@@ -21,14 +18,14 @@ const TicketSource = new GQLListSchema('TicketSource', {
         organization: COMMON_AND_ORGANIZATION_OWNED_FIELD,
 
         type: {
-            type: Select,
+            type: 'Select',
             isRequired: true,
             options: Object.values(TICKET_SOURCE_TYPES),
         },
 
         name: {
             schemaDoc: 'Localized Ticket source name',
-            type: LocalizedText,
+            type: 'LocalizedText',
             isRequired: true,
             template: 'ticket.source.*.name',
         },

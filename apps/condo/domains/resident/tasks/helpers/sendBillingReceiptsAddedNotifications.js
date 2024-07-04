@@ -132,8 +132,6 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
             const params = [
                 get(item, 'resident.address'),
                 get(item, 'accountNumber'),
-                get(item, 'resident.unitType'),
-                get(item, 'resident.unitName'),
             ]
 
             return makeAccountKey(...params)
@@ -143,8 +141,6 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
             const params = [
                 get(receipt, 'property.address'),
                 get(receipt, 'account.number'),
-                get(receipt, 'account.unitType'),
-                get(receipt, 'account.unitName'),
             ]
             const receiptAccountKey = makeAccountKey(...params)
             const consumers = consumersByAccountKey[receiptAccountKey]

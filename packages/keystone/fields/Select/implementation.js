@@ -1,4 +1,6 @@
 const { Select: KSSelect } = require('@keystonejs/fields')
+const inflection = require('inflection')
+
 
 class Select extends KSSelect.implementation {
     constructor (path, fieldOptions) {
@@ -11,7 +13,7 @@ class Select extends KSSelect.implementation {
         if (this.graphQLReturnType) {
             return this.graphQLReturnType
         } else {
-            return super.getTypeName()
+            return `${this.listKey}${inflection.classify(this.path)}Type`
         }
     }
 
@@ -20,7 +22,13 @@ class Select extends KSSelect.implementation {
         if (this.graphQLReturnType) {
             return []
         } else {
-            return super.getGqlAuxTypes()
+            return [
+                `
+      enum ${this.getTypeName()} {
+        ${this.options.map(i => i.value).join('\n        ')}
+      }
+    `,
+            ]
         }
     }
 }

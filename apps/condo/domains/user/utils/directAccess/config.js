@@ -67,6 +67,7 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
     services: [
         'registerNewServiceUser',
         'sendMessage',
+        '_internalSendHashedResidentPhones',
     ],
 }
 

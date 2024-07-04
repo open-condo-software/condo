@@ -10,15 +10,24 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { getById, getByCondition, find } = require('@open-condo/keystone/schema')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
+const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const { getGQLErrorValidator } = require('@condo/domains/common/schema/json.utils')
 const access = require('@condo/domains/miniapp/access/B2BAppRole')
 const { APP_NOT_CONNECTED_ERROR, INVALID_PERMISSIONS_ERROR, CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
+
 
 const ERRORS = {
     APP_NOT_CONNECTED: {
         code: BAD_USER_INPUT,
         type: APP_NOT_CONNECTED_ERROR,
         message: 'B2BApp must be connected in organization, which role belongs to',
+    },
+    ROLE_NOT_FOUND: {
+        code: BAD_USER_INPUT,
+        type: NOT_FOUND,
+        variable: ['data', 'role'],
+        message: 'Role not found',
+        messageForUser: 'api.organizationEmployee.NOT_FOUND_ROLE',
     },
 }
 
@@ -106,8 +115,10 @@ const B2BAppRole = new GQLListSchema('B2BAppRole', {
                 const appId = resolvedData['app']
                 const roleId = resolvedData['role']
                 const role = await getById('OrganizationEmployeeRole', roleId)
+                if (!role || role.deletedAt) throw new GQLError(ERRORS.ROLE_NOT_FOUND, context)
+
                 const orgId = get(role, 'organization')
-                if (!role || !orgId) throw new GQLError(ERRORS.APP_NOT_CONNECTED, context)
+                if (!orgId) throw new GQLError(ERRORS.APP_NOT_CONNECTED, context)
 
                 const connectedContext = await getByCondition('B2BAppContext', {
                     organization: { id: orgId },

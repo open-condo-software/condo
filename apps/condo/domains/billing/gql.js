@@ -12,13 +12,13 @@ const { ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/s
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 const BILLING_INTEGRATION_DATA_FORMAT_FIELDS = '{ hasToPayDetails hasServices hasServicesDetails }'
-const BILLING_INTEGRATION_FIELDS = `{ name logo { publicUrl } shortDescription targetDescription detailedDescription bannerColor bannerTextColor bannerPromoImage { publicUrl } instruction setupUrl receiptsLoadingTime group appUrl contextDefaultStatus dataFormat ${BILLING_INTEGRATION_DATA_FORMAT_FIELDS} isHidden skipNoAccountNotifications ${COMMON_FIELDS} checkAccountNumberUrl checkAddressUrl }`
+const BILLING_INTEGRATION_FIELDS = `{ name logo { publicUrl } shortDescription targetDescription detailedDescription bannerColor bannerTextColor bannerPromoImage { publicUrl } instruction setupUrl receiptsLoadingTime group appUrl contextDefaultStatus dataFormat ${BILLING_INTEGRATION_DATA_FORMAT_FIELDS} isHidden skipNoAccountNotifications ${COMMON_FIELDS} checkAccountNumberUrl checkAddressUrl currencyCode }`
 const BillingIntegration = generateGqlQueries('BillingIntegration', BILLING_INTEGRATION_FIELDS)
 
 const BILLING_INTEGRATION_ACCESS_RIGHT_FIELDS = `{ integration { id name } user { id name } ${COMMON_FIELDS} }`
 const BillingIntegrationAccessRight = generateGqlQueries('BillingIntegrationAccessRight', BILLING_INTEGRATION_ACCESS_RIGHT_FIELDS)
 
-const BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS = `{ integration { id name appUrl billingPageTitle setupUrl instruction instructionExtraLink connectedMessage uploadUrl uploadMessage extendsBillingPage billingPageTitle currencyCode dataFormat ${BILLING_INTEGRATION_DATA_FORMAT_FIELDS} skipNoAccountNotifications } organization { id tin name country type } settings state status lastReport currentProblem { id title message } ${COMMON_FIELDS} }`
+const BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS = `{ integration { id name appUrl checkAccountNumberUrl billingPageTitle setupUrl instruction instructionExtraLink connectedMessage uploadUrl uploadMessage extendsBillingPage billingPageTitle currencyCode dataFormat ${BILLING_INTEGRATION_DATA_FORMAT_FIELDS} skipNoAccountNotifications } organization { id tin name country type } settings state status lastReport currentProblem { id title message } ${COMMON_FIELDS} }`
 const BillingIntegrationOrganizationContext = generateGqlQueries('BillingIntegrationOrganizationContext', BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS)
 
 const BILLING_INTEGRATION_PROBLEM_FIELDS = `{ context { id } title message meta ${COMMON_FIELDS} }`
@@ -50,6 +50,9 @@ const BillingReceiptAdmin = generateGqlQueries('BillingReceipt', BILLING_RECEIPT
 const RESIDENT_BILLING_RECEIPTS_FIELDS = `{ id ${BILLING_RECEIPT_RECIPIENT_FIELDS} period toPay paid toPayDetails { ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS} } ${BILLING_RECEIPT_SERVICE_FIELDS} printableNumber serviceConsumer { id paymentCategory } currencyCode category { id name } isPayable file { file { id originalFilename publicUrl mimetype } controlSum } }`
 const ResidentBillingReceipt = generateGqlQueries('ResidentBillingReceipt', RESIDENT_BILLING_RECEIPTS_FIELDS)
 
+const RESIDENT_BILLING_VIRTUAL_RECEIPTS_FIELDS = `{ id ${BILLING_RECEIPT_RECIPIENT_FIELDS} period toPay explicitFee paid ${BILLING_RECEIPT_SERVICE_FIELDS} printableNumber serviceConsumer { id paymentCategory } currencyCode category { id name } isPayable }`
+const ResidentBillingVirtualReceipt = generateGqlQueries('ResidentBillingVirtualReceipt', RESIDENT_BILLING_VIRTUAL_RECEIPTS_FIELDS)
+
 const BillingReceiptForOrganization = generateGqlQueries('BillingReceipt', `{ 
         id period toPay
         property { id address addressKey }
@@ -80,7 +83,7 @@ const SEND_NEW_RECEIPT_MESSAGES_TO_RESIDENT_SCOPES_MUTATION = gql`
 
 const VALIDATE_QRCODE_MUTATION = gql`
     mutation validateQRCode ($data: ValidateQRCodeInput!) {
-        result: validateQRCode(data: $data) { qrCodeFields }
+        result: validateQRCode(data: $data) { qrCodeFields lastReceiptData { id period toPay } explicitFees { explicitServiceCharge explicitFee } amount acquiringIntegrationHostUrl currencyCode }
     }
 `
 
@@ -115,6 +118,7 @@ module.exports = {
     BillingReceiptForOrganization,
     BillingReceiptAdmin,
     ResidentBillingReceipt,
+    ResidentBillingVirtualReceipt,
     RESIDENT_BILLING_RECEIPTS_FIELDS,
     BillingRecipient,
     BillingCategory,

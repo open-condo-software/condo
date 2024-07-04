@@ -20,6 +20,7 @@ const {
     useUpdate,
     useSoftDelete,
     useCount,
+    useSoftDeleteMany,
 } = generateReactHooks<MeterReading, MeterReadingCreateInput, MeterReadingUpdateInput, QueryAllMeterReadingsArgs>(MeterReadingForOrganizationGQL)
 
 export {
@@ -29,4 +30,5 @@ export {
     useUpdate,
     useSoftDelete,
     useCount,
+    useSoftDeleteMany,
 }

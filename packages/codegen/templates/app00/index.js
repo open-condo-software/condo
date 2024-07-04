@@ -4,7 +4,6 @@ const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { AdminUIApp } = require('@keystonejs/app-admin-ui')
 const { StaticApp } = require('@keystonejs/app-static')
 const { NextApp } = require('@keystonejs/app-next')
-const { createItems } = require('@keystonejs/server-side-graphql-client')
 
 const conf = require('@open-condo/config')
 const access = require('@open-condo/keystone/access')
@@ -12,26 +11,7 @@ const { EmptyApp } = require('@open-condo/keystone/test.utils')
 const { prepareDefaultKeystoneConfig } = require('@open-condo/keystone/setup.utils')
 const { registerSchemas } = require('@open-condo/keystone/schema')
 
-const keystone = new Keystone({
-    ...prepareDefaultKeystoneConfig(conf),
-    onConnect: async () => {
-        // Initialise some data
-        if (conf.NODE_ENV !== 'development') return // Just for dev env purposes!
-        // This function can be called before tables are created! (we just ignore this)
-        const users = await keystone.lists.User.adapter.findAll()
-        if (!users.length) {
-            const initialData = require('./initialData')
-            for (let { listKey, items } of initialData) {
-                console.log(`🗿 createItems(${listKey}) -> ${items.length}`)
-                await createItems({
-                    keystone,
-                    listKey,
-                    items,
-                })
-            }
-        }
-    },
-})
+const keystone = new Keystone(prepareDefaultKeystoneConfig(conf))
 
 registerSchemas(keystone, [
     require('@{{name}}/domains/User/schema'),

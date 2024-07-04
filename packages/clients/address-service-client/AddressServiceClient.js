@@ -5,7 +5,7 @@
 
 /**
  * @typedef {Object} AddressServiceParams
- * @property {string?} geo
+ * @property {boolean?} extractUnit
  * @property {number?} count Number of results to return (20 by default)
  * @property {string?} context
  */
@@ -87,7 +87,7 @@ class AddressServiceClient {
 
     /**
      * @typedef {Object} AddressServiceSearchParams
-     * @property {string} [geo]
+     * @property {boolean} [extractUnit]
      * @property {string} [context]
      */
 

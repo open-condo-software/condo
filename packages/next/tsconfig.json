@@ -1,0 +1,20 @@
+{
+  "extends": "@open-condo/tsconfig/react-lib.json",
+  "compilerOptions": {
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "module": "esnext",
+    "strict": false,
+    "noEmit": true,
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+  ]
+}

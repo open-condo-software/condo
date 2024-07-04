@@ -11,10 +11,10 @@ import { useRouter } from 'next/router'
 import React, { useMemo } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
-import { FeatureFlagsProvider, useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
+import { useFeatureFlags, FeaturesReady, withFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import * as AllIcons from '@open-condo/icons'
 import { extractReqLocale } from '@open-condo/locales/extractReqLocale'
-import { withApollo } from '@open-condo/next/apollo'
+import { withApollo, WithApolloProps } from '@open-condo/next/apollo'
 import { useAuth, withAuth } from '@open-condo/next/auth'
 import { useIntl, withIntl } from '@open-condo/next/intl'
 import { useOrganization, withOrganization } from '@open-condo/next/organization'
@@ -27,8 +27,8 @@ import BaseLayout, { useLayoutContext } from '@condo/domains/common/components/c
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
 import YandexMetrika from '@condo/domains/common/components/containers/YandexMetrika'
-import { FocusContextProvider } from '@condo/domains/common/components/Focus/FocusContextProvider'
 import { LayoutContextProvider } from '@condo/domains/common/components/LayoutContext'
+import { Loader } from '@condo/domains/common/components/Loader'
 import { MenuItem } from '@condo/domains/common/components/MenuItem'
 import PopupSmart from '@condo/domains/common/components/PopupSmart'
 import { PostMessageProvider } from '@condo/domains/common/components/PostMessageProvider'
@@ -55,6 +55,7 @@ import { useHotCodeReload } from '@condo/domains/common/hooks/useHotCodeReload'
 import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
 import { messagesImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
 import { useContactExportTaskUIInterface } from '@condo/domains/contact/hooks/useContactExportTaskUIInterface'
+import { useMeterReadingsImportTaskUIInterface } from '@condo/domains/meter/hooks/useMeterReadingsImportTaskUIInterface'
 import { ConnectedAppsWithIconsContextProvider, useConnectedAppsWithIconsContext } from '@condo/domains/miniapp/components/ConnectedAppsWithIconsProvider'
 import { GlobalAppsContainer } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsContainer'
 import { GlobalAppsFeaturesProvider } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
@@ -76,6 +77,9 @@ import {
 import { ActiveCallContextProvider } from '@condo/domains/ticket/contexts/ActiveCallContext'
 import { TicketVisibilityContextProvider } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 import { useIncidentExportTaskUIInterface } from '@condo/domains/ticket/hooks/useIncidentExportTaskUIInterface'
+import {
+    useTicketDocumentGenerationTaskUIInterface,
+} from '@condo/domains/ticket/hooks/useTicketDocumentGenerationTaskUIInterface'
 import { useTicketExportTaskUIInterface } from '@condo/domains/ticket/hooks/useTicketExportTaskUIInterface'
 import { CookieAgreement } from '@condo/domains/user/components/CookieAgreement'
 import { USER_QUERY } from '@condo/domains/user/gql'
@@ -309,7 +313,7 @@ const MenuItems: React.FC = () => {
                     path: 'settings',
                     icon: AllIcons['Settings'],
                     label: 'global.section.settings',
-                    access: hasAccessToSettings && isManagingCompany,
+                    access: hasAccessToSettings,
                 },
             ].filter(checkItemAccess),
         },
@@ -358,6 +362,7 @@ const MenuItems: React.FC = () => {
 const TasksProvider = ({ children }) => {
     const { user } = useAuth()
     // Use UI interfaces for all tasks, that are supposed to be tracked
+    const { TicketDocumentGenerationTask: TicketDocumentGenerationTaskUIInterface } = useTicketDocumentGenerationTaskUIInterface()
     const { TicketExportTask: TicketExportTaskUIInterface } = useTicketExportTaskUIInterface()
     const { IncidentExportTask: IncidentExportTaskUIInterface } = useIncidentExportTaskUIInterface()
     const { ContactExportTask: ContactExportTaskUIInterface } = useContactExportTaskUIInterface()
@@ -365,9 +370,13 @@ const TasksProvider = ({ children }) => {
     const { BankReportTask: BankReportTaskUIInterface } = useBankReportTaskUIInterface()
     const { MiniAppTask: MiniAppTaskUIInterface } = useMiniappTaskUIInterface()
     const { NewsItemRecipientsExportTask: NewsItemRecipientsExportTaskUIInterface } = useNewsItemRecipientsExportTaskUIInterface()
+    const { MeterReadingsImportTask: MeterReadingsImportTaskUIInterface } = useMeterReadingsImportTaskUIInterface()
     // ... another interfaces of tasks should be used here
 
     // Load all tasks with 'processing' status
+    const { records: ticketDocumentGenerationTasks } = TicketDocumentGenerationTaskUIInterface.storage.useTasks(
+        { status: TASK_STATUS.PROCESSING, today: true }, user
+    )
     const { records: ticketExportTasks } = TicketExportTaskUIInterface.storage.useTasks(
         { status: TASK_STATUS.PROCESSING, today: true }, user
     )
@@ -389,21 +398,26 @@ const TasksProvider = ({ children }) => {
     const { records: newsItemRecipientsTask } = NewsItemRecipientsExportTaskUIInterface.storage.useTasks(
         { status: TASK_STATUS.PROCESSING, today: true }, user
     )
+    const { records: meterReadingsImportTask } = MeterReadingsImportTaskUIInterface.storage.useTasks(
+        { status: TASK_STATUS.PROCESSING, today: true }, user
+    )
     // ... another task records should be loaded here
 
     const initialTaskRecords = useMemo(
-        () => [...miniAppTasks, ...ticketExportTasks, ...incidentExportTasks, ...contactExportTasks, ...bankSyncTasks, ...bankReportTasks, ...newsItemRecipientsTask],
-        [miniAppTasks, ticketExportTasks, incidentExportTasks, contactExportTasks, bankSyncTasks, bankReportTasks, newsItemRecipientsTask],
+        () => [...miniAppTasks, ...ticketDocumentGenerationTasks, ...ticketExportTasks, ...incidentExportTasks, ...contactExportTasks, ...bankSyncTasks, ...bankReportTasks, ...newsItemRecipientsTask, ...meterReadingsImportTask],
+        [miniAppTasks, ticketDocumentGenerationTasks, ticketExportTasks, incidentExportTasks, contactExportTasks, bankSyncTasks, bankReportTasks, newsItemRecipientsTask, meterReadingsImportTask],
     )
     const uiInterfaces = useMemo(() => ({
         MiniAppTask: MiniAppTaskUIInterface,
+        TicketDocumentGenerationTask: TicketDocumentGenerationTaskUIInterface,
         TicketExportTask: TicketExportTaskUIInterface,
         IncidentExportTask: IncidentExportTaskUIInterface,
         ContactExportTask: ContactExportTaskUIInterface,
         BankSyncTask: BankSyncTaskUIInterface,
         BankReportTask: BankReportTaskUIInterface,
         NewsItemRecipientsExportTask: NewsItemRecipientsExportTaskUIInterface,
-    }), [MiniAppTaskUIInterface, TicketExportTaskUIInterface, IncidentExportTaskUIInterface, ContactExportTaskUIInterface, BankSyncTaskUIInterface, BankReportTaskUIInterface, NewsItemRecipientsExportTaskUIInterface])
+        MeterReadingsImportTask: MeterReadingsImportTaskUIInterface,
+    }), [MiniAppTaskUIInterface, TicketDocumentGenerationTaskUIInterface, TicketExportTaskUIInterface, IncidentExportTaskUIInterface, ContactExportTaskUIInterface, BankSyncTaskUIInterface, BankReportTaskUIInterface, NewsItemRecipientsExportTaskUIInterface, MeterReadingsImportTaskUIInterface])
 
     return (
         <TasksContextProvider
@@ -447,46 +461,44 @@ const MyApp = ({ Component, pageProps }) => {
             </Head>
             <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize='large'>
                 <CacheProvider value={cache}>
-                    <FeatureFlagsProvider>
-                        <SetupTelegramNotificationsBanner />
-                        <GlobalStyle/>
-                        {shouldDisplayCookieAgreement && <CookieAgreement/>}
-                        <FocusContextProvider>
-                            <LayoutContextProvider>
-                                <TasksProvider>
-                                    <PostMessageProvider>
-                                        <TrackingProvider>
-                                            <TourProvider>
-                                                <SubscriptionProvider>
-                                                    <GlobalAppsFeaturesProvider>
-                                                        <GlobalAppsContainer/>
-                                                        <TicketVisibilityContextProvider>
-                                                            <ActiveCallContextProvider>
-                                                                <ConnectedAppsWithIconsContextProvider>
-                                                                    <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                                                                        <RequiredAccess>
-                                                                            <Component {...pageProps} />
-                                                                            {
-                                                                                isEndTrialSubscriptionReminderPopupVisible && (
-                                                                                    <EndTrialSubscriptionReminderPopup/>
-                                                                                )
-                                                                            }
-                                                                        </RequiredAccess>
-                                                                    </LayoutComponent>
-                                                                </ConnectedAppsWithIconsContextProvider>
-                                                            </ActiveCallContextProvider>
-                                                        </TicketVisibilityContextProvider>
-                                                    </GlobalAppsFeaturesProvider>
-                                                </SubscriptionProvider>
-                                            </TourProvider>
-                                        </TrackingProvider>
-                                    </PostMessageProvider>
-                                </TasksProvider>
-                            </LayoutContextProvider>
-                        </FocusContextProvider>
-                        <YandexMetrika/>
-                        <PopupSmart />
-                    </FeatureFlagsProvider>
+                    <SetupTelegramNotificationsBanner />
+                    <GlobalStyle/>
+                    {shouldDisplayCookieAgreement && <CookieAgreement/>}
+                    <LayoutContextProvider>
+                        <TasksProvider>
+                            <PostMessageProvider>
+                                <TrackingProvider>
+                                    <TourProvider>
+                                        <SubscriptionProvider>
+                                            <GlobalAppsFeaturesProvider>
+                                                <GlobalAppsContainer/>
+                                                <TicketVisibilityContextProvider>
+                                                    <ActiveCallContextProvider>
+                                                        <ConnectedAppsWithIconsContextProvider>
+                                                            <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                                                <RequiredAccess>
+                                                                    <FeaturesReady fallback={<Loader fill size='large'/>}>
+                                                                        <Component {...pageProps} />
+                                                                        {
+                                                                            isEndTrialSubscriptionReminderPopupVisible && (
+                                                                                <EndTrialSubscriptionReminderPopup/>
+                                                                            )
+                                                                        }
+                                                                    </FeaturesReady>
+                                                                </RequiredAccess>
+                                                            </LayoutComponent>
+                                                        </ConnectedAppsWithIconsContextProvider>
+                                                    </ActiveCallContextProvider>
+                                                </TicketVisibilityContextProvider>
+                                            </GlobalAppsFeaturesProvider>
+                                        </SubscriptionProvider>
+                                    </TourProvider>
+                                </TrackingProvider>
+                            </PostMessageProvider>
+                        </TasksProvider>
+                    </LayoutContextProvider>
+                    <YandexMetrika/>
+                    <PopupSmart />
                 </CacheProvider>
             </ConfigProvider>
             <UseDeskWidget/>
@@ -504,7 +516,7 @@ const MyApp = ({ Component, pageProps }) => {
     For those items, we need to set `concatPagination` strategy.
     https://www.apollographql.com/docs/react/pagination/core-api/
  */
-const apolloCacheConfig = {
+const apolloCacheConfig: WithApolloProps['apolloCacheConfig'] = {
     typePolicies: {
         [BILLING_RECEIPT_SERVICE_FIELD_NAME]: {
             // avoiding of building cache from ID on client, since Service ID is not UUID and will be repeated
@@ -522,7 +534,7 @@ const apolloCacheConfig = {
     },
 }
 
-const apolloClientConfig = {
+const apolloClientConfig: WithApolloProps['apolloClientConfig'] = {
     defaultOptions: {
         watchQuery: {
             fetchPolicy: 'no-cache',
@@ -538,7 +550,9 @@ export default (
                     ssr: true,
                     GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY: GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY,
                 })(
-                    MyApp
+                    withFeatureFlags({ ssr: true })(
+                        MyApp
+                    )
                 )
             )
         )

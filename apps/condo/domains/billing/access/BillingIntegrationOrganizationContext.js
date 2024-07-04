@@ -10,7 +10,6 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { getById, find } = require('@open-condo/keystone/schema')
 
 const { checkBillingIntegrationsAccessRights } = require('@condo/domains/billing/utils/accessSchema')
-const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const { SERVICE } = require('@condo/domains/user/constants/common')
 
 
@@ -88,7 +87,7 @@ async function canManageBillingIntegrationOrganizationContexts ({ authentication
         organization: { id: organizationId },
     })
 
-    if (!employeeRole) return false
+    if (!employeeRole || employeeRole.deletedAt) return false
 
     const canManageIntegrations = employeeRole['canManageIntegrations'] || false
     const canImportBillingReceipts = employeeRole['canImportBillingReceipts'] || false

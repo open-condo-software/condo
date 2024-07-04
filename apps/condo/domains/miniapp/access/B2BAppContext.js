@@ -8,7 +8,7 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { getById } = require('@open-condo/keystone/schema')
 
 const { checkB2BAppAccessRight } = require('@condo/domains/miniapp/utils/accessSchema')
-const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
+const { checkPermissionsInEmployedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
 const { SERVICE, STAFF } = require('@condo/domains/user/constants/common')
 const { canDirectlyReadSchemaObjects, canDirectlyManageSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
@@ -49,7 +49,7 @@ async function canReadB2BAppContexts ({ authentication: { item: user }, listKey 
  * 2. Users with direct access
  * 3. App service user
  */
-async function canManageB2BAppContexts ({ authentication: { item: user }, originalInput, operation, itemId, listKey }) {
+async function canManageB2BAppContexts ({ authentication: { item: user }, originalInput, operation, itemId, listKey, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -60,7 +60,9 @@ async function canManageB2BAppContexts ({ authentication: { item: user }, origin
     if (operation === 'create') {
         const organizationId = get(originalInput, ['organization', 'connect', 'id'])
 
-        return await checkOrganizationPermission(user.id, organizationId, 'canManageB2BApps')
+        if (!organizationId) return false
+
+        return await checkPermissionsInEmployedOrganizations(context, user, organizationId, 'canManageB2BApps')
     } else if (operation === 'update') {
         if (!itemId) return false
         const context = await getById('B2BAppContext', itemId)

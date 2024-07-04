@@ -6,24 +6,27 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
-const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor, checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    getEmployedOrRelatedOrganizationsByPermissions,
+    checkPermissionsInEmployedOrRelatedOrganizations,
+} = require('@condo/domains/organization/utils/accessSchema')
 
-async function canReadTicketPropertyHintProperties ({ authentication: { item: user } }) {
+async function canReadTicketPropertyHintProperties ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
 
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, [])
+
+
     return {
         organization: {
-            OR: [
-                queryOrganizationEmployeeFor(user.id),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
-            ],
+            id_in: permittedOrganizations,
         },
     }
 }
 
-async function canManageTicketPropertyHintProperties ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageTicketPropertyHintProperties ({ authentication: { item: user }, context, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -43,7 +46,9 @@ async function canManageTicketPropertyHintProperties ({ authentication: { item: 
         organizationId = get(ticketPropertyHintProperty, 'organization', null)
     }
 
-    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageTicketPropertyHints')
+    if (!organizationId) return false
+
+    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageTicketPropertyHints')
 }
 
 /*

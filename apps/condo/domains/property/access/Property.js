@@ -10,14 +10,15 @@ const {
     canManageObjectsAsB2BAppServiceUser,
     canReadObjectsAsB2BAppServiceUser,
 } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
-const { queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
-const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
-const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    checkPermissionsInEmployedOrganizations,
+    getEmployedOrRelatedOrganizationsByPermissions,
+} = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 
 
 async function canReadProperties (args) {
-    const { authentication: { item: user } } = args
+    const { authentication: { item: user }, context } = args
 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -37,19 +38,18 @@ async function canReadProperties (args) {
     if (user.type === SERVICE) {
         return await canReadObjectsAsB2BAppServiceUser(args)
     }
-    
+
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadProperties')
+
     return {
         organization: {
-            OR: [
-                queryOrganizationEmployeeFor(user.id, 'canReadProperties'),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadProperties'),
-            ],
+            id_in: permittedOrganizations,
         },
     }
 }
 
 async function canManageProperties (args) {
-    const { authentication: { item: user }, originalInput, operation, itemId } = args
+    const { authentication: { item: user }, originalInput, operation, itemId, context } = args
 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -63,13 +63,15 @@ async function canManageProperties (args) {
         const organizationId = get(originalInput, ['organization', 'connect', 'id'])
         if (!organizationId) return false
 
-        return await checkOrganizationPermission(user.id, organizationId, 'canManageProperties')
+        return await checkPermissionsInEmployedOrganizations(context, user, organizationId, 'canManageProperties')
     } else if (operation === 'update' && itemId) {
         const property = await getById('Property', itemId)
         if (!property) return false
         const { organization: organizationId } = property
 
-        return await checkOrganizationPermission(user.id, organizationId, 'canManageProperties')
+        if (!organizationId) return false
+
+        return await checkPermissionsInEmployedOrganizations(context, user, organizationId, 'canManageProperties')
     }
 
     return false

@@ -21,6 +21,7 @@ const { TicketChange } = require('./TicketChange')
 const { TicketClassifier } = require('./TicketClassifier')
 const { TicketComment } = require('./TicketComment')
 const { TicketCommentFile } = require('./TicketCommentFile')
+const { TicketDocumentGenerationTask } = require('./TicketDocumentGenerationTask')
 const { TicketExportTask } = require('./TicketExportTask')
 const { TicketFile } = require('./TicketFile')
 const { TicketFilterTemplate } = require('./TicketFilterTemplate')
@@ -67,5 +68,6 @@ module.exports = {
     CallRecordFragment,
     TicketMultipleUpdateService,
     TicketAutoAssignment,
+    TicketDocumentGenerationTask,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
