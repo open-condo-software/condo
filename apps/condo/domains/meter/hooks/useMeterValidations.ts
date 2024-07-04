@@ -6,9 +6,9 @@ import { useMemo } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 
 
-import { Meter, MeterResourceOwner } from '@condo/domains/meter/utils/clientSchema'
+import { Meter, MeterResourceOwner, PropertyMeter } from '@condo/domains/meter/utils/clientSchema'
 
-export const useMeterValidations = (installationDate: Dayjs, verificationDate: Dayjs, propertyId: string, unitName: string, organizationId: string, initialNumber: string | null, addressKey: string ) => {
+export const useMeterValidations = (isPropertyMeter: boolean, installationDate: Dayjs, verificationDate: Dayjs, propertyId: string, unitName: string, organizationId: string, initialNumber: string | null, addressKey: string ) => {
     const intl = useIntl()
     const MeterWithSameNumberIsExistMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterWithSameNumberIsExist' })
     const MeterWithSameAccountNumberIsExistMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterWithSameAccountNumberIsExist' })
@@ -16,7 +16,8 @@ export const useMeterValidations = (installationDate: Dayjs, verificationDate: D
     const CanNotBeEarlierThanFirstVerificationMessage = intl.formatMessage({ id: 'pages.condo.meter.CanNotBeEarlierThanFirstVerification' })
     const ResourceOwnedByAnotherOrganizationTitle = intl.formatMessage({ id: 'pages.condo.meter.create.resourceOwnedByAnotherOrganization' })
 
-    const { refetch } = Meter.useObjects({
+    const MeterIdentity = isPropertyMeter ? PropertyMeter : Meter
+    const { refetch } = MeterIdentity.useObjects({
         where: {
             organization: { id: organizationId },
         },
