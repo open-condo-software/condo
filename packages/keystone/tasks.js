@@ -332,7 +332,7 @@ async function createWorker (keystoneModule, config) {
         return
     } else {
         isWorkerCreated = true
-        logger.info('Creating worker process')
+        logger.info({ msg: 'Creating worker process' })
     }
 
     // we needed to prepare keystone to use it inside tasks logic!
@@ -406,7 +406,7 @@ async function createWorker (keystoneModule, config) {
 
     const activeQueueNames = activeQueues.map(([name]) => name)
 
-    logger.info(`Worker[${activeQueueNames.join(',')}]: ready to work!`)
+    logger.info({ msg: 'Worker: ready to work!', activeQueues: activeQueueNames.join(',') })
 
     const cronTasks = Array.from(CRON_TASKS.entries())
     if (cronTasks.length > 0) {
