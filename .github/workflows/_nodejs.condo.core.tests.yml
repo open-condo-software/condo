@@ -41,12 +41,7 @@ jobs:
 
       - name: run dbs
         run: |
-          cat << EOF > .env
-          POSTGRES_IMAGE=${{ secrets.DOCKER_REGISTRY }}/doma/utils/
-          REDIS_IMAGE=${{ secrets.DOCKER_REGISTRY }}/doma/utils/
-          EOF
-
-          docker-compose up -d redis postgresdb-master postgresdb-replica
+          REGISTRY=${{ secrets.DOCKER_REGISTRY }}/doma/utils/ docker-compose up -d redis postgresdb
 
       - name: run tests
         run: |
