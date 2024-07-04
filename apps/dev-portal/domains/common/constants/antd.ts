@@ -15,12 +15,12 @@ export const theme: ThemeConfig = {
     components: {
         Menu: {
             colorPrimaryBg: colors.gray['1'],
-            colorSubItemBg: colors.white,
-            colorItemBgHover: colors.gray['1'],
-            colorItemBgSelected: colors.gray['1'],
-            colorItemTextSelected: colors.gray['7'], // Override icon color, use Typography for
-            colorItemTextHover: colors.gray['7'],
-            colorActiveBarBorderSize: 0,
+            subMenuItemBg: colors.white,
+            itemHoverBg: colors.gray['1'],
+            itemSelectedBg: colors.gray['1'],
+            itemSelectedColor: colors.gray['7'], // Override icon color, use Typography for
+            itemHoverColor: colors.gray['7'],
+            activeBarBorderWidth: 0,
         },
         Divider: {
             margin: 0,
@@ -37,6 +37,9 @@ export const theme: ThemeConfig = {
         Pagination: {
             colorBgTextHover: colors.gray['1'],
             colorTextDisabled: colors.gray['5'],
+        },
+        Collapse: {
+            headerBg: colors.white,
         },
     },
 }

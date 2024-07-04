@@ -1,11 +1,11 @@
 const notifyResidentsAboutDelayedNewsItem = require('./notifyResidentsAboutDelayedNewsItems')
 const { notifyResidentsAboutNewsItemTask } = require('./notifyResidentsAboutNewsItem')
-const publishSharedNewsItem = require('./publishSharedNewsItem')
-const publishSharedNewsItemsByNewsItem = require('./publishSharedNewsItemsByNewsItem')
+const publishDelayedSharedNewsItems = require('./publishDelayedSharedNewsItems')
+const publishNewsItemSharing = require('./publishNewsItemSharing')
 
 module.exports = {
     notifyResidentsAboutNewsItemTask,
     notifyResidentsAboutDelayedNewsItem,
-    publishSharedNewsItem,
-    publishSharedNewsItemsByNewsItem,
+    publishDelayedSharedNewsItems,
+    publishNewsItemSharing,
 }

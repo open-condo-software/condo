@@ -1,4 +1,4 @@
-import { BuildingFloor, BuildingSection, Property, BuildingUnitSubType } from '@app/condo/schema'
+import { BuildingFloor, BuildingSection, Property, BuildingUnitSubType, MeterUnitTypeType } from '@app/condo/schema'
 import { Col, FormInstance, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { isEmpty } from 'lodash'
@@ -10,6 +10,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
 import { FormItemTooltipWrapper } from '@condo/domains/common/components/Form/FormItemTooltipWrapper'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { PARKING_SECTION_TYPE, SECTION_SECTION_TYPE } from '@condo/domains/property/constants/common'
 import { TicketFormItem } from '@condo/domains/ticket/components/BaseTicketForm'
 import { FloorNameInput } from '@condo/domains/user/components/FloorNameInput'
@@ -66,6 +67,8 @@ export enum UnitInfoMode {
 type InitialUnitInfoType = {
     sectionName?: string
     floorName?: string
+    unitName?: string
+    unitType?: string
 }
 
 interface IUnitInfo {
@@ -73,7 +76,7 @@ interface IUnitInfo {
     form: FormInstance
     loading: boolean
     setSelectedUnitName: React.Dispatch<React.SetStateAction<string>>
-    setSelectedUnitType?: React.Dispatch<React.SetStateAction<BuildingUnitSubType>>
+    setSelectedUnitType?: React.Dispatch<React.SetStateAction<BuildingUnitSubType | MeterUnitTypeType>>
     selectedUnitName?: string
     mode?: UnitInfoMode
     initialValues?: InitialUnitInfoType
@@ -121,6 +124,8 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
     const floors = useMemo(() =>
         getFloorsBySection(selectedSectionName, selectedSections)
     , [selectedSectionName, selectedSections])
+
+    const { requiredValidator } = useValidations()
 
     const updateSectionAndFloor = useCallback((form, unitName: string, unitType = BuildingUnitSubType.Flat) => {
         if (unitName) {
@@ -221,6 +226,8 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
                         name='unitName'
                         label={FlatNumberLabel}
                         required={required}
+                        initialValue={get(initialValues, 'unitName')}
+                        rules={required && [requiredValidator]}
                     >
                         <UnitNameInput
                             property={property}

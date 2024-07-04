@@ -22,6 +22,10 @@ const CAPTCHA_CHECK_ENABLED = 'captcha-check-enabled'
 // TODO(DOMA-8667): Remove flag after links to instructions will be ready
 const IMPORT_HELP_MODAL = 'import-help-modal'
 const PROPERTY_DOCUMENTS = 'property-documents'
+const SEND_DAILY_STATISTICS_TASK = 'send-daily-statistics-task'
+const RETENTION_LOOPS_ENABLED = 'retention-loops-enabled'
+const NEWS_SHARING = 'news-sharing'
+const TICKET_DOCUMENT_GENERATION = 'ticket-document-generation'
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
@@ -47,4 +51,8 @@ module.exports = {
     CAPTCHA_CHECK_ENABLED,
     IMPORT_HELP_MODAL,
     PROPERTY_DOCUMENTS,
+    RETENTION_LOOPS_ENABLED,
+    SEND_DAILY_STATISTICS_TASK,
+    NEWS_SHARING,
+    TICKET_DOCUMENT_GENERATION,
 }

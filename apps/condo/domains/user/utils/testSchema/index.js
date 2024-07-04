@@ -171,10 +171,10 @@ async function makeClientWithSupportUser (userExtraAttrs = {}) {
     return client
 }
 
-async function makeClientWithResidentUser (userExtraAttrs = {}) {
-    const [user, userAttrs] = await registerNewUser(await makeClient())
+async function makeClientWithResidentUser (updateUserExtraAttrs = {}, createUserExtraAttrs = {}) {
+    const [user, userAttrs] = await registerNewUser(await makeClient(), createUserExtraAttrs)
     const client = await makeLoggedInClient(userAttrs)
-    await addResidentAccess(user, userExtraAttrs)
+    await addResidentAccess(user, updateUserExtraAttrs)
     client.user = user
     client.userAttrs = userAttrs
     return client

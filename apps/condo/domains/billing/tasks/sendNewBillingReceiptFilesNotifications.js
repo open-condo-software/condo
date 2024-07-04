@@ -1,7 +1,7 @@
 const { isNil, get, isEmpty } = require('lodash')
 
+const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
-const { createTask } = require('@open-condo/keystone/tasks')
 
 const { BILLING_RECEIPT_FILE_FOLDER_NAME } = require('@condo/domains/billing/constants/constants')
 const { BillingReceiptFile, BillingReceiptAdmin, BillingProperty } = require('@condo/domains/billing/utils/serverSchema')
@@ -9,9 +9,9 @@ const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const { BILLING_RECEIPT_FILE_ADDED_TYPE } = require('@condo/domains/notification/constants/constants')
-const { EMAIL_FROM } = require('@condo/domains/notification/tasks/sendMessageBatch.helpers')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 
+const logger = getLogger('sendNewBillingReceiptFilesNotifications')
 const fileAdapter = new FileAdapter(BILLING_RECEIPT_FILE_FOLDER_NAME)
 
 async function prepareAttachments (files) {
@@ -134,19 +134,26 @@ async function sendNewBillingReceiptFilesNotifications ({ organizationId, organi
         const uniqKey = `new_receipts_files_${contactId}_${filesIds}`
 
         // send message
-        await sendMessage(context, {
-            to: { email },
-            type: BILLING_RECEIPT_FILE_ADDED_TYPE,
-            uniqKey,
-            meta: {
-                dv: 1,
-                data: {
-                    organization: organizationName,
+        try {
+            await sendMessage(context, {
+                to: { email },
+                type: BILLING_RECEIPT_FILE_ADDED_TYPE,
+                uniqKey,
+                meta: {
+                    dv: 1,
+                    data: {
+                        organization: organizationName,
+                    },
+                    attachments,
                 },
-                attachments,
-            },
-            sender,
-        })
+                sender,
+            })
+        } catch (error) {
+            logger.error({
+                msg: `Failed to send message to ${email}`,
+                error,
+            })
+        }
         notificationsSent++
     }
 

@@ -4,6 +4,7 @@
   "main": "./index.js",
   "exports": {
     "./fields": "./fields/index.js",
+    "./file": "./file/index.js",
     "./logging": "./logging/index.js",
     "./plugins": "./plugins/index.js",
     "./plugins/utils": "./plugins/utils/index.js",

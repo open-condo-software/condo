@@ -3,7 +3,7 @@
 @import (reference) "@open-condo/ui/src/components/style/mixins/typography";
 @import (reference) "@open-condo/ui/src/components/style/core/breakpoints.less";
 
-@tabs-horizontal-gutter: @condo-global-spacing-40;
+@tabs-horizontal-gutter: @condo-global-spacing-20;
 @tabs-card-active-color: @condo-global-color-black;
 @tabs-highlight-color: @condo-global-color-black;
 @tabs-ink-bar-color: @condo-global-color-black;
@@ -48,6 +48,29 @@
   &-tab.condo-tabs-tab-active {
     .condo-tabs-tab-btn {
       text-shadow: none;
+    }
+  }
+
+  & > .condo-tabs-nav,
+  & > div > .condo-tabs-nav {
+    .condo-tabs-nav-wrap::before {
+      width: @condo-global-spacing-40;
+      box-shadow:
+        inset @condo-global-spacing-40 0
+        @condo-global-spacing-40 -@condo-global-spacing-40
+        @condo-global-color-white;
+    }
+
+    .condo-tabs-nav-wrap::after {
+      width: @condo-global-spacing-40;
+      box-shadow:
+        inset -@condo-global-spacing-40 0
+        @condo-global-spacing-40 -@condo-global-spacing-40
+        @condo-global-color-white;
+    }
+
+    .condo-tabs-nav-operations {
+      display: none;
     }
   }
 

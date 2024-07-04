@@ -7,8 +7,7 @@ const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
 const { BankAccount } = require('@condo/domains/banking/utils/serverSchema')
 const { BankIntegrationAccountContext, BankIntegration } = require('@condo/domains/banking/utils/serverSchema')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
-const { ISO_CODES_FOR_SBBOL } = require('@condo/domains/common/constants/currencies')
-const { dvSenderFields } = require('@condo/domains/organization/integrations/sbbol/constants')
+const { ISO_CODES_FOR_SBBOL, dvSenderFields } = require('@condo/domains/organization/integrations/sbbol/constants')
 const { initSbbolFintechApi } = require('@condo/domains/organization/integrations/sbbol/SbbolFintechApi')
 
 

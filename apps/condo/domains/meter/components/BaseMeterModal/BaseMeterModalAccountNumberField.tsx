@@ -1,5 +1,6 @@
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
+import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import uniq from 'lodash/uniq'
 import React, { useCallback, useMemo, useState } from 'react'
@@ -24,7 +25,7 @@ const AccountNumberFormItem = ({ children, initialValues, rules, validateFirst =
             required
             rules={rules}
             name='accountNumber'
-            initialValue={initialValues.accountNumber}
+            initialValue={get(initialValues, 'accountNumber')}
             validateFirst={validateFirst}
         >
             {children}
@@ -100,8 +101,8 @@ const CreateMeterAccountNumberField = ({ initialValues, propertyId, unitName, ru
 }
 
 export const BaseMeterModalAccountNumberField = ({ initialValues, rules, disabled, validateFirst = false }) => {
-    const propertyId = initialValues.propertyId
-    const unitName = initialValues.unitName
+    const propertyId = get(initialValues, 'propertyId')
+    const unitName = get(initialValues, 'unitName')
 
     if (propertyId && unitName) {
         return (

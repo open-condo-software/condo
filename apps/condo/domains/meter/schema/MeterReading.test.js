@@ -659,20 +659,20 @@ describe('MeterReading', () => {
             })
 
             describe('Employee', () => {
-                test('employee with "canManageMeterReadings" role: cannot update MeterReadings', async () => {
+                test('employee with "canManageMeterReadings" role: can update MeterReadings', async () => {
                     const [resource] = await MeterResource.getAll(employeeCanManageReadings, { id: COLD_WATER_METER_RESOURCE_ID })
                     const [source] = await MeterReadingSource.getAll(employeeCanManageReadings, { id: CALL_METER_READING_SOURCE_ID })
                     const [meter] = await createTestMeter(employeeCanManageReadings, employeeCanManageReadings.organization, employeeCanManageReadings.property, resource, {})
                     const [meterReading] = await createTestMeterReading(employeeCanManageReadings, meter, source)
 
                     const oldValue = meterReading.value1
-                    const newValue = oldValue + 100
+                    const newValue = String(Number(oldValue) + 100.1234)
 
-                    await expectToThrowAccessDeniedErrorToObj(async () => {
-                        await updateTestMeterReading(employeeCanManageReadings, meterReading.id, {
-                            value1: newValue,
-                        })
+                    const [updatedMeterReading] = await updateTestMeterReading(employeeCanManageReadings, meterReading.id, {
+                        value1: newValue,
                     })
+                    expect(updatedMeterReading.id).toMatch(UUID_RE)
+                    expect(updatedMeterReading.value1).toEqual(newValue)
                 })
 
                 test('employee without "canManageMeterReadings" role: cannot update MeterReadings', async () => {
@@ -692,7 +692,7 @@ describe('MeterReading', () => {
                     })
                 })
 
-                test('employee from "from" related organization: cannot update MeterReadings', async () => {
+                test('employee from "from" related organization: can update MeterReadings', async () => {
                     const { clientFrom, employeeFrom, organizationFrom, organizationTo, propertyTo } = await createTestOrganizationWithAccessToAnotherOrganization()
                     const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, {
                         canManageMeterReadings: true,
@@ -707,13 +707,13 @@ describe('MeterReading', () => {
                     const [meterReading] = await createTestMeterReading(clientFrom, meter, source)
 
                     const oldValue = meterReading.value1
-                    const newValue = oldValue + 100
+                    const newValue = String(Number(oldValue) + 100.1234)
 
-                    await expectToThrowAccessDeniedErrorToObj(async () => {
-                        await updateTestMeterReading(clientFrom, meterReading.id, {
-                            value1: newValue,
-                        })
+                    const [updatedMeterReading] = await updateTestMeterReading(clientFrom, meterReading.id, {
+                        value1: newValue,
                     })
+                    expect(updatedMeterReading.id).toMatch(UUID_RE)
+                    expect(updatedMeterReading.value1).toEqual(newValue)
                 })
             })
 
@@ -751,7 +751,7 @@ describe('MeterReading', () => {
             })
 
             describe('User', () => {
-                test('cannot update MeterReadings', async () => {
+                test('can update MeterReadings', async () => {
                     const client = await makeClientWithProperty()
                     const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
                     const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
@@ -759,12 +759,13 @@ describe('MeterReading', () => {
                     const [meterReading] = await createTestMeterReading(admin, meter, source)
 
                     const oldValue = meterReading.value1
-                    const newValue = oldValue + 100
-                    await expectToThrowAccessDeniedErrorToObj(async () => {
-                        await updateTestMeterReading(client, meterReading.id, {
-                            value1: newValue,
-                        })
+                    const newValue = String(Number(oldValue) + 100.1234)
+
+                    const [updatedMeterReading] = await updateTestMeterReading(client, meterReading.id, {
+                        value1: newValue,
                     })
+                    expect(updatedMeterReading.id).toMatch(UUID_RE)
+                    expect(updatedMeterReading.value1).toEqual(newValue)
                 })
             })
 

@@ -58,6 +58,12 @@ const REGISTER_RESIDENT_INVOICE_MUTATION = gql`
     }
 `
 
+const FIND_ORGANIZATIONS_FOR_ADDRESS_QUERY = gql`
+    query findOrganizationsForAddress ($data: FindOrganizationsForAddressInput!) {
+        result: findOrganizationsForAddress(data: $data) { organization { id name tin type } account { number category balance routingNumber bankAccountNumber } hasMeters hasBillingData }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 const REGISTER_RESIDENT_SERVICE_CONSUMERS_MUTATION = gql`
@@ -80,5 +86,6 @@ module.exports = {
     GET_RESIDENT_EXISTENCE_BY_PHONE_AND_ADDRESS_QUERY,
     REGISTER_RESIDENT_SERVICE_CONSUMERS_MUTATION,
     REGISTER_RESIDENT_INVOICE_MUTATION,
+    FIND_ORGANIZATIONS_FOR_ADDRESS_QUERY,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

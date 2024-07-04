@@ -84,6 +84,12 @@ const ERRORS = {
         type: SEVERAL_ORGANIZATIONS,
         message: `Found ${count} organizations with provided TIN and having provided address`,
     }),
+    BANK_ACCOUNT_IS_INVALID: {
+        mutation: 'validateQRCode',
+        code: BAD_USER_INPUT,
+        type: WRONG_FORMAT,
+        message: 'Provided bank account is not in the system',
+    },
 }
 
 /**
@@ -165,6 +171,10 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
 
                 if (!billingContext) throw new GQLError(ERRORS.NO_BILLING_CONTEXT, context)
                 if (!acquiringContext) throw new GQLError(ERRORS.NO_ACQUIRING_CONTEXT, context)
+
+                const acquiringContextRecipient = get(acquiringContext, 'recipient')
+
+                if (!acquiringContextRecipient) throw new GQLError(ERRORS.BANK_ACCOUNT_IS_INVALID, context)
 
                 const billingIntegration = await getById('BillingIntegration', billingContext.integration)
 

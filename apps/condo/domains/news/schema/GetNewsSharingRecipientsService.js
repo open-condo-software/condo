@@ -52,20 +52,6 @@ const SCHEMA = {
 const ajv = new Ajv()
 const validateSchema = ajv.compile(SCHEMA)
 
-async function fetchWithTimeout (url, options = {}, timeout = 5000) {
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), timeout)
-
-    try {
-        const response = await fetch(url, { ...options, signal: controller.signal })
-        clearTimeout(timeoutId)
-        return response
-    } catch (error) {
-        clearTimeout(timeoutId)
-        throw error.name === 'AbortError' ? new Error('Timeout') : error
-    }
-}
-
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -139,7 +125,9 @@ const GetNewsSharingRecipientsService = new GQLCustomSchema('GetNewsSharingRecip
 
                 // Check that we can obtain result data
                 try {
-                    getRecipientsResult = await fetchWithTimeout(`${getRecipientsUrl}?organizationId=${organizationId}`)
+                    getRecipientsResult = await fetch(`${getRecipientsUrl}?organizationId=${organizationId}`, {
+                        abortRequestTimeout: 5000,
+                    })
                 }
                 catch (err) {
                     throw new GQLError(ERRORS.NEWS_SHARING_APP_REQUEST_FAILED)

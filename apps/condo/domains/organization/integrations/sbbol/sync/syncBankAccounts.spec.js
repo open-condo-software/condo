@@ -10,7 +10,7 @@ const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keys
 const { BankAccount } = require('@condo/domains/banking/utils/testSchema')
 const { createValidRuRoutingNumber, createValidRuNumber } = require('@condo/domains/banking/utils/testSchema/bankAccount')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
-const { ISO_CODES_FOR_SBBOL } = require('@condo/domains/common/constants/currencies')
+const { ISO_CODES_FOR_SBBOL } = require('@condo/domains/organization/integrations/sbbol/constants')
 const { _syncBankAccounts } = require('@condo/domains/organization/integrations/sbbol/sync/syncBankAccounts')
 const { createTestOrganization, Organization, generateTin } = require('@condo/domains/organization/utils/testSchema')
 
