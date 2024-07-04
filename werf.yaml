@@ -365,13 +365,13 @@ docker:
     LANG: C.UTF-8
 ---
 image: postgresreview
-from: postgres:13.2
+from: postgres:13.8
 ---
 image: redisreview
 from: redis:6.2
 ---
 image: preparepostgresreview
-from: postgres:13.2
+from: postgres:13.8
 shell:
   install:
   - "apt update -qq"
