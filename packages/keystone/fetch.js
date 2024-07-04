@@ -9,7 +9,7 @@ const logger = getLogger('fetch')
 const FETCH_COUNT_METRIC_NAME = 'fetch.count'
 const FETCH_TIME_METRIC_NAME = 'fetch.time'
 
-async function fetchWithLogger (url, options) {
+async function fetchWithLogger (url, options, extraAttrs) {
 
     const urlObject = new URL(url)
     const hostname = urlObject.hostname
@@ -17,6 +17,25 @@ async function fetchWithLogger (url, options) {
 
     const executionContext = getExecutionContext()
     const parentReqId = executionContext.reqId
+    const parentTaskId = executionContext.taskId
+
+    const { setTracingHeaders } = extraAttrs
+
+    if (setTracingHeaders) {
+        // We want to set special headers to track requests across the microservices:
+        // Client --reqId-> Condo --reqId-> AddressService
+        //                    ^                   ^
+        //                    |                   |
+        //               log reqId            log reqId
+        //
+        if (!options.headers) {
+            options.headers = {}
+        }
+
+        options.headers['X-Request-Id'] = parentReqId || parentTaskId || null
+        options.headers['reqId'] = parentReqId ? parentReqId : null
+        options.headers['taskId'] = parentTaskId ? parentTaskId : null
+    }
 
     const startTime = Date.now()
 
@@ -26,7 +45,7 @@ async function fetchWithLogger (url, options) {
         const endTime = Date.now()
         const elapsedTime = endTime - startTime
 
-        logger.info({ msg: 'fetch: request successful', url, reqId: parentReqId, path, hostname, status: response.status, elapsedTime })
+        logger.info({ msg: 'fetch: request successful', url, reqId: parentReqId, taskId: parentTaskId, path, hostname, status: response.status, elapsedTime })
 
         Mertrics.increment({ name: FETCH_COUNT_METRIC_NAME, value: 1, tags: { status: response.status, hostname, path } })
         Mertrics.gauge({ name: FETCH_TIME_METRIC_NAME, value: elapsedTime, tags: { status: response.status, hostname, path } })
@@ -36,7 +55,7 @@ async function fetchWithLogger (url, options) {
         const endTime = Date.now()
         const elapsedTime = endTime - startTime
 
-        logger.error({ msg: 'fetch: failed with error', url, path, hostname, reqId: parentReqId, error, elapsedTime })
+        logger.error({ msg: 'fetch: failed with error', url, path, hostname, reqId: parentReqId, taskId: parentTaskId, error, elapsedTime })
 
         Mertrics.increment({ name: FETCH_COUNT_METRIC_NAME, value: 1, tags: { status: 'failed', hostname, path } })
         Mertrics.gauge({ name: FETCH_TIME_METRIC_NAME, value: elapsedTime, tags: { status: 'failed', hostname, path } })
@@ -55,6 +74,7 @@ const sleep = (timeout) => new Promise(resolve => setTimeout(resolve, timeout))
  * @param {number} [options.maxRetries=0] - Maximum number of retries before giving up.
  * @param {number} [options.abortRequestTimeout=60000] - Time in milliseconds to wait before aborting a request.
  * @param {number} [options.timeoutBetweenRequests=0] - Time in milliseconds to wait between retry attempts. Will be multiplied by the attempt number
+ * @param {boolean} [options.skipTracingHeaders] - Sets X-Request-ID, reqId, taskId headers based on local execution context
  * @returns {Promise<Response>} - A Promise resolving to the Response object representing the fetched data.
  * @throws {Error} - If the maximum number of retries is reached or if an error occurs during the fetch operation.
  */
@@ -63,6 +83,7 @@ const fetchWithRetriesAndLogger = async (url, options = {}) => {
         maxRetries = 0,
         abortRequestTimeout = 60 * 1000,
         timeoutBetweenRequests = 0,
+        setTracingHeaders = false,
         ...fetchOptions
     } = options
     let retries = 0
@@ -74,7 +95,7 @@ const fetchWithRetriesAndLogger = async (url, options = {}) => {
             const controller = new AbortController()
             const signal = controller.signal
             const response = await Promise.race([
-                fetchWithLogger(url, { ... fetchOptions, signal }),
+                fetchWithLogger(url, { ... fetchOptions, signal }, { setTracingHeaders }),
                 new Promise((_, reject) =>
                     setTimeout(() => {
                         controller.abort()

@@ -365,13 +365,13 @@ docker:
     LANG: C.UTF-8
 ---
 image: postgresreview
-from: postgres:13.2
+from: postgres:13.8
 ---
 image: redisreview
 from: redis:6.2
 ---
 image: preparepostgresreview
-from: postgres:13.2
+from: postgres:13.8
 shell:
   install:
   - "apt update -qq"
@@ -934,8 +934,50 @@ shell:
     - "yarn workspace @app/announcement-generator build"
     - "rm -rf /app/.env"
     - "rm -rf /app/.config"
+---
+image: news-sharing-greendom
+fromImage: base
+fromCacheVersion: "1"
+git:
+  - add: /
+    to: /app
+    stageDependencies:
+      install:
+        - "yarn.lock"
+        - "package.json"
+        - "**/yarn.lock"
+        - "**/package.json"
+      setup:
+        - "apps/**"
+        - "packages/**"
+        - "bin/**/*"
+    excludePaths:
+      - .github
+      - .helm
+      - werf.yaml
+      - werf-giterminism.yaml
+    owner: app
+    group: app
+
+shell:
+  install:
+    - "cd /app"
+    - "npm i -g turbo"
+    - "yarn install --immutable"
+  setup:
+    - "cd /app"
+    - "echo '# Build time .env config!' >> /app/.env"
+    - "echo 'COOKIE_SECRET=undefined' >> /app/.env"
+    - "echo 'DATABASE_URL=undefined' >> /app/.env"
+    - "echo 'REDIS_URL=undefined' >> /app/.env"
+    - "echo 'NODE_ENV=production' >> /app/.env"
+    - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
+    - "yarn workspace @app/news-sharing-greendom next telemetry disable"
+    - "yarn workspace @app/news-sharing-greendom build:deps"
+    - "yarn workspace @app/news-sharing-greendom build"
+    - "rm -rf /app/.env"
+    - "rm -rf /app/.config"
 
 docker:
   ENV:
     LANG: C.UTF-8
-

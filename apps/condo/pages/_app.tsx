@@ -5,6 +5,7 @@ import ruRU from 'antd/lib/locale/ru_RU'
 import dayjs from 'dayjs'
 import { cache } from 'emotion'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import getConfig from 'next/config'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -434,7 +435,7 @@ const MyApp = ({ Component, pageProps }) => {
     useHotCodeReload()
     dayjs.locale(intl.locale)
     const router = useRouter()
-    const { publicRuntimeConfig: { yandexMetrikaID } } = getConfig()
+    const { publicRuntimeConfig: { yandexMetrikaID, popupSmartConfig } } = getConfig()
 
     const LayoutComponent = Component.container || BaseLayout
     // TODO(Dimitreee): remove this mess later
@@ -498,8 +499,8 @@ const MyApp = ({ Component, pageProps }) => {
                             </PostMessageProvider>
                         </TasksProvider>
                     </LayoutContextProvider>
-                    {yandexMetrikaID && <YandexMetrika/>}
-                    <PopupSmart />
+                    {yandexMetrikaID && <YandexMetrika />}
+                    {!isEmpty(popupSmartConfig) && <PopupSmart />}
                 </CacheProvider>
             </ConfigProvider>
             <UseDeskWidget/>
