@@ -18,9 +18,9 @@ const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-
 
 const DATE_FORMAT = 'DD.MM.YYYY'
 
-export const getUnitRender = (intl, search: FilterValue) => {
+export const getUnitRender = (intl, search: FilterValue, isMeter: boolean) => {
     return function render (text, record) {
-        const unitType = get(record, ['meter', 'unitType'], 'flat')
+        const unitType = get(record, isMeter ? ['unitType'] : ['meter', 'unitType'], 'flat')
 
         let unitNamePrefix = null
         let extraTitle = null
