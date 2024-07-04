@@ -966,9 +966,9 @@ shell:
     - "yarn install --immutable"
   setup:
     - "cd /app"
-    - "yarn workspace @app/resident-app next telemetry disable"
-    - "yarn workspace @app/resident-app build:deps"
-    - "yarn workspace @app/resident-app build"
+    - "yarn workspace @app/news-sharing-greendom next telemetry disable"
+    - "yarn workspace @app/news-sharing-greendom build:deps"
+    - "yarn workspace @app/news-sharing-greendom build"
     - "rm -rf /app/.config"
 
 docker:
