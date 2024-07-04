@@ -7963,7 +7963,6 @@ export enum BankAccountCurrencyCodeType {
   Ron = 'RON',
   Rsd = 'RSD',
   Rub = 'RUB',
-  Rur = 'RUR',
   Rwf = 'RWF',
   Sar = 'SAR',
   Sbd = 'SBD',
@@ -10180,7 +10179,6 @@ export enum BankContractorAccountCurrencyCodeType {
   Ron = 'RON',
   Rsd = 'RSD',
   Rub = 'RUB',
-  Rur = 'RUR',
   Rwf = 'RWF',
   Sar = 'SAR',
   Sbd = 'SBD',
@@ -13248,7 +13246,6 @@ export enum BankTransactionCurrencyCodeType {
   Ron = 'RON',
   Rsd = 'RSD',
   Rub = 'RUB',
-  Rur = 'RUR',
   Rwf = 'RWF',
   Sar = 'SAR',
   Sbd = 'SBD',
@@ -15383,7 +15380,6 @@ export enum BillingIntegrationCurrencyCodeType {
   Ron = 'RON',
   Rsd = 'RSD',
   Rub = 'RUB',
-  Rur = 'RUR',
   Rwf = 'RWF',
   Sar = 'SAR',
   Sbd = 'SBD',
@@ -24333,6 +24329,39 @@ export type File = {
   publicUrl?: Maybe<Scalars['String']>;
 };
 
+export type FindOrganizationForAddressAccountType = {
+  __typename?: 'FindOrganizationForAddressAccountType';
+  number: Scalars['String'];
+  category: Scalars['ID'];
+  balance?: Maybe<Scalars['String']>;
+  routingNumber: Scalars['String'];
+  bankAccountNumber: Scalars['String'];
+};
+
+export type FindOrganizationForAddressOrganizationType = {
+  __typename?: 'FindOrganizationForAddressOrganizationType';
+  id: Scalars['ID'];
+  name: Scalars['String'];
+  tin: Scalars['String'];
+  type: OrganizationTypeType;
+};
+
+export type FindOrganizationForAddressOutput = {
+  __typename?: 'FindOrganizationForAddressOutput';
+  organization: FindOrganizationForAddressOrganizationType;
+  account?: Maybe<FindOrganizationForAddressAccountType>;
+  hasMeters: Scalars['Boolean'];
+  hasBillingData: Scalars['Boolean'];
+};
+
+export type FindOrganizationsForAddressInput = {
+  addressKey: Scalars['String'];
+  unitName?: Maybe<Scalars['String']>;
+  unitType?: Maybe<Scalars['String']>;
+  tin?: Maybe<Scalars['String']>;
+  accountNumber?: Maybe<Scalars['String']>;
+};
+
 /**  Forgot password actions is used for anonymous user password recovery procedure  */
 export type ForgotPasswordAction = {
   __typename?: 'ForgotPasswordAction';
@@ -30782,7 +30811,10 @@ export type MessageBatchHistoryRecordsUpdateInput = {
 
 export enum MessageBatchMessageTypeType {
   CustomContentMessage = 'CUSTOM_CONTENT_MESSAGE',
-  MobileAppUpdateAvailableMessagePush = 'MOBILE_APP_UPDATE_AVAILABLE_MESSAGE_PUSH'
+  MobileAppUpdateAvailableMessagePush = 'MOBILE_APP_UPDATE_AVAILABLE_MESSAGE_PUSH',
+  CustomContentMessagePush = 'CUSTOM_CONTENT_MESSAGE_PUSH',
+  CustomContentMessageEmail = 'CUSTOM_CONTENT_MESSAGE_EMAIL',
+  CustomContentMessageSms = 'CUSTOM_CONTENT_MESSAGE_SMS'
 }
 
 export enum MessageBatchStatusType {
@@ -36958,7 +36990,6 @@ export enum MultiPaymentCurrencyCodeType {
   Ron = 'RON',
   Rsd = 'RSD',
   Rub = 'RUB',
-  Rur = 'RUR',
   Rwf = 'RWF',
   Sar = 'SAR',
   Sbd = 'SBD',
@@ -39204,6 +39235,30 @@ export type Mutation = {
   deleteTicketAutoAssignment?: Maybe<TicketAutoAssignment>;
   /**  Delete multiple TicketAutoAssignment items by ID.  */
   deleteTicketAutoAssignments?: Maybe<Array<Maybe<TicketAutoAssignment>>>;
+  /**  Create a single TicketDocumentGenerationTaskHistoryRecord item.  */
+  createTicketDocumentGenerationTaskHistoryRecord?: Maybe<TicketDocumentGenerationTaskHistoryRecord>;
+  /**  Create multiple TicketDocumentGenerationTaskHistoryRecord items.  */
+  createTicketDocumentGenerationTaskHistoryRecords?: Maybe<Array<Maybe<TicketDocumentGenerationTaskHistoryRecord>>>;
+  /**  Update a single TicketDocumentGenerationTaskHistoryRecord item by ID.  */
+  updateTicketDocumentGenerationTaskHistoryRecord?: Maybe<TicketDocumentGenerationTaskHistoryRecord>;
+  /**  Update multiple TicketDocumentGenerationTaskHistoryRecord items by ID.  */
+  updateTicketDocumentGenerationTaskHistoryRecords?: Maybe<Array<Maybe<TicketDocumentGenerationTaskHistoryRecord>>>;
+  /**  Delete a single TicketDocumentGenerationTaskHistoryRecord item by ID.  */
+  deleteTicketDocumentGenerationTaskHistoryRecord?: Maybe<TicketDocumentGenerationTaskHistoryRecord>;
+  /**  Delete multiple TicketDocumentGenerationTaskHistoryRecord items by ID.  */
+  deleteTicketDocumentGenerationTaskHistoryRecords?: Maybe<Array<Maybe<TicketDocumentGenerationTaskHistoryRecord>>>;
+  /**  Create a single TicketDocumentGenerationTask item.  */
+  createTicketDocumentGenerationTask?: Maybe<TicketDocumentGenerationTask>;
+  /**  Create multiple TicketDocumentGenerationTask items.  */
+  createTicketDocumentGenerationTasks?: Maybe<Array<Maybe<TicketDocumentGenerationTask>>>;
+  /**  Update a single TicketDocumentGenerationTask item by ID.  */
+  updateTicketDocumentGenerationTask?: Maybe<TicketDocumentGenerationTask>;
+  /**  Update multiple TicketDocumentGenerationTask items by ID.  */
+  updateTicketDocumentGenerationTasks?: Maybe<Array<Maybe<TicketDocumentGenerationTask>>>;
+  /**  Delete a single TicketDocumentGenerationTask item by ID.  */
+  deleteTicketDocumentGenerationTask?: Maybe<TicketDocumentGenerationTask>;
+  /**  Delete multiple TicketDocumentGenerationTask items by ID.  */
+  deleteTicketDocumentGenerationTasks?: Maybe<Array<Maybe<TicketDocumentGenerationTask>>>;
   /**  Create a single MessageHistoryRecord item.  */
   createMessageHistoryRecord?: Maybe<MessageHistoryRecord>;
   /**  Create multiple MessageHistoryRecord items.  */
@@ -47580,6 +47635,68 @@ export type MutationDeleteTicketAutoAssignmentArgs = {
 
 
 export type MutationDeleteTicketAutoAssignmentsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateTicketDocumentGenerationTaskHistoryRecordArgs = {
+  data?: Maybe<TicketDocumentGenerationTaskHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateTicketDocumentGenerationTaskHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<TicketDocumentGenerationTaskHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateTicketDocumentGenerationTaskHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<TicketDocumentGenerationTaskHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateTicketDocumentGenerationTaskHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<TicketDocumentGenerationTaskHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteTicketDocumentGenerationTaskHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteTicketDocumentGenerationTaskHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateTicketDocumentGenerationTaskArgs = {
+  data?: Maybe<TicketDocumentGenerationTaskCreateInput>;
+};
+
+
+export type MutationCreateTicketDocumentGenerationTasksArgs = {
+  data?: Maybe<Array<Maybe<TicketDocumentGenerationTasksCreateInput>>>;
+};
+
+
+export type MutationUpdateTicketDocumentGenerationTaskArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<TicketDocumentGenerationTaskUpdateInput>;
+};
+
+
+export type MutationUpdateTicketDocumentGenerationTasksArgs = {
+  data?: Maybe<Array<Maybe<TicketDocumentGenerationTasksUpdateInput>>>;
+};
+
+
+export type MutationDeleteTicketDocumentGenerationTaskArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteTicketDocumentGenerationTasksArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -59240,7 +59357,6 @@ export enum PaymentCurrencyCodeType {
   Ron = 'RON',
   Rsd = 'RSD',
   Rub = 'RUB',
-  Rur = 'RUR',
   Rwf = 'RWF',
   Sar = 'SAR',
   Sbd = 'SBD',
@@ -64148,6 +64264,22 @@ export type Query = {
   _allTicketAutoAssignmentsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the TicketAutoAssignment list.  */
   _TicketAutoAssignmentsMeta?: Maybe<_ListMeta>;
+  /**  Search for all TicketDocumentGenerationTaskHistoryRecord items which match the where clause.  */
+  allTicketDocumentGenerationTaskHistoryRecords?: Maybe<Array<Maybe<TicketDocumentGenerationTaskHistoryRecord>>>;
+  /**  Search for the TicketDocumentGenerationTaskHistoryRecord item with the matching ID.  */
+  TicketDocumentGenerationTaskHistoryRecord?: Maybe<TicketDocumentGenerationTaskHistoryRecord>;
+  /**  Perform a meta-query on all TicketDocumentGenerationTaskHistoryRecord items which match the where clause.  */
+  _allTicketDocumentGenerationTaskHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the TicketDocumentGenerationTaskHistoryRecord list.  */
+  _TicketDocumentGenerationTaskHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all TicketDocumentGenerationTask items which match the where clause.  */
+  allTicketDocumentGenerationTasks?: Maybe<Array<Maybe<TicketDocumentGenerationTask>>>;
+  /**  Search for the TicketDocumentGenerationTask item with the matching ID.  */
+  TicketDocumentGenerationTask?: Maybe<TicketDocumentGenerationTask>;
+  /**  Perform a meta-query on all TicketDocumentGenerationTask items which match the where clause.  */
+  _allTicketDocumentGenerationTasksMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the TicketDocumentGenerationTask list.  */
+  _TicketDocumentGenerationTasksMeta?: Maybe<_ListMeta>;
   /**  Search for all MessageHistoryRecord items which match the where clause.  */
   allMessageHistoryRecords?: Maybe<Array<Maybe<MessageHistoryRecord>>>;
   /**  Search for the MessageHistoryRecord item with the matching ID.  */
@@ -65343,6 +65475,7 @@ export type Query = {
   exportPropertiesToExcel?: Maybe<ExportPropertiesToExcelOutput>;
   allResidentBillingReceipts?: Maybe<Array<Maybe<ResidentBillingReceiptOutput>>>;
   _allBillingReceiptsSum?: Maybe<BillingReceiptsSumOutput>;
+  allResidentBillingVirtualReceipts?: Maybe<Array<Maybe<ResidentBillingReceiptOutput>>>;
   /**
    * Returns id of BankCostItem corresponding to specified payment purpose string
    *
@@ -65387,6 +65520,7 @@ export type Query = {
   predictTransactionClassification?: Maybe<PredictTransactionClassificationOutput>;
   predictTicketClassification?: Maybe<TicketClassifier>;
   getResidentExistenceByPhoneAndAddress?: Maybe<GetResidentExistenceByPhoneAndAddressOutput>;
+  findOrganizationsForAddress?: Maybe<Array<Maybe<FindOrganizationForAddressOutput>>>;
   exportMeterReadings?: Maybe<ExportMeterReadingsOutput>;
   /**
    * Export of property meters readings. A link to the file is returned
@@ -68466,6 +68600,56 @@ export type Query_AllTicketAutoAssignmentsMetaArgs = {
   where?: Maybe<TicketAutoAssignmentWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortTicketAutoAssignmentsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllTicketDocumentGenerationTaskHistoryRecordsArgs = {
+  where?: Maybe<TicketDocumentGenerationTaskHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortTicketDocumentGenerationTaskHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryTicketDocumentGenerationTaskHistoryRecordArgs = {
+  where: TicketDocumentGenerationTaskHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllTicketDocumentGenerationTaskHistoryRecordsMetaArgs = {
+  where?: Maybe<TicketDocumentGenerationTaskHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortTicketDocumentGenerationTaskHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllTicketDocumentGenerationTasksArgs = {
+  where?: Maybe<TicketDocumentGenerationTaskWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortTicketDocumentGenerationTasksBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryTicketDocumentGenerationTaskArgs = {
+  where: TicketDocumentGenerationTaskWhereUniqueInput;
+};
+
+
+export type Query_AllTicketDocumentGenerationTasksMetaArgs = {
+  where?: Maybe<TicketDocumentGenerationTaskWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortTicketDocumentGenerationTasksBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -71960,6 +72144,14 @@ export type Query_AllBillingReceiptsSumArgs = {
 };
 
 
+export type QueryAllResidentBillingVirtualReceiptsArgs = {
+  where?: Maybe<ResidentBillingVirtualReceiptWhereInput>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+  sortBy?: Maybe<Array<SortResidentBillingVirtualReceiptsBy>>;
+};
+
+
 export type QueryPredictTransactionClassificationArgs = {
   data: PredictTransactionClassificationInput;
 };
@@ -71972,6 +72164,11 @@ export type QueryPredictTicketClassificationArgs = {
 
 export type QueryGetResidentExistenceByPhoneAndAddressArgs = {
   data: GetResidentExistenceByPhoneAndAddressInput;
+};
+
+
+export type QueryFindOrganizationsForAddressArgs = {
+  data: FindOrganizationsForAddressInput;
 };
 
 
@@ -74000,6 +74197,65 @@ export type ResidentBillingReceiptOutput = {
 export type ResidentBillingReceiptWhereInput = {
   AND?: Maybe<Array<Maybe<ResidentBillingReceiptWhereInput>>>;
   OR?: Maybe<Array<Maybe<ResidentBillingReceiptWhereInput>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  period?: Maybe<Scalars['String']>;
+  period_not?: Maybe<Scalars['String']>;
+  period_contains?: Maybe<Scalars['String']>;
+  period_not_contains?: Maybe<Scalars['String']>;
+  period_starts_with?: Maybe<Scalars['String']>;
+  period_not_starts_with?: Maybe<Scalars['String']>;
+  period_ends_with?: Maybe<Scalars['String']>;
+  period_not_ends_with?: Maybe<Scalars['String']>;
+  period_i?: Maybe<Scalars['String']>;
+  period_not_i?: Maybe<Scalars['String']>;
+  period_contains_i?: Maybe<Scalars['String']>;
+  period_not_contains_i?: Maybe<Scalars['String']>;
+  period_starts_with_i?: Maybe<Scalars['String']>;
+  period_not_starts_with_i?: Maybe<Scalars['String']>;
+  period_ends_with_i?: Maybe<Scalars['String']>;
+  period_not_ends_with_i?: Maybe<Scalars['String']>;
+  toPay?: Maybe<Scalars['String']>;
+  toPay_not?: Maybe<Scalars['String']>;
+  toPay_contains?: Maybe<Scalars['String']>;
+  toPay_not_contains?: Maybe<Scalars['String']>;
+  toPay_starts_with?: Maybe<Scalars['String']>;
+  toPay_not_starts_with?: Maybe<Scalars['String']>;
+  toPay_ends_with?: Maybe<Scalars['String']>;
+  toPay_not_ends_with?: Maybe<Scalars['String']>;
+  toPay_i?: Maybe<Scalars['String']>;
+  toPay_not_i?: Maybe<Scalars['String']>;
+  toPay_contains_i?: Maybe<Scalars['String']>;
+  toPay_not_contains_i?: Maybe<Scalars['String']>;
+  toPay_starts_with_i?: Maybe<Scalars['String']>;
+  toPay_not_starts_with_i?: Maybe<Scalars['String']>;
+  toPay_ends_with_i?: Maybe<Scalars['String']>;
+  toPay_not_ends_with_i?: Maybe<Scalars['String']>;
+  printableNumber?: Maybe<Scalars['String']>;
+  printableNumber_not?: Maybe<Scalars['String']>;
+  printableNumber_contains?: Maybe<Scalars['String']>;
+  printableNumber_not_contains?: Maybe<Scalars['String']>;
+  printableNumber_starts_with?: Maybe<Scalars['String']>;
+  printableNumber_not_starts_with?: Maybe<Scalars['String']>;
+  printableNumber_ends_with?: Maybe<Scalars['String']>;
+  printableNumber_not_ends_with?: Maybe<Scalars['String']>;
+  printableNumber_i?: Maybe<Scalars['String']>;
+  printableNumber_not_i?: Maybe<Scalars['String']>;
+  printableNumber_contains_i?: Maybe<Scalars['String']>;
+  printableNumber_not_contains_i?: Maybe<Scalars['String']>;
+  printableNumber_starts_with_i?: Maybe<Scalars['String']>;
+  printableNumber_not_starts_with_i?: Maybe<Scalars['String']>;
+  printableNumber_ends_with_i?: Maybe<Scalars['String']>;
+  printableNumber_not_ends_with_i?: Maybe<Scalars['String']>;
+  serviceConsumer?: Maybe<ServiceConsumerWhereInput>;
+  serviceConsumer_is_null?: Maybe<Scalars['Boolean']>;
+};
+
+export type ResidentBillingVirtualReceiptWhereInput = {
+  AND?: Maybe<Array<Maybe<ResidentBillingVirtualReceiptWhereInput>>>;
+  OR?: Maybe<Array<Maybe<ResidentBillingVirtualReceiptWhereInput>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -81942,6 +82198,19 @@ export enum SortResidentBillingReceiptsBy {
   ServiceConsumerDesc = 'serviceConsumer_DESC'
 }
 
+export enum SortResidentBillingVirtualReceiptsBy {
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  PeriodAsc = 'period_ASC',
+  PeriodDesc = 'period_DESC',
+  ToPayAsc = 'toPay_ASC',
+  ToPayDesc = 'toPay_DESC',
+  PrintableNumberAsc = 'printableNumber_ASC',
+  PrintableNumberDesc = 'printableNumber_DESC',
+  ServiceConsumerAsc = 'serviceConsumer_ASC',
+  ServiceConsumerDesc = 'serviceConsumer_DESC'
+}
+
 export enum SortResidentHistoryRecordsBy {
   UnitNameAsc = 'unitName_ASC',
   UnitNameDesc = 'unitName_DESC',
@@ -82593,6 +82862,68 @@ export enum SortTicketCommentsBy {
   UserDesc = 'user_DESC',
   ContentAsc = 'content_ASC',
   ContentDesc = 'content_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
+export enum SortTicketDocumentGenerationTaskHistoryRecordsBy {
+  StatusAsc = 'status_ASC',
+  StatusDesc = 'status_DESC',
+  FormatAsc = 'format_ASC',
+  FormatDesc = 'format_DESC',
+  ProgressAsc = 'progress_ASC',
+  ProgressDesc = 'progress_DESC',
+  TimeZoneAsc = 'timeZone_ASC',
+  TimeZoneDesc = 'timeZone_DESC',
+  DocumentTypeAsc = 'documentType_ASC',
+  DocumentTypeDesc = 'documentType_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortTicketDocumentGenerationTasksBy {
+  TicketAsc = 'ticket_ASC',
+  TicketDesc = 'ticket_DESC',
+  StatusAsc = 'status_ASC',
+  StatusDesc = 'status_DESC',
+  FormatAsc = 'format_ASC',
+  FormatDesc = 'format_DESC',
+  ProgressAsc = 'progress_ASC',
+  ProgressDesc = 'progress_DESC',
+  UserAsc = 'user_ASC',
+  UserDesc = 'user_DESC',
+  TimeZoneAsc = 'timeZone_ASC',
+  TimeZoneDesc = 'timeZone_DESC',
+  DocumentTypeAsc = 'documentType_ASC',
+  DocumentTypeDesc = 'documentType_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -87980,6 +88311,511 @@ export type TicketCreateInput = {
   newId?: Maybe<Scalars['String']>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
+};
+
+/**  Information about generation process of ticket document  */
+export type TicketDocumentGenerationTask = {
+  __typename?: 'TicketDocumentGenerationTask';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the TicketDocumentGenerationTask List config, or
+   *  2. As an alias to the field set on 'labelField' in the TicketDocumentGenerationTask List config, or
+   *  3. As an alias to a 'name' field on the TicketDocumentGenerationTask List (if one exists), or
+   *  4. As an alias to the 'id' field on the TicketDocumentGenerationTask List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  The application for which the document is generated  */
+  ticket?: Maybe<Ticket>;
+  /**  Status of current generation operation  */
+  status?: Maybe<TicketDocumentGenerationTaskStatusType>;
+  /**  Output file format  */
+  format?: Maybe<TicketDocumentGenerationTaskFormatType>;
+  /**  Progress of current generation operation  */
+  progress?: Maybe<Scalars['Int']>;
+  /**  User that requested this generation operation. Will be used for read access checks to display all generating tasks somewhere and to display progress indicator of ongoing generating task for current user  */
+  user?: Maybe<User>;
+  /**  All datetime fields in export template will be converted to specified tz  */
+  timeZone?: Maybe<Scalars['String']>;
+  /**  Meta information about file, saved outside of database somewhere. Shape of meta information JSON object is specific to file adapter, used by saving a file.  */
+  file?: Maybe<File>;
+  /**  Type of document  */
+  documentType?: Maybe<TicketDocumentGenerationTaskDocumentTypeType>;
+  /**  Structured untyped metadata, can be used to store errors or anything else  */
+  meta?: Maybe<Scalars['JSON']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type TicketDocumentGenerationTaskCreateInput = {
+  ticket?: Maybe<TicketRelateToOneInput>;
+  status?: Maybe<TicketDocumentGenerationTaskStatusType>;
+  format?: Maybe<TicketDocumentGenerationTaskFormatType>;
+  progress?: Maybe<Scalars['Int']>;
+  user?: Maybe<UserRelateToOneInput>;
+  timeZone?: Maybe<Scalars['String']>;
+  file?: Maybe<Scalars['Upload']>;
+  documentType?: Maybe<TicketDocumentGenerationTaskDocumentTypeType>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export enum TicketDocumentGenerationTaskDocumentTypeType {
+  CompletionWorks = 'completionWorks'
+}
+
+export enum TicketDocumentGenerationTaskFormatType {
+  Docx = 'docx'
+}
+
+/**  A keystone list  */
+export type TicketDocumentGenerationTaskHistoryRecord = {
+  __typename?: 'TicketDocumentGenerationTaskHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the TicketDocumentGenerationTaskHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the TicketDocumentGenerationTaskHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the TicketDocumentGenerationTaskHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the TicketDocumentGenerationTaskHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  ticket?: Maybe<Scalars['String']>;
+  status?: Maybe<Scalars['String']>;
+  format?: Maybe<Scalars['String']>;
+  progress?: Maybe<Scalars['Int']>;
+  user?: Maybe<Scalars['String']>;
+  timeZone?: Maybe<Scalars['String']>;
+  file?: Maybe<Scalars['JSON']>;
+  documentType?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<TicketDocumentGenerationTaskHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type TicketDocumentGenerationTaskHistoryRecordCreateInput = {
+  ticket?: Maybe<Scalars['String']>;
+  status?: Maybe<Scalars['String']>;
+  format?: Maybe<Scalars['String']>;
+  progress?: Maybe<Scalars['Int']>;
+  user?: Maybe<Scalars['String']>;
+  timeZone?: Maybe<Scalars['String']>;
+  file?: Maybe<Scalars['JSON']>;
+  documentType?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<TicketDocumentGenerationTaskHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum TicketDocumentGenerationTaskHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type TicketDocumentGenerationTaskHistoryRecordUpdateInput = {
+  ticket?: Maybe<Scalars['String']>;
+  status?: Maybe<Scalars['String']>;
+  format?: Maybe<Scalars['String']>;
+  progress?: Maybe<Scalars['Int']>;
+  user?: Maybe<Scalars['String']>;
+  timeZone?: Maybe<Scalars['String']>;
+  file?: Maybe<Scalars['JSON']>;
+  documentType?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<TicketDocumentGenerationTaskHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type TicketDocumentGenerationTaskHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<TicketDocumentGenerationTaskHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<TicketDocumentGenerationTaskHistoryRecordWhereInput>>>;
+  ticket?: Maybe<Scalars['String']>;
+  ticket_not?: Maybe<Scalars['String']>;
+  ticket_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  ticket_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  status?: Maybe<Scalars['String']>;
+  status_not?: Maybe<Scalars['String']>;
+  status_contains?: Maybe<Scalars['String']>;
+  status_not_contains?: Maybe<Scalars['String']>;
+  status_starts_with?: Maybe<Scalars['String']>;
+  status_not_starts_with?: Maybe<Scalars['String']>;
+  status_ends_with?: Maybe<Scalars['String']>;
+  status_not_ends_with?: Maybe<Scalars['String']>;
+  status_i?: Maybe<Scalars['String']>;
+  status_not_i?: Maybe<Scalars['String']>;
+  status_contains_i?: Maybe<Scalars['String']>;
+  status_not_contains_i?: Maybe<Scalars['String']>;
+  status_starts_with_i?: Maybe<Scalars['String']>;
+  status_not_starts_with_i?: Maybe<Scalars['String']>;
+  status_ends_with_i?: Maybe<Scalars['String']>;
+  status_not_ends_with_i?: Maybe<Scalars['String']>;
+  status_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  status_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  format?: Maybe<Scalars['String']>;
+  format_not?: Maybe<Scalars['String']>;
+  format_contains?: Maybe<Scalars['String']>;
+  format_not_contains?: Maybe<Scalars['String']>;
+  format_starts_with?: Maybe<Scalars['String']>;
+  format_not_starts_with?: Maybe<Scalars['String']>;
+  format_ends_with?: Maybe<Scalars['String']>;
+  format_not_ends_with?: Maybe<Scalars['String']>;
+  format_i?: Maybe<Scalars['String']>;
+  format_not_i?: Maybe<Scalars['String']>;
+  format_contains_i?: Maybe<Scalars['String']>;
+  format_not_contains_i?: Maybe<Scalars['String']>;
+  format_starts_with_i?: Maybe<Scalars['String']>;
+  format_not_starts_with_i?: Maybe<Scalars['String']>;
+  format_ends_with_i?: Maybe<Scalars['String']>;
+  format_not_ends_with_i?: Maybe<Scalars['String']>;
+  format_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  format_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  progress?: Maybe<Scalars['Int']>;
+  progress_not?: Maybe<Scalars['Int']>;
+  progress_lt?: Maybe<Scalars['Int']>;
+  progress_lte?: Maybe<Scalars['Int']>;
+  progress_gt?: Maybe<Scalars['Int']>;
+  progress_gte?: Maybe<Scalars['Int']>;
+  progress_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  progress_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  user?: Maybe<Scalars['String']>;
+  user_not?: Maybe<Scalars['String']>;
+  user_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  user_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  timeZone?: Maybe<Scalars['String']>;
+  timeZone_not?: Maybe<Scalars['String']>;
+  timeZone_contains?: Maybe<Scalars['String']>;
+  timeZone_not_contains?: Maybe<Scalars['String']>;
+  timeZone_starts_with?: Maybe<Scalars['String']>;
+  timeZone_not_starts_with?: Maybe<Scalars['String']>;
+  timeZone_ends_with?: Maybe<Scalars['String']>;
+  timeZone_not_ends_with?: Maybe<Scalars['String']>;
+  timeZone_i?: Maybe<Scalars['String']>;
+  timeZone_not_i?: Maybe<Scalars['String']>;
+  timeZone_contains_i?: Maybe<Scalars['String']>;
+  timeZone_not_contains_i?: Maybe<Scalars['String']>;
+  timeZone_starts_with_i?: Maybe<Scalars['String']>;
+  timeZone_not_starts_with_i?: Maybe<Scalars['String']>;
+  timeZone_ends_with_i?: Maybe<Scalars['String']>;
+  timeZone_not_ends_with_i?: Maybe<Scalars['String']>;
+  timeZone_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  timeZone_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  file?: Maybe<Scalars['JSON']>;
+  file_not?: Maybe<Scalars['JSON']>;
+  file_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  file_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  documentType?: Maybe<Scalars['String']>;
+  documentType_not?: Maybe<Scalars['String']>;
+  documentType_contains?: Maybe<Scalars['String']>;
+  documentType_not_contains?: Maybe<Scalars['String']>;
+  documentType_starts_with?: Maybe<Scalars['String']>;
+  documentType_not_starts_with?: Maybe<Scalars['String']>;
+  documentType_ends_with?: Maybe<Scalars['String']>;
+  documentType_not_ends_with?: Maybe<Scalars['String']>;
+  documentType_i?: Maybe<Scalars['String']>;
+  documentType_not_i?: Maybe<Scalars['String']>;
+  documentType_contains_i?: Maybe<Scalars['String']>;
+  documentType_not_contains_i?: Maybe<Scalars['String']>;
+  documentType_starts_with_i?: Maybe<Scalars['String']>;
+  documentType_not_starts_with_i?: Maybe<Scalars['String']>;
+  documentType_ends_with_i?: Maybe<Scalars['String']>;
+  documentType_not_ends_with_i?: Maybe<Scalars['String']>;
+  documentType_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  documentType_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  meta?: Maybe<Scalars['JSON']>;
+  meta_not?: Maybe<Scalars['JSON']>;
+  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<TicketDocumentGenerationTaskHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<TicketDocumentGenerationTaskHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<TicketDocumentGenerationTaskHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<TicketDocumentGenerationTaskHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type TicketDocumentGenerationTaskHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type TicketDocumentGenerationTaskHistoryRecordsCreateInput = {
+  data?: Maybe<TicketDocumentGenerationTaskHistoryRecordCreateInput>;
+};
+
+export type TicketDocumentGenerationTaskHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<TicketDocumentGenerationTaskHistoryRecordUpdateInput>;
+};
+
+export enum TicketDocumentGenerationTaskStatusType {
+  Processing = 'processing',
+  Completed = 'completed',
+  Error = 'error',
+  Cancelled = 'cancelled'
+}
+
+export type TicketDocumentGenerationTaskUpdateInput = {
+  ticket?: Maybe<TicketRelateToOneInput>;
+  status?: Maybe<TicketDocumentGenerationTaskStatusType>;
+  format?: Maybe<TicketDocumentGenerationTaskFormatType>;
+  progress?: Maybe<Scalars['Int']>;
+  user?: Maybe<UserRelateToOneInput>;
+  timeZone?: Maybe<Scalars['String']>;
+  file?: Maybe<Scalars['Upload']>;
+  documentType?: Maybe<TicketDocumentGenerationTaskDocumentTypeType>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type TicketDocumentGenerationTaskWhereInput = {
+  AND?: Maybe<Array<Maybe<TicketDocumentGenerationTaskWhereInput>>>;
+  OR?: Maybe<Array<Maybe<TicketDocumentGenerationTaskWhereInput>>>;
+  ticket?: Maybe<TicketWhereInput>;
+  ticket_is_null?: Maybe<Scalars['Boolean']>;
+  status?: Maybe<TicketDocumentGenerationTaskStatusType>;
+  status_not?: Maybe<TicketDocumentGenerationTaskStatusType>;
+  status_in?: Maybe<Array<Maybe<TicketDocumentGenerationTaskStatusType>>>;
+  status_not_in?: Maybe<Array<Maybe<TicketDocumentGenerationTaskStatusType>>>;
+  format?: Maybe<TicketDocumentGenerationTaskFormatType>;
+  format_not?: Maybe<TicketDocumentGenerationTaskFormatType>;
+  format_in?: Maybe<Array<Maybe<TicketDocumentGenerationTaskFormatType>>>;
+  format_not_in?: Maybe<Array<Maybe<TicketDocumentGenerationTaskFormatType>>>;
+  progress?: Maybe<Scalars['Int']>;
+  progress_not?: Maybe<Scalars['Int']>;
+  progress_lt?: Maybe<Scalars['Int']>;
+  progress_lte?: Maybe<Scalars['Int']>;
+  progress_gt?: Maybe<Scalars['Int']>;
+  progress_gte?: Maybe<Scalars['Int']>;
+  progress_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  progress_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  user?: Maybe<UserWhereInput>;
+  user_is_null?: Maybe<Scalars['Boolean']>;
+  timeZone?: Maybe<Scalars['String']>;
+  timeZone_not?: Maybe<Scalars['String']>;
+  timeZone_contains?: Maybe<Scalars['String']>;
+  timeZone_not_contains?: Maybe<Scalars['String']>;
+  timeZone_starts_with?: Maybe<Scalars['String']>;
+  timeZone_not_starts_with?: Maybe<Scalars['String']>;
+  timeZone_ends_with?: Maybe<Scalars['String']>;
+  timeZone_not_ends_with?: Maybe<Scalars['String']>;
+  timeZone_i?: Maybe<Scalars['String']>;
+  timeZone_not_i?: Maybe<Scalars['String']>;
+  timeZone_contains_i?: Maybe<Scalars['String']>;
+  timeZone_not_contains_i?: Maybe<Scalars['String']>;
+  timeZone_starts_with_i?: Maybe<Scalars['String']>;
+  timeZone_not_starts_with_i?: Maybe<Scalars['String']>;
+  timeZone_ends_with_i?: Maybe<Scalars['String']>;
+  timeZone_not_ends_with_i?: Maybe<Scalars['String']>;
+  timeZone_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  timeZone_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  file?: Maybe<Scalars['String']>;
+  file_not?: Maybe<Scalars['String']>;
+  file_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  file_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  documentType?: Maybe<TicketDocumentGenerationTaskDocumentTypeType>;
+  documentType_not?: Maybe<TicketDocumentGenerationTaskDocumentTypeType>;
+  documentType_in?: Maybe<Array<Maybe<TicketDocumentGenerationTaskDocumentTypeType>>>;
+  documentType_not_in?: Maybe<Array<Maybe<TicketDocumentGenerationTaskDocumentTypeType>>>;
+  meta?: Maybe<Scalars['JSON']>;
+  meta_not?: Maybe<Scalars['JSON']>;
+  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type TicketDocumentGenerationTaskWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type TicketDocumentGenerationTasksCreateInput = {
+  data?: Maybe<TicketDocumentGenerationTaskCreateInput>;
+};
+
+export type TicketDocumentGenerationTasksUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<TicketDocumentGenerationTaskUpdateInput>;
 };
 
 export type TicketExportOptions = {

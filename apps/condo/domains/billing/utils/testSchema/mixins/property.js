@@ -9,7 +9,7 @@ const PropertyTestMixin = {
     dependsOn: [OrganizationTestMixin],
 
     async initMixin () {
-        const [property] = await createTestProperty(this.clients.admin, this.organization)
+        const [property] = await createTestProperty(this.clients.admin, this.organization, { address: this.createPropertyAddress() })
         this.property = property
     },
 

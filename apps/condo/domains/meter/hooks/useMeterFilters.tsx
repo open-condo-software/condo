@@ -16,11 +16,11 @@ import {
     getDayRangeFilter, getFilter,
     getStringContainsFilter,
 } from '@condo/domains/common/utils/tables.utils'
-import { METER_TAB_TYPES, MeterResource, MeterPageTypes } from '@condo/domains/meter/utils/clientSchema'
+import { MeterResource, MeterTypes, METER_TYPES } from '@condo/domains/meter/utils/clientSchema'
 import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
 
-export function useMeterFilters (meterPageType: MeterPageTypes): Array<FiltersMeta<MeterReadingWhereInput>>  {
+export function useMeterFilters (meterType: MeterTypes): Array<FiltersMeta<MeterReadingWhereInput>>  {
     const intl = useIntl()
     const EnterAddressMessage = intl.formatMessage({ id: 'pages.condo.meter.EnterAddress' })
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
@@ -50,7 +50,7 @@ export function useMeterFilters (meterPageType: MeterPageTypes): Array<FiltersMe
     const { objs: resources, loading: resourcesLoading } = MeterResource.useObjects({})
     const resourcesOptions = convertToOptions<MeterResourceType>(resources, 'name', 'id')
 
-    const isPropertyMeter = meterPageType === METER_TAB_TYPES.propertyMeter
+    const isPropertyMeter = meterType === METER_TYPES.property
 
     const addressFilter = getFilter(['property', 'id'], 'array', 'string', 'in')
     const addressStringContainsFilter = getStringContainsFilter(['property', 'address'])

@@ -20,6 +20,7 @@ const { BillingAccount: BillingAccountGQL } = require('@condo/domains/billing/gq
 const { BillingReceipt: BillingReceiptGQL } = require('@condo/domains/billing/gql')
 const { BillingReceiptAdmin: BillingReceiptAdminGQL } = require('@condo/domains/billing/gql')
 const { ResidentBillingReceipt: ResidentBillingReceiptGQL } = require('@condo/domains/billing/gql')
+const { ResidentBillingVirtualReceipt: ResidentBillingVirtualReceiptGQL } = require('@condo/domains/billing/gql')
 const { BillingRecipient: BillingRecipientGQL } = require('@condo/domains/billing/gql')
 const { BillingCategory: BillingCategoryGQL } = require('@condo/domains/billing/gql')
 const { REGISTER_BILLING_RECEIPTS_MUTATION } = require('@condo/domains/billing/gql')
@@ -40,6 +41,7 @@ const BillingAccount = generateServerUtils(BillingAccountGQL)
 const BillingReceipt = generateServerUtils(BillingReceiptGQL)
 const BillingReceiptAdmin = generateServerUtils(BillingReceiptAdminGQL)
 const ResidentBillingReceipt = generateServerUtils(ResidentBillingReceiptGQL)
+const ResidentBillingVirtualReceipt = generateServerUtils(ResidentBillingVirtualReceiptGQL)
 const BillingRecipient = generateServerUtils(BillingRecipientGQL)
 const BillingCategory = generateServerUtils(BillingCategoryGQL)
 const BillingReceiptFile = generateServerUtils(BillingReceiptFileGQL)
@@ -161,6 +163,7 @@ module.exports = {
     BillingReceipt,
     BillingReceiptAdmin,
     ResidentBillingReceipt,
+    ResidentBillingVirtualReceipt,
     BillingRecipient,
     BillingCategory,
     registerBillingReceipts,

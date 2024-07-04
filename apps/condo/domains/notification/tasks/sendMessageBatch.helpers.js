@@ -26,6 +26,15 @@ const MESSAGE_TYPES_BY_TRANSPORTS = {
         [EMAIL_TRANSPORT]: CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE,
         [SMS_TRANSPORT]: CUSTOM_CONTENT_MESSAGE_SMS_TYPE,
     },
+    [CUSTOM_CONTENT_MESSAGE_PUSH_TYPE]: {
+        [PUSH_TRANSPORT]: CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
+    },
+    [CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE]: {
+        [EMAIL_TRANSPORT]: CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE,
+    },
+    [CUSTOM_CONTENT_MESSAGE_SMS_TYPE]: {
+        [SMS_TRANSPORT]: CUSTOM_CONTENT_MESSAGE_SMS_TYPE,
+    },
     [MOBILE_APP_UPDATE_AVAILABLE_MESSAGE_PUSH_TYPE]: {
         [PUSH_TRANSPORT]: MOBILE_APP_UPDATE_AVAILABLE_MESSAGE_PUSH_TYPE,
     },
@@ -37,9 +46,15 @@ const logger = getLogger('sendMessageBatch')
  * Detects transport type based on target (contact), using corresponding RegExps
  * Supported targets - phone, email, User id, RemoteClient id
  * @param target
+ * @param messageType
  * @returns {string|null}
  */
-const detectTransportType = (target) => {
+const detectTransportType = (target, messageType) => {
+    if (messageType !== CUSTOM_CONTENT_MESSAGE_TYPE && messageType !== MOBILE_APP_UPDATE_AVAILABLE_MESSAGE_PUSH_TYPE) {
+        if (messageType === CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE) return EMAIL_TRANSPORT
+        if (messageType === CUSTOM_CONTENT_MESSAGE_SMS_TYPE) return SMS_TRANSPORT
+        if (messageType === CUSTOM_CONTENT_MESSAGE_PUSH_TYPE) return PUSH_TRANSPORT
+    }
     if (!isString(target)) return null
     if (IS_EMAIL_REGEXP.test(target)) return EMAIL_TRANSPORT
     if (IS_PHONE_REGEXP.test(target)) return SMS_TRANSPORT
@@ -53,13 +68,14 @@ const detectTransportType = (target) => {
  * Prepares target for message based on initial target (contact)
  * Supported targets - phone, email, User id, RemoteClient id
  * @param target
+ * @param messageType
  * @returns {{to: {remoteClient: {id}}}|{emailFrom: string, to: {email}}|null|{to: {user: {id}}}|{to: {phone}}}
  */
-const selectTarget = (target) => {
-    const transportType = detectTransportType(target)
+const selectTarget = (target, messageType) => {
+    const transportType = detectTransportType(target, messageType)
 
     if (!transportType) return null
-    if (transportType === SMS_TRANSPORT) return { to: { phone: target } }
+    if (transportType === SMS_TRANSPORT && messageType === CUSTOM_CONTENT_MESSAGE_TYPE) return { to: { phone: target } }
     if (transportType === EMAIL_TRANSPORT) return { to: { email: target }, emailFrom: EMAIL_FROM }
     if (IS_REMOTE_CLIENT_UUID_REGEXP.test(target)) return { to: { remoteClient: { id: target.replace('rc:', '') } } }
     if (IS_USER_UUID_REGEXP.test(target)) return { to: { user: { id: target } } }
@@ -102,8 +118,8 @@ const getUniqKey = (date, title, target) => `${date}:${title}:${normalizeTarget(
  */
 const prepareMessageData = (target, batch, today) => {
     const notificationKey = getUniqKey(today, batch.title, target)
-    const transportType = detectTransportType(target)
-    const to = selectTarget(target)
+    const transportType = detectTransportType(target, batch.messageType)
+    const to = selectTarget(target, batch.messageType)
     const type = get(MESSAGE_TYPES_BY_TRANSPORTS, [batch.messageType, transportType])
 
     if (isEmpty(to) || !transportType || !type) return 0

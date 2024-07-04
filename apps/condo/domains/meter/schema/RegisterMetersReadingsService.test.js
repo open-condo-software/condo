@@ -542,6 +542,56 @@ describe('RegisterMetersReadingsService', () => {
         )
     })
 
+    test('error on invalid number of tariffs passed', async () => {
+        const [o10n] = await createTestOrganization(adminClient)
+        const [property1] = await createTestPropertyWithMap(adminClient, o10n)
+
+        const badReading = createTestReadingData(property1)
+        badReading.meterMeta.numberOfTariffs = 5
+
+        const readings = [
+            createTestReadingData(property1),
+            badReading,
+        ]
+
+        await catchErrorFrom(
+            async () => {
+                await registerMetersReadingsByTestClient(adminClient, o10n, readings)
+            },
+            ({ data: { result }, errors }) => {
+                expect(result).toEqual([
+                    expect.objectContaining({
+                        id: expect.stringMatching(UUID_REGEXP),
+                        meter: expect.objectContaining({
+                            id: expect.stringMatching(UUID_REGEXP),
+                            property: expect.objectContaining({
+                                id: property1.id,
+                                address: property1.address,
+                                addressKey: property1.addressKey,
+                            }),
+                            unitType: readings[0].addressInfo.unitType,
+                            unitName: readings[0].addressInfo.unitName,
+                            accountNumber: readings[0].accountNumber,
+                            number: readings[0].meterNumber,
+                        }),
+                    }),
+                    null,
+                ])
+                expect(errors).toEqual([
+                    expect.objectContaining({
+                        message: '[error] Create Meter internal error',
+                        originalError: expect.objectContaining({
+                            message: '[error] Create Meter internal error',
+                            errors: [expect.objectContaining({
+                                message: 'Provided number of tariffs is not valid. Must be an integer from 1 to 4.',
+                            })],
+                        }),
+                    }),
+                ])
+            },
+        )
+    })
+
     test('number of tariffs calculated correctly', async () => {
         const [o10n] = await createTestOrganization(adminClient)
         const [property] = await createTestPropertyWithMap(adminClient, o10n)
@@ -877,5 +927,164 @@ describe('RegisterMetersReadingsService', () => {
             expect(meter.sealingDate).toBe(output ? dayjs(output).toISOString() : output)
             expect(meter.controlReadingsDate).toBe(output ? dayjs(output).toISOString() : output)
         })
+    })
+
+    test('prevent to create readings duplicates', async () => {
+        const [o10n] = await createTestOrganization(adminClient)
+        const [property] = await createTestPropertyWithMap(adminClient, o10n)
+        const readings = [createTestReadingData(property)]
+        const [data] = await registerMetersReadingsByTestClient(adminClient, o10n, readings)
+
+        expect(data).toEqual([expect.objectContaining({
+            id: expect.stringMatching(UUID_REGEXP),
+            meter: expect.objectContaining({
+                id: expect.stringMatching(UUID_REGEXP),
+                property: expect.objectContaining({
+                    id: property.id,
+                    address: property.address,
+                    addressKey: property.addressKey,
+                }),
+                unitType: readings[0].addressInfo.unitType,
+                unitName: readings[0].addressInfo.unitName,
+                accountNumber: readings[0].accountNumber,
+                number: readings[0].meterNumber,
+            }),
+        })])
+
+        const meters = await Meter.getAll(adminClient, {
+            organization: { id: o10n.id },
+            property: { id: property.id },
+        })
+        expect(meters).toHaveLength(1)
+        expect(meters[0].number).toBe(readings[0].meterNumber)
+
+        const metersReadings = await MeterReading.getAll(adminClient, { meter: { id_in: map(meters, 'id') } })
+        expect(metersReadings).toHaveLength(1)
+
+        // send same data
+        const [data2] = await registerMetersReadingsByTestClient(adminClient, o10n, readings)
+
+        // be sure that we have the same result
+        expect(data2).toEqual(data)
+
+        const metersReadings2 = await MeterReading.getAll(adminClient, { meter: { id_in: map(meters, 'id') } })
+        expect(metersReadings2).toHaveLength(1)
+        expect(metersReadings[0].id).toBe(metersReadings2[0].id)
+        expect(data2[0].id).toBe(metersReadings[0].id)
+    })
+
+    test('can update existing meter via this mutation', async () => {
+        const [o10n] = await createTestOrganization(adminClient)
+        const [property] = await createTestPropertyWithMap(adminClient, o10n)
+        const readings = [createTestReadingData(property, {
+            meterMeta: {
+                numberOfTariffs: 2,
+                place: 'place1',
+            },
+        })]
+        const [firstAttempt] = await registerMetersReadingsByTestClient(adminClient, o10n, readings)
+
+        // be sure that meter and meter reading was created successfully
+        const meters = await Meter.getAll(adminClient, {
+            organization: { id: o10n.id },
+            property: { id: property.id },
+        })
+        expect(meters).toHaveLength(1)
+        expect(meters[0].number).toBe(readings[0].meterNumber)
+        expect(meters[0].place).toBe('place1')
+        expect(meters[0].nextVerificationDate).toBeFalsy()
+
+        const metersReadings = await MeterReading.getAll(adminClient, { meter: { id_in: map(meters, 'id') } })
+        expect(metersReadings).toHaveLength(1)
+        expect(metersReadings[0].meter.id).toBe(meters[0].id)
+
+        // create another reading for same meter and change `place` and `nextVerificationDate` fields values
+        const nextVerificationDate = dayjs().add(1, 'week').toISOString()
+        const anotherReadings = [{
+            ...readings[0],
+            value1: faker.random.numeric(3),
+            value2: faker.random.numeric(4),
+            meterMeta: {
+                ...readings[0].meterMeta,
+                place: 'place2',
+                nextVerificationDate,
+            },
+        }]
+        const [secondAttempt] = await registerMetersReadingsByTestClient(adminClient, o10n, anotherReadings)
+        expect(firstAttempt[0].meter.id).toBe(secondAttempt[0].meter.id)
+
+        // be sure that meter has changed place and nextVerificationDate
+        const updatedMeters = await Meter.getAll(adminClient, {
+            organization: { id: o10n.id },
+            property: { id: property.id },
+        })
+        expect(updatedMeters).toHaveLength(1)
+        expect(updatedMeters[0].id).toBe(meters[0].id)
+        expect(updatedMeters[0].v).toBe(meters[0].v + 1)
+        expect(updatedMeters[0].number).toBe(readings[0].meterNumber)
+        expect(updatedMeters[0].place).toBe('place2')
+        expect(updatedMeters[0].nextVerificationDate).toBeTruthy()
+
+        // sent third readings without place - field value must be 'place2'
+        const thirdReadings = [{
+            ...readings[0],
+            value1: faker.random.numeric(3),
+            value2: faker.random.numeric(4),
+            value3: faker.random.numeric(5),
+            meterMeta: undefined,
+        }]
+        const [thirdAttempt] = await registerMetersReadingsByTestClient(adminClient, o10n, thirdReadings)
+        expect(firstAttempt[0].meter.id).toBe(thirdAttempt[0].meter.id)
+
+        const updatedMeters2 = await Meter.getAll(adminClient, {
+            organization: { id: o10n.id },
+            property: { id: property.id },
+        })
+        expect(updatedMeters2).toHaveLength(1)
+        expect(updatedMeters2[0].id).toBe(meters[0].id)
+        expect(updatedMeters2[0].number).toBe(readings[0].meterNumber)
+        expect(updatedMeters2[0].place).toBe('place2')
+        expect(updatedMeters2[0].numberOfTariffs).toBe(2)
+        expect(updatedMeters2[0].nextVerificationDate).toBeTruthy()
+
+        // be sure that keep same value from creation
+        expect(meters[0].controlReadingsDate).toBe(updatedMeters2[0].controlReadingsDate)
+    })
+
+    test('meter not updated if no fields changed', async () => {
+        const [o10n] = await createTestOrganization(adminClient)
+        const [property] = await createTestPropertyWithMap(adminClient, o10n)
+        const readings = [createTestReadingData(property, {
+            meterMeta: {
+                numberOfTariffs: 2,
+                place: 'place1',
+            },
+        })]
+        await registerMetersReadingsByTestClient(adminClient, o10n, readings)
+        const meters = await Meter.getAll(adminClient, {
+            organization: { id: o10n.id },
+            property: { id: property.id },
+        })
+
+        // create another reading for same meter (keep all meter fields as is)
+        const anotherReadings = [{
+            ...readings[0],
+            value1: faker.random.numeric(3),
+            value2: faker.random.numeric(4),
+            meterMeta: {
+                place: 'place1', // keep same place
+            },
+        }]
+        await registerMetersReadingsByTestClient(adminClient, o10n, anotherReadings)
+
+        // be sure that meter has changed place and nextVerificationDate
+        const notUpdatedMeters = await Meter.getAll(adminClient, {
+            organization: { id: o10n.id },
+            property: { id: property.id },
+        })
+        expect(notUpdatedMeters).toHaveLength(1)
+        expect(notUpdatedMeters[0].id).toBe(meters[0].id)
+        expect(notUpdatedMeters[0].v).toBe(meters[0].v)
+        expect(notUpdatedMeters[0].place).toBe('place1')
     })
 })

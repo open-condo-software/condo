@@ -116,7 +116,7 @@ export const BaseMetersFormFields: React.FC<BaseMetersFormFieldsProps> = ({
     const initialAccountNumber = get(initialValues, ['accountNumber'], null)
     const initialUnitName = get(initialValues, ['unitName'], null)
 
-    const { requiredValidator, trimValidator } = useValidations()
+    const { requiredValidator, trimValidator, maxLengthValidator } = useValidations()
     const {
         meterWithSameNumberValidator,
         earlierThanInstallationValidator,
@@ -129,10 +129,11 @@ export const BaseMetersFormFields: React.FC<BaseMetersFormFieldsProps> = ({
         requiredValidator,
         trimValidator,
         meterWithSameNumberValidator,
+        maxLengthValidator(150),
     ], [requiredValidator, trimValidator, meterWithSameNumberValidator])
 
     const validations = useMemo(() => ({
-        accountNumber: isPropertyMeter ? undefined : [requiredValidator, trimValidator, !initialAccountNumber && meterWithSameAccountNumberInOtherUnitValidation],
+        accountNumber: isPropertyMeter ? undefined : [requiredValidator, trimValidator, !initialAccountNumber && meterWithSameAccountNumberInOtherUnitValidation, maxLengthValidator(150)],
         number: meterNumberValidations,
         resource: [requiredValidator, meterResourceOwnerValidation],
         numberOfTariffs: [requiredValidator],
@@ -140,8 +141,9 @@ export const BaseMetersFormFields: React.FC<BaseMetersFormFieldsProps> = ({
         sealingDate: [earlierThanInstallationValidator],
         nextVerificationDate: [earlierThanFirstVerificationDateValidator],
         controlReadingsDate: [earlierThanInstallationValidator],
+        placeValidator: [maxLengthValidator(150)],
     }),
-    [isPropertyMeter, requiredValidator, trimValidator, initialAccountNumber, meterWithSameAccountNumberInOtherUnitValidation, meterNumberValidations, meterResourceOwnerValidation, earlierThanInstallationValidator, earlierThanFirstVerificationDateValidator])
+    [isPropertyMeter, requiredValidator, trimValidator, initialAccountNumber, meterWithSameAccountNumberInOtherUnitValidation, meterNumberValidations, meterResourceOwnerValidation, earlierThanInstallationValidator, earlierThanFirstVerificationDateValidator, maxLengthValidator])
 
     const initialResourceValue = get(initialValues, ['resource', 'id'])
     const handleInstallationDateChange = useCallback(value => setInstallationDate(value), [])
@@ -202,6 +204,7 @@ export const BaseMetersFormFields: React.FC<BaseMetersFormFieldsProps> = ({
                             label={MeterPlaceMessage}
                             name='place'
                             initialValue={get(initialValues, 'place')}
+                            rules={validations.placeValidator}
                         >
                             <Input disabled={disabledFields}/>
                         </BaseMeterModalFormItem>
@@ -223,6 +226,12 @@ export const BaseMetersFormFields: React.FC<BaseMetersFormFieldsProps> = ({
                             </Col>
                         ) 
                     }
+                    <Col span={24}>
+                        <ShowMoreFieldsButton
+                            isAdditionalFieldsCollapsed={isAdditionalFieldsCollapsed}
+                            setIsAdditionalFieldsCollapsed={setIsAdditionalFieldsCollapsed}
+                        />
+                    </Col>
                     {
                         !isAdditionalFieldsCollapsed && (
                             <>
@@ -280,12 +289,6 @@ export const BaseMetersFormFields: React.FC<BaseMetersFormFieldsProps> = ({
                         )
                     }
                 </Row>
-            </Col>
-            <Col>
-                <ShowMoreFieldsButton
-                    isAdditionalFieldsCollapsed={isAdditionalFieldsCollapsed}
-                    setIsAdditionalFieldsCollapsed={setIsAdditionalFieldsCollapsed}
-                />
             </Col>
         </Row>
     )

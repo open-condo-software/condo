@@ -18,7 +18,9 @@ const {
     JSON_EXPECT_ARRAY_ERROR,
     JSON_EXPECT_OBJECT_ERROR,
 } = require('@condo/domains/common/constants/errors')
-const { PUSH_TRANSPORT_FIREBASE, DEVICE_PLATFORM_ANDROID, APP_RESIDENT_ID_ANDROID } = require('@condo/domains/notification/constants/constants')
+const { PUSH_TRANSPORT_FIREBASE, DEVICE_PLATFORM_ANDROID, APP_RESIDENT_ID_ANDROID, SMS_TRANSPORT, PUSH_TRANSPORT,
+    EMAIL_TRANSPORT,
+} = require('@condo/domains/notification/constants/constants')
 const {
     Message,
     MessageBatch,
@@ -329,6 +331,8 @@ describe('MessageBatch', () => {
                 const message = await Message.getOne(admin, messagesWhere, messagesSort)
 
                 expect(message).not.toBeUndefined()
+                expect(message.processingMeta.transports).toHaveLength(1)
+                expect(message.processingMeta.transports[0]).toEqual(PUSH_TRANSPORT)
                 expect(message.type).toEqual(CUSTOM_CONTENT_MESSAGE_PUSH_TYPE)
                 expect(message.remoteClient.id).toEqual(remoteClientId)
             })
@@ -355,6 +359,8 @@ describe('MessageBatch', () => {
                 const message = await Message.getOne(admin, messagesWhere, messagesSort)
 
                 expect(message).not.toBeUndefined()
+                expect(message.processingMeta.transports).toHaveLength(1)
+                expect(message.processingMeta.transports[0]).toEqual(SMS_TRANSPORT)
                 expect(message.type).toEqual(CUSTOM_CONTENT_MESSAGE_SMS_TYPE)
                 expect(message.phone).toEqual(phone)
             })
@@ -381,8 +387,99 @@ describe('MessageBatch', () => {
                 const message = await Message.getOne(admin, messagesWhere, messagesSort)
 
                 expect(message).not.toBeUndefined()
+                expect(message.processingMeta.transports).toHaveLength(1)
+                expect(message.processingMeta.transports[0]).toEqual(EMAIL_TRANSPORT)
                 expect(message.type).toEqual(CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE)
                 expect(message.email).toEqual(email)
+            })
+        })
+
+        it('handles messageBatch and creates push notification for MessageBatch with type CUSTOM_CONTENT_MESSAGE_PUSH_TYPE', async () => {
+            const userClient = await makeClientWithResidentAccessAndProperty()
+            const payload = {
+                devicePlatform: DEVICE_PLATFORM_ANDROID,
+                appId: APP_RESIDENT_ID_ANDROID,
+            }
+
+            await syncRemoteClientWithPushTokenByTestClient(userClient, payload)
+
+            const extraData = { messageType: CUSTOM_CONTENT_MESSAGE_PUSH_TYPE, targets: [userClient.user.id] }
+            const [customMessage] = await createTestMessageBatch(admin, extraData)
+            const date = dayjs().format(DATE_FORMAT)
+            const messageWhere = {
+                type: CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
+                user: { id: userClient.user.id },
+                uniqKey: getUniqKey(date, customMessage.title, userClient.user.id),
+            }
+            const messagesSort = { sortBy: ['createdAt_DESC'] }
+
+            await waitFor(async () => {
+                const customMessage1 = await MessageBatch.getOne(admin, { id: customMessage.id })
+
+                expect(customMessage1.processingMeta.successCnt).toEqual(1)
+                expect(customMessage1.status).toEqual(MESSAGE_BATCH_DONE_STATUS)
+            })
+
+            await waitFor(async () => {
+                const message = await Message.getOne(admin, messageWhere, messagesSort)
+
+                expect(message).not.toBeUndefined()
+                expect(message.processingMeta.transports).toHaveLength(1)
+                expect(message.processingMeta.transports[0]).toEqual(PUSH_TRANSPORT)
+                expect(message.type).toEqual(CUSTOM_CONTENT_MESSAGE_PUSH_TYPE)
+                expect(message.user.id).toEqual(userClient.user.id)
+            })
+        })
+
+        it('handles messageBatch and creates push notification for MessageBatch with type CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE', async () => {
+            const email = `${faker.random.alphaNumeric(8)}@${faker.random.alphaNumeric(8)}.com`
+            const [customMessage] = await createTestMessageBatch(admin, { messageType: CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE, targets: [email] })
+            const date = dayjs().format(DATE_FORMAT)
+            const messagesWhere = {
+                type: CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE,
+                uniqKey: getUniqKey(date, customMessage.title, email),
+            }
+            const messagesSort = { sortBy: ['createdAt_DESC'] }
+
+            await waitFor(async () => {
+                const customMessage1 = await MessageBatch.getOne(admin, { id: customMessage.id })
+
+                expect(customMessage1.processingMeta.successCnt).toEqual(1)
+                expect(customMessage1.status).toEqual(MESSAGE_BATCH_DONE_STATUS)
+            })
+
+            await waitFor(async () => {
+                const message = await Message.getOne(admin, messagesWhere, messagesSort)
+
+                expect(message).not.toBeUndefined()
+                expect(message.type).toEqual(CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE)
+                expect(message.email).toEqual(email)
+            })
+        })
+
+        it('handles messageBatch and creates push notification for MessageBatch with type CUSTOM_CONTENT_MESSAGE_SMS_TYPE', async () => {
+            const userClient = await makeClientWithResidentAccessAndProperty()
+            const [customMessage] = await createTestMessageBatch(admin, { messageType: CUSTOM_CONTENT_MESSAGE_SMS_TYPE, targets: [userClient.user.id] })
+            const date = dayjs().format(DATE_FORMAT)
+            const messagesWhere = {
+                type: CUSTOM_CONTENT_MESSAGE_SMS_TYPE,
+                uniqKey: getUniqKey(date, customMessage.title, userClient.user.id),
+            }
+            const messagesSort = { sortBy: ['createdAt_DESC'] }
+
+            await waitFor(async () => {
+                const customMessage1 = await MessageBatch.getOne(admin, { id: customMessage.id })
+
+                expect(customMessage1.processingMeta.successCnt).toEqual(1)
+                expect(customMessage1.status).toEqual(MESSAGE_BATCH_DONE_STATUS)
+            })
+
+            await waitFor(async () => {
+                const message = await Message.getOne(admin, messagesWhere, messagesSort)
+
+                expect(message).not.toBeUndefined()
+                expect(message.type).toEqual(CUSTOM_CONTENT_MESSAGE_SMS_TYPE)
+                expect(message.user.id).toEqual(userClient.user.id)
             })
         })
 

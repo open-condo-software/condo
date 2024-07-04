@@ -171,36 +171,42 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
      */
     async callToDadata (url, body) {
         this.logger.info({ msg: 'CallToDaData', url, data: body, reqId: this.req.id })
-        const result = await fetch(
-            url,
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'Authorization': `Token ${this.token}`,
+
+        try {
+            const result = await fetch(
+                url,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': `Token ${this.token}`,
+                    },
+                    body: JSON.stringify(body),
+                    abortRequestTimeout: 120,
                 },
-                body: JSON.stringify(body),
-            },
-        )
+            )
 
-        const status = result.status
-        if (status === 200) {
-            return await result.json()
-        } else if (status === 403) {
-            /**
-             * See all cases for 403 error
-             * @link https://dadata.ru/api/suggest/address/#return
-             */
+            const status = result.status
+            if (status === 200) {
+                return await result.json()
+            } else if (status === 403) {
+                /**
+                 * See all cases for 403 error
+                 * @link https://dadata.ru/api/suggest/address/#return
+                 */
 
-            /**
-             * In the case of 403, we may check if our limit exceeded
-             * If yes, we should create a separate token rotator for dadata provider (search & suggest)
-             * @link https://dadata.ru/api/stat/
-             */
+                /**
+                 * In the case of 403, we may check if our limit exceeded
+                 * If yes, we should create a separate token rotator for dadata provider (search & suggest)
+                 * @link https://dadata.ru/api/stat/
+                 */
+            }
+
+            this.logger.warn({ msg: 'CallToDaData error', status, url, data: body, reqId: this.req.id })
+        } catch (err) {
+            this.logger.warn({ msg: 'CallToDaData failed to fetch', err, url, data: body, reqId: this.req.id })
         }
-
-        this.logger.warn({ msg: 'CallToDaData error', status, url, data: body, reqId: this.req.id })
 
         return null
     }

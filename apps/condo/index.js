@@ -1,5 +1,4 @@
 const { NextApp } = require('@keystonejs/app-next')
-const { createItems } = require('@keystonejs/server-side-graphql-client')
 const Sentry = require('@sentry/node')
 const dayjs = require('dayjs')
 const duration = require('dayjs/plugin/duration')
@@ -47,25 +46,6 @@ if (IS_ENABLE_DD_TRACE && !IS_BUILD_PHASE) {
     require('dd-trace').init({
         logInjection: true,
     })
-}
-
-/** @deprecated */
-const onConnect = async (keystone) => {
-    // Initialise some data
-    if (conf.NODE_ENV !== 'development' && conf.NODE_ENV !== 'test') return // Just for dev env purposes!
-    // This function can be called before tables are created! (we just ignore this)
-    const users = await keystone.lists.User.adapter.findAll()
-    if (!users.length) {
-        const initialData = require('./initialData')
-        for (let { listKey, items } of initialData) {
-            console.log(`🗿 createItems(${listKey}) -> ${items.length}`)
-            await createItems({
-                keystone,
-                listKey,
-                items,
-            })
-        }
-    }
 }
 
 const schemas = () => [
@@ -173,7 +153,6 @@ const extendExpressApp = (app) => {
 }
 
 module.exports = prepareKeystone({
-    onConnect,
     extendExpressApp,
     schemas, tasks, queues: ['low', 'medium', 'high'],
     apps, lastApp,

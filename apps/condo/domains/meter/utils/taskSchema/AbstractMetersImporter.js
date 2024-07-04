@@ -52,6 +52,18 @@ class AbstractMetersImporter {
         return true
     }
 
+    /**
+     * Transforms specific format to common format for mutation
+     * @abstract
+     * @protected
+     * @param {string[]} row array of cells values of particular row (from xls, csv, etc.)
+     * @throws {TransformRowError}
+     * @return {RegisterMetersReadingsReadingInput | RegisterMetersReadingsReadingInput[]}
+     */
+    transformRow (row) {
+        throw new Error('Not implemented')
+    }
+
     async import (data) {
         try {
             this.tableData = data
@@ -123,7 +135,8 @@ class AbstractMetersImporter {
                         logger.error({ msg: this.errors.invalidTypes.message, err })
                         this.failProcessingHandler({
                             originalRow: row,
-                            errors: err.getMessages(),
+                            // The `TransformRowError` contains `getMessages`
+                            errors: err.getMessages ? err.getMessages() : [err.message],
                         })
                     }
                 }
@@ -222,7 +235,7 @@ class AbstractMetersImporter {
             { wch: Math.max(...arrayOfArray.map(row => row[index] ? row[index].toString().length : 0)) }
         ))
     }
-    
+
     async generateErrorFile () {
         const ErrorsMessage = i18n('import.Errors')
         const erroredRows =  this.failedRows

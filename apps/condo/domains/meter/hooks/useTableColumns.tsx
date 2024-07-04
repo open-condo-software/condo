@@ -33,7 +33,7 @@ import {
 import { getMeterReportingPeriodRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
 
 
-const renderMeterRecord = (record) => {
+export const renderMeterRecord = (record) => {
     const value1 = get(record, 'value1')
     const value2 = get(record, 'value2')
     const value3 = get(record, 'value3')
@@ -96,22 +96,7 @@ export function useTableColumns <T> (
         }
     }, [isReportingPeriod, isMeter, DeletedMessage, search, CustomPeriodMessage])
 
-    const readingsForSingleMeterColumns = useMemo(() => [
-        {
-            title: SourceMessage,
-            ellipsis: false,
-            key: 'source',
-            width: isPropertyMeter ? '25%' : '20%',
-            render: getSourceRender(intl, search),
-        },
-        {
-            title: ContactMessage,
-            ellipsis: false,
-            dataIndex: 'clientName',
-            key: 'clientName',
-            width: isPropertyMeter ? '25%' : '20%',
-            render: getTextRender(search),
-        },
+    const readingsForSingleMeterColumns = useMemo(() => compact([
         {
             title: MeterReadingDateMessage,
             sortOrder: get(sorterMap, 'date'),
@@ -122,6 +107,21 @@ export function useTableColumns <T> (
             width: isPropertyMeter ? '25%' : '20%',
             render: getDateRender(intl, search),
             filterDropdown: getFilterDropdownByKey(filterMetas, 'date'),
+        },
+        {
+            title: SourceMessage,
+            ellipsis: false,
+            key: 'source',
+            width: isPropertyMeter ? '25%' : '20%',
+            render: getSourceRender(intl, search),
+        },
+        isPropertyMeter ? undefined : {
+            title: ContactMessage,
+            ellipsis: false,
+            dataIndex: 'clientName',
+            key: 'clientName',
+            width: isPropertyMeter ? '25%' : '20%',
+            render: getTextRender(search),
         },
         {
             title: MeterReadingMessage,
@@ -137,7 +137,7 @@ export function useTableColumns <T> (
             width: isPropertyMeter ? '25%' : '20%',
             render: getConsumptionRender(intl, records),
         },
-    ], [ConsumptionMessage, ContactMessage, MeterReadingDateMessage, MeterReadingMessage, SourceMessage, filterMetas, filters, intl, isPropertyMeter, records, search, sorterMap])
+    ]), [ConsumptionMessage, ContactMessage, MeterReadingDateMessage, MeterReadingMessage, SourceMessage, filterMetas, filters, intl, isPropertyMeter, records, search, sorterMap])
 
     const meterAndMeterReadingColumns = useMemo(() => [
         {

@@ -95,6 +95,8 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
 
     const router = useRouter()
     const { filters, offset, sorters, tab } = parseQuery(router.query)
+    const type = get(router.query, 'type')
+
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
 
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filtersMeta, sortableProperties || SORTABLE_PROPERTIES)
@@ -106,6 +108,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
     const dateFilterValue = dateRange || null
     const dateFilter = dateFilterValue ? dateFilterValue.map(el => el.toISOString()) : null
     const nextVerificationDate = get(meter, 'nextVerificationDate')
+    const isDeletedProperty = !get(meter, 'property')
 
     const [isShowUpdateReadingModal, setIsShowUpdateReadingModal] = useState(false)
     const [chosenMeterReadingId, setChosenMeterReadingId] = useState<string>(null)
@@ -140,7 +143,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
         filterMetas: filtersMeta,
         filtersSchemaGql: MeterReadingFilterTemplate,
         onReset: handleSearchReset,
-        extraQueryParameters: { tab },
+        extraQueryParameters: { tab, type },
     })
 
     const updateSelectedReadingKeys = useCallback((selectedReadingKeys: string[]) => {
@@ -219,7 +222,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
 
     const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
     const handleUpdateMeterReading = useCallback((record) => { 
-        if (get(meter, 'archiveDate')) {
+        if (get(meter, 'archiveDate') || !get(meter, 'property')) {
             return {}
         }
         return {
@@ -373,6 +376,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
                             propertyId={get(meter, 'property.id')}
                             unitName={get(meter, 'unitName')}
                             unitType={get(meter, 'unitType')}
+                            isDeletedProperty={isDeletedProperty}
                         />
                     </Col>)
                 }
@@ -410,6 +414,7 @@ export const MeterReadingsPageContent: React.FC<MeterReadingsPageContentProps> =
     const { count, loading: countLoading } = MeterReadingForOrganization.useCount({ where: baseSearchQuery })
 
     const nextVerificationDate = get(meter, 'nextVerificationDate')
+    const isDeletedProperty = !get(meter, 'property')
 
     const PageContent = useMemo(() => {
         if (countLoading || loading) return <Loader />
@@ -444,6 +449,7 @@ export const MeterReadingsPageContent: React.FC<MeterReadingsPageContentProps> =
                                 propertyId={get(meter, 'property.id')}
                                 unitName={get(meter, 'unitName')}
                                 unitType={get(meter, 'unitType')}
+                                isDeletedProperty={isDeletedProperty}
                             />
                         </Col>)
                     }
@@ -463,7 +469,7 @@ export const MeterReadingsPageContent: React.FC<MeterReadingsPageContentProps> =
                 resource={resource}
             />
         )
-    }, [EmptyListLabel, EmptyListManualBodyDescription, baseSearchQuery, canManageMeterReadings, count, countLoading, filtersMeta, isAutomatic, loading, meter, nextVerificationDate, refetch, resource])
+    }, [EmptyListLabel, EmptyListManualBodyDescription, baseSearchQuery, canManageMeterReadings, count, countLoading, filtersMeta, isAutomatic, isDeletedProperty, loading, meter, nextVerificationDate, refetch, resource])
 
     return (
         <TablePageContent>

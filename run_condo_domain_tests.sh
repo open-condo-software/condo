@@ -30,16 +30,13 @@ if [ -z "$domain_name" ]; then
     usage
 fi
 
-cp .env.example .env
-# TODO: Remove all this evn below after migrating to new CI
-echo 'CALLCENTER_DOMAIN=http://localhost:3001' >> .env
+node bin/prepare.js -f condo
 
 export NODE_ENV=test
 export DISABLE_LOGGING=false
 export NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE=true
 export NOTIFICATION__DISABLE_LOGGING=true
 export TESTS_LOG_REQUEST_RESPONSE=true
-export DISABLE_CAPTCHA=true
 export WORKER_CONCURRENCY=50
 export NODE_OPTIONS="--max_old_space_size=4192"
 export METABASE_CONFIG='{"url": "https://metabase.example.com", "secret": "4879960c-a625-4096-9add-7a81d925774a"}'
@@ -51,20 +48,9 @@ node -e 'console.log(v8.getHeapStatistics().heap_size_limit/(1024*1024))'
 # NOTE(pahaz): Keystone not in dev mode trying to check dist/admin folder
 mkdir -p ./apps/condo/dist/admin
 
-[[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/condo migrate
+yarn workspace @app/condo node --trace-warnings ./../../bin/run-keystone-app.js 2>&1 > /app/test_logs/condo.dev.log &
 
-yarn workspace @app/condo dev 2>&1 > /app/test_logs/condo.dev.log &
-
-# waitForLocalhostApiReady.sh
-API_SLEEP_INTERVAL=3
-API_WAIT_TIMEOUT=120
-API_RESULT=$(curl -s 'http://localhost:3000/admin/api' --data-raw '{"operationName":null,"variables":{},"query":"{appVersion}"}' -H 'content-type: application/json' | tr -d ' \n')
-# API_RESULT is empty if server is down!
-while [[ ("${API_RESULT}" != *"appVersion"* || "${API_RESULT}" == "") && ((${API_WAIT_TIMEOUT} > 0)) ]]; do
-  sleep ${API_SLEEP_INTERVAL}
-  API_RESULT=$(curl -s 'http://localhost:3000/admin/api' --data-raw '{"operationName":null,"variables":{},"query":"{appVersion}"}' -H 'content-type: application/json' | tr -d ' \n')
-  ((API_WAIT_TIMEOUT-=${API_SLEEP_INTERVAL}))
-done
+node bin/wait-apps-apis.js -f condo
 
 # check migrations
 yarn workspace @app/condo makemigrations --check &> /dev/null
@@ -103,6 +89,8 @@ else
     kill $(jobs -p) || echo 'background worker and dev server is already killed!'
     killall node || echo 'no node processes'
 
+    # TODO: INFRA-155 Remove it completely by rewriting a task tests or migrate to jest.setup or smth
+    export REDIS_URL=redis://127.0.0.1:6379/4
     yarn jest ./packages/keystone --maxWorkers=2
     yarn workspace @app/condo lint-schema
 fi
