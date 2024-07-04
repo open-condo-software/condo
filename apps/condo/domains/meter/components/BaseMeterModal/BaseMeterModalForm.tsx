@@ -134,7 +134,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
         earlierThanFirstVerificationDateValidator,
         meterWithSameAccountNumberInOtherUnitValidation,
         meterResourceOwnerValidation,
-    } = useMeterValidations(installationDate, verificationDate, propertyId, unitName, organizationId, initialMeterNumber, addressKey)
+    } = useMeterValidations(isPropertyMeter, installationDate, verificationDate, propertyId, unitName, organizationId, initialMeterNumber, addressKey)
 
     const meterNumberValidations = useMemo(() => [
         requiredValidator,
