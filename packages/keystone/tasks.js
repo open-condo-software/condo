@@ -103,12 +103,12 @@ function removeCronTask (name, cron, opts = {}) {
 async function _scheduleRemoteTask (name, preparedArgs, preparedOpts, queueName = DEFAULT_QUEUE_NAME) {
     const queue = TASK_QUEUE_REMAPPING.hasOwnProperty(queueName) ? TASK_QUEUE_REMAPPING[queueName] : queueName
 
-    logger.info({ msg: 'Scheduling task', name, queue, meta: { preparedArgs, preparedOpts } })
+    logger.info({ msg: 'Scheduling task', taskName: name, queue, meta: { preparedArgs, preparedOpts } })
 
     if (!QUEUES.has(queue)) {
         logger.error({
             msg: `No active queues with name = ${queue} was found. This task never been picked by this worker due to queue filters policy`,
-            name, queue, meta: { preparedOpts, preparedArgs },
+            taskName: name, queue, meta: { preparedOpts, preparedArgs },
         })
 
         throw new Error(`Task ${name} register error. No active queues with name = ${queue} was found. You should register at prepareKeystone`)
@@ -147,7 +147,7 @@ class InProcessFakeJob {
 async function _scheduleInProcessTask (name, preparedArgs, preparedOpts) {
     // NOTE: it's just for test purposes
     // similar to https://docs.celeryproject.org/en/3.1/configuration.html#celery-always-eager
-    logger.info({ msg: 'Scheduling task', name, meta: { preparedArgs, preparedOpts } })
+    logger.info({ msg: 'Scheduling task', taskName: name, meta: { preparedArgs, preparedOpts } })
 
     const job = new InProcessFakeJob(name)
     let error = undefined
@@ -155,12 +155,12 @@ async function _scheduleInProcessTask (name, preparedArgs, preparedOpts) {
     let status = 'processing'
     let executor = async function inProcessExecutor () {
         try {
-            logger.info({ msg: 'Executing task', name, meta: { preparedArgs, preparedOpts } })
+            logger.info({ msg: 'Executing task', taskName: name, meta: { preparedArgs, preparedOpts } })
             result = await executeTask(name, preparedArgs, job)
             status = 'completed'
-            logger.info({ msg: 'Task result', name, status, meta: { result, preparedArgs, preparedOpts } })
+            logger.info({ msg: 'Task result', taskName: name, status, meta: { result, preparedArgs, preparedOpts } })
         } catch (e) {
-            logger.error({ msg: 'Error executing task', name, error: e, meta: { preparedArgs, preparedOpts } })
+            logger.error({ msg: 'Error executing task', taskName: name, error: e, meta: { preparedArgs, preparedOpts } })
             status = 'error'
             error = e
         }
@@ -332,7 +332,7 @@ async function createWorker (keystoneModule, config) {
         return
     } else {
         isWorkerCreated = true
-        logger.info('Creating worker process')
+        logger.info({ msg: 'Creating worker process' })
     }
 
     // we needed to prepare keystone to use it inside tasks logic!
@@ -406,7 +406,7 @@ async function createWorker (keystoneModule, config) {
 
     const activeQueueNames = activeQueues.map(([name]) => name)
 
-    logger.info(`Worker[${activeQueueNames.join(',')}]: ready to work!`)
+    logger.info({ msg: 'Worker: ready to work!', activeQueues: activeQueueNames.join(',') })
 
     const cronTasks = Array.from(CRON_TASKS.entries())
     if (cronTasks.length > 0) {
