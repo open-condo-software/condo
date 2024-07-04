@@ -31,4 +31,5 @@ export * as IncidentExportTask from './IncidentExportTask'
 export * as CallRecord from './CallRecord'
 export * as CallRecordFragment from './CallRecordFragment'
 export * as TicketAutoAssignment from './TicketAutoAssignment'
+export * as TicketDocumentGenerationTask from './TicketDocumentGenerationTask'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

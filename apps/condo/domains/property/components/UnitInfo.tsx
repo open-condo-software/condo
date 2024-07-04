@@ -124,6 +124,7 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
     const floors = useMemo(() =>
         getFloorsBySection(selectedSectionName, selectedSections)
     , [selectedSectionName, selectedSections])
+
     const { requiredValidator } = useValidations()
 
     const updateSectionAndFloor = useCallback((form, unitName: string, unitType = BuildingUnitSubType.Flat) => {
@@ -226,7 +227,7 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
                         label={FlatNumberLabel}
                         required={required}
                         initialValue={get(initialValues, 'unitName')}
-                        rules={[requiredValidator]}
+                        rules={required && [requiredValidator]}
                     >
                         <UnitNameInput
                             property={property}

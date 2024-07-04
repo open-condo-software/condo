@@ -5,14 +5,20 @@
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
+const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
+const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 const access = require('@condo/domains/miniapp/access/B2BAppNewsSharingConfig')
 
-const { LOGO_FIELD } = require('./fields/integration')
 
+const NEWS_SHARING_FILE_ADAPTER = new FileAdapter('news-sharing')
+
+const iconMetaAfterChange = getFileMetaAfterChange(NEWS_SHARING_FILE_ADAPTER, 'icon')
+
+const previewPictureMetaAfterChange = getFileMetaAfterChange(NEWS_SHARING_FILE_ADAPTER, 'previewPicture')
 
 /**
  * News Sharing B2BApp
- * 
+ *
  * News Sharing B2BApp allow b2b users to share their NewsItem to external source like Telegram or Whatsapp from /news page
  *
  *                         [ whatsapp-sharing-miniapp ] -> [ whatsapp ]
@@ -20,7 +26,7 @@ const { LOGO_FIELD } = require('./fields/integration')
  *                         [ telegram-sharing-miniapp ] -> [ telegram ]
  *
  * To create miniapp that can be embedded to /news page developer should provide API and information defined here
- * 
+ *
  * @type {GQLListSchema}
  */
 const B2BAppNewsSharingConfig = new GQLListSchema('B2BAppNewsSharingConfig', {
@@ -39,9 +45,19 @@ const B2BAppNewsSharingConfig = new GQLListSchema('B2BAppNewsSharingConfig', {
             isRequired: true,
         },
 
-        icon: { ...LOGO_FIELD, schemaDoc: 'Icon of the app: Telegram Icon / WhatsApp Icon' },
+        icon: {
+            schemaDoc: 'Icon of the app: Telegram Icon / WhatsApp Icon',
+            type: 'File',
+            isRequired: false,
+            adapter: NEWS_SHARING_FILE_ADAPTER,
+        },
 
-        previewPicture: { ...LOGO_FIELD, schemaDoc: 'Preview picture: might be app screenshot' },
+        previewPicture: {
+            schemaDoc: 'Preview picture: might be app screenshot',
+            type: 'File',
+            isRequired: false,
+            adapter: NEWS_SHARING_FILE_ADAPTER,
+        },
 
         previewUrl: {
             schemaDoc: 'URL that returns HTML preview NewsItem',
@@ -59,6 +75,12 @@ const B2BAppNewsSharingConfig = new GQLListSchema('B2BAppNewsSharingConfig', {
             schemaDoc: 'URL that implements customForm. If not filled, then app will use standard news form',
             type: 'Url',
             isRequired: false,
+        },
+    },
+    hooks: {
+        afterChange: async ({ updatedItem, listKey }) => {
+            await iconMetaAfterChange({ updatedItem, listKey })
+            await previewPictureMetaAfterChange({ updatedItem, listKey })
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],

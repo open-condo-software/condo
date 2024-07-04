@@ -5,7 +5,7 @@ const LRUCache = require('lru-cache')
 const conf = require('@open-condo/config')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { getLogger } = require('@open-condo/keystone/logging')
-const { getSchemaCtx, find, itemsQuery, getByCondition } = require('@open-condo/keystone/schema')
+const { find, itemsQuery, getByCondition } = require('@open-condo/keystone/schema')
 const { i18n } = require('@open-condo/locales/loader')
 
 const { SEND_DAILY_STATISTICS_TASK } = require('@condo/domains/common/constants/featureflags')
@@ -38,7 +38,6 @@ class UserDailyStatistics {
     #statistics = null
     /** @type {string|null} */
     #userId = null
-    #context = null
     #taskId = null
 
     /**
@@ -52,8 +51,6 @@ class UserDailyStatistics {
         this.#userId = userId
         this.#currentDate = currentDate || dayjs().toISOString()
 
-        const { keystone: context } = getSchemaCtx('User')
-        this.#context = context
         this.#taskId = taskId
     }
 
@@ -99,7 +96,7 @@ class UserDailyStatistics {
                 data: { organizationId, userId: this.#userId, currentDate: this.#currentDate },
             }
 
-            const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(this.#context, SEND_DAILY_STATISTICS_TASK, { organization: organizationId })
+            const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(null, SEND_DAILY_STATISTICS_TASK, { organization: organizationId })
             if (!isFeatureEnabled) {
                 logger.info({
                     ...loggerInfo,
