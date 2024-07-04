@@ -26,7 +26,7 @@ export const useLayoutContext = (): ILayoutContext => useContext<ILayoutContext>
 
 type LayoutContextProviderProps = {
     children: React.ReactNode
-    withNotWorkingNotification?: boolean
+    withServiceProblemsAlert?: boolean
 }
 
 export const LayoutContextProvider: React.FC<LayoutContextProviderProps> = (props) => {
@@ -36,7 +36,7 @@ export const LayoutContextProvider: React.FC<LayoutContextProviderProps> = (prop
     const {
         TopNotificationComponent,
         addNotification,
-    } = useTopNotificationsHook(props.withNotWorkingNotification)
+    } = useTopNotificationsHook(props.withServiceProblemsAlert)
 
     const toggleCollapsed = () => {
         localStorage && localStorage.setItem('isCollapsed', String(!isCollapsed))

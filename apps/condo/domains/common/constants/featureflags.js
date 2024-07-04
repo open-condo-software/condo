@@ -26,7 +26,7 @@ const SEND_DAILY_STATISTICS_TASK = 'send-daily-statistics-task'
 const RETENTION_LOOPS_ENABLED = 'retention-loops-enabled'
 const NEWS_SHARING = 'news-sharing'
 const TICKET_DOCUMENT_GENERATION = 'ticket-document-generation'
-const NOT_WORKING_ALERT = 'not-working-alert'
+const SERVICE_PROBLEMS_ALERT = 'service-problems-alert'
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
@@ -56,5 +56,5 @@ module.exports = {
     SEND_DAILY_STATISTICS_TASK,
     NEWS_SHARING,
     TICKET_DOCUMENT_GENERATION,
-    NOT_WORKING_ALERT,
+    SERVICE_PROBLEMS_ALERT,
 }
