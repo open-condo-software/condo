@@ -21,6 +21,7 @@ import {
     SETTINGS_TAB_CONTROL_ROOM,
     SETTINGS_TAB_EMPLOYEE_ROLES,
     SETTINGS_TAB_MOBILE_FEATURE_CONFIG,
+    SETTINGS_TAB_MARKETPLACE,
 } from '@condo/domains/common/constants/settingsTabs'
 import { ContactRolesSettingsContent } from '@condo/domains/contact/components/contactRoles/ContactRolesSettingsContent'
 import {
@@ -32,6 +33,7 @@ import { MANAGING_COMPANY_TYPE } from '@condo/domains/organization/constants/com
 import { useEmployeeRolesPermissionsGroups } from '@condo/domains/organization/hooks/useEmployeeRolesPermissionsGroups'
 import { SettingsReadPermissionRequired } from '@condo/domains/settings/components/PageAccess'
 import { SubscriptionPane } from '@condo/domains/subscription/components/SubscriptionPane'
+import MarketplaceSettingsPage from "./marketplace";
 
 
 const TITLE_STYLES: CSSProperties = { margin: 0 }
@@ -47,6 +49,7 @@ const SettingsPage = () => {
     const ControlRoomTitle = intl.formatMessage({ id: 'ControlRoom' })
     const EmployeeRolesTitle = intl.formatMessage({ id: 'EmployeeRoles' })
     const MobileFeatureConfigTitle = intl.formatMessage({ id: 'pages.condo.settings.barItem.MobileFeatureConfig' })
+    const MarketSettingTitle = intl.formatMessage({ id: 'global.section.marketplace' })
 
     const hasSubscriptionFeature = hasFeature('subscription')
 
@@ -55,6 +58,7 @@ const SettingsPage = () => {
     const canManageContactRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageContactRoles']), [userOrganization])
     const canManageEmployeeRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageRoles'], false), [userOrganization])
     const canManageMobileFeatureConfigsRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageMobileFeatureConfigs']), [userOrganization])
+    const canManageMarketSettingRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageMarketSetting']), [userOrganization])
 
     const availableTabs = useMemo(() => {
         const availableTabs = [...ALWAYS_AVAILABLE_TABS]
@@ -65,10 +69,11 @@ const SettingsPage = () => {
         if (canManageContactRoles && isManagingCompany) availableTabs.push(SETTINGS_TAB_CONTACT_ROLES)
         if (isManagingCompany) availableTabs.push(SETTINGS_TAB_CONTROL_ROOM)
         if (canManageMobileFeatureConfigsRoles) availableTabs.push(SETTINGS_TAB_MOBILE_FEATURE_CONFIG)
+        if (true) availableTabs.push(SETTINGS_TAB_MARKETPLACE)
 
+        console.log('availableTabs', availableTabs,  get(userOrganization, ['link', 'role']))
         return availableTabs
-    }, [hasSubscriptionFeature, isManagingCompany, canManageContactRoles, canManageMobileFeatureConfigsRoles, canManageEmployeeRoles])
-
+    }, [hasSubscriptionFeature, isManagingCompany, canManageContactRoles, canManageMobileFeatureConfigsRoles, canManageEmployeeRoles, canManageMarketSettingRoles])
     const settingsTabs: TabItem[] = useMemo(
         () => [
             hasSubscriptionFeature && isManagingCompany && {
@@ -101,10 +106,15 @@ const SettingsPage = () => {
                 label: MobileFeatureConfigTitle,
                 children: <MobileFeatureConfigContent/>,
             },
+            canManageMarketSettingRoles && {
+                key: SETTINGS_TAB_MARKETPLACE,
+                label: MarketSettingTitle,
+                children: <div>sdfdverfvsdvervsdvcdr</div>,//<MarketplaceSettingsPage/>,
+            },
         ].filter(Boolean),
-        [isManagingCompany, hasSubscriptionFeature, SubscriptionTitle, canManageEmployeeRoles, EmployeeRolesTitle, DetailsTitle, canManageContactRoles, RolesTitle, ControlRoomTitle, canManageMobileFeatureConfigsRoles, MobileFeatureConfigTitle],
+        [isManagingCompany, hasSubscriptionFeature, SubscriptionTitle, canManageEmployeeRoles, EmployeeRolesTitle, DetailsTitle, canManageContactRoles, RolesTitle, ControlRoomTitle, canManageMobileFeatureConfigsRoles, MobileFeatureConfigTitle, canManageMarketSettingRoles, MarketSettingTitle],
     )
-
+    console.log('canManageMarketSettingRoles', canManageMarketSettingRoles)
     const titleContent = useMemo(() => (
         <Typography.Title style={TITLE_STYLES}>{PageTitle}</Typography.Title>
     ), [PageTitle])
