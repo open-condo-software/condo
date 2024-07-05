@@ -2029,7 +2029,7 @@ __metadata:
     apollo-upload-client: ^17
     apollo3-cache-persist: ^0.15.0
     classnames: ^2.3.2
-    cookie: ^0.6.0
+    cookies-next: ^4.2.1
     deepmerge: ^4.3.1
     graphql: ^16.8.1
     http-proxy: ^1.18.1
@@ -16303,6 +16303,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/cookie@npm:^0.6.0":
+  version: 0.6.0
+  resolution: "@types/cookie@npm:0.6.0"
+  checksum: 5edce7995775b0b196b142883e4d4f71fd93c294eaec973670f1fa2540b70ea7390408ed513ddefef5fcb12a578100c76596e8f2a714b0c2ae9f70ee773f4510
+  languageName: node
+  linkType: hard
+
 "@types/cookies@npm:*":
   version: 0.7.7
   resolution: "@types/cookies@npm:0.7.7"
@@ -23273,6 +23280,16 @@ __metadata:
     "@types/node": ^16.10.2
     cookie: ^0.4.0
   checksum: c5fc2c72cf2d46d6fa804e5690b5038bab3d5c7e741a8472079bfbd6920010802962f7512d999ea430ebcbfc7c89c38e16f423479e4df7cb0bb782cc1a7f9004
+  languageName: node
+  linkType: hard
+
+"cookies-next@npm:^4.2.1":
+  version: 4.2.1
+  resolution: "cookies-next@npm:4.2.1"
+  dependencies:
+    "@types/cookie": ^0.6.0
+    cookie: ^0.6.0
+  checksum: e78e9871a516b5ac0c4f02d871ef8c37ef93a2fea9ce781ea88a16a10cc0b16928993dd90786dc8ab43259cffb5822cc4d218d79ed085b8a98b8c2ed3ae004ac
   languageName: node
   linkType: hard
 
