@@ -40,11 +40,10 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.ref }}
 
       - name: run dbs
+        env:
+          REGISTRY: ${{ secrets.DOCKER_REGISTRY }}/doma/utils/
         run: |
-          cat << EOF > .env
-          REGISTRY=${{ secrets.DOCKER_REGISTRY }}/doma/utils/
-          EOF
-          docker-compose up -d redis postgresdb
+          docker-compose up -d redis postgresdb-master postgresdb-replica
 
       - name: run tests
         run: |
