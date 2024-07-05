@@ -250,7 +250,7 @@ describe('Contact', () => {
                 const userClient = await makeClientWithProperty()
                 const adminClient = await makeLoggedInAdminClient()
                 const fields = {
-                    quota: 0,
+                    quota: '0',
                 }
 
                 await catchErrorFrom(async () => {
