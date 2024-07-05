@@ -32,19 +32,17 @@ jobs:
           username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
           password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
 
-      - name: checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
-          ref: ${{ github.event.pull_request.head.sha || github.ref }}
-
-      - name: run dbs
+      - name: run postgresql for tests
         run: |
-          cat << EOF > .env
-          REGISTRY=${{ secrets.DOCKER_REGISTRY }}/doma/utils/
-          EOF
-          docker-compose up -d redis postgresdb
+          docker run -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5432:5432" -d ${{ secrets.DOCKER_REGISTRY }}/doma/utils/postgres:13.8
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: main
+
+      - name: run redis for tests
+        run: |
+          docker run -p="127.0.0.1:6379:6379" -d ${{ secrets.DOCKER_REGISTRY }}/doma/utils/redis:6.2
 
       - name: run tests
         run: |
