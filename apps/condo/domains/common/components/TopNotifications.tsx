@@ -8,7 +8,6 @@ import { Button } from '@condo/domains/common/components/Button'
 import { colors } from '@condo/domains/common/constants/style'
 
 import { useLayoutContext } from './LayoutContext'
-import { ServiceProblemsAlert } from './ServiceProblemsAlert'
 
 
 const notificationAlert = ({ isSmall }) => css`
@@ -52,7 +51,7 @@ interface ITopNotificationHookResult {
     addNotification: (notification: ITopNotification) => void,
 }
 
-export const useTopNotificationsHook = (withServiceProblemsAlert?: boolean): ITopNotificationHookResult => {
+export const useTopNotificationsHook = (serviceProblemsAlert?: React.ReactNode): ITopNotificationHookResult => {
     const [topNotifications, setTopNotifications] = useState<ITopNotification[]>([])
     const addNotification = (notification: ITopNotification) => {
         if (!topNotifications.find(existedNotification => existedNotification.id === notification.id)) {
@@ -66,12 +65,12 @@ export const useTopNotificationsHook = (withServiceProblemsAlert?: boolean): ITo
     const TopNotificationComponent: React.FC = () => {
         const { breakpoints } = useLayoutContext()
 
-        if (topNotifications.length === 0 && !withServiceProblemsAlert) return null
+        if (topNotifications.length === 0 && !serviceProblemsAlert) return null
 
         return (
             <>
                 <Affix>
-                    {withServiceProblemsAlert && <ServiceProblemsAlert />}
+                    {serviceProblemsAlert}
                     {
                         topNotifications.map(notification => {
                             return (
