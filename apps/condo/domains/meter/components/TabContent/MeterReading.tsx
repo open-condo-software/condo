@@ -153,7 +153,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
     }, [])
 
     const processedMeterReadings = useMemo(() => {
-        const filteredMeterReading = meterReadings.sort((a, b) => (a.date < b.date ? 1 : -1))
+        const filteredMeterReading = [...meterReadings].sort((a, b) => (a.date < b.date ? 1 : -1))
         return uniqBy(filteredMeterReading, (reading => get(reading, 'meter.id')))
     }, [meterReadings])
 
