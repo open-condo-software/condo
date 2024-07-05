@@ -3103,6 +3103,7 @@
   "api.marketplace.invoice.error.clientDataDoesNotMatchTicket": "Address and contact data must match the data from the ticket to which the invoice is linked",
   "api.marketplace.invoice.error.forbidUpdateTicket": "You cannot update ticket in invoice that is already linked to the ticket",
   "api.marketplace.invoice.error.PublishingWithoutDefinedPricesForbidden": "Can't publish invoice without defined prices",
+  "acquiringReceipt.title": "Payment for housing and communal services",
   "acquiringReceipt.total": "Total",
   "acquiringReceipt.invoice.title": "Invoice #{number}, {date}",
   "acquiringReceipt.taxRegime": "Tax regime",
