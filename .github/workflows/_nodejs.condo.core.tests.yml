@@ -41,7 +41,10 @@ jobs:
 
       - name: run dbs
         run: |
-          REGISTRY=${{ secrets.DOCKER_REGISTRY }}/doma/utils/ docker-compose up -d redis postgresdb
+          cat << EOF > .env
+          REGISTRY=${{ secrets.DOCKER_REGISTRY }}/doma/utils/
+          EOF
+          docker-compose up -d redis postgresdb
 
       - name: run tests
         run: |
