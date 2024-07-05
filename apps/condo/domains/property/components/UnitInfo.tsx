@@ -84,6 +84,7 @@ interface IUnitInfo {
     setSelectedSectionType?: React.Dispatch<React.SetStateAction<string>>
     disabled?: boolean
     required?: boolean
+    showUnitNotFoundLink?: boolean
 }
 
 const UNIT_FIELDS_GUTTER: [Gutter, Gutter] = [40, 0]
@@ -109,6 +110,7 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
         setSelectedSectionType,
         disabled,
         required,
+        showUnitNotFoundLink = true,
     } = props
 
     const [selectedSectionName, setSelectedSectionName] = useState<string>(get(initialValues, 'sectionName'))
@@ -239,6 +241,7 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
                             selectedSectionName={selectedSectionName}
                             selectedFloorName={selectedFloorName}
                             disabled={disabled}
+                            showUnitNotFoundLink={showUnitNotFoundLink}
                         />
                     </TicketFormItem>
                 </Col>

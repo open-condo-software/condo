@@ -26,6 +26,7 @@ export interface IUnitNameInputProps extends Pick<CustomSelectProps<string>, 'on
     selectedSectionName?: string
     selectedSections?: BuildingSection[]
     multiple?: boolean
+    showUnitNotFoundLink?: boolean
 }
 interface IGetOptionGroupBySectionType {
     units: BuildingUnit[]
@@ -108,7 +109,7 @@ export const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
     const NotFoundLinkMessage = intl.formatMessage({ id: 'field.UnitName.notFound.link' })
 
     const {
-        placeholder, property, loading, disabled = false, mode, selectedFloorName, selectedSectionName, selectedSections, multiple, ...restInputProps
+        placeholder, property, loading, disabled = false, mode, selectedFloorName, selectedSectionName, selectedSections, multiple, showUnitNotFoundLink = true, ...restInputProps
     } = props
 
     const sections = get(property, 'map.sections', [])
@@ -127,11 +128,13 @@ export const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
             <Typography.Text size='medium' type='secondary'>
                 {NotFoundMessage}
             </Typography.Text>
-            <Typography.Link href={`/property/${get(property, 'id')}/map/update`} target='_blank'>
-                {NotFoundLinkMessage}
-            </Typography.Link>
+            {showUnitNotFoundLink && (
+                <Typography.Link href={`/property/${get(property, 'id')}/map/update`} target='_blank'>
+                    {NotFoundLinkMessage}
+                </Typography.Link>
+            )}
         </Space>
-    ), [NotFoundLinkMessage, NotFoundMessage, property])
+    ), [NotFoundLinkMessage, NotFoundMessage, property, showUnitNotFoundLink])
 
     return (
         <Select
