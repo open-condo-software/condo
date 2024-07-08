@@ -43513,7 +43513,7 @@ export type Mutation = {
    * 		"dv": {
    * 			"required": true
    * 		},
-   * 		"tags": {
+   * 		"attachingData": {
    * 			"required": false
    * 		},
    * 		"data": {
