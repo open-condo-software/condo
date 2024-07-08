@@ -51,7 +51,7 @@ interface ITopNotificationHookResult {
     addNotification: (notification: ITopNotification) => void,
 }
 
-export const useTopNotificationsHook = (): ITopNotificationHookResult => {
+export const useTopNotificationsHook = (serviceProblemsAlert?: React.ReactNode): ITopNotificationHookResult => {
     const [topNotifications, setTopNotifications] = useState<ITopNotification[]>([])
     const addNotification = (notification: ITopNotification) => {
         if (!topNotifications.find(existedNotification => existedNotification.id === notification.id)) {
@@ -64,42 +64,47 @@ export const useTopNotificationsHook = (): ITopNotificationHookResult => {
 
     const TopNotificationComponent: React.FC = () => {
         const { breakpoints } = useLayoutContext()
-        if (topNotifications.length === 0) return null
+
+        if (topNotifications.length === 0 && !serviceProblemsAlert) return null
+
         return (
             <>
-                <Affix>{
-                    topNotifications.map(notification => {
-                        return (
-                            <Alert
-                                showIcon
-                                icon={(<InfoCircleFilled />)}
-                                message={notification.message}
-                                type={notification.type}
-                                key={notification.id}
-                                css={notificationAlert({ isSmall: !breakpoints.TABLET_LARGE })}
-                                action={<Space size={20}>
-                                    {
-                                        notification.actions.map((action, idx) => {
-                                            return (
-                                                <Button
-                                                    onClick={async () => {
-                                                        await action.action()
-                                                        removeNotification(notification.id)
-                                                    }}
-                                                    size={!breakpoints.TABLET_LARGE ? 'middle' : 'large'}
-                                                    type='sberPrimary'
-                                                    secondary={action.secondary}
-                                                    key={idx}
-                                                >
-                                                    {action.title}
-                                                </Button>
-                                            )
-                                        })}
-                                </Space>}
-                            />
-                        )
-                    })
-                }
+                <Affix>
+                    {serviceProblemsAlert}
+                    {
+                        topNotifications.map(notification => {
+                            return (
+                                <Alert
+                                    banner
+                                    showIcon
+                                    icon={(<InfoCircleFilled />)}
+                                    message={notification.message}
+                                    type={notification.type}
+                                    key={notification.id}
+                                    css={notificationAlert({ isSmall: !breakpoints.TABLET_LARGE })}
+                                    action={<Space size={20}>
+                                        {
+                                            notification.actions.map((action, idx) => {
+                                                return (
+                                                    <Button
+                                                        onClick={async () => {
+                                                            await action.action()
+                                                            removeNotification(notification.id)
+                                                        }}
+                                                        size={!breakpoints.TABLET_LARGE ? 'middle' : 'large'}
+                                                        type='sberPrimary'
+                                                        secondary={action.secondary}
+                                                        key={idx}
+                                                    >
+                                                        {action.title}
+                                                    </Button>
+                                                )
+                                            })}
+                                    </Space>}
+                                />
+                            )
+                        })
+                    }
                 </Affix>
             </>
         )
