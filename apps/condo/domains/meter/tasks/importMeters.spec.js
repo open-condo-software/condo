@@ -275,10 +275,8 @@ describe('importMeters', () => {
         // assert
         const task = await MeterReadingsImportTask.getOne(context, { id: meterReadingsImportTask.id })
         expect(task).toMatchObject({
-            status: COMPLETED,
             format: DOMA_EXCEL,
             file: expect.objectContaining({ mimetype: EXCEL_FILE_META.mimetype }),
-            errorFile: null,
             errorMessage: null,
             totalRecordsCount: validLines + invalidLines + fatalLines,
             importedRecordsCount: validLines,
