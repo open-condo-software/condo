@@ -344,7 +344,7 @@ async function createWorker (keystoneModule, config) {
     }
 
     // Reapply queues configuration with worker startup config
-    let parsedConfig
+    let parsedConfig = {}
     if (get(config, '0', []).length > 0) {
         try {
             parsedConfig = JSON.parse(config[0])
