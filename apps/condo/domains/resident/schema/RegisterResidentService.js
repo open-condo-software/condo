@@ -38,7 +38,7 @@ const checkLimits = async (uniqueField) => {
 }
 
 const ERRORS = {
-    ADDRESS_NOT_FOUND_ERROR: {
+    ADDRESS_NOT_FOUND: {
         code: BAD_USER_INPUT,
         type: ADDRESS_NOT_FOUND_ERROR,
         message: 'The specified address is not found in the address service',
@@ -77,7 +77,7 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                 const addressItem = await client.search(address)
 
                 if (!addressItem || !addressItem.addressKey || !addressItem.address) {
-                    throw new GQLError(ERRORS.ADDRESS_NOT_FOUND_ERROR, context)
+                    throw new GQLError(ERRORS.ADDRESS_NOT_FOUND, context)
                 }
 
                 const [existingResident] = await ResidentAPI.getAll(context, {
