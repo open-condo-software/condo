@@ -51,7 +51,7 @@ jobs:
           chmod -R a+rw ./test_logs
           docker run -v ./test_logs:/app/test_logs --network="host" ${{ secrets.DOCKER_REGISTRY }}/${{ inputs.image_name }} bash -c "/app/run_condo_domain_tests.sh -d ${{ inputs.domain_name }}"
         env:
-          DATABASE_URL: 'custom:{"default":{"read":"postgresql://postgres:postgres@127.0.0.1:5433/condo","write":"postgresql://postgres:postgres@127.0.0.1:5432/condo"}}'
+          DATABASE_URL: 'custom:{"default":{"read":"postgresql://postgres:postgres@127.0.0.1:5433/local-condo","write":"postgresql://postgres:postgres@127.0.0.1:5432/local-condo"}}'
           DATABASE_MAPPING: '[{"match":"*","query":"default","command":"default"}]'
 
       - name: Collect docker logs on failure
