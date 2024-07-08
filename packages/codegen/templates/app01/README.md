@@ -38,11 +38,8 @@ yarn
 bash ./bin/warm-docker-cache
 docker-compose build
 
-# create first migration!
-docker-compose run app yarn workspace @app/{{ name }} makemigrations
-
-# migrate!
-docker-compose run app yarn workspace @app/{{ name }} migrate
+# prepare the application using the prepare script
+node ./bin/prepare.js
 
 # run dev server!
 yarn workspace @app/{{ name }} dev
