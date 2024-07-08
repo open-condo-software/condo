@@ -57,7 +57,7 @@ async function send ({ to, emailFrom = null, cc, bcc, subject, text, html, meta,
         form.append('o:tag', messageType)
     }
     if (useAttachingData && meta && !isEmpty(meta.attachingData)) {
-        form.append('v:attachingData', meta.attachingData)
+        form.append('v:attachingData', JSON.stringify(meta.attachingData))
     }
 
     if (emailFrom) {
