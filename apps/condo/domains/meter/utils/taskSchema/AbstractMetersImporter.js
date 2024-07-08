@@ -73,21 +73,21 @@ class AbstractMetersImporter {
                 const columns = this.tableData.shift()
 
                 if (!columns) {
-                    logger.error({ msg: this.errors.invalidColumns })
-                    await this.errorHandler(this.errors.invalidColumns)
+                    logger.error({ msg: this.errors.invalidColumns.message })
+                    await this.errorHandler(this.errors.invalidColumns.message)
                     return
                 }
                 if (!this.areColumnsHeadersValid(columns)) {
-                    logger.error({ msg: this.errors.invalidColumns })
-                    await this.errorHandler(this.errors.invalidColumns)
+                    logger.error({ msg: this.errors.invalidColumns.message })
+                    await this.errorHandler(this.errors.invalidColumns.message)
                     return
                 }
             }
 
             // empty data
             if (this.tableData.length === 0) {
-                await this.errorHandler(this.errors.emptyRows)
-                logger.error({ msg: this.errors.emptyRows })
+                await this.errorHandler(this.errors.emptyRows.message)
+                logger.error({ msg: this.errors.emptyRows.message })
                 return
             }
 
@@ -195,6 +195,8 @@ class AbstractMetersImporter {
                                 }
                             }
 
+                            // for sbbol import file we can have several transformed lines per one source line
+                            // in such cases we would like to proceed exactly one failed line
                             if (!indexesOfFailedSourceRows.has(sourceRowIndex)) {
                                 logger.error({ msg: 'Failed to import rows', errors: rowErrors })
                                 await this.failProcessingHandler({
@@ -202,8 +204,6 @@ class AbstractMetersImporter {
                                     errors: rowErrors,
                                 })
                                 indexesOfFailedSourceRows.add(sourceRowIndex)
-                            } else {
-                                this.progress.absImported += 1
                             }
                         } else {
                             this.progress.absImported += 1
