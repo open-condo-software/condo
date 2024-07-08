@@ -73370,7 +73370,7 @@ export type RegisterResidentInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
   address: Scalars['String'];
-  addressMeta: AddressMetaFieldInput;
+  addressMeta?: Maybe<AddressMetaFieldInput>;
   unitName: Scalars['String'];
   unitType?: Maybe<BuildingUnitSubType>;
 };

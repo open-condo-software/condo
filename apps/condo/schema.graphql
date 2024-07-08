@@ -76879,7 +76879,7 @@ input RegisterResidentInput {
   dv: Int!
   sender: SenderFieldInput!
   address: String!
-  addressMeta: AddressMetaFieldInput!
+  addressMeta: AddressMetaFieldInput
   unitName: String!
   unitType: BuildingUnitSubType
 }
