@@ -13,6 +13,7 @@ const MUTABLE_OPERATIONS = ['create', 'update', 'insert', 'delete', 'alter', 'dr
  */
 class ReplicaKnexAdapter extends KnexAdapter {
     constructor (props) {
+        console.log('ReplicaKnexAdapter using as entrypoint')
         super(omit(props, ['connection']))
         this.readConnection = get(props, ['connection', 'read'])
         this.writeConnection = get(props, ['connection', 'write'])
