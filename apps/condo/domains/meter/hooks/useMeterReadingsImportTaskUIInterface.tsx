@@ -85,11 +85,17 @@ export const useMeterReadingsImportTaskUIInterface = () => {
         },
     }
 
+    // override progress calculations
     TaskUIInterface.calculateProgress = (taskRecord) => {
         const totalRecordsCount = get(taskRecord, 'totalRecordsCount')
         const processedRecordsCount = get(taskRecord, 'processedRecordsCount', 0) || 0
         return !totalRecordsCount ? 0 : Math.floor(processedRecordsCount / totalRecordsCount * 100)
     }
+
+    // override default logic for downloading file
+    // since here we are the source of such files
+    TaskUIInterface.onComplete = console.log
+    TaskUIInterface.onCancel = console.log
 
     return {
         MeterReadingsImportTask: TaskUIInterface,
