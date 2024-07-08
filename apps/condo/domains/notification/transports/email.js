@@ -2,7 +2,7 @@ const http = require('http')
 const https = require('https')
 
 const FormData = require('form-data')
-const { get, isObject } = require('lodash')
+const { get, isEmpty } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { fetch } = require('@open-condo/keystone/fetch')
@@ -56,10 +56,8 @@ async function send ({ to, emailFrom = null, cc, bcc, subject, text, html, meta,
     if (useTags && (!!messageType && typeof messageType === 'string')) {
         form.append('o:tag', messageType)
     }
-    if (useAttachingData && meta && isObject(meta.attachingData)) {
-        Object.entries(meta.attachingData).forEach(([key, value]) => {
-            form.append('X-Mailgun-Variables', { [key]: value })
-        })
+    if (useAttachingData && meta && !isEmpty(meta.attachingData)) {
+        form.append('v:attachingData', meta.attachingData)
     }
 
     if (emailFrom) {
