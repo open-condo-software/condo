@@ -75,6 +75,7 @@ export const useTopNotificationsHook = (serviceProblemsAlert?: React.ReactNode):
                         topNotifications.map(notification => {
                             return (
                                 <Alert
+                                    banner
                                     showIcon
                                     icon={(<InfoCircleFilled />)}
                                     message={notification.message}

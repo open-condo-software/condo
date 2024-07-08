@@ -31,6 +31,8 @@ export const ServiceProblemsAlert = () => {
             type='warning'
             message={title}
             description={description}
+            banner
+            showIcon={false}
         />
     )
 }
