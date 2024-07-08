@@ -35,7 +35,7 @@
   "import.uploadModal.chooseFileForUpload": "Select file to download",
   "import.uploadModal.message": "Download the file with {prepositional} information or use the template",
   "import.uploadModal.requiredFields.title": "Fill in the required fields",
-  "import.uploadModal.exampleLinkMessage": "{genitive} list template.xslx",
+  "import.uploadModal.exampleLinkMessage": "{genitive} list template.xlsx",
   "import.uploadModal.needHelp": "Need help",
   "import.progressModal.title": "Data loading",
   "import.progressModal.message": "Wait please",
