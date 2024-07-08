@@ -43,6 +43,8 @@ export METABASE_CONFIG='{"url": "https://metabase.example.com", "secret": "48799
 export NEWS_ITEMS_SENDING_DELAY_SEC=2
 export NEWS_ITEM_SENDING_TTL_SEC=2
 
+printenv
+
 node -e 'console.log(v8.getHeapStatistics().heap_size_limit/(1024*1024))'
 
 # NOTE(pahaz): Keystone not in dev mode trying to check dist/admin folder
