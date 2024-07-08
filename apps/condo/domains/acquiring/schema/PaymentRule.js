@@ -41,6 +41,18 @@ const PaymentRule = new GQLListSchema('PaymentRule', {
             isRequired: false,
         },
 
+        minFeeAmount: {
+            ...NON_NEGATIVE_MONEY_FIELD,
+            schemaDoc: 'Minimum fee',
+            isRequired: false,
+        },
+
+        maxFeeAmount: {
+            ...NON_NEGATIVE_MONEY_FIELD,
+            schemaDoc: 'Maximum fee',
+            isRequired: false,
+        },
+
         bankAccount: {
             schemaDoc: 'Bank account from organization that will be used for money transfer',
             type: 'Relationship',
@@ -51,20 +63,6 @@ const PaymentRule = new GQLListSchema('PaymentRule', {
         merchant: {
             schemaDoc: 'Acquiring specific settings to define MCC (used to classify businesses by the type of goods or services they provide)',
             type: 'Text',
-        },
-
-        marketPlaceScope: {
-            schemaDoc: 'Condition to check if the payment rule works for the specific market place invoice',
-            type: 'Relationship',
-            ref: 'PaymentRuleMarketPlaceScope',
-            kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
-        },
-
-        billingScope: {
-            schemaDoc: 'Condition to check if the payment rule works for the specific billing receipt',
-            type: 'Relationship',
-            ref: 'PaymentRuleBillingScope',
-            kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
         },
 
     },

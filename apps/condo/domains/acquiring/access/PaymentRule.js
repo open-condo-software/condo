@@ -9,25 +9,21 @@ async function canReadPaymentRules ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
-    if (user.isAdmin) return {}
+    if (user.isAdmin || user.isSupport) return {}
 
-    // TODO(codegen): write canReadPaymentRules logic for user!
     return false
 }
 
 async function canManagePaymentRules ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin) return true
+    if (user.isAdmin || user.isSupport) return true
 
     if (operation === 'create') {
-        // TODO(codegen): write canManagePaymentRules create logic!
         return false
     } else if (operation === 'update') {
-        // TODO(codegen): write canManagePaymentRules update logic!
         return false
     }
-
     return false
 }
 

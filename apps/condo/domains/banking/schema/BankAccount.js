@@ -73,6 +73,12 @@ const BankAccount = new GQLListSchema('BankAccount', {
             kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
         },
 
+        name: {
+            schemaDoc: 'Recipient name. Some times it differs from organization name',
+            type: 'Text',
+            isRequired: false,
+        },
+
         tin: {
             schemaDoc: 'Tax Identification Number',
             type: 'Text',

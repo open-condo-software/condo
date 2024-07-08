@@ -8,23 +8,18 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 async function canReadPaymentRuleBillingScopes ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-
-    if (user.isAdmin) return {}
-
-    // TODO(codegen): write canReadPaymentRuleBillingScopes logic for user!
+    if (user.isAdmin  || user.isSupport) return {}
     return false
 }
 
 async function canManagePaymentRuleBillingScopes ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin) return true
+    if (user.isAdmin || user.isSupport) return true
 
     if (operation === 'create') {
-        // TODO(codegen): write canManagePaymentRuleBillingScopes create logic!
         return false
     } else if (operation === 'update') {
-        // TODO(codegen): write canManagePaymentRuleBillingScopes update logic!
         return false
     }
 

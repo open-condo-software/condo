@@ -1,10 +1,14 @@
+/* global KEYSTONE_ADMIN_META */
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import { UserSwitchOutlined } from '@ant-design/icons'
+import { UserSwitchOutlined, MoneyCollectOutlined } from '@ant-design/icons'
 import { useMutation, gql } from '@apollo/client'
 import { ItemId, AddNewItem } from '@keystonejs/app-admin-ui/components'
 import React, { useCallback } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useHistory } from 'react-router-dom'
 
+import PaymentRulesSettingsPage from '@condo/domains/acquiring/admin-ui/PaymentRulesSettingsPage'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 
 
@@ -39,11 +43,31 @@ function SignInAsUser () {
     )
 }
 
+function PaymentRulesSettings () {
+    const location = useLocation()
+    const history = useHistory()
+    return (
+        location.pathname.indexOf('acquiring-integration-contexts/') !== -1 && <MoneyCollectOutlined style={ICON_STYLE} onClick={() => history.push(location.pathname + '/payment-rules')}/>
+    )
+}
+
 
 export default {
     pages: () => {
         window.React = React
-        return []
+        // Remove HistoryRecords from left menu. Pages are still available through the Dashboard
+        const lists = Object.entries(KEYSTONE_ADMIN_META.lists)
+            .filter(([listKey]) => listKey.indexOf('HistoryRecord') === -1)
+            .sort(([, { label: labelA }], [, { label: labelB }]) => labelA.localeCompare(labelB))
+            .map(([listKey, { label }]) => ({ listKey, label }))
+        return [
+            ...lists,
+            {
+                addToNav: false,
+                path: 'acquiring-integration-contexts/:context/payment-rules',
+                component: PaymentRulesSettingsPage,
+            },
+        ]
     },
     itemHeaderActions: () => {
         return (
@@ -51,6 +75,7 @@ export default {
                 <ItemId />
                 <AddNewItem />
                 <SignInAsUser />
+                <PaymentRulesSettings />
             </div>
         )
     },
