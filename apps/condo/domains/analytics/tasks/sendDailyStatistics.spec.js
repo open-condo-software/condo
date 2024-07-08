@@ -16,7 +16,7 @@ describe('sendDailyStatistics', () => {
     describe('task should correct work', () => {
         test('should return "disabled" if feature flag is disabled', async () => {
             setFeatureFlag(RETENTION_LOOPS_ENABLED, false)
-            expect(await sendDailyStatisticsTask.delay.fn()).toBeDefined()
+            expect(await sendDailyStatisticsTask.delay.fn()).toBe('disabled')
         })
     })
 })
