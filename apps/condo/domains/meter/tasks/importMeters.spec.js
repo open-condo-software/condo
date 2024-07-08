@@ -3,6 +3,7 @@
  */
 const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
+const XLSX = require('xlsx')
 
 const {
     setFakeClientMode, makeLoggedInAdminClient,
@@ -10,10 +11,12 @@ const {
 
 const {
     CSV,
+    DOMA_EXCEL,
     CANCELLED,
     COMPLETED,
     ERROR,
 } = require('@condo/domains/common/constants/import')
+const { EXCEL_FILE_META } = require('@condo/domains/common/utils/createExportFile')
 const { importMeters, createUpload } = require('@condo/domains/meter/tasks/importMeters')
 const { MeterReadingsImportTask, MeterReading } = require('@condo/domains/meter/utils/serverSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
@@ -60,6 +63,52 @@ const generateCsvFile = (validLinesSize, invalidLinesSize, fatalErrorLinesSize, 
     }
 
     return createUpload(content, `${faker.datatype.uuid()}.csv`, 'text/csv')
+}
+
+const generateExcelFile = async (validLinesSize, invalidLinesSize, fatalLinesSize, property) => {
+    const data = [[
+        'Адрес', 'Помещение', 'Тип помещения', 'Лицевой счет',
+        'Тип счетчика', 'Номер счетчика', 'Количество тарифов',
+        'Показание 1', 'Показание 2', 'Показание 3', 'Показание 4',
+        'Дата передачи показаний', 'Дата поверки', 'Дата следующей поверки',
+        'Дата установки', 'Дата ввода в эксплуатацию', 'Дата опломбирования', 'Дата контрольных показаний', 'Место установки счетчика']]
+
+    for (let i = 0 ; i < validLinesSize; i++) {
+        const unitName = `${i + 1}`
+        const line = [
+            property.address, unitName, 'Квартира', `${faker.datatype.number({ min:1000, max: 9999 })}`,
+            'ГВС', `${faker.datatype.number({ min:1000, max: 9999 })}`, '1',
+            `${faker.datatype.number({ min:1000, max: 9999 })}`, '', '', '',
+            '2021-01-21', '2021-01-21', '2021-01-21',
+            '2021-01-22', '2021-01-23', '2021-01-24', '2021-01-25', 'Кухня',
+        ]
+
+        data.push(line)
+    }
+
+    for (let i = 0 ; i < invalidLinesSize; i++) {
+        const unitName = `${i + 1}`
+        const line = [
+            property.address, unitName, 'Квартира', `${faker.datatype.number({ min:1000, max: 9999 })}`,
+            'WRONG_METER_TYPE', `${faker.datatype.number({ min:1000, max: 9999 })}`, '1',
+            `${faker.datatype.number({ min:1000, max: 9999 })}`, '', '', '',
+            '2021-01-21', '2021-01-21', '2021-01-21',
+            '2021-01-22', '2021-01-23', '2021-01-24', '2021-01-25', 'Кухня',
+        ]
+
+        data.push(line)
+    }
+
+    for (let i = 0 ; i < fatalLinesSize; i++) {
+        data.push(data[0])
+    }
+
+    const wb = XLSX.utils.book_new()
+    const ws = XLSX.utils.aoa_to_sheet(data)
+    XLSX.utils.book_append_sheet(wb, ws, 'table')
+    const content = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' })
+
+    return createUpload(content, `${faker.datatype.uuid()}.xlsx`, EXCEL_FILE_META.mimetype)
 }
 
 describe('importMeters', () => {
@@ -203,5 +252,117 @@ describe('importMeters', () => {
             importedRecordsCount: 0,
             processedRecordsCount: 0,
         })
+    })
+
+    it('import meters excel all lines success case', async () => {
+        const adminClient = await makeLoggedInAdminClient()
+        const [o10n] = await createTestOrganization(adminClient)
+        const [property] = await createTestPropertyWithMap(adminClient, o10n)
+
+        const validLines = 5
+        const invalidLines = 0
+        const fatalLines = 0
+        const meterReadingsImportTask = await MeterReadingsImportTask.create(context, {
+            ...dvAndSender,
+            file: await generateExcelFile(validLines, invalidLines, fatalLines, property),
+            user: { connect: { id: adminClient.user.id } },
+            organization: { connect: { id: o10n.id } },
+        })
+
+        // run import
+        await importMeters(meterReadingsImportTask.id)
+
+        // assert
+        const task = await MeterReadingsImportTask.getOne(context, { id: meterReadingsImportTask.id })
+        expect(task).toMatchObject({
+            format: DOMA_EXCEL,
+            file: expect.objectContaining({ mimetype: EXCEL_FILE_META.mimetype }),
+            errorMessage: null,
+            totalRecordsCount: validLines + invalidLines + fatalLines,
+            importedRecordsCount: validLines,
+            processedRecordsCount: validLines + invalidLines,
+        })
+        const readings = await MeterReading.getAll(keystone, {
+            organization: { id: o10n.id },
+        })
+        expect(readings).toHaveLength(validLines)
+    })
+
+    it('import meters excel has failed line case', async () => {
+        const adminClient = await makeLoggedInAdminClient()
+        const [o10n] = await createTestOrganization(adminClient)
+        const [property] = await createTestPropertyWithMap(adminClient, o10n)
+
+        const validLines = 5
+        const invalidLines = 1
+        const fatalLines = 0
+        const meterReadingsImportTask = await MeterReadingsImportTask.create(context, {
+            ...dvAndSender,
+            file: await generateExcelFile(validLines, invalidLines, fatalLines, property),
+            user: { connect: { id: adminClient.user.id } },
+            organization: { connect: { id: o10n.id } },
+        })
+
+        // run import
+        await importMeters(meterReadingsImportTask.id)
+
+        // assert
+        const task = await MeterReadingsImportTask.getOne(context, { id: meterReadingsImportTask.id })
+        expect(task).toMatchObject({
+            status: ERROR,
+            format: DOMA_EXCEL,
+            file: expect.objectContaining({ mimetype: EXCEL_FILE_META.mimetype }),
+            errorFile: expect.objectContaining({
+                originalFilename: 'meters_failed_data.xlsx',
+                mimetype: EXCEL_FILE_META.mimetype,
+            }),
+            errorMessage: null,
+            totalRecordsCount: validLines + invalidLines + fatalLines,
+            importedRecordsCount: validLines,
+            processedRecordsCount: validLines + invalidLines,
+        })
+        const readings = await MeterReading.getAll(keystone, {
+            organization: { id: o10n.id },
+        })
+        expect(readings).toHaveLength(validLines)
+    })
+
+    it('import meters excel has fatal line case', async () => {
+        const adminClient = await makeLoggedInAdminClient()
+        const [o10n] = await createTestOrganization(adminClient)
+        const [property] = await createTestPropertyWithMap(adminClient, o10n)
+
+        const validLines = 5
+        const invalidLines = 0
+        const fatalLines = 1
+        const meterReadingsImportTask = await MeterReadingsImportTask.create(context, {
+            ...dvAndSender,
+            file: await generateExcelFile(validLines, invalidLines, fatalLines, property),
+            user: { connect: { id: adminClient.user.id } },
+            organization: { connect: { id: o10n.id } },
+        })
+
+        // run import
+        await importMeters(meterReadingsImportTask.id)
+
+        // assert
+        const task = await MeterReadingsImportTask.getOne(context, { id: meterReadingsImportTask.id })
+        expect(task).toMatchObject({
+            status: ERROR,
+            format: DOMA_EXCEL,
+            file: expect.objectContaining({ mimetype: EXCEL_FILE_META.mimetype }),
+            errorFile: expect.objectContaining({
+                originalFilename: 'meters_failed_data.xlsx',
+                mimetype: EXCEL_FILE_META.mimetype,
+            }),
+            errorMessage: null,
+            totalRecordsCount: validLines + invalidLines + fatalLines,
+            importedRecordsCount: validLines,
+            processedRecordsCount: validLines + invalidLines + fatalLines,
+        })
+        const readings = await MeterReading.getAll(keystone, {
+            organization: { id: o10n.id },
+        })
+        expect(readings).toHaveLength(validLines)
     })
 })

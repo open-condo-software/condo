@@ -15,7 +15,7 @@ const {
     createTestNotificationUserSetting,
     createTestMessage,
 } = require('@condo/domains/notification/utils/testSchema')
-const { createTestUser } = require('@condo/domains/user/utils/testSchema')
+const { createTestUser, createTestEmail } = require('@condo/domains/user/utils/testSchema')
 
 const { getUserSettingsForMessage, getAnonymousSettings } = require('./helpers')
 
@@ -141,6 +141,18 @@ describe('Transport settings for message', () => {
                     email: setting.email,
                     phone: setting.phone,
                 })
+            })
+        })
+        describe('real life cases', () => {
+            test('returns true for not disabled email', async () => {
+                const [setting] = await createTestNotificationAnonymousSetting(adminClient, {
+                    phone: null,
+                })
+                const email = createTestEmail()
+
+                // act & assert setting1
+                const settings = await getAnonymousSettings(keystone, email, null, setting.messageType)
+                expect(settings).toHaveLength(0)
             })
         })
     })

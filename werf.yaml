@@ -935,7 +935,7 @@ shell:
     - "rm -rf /app/.env"
     - "rm -rf /app/.config"
 ---
-image: news-sharing-greendom
+image: newssharinggreendom
 fromImage: base
 fromCacheVersion: "1"
 git:

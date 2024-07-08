@@ -33,6 +33,7 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import { MenuItem } from '@condo/domains/common/components/MenuItem'
 import PopupSmart from '@condo/domains/common/components/PopupSmart'
 import { PostMessageProvider } from '@condo/domains/common/components/PostMessageProvider'
+import { ServiceProblemsAlert } from '@condo/domains/common/components/ServiceProblemsAlert'
 import { SetupTelegramNotificationsBanner } from '@condo/domains/common/components/SetupTelegramNotificationsBanner'
 import { TASK_STATUS } from '@condo/domains/common/components/tasks'
 import { TasksContextProvider } from '@condo/domains/common/components/tasks/TasksContextProvider'
@@ -466,7 +467,7 @@ const MyApp = ({ Component, pageProps }) => {
                     <SetupTelegramNotificationsBanner />
                     <GlobalStyle/>
                     {shouldDisplayCookieAgreement && <CookieAgreement/>}
-                    <LayoutContextProvider>
+                    <LayoutContextProvider serviceProblemsAlert={<ServiceProblemsAlert />}>
                         <TasksProvider>
                             <PostMessageProvider>
                                 <TrackingProvider>

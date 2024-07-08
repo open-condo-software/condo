@@ -99,7 +99,6 @@ export function useMeterFilters (meterType: MeterTypes): Array<FiltersMeta<Meter
                 component: {
                     type: ComponentType.TagsSelect,
                     props: {
-                        tokenSeparators: [' '],
                         placeholder: EnterUnitNameLabel,
                     },
                     modalFilterComponentWrapper: {

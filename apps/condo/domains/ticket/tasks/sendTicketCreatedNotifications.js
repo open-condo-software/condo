@@ -10,6 +10,7 @@ const { i18n } = require('@open-condo/locales/loader')
 const { setLocaleForKeystoneContext } = require('@condo/domains/common/utils/serverSchema/setLocaleForKeystoneContext')
 const { TICKET_CREATED_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
+const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { buildFullClassifierName } = require('@condo/domains/ticket/utils')
 const { TicketClassifier } = require('@condo/domains/ticket/utils/serverSchema')
 const { getUsersAvailableToReadTicketByPropertyScope } = require('@condo/domains/ticket/utils/serverSchema/propertyScope')
@@ -65,7 +66,8 @@ const sendTicketCreatedNotifications = async (ticketId, lang, organizationId, or
                         ticketStatus: ticketStatusName,
                         ticketAddress: createdTicket.propertyAddress,
                         ticketUnit: createdTicket.unitName ? `${ticketUnitType} ${createdTicket.unitName}` : EMPTY_CONTENT,
-                        ticketCreatedAt: dayjs(createdTicket.createdAt).format('YYYY-MM-DD HH:mm'),
+                        // TODO(DOMA-9568): use user timezone after adding it
+                        ticketCreatedAt: dayjs(createdTicket.createdAt).tz(DEFAULT_ORGANIZATION_TIMEZONE).format('YYYY-MM-DD HH:mm'),
                         ticketDetails: createdTicket.details,
                         userId: employeeUserId,
                         url: ticketUrl,

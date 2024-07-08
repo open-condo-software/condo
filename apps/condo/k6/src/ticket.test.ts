@@ -7,8 +7,9 @@ import {
     createOrganization,
     createProperty,
     sendAuthorizedRequest,
-    getOrganizationEmployeeId,
+    getOrganizationEmployeeId, getOrganizationEmployees, signInAsUser,
 } from './utils'
+
 
 const BASE_APP_URL = __ENV.BASE_URL + '/ticket'
 const DURATION = '60s'
@@ -61,6 +62,31 @@ export const options = {
     },
 }
 
+function setupOrganizationForCheckFrontend () {
+    const organizationId = __ENV.ORGANIZATION_ID
+    if (!organizationId) return {}
+
+    const { token: adminToken } = setupCondoAuth(true)
+    const organizationEmployees = getOrganizationEmployees(adminToken, {
+        organization: { id: organizationId },
+        role: { isDefault: true, ticketVisibilityType: 'property' },
+        user: { deletedAt: null },
+        deletedAt: null,
+        isAccepted: true,
+        isBlocked: false,
+        isRejected: false,
+    })
+
+    const userId = organizationEmployees.json('data.allOrganizationEmployees.0.user.id')
+    const signInAsUserData = signInAsUser(adminToken, userId)
+    const cookie = signInAsUserData.cookies['keystone.sid'][0]['value']
+
+    return {
+        cookie,
+        organizationLinkId: organizationEmployees.json('data.allOrganizationEmployees.0.id'),
+    }
+}
+
 export function setup () {
     const { token, cookie } = setupCondoAuth()
 
@@ -71,9 +97,12 @@ export function setup () {
     const createdProperty = createProperty({ token, organizationId })
 
     return {
-        token, cookie, organizationId,
+        token,
+        cookie,
+        organizationId,
         organizationLinkId: organizationEmployee.json('data.allOrganizationEmployees.0.id'),
         propertyId: createdProperty.json('data.obj.id'),
+        organizationForCheckFrontend: setupOrganizationForCheckFrontend(),
     }
 }
 
@@ -156,10 +185,22 @@ export async function checkFrontend (data) {
     const context = browser.newContext()
     const page = context.newPage()
 
+    const organizationForCheckFrontend = data.organizationForCheckFrontend
+    let cookie
+    let organizationLinkId
+
+    if (organizationForCheckFrontend.cookie && organizationForCheckFrontend.organizationLinkId) {
+        cookie = organizationForCheckFrontend.cookie
+        organizationLinkId = organizationForCheckFrontend.organizationLinkId
+    } else {
+        cookie = data.cookie
+        organizationLinkId = data.organizationLinkId
+    }
+
     context.addCookies([
         {
             name: 'keystone.sid',
-            value: data.cookie,
+            value: cookie,
             url: __ENV.BASE_URL,
         },
         {
@@ -174,7 +215,7 @@ export async function checkFrontend (data) {
         },
         {
             name: 'organizationLinkId',
-            value: data.organizationLinkId,
+            value: organizationLinkId,
             url: __ENV.BASE_URL,
         },
     ])

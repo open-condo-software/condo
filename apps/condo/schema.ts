@@ -21194,6 +21194,8 @@ export type Contact = {
   role?: Maybe<ContactRole>;
   /**  Contact verification flag.  */
   isVerified?: Maybe<Scalars['Boolean']>;
+  /**  Percentage ownership of an apartment  */
+  quota?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -21220,6 +21222,7 @@ export type ContactCreateInput = {
   name?: Maybe<Scalars['String']>;
   role?: Maybe<ContactRoleRelateToOneInput>;
   isVerified?: Maybe<Scalars['Boolean']>;
+  quota?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -21806,6 +21809,7 @@ export type ContactHistoryRecord = {
   name?: Maybe<Scalars['String']>;
   role?: Maybe<Scalars['String']>;
   isVerified?: Maybe<Scalars['Boolean']>;
+  quota?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -21831,6 +21835,7 @@ export type ContactHistoryRecordCreateInput = {
   name?: Maybe<Scalars['String']>;
   role?: Maybe<Scalars['String']>;
   isVerified?: Maybe<Scalars['Boolean']>;
+  quota?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -21861,6 +21866,7 @@ export type ContactHistoryRecordUpdateInput = {
   name?: Maybe<Scalars['String']>;
   role?: Maybe<Scalars['String']>;
   isVerified?: Maybe<Scalars['Boolean']>;
+  quota?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -21982,6 +21988,14 @@ export type ContactHistoryRecordWhereInput = {
   role_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isVerified?: Maybe<Scalars['Boolean']>;
   isVerified_not?: Maybe<Scalars['Boolean']>;
+  quota?: Maybe<Scalars['String']>;
+  quota_not?: Maybe<Scalars['String']>;
+  quota_lt?: Maybe<Scalars['String']>;
+  quota_lte?: Maybe<Scalars['String']>;
+  quota_gt?: Maybe<Scalars['String']>;
+  quota_gte?: Maybe<Scalars['String']>;
+  quota_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  quota_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -22443,6 +22457,7 @@ export type ContactUpdateInput = {
   name?: Maybe<Scalars['String']>;
   role?: Maybe<ContactRoleRelateToOneInput>;
   isVerified?: Maybe<Scalars['Boolean']>;
+  quota?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -22541,6 +22556,14 @@ export type ContactWhereInput = {
   role_is_null?: Maybe<Scalars['Boolean']>;
   isVerified?: Maybe<Scalars['Boolean']>;
   isVerified_not?: Maybe<Scalars['Boolean']>;
+  quota?: Maybe<Scalars['String']>;
+  quota_not?: Maybe<Scalars['String']>;
+  quota_lt?: Maybe<Scalars['String']>;
+  quota_lte?: Maybe<Scalars['String']>;
+  quota_gt?: Maybe<Scalars['String']>;
+  quota_gte?: Maybe<Scalars['String']>;
+  quota_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  quota_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -78517,6 +78540,8 @@ export enum SortContactHistoryRecordsBy {
   NameDesc = 'name_DESC',
   IsVerifiedAsc = 'isVerified_ASC',
   IsVerifiedDesc = 'isVerified_DESC',
+  QuotaAsc = 'quota_ASC',
+  QuotaDesc = 'quota_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -78598,6 +78623,8 @@ export enum SortContactsBy {
   RoleDesc = 'role_DESC',
   IsVerifiedAsc = 'isVerified_ASC',
   IsVerifiedDesc = 'isVerified_DESC',
+  QuotaAsc = 'quota_ASC',
+  QuotaDesc = 'quota_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

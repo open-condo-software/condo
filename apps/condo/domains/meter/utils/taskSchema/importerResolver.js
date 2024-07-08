@@ -154,19 +154,18 @@ async function getErrors (keystone, format, locale, columns, mappers) {
     const UnknownResource =  i18n('meter.import.error.unknownResourceType', { locale, meta: { knownList: Object.keys(mappers.resourceId).join(',') } })
     const UnknownUnitType =  i18n('meter.import.error.unknownUnitType', { locale, meta: { knownList: Object.keys(mappers.unitType).join(',') } })
 
+    const InvalidColumnsMessage = columns ? i18n('TableHasInvalidHeaders.message', { locale, meta: {
+        value: columns.map(column => `"${column.name}"`).join(', '),
+    } }) : ''
+
     return {
-        tooManyRows: { title: TooManyRowsErrorTitle, message: TooManyRowsErrorMessage },
-        invalidColumns: {
-            title: InvalidHeadersErrorTitle,
-            message: columns ? i18n('TableHasInvalidHeaders.message', { locale, meta: {
-                value: columns.map(column => `"${column.name}"`).join(', '),
-            } }) : '',
-        },
+        tooManyRows: { message: `${TooManyRowsErrorTitle}.${TooManyRowsErrorMessage}` },
+        invalidColumns: { message: `${InvalidHeadersErrorTitle}. ${InvalidColumnsMessage}` },
         invalidTypes: { message: NotValidRowTypesMessage },
         normalization: { message: NormalizationErrorMessage },
         validation: { message: ValidationErrorMessage },
         creation: { message: CreationErrorMessage },
-        emptyRows: { title: EmptyRowsErrorTitle, message: EmptyRowsErrorMessage },
+        emptyRows: { message: `${EmptyRowsErrorTitle}. ${EmptyRowsErrorMessage}` },
         unknownResource: { message: UnknownResource },
         unknownUnitType: { message: UnknownUnitType },
     }
