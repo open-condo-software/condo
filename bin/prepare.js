@@ -108,6 +108,12 @@ async function prepare () {
                 SPORT: String(app.sport),
                 SERVER_URL: app.serviceUrl,
             }
+
+            if (app.hasCustomDbAdapterSupport) {
+                env.DATABASE_URL = `custom:{"default":{"read":"postgresql://postgres:postgres@127.0.0.1:5433/${app.pgName}","write":"postgresql://postgres:postgres@127.0.0.1:5432/${app.pgName}"}}`
+                env.DATABASE_MAPPING = '[{"match":"*","query":"default","command":"default"}]'
+            }
+
             await prepareAppEnv(app.name, env)
             logWithIndent('Running migration script', 2)
             const migrateResult = await runAppPackageJsonScript(app.name, 'migrate')

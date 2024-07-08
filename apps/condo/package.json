@@ -212,5 +212,6 @@
   },
   "resolutions": {
     "@types/react": "16.9.17"
-  }
+  },
+  "dbAdapters": ["ReplicaKnexAdapter"]
 }
