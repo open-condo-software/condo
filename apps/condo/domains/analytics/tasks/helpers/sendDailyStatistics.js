@@ -536,7 +536,7 @@ const sendDailyMessageToUserSafely = async (context, user, currentDate, taskId, 
                 dv: 1,
                 data: messageData,
                 attachingData: {
-                    organizationIds: organizationIds.slice(0, 20), // Value + key cannot be very long (max 998 characters)
+                    organizationIds,
                     userId: user.id,
                     uniqKey,
                     statisticsData: {
