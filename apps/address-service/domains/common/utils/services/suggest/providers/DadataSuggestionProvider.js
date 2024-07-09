@@ -183,7 +183,6 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
                         'Authorization': `Token ${this.token}`,
                     },
                     body: JSON.stringify(body),
-                    abortRequestTimeout: 120,
                 },
             )
 
