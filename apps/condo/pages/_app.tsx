@@ -436,7 +436,7 @@ const MyApp = ({ Component, pageProps }) => {
     useHotCodeReload()
     dayjs.locale(intl.locale)
     const router = useRouter()
-    const { publicRuntimeConfig: { popupSmartConfig } } = getConfig()
+    const { publicRuntimeConfig: { yandexMetrikaID, popupSmartConfig } } = getConfig()
 
     const LayoutComponent = Component.container || BaseLayout
     // TODO(Dimitreee): remove this mess later
@@ -500,7 +500,7 @@ const MyApp = ({ Component, pageProps }) => {
                             </PostMessageProvider>
                         </TasksProvider>
                     </LayoutContextProvider>
-                    <YandexMetrika/>
+                    {yandexMetrikaID && <YandexMetrika />}
                     {!isEmpty(popupSmartConfig) && <PopupSmart />}
                 </CacheProvider>
             </ConfigProvider>
