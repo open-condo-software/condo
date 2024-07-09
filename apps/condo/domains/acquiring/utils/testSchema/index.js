@@ -57,6 +57,7 @@ const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/c
 const { PaymentRuleMarketPlaceScope: PaymentRuleMarketPlaceScopeGQL } = require('@condo/domains/acquiring/gql')
 const { PaymentRuleBillingScope: PaymentRuleBillingScopeGQL } = require('@condo/domains/acquiring/gql')
 const { PaymentRule: PaymentRuleGQL } = require('@condo/domains/acquiring/gql')
+const { REGISTER_PAYMENT_RULE_MUTATION } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateGQLTestUtils(AcquiringIntegrationGQL)
@@ -627,6 +628,20 @@ async function updateTestPaymentRule (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+
+async function registerPaymentRuleByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(REGISTER_PAYMENT_RULE_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 // Utils used to generate a bunch of entities for working with MultiPayments
@@ -906,5 +921,6 @@ module.exports = {
     PaymentRuleMarketPlaceScope, createTestPaymentRuleMarketPlaceScope, updateTestPaymentRuleMarketPlaceScope,
     PaymentRuleBillingScope, createTestPaymentRuleBillingScope, updateTestPaymentRuleBillingScope,
     PaymentRule, createTestPaymentRule, updateTestPaymentRule,
+    registerPaymentRuleByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

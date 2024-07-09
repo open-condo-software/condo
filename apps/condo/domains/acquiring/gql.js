@@ -91,6 +91,14 @@ const PaymentRuleBillingScope = generateGqlQueries('PaymentRuleBillingScope', PA
 const PAYMENT_RULE_FIELDS = `{ context { id } explicitFee explicitServiceCharge implicitFee bankAccount { id name tin routingNumber number organization { name } } merchant marketPlaceScope { id address addressKey } billingScope { id address addressKey bankAccountNumber serviceIds category { id name } } ${COMMON_FIELDS} }`
 const PaymentRule = generateGqlQueries('PaymentRule', PAYMENT_RULE_FIELDS)
 
+// TODO(codegen): write return type result!
+
+const REGISTER_PAYMENT_RULE_MUTATION = gql`
+    mutation registerPaymentRule ($data: RegisterPaymentRuleInput!) {
+        result: registerPaymentRule(data: $data) { id }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 const EXPORT_PAYMENTS_TO_EXCEL =  gql`
@@ -119,5 +127,6 @@ module.exports = {
     PaymentRuleMarketPlaceScope,
     PaymentRuleBillingScope,
     PaymentRule,
+REGISTER_PAYMENT_RULE_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

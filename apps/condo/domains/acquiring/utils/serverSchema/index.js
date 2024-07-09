@@ -25,6 +25,7 @@ const { REGISTER_MULTI_PAYMENT_FOR_INVOICES_MUTATION } = require('@condo/domains
 const { PaymentRuleMarketPlaceScope: PaymentRuleMarketPlaceScopeGQL } = require('@condo/domains/acquiring/gql')
 const { PaymentRuleBillingScope: PaymentRuleBillingScopeGQL } = require('@condo/domains/acquiring/gql')
 const { PaymentRule: PaymentRuleGQL } = require('@condo/domains/acquiring/gql')
+const { REGISTER_PAYMENT_RULE_MUTATION } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateServerUtils(AcquiringIntegrationGQL)
@@ -118,6 +119,20 @@ async function registerMultiPaymentForInvoices (context, data) {
 const PaymentRuleMarketPlaceScope = generateServerUtils(PaymentRuleMarketPlaceScopeGQL)
 const PaymentRuleBillingScope = generateServerUtils(PaymentRuleBillingScopeGQL)
 const PaymentRule = generateServerUtils(PaymentRuleGQL)
+async function registerPaymentRule (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+    // TODO(codegen): write registerPaymentRule serverSchema guards
+
+    return await execGqlWithoutAccess(context, {
+        query: REGISTER_PAYMENT_RULE_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to registerPaymentRule',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -138,5 +153,6 @@ module.exports = {
     PaymentRuleMarketPlaceScope,
     PaymentRuleBillingScope,
     PaymentRule,
+    registerPaymentRule,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -13,14 +13,6 @@ const PaymentRuleBillingScope = new GQLListSchema('PaymentRuleBillingScope', {
     schemaDoc: 'Conditions to match paymentRule with billing receipts',
     fields: {
 
-
-        paymentRule: {
-            schemaDoc: 'Rule to apply if the scope is chosen',
-            type: 'Relationship',
-            ref: 'PaymentRule',
-            kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
-        },
-
         category: {
             schemaDoc: 'Determinate if payment rule is working on the specific billing category',
             type: 'Relationship',

@@ -65,6 +65,20 @@ const PaymentRule = new GQLListSchema('PaymentRule', {
             type: 'Text',
         },
 
+        marketPlaceScope: {
+            schemaDoc: 'Condition to check if the payment rule works for the specific market place invoice',
+            type: 'Relationship',
+            ref: 'PaymentRuleMarketPlaceScope',
+            kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
+        },
+
+        billingScope: {
+            schemaDoc: 'Condition to check if the payment rule works for the specific billing receipt',
+            type: 'Relationship',
+            ref: 'PaymentRuleBillingScope',
+            kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
+        },
+
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {

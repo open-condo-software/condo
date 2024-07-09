@@ -22,6 +22,7 @@ const { SumPaymentsService } = require('./SumPaymentsService')
 const { PaymentRuleMarketPlaceScope } = require('./PaymentRuleMarketPlaceScope')
 const { PaymentRuleBillingScope } = require('./PaymentRuleBillingScope')
 const { PaymentRule } = require('./PaymentRule')
+const { RegisterPaymentRuleService } = require('./RegisterPaymentRuleService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -44,5 +45,6 @@ module.exports = {
     PaymentRuleMarketPlaceScope,
     PaymentRuleBillingScope,
     PaymentRule,
+    RegisterPaymentRuleService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
